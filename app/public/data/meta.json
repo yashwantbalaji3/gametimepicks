@@ -1,28 +1,28 @@
 {
   "appName": "GametimePicks",
-  "version": "0.4.0",
-  "lastPipelineRun": "2026-05-04T19:30:22+00:00",
-  "isDemo": true,
-  "dataMode": "Demo",
-  "nbaScheduleSource": "demo",
-  "nbaStatsSource": "demo",
-  "oddsSource": "demo",
+  "version": "0.4.2",
+  "lastPipelineRun": "2026-05-04T20:41:56+00:00",
+  "isDemo": false,
+  "dataMode": "ScheduleLiveOddsUnavailable",
+  "nbaScheduleSource": "manual",
+  "nbaStatsSource": "manual",
+  "oddsSource": "unavailable",
   "activeProvider": {
-    "nba": "demo",
-    "odds": "demo"
+    "nba": "manual",
+    "odds": "unavailable"
   },
   "providerStatuses": [
     {
       "name": "nba_api",
       "kind": "nba",
       "tier": 1,
-      "enabled": false,
+      "enabled": true,
       "requires_api_key": false,
       "api_key_configured": true,
       "is_demo": false,
       "is_stub": false,
-      "last_status": "not_configured",
-      "last_error": "nba_api not installed",
+      "last_status": "not_run",
+      "last_error": null,
       "last_run_at": null,
       "notes": "Official NBA.com Stats endpoints. No API key needed."
     },
@@ -77,9 +77,9 @@
       "api_key_configured": true,
       "is_demo": true,
       "is_stub": false,
-      "last_status": "ok",
+      "last_status": "not_run",
       "last_error": null,
-      "last_run_at": "2026-05-04T19:30:22+00:00",
+      "last_run_at": null,
       "notes": "Bundled demo data. Always works."
     },
     {
@@ -133,9 +133,9 @@
       "api_key_configured": true,
       "is_demo": true,
       "is_stub": false,
-      "last_status": "ok",
+      "last_status": "not_run",
       "last_error": null,
-      "last_run_at": "2026-05-04T19:30:22+00:00",
+      "last_run_at": null,
       "notes": "Bundled demo prop lines. Always works."
     }
   ],
@@ -145,7 +145,7 @@
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-05-04T19:30:22+00:00",
+  "lastSuccessfulFetch": "2026-05-04T20:41:56+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -158,12 +158,17 @@
       "url": "https://github.com/swar/nba_api"
     },
     {
+      "name": "manual schedule overrides",
+      "description": "Operator-verified schedule safety net.",
+      "url": ""
+    },
+    {
       "name": "The Odds API",
-      "description": "Compliant sportsbook odds.",
+      "description": "Compliant sportsbook odds (Phase 7B-2).",
       "url": "https://the-odds-api.com/"
     },
     {
-      "name": "manual overrides",
+      "name": "manual news overrides",
       "description": "Human-confirmed news signals.",
       "url": ""
     }
@@ -171,5 +176,9 @@
   "slateDays": 4,
   "primaryDate": "2026-05-04",
   "newsSignalsConfigured": true,
-  "newsSignalsActive": 0
+  "newsSignalsActive": 0,
+  "scheduleOverridesConfigured": true,
+  "todayDataMode": "ScheduleLiveOddsUnavailable",
+  "todayFailureReason": null,
+  "todayManualOverrideUsed": true
 }

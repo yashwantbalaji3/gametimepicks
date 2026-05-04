@@ -119,16 +119,131 @@ class NbaApiProvider(NBADataProvider):
 
     # -- queries -------------------------------------------------------------
     def fetch_schedule(self, date: str) -> list[Game]:
-        self._ensure_available()
-        cache_key = f"schedule_{date}"
-        cached = _cache_get(cache_key)
-        if cached is not None:
-            self._mark_ok()
-            return [Game(**row) for row in cached]
+        """Existing single-strategy schedule fetch — kept for back-compat with
+        the orchestrator's older code path. New callers should use
+        fetch_schedule_with_diagnostics() which returns the raw counts and
+        endpoint history needed to distinguish "confirmed empty" from
+        "fetch failed".
+        """
+        result = self.fetch_schedule_with_diagnostics(date)
+        if result["games"]:
+            return result["games"]
+        if result["fetch_succeeded"]:
+            # Empty but successful — return [] (caller distinguishes via diag)
+            return []
+        # All endpoints failed — raise so legacy callers see an error
+        raise ProviderRequestFailed(
+            f"nba_api schedule failed: {result['failure_reason']}"
+        )
+
+    def fetch_schedule_with_diagnostics(self, date: str) -> dict:
+        """Phase 7B-1.2 — schedule fetch with full diagnostic metadata.
+
+        Returns a dict with:
+            games:                   list[Game]   parsed games
+            fetch_attempted:         bool         did we try at all
+            fetch_succeeded:         bool         did at least one endpoint return without error
+            failure_reason:          str | None   error message if all endpoints failed
+            raw_count_before:        int          rows in the raw provider response
+            parsed_count_after:      int          games after parsing/filtering
+            endpoint_used:           str | None   "scoreboardv2" | "leaguegamefinder" | None
+            endpoint_history:        list[dict]   one entry per attempted endpoint
+
+        Strategy:
+            1. ScoreboardV2 (primary)  — official daily scoreboard, supports playoffs
+            2. LeagueGameFinder       — fallback if ScoreboardV2 returns empty
+        """
+        diag: dict = {
+            "games": [],
+            "fetch_attempted": False,
+            "fetch_succeeded": False,
+            "failure_reason": None,
+            "raw_count_before": 0,
+            "parsed_count_after": 0,
+            "endpoint_used": None,
+            "endpoint_history": [],
+        }
 
         try:
+            self._ensure_available()
+        except ProviderUnavailable as e:
+            diag["failure_reason"] = f"nba_api package not installed: {e}"
+            return diag
+
+        # Cache check (only for the diagnostic shape — old cache is per-key)
+        cache_key = f"schedule_diag_{date}"
+        cached = _cache_get(cache_key)
+        if cached is not None and isinstance(cached, dict) and "games" in cached:
+            self._mark_ok()
+            cached["games"] = [Game(**row) for row in cached["games"]]
+            return cached
+
+        diag["fetch_attempted"] = True
+
+        # ----------------- Strategy 1: ScoreboardV2 -----------------
+        sv2_diag = self._try_scoreboardv2(date)
+        diag["endpoint_history"].append(sv2_diag)
+        if sv2_diag["status"] == "ok" and sv2_diag["games"]:
+            diag["games"] = sv2_diag["games"]
+            diag["fetch_succeeded"] = True
+            diag["raw_count_before"] = sv2_diag["raw_count"]
+            diag["parsed_count_after"] = len(sv2_diag["games"])
+            diag["endpoint_used"] = "scoreboardv2"
+            self._mark_ok()
+            self._cache_diag(cache_key, diag)
+            return diag
+
+        # ScoreboardV2 returned empty or failed — try LeagueGameFinder
+        # (LeagueGameFinder is more forgiving for future/playoff dates that
+        # ScoreboardV2 sometimes drops or returns inconsistent data for.)
+        # ----------------- Strategy 2: LeagueGameFinder -----------------
+        lgf_diag = self._try_leaguegamefinder(date)
+        diag["endpoint_history"].append(lgf_diag)
+        if lgf_diag["status"] == "ok" and lgf_diag["games"]:
+            diag["games"] = lgf_diag["games"]
+            diag["fetch_succeeded"] = True
+            diag["raw_count_before"] = lgf_diag["raw_count"]
+            diag["parsed_count_after"] = len(lgf_diag["games"])
+            diag["endpoint_used"] = "leaguegamefinder"
+            self._mark_ok()
+            self._cache_diag(cache_key, diag)
+            return diag
+
+        # Both endpoints attempted. Did at least one succeed (just with empty)?
+        any_ok = any(h["status"] == "ok" for h in diag["endpoint_history"])
+        if any_ok:
+            # Confirmed empty — both endpoints came back successfully with 0 games
+            diag["fetch_succeeded"] = True
+            diag["endpoint_used"] = next(
+                (h["endpoint"] for h in diag["endpoint_history"] if h["status"] == "ok"),
+                None,
+            )
+            diag["raw_count_before"] = max(
+                (h["raw_count"] for h in diag["endpoint_history"]), default=0
+            )
+            self._mark_ok()
+            self._cache_diag(cache_key, diag)
+            return diag
+
+        # All endpoints failed
+        diag["failure_reason"] = "; ".join(
+            f"{h['endpoint']}: {h.get('error', 'unknown error')}"
+            for h in diag["endpoint_history"]
+        )
+        self._mark_err(diag["failure_reason"])
+        return diag
+
+    def _try_scoreboardv2(self, date: str) -> dict:
+        """Try ScoreboardV2 endpoint. Returns endpoint-history-shaped dict."""
+        out = {
+            "endpoint": "scoreboardv2",
+            "status": "error",
+            "raw_count": 0,
+            "games": [],
+            "error": None,
+        }
+        try:
             from nba_api.stats.endpoints import scoreboardv2
-            # date format: MM/DD/YYYY for nba_api
             mmddyyyy = datetime.fromisoformat(date).strftime("%m/%d/%Y")
             sb = scoreboardv2.ScoreboardV2(
                 game_date=mmddyyyy,
@@ -137,9 +252,11 @@ class NbaApiProvider(NBADataProvider):
             game_header = sb.game_header.get_dict()
             line_score = sb.line_score.get_dict()
 
-            # Build team_id → abbreviation map from line_score
+            raw_rows = game_header.get("data", []) or []
+            out["raw_count"] = len(raw_rows)
+
             team_idx: dict[int, dict[str, str]] = {}
-            for row in line_score["data"]:
+            for row in line_score.get("data", []) or []:
                 d = dict(zip(line_score["headers"], row))
                 team_idx[int(d["TEAM_ID"])] = {
                     "abbr": d.get("TEAM_ABBREVIATION") or "",
@@ -147,7 +264,7 @@ class NbaApiProvider(NBADataProvider):
                 }
 
             games: list[Game] = []
-            for row in game_header["data"]:
+            for row in raw_rows:
                 d = dict(zip(game_header["headers"], row))
                 home = team_idx.get(int(d["HOME_TEAM_ID"]), {"abbr": "", "full": ""})
                 away = team_idx.get(int(d["VISITOR_TEAM_ID"]), {"abbr": "", "full": ""})
@@ -161,13 +278,89 @@ class NbaApiProvider(NBADataProvider):
                     away_team_full=away["full"],
                     status="Scheduled",
                 ))
-
-            _cache_put(cache_key, [vars(g) for g in games])
-            self._mark_ok()
-            return games
+            out["games"] = games
+            out["status"] = "ok"
+            return out
         except Exception as e:
-            self._mark_err(str(e))
-            raise ProviderRequestFailed(f"nba_api schedule failed: {e}") from e
+            out["error"] = str(e)
+            return out
+
+    def _try_leaguegamefinder(self, date: str) -> dict:
+        """Try LeagueGameFinder as a fallback. Less commonly used for future
+        dates but sometimes succeeds when ScoreboardV2 returns empty for
+        playoff dates with TBD opponents.
+        """
+        out = {
+            "endpoint": "leaguegamefinder",
+            "status": "error",
+            "raw_count": 0,
+            "games": [],
+            "error": None,
+        }
+        try:
+            from nba_api.stats.endpoints import leaguegamefinder
+            # date_from_nullable / date_to_nullable accept MM/DD/YYYY
+            mmddyyyy = datetime.fromisoformat(date).strftime("%m/%d/%Y")
+            lgf = leaguegamefinder.LeagueGameFinder(
+                date_from_nullable=mmddyyyy,
+                date_to_nullable=mmddyyyy,
+                league_id_nullable="00",  # NBA
+                timeout=C.HTTP_TIMEOUT_SECONDS,
+            )
+            df = lgf.league_game_finder_results.get_data_frame()
+            out["raw_count"] = len(df)
+
+            # LeagueGameFinder returns one row per team per game (so 2 rows
+            # per game). Group by game_id and pair home/away by MATCHUP.
+            games_by_id: dict[str, dict] = {}
+            for _, r in df.iterrows():
+                gid = str(r.get("GAME_ID", ""))
+                if not gid:
+                    continue
+                matchup = str(r.get("MATCHUP", ""))
+                team_abbr = str(r.get("TEAM_ABBREVIATION", "") or "")
+                team_full = str(r.get("TEAM_NAME", "") or "")
+                # MATCHUP is "X vs. Y" (home) or "X @ Y" (away)
+                is_home = "vs." in matchup
+                if gid not in games_by_id:
+                    games_by_id[gid] = {}
+                if is_home:
+                    games_by_id[gid]["home_abbr"] = team_abbr
+                    games_by_id[gid]["home_full"] = team_full
+                else:
+                    games_by_id[gid]["away_abbr"] = team_abbr
+                    games_by_id[gid]["away_full"] = team_full
+
+            games: list[Game] = []
+            for gid, info in games_by_id.items():
+                if "home_abbr" not in info or "away_abbr" not in info:
+                    # Incomplete pairing — skip
+                    continue
+                games.append(Game(
+                    game_id=gid,
+                    date=date,
+                    tipoff_et="TBD",
+                    home_team_abbr=info["home_abbr"],
+                    home_team_full=info["home_full"],
+                    away_team_abbr=info["away_abbr"],
+                    away_team_full=info["away_full"],
+                    status="Scheduled",
+                ))
+
+            out["games"] = games
+            out["status"] = "ok"
+            return out
+        except Exception as e:
+            out["error"] = str(e)
+            return out
+
+    def _cache_diag(self, key: str, diag: dict) -> None:
+        """Cache the diag dict — convert games to dicts for JSON serialization."""
+        cacheable = {**diag, "games": [vars(g) for g in diag.get("games", [])]}
+        try:
+            _cache_put(key, cacheable)
+        except Exception:
+            pass
 
     def fetch_player_game_logs(self, player_id: int, last_n: int = 10) -> list[GameLog]:
         self._ensure_available()

@@ -1,25 +1,40 @@
 """
 Generate the multi-day model board.
 
-Phase 7B-1: pipeline now runs for SLATE_DAYS dates starting today (default 4).
-Each date produces its own boards/<date>.json. A top-level slate.json holds
-the metadata for the full window (which days have games, which dates are the
-primary tab, etc.).
+Phase 7B-1.2 — schedule resolution with manual-override fallback and proper
+distinction between "provider confirmed empty" and "provider failed".
 
-For backward compatibility with the rest of the codebase, board.json (top
-level) is a copy of today's board.
+Resolution priority for each date (in order, first match wins):
+  1. NBA_DATA_MODE=demo or ODDS_DATA_MODE=demo
+       → DemoForced (full demo schedule + props)
+  2. nba_api.fetch_schedule_with_diagnostics(date) returns games
+       → ScheduleLiveOddsUnavailable (source=nba_api)
+  3. nba_api failed OR returned empty AND a manual schedule override exists
+       → ScheduleLiveOddsUnavailable (source=manual)
+  4. nba_api confirmed empty AND no manual override
+       → NoGames
+  5. nba_api failed AND no manual override
+       → ScheduleUnavailable
 
-Free-only constraint: this orchestrator never calls a paid API. The Odds
-API integration is deferred to Phase 7B-2 — for now, props/odds are
-generated only by the demo provider (when in demo mode) and are reported
-as unavailable when the Odds API key is not configured.
+This is intentionally narrower than Phase 7B-1.1's auto-fallback-to-demo
+behavior: silently substituting demo data for a real-mode failure was the
+root cause of the May 4 bug. Demo content now only renders when the
+operator explicitly opts in via NBA_DATA_MODE=demo.
 
-Designed to fail gracefully:
-  - If nba_api is unreachable, schedule falls back to demo
-  - If a future date has no real schedule, that day is marked isAvailable=false
-  - News signals are read from manual_overrides/news_signals.json (local file,
-    no network calls)
-  - Validation log is appended even when leans count is zero
+Every board.json gets diagnostic fields so this kind of failure is
+inspectable instead of silent:
+
+    requestedDate, timezone,
+    scheduleSource, scheduleProviderStatus,
+    scheduleFetchAttempted, scheduleFetchSucceeded, scheduleFailureReason,
+    rawGameCountBeforeFiltering, parsedGameCountAfterFiltering,
+    manualOverrideUsed, manualOverrideSource
+
+The smoke test enforces a contract on these fields:
+    if scheduleFetchSucceeded and rawGameCountBeforeFiltering > 0:
+        assert parsedGameCountAfterFiltering > 0   # parser silently dropped all games
+    NoGames mode requires scheduleProviderStatus == "ok" and rawCount == 0
+    ScheduleUnavailable mode requires scheduleFetchSucceeded == False
 """
 from __future__ import annotations
 
@@ -35,7 +50,6 @@ from .providers import (
     PropLine, ProviderError,
     diagnostic_summary, all_provider_statuses, now_iso,
 )
-from .fetch_nba_schedule import fetch_schedule
 from .fetch_nba_data import fetch_player_game_logs, fetch_team_roster
 from .fetch_odds_data import fetch_props
 from .build_features import build_player_features, build_trend_payload
@@ -43,6 +57,8 @@ from .score_model import score_prop
 from .manual_overrides import (
     NewsSignal, load_signals, signals_for_lean,
     aggregate_model_action, signals_to_json,
+    load_schedule_override, has_schedule_overrides_file,
+    SCHEDULE_OVERRIDES_PATH,
 )
 from .validation import LeanLogEntry, append_entries
 
@@ -56,6 +72,16 @@ log = logging.getLogger("gtp.board")
 
 
 # ---------------------------------------------------------------------------
+# Constants — DataMode values mirror app/src/lib/types.ts
+# ---------------------------------------------------------------------------
+DATA_MODE_LIVE = "Live"
+DATA_MODE_SCHEDULE_ONLY = "ScheduleLiveOddsUnavailable"
+DATA_MODE_NO_GAMES = "NoGames"
+DATA_MODE_SCHEDULE_UNAVAIL = "ScheduleUnavailable"
+DATA_MODE_DEMO_FORCED = "DemoForced"
+
+
+# ---------------------------------------------------------------------------
 # Date helpers
 # ---------------------------------------------------------------------------
 def today_in_tz() -> str:
@@ -63,18 +89,11 @@ def today_in_tz() -> str:
 
 
 def slate_dates(start_date: str, n: int) -> list[str]:
-    """Return [start_date, start_date+1, ..., start_date+n-1]."""
     dt = datetime.strptime(start_date, "%Y-%m-%d").date()
     return [(dt + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(n)]
 
 
 def day_label(target: str, today: str) -> str:
-    """Render a friendly label for a slate tab.
-
-    today        → "Today"
-    today+1      → "Tomorrow"
-    today+2/3    → "Tue May 5"
-    """
     t_today = datetime.strptime(today, "%Y-%m-%d").date()
     t_target = datetime.strptime(target, "%Y-%m-%d").date()
     delta = (t_target - t_today).days
@@ -85,10 +104,151 @@ def day_label(target: str, today: str) -> str:
     return t_target.strftime("%a %b ").lstrip() + str(t_target.day)
 
 
-def format_tipoff(game) -> str:
-    """Use whatever the provider gave us. NBA.com formats tipoffs in their
-    own style; demo provider gives a clean "7:30 PM ET" already."""
-    return game.tipoff_et or "TBD"
+# ---------------------------------------------------------------------------
+# Schedule resolution — the heart of Phase 7B-1.2
+# ---------------------------------------------------------------------------
+def resolve_schedule_for_date(date: str) -> dict:
+    """Returns a dict with games, dataMode, and full diagnostic metadata.
+
+    Used by generate_for_date() — the orchestrator never calls nba_api or
+    the override loader directly, so the resolution logic is in one place.
+    """
+    diag = {
+        "requestedDate": date,
+        "timezone": C.TIMEZONE,
+        "scheduleSource": None,           # "nba_api" | "manual" | "unavailable"
+        "scheduleProviderStatus": None,   # "ok" | "failed" | "empty"
+        "scheduleFetchAttempted": False,
+        "scheduleFetchSucceeded": False,
+        "scheduleFailureReason": None,
+        "rawGameCountBeforeFiltering": 0,
+        "parsedGameCountAfterFiltering": 0,
+        "manualOverrideUsed": False,
+        "manualOverrideSource": None,
+        "endpointHistory": [],
+    }
+
+    # ------------------------------------------------------------------
+    # Try nba_api first
+    # ------------------------------------------------------------------
+    nba_diag = _try_nba_api_schedule(date)
+    diag["scheduleFetchAttempted"] = nba_diag["fetch_attempted"]
+    diag["scheduleFetchSucceeded"] = nba_diag["fetch_succeeded"]
+    diag["scheduleFailureReason"] = nba_diag["failure_reason"]
+    diag["rawGameCountBeforeFiltering"] = nba_diag["raw_count_before"]
+    diag["parsedGameCountAfterFiltering"] = nba_diag["parsed_count_after"]
+    diag["endpointHistory"] = nba_diag["endpoint_history"]
+
+    nba_games = nba_diag["games"]
+
+    if nba_games:
+        # nba_api returned games — use them
+        diag["scheduleSource"] = "nba_api"
+        diag["scheduleProviderStatus"] = "ok"
+        return {
+            "games": nba_games,
+            "dataMode": DATA_MODE_SCHEDULE_ONLY,
+            "diag": diag,
+        }
+
+    # ------------------------------------------------------------------
+    # nba_api had no games — try manual override
+    # ------------------------------------------------------------------
+    override = load_schedule_override(date)
+    if override and override.games:
+        diag["scheduleSource"] = "manual"
+        diag["scheduleProviderStatus"] = "ok"  # manual is "ok"
+        diag["manualOverrideUsed"] = True
+        diag["manualOverrideSource"] = override.sourceName
+        diag["parsedGameCountAfterFiltering"] = len(override.games)
+        return {
+            "games": override.games,
+            "dataMode": DATA_MODE_SCHEDULE_ONLY,
+            "diag": diag,
+        }
+
+    # ------------------------------------------------------------------
+    # No manual override — distinguish "provider confirmed empty" from
+    # "provider failed". This is the bug Phase 7B-1.2 fixes.
+    # ------------------------------------------------------------------
+    if nba_diag["fetch_succeeded"]:
+        # All endpoints succeeded but returned no games for this date
+        diag["scheduleSource"] = "nba_api"
+        diag["scheduleProviderStatus"] = "empty"
+        return {
+            "games": [],
+            "dataMode": DATA_MODE_NO_GAMES,
+            "diag": diag,
+        }
+
+    # nba_api failed completely AND no manual override → ScheduleUnavailable
+    diag["scheduleSource"] = "unavailable"
+    diag["scheduleProviderStatus"] = "failed"
+    return {
+        "games": [],
+        "dataMode": DATA_MODE_SCHEDULE_UNAVAIL,
+        "diag": diag,
+    }
+
+
+def _try_nba_api_schedule(date: str) -> dict:
+    """Wrapper around NbaApiProvider.fetch_schedule_with_diagnostics().
+
+    Catches ImportError (package not installed) and any other exception so
+    the orchestrator gets a uniform diag shape regardless of failure mode.
+    """
+    diag: dict = {
+        "fetch_attempted": False,
+        "fetch_succeeded": False,
+        "failure_reason": None,
+        "raw_count_before": 0,
+        "parsed_count_after": 0,
+        "games": [],
+        "endpoint_history": [],
+    }
+    try:
+        from .providers.nba_api_provider import NbaApiProvider
+        provider = NbaApiProvider()
+        d = provider.fetch_schedule_with_diagnostics(date)
+        # Normalize keys (provider returns its own dict shape)
+        diag["fetch_attempted"] = d["fetch_attempted"]
+        diag["fetch_succeeded"] = d["fetch_succeeded"]
+        diag["failure_reason"] = d["failure_reason"]
+        diag["raw_count_before"] = d["raw_count_before"]
+        diag["parsed_count_after"] = d["parsed_count_after"]
+        diag["games"] = _serialize_games(date, d["games"])
+        diag["endpoint_history"] = d["endpoint_history"]
+        return diag
+    except ImportError as e:
+        diag["fetch_attempted"] = True
+        diag["failure_reason"] = f"nba_api not installed: {e}"
+        return diag
+    except Exception as e:
+        diag["fetch_attempted"] = True
+        diag["failure_reason"] = f"unexpected error: {e}"
+        return diag
+
+
+def _serialize_games(date: str, games) -> list[dict]:
+    """Convert Game dataclass instances to the JSON shape used in board.json."""
+    out: list[dict] = []
+    seen: set[tuple[str, str]] = set()
+    for g in games:
+        pair = (g.home_team_abbr, g.away_team_abbr)
+        if pair in seen:
+            continue
+        seen.add(pair)
+        out.append({
+            "gameId": g.game_id,
+            "date": date,
+            "tipoff": g.tipoff_et or "TBD",
+            "homeTeamAbbr": g.home_team_abbr,
+            "homeTeamFull": g.home_team_full,
+            "awayTeamAbbr": g.away_team_abbr,
+            "awayTeamFull": g.away_team_full,
+            "status": g.status,
+        })
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -100,127 +260,178 @@ def generate_for_date(
     today: str,
     signals: list[NewsSignal],
     is_primary: bool,
+    nba_mode: str,
+    odds_mode: str,
+    has_odds_key: bool,
 ) -> dict:
-    """Generate a board payload for one date and return it.
-
-    Returns a dict with two top-level keys:
-      - "board": payload to write to boards/<date>.json
-      - "slate_day": SlateDay metadata for slate.json
-      - "log_entries": LeanLogEntry rows for the validation log
-      - "schedule_payload": games array (also returned by board)
-      - "trends_for_player": for use by today's trends.json
-      - "player_meta": for use by today's players.json
-    """
+    """Generate one date's payload."""
     log.info(f"--- {target_date} ---")
 
-    # ------------------------------------------------------------------
-    # 1. Schedule
-    # ------------------------------------------------------------------
-    try:
-        games, schedule_source = fetch_schedule(target_date)
-    except Exception as e:
-        log.warning(f"  schedule fetch failed: {e}")
-        games, schedule_source = [], "demo"
+    # State 1 — explicit demo forced
+    if nba_mode == "demo" or odds_mode == "demo":
+        log.info(f"  mode: DemoForced")
+        return _build_demo_payload(
+            target_date,
+            today=today,
+            signals=signals,
+            is_primary=is_primary,
+        )
 
-    log.info(f"  schedule: {len(games)} games via {schedule_source}")
+    # State 2-5 — resolve schedule via nba_api → manual → status
+    resolution = resolve_schedule_for_date(target_date)
+    games = resolution["games"]
+    data_mode = resolution["dataMode"]
+    diag = resolution["diag"]
 
-    sched_is_demo = schedule_source == "demo"
-    schedule_available = (not sched_is_demo) and len(games) > 0
+    log.info(
+        f"  schedule: {len(games)} games, "
+        f"source={diag['scheduleSource']}, "
+        f"status={diag['scheduleProviderStatus']}, "
+        f"raw={diag['rawGameCountBeforeFiltering']}, "
+        f"manual={diag['manualOverrideUsed']}"
+    )
+    log.info(f"  mode: {data_mode}")
 
-    # Map team_abbr → game info (for tipoff and home/away)
+    return _build_real_payload(
+        target_date,
+        today=today,
+        is_primary=is_primary,
+        games=games,
+        data_mode=data_mode,
+        diag=diag,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Real-schedule payload (all non-demo states)
+# ---------------------------------------------------------------------------
+def _build_real_payload(
+    target_date: str,
+    *,
+    today: str,
+    is_primary: bool,
+    games: list[dict],
+    data_mode: str,
+    diag: dict,
+) -> dict:
+    """Real schedule (or empty/unavailable). NEVER produces demo prop cards."""
+    schedule_source = diag["scheduleSource"] or "unavailable"
+
+    slate_day = {
+        "date": target_date,
+        "dayLabel": day_label(target_date, today),
+        # isAvailable means "we have something to show" — true for games OR for NoGames
+        # but false for ScheduleUnavailable
+        "isAvailable": data_mode != DATA_MODE_SCHEDULE_UNAVAIL,
+        "gameCount": len(games),
+        "leanCount": 0,
+        "highConfidenceCount": 0,
+        "propsAvailable": False,
+        "isPrimary": is_primary,
+        "scheduleSource": schedule_source,
+        "oddsSource": None,
+        "isDemo": False,
+        "dataMode": data_mode,
+        "failureReason": diag["scheduleFailureReason"],
+    }
+
+    board = {
+        "generatedFor": target_date,
+        "generatedAt": now_iso(),
+        "dataSources": [schedule_source] if schedule_source else [],
+        "isDemo": False,
+        "leans": [],
+        "scheduleAvailable": data_mode != DATA_MODE_SCHEDULE_UNAVAIL,
+        "propsAvailable": False,
+        "scheduleSource": schedule_source,
+        "oddsSource": None,
+        "games": games,
+        "dataMode": data_mode,
+        "failureReason": diag["scheduleFailureReason"],
+        # Phase 7B-1.2 diagnostic fields
+        "requestedDate": diag["requestedDate"],
+        "timezone": diag["timezone"],
+        "scheduleProviderStatus": diag["scheduleProviderStatus"],
+        "scheduleFetchAttempted": diag["scheduleFetchAttempted"],
+        "scheduleFetchSucceeded": diag["scheduleFetchSucceeded"],
+        "scheduleFailureReason": diag["scheduleFailureReason"],
+        "rawGameCountBeforeFiltering": diag["rawGameCountBeforeFiltering"],
+        "parsedGameCountAfterFiltering": diag["parsedGameCountAfterFiltering"],
+        "manualOverrideUsed": diag["manualOverrideUsed"],
+        "manualOverrideSource": diag["manualOverrideSource"],
+        "endpointHistory": diag["endpointHistory"],
+    }
+
+    return {
+        "board": board,
+        "slate_day": slate_day,
+        "log_entries": [],
+        "trends_for_player": {},
+        "player_meta": {},
+        "schedule_source": schedule_source,
+        "odds_source": "unavailable",
+        "schedule_is_demo": False,
+        "odds_is_demo": False,
+        "data_mode": data_mode,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Demo payload — only DemoForced (NBA_DATA_MODE=demo). Always tagged isDemo.
+# ---------------------------------------------------------------------------
+def _build_demo_payload(
+    target_date: str,
+    *,
+    today: str,
+    signals: list[NewsSignal],
+    is_primary: bool,
+) -> dict:
+    """Demo schedule + demo props. Used only when the operator explicitly
+    sets NBA_DATA_MODE=demo (or ODDS_DATA_MODE=demo).
+    """
+    games = _fetch_demo_schedule(target_date)
+    props = _fetch_demo_props(target_date)
+
+    games_payload = []
     game_for_team: dict[str, tuple[str, str, str, str]] = {}
-    games_payload: list[dict] = []
     seen_pair: set[tuple[str, str]] = set()
     for g in games:
-        # Dedup home-away pair (Phase 6 fix)
         pair = (g.home_team_abbr, g.away_team_abbr)
         if pair in seen_pair:
             continue
         seen_pair.add(pair)
-
         games_payload.append({
             "gameId": g.game_id,
             "date": g.date,
-            "tipoff": format_tipoff(g),
+            "tipoff": g.tipoff_et or "TBD",
             "homeTeamAbbr": g.home_team_abbr,
             "homeTeamFull": g.home_team_full,
             "awayTeamAbbr": g.away_team_abbr,
             "awayTeamFull": g.away_team_full,
             "status": g.status,
         })
-        # (tipoff, home_away, opponent, gameId)
         game_for_team[g.home_team_abbr] = (
-            format_tipoff(g), "Home", g.away_team_abbr, g.game_id,
+            g.tipoff_et or "TBD", "Home", g.away_team_abbr, g.game_id,
         )
         game_for_team[g.away_team_abbr] = (
-            format_tipoff(g), "Away", g.home_team_abbr, g.game_id,
+            g.tipoff_et or "TBD", "Away", g.home_team_abbr, g.game_id,
         )
 
-    # ------------------------------------------------------------------
-    # 2. Odds / props
-    # ------------------------------------------------------------------
-    # Phase 7B-1: only call odds provider if not key-required OR demo mode.
-    # The Odds API integration in fetch_props gracefully returns demo when
-    # no key is set, so this is safe even with no key configured.
-    try:
-        props, odds_source = fetch_props(target_date, markets=list(C.MARKETS))
-    except Exception as e:
-        log.warning(f"  props fetch failed: {e}")
-        props, odds_source = [], "demo"
-
-    log.info(f"  props: {len(props)} prop lines via {odds_source}")
-
-    odds_is_demo = odds_source == "demo"
-    # Phase 7B-1 honesty rule: if no real ODDS_API_KEY configured AND we're
-    # not in pure demo mode, treat odds as unavailable rather than fabricating.
-    has_real_odds_key = bool(C.ODDS_API_KEY)
-    if not has_real_odds_key and C.ODDS_DATA_MODE != "demo" and not sched_is_demo:
-        # We have a real schedule but no odds key — tell the truth.
-        log.info(f"  no ODDS_API_KEY configured; props marked unavailable")
-        props = []
-        odds_source = "unavailable"
-        odds_is_demo = False
-
-    props_available = (odds_source not in ("demo", "unavailable")) and len(props) > 0
-
-    odds_payload = [
-        {
-            "playerId": p.player_id,
-            "playerName": p.player_name,
-            "teamAbbr": p.team_abbr,
-            "market": p.market,
-            "line": p.line,
-            "oddsOver": p.odds_over,
-            "oddsUnder": p.odds_under,
-            "bookmaker": p.bookmaker,
-            "gameDate": p.game_date,
-            "lastUpdate": p.last_update,
-        }
-        for p in props
-    ]
-
-    # ------------------------------------------------------------------
-    # 3. Per-player features (only if we actually have props to score)
-    # ------------------------------------------------------------------
+    # Hydrate player IDs from demo trends.json by name
     unique_players: dict[int, str] = {}
-    if props:
-        for p in props:
-            if p.player_id and p.player_id not in unique_players:
-                unique_players[p.player_id] = p.player_name
-
-        # Demo path: hydrate player IDs from trends.json by name
-        if not unique_players:
-            trends_path = C.DEMO_DATA_DIR / "trends.json"
-            if trends_path.exists():
-                tdata = json.loads(trends_path.read_text())
-                for p in props:
-                    if p.player_name and p.player_id == 0:
-                        for tp in tdata.get("players", []):
-                            if tp["playerName"] == p.player_name:
-                                unique_players[int(tp["playerId"])] = p.player_name
-                                break
-
-    log.info(f"  unique players to score: {len(unique_players)}")
+    for p in props:
+        if p.player_id and p.player_id not in unique_players:
+            unique_players[p.player_id] = p.player_name
+    if not unique_players:
+        trends_path = C.DEMO_DATA_DIR / "trends.json"
+        if trends_path.exists():
+            tdata = json.loads(trends_path.read_text())
+            for p in props:
+                if p.player_name and p.player_id == 0:
+                    for tp in tdata.get("players", []):
+                        if tp["playerName"] == p.player_name:
+                            unique_players[int(tp["playerId"])] = p.player_name
+                            break
 
     features_for_player: dict[int, dict] = {}
     trends_for_player: dict[int, dict] = {}
@@ -236,11 +447,7 @@ def generate_for_date(
             continue
         features_for_player[pid] = build_player_features(logs)
         trends_for_player[pid] = build_trend_payload(logs)
-        player_meta[pid] = {
-            "playerId": pid,
-            "playerName": pname,
-            "team": "",
-        }
+        player_meta[pid] = {"playerId": pid, "playerName": pname, "team": ""}
 
     name_to_team: dict[str, str] = {}
     for p in props:
@@ -249,14 +456,11 @@ def generate_for_date(
     for pid, m in player_meta.items():
         m["team"] = name_to_team.get(m["playerName"], "")
 
-    # ------------------------------------------------------------------
-    # 4. Score every prop
-    # ------------------------------------------------------------------
+    # Score every demo prop
     leans_payload: list[dict] = []
     log_entries: list[LeanLogEntry] = []
 
     for p in props:
-        # Map player_id (may be 0 from odds API) to our hydrated id
         pid = p.player_id
         if pid == 0 or pid not in features_for_player:
             for known_pid, known_name in unique_players.items():
@@ -266,7 +470,6 @@ def generate_for_date(
 
         feats = features_for_player.get(pid)
         if not feats:
-            log.warning(f"  no features for {p.player_name} ({p.market}) — skipping")
             continue
 
         tipoff, home_away, opponent_abbr, game_id = game_for_team.get(
@@ -274,16 +477,11 @@ def generate_for_date(
         )
 
         scored = score_prop(
-            features=feats,
-            market=p.market,
-            line=p.line,
-            odds_over=p.odds_over,
-            odds_under=p.odds_under,
-            home_away=home_away,
-            player_name=p.player_name,
+            features=feats, market=p.market, line=p.line,
+            odds_over=p.odds_over, odds_under=p.odds_under,
+            home_away=home_away, player_name=p.player_name,
         )
 
-        # Apply news signals
         matched = signals_for_lean(
             signals,
             player_name=p.player_name,
@@ -292,11 +490,8 @@ def generate_for_date(
         )
         news_action = aggregate_model_action(matched)
 
-        # Phase 7B-1: news signals can downgrade confidence but we don't
-        # rewrite the projection yet (that's Phase 7B-2). Signals show in UI.
         confidence_final = scored.confidence
         risk_flags: list[str] = []
-
         if news_action == "remove_from_board":
             confidence_final = "Low"
             risk_flags.append("news_remove")
@@ -308,10 +503,8 @@ def generate_for_date(
             if confidence_final == "High":
                 confidence_final = "Medium"
 
-        # Composite source reliability (simple weighted avg)
-        # Schedule reliability + odds reliability + max news reliability
-        sched_rel = 0.95 if not sched_is_demo else 0.5
-        odds_rel = 0.95 if (props_available and not odds_is_demo) else 0.5
+        sched_rel = 0.5
+        odds_rel = 0.5
         news_rel = max((s.sourceReliability for s in matched), default=0.85)
         source_rel = round((sched_rel + odds_rel + news_rel) / 3.0, 2)
 
@@ -340,77 +533,73 @@ def generate_for_date(
             "confidence": confidence_final,
             "reason": scored.reason,
             "status": "Pending",
-            # Phase 7B-1 additions
             "gameId": game_id,
             "newsSignals": signals_to_json(matched),
             "newsAction": news_action,
             "riskFlags": risk_flags,
             "sourceReliability": source_rel,
+            "isDemo": True,
         })
 
-        # Validation log entry
         log_entries.append(LeanLogEntry(
-            leanId=lean_id,
-            generatedAt=now_iso(),
-            date=target_date,
-            gameId=game_id,
-            playerId=pid if pid else None,
-            playerName=p.player_name,
-            team=p.team_abbr,
-            opponent=opponent_abbr,
-            market=p.market,
-            line=p.line,
-            oddsOver=p.odds_over,
-            oddsUnder=p.odds_under,
-            bookmaker=p.bookmaker,
-            oddsSource=odds_source,
-            statsSource=schedule_source,
-            modelProjection=scored.projection,
+            leanId=lean_id, generatedAt=now_iso(), date=target_date,
+            gameId=game_id, playerId=pid if pid else None,
+            playerName=p.player_name, team=p.team_abbr,
+            opponent=opponent_abbr, market=p.market, line=p.line,
+            oddsOver=p.odds_over, oddsUnder=p.odds_under,
+            bookmaker=p.bookmaker, oddsSource="demo",
+            statsSource="demo", modelProjection=scored.projection,
             modelProbability=scored.model_probability,
             impliedProbability=scored.implied_probability,
-            edgePct=scored.edge_pct,
-            confidence=confidence_final,
+            edgePct=scored.edge_pct, confidence=confidence_final,
             sourceReliabilityScore=source_rel,
             newsSignalIds=[s.id for s in matched],
             riskFlags=risk_flags,
         ))
 
-    log.info(f"  scored {len(leans_payload)} leans")
-
-    # ------------------------------------------------------------------
-    # 5. Build payloads
-    # ------------------------------------------------------------------
+    log.info(f"  scored {len(leans_payload)} demo leans")
     high_conf = sum(1 for l in leans_payload if l["confidence"] == "High")
-
-    board = {
-        "generatedFor": target_date,
-        "generatedAt": now_iso(),
-        "dataSources": [schedule_source, odds_source],
-        "isDemo": sched_is_demo and odds_is_demo,
-        "leans": leans_payload,
-        # Phase 7B-1 additions
-        "scheduleAvailable": schedule_available or sched_is_demo,
-        "propsAvailable": props_available,
-        "scheduleSource": schedule_source,
-        "oddsSource": odds_source if odds_source != "unavailable" else None,
-        "games": games_payload,
-    }
-
-    # If we have NO games and NO props, mark the day unavailable
-    is_available = (len(games_payload) > 0) or (len(leans_payload) > 0)
 
     slate_day = {
         "date": target_date,
         "dayLabel": day_label(target_date, today),
-        "isAvailable": is_available,
+        "isAvailable": True,
         "gameCount": len(games_payload),
         "leanCount": len(leans_payload),
         "highConfidenceCount": high_conf,
-        "propsAvailable": props_available,
+        "propsAvailable": False,
         "isPrimary": is_primary,
-        "scheduleSource": schedule_source,
-        "oddsSource": odds_source if odds_source != "unavailable" else None,
-        "isDemo": sched_is_demo and odds_is_demo,
+        "scheduleSource": "demo",
+        "oddsSource": "demo",
+        "isDemo": True,
+        "dataMode": DATA_MODE_DEMO_FORCED,
+        "failureReason": None,
+    }
+
+    board = {
+        "generatedFor": target_date,
+        "generatedAt": now_iso(),
+        "dataSources": ["demo"],
+        "isDemo": True,
+        "leans": leans_payload,
+        "scheduleAvailable": True,
+        "propsAvailable": False,
+        "scheduleSource": "demo",
+        "oddsSource": "demo",
+        "games": games_payload,
+        "dataMode": DATA_MODE_DEMO_FORCED,
+        "failureReason": None,
+        "requestedDate": target_date,
+        "timezone": C.TIMEZONE,
+        "scheduleProviderStatus": "ok",
+        "scheduleFetchAttempted": False,
+        "scheduleFetchSucceeded": False,
+        "scheduleFailureReason": None,
+        "rawGameCountBeforeFiltering": len(games_payload),
+        "parsedGameCountAfterFiltering": len(games_payload),
+        "manualOverrideUsed": False,
+        "manualOverrideSource": None,
+        "endpointHistory": [],
     }
 
     return {
@@ -419,11 +608,30 @@ def generate_for_date(
         "log_entries": log_entries,
         "trends_for_player": trends_for_player,
         "player_meta": player_meta,
-        "schedule_source": schedule_source,
-        "odds_source": odds_source,
-        "schedule_is_demo": sched_is_demo,
-        "odds_is_demo": odds_is_demo,
+        "schedule_source": "demo",
+        "odds_source": "demo",
+        "schedule_is_demo": True,
+        "odds_is_demo": True,
+        "data_mode": DATA_MODE_DEMO_FORCED,
     }
+
+
+def _fetch_demo_schedule(date: str) -> list:
+    try:
+        from .providers.demo_provider import DemoNBAProvider
+        return DemoNBAProvider().fetch_schedule(date)
+    except Exception as e:
+        log.error(f"demo schedule failed: {e}")
+        return []
+
+
+def _fetch_demo_props(date: str) -> list:
+    try:
+        from .providers.demo_provider import DemoOddsProvider
+        return DemoOddsProvider().fetch_props(date)
+    except Exception as e:
+        log.error(f"demo props failed: {e}")
+        return []
 
 
 # ---------------------------------------------------------------------------
@@ -431,9 +639,9 @@ def generate_for_date(
 # ---------------------------------------------------------------------------
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate the multi-day model board")
-    parser.add_argument("--date", default=None, help="Start date YYYY-MM-DD (default: today)")
-    parser.add_argument("--days", type=int, default=None, help="Slate days (default from SLATE_DAYS env)")
-    parser.add_argument("--out", default=None, help="Output dir (default: app/public/data)")
+    parser.add_argument("--date", default=None)
+    parser.add_argument("--days", type=int, default=None)
+    parser.add_argument("--out", default=None)
     args = parser.parse_args()
 
     today = args.date or today_in_tz()
@@ -443,107 +651,56 @@ def main() -> int:
     boards_dir = out_dir / "boards"
     boards_dir.mkdir(parents=True, exist_ok=True)
 
+    nba_mode = (C.NBA_DATA_MODE or "auto").lower()
+    odds_mode = (C.ODDS_DATA_MODE or "auto").lower()
+    has_odds_key = bool(C.ODDS_API_KEY)
+
     log.info(f"=== Slate: {today} + {n_days - 1} days ===")
-    log.info(f"Output dir: {out_dir}")
+    log.info(f"NBA_DATA_MODE={nba_mode}, ODDS_DATA_MODE={odds_mode}, has_odds_key={has_odds_key}")
+    log.info(f"manual schedule overrides: {SCHEDULE_OVERRIDES_PATH.name} "
+             f"({'present' if has_schedule_overrides_file() else 'missing'})")
 
-    # ------------------------------------------------------------------
-    # Load manual overrides once (used for every date)
-    # ------------------------------------------------------------------
     signals = load_signals()
-    log.info(f"manual overrides: {len(signals)} active signals")
+    log.info(f"manual news signals: {len(signals)} active")
 
-    # ------------------------------------------------------------------
-    # Generate per-date
-    # ------------------------------------------------------------------
     dates = slate_dates(today, n_days)
     per_date_results: list[dict] = []
     all_log_entries: list[LeanLogEntry] = []
 
-    # Honesty rule: in pure demo mode, future dates get "not generated"
-    # treatment so we don't show identical demo data for 4 different dates.
-    force_demo = (C.NBA_DATA_MODE == "demo" and C.ODDS_DATA_MODE == "demo")
-
     for date in dates:
         is_primary = (date == today)
-
-        if force_demo and not is_primary:
-            # Render an unavailable placeholder for future demo dates
-            slate_day = {
-                "date": date,
-                "dayLabel": day_label(date, today),
-                "isAvailable": False,
-                "gameCount": 0,
-                "leanCount": 0,
-                "highConfidenceCount": 0,
-                "propsAvailable": False,
-                "isPrimary": False,
-                "scheduleSource": "unavailable",
-                "oddsSource": None,
-                "isDemo": True,
-            }
-            board = {
-                "generatedFor": date,
-                "generatedAt": now_iso(),
-                "dataSources": [],
-                "isDemo": True,
-                "leans": [],
-                "scheduleAvailable": False,
-                "propsAvailable": False,
-                "scheduleSource": "unavailable",
-                "oddsSource": None,
-                "games": [],
-            }
-            per_date_results.append({
-                "board": board,
-                "slate_day": slate_day,
-                "log_entries": [],
-                "trends_for_player": {},
-                "player_meta": {},
-                "schedule_source": "unavailable",
-                "odds_source": "unavailable",
-                "schedule_is_demo": True,
-                "odds_is_demo": True,
-            })
-            _write_json(boards_dir / f"{date}.json", board)
-            log.info(f"  {date}: demo-mode future date — marked unavailable")
-            continue
-
         result = generate_for_date(
             date,
             today=today,
             signals=signals,
             is_primary=is_primary,
+            nba_mode=nba_mode,
+            odds_mode=odds_mode,
+            has_odds_key=has_odds_key,
         )
         per_date_results.append(result)
         all_log_entries.extend(result["log_entries"])
-
-        # Write per-date board file
         _write_json(boards_dir / f"{date}.json", result["board"])
 
-    # ------------------------------------------------------------------
-    # Build slate.json
-    # ------------------------------------------------------------------
+    # slate.json
+    overall_data_mode = _compute_overall_mode(per_date_results)
     slate_payload = {
         "generatedAt": now_iso(),
         "primaryDate": today,
         "slateDays": n_days,
         "days": [r["slate_day"] for r in per_date_results],
         "newsSignalsActive": len(signals),
-        "newsSignalsConfigured": _has_signals_file(),
+        "newsSignalsConfigured": _has_news_signals_file(),
+        "scheduleOverridesConfigured": has_schedule_overrides_file(),
+        "dataMode": overall_data_mode,
     }
     _write_json(out_dir / "slate.json", slate_payload)
 
-    # ------------------------------------------------------------------
-    # Today's data — board.json (back-compat), schedule.json, players.json,
-    # trends.json, odds_props.json — all use the primary date
-    # ------------------------------------------------------------------
+    # Today's data — board.json (back-compat) etc.
     today_result = next(r for r in per_date_results if r["slate_day"]["isPrimary"])
     today_board = today_result["board"]
-
-    # board.json = today's board (back-compat with existing components)
     _write_json(out_dir / "board.json", today_board)
 
-    # schedule.json = today's games
     schedule_file = {
         "generatedAt": now_iso(),
         "source": today_result["schedule_source"],
@@ -553,18 +710,15 @@ def main() -> int:
     }
     _write_json(out_dir / "schedule.json", schedule_file)
 
-    # odds_props.json — leave as-is (now possibly empty)
-    odds_payload = []  # we don't keep raw odds in the board payload
     odds_props_file = {
         "generatedAt": now_iso(),
         "source": today_result["odds_source"],
         "isDemo": today_result["odds_is_demo"],
         "date": today,
-        "props": odds_payload,
+        "props": [],
     }
     _write_json(out_dir / "odds_props.json", odds_props_file)
 
-    # players.json (today's player meta)
     players_file = {
         "generatedAt": now_iso(),
         "isDemo": today_result["schedule_is_demo"],
@@ -572,7 +726,6 @@ def main() -> int:
     }
     _write_json(out_dir / "players.json", players_file)
 
-    # trends.json (today's trends — only renders when we actually have leans)
     trends = {
         "generatedAt": now_iso(),
         "isDemo": today_result["schedule_is_demo"],
@@ -587,8 +740,6 @@ def main() -> int:
             for pid in today_result["trends_for_player"]
         ],
     }
-    # If we don't have any trends from today's run (e.g. no props in 7B-1),
-    # preserve the existing trends.json so /trends doesn't go blank.
     if not trends["players"]:
         existing = out_dir / "trends.json"
         if existing.exists():
@@ -598,13 +749,10 @@ def main() -> int:
     else:
         _write_json(out_dir / "trends.json", trends)
 
-    # ------------------------------------------------------------------
-    # meta.json — overall pipeline status
-    # ------------------------------------------------------------------
-    overall_data_mode = _compute_overall_mode(per_date_results)
+    # meta.json
     meta = {
         "appName": "GametimePicks",
-        "version": "0.4.0",
+        "version": "0.4.2",
         "lastPipelineRun": now_iso(),
         "isDemo": all(r["slate_day"]["isDemo"] for r in per_date_results),
         "dataMode": overall_data_mode,
@@ -621,43 +769,36 @@ def main() -> int:
         "dataSources": [
             {"name": "demo data", "description": "Bundled offline fallback.", "url": ""},
             {"name": "nba_api", "description": "Official NBA Stats endpoints.", "url": "https://github.com/swar/nba_api"},
-            {"name": "The Odds API", "description": "Compliant sportsbook odds.", "url": "https://the-odds-api.com/"},
-            {"name": "manual overrides", "description": "Human-confirmed news signals.", "url": ""},
+            {"name": "manual schedule overrides", "description": "Operator-verified schedule safety net.", "url": ""},
+            {"name": "The Odds API", "description": "Compliant sportsbook odds (Phase 7B-2).", "url": "https://the-odds-api.com/"},
+            {"name": "manual news overrides", "description": "Human-confirmed news signals.", "url": ""},
         ],
-        # Phase 7B-1 additions
         "slateDays": n_days,
         "primaryDate": today,
-        "newsSignalsConfigured": _has_signals_file(),
+        "newsSignalsConfigured": _has_news_signals_file(),
         "newsSignalsActive": len(signals),
+        "scheduleOverridesConfigured": has_schedule_overrides_file(),
+        "todayDataMode": today_result["data_mode"],
+        "todayFailureReason": today_result["board"].get("failureReason"),
+        "todayManualOverrideUsed": today_result["board"].get("manualOverrideUsed", False),
     }
     _write_json(out_dir / "meta.json", meta)
 
-    # ------------------------------------------------------------------
-    # hit_rates.json — preserve existing or seed from demo
-    # ------------------------------------------------------------------
+    # hit_rates.json — preserve or seed
     hr_target = out_dir / "hit_rates.json"
     if not hr_target.exists():
         demo_hr = C.DEMO_DATA_DIR / "hit_rates.json"
         if demo_hr.exists():
             hr_target.write_text(demo_hr.read_text())
 
-    # ------------------------------------------------------------------
-    # Validation log — append each lean
-    # ------------------------------------------------------------------
     if all_log_entries:
         append_entries(all_log_entries)
-    else:
-        log.info("validation log: no leans to log this run")
 
-    # ------------------------------------------------------------------
-    # Summary
-    # ------------------------------------------------------------------
     total_games = sum(r["slate_day"]["gameCount"] for r in per_date_results)
     total_leans = sum(r["slate_day"]["leanCount"] for r in per_date_results)
     log.info(
-        f"=== Done. Mode: {overall_data_mode}. "
-        f"{len(dates)} days, {total_games} games, {total_leans} leans, "
-        f"{len(signals)} active signals ==="
+        f"=== Done. todayMode={today_result['data_mode']}. "
+        f"{len(dates)} days, {total_games} games, {total_leans} leans ==="
     )
     return 0
 
@@ -693,24 +834,18 @@ def _fallback_summary() -> dict[str, str]:
     }
 
 
-def _has_signals_file() -> bool:
+def _has_news_signals_file() -> bool:
     from .manual_overrides import DEFAULT_PATH
     return DEFAULT_PATH.exists()
 
 
 def _compute_overall_mode(results: list[dict]) -> str:
-    """Pick a single mode label for the slate as a whole.
-
-    All demo → "Demo"
-    Any live → "Live"
-    Mixed   → "Hybrid"
-    """
-    demos = sum(1 for r in results if r["slate_day"]["isDemo"])
-    if demos == len(results):
-        return "Demo"
-    if demos == 0:
-        return "Live"
-    return "Hybrid"
+    """Slate-wide mode = today's mode."""
+    today_result = next(
+        (r for r in results if r["slate_day"]["isPrimary"]),
+        results[0] if results else None,
+    )
+    return today_result["data_mode"] if today_result else DATA_MODE_SCHEDULE_UNAVAIL
 
 
 def _write_json(path: Path, payload: dict | list) -> None:

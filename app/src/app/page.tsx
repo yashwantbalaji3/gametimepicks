@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getBoard, getHitRates, getMeta, getSlate } from "@/lib/data";
-import { formatPercent, formatDateLong } from "@/lib/format";
+import { formatPercent } from "@/lib/format";
+import type { DataMode } from "@/lib/types";
 import KpiTile from "@/components/kpi-tile";
 
 export default function HomePage() {
@@ -10,28 +11,36 @@ export default function HomePage() {
   const slate = getSlate();
 
   const todayDay = slate.days.find((d) => d.isPrimary) ?? slate.days[0];
-  const nextAvailable = slate.days.find(
-    (d) => !d.isPrimary && d.isAvailable && d.gameCount > 0,
+  const todayMode: DataMode =
+    (board.dataMode as DataMode) || (slate.dataMode as DataMode) || "ScheduleUnavailable";
+
+  const nextGameDay = slate.days.find(
+    (d) => !d.isPrimary && d.gameCount > 0,
   );
+
+  const todayGames = todayDay?.gameCount ?? 0;
+  const isDemoMode = todayMode === "DemoForced";
+  const isUnavailable = todayMode === "ScheduleUnavailable";
+
+  // Eyebrow string — explicit per state
+  const eyebrow = eyebrowForMode(todayMode, todayDay?.dayLabel ?? "Today", todayGames, slate.slateDays, nextGameDay);
 
   const leansToday = board.leans.filter((l) => l.lean !== "No Play").length;
   const highConfidence = board.leans.filter(
     (l) => l.lean !== "No Play" && l.confidence === "High",
   ).length;
-  const todayGames = todayDay?.gameCount ?? 0;
-  const todayPropsAvailable = todayDay?.propsAvailable ?? false;
-
   const highConfBucket = hitRates.byConfidence.find((b) => b.label === "High");
 
-  // Hero subtitle changes based on slate state — keep it honest.
-  const isDemo = meta.isDemo;
-  const eyebrow = isDemo
-    ? "demo snapshot · sample slate"
-    : todayGames > 0
-      ? `${todayGames} NBA game${todayGames === 1 ? "" : "s"} today · ${slate.slateDays}-day slate`
-      : nextAvailable
-        ? `no games today · next slate ${nextAvailable.dayLabel.toLowerCase()}`
-        : "no games in 4-day window";
+  // For real-mode + no odds, KPI tiles label leans as "—" instead of zero
+  // to communicate "props unavailable" rather than "no leans found".
+  const showLeanTiles = !(
+    todayMode === "ScheduleLiveOddsUnavailable" ||
+    todayMode === "NoGames" ||
+    todayMode === "ScheduleUnavailable"
+  );
+
+  // CTA button text per mode
+  const ctaText = ctaForMode(todayMode);
 
   return (
     <div className="mx-auto max-w-[1280px] px-6 py-12 md:py-20">
@@ -56,11 +65,7 @@ export default function HomePage() {
             href="/board"
             className="inline-flex items-center gap-2 px-5 py-3 rounded-[3px] bg-[var(--lime)] text-[var(--bg)] font-medium text-[14px] tracking-tight hover:bg-[#B5EE52] transition-colors"
           >
-            {isDemo
-              ? "View the demo board"
-              : todayGames > 0
-                ? "View today's board"
-                : "View 4-day slate"}
+            {ctaText}
             <span aria-hidden>→</span>
           </Link>
           <Link
@@ -71,41 +76,52 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Live-mode-but-no-games callout — only shows in real live mode */}
-        {!isDemo && todayGames === 0 && nextAvailable && (
-          <div className="mt-6 surface px-5 py-4 max-w-[680px]">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
-              today
-            </div>
-            <div className="mt-1 text-[14px] text-[var(--text-mute)]">
-              No NBA games scheduled for today. The next available slate is{" "}
-              <span className="text-[var(--text)] font-semibold">
-                {nextAvailable.dayLabel}
-              </span>{" "}
-              with {nextAvailable.gameCount} game
-              {nextAvailable.gameCount === 1 ? "" : "s"}.
-            </div>
-          </div>
+        {/* State-specific callouts */}
+        {todayMode === "ScheduleLiveOddsUnavailable" && (
+          <ScheduleLiveCallout
+            todayGames={todayGames}
+            primaryLabel={todayDay?.dayLabel ?? "Today"}
+            manualOverride={!!meta.todayManualOverrideUsed}
+          />
+        )}
+        {todayMode === "NoGames" && nextGameDay && (
+          <NoGamesCallout next={nextGameDay} />
+        )}
+        {isUnavailable && (
+          <ScheduleUnavailableCallout reason={meta.todayFailureReason} />
         )}
       </section>
 
-      {/* KPI strip */}
+      {/* KPI strip — different per mode */}
       <section className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiTile
-          label={isDemo ? "leans in snapshot" : "leans today"}
-          value={String(leansToday)}
-          sub={!isDemo && !todayPropsAvailable ? "props unavailable" : undefined}
+          label={isDemoMode ? "leans in sample" : "leans today"}
+          value={
+            showLeanTiles ? String(leansToday) : "—"
+          }
+          sub={
+            !showLeanTiles
+              ? "props not configured"
+              : isDemoMode
+                ? "demo data"
+                : undefined
+          }
           delay={1}
         />
         <KpiTile
-          label={isDemo ? "high-conf in snapshot" : "high confidence"}
-          value={String(highConfidence)}
+          label={isDemoMode ? "high-conf in sample" : "high confidence"}
+          value={showLeanTiles ? String(highConfidence) : "—"}
+          sub={!showLeanTiles ? "props not configured" : undefined}
           delay={2}
         />
         <KpiTile
           label="sample hit rate"
           value={formatPercent(hitRates.overall.hitRate)}
-          sub={isDemo ? "demo data" : `across ${hitRates.overall.total} leans`}
+          sub={
+            isDemoMode
+              ? "demo data"
+              : `across ${hitRates.overall.total} sample leans`
+          }
           delay={3}
         />
         <KpiTile
@@ -115,7 +131,7 @@ export default function HomePage() {
         />
       </section>
 
-      {/* Three-up explanation */}
+      {/* Three-up explainer */}
       <section className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-4">
         <ExplainerCard
           n="01"
@@ -137,28 +153,148 @@ export default function HomePage() {
         />
       </section>
 
-      {/* Demo banner if applicable */}
-      {isDemo && (
+      {/* Demo banner — only when DemoForced */}
+      {isDemoMode && (
         <section className="mt-16 surface px-6 py-5 reveal">
           <div className="flex flex-wrap items-start gap-4">
             <div className="text-[var(--amber)] font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[var(--amber-dim)]">
-              demo data
+              demo sample
             </div>
             <div className="flex-1 min-w-[280px] text-[13px] text-[var(--text-mute)] leading-relaxed">
-              This deployment is running on bundled demo data for offline
-              development and previews. Phase 7B-1 ships the multi-day slate
-              foundation; configure{" "}
-              <span className="font-mono text-[var(--text)]">ODDS_API_KEY</span>{" "}
-              in <span className="font-mono text-[var(--text)]">.env</span> and
-              run{" "}
-              <span className="font-mono text-[var(--text)]">
-                scripts/run_pipeline.sh
-              </span>{" "}
-              for the real-data path. Player-prop scoring with real lines lands
-              in Phase 7B-2.
+              This deployment is running on bundled demo data because{" "}
+              <code className="font-mono text-[var(--text)]">
+                NBA_DATA_MODE=demo
+              </code>
+              . Phase 7B-2 wires the real Odds API integration; for now,
+              the only path that produces model leans is explicit demo mode.
             </div>
           </div>
         </section>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// State-specific callouts and copy
+// ---------------------------------------------------------------------------
+function eyebrowForMode(
+  mode: DataMode,
+  dayLabel: string,
+  todayGames: number,
+  slateDays: number,
+  nextGameDay: { dayLabel: string } | undefined,
+): string {
+  switch (mode) {
+    case "Live":
+      return `${todayGames} NBA game${todayGames === 1 ? "" : "s"} today · ${slateDays}-day slate`;
+    case "ScheduleLiveOddsUnavailable":
+      return `${todayGames} NBA game${todayGames === 1 ? "" : "s"} today · props not configured`;
+    case "NoGames":
+      return nextGameDay
+        ? `no games today · next slate ${nextGameDay.dayLabel.toLowerCase()}`
+        : "no games in 4-day window";
+    case "ScheduleUnavailable":
+      return "schedule unavailable · provider failed";
+    case "DemoForced":
+      return "demo sample · representative slate";
+    default:
+      return "slate unavailable";
+  }
+}
+
+function ctaForMode(mode: DataMode): string {
+  switch (mode) {
+    case "Live":
+      return "View today's board";
+    case "ScheduleLiveOddsUnavailable":
+      return "View today's schedule";
+    case "NoGames":
+      return "View 4-day slate";
+    case "ScheduleUnavailable":
+      return "View status";
+    case "DemoForced":
+      return "View the demo board";
+    default:
+      return "View board";
+  }
+}
+
+function ScheduleLiveCallout({
+  todayGames,
+  primaryLabel,
+  manualOverride,
+}: {
+  todayGames: number;
+  primaryLabel: string;
+  manualOverride: boolean;
+}) {
+  return (
+    <div
+      className="mt-6 surface px-5 py-4 max-w-[680px] border-l-2"
+      style={{ borderLeftColor: "var(--lime)" }}
+    >
+      <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
+        {primaryLabel.toLowerCase()} · live schedule
+        {manualOverride && (
+          <span className="ml-2 text-[var(--lime)]">· manual verified</span>
+        )}
+      </div>
+      <div className="mt-1 text-[14px] text-[var(--text-mute)]">
+        {todayGames} NBA game{todayGames === 1 ? "" : "s"} on the schedule
+        {manualOverride
+          ? " (operator-verified manual override)."
+          : " from nba_api."}{" "}
+        Player-prop scoring is unavailable until a free Odds API key is
+        configured (Phase 7B-2). The board page shows the real schedule with
+        a &ldquo;props unavailable&rdquo; state.
+      </div>
+    </div>
+  );
+}
+
+function NoGamesCallout({ next }: { next: { dayLabel: string; gameCount: number } }) {
+  return (
+    <div
+      className="mt-6 surface px-5 py-4 max-w-[680px] border-l-2"
+      style={{ borderLeftColor: "var(--text-faint)" }}
+    >
+      <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
+        today
+      </div>
+      <div className="mt-1 text-[14px] text-[var(--text-mute)]">
+        No NBA games scheduled for today. The next available slate is{" "}
+        <span className="text-[var(--text)] font-semibold">
+          {next.dayLabel}
+        </span>{" "}
+        with {next.gameCount} game{next.gameCount === 1 ? "" : "s"}.
+      </div>
+    </div>
+  );
+}
+
+function ScheduleUnavailableCallout({ reason }: { reason?: string | null }) {
+  return (
+    <div
+      className="mt-6 surface px-5 py-4 max-w-[680px] border-l-2"
+      style={{ borderLeftColor: "var(--rose)" }}
+    >
+      <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--rose)]">
+        schedule unavailable
+      </div>
+      <div className="mt-1 text-[14px] text-[var(--text-mute)]">
+        The pipeline could not confirm whether NBA games are scheduled for
+        today.{" "}
+        <code className="font-mono text-[12px]">nba_api</code> returned an
+        error or was unreachable, and no manual schedule override exists for
+        this date. This is{" "}
+        <span className="text-[var(--text)] font-semibold">not</span> the
+        same as &ldquo;no games today&rdquo;.
+      </div>
+      {reason && (
+        <div className="mt-2 font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
+          provider error: {reason}
+        </div>
       )}
     </div>
   );

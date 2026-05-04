@@ -1,25 +1,58 @@
 /**
  * DataSourceBadge — compact strip showing data mode + source for the day.
  *
- * Reads meta.json and renders:
- *   DATA · Demo / Live / Hybrid
- *   NBA      <source>     <status>
- *   ODDS     <source>     <status>
- *   FALLBACKS espn, balldontlie, opticodds, sportsdata
- *   SYNCED   <timestamp>
+ * Phase 7B-1.2 — handles the refined DataMode union:
+ *   Live, ScheduleLiveOddsUnavailable, NoGames, ScheduleUnavailable, DemoForced.
  *
- * Designed to slot into the Model Board and Methodology pages without
- * crowding them.
+ * When schedule came from manual override (meta.todayManualOverrideUsed),
+ * the NBA source field shows "manual verified" instead of the raw source label.
  */
-import type { MetaData } from "@/lib/types";
+import type { MetaData, DataMode } from "@/lib/types";
 import { formatTimestamp } from "@/lib/format";
 
+const MODE_DISPLAY: Record<
+  DataMode,
+  { label: string; color: string; bg: string }
+> = {
+  Live: {
+    label: "live",
+    color: "var(--lime)",
+    bg: "var(--lime-dim)",
+  },
+  ScheduleLiveOddsUnavailable: {
+    label: "schedule live · no odds",
+    color: "var(--lime)",
+    bg: "var(--lime-dim)",
+  },
+  NoGames: {
+    label: "no games today",
+    color: "var(--text-faint)",
+    bg: "rgba(255,255,255,0.05)",
+  },
+  ScheduleUnavailable: {
+    label: "schedule unavailable",
+    color: "var(--rose)",
+    bg: "rgba(244, 63, 94, 0.08)",
+  },
+  DemoForced: {
+    label: "demo sample",
+    color: "var(--amber)",
+    bg: "var(--amber-dim)",
+  },
+};
+
 export default function DataSourceBadge({ meta }: { meta: MetaData }) {
-  const mode = meta.dataMode || (meta.isDemo ? "Demo" : "Live");
-  const modeColor =
-    mode === "Live" ? "var(--lime)" : mode === "Hybrid" ? "var(--amber)" : "var(--text-faint)";
-  const modeBg =
-    mode === "Live" ? "var(--lime-dim)" : mode === "Hybrid" ? "var(--amber-dim)" : "rgba(255,255,255,0.05)";
+  const mode: DataMode =
+    meta.todayDataMode ??
+    (meta.dataMode as DataMode) ??
+    (meta.isDemo ? "DemoForced" : "Live");
+
+  const display = MODE_DISPLAY[mode] ?? MODE_DISPLAY.ScheduleUnavailable;
+
+  // When the schedule came from manual override, surface that on the NBA row
+  const nbaLabel = meta.todayManualOverrideUsed
+    ? "manual verified"
+    : meta.nbaScheduleSource || "—";
 
   const fallbacks = meta.fallbackSourcesAvailable || {};
   const enabledFallbacks = Object.entries(fallbacks)
@@ -36,15 +69,15 @@ export default function DataSourceBadge({ meta }: { meta: MetaData }) {
           <span className="text-[var(--text-faint)] uppercase">data</span>
           <span
             className="px-2 py-0.5 rounded-[2px] uppercase tracking-wider"
-            style={{ color: modeColor, background: modeBg }}
+            style={{ color: display.color, background: display.bg }}
           >
-            {mode}
+            {display.label}
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="text-[var(--text-faint)] uppercase">nba</span>
-          <span className="text-[var(--text)]">{meta.nbaScheduleSource || "—"}</span>
+          <span className="text-[var(--text)]">{nbaLabel}</span>
         </div>
 
         <div className="flex items-center gap-2">

@@ -6,6 +6,12 @@
 > pipeline, commit, push. The board updates with the signal attached and a
 > link back to your source.
 
+> **Phase 7B-1.2 also adds a sibling file:**
+> `pipeline/manual_overrides/schedule_overrides.json`
+> Used as a safety net when `nba_api` returns empty for a date that has
+> known games (e.g. playoff dates with TBD opponents). See the
+> [Schedule overrides](#schedule-overrides-phase-7b-12) section below.
+
 ---
 
 ## Why this exists
@@ -236,3 +242,85 @@ When real Odds API integration lands in Phase 7B-2:
 Phase 7B-1 lays the foundation. The signals are recorded today even
 though the model isn't yet reactive to them — that record is what makes
 Phase 7B-2 measurable.
+
+---
+
+## Schedule overrides (Phase 7B-1.2)
+
+A second manual-override file: `pipeline/manual_overrides/schedule_overrides.json`.
+
+### Why this exists
+
+`nba_api` doesn't always know about future playoff matchups — series
+results aren't determined yet, opponents are listed as TBD, and the
+ScoreboardV2 endpoint occasionally returns empty for dates that
+absolutely have games. When this happens, the pipeline needs a safety
+net so the UI doesn't lie to the user with a "no games today" empty
+state.
+
+The fallback is operator-verified manual entries. You confirm the games
+against an authoritative source (NBA.com/schedule, official team
+accounts, ESPN), copy them into this JSON file, and the pipeline will
+use them when `nba_api` comes up empty.
+
+### File shape
+
+```json
+{
+  "schedules": [
+    {
+      "date": "2026-05-04",
+      "sourceType": "manual_schedule_override",
+      "sourceName": "User-verified",
+      "sourceUrl": "https://www.nba.com/schedule",
+      "games": [
+        {
+          "gameId": "manual-2026-05-04-NYK-PHI",
+          "tipoff": "8:00 PM ET",
+          "homeTeamAbbr": "NYK",
+          "homeTeamFull": "New York Knicks",
+          "awayTeamAbbr": "PHI",
+          "awayTeamFull": "Philadelphia 76ers",
+          "status": "Scheduled"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Required fields per game: `gameId`, `tipoff`, `homeTeamAbbr`,
+`homeTeamFull`, `awayTeamAbbr`, `awayTeamFull`, `status`.
+
+### Resolution priority
+
+The pipeline always tries `nba_api` first. The manual override is only
+consulted when `nba_api` either fails or returns zero games:
+
+1. **`nba_api` returns games** → use them, source = `"nba_api"`
+2. **`nba_api` fails OR returns empty** AND override exists for this
+   date → use override, source = `"manual"`, UI shows "Schedule: manual
+   verified"
+3. **`nba_api` returns empty** AND no override → `NoGames` (provider
+   confirmed no games)
+4. **`nba_api` fails** AND no override → `ScheduleUnavailable` (we
+   genuinely don't know — UI says so explicitly, doesn't lie about an
+   off-day)
+
+### Operator workflow
+
+1. Verify the games against NBA.com/schedule or an authoritative source
+2. Add entries to `schedule_overrides.json` for any date that needs them
+3. Re-run `bash scripts/run_pipeline.sh`
+4. Verify `app/public/data/board.json` shows
+   `"manualOverrideUsed": true` and `"scheduleSource": "manual"`
+5. The UI will surface a small "manual verified" tag so users know the
+   schedule came from your override and not from `nba_api`
+
+### Don'ts
+
+- ❌ Don't fabricate games. Only enter games you've verified.
+- ❌ Don't use this to override `nba_api` when `nba_api` has the right
+  data — it only kicks in when the auto path fails.
+- ❌ Don't use this for past dates where you want different content.
+  Use the validation log workflow for backtesting.

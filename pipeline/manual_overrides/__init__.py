@@ -38,10 +38,11 @@ from typing import Iterable, Sequence
 log = logging.getLogger("gtp.manual_overrides")
 
 # ---------------------------------------------------------------------------
-# Default file location
+# Default file locations
 # ---------------------------------------------------------------------------
 THIS_DIR = Path(__file__).resolve().parent
 DEFAULT_PATH = THIS_DIR / "news_signals.json"
+SCHEDULE_OVERRIDES_PATH = THIS_DIR / "schedule_overrides.json"
 
 
 # ---------------------------------------------------------------------------
@@ -274,3 +275,87 @@ def aggregate_model_action(signals: Sequence[NewsSignal]) -> str:
 def signals_to_json(signals: Iterable[NewsSignal]) -> list[dict]:
     """Serialize signals for inclusion in board.json output."""
     return [s.to_json() for s in signals]
+
+
+# ---------------------------------------------------------------------------
+# Phase 7B-1.2 — Manual schedule overrides
+# ---------------------------------------------------------------------------
+@dataclass
+class ManualScheduleEntry:
+    """One date's worth of manually-verified games."""
+    date: str                       # YYYY-MM-DD
+    sourceType: str                 # always "manual_schedule_override"
+    sourceName: str                 # operator label, e.g. "User-verified"
+    sourceUrl: str                  # where the operator confirmed the games
+    games: list[dict]               # game dicts in board.json shape
+
+
+def load_schedule_override(
+    date: str,
+    path: Path | None = None,
+) -> ManualScheduleEntry | None:
+    """Return the manual schedule entry for a given date, or None.
+
+    Used as a safety net by the orchestrator when nba_api returns empty/fails
+    for a date that has known games. Returns None if the file is missing,
+    malformed, or has no entry for this date — caller decides what to do.
+    """
+    p = path or SCHEDULE_OVERRIDES_PATH
+    if not p.exists():
+        return None
+
+    try:
+        raw = json.loads(p.read_text())
+    except json.JSONDecodeError as e:
+        log.warning(f"schedule_overrides.json invalid JSON: {e}")
+        return None
+
+    if not isinstance(raw, dict) or "schedules" not in raw:
+        log.warning("schedule_overrides.json missing top-level 'schedules' key")
+        return None
+
+    schedules = raw.get("schedules") or []
+    if not isinstance(schedules, list):
+        return None
+
+    for entry in schedules:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("date") != date:
+            continue
+        # Validate minimal shape — every game needs the keys board.json expects
+        games_raw = entry.get("games")
+        if not isinstance(games_raw, list):
+            log.warning(f"schedule override for {date}: games is not a list")
+            return None
+        required_keys = {
+            "gameId", "tipoff", "homeTeamAbbr", "homeTeamFull",
+            "awayTeamAbbr", "awayTeamFull", "status",
+        }
+        valid_games: list[dict] = []
+        for g in games_raw:
+            if not isinstance(g, dict):
+                continue
+            missing = required_keys - g.keys()
+            if missing:
+                log.warning(
+                    f"schedule override for {date}: game missing keys {missing}"
+                )
+                continue
+            valid_games.append({**g, "date": date})
+
+        return ManualScheduleEntry(
+            date=date,
+            sourceType=str(entry.get("sourceType", "manual_schedule_override")),
+            sourceName=str(entry.get("sourceName", "User-verified")),
+            sourceUrl=str(entry.get("sourceUrl", "")),
+            games=valid_games,
+        )
+
+    return None
+
+
+def has_schedule_overrides_file(path: Path | None = None) -> bool:
+    """Returns True if a schedule_overrides.json exists at all."""
+    p = path or SCHEDULE_OVERRIDES_PATH
+    return p.exists()

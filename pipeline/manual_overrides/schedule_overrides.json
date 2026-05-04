@@ -1,0 +1,32 @@
+{
+  "_comment": "Operator-verified schedule overrides. Used when nba_api returns empty/fails for a date that has known games. Each entry is a fallback safety net — if nba_api succeeds with games, it wins. Only edit if you have verified the games against an authoritative source (NBA.com/schedule, official team accounts, etc).",
+
+  "schedules": [
+    {
+      "date": "2026-05-04",
+      "sourceType": "manual_schedule_override",
+      "sourceName": "User-verified",
+      "sourceUrl": "https://www.nba.com/schedule",
+      "games": [
+        {
+          "gameId": "manual-2026-05-04-NYK-PHI",
+          "tipoff": "8:00 PM ET",
+          "homeTeamAbbr": "NYK",
+          "homeTeamFull": "New York Knicks",
+          "awayTeamAbbr": "PHI",
+          "awayTeamFull": "Philadelphia 76ers",
+          "status": "Scheduled"
+        },
+        {
+          "gameId": "manual-2026-05-04-SAS-MIN",
+          "tipoff": "9:30 PM ET",
+          "homeTeamAbbr": "SAS",
+          "homeTeamFull": "San Antonio Spurs",
+          "awayTeamAbbr": "MIN",
+          "awayTeamFull": "Minnesota Timberwolves",
+          "status": "Scheduled"
+        }
+      ]
+    }
+  ]
+}

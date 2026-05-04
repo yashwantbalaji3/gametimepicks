@@ -81,6 +81,8 @@ export interface PropLean {
   riskFlags?: string[];
   /** Composite source-reliability score 0..1 */
   sourceReliability?: number;
+  /** Phase 7B-1.1: tag demo cards explicitly so UI can wash them */
+  isDemo?: boolean;
 }
 
 export interface BoardData {
@@ -106,6 +108,28 @@ export interface BoardData {
   oddsSource?: string | null;
   /** Scheduled games for this date — useful when leans is empty */
   games?: ScheduleGame[];
+  /** Phase 7B-1.1: explicit state for UI rendering */
+  dataMode?: DataMode;
+  /** Optional explanation when nba_api fell through to demo */
+  failureReason?: string | null;
+
+  // Phase 7B-1.2 diagnostic fields
+  requestedDate?: string;
+  timezone?: string;
+  scheduleProviderStatus?: "ok" | "failed" | "empty" | null;
+  scheduleFetchAttempted?: boolean;
+  scheduleFetchSucceeded?: boolean;
+  scheduleFailureReason?: string | null;
+  rawGameCountBeforeFiltering?: number;
+  parsedGameCountAfterFiltering?: number;
+  manualOverrideUsed?: boolean;
+  manualOverrideSource?: string | null;
+  endpointHistory?: Array<{
+    endpoint: string;
+    status: "ok" | "error";
+    raw_count: number;
+    error?: string | null;
+  }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -243,6 +267,30 @@ export interface ProviderStatus {
 // Slate (Phase 7B-1) — multi-day window
 // ---------------------------------------------------------------------------
 
+/**
+ * Phase 7B-1.2 — refined data-mode state machine.
+ *
+ *   Live                            real schedule + real odds (Phase 7B-2)
+ *   ScheduleLiveOddsUnavailable     real schedule (nba_api OR manual override),
+ *                                    no odds key configured
+ *   NoGames                         provider explicitly confirmed zero games
+ *                                    (status=ok, rawCount=0)
+ *   ScheduleUnavailable             provider failed AND no manual override —
+ *                                    we genuinely don't know what's on today
+ *   DemoForced                      operator explicitly set NBA_DATA_MODE=demo
+ *
+ * Removed in 7B-1.2: DemoFallback, Unavailable (collapsed into the above).
+ * Auto-fallback to demo is gone — silently substituting demo data was the
+ * root cause of the May 4 bug. Demo content now only renders when explicitly
+ * opted in.
+ */
+export type DataMode =
+  | "Live"
+  | "ScheduleLiveOddsUnavailable"
+  | "NoGames"
+  | "ScheduleUnavailable"
+  | "DemoForced";
+
 export interface NewsSignal {
   id: string;
   createdAt: string;
@@ -300,6 +348,10 @@ export interface SlateDay {
   oddsSource: string | null;
   /** Whether this date's data is from demo fallback */
   isDemo: boolean;
+  /** Phase 7B-1.1: explicit state for UI rendering */
+  dataMode: DataMode;
+  /** Optional explanation when nba_api fell through to demo */
+  failureReason?: string | null;
 }
 
 export interface SlateData {
@@ -309,6 +361,10 @@ export interface SlateData {
   days: SlateDay[];
   newsSignalsActive: number;
   newsSignalsConfigured: boolean;
+  /** Slate-wide mode (mirrors today's dataMode) */
+  dataMode?: DataMode;
+  /** Phase 7B-1.2: whether schedule_overrides.json exists */
+  scheduleOverridesConfigured?: boolean;
 }
 
 export interface MetaData {
@@ -323,7 +379,8 @@ export interface MetaData {
   isDemo: boolean;
 
   // Multi-source pipeline metadata (added in Batch 2)
-  dataMode?: "Demo" | "Live" | "Hybrid";
+  /** Phase 7B-1.1: switched from {Demo,Live,Hybrid} to full DataMode union */
+  dataMode?: DataMode;
   nbaScheduleSource?: string;
   nbaStatsSource?: string;
   oddsSource?: string;
@@ -337,4 +394,16 @@ export interface MetaData {
   primaryDate?: string;
   newsSignalsConfigured?: boolean;
   newsSignalsActive?: number;
+
+  // Phase 7B-1.1 additions
+  /** Today's data-mode state — drives top-level UI mode banner */
+  todayDataMode?: DataMode;
+  /** When today is in DemoFallback, why nba_api failed */
+  todayFailureReason?: string | null;
+
+  // Phase 7B-1.2 additions
+  /** Whether schedule_overrides.json exists at all */
+  scheduleOverridesConfigured?: boolean;
+  /** Whether today's schedule came from a manual override */
+  todayManualOverrideUsed?: boolean;
 }

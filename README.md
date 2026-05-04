@@ -18,8 +18,8 @@
 
 | | |
 |---|---|
-| **Phase** | 7B-1 — free-only multi-day slate foundation |
-| **Mode** | Demo (sample data, no live API keys configured) |
+| **Phase** | 7B-1.2 — schedule resolution with manual override safety net |
+| **Mode** | Auto — `nba_api` real schedule first, manual override fallback, explicit `ScheduleUnavailable` if both fail |
 | **Live since** | May 2026 |
 | **Slate window** | Today + 3 days (configurable via `SLATE_DAYS`) |
 | **News layer** | Manual overrides — `pipeline/manual_overrides/news_signals.json` |
