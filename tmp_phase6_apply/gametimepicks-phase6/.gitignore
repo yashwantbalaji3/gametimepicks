@@ -1,0 +1,81 @@
+# ============================================================================
+# GametimePicks .gitignore
+# ============================================================================
+
+# ---- Python -----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.python-version
+.venv/
+venv/
+env/
+
+# ---- Node / Next.js ---------------------------------------------------------
+app/node_modules/
+app/.next/
+app/out/
+app/.turbo/
+app/.swc/
+app/next-env.d.ts
+app/coverage/
+
+# Lockfiles other than package-lock.json (we commit npm by default)
+app/yarn.lock
+app/pnpm-lock.yaml
+app/bun.lockb
+
+# ---- Environment ------------------------------------------------------------
+# Never commit secrets. .env.example IS committed.
+.env
+.env.local
+.env.*.local
+!.env.example
+*.pem
+
+# ---- Pipeline runtime artifacts --------------------------------------------
+# The cache directory holds raw API responses; never commit.
+pipeline/cache/*
+!pipeline/cache/.gitkeep
+
+# Optional intermediate data dirs (used if you save raw CSVs locally)
+pipeline/data/raw/*
+pipeline/data/processed/*
+!pipeline/data/raw/.gitkeep
+!pipeline/data/processed/.gitkeep
+
+# Demo data IS committed — it's the offline fallback the app needs to render.
+!pipeline/demo_data/*.json
+
+# ---- IDE / OS ---------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---- Logs / temp ------------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.cache/
+tmp/
+
+# ---- Build artifacts that shouldn't escape ---------------------------------
+*.tsbuildinfo
+*.zip
+!visuals/*.png
+!visuals/*.jpg
