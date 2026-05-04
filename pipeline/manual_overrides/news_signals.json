@@ -1,0 +1,24 @@
+{
+  "_comment": "Manual news overrides file. See docs/news_overrides.md for the operator workflow. The 'signals' array holds active and historical entries. Expired signals are filtered automatically by the pipeline; you can leave them here as a record or prune periodically. Never invent statuses — only add signals you have a verifiable source URL for.",
+
+  "signals": [
+    {
+      "id": "example-2026-04-30-expired-template",
+      "createdAt": "2026-04-30T15:00:00-04:00",
+      "expiresAt": "2026-04-30T23:59:59-04:00",
+      "manuallyConfirmed": true,
+      "sourceName": "Example Reporter (template only)",
+      "sourceType": "manual",
+      "sourceUrl": "https://example.com/this-is-a-template-entry",
+      "sourceReliability": 0.5,
+      "playerName": "Example Player",
+      "team": "BOS",
+      "gameId": null,
+      "updateType": "other",
+      "note": "Template entry only — already expired. Replace with real signals when you have them. See docs/news_overrides.md.",
+      "confidence": 0.5,
+      "impact": "low",
+      "modelAction": "none"
+    }
+  ]
+}

@@ -69,6 +69,18 @@ export interface PropLean {
   status: ResultStatus;
   /** Final stat value once the game is settled */
   actualValue?: number;
+
+  // Phase 7B-1 additions
+  /** Optional gameId — wires settlement to box scores when present */
+  gameId?: string;
+  /** News signals matched to this lean (manual overrides) */
+  newsSignals?: NewsSignal[];
+  /** Aggregate model action from news signals */
+  newsAction?: "none" | "flag_risk" | "reduce_minutes" | "increase_usage" | "remove_from_board" | "manual_review_required";
+  /** Risk flags surfaced on the card, e.g. ["b2b_away", "thin_sample"] */
+  riskFlags?: string[];
+  /** Composite source-reliability score 0..1 */
+  sourceReliability?: number;
 }
 
 export interface BoardData {
@@ -82,6 +94,18 @@ export interface BoardData {
   isDemo: boolean;
   /** All leans + no-plays for the day */
   leans: PropLean[];
+
+  // Phase 7B-1 additions
+  /** Whether real (non-demo) schedule data was available for this date */
+  scheduleAvailable?: boolean;
+  /** Whether real (non-demo) props were available for this date */
+  propsAvailable?: boolean;
+  /** Source label for schedule, e.g. "nba_api" or "demo" */
+  scheduleSource?: string;
+  /** Source label for odds, or null if unavailable */
+  oddsSource?: string | null;
+  /** Scheduled games for this date — useful when leans is empty */
+  games?: ScheduleGame[];
 }
 
 // ---------------------------------------------------------------------------
@@ -202,7 +226,7 @@ export interface ScheduleData {
 
 export interface ProviderStatus {
   name: string;
-  kind: "nba" | "odds";
+  kind: "nba" | "odds" | "news" | "injury";
   tier: number;
   enabled: boolean;
   requires_api_key: boolean;
@@ -213,6 +237,78 @@ export interface ProviderStatus {
   last_error: string | null;
   last_run_at: string | null;
   notes: string;
+}
+
+// ---------------------------------------------------------------------------
+// Slate (Phase 7B-1) — multi-day window
+// ---------------------------------------------------------------------------
+
+export interface NewsSignal {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  sourceName: string;
+  sourceType: "official" | "reporter" | "provider" | "manual";
+  sourceUrl: string;
+  playerName: string;
+  team: string;
+  gameId: string | null;
+  updateType:
+    | "injury"
+    | "trade"
+    | "lineup"
+    | "minutes"
+    | "rest"
+    | "transaction"
+    | "coaching"
+    | "personal"
+    | "other";
+  note: string;
+  confidence: number;
+  impact: "low" | "medium" | "high";
+  modelAction:
+    | "none"
+    | "flag_risk"
+    | "reduce_minutes"
+    | "increase_usage"
+    | "remove_from_board"
+    | "manual_review_required";
+  manuallyConfirmed: boolean;
+  sourceReliability: number;
+}
+
+export interface SlateDay {
+  /** YYYY-MM-DD (ET) */
+  date: string;
+  /** Display label, e.g. "Today", "Tomorrow", "Tue May 5" */
+  dayLabel: string;
+  /** Whether the pipeline successfully produced data for this date */
+  isAvailable: boolean;
+  /** Number of scheduled games */
+  gameCount: number;
+  /** Number of model leans (0 if odds unavailable) */
+  leanCount: number;
+  /** Number of high-confidence leans */
+  highConfidenceCount: number;
+  /** Whether props/odds were available for this date */
+  propsAvailable: boolean;
+  /** Whether this is the date the user should see by default */
+  isPrimary: boolean;
+  /** Source label for the schedule data behind this date */
+  scheduleSource: string;
+  /** Source label for the odds data, or null if unavailable */
+  oddsSource: string | null;
+  /** Whether this date's data is from demo fallback */
+  isDemo: boolean;
+}
+
+export interface SlateData {
+  generatedAt: string;
+  primaryDate: string;
+  slateDays: number;
+  days: SlateDay[];
+  newsSignalsActive: number;
+  newsSignalsConfigured: boolean;
 }
 
 export interface MetaData {
@@ -235,4 +331,10 @@ export interface MetaData {
   providerStatuses?: ProviderStatus[];
   fallbackSourcesAvailable?: Record<string, "enabled" | "disabled">;
   lastSuccessfulFetch?: string;
+
+  // Phase 7B-1 additions
+  slateDays?: number;
+  primaryDate?: string;
+  newsSignalsConfigured?: boolean;
+  newsSignalsActive?: number;
 }

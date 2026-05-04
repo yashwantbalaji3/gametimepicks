@@ -4,54 +4,43 @@ A clear separation of what's done, what's next, and what's later. This
 file is the single source of truth — the README's "Roadmap" section
 mirrors the headlines below.
 
-## Now — v1 live demo foundation
+## Shipped
 
-Status: **shipped**.
+- ✅ **Phases 1-4 (foundation)** — pipeline, provider system, six-route
+  frontend, model logic, demo data, docs, deploy guide
+- ✅ **Phase 5 (launch)** — public deployment at
+  `gametimepicks.yashwantbalaji.com`, GitHub repo, Vercel auto-deploy
+- ✅ **Phase 6 (live polish)** — Sample Slate framing, duplicate-game
+  fix, recruiter-ready language, README/roadmap cleanup
+- ✅ **Phase 7A (research)** — full free-vs-paid API audit, Stack A
+  decision documented
+- ✅ **Phase 7B-1 (free slate foundation)** — multi-day slate (today + 3
+  days), 4-day date selector, real `nba_api` schedule path, manual news
+  overrides system, validation logger, clean unavailable states, demo
+  fallback preserved, free-only end-to-end
 
-- Pipeline + multi-source provider architecture
-- Explainable projection + probability + edge model
-- Six-route Next.js frontend (Home, Model Board, Player Trends, Results,
-  Methodology, Responsible Use)
-- Demo data foundation that always renders
-- Public deployment at `gametimepicks.yashwantbalaji.com`
-- Persistent disclaimer banner + responsible-use framing
-- Public polish: demo snapshot framing, sample-results labeling,
-  refreshed README, portfolio card copy
-- Smoke test + typecheck + build all clean
+## Next — Phase 7B-2 (when a free Odds API key is available)
 
-## Next — real data validation
+Status: **planned, not yet started**. Requires the operator to grab a
+free key from <https://the-odds-api.com/> first (no payment, no card).
 
-Status: **planned, not yet started**.
+- [ ] **Wire The Odds API client.** Real player-prop fetching with
+  proper auth headers.
+- [ ] **File-based response caching.** Stay under the 500-req/mo free
+  tier with a smart cache TTL strategy (e.g. 30 min cache during the day,
+  4 hours overnight).
+- [ ] **Rate-limit awareness.** Surface remaining credits in
+  `meta.json`. Pipeline pauses gracefully when budget is low.
+- [ ] **Apply news-signal `modelAction`.** Phase 7B-1 records signals;
+  Phase 7B-2 makes the projection / risk flags reactive to them.
+- [ ] **Source-reliability score in scoring output.** Already computed
+  in 7B-1; expose it visibly in the lean reason text.
+- [ ] **Wire `gameId` onto leans for settlement.** Already in the
+  pipeline schema; needs the settle_results.py side wired up.
+- [ ] **Improved reason text.** When a news signal applies, the reason
+  string mentions it ("Embiid status flagged — confidence reduced").
 
-This is the next milestone. The architecture is ready; what's needed is
-the first end-to-end run on real data and the discipline to validate
-honestly before claiming any track record.
-
-- [ ] **Validate the real NBA data feed.** Run `fetch_nba_schedule` and
-  `fetch_player_game_logs` against `nba_api` for a week. Confirm the
-  data shapes match what the model expects. Catch any caching or rate-
-  limit issues.
-- [ ] **Add Odds API key.** Acquire a key (the free tier is 500 req/mo).
-  Verify the live pipeline produces a board with real odds.
-- [ ] **Run in live + hybrid modes.** Set `NBA_DATA_MODE=auto` and
-  `ODDS_DATA_MODE=auto` in production. Confirm the data-source badge
-  flips to Live (or Hybrid) and the dates align with tonight's slate.
-- [ ] **Iterate on the projection model.** Compare projections against
-  actual results for two weeks. Document the calibration delta. Tune
-  weights only if the data clearly justifies it.
-- [ ] **Wire `gameId` onto leans.** Currently `settle_results.py` is a
-  framework that can settle a lean once the box score arrives — but it
-  needs `gameId` on each lean to look up the right box score
-  unambiguously. This is a small change in `generate_daily_board.py`.
-- [ ] **Complete settlement logic.** Once `gameId` is wired, run
-  `settle_results.py` against a day of finished games. Verify the
-  `recentSettled` list updates and `byMarket` / `byConfidence` rollups
-  recompute correctly.
-
-This whole block is roughly 1-2 weeks of focused work, most of which is
-running the pipeline on real data and reading what comes out.
-
-## Later — production hardening
+## Later — Phase 7C+ (production hardening, not yet committed)
 
 Status: **future, do not implement yet**.
 
@@ -64,27 +53,28 @@ Status: **future, do not implement yet**.
 - [ ] **Model backtesting.** Replay historical NBA seasons through the
   pipeline. Build a backtest dashboard showing month-over-month hit
   rate, calibration, and (eventually) ROI.
-- [ ] **MLB / NFL / WNBA expansion.** Same pipeline shape. Add
-  `MLBStatsProvider` + `MLBOddsProvider` adapters, swap the model
-  weights for stats appropriate to the sport, reuse the frontend.
-- [ ] **Automated launch posts** *(future, not yet)*. When there's
-  something concrete to share — e.g. real tracked results from a
-  validated live run — consider scheduled X/LinkedIn posting. Do not
-  implement until the underlying claims are real.
-- [ ] **ROI tracking.** Only after the methodology supports it
-  rigorously. Hit rate alone isn't profit; vig means break-even on -110
-  is ~52.4%. ROI requires careful per-lean stake sizing accounting.
+- [ ] **Evaluate BallDontLie GOAT upgrade ($39.99/mo).** After 30+ days
+  of free-only operation, decide whether the unified injuries + props
+  + lineups bundle is worth the spend. See Phase 7A research.
+- [ ] **MLB / NFL / WNBA expansion.** Same pipeline shape. Add adapters,
+  swap model weights, reuse the frontend.
+- [ ] **ROI tracking.** Only after methodology supports it rigorously.
 
 ## Explicit non-goals
 
 Things this project will not do:
 
-- Sell picks
-- Run a paid Discord
-- Affiliate-link to sportsbooks
-- Claim profitability before the data supports it
-- Place bets via API or any automation
-- Scrape DraftKings / FanDuel / ESPN HTML / theScore app
-- Use language like "lock," "guaranteed," "free money," "smash,"
-  "can't miss," "beat the books," "premium picks," "sure thing,"
-  "profit guaranteed"
+- ❌ Charge for picks. This is educational analytics, not a tipster
+  service.
+- ❌ Use any paid API in Phase 7B-1. Stack A free-only is the constraint.
+- ❌ Scrape sportsbook websites or apps (DraftKings, FanDuel, etc.).
+- ❌ Scrape Twitter/X. The X API is also deferred — manual overrides
+  are the right answer until the model is validated.
+- ❌ Reverse-engineer mobile APIs of any provider.
+- ❌ Use gambling-hype language: "lock," "guaranteed," "smash,"
+  "free money," "premium picks." All copy stays educational and honest.
+- ❌ Make profitability claims, period.
+- ❌ Auto-post to social platforms before there's something validated to
+  post about.
+- ❌ Fabricate injury / news / lineup / status data. Manual overrides
+  with verifiable source URLs only.

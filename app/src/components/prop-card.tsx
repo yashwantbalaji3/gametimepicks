@@ -25,6 +25,8 @@ import {
 import ConfidenceBadge from "./confidence-badge";
 import EdgePill from "./edge-pill";
 import StatusBadge from "./status-badge";
+import NewsSignalBadge from "./news-signal-badge";
+import DataReliabilityBadge from "./data-reliability-badge";
 
 interface Props {
   lean: PropLean;
@@ -38,6 +40,7 @@ export default function PropCard({ lean, delay }: Props) {
   const oddsForLean = lean.lean === "Under" ? lean.oddsUnder : lean.oddsOver;
   const directionLabel =
     lean.lean === "Over" ? "O" : lean.lean === "Under" ? "U" : "—";
+  const hasSignals = (lean.newsSignals?.length ?? 0) > 0;
 
   return (
     <article
@@ -95,6 +98,21 @@ export default function PropCard({ lean, delay }: Props) {
       <p className="mt-4 text-[13px] text-[var(--text-mute)] leading-relaxed border-t border-[var(--border)] pt-3">
         {lean.reason}
       </p>
+
+      {/* News signals (manual overrides) */}
+      {hasSignals && <NewsSignalBadge signals={lean.newsSignals!} />}
+
+      {/* Data reliability footer */}
+      {lean.sourceReliability !== undefined && (
+        <div className="mt-3 pt-3 border-t border-[var(--border)] flex items-center justify-between gap-2">
+          <DataReliabilityBadge score={lean.sourceReliability} />
+          {lean.bookmaker && (
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
+              {lean.bookmaker}
+            </span>
+          )}
+        </div>
+      )}
     </article>
   );
 }

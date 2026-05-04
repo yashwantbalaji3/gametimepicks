@@ -220,6 +220,41 @@ export default function MethodologyPage() {
           </li>
         </ul>
       </section>
+
+      {/* News overrides — Phase 7B-1 */}
+      <section className="mt-12 reveal">
+        <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-3">
+          Manual news overrides
+        </h2>
+        <p className="text-[15px] text-[var(--text-mute)] leading-relaxed mb-4">
+          Phase 7B-1 introduces a free, compliant news layer: a local JSON
+          file at{" "}
+          <code className="font-mono text-[13px] text-[var(--text)]">
+            pipeline/manual_overrides/news_signals.json
+          </code>
+          . The operator manually adds entries when verifiable news appears
+          (official injury reports, beat reporters, team accounts). Each
+          signal carries a source URL, timestamp, and{" "}
+          <code className="font-mono text-[13px]">modelAction</code> directive
+          (e.g.{" "}
+          <code className="font-mono text-[13px]">remove_from_board</code>,{" "}
+          <code className="font-mono text-[13px]">flag_risk</code>).
+        </p>
+        <p className="text-[15px] text-[var(--text-mute)] leading-relaxed mb-4">
+          The pipeline reads this file on every run, filters expired signals,
+          and attaches relevant ones to each lean. Signals appear on prop
+          cards with the source label, update type, and a verification link.
+        </p>
+        <p className="text-[15px] text-[var(--text-mute)] leading-relaxed mb-4">
+          What this does <span className="text-[var(--text)]">not</span> do:
+          we do not scrape Twitter/X, do not auto-ingest from any social
+          platform, and do not invent player statuses. If no signal exists
+          for a player, the UI says &ldquo;No active manual signals&rdquo;
+          rather than asserting they are healthy. See{" "}
+          <code className="font-mono text-[13px]">docs/news_overrides.md</code>{" "}
+          in the repo for the operator workflow.
+        </p>
+      </section>
     </div>
   );
 }

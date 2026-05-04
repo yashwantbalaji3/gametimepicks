@@ -57,7 +57,7 @@ export default function Nav() {
         {/* Mobile: compact menu indicator. The actual mobile menu is a simple
             horizontally scrolling row beneath. */}
         <div className="md:hidden text-[11px] font-mono text-[var(--text-faint)] uppercase tracking-wider">
-          v0.3
+          v0.4
         </div>
       </div>
 

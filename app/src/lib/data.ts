@@ -15,6 +15,7 @@ import type {
   HitRatesData,
   MetaData,
   ScheduleData,
+  SlateData,
 } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "public", "data");
@@ -37,6 +38,32 @@ export function getBoard(): BoardData {
     dataSources: ["demo"],
     isDemo: true,
     leans: [],
+  });
+}
+
+export function getBoardForDate(date: string): BoardData {
+  return readJson<BoardData>(`boards/${date}.json`, {
+    generatedFor: date,
+    generatedAt: new Date().toISOString(),
+    dataSources: [],
+    isDemo: true,
+    leans: [],
+    scheduleAvailable: false,
+    propsAvailable: false,
+    scheduleSource: "unavailable",
+    oddsSource: null,
+    games: [],
+  });
+}
+
+export function getSlate(): SlateData {
+  return readJson<SlateData>("slate.json", {
+    generatedAt: new Date().toISOString(),
+    primaryDate: new Date().toISOString().slice(0, 10),
+    slateDays: 1,
+    days: [],
+    newsSignalsActive: 0,
+    newsSignalsConfigured: false,
   });
 }
 

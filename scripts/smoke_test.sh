@@ -66,6 +66,7 @@ REQUIRED_FILES=(
     "app/public/data/trends.json"
     "app/public/data/meta.json"
     "app/public/data/hit_rates.json"
+    "app/public/data/slate.json"
 )
 
 for f in "${REQUIRED_FILES[@]}"; do
@@ -142,11 +143,54 @@ if not isinstance(trends.get("players"), list):
     print("  ✗ trends.json missing 'players' list", file=sys.stderr)
     sys.exit(1)
 
+# Phase 7B-1: slate.json shape + per-date boards/<date>.json must exist
+slate = json.load(open("app/public/data/slate.json"))
+required_slate = ["generatedAt", "primaryDate", "slateDays", "days",
+                  "newsSignalsActive", "newsSignalsConfigured"]
+missing = [k for k in required_slate if k not in slate]
+if missing:
+    print(f"  ✗ slate.json missing keys: {missing}", file=sys.stderr)
+    sys.exit(1)
+if not isinstance(slate.get("days"), list) or len(slate["days"]) == 0:
+    print("  ✗ slate.json days is empty", file=sys.stderr)
+    sys.exit(1)
+
+# Each slate day requires these fields
+required_day = ["date", "dayLabel", "isAvailable", "gameCount", "leanCount",
+                "isPrimary", "isDemo"]
+for d in slate["days"]:
+    missing = [k for k in required_day if k not in d]
+    if missing:
+        print(f"  ✗ slate day {d.get('date')} missing keys: {missing}", file=sys.stderr)
+        sys.exit(1)
+
+# Per-date board files exist + parse for each slate day
+import os
+for d in slate["days"]:
+    p = f"app/public/data/boards/{d['date']}.json"
+    if not os.path.exists(p):
+        print(f"  ✗ missing per-date board: {p}", file=sys.stderr)
+        sys.exit(1)
+    try:
+        json.load(open(p))
+    except json.JSONDecodeError as e:
+        print(f"  ✗ {p} does not parse: {e}", file=sys.stderr)
+        sys.exit(1)
+
+# Exactly one day must be primary
+primary_days = [d for d in slate["days"] if d.get("isPrimary")]
+if len(primary_days) != 1:
+    print(f"  ✗ slate has {len(primary_days)} primary days (expected 1)", file=sys.stderr)
+    sys.exit(1)
+
 print(f"  ✓ meta.json has {len(required_meta)} required keys")
 print(f"  ✓ meta.json providerStatuses: {len(meta['providerStatuses'])} entries")
 print(f"  ✓ board.json has {len(board['leans'])} leans")
 print(f"  ✓ board.json sample lean has all {len(required_lean)} required fields")
 print(f"  ✓ trends.json has {len(trends['players'])} players")
+print(f"  ✓ slate.json: {slate['slateDays']} days, primary={slate['primaryDate']}")
+print(f"  ✓ per-date boards: {len(slate['days'])} files present")
+print(f"  ✓ news signals: configured={slate['newsSignalsConfigured']}, active={slate['newsSignalsActive']}")
 PYEOF
 
 # ---------------------------------------------------------------------------

@@ -18,10 +18,12 @@
 
 | | |
 |---|---|
-| **Phase** | v1 live — public demo foundation |
+| **Phase** | 7B-1 — free-only multi-day slate foundation |
 | **Mode** | Demo (sample data, no live API keys configured) |
 | **Live since** | May 2026 |
-| **Next milestone** | Real NBA data pipeline validation + Odds API integration |
+| **Slate window** | Today + 3 days (configurable via `SLATE_DAYS`) |
+| **News layer** | Manual overrides — `pipeline/manual_overrides/news_signals.json` |
+| **Next milestone** | Phase 7B-2: Odds API free-tier integration once a key is configured |
 
 ## What this project does
 
@@ -194,30 +196,36 @@ JSON, push. Vercel redeploys automatically. Full deploy guide at
 
 ## Roadmap
 
-### Now (v1 — public demo foundation)
+### Shipped
 
 - ✅ Pipeline + provider architecture
-- ✅ Model board interface
-- ✅ Player trends + results + methodology pages
-- ✅ Demo data foundation
-- ✅ Public deployment + custom domain
-- 🔧 Public polish + portfolio integration *(in progress)*
+- ✅ Model board interface with filters, sparklines, calibration chart
+- ✅ Player trends + results + methodology + responsible-use pages
+- ✅ Demo data foundation, honest demo/live/hybrid labeling
+- ✅ Public deployment + custom domain (Phases 5-6)
+- ✅ Demo framing polish, duplicate schedule fix (Phase 6)
+- ✅ **Phase 7B-1: today + 3-day slate foundation**
+- ✅ **Phase 7B-1: real `nba_api` schedule path (works without key)**
+- ✅ **Phase 7B-1: manual news-overrides system + reader + UI badges**
+- ✅ **Phase 7B-1: validation logger scaffold (`leans_log.jsonl`)**
+- ✅ **Phase 7B-1: clean `props-unavailable` + `no-games-today` states**
 
-### Next
+### Next — Phase 7B-2 (when a free Odds API key is available)
 
-- Validate real NBA data feed via `nba_api` end-to-end
-- Add Odds API key + verify live-mode pipeline
-- Build live/hybrid mode in production
-- Iterate on the projection model with real data
-- Wire `gameId` onto leans + complete settlement logic
+- Wire The Odds API free-tier client (500 req/mo)
+- File-based response caching to stay under the free limit
+- Apply news-signal `modelAction` directives to projection / risk flags
+- Source-reliability score in scoring output
+- Per-lean `gameId` wiring for settlement
+- Improved reason text incorporating signal context
 
 ### Later
 
 - Scheduled daily refresh via GitHub Actions or cron
-- Automated result tracking
+- Automated result tracking + closing-line capture
 - Model backtesting on historical seasons
-- WNBA / MLB / NFL expansion if the architecture proves out
-- *(future)* automated launch posts when there's something concrete to share
+- *(deferred)* paid providers (BallDontLie GOAT, SportsData.io, OpticOdds) — only if the project ever needs them
+- *(deferred)* X API integration — manual overrides remain the right answer until model is validated
 
 ## Limitations
 

@@ -37,17 +37,30 @@ DATA_OUT = Path(os.getenv("GTP_DATA_OUT", APP_PUBLIC_DATA)).resolve()
 # Tier 1 — primary
 NBA_DATA_PROVIDER = os.getenv("NBA_DATA_PROVIDER", "nba_api")
 ODDS_PROVIDER = os.getenv("ODDS_PROVIDER", "the_odds_api")
+NEWS_PROVIDER = os.getenv("NEWS_PROVIDER", "manual")
+INJURY_PROVIDER = os.getenv("INJURY_PROVIDER", "manual")
 
 # Mode forcing — "demo" forces the demo provider for that data kind regardless
 # of which Tier 1 provider is configured. "auto" lets the chain decide.
+# "manual" (news/injury only) means we read manual_overrides/news_signals.json.
 NBA_DATA_MODE = os.getenv("NBA_DATA_MODE", "auto").lower()
 ODDS_DATA_MODE = os.getenv("ODDS_DATA_MODE", "auto").lower()
+NEWS_DATA_MODE = os.getenv("NEWS_DATA_MODE", "manual").lower()
+INJURY_DATA_MODE = os.getenv("INJURY_DATA_MODE", "manual").lower()
 
 # Tier 2/3 — opt-in fallbacks
 ENABLE_ESPN_FALLBACK = os.getenv("ENABLE_ESPN_FALLBACK", "false").lower() == "true"
 ENABLE_BALLDONTLIE_FALLBACK = os.getenv("ENABLE_BALLDONTLIE_FALLBACK", "false").lower() == "true"
 ENABLE_OPTICODDS = os.getenv("ENABLE_OPTICODDS", "false").lower() == "true"
 ENABLE_SPORTSDATA = os.getenv("ENABLE_SPORTSDATA", "false").lower() == "true"
+
+
+# ---------------------------------------------------------------------------
+# Slate window (Phase 7B-1)
+# ---------------------------------------------------------------------------
+# Number of days the slate covers, starting today.
+# 4 = today + 3 future days.
+SLATE_DAYS = max(1, min(7, int(os.getenv("SLATE_DAYS", "4"))))
 
 
 # ---------------------------------------------------------------------------
