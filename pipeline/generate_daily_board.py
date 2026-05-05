@@ -90,6 +90,9 @@ ODDS_STATUS_OK_WITH_PROPS = "ok_with_props"     # key + props returned
 ODDS_STATUS_OK_NO_PROPS = "ok_no_props"         # key + zero props
 ODDS_STATUS_FAILED = "failed"                   # key + API errored
 ODDS_STATUS_DEMO = "demo"                       # DemoForced
+# Phase 7B-3: dry-run mode — ODDS_DRY_RUN=true skips paid /odds calls.
+# Pipeline still hits /events (free) so we can show what would be fetched.
+ODDS_STATUS_DRY_RUN = "dry_run"
 
 
 # ---------------------------------------------------------------------------
@@ -668,6 +671,52 @@ def _resolve_odds_for_date(
     if not has_odds_key:
         log.info("  odds: ODDS_API_KEY not set → status=not_configured")
         return base
+
+    # Phase 7B-3: dry-run mode. Hit /events (FREE) so we can confirm key
+    # works and report what WOULD be fetched, but skip /odds calls.
+    if C.ODDS_DRY_RUN:
+        try:
+            from .fetch_odds_data import fetch_events_only_with_diagnostics
+            ev_diag = fetch_events_only_with_diagnostics(
+                date=target_date,
+                slate_games=games,
+            )
+        except Exception as e:
+            log.warning(f"  odds: dry-run /events check failed: {e}")
+            base["odds_source"] = "the_odds_api"
+            base["odds_provider_status"] = ODDS_STATUS_FAILED
+            base["fetch_attempted"] = True
+            base["failure_reason"] = f"dry-run /events check failed: {e}"
+            return base
+
+        out = {**base}
+        out["odds_source"] = "the_odds_api"
+        out["odds_provider_status"] = ODDS_STATUS_DRY_RUN
+        out["fetch_attempted"] = True
+        out["fetch_succeeded"] = ev_diag["fetch_succeeded"]
+        out["raw_event_count"] = ev_diag["raw_event_count"]
+        out["matched_event_count"] = ev_diag["matched_event_count"]
+        out["attempted_event_count"] = 0  # dry-run never calls /odds
+        out["parsed_prop_count"] = 0
+        out["cache_status"] = ev_diag["cache_status"]
+        out["quota_remaining"] = ev_diag["quota_remaining"]
+        out["quota_used"] = ev_diag["quota_used"]
+        out["last_call_cost"] = 0
+        out["cost_estimate_per_run"] = 0  # dry run burns 0 paid credits
+        cost_per_event = max(1, len(C.ODDS_MARKETS)) * max(1, len(C.ODDS_REGIONS))
+        would_fetch = min(out["matched_event_count"], C.ODDS_MAX_EVENTS_PER_RUN)
+        would_cost = would_fetch * cost_per_event
+        out["failure_reason"] = (
+            f"ODDS_DRY_RUN=true — skipped /odds fetches. "
+            f"Would have called /odds for {would_fetch} event(s), "
+            f"costing ~{would_cost} credit(s)."
+        )
+        log.info(
+            f"  odds: dry_run events_raw={out['raw_event_count']} "
+            f"matched={out['matched_event_count']} would_fetch={would_fetch} "
+            f"would_cost={would_cost} cache={out['cache_status']}"
+        )
+        return out
 
     # Try fetch
     try:

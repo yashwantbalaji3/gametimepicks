@@ -248,15 +248,18 @@ function DemoSampleHeading() {
  *   not_configured        → "props unavailable — odds provider not configured"
  *   ok_no_props           → "no player props returned for this slate"
  *   failed                → "odds provider unavailable" (with error detail)
+ *   dry_run               → "dry-run mode — odds fetches skipped" (Phase 7B-3)
  */
 function propsUnavailableReason(
   board: BoardData,
-): "not_configured" | "no_props_returned" | "provider_failed" {
+): "not_configured" | "no_props_returned" | "provider_failed" | "dry_run" {
   switch (board.oddsProviderStatus) {
     case "ok_no_props":
       return "no_props_returned";
     case "failed":
       return "provider_failed";
+    case "dry_run":
+      return "dry_run";
     case "not_configured":
     default:
       return "not_configured";

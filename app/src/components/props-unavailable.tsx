@@ -1,4 +1,8 @@
-type Reason = "not_configured" | "no_props_returned" | "provider_failed";
+type Reason =
+  | "not_configured"
+  | "no_props_returned"
+  | "provider_failed"
+  | "dry_run";
 
 interface Props {
   gameCount: number;
@@ -13,6 +17,11 @@ interface Props {
  *   not_configured     — ODDS_API_KEY not set in environment
  *   no_props_returned  — fetch succeeded but the slate has zero player props
  *   provider_failed    — fetch attempt errored (network, auth, rate limit)
+ *
+ * Phase 7B-3 adds a fourth:
+ *   dry_run            — ODDS_DRY_RUN=true; pipeline confirmed slate visible
+ *                        to The Odds API (FREE /events call) but skipped
+ *                        paid /odds calls to preserve credits.
  *
  * No reason produces fake odds, fake lines, or invented projections.
  */
@@ -48,6 +57,11 @@ export default function PropsUnavailable({
           {failureReason && reason === "provider_failed" && (
             <div className="mt-3 font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
               provider error: {failureReason}
+            </div>
+          )}
+          {failureReason && reason === "dry_run" && (
+            <div className="mt-3 font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
+              {failureReason}
             </div>
           )}
           <div className="mt-3 font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
@@ -98,6 +112,26 @@ function copyForReason(reason: Reason, gameCount: number) {
             the-odds-api.com/account ↗
           </a>
           .
+        </>
+      ),
+    };
+  }
+
+  if (reason === "dry_run") {
+    return {
+      borderColor: "var(--amber)",
+      accentLabel: "props",
+      headline: "Dry-run mode — odds fetches skipped to preserve credits",
+      body: (
+        <>
+          {games} on the schedule, and The Odds API was reachable (the FREE
+          /events check confirmed your key works), but per-event /odds calls
+          were skipped because{" "}
+          <code className="font-mono text-[12px]">ODDS_DRY_RUN=true</code> is
+          set in your environment. Zero paid credits were used. To fetch real
+          props, set{" "}
+          <code className="font-mono text-[12px]">ODDS_DRY_RUN=false</code>{" "}
+          (or remove the line) and re-run the pipeline.
         </>
       ),
     };

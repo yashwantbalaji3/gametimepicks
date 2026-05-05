@@ -232,6 +232,7 @@ if board["dataMode"] == "ScheduleUnavailable":
 # ----------------------------------------------------------------------
 valid_odds_status = {
     None, "not_configured", "ok_with_props", "ok_no_props", "failed", "demo",
+    "dry_run",
 }
 if board.get("oddsProviderStatus") not in valid_odds_status:
     print(

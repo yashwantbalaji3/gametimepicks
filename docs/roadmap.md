@@ -31,42 +31,60 @@ mirrors the headlines below.
   `failed`), no fake odds or fabricated props ever, key still optional —
   app ships and runs unchanged when `ODDS_API_KEY` is absent. Walkthrough
   in [docs/odds_api_setup.md](./odds_api_setup.md).
+- ✅ **Phase 7B-3 (activation diagnostics + QA guardrails)** —
+  `python -m pipeline.check_odds_key` validates `ODDS_API_KEY` against
+  `/v4/sports/` (FREE per provider docs) without burning credits and
+  never logs the key, `python -m pipeline.cache_inspect` lists/clears
+  cached responses, `python -m pipeline.diagnose` prints a comprehensive
+  report from the latest run, `ODDS_DRY_RUN=true` mode hits `/events`
+  (FREE) and reports what would be fetched but skips paid `/odds` calls
+  entirely. Operator workflow rewritten in
+  [docs/odds_api_setup.md](./odds_api_setup.md).
 
-## Next — Phase 7B-3 (model scoring cleanup, blocked on real-prop volume)
+## Next — Phase 7C (settlement + result tracking)
 
-Status: **planned, depends on operator running 7B-2 with a key for some
-time so we have real prop rows in `leans_log.jsonl` to inspect**.
+Status: **planned, depends on operator running 7B-2 with a real key for
+some time so settled NBA games + logged leans both exist**.
 
-- [ ] **Vig-stripped fair price** surfaced prominently on the prop card,
-  not just in the JSON
-- [ ] **"Insufficient data" guardrails** — minimum sample size, minutes
-  trend filter, position-aware projection notes
-- [ ] **Calibration tracking** once enough real prop rows are settled
-  (depends on Phase 7C settlement)
-- [ ] **Better player→team mapping** for cases where rosters are stale
-  or `nba_api` is unreachable but odds are available
-- [ ] **Edge-aware confidence** — currently a static High/Medium/Low
-  bucket; should reflect both edge magnitude AND sample reliability
+- [ ] **Wire `settle_results.py` to the validation log.** Mark pending
+  leans as W/L/push once final box scores are available.
+- [ ] **Closing-line value capture.** The Odds API exposes `historical=true`
+  on the free tier — store the closing line for each lean.
+- [ ] **Real `hit_rates.json`** populated from settled rows, not seed.
+- [ ] **Per-prop calibration tracking** once volume is high enough to
+  reason about cohort sizes honestly.
 
-## Later — Phase 7C+ (production hardening, not yet committed)
+## Later — Phase 7B-4 + Phase 7D (model + automation, gated on signal)
 
 Status: **future, do not implement yet**.
 
-- [ ] **Scheduled daily refresh.** GitHub Actions workflow that runs the
-  pipeline once a day at 11 AM ET, commits the updated JSON, pushes.
-  Vercel auto-redeploys. Skeleton already drafted in `docs/deploy.md`.
-- [ ] **Automated result tracking.** A second daily action that runs
+- [ ] **Phase 7B-4 — model scoring cleanup.** Vig-stripped fair price
+  surfaced on the prop card, "insufficient data" guardrails (min sample
+  size, minutes trend filter, position-aware notes), edge-aware
+  confidence (currently static High/Medium/Low). Gated on Phase 7C
+  producing real settled rows.
+- [ ] **Phase 7D — scheduled daily refresh.** GitHub Actions workflow
+  that runs the pipeline once a day at 11 AM ET, commits the updated
+  JSON, pushes. Vercel auto-redeploys. Skeleton already drafted in
+  `docs/deploy.md`.
+- [ ] **Automated settlement.** A second daily action that runs
   `settle_results.py` against the previous day's pending leans, commits
   the updated `hit_rates.json`.
 - [ ] **Model backtesting.** Replay historical NBA seasons through the
   pipeline. Build a backtest dashboard showing month-over-month hit
   rate, calibration, and (eventually) ROI.
-- [ ] **Evaluate BallDontLie GOAT upgrade ($39.99/mo).** After 30+ days
-  of free-only operation, decide whether the unified injuries + props
-  + lineups bundle is worth the spend. See Phase 7A research.
 - [ ] **MLB / NFL / WNBA expansion.** Same pipeline shape. Add adapters,
   swap model weights, reuse the frontend.
 - [ ] **ROI tracking.** Only after methodology supports it rigorously.
+
+## Indefinitely deferred
+
+- ❌ **Paid providers** (BallDontLie GOAT, SportsData.io, OpticOdds).
+  The free stack is sufficient for the current scope and adding spend
+  to a portfolio project for unvalidated upside isn't justified.
+- ❌ **X API integration.** Manual overrides are the right answer until
+  the model is validated. Even then, posting requires settled hit-rate
+  data, which requires Phase 7C.
 
 ## Explicit non-goals
 

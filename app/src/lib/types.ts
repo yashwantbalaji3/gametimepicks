@@ -139,6 +139,7 @@ export interface BoardData {
     | "ok_no_props"
     | "failed"
     | "demo"
+    | "dry_run"
     | null;
   oddsFetchAttempted?: boolean;
   oddsFetchSucceeded?: boolean;
@@ -385,6 +386,7 @@ export interface SlateDay {
     | "ok_no_props"
     | "failed"
     | "demo"
+    | "dry_run"
     | null;
 }
 
@@ -451,6 +453,7 @@ export interface MetaData {
     | "ok_no_props"
     | "failed"
     | "demo"
+    | "dry_run"
     | null;
   /** Provider error message if odds fetch failed today */
   todayOddsFailureReason?: string | null;

@@ -374,6 +374,68 @@ class OddsApiProvider(OddsProvider):
             # Unknown markets are silently dropped — fail-closed for budget
         return keys
 
+    # ------------------------------------------------------------------
+    # Phase 7B-3 — public events-only wrapper for ODDS_DRY_RUN
+    # ------------------------------------------------------------------
+    def list_events_for_slate_with_diagnostics(
+        self,
+        date: str,
+        slate_games: list[dict],
+    ) -> dict:
+        """Hit /events (FREE) for `date` and return how many of them match
+        the local slate. Never calls /events/{id}/odds.
+
+        Per The Odds API docs, /events does not consume usage credits but
+        the response still includes x-requests-remaining so we can report
+        quota state.
+
+        Returns a diag dict with the keys the orchestrator expects.
+        """
+        if not self._is_configured():
+            return {
+                "fetch_succeeded": False,
+                "failure_reason": "ODDS_API_KEY not set",
+                "raw_event_count": 0,
+                "matched_event_count": 0,
+                "cache_status": "miss",
+                "quota_remaining": None,
+                "quota_used": None,
+            }
+
+        try:
+            events, headers = self._fetch_events_for_date(date)
+        except ProviderError as e:
+            return {
+                "fetch_succeeded": False,
+                "failure_reason": str(e),
+                "raw_event_count": 0,
+                "matched_event_count": 0,
+                "cache_status": "miss",
+                "quota_remaining": None,
+                "quota_used": None,
+            }
+        except Exception as e:
+            return {
+                "fetch_succeeded": False,
+                "failure_reason": f"unexpected error: {e}",
+                "raw_event_count": 0,
+                "matched_event_count": 0,
+                "cache_status": "miss",
+                "quota_remaining": None,
+                "quota_used": None,
+            }
+
+        matched = self._match_events_to_slate(events, slate_games)
+        return {
+            "fetch_succeeded": True,
+            "failure_reason": None,
+            "raw_event_count": len(events),
+            "matched_event_count": len(matched),
+            "cache_status": "miss",  # /events isn't cached today
+            "quota_remaining": _parse_int_header(headers, "x-requests-remaining"),
+            "quota_used": _parse_int_header(headers, "x-requests-used"),
+        }
+
     def _fetch_events_for_date(self, date: str) -> tuple[list, dict]:
         """List events whose commence_time is on `date` in ET.
 
@@ -566,3 +628,22 @@ def _split_bookmakers(s: str) -> list[str]:
     if not s:
         return []
     return [b.strip() for b in s.split(",") if b.strip()]
+
+
+def _parse_int_header(headers: dict, name: str) -> int | None:
+    """Phase 7B-3 — best-effort int parse of an HTTP response header.
+
+    Returns None if the header is missing or unparseable. Used by the
+    dry-run path to surface The Odds API's x-requests-remaining /
+    x-requests-used values without needing a per-call diag dict.
+    """
+    if not headers:
+        return None
+    raw = headers.get(name) if hasattr(headers, "get") else None
+    if raw is None:
+        return None
+    try:
+        return int(str(raw).strip())
+    except (ValueError, TypeError):
+        return None
+

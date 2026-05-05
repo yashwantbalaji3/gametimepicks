@@ -182,6 +182,17 @@ ODDS_CACHE_TTL_MINUTES = _parse_int(
     "ODDS_CACHE_TTL_MINUTES", default=60, minimum=5, maximum=1440,
 )
 
+# Phase 7B-3: dry-run mode for the odds path.
+# When ODDS_DRY_RUN=true:
+#   - /events listing (FREE) still runs so we can confirm the slate is
+#     visible to The Odds API and see what WOULD be fetched
+#   - /events/{id}/odds (paid) is SKIPPED so no credits are burned
+#   - oddsProviderStatus is set to "dry_run"
+#   - Board renders the schedule with a "dry-run" props-unavailable banner
+# This lets operators validate plumbing end-to-end without spending credits
+# on the first key test.
+ODDS_DRY_RUN = (os.getenv("ODDS_DRY_RUN", "false").strip().lower() == "true")
+
 
 # ---------------------------------------------------------------------------
 # Back-compat aliases — keep older code working without a wider refactor.

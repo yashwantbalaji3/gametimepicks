@@ -18,12 +18,12 @@
 
 | | |
 |---|---|
-| **Phase** | 7B-2 — optional Odds API free-tier integration (key still optional, app works without it) |
+| **Phase** | 7B-3 — Odds API activation diagnostics + QA guardrails (key still optional) |
 | **Mode** | Auto — `nba_api` real schedule first, manual override fallback, explicit `ScheduleUnavailable` if both fail |
 | **Live since** | May 2026 |
 | **Slate window** | Today + 3 days (configurable via `SLATE_DAYS`) |
 | **News layer** | Manual overrides — `pipeline/manual_overrides/news_signals.json` |
-| **Next milestone** | Phase 7B-3: model scoring cleanup once real props are flowing through enough operators |
+| **Next milestone** | Phase 7C — settlement + result tracking once enough real prop rows are logged |
 
 ## What this project does
 
@@ -174,6 +174,27 @@ python -m pipeline.settle_results
 bash scripts/smoke_test.sh
 ```
 
+## Diagnostic commands (Phase 7B-3)
+
+These tools help you safely add an Odds API key without burning credits.
+Full walkthrough: [`docs/odds_api_setup.md`](docs/odds_api_setup.md).
+
+```bash
+# Validate ODDS_API_KEY (FREE — costs 0 credits, never prints the key)
+python -m pipeline.check_odds_key
+bash scripts/check_odds_key.sh           # shell wrapper
+
+# Inspect the latest pipeline run output
+python -m pipeline.diagnose
+
+# Inspect or clear the response cache
+python -m pipeline.cache_inspect
+python -m pipeline.cache_inspect --clear --kind odds_api
+
+# Dry-run mode — calls /events (FREE) but skips paid /odds calls
+ODDS_DRY_RUN=true bash scripts/run_pipeline.sh
+```
+
 ## Frontend commands
 
 ```bash
@@ -212,13 +233,15 @@ JSON, push. Vercel redeploys automatically. Full deploy guide at
 - ✅ **Phase 7B-1.1: real-slate / demo-fallback separation, explicit DataMode state machine**
 - ✅ **Phase 7B-1.2: manual schedule override safety net + `ScheduleUnavailable` state**
 - ✅ **Phase 7B-2: optional The Odds API free-tier integration with full diagnostic metadata, response caching, and three explicit "props-unavailable" sub-states (not configured / no props returned / provider failed)**
+- ✅ **Phase 7B-3: Odds API activation diagnostics — `python -m pipeline.check_odds_key` (FREE key validation), `python -m pipeline.cache_inspect`, `python -m pipeline.diagnose`, `ODDS_DRY_RUN=true` mode (events visibility check, zero paid /odds calls), full operator walkthrough in [docs/odds_api_setup.md](docs/odds_api_setup.md)**
 
-### Next — Phase 7B-3 (model scoring cleanup, blocked on real-data signal)
+### Next — Phase 7C (settlement + result tracking)
 
-- More transparent edge calc: surface vig-stripped fair price prominently
-- "Insufficient data" rules: minimum sample size, minutes guardrails
-- Calibration tracking once enough real prop rows are logged
-- Better player→team mapping for cases where rosters are stale
+- Wire `settle_results.py` against the validation log to mark pending leans as W/L/push once games finalize
+- Capture closing-line value (Odds API supports `historical=true` on the free tier)
+- Real `hit_rates.json` populated from settled rows (not seed data)
+- Per-prop calibration tracking once volume is high enough
+- Phase 7B-4 (model scoring cleanup) gated on real settlement signal — vig-stripped edge surfacing, sample-size guardrails, "insufficient data" projection states
 
 ### Later
 

@@ -130,6 +130,8 @@ function formatOddsLabel(meta: MetaData): string {
       return "fetch failed";
     case "demo":
       return "demo";
+    case "dry_run":
+      return "dry run";
     case "not_configured":
       return "not configured";
     default:
@@ -144,6 +146,8 @@ function oddsRowColor(meta: MetaData): string {
     case "failed":
       return "var(--rose)";
     case "demo":
+      return "var(--amber)";
+    case "dry_run":
       return "var(--amber)";
     default:
       return "var(--text)";

@@ -77,7 +77,41 @@ def fetch_props_with_diagnostics(
     )
 
 
-def _empty_diag(reason: str) -> dict:
+def fetch_events_only_with_diagnostics(
+    date: str,
+    slate_games: list[dict] | None = None,
+) -> dict:
+    """Phase 7B-3 — call /events only (FREE per The Odds API docs) and
+    report which slate games would have odds available, WITHOUT touching
+    /events/{id}/odds. Used by ODDS_DRY_RUN=true.
+
+    The /events endpoint is documented as not consuming any usage credits.
+    Headers still return x-requests-remaining so we can surface quota.
+
+    Returns: diag dict with raw_event_count, matched_event_count, cache_status,
+    quota_remaining, quota_used, fetch_succeeded, failure_reason, generated_at.
+    """
+    from .providers.odds_api_provider import OddsApiProvider
+
+    provider = OddsApiProvider()
+    if not provider._is_configured():
+        return {
+            "fetch_succeeded": False,
+            "failure_reason": "ODDS_API_KEY not set",
+            "raw_event_count": 0,
+            "matched_event_count": 0,
+            "cache_status": "miss",
+            "quota_remaining": None,
+            "quota_used": None,
+        }
+
+    return provider.list_events_for_slate_with_diagnostics(
+        date=date,
+        slate_games=slate_games or [],
+    )
+
+
+
     """Build a not-configured diagnostic dict."""
     from datetime import datetime, timezone
     return {

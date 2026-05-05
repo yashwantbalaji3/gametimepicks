@@ -1,257 +1,268 @@
-# Odds API Setup — Operator Guide
+# Odds API setup — operator walkthrough
 
-> **TL;DR**
-> 1. Get a free API key at https://the-odds-api.com/ (no credit card)
-> 2. Add `ODDS_API_KEY=...` to your `.env`
-> 3. Re-run `bash scripts/run_pipeline.sh`
-> 4. The board upgrades from "props unavailable" to real prop cards
->
-> Your 500 credits/month deplete at roughly **18 credits per pipeline run**
-> with the default settings — so plan for ~25 pipeline runs/month before
-> the quota resets on the 1st.
+This is the safe, step-by-step way to add a free The Odds API key to
+GametimePicks. Phase 7B-3 added diagnostics so you can validate the wiring
+**without burning paid credits** before doing a real run.
 
----
+The app works fine without a key — the schedule renders, the
+"Props unavailable — odds provider not configured" banner appears, and zero
+prop cards show. Adding a key is purely opt-in for real player props.
 
-## Why The Odds API
+## TL;DR (the safe path)
 
-GametimePicks uses [The Odds API](https://the-odds-api.com/) (the-odds-api.com)
-for player-prop lines and odds. Reasons:
+```bash
+# 1. Get a free key (no card)
+open https://the-odds-api.com/
 
-- **Truly free tier**: 500 credits per calendar month, no credit card to sign
-  up, no time-limited trial. Free forever.
-- **NBA player props supported**: points, rebounds, assists are available on
-  the free tier (they consume more credits than h2h, but they work).
-- **No scraping involved**: this is a legitimate API, not a workaround. We
-  never scrape DraftKings, FanDuel, ESPN, etc.
-- **Standardized response shape**: works for many sports without special
-  cases.
+# 2. Add to .env
+echo 'ODDS_API_KEY=YOUR-KEY-HERE' >> .env
 
-This is the **only** odds provider GametimePicks supports. There are no
-plans to add paid providers — if a market or feature isn't free, we don't
-build it.
+# 3. Verify the key works (FREE — costs 0 credits)
+python -m pipeline.check_odds_key
+
+# 4. Dry-run the pipeline (FREE — calls /events only, skips /odds)
+ODDS_DRY_RUN=true bash scripts/run_pipeline.sh
+python -m pipeline.diagnose
+
+# 5. When happy, real run (uses credits)
+bash scripts/run_pipeline.sh
+python -m pipeline.diagnose
+```
 
 ---
 
 ## Step 1 — Get a free key
 
-1. Go to <https://the-odds-api.com/>
-2. Click "Get API Key" or sign up directly at the manage portal
-3. You'll get an email with your key — it looks like a 32-character hex
-   string
-4. **Do not commit your key to git.** The `.gitignore` already excludes
-   `.env`, but be careful with screenshots, README copies, etc.
+1. Go to <https://the-odds-api.com/>.
+2. Click "Get a free API key".
+3. Sign up with email — **no credit card required**.
+4. Free tier: **500 credits per month**, automatic monthly reset.
+5. Copy the key from the dashboard.
 
-The free tier:
-- 500 credits per calendar month, resets on the 1st
-- No request rate limits beyond the monthly cap
-- All NBA, MLB, NFL, NHL, NCAAB, EPL, etc. supported
+The key string looks like a 32-char hex blob, e.g. `abc1...def2`.
 
----
-
-## Step 2 — Add the key locally
-
-Copy `.env.example` to `.env` if you haven't already, then edit:
+## Step 2 — Add to `.env`
 
 ```bash
-ODDS_API_KEY=paste_your_32_char_hex_key_here
-ODDS_PROVIDER=the_odds_api
-ODDS_DATA_MODE=auto
-
-# Tuning (defaults are conservative — keep them unless you have a reason)
-ODDS_BOOKMAKERS=draftkings,fanduel
-ODDS_MARKETS=player_points,player_rebounds,player_assists
-ODDS_REGIONS=us
-ODDS_MAX_EVENTS_PER_RUN=6
-ODDS_CACHE_TTL_MINUTES=60
+# In your project root (~/Downloads/gametimepicks)
+echo 'ODDS_API_KEY=YOUR-ACTUAL-KEY-HERE' >> .env
 ```
 
-Restart your terminal (or `source .env`) so the pipeline sees the new
-variables.
+**Security:**
 
----
+- `.env` is already in `.gitignore`. Confirm with `git status` — it should
+  NOT show up as a tracked file.
+- Never paste the key in chat, in commits, in screenshots, or anywhere
+  public. Treat it like a password.
+- If you ever leak it, regenerate it on the dashboard and update `.env`.
 
-## Step 3 — Re-run the pipeline
+## Step 3 — Validate the key (FREE)
 
 ```bash
-bash scripts/run_pipeline.sh
+python -m pipeline.check_odds_key
 ```
 
-You should see something like this in the log:
+This calls `/v4/sports/?apiKey=...` which The Odds API documents as
+costing **0 credits**. The script:
 
+- Confirms the key is set
+- Confirms the key is valid (HTTP 200)
+- Confirms NBA is in the supported sports list
+- Reports your remaining quota
+- Forecasts how many credits a real pipeline run will cost at your
+  current `ODDS_BOOKMAKERS` / `ODDS_MARKETS` / `ODDS_REGIONS` /
+  `ODDS_MAX_EVENTS_PER_RUN` settings
+- **Never prints the key itself** — only a `abc1...def2 (32 chars)` mask
+
+If the key is invalid you'll see an HTTP 401 and a friendly hint to
+regenerate it. If the API is rate-limiting or down, you'll see HTTP 429 /
+HTTP 5xx with a wait-and-retry hint.
+
+If the key is unset, the script prints help text and exits cleanly. No
+network call is made.
+
+## Step 4 — Dry-run the pipeline (FREE)
+
+```bash
+ODDS_DRY_RUN=true bash scripts/run_pipeline.sh
 ```
-gtp.board INFO   schedule: 2 games, source=nba_api, status=ok, raw=2, manual=False
-gtp.board INFO   mode: ScheduleLiveOddsUnavailable
-gtp.board INFO   odds: ok_with_props events_raw=14 matched=2 props=18 cache=miss
-gtp.board INFO === Done. todayMode=Live. 4 days, 2 games, 18 leans ===
+
+`ODDS_DRY_RUN=true` makes the pipeline:
+
+1. Resolve the schedule normally (manual override → nba_api → ESPN)
+2. Call `/v4/sports/basketball_nba/events?...` for each date — **FREE,
+   per the API docs**. This confirms your key works against NBA and tells
+   us how many events The Odds API has for the slate.
+3. **Skip** `/v4/sports/basketball_nba/events/{id}/odds?...` — the paid
+   per-event call. Zero credits are burned on /odds.
+4. Set `oddsProviderStatus = "dry_run"` on the board.
+5. The UI renders the schedule and a "Dry-run mode — odds fetches skipped
+   to preserve credits" banner.
+
+Inspect the result:
+
+```bash
+python -m pipeline.diagnose
 ```
 
-The key indicators:
-- `odds: ok_with_props` — fetch worked and returned props
-- `todayMode=Live` — the board upgraded from `ScheduleLiveOddsUnavailable`
-  to the full live mode
+You should see:
 
-If you instead see `odds: ODDS_API_KEY not set` or `odds: failed`, see the
-[Troubleshooting](#troubleshooting) section below.
+- `oddsProviderStatus: dry_run`
+- `events matched to slate: <N>` — should match your slate's game count if
+  The Odds API has lines for those teams
+- `props parsed: 0`
+- `events fetched (paid /odds): 0` — confirms no paid calls were made
+- `credits remaining: <X>` — should be the same as before (dry-run is
+  reported in the header but the /events endpoint itself doesn't count)
 
----
+If `events matched to slate` is lower than `events`, that's because The
+Odds API has more games on the date than your slate (e.g. they list
+preseason or international too). The pipeline only fetches odds for events
+matching your slate's `homeTeamFull` / `awayTeamFull`.
 
-## How credits are consumed
+## Step 5 — Real run (uses credits)
 
-The Odds API charges you per request based on how much data you ask for:
+When the dry-run looks right, do a real run:
 
-| Endpoint | Cost |
+```bash
+# Either remove ODDS_DRY_RUN from .env, or:
+ODDS_DRY_RUN=false bash scripts/run_pipeline.sh
+```
+
+This time the pipeline calls `/odds` for each matched event, costing
+`markets × regions` credits per event. With the defaults (3 markets × 1
+region = 3 credits per event, capped at 6 events per run = 18 credits),
+that's well under the free 500/month even running 5 times a day.
+
+After the run:
+
+```bash
+python -m pipeline.diagnose
+```
+
+Look for one of three healthy outcomes:
+
+| Status | Meaning |
 |---|---|
-| `GET /v4/sports/basketball_nba/events` | **0 credits** (FREE) |
-| `GET /v4/sports/basketball_nba/events/{id}/odds` | **markets × regions** credits |
+| `ok_with_props` | Real props were fetched and scored. UI shows real prop cards. `dataMode = Live`. |
+| `ok_no_props` | API responded fine but returned 0 player props for this slate. Common for early playoff dates with TBD opponents. UI shows "No player props returned for this slate". `dataMode = ScheduleLiveOddsUnavailable`. |
+| `failed` | Network/auth error. UI shows "Odds provider unavailable" with the error detail. `dataMode = ScheduleLiveOddsUnavailable`. |
 
-GametimePicks calls `events` first to find the slate's matching games (for
-free), then calls `events/{id}/odds` only for events that match your
-schedule. Each per-event call costs:
+In all three cases, **zero fake data** is generated.
 
-```
-markets (3) × regions (1) = 3 credits per event
-```
-
-With `ODDS_MAX_EVENTS_PER_RUN=6`, that's **18 credits per pipeline run**.
-Multiplied by 27 runs, that's the full 500-credit free tier.
-
-The `x-requests-remaining` header from each response is recorded into
-`board.json` as `oddsQuotaRemaining`, so you can monitor depletion:
+## Step 6 — Inspect the cache (free)
 
 ```bash
-jq '.oddsQuotaRemaining' app/public/data/board.json
+python -m pipeline.cache_inspect
 ```
 
----
+Shows every file in `pipeline/cache/`, its size, age, and how it'd be
+classified. Two kinds today:
 
-## How to avoid burning credits
+- `odds_api_*.json` — cached responses from The Odds API (TTL =
+  `ODDS_CACHE_TTL_MINUTES`, default 60 min)
+- `espn_*.json` — cached responses from the ESPN scoreboard fallback
+  (TTL = 30 min, hard-coded)
 
-The biggest credit waste is re-fetching the same data multiple times. The
-defaults are tuned to make this hard:
+Within the cache TTL, re-running the pipeline costs **0 credits**. The
+cache key includes date + markets + bookmakers + regions, so changing any
+of those triggers a fresh fetch.
 
-1. **`ODDS_CACHE_TTL_MINUTES=60`** — once fetched, props are cached on disk
-   under `pipeline/cache/` for an hour. Re-running the pipeline within
-   that hour is free.
-2. **`ODDS_MAX_EVENTS_PER_RUN=6`** — caps the per-run credit cost at
-   `6 × markets × regions`. Even on busy slates with 12+ NBA games, you
-   won't accidentally drain your quota.
-3. **Markets list narrow** — every added market multiplies the per-event
-   cost. If you only care about `player_points`, set
-   `ODDS_MARKETS=player_points` to cut credits by 3×.
-4. **Schedule matching** — the pipeline only fetches odds for events that
-   match your local slate. If your schedule has 2 games and the API has
-   14 events, you only pay for 2 events of odds (6 credits), not 14
-   (42 credits).
-
-If you're developing actively, you can crank the cache TTL even higher
-(e.g. `ODDS_CACHE_TTL_MINUTES=240` for 4 hours) and clear the cache by
-hand when you actually want fresh odds:
+To force fresh fetches:
 
 ```bash
-rm pipeline/cache/odds_api_*.json
+python -m pipeline.cache_inspect --clear
+# or just odds caches:
+python -m pipeline.cache_inspect --clear --kind odds_api
 ```
 
----
+## Step 7 — Avoiding credit drain
 
-## What happens when no key is configured
+Free tier is 500 credits/month. To stay safe:
 
-If `ODDS_API_KEY` is empty:
+- **Don't run the pipeline in a tight loop.** Re-running within the
+  cache TTL is free, but if you change config and clear the cache,
+  every run hits the network.
+- **Keep `ODDS_MAX_EVENTS_PER_RUN` small** during development. Default
+  is 6 — if your slate has 12 games, only the first 6 are fetched.
+- **Keep `ODDS_BOOKMAKERS` short.** Each extra book doesn't cost more
+  credits (you pay per market × region) but it does inflate response
+  size and pick a winning book downstream.
+- **Use `ODDS_DRY_RUN=true` whenever you're testing wiring**, not real
+  prop generation.
+- **Bump `ODDS_CACHE_TTL_MINUTES` to 120-240** during development if
+  you re-run a lot.
+- **Watch the `credits remaining` line in `python -m pipeline.diagnose`**
+  after each real run. If it drops faster than you expect, something
+  in your config (more markets, more regions, more events) changed.
 
-- The pipeline still builds the schedule and slate normally
-- `dataMode` stays as `ScheduleLiveOddsUnavailable` (or whatever the
-  schedule resolved to)
-- `oddsProviderStatus = "not_configured"`
-- The board renders the "Props unavailable — odds provider not configured"
-  banner with a link to this page
-- **No fake props, no fabricated odds, no demo cards** are mixed in
+## Step 8 — Interpreting the badge
 
-This is intentional. The site is honest about what it has.
+The data-source badge at the top of the board shows the odds row:
 
----
+| Badge text | Meaning |
+|---|---|
+| `odds: the_odds_api · 482 credits left` | Real props flowing |
+| `odds: no props returned` | API responded, slate had 0 props |
+| `odds: fetch failed` | Network/auth error — see banner for detail |
+| `odds: dry run` | `ODDS_DRY_RUN=true` is set |
+| `odds: not configured` | `ODDS_API_KEY` not set |
 
-## What happens when the key fails
-
-- `oddsProviderStatus = "failed"`
-- `oddsFailureReason` is populated (e.g. "401 invalid api key", "429 rate
-  limited / quota exhausted", "timeout")
-- The board renders "Odds provider unavailable" with the failure reason
-- **No fake props are substituted**
-
-Common failure modes:
-- **401 invalid api key** — typo in `.env`, or you mixed up the key with
-  a different service's key
-- **429 quota exhausted** — you're at 0 credits remaining; the quota
-  resets on the 1st of the month, or you can upgrade tiers (we don't
-  recommend it for this project)
-- **timeout** — transient network issue, just re-run
-
----
-
-## Supported markets in this phase
-
-Phase 7B-2 supports three markets out of the box:
-
-| Market key | Display | Credit cost (with regions=us) |
-|---|---|---|
-| `player_points` | Points | 1 credit per event |
-| `player_rebounds` | Rebounds | 1 credit per event |
-| `player_assists` | Assists | 1 credit per event |
-
-The Odds API has more available (`player_threes`, `player_steals`,
-`player_blocks`, `player_turnovers`, `player_points_rebounds_assists`,
-etc.) — you can add them to `ODDS_MARKETS` and the pipeline will request
-them. Each added market multiplies your per-event cost. The model only
-scores PTS/REB/AST today; other markets show up as "insufficient_data /
-no_play" cards (still no fake projections).
-
----
-
-## Why no fake odds, ever
-
-If the Odds API returns nothing, the pipeline shows that explicitly. We
-never:
-
-- invent prop lines
-- generate fake odds
-- substitute demo cards into a real-mode slate
-- claim a model lean when we have no real prop to score against
-
-This is the central design rule from Phase 6 onward and applies just as
-strictly in Phase 7B-2 as it did before. The "Props unavailable" /
-"Odds provider unavailable" / "No props returned" states all exist
-specifically to make this possible.
-
----
+`credits left` is only shown when the API returned a quota header (i.e.
+after a successful call).
 
 ## Troubleshooting
 
-**"props: not_configured" but I added the key**
-- Check that `.env` is in the project root, not `app/.env` or
-  `pipeline/.env`
-- Restart your terminal after editing `.env` (or `source .env`)
-- Verify with `echo $ODDS_API_KEY` — it should print your key
+### "Key is invalid (HTTP 401)"
 
-**"props: failed" with 401**
-- Your key is wrong. Re-copy it from your email or the
-  [account portal](https://the-odds-api.com/account)
+- Did you copy the whole key from the dashboard?
+- Did you wait ~1 minute after signing up?
+- Try regenerating the key at <https://the-odds-api.com/account/>.
 
-**"props: failed" with 429**
-- Your monthly quota is exhausted. `jq '.oddsQuotaRemaining'
-  app/public/data/board.json` will show 0. Wait for the 1st, or accept
-  fewer pipeline runs.
+### "Pipeline shows ok_no_props but I know there are games tonight"
 
-**"props: ok_no_props"**
-- The fetch succeeded, but no props were available. Common causes:
-  - It's an early playoff date with TBD opponents — sportsbooks haven't
-    listed lines yet
-  - The bookmakers in your `ODDS_BOOKMAKERS` list aren't carrying that
-    matchup
-  - The matchup was cancelled or postponed
-- Re-run closer to tipoff (within ~12-24 hours)
+- That's a real situation: sportsbooks often don't post player-prop lines
+  until a few hours before tipoff, especially for playoff games or games
+  with TBD opponents. Re-run the pipeline closer to tipoff.
 
-**The board still says "Props unavailable" after I push**
-- Vercel deployments need a re-trigger after env changes. Push a commit
-  (any commit) or hit "Redeploy" in the Vercel dashboard
-- Vercel needs `ODDS_API_KEY` set under Project Settings → Environment
-  Variables, not just in your local `.env`. Add it there as well, then
-  redeploy.
+### "I want to test without using any credits but `/events` is still
+counting against my quota"
+
+- It shouldn't — The Odds API documents `/sports/{sport}/events` as not
+  consuming credits. The `x-requests-remaining` header value won't drop
+  on /events calls. If it does, that's a provider-side bug; report it to
+  The Odds API support.
+
+### "I want to inspect the raw API response"
+
+```bash
+python -m pipeline.cache_inspect --show <key>
+```
+
+The cache files contain the full provider response. `key` can be the
+full filename minus `.json`, or the part after the `odds_api_` /
+`espn_` prefix.
+
+### "I want to remove the key entirely"
+
+```bash
+# Remove the line from .env, then:
+unset ODDS_API_KEY
+bash scripts/run_pipeline.sh
+```
+
+The board returns to the no-key state automatically. No code changes
+needed.
+
+## What this setup does NOT do
+
+- Does not scrape DraftKings, FanDuel, ESPN HTML, or any sportsbook site
+- Does not reverse-engineer mobile APIs
+- Does not require any paid plan
+- Does not call any provider other than The Odds API for odds
+- Does not auto-post to social platforms
+- Does not generate fake odds, fake props, or fake leans under any
+  circumstance
+
+If anything in the pipeline ever produces output that violates one of
+those, that's a bug — report it.
