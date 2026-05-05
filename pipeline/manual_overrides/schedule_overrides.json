@@ -1,5 +1,5 @@
 {
-  "_comment": "Operator-verified schedule overrides. Used when nba_api returns empty/fails for a date that has known games. Each entry is a fallback safety net — if nba_api succeeds with games, it wins. Only edit if you have verified the games against an authoritative source (NBA.com/schedule, official team accounts, etc).",
+  "_comment": "Operator-verified schedule overrides. Used as the highest-priority schedule source — entries here win over nba_api / ESPN. Add a date here only if you have verified the games against an authoritative source (NBA.com/schedule, official team accounts).",
 
   "schedules": [
     {
@@ -24,6 +24,32 @@
           "homeTeamFull": "San Antonio Spurs",
           "awayTeamAbbr": "MIN",
           "awayTeamFull": "Minnesota Timberwolves",
+          "status": "Scheduled"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-05",
+      "sourceType": "manual_schedule_override",
+      "sourceName": "User-verified",
+      "sourceUrl": "https://www.nba.com/schedule",
+      "games": [
+        {
+          "gameId": "manual-2026-05-05-DET-CLE",
+          "tipoff": "7:00 PM ET",
+          "homeTeamAbbr": "DET",
+          "homeTeamFull": "Detroit Pistons",
+          "awayTeamAbbr": "CLE",
+          "awayTeamFull": "Cleveland Cavaliers",
+          "status": "Scheduled"
+        },
+        {
+          "gameId": "manual-2026-05-05-OKC-LAL",
+          "tipoff": "9:30 PM ET",
+          "homeTeamAbbr": "OKC",
+          "homeTeamFull": "Oklahoma City Thunder",
+          "awayTeamAbbr": "LAL",
+          "awayTeamFull": "Los Angeles Lakers",
           "status": "Scheduled"
         }
       ]

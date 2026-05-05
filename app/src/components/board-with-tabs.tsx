@@ -66,7 +66,8 @@ function renderBody(
 
   switch (dataMode) {
     // ----------------------------------------------------------------
-    // Real schedule, no odds — show real games, no fake cards
+    // Real schedule, no odds — show real games, render the right
+    // PropsUnavailable variant based on oddsProviderStatus
     // ----------------------------------------------------------------
     case "ScheduleLiveOddsUnavailable":
       return (
@@ -91,7 +92,11 @@ function renderBody(
               />
             </div>
           )}
-          <PropsUnavailable gameCount={board.games?.length ?? 0} />
+          <PropsUnavailable
+            gameCount={board.games?.length ?? 0}
+            reason={propsUnavailableReason(board)}
+            failureReason={board.oddsFailureReason}
+          />
         </>
       );
 
@@ -117,7 +122,11 @@ function renderBody(
           {board.leans.length > 0 ? (
             <BoardClient leans={board.leans} />
           ) : (
-            <PropsUnavailable gameCount={board.games?.length ?? 0} />
+            <PropsUnavailable
+              gameCount={board.games?.length ?? 0}
+              reason={propsUnavailableReason(board)}
+              failureReason={board.oddsFailureReason}
+            />
           )}
         </>
       );
@@ -231,4 +240,25 @@ function DemoSampleHeading() {
       </span>
     </div>
   );
+}
+
+/**
+ * Map a board's oddsProviderStatus to the PropsUnavailable reason variant.
+ * Distinguishes:
+ *   not_configured        → "props unavailable — odds provider not configured"
+ *   ok_no_props           → "no player props returned for this slate"
+ *   failed                → "odds provider unavailable" (with error detail)
+ */
+function propsUnavailableReason(
+  board: BoardData,
+): "not_configured" | "no_props_returned" | "provider_failed" {
+  switch (board.oddsProviderStatus) {
+    case "ok_no_props":
+      return "no_props_returned";
+    case "failed":
+      return "provider_failed";
+    case "not_configured":
+    default:
+      return "not_configured";
+  }
 }

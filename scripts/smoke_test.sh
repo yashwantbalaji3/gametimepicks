@@ -160,7 +160,7 @@ if board.get("scheduleFetchSucceeded") and board.get("rawGameCountBeforeFilterin
         )
         sys.exit(1)
 
-# Phase 7B-1.2: NoGames requires explicit provider confirmation
+# Phase 7B-2.1: NoGames requires multi-source confirmation
 if board["dataMode"] == "NoGames":
     if board.get("scheduleProviderStatus") != "ok":
         print(
@@ -176,13 +176,120 @@ if board["dataMode"] == "NoGames":
             file=sys.stderr,
         )
         sys.exit(1)
-
-# Phase 7B-1.2: ScheduleUnavailable requires fetch failure
-if board["dataMode"] == "ScheduleUnavailable":
-    if board.get("scheduleFetchSucceeded"):
+    # Phase 7B-2.1: NoGames cannot mask single-source empties.
+    # Require AT LEAST 2 providers in scheduleProviderHistory to have
+    # status=ok with games=0. This catches the May 5 bug shape where
+    # nba_api alone returning empty would trigger NoGames falsely.
+    history = board.get("scheduleProviderHistory") or []
+    confirmed_empty = sum(
+        1 for h in history
+        if isinstance(h, dict)
+        and h.get("status") == "ok"
+        and h.get("games", 0) == 0
+    )
+    if confirmed_empty < 2:
         print(
-            f"  ✗ board.json ScheduleUnavailable but fetchSucceeded=True — "
-            f"contract violation",
+            f"  ✗ board.json NoGames mode requires AT LEAST 2 providers to "
+            f"independently confirm zero games — got {confirmed_empty}. "
+            f"history={history!r}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    # And reject any "scheduleProviderStatus=empty" — the old buggy state
+    # used "empty" to mean "single provider returned 0". That is now
+    # ScheduleUnavailable, not NoGames.
+    if board.get("scheduleProviderStatus") == "empty":
+        print(
+            "  ✗ board.json NoGames cannot have scheduleProviderStatus='empty' "
+            "— that meant single-source confirmation in the old logic, which "
+            "is now ScheduleUnavailable",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+# Phase 7B-1.2: ScheduleUnavailable requires fetch failure or single-source empty
+if board["dataMode"] == "ScheduleUnavailable":
+    history = board.get("scheduleProviderHistory") or []
+    confirmed_empty = sum(
+        1 for h in history
+        if isinstance(h, dict)
+        and h.get("status") == "ok"
+        and h.get("games", 0) == 0
+    )
+    # ScheduleUnavailable is valid if EITHER fetch failed OR if confirmed_empty
+    # is exactly 1 (single-source empty — uncertain). Both NoGames and
+    # ScheduleLiveOddsUnavailable take precedence when applicable.
+    if board.get("scheduleFetchSucceeded") and confirmed_empty >= 2:
+        print(
+            "  ✗ board.json ScheduleUnavailable but 2+ providers confirmed "
+            "empty — should be NoGames",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+# ----------------------------------------------------------------------
+# Phase 7B-2 — odds provider contract checks
+# ----------------------------------------------------------------------
+valid_odds_status = {
+    None, "not_configured", "ok_with_props", "ok_no_props", "failed", "demo",
+}
+if board.get("oddsProviderStatus") not in valid_odds_status:
+    print(
+        f"  ✗ board.json oddsProviderStatus '{board.get('oddsProviderStatus')}' "
+        f"not in {valid_odds_status}",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+# Live mode requires real props AND oddsProviderStatus = ok_with_props
+if board["dataMode"] == "Live":
+    if board.get("oddsProviderStatus") != "ok_with_props":
+        print(
+            f"  ✗ board.json Live mode requires oddsProviderStatus=ok_with_props, "
+            f"got {board.get('oddsProviderStatus')!r}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if not board.get("propsAvailable"):
+        print(
+            "  ✗ board.json Live mode requires propsAvailable=true",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if board.get("parsedPropCount", 0) == 0:
+        print(
+            "  ✗ board.json Live mode requires parsedPropCount > 0",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+# ok_no_props requires fetch succeeded with zero parsed props
+if board.get("oddsProviderStatus") == "ok_no_props":
+    if not board.get("oddsFetchSucceeded"):
+        print(
+            "  ✗ board.json ok_no_props requires oddsFetchSucceeded=true",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if board.get("parsedPropCount", 0) != 0:
+        print(
+            f"  ✗ board.json ok_no_props requires parsedPropCount=0, "
+            f"got {board.get('parsedPropCount')}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+# failed status requires either an explicit error reason OR fetch_attempted=true with failure
+if board.get("oddsProviderStatus") == "failed":
+    if not board.get("oddsFetchAttempted"):
+        print(
+            "  ✗ board.json oddsProviderStatus=failed but oddsFetchAttempted=false",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if board.get("oddsFetchSucceeded"):
+        print(
+            "  ✗ board.json oddsProviderStatus=failed but oddsFetchSucceeded=true",
             file=sys.stderr,
         )
         sys.exit(1)

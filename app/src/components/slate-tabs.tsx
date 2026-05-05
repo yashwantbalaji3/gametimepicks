@@ -89,11 +89,24 @@ function subtitleForDay(day: SlateDay): { text: string; color: string } {
       };
 
     case "ScheduleLiveOddsUnavailable":
+      // Phase 7B-2: distinguish odds-not-configured / no-props / failed
+      if (day.gameCount === 0) {
+        return { text: "no games", color: "var(--text-faint)" };
+      }
+      if (day.oddsProviderStatus === "failed") {
+        return {
+          text: `${day.gameCount}g · odds unavailable`,
+          color: "var(--rose)",
+        };
+      }
+      if (day.oddsProviderStatus === "ok_no_props") {
+        return {
+          text: `${day.gameCount}g · no props returned`,
+          color: "var(--text-faint)",
+        };
+      }
       return {
-        text:
-          day.gameCount > 0
-            ? `${day.gameCount}g · props unavailable`
-            : "no games",
+        text: `${day.gameCount}g · props unavailable`,
         color: "var(--text-faint)",
       };
 

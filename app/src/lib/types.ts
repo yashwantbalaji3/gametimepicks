@@ -130,6 +130,32 @@ export interface BoardData {
     raw_count: number;
     error?: string | null;
   }>;
+
+  // Phase 7B-2 odds diagnostic fields
+  /** Sub-state for the odds provider — drives PropsUnavailable copy */
+  oddsProviderStatus?:
+    | "not_configured"
+    | "ok_with_props"
+    | "ok_no_props"
+    | "failed"
+    | "demo"
+    | null;
+  oddsFetchAttempted?: boolean;
+  oddsFetchSucceeded?: boolean;
+  oddsFailureReason?: string | null;
+  rawOddsEventCount?: number;
+  matchedOddsEventCount?: number;
+  attemptedOddsEventCount?: number;
+  parsedPropCount?: number;
+  oddsCacheStatus?: "fresh" | "stale" | "miss" | null;
+  oddsCachedAt?: string | null;
+  oddsQuotaRemaining?: number | null;
+  oddsQuotaUsed?: number | null;
+  oddsLastCallCost?: number | null;
+  oddsCostEstimatePerRun?: number;
+  oddsBookmakers?: string[];
+  oddsMarketsRequested?: string[];
+  oddsRegions?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -352,6 +378,14 @@ export interface SlateDay {
   dataMode: DataMode;
   /** Optional explanation when nba_api fell through to demo */
   failureReason?: string | null;
+  /** Phase 7B-2: sub-state for odds provider — drives subtitles + copy */
+  oddsProviderStatus?:
+    | "not_configured"
+    | "ok_with_props"
+    | "ok_no_props"
+    | "failed"
+    | "demo"
+    | null;
 }
 
 export interface SlateData {
@@ -406,4 +440,32 @@ export interface MetaData {
   scheduleOverridesConfigured?: boolean;
   /** Whether today's schedule came from a manual override */
   todayManualOverrideUsed?: boolean;
+
+  // Phase 7B-2 additions
+  /** Whether ODDS_API_KEY is set in environment */
+  oddsApiKeyConfigured?: boolean;
+  /** Today's odds provider sub-state */
+  todayOddsProviderStatus?:
+    | "not_configured"
+    | "ok_with_props"
+    | "ok_no_props"
+    | "failed"
+    | "demo"
+    | null;
+  /** Provider error message if odds fetch failed today */
+  todayOddsFailureReason?: string | null;
+  /** Remaining credits on the free tier (from x-requests-remaining header) */
+  todayOddsQuotaRemaining?: number | null;
+  /** Number of real prop rows generated for today */
+  todayParsedPropCount?: number;
+  /** Bookmaker keys configured in ODDS_BOOKMAKERS */
+  oddsBookmakersConfigured?: string[];
+  /** Markets configured in ODDS_MARKETS */
+  oddsMarketsConfigured?: string[];
+  /** Regions configured in ODDS_REGIONS */
+  oddsRegionsConfigured?: string;
+  /** Cache TTL for odds responses */
+  oddsCacheTtlMinutes?: number;
+  /** Per-run cap on event-odds calls */
+  oddsMaxEventsPerRun?: number;
 }

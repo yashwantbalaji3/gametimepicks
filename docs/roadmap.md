@@ -18,27 +18,35 @@ mirrors the headlines below.
   days), 4-day date selector, real `nba_api` schedule path, manual news
   overrides system, validation logger, clean unavailable states, demo
   fallback preserved, free-only end-to-end
+- ✅ **Phase 7B-1.1 (real-slate / demo separation)** — explicit DataMode
+  state machine, demo content never mixed into real slate, smoke-test
+  contract
+- ✅ **Phase 7B-1.2 (schedule resolution + manual override)** — manual
+  schedule override JSON safety net, `ScheduleUnavailable` distinct from
+  `NoGames`, full schedule diagnostic metadata in `board.json`
+- ✅ **Phase 7B-2 (optional Odds API integration)** — The Odds API
+  free-tier client with file-based response caching, slate-aware event
+  matching to conserve credits, full diagnostic metadata, three explicit
+  "props-unavailable" sub-states (`not_configured` / `ok_no_props` /
+  `failed`), no fake odds or fabricated props ever, key still optional —
+  app ships and runs unchanged when `ODDS_API_KEY` is absent. Walkthrough
+  in [docs/odds_api_setup.md](./odds_api_setup.md).
 
-## Next — Phase 7B-2 (when a free Odds API key is available)
+## Next — Phase 7B-3 (model scoring cleanup, blocked on real-prop volume)
 
-Status: **planned, not yet started**. Requires the operator to grab a
-free key from <https://the-odds-api.com/> first (no payment, no card).
+Status: **planned, depends on operator running 7B-2 with a key for some
+time so we have real prop rows in `leans_log.jsonl` to inspect**.
 
-- [ ] **Wire The Odds API client.** Real player-prop fetching with
-  proper auth headers.
-- [ ] **File-based response caching.** Stay under the 500-req/mo free
-  tier with a smart cache TTL strategy (e.g. 30 min cache during the day,
-  4 hours overnight).
-- [ ] **Rate-limit awareness.** Surface remaining credits in
-  `meta.json`. Pipeline pauses gracefully when budget is low.
-- [ ] **Apply news-signal `modelAction`.** Phase 7B-1 records signals;
-  Phase 7B-2 makes the projection / risk flags reactive to them.
-- [ ] **Source-reliability score in scoring output.** Already computed
-  in 7B-1; expose it visibly in the lean reason text.
-- [ ] **Wire `gameId` onto leans for settlement.** Already in the
-  pipeline schema; needs the settle_results.py side wired up.
-- [ ] **Improved reason text.** When a news signal applies, the reason
-  string mentions it ("Embiid status flagged — confidence reduced").
+- [ ] **Vig-stripped fair price** surfaced prominently on the prop card,
+  not just in the JSON
+- [ ] **"Insufficient data" guardrails** — minimum sample size, minutes
+  trend filter, position-aware projection notes
+- [ ] **Calibration tracking** once enough real prop rows are settled
+  (depends on Phase 7C settlement)
+- [ ] **Better player→team mapping** for cases where rosters are stale
+  or `nba_api` is unreachable but odds are available
+- [ ] **Edge-aware confidence** — currently a static High/Medium/Low
+  bucket; should reflect both edge magnitude AND sample reliability
 
 ## Later — Phase 7C+ (production hardening, not yet committed)
 
@@ -66,7 +74,7 @@ Things this project will not do:
 
 - ❌ Charge for picks. This is educational analytics, not a tipster
   service.
-- ❌ Use any paid API in Phase 7B-1. Stack A free-only is the constraint.
+- ❌ Use any paid API. Free-only is the permanent constraint.
 - ❌ Scrape sportsbook websites or apps (DraftKings, FanDuel, etc.).
 - ❌ Scrape Twitter/X. The X API is also deferred — manual overrides
   are the right answer until the model is validated.

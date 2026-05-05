@@ -168,26 +168,40 @@ export default function MethodologyPage() {
         </div>
       </section>
 
-      {/* Demo / Live / Hybrid explainer */}
+      {/* Phase 7B-2 mode explainer — replaces the old Demo/Live/Hybrid block */}
       <section className="mt-12">
         <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
-          Demo, Live, Hybrid
+          Data modes
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <ModeCard
-            color="amber"
-            label="Demo"
-            description="Both NBA and odds providers are running on bundled fallback data. Useful for offline development and recruiter previews. Numbers are realistic but not from tonight's slate."
-          />
+        <p className="text-[14px] text-[var(--text-mute)] leading-relaxed mb-4 max-w-[780px]">
+          Every page reads the same five-state machine. The data-source badge
+          at the top of the board surfaces which one is active.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <ModeCard
             color="lime"
             label="Live"
-            description="Real NBA data via nba_api and live sportsbook odds via The Odds API. Generated from tonight's actual schedule and current lines."
+            description="Real schedule from nba_api OR a manually-verified override, plus real player props from The Odds API. Prop cards are scored against player game logs."
+          />
+          <ModeCard
+            color="lime"
+            label="ScheduleLiveOddsUnavailable"
+            description="Real schedule (nba_api or manual override), but no player props — either ODDS_API_KEY isn't set, the odds fetch failed, or the slate has zero props. Sub-state on board.json tells you which."
           />
           <ModeCard
             color="text-mute"
-            label="Hybrid"
-            description="One source is live, the other fell back to demo. Usually means odds came through but a stats endpoint hiccupped, or vice versa. The data-source badge shows which is which."
+            label="NoGames"
+            description="The schedule provider explicitly confirmed zero NBA games for this date (an off-day). This is different from a provider failure."
+          />
+          <ModeCard
+            color="rose"
+            label="ScheduleUnavailable"
+            description="The schedule provider failed AND no manual override exists for this date. The pipeline genuinely doesn't know what's on — it does NOT pretend it's an off-day."
+          />
+          <ModeCard
+            color="amber"
+            label="DemoForced"
+            description="NBA_DATA_MODE=demo or ODDS_DATA_MODE=demo is set in the environment. The board shows a representative sample slate clearly labeled as demo. There is no automatic fall-back from real to demo — that path was removed in 7B-1.1."
           />
         </div>
       </section>
@@ -286,13 +300,14 @@ function ModeCard({
   label,
   description,
 }: {
-  color: "lime" | "amber" | "text-mute";
+  color: "lime" | "amber" | "rose" | "text-mute";
   label: string;
   description: string;
 }) {
   const dotColor = {
     lime: "var(--lime)",
     amber: "var(--amber)",
+    rose: "var(--rose)",
     "text-mute": "var(--text-mute)",
   }[color];
   return (

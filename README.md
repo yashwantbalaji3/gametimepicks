@@ -18,12 +18,12 @@
 
 | | |
 |---|---|
-| **Phase** | 7B-1.2 — schedule resolution with manual override safety net |
+| **Phase** | 7B-2 — optional Odds API free-tier integration (key still optional, app works without it) |
 | **Mode** | Auto — `nba_api` real schedule first, manual override fallback, explicit `ScheduleUnavailable` if both fail |
 | **Live since** | May 2026 |
 | **Slate window** | Today + 3 days (configurable via `SLATE_DAYS`) |
 | **News layer** | Manual overrides — `pipeline/manual_overrides/news_signals.json` |
-| **Next milestone** | Phase 7B-2: Odds API free-tier integration once a key is configured |
+| **Next milestone** | Phase 7B-3: model scoring cleanup once real props are flowing through enough operators |
 
 ## What this project does
 
@@ -209,15 +209,16 @@ JSON, push. Vercel redeploys automatically. Full deploy guide at
 - ✅ **Phase 7B-1: manual news-overrides system + reader + UI badges**
 - ✅ **Phase 7B-1: validation logger scaffold (`leans_log.jsonl`)**
 - ✅ **Phase 7B-1: clean `props-unavailable` + `no-games-today` states**
+- ✅ **Phase 7B-1.1: real-slate / demo-fallback separation, explicit DataMode state machine**
+- ✅ **Phase 7B-1.2: manual schedule override safety net + `ScheduleUnavailable` state**
+- ✅ **Phase 7B-2: optional The Odds API free-tier integration with full diagnostic metadata, response caching, and three explicit "props-unavailable" sub-states (not configured / no props returned / provider failed)**
 
-### Next — Phase 7B-2 (when a free Odds API key is available)
+### Next — Phase 7B-3 (model scoring cleanup, blocked on real-data signal)
 
-- Wire The Odds API free-tier client (500 req/mo)
-- File-based response caching to stay under the free limit
-- Apply news-signal `modelAction` directives to projection / risk flags
-- Source-reliability score in scoring output
-- Per-lean `gameId` wiring for settlement
-- Improved reason text incorporating signal context
+- More transparent edge calc: surface vig-stripped fair price prominently
+- "Insufficient data" rules: minimum sample size, minutes guardrails
+- Calibration tracking once enough real prop rows are logged
+- Better player→team mapping for cases where rosters are stale
 
 ### Later
 

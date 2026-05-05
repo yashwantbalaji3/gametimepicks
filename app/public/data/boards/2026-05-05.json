@@ -1,42 +1,80 @@
 {
   "generatedFor": "2026-05-05",
-  "generatedAt": "2026-05-04T20:41:46+00:00",
+  "generatedAt": "2026-05-05T06:54:45+00:00",
   "dataSources": [
-    "nba_api"
+    "manual"
   ],
   "isDemo": false,
   "leans": [],
   "scheduleAvailable": true,
   "propsAvailable": false,
-  "scheduleSource": "nba_api",
-  "oddsSource": null,
-  "games": [],
-  "dataMode": "NoGames",
+  "scheduleSource": "manual",
+  "oddsSource": "unavailable",
+  "games": [
+    {
+      "gameId": "manual-2026-05-05-DET-CLE",
+      "tipoff": "7:00 PM ET",
+      "homeTeamAbbr": "DET",
+      "homeTeamFull": "Detroit Pistons",
+      "awayTeamAbbr": "CLE",
+      "awayTeamFull": "Cleveland Cavaliers",
+      "status": "Scheduled",
+      "date": "2026-05-05"
+    },
+    {
+      "gameId": "manual-2026-05-05-OKC-LAL",
+      "tipoff": "9:30 PM ET",
+      "homeTeamAbbr": "OKC",
+      "homeTeamFull": "Oklahoma City Thunder",
+      "awayTeamAbbr": "LAL",
+      "awayTeamFull": "Los Angeles Lakers",
+      "status": "Scheduled",
+      "date": "2026-05-05"
+    }
+  ],
+  "dataMode": "ScheduleLiveOddsUnavailable",
   "failureReason": null,
   "requestedDate": "2026-05-05",
   "timezone": "America/New_York",
-  "scheduleProviderStatus": "empty",
+  "scheduleProviderStatus": "ok",
   "scheduleFetchAttempted": true,
   "scheduleFetchSucceeded": true,
   "scheduleFailureReason": null,
   "rawGameCountBeforeFiltering": 0,
-  "parsedGameCountAfterFiltering": 0,
-  "manualOverrideUsed": false,
-  "manualOverrideSource": null,
-  "endpointHistory": [
+  "parsedGameCountAfterFiltering": 2,
+  "manualOverrideUsed": true,
+  "manualOverrideSource": "User-verified",
+  "endpointHistory": [],
+  "scheduleProviderHistory": [
     {
-      "endpoint": "scoreboardv2",
+      "provider": "manual",
       "status": "ok",
-      "raw_count": 0,
-      "games": [],
-      "error": null
-    },
-    {
-      "endpoint": "leaguegamefinder",
-      "status": "ok",
-      "raw_count": 0,
-      "games": [],
+      "games": 2,
       "error": null
     }
-  ]
+  ],
+  "oddsProviderStatus": "not_configured",
+  "oddsFetchAttempted": false,
+  "oddsFetchSucceeded": false,
+  "oddsFailureReason": null,
+  "rawOddsEventCount": 0,
+  "matchedOddsEventCount": 0,
+  "attemptedOddsEventCount": 0,
+  "parsedPropCount": 0,
+  "oddsCacheStatus": "miss",
+  "oddsCachedAt": null,
+  "oddsQuotaRemaining": null,
+  "oddsQuotaUsed": null,
+  "oddsLastCallCost": null,
+  "oddsCostEstimatePerRun": 0,
+  "oddsBookmakers": [
+    "draftkings",
+    "fanduel"
+  ],
+  "oddsMarketsRequested": [
+    "player_points",
+    "player_rebounds",
+    "player_assists"
+  ],
+  "oddsRegions": "us"
 }

@@ -1,11 +1,10 @@
 /**
  * DataSourceBadge — compact strip showing data mode + source for the day.
  *
- * Phase 7B-1.2 — handles the refined DataMode union:
- *   Live, ScheduleLiveOddsUnavailable, NoGames, ScheduleUnavailable, DemoForced.
- *
- * When schedule came from manual override (meta.todayManualOverrideUsed),
- * the NBA source field shows "manual verified" instead of the raw source label.
+ * Phase 7B-2 — also surfaces:
+ *   - Odds API source label (or "not configured" when key missing)
+ *   - Today's odds quota remaining (from x-requests-remaining header)
+ *   - "manual verified" tag when schedule came from operator override
  */
 import type { MetaData, DataMode } from "@/lib/types";
 import { formatTimestamp } from "@/lib/format";
@@ -54,6 +53,10 @@ export default function DataSourceBadge({ meta }: { meta: MetaData }) {
     ? "manual verified"
     : meta.nbaScheduleSource || "—";
 
+  // Phase 7B-2: odds row reflects sub-state, not just source name
+  const oddsLabel = formatOddsLabel(meta);
+  const oddsColor = oddsRowColor(meta);
+
   const fallbacks = meta.fallbackSourcesAvailable || {};
   const enabledFallbacks = Object.entries(fallbacks)
     .filter(([, status]) => status === "enabled")
@@ -82,7 +85,12 @@ export default function DataSourceBadge({ meta }: { meta: MetaData }) {
 
         <div className="flex items-center gap-2">
           <span className="text-[var(--text-faint)] uppercase">odds</span>
-          <span className="text-[var(--text)]">{meta.oddsSource || "—"}</span>
+          <span style={{ color: oddsColor }}>{oddsLabel}</span>
+          {typeof meta.todayOddsQuotaRemaining === "number" && (
+            <span className="text-[var(--text-faint)]">
+              · {meta.todayOddsQuotaRemaining} credits left
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -110,4 +118,34 @@ export default function DataSourceBadge({ meta }: { meta: MetaData }) {
       )}
     </aside>
   );
+}
+
+function formatOddsLabel(meta: MetaData): string {
+  switch (meta.todayOddsProviderStatus) {
+    case "ok_with_props":
+      return meta.oddsSource || "the_odds_api";
+    case "ok_no_props":
+      return "no props returned";
+    case "failed":
+      return "fetch failed";
+    case "demo":
+      return "demo";
+    case "not_configured":
+      return "not configured";
+    default:
+      return meta.oddsSource || "—";
+  }
+}
+
+function oddsRowColor(meta: MetaData): string {
+  switch (meta.todayOddsProviderStatus) {
+    case "ok_with_props":
+      return "var(--lime)";
+    case "failed":
+      return "var(--rose)";
+    case "demo":
+      return "var(--amber)";
+    default:
+      return "var(--text)";
+  }
 }

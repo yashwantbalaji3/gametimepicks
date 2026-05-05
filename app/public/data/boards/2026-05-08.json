@@ -1,53 +1,80 @@
 {
-  "generatedFor": "2026-05-05",
+  "generatedFor": "2026-05-08",
   "generatedAt": "2026-05-05T06:54:45+00:00",
   "dataSources": [
-    "manual"
+    "espn_scoreboard"
   ],
   "isDemo": false,
   "leans": [],
   "scheduleAvailable": true,
   "propsAvailable": false,
-  "scheduleSource": "manual",
+  "scheduleSource": "espn_scoreboard",
   "oddsSource": "unavailable",
   "games": [
     {
-      "gameId": "manual-2026-05-05-DET-CLE",
+      "gameId": "401871161",
+      "date": "2026-05-08",
       "tipoff": "7:00 PM ET",
-      "homeTeamAbbr": "DET",
-      "homeTeamFull": "Detroit Pistons",
-      "awayTeamAbbr": "CLE",
-      "awayTeamFull": "Cleveland Cavaliers",
-      "status": "Scheduled",
-      "date": "2026-05-05"
+      "homeTeamAbbr": "PHI",
+      "homeTeamFull": "Philadelphia 76ers",
+      "awayTeamAbbr": "NY",
+      "awayTeamFull": "New York Knicks",
+      "status": "Scheduled"
     },
     {
-      "gameId": "manual-2026-05-05-OKC-LAL",
+      "gameId": "401871154",
+      "date": "2026-05-08",
       "tipoff": "9:30 PM ET",
-      "homeTeamAbbr": "OKC",
-      "homeTeamFull": "Oklahoma City Thunder",
-      "awayTeamAbbr": "LAL",
-      "awayTeamFull": "Los Angeles Lakers",
-      "status": "Scheduled",
-      "date": "2026-05-05"
+      "homeTeamAbbr": "MIN",
+      "homeTeamFull": "Minnesota Timberwolves",
+      "awayTeamAbbr": "SA",
+      "awayTeamFull": "San Antonio Spurs",
+      "status": "Scheduled"
     }
   ],
   "dataMode": "ScheduleLiveOddsUnavailable",
   "failureReason": null,
-  "requestedDate": "2026-05-05",
+  "requestedDate": "2026-05-08",
   "timezone": "America/New_York",
   "scheduleProviderStatus": "ok",
   "scheduleFetchAttempted": true,
   "scheduleFetchSucceeded": true,
   "scheduleFailureReason": null,
-  "rawGameCountBeforeFiltering": 0,
+  "rawGameCountBeforeFiltering": 2,
   "parsedGameCountAfterFiltering": 2,
-  "manualOverrideUsed": true,
-  "manualOverrideSource": "User-verified",
-  "endpointHistory": [],
+  "manualOverrideUsed": false,
+  "manualOverrideSource": null,
+  "endpointHistory": [
+    {
+      "endpoint": "scoreboardv2",
+      "status": "ok",
+      "raw_count": 0,
+      "games": [],
+      "error": null
+    },
+    {
+      "endpoint": "leaguegamefinder",
+      "status": "ok",
+      "raw_count": 0,
+      "games": [],
+      "error": null
+    }
+  ],
   "scheduleProviderHistory": [
     {
       "provider": "manual",
+      "status": "no_match",
+      "games": 0,
+      "error": null
+    },
+    {
+      "provider": "nba_api",
+      "status": "ok",
+      "games": 0,
+      "error": null
+    },
+    {
+      "provider": "espn_scoreboard",
       "status": "ok",
       "games": 2,
       "error": null

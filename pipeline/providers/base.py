@@ -125,6 +125,12 @@ class PropLine:
     bookmaker: str
     game_date: str                    # YYYY-MM-DD
     last_update: str                  # ISO 8601
+    # Phase 7B-2: provider-supplied event metadata so the orchestrator can
+    # match props back to schedule games even when the player→team roster
+    # lookup fails (e.g. when nba_api is unreachable). Defaults to "" so
+    # legacy providers don't have to set them.
+    event_home_team: str = ""
+    event_away_team: str = ""
 
 
 # ---------------------------------------------------------------------------
