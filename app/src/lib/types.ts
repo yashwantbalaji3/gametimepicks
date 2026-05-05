@@ -16,9 +16,30 @@
 
 export type Market = "PTS" | "REB" | "AST";
 
-export type ConfidenceTier = "High" | "Medium" | "Low";
+/**
+ * ConfidenceTier — the model's confidence in its own projection.
+ *
+ * Phase 7B-3.1 adds two states the pipeline already emitted but the
+ * frontend hadn't typed:
+ *   - "insufficient_data" — player game logs unavailable; no projection
+ *   - "no_play" — explicit pass (e.g. risk override or below edge bar)
+ *
+ * UI must handle these without crashing, even though they're not the
+ * traditional High/Medium/Low scoring buckets.
+ */
+export type ConfidenceTier =
+  | "High"
+  | "Medium"
+  | "Low"
+  | "insufficient_data"
+  | "no_play";
 
-export type LeanType = "Over" | "Under" | "No Play";
+/**
+ * LeanType — direction the model leans, or "Pass" when it explicitly
+ * declines to recommend a side. Phase 7B-3.1 adds "Pass" alongside the
+ * existing "No Play" since the pipeline emits both labels.
+ */
+export type LeanType = "Over" | "Under" | "No Play" | "Pass";
 
 export type ResultStatus = "Pending" | "Won" | "Lost" | "Push" | "Void";
 
@@ -50,14 +71,18 @@ export interface PropLean {
   bookmaker: string;
 
   // Model output
-  /** Model's projected stat value */
-  projection: number;
-  /** Model probability the prop hits (over OR under depending on lean) */
-  modelProbability: number;
-  /** Probability implied by the sportsbook odds */
+  // Phase 7B-3.1: any of these may be null when a player's game logs are
+  // unavailable (real props from Odds API + nba_api unreachable for stats).
+  // The pipeline already emitted nulls for that case; the frontend now
+  // matches the contract.
+  /** Model's projected stat value, or null if no projection could be made */
+  projection: number | null;
+  /** Model probability the prop hits, or null if no model output */
+  modelProbability: number | null;
+  /** Probability implied by sportsbook odds — always computable from odds */
   impliedProbability: number;
-  /** Model probability minus implied, expressed as percentage points */
-  edgePct: number;
+  /** Model probability minus implied (percentage points), or null if no model */
+  edgePct: number | null;
 
   // Recommendation
   lean: LeanType;

@@ -1,10 +1,18 @@
 /**
- * Compact pill showing a confidence tier (High / Medium / Low) with the
- * canonical broadcast color treatment.
+ * Compact pill showing a confidence tier with the canonical color treatment.
  *
- * High   = lime  (positive, signal-clear)
- * Medium = amber (caution)
- * Low    = neutral grey
+ * Phase 7B-3.1 — extended from the original High/Medium/Low to also display
+ * the pipeline's two non-graded states honestly:
+ *
+ *   High               = lime  (positive, signal-clear)
+ *   Medium             = amber (caution)
+ *   Low                = neutral grey
+ *   insufficient_data  = neutral grey, label "no data"
+ *   no_play            = neutral grey, label "pass"
+ *
+ * Both insufficient_data and no_play are explicit declines to recommend a
+ * side, and the card surfaces them as gray rather than as a graded tier so
+ * users don't conflate them with a normal Low-confidence lean.
  */
 import type { ConfidenceTier } from "@/lib/types";
 
@@ -14,10 +22,12 @@ interface Props {
   className?: string;
 }
 
-const STYLES: Record<ConfidenceTier, { color: string; bg: string }> = {
-  High:   { color: "var(--lime)", bg: "var(--lime-dim)" },
-  Medium: { color: "var(--amber)", bg: "var(--amber-dim)" },
-  Low:    { color: "var(--text-faint)", bg: "rgba(255,255,255,0.04)" },
+const STYLES: Record<ConfidenceTier, { color: string; bg: string; label: string }> = {
+  High:              { color: "var(--lime)",       bg: "var(--lime-dim)",            label: "High" },
+  Medium:            { color: "var(--amber)",      bg: "var(--amber-dim)",           label: "Medium" },
+  Low:               { color: "var(--text-faint)", bg: "rgba(255,255,255,0.04)",     label: "Low" },
+  insufficient_data: { color: "var(--text-faint)", bg: "rgba(255,255,255,0.04)",     label: "no data" },
+  no_play:           { color: "var(--text-faint)", bg: "rgba(255,255,255,0.04)",     label: "pass" },
 };
 
 export default function ConfidenceBadge({
@@ -25,7 +35,7 @@ export default function ConfidenceBadge({
   size = "md",
   className = "",
 }: Props) {
-  const s = STYLES[confidence];
+  const s = STYLES[confidence] ?? STYLES.Low;
   const sizeClass =
     size === "sm"
       ? "px-1.5 py-0.5 text-[9px]"
@@ -35,7 +45,7 @@ export default function ConfidenceBadge({
       className={`font-mono tracking-wider uppercase rounded-[2px] shrink-0 ${sizeClass} ${className}`}
       style={{ color: s.color, background: s.bg }}
     >
-      {confidence}
+      {s.label}
     </span>
   );
 }

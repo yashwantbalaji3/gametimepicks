@@ -1,22 +1,53 @@
 /**
- * Display formatters. Keep pure and side-effect free.
+ * Display formatters. Pure, side-effect free, null-safe.
+ *
+ * Phase 7B-3.1 hotfix: every numeric formatter now accepts
+ * `number | null | undefined` and returns the EM_DASH placeholder for any
+ * non-finite value (null, undefined, NaN, ±Infinity). This lets components
+ * safely pass model-output fields that may be null when a player's recent
+ * game logs are unavailable (the "insufficient_data" path), without
+ * fabricating zeros, negative signs, or "+0.0%".
  */
 
-export function formatPercent(value: number, digits = 1): string {
+/** Universal placeholder for "no value" — keep in sync with prop-card UX. */
+export const EM_DASH = "—";
+
+/**
+ * Type guard: true only for actual finite numbers.
+ * Rejects null, undefined, NaN, +Infinity, -Infinity.
+ */
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+export function formatPercent(
+  value: number | null | undefined,
+  digits = 1,
+): string {
+  if (!isFiniteNumber(value)) return EM_DASH;
   return `${(value * 100).toFixed(digits)}%`;
 }
 
-export function formatSignedPct(value: number, digits = 1): string {
+export function formatSignedPct(
+  value: number | null | undefined,
+  digits = 1,
+): string {
+  if (!isFiniteNumber(value)) return EM_DASH;
   const sign = value > 0 ? "+" : "";
   return `${sign}${value.toFixed(digits)}%`;
 }
 
-export function formatOdds(value: number): string {
+export function formatOdds(value: number | null | undefined): string {
+  if (!isFiniteNumber(value)) return EM_DASH;
   if (value > 0) return `+${value}`;
   return `${value}`;
 }
 
-export function formatStat(value: number, digits = 1): string {
+export function formatStat(
+  value: number | null | undefined,
+  digits = 1,
+): string {
+  if (!isFiniteNumber(value)) return EM_DASH;
   return value.toFixed(digits);
 }
 

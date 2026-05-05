@@ -1,15 +1,15 @@
 {
   "appName": "GametimePicks",
   "version": "0.5.0",
-  "lastPipelineRun": "2026-05-05T07:22:49+00:00",
+  "lastPipelineRun": "2026-05-05T17:10:07+00:00",
   "isDemo": false,
-  "dataMode": "ScheduleLiveOddsUnavailable",
+  "dataMode": "Live",
   "nbaScheduleSource": "manual",
   "nbaStatsSource": "manual",
-  "oddsSource": "unavailable",
+  "oddsSource": "the_odds_api",
   "activeProvider": {
     "nba": "manual",
-    "odds": "unavailable"
+    "odds": "the_odds_api"
   },
   "providerStatuses": [
     {
@@ -21,9 +21,9 @@
       "api_key_configured": true,
       "is_demo": false,
       "is_stub": false,
-      "last_status": "not_run",
+      "last_status": "ok",
       "last_error": null,
-      "last_run_at": null,
+      "last_run_at": "2026-05-05T17:10:07+00:00",
       "notes": "Official NBA.com Stats endpoints. No API key needed."
     },
     {
@@ -77,24 +77,24 @@
       "api_key_configured": true,
       "is_demo": true,
       "is_stub": false,
-      "last_status": "not_run",
+      "last_status": "ok",
       "last_error": null,
-      "last_run_at": null,
+      "last_run_at": "2026-05-05T17:09:55+00:00",
       "notes": "Bundled demo data. Always works."
     },
     {
       "name": "the_odds_api",
       "kind": "odds",
       "tier": 1,
-      "enabled": false,
+      "enabled": true,
       "requires_api_key": true,
-      "api_key_configured": false,
+      "api_key_configured": true,
       "is_demo": false,
       "is_stub": false,
-      "last_status": "not_configured",
+      "last_status": "not_run",
       "last_error": null,
       "last_run_at": null,
-      "notes": "the-odds-api.com \u2014 free tier 500 credits/month. Set ODDS_API_KEY in .env to enable."
+      "notes": "the-odds-api.com \u2014 free tier 500 credits/month. Active."
     },
     {
       "name": "opticodds",
@@ -145,7 +145,7 @@
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-05-05T07:22:49+00:00",
+  "lastSuccessfulFetch": "2026-05-05T17:10:07+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -178,14 +178,14 @@
   "newsSignalsConfigured": true,
   "newsSignalsActive": 0,
   "scheduleOverridesConfigured": true,
-  "todayDataMode": "ScheduleLiveOddsUnavailable",
+  "todayDataMode": "Live",
   "todayFailureReason": null,
   "todayManualOverrideUsed": true,
-  "oddsApiKeyConfigured": false,
-  "todayOddsProviderStatus": "not_configured",
+  "oddsApiKeyConfigured": true,
+  "todayOddsProviderStatus": "ok_with_props",
   "todayOddsFailureReason": null,
-  "todayOddsQuotaRemaining": null,
-  "todayParsedPropCount": 0,
+  "todayOddsQuotaRemaining": 500,
+  "todayParsedPropCount": 166,
   "oddsBookmakersConfigured": [
     "draftkings",
     "fanduel"
@@ -197,5 +197,5 @@
   ],
   "oddsRegionsConfigured": "us",
   "oddsCacheTtlMinutes": 60,
-  "oddsMaxEventsPerRun": 6
+  "oddsMaxEventsPerRun": 2
 }
