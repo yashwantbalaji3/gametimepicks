@@ -1,0 +1,82 @@
+{
+  "_comment": "Manual final-stat overrides for settlement. PHASE 7C.",
+  "_instructions": [
+    "1. Set 'date' to the YYYY-MM-DD you want to settle.",
+    "2. List each game with its gameId (free-form 'AWAY@HOME' is fine).",
+    "3. For each player, fill in PTS / REB / AST as integers.",
+    "4. Use null for stats you can't verify; settlement will skip those markets.",
+    "5. Source for stats: NBA.com box scores or basketball-reference.com.",
+    "6. Run: python -m pipeline.settle_results --date 2026-05-05 --manual-only"
+  ],
+  "date": "2026-05-05",
+  "games": [
+    {
+      "gameId": "CLE@DET",
+      "source": "manual verified — fill in from NBA.com box score",
+      "players": [
+        {
+          "playerName": "Donovan Mitchell",
+          "team": "CLE",
+          "PTS": null,
+          "REB": null,
+          "AST": null
+        },
+        {
+          "playerName": "Evan Mobley",
+          "team": "CLE",
+          "PTS": null,
+          "REB": null,
+          "AST": null
+        },
+        {
+          "playerName": "Cade Cunningham",
+          "team": "DET",
+          "PTS": null,
+          "REB": null,
+          "AST": null
+        },
+        {
+          "playerName": "Jaden Ivey",
+          "team": "DET",
+          "PTS": null,
+          "REB": null,
+          "AST": null
+        }
+      ]
+    },
+    {
+      "gameId": "LAL@OKC",
+      "source": "manual verified — fill in from NBA.com box score",
+      "players": [
+        {
+          "playerName": "LeBron James",
+          "team": "LAL",
+          "PTS": null,
+          "REB": null,
+          "AST": null
+        },
+        {
+          "playerName": "Anthony Davis",
+          "team": "LAL",
+          "PTS": null,
+          "REB": null,
+          "AST": null
+        },
+        {
+          "playerName": "Shai Gilgeous-Alexander",
+          "team": "OKC",
+          "PTS": null,
+          "REB": null,
+          "AST": null
+        },
+        {
+          "playerName": "Chet Holmgren",
+          "team": "OKC",
+          "PTS": null,
+          "REB": null,
+          "AST": null
+        }
+      ]
+    }
+  ]
+}

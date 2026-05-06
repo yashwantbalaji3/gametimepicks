@@ -30,14 +30,14 @@ import {
   isDirty,
   activeFilterEntries,
   computeVisibleLeans,
-  buildLeanRenderKey,
   gameKeyForLean,
   DEFAULT_FILTERS,
   type FilterState,
 } from "@/lib/filter";
 import { enrichLeansWithGames } from "@/lib/lean-enrich";
+import { groupLeansIntoPlayerCards } from "@/lib/grouping";
 import VaultFilters from "./vault-filters";
-import VaultPropCard from "./vault-prop-card";
+import VaultPlayerCard from "./vault-player-card";
 
 interface Props {
   board: BoardData;
@@ -88,6 +88,25 @@ export default function VaultBoard({ board }: Props) {
     [rawLeans, games, filters],
   );
 
+  // Phase 7C — group into player cards. Render-time invariant runs first
+  // (drops + warns on any leak) so a leaked lean can never form a card.
+  const playerCards = useMemo(() => {
+    const safe = visibleLeans.filter((lean) => {
+      if (!shouldRenderLean(lean, filters, games)) {
+        if (process.env.NODE_ENV !== "production") {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[VaultBoard] lean ${lean.id} (market=${lean.market}, team=${lean.team}/${lean.opponent}) leaked past applyFilters — filters=`,
+            filters,
+          );
+        }
+        return false;
+      }
+      return true;
+    });
+    return groupLeansIntoPlayerCards(safe);
+  }, [visibleLeans, filters, games]);
+
   // Filter signature for the grid container key — forces fresh React
   // reconciliation on every filter change.
   const filterSig = useMemo(() => {
@@ -124,6 +143,7 @@ export default function VaultBoard({ board }: Props) {
         presentConfidences={presentConfidences}
         totalCount={enrichedLeans.length}
         filteredCount={visibleLeans.length}
+        playerCount={playerCards.length}
         dirty={dirty}
         activeChips={activeChips}
       />
@@ -133,8 +153,9 @@ export default function VaultBoard({ board }: Props) {
       ) : (
         <>
           <SectionHeading
-            count={visibleLeans.length}
-            total={enrichedLeans.length}
+            playerCount={playerCards.length}
+            propCount={visibleLeans.length}
+            totalProps={enrichedLeans.length}
           />
           <div
             key={filterSig}
@@ -144,25 +165,9 @@ export default function VaultBoard({ board }: Props) {
                 "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
             }}
           >
-            {visibleLeans.map((lean, i) => {
-              // Render-time invariant — drops + warns on any leak.
-              if (!shouldRenderLean(lean, filters, games)) {
-                if (process.env.NODE_ENV !== "production") {
-                  // eslint-disable-next-line no-console
-                  console.warn(
-                    `[VaultBoard] lean ${lean.id} (market=${lean.market}, team=${lean.team}/${lean.opponent}) leaked past applyFilters — filters=`,
-                    filters,
-                  );
-                }
-                return null;
-              }
-              return (
-                <VaultPropCard
-                  key={buildLeanRenderKey(lean, i)}
-                  lean={lean}
-                />
-              );
-            })}
+            {playerCards.map((card) => (
+              <VaultPlayerCard key={card.cardKey} card={card} />
+            ))}
           </div>
 
           <ResponsibleUseFooter />
@@ -211,9 +216,17 @@ function shouldRenderLean(
 }
 
 // ---------------------------------------------------------------------------
-// Section heading above the card grid — quiet, gold rule + label
+// Section heading above the card grid — quiet gold rule + "X players · Y props"
 // ---------------------------------------------------------------------------
-function SectionHeading({ count, total }: { count: number; total: number }) {
+function SectionHeading({
+  playerCount,
+  propCount,
+  totalProps,
+}: {
+  playerCount: number;
+  propCount: number;
+  totalProps: number;
+}) {
   return (
     <div className="flex items-center gap-3 mb-4">
       <span
@@ -230,14 +243,15 @@ function SectionHeading({ count, total }: { count: number; total: number }) {
         className="font-mono text-[10px] uppercase tracking-wider shrink-0"
         style={{ color: "var(--vault-text-faint)" }}
       >
-        {count} {count === 1 ? "prop" : "props"}
-        {count !== total && (
-          <>
-            {" "}
-            <span style={{ color: "var(--vault-text-faint)", opacity: 0.6 }}>
-              of {total}
-            </span>
-          </>
+        <span style={{ color: "var(--vault-text-mute)" }}>{playerCount}</span>{" "}
+        {playerCount === 1 ? "player" : "players"}
+        <span style={{ color: "var(--vault-text-faint)", opacity: 0.6 }}> · </span>
+        <span style={{ color: "var(--vault-text-mute)" }}>{propCount}</span>{" "}
+        {propCount === 1 ? "prop" : "props"}
+        {propCount !== totalProps && (
+          <span style={{ color: "var(--vault-text-faint)", opacity: 0.6 }}>
+            {" "}of {totalProps}
+          </span>
         )}
       </span>
     </div>

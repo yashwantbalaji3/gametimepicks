@@ -50,6 +50,8 @@ interface Props {
   presentConfidences: ConfidenceTier[];
   totalCount: number;
   filteredCount: number;
+  /** Phase 7C — number of player cards on screen after grouping. */
+  playerCount: number;
   dirty: boolean;
   activeChips: ActiveFilterEntry[];
 }
@@ -65,6 +67,7 @@ export default function VaultFilters({
   presentConfidences,
   totalCount,
   filteredCount,
+  playerCount,
   dirty,
   activeChips,
 }: Props) {
@@ -181,15 +184,31 @@ export default function VaultFilters({
           className="font-mono text-[11px] uppercase tracking-wider shrink-0"
           style={{ color: "var(--vault-text-faint)" }}
         >
-          showing{" "}
+          <span
+            className="tabular text-[13px] font-semibold"
+            style={{ color: "var(--vault-gold-bright)" }}
+          >
+            {playerCount}
+          </span>{" "}
+          {playerCount === 1 ? "player" : "players"}
+          <span style={{ color: "var(--vault-text-faint)", opacity: 0.5 }}>
+            {" · "}
+          </span>
           <span
             className="tabular text-[13px] font-semibold"
             style={{ color: "var(--vault-gold-bright)" }}
           >
             {filteredCount}
-          </span>
-          {" / "}
-          <span style={{ color: "var(--vault-text-mute)" }}>{totalCount}</span>
+          </span>{" "}
+          {filteredCount === 1 ? "prop" : "props"}
+          {filteredCount !== totalCount && (
+            <>
+              {" "}
+              <span style={{ color: "var(--vault-text-faint)", opacity: 0.6 }}>
+                of {totalCount}
+              </span>
+            </>
+          )}
         </span>
 
         {dirty && (
