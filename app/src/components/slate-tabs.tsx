@@ -9,17 +9,23 @@ interface Props {
 }
 
 /**
- * SlateTabs — 4-day date selector for /board.
+ * SlateTabs — vault-themed date selector for /board.
  *
- * Phase 7B-1.1: each tab subtitle reflects the date's actual dataMode so
- * a "Today · live" badge never appears on a demo-fallback day. Demo days
- * are clearly labeled. Tabs remain clickable in all states (the page
- * body handles the per-state empty/banner rendering).
+ * Phase 7B-7: re-themed from lime to gold to match the rest of the
+ * Gametime Vault palette. Active tab gets a gold underline + glow,
+ * inactive tabs use vault text-mute, dataMode-specific subtitles
+ * use vault success/warn/danger tokens.
+ *
+ * Behavior is unchanged: controlled component, parent owns selectedDate,
+ * clicking a tab dispatches onChange(date).
  */
 export default function SlateTabs({ days, selected, onChange }: Props) {
   return (
-    <div className="border-b border-[var(--border)] mb-6">
-      <div className="flex gap-1 overflow-x-auto -mx-1 px-1 pb-px">
+    <div
+      className="mb-5 -mx-2 px-2"
+      style={{ borderBottom: "1px solid var(--vault-border)" }}
+    >
+      <div className="flex gap-0 overflow-x-auto pb-px scrollbar-thin">
         {days.map((day) => {
           const isSelected = day.date === selected;
           const subtitle = subtitleForDay(day);
@@ -30,23 +36,27 @@ export default function SlateTabs({ days, selected, onChange }: Props) {
               key={day.date}
               type="button"
               onClick={() => onChange(day.date)}
-              className={[
-                "shrink-0 px-4 py-3 text-left",
-                "border-b-2 transition-colors cursor-pointer",
-                "min-w-[120px]",
-                isSelected
-                  ? "border-[var(--lime)]"
-                  : "border-transparent hover:border-[var(--border-strong)]",
-              ].join(" ")}
+              aria-pressed={isSelected}
+              className="shrink-0 px-5 py-3 text-left transition-all duration-150 cursor-pointer focus:outline-none"
+              style={{
+                borderBottom: `2px solid ${
+                  isSelected ? "var(--vault-gold)" : "transparent"
+                }`,
+                marginBottom: "-1px",
+                minWidth: "118px",
+                boxShadow: isSelected
+                  ? "0 4px 14px -8px var(--vault-gold-glow)"
+                  : "none",
+              }}
             >
               <div className="flex items-baseline gap-2">
                 <span
-                  className={[
-                    "font-display font-semibold text-[15px]",
-                    isSelected
-                      ? "text-[var(--text)]"
-                      : "text-[var(--text-mute)]",
-                  ].join(" ")}
+                  className="font-display font-semibold text-[15px] tracking-tight"
+                  style={{
+                    color: isSelected
+                      ? "var(--vault-gold-bright)"
+                      : "var(--vault-text-mute)",
+                  }}
                 >
                   {day.dayLabel}
                 </span>
@@ -75,6 +85,7 @@ export default function SlateTabs({ days, selected, onChange }: Props) {
 
 /**
  * Subtitle line below the day label, color-coded by dataMode.
+ * Phase 7B-7: re-mapped to vault tokens.
  */
 function subtitleForDay(day: SlateDay): { text: string; color: string } {
   const mode: DataMode = (day.dataMode as DataMode) || "ScheduleUnavailable";
@@ -85,47 +96,46 @@ function subtitleForDay(day: SlateDay): { text: string; color: string } {
         text: `${day.gameCount}g · ${day.leanCount}l${
           day.highConfidenceCount > 0 ? ` · ${day.highConfidenceCount} hi` : ""
         }`,
-        color: "var(--text-faint)",
+        color: "var(--vault-text-faint)",
       };
 
     case "ScheduleLiveOddsUnavailable":
-      // Phase 7B-2: distinguish odds-not-configured / no-props / failed
       if (day.gameCount === 0) {
-        return { text: "no games", color: "var(--text-faint)" };
+        return { text: "no games", color: "var(--vault-text-faint)" };
       }
       if (day.oddsProviderStatus === "failed") {
         return {
           text: `${day.gameCount}g · odds unavailable`,
-          color: "var(--rose)",
+          color: "var(--vault-danger)",
         };
       }
       if (day.oddsProviderStatus === "ok_no_props") {
         return {
           text: `${day.gameCount}g · no props returned`,
-          color: "var(--text-faint)",
+          color: "var(--vault-text-faint)",
         };
       }
       return {
         text: `${day.gameCount}g · props unavailable`,
-        color: "var(--text-faint)",
+        color: "var(--vault-text-faint)",
       };
 
     case "NoGames":
-      return { text: "no games", color: "var(--text-faint)" };
+      return { text: "no games", color: "var(--vault-text-faint)" };
 
     case "ScheduleUnavailable":
-      return { text: "schedule unavailable", color: "var(--rose)" };
+      return { text: "schedule unavailable", color: "var(--vault-danger)" };
 
     case "DemoForced":
-      return { text: "demo · sample", color: "var(--amber)" };
+      return { text: "demo · sample", color: "var(--vault-warn)" };
 
     default:
-      return { text: "unknown", color: "var(--rose)" };
+      return { text: "unknown", color: "var(--vault-danger)" };
   }
 }
 
 /**
- * Small badge next to the day label. Only shown for primary day in live mode.
+ * Small badge next to the day label — only on the primary day in live modes.
  */
 function badgeForDay(
   day: SlateDay,
@@ -133,9 +143,8 @@ function badgeForDay(
   const mode: DataMode = (day.dataMode as DataMode) || "ScheduleUnavailable";
   if (!day.isPrimary) return null;
 
-  // Only the LIVE-class modes get the lime "live" badge. Demo modes don't.
   if (mode === "Live" || mode === "ScheduleLiveOddsUnavailable") {
-    return { label: "live", color: "var(--lime)" };
+    return { label: "live", color: "var(--vault-success)" };
   }
   return null;
 }

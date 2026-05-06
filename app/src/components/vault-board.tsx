@@ -1,25 +1,23 @@
 "use client";
 
 /**
- * VaultBoard — Phase 7B-6.1 surgical render-path fix.
+ * VaultBoard — Phase 7B-7.
  *
- * The Phase 7B-6 logic was correct (filtered.length and filtered.map used
- * the same array reference) but a stale browser build, a future React
- * reconciliation quirk on duplicate keys, or any other path-of-truth
- * issue could in theory cause the count and the rendered cards to
- * disagree. This file makes that impossible by:
+ * Single self-contained client component that owns ALL filter state for
+ * the active date. State architecture from 7B-6.2 is preserved verbatim:
+ *   - useState<FilterState>
+ *   - computeVisibleLeans() for the single derived render array
+ *   - buildLeanRenderKey() for unique React keys
+ *   - shouldRenderLean() defensive render-time invariant
  *
- *   1. Computing exactly ONE final array — `visibleLeans` — and using it
- *      for BOTH the count and the card grid.
- *   2. Defensively re-checking each lean against the active filters at
- *      render time, returning null for any lean that should not be
- *      visible. (In dev mode this also console.warns, so any leakage is
- *      surfaced immediately.)
- *   3. De-duplicating by lean.id before rendering, so a duplicate-key
- *      reconciliation bug cannot drop or stale-render a card.
- *   4. Putting `key={filterSig}` on the grid container so the entire
- *      card grid is reconciled fresh on every filter change. This rules
- *      out any DOM-state stickiness from the previous render.
+ * Phase 7B-7 changes are visual only:
+ *   - REMOVED the duplicate VaultStatusStrip hero (the page-level hero
+ *     in /board/page.tsx already shows date + source badges; rendering
+ *     a second hero made the page feel "stacked box after box")
+ *   - The unified VaultFilters control panel handles game selection,
+ *     filtering, count, and active chips — replacing three separate
+ *     stacked boxes.
+ *   - Empty states refined for cleaner reading
  */
 import { useMemo, useState } from "react";
 import type {
@@ -40,7 +38,6 @@ import {
 import { enrichLeansWithGames } from "@/lib/lean-enrich";
 import VaultFilters from "./vault-filters";
 import VaultPropCard from "./vault-prop-card";
-import VaultStatusStrip from "./vault-status-strip";
 
 interface Props {
   board: BoardData;
@@ -55,13 +52,12 @@ export default function VaultBoard({ board }: Props) {
   // ───────────────────────────────────────────────────────────────────
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
-  // 1. Enrich leans (derive missing team/opponent from gameId).
+  // Derivations the control panel needs for its dropdowns.
   const enrichedLeans = useMemo(
     () => enrichLeansWithGames(rawLeans, games),
     [rawLeans, games],
   );
 
-  // 2. Per-game prop counts for the game-selector cards.
   const propCounts = useMemo(() => {
     const counts: Record<string, number> = { All: enrichedLeans.length };
     for (const l of enrichedLeans) {
@@ -71,7 +67,6 @@ export default function VaultBoard({ board }: Props) {
     return counts;
   }, [enrichedLeans, games]);
 
-  // 3. Available teams (post-enrichment).
   const teams = useMemo(() => {
     const set = new Set<string>();
     for (const l of enrichedLeans) {
@@ -81,29 +76,20 @@ export default function VaultBoard({ board }: Props) {
     return Array.from(set).sort();
   }, [enrichedLeans]);
 
-  // 4. Confidence tiers actually present.
   const presentConfidences = useMemo<ConfidenceTier[]>(() => {
     const set = new Set<ConfidenceTier>();
     for (const l of enrichedLeans) set.add(l.confidence);
     return Array.from(set);
   }, [enrichedLeans]);
 
-  // ───────────────────────────────────────────────────────────────────
-  // 5. THE single final array. Phase 7B-6.1: this is `visibleLeans` —
-  //    the only array used for BOTH count display and card rendering.
-  //    Computed via the exported `computeVisibleLeans()` function so
-  //    the Python filter test mirrors EXACTLY this code path, not a
-  //    parallel-but-not-quite-identical reimplementation. Includes
-  //    enrichment + filter + sort + duplicate-id dedupe.
-  // ───────────────────────────────────────────────────────────────────
+  // THE single derived array. Phase 7B-6.2: no dedupe; preserves all rows.
   const visibleLeans = useMemo(
     () => computeVisibleLeans(rawLeans, games, filters),
     [rawLeans, games, filters],
   );
 
-  // 6. Filter signature — used to key the card grid so React mounts
-  //    fresh DOM nodes on filter change. Belt-and-suspenders against
-  //    any reconciliation oddity.
+  // Filter signature for the grid container key — forces fresh React
+  // reconciliation on every filter change.
   const filterSig = useMemo(() => {
     return [
       filters.gameKey,
@@ -116,9 +102,7 @@ export default function VaultBoard({ board }: Props) {
     ].join("|");
   }, [filters]);
 
-  // ───────────────────────────────────────────────────────────────────
-  // Handlers
-  // ───────────────────────────────────────────────────────────────────
+  // Handlers — all funnel through one setter on the single state.
   const onFiltersChange = (next: FilterState) => setFilters(next);
   const onResetOne = (key: keyof FilterState) =>
     setFilters((f) => ({ ...f, [key]: DEFAULT_FILTERS[key] }));
@@ -129,8 +113,6 @@ export default function VaultBoard({ board }: Props) {
 
   return (
     <div className="vault-board">
-      <VaultStatusStrip board={board} totalProps={enrichedLeans.length} />
-
       <VaultFilters
         filters={filters}
         onFiltersChange={onFiltersChange}
@@ -149,48 +131,48 @@ export default function VaultBoard({ board }: Props) {
       {visibleLeans.length === 0 ? (
         <VaultEmptyState dirty={dirty} onResetAll={onResetAll} />
       ) : (
-        <div
-          key={filterSig}
-          className="grid gap-3"
-          style={{
-            gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
-          }}
-        >
-          {visibleLeans.map((lean, i) => {
-            // Render-time invariant — drops any lean that does NOT
-            // satisfy the currently-active filters. Even though
-            // applyFilters above should have already filtered these out,
-            // this is the user's explicit safety net (Phase 7B-6.1
-            // requirement #5): if filters.market === "REB", every
-            // rendered card MUST have market === "REB".
-            if (!shouldRenderLean(lean, filters, games)) {
-              if (process.env.NODE_ENV !== "production") {
-                // eslint-disable-next-line no-console
-                console.warn(
-                  `[VaultBoard] lean ${lean.id} (market=${lean.market}, team=${lean.team}/${lean.opponent}) leaked past applyFilters — filters=`,
-                  filters,
-                );
+        <>
+          <SectionHeading
+            count={visibleLeans.length}
+            total={enrichedLeans.length}
+          />
+          <div
+            key={filterSig}
+            className="grid gap-3"
+            style={{
+              gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+            }}
+          >
+            {visibleLeans.map((lean, i) => {
+              // Render-time invariant — drops + warns on any leak.
+              if (!shouldRenderLean(lean, filters, games)) {
+                if (process.env.NODE_ENV !== "production") {
+                  // eslint-disable-next-line no-console
+                  console.warn(
+                    `[VaultBoard] lean ${lean.id} (market=${lean.market}, team=${lean.team}/${lean.opponent}) leaked past applyFilters — filters=`,
+                    filters,
+                  );
+                }
+                return null;
               }
-              return null;
-            }
-            return (
-              <VaultPropCard
-                key={buildLeanRenderKey(lean, i)}
-                lean={lean}
-                delay={(i % 6) + 1}
-              />
-            );
-          })}
-        </div>
+              return (
+                <VaultPropCard
+                  key={buildLeanRenderKey(lean, i)}
+                  lean={lean}
+                />
+              );
+            })}
+          </div>
+
+          <ResponsibleUseFooter />
+        </>
       )}
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Render-time invariant — defensive duplicate of applyFilters' checks.
-// If a lean somehow leaks past the upstream filter, this catches it at the
-// last possible moment.
+// Render-time invariant — same logic as applyFilters; defensive duplicate.
 // ---------------------------------------------------------------------------
 function shouldRenderLean(
   lean: PropLean,
@@ -228,7 +210,41 @@ function shouldRenderLean(
 }
 
 // ---------------------------------------------------------------------------
-// Empty state — context-aware
+// Section heading above the card grid — quiet, gold rule + label
+// ---------------------------------------------------------------------------
+function SectionHeading({ count, total }: { count: number; total: number }) {
+  return (
+    <div className="flex items-center gap-3 mb-4">
+      <span
+        className="font-mono text-[10px] uppercase tracking-[0.18em] shrink-0"
+        style={{ color: "var(--vault-gold)" }}
+      >
+        model board
+      </span>
+      <div
+        className="flex-1 h-px"
+        style={{ background: "var(--vault-rule)" }}
+      />
+      <span
+        className="font-mono text-[10px] uppercase tracking-wider shrink-0"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        {count} {count === 1 ? "prop" : "props"}
+        {count !== total && (
+          <>
+            {" "}
+            <span style={{ color: "var(--vault-text-faint)", opacity: 0.6 }}>
+              of {total}
+            </span>
+          </>
+        )}
+      </span>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Empty state — context-aware, intentional, less "panic box"
 // ---------------------------------------------------------------------------
 function VaultEmptyState({
   dirty,
@@ -237,38 +253,41 @@ function VaultEmptyState({
   dirty: boolean;
   onResetAll: () => void;
 }) {
-  if (dirty) {
-    return (
+  return (
+    <div
+      className="px-6 py-20 text-center rounded-[3px]"
+      style={{
+        border: "1px dashed var(--vault-border)",
+        background: "transparent",
+      }}
+    >
       <div
-        className="px-6 py-16 text-center rounded-[3px]"
-        style={{
-          background: "var(--vault-panel)",
-          border: "1px solid var(--vault-border)",
-        }}
+        className="font-mono text-[10px] tracking-[0.18em] uppercase mb-4"
+        style={{ color: "var(--vault-gold)" }}
       >
-        <div
-          className="font-mono text-[11px] tracking-wider uppercase mb-3"
-          style={{ color: "var(--vault-text-faint)" }}
-        >
-          no props match these filters
-        </div>
-        <h3
-          className="font-display text-[20px] font-semibold tracking-tight mb-2"
-          style={{ color: "var(--vault-text)" }}
-        >
-          Nothing in the vault for that combination.
-        </h3>
-        <p
-          className="text-[14px] max-w-sm mx-auto leading-relaxed mb-4"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          Try a different game, widen the market, lower the edge threshold,
-          or reset everything.
-        </p>
+        {dirty ? "no matches" : "the vault is empty"}
+      </div>
+      <h3
+        className="font-display text-[22px] font-semibold tracking-tight"
+        style={{ color: "var(--vault-text)" }}
+      >
+        {dirty
+          ? "Nothing matches these filters."
+          : "No props on the board for this date."}
+      </h3>
+      <p
+        className="mt-2 mx-auto max-w-md text-[14px] leading-relaxed"
+        style={{ color: "var(--vault-text-mute)" }}
+      >
+        {dirty
+          ? "Try a different game, widen the market filter, or reset everything."
+          : "Try another date tab, or check back when the next slate generates."}
+      </p>
+      {dirty && (
         <button
           type="button"
           onClick={onResetAll}
-          className="font-mono text-[11px] uppercase tracking-wider px-4 py-2 rounded-[2px] transition-colors"
+          className="mt-5 font-mono text-[11px] uppercase tracking-wider px-4 py-2 rounded-[2px] transition-colors"
           style={{
             color: "var(--vault-gold-bright)",
             background: "var(--vault-gold-dim)",
@@ -277,35 +296,25 @@ function VaultEmptyState({
         >
           reset all filters
         </button>
-      </div>
-    );
-  }
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Quiet footer — replaces the responsible-use line that used to live in
+// the duplicate VaultStatusStrip hero.
+// ---------------------------------------------------------------------------
+function ResponsibleUseFooter() {
   return (
     <div
-      className="px-6 py-16 text-center rounded-[3px]"
+      className="mt-10 pt-5 text-center font-mono text-[10px] tracking-[0.18em] uppercase"
       style={{
-        background: "var(--vault-panel)",
-        border: "1px solid var(--vault-border)",
+        color: "var(--vault-text-faint)",
+        borderTop: "1px solid var(--vault-rule)",
       }}
     >
-      <div
-        className="font-mono text-[11px] tracking-wider uppercase mb-3"
-        style={{ color: "var(--vault-text-faint)" }}
-      >
-        no props for this date
-      </div>
-      <h3
-        className="font-display text-[20px] font-semibold tracking-tight mb-2"
-        style={{ color: "var(--vault-text)" }}
-      >
-        The vault is empty for this date.
-      </h3>
-      <p
-        className="text-[14px] max-w-sm mx-auto leading-relaxed"
-        style={{ color: "var(--vault-text-mute)" }}
-      >
-        Try another date tab, or check back when the next slate generates.
-      </p>
+      analytics · educational use only · not betting advice
     </div>
   );
 }

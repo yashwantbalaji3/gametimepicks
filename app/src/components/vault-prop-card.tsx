@@ -1,19 +1,22 @@
 "use client";
 
 /**
- * VaultPropCard — Phase 7B-6.
+ * VaultPropCard — Phase 7B-7 refined card.
  *
- * Vault-themed prop card. Structured into clear sections:
- *   1. HEADER — matchup, tipoff, confidence pill, status
- *   2. PLAYER — name, market chip, "pass" chip if no recommendation
- *   3. PICK — side / line / odds / bookmaker
- *   4. MODEL — projection / edge / model vs implied
- *              OR "Projection unavailable" panel for insufficient_data
- *   5. CONTEXT — risk-flag chips + reasoning text
- *   6. FOOTER — bookmaker source label + reliability
+ * Cleaner visual hierarchy:
+ *   1. HEADER — player name on its own line; matchup + market as quiet
+ *      metadata; confidence pill on the right.
+ *   2. PICK ROW — 4 cells: pick / line / odds / source.
+ *   3. RULE — subtle gold divider.
+ *   4. MODEL ROW — 3 cells (proj / edge / implied) for graded rows;
+ *      single muted line ("projection unavailable · insufficient data")
+ *      for `insufficient_data` / `no_play` rows. No more big "model"
+ *      panel for the no-data case.
+ *   5. FOOTER — risk-flag chips + reasoning text inline; bookmaker omitted
+ *      because it's already in the pick row.
  *
- * All numeric formatters are null-safe (Phase 7B-3.1 invariant).
- * No fake projections, no NaN, no "+0.0%".
+ * All numeric formatters are null-safe (Phase 7B-3.1 invariant). No NaN,
+ * no fake +0.0%, no fabricated projections.
  */
 import type { PropLean } from "@/lib/types";
 import {
@@ -26,125 +29,124 @@ import {
 
 interface Props {
   lean: PropLean;
-  delay?: number;
 }
 
-export default function VaultPropCard({ lean, delay }: Props) {
-  const delayClass = delay ? ` reveal-d${Math.min(delay, 6)}` : "";
-
+export default function VaultPropCard({ lean }: Props) {
   const isPass = lean.lean === "No Play" || lean.lean === "Pass";
   const hasProjection =
     typeof lean.projection === "number" && Number.isFinite(lean.projection);
   const hasModelOutput =
     typeof lean.modelProbability === "number" &&
     Number.isFinite(lean.modelProbability);
+  const hasModel = hasProjection || hasModelOutput;
 
   const pickSide: "OVER" | "UNDER" | null =
     lean.lean === "Over" ? "OVER" : lean.lean === "Under" ? "UNDER" : null;
   const pickOdds = pickSide === "UNDER" ? lean.oddsUnder : lean.oddsOver;
-
-  const projectionSub = hasProjection
-    ? "model"
-    : lean.confidence === "insufficient_data"
-      ? "insufficient data"
-      : lean.confidence === "no_play"
-        ? "passed"
-        : "unavailable";
-
   const hasRiskFlags = (lean.riskFlags?.length ?? 0) > 0;
 
   return (
     <article
-      className={`rounded-[3px] p-5 transition-all duration-200 reveal${delayClass}`}
+      className="rounded-[3px] p-5 transition-all duration-150"
       style={{
         background: "var(--vault-panel)",
         border: "1px solid var(--vault-border)",
       }}
     >
-      {/* HEADER */}
+      {/* ─── HEADER ─── */}
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
+          <h3
+            className="font-display text-[18px] font-semibold tracking-tight truncate"
+            style={{ color: "var(--vault-text)" }}
+          >
+            {lean.playerName}
+          </h3>
           <div
-            className="font-mono text-[10px] tracking-wider uppercase flex items-center gap-1.5 flex-wrap"
+            className="mt-0.5 font-mono text-[10px] tracking-wider uppercase truncate"
             style={{ color: "var(--vault-text-faint)" }}
           >
             <span style={{ color: "var(--vault-text-mute)" }}>
               {lean.team || EM_DASH}
             </span>
-            <span style={{ color: "var(--vault-text-faint)" }}>
-              {lean.homeAway === "Home" ? "vs" : "@"}
-            </span>
+            <span> {lean.homeAway === "Home" ? "vs" : "@"} </span>
             <span style={{ color: "var(--vault-text-mute)" }}>
               {lean.opponent || EM_DASH}
             </span>
-            <span style={{ color: "var(--vault-text-faint)" }}>·</span>
-            <span style={{ color: "var(--vault-text-faint)" }}>{lean.tipoff}</span>
-          </div>
-          <h3
-            className="mt-1.5 font-display text-[19px] font-semibold tracking-tight truncate"
-            style={{ color: "var(--vault-text)" }}
-          >
-            {lean.playerName}
-          </h3>
-          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-            <Chip label={marketLabel(lean.market)} tone="mute" />
-            {isPass && <Chip label="pass" tone="mute" />}
+            <span style={{ color: "var(--vault-text-faint)" }}> · </span>
+            <span>{lean.tipoff}</span>
+            <span style={{ color: "var(--vault-text-faint)" }}> · </span>
+            <span style={{ color: "var(--vault-gold)" }}>
+              {marketLabel(lean.market)}
+            </span>
+            {isPass && (
+              <>
+                <span style={{ color: "var(--vault-text-faint)" }}> · </span>
+                <span>pass</span>
+              </>
+            )}
           </div>
         </div>
-        <div className="flex flex-col items-end gap-1.5 shrink-0">
-          <ConfidenceTag confidence={lean.confidence} />
-        </div>
+        <ConfidenceTag confidence={lean.confidence} />
       </header>
 
-      {/* PICK */}
-      <section className="mt-4 grid grid-cols-3 gap-3">
+      {/* ─── PICK ROW ─── */}
+      <section className="mt-4 grid grid-cols-4 gap-3">
         <PickCell pickSide={pickSide} />
         <Cell label="line" value={formatStat(lean.line)} />
-        <Cell label="odds" value={formatOdds(pickOdds)} sub={lean.bookmaker} />
+        <Cell label="odds" value={formatOdds(pickOdds)} />
+        <Cell
+          label="source"
+          value={lean.bookmaker || EM_DASH}
+          valueClass="text-[12px]"
+          mute
+        />
       </section>
 
-      {/* MODEL */}
-      {hasProjection || hasModelOutput ? (
-        <section
-          className="mt-4 pt-4 grid grid-cols-3 gap-3"
-          style={{ borderTop: "1px solid var(--vault-border)" }}
-        >
+      {/* ─── DIVIDER ─── */}
+      <div
+        className="mt-4 h-px"
+        style={{ background: "var(--vault-rule)" }}
+      />
+
+      {/* ─── MODEL ROW ─── */}
+      {hasModel ? (
+        <section className="mt-4 grid grid-cols-3 gap-3">
           <Cell
             label="projection"
             value={formatStat(lean.projection)}
-            sub={projectionSub}
             mute={!hasProjection}
           />
           <div>
             <CellLabel>edge</CellLabel>
-            <div className="mt-1.5">
+            <div className="mt-0.5">
               <EdgeTag edgePct={lean.edgePct} />
-            </div>
-            <div
-              className="text-[10px] font-mono mt-1.5"
-              style={{ color: "var(--vault-text-faint)" }}
-            >
-              {hasModelOutput
-                ? `${formatPercent(lean.modelProbability, 0)} model`
-                : "model output unavailable"}
             </div>
           </div>
           <Cell
-            label="implied"
-            value={formatPercent(lean.impliedProbability, 0)}
-            sub={hasModelOutput ? "vs model" : "from odds"}
+            label={hasModelOutput ? "model · implied" : "implied"}
+            value={
+              hasModelOutput
+                ? `${formatPercent(lean.modelProbability, 0)} / ${formatPercent(lean.impliedProbability, 0)}`
+                : formatPercent(lean.impliedProbability, 0)
+            }
+            valueClass="text-[14px]"
           />
         </section>
       ) : (
-        <InsufficientPanel confidence={lean.confidence} />
+        <p
+          className="mt-3 font-mono text-[11px] tracking-wider uppercase"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          {lean.confidence === "no_play"
+            ? "model passed · below threshold"
+            : "projection unavailable · insufficient data"}
+        </p>
       )}
 
-      {/* CONTEXT */}
+      {/* ─── FOOTER (reasoning + risk flags) ─── */}
       {(hasRiskFlags || lean.reason) && (
-        <section
-          className="mt-4 pt-4"
-          style={{ borderTop: "1px solid var(--vault-border)" }}
-        >
+        <footer className="mt-4">
           {hasRiskFlags && (
             <div className="flex flex-wrap gap-1 mb-2">
               {lean.riskFlags!.map((flag) => (
@@ -160,21 +162,6 @@ export default function VaultPropCard({ lean, delay }: Props) {
               {lean.reason}
             </p>
           )}
-        </section>
-      )}
-
-      {/* FOOTER */}
-      {lean.bookmaker && (
-        <footer
-          className="mt-3 pt-3"
-          style={{ borderTop: "1px solid var(--vault-border)" }}
-        >
-          <span
-            className="font-mono text-[10px] uppercase tracking-wider"
-            style={{ color: "var(--vault-text-faint)" }}
-          >
-            source · {lean.bookmaker}
-          </span>
         </footer>
       )}
     </article>
@@ -187,7 +174,7 @@ export default function VaultPropCard({ lean, delay }: Props) {
 function CellLabel({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="font-mono text-[10px] tracking-wider uppercase"
+      className="font-mono text-[10px] tracking-[0.18em] uppercase"
       style={{ color: "var(--vault-text-faint)" }}
     >
       {children}
@@ -200,17 +187,19 @@ function Cell({
   value,
   sub,
   mute,
+  valueClass,
 }: {
   label: string;
   value: string;
   sub?: string;
   mute?: boolean;
+  valueClass?: string;
 }) {
   return (
     <div>
       <CellLabel>{label}</CellLabel>
       <div
-        className="mt-0.5 font-display text-[18px] font-semibold tabular tracking-tight"
+        className={`mt-0.5 font-display font-semibold tabular tracking-tight ${valueClass ?? "text-[16px]"}`}
         style={{ color: mute ? "var(--vault-text-faint)" : "var(--vault-text)" }}
       >
         {value}
@@ -233,36 +222,22 @@ function PickCell({ pickSide }: { pickSide: "OVER" | "UNDER" | null }) {
       <div>
         <CellLabel>pick</CellLabel>
         <div
-          className="mt-0.5 font-display text-[18px] font-semibold tabular tracking-tight"
+          className="mt-0.5 font-display text-[16px] font-semibold tabular tracking-tight"
           style={{ color: "var(--vault-text-faint)" }}
         >
           {EM_DASH}
         </div>
-        <div
-          className="text-[10px] font-mono mt-0.5"
-          style={{ color: "var(--vault-text-faint)" }}
-        >
-          no pick
-        </div>
       </div>
     );
   }
-  // Both Over and Under render in gold — the lean direction is shown via
-  // the OVER/UNDER text, not via positive/negative coloring.
   return (
     <div>
       <CellLabel>pick</CellLabel>
       <div
-        className="mt-0.5 font-display text-[18px] font-semibold tracking-tight"
+        className="mt-0.5 font-display text-[16px] font-semibold tracking-tight"
         style={{ color: "var(--vault-gold-bright)" }}
       >
         {pickSide}
-      </div>
-      <div
-        className="text-[10px] font-mono mt-0.5"
-        style={{ color: "var(--vault-text-faint)" }}
-      >
-        model lean
       </div>
     </div>
   );
@@ -305,7 +280,7 @@ function ConfidenceTag({ confidence }: { confidence: string }) {
   const cfg = CONFIDENCE_CFG[confidence] ?? CONFIDENCE_CFG.Low;
   return (
     <span
-      className="px-2 py-1 rounded-[2px] font-mono text-[10px] tracking-wider uppercase"
+      className="px-2 py-1 rounded-[2px] font-mono text-[10px] tracking-wider uppercase shrink-0"
       style={{
         color: cfg.color,
         background: cfg.bg,
@@ -358,7 +333,7 @@ function EdgeTag({ edgePct }: { edgePct: number | null | undefined }) {
   if (!isFinite) {
     return (
       <span
-        className="font-mono font-semibold tabular tracking-wider uppercase rounded-[2px] px-3 py-1 text-[13px]"
+        className="font-mono font-semibold tabular tracking-wider uppercase rounded-[2px] px-2.5 py-0.5 text-[12px]"
         style={{
           color: "var(--vault-text-faint)",
           background: "var(--vault-panel-elevated)",
@@ -369,13 +344,11 @@ function EdgeTag({ edgePct }: { edgePct: number | null | undefined }) {
       </span>
     );
   }
-  // Gold for positive, muted for negative — clearly distinguishable
-  // without using anything that could be misread as betting hype.
   const positive = edgePct >= 0;
   const sign = edgePct > 0 ? "+" : "";
   return (
     <span
-      className="font-mono font-semibold tabular tracking-wider uppercase rounded-[2px] px-3 py-1 text-[13px]"
+      className="font-mono font-semibold tabular tracking-wider uppercase rounded-[2px] px-2.5 py-0.5 text-[12px]"
       style={{
         color: positive ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
         background: positive ? "var(--vault-gold-dim)" : "var(--vault-panel-elevated)",
@@ -387,44 +360,5 @@ function EdgeTag({ edgePct }: { edgePct: number | null | undefined }) {
       {sign}
       {edgePct.toFixed(1)}%
     </span>
-  );
-}
-
-function InsufficientPanel({ confidence }: { confidence: string }) {
-  const headline =
-    confidence === "no_play"
-      ? "Model passed on this prop"
-      : "Projection unavailable";
-  const detail =
-    confidence === "no_play"
-      ? "Below the model's edge threshold or flagged for risk."
-      : "Player game logs were not available for this run, so no projection or edge was computed. The line and odds above are real sportsbook data.";
-
-  return (
-    <section
-      className="mt-4 pt-4 flex items-start gap-3"
-      style={{ borderTop: "1px solid var(--vault-border)" }}
-    >
-      <div
-        className="font-mono text-[9px] tracking-wider uppercase mt-0.5 shrink-0"
-        style={{ color: "var(--vault-text-faint)" }}
-      >
-        model
-      </div>
-      <div className="flex-1">
-        <div
-          className="font-display text-[14px] font-semibold tracking-tight"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          {headline}
-        </div>
-        <div
-          className="mt-1 text-[12px] leading-relaxed"
-          style={{ color: "var(--vault-text-faint)" }}
-        >
-          {detail}
-        </div>
-      </div>
-    </section>
   );
 }

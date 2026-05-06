@@ -1,14 +1,19 @@
 "use client";
 
 /**
- * VaultFilters — Phase 7B-6.
+ * VaultFilters — Phase 7B-7 unified control panel.
  *
- * Self-contained filter UI: game-selector cards, secondary filter
- * controls, and the active-filter chip strip. ALL controlled. No
- * internal state. No useEffect. Each input writes the new FilterState
- * via onFiltersChange. Single update path; cannot get out of sync.
+ * Replaces the three separate stacked boxes (GameSelector grid +
+ * FilterBar panel + ActiveChips bar) with ONE panel divided into three
+ * vertical sections by subtle gold rule lines:
  *
- * Visual: Gametime Vault — gold accents on active state, navy panels.
+ *   1. Game pills row — primary navigator
+ *   2. Filter rows — market & type segmented + secondary controls
+ *   3. Footer — count, active filter chips, reset all
+ *
+ * Pure controlled component — no internal state, no effects. Receives
+ * filters + handlers and renders. Single update path through
+ * onFiltersChange.
  */
 import { useMemo, type ChangeEvent } from "react";
 import type { ScheduleGame, ConfidenceTier, Market } from "@/lib/types";
@@ -39,12 +44,10 @@ interface Props {
   onFiltersChange: (next: FilterState) => void;
   onResetOne: (key: keyof FilterState) => void;
   onResetAll: () => void;
-
   games: ScheduleGame[];
   propCounts: Record<string, number>;
   availableTeams: string[];
   presentConfidences: ConfidenceTier[];
-
   totalCount: number;
   filteredCount: number;
   dirty: boolean;
@@ -65,11 +68,9 @@ export default function VaultFilters({
   dirty,
   activeChips,
 }: Props) {
-  // Single typed setter that the rest of this file uses.
   const update = <K extends keyof FilterState>(key: K, value: FilterState[K]) =>
     onFiltersChange({ ...filters, [key]: value });
 
-  // Show "no data" / "pass" only if the slate has them.
   const confidenceOptions = useMemo<("All" | ConfidenceTier)[]>(() => {
     const opts: ("All" | ConfidenceTier)[] = ["All", "High", "Medium", "Low"];
     if (presentConfidences.includes("insufficient_data")) opts.push("insufficient_data");
@@ -78,26 +79,51 @@ export default function VaultFilters({
   }, [presentConfidences]);
 
   return (
-    <>
-      {/* Game selector — prominent cards */}
+    <div
+      className="rounded-[4px] mb-6 overflow-hidden"
+      style={{
+        background: "var(--vault-panel)",
+        border: "1px solid var(--vault-border)",
+        boxShadow: "var(--vault-shadow-soft)",
+      }}
+    >
+      {/* ─── Section 1: Game pills (primary navigator) ─── */}
       {games.length > 0 && (
-        <GameSelector
-          games={games}
-          propCounts={propCounts}
-          selected={filters.gameKey}
-          onSelect={(k) => update("gameKey", k)}
-        />
+        <div className="px-5 py-4">
+          <SectionLabel>game</SectionLabel>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <GamePill
+              isAll
+              isSelected={filters.gameKey === "All"}
+              onClick={() => update("gameKey", "All")}
+              away="All games"
+              home=""
+              tipoff=""
+              propCount={propCounts["All"] ?? 0}
+            />
+            {games.map((g) => {
+              const k = `${g.awayTeamAbbr}@${g.homeTeamAbbr}`;
+              return (
+                <GamePill
+                  key={k}
+                  isSelected={filters.gameKey === k}
+                  onClick={() => update("gameKey", k)}
+                  away={g.awayTeamAbbr}
+                  home={g.homeTeamAbbr}
+                  tipoff={g.tipoff}
+                  propCount={propCounts[k] ?? 0}
+                />
+              );
+            })}
+          </div>
+        </div>
       )}
 
-      {/* Filter panel */}
-      <div
-        className="rounded-[4px] mb-4 p-4"
-        style={{
-          background: "var(--vault-panel)",
-          border: "1px solid var(--vault-border)",
-        }}
-      >
-        <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
+      <Rule />
+
+      {/* ─── Section 2: Filter controls ─── */}
+      <div className="px-5 py-4">
+        <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
           <Segmented
             label="market"
             value={filters.market}
@@ -131,12 +157,6 @@ export default function VaultFilters({
             />
           )}
 
-          <Slider
-            label="min edge"
-            value={filters.minEdge}
-            onChange={(v) => update("minEdge", v)}
-          />
-
           <Dropdown
             label="sort"
             value={filters.sort}
@@ -144,140 +164,101 @@ export default function VaultFilters({
             renderLabel={(v) => SORT_LABELS[v as SortKey] ?? v}
             onSelect={(v) => update("sort", v as SortKey)}
           />
-        </div>
 
-        <div
-          className="mt-4 pt-3 flex items-center justify-between"
-          style={{ borderTop: "1px solid var(--vault-border)" }}
+          <Slider
+            label="min edge"
+            value={filters.minEdge}
+            onChange={(v) => update("minEdge", v)}
+          />
+        </div>
+      </div>
+
+      <Rule />
+
+      {/* ─── Section 3: Footer — count + active chips + reset all ─── */}
+      <div className="px-5 py-3 flex items-center gap-3 flex-wrap">
+        <span
+          className="font-mono text-[11px] uppercase tracking-wider shrink-0"
+          style={{ color: "var(--vault-text-faint)" }}
         >
+          showing{" "}
           <span
-            className="font-mono text-[11px] uppercase tracking-wider"
-            style={{ color: "var(--vault-text-faint)" }}
+            className="tabular text-[13px] font-semibold"
+            style={{ color: "var(--vault-gold-bright)" }}
           >
-            showing{" "}
-            <span
-              className="tabular"
-              style={{ color: "var(--vault-gold-bright)" }}
-            >
-              {filteredCount}
-            </span>
-            <span style={{ color: "var(--vault-text-faint)" }}>
-              {" "}
-              of {totalCount}
-            </span>
+            {filteredCount}
           </span>
-          {dirty && (
+          {" / "}
+          <span style={{ color: "var(--vault-text-mute)" }}>{totalCount}</span>
+        </span>
+
+        {dirty && (
+          <>
+            <div
+              className="h-3 w-px"
+              style={{ background: "var(--vault-rule)" }}
+            />
+            <div className="flex flex-wrap items-center gap-1.5 flex-1">
+              {activeChips.map((c) => (
+                <button
+                  key={c.key}
+                  type="button"
+                  onClick={() => onResetOne(c.key)}
+                  aria-label={`Remove filter: ${c.label}`}
+                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[2px] font-mono text-[10px] tracking-wider uppercase transition-colors"
+                  style={{
+                    color: "var(--vault-gold-bright)",
+                    background: "var(--vault-gold-dim)",
+                    border: "1px solid var(--vault-border-strong)",
+                  }}
+                >
+                  <span>{c.label}</span>
+                  <span aria-hidden style={{ opacity: 0.7 }}>
+                    ✕
+                  </span>
+                </button>
+              ))}
+            </div>
             <button
               type="button"
               onClick={onResetAll}
-              className="font-mono text-[10px] uppercase tracking-wider transition-colors"
+              className="font-mono text-[10px] uppercase tracking-wider transition-colors shrink-0 hover:opacity-80"
               style={{ color: "var(--vault-gold)" }}
             >
-              reset all ✕
+              reset all
             </button>
-          )}
-        </div>
-      </div>
-
-      {/* Active filter chips */}
-      {dirty && (
-        <div
-          className="rounded-[4px] mb-4 px-3 py-2 flex flex-wrap items-center gap-2"
-          style={{
-            background: "var(--vault-panel)",
-            border: "1px solid var(--vault-border)",
-          }}
-        >
-          <span
-            className="font-mono text-[10px] uppercase tracking-wider mr-1"
-            style={{ color: "var(--vault-text-faint)" }}
-          >
-            active
-          </span>
-          {activeChips.map((c) => (
-            <button
-              key={c.key}
-              type="button"
-              onClick={() => onResetOne(c.key)}
-              aria-label={`Remove filter: ${c.label}`}
-              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[2px] font-mono text-[10px] tracking-wider uppercase transition-colors"
-              style={{
-                color: "var(--vault-gold-bright)",
-                background: "var(--vault-gold-dim)",
-                border: "1px solid var(--vault-border-strong)",
-              }}
-            >
-              <span>{c.label}</span>
-              <span aria-hidden style={{ opacity: 0.7 }}>
-                ✕
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
-    </>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// GameSelector — prominent game cards
-// ---------------------------------------------------------------------------
-function GameSelector({
-  games,
-  propCounts,
-  selected,
-  onSelect,
-}: {
-  games: ScheduleGame[];
-  propCounts: Record<string, number>;
-  selected: string;
-  onSelect: (k: string) => void;
-}) {
-  const allCount = propCounts["All"] ?? 0;
-
-  return (
-    <div className="mb-5">
-      <div
-        className="font-mono text-[10px] uppercase tracking-wider mb-2"
-        style={{ color: "var(--vault-gold)" }}
-      >
-        select game
-      </div>
-      <div
-        className="grid gap-2"
-        style={{
-          gridTemplateColumns: `repeat(auto-fit, minmax(160px, 1fr))`,
-        }}
-      >
-        <GameCard
-          isAll
-          isSelected={selected === "All"}
-          onClick={() => onSelect("All")}
-          away="All"
-          home=""
-          tipoff=""
-          propCount={allCount}
-        />
-        {games.map((g) => {
-          const k = `${g.awayTeamAbbr}@${g.homeTeamAbbr}`;
-          return (
-            <GameCard
-              key={k}
-              isSelected={selected === k}
-              onClick={() => onSelect(k)}
-              away={g.awayTeamAbbr}
-              home={g.homeTeamAbbr}
-              tipoff={g.tipoff}
-              propCount={propCounts[k] ?? 0}
-            />
-          );
-        })}
+          </>
+        )}
       </div>
     </div>
   );
 }
 
-function GameCard({
+// ---------------------------------------------------------------------------
+// SectionLabel — quiet gold section header inside the panel
+// ---------------------------------------------------------------------------
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      className="font-mono text-[10px] uppercase tracking-[0.18em]"
+      style={{ color: "var(--vault-gold)" }}
+    >
+      {children}
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Rule — internal section divider
+// ---------------------------------------------------------------------------
+function Rule() {
+  return <div className="h-px" style={{ background: "var(--vault-rule)" }} />;
+}
+
+// ---------------------------------------------------------------------------
+// GamePill — primary game navigator chip
+// ---------------------------------------------------------------------------
+function GamePill({
   isAll = false,
   isSelected,
   onClick,
@@ -304,25 +285,20 @@ function GameCard({
       aria-pressed={isSelected}
       aria-label={aria}
       onClick={onClick}
-      className="text-left p-3 rounded-[3px] transition-all duration-150"
+      className="px-3.5 py-2 rounded-[3px] transition-all duration-150 text-left focus:outline-none"
       style={{
         background: isSelected
-          ? "var(--vault-panel-elevated)"
-          : "var(--vault-panel)",
+          ? "var(--vault-gold-dim)"
+          : "var(--vault-panel-elevated)",
         border: `1px solid ${
-          isSelected
-            ? "var(--vault-border-active)"
-            : "var(--vault-border)"
+          isSelected ? "var(--vault-border-active)" : "var(--vault-border)"
         }`,
-        boxShadow: isSelected
-          ? "inset 0 0 0 1px var(--vault-gold), 0 0 12px var(--vault-gold-glow)"
-          : "none",
       }}
     >
       {isAll ? (
-        <>
-          <div
-            className="font-display font-semibold text-[15px] tracking-tight"
+        <div className="flex items-baseline gap-2">
+          <span
+            className="font-display font-semibold text-[13px] tracking-tight"
             style={{
               color: isSelected
                 ? "var(--vault-gold-bright)"
@@ -330,68 +306,64 @@ function GameCard({
             }}
           >
             All games
-          </div>
-          <div
-            className="mt-1.5 font-mono text-[10px] uppercase tracking-wider"
+          </span>
+          <span
+            className="font-mono text-[10px] tabular"
             style={{ color: "var(--vault-text-faint)" }}
           >
-            {propCount} {propCount === 1 ? "prop" : "props"}
-          </div>
-        </>
+            {propCount}
+          </span>
+        </div>
       ) : (
-        <>
-          <div className="flex items-baseline gap-1.5">
+        <div className="flex items-baseline gap-2">
+          <span
+            className="font-display font-semibold text-[13px] tracking-tight tabular"
+            style={{
+              color: isSelected
+                ? "var(--vault-gold-bright)"
+                : "var(--vault-text)",
+            }}
+          >
+            {away}
+          </span>
+          <span
+            className="font-mono text-[10px]"
+            style={{ color: "var(--vault-text-faint)" }}
+          >
+            @
+          </span>
+          <span
+            className="font-display font-semibold text-[13px] tracking-tight tabular"
+            style={{
+              color: isSelected
+                ? "var(--vault-gold-bright)"
+                : "var(--vault-text)",
+            }}
+          >
+            {home}
+          </span>
+          {tipoff && (
             <span
-              className="font-display font-semibold text-[15px] tracking-tight tabular"
-              style={{
-                color: isSelected
-                  ? "var(--vault-gold-bright)"
-                  : "var(--vault-text)",
-              }}
-            >
-              {away}
-            </span>
-            <span
-              className="font-mono text-[10px] uppercase"
+              className="font-mono text-[10px] tracking-wider"
               style={{ color: "var(--vault-text-faint)" }}
             >
-              @
+              · {tipoff}
             </span>
-            <span
-              className="font-display font-semibold text-[15px] tracking-tight tabular"
-              style={{
-                color: isSelected
-                  ? "var(--vault-gold-bright)"
-                  : "var(--vault-text)",
-              }}
-            >
-              {home}
-            </span>
-          </div>
-          <div className="flex items-baseline justify-between gap-2 mt-1.5">
-            {tipoff && (
-              <span
-                className="font-mono text-[10px] uppercase tracking-wider"
-                style={{ color: "var(--vault-text-faint)" }}
-              >
-                {tipoff}
-              </span>
-            )}
-            <span
-              className="font-mono text-[10px] uppercase tracking-wider"
-              style={{ color: "var(--vault-text-faint)" }}
-            >
-              {propCount} {propCount === 1 ? "prop" : "props"}
-            </span>
-          </div>
-        </>
+          )}
+          <span
+            className="font-mono text-[10px] tabular ml-1"
+            style={{ color: "var(--vault-text-faint)" }}
+          >
+            {propCount}
+          </span>
+        </div>
       )}
     </button>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Segmented (chip-style toggle row)
+// Segmented — chip-style toggle row
 // ---------------------------------------------------------------------------
 function Segmented({
   label,
@@ -407,7 +379,7 @@ function Segmented({
   return (
     <div className="flex flex-col gap-1.5">
       <span
-        className="font-mono text-[10px] uppercase tracking-wider"
+        className="font-mono text-[10px] uppercase tracking-[0.18em]"
         style={{ color: "var(--vault-text-faint)" }}
       >
         {label}
@@ -421,13 +393,16 @@ function Segmented({
               type="button"
               aria-pressed={active}
               onClick={() => onSelect(opt)}
-              className="px-2.5 py-1 rounded-[2px] font-mono text-[11px] tracking-wider uppercase transition-colors"
+              className="px-2.5 py-1 rounded-[2px] font-mono text-[11px] tracking-wider uppercase transition-colors focus:outline-none"
               style={{
                 color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
-                background: active ? "var(--vault-gold)" : "var(--vault-panel-elevated)",
+                background: active
+                  ? "var(--vault-gold)"
+                  : "var(--vault-panel-elevated)",
                 border: `1px solid ${
                   active ? "var(--vault-gold)" : "var(--vault-border)"
                 }`,
+                fontWeight: active ? 600 : 500,
               }}
             >
               {opt}
@@ -440,7 +415,7 @@ function Segmented({
 }
 
 // ---------------------------------------------------------------------------
-// Dropdown (select)
+// Dropdown
 // ---------------------------------------------------------------------------
 function Dropdown({
   label,
@@ -458,7 +433,7 @@ function Dropdown({
   return (
     <div className="flex flex-col gap-1.5">
       <span
-        className="font-mono text-[10px] uppercase tracking-wider"
+        className="font-mono text-[10px] uppercase tracking-[0.18em]"
         style={{ color: "var(--vault-text-faint)" }}
       >
         {label}
@@ -466,10 +441,8 @@ function Dropdown({
       <select
         aria-label={label}
         value={value}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-          onSelect(e.target.value)
-        }
-        className="rounded-[2px] px-2.5 py-1 font-mono text-[11px] tracking-wider uppercase transition-colors min-w-[110px] focus:outline-none"
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => onSelect(e.target.value)}
+        className="rounded-[2px] px-2.5 py-1 font-mono text-[11px] tracking-wider uppercase transition-colors min-w-[110px] focus:outline-none cursor-pointer"
         style={{
           color: "var(--vault-text)",
           background: "var(--vault-panel-elevated)",
@@ -491,7 +464,7 @@ function Dropdown({
 }
 
 // ---------------------------------------------------------------------------
-// Slider (min edge)
+// Slider — min edge
 // ---------------------------------------------------------------------------
 function Slider({
   label,
@@ -503,10 +476,10 @@ function Slider({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex flex-col gap-1.5 min-w-[160px]">
+    <div className="flex flex-col gap-1.5 min-w-[170px]">
       <div className="flex items-baseline justify-between gap-2">
         <span
-          className="font-mono text-[10px] uppercase tracking-wider"
+          className="font-mono text-[10px] uppercase tracking-[0.18em]"
           style={{ color: "var(--vault-text-faint)" }}
         >
           {label}
