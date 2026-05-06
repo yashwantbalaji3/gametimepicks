@@ -113,3 +113,27 @@ export function getSchedule(): ScheduleData {
     games: [],
   });
 }
+
+/**
+ * Phase 7B-4 — list every per-day board file present on disk.
+ *
+ * Used as a defense-in-depth fallback when slate.json is stale (e.g. the
+ * pipeline was last run with --days 1). The /board page can union
+ * slate.days with this list so the UI surfaces every date that actually
+ * has data, even if slate.json hasn't been rebuilt yet.
+ *
+ * No network calls. Reads directory listing only.
+ */
+export function getAvailableBoardDates(): string[] {
+  try {
+    const boardsDir = path.join(DATA_DIR, "boards");
+    if (!fs.existsSync(boardsDir)) return [];
+    return fs.readdirSync(boardsDir)
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => f.replace(/\.json$/, ""))
+      .sort();
+  } catch (err) {
+    console.warn("[data] could not list boards/:", err);
+    return [];
+  }
+}
