@@ -89,7 +89,7 @@ export default function VaultFilters({
     >
       {/* ─── Section 1: Game pills (primary navigator) ─── */}
       {games.length > 0 && (
-        <div className="px-5 py-4">
+        <div className="px-4 sm:px-5 py-4">
           <SectionLabel>game</SectionLabel>
           <div className="mt-2.5 flex flex-wrap gap-2">
             <GamePill
@@ -122,7 +122,7 @@ export default function VaultFilters({
       <Rule />
 
       {/* ─── Section 2: Filter controls ─── */}
-      <div className="px-5 py-4">
+      <div className="px-4 sm:px-5 py-4">
         <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
           <Segmented
             label="market"
@@ -176,7 +176,7 @@ export default function VaultFilters({
       <Rule />
 
       {/* ─── Section 3: Footer — count + active chips + reset all ─── */}
-      <div className="px-5 py-3 flex items-center gap-3 flex-wrap">
+      <div className="px-4 sm:px-5 py-3 flex items-center gap-3 flex-wrap">
         <span
           className="font-mono text-[11px] uppercase tracking-wider shrink-0"
           style={{ color: "var(--vault-text-faint)" }}
@@ -476,7 +476,7 @@ function Slider({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex flex-col gap-1.5 min-w-[170px]">
+    <div className="flex flex-col gap-1.5 w-full sm:w-auto sm:min-w-[170px]">
       <div className="flex items-baseline justify-between gap-2">
         <span
           className="font-mono text-[10px] uppercase tracking-[0.18em]"

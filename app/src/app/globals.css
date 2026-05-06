@@ -76,6 +76,50 @@
   --vault-focus-ring: 0 0 0 1px var(--vault-gold), 0 0 0 4px rgba(212, 175, 55, 0.18);
 }
 
+/* ============================================================================
+   Phase 7B-8 — Accessibility + responsive helpers for vault components.
+   Cascade: any button / select / input / [role=button] inside the .vault-tabs
+   or .vault-board scope gets a consistent vault focus ring on keyboard
+   focus. Pointer focus stays unstyled (focus-visible only).
+   ============================================================================ */
+.vault-tabs button:focus-visible,
+.vault-board button:focus-visible,
+.vault-board select:focus-visible,
+.vault-board input:focus-visible,
+.vault-board [tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--vault-focus-ring);
+  border-radius: 2px;
+}
+
+/* Slider thumb focus — accent-color handles the fill, but the thumb itself
+   gets a small gold halo on keyboard focus. */
+.vault-board input[type="range"]:focus-visible {
+  outline: none;
+}
+.vault-board input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.32);
+}
+.vault-board input[type="range"]:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.32);
+}
+
+/* Hide native scrollbars on the date-tab strip while keeping it scrollable. */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--vault-border) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--vault-border);
+  border-radius: 2px;
+}
+
 * {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;

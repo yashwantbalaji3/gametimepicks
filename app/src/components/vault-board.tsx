@@ -140,7 +140,8 @@ export default function VaultBoard({ board }: Props) {
             key={filterSig}
             className="grid gap-3"
             style={{
-              gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+              gridTemplateColumns:
+                "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
             }}
           >
             {visibleLeans.map((lean, i) => {

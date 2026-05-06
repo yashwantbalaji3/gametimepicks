@@ -47,7 +47,7 @@ export default function VaultPropCard({ lean }: Props) {
 
   return (
     <article
-      className="rounded-[3px] p-5 transition-all duration-150"
+      className="rounded-[3px] p-4 sm:p-5 transition-all duration-150"
       style={{
         background: "var(--vault-panel)",
         border: "1px solid var(--vault-border)",
@@ -57,7 +57,7 @@ export default function VaultPropCard({ lean }: Props) {
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h3
-            className="font-display text-[18px] font-semibold tracking-tight truncate"
+            className="font-display text-[17px] sm:text-[18px] font-semibold tracking-tight truncate"
             style={{ color: "var(--vault-text)" }}
           >
             {lean.playerName}
@@ -90,8 +90,8 @@ export default function VaultPropCard({ lean }: Props) {
         <ConfidenceTag confidence={lean.confidence} />
       </header>
 
-      {/* ─── PICK ROW ─── */}
-      <section className="mt-4 grid grid-cols-4 gap-3">
+      {/* ─── PICK ROW ─── 2x2 on mobile, 4-col on sm+ */}
+      <section className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
         <PickCell pickSide={pickSide} />
         <Cell label="line" value={formatStat(lean.line)} />
         <Cell label="odds" value={formatOdds(pickOdds)} />

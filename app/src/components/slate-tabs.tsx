@@ -22,7 +22,7 @@ interface Props {
 export default function SlateTabs({ days, selected, onChange }: Props) {
   return (
     <div
-      className="mb-5 -mx-2 px-2"
+      className="vault-tabs mb-5 -mx-2 px-2"
       style={{ borderBottom: "1px solid var(--vault-border)" }}
     >
       <div className="flex gap-0 overflow-x-auto pb-px scrollbar-thin">
@@ -37,13 +37,13 @@ export default function SlateTabs({ days, selected, onChange }: Props) {
               type="button"
               onClick={() => onChange(day.date)}
               aria-pressed={isSelected}
-              className="shrink-0 px-5 py-3 text-left transition-all duration-150 cursor-pointer focus:outline-none"
+              className="shrink-0 px-4 sm:px-5 py-3 text-left transition-all duration-150 cursor-pointer"
               style={{
                 borderBottom: `2px solid ${
                   isSelected ? "var(--vault-gold)" : "transparent"
                 }`,
                 marginBottom: "-1px",
-                minWidth: "118px",
+                minWidth: "104px",
                 boxShadow: isSelected
                   ? "0 4px 14px -8px var(--vault-gold-glow)"
                   : "none",
