@@ -272,6 +272,27 @@ def _print_summary(summaries: list[dict], *, verbose: bool = False) -> None:
         print()
 
 
+def _check_nba_api_available() -> tuple[bool, str]:
+    """
+    Phase 11 — early loud check that the nba_api package is importable in
+    the runtime environment. Writes a clear message to stdout so workflow
+    logs surface this immediately instead of failing silently per-player.
+
+    Returns (ok, message).
+    """
+    try:
+        from .fetch_nba_data import fetch_player_game_logs  # noqa: F401
+        return True, "nba_api provider chain importable"
+    except ImportError as e:
+        return False, (
+            f"nba_api provider chain import FAILED: {e}\n"
+            f"  → install in this environment: pip install -r pipeline/requirements.txt\n"
+            f"  → if you see 'nba_api is not a package', remove any local file/dir named "
+            f"nba_api that is shadowing the installed package.\n"
+            f"  → recent10 attachment will FAIL for every player until this is fixed."
+        )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Attach recent10 trend data to board leans (free nba_api)."
@@ -288,6 +309,21 @@ def main() -> int:
         help="exit non-zero if any player is unmatched (excluding zero_id and dry_run_skipped)",
     )
     args = parser.parse_args()
+
+    # Phase 11 — early loud check that nba_api is actually importable.
+    # If it fails here, log it clearly so the workflow output makes the
+    # cause obvious. Don't abort; the script can still report a 0%-coverage
+    # dry-run summary, which is itself useful diagnostic data.
+    if not args.dry_run:
+        ok, msg = _check_nba_api_available()
+        if ok:
+            print(f"  ✓ {msg}")
+        else:
+            print(f"  ✗ {msg}", file=sys.stderr)
+            print(
+                f"  → continuing anyway; expect 0% coverage in the summary below.",
+                file=sys.stderr,
+            )
 
     if args.all:
         targets = sorted(BOARDS_DIR.glob("*.json"))

@@ -49,7 +49,7 @@ PIPELINE_VENV="pipeline/.venv"
 # flag in case any imported module checks it.
 export ODDS_DRY_RUN="${ODDS_DRY_RUN:-1}"
 
-step "0/5  Pre-flight"
+step "0/6  Pre-flight"
 ok "ODDS_DRY_RUN=$ODDS_DRY_RUN (defensive — script does not call Odds API)"
 ok "python: $($PY --version 2>&1)"
 [ -d app/node_modules ] && ok "node_modules present" || warn "node_modules missing (run cd app && npm install)"
@@ -58,7 +58,7 @@ ok "boards directory: $(ls app/public/data/boards/ 2>/dev/null | wc -l | tr -d '
 # ---------------------------------------------------------------------------
 # 1 — Hydrate recent10 trend data (free nba_api)
 # ---------------------------------------------------------------------------
-step "1/5  Hydrate recent10 trend data (free nba_api)"
+step "1/6  Hydrate recent10 trend data (free nba_api)"
 info "Calling python -m pipeline.attach_recent10 --all --verbose"
 if $PY -m pipeline.attach_recent10 --all --verbose 2>&1 | tee /tmp/gtp_recent10.log; then
     ok "recent10 attachment completed"
@@ -78,7 +78,7 @@ fi
 # ---------------------------------------------------------------------------
 # 2 — Export newly-settled results (no network)
 # ---------------------------------------------------------------------------
-step "2/5  Export settled results (pure transform, no network)"
+step "2/6  Export settled results (pure transform, no network)"
 # export_results is idempotent and safe to run even when nothing has been
 # settled — it writes empty manifests that the empty-state UI handles.
 if $PY -m pipeline.export_results 2>&1 | tee /tmp/gtp_export.log; then
@@ -93,7 +93,7 @@ fi
 # ---------------------------------------------------------------------------
 # 3 — Python test suites (regression check)
 # ---------------------------------------------------------------------------
-step "3/5  Python test suites (regression check)"
+step "3/6  Python test suites (regression check)"
 TESTS=(
     filter_test
     settle_test
@@ -101,6 +101,7 @@ TESTS=(
     recent10_test
     export_results_test
     confidence_guardrails_test
+    inspect_trends_test
 )
 TOTAL_PASSED=0
 for t in "${TESTS[@]}"; do
@@ -143,7 +144,7 @@ ok "${TOTAL_PASSED} total assertions passed"
 # ---------------------------------------------------------------------------
 # 4 — Frontend typecheck + build
 # ---------------------------------------------------------------------------
-step "4/5  Frontend typecheck + build"
+step "4/6  Frontend typecheck + build"
 cd app
 [ -d node_modules ] || { info "running npm install"; npm install --silent; }
 
@@ -171,9 +172,21 @@ fi
 cd ..
 
 # ---------------------------------------------------------------------------
-# 5 — Summary
+# 5 — Coverage diagnostic (Phase 11)
 # ---------------------------------------------------------------------------
-step "5/5  Summary"
+step "5/6  recent10 coverage diagnostic"
+if [ -f "pipeline/inspect_trends.py" ]; then
+    # Don't fail the run on low coverage — just report it loudly so the
+    # workflow log makes the state obvious.
+    $PY -m pipeline.inspect_trends 2>&1 | tee /tmp/gtp_coverage.log | tail -15
+else
+    warn "pipeline.inspect_trends not present (skip coverage report)"
+fi
+
+# ---------------------------------------------------------------------------
+# 6 — Summary
+# ---------------------------------------------------------------------------
+step "6/6  Summary"
 ELAPSED=$(($(date +%s) - START_TIME))
 
 echo -e "  ${GOLD}Phase 10 daily refresh — summary${RESET}"

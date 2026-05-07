@@ -115,6 +115,48 @@ export function getSchedule(): ScheduleData {
 }
 
 /**
+ * Phase 11 — read the real lifetime settled summary written by
+ * `pipeline.export_results`. Returns null when there's no settled data
+ * yet (totalSettled === 0). The home page uses this to show honest
+ * "no settled data yet" KPI tiles instead of legacy hit_rates.json
+ * (which is the demo-data path that pre-dates the settlement pipeline).
+ *
+ * Shape mirrors `pipeline/export_results.py:build_lifetime_summary`.
+ */
+export interface LifetimeSummary {
+  totalDates: number;
+  totalSettled: number;
+  decisive: number;
+  wins: number;
+  losses: number;
+  pushes: number;
+  hitRate: number | null;
+  smallSample: boolean;
+  oldestDate: string | null;
+  newestDate: string | null;
+  generatedAt: string;
+}
+
+export function getLifetimeSummary(): LifetimeSummary | null {
+  try {
+    const filePath = path.join(DATA_DIR, "results", "lifetime_summary.json");
+    if (!fs.existsSync(filePath)) return null;
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const parsed = JSON.parse(raw) as LifetimeSummary;
+    // If there is genuinely no settled data, surface null so the UI
+    // can render an honest "no settled data yet" state rather than
+    // showing 0% hit rate as if it were a real measurement.
+    if (!parsed.totalSettled || parsed.totalSettled === 0) {
+      return null;
+    }
+    return parsed;
+  } catch (err) {
+    console.warn("[data] could not load results/lifetime_summary.json:", err);
+    return null;
+  }
+}
+
+/**
  * Phase 7B-4 — list every per-day board file present on disk.
  *
  * Used as a defense-in-depth fallback when slate.json is stale (e.g. the

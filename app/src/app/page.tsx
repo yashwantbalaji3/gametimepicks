@@ -1,12 +1,17 @@
 import Link from "next/link";
-import { getBoard, getHitRates, getMeta, getSlate } from "@/lib/data";
+import { getBoard, getLifetimeSummary, getMeta, getSlate } from "@/lib/data";
 import { formatPercent } from "@/lib/format";
 import type { DataMode } from "@/lib/types";
 import KpiTile from "@/components/kpi-tile";
 
 export default function HomePage() {
   const board = getBoard();
-  const hitRates = getHitRates();
+  // Phase 11: replaced the legacy `getHitRates()` (demo-data path) with
+  // `getLifetimeSummary()` which reads real settled-data aggregates from
+  // `app/public/data/results/lifetime_summary.json`. Returns null when
+  // nothing has been settled yet — the UI then shows honest "—" tiles
+  // with a "no settled data yet" sub instead of misleading demo numbers.
+  const lifetime = getLifetimeSummary();
   const meta = getMeta();
   const slate = getSlate();
 
@@ -29,7 +34,6 @@ export default function HomePage() {
   const highConfidence = board.leans.filter(
     (l) => l.lean !== "No Play" && l.confidence === "High",
   ).length;
-  const highConfBucket = hitRates.byConfidence.find((b) => b.label === "High");
 
   // For real-mode + no odds, KPI tiles label leans as "—" instead of zero
   // to communicate "props unavailable" rather than "no leans found".
@@ -114,19 +118,35 @@ export default function HomePage() {
           sub={!showLeanTiles ? "props not configured" : undefined}
           delay={2}
         />
+        {/* Phase 11: real settled hit rate (replaces legacy demo hit_rates.json) */}
         <KpiTile
-          label="sample hit rate"
-          value={formatPercent(hitRates.overall.hitRate)}
+          label="settled hit rate"
+          value={
+            lifetime && typeof lifetime.hitRate === "number"
+              ? formatPercent(lifetime.hitRate)
+              : "—"
+          }
           sub={
-            isDemoMode
-              ? "demo data"
-              : `across ${hitRates.overall.total} sample leans`
+            lifetime
+              ? `${lifetime.decisive} decisive · ${lifetime.totalDates} slate${lifetime.totalDates === 1 ? "" : "s"}${lifetime.smallSample ? " · small sample" : ""}`
+              : "no settled slates yet"
           }
           delay={3}
         />
         <KpiTile
-          label="high-conf sample"
-          value={highConfBucket ? formatPercent(highConfBucket.hitRate) : "—"}
+          label="settled wins / losses"
+          value={
+            lifetime
+              ? `${lifetime.wins} / ${lifetime.losses}`
+              : "—"
+          }
+          sub={
+            lifetime
+              ? lifetime.pushes > 0
+                ? `${lifetime.pushes} push${lifetime.pushes === 1 ? "" : "es"}`
+                : undefined
+              : "no settled data"
+          }
           delay={4}
         />
       </section>

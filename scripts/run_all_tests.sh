@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 # ============================================================================
-# scripts/run_all_tests.sh — Phase 8 viewer-ready master test runner.
+# scripts/run_all_tests.sh — Phase 8.5 master test runner.
 #
-# Runs every Python test suite present, then frontend typecheck + build,
-# then the bash smoke test. Bails on first failure for fast feedback.
+# Runs every Python test suite, then frontend typecheck + build, then the
+# bash smoke test. Bail on first failure for fast feedback.
 #
 # Usage:
 #   bash scripts/run_all_tests.sh
 #   bash scripts/run_all_tests.sh --no-build      (skip npm build for speed)
 #   bash scripts/run_all_tests.sh --python-only   (skip frontend entirely)
 #
-# Exit code 0 = everything passed. Non-zero = first failure (and the
-# script prints which suite failed plus a relevant slice of its log).
+# Exit code 0 = everything passed. Non-zero = first failure.
 #
 # Zero network. Zero API credits. Read-only.
 # ============================================================================
@@ -57,6 +56,7 @@ TESTS=(
     recent10_test
     export_results_test
     confidence_guardrails_test
+    inspect_trends_test
 )
 TOTAL_PASSED=0
 RAN=0
@@ -68,7 +68,7 @@ for t in "${TESTS[@]}"; do
         continue
     fi
     if $PY -m pipeline.$t > /tmp/gtp_test_$t.log 2>&1; then
-        # Strip ANSI before grepping; descriptor may include digits (e.g. "recent10")
+        # Strip ANSI before grepping; descriptor may contain digits (e.g. "recent10")
         last=$(sed -E 's/\x1b\[[0-9;]*m//g' /tmp/gtp_test_$t.log \
                | grep -oE "all [0-9]+ [a-zA-Z0-9]*[a-zA-Z][a-zA-Z0-9]* ?assertions passed" \
                | tail -1)
