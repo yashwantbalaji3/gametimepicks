@@ -24,6 +24,7 @@ import {
   marketLabel,
   EM_DASH,
 } from "@/lib/format";
+import VaultSparkline from "./vault-sparkline";
 
 interface Props {
   card: PlayerCard;
@@ -91,10 +92,9 @@ export default function VaultPlayerCard({ card }: Props) {
 
   return (
     <article
-      className="rounded-[3px] p-4 sm:p-5 transition-all duration-150"
+      className="vault-card-elevated rounded-[3px] p-4 sm:p-5"
       style={{
         background: "var(--vault-panel)",
-        border: "1px solid var(--vault-border)",
       }}
     >
       {/* ─── HEADER ─── */}
@@ -217,6 +217,23 @@ function MarketRowView({ row }: { row: MarketRow }) {
             : "projection unavailable · insufficient data"}
         </p>
       )}
+
+      {/* Trend sparkline — Phase 8. Shows last-10 stat trend when the
+          pipeline emits `recent10` on the lean. Gracefully degrades to
+          "no trend" when absent (current default — see types.ts comment). */}
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <span
+          className="font-mono text-[9px] uppercase tracking-[0.18em] shrink-0"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          last 10
+        </span>
+        <VaultSparkline
+          values={lean.recent10}
+          refLine={typeof lean.line === "number" ? lean.line : undefined}
+          ariaLabel={`${lean.playerName} ${row.market} last 10`}
+        />
+      </div>
 
       {/* Bottom — bookmaker + "+N books" + reason + risk flags */}
       <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">

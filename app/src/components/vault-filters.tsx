@@ -304,7 +304,9 @@ function GamePill({
       aria-pressed={isSelected}
       aria-label={aria}
       onClick={onClick}
-      className="px-3.5 py-2 rounded-[3px] transition-all duration-150 text-left focus:outline-none"
+      className={`px-3.5 py-2 rounded-[3px] transition-all duration-150 text-left focus:outline-none${
+        isSelected ? " vault-chip-active" : ""
+      }`}
       style={{
         background: isSelected
           ? "var(--vault-gold-dim)"

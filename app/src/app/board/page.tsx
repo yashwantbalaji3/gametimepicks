@@ -3,6 +3,7 @@ import { formatDateLong, formatTimestamp } from "@/lib/format";
 import type { BoardData, DataMode, SlateDay } from "@/lib/types";
 import DataSourceBadge from "@/components/data-source-badge";
 import BoardWithTabs from "@/components/board-with-tabs";
+import ConfidenceTooltip from "@/components/confidence-tooltip";
 
 export default function BoardPage() {
   const slate = getSlate();
@@ -74,7 +75,7 @@ export default function BoardPage() {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
-      <div className="reveal">
+      <div className="reveal vault-hero-eyebrow">
         <div
           className="font-mono text-[10px] uppercase tracking-[0.18em]"
           style={{ color: "var(--vault-gold)" }}
@@ -86,6 +87,16 @@ export default function BoardPage() {
         </h1>
         <p className="mt-3 text-[var(--text-mute)] text-[13px] sm:text-[14px] font-mono">
           {subline}
+        </p>
+        <p
+          className="mt-4 max-w-2xl text-[12px] sm:text-[13px] leading-relaxed font-mono"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          NBA player props grouped by player. Each card shows up to three
+          markets — points, rebounds, assists — with the model's projection,
+          edge, and confidence <ConfidenceTooltip />. When a player's recent
+          logs are unavailable, the row is marked <em style={{ color: "var(--vault-text-mute)" }}>insufficient data</em>{" "}
+          rather than guessed. Educational use only.
         </p>
       </div>
 

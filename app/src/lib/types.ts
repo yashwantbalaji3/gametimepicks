@@ -108,6 +108,17 @@ export interface PropLean {
   sourceReliability?: number;
   /** Phase 7B-1.1: tag demo cards explicitly so UI can wash them */
   isDemo?: boolean;
+  /**
+   * Phase 8 — last-10 stat values for this player+market, in chronological
+   * order (oldest → newest). Optional. When present, the sparkline renders;
+   * when absent, the row shows "trend unavailable" gracefully.
+   *
+   * To populate: extend pipeline/generate_daily_board.py to include the
+   * last-10 stat values from the existing fetch_player_game_logs() call
+   * directly on each lean. Frontend already supports the field — no UI
+   * change needed once the pipeline emits it.
+   */
+  recent10?: number[];
 }
 
 export interface BoardData {
