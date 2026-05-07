@@ -28,10 +28,10 @@ export default function MethodologyPage() {
       {meta.isDemo && (
         <aside
           className="surface px-4 py-3 mt-4 border-l-2 reveal reveal-d2"
-          style={{ borderLeftColor: "var(--amber)" }}
+          style={{ borderLeftColor: "var(--vault-warn)" }}
         >
           <div className="flex items-start gap-3">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--amber)] shrink-0 mt-0.5">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--vault-warn)] shrink-0 mt-0.5">
               status
             </span>
             <p className="font-mono text-[12px] text-[var(--text-mute)] leading-relaxed">
@@ -116,11 +116,11 @@ export default function MethodologyPage() {
           <p>Tiers are assigned by edge magnitude AND data-quality sanity check.</p>
           <ul className="mt-3 space-y-1.5 font-mono text-[13px]">
             <li>
-              <span className="text-[var(--lime)]">High</span>
+              <span className="text-[var(--vault-gold-bright)]">High</span>
               {" — "}edge ≥ 5pp <span className="text-[var(--text-faint)]">AND</span> ≥ 8 recent games of data
             </li>
             <li>
-              <span className="text-[var(--amber)]">Medium</span>
+              <span className="text-[var(--vault-warn)]">Medium</span>
               {" — "}edge ≥ 2.5pp <span className="text-[var(--text-faint)]">AND</span> ≥ 5 recent games
             </li>
             <li>
@@ -305,8 +305,8 @@ function ModeCard({
   description: string;
 }) {
   const dotColor = {
-    lime: "var(--lime)",
-    amber: "var(--amber)",
+    lime: "var(--vault-gold-bright)",
+    amber: "var(--vault-warn)",
     rose: "var(--rose)",
     "text-mute": "var(--text-mute)",
   }[color];

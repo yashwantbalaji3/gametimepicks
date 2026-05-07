@@ -14,7 +14,7 @@ export default function GameCard({ game }: Props) {
   const isLive = game.status === "Live";
   const isFinal = game.status === "Final";
   const statusColor = isLive
-    ? "var(--lime)"
+    ? "var(--vault-gold-bright)"
     : isFinal
     ? "var(--text-faint)"
     : "var(--text-mute)";
@@ -29,7 +29,7 @@ export default function GameCard({ game }: Props) {
           className="font-mono text-[10px] uppercase tracking-wider tabular"
           style={{ color: statusColor }}
         >
-          {isLive && <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--lime)] mr-1 align-middle" />}
+          {isLive && <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--vault-gold)] mr-1 align-middle" />}
           {game.status}
         </span>
       </div>

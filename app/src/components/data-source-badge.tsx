@@ -15,13 +15,13 @@ const MODE_DISPLAY: Record<
 > = {
   Live: {
     label: "live",
-    color: "var(--lime)",
-    bg: "var(--lime-dim)",
+    color: "var(--vault-gold-bright)",
+    bg: "var(--vault-gold-dim)",
   },
   ScheduleLiveOddsUnavailable: {
     label: "schedule live · no odds",
-    color: "var(--lime)",
-    bg: "var(--lime-dim)",
+    color: "var(--vault-gold-bright)",
+    bg: "var(--vault-gold-dim)",
   },
   NoGames: {
     label: "no games today",
@@ -35,8 +35,8 @@ const MODE_DISPLAY: Record<
   },
   DemoForced: {
     label: "demo sample",
-    color: "var(--amber)",
-    bg: "var(--amber-dim)",
+    color: "var(--vault-warn)",
+    bg: "var(--vault-warn-dim)",
   },
 };
 
@@ -105,7 +105,7 @@ export default function DataSourceBadge({ meta }: { meta: MetaData }) {
         <div className="mt-2 pt-2 border-t border-[var(--border)] flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px]">
           <span className="text-[var(--text-faint)] uppercase">fallbacks</span>
           {enabledFallbacks.map((n) => (
-            <span key={n} className="text-[var(--lime)]">
+            <span key={n} className="text-[var(--vault-gold-bright)]">
               {n} on
             </span>
           ))}
@@ -142,13 +142,13 @@ function formatOddsLabel(meta: MetaData): string {
 function oddsRowColor(meta: MetaData): string {
   switch (meta.todayOddsProviderStatus) {
     case "ok_with_props":
-      return "var(--lime)";
+      return "var(--vault-gold-bright)";
     case "failed":
       return "var(--rose)";
     case "demo":
-      return "var(--amber)";
+      return "var(--vault-warn)";
     case "dry_run":
-      return "var(--amber)";
+      return "var(--vault-warn)";
     default:
       return "var(--text)";
   }

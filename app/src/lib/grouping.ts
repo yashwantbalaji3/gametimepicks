@@ -93,13 +93,63 @@ export function comparePrimaryRank(a: PropLean, b: PropLean): number {
  * Group an already-filtered lean array into player-first cards.
  * Pure function. Idempotent. No side effects.
  */
+/**
+ * Phase 12 — defensive cardKey for grouping.
+ *
+ * The original implementation built `cardKey = ${date}-${gameId}-${playerId}`.
+ * That assumes `playerId` is unique per player. In practice, when the daily
+ * board generator can't resolve a player via the nba_api schedule provider
+ * (e.g. nba_api fails to import, or an alternate roster source is used),
+ * leans for those players are emitted with `playerId = 0`. Multiple distinct
+ * players in the same game then collide into a single cardKey, which causes
+ * `groupLeansIntoPlayerCards` to merge their PTS/REB/AST rows under one
+ * card header — silently mis-attributing data.
+ *
+ * Fix: when `playerId` is invalid (0, NaN, null, undefined), fall back to a
+ * normalized player-name slug as the unique component. Valid playerIds keep
+ * their existing behavior (no regression on already-correct data).
+ *
+ * Normalization rules for the fallback:
+ *   - lowercase
+ *   - strip accents and diacritics (Latin-1 to ASCII)
+ *   - replace any non-alphanumeric with '_'
+ *   - collapse repeated '_' into one
+ *
+ * "LeBron James" and "Lebron James" produce the same key; "LeBron James" and
+ * "LeBron James Jr." produce different keys (because "_jr" survives
+ * normalization). That's the right tradeoff for a public site — false
+ * collisions are far worse than false splits.
+ */
+function normalizePlayerName(name: string | null | undefined): string {
+  if (!name) return "_unknown_";
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    || "_unknown_";
+}
+
+function buildCardKey(lean: PropLean): string {
+  const datePart = lean.date;
+  const gamePart = lean.gameId ?? "";
+  const pid = lean.playerId;
+  const idIsValid =
+    typeof pid === "number" && Number.isFinite(pid) && pid > 0;
+  const playerPart = idIsValid
+    ? `pid:${pid}`
+    : `name:${normalizePlayerName(lean.playerName)}`;
+  return `${datePart}-${gamePart}-${playerPart}`;
+}
+
 export function groupLeansIntoPlayerCards(
   visibleLeans: PropLean[],
 ): PlayerCard[] {
-  // 1) Bucket by (date, gameId, playerId)
+  // 1) Bucket by (date, gameId, playerId-or-name) — see buildCardKey above
   const byPlayer = new Map<string, PropLean[]>();
   for (const lean of visibleLeans) {
-    const cardKey = `${lean.date}-${lean.gameId ?? ""}-${lean.playerId}`;
+    const cardKey = buildCardKey(lean);
     let bucket = byPlayer.get(cardKey);
     if (!bucket) {
       bucket = [];

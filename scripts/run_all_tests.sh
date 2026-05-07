@@ -57,6 +57,8 @@ TESTS=(
     export_results_test
     confidence_guardrails_test
     inspect_trends_test
+    grouping_collision_test
+    parlay_lab_test
 )
 TOTAL_PASSED=0
 RAN=0

@@ -12,7 +12,6 @@ import path from "node:path";
 import type {
   BoardData,
   TrendsData,
-  HitRatesData,
   MetaData,
   ScheduleData,
   SlateData,
@@ -72,25 +71,6 @@ export function getTrends(): TrendsData {
     generatedAt: new Date().toISOString(),
     isDemo: true,
     players: [],
-  });
-}
-
-export function getHitRates(): HitRatesData {
-  return readJson<HitRatesData>("hit_rates.json", {
-    generatedAt: new Date().toISOString(),
-    isDemo: true,
-    dateRange: "no data",
-    overall: {
-      label: "All Tracked Leans",
-      total: 0,
-      won: 0,
-      lost: 0,
-      push: 0,
-      hitRate: 0,
-    },
-    byMarket: [],
-    byConfidence: [],
-    recentSettled: [],
   });
 }
 

@@ -205,10 +205,10 @@ function ManualOverrideNotice({
   return (
     <div
       className="surface mb-4 px-4 py-3 border-l-2 text-[12px] font-mono"
-      style={{ borderLeftColor: "var(--lime)" }}
+      style={{ borderLeftColor: "var(--vault-gold)" }}
     >
       <div className="flex items-start gap-2">
-        <span className="uppercase tracking-wider text-[var(--lime)] text-[10px] mt-0.5">
+        <span className="uppercase tracking-wider text-[var(--vault-gold-bright)] text-[10px] mt-0.5">
           schedule: manual verified
         </span>
       </div>

@@ -82,7 +82,6 @@ REQUIRED_FILES=(
     "app/public/data/odds_props.json"
     "app/public/data/trends.json"
     "app/public/data/meta.json"
-    "app/public/data/hit_rates.json"
     "app/public/data/slate.json"
 )
 

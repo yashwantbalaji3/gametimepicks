@@ -50,7 +50,7 @@ export default function TrendsClient({ players }: Props) {
             value={search}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
             placeholder="curry, jokic, tatum..."
-            className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-[2px] px-3 py-1.5 font-mono text-[13px] text-[var(--text)] placeholder:text-[var(--text-faint)] hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--lime)] transition-colors"
+            className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-[2px] px-3 py-1.5 font-mono text-[13px] text-[var(--text)] placeholder:text-[var(--text-faint)] hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--vault-gold-bright)] transition-colors"
           />
         </div>
 
@@ -67,7 +67,7 @@ export default function TrendsClient({ players }: Props) {
                   onClick={() => setMarket(m)}
                   className={`px-3 py-1.5 rounded-[2px] font-mono text-[11px] tracking-wider uppercase transition-colors ${
                     active
-                      ? "bg-[var(--lime)] text-[var(--bg)]"
+                      ? "bg-[var(--vault-gold)] text-[var(--bg)]"
                       : "bg-[var(--surface-elevated)] text-[var(--text-mute)] hover:text-[var(--text)] border border-[var(--border)]"
                   }`}
                 >
@@ -177,7 +177,7 @@ function PlayerCard({
             </span>
           )}
           {player.status && player.status !== "Active" && (
-            <span className="text-[var(--amber)]">status: {player.status}</span>
+            <span className="text-[var(--vault-warn)]">status: {player.status}</span>
           )}
         </div>
       )}
@@ -230,7 +230,7 @@ function Row({
     <div
       className="text-right tabular"
       style={{
-        color: k === highlight ? "var(--lime)" : "var(--text)",
+        color: k === highlight ? "var(--vault-gold-bright)" : "var(--text)",
       }}
     >
       {formatStat(stats[k])}

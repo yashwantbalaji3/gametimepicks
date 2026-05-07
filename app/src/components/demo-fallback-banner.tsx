@@ -20,13 +20,13 @@ export default function DemoFallbackBanner({ dataMode, failureReason }: Props) {
     <div
       className="surface mt-2 mb-6 border-l-4 px-5 py-4"
       style={{
-        borderLeftColor: "var(--amber)",
+        borderLeftColor: "var(--vault-warn)",
         backgroundImage:
           "repeating-linear-gradient(135deg, transparent, transparent 8px, rgba(255, 165, 0, 0.04) 8px, rgba(255, 165, 0, 0.04) 9px)",
       }}
     >
       <div className="flex items-start gap-3">
-        <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--amber)] px-2 py-1 rounded-[2px] bg-[var(--amber-dim)] shrink-0 mt-0.5">
+        <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--vault-warn)] px-2 py-1 rounded-[2px] bg-[var(--vault-warn-dim)] shrink-0 mt-0.5">
           demo sample
         </div>
         <div className="flex-1 min-w-0">

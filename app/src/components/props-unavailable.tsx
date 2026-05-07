@@ -107,7 +107,7 @@ function copyForReason(reason: Reason, gameCount: number) {
             href="https://the-odds-api.com/account"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[var(--lime)] hover:underline"
+            className="text-[var(--vault-gold-bright)] hover:underline"
           >
             the-odds-api.com/account ↗
           </a>
@@ -119,7 +119,7 @@ function copyForReason(reason: Reason, gameCount: number) {
 
   if (reason === "dry_run") {
     return {
-      borderColor: "var(--amber)",
+      borderColor: "var(--vault-warn)",
       accentLabel: "props",
       headline: "Dry-run mode — odds fetches skipped to preserve credits",
       body: (
@@ -139,7 +139,7 @@ function copyForReason(reason: Reason, gameCount: number) {
 
   // Default — not_configured
   return {
-    borderColor: "var(--amber)",
+    borderColor: "var(--vault-warn)",
     accentLabel: "props",
     headline: "Props unavailable — odds provider not configured",
     body: (
@@ -150,7 +150,7 @@ function copyForReason(reason: Reason, gameCount: number) {
           href="https://the-odds-api.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[var(--lime)] hover:underline"
+          className="text-[var(--vault-gold-bright)] hover:underline"
         >
           Odds API key ↗
         </a>{" "}

@@ -12,8 +12,8 @@ interface Props {
 
 const ACCENT_COLOR: Record<NonNullable<Props["accent"]>, string> = {
   default: "var(--text)",
-  lime: "var(--lime)",
-  amber: "var(--amber)",
+  lime: "var(--vault-gold-bright)",
+  amber: "var(--vault-warn)",
   rose: "var(--rose)",
 };
 

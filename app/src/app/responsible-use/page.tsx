@@ -82,7 +82,7 @@ function Block({
     <div className="surface p-5 reveal flex gap-4">
       <div
         className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono font-bold text-[14px]"
-        style={{ background: "var(--amber-dim)", color: "var(--amber)" }}
+        style={{ background: "var(--vault-warn-dim)", color: "var(--vault-warn)" }}
       >
         {icon}
       </div>
@@ -99,7 +99,7 @@ function Block({
                 href={l.href}
                 target={l.external ? "_blank" : undefined}
                 rel={l.external ? "noopener" : undefined}
-                className="text-[var(--lime)] hover:underline"
+                className="text-[var(--vault-gold-bright)] hover:underline"
               >
                 {l.label} {l.external && "↗"}
               </a>

@@ -22,7 +22,7 @@ export default function TrendSparkline({
   refLine,
   width = 120,
   height = 32,
-  color = "var(--lime)",
+  color = "var(--vault-gold-bright)",
   ariaLabel = "trend",
 }: Props) {
   if (!values || values.length === 0) {
