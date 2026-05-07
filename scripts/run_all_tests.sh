@@ -60,6 +60,7 @@ TESTS=(
     grouping_collision_test
     parlay_lab_test
     freshness_test
+    active_slate_test
 )
 TOTAL_PASSED=0
 RAN=0

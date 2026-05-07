@@ -5,7 +5,13 @@ import DataSourceBadge from "@/components/data-source-badge";
 import BoardWithTabs from "@/components/board-with-tabs";
 import NewsletterSignup from "@/components/newsletter-signup";
 import TodayAwareSlateBanner from "@/components/today-aware-slate-banner";
+import NoCurrentSlate from "@/components/no-current-slate";
 import { currentEtDate } from "@/lib/freshness";
+import {
+  selectActiveSlate,
+  activeSlateHeading,
+  activeSlateSubtitle,
+} from "@/lib/active-slate";
 
 export default function BoardPage() {
   const slate = getSlate();
@@ -72,21 +78,84 @@ export default function BoardPage() {
     boardsByDate[day.date] = getBoardForDate(day.date);
   }
 
-  const primaryBoard = boardsByDate[slate.primaryDate];
+  // Phase 15: active-slate selection — pick today (or nearest upcoming)
+  // as the default board. Past dates DO NOT become the default just
+  // because they have leans. May 5 viewed on May 7 ≠ active.
+  //
+  // SSR uses buildTimeToday; the SlateTabs component re-evaluates client-
+  // side using the user's real ET clock. The data-correctness guard here
+  // protects users whose JS is disabled or who see the cached HTML.
+  const allBoardDates = augmentedDays.map((d) => d.date);
+  const activeSlate = selectActiveSlate(
+    allBoardDates,
+    buildTimeToday,
+    boardsByDate,
+  );
+
+  // Build the FUTURE-AND-TODAY-ONLY slate days for the primary tab strip.
+  // Past dates are hidden from the main tabs; the archive teaser inside
+  // NoCurrentSlate (when applicable) and the Results page surface them.
+  const upcomingSlateDays = augmentedDays.filter((d) =>
+    activeSlate.upcomingAndTodayDates.includes(d.date),
+  );
+  const upcomingSlate = {
+    ...augmentedSlate,
+    days: upcomingSlateDays,
+    primaryDate: activeSlate.selectedDate ?? augmentedSlate.primaryDate,
+  };
+
+  const primaryBoard = activeSlate.selectedDate
+    ? boardsByDate[activeSlate.selectedDate]
+    : undefined;
   const todayMode: DataMode =
     (primaryBoard?.dataMode as DataMode) || "ScheduleUnavailable";
 
-  // Header copy reflects the actual state of Today's data
+  // Phase 15 — render path 1: only past data exists. Show the premium
+  // "no current slate" state instead of resurrecting an old date.
+  if (activeSlate.kind === "no_current" || activeSlate.kind === "no_data") {
+    return (
+      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
+        <div className="reveal vault-hero-eyebrow vault-hero-grid">
+          <div
+            className="font-mono text-[10px] uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-gold)" }}
+          >
+            model board · NBA player props
+          </div>
+          <h1 className="mt-2 font-display text-[28px] sm:text-[36px] md:text-[48px] tracking-tightest font-semibold leading-[1]">
+            {activeSlateHeading(activeSlate)}
+          </h1>
+          <p className="mt-3 text-[var(--text-mute)] text-[13px] sm:text-[14px] font-mono max-w-2xl">
+            {activeSlateSubtitle(activeSlate)}
+          </p>
+        </div>
+
+        <div className="mt-8 reveal reveal-d1 vault-rise">
+          <NoCurrentSlate
+            latestArchivedDate={activeSlate.latestArchivedDate}
+            lastRefreshDisplay={formatTimestamp(meta.lastPipelineRun)}
+          />
+        </div>
+
+        {/* Compact newsletter — Phase 13 */}
+        <div className="mt-12 reveal reveal-d2 max-w-2xl">
+          <NewsletterSignup variant="compact" />
+        </div>
+      </div>
+    );
+  }
+
+  // Header copy reflects the actual state of the selected slate
   const { eyebrow, headline, subline } = headerCopyForMode(
     todayMode,
-    slate.primaryDate,
-    augmentedSlate.slateDays,
+    activeSlate.selectedDate ?? augmentedSlate.primaryDate,
+    upcomingSlate.slateDays,
     primaryBoard?.generatedAt ?? slate.generatedAt,
   );
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
-      <div className="reveal vault-hero-eyebrow">
+      <div className="reveal vault-hero-eyebrow vault-hero-grid">
         <div
           className="font-mono text-[10px] uppercase tracking-[0.18em]"
           style={{ color: "var(--vault-gold)" }}
@@ -199,7 +268,7 @@ export default function BoardPage() {
           real ET clock after hydration. */}
       <div className="mt-6 reveal reveal-d2">
         <TodayAwareSlateBanner
-          slatePrimaryDate={slate.primaryDate}
+          slatePrimaryDate={activeSlate.selectedDate ?? slate.primaryDate}
           lastPipelineRun={meta.lastPipelineRun}
           buildTimeToday={buildTimeToday}
           dataMode={todayMode}
@@ -208,7 +277,7 @@ export default function BoardPage() {
 
       <div className="mt-8 reveal reveal-d2">
         <BoardWithTabs
-          slate={augmentedSlate}
+          slate={upcomingSlate}
           boardsByDate={boardsByDate}
           buildTimeToday={buildTimeToday}
         />
@@ -265,7 +334,7 @@ function headerCopyForMode(
       return {
         eyebrow: "model board · schedule live · props not configured",
         headline: date,
-        subline: `real schedule · ${slateDays}-day slate · generated ${generated} · odds API key not set`,
+        subline: `real schedule · ${slateDays}-day slate · generated ${generated} · odds source not configured`,
       };
 
     case "NoGames":
@@ -279,7 +348,7 @@ function headerCopyForMode(
       return {
         eyebrow: "model board · schedule unavailable",
         headline: date,
-        subline: `schedule provider failed and no manual override available · this is not a confirmed off-day`,
+        subline: `schedule source failed and no manual override available · this is not a confirmed off-day`,
       };
 
     case "DemoForced":
@@ -293,7 +362,7 @@ function headerCopyForMode(
       return {
         eyebrow: "model board · unknown",
         headline: "Slate Unavailable",
-        subline: `unknown data mode · re-run pipeline`,
+        subline: `unknown data state · the next refresh will retry`,
       };
   }
 }

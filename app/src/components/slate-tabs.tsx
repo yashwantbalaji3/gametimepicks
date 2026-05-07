@@ -61,7 +61,7 @@ export default function SlateTabs({ days, selected, onChange, buildTimeToday }: 
               type="button"
               onClick={() => onChange(day.date)}
               aria-pressed={isSelected}
-              className="shrink-0 px-4 sm:px-5 py-3 text-left transition-all duration-150 cursor-pointer"
+              className={`shrink-0 px-4 sm:px-5 py-3 text-left transition-all duration-150 cursor-pointer ${isSelected ? "vault-tab-active" : ""}`}
               style={{
                 borderBottom: `2px solid ${
                   isSelected ? "var(--vault-gold)" : "transparent"

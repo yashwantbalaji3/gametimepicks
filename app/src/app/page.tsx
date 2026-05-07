@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { getBoard, getLifetimeSummary, getMeta, getSlate } from "@/lib/data";
+import { getBoard, getBoardForDate, getLifetimeSummary, getMeta, getSlate } from "@/lib/data";
 import { formatPercent } from "@/lib/format";
-import type { DataMode } from "@/lib/types";
+import type { DataMode, BoardData } from "@/lib/types";
 import KpiTile from "@/components/kpi-tile";
 import NewsletterSignup from "@/components/newsletter-signup";
+import { currentEtDate } from "@/lib/freshness";
+import { selectActiveSlate } from "@/lib/active-slate";
 
 export default function HomePage() {
   const board = getBoard();
@@ -16,23 +18,72 @@ export default function HomePage() {
   const meta = getMeta();
   const slate = getSlate();
 
-  const todayDay = slate.days.find((d) => d.isPrimary) ?? slate.days[0];
-  const todayMode: DataMode =
-    (board.dataMode as DataMode) || (slate.dataMode as DataMode) || "ScheduleUnavailable";
-
-  const nextGameDay = slate.days.find(
-    (d) => !d.isPrimary && d.gameCount > 0,
+  // Phase 15: pick today's actual game count using the active-slate
+  // selector. The pipeline-stamped `isPrimary` is unreliable when the
+  // slate is stale — it points at whichever date the pipeline last ran
+  // for, which may be days in the past. Use real today and fall back
+  // gracefully to whatever upcoming/today date actually has games.
+  const buildTimeToday = currentEtDate();
+  const allBoardDates = slate.days.map((d) => d.date);
+  const slateBoardsByDate: Record<string, BoardData> = {};
+  for (const d of slate.days) {
+    slateBoardsByDate[d.date] = getBoardForDate(d.date);
+  }
+  const activeHomeSlate = selectActiveSlate(
+    allBoardDates,
+    buildTimeToday,
+    slateBoardsByDate,
   );
 
+  // The "today" day for hero copy. If active is "today", use today's
+  // SlateDay. If active is "upcoming", use the upcoming SlateDay. If
+  // active is "no_current" or "no_data", fall through to honest empty
+  // state copy below.
+  const activeDate = activeHomeSlate.selectedDate;
+  const todayDay = activeDate
+    ? slate.days.find((d) => d.date === activeDate)
+    : undefined;
+  const todayMode: DataMode =
+    (todayDay?.dataMode as DataMode) ||
+    (board.dataMode as DataMode) ||
+    "ScheduleUnavailable";
+
+  // "Next game day" pointer: the next upcoming date AFTER the active
+  // one that actually has games. Used in copy like "next slate tomorrow".
+  const nextGameDay = activeHomeSlate.upcomingAndTodayDates
+    .filter((d) => d !== activeDate)
+    .map((d) => slate.days.find((sd) => sd.date === d))
+    .find((sd) => (sd?.gameCount ?? 0) > 0);
+
+  // Honest game counts. Only count games for the ACTIVE slate's day.
+  // When no current slate exists, todayGames is 0 — and the copy
+  // below will say "no current slate" rather than "0 games today".
   const todayGames = todayDay?.gameCount ?? 0;
   const isDemoMode = todayMode === "DemoForced";
   const isUnavailable = todayMode === "ScheduleUnavailable";
+  const noCurrentSlate =
+    activeHomeSlate.kind === "no_current" || activeHomeSlate.kind === "no_data";
 
-  // Eyebrow string — explicit per state
-  const eyebrow = eyebrowForMode(todayMode, todayDay?.dayLabel ?? "Today", todayGames, slate.slateDays, nextGameDay);
+  // Eyebrow string — Phase 15: honest "no current slate" when active is
+  // neither today nor upcoming.
+  const eyebrow = noCurrentSlate
+    ? "no current slate · awaiting next refresh"
+    : eyebrowForMode(
+        todayMode,
+        todayDay?.dayLabel ?? "Today",
+        todayGames,
+        slate.slateDays,
+        nextGameDay,
+      );
 
-  const leansToday = board.leans.filter((l) => l.lean !== "No Play").length;
-  const highConfidence = board.leans.filter(
+  // For board lean counts on the home page hero KPIs: only count leans
+  // from the active slate's board, not the stale top-level board.json.
+  const activeBoard: BoardData | undefined = activeDate
+    ? slateBoardsByDate[activeDate]
+    : undefined;
+  const activeLeans = activeBoard?.leans ?? [];
+  const leansToday = activeLeans.filter((l) => l.lean !== "No Play").length;
+  const highConfidence = activeLeans.filter(
     (l) => l.lean !== "No Play" && l.confidence === "High",
   ).length;
 
@@ -50,9 +101,9 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-[1280px] px-6 py-12 md:py-20">
       {/* Hero */}
-      <section className="reveal">
+      <section className="reveal vault-hero-grid">
         <div className="eyebrow mb-5 flex items-center gap-2">
-          <span className="live-dot" />
+          <span className="live-dot vault-pulse" />
           {eyebrow}
         </div>
         <h1 className="font-display text-[44px] md:text-[72px] leading-[0.95] tracking-tightest font-semibold text-[var(--text)] max-w-4xl">
