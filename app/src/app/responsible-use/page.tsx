@@ -59,8 +59,8 @@ export default function ResponsibleUsePage() {
         />
         <Block
           icon="!"
-          title="No parlays in v1"
-          body="The model board surfaces single-prop leans only. No parlays, no same-game-parlays, no multi-leg products. Parlay variance is a separate problem that requires its own modeling work."
+          title="Parlay Lab is educational analysis"
+          body="The Parlay Lab takes parlay slips you've already built on a sportsbook and compares each leg against the model. It's an educational analysis tool — it does NOT recommend wagers, NOT guarantee outcomes, and NOT scrape sportsbook pages. Same-game legs are explicitly flagged as correlated, and parlay variance is high. Use it to inspect, not to bet."
         />
       </div>
     </div>

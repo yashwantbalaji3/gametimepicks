@@ -3,6 +3,7 @@ import { getBoard, getLifetimeSummary, getMeta, getSlate } from "@/lib/data";
 import { formatPercent } from "@/lib/format";
 import type { DataMode } from "@/lib/types";
 import KpiTile from "@/components/kpi-tile";
+import NewsletterSignup from "@/components/newsletter-signup";
 
 export default function HomePage() {
   const board = getBoard();
@@ -171,6 +172,11 @@ export default function HomePage() {
           body="Every lean is logged before tipoff and settled after the box score. Hit rate, calibration, and breakdown by market and confidence tier are all public."
           delay={3}
         />
+      </section>
+
+      {/* Newsletter signup — Phase 13 */}
+      <section className="mt-16 reveal">
+        <NewsletterSignup variant="full" />
       </section>
 
       {/* Demo banner — only when DemoForced */}

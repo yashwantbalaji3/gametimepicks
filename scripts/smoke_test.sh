@@ -80,7 +80,6 @@ REQUIRED_FILES=(
     "app/public/data/schedule.json"
     "app/public/data/players.json"
     "app/public/data/odds_props.json"
-    "app/public/data/trends.json"
     "app/public/data/meta.json"
     "app/public/data/slate.json"
 )

@@ -35,6 +35,7 @@ import {
 } from "@/lib/settlement-data";
 import { formatPercent } from "@/lib/format";
 import EmptyResultsCard from "@/components/empty-results-card";
+import NewsletterSignup from "@/components/newsletter-signup";
 import ResultsBreakdown from "@/components/results-breakdown";
 
 export default function ResultsPage() {
@@ -195,6 +196,12 @@ function ResultsEmptyShell() {
 
       <div className="mt-8">
         <EmptyResultsCard />
+      </div>
+
+      {/* Phase 13: compact newsletter signup so users can be notified
+          when results actually populate. */}
+      <div className="mt-10 max-w-2xl">
+        <NewsletterSignup variant="compact" />
       </div>
 
       <footer

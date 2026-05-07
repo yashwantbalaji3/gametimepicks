@@ -3,6 +3,12 @@ import { formatTimestamp } from "@/lib/format";
 
 export default function Footer() {
   const meta = getMeta();
+  // Phase 13: when the site is running in live mode, hide any "demo data"
+  // entries from meta.dataSources so users don't see "demo data" listed
+  // alongside a "live data" status — the previous behavior was confusing.
+  const visibleSources = meta.isDemo
+    ? meta.dataSources
+    : meta.dataSources.filter((s) => !/demo/i.test(s.name));
   return (
     <footer className="relative z-10 mt-24 border-t border-[var(--border)]">
       <div className="mx-auto max-w-[1280px] px-6 py-10">
@@ -22,7 +28,7 @@ export default function Footer() {
           <div>
             <div className="eyebrow mb-3">Data sources</div>
             <ul className="space-y-1.5">
-              {meta.dataSources.map((src) => (
+              {visibleSources.map((src) => (
                 <li key={src.name}>
                   {src.url ? (
                     <a

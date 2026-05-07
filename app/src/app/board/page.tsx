@@ -3,7 +3,7 @@ import { formatDateLong, formatTimestamp } from "@/lib/format";
 import type { BoardData, DataMode, SlateDay } from "@/lib/types";
 import DataSourceBadge from "@/components/data-source-badge";
 import BoardWithTabs from "@/components/board-with-tabs";
-import ConfidenceTooltip from "@/components/confidence-tooltip";
+import NewsletterSignup from "@/components/newsletter-signup";
 
 export default function BoardPage() {
   const slate = getSlate();
@@ -94,9 +94,8 @@ export default function BoardPage() {
         >
           NBA player props grouped by player. Each card shows up to three
           markets — points, rebounds, assists — with the model's projection,
-          edge, and confidence <ConfidenceTooltip />. When a player's recent
-          logs are unavailable, the row is marked <em style={{ color: "var(--vault-text-mute)" }}>insufficient data</em>{" "}
-          rather than guessed. Educational use only.
+          edge, and confidence tier. When recent log data is unavailable, the
+          card says so honestly. Educational use only.
         </p>
       </div>
 
@@ -107,10 +106,90 @@ export default function BoardPage() {
           activeCount={slate.newsSignalsActive}
         />
         <DataModeBadge mode={todayMode} />
+
+        {/* Phase 13: confidence explanation moved out of the hero paragraph
+            into its own clean disclosure pill. The previous inline
+            <ConfidenceTooltip /> was rendering its hidden popover content
+            flat into the paragraph on certain browsers. */}
+        <details
+          className="group inline-flex"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          <summary
+            className="cursor-pointer list-none inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] font-mono text-[10px] uppercase tracking-[0.18em] transition-colors hover:bg-[var(--vault-panel-elevated)]"
+            style={{
+              border: "1px solid var(--vault-border)",
+              color: "var(--vault-text-mute)",
+            }}
+          >
+            <span
+              className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-[9px] font-semibold"
+              style={{
+                background: "var(--vault-gold-dim)",
+                color: "var(--vault-gold)",
+                border: "1px solid var(--vault-border-strong)",
+              }}
+              aria-hidden
+            >
+              i
+            </span>
+            confidence
+            <span
+              aria-hidden
+              className="ml-1 transition-transform group-open:rotate-180"
+            >
+              ▾
+            </span>
+          </summary>
+
+          <div
+            className="mt-2 absolute z-10 p-3 rounded-[3px] w-[300px] text-left"
+            style={{
+              background: "var(--vault-panel-elevated)",
+              border: "1px solid var(--vault-border-strong)",
+              color: "var(--vault-text-mute)",
+              boxShadow: "0 4px 14px rgba(0, 0, 0, 0.4)",
+            }}
+          >
+            <div className="space-y-1 font-mono text-[11px] leading-[1.55]">
+              <div>
+                <span style={{ color: "var(--vault-gold-bright)" }}>High</span>
+                {" "}— strong edge, strong recent log
+              </div>
+              <div>
+                <span style={{ color: "var(--vault-warn)" }}>Medium</span>
+                {" "}— some edge, mixed evidence
+              </div>
+              <div>
+                <span style={{ color: "var(--vault-text-mute)" }}>Low</span>
+                {" "}— small edge, soft signal
+              </div>
+              <div>
+                <span style={{ color: "var(--vault-text-faint)" }}>no data</span>
+                {" "}— recent logs unavailable
+              </div>
+              <div>
+                <span style={{ color: "var(--vault-text-faint)" }}>pass</span>
+                {" "}— model declines below threshold
+              </div>
+            </div>
+            <div
+              className="mt-2 font-mono text-[9px] leading-[1.55]"
+              style={{ color: "var(--vault-text-faint)" }}
+            >
+              Educational only — not betting advice.
+            </div>
+          </div>
+        </details>
       </div>
 
       <div className="mt-8 reveal reveal-d2">
         <BoardWithTabs slate={augmentedSlate} boardsByDate={boardsByDate} />
+      </div>
+
+      {/* Compact newsletter — Phase 13 */}
+      <div className="mt-12 reveal reveal-d3 max-w-2xl">
+        <NewsletterSignup variant="compact" />
       </div>
     </div>
   );
