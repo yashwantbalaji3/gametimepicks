@@ -1,0 +1,144 @@
+# ============================================================================
+# Phase 10 — daily refresh workflow
+#
+# Runs once daily at 13:00 UTC (9 AM ET / 8 AM EDT) and on-demand via the
+# Actions tab "Run workflow" button. Refreshes recent10 trend data and
+# re-exports settled results, then commits any data changes.
+#
+# What this workflow DOES:
+#   - Refresh recent10 sparkline data via free nba_api (no Odds API)
+#   - Re-export any newly-settled results
+#   - Run all 7 Python test suites
+#   - Run frontend typecheck + build
+#   - Commit + push changed public-data files (only if they actually changed)
+#
+# What this workflow does NOT do:
+#   - Call The Odds API
+#   - Regenerate the daily board (which would call The Odds API)
+#   - Run settlement (requires manual stat input — see AUTOMATION.md)
+#   - Mutate any code; only public-data + validation files
+#
+# Required secrets: NONE for the daily refresh. The default GITHUB_TOKEN
+# is sufficient. ODDS_API_KEY is intentionally not used here.
+#
+# To disable temporarily: comment out the `schedule:` block.
+# To disable permanently: rename this file to `daily-refresh.yml.disabled`.
+# ============================================================================
+
+name: daily-refresh
+
+on:
+  schedule:
+    # 13:00 UTC = 9 AM ET (winter EST) / 8 AM ET (summer EDT).
+    # Runs after the previous night's NBA games have finalized so
+    # recent10 reflects the latest game logs.
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+    inputs:
+      skip_build:
+        description: "Skip the npm build step (faster, but no Vercel preview)"
+        type: boolean
+        default: false
+
+# Prevent concurrent runs from racing on git push.
+concurrency:
+  group: daily-refresh
+  cancel-in-progress: false
+
+# Allow this workflow to push commits back to main.
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    name: refresh data + tests + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      # Belt-and-suspenders: even though our refresh script does not call
+      # The Odds API, set ODDS_DRY_RUN=1 so any accidental odds-fetching
+      # path would no-op instead of burning credits.
+      ODDS_DRY_RUN: "1"
+      # Match the timezone the project uses for board file names.
+      TZ: "America/New_York"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Need full history so we can detect "no changes" cleanly.
+          fetch-depth: 1
+          # Use the default GITHUB_TOKEN; permissions: contents: write above.
+          persist-credentials: true
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r pipeline/requirements.txt
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Node dependencies
+        working-directory: app
+        run: npm install --no-audit --no-fund
+
+      - name: Run automation refresh
+        env:
+          SKIP_BUILD: ${{ inputs.skip_build && '1' || '' }}
+        run: bash scripts/automation_refresh.sh
+
+      - name: Show diff stat (informational)
+        run: |
+          echo "::group::git status"
+          git status
+          echo "::endgroup::"
+          echo "::group::git diff --stat"
+          git diff --stat
+          echo "::endgroup::"
+
+      - name: Commit and push if data changed
+        run: |
+          # Only stage files automation is allowed to commit.
+          # Boards JSON: recent10 attachment may have updated these.
+          # Results JSON: export_results may have created/updated these.
+          # Validation logs: optional, kept out by default.
+          git add app/public/data/boards/*.json 2>/dev/null || true
+          git add app/public/data/results/ 2>/dev/null || true
+          git add app/public/data/meta.json 2>/dev/null || true
+
+          if git diff --staged --quiet; then
+            echo "No data changes — nothing to commit."
+            exit 0
+          fi
+
+          git config user.name "GametimePicks Bot"
+          git config user.email "noreply@github.com"
+
+          # [skip ci] is defensive — schedule-triggered runs ignore commit
+          # messages, but this prevents recursion if push triggers are added later.
+          MSG="auto: Phase 10 daily refresh ($(date -u +%Y-%m-%dT%H:%MZ)) [skip ci]"
+          git commit -m "$MSG"
+          git push origin HEAD:main
+          echo "Pushed: $MSG"
+
+      - name: Upload build artifacts (debug)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-logs
+          path: |
+            app/.next/build-trace.json
+            /tmp/gtp_*.log
+          retention-days: 7
+          if-no-files-found: ignore
