@@ -52,7 +52,7 @@ export default function HomePage() {
         </div>
         <h1 className="font-display text-[44px] md:text-[72px] leading-[0.95] tracking-tightest font-semibold text-[var(--text)] max-w-4xl">
           Transparent model leans on{" "}
-          <span style={{ color: "var(--lime)" }}>NBA player props.</span>
+          <span style={{ color: "var(--vault-gold-bright)" }}>NBA player props.</span>
         </h1>
         <p className="mt-6 text-[var(--text-mute)] text-[16px] md:text-[18px] max-w-2xl leading-relaxed">
           GametimePicks compares model projections against sportsbook lines,
@@ -63,7 +63,7 @@ export default function HomePage() {
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
             href="/board"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-[3px] bg-[var(--lime)] text-[var(--bg)] font-medium text-[14px] tracking-tight hover:bg-[#B5EE52] transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-[3px] bg-[var(--vault-gold)] text-[#06070A] font-medium text-[14px] tracking-tight hover:bg-[var(--vault-gold-bright)] transition-colors"
           >
             {ctaText}
             <span aria-hidden>→</span>
@@ -157,7 +157,7 @@ export default function HomePage() {
       {isDemoMode && (
         <section className="mt-16 surface px-6 py-5 reveal">
           <div className="flex flex-wrap items-start gap-4">
-            <div className="text-[var(--amber)] font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[var(--amber-dim)]">
+            <div className="text-[var(--vault-warn)] font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[var(--vault-warn-dim)]">
               demo sample
             </div>
             <div className="flex-1 min-w-[280px] text-[13px] text-[var(--text-mute)] leading-relaxed">
@@ -232,12 +232,12 @@ function ScheduleLiveCallout({
   return (
     <div
       className="mt-6 surface px-5 py-4 max-w-[680px] border-l-2"
-      style={{ borderLeftColor: "var(--lime)" }}
+      style={{ borderLeftColor: "var(--vault-gold)" }}
     >
       <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
         {primaryLabel.toLowerCase()} · live schedule
         {manualOverride && (
-          <span className="ml-2 text-[var(--lime)]">· manual verified</span>
+          <span className="ml-2 text-[var(--vault-gold-bright)]">· manual verified</span>
         )}
       </div>
       <div className="mt-1 text-[14px] text-[var(--text-mute)]">
@@ -313,7 +313,7 @@ function ExplainerCard({
 }) {
   return (
     <div className={`surface p-6 reveal reveal-d${delay}`}>
-      <div className="font-mono text-[11px] text-[var(--lime)] tracking-wider mb-3">
+      <div className="font-mono text-[11px] text-[var(--vault-gold-bright)] tracking-wider mb-3">
         {n}
       </div>
       <h3 className="font-display text-[20px] font-semibold tracking-tight mb-2">

@@ -24,7 +24,8 @@ import {
   marketLabel,
   EM_DASH,
 } from "@/lib/format";
-import VaultSparkline from "./vault-sparkline";
+import PlayerCardTrends from "./player-card-trends";
+import { useState } from "react";
 
 interface Props {
   card: PlayerCard;
@@ -77,6 +78,10 @@ const CONFIDENCE_CFG: Record<
 const MARKET_ORDER: Market[] = ["PTS", "REB", "AST"];
 
 export default function VaultPlayerCard({ card }: Props) {
+  // Phase 9: trend panel expand state. Default collapsed; user opts in
+  // by clicking "Show last 10 trends".
+  const [trendsOpen, setTrendsOpen] = useState(false);
+
   // Compute the best confidence across present markets for the header pill.
   let bestConfidence: ConfidenceTier = "no_play";
   let bestRank = 99;
@@ -141,6 +146,48 @@ export default function VaultPlayerCard({ card }: Props) {
             </div>
           );
         })}
+      </div>
+
+      {/* ─── TRENDS TOGGLE + PANEL (Phase 9) ─── */}
+      <div
+        className="mt-4 pt-3"
+        style={{ borderTop: "1px solid var(--vault-rule)" }}
+      >
+        <button
+          type="button"
+          onClick={() => setTrendsOpen((v) => !v)}
+          aria-expanded={trendsOpen}
+          aria-controls={`trends-${card.cardKey}`}
+          className="w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1"
+          style={{
+            background: trendsOpen
+              ? "var(--vault-gold-dim)"
+              : "transparent",
+            color: trendsOpen
+              ? "var(--vault-gold-bright)"
+              : "var(--vault-text-mute)",
+            border: `1px solid ${trendsOpen ? "var(--vault-border-strong)" : "var(--vault-rule)"}`,
+          }}
+        >
+          <span className="font-mono text-[10px] uppercase tracking-[0.18em]">
+            {trendsOpen ? "hide last 10 trends" : "show last 10 trends"}
+          </span>
+          <span
+            className="font-mono text-[12px] leading-none transition-transform"
+            style={{
+              transform: trendsOpen ? "rotate(180deg)" : "rotate(0deg)",
+            }}
+            aria-hidden="true"
+          >
+            ▾
+          </span>
+        </button>
+
+        {trendsOpen && (
+          <div id={`trends-${card.cardKey}`} className="mt-3">
+            <PlayerCardTrends card={card} />
+          </div>
+        )}
       </div>
     </article>
   );
@@ -217,23 +264,6 @@ function MarketRowView({ row }: { row: MarketRow }) {
             : "projection unavailable · insufficient data"}
         </p>
       )}
-
-      {/* Trend sparkline — Phase 8. Shows last-10 stat trend when the
-          pipeline emits `recent10` on the lean. Gracefully degrades to
-          "no trend" when absent (current default — see types.ts comment). */}
-      <div className="mt-2 flex items-center justify-between gap-2">
-        <span
-          className="font-mono text-[9px] uppercase tracking-[0.18em] shrink-0"
-          style={{ color: "var(--vault-text-faint)" }}
-        >
-          last 10
-        </span>
-        <VaultSparkline
-          values={lean.recent10}
-          refLine={typeof lean.line === "number" ? lean.line : undefined}
-          ariaLabel={`${lean.playerName} ${row.market} last 10`}
-        />
-      </div>
 
       {/* Bottom — bookmaker + "+N books" + reason + risk flags */}
       <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">

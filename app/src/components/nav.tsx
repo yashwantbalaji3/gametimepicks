@@ -27,8 +27,9 @@ export default function Nav() {
           <div
             className="w-7 h-7 rounded-[3px] flex items-center justify-center font-mono font-bold text-[12px] tracking-tight"
             style={{
-              background: "linear-gradient(135deg, #A3E635, #65A30D)",
+              background: "linear-gradient(135deg, #F0C75E, #B8901E)",
               color: "#06070A",
+              boxShadow: "0 0 0 1px rgba(212, 175, 55, 0.30) inset",
             }}
           >
             GP
@@ -45,7 +46,7 @@ export default function Nav() {
               href={item.href}
               className={`px-3 py-1.5 text-[13px] font-medium tracking-tight rounded-[3px] transition-colors ${
                 isActive(item.href)
-                  ? "text-[var(--lime)] bg-[var(--lime-dim)]"
+                  ? "text-[var(--vault-gold-bright)] bg-[var(--vault-gold-dim)]"
                   : "text-[var(--text-mute)] hover:text-[var(--text)] hover:bg-[var(--hover)]"
               }`}
             >
@@ -70,7 +71,7 @@ export default function Nav() {
               href={item.href}
               className={`px-3 py-1.5 text-[12px] font-medium tracking-tight rounded-[3px] whitespace-nowrap transition-colors ${
                 isActive(item.href)
-                  ? "text-[var(--lime)] bg-[var(--lime-dim)]"
+                  ? "text-[var(--vault-gold-bright)] bg-[var(--vault-gold-dim)]"
                   : "text-[var(--text-mute)]"
               }`}
             >

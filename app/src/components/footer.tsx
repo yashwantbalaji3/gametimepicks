@@ -29,7 +29,7 @@ export default function Footer() {
                       href={src.url}
                       target="_blank"
                       rel="noopener"
-                      className="hover:text-[var(--lime)] transition-colors"
+                      className="hover:text-[var(--vault-gold)] transition-colors"
                     >
                       {src.name} <span className="text-[var(--text-faint)]">↗</span>
                     </a>
@@ -54,7 +54,7 @@ export default function Footer() {
               </div>
               <div>
                 <span className="text-[var(--text-faint)]">mode</span>{" "}
-                <span className={meta.isDemo ? "text-[var(--amber)]" : "text-[var(--lime)]"}>
+                <span className={meta.isDemo ? "text-[var(--vault-warn)]" : "text-[var(--vault-success)]"}>
                   {meta.isDemo ? "demo data" : "live data"}
                 </span>
               </div>
@@ -70,7 +70,7 @@ export default function Footer() {
               href="https://yashwantbalaji.com"
               target="_blank"
               rel="noopener"
-              className="hover:text-[var(--lime)] transition-colors"
+              className="hover:text-[var(--vault-gold)] transition-colors"
             >
               yashwantbalaji.com
             </a>
