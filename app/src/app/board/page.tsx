@@ -4,10 +4,18 @@ import type { BoardData, DataMode, SlateDay } from "@/lib/types";
 import DataSourceBadge from "@/components/data-source-badge";
 import BoardWithTabs from "@/components/board-with-tabs";
 import NewsletterSignup from "@/components/newsletter-signup";
+import TodayAwareSlateBanner from "@/components/today-aware-slate-banner";
+import { currentEtDate } from "@/lib/freshness";
 
 export default function BoardPage() {
   const slate = getSlate();
   const meta = getMeta();
+
+  // Phase 14: build-time guess at "today" — used as the SSR fallback for
+  // date labels. Client components recompute this at hydration time
+  // using the user's real ET clock, which is what makes the labels
+  // accurate even when the static build is hours or days old.
+  const buildTimeToday = currentEtDate();
 
   // Phase 7B-4 — defense in depth: if slate.json is stale (e.g. last
   // pipeline run used --days 1 to save credits) but per-day board files
@@ -24,7 +32,10 @@ export default function BoardPage() {
     const board = getBoardForDate(date);
     augmentedDays.push({
       date,
-      dayLabel: dayLabelFor(date, slate.primaryDate),
+      // Phase 14: anchor synthetic labels to today (not stale primaryDate)
+      // so the SSR labels are honest. The client-side SlateTabs further
+      // recomputes these after hydration with the user's real clock.
+      dayLabel: dayLabelFor(date, buildTimeToday),
       isAvailable: true,
       gameCount: board.games?.length ?? 0,
       leanCount: board.leans?.length ?? 0,
@@ -183,8 +194,24 @@ export default function BoardPage() {
         </details>
       </div>
 
+      {/* Phase 14: today-aware staleness banner — only renders when slate
+          is older than today or pipeline run is stale. Uses the user's
+          real ET clock after hydration. */}
+      <div className="mt-6 reveal reveal-d2">
+        <TodayAwareSlateBanner
+          slatePrimaryDate={slate.primaryDate}
+          lastPipelineRun={meta.lastPipelineRun}
+          buildTimeToday={buildTimeToday}
+          dataMode={todayMode}
+        />
+      </div>
+
       <div className="mt-8 reveal reveal-d2">
-        <BoardWithTabs slate={augmentedSlate} boardsByDate={boardsByDate} />
+        <BoardWithTabs
+          slate={augmentedSlate}
+          boardsByDate={boardsByDate}
+          buildTimeToday={buildTimeToday}
+        />
       </div>
 
       {/* Compact newsletter — Phase 13 */}
@@ -259,7 +286,7 @@ function headerCopyForMode(
       return {
         eyebrow: "model board · demo sample",
         headline: "Demo Sample",
-        subline: `NBA_DATA_MODE=demo · representative slate · not tonight's real games`,
+        subline: `representative sample slate · not tonight's real games`,
       };
 
     default:

@@ -187,12 +187,9 @@ export default function HomePage() {
               demo sample
             </div>
             <div className="flex-1 min-w-[280px] text-[13px] text-[var(--text-mute)] leading-relaxed">
-              This deployment is running on bundled demo data because{" "}
-              <code className="font-mono text-[var(--text)]">
-                NBA_DATA_MODE=demo
-              </code>
-              . Phase 7B-2 wires the real Odds API integration; for now,
-              the only path that produces model leans is explicit demo mode.
+              This deployment is showing a representative sample slate
+              instead of live data. Real props and projections appear when
+              the live data sources are active.
             </div>
           </div>
         </section>
@@ -269,7 +266,7 @@ function ScheduleLiveCallout({
       <div className="mt-1 text-[14px] text-[var(--text-mute)]">
         {todayGames} NBA game{todayGames === 1 ? "" : "s"} on the schedule
         {manualOverride
-          ? " (operator-verified manual override)."
+          ? " (manually-verified schedule override)."
           : " from nba_api."}{" "}
         Player-prop scoring is unavailable until a free Odds API key is
         configured (Phase 7B-2). The board page shows the real schedule with

@@ -162,8 +162,8 @@ export default function MethodologyPage() {
           </ul>
           <p className="mt-3">
             The system never scrapes sportsbook websites or reverse-engineers
-            mobile apps. Every key lives in environment variables; nothing is
-            hardcoded.
+            mobile apps. Provider credentials live in secured environment
+            configuration; nothing is exposed in the codebase.
           </p>
         </div>
       </section>
@@ -186,7 +186,7 @@ export default function MethodologyPage() {
           <ModeCard
             color="lime"
             label="ScheduleLiveOddsUnavailable"
-            description="Real schedule (nba_api or manual override), but no player props — either ODDS_API_KEY isn't set, the odds fetch failed, or the slate has zero props. Sub-state on board.json tells you which."
+            description="Real schedule (NBA's official source or a manually-verified override), but no player props — either the odds source isn't configured, the odds fetch failed, or the slate has zero props. The site labels which case applies."
           />
           <ModeCard
             color="text-mute"
@@ -201,7 +201,7 @@ export default function MethodologyPage() {
           <ModeCard
             color="amber"
             label="DemoForced"
-            description="NBA_DATA_MODE=demo or ODDS_DATA_MODE=demo is set in the environment. The board shows a representative sample slate clearly labeled as demo. There is no automatic fall-back from real to demo — that path was removed in 7B-1.1."
+            description="The site is showing a representative sample slate instead of live data. This happens when an operator explicitly enables demo mode for screenshots or testing. The board never silently falls back to demo — when real data is unavailable, the UI says so explicitly."
           />
         </div>
       </section>
@@ -235,38 +235,30 @@ export default function MethodologyPage() {
         </ul>
       </section>
 
-      {/* News overrides — Phase 7B-1 */}
+      {/* News overrides — public-friendly explanation (Phase 14 rewrite) */}
       <section className="mt-12 reveal">
         <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-3">
-          Manual news overrides
+          Verified news signals
         </h2>
         <p className="text-[15px] text-[var(--text-mute)] leading-relaxed mb-4">
-          Phase 7B-1 introduces a free, compliant news layer: a local JSON
-          file at{" "}
-          <code className="font-mono text-[13px] text-[var(--text)]">
-            pipeline/manual_overrides/news_signals.json
-          </code>
-          . The operator manually adds entries when verifiable news appears
-          (official injury reports, beat reporters, team accounts). Each
-          signal carries a source URL, timestamp, and{" "}
-          <code className="font-mono text-[13px]">modelAction</code> directive
-          (e.g.{" "}
-          <code className="font-mono text-[13px]">remove_from_board</code>,{" "}
-          <code className="font-mono text-[13px]">flag_risk</code>).
+          When verifiable news appears — official injury reports, team
+          announcements, or reporting from credentialed beat writers — we
+          manually log it with a source link and timestamp before it changes
+          the board. Each signal includes a directive that tells the model
+          what to do (e.g. drop a lean, flag risk on a player).
         </p>
         <p className="text-[15px] text-[var(--text-mute)] leading-relaxed mb-4">
-          The pipeline reads this file on every run, filters expired signals,
-          and attaches relevant ones to each lean. Signals appear on prop
-          cards with the source label, update type, and a verification link.
+          On every refresh, the model checks the news log, filters out
+          expired entries, and attaches active signals to relevant leans.
+          Signals appear on prop cards with the source label, update type,
+          and a verification link so you can read the original report.
         </p>
         <p className="text-[15px] text-[var(--text-mute)] leading-relaxed mb-4">
           What this does <span className="text-[var(--text)]">not</span> do:
           we do not scrape Twitter/X, do not auto-ingest from any social
           platform, and do not invent player statuses. If no signal exists
-          for a player, the UI says &ldquo;No active manual signals&rdquo;
-          rather than asserting they are healthy. See{" "}
-          <code className="font-mono text-[13px]">docs/news_overrides.md</code>{" "}
-          in the repo for the operator workflow.
+          for a player, the UI says &ldquo;no active news signals&rdquo;
+          rather than asserting they are healthy.
         </p>
       </section>
     </div>

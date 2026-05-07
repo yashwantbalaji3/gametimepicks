@@ -31,14 +31,12 @@ export default function DemoFallbackBanner({ dataMode, failureReason }: Props) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-display text-[18px] md:text-[20px] font-semibold tracking-tight text-[var(--text)]">
-            Demo sample — explicit demo mode
+            Demo sample
           </div>
           <div className="mt-2 text-[13px] text-[var(--text-mute)] leading-relaxed">
-            <code className="font-mono text-[12px]">NBA_DATA_MODE=demo</code>{" "}
-            is set in your environment. The board below is a representative
-            sample, not tonight&apos;s real games. Set{" "}
-            <code className="font-mono text-[12px]">NBA_DATA_MODE=auto</code>{" "}
-            (or remove it) and re-run the pipeline to attempt real data.
+            The site is showing a representative sample slate instead of
+            tonight&apos;s real games. Live data appears here when the
+            primary data sources are available.
           </div>
           {failureReason && (
             <div className="mt-3 font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">

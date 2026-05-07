@@ -1,5 +1,6 @@
 import { getMeta } from "@/lib/data";
 import { formatTimestamp } from "@/lib/format";
+import FooterFreshness from "./footer-freshness";
 
 export default function Footer() {
   const meta = getMeta();
@@ -57,6 +58,10 @@ export default function Footer() {
               <div>
                 <span className="text-[var(--text-faint)]">last refresh</span>{" "}
                 <span>{formatTimestamp(meta.lastPipelineRun)}</span>
+              </div>
+              <div>
+                <span className="text-[var(--text-faint)]">freshness</span>{" "}
+                <FooterFreshness lastRun={meta.lastPipelineRun} />
               </div>
               <div>
                 <span className="text-[var(--text-faint)]">mode</span>{" "}

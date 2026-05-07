@@ -1,10 +1,18 @@
 /**
- * EmptyResultsCard — Phase 8.
+ * EmptyResultsCard — Phase 14 public rewrite.
  *
- * Polished empty state for the /results page when nothing has been
- * settled yet. Explains how to populate it with a one-step path
- * (edit override → run settle_results) so the empty state itself
- * teaches the user how to advance.
+ * Public-friendly empty state for the /results page when nothing has
+ * been settled yet. Phase 8 originally walked the operator through a
+ * three-step terminal workflow (edit JSON / run python / rebuild &
+ * redeploy). That copy was visible to public visitors and broke the
+ * "no admin runbook on public pages" rule.
+ *
+ * This rewrite:
+ *   - Explains what "results" means in user-friendly language
+ *   - Says how a slate becomes a result without naming files or commands
+ *   - Lists what users will see once a slate is settled
+ *   - Keeps the educational / not-betting-advice framing
+ *   - The actual operator runbook lives in docs/QA_CHECKLIST.md
  */
 export default function EmptyResultsCard() {
   return (
@@ -26,14 +34,16 @@ export default function EmptyResultsCard() {
           className="font-display text-[20px] sm:text-[24px] font-semibold tracking-tight"
           style={{ color: "var(--vault-text)" }}
         >
-          Results will appear after a slate is settled.
+          Verified results appear after each slate is reviewed.
         </h2>
         <p
           className="mt-3 mx-auto max-w-md text-[13px] leading-relaxed"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          To settle a completed slate, fill in the manual override file with
-          verified final stats from NBA.com, then run the settlement script.
+          When NBA games on a slate are complete, we manually verify final
+          stats from the official box scores and grade each lean. Until that
+          happens, this page stays honest about having no measured outcomes
+          to show.
         </p>
       </div>
 
@@ -45,33 +55,40 @@ export default function EmptyResultsCard() {
         }}
       >
         <div
-          className="font-mono text-[10px] uppercase tracking-[0.18em] mb-2"
+          className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3"
           style={{ color: "var(--vault-text-faint)" }}
         >
-          one-step path
+          when results land you'll see
         </div>
-        <ol
-          className="font-mono text-[11px] leading-[1.7] tabular space-y-1"
+        <ul
+          className="font-mono text-[11px] leading-[1.7] tabular space-y-1.5"
           style={{ color: "var(--vault-text-mute)" }}
         >
           <li>
-            <span style={{ color: "var(--vault-gold)" }}>1.</span> edit{" "}
-            <code style={{ color: "var(--vault-text)" }}>
-              pipeline/overrides/results_overrides.json
-            </code>
+            <span style={{ color: "var(--vault-gold)" }}>·</span> Hit rate over
+            settled slates, broken down by market and confidence tier
           </li>
           <li>
-            <span style={{ color: "var(--vault-gold)" }}>2.</span> run{" "}
-            <code style={{ color: "var(--vault-text)" }}>
-              python -m pipeline.settle_results --date 2026-05-05 --manual-only
-            </code>
+            <span style={{ color: "var(--vault-gold)" }}>·</span> Wins, losses,
+            and pushes per slate with the scoring detail
           </li>
           <li>
-            <span style={{ color: "var(--vault-gold)" }}>3.</span> rebuild &
-            redeploy the site
+            <span style={{ color: "var(--vault-gold)" }}>·</span> Biggest hits,
+            biggest misses, and projection vs. actual error
           </li>
-        </ol>
+          <li>
+            <span style={{ color: "var(--vault-gold)" }}>·</span> Small-sample
+            warnings when there isn't enough data to draw conclusions
+          </li>
+        </ul>
       </div>
+
+      <p
+        className="mt-6 text-center font-mono text-[10px] tracking-[0.18em] uppercase"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        sign up below to be notified when results go live
+      </p>
     </div>
   );
 }

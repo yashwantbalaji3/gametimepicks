@@ -23,9 +23,11 @@ import DemoFallbackBanner from "./demo-fallback-banner";
 interface Props {
   slate: SlateData;
   boardsByDate: Record<string, BoardData>;
+  /** Phase 14: build-time today for SSR fallback before client hydrates. */
+  buildTimeToday?: string;
 }
 
-export default function BoardWithTabs({ slate, boardsByDate }: Props) {
+export default function BoardWithTabs({ slate, boardsByDate, buildTimeToday }: Props) {
   const [selected, setSelected] = useState<string>(slate.primaryDate);
   const board = boardsByDate[selected] ?? boardsByDate[slate.primaryDate];
   const day =
@@ -39,6 +41,7 @@ export default function BoardWithTabs({ slate, boardsByDate }: Props) {
         days={slate.days}
         selected={selected}
         onChange={setSelected}
+        buildTimeToday={buildTimeToday}
       />
       {renderBody(dataMode, board, day, selected)}
     </>

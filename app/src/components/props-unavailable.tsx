@@ -86,7 +86,7 @@ function copyForReason(reason: Reason, gameCount: number) {
           The odds provider returned successfully, but no NBA player props were
           available for {games} on this slate. This is common for early
           playoff dates and games with TBD opponents — sportsbooks list lines
-          closer to tipoff. Re-run the pipeline closer to game time.
+          closer to tipoff. Check back closer to game time.
         </>
       ),
     };
@@ -121,17 +121,13 @@ function copyForReason(reason: Reason, gameCount: number) {
     return {
       borderColor: "var(--vault-warn)",
       accentLabel: "props",
-      headline: "Dry-run mode — odds fetches skipped to preserve credits",
+      headline: "Odds fetching paused to preserve credits",
       body: (
         <>
-          {games} on the schedule, and The Odds API was reachable (the FREE
-          /events check confirmed your key works), but per-event /odds calls
-          were skipped because{" "}
-          <code className="font-mono text-[12px]">ODDS_DRY_RUN=true</code> is
-          set in your environment. Zero paid credits were used. To fetch real
-          props, set{" "}
-          <code className="font-mono text-[12px]">ODDS_DRY_RUN=false</code>{" "}
-          (or remove the line) and re-run the pipeline.
+          {games} on the schedule, and the odds source is reachable, but
+          per-event odds fetches are paused for this run to conserve free-tier
+          credits. Real props will appear when fetching is re-enabled on the
+          next refresh cycle.
         </>
       ),
     };
@@ -144,21 +140,9 @@ function copyForReason(reason: Reason, gameCount: number) {
     headline: "Props unavailable — odds provider not configured",
     body: (
       <>
-        {games} on the schedule, but no sportsbook lines are loaded. To see
-        model leans, get a free{" "}
-        <a
-          href="https://the-odds-api.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[var(--vault-gold-bright)] hover:underline"
-        >
-          Odds API key ↗
-        </a>{" "}
-        (500 credits/month free tier), add{" "}
-        <code className="font-mono text-[12px]">ODDS_API_KEY=...</code> to your
-        <code className="font-mono text-[12px]"> .env</code>, and re-run the
-        pipeline. See <code className="font-mono text-[12px]">docs/odds_api_setup.md</code> for the
-        full walkthrough.
+        {games} on the schedule, but no sportsbook lines are loaded for
+        these games yet. Once the odds source is reconnected, model leans
+        will appear here automatically.
       </>
     ),
   };

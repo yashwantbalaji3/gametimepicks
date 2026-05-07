@@ -1,11 +1,20 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { SlateDay, DataMode } from "@/lib/types";
+import { currentEtDate, dayLabelFor } from "@/lib/freshness";
 
 interface Props {
   days: SlateDay[];
   selected: string;
   onChange: (date: string) => void;
+  /**
+   * Phase 14: build-time guess at today, used for SSR. Client overrides
+   * with the user's real ET date after hydration so "Today / Yesterday /
+   * Tomorrow" stay honest even when the static build is hours or days
+   * old.
+   */
+  buildTimeToday?: string;
 }
 
 /**
@@ -16,10 +25,22 @@ interface Props {
  * inactive tabs use vault text-mute, dataMode-specific subtitles
  * use vault success/warn/danger tokens.
  *
+ * Phase 14: day labels are now computed client-side from the user's
+ * real ET clock instead of being read from frozen pipeline output.
+ * The pipeline-shipped `day.dayLabel` is used as the SSR fallback.
+ *
  * Behavior is unchanged: controlled component, parent owns selectedDate,
  * clicking a tab dispatches onChange(date).
  */
-export default function SlateTabs({ days, selected, onChange }: Props) {
+export default function SlateTabs({ days, selected, onChange, buildTimeToday }: Props) {
+  // SSR / build-time: use the buildTimeToday prop (or empty string =
+  // fall back to whatever dayLabel the pipeline stamped).
+  // After hydration: switch to the user's real ET date.
+  const [today, setToday] = useState<string>(buildTimeToday ?? "");
+  useEffect(() => {
+    setToday(currentEtDate());
+  }, []);
+
   return (
     <div
       className="vault-tabs mb-5 -mx-2 px-2"
@@ -30,6 +51,9 @@ export default function SlateTabs({ days, selected, onChange }: Props) {
           const isSelected = day.date === selected;
           const subtitle = subtitleForDay(day);
           const badge = badgeForDay(day);
+          // Phase 14: real-time label overrides the frozen pipeline label
+          // when we have a today value (client-side after hydration).
+          const liveLabel = today ? dayLabelFor(day.date, today) : day.dayLabel;
 
           return (
             <button
@@ -58,7 +82,7 @@ export default function SlateTabs({ days, selected, onChange }: Props) {
                       : "var(--vault-text-mute)",
                   }}
                 >
-                  {day.dayLabel}
+                  {liveLabel}
                 </span>
                 {badge && (
                   <span

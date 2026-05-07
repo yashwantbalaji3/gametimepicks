@@ -1,0 +1,221 @@
+# ----------------------------------------------------------------------------
+# Phase 14 — auto-refresh.yml
+#
+# Scheduled refresh that runs every 2 hours during NBA active windows.
+# Uses ZERO Odds API credits by default (free tasks only):
+#   - hydrate recent10 trend data via nba_api
+#   - export any newly-settled results
+#   - run inspect_trends diagnostic
+#   - run all Python test suites
+#   - run typecheck + build
+#   - commit any public-data changes
+#
+# To enable paid Odds API refreshes, set repository secret
+# ENABLE_ODDS_REFRESH=true. The workflow stays defensive even then —
+# odds calls are gated by ODDS_DRY_RUN (default true) and a per-run
+# event cap (ODDS_MAX_EVENTS_PER_RUN).
+#
+# Manual trigger: Actions → auto-refresh → Run workflow.
+# ----------------------------------------------------------------------------
+
+name: auto-refresh
+
+on:
+  schedule:
+    # Cron is UTC. NBA games run roughly 4 PM ET to 1 AM ET, so we hit
+    # the every-other-hour points across that window plus one morning
+    # check to roll the slate over to the new ET day after midnight.
+    #
+    # All times converted to UTC (ET = UTC-5 standard, UTC-4 daylight):
+    #   12:00 UTC = 7am  ET  (DST) / 8am  EST — slate-rollover check
+    #   14:00 UTC = 10am ET  (DST)
+    #   16:00 UTC = 12pm ET  (DST)
+    #   18:00 UTC = 2pm  ET  (DST) — pre-tipoff lock
+    #   20:00 UTC = 4pm  ET  (DST) — early game window
+    #   22:00 UTC = 6pm  ET  (DST)
+    #   00:00 UTC = 8pm  ET  (DST) — peak game window
+    #   02:00 UTC = 10pm ET  (DST) — late game window
+    #   04:00 UTC = 12am ET  (DST) — game wrap
+    - cron: "0 12,14,16,18,20,22,0,2,4 * * *"
+  workflow_dispatch:
+    inputs:
+      enable_odds_refresh:
+        description: "Run paid Odds API refresh? (default: false)"
+        type: boolean
+        default: false
+      odds_dry_run:
+        description: "Use Odds API dry-run mode if enabled? (default: true)"
+        type: boolean
+        default: true
+
+# Only one auto-refresh in flight at a time. Newer cron runs cancel
+# older ones, so a slow run never blocks the next slot.
+concurrency:
+  group: auto-refresh
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # required for committing public-data changes
+
+env:
+  # FREE-tier defaults. Setting ENABLE_ODDS_REFRESH=true (manual or via
+  # repo variable) opts into paid Odds API calls, but ODDS_DRY_RUN still
+  # gates the actual fetches as a second safety layer.
+  ENABLE_ODDS_REFRESH: ${{ github.event.inputs.enable_odds_refresh || vars.ENABLE_ODDS_REFRESH || 'false' }}
+  ODDS_DRY_RUN: ${{ github.event.inputs.odds_dry_run || vars.ODDS_DRY_RUN || 'true' }}
+  ODDS_MAX_EVENTS_PER_RUN: ${{ vars.ODDS_MAX_EVENTS_PER_RUN || '12' }}
+  ODDS_CACHE_TTL_MINUTES: ${{ vars.ODDS_CACHE_TTL_MINUTES || '120' }}
+  ODDS_MIN_CREDITS_REMAINING: ${{ vars.ODDS_MIN_CREDITS_REMAINING || '50' }}
+  SKIP_BUILD: "0"
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show refresh context
+        run: |
+          echo "════════════════════════════════════════════════════════"
+          echo "  GametimePicks — auto-refresh"
+          echo "════════════════════════════════════════════════════════"
+          echo "  ET date now:           $(TZ=America/New_York date '+%Y-%m-%d %H:%M %Z')"
+          echo "  UTC time now:          $(date -u '+%Y-%m-%d %H:%M UTC')"
+          echo "  Trigger:               ${{ github.event_name }}"
+          echo ""
+          echo "  Odds refresh enabled:  ${{ env.ENABLE_ODDS_REFRESH }}"
+          echo "  Odds dry-run:          ${{ env.ODDS_DRY_RUN }}"
+          echo "  Max events per run:    ${{ env.ODDS_MAX_EVENTS_PER_RUN }}"
+          echo "  Cache TTL minutes:     ${{ env.ODDS_CACHE_TTL_MINUTES }}"
+          echo "  Min credits remaining: ${{ env.ODDS_MIN_CREDITS_REMAINING }}"
+          echo "════════════════════════════════════════════════════════"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          if [ -f pipeline/requirements.txt ]; then
+            python -m pip install --upgrade pip
+            pip install -r pipeline/requirements.txt
+          else
+            python -m pip install --upgrade pip
+            pip install nba_api requests
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install npm dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Show pre-refresh data freshness
+        run: |
+          echo "── Pre-refresh state ──────────────────────────────────"
+          if [ -f app/public/data/meta.json ]; then
+            python3 -c "
+import json
+m = json.load(open('app/public/data/meta.json'))
+print(f'  meta.lastPipelineRun: {m.get(\"lastPipelineRun\")}')
+print(f'  meta.primaryDate:     {m.get(\"primaryDate\", \"(missing)\")}')
+print(f'  meta.dataMode:        {m.get(\"dataMode\")}')
+"
+          fi
+
+      - name: Run safe refresh (free tasks only)
+        run: |
+          bash scripts/automation_refresh.sh
+        env:
+          # Belt-and-suspenders: even if a downstream module checks
+          # these directly, they stay defensive.
+          ODDS_DRY_RUN: ${{ env.ODDS_DRY_RUN }}
+          ENABLE_ODDS_REFRESH: ${{ env.ENABLE_ODDS_REFRESH }}
+
+      - name: Optional — paid Odds API refresh
+        if: env.ENABLE_ODDS_REFRESH == 'true'
+        run: |
+          echo "── Paid Odds API refresh (gated) ─────────────────────"
+          echo "  ENABLE_ODDS_REFRESH=true detected."
+          echo ""
+          echo "  This step is intentionally a no-op in Phase 14 — wiring"
+          echo "  the actual fetch is deferred until you've reviewed your"
+          echo "  Odds API credit balance. To enable, replace this step"
+          echo "  with the appropriate pipeline.fetch_odds invocation,"
+          echo "  honoring ODDS_DRY_RUN, ODDS_MAX_EVENTS_PER_RUN, and"
+          echo "  ODDS_MIN_CREDITS_REMAINING."
+          echo ""
+          echo "  Estimated credits consumed by this run: 0"
+        env:
+          ODDS_DRY_RUN: ${{ env.ODDS_DRY_RUN }}
+          ODDS_MAX_EVENTS_PER_RUN: ${{ env.ODDS_MAX_EVENTS_PER_RUN }}
+
+      - name: Inspect trends (diagnostic)
+        run: |
+          python3 -m pipeline.inspect_trends || true
+
+      - name: Show post-refresh data freshness
+        id: post_refresh
+        run: |
+          echo "── Post-refresh state ─────────────────────────────────"
+          if [ -f app/public/data/meta.json ]; then
+            python3 -c "
+import json, datetime as dt
+m = json.load(open('app/public/data/meta.json'))
+last = m.get('lastPipelineRun', '')
+print(f'  meta.lastPipelineRun: {last}')
+print(f'  meta.primaryDate:     {m.get(\"primaryDate\", \"(missing)\")}')
+print(f'  meta.dataMode:        {m.get(\"dataMode\")}')
+# Compute hours since refresh
+try:
+    if last:
+        last_dt = dt.datetime.fromisoformat(last.replace('Z', '+00:00'))
+        hrs = (dt.datetime.now(dt.timezone.utc) - last_dt).total_seconds() / 3600
+        print(f'  hours since refresh:  {hrs:.1f}h')
+except Exception as e:
+    pass
+"
+          fi
+          echo ""
+          echo "  Estimated Odds API credits used this run: 0"
+
+      - name: Show diff summary
+        run: |
+          echo "── Files changed ──────────────────────────────────────"
+          git status --porcelain | sed 's|^|  |'
+          echo ""
+          if [ -n "$(git status --porcelain)" ]; then
+            git diff --stat | sed 's|^|  |'
+          else
+            echo "  (no public-data changes this run)"
+          fi
+
+      - name: Commit & push public-data changes
+        run: |
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "  no changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Only commit allowed public-data paths; never commit code, secrets, or build artifacts.
+          git add app/public/data/ pipeline/validation/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "  no allowlisted changes to commit"
+            exit 0
+          fi
+          ET=$(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')
+          git commit -m "auto-refresh: ${ET} (zero Odds API credits)"
+          git push

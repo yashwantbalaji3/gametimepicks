@@ -63,21 +63,13 @@ function copyForReason(
         headline: "Schedule provider unavailable.",
         body: (
           <>
-            The pipeline could not confirm whether NBA games are scheduled for{" "}
-            {date}. <code className="font-mono text-[12px]">nba_api</code>{" "}
-            returned an error or was unreachable, and no manual schedule
-            override exists for this date. This is{" "}
+            We couldn&apos;t confirm whether NBA games are scheduled for{" "}
+            {date}. The schedule source returned an error and no
+            manually-verified entry exists for this date. This is{" "}
             <span className="text-[var(--text)] font-semibold">not</span> the
             same as &ldquo;no games today&rdquo; — we genuinely don&apos;t
-            know.{" "}
-            <span className="block mt-2">
-              To recover: install <code className="font-mono text-[12px]">nba_api</code>{" "}
-              and re-run the pipeline, or add a manual schedule entry to{" "}
-              <code className="font-mono text-[12px]">
-                pipeline/manual_overrides/schedule_overrides.json
-              </code>
-              .
-            </span>
+            know yet. The next refresh will retry; check back in a couple
+            hours.
           </>
         ),
       };
@@ -86,11 +78,8 @@ function copyForReason(
         headline: "No NBA games found.",
         body: (
           <>
-            Demo mode only generates the primary date. Future-date previews
-            require live mode (set{" "}
-            <code className="font-mono text-[12px]">NBA_DATA_MODE=auto</code>{" "}
-            and run the pipeline with{" "}
-            <code className="font-mono text-[12px]">nba_api</code> reachable).
+            Demo mode only generates the primary date. Live mode is needed
+            to show schedules for future dates.
           </>
         ),
       };
