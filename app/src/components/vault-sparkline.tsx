@@ -1,16 +1,27 @@
+"use client";
+
 /**
- * VaultSparkline — Phase 8.
+ * VaultSparkline — viewer-ready rebuild.
  *
  * Compact SVG sparkline for a player's last-N stat values, vault gold
  * themed, with optional reference line (the prop line). Pure SVG, no
- * external library, ~70 lines. Works on desktop and mobile.
+ * external library, ~150 lines. Works on desktop and mobile.
  *
- * Honest fallback: when `values` is empty/null, the component renders
- * a muted placeholder bar with "trend unavailable" — never invents
- * data. This is the default state today (no game-log data is currently
- * persisted in lean rows). When the pipeline starts emitting `recent10`
- * on each PropLean, the sparkline lights up automatically.
+ * VIEWER-READY CHANGE:
+ *   The previous version computed `gradId` with Math.random() at every
+ *   render. Server SSR and client hydration produced different IDs,
+ *   causing React hydration mismatch and a red runtime error on
+ *   localhost. Replaced with React's useId() hook, which produces
+ *   stable, unique IDs across the SSR/hydration boundary.
+ *
+ * Honest fallback: when `values` is empty/null, renders a muted
+ * placeholder bar with "no trend" — never invents data. This is the
+ * default state when recent10 is not yet attached on the lean. When
+ * the pipeline starts emitting recent10 (via attach_recent10), the
+ * sparkline lights up automatically.
  */
+import { useId } from "react";
+
 interface Props {
   values?: number[];
   /** The current line, drawn as a dashed reference */
@@ -27,10 +38,15 @@ export default function VaultSparkline({
   height = 28,
   ariaLabel = "last 10 trend",
 }: Props) {
-  // No data → muted placeholder, never fake values
+  // Stable ID across SSR + client (no hydration mismatch).
+  const reactId = useId();
+  // useId returns colon-prefixed strings on some runtimes; sanitize for SVG attr.
+  const gradId = `vault-spark-${reactId.replace(/[:]/g, "-")}`;
+
+  // No data → muted placeholder, never fake values.
   if (!values || values.length === 0) {
     return (
-      <div className="inline-flex items-center gap-1.5">
+      <span className="inline-flex items-center gap-1.5 align-middle">
         <svg
           width={width}
           height={height}
@@ -53,7 +69,7 @@ export default function VaultSparkline({
         >
           no trend
         </span>
-      </div>
+      </span>
     );
   }
 
@@ -93,8 +109,7 @@ export default function VaultSparkline({
     .map(([x, y], i) => (i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`))
     .join(" ");
 
-  // Gold gradient fill below the line, subtle
-  const gradId = `vault-spark-${Math.random().toString(36).slice(2, 8)}`;
+  // Subtle area fill below the line
   const areaPath =
     path +
     ` L ${xy[xy.length - 1][0]} ${height - padding}` +
@@ -104,7 +119,9 @@ export default function VaultSparkline({
   const lastVal = values[values.length - 1];
   const firstVal = values[0];
   const trendUp = lastVal >= firstVal;
-  const strokeColor = trendUp ? "var(--vault-gold-bright)" : "var(--vault-text-mute)";
+  const strokeColor = trendUp
+    ? "var(--vault-gold-bright)"
+    : "var(--vault-text-mute)";
 
   return (
     <svg

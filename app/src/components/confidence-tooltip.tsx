@@ -1,30 +1,55 @@
 "use client";
 
 /**
- * ConfidenceTooltip — Phase 8.
+ * ConfidenceTooltip — phrasing-content-safe rebuild for viewer readiness.
  *
- * Vault-themed inline help that explains what each confidence tier
- * means. Positioned as a small "i" badge that the user can hover or
- * tap to reveal the explanation. CSS-only; no JavaScript state.
+ * The previous version of this component rendered <div>, <ul>, <li>,
+ * and <p> elements inside a <span> that lived inside a <p> (in the
+ * /board hero subtitle). HTML spec only allows phrasing content
+ * inside <p>, so the browser auto-closed the outer <p> at the first
+ * block-level descendant — which produced a React hydration mismatch
+ * and a red runtime error indicator on localhost.
  *
- * Used in the /board hero and inside the methodology copy.
+ * This rebuild keeps the same visual + accessibility behavior using
+ * ONLY phrasing-content elements:
+ *   - <button> as the visible "i" badge (focusable, keyboard-friendly)
+ *   - <span role="tooltip"> for the popover container
+ *   - <span role="list"> / <span role="listitem"> for the tier list
+ *     (preserves list semantics for screen readers)
+ *
+ * The popover's block-like layout is achieved with className "block"
+ * (display: block) — that's a CSS effect, not a tag-name change.
+ *
+ * Behavior:
+ *   - Hover or keyboard-focus the badge → popover reveals
+ *   - All ARIA roles preserved
+ *   - prefers-reduced-motion still honored (no transitions added here)
+ *   - Pure CSS state via group-hover / group-focus-within
+ *   - Zero JavaScript state (no useState, no portals)
  */
 export default function ConfidenceTooltip() {
   return (
-    <span className="relative inline-flex group cursor-help align-baseline">
-      <span
-        className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full font-mono text-[9px] font-semibold cursor-help"
+    <span className="relative inline-flex group align-baseline">
+      {/* The visible info badge — using <button> so it's keyboard-focusable,
+          which makes group-focus-within work for keyboard users. */}
+      <button
+        type="button"
+        className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full font-mono text-[9px] font-semibold cursor-help focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0"
         style={{
           color: "var(--vault-gold)",
           background: "var(--vault-gold-dim)",
           border: "1px solid var(--vault-border-strong)",
+          padding: 0,
+          lineHeight: 1,
         }}
-        aria-label="confidence tier explanations"
+        aria-label="Show confidence tier explanations"
       >
         i
-      </span>
+      </button>
 
+      {/* Popover — pure phrasing content. block layout via className "block". */}
       <span
+        role="tooltip"
         className="invisible group-hover:visible group-focus-within:visible absolute z-10 left-1/2 -translate-x-1/2 mt-5 p-3 rounded-[3px] w-[280px] text-left pointer-events-none"
         style={{
           background: "var(--vault-panel-elevated)",
@@ -32,42 +57,46 @@ export default function ConfidenceTooltip() {
           color: "var(--vault-text-mute)",
           boxShadow: "0 4px 14px rgba(0, 0, 0, 0.4)",
         }}
-        role="tooltip"
       >
-        <div
-          className="font-mono text-[9px] uppercase tracking-[0.18em] mb-2"
+        <span
+          className="block font-mono text-[9px] uppercase tracking-[0.18em] mb-2"
           style={{ color: "var(--vault-gold)" }}
         >
           confidence tiers
-        </div>
-        <ul className="font-mono text-[11px] leading-[1.55] space-y-1">
-          <li>
+        </span>
+
+        <span
+          role="list"
+          className="block font-mono text-[11px] leading-[1.55] space-y-1"
+        >
+          <span role="listitem" className="block">
             <span style={{ color: "var(--vault-gold-bright)" }}>High</span>{" "}
             — strong edge, strong recent log
-          </li>
-          <li>
+          </span>
+          <span role="listitem" className="block">
             <span style={{ color: "var(--vault-warn)" }}>Medium</span> —
             some edge, mixed evidence
-          </li>
-          <li>
+          </span>
+          <span role="listitem" className="block">
             <span style={{ color: "var(--vault-text-mute)" }}>Low</span>{" "}
             — small edge, soft signal
-          </li>
-          <li>
+          </span>
+          <span role="listitem" className="block">
             <span style={{ color: "var(--vault-text-faint)" }}>no data</span>{" "}
             — recent logs unavailable
-          </li>
-          <li>
+          </span>
+          <span role="listitem" className="block">
             <span style={{ color: "var(--vault-text-faint)" }}>pass</span>{" "}
             — model declines below threshold
-          </li>
-        </ul>
-        <p
-          className="mt-2 font-mono text-[9px] leading-[1.55]"
+          </span>
+        </span>
+
+        <span
+          className="block mt-2 font-mono text-[9px] leading-[1.55]"
           style={{ color: "var(--vault-text-faint)" }}
         >
           Educational only — not betting advice.
-        </p>
+        </span>
       </span>
     </span>
   );
