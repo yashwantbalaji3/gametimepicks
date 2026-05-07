@@ -96,22 +96,13 @@ function copyForReason(reason: Reason, gameCount: number) {
     return {
       borderColor: "var(--rose)",
       accentLabel: "props",
-      headline: "Odds provider unavailable",
+      headline: "Odds source temporarily unavailable",
       body: (
         <>
-          The pipeline attempted to fetch player props from The Odds API but
-          the request failed. The schedule for {games} is still real and
-          loaded; only the props are missing. Try re-running the pipeline.
-          If the failure persists, check your usage quota at{" "}
-          <a
-            href="https://the-odds-api.com/account"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[var(--vault-gold-bright)] hover:underline"
-          >
-            the-odds-api.com/account ↗
-          </a>
-          .
+          The pipeline attempted to fetch player props but the odds source
+          didn&apos;t respond. The schedule for {games} is still real and
+          loaded; only the props are missing. The next scheduled refresh
+          will retry automatically.
         </>
       ),
     };

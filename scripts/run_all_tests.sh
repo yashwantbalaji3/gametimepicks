@@ -61,6 +61,7 @@ TESTS=(
     parlay_lab_test
     freshness_test
     active_slate_test
+    parlay_builder_test
 )
 TOTAL_PASSED=0
 RAN=0

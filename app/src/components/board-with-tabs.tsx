@@ -17,6 +17,7 @@ import SlateTabs from "./slate-tabs";
 import VaultBoard from "./vault-board";
 import NoGamesToday from "./no-games-today";
 import PropsUnavailable from "./props-unavailable";
+import PropsComingSoon from "./props-coming-soon";
 import ScheduleStrip from "./schedule-strip";
 import DemoFallbackBanner from "./demo-fallback-banner";
 
@@ -104,6 +105,22 @@ function renderBody(
               failureReason={board.scheduleFailureReason}
             />
           )}
+          {/* Phase 16: premium "props coming soon" hero — frames the
+              real-schedule + no-leans state as a wait-for-leans story
+              instead of the previous admin-y "odds API key not set"
+              messaging. */}
+          <div className="mb-6">
+            <PropsComingSoon
+              gameCount={board.games?.length ?? 0}
+              gameLabels={(board.games ?? [])
+                .map((g) =>
+                  g.awayTeamAbbr && g.homeTeamAbbr
+                    ? `${g.awayTeamAbbr} @ ${g.homeTeamAbbr}`
+                    : null,
+                )
+                .filter((s): s is string => Boolean(s))}
+            />
+          </div>
           {board.games && board.games.length > 0 && (
             <div className="mb-6">
               <ScheduleStrip
