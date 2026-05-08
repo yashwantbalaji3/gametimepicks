@@ -1,6 +1,6 @@
 {
   "generatedFor": "2026-05-08",
-  "generatedAt": "2026-05-05T17:10:07+00:00",
+  "generatedAt": "2026-05-08T21:16:48+00:00",
   "dataSources": [
     "espn_scoreboard",
     "the_odds_api"
@@ -48,17 +48,17 @@
   "endpointHistory": [
     {
       "endpoint": "scoreboardv2",
-      "status": "ok",
+      "status": "error",
       "raw_count": 0,
       "games": [],
-      "error": null
+      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
     },
     {
       "endpoint": "leaguegamefinder",
-      "status": "ok",
+      "status": "error",
       "raw_count": 0,
       "games": [],
-      "error": null
+      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
     }
   ],
   "scheduleProviderHistory": [
@@ -70,9 +70,9 @@
     },
     {
       "provider": "nba_api",
-      "status": "ok",
+      "status": "failed",
       "games": 0,
-      "error": null
+      "error": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
     },
     {
       "provider": "espn_scoreboard",
@@ -81,12 +81,12 @@
       "error": null
     }
   ],
-  "oddsProviderStatus": "ok_no_props",
+  "oddsProviderStatus": "dry_run",
   "oddsFetchAttempted": true,
   "oddsFetchSucceeded": true,
-  "oddsFailureReason": null,
-  "rawOddsEventCount": 0,
-  "matchedOddsEventCount": 0,
+  "oddsFailureReason": "ODDS_DRY_RUN=true \u2014 skipped /odds fetches. Would have called /odds for 2 event(s), costing ~6 credit(s).",
+  "rawOddsEventCount": 2,
+  "matchedOddsEventCount": 2,
   "attemptedOddsEventCount": 0,
   "parsedPropCount": 0,
   "oddsCacheStatus": "miss",
