@@ -1,20 +1,21 @@
 "use client";
 
 /**
- * Phase 16 — ParlayLabModeTabs.
+ * Phase 17 — ParlayLabModeTabs.
  *
  * Container that switches between the two Parlay Lab modes:
- *   - "build"    → ParlayBuilderClient (Phase 16) — model-assisted builder
- *   - "analyze"  → ParlayLabClient (Phase 12) — paste-and-analyze
+ *   - "build"    → ParlayBuilderClient — model-assisted builder
+ *   - "analyze"  → ParlayLabClient — paste-and-analyze
  *
- * The user lands on "build" by default because that's where the new
- * value lives. They can switch to "analyze" to compare a slip they've
- * already built on a sportsbook.
+ * Both modes receive the active-slate metadata so the Build mode can
+ * default to the current/upcoming date instead of the stale primary,
+ * and so each mode can clearly label archived dates as such.
  *
  * Pure client component. No fetches.
  */
 import { useState } from "react";
 import type { PropLean } from "@/lib/types";
+import type { ActiveSlateKind } from "@/lib/active-slate";
 import ParlayLabClient from "./parlay-lab-client";
 import ParlayBuilderClient from "./parlay-builder-client";
 
@@ -23,14 +24,23 @@ type LabMode = "build" | "analyze";
 interface DateOption {
   date: string;
   label: string;
+  isArchived: boolean;
+  isActiveDefault: boolean;
 }
 
 interface Props {
   allLeans: PropLean[];
   datesAvailable: DateOption[];
+  activeSlateKind: ActiveSlateKind;
+  activeDate: string | null;
 }
 
-export default function ParlayLabModeTabs({ allLeans, datesAvailable }: Props) {
+export default function ParlayLabModeTabs({
+  allLeans,
+  datesAvailable,
+  activeSlateKind,
+  activeDate,
+}: Props) {
   const [mode, setMode] = useState<LabMode>("build");
 
   return (
@@ -57,11 +67,16 @@ export default function ParlayLabModeTabs({ allLeans, datesAvailable }: Props) {
         <ParlayBuilderClient
           allLeans={allLeans}
           datesAvailable={datesAvailable}
+          activeSlateKind={activeSlateKind}
+          activeDate={activeDate}
         />
       ) : (
         <ParlayLabClient
           allLeans={allLeans}
-          datesAvailable={datesAvailable}
+          datesAvailable={datesAvailable.map((d) => ({
+            date: d.date,
+            label: d.label,
+          }))}
         />
       )}
     </div>

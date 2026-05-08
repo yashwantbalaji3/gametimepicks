@@ -1,25 +1,34 @@
 "use client";
 
 /**
- * Phase 16 — ParlayBuilderClient.
+ * Phase 17 — ParlayBuilderClient.
  *
  * Build mode of /parlay-lab. The user picks a date, optionally selects
  * specific players or games or markets, picks a risk profile, and the
  * builder generates candidate parlays from REAL slate leans.
+ *
+ * Phase 17 changes:
+ *   - Defaults to the active slate (today / nearest upcoming) instead of
+ *     whichever past date has the most leans.
+ *   - When the active slate has no candidate-eligible leans, shows a
+ *     dedicated "no current builder" empty state — does NOT silently
+ *     drop back to a stale archived date.
+ *   - The user can opt into archived dates explicitly via the date
+ *     picker; archived dates are clearly labeled "(archived)".
+ *   - Builder defaults to "core players only" (top 3 per team). The user
+ *     can toggle "include full rotation" to widen the pool.
  *
  * Design contract:
  *   - Every leg is sourced from a real PropLean. No fabrication.
  *   - "Educational analysis" framing throughout. No betting advice.
  *   - Same-game correlation always surfaced.
  *   - Missing odds → combined-odds field shows "—" not a fake number.
- *   - When the slate has no eligible leans for the chosen profile, the
- *     UI says so honestly and suggests a looser profile.
  *
- * This component does NOT fetch. All slate data flows in via props from
- * the server-rendered page wrapper.
+ * This component does NOT fetch. All slate data flows in via props.
  */
 import { useState, useMemo } from "react";
 import type { PropLean } from "@/lib/types";
+import type { ActiveSlateKind } from "@/lib/active-slate";
 import {
   buildParlayCandidates,
   uniquePlayersFromLeans,
@@ -34,11 +43,15 @@ import {
 interface DateOption {
   date: string;
   label: string;
+  isArchived: boolean;
+  isActiveDefault: boolean;
 }
 
 interface Props {
   allLeans: PropLean[];
   datesAvailable: DateOption[];
+  activeSlateKind: ActiveSlateKind;
+  activeDate: string | null;
 }
 
 const RISK_DESCRIPTIONS: Record<RiskProfile, string> = {
@@ -49,12 +62,29 @@ const RISK_DESCRIPTIONS: Record<RiskProfile, string> = {
 
 const MARKET_LIST: ("PTS" | "REB" | "AST")[] = ["PTS", "REB", "AST"];
 
-export default function ParlayBuilderClient({ allLeans, datesAvailable }: Props) {
-  const [selectedDate, setSelectedDate] = useState<string>(
-    datesAvailable[0]?.date ?? "",
-  );
+export default function ParlayBuilderClient({
+  allLeans,
+  datesAvailable,
+  activeSlateKind,
+  activeDate,
+}: Props) {
+  // Phase 17: pick the default date intelligently.
+  //   - Prefer the active slate (today / upcoming).
+  //   - If active has no leans on disk, prefer the first non-archived date
+  //     that's available.
+  //   - Only fall back to an archived date if nothing else exists.
+  const initialDate = useMemo(() => {
+    const activeMatch = datesAvailable.find((d) => d.date === activeDate);
+    if (activeMatch) return activeMatch.date;
+    const firstNonArchived = datesAvailable.find((d) => !d.isArchived);
+    if (firstNonArchived) return firstNonArchived.date;
+    return datesAvailable[0]?.date ?? "";
+  }, [datesAvailable, activeDate]);
+
+  const [selectedDate, setSelectedDate] = useState<string>(initialDate);
   const [mode, setMode] = useState<BuilderMode>("top_props");
   const [riskProfile, setRiskProfile] = useState<RiskProfile>("balanced");
+  const [includeFullRotation, setIncludeFullRotation] = useState(false);
   const [selectedPlayerNames, setSelectedPlayerNames] = useState<Set<string>>(
     new Set(),
   );
@@ -68,9 +98,16 @@ export default function ParlayBuilderClient({ allLeans, datesAvailable }: Props)
     [allLeans, selectedDate],
   );
 
+  const isSelectedDateArchived =
+    datesAvailable.find((d) => d.date === selectedDate)?.isArchived ?? false;
+
   const playerOptions: PlayerOption[] = useMemo(
-    () => uniquePlayersFromLeans(dateLeans),
-    [dateLeans],
+    () =>
+      uniquePlayersFromLeans(dateLeans, {
+        coreOnly: !includeFullRotation,
+        corePlayersPerTeam: 3,
+      }),
+    [dateLeans, includeFullRotation],
   );
   const gameOptions: GameOption[] = useMemo(
     () => uniqueGamesFromLeans(dateLeans),
@@ -91,6 +128,8 @@ export default function ParlayBuilderClient({ allLeans, datesAvailable }: Props)
           : undefined,
       riskProfile,
       numCandidates: 3,
+      includeBenchPlayers: includeFullRotation,
+      corePlayersPerTeam: 3,
     });
   }, [
     dateLeans,
@@ -99,7 +138,17 @@ export default function ParlayBuilderClient({ allLeans, datesAvailable }: Props)
     selectedGameIds,
     selectedMarkets,
     riskProfile,
+    includeFullRotation,
   ]);
+
+  // Phase 17: detect "no current builder" honestly. When the only
+  // available dates are archived AND the active slate kind is no_current
+  // / no_data, surface that — don't pretend an old slate is a builder.
+  const allDatesAreArchived =
+    datesAvailable.length > 0 && datesAvailable.every((d) => d.isArchived);
+  const noCurrentBuilder =
+    (activeSlateKind === "no_current" || activeSlateKind === "no_data") &&
+    allDatesAreArchived;
 
   const hasNoSlate = allLeans.length === 0 || dateLeans.length === 0;
 
@@ -142,22 +191,46 @@ export default function ParlayBuilderClient({ allLeans, datesAvailable }: Props)
             builder will activate.
           </p>
         ) : (
-          <select
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-full mb-5 px-3 py-2 rounded-[2px] font-mono text-[12px]"
-            style={{
-              background: "var(--vault-panel)",
-              border: "1px solid var(--vault-border)",
-              color: "var(--vault-text)",
-            }}
-          >
-            {datesAvailable.map((d) => (
-              <option key={d.date} value={d.date}>
-                {d.label}
-              </option>
-            ))}
-          </select>
+          <>
+            <select
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full mb-2 px-3 py-2 rounded-[2px] font-mono text-[12px]"
+              style={{
+                background: "var(--vault-panel)",
+                border: "1px solid var(--vault-border)",
+                color: "var(--vault-text)",
+              }}
+            >
+              {datesAvailable.map((d) => (
+                <option key={d.date} value={d.date}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+            {isSelectedDateArchived && (
+              <p
+                className="mb-3 px-2.5 py-1.5 rounded-[2px] font-mono text-[10px] uppercase tracking-[0.15em]"
+                style={{
+                  background: "var(--vault-warn-dim)",
+                  color: "var(--vault-warn)",
+                  border: "1px solid var(--vault-border)",
+                }}
+              >
+                ⚠ archived slate · model leans here are historical, not current
+              </p>
+            )}
+            {!isSelectedDateArchived && (
+              <p
+                className="mb-3 font-mono text-[10px] uppercase tracking-[0.15em]"
+                style={{ color: "var(--vault-text-faint)" }}
+              >
+                {activeSlateKind === "today"
+                  ? "current slate · today's model leans"
+                  : "upcoming slate"}
+              </p>
+            )}
+          </>
         )}
 
         <SectionLabel n="2" text="builder mode" />
@@ -188,9 +261,44 @@ export default function ParlayBuilderClient({ allLeans, datesAvailable }: Props)
           )}
         </div>
 
+        <SectionLabel n="4" text="player pool" />
+        <div className="mb-5">
+          <label
+            className="flex items-start gap-2 cursor-pointer p-2.5 rounded-[2px] transition-colors"
+            style={{
+              background: "var(--vault-panel)",
+              border: "1px solid var(--vault-border)",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={includeFullRotation}
+              onChange={(e) => setIncludeFullRotation(e.target.checked)}
+              className="mt-1 cursor-pointer"
+              style={{ accentColor: "var(--vault-gold)" }}
+            />
+            <div>
+              <div
+                className="font-display text-[13px] font-semibold tracking-tight"
+                style={{ color: "var(--vault-text)" }}
+              >
+                Include full rotation
+              </div>
+              <div
+                className="mt-0.5 text-[11px] leading-snug"
+                style={{ color: "var(--vault-text-faint)" }}
+              >
+                {includeFullRotation
+                  ? "Bench / role players included. Wider candidate pool."
+                  : "Top 3 core players per team only. Bench excluded by default."}
+              </div>
+            </div>
+          </label>
+        </div>
+
         {mode === "selected_players" && (
           <>
-            <SectionLabel n="4" text="players" />
+            <SectionLabel n="5" text="players" />
             {playerOptions.length === 0 ? (
               <p
                 className="text-[12px] mb-5"
@@ -240,7 +348,7 @@ export default function ParlayBuilderClient({ allLeans, datesAvailable }: Props)
         {gameOptions.length > 0 && (
           <>
             <SectionLabel
-              n={mode === "selected_players" ? "5" : "4"}
+              n={mode === "selected_players" ? "6" : "5"}
               text="games (optional)"
             />
             <div className="mb-5 flex flex-wrap gap-1.5">
@@ -270,7 +378,7 @@ export default function ParlayBuilderClient({ allLeans, datesAvailable }: Props)
         )}
 
         <SectionLabel
-          n={mode === "selected_players" ? "6" : "5"}
+          n={mode === "selected_players" ? "7" : "6"}
           text="markets (optional)"
         />
         <div className="mb-1 flex gap-1.5">
@@ -307,26 +415,45 @@ export default function ParlayBuilderClient({ allLeans, datesAvailable }: Props)
 
       {/* Right — candidates */}
       <div className="space-y-3">
-        {hasNoSlate ? (
+        {noCurrentBuilder ? (
           <EmptyState
-            heading="No slate to build from"
-            body="The selected date has no model leans. Either the slate hasn't been generated yet, or props are unavailable for those games. Try a different date or check back after the next refresh."
+            heading="No current slate available"
+            body="The next slate hasn't been generated yet. Once today's or tomorrow's model leans land, the builder will activate. Use the date picker on the left to analyze archived slates if you want to see how the builder works on past data."
+          />
+        ) : hasNoSlate ? (
+          <EmptyState
+            heading="No model leans on this slate"
+            body="The selected date doesn't have model leans yet. Either the slate hasn't been generated, or props are unavailable for those games. Try a different date or check back after the next refresh."
           />
         ) : candidates.length === 0 ? (
           <EmptyState
             heading={`No ${riskProfile} candidates on this slate`}
             body={
               riskProfile === "conservative"
-                ? "Conservative requires High confidence + valid recent10 across multiple games. Try Balanced or Aggressive for looser filters."
+                ? "Conservative requires High confidence + valid recent10 across multiple games. Try Balanced or Aggressive for looser filters, or enable 'include full rotation' for a wider pool."
                 : riskProfile === "balanced"
                   ? "Balanced requires Medium+ confidence with moderate edge. Try Aggressive for looser filters, or remove some restrictions."
                   : "No combinations met the minimum edge threshold. The model may not have strong leans on this slate."
             }
           />
         ) : (
-          candidates.map((c, idx) => (
-            <CandidateCard key={idx} candidate={c} index={idx} />
-          ))
+          <>
+            {!includeFullRotation && (
+              <div
+                className="rounded-[2px] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.15em]"
+                style={{
+                  background: "var(--vault-gold-dim)",
+                  border: "1px solid var(--vault-border)",
+                  color: "var(--vault-gold-bright)",
+                }}
+              >
+                ★ focused on top core players per team
+              </div>
+            )}
+            {candidates.map((c, idx) => (
+              <CandidateCard key={idx} candidate={c} index={idx} />
+            ))}
+          </>
         )}
       </div>
     </div>

@@ -332,9 +332,9 @@ function headerCopyForMode(
 
     case "ScheduleLiveOddsUnavailable":
       return {
-        eyebrow: "model board · schedule live · props not configured",
+        eyebrow: "model board · schedule live · awaiting model leans",
         headline: date,
-        subline: `real schedule · ${slateDays}-day slate · generated ${generated} · odds source not configured`,
+        subline: `real schedule · ${slateDays}-day slate · generated ${generated} · awaiting model leans`,
       };
 
     case "NoGames":

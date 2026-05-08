@@ -157,7 +157,7 @@ export default function HomePage() {
           }
           sub={
             !showLeanTiles
-              ? "props not configured"
+              ? "awaiting model leans"
               : isDemoMode
                 ? "demo data"
                 : undefined
@@ -167,7 +167,7 @@ export default function HomePage() {
         <KpiTile
           label={isDemoMode ? "high-conf in sample" : "high confidence"}
           value={showLeanTiles ? String(highConfidence) : "—"}
-          sub={!showLeanTiles ? "props not configured" : undefined}
+          sub={!showLeanTiles ? "awaiting model leans" : undefined}
           delay={2}
         />
         {/* Phase 11: real settled hit rate (replaces legacy demo hit_rates.json) */}
@@ -263,7 +263,7 @@ function eyebrowForMode(
     case "Live":
       return `${todayGames} NBA game${todayGames === 1 ? "" : "s"} today · ${slateDays}-day slate`;
     case "ScheduleLiveOddsUnavailable":
-      return `${todayGames} NBA game${todayGames === 1 ? "" : "s"} today · props not configured`;
+      return `${todayGames} NBA game${todayGames === 1 ? "" : "s"} tonight · awaiting model leans`;
     case "NoGames":
       return nextGameDay
         ? `no games today · next slate ${nextGameDay.dayLabel.toLowerCase()}`

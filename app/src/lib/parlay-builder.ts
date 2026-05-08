@@ -23,6 +23,7 @@
 import type { PropLean, ConfidenceTier } from "./types";
 import type { LegAnalysis } from "./parlay";
 import { analyzeLeg, americanToImplied, impliedToAmerican } from "./parlay";
+import { topCorePlayerKeysPerTeam, playerKeyForLean } from "./core-players";
 
 export type RiskProfile = "conservative" | "balanced" | "aggressive";
 
@@ -40,6 +41,17 @@ export interface BuilderOptions {
   riskProfile: RiskProfile;
   /** How many candidate parlays to return. Default 3. */
   numCandidates?: number;
+  /**
+   * Phase 17: when false (the default), restrict candidate leg generation
+   * to the top N "core" players per team (e.g. starters / stars).
+   * When true, include bench / role players too. UI exposes this as the
+   * "include full rotation" toggle, off by default.
+   */
+  includeBenchPlayers?: boolean;
+  /** Phase 17: how many "core" players per team to include when bench
+   *  is excluded. Default 3.
+   */
+  corePlayersPerTeam?: number;
 }
 
 export interface ParlayCandidate {
@@ -245,8 +257,27 @@ export function buildParlayCandidates(
     Math.min(8, opts.numCandidates ?? 3),
   );
 
+  // Phase 17: by default, restrict the candidate pool to the top N core
+  // players per team. The user toggles "include full rotation" to bypass
+  // this, but it's off by default for trustworthiness.
+  const corePool = opts.includeBenchPlayers
+    ? slateLeans
+    : (() => {
+        const coreKeys = topCorePlayerKeysPerTeam(
+          slateLeans,
+          opts.corePlayersPerTeam ?? 3,
+        );
+        // Honest fallback: if the core filter would empty the pool
+        // (e.g. team metadata totally missing on every lean), fall back
+        // to the full pool rather than returning zero candidates.
+        const filtered = slateLeans.filter((l) =>
+          coreKeys.has(playerKeyForLean(l)),
+        );
+        return filtered.length > 0 ? filtered : slateLeans;
+      })();
+
   // 1. Filter to eligible leans
-  const eligible = slateLeans.filter((l) => isEligible(l, rules, opts));
+  const eligible = corePool.filter((l) => isEligible(l, rules, opts));
 
   // 2. Dedupe per (playerId or normalized name) + market — only the highest-
   //    scoring lean for each player+market combo is a candidate leg. We
@@ -421,9 +452,26 @@ export interface PlayerOption {
   marketCount: number;
 }
 
-export function uniquePlayersFromLeans(slateLeans: PropLean[]): PlayerOption[] {
+export function uniquePlayersFromLeans(
+  slateLeans: PropLean[],
+  opts: { coreOnly?: boolean; corePlayersPerTeam?: number } = {},
+): PlayerOption[] {
+  // Phase 17: restrict picker pool to core players by default.
+  const pool = opts.coreOnly
+    ? (() => {
+        const coreKeys = topCorePlayerKeysPerTeam(
+          slateLeans,
+          opts.corePlayersPerTeam ?? 3,
+        );
+        const filtered = slateLeans.filter((l) =>
+          coreKeys.has(playerKeyForLean(l)),
+        );
+        return filtered.length > 0 ? filtered : slateLeans;
+      })()
+    : slateLeans;
+
   const map = new Map<string, PlayerOption & { markets: Set<string> }>();
-  for (const lean of slateLeans) {
+  for (const lean of pool) {
     if (lean.lean !== "Over" && lean.lean !== "Under") continue;
     const pkey =
       (lean.playerId ?? 0) > 0

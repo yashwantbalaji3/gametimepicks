@@ -1,43 +1,62 @@
 import { getSlate, getMeta, getBoardForDate, getAvailableBoardDates } from "@/lib/data";
-import type { PropLean } from "@/lib/types";
+import type { PropLean, BoardData } from "@/lib/types";
 import ParlayLabModeTabs from "@/components/parlay-lab-mode-tabs";
 import DataSourceBadge from "@/components/data-source-badge";
+import { selectActiveSlate } from "@/lib/active-slate";
+import { currentEtDate } from "@/lib/freshness";
 
 /**
- * /parlay-lab — Phase 16 model-assisted builder + paste analysis.
+ * /parlay-lab — Phase 17 active-slate-aware builder + analyze modes.
+ *
+ * Phase 17 changes:
+ *   - Default selected date is the active slate (today / nearest upcoming),
+ *     not whichever past date happens to have the most leans.
+ *   - Past dates with leans are still surfaced in the date picker, but
+ *     labeled "archived" so the user knows they're not current.
+ *   - Builder defaults to "core players only" (top 3 per team).
  *
  * NOT betting advice. NOT a recommendation engine. NOT a parlay scraper.
- *
- * Two modes:
- *   - "Build with model"  — Phase 16: generate candidate parlays from real
- *                            slate leans by selected players, games, markets,
- *                            and risk profile. No fabrication.
- *   - "Analyze slip"      — Phase 12: paste a sportsbook slip and compare
- *                            each leg to the model.
- *
- * The server NEVER fetches odds, scrapes sportsbooks, or calls any API.
- * Every leg in every output is sourced from a real PropLean already on
- * disk — same data the /board page reads.
  */
 export default function ParlayLabPage() {
   const slate = getSlate();
   const meta = getMeta();
+  const buildTimeToday = currentEtDate();
 
-  // Collect leans across every available board day. Most users will
-  // analyze only the primary date, but if they pasted legs from
-  // tomorrow's board we want those to match too.
+  // Collect every board date that has leans, plus build a fresh map for
+  // the active-slate selector. Past dates with leans are kept (user may
+  // explicitly want to analyze them as archived) but labeled distinctly.
   const allDates = getAvailableBoardDates();
+  const boardsByDate: Record<string, BoardData> = {};
+  for (const d of allDates) {
+    boardsByDate[d] = getBoardForDate(d);
+  }
+  const activeSlate = selectActiveSlate(allDates, buildTimeToday, boardsByDate);
+
+  // Build the per-date payload the client needs. Each date carries:
+  //   - its leans (for the builder)
+  //   - a label (Today / Tomorrow / Yesterday / weekday-name)
+  //   - an isArchived flag (true when the date is in the past)
+  //   - whether it's the active default
   const allLeans: PropLean[] = [];
-  const dateLabels = new Map<string, string>();
+  const dateLabels = new Map<
+    string,
+    { label: string; isArchived: boolean; isActiveDefault: boolean }
+  >();
   for (const date of allDates) {
-    const board = getBoardForDate(date);
-    if (board.leans.length > 0) {
-      for (const lean of board.leans) {
-        allLeans.push(lean);
-      }
-      const slateDay = slate.days.find((d) => d.date === date);
-      dateLabels.set(date, slateDay?.dayLabel ?? date);
+    const board = boardsByDate[date];
+    if (!board || board.leans.length === 0) continue;
+    for (const lean of board.leans) {
+      allLeans.push(lean);
     }
+    const slateDay = slate.days.find((d) => d.date === date);
+    const isArchived = date < buildTimeToday;
+    const baseLabel = slateDay?.dayLabel ?? formatBareDate(date);
+    const label = isArchived ? `${baseLabel} (archived)` : baseLabel;
+    dateLabels.set(date, {
+      label,
+      isArchived,
+      isActiveDefault: date === activeSlate.selectedDate,
+    });
   }
 
   return (
@@ -133,7 +152,14 @@ export default function ParlayLabPage() {
       <section className="mt-8">
         <ParlayLabModeTabs
           allLeans={allLeans}
-          datesAvailable={Array.from(dateLabels.entries()).map(([date, label]) => ({ date, label }))}
+          datesAvailable={Array.from(dateLabels.entries()).map(([date, info]) => ({
+            date,
+            label: info.label,
+            isArchived: info.isArchived,
+            isActiveDefault: info.isActiveDefault,
+          }))}
+          activeSlateKind={activeSlate.kind}
+          activeDate={activeSlate.selectedDate}
         />
       </section>
 
@@ -160,4 +186,19 @@ export default function ParlayLabPage() {
       </section>
     </div>
   );
+}
+
+function formatBareDate(date: string): string {
+  try {
+    const [y, m, d] = date.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d, 12));
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    }).format(dt);
+  } catch {
+    return date;
+  }
 }
