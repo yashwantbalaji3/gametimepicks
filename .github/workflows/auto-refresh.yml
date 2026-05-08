@@ -124,16 +124,7 @@ jobs:
 
       - name: Show pre-refresh data freshness
         run: |
-          echo "── Pre-refresh state ──────────────────────────────────"
-          if [ -f app/public/data/meta.json ]; then
-            python3 -c "
-import json
-m = json.load(open('app/public/data/meta.json'))
-print(f'  meta.lastPipelineRun: {m.get(\"lastPipelineRun\")}')
-print(f'  meta.primaryDate:     {m.get(\"primaryDate\", \"(missing)\")}')
-print(f'  meta.dataMode:        {m.get(\"dataMode\")}')
-"
-          fi
+          python3 scripts/show_meta_freshness.py --label pre
 
       - name: Run safe refresh (free tasks only)
         run: |
@@ -193,25 +184,7 @@ print(f'  meta.dataMode:        {m.get(\"dataMode\")}')
       - name: Show post-refresh data freshness
         id: post_refresh
         run: |
-          echo "── Post-refresh state ─────────────────────────────────"
-          if [ -f app/public/data/meta.json ]; then
-            python3 -c "
-import json, datetime as dt
-m = json.load(open('app/public/data/meta.json'))
-last = m.get('lastPipelineRun', '')
-print(f'  meta.lastPipelineRun: {last}')
-print(f'  meta.primaryDate:     {m.get(\"primaryDate\", \"(missing)\")}')
-print(f'  meta.dataMode:        {m.get(\"dataMode\")}')
-# Compute hours since refresh
-try:
-    if last:
-        last_dt = dt.datetime.fromisoformat(last.replace('Z', '+00:00'))
-        hrs = (dt.datetime.now(dt.timezone.utc) - last_dt).total_seconds() / 3600
-        print(f'  hours since refresh:  {hrs:.1f}h')
-except Exception as e:
-    pass
-"
-          fi
+          python3 scripts/show_meta_freshness.py --label post
           echo ""
           echo "  Estimated Odds API credits used this run: 0"
 
