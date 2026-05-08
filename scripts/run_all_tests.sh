@@ -64,6 +64,8 @@ TESTS=(
     parlay_builder_test
     core_players_test
     playerid_coverage_test
+    auto_settlement_test
+    simulation_test
 )
 TOTAL_PASSED=0
 RAN=0

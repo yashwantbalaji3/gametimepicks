@@ -615,6 +615,81 @@ def _print_summary(date: str, summary: dict, settled_rows: list[dict]) -> None:
     print()
 
 
+def _print_source_report(date: str, leans: list[dict]) -> int:
+    """
+    Phase 19 — diagnostic for the operator. For each lean on `date`, bucket
+    into one of:
+       - tier_1_manual   → manual override JSON has a non-null stat
+       - tier_2_auto     → manual missing, but lean has playerId + gameId so
+                            nba_api COULD fetch it
+       - skip_no_pid     → no playerId; can't auto-fetch even with nba_api
+       - skip_no_gameid  → no gameId; can't fetch box score
+       - skip_unknown    → some other reason
+
+    Read-only. Never writes. Never calls nba_api.
+    """
+    overrides = load_overrides(date)
+    buckets = {
+        "tier_1_manual": [],
+        "tier_2_auto": [],
+        "skip_no_pid": [],
+        "skip_no_gameid": [],
+        "skip_unknown": [],
+    }
+    for lean in leans:
+        market = lean.get("market")
+        if market not in ("PTS", "REB", "AST"):
+            buckets["skip_unknown"].append(lean)
+            continue
+        # Manual override key: (playerName_lower, market)
+        name = (lean.get("playerName") or "").strip().lower()
+        ovr = overrides.get((name, None)) or overrides.get((name, market))
+        manual_stat = ovr.get(market) if ovr else None
+        if manual_stat is not None:
+            buckets["tier_1_manual"].append(lean)
+            continue
+        pid = lean.get("playerId") or 0
+        gid = lean.get("gameId")
+        if not gid:
+            buckets["skip_no_gameid"].append(lean)
+        elif pid <= 0:
+            buckets["skip_no_pid"].append(lean)
+        else:
+            buckets["tier_2_auto"].append(lean)
+
+    print()
+    print(f"  ── settle source report — {date} ───────────────────────")
+    print(f"  total leans:           {len(leans)}")
+    print()
+    print(f"  tier 1 manual override: {len(buckets['tier_1_manual']):3d}")
+    print(f"  tier 2 nba_api auto:    {len(buckets['tier_2_auto']):3d}")
+    print(f"  skipped no playerId:    {len(buckets['skip_no_pid']):3d}")
+    print(f"  skipped no gameId:      {len(buckets['skip_no_gameid']):3d}")
+    print(f"  skipped other:          {len(buckets['skip_unknown']):3d}")
+    print()
+    if buckets["tier_2_auto"]:
+        print("  Players that nba_api would fetch:")
+        seen = set()
+        for l in buckets["tier_2_auto"]:
+            key = (l.get("playerId"), l.get("gameId"))
+            if key in seen:
+                continue
+            seen.add(key)
+            print(
+                f"    pid={l.get('playerId'):>8}  game={l.get('gameId'):>10}  "
+                f"{l.get('playerName')}"
+            )
+    if buckets["skip_no_pid"]:
+        print()
+        print(f"  ⚠ {len(buckets['skip_no_pid'])} leans cannot auto-settle "
+              "(no playerId)")
+        print("    → Regenerate the board with nba_api so playerIds resolve.")
+        print("    → Or add manual overrides for these players in")
+        print("      pipeline/overrides/results_overrides.json")
+    print()
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Settle generated leans against final stats.")
     parser.add_argument("--date", required=True, help="YYYY-MM-DD")
@@ -628,6 +703,15 @@ def main() -> int:
         action="store_true",
         help="Don't write any files; just print summary",
     )
+    parser.add_argument(
+        "--source-report",
+        action="store_true",
+        help=(
+            "Don't write or settle. Just report which players we'd match "
+            "via nba_api, which would fall back to manual override, and "
+            "which would skip due to missing data."
+        ),
+    )
     args = parser.parse_args()
 
     date = args.date
@@ -635,6 +719,12 @@ def main() -> int:
     if not leans:
         print(f"  No leans logged for {date} in {LEANS_LOG_PATH}.")
         return 1
+
+    # Phase 19: --source-report is a read-only mode. We don't fetch box
+    # scores, don't write files, don't compute hit rates. We just bucket
+    # each lean by where its stats WOULD come from if we settled now.
+    if args.source_report:
+        return _print_source_report(date, leans)
 
     new_rows, summary = settle_for_date(
         date, leans, use_auto=not args.manual_only
