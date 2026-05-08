@@ -108,6 +108,7 @@ TESTS=(
     active_slate_test
     parlay_builder_test
     core_players_test
+    playerid_coverage_test
 )
 TOTAL_PASSED=0
 for t in "${TESTS[@]}"; do

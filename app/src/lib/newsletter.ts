@@ -43,11 +43,29 @@ export interface NewsletterConfig {
  *
  * Buttondown's embed-subscribe endpoint is designed for public forms.
  * It does NOT require an API key. See docs/NEWSLETTER.md for details.
+ *
+ * Phase 18: the endpoint can also be set via the build-time env var
+ * NEXT_PUBLIC_BUTTONDOWN_USERNAME — Vercel users can set it in
+ * Project Settings → Environment Variables and skip editing this file.
  */
-export const NEWSLETTER_CONFIG: NewsletterConfig = {
-  provider: "none",
-  endpoint: null,
-};
+function resolveButtondownEndpoint(): string | null {
+  // Build-time env var takes precedence — operator can set in Vercel
+  // dashboard without committing changes.
+  const username =
+    typeof process !== "undefined" &&
+    process.env &&
+    process.env.NEXT_PUBLIC_BUTTONDOWN_USERNAME;
+  if (typeof username === "string" && username.trim().length > 0) {
+    return `https://buttondown.email/api/emails/embed-subscribe/${username.trim()}`;
+  }
+  return null;
+}
+
+const BUTTONDOWN_ENDPOINT = resolveButtondownEndpoint();
+
+export const NEWSLETTER_CONFIG: NewsletterConfig = BUTTONDOWN_ENDPOINT
+  ? { provider: "buttondown", endpoint: BUTTONDOWN_ENDPOINT }
+  : { provider: "none", endpoint: null };
 
 // ---------------------------------------------------------------------------
 // Email validation (minimal but robust)

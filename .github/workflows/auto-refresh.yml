@@ -146,21 +146,45 @@ print(f'  meta.dataMode:        {m.get(\"dataMode\")}')
 
       - name: Optional — paid Odds API refresh
         if: env.ENABLE_ODDS_REFRESH == 'true'
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDS_DRY_RUN: ${{ env.ODDS_DRY_RUN }}
+          ODDS_MAX_EVENTS_PER_RUN: ${{ env.ODDS_MAX_EVENTS_PER_RUN }}
+          ODDS_CACHE_TTL_MINUTES: ${{ env.ODDS_CACHE_TTL_MINUTES }}
+          ODDS_MIN_CREDITS_REMAINING: ${{ env.ODDS_MIN_CREDITS_REMAINING }}
         run: |
           echo "── Paid Odds API refresh (gated) ─────────────────────"
           echo "  ENABLE_ODDS_REFRESH=true detected."
           echo ""
-          echo "  This step is intentionally a no-op in Phase 14 — wiring"
-          echo "  the actual fetch is deferred until you've reviewed your"
-          echo "  Odds API credit balance. To enable, replace this step"
-          echo "  with the appropriate pipeline.fetch_odds invocation,"
-          echo "  honoring ODDS_DRY_RUN, ODDS_MAX_EVENTS_PER_RUN, and"
-          echo "  ODDS_MIN_CREDITS_REMAINING."
+          if [ -z "$ODDS_API_KEY" ]; then
+            echo "  ✗ ODDS_API_KEY not set in repository secrets."
+            echo "    Add it: Settings → Secrets and variables → Actions"
+            echo "  Skipping paid refresh."
+            exit 0
+          fi
+          echo "  ODDS_DRY_RUN=$ODDS_DRY_RUN"
+          echo "  ODDS_MAX_EVENTS_PER_RUN=$ODDS_MAX_EVENTS_PER_RUN"
+          echo "  ODDS_MIN_CREDITS_REMAINING=$ODDS_MIN_CREDITS_REMAINING"
           echo ""
-          echo "  Estimated credits consumed by this run: 0"
-        env:
-          ODDS_DRY_RUN: ${{ env.ODDS_DRY_RUN }}
-          ODDS_MAX_EVENTS_PER_RUN: ${{ env.ODDS_MAX_EVENTS_PER_RUN }}
+          # generate_daily_board honors ODDS_API_KEY + ODDS_DRY_RUN env
+          # vars internally. When ODDS_DRY_RUN=true it skips paid /odds
+          # calls but still runs the schedule + structural pipeline. When
+          # false and the key is set, it fetches real props within
+          # ODDS_MAX_EVENTS_PER_RUN bounds.
+          TODAY_ET=$(TZ=America/New_York date '+%Y-%m-%d')
+          echo "  target ET date: $TODAY_ET"
+          python3 -m pipeline.generate_daily_board --date "$TODAY_ET" || {
+            echo "  ✗ generate_daily_board exited non-zero — see log above"
+            exit 1
+          }
+          # Run today + tomorrow if today has games already loaded
+          TOMORROW_ET=$(TZ=America/New_York date -d '+1 day' '+%Y-%m-%d' 2>/dev/null || date -v+1d '+%Y-%m-%d' 2>/dev/null || echo "")
+          if [ -n "$TOMORROW_ET" ]; then
+            echo "  also generating: $TOMORROW_ET"
+            python3 -m pipeline.generate_daily_board --date "$TOMORROW_ET" || true
+          fi
+          echo ""
+          echo "  ✓ paid odds refresh complete"
 
       - name: Inspect trends (diagnostic)
         run: |

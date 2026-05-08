@@ -1,8 +1,17 @@
 export default function ResponsibleUsePage() {
   return (
     <div className="mx-auto max-w-[760px] px-6 py-12">
-      <div className="reveal">
-        <div className="eyebrow">responsible use</div>
+      <div className="vault-hero-grid">
+        <div
+          className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3 inline-flex items-center gap-2"
+          style={{ color: "var(--vault-gold)" }}
+        >
+          <span
+            className="inline-block w-1.5 h-1.5 rounded-full vault-pulse"
+            style={{ background: "var(--vault-gold-bright)" }}
+          />
+          responsible use · educational only
+        </div>
         <h1 className="mt-2 font-display text-[36px] md:text-[48px] tracking-tightest font-semibold leading-[1]">
           Read this before anything else.
         </h1>
