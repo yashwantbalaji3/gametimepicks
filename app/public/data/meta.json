@@ -1,9 +1,9 @@
 {
   "appName": "GametimePicks",
   "version": "0.5.0",
-  "lastPipelineRun": "2026-05-09T02:44:34+00:00",
+  "lastPipelineRun": "2026-05-09T03:43:55+00:00",
   "isDemo": false,
-  "dataMode": "Live",
+  "dataMode": "ScheduleLiveOddsUnavailable",
   "nbaScheduleSource": "espn_scoreboard",
   "nbaStatsSource": "espn_scoreboard",
   "oddsSource": "the_odds_api",
@@ -21,9 +21,9 @@
       "api_key_configured": true,
       "is_demo": false,
       "is_stub": false,
-      "last_status": "error",
-      "last_error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)",
-      "last_run_at": "2026-05-09T02:43:45+00:00",
+      "last_status": "not_run",
+      "last_error": null,
+      "last_run_at": null,
       "notes": "Official NBA.com Stats endpoints. No API key needed."
     },
     {
@@ -77,9 +77,9 @@
       "api_key_configured": true,
       "is_demo": true,
       "is_stub": false,
-      "last_status": "ok",
+      "last_status": "not_run",
       "last_error": null,
-      "last_run_at": "2026-05-09T02:43:45+00:00",
+      "last_run_at": null,
       "notes": "Bundled demo data. Always works."
     },
     {
@@ -145,7 +145,7 @@
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-05-09T02:44:34+00:00",
+  "lastSuccessfulFetch": "2026-05-09T03:43:55+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -178,14 +178,14 @@
   "newsSignalsConfigured": true,
   "newsSignalsActive": 0,
   "scheduleOverridesConfigured": true,
-  "todayDataMode": "Live",
+  "todayDataMode": "ScheduleLiveOddsUnavailable",
   "todayFailureReason": null,
   "todayManualOverrideUsed": false,
   "oddsApiKeyConfigured": true,
-  "todayOddsProviderStatus": "ok_with_props",
-  "todayOddsFailureReason": null,
-  "todayOddsQuotaRemaining": null,
-  "todayParsedPropCount": 159,
+  "todayOddsProviderStatus": "dry_run",
+  "todayOddsFailureReason": "ODDS_DRY_RUN=true \u2014 skipped /odds fetches. Would have called /odds for 2 event(s), costing ~6 credit(s).",
+  "todayOddsQuotaRemaining": 476,
+  "todayParsedPropCount": 0,
   "oddsBookmakersConfigured": [
     "draftkings",
     "fanduel"
