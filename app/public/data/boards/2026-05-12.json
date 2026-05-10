@@ -1,6 +1,6 @@
 {
   "generatedFor": "2026-05-12",
-  "generatedAt": "2026-05-10T21:06:18+00:00",
+  "generatedAt": "2026-05-10T22:56:06+00:00",
   "dataSources": [
     "espn_scoreboard",
     "the_odds_api"
@@ -15,21 +15,11 @@
     {
       "gameId": "401871156",
       "date": "2026-05-12",
-      "tipoff": "12:00 AM ET",
+      "tipoff": "8:00 PM ET",
       "homeTeamAbbr": "SA",
       "homeTeamFull": "San Antonio Spurs",
       "awayTeamAbbr": "MIN",
       "awayTeamFull": "Minnesota Timberwolves",
-      "status": "Scheduled"
-    },
-    {
-      "gameId": "401871163",
-      "date": "2026-05-12",
-      "tipoff": "12:00 AM ET",
-      "homeTeamAbbr": "NY",
-      "homeTeamFull": "New York Knicks",
-      "awayTeamAbbr": "PHI",
-      "awayTeamFull": "Philadelphia 76ers",
       "status": "Scheduled"
     }
   ],
@@ -41,17 +31,17 @@
   "scheduleFetchAttempted": true,
   "scheduleFetchSucceeded": true,
   "scheduleFailureReason": null,
-  "rawGameCountBeforeFiltering": 2,
-  "parsedGameCountAfterFiltering": 2,
+  "rawGameCountBeforeFiltering": 1,
+  "parsedGameCountAfterFiltering": 1,
   "manualOverrideUsed": false,
   "manualOverrideSource": null,
   "endpointHistory": [
     {
       "endpoint": "scoreboardv2",
-      "status": "error",
+      "status": "ok",
       "raw_count": 0,
       "games": [],
-      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
+      "error": null
     },
     {
       "endpoint": "leaguegamefinder",
@@ -70,14 +60,14 @@
     },
     {
       "provider": "nba_api",
-      "status": "failed",
+      "status": "ok",
       "games": 0,
-      "error": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
+      "error": null
     },
     {
       "provider": "espn_scoreboard",
       "status": "ok",
-      "games": 2,
+      "games": 1,
       "error": null
     }
   ],
