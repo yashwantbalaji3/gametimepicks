@@ -1,6 +1,6 @@
 {
   "generatedFor": "2026-05-11",
-  "generatedAt": "2026-05-10T22:55:53+00:00",
+  "generatedAt": "2026-05-11T04:06:25+00:00",
   "dataSources": [
     "espn_scoreboard",
     "the_odds_api"
@@ -48,17 +48,17 @@
   "endpointHistory": [
     {
       "endpoint": "scoreboardv2",
-      "status": "ok",
+      "status": "error",
       "raw_count": 0,
       "games": [],
-      "error": null
+      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
     },
     {
       "endpoint": "leaguegamefinder",
-      "status": "ok",
+      "status": "error",
       "raw_count": 0,
       "games": [],
-      "error": null
+      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
     }
   ],
   "scheduleProviderHistory": [
@@ -70,9 +70,9 @@
     },
     {
       "provider": "nba_api",
-      "status": "ok",
+      "status": "failed",
       "games": 0,
-      "error": null
+      "error": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
     },
     {
       "provider": "espn_scoreboard",

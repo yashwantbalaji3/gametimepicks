@@ -1,6 +1,6 @@
 {
-  "generatedFor": "2026-05-11",
-  "generatedAt": "2026-05-10T22:55:53+00:00",
+  "generatedFor": "2026-05-12",
+  "generatedAt": "2026-05-11T04:08:02+00:00",
   "dataSources": [
     "espn_scoreboard",
     "the_odds_api"
@@ -13,52 +13,42 @@
   "oddsSource": "the_odds_api",
   "games": [
     {
-      "gameId": "401871336",
-      "date": "2026-05-11",
+      "gameId": "401871156",
+      "date": "2026-05-12",
       "tipoff": "8:00 PM ET",
-      "homeTeamAbbr": "CLE",
-      "homeTeamFull": "Cleveland Cavaliers",
-      "awayTeamAbbr": "DET",
-      "awayTeamFull": "Detroit Pistons",
-      "status": "Scheduled"
-    },
-    {
-      "gameId": "401871329",
-      "date": "2026-05-11",
-      "tipoff": "10:30 PM ET",
-      "homeTeamAbbr": "LAL",
-      "homeTeamFull": "Los Angeles Lakers",
-      "awayTeamAbbr": "OKC",
-      "awayTeamFull": "Oklahoma City Thunder",
+      "homeTeamAbbr": "SA",
+      "homeTeamFull": "San Antonio Spurs",
+      "awayTeamAbbr": "MIN",
+      "awayTeamFull": "Minnesota Timberwolves",
       "status": "Scheduled"
     }
   ],
   "dataMode": "ScheduleLiveOddsUnavailable",
   "failureReason": null,
-  "requestedDate": "2026-05-11",
+  "requestedDate": "2026-05-12",
   "timezone": "America/New_York",
   "scheduleProviderStatus": "ok",
   "scheduleFetchAttempted": true,
   "scheduleFetchSucceeded": true,
   "scheduleFailureReason": null,
-  "rawGameCountBeforeFiltering": 2,
-  "parsedGameCountAfterFiltering": 2,
+  "rawGameCountBeforeFiltering": 1,
+  "parsedGameCountAfterFiltering": 1,
   "manualOverrideUsed": false,
   "manualOverrideSource": null,
   "endpointHistory": [
     {
       "endpoint": "scoreboardv2",
-      "status": "ok",
+      "status": "error",
       "raw_count": 0,
       "games": [],
-      "error": null
+      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
     },
     {
       "endpoint": "leaguegamefinder",
-      "status": "ok",
+      "status": "error",
       "raw_count": 0,
       "games": [],
-      "error": null
+      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
     }
   ],
   "scheduleProviderHistory": [
@@ -70,23 +60,23 @@
     },
     {
       "provider": "nba_api",
-      "status": "ok",
+      "status": "failed",
       "games": 0,
-      "error": null
+      "error": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)"
     },
     {
       "provider": "espn_scoreboard",
       "status": "ok",
-      "games": 2,
+      "games": 1,
       "error": null
     }
   ],
   "oddsProviderStatus": "dry_run",
   "oddsFetchAttempted": true,
   "oddsFetchSucceeded": true,
-  "oddsFailureReason": "ODDS_DRY_RUN=true \u2014 skipped /odds fetches. Would have called /odds for 2 event(s), costing ~6 credit(s).",
-  "rawOddsEventCount": 2,
-  "matchedOddsEventCount": 2,
+  "oddsFailureReason": "ODDS_DRY_RUN=true \u2014 skipped /odds fetches. Would have called /odds for 1 event(s), costing ~3 credit(s).",
+  "rawOddsEventCount": 1,
+  "matchedOddsEventCount": 1,
   "attemptedOddsEventCount": 0,
   "parsedPropCount": 0,
   "oddsCacheStatus": "miss",
