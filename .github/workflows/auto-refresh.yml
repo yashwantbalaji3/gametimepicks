@@ -157,11 +157,24 @@ jobs:
           echo "  ODDS_MAX_EVENTS_PER_RUN=$ODDS_MAX_EVENTS_PER_RUN"
           echo "  ODDS_MIN_CREDITS_REMAINING=$ODDS_MIN_CREDITS_REMAINING"
           echo ""
-          # generate_daily_board honors ODDS_API_KEY + ODDS_DRY_RUN env
-          # vars internally. When ODDS_DRY_RUN=true it skips paid /odds
-          # calls but still runs the schedule + structural pipeline. When
-          # false and the key is set, it fetches real props within
-          # ODDS_MAX_EVENTS_PER_RUN bounds.
+          # PR 2 — dry-run safety guard.
+          # When ODDS_DRY_RUN=true, generate_daily_board writes a
+          # schedule-only board (zero leans, oddsProviderStatus=dry_run)
+          # which clobbers any real-prop board JSON already on disk.
+          # Skip the entire generation path in dry-run mode — the run
+          # becomes a pure advisory with no public-data writes.
+          if [ "$ODDS_DRY_RUN" = "true" ] || [ "$ODDS_DRY_RUN" = "1" ]; then
+            echo "  ⚠ ODDS_DRY_RUN=true — skipping generate_daily_board."
+            echo "    Rationale: dry-run output would overwrite real-prop"
+            echo "    board JSON with zero-lean placeholder data."
+            echo "    To preview a paid refresh, manually trigger this"
+            echo "    workflow with odds_dry_run=false after reviewing"
+            echo "    the credit budget."
+            echo ""
+            echo "  ✓ dry-run advisory complete (no public-data writes)"
+            exit 0
+          fi
+          # Real refresh path — only reached when ODDS_DRY_RUN != true.
           TODAY_ET=$(TZ=America/New_York date '+%Y-%m-%d')
           echo "  target ET date: $TODAY_ET"
           python3 -m pipeline.generate_daily_board --date "$TODAY_ET" || {
