@@ -135,7 +135,7 @@ jobs:
           ODDS_DRY_RUN: ${{ env.ODDS_DRY_RUN }}
           ENABLE_ODDS_REFRESH: ${{ env.ENABLE_ODDS_REFRESH }}
 
-      - name: Optional — paid Odds API refresh
+      - name: Optional — paid Odds API refresh (props-only)
         if: env.ENABLE_ODDS_REFRESH == 'true'
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
@@ -181,18 +181,89 @@ jobs:
           # ODDS_MAX_EVENTS_PER_RUN bounds.
           TODAY_ET=$(TZ=America/New_York date '+%Y-%m-%d')
           echo "  target ET date: $TODAY_ET"
-          python3 -m pipeline.generate_daily_board --date "$TODAY_ET" || {
-            echo "  ✗ generate_daily_board exited non-zero — see log above"
+          # PR 8: props-only mode. Fast (~2 min). Skips per-player nba_api
+          # game-log fetches; enrichment happens in a later best-effort step.
+          python3 -m pipeline.generate_daily_board --date "$TODAY_ET" --props-only || {
+            echo "  ✗ generate_daily_board (props-only) exited non-zero — see log above"
             exit 1
           }
           # Run today + tomorrow if today has games already loaded
           TOMORROW_ET=$(TZ=America/New_York date -d '+1 day' '+%Y-%m-%d' 2>/dev/null || date -v+1d '+%Y-%m-%d' 2>/dev/null || echo "")
           if [ -n "$TOMORROW_ET" ]; then
-            echo "  also generating: $TOMORROW_ET"
-            python3 -m pipeline.generate_daily_board --date "$TOMORROW_ET" || true
+            echo "  also generating (props-only): $TOMORROW_ET"
+            python3 -m pipeline.generate_daily_board --date "$TOMORROW_ET" --props-only || true
           fi
           echo ""
-          echo "  ✓ paid odds refresh complete"
+          echo "  ✓ paid odds refresh complete (props-only)"
+
+      - name: Commit props-only board
+        if: env.ENABLE_ODDS_REFRESH == 'true'
+        run: |
+          # PR 8: intermediate commit. Guarantees paid props data lands on
+          # main BEFORE enrichment. If enrichment times out, props are safe.
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "  (no props-only changes to commit)"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/public/data/ pipeline/validation/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "  (no allowlisted props-only changes to commit)"
+            exit 0
+          fi
+          ET=$(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')
+          git commit -m "auto-refresh: ${ET} (props-only)"
+          git push
+
+      - name: Best-effort projection enrichment
+        if: env.ENABLE_ODDS_REFRESH == 'true'
+        continue-on-error: true
+        timeout-minutes: 12
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDS_DRY_RUN: ${{ env.ODDS_DRY_RUN }}
+          ODDS_MAX_EVENTS_PER_RUN: ${{ env.ODDS_MAX_EVENTS_PER_RUN }}
+          ODDS_CACHE_TTL_MINUTES: ${{ env.ODDS_CACHE_TTL_MINUTES }}
+          ODDS_MIN_CREDITS_REMAINING: ${{ env.ODDS_MIN_CREDITS_REMAINING }}
+        run: |
+          # PR 8: enrichment pass. Reads just-committed props-only board,
+          # fetches per-player game logs (free nba_api), computes projections,
+          # writes back. Bounded by timeout-minutes + continue-on-error so a
+          # nba_api timeout never loses paid props data.
+          if [ "$ODDS_DRY_RUN" = "true" ] || [ "$ODDS_DRY_RUN" = "1" ]; then
+            echo "  >> ODDS_DRY_RUN=$ODDS_DRY_RUN -> skipping enrichment"
+            exit 0
+          fi
+          TODAY_ET=$(TZ=America/New_York date '+%Y-%m-%d')
+          echo "  enriching $TODAY_ET..."
+          python3 -m pipeline.generate_daily_board --date "$TODAY_ET"             || echo "  (enrichment for $TODAY_ET errored — props data already safe)"
+          TOMORROW_ET=$(TZ=America/New_York date -d '+1 day' '+%Y-%m-%d' 2>/dev/null || date -v+1d '+%Y-%m-%d' 2>/dev/null || echo "")
+          if [ -n "$TOMORROW_ET" ]; then
+            echo "  enriching $TOMORROW_ET..."
+            python3 -m pipeline.generate_daily_board --date "$TOMORROW_ET"               || echo "  (enrichment for $TOMORROW_ET errored — props data already safe)"
+          fi
+
+      - name: Commit projections (best-effort)
+        if: env.ENABLE_ODDS_REFRESH == 'true'
+        continue-on-error: true
+        run: |
+          # PR 8: best-effort commit of any projections produced by enrichment.
+          git pull --rebase || true
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "  (no enrichment changes to commit)"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/public/data/ pipeline/validation/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "  (no allowlisted enrichment changes to commit)"
+            exit 0
+          fi
+          ET=$(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')
+          git commit -m "auto-refresh: ${ET} (projections)"
+          git push
 
       - name: Inspect trends (diagnostic)
         run: |

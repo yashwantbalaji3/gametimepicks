@@ -770,6 +770,12 @@ def _resolve_odds_for_date(
     return out
 
 
+# PR 8: props-only mode flag. Set in main() from args.props_only. When True,
+# _score_real_props skips per-player nba_api game-log fetches and marks
+# resolved leans as confidence='trends_pending'.
+_PROPS_ONLY_MODE = False
+
+
 def _score_real_props(
     *,
     target_date: str,
@@ -878,7 +884,10 @@ def _score_real_props(
         edge_pct = None
         reason = "insufficient_data: no player game logs available"
 
-        if player_id and player_id not in features_cache:
+        # PR 8: props-only mode skips the slow nba_api game-log fetch entirely.
+        # Resolved players still get playerId set; confidence becomes
+        # 'trends_pending' (set below) instead of being scored.
+        if player_id and not _PROPS_ONLY_MODE and player_id not in features_cache:
             try:
                 logs, _src = fetch_player_game_logs(
                     player_id, last_n=C.GAME_LOG_WINDOW,
@@ -895,6 +904,13 @@ def _score_real_props(
                 log.info(f"  game logs for {p.player_name} unavailable: {e}")
 
         feats = features_cache.get(player_id)
+
+        # PR 8: in props-only mode, mark resolved-but-unfetched players as
+        # trends_pending so Parlay Lab + UI differentiate "real prop, projection
+        # coming" from "no data available at all".
+        if _PROPS_ONLY_MODE and player_id and feats is None:
+            confidence = "trends_pending"
+            reason = "trends_pending: projection will be attached in enrichment pass"
 
         if feats is not None:
             scored = score_prop(
@@ -950,6 +966,11 @@ def _score_real_props(
             pick_type = "no_play"
             lean = "Pass"
         elif confidence_final == "insufficient_data":
+            pick_type = "no_play"
+            lean = "Pass"
+        elif confidence_final == "trends_pending":
+            # PR 8: real prop with resolved playerId but projection pending.
+            # Non-actionable until enrichment completes.
             pick_type = "no_play"
             lean = "Pass"
         elif scored is not None:
@@ -1315,7 +1336,23 @@ def main() -> int:
     parser.add_argument("--date", default=None)
     parser.add_argument("--days", type=int, default=None)
     parser.add_argument("--out", default=None)
+    parser.add_argument(
+        "--props-only",
+        action="store_true",
+        help=(
+            "PR 8: skip nba_api game-log fetches and projection scoring. "
+            "Writes board with resolved playerIds and real prop data; leans "
+            "with playerId>0 get confidence='trends_pending'. Use for fast "
+            "paid refresh; pair with a follow-up enrichment run (same "
+            "script without the flag)."
+        ),
+    )
     args = parser.parse_args()
+    # PR 8: surface props-only flag at module scope so _score_real_props
+    # (which doesn't take it as a parameter) can read it without a wider
+    # function-signature change.
+    global _PROPS_ONLY_MODE
+    _PROPS_ONLY_MODE = bool(args.props_only)
 
     today = args.date or today_in_tz()
     n_days = args.days or C.SLATE_DAYS
@@ -1540,9 +1577,14 @@ def _compute_overall_mode(results: list[dict]) -> str:
 
 
 def _write_json(path: Path, payload: dict | list) -> None:
+    # PR 8: atomic write (write to .tmp, then rename) so a kill mid-write
+    # never leaves a partially-truncated board file on disk.
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2))
-    log.info(f"  wrote {path.name} ({len(json.dumps(payload))} bytes)")
+    serialized = json.dumps(payload, indent=2)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(serialized)
+    tmp.replace(path)  # atomic on POSIX
+    log.info(f"  wrote {path.name} ({len(serialized)} bytes)")
 
 
 if __name__ == "__main__":
