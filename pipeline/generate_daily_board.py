@@ -54,6 +54,7 @@ from .fetch_nba_data import fetch_player_game_logs, fetch_team_roster
 from .fetch_odds_data import fetch_props
 from .build_features import build_player_features, build_trend_payload
 from .score_model import score_prop
+from .player_resolver import resolve_player_id
 from .manual_overrides import (
     NewsSignal, load_signals, signals_for_lean,
     aggregate_model_action, signals_to_json,
@@ -823,8 +824,12 @@ def _score_real_props(
             rosters_by_team[team_abbr] = roster
             for p in roster:
                 name_to_team.setdefault(p.player_name, team_abbr)
-                if p.player_id:
-                    name_to_pid.setdefault(p.player_name, int(p.player_id))
+                # PR 6: provider-supplied playerIds are NOT NBA-canonical.
+                # Observed failure: a roster provider returned id=1630224
+                # for "Anthony Edwards", but in nba_api's static index that
+                # id is Jalen Green. resolve_player_id below uses the
+                # canonical static index instead. name_to_team is safe -
+                # it maps name to team abbreviation, not id.
         except Exception as e:
             log.info(f"  roster for {team_abbr} unavailable: {e}")
             rosters_by_team[team_abbr] = []
@@ -861,7 +866,9 @@ def _score_real_props(
             home_away = "Home"
             opponent_abbr = ""
 
-        player_id = name_to_pid.get(p.player_name, 0)
+        # PR 6: canonical resolver via nba_api static index. Returns 0
+        # when no confident match - caller marks confidence=insufficient_data.
+        player_id, _resolve_conf = resolve_player_id(p.player_name)
 
         # Fetch features if we have an ID and haven't already
         scored = None
