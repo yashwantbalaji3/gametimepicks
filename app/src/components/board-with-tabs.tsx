@@ -80,7 +80,7 @@ function renderBody(
               <ScheduleStrip
                 schedule={{
                   generatedAt: board.generatedAt,
-                  source: board.scheduleSource ?? "nba_api",
+                  source: board.scheduleSource ?? "live schedule",
                   isDemo: false,
                   date: board.generatedFor,
                   games: board.games,
@@ -99,12 +99,6 @@ function renderBody(
     case "ScheduleLiveOddsUnavailable":
       return (
         <>
-          {board.manualOverrideUsed && (
-            <ManualOverrideNotice
-              source={board.manualOverrideSource}
-              failureReason={board.scheduleFailureReason}
-            />
-          )}
           {/* Phase 16: premium "props coming soon" hero — frames the
               real-schedule + no-leans state as a wait-for-leans story
               instead of the previous admin-y "odds API key not set"
@@ -126,7 +120,7 @@ function renderBody(
               <ScheduleStrip
                 schedule={{
                   generatedAt: board.generatedAt,
-                  source: board.scheduleSource ?? "nba_api",
+                  source: board.scheduleSource ?? "live schedule",
                   isDemo: false,
                   date: board.generatedFor,
                   games: board.games,
@@ -215,33 +209,3 @@ function propsUnavailableReason(
   }
 }
 
-function ManualOverrideNotice({
-  source,
-  failureReason,
-}: {
-  source: string | null | undefined;
-  failureReason: string | null | undefined;
-}) {
-  return (
-    <div
-      className="surface mb-4 px-4 py-3 border-l-2 text-[12px] font-mono"
-      style={{ borderLeftColor: "var(--vault-gold)" }}
-    >
-      <div className="flex items-start gap-2">
-        <span className="uppercase tracking-wider text-[var(--vault-gold-bright)] text-[10px] mt-0.5">
-          schedule: manual verified
-        </span>
-      </div>
-      <div className="mt-1.5 text-[12px] text-[var(--text-mute)] leading-relaxed">
-        nba_api did not return games for this date — schedule loaded from
-        operator-verified manual override (
-        <span className="text-[var(--text)]">{source ?? "unknown"}</span>).
-        {failureReason && (
-          <span className="block mt-1 text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
-            nba_api status: {failureReason}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
