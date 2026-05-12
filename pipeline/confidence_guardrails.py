@@ -117,6 +117,11 @@ def downgrade_lean(lean: dict) -> dict:
 
     # R1: no logs at all → insufficient data + No Play
     if n_logs == 0:
+        # PR 8: trends_pending means props-only mode deferred game-log fetch.
+        # R1 must NOT downgrade trends_pending → insufficient_data; leave it
+        # so the enrichment pass can distinguish "deferred" from "tried & failed".
+        if current_conf == "trends_pending":
+            return out
         if current_conf != "insufficient_data" or out.get("lean") not in ("No Play", "Pass"):
             _stamp(out, current_conf)
             out["confidence"] = "insufficient_data"
