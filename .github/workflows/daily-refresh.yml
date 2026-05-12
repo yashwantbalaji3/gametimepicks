@@ -62,6 +62,10 @@ jobs:
       ODDS_DRY_RUN: "1"
       # Match the timezone the project uses for board file names.
       TZ: "America/New_York"
+      BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+      ENABLE_BALLDONTLIE_FALLBACK: "true"
+      BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+      ENABLE_BALLDONTLIE_FALLBACK: "true"
 
     steps:
       - name: Checkout
