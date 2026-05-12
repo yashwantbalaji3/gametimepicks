@@ -84,6 +84,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r pipeline/requirements.txt
 
+      - name: Restore nba_api game-log cache
+        # PR 11: persist pipeline/cache/ between runs so enrich_board's
+        # fetches don't restart from cold every time. After a few runs,
+        # most player game-logs are cached and enrichment takes seconds.
+        uses: actions/cache@v4
+        with:
+          path: pipeline/cache/
+          key: nba-api-cache-${{ github.run_id }}
+          restore-keys: |
+            nba-api-cache-
+
       - name: Set up Node 20
         uses: actions/setup-node@v4
         with:

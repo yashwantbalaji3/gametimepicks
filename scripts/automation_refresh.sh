@@ -76,6 +76,22 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# 1b — Incremental projection enrichment (PR 11; free nba_api)
+#
+# Reads existing board JSONs, fills in projection/edge/confidence for
+# leans that are currently trends_pending. Bounded to --limit 30 unique
+# players per board per run so a slow stats.nba.com response never blows
+# the workflow timeout. Multiple ticks converge to full coverage.
+# ---------------------------------------------------------------------------
+step "1b/6  Incremental projection enrichment (free nba_api)"
+info "Calling python -m pipeline.enrich_board --all --limit 30"
+if $PY -m pipeline.enrich_board --all --limit 30 2>&1 | tee /tmp/gtp_enrich.log; then
+    ok "enrich_board completed"
+else
+    warn "enrich_board had issues (non-blocking) — see /tmp/gtp_enrich.log"
+fi
+
+# ---------------------------------------------------------------------------
 # 2 — Export newly-settled results (no network)
 # ---------------------------------------------------------------------------
 step "2/6  Export settled results (pure transform, no network)"
@@ -111,6 +127,7 @@ TESTS=(
     playerid_coverage_test
     auto_settlement_test
     simulation_test
+    enrich_board_test
 )
 TOTAL_PASSED=0
 for t in "${TESTS[@]}"; do
