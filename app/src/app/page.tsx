@@ -297,11 +297,11 @@ function ctaForMode(mode: DataMode): string {
 function ScheduleLiveCallout({
   todayGames,
   primaryLabel,
-  manualOverride,
 }: {
   todayGames: number;
   primaryLabel: string;
-  manualOverride: boolean;
+  /** Preserved on the type for caller compatibility; not rendered publicly. */
+  manualOverride?: boolean;
 }) {
   return (
     <div
@@ -309,19 +309,13 @@ function ScheduleLiveCallout({
       style={{ borderLeftColor: "var(--vault-gold)" }}
     >
       <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
-        {primaryLabel.toLowerCase()} · live schedule
-        {manualOverride && (
-          <span className="ml-2 text-[var(--vault-gold-bright)]">· manual verified</span>
-        )}
+        {primaryLabel.toLowerCase()} · schedule live
       </div>
       <div className="mt-1 text-[14px] text-[var(--text-mute)]">
-        {todayGames} NBA game{todayGames === 1 ? "" : "s"} on the schedule
-        {manualOverride
-          ? " (manually-verified schedule override)."
-          : " from nba_api."}{" "}
-        Player-prop scoring is unavailable until a free Odds API key is
-        configured (Phase 7B-2). The board page shows the real schedule with
-        a &ldquo;props unavailable&rdquo; state.
+        {todayGames} NBA game{todayGames === 1 ? "" : "s"} on the schedule.
+        Model leans are pending — the board will populate as the model
+        finishes scoring tonight&rsquo;s matchups. Educational analytics
+        only.
       </div>
     </div>
   );
@@ -359,7 +353,7 @@ function ScheduleUnavailableCallout({ reason }: { reason?: string | null }) {
       <div className="mt-1 text-[14px] text-[var(--text-mute)]">
         The pipeline could not confirm whether NBA games are scheduled for
         today.{" "}
-        <code className="font-mono text-[12px]">nba_api</code> returned an
+        The schedule feed returned an
         error or was unreachable, and no manual schedule override exists for
         this date. This is{" "}
         <span className="text-[var(--text)] font-semibold">not</span> the
