@@ -157,6 +157,23 @@ jobs:
           echo "  ODDS_MAX_EVENTS_PER_RUN=$ODDS_MAX_EVENTS_PER_RUN"
           echo "  ODDS_MIN_CREDITS_REMAINING=$ODDS_MIN_CREDITS_REMAINING"
           echo ""
+          # PR 2 - dry-run safety guard.
+          #
+          # When ODDS_DRY_RUN is on, the downstream generate_daily_board still
+          # rewrites board JSON using schedule-only data (oddsProviderStatus=
+          # "dry_run", leans=[]). On a cron schedule this clobbers any
+          # real-prop board left over from a previous paid run.
+          #
+          # Exit BEFORE invoking generate_daily_board so dry-run cron ticks
+          # become pure no-ops at the board layer. The schedule pipeline above
+          # (automation_refresh.sh) has already done its non-destructive work.
+          if [ "$ODDS_DRY_RUN" = "true" ] || [ "$ODDS_DRY_RUN" = "1" ]; then
+            echo "  >> ODDS_DRY_RUN=$ODDS_DRY_RUN -> skipping generate_daily_board"
+            echo "     (preserves any existing real-prop board JSON)"
+            echo "  paid odds refresh skipped cleanly"
+            exit 0
+          fi
+
           # generate_daily_board honors ODDS_API_KEY + ODDS_DRY_RUN env
           # vars internally. When ODDS_DRY_RUN=true it skips paid /odds
           # calls but still runs the schedule + structural pipeline. When
