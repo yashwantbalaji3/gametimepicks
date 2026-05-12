@@ -153,20 +153,16 @@ export default function MethodologyPage() {
           </p>
           <ul className="space-y-1.5 font-mono text-[13px] mt-3">
             <li>
-              <span className="text-[var(--text)]">nba_api</span>{" "}
-              <span className="text-[var(--text-faint)]">— official NBA.com Stats endpoints (Tier 1, no key)</span>
+              <span className="text-[var(--text)]">Official NBA stats</span>{" "}
+              <span className="text-[var(--text-faint)]">— scores, schedules, and box-score data from the league&apos;s official source.</span>
             </li>
             <li>
-              <span className="text-[var(--text)]">The Odds API</span>{" "}
-              <span className="text-[var(--text-faint)]">— compliant sportsbook odds (Tier 1, free tier 500 req/mo)</span>
+              <span className="text-[var(--text)]">Sportsbook odds</span>{" "}
+              <span className="text-[var(--text-faint)]">— compliant odds feed from a licensed data provider.</span>
             </li>
             <li>
-              <span className="text-[var(--text)]">demo</span>{" "}
-              <span className="text-[var(--text-faint)]">— bundled fallback (Tier 1, always works)</span>
-            </li>
-            <li className="text-[var(--text-faint)]">
-              balldontlie · espn · opticodds · sportsdata
-              <span className="ml-2">(Tier 2/3 — scaffolded, opt-in)</span>
+              <span className="text-[var(--text)]">Demo data</span>{" "}
+              <span className="text-[var(--text-faint)]">— bundled sample slate, used only when explicitly labeled.</span>
             </li>
           </ul>
           <p className="mt-3">
@@ -177,40 +173,39 @@ export default function MethodologyPage() {
         </div>
       </section>
 
-      {/* Phase 7B-2 mode explainer — replaces the old Demo/Live/Hybrid block */}
       <section className="mt-12">
         <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
-          Data modes
+          Status states
         </h2>
         <p className="text-[14px] text-[var(--text-mute)] leading-relaxed mb-4 max-w-[780px]">
-          Every page reads the same five-state machine. The data-source badge
-          at the top of the board surfaces which one is active.
+          Every page labels its current state honestly. The status strip at
+          the top of the board surfaces which one is active.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <ModeCard
             color="lime"
-            label="Live"
-            description="Real schedule from nba_api OR a manually-verified override, plus real player props from The Odds API. Prop cards are scored against player game logs."
+            label="Model leans available"
+            description="Tonight's schedule is loaded and the model has finished scoring it. Player-prop cards include projections, edges, and confidence tiers."
           />
           <ModeCard
             color="lime"
-            label="ScheduleLiveOddsUnavailable"
-            description="Real schedule (NBA's official source or a manually-verified override), but no player props — either the odds source isn't configured, the odds fetch failed, or the slate has zero props. The site labels which case applies."
+            label="Model leans pending"
+            description="Tonight's schedule is loaded; projections will appear before tipoff once the model finishes scoring."
           />
           <ModeCard
             color="text-mute"
-            label="NoGames"
-            description="The schedule provider explicitly confirmed zero NBA games for this date (an off-day). This is different from a provider failure."
+            label="No games today"
+            description="Confirmed off-day. The next available slate is shown when ready."
           />
           <ModeCard
             color="rose"
-            label="ScheduleUnavailable"
-            description="The schedule provider failed AND no manual override exists for this date. The pipeline genuinely doesn't know what's on — it does NOT pretend it's an off-day."
+            label="Schedule unavailable"
+            description="Tonight's schedule couldn't be confirmed yet. We retry automatically. This is not the same as an off-day."
           />
           <ModeCard
             color="amber"
-            label="DemoForced"
-            description="The site is showing a representative sample slate instead of live data. This happens when an operator explicitly enables demo mode for screenshots or testing. The board never silently falls back to demo — when real data is unavailable, the UI says so explicitly."
+            label="Demo sample"
+            description="Explicitly labeled placeholder content used for screenshots or testing. The site never silently substitutes sample data for real data."
           />
         </div>
       </section>
@@ -334,7 +329,7 @@ function ModeCard({
 // ---------------------------------------------------------------------------
 function FlowDiagram() {
   const steps = [
-    { label: "NBA data", sub: "nba_api" },
+    { label: "NBA data", sub: "official source" },
     { label: "Market line", sub: "The Odds API" },
     { label: "Projection", sub: "weighted avg" },
     { label: "Model probability", sub: "normal CDF" },

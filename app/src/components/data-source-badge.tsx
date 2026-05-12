@@ -1,44 +1,64 @@
 /**
- * DataSourceBadge — compact strip showing data mode + source for the day.
+ * DataSourceBadge — public-safe status strip.
  *
- * Phase 7B-2 — also surfaces:
- *   - Odds API source label (or "not configured" when key missing)
- *   - Today's odds quota remaining (from x-requests-remaining header)
- *   - "manual verified" tag when schedule came from operator override
+ * Public users see only: schedule status, model leans status, updated time,
+ * and an "educational analytics only" tag. Internal-only details (provider
+ * names, API quotas, fallback toggles, operator override flags) are NEVER
+ * rendered to public users.
+ *
+ * Operator details render only when NEXT_PUBLIC_SHOW_DIAGNOSTICS=true, which
+ * must remain unset in production. Production builds tree-shake the operator
+ * branch entirely.
  */
 import type { MetaData, DataMode } from "@/lib/types";
 import { formatTimestamp } from "@/lib/format";
 
-const MODE_DISPLAY: Record<
-  DataMode,
-  { label: string; color: string; bg: string }
-> = {
-  Live: {
-    label: "live",
-    color: "var(--vault-gold-bright)",
-    bg: "var(--vault-gold-dim)",
-  },
-  ScheduleLiveOddsUnavailable: {
-    label: "schedule live · no odds",
-    color: "var(--vault-gold-bright)",
-    bg: "var(--vault-gold-dim)",
-  },
-  NoGames: {
-    label: "no games today",
-    color: "var(--text-faint)",
-    bg: "rgba(255,255,255,0.05)",
-  },
-  ScheduleUnavailable: {
-    label: "schedule unavailable",
-    color: "var(--rose)",
-    bg: "rgba(244, 63, 94, 0.08)",
-  },
-  DemoForced: {
-    label: "demo sample",
-    color: "var(--vault-warn)",
-    bg: "var(--vault-warn-dim)",
-  },
+const SHOW_DIAGNOSTICS =
+  process.env.NEXT_PUBLIC_SHOW_DIAGNOSTICS === "true";
+
+type ScheduleStatus = "live" | "pending" | "unavailable";
+type LeansStatus = "available" | "pending" | "unavailable";
+type DisplayEntry = { label: string; color: string };
+
+const SCHEDULE_DISPLAY: Record<ScheduleStatus, DisplayEntry> = {
+  live: { label: "live", color: "var(--vault-success)" },
+  pending: { label: "pending", color: "var(--vault-warn)" },
+  unavailable: { label: "unavailable", color: "var(--rose)" },
 };
+
+const LEANS_DISPLAY: Record<LeansStatus, DisplayEntry> = {
+  available: { label: "available", color: "var(--vault-gold-bright)" },
+  pending: { label: "pending", color: "var(--text-faint)" },
+  unavailable: { label: "unavailable", color: "var(--text-faint)" },
+};
+
+function scheduleStatusFor(mode: DataMode): ScheduleStatus {
+  switch (mode) {
+    case "Live":
+    case "ScheduleLiveOddsUnavailable":
+    case "NoGames":
+      return "live";
+    case "DemoForced":
+      return "pending";
+    case "ScheduleUnavailable":
+    default:
+      return "unavailable";
+  }
+}
+
+function leansStatusFor(mode: DataMode): LeansStatus {
+  switch (mode) {
+    case "Live":
+      return "available";
+    case "ScheduleLiveOddsUnavailable":
+    case "DemoForced":
+      return "pending";
+    case "NoGames":
+    case "ScheduleUnavailable":
+    default:
+      return "unavailable";
+  }
+}
 
 export default function DataSourceBadge({ meta }: { meta: MetaData }) {
   const mode: DataMode =
@@ -46,110 +66,98 @@ export default function DataSourceBadge({ meta }: { meta: MetaData }) {
     (meta.dataMode as DataMode) ??
     (meta.isDemo ? "DemoForced" : "Live");
 
-  const display = MODE_DISPLAY[mode] ?? MODE_DISPLAY.ScheduleUnavailable;
-
-  // When the schedule came from manual override, surface that on the NBA row
-  const nbaLabel = meta.todayManualOverrideUsed
-    ? "manual verified"
-    : meta.nbaScheduleSource || "—";
-
-  // Phase 7B-2: odds row reflects sub-state, not just source name
-  const oddsLabel = formatOddsLabel(meta);
-  const oddsColor = oddsRowColor(meta);
-
-  const fallbacks = meta.fallbackSourcesAvailable || {};
-  const enabledFallbacks = Object.entries(fallbacks)
-    .filter(([, status]) => status === "enabled")
-    .map(([name]) => name);
-  const disabledFallbacks = Object.entries(fallbacks)
-    .filter(([, status]) => status === "disabled")
-    .map(([name]) => name);
+  const schedule = SCHEDULE_DISPLAY[scheduleStatusFor(mode)];
+  const leans = LEANS_DISPLAY[leansStatusFor(mode)];
 
   return (
     <aside className="surface px-4 py-3 font-mono text-[11px] tracking-wide">
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <StatusItem label="schedule" value={schedule.label} color={schedule.color} />
+        <StatusItem label="model leans" value={leans.label} color={leans.color} />
         <div className="flex items-center gap-2">
-          <span className="text-[var(--text-faint)] uppercase">data</span>
-          <span
-            className="px-2 py-0.5 rounded-[2px] uppercase tracking-wider"
-            style={{ color: display.color, background: display.bg }}
-          >
-            {display.label}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-[var(--text-faint)] uppercase">nba</span>
-          <span className="text-[var(--text)]">{nbaLabel}</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-[var(--text-faint)] uppercase">odds</span>
-          <span style={{ color: oddsColor }}>{oddsLabel}</span>
-          {typeof meta.todayOddsQuotaRemaining === "number" && (
-            <span className="text-[var(--text-faint)]">
-              · {meta.todayOddsQuotaRemaining} credits left
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-[var(--text-faint)] uppercase">synced</span>
+          <span className="text-[var(--text-faint)] uppercase">updated</span>
           <span className="text-[var(--text-mute)]">
             {formatTimestamp(meta.lastPipelineRun)}
           </span>
         </div>
+        <span className="text-[var(--text-faint)] uppercase">
+          educational analytics only
+        </span>
       </div>
 
-      {(enabledFallbacks.length > 0 || disabledFallbacks.length > 0) && (
-        <div className="mt-2 pt-2 border-t border-[var(--border)] flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px]">
-          <span className="text-[var(--text-faint)] uppercase">fallbacks</span>
-          {enabledFallbacks.map((n) => (
-            <span key={n} className="text-[var(--vault-gold-bright)]">
-              {n} on
-            </span>
-          ))}
-          {disabledFallbacks.map((n) => (
-            <span key={n} className="text-[var(--text-faint)]">
-              {n} off
-            </span>
-          ))}
-        </div>
-      )}
+      {SHOW_DIAGNOSTICS && <OperatorDetails meta={meta} mode={mode} />}
     </aside>
   );
 }
 
-function formatOddsLabel(meta: MetaData): string {
-  switch (meta.todayOddsProviderStatus) {
-    case "ok_with_props":
-      return meta.oddsSource || "the_odds_api";
-    case "ok_no_props":
-      return "no props returned";
-    case "failed":
-      return "fetch failed";
-    case "demo":
-      return "demo";
-    case "dry_run":
-      return "dry run";
-    case "not_configured":
-      return "not configured";
-    default:
-      return meta.oddsSource || "—";
-  }
+function StatusItem({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: string;
+  color: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-[var(--text-faint)] uppercase">{label}</span>
+      <span style={{ color }}>{value}</span>
+    </div>
+  );
 }
 
-function oddsRowColor(meta: MetaData): string {
-  switch (meta.todayOddsProviderStatus) {
-    case "ok_with_props":
-      return "var(--vault-gold-bright)";
-    case "failed":
-      return "var(--rose)";
-    case "demo":
-      return "var(--vault-warn)";
-    case "dry_run":
-      return "var(--vault-warn)";
-    default:
-      return "var(--text)";
-  }
+/**
+ * Operator-only diagnostics. Gated by NEXT_PUBLIC_SHOW_DIAGNOSTICS=true,
+ * which must never be set in production. Local dev / Vercel preview only.
+ */
+function OperatorDetails({
+  meta,
+  mode,
+}: {
+  meta: MetaData;
+  mode: DataMode;
+}) {
+  const fallbacks = meta.fallbackSourcesAvailable || {};
+  const enabled = Object.entries(fallbacks)
+    .filter(([, s]) => s === "enabled")
+    .map(([n]) => n);
+  const disabled = Object.entries(fallbacks)
+    .filter(([, s]) => s === "disabled")
+    .map(([n]) => n);
+
+  return (
+    <div className="mt-2 pt-2 border-t border-[var(--border)] flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px]">
+      <span className="text-[var(--vault-warn)] uppercase">operator only</span>
+      <span className="text-[var(--text-faint)]">mode={mode}</span>
+      {meta.todayManualOverrideUsed && (
+        <span className="text-[var(--text-faint)]">schedule=manual</span>
+      )}
+      {meta.nbaScheduleSource && (
+        <span className="text-[var(--text-faint)]">
+          schedule.src={meta.nbaScheduleSource}
+        </span>
+      )}
+      {meta.oddsSource && (
+        <span className="text-[var(--text-faint)]">
+          odds.src={meta.oddsSource}
+        </span>
+      )}
+      {typeof meta.todayOddsQuotaRemaining === "number" && (
+        <span className="text-[var(--text-faint)]">
+          credits={meta.todayOddsQuotaRemaining}
+        </span>
+      )}
+      {enabled.length > 0 && (
+        <span className="text-[var(--vault-gold-bright)]">
+          fb.on=[{enabled.join(",")}]
+        </span>
+      )}
+      {disabled.length > 0 && (
+        <span className="text-[var(--text-faint)]">
+          fb.off=[{disabled.join(",")}]
+        </span>
+      )}
+    </div>
+  );
 }
