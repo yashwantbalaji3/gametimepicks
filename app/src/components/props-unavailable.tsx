@@ -7,28 +7,26 @@ type Reason =
 interface Props {
   gameCount: number;
   reason?: Reason;
+  /** Internal only — retained on the type for caller compatibility but
+   *  never rendered to public users. */
   failureReason?: string | null;
 }
 
 /**
  * PropsUnavailable — explains why prop cards are not shown.
  *
- * Phase 7B-2 distinguishes three reasons:
- *   not_configured     — ODDS_API_KEY not set in environment
- *   no_props_returned  — fetch succeeded but the slate has zero player props
- *   provider_failed    — fetch attempt errored (network, auth, rate limit)
- *
- * Phase 7B-3 adds a fourth:
- *   dry_run            — ODDS_DRY_RUN=true; pipeline confirmed slate visible
- *                        to The Odds API (FREE /events call) but skipped
- *                        paid /odds calls to preserve credits.
+ * Four sub-states distinguish the cause without surfacing internal
+ * names, error strings, or operator details:
+ *   not_configured     — sportsbook lines not yet loaded for the slate
+ *   no_props_returned  — slate visible but no NBA player props are listed
+ *   provider_failed    — sportsbook lines didn't load on this refresh
+ *   dry_run            — line fetching paused for this cycle
  *
  * No reason produces fake odds, fake lines, or invented projections.
  */
 export default function PropsUnavailable({
   gameCount,
   reason = "not_configured",
-  failureReason,
 }: Props) {
   const { borderColor, accentLabel, headline, body } = copyForReason(
     reason,
@@ -54,16 +52,6 @@ export default function PropsUnavailable({
           <div className="mt-2 text-[13px] text-[var(--text-mute)] leading-relaxed max-w-[640px]">
             {body}
           </div>
-          {failureReason && reason === "provider_failed" && (
-            <div className="mt-3 font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
-              provider error: {failureReason}
-            </div>
-          )}
-          {failureReason && reason === "dry_run" && (
-            <div className="mt-3 font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
-              {failureReason}
-            </div>
-          )}
           <div className="mt-3 font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
             no fabricated lines · no invented odds · no fake leans
           </div>
@@ -80,13 +68,13 @@ function copyForReason(reason: Reason, gameCount: number) {
     return {
       borderColor: "var(--text-faint)",
       accentLabel: "props",
-      headline: "No player props returned for this slate",
+      headline: "No player props listed for this slate",
       body: (
         <>
-          The odds provider returned successfully, but no NBA player props were
-          available for {games} on this slate. This is common for early
-          playoff dates and games with TBD opponents — sportsbooks list lines
-          closer to tipoff. Check back closer to game time.
+          Sportsbook lines for {games} on this slate don&apos;t include NBA
+          player props yet. This is common for early playoff dates and games
+          with TBD opponents — sportsbooks usually list player props closer
+          to tipoff. Check back closer to game time.
         </>
       ),
     };
@@ -94,15 +82,14 @@ function copyForReason(reason: Reason, gameCount: number) {
 
   if (reason === "provider_failed") {
     return {
-      borderColor: "var(--rose)",
+      borderColor: "var(--vault-warn)",
       accentLabel: "props",
-      headline: "Odds source temporarily unavailable",
+      headline: "Sportsbook lines not loaded yet",
       body: (
         <>
-          The pipeline attempted to fetch player props but the odds source
-          didn&apos;t respond. The schedule for {games} is still real and
-          loaded; only the props are missing. The next scheduled refresh
-          will retry automatically.
+          The schedule for {games} is loaded, but sportsbook lines for this
+          slate aren&apos;t ready yet. The next scheduled refresh will retry
+          automatically.
         </>
       ),
     };
@@ -112,13 +99,12 @@ function copyForReason(reason: Reason, gameCount: number) {
     return {
       borderColor: "var(--vault-warn)",
       accentLabel: "props",
-      headline: "Odds fetching paused to preserve credits",
+      headline: "Lines paused for this refresh cycle",
       body: (
         <>
-          {games} on the schedule, and the odds source is reachable, but
-          per-event odds fetches are paused for this run to conserve free-tier
-          credits. Real props will appear when fetching is re-enabled on the
-          next refresh cycle.
+          {games} on the schedule. Sportsbook line fetching is paused for
+          this cycle to conserve free-tier credits. Lines will appear here
+          on the next live refresh.
         </>
       ),
     };
@@ -128,12 +114,11 @@ function copyForReason(reason: Reason, gameCount: number) {
   return {
     borderColor: "var(--vault-warn)",
     accentLabel: "props",
-    headline: "Props unavailable — odds provider not configured",
+    headline: "Sportsbook lines not loaded yet",
     body: (
       <>
-        {games} on the schedule, but no sportsbook lines are loaded for
-        these games yet. Once the odds source is reconnected, model leans
-        will appear here automatically.
+        {games} on the schedule. Model leans will appear here once
+        sportsbook lines load on the next refresh.
       </>
     ),
   };

@@ -148,7 +148,7 @@ function subtitleForDay(day: SlateDay): { text: string; color: string } {
       return { text: "no games", color: "var(--vault-text-faint)" };
 
     case "ScheduleUnavailable":
-      return { text: "schedule unavailable", color: "var(--vault-danger)" };
+      return { text: "refresh pending", color: "var(--vault-text-faint)" };
 
     case "DemoForced":
       return { text: "demo · sample", color: "var(--vault-warn)" };

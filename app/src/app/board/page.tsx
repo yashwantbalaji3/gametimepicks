@@ -341,14 +341,14 @@ function headerCopyForMode(
       return {
         eyebrow: "model board · no games today",
         headline: date,
-        subline: `provider confirmed no NBA games scheduled · check tabs for upcoming dates · generated ${generated}`,
+        subline: `no NBA games scheduled for this date · check the other tabs for upcoming games · generated ${generated}`,
       };
 
     case "ScheduleUnavailable":
       return {
-        eyebrow: "model board · schedule unavailable",
+        eyebrow: "model board · refresh pending",
         headline: date,
-        subline: `schedule source failed and no manual override available · this is not a confirmed off-day`,
+        subline: `today's slate is being refreshed · the next scheduled update will retry shortly`,
       };
 
     case "DemoForced":
@@ -436,7 +436,7 @@ function DataModeBadge({ mode }: { mode: DataMode }) {
       label: "schedule live · no odds",
     },
     NoGames: { color: "var(--vault-text-faint)", label: "no games today" },
-    ScheduleUnavailable: { color: "var(--vault-danger)", label: "schedule unavailable" },
+    ScheduleUnavailable: { color: "var(--vault-warn)", label: "refresh pending" },
     DemoForced: { color: "var(--vault-warn)", label: "demo sample" },
   };
   const cfg = MODE_CONFIG[mode] ?? MODE_CONFIG.ScheduleUnavailable;

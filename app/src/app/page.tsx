@@ -269,7 +269,7 @@ function eyebrowForMode(
         ? `no games today · next slate ${nextGameDay.dayLabel.toLowerCase()}`
         : "no games in 4-day window";
     case "ScheduleUnavailable":
-      return "schedule unavailable · provider failed";
+      return "refreshing the slate · check back shortly";
     case "DemoForced":
       return "demo sample · representative slate";
     default:
@@ -350,15 +350,14 @@ function ScheduleUnavailableCallout({
   return (
     <div
       className="mt-6 surface px-5 py-4 max-w-[680px] border-l-2"
-      style={{ borderLeftColor: "var(--rose)" }}
+      style={{ borderLeftColor: "var(--vault-warn)" }}
     >
-      <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--rose)]">
-        schedule unavailable
+      <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--vault-warn)]">
+        refresh pending
       </div>
       <div className="mt-1 text-[14px] text-[var(--text-mute)]">
-        We couldn&rsquo;t confirm tonight&rsquo;s NBA schedule yet. This is{" "}
-        <span className="text-[var(--text)] font-semibold">not</span> the
-        same as &ldquo;no games today&rdquo; — we&rsquo;ll retry shortly.
+        Today&rsquo;s slate is refreshing. New schedule and model leans appear
+        after the next scheduled update.
       </div>
     </div>
   );
