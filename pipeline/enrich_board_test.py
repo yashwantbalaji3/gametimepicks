@@ -120,7 +120,11 @@ class EnrichBoardWithMocksTests(unittest.TestCase):
         scored.lean = "Over"
         scored.reason = "Medium: model edge"
         # Fake recent10
-        fake_r10 = {"PTS": [18, 22, 25, 19, 24], "REB": [], "AST": []}
+        fake_r10 = {
+            "PTS": [18, 22, 25, 19, 24],
+            "REB": [10, 8, 12, 9, 11],
+            "AST": [4, 6, 5, 7, 3],
+        }
         return fake_logs, fake_feats, scored, fake_r10
 
     def test_respects_limit(self) -> None:
