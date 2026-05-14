@@ -61,13 +61,13 @@ export default function SlateTabs({ days, selected, onChange, buildTimeToday }: 
               type="button"
               onClick={() => onChange(day.date)}
               aria-pressed={isSelected}
-              className={`shrink-0 px-4 sm:px-5 py-3 text-left transition-all duration-150 cursor-pointer ${isSelected ? "vault-tab-active" : ""}`}
+              className={`shrink-0 px-5 sm:px-6 py-3.5 text-left transition-all duration-150 cursor-pointer ${isSelected ? "vault-tab-active" : ""}`}
               style={{
                 borderBottom: `2px solid ${
                   isSelected ? "var(--vault-gold)" : "transparent"
                 }`,
                 marginBottom: "-1px",
-                minWidth: "104px",
+                minWidth: "112px",
                 boxShadow: isSelected
                   ? "0 4px 14px -8px var(--vault-gold-glow)"
                   : "none",
@@ -75,7 +75,7 @@ export default function SlateTabs({ days, selected, onChange, buildTimeToday }: 
             >
               <div className="flex items-baseline gap-2">
                 <span
-                  className="font-display font-semibold text-[15px] tracking-tight"
+                  className="font-display font-semibold text-[16px] tracking-tight"
                   style={{
                     color: isSelected
                       ? "var(--vault-gold-bright)"

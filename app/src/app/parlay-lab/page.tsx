@@ -64,12 +64,12 @@ export default function ParlayLabPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1280px] px-6 py-12 md:py-20">
-      {/* Hero */}
-      <section className="vault-hero-grid">
+    <div className="vault-page-shell px-6 sm:px-8 py-12 md:py-20">
+      {/* Hero — premium data-orbit backdrop, larger display typography */}
+      <section className="vault-data-orbit relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pb-2">
         <div
-          className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3 inline-flex items-center gap-2"
-          style={{ color: "var(--vault-gold)" }}
+          className="vault-quiet-label mb-4 inline-flex items-center gap-2"
+          style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
         >
           <span
             className="inline-block w-1.5 h-1.5 rounded-full vault-pulse"
@@ -78,15 +78,21 @@ export default function ParlayLabPage() {
           Parlay Lab · educational analysis
         </div>
 
-        <h1 className="font-display text-[40px] md:text-[60px] leading-[0.95] tracking-tightest font-semibold max-w-3xl">
+        <h1
+          className="vault-display-h1 max-w-3xl"
+          style={{ color: "var(--vault-text)" }}
+        >
           Build with the{" "}
           <span style={{ color: "var(--vault-gold-bright)" }}>model</span>
           .
         </h1>
 
-        <p className="mt-5 text-[var(--text-mute)] text-[15px] md:text-[16px] max-w-2xl leading-relaxed">
-          Generate candidate parlays from the slate's real model leans, or
-          paste a slip you've already built and compare each leg to our
+        <p
+          className="mt-6 text-[15px] md:text-[17px] max-w-2xl leading-relaxed"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          Generate candidate parlays from the slate&apos;s real model leans, or
+          paste a slip you&apos;ve already built and compare each leg to our
           projections, edges, and recent-trend data. We never tell you to
           bet — we tell you what the model thinks.
         </p>
@@ -94,11 +100,11 @@ export default function ParlayLabPage() {
         <div className="mt-6 flex flex-wrap gap-3 items-center">
           <DataSourceBadge meta={meta} />
           <span
-            className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] px-2.5 py-1 rounded-[2px]"
+            className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.16em] px-2.5 py-1 rounded-full"
             style={{
               background: "var(--vault-warn-dim)",
               color: "var(--vault-warn)",
-              border: "1px solid var(--vault-border)",
+              border: "1px solid rgba(240, 199, 94, 0.30)",
             }}
           >
             Educational only — not betting advice
@@ -106,28 +112,61 @@ export default function ParlayLabPage() {
         </div>
       </section>
 
-      {/* Disclaimer panel */}
+      {/* "How this works" — collapsible disclosure so it doesn't dominate
+          the page on landing. Open state shows the 3 bullets verbatim. */}
       <section className="mt-10">
-        <div
-          className="rounded-[3px] p-4 sm:p-5 text-[13px] leading-relaxed vault-glass"
+        <details
+          className="rounded-[5px] vault-glass overflow-hidden group"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          <div
-            className="font-mono text-[10px] uppercase tracking-[0.18em] mb-2"
-            style={{ color: "var(--vault-gold)" }}
+          <summary
+            className="flex items-center justify-between gap-4 cursor-pointer list-none px-4 sm:px-5 py-3.5 transition-colors"
+            style={{
+              borderBottom: "1px solid transparent",
+            }}
           >
-            How this works
-          </div>
-          <ul className="space-y-1.5 text-[var(--vault-text-mute)] list-none">
+            <span className="inline-flex items-center gap-3">
+              <span
+                className="vault-quiet-label"
+                style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
+              >
+                How this works
+              </span>
+              <span
+                className="text-[12px]"
+                style={{ color: "var(--vault-text-faint)" }}
+              >
+                build mode · analyze mode · no fabrication
+              </span>
+            </span>
+            <span
+              aria-hidden
+              className="font-mono text-[12px] leading-none transition-transform group-open:rotate-180"
+              style={{ color: "var(--vault-text-faint)" }}
+            >
+              ▾
+            </span>
+          </summary>
+          <ul
+            className="space-y-2 list-none text-[13px] leading-relaxed px-4 sm:px-5 py-4"
+            style={{
+              borderTop: "1px solid var(--vault-rule)",
+              color: "var(--vault-text-mute)",
+            }}
+          >
             <li>
               <span style={{ color: "var(--vault-gold-bright)" }}>·</span>{" "}
-              <strong style={{ color: "var(--vault-text)" }}>Build mode</strong>{" "}
+              <strong style={{ color: "var(--vault-text)" }}>
+                Build mode
+              </strong>{" "}
               generates candidate parlays from real slate leans. Pick a risk
               profile, optionally select specific players, games, or markets.
             </li>
             <li>
               <span style={{ color: "var(--vault-gold-bright)" }}>·</span>{" "}
-              <strong style={{ color: "var(--vault-text)" }}>Analyze mode</strong>{" "}
+              <strong style={{ color: "var(--vault-text)" }}>
+                Analyze mode
+              </strong>{" "}
               takes a pasted slip and matches each leg to the model. Format:{" "}
               <code style={{ color: "var(--vault-text)" }}>
                 LeBron James Over 25.5 PTS -110
@@ -136,10 +175,10 @@ export default function ParlayLabPage() {
             <li>
               <span style={{ color: "var(--vault-gold-bright)" }}>·</span> We
               never synthesize alternate lines or fabricate legs. If the model
-              doesn't have a lean, that combination isn't available.
+              doesn&apos;t have a lean, that combination isn&apos;t available.
             </li>
           </ul>
-        </div>
+        </details>
       </section>
 
       {/* Client interactive area — mode tabs hold both Build + Analyze */}

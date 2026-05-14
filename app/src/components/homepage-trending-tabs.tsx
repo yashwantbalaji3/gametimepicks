@@ -96,18 +96,18 @@ export default function HomepageTrendingTabs(props: Props) {
   }
 
   return (
-    <section className="mt-20" aria-label="Trending model intelligence">
+    <section className="mt-24" aria-label="Trending model intelligence">
       {/* Section header */}
-      <div className="flex items-baseline justify-between gap-3 mb-5 flex-wrap">
+      <div className="flex items-baseline justify-between gap-3 mb-6 flex-wrap">
         <div>
           <div
-            className="font-mono text-[10px] uppercase tracking-[0.18em]"
-            style={{ color: "var(--vault-gold)" }}
+            className="vault-quiet-label"
+            style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
           >
             Trending
           </div>
           <h2
-            className="mt-1 font-display text-[24px] sm:text-[28px] font-semibold tracking-tightest"
+            className="mt-2 vault-display-h3"
             style={{ color: "var(--vault-text)" }}
           >
             What the model sees right now
@@ -301,43 +301,51 @@ function LeanRow({ lean, flagged }: { lean: TrendingLean; flagged?: boolean }) {
     lean.team && lean.opponent ? `${lean.team} @ ${lean.opponent}` : null;
   return (
     <div
-      className="px-3 py-2.5 rounded-[3px]"
-      style={{
-        background: "var(--vault-panel)",
-        border: `1px solid ${
-          flagged ? "rgba(240, 199, 94, 0.30)" : "var(--vault-border)"
-        }`,
-      }}
+      className="vault-deluxe-card px-4 py-3.5"
+      style={
+        flagged
+          ? { borderColor: "rgba(240, 199, 94, 0.32)" }
+          : undefined
+      }
     >
+      {/* Header: player + matchup chip */}
       <div className="flex items-baseline justify-between gap-3 flex-wrap">
         <span
-          className="font-display text-[14px] font-semibold tracking-tight"
+          className="font-display text-[16px] font-semibold tracking-tight"
           style={{ color: "var(--vault-text)" }}
         >
           {lean.playerName}
         </span>
         {matchup && (
           <span
-            className="font-mono text-[10px] uppercase tracking-[0.15em]"
+            className="font-mono text-[10px] uppercase tracking-[0.14em]"
             style={{ color: "var(--vault-text-faint)" }}
           >
             {matchup}
           </span>
         )}
       </div>
-      <div className="mt-1 font-display text-[13px] tracking-tight">
-        <span style={{ color: "var(--vault-text-mute)" }}>
-          {lean.side}
-        </span>{" "}
+
+      {/* Lean phrase — bigger display weight */}
+      <div className="mt-2 font-display text-[15px] tracking-tight">
+        <span style={{ color: "var(--vault-text-mute)" }}>{lean.side}</span>{" "}
         <span
           className="font-semibold"
-          style={{ color: "var(--vault-gold-bright)" }}
+          style={{
+            color: flagged
+              ? "var(--vault-warn)"
+              : "var(--vault-gold-bright)",
+          }}
         >
           {lean.line}
         </span>{" "}
-        <span style={{ color: "var(--vault-text-mute)" }}>{lean.market}</span>
+        <span style={{ color: "var(--vault-text-mute)" }}>
+          {lean.market}
+        </span>
       </div>
-      <div className="mt-2 flex flex-wrap gap-1.5">
+
+      {/* Stats row */}
+      <div className="mt-3 flex flex-wrap gap-1.5">
         <StatChip
           label="proj"
           value={
@@ -368,7 +376,7 @@ function LeanRow({ lean, flagged }: { lean: TrendingLean; flagged?: boolean }) {
         />
         {flagged && (
           <span
-            className="inline-flex items-center px-2 py-0.5 rounded-[2px] font-mono text-[10px] tracking-tight uppercase"
+            className="inline-flex items-center px-2 py-0.5 rounded-[3px] font-mono text-[10px] tracking-tight uppercase"
             style={{
               background: "var(--vault-warn-dim)",
               border: "1px solid rgba(240, 199, 94, 0.30)",
