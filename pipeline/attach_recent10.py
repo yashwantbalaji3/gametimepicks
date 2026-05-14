@@ -159,6 +159,13 @@ def attach_recent10_to_board(
         statuses[pid] = st
 
     leans_updated = 0
+    # PR 21: leans_cleared is preserved at 0 for summary-table back-compat.
+    # The destructive `del lean["recent10"]` branch was removed: when a
+    # player's fetch fails (no_logs / fetch_error / zero_id / dry_run /
+    # import_error), we know nothing new and must preserve any existing
+    # recent10 array. Erasing real prior game-log data because of a
+    # single transient fetch miss is worse than keeping stale-but-real.
+    # The PlayerStatus summary still records the fetch outcome per-pid.
     leans_cleared = 0
     for lean in leans:
         pid = lean.get("playerId")
@@ -169,10 +176,7 @@ def attach_recent10_to_board(
         if values:
             lean["recent10"] = values
             leans_updated += 1
-        else:
-            if "recent10" in lean:
-                del lean["recent10"]
-                leans_cleared += 1
+        # else: preserve existing recent10. See PR 21 note above.
 
     if not dry_run:
         if "generatedAt" in board:
