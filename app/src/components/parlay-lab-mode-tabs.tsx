@@ -121,7 +121,7 @@ function ModeTab({
         {label}
       </div>
       <div
-        className="font-mono text-[10px] uppercase tracking-[0.15em] mt-0.5"
+        className="text-[11px] mt-0.5 leading-snug"
         style={{ color: "var(--vault-text-faint)" }}
       >
         {subtitle}

@@ -180,13 +180,10 @@ export default function ParlayBuilderClient({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[440px_1fr] gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-[440px_1fr] gap-5">
       {/* Left — control panel */}
-      <div
-        className="rounded-[3px] p-5 vault-glass"
-        style={{ borderRadius: "3px" }}
-      >
-        <SectionLabel n="1" text="select slate" />
+      <div className="vault-deluxe-card p-5 sm:p-6">
+        <SectionLabel n="1" text="Slate" />
         {datesAvailable.length === 0 ? (
           <p className="text-[13px] mb-4" style={{ color: "var(--vault-text-mute)" }}>
             No slate data available right now. Once a board is generated, this
@@ -212,30 +209,30 @@ export default function ParlayBuilderClient({
             </select>
             {isSelectedDateArchived && (
               <p
-                className="mb-3 px-2.5 py-1.5 rounded-[2px] font-mono text-[10px] uppercase tracking-[0.15em]"
+                className="mb-4 px-2.5 py-1.5 rounded-[3px] text-[11px]"
                 style={{
                   background: "var(--vault-warn-dim)",
                   color: "var(--vault-warn)",
-                  border: "1px solid var(--vault-border)",
+                  border: "1px solid rgba(240, 199, 94, 0.30)",
                 }}
               >
-                ⚠ archived slate · model leans here are historical, not current
+                Archived slate — these leans are historical, not current.
               </p>
             )}
             {!isSelectedDateArchived && (
               <p
-                className="mb-3 font-mono text-[10px] uppercase tracking-[0.15em]"
+                className="mb-4 text-[11px]"
                 style={{ color: "var(--vault-text-faint)" }}
               >
                 {activeSlateKind === "today"
-                  ? "current slate · today's model leans"
-                  : "upcoming slate"}
+                  ? "Current slate — today's model leans."
+                  : "Upcoming slate."}
               </p>
             )}
           </>
         )}
 
-        <SectionLabel n="2" text="builder mode" />
+        <SectionLabel n="2" text="Builder mode" />
         <div className="flex gap-2 mb-5">
           <ModeButton
             active={mode === "top_props"}
@@ -249,7 +246,7 @@ export default function ParlayBuilderClient({
           />
         </div>
 
-        <SectionLabel n="3" text="risk profile" />
+        <SectionLabel n="3" text="Risk profile" />
         <div className="flex flex-col gap-2 mb-5">
           {(["conservative", "balanced", "aggressive"] as RiskProfile[]).map(
             (rp) => (
@@ -263,7 +260,7 @@ export default function ParlayBuilderClient({
           )}
         </div>
 
-        <SectionLabel n="4" text="player pool" />
+        <SectionLabel n="4" text="Player pool" />
         <div className="mb-5">
           <label
             className="flex items-start gap-2 cursor-pointer p-2.5 rounded-[2px] transition-colors"
@@ -300,7 +297,7 @@ export default function ParlayBuilderClient({
 
         {mode === "selected_players" && (
           <>
-            <SectionLabel n="5" text="players" />
+            <SectionLabel n="5" text="Players" />
             {playerOptions.length === 0 ? (
               <p
                 className="text-[12px] mb-5"
@@ -318,7 +315,7 @@ export default function ParlayBuilderClient({
                     key={`${p.playerId}_${p.playerName}`}
                     type="button"
                     onClick={() => togglePlayer(p.playerName)}
-                    className="px-2.5 py-1 rounded-[2px] font-mono text-[11px] transition-colors"
+                    className="px-2.5 py-1 rounded-[3px] text-[12px] transition-colors"
                     style={{
                       background: selectedPlayerNames.has(p.playerName)
                         ? "var(--vault-gold-dim)"
@@ -334,8 +331,9 @@ export default function ParlayBuilderClient({
                     {p.playerName}
                     {p.hasHighConfidence && (
                       <span
-                        className="ml-1.5 text-[9px]"
+                        className="ml-1.5 text-[10px]"
                         style={{ color: "var(--vault-gold-bright)" }}
+                        aria-label="has a High-confidence lean on this slate"
                       >
                         ★
                       </span>
@@ -351,7 +349,7 @@ export default function ParlayBuilderClient({
           <>
             <SectionLabel
               n={mode === "selected_players" ? "6" : "5"}
-              text="games (optional)"
+              text="Games (optional)"
             />
             <div className="mb-5 flex flex-wrap gap-1.5">
               {gameOptions.map((g) => (
@@ -359,7 +357,7 @@ export default function ParlayBuilderClient({
                   key={g.gameId}
                   type="button"
                   onClick={() => toggleGame(g.gameId)}
-                  className="px-2.5 py-1 rounded-[2px] font-mono text-[11px] transition-colors"
+                  className="px-2.5 py-1 rounded-[3px] text-[12px] transition-colors"
                   style={{
                     background: selectedGameIds.has(g.gameId)
                       ? "var(--vault-gold-dim)"
@@ -381,7 +379,7 @@ export default function ParlayBuilderClient({
 
         <SectionLabel
           n={mode === "selected_players" ? "7" : "6"}
-          text="markets (optional)"
+          text="Markets (optional)"
         />
         <div className="mb-1 flex gap-1.5">
           {MARKET_LIST.map((m) => (
@@ -389,7 +387,7 @@ export default function ParlayBuilderClient({
               key={m}
               type="button"
               onClick={() => toggleMarket(m)}
-              className="px-3 py-1 rounded-[2px] font-mono text-[11px] transition-colors"
+              className="px-3 py-1 rounded-[3px] font-mono text-[11px] tabular tracking-wide transition-colors"
               style={{
                 background: selectedMarkets.has(m)
                   ? "var(--vault-gold-dim)"
@@ -435,14 +433,15 @@ export default function ParlayBuilderClient({
           <>
             {!includeFullRotation && (
               <div
-                className="rounded-[2px] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.15em]"
+                className="rounded-[3px] px-3 py-2 text-[11px] flex items-center gap-2"
                 style={{
                   background: "var(--vault-gold-dim)",
-                  border: "1px solid var(--vault-border)",
+                  border: "1px solid var(--vault-border-strong)",
                   color: "var(--vault-gold-bright)",
                 }}
               >
-                ★ focused on top core players per team
+                <span aria-hidden>★</span>
+                <span>Focused on the top core players per team.</span>
               </div>
             )}
             {candidates.map((c, idx) => (
@@ -461,9 +460,24 @@ export default function ParlayBuilderClient({
 
 function SectionLabel({ n, text }: { n: string; text: string }) {
   return (
-    <div className="font-mono text-[10px] uppercase tracking-[0.15em] mb-2.5">
-      <span style={{ color: "var(--vault-gold)" }}>{n}</span>
-      <span style={{ color: "var(--vault-text-faint)" }}> · {text}</span>
+    <div className="mb-3 flex items-center gap-2">
+      <span
+        className="inline-flex items-center justify-center w-5 h-5 rounded-full font-mono text-[10px] font-semibold tabular"
+        style={{
+          background: "var(--vault-gold-dim)",
+          border: "1px solid var(--vault-border-strong)",
+          color: "var(--vault-gold-bright)",
+        }}
+        aria-hidden="true"
+      >
+        {n}
+      </span>
+      <span
+        className="text-[13px] font-medium tracking-tight"
+        style={{ color: "var(--vault-text)" }}
+      >
+        {text}
+      </span>
     </div>
   );
 }
@@ -481,7 +495,7 @@ function ModeButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex-1 px-3 py-2 rounded-[2px] font-mono text-[11px] uppercase tracking-[0.1em] transition-colors"
+      className="flex-1 px-3 py-2 rounded-[3px] text-[12px] font-medium tracking-tight transition-colors"
       style={{
         background: active ? "var(--vault-gold-dim)" : "var(--vault-panel)",
         border: `1px solid ${
@@ -543,27 +557,33 @@ function CandidateCard({
 }) {
   return (
     <div
-      className="rounded-[3px] p-4 sm:p-5 vault-glass vault-rise"
+      className="vault-deluxe-card p-5 sm:p-6 vault-rise"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       {/* Zone A — header: candidate identity + combined odds */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <span
-          className="inline-flex items-center px-2 py-1 rounded-[2px] font-mono text-[10px] uppercase tracking-[0.18em]"
-          style={{
-            background: "var(--vault-gold-dim)",
-            border: "1px solid var(--vault-border-strong)",
-            color: "var(--vault-gold-bright)",
-          }}
-        >
-          candidate {index + 1}
-        </span>
-        <div className="font-mono text-[11px]">
+        <div className="flex items-baseline gap-2">
+          <h3
+            className="font-display text-[16px] sm:text-[17px] font-semibold tracking-tight"
+            style={{ color: "var(--vault-text)" }}
+          >
+            Candidate {index + 1}
+          </h3>
+          <span
+            className="text-[12px]"
+            style={{ color: "var(--vault-text-faint)" }}
+          >
+            · {candidate.legs.length} leg{candidate.legs.length === 1 ? "" : "s"} ·{" "}
+            {candidate.uniqueGames} game
+            {candidate.uniqueGames === 1 ? "" : "s"}
+          </span>
+        </div>
+        <div className="text-[12px]">
           {candidate.combinedOddsAmerican != null ? (
             <>
-              <span style={{ color: "var(--vault-text-faint)" }}>combined </span>
+              <span style={{ color: "var(--vault-text-faint)" }}>Combined </span>
               <span
-                className="font-semibold text-[13px]"
+                className="font-mono font-semibold text-[14px] tabular"
                 style={{ color: "var(--vault-gold-bright)" }}
               >
                 {candidate.combinedOddsAmerican > 0 ? "+" : ""}
@@ -572,17 +592,10 @@ function CandidateCard({
             </>
           ) : (
             <span style={{ color: "var(--vault-text-faint)" }}>
-              odds unavailable
+              Odds unavailable
             </span>
           )}
         </div>
-      </div>
-      <div
-        className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.15em]"
-        style={{ color: "var(--vault-text-faint)" }}
-      >
-        {candidate.legs.length} legs · {candidate.uniqueGames} game
-        {candidate.uniqueGames === 1 ? "" : "s"}
       </div>
 
       {/* Zone B — legs */}
@@ -613,7 +626,7 @@ function CandidateCard({
                 </span>
                 {matchup && (
                   <span
-                    className="font-mono text-[10px] uppercase tracking-[0.15em]"
+                    className="text-[11px]"
                     style={{ color: "var(--vault-text-faint)" }}
                   >
                     {matchup}
@@ -669,25 +682,25 @@ function CandidateCard({
                 />
                 {!la.hasRecent10 && (
                   <span
-                    className="inline-flex items-center px-2 py-0.5 rounded-[2px] font-mono text-[10px] tracking-tight"
+                    className="inline-flex items-center px-2 py-0.5 rounded-[3px] text-[10px]"
                     style={{
                       border: "1px solid var(--vault-border)",
                       color: "var(--vault-text-faint)",
                     }}
                   >
-                    limited recent form
+                    Limited recent form
                   </span>
                 )}
                 {lean.riskFlags?.includes("suspicious_edge") && (
                   <span
-                    className="inline-flex items-center px-2 py-0.5 rounded-[2px] font-mono text-[10px] tracking-tight uppercase"
+                    className="inline-flex items-center px-2 py-0.5 rounded-[3px] text-[10px]"
                     style={{
                       background: "var(--vault-warn-dim)",
                       border: "1px solid rgba(240, 199, 94, 0.30)",
                       color: "var(--vault-warn)",
                     }}
                   >
-                    model anomaly
+                    Model anomaly
                   </span>
                 )}
               </div>
@@ -699,14 +712,15 @@ function CandidateCard({
       {/* Zone C — footnotes: same-game chip + rationale */}
       {candidate.hasSameGameLegs && (
         <div
-          className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[2px] font-mono text-[10px] uppercase tracking-[0.15em]"
+          className="mt-3 inline-flex items-center gap-2 px-2.5 py-1 rounded-[3px] text-[11px]"
           style={{
-            border: "1px solid var(--vault-warn)",
+            background: "var(--vault-warn-dim)",
+            border: "1px solid rgba(240, 199, 94, 0.30)",
             color: "var(--vault-warn)",
           }}
         >
           <span aria-hidden>⚠</span>
-          same-game legs · outcomes may correlate
+          <span>Same-game legs — outcomes can correlate.</span>
         </div>
       )}
       <p
@@ -730,19 +744,19 @@ function StatChip({
 }) {
   return (
     <span
-      className="inline-flex items-baseline gap-1 px-2 py-0.5 rounded-[2px] font-mono text-[10px] tracking-tight"
+      className="inline-flex items-baseline gap-1.5 px-2 py-0.5 rounded-[3px] text-[10px]"
       style={{
         background: "var(--vault-panel-elevated)",
         border: "1px solid var(--vault-border)",
       }}
     >
+      <span style={{ color: "var(--vault-text-faint)" }}>{label}</span>
       <span
-        className="uppercase tracking-[0.12em]"
-        style={{ color: "var(--vault-text-faint)" }}
+        className="font-mono tabular"
+        style={{ color: valueColor ?? "var(--vault-text)" }}
       >
-        {label}
+        {value}
       </span>
-      <span style={{ color: valueColor ?? "var(--vault-text)" }}>{value}</span>
     </span>
   );
 }
@@ -750,8 +764,7 @@ function StatChip({
 function EmptyState({ heading, body }: { heading: string; body: string }) {
   return (
     <div
-      className="rounded-[3px] p-8 sm:p-10 vault-glass"
-      style={{ textAlign: "center" }}
+      className="vault-deluxe-card p-8 sm:p-12 text-center"
     >
       <div className="flex items-center justify-center gap-2 mb-3">
         <span
@@ -760,18 +773,18 @@ function EmptyState({ heading, body }: { heading: string; body: string }) {
           style={{ background: "var(--vault-gold)" }}
         />
         <span
-          className="font-mono text-[10px] uppercase tracking-[0.18em]"
+          className="text-[11px]"
           style={{ color: "var(--vault-text-faint)" }}
         >
-          builder idle
+          Builder is idle
         </span>
       </div>
-      <div
-        className="font-display text-[18px] font-semibold tracking-tight"
+      <h3
+        className="font-display text-[20px] font-semibold tracking-tight"
         style={{ color: "var(--vault-text)" }}
       >
         {heading}
-      </div>
+      </h3>
       <p
         className="mt-2 text-[13px] leading-relaxed max-w-md mx-auto"
         style={{ color: "var(--vault-text-mute)" }}
