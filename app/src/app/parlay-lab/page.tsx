@@ -1,5 +1,5 @@
 import { getSlate, getMeta, getBoardForDate, getAvailableBoardDates } from "@/lib/data";
-import type { PropLean, BoardData } from "@/lib/types";
+import type { PropLean, BoardData, ScheduleGame } from "@/lib/types";
 import ParlayLabModeTabs from "@/components/parlay-lab-mode-tabs";
 import DataSourceBadge from "@/components/data-source-badge";
 import { selectActiveSlate } from "@/lib/active-slate";
@@ -38,6 +38,7 @@ export default function ParlayLabPage() {
   //   - an isArchived flag (true when the date is in the past)
   //   - whether it's the active default
   const allLeans: PropLean[] = [];
+  const gamesByGameId: Record<string, ScheduleGame> = {};
   const dateLabels = new Map<
     string,
     { label: string; isArchived: boolean; isActiveDefault: boolean }
@@ -47,6 +48,9 @@ export default function ParlayLabPage() {
     if (!board || board.leans.length === 0) continue;
     for (const lean of board.leans) {
       allLeans.push(lean);
+    }
+    for (const game of board.games ?? []) {
+      if (game?.gameId) gamesByGameId[game.gameId] = game;
     }
     const slateDay = slate.days.find((d) => d.date === date);
     const isArchived = date < buildTimeToday;
@@ -160,6 +164,7 @@ export default function ParlayLabPage() {
           }))}
           activeSlateKind={activeSlate.kind}
           activeDate={activeSlate.selectedDate}
+          gamesByGameId={gamesByGameId}
         />
       </section>
 

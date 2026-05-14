@@ -14,7 +14,7 @@
  * Pure client component. No fetches.
  */
 import { useState } from "react";
-import type { PropLean } from "@/lib/types";
+import type { PropLean, ScheduleGame } from "@/lib/types";
 import type { ActiveSlateKind } from "@/lib/active-slate";
 import ParlayLabClient from "./parlay-lab-client";
 import ParlayBuilderClient from "./parlay-builder-client";
@@ -33,6 +33,7 @@ interface Props {
   datesAvailable: DateOption[];
   activeSlateKind: ActiveSlateKind;
   activeDate: string | null;
+  gamesByGameId: Record<string, ScheduleGame>;
 }
 
 export default function ParlayLabModeTabs({
@@ -40,6 +41,7 @@ export default function ParlayLabModeTabs({
   datesAvailable,
   activeSlateKind,
   activeDate,
+  gamesByGameId,
 }: Props) {
   const [mode, setMode] = useState<LabMode>("build");
 
@@ -69,6 +71,7 @@ export default function ParlayLabModeTabs({
           datesAvailable={datesAvailable}
           activeSlateKind={activeSlateKind}
           activeDate={activeDate}
+          gamesByGameId={gamesByGameId}
         />
       ) : (
         <ParlayLabClient
