@@ -148,34 +148,38 @@ body {
   overflow-x: hidden;
 }
 
-/* Subtle scanline / grid wash so the page feels broadcast-y */
+/* PR A: site-wide vault chrome — gold-on-navy ambient backdrop.
+   Replaces the prior lime/amber broadcast tint so every page reads as
+   one canonical "model-lab" palette. Existing --lime/--amber/--rose
+   tokens are retained for legacy status badges. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(163, 230, 53, 0.04), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(251, 191, 36, 0.03), transparent 70%);
+    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(212, 175, 55, 0.06), transparent 65%),
+    radial-gradient(ellipse 70% 45% at 100% 100%, rgba(212, 175, 55, 0.035), transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
 
+/* Faint dot-noise — replaces the prior 56px grid which read too "dev tool". */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-  background-size: 56px 56px;
+    radial-gradient(rgba(212, 175, 55, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
   pointer-events: none;
   z-index: 0;
-  mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, black 30%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, black 30%, transparent 80%);
+  mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, black 40%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, black 40%, transparent 85%);
+  opacity: 0.5;
 }
 
 ::selection {
-  background: var(--lime);
+  background: var(--vault-gold-bright);
   color: var(--bg);
 }
 
@@ -219,18 +223,21 @@ table,
   font-weight: 500;
 }
 
-/* Live dot — pulsing accent for "live" status */
+/* Status dot — small pulsing gold marker used in the disclaimer chrome
+   and the home hero eyebrow. Re-skinned from broadcast lime to vault
+   gold in PR A so the indicator never reads as a live-betting/live-game
+   signal. */
 .live-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--lime);
-  box-shadow: 0 0 12px var(--lime);
-  animation: live-pulse 1.6s ease-in-out infinite;
+  background: var(--vault-gold-bright);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.45);
+  animation: live-pulse 2.4s ease-in-out infinite;
 }
 @keyframes live-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 12px var(--lime); }
-  50%      { opacity: 0.55; box-shadow: 0 0 4px var(--lime); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(212, 175, 55, 0.45); }
+  50%      { opacity: 0.55; box-shadow: 0 0 3px rgba(212, 175, 55, 0.25); }
 }
 
 /* Reveal animation for cards on load */
@@ -444,4 +451,98 @@ table,
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
     0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* ============================================================================
+   PR A — UI foundation primitives.
+   Additive utility classes that future rebrand PRs (board cards, parlay
+   lab chrome, results polish) can opt into without inventing new tokens.
+   Existing classes above are unchanged.
+   ============================================================================ */
+
+/* Body class — anchors the premium ambient chrome. Applied on <body> in
+   layout.tsx. Used so future foundation tweaks don't require global
+   selectors. */
+.vault-shell {
+  background: var(--bg);
+  color: var(--text);
+  position: relative;
+}
+
+/* A softer alternative to .eyebrow. 11px sentence-case mute-tone for
+   places where the all-caps mono treatment feels too dense. The
+   existing .eyebrow utility stays as-is for back-compat. */
+.vault-quiet-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--vault-text-faint);
+  font-weight: 500;
+  text-transform: none;
+}
+
+/* Reusable status pill. Defaults to a neutral muted treatment; callers
+   override --pill-fg / --pill-bg / --pill-border to express semantics
+   (success/warn/danger/idle) without duplicating styling. */
+.vault-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pill-fg, var(--vault-text-mute));
+  background: var(--pill-bg, var(--vault-panel-elevated));
+  border: 1px solid var(--pill-border, var(--vault-border));
+  white-space: nowrap;
+}
+
+/* Slow-drifting radial backdrop primitive. Used inside hero sections
+   (e.g. /board, /parlay-lab) for a "model lab" data-orbit feel. The
+   parent must have position relative + overflow hidden. Respects
+   prefers-reduced-motion. */
+.vault-ambient-orbit {
+  position: relative;
+  isolation: isolate;
+}
+.vault-ambient-orbit::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(212, 175, 55, 0.10), transparent 45%),
+    radial-gradient(circle at 75% 65%, rgba(212, 175, 55, 0.06), transparent 50%);
+  pointer-events: none;
+  animation: vault-orbit-drift 36s ease-in-out infinite alternate;
+}
+@keyframes vault-orbit-drift {
+  0%   { transform: translate(0%, 0%) rotate(0deg); }
+  100% { transform: translate(2%, -1%) rotate(8deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vault-ambient-orbit::before { animation: none; }
+}
+
+/* Soft top/bottom edge fades. Useful for capping long sections so they
+   feel inset into the dark vault background. */
+.vault-edge-fade {
+  position: relative;
+}
+.vault-edge-fade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    var(--vault-bg) 0%,
+    transparent 8%,
+    transparent 92%,
+    var(--vault-bg) 100%
+  );
+  z-index: 1;
 }
