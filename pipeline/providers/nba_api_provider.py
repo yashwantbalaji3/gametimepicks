@@ -182,7 +182,13 @@ class NbaApiProvider(NBADataProvider):
 
         # ----------------- Strategy 1: ScoreboardV2 -----------------
         sv2_diag = self._try_scoreboardv2(date)
-        diag["endpoint_history"].append(sv2_diag)
+        # Strip Game dataclass instances from the history entry before storing —
+        # they live at the top-level diag["games"]. Without this the board write
+        # fails with "Object of type Game is not JSON serializable" on every
+        # cache-miss schedule fetch.
+        diag["endpoint_history"].append(
+            {k: v for k, v in sv2_diag.items() if k != "games"}
+        )
         if sv2_diag["status"] == "ok" and sv2_diag["games"]:
             diag["games"] = sv2_diag["games"]
             diag["fetch_succeeded"] = True
@@ -198,7 +204,10 @@ class NbaApiProvider(NBADataProvider):
         # ScoreboardV2 sometimes drops or returns inconsistent data for.)
         # ----------------- Strategy 2: LeagueGameFinder -----------------
         lgf_diag = self._try_leaguegamefinder(date)
-        diag["endpoint_history"].append(lgf_diag)
+        # See sv2 note above — keep the history entry JSON-serializable.
+        diag["endpoint_history"].append(
+            {k: v for k, v in lgf_diag.items() if k != "games"}
+        )
         if lgf_diag["status"] == "ok" and lgf_diag["games"]:
             diag["games"] = lgf_diag["games"]
             diag["fetch_succeeded"] = True
