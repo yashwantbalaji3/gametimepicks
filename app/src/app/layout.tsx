@@ -33,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="vault-shell">
         <DisclaimerBanner />
         <Nav />
         <main className="relative z-10">{children}</main>
