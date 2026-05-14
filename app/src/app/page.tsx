@@ -1,10 +1,21 @@
 import Link from "next/link";
-import { getBoard, getBoardForDate, getLifetimeSummary, getMeta, getSlate } from "@/lib/data";
+import {
+  getBoard,
+  getBoardForDate,
+  getLifetimeSummary,
+  getMeta,
+  getSlate,
+  getAvailableBoardDates,
+} from "@/lib/data";
 import { formatPercent } from "@/lib/format";
-import type { DataMode, BoardData } from "@/lib/types";
+import type { DataMode, BoardData, PropLean } from "@/lib/types";
 import KpiTile from "@/components/kpi-tile";
 import NewsletterSignup from "@/components/newsletter-signup";
-import { currentEtDate } from "@/lib/freshness";
+import HomepageTrendingTabs, {
+  type TrendingLean,
+  type TrendingGame,
+} from "@/components/homepage-trending-tabs";
+import { currentEtDate, dayLabelFor } from "@/lib/freshness";
 import { selectActiveSlate } from "@/lib/active-slate";
 
 export default function HomePage() {
@@ -98,10 +109,83 @@ export default function HomePage() {
   // CTA button text per mode
   const ctaText = ctaForMode(todayMode);
 
+  // PR B — Trending data prep.
+  //
+  // Find the latest board that has actually-scored leans (projection +
+  // edge present). On an off-day this lets the homepage point to real
+  // scored data instead of an empty "today" tile.
+  // If the slate set didn't include the latest scored board (e.g. it's
+  // older than the slate window), fall back to disk dates so we still
+  // surface a real scored archive on off-days.
+  const latestScoredHit =
+    findLatestScoredBoard(slateBoardsByDate) ?? findLatestScoredBoardOnDisk();
+  const latestScoredFinalDate = latestScoredHit?.date ?? null;
+  const latestScoredFinalBoard = latestScoredHit?.board ?? null;
+
+  const latestScoredLeans: PropLean[] = latestScoredFinalBoard?.leans ?? [];
+  const latestScoredLeanCount = latestScoredLeans.length;
+  const latestScoredHighCount = latestScoredLeans.filter(
+    (l) => l.confidence === "High",
+  ).length;
+  const latestScoredMatchup = matchupForBoard(latestScoredFinalBoard);
+  const latestScoredDayLabel = latestScoredFinalDate
+    ? dayLabelFor(latestScoredFinalDate, buildTimeToday)
+    : null;
+
+  // Strongest clean projections — exclude suspicious_edge anomalies.
+  const cleanProjections: TrendingLean[] = latestScoredLeans
+    .filter((l) => isClean(l))
+    .map(toTrendingLean)
+    .sort((a, b) => Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0))
+    .slice(0, 6);
+
+  // Anomaly watchlist — R5 suspicious_edge flagged leans.
+  const anomalyWatchlist: TrendingLean[] = latestScoredLeans
+    .filter((l) => (l.riskFlags ?? []).includes("suspicious_edge"))
+    .map(toTrendingLean)
+    .sort((a, b) => Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0))
+    .slice(0, 4);
+
+  // Upcoming slate — next future date with games > 0 after today.
+  const upcoming = slate.days
+    .filter((d) => d.date > buildTimeToday && (d.gameCount ?? 0) > 0)
+    .sort((a, b) => a.date.localeCompare(b.date))[0];
+  const upcomingDate = upcoming?.date ?? null;
+  const upcomingDayLabel = upcoming
+    ? dayLabelFor(upcoming.date, buildTimeToday)
+    : null;
+  const upcomingGames: TrendingGame[] = upcoming
+    ? (slateBoardsByDate[upcoming.date]?.games ?? []).map((g) => ({
+        gameId: g.gameId,
+        awayTeamAbbr: g.awayTeamAbbr,
+        homeTeamAbbr: g.homeTeamAbbr,
+        tipoff: g.tipoff,
+      }))
+    : [];
+
+  // Primary hero CTA — when today's slate is empty/refresh-pending but a
+  // real scored archive exists, route to that archive instead of /board's
+  // empty state.
+  const ctaHref =
+    (todayMode === "ScheduleUnavailable" ||
+      todayMode === "NoGames" ||
+      noCurrentSlate) &&
+    latestScoredFinalDate
+      ? `/board?date=${latestScoredFinalDate}`
+      : "/board";
+  const heroCtaText =
+    (todayMode === "ScheduleUnavailable" ||
+      todayMode === "NoGames" ||
+      noCurrentSlate) &&
+    latestScoredFinalDate
+      ? "View latest scored board"
+      : ctaText;
+
   return (
     <div className="mx-auto max-w-[1280px] px-6 py-12 md:py-20">
-      {/* Hero */}
-      <section className="reveal vault-hero-grid">
+      {/* Hero — PR B: vault-ambient-orbit primitive for the slow gold drift
+          backdrop, on top of the existing vault-hero-grid scan. */}
+      <section className="reveal vault-hero-grid vault-ambient-orbit relative overflow-hidden">
         <div className="eyebrow mb-5 flex items-center gap-2">
           <span className="live-dot vault-pulse" />
           {eyebrow}
@@ -116,19 +200,30 @@ export default function HomePage() {
           Educational analytics — not betting advice.
         </p>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link
-            href="/board"
+            href={ctaHref}
             className="inline-flex items-center gap-2 px-5 py-3 rounded-[3px] bg-[var(--vault-gold)] text-[#06070A] font-medium text-[14px] tracking-tight hover:bg-[var(--vault-gold-bright)] transition-colors"
           >
-            {ctaText}
+            {heroCtaText}
             <span aria-hidden>→</span>
           </Link>
           <Link
-            href="/methodology"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-[3px] border border-[var(--border-strong)] text-[var(--text)] font-medium text-[14px] tracking-tight hover:bg-[var(--hover)] transition-colors"
+            href="/parlay-lab"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-[3px] font-medium text-[14px] tracking-tight transition-colors"
+            style={{
+              border: "1px solid var(--vault-border-strong)",
+              color: "var(--vault-text)",
+            }}
           >
-            How the model works
+            Open Parlay Lab
+          </Link>
+          <Link
+            href="/methodology"
+            className="font-mono text-[12px] tracking-tight transition-colors px-2"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
+            how the model works →
           </Link>
         </div>
 
@@ -148,16 +243,33 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* KPI strip — different per mode */}
+      {/* KPI strip — PR B: when today has no scored leans (off-day /
+          refresh-pending), tiles 1 & 2 surface the latest scored slate
+          so the homepage remains useful instead of showing "—" on
+          off-days. Tiles 3 & 4 always show real settled aggregates. */}
       <section className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiTile
-          label={isDemoMode ? "leans in sample" : "leans today"}
+          label={
+            isDemoMode
+              ? "leans in sample"
+              : showLeanTiles
+                ? "leans today"
+                : "latest slate · leans"
+          }
           value={
-            showLeanTiles ? String(leansToday) : "—"
+            showLeanTiles
+              ? String(leansToday)
+              : latestScoredFinalDate
+                ? String(latestScoredLeanCount)
+                : "—"
           }
           sub={
             !showLeanTiles
-              ? "awaiting model leans"
+              ? latestScoredFinalDate
+                ? `${latestScoredDayLabel ?? latestScoredFinalDate}${
+                    latestScoredMatchup ? ` · ${latestScoredMatchup}` : ""
+                  }`
+                : "awaiting model leans"
               : isDemoMode
                 ? "demo data"
                 : undefined
@@ -165,9 +277,27 @@ export default function HomePage() {
           delay={1}
         />
         <KpiTile
-          label={isDemoMode ? "high-conf in sample" : "high confidence"}
-          value={showLeanTiles ? String(highConfidence) : "—"}
-          sub={!showLeanTiles ? "awaiting model leans" : undefined}
+          label={
+            isDemoMode
+              ? "high-conf in sample"
+              : showLeanTiles
+                ? "high confidence"
+                : "latest slate · high conf"
+          }
+          value={
+            showLeanTiles
+              ? String(highConfidence)
+              : latestScoredFinalDate
+                ? String(latestScoredHighCount)
+                : "—"
+          }
+          sub={
+            !showLeanTiles && latestScoredFinalDate
+              ? `${latestScoredDayLabel ?? latestScoredFinalDate}`
+              : !showLeanTiles
+                ? "awaiting model leans"
+                : undefined
+          }
           delay={2}
         />
         {/* Phase 11: real settled hit rate (replaces legacy demo hit_rates.json) */}
@@ -202,6 +332,21 @@ export default function HomePage() {
           delay={4}
         />
       </section>
+
+      {/* PR B — Trending tabs: projections / parlays / upcoming slate.
+          All data precomputed above; client component only owns tab
+          state and renders presentation. */}
+      <HomepageTrendingTabs
+        latestScoredDate={latestScoredFinalDate}
+        latestScoredDayLabel={latestScoredDayLabel}
+        latestScoredMatchup={latestScoredMatchup}
+        latestScoredLeanCount={latestScoredLeanCount}
+        cleanProjections={cleanProjections}
+        anomalyWatchlist={anomalyWatchlist}
+        upcomingDate={upcomingDate}
+        upcomingDayLabel={upcomingDayLabel}
+        upcomingGames={upcomingGames}
+      />
 
       {/* Three-up explainer */}
       <section className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -387,4 +532,86 @@ function ExplainerCard({
       </p>
     </div>
   );
+}
+
+// ---------------------------------------------------------------------------
+// PR B — Trending data helpers (pure, server-side)
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the latest board (within the loaded slate window) that has at
+ * least one scored lean. Used so the homepage can surface real model
+ * intelligence even when today is an off-day or refresh-pending.
+ */
+function findLatestScoredBoard(
+  boardsByDate: Record<string, BoardData>,
+): { date: string; board: BoardData } | null {
+  const dates = Object.keys(boardsByDate).sort().reverse();
+  for (const date of dates) {
+    const b = boardsByDate[date];
+    if (!b) continue;
+    if ((b.leans ?? []).some((l) => isScored(l))) {
+      return { date, board: b };
+    }
+  }
+  return null;
+}
+
+/**
+ * Fallback: walk every board file on disk (not just slate-window dates)
+ * looking for the latest scored one. Used when the active slate window
+ * doesn't include any scored board.
+ */
+function findLatestScoredBoardOnDisk(): { date: string; board: BoardData } | null {
+  const allDates = getAvailableBoardDates().slice().sort().reverse();
+  for (const date of allDates) {
+    const b = getBoardForDate(date);
+    if ((b.leans ?? []).some((l) => isScored(l))) {
+      return { date, board: b };
+    }
+  }
+  return null;
+}
+
+function isScored(l: PropLean): boolean {
+  // Real scored leans have both projection and edge set as numbers.
+  // trends_pending / insufficient_data leans always have projection null,
+  // so this single check covers both.
+  return (
+    typeof l.projection === "number" && typeof l.edgePct === "number"
+  );
+}
+
+/** A lean is "clean" if it's actionable AND not flagged as a model anomaly. */
+function isClean(l: PropLean): boolean {
+  if (!isScored(l)) return false;
+  if (l.confidence === "insufficient_data" || l.confidence === "no_play")
+    return false;
+  if ((l.riskFlags ?? []).includes("suspicious_edge")) return false;
+  if (l.lean === "No Play" || l.lean === "Pass") return false;
+  return true;
+}
+
+function toTrendingLean(l: PropLean): TrendingLean {
+  return {
+    playerName: l.playerName ?? "",
+    team: l.team ?? "",
+    opponent: l.opponent ?? "",
+    market: l.market ?? "",
+    line: typeof l.line === "number" ? l.line : 0,
+    side: l.lean ?? "No Play",
+    projection: typeof l.projection === "number" ? l.projection : null,
+    edgePct: typeof l.edgePct === "number" ? l.edgePct : null,
+    confidence: l.confidence ?? "Low",
+  };
+}
+
+/** Build a compact matchup string from a board's first game, e.g. "CLE @ DET". */
+function matchupForBoard(board: BoardData | null): string | null {
+  if (!board) return null;
+  const games = board.games ?? [];
+  if (games.length === 0) return null;
+  const g = games[0];
+  if (!g.awayTeamAbbr || !g.homeTeamAbbr) return null;
+  return `${g.awayTeamAbbr} @ ${g.homeTeamAbbr}`;
 }
