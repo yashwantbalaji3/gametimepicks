@@ -197,6 +197,22 @@ export function slateFreshnessLabel(f: SlateFreshness): string {
 }
 
 /**
+ * Format a game's tipoff label. Upstream schedule providers default to
+ * "12:00 AM ET" when a tipoff time is TBD. The NBA does not realistically
+ * schedule games at exactly midnight ET, so treat that exact placeholder
+ * as a TBD signal and render "Tipoff TBD" instead of literal midnight.
+ *
+ * Conservative on purpose: only the observed placeholder "12:00 AM ET" is
+ * masked. Any other tipoff string is rendered verbatim.
+ */
+export function formatTipoffLabel(tipoff: string): string {
+  const trimmed = tipoff.trim();
+  if (!trimmed) return "Tipoff TBD";
+  if (/^12:00\s*AM\s*ET$/i.test(trimmed)) return "Tipoff TBD";
+  return trimmed;
+}
+
+/**
  * Approximate "X hours ago" / "Y days ago" for the given ISO timestamp.
  * Public-friendly; returns "" on bad input.
  */
