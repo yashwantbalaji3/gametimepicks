@@ -139,7 +139,7 @@ EDGE_THRESHOLD_MEDIUM = 2.5
 CACHE_TTL_HOURS = 12
 
 # Network retry settings
-HTTP_TIMEOUT_SECONDS = _parse_int("HTTP_TIMEOUT_SECONDS", 12, minimum=1, maximum=120)
+HTTP_TIMEOUT_SECONDS = _parse_int("HTTP_TIMEOUT_SECONDS", 25, minimum=1, maximum=120)
 HTTP_MAX_RETRIES = _parse_int("HTTP_MAX_RETRIES", 3, minimum=0, maximum=10)
 HTTP_BACKOFF_SECONDS = 1.0
 
