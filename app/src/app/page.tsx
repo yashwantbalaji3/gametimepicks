@@ -182,35 +182,55 @@ export default function HomePage() {
       : ctaText;
 
   return (
-    <div className="mx-auto max-w-[1280px] px-6 py-12 md:py-20">
-      {/* Hero — PR B: vault-ambient-orbit primitive for the slow gold drift
-          backdrop, on top of the existing vault-hero-grid scan. */}
-      <section className="reveal vault-hero-grid vault-ambient-orbit relative overflow-hidden">
-        <div className="eyebrow mb-5 flex items-center gap-2">
+    <div className="vault-page-shell px-6 sm:px-8 py-14 md:py-24">
+      {/* Hero — PR makeover: layered vault-data-orbit + vault-ambient-orbit
+          backdrops for richer "model lab" storytelling. Larger display
+          typography ramp via vault-display-h1. */}
+      <section className="reveal vault-data-orbit vault-ambient-orbit relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pb-2">
+        <div className="mb-6 flex items-center gap-2.5">
           <span className="live-dot vault-pulse" />
-          {eyebrow}
+          <span
+            className="vault-quiet-label"
+            style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
+          >
+            {eyebrow}
+          </span>
         </div>
-        <h1 className="font-display text-[44px] md:text-[72px] leading-[0.95] tracking-tightest font-semibold text-[var(--text)] max-w-4xl">
+        <h1
+          className="vault-display-h1 max-w-4xl"
+          style={{ color: "var(--vault-text)" }}
+        >
           Transparent model leans on{" "}
-          <span style={{ color: "var(--vault-gold-bright)" }}>NBA player props.</span>
+          <span style={{ color: "var(--vault-gold-bright)" }}>
+            NBA player props.
+          </span>
         </h1>
-        <p className="mt-6 text-[var(--text-mute)] text-[16px] md:text-[18px] max-w-2xl leading-relaxed">
+        <p
+          className="mt-6 text-[16px] md:text-[18px] max-w-2xl leading-relaxed"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
           GametimePicks compares model projections against sportsbook lines,
           surfaces edges with explanations, and tracks every result publicly.
           Educational analytics — not betting advice.
         </p>
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
+        <div className="mt-9 flex flex-wrap items-center gap-3">
           <Link
             href={ctaHref}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-[3px] bg-[var(--vault-gold)] text-[#06070A] font-medium text-[14px] tracking-tight hover:bg-[var(--vault-gold-bright)] transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-[4px] font-medium text-[15px] tracking-tight transition-colors"
+            style={{
+              background: "var(--vault-gold)",
+              color: "#06070A",
+              boxShadow:
+                "0 0 0 1px rgba(212, 175, 55, 0.45), 0 12px 28px -10px rgba(240, 199, 94, 0.35)",
+            }}
           >
             {heroCtaText}
             <span aria-hidden>→</span>
           </Link>
           <Link
             href="/parlay-lab"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-[3px] font-medium text-[14px] tracking-tight transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-[4px] font-medium text-[15px] tracking-tight transition-colors"
             style={{
               border: "1px solid var(--vault-border-strong)",
               color: "var(--vault-text)",

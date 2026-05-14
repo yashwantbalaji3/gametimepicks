@@ -114,18 +114,24 @@ export default function BoardPage() {
   // "no current slate" state instead of resurrecting an old date.
   if (activeSlate.kind === "no_current" || activeSlate.kind === "no_data") {
     return (
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
-        <div className="reveal vault-hero-eyebrow vault-hero-grid">
+      <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14">
+        <div className="reveal vault-hero-eyebrow vault-data-orbit relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-6">
           <div
-            className="font-mono text-[10px] uppercase tracking-[0.18em]"
-            style={{ color: "var(--vault-gold)" }}
+            className="vault-quiet-label"
+            style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
           >
-            model board · NBA player props
+            Model board · NBA player props
           </div>
-          <h1 className="mt-2 font-display text-[28px] sm:text-[36px] md:text-[48px] tracking-tightest font-semibold leading-[1]">
+          <h1
+            className="mt-3 vault-display-h2"
+            style={{ color: "var(--vault-text)" }}
+          >
             {activeSlateHeading(activeSlate)}
           </h1>
-          <p className="mt-3 text-[var(--text-mute)] text-[13px] sm:text-[14px] font-mono max-w-2xl">
+          <p
+            className="mt-4 text-[14px] sm:text-[15px] max-w-2xl leading-relaxed"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
             {activeSlateSubtitle(activeSlate)}
           </p>
         </div>
@@ -154,28 +160,34 @@ export default function BoardPage() {
   );
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
-      <div className="reveal vault-hero-eyebrow vault-hero-grid">
+    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14">
+      <div className="reveal vault-hero-eyebrow vault-data-orbit relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-6">
         <div
-          className="font-mono text-[10px] uppercase tracking-[0.18em]"
-          style={{ color: "var(--vault-gold)" }}
+          className="vault-quiet-label"
+          style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
         >
           {eyebrow}
         </div>
-        <h1 className="mt-2 font-display text-[28px] sm:text-[36px] md:text-[48px] tracking-tightest font-semibold leading-[1]">
+        <h1
+          className="mt-3 vault-display-h2"
+          style={{ color: "var(--vault-text)" }}
+        >
           {headline}
         </h1>
-        <p className="mt-3 text-[var(--text-mute)] text-[13px] sm:text-[14px] font-mono">
+        <p
+          className="mt-3 text-[14px] sm:text-[15px]"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
           {subline}
         </p>
         <p
-          className="mt-4 max-w-2xl text-[12px] sm:text-[13px] leading-relaxed font-mono"
+          className="mt-5 max-w-2xl text-[13px] leading-relaxed"
           style={{ color: "var(--vault-text-faint)" }}
         >
           NBA player props grouped by player. Each card shows up to three
-          markets — points, rebounds, assists — with the model's projection,
-          edge, and confidence tier. When recent log data is unavailable, the
-          card says so honestly. Educational use only.
+          markets — points, rebounds, assists — with the model&apos;s
+          projection, edge, and confidence tier. When recent log data is
+          unavailable, the card says so honestly. Educational use only.
         </p>
       </div>
 

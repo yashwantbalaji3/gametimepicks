@@ -469,6 +469,139 @@ table,
   position: relative;
 }
 
+/* PR makeover — wider premium page container. Replaces the prior
+   1280px center column on hero pages so the model-lab feel scales on
+   16:9 displays. Apply on the top-level `<div>` of route pages that
+   want the wider treatment. */
+.vault-page-shell {
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Display headline ramp — used by hero sections + major section
+   headings to step away from the broadcast 44/72 ramp toward a more
+   restrained, modern editorial feel. Sentence-case, not all-caps. */
+.vault-display-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 7vw, 76px);
+  line-height: 0.97;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+}
+.vault-display-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4.5vw, 48px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+.vault-display-h3 {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 32px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+/* Section heading — replaces the tiny mono uppercase eyebrow pattern
+   for primary section titles. Sentence-case, slightly emphasized,
+   pairs with vault-quiet-label kicker above. Keep .eyebrow for legacy. */
+.vault-section-heading {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  color: var(--vault-text);
+}
+
+/* Premium "deluxe" card surface. Gold-edge gradient at the top + soft
+   shadow + refined hover. Doesn't change layout, just upgrades the
+   surface treatment so cards stop reading as flat boxes. */
+.vault-deluxe-card {
+  position: relative;
+  background:
+    linear-gradient(180deg,
+      rgba(20, 24, 35, 0.95) 0%,
+      rgba(14, 18, 28, 0.95) 100%);
+  border: 1px solid var(--vault-border);
+  border-radius: 6px;
+  transition: border-color 200ms ease, transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 240ms ease;
+}
+.vault-deluxe-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(212, 175, 55, 0.32) 0%,
+    rgba(212, 175, 55, 0.08) 18%,
+    transparent 36%
+  );
+  opacity: 0.55;
+  mask-image: linear-gradient(180deg, #000 0%, transparent 32%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 32%);
+}
+.vault-deluxe-card:hover {
+  border-color: var(--vault-border-strong);
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(212, 175, 55, 0.10),
+    0 14px 32px -16px rgba(0, 0, 0, 0.55);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vault-deluxe-card { transition: none; }
+  .vault-deluxe-card:hover { transform: none; }
+}
+
+/* Premium hero backdrop graphic — pure CSS data-orbit feel. Slow
+   rotating conic gradient + faint radial-dot field. Apply on a hero
+   wrapper that has `position: relative; overflow: hidden;`. The hero's
+   own content sits above this via z-index. Respects reduced motion. */
+.vault-data-orbit {
+  position: relative;
+  isolation: isolate;
+}
+.vault-data-orbit::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  z-index: -2;
+  background:
+    conic-gradient(from 200deg at 65% 35%,
+      transparent 0deg,
+      rgba(212, 175, 55, 0.07) 30deg,
+      transparent 70deg,
+      transparent 200deg,
+      rgba(212, 175, 55, 0.04) 240deg,
+      transparent 290deg);
+  animation: vault-orbit-rotate 60s linear infinite;
+  pointer-events: none;
+}
+.vault-data-orbit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 80% 10%, rgba(212, 175, 55, 0.10), transparent 35%),
+    radial-gradient(circle at 5% 90%, rgba(212, 175, 55, 0.06), transparent 40%);
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 110% 90% at 50% 50%, black 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 110% 90% at 50% 50%, black 60%, transparent 100%);
+}
+@keyframes vault-orbit-rotate {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vault-data-orbit::before { animation: none; }
+}
+
 /* A softer alternative to .eyebrow. 11px sentence-case mute-tone for
    places where the all-caps mono treatment feels too dense. The
    existing .eyebrow utility stays as-is for back-compat. */

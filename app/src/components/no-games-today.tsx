@@ -32,54 +32,104 @@ export default function NoGamesToday({
 
   return (
     <div
-      className="surface px-6 py-12"
+      className="vault-data-orbit relative overflow-hidden rounded-[6px] px-6 sm:px-10 py-14 sm:py-20"
       style={{
         textAlign: align,
+        background:
+          "linear-gradient(180deg, rgba(20, 24, 35, 0.85) 0%, rgba(14, 18, 28, 0.85) 100%)",
+        border: `1px solid ${
+          isFailure ? "rgba(240, 199, 94, 0.30)" : "var(--vault-border)"
+        }`,
         ...(isFailure
-          ? { borderLeftWidth: "2px", borderLeftColor: "var(--vault-warn)" }
+          ? {
+              borderLeftWidth: "2px",
+              borderLeftColor: "var(--vault-warn)",
+            }
           : {}),
       }}
     >
-      <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)] mb-3">
-        {dayLabel}
-        {isFailure && (
-          <span className="ml-3 text-[var(--vault-warn)]">· refresh pending</span>
-        )}
-      </div>
-      <div className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight text-[var(--text)]">
-        {headline}
-      </div>
-      <div
-        className={`mt-3 max-w-[640px] text-[13px] text-[var(--text-mute)] leading-relaxed ${
-          align === "center" ? "mx-auto" : ""
-        }`}
-      >
-        {body}
-      </div>
-      {nextSlate && nextSlate.gameCount > 0 && (
-        <div className={`mt-6 ${align === "center" ? "flex justify-center" : ""}`}>
-          <span
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[2px] font-mono text-[11px] tracking-tight"
-            style={{
-              background: "var(--vault-panel)",
-              border: "1px solid var(--vault-border)",
-              color: "var(--vault-text-mute)",
-            }}
-          >
+      <div className="relative">
+        <div
+          className={`vault-quiet-label mb-4 ${
+            align === "center" ? "flex justify-center" : ""
+          }`}
+          style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
+        >
+          <span className="inline-flex items-center gap-2">
             <span
-              className="font-mono text-[10px] uppercase tracking-[0.18em]"
-              style={{ color: "var(--vault-gold)" }}
-            >
-              next slate
-            </span>
-            <span style={{ color: "var(--vault-text)" }}>{nextSlate.dayLabel}</span>
-            <span style={{ color: "var(--vault-text-faint)" }}>·</span>
-            <span>
-              {nextSlate.gameCount} game{nextSlate.gameCount === 1 ? "" : "s"}
-            </span>
+              aria-hidden
+              className="inline-block w-1.5 h-1.5 rounded-full"
+              style={{
+                background: isFailure
+                  ? "var(--vault-warn)"
+                  : "var(--vault-text-faint)",
+              }}
+            />
+            {dayLabel}
+            {isFailure && (
+              <span style={{ color: "var(--vault-warn)" }}>
+                · refresh pending
+              </span>
+            )}
           </span>
         </div>
-      )}
+
+        <div
+          className="vault-display-h2"
+          style={{ color: "var(--vault-text)" }}
+        >
+          {headline}
+        </div>
+
+        <div
+          className={`mt-4 max-w-[640px] text-[14px] leading-relaxed ${
+            align === "center" ? "mx-auto" : ""
+          }`}
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          {body}
+        </div>
+
+        {nextSlate && nextSlate.gameCount > 0 && (
+          <div
+            className={`mt-8 ${align === "center" ? "flex justify-center" : ""}`}
+          >
+            <span
+              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full font-mono text-[12px] tracking-tight"
+              style={{
+                background: "var(--vault-panel-elevated)",
+                border: "1px solid var(--vault-border-strong)",
+                color: "var(--vault-text-mute)",
+              }}
+            >
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5 rounded-full vault-pulse"
+                style={{ background: "var(--vault-gold-bright)" }}
+              />
+              <span
+                className="uppercase tracking-[0.14em]"
+                style={{
+                  color: "var(--vault-gold)",
+                  fontSize: "10px",
+                }}
+              >
+                Next slate
+              </span>
+              <span
+                style={{ color: "var(--vault-text)", fontWeight: 600 }}
+              >
+                {nextSlate.dayLabel}
+              </span>
+              <span style={{ color: "var(--vault-text-faint)" }}>·</span>
+              <span>
+                {nextSlate.gameCount} game
+                {nextSlate.gameCount === 1 ? "" : "s"}
+              </span>
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

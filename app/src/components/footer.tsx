@@ -28,15 +28,15 @@ export default function Footer() {
             "linear-gradient(90deg, transparent, var(--vault-border-strong), transparent)",
         }}
       />
-      <div className="mx-auto max-w-[1280px] px-6 py-12">
+      <div className="mx-auto max-w-[1440px] px-6 sm:px-8 py-14">
         <div
           className="grid grid-cols-1 md:grid-cols-2 gap-10 text-[13px]"
           style={{ color: "var(--vault-text-mute)" }}
         >
           <div>
             <div
-              className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3"
-              style={{ color: "var(--vault-gold)" }}
+              className="vault-quiet-label mb-3"
+              style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
             >
               About
             </div>
@@ -55,8 +55,8 @@ export default function Footer() {
 
           <div>
             <div
-              className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3"
-              style={{ color: "var(--vault-gold)" }}
+              className="vault-quiet-label mb-3"
+              style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
             >
               Data sources
             </div>

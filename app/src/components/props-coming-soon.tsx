@@ -77,7 +77,7 @@ export default function PropsComingSoon({ gameCount, gameLabels }: Props) {
 
         {/* Heading */}
         <h2
-          className="mt-6 font-display text-[26px] sm:text-[34px] md:text-[42px] tracking-tightest font-semibold leading-[1.05] max-w-3xl"
+          className="mt-6 vault-display-h2 max-w-3xl"
           style={{ color: "var(--vault-text)" }}
         >
           {hasGames ? (
