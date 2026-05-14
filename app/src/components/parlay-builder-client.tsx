@@ -406,13 +406,6 @@ export default function ParlayBuilderClient({
             </button>
           ))}
         </div>
-        <p
-          className="mt-4 text-[10px] leading-relaxed"
-          style={{ color: "var(--vault-text-faint)" }}
-        >
-          Educational analysis only. Not betting advice. Combinations are
-          generated from real slate leans — no fabricated lines.
-        </p>
       </div>
 
       {/* Right — candidates */}
@@ -468,11 +461,9 @@ export default function ParlayBuilderClient({
 
 function SectionLabel({ n, text }: { n: string; text: string }) {
   return (
-    <div
-      className="font-mono text-[10px] uppercase tracking-[0.18em] mb-2.5"
-      style={{ color: "var(--vault-gold)" }}
-    >
-      {n} · {text}
+    <div className="font-mono text-[10px] uppercase tracking-[0.15em] mb-2.5">
+      <span style={{ color: "var(--vault-gold)" }}>{n}</span>
+      <span style={{ color: "var(--vault-text-faint)" }}> · {text}</span>
     </div>
   );
 }
@@ -555,28 +546,24 @@ function CandidateCard({
       className="rounded-[3px] p-4 sm:p-5 vault-glass vault-rise"
       style={{ animationDelay: `${index * 80}ms` }}
     >
-      <div className="flex items-baseline justify-between gap-3 flex-wrap">
-        <div className="flex items-baseline gap-3">
-          <div
-            className="font-mono text-[10px] uppercase tracking-[0.18em]"
-            style={{ color: "var(--vault-gold)" }}
-          >
-            candidate {index + 1}
-          </div>
-          <div
-            className="font-mono text-[10px] uppercase tracking-[0.15em]"
-            style={{ color: "var(--vault-text-faint)" }}
-          >
-            {candidate.legs.length} legs · {candidate.uniqueGames} game
-            {candidate.uniqueGames === 1 ? "" : "s"}
-          </div>
-        </div>
+      {/* Zone A — header: candidate identity + combined odds */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <span
+          className="inline-flex items-center px-2 py-1 rounded-[2px] font-mono text-[10px] uppercase tracking-[0.18em]"
+          style={{
+            background: "var(--vault-gold-dim)",
+            border: "1px solid var(--vault-border-strong)",
+            color: "var(--vault-gold-bright)",
+          }}
+        >
+          candidate {index + 1}
+        </span>
         <div className="font-mono text-[11px]">
           {candidate.combinedOddsAmerican != null ? (
             <>
               <span style={{ color: "var(--vault-text-faint)" }}>combined </span>
               <span
-                className="font-semibold"
+                className="font-semibold text-[13px]"
                 style={{ color: "var(--vault-gold-bright)" }}
               >
                 {candidate.combinedOddsAmerican > 0 ? "+" : ""}
@@ -590,97 +577,105 @@ function CandidateCard({
           )}
         </div>
       </div>
+      <div
+        className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.15em]"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        {candidate.legs.length} legs · {candidate.uniqueGames} game
+        {candidate.uniqueGames === 1 ? "" : "s"}
+      </div>
 
-      {candidate.hasSameGameLegs && (
-        <div
-          className="mt-3 px-3 py-2 rounded-[2px] text-[11px] leading-snug"
-          style={{
-            background: "var(--vault-warn-dim)",
-            border: "1px solid var(--vault-warn)",
-            color: "var(--vault-warn)",
-          }}
-        >
-          ⚠ same-game legs — outcomes may be correlated. Real combined
-          probability is typically lower than the implied odds suggest.
-        </div>
-      )}
-
-      <div className="mt-3 space-y-2">
+      {/* Zone B — legs */}
+      <div className="mt-4 space-y-2">
         {candidate.legs.map((la, i) => {
           const lean = la.matchedLean;
           if (!lean) return null;
+          const matchup =
+            lean.team && lean.opponent
+              ? `${lean.team} @ ${lean.opponent}`
+              : null;
           return (
             <div
               key={i}
-              className="px-3 py-2 rounded-[2px]"
+              className="px-3 py-2.5 rounded-[2px]"
               style={{
                 background: "var(--vault-panel)",
                 border: "1px solid var(--vault-border)",
               }}
             >
+              {/* Row 1: player + matchup */}
               <div className="flex items-baseline justify-between gap-3 flex-wrap">
-                <div>
+                <span
+                  className="font-display text-[15px] font-semibold tracking-tight"
+                  style={{ color: "var(--vault-text)" }}
+                >
+                  {lean.playerName}
+                </span>
+                {matchup && (
                   <span
-                    className="font-display text-[14px] font-semibold tracking-tight"
-                    style={{ color: "var(--vault-text)" }}
-                  >
-                    {lean.playerName}
-                  </span>
-                  <span
-                    className="ml-2 font-mono text-[10px]"
+                    className="font-mono text-[10px] uppercase tracking-[0.15em]"
                     style={{ color: "var(--vault-text-faint)" }}
                   >
-                    {lean.team} · {lean.team} @ {lean.opponent}
-                  </span>
-                </div>
-                <div className="font-mono text-[11px]">
-                  <span style={{ color: "var(--vault-text-mute)" }}>
-                    {lean.lean}
-                  </span>{" "}
-                  <span style={{ color: "var(--vault-gold-bright)" }}>
-                    {lean.line}
-                  </span>{" "}
-                  <span style={{ color: "var(--vault-text-mute)" }}>
-                    {lean.market}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[10px]">
-                <span>
-                  <span style={{ color: "var(--vault-text-faint)" }}>proj </span>
-                  <span style={{ color: "var(--vault-text)" }}>
-                    {lean.projection?.toFixed(1) ?? "—"}
-                  </span>
-                </span>
-                <span>
-                  <span style={{ color: "var(--vault-text-faint)" }}>edge </span>
-                  <span style={{ color: "var(--vault-gold)" }}>
-                    {lean.edgePct?.toFixed(1) ?? "—"}%
-                  </span>
-                </span>
-                <span>
-                  <span style={{ color: "var(--vault-text-faint)" }}>conf </span>
-                  <span
-                    style={{
-                      color:
-                        lean.confidence === "High"
-                          ? "var(--vault-gold-bright)"
-                          : lean.confidence === "Medium"
-                            ? "var(--vault-warn)"
-                            : "var(--vault-text-mute)",
-                    }}
-                  >
-                    {lean.confidence}
-                  </span>
-                </span>
-                {!la.hasRecent10 && (
-                  <span style={{ color: "var(--vault-warn)" }}>
-                    no recent10
+                    {matchup}
                   </span>
                 )}
-                {!la.hasValidPlayerId && (
-                  <span style={{ color: "var(--vault-warn)" }}>
-                    pid missing
+              </div>
+
+              {/* Row 2: lean as one readable phrase */}
+              <div className="mt-1 font-display text-[13px] tracking-tight">
+                <span style={{ color: "var(--vault-text-mute)" }}>
+                  {lean.lean}
+                </span>{" "}
+                <span
+                  className="font-semibold"
+                  style={{ color: "var(--vault-gold-bright)" }}
+                >
+                  {lean.line}
+                </span>{" "}
+                <span style={{ color: "var(--vault-text-mute)" }}>
+                  {lean.market}
+                </span>
+              </div>
+
+              {/* Row 3: stat chips */}
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <StatChip
+                  label="proj"
+                  value={
+                    typeof lean.projection === "number"
+                      ? lean.projection.toFixed(1)
+                      : "—"
+                  }
+                />
+                <StatChip
+                  label="edge"
+                  value={
+                    typeof lean.edgePct === "number"
+                      ? `${lean.edgePct.toFixed(1)}%`
+                      : "—"
+                  }
+                  valueColor="var(--vault-gold)"
+                />
+                <StatChip
+                  label="conf"
+                  value={lean.confidence}
+                  valueColor={
+                    lean.confidence === "High"
+                      ? "var(--vault-gold-bright)"
+                      : lean.confidence === "Medium"
+                        ? "var(--vault-warn)"
+                        : "var(--vault-text-mute)"
+                  }
+                />
+                {!la.hasRecent10 && (
+                  <span
+                    className="inline-flex items-center px-2 py-0.5 rounded-[2px] font-mono text-[10px] tracking-tight"
+                    style={{
+                      border: "1px solid var(--vault-border)",
+                      color: "var(--vault-text-faint)",
+                    }}
+                  >
+                    limited recent form
                   </span>
                 )}
               </div>
@@ -689,8 +684,21 @@ function CandidateCard({
         })}
       </div>
 
+      {/* Zone C — footnotes: same-game chip + rationale */}
+      {candidate.hasSameGameLegs && (
+        <div
+          className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[2px] font-mono text-[10px] uppercase tracking-[0.15em]"
+          style={{
+            border: "1px solid var(--vault-warn)",
+            color: "var(--vault-warn)",
+          }}
+        >
+          <span aria-hidden>⚠</span>
+          same-game legs · outcomes may correlate
+        </div>
+      )}
       <p
-        className="mt-3 text-[11px] leading-snug"
+        className="mt-3 text-[12px] leading-relaxed"
         style={{ color: "var(--vault-text-faint)" }}
       >
         {candidate.rationale}
@@ -699,12 +707,53 @@ function CandidateCard({
   );
 }
 
+function StatChip({
+  label,
+  value,
+  valueColor,
+}: {
+  label: string;
+  value: string;
+  valueColor?: string;
+}) {
+  return (
+    <span
+      className="inline-flex items-baseline gap-1 px-2 py-0.5 rounded-[2px] font-mono text-[10px] tracking-tight"
+      style={{
+        background: "var(--vault-panel-elevated)",
+        border: "1px solid var(--vault-border)",
+      }}
+    >
+      <span
+        className="uppercase tracking-[0.12em]"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        {label}
+      </span>
+      <span style={{ color: valueColor ?? "var(--vault-text)" }}>{value}</span>
+    </span>
+  );
+}
+
 function EmptyState({ heading, body }: { heading: string; body: string }) {
   return (
     <div
-      className="rounded-[3px] p-6 sm:p-8 vault-glass"
+      className="rounded-[3px] p-8 sm:p-10 vault-glass"
       style={{ textAlign: "center" }}
     >
+      <div className="flex items-center justify-center gap-2 mb-3">
+        <span
+          aria-hidden
+          className="inline-block w-1.5 h-1.5 rounded-full vault-pulse"
+          style={{ background: "var(--vault-gold)" }}
+        />
+        <span
+          className="font-mono text-[10px] uppercase tracking-[0.18em]"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          builder idle
+        </span>
+      </div>
       <div
         className="font-display text-[18px] font-semibold tracking-tight"
         style={{ color: "var(--vault-text)" }}

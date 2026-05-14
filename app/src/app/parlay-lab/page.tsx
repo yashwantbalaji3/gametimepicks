@@ -138,16 +138,6 @@ export default function ParlayLabPage() {
               never synthesize alternate lines or fabricate legs. If the model
               doesn't have a lean, that combination isn't available.
             </li>
-            <li>
-              <span style={{ color: "var(--vault-gold-bright)" }}>·</span>{" "}
-              Same-game legs trigger a correlation warning. Outcomes within one
-              game are not independent.
-            </li>
-            <li>
-              <span style={{ color: "var(--vault-gold-bright)" }}>·</span> Risk
-              profile is a label, not advice. Conservative ≠ guaranteed.
-              Aggressive ≠ doomed.
-            </li>
           </ul>
         </div>
       </section>
