@@ -27,7 +27,7 @@
  * This component does NOT fetch. All slate data flows in via props.
  */
 import { useState, useMemo } from "react";
-import type { PropLean } from "@/lib/types";
+import type { PropLean, ScheduleGame } from "@/lib/types";
 import type { ActiveSlateKind } from "@/lib/active-slate";
 import {
   buildParlayCandidates,
@@ -52,6 +52,7 @@ interface Props {
   datesAvailable: DateOption[];
   activeSlateKind: ActiveSlateKind;
   activeDate: string | null;
+  gamesByGameId: Record<string, ScheduleGame>;
 }
 
 const RISK_DESCRIPTIONS: Record<RiskProfile, string> = {
@@ -67,6 +68,7 @@ export default function ParlayBuilderClient({
   datesAvailable,
   activeSlateKind,
   activeDate,
+  gamesByGameId,
 }: Props) {
   // Phase 17: pick the default date intelligently.
   //   - Prefer the active slate (today / upcoming).
@@ -110,8 +112,8 @@ export default function ParlayBuilderClient({
     [dateLeans, includeFullRotation],
   );
   const gameOptions: GameOption[] = useMemo(
-    () => uniqueGamesFromLeans(dateLeans),
-    [dateLeans],
+    () => uniqueGamesFromLeans(dateLeans, gamesByGameId),
+    [dateLeans, gamesByGameId],
   );
 
   const candidates: ParlayCandidate[] = useMemo(() => {

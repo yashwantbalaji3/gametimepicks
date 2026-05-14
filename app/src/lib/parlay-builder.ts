@@ -20,7 +20,7 @@
  * Pure logic. Browser-safe. No fetches, no globals.
  */
 
-import type { PropLean, ConfidenceTier } from "./types";
+import type { PropLean, ConfidenceTier, ScheduleGame } from "./types";
 import type { LegAnalysis } from "./parlay";
 import { analyzeLeg, americanToImplied, impliedToAmerican } from "./parlay";
 import { topCorePlayerKeysPerTeam, playerKeyForLean } from "./core-players";
@@ -504,7 +504,10 @@ export interface GameOption {
   legCount: number;
 }
 
-export function uniqueGamesFromLeans(slateLeans: PropLean[]): GameOption[] {
+export function uniqueGamesFromLeans(
+  slateLeans: PropLean[],
+  gamesByGameId?: Record<string, ScheduleGame>,
+): GameOption[] {
   const map = new Map<string, GameOption>();
   for (const lean of slateLeans) {
     const gid = lean.gameId || "unknown";
@@ -512,10 +515,25 @@ export function uniqueGamesFromLeans(slateLeans: PropLean[]): GameOption[] {
     if (existing) {
       existing.legCount += 1;
     } else {
-      const label =
-        lean.team && lean.opponent ? `${lean.team} @ ${lean.opponent}` : gid;
+      const label = formatGameOptionLabel(gid, lean, gamesByGameId);
       map.set(gid, { gameId: gid, label, legCount: 1 });
     }
   }
   return [...map.values()].sort((a, b) => a.label.localeCompare(b.label));
+}
+
+function formatGameOptionLabel(
+  gid: string,
+  lean: PropLean,
+  gamesByGameId?: Record<string, ScheduleGame>,
+): string {
+  const game = gamesByGameId?.[gid];
+  if (game?.awayTeamAbbr && game?.homeTeamAbbr) {
+    const base = `${game.awayTeamAbbr} @ ${game.homeTeamAbbr}`;
+    return game.tipoff ? `${base} · ${game.tipoff}` : base;
+  }
+  if (lean.team && lean.opponent) {
+    return `${lean.team} @ ${lean.opponent}`;
+  }
+  return `Game ${gid}`;
 }
