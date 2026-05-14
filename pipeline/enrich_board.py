@@ -39,6 +39,7 @@ from .fetch_nba_data import fetch_player_game_logs
 from .build_features import build_player_features
 from .score_model import score_prop
 from .recent10_extractor import extract_recent10_all_markets
+from .confidence_guardrails import downgrade_lean
 
 log = logging.getLogger("gtp.enrich_board")
 logging.basicConfig(
@@ -192,6 +193,13 @@ def enrich_board(
         r10 = recent10_by_pid.get(pid, {}).get(market, [])
         if r10:
             lean["recent10"] = r10
+
+        # PR 19: apply conservative confidence guardrails after every score.
+        # Pure post-processing on the lean dict — only ever downgrades and
+        # stamps an audit trail (_guardrail / _originalConfidence). Order
+        # matters: recent10 is attached above so R1-R4 can use the log count.
+        guarded = downgrade_lean(lean)
+        lean.update(guarded)
         enriched += 1
 
     summary["enriched"] = enriched
