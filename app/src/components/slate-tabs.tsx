@@ -94,9 +94,14 @@ export default function SlateTabs({ days, selected, onChange, buildTimeToday }: 
                 )}
               </div>
               <div
-                className="mt-1 font-mono text-[10px] uppercase tracking-wider"
+                className="mt-1 font-mono text-[10px] uppercase tracking-wider flex items-center gap-1.5"
                 style={{ color: subtitle.color }}
               >
+                <span
+                  aria-hidden
+                  className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                  style={{ background: subtitle.color, opacity: 0.85 }}
+                />
                 {subtitle.text}
               </div>
             </button>

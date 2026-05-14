@@ -5,6 +5,7 @@
  * can see today's slate at a glance.
  */
 import type { ScheduleGame } from "@/lib/types";
+import { formatTipoffLabel } from "@/lib/freshness";
 
 interface Props {
   game: ScheduleGame;
@@ -23,7 +24,7 @@ export default function GameCard({ game }: Props) {
     <div className="surface px-4 py-3 min-w-[200px] shrink-0">
       <div className="flex items-baseline justify-between mb-2">
         <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
-          {game.tipoff}
+          {formatTipoffLabel(game.tipoff)}
         </span>
         <span
           className="font-mono text-[10px] uppercase tracking-wider tabular"

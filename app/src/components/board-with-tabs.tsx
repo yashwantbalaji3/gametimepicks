@@ -12,7 +12,7 @@
  * For non-Live dataModes, renders the existing info components.
  */
 import { useState } from "react";
-import type { BoardData, SlateData, DataMode } from "@/lib/types";
+import type { BoardData, SlateData, SlateDay, DataMode } from "@/lib/types";
 import SlateTabs from "./slate-tabs";
 import VaultBoard from "./vault-board";
 import NoGamesToday from "./no-games-today";
@@ -20,6 +20,7 @@ import PropsUnavailable from "./props-unavailable";
 import PropsComingSoon from "./props-coming-soon";
 import ScheduleStrip from "./schedule-strip";
 import DemoFallbackBanner from "./demo-fallback-banner";
+import { formatTipoffLabel } from "@/lib/freshness";
 
 interface Props {
   slate: SlateData;
@@ -36,6 +37,11 @@ export default function BoardWithTabs({ slate, boardsByDate, buildTimeToday }: P
   const dataMode: DataMode =
     (board?.dataMode as DataMode) || "ScheduleUnavailable";
 
+  // Find the next slate after the selected date that has games on it.
+  // Surfaced inside NoGamesToday so an off-day or refresh-pending day
+  // points the user forward instead of feeling like a dead end.
+  const nextSlate = nextSlateWithGames(slate.days, selected);
+
   return (
     <>
       <SlateTabs
@@ -44,9 +50,32 @@ export default function BoardWithTabs({ slate, boardsByDate, buildTimeToday }: P
         onChange={setSelected}
         buildTimeToday={buildTimeToday}
       />
-      {renderBody(dataMode, board, day, selected)}
+      {renderBody(dataMode, board, day, selected, nextSlate)}
     </>
   );
+}
+
+function nextSlateWithGames(
+  days: SlateDay[],
+  selectedDate: string,
+): { date: string; dayLabel: string; gameCount: number } | null {
+  const future = days
+    .filter((d) => d.date > selectedDate && (d.gameCount ?? 0) > 0)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  if (future.length === 0) return null;
+  const n = future[0];
+  return { date: n.date, dayLabel: n.dayLabel, gameCount: n.gameCount };
+}
+
+function gameLabelsWithTipoffs(games: BoardData["games"]): string[] {
+  return (games ?? [])
+    .map((g) => {
+      if (!g.awayTeamAbbr || !g.homeTeamAbbr) return null;
+      const base = `${g.awayTeamAbbr} @ ${g.homeTeamAbbr}`;
+      const tip = formatTipoffLabel(g.tipoff);
+      return tip ? `${base} · ${tip}` : base;
+    })
+    .filter((s): s is string => Boolean(s));
 }
 
 function renderBody(
@@ -54,6 +83,7 @@ function renderBody(
   board: BoardData | undefined,
   day: { date: string; dayLabel: string } | undefined,
   selectedDate: string,
+  nextSlate: { date: string; dayLabel: string; gameCount: number } | null,
 ) {
   if (!board || !day) {
     return (
@@ -61,6 +91,7 @@ function renderBody(
         date={day?.date ?? "—"}
         dayLabel={day?.dayLabel ?? "—"}
         reason="provider_failed"
+        nextSlate={nextSlate}
       />
     );
   }
@@ -97,43 +128,17 @@ function renderBody(
       );
 
     case "ScheduleLiveOddsUnavailable":
+      // PR 17: PropsComingSoon now carries the schedule story end-to-end
+      // (status pill, headline, game labels with tipoffs, CTAs). The
+      // previous stack added ScheduleStrip + PropsUnavailable below, which
+      // repeated the same message. Drop those — the hero is enough.
       return (
-        <>
-          {/* Phase 16: premium "props coming soon" hero — frames the
-              real-schedule + no-leans state as a wait-for-leans story
-              instead of the previous admin-y "odds API key not set"
-              messaging. */}
-          <div className="mb-6">
-            <PropsComingSoon
-              gameCount={board.games?.length ?? 0}
-              gameLabels={(board.games ?? [])
-                .map((g) =>
-                  g.awayTeamAbbr && g.homeTeamAbbr
-                    ? `${g.awayTeamAbbr} @ ${g.homeTeamAbbr}`
-                    : null,
-                )
-                .filter((s): s is string => Boolean(s))}
-            />
-          </div>
-          {board.games && board.games.length > 0 && (
-            <div className="mb-6">
-              <ScheduleStrip
-                schedule={{
-                  generatedAt: board.generatedAt,
-                  source: board.scheduleSource ?? "live schedule",
-                  isDemo: false,
-                  date: board.generatedFor,
-                  games: board.games,
-                }}
-              />
-            </div>
-          )}
-          <PropsUnavailable
+        <div className="mb-6">
+          <PropsComingSoon
             gameCount={board.games?.length ?? 0}
-            reason={propsUnavailableReason(board)}
-            failureReason={board.oddsFailureReason}
+            gameLabels={gameLabelsWithTipoffs(board.games)}
           />
-        </>
+        </div>
       );
 
     case "NoGames":
@@ -142,6 +147,7 @@ function renderBody(
           date={board.generatedFor}
           dayLabel={day.dayLabel}
           reason="confirmed_empty"
+          nextSlate={nextSlate}
         />
       );
 
@@ -152,6 +158,7 @@ function renderBody(
           dayLabel={day.dayLabel}
           reason="provider_failed"
           failureReason={board.scheduleFailureReason}
+          nextSlate={nextSlate}
         />
       );
 
@@ -188,6 +195,7 @@ function renderBody(
           date={board.generatedFor}
           dayLabel={day.dayLabel}
           reason="provider_failed"
+          nextSlate={nextSlate}
         />
       );
   }
