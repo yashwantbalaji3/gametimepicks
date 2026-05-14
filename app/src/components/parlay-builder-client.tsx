@@ -678,6 +678,18 @@ function CandidateCard({
                     limited recent form
                   </span>
                 )}
+                {lean.riskFlags?.includes("suspicious_edge") && (
+                  <span
+                    className="inline-flex items-center px-2 py-0.5 rounded-[2px] font-mono text-[10px] tracking-tight uppercase"
+                    style={{
+                      background: "var(--vault-warn-dim)",
+                      border: "1px solid rgba(240, 199, 94, 0.30)",
+                      color: "var(--vault-warn)",
+                    }}
+                  >
+                    model anomaly
+                  </span>
+                )}
               </div>
             </div>
           );

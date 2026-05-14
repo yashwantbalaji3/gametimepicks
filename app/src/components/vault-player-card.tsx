@@ -77,6 +77,16 @@ const CONFIDENCE_CFG: Record<
 
 const MARKET_ORDER: Market[] = ["PTS", "REB", "AST"];
 
+// PR 19: friendlier labels for guardrail-emitted riskFlags. Anything not in
+// this map falls back to the existing underscore-to-space transform.
+const RISK_FLAG_LABEL: Record<string, string> = {
+  suspicious_edge: "model anomaly",
+};
+
+function riskFlagLabel(flag: string): string {
+  return RISK_FLAG_LABEL[flag] ?? flag.replace(/_/g, " ");
+}
+
 export default function VaultPlayerCard({ card }: Props) {
   // Phase 9: trend panel expand state. Default collapsed; user opts in
   // by clicking "Show last 10 trends".
@@ -310,7 +320,7 @@ function MarketRowView({ row }: { row: MarketRow }) {
                 border: "1px solid rgba(240, 199, 94, 0.30)",
               }}
             >
-              {flag.replace(/_/g, " ")}
+              {riskFlagLabel(flag)}
             </span>
           ))}
         </div>

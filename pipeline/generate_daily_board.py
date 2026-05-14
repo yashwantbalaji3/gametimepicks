@@ -54,6 +54,7 @@ from .fetch_nba_data import fetch_player_game_logs, fetch_team_roster
 from .fetch_odds_data import fetch_props
 from .build_features import build_player_features, build_trend_payload
 from .score_model import score_prop
+from .confidence_guardrails import apply_to_leans
 from .player_resolver import resolve_player_id
 from .manual_overrides import (
     NewsSignal, load_signals, signals_for_lean,
@@ -524,6 +525,11 @@ def _build_real_payload(
         if odds_diag["props"]
         else ([], [], {}, {})
     )
+
+    # PR 19: apply conservative confidence guardrails (R1-R5) before any
+    # consumer (slate metadata, board JSON) sees the leans. Pure post-
+    # processing — only-downgrades, audit-stamped via _guardrail/_originalConfidence.
+    leans_payload, _guardrail_summary = apply_to_leans(leans_payload)
 
     # If real props ARE present, upgrade to Live
     final_data_mode = data_mode
@@ -1232,6 +1238,11 @@ def _build_demo_payload(
         ))
 
     log.info(f"  scored {len(leans_payload)} demo leans")
+
+    # PR 19: same guardrail pass for demo data so demo board semantics
+    # match production — same audit fields, same post-cap counts.
+    leans_payload, _guardrail_summary_demo = apply_to_leans(leans_payload)
+
     high_conf = sum(1 for l in leans_payload if l["confidence"] == "High")
 
     slate_day = {

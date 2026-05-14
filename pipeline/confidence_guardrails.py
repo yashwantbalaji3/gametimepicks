@@ -35,6 +35,16 @@ Rules (in order — first match wins):
       confidence="Low"
       Rationale: <5 games is too thin for any non-Low label.
 
+  R5. suspicious_edge_cap
+      |edgePct| >= 25 (regardless of sample size) →
+      confidence="Low", riskFlags includes "suspicious_edge"
+      Rationale: efficient sportsbook lines don't leave 25%+ edges on
+      the table; a model that thinks otherwise is almost always reading
+      stale or wrong features (e.g. regular-season averages during the
+      playoffs). Cap rather than suppress so the user still sees the
+      lean with an honest "model anomaly" warning. R2 still wins first
+      for extreme+thin (genuine suppression).
+
 These thresholds are deliberately conservative starting points based
 on common practice. They are NOT calibrated on settled outcomes — true
 calibration requires several settled slates (see pipeline.model_diagnostics
@@ -79,6 +89,7 @@ BOARDS_DIR = REPO_ROOT / "app" / "public" / "data" / "boards"
 # Thresholds — exposed at module level so tests + future calibration
 # can reference them directly.
 EXTREME_EDGE_THRESHOLD_PCT = 30.0
+SUSPICIOUS_EDGE_THRESHOLD_PCT = 25.0
 HIGH_CONF_MIN_LOGS = 8
 MEDIUM_CONF_MIN_LOGS = 5
 
@@ -129,12 +140,37 @@ def downgrade_lean(lean: dict) -> dict:
             out["_guardrail"] = "R1_no_logs_insufficient_data"
         return out
 
-    # R2: extreme edge + thin sample → suppress
+    # R2: extreme edge + thin sample → suppress entirely.
+    # Must run before R5 so genuine no-play suppression isn't softened
+    # to a Low cap.
     if has_finite_edge and abs(float(edge)) > EXTREME_EDGE_THRESHOLD_PCT and n_logs < HIGH_CONF_MIN_LOGS:
         _stamp(out, current_conf)
         out["confidence"] = "no_play"
         out["lean"] = "No Play"
         out["_guardrail"] = "R2_extreme_edge_thin_sample"
+        return out
+
+    # R5: suspicious extreme edge, ANY sample size. Caps at Low with a
+    # risk flag instead of suppressing — the user still sees the lean,
+    # but the card knows to render an honest "model anomaly" warning.
+    # Only applied when the current confidence is actionable; if news
+    # signals already pushed the lean to no_play / insufficient_data,
+    # don't second-guess that.
+    if (
+        has_finite_edge
+        and abs(float(edge)) >= SUSPICIOUS_EDGE_THRESHOLD_PCT
+        and current_conf in ("High", "Medium", "Low")
+    ):
+        _stamp(out, current_conf)
+        out["confidence"] = "Low"
+        out["_guardrail"] = "R5_suspicious_edge"
+        # Append to riskFlags without disturbing what was already there.
+        flags = out.get("riskFlags")
+        if not isinstance(flags, list):
+            flags = []
+        if "suspicious_edge" not in flags:
+            flags = [*flags, "suspicious_edge"]
+        out["riskFlags"] = flags
         return out
 
     # R3 + R4 cascade — if Medium-cap or Low-cap applies, cap accordingly.

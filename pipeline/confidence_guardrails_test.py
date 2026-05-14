@@ -108,10 +108,13 @@ def test_R2_extreme_edge_thin(s: Suite):
                                   recent10=[10, 12, 14, 16]))
     s.assert_eq(out_neg["confidence"], "no_play", "-32% edge + 4 logs → no_play")
 
-    # 35% edge with 10 logs (sufficient sample) — R2 should NOT trigger
-    out_safe = CG.downgrade_lean(L(conf="High", edge=35.0,
+    # 22% edge with 10 logs (sufficient sample, below R5 threshold) — no rule fires.
+    # NOTE: a 35% edge with 10 logs is now caught by R5 (suspicious_edge_cap);
+    # use 22% to prove R2 specifically does NOT fire when the sample is sufficient
+    # without crossing R5's threshold.
+    out_safe = CG.downgrade_lean(L(conf="High", edge=22.0,
                                    recent10=[20, 22, 24, 26, 28, 30, 32, 34, 36, 38]))
-    s.assert_eq(out_safe["confidence"], "High", "35% edge + 10 logs → High preserved (R2 not triggered)")
+    s.assert_eq(out_safe["confidence"], "High", "22% edge + 10 logs → High preserved (R2 not triggered, below R5)")
     s.assert_eq(out_safe.get("_guardrail"), None, "no rule stamped")
 
 
@@ -143,6 +146,63 @@ def test_R4_capped_low(s: Suite):
                                recent10=[10, 12, 14, 16, 18]))
     s.assert_eq(out5["confidence"], "Medium",
                 "5 logs → not R4 (boundary), falls to R3 → Medium")
+
+
+def test_R5_suspicious_edge(s: Suite):
+    print(f"\n  {BLUE}─── R5: suspicious extreme edge (any sample) → Low + flag ───{RESET}")
+    # High + 10 logs + edge 28% → R5 caps to Low and stamps riskFlag
+    out = CG.downgrade_lean(L(conf="High", edge=28.0,
+                              recent10=[10] * 10))
+    s.assert_eq(out["confidence"], "Low",
+                "High + 10 logs + 28% edge → Low")
+    s.assert_eq(out["_guardrail"], "R5_suspicious_edge", "R5 stamped")
+    s.assert_eq(out["_originalConfidence"], "High", "original High preserved")
+    s.assert_true(
+        isinstance(out.get("riskFlags"), list)
+        and "suspicious_edge" in out["riskFlags"],
+        "riskFlags contains 'suspicious_edge'",
+    )
+
+    # Negative-edge Under leg at -27% → same treatment
+    out_neg = CG.downgrade_lean(L(conf="High", edge=-27.0, lean="Under",
+                                  recent10=[10] * 10))
+    s.assert_eq(out_neg["confidence"], "Low",
+                "|-27%| edge → R5 fires")
+    s.assert_eq(out_neg["_guardrail"], "R5_suspicious_edge", "R5 stamped on Under")
+
+    # Boundary: 24.99% does NOT trigger, 25.00% DOES trigger
+    below = CG.downgrade_lean(L(conf="High", edge=24.99, recent10=[10] * 10))
+    s.assert_eq(below["confidence"], "High",
+                "24.99% edge → no R5 trigger (boundary below)")
+    s.assert_eq(below.get("_guardrail"), None, "no rule stamped below threshold")
+
+    at = CG.downgrade_lean(L(conf="High", edge=25.0, recent10=[10] * 10))
+    s.assert_eq(at["confidence"], "Low",
+                "25.00% edge → R5 triggers (boundary inclusive)")
+    s.assert_eq(at["_guardrail"], "R5_suspicious_edge", "R5 stamped at threshold")
+
+    # R2 still wins for extreme + thin: 35% edge + 6 logs → no_play, not Low
+    extreme_thin = CG.downgrade_lean(L(conf="High", edge=35.0, recent10=[10] * 6))
+    s.assert_eq(extreme_thin["confidence"], "no_play",
+                "35% + 6 logs → R2 (no_play), R5 does not override")
+    s.assert_eq(extreme_thin["_guardrail"], "R2_extreme_edge_thin_sample",
+                "R2 takes precedence over R5")
+
+    # Existing riskFlags are preserved, not replaced
+    lean_with_flag = L(conf="High", edge=28.0, recent10=[10] * 10)
+    lean_with_flag["riskFlags"] = ["news_risk_flag"]
+    out_keep = CG.downgrade_lean(lean_with_flag)
+    s.assert_true(
+        "news_risk_flag" in out_keep["riskFlags"]
+        and "suspicious_edge" in out_keep["riskFlags"],
+        "R5 appends 'suspicious_edge' alongside existing flags",
+    )
+
+    # Idempotency: re-running R5 on an already-adjusted lean is a no-op
+    twice = CG.downgrade_lean(out)
+    s.assert_eq(twice["confidence"], out["confidence"], "R5 idempotent: confidence unchanged")
+    s.assert_eq(twice["_guardrail"], out["_guardrail"], "R5 idempotent: rule unchanged")
+    s.assert_eq(twice["riskFlags"], out["riskFlags"], "R5 idempotent: no duplicate flag")
 
 
 def test_no_rule_triggers(s: Suite):
@@ -229,6 +289,7 @@ def main() -> int:
     test_R2_extreme_edge_thin(s)
     test_R3_high_capped_medium(s)
     test_R4_capped_low(s)
+    test_R5_suspicious_edge(s)
     test_no_rule_triggers(s)
     test_idempotency(s)
     test_only_downgrades(s)
