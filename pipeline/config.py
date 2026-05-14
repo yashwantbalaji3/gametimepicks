@@ -78,7 +78,7 @@ DATA_OUT = Path(os.getenv("GTP_DATA_OUT", APP_PUBLIC_DATA)).resolve()
 # Provider selection
 # ---------------------------------------------------------------------------
 # Tier 1 — primary
-NBA_DATA_PROVIDER = os.getenv("NBA_DATA_PROVIDER", "balldontlie")
+NBA_DATA_PROVIDER = os.getenv("NBA_DATA_PROVIDER", "nba_api")
 ODDS_PROVIDER = os.getenv("ODDS_PROVIDER", "the_odds_api")
 NEWS_PROVIDER = os.getenv("NEWS_PROVIDER", "manual")
 INJURY_PROVIDER = os.getenv("INJURY_PROVIDER", "manual")
@@ -96,7 +96,7 @@ INJURY_DATA_MODE = os.getenv("INJURY_DATA_MODE", "manual").lower()
 # because nba_api can be unreliable for current playoff dates with TBD opponents.
 # Set ENABLE_ESPN_FALLBACK=false to disable.
 ENABLE_ESPN_FALLBACK = os.getenv("ENABLE_ESPN_FALLBACK", "true").lower() == "true"
-ENABLE_BALLDONTLIE_FALLBACK = os.getenv("ENABLE_BALLDONTLIE_FALLBACK", "true").lower() == "true"
+ENABLE_BALLDONTLIE_FALLBACK = os.getenv("ENABLE_BALLDONTLIE_FALLBACK", "false").lower() == "true"
 ENABLE_OPTICODDS = os.getenv("ENABLE_OPTICODDS", "false").lower() == "true"
 ENABLE_SPORTSDATA = os.getenv("ENABLE_SPORTSDATA", "false").lower() == "true"
 
