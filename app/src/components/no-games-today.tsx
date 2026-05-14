@@ -2,24 +2,26 @@ interface Props {
   date: string;
   dayLabel: string;
   reason?: "confirmed_empty" | "provider_failed" | "demo_future";
+  /** Internal only — retained on the type for caller compatibility but
+   *  never rendered to public users. */
   failureReason?: string | null;
 }
 
 /**
- * NoGamesToday — clean empty state. Phase 7B-1.2 distinguishes:
- *   confirmed_empty   — nba_api returned 200 OK with zero games (off-day)
- *   provider_failed   — nba_api errored or unreachable AND no manual override
+ * NoGamesToday — clean empty state. Three sub-states:
+ *   confirmed_empty   — schedule confirmed zero games (true off-day)
+ *   provider_failed   — schedule not loaded yet on this refresh
  *   demo_future       — legacy: kept for back-compat with prior phases
  *
- * Never invents games or fabricates data.
+ * Never invents games or fabricates data. Never surfaces raw error
+ * strings or internal provider names to users.
  */
 export default function NoGamesToday({
   date,
   dayLabel,
   reason = "confirmed_empty",
-  failureReason,
 }: Props) {
-  const { headline, body } = copyForReason(date, reason, failureReason);
+  const { headline, body } = copyForReason(date, reason);
   const isFailure = reason === "provider_failed";
 
   return (
@@ -27,14 +29,14 @@ export default function NoGamesToday({
       className="surface px-6 py-12 text-center"
       style={
         isFailure
-          ? { borderLeftWidth: "2px", borderLeftColor: "var(--rose)", textAlign: "left" }
+          ? { borderLeftWidth: "2px", borderLeftColor: "var(--vault-warn)", textAlign: "left" }
           : undefined
       }
     >
       <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)] mb-3">
         {dayLabel}
         {isFailure && (
-          <span className="ml-3 text-[var(--rose)]">· schedule unavailable</span>
+          <span className="ml-3 text-[var(--vault-warn)]">· refresh pending</span>
         )}
       </div>
       <div className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight text-[var(--text)]">
@@ -43,11 +45,6 @@ export default function NoGamesToday({
       <div className="mt-3 max-w-[640px] mx-auto text-[13px] text-[var(--text-mute)] leading-relaxed">
         {body}
       </div>
-      {isFailure && failureReason && (
-        <div className="mt-4 max-w-[640px] mx-auto font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">
-          provider error: {failureReason}
-        </div>
-      )}
     </div>
   );
 }
@@ -55,21 +52,16 @@ export default function NoGamesToday({
 function copyForReason(
   date: string,
   reason: Props["reason"],
-  _failureReason?: string | null,
 ): { headline: string; body: React.ReactNode } {
   switch (reason) {
     case "provider_failed":
       return {
-        headline: "Schedule provider unavailable.",
+        headline: "Today's slate is refreshing.",
         body: (
           <>
-            We couldn&apos;t confirm whether NBA games are scheduled for{" "}
-            {date}. The schedule source returned an error and no
-            manually-verified entry exists for this date. This is{" "}
-            <span className="text-[var(--text)] font-semibold">not</span> the
-            same as &ldquo;no games today&rdquo; — we genuinely don&apos;t
-            know yet. The next refresh will retry; check back in a couple
-            hours.
+            We don&apos;t have a confirmed schedule for {date} yet — the
+            next scheduled refresh will retry. Check back in a few minutes,
+            or try the other tabs for upcoming dates.
           </>
         ),
       };
@@ -89,9 +81,8 @@ function copyForReason(
         headline: "No NBA games found.",
         body: (
           <>
-            The schedule provider confirmed there are no NBA games scheduled
-            for {date}. This is an off-day — try the other tabs for upcoming
-            dates.
+            There are no NBA games scheduled for {date}. This is an
+            off-day — try the other tabs for upcoming dates.
           </>
         ),
       };
