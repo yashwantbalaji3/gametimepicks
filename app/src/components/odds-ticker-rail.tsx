@@ -61,6 +61,7 @@ export default function OddsTickerRail({ cells, eyebrow }: Props) {
             </span>
           </div>
         )}
+        <span aria-hidden className="gtp-ticker-chevron">»</span>
         <div className="overflow-hidden flex-1">
           <div className="gtp-ticker-track" aria-hidden>
             {doubled.map((c, i) => (
@@ -84,6 +85,7 @@ export default function OddsTickerRail({ cells, eyebrow }: Props) {
             ))}
           </div>
         </div>
+        <span aria-hidden className="gtp-ticker-chevron">»</span>
       </div>
     </div>
   );

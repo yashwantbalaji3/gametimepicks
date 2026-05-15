@@ -197,7 +197,10 @@ export default function FeaturedHeadliners({
   }
 
   return (
-    <section className="mb-8" aria-label="Star headliner spotlight">
+    <section
+      className="gtp-rail-frame"
+      aria-label="Star headliner spotlight"
+    >
       {/* Section header */}
       <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">

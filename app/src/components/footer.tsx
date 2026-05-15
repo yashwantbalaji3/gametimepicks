@@ -43,7 +43,7 @@ export default function Footer() {
             aria-label="GameTimePicks home"
             className="vault-glow-hover rounded-[4px] py-1 px-1 -ml-1"
           >
-            <BrandMark variant="compact" marker="model lab" />
+            <BrandMark variant="compact" marker="model lab" ambient />
           </Link>
           <span
             className="text-[12px]"

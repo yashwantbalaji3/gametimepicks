@@ -34,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="vault-shell">
+        <span aria-hidden className="gtp-floor-lights" />
         <DisclaimerBanner />
         <Nav />
         <main className="relative z-10">{children}</main>
