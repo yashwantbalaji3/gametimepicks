@@ -84,7 +84,7 @@ export default function Footer() {
             >
               Data sources
             </div>
-            <ul className="space-y-1.5">
+            <ul className="flex flex-wrap gap-2 list-none p-0">
               {visibleSources.map((src) => (
                 <li key={src.name}>
                   {src.url ? (
@@ -92,14 +92,21 @@ export default function Footer() {
                       href={src.url}
                       target="_blank"
                       rel="noopener"
-                      className="transition-colors"
-                      style={{ color: "var(--vault-text-mute)" }}
+                      className="gtp-source-chip"
                     >
-                      {src.name}{" "}
-                      <span style={{ color: "var(--vault-text-faint)" }}>↗</span>
+                      <span>{src.name}</span>
+                      <span
+                        aria-hidden
+                        style={{ color: "var(--vault-text-faint)" }}
+                      >
+                        ↗
+                      </span>
                     </a>
                   ) : (
-                    <span style={{ color: "var(--vault-text-faint)" }}>
+                    <span
+                      className="gtp-source-chip"
+                      style={{ color: "var(--vault-text-faint)" }}
+                    >
                       {src.name}
                     </span>
                   )}

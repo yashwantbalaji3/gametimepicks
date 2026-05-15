@@ -7,6 +7,10 @@ import NewsletterSignup from "@/components/newsletter-signup";
 import TodayAwareSlateBanner from "@/components/today-aware-slate-banner";
 import NoCurrentSlate from "@/components/no-current-slate";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
+import SportsbookStatusBoard, {
+  type StatusBoardGame,
+  type StatusBoardStat,
+} from "@/components/sportsbook-status-board";
 import { currentEtDate } from "@/lib/freshness";
 import {
   selectActiveSlate,
@@ -277,6 +281,77 @@ export default function BoardPage() {
         </details>
       </div>
 
+      {/* Sportsbook status board — composes the primary board into an
+          LED-style readout (games / projections / High confidence /
+          anomalies / last refresh). Only renders when the primary board
+          has games or leans; otherwise the TodayAwareSlateBanner below
+          covers the off-day / refresh-pending state. */}
+      {primaryBoard &&
+        ((primaryBoard.games ?? []).length > 0 ||
+          (primaryBoard.leans ?? []).length > 0) &&
+        (() => {
+          const board = primaryBoard;
+          const boardGames: StatusBoardGame[] = (board.games ?? [])
+            .slice(0, 6)
+            .map((g) => ({
+              gameId: g.gameId,
+              awayTeamAbbr: g.awayTeamAbbr,
+              homeTeamAbbr: g.homeTeamAbbr,
+              tipoff: g.tipoff,
+            }));
+          const projectionsCount = (board.leans ?? []).length;
+          const highCount = (board.leans ?? []).filter(
+            (l) => l.confidence === "High",
+          ).length;
+          const anomalyCount = (board.leans ?? []).filter((l) =>
+            (l.riskFlags ?? []).includes("suspicious_edge"),
+          ).length;
+          const stats: StatusBoardStat[] = [
+            {
+              label: "Projections",
+              value: String(projectionsCount),
+              accent: projectionsCount > 0 ? "gold" : "mute",
+            },
+            {
+              label: "High conf",
+              value: String(highCount),
+              accent: highCount > 0 ? "gold" : "mute",
+            },
+            {
+              label: "Anomalies",
+              value: String(anomalyCount),
+              accent: anomalyCount > 0 ? "warn" : "mute",
+            },
+            {
+              label: "Refreshed",
+              value: shortTimeFromIso(
+                board.generatedAt ?? slate.generatedAt,
+              ),
+              accent: "mute",
+            },
+          ];
+          const selectedDateIso =
+            activeSlate.selectedDate ?? slate.primaryDate;
+          return (
+            <div className="mt-6 reveal reveal-d2">
+              <SportsbookStatusBoard
+                mode="compact"
+                eyebrow={`${formatDateLong(selectedDateIso)} · readout`}
+                headline={
+                  boardGames.length > 0
+                    ? boardGames
+                        .map((g) => `${g.awayTeamAbbr} @ ${g.homeTeamAbbr}`)
+                        .join(" · ")
+                    : "Schedule loaded · projections rendering"
+                }
+                stats={stats}
+                steady
+                footnote="Guardrails active · educational only"
+              />
+            </div>
+          );
+        })()}
+
       {/* Phase 14: today-aware staleness banner — only renders when slate
           is older than today or pipeline run is stale. Uses the user's
           real ET clock after hydration. */}
@@ -476,6 +551,20 @@ function dayLabelFor(date: string, primary: string): string {
     });
   } catch {
     return date;
+  }
+}
+
+/** Iteration 2: short HH:MM ET stamp for the status-board "Refreshed" cell. */
+function shortTimeFromIso(iso: string): string {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: "America/New_York",
+    });
+  } catch {
+    return "—";
   }
 }
 

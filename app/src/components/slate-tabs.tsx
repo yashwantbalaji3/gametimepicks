@@ -61,15 +61,21 @@ export default function SlateTabs({ days, selected, onChange, buildTimeToday }: 
               type="button"
               onClick={() => onChange(day.date)}
               aria-pressed={isSelected}
-              className={`shrink-0 px-5 sm:px-6 py-3.5 text-left transition-all duration-150 cursor-pointer ${isSelected ? "vault-tab-active" : ""}`}
+              className={`shrink-0 px-5 sm:px-6 py-3.5 text-left transition-all duration-150 cursor-pointer relative ${isSelected ? "vault-tab-active" : ""}`}
               style={{
                 borderBottom: `2px solid ${
                   isSelected ? "var(--vault-gold)" : "transparent"
                 }`,
                 marginBottom: "-1px",
                 minWidth: "112px",
+                // Iteration 2: lit-up active tab — gold-dim wash + soft top
+                // inner-glow so the selected date reads as "powered on",
+                // not just underlined.
+                background: isSelected
+                  ? "linear-gradient(180deg, rgba(212, 175, 55, 0.10) 0%, rgba(212, 175, 55, 0) 80%)"
+                  : "transparent",
                 boxShadow: isSelected
-                  ? "0 4px 14px -8px var(--vault-gold-glow)"
+                  ? "inset 0 1px 0 rgba(240, 199, 94, 0.25), 0 6px 18px -10px rgba(240, 199, 94, 0.35)"
                   : "none",
               }}
             >

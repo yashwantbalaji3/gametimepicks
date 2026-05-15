@@ -993,3 +993,339 @@ table,
   .gtp-vegas-marquee::before { animation: none; opacity: 0.3; }
 }
 
+/* ============================================================================
+   Iteration 2 — composed sportsbook modules.
+   These primitives back the new presentational components
+   (SportsbookStatusBoard, OddsTickerRail, VegasSectionShell,
+   NeonStatPanel). Each one is opt-in via the class on the component.
+   ============================================================================ */
+
+/* Status-board panel surface. Reads as a glass odds-board: dark navy
+   gradient + gold rim + a "scoreboard" repeating-line texture at the
+   top-right that fades out. Used by SportsbookStatusBoard. */
+.gtp-status-board {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(165deg,
+      rgba(20, 24, 38, 0.96) 0%,
+      rgba(10, 14, 28, 0.96) 60%,
+      rgba(8, 12, 22, 0.96) 100%);
+  border: 1px solid var(--vault-border-strong);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.06),
+    0 1px 0 rgba(255, 235, 170, 0.05),
+    0 24px 48px -28px rgba(0, 0, 0, 0.85),
+    0 0 30px -10px rgba(212, 175, 55, 0.12);
+  overflow: hidden;
+}
+.gtp-status-board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(212, 175, 55, 0.045) 0,
+      rgba(212, 175, 55, 0.045) 1px,
+      transparent 1px,
+      transparent 6px
+    );
+  mask-image: radial-gradient(ellipse 80% 60% at 100% 0%, black, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 100% 0%, black, transparent 75%);
+  opacity: 0.7;
+}
+.gtp-status-board::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 80% 0%, rgba(240, 199, 94, 0.16), transparent 50%),
+    radial-gradient(circle at 10% 100%, rgba(111, 230, 255, 0.07), transparent 55%);
+}
+.gtp-status-board > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* LED-style row inside the status board — used to render scheduled
+   games or stat lines. Faint gold rule + tabular figures. */
+.gtp-led-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  border-radius: 3px;
+  background: rgba(7, 11, 26, 0.55);
+  border: 1px solid var(--vault-rule);
+  transition: border-color 200ms ease, background 200ms ease;
+}
+.gtp-led-row:hover {
+  border-color: var(--vault-border-strong);
+  background: rgba(20, 24, 38, 0.75);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-led-row { transition: none; }
+}
+
+/* Odds-ticker rail — narrow horizontal strip that scrolls a small
+   number of "ticker" cells across. We render the cells inline; the
+   parent owns overflow + the marquee animation. */
+.gtp-ticker-rail {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--vault-rule);
+  border-bottom: 1px solid var(--vault-rule);
+  background: linear-gradient(180deg, rgba(7, 11, 26, 0) 0%, rgba(20, 24, 38, 0.5) 100%);
+  mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
+}
+.gtp-ticker-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 28px;
+  padding: 10px 0;
+  white-space: nowrap;
+  animation: gtp-ticker-scroll 48s linear infinite;
+  will-change: transform;
+}
+@keyframes gtp-ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.gtp-ticker-rail:hover .gtp-ticker-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-ticker-track { animation: none; }
+}
+.gtp-ticker-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--vault-text-mute);
+  letter-spacing: 0.02em;
+}
+.gtp-ticker-cell .gtp-ticker-player {
+  color: var(--vault-text);
+  font-weight: 500;
+}
+.gtp-ticker-cell .gtp-ticker-edge {
+  color: var(--vault-gold-bright);
+  font-weight: 600;
+}
+.gtp-ticker-cell .gtp-ticker-edge-warn {
+  color: var(--vault-warn);
+  font-weight: 600;
+}
+.gtp-ticker-cell .gtp-ticker-divider {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--vault-gold);
+  box-shadow: 0 0 4px rgba(240, 199, 94, 0.45);
+}
+
+/* Neon stat panel — premium replacement for the flat .surface KpiTile.
+   3px gold top-rule that intensifies on hover, deep navy body, large
+   display number, subtle inner glow. */
+.gtp-stat-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 18px 18px;
+  border-radius: 6px;
+  background: linear-gradient(180deg,
+    rgba(20, 24, 38, 0.95),
+    rgba(10, 14, 28, 0.95));
+  border: 1px solid var(--vault-border);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.04),
+    0 8px 22px -16px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+.gtp-stat-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    rgba(212, 175, 55, 0.0) 0%,
+    rgba(212, 175, 55, 0.65) 30%,
+    rgba(240, 199, 94, 0.85) 50%,
+    rgba(212, 175, 55, 0.65) 70%,
+    rgba(212, 175, 55, 0.0) 100%);
+  filter: drop-shadow(0 0 6px rgba(240, 199, 94, 0.4));
+  opacity: 0.5;
+  transition: opacity 220ms ease;
+}
+.gtp-stat-panel:hover {
+  border-color: var(--vault-border-strong);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.10),
+    0 14px 28px -16px rgba(0, 0, 0, 0.75),
+    0 0 28px -12px rgba(240, 199, 94, 0.35);
+}
+.gtp-stat-panel:hover::before {
+  opacity: 0.95;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-stat-panel,
+  .gtp-stat-panel::before { transition: none; }
+  .gtp-stat-panel:hover { transform: none; }
+}
+.gtp-stat-panel-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--vault-text-faint);
+  text-transform: none;
+}
+.gtp-stat-panel-value {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(26px, 3.6vw, 36px);
+  line-height: 1;
+}
+.gtp-stat-panel-sub {
+  font-size: 11px;
+  color: var(--vault-text-faint);
+}
+
+/* Vegas section shell — composed container that wraps a section in a
+   subtle gold edge + corner brackets + a horizontal divider line. Used
+   on home (Trending, How it works) so sections feel intentionally
+   panelled instead of free-floating. */
+.gtp-vegas-shell {
+  position: relative;
+  isolation: isolate;
+  padding: 28px 24px;
+  border-radius: 10px;
+  background: linear-gradient(180deg,
+    rgba(20, 24, 38, 0.45) 0%,
+    rgba(10, 14, 28, 0.55) 100%);
+  border: 1px solid var(--vault-border);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.04),
+    0 18px 36px -28px rgba(0, 0, 0, 0.6);
+}
+.gtp-vegas-shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--gtp-edge-light) 30%,
+    var(--gtp-edge-light) 70%,
+    transparent);
+  filter: blur(0.4px);
+  opacity: 0.65;
+}
+@media (min-width: 768px) {
+  .gtp-vegas-shell { padding: 36px 32px; }
+}
+
+/* Active-state nav bullet — used by Nav.tsx to add a small inline gold
+   dot on the left of the active label. Adds a clearer "you are here"
+   beat than the underline alone. */
+.gtp-nav-bullet {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--vault-gold-bright);
+  box-shadow: 0 0 8px rgba(240, 199, 94, 0.6);
+  vertical-align: middle;
+}
+
+/* Data-source chip used in the footer to replace the bulleted list. */
+.gtp-source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(20, 24, 38, 0.65);
+  border: 1px solid var(--vault-border);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--vault-text-mute);
+  transition: border-color 180ms ease, color 180ms ease;
+}
+.gtp-source-chip:hover {
+  border-color: var(--vault-border-strong);
+  color: var(--vault-text);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-source-chip { transition: none; }
+}
+
+/* Methodology numbered step card — used by the new methodology
+   numbered-card pattern. Pairs with the existing vault-deluxe-card. */
+.gtp-method-numeral {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--vault-gold-dim);
+  border: 1px solid var(--vault-border-strong);
+  color: var(--vault-gold-bright);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 14px -4px rgba(240, 199, 94, 0.42);
+}
+
+/* Date-tab state dots — used by slate-tabs.tsx to indicate populated
+   vs. empty slates without inventing a status word. */
+.gtp-slate-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.gtp-slate-dot-live {
+  background: var(--vault-gold-bright);
+  box-shadow: 0 0 8px rgba(240, 199, 94, 0.6);
+  animation: gtp-neon-pulse 3.2s ease-in-out infinite;
+}
+.gtp-slate-dot-empty {
+  background: var(--vault-text-faint);
+  opacity: 0.5;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-slate-dot-live { animation: none; }
+}
+
+
