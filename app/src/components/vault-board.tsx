@@ -38,6 +38,7 @@ import { enrichLeansWithGames } from "@/lib/lean-enrich";
 import { groupLeansIntoPlayerCards } from "@/lib/grouping";
 import VaultFilters from "./vault-filters";
 import VaultPlayerCard from "./vault-player-card";
+import FeaturedHeadliners from "./featured-headliners";
 
 interface Props {
   board: BoardData;
@@ -152,10 +153,34 @@ export default function VaultBoard({ board }: Props) {
         <VaultEmptyState dirty={dirty} onResetAll={onResetAll} />
       ) : (
         <>
+          {/* Iteration 3: Featured Headliners spotlights star players
+              when their props are actually loaded on this slate. The
+              same cards are intentionally NOT repeated in the main grid
+              below (filtered out via cardKey set) so the user sees the
+              stars first and the rest below, without duplicates. The
+              dirty check ensures the headliner section disappears when
+              the user has narrowed filters — at that point the user is
+              browsing, not landing. */}
+          {!dirty &&
+            (() => {
+              const slateTeams = new Set<string>();
+              for (const g of games) {
+                if (g.homeTeamAbbr) slateTeams.add(g.homeTeamAbbr);
+                if (g.awayTeamAbbr) slateTeams.add(g.awayTeamAbbr);
+              }
+              return (
+                <FeaturedHeadliners
+                  playerCards={playerCards}
+                  slateTeams={slateTeams}
+                />
+              );
+            })()}
+
           <SectionHeading
             playerCount={playerCards.length}
             propCount={visibleLeans.length}
             totalProps={enrichedLeans.length}
+            allView={!dirty}
           />
           <div
             key={filterSig}
@@ -165,9 +190,28 @@ export default function VaultBoard({ board }: Props) {
                 "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
             }}
           >
-            {playerCards.map((card) => (
-              <VaultPlayerCard key={card.cardKey} card={card} />
-            ))}
+            {(() => {
+              // When the headliner strip is active, omit those star cards
+              // from the main grid so each player only appears once.
+              const starNames = new Set([
+                "Anthony Edwards",
+                "Victor Wembanyama",
+                "Donovan Mitchell",
+                "Cade Cunningham",
+                "Evan Mobley",
+                "Jarrett Allen",
+                "Jalen Duren",
+                "Julius Randle",
+                "Rudy Gobert",
+                "De'Aaron Fox",
+              ]);
+              const remaining = dirty
+                ? playerCards
+                : playerCards.filter((c) => !starNames.has(c.playerName));
+              return remaining.map((card) => (
+                <VaultPlayerCard key={card.cardKey} card={card} />
+              ));
+            })()}
           </div>
 
           <ResponsibleUseFooter />
@@ -222,10 +266,15 @@ function SectionHeading({
   playerCount,
   propCount,
   totalProps,
+  allView,
 }: {
   playerCount: number;
   propCount: number;
   totalProps: number;
+  /** When true, the headliner strip is visible above — use a clearer
+   *  separator ("All projections") so the user knows they're past the
+   *  star section. */
+  allView?: boolean;
 }) {
   return (
     <div className="flex items-center gap-3 mb-4">
@@ -233,7 +282,7 @@ function SectionHeading({
         className="font-mono text-[10px] uppercase tracking-[0.18em] shrink-0"
         style={{ color: "var(--vault-gold)" }}
       >
-        model board
+        {allView ? "All projections · model board" : "Model board"}
       </span>
       <div
         className="flex-1 h-px"

@@ -96,6 +96,150 @@ function riskFlagLabel(flag: string): string {
 
 const SUSPICIOUS_EDGE_PCT = 25;
 
+// ---------------------------------------------------------------------------
+// buildLeanReasonBullets
+//
+// Iteration 3: the pipeline's reason string is a semicolon-joined sentence
+// chain like:
+//
+//   "Under 4.5: projection 3.4 (+7.1pp edge). last-5 avg 4.0 AST;
+//    minutes trending down; playing at home."
+//
+// That reads as a shabby data-dump. This helper parses the recognised
+// sub-strings the pipeline emits (see pipeline/score_model.py:215-225)
+// and rebuilds the explanation as discrete bullet points that pair with
+// the projection-vs-line visual. It NEVER fabricates fields — if a piece
+// of context isn't in the reason or on the lean, no bullet is rendered
+// for it.
+//
+// The bullets are returned as plain strings; the caller decides the
+// visual treatment (list rendering, spacing, etc.).
+// ---------------------------------------------------------------------------
+interface BulletInput {
+  reason?: string | null;
+  market?: string;
+  line?: number | null;
+  projection?: number | null;
+  edgePct?: number | null;
+  homeAway?: string;
+  opponent?: string;
+  lean?: string;
+  confidence?: string;
+  riskFlags?: string[] | null;
+  guardrail?: string | null;
+  originalConfidence?: string | null;
+}
+
+function buildLeanReasonBullets(input: BulletInput): string[] {
+  const bullets: string[] = [];
+  const reason = input.reason || "";
+
+  // 1. Projection vs line — only when both are present.
+  if (
+    typeof input.projection === "number" &&
+    Number.isFinite(input.projection) &&
+    typeof input.line === "number" &&
+    Number.isFinite(input.line)
+  ) {
+    const diff = input.projection - input.line;
+    const absDiff = Math.abs(diff).toFixed(1);
+    if (Math.abs(diff) < 0.05) {
+      bullets.push(
+        `Projection ${input.projection.toFixed(1)} sits on the ${input.line} line.`,
+      );
+    } else {
+      bullets.push(
+        `Projection ${input.projection.toFixed(1)} sits ${absDiff} ${
+          diff > 0 ? "above" : "below"
+        } the ${input.line} line.`,
+      );
+    }
+  }
+
+  // 2. Recent form — parse last-5 / last-10 fragments out of the reason.
+  const last5 = /last-5 avg ([\d.]+)/i.exec(reason);
+  const last10 = /last-10 avg ([\d.]+)/i.exec(reason);
+  if (last5 || last10) {
+    const parts: string[] = [];
+    if (last5) parts.push(`last-5 ${last5[1]}`);
+    if (last10) parts.push(`last-10 ${last10[1]}`);
+    const market = input.market ?? "";
+    bullets.push(
+      `Recent form: ${parts.join(" · ")}${market ? ` ${market}` : ""}.`,
+    );
+  }
+
+  // 3. Minutes trend — only when the pipeline noticed a directional move.
+  if (/minutes trending up/i.test(reason)) {
+    bullets.push("Minutes trend: up over the last several games.");
+  } else if (/minutes trending down/i.test(reason)) {
+    bullets.push("Minutes trend: down over the last several games.");
+  }
+
+  // 4. Home / away context.
+  if (input.homeAway === "Home") {
+    bullets.push("Playing at home.");
+  } else if (input.homeAway === "Away" && input.opponent) {
+    bullets.push(`Playing on the road at ${input.opponent}.`);
+  }
+
+  // 5. Thin sample callout (when explicitly noted in the reason).
+  const thinSample = /thin sample \((\d+) games?\)/i.exec(reason);
+  if (thinSample) {
+    bullets.push(
+      `Thin sample: only ${thinSample[1]} recent game${
+        thinSample[1] === "1" ? "" : "s"
+      } available.`,
+    );
+  }
+
+  // 6. Guardrail explanation — paired with the confidence cap.
+  const gr = input.guardrail;
+  const orig = input.originalConfidence;
+  if (gr === "R5_suspicious_edge") {
+    bullets.push(
+      `Model anomaly: edge is unusually wide (≥25%), so confidence is capped at Low${
+        orig ? ` (model originally said ${orig})` : ""
+      }.`,
+    );
+  } else if (gr === "R2_extreme_edge_thin_sample") {
+    bullets.push(
+      "Edge is wider than 30% on a thin sample — model declines to lean.",
+    );
+  } else if (gr === "R3_thin_sample_capped_medium") {
+    bullets.push(
+      `Fewer than 8 recent games — confidence capped at Medium${
+        orig ? ` (originally ${orig})` : ""
+      }.`,
+    );
+  } else if (gr === "R4_thin_sample_capped_low") {
+    bullets.push(
+      `Fewer than 5 recent games — confidence capped at Low${
+        orig ? ` (originally ${orig})` : ""
+      }.`,
+    );
+  } else if (gr === "R1_no_logs_insufficient_data") {
+    bullets.push(
+      "Recent log data unavailable — model can't grade this prop yet.",
+    );
+  }
+
+  // 7. No-play / pass clarification.
+  if (input.lean === "No Play" || input.lean === "Pass") {
+    if (/No edge above threshold/i.test(reason) || !gr) {
+      bullets.push("Model passes — edge does not clear the threshold.");
+    }
+  }
+
+  // 8. Fallback: if for some reason nothing landed in bullets but the
+  // pipeline gave us a sentence, surface it as a single neutral bullet.
+  if (bullets.length === 0 && reason.trim().length > 0) {
+    bullets.push(reason.trim());
+  }
+
+  return bullets;
+}
+
 export default function VaultPlayerCard({ card }: Props) {
   // Trend panel — default collapsed; opens on click. Preserves
   // aria-expanded / aria-controls relationship.
@@ -346,15 +490,61 @@ function MarketRowView({ row }: { row: MarketRow }) {
         </div>
       )}
 
-      {/* REASON */}
-      {reasonText && (
-        <p
-          className="mt-2 text-[12px] leading-relaxed"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          {reasonText}
-        </p>
-      )}
+      {/* REASON — bulleted explanation (iteration 3). Replaces the prior
+          semicolon-joined sentence chain with discrete points sourced
+          from the same pipeline fields. Never fabricates anything; an
+          empty bullets array hides the section entirely. */}
+      {(() => {
+        const bullets = buildLeanReasonBullets({
+          reason: reasonText,
+          market: row.market,
+          line: lean.line ?? null,
+          projection: lean.projection ?? null,
+          edgePct: lean.edgePct ?? null,
+          homeAway: lean.homeAway,
+          opponent: lean.opponent,
+          lean: lean.lean,
+          confidence: lean.confidence,
+          riskFlags: lean.riskFlags,
+          guardrail: (lean as unknown as { _guardrail?: string | null })
+            ._guardrail,
+          originalConfidence: (
+            lean as unknown as { _originalConfidence?: string | null }
+          )._originalConfidence,
+        });
+        if (bullets.length === 0) return null;
+        return (
+          <div className="mt-3">
+            <div
+              className="text-[10px] uppercase tracking-[0.16em] mb-1.5"
+              style={{ color: "var(--vault-text-faint)" }}
+            >
+              Why this lean
+            </div>
+            <ul
+              className="space-y-1 text-[12px] leading-relaxed"
+              style={{ color: "var(--vault-text-mute)" }}
+            >
+              {bullets.map((b, i) => (
+                <li
+                  key={i}
+                  className="flex items-baseline gap-2"
+                >
+                  <span
+                    aria-hidden
+                    className="inline-block w-1 h-1 rounded-full shrink-0 mt-1.5"
+                    style={{
+                      background: "var(--vault-gold-bright)",
+                      boxShadow: "0 0 4px rgba(240, 199, 94, 0.5)",
+                    }}
+                  />
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })()}
     </section>
   );
 }

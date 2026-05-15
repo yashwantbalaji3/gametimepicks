@@ -83,11 +83,11 @@ export default function VaultFilters({
 
   return (
     <div
-      className="rounded-[4px] mb-6 overflow-hidden"
+      className="vault-deluxe-card mb-6 overflow-hidden"
       style={{
-        background: "var(--vault-panel)",
-        border: "1px solid var(--vault-border)",
-        boxShadow: "var(--vault-shadow-soft)",
+        // Slightly stronger border for the filter console so the user
+        // reads it as a powered-on control panel, not a flat box.
+        borderColor: "var(--vault-border-strong)",
       }}
     >
       {/* ─── Section 1: Game pills (primary navigator) ─── */}
