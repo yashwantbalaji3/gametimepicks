@@ -184,8 +184,56 @@ export default function ParlayLabPage() {
         </details>
       </section>
 
-      {/* Client interactive area — mode tabs hold both Build + Analyze */}
+      {/* Context desk — what slate-context the model currently surfaces,
+          and what's flagged as future free-data work. Honest: every chip
+          is either "on" (we have it) or "soon" (future PR). Never claims
+          unavailable context. */}
       <section className="mt-8">
+        <div className="gtp-context-desk">
+          <div className="flex items-center gap-2 mb-2.5">
+            <span
+              aria-hidden
+              className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+              style={{
+                background: "var(--vault-gold-bright)",
+                boxShadow: "0 0 7px rgba(240, 199, 94, 0.6)",
+              }}
+            />
+            <span
+              className="font-mono uppercase tracking-[0.18em]"
+              style={{ color: "var(--vault-gold)", fontSize: 10 }}
+            >
+              Context desk · what the model surfaces tonight
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="gtp-context-pill" data-state="on">
+              Playoff game context
+            </span>
+            <span className="gtp-context-pill" data-state="on">
+              Last-10 recent form
+            </span>
+            <span className="gtp-context-pill" data-state="on">
+              Model anomaly guardrails
+            </span>
+            <span className="gtp-context-pill" data-state="on">
+              NBA headshots
+            </span>
+            <span className="gtp-context-pill" data-state="soon">
+              Injury / news notes · soon
+            </span>
+            <span className="gtp-context-pill" data-state="soon">
+              Series record · soon
+            </span>
+            <span className="gtp-context-pill" data-state="soon">
+              Live tipoff countdown · soon
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Client interactive area — mode tabs hold both Build + Analyze */}
+      <section className="mt-6">
         <ParlayLabModeTabs
           allLeans={allLeans}
           datesAvailable={Array.from(dateLabels.entries()).map(([date, info]) => ({

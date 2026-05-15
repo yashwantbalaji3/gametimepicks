@@ -43,6 +43,7 @@ import EmptyResultsCard from "@/components/empty-results-card";
 import NewsletterSignup from "@/components/newsletter-signup";
 import ResultsBreakdown from "@/components/results-breakdown";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
+import { getPlayoffContext } from "@/components/playoff-context";
 
 /**
  * Walk available board dates newest-first and return the first one
@@ -301,6 +302,16 @@ function SlateAwaitingSettlementPanel({
           games.length > 1 ? ` · +${games.length - 1} more` : ""
         }`
       : null;
+  // Decode playoff context from the first game so the panel reads
+  // "Conf Semis · Game 6" instead of just "DET @ CLE".
+  const firstGame = games[0];
+  const playoff = firstGame
+    ? getPlayoffContext(
+        firstGame.gameId,
+        firstGame.awayTeamAbbr,
+        firstGame.homeTeamAbbr,
+      )
+    : null;
   return (
     <div className="mt-8 gtp-slate-await">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -328,6 +339,22 @@ function SlateAwaitingSettlementPanel({
           view the live board →
         </Link>
       </div>
+      {playoff?.isPlayoffs && (
+        <div className="mt-3 flex items-center gap-2 flex-wrap">
+          <span className="gtp-game-chip">{playoff.gameLabel}</span>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: 10,
+              color: "var(--vault-text-faint)",
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+            }}
+          >
+            {playoff.roundLabel}
+          </span>
+        </div>
+      )}
       <h2
         className="mt-3 font-display font-semibold tracking-tight"
         style={{ color: "var(--vault-text)", fontSize: 20, lineHeight: 1.2 }}

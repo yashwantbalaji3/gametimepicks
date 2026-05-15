@@ -29,6 +29,9 @@
 import { useState, useMemo } from "react";
 import type { PropLean, ScheduleGame } from "@/lib/types";
 import type { ActiveSlateKind } from "@/lib/active-slate";
+import PlayerAvatar from "./player-avatar";
+import PlayerRecentFormPanel from "./player-recent-form-panel";
+import { getPlayoffContext } from "./playoff-context";
 import {
   buildParlayCandidates,
   uniquePlayersFromLeans,
@@ -116,6 +119,13 @@ export default function ParlayBuilderClient({
   // Players mode so stars whose teams have many loaded props are still
   // findable.
   const [playerSearch, setPlayerSearch] = useState<string>("");
+  // Dossier focus — the player whose recent-form panel is being viewed.
+  // Updated by togglePlayer so picking a chip immediately surfaces their
+  // dossier. Falls back to another selected player if the active one is
+  // deselected, otherwise null (panel hidden).
+  const [activeViewPlayer, setActiveViewPlayer] = useState<string | null>(
+    null,
+  );
 
   const dateLeans = useMemo(
     () => allLeans.filter((l) => l.date === selectedDate),
@@ -214,8 +224,20 @@ export default function ParlayBuilderClient({
   function togglePlayer(name: string) {
     setSelectedPlayerNames((prev) => {
       const next = new Set(prev);
-      if (next.has(name)) next.delete(name);
-      else next.add(name);
+      if (next.has(name)) {
+        next.delete(name);
+        // If we just removed the currently-viewed player, pivot the
+        // dossier to another selected player (any), or clear it.
+        if (activeViewPlayer === name) {
+          const remaining = [...next];
+          setActiveViewPlayer(remaining[0] ?? null);
+        }
+      } else {
+        next.add(name);
+        // Adding always surfaces the new player in the dossier so the
+        // user sees their recent form immediately.
+        setActiveViewPlayer(name);
+      }
       return next;
     });
   }
@@ -541,8 +563,21 @@ export default function ParlayBuilderClient({
         </div>
       </div>
 
-      {/* Right — candidates */}
+      {/* Right — dossier + candidates */}
       <div className="space-y-3">
+        {mode === "selected_players" &&
+          activeViewPlayer &&
+          selectedPlayerNames.has(activeViewPlayer) && (
+            <PlayerRecentFormPanel
+              key={activeViewPlayer}
+              leans={dateLeans}
+              playerName={activeViewPlayer}
+              otherSelectedPlayers={[...selectedPlayerNames].filter(
+                (p) => p !== activeViewPlayer,
+              )}
+              onSwitchPlayer={(p) => setActiveViewPlayer(p)}
+            />
+          )}
         <span className="gtp-candidate-eyebrow">Candidate slips · model output</span>
         {noCurrentBuilder ? (
           <EmptyState
@@ -780,6 +815,11 @@ function CandidateCard({
             lean.team && lean.opponent
               ? `${lean.team} @ ${lean.opponent}`
               : null;
+          const playoff = getPlayoffContext(
+            lean.gameId,
+            lean.homeAway === "Home" ? lean.opponent ?? undefined : lean.team ?? undefined,
+            lean.homeAway === "Home" ? lean.team ?? undefined : lean.opponent ?? undefined,
+          );
           return (
             <div
               key={i}
@@ -789,20 +829,32 @@ function CandidateCard({
                 border: "1px solid var(--vault-border)",
               }}
             >
-              {/* Row 1: player + matchup */}
-              <div className="flex items-baseline justify-between gap-3 flex-wrap">
-                <span
-                  className="font-display text-[15px] font-semibold tracking-tight"
-                  style={{ color: "var(--vault-text)" }}
-                >
-                  {lean.playerName}
+              {/* Row 1: avatar + player + matchup */}
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <span className="flex items-center gap-2 min-w-0">
+                  <PlayerAvatar
+                    playerId={lean.playerId ?? undefined}
+                    playerName={lean.playerName ?? ""}
+                    team={lean.team ?? undefined}
+                    size="xs"
+                    flat
+                  />
+                  <span
+                    className="font-display text-[15px] font-semibold tracking-tight truncate"
+                    style={{ color: "var(--vault-text)" }}
+                  >
+                    {lean.playerName}
+                  </span>
                 </span>
                 {matchup && (
                   <span
-                    className="text-[11px]"
+                    className="text-[11px] flex items-center gap-2"
                     style={{ color: "var(--vault-text-faint)" }}
                   >
-                    {matchup}
+                    <span>{matchup}</span>
+                    {playoff.isPlayoffs && playoff.gameLabel && (
+                      <span className="gtp-game-chip">{playoff.gameLabel}</span>
+                    )}
                   </span>
                 )}
               </div>

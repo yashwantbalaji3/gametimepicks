@@ -29,6 +29,8 @@ import {
   EM_DASH,
 } from "@/lib/format";
 import PlayerCardTrends from "./player-card-trends";
+import PlayerAvatar from "./player-avatar";
+import { getPlayoffContext } from "./playoff-context";
 import { useState } from "react";
 
 interface Props {
@@ -332,33 +334,65 @@ export default function VaultPlayerCard({ card }: Props) {
     >
       {/* ─── HEADER ─── */}
       <header className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <h3
-            className="font-display font-semibold tracking-tight truncate"
-            style={{
-              color: "var(--vault-text)",
-              fontSize: "clamp(18px, 2.4vw, 22px)",
-              lineHeight: 1.15,
-            }}
-          >
-            {card.playerName}
-          </h3>
-          <p
-            className="mt-1 text-[13px] leading-snug truncate"
-            style={{ color: "var(--vault-text-mute)" }}
-          >
-            <span style={{ color: "var(--vault-text)" }}>
-              {card.team || EM_DASH}
-            </span>{" "}
-            <span style={{ color: "var(--vault-text-faint)" }}>
-              {matchupArrow}
-            </span>{" "}
-            <span style={{ color: "var(--vault-text)" }}>
-              {card.opponent || EM_DASH}
-            </span>
-            <span style={{ color: "var(--vault-text-faint)" }}> · </span>
-            <span>{card.tipoff}</span>
-          </p>
+        <div className="gtp-player-profile min-w-0 flex-1">
+          <PlayerAvatar
+            playerId={card.playerId}
+            playerName={card.playerName}
+            team={card.team}
+            size="md"
+          />
+          <div className="gtp-player-profile-body">
+            <h3
+              className="font-display font-semibold tracking-tight truncate"
+              style={{
+                color: "var(--vault-text)",
+                fontSize: "clamp(18px, 2.4vw, 22px)",
+                lineHeight: 1.15,
+              }}
+            >
+              {card.playerName}
+            </h3>
+            <p
+              className="mt-1 text-[13px] leading-snug truncate"
+              style={{ color: "var(--vault-text-mute)" }}
+            >
+              <span style={{ color: "var(--vault-text)" }}>
+                {card.team || EM_DASH}
+              </span>{" "}
+              <span style={{ color: "var(--vault-text-faint)" }}>
+                {matchupArrow}
+              </span>{" "}
+              <span style={{ color: "var(--vault-text)" }}>
+                {card.opponent || EM_DASH}
+              </span>
+              <span style={{ color: "var(--vault-text-faint)" }}> · </span>
+              <span>{card.tipoff}</span>
+            </p>
+            {(() => {
+              const ctx = getPlayoffContext(
+                card.gameId,
+                card.homeAway === "Home" ? card.opponent : card.team,
+                card.homeAway === "Home" ? card.team : card.opponent,
+              );
+              if (!ctx.isPlayoffs) return null;
+              return (
+                <div className="mt-2 flex items-center gap-2 flex-wrap">
+                  <span className="gtp-game-chip">{ctx.gameLabel}</span>
+                  <span
+                    className="font-mono"
+                    style={{
+                      fontSize: 10,
+                      color: "var(--vault-text-faint)",
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {ctx.roundLabelCompact}
+                  </span>
+                </div>
+              );
+            })()}
+          </div>
         </div>
         <ConfidenceTag confidence={bestConfidence} />
       </header>

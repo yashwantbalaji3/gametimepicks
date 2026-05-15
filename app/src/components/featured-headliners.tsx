@@ -24,6 +24,8 @@
  */
 import type { PlayerCard, MarketRow } from "@/lib/grouping";
 import type { Market, PropLean } from "@/lib/types";
+import PlayerAvatar from "./player-avatar";
+import { getPlayoffContext } from "./playoff-context";
 
 interface Props {
   /** All player cards on the visible slate. */
@@ -95,10 +97,12 @@ const CONF_TONE: Record<
 
 interface HeadlinerSummary {
   player: string;
+  playerId: number;
   team: string;
   opponent: string;
   homeAway: string;
   tipoff: string;
+  gameId: string;
   market: Market;
   side: string;
   line: number | null | undefined;
@@ -156,10 +160,12 @@ function pickBestLean(card: PlayerCard): HeadlinerSummary | null {
     if (best) {
       return {
         player: card.playerName,
+        playerId: card.playerId,
         team: card.team,
         opponent: card.opponent,
         homeAway: card.homeAway,
         tipoff: card.tipoff,
+        gameId: card.gameId,
         market: best.market,
         side: best.lean.lean,
         line: best.lean.line,
@@ -302,24 +308,54 @@ function HeadlinerTile({ summary }: { summary: HeadlinerSummary }) {
       ? summary.line
       : "—";
 
+  const ctx = getPlayoffContext(
+    summary.gameId,
+    summary.homeAway === "Home" ? summary.opponent : summary.team,
+    summary.homeAway === "Home" ? summary.team : summary.opponent,
+  );
+
   return (
     <a
       href={`#card-${summary.cardKey}`}
       className="gtp-headliner-tile group block"
       aria-label={`${summary.player} — view full card`}
     >
-      {/* Top row: player name + small chevron */}
+      {/* Top row: avatar + player name + small chevron */}
       <div className="flex items-start justify-between gap-2">
-        <h3
-          className="font-display font-semibold tracking-tight truncate"
-          style={{
-            color: "var(--vault-text)",
-            fontSize: 15,
-            lineHeight: 1.2,
-          }}
-        >
-          {summary.player}
-        </h3>
+        <div className="flex items-start gap-2.5 min-w-0">
+          <PlayerAvatar
+            playerId={summary.playerId}
+            playerName={summary.player}
+            team={summary.team}
+            size="sm"
+          />
+          <div className="min-w-0">
+            <h3
+              className="font-display font-semibold tracking-tight truncate"
+              style={{
+                color: "var(--vault-text)",
+                fontSize: 15,
+                lineHeight: 1.2,
+              }}
+            >
+              {summary.player}
+            </h3>
+            <div
+              className="mt-0.5 text-[11px] truncate"
+              style={{ color: "var(--vault-text-mute)" }}
+            >
+              <span style={{ color: "var(--vault-text)" }}>
+                {summary.team || "—"}
+              </span>{" "}
+              <span style={{ color: "var(--vault-text-faint)" }}>
+                {matchupArrow}
+              </span>{" "}
+              <span style={{ color: "var(--vault-text)" }}>
+                {summary.opponent || "—"}
+              </span>
+            </div>
+          </div>
+        </div>
         <span
           aria-hidden
           className="text-[11px] shrink-0 mt-0.5 transition-transform group-hover:translate-x-0.5"
@@ -329,22 +365,17 @@ function HeadlinerTile({ summary }: { summary: HeadlinerSummary }) {
         </span>
       </div>
 
-      {/* Matchup line */}
-      <div
-        className="mt-0.5 text-[11px] truncate"
-        style={{ color: "var(--vault-text-mute)" }}
-      >
-        <span style={{ color: "var(--vault-text)" }}>
-          {summary.team || "—"}
-        </span>{" "}
-        <span style={{ color: "var(--vault-text-faint)" }}>
-          {matchupArrow}
-        </span>{" "}
-        <span style={{ color: "var(--vault-text)" }}>
-          {summary.opponent || "—"}
+      {/* Tipoff / playoff context line */}
+      <div className="mt-2 flex items-center gap-2 flex-wrap">
+        {ctx.isPlayoffs && ctx.gameLabel && (
+          <span className="gtp-game-chip">{ctx.gameLabel}</span>
+        )}
+        <span
+          className="text-[10px] tracking-wide"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          {summary.tipoff}
         </span>
-        <span style={{ color: "var(--vault-text-faint)" }}> · </span>
-        <span>{summary.tipoff}</span>
       </div>
 
       {/* Divider */}
