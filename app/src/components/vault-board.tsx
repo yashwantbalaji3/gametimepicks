@@ -153,14 +153,12 @@ export default function VaultBoard({ board }: Props) {
         <VaultEmptyState dirty={dirty} onResetAll={onResetAll} />
       ) : (
         <>
-          {/* Iteration 3: Featured Headliners spotlights star players
-              when their props are actually loaded on this slate. The
-              same cards are intentionally NOT repeated in the main grid
-              below (filtered out via cardKey set) so the user sees the
-              stars first and the rest below, without duplicates. The
-              dirty check ensures the headliner section disappears when
-              the user has narrowed filters — at that point the user is
-              browsing, not landing. */}
+          {/* Iteration 4: Featured Headliners is now a compact rail of
+              anchor-link tiles, not full duplicate cards. The full
+              VaultPlayerCard still appears once in the main grid below;
+              the rail tile jumps to the matching anchor (#card-XXX).
+              Section hides while filters are dirty so it never blocks
+              browsing. */}
           {!dirty &&
             (() => {
               const slateTeams = new Set<string>();
@@ -190,28 +188,9 @@ export default function VaultBoard({ board }: Props) {
                 "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
             }}
           >
-            {(() => {
-              // When the headliner strip is active, omit those star cards
-              // from the main grid so each player only appears once.
-              const starNames = new Set([
-                "Anthony Edwards",
-                "Victor Wembanyama",
-                "Donovan Mitchell",
-                "Cade Cunningham",
-                "Evan Mobley",
-                "Jarrett Allen",
-                "Jalen Duren",
-                "Julius Randle",
-                "Rudy Gobert",
-                "De'Aaron Fox",
-              ]);
-              const remaining = dirty
-                ? playerCards
-                : playerCards.filter((c) => !starNames.has(c.playerName));
-              return remaining.map((card) => (
-                <VaultPlayerCard key={card.cardKey} card={card} />
-              ));
-            })()}
+            {playerCards.map((card) => (
+              <VaultPlayerCard key={card.cardKey} card={card} />
+            ))}
           </div>
 
           <ResponsibleUseFooter />

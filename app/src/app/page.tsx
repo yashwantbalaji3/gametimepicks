@@ -141,17 +141,36 @@ export default function HomePage() {
     ? dayLabelFor(latestScoredFinalDate, buildTimeToday)
     : null;
 
+  // Iteration 4: dedupe by (player + market) so two books quoting the
+  // same prop don't render twice in the trending lists. Keep the best
+  // edge per pair.
+  const dedupeByPlayerMarket = (
+    rows: TrendingLean[],
+  ): TrendingLean[] => {
+    const best = new Map<string, TrendingLean>();
+    for (const r of rows) {
+      const key = `${r.playerName}|${r.market}`;
+      const cur = best.get(key);
+      const curEdge = Math.abs(cur?.edgePct ?? 0);
+      const nextEdge = Math.abs(r.edgePct ?? 0);
+      if (!cur || nextEdge > curEdge) best.set(key, r);
+    }
+    return Array.from(best.values());
+  };
+
   // Strongest clean projections — exclude suspicious_edge anomalies.
-  const cleanProjections: TrendingLean[] = latestScoredLeans
-    .filter((l) => isClean(l))
-    .map(toTrendingLean)
+  const cleanProjections: TrendingLean[] = dedupeByPlayerMarket(
+    latestScoredLeans.filter((l) => isClean(l)).map(toTrendingLean),
+  )
     .sort((a, b) => Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0))
     .slice(0, 6);
 
   // Anomaly watchlist — R5 suspicious_edge flagged leans.
-  const anomalyWatchlist: TrendingLean[] = latestScoredLeans
-    .filter((l) => (l.riskFlags ?? []).includes("suspicious_edge"))
-    .map(toTrendingLean)
+  const anomalyWatchlist: TrendingLean[] = dedupeByPlayerMarket(
+    latestScoredLeans
+      .filter((l) => (l.riskFlags ?? []).includes("suspicious_edge"))
+      .map(toTrendingLean),
+  )
     .sort((a, b) => Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0))
     .slice(0, 4);
 

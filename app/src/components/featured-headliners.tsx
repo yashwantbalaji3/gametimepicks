@@ -1,53 +1,177 @@
 "use client";
 
 /**
- * FeaturedHeadliners — "Star spotlight" strip rendered above the main
+ * FeaturedHeadliners — compact "star spotlight" rail above the main
  * board grid.
  *
- * Why this exists:
+ * Iteration 4 redesign:
  *
- * The main grid sorts player cards by absolute edge desc. That means
- * a role player with a 40%+ R5_suspicious_edge anomaly outranks a
- * star with a moderate clean edge. Users repeatedly looked for
- * Anthony Edwards, Cade Cunningham, Donovan Mitchell, Wembanyama and
- * saw role players first.
+ * The previous version (iteration 3) duplicated full VaultPlayerCard
+ * components above the grid, which made the page very tall and
+ * effectively showed the same card twice. This redesign renders
+ * compact "headliner tiles" instead — each tile summarises the
+ * player's best loaded lean and anchor-links to their full card
+ * lower on the same page (#card-{cardKey}). The full cards remain in
+ * the main grid below, so nothing is duplicated.
  *
- * This component spotlights star players when their props are actually
- * loaded on the current slate. It never fabricates a missing player —
- * if a configured star isn't in the prop feed for tonight, an honest
- * "props not in the loaded feed" note is rendered instead.
+ * It NEVER fabricates a missing star. If a configured star's team is
+ * on tonight's slate but their props were not in the loaded feed, the
+ * rail surfaces an honest "not in loaded feed" note.
  *
- * The star list is intentionally hard-coded as a small local constant
- * (not pulled from data) so it's transparent and easy to revise. It is
- * a curated visibility heuristic, not a prediction or a recommendation.
+ * The curated star list is a small local constant and is a visibility
+ * heuristic, not a recommendation. Order in the list determines the
+ * render order in the rail.
  */
-import type { PlayerCard } from "@/lib/grouping";
-import VaultPlayerCard from "./vault-player-card";
+import type { PlayerCard, MarketRow } from "@/lib/grouping";
+import type { Market, PropLean } from "@/lib/types";
 
 interface Props {
   /** All player cards on the visible slate. */
   playerCards: PlayerCard[];
-  /** Team abbreviations of the games on tonight's slate, e.g. new Set(["DET","CLE","SAS","MIN"]). */
+  /** Team abbreviations of the games on tonight's slate. */
   slateTeams: Set<string>;
 }
 
 // Curated star list. Order is the rendering priority when multiple are
-// loaded. Each entry includes the player's primary team so that the
-// "props missing" callout only fires when the player's team is actually
-// on tonight's slate — otherwise the player is simply off-slate, not
-// missing.
+// loaded. Each entry includes the player's primary team so the
+// "not in feed" callout only fires when the player's team is actually
+// on tonight's slate.
 const STAR_PRIORITY: Array<{ name: string; team: string }> = [
   { name: "Anthony Edwards", team: "MIN" },
   { name: "Victor Wembanyama", team: "SAS" },
   { name: "Donovan Mitchell", team: "CLE" },
   { name: "Cade Cunningham", team: "DET" },
+  { name: "James Harden", team: "CLE" },
   { name: "Evan Mobley", team: "CLE" },
   { name: "Jarrett Allen", team: "CLE" },
   { name: "Jalen Duren", team: "DET" },
   { name: "Julius Randle", team: "MIN" },
   { name: "Rudy Gobert", team: "MIN" },
   { name: "De'Aaron Fox", team: "SAS" },
+  { name: "Stephon Castle", team: "SAS" },
 ];
+
+const MARKET_LABEL: Record<Market, string> = {
+  PTS: "Points",
+  REB: "Rebounds",
+  AST: "Assists",
+};
+
+const CONF_TONE: Record<
+  string,
+  { fg: string; bg: string; border: string; label: string }
+> = {
+  High: {
+    fg: "var(--vault-gold-bright)",
+    bg: "var(--vault-gold-dim)",
+    border: "var(--vault-border-strong)",
+    label: "High",
+  },
+  Medium: {
+    fg: "var(--vault-warn)",
+    bg: "var(--vault-warn-dim)",
+    border: "rgba(240, 199, 94, 0.30)",
+    label: "Medium",
+  },
+  Low: {
+    fg: "var(--vault-text-mute)",
+    bg: "var(--vault-panel-elevated)",
+    border: "var(--vault-border)",
+    label: "Low",
+  },
+  insufficient_data: {
+    fg: "var(--vault-text-faint)",
+    bg: "var(--vault-panel-elevated)",
+    border: "var(--vault-border)",
+    label: "No data",
+  },
+  no_play: {
+    fg: "var(--vault-text-faint)",
+    bg: "var(--vault-panel-elevated)",
+    border: "var(--vault-border)",
+    label: "Pass",
+  },
+};
+
+interface HeadlinerSummary {
+  player: string;
+  team: string;
+  opponent: string;
+  homeAway: string;
+  tipoff: string;
+  market: Market;
+  side: string;
+  line: number | null | undefined;
+  edgePct: number | null | undefined;
+  confidence: string;
+  isAnomaly: boolean;
+  cardKey: string;
+}
+
+/**
+ * Pick the most newsworthy lean for a star's card.
+ *
+ * Priority:
+ *   1. High-confidence clean lean (no suspicious_edge) with largest |edge|
+ *   2. Medium-confidence clean lean with largest |edge|
+ *   3. Any anomaly-flagged lean with largest |edge|
+ *   4. First lean we find
+ *
+ * This way the rail surfaces a usable "High +12% Points" before falling
+ * back to "Low +43% (anomaly)" — anomalies are still surfaced but never
+ * win out over clean signal.
+ */
+function pickBestLean(card: PlayerCard): HeadlinerSummary | null {
+  const rows: { market: Market; row: MarketRow }[] = [];
+  for (const m of ["PTS", "REB", "AST"] as Market[]) {
+    const row = card.rows[m];
+    if (row) rows.push({ market: m, row });
+  }
+  if (rows.length === 0) return null;
+
+  const score = (lean: PropLean): number => {
+    if (typeof lean.edgePct !== "number" || !Number.isFinite(lean.edgePct))
+      return -1;
+    return Math.abs(lean.edgePct);
+  };
+  const isAnomaly = (lean: PropLean): boolean =>
+    (lean.riskFlags ?? []).includes("suspicious_edge");
+
+  const tiers: Array<(lean: PropLean) => boolean> = [
+    (l) => l.confidence === "High" && !isAnomaly(l),
+    (l) => l.confidence === "Medium" && !isAnomaly(l),
+    (l) => l.confidence === "Low" && !isAnomaly(l),
+    () => true,
+  ];
+
+  for (const accept of tiers) {
+    let best: { market: Market; row: MarketRow; lean: PropLean; s: number } | null =
+      null;
+    for (const r of rows) {
+      const lean = r.row.primary;
+      if (!accept(lean)) continue;
+      const s = score(lean);
+      if (!best || s > best.s) best = { market: r.market, row: r.row, lean, s };
+    }
+    if (best) {
+      return {
+        player: card.playerName,
+        team: card.team,
+        opponent: card.opponent,
+        homeAway: card.homeAway,
+        tipoff: card.tipoff,
+        market: best.market,
+        side: best.lean.lean,
+        line: best.lean.line,
+        edgePct: best.lean.edgePct,
+        confidence: best.lean.confidence,
+        isAnomaly: isAnomaly(best.lean),
+        cardKey: card.cardKey,
+      };
+    }
+  }
+  return null;
+}
 
 export default function FeaturedHeadliners({
   playerCards,
@@ -56,23 +180,25 @@ export default function FeaturedHeadliners({
   const cardByName = new Map<string, PlayerCard>();
   for (const c of playerCards) cardByName.set(c.playerName, c);
 
-  const loaded: PlayerCard[] = [];
+  const summaries: HeadlinerSummary[] = [];
   const missingOnSlate: string[] = [];
   for (const star of STAR_PRIORITY) {
     const c = cardByName.get(star.name);
     if (c) {
-      loaded.push(c);
+      const s = pickBestLean(c);
+      if (s) summaries.push(s);
     } else if (slateTeams.has(star.team)) {
       missingOnSlate.push(star.name);
     }
   }
 
-  if (loaded.length === 0 && missingOnSlate.length === 0) {
+  if (summaries.length === 0 && missingOnSlate.length === 0) {
     return null;
   }
 
   return (
     <section className="mb-8" aria-label="Star headliner spotlight">
+      {/* Section header */}
       <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <span
@@ -86,10 +212,7 @@ export default function FeaturedHeadliners({
           <div>
             <div
               className="font-mono uppercase tracking-[0.18em]"
-              style={{
-                color: "var(--vault-gold)",
-                fontSize: 10,
-              }}
+              style={{ color: "var(--vault-gold)", fontSize: 10 }}
             >
               Headliners · star spotlight
             </div>
@@ -105,20 +228,22 @@ export default function FeaturedHeadliners({
           className="text-[11px]"
           style={{ color: "var(--vault-text-faint)" }}
         >
-          {loaded.length} loaded · curated visibility
+          {summaries.length} loaded · tap a tile to jump to the full card
         </span>
       </div>
 
-      {loaded.length > 0 && (
+      {/* Tile grid — compact summaries that anchor-scroll to the full
+          card in the main grid below. */}
+      {summaries.length > 0 && (
         <div
-          className="grid gap-3"
+          className="grid gap-2.5"
           style={{
             gridTemplateColumns:
-              "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
+              "repeat(auto-fill, minmax(min(100%, 240px), 1fr))",
           }}
         >
-          {loaded.map((card) => (
-            <VaultPlayerCard key={`star-${card.cardKey}`} card={card} />
+          {summaries.map((s) => (
+            <HeadlinerTile key={s.cardKey} summary={s} />
           ))}
         </div>
       )}
@@ -150,5 +275,138 @@ export default function FeaturedHeadliners({
         </p>
       )}
     </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// HeadlinerTile — compact summary card with anchor link to full grid card.
+// ---------------------------------------------------------------------------
+function HeadlinerTile({ summary }: { summary: HeadlinerSummary }) {
+  const conf =
+    CONF_TONE[summary.confidence] ?? CONF_TONE["Low"];
+  const matchupArrow = summary.homeAway === "Home" ? "vs" : "at";
+  const edgeText =
+    typeof summary.edgePct === "number" && Number.isFinite(summary.edgePct)
+      ? `${summary.edgePct > 0 ? "+" : ""}${summary.edgePct.toFixed(1)}%`
+      : "—";
+  const lineText =
+    typeof summary.line === "number" && Number.isFinite(summary.line)
+      ? summary.line
+      : "—";
+
+  return (
+    <a
+      href={`#card-${summary.cardKey}`}
+      className="gtp-headliner-tile group block"
+      aria-label={`${summary.player} — view full card`}
+    >
+      {/* Top row: player name + small chevron */}
+      <div className="flex items-start justify-between gap-2">
+        <h3
+          className="font-display font-semibold tracking-tight truncate"
+          style={{
+            color: "var(--vault-text)",
+            fontSize: 15,
+            lineHeight: 1.2,
+          }}
+        >
+          {summary.player}
+        </h3>
+        <span
+          aria-hidden
+          className="text-[11px] shrink-0 mt-0.5 transition-transform group-hover:translate-x-0.5"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          →
+        </span>
+      </div>
+
+      {/* Matchup line */}
+      <div
+        className="mt-0.5 text-[11px] truncate"
+        style={{ color: "var(--vault-text-mute)" }}
+      >
+        <span style={{ color: "var(--vault-text)" }}>
+          {summary.team || "—"}
+        </span>{" "}
+        <span style={{ color: "var(--vault-text-faint)" }}>
+          {matchupArrow}
+        </span>{" "}
+        <span style={{ color: "var(--vault-text)" }}>
+          {summary.opponent || "—"}
+        </span>
+        <span style={{ color: "var(--vault-text-faint)" }}> · </span>
+        <span>{summary.tipoff}</span>
+      </div>
+
+      {/* Divider */}
+      <div
+        className="my-2.5 h-px"
+        style={{ background: "var(--vault-rule)" }}
+      />
+
+      {/* Best lean line: market · side line · edge */}
+      <div
+        className="text-[10px] tracking-[0.14em] uppercase mb-1"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        Best loaded lean
+      </div>
+      <div
+        className="font-mono tabular flex items-baseline gap-1.5 flex-wrap"
+        style={{ fontSize: 13 }}
+      >
+        <span
+          style={{ color: "var(--vault-gold-bright)" }}
+          className="font-semibold"
+        >
+          {MARKET_LABEL[summary.market] || summary.market}
+        </span>
+        <span style={{ color: "var(--vault-text-mute)" }}>
+          {summary.side}
+        </span>
+        <span style={{ color: "var(--vault-text)" }}>{lineText}</span>
+      </div>
+
+      {/* Edge + confidence row */}
+      <div className="mt-2 flex items-center gap-2 flex-wrap">
+        <span
+          className="font-mono font-semibold tabular tracking-wider rounded-[3px] px-2 py-0.5 text-[11px]"
+          style={
+            summary.isAnomaly
+              ? {
+                  color: "var(--vault-warn)",
+                  background: "var(--vault-warn-dim)",
+                  border: "1px solid rgba(240, 199, 94, 0.30)",
+                }
+              : {
+                  color: "var(--vault-gold-bright)",
+                  background: "var(--vault-gold-dim)",
+                  border: "1px solid var(--vault-border-strong)",
+                }
+          }
+        >
+          {edgeText}
+        </span>
+        <span
+          className="vault-pill"
+          style={{
+            ["--pill-fg" as string]: conf.fg,
+            ["--pill-bg" as string]: conf.bg,
+            ["--pill-border" as string]: conf.border,
+          }}
+        >
+          {conf.label}
+        </span>
+        {summary.isAnomaly && (
+          <span
+            className="text-[10px] tracking-tight"
+            style={{ color: "var(--vault-warn)" }}
+          >
+            anomaly
+          </span>
+        )}
+      </div>
+    </a>
   );
 }

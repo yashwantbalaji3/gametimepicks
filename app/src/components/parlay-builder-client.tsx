@@ -181,8 +181,30 @@ export default function ParlayBuilderClient({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[440px_1fr] gap-5">
-      {/* Left — control panel */}
+      {/* Left — control panel.
+          Iteration 4: small "Parlay console" eyebrow above the steps so
+          users land on something that reads as a single illuminated
+          control panel, not a generic form sidebar. */}
       <div className="vault-deluxe-card p-5 sm:p-6">
+        <div
+          className="mb-5 pb-4 flex items-center gap-2.5"
+          style={{ borderBottom: "1px solid var(--vault-rule)" }}
+        >
+          <span
+            aria-hidden
+            className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+            style={{
+              background: "var(--vault-gold-bright)",
+              boxShadow: "0 0 8px rgba(240, 199, 94, 0.65)",
+            }}
+          />
+          <span
+            className="font-mono uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-gold)", fontSize: 10 }}
+          >
+            Parlay console · build mode
+          </span>
+        </div>
         <SectionLabel n="1" text="Slate" />
         {datesAvailable.length === 0 ? (
           <p className="text-[13px] mb-4" style={{ color: "var(--vault-text-mute)" }}>
