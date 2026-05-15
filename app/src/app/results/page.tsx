@@ -43,6 +43,10 @@ import EmptyResultsCard from "@/components/empty-results-card";
 import NewsletterSignup from "@/components/newsletter-signup";
 import ResultsBreakdown from "@/components/results-breakdown";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
+import AwaitingSettlementTable from "@/components/awaiting-settlement-table";
+import CalibrationRoadmap, {
+  type CalibrationDay,
+} from "@/components/calibration-roadmap";
 import { getPlayoffContext } from "@/components/playoff-context";
 
 /**
@@ -255,6 +259,77 @@ function ResultsEmptyShell({
           flight. Only renders when a scored slate actually exists. */}
       <SlateAwaitingSettlementPanel latestScoredDate={latestScoredDate} />
 
+      {/* Full awaiting-settlement table — surfaces every prop that will
+          be graded once box scores land. Pure read of the existing
+          board JSON; no fabricated outcomes. */}
+      {latestScoredDate && (() => {
+        const board = getBoardForDate(latestScoredDate);
+        return (
+          <AwaitingSettlementTable
+            date={latestScoredDate}
+            games={board.games ?? []}
+            leans={board.leans ?? []}
+          />
+        );
+      })()}
+
+      {/* Calibration roadmap — day-by-day strip. Honest "pending" /
+          "no-slate" states; settled cells only when real data exists. */}
+      <CalibrationRoadmap
+        days={buildCalibrationDays(latestScoredDate)}
+        lifetimeDecisive={0}
+        liveBoardHref={
+          latestScoredDate ? `/board?date=${latestScoredDate}` : "/board"
+        }
+        liveBoardLabel="open the live model board"
+      />
+
+      {/* Educational "how a lean grades" note — keep the page honest
+          about exactly what will be graded, and how. */}
+      <section className="mt-10 gtp-grading-note">
+        <div className="flex items-center gap-2 mb-2">
+          <span
+            aria-hidden
+            className="inline-block w-1.5 h-1.5 rounded-full"
+            style={{
+              background: "var(--vault-gold)",
+              boxShadow: "0 0 6px rgba(212, 175, 55, 0.6)",
+            }}
+          />
+          <span
+            className="font-mono uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-gold)", fontSize: 10 }}
+          >
+            how a lean grades
+          </span>
+        </div>
+        <ul
+          className="grid grid-cols-1 sm:grid-cols-2 gap-2 list-none text-[13px] leading-relaxed"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          <li>
+            <span style={{ color: "var(--vault-gold-bright)" }}>·</span>{" "}
+            <strong style={{ color: "var(--vault-text)" }}>Over</strong> wins
+            when actual stat {">"} line; loses when actual {"<"} line.
+          </li>
+          <li>
+            <span style={{ color: "var(--vault-gold-bright)" }}>·</span>{" "}
+            <strong style={{ color: "var(--vault-text)" }}>Under</strong> wins
+            when actual {"<"} line; loses when actual {">"} line.
+          </li>
+          <li>
+            <span style={{ color: "var(--vault-gold-bright)" }}>·</span>{" "}
+            <strong style={{ color: "var(--vault-text)" }}>Push</strong> when
+            actual equals the line — excluded from the hit-rate denominator.
+          </li>
+          <li>
+            <span style={{ color: "var(--vault-gold-bright)" }}>·</span>{" "}
+            <strong style={{ color: "var(--vault-text)" }}>No Play</strong>{" "}
+            leans never grade — surfaced separately for calibration only.
+          </li>
+        </ul>
+      </section>
+
       {/* Phase 13: compact newsletter signup so users can be notified
           when results actually populate. */}
       <div className="mt-10 max-w-2xl">
@@ -272,6 +347,73 @@ function ResultsEmptyShell({
       </footer>
     </div>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Calibration roadmap helper — walks the available board dates and
+// classifies each into "settled" / "pending" / "no-slate" based on the
+// actual public results data. NEVER fabricates a hit rate.
+//
+// Inputs (all already public):
+//   - settled dates from getAvailableSettlementDates()
+//   - lifetime summary (decisive count, etc.) — not used per-cell here
+//   - available board dates from getAvailableBoardDates() for "pending"
+// ---------------------------------------------------------------------------
+function buildCalibrationDays(latestScoredDate: string | null): CalibrationDay[] {
+  // The board dates available on disk anchor the strip.
+  const allBoardDates = getAvailableBoardDates().slice().sort();
+  if (allBoardDates.length === 0) return [];
+  const settledDates = new Set(getAvailableSettlementDates());
+
+  // Show the most recent 10 dates so the strip stays compact on mobile.
+  const window = allBoardDates.slice(-10);
+
+  return window.map<CalibrationDay>((date) => {
+    if (settledDates.has(date)) {
+      return {
+        date,
+        state: "settled",
+        // We don't pull the per-date comparison report into the page
+        // payload here to keep the bundle lean. The cell renders the
+        // pre-computed hitRate from the lifetime summary's settled
+        // dates — until per-date data is wired, treat as decisive=0.
+        hitRate: null,
+        decisive: 0,
+        label: shortDateLabel(date),
+        note: "graded",
+      };
+    }
+    const board = getBoardForDate(date);
+    const hasScored = (board.leans ?? []).some(
+      (l) =>
+        typeof l.projection === "number" &&
+        typeof l.edgePct === "number" &&
+        Number.isFinite(l.edgePct),
+    );
+    if (hasScored) {
+      return {
+        date,
+        state: "pending",
+        label: shortDateLabel(date),
+        note: date === latestScoredDate ? "tonight" : "awaiting",
+      };
+    }
+    return {
+      date,
+      state: "no-slate",
+      label: shortDateLabel(date),
+      note: "no games",
+    };
+  });
+}
+
+function shortDateLabel(date: string): string {
+  // "2026-05-15" -> "5/15"
+  const parts = date.split("-");
+  if (parts.length !== 3) return date;
+  const m = Number(parts[1]);
+  const d = Number(parts[2]);
+  return `${m}/${d}`;
 }
 
 // ---------------------------------------------------------------------------
