@@ -30,6 +30,7 @@ import { useState, useMemo } from "react";
 import type { PropLean, ScheduleGame } from "@/lib/types";
 import type { ActiveSlateKind } from "@/lib/active-slate";
 import PlayerAvatar from "./player-avatar";
+import PlayerRecentFormPanel from "./player-recent-form-panel";
 import { getPlayoffContext } from "./playoff-context";
 import {
   buildParlayCandidates,
@@ -118,6 +119,13 @@ export default function ParlayBuilderClient({
   // Players mode so stars whose teams have many loaded props are still
   // findable.
   const [playerSearch, setPlayerSearch] = useState<string>("");
+  // Dossier focus — the player whose recent-form panel is being viewed.
+  // Updated by togglePlayer so picking a chip immediately surfaces their
+  // dossier. Falls back to another selected player if the active one is
+  // deselected, otherwise null (panel hidden).
+  const [activeViewPlayer, setActiveViewPlayer] = useState<string | null>(
+    null,
+  );
 
   const dateLeans = useMemo(
     () => allLeans.filter((l) => l.date === selectedDate),
@@ -216,8 +224,20 @@ export default function ParlayBuilderClient({
   function togglePlayer(name: string) {
     setSelectedPlayerNames((prev) => {
       const next = new Set(prev);
-      if (next.has(name)) next.delete(name);
-      else next.add(name);
+      if (next.has(name)) {
+        next.delete(name);
+        // If we just removed the currently-viewed player, pivot the
+        // dossier to another selected player (any), or clear it.
+        if (activeViewPlayer === name) {
+          const remaining = [...next];
+          setActiveViewPlayer(remaining[0] ?? null);
+        }
+      } else {
+        next.add(name);
+        // Adding always surfaces the new player in the dossier so the
+        // user sees their recent form immediately.
+        setActiveViewPlayer(name);
+      }
       return next;
     });
   }
@@ -543,8 +563,21 @@ export default function ParlayBuilderClient({
         </div>
       </div>
 
-      {/* Right — candidates */}
+      {/* Right — dossier + candidates */}
       <div className="space-y-3">
+        {mode === "selected_players" &&
+          activeViewPlayer &&
+          selectedPlayerNames.has(activeViewPlayer) && (
+            <PlayerRecentFormPanel
+              key={activeViewPlayer}
+              leans={dateLeans}
+              playerName={activeViewPlayer}
+              otherSelectedPlayers={[...selectedPlayerNames].filter(
+                (p) => p !== activeViewPlayer,
+              )}
+              onSwitchPlayer={(p) => setActiveViewPlayer(p)}
+            />
+          )}
         <span className="gtp-candidate-eyebrow">Candidate slips · model output</span>
         {noCurrentBuilder ? (
           <EmptyState

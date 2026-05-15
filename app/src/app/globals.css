@@ -2581,6 +2581,147 @@ table,
   flex: 1 1 auto;
 }
 
+/* ============================================================================
+   PR — Parlay Lab player dossier (2026-05-15)
+   Additive primitives. Pairs with the PlayerRecentFormPanel component.
+   ============================================================================ */
+
+/* Player dossier — premium "sportsbook player profile" surface for the
+   Parlay Lab Selected Players mode. Dark glass, gold rim, ambient halo. */
+.gtp-player-dossier {
+  position: relative;
+  isolation: isolate;
+  padding: 18px 18px 20px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(20, 24, 38, 0.92) 0%, rgba(10, 14, 28, 0.94) 100%);
+  border: 1px solid var(--vault-border-strong);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.07),
+    0 24px 48px -28px rgba(0, 0, 0, 0.85),
+    0 0 36px -14px rgba(240, 199, 94, 0.18);
+  overflow: hidden;
+}
+.gtp-player-dossier::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(212, 175, 55, 0.55) 30%,
+    rgba(240, 199, 94, 0.85) 50%,
+    rgba(212, 175, 55, 0.55) 70%,
+    transparent);
+  filter: drop-shadow(0 0 4px rgba(240, 199, 94, 0.35));
+}
+.gtp-player-dossier::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  border-radius: inherit;
+  background: conic-gradient(from 200deg,
+    rgba(212, 175, 55, 0.0),
+    rgba(111, 230, 255, 0.08) 30%,
+    rgba(255, 111, 179, 0.06) 60%,
+    rgba(212, 175, 55, 0.08) 100%);
+  filter: blur(22px);
+  opacity: 0.45;
+  z-index: -1;
+  animation: gtp-aurora-spin 34s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-player-dossier::after { animation: none; }
+}
+@media (min-width: 768px) {
+  .gtp-player-dossier { padding: 22px 22px 24px; }
+}
+
+/* Dossier graph cell — frames the sparkline and the stat readouts. */
+.gtp-dossier-graph {
+  background: rgba(7, 11, 26, 0.72);
+  border: 1px solid var(--vault-rule);
+  box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.05);
+}
+
+/* Graph glow — subtle gold drop shadow on the sparkline svg. */
+.gtp-dossier-graph-glow {
+  display: inline-block;
+  filter: drop-shadow(0 0 8px rgba(240, 199, 94, 0.28));
+}
+
+/* Context desk — small "what context is available tonight" status row
+   slotted above the Parlay Lab build console. Honest: shows ✓ for what
+   we have, "soon" for what's flagged as future. Pure informational. */
+.gtp-context-desk {
+  position: relative;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(20, 24, 38, 0.55) 0%, rgba(10, 14, 28, 0.65) 100%);
+  border: 1px solid var(--vault-rule);
+  box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.04);
+}
+.gtp-context-desk::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--gtp-edge-light) 30%,
+    var(--gtp-edge-light) 70%,
+    transparent);
+  opacity: 0.7;
+}
+.gtp-context-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 4px;
+  border-radius: 999px;
+  background: rgba(20, 24, 38, 0.85);
+  border: 1px solid var(--vault-rule);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--vault-text-mute);
+  white-space: nowrap;
+}
+.gtp-context-pill[data-state="on"] {
+  border-color: var(--vault-border-strong);
+  color: var(--vault-gold-bright);
+}
+.gtp-context-pill[data-state="on"]::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--vault-gold-bright);
+  box-shadow: 0 0 6px rgba(240, 199, 94, 0.6);
+}
+.gtp-context-pill[data-state="soon"] {
+  color: var(--vault-text-faint);
+  border-color: var(--vault-rule);
+  opacity: 0.85;
+}
+.gtp-context-pill[data-state="soon"]::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--vault-text-faint);
+}
+
 /* Brand monogram ambient pulse — opt-in modifier so the footer monogram
    reads as a glowing marquee mark without distracting the nav. */
 .gtp-monogram[data-ambient="true"] {
