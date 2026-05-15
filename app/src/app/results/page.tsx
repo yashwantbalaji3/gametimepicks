@@ -237,6 +237,17 @@ function ResultsEmptyShell({
         <EmptyResultsCard latestScoredDate={latestScoredDate} />
       </div>
 
+      {/* Calibration sigil — small ambient pulsing graphic that visually
+          separates the explainer block above from the live slate-await
+          panel below. Pure texture, no fabrication. */}
+      {latestScoredDate && (
+        <div aria-hidden className="gtp-calib-sigil">
+          <span className="gtp-calib-rule-left" />
+          <span className="gtp-calib-ring" />
+          <span className="gtp-calib-rule-right" />
+        </div>
+      )}
+
       {/* Slate-awaiting-settlement panel. Points the user at the live
           model board with the loaded projection count so the Results
           page never reads as a dead end while the slate is still in

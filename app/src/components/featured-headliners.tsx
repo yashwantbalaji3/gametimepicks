@@ -198,11 +198,16 @@ export default function FeaturedHeadliners({
 
   return (
     <section
-      className="gtp-rail-frame"
+      className="gtp-rail-frame relative"
       aria-label="Star headliner spotlight"
     >
+      <span aria-hidden className="gtp-rail-sweep" />
+      <span aria-hidden className="gtp-rail-bracket gtp-rail-bracket-tl" />
+      <span aria-hidden className="gtp-rail-bracket gtp-rail-bracket-tr" />
+      <span aria-hidden className="gtp-rail-bracket gtp-rail-bracket-bl" />
+      <span aria-hidden className="gtp-rail-bracket gtp-rail-bracket-br" />
       {/* Section header */}
-      <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+      <div className="relative flex flex-wrap items-baseline justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <span
             aria-hidden

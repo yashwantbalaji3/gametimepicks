@@ -543,6 +543,7 @@ export default function ParlayBuilderClient({
 
       {/* Right — candidates */}
       <div className="space-y-3">
+        <span className="gtp-candidate-eyebrow">Candidate slips · model output</span>
         {noCurrentBuilder ? (
           <EmptyState
             heading="No current slate available"
@@ -727,7 +728,7 @@ function CandidateCard({
 }) {
   return (
     <div
-      className="vault-deluxe-card casino-glow-card p-5 sm:p-6 vault-rise"
+      className="vault-deluxe-card casino-glow-card gtp-candidate-ticket p-5 sm:p-6 vault-rise"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       {/* Zone A — header: candidate identity + combined odds */}
