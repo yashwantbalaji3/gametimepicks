@@ -273,12 +273,36 @@ export default function MethodologyPage() {
 // Helpers
 // ---------------------------------------------------------------------------
 function Block({ title, children }: { title: string; children: ReactNode }) {
+  // Iteration 2: numbered step card — pulls a leading "NN · " out of the
+  // title, renders it as a gold pill on the left, and frames the rest of
+  // the block in a deluxe card with the casino-glow rim. Falls back to a
+  // plain heading when the title doesn't start with "NN · ".
+  const match = /^(\d+)\s*·\s*(.+)$/.exec(title);
+  const numeral = match ? match[1] : null;
+  const heading = match ? match[2] : title;
   return (
-    <div className="reveal">
-      <h3 className="font-display text-[18px] font-semibold tracking-tight text-[var(--text)] mb-2">
-        {title}
-      </h3>
-      <div className="space-y-2">{children}</div>
+    <div className="reveal vault-deluxe-card casino-glow-card p-5 sm:p-6">
+      <div className="flex items-start gap-3 mb-3">
+        {numeral && (
+          <span className="gtp-method-numeral shrink-0" aria-hidden>
+            {numeral}
+          </span>
+        )}
+        <h3
+          className="font-display font-semibold tracking-tight"
+          style={{
+            color: "var(--vault-text)",
+            fontSize: "clamp(17px, 2.2vw, 20px)",
+            lineHeight: 1.2,
+            marginTop: numeral ? 2 : 0,
+          }}
+        >
+          {heading}
+        </h3>
+      </div>
+      <div className="space-y-2" style={{ color: "var(--vault-text-mute)" }}>
+        {children}
+      </div>
     </div>
   );
 }

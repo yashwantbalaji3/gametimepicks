@@ -9,12 +9,21 @@ import {
 } from "@/lib/data";
 import { formatPercent } from "@/lib/format";
 import type { DataMode, BoardData, PropLean } from "@/lib/types";
-import KpiTile from "@/components/kpi-tile";
 import NewsletterSignup from "@/components/newsletter-signup";
 import HomepageTrendingTabs, {
   type TrendingLean,
   type TrendingGame,
 } from "@/components/homepage-trending-tabs";
+import NeonCornerBracket from "@/components/neon-corner-bracket";
+import SportsbookStatusBoard, {
+  type StatusBoardGame,
+  type StatusBoardStat,
+} from "@/components/sportsbook-status-board";
+import OddsTickerRail, {
+  type TickerCell,
+} from "@/components/odds-ticker-rail";
+import NeonStatPanel from "@/components/neon-stat-panel";
+import VegasSectionShell from "@/components/vegas-section-shell";
 import { currentEtDate, dayLabelFor } from "@/lib/freshness";
 import { selectActiveSlate } from "@/lib/active-slate";
 
@@ -132,17 +141,36 @@ export default function HomePage() {
     ? dayLabelFor(latestScoredFinalDate, buildTimeToday)
     : null;
 
+  // Iteration 4: dedupe by (player + market) so two books quoting the
+  // same prop don't render twice in the trending lists. Keep the best
+  // edge per pair.
+  const dedupeByPlayerMarket = (
+    rows: TrendingLean[],
+  ): TrendingLean[] => {
+    const best = new Map<string, TrendingLean>();
+    for (const r of rows) {
+      const key = `${r.playerName}|${r.market}`;
+      const cur = best.get(key);
+      const curEdge = Math.abs(cur?.edgePct ?? 0);
+      const nextEdge = Math.abs(r.edgePct ?? 0);
+      if (!cur || nextEdge > curEdge) best.set(key, r);
+    }
+    return Array.from(best.values());
+  };
+
   // Strongest clean projections — exclude suspicious_edge anomalies.
-  const cleanProjections: TrendingLean[] = latestScoredLeans
-    .filter((l) => isClean(l))
-    .map(toTrendingLean)
+  const cleanProjections: TrendingLean[] = dedupeByPlayerMarket(
+    latestScoredLeans.filter((l) => isClean(l)).map(toTrendingLean),
+  )
     .sort((a, b) => Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0))
     .slice(0, 6);
 
   // Anomaly watchlist — R5 suspicious_edge flagged leans.
-  const anomalyWatchlist: TrendingLean[] = latestScoredLeans
-    .filter((l) => (l.riskFlags ?? []).includes("suspicious_edge"))
-    .map(toTrendingLean)
+  const anomalyWatchlist: TrendingLean[] = dedupeByPlayerMarket(
+    latestScoredLeans
+      .filter((l) => (l.riskFlags ?? []).includes("suspicious_edge"))
+      .map(toTrendingLean),
+  )
     .sort((a, b) => Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0))
     .slice(0, 4);
 
@@ -181,100 +209,220 @@ export default function HomePage() {
       ? "View latest scored board"
       : ctaText;
 
+  // ---------------------------------------------------------------------
+  // Iteration 2 — Sportsbook status board + ticker data prep.
+  //
+  // The hero now has a right-side "status board" panel that composes
+  // the already-loaded latest scored slate into LED-style rows. Every
+  // number is sourced from the data already in scope; no fabrication.
+  // ---------------------------------------------------------------------
+  const statusBoardGames: StatusBoardGame[] = latestScoredFinalBoard
+    ? (latestScoredFinalBoard.games ?? []).slice(0, 4).map((g) => ({
+        gameId: g.gameId,
+        awayTeamAbbr: g.awayTeamAbbr,
+        homeTeamAbbr: g.homeTeamAbbr,
+        tipoff: g.tipoff,
+      }))
+    : [];
+
+  const statusBoardAnomalyCount = latestScoredLeans.filter((l) =>
+    (l.riskFlags ?? []).includes("suspicious_edge"),
+  ).length;
+
+  const statusBoardStats: StatusBoardStat[] = latestScoredFinalDate
+    ? [
+        {
+          label: "Projections",
+          value: String(latestScoredLeanCount),
+          accent: "gold",
+        },
+        {
+          label: "High confidence",
+          value: String(latestScoredHighCount),
+          accent: "gold",
+        },
+        {
+          label: "Model anomalies",
+          value: String(statusBoardAnomalyCount),
+          accent: statusBoardAnomalyCount > 0 ? "warn" : "mute",
+        },
+      ]
+    : [];
+
+  // Ticker — top 8 strongest leans across clean + anomaly (deduped),
+  // sorted by abs edge desc. Used by the homepage ticker rail.
+  const tickerCells: TickerCell[] = latestScoredFinalDate
+    ? [
+        ...cleanProjections.map((l) => ({
+          playerName: l.playerName,
+          market: l.market,
+          side: l.side,
+          line: l.line,
+          edgePct: l.edgePct,
+          flagged: false,
+        })),
+        ...anomalyWatchlist.map((l) => ({
+          playerName: l.playerName,
+          market: l.market,
+          side: l.side,
+          line: l.line,
+          edgePct: l.edgePct,
+          flagged: true,
+        })),
+      ]
+        .sort((a, b) => Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0))
+        .slice(0, 10)
+    : [];
+
   return (
     <div className="vault-page-shell px-6 sm:px-8 py-14 md:py-24">
       {/* Hero — PR makeover: layered vault-data-orbit + vault-ambient-orbit
           backdrops for richer "model lab" storytelling. Larger display
-          typography ramp via vault-display-h1. */}
-      <section className="reveal vault-data-orbit vault-ambient-orbit relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pb-2">
-        <div className="mb-6 flex items-center gap-2.5">
-          <span className="live-dot vault-pulse" />
-          <span
-            className="vault-quiet-label"
-            style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
-          >
-            {eyebrow}
-          </span>
-        </div>
-        <h1
-          className="vault-display-h1 max-w-4xl"
-          style={{ color: "var(--vault-text)" }}
-        >
-          Transparent model leans on{" "}
-          <span style={{ color: "var(--vault-gold-bright)" }}>
-            NBA player props.
-          </span>
-        </h1>
-        <p
-          className="mt-6 text-[16px] md:text-[18px] max-w-2xl leading-relaxed"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          GametimePicks compares model projections against sportsbook lines,
-          surfaces edges with explanations, and tracks every result publicly.
-          Educational analytics — not betting advice.
-        </p>
+          typography ramp via vault-display-h1. PR brand-polish: framed
+          with neon corner brackets + a soft scanline overlay so the hero
+          reads as a sportsbook-lounge centerpiece, not a plain section. */}
+      <section className="reveal vault-data-orbit vault-ambient-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pt-6 pb-2">
+        <NeonCornerBracket />
 
-        <div className="mt-9 flex flex-wrap items-center gap-3">
-          <Link
-            href={ctaHref}
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-[4px] font-medium text-[15px] tracking-tight transition-colors"
-            style={{
-              background: "var(--vault-gold)",
-              color: "#06070A",
-              boxShadow:
-                "0 0 0 1px rgba(212, 175, 55, 0.45), 0 12px 28px -10px rgba(240, 199, 94, 0.35)",
-            }}
-          >
-            {heroCtaText}
-            <span aria-hidden>→</span>
-          </Link>
-          <Link
-            href="/parlay-lab"
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-[4px] font-medium text-[15px] tracking-tight transition-colors"
-            style={{
-              border: "1px solid var(--vault-border-strong)",
-              color: "var(--vault-text)",
-            }}
-          >
-            Open Parlay Lab
-          </Link>
-          <Link
-            href="/methodology"
-            className="font-mono text-[12px] tracking-tight transition-colors px-2"
-            style={{ color: "var(--vault-text-mute)" }}
-          >
-            how the model works →
-          </Link>
-        </div>
+        {/* Two-column hero: copy + CTAs on the left, sportsbook status
+            board on the right. On mobile/tablet they stack with the
+            status board appearing below the CTAs. */}
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] gap-10 items-start">
+          <div>
+            <div className="mb-6 flex items-center gap-2.5">
+              <span className="live-dot vault-pulse" />
+              <span
+                className="vault-quiet-label"
+                style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
+              >
+                {eyebrow}
+              </span>
+            </div>
+            <h1
+              className="vault-display-h1 max-w-4xl"
+              style={{ color: "var(--vault-text)" }}
+            >
+              Transparent model leans on{" "}
+              <span style={{ color: "var(--vault-gold-bright)" }}>
+                NBA player props.
+              </span>
+            </h1>
+            <p
+              className="mt-6 text-[16px] md:text-[18px] max-w-2xl leading-relaxed"
+              style={{ color: "var(--vault-text-mute)" }}
+            >
+              GametimePicks compares model projections against sportsbook
+              lines, surfaces edges with explanations, and tracks every
+              result publicly. Educational analytics — not betting advice.
+            </p>
 
-        {/* State-specific callouts */}
-        {todayMode === "ScheduleLiveOddsUnavailable" && (
-          <ScheduleLiveCallout
-            todayGames={todayGames}
-            primaryLabel={todayDay?.dayLabel ?? "Today"}
-            manualOverride={!!meta.todayManualOverrideUsed}
-          />
-        )}
-        {todayMode === "NoGames" && nextGameDay && (
-          <NoGamesCallout next={nextGameDay} />
-        )}
-        {isUnavailable && (
-          <ScheduleUnavailableCallout reason={meta.todayFailureReason} />
-        )}
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Link
+                href={ctaHref}
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-[4px] font-medium text-[15px] tracking-tight transition-colors"
+                style={{
+                  background: "var(--vault-gold)",
+                  color: "#06070A",
+                  boxShadow:
+                    "0 0 0 1px rgba(212, 175, 55, 0.45), 0 12px 28px -10px rgba(240, 199, 94, 0.35)",
+                }}
+              >
+                {heroCtaText}
+                <span aria-hidden>→</span>
+              </Link>
+              <Link
+                href="/parlay-lab"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-[4px] font-medium text-[15px] tracking-tight transition-colors"
+                style={{
+                  border: "1px solid var(--vault-border-strong)",
+                  color: "var(--vault-text)",
+                }}
+              >
+                Open Parlay Lab
+              </Link>
+              <Link
+                href="/methodology"
+                className="font-mono text-[12px] tracking-tight transition-colors px-2"
+                style={{ color: "var(--vault-text-mute)" }}
+              >
+                how the model works →
+              </Link>
+            </div>
+
+            {/* State-specific callouts */}
+            {todayMode === "ScheduleLiveOddsUnavailable" && (
+              <ScheduleLiveCallout
+                todayGames={todayGames}
+                primaryLabel={todayDay?.dayLabel ?? "Today"}
+                manualOverride={!!meta.todayManualOverrideUsed}
+              />
+            )}
+            {todayMode === "NoGames" && nextGameDay && (
+              <NoGamesCallout next={nextGameDay} />
+            )}
+            {isUnavailable && (
+              <ScheduleUnavailableCallout reason={meta.todayFailureReason} />
+            )}
+          </div>
+
+          {/* Sportsbook status board — composes real slate data into an
+              LED-style panel. Falls back to a quieter "model lab idle"
+              treatment when no scored slate exists. */}
+          <div className="reveal reveal-d2">
+            {latestScoredFinalDate ? (
+              <SportsbookStatusBoard
+                eyebrow={`${latestScoredDayLabel ?? "Latest"} slate · scored`}
+                headline={
+                  latestScoredMatchup
+                    ? `${latestScoredMatchup}`
+                    : `${statusBoardGames.length} NBA game${statusBoardGames.length === 1 ? "" : "s"}`
+                }
+                sub={`${latestScoredLeanCount} projections · ${latestScoredHighCount} High confidence`}
+                games={statusBoardGames}
+                stats={statusBoardStats}
+                footnote="Guardrails active · educational only"
+                ctaHref={`/board?date=${latestScoredFinalDate}`}
+                ctaLabel="Open the wall"
+              />
+            ) : (
+              <SportsbookStatusBoard
+                eyebrow="Model lab · idle"
+                headline="No scored slate loaded"
+                sub="Projections will land here once the next scheduled refresh completes."
+                steady
+                footnote="Educational analytics · not betting advice"
+                ctaHref="/methodology"
+                ctaLabel="How the model works"
+              />
+            )}
+          </div>
+        </div>
       </section>
 
-      {/* KPI strip — PR B: when today has no scored leans (off-day /
-          refresh-pending), tiles 1 & 2 surface the latest scored slate
-          so the homepage remains useful instead of showing "—" on
-          off-days. Tiles 3 & 4 always show real settled aggregates. */}
-      <section className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiTile
+      {/* Live ticker rail — strongest model projections from the latest
+          scored slate, marquee-scrolled. Rendered only when there's
+          actually a scored slate; on cold deploys the rail is hidden. */}
+      {tickerCells.length > 0 && (
+        <div className="mt-12 reveal reveal-d2 -mx-6 sm:-mx-8">
+          <OddsTickerRail
+            cells={tickerCells}
+            eyebrow={`${latestScoredDayLabel ?? "Latest"} · top edges`}
+          />
+        </div>
+      )}
+
+      {/* KPI strip — replaced flat KpiTile with NeonStatPanel so the
+          numbers read as a premium scoreboard, not debug output. Tiles
+          1 and 2 surface the latest scored slate on off-days; tiles 3
+          and 4 always show real settled aggregates. */}
+      <section className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <NeonStatPanel
           label={
             isDemoMode
-              ? "leans in sample"
+              ? "Leans in sample"
               : showLeanTiles
-                ? "leans today"
-                : "latest slate · leans"
+                ? "Leans today"
+                : "Latest slate · leans"
           }
           value={
             showLeanTiles
@@ -283,26 +431,27 @@ export default function HomePage() {
                 ? String(latestScoredLeanCount)
                 : "—"
           }
+          valueAccent="gold"
           sub={
             !showLeanTiles
               ? latestScoredFinalDate
                 ? `${latestScoredDayLabel ?? latestScoredFinalDate}${
                     latestScoredMatchup ? ` · ${latestScoredMatchup}` : ""
                   }`
-                : "awaiting model leans"
+                : "Awaiting model leans"
               : isDemoMode
-                ? "demo data"
+                ? "Demo data"
                 : undefined
           }
           delay={1}
         />
-        <KpiTile
+        <NeonStatPanel
           label={
             isDemoMode
-              ? "high-conf in sample"
+              ? "High-conf in sample"
               : showLeanTiles
-                ? "high confidence"
-                : "latest slate · high conf"
+                ? "High confidence"
+                : "Latest slate · high conf"
           }
           value={
             showLeanTiles
@@ -311,43 +460,47 @@ export default function HomePage() {
                 ? String(latestScoredHighCount)
                 : "—"
           }
+          valueAccent="gold"
           sub={
             !showLeanTiles && latestScoredFinalDate
               ? `${latestScoredDayLabel ?? latestScoredFinalDate}`
               : !showLeanTiles
-                ? "awaiting model leans"
+                ? "Awaiting model leans"
                 : undefined
           }
           delay={2}
         />
-        {/* Phase 11: real settled hit rate (replaces legacy demo hit_rates.json) */}
-        <KpiTile
-          label="settled hit rate"
+        <NeonStatPanel
+          label="Settled hit rate"
           value={
             lifetime && typeof lifetime.hitRate === "number"
               ? formatPercent(lifetime.hitRate)
               : "—"
           }
+          valueAccent={
+            lifetime && typeof lifetime.hitRate === "number" ? "default" : "mute"
+          }
           sub={
             lifetime
               ? `${lifetime.decisive} decisive · ${lifetime.totalDates} slate${lifetime.totalDates === 1 ? "" : "s"}${lifetime.smallSample ? " · small sample" : ""}`
-              : "no settled slates yet"
+              : "No settled slates yet"
           }
           delay={3}
         />
-        <KpiTile
-          label="settled wins / losses"
+        <NeonStatPanel
+          label="Settled wins / losses"
           value={
             lifetime
               ? `${lifetime.wins} / ${lifetime.losses}`
               : "—"
           }
+          valueAccent={lifetime ? "default" : "mute"}
           sub={
             lifetime
               ? lifetime.pushes > 0
                 ? `${lifetime.pushes} push${lifetime.pushes === 1 ? "" : "es"}`
-                : undefined
-              : "no settled data"
+                : "No pushes settled"
+              : "No settled data"
           }
           delay={4}
         />
@@ -368,27 +521,47 @@ export default function HomePage() {
         upcomingGames={upcomingGames}
       />
 
-      {/* Three-up explainer */}
-      <section className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <ExplainerCard
-          n="01"
-          title="Compare projection to line"
-          body="For each NBA player prop, the model produces a projected stat value and over/under probability. We pull the sportsbook line and convert the odds to an implied probability."
-          delay={1}
-        />
-        <ExplainerCard
-          n="02"
-          title="Quantify the edge"
-          body="Edge = model probability minus implied probability. Positive edge means the model thinks the market is mispricing the prop. We surface only edges that clear a transparent threshold."
-          delay={2}
-        />
-        <ExplainerCard
-          n="03"
-          title="Track every result"
-          body="Every lean is logged before tipoff and settled after the box score. Hit rate, calibration, and breakdown by market and confidence tier are all public."
-          delay={3}
-        />
-      </section>
+      {/* Three-up explainer — wrapped in the new VegasSectionShell so it
+          reads as a panelled "how it works" board rather than three free
+          cards floating on dark. */}
+      <div className="mt-20">
+        <VegasSectionShell
+          eyebrow="House rules · how it works"
+          heading="From line to lean in three steps"
+          sub="Every projection on the wall comes through this same pipeline — no black boxes, no hidden weighting."
+          staticDot
+          action={
+            <Link
+              href="/methodology"
+              className="font-mono tracking-tight transition-colors"
+              style={{ color: "var(--vault-gold)", fontSize: 12 }}
+            >
+              read full methodology →
+            </Link>
+          }
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <ExplainerCard
+              n="01"
+              title="Compare projection to line"
+              body="For each NBA player prop, the model produces a projected stat value and over/under probability. We pull the sportsbook line and convert the odds to an implied probability."
+              delay={1}
+            />
+            <ExplainerCard
+              n="02"
+              title="Quantify the edge"
+              body="Edge = model probability minus implied probability. Positive edge means the model thinks the market is mispricing the prop. We surface only edges that clear a transparent threshold."
+              delay={2}
+            />
+            <ExplainerCard
+              n="03"
+              title="Track every result"
+              body="Every lean is logged before tipoff and settled after the box score. Hit rate, calibration, and breakdown by market and confidence tier are all public."
+              delay={3}
+            />
+          </div>
+        </VegasSectionShell>
+      </div>
 
       {/* Newsletter signup — Phase 13 */}
       <section className="mt-16 reveal">
@@ -540,14 +713,27 @@ function ExplainerCard({
   delay: number;
 }) {
   return (
-    <div className={`surface p-6 reveal reveal-d${delay}`}>
-      <div className="font-mono text-[11px] text-[var(--vault-gold-bright)] tracking-wider mb-3">
-        {n}
+    <div
+      className={`vault-deluxe-card casino-glow-card p-6 reveal reveal-d${delay}`}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <span
+          className="inline-flex items-center justify-center w-7 h-7 rounded-full font-mono font-semibold text-[12px] tabular"
+          style={{
+            background: "var(--vault-gold-dim)",
+            border: "1px solid var(--vault-border-strong)",
+            color: "var(--vault-gold-bright)",
+            boxShadow: "0 0 12px -4px rgba(240, 199, 94, 0.35)",
+          }}
+          aria-hidden
+        >
+          {n}
+        </span>
+        <h3 className="font-display text-[18px] sm:text-[20px] font-semibold tracking-tight">
+          {title}
+        </h3>
       </div>
-      <h3 className="font-display text-[20px] font-semibold tracking-tight mb-2">
-        {title}
-      </h3>
-      <p className="text-[14px] text-[var(--text-mute)] leading-relaxed">
+      <p className="text-[14px] text-[var(--vault-text-mute)] leading-relaxed">
         {body}
       </p>
     </div>

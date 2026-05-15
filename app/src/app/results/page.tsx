@@ -37,6 +37,7 @@ import { formatPercent } from "@/lib/format";
 import EmptyResultsCard from "@/components/empty-results-card";
 import NewsletterSignup from "@/components/newsletter-signup";
 import ResultsBreakdown from "@/components/results-breakdown";
+import NeonCornerBracket from "@/components/neon-corner-bracket";
 
 export default function ResultsPage() {
   const lifetime = getLifetimeSummary();
@@ -177,20 +178,27 @@ export default function ResultsPage() {
 function ResultsEmptyShell() {
   return (
     <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
-      <div className="reveal vault-hero-eyebrow">
+      <div className="reveal vault-hero-eyebrow vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-2">
+        <NeonCornerBracket />
         <div
           className="font-mono text-[10px] uppercase tracking-[0.18em]"
           style={{ color: "var(--vault-gold)" }}
         >
           early validation · educational results tracking
         </div>
-        <h1 className="mt-2 font-display text-[28px] sm:text-[36px] md:text-[48px] tracking-tightest font-semibold leading-[1]">
+        <h1
+          className="mt-2 vault-display-h2"
+          style={{ color: "var(--vault-text)" }}
+        >
           Results coming online
         </h1>
-        <p className="mt-3 text-[var(--vault-text-mute)] text-[13px] sm:text-[14px] font-mono max-w-2xl">
+        <p
+          className="mt-3 text-[14px] sm:text-[15px] leading-relaxed max-w-2xl"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
           When completed slates are settled with verified final stats, this page
-          shows the model's hit rate, projection error, and biggest hits/misses —
-          broken down by market, confidence tier, game, and bookmaker.
+          shows the model&apos;s hit rate, projection error, and biggest hits and
+          misses — broken down by market, confidence tier, game, and bookmaker.
         </p>
       </div>
 

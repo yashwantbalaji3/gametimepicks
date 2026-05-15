@@ -301,7 +301,7 @@ function LeanRow({ lean, flagged }: { lean: TrendingLean; flagged?: boolean }) {
     lean.team && lean.opponent ? `${lean.team} @ ${lean.opponent}` : null;
   return (
     <div
-      className="vault-deluxe-card px-4 py-3.5"
+      className="vault-deluxe-card casino-glow-card px-4 py-3.5"
       style={
         flagged
           ? { borderColor: "rgba(240, 199, 94, 0.32)" }
@@ -437,10 +437,7 @@ function ParlaysPanel({
 }) {
   return (
     <Panel id="trending-panel-parlays" labelledBy="trending-tab-parlays">
-      <div
-        className="rounded-[4px] p-5 sm:p-6 vault-glass"
-        style={{ border: "1px solid var(--vault-border-strong)" }}
-      >
+      <div className="vault-deluxe-card casino-glow-card p-5 sm:p-6">
         <div
           className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3"
           style={{ color: "var(--vault-gold)" }}
@@ -564,11 +561,7 @@ function UpcomingPanel({
         {upcomingGames.map((g) => (
           <div
             key={g.gameId}
-            className="px-4 py-3 rounded-[3px]"
-            style={{
-              background: "var(--vault-panel)",
-              border: "1px solid var(--vault-border)",
-            }}
+            className="vault-deluxe-card casino-glow-card px-4 py-3"
           >
             <div className="flex items-baseline justify-between gap-3">
               <span

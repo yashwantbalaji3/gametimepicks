@@ -38,6 +38,7 @@ import { enrichLeansWithGames } from "@/lib/lean-enrich";
 import { groupLeansIntoPlayerCards } from "@/lib/grouping";
 import VaultFilters from "./vault-filters";
 import VaultPlayerCard from "./vault-player-card";
+import FeaturedHeadliners from "./featured-headliners";
 
 interface Props {
   board: BoardData;
@@ -152,10 +153,32 @@ export default function VaultBoard({ board }: Props) {
         <VaultEmptyState dirty={dirty} onResetAll={onResetAll} />
       ) : (
         <>
+          {/* Iteration 4: Featured Headliners is now a compact rail of
+              anchor-link tiles, not full duplicate cards. The full
+              VaultPlayerCard still appears once in the main grid below;
+              the rail tile jumps to the matching anchor (#card-XXX).
+              Section hides while filters are dirty so it never blocks
+              browsing. */}
+          {!dirty &&
+            (() => {
+              const slateTeams = new Set<string>();
+              for (const g of games) {
+                if (g.homeTeamAbbr) slateTeams.add(g.homeTeamAbbr);
+                if (g.awayTeamAbbr) slateTeams.add(g.awayTeamAbbr);
+              }
+              return (
+                <FeaturedHeadliners
+                  playerCards={playerCards}
+                  slateTeams={slateTeams}
+                />
+              );
+            })()}
+
           <SectionHeading
             playerCount={playerCards.length}
             propCount={visibleLeans.length}
             totalProps={enrichedLeans.length}
+            allView={!dirty}
           />
           <div
             key={filterSig}
@@ -222,10 +245,15 @@ function SectionHeading({
   playerCount,
   propCount,
   totalProps,
+  allView,
 }: {
   playerCount: number;
   propCount: number;
   totalProps: number;
+  /** When true, the headliner strip is visible above — use a clearer
+   *  separator ("All projections") so the user knows they're past the
+   *  star section. */
+  allView?: boolean;
 }) {
   return (
     <div className="flex items-center gap-3 mb-4">
@@ -233,7 +261,7 @@ function SectionHeading({
         className="font-mono text-[10px] uppercase tracking-[0.18em] shrink-0"
         style={{ color: "var(--vault-gold)" }}
       >
-        model board
+        {allView ? "All projections · model board" : "Model board"}
       </span>
       <div
         className="flex-1 h-px"

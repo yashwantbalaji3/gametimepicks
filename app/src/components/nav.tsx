@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import BrandMark from "./brand-mark";
+import SportsbookLightRail from "./sportsbook-light-rail";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home" },
@@ -31,22 +33,10 @@ export default function Nav() {
       <div className="mx-auto max-w-[1440px] px-6 sm:px-8 h-16 flex items-center justify-between gap-6">
         <Link
           href="/"
-          className="flex items-center gap-3 group shrink-0 vault-glow-hover rounded-[3px] py-1"
+          aria-label="GameTimePicks home"
+          className="flex items-center group shrink-0 vault-glow-hover rounded-[3px] py-1 px-1"
         >
-          <div
-            className="w-8 h-8 rounded-[4px] flex items-center justify-center font-mono font-bold text-[13px] tracking-tight"
-            style={{
-              background: "linear-gradient(135deg, #F0C75E, #B8901E)",
-              color: "#06070A",
-              boxShadow:
-                "0 0 0 1px rgba(212, 175, 55, 0.45) inset, 0 0 14px -4px rgba(240, 199, 94, 0.4)",
-            }}
-          >
-            GP
-          </div>
-          <div className="font-display text-[15px] font-semibold tracking-[-0.012em]">
-            Gametime<span className="text-[var(--vault-text-mute)] font-normal">Picks</span>
-          </div>
+          <BrandMark variant="lockup" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
@@ -56,11 +46,22 @@ export default function Nav() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className="relative px-3.5 py-2 text-[14px] font-medium tracking-tight transition-colors"
                 style={{
                   color: active
                     ? "var(--vault-gold-bright)"
                     : "var(--vault-text-mute)",
+                  // Iteration 4: gold-dim halo on the active nav item so
+                  // the "you are here" beat reads as illuminated, not
+                  // just underlined.
+                  background: active
+                    ? "linear-gradient(180deg, rgba(212, 175, 55, 0.10) 0%, rgba(212, 175, 55, 0) 80%)"
+                    : "transparent",
+                  borderRadius: 3,
+                  textShadow: active
+                    ? "0 0 12px rgba(240, 199, 94, 0.35)"
+                    : "none",
                 }}
               >
                 {item.label}
@@ -81,6 +82,11 @@ export default function Nav() {
         </nav>
       </div>
 
+      {/* Sportsbook LED rail directly under the header — gives the chrome
+          a faint lounge-light strip. Pure presentation; respects
+          prefers-reduced-motion. */}
+      <SportsbookLightRail />
+
       {/* Mobile horizontal nav row */}
       <div
         className="md:hidden overflow-x-auto"
@@ -93,11 +99,16 @@ export default function Nav() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className="relative px-3 py-1.5 text-[12px] font-medium tracking-tight whitespace-nowrap transition-colors"
                 style={{
                   color: active
                     ? "var(--vault-gold-bright)"
                     : "var(--vault-text-mute)",
+                  background: active
+                    ? "linear-gradient(180deg, rgba(212, 175, 55, 0.10) 0%, rgba(212, 175, 55, 0) 80%)"
+                    : "transparent",
+                  borderRadius: 3,
                 }}
               >
                 {item.label}

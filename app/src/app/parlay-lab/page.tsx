@@ -2,6 +2,7 @@ import { getSlate, getMeta, getBoardForDate, getAvailableBoardDates } from "@/li
 import type { PropLean, BoardData, ScheduleGame } from "@/lib/types";
 import ParlayLabModeTabs from "@/components/parlay-lab-mode-tabs";
 import DataSourceBadge from "@/components/data-source-badge";
+import NeonCornerBracket from "@/components/neon-corner-bracket";
 import { selectActiveSlate } from "@/lib/active-slate";
 import { currentEtDate } from "@/lib/freshness";
 
@@ -65,8 +66,10 @@ export default function ParlayLabPage() {
 
   return (
     <div className="vault-page-shell px-6 sm:px-8 py-12 md:py-20">
-      {/* Hero — premium data-orbit backdrop, larger display typography */}
-      <section className="vault-data-orbit relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pb-2">
+      {/* Hero — premium data-orbit backdrop + neon corner brackets +
+          subtle scanline. Sportsbook-lounge centerpiece. */}
+      <section className="vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pt-6 pb-2">
+        <NeonCornerBracket />
         <div
           className="vault-quiet-label mb-4 inline-flex items-center gap-2"
           style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
