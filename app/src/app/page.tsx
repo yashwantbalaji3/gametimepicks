@@ -521,6 +521,76 @@ export default function HomePage() {
         upcomingGames={upcomingGames}
       />
 
+      {/* PR — "What's on the floor" feature tiles. Routes the user to
+          the four main destinations with one-line descriptions, using
+          only data already loaded above. Anomaly count and star count
+          ride along when available. */}
+      <section className="mt-20 reveal">
+        <div className="flex items-center gap-3 mb-5">
+          <span
+            aria-hidden
+            className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+            style={{
+              background: "var(--vault-gold-bright)",
+              boxShadow: "0 0 8px rgba(240, 199, 94, 0.6)",
+            }}
+          />
+          <div
+            className="font-mono text-[10px] uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-gold)" }}
+          >
+            What&apos;s on the floor
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <FeatureTile
+            label="01"
+            title="Star spotlight"
+            body="Headliner rail surfaces the biggest names on the slate. One click jumps to their full projection card."
+            href={
+              latestScoredFinalDate
+                ? `/board?date=${latestScoredFinalDate}`
+                : "/board"
+            }
+            cta="View the board"
+            badge={
+              latestScoredLeanCount > 0
+                ? `${latestScoredLeanCount} loaded`
+                : undefined
+            }
+          />
+          <FeatureTile
+            label="02"
+            title="Model anomaly guardrails"
+            body="Edges above 25% are auto-capped to Low confidence with an audit stamp. No card on the wall overstates the model's confidence."
+            href="/methodology"
+            cta="Read methodology"
+            badge={
+              latestScoredFinalBoard
+                ? `${(latestScoredFinalBoard.leans ?? []).filter((l) =>
+                    (l.riskFlags ?? []).includes("suspicious_edge"),
+                  ).length} stamped`
+                : undefined
+            }
+            tone="warn"
+          />
+          <FeatureTile
+            label="03"
+            title="Parlay Lab"
+            body="Build candidate parlays from real model leans, or analyze a slip you already have. Same-game legs are flagged."
+            href="/parlay-lab"
+            cta="Open the console"
+          />
+          <FeatureTile
+            label="04"
+            title="Results calibration"
+            body="Every settled lean lands here — hit rate, projection error, confidence calibration. Honest until graded."
+            href="/results"
+            cta="Calibration room"
+          />
+        </div>
+      </section>
+
       {/* Three-up explainer — wrapped in the new VegasSectionShell so it
           reads as a panelled "how it works" board rather than three free
           cards floating on dark. */}
@@ -698,6 +768,80 @@ function ScheduleUnavailableCallout({
         after the next scheduled update.
       </div>
     </div>
+  );
+}
+
+function FeatureTile({
+  label,
+  title,
+  body,
+  href,
+  cta,
+  badge,
+  tone,
+}: {
+  label: string;
+  title: string;
+  body: string;
+  href: string;
+  cta: string;
+  badge?: string;
+  tone?: "warn";
+}) {
+  const badgeStyle =
+    tone === "warn"
+      ? {
+          color: "var(--vault-warn)",
+          background: "var(--vault-warn-dim)",
+          border: "1px solid rgba(240, 199, 94, 0.30)",
+        }
+      : {
+          color: "var(--vault-gold-bright)",
+          background: "var(--vault-gold-dim)",
+          border: "1px solid var(--vault-border-strong)",
+        };
+  return (
+    <Link
+      href={href}
+      className="vault-deluxe-card casino-glow-card p-5 flex flex-col"
+      style={{ textDecoration: "none", color: "inherit" }}
+    >
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <span
+          className="font-mono text-[10px] tracking-[0.18em] uppercase"
+          style={{ color: "var(--vault-gold)" }}
+        >
+          {label}
+        </span>
+        {badge && (
+          <span
+            className="font-mono text-[10px] tracking-tight uppercase px-2 py-0.5 rounded-[3px]"
+            style={badgeStyle}
+          >
+            {badge}
+          </span>
+        )}
+      </div>
+      <h3
+        className="font-display text-[16px] sm:text-[17px] font-semibold tracking-tight mb-2"
+        style={{ color: "var(--vault-text)" }}
+      >
+        {title}
+      </h3>
+      <p
+        className="text-[13px] leading-relaxed flex-1"
+        style={{ color: "var(--vault-text-mute)" }}
+      >
+        {body}
+      </p>
+      <div
+        className="mt-4 inline-flex items-center gap-1.5 font-mono text-[12px]"
+        style={{ color: "var(--vault-gold)" }}
+      >
+        {cta}
+        <span aria-hidden>→</span>
+      </div>
+    </Link>
   );
 }
 

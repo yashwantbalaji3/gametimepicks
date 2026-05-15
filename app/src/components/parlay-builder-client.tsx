@@ -63,6 +63,24 @@ const RISK_DESCRIPTIONS: Record<RiskProfile, string> = {
 
 const MARKET_LIST: ("PTS" | "REB" | "AST")[] = ["PTS", "REB", "AST"];
 
+// Curated star priority — sorts star names to the top of the
+// Selected-Players picker so users find Anthony Edwards / Wembanyama /
+// etc. without scrolling. Matches the board Headliner Rail list.
+const STAR_PRIORITY: string[] = [
+  "Anthony Edwards",
+  "Victor Wembanyama",
+  "Donovan Mitchell",
+  "Cade Cunningham",
+  "James Harden",
+  "Evan Mobley",
+  "Jarrett Allen",
+  "Jalen Duren",
+  "Julius Randle",
+  "Rudy Gobert",
+  "De'Aaron Fox",
+  "Stephon Castle",
+];
+
 export default function ParlayBuilderClient({
   allLeans,
   datesAvailable,
@@ -94,6 +112,10 @@ export default function ParlayBuilderClient({
   const [selectedMarkets, setSelectedMarkets] = useState<Set<string>>(
     new Set(MARKET_LIST),
   );
+  // PR — player picker search box. Filters the chip grid in Selected
+  // Players mode so stars whose teams have many loaded props are still
+  // findable.
+  const [playerSearch, setPlayerSearch] = useState<string>("");
 
   const dateLeans = useMemo(
     () => allLeans.filter((l) => l.date === selectedDate),
@@ -103,18 +125,53 @@ export default function ParlayBuilderClient({
   const isSelectedDateArchived =
     datesAvailable.find((d) => d.date === selectedDate)?.isArchived ?? false;
 
-  const playerOptions: PlayerOption[] = useMemo(
-    () =>
-      uniquePlayersFromLeans(dateLeans, {
-        coreOnly: !includeFullRotation,
-        corePlayersPerTeam: 3,
-      }),
-    [dateLeans, includeFullRotation],
-  );
+  // PR — Selected-Players picker now shows ALL loaded players on the
+  // slate, not just core-3-per-team. Previously the picker was capped
+  // by `topCorePlayerKeysPerTeam` which ranks by projection-sum across
+  // Over/Under markets. Stars whose biggest market got "No Play"
+  // (projection sits on the line) — e.g. Anthony Edwards on May 15 —
+  // fell out of MIN's top 3 and were undiscoverable. The "Include full
+  // rotation" toggle still gates candidate generation; the picker is
+  // always full.
+  //
+  // Star priority sorts to the top so users land on big names quickly.
+  // Within each priority tier, alphabetical for stability.
+  const playerOptions: PlayerOption[] = useMemo(() => {
+    const all = uniquePlayersFromLeans(dateLeans, { coreOnly: false });
+    const rank = (name: string): number => {
+      const idx = STAR_PRIORITY.indexOf(name);
+      return idx === -1 ? STAR_PRIORITY.length : idx;
+    };
+    return [...all].sort((a, b) => {
+      const ra = rank(a.playerName);
+      const rb = rank(b.playerName);
+      if (ra !== rb) return ra - rb;
+      return a.playerName.localeCompare(b.playerName);
+    });
+  }, [dateLeans]);
+
+  const filteredPlayerOptions: PlayerOption[] = useMemo(() => {
+    const q = playerSearch.trim().toLowerCase();
+    if (!q) return playerOptions;
+    return playerOptions.filter((p) =>
+      p.playerName.toLowerCase().includes(q),
+    );
+  }, [playerOptions, playerSearch]);
   const gameOptions: GameOption[] = useMemo(
     () => uniqueGamesFromLeans(dateLeans, gamesByGameId),
     [dateLeans, gamesByGameId],
   );
+
+  // PR — when the user has hand-picked players in Selected Players mode,
+  // their picks should always be honored even if the picked player is
+  // outside the top-3 core pool. We force-enable bench inclusion in that
+  // case so selecting a non-core star (e.g. Anthony Edwards on a slate
+  // where his PTS is No Play) produces real candidates instead of an
+  // empty result. The "Include full rotation" toggle still has effect
+  // in Top Props mode and when no players are picked.
+  const effectiveIncludeBench =
+    includeFullRotation ||
+    (mode === "selected_players" && selectedPlayerNames.size > 0);
 
   const candidates: ParlayCandidate[] = useMemo(() => {
     if (dateLeans.length === 0) return [];
@@ -130,7 +187,7 @@ export default function ParlayBuilderClient({
           : undefined,
       riskProfile,
       numCandidates: 3,
-      includeBenchPlayers: includeFullRotation,
+      includeBenchPlayers: effectiveIncludeBench,
       corePlayersPerTeam: 3,
     });
   }, [
@@ -140,7 +197,7 @@ export default function ParlayBuilderClient({
     selectedGameIds,
     selectedMarkets,
     riskProfile,
-    includeFullRotation,
+    effectiveIncludeBench,
   ]);
 
   // Phase 17: detect "no current builder" honestly. When the only
@@ -303,15 +360,15 @@ export default function ParlayBuilderClient({
                 className="font-display text-[13px] font-semibold tracking-tight"
                 style={{ color: "var(--vault-text)" }}
               >
-                Include full rotation
+                Include full rotation in candidates
               </div>
               <div
                 className="mt-0.5 text-[11px] leading-snug"
                 style={{ color: "var(--vault-text-faint)" }}
               >
                 {includeFullRotation
-                  ? "Bench / role players included. Wider candidate pool."
-                  : "Top 3 core players per team only. Bench excluded by default."}
+                  ? "Bench / role players included in candidate generation. Wider pool, more variance."
+                  : "Candidate generation defaults to the top 3 core players per team. You can still hand-pick anyone from the full list below."}
               </div>
             </div>
           </label>
@@ -320,6 +377,34 @@ export default function ParlayBuilderClient({
         {mode === "selected_players" && (
           <>
             <SectionLabel n="5" text="Players" />
+            <div className="mb-3">
+              <input
+                type="search"
+                value={playerSearch}
+                onChange={(e) => setPlayerSearch(e.target.value)}
+                placeholder="Search players on this slate…"
+                aria-label="Search players"
+                className="w-full px-3 py-2 rounded-[3px] text-[12px] transition-colors"
+                style={{
+                  background: "var(--vault-panel)",
+                  border: "1px solid var(--vault-border)",
+                  color: "var(--vault-text)",
+                }}
+              />
+              <div
+                className="mt-1.5 text-[10px] tracking-[0.04em]"
+                style={{ color: "var(--vault-text-faint)" }}
+              >
+                {playerOptions.length} loaded player
+                {playerOptions.length === 1 ? "" : "s"} on this slate
+                {playerSearch.trim() && filteredPlayerOptions.length !==
+                  playerOptions.length
+                  ? ` · ${filteredPlayerOptions.length} match${
+                      filteredPlayerOptions.length === 1 ? "" : "es"
+                    }`
+                  : ""}
+              </div>
+            </div>
             {playerOptions.length === 0 ? (
               <p
                 className="text-[12px] mb-5"
@@ -332,36 +417,58 @@ export default function ParlayBuilderClient({
                 className="mb-5 flex flex-wrap gap-1.5"
                 style={{ maxHeight: 240, overflowY: "auto" }}
               >
-                {playerOptions.map((p) => (
-                  <button
-                    key={`${p.playerId}_${p.playerName}`}
-                    type="button"
-                    onClick={() => togglePlayer(p.playerName)}
-                    className="px-2.5 py-1 rounded-[3px] text-[12px] transition-colors"
-                    style={{
-                      background: selectedPlayerNames.has(p.playerName)
-                        ? "var(--vault-gold-dim)"
-                        : "var(--vault-panel)",
-                      border: `1px solid ${
-                        selectedPlayerNames.has(p.playerName)
-                          ? "var(--vault-gold)"
-                          : "var(--vault-border)"
-                      }`,
-                      color: "var(--vault-text)",
-                    }}
+                {filteredPlayerOptions.length === 0 ? (
+                  <p
+                    className="w-full text-[12px]"
+                    style={{ color: "var(--vault-text-faint)" }}
                   >
-                    {p.playerName}
-                    {p.hasHighConfidence && (
-                      <span
-                        className="ml-1.5 text-[10px]"
-                        style={{ color: "var(--vault-gold-bright)" }}
-                        aria-label="has a High-confidence lean on this slate"
+                    No loaded players match &ldquo;{playerSearch}&rdquo;.
+                  </p>
+                ) : (
+                  filteredPlayerOptions.map((p) => {
+                    const isStar = STAR_PRIORITY.includes(p.playerName);
+                    return (
+                      <button
+                        key={`${p.playerId}_${p.playerName}`}
+                        type="button"
+                        onClick={() => togglePlayer(p.playerName)}
+                        className="px-2.5 py-1 rounded-[3px] text-[12px] transition-colors"
+                        style={{
+                          background: selectedPlayerNames.has(p.playerName)
+                            ? "var(--vault-gold-dim)"
+                            : "var(--vault-panel)",
+                          border: `1px solid ${
+                            selectedPlayerNames.has(p.playerName)
+                              ? "var(--vault-gold)"
+                              : isStar
+                                ? "var(--vault-border-strong)"
+                                : "var(--vault-border)"
+                          }`,
+                          color: "var(--vault-text)",
+                        }}
                       >
-                        ★
-                      </span>
-                    )}
-                  </button>
-                ))}
+                        {p.playerName}
+                        {(isStar || p.hasHighConfidence) && (
+                          <span
+                            className="ml-1.5 text-[10px]"
+                            style={{
+                              color: isStar
+                                ? "var(--vault-gold-bright)"
+                                : "var(--vault-gold)",
+                            }}
+                            aria-label={
+                              isStar
+                                ? "headliner"
+                                : "has a High-confidence lean on this slate"
+                            }
+                          >
+                            ★
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })
+                )}
               </div>
             )}
           </>
@@ -441,19 +548,51 @@ export default function ParlayBuilderClient({
             body="The selected date doesn't have model leans yet. Either the slate hasn't been generated, or props are unavailable for those games. Try a different date or check back after the next refresh."
           />
         ) : candidates.length === 0 ? (
-          <EmptyState
-            heading={`No ${riskProfile} candidates on this slate`}
-            body={
-              riskProfile === "conservative"
-                ? "Conservative requires High confidence + valid recent10 across multiple games. Try Balanced or Aggressive for looser filters, or enable 'include full rotation' for a wider pool."
-                : riskProfile === "balanced"
-                  ? "Balanced requires Medium+ confidence with moderate edge. Try Aggressive for looser filters, or remove some restrictions."
-                  : "No combinations met the minimum edge threshold. The model may not have strong leans on this slate."
+          (() => {
+            // PR — when the user has hand-picked players in Selected
+            // Players mode but no candidates came back, surface a more
+            // tailored hint pointing at the risk profile / filters
+            // rather than the generic "no candidates" copy.
+            if (
+              mode === "selected_players" &&
+              selectedPlayerNames.size > 0
+            ) {
+              return (
+                <EmptyState
+                  heading={`No ${riskProfile} parlays from your selected players`}
+                  body={
+                    selectedPlayerNames.size === 1
+                      ? `The model needs at least two compatible legs to build a parlay. Add another star player, switch to ${
+                          riskProfile === "conservative"
+                            ? "Balanced"
+                            : riskProfile === "balanced"
+                              ? "Aggressive"
+                              : "Balanced"
+                        } risk, or widen the market filter.`
+                      : `Your selected players don't combine into a ${riskProfile} candidate right now. Try Aggressive risk, widen markets, or pick different players.`
+                  }
+                />
+              );
             }
-          />
+            return (
+              <EmptyState
+                heading={`No ${riskProfile} candidates on this slate`}
+                body={
+                  riskProfile === "conservative"
+                    ? "Conservative requires High confidence + valid recent10 across multiple games. Try Balanced or Aggressive for looser filters, or enable 'include full rotation' for a wider pool."
+                    : riskProfile === "balanced"
+                      ? "Balanced requires Medium+ confidence with moderate edge. Try Aggressive for looser filters, or remove some restrictions."
+                      : "No combinations met the minimum edge threshold. The model may not have strong leans on this slate."
+                }
+              />
+            );
+          })()
         ) : (
           <>
-            {!includeFullRotation && (
+            {/* Focus banner only fires in Top Props mode while the
+                core-only filter is in effect — Selected Players mode
+                always respects the user's hand-picked players. */}
+            {!includeFullRotation && mode === "top_props" && (
               <div
                 className="rounded-[3px] px-3 py-2 text-[11px] flex items-center gap-2"
                 style={{
@@ -463,7 +602,10 @@ export default function ParlayBuilderClient({
                 }}
               >
                 <span aria-hidden>★</span>
-                <span>Focused on the top core players per team.</span>
+                <span>
+                  Focused on the top core players per team. Switch to
+                  Selected Players mode to hand-pick anyone on the slate.
+                </span>
               </div>
             )}
             {candidates.map((c, idx) => (

@@ -91,6 +91,14 @@ export default function VaultBoard({ board }: Props) {
 
   // Phase 7C — group into player cards. Render-time invariant runs first
   // (drops + warns on any leak) so a leaked lean can never form a card.
+  //
+  // PR — after grouping, apply a "Featured" ordering by default so the
+  // grid surfaces star players + high-volume / High-confidence cards
+  // before generic role-player anomalies. The lib-level grouping orders
+  // by maxAbsEdge desc; this UI-level resort overrides that for the
+  // default view. When the user actively narrows filters (dirty=true),
+  // we respect their intent and keep the edge-desc ordering so a search
+  // for "top edges" still works.
   const playerCards = useMemo(() => {
     const safe = visibleLeans.filter((lean) => {
       if (!shouldRenderLean(lean, filters, games)) {
@@ -105,7 +113,9 @@ export default function VaultBoard({ board }: Props) {
       }
       return true;
     });
-    return groupLeansIntoPlayerCards(safe);
+    const cards = groupLeansIntoPlayerCards(safe);
+    if (isDirty(filters)) return cards;
+    return cards.slice().sort(compareFeatured);
   }, [visibleLeans, filters, games]);
 
   // Filter signature for the grid container key — forces fresh React
@@ -203,6 +213,89 @@ export default function VaultBoard({ board }: Props) {
 // ---------------------------------------------------------------------------
 // Render-time invariant — same logic as applyFilters; defensive duplicate.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Featured ordering — applied to the default (non-dirty) board view so the
+// grid leads with star players, high-volume cards, and clean High-confidence
+// signal instead of role-player anomalies. The Headliner Rail above the
+// grid already pins compact star tiles; this sort makes their full cards
+// the first thing the user sees in the grid below the rail.
+//
+// Score components (higher = ranks earlier):
+//   • Star priority — curated list, top of the order
+//   • Confidence weight — High > Medium > Low > insufficient_data/no_play
+//   • Total projection volume — sum of primary-market projections; higher
+//     volume players (more PTS / REB / AST) outrank one-trick lines
+//   • Edge magnitude — small tiebreaker; capped so a 43% R5 anomaly never
+//     leapfrogs a clean 12% High
+// Anomalies (suspicious_edge) get a small deboost so they're visible but
+// not dominant.
+// ---------------------------------------------------------------------------
+const FEATURED_STAR_PRIORITY: string[] = [
+  "Anthony Edwards",
+  "Victor Wembanyama",
+  "Donovan Mitchell",
+  "Cade Cunningham",
+  "James Harden",
+  "Evan Mobley",
+  "Jarrett Allen",
+  "Jalen Duren",
+  "Julius Randle",
+  "Rudy Gobert",
+  "De'Aaron Fox",
+  "Stephon Castle",
+];
+
+const FEATURED_CONFIDENCE_WEIGHT: Record<string, number> = {
+  High: 3,
+  Medium: 2,
+  Low: 1,
+  insufficient_data: 0,
+  no_play: 0,
+};
+
+function featuredScore(card: import("@/lib/grouping").PlayerCard): number {
+  // Star boost — top of the curated list scores ~1200, last scores ~100.
+  const starIdx = FEATURED_STAR_PRIORITY.indexOf(card.playerName);
+  const starBoost =
+    starIdx === -1 ? 0 : 100 * (FEATURED_STAR_PRIORITY.length - starIdx);
+
+  // Aggregate per-market: confidence weight, projection volume, edge,
+  // anomaly penalty. Walk all market rows.
+  let confSum = 0;
+  let projSum = 0;
+  let edgeContribution = 0;
+  let anomalyPenalty = 0;
+  for (const m of ["PTS", "REB", "AST"] as const) {
+    const row = card.rows[m];
+    if (!row) continue;
+    const lean = row.primary;
+    confSum += FEATURED_CONFIDENCE_WEIGHT[lean.confidence] ?? 0;
+    if (typeof lean.projection === "number" && Number.isFinite(lean.projection)) {
+      projSum += lean.projection;
+    }
+    if (typeof lean.edgePct === "number" && Number.isFinite(lean.edgePct)) {
+      // Cap edge contribution at 20% so extreme anomaly edges can't
+      // dominate. A 40% anomaly contributes the same 20 as a clean 20%.
+      edgeContribution += Math.min(20, Math.abs(lean.edgePct));
+    }
+    if ((lean.riskFlags ?? []).includes("suspicious_edge")) {
+      anomalyPenalty += 15;
+    }
+  }
+
+  return starBoost + confSum * 20 + projSum * 1.5 + edgeContribution - anomalyPenalty;
+}
+
+function compareFeatured(
+  a: import("@/lib/grouping").PlayerCard,
+  b: import("@/lib/grouping").PlayerCard,
+): number {
+  const sb = featuredScore(b);
+  const sa = featuredScore(a);
+  if (sb !== sa) return sb - sa;
+  return a.playerName.localeCompare(b.playerName);
+}
+
 function shouldRenderLean(
   lean: PropLean,
   filters: FilterState,
