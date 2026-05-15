@@ -169,29 +169,48 @@ function buildLeanReasonBullets(input: BulletInput): ReasonBullet[] {
     }
   }
 
-  // 2. Recent form — combined last-5 / last-10 fragment.
+  // 2. Edge — surface the model's edge number explicitly as its own
+  // bullet so the reader can see it inline with the rest of the story.
+  // (The headline edge chip elsewhere on the card stays.) We only emit
+  // this bullet when the lean is an actual Over/Under pick — for
+  // No-Play / Pass the Verdict bullet below covers it instead.
+  if (
+    typeof input.edgePct === "number" &&
+    Number.isFinite(input.edgePct) &&
+    input.lean !== "No Play" &&
+    input.lean !== "Pass"
+  ) {
+    const sign = input.edgePct >= 0 ? "+" : "";
+    bullets.push({
+      label: "Edge",
+      text: `${sign}${input.edgePct.toFixed(1)}% over the market's implied probability.`,
+    });
+  }
+
+  // 3. Recent form — combined last-5 / last-10 fragment. Cleaner
+  // sentence than the raw pipeline string.
   const last5 = /last-5 avg ([\d.]+)/i.exec(reason);
   const last10 = /last-10 avg ([\d.]+)/i.exec(reason);
   if (last5 || last10) {
     const parts: string[] = [];
-    if (last5) parts.push(`last-5 ${last5[1]}`);
-    if (last10) parts.push(`last-10 ${last10[1]}`);
+    if (last5) parts.push(`last-5 averaging ${last5[1]}`);
+    if (last10) parts.push(`last-10 averaging ${last10[1]}`);
     bullets.push({
       label: "Recent form",
       text: `${parts.join(" · ")}${market ? ` ${market}` : ""}.`,
     });
   }
 
-  // 3. Minutes trend — clean phrasing instead of the longer pipeline string.
+  // 4. Minutes trend — clean phrasing instead of the longer pipeline string.
   if (/minutes trending up/i.test(reason)) {
     bullets.push({
       label: "Minutes",
-      text: "Trending up across the recent window.",
+      text: "Trending up over the recent window.",
     });
   } else if (/minutes trending down/i.test(reason)) {
     bullets.push({
       label: "Minutes",
-      text: "Trending down across the recent window.",
+      text: "Trending down over the recent window.",
     });
   }
 

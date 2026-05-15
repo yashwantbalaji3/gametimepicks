@@ -33,20 +33,45 @@ import {
   getAvailableSettlementDates,
   type ComparisonReport,
 } from "@/lib/settlement-data";
+import {
+  getBoardForDate,
+  getAvailableBoardDates,
+} from "@/lib/data";
 import { formatPercent } from "@/lib/format";
 import EmptyResultsCard from "@/components/empty-results-card";
 import NewsletterSignup from "@/components/newsletter-signup";
 import ResultsBreakdown from "@/components/results-breakdown";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
 
+/**
+ * Walk available board dates newest-first and return the first one
+ * that already has scored leans. Used to point the empty-state CTA at
+ * the most useful live slate the user can actually look at.
+ */
+function findLatestScoredBoardDate(): string | null {
+  const dates = getAvailableBoardDates().slice().sort().reverse();
+  for (const d of dates) {
+    const b = getBoardForDate(d);
+    const hasScored = (b.leans ?? []).some(
+      (l) =>
+        typeof l.projection === "number" &&
+        typeof l.edgePct === "number" &&
+        Number.isFinite(l.edgePct),
+    );
+    if (hasScored) return d;
+  }
+  return null;
+}
+
 export default function ResultsPage() {
   const lifetime = getLifetimeSummary();
   const latest = getLatestSettlement();
   const allDates = getAvailableSettlementDates();
+  const latestScoredDate = findLatestScoredBoardDate();
 
   // No settled data anywhere → polished empty state.
   if (lifetime.totalSettled === 0 || latest === null) {
-    return <ResultsEmptyShell />;
+    return <ResultsEmptyShell latestScoredDate={latestScoredDate} />;
   }
 
   return (
@@ -175,7 +200,11 @@ export default function ResultsPage() {
 // ---------------------------------------------------------------------------
 // Empty state
 // ---------------------------------------------------------------------------
-function ResultsEmptyShell() {
+function ResultsEmptyShell({
+  latestScoredDate,
+}: {
+  latestScoredDate: string | null;
+}) {
   return (
     <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
       <div className="reveal vault-hero-eyebrow vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-2">
@@ -184,26 +213,27 @@ function ResultsEmptyShell() {
           className="font-mono text-[10px] uppercase tracking-[0.18em]"
           style={{ color: "var(--vault-gold)" }}
         >
-          early validation · educational results tracking
+          Calibration room · early validation
         </div>
         <h1
           className="mt-2 vault-display-h2"
           style={{ color: "var(--vault-text)" }}
         >
-          Results coming online
+          The grading lab
         </h1>
         <p
           className="mt-3 text-[14px] sm:text-[15px] leading-relaxed max-w-2xl"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          When completed slates are settled with verified final stats, this page
-          shows the model&apos;s hit rate, projection error, and biggest hits and
-          misses — broken down by market, confidence tier, game, and bookmaker.
+          Once a slate&apos;s games complete and the box scores are verified,
+          every model lean is graded against the actual outcome. Hit rate,
+          projection error, and confidence calibration live here — broken
+          down by market, confidence tier, game, and bookmaker.
         </p>
       </div>
 
       <div className="mt-8">
-        <EmptyResultsCard />
+        <EmptyResultsCard latestScoredDate={latestScoredDate} />
       </div>
 
       {/* Phase 13: compact newsletter signup so users can be notified
