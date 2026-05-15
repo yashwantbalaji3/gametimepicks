@@ -70,7 +70,10 @@ export default function SportsbookStatusBoard({
   mode = "primary",
 }: Props) {
   const isCompact = mode === "compact";
-  return (
+  // Casino UI: primary variant gets an aurora halo wrapper that breathes
+  // gold → cyan → magenta around the panel. Compact stays calm so it
+  // never competes with the live board grid below.
+  const panel = (
     <aside
       className={`gtp-status-board ${isCompact ? "p-4" : "p-5 sm:p-6"}`}
       aria-label="Slate status board"
@@ -248,4 +251,5 @@ export default function SportsbookStatusBoard({
       )}
     </aside>
   );
+  return isCompact ? panel : <div className="gtp-aurora-halo">{panel}</div>;
 }

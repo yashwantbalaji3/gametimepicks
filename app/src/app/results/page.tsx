@@ -38,6 +38,7 @@ import {
   getAvailableBoardDates,
 } from "@/lib/data";
 import { formatPercent } from "@/lib/format";
+import Link from "next/link";
 import EmptyResultsCard from "@/components/empty-results-card";
 import NewsletterSignup from "@/components/newsletter-signup";
 import ResultsBreakdown from "@/components/results-breakdown";
@@ -236,6 +237,12 @@ function ResultsEmptyShell({
         <EmptyResultsCard latestScoredDate={latestScoredDate} />
       </div>
 
+      {/* Slate-awaiting-settlement panel. Points the user at the live
+          model board with the loaded projection count so the Results
+          page never reads as a dead end while the slate is still in
+          flight. Only renders when a scored slate actually exists. */}
+      <SlateAwaitingSettlementPanel latestScoredDate={latestScoredDate} />
+
       {/* Phase 13: compact newsletter signup so users can be notified
           when results actually populate. */}
       <div className="mt-10 max-w-2xl">
@@ -251,6 +258,96 @@ function ResultsEmptyShell({
       >
         educational use only · not betting advice
       </footer>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Slate-awaiting-settlement panel — used on the empty Results page to
+// keep the surface useful. Points the user at the latest scored model
+// board with the loaded projection count. Honest about the fact that
+// nothing is settled yet.
+// ---------------------------------------------------------------------------
+function SlateAwaitingSettlementPanel({
+  latestScoredDate,
+}: {
+  latestScoredDate: string | null;
+}) {
+  if (!latestScoredDate) return null;
+  const board = getBoardForDate(latestScoredDate);
+  const scoredLeans = (board.leans ?? []).filter(
+    (l) =>
+      typeof l.projection === "number" &&
+      typeof l.edgePct === "number" &&
+      Number.isFinite(l.edgePct),
+  );
+  const projectionCount = scoredLeans.length;
+  const highCount = scoredLeans.filter((l) => l.confidence === "High").length;
+  const games = board.games ?? [];
+  const matchup =
+    games.length > 0 && games[0].awayTeamAbbr && games[0].homeTeamAbbr
+      ? `${games[0].awayTeamAbbr} @ ${games[0].homeTeamAbbr}${
+          games.length > 1 ? ` · +${games.length - 1} more` : ""
+        }`
+      : null;
+  return (
+    <div className="mt-8 gtp-slate-await">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span
+            aria-hidden
+            className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+            style={{
+              background: "var(--vault-gold-bright)",
+              boxShadow: "0 0 8px rgba(240, 199, 94, 0.6)",
+            }}
+          />
+          <span
+            className="font-mono text-[10px] uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-gold)" }}
+          >
+            slate in flight · awaiting settlement
+          </span>
+        </div>
+        <Link
+          href={`/board?date=${latestScoredDate}`}
+          className="font-mono tracking-tight transition-colors"
+          style={{ color: "var(--vault-gold)", fontSize: 12 }}
+        >
+          view the live board →
+        </Link>
+      </div>
+      <h2
+        className="mt-3 font-display font-semibold tracking-tight"
+        style={{ color: "var(--vault-text)", fontSize: 20, lineHeight: 1.2 }}
+      >
+        {latestScoredDate}
+        {matchup && (
+          <span
+            style={{
+              color: "var(--vault-text-mute)",
+              fontSize: 14,
+              fontWeight: 500,
+              marginLeft: 8,
+            }}
+          >
+            · {matchup}
+          </span>
+        )}
+      </h2>
+      <p
+        className="mt-2 text-[13px] leading-relaxed"
+        style={{ color: "var(--vault-text-mute)" }}
+      >
+        The model has{" "}
+        <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
+          {projectionCount}
+        </span>{" "}
+        projection{projectionCount === 1 ? "" : "s"} loaded on this slate (
+        <span style={{ color: "var(--vault-gold)" }}>{highCount} High</span>{" "}
+        confidence). Once the games complete and box scores verify, every
+        lean will land here graded against the actual outcome.
+      </p>
     </div>
   );
 }

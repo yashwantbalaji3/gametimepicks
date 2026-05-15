@@ -24,6 +24,7 @@ import OddsTickerRail, {
 } from "@/components/odds-ticker-rail";
 import NeonStatPanel from "@/components/neon-stat-panel";
 import VegasSectionShell from "@/components/vegas-section-shell";
+import AnatomyCallout from "@/components/anatomy-callout";
 import { currentEtDate, dayLabelFor } from "@/lib/freshness";
 import { selectActiveSlate } from "@/lib/active-slate";
 
@@ -248,6 +249,37 @@ export default function HomePage() {
         },
       ]
     : [];
+
+  // Anatomy callout — pick a real loaded High-clean star lean from the
+  // latest scored slate so the "Anatomy of a projection" diagram
+  // annotates real data, not synthetic. Falls back to the strongest
+  // clean lean if no star matches.
+  const anatomyStarOrder = [
+    "Victor Wembanyama",
+    "Anthony Edwards",
+    "Donovan Mitchell",
+    "Cade Cunningham",
+    "Evan Mobley",
+    "Jarrett Allen",
+    "De'Aaron Fox",
+    "Stephon Castle",
+    "James Harden",
+  ];
+  const anatomyCandidates = latestScoredLeans.filter(
+    (l) =>
+      l.confidence === "High" &&
+      isClean(l) &&
+      typeof l.projection === "number" &&
+      typeof l.line === "number" &&
+      typeof l.edgePct === "number",
+  );
+  const anatomyLean =
+    anatomyStarOrder
+      .map((name) => anatomyCandidates.find((l) => l.playerName === name))
+      .find((l) => !!l) ??
+    anatomyCandidates.sort(
+      (a, b) => Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0),
+    )[0];
 
   // Ticker — top 8 strongest leans across clean + anomaly (deduped),
   // sorted by abs edge desc. Used by the homepage ticker rail.
@@ -590,6 +622,27 @@ export default function HomePage() {
           />
         </div>
       </section>
+
+      {/* Anatomy callout — labelled diagram pinned to a real loaded star
+          lean so users can read the structure of a card before they jump
+          to the board. Skipped on cold deploys when no scored slate
+          exists. */}
+      {anatomyLean && latestScoredFinalDate && (
+        <AnatomyCallout
+          playerName={anatomyLean.playerName ?? ""}
+          matchup={`${anatomyLean.team ?? ""} ${
+            anatomyLean.homeAway === "Home" ? "vs" : "at"
+          } ${anatomyLean.opponent ?? ""}`}
+          market={anatomyLean.market ?? ""}
+          side={anatomyLean.lean ?? ""}
+          line={(anatomyLean.line as number) ?? 0}
+          projection={(anatomyLean.projection as number) ?? 0}
+          edgePct={(anatomyLean.edgePct as number) ?? 0}
+          confidence={anatomyLean.confidence ?? ""}
+          anomaly={(anatomyLean.riskFlags ?? []).includes("suspicious_edge")}
+          cardAnchorHref={`/board?date=${latestScoredFinalDate}`}
+        />
+      )}
 
       {/* Three-up explainer — wrapped in the new VegasSectionShell so it
           reads as a panelled "how it works" board rather than three free

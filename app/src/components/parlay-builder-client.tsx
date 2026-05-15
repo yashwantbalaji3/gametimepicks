@@ -241,8 +241,10 @@ export default function ParlayBuilderClient({
       {/* Left — control panel.
           Iteration 4: small "Parlay console" eyebrow above the steps so
           users land on something that reads as a single illuminated
-          control panel, not a generic form sidebar. */}
-      <div className="vault-deluxe-card p-5 sm:p-6">
+          control panel, not a generic form sidebar.
+          Casino UI: gtp-console-chrome adds gold-rivet top rail + inner
+          shadow so the sidebar reads as an aluminum-edged console plate. */}
+      <div className="vault-deluxe-card gtp-console-chrome p-5 sm:p-6">
         <div
           className="mb-5 pb-4 flex items-center gap-2.5"
           style={{ borderBottom: "1px solid var(--vault-rule)" }}
@@ -427,18 +429,22 @@ export default function ParlayBuilderClient({
                 ) : (
                   filteredPlayerOptions.map((p) => {
                     const isStar = STAR_PRIORITY.includes(p.playerName);
+                    const isSelected = selectedPlayerNames.has(p.playerName);
                     return (
                       <button
                         key={`${p.playerId}_${p.playerName}`}
                         type="button"
                         onClick={() => togglePlayer(p.playerName)}
-                        className="px-2.5 py-1 rounded-[3px] text-[12px] transition-colors"
+                        aria-pressed={isSelected}
+                        className={`px-2.5 py-1 rounded-[3px] text-[12px] transition-colors ${
+                          isSelected ? "gtp-selected-chip" : ""
+                        }`}
                         style={{
-                          background: selectedPlayerNames.has(p.playerName)
+                          background: isSelected
                             ? "var(--vault-gold-dim)"
                             : "var(--vault-panel)",
                           border: `1px solid ${
-                            selectedPlayerNames.has(p.playerName)
+                            isSelected
                               ? "var(--vault-gold)"
                               : isStar
                                 ? "var(--vault-border-strong)"
@@ -744,16 +750,18 @@ function CandidateCard({
         </div>
         <div className="text-[12px]">
           {candidate.combinedOddsAmerican != null ? (
-            <>
-              <span style={{ color: "var(--vault-text-faint)" }}>Combined </span>
-              <span
-                className="font-mono font-semibold text-[14px] tabular"
-                style={{ color: "var(--vault-gold-bright)" }}
-              >
+            <span
+              className="gtp-combined-odds-chip"
+              data-tone={
+                candidate.combinedOddsAmerican >= 1000 ? "big" : undefined
+              }
+            >
+              <span className="gtp-combined-odds-label">Combined</span>
+              <span className="gtp-combined-odds-value">
                 {candidate.combinedOddsAmerican > 0 ? "+" : ""}
                 {candidate.combinedOddsAmerican}
               </span>
-            </>
+            </span>
           ) : (
             <span style={{ color: "var(--vault-text-faint)" }}>
               Odds unavailable

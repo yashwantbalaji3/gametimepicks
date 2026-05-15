@@ -1560,5 +1560,449 @@ table,
   font-variant-numeric: tabular-nums;
 }
 
+/* ============================================================================
+   PR — Casino UI final overhaul (2026-05-15)
+   Additive utilities only. Stacks cinematic depth and ambient lighting on
+   top of the existing primitives — never replaces or restyles them.
+
+   Theme intent:
+     • premium Vegas sportsbook lounge / NBA analytics command center
+     • magenta + cyan accents used VERY sparingly on live moments
+     • gold remains the dominant palette
+     • every keyframe paired with prefers-reduced-motion fallback
+   ============================================================================ */
+
+/* New cool-accent tokens. Magenta / electric blue used only on
+   live-cue moments (selected chip, anatomy callout); never bulk surface
+   color. */
+:root {
+  --gtp-neon-magenta: #FF6FB3;
+  --gtp-neon-magenta-dim: rgba(255, 111, 179, 0.10);
+  --gtp-neon-magenta-glow: rgba(255, 111, 179, 0.32);
+  --gtp-neon-electric: #6FA8FF;
+  --gtp-neon-electric-dim: rgba(111, 168, 255, 0.10);
+}
+
+/* Floor lights — additive ambient corner washes on top of the existing
+   gold body backdrop. Subtle electric-blue and magenta corners give the
+   page a "lounge with colored lighting" feel instead of monochrome gold.
+   Layered behind everything via fixed position + z-index 0. The base
+   body::before / body::after backdrops are untouched. */
+.gtp-floor-lights {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 50% 35% at 0% 100%, rgba(111, 168, 255, 0.045), transparent 70%),
+    radial-gradient(ellipse 45% 30% at 100% 100%, rgba(255, 111, 179, 0.040), transparent 70%);
+  mask-image: linear-gradient(180deg, transparent 0%, black 25%, black 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 25%, black 100%);
+}
+
+/* Aurora halo — slow conic-gradient ring positioned behind a hero panel
+   (typically the SportsbookStatusBoard). Cycles gold → cyan → magenta
+   → gold every 24s. Pure decoration; aria-hidden in the component. */
+.gtp-aurora-halo {
+  position: relative;
+  isolation: isolate;
+}
+.gtp-aurora-halo::before {
+  content: "";
+  position: absolute;
+  inset: -28px;
+  border-radius: 18px;
+  pointer-events: none;
+  z-index: -1;
+  background: conic-gradient(from 0deg,
+    rgba(212, 175, 55, 0.22),
+    rgba(111, 230, 255, 0.16) 25%,
+    rgba(255, 111, 179, 0.14) 50%,
+    rgba(212, 175, 55, 0.20) 75%,
+    rgba(212, 175, 55, 0.22) 100%);
+  filter: blur(28px);
+  opacity: 0.55;
+  animation: gtp-aurora-spin 24s linear infinite;
+}
+.gtp-aurora-halo::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(10, 14, 28, 0.85), transparent 75%);
+}
+@keyframes gtp-aurora-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-aurora-halo::before {
+    animation: none;
+    opacity: 0.40;
+  }
+}
+
+/* Cinematic player-card rim LED — additive on top of .casino-glow-card.
+   Adds a slow rim breath that intensifies on hover/focus and a tighter
+   gold edge on keyboard focus. The underlying card surface is unchanged.
+*/
+.gtp-card-rim-led {
+  position: relative;
+}
+.gtp-card-rim-led::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.06),
+    0 0 0 0 rgba(212, 175, 55, 0);
+  transition: box-shadow 360ms ease;
+}
+.gtp-card-rim-led:hover::before,
+.gtp-card-rim-led:focus-within::before {
+  box-shadow:
+    inset 0 0 0 1px rgba(240, 199, 94, 0.32),
+    0 0 24px -4px rgba(240, 199, 94, 0.28),
+    0 0 60px -20px rgba(111, 230, 255, 0.18);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-card-rim-led::before { transition: none; }
+}
+
+/* Console chrome — heavier sportsbook chrome for the filter panel and
+   parlay-lab sidebar. Adds a 1px gold "rivet" rail at the very top of
+   the panel, deeper inner shadow, and a soft top highlight so it reads
+   as an aluminum-edged console plate, not a flat container. Additive on
+   top of .vault-deluxe-card. */
+.gtp-console-chrome {
+  position: relative;
+  isolation: isolate;
+}
+.gtp-console-chrome::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.45) 25%,
+    rgba(240, 199, 94, 0.85) 50%,
+    rgba(212, 175, 55, 0.45) 75%,
+    transparent 100%);
+  filter: drop-shadow(0 0 4px rgba(240, 199, 94, 0.35));
+  z-index: 1;
+}
+.gtp-console-chrome::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 200, 0.04),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  z-index: 0;
+}
+.gtp-console-chrome > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Premium combined-odds chip — used in parlay candidate card header.
+   Reads as a sportsbook LED price display: thick gold gradient stroke,
+   tabular display digits, magenta accent on +1000+ payouts. Caller adds
+   .gtp-combined-odds-chip[data-tone="big"] for the magenta accent. */
+.gtp-combined-odds-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 12px 7px;
+  border-radius: 4px;
+  background: linear-gradient(180deg,
+    rgba(20, 24, 38, 0.95),
+    rgba(8, 12, 22, 0.95));
+  border: 1px solid var(--vault-border-strong);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.08),
+    0 0 16px -6px rgba(240, 199, 94, 0.32);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  position: relative;
+}
+.gtp-combined-odds-chip .gtp-combined-odds-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vault-text-faint);
+}
+.gtp-combined-odds-chip .gtp-combined-odds-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--vault-gold-bright);
+  text-shadow: 0 0 12px rgba(240, 199, 94, 0.45);
+}
+.gtp-combined-odds-chip[data-tone="big"] .gtp-combined-odds-value {
+  color: var(--gtp-neon-magenta);
+  text-shadow: 0 0 14px rgba(255, 111, 179, 0.45);
+}
+.gtp-combined-odds-chip[data-tone="big"] {
+  border-color: rgba(255, 111, 179, 0.28);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 111, 179, 0.12),
+    0 0 18px -6px rgba(255, 111, 179, 0.35);
+}
+
+/* Headliner rail frame — wraps the FeaturedHeadliners section with an
+   eyebrow bar, gold edge dividers, and a soft "spotlight" backdrop.
+   Stacks behind the existing .gtp-headliner-tile chips. */
+.gtp-rail-frame {
+  position: relative;
+  isolation: isolate;
+  padding: 18px 16px 16px;
+  margin-bottom: 22px;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(20, 24, 38, 0.55) 0%, rgba(10, 14, 28, 0.30) 100%),
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(240, 199, 94, 0.06), transparent 70%);
+  border: 1px solid var(--vault-rule);
+  box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.04);
+}
+.gtp-rail-frame::before,
+.gtp-rail-frame::after {
+  content: "";
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent,
+    rgba(212, 175, 55, 0.30),
+    rgba(240, 199, 94, 0.55),
+    rgba(212, 175, 55, 0.30),
+    transparent);
+  filter: blur(0.3px);
+  opacity: 0.7;
+}
+.gtp-rail-frame::before { left: 8px; }
+.gtp-rail-frame::after { right: 8px; }
+@media (min-width: 768px) {
+  .gtp-rail-frame { padding: 22px 22px 20px; }
+}
+
+/* Featured-order explainer chip — small inline pill that sits between
+   the headliner rail and the main grid so users understand why the
+   default sort puts stars first. */
+.gtp-featured-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 6px;
+  border-radius: 999px;
+  background: var(--vault-gold-dim);
+  border: 1px solid var(--vault-border-strong);
+  color: var(--vault-text-mute);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+.gtp-featured-chip > .gtp-featured-chip-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vault-gold-bright);
+  font-weight: 600;
+}
+.gtp-featured-chip::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--vault-gold-bright);
+  box-shadow: 0 0 7px rgba(240, 199, 94, 0.6);
+  animation: gtp-neon-pulse 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-featured-chip::before { animation: none; }
+}
+
+/* Anatomy callout — homepage "Anatomy of a projection" educational shell.
+   Reads as a labeled diagram strip: gold annotation eyebrows + dotted
+   leader-lines pointing at the example card. Pure decoration around the
+   real player-card data. */
+.gtp-anatomy-callout {
+  position: relative;
+  isolation: isolate;
+  padding: 22px 20px 24px;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg,
+      rgba(20, 24, 38, 0.60) 0%,
+      rgba(10, 14, 28, 0.65) 100%);
+  border: 1px solid var(--vault-border);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.04),
+    0 24px 48px -32px rgba(0, 0, 0, 0.70);
+}
+.gtp-anatomy-callout::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--gtp-edge-light) 30%,
+    var(--gtp-edge-light) 70%,
+    transparent);
+  filter: blur(0.3px);
+  opacity: 0.75;
+}
+.gtp-anatomy-note {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: rgba(7, 11, 26, 0.55);
+  border: 1px solid var(--vault-rule);
+}
+.gtp-anatomy-note .gtp-anatomy-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vault-gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.gtp-anatomy-note .gtp-anatomy-eyebrow::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--vault-gold-bright);
+  box-shadow: 0 0 5px rgba(240, 199, 94, 0.55);
+}
+.gtp-anatomy-note .gtp-anatomy-text {
+  font-size: 12px;
+  color: var(--vault-text-mute);
+  line-height: 1.5;
+}
+.gtp-anatomy-note .gtp-anatomy-text strong {
+  color: var(--vault-text);
+  font-weight: 600;
+}
+
+/* Slate-awaiting-settlement card — used on /results when no settled
+   data exists yet but a scored slate is live. Points users toward the
+   live board with the projection count so the Results page never reads
+   as a dead end. */
+.gtp-slate-await {
+  position: relative;
+  padding: 18px 20px;
+  border-radius: 8px;
+  background: linear-gradient(180deg,
+    rgba(20, 24, 38, 0.78),
+    rgba(10, 14, 28, 0.80));
+  border: 1px solid var(--vault-border);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.05),
+    0 18px 32px -28px rgba(0, 0, 0, 0.65);
+}
+.gtp-slate-await::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(212, 175, 55, 0.55) 50%,
+    transparent);
+  opacity: 0.7;
+}
+
+/* Selected-player chip glow — additive style for parlay-builder selected
+   players. The chip stays the same shape; the .gtp-selected-chip
+   modifier adds an animated gold rim breath + soft inner glow so it
+   reads as "picked, locked in" rather than just a toggled button. */
+.gtp-selected-chip {
+  position: relative;
+  box-shadow:
+    inset 0 0 0 1px rgba(240, 199, 94, 0.45),
+    0 0 14px -3px rgba(240, 199, 94, 0.35);
+  animation: gtp-chip-breath 3.6s ease-in-out infinite;
+}
+@keyframes gtp-chip-breath {
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(240, 199, 94, 0.45), 0 0 12px -3px rgba(240, 199, 94, 0.30); }
+  50%      { box-shadow: inset 0 0 0 1px rgba(240, 199, 94, 0.70), 0 0 18px -3px rgba(240, 199, 94, 0.50); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-selected-chip { animation: none; }
+}
+
+/* Odds-ticker chevron bookends — small LED arrows that flank the ticker
+   to give it directional energy. Stacked at the ends of the rail. */
+.gtp-ticker-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  align-self: stretch;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--vault-gold-bright);
+  background: rgba(7, 11, 26, 0.75);
+  border-left: 1px solid var(--vault-rule);
+  border-right: 1px solid var(--vault-rule);
+  text-shadow: 0 0 6px rgba(240, 199, 94, 0.55);
+  animation: gtp-chevron-blink 2.8s ease-in-out infinite;
+}
+@keyframes gtp-chevron-blink {
+  0%, 100% { opacity: 0.75; }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-ticker-chevron { animation: none; opacity: 0.9; }
+}
+
+/* Brand monogram ambient pulse — opt-in modifier so the footer monogram
+   reads as a glowing marquee mark without distracting the nav. */
+.gtp-monogram[data-ambient="true"] {
+  animation: gtp-monogram-breath 5.2s ease-in-out infinite;
+}
+@keyframes gtp-monogram-breath {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 240, 200, 0.55),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.18),
+      0 1px 0 rgba(0, 0, 0, 0.4),
+      0 0 18px -4px rgba(240, 199, 94, 0.42);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 240, 200, 0.70),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.18),
+      0 1px 0 rgba(0, 0, 0, 0.4),
+      0 0 28px -4px rgba(240, 199, 94, 0.58);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-monogram[data-ambient="true"] { animation: none; }
+}
+
 
 

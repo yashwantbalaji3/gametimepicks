@@ -83,7 +83,7 @@ export default function VaultFilters({
 
   return (
     <div
-      className="vault-deluxe-card mb-6 overflow-hidden"
+      className="vault-deluxe-card gtp-console-chrome mb-6 overflow-hidden"
       style={{
         // Slightly stronger border for the filter console so the user
         // reads it as a powered-on control panel, not a flat box.

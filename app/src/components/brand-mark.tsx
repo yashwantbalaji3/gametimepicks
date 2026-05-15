@@ -18,11 +18,15 @@ interface Props {
   variant?: "lockup" | "compact" | "monogram";
   /** Adds a single-line ALL-CAPS marker after the wordmark — e.g. "PORTFOLIO". */
   marker?: string;
+  /** When true, the monogram tile slowly breathes its gold glow.
+   *  Reserved for ambient surfaces like the footer; the nav stays steady. */
+  ambient?: boolean;
 }
 
 export default function BrandMark({
   variant = "lockup",
   marker,
+  ambient,
 }: Props) {
   const isMonogramOnly = variant === "monogram";
   const isCompact = variant === "compact";
@@ -39,6 +43,7 @@ export default function BrandMark({
         className="gtp-monogram"
         style={tileStyle}
         aria-hidden={!isMonogramOnly}
+        data-ambient={ambient ? "true" : undefined}
       >
         GTP
       </span>

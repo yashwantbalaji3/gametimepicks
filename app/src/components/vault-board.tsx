@@ -184,6 +184,19 @@ export default function VaultBoard({ board }: Props) {
               );
             })()}
 
+          {!dirty && (
+            <div className="mb-3 flex">
+              <span
+                className="gtp-featured-chip"
+                title="Featured order applied to the default view"
+              >
+                <span className="gtp-featured-chip-eyebrow">Featured order</span>
+                <span>
+                  star priority · confidence · projection volume · capped edge
+                </span>
+              </span>
+            </div>
+          )}
           <SectionHeading
             playerCount={playerCards.length}
             propCount={visibleLeans.length}
