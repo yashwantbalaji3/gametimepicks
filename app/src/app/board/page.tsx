@@ -295,6 +295,161 @@ export default function BoardPage() {
         />
       </div>
 
+      {/* "How to read these projections" — calm educational disclosure
+          that pairs with the model anomaly chip + the per-card visual
+          encoding. Default collapsed; never claims accuracy or advises
+          a bet. */}
+      <div className="mt-12 reveal reveal-d3">
+        <details
+          className="rounded-[5px] vault-glass overflow-hidden group"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          <summary
+            className="flex items-center justify-between gap-4 cursor-pointer list-none px-4 sm:px-5 py-3.5 transition-colors"
+          >
+            <span className="inline-flex items-center gap-3">
+              <span
+                className="vault-quiet-label"
+                style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
+              >
+                How to read these projections
+              </span>
+              <span
+                className="text-[12px] hidden sm:inline"
+                style={{ color: "var(--vault-text-faint)" }}
+              >
+                line vs projection · confidence · model anomalies
+              </span>
+            </span>
+            <span
+              aria-hidden
+              className="font-mono text-[12px] leading-none transition-transform group-open:rotate-180"
+              style={{ color: "var(--vault-text-faint)" }}
+            >
+              ▾
+            </span>
+          </summary>
+          <div
+            className="px-4 sm:px-5 py-5 grid gap-5 md:grid-cols-2"
+            style={{
+              borderTop: "1px solid var(--vault-rule)",
+              color: "var(--vault-text-mute)",
+            }}
+          >
+            <section>
+              <h3
+                className="font-display text-[14px] font-semibold tracking-tight mb-1.5"
+                style={{ color: "var(--vault-text)" }}
+              >
+                Sportsbook line vs model projection
+              </h3>
+              <p className="text-[13px] leading-relaxed">
+                Each row shows the bookmaker&apos;s line alongside the
+                model&apos;s projection drawn from the player&apos;s last 10
+                games and their matchup. The bar between the two numbers
+                shows how far apart they sit, capped visually so a small gap
+                looks small and a large gap looks large — not so a 200% edge
+                feels indistinguishable from 5%.
+              </p>
+            </section>
+
+            <section>
+              <h3
+                className="font-display text-[14px] font-semibold tracking-tight mb-1.5"
+                style={{ color: "var(--vault-text)" }}
+              >
+                Confidence tiers
+              </h3>
+              <ul className="space-y-1 text-[13px] leading-relaxed">
+                <li>
+                  <span style={{ color: "var(--vault-gold-bright)" }}>
+                    High
+                  </span>{" "}
+                  — strong edge with strong recent log support.
+                </li>
+                <li>
+                  <span style={{ color: "var(--vault-warn)" }}>Medium</span>{" "}
+                  — meaningful edge, mixed evidence.
+                </li>
+                <li>
+                  <span style={{ color: "var(--vault-text-mute)" }}>Low</span>{" "}
+                  — small edge or thin sample.
+                </li>
+                <li>
+                  <span style={{ color: "var(--vault-text-faint)" }}>
+                    Not enough data / Pass
+                  </span>{" "}
+                  — the model declines to weigh in.
+                </li>
+              </ul>
+            </section>
+
+            <section className="md:col-span-2">
+              <h3
+                className="font-display text-[14px] font-semibold tracking-tight mb-1.5 flex items-center gap-2"
+                style={{ color: "var(--vault-text)" }}
+              >
+                <span
+                  className="inline-flex items-center px-2 py-0.5 rounded-[3px] text-[10px]"
+                  style={{
+                    background: "var(--vault-warn-dim)",
+                    border: "1px solid rgba(240, 199, 94, 0.30)",
+                    color: "var(--vault-warn)",
+                  }}
+                >
+                  Model anomaly
+                </span>
+                <span>What it means</span>
+              </h3>
+              <p className="text-[13px] leading-relaxed">
+                When the model&apos;s edge crosses about 25%, that&apos;s
+                usually a signal that something is off — a stale line, a
+                missing rest-day adjustment, a player whose role just
+                changed, or a thin recent-log sample. We cap the card&apos;s
+                confidence at Low, tag the row, and present the edge in a
+                calmer tone instead of gold. The projection can still be
+                informative as a directional read; the headline percentage
+                should not be taken at face value.
+              </p>
+            </section>
+
+            <section className="md:col-span-2">
+              <h3
+                className="font-display text-[14px] font-semibold tracking-tight mb-1.5"
+                style={{ color: "var(--vault-text)" }}
+              >
+                Before relying on any single number
+              </h3>
+              <ul className="space-y-1 text-[13px] leading-relaxed">
+                <li>
+                  · Sportsbook lines move. The line you see here is the line
+                  at the last refresh — always check the current book.
+                </li>
+                <li>
+                  · A projection is one model&apos;s estimate, not an
+                  outcome. NBA props are noisy at the player level.
+                </li>
+                <li>
+                  · Recent10 shows the last 10 games — useful, but it
+                  doesn&apos;t know about today&apos;s rotation, foul
+                  trouble, or coaching decisions.
+                </li>
+                <li>
+                  · If you bet, line-shop, stake responsibly, and never bet
+                  money you can&apos;t afford to lose.
+                </li>
+              </ul>
+              <p
+                className="mt-3 text-[11px]"
+                style={{ color: "var(--vault-text-faint)" }}
+              >
+                Educational analysis only — not betting advice.
+              </p>
+            </section>
+          </div>
+        </details>
+      </div>
+
       {/* Compact newsletter — Phase 13 */}
       <div className="mt-12 reveal reveal-d3 max-w-2xl">
         <NewsletterSignup variant="compact" />
