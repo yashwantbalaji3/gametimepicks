@@ -140,32 +140,39 @@ export default function MethodologyPage() {
         </Block>
       </section>
 
-      {/* Data sources */}
+      {/* Data sources — Iteration 5: panelled deluxe card with each source
+          rendered as its own labeled cell instead of a bulleted list. */}
       <section className="mt-12">
         <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
           Data sources
         </h2>
-        <div className="text-[15px] text-[var(--text-mute)] leading-relaxed space-y-3">
-          <p>
+        <div className="vault-deluxe-card p-5 sm:p-6">
+          <p
+            className="text-[14px] sm:text-[15px] leading-relaxed"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
             GametimePicks runs on a multi-source provider system. Each external
             service is accessed through a common adapter interface, so the
             pipeline can fail over from one source to the next without breaking.
           </p>
-          <ul className="space-y-1.5 font-mono text-[13px] mt-3">
-            <li>
-              <span className="text-[var(--text)]">Official NBA stats</span>{" "}
-              <span className="text-[var(--text-faint)]">— scores, schedules, and box-score data from the league&apos;s official source.</span>
-            </li>
-            <li>
-              <span className="text-[var(--text)]">Sportsbook odds</span>{" "}
-              <span className="text-[var(--text-faint)]">— compliant odds feed from a licensed data provider.</span>
-            </li>
-            <li>
-              <span className="text-[var(--text)]">Demo data</span>{" "}
-              <span className="text-[var(--text-faint)]">— bundled sample slate, used only when explicitly labeled.</span>
-            </li>
-          </ul>
-          <p className="mt-3">
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <DataSourceCell
+              label="NBA stats"
+              body="Scores, schedules, and box-score data from the league's official source."
+            />
+            <DataSourceCell
+              label="Sportsbook odds"
+              body="Compliant odds feed from a licensed data provider."
+            />
+            <DataSourceCell
+              label="Demo data"
+              body="Bundled sample slate, used only when explicitly labeled."
+            />
+          </div>
+          <p
+            className="mt-5 text-[13px] leading-relaxed"
+            style={{ color: "var(--vault-text-faint)" }}
+          >
             The system never scrapes sportsbook websites or reverse-engineers
             mobile apps. Provider credentials live in secured environment
             configuration; nothing is exposed in the codebase.
@@ -210,33 +217,33 @@ export default function MethodologyPage() {
         </div>
       </section>
 
-      {/* Limitations */}
+      {/* Limitations — Iteration 5: panelled card with each limitation as
+          a labeled bullet so the section reads as a deliberate
+          calibration sheet rather than a paragraph dump. */}
       <section className="mt-12 mb-10">
         <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
           Limitations
         </h2>
-        <ul className="space-y-2 text-[15px] text-[var(--text-mute)] leading-relaxed">
-          <li>
-            <span className="text-[var(--text)]">No injury / minutes adjustment.</span>{" "}
-            The model treats minutes as constant. A late-scratch starter
-            substantially changes projection inputs but isn't reflected until
-            the next pipeline run.
-          </li>
-          <li>
-            <span className="text-[var(--text)]">No back-to-back / rest adjustment.</span>{" "}
-            Travel and fatigue impact production. Not currently modeled.
-          </li>
-          <li>
-            <span className="text-[var(--text)]">Lines move.</span>{" "}
-            The board reflects odds at pipeline time. By the time you read it,
-            lines have likely shifted.
-          </li>
-          <li>
-            <span className="text-[var(--text)]">No causal claims.</span>{" "}
-            A positive edge is correlation between recent stats and the line,
-            not a guarantee.
-          </li>
-        </ul>
+        <div className="vault-deluxe-card p-5 sm:p-6">
+          <ul className="space-y-3.5 text-[14px] sm:text-[15px] leading-relaxed list-none">
+            <LimitationRow
+              title="No injury / minutes adjustment"
+              body="The model treats minutes as constant. A late-scratch starter substantially changes projection inputs but isn't reflected until the next pipeline run."
+            />
+            <LimitationRow
+              title="No back-to-back / rest adjustment"
+              body="Travel and fatigue impact production. Not currently modeled."
+            />
+            <LimitationRow
+              title="Lines move"
+              body="The board reflects odds at pipeline time. By the time you read it, lines have likely shifted."
+            />
+            <LimitationRow
+              title="No causal claims"
+              body="A positive edge is correlation between recent stats and the line, not a guarantee."
+            />
+          </ul>
+        </div>
       </section>
 
       {/* News overrides — public-friendly explanation (Phase 14 rewrite) */}
@@ -308,9 +315,75 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 }
 
 function Formula({ children }: { children: ReactNode }) {
+  // Iteration 5: formulas read as deep glass panels with a faint gold
+  // top-rule so they look like derivations on an odds-board chalkboard,
+  // not flat `<code>` blocks.
   return (
-    <div className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-[3px] px-4 py-3 my-3 font-mono text-[13px] tabular text-[var(--text)] leading-relaxed">
+    <div
+      className="relative my-4 rounded-[6px] px-4 py-3.5 font-mono text-[13px] tabular leading-relaxed overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(20, 24, 38, 0.92), rgba(10, 14, 28, 0.92))",
+        border: "1px solid var(--vault-border)",
+        color: "var(--vault-text)",
+        boxShadow: "0 4px 14px -10px rgba(0, 0, 0, 0.4)",
+      }}
+    >
+      <span
+        aria-hidden
+        className="absolute top-0 left-[12%] right-[12%] h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.45), transparent)",
+        }}
+      />
       {children}
+    </div>
+  );
+}
+
+function LimitationRow({ title, body }: { title: string; body: string }) {
+  return (
+    <li className="flex items-baseline gap-3">
+      <span
+        aria-hidden
+        className="inline-block w-1.5 h-1.5 rounded-full shrink-0 mt-2"
+        style={{
+          background: "var(--vault-warn)",
+          boxShadow: "0 0 5px rgba(240, 199, 94, 0.45)",
+        }}
+      />
+      <span>
+        <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
+          {title}.
+        </span>{" "}
+        <span style={{ color: "var(--vault-text-mute)" }}>{body}</span>
+      </span>
+    </li>
+  );
+}
+
+function DataSourceCell({ label, body }: { label: string; body: string }) {
+  return (
+    <div
+      className="px-3.5 py-3 rounded-[6px]"
+      style={{
+        background: "rgba(20, 24, 38, 0.55)",
+        border: "1px solid var(--vault-rule)",
+      }}
+    >
+      <div
+        className="font-mono text-[10px] tracking-[0.14em] uppercase"
+        style={{ color: "var(--vault-gold-bright)" }}
+      >
+        {label}
+      </div>
+      <p
+        className="mt-1.5 text-[12px] leading-relaxed"
+        style={{ color: "var(--vault-text-mute)" }}
+      >
+        {body}
+      </p>
     </div>
   );
 }
@@ -330,18 +403,32 @@ function ModeCard({
     rose: "var(--rose)",
     "text-mute": "var(--text-mute)",
   }[color];
+  // Iteration 5: deluxe card surface + sentence-case label so the modes
+  // read as polished badges, not internal-tool stickers.
   return (
-    <div className="surface p-4">
+    <div className="vault-deluxe-card p-4">
       <div className="flex items-center gap-2 mb-2">
         <span
           className="inline-block w-2 h-2 rounded-full"
-          style={{ background: dotColor }}
+          style={{
+            background: dotColor,
+            boxShadow:
+              color === "lime"
+                ? "0 0 6px rgba(240, 199, 94, 0.5)"
+                : "none",
+          }}
         />
-        <span className="font-display text-[14px] font-semibold tracking-tight uppercase">
+        <span
+          className="font-display text-[14px] font-semibold tracking-tight"
+          style={{ color: "var(--vault-text)" }}
+        >
           {label}
         </span>
       </div>
-      <p className="text-[13px] text-[var(--text-mute)] leading-relaxed">
+      <p
+        className="text-[13px] leading-relaxed"
+        style={{ color: "var(--vault-text-mute)" }}
+      >
         {description}
       </p>
     </div>

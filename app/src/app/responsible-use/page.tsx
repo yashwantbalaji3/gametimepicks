@@ -87,30 +87,66 @@ function Block({
   body: string;
   links?: Array<{ label: string; href: string; external?: boolean }>;
 }) {
+  // Iteration 5: deluxe-card surface — but intentionally NO
+  // casino-glow rim or hover lift. The page stays calm and serious; we
+  // just want a real premium panel instead of a flat .surface box. The
+  // helpline block (links present) gets a slightly stronger warn-tone
+  // accent on the icon so it visually anchors as the support row.
+  const hasLinks = links && links.length > 0;
   return (
-    <div className="surface p-5 reveal flex gap-4">
+    <div className="vault-deluxe-card p-5 sm:p-6 reveal flex gap-4">
       <div
-        className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono font-bold text-[14px]"
-        style={{ background: "var(--vault-warn-dim)", color: "var(--vault-warn)" }}
+        className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-mono font-bold text-[14px]"
+        style={{
+          background: hasLinks
+            ? "var(--vault-warn-dim)"
+            : "rgba(240, 199, 94, 0.08)",
+          color: "var(--vault-warn)",
+          border: `1px solid ${
+            hasLinks
+              ? "rgba(240, 199, 94, 0.35)"
+              : "rgba(240, 199, 94, 0.18)"
+          }`,
+        }}
+        aria-hidden
       >
         {icon}
       </div>
-      <div>
-        <h3 className="font-display text-[18px] font-semibold tracking-tight text-[var(--text)] mb-1.5">
+      <div className="min-w-0">
+        <h3
+          className="font-display text-[17px] sm:text-[18px] font-semibold tracking-tight mb-1.5"
+          style={{ color: "var(--vault-text)" }}
+        >
           {title}
         </h3>
-        <p className="leading-relaxed">{body}</p>
-        {links && links.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-3 text-[13px] font-mono">
-            {links.map((l) => (
+        <p
+          className="leading-relaxed text-[14px] sm:text-[15px]"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          {body}
+        </p>
+        {hasLinks && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {links!.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
                 target={l.external ? "_blank" : undefined}
                 rel={l.external ? "noopener" : undefined}
-                className="text-[var(--vault-gold-bright)] hover:underline"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[13px] transition-colors"
+                style={{
+                  background: "var(--vault-warn-dim)",
+                  border: "1px solid rgba(240, 199, 94, 0.35)",
+                  color: "var(--vault-warn)",
+                  textDecoration: "none",
+                }}
               >
-                {l.label} {l.external && "↗"}
+                <span style={{ fontWeight: 500 }}>{l.label}</span>
+                {l.external && (
+                  <span aria-hidden style={{ opacity: 0.7 }}>
+                    ↗
+                  </span>
+                )}
               </a>
             ))}
           </div>
