@@ -16,16 +16,16 @@ export default function DisclaimerBanner() {
         borderBottom: "1px solid var(--vault-border)",
       }}
     >
-      <div className="mx-auto max-w-[1280px] px-6 py-2 flex items-center gap-3 text-[11px] tracking-[0.04em] font-mono">
+      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-2 flex items-center gap-3 text-[11px] tracking-[0.04em] font-mono">
         <span
-          className="hidden sm:inline-flex items-center gap-2"
+          className="hidden sm:inline-flex items-center gap-2 shrink-0"
           style={{ color: "var(--vault-text-mute)" }}
         >
           <span className="live-dot" aria-hidden />
           Educational analytics
         </span>
         <span
-          className="sm:hidden inline-flex items-center gap-2"
+          className="sm:hidden inline-flex items-center gap-2 shrink-0"
           style={{ color: "var(--vault-text-mute)" }}
         >
           <span className="live-dot" aria-hidden />
@@ -33,14 +33,23 @@ export default function DisclaimerBanner() {
         </span>
         <span
           aria-hidden
-          className="hidden sm:inline-block w-px h-3"
+          className="hidden sm:inline-block w-px h-3 shrink-0"
           style={{ background: "var(--vault-border-strong)" }}
         />
+        {/* Mobile-only short version — preserves compliance copy while
+            keeping the strip readable on 390px viewports. Desktop keeps
+            the full sentence. */}
         <span
-          className="truncate"
+          className="hidden sm:inline truncate min-w-0"
           style={{ color: "var(--vault-text-faint)" }}
         >
           Not betting advice. For modeling and research purposes only.
+        </span>
+        <span
+          className="sm:hidden truncate min-w-0"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          Not betting advice · research use only.
         </span>
       </div>
     </div>
