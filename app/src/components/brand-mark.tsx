@@ -1,17 +1,24 @@
+"use client";
+
 /**
  * GameTimePicks brand lockup.
  *
- * Presentation-only component. Three variants:
+ * Renders the real GameTime Picks logo image when present in
+ * `/brand/gametime-picks-logo.png`, with a graceful fallback to the
+ * original CSS lockup (gold monogram tile + two-tone wordmark) if the
+ * image fails to load. The CSS lockup remains the canonical fallback —
+ * never deleted.
  *
- *   - "lockup"   — monogram tile + two-tone wordmark. Used in the nav.
- *   - "compact"  — same lockup, slightly smaller. Used in the footer.
- *   - "monogram" — just the gold tile. Reserved for tight contexts.
+ * Three variants:
+ *   - "lockup"   — full logo lockup. Used in the nav.
+ *   - "compact"  — slightly smaller. Used in the footer.
+ *   - "monogram" — vault-tile only. Reserved for tight contexts;
+ *                  always renders the CSS monogram (no image).
  *
- * No new dependencies, no external image assets. Pure CSS rendering via
- * the .gtp-monogram + .gtp-neon-wordmark utility classes defined in
- * globals.css. Accessible: the wordmark is real text, screen readers
- * always read "GameTimePicks".
+ * Accessibility: real `alt="GameTime Picks"` on the image; the CSS
+ * fallback uses real text so screen readers always read the name.
  */
+import { useState } from "react";
 import type { CSSProperties } from "react";
 
 interface Props {
@@ -21,20 +28,63 @@ interface Props {
   /** When true, the monogram tile slowly breathes its gold glow.
    *  Reserved for ambient surfaces like the footer; the nav stays steady. */
   ambient?: boolean;
+  /** Force the CSS-only fallback even when the image exists. Used for
+   *  preview snapshots and the monogram variant. */
+  useFallback?: boolean;
 }
+
+const LOGO_SRC = "/brand/gametime-picks-logo.png";
 
 export default function BrandMark({
   variant = "lockup",
   marker,
   ambient,
+  useFallback,
 }: Props) {
   const isMonogramOnly = variant === "monogram";
   const isCompact = variant === "compact";
 
+  // Image branch is only attempted for lockup / compact. Monogram always
+  // uses the CSS tile.
+  const [imgErrored, setImgErrored] = useState(false);
+  const showImage = !isMonogramOnly && !useFallback && !imgErrored;
+
+  if (showImage) {
+    const height = isCompact ? 30 : 42;
+    // 1659x948 → aspect ratio ≈ 1.75:1. Compute width from height to
+    // avoid layout shift.
+    const width = Math.round((height * 1659) / 948);
+    return (
+      <span className="gtp-brand-lockup inline-flex items-center gap-2 align-middle">
+        <img
+          src={LOGO_SRC}
+          alt="GameTime Picks"
+          width={width}
+          height={height}
+          className="gtp-logo-img"
+          onError={() => setImgErrored(true)}
+          draggable={false}
+        />
+        {marker && (
+          <span
+            className="font-mono tracking-[0.18em] uppercase"
+            style={{
+              fontSize: 9,
+              color: "var(--vault-text-faint)",
+              letterSpacing: "0.18em",
+            }}
+          >
+            {marker}
+          </span>
+        )}
+      </span>
+    );
+  }
+
+  // Fallback: original CSS monogram + wordmark lockup.
   const tileStyle: CSSProperties = isCompact
     ? { width: 30, height: 30, fontSize: 11 }
     : {};
-
   const wordSize = isCompact ? 14 : 16;
 
   return (
