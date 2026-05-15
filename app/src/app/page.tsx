@@ -614,6 +614,19 @@ export default function HomePage() {
       {anatomyLean && latestScoredFinalDate && (
         <AnatomyCallout
           playerName={anatomyLean.playerName ?? ""}
+          playerId={anatomyLean.playerId ?? undefined}
+          gameId={anatomyLean.gameId ?? undefined}
+          awayTeamAbbr={
+            anatomyLean.homeAway === "Home"
+              ? anatomyLean.opponent ?? undefined
+              : anatomyLean.team ?? undefined
+          }
+          homeTeamAbbr={
+            anatomyLean.homeAway === "Home"
+              ? anatomyLean.team ?? undefined
+              : anatomyLean.opponent ?? undefined
+          }
+          team={anatomyLean.team ?? undefined}
           matchup={`${anatomyLean.team ?? ""} ${
             anatomyLean.homeAway === "Home" ? "vs" : "at"
           } ${anatomyLean.opponent ?? ""}`}

@@ -11,9 +11,21 @@
  */
 import type { ReactNode } from "react";
 import Link from "next/link";
+import PlayerAvatar from "./player-avatar";
+import { getPlayoffContext } from "./playoff-context";
 
 interface Props {
   playerName: string;
+  /** NBA stats player ID for the headshot. */
+  playerId?: number;
+  /** Game ID for playoff context decoding. */
+  gameId?: string;
+  /** Away team abbreviation (used for playoff conference inference). */
+  awayTeamAbbr?: string;
+  /** Home team abbreviation. */
+  homeTeamAbbr?: string;
+  /** Player's own team for the avatar corner chip. */
+  team?: string;
   matchup: string;
   market: string;
   side: string;
@@ -29,6 +41,11 @@ interface Props {
 
 export default function AnatomyCallout({
   playerName,
+  playerId,
+  gameId,
+  awayTeamAbbr,
+  homeTeamAbbr,
+  team,
   matchup,
   market,
   side,
@@ -42,6 +59,7 @@ export default function AnatomyCallout({
   const edgeSign = edgePct >= 0 ? "+" : "";
   const projectionDelta = projection - line;
   const deltaLabel = `${projectionDelta >= 0 ? "+" : ""}${projectionDelta.toFixed(1)}`;
+  const playoff = getPlayoffContext(gameId, awayTeamAbbr, homeTeamAbbr);
   return (
     <section className="mt-20 reveal">
       <div className="flex flex-wrap items-baseline justify-between gap-3 mb-5">
@@ -77,7 +95,16 @@ export default function AnatomyCallout({
           {/* Left — the example card surface */}
           <div className="vault-deluxe-card casino-glow-card p-5">
             <header className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
+              <div className="flex items-start gap-3 min-w-0">
+                <span className="gtp-player-spotlight">
+                  <PlayerAvatar
+                    playerId={playerId}
+                    playerName={playerName}
+                    team={team}
+                    size="md"
+                  />
+                </span>
+                <div className="min-w-0">
                 <h3
                   className="font-display font-semibold tracking-tight"
                   style={{
@@ -94,6 +121,23 @@ export default function AnatomyCallout({
                 >
                   {matchup}
                 </p>
+                {playoff.isPlayoffs && (
+                  <div className="mt-2 flex items-center gap-2 flex-wrap">
+                    <span className="gtp-game-chip">{playoff.gameLabel}</span>
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontSize: 10,
+                        color: "var(--vault-text-faint)",
+                        letterSpacing: "0.14em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {playoff.roundLabelCompact}
+                    </span>
+                  </div>
+                )}
+                </div>
               </div>
               <ConfidencePill confidence={confidence} />
             </header>

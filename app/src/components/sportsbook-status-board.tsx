@@ -13,6 +13,7 @@
  */
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { getPlayoffContext } from "./playoff-context";
 
 export interface StatusBoardGame {
   gameId: string;
@@ -142,35 +143,50 @@ export default function SportsbookStatusBoard({
         {/* Games column */}
         {games && games.length > 0 && (
           <div className="space-y-2">
-            {games.map((g) => (
-              <div key={g.gameId} className="gtp-led-row">
-                <span
-                  style={{ color: "var(--vault-text)", fontSize: 13 }}
-                >
-                  <span style={{ color: "var(--vault-text-mute)" }}>
-                    {g.awayTeamAbbr}
-                  </span>
-                  <span
-                    className="mx-2"
-                    style={{ color: "var(--vault-text-faint)" }}
-                  >
-                    @
-                  </span>
-                  <span style={{ color: "var(--vault-text)" }}>
-                    {g.homeTeamAbbr}
-                  </span>
-                </span>
-                <span
-                  style={{
-                    color: "var(--vault-gold-bright)",
-                    fontSize: 11,
-                    letterSpacing: "0.04em",
-                  }}
-                >
-                  {g.tipoff}
-                </span>
-              </div>
-            ))}
+            {games.map((g) => {
+              const ctx = getPlayoffContext(
+                g.gameId,
+                g.awayTeamAbbr,
+                g.homeTeamAbbr,
+              );
+              return (
+                <div key={g.gameId} className="gtp-led-row flex-col items-start gap-1">
+                  {ctx.isPlayoffs && (
+                    <span className="gtp-round-eyebrow">
+                      <span className="gtp-round-eyebrow-dot" aria-hidden />
+                      {ctx.roundLabel} · {ctx.gameLabel}
+                    </span>
+                  )}
+                  <div className="flex items-center justify-between gap-3 w-full">
+                    <span
+                      style={{ color: "var(--vault-text)", fontSize: 13 }}
+                    >
+                      <span style={{ color: "var(--vault-text-mute)" }}>
+                        {g.awayTeamAbbr}
+                      </span>
+                      <span
+                        className="mx-2"
+                        style={{ color: "var(--vault-text-faint)" }}
+                      >
+                        @
+                      </span>
+                      <span style={{ color: "var(--vault-text)" }}>
+                        {g.homeTeamAbbr}
+                      </span>
+                    </span>
+                    <span
+                      style={{
+                        color: "var(--vault-gold-bright)",
+                        fontSize: 11,
+                        letterSpacing: "0.04em",
+                      }}
+                    >
+                      {g.tipoff}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
