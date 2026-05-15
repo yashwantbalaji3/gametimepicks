@@ -2722,6 +2722,366 @@ table,
   background: var(--vault-text-faint);
 }
 
+/* ============================================================================
+   PR — Real logo + Results upgrades (2026-05-15)
+   Additive only.
+   ============================================================================ */
+
+/* Logo image (real PNG) — used by BrandMark in nav/footer. Adds soft
+   neon rim on hover so the brand picks up the casino atmosphere
+   without competing with the actual artwork. */
+.gtp-logo-img {
+  display: block;
+  border-radius: 4px;
+  user-select: none;
+  transition: filter 220ms ease, transform 220ms ease;
+  filter: drop-shadow(0 0 6px rgba(240, 199, 94, 0.18));
+}
+.gtp-brand-lockup:hover .gtp-logo-img,
+.gtp-brand-lockup:focus-visible .gtp-logo-img {
+  filter: drop-shadow(0 0 12px rgba(240, 199, 94, 0.40));
+  transform: translateY(-0.5px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-logo-img { transition: none; }
+  .gtp-brand-lockup:hover .gtp-logo-img,
+  .gtp-brand-lockup:focus-visible .gtp-logo-img { transform: none; }
+}
+
+/* Awaiting-settlement table — sportsbook-style preview of what will be
+   graded once box scores arrive. Per-game header + tabular rows with
+   the avatar / market / line / projection / edge / confidence / result
+   columns. CSS-grid based so rows align across games. */
+.gtp-awaiting-game {
+  position: relative;
+  padding: 18px 18px 16px;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(20, 24, 38, 0.78) 0%, rgba(10, 14, 28, 0.84) 100%);
+  border: 1px solid var(--vault-border);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.05),
+    0 16px 40px -24px rgba(0, 0, 0, 0.65);
+}
+.gtp-awaiting-game::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(212, 175, 55, 0.55) 30%,
+    rgba(240, 199, 94, 0.85) 50%,
+    rgba(212, 175, 55, 0.55) 70%,
+    transparent);
+  filter: drop-shadow(0 0 4px rgba(240, 199, 94, 0.35));
+}
+.gtp-awaiting-game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--vault-rule);
+}
+.gtp-awaiting-table {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+.gtp-awaiting-row {
+  display: grid;
+  grid-template-columns:
+    minmax(140px, 1.6fr)
+    minmax(56px, 0.6fr)
+    minmax(64px, 0.7fr)
+    minmax(80px, 0.7fr)
+    minmax(64px, 0.6fr)
+    minmax(72px, 0.7fr)
+    minmax(120px, 1.1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: rgba(7, 11, 26, 0.55);
+  border: 1px solid var(--vault-rule);
+  font-size: 12px;
+  color: var(--vault-text-mute);
+}
+.gtp-awaiting-row > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.gtp-awaiting-row-head {
+  background: transparent;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vault-text-faint);
+  padding-bottom: 4px;
+}
+.gtp-awaiting-row:not(.gtp-awaiting-row-head):hover {
+  border-color: var(--vault-border-strong);
+  background: rgba(20, 24, 38, 0.72);
+}
+.gtp-awaiting-row .col-player {
+  align-items: center;
+}
+.gtp-awaiting-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background:
+    radial-gradient(circle at 50% 35%,
+      rgba(240, 199, 94, 0.20) 0%,
+      rgba(20, 24, 38, 0.95) 60%,
+      rgba(10, 14, 28, 0.95) 100%);
+  box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.32);
+}
+.gtp-awaiting-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+.gtp-awaiting-avatar-fallback {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  color: var(--vault-gold-bright);
+  text-shadow: 0 0 6px rgba(240, 199, 94, 0.4);
+}
+.gtp-awaiting-player-meta {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  align-items: flex-start !important;
+}
+.gtp-awaiting-player-name {
+  color: var(--vault-text);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  font-size: 13px;
+}
+.gtp-awaiting-player-team {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--vault-text-faint);
+}
+.gtp-awaiting-market-pill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--vault-gold);
+  background: var(--vault-gold-dim);
+  border: 1px solid var(--vault-border-strong);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.gtp-awaiting-side {
+  color: var(--vault-text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+.gtp-awaiting-line {
+  color: var(--vault-gold-bright);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+}
+.gtp-awaiting-row .col-proj {
+  color: var(--vault-text);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+}
+.gtp-awaiting-row .col-edge {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+.gtp-awaiting-row .col-edge[data-tone="gold"] { color: var(--vault-gold-bright); }
+.gtp-awaiting-row .col-edge[data-tone="warn"] { color: var(--vault-warn); }
+.gtp-awaiting-conf-pill {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--vault-border);
+}
+.gtp-awaiting-conf-pill[data-tone="high"] {
+  color: var(--vault-gold-bright);
+  background: var(--vault-gold-dim);
+  border-color: var(--vault-border-strong);
+}
+.gtp-awaiting-conf-pill[data-tone="med"] {
+  color: var(--vault-warn);
+  background: var(--vault-warn-dim);
+  border-color: rgba(240, 199, 94, 0.30);
+}
+.gtp-awaiting-conf-pill[data-tone="low"] {
+  color: var(--vault-text-mute);
+  background: var(--vault-panel-elevated);
+}
+.gtp-awaiting-result-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vault-text-faint);
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(7, 11, 26, 0.7);
+  border: 1px solid var(--vault-rule);
+}
+.gtp-awaiting-result-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--vault-text-faint);
+  box-shadow: 0 0 4px rgba(180, 180, 200, 0.35);
+  animation: gtp-neon-pulse 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-awaiting-result-dot { animation: none; }
+}
+/* Stack the table on narrow viewports — each row becomes a card. */
+@media (max-width: 720px) {
+  .gtp-awaiting-row-head { display: none; }
+  .gtp-awaiting-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "player player"
+      "market side"
+      "proj edge"
+      "conf result";
+    row-gap: 6px;
+  }
+  .gtp-awaiting-row .col-player { grid-area: player; }
+  .gtp-awaiting-row .col-market { grid-area: market; }
+  .gtp-awaiting-row .col-line { grid-area: side; justify-content: flex-end; }
+  .gtp-awaiting-row .col-proj { grid-area: proj; justify-content: flex-start; }
+  .gtp-awaiting-row .col-edge { grid-area: edge; justify-content: flex-end; }
+  .gtp-awaiting-row .col-conf { grid-area: conf; }
+  .gtp-awaiting-row .col-result { grid-area: result; justify-content: flex-end; }
+}
+
+/* Calibration roadmap — day-by-day strip. Each cell is "settled"
+   (gold), "pending" (muted gold pulse), or "no-slate" (neutral grey). */
+.gtp-roadmap-strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(74px, 1fr);
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.gtp-roadmap-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px 12px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(20, 24, 38, 0.55), rgba(10, 14, 28, 0.65));
+  border: 1px solid var(--vault-rule);
+  text-align: center;
+  min-width: 0;
+}
+.gtp-roadmap-cell[data-state="settled"] {
+  border-color: var(--vault-border-strong);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.10),
+    0 0 22px -10px rgba(240, 199, 94, 0.45);
+}
+.gtp-roadmap-cell[data-state="pending"] {
+  border-color: var(--vault-border);
+}
+.gtp-roadmap-cell[data-state="pending"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(240, 199, 94, 0.6), transparent);
+  filter: drop-shadow(0 0 3px rgba(240, 199, 94, 0.4));
+  animation: gtp-neon-pulse 3.6s ease-in-out infinite;
+}
+.gtp-roadmap-cell[data-state="no-slate"] {
+  opacity: 0.6;
+}
+.gtp-roadmap-cell-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vault-text-faint);
+}
+.gtp-roadmap-cell-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 18px;
+  line-height: 1;
+}
+.gtp-roadmap-value-settled { color: var(--vault-gold-bright); }
+.gtp-roadmap-value-pending {
+  color: var(--vault-text-mute);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.gtp-roadmap-value-empty { color: var(--vault-text-faint); }
+.gtp-roadmap-cell-note {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vault-text-faint);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-roadmap-cell[data-state="pending"]::before { animation: none; }
+}
+
+/* Grading note — small "how a lean grades" panel above the newsletter. */
+.gtp-grading-note {
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: rgba(20, 24, 38, 0.55);
+  border: 1px solid var(--vault-rule);
+}
+
 /* Brand monogram ambient pulse — opt-in modifier so the footer monogram
    reads as a glowing marquee mark without distracting the nav. */
 .gtp-monogram[data-ambient="true"] {
