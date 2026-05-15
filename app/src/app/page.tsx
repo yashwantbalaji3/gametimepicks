@@ -349,27 +349,11 @@ export default function HomePage() {
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Link
-                href={ctaHref}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-[4px] font-medium text-[15px] tracking-tight transition-colors"
-                style={{
-                  background: "var(--vault-gold)",
-                  color: "#06070A",
-                  boxShadow:
-                    "0 0 0 1px rgba(212, 175, 55, 0.45), 0 12px 28px -10px rgba(240, 199, 94, 0.35)",
-                }}
-              >
-                {heroCtaText}
+              <Link href={ctaHref} className="gtp-cta-primary">
+                <span>{heroCtaText}</span>
                 <span aria-hidden>→</span>
               </Link>
-              <Link
-                href="/parlay-lab"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-[4px] font-medium text-[15px] tracking-tight transition-colors"
-                style={{
-                  border: "1px solid var(--vault-border-strong)",
-                  color: "var(--vault-text)",
-                }}
-              >
+              <Link href="/parlay-lab" className="gtp-cta-ghost">
                 Open Parlay Lab
               </Link>
               <Link
@@ -685,6 +669,80 @@ export default function HomePage() {
           </div>
         </VegasSectionShell>
       </div>
+
+      {/* CTA band — marquee panel pointing users into the two primary
+          surfaces (board + parlay lab). Sits between the explainer and
+          the newsletter signup so the homepage never dead-ends. */}
+      <section className="mt-16 reveal">
+        <div className="gtp-cta-band">
+          <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
+            <div className="flex items-center gap-2">
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+                style={{
+                  background: "var(--vault-gold-bright)",
+                  boxShadow: "0 0 8px rgba(240, 199, 94, 0.6)",
+                }}
+              />
+              <span
+                className="font-mono text-[10px] uppercase tracking-[0.18em]"
+                style={{ color: "var(--vault-gold)" }}
+              >
+                tonight on the model wall
+              </span>
+            </div>
+            <span
+              className="font-mono text-[10px] uppercase tracking-[0.16em]"
+              style={{ color: "var(--vault-text-faint)" }}
+            >
+              educational analytics
+            </span>
+          </div>
+          <h2
+            className="font-display font-semibold tracking-tight"
+            style={{
+              color: "var(--vault-text)",
+              fontSize: "clamp(22px, 3.2vw, 30px)",
+              lineHeight: 1.15,
+              maxWidth: 720,
+            }}
+          >
+            Step onto the floor.{" "}
+            <span style={{ color: "var(--vault-gold-bright)" }}>
+              {latestScoredLeanCount > 0
+                ? `${latestScoredLeanCount} projections`
+                : "Live projections"}
+            </span>{" "}
+            are queued and the model has graded every one of them.
+          </h2>
+          <p
+            className="mt-3 text-[14px] leading-relaxed max-w-2xl"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
+            Browse the full board, or hand the model your slate and let it
+            compose model-assisted candidate parlays you can sanity-check.
+            Nothing here is a recommendation — every number is graded and
+            every guardrail is stamped on the card.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Link href={ctaHref} className="gtp-cta-primary">
+              <span>{heroCtaText}</span>
+              <span aria-hidden>→</span>
+            </Link>
+            <Link href="/parlay-lab" className="gtp-cta-ghost">
+              Build a candidate parlay
+            </Link>
+            <Link
+              href="/results"
+              className="font-mono text-[12px] tracking-tight px-2"
+              style={{ color: "var(--vault-gold)" }}
+            >
+              calibration room →
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Newsletter signup — Phase 13 */}
       <section className="mt-16 reveal">

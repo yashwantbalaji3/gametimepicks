@@ -1979,6 +1979,388 @@ table,
   .gtp-ticker-chevron { animation: none; opacity: 0.9; }
 }
 
+/* ============================================================================
+   PR — Final QA polish pass (2026-05-15)
+   Additive only. Stacks one more layer of premium sportsbook texture on
+   top of PR #29 / #30 / #32 / #33 primitives.
+   ============================================================================ */
+
+/* Premium primary CTA — used on the homepage hero and the status-board
+   CTA. Replaces the flat inline gold tile with a beveled gold plate that
+   carries a slow inner shine pass. */
+.gtp-cta-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 5px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  color: #06070A;
+  background:
+    linear-gradient(180deg, #F0C75E 0%, #D4AF37 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 245, 200, 0.55),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(212, 175, 55, 0.55),
+    0 14px 32px -12px rgba(240, 199, 94, 0.42);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+.gtp-cta-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.32) 50%,
+    transparent 65%,
+    transparent 100%);
+  transform: translateX(-110%);
+  animation: gtp-cta-shine 9s ease-in-out infinite;
+  z-index: 0;
+}
+.gtp-cta-primary > * {
+  position: relative;
+  z-index: 1;
+}
+.gtp-cta-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 245, 200, 0.75),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(212, 175, 55, 0.75),
+    0 18px 36px -10px rgba(240, 199, 94, 0.55);
+}
+.gtp-cta-primary:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 245, 200, 0.55),
+    0 0 0 2px var(--vault-gold-bright),
+    0 0 0 5px rgba(212, 175, 55, 0.28),
+    0 14px 32px -12px rgba(240, 199, 94, 0.42);
+}
+@keyframes gtp-cta-shine {
+  0%   { transform: translateX(-110%); }
+  55%  { transform: translateX(110%); }
+  100% { transform: translateX(110%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-cta-primary::before { animation: none; opacity: 0; }
+  .gtp-cta-primary { transition: none; }
+  .gtp-cta-primary:hover { transform: none; }
+}
+
+/* Secondary CTA — ghost button paired with .gtp-cta-primary. Same
+   geometry, neon-bordered glass body. */
+.gtp-cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 5px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  color: var(--vault-text);
+  background: rgba(20, 24, 38, 0.55);
+  border: 1px solid var(--vault-border-strong);
+  box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.06);
+  transition: border-color 220ms ease, background 220ms ease, transform 220ms ease;
+}
+.gtp-cta-ghost:hover {
+  border-color: var(--vault-border-active);
+  background: rgba(20, 24, 38, 0.75);
+  transform: translateY(-1px);
+}
+.gtp-cta-ghost:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--vault-gold-bright),
+    0 0 0 5px rgba(212, 175, 55, 0.18);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-cta-ghost { transition: none; }
+  .gtp-cta-ghost:hover { transform: none; }
+}
+
+/* CTA band — full-width "ready to dig into tonight's slate" section
+   slotted between the homepage explainer cards and the newsletter
+   signup. Reads as a sportsbook lounge marquee panel. */
+.gtp-cta-band {
+  position: relative;
+  isolation: isolate;
+  padding: 32px 28px 30px;
+  border-radius: 12px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240, 199, 94, 0.10), transparent 70%),
+    linear-gradient(180deg, rgba(20, 24, 38, 0.85) 0%, rgba(10, 14, 28, 0.88) 100%);
+  border: 1px solid var(--vault-border-strong);
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.08),
+    0 28px 56px -32px rgba(0, 0, 0, 0.85),
+    0 0 38px -12px rgba(240, 199, 94, 0.18);
+}
+.gtp-cta-band::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(212, 175, 55, 0.55) 30%,
+    rgba(240, 199, 94, 0.95) 50%,
+    rgba(212, 175, 55, 0.55) 70%,
+    transparent);
+  filter: drop-shadow(0 0 4px rgba(240, 199, 94, 0.4));
+}
+.gtp-cta-band::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  border-radius: inherit;
+  background: conic-gradient(from 220deg,
+    rgba(212, 175, 55, 0.0),
+    rgba(111, 230, 255, 0.10) 25%,
+    rgba(255, 111, 179, 0.10) 50%,
+    rgba(212, 175, 55, 0.10) 75%,
+    rgba(212, 175, 55, 0.0));
+  filter: blur(24px);
+  opacity: 0.45;
+  z-index: -1;
+  animation: gtp-aurora-spin 32s linear infinite;
+}
+@media (min-width: 768px) {
+  .gtp-cta-band { padding: 40px 36px 38px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-cta-band::after { animation: none; }
+}
+
+/* Headliner-rail sweep — a slow horizontal highlight passing across the
+   rail every ~16s. Stacks on top of .gtp-rail-frame. */
+.gtp-rail-frame {
+  overflow: hidden; /* contain the sweep */
+}
+.gtp-rail-frame > .gtp-rail-sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -25%;
+  width: 25%;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(240, 199, 94, 0.10) 50%,
+    transparent 100%);
+  filter: blur(8px);
+  animation: gtp-rail-sweep 16s ease-in-out infinite;
+  z-index: 0;
+}
+.gtp-rail-frame > .gtp-rail-bracket {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  border-color: var(--gtp-edge-light);
+  filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.32));
+  opacity: 0.8;
+  z-index: 1;
+}
+.gtp-rail-frame > .gtp-rail-bracket-tl {
+  top: 4px; left: 4px;
+  border-top: 1px solid var(--gtp-edge-light);
+  border-left: 1px solid var(--gtp-edge-light);
+  border-top-left-radius: 3px;
+}
+.gtp-rail-frame > .gtp-rail-bracket-tr {
+  top: 4px; right: 4px;
+  border-top: 1px solid var(--gtp-edge-light);
+  border-right: 1px solid var(--gtp-edge-light);
+  border-top-right-radius: 3px;
+}
+.gtp-rail-frame > .gtp-rail-bracket-bl {
+  bottom: 4px; left: 4px;
+  border-bottom: 1px solid var(--gtp-edge-light);
+  border-left: 1px solid var(--gtp-edge-light);
+  border-bottom-left-radius: 3px;
+}
+.gtp-rail-frame > .gtp-rail-bracket-br {
+  bottom: 4px; right: 4px;
+  border-bottom: 1px solid var(--gtp-edge-light);
+  border-right: 1px solid var(--gtp-edge-light);
+  border-bottom-right-radius: 3px;
+}
+@keyframes gtp-rail-sweep {
+  0%   { transform: translateX(0); opacity: 0; }
+  20%  { opacity: 0.7; }
+  80%  { opacity: 0.7; }
+  100% { transform: translateX(720%); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-rail-frame > .gtp-rail-sweep { animation: none; opacity: 0; }
+}
+
+/* Candidate ticket — additive treatment for parlay candidate cards.
+   Adds a serrated mask on the sides + a thin gold rule on top to evoke
+   a paper sportsbook slip. Layers on top of vault-deluxe-card. */
+.gtp-candidate-ticket {
+  position: relative;
+}
+.gtp-candidate-ticket::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16%;
+  right: 16%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(240, 199, 94, 0.55) 50%,
+    transparent);
+  filter: drop-shadow(0 0 3px rgba(240, 199, 94, 0.42));
+  z-index: 1;
+}
+.gtp-candidate-ticket::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image:
+    radial-gradient(circle at 0 50%, rgba(7, 11, 26, 0.95) 4px, transparent 5px),
+    radial-gradient(circle at 100% 50%, rgba(7, 11, 26, 0.95) 4px, transparent 5px);
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+/* Candidate column eyebrow — small "Candidate slips · model output"
+   header rendered above the parlay candidate cards. */
+.gtp-candidate-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 5px 10px 6px;
+  border-radius: 999px;
+  background: var(--vault-gold-dim);
+  border: 1px solid var(--vault-border-strong);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vault-gold);
+}
+.gtp-candidate-eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--vault-gold-bright);
+  box-shadow: 0 0 7px rgba(240, 199, 94, 0.6);
+  animation: gtp-neon-pulse 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-candidate-eyebrow::before { animation: none; }
+}
+
+/* Calibration sigil — small pulsing graphic on the empty results page.
+   Pure ambient texture; no fabrication. */
+.gtp-calib-sigil {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 22px 0;
+  height: 64px;
+  pointer-events: none;
+}
+.gtp-calib-sigil > .gtp-calib-ring {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%,
+      rgba(240, 199, 94, 0.18) 0%,
+      rgba(212, 175, 55, 0.04) 40%,
+      transparent 70%);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.35),
+    0 0 22px -6px rgba(240, 199, 94, 0.35);
+  animation: gtp-calib-breath 5.6s ease-in-out infinite;
+}
+.gtp-calib-sigil > .gtp-calib-ring::after {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  background: var(--vault-gold-bright);
+  box-shadow: 0 0 10px rgba(240, 199, 94, 0.7);
+}
+.gtp-calib-sigil > .gtp-calib-rule-left,
+.gtp-calib-sigil > .gtp-calib-rule-right {
+  position: absolute;
+  top: 50%;
+  height: 1px;
+  width: 30%;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(212, 175, 55, 0.45) 50%,
+    transparent);
+  pointer-events: none;
+}
+.gtp-calib-sigil > .gtp-calib-rule-left { left: 4%; }
+.gtp-calib-sigil > .gtp-calib-rule-right { right: 4%; }
+@keyframes gtp-calib-breath {
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.35), 0 0 18px -6px rgba(240, 199, 94, 0.30); }
+  50%      { box-shadow: inset 0 0 0 1px rgba(240, 199, 94, 0.55), 0 0 28px -6px rgba(240, 199, 94, 0.50); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-calib-sigil > .gtp-calib-ring { animation: none; }
+}
+
+/* KPI stat-panel shine pass — extends the existing gold top-rule with a
+   slow left→right shine every ~14s. */
+.gtp-stat-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 30%;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 245, 200, 0.85) 50%,
+    transparent);
+  filter: blur(0.5px);
+  animation: gtp-stat-shine 14s ease-in-out infinite;
+}
+@keyframes gtp-stat-shine {
+  0%   { transform: translateX(0); opacity: 0; }
+  10%  { opacity: 0.95; }
+  45%  { transform: translateX(440%); opacity: 0; }
+  100% { transform: translateX(440%); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-stat-panel::after { animation: none; opacity: 0; }
+}
+
 /* Brand monogram ambient pulse — opt-in modifier so the footer monogram
    reads as a glowing marquee mark without distracting the nav. */
 .gtp-monogram[data-ambient="true"] {
