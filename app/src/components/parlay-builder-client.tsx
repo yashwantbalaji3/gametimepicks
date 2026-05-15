@@ -557,7 +557,7 @@ function CandidateCard({
 }) {
   return (
     <div
-      className="vault-deluxe-card p-5 sm:p-6 vault-rise"
+      className="vault-deluxe-card casino-glow-card p-5 sm:p-6 vault-rise"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       {/* Zone A — header: candidate identity + combined odds */}

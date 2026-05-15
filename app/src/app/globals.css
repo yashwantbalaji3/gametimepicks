@@ -679,3 +679,317 @@ table,
   );
   z-index: 1;
 }
+
+/* ============================================================================
+   PR — Sportsbook brand + neon visual polish (2026-05-14)
+   Additive utilities only. Existing classes above unchanged.
+
+   Theme intent:
+     premium Vegas sportsbook lounge / NBA model lab
+     never sketchy casino marketing
+     gold + faint cyan accents on deep navy
+     every animation has a prefers-reduced-motion fallback
+   ============================================================================ */
+
+/* Brand-accent tokens. Tasteful cool accents to complement the existing
+   --vault-gold family. Used only inside brand-mark + neon primitives —
+   the rest of the site continues to read as gold-on-navy. */
+:root {
+  --gtp-neon-cyan: #6FE6FF;
+  --gtp-neon-cyan-dim: rgba(111, 230, 255, 0.12);
+  --gtp-neon-cyan-glow: rgba(111, 230, 255, 0.28);
+  --gtp-deep-navy: #050818;
+  --gtp-edge-light: rgba(212, 175, 55, 0.55);
+}
+
+/* Sportsbook LED rail — a thin animated strip that sits under the nav
+   (or under any other section divider). Slow horizontal gradient sweep
+   so it reads as ambient lounge light, not a progress bar.
+
+   Usage: <SportsbookLightRail /> renders a div with this class.
+   Height is 2px on mobile / 3px on desktop via the wrapper.
+*/
+.sportsbook-light-rail {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 2px;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.18) 20%,
+    rgba(212, 175, 55, 0.28) 50%,
+    rgba(212, 175, 55, 0.18) 80%,
+    transparent 100%
+  );
+}
+.sportsbook-light-rail::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 30%,
+    var(--gtp-edge-light) 50%,
+    transparent 70%,
+    transparent 100%
+  );
+  filter: blur(0.4px);
+  animation: gtp-rail-sweep 8s ease-in-out infinite;
+}
+@keyframes gtp-rail-sweep {
+  0%, 100% { transform: translateX(-30%); opacity: 0.45; }
+  50%       { transform: translateX(30%);  opacity: 0.95; }
+}
+@media (min-width: 768px) {
+  .sportsbook-light-rail { height: 3px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sportsbook-light-rail::before { animation: none; opacity: 0.6; transform: none; }
+}
+
+/* Neon corner brackets — four L-shaped corner accents that frame a hero
+   or major card. Pure ::before/::after; non-interactive.
+
+   Usage: <NeonCornerBracket> wrapper places this around the section. */
+.neon-corner-bracket {
+  position: relative;
+  isolation: isolate;
+}
+.neon-corner-bracket > .gtp-bracket {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+  z-index: 1;
+  border-color: var(--gtp-edge-light);
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.28));
+  opacity: 0.85;
+}
+.neon-corner-bracket > .gtp-bracket-tl {
+  top: 8px; left: 8px;
+  border-top: 1px solid var(--gtp-edge-light);
+  border-left: 1px solid var(--gtp-edge-light);
+  border-top-left-radius: 4px;
+}
+.neon-corner-bracket > .gtp-bracket-tr {
+  top: 8px; right: 8px;
+  border-top: 1px solid var(--gtp-edge-light);
+  border-right: 1px solid var(--gtp-edge-light);
+  border-top-right-radius: 4px;
+}
+.neon-corner-bracket > .gtp-bracket-bl {
+  bottom: 8px; left: 8px;
+  border-bottom: 1px solid var(--gtp-edge-light);
+  border-left: 1px solid var(--gtp-edge-light);
+  border-bottom-left-radius: 4px;
+}
+.neon-corner-bracket > .gtp-bracket-br {
+  bottom: 8px; right: 8px;
+  border-bottom: 1px solid var(--gtp-edge-light);
+  border-right: 1px solid var(--gtp-edge-light);
+  border-bottom-right-radius: 4px;
+}
+@media (min-width: 768px) {
+  .neon-corner-bracket > .gtp-bracket { width: 36px; height: 36px; }
+}
+
+/* Soft horizontal scanline overlay. ~3% opacity gold stripes at 4px pitch.
+   Subtle "LED odds board" texture; only applies on heroes/major panels.
+   Sits at z-index 0 so it stays behind page content (content stacks at
+   auto > 0 within the local stacking context). */
+.gtp-line-scan {
+  position: relative;
+  isolation: isolate;
+}
+.gtp-line-scan::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(212, 175, 55, 0.03) 0,
+    rgba(212, 175, 55, 0.03) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  mask-image: radial-gradient(ellipse 100% 80% at 50% 50%, black 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 50%, black 60%, transparent 100%);
+}
+/* Make sure direct children of a line-scan hero are above the scanline.
+   Negative-z pseudo backdrops (vault-data-orbit) stay below; this rule
+   only lifts the actual content row. */
+.gtp-line-scan > :not(.gtp-bracket) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Casino glow card — additive opt-in for any card that already has the
+   .vault-deluxe-card surface. Adds a soft gold rim that intensifies on
+   hover. Crucially this does NOT change the layout or the border color
+   of the underlying card; it stacks on top via a pseudo-element. */
+.casino-glow-card {
+  position: relative;
+}
+.casino-glow-card::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.08) inset,
+    0 0 22px -6px rgba(212, 175, 55, 0.05);
+  transition: box-shadow 280ms ease;
+}
+.casino-glow-card:hover::after {
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.30) inset,
+    0 0 32px -6px rgba(212, 175, 55, 0.22);
+}
+@media (prefers-reduced-motion: reduce) {
+  .casino-glow-card::after { transition: none; }
+}
+
+/* Neon wordmark — two-tone GameTimePicks treatment used inside the
+   <BrandMark> component. Tight letter-spacing, sentence-case, soft drop
+   shadow that reads as gold marquee glow. */
+.gtp-neon-wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.gtp-neon-wordmark .gtp-word-strong {
+  color: var(--vault-text);
+  text-shadow:
+    0 0 1px rgba(245, 231, 196, 0.55),
+    0 0 14px rgba(212, 175, 55, 0.15);
+}
+.gtp-neon-wordmark .gtp-word-soft {
+  color: var(--vault-gold-bright);
+  text-shadow:
+    0 0 1px rgba(240, 199, 94, 0.45),
+    0 0 18px rgba(212, 175, 55, 0.30);
+}
+
+/* Monogram tile — the small "GTP" lockup chip used as the brand mark
+   token. Beveled gold gradient, inner highlight ring, soft drop. */
+.gtp-monogram {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 235, 170, 0.55), transparent 55%),
+    linear-gradient(140deg, #F0C75E 0%, #D4AF37 45%, #8E6A1A 100%);
+  color: var(--gtp-deep-navy);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 240, 200, 0.55),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.18),
+    0 1px 0 rgba(0, 0, 0, 0.4),
+    0 0 18px -4px rgba(240, 199, 94, 0.42);
+  transition: box-shadow 240ms ease, transform 240ms ease;
+}
+.gtp-monogram::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 5px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0) 28%
+  );
+}
+.gtp-brand-lockup:hover .gtp-monogram {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 240, 200, 0.65),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.18),
+    0 1px 0 rgba(0, 0, 0, 0.4),
+    0 0 26px -4px rgba(240, 199, 94, 0.55);
+  transform: translateY(-0.5px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-monogram { transition: none; }
+  .gtp-brand-lockup:hover .gtp-monogram { transform: none; }
+}
+
+/* House-rules strip — used above the © line in the footer. Small inline
+   neon dots between phrases. Pure presentational. */
+.gtp-house-rules {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+.gtp-house-rules > .gtp-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--vault-gold-bright);
+  box-shadow: 0 0 6px rgba(240, 199, 94, 0.45);
+}
+
+/* Neon-pulse — gentler than vault-pulse. Used on small status dots that
+   should breathe, not flash. */
+@keyframes gtp-neon-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+.gtp-neon-pulse {
+  animation: gtp-neon-pulse 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-neon-pulse { animation: none; }
+}
+
+/* Vegas marquee — running gold dots used VERY sparingly. Reserved for
+   the footer top-edge accent. Not for the disclaimer banner. */
+.gtp-vegas-marquee {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.45) 50%,
+    transparent 100%
+  );
+}
+.gtp-vegas-marquee::before {
+  content: "";
+  position: absolute;
+  inset: -1px 0;
+  background-image: radial-gradient(
+    circle,
+    rgba(240, 199, 94, 0.85) 0,
+    rgba(240, 199, 94, 0) 60%
+  );
+  background-size: 14px 4px;
+  background-repeat: repeat-x;
+  background-position: 0 50%;
+  animation: gtp-marquee-run 18s linear infinite;
+  opacity: 0.5;
+}
+@keyframes gtp-marquee-run {
+  0%   { background-position-x: 0; }
+  100% { background-position-x: 280px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-vegas-marquee::before { animation: none; opacity: 0.3; }
+}
+

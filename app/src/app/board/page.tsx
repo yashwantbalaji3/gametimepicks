@@ -6,6 +6,7 @@ import BoardWithTabs from "@/components/board-with-tabs";
 import NewsletterSignup from "@/components/newsletter-signup";
 import TodayAwareSlateBanner from "@/components/today-aware-slate-banner";
 import NoCurrentSlate from "@/components/no-current-slate";
+import NeonCornerBracket from "@/components/neon-corner-bracket";
 import { currentEtDate } from "@/lib/freshness";
 import {
   selectActiveSlate,
@@ -161,7 +162,8 @@ export default function BoardPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14">
-      <div className="reveal vault-hero-eyebrow vault-data-orbit relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-6">
+      <div className="reveal vault-hero-eyebrow vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-6">
+        <NeonCornerBracket />
         <div
           className="vault-quiet-label"
           style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}

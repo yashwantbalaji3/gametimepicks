@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { getMeta } from "@/lib/data";
 import { formatTimestamp } from "@/lib/format";
 import FooterFreshness from "./footer-freshness";
+import BrandMark from "./brand-mark";
 
 export default function Footer() {
   const meta = getMeta();
@@ -19,7 +21,11 @@ export default function Footer() {
           "linear-gradient(180deg, rgba(7, 11, 26, 0) 0%, rgba(14, 21, 48, 0.55) 100%)",
       }}
     >
-      {/* Soft gold edge accent at the very top of the footer chrome */}
+      {/* Running-dots Vegas marquee accent above the gold edge line —
+          gives the footer a hint of lounge ambience without competing
+          with the disclaimer banner up top. */}
+      <div aria-hidden className="gtp-vegas-marquee" />
+      {/* Soft gold edge accent immediately below the marquee. */}
       <div
         aria-hidden
         className="h-px"
@@ -29,6 +35,24 @@ export default function Footer() {
         }}
       />
       <div className="mx-auto max-w-[1440px] px-6 sm:px-8 py-14">
+        {/* Brand row — premium wordmark + a quiet tagline. Sits above
+            the existing two-column About / Data Sources grid. */}
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <Link
+            href="/"
+            aria-label="GameTimePicks home"
+            className="vault-glow-hover rounded-[4px] py-1 px-1 -ml-1"
+          >
+            <BrandMark variant="compact" marker="model lab" />
+          </Link>
+          <span
+            className="text-[12px]"
+            style={{ color: "var(--vault-text-faint)" }}
+          >
+            Transparent NBA player-prop analytics · educational only.
+          </span>
+        </div>
+
         <div
           className="grid grid-cols-1 md:grid-cols-2 gap-10 text-[13px]"
           style={{ color: "var(--vault-text-mute)" }}

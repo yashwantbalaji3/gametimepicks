@@ -121,7 +121,7 @@ export default function VaultPlayerCard({ card }: Props) {
 
   return (
     <article
-      className="vault-deluxe-card p-5 sm:p-6"
+      className="vault-deluxe-card casino-glow-card p-5 sm:p-6"
       aria-label={`${card.playerName} — ${card.team} ${matchupArrow} ${card.opponent}`}
     >
       {/* ─── HEADER ─── */}

@@ -15,6 +15,7 @@ import HomepageTrendingTabs, {
   type TrendingLean,
   type TrendingGame,
 } from "@/components/homepage-trending-tabs";
+import NeonCornerBracket from "@/components/neon-corner-bracket";
 import { currentEtDate, dayLabelFor } from "@/lib/freshness";
 import { selectActiveSlate } from "@/lib/active-slate";
 
@@ -185,8 +186,11 @@ export default function HomePage() {
     <div className="vault-page-shell px-6 sm:px-8 py-14 md:py-24">
       {/* Hero — PR makeover: layered vault-data-orbit + vault-ambient-orbit
           backdrops for richer "model lab" storytelling. Larger display
-          typography ramp via vault-display-h1. */}
-      <section className="reveal vault-data-orbit vault-ambient-orbit relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pb-2">
+          typography ramp via vault-display-h1. PR brand-polish: framed
+          with neon corner brackets + a soft scanline overlay so the hero
+          reads as a sportsbook-lounge centerpiece, not a plain section. */}
+      <section className="reveal vault-data-orbit vault-ambient-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pt-6 pb-2">
+        <NeonCornerBracket />
         <div className="mb-6 flex items-center gap-2.5">
           <span className="live-dot vault-pulse" />
           <span
@@ -540,14 +544,27 @@ function ExplainerCard({
   delay: number;
 }) {
   return (
-    <div className={`surface p-6 reveal reveal-d${delay}`}>
-      <div className="font-mono text-[11px] text-[var(--vault-gold-bright)] tracking-wider mb-3">
-        {n}
+    <div
+      className={`vault-deluxe-card casino-glow-card p-6 reveal reveal-d${delay}`}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <span
+          className="inline-flex items-center justify-center w-7 h-7 rounded-full font-mono font-semibold text-[12px] tabular"
+          style={{
+            background: "var(--vault-gold-dim)",
+            border: "1px solid var(--vault-border-strong)",
+            color: "var(--vault-gold-bright)",
+            boxShadow: "0 0 12px -4px rgba(240, 199, 94, 0.35)",
+          }}
+          aria-hidden
+        >
+          {n}
+        </span>
+        <h3 className="font-display text-[18px] sm:text-[20px] font-semibold tracking-tight">
+          {title}
+        </h3>
       </div>
-      <h3 className="font-display text-[20px] font-semibold tracking-tight mb-2">
-        {title}
-      </h3>
-      <p className="text-[14px] text-[var(--text-mute)] leading-relaxed">
+      <p className="text-[14px] text-[var(--vault-text-mute)] leading-relaxed">
         {body}
       </p>
     </div>
