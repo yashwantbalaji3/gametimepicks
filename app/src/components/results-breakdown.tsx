@@ -75,8 +75,11 @@ function toBestRow(r: unknown): CallRowData {
 // ---------------------------------------------------------------------------
 export default function ResultsBreakdown({
   report,
+  gameLabelMap,
 }: {
   report: ComparisonReport;
+  /** Optional gameId → friendly label map (e.g. playoff context). */
+  gameLabelMap?: Record<string, string>;
 }) {
   const misses: CallRowData[] = (report.largestMisses ?? []).map(toMissRow);
   const wins: CallRowData[] = (report.bestCalls ?? []).map(toBestRow);
@@ -182,7 +185,7 @@ export default function ResultsBreakdown({
         <BucketSection
           title="by game"
           buckets={report.byGame}
-          formatKey={(k) => k}
+          formatKey={(k) => gameLabelMap?.[k] ?? k}
           subtle
         />
       )}
