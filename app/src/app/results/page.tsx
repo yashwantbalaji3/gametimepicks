@@ -47,6 +47,9 @@ import AwaitingSettlementTable from "@/components/awaiting-settlement-table";
 import CalibrationRoadmap, {
   type CalibrationDay,
 } from "@/components/calibration-roadmap";
+import PerGameScorecard from "@/components/per-game-scorecard";
+import AnomalyGuardrailPanel from "@/components/anomaly-guardrail-panel";
+import ParlayResultsDisclosure from "@/components/parlay-results-disclosure";
 import { getPlayoffContext } from "@/components/playoff-context";
 
 /**
@@ -80,32 +83,89 @@ export default function ResultsPage() {
     return <ResultsEmptyShell latestScoredDate={latestScoredDate} />;
   }
 
+  // Load the live board for the most recently settled date so we can
+  // cross-reference riskFlags for the guardrail audit and pass games
+  // into the per-game scorecard for friendly matchup + tipoff labels.
+  const latestBoard = getBoardForDate(latest.date);
+  const boardLeans = latestBoard.leans ?? [];
+  const boardGames = latestBoard.games ?? [];
+
+  // Build a friendly per-game label map for ResultsBreakdown's byGame
+  // bucket. "0042500206" → "Eastern Conf Semis · Game 6 · DET @ CLE".
+  const gameLabelMap: Record<string, string> = {};
+  for (const g of boardGames) {
+    if (!g.gameId) continue;
+    const ctx = getPlayoffContext(g.gameId, g.awayTeamAbbr, g.homeTeamAbbr);
+    if (ctx.isPlayoffs) {
+      gameLabelMap[g.gameId] = ctx.compactLabel;
+    } else if (g.awayTeamAbbr && g.homeTeamAbbr) {
+      gameLabelMap[g.gameId] = `${g.awayTeamAbbr} @ ${g.homeTeamAbbr}`;
+    }
+  }
+
   return (
     <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
-      {/* Hero */}
-      <div className="reveal vault-hero-eyebrow">
-        <div
-          className="font-mono text-[10px] uppercase tracking-[0.18em]"
-          style={{ color: "var(--vault-gold)" }}
-        >
-          early validation · educational results tracking
+      {/* Hero — model audit headline. Reads as a sportsbook scoreboard
+          marquee with the lifetime hit rate front and center. */}
+      <section className="reveal vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-4">
+        <NeonCornerBracket />
+        <div className="flex items-center gap-2 mb-3">
+          <span
+            aria-hidden
+            className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+            style={{
+              background: "var(--vault-gold-bright)",
+              boxShadow: "0 0 8px rgba(240, 199, 94, 0.6)",
+            }}
+          />
+          <span
+            className="font-mono uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-gold)", fontSize: 10 }}
+          >
+            Model audit · graded against final box scores
+          </span>
         </div>
-        <h1 className="mt-2 font-display text-[28px] sm:text-[36px] md:text-[48px] tracking-tightest font-semibold leading-[1]">
-          {lifetime.hitRate !== null
-            ? formatPercent(lifetime.hitRate)
-            : "—"}{" "}
-          <span className="text-[var(--vault-text-mute)]">hit rate</span>
-        </h1>
-        <p className="mt-3 text-[var(--vault-text-mute)] text-[13px] sm:text-[14px] font-mono">
-          {lifetime.decisive} decisive {lifetime.decisive === 1 ? "pick" : "picks"} ·{" "}
-          {lifetime.totalDates} {lifetime.totalDates === 1 ? "settled date" : "settled dates"}
-          {lifetime.oldestDate && lifetime.newestDate && lifetime.oldestDate !== lifetime.newestDate
-            ? ` · ${lifetime.oldestDate} → ${lifetime.newestDate}`
-            : lifetime.newestDate
-              ? ` · ${lifetime.newestDate}`
-              : ""}
+        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+          <h1
+            className="font-display font-semibold tracking-tightest leading-[0.95]"
+            style={{
+              color: "var(--vault-gold-bright)",
+              fontSize: "clamp(48px, 10vw, 96px)",
+              textShadow:
+                "0 0 24px rgba(240, 199, 94, 0.45), 0 0 8px rgba(212, 175, 55, 0.55)",
+            }}
+          >
+            {lifetime.hitRate !== null
+              ? formatPercent(lifetime.hitRate)
+              : "—"}
+          </h1>
+          <span
+            className="font-display tracking-tight"
+            style={{
+              color: "var(--vault-text)",
+              fontSize: "clamp(18px, 2.6vw, 22px)",
+            }}
+          >
+            hit rate · {lifetime.wins}–{lifetime.losses}
+            {lifetime.pushes > 0 ? `–${lifetime.pushes}P` : ""} on{" "}
+            <span style={{ color: "var(--vault-gold-bright)" }}>
+              {lifetime.decisive}
+            </span>{" "}
+            decisive picks
+          </span>
+        </div>
+        <p
+          className="mt-4 text-[14px] leading-relaxed max-w-2xl"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          Every model lean is logged at generation time and graded
+          against the verified box score after the game. {lifetime.totalDates}{" "}
+          {lifetime.totalDates === 1 ? "slate" : "slates"} settled
+          {lifetime.newestDate ? ` · most recent: ${lifetime.newestDate}` : ""}.
+          Hit rate excludes pushes and No Plays. Educational analytics —
+          not betting advice.
         </p>
-      </div>
+      </section>
 
       {/* Honesty banner */}
       {lifetime.smallSample && (
@@ -181,13 +241,34 @@ export default function ResultsPage() {
         </section>
       )}
 
+      {/* Per-game scorecard — sportsbook scoreboard per graded game,
+          with best call + biggest miss. Friendly matchup labels +
+          playoff context come from the live board. */}
+      <PerGameScorecard rows={latest.rows} games={boardGames} />
+
+      {/* Guardrail audit — splits hit rate by R5 model-anomaly vs
+          clean, computed by joining settled rows with the board's
+          riskFlags. */}
+      <AnomalyGuardrailPanel
+        settledRows={latest.rows}
+        boardLeans={boardLeans}
+      />
+
       {/* Newest date's full comparison report */}
       {latest.report && (
         <section className="mt-10">
           <SectionHeading>{latest.date} · breakdown</SectionHeading>
-          <ResultsBreakdown report={latest.report} />
+          <ResultsBreakdown
+            report={latest.report}
+            gameLabelMap={gameLabelMap}
+          />
         </section>
       )}
+
+      {/* Honest disclosure that historical parlay candidates were not
+          persisted, so we cannot claim parlay hits without inventing
+          the slip. Future-feature framing. */}
+      <ParlayResultsDisclosure />
 
       {/* Footer disclosure */}
       <footer
