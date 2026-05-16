@@ -318,15 +318,23 @@ function Formula({ children }: { children: ReactNode }) {
   // Iteration 5: formulas read as deep glass panels with a faint gold
   // top-rule so they look like derivations on an odds-board chalkboard,
   // not flat `<code>` blocks.
+  //
+  // Mobile fix (May 17 review): the previous `overflow-hidden` clipped
+  // longer formula lines on narrow viewports because the inline math
+  // glyphs (·, −) sit wider than the available content column at 390px.
+  // Switch to `overflow-x-auto` so wide formulas scroll horizontally
+  // instead of being cut off, drop the font one notch on mobile, and
+  // honor the existing explicit <br /> line breaks.
   return (
     <div
-      className="relative my-4 rounded-[6px] px-4 py-3.5 font-mono text-[13px] tabular leading-relaxed overflow-hidden"
+      className="relative my-4 rounded-[6px] px-4 py-3.5 font-mono text-[12px] sm:text-[13px] tabular leading-relaxed overflow-x-auto"
       style={{
         background:
           "linear-gradient(180deg, rgba(20, 24, 38, 0.92), rgba(10, 14, 28, 0.92))",
         border: "1px solid var(--vault-border)",
         color: "var(--vault-text)",
         boxShadow: "0 4px 14px -10px rgba(0, 0, 0, 0.4)",
+        WebkitOverflowScrolling: "touch",
       }}
     >
       <span
@@ -337,7 +345,9 @@ function Formula({ children }: { children: ReactNode }) {
             "linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.45), transparent)",
         }}
       />
-      {children}
+      <div className="min-w-0 whitespace-nowrap sm:whitespace-normal">
+        {children}
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import type { PropLean, BoardData, ScheduleGame } from "@/lib/types";
 import ParlayLabModeTabs from "@/components/parlay-lab-mode-tabs";
 import DataSourceBadge from "@/components/data-source-badge";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
+import Link from "next/link";
 import { selectActiveSlate } from "@/lib/active-slate";
 import { currentEtDate } from "@/lib/freshness";
 
@@ -205,21 +206,30 @@ export default function ParlayLabPage() {
           unavailable context. */}
       <section className="mt-8">
         <div className="gtp-context-desk">
-          <div className="flex items-center gap-2 mb-2.5">
-            <span
-              aria-hidden
-              className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
-              style={{
-                background: "var(--vault-gold-bright)",
-                boxShadow: "0 0 7px rgba(240, 199, 94, 0.6)",
-              }}
-            />
-            <span
-              className="font-mono uppercase tracking-[0.18em]"
-              style={{ color: "var(--vault-gold)", fontSize: 10 }}
+          <div className="flex items-center justify-between gap-3 mb-2.5 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+                style={{
+                  background: "var(--vault-gold-bright)",
+                  boxShadow: "0 0 7px rgba(240, 199, 94, 0.6)",
+                }}
+              />
+              <span
+                className="font-mono uppercase tracking-[0.18em]"
+                style={{ color: "var(--vault-gold)", fontSize: 10 }}
+              >
+                Context desk · what the model surfaces tonight
+              </span>
+            </div>
+            <Link
+              href="/results"
+              className="font-mono tracking-tight transition-colors"
+              style={{ color: "var(--vault-gold)", fontSize: 11 }}
             >
-              Context desk · what the model surfaces tonight
-            </span>
+              see latest model audit →
+            </Link>
           </div>
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="gtp-context-pill" data-state="on">
@@ -234,6 +244,9 @@ export default function ParlayLabPage() {
             <span className="gtp-context-pill" data-state="on">
               NBA headshots
             </span>
+            <span className="gtp-context-pill" data-state="on">
+              Latest slate graded
+            </span>
             <span className="gtp-context-pill" data-state="soon">
               Injury / news notes · soon
             </span>
@@ -244,6 +257,33 @@ export default function ParlayLabPage() {
               Live tipoff countdown · soon
             </span>
           </div>
+
+          {/* Game 7 educational note — surfaces only when the active slate
+              has a Game 7 game-chip. Reads as honest volatility
+              acknowledgement, not as betting advice. */}
+          <p
+            className="mt-3 text-[12px] leading-relaxed"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
+            <span
+              className="font-mono uppercase tracking-[0.14em]"
+              style={{ color: "var(--vault-gold)", fontSize: 10 }}
+            >
+              Game 7 caveat ·
+            </span>{" "}
+            elimination games can shift minutes, rotations, and usage. The
+            model uses recent-10 averages and the R5 guardrail caps
+            extreme-edge picks at Low confidence, but it does not yet
+            simulate Game 7-specific rotation effects. The May 15 audit
+            (
+            <Link
+              href="/results"
+              style={{ color: "var(--vault-gold)", textDecoration: "underline" }}
+            >
+              55.2% hit rate, 80–65, Clean 57.0% vs R5 48.4%
+            </Link>
+            ) is the most relevant calibration reference we have so far.
+          </p>
         </div>
       </section>
 
