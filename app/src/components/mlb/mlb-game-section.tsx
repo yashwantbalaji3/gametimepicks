@@ -1,6 +1,7 @@
 import type { MlbBoardLean, MlbScheduleGame } from "@/lib/types-mlb";
 import { formatTipoffEt } from "@/lib/format-mlb";
 import MlbLeanRow from "./mlb-lean-row";
+import MlbPlayerAvatar from "./mlb-player-avatar";
 
 /**
  * One game's worth of MLB props grouped under a sportsbook-style header.
@@ -97,37 +98,70 @@ export default function MlbGameSection({ game, leans }: Props) {
           </div>
         </div>
 
-        {/* Probable pitchers row */}
+        {/* Probable pitchers — avatar cards mirroring the lean-row identity
+            cluster so the sport feels visually consistent end to end. */}
         <div
           className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-[12px]"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          <div className="flex items-center justify-between gap-3 rounded-[3px]" style={{ paddingTop: 10, paddingBottom: 10, paddingLeft: 14, paddingRight: 14, border: "1px solid var(--vault-border)", background: "rgba(7, 11, 26, 0.45)", minWidth: 0, overflow: "hidden" }}>
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <span style={{ color: "var(--vault-text-faint)", fontSize: 10, letterSpacing: "0.14em" }} className="uppercase">
-                probable · away
-              </span>
-              <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
-                {game.awayProbablePitcherName ?? "TBD"}
+          {[
+            {
+              side: "away" as const,
+              teamAbbr: game.awayTeamAbbr,
+              name: game.awayProbablePitcherName,
+              id: game.awayProbablePitcherId,
+            },
+            {
+              side: "home" as const,
+              teamAbbr: game.homeTeamAbbr,
+              name: game.homeProbablePitcherName,
+              id: game.homeProbablePitcherId,
+            },
+          ].map((p) => (
+            <div
+              key={p.side}
+              className="flex items-center gap-3 rounded-[3px]"
+              style={{
+                paddingTop: 10,
+                paddingBottom: 10,
+                paddingLeft: 12,
+                paddingRight: 12,
+                border: "1px solid var(--vault-border)",
+                background: "rgba(7, 11, 26, 0.5)",
+                minWidth: 0,
+                overflow: "hidden",
+              }}
+            >
+              <MlbPlayerAvatar
+                playerId={p.id ?? null}
+                playerName={p.name ?? "TBD"}
+                team={p.teamAbbr}
+                role="pitcher"
+                size="sm"
+              />
+              <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                <span
+                  className="uppercase"
+                  style={{
+                    color: "var(--vault-text-faint)",
+                    fontSize: 10,
+                    letterSpacing: "0.14em",
+                  }}
+                >
+                  probable · {p.side}
+                </span>
+                <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
+                  {p.name ?? "TBD"}
+                </span>
+              </div>
+              <span
+                style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
+                className="font-mono"
+              >
+                {p.teamAbbr ?? ""}
               </span>
             </div>
-            <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
-              {game.awayTeamAbbr ?? ""}
-            </span>
-          </div>
-          <div className="flex items-center justify-between gap-3 rounded-[3px]" style={{ paddingTop: 10, paddingBottom: 10, paddingLeft: 14, paddingRight: 14, border: "1px solid var(--vault-border)", background: "rgba(7, 11, 26, 0.45)", minWidth: 0, overflow: "hidden" }}>
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <span style={{ color: "var(--vault-text-faint)", fontSize: 10, letterSpacing: "0.14em" }} className="uppercase">
-                probable · home
-              </span>
-              <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
-                {game.homeProbablePitcherName ?? "TBD"}
-              </span>
-            </div>
-            <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
-              {game.homeTeamAbbr ?? ""}
-            </span>
-          </div>
+          ))}
         </div>
 
         {/* Body: leans or honest pending state */}

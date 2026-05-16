@@ -83,6 +83,10 @@ def _build_lean(
     team_ctx: dict[str, dict],
     projection: dict,
     is_pitcher: bool,
+    *,
+    player_id: int | None = None,
+    player_team_abbr: str | None = None,
+    player_team_name: str | None = None,
 ) -> dict:
     """Combine an odds row + a projection result into the final lean record."""
     grade = mlb_model.grade(
@@ -116,6 +120,15 @@ def _build_lean(
     if grade.get("riskFlags") and "r5_model_anomaly" in grade["riskFlags"]:
         reason_bits.append("flagged: edge above R5 anomaly threshold")
 
+    # Derive the opponent abbr for the player so the UI can render
+    # "PLAYER · TEAM vs OPP" without re-cross-referencing the schedule.
+    opponent_abbr: str | None = None
+    if player_team_abbr:
+        if home_ctx.get("abbr") == player_team_abbr:
+            opponent_abbr = away_ctx.get("abbr")
+        elif away_ctx.get("abbr") == player_team_abbr:
+            opponent_abbr = home_ctx.get("abbr")
+
     return {
         "id": f"{row['gameId']}-{row['playerName'].replace(' ', '_')}-{market_key}",
         "sport": "MLB",
@@ -128,7 +141,11 @@ def _build_lean(
         "awayTeamAbbr": away_ctx.get("abbr"),
         "awayTeamName": row.get("awayTeam"),
         "venue": home_ctx.get("venue"),
+        "playerId": player_id,
         "playerName": row["playerName"],
+        "playerTeamAbbr": player_team_abbr,
+        "playerTeamName": player_team_name,
+        "opponentAbbr": opponent_abbr,
         "playerRole": "pitcher" if is_pitcher else "batter",
         "marketKey": market_key,
         "marketLabel": _market_label(market_key),
@@ -233,18 +250,36 @@ def run(
         _write_pending_board(date, games, summary, reason="no_events")
         return summary
 
-    estimated_cost = len(events) * len(markets) * len(regions)
+    # Cache-adjusted cost: per-event /odds calls hit the local disk cache
+    # within the TTL window and cost 0. Estimating against the worst case
+    # only would block legitimate cache-warm reruns (e.g. attaching a new
+    # field after the original paid fetch). Count only events whose cache
+    # is cold.
+    cold_event_count = sum(
+        1
+        for ev in events
+        if not mlb_odds.is_event_cached(ev.get("id"), list(markets), list(regions))
+    )
+    estimated_cost = cold_event_count * len(markets) * len(regions)
+    worst_case_cost = len(events) * len(markets) * len(regions)
     summary["estimatedCost"] = estimated_cost
+    summary["worstCaseCost"] = worst_case_cost
+    summary["coldEventCount"] = cold_event_count
+    summary["cachedEventCount"] = len(events) - cold_event_count
     try:
         rem = int(summary["creditsBefore"]) if summary["creditsBefore"] else 0
     except (TypeError, ValueError):
         rem = 0
     after = rem - estimated_cost
 
-    print(f"[odds] estimated cost: {estimated_cost} credits · projected after: {after}")
-    if estimated_cost > max_credits_per_run:
+    print(
+        f"[odds] cold events: {cold_event_count}/{len(events)} · "
+        f"estimated cost: {estimated_cost} credits · "
+        f"worst-case: {worst_case_cost} · projected after: {after}"
+    )
+    if worst_case_cost > max_credits_per_run:
         summary["warnings"].append(
-            f"estimated cost {estimated_cost} > cap {max_credits_per_run}; skipping paid fetch"
+            f"worst-case cost {worst_case_cost} > cap {max_credits_per_run}; skipping paid fetch"
         )
         _write_pending_board(date, games, summary, reason="cost_cap")
         return summary
@@ -294,11 +329,17 @@ def run(
     # 4) Game logs (FREE) — only for players who appear in prop rows
     # ------------------------------------------------------------------
     pitcher_id_by_name: dict[str, int] = {}
+    # Per-player team attribution: which team a player suits up for today.
+    # The Odds API never tags this; we resolve from probable-pitcher data
+    # (definitive) and team rosters (best-effort for batters).
+    player_team_by_name: dict[str, tuple[str | None, str | None]] = {}
     for g in games:
         if g.get("awayProbablePitcherName") and g.get("awayProbablePitcherId"):
             pitcher_id_by_name[g["awayProbablePitcherName"]] = g["awayProbablePitcherId"]
+            player_team_by_name[g["awayProbablePitcherName"]] = (g.get("awayTeamAbbr"), g.get("awayTeamName"))
         if g.get("homeProbablePitcherName") and g.get("homeProbablePitcherId"):
             pitcher_id_by_name[g["homeProbablePitcherName"]] = g["homeProbablePitcherId"]
+            player_team_by_name[g["homeProbablePitcherName"]] = (g.get("homeTeamAbbr"), g.get("homeTeamName"))
 
     # Batter IDs: resolve from rosters of teams playing today
     # (Odds API only gives us player names; MLB API gives us names + ids per roster).
@@ -306,6 +347,7 @@ def run(
     batter_id_by_name: dict[str, int] = {}
     for team_name, ctx in team_ctx.items():
         team_id = ctx.get("id")
+        team_abbr = ctx.get("abbr")
         if not team_id:
             continue
         try:
@@ -316,12 +358,19 @@ def run(
         for entry in roster:
             person = entry.get("person", {}) or {}
             pos = (entry.get("position", {}) or {}).get("type") or ""
+            full = person.get("fullName")
+            if not full:
+                continue
             if pos == "Pitcher":
                 # still index in case pitcher is referenced in batter logs (rare)
-                pitcher_id_by_name.setdefault(person.get("fullName"), person.get("id"))
+                pitcher_id_by_name.setdefault(full, person.get("id"))
             else:
-                if person.get("fullName"):
-                    batter_id_by_name[person["fullName"]] = person.get("id")
+                batter_id_by_name[full] = person.get("id")
+            # Record team attribution — first roster wins (players occasionally
+            # appear on multiple rosters around trade deadlines; we accept the
+            # first hit rather than guess. Probable-pitcher hits above are
+            # definitive and overwrite roster fallback below.)
+            player_team_by_name.setdefault(full, (team_abbr, team_name))
         time.sleep(0.05)
 
     pitcher_names_in_props = {r["playerName"] for r in all_rows if r["marketKey"] in PITCHER_MARKETS}
@@ -357,7 +406,16 @@ def run(
             is_pitcher = False
         else:
             continue
-        lean = _build_lean(row, team_ctx, proj, is_pitcher)
+        team_abbr, team_name = player_team_by_name.get(row["playerName"], (None, None))
+        lean = _build_lean(
+            row,
+            team_ctx,
+            proj,
+            is_pitcher,
+            player_id=pid,
+            player_team_abbr=team_abbr,
+            player_team_name=team_name,
+        )
         leans.append(lean)
         if proj.get("insufficient"):
             summary["insufficientCount"] += 1

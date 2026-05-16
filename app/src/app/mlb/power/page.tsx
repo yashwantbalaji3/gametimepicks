@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { activeMlbDate, getMlbPowerForDate } from "@/lib/data-mlb";
 import { formatTipoffEt } from "@/lib/format-mlb";
+import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 
 export const metadata = {
   title: "MLB Power Board · GameTime Picks",
@@ -16,6 +17,10 @@ export default function MlbPowerBoardPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
+      <div className="mb-6">
+        <MlbSectionTabs />
+      </div>
+
       <section className="reveal">
         <div
           className="font-mono uppercase tracking-[0.16em]"

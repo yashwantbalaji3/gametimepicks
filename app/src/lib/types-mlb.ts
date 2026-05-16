@@ -51,7 +51,16 @@ export interface MlbBoardLean {
   awayTeamAbbr: string | null;
   awayTeamName: string | null;
   venue: string | null;
+  /** MLB Stats API personId for the player (resolved via probable pitchers
+   *  or active roster lookup). Null when the name couldn't be resolved
+   *  (recent call-ups, spelling mismatches). */
+  playerId: number | null;
   playerName: string;
+  /** The team this player is suiting up for in this game. */
+  playerTeamAbbr: string | null;
+  playerTeamName: string | null;
+  /** The opposing team's abbreviation. */
+  opponentAbbr: string | null;
   playerRole: "pitcher" | "batter";
   marketKey: MlbMarketKey;
   marketLabel: string;

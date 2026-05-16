@@ -7,6 +7,7 @@ import {
 import { formatTipoffEt } from "@/lib/format-mlb";
 import NeonStatPanel from "@/components/neon-stat-panel";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
+import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 
 export const metadata = {
   title: "MLB · GameTime Picks",
@@ -26,6 +27,10 @@ export default function MlbLandingPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
+      <div className="mb-6">
+        <MlbSectionTabs />
+      </div>
+
       {/* Hero — sport-eyebrow + headline */}
       <section className="reveal vault-data-orbit relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-8">
         <div

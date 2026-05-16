@@ -71,6 +71,22 @@ def _cache_put(key: str, data: Any) -> None:
     )
 
 
+def is_event_cached(
+    event_id: str,
+    markets: list[str],
+    regions: list[str],
+    cache_ttl_minutes: int = 1440,
+) -> bool:
+    """Return True iff the disk cache has a fresh payload for this event.
+
+    Used by the orchestrator to compute cache-adjusted credit cost before
+    deciding whether to spend. Cache hits make `fetch_event_odds` cost 0,
+    so the pre-run floor gate should not block when everything is cached.
+    """
+    cache_key = f"event_{event_id}_{'-'.join(sorted(markets))}_{'-'.join(sorted(regions))}"
+    return _cache_get(cache_key, cache_ttl_minutes) is not None
+
+
 def _http_get(url: str, params: dict[str, str]) -> tuple[Any, dict[str, str]]:
     import requests
 

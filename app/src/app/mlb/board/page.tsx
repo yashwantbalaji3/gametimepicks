@@ -7,6 +7,7 @@ import type { MlbBoardLean, MlbScheduleGame } from "@/lib/types-mlb";
 import { mlbMarketLabel } from "@/lib/format-mlb";
 import MlbGameSection from "@/components/mlb/mlb-game-section";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
+import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import NeonStatPanel from "@/components/neon-stat-panel";
 
 export const metadata = {
@@ -64,6 +65,10 @@ export default function MlbBoardPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
+      <div className="mb-6">
+        <MlbSectionTabs />
+      </div>
+
       {/* Header strip */}
       <section className="reveal">
         <div
