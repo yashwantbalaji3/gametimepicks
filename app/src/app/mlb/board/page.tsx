@@ -1,13 +1,10 @@
 import Link from "next/link";
-import {
-  activeMlbDate,
-  getMlbBoardForDate,
-} from "@/lib/data-mlb";
-import type { MlbBoardLean, MlbScheduleGame } from "@/lib/types-mlb";
+import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
 import { mlbMarketLabel } from "@/lib/format-mlb";
-import MlbGameSection from "@/components/mlb/mlb-game-section";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
+import MlbTopLeansStrip from "@/components/mlb/mlb-top-leans-strip";
+import MlbBoardClient from "@/components/mlb/mlb-board-client";
 import NeonStatPanel from "@/components/neon-stat-panel";
 
 export const metadata = {
@@ -18,50 +15,22 @@ export const metadata = {
 
 const DEFAULT_DATE = "2026-05-16";
 
-function groupLeansByGame(leans: MlbBoardLean[]): Record<string, MlbBoardLean[]> {
-  const map: Record<string, MlbBoardLean[]> = {};
-  for (const l of leans) {
-    const key = l.gameId;
-    if (!map[key]) map[key] = [];
-    map[key].push(l);
-  }
-  return map;
-}
-
-function gameKeyFor(g: MlbScheduleGame): string {
-  return String(g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`);
-}
-
 export default function MlbBoardPage() {
   const date = activeMlbDate() ?? DEFAULT_DATE;
   const board = getMlbBoardForDate(date);
-  const leansByGameId = groupLeansByGame(board.leans);
-
-  // Build {gameKey -> game}; we use gamePk as primary key for game cards.
-  // Leans are keyed by Odds-API event id (gameId), so we cross-reference
-  // via the home/away abbr that the lean knows.
-  // For our MVP we group leans against their event id and pair each game
-  // to its event id via team abbreviations.
-  const leanGameIds = new Set(board.leans.map((l) => l.gameId));
-  const sectionRows = board.games.map((g) => {
-    // Find the matching gameId by team match
-    const matchingId = Array.from(leanGameIds).find((gid) => {
-      const sample = board.leans.find((l) => l.gameId === gid);
-      if (!sample) return false;
-      return (
-        sample.homeTeamAbbr === g.homeTeamAbbr &&
-        sample.awayTeamAbbr === g.awayTeamAbbr
-      );
-    });
-    return {
-      game: g,
-      leans: matchingId ? leansByGameId[matchingId] ?? [] : [],
-    };
-  });
 
   const totalGames = board.games.length;
   const summary = board.summary;
   const isPending = !board.propsAvailable;
+
+  // Unique team list for the filter console (only teams present in
+  // leans, sorted alphabetically). Server-side compute so the client
+  // doesn't recompute on every render.
+  const teamSet = new Set<string>();
+  for (const l of board.leans) {
+    if (l.playerTeamAbbr) teamSet.add(l.playerTeamAbbr);
+  }
+  const teamOptions = [...teamSet].sort();
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -87,9 +56,9 @@ export default function MlbBoardPage() {
           className="mt-3 max-w-2xl text-[13px] leading-relaxed"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          Projections for pitcher strikeouts and batter markets only. Home runs
-          live on the separate{" "}
-          <Link href="/mlb/power" style={{ color: "var(--vault-gold-bright)" }}>
+          Projections for pitcher strikeouts and batter markets only. Home
+          runs live on the separate{" "}
+          <Link href="/mlb/power" style={{ color: "var(--vault-warn)" }}>
             Power Board
           </Link>{" "}
           because the variance profile is different.
@@ -131,9 +100,16 @@ export default function MlbBoardPage() {
         />
       </section>
 
-      {/* By-market summary chips */}
+      {/* By-market summary chips — static reference, not interactive */}
       <section className="mt-6 flex flex-wrap gap-2 text-[11px] font-mono uppercase tracking-[0.12em]">
-        {(["pitcher_strikeouts", "batter_hits", "batter_total_bases", "batter_hits_runs_rbis"] as const).map((m) => {
+        {(
+          [
+            "pitcher_strikeouts",
+            "batter_hits",
+            "batter_total_bases",
+            "batter_hits_runs_rbis",
+          ] as const
+        ).map((m) => {
           const c = summary.byMarket[m];
           if (!c) return null;
           return (
@@ -145,7 +121,9 @@ export default function MlbBoardPage() {
               <span>{mlbMarketLabel(m)}</span>
               <span style={{ color: "var(--vault-gold-bright)" }}>{c.high}H</span>
               <span style={{ color: "var(--vault-text-faint)" }}>·</span>
-              <span style={{ color: "var(--vault-text-faint)" }}>{c.total} total</span>
+              <span style={{ color: "var(--vault-text-faint)" }}>
+                {c.total} total
+              </span>
             </span>
           );
         })}
@@ -168,27 +146,76 @@ export default function MlbBoardPage() {
             >
               prop lines pending
             </div>
-            We have today's schedule but no posted prop lines yet. Projections
-            appear here when lines post.{" "}
+            We have today&apos;s schedule but no posted prop lines yet.
+            Projections appear here when lines post.{" "}
             {board.pendingReason && <span>Reason: {board.pendingReason}.</span>}
           </div>
         </section>
       )}
 
-      {/* Game sections — the gtp-aurora-halo decoration extends ~28px outside
-          each section via ::before/::after pseudo-elements. We wrap the
-          flex column in overflow-hidden + small horizontal padding so the
-          glow doesn't push the document past viewport width on desktop. */}
-      <section className="mt-8 px-1 sm:px-2 overflow-hidden">
-        <div className="flex flex-col gap-5">
-          {sectionRows.map(({ game, leans }) => (
-            <MlbGameSection
-              key={gameKeyFor(game)}
-              game={game}
-              leans={leans}
-            />
-          ))}
-        </div>
+      {/* Top Clean Leans strip — always server-rendered, never moves
+          when filters change. Surfaces the day's best calls so a
+          first-time visitor sees what the model surfaced without
+          scrolling 15 game sections. */}
+      <div className="mt-8">
+        <MlbTopLeansStrip leans={board.leans} max={8} />
+      </div>
+
+      {/* Filter console + filtered game sections — client component
+          owns interactive state. */}
+      <MlbBoardClient
+        leans={board.leans}
+        games={board.games}
+        teamOptions={teamOptions}
+      />
+
+      {/* Power Board reminder — keep HR analysis discoverable but
+          clearly separate. */}
+      <section className="mt-12">
+        <Link
+          href="/mlb/power"
+          className="gtp-aurora-halo block vault-glow-hover rounded-[8px]"
+        >
+          <div
+            className="gtp-status-board p-5 sm:p-6"
+            style={{ borderRadius: 8 }}
+          >
+            <div className="flex items-center gap-2">
+              <span
+                aria-hidden
+                className="inline-block w-2 h-2 rounded-full"
+                style={{
+                  background: "var(--vault-warn)",
+                  boxShadow: "0 0 10px rgba(212, 175, 55, 0.55)",
+                }}
+              />
+              <span
+                className="font-mono uppercase tracking-[0.16em]"
+                style={{ color: "var(--vault-warn)", fontSize: 10 }}
+              >
+                Home runs live on the Power Board
+              </span>
+            </div>
+            <h2
+              className="mt-3 font-display font-semibold tracking-tight"
+              style={{
+                color: "var(--vault-text)",
+                fontSize: 20,
+                lineHeight: 1.15,
+              }}
+            >
+              Open the MLB Power Board →
+            </h2>
+            <p
+              className="mt-2 text-[13px] leading-relaxed"
+              style={{ color: "var(--vault-text-mute)" }}
+            >
+              HR markets are high-variance and rated on a separate
+              power-profile scale (barrel + park + matchup), not the
+              standard High / Medium / Low tiers used here.
+            </p>
+          </div>
+        </Link>
       </section>
 
       {/* Methodology disclosure */}

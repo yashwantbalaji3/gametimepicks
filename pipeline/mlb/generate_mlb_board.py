@@ -130,7 +130,11 @@ def _build_lean(
             opponent_abbr = home_ctx.get("abbr")
 
     return {
-        "id": f"{row['gameId']}-{row['playerName'].replace(' ', '_')}-{market_key}",
+        # Include the line in the id — sportsbooks sometimes post two
+        # offerings for the same (player, market) at different lines
+        # (e.g. Over 4.5 K + Over 5.5 K). Without the line the id
+        # collides and React surfaces a duplicate-key warning.
+        "id": f"{row['gameId']}-{row['playerName'].replace(' ', '_')}-{market_key}-{row['line']}",
         "sport": "MLB",
         "date": row["commenceTime"][:10],
         "gameId": row["gameId"],

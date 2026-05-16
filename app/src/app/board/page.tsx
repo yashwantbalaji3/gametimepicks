@@ -601,42 +601,42 @@ function headerCopyForMode(
   switch (mode) {
     case "Live":
       return {
-        eyebrow: "model board · live",
+        eyebrow: "NBA model board · live",
         headline: date,
         subline: `slate · today + ${slateDays - 1} days · generated ${generated}`,
       };
 
     case "ScheduleLiveOddsUnavailable":
       return {
-        eyebrow: "model board · schedule live · awaiting model leans",
+        eyebrow: "NBA model board · schedule live · awaiting model leans",
         headline: date,
         subline: `real schedule · ${slateDays}-day slate · generated ${generated} · awaiting model leans`,
       };
 
     case "NoGames":
       return {
-        eyebrow: "model board · no games today",
+        eyebrow: "NBA model board · no games today",
         headline: date,
         subline: `no NBA games scheduled for this date · check the other tabs for upcoming games · generated ${generated}`,
       };
 
     case "ScheduleUnavailable":
       return {
-        eyebrow: "model board · refresh pending",
+        eyebrow: "NBA model board · refresh pending",
         headline: date,
         subline: `today's slate is being refreshed · the next scheduled update will retry shortly`,
       };
 
     case "DemoForced":
       return {
-        eyebrow: "model board · demo sample",
+        eyebrow: "NBA model board · demo sample",
         headline: "Demo Sample",
         subline: `representative sample slate · not tonight's real games`,
       };
 
     default:
       return {
-        eyebrow: "model board · unknown",
+        eyebrow: "NBA model board · unknown",
         headline: "Slate Unavailable",
         subline: `unknown data state · the next refresh will retry`,
       };

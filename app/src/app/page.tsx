@@ -319,7 +319,7 @@ export default function HomePage() {
     : [];
 
   return (
-    <div className="vault-page-shell px-6 sm:px-8 py-14 md:py-24">
+    <div className="vault-page-shell px-6 sm:px-8 py-14 md:py-24 overflow-x-hidden">
       {/* Hero — PR makeover: layered vault-data-orbit + vault-ambient-orbit
           backdrops for richer "model lab" storytelling. Larger display
           typography ramp via vault-display-h1. PR brand-polish: framed
@@ -348,7 +348,7 @@ export default function HomePage() {
             >
               Transparent model leans on{" "}
               <span style={{ color: "var(--vault-gold-bright)" }}>
-                NBA player props.
+                NBA &amp; MLB player props.
               </span>
             </h1>
             <p
@@ -357,7 +357,9 @@ export default function HomePage() {
             >
               GametimePicks compares model projections against sportsbook
               lines, surfaces edges with explanations, and tracks every
-              result publicly. Educational analytics — not betting advice.
+              result publicly. NBA is the deepest surface today; MLB is
+              live with its own board and a separate Power Board for home
+              runs. Educational analytics — not betting advice.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
