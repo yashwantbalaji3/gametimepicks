@@ -695,6 +695,106 @@ export default function HomePage() {
         </VegasSectionShell>
       </div>
 
+      {/* MLB cross-sport entry — sport-categorized UI per the MLB roadmap.
+          Keeps NBA content above untouched; MLB lives in its own section. */}
+      <section className="mt-16 reveal" aria-label="MLB section">
+        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className="inline-block w-1.5 h-1.5 rounded-full"
+              style={{
+                background: "var(--vault-gold-bright)",
+                boxShadow: "0 0 8px rgba(240, 199, 94, 0.55)",
+              }}
+            />
+            <span
+              className="font-mono text-[10px] uppercase tracking-[0.18em]"
+              style={{ color: "var(--vault-gold)" }}
+            >
+              MLB · now live in beta
+            </span>
+          </div>
+          <span
+            className="font-mono text-[10px] uppercase tracking-[0.16em]"
+            style={{ color: "var(--vault-text-faint)" }}
+          >
+            transparent by design
+          </span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <Link href="/mlb" className="gtp-aurora-halo block vault-glow-hover">
+            <div className="gtp-status-board p-5 h-full">
+              <div
+                className="font-mono uppercase tracking-[0.14em] mb-2"
+                style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
+              >
+                MLB command center
+              </div>
+              <h3
+                className="font-display font-semibold tracking-tight"
+                style={{ color: "var(--vault-text)", fontSize: 18, lineHeight: 1.2 }}
+              >
+                Open the MLB hub
+              </h3>
+              <p
+                className="mt-2 text-[12px] leading-relaxed"
+                style={{ color: "var(--vault-text-mute)" }}
+              >
+                Today's MLB slate, projections summary, and entry points to the
+                main board and the Power Board.
+              </p>
+            </div>
+          </Link>
+          <Link href="/mlb/board" className="gtp-aurora-halo block vault-glow-hover">
+            <div className="gtp-status-board p-5 h-full">
+              <div
+                className="font-mono uppercase tracking-[0.14em] mb-2"
+                style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
+              >
+                MLB main board
+              </div>
+              <h3
+                className="font-display font-semibold tracking-tight"
+                style={{ color: "var(--vault-text)", fontSize: 18, lineHeight: 1.2 }}
+              >
+                Strikeouts · hits · total bases
+              </h3>
+              <p
+                className="mt-2 text-[12px] leading-relaxed"
+                style={{ color: "var(--vault-text-mute)" }}
+              >
+                Pitcher and batter projections with the same R5 guardrails the
+                NBA model uses. Home runs intentionally excluded.
+              </p>
+            </div>
+          </Link>
+          <Link href="/mlb/power" className="gtp-aurora-halo block vault-glow-hover">
+            <div className="gtp-status-board p-5 h-full">
+              <div
+                className="font-mono uppercase tracking-[0.14em] mb-2"
+                style={{ color: "var(--vault-warn)", fontSize: 10 }}
+              >
+                MLB Power Board · HR watch
+              </div>
+              <h3
+                className="font-display font-semibold tracking-tight"
+                style={{ color: "var(--vault-text)", fontSize: 18, lineHeight: 1.2 }}
+              >
+                Home runs · separate variance profile
+              </h3>
+              <p
+                className="mt-2 text-[12px] leading-relaxed"
+                style={{ color: "var(--vault-text-mute)" }}
+              >
+                Power-profile ratings, not confidence tiers. Pending inputs
+                today — shell is up so the slate is visible.
+              </p>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       {/* CTA band — marquee panel pointing users into the two primary
           surfaces (board + parlay lab). Sits between the explainer and
           the newsletter signup so the homepage never dead-ends. */}
