@@ -94,7 +94,7 @@ export default function ParlayLabPage() {
             className="inline-block w-1.5 h-1.5 rounded-full vault-pulse"
             style={{ background: "var(--vault-gold-bright)" }}
           />
-          Parlay Lab · educational analysis
+          NBA Parlay Lab · educational analysis
         </div>
 
         <h1
@@ -110,10 +110,10 @@ export default function ParlayLabPage() {
           className="mt-6 text-[15px] md:text-[17px] max-w-2xl leading-relaxed"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          Generate candidate parlays from the slate&apos;s real model leans, or
-          paste a slip you&apos;ve already built and compare each leg to our
-          projections, edges, and recent-trend data. We never tell you to
-          bet — we tell you what the model thinks.
+          Generate candidate parlays from the slate&apos;s real NBA model
+          leans, or paste a slip you&apos;ve already built and compare each
+          leg to our projections, edges, and recent-trend data. We never
+          tell you to bet — we tell you what the model thinks.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3 items-center">
@@ -129,6 +129,64 @@ export default function ParlayLabPage() {
             Educational only — not betting advice
           </span>
         </div>
+
+        {/* Sport-mode strip — discloses that the lab is NBA-only today,
+            so users understand the scope before they start building. The
+            MLB / Multi-sport stubs read as future modes, not bugs. */}
+        <div
+          className="mt-6 inline-flex flex-wrap items-stretch gap-1 p-1 rounded-[4px]"
+          style={{
+            background: "rgba(7, 11, 26, 0.55)",
+            border: "1px solid var(--vault-border)",
+          }}
+          aria-label="Parlay Lab sport modes"
+        >
+          <span
+            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
+            style={{
+              fontSize: 11,
+              color: "var(--vault-gold-bright)",
+              background:
+                "linear-gradient(180deg, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0) 90%)",
+              border: "1px solid rgba(212, 175, 55, 0.30)",
+            }}
+            aria-current="page"
+          >
+            NBA only · active
+          </span>
+          <span
+            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
+            style={{
+              fontSize: 11,
+              color: "var(--vault-text-faint)",
+              border: "1px solid var(--vault-border)",
+              cursor: "not-allowed",
+            }}
+            title="MLB Parlay Lab arrives after MLB candidate snapshots are persisted."
+          >
+            MLB only · coming
+          </span>
+          <span
+            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
+            style={{
+              fontSize: 11,
+              color: "var(--vault-text-faint)",
+              border: "1px solid var(--vault-border)",
+              cursor: "not-allowed",
+            }}
+            title="Cross-sport candidates require both sports to persist candidate snapshots first."
+          >
+            Multi-sport · coming
+          </span>
+        </div>
+        <p
+          className="mt-3 max-w-2xl text-[12px] leading-relaxed"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          MLB and multi-sport modes are being built after MLB candidate
+          snapshots are persisted, so we can grade them honestly the same
+          way we grade NBA leans on the model audit.
+        </p>
       </section>
 
       {/* "How this works" — collapsible disclosure so it doesn't dominate

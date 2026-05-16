@@ -162,10 +162,15 @@ export default function ResultsPage() {
           against the verified box score after the game. {lifetime.totalDates}{" "}
           {lifetime.totalDates === 1 ? "slate" : "slates"} settled
           {lifetime.newestDate ? ` · most recent: ${lifetime.newestDate}` : ""}.
-          Hit rate excludes pushes and No Plays. Educational analytics —
-          not betting advice.
+          The audit below covers NBA props; MLB grades land once the first
+          MLB slate finishes. Hit rate excludes pushes and No Plays.
+          Educational analytics — not betting advice.
         </p>
       </section>
+
+      {/* Sport tabs — keeps the sport context legible. NBA is live with
+          a graded slate; MLB grades arrive once settlement is wired. */}
+      <SportAuditTabs activeSport="NBA" mlbState="pending" />
 
       {/* Honesty banner */}
       {lifetime.smallSample && (
@@ -318,6 +323,8 @@ function ResultsEmptyShell({
           down by market, confidence tier, game, and bookmaker.
         </p>
       </div>
+
+      <SportAuditTabs activeSport="NBA" mlbState="pending" />
 
       <div className="mt-8">
         <EmptyResultsCard latestScoredDate={latestScoredDate} />
@@ -671,6 +678,67 @@ function KpiTile({
       >
         {value}
       </div>
+    </div>
+  );
+}
+
+/**
+ * SportAuditTabs — small chip strip clarifying that today's audit covers
+ * NBA only, and MLB grading arrives once MLB settlement is wired. Stays
+ * on the page even when MLB is pending so users can see the sport scope.
+ *
+ * Pure presentation; no interactivity. When MLB lands, replace the
+ * inert "MLB pending" chip with an actual link/tab.
+ */
+function SportAuditTabs({
+  activeSport,
+  mlbState,
+}: {
+  activeSport: "NBA" | "MLB";
+  mlbState: "pending" | "live";
+}) {
+  return (
+    <div
+      className="mt-6 inline-flex flex-wrap items-stretch gap-1 p-1 rounded-[4px]"
+      style={{
+        background: "rgba(7, 11, 26, 0.55)",
+        border: "1px solid var(--vault-border)",
+      }}
+      aria-label="Model audit sport tabs"
+    >
+      <span
+        className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
+        style={{
+          fontSize: 11,
+          color:
+            activeSport === "NBA"
+              ? "var(--vault-gold-bright)"
+              : "var(--vault-text-mute)",
+          background:
+            activeSport === "NBA"
+              ? "linear-gradient(180deg, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0) 90%)"
+              : "transparent",
+          border:
+            activeSport === "NBA"
+              ? "1px solid rgba(212, 175, 55, 0.30)"
+              : "1px solid var(--vault-border)",
+        }}
+        aria-current={activeSport === "NBA" ? "page" : undefined}
+      >
+        NBA audit · live
+      </span>
+      <span
+        className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
+        style={{
+          fontSize: 11,
+          color: "var(--vault-text-faint)",
+          border: "1px solid var(--vault-border)",
+          cursor: "not-allowed",
+        }}
+        title="MLB audit lights up once MLB settlement is wired."
+      >
+        MLB audit · {mlbState === "live" ? "live" : "pending"}
+      </span>
     </div>
   );
 }
