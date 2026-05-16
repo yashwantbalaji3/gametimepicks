@@ -91,11 +91,29 @@ export default function BoardPage() {
   // side using the user's real ET clock. The data-correctness guard here
   // protects users whose JS is disabled or who see the cached HTML.
   const allBoardDates = augmentedDays.map((d) => d.date);
-  const activeSlate = selectActiveSlate(
+  const rawActiveSlate = selectActiveSlate(
     allBoardDates,
     buildTimeToday,
     boardsByDate,
   );
+  // Off-day promotion: if "today" exists but has no games AND a future
+  // date in the upcoming window has loaded leans, promote that future
+  // date to the default landing. This is the May 16 / May 17 case:
+  // today is an empty off-day but Sunday Game 7 has live projections —
+  // surface them by default instead of an empty page.
+  const activeSlate = (() => {
+    if (rawActiveSlate.kind !== "today") return rawActiveSlate;
+    const todayDate = rawActiveSlate.selectedDate;
+    if (!todayDate) return rawActiveSlate;
+    const todayBoard = boardsByDate[todayDate];
+    const todayHasGames = (todayBoard?.games?.length ?? 0) > 0;
+    if (todayHasGames) return rawActiveSlate;
+    const futureWithLeans = rawActiveSlate.upcomingAndTodayDates
+      .filter((d) => d > todayDate)
+      .find((d) => (boardsByDate[d]?.leans?.length ?? 0) > 0);
+    if (!futureWithLeans) return rawActiveSlate;
+    return { ...rawActiveSlate, selectedDate: futureWithLeans };
+  })();
 
   // Build the FUTURE-AND-TODAY-ONLY slate days for the primary tab strip.
   // Past dates are hidden from the main tabs; the archive teaser inside

@@ -29,6 +29,8 @@ PROFILE_RULES = {
         "require_recent10": True,
         "require_valid_player_id": True,
         "max_legs_per_game": 1,
+        "exclude_anomalies": True,
+        "max_anomaly_legs": 0,
     },
     "balanced": {
         "confidence": ["High", "Medium"],
@@ -38,6 +40,8 @@ PROFILE_RULES = {
         "require_recent10": False,
         "require_valid_player_id": True,
         "max_legs_per_game": 2,
+        "exclude_anomalies": True,
+        "max_anomaly_legs": 0,
     },
     "aggressive": {
         "confidence": ["High", "Medium"],
@@ -47,8 +51,14 @@ PROFILE_RULES = {
         "require_recent10": False,
         "require_valid_player_id": False,
         "max_legs_per_game": 3,
+        "exclude_anomalies": False,
+        "max_anomaly_legs": 1,
     },
 }
+
+
+def is_anomaly(lean: dict) -> bool:
+    return "suspicious_edge" in (lean.get("riskFlags") or [])
 
 
 def normalize_player(name: str) -> str:
@@ -79,6 +89,8 @@ def is_eligible(lean: dict, rules: dict, opts: dict) -> bool:
     if rules["require_valid_player_id"]:
         if lean.get("playerId", 0) <= 0:
             return False
+    if rules.get("exclude_anomalies") and is_anomaly(lean):
+        return False
     if opts.get("selectedGameIds"):
         if lean.get("gameId") not in opts["selectedGameIds"]:
             return False
@@ -128,6 +140,7 @@ def greedy_build(pool: list[dict], start: int, rules: dict, risk: str) -> dict |
     picked = []
     players_used = set()
     game_count = {}
+    anomaly_count = 0
 
     order = pool[start:] + pool[:start]
     for lean in order:
@@ -137,17 +150,23 @@ def greedy_build(pool: list[dict], start: int, rules: dict, risk: str) -> dict |
             else f"name:{normalize_player(lean.get('playerName', ''))}"
         if pkey in players_used:
             continue
+        anomaly = is_anomaly(lean)
+        if anomaly and anomaly_count >= rules.get("max_anomaly_legs", 0):
+            continue
         used = game_count.get(lean["gameId"], 0)
         if used >= rules["max_legs_per_game"]:
             continue
         picked.append(lean)
         players_used.add(pkey)
         game_count[lean["gameId"]] = used + 1
+        if anomaly:
+            anomaly_count += 1
 
     if len(picked) < rules["min_legs"]:
         return None
     unique_games = len(set(l["gameId"] for l in picked))
     has_same_game = unique_games < len(picked)
+    has_anomaly = any(is_anomaly(l) for l in picked)
     avg = sum(leg_score(l) for l in picked) / len(picked)
     return {
         "legs": [{"playerId": l.get("playerId"), "market": l["market"],
@@ -155,6 +174,7 @@ def greedy_build(pool: list[dict], start: int, rules: dict, risk: str) -> dict |
                  for l in picked],
         "uniqueGames": unique_games,
         "hasSameGameLegs": has_same_game,
+        "hasAnomalyLegs": has_anomaly,
         "score": avg - (0.08 if has_same_game else 0),
         "riskProfile": risk,
     }
@@ -174,7 +194,7 @@ def candidate_sig(c: dict) -> str:
 def lean(
     *, name="Player A", pid=1001, market="PTS", side="Over", line=20.0,
     edge=4.0, conf="High", game="GAME-1", odds_over=-110, odds_under=-110,
-    recent10=None,
+    recent10=None, risk_flags=None,
 ):
     if recent10 is None:
         recent10 = [22, 18, 25, 19, 21, 23, 20]  # 7 logs
@@ -193,6 +213,7 @@ def lean(
         "oddsOver": odds_over,
         "oddsUnder": odds_under,
         "recent10": recent10,
+        "riskFlags": risk_flags or [],
     }
 
 
@@ -430,6 +451,49 @@ def main() -> int:
     ]
     assert len(build_candidates(leans_pass, {"mode": "top_props", "riskProfile": "conservative"})) >= 1
     assert build_candidates(leans_fail, {"mode": "top_props", "riskProfile": "conservative"}) == []
+    asserts += 2
+
+    # ── Test 17: R5 anomaly exclusion in Conservative + Balanced ────────
+    # A High-conf clean lean PLUS R5-flagged Low leans: Conservative + Balanced
+    # must build from clean leans only and never include the R5 leg.
+    mixed_leans = [
+        lean(pid=1, name="Clean A", market="PTS", game="G1", edge=4.0, conf="High"),
+        lean(pid=2, name="Clean B", market="REB", game="G2", edge=5.0, conf="High"),
+        lean(pid=3, name="Clean C", market="AST", game="G3", edge=3.5, conf="High"),
+        lean(pid=4, name="Anomaly D", market="PTS", game="G4", edge=40.0,
+             conf="Low", risk_flags=["suspicious_edge"]),
+    ]
+    cons = build_candidates(mixed_leans, {"mode": "top_props", "riskProfile": "conservative"})
+    assert len(cons) >= 1, "Conservative should still build from clean leans"
+    for c in cons:
+        assert not c["hasAnomalyLegs"], "Conservative must never include R5 anomalies"
+    bal = build_candidates(mixed_leans, {"mode": "top_props", "riskProfile": "balanced"})
+    assert len(bal) >= 1, "Balanced should still build from clean Medium+/High leans"
+    for c in bal:
+        assert not c["hasAnomalyLegs"], "Balanced must never include R5 anomalies"
+    asserts += 4
+
+    # ── Test 18: Aggressive's maxAnomalyLegs=1 caps anomaly legs even if
+    # the confidence gate were widened. Use a synthetic Medium-conf anomaly
+    # pool to exercise the cap directly (in production R5 caps to Low so
+    # Medium-conf anomalies are rare, but the contract must hold). ──────
+    medium_anomaly_leans = [
+        lean(pid=10, name="C1", market="PTS", game="G1", edge=3.0, conf="High"),
+        lean(pid=11, name="C2", market="REB", game="G2", edge=3.0, conf="High"),
+        lean(pid=12, name="A1", market="PTS", game="G3", edge=20.0, conf="Medium",
+             risk_flags=["suspicious_edge"]),
+        lean(pid=13, name="A2", market="REB", game="G4", edge=20.0, conf="Medium",
+             risk_flags=["suspicious_edge"]),
+        lean(pid=14, name="A3", market="AST", game="G5", edge=20.0, conf="Medium",
+             risk_flags=["suspicious_edge"]),
+    ]
+    agg = build_candidates(medium_anomaly_leans, {"mode": "top_props", "riskProfile": "aggressive"})
+    assert len(agg) >= 1, "Aggressive should build from mixed clean+anomaly pool"
+    for c in agg:
+        anomaly_count = sum(1 for l in c["legs"]
+                            if any(orig.get("playerId") == l.get("playerId") and orig.get("market") == l.get("market")
+                                   and is_anomaly(orig) for orig in medium_anomaly_leans))
+        assert anomaly_count <= 1, f"Aggressive max 1 R5 anomaly per candidate, got {anomaly_count}"
     asserts += 2
 
     print(f"\n  ✓ all {asserts} parlayBuilder assertions passed\n")

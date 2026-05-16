@@ -87,15 +87,27 @@ export default function HomePage() {
 
   // Eyebrow string — Phase 15: honest "no current slate" when active is
   // neither today nor upcoming.
+  // Off-day promotion: when today has no games AND nextGameDay has loaded
+  // projections, switch the eyebrow to a forward-looking "next up" line
+  // so visitors land on a useful pointer instead of "refreshing slate".
+  const nextGameDayHasProjections =
+    (nextGameDay?.leanCount ?? 0) > 0;
+  const isOffDayWithNextSlate =
+    !noCurrentSlate &&
+    todayGames === 0 &&
+    (todayMode === "NoGames" || todayMode === "ScheduleUnavailable") &&
+    nextGameDayHasProjections;
   const eyebrow = noCurrentSlate
     ? "no current slate · awaiting next refresh"
-    : eyebrowForMode(
-        todayMode,
-        todayDay?.dayLabel ?? "Today",
-        todayGames,
-        slate.slateDays,
-        nextGameDay,
-      );
+    : isOffDayWithNextSlate && nextGameDay
+      ? `no games today · next up ${nextGameDay.dayLabel.toLowerCase()} · projections live`
+      : eyebrowForMode(
+          todayMode,
+          todayDay?.dayLabel ?? "Today",
+          todayGames,
+          slate.slateDays,
+          nextGameDay,
+        );
 
   // For board lean counts on the home page hero KPIs: only count leans
   // from the active slate's board, not the stale top-level board.json.

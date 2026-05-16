@@ -59,9 +59,12 @@ interface Props {
 }
 
 const RISK_DESCRIPTIONS: Record<RiskProfile, string> = {
-  conservative: "High-confidence model leans · valid recent10 · 1 leg per game",
-  balanced: "Model leans w/ moderate edge · up to 2 legs per game",
-  aggressive: "Wider edge tolerance · higher uncertainty · up to 3 legs per game",
+  conservative:
+    "Lower-variance mix · High confidence · clean leans only · 1 leg per game · no model anomalies",
+  balanced:
+    "Star-forward mix · High/Medium confidence · clean leans only · up to 2 legs per game",
+  aggressive:
+    "Wider-edge mix · model leans across tiers · up to 3 legs per game · model-anomaly leg labelled if included",
 };
 
 const MARKET_LIST: ("PTS" | "REB" | "AST")[] = ["PTS", "REB", "AST"];
@@ -934,20 +937,37 @@ function CandidateCard({
         })}
       </div>
 
-      {/* Zone C — footnotes: same-game chip + rationale */}
-      {candidate.hasSameGameLegs && (
-        <div
-          className="mt-3 inline-flex items-center gap-2 px-2.5 py-1 rounded-[3px] text-[11px]"
-          style={{
-            background: "var(--vault-warn-dim)",
-            border: "1px solid rgba(240, 199, 94, 0.30)",
-            color: "var(--vault-warn)",
-          }}
-        >
-          <span aria-hidden>⚠</span>
-          <span>Same-game legs — outcomes can correlate.</span>
-        </div>
-      )}
+      {/* Zone C — footnotes: same-game + anomaly chips + rationale */}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {candidate.hasSameGameLegs && (
+          <span
+            className="inline-flex items-center gap-2 px-2.5 py-1 rounded-[3px] text-[11px]"
+            style={{
+              background: "var(--vault-warn-dim)",
+              border: "1px solid rgba(240, 199, 94, 0.30)",
+              color: "var(--vault-warn)",
+            }}
+          >
+            <span aria-hidden>⚠</span>
+            <span>Same-game legs — outcomes can correlate.</span>
+          </span>
+        )}
+        {candidate.hasAnomalyLegs && (
+          <span
+            className="inline-flex items-center gap-2 px-2.5 py-1 rounded-[3px] text-[11px]"
+            style={{
+              background: "var(--vault-warn-dim)",
+              border: "1px solid rgba(240, 199, 94, 0.30)",
+              color: "var(--vault-warn)",
+            }}
+          >
+            <span aria-hidden>◆</span>
+            <span>
+              Includes model-anomaly leg — confidence capped at Low.
+            </span>
+          </span>
+        )}
+      </div>
       <p
         className="mt-3 text-[12px] leading-relaxed"
         style={{ color: "var(--vault-text-faint)" }}
