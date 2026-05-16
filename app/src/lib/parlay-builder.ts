@@ -61,6 +61,8 @@ export interface ParlayCandidate {
   uniqueGames: number;
   /** True iff 2+ legs share the same gameId — surface a warning. */
   hasSameGameLegs: boolean;
+  /** True iff at least one leg carries the R5 model-anomaly flag. */
+  hasAnomalyLegs: boolean;
   /** Combined American odds when every leg has odds. null otherwise. */
   combinedOddsAmerican: number | null;
   /** Implied combined probability. null when any leg missing odds. */
@@ -92,6 +94,20 @@ interface ProfileRules {
   requireValidPlayerId: boolean;
   /** Maximum legs per single game (reduces correlated risk). */
   maxLegsPerGame: number;
+  /**
+   * When true, leans flagged as R5 model anomaly (suspicious_edge)
+   * are excluded from the eligible pool entirely. Conservative and
+   * Balanced default to true so the lower-variance modes never carry a
+   * capped extreme-edge leg.
+   */
+  excludeAnomalies: boolean;
+  /**
+   * Soft cap: at most this many R5-anomaly legs may appear inside a
+   * single candidate. Aggressive allows up to 1 anomaly leg so the
+   * mode can carry a high-variance shot when the user opts in.
+   * Ignored when `excludeAnomalies` is true.
+   */
+  maxAnomalyLegs: number;
 }
 
 const PROFILE_RULES: Record<RiskProfile, ProfileRules> = {
@@ -103,6 +119,8 @@ const PROFILE_RULES: Record<RiskProfile, ProfileRules> = {
     requireRecent10: true,
     requireValidPlayerId: true,
     maxLegsPerGame: 1,
+    excludeAnomalies: true,
+    maxAnomalyLegs: 0,
   },
   balanced: {
     confidence: ["High", "Medium"],
@@ -112,6 +130,8 @@ const PROFILE_RULES: Record<RiskProfile, ProfileRules> = {
     requireRecent10: false,
     requireValidPlayerId: true,
     maxLegsPerGame: 2,
+    excludeAnomalies: true,
+    maxAnomalyLegs: 0,
   },
   aggressive: {
     confidence: ["High", "Medium"],
@@ -121,8 +141,15 @@ const PROFILE_RULES: Record<RiskProfile, ProfileRules> = {
     requireRecent10: false,
     requireValidPlayerId: false,
     maxLegsPerGame: 3,
+    excludeAnomalies: false,
+    maxAnomalyLegs: 1,
   },
 };
+
+/** Helper — does this lean carry the R5 suspicious-edge risk flag? */
+function isAnomaly(lean: PropLean): boolean {
+  return (lean.riskFlags ?? []).includes("suspicious_edge");
+}
 
 // ---------------------------------------------------------------------------
 // Per-leg quality score — used to sort candidates
@@ -169,6 +196,10 @@ function isEligible(
   }
   // playerId requirement
   if (rules.requireValidPlayerId && (lean.playerId ?? 0) <= 0) return false;
+  // Anomaly exclusion (Conservative + Balanced never carry capped
+  // extreme-edge legs; Aggressive allows them but with a soft cap
+  // enforced inside greedyBuild).
+  if (rules.excludeAnomalies && isAnomaly(lean)) return false;
   // Game restriction. lean.gameId is optional; when the user has
   // restricted to specific games, leans without a gameId are excluded
   // (we can't honestly claim they belong to a selected game).
@@ -337,6 +368,7 @@ function greedyBuild(
   const picked: PropLean[] = [];
   const playersUsed = new Set<string>();
   const gameLegCount = new Map<string, number>();
+  let anomalyCount = 0;
 
   // Walk pool starting at startIdx, then wrap around
   const order = [
@@ -351,6 +383,13 @@ function greedyBuild(
         ? `pid:${lean.playerId}`
         : `name:${normalizePlayer(lean.playerName)}`;
     if (playersUsed.has(pkey)) continue;
+
+    // Anomaly soft cap inside Aggressive (Conservative + Balanced already
+    // filtered out anomalies via isEligible). Aggressive allows at most
+    // `maxAnomalyLegs` anomaly legs per candidate.
+    const anomaly = isAnomaly(lean);
+    if (anomaly && anomalyCount >= rules.maxAnomalyLegs) continue;
+
     // Only count same-game correlation when gameId is a real non-empty
     // string. Leans with no gameId can't be correlated to anything by
     // gameId, so they don't trip the maxLegsPerGame cap (the cap only
@@ -366,6 +405,7 @@ function greedyBuild(
       picked.push(lean);
       playersUsed.add(pkey);
     }
+    if (anomaly) anomalyCount++;
   }
 
   if (picked.length < rules.minLegs) return null;
@@ -404,14 +444,16 @@ function greedyBuild(
   const correlationPenalty = hasSameGameLegs ? 0.08 : 0;
   const score = avgLegScore - correlationPenalty;
 
+  const hasAnomalyLegs = picked.some((l) => isAnomaly(l));
   return {
     legs,
     uniqueGames,
     hasSameGameLegs,
+    hasAnomalyLegs,
     combinedOddsAmerican: oddsInfo.combinedOddsAmerican,
     combinedImpliedProbability: oddsInfo.combinedImpliedProbability,
     score,
-    rationale: rationaleFor(legs, riskProfile, hasSameGameLegs),
+    rationale: rationaleFor(legs, riskProfile, hasSameGameLegs, hasAnomalyLegs),
     riskProfile,
   };
 }
@@ -420,18 +462,22 @@ function rationaleFor(
   legs: LegAnalysis[],
   riskProfile: RiskProfile,
   hasSameGameLegs: boolean,
+  hasAnomalyLegs: boolean,
 ): string {
   const n = legs.length;
   const parts: string[] = [];
   parts.push(
     riskProfile === "conservative"
-      ? `${n}-leg conservative candidate · high-confidence model leans only`
+      ? `${n}-leg conservative mix · High-confidence clean leans only · same-game capped at 1`
       : riskProfile === "aggressive"
-        ? `${n}-leg aggressive candidate · wider edge tolerance · higher uncertainty`
-        : `${n}-leg balanced candidate · model leans with moderate edge`,
+        ? `${n}-leg aggressive mix · wider edge tolerance · higher variance`
+        : `${n}-leg balanced mix · model leans with moderate edge · clean only`,
   );
   if (hasSameGameLegs) {
-    parts.push("Includes same-game legs — outcomes may be correlated");
+    parts.push("Includes same-game legs — outcomes can correlate");
+  }
+  if (hasAnomalyLegs) {
+    parts.push("Includes a model-anomaly leg (R5 cap) — confidence capped at Low");
   }
   parts.push("Educational analysis · not betting advice");
   return parts.join(" · ");

@@ -1,14 +1,14 @@
 {
   "appName": "GametimePicks",
   "version": "0.5.0",
-  "lastPipelineRun": "2026-05-12T15:14:06+00:00",
+  "lastPipelineRun": "2026-05-16T05:25:23+00:00",
   "isDemo": false,
   "dataMode": "Live",
-  "nbaScheduleSource": "espn_scoreboard",
-  "nbaStatsSource": "espn_scoreboard",
+  "nbaScheduleSource": "nba_api",
+  "nbaStatsSource": "nba_api",
   "oddsSource": "the_odds_api",
   "activeProvider": {
-    "nba": "espn_scoreboard",
+    "nba": "nba_api",
     "odds": "the_odds_api"
   },
   "providerStatuses": [
@@ -21,24 +21,24 @@
       "api_key_configured": true,
       "is_demo": false,
       "is_stub": false,
-      "last_status": "error",
-      "last_error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=12)",
-      "last_run_at": "2026-05-12T15:12:53+00:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_run_at": "2026-05-16T05:25:23+00:00",
       "notes": "Official NBA.com Stats endpoints. No API key needed."
     },
     {
       "name": "balldontlie",
       "kind": "nba",
-      "tier": 2,
+      "tier": 1,
       "enabled": false,
       "requires_api_key": true,
       "api_key_configured": false,
       "is_demo": false,
-      "is_stub": true,
-      "last_status": "stub",
+      "is_stub": false,
+      "last_status": "not_configured",
       "last_error": null,
       "last_run_at": null,
-      "notes": "Scaffolded only. Set BALLDONTLIE_API_KEY and ENABLE_BALLDONTLIE_FALLBACK=true, then implement."
+      "notes": "balldontlie API. Game logs only. Rate-limited to free-tier safe."
     },
     {
       "name": "espn_scoreboard",
@@ -77,9 +77,9 @@
       "api_key_configured": true,
       "is_demo": true,
       "is_stub": false,
-      "last_status": "ok",
+      "last_status": "not_run",
       "last_error": null,
-      "last_run_at": "2026-05-12T15:12:53+00:00",
+      "last_run_at": null,
       "notes": "Bundled demo data. Always works."
     },
     {
@@ -145,7 +145,7 @@
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-05-12T15:14:06+00:00",
+  "lastSuccessfulFetch": "2026-05-16T05:25:23+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -173,8 +173,8 @@
       "url": ""
     }
   ],
-  "slateDays": 4,
-  "primaryDate": "2026-05-13",
+  "slateDays": 1,
+  "primaryDate": "2026-05-17",
   "newsSignalsConfigured": true,
   "newsSignalsActive": 0,
   "scheduleOverridesConfigured": true,
@@ -184,8 +184,8 @@
   "oddsApiKeyConfigured": true,
   "todayOddsProviderStatus": "ok_with_props",
   "todayOddsFailureReason": null,
-  "todayOddsQuotaRemaining": null,
-  "todayParsedPropCount": 76,
+  "todayOddsQuotaRemaining": 452,
+  "todayParsedPropCount": 72,
   "oddsBookmakersConfigured": [
     "draftkings",
     "fanduel"
@@ -196,6 +196,6 @@
     "player_assists"
   ],
   "oddsRegionsConfigured": "us",
-  "oddsCacheTtlMinutes": 120,
-  "oddsMaxEventsPerRun": 2
+  "oddsCacheTtlMinutes": 60,
+  "oddsMaxEventsPerRun": 1
 }

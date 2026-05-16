@@ -31,7 +31,22 @@ export default function ParlayLabPage() {
   for (const d of allDates) {
     boardsByDate[d] = getBoardForDate(d);
   }
-  const activeSlate = selectActiveSlate(allDates, buildTimeToday, boardsByDate);
+  const rawActiveSlate = selectActiveSlate(allDates, buildTimeToday, boardsByDate);
+  // Off-day promotion: if "today" exists but has no games AND a future
+  // date in the upcoming window has loaded leans, promote that future
+  // date as the default builder slate. Matches the board-page behavior.
+  const activeSlate = (() => {
+    if (rawActiveSlate.kind !== "today") return rawActiveSlate;
+    const todayDate = rawActiveSlate.selectedDate;
+    if (!todayDate) return rawActiveSlate;
+    const todayBoard = boardsByDate[todayDate];
+    if ((todayBoard?.games?.length ?? 0) > 0) return rawActiveSlate;
+    const futureWithLeans = rawActiveSlate.upcomingAndTodayDates
+      .filter((d) => d > todayDate)
+      .find((d) => (boardsByDate[d]?.leans?.length ?? 0) > 0);
+    if (!futureWithLeans) return rawActiveSlate;
+    return { ...rawActiveSlate, selectedDate: futureWithLeans };
+  })();
 
   // Build the per-date payload the client needs. Each date carries:
   //   - its leans (for the builder)
