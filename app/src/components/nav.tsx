@@ -7,7 +7,8 @@ import SportsbookLightRail from "./sportsbook-light-rail";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home" },
-  { href: "/board", label: "Model Board" },
+  { href: "/board", label: "NBA" },
+  { href: "/mlb", label: "MLB" },
   { href: "/parlay-lab", label: "Parlay Lab" },
   { href: "/results", label: "Results" },
   { href: "/methodology", label: "Methodology" },
