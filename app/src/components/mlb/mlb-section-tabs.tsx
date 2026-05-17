@@ -13,6 +13,7 @@ const TABS = [
   { href: "/mlb", label: "Overview", end: true },
   { href: "/mlb/board", label: "Board" },
   { href: "/mlb/power", label: "Power Board" },
+  { href: "/mlb/results", label: "Results" },
 ];
 
 export default function MlbSectionTabs() {

@@ -21,9 +21,20 @@ interface Props {
   leans: MlbBoardLean[];
   games: MlbScheduleGame[];
   teamOptions: string[];
+  /** {gamePk -> "final" | "live" | "pregame"} derived from MLB Stats API. */
+  gameStateByPk?: Record<number, "final" | "live" | "pregame">;
+  /** Set of gamePks whose graded rows exist on MLB Results. */
+  settledGamePks?: number[];
 }
 
-export default function MlbBoardClient({ leans, games, teamOptions }: Props) {
+export default function MlbBoardClient({
+  leans,
+  games,
+  teamOptions,
+  gameStateByPk,
+  settledGamePks,
+}: Props) {
+  const settledSet = new Set(settledGamePks || []);
   const [state, setState] = useState<MlbFilterState>({
     market: "all",
     confidence: "all",
@@ -90,6 +101,10 @@ export default function MlbBoardClient({ leans, games, teamOptions }: Props) {
             const gameId = gameIdByMatchup[matchupKey];
             const gameLeans = gameId ? visibleByGameId[gameId] ?? [] : [];
             const totalForGame = gameId ? totalByGameId[gameId] ?? 0 : 0;
+            const gpk = g.gamePk;
+            const gameState =
+              gpk && gameStateByPk ? gameStateByPk[gpk] ?? null : null;
+            const settled = gpk ? settledSet.has(gpk) : false;
             return (
               <MlbGameSection
                 key={g.gamePk ?? matchupKey}
@@ -97,6 +112,8 @@ export default function MlbBoardClient({ leans, games, teamOptions }: Props) {
                 leans={gameLeans}
                 totalLeansForGame={totalForGame}
                 density={state.density}
+                gameState={gameState}
+                settled={settled}
               />
             );
           })}

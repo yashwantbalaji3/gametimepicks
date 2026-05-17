@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
+import { getMlbComparisonReport } from "@/lib/data-mlb-results";
 import { mlbMarketLabel } from "@/lib/format-mlb";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
@@ -31,6 +32,27 @@ export default function MlbBoardPage() {
     if (l.playerTeamAbbr) teamSet.add(l.playerTeamAbbr);
   }
   const teamOptions = [...teamSet].sort();
+
+  // Game-state map: derive from the MLB Results comparison report when
+  // present. byGame keys are the gamePks that have settled rows (Final
+  // games). pendingGameList holds Live + Pre-Game gamePks. Anything
+  // else stays unknown.
+  const mlbReport = getMlbComparisonReport(date);
+  const gameStateByPk: Record<number, "final" | "live" | "pregame"> = {};
+  const settledGamePks: number[] = [];
+  if (mlbReport) {
+    for (const gpkStr of Object.keys(mlbReport.byGame)) {
+      const pk = Number(gpkStr);
+      if (Number.isFinite(pk)) {
+        gameStateByPk[pk] = "final";
+        settledGamePks.push(pk);
+      }
+    }
+    for (const p of mlbReport.pendingGameList ?? []) {
+      gameStateByPk[p.gamePk] =
+        p.abstractState === "Live" ? "live" : "pregame";
+    }
+  }
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -167,7 +189,77 @@ export default function MlbBoardPage() {
         leans={board.leans}
         games={board.games}
         teamOptions={teamOptions}
+        gameStateByPk={gameStateByPk}
+        settledGamePks={settledGamePks}
       />
+
+      {/* MLB Results CTA — only when at least one game is settled.
+          Sits above the Power Board CTA so the audit is more
+          discoverable when results are live. */}
+      {mlbReport && (
+        <section className="mt-12">
+          <Link
+            href="/mlb/results"
+            className="vault-glow-hover block rounded-[8px]"
+            style={{
+              padding: "16px 18px",
+              border: "1px solid rgba(74, 222, 128, 0.30)",
+              background:
+                "linear-gradient(180deg, rgba(74, 222, 128, 0.08) 0%, rgba(7, 11, 26, 0.55) 100%)",
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5 rounded-full"
+                style={{
+                  background: "var(--vault-success)",
+                  boxShadow: "0 0 8px rgba(74, 222, 128, 0.55)",
+                }}
+              />
+              <span
+                className="font-mono uppercase tracking-[0.16em]"
+                style={{ color: "var(--vault-success)", fontSize: 10 }}
+              >
+                MLB model audit · {mlbReport.partial ? "partial" : "live"}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+              <span
+                className="font-display font-semibold tracking-tight"
+                style={{
+                  color: "var(--vault-success)",
+                  fontSize: 28,
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {mlbReport.hitRate !== null
+                  ? `${(mlbReport.hitRate * 100).toFixed(1)}%`
+                  : "—"}
+              </span>
+              <span
+                className="font-display"
+                style={{ color: "var(--vault-text)", fontSize: 14 }}
+              >
+                hit rate · {mlbReport.wins}–{mlbReport.losses}
+                {mlbReport.pushes > 0 ? `–${mlbReport.pushes}P` : ""}{" "}
+                on{" "}
+                <span style={{ color: "var(--vault-text-mute)" }}>
+                  {mlbReport.decisive} decisive picks
+                </span>
+              </span>
+              <span
+                className="font-mono uppercase tracking-[0.14em] ml-auto"
+                style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
+              >
+                Open MLB Results →
+              </span>
+            </div>
+          </Link>
+        </section>
+      )}
 
       {/* Power Board reminder — keep HR analysis discoverable but
           clearly separate. */}

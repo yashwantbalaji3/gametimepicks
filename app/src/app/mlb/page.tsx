@@ -4,6 +4,7 @@ import {
   getMlbBoardForDate,
   getMlbScheduleForDate,
 } from "@/lib/data-mlb";
+import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { formatTipoffEt } from "@/lib/format-mlb";
 import NeonStatPanel from "@/components/neon-stat-panel";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
@@ -21,6 +22,7 @@ export default function MlbLandingPage() {
   const date = activeMlbDate() ?? DEFAULT_DATE;
   const board = getMlbBoardForDate(date);
   const schedule = getMlbScheduleForDate(date);
+  const mlbLifetime = getMlbLifetimeSummary();
 
   const summary = board.summary;
   const propsAvailable = board.propsAvailable;
@@ -181,6 +183,84 @@ export default function MlbLandingPage() {
           </div>
         </Link>
       </section>
+
+      {/* MLB audit tile — only renders when there's at least one settled
+          row on disk. Surfaces the lifetime hit rate + W/L/P + partial
+          status. Never fabricates anything. */}
+      {mlbLifetime && (
+        <section className="mt-6">
+          <Link
+            href="/mlb/results"
+            className="vault-glow-hover block rounded-[6px]"
+            style={{
+              padding: "16px 18px",
+              border: "1px solid rgba(74, 222, 128, 0.30)",
+              background:
+                "linear-gradient(180deg, rgba(74, 222, 128, 0.08) 0%, rgba(7, 11, 26, 0.55) 100%)",
+              color: "inherit",
+              textDecoration: "none",
+            }}
+            aria-label="Open the MLB model audit"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5 rounded-full"
+                style={{
+                  background: "var(--vault-success)",
+                  boxShadow: "0 0 8px rgba(74, 222, 128, 0.55)",
+                }}
+              />
+              <span
+                className="font-mono uppercase tracking-[0.16em]"
+                style={{ color: "var(--vault-success)", fontSize: 10 }}
+              >
+                MLB model audit · {mlbLifetime.partial ? "partial" : "live"}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+              <span
+                className="font-display font-semibold tracking-tight"
+                style={{
+                  color: "var(--vault-success)",
+                  fontSize: 28,
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {mlbLifetime.hitRate !== null
+                  ? `${(mlbLifetime.hitRate * 100).toFixed(1)}%`
+                  : "—"}
+              </span>
+              <span
+                className="font-display"
+                style={{ color: "var(--vault-text)", fontSize: 14 }}
+              >
+                hit rate · {mlbLifetime.wins}–{mlbLifetime.losses}
+                {mlbLifetime.pushes > 0 ? `–${mlbLifetime.pushes}P` : ""}{" "}
+                on{" "}
+                <span style={{ color: "var(--vault-text-mute)" }}>
+                  {mlbLifetime.decisive} decisive picks
+                </span>
+              </span>
+              {mlbLifetime.partial && (
+                <span
+                  className="font-mono uppercase tracking-[0.14em]"
+                  style={{ color: "var(--vault-warn)", fontSize: 10 }}
+                >
+                  · {mlbLifetime.pendingGamesTotal} game
+                  {mlbLifetime.pendingGamesTotal === 1 ? "" : "s"} still pending
+                </span>
+              )}
+              <span
+                className="font-mono uppercase tracking-[0.14em] ml-auto"
+                style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
+              >
+                Open audit →
+              </span>
+            </div>
+          </Link>
+        </section>
+      )}
 
       {/* Slate strip — today's matchups + tipoff */}
       <section className="mt-10">
