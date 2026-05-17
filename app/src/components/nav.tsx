@@ -9,6 +9,8 @@ const NAV_ITEMS = [
   { href: "/", label: "Home" },
   { href: "/board", label: "NBA" },
   { href: "/mlb", label: "MLB" },
+  { href: "/nhl", label: "NHL" },
+  { href: "/ipl", label: "IPL" },
   { href: "/parlay-lab", label: "Parlay Lab" },
   { href: "/results", label: "Results" },
   { href: "/methodology", label: "Methodology" },
