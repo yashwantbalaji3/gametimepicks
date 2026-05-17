@@ -126,48 +126,63 @@ export default function MlbPowerBoardPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {power.games.map((g) => (
-                  <div
-                    key={g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}
-                    className="flex items-center justify-between gap-3 rounded-[3px]"
-                    style={{
-                      paddingTop: 10,
-                      paddingBottom: 10,
-                      paddingLeft: 14,
-                      paddingRight: 14,
-                      border: "1px solid var(--vault-border)",
-                      background: "rgba(7, 11, 26, 0.45)",
-                      minWidth: 0,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <span
-                        style={{
-                          color: "var(--vault-text)",
-                          fontSize: 13,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {g.awayTeamAbbr ?? "?"} @ {g.homeTeamAbbr ?? "?"}
-                      </span>
-                      <span
-                        style={{
-                          color: "var(--vault-text-faint)",
-                          fontSize: 11,
-                        }}
-                      >
-                        {g.venue ?? "MLB"}
-                      </span>
-                    </div>
-                    <span
-                      className="font-mono"
-                      style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}
+                {power.games.map((g) => {
+                  const anchor = `game-${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`;
+                  return (
+                    <Link
+                      key={g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}
+                      href={`/mlb/board#${anchor}`}
+                      className="vault-glow-hover flex items-center justify-between gap-3 rounded-[3px] focus:outline-none focus-visible:outline focus-visible:outline-2"
+                      style={{
+                        paddingTop: 10,
+                        paddingBottom: 10,
+                        paddingLeft: 14,
+                        paddingRight: 14,
+                        border: "1px solid var(--vault-border)",
+                        background: "rgba(7, 11, 26, 0.45)",
+                        minWidth: 0,
+                        overflow: "hidden",
+                        color: "inherit",
+                        textDecoration: "none",
+                      }}
+                      aria-label={`View props for ${g.awayTeamAbbr ?? "?"} at ${g.homeTeamAbbr ?? "?"}`}
                     >
-                      {formatTipoffEt(g.gameDate)}
-                    </span>
-                  </div>
-                ))}
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <span
+                          style={{
+                            color: "var(--vault-text)",
+                            fontSize: 13,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {g.awayTeamAbbr ?? "?"} @ {g.homeTeamAbbr ?? "?"}
+                        </span>
+                        <span
+                          style={{
+                            color: "var(--vault-text-faint)",
+                            fontSize: 11,
+                          }}
+                        >
+                          {g.venue ?? "MLB"}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-end gap-0.5 shrink-0">
+                        <span
+                          className="font-mono"
+                          style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}
+                        >
+                          {formatTipoffEt(g.gameDate)}
+                        </span>
+                        <span
+                          className="font-mono uppercase tracking-[0.14em]"
+                          style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                        >
+                          View props →
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -105,20 +105,66 @@ def _build_lean(
     away_ctx = team_ctx.get(row.get("awayTeam") or "") or {}
     market_key = row["marketKey"]
 
+    # Build both the legacy `reason` paragraph (kept for back-compat with any
+    # downstream consumer) and a structured `reasonBullets` array the UI
+    # uses to render NBA-style bullet points.
     reason_bits: list[str] = []
+    reason_bullets: list[dict] = []
     if projection.get("insufficient"):
         reason_bits.append("sample too small to project")
+        reason_bullets.append(
+            {
+                "label": "Sample",
+                "text": f"too small to project ({projection.get('samples', 0)} games of log data)",
+                "tone": "mute",
+            }
+        )
     else:
         if is_pitcher:
             reason_bits.append(
                 f"last 3 {projection['last3Mean']:.1f} K · season {projection['seasonMean']:.1f} K · {projection['samples']} starts"
             )
+            reason_bullets.extend(
+                [
+                    {
+                        "label": "Recent form",
+                        "text": f"Last 3 starts averaging {projection['last3Mean']:.1f} strikeouts",
+                        "tone": "default",
+                    },
+                    {
+                        "label": "Season",
+                        "text": f"Season average {projection['seasonMean']:.1f} K across {projection['samples']} starts",
+                        "tone": "default",
+                    },
+                ]
+            )
         else:
             reason_bits.append(
                 f"last 10 {projection['last10Mean']:.2f} · season {projection['seasonMean']:.2f} · {projection['samples']} games"
             )
+            reason_bullets.extend(
+                [
+                    {
+                        "label": "Recent form",
+                        "text": f"Last 10 games averaging {projection['last10Mean']:.2f}",
+                        "tone": "default",
+                    },
+                    {
+                        "label": "Season",
+                        "text": f"Season average {projection['seasonMean']:.2f} across {projection['samples']} games",
+                        "tone": "default",
+                    },
+                ]
+            )
     if grade.get("riskFlags") and "r5_model_anomaly" in grade["riskFlags"]:
         reason_bits.append("flagged: edge above R5 anomaly threshold")
+        reason_bullets.append(
+            {
+                "label": "Calibration watch",
+                "text": "Edge above R5 anomaly threshold — capped to Low confidence",
+                "tone": "warn",
+            }
+        )
 
     # Derive the opponent abbr for the player so the UI can render
     # "PLAYER · TEAM vs OPP" without re-cross-referencing the schedule.
@@ -172,6 +218,7 @@ def _build_lean(
         "edgePctUnder": grade["edgePctUnder"],
         "riskFlags": grade["riskFlags"],
         "reason": " · ".join(reason_bits),
+        "reasonBullets": reason_bullets,
     }
 
 
