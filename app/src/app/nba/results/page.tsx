@@ -18,6 +18,7 @@ import SettledGameDetail, {
 } from "@/components/settled-game-detail";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
 import { getPlayoffContext } from "@/components/playoff-context";
+import ModelLessonsCard from "@/components/model-lessons-card";
 
 export const metadata = {
   title: "NBA Results · GameTime Picks",
@@ -374,6 +375,36 @@ export default function NbaResultsPage() {
           />
         </section>
       )}
+
+      <ModelLessonsCard
+        title="NBA model lessons"
+        lessons={[
+          {
+            eyebrow: "Anomaly guardrail working",
+            tone: "gold",
+            text: (
+              <>
+                R5 anomaly leans (capped at Low with a model-anomaly chip) hit
+                roughly a coin flip on settled NBA rows; clean leans
+                outperform. The cap is doing its job.
+              </>
+            ),
+            caveat: <>NBA settled rows audited: {lifetime.decisive} decisive.</>,
+          },
+          {
+            eyebrow: "Edge band findings",
+            tone: "gold",
+            text: (
+              <>
+                Mid-band edges (10–20pp) outperformed both weak edges and
+                anomaly-territory edges on this slate. We did not encode this
+                bucketing yet — needs more graded slates first.
+              </>
+            ),
+            caveat: <>Single-slate signal — descriptive, not predictive.</>,
+          },
+        ]}
+      />
 
       <section
         className="mt-10 text-[12px]"

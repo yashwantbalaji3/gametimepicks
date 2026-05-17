@@ -191,6 +191,57 @@ def downgrade_lean(lean: dict) -> dict:
     return out
 
 
+# Context tags — pure derivation from existing guardrail fields.
+# Honest: never invents a label that the data doesn't already imply.
+RECENT_FORM_BACKED_MIN_LOGS = 8
+SAMPLE_WATCH_MIN_LOGS = 5  # inclusive
+SAMPLE_WATCH_MAX_LOGS = 7  # inclusive
+
+
+def infer_context_tag(lean: dict) -> str | None:
+    """
+    Derive a single honest context tag from confidence + riskFlags +
+    recent10 length. Used by enrich/scoring to attach `contextTag` to
+    each lean for UI rendering. Returns one of:
+
+      - "model-anomaly"      — riskFlags contains "suspicious_edge"
+                               (NBA R5) or "r5_model_anomaly" (MLB R5)
+      - "recent-form-backed" — confidence == "High" and ≥ 8 recent logs
+      - "sample-watch"       — confidence in {High, Medium, Low} with
+                               5..7 recent logs
+      - "clean"              — confidence High/Medium with ≥ 8 recent
+                               logs and no anomaly flag
+      - None                 — no actionable label (e.g. insufficient
+                               data, no_play, or sentinel state)
+
+    Pure function. No I/O. Idempotent. Caller is responsible for
+    writing the returned value to `lean["contextTag"]`.
+    """
+    conf = lean.get("confidence")
+    flags = lean.get("riskFlags") or []
+    n = _logs_count(lean)
+    if "suspicious_edge" in flags or "r5_model_anomaly" in flags:
+        return "model-anomaly"
+    if conf not in ("High", "Medium", "Low"):
+        return None
+    if SAMPLE_WATCH_MIN_LOGS <= n <= SAMPLE_WATCH_MAX_LOGS:
+        return "sample-watch"
+    if conf == "High" and n >= RECENT_FORM_BACKED_MIN_LOGS:
+        return "recent-form-backed"
+    if conf in ("High", "Medium") and n >= RECENT_FORM_BACKED_MIN_LOGS:
+        return "clean"
+    return None
+
+
+def attach_context_tag(lean: dict) -> dict:
+    """In-place attach `contextTag` if `infer_context_tag` returns one.
+    Returns the (mutated) lean for chainability."""
+    tag = infer_context_tag(lean)
+    if tag is not None:
+        lean["contextTag"] = tag
+    return lean
+
+
 def _stamp(lean: dict, original_conf) -> None:
     """Record the original confidence for audit, only on first adjustment."""
     if "_originalConfidence" not in lean:
@@ -218,6 +269,9 @@ def apply_to_leans(leans: Iterable[dict]) -> tuple[list[dict], dict]:
             summary["adjusted"] += 1
             rule = adjusted["_guardrail"]
             summary["byRule"][rule] = summary["byRule"].get(rule, 0) + 1
+        # Attach context tag after guardrail adjustments so the tag
+        # reflects the FINAL confidence/riskFlags state.
+        attach_context_tag(adjusted)
         new_leans.append(adjusted)
     return new_leans, summary
 

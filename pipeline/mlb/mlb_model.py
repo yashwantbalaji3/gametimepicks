@@ -41,7 +41,15 @@ from typing import Iterable
 
 EDGE_HIGH_PP = 5.0
 EDGE_MEDIUM_PP = 2.5
-R5_ANOMALY_THRESHOLD_PP = 25.0
+# R5 anomaly threshold. MLB May 16 settled audit showed the 20-25pp |edge|
+# bucket hit 22.2% (2-7 on n=9); 25+pp behaved like a coin flip same as the
+# NBA R5 territory. Tighten the MLB cap to 20pp so borderline-anomaly leans
+# get the same honest "model anomaly" framing instead of riding the main
+# board with full confidence. Conservative move — only adds caution; never
+# upgrades a lean. Sample is small (single graded slate) so we tighten the
+# cap (which only flags), not the underlying confidence (which would risk
+# overfit).
+R5_ANOMALY_THRESHOLD_PP = 20.0
 
 # Minimum games of game-log history required to score a player.
 MIN_GAMES_PITCHER = 3
@@ -241,10 +249,15 @@ def grade(
     sigma: float,
     implied_over: float,
     implied_under: float,
+    *,
+    samples: int = 0,
 ) -> dict:
     """Return lean + edge + confidence given a projection and the market.
 
     All probabilities are 0..1; edges are reported in percentage points.
+    Pass `samples` (recent-log count) to enable the honest contextTag
+    derivation; defaults to 0 so callers that don't yet pass it still
+    work (contextTag will simply stay None or fall to sample-watch).
     """
     if projection is None or sigma is None or sigma <= 0:
         return {
@@ -256,6 +269,7 @@ def grade(
             "edgePctUnder": None,
             "edgePct": None,
             "riskFlags": ["insufficient_data"],
+            "contextTag": None,
         }
     p_over = model_over_probability(projection, line, sigma)
     p_under = 1.0 - p_over
@@ -288,4 +302,32 @@ def grade(
         "edgePctUnder": round(edge_under_pp, 2),
         "edgePct": round(edge_pp, 2),
         "riskFlags": risk,
+        # Honest context tag — pure derivation from confidence + riskFlags.
+        # NBA leans receive the same tag via pipeline.confidence_guardrails.
+        "contextTag": _mlb_context_tag(confidence, risk, samples),
     }
+
+
+def _mlb_context_tag(
+    confidence: str,
+    risk_flags: list[str],
+    samples: int,
+) -> str | None:
+    """Derive the same five-state honest context tag NBA uses, with MLB's
+    sample-size scale (batter min 5, pitcher min 3). Returns one of:
+    'model-anomaly' | 'sample-watch' | 'recent-form-backed' | 'clean' |
+    None (insufficient_data / no_play / unknown)."""
+    if "r5_model_anomaly" in risk_flags or "suspicious_edge" in risk_flags:
+        return "model-anomaly"
+    if confidence not in ("High", "Medium", "Low"):
+        return None
+    # Match the NBA scale where 8+ logs is "recent-form-backed". MLB
+    # batter logs grow to 10 the same way; pitcher logs are smaller so a
+    # pitcher with 3..4 starts lands in "sample-watch" naturally.
+    if 5 <= samples <= 7:
+        return "sample-watch"
+    if confidence == "High" and samples >= 8:
+        return "recent-form-backed"
+    if confidence in ("High", "Medium") and samples >= 8:
+        return "clean"
+    return None
