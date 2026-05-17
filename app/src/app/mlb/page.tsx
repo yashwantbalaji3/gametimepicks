@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   activeMlbDate,
+  getMlbAvailableScheduleDates,
   getMlbBoardForDate,
   getMlbScheduleForDate,
 } from "@/lib/data-mlb";
@@ -9,6 +10,9 @@ import { formatTipoffEt } from "@/lib/format-mlb";
 import NeonStatPanel from "@/components/neon-stat-panel";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
+import UpcomingSlateStrip, {
+  type UpcomingSlateDay,
+} from "@/components/upcoming-slate-strip";
 
 export const metadata = {
   title: "MLB · GameTime Picks",
@@ -26,6 +30,11 @@ export default function MlbLandingPage() {
 
   const summary = board.summary;
   const propsAvailable = board.propsAvailable;
+
+  // Build the upcoming-slate strip from every available schedule date in
+  // the future (or today if no future dates). Pure derivation from disk
+  // contents — no fabrication.
+  const upcomingDays: UpcomingSlateDay[] = buildMlbUpcomingDays(date);
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -304,6 +313,13 @@ export default function MlbLandingPage() {
         )}
       </section>
 
+      <UpcomingSlateStrip
+        title="Upcoming · next 7 days"
+        days={upcomingDays}
+        boardHrefBase="/mlb/board"
+        emptyMessage="No upcoming MLB slates on disk yet. The next refresh will pull the rolling window."
+      />
+
       {/* Methodology + Responsible-use anchor row */}
       <section className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-3">
         <div
@@ -352,4 +368,66 @@ export default function MlbLandingPage() {
       </section>
     </div>
   );
+}
+
+/**
+ * Build a 7-day forward-looking slate for /mlb. Reads schedule files
+ * already on disk (written nightly by the schedule refresher). The
+ * window starts from today (ET) so the strip stays useful even when
+ * the activeMlbDate() walks ahead. Each entry is honest about
+ * whether projections live for that date or whether lines are
+ * still pending — derived from the matching board's propsAvailable
+ * + leans count.
+ */
+function buildMlbUpcomingDays(_activeDate: string): UpcomingSlateDay[] {
+  const allDates = getMlbAvailableScheduleDates();
+  if (allDates.length === 0) return [];
+  // Forward-looking window starting from today (ET). The active
+  // date is intentionally NOT the lower bound — we want the strip
+  // to lead with "today" even when the active date jumps ahead.
+  const today = new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/New_York",
+  });
+  const forward = allDates.filter((d) => d >= today).slice(0, 8);
+  return forward.map((d) => {
+    const sched = getMlbScheduleForDate(d);
+    const board = getMlbBoardForDate(d);
+    const games = sched.games ?? [];
+    const propsLive = board.propsAvailable && (board.leans?.length ?? 0) > 0;
+    const status: UpcomingSlateDay["status"] =
+      games.length === 0 ? "off-day" : propsLive ? "live" : "pending";
+    let teaser: string;
+    if (games.length === 0) {
+      teaser = "No games scheduled";
+    } else if (games.length === 1 && games[0]) {
+      const g = games[0];
+      teaser = `${g.awayTeamAbbr ?? "?"} @ ${g.homeTeamAbbr ?? "?"}`;
+    } else {
+      const first = games[0];
+      teaser = `${games.length} games · ${
+        first?.awayTeamAbbr ?? "?"} @ ${first?.homeTeamAbbr ?? "?"} +${games.length - 1} more`;
+    }
+    return {
+      date: d,
+      gameCount: games.length,
+      label: shortDateLabel(d),
+      teaser,
+      status,
+    };
+  });
+}
+
+function shortDateLabel(date: string): string {
+  // YYYY-MM-DD → "Sun · May 17"
+  try {
+    const dt = new Date(`${date}T17:00:00Z`);
+    return dt.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      timeZone: "America/New_York",
+    }).replace(",", " ·");
+  } catch {
+    return date;
+  }
 }

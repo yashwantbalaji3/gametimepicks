@@ -1,7 +1,14 @@
 import Link from "next/link";
-import { activeIplDate, getIplScheduleForDate } from "@/lib/data-ipl";
+import {
+  activeIplDate,
+  getAvailableIplScheduleDates,
+  getIplScheduleForDate,
+} from "@/lib/data-ipl";
 import NeonStatPanel from "@/components/neon-stat-panel";
 import IplSectionTabs from "@/components/ipl/ipl-section-tabs";
+import UpcomingSlateStrip, {
+  type UpcomingSlateDay,
+} from "@/components/upcoming-slate-strip";
 
 export const metadata = {
   title: "IPL · GameTime Picks",
@@ -257,6 +264,13 @@ export default function IplLandingPage() {
         )}
       </section>
 
+      <UpcomingSlateStrip
+        title="Upcoming · next 7 days"
+        days={buildIplUpcomingDays(date)}
+        boardHrefBase="/ipl/board"
+        emptyMessage="No upcoming IPL matches on disk yet. The next refresh will pull the rolling window."
+      />
+
       <section className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-3">
         <div
           className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
@@ -305,4 +319,56 @@ export default function IplLandingPage() {
       </section>
     </div>
   );
+}
+
+function buildIplUpcomingDays(_activeDate: string): UpcomingSlateDay[] {
+  const allDates = getAvailableIplScheduleDates();
+  if (allDates.length === 0) return [];
+  // Window starts from today (ET).
+  const today = new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/New_York",
+  });
+  const forward = allDates.filter((d) => d >= today).slice(0, 8);
+  return forward.map((d) => {
+    const sched = getIplScheduleForDate(d);
+    const games = sched.games ?? [];
+    const status: UpcomingSlateDay["status"] =
+      games.length === 0 ? "off-day" : "pending";
+    let teaser: string;
+    if (games.length === 0) {
+      teaser = "No matches scheduled";
+    } else if (games.length === 1 && games[0]) {
+      const g = games[0];
+      teaser = g.shortName ?? `${g.awayTeamAbbr ?? "?"} v ${g.homeTeamAbbr ?? "?"}`;
+    } else {
+      const first = games[0];
+      teaser = `${games.length} matches · ${
+        first?.shortName ??
+        `${first?.awayTeamAbbr ?? "?"} v ${first?.homeTeamAbbr ?? "?"}`
+      } +${games.length - 1} more`;
+    }
+    return {
+      date: d,
+      gameCount: games.length,
+      label: shortDateLabelIpl(d),
+      teaser,
+      status,
+    };
+  });
+}
+
+function shortDateLabelIpl(date: string): string {
+  try {
+    const dt = new Date(`${date}T17:00:00Z`);
+    return dt
+      .toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        timeZone: "America/New_York",
+      })
+      .replace(",", " ·");
+  } catch {
+    return date;
+  }
 }

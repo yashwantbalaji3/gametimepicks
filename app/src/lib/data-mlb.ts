@@ -105,3 +105,23 @@ export function activeMlbDate(): string | null {
   const dates = getMlbAvailableBoardDates();
   return dates.length ? dates[dates.length - 1] : null;
 }
+
+/**
+ * Enumerate every MLB schedule file on disk. Used by the upcoming-slate
+ * strip on /mlb to show the full next-week window even when only the
+ * latest date has a board file with leans.
+ */
+export function getMlbAvailableScheduleDates(): string[] {
+  try {
+    const dir = path.join(DATA_DIR, "schedule");
+    if (!fs.existsSync(dir)) return [];
+    return fs
+      .readdirSync(dir)
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => f.replace(/\.json$/, ""))
+      .sort();
+  } catch (err) {
+    console.warn("[data-mlb] could not list schedule/:", err);
+    return [];
+  }
+}
