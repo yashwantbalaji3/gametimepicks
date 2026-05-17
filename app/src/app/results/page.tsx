@@ -51,6 +51,9 @@ import CalibrationRoadmap, {
 import PerGameScorecard from "@/components/per-game-scorecard";
 import AnomalyGuardrailPanel from "@/components/anomaly-guardrail-panel";
 import ParlayResultsDisclosure from "@/components/parlay-results-disclosure";
+import SettledGameDetail, {
+  type SettledLeanRow,
+} from "@/components/settled-game-detail";
 import { getPlayoffContext } from "@/components/playoff-context";
 
 /**
@@ -171,9 +174,12 @@ export default function ResultsPage() {
           against the verified box score after the game. {lifetime.totalDates}{" "}
           {lifetime.totalDates === 1 ? "slate" : "slates"} settled
           {lifetime.newestDate ? ` · most recent: ${lifetime.newestDate}` : ""}.
-          The audit below covers NBA props; MLB grades land once the first
-          MLB slate finishes. Hit rate excludes pushes and No Plays.
-          Educational analytics — not betting advice.
+          The audit below covers NBA props; MLB has its own audit on the{" "}
+          <Link href="/mlb/results" style={{ color: "var(--vault-gold-bright)" }}>
+            MLB Results
+          </Link>{" "}
+          page. Hit rate excludes pushes and No Plays. Educational analytics —
+          not betting advice.
         </p>
       </section>
 
@@ -267,6 +273,103 @@ export default function ResultsPage() {
         settledRows={latest.rows}
         boardLeans={boardLeans}
       />
+
+      {/* Settled games · tap to expand each game's projection-vs-actual
+          audit. The user explicitly asked for click-through detail per
+          game, so this is the canonical place to see every graded lean
+          for the date. */}
+      {latest.rows.length > 0 && (
+        <section className="mt-10">
+          <SectionHeading>
+            {latest.date} · settled games · projection vs actual
+          </SectionHeading>
+          <div className="mt-4 flex flex-col gap-3">
+            {(() => {
+              const rowsByGame = new Map<string, typeof latest.rows>();
+              for (const r of latest.rows) {
+                const k = r.gameId ?? "_";
+                const list = rowsByGame.get(k) ?? [];
+                list.push(r);
+                rowsByGame.set(k, list);
+              }
+              const orderedGameIds = Object.keys(latest.report?.byGame || {});
+              const seen = new Set<string>();
+              const ordered = [
+                ...orderedGameIds.filter((g) => rowsByGame.has(g)),
+                ...[...rowsByGame.keys()].filter((g) => !orderedGameIds.includes(g)),
+              ].filter((g) => {
+                if (seen.has(g)) return false;
+                seen.add(g);
+                return true;
+              });
+              return ordered.map((gameId) => {
+                const rows = rowsByGame.get(gameId) || [];
+                const wins = rows.filter((r) => r.result === "win").length;
+                const losses = rows.filter((r) => r.result === "loss").length;
+                const pushes = rows.filter((r) => r.result === "push").length;
+                const decisive = wins + losses;
+                const hitRate = decisive > 0 ? wins / decisive : null;
+                const matchup =
+                  gameLabelMap[gameId] ||
+                  (rows[0]?.team && rows[0]?.opponent
+                    ? `${rows[0].team} @ ${rows[0].opponent}`
+                    : "Settled game");
+                const ctx = getPlayoffContext(
+                  gameId,
+                  rows[0]?.team,
+                  rows[0]?.opponent,
+                );
+                const subtitle = ctx.isPlayoffs
+                  ? `${ctx.roundLabel} · ${ctx.gameLabel}`
+                  : undefined;
+                const detailRows: SettledLeanRow[] = rows.map((r, i) => {
+                  const odds =
+                    r.side === "Over" ? r.oddsOver : r.oddsUnder;
+                  const outcome: SettledLeanRow["outcome"] =
+                    r.result === "win"
+                      ? "Win"
+                      : r.result === "loss"
+                        ? "Loss"
+                        : r.result === "push"
+                          ? "Push"
+                          : "—";
+                  return {
+                    id: `${r.date}-${r.gameId}-${r.playerId}-${r.market}-${i}`,
+                    playerName: r.playerName ?? "—",
+                    marketLabel: r.market ?? "—",
+                    side: r.side ?? "Pass",
+                    line: r.line ?? null,
+                    projection: r.modelProjection ?? null,
+                    actual:
+                      typeof r.finalStat === "number" ? r.finalStat : null,
+                    outcome,
+                    confidence: r.confidence ?? "—",
+                    edgePct:
+                      typeof r.edgePct === "number" ? r.edgePct : null,
+                    bookmaker: r.bookmaker ?? null,
+                    oddsForSide: odds ?? null,
+                  };
+                });
+                return (
+                  <SettledGameDetail
+                    key={gameId}
+                    matchup={matchup}
+                    subtitle={subtitle}
+                    wins={wins}
+                    losses={losses}
+                    pushes={pushes}
+                    decisive={decisive}
+                    hitRate={hitRate}
+                    rows={detailRows}
+                    tone="gold"
+                    defaultOpen={ordered.length === 1}
+                  />
+                );
+              });
+            })()}
+          </div>
+        </section>
+      )}
 
       {/* Newest date's full comparison report */}
       {latest.report && (

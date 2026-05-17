@@ -5,6 +5,7 @@ import type {
   MlbAvailableDates,
   MlbComparisonReport,
   MlbLifetimeSummary,
+  MlbSettledLean,
 } from "./types-mlb-results";
 
 const RESULTS_DIR = path.join(
@@ -63,4 +64,34 @@ export function getMlbComparisonReport(
 export function latestMlbResultDate(): string | null {
   const dates = getMlbAvailableResultDates().dates;
   return dates.length ? dates[dates.length - 1] : null;
+}
+
+/**
+ * Stream the public settled-leans jsonl into memory. The whole file is
+ * the audit for ALL settled dates — typical day has a few hundred rows.
+ * Returns [] when the file doesn't exist yet.
+ */
+export function getMlbSettledLeans(): MlbSettledLean[] {
+  const p = path.join(RESULTS_DIR, "settled_leans.jsonl");
+  if (!fs.existsSync(p)) return [];
+  const out: MlbSettledLean[] = [];
+  try {
+    const text = fs.readFileSync(p, "utf-8");
+    for (const line of text.split("\n")) {
+      const t = line.trim();
+      if (!t) continue;
+      try {
+        out.push(JSON.parse(t) as MlbSettledLean);
+      } catch {
+        // Skip malformed lines silently — never break the page on one bad row
+      }
+    }
+  } catch (err) {
+    console.warn("[data-mlb-results] could not read settled_leans.jsonl:", err);
+  }
+  return out;
+}
+
+export function getMlbSettledLeansForDate(date: string): MlbSettledLean[] {
+  return getMlbSettledLeans().filter((l) => l.date === date);
 }
