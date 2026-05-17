@@ -95,6 +95,7 @@ def _build_lean(
         projection.get("sigma", 0.0),
         row["impliedOver"],
         row["impliedUnder"],
+        samples=int(projection.get("samples", 0) or 0),
     )
     # Match player → team via "any of player_name in roster" is overkill for
     # MVP. We approximate using the home/away teams on the event: the player
@@ -217,6 +218,7 @@ def _build_lean(
         "edgePctOver": grade["edgePctOver"],
         "edgePctUnder": grade["edgePctUnder"],
         "riskFlags": grade["riskFlags"],
+        "contextTag": grade.get("contextTag"),
         "reason": " · ".join(reason_bits),
         "reasonBullets": reason_bullets,
     }

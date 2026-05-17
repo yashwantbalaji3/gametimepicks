@@ -16,6 +16,7 @@ import NeonStatPanel from "@/components/neon-stat-panel";
 import SettledGameDetail, {
   type SettledLeanRow,
 } from "@/components/settled-game-detail";
+import ModelLessonsCard from "@/components/model-lessons-card";
 
 export const metadata = {
   title: "MLB Results · GameTime Picks",
@@ -260,6 +261,40 @@ export default function MlbResultsPage() {
           .
         </div>
       </section>
+
+      <ModelLessonsCard
+        title="MLB model lessons"
+        lessons={[
+          {
+            eyebrow: "Anomaly threshold tightened",
+            tone: "warn",
+            text: (
+              <>
+                Settled MLB rows showed the 20–25pp |edge| bucket behaved like
+                an anomaly territory. The MLB R5 cap now triggers at <strong>20pp</strong>{" "}
+                instead of 25pp so borderline-anomaly leans get the same
+                risk-aware framing as the NBA cap.
+              </>
+            ),
+            caveat: (
+              <>Sample is one slate; cap tightening only adds caution.</>
+            ),
+          },
+          {
+            eyebrow: "Market behavior · descriptive only",
+            tone: "gold",
+            text: (
+              <>
+                Hits and total-base markets behaved similarly across confidence
+                tiers; pitcher strikeouts had a smaller sample. No projection
+                math changes yet — we wait for multiple settled slates before
+                tuning per-market weights.
+              </>
+            ),
+            caveat: <>Single-slate signal — descriptive, not predictive.</>,
+          },
+        ]}
+      />
 
       <section className="mt-8 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
         <Link href="/mlb/board" style={{ color: "var(--vault-gold-bright)" }}>

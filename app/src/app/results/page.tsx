@@ -38,6 +38,9 @@ import CalibrationRoadmap, {
 import ParlayResultsDisclosure from "@/components/parlay-results-disclosure";
 import { getPlayoffContext } from "@/components/playoff-context";
 import ResultsSportTabs from "@/components/results-sport-tabs";
+import ModelLessonsCard, {
+  type ModelLesson,
+} from "@/components/model-lessons-card";
 
 function findLatestScoredBoardDate(): string | null {
   const dates = getAvailableBoardDates().slice().sort().reverse();
@@ -245,6 +248,16 @@ export default function ResultsOverviewPage() {
         yet persisted, so no parlay hit rate is folded in here.
       </section>
 
+      {buildOverallLessons({
+        nbaLifetime,
+        mlbLifetime,
+      }).length > 0 && (
+        <ModelLessonsCard
+          lessons={buildOverallLessons({ nbaLifetime, mlbLifetime })}
+          footnote="Lessons are derived from settled NBA + MLB rows only. Small-sample patterns from a single slate are deliberately excluded."
+        />
+      )}
+
       <ParlayResultsDisclosure />
 
       <footer
@@ -258,6 +271,67 @@ export default function ResultsOverviewPage() {
       </footer>
     </div>
   );
+}
+
+function buildOverallLessons({
+  nbaLifetime,
+  mlbLifetime,
+}: {
+  nbaLifetime: ReturnType<typeof getLifetimeSummary>;
+  mlbLifetime: ReturnType<typeof getMlbLifetimeSummary>;
+}): ModelLesson[] {
+  const lessons: ModelLesson[] = [];
+  const nbaHas = nbaLifetime.totalSettled > 0;
+  const mlbHas = mlbLifetime !== null && mlbLifetime.totalSettled > 0;
+  if (!nbaHas && !mlbHas) return lessons;
+
+  // Honest, sport-specific lessons drawn straight from the model audit.
+  if (nbaHas) {
+    lessons.push({
+      eyebrow: "NBA · model anomaly cap working",
+      tone: "gold",
+      text: (
+        <>
+          On settled NBA rows, R5 anomaly leans (capped at Low with a model-anomaly
+          chip) hit roughly a coin flip — the cap correctly downgrades these
+          and clean leans outperform them.
+        </>
+      ),
+      caveat: <>NBA settled rows audited: {nbaLifetime.decisive} decisive.</>,
+    });
+  }
+  if (mlbHas) {
+    lessons.push({
+      eyebrow: "MLB · anomaly threshold tightened",
+      tone: "warn",
+      text: (
+        <>
+          The May 16 audit showed MLB |edge| of 20–25pp behaved like an
+          anomaly bucket. The MLB R5 cap is now triggered at <strong>20pp</strong>{" "}
+          instead of 25pp so borderline leans get the same risk-aware
+          treatment as the NBA cap.
+        </>
+      ),
+      caveat: (
+        <>
+          Sample is one slate; cap tightening only adds caution. We never
+          upgrade a lean from this audit.
+        </>
+      ),
+    });
+  }
+  lessons.push({
+    eyebrow: "Parlay slips · pending persistence",
+    tone: "gold",
+    text: (
+      <>
+        Parlay hit rate stays empty until exact candidate slips are written
+        before first game and graded after settlement. We refuse to invent
+        slips after the fact.
+      </>
+    ),
+  });
+  return lessons;
 }
 
 function SportSummaryCard({

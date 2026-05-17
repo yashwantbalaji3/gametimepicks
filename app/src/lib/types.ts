@@ -104,6 +104,21 @@ export interface PropLean {
   newsAction?: "none" | "flag_risk" | "reduce_minutes" | "increase_usage" | "remove_from_board" | "manual_review_required";
   /** Risk flags surfaced on the card, e.g. ["b2b_away", "thin_sample"] */
   riskFlags?: string[];
+  /**
+   * Derived honest context tag from existing guardrail fields. One of:
+   *   "clean"               — High/Medium confidence, no anomaly flags
+   *   "sample-watch"        — confidence ≤ Medium with recent10 length 5-7
+   *   "model-anomaly"       — riskFlags contains "suspicious_edge"
+   *   "recent-form-backed"  — confidence == High with recent10 length ≥ 8
+   *   "volatile-market"     — sport-specific high-variance market (HR/sixes/goals)
+   * Optional — older boards may omit this field. UI must degrade gracefully.
+   */
+  contextTag?:
+    | "clean"
+    | "sample-watch"
+    | "model-anomaly"
+    | "recent-form-backed"
+    | "volatile-market";
   /** Composite source-reliability score 0..1 */
   sourceReliability?: number;
   /** Phase 7B-1.1: tag demo cards explicitly so UI can wash them */

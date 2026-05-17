@@ -82,6 +82,17 @@ export interface MlbBoardLean {
   edgePctOver: number | null;
   edgePctUnder: number | null;
   riskFlags: string[];
+  /**
+   * Honest context tag derived from confidence + riskFlags + sample size.
+   * Same shape as the NBA PropLean.contextTag. Optional for backwards
+   * compatibility with older boards.
+   */
+  contextTag?:
+    | "clean"
+    | "sample-watch"
+    | "model-anomaly"
+    | "recent-form-backed"
+    | "volatile-market";
   reason: string;
   /** Structured bullet list — sibling to NBA's buildLeanReasonBullets
    *  output. Each bullet has a short label (e.g. "Recent form"), a

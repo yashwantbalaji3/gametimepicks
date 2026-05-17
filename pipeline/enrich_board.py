@@ -39,7 +39,7 @@ from .fetch_nba_data import fetch_player_game_logs
 from .build_features import build_player_features
 from .score_model import score_prop
 from .recent10_extractor import extract_recent10_all_markets
-from .confidence_guardrails import downgrade_lean
+from .confidence_guardrails import attach_context_tag, downgrade_lean
 
 log = logging.getLogger("gtp.enrich_board")
 logging.basicConfig(
@@ -200,6 +200,9 @@ def enrich_board(
         # matters: recent10 is attached above so R1-R4 can use the log count.
         guarded = downgrade_lean(lean)
         lean.update(guarded)
+        # Attach the honest context tag derived from confidence + riskFlags
+        # + recent10 length. Pure derivative — no fabrication.
+        attach_context_tag(lean)
         enriched += 1
 
     summary["enriched"] = enriched
