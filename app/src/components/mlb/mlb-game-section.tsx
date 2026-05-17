@@ -38,10 +38,17 @@ export default function MlbGameSection({
   const filtersHidAll = total > 0 && visible === 0;
   const noPropsLoaded = total === 0;
 
+  // Stable anchor target: `game-{gamePk}` matches the deep links emitted
+  // by /mlb and /mlb/board's Top Clean Leans strip. Fall back to
+  // away-home team abbreviations when gamePk is missing.
+  const anchorId = `game-${game.gamePk ?? `${game.awayTeamAbbr}-${game.homeTeamAbbr}`}`;
+
   return (
     <section
       className="gtp-aurora-halo"
       aria-label={`${game.awayTeamAbbr ?? "?"} at ${game.homeTeamAbbr ?? "?"}`}
+      id={anchorId}
+      style={{ scrollMarginTop: 80 }}
     >
       <div
         className="gtp-status-board p-5 sm:p-6"

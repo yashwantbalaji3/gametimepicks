@@ -83,6 +83,17 @@ export interface MlbBoardLean {
   edgePctUnder: number | null;
   riskFlags: string[];
   reason: string;
+  /** Structured bullet list — sibling to NBA's buildLeanReasonBullets
+   *  output. Each bullet has a short label (e.g. "Recent form"), a
+   *  one-line text, and a tone the UI can color (default | mute | warn).
+   *  Optional: older boards predate this field. */
+  reasonBullets?: MlbReasonBullet[];
+}
+
+export interface MlbReasonBullet {
+  label: string;
+  text: string;
+  tone: "default" | "mute" | "warn" | "success";
 }
 
 export interface MlbByMarketCount {
