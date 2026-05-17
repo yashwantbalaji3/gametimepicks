@@ -184,80 +184,41 @@ export default function MlbLandingPage() {
         </Link>
       </section>
 
-      {/* MLB audit tile — only renders when there's at least one settled
-          row on disk. Surfaces the lifetime hit rate + W/L/P + partial
-          status. Never fabricates anything. */}
+      {/* MLB audit pointer — hit-rate emphasis lives on Results,
+          so this is a quiet text chip rather than a giant number. */}
       {mlbLifetime && (
         <section className="mt-6">
           <Link
             href="/mlb/results"
-            className="vault-glow-hover block rounded-[6px]"
+            className="vault-glow-hover inline-flex items-center gap-2 rounded-[3px]"
             style={{
-              padding: "16px 18px",
+              padding: "10px 14px",
               border: "1px solid rgba(74, 222, 128, 0.30)",
-              background:
-                "linear-gradient(180deg, rgba(74, 222, 128, 0.08) 0%, rgba(7, 11, 26, 0.55) 100%)",
-              color: "inherit",
+              background: "rgba(74, 222, 128, 0.06)",
+              color: "var(--vault-success)",
               textDecoration: "none",
+              fontSize: 12,
+              fontFamily: "var(--font-mono)",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
             }}
             aria-label="Open the MLB model audit"
           >
-            <div className="flex items-center gap-2 mb-1">
-              <span
-                aria-hidden
-                className="inline-block w-1.5 h-1.5 rounded-full"
-                style={{
-                  background: "var(--vault-success)",
-                  boxShadow: "0 0 8px rgba(74, 222, 128, 0.55)",
-                }}
-              />
-              <span
-                className="font-mono uppercase tracking-[0.16em]"
-                style={{ color: "var(--vault-success)", fontSize: 10 }}
-              >
-                MLB model audit · {mlbLifetime.partial ? "partial" : "live"}
-              </span>
-            </div>
-            <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
-              <span
-                className="font-display font-semibold tracking-tight"
-                style={{
-                  color: "var(--vault-success)",
-                  fontSize: 28,
-                  fontVariantNumeric: "tabular-nums",
-                }}
-              >
-                {mlbLifetime.hitRate !== null
-                  ? `${(mlbLifetime.hitRate * 100).toFixed(1)}%`
-                  : "—"}
-              </span>
-              <span
-                className="font-display"
-                style={{ color: "var(--vault-text)", fontSize: 14 }}
-              >
-                hit rate · {mlbLifetime.wins}–{mlbLifetime.losses}
-                {mlbLifetime.pushes > 0 ? `–${mlbLifetime.pushes}P` : ""}{" "}
-                on{" "}
-                <span style={{ color: "var(--vault-text-mute)" }}>
-                  {mlbLifetime.decisive} decisive picks
-                </span>
-              </span>
-              {mlbLifetime.partial && (
-                <span
-                  className="font-mono uppercase tracking-[0.14em]"
-                  style={{ color: "var(--vault-warn)", fontSize: 10 }}
-                >
-                  · {mlbLifetime.pendingGamesTotal} game
-                  {mlbLifetime.pendingGamesTotal === 1 ? "" : "s"} still pending
-                </span>
-              )}
-              <span
-                className="font-mono uppercase tracking-[0.14em] ml-auto"
-                style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-              >
-                Open audit →
-              </span>
-            </div>
+            <span
+              aria-hidden
+              className="inline-block w-1.5 h-1.5 rounded-full"
+              style={{
+                background: "var(--vault-success)",
+                boxShadow: "0 0 6px rgba(74, 222, 128, 0.45)",
+              }}
+            />
+            Open MLB model audit
+            {mlbLifetime.partial ? " · partial" : ""}
+            <span style={{ color: "var(--vault-text-faint)" }}>
+              · {mlbLifetime.wins}–{mlbLifetime.losses} on{" "}
+              {mlbLifetime.decisive}
+            </span>
+            <span style={{ color: "var(--vault-gold-bright)" }}>→</span>
           </Link>
         </section>
       )}

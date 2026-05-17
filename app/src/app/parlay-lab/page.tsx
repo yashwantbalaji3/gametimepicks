@@ -162,9 +162,9 @@ export default function ParlayLabPage() {
               border: "1px solid var(--vault-border)",
               cursor: "not-allowed",
             }}
-            title="MLB Parlay Lab arrives after MLB candidate snapshots are persisted."
+            title="Needs persisted MLB candidate snapshots before we can grade slips honestly."
           >
-            MLB only · coming
+            MLB only · needs MLB snapshots
           </span>
           <span
             className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
@@ -174,18 +174,20 @@ export default function ParlayLabPage() {
               border: "1px solid var(--vault-border)",
               cursor: "not-allowed",
             }}
-            title="Cross-sport candidates require both sports to persist candidate snapshots first."
+            title="Needs both NBA + MLB candidate snapshots before we can audit cross-sport slips."
           >
-            Multi-sport · coming
+            Multi-sport · needs NBA + MLB snapshots
           </span>
         </div>
         <p
           className="mt-3 max-w-2xl text-[12px] leading-relaxed"
           style={{ color: "var(--vault-text-faint)" }}
         >
-          MLB and multi-sport modes are being built after MLB candidate
-          snapshots are persisted, so we can grade them honestly the same
-          way we grade NBA leans on the model audit.
+          MLB and multi-sport modes turn on after candidate slips are
+          snapshot-persisted at board-generation time and graded after
+          settlement — the same honest pipeline the NBA audit runs through.
+          Cross-sport mixes carry lower direct correlation but never
+          zero; no hit-rate claims until slips are persisted and graded.
         </p>
       </section>
 

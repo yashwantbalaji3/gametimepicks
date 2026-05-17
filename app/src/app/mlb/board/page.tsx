@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
-import { getMlbComparisonReport } from "@/lib/data-mlb-results";
+import { getMlbComparisonReport, getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { mlbMarketLabel } from "@/lib/format-mlb";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
@@ -38,6 +38,9 @@ export default function MlbBoardPage() {
   // games). pendingGameList holds Live + Pre-Game gamePks. Anything
   // else stays unknown.
   const mlbReport = getMlbComparisonReport(date);
+  // Lifetime-level audit pointer — surfaced as a link even when viewing
+  // a date that hasn't been settled (e.g. today's schedule-only board).
+  const mlbLifetime = getMlbLifetimeSummary();
   const gameStateByPk: Record<number, "final" | "live" | "pregame"> = {};
   const settledGamePks: number[] = [];
   if (mlbReport) {
@@ -193,70 +196,37 @@ export default function MlbBoardPage() {
         settledGamePks={settledGamePks}
       />
 
-      {/* MLB Results CTA — only when at least one game is settled.
-          Sits above the Power Board CTA so the audit is more
-          discoverable when results are live. */}
-      {mlbReport && (
+      {/* MLB Results link — text-only so hit-rate emphasis lives on
+          the Results page itself, not on the projection board. Surfaces
+          whenever any MLB audit data exists, even on dates that haven't
+          been settled (e.g. today's schedule-only board). */}
+      {mlbLifetime && (
         <section className="mt-12">
           <Link
             href="/mlb/results"
-            className="vault-glow-hover block rounded-[8px]"
+            className="vault-glow-hover inline-flex items-center gap-2 rounded-[3px]"
             style={{
-              padding: "16px 18px",
+              padding: "10px 14px",
               border: "1px solid rgba(74, 222, 128, 0.30)",
-              background:
-                "linear-gradient(180deg, rgba(74, 222, 128, 0.08) 0%, rgba(7, 11, 26, 0.55) 100%)",
-              color: "inherit",
+              background: "rgba(74, 222, 128, 0.06)",
+              color: "var(--vault-success)",
               textDecoration: "none",
+              fontSize: 12,
+              fontFamily: "var(--font-mono)",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
             }}
           >
-            <div className="flex items-center gap-2 mb-1">
-              <span
-                aria-hidden
-                className="inline-block w-1.5 h-1.5 rounded-full"
-                style={{
-                  background: "var(--vault-success)",
-                  boxShadow: "0 0 8px rgba(74, 222, 128, 0.55)",
-                }}
-              />
-              <span
-                className="font-mono uppercase tracking-[0.16em]"
-                style={{ color: "var(--vault-success)", fontSize: 10 }}
-              >
-                MLB model audit · {mlbReport.partial ? "partial" : "live"}
-              </span>
-            </div>
-            <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
-              <span
-                className="font-display font-semibold tracking-tight"
-                style={{
-                  color: "var(--vault-success)",
-                  fontSize: 28,
-                  fontVariantNumeric: "tabular-nums",
-                }}
-              >
-                {mlbReport.hitRate !== null
-                  ? `${(mlbReport.hitRate * 100).toFixed(1)}%`
-                  : "—"}
-              </span>
-              <span
-                className="font-display"
-                style={{ color: "var(--vault-text)", fontSize: 14 }}
-              >
-                hit rate · {mlbReport.wins}–{mlbReport.losses}
-                {mlbReport.pushes > 0 ? `–${mlbReport.pushes}P` : ""}{" "}
-                on{" "}
-                <span style={{ color: "var(--vault-text-mute)" }}>
-                  {mlbReport.decisive} decisive picks
-                </span>
-              </span>
-              <span
-                className="font-mono uppercase tracking-[0.14em] ml-auto"
-                style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-              >
-                Open MLB Results →
-              </span>
-            </div>
+            <span
+              aria-hidden
+              className="inline-block w-1.5 h-1.5 rounded-full"
+              style={{
+                background: "var(--vault-success)",
+                boxShadow: "0 0 6px rgba(74, 222, 128, 0.45)",
+              }}
+            />
+            Open MLB model audit
+            {mlbLifetime.partial ? " · partial" : ""} →
           </Link>
         </section>
       )}
