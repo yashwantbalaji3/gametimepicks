@@ -5,8 +5,10 @@ import {
   getMlbLifetimeSummary,
   getMlbSettledLeansForDate,
 } from "@/lib/data-mlb-results";
+import { getLifetimeSummary } from "@/lib/settlement-data";
 import { mlbMarketLabel } from "@/lib/format-mlb";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
+import ResultsSportTabs from "@/components/results-sport-tabs";
 import MlbResultsSummary from "@/components/mlb/mlb-results-summary";
 import MlbResultsBreakdown from "@/components/mlb/mlb-results-breakdown";
 import MlbPendingGames from "@/components/mlb/mlb-pending-games";
@@ -24,10 +26,18 @@ export const metadata = {
 export default function MlbResultsPage() {
   const date = latestMlbResultDate();
   const lifetime = getMlbLifetimeSummary();
+  const nbaLifetime = getLifetimeSummary();
   const report = date ? getMlbComparisonReport(date) : null;
+  const nbaHasData = nbaLifetime.totalSettled > 0;
+  const mlbHasData = lifetime !== null && lifetime.totalSettled > 0;
 
   if (!report || !lifetime) {
-    return <MlbResultsEmptyShell />;
+    return (
+      <MlbResultsEmptyShell
+        nbaHasData={nbaHasData}
+        mlbHasData={mlbHasData}
+      />
+    );
   }
 
   const top = report.topHits ?? [];
@@ -36,8 +46,15 @@ export default function MlbResultsPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
-      <div className="mb-6">
+      <div className="mb-4">
         <MlbSectionTabs />
+      </div>
+      <div className="mb-6">
+        <ResultsSportTabs
+          activeSport="mlb"
+          nbaHasData={nbaHasData}
+          mlbHasData={mlbHasData}
+        />
       </div>
 
       <MlbResultsSummary report={report} />
@@ -253,11 +270,24 @@ export default function MlbResultsPage() {
   );
 }
 
-function MlbResultsEmptyShell() {
+function MlbResultsEmptyShell({
+  nbaHasData,
+  mlbHasData,
+}: {
+  nbaHasData: boolean;
+  mlbHasData: boolean;
+}) {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
-      <div className="mb-6">
+      <div className="mb-4">
         <MlbSectionTabs />
+      </div>
+      <div className="mb-6">
+        <ResultsSportTabs
+          activeSport="mlb"
+          nbaHasData={nbaHasData}
+          mlbHasData={mlbHasData}
+        />
       </div>
 
       <section className="reveal">

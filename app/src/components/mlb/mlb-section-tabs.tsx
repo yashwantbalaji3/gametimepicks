@@ -5,14 +5,16 @@ import { usePathname } from "next/navigation";
 
 /**
  * Small in-section sub-nav for the MLB area. Lives at the top of every
- * /mlb/* page so users always know how to move between Overview · Board ·
- * Power Board without going back to the main nav. Visual rhythm mirrors
- * the NBA homepage trending tabs.
+ * /mlb/* page so users always know how to move between Overview, Model
+ * Board, Power Board, Parlays and Results without going back to the
+ * main nav. Tab labels mirror NbaSectionTabs so NBA and MLB feel like
+ * equal sibling products.
  */
 const TABS = [
   { href: "/mlb", label: "Overview", end: true },
-  { href: "/mlb/board", label: "Board" },
+  { href: "/mlb/board", label: "Model Board" },
   { href: "/mlb/power", label: "Power Board" },
+  { href: "/mlb/parlays", label: "Parlays" },
   { href: "/mlb/results", label: "Results" },
 ];
 

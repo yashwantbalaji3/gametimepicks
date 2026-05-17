@@ -7,6 +7,7 @@ import NewsletterSignup from "@/components/newsletter-signup";
 import TodayAwareSlateBanner from "@/components/today-aware-slate-banner";
 import NoCurrentSlate from "@/components/no-current-slate";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
+import NbaSectionTabs from "@/components/nba/nba-section-tabs";
 import SportsbookStatusBoard, {
   type StatusBoardGame,
   type StatusBoardStat,
@@ -138,6 +139,9 @@ export default function BoardPage() {
   if (activeSlate.kind === "no_current" || activeSlate.kind === "no_data") {
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14">
+        <div className="mb-6">
+          <NbaSectionTabs />
+        </div>
         <div className="reveal vault-hero-eyebrow vault-data-orbit relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-6">
           <div
             className="vault-quiet-label"
@@ -184,6 +188,9 @@ export default function BoardPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14">
+      <div className="mb-6">
+        <NbaSectionTabs />
+      </div>
       <div className="reveal vault-hero-eyebrow vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-6">
         <NeonCornerBracket />
         <div
