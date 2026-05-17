@@ -37,6 +37,7 @@ import {
   getBoardForDate,
   getAvailableBoardDates,
 } from "@/lib/data";
+import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { formatPercent } from "@/lib/format";
 import Link from "next/link";
 import EmptyResultsCard from "@/components/empty-results-card";
@@ -78,9 +79,17 @@ export default function ResultsPage() {
   const allDates = getAvailableSettlementDates();
   const latestScoredDate = findLatestScoredBoardDate();
 
+  // MLB sport-state — drives the chip strip + future MLB link.
+  const mlbLifetime = getMlbLifetimeSummary();
+  const mlbState: "pending" | "live" | "partial" = !mlbLifetime
+    ? "pending"
+    : mlbLifetime.partial
+      ? "partial"
+      : "live";
+
   // No settled data anywhere → polished empty state.
   if (lifetime.totalSettled === 0 || latest === null) {
-    return <ResultsEmptyShell latestScoredDate={latestScoredDate} />;
+    return <ResultsEmptyShell latestScoredDate={latestScoredDate} mlbState={mlbState} />;
   }
 
   // Load the live board for the most recently settled date so we can
@@ -170,7 +179,7 @@ export default function ResultsPage() {
 
       {/* Sport tabs — keeps the sport context legible. NBA is live with
           a graded slate; MLB grades arrive once settlement is wired. */}
-      <SportAuditTabs activeSport="NBA" mlbState="pending" />
+      <SportAuditTabs activeSport="NBA" mlbState={mlbState} />
 
       {/* Honesty banner */}
       {lifetime.smallSample && (
@@ -294,8 +303,10 @@ export default function ResultsPage() {
 // ---------------------------------------------------------------------------
 function ResultsEmptyShell({
   latestScoredDate,
+  mlbState,
 }: {
   latestScoredDate: string | null;
+  mlbState: "pending" | "live" | "partial";
 }) {
   return (
     <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
@@ -324,7 +335,7 @@ function ResultsEmptyShell({
         </p>
       </div>
 
-      <SportAuditTabs activeSport="NBA" mlbState="pending" />
+      <SportAuditTabs activeSport="NBA" mlbState={mlbState} />
 
       <div className="mt-8">
         <EmptyResultsCard latestScoredDate={latestScoredDate} />
@@ -695,8 +706,15 @@ function SportAuditTabs({
   mlbState,
 }: {
   activeSport: "NBA" | "MLB";
-  mlbState: "pending" | "live";
+  mlbState: "pending" | "live" | "partial";
 }) {
+  const mlbAvailable = mlbState !== "pending";
+  const mlbLabel =
+    mlbState === "live"
+      ? "MLB audit · live"
+      : mlbState === "partial"
+        ? "MLB audit · partial"
+        : "MLB audit · pending";
   return (
     <div
       className="mt-6 inline-flex flex-wrap items-stretch gap-1 p-1 rounded-[4px]"
@@ -727,18 +745,36 @@ function SportAuditTabs({
       >
         NBA audit · live
       </span>
-      <span
-        className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
-        style={{
-          fontSize: 11,
-          color: "var(--vault-text-faint)",
-          border: "1px solid var(--vault-border)",
-          cursor: "not-allowed",
-        }}
-        title="MLB audit lights up once MLB settlement is wired."
-      >
-        MLB audit · {mlbState === "live" ? "live" : "pending"}
-      </span>
+      {mlbAvailable ? (
+        <Link
+          href="/mlb/results"
+          className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px] transition-colors"
+          style={{
+            fontSize: 11,
+            color: "var(--vault-success)",
+            border: "1px solid rgba(74, 222, 128, 0.30)",
+            background:
+              "linear-gradient(180deg, rgba(74, 222, 128, 0.10) 0%, rgba(74, 222, 128, 0) 90%)",
+            textDecoration: "none",
+          }}
+          aria-label="Open the MLB model audit"
+        >
+          {mlbLabel} →
+        </Link>
+      ) : (
+        <span
+          className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
+          style={{
+            fontSize: 11,
+            color: "var(--vault-text-faint)",
+            border: "1px solid var(--vault-border)",
+            cursor: "not-allowed",
+          }}
+          title="MLB audit lights up once MLB settlement is wired."
+        >
+          {mlbLabel}
+        </span>
+      )}
     </div>
   );
 }

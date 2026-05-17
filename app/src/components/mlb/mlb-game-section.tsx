@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { MlbBoardLean, MlbScheduleGame } from "@/lib/types-mlb";
 import { formatTipoffEt } from "@/lib/format-mlb";
 import MlbLeanRow from "./mlb-lean-row";
@@ -20,6 +21,13 @@ interface Props {
   /** Total leans in this game before filtering — used in the count chip. */
   totalLeansForGame?: number;
   density?: "detailed" | "scan";
+  /** Final | live | pregame | null — drives the Final-game chip + body
+   *  state. When `final` AND `settled` is true, the body links into MLB
+   *  Results instead of showing pending/lean rows. */
+  gameState?: "final" | "live" | "pregame" | null;
+  /** Whether this game's props have been graded on MLB Results. Only
+   *  consulted when `gameState === "final"`. */
+  settled?: boolean;
 }
 
 export default function MlbGameSection({
@@ -27,6 +35,8 @@ export default function MlbGameSection({
   leans,
   totalLeansForGame,
   density = "detailed",
+  gameState,
+  settled,
 }: Props) {
   // Leans already sorted by parent; we just split by role for sectioning.
   const pitcherLeans = leans.filter((l) => l.playerRole === "pitcher");
@@ -86,6 +96,40 @@ export default function MlbGameSection({
                   ? `${total} lean${total === 1 ? "" : "s"}`
                   : `${visible} of ${total} leans`}
               </span>
+              {gameState === "final" && (
+                <span
+                  className="font-mono uppercase tracking-[0.12em]"
+                  style={{
+                    color: settled ? "var(--vault-success)" : "var(--vault-warn)",
+                    fontSize: 9,
+                    border: `1px solid ${
+                      settled ? "rgba(74, 222, 128, 0.30)" : "rgba(212, 175, 55, 0.30)"
+                    }`,
+                    background: settled
+                      ? "rgba(74, 222, 128, 0.10)"
+                      : "rgba(212, 175, 55, 0.10)",
+                    borderRadius: 2,
+                    padding: "1px 5px",
+                  }}
+                >
+                  {settled ? "Final · graded" : "Final · awaiting grade"}
+                </span>
+              )}
+              {gameState === "live" && (
+                <span
+                  className="font-mono uppercase tracking-[0.12em]"
+                  style={{
+                    color: "var(--vault-gold-bright)",
+                    fontSize: 9,
+                    border: "1px solid rgba(212, 175, 55, 0.30)",
+                    background: "rgba(212, 175, 55, 0.10)",
+                    borderRadius: 2,
+                    padding: "1px 5px",
+                  }}
+                >
+                  In progress
+                </span>
+              )}
             </div>
             <h3
               className="font-display font-semibold tracking-tight"
@@ -181,8 +225,10 @@ export default function MlbGameSection({
           ))}
         </div>
 
-        {/* Body — pending / filters-hid-all / real rows */}
-        {noPropsLoaded ? (
+        {/* Body — final-game / pending / filters-hid-all / real rows */}
+        {noPropsLoaded && gameState === "final" ? (
+          <FinalNoLeansNote settled={settled} />
+        ) : noPropsLoaded ? (
           <PropsPendingNote />
         ) : filtersHidAll ? (
           <FiltersHidAllNote />
@@ -244,6 +290,49 @@ function PropsPendingNote() {
       Lines have not posted yet for this matchup. When books post lines,
       projections appear here for pitcher strikeouts, batter hits, and
       batter total bases.
+    </div>
+  );
+}
+
+function FinalNoLeansNote({ settled }: { settled?: boolean }) {
+  return (
+    <div
+      className="mt-5 rounded-[6px] px-4 py-4 text-[13px]"
+      style={{
+        background: "rgba(7, 11, 26, 0.55)",
+        border: `1px solid ${
+          settled ? "rgba(74, 222, 128, 0.25)" : "rgba(212, 175, 55, 0.25)"
+        }`,
+        color: "var(--vault-text-mute)",
+      }}
+    >
+      <div
+        className="font-mono uppercase tracking-[0.14em] mb-1"
+        style={{
+          color: settled ? "var(--vault-success)" : "var(--vault-warn)",
+          fontSize: 10,
+        }}
+      >
+        {settled ? "Game final · graded" : "Game final · awaiting grade"}
+      </div>
+      {settled ? (
+        <>
+          This matchup is graded in the MLB model audit.{" "}
+          <Link href="/mlb/results" style={{ color: "var(--vault-success)" }}>
+            Open MLB Results →
+          </Link>
+        </>
+      ) : (
+        <>
+          The box score is final but settlement hasn&apos;t run yet for this
+          slate. Once the audit pipeline runs, every eligible lean is graded
+          on{" "}
+          <Link href="/mlb/results" style={{ color: "var(--vault-warn)" }}>
+            MLB Results
+          </Link>
+          .
+        </>
+      )}
     </div>
   );
 }
