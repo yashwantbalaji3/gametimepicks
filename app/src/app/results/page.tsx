@@ -1,37 +1,25 @@
 /**
- * Phase 8 — Results page.
+ * /results — unified cross-sport model audit hub.
  *
- * Reads the real settlement data from pipeline/validation/ written by
- * `python -m pipeline.settle_results --date <date>`.
+ * This is the Overview surface: it computes the cross-sport overall
+ * hit rate (settled NBA decisive rows + settled MLB decisive rows,
+ * pushes excluded, pending games never counted) and points users to
+ * the per-sport detail pages where every settled game expands to a
+ * projection-vs-actual table:
  *
- * Three states:
+ *   - NBA detail:  /nba/results  (also reachable via this hub's tabs)
+ *   - MLB detail:  /mlb/results
+ *   - Parlays:     /results/parlays (placeholder — candidate slips
+ *                  must be persisted before any parlay hit rate can
+ *                  be claimed honestly)
  *
- *   1. NO settled data on disk yet         → polished empty state
- *      (the default for a fresh deploy)
- *
- *   2. Settled data exists                 → lifetime summary tile +
- *                                             per-date selector + the
- *                                             newest date's full
- *                                             comparison report rendered
- *
- *   3. Pre-7C demo path                    → still supported via the
- *                                             old hit_rates.json loader
- *                                             but only as a fallback
- *                                             when no real settled data
- *                                             exists. (Current state on
- *                                             your machine: no settled
- *                                             data yet → shows empty
- *                                             state, NOT the demo.)
- *
- * Honest framing throughout: "early validation", "small sample", no
- * profitability language, no ROI, hit rate excludes pushes from the
- * denominator (standard convention) and clearly states so.
+ * Honest framing throughout: never invents data, pending games never
+ * count as losses, parlay hit rate is never folded into overall.
  */
 import {
   getLifetimeSummary,
   getLatestSettlement,
   getAvailableSettlementDates,
-  type ComparisonReport,
 } from "@/lib/settlement-data";
 import {
   getBoardForDate,
@@ -42,25 +30,15 @@ import { formatPercent } from "@/lib/format";
 import Link from "next/link";
 import EmptyResultsCard from "@/components/empty-results-card";
 import NewsletterSignup from "@/components/newsletter-signup";
-import ResultsBreakdown from "@/components/results-breakdown";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
 import AwaitingSettlementTable from "@/components/awaiting-settlement-table";
 import CalibrationRoadmap, {
   type CalibrationDay,
 } from "@/components/calibration-roadmap";
-import PerGameScorecard from "@/components/per-game-scorecard";
-import AnomalyGuardrailPanel from "@/components/anomaly-guardrail-panel";
 import ParlayResultsDisclosure from "@/components/parlay-results-disclosure";
-import SettledGameDetail, {
-  type SettledLeanRow,
-} from "@/components/settled-game-detail";
 import { getPlayoffContext } from "@/components/playoff-context";
+import ResultsSportTabs from "@/components/results-sport-tabs";
 
-/**
- * Walk available board dates newest-first and return the first one
- * that already has scored leans. Used to point the empty-state CTA at
- * the most useful live slate the user can actually look at.
- */
 function findLatestScoredBoardDate(): string | null {
   const dates = getAvailableBoardDates().slice().sort().reverse();
   for (const d of dates) {
@@ -76,49 +54,45 @@ function findLatestScoredBoardDate(): string | null {
   return null;
 }
 
-export default function ResultsPage() {
-  const lifetime = getLifetimeSummary();
-  const latest = getLatestSettlement();
-  const allDates = getAvailableSettlementDates();
+export default function ResultsOverviewPage() {
+  const nbaLifetime = getLifetimeSummary();
+  const mlbLifetime = getMlbLifetimeSummary();
   const latestScoredDate = findLatestScoredBoardDate();
 
-  // MLB sport-state — drives the chip strip + future MLB link.
-  const mlbLifetime = getMlbLifetimeSummary();
-  const mlbState: "pending" | "live" | "partial" = !mlbLifetime
-    ? "pending"
-    : mlbLifetime.partial
-      ? "partial"
-      : "live";
+  const nbaHasData = nbaLifetime.totalSettled > 0;
+  const mlbHasData = mlbLifetime !== null && mlbLifetime.totalSettled > 0;
 
-  // No settled data anywhere → polished empty state.
-  if (lifetime.totalSettled === 0 || latest === null) {
-    return <ResultsEmptyShell latestScoredDate={latestScoredDate} mlbState={mlbState} />;
-  }
+  // Cross-sport overall: combine settled decisive rows from both sports.
+  // We exclude pushes from the denominator, matching the per-sport
+  // convention. Parlay hit rate is never folded in because candidate
+  // slips are not yet persisted.
+  const overallSettled =
+    nbaLifetime.totalSettled + (mlbLifetime?.totalSettled ?? 0);
+  const overallDecisive =
+    nbaLifetime.decisive + (mlbLifetime?.decisive ?? 0);
+  const overallWins = nbaLifetime.wins + (mlbLifetime?.wins ?? 0);
+  const overallLosses = nbaLifetime.losses + (mlbLifetime?.losses ?? 0);
+  const overallPushes = nbaLifetime.pushes + (mlbLifetime?.pushes ?? 0);
+  const overallHitRate =
+    overallDecisive > 0 ? overallWins / overallDecisive : null;
+  const overallSmallSample = overallDecisive < 25;
+  const newestSettledDate = (() => {
+    const candidates = [
+      nbaLifetime.newestDate,
+      mlbLifetime?.newestDate ?? null,
+    ].filter(Boolean) as string[];
+    return candidates.sort().slice(-1)[0] ?? null;
+  })();
 
-  // Load the live board for the most recently settled date so we can
-  // cross-reference riskFlags for the guardrail audit and pass games
-  // into the per-game scorecard for friendly matchup + tipoff labels.
-  const latestBoard = getBoardForDate(latest.date);
-  const boardLeans = latestBoard.leans ?? [];
-  const boardGames = latestBoard.games ?? [];
-
-  // Build a friendly per-game label map for ResultsBreakdown's byGame
-  // bucket. "0042500206" → "Eastern Conf Semis · Game 6 · DET @ CLE".
-  const gameLabelMap: Record<string, string> = {};
-  for (const g of boardGames) {
-    if (!g.gameId) continue;
-    const ctx = getPlayoffContext(g.gameId, g.awayTeamAbbr, g.homeTeamAbbr);
-    if (ctx.isPlayoffs) {
-      gameLabelMap[g.gameId] = ctx.compactLabel;
-    } else if (g.awayTeamAbbr && g.homeTeamAbbr) {
-      gameLabelMap[g.gameId] = `${g.awayTeamAbbr} @ ${g.homeTeamAbbr}`;
-    }
+  if (!nbaHasData && !mlbHasData) {
+    return (
+      <ResultsEmptyShell latestScoredDate={latestScoredDate} />
+    );
   }
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
-      {/* Hero — model audit headline. Reads as a sportsbook scoreboard
-          marquee with the lifetime hit rate front and center. */}
+      {/* Hero — overall audit headline. Hits across both sports. */}
       <section className="reveal vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-4">
         <NeonCornerBracket />
         <div className="flex items-center gap-2 mb-3">
@@ -134,7 +108,7 @@ export default function ResultsPage() {
             className="font-mono uppercase tracking-[0.18em]"
             style={{ color: "var(--vault-gold)", fontSize: 10 }}
           >
-            Model audit · graded against final box scores
+            Model audit · overall · graded against final box scores
           </span>
         </div>
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
@@ -147,9 +121,7 @@ export default function ResultsPage() {
                 "0 0 24px rgba(240, 199, 94, 0.45), 0 0 8px rgba(212, 175, 55, 0.55)",
             }}
           >
-            {lifetime.hitRate !== null
-              ? formatPercent(lifetime.hitRate)
-              : "—"}
+            {overallHitRate !== null ? formatPercent(overallHitRate) : "—"}
           </h1>
           <span
             className="font-display tracking-tight"
@@ -158,10 +130,10 @@ export default function ResultsPage() {
               fontSize: "clamp(18px, 2.6vw, 22px)",
             }}
           >
-            hit rate · {lifetime.wins}–{lifetime.losses}
-            {lifetime.pushes > 0 ? `–${lifetime.pushes}P` : ""} on{" "}
+            Overall hit rate · {overallWins}–{overallLosses}
+            {overallPushes > 0 ? `–${overallPushes}P` : ""} on{" "}
             <span style={{ color: "var(--vault-gold-bright)" }}>
-              {lifetime.decisive}
+              {overallDecisive}
             </span>{" "}
             decisive picks
           </span>
@@ -170,25 +142,17 @@ export default function ResultsPage() {
           className="mt-4 text-[14px] leading-relaxed max-w-2xl"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          Every model lean is logged at generation time and graded
-          against the verified box score after the game. {lifetime.totalDates}{" "}
-          {lifetime.totalDates === 1 ? "slate" : "slates"} settled
-          {lifetime.newestDate ? ` · most recent: ${lifetime.newestDate}` : ""}.
-          The audit below covers NBA props; MLB has its own audit on the{" "}
-          <Link href="/mlb/results" style={{ color: "var(--vault-gold-bright)" }}>
-            MLB Results
-          </Link>{" "}
-          page. Hit rate excludes pushes and No Plays. Educational analytics —
-          not betting advice.
+          Overall combines settled NBA and MLB player-prop projections
+          only. Pending games never count as losses; pushes are excluded
+          from the denominator; parlay candidate slips are not folded
+          in. {newestSettledDate ? `Most recent settled slate: ${newestSettledDate}. ` : ""}
+          Hit rate excludes pushes and No Plays. Educational analytics — not betting advice.
         </p>
       </section>
 
-      {/* Sport tabs — keeps the sport context legible. NBA is live with
-          a graded slate; MLB grades arrive once settlement is wired. */}
-      <SportAuditTabs activeSport="NBA" mlbState={mlbState} />
+      <ResultsSportTabs activeSport="overview" nbaHasData={nbaHasData} mlbHasData={mlbHasData} />
 
-      {/* Honesty banner */}
-      {lifetime.smallSample && (
+      {overallSmallSample && (
         <aside
           className="mt-6 px-4 py-3 rounded-[3px] flex items-start gap-3"
           style={{
@@ -206,188 +170,83 @@ export default function ResultsPage() {
             className="font-mono text-[12px] leading-relaxed"
             style={{ color: "var(--vault-text-mute)" }}
           >
-            {lifetime.decisive} decisive picks is below the ~25-pick floor where
-            hit rates start to be statistically meaningful. Treat these numbers
-            as descriptive, not predictive. Real validation requires many more
-            settled slates.
+            {overallDecisive} decisive picks across NBA + MLB is below the
+            ~25-pick floor where hit rates start to be statistically
+            meaningful. Treat these numbers as descriptive, not predictive.
           </p>
         </aside>
       )}
 
-      {/* Lifetime KPI strip */}
+      {/* Overall KPIs */}
       <section className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiTile label="settled" value={String(lifetime.totalSettled)} />
-        <KpiTile
-          label="wins"
-          value={String(lifetime.wins)}
-          accent="success"
-        />
-        <KpiTile
-          label="losses"
-          value={String(lifetime.losses)}
-          accent="danger"
-        />
-        <KpiTile label="pushes" value={String(lifetime.pushes)} />
+        <KpiTile label="settled rows" value={String(overallSettled)} />
+        <KpiTile label="wins" value={String(overallWins)} accent="success" />
+        <KpiTile label="losses" value={String(overallLosses)} accent="danger" />
+        <KpiTile label="pushes" value={String(overallPushes)} />
       </section>
 
-      {/* Available dates */}
-      {allDates.length > 1 && (
-        <section className="mt-8">
-          <SectionHeading>settled dates</SectionHeading>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {allDates.map((d) => (
-              <span
-                key={d}
-                className="px-2.5 py-1 rounded-[2px] font-mono text-[11px] tracking-wider uppercase"
-                style={{
-                  color: d === latest.date ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
-                  background:
-                    d === latest.date ? "var(--vault-gold-dim)" : "var(--vault-panel-elevated)",
-                  border: `1px solid ${
-                    d === latest.date ? "var(--vault-border-strong)" : "var(--vault-border)"
-                  }`,
-                }}
-              >
-                {d}
-              </span>
-            ))}
-          </div>
-          <p
-            className="mt-2 font-mono text-[10px] uppercase tracking-wider"
-            style={{ color: "var(--vault-text-faint)" }}
-          >
-            showing {latest.date} below — most recent
-          </p>
-        </section>
-      )}
+      {/* Per-sport summary cards. Each links to the sport-specific
+          results page where every settled game expands to a projection-
+          vs-actual table. */}
+      <section className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <SportSummaryCard
+          title="NBA audit"
+          hitRate={nbaLifetime.hitRate}
+          wins={nbaLifetime.wins}
+          losses={nbaLifetime.losses}
+          pushes={nbaLifetime.pushes}
+          decisive={nbaLifetime.decisive}
+          totalDates={nbaLifetime.totalDates}
+          smallSample={nbaLifetime.smallSample}
+          newestDate={nbaLifetime.newestDate}
+          detailHref="/nba/results"
+          detailLabel="Open NBA breakdown"
+          accent="gold"
+        />
+        <SportSummaryCard
+          title="MLB audit"
+          hitRate={mlbLifetime?.hitRate ?? null}
+          wins={mlbLifetime?.wins ?? 0}
+          losses={mlbLifetime?.losses ?? 0}
+          pushes={mlbLifetime?.pushes ?? 0}
+          decisive={mlbLifetime?.decisive ?? 0}
+          totalDates={mlbLifetime?.totalDates ?? 0}
+          smallSample={mlbLifetime?.smallSample ?? true}
+          newestDate={mlbLifetime?.newestDate ?? null}
+          detailHref="/mlb/results"
+          detailLabel="Open MLB breakdown"
+          accent="success"
+          partial={mlbLifetime?.partial ?? false}
+        />
+      </section>
 
-      {/* Per-game scorecard — sportsbook scoreboard per graded game,
-          with best call + biggest miss. Friendly matchup labels +
-          playoff context come from the live board. */}
-      <PerGameScorecard rows={latest.rows} games={boardGames} />
+      <section
+        className="mt-8 rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
+        style={{
+          background: "rgba(7, 11, 26, 0.45)",
+          border: "1px solid var(--vault-border)",
+          color: "var(--vault-text-mute)",
+        }}
+      >
+        <div
+          className="font-mono uppercase tracking-[0.14em] mb-2"
+          style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
+        >
+          How the overall hit rate is computed
+        </div>
+        Settled NBA player-prop rows plus settled MLB player-prop rows.
+        Pushes and No Plays are excluded from the denominator;
+        insufficient-data rows are never counted; pending games never
+        count as losses. Home-run markets live on the{" "}
+        <Link href="/mlb/power" style={{ color: "var(--vault-warn)" }}>
+          MLB Power Board
+        </Link>{" "}
+        and do not feed this hit rate. Parlay candidate slips are not
+        yet persisted, so no parlay hit rate is folded in here.
+      </section>
 
-      {/* Guardrail audit — splits hit rate by R5 model-anomaly vs
-          clean, computed by joining settled rows with the board's
-          riskFlags. */}
-      <AnomalyGuardrailPanel
-        settledRows={latest.rows}
-        boardLeans={boardLeans}
-      />
-
-      {/* Settled games · tap to expand each game's projection-vs-actual
-          audit. The user explicitly asked for click-through detail per
-          game, so this is the canonical place to see every graded lean
-          for the date. */}
-      {latest.rows.length > 0 && (
-        <section className="mt-10">
-          <SectionHeading>
-            {latest.date} · settled games · projection vs actual
-          </SectionHeading>
-          <div className="mt-4 flex flex-col gap-3">
-            {(() => {
-              const rowsByGame = new Map<string, typeof latest.rows>();
-              for (const r of latest.rows) {
-                const k = r.gameId ?? "_";
-                const list = rowsByGame.get(k) ?? [];
-                list.push(r);
-                rowsByGame.set(k, list);
-              }
-              const orderedGameIds = Object.keys(latest.report?.byGame || {});
-              const seen = new Set<string>();
-              const ordered = [
-                ...orderedGameIds.filter((g) => rowsByGame.has(g)),
-                ...[...rowsByGame.keys()].filter((g) => !orderedGameIds.includes(g)),
-              ].filter((g) => {
-                if (seen.has(g)) return false;
-                seen.add(g);
-                return true;
-              });
-              return ordered.map((gameId) => {
-                const rows = rowsByGame.get(gameId) || [];
-                const wins = rows.filter((r) => r.result === "win").length;
-                const losses = rows.filter((r) => r.result === "loss").length;
-                const pushes = rows.filter((r) => r.result === "push").length;
-                const decisive = wins + losses;
-                const hitRate = decisive > 0 ? wins / decisive : null;
-                const matchup =
-                  gameLabelMap[gameId] ||
-                  (rows[0]?.team && rows[0]?.opponent
-                    ? `${rows[0].team} @ ${rows[0].opponent}`
-                    : "Settled game");
-                const ctx = getPlayoffContext(
-                  gameId,
-                  rows[0]?.team,
-                  rows[0]?.opponent,
-                );
-                const subtitle = ctx.isPlayoffs
-                  ? `${ctx.roundLabel} · ${ctx.gameLabel}`
-                  : undefined;
-                const detailRows: SettledLeanRow[] = rows.map((r, i) => {
-                  const odds =
-                    r.side === "Over" ? r.oddsOver : r.oddsUnder;
-                  const outcome: SettledLeanRow["outcome"] =
-                    r.result === "win"
-                      ? "Win"
-                      : r.result === "loss"
-                        ? "Loss"
-                        : r.result === "push"
-                          ? "Push"
-                          : "—";
-                  return {
-                    id: `${r.date}-${r.gameId}-${r.playerId}-${r.market}-${i}`,
-                    playerName: r.playerName ?? "—",
-                    marketLabel: r.market ?? "—",
-                    side: r.side ?? "Pass",
-                    line: r.line ?? null,
-                    projection: r.modelProjection ?? null,
-                    actual:
-                      typeof r.finalStat === "number" ? r.finalStat : null,
-                    outcome,
-                    confidence: r.confidence ?? "—",
-                    edgePct:
-                      typeof r.edgePct === "number" ? r.edgePct : null,
-                    bookmaker: r.bookmaker ?? null,
-                    oddsForSide: odds ?? null,
-                  };
-                });
-                return (
-                  <SettledGameDetail
-                    key={gameId}
-                    matchup={matchup}
-                    subtitle={subtitle}
-                    wins={wins}
-                    losses={losses}
-                    pushes={pushes}
-                    decisive={decisive}
-                    hitRate={hitRate}
-                    rows={detailRows}
-                    tone="gold"
-                    defaultOpen={ordered.length === 1}
-                  />
-                );
-              });
-            })()}
-          </div>
-        </section>
-      )}
-
-      {/* Newest date's full comparison report */}
-      {latest.report && (
-        <section className="mt-10">
-          <SectionHeading>{latest.date} · breakdown</SectionHeading>
-          <ResultsBreakdown
-            report={latest.report}
-            gameLabelMap={gameLabelMap}
-          />
-        </section>
-      )}
-
-      {/* Honest disclosure that historical parlay candidates were not
-          persisted, so we cannot claim parlay hits without inventing
-          the slip. Future-feature framing. */}
       <ParlayResultsDisclosure />
 
-      {/* Footer disclosure */}
       <footer
         className="mt-12 pt-6 text-center font-mono text-[10px] tracking-[0.18em] uppercase"
         style={{
@@ -395,21 +254,107 @@ export default function ResultsPage() {
           borderTop: "1px solid var(--vault-rule)",
         }}
       >
-        hit rate excludes pushes · educational use only · not betting advice
+        hit rate excludes pushes · settled decisive rows only · educational use only · not betting advice
       </footer>
     </div>
   );
 }
 
+function SportSummaryCard({
+  title,
+  hitRate,
+  wins,
+  losses,
+  pushes,
+  decisive,
+  totalDates,
+  smallSample,
+  newestDate,
+  detailHref,
+  detailLabel,
+  accent,
+  partial,
+}: {
+  title: string;
+  hitRate: number | null;
+  wins: number;
+  losses: number;
+  pushes: number;
+  decisive: number;
+  totalDates: number;
+  smallSample: boolean;
+  newestDate: string | null;
+  detailHref: string;
+  detailLabel: string;
+  accent: "gold" | "success";
+  partial?: boolean;
+}) {
+  const accentColor =
+    accent === "gold" ? "var(--vault-gold-bright)" : "var(--vault-success)";
+  return (
+    <div
+      className="rounded-[6px] px-5 py-5"
+      style={{
+        background: "rgba(7, 11, 26, 0.55)",
+        border: "1px solid var(--vault-border)",
+      }}
+    >
+      <div
+        className="font-mono uppercase tracking-[0.14em] mb-2"
+        style={{ color: accentColor, fontSize: 10 }}
+      >
+        {title}
+        {partial ? " · partial" : ""}
+      </div>
+      <div className="flex items-baseline gap-3 flex-wrap">
+        <div
+          className="font-display font-semibold tabular tracking-tight"
+          style={{ color: accentColor, fontSize: 40, lineHeight: 1 }}
+        >
+          {hitRate !== null ? formatPercent(hitRate) : "—"}
+        </div>
+        <div
+          style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 500 }}
+        >
+          {decisive > 0
+            ? `${wins}–${losses}${pushes > 0 ? `–${pushes}P` : ""} on ${decisive}`
+            : "no settled rows yet"}
+        </div>
+      </div>
+      <div
+        className="mt-2 font-mono text-[10px] uppercase tracking-wider"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        {totalDates} {totalDates === 1 ? "slate" : "slates"}
+        {newestDate ? ` · most recent ${newestDate}` : ""}
+        {smallSample ? " · small sample" : ""}
+      </div>
+      <div className="mt-4">
+        <Link
+          href={detailHref}
+          className="font-mono"
+          style={{
+            color: accentColor,
+            fontSize: 12,
+            textTransform: "uppercase",
+            letterSpacing: "0.12em",
+            textDecoration: "none",
+          }}
+        >
+          {detailLabel} →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
-// Empty state
+// Empty shell (zero data anywhere)
 // ---------------------------------------------------------------------------
 function ResultsEmptyShell({
   latestScoredDate,
-  mlbState,
 }: {
   latestScoredDate: string | null;
-  mlbState: "pending" | "live" | "partial";
 }) {
   return (
     <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-8 sm:py-12">
@@ -431,22 +376,23 @@ function ResultsEmptyShell({
           className="mt-3 text-[14px] sm:text-[15px] leading-relaxed max-w-2xl"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          Once a slate&apos;s games complete and the box scores are verified,
+          Once a slate&apos;s games complete and box scores are verified,
           every model lean is graded against the actual outcome. Hit rate,
           projection error, and confidence calibration live here — broken
-          down by market, confidence tier, game, and bookmaker.
+          down by sport, market, confidence tier, game, and bookmaker.
         </p>
       </div>
 
-      <SportAuditTabs activeSport="NBA" mlbState={mlbState} />
+      <ResultsSportTabs
+        activeSport="overview"
+        nbaHasData={false}
+        mlbHasData={false}
+      />
 
       <div className="mt-8">
         <EmptyResultsCard latestScoredDate={latestScoredDate} />
       </div>
 
-      {/* Calibration sigil — small ambient pulsing graphic that visually
-          separates the explainer block above from the live slate-await
-          panel below. Pure texture, no fabrication. */}
       {latestScoredDate && (
         <div aria-hidden className="gtp-calib-sigil">
           <span className="gtp-calib-rule-left" />
@@ -455,28 +401,20 @@ function ResultsEmptyShell({
         </div>
       )}
 
-      {/* Slate-awaiting-settlement panel. Points the user at the live
-          model board with the loaded projection count so the Results
-          page never reads as a dead end while the slate is still in
-          flight. Only renders when a scored slate actually exists. */}
       <SlateAwaitingSettlementPanel latestScoredDate={latestScoredDate} />
 
-      {/* Full awaiting-settlement table — surfaces every prop that will
-          be graded once box scores land. Pure read of the existing
-          board JSON; no fabricated outcomes. */}
-      {latestScoredDate && (() => {
-        const board = getBoardForDate(latestScoredDate);
-        return (
-          <AwaitingSettlementTable
-            date={latestScoredDate}
-            games={board.games ?? []}
-            leans={board.leans ?? []}
-          />
-        );
-      })()}
+      {latestScoredDate &&
+        (() => {
+          const board = getBoardForDate(latestScoredDate);
+          return (
+            <AwaitingSettlementTable
+              date={latestScoredDate}
+              games={board.games ?? []}
+              leans={board.leans ?? []}
+            />
+          );
+        })()}
 
-      {/* Calibration roadmap — day-by-day strip. Honest "pending" /
-          "no-slate" states; settled cells only when real data exists. */}
       <CalibrationRoadmap
         days={buildCalibrationDays(latestScoredDate)}
         lifetimeDecisive={0}
@@ -486,8 +424,6 @@ function ResultsEmptyShell({
         liveBoardLabel="open the live model board"
       />
 
-      {/* Educational "how a lean grades" note — keep the page honest
-          about exactly what will be graded, and how. */}
       <section className="mt-10 gtp-grading-note">
         <div className="flex items-center gap-2 mb-2">
           <span
@@ -532,8 +468,6 @@ function ResultsEmptyShell({
         </ul>
       </section>
 
-      {/* Phase 13: compact newsletter signup so users can be notified
-          when results actually populate. */}
       <div className="mt-10 max-w-2xl">
         <NewsletterSignup variant="compact" />
       </div>
@@ -551,23 +485,10 @@ function ResultsEmptyShell({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Calibration roadmap helper — walks the available board dates and
-// classifies each into "settled" / "pending" / "no-slate" based on the
-// actual public results data. NEVER fabricates a hit rate.
-//
-// Inputs (all already public):
-//   - settled dates from getAvailableSettlementDates()
-//   - lifetime summary (decisive count, etc.) — not used per-cell here
-//   - available board dates from getAvailableBoardDates() for "pending"
-// ---------------------------------------------------------------------------
 function buildCalibrationDays(latestScoredDate: string | null): CalibrationDay[] {
-  // The board dates available on disk anchor the strip.
   const allBoardDates = getAvailableBoardDates().slice().sort();
   if (allBoardDates.length === 0) return [];
   const settledDates = new Set(getAvailableSettlementDates());
-
-  // Show the most recent 10 dates so the strip stays compact on mobile.
   const window = allBoardDates.slice(-10);
 
   return window.map<CalibrationDay>((date) => {
@@ -575,10 +496,6 @@ function buildCalibrationDays(latestScoredDate: string | null): CalibrationDay[]
       return {
         date,
         state: "settled",
-        // We don't pull the per-date comparison report into the page
-        // payload here to keep the bundle lean. The cell renders the
-        // pre-computed hitRate from the lifetime summary's settled
-        // dates — until per-date data is wired, treat as decisive=0.
         hitRate: null,
         decisive: 0,
         label: shortDateLabel(date),
@@ -610,7 +527,6 @@ function buildCalibrationDays(latestScoredDate: string | null): CalibrationDay[]
 }
 
 function shortDateLabel(date: string): string {
-  // "2026-05-15" -> "5/15"
   const parts = date.split("-");
   if (parts.length !== 3) return date;
   const m = Number(parts[1]);
@@ -618,12 +534,6 @@ function shortDateLabel(date: string): string {
   return `${m}/${d}`;
 }
 
-// ---------------------------------------------------------------------------
-// Slate-awaiting-settlement panel — used on the empty Results page to
-// keep the surface useful. Points the user at the latest scored model
-// board with the loaded projection count. Honest about the fact that
-// nothing is settled yet.
-// ---------------------------------------------------------------------------
 function SlateAwaitingSettlementPanel({
   latestScoredDate,
 }: {
@@ -646,8 +556,6 @@ function SlateAwaitingSettlementPanel({
           games.length > 1 ? ` · +${games.length - 1} more` : ""
         }`
       : null;
-  // Decode playoff context from the first game so the panel reads
-  // "Conf Semis · Game 6" instead of just "DET @ CLE".
   const firstGame = games[0];
   const playoff = firstGame
     ? getPlayoffContext(
@@ -735,25 +643,8 @@ function SlateAwaitingSettlementPanel({
 }
 
 // ---------------------------------------------------------------------------
-// Inline UI atoms (vault-themed, no external dep)
+// Inline UI atoms
 // ---------------------------------------------------------------------------
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-3">
-      <span
-        className="font-mono text-[10px] uppercase tracking-[0.18em] shrink-0"
-        style={{ color: "var(--vault-gold)" }}
-      >
-        {children}
-      </span>
-      <div
-        className="flex-1 h-px"
-        style={{ background: "var(--vault-rule)" }}
-      />
-    </div>
-  );
-}
-
 function KpiTile({
   label,
   value,
@@ -792,92 +683,6 @@ function KpiTile({
       >
         {value}
       </div>
-    </div>
-  );
-}
-
-/**
- * SportAuditTabs — small chip strip clarifying that today's audit covers
- * NBA only, and MLB grading arrives once MLB settlement is wired. Stays
- * on the page even when MLB is pending so users can see the sport scope.
- *
- * Pure presentation; no interactivity. When MLB lands, replace the
- * inert "MLB pending" chip with an actual link/tab.
- */
-function SportAuditTabs({
-  activeSport,
-  mlbState,
-}: {
-  activeSport: "NBA" | "MLB";
-  mlbState: "pending" | "live" | "partial";
-}) {
-  const mlbAvailable = mlbState !== "pending";
-  const mlbLabel =
-    mlbState === "live"
-      ? "MLB audit · live"
-      : mlbState === "partial"
-        ? "MLB audit · partial"
-        : "MLB audit · pending";
-  return (
-    <div
-      className="mt-6 inline-flex flex-wrap items-stretch gap-1 p-1 rounded-[4px]"
-      style={{
-        background: "rgba(7, 11, 26, 0.55)",
-        border: "1px solid var(--vault-border)",
-      }}
-      aria-label="Model audit sport tabs"
-    >
-      <span
-        className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
-        style={{
-          fontSize: 11,
-          color:
-            activeSport === "NBA"
-              ? "var(--vault-gold-bright)"
-              : "var(--vault-text-mute)",
-          background:
-            activeSport === "NBA"
-              ? "linear-gradient(180deg, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0) 90%)"
-              : "transparent",
-          border:
-            activeSport === "NBA"
-              ? "1px solid rgba(212, 175, 55, 0.30)"
-              : "1px solid var(--vault-border)",
-        }}
-        aria-current={activeSport === "NBA" ? "page" : undefined}
-      >
-        NBA audit · live
-      </span>
-      {mlbAvailable ? (
-        <Link
-          href="/mlb/results"
-          className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px] transition-colors"
-          style={{
-            fontSize: 11,
-            color: "var(--vault-success)",
-            border: "1px solid rgba(74, 222, 128, 0.30)",
-            background:
-              "linear-gradient(180deg, rgba(74, 222, 128, 0.10) 0%, rgba(74, 222, 128, 0) 90%)",
-            textDecoration: "none",
-          }}
-          aria-label="Open the MLB model audit"
-        >
-          {mlbLabel} →
-        </Link>
-      ) : (
-        <span
-          className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
-          style={{
-            fontSize: 11,
-            color: "var(--vault-text-faint)",
-            border: "1px solid var(--vault-border)",
-            cursor: "not-allowed",
-          }}
-          title="MLB audit lights up once MLB settlement is wired."
-        >
-          {mlbLabel}
-        </span>
-      )}
     </div>
   );
 }
