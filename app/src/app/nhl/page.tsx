@@ -9,6 +9,7 @@ import NhlSectionTabs from "@/components/nhl/nhl-section-tabs";
 import UpcomingSlateStrip, {
   type UpcomingSlateDay,
 } from "@/components/upcoming-slate-strip";
+import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 
 export const metadata = {
   title: "NHL · GameTime Picks",
@@ -272,51 +273,24 @@ export default function NhlLandingPage() {
         emptyMessage="No upcoming NHL playoff games on disk yet. The next refresh will pull the bracket."
       />
 
-      <section className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div
-          className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
-          style={{
-            background: "rgba(7, 11, 26, 0.45)",
-            border: "1px solid var(--vault-border)",
-            color: "var(--vault-text-mute)",
-          }}
-        >
-          <div
-            className="font-mono uppercase tracking-[0.14em] mb-2"
-            style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-          >
-            What is wired today
-          </div>
-          Free NHL public API schedule for the active date. No paid
-          odds. No projections. No fabricated picks. Every other surface
-          on /nhl/* clearly reads as pending until the data is real.
-        </div>
-        <div
-          className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
-          style={{
-            background: "rgba(7, 11, 26, 0.45)",
-            border: "1px solid var(--vault-border)",
-            color: "var(--vault-text-mute)",
-          }}
-        >
-          <div
-            className="font-mono uppercase tracking-[0.14em] mb-2"
-            style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-          >
-            Honest framing
-          </div>
-          Same educational-analytics framing as NBA and MLB. The
-          Results page is where hit-rate calibration will live once
-          settled NHL leans exist. See{" "}
-          <Link
-            href="/responsible-use"
-            style={{ color: "var(--vault-gold-bright)" }}
-          >
-            Responsible Use
-          </Link>{" "}
-          for helplines.
-        </div>
-      </section>
+      <OverviewFooterDisclosure
+        inputsLabel="What is wired today"
+        inputsBody={
+          <>
+            Free NHL public API schedule for the active date. No paid
+            odds. No projections. No fabricated picks. Every other
+            surface on /nhl/* clearly reads as pending until the data
+            is real.
+          </>
+        }
+        framingBody={
+          <>
+            Same educational-analytics framing as NBA and MLB. The
+            Results page is where hit-rate calibration will live once
+            settled NHL leans exist.
+          </>
+        }
+      />
     </div>
   );
 }

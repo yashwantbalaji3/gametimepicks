@@ -5,131 +5,165 @@ import { usePathname } from "next/navigation";
 import BrandMark from "./brand-mark";
 import SportsbookLightRail from "./sportsbook-light-rail";
 
-const NAV_ITEMS = [
+/**
+ * Primary site header.
+ *
+ * Layout:
+ *   Row 1 — centered GameTimePicks brand lockup (larger on desktop).
+ *   Row 2 — nav strip. Sport links lead, product links follow, with a
+ *           gold divider chip in between so the hierarchy reads at a
+ *           glance. Horizontally scrollable on mobile.
+ *
+ * Centered logo + below-nav layout was chosen for casino/sportsbook
+ * feel — the lockup is the focal point. Sport tabs (Overview · Model
+ * Board · Power Board · Parlays · Results) live INSIDE each sport
+ * section, not here.
+ */
+const NAV_ITEMS: Array<{
+  href: string;
+  label: string;
+  /** When true, render a faint gold divider chip BEFORE this item. */
+  beforeDivider?: boolean;
+}> = [
   { href: "/", label: "Home" },
-  { href: "/board", label: "NBA" },
+  { href: "/nba", label: "NBA" },
   { href: "/mlb", label: "MLB" },
   { href: "/nhl", label: "NHL" },
   { href: "/ipl", label: "IPL" },
-  { href: "/parlay-lab", label: "Parlay Lab" },
+  { href: "/parlay-lab", label: "Parlays", beforeDivider: true },
   { href: "/results", label: "Results" },
-  { href: "/methodology", label: "Methodology" },
+  { href: "/methodology", label: "Methodology", beforeDivider: true },
   { href: "/responsible-use", label: "Responsible Use" },
 ];
+
+const SPORT_HREFS = new Set([
+  "/nba",
+  "/board",
+  "/mlb",
+  "/nhl",
+  "/ipl",
+]);
 
 export default function Nav() {
   const pathname = usePathname() || "/";
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/" || pathname === "";
-    return pathname.startsWith(href);
+    // NBA top-level entry should match the legacy /board URL as well
+    // as /nba/* so the active state is honest from either entry point.
+    if (href === "/nba") {
+      return (
+        pathname === "/nba" ||
+        pathname.startsWith("/nba/") ||
+        pathname === "/board" ||
+        pathname.startsWith("/board/")
+      );
+    }
+    // Parlays in nav should be active on both legacy /parlay-lab and
+    // any sport-specific /<sport>/parlays as well as /results/parlays.
+    if (href === "/parlay-lab") {
+      return (
+        pathname === "/parlay-lab" ||
+        pathname.startsWith("/parlay-lab/") ||
+        pathname.endsWith("/parlays") ||
+        pathname.includes("/parlays/") ||
+        pathname === "/results/parlays" ||
+        pathname.startsWith("/results/parlays/")
+      );
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   return (
     <header
       className="sticky top-0 z-30 backdrop-blur-xl"
       style={{
-        background: "rgba(7, 11, 26, 0.82)",
+        background: "rgba(7, 11, 26, 0.86)",
         borderBottom: "1px solid var(--vault-border)",
       }}
     >
-      <div className="mx-auto max-w-[1440px] px-6 sm:px-8 h-16 flex items-center justify-between gap-6">
+      {/* Row 1: centered brand */}
+      <div className="mx-auto max-w-[1440px] px-6 sm:px-8 pt-3 pb-2 flex items-center justify-center">
         <Link
           href="/"
           aria-label="GameTimePicks home"
-          className="flex items-center group shrink-0 vault-glow-hover rounded-[3px] py-1 px-1"
+          className="vault-glow-hover rounded-[4px] py-1 px-2 inline-flex items-center"
         >
-          <BrandMark variant="lockup" />
+          <span className="hidden sm:inline-flex">
+            <BrandMark variant="hero" />
+          </span>
+          <span className="inline-flex sm:hidden">
+            <BrandMark variant="lockup" />
+          </span>
         </Link>
-
-        <nav className="hidden md:flex items-center gap-1">
-          {NAV_ITEMS.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className="relative px-3.5 py-2 text-[14px] font-medium tracking-tight transition-colors"
-                style={{
-                  color: active
-                    ? "var(--vault-gold-bright)"
-                    : "var(--vault-text-mute)",
-                  // Iteration 4: gold-dim halo on the active nav item so
-                  // the "you are here" beat reads as illuminated, not
-                  // just underlined.
-                  background: active
-                    ? "linear-gradient(180deg, rgba(212, 175, 55, 0.10) 0%, rgba(212, 175, 55, 0) 80%)"
-                    : "transparent",
-                  borderRadius: 3,
-                  textShadow: active
-                    ? "0 0 12px rgba(240, 199, 94, 0.35)"
-                    : "none",
-                }}
-              >
-                {item.label}
-                {active && (
-                  <span
-                    aria-hidden
-                    className="absolute left-2 right-2 -bottom-px h-px"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
-                      boxShadow: "0 0 6px rgba(240, 199, 94, 0.45)",
-                    }}
-                  />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
       </div>
 
-      {/* Sportsbook LED rail directly under the header — gives the chrome
-          a faint lounge-light strip. Pure presentation; respects
-          prefers-reduced-motion. */}
-      <SportsbookLightRail />
-
-      {/* Mobile horizontal nav row */}
-      <div
-        className="md:hidden overflow-x-auto"
-        style={{ borderTop: "1px solid var(--vault-border)" }}
+      {/* Row 2: nav strip — horizontal scroll on mobile, centered on desktop */}
+      <nav
+        aria-label="Primary"
+        className="overflow-x-auto"
+        style={{ borderTop: "1px solid var(--vault-rule)" }}
       >
-        <div className="flex items-center gap-0 px-3 py-1.5 min-w-max">
-          {NAV_ITEMS.map((item) => {
+        <div className="mx-auto max-w-[1440px] px-3 sm:px-6 py-1.5 flex items-center justify-start sm:justify-center gap-0 min-w-max">
+          {NAV_ITEMS.map((item, idx) => {
             const active = isActive(item.href);
+            const isSport = SPORT_HREFS.has(item.href);
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className="relative px-3 py-1.5 text-[12px] font-medium tracking-tight whitespace-nowrap transition-colors"
-                style={{
-                  color: active
-                    ? "var(--vault-gold-bright)"
-                    : "var(--vault-text-mute)",
-                  background: active
-                    ? "linear-gradient(180deg, rgba(212, 175, 55, 0.10) 0%, rgba(212, 175, 55, 0) 80%)"
-                    : "transparent",
-                  borderRadius: 3,
-                }}
-              >
-                {item.label}
-                {active && (
+              <span key={item.href} className="inline-flex items-center">
+                {item.beforeDivider && idx > 0 && (
                   <span
                     aria-hidden
-                    className="absolute left-2 right-2 -bottom-px h-px"
+                    className="mx-1.5 inline-block"
                     style={{
-                      background:
-                        "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
+                      width: 4,
+                      height: 4,
+                      borderRadius: 999,
+                      background: "var(--vault-gold-dim)",
+                      boxShadow: "0 0 6px rgba(212, 175, 55, 0.30)",
                     }}
                   />
                 )}
-              </Link>
+                <Link
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className="relative px-3 py-1.5 text-[12px] sm:text-[13px] font-medium tracking-tight whitespace-nowrap transition-colors rounded-[3px]"
+                  style={{
+                    color: active
+                      ? "var(--vault-gold-bright)"
+                      : "var(--vault-text-mute)",
+                    background: active
+                      ? "linear-gradient(180deg, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0) 90%)"
+                      : "transparent",
+                    border: active
+                      ? "1px solid rgba(212, 175, 55, 0.30)"
+                      : "1px solid transparent",
+                    textShadow: active && isSport
+                      ? "0 0 12px rgba(240, 199, 94, 0.40)"
+                      : "none",
+                  }}
+                >
+                  {item.label}
+                  {active && (
+                    <span
+                      aria-hidden
+                      className="absolute left-2 right-2 -bottom-px h-px"
+                      style={{
+                        background:
+                          "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
+                        boxShadow: "0 0 6px rgba(240, 199, 94, 0.45)",
+                      }}
+                    />
+                  )}
+                </Link>
+              </span>
             );
           })}
         </div>
-      </div>
+      </nav>
+
+      {/* Sportsbook LED rail underneath the chrome — pure presentation,
+          respects prefers-reduced-motion. */}
+      <SportsbookLightRail />
     </header>
   );
 }
