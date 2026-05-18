@@ -98,12 +98,21 @@ export function getMlbAvailableBoardDates(): string[] {
 }
 
 /**
- * Pick the active MLB date for default landings — the most recent on-disk
- * board file. Used by /mlb and /mlb/board when no date is provided.
+ * Pick the active MLB date for default landings.
+ *
+ * The earliest on-disk date >= today (ET-ish via local TZ) so a Saturday
+ * pre-generated schedule does not surface as "today's slate" on Monday.
+ * Falls back to the most recent on-disk date if no current/future file
+ * exists. Used by /mlb, /mlb/board, /mlb/power, and the homepage sports
+ * rail — every "MLB · today" surface flows through this. Mirrors the
+ * activeNhlDate / activeIplDate helpers.
  */
 export function activeMlbDate(): string | null {
   const dates = getMlbAvailableBoardDates();
-  return dates.length ? dates[dates.length - 1] : null;
+  if (dates.length === 0) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  const current = dates.find((d) => d >= today);
+  return current ?? dates[dates.length - 1];
 }
 
 /**
