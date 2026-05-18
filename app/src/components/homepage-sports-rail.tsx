@@ -167,7 +167,25 @@ export default function HomepageSportsRail() {
   const cards: SportCardData[] = [nbaCard, mlbCard, nhlCard, iplCard];
 
   return (
-    <section className="mt-12 reveal" aria-label="Sports command rail">
+    <section
+      className="mt-12 reveal relative -mx-6 sm:-mx-8 px-6 sm:px-8 py-6 overflow-hidden"
+      aria-label="Sports command rail"
+    >
+      {/* Faint sportsbook grid texture behind the rail. Very low opacity
+          so it reads as a subtle backdrop, not a busy pattern. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          opacity: 0.05,
+          backgroundImage:
+            "linear-gradient(var(--vault-gold) 1px, transparent 1px), linear-gradient(90deg, var(--vault-gold) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+          maskImage:
+            "radial-gradient(ellipse at 50% 50%, black 0%, black 60%, transparent 100%)",
+        }}
+      />
+      <div className="relative">
       <div className="flex items-center gap-3 mb-5">
         <span
           aria-hidden
@@ -211,6 +229,7 @@ export default function HomepageSportsRail() {
           accent="success"
         />
       </div>
+      </div>
     </section>
   );
 }
@@ -252,13 +271,23 @@ function SportCard({
         : "var(--vault-text-faint)";
   return (
     <div
-      className="rounded-[8px] gtp-aurora-halo overflow-hidden flex flex-col"
+      className="rounded-[8px] gtp-aurora-halo overflow-hidden flex flex-col relative"
       style={{
         border: "1px solid var(--vault-border)",
         background:
           "linear-gradient(180deg, rgba(7,11,26,0.78) 0%, rgba(7,11,26,0.55) 100%)",
       }}
     >
+      {/* Top accent rule — picks up the sport's accent color so the cards
+          read as a row of sportsbook tabs, not flat plates. */}
+      <span
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-[2px]"
+        style={{
+          background: `linear-gradient(90deg, transparent 0%, ${accentColor} 50%, transparent 100%)`,
+          opacity: 0.6,
+        }}
+      />
       <Link
         href={href}
         className="block vault-glow-hover px-4 py-4 sm:px-5 sm:py-5 flex-1"
@@ -277,7 +306,7 @@ function SportCard({
           >
             <span
               aria-hidden
-              className="inline-block w-1.5 h-1.5 rounded-full"
+              className={`inline-block w-1.5 h-1.5 rounded-full ${statusTone === "success" ? "gtp-neon-pulse" : ""}`}
               style={{
                 background: statusColor,
                 boxShadow:
