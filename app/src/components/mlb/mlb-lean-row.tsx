@@ -349,7 +349,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
               )}
             </div>
             <div
-              className="flex items-center gap-2 text-[11px] font-mono"
+              className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-mono"
               style={{ color: "var(--vault-text-mute)" }}
             >
               <span>{teamAbbr}</span>
