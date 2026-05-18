@@ -466,16 +466,22 @@ export default function ParlayBuilderClient({
                         }`}
                         style={{
                           background: isSelected
-                            ? "var(--vault-gold-dim)"
+                            ? "linear-gradient(180deg, rgba(240, 199, 94, 0.18) 0%, rgba(212, 175, 55, 0.06) 100%)"
                             : "var(--vault-panel)",
                           border: `1px solid ${
                             isSelected
-                              ? "var(--vault-gold)"
+                              ? "rgba(240, 199, 94, 0.55)"
                               : isStar
                                 ? "var(--vault-border-strong)"
                                 : "var(--vault-border)"
                           }`,
-                          color: "var(--vault-text)",
+                          color: isSelected
+                            ? "var(--vault-gold-bright)"
+                            : "var(--vault-text)",
+                          boxShadow: isSelected
+                            ? "0 0 0 1px rgba(240, 199, 94, 0.30) inset, 0 0 12px rgba(240, 199, 94, 0.25)"
+                            : "none",
+                          fontWeight: isSelected ? 600 : 400,
                         }}
                       >
                         {p.playerName}

@@ -511,8 +511,22 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
 
 /**
  * Big stat tile — used for LINE / PROJECTION / EDGE inside the detailed
- * lean card. Mirrors the visual weight of NBA's KpiTile but lives inline
- * inside a card row instead of as a standalone panel.
+ * MLB lean card. Visual weight matches the NBA scoreboard tile shipped
+ * earlier in PR #55 so both sports' projection cards read with the
+ * same sportsbook rhythm:
+ *
+ *   - rgba(7, 11, 26, 0.55) neon-bordered surface
+ *   - minHeight 56 so the trio aligns at every breakpoint
+ *   - mono uppercase eyebrow label
+ *   - big tabular value at clamp(20px, 3vw, 26px)
+ *   - PROJECTION (and healthy EDGE) carry a soft gold textShadow glow
+ *
+ * Accent semantics stay sport-specific:
+ *   default → muted text (LINE / dash)
+ *   gold    → gold-bright (PROJECTION)
+ *   success → success-green (positive EDGE) — kept for MLB so a clean
+ *             edge reads as "positive" rather than "anomaly"
+ *   warn    → warn-amber (R5 anomaly / capped edge)
  */
 function StatTile({
   label,
@@ -536,29 +550,43 @@ function StatTile({
           : accent === "success"
             ? "var(--vault-success)"
             : "var(--vault-text)";
+  const labelColor =
+    accent === "warn"
+      ? "var(--vault-warn)"
+      : accent === "success"
+        ? "var(--vault-success)"
+        : accent === "gold"
+          ? "var(--vault-gold)"
+          : "var(--vault-text-faint)";
+  const glow =
+    accent === "gold" || (accent === "success" && !isDash)
+      ? "0 0 12px rgba(240, 199, 94, 0.30)"
+      : "none";
   return (
     <div
-      className="rounded-[3px] flex flex-col items-center justify-center"
+      className="rounded-[5px] flex flex-col items-start justify-center"
       style={{
-        padding: "8px 6px",
+        padding: "8px 10px",
         border: "1px solid var(--vault-border)",
-        background: "rgba(7, 11, 26, 0.45)",
+        background: "rgba(7, 11, 26, 0.55)",
+        minHeight: 56,
       }}
     >
       <span
         className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: labelColor, fontSize: 9 }}
       >
         {label}
       </span>
       <span
-        className="font-display font-semibold tracking-tight tabular"
+        className="font-display font-semibold tracking-tight tabular whitespace-nowrap"
         style={{
           color: valueColor,
-          fontSize: 22,
-          lineHeight: 1.1,
+          fontSize: "clamp(20px, 3vw, 26px)",
+          lineHeight: 1.05,
           marginTop: 2,
           fontVariantNumeric: "tabular-nums",
+          textShadow: glow,
         }}
       >
         {value}

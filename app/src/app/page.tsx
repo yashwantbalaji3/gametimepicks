@@ -25,6 +25,7 @@ import OddsTickerRail, {
 import NeonStatPanel from "@/components/neon-stat-panel";
 import VegasSectionShell from "@/components/vegas-section-shell";
 import AnatomyCallout from "@/components/anatomy-callout";
+import HomepageSportsRail from "@/components/homepage-sports-rail";
 import { currentEtDate, dayLabelFor } from "@/lib/freshness";
 import { selectActiveSlate } from "@/lib/active-slate";
 
@@ -550,6 +551,12 @@ export default function HomePage() {
         upcomingDayLabel={upcomingDayLabel}
         upcomingGames={upcomingGames}
       />
+
+      {/* Sportsbook command-center sports rail — NBA/MLB/NHL/IPL cards
+          with live-status chips, matchup line, audit summary, and a
+          ticket-style Model Audit + Parlay Lab CTA pair underneath.
+          Pure on-disk data; no fabricated counts. */}
+      <HomepageSportsRail />
 
       {/* PR — "What's on the floor" feature tiles. Routes the user to
           the four main destinations with one-line descriptions, using
