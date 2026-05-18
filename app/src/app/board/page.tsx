@@ -15,7 +15,6 @@ import SportsbookStatusBoard, {
 import { currentEtDate } from "@/lib/freshness";
 import {
   selectActiveSlate,
-  activeSlateHeading,
   activeSlateSubtitle,
 } from "@/lib/active-slate";
 
@@ -153,7 +152,7 @@ export default function BoardPage() {
             className="mt-3 vault-display-h2"
             style={{ color: "var(--vault-text)" }}
           >
-            {activeSlateHeading(activeSlate)}
+            Between slates
           </h1>
           <p
             className="mt-4 text-[14px] sm:text-[15px] max-w-2xl leading-relaxed"

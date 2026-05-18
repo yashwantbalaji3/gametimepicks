@@ -7,6 +7,7 @@ import {
   getSlate,
   getAvailableBoardDates,
 } from "@/lib/data";
+import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { formatPercent } from "@/lib/format";
 import type { DataMode, BoardData, PropLean } from "@/lib/types";
 import NewsletterSignup from "@/components/newsletter-signup";
@@ -25,6 +26,7 @@ import OddsTickerRail, {
 import NeonStatPanel from "@/components/neon-stat-panel";
 import VegasSectionShell from "@/components/vegas-section-shell";
 import AnatomyCallout from "@/components/anatomy-callout";
+import HomepageSportsRail from "@/components/homepage-sports-rail";
 import { currentEtDate, dayLabelFor } from "@/lib/freshness";
 import { selectActiveSlate } from "@/lib/active-slate";
 
@@ -36,6 +38,16 @@ export default function HomePage() {
   // nothing has been settled yet — the UI then shows honest "—" tiles
   // with a "no settled data yet" sub instead of misleading demo numbers.
   const lifetime = getLifetimeSummary();
+  const mlbLifetime = getMlbLifetimeSummary();
+  // Cross-sport overall — matches the math on /results so the hero chip
+  // and the Results hub read the same number. Null when no slates have
+  // settled yet; chip falls back to honest "Audit pending" copy below.
+  const combinedDecisive =
+    (lifetime?.decisive ?? 0) + (mlbLifetime?.decisive ?? 0);
+  const combinedWins =
+    (lifetime?.wins ?? 0) + (mlbLifetime?.wins ?? 0);
+  const combinedHitRate =
+    combinedDecisive > 0 ? combinedWins / combinedDecisive : null;
   const meta = getMeta();
   const slate = getSlate();
 
@@ -352,15 +364,24 @@ export default function HomePage() {
               </span>
             </h1>
             <p
-              className="mt-6 text-[16px] md:text-[18px] max-w-2xl leading-relaxed"
+              className="mt-5 text-[15px] md:text-[17px] max-w-2xl leading-relaxed"
               style={{ color: "var(--vault-text-mute)" }}
             >
-              GametimePicks compares model projections against sportsbook
-              lines, surfaces edges with explanations, and tracks every
-              result publicly. NBA is the deepest surface today; MLB is
-              live with its own board and a separate Power Board for home
-              runs. Educational analytics — not betting advice.
+              Model projections vs sportsbook lines. Every edge graded,
+              every result public.
             </p>
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <HeroChip label="NBA + MLB" tone="success" pulse />
+              {combinedHitRate !== null ? (
+                <HeroChip
+                  label={`Audit · ${formatPercent(combinedHitRate)} on ${combinedDecisive}`}
+                  tone="gold"
+                />
+              ) : (
+                <HeroChip label="Audit pending first slate" tone="gold" />
+              )}
+              <HeroChip label="Educational only" tone="mute" />
+            </div>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link href={ctaHref} className="gtp-cta-primary">
@@ -550,6 +571,12 @@ export default function HomePage() {
         upcomingDayLabel={upcomingDayLabel}
         upcomingGames={upcomingGames}
       />
+
+      {/* Sportsbook command-center sports rail — NBA/MLB/NHL/IPL cards
+          with live-status chips, matchup line, audit summary, and a
+          ticket-style Model Audit + Parlay Lab CTA pair underneath.
+          Pure on-disk data; no fabricated counts. */}
+      <HomepageSportsRail />
 
       {/* PR — "What's on the floor" feature tiles. Routes the user to
           the four main destinations with one-line descriptions, using
@@ -1080,6 +1107,53 @@ function FeatureTile({
         <span aria-hidden>→</span>
       </div>
     </Link>
+  );
+}
+
+function HeroChip({
+  label,
+  tone,
+  pulse,
+}: {
+  label: string;
+  tone: "success" | "gold" | "mute";
+  pulse?: boolean;
+}) {
+  const color =
+    tone === "success"
+      ? "var(--vault-success)"
+      : tone === "gold"
+        ? "var(--vault-gold-bright)"
+        : "var(--vault-text-mute)";
+  const ring =
+    tone === "success"
+      ? "rgba(74, 222, 128, 0.35)"
+      : tone === "gold"
+        ? "rgba(240, 199, 94, 0.35)"
+        : "var(--vault-border)";
+  const glow =
+    tone === "success"
+      ? "0 0 6px rgba(74, 222, 128, 0.55)"
+      : tone === "gold"
+        ? "0 0 6px rgba(240, 199, 94, 0.55)"
+        : "none";
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono uppercase tracking-[0.14em]"
+      style={{
+        color,
+        border: `1px solid ${ring}`,
+        background: "rgba(7, 11, 26, 0.55)",
+        fontSize: 10,
+      }}
+    >
+      <span
+        aria-hidden
+        className={`inline-block w-1.5 h-1.5 rounded-full ${pulse ? "gtp-neon-pulse" : ""}`}
+        style={{ background: color, boxShadow: glow }}
+      />
+      {label}
+    </span>
   );
 }
 

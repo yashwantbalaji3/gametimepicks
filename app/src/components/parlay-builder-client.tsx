@@ -224,6 +224,25 @@ export default function ParlayBuilderClient({
 
   const hasNoSlate = allLeans.length === 0 || dateLeans.length === 0;
 
+  // Dynamic step numbering — visible sections are renumbered so the
+  // sidebar always reads 1, 2, 3, 4, … without gaps. Previously
+  // "Markets" hard-coded to step 6, leaving 1/2/3/4/6 when both
+  // "Players" and "Games" were hidden (e.g. cold-start with no slate).
+  const stepNumbers = (() => {
+    const labels: string[] = [
+      "Slate",
+      "Builder mode",
+      "Risk profile",
+      "Player pool",
+    ];
+    if (mode === "selected_players") labels.push("Players");
+    if (gameOptions.length > 0) labels.push("Games (optional)");
+    labels.push("Markets (optional)");
+    return Object.fromEntries(
+      labels.map((l, i) => [l, String(i + 1)]),
+    ) as Record<string, string>;
+  })();
+
   function togglePlayer(name: string) {
     setSelectedPlayerNames((prev) => {
       const next = new Set(prev);
@@ -338,7 +357,7 @@ export default function ParlayBuilderClient({
           </>
         )}
 
-        <SectionLabel n="2" text="Builder mode" />
+        <SectionLabel n={stepNumbers["Builder mode"]} text="Builder mode" />
         <div className="flex gap-2 mb-5">
           <ModeButton
             active={mode === "top_props"}
@@ -352,7 +371,7 @@ export default function ParlayBuilderClient({
           />
         </div>
 
-        <SectionLabel n="3" text="Risk profile" />
+        <SectionLabel n={stepNumbers["Risk profile"]} text="Risk profile" />
         <div className="flex flex-col gap-2 mb-5">
           {(["conservative", "balanced", "aggressive"] as RiskProfile[]).map(
             (rp) => (
@@ -366,7 +385,7 @@ export default function ParlayBuilderClient({
           )}
         </div>
 
-        <SectionLabel n="4" text="Player pool" />
+        <SectionLabel n={stepNumbers["Player pool"]} text="Player pool" />
         <div className="mb-5">
           <label
             className="flex items-start gap-2 cursor-pointer p-2.5 rounded-[2px] transition-colors"
@@ -403,7 +422,7 @@ export default function ParlayBuilderClient({
 
         {mode === "selected_players" && (
           <>
-            <SectionLabel n="5" text="Players" />
+            <SectionLabel n={stepNumbers["Players"]} text="Players" />
             <div className="mb-3">
               <input
                 type="search"
@@ -466,16 +485,22 @@ export default function ParlayBuilderClient({
                         }`}
                         style={{
                           background: isSelected
-                            ? "var(--vault-gold-dim)"
+                            ? "linear-gradient(180deg, rgba(240, 199, 94, 0.18) 0%, rgba(212, 175, 55, 0.06) 100%)"
                             : "var(--vault-panel)",
                           border: `1px solid ${
                             isSelected
-                              ? "var(--vault-gold)"
+                              ? "rgba(240, 199, 94, 0.55)"
                               : isStar
                                 ? "var(--vault-border-strong)"
                                 : "var(--vault-border)"
                           }`,
-                          color: "var(--vault-text)",
+                          color: isSelected
+                            ? "var(--vault-gold-bright)"
+                            : "var(--vault-text)",
+                          boxShadow: isSelected
+                            ? "0 0 0 1px rgba(240, 199, 94, 0.30) inset, 0 0 12px rgba(240, 199, 94, 0.25)"
+                            : "none",
+                          fontWeight: isSelected ? 600 : 400,
                         }}
                       >
                         {p.playerName}
@@ -508,7 +533,7 @@ export default function ParlayBuilderClient({
         {gameOptions.length > 0 && (
           <>
             <SectionLabel
-              n={mode === "selected_players" ? "6" : "5"}
+              n={stepNumbers["Games (optional)"]}
               text="Games (optional)"
             />
             <div className="mb-5 flex flex-wrap gap-1.5">
@@ -538,7 +563,7 @@ export default function ParlayBuilderClient({
         )}
 
         <SectionLabel
-          n={mode === "selected_players" ? "7" : "6"}
+          n={stepNumbers["Markets (optional)"]}
           text="Markets (optional)"
         />
         <div className="mb-1 flex gap-1.5">
@@ -583,14 +608,14 @@ export default function ParlayBuilderClient({
           )}
         <span className="gtp-candidate-eyebrow">Candidate slips · model output</span>
         {noCurrentBuilder ? (
-          <EmptyState
+          <DemoPreviewState
             heading="No current slate available"
-            body="The next slate hasn't been generated yet. Once today's or tomorrow's model leans land, the builder will activate. Use the date picker on the left to analyze archived slates if you want to see how the builder works on past data."
+            body="The next slate hasn't been generated yet. Once today's or tomorrow's model leans land, the builder activates and the picker chips below light up."
           />
         ) : hasNoSlate ? (
-          <EmptyState
+          <DemoPreviewState
             heading="No model leans on this slate"
-            body="The selected date doesn't have model leans yet. Either the slate hasn't been generated, or props are unavailable for those games. Try a different date or check back after the next refresh."
+            body="The selected date doesn't have model leans yet. Pick a different date or check back after the next refresh — picker chips look like this when active:"
           />
         ) : candidates.length === 0 ? (
           (() => {
@@ -1003,6 +1028,106 @@ function StatChip({
         {value}
       </span>
     </span>
+  );
+}
+
+/**
+ * Cold-start empty state — shown when no slate has leans yet.
+ *
+ * Demonstrates the marquee chip styling so users see what the populated
+ * picker will look like instead of a blank panel. The preview chips are
+ * non-interactive and labelled "preview only" so they can't be confused
+ * with real picks. No data is fabricated: names are anchored to the
+ * curated STAR_PRIORITY list already used by the live picker.
+ */
+function DemoPreviewState({
+  heading,
+  body,
+}: {
+  heading: string;
+  body: string;
+}) {
+  const previewNames = STAR_PRIORITY.slice(0, 3);
+  return (
+    <div className="vault-deluxe-card p-8 sm:p-10">
+      <div className="flex items-center gap-2 mb-3">
+        <span
+          aria-hidden
+          className="inline-block w-1.5 h-1.5 rounded-full vault-pulse"
+          style={{ background: "var(--vault-gold)" }}
+        />
+        <span
+          className="font-mono uppercase tracking-[0.18em]"
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+        >
+          Builder is idle
+        </span>
+      </div>
+      <h3
+        className="font-display text-[20px] font-semibold tracking-tight"
+        style={{ color: "var(--vault-text)" }}
+      >
+        {heading}
+      </h3>
+      <p
+        className="mt-2 text-[13px] leading-relaxed max-w-md"
+        style={{ color: "var(--vault-text-mute)" }}
+      >
+        {body}
+      </p>
+
+      {/* Preview chip row — the first chip wears the live gold-glow
+          treatment so the marquee selection styling is visible even on
+          cold-start days. The remaining chips show the resting state. */}
+      <div
+        className="mt-5 flex flex-wrap gap-1.5"
+        aria-hidden
+      >
+        {previewNames.map((name, i) => {
+          const isSelected = i === 0;
+          return (
+            <span
+              key={name}
+              className={`px-2.5 py-1 rounded-[3px] text-[12px] ${
+                isSelected ? "gtp-selected-chip" : ""
+              }`}
+              style={{
+                background: isSelected
+                  ? "linear-gradient(180deg, rgba(240, 199, 94, 0.18) 0%, rgba(212, 175, 55, 0.06) 100%)"
+                  : "var(--vault-panel)",
+                border: `1px solid ${
+                  isSelected
+                    ? "rgba(240, 199, 94, 0.55)"
+                    : "var(--vault-border)"
+                }`,
+                color: isSelected
+                  ? "var(--vault-gold-bright)"
+                  : "var(--vault-text)",
+                boxShadow: isSelected
+                  ? "0 0 0 1px rgba(240, 199, 94, 0.30) inset, 0 0 12px rgba(240, 199, 94, 0.25)"
+                  : "none",
+                fontWeight: isSelected ? 600 : 400,
+                opacity: isSelected ? 1 : 0.7,
+              }}
+            >
+              {name}
+              <span
+                className="ml-1.5 text-[10px]"
+                style={{ color: "var(--vault-gold-bright)" }}
+              >
+                ★
+              </span>
+            </span>
+          );
+        })}
+      </div>
+      <div
+        className="mt-3 font-mono uppercase tracking-[0.14em]"
+        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+      >
+        preview only · chips activate when a real slate loads
+      </div>
+    </div>
   );
 }
 
