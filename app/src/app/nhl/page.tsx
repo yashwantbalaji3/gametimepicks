@@ -1,7 +1,14 @@
 import Link from "next/link";
-import { activeNhlDate, getNhlScheduleForDate } from "@/lib/data-nhl";
+import {
+  activeNhlDate,
+  getAvailableNhlScheduleDates,
+  getNhlScheduleForDate,
+} from "@/lib/data-nhl";
 import NeonStatPanel from "@/components/neon-stat-panel";
 import NhlSectionTabs from "@/components/nhl/nhl-section-tabs";
+import UpcomingSlateStrip, {
+  type UpcomingSlateDay,
+} from "@/components/upcoming-slate-strip";
 
 export const metadata = {
   title: "NHL · GameTime Picks",
@@ -258,6 +265,13 @@ export default function NhlLandingPage() {
         )}
       </section>
 
+      <UpcomingSlateStrip
+        title="Upcoming · next 7 days"
+        days={buildNhlUpcomingDays(date)}
+        boardHrefBase="/nhl/board"
+        emptyMessage="No upcoming NHL playoff games on disk yet. The next refresh will pull the bracket."
+      />
+
       <section className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-3">
         <div
           className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
@@ -305,4 +319,56 @@ export default function NhlLandingPage() {
       </section>
     </div>
   );
+}
+
+function buildNhlUpcomingDays(_activeDate: string): UpcomingSlateDay[] {
+  const allDates = getAvailableNhlScheduleDates();
+  if (allDates.length === 0) return [];
+  // Window starts from today (ET) so the strip leads with the
+  // current date even when activeNhlDate() picks an off-day or jumps
+  // forward to the next game date.
+  const today = new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/New_York",
+  });
+  const forward = allDates.filter((d) => d >= today).slice(0, 8);
+  return forward.map((d) => {
+    const sched = getNhlScheduleForDate(d);
+    const games = sched.games ?? [];
+    const status: UpcomingSlateDay["status"] =
+      games.length === 0 ? "off-day" : "pending";
+    let teaser: string;
+    if (games.length === 0) {
+      teaser = "No games scheduled";
+    } else if (games.length === 1 && games[0]) {
+      const g = games[0];
+      teaser = `${g.awayTeamAbbr ?? "?"} @ ${g.homeTeamAbbr ?? "?"}`;
+    } else {
+      const first = games[0];
+      teaser = `${games.length} games · ${
+        first?.awayTeamAbbr ?? "?"} @ ${first?.homeTeamAbbr ?? "?"} +${games.length - 1} more`;
+    }
+    return {
+      date: d,
+      gameCount: games.length,
+      label: shortDateLabelNhl(d),
+      teaser,
+      status,
+    };
+  });
+}
+
+function shortDateLabelNhl(date: string): string {
+  try {
+    const dt = new Date(`${date}T17:00:00Z`);
+    return dt
+      .toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        timeZone: "America/New_York",
+      })
+      .replace(",", " ·");
+  } catch {
+    return date;
+  }
 }
