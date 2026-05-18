@@ -3230,5 +3230,199 @@ table,
   .gtp-monogram[data-ambient="true"] { animation: none; }
 }
 
+/* ─────────────────────────────────────────────────────────────────
+   Casino redesign utilities — homepage + Parlay Lab.
 
+   These layer onto the existing vault-deluxe-card / casino-glow-card
+   surfaces. Reduced-motion: every animation has an explicit
+   @media (prefers-reduced-motion: reduce) override.
+   ───────────────────────────────────────────────────────────────── */
+
+/* Radar pulse — concentric expanding ring for pending / off-day cards.
+   Visually communicates "watching, nothing yet" without faking activity. */
+@keyframes gtp-radar-ring {
+  0%   { transform: scale(0.6); opacity: 0.55; }
+  80%  { transform: scale(1.85); opacity: 0; }
+  100% { transform: scale(1.85); opacity: 0; }
+}
+.gtp-radar-pulse {
+  position: relative;
+}
+.gtp-radar-pulse::before,
+.gtp-radar-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  pointer-events: none;
+  opacity: 0.55;
+  animation: gtp-radar-ring 2.8s ease-out infinite;
+}
+.gtp-radar-pulse::after {
+  animation-delay: 1.4s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-radar-pulse::before,
+  .gtp-radar-pulse::after { animation: none; opacity: 0; }
+}
+
+/* Scoreboard number — big tabular value with subtle gold rim glow.
+   Used on the "What's on the floor" command tiles so the count
+   reads as an LED scoreboard, not body copy. */
+.gtp-scoreboard-number {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-shadow: 0 0 18px rgba(240, 199, 94, 0.32);
+}
+.gtp-scoreboard-number[data-tone="mute"] {
+  text-shadow: none;
+}
+.gtp-scoreboard-number[data-tone="warn"] {
+  text-shadow: 0 0 18px rgba(212, 175, 55, 0.32);
+}
+
+/* Scanline overlay — very subtle horizontal CRT lines for sportsbook
+   command panels. Adds depth without colored noise. Sits at z=0 inside
+   a position:relative parent. */
+.gtp-crt-scanlines {
+  position: relative;
+  isolation: isolate;
+}
+.gtp-crt-scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(240, 199, 94, 0.022) 0,
+    rgba(240, 199, 94, 0.022) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+.gtp-crt-scanlines > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ticket perforation — serrated top + bottom edges for parlay slips.
+   Pure CSS, no images. Use on a container that already has padding so
+   the perforation eats into the top/bottom edges without clipping
+   inner content. */
+.gtp-ticket-perforation {
+  position: relative;
+  /* mask-image creates the scalloped edge by masking out tiny circles
+     along the top and bottom. */
+  --gtp-perf-radius: 4px;
+  --gtp-perf-stride: 14px;
+  -webkit-mask-image:
+    radial-gradient(
+      circle var(--gtp-perf-radius) at 50% 0,
+      transparent 99%,
+      black 100%
+    ),
+    radial-gradient(
+      circle var(--gtp-perf-radius) at 50% 100%,
+      transparent 99%,
+      black 100%
+    ),
+    linear-gradient(black, black);
+  -webkit-mask-position:
+    0 0,
+    0 100%,
+    0 0;
+  -webkit-mask-size:
+    var(--gtp-perf-stride) calc(var(--gtp-perf-radius) * 2),
+    var(--gtp-perf-stride) calc(var(--gtp-perf-radius) * 2),
+    100% 100%;
+  -webkit-mask-repeat: repeat-x, repeat-x, no-repeat;
+  -webkit-mask-composite: source-out, source-out, source-over;
+  mask-image:
+    radial-gradient(
+      circle var(--gtp-perf-radius) at 50% 0,
+      transparent 99%,
+      black 100%
+    ),
+    radial-gradient(
+      circle var(--gtp-perf-radius) at 50% 100%,
+      transparent 99%,
+      black 100%
+    ),
+    linear-gradient(black, black);
+  mask-position:
+    0 0,
+    0 100%,
+    0 0;
+  mask-size:
+    var(--gtp-perf-stride) calc(var(--gtp-perf-radius) * 2),
+    var(--gtp-perf-stride) calc(var(--gtp-perf-radius) * 2),
+    100% 100%;
+  mask-repeat: repeat-x, repeat-x, no-repeat;
+  mask-composite: exclude, exclude, add;
+}
+
+/* Scoreboard tile shine — a slow gold gradient that sweeps across the
+   surface every ~9s. Used on the "What's on the floor" command tiles.
+   Inherits @keyframes gtp-stat-shine already defined above. */
+.gtp-command-tile {
+  position: relative;
+  overflow: hidden;
+}
+.gtp-command-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(240, 199, 94, 0.08) 50%,
+    transparent 65%
+  );
+  transform: translateX(-100%);
+  animation: gtp-stat-shine 9s ease-in-out infinite;
+}
+.gtp-command-tile[data-tone="warn"]::after {
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(212, 175, 55, 0.10) 50%,
+    transparent 65%
+  );
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-command-tile::after { animation: none; opacity: 0; }
+}
+
+/* LED segment mode button — used on the Parlay Lab "Build mode /
+   Analyze slip" pair. Black inset with a thin gold bottom rule that
+   lights up when active, giving a sportsbook control-panel rhythm. */
+.gtp-led-mode {
+  position: relative;
+  font-feature-settings: "tnum";
+}
+.gtp-led-mode::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 2px;
+  height: 1px;
+  background: var(--vault-border);
+  transition: background 200ms ease, box-shadow 200ms ease;
+}
+.gtp-led-mode[data-active="true"]::after {
+  background: var(--vault-gold-bright);
+  box-shadow: 0 0 8px rgba(240, 199, 94, 0.55);
+}
 
