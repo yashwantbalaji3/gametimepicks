@@ -68,6 +68,11 @@ LEANS_LOG_PATH = PIPELINE_DIR / "validation" / "leans_log.jsonl"
 SETTLED_PATH = PIPELINE_DIR / "validation" / "settled_leans.jsonl"
 OVERRIDES_PATH = PIPELINE_DIR / "overrides" / "results_overrides.json"
 REPORT_DIR = PIPELINE_DIR / "validation"
+# Public board files mirror the authoritative side/projection that
+# users actually saw. Used as a fallback hydration source when the
+# leans_log entry was written before enrichment populated `lean`/
+# `projection` (which is what shipped for early-May entries).
+BOARDS_DIR = PIPELINE_DIR.parent / "app" / "public" / "data" / "boards"
 
 SUPPORTED_MARKETS = ("PTS", "REB", "AST")
 PICK_SIDES = ("Over", "Under")
@@ -85,10 +90,21 @@ def iso_now() -> str:
 # Read leans log
 # ---------------------------------------------------------------------------
 def read_leans_for_date(date: str) -> list[dict]:
-    """Read every lean from the append-only log for the given date."""
+    """Read every lean from the append-only log for the given date.
+
+    Some early leans were written to the log BEFORE `enrich_board.py`
+    populated `lean`/`projection` (their `confidence` was logged as
+    "trends_pending"). When that happens, hydrate the row from the
+    authoritative public board file so settlement uses the side the
+    user actually saw on the live site.
+
+    Pure read; never overwrites a log entry. Returns merged rows for
+    consumption by the rest of this module.
+    """
     if not LEANS_LOG_PATH.exists():
         return []
-    out = []
+    out: list[dict] = []
+    board_lookup = _load_board_lean_lookup(date)
     with LEANS_LOG_PATH.open() as f:
         for line in f:
             line = line.strip()
@@ -98,9 +114,53 @@ def read_leans_for_date(date: str) -> list[dict]:
                 row = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            if row.get("date") == date:
-                out.append(row)
+            if row.get("date") != date:
+                continue
+            needs_hydrate = (
+                not row.get("lean")
+                and not row.get("side")
+                and board_lookup is not None
+            )
+            if needs_hydrate:
+                key = (row.get("playerId"), row.get("market"))
+                board_lean = board_lookup.get(key)
+                if board_lean is not None:
+                    # Only merge fields that are missing/None on the log row.
+                    for field in (
+                        "lean",
+                        "side",
+                        "modelProjection",
+                        "projection",
+                        "confidence",
+                        "edgePct",
+                        "riskFlags",
+                    ):
+                        if row.get(field) in (None, "trends_pending"):
+                            val = board_lean.get(field)
+                            if val is not None:
+                                row[field] = val
+            out.append(row)
     return out
+
+
+def _load_board_lean_lookup(date: str) -> dict | None:
+    """Build a {(playerId, market): board_lean_dict} lookup from the
+    public board JSON for `date`. Returns None when no board file is
+    on disk; the caller falls back to logged values only."""
+    path = BOARDS_DIR / f"{date}.json"
+    if not path.exists():
+        return None
+    try:
+        board = json.loads(path.read_text())
+    except json.JSONDecodeError:
+        return None
+    lookup: dict[tuple, dict] = {}
+    for lean in board.get("leans") or []:
+        key = (lean.get("playerId"), lean.get("market"))
+        if key[0] is None or key[1] is None:
+            continue
+        lookup[key] = lean
+    return lookup
 
 
 # ---------------------------------------------------------------------------

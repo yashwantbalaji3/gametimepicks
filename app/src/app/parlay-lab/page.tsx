@@ -50,11 +50,19 @@ export default function ParlayLabPage() {
     return { ...rawActiveSlate, selectedDate: futureWithLeans };
   })();
 
-  // Build the per-date payload the client needs. Each date carries:
-  //   - its leans (for the builder)
-  //   - a label (Today / Tomorrow / Yesterday / weekday-name)
-  //   - an isArchived flag (true when the date is in the past)
-  //   - whether it's the active default
+  // STALE-DATA FIX (May 18):
+  // Previously this page loaded leans + games from EVERY board file
+  // on disk — including archived May 4-15 boards that contain games
+  // for already-eliminated teams (e.g. LAL @ OKC from the first
+  // round). Those then leaked into the Parlay Lab game picker and
+  // candidate generator, showing eliminated teams as if they were
+  // current matchups.
+  //
+  // Fix: restrict the builder's data to TODAY + FUTURE dates only,
+  // pulling the date list straight from `activeSlate.upcomingAndTodayDates`.
+  // Past dates are intentionally NOT pre-loaded; an explicit
+  // archive-review flow is a separate concern that can come later.
+  const builderDates = new Set(activeSlate.upcomingAndTodayDates);
   const allLeans: PropLean[] = [];
   const gamesByGameId: Record<string, ScheduleGame> = {};
   const dateLabels = new Map<
@@ -62,6 +70,7 @@ export default function ParlayLabPage() {
     { label: string; isArchived: boolean; isActiveDefault: boolean }
   >();
   for (const date of allDates) {
+    if (!builderDates.has(date)) continue;
     const board = boardsByDate[date];
     if (!board || board.leans.length === 0) continue;
     for (const lean of board.leans) {
