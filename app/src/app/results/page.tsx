@@ -20,12 +20,17 @@ import {
   getLifetimeSummary,
   getLatestSettlement,
   getAvailableSettlementDates,
+  getSettlementForDate,
 } from "@/lib/settlement-data";
 import {
   getBoardForDate,
   getAvailableBoardDates,
 } from "@/lib/data";
-import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
+import {
+  getMlbLifetimeSummary,
+  getMlbAvailableResultDates,
+  getMlbSettledLeansForDate,
+} from "@/lib/data-mlb-results";
 import { formatPercent } from "@/lib/format";
 import Link from "next/link";
 import EmptyResultsCard from "@/components/empty-results-card";
@@ -202,7 +207,7 @@ export default function ResultsOverviewPage() {
           totalDates={nbaLifetime.totalDates}
           smallSample={nbaLifetime.smallSample}
           newestDate={nbaLifetime.newestDate}
-          detailHref="/nba/results"
+          detailHref="/results/nba"
           detailLabel="Open NBA breakdown"
           accent="gold"
         />
@@ -216,12 +221,16 @@ export default function ResultsOverviewPage() {
           totalDates={mlbLifetime?.totalDates ?? 0}
           smallSample={mlbLifetime?.smallSample ?? true}
           newestDate={mlbLifetime?.newestDate ?? null}
-          detailHref="/mlb/results"
+          detailHref="/results/mlb"
           detailLabel="Open MLB breakdown"
           accent="success"
           partial={mlbLifetime?.partial ?? false}
         />
       </section>
+
+      {/* Calibration trend — last N settled dates across NBA + MLB.
+          Each tile links to /results/date/<date> for the full audit. */}
+      <CalibrationTrendStrip />
 
       <section
         className="mt-8 rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
@@ -332,6 +341,138 @@ function buildOverallLessons({
     ),
   });
   return lessons;
+}
+
+/**
+ * Calibration trend — chronological tile row of every settled date
+ * across NBA + MLB. Each tile shows that date's hit rate and links to
+ * /results/date/<date> for the full per-game audit. Honest framing:
+ * we say "tracking" rather than "improving" because sample size is
+ * still small.
+ */
+function CalibrationTrendStrip() {
+  const nbaDates = getAvailableSettlementDates();
+  const mlbDates = getMlbAvailableResultDates().dates ?? [];
+  const allDates = Array.from(new Set([...nbaDates, ...mlbDates])).sort();
+  if (allDates.length === 0) return null;
+
+  // Last 10 only — the row stays scannable on mobile.
+  const window = allDates.slice(-10);
+
+  type Tile = {
+    date: string;
+    sport: "NBA" | "MLB";
+    hitRate: number | null;
+    wins: number;
+    losses: number;
+    pushes: number;
+    decisive: number;
+  };
+  const tiles: Tile[] = [];
+  for (const date of window) {
+    if (nbaDates.includes(date)) {
+      const { rows } = getSettlementForDate(date);
+      const w = rows.filter((r) => r.result === "win").length;
+      const l = rows.filter((r) => r.result === "loss").length;
+      const p = rows.filter((r) => r.result === "push").length;
+      const d = w + l;
+      tiles.push({
+        date,
+        sport: "NBA",
+        hitRate: d > 0 ? w / d : null,
+        wins: w,
+        losses: l,
+        pushes: p,
+        decisive: d,
+      });
+    }
+    if (mlbDates.includes(date)) {
+      const rows = getMlbSettledLeansForDate(date);
+      const w = rows.filter((r) => r.outcome === "Win").length;
+      const l = rows.filter((r) => r.outcome === "Loss").length;
+      const p = rows.filter((r) => r.outcome === "Push").length;
+      const d = w + l;
+      tiles.push({
+        date,
+        sport: "MLB",
+        hitRate: d > 0 ? w / d : null,
+        wins: w,
+        losses: l,
+        pushes: p,
+        decisive: d,
+      });
+    }
+  }
+
+  return (
+    <section className="mt-8">
+      <div className="flex items-center gap-3 mb-4">
+        <span
+          className="font-mono text-[10px] uppercase tracking-[0.18em] shrink-0"
+          style={{ color: "var(--vault-gold)" }}
+        >
+          Calibration trend · last {tiles.length}{" "}
+          {tiles.length === 1 ? "settled slate" : "settled slates"}
+        </span>
+        <div className="flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+        {tiles.map((t) => {
+          const accent =
+            t.sport === "NBA" ? "var(--vault-gold-bright)" : "var(--vault-success)";
+          return (
+            <Link
+              key={`${t.date}-${t.sport}`}
+              href={`/results/date/${t.date}`}
+              className="vault-glow-hover rounded-[5px] block"
+              style={{
+                padding: "10px 12px",
+                border: "1px solid var(--vault-border)",
+                background: "rgba(7, 11, 26, 0.55)",
+                textDecoration: "none",
+              }}
+              aria-label={`Audit for ${t.date} (${t.sport})`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  className="font-mono uppercase tracking-[0.16em]"
+                  style={{ color: accent, fontSize: 9 }}
+                >
+                  {t.sport}
+                </span>
+                <span
+                  className="font-mono"
+                  style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+                >
+                  {t.date.slice(5)}
+                </span>
+              </div>
+              <div
+                className="mt-1 font-display font-semibold tabular tracking-tight"
+                style={{ color: accent, fontSize: 22, lineHeight: 1.1 }}
+              >
+                {t.hitRate !== null ? formatPercent(t.hitRate) : "—"}
+              </div>
+              <div
+                className="mt-0.5 font-mono"
+                style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
+              >
+                {t.wins}–{t.losses} on {t.decisive}
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+      <p
+        className="mt-3 text-[11px] leading-relaxed"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        Each tile is one settled slate, graded after final box scores. Click any
+        tile to see every projection vs actual for that date. Early sample —
+        tracking calibration as more slates settle.
+      </p>
+    </section>
+  );
 }
 
 function SportSummaryCard({

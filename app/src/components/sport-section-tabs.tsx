@@ -37,12 +37,16 @@ interface TabSpec {
   exact?: boolean;
 }
 
+// Results was removed from sport subtabs (May 18 navigation refactor).
+// All model-audit content now lives at the centralized /results hub
+// scoped via /results/<sport> and /results/date/<date>. Sport overview
+// pages still surface a small audit CTA so users can jump to their
+// sport's audit, but the per-sport "Results" subtab is gone.
 const TABS: TabSpec[] = [
   { slug: "", label: "Overview", exact: true },
   { slug: "board", label: "Model Board" },
   { slug: "power", label: "Power Board" },
   { slug: "parlays", label: "Parlays" },
-  { slug: "results", label: "Results" },
 ];
 
 export default function SportSectionTabs({ sport }: { sport: SportKey }) {
