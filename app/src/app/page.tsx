@@ -791,7 +791,32 @@ export default function HomePage() {
 
       {/* CTA band — marquee panel pointing users into the two primary
           surfaces (board + parlay lab). Sits between the explainer and
-          the newsletter signup so the homepage never dead-ends. */}
+          the newsletter signup so the homepage never dead-ends.
+          Slate-aware: when today's NBA slate has live projections we
+          frame it as "live tonight"; on off-days we honestly frame the
+          band around the latest scored slate so users aren't misled
+          into thinking yesterday's games are still queued. */}
+      {(() => {
+        const liveToday =
+          !noCurrentSlate &&
+          todayMode === "Live" &&
+          leansToday > 0;
+        const bandEyebrow = liveToday
+          ? "tonight on the model wall"
+          : latestScoredFinalDate
+            ? "latest scored slate · model audit"
+            : "model lab idle";
+        const bandValueText = liveToday
+          ? `${leansToday} projections`
+          : latestScoredLeanCount > 0
+            ? `${latestScoredLeanCount} projections`
+            : "Projections";
+        const bandClause = liveToday
+          ? "are live tonight — the model has scored every one."
+          : latestScoredFinalDate
+            ? `graded ${latestScoredDayLabel?.toLowerCase() ?? "in the latest scored slate"} — every edge audited.`
+            : "will land here as soon as the next slate generates.";
+        return (
       <section className="mt-16 reveal">
         <div className="gtp-cta-band">
           <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
@@ -808,7 +833,7 @@ export default function HomePage() {
                 className="font-mono text-[10px] uppercase tracking-[0.18em]"
                 style={{ color: "var(--vault-gold)" }}
               >
-                tonight on the model wall
+                {bandEyebrow}
               </span>
             </div>
             <span
@@ -829,11 +854,9 @@ export default function HomePage() {
           >
             Step onto the floor.{" "}
             <span style={{ color: "var(--vault-gold-bright)" }}>
-              {latestScoredLeanCount > 0
-                ? `${latestScoredLeanCount} projections`
-                : "Live projections"}
+              {bandValueText}
             </span>{" "}
-            are queued and the model has graded every one of them.
+            {bandClause}
           </h2>
           <p
             className="mt-3 text-[14px] leading-relaxed max-w-2xl"
@@ -862,6 +885,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+        );
+      })()}
 
       {/* Newsletter signup — Phase 13 */}
       <section className="mt-16 reveal">
