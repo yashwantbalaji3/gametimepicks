@@ -144,7 +144,7 @@ export default function UpcomingSlateStrip({
             return (
               <Link
                 key={d.date}
-                href={`${boardHrefBase}?date=${d.date}`}
+                href={`${boardHrefBase}/${d.date}`}
                 className="vault-glow-hover"
                 style={{ textDecoration: "none", color: "inherit" }}
                 aria-label={`View ${d.label} slate`}
