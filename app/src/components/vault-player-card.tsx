@@ -673,69 +673,137 @@ function ProjectionLineRow({
     fillPct = Math.max(0, Math.min(1, ratio / 0.5)) * 100;
   }
 
+  // Edge formatting for the 3rd hero tile. Honest: when the edge is
+  // capped by R5 (suspicious) we present it in warn-tone, never gold.
+  const edgeIsFinite =
+    typeof edgePct === "number" && Number.isFinite(edgePct);
+  const edgeAbs = edgeIsFinite ? Math.abs(edgePct as number) : 0;
+  // Cap the displayed magnitude at ±50 pp so a runaway anomaly doesn't
+  // dominate the card; the model-anomaly chip already calls it out.
+  const edgeDisplay = edgeIsFinite
+    ? `${edgePct! > 0 ? "+" : edgePct! < 0 ? "−" : ""}${Math.min(edgeAbs, 50).toFixed(1)}%`
+    : EM_DASH;
+  const edgeColor = !edgeIsFinite
+    ? "var(--vault-text-faint)"
+    : suspicious || dampedEdge
+      ? "var(--vault-warn)"
+      : pickSide === "OVER" || pickSide === "UNDER"
+        ? "var(--vault-gold-bright)"
+        : "var(--vault-text-mute)";
+  const edgeGlow = !edgeIsFinite || suspicious || dampedEdge
+    ? "none"
+    : "0 0 14px rgba(240, 199, 94, 0.30)";
+
   return (
     <div>
-      {/* Top row: labels + values */}
-      <div className="flex items-baseline justify-between gap-3">
-        <div>
-          <div
-            className="text-[10px] tracking-wide uppercase"
-            style={{ color: "var(--vault-text-faint)" }}
-          >
-            Sportsbook line
-          </div>
-          <div
-            className="mt-0.5 font-display font-semibold tabular tracking-tight"
-            style={{
-              color: "var(--vault-text-mute)",
-              fontSize: "clamp(18px, 2.2vw, 22px)",
-              lineHeight: 1.1,
-            }}
-          >
-            {line != null ? formatStat(line) : EM_DASH}
-          </div>
-        </div>
-        <div className="text-right">
-          <div
-            className="text-[10px] tracking-wide uppercase"
-            style={{ color: "var(--vault-text-faint)" }}
-          >
-            Model projection
-          </div>
-          <div
-            className="mt-0.5 font-display font-semibold tabular tracking-tight"
-            style={{
-              color: "var(--vault-text)",
-              fontSize: "clamp(20px, 2.6vw, 26px)",
-              lineHeight: 1.1,
-            }}
-          >
-            {formatStat(projection)}
-          </div>
-        </div>
+      {/* HERO scoreboard — 3 equal tiles: LINE · PROJECTION · EDGE.
+          The previous 2-column "line vs projection + small edge chip"
+          was hard to scan; this matches a sportsbook stat board. */}
+      <div className="grid grid-cols-3 gap-2">
+        <ScoreboardTile
+          label="LINE"
+          value={line != null ? formatStat(line) : EM_DASH}
+          tone="mute"
+        />
+        <ScoreboardTile
+          label="PROJECTION"
+          value={formatStat(projection)}
+          tone="gold"
+          glow
+        />
+        <ScoreboardTile
+          label="EDGE"
+          value={edgeDisplay}
+          tone={suspicious || dampedEdge ? "warn" : "gold-bright"}
+          valueColor={edgeColor}
+          glow={edgeGlow !== "none"}
+        />
       </div>
 
-      {/* Visual track + edge tag */}
-      <div className="mt-2 flex items-center gap-3">
+      {/* Visual track — directional fill from line mid to projection
+          side. Same data, calmer placement under the tiles. */}
+      <div className="mt-3">
         <ProjectionVsLineTrack
           direction={direction}
           fillPct={fillPct}
-          suspicious={suspicious}
-        />
-        <EdgeTag
-          edgePct={edgePct}
-          dampedEdge={dampedEdge}
           suspicious={suspicious}
         />
       </div>
 
       {/* Plain-English summary line */}
       <p
-        className="mt-1.5 text-[11px]"
+        className="mt-2 text-[11px]"
         style={{ color: "var(--vault-text-faint)" }}
       >
         {summaryLine({ direction, projection, line, pickSide })}
       </p>
+    </div>
+  );
+}
+
+/**
+ * Premium 3-tile scoreboard cell. Used by ProjectionLineRow to render
+ * LINE / PROJECTION / EDGE as the projection-card hero. Each tile has
+ * a small mono eyebrow label and a big tabular value.
+ */
+function ScoreboardTile({
+  label,
+  value,
+  tone,
+  valueColor,
+  glow,
+}: {
+  label: string;
+  value: string;
+  tone: "gold" | "gold-bright" | "warn" | "mute";
+  /** Optional override for the value color (used by EDGE which needs
+   *  per-state coloring beyond the tone preset). */
+  valueColor?: string;
+  glow?: boolean;
+}) {
+  const resolvedValueColor =
+    valueColor ??
+    (tone === "gold-bright"
+      ? "var(--vault-gold-bright)"
+      : tone === "warn"
+        ? "var(--vault-warn)"
+        : tone === "mute"
+          ? "var(--vault-text)"
+          : "var(--vault-gold)");
+  const labelColor =
+    tone === "warn"
+      ? "var(--vault-warn)"
+      : tone === "mute"
+        ? "var(--vault-text-faint)"
+        : "var(--vault-gold)";
+  return (
+    <div
+      className="rounded-[5px] px-2.5 py-2 flex flex-col items-start justify-center"
+      style={{
+        background: "rgba(7, 11, 26, 0.55)",
+        border: "1px solid var(--vault-border)",
+        minHeight: 56,
+      }}
+    >
+      <div
+        className="font-mono uppercase tracking-[0.14em]"
+        style={{ color: labelColor, fontSize: 9 }}
+      >
+        {label}
+      </div>
+      <div
+        className="mt-0.5 font-display font-semibold tabular tracking-tight whitespace-nowrap"
+        style={{
+          color: resolvedValueColor,
+          fontSize: "clamp(20px, 3vw, 26px)",
+          lineHeight: 1.05,
+          textShadow: glow
+            ? "0 0 12px rgba(240, 199, 94, 0.35)"
+            : "none",
+        }}
+      >
+        {value}
+      </div>
     </div>
   );
 }
