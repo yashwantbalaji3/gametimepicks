@@ -22,7 +22,15 @@ import { useState } from "react";
 import type { CSSProperties } from "react";
 
 interface Props {
-  variant?: "lockup" | "compact" | "monogram";
+  /**
+   * Visual size variant.
+   *   - "lockup"   — full logo lockup at the standard nav size (42px tall).
+   *   - "compact"  — slightly smaller (30px). Footer / inline contexts.
+   *   - "monogram" — vault-tile only. Always renders the CSS monogram.
+   *   - "hero"     — large centered header logo (64px tall). Used in the
+   *                  primary site header where the brand sits center stage.
+   */
+  variant?: "lockup" | "compact" | "monogram" | "hero";
   /** Adds a single-line ALL-CAPS marker after the wordmark — e.g. "PORTFOLIO". */
   marker?: string;
   /** When true, the monogram tile slowly breathes its gold glow.
@@ -43,16 +51,17 @@ export default function BrandMark({
 }: Props) {
   const isMonogramOnly = variant === "monogram";
   const isCompact = variant === "compact";
+  const isHero = variant === "hero";
 
-  // Image branch is only attempted for lockup / compact. Monogram always
-  // uses the CSS tile.
+  // Image branch is only attempted for lockup / compact / hero. Monogram
+  // always uses the CSS tile.
   const [imgErrored, setImgErrored] = useState(false);
   const showImage = !isMonogramOnly && !useFallback && !imgErrored;
 
   if (showImage) {
-    const height = isCompact ? 30 : 42;
-    // 1659x948 → aspect ratio ≈ 1.75:1. Compute width from height to
-    // avoid layout shift.
+    // Heights tuned per variant. Width derived from the 1659x948
+    // aspect ratio to avoid layout shift.
+    const height = isHero ? 72 : isCompact ? 30 : 42;
     const width = Math.round((height * 1659) / 948);
     return (
       <span className="gtp-brand-lockup inline-flex items-center gap-2 align-middle">

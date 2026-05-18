@@ -12,6 +12,7 @@ import { formatDateLong } from "@/lib/format";
 import NeonStatPanel from "@/components/neon-stat-panel";
 import NbaSectionTabs from "@/components/nba/nba-section-tabs";
 import { getPlayoffContext } from "@/components/playoff-context";
+import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 
 export const metadata = {
   title: "NBA · GameTime Picks",
@@ -343,56 +344,31 @@ export default function NbaLandingPage() {
         )}
       </section>
 
-      {/* Methodology + Responsible-use anchor row */}
-      <section className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div
-          className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
-          style={{
-            background: "rgba(7, 11, 26, 0.45)",
-            border: "1px solid var(--vault-border)",
-            color: "var(--vault-text-mute)",
-          }}
-        >
-          <div
-            className="font-mono uppercase tracking-[0.14em] mb-2"
-            style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-          >
-            Projection method
-          </div>
-          Last-10 weighted means with matchup adjustments, normal-approximation
-          edges, and an R5 anomaly guardrail that caps confidence on edges
-          above 25 pp. See{" "}
-          <Link href="/methodology" style={{ color: "var(--vault-gold-bright)" }}>
-            Methodology
-          </Link>{" "}
-          for the full formula.
-        </div>
-        <div
-          className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
-          style={{
-            background: "rgba(7, 11, 26, 0.45)",
-            border: "1px solid var(--vault-border)",
-            color: "var(--vault-text-mute)",
-          }}
-        >
-          <div
-            className="font-mono uppercase tracking-[0.14em] mb-2"
-            style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-          >
-            Honest framing
-          </div>
-          Educational analytics, not betting advice. The Results page is
-          where hit-rate calibration lives — every model lean is logged at
-          generation time and graded against the final box score. See{" "}
-          <Link
-            href="/responsible-use"
-            style={{ color: "var(--vault-gold-bright)" }}
-          >
-            Responsible Use
-          </Link>{" "}
-          for helplines.
-        </div>
-      </section>
+      <OverviewFooterDisclosure
+        inputsLabel="Projection method"
+        inputsBody={
+          <>
+            Last-10 weighted means with matchup adjustments,
+            normal-approximation edges, and an R5 anomaly guardrail
+            that caps confidence on edges above 25 pp. See{" "}
+            <Link
+              href="/methodology"
+              style={{ color: "var(--vault-gold-bright)" }}
+            >
+              Methodology
+            </Link>{" "}
+            for the full formula.
+          </>
+        }
+        framingBody={
+          <>
+            Educational analytics, not betting advice. The Results
+            page is where hit-rate calibration lives — every model
+            lean is logged at generation time and graded against the
+            final box score.
+          </>
+        }
+      />
     </div>
   );
 }

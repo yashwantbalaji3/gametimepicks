@@ -9,6 +9,7 @@ import IplSectionTabs from "@/components/ipl/ipl-section-tabs";
 import UpcomingSlateStrip, {
   type UpcomingSlateDay,
 } from "@/components/upcoming-slate-strip";
+import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 
 export const metadata = {
   title: "IPL · GameTime Picks",
@@ -271,52 +272,24 @@ export default function IplLandingPage() {
         emptyMessage="No upcoming IPL matches on disk yet. The next refresh will pull the rolling window."
       />
 
-      <section className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div
-          className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
-          style={{
-            background: "rgba(7, 11, 26, 0.45)",
-            border: "1px solid var(--vault-border)",
-            color: "var(--vault-text-mute)",
-          }}
-        >
-          <div
-            className="font-mono uppercase tracking-[0.14em] mb-2"
-            style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-          >
-            What is wired today
-          </div>
-          ESPN free cricket scoreboard for the active date. No paid
-          odds. No per-player projections. No fabricated picks. Every
-          other surface on /ipl/* clearly reads as pending until the
-          data is real.
-        </div>
-        <div
-          className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
-          style={{
-            background: "rgba(7, 11, 26, 0.45)",
-            border: "1px solid var(--vault-border)",
-            color: "var(--vault-text-mute)",
-          }}
-        >
-          <div
-            className="font-mono uppercase tracking-[0.14em] mb-2"
-            style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-          >
-            Honest framing
-          </div>
-          Same educational-analytics framing as NBA, MLB and NHL. The
-          Results page is where hit-rate calibration will live once
-          settled IPL leans exist. See{" "}
-          <Link
-            href="/responsible-use"
-            style={{ color: "var(--vault-gold-bright)" }}
-          >
-            Responsible Use
-          </Link>{" "}
-          for helplines.
-        </div>
-      </section>
+      <OverviewFooterDisclosure
+        inputsLabel="What is wired today"
+        inputsBody={
+          <>
+            ESPN free cricket scoreboard for the active date. No paid
+            odds. No per-player projections. No fabricated picks.
+            Every other surface on /ipl/* clearly reads as pending
+            until the data is real.
+          </>
+        }
+        framingBody={
+          <>
+            Same educational-analytics framing as NBA, MLB and NHL.
+            The Results page is where hit-rate calibration will live
+            once settled IPL leans exist.
+          </>
+        }
+      />
     </div>
   );
 }
