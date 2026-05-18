@@ -13,6 +13,7 @@ import NeonStatPanel from "@/components/neon-stat-panel";
 import NbaSectionTabs from "@/components/nba/nba-section-tabs";
 import { getPlayoffContext } from "@/components/playoff-context";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
+import SportLobbyActions from "@/components/sport-lobby-actions";
 
 export const metadata = {
   title: "NBA · GameTime Picks",
@@ -135,134 +136,30 @@ export default function NbaLandingPage() {
         />
       </section>
 
-      {/* CTA cards — Model Board + Parlays. Mirrors the MLB hub layout. */}
-      <section className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Link
-          href="/nba/board"
-          className="gtp-aurora-halo block reveal vault-glow-hover"
-        >
-          <div className="gtp-status-board p-5 sm:p-6 h-full">
-            <div className="flex items-center gap-2">
-              <span
-                aria-hidden
-                className="inline-block w-2 h-2 rounded-full gtp-neon-pulse"
-                style={{
-                  background: "var(--vault-gold-bright)",
-                  boxShadow: "0 0 10px rgba(240, 199, 94, 0.7)",
-                }}
-              />
-              <span
-                className="font-mono uppercase tracking-[0.16em]"
-                style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-              >
-                main projection board
-              </span>
-            </div>
-            <h2
-              className="mt-3 font-display font-semibold tracking-tight"
-              style={{ color: "var(--vault-text)", fontSize: 22, lineHeight: 1.15 }}
-            >
-              NBA board
-            </h2>
-            <p
-              className="mt-2 text-[13px] leading-snug"
-              style={{ color: "var(--vault-text-mute)" }}
-            >
-              Points, rebounds and assists for every player with a
-              posted line. Confidence tiers, R5 anomaly guardrails,
-              and recent-form notes on every card.
-            </p>
-            <div
-              className="mt-4 font-mono"
-              style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}
-            >
-              Open the board →
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/nba/parlays"
-          className="gtp-aurora-halo block reveal vault-glow-hover"
-        >
-          <div className="gtp-status-board p-5 sm:p-6 h-full">
-            <div className="flex items-center gap-2">
-              <span
-                aria-hidden
-                className="inline-block w-2 h-2 rounded-full"
-                style={{
-                  background: "var(--vault-gold)",
-                  boxShadow: "0 0 10px rgba(212, 175, 55, 0.6)",
-                }}
-              />
-              <span
-                className="font-mono uppercase tracking-[0.16em]"
-                style={{ color: "var(--vault-gold)", fontSize: 10 }}
-              >
-                NBA Parlay Lab
-              </span>
-            </div>
-            <h2
-              className="mt-3 font-display font-semibold tracking-tight"
-              style={{ color: "var(--vault-text)", fontSize: 22, lineHeight: 1.15 }}
-            >
-              Build candidate slips
-            </h2>
-            <p
-              className="mt-2 text-[13px] leading-snug"
-              style={{ color: "var(--vault-text-mute)" }}
-            >
-              Generate parlay candidates from clean model leans across
-              Conservative, Balanced and wider-edge modes. Same-game,
-              same-team and anomaly correlations are surfaced — never
-              hidden.
-            </p>
-            <div
-              className="mt-4 font-mono"
-              style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}
-            >
-              Open the lab →
-            </div>
-          </div>
-        </Link>
-      </section>
-
-      {/* NBA audit pointer — hit-rate emphasis lives on Results, so this
-          is a quiet text chip rather than a giant percentage. */}
-      {lifetime && (
-        <section className="mt-6">
-          <Link
-            href="/nba/results"
-            className="vault-glow-hover inline-flex items-center gap-2 rounded-[3px]"
-            style={{
-              padding: "10px 14px",
-              border: "1px solid rgba(212, 175, 55, 0.30)",
-              background: "rgba(212, 175, 55, 0.06)",
-              color: "var(--vault-gold-bright)",
-              textDecoration: "none",
-              fontSize: 12,
-              fontFamily: "var(--font-mono)",
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-            }}
-            aria-label="Open the NBA model audit"
-          >
-            <span
-              aria-hidden
-              className="inline-block w-1.5 h-1.5 rounded-full"
-              style={{
-                background: "var(--vault-gold-bright)",
-                boxShadow: "0 0 6px rgba(240, 199, 94, 0.45)",
-              }}
-            />
-            Open NBA model audit
-            <span style={{ color: "var(--vault-text-faint)" }}>
-              · {lifetime.wins}–{lifetime.losses} on {lifetime.decisive}
-            </span>
-            <span style={{ color: "var(--vault-gold-bright)" }}>→</span>
-          </Link>
-        </section>
-      )}
+      {/* Unified sport-lobby action grid — same 4 tiles across every
+          sport (NBA / MLB / NHL / IPL). Replaces the previous 2-card
+          CTA strip + audit-pointer chip. */}
+      <div className="mt-8">
+        <SportLobbyActions
+          sport="nba"
+          status={{
+            board: leans.length > 0
+              ? { text: `live · ${leans.length} leans`, tone: "success" }
+              : { text: "lines pending", tone: "warn" },
+            parlays: {
+              text: "NBA candidate slips · live",
+              tone: "gold",
+            },
+            power: { text: "high-variance watch", tone: "warn" },
+            results: lifetime
+              ? {
+                  text: `audit · ${lifetime.wins}–${lifetime.losses} on ${lifetime.decisive}`,
+                  tone: "gold",
+                }
+              : { text: "pending first settlement", tone: "mute" },
+          }}
+        />
+      </div>
 
       {/* Slate strip — active-slate games with playoff context chips. */}
       <section className="mt-10">

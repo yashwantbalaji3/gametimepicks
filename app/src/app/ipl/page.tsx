@@ -10,6 +10,7 @@ import UpcomingSlateStrip, {
   type UpcomingSlateDay,
 } from "@/components/upcoming-slate-strip";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
+import SportLobbyActions from "@/components/sport-lobby-actions";
 
 export const metadata = {
   title: "IPL · GameTime Picks",
@@ -100,95 +101,21 @@ export default function IplLandingPage() {
         />
       </section>
 
-      <section className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Link
-          href="/ipl/board"
-          className="gtp-aurora-halo block reveal vault-glow-hover"
-        >
-          <div className="gtp-status-board p-5 sm:p-6 h-full">
-            <div className="flex items-center gap-2">
-              <span
-                aria-hidden
-                className="inline-block w-2 h-2 rounded-full"
-                style={{
-                  background: "var(--vault-warn)",
-                  boxShadow: "0 0 10px rgba(212, 175, 55, 0.5)",
-                }}
-              />
-              <span
-                className="font-mono uppercase tracking-[0.16em]"
-                style={{ color: "var(--vault-warn)", fontSize: 10 }}
-              >
-                main projection board · pending
-              </span>
-            </div>
-            <h2
-              className="mt-3 font-display font-semibold tracking-tight"
-              style={{ color: "var(--vault-text)", fontSize: 22, lineHeight: 1.15 }}
-            >
-              IPL Model Board
-            </h2>
-            <p
-              className="mt-2 text-[13px] leading-snug"
-              style={{ color: "var(--vault-text-mute)" }}
-            >
-              Batter runs, bowler wickets, and fours are the planned
-              MVP markets once a stable per-player stats provider is
-              wired. No projections until the data supports them.
-            </p>
-            <div
-              className="mt-4 font-mono"
-              style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}
-            >
-              See the pending shell →
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/ipl/power"
-          className="gtp-aurora-halo block reveal vault-glow-hover"
-        >
-          <div className="gtp-status-board p-5 sm:p-6 h-full">
-            <div className="flex items-center gap-2">
-              <span
-                aria-hidden
-                className="inline-block w-2 h-2 rounded-full"
-                style={{
-                  background: "var(--vault-warn)",
-                  boxShadow: "0 0 10px rgba(212, 175, 55, 0.5)",
-                }}
-              />
-              <span
-                className="font-mono uppercase tracking-[0.16em]"
-                style={{ color: "var(--vault-warn)", fontSize: 10 }}
-              >
-                Power Board · pending
-              </span>
-            </div>
-            <h2
-              className="mt-3 font-display font-semibold tracking-tight"
-              style={{ color: "var(--vault-text)", fontSize: 22, lineHeight: 1.15 }}
-            >
-              Sixes + boundary watch
-            </h2>
-            <p
-              className="mt-2 text-[13px] leading-snug"
-              style={{ color: "var(--vault-text-mute)" }}
-            >
-              High-variance IPL signals — sixes, fours, boundary
-              strike rates — will live here on a power-profile rating,
-              not standard confidence tiers.
-            </p>
-            <div
-              className="mt-4 font-mono"
-              style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}
-            >
-              See the pending shell →
-            </div>
-          </div>
-        </Link>
-      </section>
+      {/* Unified sport-lobby action grid. */}
+      <div className="mt-8">
+        <SportLobbyActions
+          sport="ipl"
+          status={{
+            board: { text: "stats provider pending", tone: "warn" },
+            parlays: { text: "pending model board", tone: "mute" },
+            power: { text: "high-variance watch", tone: "warn" },
+            results: {
+              text: "pending first settlement",
+              tone: "mute",
+            },
+          }}
+        />
+      </div>
 
       <section className="mt-10">
         <h2
