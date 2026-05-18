@@ -606,7 +606,46 @@ export default function ParlayBuilderClient({
               onSwitchPlayer={(p) => setActiveViewPlayer(p)}
             />
           )}
-        <span className="gtp-candidate-eyebrow">Candidate slips · model output</span>
+        {/* Sportsbook slip rack — the eyebrow above the candidate output
+            now reads as a printer header with a thin gold rule across the
+            bottom. Candidate cards still print into the same column below;
+            the framing just makes the right pane feel like a slip rack
+            rather than a generic results list. */}
+        <div
+          className="rounded-[6px] overflow-hidden gtp-crt-scanlines"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(7,11,26,0.78) 0%, rgba(7,11,26,0.45) 100%)",
+            border: "1px solid var(--vault-border)",
+          }}
+        >
+          <div
+            className="flex items-center justify-between gap-2 px-4 py-2.5"
+            style={{
+              borderBottom: "1px solid var(--vault-rule)",
+              background:
+                "linear-gradient(180deg, rgba(240, 199, 94, 0.06) 0%, transparent 100%)",
+            }}
+          >
+            <span className="font-mono uppercase tracking-[0.18em] inline-flex items-center gap-2" style={{ color: "var(--vault-gold)", fontSize: 10 }}>
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+                style={{
+                  background: "var(--vault-gold-bright)",
+                  boxShadow: "0 0 6px rgba(240, 199, 94, 0.55)",
+                }}
+              />
+              Candidate slips · model output
+            </span>
+            <span
+              className="font-mono uppercase tracking-[0.14em] hidden sm:inline"
+              style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+            >
+              educational candidates · not betting advice
+            </span>
+          </div>
+          <div className="p-3 sm:p-4 space-y-3">
         {noCurrentBuilder ? (
           <DemoPreviewState
             heading="No current slate available"
@@ -683,6 +722,8 @@ export default function ParlayBuilderClient({
             ))}
           </>
         )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -716,6 +757,12 @@ function SectionLabel({ n, text }: { n: string; text: string }) {
   );
 }
 
+/**
+ * LED-segment mode button. The .gtp-led-mode utility paints a thin
+ * rule across the bottom edge that lights up gold when active —
+ * gives the Build / Analyze pair a sportsbook control-panel rhythm
+ * instead of two generic buttons.
+ */
 function ModeButton({
   active,
   label,
@@ -729,7 +776,8 @@ function ModeButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex-1 px-3 py-2 rounded-[3px] text-[12px] font-medium tracking-tight transition-colors"
+      data-active={active}
+      className="gtp-led-mode flex-1 px-3 py-2.5 rounded-[3px] text-[12px] font-mono uppercase tracking-[0.12em] transition-colors"
       style={{
         background: active ? "var(--vault-gold-dim)" : "var(--vault-panel)",
         border: `1px solid ${
@@ -743,6 +791,11 @@ function ModeButton({
   );
 }
 
+/**
+ * Risk profile ticket stub. The thin gold left-edge rule on the active
+ * card reads as a perforation marker — separating the chosen stub from
+ * the others so the picker feels like a sportsbook ticket selector.
+ */
 function RiskProfileCard({
   rp,
   active,
@@ -756,7 +809,7 @@ function RiskProfileCard({
     <button
       type="button"
       onClick={onClick}
-      className="text-left px-3 py-2.5 rounded-[2px] transition-all"
+      className="text-left px-3 py-2.5 rounded-[2px] transition-all relative overflow-hidden"
       style={{
         background: active ? "var(--vault-gold-dim)" : "var(--vault-panel)",
         border: `1px solid ${
@@ -764,17 +817,34 @@ function RiskProfileCard({
         }`,
       }}
     >
+      <span
+        aria-hidden
+        className="absolute inset-y-1 left-0 w-[3px] rounded-r-[2px] transition-opacity"
+        style={{
+          background: "var(--vault-gold-bright)",
+          opacity: active ? 0.9 : 0,
+          boxShadow: active
+            ? "0 0 10px rgba(240, 199, 94, 0.55)"
+            : "none",
+        }}
+      />
       <div
         className="font-display text-[13px] font-semibold tracking-tight capitalize"
         style={{
           color: active ? "var(--vault-gold-bright)" : "var(--vault-text)",
+          marginLeft: active ? 8 : 0,
+          transition: "margin-left 200ms ease",
         }}
       >
         {rp}
       </div>
       <div
         className="mt-0.5 text-[11px] leading-snug"
-        style={{ color: "var(--vault-text-faint)" }}
+        style={{
+          color: "var(--vault-text-faint)",
+          marginLeft: active ? 8 : 0,
+          transition: "margin-left 200ms ease",
+        }}
       >
         {RISK_DESCRIPTIONS[rp]}
       </div>

@@ -24,7 +24,6 @@ import OddsTickerRail, {
   type TickerCell,
 } from "@/components/odds-ticker-rail";
 import NeonStatPanel from "@/components/neon-stat-panel";
-import VegasSectionShell from "@/components/vegas-section-shell";
 import AnatomyCallout from "@/components/anatomy-callout";
 import HomepageSportsRail from "@/components/homepage-sports-rail";
 import { currentEtDate, dayLabelFor } from "@/lib/freshness";
@@ -599,49 +598,72 @@ export default function HomePage() {
             What&apos;s on the floor
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          <FeatureTile
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <CommandTile
             label="01"
+            metricValue={
+              latestScoredLeanCount > 0
+                ? String(latestScoredLeanCount)
+                : "—"
+            }
+            metricUnit={latestScoredLeanCount > 0 ? "leans" : undefined}
+            metricMuted={latestScoredLeanCount === 0}
             title="Star spotlight"
-            body="Headliner rail surfaces the biggest names on the slate. One click jumps to their full projection card."
+            sub={
+              latestScoredDayLabel
+                ? `${latestScoredDayLabel.toLowerCase()} slate · graded`
+                : "awaiting next slate"
+            }
             href={
               latestScoredFinalDate
                 ? `/board?date=${latestScoredFinalDate}`
                 : "/board"
             }
             cta="View the board"
-            badge={
-              latestScoredLeanCount > 0
-                ? `${latestScoredLeanCount} loaded`
-                : undefined
-            }
           />
-          <FeatureTile
+          <CommandTile
             label="02"
-            title="Model anomaly guardrails"
-            body="Edges above 25% are auto-capped to Low confidence with an audit stamp. No card on the wall overstates the model's confidence."
+            metricValue={
+              latestScoredFinalBoard
+                ? String(
+                    (latestScoredFinalBoard.leans ?? []).filter((l) =>
+                      (l.riskFlags ?? []).includes("suspicious_edge"),
+                    ).length,
+                  )
+                : "—"
+            }
+            metricUnit={latestScoredFinalBoard ? "stamped" : undefined}
+            metricMuted={!latestScoredFinalBoard}
+            title="Guardrails"
+            sub="R5 caps edges above 25% to Low"
             href="/methodology"
             cta="Read methodology"
-            badge={
-              latestScoredFinalBoard
-                ? `${(latestScoredFinalBoard.leans ?? []).filter((l) =>
-                    (l.riskFlags ?? []).includes("suspicious_edge"),
-                  ).length} stamped`
-                : undefined
-            }
             tone="warn"
           />
-          <FeatureTile
+          <CommandTile
             label="03"
+            metricValue="3"
+            metricUnit="risk modes"
             title="Parlay Lab"
-            body="Build candidate parlays from real model leans, or analyze a slip you already have. Same-game legs are flagged."
+            sub="Conservative · Balanced · Wider edge"
             href="/parlay-lab"
             cta="Open the console"
           />
-          <FeatureTile
+          <CommandTile
             label="04"
-            title="Results calibration"
-            body="Every settled lean lands here — hit rate, projection error, confidence calibration. Honest until graded."
+            metricValue={
+              combinedHitRate !== null
+                ? formatPercent(combinedHitRate)
+                : "—"
+            }
+            metricUnit={
+              combinedHitRate !== null
+                ? `on ${combinedDecisive}`
+                : undefined
+            }
+            metricMuted={combinedHitRate === null}
+            title="Model audit"
+            sub="Every projection vs final box score"
             href="/results"
             cta="Calibration room"
           />
@@ -682,51 +704,10 @@ export default function HomePage() {
         />
       )}
 
-      {/* Three-up explainer — wrapped in the new VegasSectionShell so it
-          reads as a panelled "how it works" board rather than three free
-          cards floating on dark. */}
-      <div className="mt-20">
-        <VegasSectionShell
-          eyebrow="House rules · how it works"
-          heading="From line to lean in three steps"
-          sub="Every projection on the wall comes through this same pipeline — no black boxes, no hidden weighting."
-          staticDot
-          action={
-            <Link
-              href="/methodology"
-              className="font-mono tracking-tight transition-colors"
-              style={{ color: "var(--vault-gold)", fontSize: 12 }}
-            >
-              read full methodology →
-            </Link>
-          }
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <ExplainerCard
-              n="01"
-              title="Compare projection to line"
-              body="For each NBA player prop, the model produces a projected stat value and over/under probability. We pull the sportsbook line and convert the odds to an implied probability."
-              delay={1}
-            />
-            <ExplainerCard
-              n="02"
-              title="Quantify the edge"
-              body="Edge = model probability minus implied probability. Positive edge means the model thinks the market is mispricing the prop. We surface only edges that clear a transparent threshold."
-              delay={2}
-            />
-            <ExplainerCard
-              n="03"
-              title="Track every result"
-              body="Every lean is logged before tipoff and settled after the box score. Hit rate, calibration, and breakdown by market and confidence tier are all public."
-              delay={3}
-            />
-          </div>
-        </VegasSectionShell>
-      </div>
-
-      {/* MLB cross-sport entry — sport-categorized UI per the MLB roadmap.
-          Keeps NBA content above untouched; MLB lives in its own section. */}
-      <section className="mt-16 reveal" aria-label="MLB section">
+      {/* Three-step explainer — compressed to a single sportsbook
+          ticker so the homepage stays projection-first instead of
+          marketing-heavy. Full methodology lives on /methodology. */}
+      <section className="mt-16 reveal">
         <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
             <span
@@ -741,86 +722,70 @@ export default function HomePage() {
               className="font-mono text-[10px] uppercase tracking-[0.18em]"
               style={{ color: "var(--vault-gold)" }}
             >
-              MLB · now live in beta
+              House rules · line to lean in three steps
             </span>
           </div>
-          <span
-            className="font-mono text-[10px] uppercase tracking-[0.16em]"
-            style={{ color: "var(--vault-text-faint)" }}
+          <Link
+            href="/methodology"
+            className="font-mono tracking-tight uppercase"
+            style={{
+              color: "var(--vault-gold)",
+              fontSize: 11,
+              letterSpacing: "0.14em",
+            }}
           >
-            transparent by design
-          </span>
+            full methodology →
+          </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Link href="/mlb" className="gtp-aurora-halo block vault-glow-hover">
-            <div className="gtp-status-board p-5 h-full">
-              <div
-                className="font-mono uppercase tracking-[0.14em] mb-2"
-                style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-              >
-                MLB command center
-              </div>
-              <h3
-                className="font-display font-semibold tracking-tight"
-                style={{ color: "var(--vault-text)", fontSize: 18, lineHeight: 1.2 }}
-              >
-                Open the MLB hub
-              </h3>
-              <p
-                className="mt-2 text-[12px] leading-relaxed"
-                style={{ color: "var(--vault-text-mute)" }}
-              >
-                Today's MLB slate, projections summary, and entry points to the
-                main board and the Power Board.
-              </p>
-            </div>
-          </Link>
-          <Link href="/mlb/board" className="gtp-aurora-halo block vault-glow-hover">
-            <div className="gtp-status-board p-5 h-full">
-              <div
-                className="font-mono uppercase tracking-[0.14em] mb-2"
-                style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-              >
-                MLB main board
-              </div>
-              <h3
-                className="font-display font-semibold tracking-tight"
-                style={{ color: "var(--vault-text)", fontSize: 18, lineHeight: 1.2 }}
-              >
-                Strikeouts · hits · total bases
-              </h3>
-              <p
-                className="mt-2 text-[12px] leading-relaxed"
-                style={{ color: "var(--vault-text-mute)" }}
-              >
-                Pitcher and batter projections with the same R5 guardrails the
-                NBA model uses. Home runs intentionally excluded.
-              </p>
-            </div>
-          </Link>
-          <Link href="/mlb/power" className="gtp-aurora-halo block vault-glow-hover">
-            <div className="gtp-status-board p-5 h-full">
-              <div
-                className="font-mono uppercase tracking-[0.14em] mb-2"
-                style={{ color: "var(--vault-warn)", fontSize: 10 }}
-              >
-                MLB Power Board · HR watch
-              </div>
-              <h3
-                className="font-display font-semibold tracking-tight"
-                style={{ color: "var(--vault-text)", fontSize: 18, lineHeight: 1.2 }}
-              >
-                Home runs · separate variance profile
-              </h3>
-              <p
-                className="mt-2 text-[12px] leading-relaxed"
-                style={{ color: "var(--vault-text-mute)" }}
-              >
-                Power-profile ratings, not confidence tiers. Pending inputs
-                today — shell is up so the slate is visible.
-              </p>
-            </div>
-          </Link>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <StepChip n="01" title="Project" sub="model vs market" />
+          <StepChip n="02" title="Quantify" sub="model edge over implied" />
+          <StepChip n="03" title="Audit" sub="every lean settled publicly" />
+        </div>
+      </section>
+
+      {/* MLB cross-sport rail — compact ticket-style entries so the
+          three MLB destinations sit as a single illuminated rail
+          instead of three text-heavy plates. */}
+      <section className="mt-16 reveal" aria-label="MLB section">
+        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+              style={{
+                background: "var(--vault-gold-bright)",
+                boxShadow: "0 0 8px rgba(240, 199, 94, 0.55)",
+              }}
+            />
+            <span
+              className="font-mono text-[10px] uppercase tracking-[0.18em]"
+              style={{ color: "var(--vault-gold)" }}
+            >
+              MLB rail · live in beta
+            </span>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <MlbRailLink
+            eyebrow="MLB hub"
+            title="Open the MLB hub"
+            sub="Slate · entry points · audit"
+            href="/mlb"
+          />
+          <MlbRailLink
+            eyebrow="Main board"
+            title="Strikeouts · hits · total bases"
+            sub="Same R5 guardrails as NBA"
+            href="/mlb/board"
+          />
+          <MlbRailLink
+            eyebrow="Power Board"
+            title="High-variance watch"
+            sub="HR profile ratings · separate from main board"
+            href="/mlb/power"
+            tone="warn"
+          />
         </div>
       </section>
 
@@ -1036,40 +1001,47 @@ function ScheduleUnavailableCallout({
   );
 }
 
-function FeatureTile({
+/**
+ * CommandTile — scoreboard-style "what's on the floor" cell.
+ *
+ * Replaces the older text-heavy FeatureTile: a small mono label up
+ * top, then a large tabular gold-bright metric value with a unit
+ * pinned beside it, then a single-line caption, then the CTA arrow.
+ * No paragraph copy. metricMuted dims the value to the muted text
+ * color when the underlying number is honestly "—".
+ */
+function CommandTile({
   label,
+  metricValue,
+  metricUnit,
+  metricMuted,
   title,
-  body,
+  sub,
   href,
   cta,
-  badge,
   tone,
 }: {
   label: string;
+  metricValue: string;
+  metricUnit?: string;
+  metricMuted?: boolean;
   title: string;
-  body: string;
+  sub: string;
   href: string;
   cta: string;
-  badge?: string;
   tone?: "warn";
 }) {
-  const badgeStyle =
-    tone === "warn"
-      ? {
-          color: "var(--vault-warn)",
-          background: "var(--vault-warn-dim)",
-          border: "1px solid rgba(240, 199, 94, 0.30)",
-        }
-      : {
-          color: "var(--vault-gold-bright)",
-          background: "var(--vault-gold-dim)",
-          border: "1px solid var(--vault-border-strong)",
-        };
+  const valueColor = metricMuted
+    ? "var(--vault-text-faint)"
+    : tone === "warn"
+      ? "var(--vault-warn)"
+      : "var(--vault-gold-bright)";
   return (
     <Link
       href={href}
-      className="vault-deluxe-card casino-glow-card p-5 flex flex-col"
+      className="vault-deluxe-card casino-glow-card gtp-command-tile p-4 sm:p-5 flex flex-col"
       style={{ textDecoration: "none", color: "inherit" }}
+      data-tone={tone === "warn" ? "warn" : undefined}
     >
       <div className="flex items-center justify-between gap-3 mb-3">
         <span
@@ -1078,33 +1050,138 @@ function FeatureTile({
         >
           {label}
         </span>
-        {badge && (
+        <span
+          aria-hidden
+          className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+          style={{
+            background:
+              tone === "warn"
+                ? "var(--vault-warn)"
+                : "var(--vault-gold-bright)",
+            boxShadow:
+              tone === "warn"
+                ? "0 0 6px rgba(212, 175, 55, 0.55)"
+                : "0 0 6px rgba(240, 199, 94, 0.55)",
+          }}
+        />
+      </div>
+      <div className="flex items-baseline gap-2">
+        <span
+          className="gtp-scoreboard-number font-display font-semibold"
+          data-tone={metricMuted ? "mute" : tone === "warn" ? "warn" : undefined}
+          style={{
+            color: valueColor,
+            fontSize: "clamp(28px, 5vw, 38px)",
+          }}
+        >
+          {metricValue}
+        </span>
+        {metricUnit && (
           <span
-            className="font-mono text-[10px] tracking-tight uppercase px-2 py-0.5 rounded-[3px]"
-            style={badgeStyle}
+            className="font-mono uppercase tracking-[0.14em]"
+            style={{
+              color: "var(--vault-text-faint)",
+              fontSize: 10,
+            }}
           >
-            {badge}
+            {metricUnit}
           </span>
         )}
       </div>
       <h3
-        className="font-display text-[16px] sm:text-[17px] font-semibold tracking-tight mb-2"
+        className="mt-2 font-display text-[14px] sm:text-[15px] font-semibold tracking-tight"
         style={{ color: "var(--vault-text)" }}
       >
         {title}
       </h3>
       <p
-        className="text-[13px] leading-relaxed flex-1"
+        className="mt-1 text-[11px] sm:text-[12px] leading-snug flex-1"
         style={{ color: "var(--vault-text-mute)" }}
       >
-        {body}
+        {sub}
       </p>
       <div
-        className="mt-4 inline-flex items-center gap-1.5 font-mono text-[12px]"
+        className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.14em]"
         style={{ color: "var(--vault-gold)" }}
       >
         {cta}
         <span aria-hidden>→</span>
+      </div>
+    </Link>
+  );
+}
+
+/**
+ * Compact MLB rail link — eyebrow, single-line title, single-line sub,
+ * trailing arrow. Replaces the older paragraph-style MLB cards that
+ * stacked 3 dense panels on cold-start days.
+ */
+function MlbRailLink({
+  eyebrow,
+  title,
+  sub,
+  href,
+  tone,
+}: {
+  eyebrow: string;
+  title: string;
+  sub: string;
+  href: string;
+  tone?: "warn";
+}) {
+  const accent =
+    tone === "warn" ? "var(--vault-warn)" : "var(--vault-gold-bright)";
+  return (
+    <Link
+      href={href}
+      className="gtp-aurora-halo block vault-glow-hover rounded-[8px] relative"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(7,11,26,0.78) 0%, rgba(7,11,26,0.55) 100%)",
+        border: "1px solid var(--vault-border)",
+        textDecoration: "none",
+      }}
+    >
+      <span
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-[2px]"
+        style={{
+          background: `linear-gradient(90deg, transparent 0%, ${accent} 50%, transparent 100%)`,
+          opacity: 0.6,
+        }}
+      />
+      <div className="px-4 py-3.5 sm:px-5 sm:py-4 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div
+            className="font-mono uppercase tracking-[0.18em]"
+            style={{ color: accent, fontSize: 10 }}
+          >
+            {eyebrow}
+          </div>
+          <div
+            className="mt-1 font-display font-semibold tracking-tight truncate"
+            style={{ color: "var(--vault-text)", fontSize: 15 }}
+          >
+            {title}
+          </div>
+          <div
+            className="mt-0.5 text-[11px] truncate"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
+            {sub}
+          </div>
+        </div>
+        <span
+          className="font-mono shrink-0"
+          style={{
+            color: accent,
+            fontSize: 11,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+          }}
+        >
+          →
+        </span>
       </div>
     </Link>
   );
@@ -1157,41 +1234,54 @@ function HeroChip({
   );
 }
 
-function ExplainerCard({
+/**
+ * Compact 3-step chip used in the homepage "House rules" rail.
+ * Replaces the older paragraph-style ExplainerCard so the homepage
+ * stays projection-first.
+ */
+function StepChip({
   n,
   title,
-  body,
-  delay,
+  sub,
 }: {
   n: string;
   title: string;
-  body: string;
-  delay: number;
+  sub: string;
 }) {
   return (
     <div
-      className={`vault-deluxe-card casino-glow-card p-6 reveal reveal-d${delay}`}
+      className="rounded-[6px] px-4 py-3 flex items-center gap-3"
+      style={{
+        background: "rgba(7, 11, 26, 0.55)",
+        border: "1px solid var(--vault-border)",
+      }}
     >
-      <div className="flex items-center gap-2 mb-3">
-        <span
-          className="inline-flex items-center justify-center w-7 h-7 rounded-full font-mono font-semibold text-[12px] tabular"
-          style={{
-            background: "var(--vault-gold-dim)",
-            border: "1px solid var(--vault-border-strong)",
-            color: "var(--vault-gold-bright)",
-            boxShadow: "0 0 12px -4px rgba(240, 199, 94, 0.35)",
-          }}
-          aria-hidden
+      <span
+        className="inline-flex items-center justify-center w-7 h-7 rounded-full font-mono font-semibold text-[11px] tabular shrink-0"
+        style={{
+          background: "var(--vault-gold-dim)",
+          border: "1px solid var(--vault-border-strong)",
+          color: "var(--vault-gold-bright)",
+          boxShadow: "0 0 12px -4px rgba(240, 199, 94, 0.35)",
+        }}
+        aria-hidden
+      >
+        {n}
+      </span>
+      <div className="min-w-0">
+        <div
+          className="font-display font-semibold tracking-tight"
+          style={{ color: "var(--vault-text)", fontSize: 14 }}
         >
-          {n}
-        </span>
-        <h3 className="font-display text-[18px] sm:text-[20px] font-semibold tracking-tight">
           {title}
-        </h3>
+        </div>
+        <div
+          className="text-[11px] font-mono uppercase tracking-[0.12em]"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          {sub}
+        </div>
       </div>
-      <p className="text-[14px] text-[var(--vault-text-mute)] leading-relaxed">
-        {body}
-      </p>
     </div>
   );
 }

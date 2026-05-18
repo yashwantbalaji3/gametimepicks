@@ -288,9 +288,27 @@ function SportCard({
           opacity: 0.6,
         }}
       />
+      {/* Radar pulse — only renders on pending / off-day cards. Communicates
+          "watching, nothing yet" via a concentric expanding ring without
+          faking an active state. Active (success-tone) cards skip this — the
+          pulsing live dot in the eyebrow carries the live signal instead. */}
+      {statusTone !== "success" && (
+        <span
+          aria-hidden
+          className="absolute pointer-events-none gtp-radar-pulse"
+          style={{
+            top: "calc(50% - 7px)",
+            right: 14,
+            width: 14,
+            height: 14,
+            color: statusColor,
+            opacity: 0.55,
+          }}
+        />
+      )}
       <Link
         href={href}
-        className="block vault-glow-hover px-4 py-4 sm:px-5 sm:py-5 flex-1"
+        className="block vault-glow-hover px-4 py-4 sm:px-5 sm:py-5 flex-1 relative"
         style={{ textDecoration: "none" }}
       >
         <div className="flex items-center justify-between gap-2 mb-2">
