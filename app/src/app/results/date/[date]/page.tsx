@@ -160,6 +160,17 @@ export default function ResultsDatePage({ params }: PageProps) {
         </p>
       </section>
 
+      {/* "At a glance" + Hit / Miss / Push / Pending glossary.
+          Plain-language read-out so a first-time visitor doesn't need to
+          parse decimals to understand what the page is showing. */}
+      <AtAGlanceCard
+        totalWins={totalWins}
+        totalLosses={totalLosses}
+        totalPushes={totalPushes}
+        totalDecisive={totalDecisive}
+        mlbPending={mlbReport?.partial ? (mlbReport.pendingGameList?.length ?? 0) : 0}
+      />
+
       {/* Per-sport scorecards */}
       <section className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-3">
         {nbaDecisive > 0 && (
@@ -187,6 +198,18 @@ export default function ResultsDatePage({ params }: PageProps) {
           />
         )}
       </section>
+
+      {/* Biggest hits / biggest misses — cross-sport leaderboards.
+          Edge magnitude on the wins side, |projection error| on the
+          misses side. Both pull from the pipeline-emitted bestCalls /
+          largestMisses lists so there is no fresh number derivation
+          here — same data backs the page hero. */}
+      <BigCallsRow
+        nbaReport={
+          nba?.report ? (nba.report as unknown as ComparisonReportLike) : null
+        }
+        mlbReport={mlbReport ? (mlbReport as unknown as MlbReportLike) : null}
+      />
 
       {/* NBA per-game expandable cards */}
       {nbaRows.length > 0 && (
@@ -266,6 +289,332 @@ export default function ResultsDatePage({ params }: PageProps) {
       </footer>
     </div>
   );
+}
+
+function AtAGlanceCard({
+  totalWins,
+  totalLosses,
+  totalPushes,
+  totalDecisive,
+  mlbPending,
+}: {
+  totalWins: number;
+  totalLosses: number;
+  totalPushes: number;
+  totalDecisive: number;
+  mlbPending: number;
+}) {
+  if (totalDecisive === 0 && mlbPending === 0) return null;
+  return (
+    <section className="mt-6">
+      <div
+        className="rounded-[6px] px-5 py-5 sm:px-6 sm:py-6"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(14,21,48,0.55) 0%, rgba(7,11,26,0.55) 100%)",
+          border: "1px solid var(--vault-border)",
+        }}
+      >
+        <div
+          className="font-mono uppercase tracking-[0.18em] mb-3"
+          style={{ color: "var(--vault-gold)", fontSize: 10 }}
+        >
+          At a glance
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Glance label="Hit" value={String(totalWins)} tone="success"
+                  sub="model agreed and the line cleared" />
+          <Glance label="Miss" value={String(totalLosses)} tone="warn"
+                  sub="model agreed but the line did not clear" />
+          <Glance label="Push" value={String(totalPushes)} tone="mute"
+                  sub="final stat tied the line — excluded from hit rate" />
+          <Glance
+            label="Pending"
+            value={String(mlbPending)}
+            tone="mute"
+            sub={
+              mlbPending > 0
+                ? "game not final — never counts as a loss"
+                : "no games still pending on this date"
+            }
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Glance({
+  label,
+  value,
+  tone,
+  sub,
+}: {
+  label: string;
+  value: string;
+  tone: "success" | "warn" | "mute";
+  sub: string;
+}) {
+  const color =
+    tone === "success"
+      ? "var(--vault-success)"
+      : tone === "warn"
+        ? "var(--vault-warn)"
+        : "var(--vault-text-faint)";
+  return (
+    <div>
+      <div
+        className="font-mono uppercase tracking-[0.14em]"
+        style={{ color, fontSize: 10 }}
+      >
+        {label}
+      </div>
+      <div
+        className="font-display font-semibold tabular tracking-tight"
+        style={{
+          color: "var(--vault-text)",
+          fontSize: 28,
+          lineHeight: 1,
+          marginTop: 4,
+        }}
+      >
+        {value}
+      </div>
+      <div
+        className="mt-1.5 text-[11px] leading-snug"
+        style={{ color: "var(--vault-text-mute)" }}
+      >
+        {sub}
+      </div>
+    </div>
+  );
+}
+
+interface TopCall {
+  playerName: string;
+  market: string;
+  side: string;
+  line: number;
+  edgePct?: number | null;
+  finalStat?: number | null;
+  modelProjection?: number | null;
+  result?: string;
+  sport: "NBA" | "MLB";
+  confidence?: string;
+}
+
+function BigCallsRow({
+  nbaReport,
+  mlbReport,
+}: {
+  nbaReport: ComparisonReportLike | null;
+  mlbReport: MlbReportLike | null;
+}) {
+  // Cross-sport rollup. Pipeline already de-dupes by (player, market, side,
+  // line) and stamps both rows; we de-dupe again on this layer because
+  // bestCalls/largestMisses are emitted per-bookmaker.
+  const hits: TopCall[] = [];
+  const misses: TopCall[] = [];
+
+  const seen = new Set<string>();
+  const pushUnique = (
+    bucket: TopCall[],
+    c: TopCall,
+  ) => {
+    const key = `${c.sport}-${c.playerName}-${c.market}-${c.side}-${c.line}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    bucket.push(c);
+  };
+
+  // NBA bestCalls / largestMisses — pipeline-emitted, no fabrication.
+  for (const raw of nbaReport?.bestCalls ?? []) {
+    pushUnique(hits, {
+      sport: "NBA",
+      playerName: String(raw.playerName ?? ""),
+      market: String(raw.market ?? ""),
+      side: String(raw.side ?? ""),
+      line: Number(raw.line ?? 0),
+      edgePct: typeof raw.edgePct === "number" ? raw.edgePct : null,
+      finalStat: typeof raw.finalStat === "number" ? raw.finalStat : null,
+      modelProjection:
+        typeof raw.modelProjection === "number" ? raw.modelProjection : null,
+      result: String(raw.result ?? "win"),
+    });
+  }
+  for (const raw of nbaReport?.largestMisses ?? []) {
+    pushUnique(misses, {
+      sport: "NBA",
+      playerName: String(raw.playerName ?? ""),
+      market: String(raw.market ?? ""),
+      side: String(raw.side ?? ""),
+      line: Number(raw.line ?? 0),
+      edgePct: typeof raw.edgePct === "number" ? raw.edgePct : null,
+      finalStat: typeof raw.finalStat === "number" ? raw.finalStat : null,
+      modelProjection:
+        typeof raw.modelProjection === "number" ? raw.modelProjection : null,
+      result: String(raw.result ?? "loss"),
+    });
+  }
+
+  // MLB topHits / biggestMisses use richer keys.
+  for (const raw of mlbReport?.topHits ?? []) {
+    pushUnique(hits, {
+      sport: "MLB",
+      playerName: String(raw.playerName ?? ""),
+      market: String(raw.marketLabel ?? raw.marketKey ?? ""),
+      side: String(raw.lean ?? ""),
+      line: Number(raw.line ?? 0),
+      edgePct: typeof raw.edgePct === "number" ? raw.edgePct : null,
+      finalStat: typeof raw.actual === "number" ? raw.actual : null,
+      modelProjection:
+        typeof raw.projection === "number" ? raw.projection : null,
+      confidence: String(raw.confidence ?? ""),
+      result: "win",
+    });
+  }
+  for (const raw of mlbReport?.biggestMisses ?? []) {
+    pushUnique(misses, {
+      sport: "MLB",
+      playerName: String(raw.playerName ?? ""),
+      market: String(raw.marketLabel ?? raw.marketKey ?? ""),
+      side: String(raw.lean ?? ""),
+      line: Number(raw.line ?? 0),
+      edgePct: typeof raw.edgePct === "number" ? raw.edgePct : null,
+      finalStat: typeof raw.actual === "number" ? raw.actual : null,
+      modelProjection:
+        typeof raw.projection === "number" ? raw.projection : null,
+      confidence: String(raw.confidence ?? ""),
+      result: "loss",
+    });
+  }
+
+  if (hits.length === 0 && misses.length === 0) return null;
+
+  // Top 5 by |edgePct| descending for the leaderboard. Honest sort key:
+  // edge magnitude is the model's own conviction signal.
+  const byEdge = (a: TopCall, b: TopCall) =>
+    Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0);
+
+  const topHits = [...hits].sort(byEdge).slice(0, 5);
+  const topMisses = [...misses].sort(byEdge).slice(0, 5);
+
+  return (
+    <section className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-3">
+      <BigCallsCard
+        eyebrow="Biggest hits"
+        accent="success"
+        rows={topHits}
+        emptyText="No hits to spotlight on this date."
+      />
+      <BigCallsCard
+        eyebrow="Biggest misses"
+        accent="warn"
+        rows={topMisses}
+        emptyText="No misses to spotlight on this date."
+      />
+    </section>
+  );
+}
+
+function BigCallsCard({
+  eyebrow,
+  accent,
+  rows,
+  emptyText,
+}: {
+  eyebrow: string;
+  accent: "success" | "warn";
+  rows: TopCall[];
+  emptyText: string;
+}) {
+  const c =
+    accent === "success" ? "var(--vault-success)" : "var(--vault-warn)";
+  return (
+    <div
+      className="rounded-[6px] px-4 py-4 sm:px-5 sm:py-5"
+      style={{
+        background: "rgba(7, 11, 26, 0.55)",
+        border: "1px solid var(--vault-border)",
+      }}
+    >
+      <div
+        className="font-mono uppercase tracking-[0.18em] mb-3"
+        style={{ color: c, fontSize: 10 }}
+      >
+        {eyebrow}
+      </div>
+      {rows.length === 0 ? (
+        <p className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+          {emptyText}
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-2.5 list-none p-0 m-0">
+          {rows.map((r, i) => (
+            <li
+              key={`${r.sport}-${r.playerName}-${r.market}-${i}`}
+              className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px]"
+              style={{ color: "var(--vault-text-mute)" }}
+            >
+              <span
+                className="font-mono uppercase tracking-[0.14em] shrink-0"
+                style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+              >
+                {r.sport}
+              </span>
+              <span
+                className="font-medium"
+                style={{ color: "var(--vault-text)" }}
+              >
+                {r.playerName}
+              </span>
+              <span style={{ color: "var(--vault-text-faint)" }}>
+                {r.side} {r.line} {r.market}
+              </span>
+              <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>
+                ·
+              </span>
+              <span
+                className="font-mono tabular"
+                style={{ color: c, fontSize: 11 }}
+              >
+                {typeof r.edgePct === "number" ? `${r.edgePct >= 0 ? "+" : ""}${r.edgePct.toFixed(1)}pp edge` : ""}
+              </span>
+              {typeof r.finalStat === "number" && (
+                <>
+                  <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>
+                    ·
+                  </span>
+                  <span
+                    className="font-mono tabular"
+                    style={{ color: "var(--vault-text-mute)", fontSize: 11 }}
+                  >
+                    actual {r.finalStat}
+                  </span>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// Loose shapes for the cross-sport BigCallsRow — both NBA and MLB reports
+// expose these fields but with different schemas; we only read the keys
+// we need so a future schema addition can't break this row.
+// Each entry is read field-by-field with explicit guards — index-signature
+// typing keeps the cross-sport access path simple without forcing every
+// pipeline schema field into this UI layer.
+type LooseEntry = Record<string, unknown>;
+interface ComparisonReportLike {
+  bestCalls?: ReadonlyArray<LooseEntry>;
+  largestMisses?: ReadonlyArray<LooseEntry>;
+}
+interface MlbReportLike {
+  topHits?: ReadonlyArray<LooseEntry>;
+  biggestMisses?: ReadonlyArray<LooseEntry>;
 }
 
 function SportScoreCard({

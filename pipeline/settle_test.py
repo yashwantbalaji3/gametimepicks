@@ -427,6 +427,115 @@ def test_comparison_report(s: Suite) -> None:
     s.assert_eq(rep2["hitRate"], 1.0, "30 wins → 100% hit rate")
 
 
+def test_espn_source(s: Suite, tmp_dir: Path) -> None:
+    """ESPN summary box-score fallback — covers playoff days when nba_api
+    can't accept the ESPN gameId."""
+    print(f"\n  {BLUE}─── ESPN summary fallback ───{RESET}")
+
+    # 1) fetch_final_stats_via_espn parses ESPN payload by name + market
+    espn_payload = {
+        "header": {
+            "competitions": [{
+                "status": {"type": {"completed": True, "state": "post"}}
+            }]
+        },
+        "boxscore": {
+            "players": [
+                {
+                    "team": {"abbreviation": "OKC"},
+                    "statistics": [{
+                        "keys": [
+                            "minutes", "points", "fieldGoalsMade-fieldGoalsAttempted",
+                            "threePointFieldGoalsMade-threePointFieldGoalsAttempted",
+                            "freeThrowsMade-freeThrowsAttempted",
+                            "rebounds", "assists", "turnovers", "steals", "blocks",
+                            "offensiveRebounds", "defensiveRebounds", "fouls",
+                            "plusMinus",
+                        ],
+                        "athletes": [
+                            {
+                                "athlete": {"displayName": "Shai Gilgeous-Alexander"},
+                                "stats": ["38", "31", "10-22", "3-7", "8-9",
+                                          "6", "8", "3", "2", "0",
+                                          "0", "6", "2", "+5"],
+                                "didNotPlay": False,
+                            },
+                            {
+                                "athlete": {"displayName": "Inactive Guy"},
+                                "stats": [],
+                                "didNotPlay": True,
+                            },
+                        ],
+                    }],
+                },
+            ]
+        }
+    }
+    espn = SR.fetch_final_stats_via_espn(
+        "401873197", fetch_json=lambda _url: espn_payload,
+    )
+    s.assert_eq(
+        espn.get("shai gilgeous-alexander"),
+        {"PTS": 31.0, "REB": 6.0, "AST": 8.0},
+        "ESPN parser keys by lowercased name and extracts PTS/REB/AST",
+    )
+    s.assert_eq("inactive guy" not in espn, True, "DNP players are dropped")
+
+    # 2) Non-final games return None so we never settle against an
+    #    in-progress score.
+    in_progress = {
+        "header": {
+            "competitions": [{
+                "status": {"type": {"completed": False, "state": "in"}}
+            }]
+        },
+        "boxscore": {"players": []},
+    }
+    s.assert_eq(
+        SR.fetch_final_stats_via_espn(
+            "401873197", fetch_json=lambda _u: in_progress,
+        ),
+        None,
+        "non-final game → None (does not settle in-progress)",
+    )
+
+    # 3) NBA.com-format gameId (10-digit) is NOT routed to ESPN — that's
+    #    the nba_api source's job. Avoids a wasted HTTP call.
+    s.assert_eq(
+        SR.fetch_final_stats_via_espn(
+            "0042500207", fetch_json=lambda _u: espn_payload,
+        ),
+        None,
+        "10-digit NBA.com id is skipped (only 9-digit ESPN ids accepted)",
+    )
+
+    # 4) resolve_final_stat reaches ESPN when nba_api auto map is empty
+    espn_by_game = {
+        "401873197": {"victor wembanyama": {"PTS": 41.0, "REB": 24.0, "AST": 3.0}},
+    }
+    val, src = SR.resolve_final_stat(
+        L(player="Victor Wembanyama", pid=None,
+          game_id="401873197", market="PTS"),
+        overrides={},
+        auto_stats_by_game={},
+        espn_stats_by_game=espn_by_game,
+    )
+    s.assert_eq(val, 41.0, "ESPN PTS resolves by name + gameId")
+    s.assert_eq(src, "espn", "  source=espn")
+
+    # 5) Override still beats ESPN
+    val, src = SR.resolve_final_stat(
+        L(player="Victor Wembanyama", pid=None,
+          game_id="401873197", market="PTS", team="SA"),
+        overrides={("victor wembanyama", "SA"):
+                   {"PTS": 99.0, "REB": 99.0, "AST": 99.0}},
+        auto_stats_by_game={},
+        espn_stats_by_game=espn_by_game,
+    )
+    s.assert_eq(val, 99.0, "manual override still wins over ESPN")
+    s.assert_eq(src, "manual_override", "  source=manual_override")
+
+
 def test_settle_for_date_end_to_end(s: Suite, tmp_dir: Path) -> None:
     print(f"\n  {BLUE}─── settle_for_date end-to-end (override-only) ───{RESET}")
 
@@ -495,6 +604,7 @@ def main() -> int:
             test_override_loading(s, tmp)
             test_resolve_with_overrides(s, tmp)
             test_idempotent_writes(s, tmp)
+            test_espn_source(s, tmp)
             test_settle_for_date_end_to_end(s, tmp)
         finally:
             SR.OVERRIDES_PATH = orig_overrides
