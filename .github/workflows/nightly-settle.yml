@@ -1,0 +1,154 @@
+# ----------------------------------------------------------------------------
+# nightly-settle.yml
+#
+# Settles yesterday's NBA + MLB slates after late West-Coast MLB and
+# Pacific-time NBA games have finalized. Runs daily at 07:00 UTC =
+# 3:00 AM ET (EDT) / 2:00 AM EST. Cron is interpreted in UTC, so the
+# clock walks by an hour at the DST boundary — picking 07:00 UTC keeps
+# us safely past 2 AM ET year-round.
+#
+# What this workflow DOES:
+#   - Resolve yesterday's date in America/New_York
+#   - Run NBA settlement (settle_results uses ESPN summary + nba_api;
+#     in-progress games refused at source layer)
+#   - Run MLB settlement (settle_mlb_results uses MLB Stats API;
+#     partial settlement when games are still pending)
+#   - Export sanitized results to app/public/data/{results,mlb/results}
+#   - Commit + push the regenerated data so /results picks it up
+#
+# What this workflow does NOT do:
+#   - Call any paid API (settlement uses free public endpoints only)
+#   - Run projection generation
+#   - Count pending games as losses (handled at the pipeline source)
+#   - Touch code or anything outside the data allowlist
+#
+# Required secrets: NONE. Settlement is fully free.
+#
+# Manual trigger: Actions → nightly-settle → Run workflow.
+# Inputs:
+#   settle_date (string, YYYY-MM-DD) — override the target date
+#   dry_run (boolean) — print the plan without running
+# ----------------------------------------------------------------------------
+
+name: nightly-settle
+
+on:
+  schedule:
+    # 07:00 UTC = 3 AM EDT / 2 AM EST. Late West-Coast MLB games can
+    # run to ~01:30 AM ET on rain delays, so 3 AM EDT gives a comfortable
+    # margin.
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+    inputs:
+      settle_date:
+        description: "Target date (YYYY-MM-DD). Default: yesterday in ET."
+        type: string
+        required: false
+        default: ""
+      dry_run:
+        description: "Print the plan only, no settle calls."
+        type: boolean
+        required: false
+        default: false
+
+concurrency:
+  group: nightly-settle
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  settle:
+    name: settle yesterday + export
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      TZ: "America/New_York"
+      SETTLE_DATE: ${{ github.event.inputs.settle_date || '' }}
+      DRY_RUN_SETTLE: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Show settlement context
+        run: |
+          echo "════════════════════════════════════════════════════════"
+          echo "  GametimePicks — nightly-settle"
+          echo "════════════════════════════════════════════════════════"
+          echo "  ET date now:   $(TZ=America/New_York date '+%Y-%m-%d %H:%M %Z')"
+          echo "  UTC time now:  $(date -u '+%Y-%m-%d %H:%M UTC')"
+          echo "  Trigger:       ${{ github.event_name }}"
+          echo "  SETTLE_DATE:   ${SETTLE_DATE:-(yesterday in ET)}"
+          echo "  DRY_RUN:       ${DRY_RUN_SETTLE}"
+          echo "════════════════════════════════════════════════════════"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f pipeline/requirements.txt ]; then
+            pip install -r pipeline/requirements.txt
+          else
+            pip install requests
+          fi
+
+      - name: Run nightly settlement orchestrator
+        run: bash scripts/automation_settle.sh
+
+      - name: Show diff stat (informational)
+        run: |
+          echo "::group::git status"
+          git status
+          echo "::endgroup::"
+          echo "::group::git diff --stat"
+          git diff --stat
+          echo "::endgroup::"
+
+      - name: Commit and push if results changed
+        run: |
+          # Allowlist what automation can commit. NEVER commit code,
+          # secrets, build artifacts, or session docs.
+          git add app/public/data/results/ 2>/dev/null || true
+          git add app/public/data/mlb/results/ 2>/dev/null || true
+          git add pipeline/validation/settled_leans.jsonl 2>/dev/null || true
+          git add pipeline/validation/mlb_settled_leans.jsonl 2>/dev/null || true
+          git add pipeline/validation/comparison_report_*.json 2>/dev/null || true
+          git add pipeline/validation/mlb_comparison_report_*.json 2>/dev/null || true
+
+          if git diff --staged --quiet; then
+            echo "No settled-data changes — nothing to commit."
+            exit 0
+          fi
+
+          git config user.name "GametimePicks Bot"
+          git config user.email "noreply@github.com"
+
+          # [skip ci] is defensive — schedule-triggered runs ignore commit
+          # messages, but this prevents recursion if push triggers are added.
+          ET=$(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')
+          MSG="auto: nightly settle ${ET} [skip ci]"
+          git commit -m "$MSG"
+          git push origin HEAD:main
+          echo "Pushed: $MSG"
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-settle-logs
+          path: |
+            /tmp/gtp_settle_*.log
+            /tmp/gtp_export_*.log
+          retention-days: 7
+          if-no-files-found: ignore
