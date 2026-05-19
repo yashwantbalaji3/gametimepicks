@@ -19,8 +19,11 @@ Usage:
 
 Sources (in priority order):
   1. Manual override file (always wins)
-  2. nba_api boxscore (auto, when network + matching gameId)
-  3. (none) → result = "stats_unavailable"
+  2. nba_api boxscore (auto, when network + matching NBA.com gameId)
+  3. ESPN summary boxscore (auto, when gameId is ESPN's 9-digit event id
+     — added so playoff games whose boards came from espn_scoreboard
+     still settle without a manual override)
+  4. (none) → result = "stats_unavailable"
 
 Settlement rules:
   - side=Over, finalStat > line  → win
@@ -235,6 +238,104 @@ def load_overrides(date: str) -> dict[tuple[str, str | None], dict[str, float]]:
 # ---------------------------------------------------------------------------
 # Optional nba_api boxscore — auto source, never required
 # ---------------------------------------------------------------------------
+def fetch_final_stats_via_espn(
+    game_id: str,
+    *,
+    fetch_json: Callable[[str], dict[str, Any] | None] | None = None,
+) -> dict[str, dict[str, float]] | None:
+    """
+    Fetch per-player final stats for an NBA game via ESPN's `summary`
+    endpoint. Returns {normalized_player_name: {PTS, REB, AST}} or None
+    on any failure.
+
+    Keyed by lowercased player name (not NBA.com playerId) because the
+    ESPN payload only carries ESPN athlete ids, not NBA.com ones. The
+    settle pipeline keys leans by (playerName, gameId) when this source
+    fires — sufficient since each game's box score has unique names.
+
+    Pure-ish: network call only when `fetch_json` is None. Tests inject
+    a fake fetcher to stay offline.
+    """
+    if not game_id:
+        return None
+    # Only attempt ESPN when the gameId looks like an ESPN event id
+    # (9-digit integer string). NBA.com ids are 10-digit zero-padded
+    # strings like "0042500207" — those go to the nba_api path.
+    if not (game_id.isdigit() and len(game_id) == 9):
+        return None
+    url = (
+        "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/"
+        f"summary?event={game_id}"
+    )
+    if fetch_json is None:
+        try:
+            import urllib.request
+
+            with urllib.request.urlopen(url, timeout=15) as resp:  # noqa: S310
+                payload = json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            log.warning(f"ESPN summary failed for game_id={game_id!r}: {e}")
+            return None
+    else:
+        payload = fetch_json(url)
+        if payload is None:
+            return None
+
+    try:
+        # Refuse to settle a game that ESPN itself does not call FINAL.
+        comp = (
+            payload.get("header", {})
+            .get("competitions", [{}])[0]
+        )
+        status = comp.get("status", {}).get("type", {})
+        if not status.get("completed"):
+            log.info(
+                f"ESPN game {game_id!r} not final (state={status.get('state')!r}); "
+                "skipping ESPN source"
+            )
+            return None
+        out: dict[str, dict[str, float]] = {}
+        boxscore = payload.get("boxscore", {})
+        for team_data in boxscore.get("players", []) or []:
+            for stat_group in team_data.get("statistics", []) or []:
+                keys = stat_group.get("keys") or []
+                # Build a {market: index_in_stats_array} map for the three
+                # markets we settle. ESPN uses `points`/`rebounds`/`assists`.
+                idx = {
+                    "PTS": keys.index("points") if "points" in keys else None,
+                    "REB": keys.index("rebounds") if "rebounds" in keys else None,
+                    "AST": keys.index("assists") if "assists" in keys else None,
+                }
+                if not any(v is not None for v in idx.values()):
+                    continue
+                for athlete in stat_group.get("athletes", []) or []:
+                    if athlete.get("didNotPlay"):
+                        # DNPs don't get final stats; settlement will mark
+                        # these stats_unavailable for the player's markets.
+                        continue
+                    name = (
+                        athlete.get("athlete", {}).get("displayName") or ""
+                    ).strip().lower()
+                    if not name:
+                        continue
+                    stats_arr = athlete.get("stats") or []
+                    stats: dict[str, float] = {}
+                    for market, i in idx.items():
+                        if i is None or i >= len(stats_arr):
+                            continue
+                        raw = stats_arr[i]
+                        try:
+                            stats[market] = float(raw)
+                        except (TypeError, ValueError):
+                            continue
+                    if stats:
+                        out[name] = stats
+        return out if out else None
+    except Exception as e:
+        log.warning(f"ESPN summary parse failed for game_id={game_id!r}: {e}")
+        return None
+
+
 def fetch_final_stats_via_nba_api(game_id: str) -> dict[int, dict[str, float]] | None:
     """
     Fetch per-player final stats for an NBA game via nba_api's
@@ -292,9 +393,10 @@ def resolve_final_stat(
     lean: dict,
     overrides: dict[tuple[str, str | None], dict[str, float]],
     auto_stats_by_game: dict[str, dict[int, dict[str, float]]],
+    espn_stats_by_game: dict[str, dict[str, dict[str, float]]] | None = None,
 ) -> tuple[float | None, str]:
     """Returns (final_stat, source) where source is one of:
-       'manual_override', 'nba_api', 'missing'."""
+       'manual_override', 'nba_api', 'espn', 'missing'."""
     name = (lean.get("playerName") or "").strip().lower()
     team = lean.get("team")
     market = lean.get("market")
@@ -307,13 +409,22 @@ def resolve_final_stat(
         if key in overrides and market in overrides[key]:
             return overrides[key][market], "manual_override"
 
-    # 2. nba_api auto
+    # 2. nba_api auto (keyed by NBA.com playerId, only when nba_api accepts
+    #    the gameId — i.e. NBA.com 10-digit ids)
     pid = lean.get("playerId")
     game_id = lean.get("gameId")
     if pid is not None and game_id and game_id in auto_stats_by_game:
         stats = auto_stats_by_game[game_id].get(int(pid))
         if stats and market in stats:
             return stats[market], "nba_api"
+
+    # 3. ESPN summary auto (keyed by lowercased player name; covers
+    #    games whose boards came from espn_scoreboard, e.g. playoff days
+    #    when nba_api's playoff stats endpoint is down)
+    if espn_stats_by_game and game_id and game_id in espn_stats_by_game:
+        stats = espn_stats_by_game[game_id].get(name)
+        if stats and market in stats:
+            return stats[market], "espn"
 
     return None, "missing"
 
@@ -596,21 +707,30 @@ def settle_for_date(
     overrides = load_overrides(date)
 
     auto_stats_by_game: dict[str, dict[int, dict[str, float]]] = {}
+    espn_stats_by_game: dict[str, dict[str, dict[str, float]]] = {}
     if use_auto:
         unique_game_ids = {
             l.get("gameId") for l in leans if l.get("gameId")
         }
         for gid in unique_game_ids:
-            stats = fetch_final_stats_via_nba_api(gid)
+            if gid is None:
+                continue
+            # Try nba_api first for NBA.com-format ids; if that fails (or
+            # the id is ESPN-format), fall through to ESPN summary.
+            stats = fetch_final_stats_via_nba_api(str(gid))
             if stats:
                 auto_stats_by_game[gid] = stats
+                continue
+            espn_stats = fetch_final_stats_via_espn(str(gid))
+            if espn_stats:
+                espn_stats_by_game[gid] = espn_stats
 
     settled_rows: list[dict] = []
     skipped_no_pick = 0
 
     for lean in leans:
         final_stat, source = resolve_final_stat(
-            lean, overrides, auto_stats_by_game
+            lean, overrides, auto_stats_by_game, espn_stats_by_game
         )
         row = settle_lean(lean, final_stat, source)
         if row is None:
@@ -637,6 +757,7 @@ def settle_for_date(
         ),
         "overridesLoaded": len(overrides),
         "autoSourceGames": len(auto_stats_by_game),
+        "espnSourceGames": len(espn_stats_by_game),
     }
     return settled_rows, summary
 
@@ -658,6 +779,7 @@ def _print_summary(date: str, summary: dict, settled_rows: list[dict]) -> None:
     print(f"  Invalid:                     {summary['invalid']}")
     print(f"  Overrides loaded (players):  {summary['overridesLoaded']}")
     print(f"  Auto-source games (nba_api): {summary['autoSourceGames']}")
+    print(f"  Auto-source games (espn):    {summary.get('espnSourceGames', 0)}")
 
     decisive = summary["wins"] + summary["losses"]
     if decisive > 0:
