@@ -1,0 +1,188 @@
+# ----------------------------------------------------------------------------
+# morning-projections.yml
+#
+# Refreshes today's NBA + MLB projection boards using The Odds API.
+# Runs daily at 13:30 UTC = 9:30 AM ET (EDT) / 8:30 AM EST so the
+# update lands AFTER nightly-settle has rolled forward yesterday's
+# results.
+#
+# Paid spend is gated by pipeline.credit_guard:
+#   - per-run cap (default 75 credits)
+#   - balance floor (default 300 credits remaining)
+#   - hard refusal when ODDS_API_KEY is unset, when the cost estimate
+#     exceeds the cap, or when projected balance would drop below the
+#     floor — no fallback, no fabrication
+#
+# Inputs (workflow_dispatch):
+#   projections_date — override the target date (YYYY-MM-DD)
+#   dry_run          — accept the plan but don't spend credits
+#   max_per_run      — override per-run cost cap (default 75)
+#   min_remaining    — override balance floor (default 300)
+#
+# Repository variables / secrets honored:
+#   secrets.ODDS_API_KEY (required for any paid call)
+#   vars.MAX_PER_RUN     (default 75)
+#   vars.MIN_REMAINING   (default 300)
+#
+# What this workflow does NOT do:
+#   - Generate fake projections when the credit guard refuses
+#   - Run settlement (handled by nightly-settle.yml)
+#   - Commit anything outside the data allowlist
+#   - Touch NHL or IPL (no real projection pipeline)
+# ----------------------------------------------------------------------------
+
+name: morning-projections
+
+on:
+  schedule:
+    # 13:30 UTC = 9:30 AM EDT / 8:30 AM EST. Runs after nightly-settle
+    # (07:00 UTC) so today's board is refreshed against the latest
+    # settled audit.
+    - cron: "30 13 * * *"
+  workflow_dispatch:
+    inputs:
+      projections_date:
+        description: "Target date (YYYY-MM-DD). Default: today in ET."
+        type: string
+        required: false
+        default: ""
+      dry_run:
+        description: "Run credit guard + plan only — no paid calls."
+        type: boolean
+        required: false
+        default: false
+      max_per_run:
+        description: "Per-run cost cap (credits). Default 75."
+        type: string
+        required: false
+        default: "75"
+      min_remaining:
+        description: "Balance floor (credits). Default 300."
+        type: string
+        required: false
+        default: "300"
+
+concurrency:
+  group: morning-projections
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    name: refresh today's projections
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      TZ: "America/New_York"
+      PROJECTIONS_DATE: ${{ github.event.inputs.projections_date || '' }}
+      DRY_RUN_PROJECTIONS: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
+      MAX_PER_RUN: ${{ github.event.inputs.max_per_run || vars.MAX_PER_RUN || '75' }}
+      MIN_REMAINING: ${{ github.event.inputs.min_remaining || vars.MIN_REMAINING || '300' }}
+      # NBA pipeline event cap. Conservative — playoff days have at most
+      # 1 NBA game; regular season tops out around 8 — overridable.
+      ODDS_MAX_EVENTS_PER_RUN: ${{ vars.ODDS_MAX_EVENTS_PER_RUN || '8' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Show projection context
+        run: |
+          echo "════════════════════════════════════════════════════════"
+          echo "  GametimePicks — morning-projections"
+          echo "════════════════════════════════════════════════════════"
+          echo "  ET date now:        $(TZ=America/New_York date '+%Y-%m-%d %H:%M %Z')"
+          echo "  UTC time now:       $(date -u '+%Y-%m-%d %H:%M UTC')"
+          echo "  Trigger:            ${{ github.event_name }}"
+          echo "  PROJECTIONS_DATE:   ${PROJECTIONS_DATE:-(today in ET)}"
+          echo "  DRY_RUN:            ${DRY_RUN_PROJECTIONS}"
+          echo "  MAX_PER_RUN:        ${MAX_PER_RUN}"
+          echo "  MIN_REMAINING:      ${MIN_REMAINING}"
+          echo "  ODDS_MAX_EVENTS:    ${ODDS_MAX_EVENTS_PER_RUN}"
+          echo "════════════════════════════════════════════════════════"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f pipeline/requirements.txt ]; then
+            pip install -r pipeline/requirements.txt
+          else
+            pip install requests nba_api
+          fi
+
+      - name: Restore nba_api cache
+        # Same cache the daily-refresh job uses. Game logs are cached so
+        # attach_recent10 stays fast on the next run.
+        uses: actions/cache@v4
+        with:
+          path: pipeline/cache/
+          key: nba-api-cache-${{ github.run_id }}
+          restore-keys: |
+            nba-api-cache-
+
+      - name: Run projection refresh orchestrator
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: bash scripts/automation_projections.sh
+
+      - name: Show diff stat (informational)
+        run: |
+          echo "::group::git status"
+          git status
+          echo "::endgroup::"
+          echo "::group::git diff --stat"
+          git diff --stat
+          echo "::endgroup::"
+
+      - name: Commit and push if board changed
+        run: |
+          # Allowlist — same paths the existing auto-refresh job uses.
+          git add app/public/data/boards/ 2>/dev/null || true
+          git add app/public/data/mlb/boards/ 2>/dev/null || true
+          git add app/public/data/mlb/schedule/ 2>/dev/null || true
+          git add app/public/data/mlb/power/ 2>/dev/null || true
+          git add app/public/data/board.json 2>/dev/null || true
+          git add app/public/data/slate.json 2>/dev/null || true
+          git add app/public/data/schedule.json 2>/dev/null || true
+          git add app/public/data/odds_props.json 2>/dev/null || true
+          git add app/public/data/players.json 2>/dev/null || true
+          git add app/public/data/trends.json 2>/dev/null || true
+          git add app/public/data/meta.json 2>/dev/null || true
+          git add pipeline/validation/leans_log.jsonl 2>/dev/null || true
+
+          if git diff --staged --quiet; then
+            echo "No board changes — nothing to commit."
+            exit 0
+          fi
+
+          git config user.name "GametimePicks Bot"
+          git config user.email "noreply@github.com"
+
+          ET=$(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')
+          MSG="auto: morning projections ${ET} [skip ci]"
+          git commit -m "$MSG"
+          git push origin HEAD:main
+          echo "Pushed: $MSG"
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: morning-projections-logs
+          path: |
+            /tmp/gtp_nba_*.log
+            /tmp/gtp_mlb_*.log
+          retention-days: 7
+          if-no-files-found: ignore

@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+# =============================================================================
+# scripts/automation_settle.sh
+#
+# Nightly settlement orchestrator. Designed to run after 2:00 AM Eastern
+# so the previous slate's late West-Coast games have finalized.
+#
+# What it does (in order):
+#   1. Resolve yesterday's date in America/New_York
+#   2. Run NBA settlement for that date (uses ESPN summary + nba_api;
+#      no Odds API; in-progress games refused at source layer)
+#   3. Run MLB settlement for that date (MLB Stats API; same rule)
+#   4. Export both sport audits to app/public/data/{results,mlb/results}
+#   5. Print a clear summary log
+#
+# Hard rules honored:
+#   - No paid API calls — settlement uses free public APIs only.
+#   - Pending / In-Progress games are refused at the pipeline source,
+#     so they never count as losses.
+#   - Pushes excluded from the hit-rate denominator.
+#   - Re-runs are idempotent: settlement rewrites the date's rows in
+#     settled_leans.jsonl; lifetime aggregates regenerate from disk.
+#
+# Inputs (env):
+#   SETTLE_DATE      override the target date (YYYY-MM-DD).
+#                    Default: yesterday in America/New_York.
+#   SKIP_NBA         set to "1" to skip NBA settlement.
+#   SKIP_MLB         set to "1" to skip MLB settlement.
+#   DRY_RUN_SETTLE   set to "1" to print the plan without running.
+#
+# Exit codes:
+#   0  every requested step succeeded (or was honestly skipped)
+#   1  setup / dependency error
+#   2  a step failed (settlement or export)
+# =============================================================================
+
+set -e
+
+GREEN="\033[0;32m"; RED="\033[0;31m"; YELLOW="\033[0;33m"
+BLUE="\033[0;34m"; DIM="\033[2m"; RESET="\033[0m"
+
+ok()    { echo -e "  ${GREEN}✓${RESET} $1"; }
+err()   { echo -e "  ${RED}✗${RESET} $1" >&2; }
+warn()  { echo -e "  ${YELLOW}!${RESET} $1"; }
+info()  { echo -e "  ${BLUE}·${RESET} $1"; }
+step()  { echo ""; echo -e "${BLUE}═══ $1 ═══${RESET}"; }
+
+[ -d ".git" ] || { err "must run from repo root"; exit 1; }
+
+# Prefer the project venv. Tests + CI rely on the same path.
+PIPELINE_VENV="pipeline/.venv"
+[ -d "$PIPELINE_VENV" ] && PY="$PIPELINE_VENV/bin/python" || PY="python3"
+
+# Resolve "yesterday" in America/New_York. GNU date supports -d; BSD date
+# supports -v; we try both so the script works on Linux runners and Macs.
+if [ -n "$SETTLE_DATE" ]; then
+    TARGET_DATE="$SETTLE_DATE"
+else
+    if TARGET_DATE=$(TZ=America/New_York date -d 'yesterday' '+%Y-%m-%d' 2>/dev/null); then
+        :
+    else
+        TARGET_DATE=$(TZ=America/New_York date -v-1d '+%Y-%m-%d')
+    fi
+fi
+
+START_TIME=$(date +%s)
+
+step "0/3  Pre-flight"
+info "target date: $TARGET_DATE (yesterday in America/New_York)"
+ok "python:       $($PY --version 2>&1)"
+ok "SKIP_NBA=${SKIP_NBA:-0} · SKIP_MLB=${SKIP_MLB:-0} · DRY_RUN_SETTLE=${DRY_RUN_SETTLE:-0}"
+
+if [ "$DRY_RUN_SETTLE" = "1" ]; then
+    warn "DRY_RUN_SETTLE=1 — printing plan only, no settlement run"
+    info "would run: $PY -m pipeline.settle_results --date $TARGET_DATE"
+    info "would run: $PY -m pipeline.mlb.settle_mlb_results --date $TARGET_DATE"
+    info "would run: $PY -m pipeline.export_results"
+    info "would run: $PY -m pipeline.mlb.export_mlb_results"
+    exit 0
+fi
+
+NBA_FAILED=0
+MLB_FAILED=0
+NBA_SKIPPED=0
+MLB_SKIPPED=0
+
+# ---------------------------------------------------------------------------
+# NBA settlement — uses settle_results.py auto-sources (ESPN + nba_api).
+# In-progress games are refused at the source layer (ESPN payload's
+# competition.status.type.completed must be true). Manual overrides win
+# if present in pipeline/overrides/results_overrides.json.
+# ---------------------------------------------------------------------------
+step "1/3  NBA settlement · $TARGET_DATE"
+if [ "$SKIP_NBA" = "1" ]; then
+    warn "SKIP_NBA=1 — skipping NBA settlement"
+    NBA_SKIPPED=1
+else
+    if $PY -m pipeline.settle_results --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_settle_nba.log; then
+        ok "NBA settlement completed"
+    else
+        err "NBA settlement FAILED — see /tmp/gtp_settle_nba.log"
+        NBA_FAILED=1
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# MLB settlement — uses MLB Stats API. Pipeline returns partial: true when
+# games are still In Progress; those games are excluded from W/L. A later
+# run picks them up automatically (idempotent).
+# ---------------------------------------------------------------------------
+step "2/3  MLB settlement · $TARGET_DATE"
+if [ "$SKIP_MLB" = "1" ]; then
+    warn "SKIP_MLB=1 — skipping MLB settlement"
+    MLB_SKIPPED=1
+else
+    if $PY -m pipeline.mlb.settle_mlb_results --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_settle_mlb.log; then
+        ok "MLB settlement completed"
+    else
+        err "MLB settlement FAILED — see /tmp/gtp_settle_mlb.log"
+        MLB_FAILED=1
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Export — rewrites app/public/data/{results,mlb/results}/ aggregates so
+# /results, /results/{nba,mlb}, /results/date/<date> reflect the settled
+# data on the next deploy. Idempotent.
+# ---------------------------------------------------------------------------
+step "3/3  Export sanitized results"
+EXPORT_FAILED=0
+if [ "$NBA_SKIPPED" != "1" ]; then
+    if $PY -m pipeline.export_results 2>&1 | tee /tmp/gtp_export_nba.log; then
+        ok "NBA results exported"
+    else
+        err "NBA export FAILED — see /tmp/gtp_export_nba.log"
+        EXPORT_FAILED=1
+    fi
+fi
+if [ "$MLB_SKIPPED" != "1" ]; then
+    if $PY -m pipeline.mlb.export_mlb_results 2>&1 | tee /tmp/gtp_export_mlb.log; then
+        ok "MLB results exported"
+    else
+        err "MLB export FAILED — see /tmp/gtp_export_mlb.log"
+        EXPORT_FAILED=1
+    fi
+fi
+
+DURATION=$(( $(date +%s) - START_TIME ))
+
+step "Summary"
+info "target date:    $TARGET_DATE"
+info "nba step:       $([ "$NBA_SKIPPED" = 1 ] && echo skipped || ([ "$NBA_FAILED" = 1 ] && echo FAILED || echo ok))"
+info "mlb step:       $([ "$MLB_SKIPPED" = 1 ] && echo skipped || ([ "$MLB_FAILED" = 1 ] && echo FAILED || echo ok))"
+info "export step:    $([ "$EXPORT_FAILED" = 1 ] && echo FAILED || echo ok)"
+info "elapsed:        ${DURATION}s"
+info "odds credits:   0 (settlement uses free public APIs only)"
+
+# Surface partial settlement honestly so the operator can see which games
+# are still pending and need a follow-up run.
+if [ -f "pipeline/validation/mlb_comparison_report_${TARGET_DATE}.json" ]; then
+    PENDING=$($PY -c "import json,sys; r=json.load(open('pipeline/validation/mlb_comparison_report_${TARGET_DATE}.json')); print(r.get('pendingGames', 0))" 2>/dev/null || echo "?")
+    if [ "$PENDING" != "0" ] && [ "$PENDING" != "?" ]; then
+        warn "MLB partial: $PENDING game(s) still in progress — rerun later for full settlement"
+    fi
+fi
+
+if [ "$NBA_FAILED" = "1" ] || [ "$MLB_FAILED" = "1" ] || [ "$EXPORT_FAILED" = "1" ]; then
+    exit 2
+fi
+exit 0
