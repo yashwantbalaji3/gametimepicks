@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { currentEtDate } from "./freshness";
+
 const DATA_DIR = path.join(process.cwd(), "public", "data", "ipl");
 
 export interface IplScheduleGame {
@@ -60,10 +62,16 @@ export function getAvailableIplScheduleDates(): string[] {
   }
 }
 
+/**
+ * Pick the earliest schedule date >= today (anchored to
+ * America/New_York via `currentEtDate`). UTC-anchored variants would
+ * tick forward at midnight UTC and surface a future-day schedule
+ * during US evenings.
+ */
 export function activeIplDate(): string | null {
   const dates = getAvailableIplScheduleDates();
   if (dates.length === 0) return null;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = currentEtDate();
   const future = dates.find((d) => d >= today);
   return future ?? dates[dates.length - 1];
 }

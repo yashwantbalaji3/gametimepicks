@@ -41,6 +41,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+from .confidence_guardrails import (
+    MEDIUM_CONF_MIN_LOGS,
+    downgrade_lean,
+)
 from .recent10_extractor import extract_recent10_all_markets
 
 log = logging.getLogger("gtp.attach_recent10")
@@ -167,6 +171,15 @@ def attach_recent10_to_board(
     # single transient fetch miss is worse than keeping stale-but-real.
     # The PlayerStatus summary still records the fetch outcome per-pid.
     leans_cleared = 0
+    # Phase 21.1 — rescue counter. Whenever generate_daily_board runs in
+    # live mode but game-log fetches fail mid-run, R1 stamps every lean
+    # `insufficient_data` BEFORE recent10 is attached here. The
+    # downgrade_lean idempotency guard then blocks re-evaluation even
+    # after recent10 lands. We tracked this by attaching `_guardrail` +
+    # `_originalConfidence` on the original stamp, so we can safely
+    # restore the model's first-pass confidence when the new log count
+    # would have satisfied the threshold in the first place.
+    leans_rescued = 0
     for lean in leans:
         pid = lean.get("playerId")
         market = lean.get("market")
@@ -176,6 +189,32 @@ def attach_recent10_to_board(
         if values:
             lean["recent10"] = values
             leans_updated += 1
+            # Rescue an R1-suppressed lean when we now have enough log
+            # values for at least the Medium threshold. We don't fabricate
+            # the lean side — derive it from the model's projection vs
+            # the book line, then re-run the full guardrail cascade so
+            # R3/R4/R5 caps/anomaly stamps stay honest.
+            if (
+                lean.get("_guardrail") == "R1_no_logs_insufficient_data"
+                and len(values) >= MEDIUM_CONF_MIN_LOGS
+            ):
+                original_conf = lean.get("_originalConfidence")
+                line = lean.get("line")
+                projection = lean.get("projection")
+                if (
+                    original_conf in ("High", "Medium", "Low")
+                    and isinstance(line, (int, float))
+                    and isinstance(projection, (int, float))
+                ):
+                    lean["confidence"] = original_conf
+                    lean["lean"] = "Over" if projection > line else "Under"
+                    lean["pickType"] = "model_lean"
+                    lean.pop("_guardrail", None)
+                    lean.pop("_guardrailAt", None)
+                    lean.pop("_originalConfidence", None)
+                    guarded = downgrade_lean(lean)
+                    lean.update(guarded)
+                    leans_rescued += 1
         # else: preserve existing recent10. See PR 21 note above.
 
     if not dry_run:
@@ -198,6 +237,7 @@ def attach_recent10_to_board(
         "matchedPlayers": matched_count,
         "leansUpdated": leans_updated,
         "leansCleared": leans_cleared,
+        "leansRescued": leans_rescued,
         "unmatchedByReason": unmatched_by_reason,
         "playerStatuses": statuses,
         "dryRun": dry_run,

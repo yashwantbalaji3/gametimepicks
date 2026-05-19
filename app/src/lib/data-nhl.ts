@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { currentEtDate } from "./freshness";
+
 const DATA_DIR = path.join(process.cwd(), "public", "data", "nhl");
 
 export interface NhlScheduleGame {
@@ -61,13 +63,15 @@ export function getAvailableNhlScheduleDates(): string[] {
 }
 
 /**
- * Pick the earliest schedule date >= today (ET-ish via local TZ), or
- * fall back to the most recent file on disk. Mirrors `activeMlbDate`.
+ * Pick the earliest schedule date >= today (anchored to
+ * America/New_York via `currentEtDate` — NOT UTC — so the helper does
+ * not tick forward at midnight UTC while ET is still the same day).
+ * Falls back to the most recent file on disk. Mirrors `activeMlbDate`.
  */
 export function activeNhlDate(): string | null {
   const dates = getAvailableNhlScheduleDates();
   if (dates.length === 0) return null;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = currentEtDate();
   const future = dates.find((d) => d >= today);
   return future ?? dates[dates.length - 1];
 }

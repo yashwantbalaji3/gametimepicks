@@ -6,6 +6,7 @@ import type {
   MlbScheduleData,
   MlbPowerData,
 } from "./types-mlb";
+import { currentEtDate } from "./freshness";
 
 const DATA_DIR = path.join(process.cwd(), "public", "data", "mlb");
 
@@ -100,17 +101,21 @@ export function getMlbAvailableBoardDates(): string[] {
 /**
  * Pick the active MLB date for default landings.
  *
- * The earliest on-disk date >= today (ET-ish via local TZ) so a Saturday
- * pre-generated schedule does not surface as "today's slate" on Monday.
+ * The earliest on-disk date >= today (anchored to America/New_York via
+ * `currentEtDate`) so a pre-generated future schedule does not surface
+ * as "today's slate", and so the helper does NOT tick forward at
+ * midnight UTC (~8pm ET in summer) while ET is still the same day —
+ * that off-by-one was masking the live MLB slate from the homepage
+ * cross-sport count after sunset.
+ *
  * Falls back to the most recent on-disk date if no current/future file
  * exists. Used by /mlb, /mlb/board, /mlb/power, and the homepage sports
- * rail — every "MLB · today" surface flows through this. Mirrors the
- * activeNhlDate / activeIplDate helpers.
+ * rail — every "MLB · today" surface flows through this.
  */
 export function activeMlbDate(): string | null {
   const dates = getMlbAvailableBoardDates();
   if (dates.length === 0) return null;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = currentEtDate();
   const current = dates.find((d) => d >= today);
   return current ?? dates[dates.length - 1];
 }

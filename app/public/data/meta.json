@@ -1,14 +1,14 @@
 {
   "appName": "GametimePicks",
   "version": "0.5.0",
-  "lastPipelineRun": "2026-05-16T05:25:23+00:00",
+  "lastPipelineRun": "2026-05-19T00:09:14+00:00",
   "isDemo": false,
   "dataMode": "Live",
-  "nbaScheduleSource": "nba_api",
-  "nbaStatsSource": "nba_api",
+  "nbaScheduleSource": "espn_scoreboard",
+  "nbaStatsSource": "espn_scoreboard",
   "oddsSource": "the_odds_api",
   "activeProvider": {
-    "nba": "nba_api",
+    "nba": "espn_scoreboard",
     "odds": "the_odds_api"
   },
   "providerStatuses": [
@@ -23,7 +23,7 @@
       "is_stub": false,
       "last_status": "ok",
       "last_error": null,
-      "last_run_at": "2026-05-16T05:25:23+00:00",
+      "last_run_at": "2026-05-19T00:09:14+00:00",
       "notes": "Official NBA.com Stats endpoints. No API key needed."
     },
     {
@@ -145,7 +145,7 @@
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-05-16T05:25:23+00:00",
+  "lastSuccessfulFetch": "2026-05-19T00:09:14+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -173,8 +173,8 @@
       "url": ""
     }
   ],
-  "slateDays": 1,
-  "primaryDate": "2026-05-17",
+  "slateDays": 4,
+  "primaryDate": "2026-05-18",
   "newsSignalsConfigured": true,
   "newsSignalsActive": 0,
   "scheduleOverridesConfigured": true,
@@ -184,8 +184,8 @@
   "oddsApiKeyConfigured": true,
   "todayOddsProviderStatus": "ok_with_props",
   "todayOddsFailureReason": null,
-  "todayOddsQuotaRemaining": 452,
-  "todayParsedPropCount": 72,
+  "todayOddsQuotaRemaining": null,
+  "todayParsedPropCount": 83,
   "oddsBookmakersConfigured": [
     "draftkings",
     "fanduel"
@@ -197,5 +197,5 @@
   ],
   "oddsRegionsConfigured": "us",
   "oddsCacheTtlMinutes": 60,
-  "oddsMaxEventsPerRun": 1
+  "oddsMaxEventsPerRun": 4
 }
