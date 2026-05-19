@@ -12,6 +12,7 @@ import ResultsSportTabs from "@/components/results-sport-tabs";
 import EmptyResultsCard from "@/components/empty-results-card";
 import PerGameScorecard from "@/components/per-game-scorecard";
 import ResultsBreakdown from "@/components/results-breakdown";
+import ResultsModelAuditNotes from "@/components/results-model-audit-notes";
 import AnomalyGuardrailPanel from "@/components/anomaly-guardrail-panel";
 import SettledGameDetail, {
   type SettledLeanRow,
@@ -375,6 +376,11 @@ export default function NbaResultsPage() {
           />
         </section>
       )}
+
+      {/* Audit notes computed from every settled NBA slate, not just
+          the latest. Side / market / edge-band splits are auto-derived
+          from the same JSONL the lifetime tile reads. */}
+      <ResultsModelAuditNotes mode="sport" sport="NBA" />
 
       <ModelLessonsCard
         title="NBA model lessons"

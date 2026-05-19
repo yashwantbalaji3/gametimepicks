@@ -37,6 +37,7 @@ import EmptyResultsCard from "@/components/empty-results-card";
 import NewsletterSignup from "@/components/newsletter-signup";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
 import AwaitingSettlementTable from "@/components/awaiting-settlement-table";
+import ResultsModelAuditNotes from "@/components/results-model-audit-notes";
 import CalibrationRoadmap, {
   type CalibrationDay,
 } from "@/components/calibration-roadmap";
@@ -231,6 +232,12 @@ export default function ResultsOverviewPage() {
       {/* Calibration trend — last N settled dates across NBA + MLB.
           Each tile links to /results/date/<date> for the full audit. */}
       <CalibrationTrendStrip />
+
+      {/* Model audit notes — cross-sport framing computed from real
+          settled rows only. Sample-size labels (Signal / Lean / Small
+          sample) are visible on every note so the surface stays honest
+          at an early sample. */}
+      <ResultsModelAuditNotes mode="combined" />
 
       <section
         className="mt-8 rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
