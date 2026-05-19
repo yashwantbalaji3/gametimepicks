@@ -8,6 +8,7 @@ import {
   getAvailableBoardDates,
 } from "@/lib/data";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
+import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
 import { formatPercent } from "@/lib/format";
 import type { DataMode, BoardData, PropLean } from "@/lib/types";
 import NewsletterSignup from "@/components/newsletter-signup";
@@ -130,6 +131,25 @@ export default function HomePage() {
   const highConfidence = activeLeans.filter(
     (l) => l.lean !== "No Play" && l.confidence === "High",
   ).length;
+
+  // Cross-sport "live model wall" count — used by the CTA band so the
+  // homepage headline reflects every sport whose model has actionable
+  // projections tonight, not just NBA. MLB and NBA both flow through
+  // independent active-date helpers; we ONLY count today's MLB board
+  // (not future-dated schedule shells) so a stale Saturday slate can't
+  // inflate the count.
+  const mlbTodayDate = activeMlbDate();
+  const mlbTodayBoard = mlbTodayDate ? getMlbBoardForDate(mlbTodayDate) : null;
+  const today = buildTimeToday;
+  const mlbLeansLive =
+    mlbTodayBoard?.propsAvailable && mlbTodayDate === today
+      ? (mlbTodayBoard.leans ?? []).filter(
+          (l) =>
+            l.lean === "Over" ||
+            l.lean === "Under",
+        ).length
+      : 0;
+  const crossSportLeansLive = leansToday + mlbLeansLive;
 
   // For real-mode + no odds, KPI tiles label leans as "—" instead of zero
   // to communicate "props unavailable" rather than "no leans found".
@@ -797,22 +817,35 @@ export default function HomePage() {
           band around the latest scored slate so users aren't misled
           into thinking yesterday's games are still queued. */}
       {(() => {
-        const liveToday =
-          !noCurrentSlate &&
-          todayMode === "Live" &&
-          leansToday > 0;
+        // Live-today fires when EITHER the NBA active-slate is today with
+        // usable leans OR MLB has today's propsAvailable board with Over/
+        // Under leans. Either sport going live is enough — the band copy
+        // then summarises both sport counts honestly.
+        const nbaLiveTonight =
+          !noCurrentSlate && todayMode === "Live" && leansToday > 0;
+        const mlbLiveTonight = mlbLeansLive > 0;
+        const liveToday = nbaLiveTonight || mlbLiveTonight;
         const bandEyebrow = liveToday
           ? "tonight on the model wall"
           : latestScoredFinalDate
             ? "latest scored slate · model audit"
             : "model lab idle";
+        // Cross-sport count when both NBA and MLB are live; sport-specific
+        // count when only one sport is live; latest-scored count or honest
+        // fallback otherwise.
         const bandValueText = liveToday
-          ? `${leansToday} projections`
+          ? `${crossSportLeansLive} projections`
           : latestScoredLeanCount > 0
             ? `${latestScoredLeanCount} projections`
             : "Projections";
+        const mixLabel =
+          nbaLiveTonight && mlbLiveTonight
+            ? "across NBA + MLB"
+            : nbaLiveTonight
+              ? "from the NBA model"
+              : "from the MLB model";
         const bandClause = liveToday
-          ? "are live tonight — the model has scored every one."
+          ? `are live tonight ${mixLabel} — every edge graded against final box scores.`
           : latestScoredFinalDate
             ? `graded ${latestScoredDayLabel?.toLowerCase() ?? "in the latest scored slate"} — every edge audited.`
             : "will land here as soon as the next slate generates.";

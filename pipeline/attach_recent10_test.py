@@ -200,5 +200,119 @@ class PreserveExistingRecent10Tests(unittest.TestCase):
             )
 
 
+class RescueR1SuppressedLeansTests(unittest.TestCase):
+    """
+    Phase 21.1: when generate_daily_board runs in live mode but game-log
+    fetches fail mid-run, R1 stamps every lean `insufficient_data` BEFORE
+    recent10 is attached. The guardrail idempotency check then blocks
+    re-evaluation. attach_recent10 must rescue those leans once a
+    sufficient log count lands so the model's original confidence is
+    honored.
+    """
+
+    @staticmethod
+    def _r1_stamped_lean(
+        *,
+        market: str = "PTS",
+        line: float = 20.0,
+        projection: float = 24.0,
+        edge_pct: float = 18.0,
+        original_conf: str = "High",
+    ) -> dict:
+        """Build a lean as it would look after R1 fired in the main pipeline."""
+        return {
+            "id": f"lean-100-{market}",
+            "playerId": 100,
+            "playerName": "Test Player",
+            "market": market,
+            "line": line,
+            "projection": projection,
+            "edgePct": edge_pct,
+            "confidence": "insufficient_data",
+            "lean": "No Play",
+            "pickType": "no_play",
+            "bookmaker": "draftkings",
+            "riskFlags": [],
+            "_guardrail": "R1_no_logs_insufficient_data",
+            "_guardrailAt": "2026-05-18T20:09:14+00:00",
+            "_originalConfidence": original_conf,
+        }
+
+    def test_rescues_R1_stamped_lean_when_logs_now_attached(self) -> None:
+        """8 fresh log values → R1 stamp lifted, lean restored to Over / High."""
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            path = _write_board(tmp, [self._r1_stamped_lean()])
+            fake_logs = [
+                {"game_date": f"2026-04-{day:02d}", "pts": pts, "reb": 5, "ast": 3}
+                for day, pts in enumerate([20, 22, 24, 18, 21, 23, 19, 25], start=1)
+            ]
+            with patch.object(A, "fetch_logs_for_player", return_value=(fake_logs, None)):
+                summary = A.attach_recent10_to_board(path)
+            updated = json.loads(path.read_text())["leans"][0]
+            self.assertEqual(updated.get("confidence"), "High")
+            self.assertEqual(updated.get("lean"), "Over")
+            self.assertEqual(updated.get("pickType"), "model_lean")
+            self.assertNotIn("_guardrail", updated)
+            self.assertNotIn("_originalConfidence", updated)
+            self.assertEqual(summary.get("leansRescued"), 1)
+
+    def test_rescue_picks_Under_when_projection_below_line(self) -> None:
+        """projection < line → lean side flips to Under."""
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            path = _write_board(tmp, [self._r1_stamped_lean(
+                line=22.0, projection=18.0,
+                original_conf="Medium",
+            )])
+            fake_logs = [
+                {"game_date": f"2026-04-{day:02d}", "pts": pts, "reb": 5, "ast": 3}
+                for day, pts in enumerate([14, 16, 18, 20, 17], start=1)
+            ]
+            with patch.object(A, "fetch_logs_for_player", return_value=(fake_logs, None)):
+                A.attach_recent10_to_board(path)
+            updated = json.loads(path.read_text())["leans"][0]
+            self.assertEqual(updated.get("confidence"), "Medium")
+            self.assertEqual(updated.get("lean"), "Under")
+
+    def test_rescue_skipped_when_log_count_still_below_threshold(self) -> None:
+        """< MEDIUM_CONF_MIN_LOGS (5) values → R1 stamp must stay."""
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            path = _write_board(tmp, [self._r1_stamped_lean()])
+            # Only 3 logs — below MEDIUM_CONF_MIN_LOGS = 5.
+            fake_logs = [
+                {"game_date": f"2026-04-{day:02d}", "pts": pts, "reb": 5, "ast": 3}
+                for day, pts in enumerate([20, 22, 24], start=1)
+            ]
+            with patch.object(A, "fetch_logs_for_player", return_value=(fake_logs, None)):
+                summary = A.attach_recent10_to_board(path)
+            updated = json.loads(path.read_text())["leans"][0]
+            self.assertEqual(updated.get("confidence"), "insufficient_data",
+                             "R1 stamp must survive when log count stays below MEDIUM threshold")
+            self.assertEqual(updated.get("_guardrail"), "R1_no_logs_insufficient_data")
+            self.assertEqual(summary.get("leansRescued"), 0)
+
+    def test_extreme_edge_rescue_caps_at_Low_via_R5(self) -> None:
+        """Edge > 25pp → after rescue, R5 caps confidence at Low + stamps suspicious_edge."""
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            path = _write_board(tmp, [self._r1_stamped_lean(
+                line=18.0, projection=26.0, edge_pct=44.0,
+                original_conf="High",
+            )])
+            fake_logs = [
+                {"game_date": f"2026-04-{day:02d}", "pts": pts, "reb": 5, "ast": 3}
+                for day, pts in enumerate([20, 22, 24, 18, 21, 23, 19, 25], start=1)
+            ]
+            with patch.object(A, "fetch_logs_for_player", return_value=(fake_logs, None)):
+                A.attach_recent10_to_board(path)
+            updated = json.loads(path.read_text())["leans"][0]
+            self.assertEqual(updated.get("confidence"), "Low",
+                             "R5 should cap a suspicious-edge lean at Low after rescue")
+            self.assertIn("suspicious_edge", updated.get("riskFlags", []))
+            self.assertEqual(updated.get("lean"), "Over")
+
+
 if __name__ == "__main__":
     unittest.main()
