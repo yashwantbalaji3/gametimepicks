@@ -400,6 +400,120 @@ def test_load_player_team_map_round_trip(s: Suite):
     s.assert_eq(m2, {}, "missing file → empty map")
 
 
+def test_public_display_mode_withheld_on_partial(s: Suite):
+    """May 20 SA-side bug pattern: 0 SA contributors → must withhold
+    public score / margin / winner."""
+    print(f"\n  {BLUE}─── publicDisplayMode='withheld' when data-quality flag fires ───{RESET}")
+    overrides = _temp_overrides({
+        "g": {"round":"WCF","gameNumber":2,"seriesShort":"SA-OKC",
+              "homeTeam":"OKC","awayTeam":"SA"},
+    })
+    game = {"gameId":"g","homeTeamAbbr":"OKC","awayTeamAbbr":"SA"}
+    leans = [
+        _lean(i,f"O{i}","PTS","Over",20,22,5,"High","OKC","Home","g")
+        for i in range(1, 6)  # 5 OKC, 0 SA
+    ]
+    g = TP.project_game(sport="NBA", date="2026-05-20", game=game,
+                        leans=leans, overrides_path=overrides, now=FROZEN_NOW)
+    s.assert_eq(g.publicDisplayMode, "withheld",
+                "data-quality flag → withheld")
+    s.assert_eq(g.dataQualityFlag, "team_attribution_partial",
+                "flag still set on artifact")
+    # The artifact still carries raw diagnostics — the UI is what
+    # suppresses them. Verify diagnostics are present so future audits
+    # can reconstruct the situation.
+    s.assert_true(g.home.projectedPts > 0,
+                  "raw home PTS still in artifact for audit")
+    s.assert_eq(g.away.projectedPts, 0.0,
+                "raw away PTS still in artifact for audit")
+    os.unlink(overrides)
+
+
+def test_public_display_mode_full_when_clean(s: Suite):
+    print(f"\n  {BLUE}─── publicDisplayMode='full' when both sides clean ───{RESET}")
+    overrides = _temp_overrides({
+        "g": {"round":"ECF","gameNumber":2,"seriesShort":"CLE-NY",
+              "homeTeam":"NY","awayTeam":"CLE"},
+    })
+    game = {"gameId":"g","homeTeamAbbr":"NY","awayTeamAbbr":"CLE"}
+    leans = []
+    for i in range(4):
+        leans.append(_lean(100+i,f"N{i}","PTS","Over",20,22,5,"High","NY","Home","g"))
+        leans.append(_lean(200+i,f"C{i}","PTS","Over",18,20,5,"High","CLE","Away","g"))
+    g = TP.project_game(sport="NBA", date="2026-05-21", game=game,
+                        leans=leans, overrides_path=overrides, now=FROZEN_NOW)
+    s.assert_eq(g.publicDisplayMode, "full",
+                "both sides have >=4 contributors → full display")
+    s.assert_eq(g.dataQualityFlag, None, "no quality flag")
+    s.assert_true(g.projectedMargin != 0, "raw margin available for full display")
+    os.unlink(overrides)
+
+
+def test_public_display_mode_helper_function(s: Suite):
+    print(f"\n  {BLUE}─── derive_public_display_mode helper covers all cases ───{RESET}")
+    # explicit flag → withheld
+    s.assert_eq(
+        TP.derive_public_display_mode(
+            home_contributors=8, away_contributors=8,
+            data_quality_flag="team_attribution_partial",
+        ),
+        "withheld",
+        "explicit flag forces withheld",
+    )
+    # zero on either side → withheld
+    s.assert_eq(
+        TP.derive_public_display_mode(
+            home_contributors=8, away_contributors=0,
+            data_quality_flag=None,
+        ),
+        "withheld",
+        "zero away → withheld",
+    )
+    s.assert_eq(
+        TP.derive_public_display_mode(
+            home_contributors=0, away_contributors=5,
+            data_quality_flag=None,
+        ),
+        "withheld",
+        "zero home → withheld",
+    )
+    # clean case → full
+    s.assert_eq(
+        TP.derive_public_display_mode(
+            home_contributors=5, away_contributors=5,
+            data_quality_flag=None,
+        ),
+        "full",
+        "both sides positive + no flag → full",
+    )
+
+
+def test_market_lines_remain_pending_when_unavailable(s: Suite):
+    """A clean-coverage game with no market odds on disk still
+    reports market lines as None."""
+    print(f"\n  {BLUE}─── market lines stay pending when odds absent ───{RESET}")
+    overrides = _temp_overrides({
+        "g": {"round":"ECF","gameNumber":2,"seriesShort":"CLE-NY",
+              "homeTeam":"NY","awayTeam":"CLE"},
+    })
+    game = {"gameId":"g","homeTeamAbbr":"NY","awayTeamAbbr":"CLE"}
+    leans = []
+    for i in range(4):
+        leans.append(_lean(100+i,f"N{i}","PTS","Over",20,22,5,"High","NY","Home","g"))
+        leans.append(_lean(200+i,f"C{i}","PTS","Over",18,20,5,"High","CLE","Away","g"))
+    g = TP.project_game(sport="NBA", date="2026-05-21", game=game,
+                        leans=leans, odds_lines=None,
+                        overrides_path=overrides, now=FROZEN_NOW)
+    s.assert_eq(g.marketSpread, None, "spread None")
+    s.assert_eq(g.marketMoneyline, None, "moneyline None")
+    s.assert_eq(g.publicDisplayMode, "full", "clean game stays full-display")
+    s.assert_true(
+        any("Market spread" in r for r in g.reasons),
+        "reason still mentions market pending",
+    )
+    os.unlink(overrides)
+
+
 def test_does_not_mutate_player_leans(s: Suite):
     """The team-projection module must NEVER write back to the player
     leans — it's a pure read aggregator. Verify the input leans match
@@ -433,6 +547,10 @@ def main():
         test_player_team_map_rescues_empty_team_field,
         test_data_quality_flag_fires_when_one_side_is_thin,
         test_data_quality_flag_not_set_when_both_sides_ok,
+        test_public_display_mode_withheld_on_partial,
+        test_public_display_mode_full_when_clean,
+        test_public_display_mode_helper_function,
+        test_market_lines_remain_pending_when_unavailable,
         test_load_player_team_map_round_trip,
         test_does_not_mutate_player_leans,
     ):

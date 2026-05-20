@@ -67,6 +67,11 @@ export interface TeamGameProjection {
   confidence: "low" | "medium" | "high";
   reasons: string[];
   dataQualityFlag: string | null;
+  /** "full"  — render projected score / margin / winner / market lines.
+   *  "withheld" — render the "Team view unavailable" panel so the
+   *  public UI never shows impossible numbers like 218.2 / 0.0.
+   *  Defaults to "full" when older artifacts pre-date this field. */
+  publicDisplayMode?: "full" | "withheld";
   generatedAt: string;
 }
 

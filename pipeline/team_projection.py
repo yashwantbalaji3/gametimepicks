@@ -129,6 +129,7 @@ class GameProjection:
     confidence: str
     reasons: list[str]
     dataQualityFlag: str | None
+    publicDisplayMode: str  # "full" | "withheld"
     generatedAt: str
 
     def to_dict(self) -> dict[str, Any]:
@@ -147,6 +148,7 @@ class GameProjection:
             "confidence": self.confidence,
             "reasons": self.reasons,
             "dataQualityFlag": self.dataQualityFlag,
+            "publicDisplayMode": self.publicDisplayMode,
             "generatedAt": self.generatedAt,
         }
 
@@ -241,6 +243,36 @@ def _confidence_label(
 # A side is "thin" (data-quality concern) when fewer than this many
 # distinct players were resolved to it. May 20 SA = 0 → flagged.
 DATA_QUALITY_MIN_PER_SIDE = 3
+
+
+def derive_public_display_mode(
+    *,
+    home_contributors: int,
+    away_contributors: int,
+    data_quality_flag: str | None,
+) -> str:
+    """Decide whether the public UI shows the projected score/margin.
+
+    The public card must suppress the projected score, margin, winner,
+    and market-line lean whenever:
+
+      * `dataQualityFlag` is set (e.g. team_attribution_partial), OR
+      * either side has zero contributors (no players resolved to it).
+
+    Both conditions catch impossible-looking outputs like the
+    May 20 OKC 218.2 / SA 0.0 readout. The artifact still carries
+    every raw number for the audit; this function only governs the
+    visible card.
+
+    Returns:
+      "full"     — render projected score / margin / winner / market.
+      "withheld" — render an honest "Team view unavailable" panel.
+    """
+    if data_quality_flag is not None:
+        return "withheld"
+    if home_contributors <= 0 or away_contributors <= 0:
+        return "withheld"
+    return "full"
 
 
 def project_game(
@@ -392,6 +424,12 @@ def project_game(
             "as authoritative."
         )
 
+    public_display_mode = derive_public_display_mode(
+        home_contributors=home.contributingPlayerCount,
+        away_contributors=away.contributingPlayerCount,
+        data_quality_flag=data_quality_flag,
+    )
+
     return GameProjection(
         sport=sport,
         date=date,
@@ -407,6 +445,7 @@ def project_game(
         confidence=conf,
         reasons=reasons,
         dataQualityFlag=data_quality_flag,
+        publicDisplayMode=public_display_mode,
         generatedAt=now.isoformat(timespec="seconds"),
     )
 

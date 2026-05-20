@@ -41,6 +41,69 @@ export default function TeamGameProjectionCard({ projection }: Props) {
   const c = CONFIDENCE_STYLE[projection.confidence];
   const partial = projection.dataQualityFlag === "team_attribution_partial";
   const ctx = projection.playoffContext;
+  // Default "full" so artifacts produced before this field existed
+  // continue to render normally; new artifacts explicitly opt into
+  // suppression via "withheld".
+  const isWithheld =
+    projection.publicDisplayMode === "withheld" ||
+    projection.home.contributingPlayerCount <= 0 ||
+    projection.away.contributingPlayerCount <= 0 ||
+    partial;
+
+  // Early withheld branch — show an honest panel that names the
+  // exact reason. The player-prop board below this card on /nba/board
+  // is unaffected and continues to render the 86 May 20 leans.
+  if (isWithheld) {
+    return (
+      <article
+        className="gtp-premium-tile relative p-4 sm:p-5 reveal"
+        aria-label={`Team-view unavailable for ${projection.matchup}`}
+      >
+        <header className="flex items-center gap-2 flex-wrap mb-3">
+          <span
+            className="font-mono uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-gold)", fontSize: 10 }}
+          >
+            Team view · educational
+          </span>
+          {ctx.round && ctx.gameNumber != null && (
+            <StatusPill
+              kind="neutral"
+              label={`${ctx.round} · Game ${ctx.gameNumber}`}
+            />
+          )}
+          <StatusPill kind="warn" label="Unavailable" hideDot />
+        </header>
+
+        <h3
+          className="font-display tracking-tight"
+          style={{
+            color: "var(--vault-text)",
+            fontSize: 18,
+            lineHeight: 1.25,
+            letterSpacing: "-0.005em",
+          }}
+        >
+          Team view unavailable · player-team attribution incomplete
+        </h3>
+        <p
+          className="mt-2 text-[12.5px] leading-relaxed"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          Player props are live, but the team projection is withheld
+          until both sides have complete team attribution. The player
+          board below is unaffected and still shows every model lean.
+        </p>
+        <p
+          className="mt-3 text-[10.5px] leading-relaxed"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          Educational analytics — not betting advice. Audit details
+          are preserved in the underlying artifact for future review.
+        </p>
+      </article>
+    );
+  }
 
   return (
     <article
@@ -62,13 +125,6 @@ export default function TeamGameProjectionCard({ projection }: Props) {
           />
         )}
         <StatusPill kind={c.pill} label={c.label} />
-        {partial && (
-          <StatusPill
-            kind="warn"
-            label="Partial data"
-            hideDot
-          />
-        )}
       </header>
 
       {/* Matchup row — team sides + projected points */}
