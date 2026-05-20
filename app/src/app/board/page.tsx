@@ -7,6 +7,8 @@ import BoardDateStatusBanner from "@/components/board-date-status-banner";
 import BoardDateRail, {
   type BoardDateEntry,
 } from "@/components/board-date-rail";
+import TeamGameProjectionCard from "@/components/team-game-projection-card";
+import { getTeamProjectionForDate } from "@/lib/data-team-projection";
 import {
   getAvailableSettlementDates,
   getSettlementForDate,
@@ -442,6 +444,31 @@ export default function BoardPage() {
           dataMode={todayMode}
         />
       </div>
+
+      {(() => {
+        const selDate =
+          activeSlate.selectedDate ?? augmentedSlate.primaryDate;
+        if (!selDate) return null;
+        const artifact = getTeamProjectionForDate(selDate);
+        if (!artifact || artifact.games.length === 0) return null;
+        // Surface every game's team view; on most NBA playoff nights
+        // there's just one game per date, so this stays compact.
+        return (
+          <section
+            className="mt-8 reveal reveal-d2"
+            aria-label="Team-view projection"
+          >
+            <div className="flex flex-col gap-3">
+              {artifact.games.map((g) => (
+                <TeamGameProjectionCard
+                  key={g.gameId}
+                  projection={g}
+                />
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       <div className="mt-8 reveal reveal-d2">
         <BoardWithTabs
