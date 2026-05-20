@@ -41,14 +41,38 @@ export default function TeamGameProjectionCard({ projection }: Props) {
   const c = CONFIDENCE_STYLE[projection.confidence];
   const partial = projection.dataQualityFlag === "team_attribution_partial";
   const ctx = projection.playoffContext;
-  // Default "full" so artifacts produced before this field existed
-  // continue to render normally; new artifacts explicitly opt into
-  // suppression via "withheld".
+  // Why "withheld" can fire:
+  //   1) explicit publicDisplayMode === "withheld" from the artifact
+  //   2) one team has 0 contributing players (attribution gap)
+  //   3) dataQualityFlag is set
+  //   4) **(new, 2026-05-20)** no real market spread on disk —
+  //      summing player-prop projections without a market reference
+  //      can produce unrealistic margins like "SA favored by 16.1",
+  //      so the projected score / margin / winner are withheld
+  //      from the public UI until real market lines exist
+  const noMarketLine = projection.marketSpread === null;
   const isWithheld =
     projection.publicDisplayMode === "withheld" ||
     projection.home.contributingPlayerCount <= 0 ||
     projection.away.contributingPlayerCount <= 0 ||
-    partial;
+    partial ||
+    noMarketLine;
+
+  // Pick the user-facing reason that best explains the withheld state.
+  // We surface the most specific cause first so a reader knows whether
+  // it's an attribution problem vs a market-data problem.
+  const withheldReasonHeadline = partial
+    ? "Team view unavailable · player-team attribution incomplete"
+    : projection.home.contributingPlayerCount <= 0 ||
+        projection.away.contributingPlayerCount <= 0
+      ? "Team view unavailable · player-team attribution incomplete"
+      : "Team view pending market line";
+  const withheldReasonBody = partial
+    ? "Player props are live, but the team projection is withheld until both sides have complete team attribution. The player board below is unaffected and still shows every model lean."
+    : projection.home.contributingPlayerCount <= 0 ||
+        projection.away.contributingPlayerCount <= 0
+      ? "Player props are live, but the team projection is withheld until both sides have complete team attribution. The player board below is unaffected and still shows every model lean."
+      : "Player props are live below. The projected score and margin unlock once a real market spread / total is on disk so the model has a market reference. We refuse to publish an unrealistic derived margin without one.";
 
   // Early withheld branch — show an honest panel that names the
   // exact reason. The player-prop board below this card on /nba/board
@@ -84,15 +108,13 @@ export default function TeamGameProjectionCard({ projection }: Props) {
             letterSpacing: "-0.005em",
           }}
         >
-          Team view unavailable · player-team attribution incomplete
+          {withheldReasonHeadline}
         </h3>
         <p
           className="mt-2 text-[12.5px] leading-relaxed"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          Player props are live, but the team projection is withheld
-          until both sides have complete team attribution. The player
-          board below is unaffected and still shows every model lean.
+          {withheldReasonBody}
         </p>
         <p
           className="mt-3 text-[10.5px] leading-relaxed"
