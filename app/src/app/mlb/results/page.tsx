@@ -17,6 +17,7 @@ import SettledGameDetail, {
   type SettledLeanRow,
 } from "@/components/settled-game-detail";
 import ModelLessonsCard from "@/components/model-lessons-card";
+import ResultsModelAuditNotes from "@/components/results-model-audit-notes";
 
 export const metadata = {
   title: "MLB Results · GameTime Picks",
@@ -88,6 +89,11 @@ export default function MlbResultsPage() {
       </section>
 
       <MlbResultsBreakdown report={report} />
+
+      {/* Cross-slate MLB audit notes: side, market, edge-band splits
+          computed from every settled MLB lean on disk. Sample-size
+          chip on every note so we don't over-claim on early data. */}
+      <ResultsModelAuditNotes mode="sport" sport="MLB" />
 
       <section className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <CallList
