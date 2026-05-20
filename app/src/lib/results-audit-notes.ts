@@ -672,6 +672,22 @@ export function buildCrossSportFraming(): {
     });
   }
 
+  // Playoff-context coverage note — added in PR #65 (this PR). The
+  // May 19 collapse traced to inputs the model doesn't have (playoff
+  // leverage, usage spike, rotation collapse, OT pace). The new
+  // `pipeline/playoff_context.py` + `pipeline/team_projection.py`
+  // modules persist context fields and surface a team-view card on
+  // `/nba/board`. These are observability-only — they do NOT change
+  // scoring or confidence. Honest framing: any "improvement" will
+  // only be measurable after enough future slates settle with
+  // context fields populated.
+  notes.push({
+    weight: "signal",
+    headline: "Playoff context now persisted for future audits",
+    body:
+      "NBA playoff round / series-game / home-away / prior-game-in-series are now stamped on each game's team-view card via a manual override file. No scoring or confidence logic was changed — this is observability only. Any accuracy claim will wait until enough future slates settle with these fields populated; today's lifetime numbers remain 53.7% NBA and 50.3% MLB.",
+  });
+
   return {
     strongerSport: stronger,
     diffPp,
