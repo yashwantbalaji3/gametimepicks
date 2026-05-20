@@ -429,6 +429,56 @@ export function buildCrossSportFraming(): {
     });
   }
 
+  // Path-forward note — honest review pointers grounded ONLY in
+  // patterns the settled rows already show. No tuning recommendation;
+  // no projected accuracy. The wording deliberately uses "audit"
+  // and "review" verbs — not "improve" or "fix" — to keep the surface
+  // descriptive, not predictive.
+  const reviewLines: string[] = [];
+  if (
+    nba.hitRate !== null &&
+    mlb.hitRate !== null &&
+    nba.hitRate - mlb.hitRate >= 0.05 &&
+    Math.min(nba.totalDecisive, mlb.totalDecisive) >= 60
+  ) {
+    reviewLines.push(
+      "MLB model output reviewed against NBA's stronger settled performance",
+    );
+  }
+  if (mlb.byMarket.length >= 2) {
+    const weakestMlb = [...mlb.byMarket]
+      .filter((b) => b.decisive >= 30 && b.hitRate !== null)
+      .sort((a, b) => (a.hitRate ?? 0) - (b.hitRate ?? 0))[0];
+    if (weakestMlb && (weakestMlb.hitRate ?? 0) < 0.5) {
+      reviewLines.push(
+        `${weakestMlb.label.toLowerCase()} market audited (${pct(weakestMlb.hitRate)} on ${weakestMlb.decisive})`,
+      );
+    }
+  }
+  // Edge-band review when the band the model normally trusts is
+  // underperforming. Mid-edge bands flagged across either sport.
+  const midBandUnder = (s: ReturnType<typeof summariseNba>) =>
+    s.byEdgeBand.find(
+      (b) =>
+        b.label === "15–25pp" &&
+        b.decisive >= 30 &&
+        b.hitRate !== null &&
+        b.hitRate < 0.5,
+    );
+  const midUnderMlb = midBandUnder(
+    summariseMlbDirect(),
+  );
+  if (midUnderMlb) {
+    reviewLines.push("15–25pp edge band on MLB watched for regression");
+  }
+  if (reviewLines.length > 0) {
+    notes.push({
+      weight: weightFor(total),
+      headline: "What the audit is watching next",
+      body: `${reviewLines.join(" · ")}. Calibration only — no model logic changes are made retroactively to chase past settled rows.`,
+    });
+  }
+
   return {
     strongerSport: stronger,
     diffPp,
@@ -436,6 +486,13 @@ export function buildCrossSportFraming(): {
     newestDate: latestNewestDate(nba.newestDate, mlb.newestDate),
     notes,
   };
+}
+
+// Direct accessor used by buildCrossSportFraming's review-pointer
+// helper. Kept inline so the helper doesn't expose an extra public
+// API for the same data the cross-sport call already loads.
+function summariseMlbDirect(): ReturnType<typeof summariseNba> {
+  return summariseMlb();
 }
 
 function latestNewestDate(a: string | null, b: string | null): string | null {

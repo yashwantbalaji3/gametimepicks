@@ -10,6 +10,7 @@ import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbTopLeansStrip from "@/components/mlb/mlb-top-leans-strip";
 import MlbBoardClient from "@/components/mlb/mlb-board-client";
 import NeonStatPanel from "@/components/neon-stat-panel";
+import BoardDateStatusBanner from "@/components/board-date-status-banner";
 
 /**
  * Shared MLB Board body used by:
@@ -59,14 +60,44 @@ export default function MlbBoardBody({ date }: { date: string }) {
     }
   }
 
+  // Settled-state visibility — when an MLB comparison report exists
+  // for this date, the page must read as historical/graded rather
+  // than active. The banner below picks the right state from real
+  // disk data; no live API calls.
+  const settledSummary = mlbReport
+    ? (() => {
+        const w = mlbReport.wins;
+        const l = mlbReport.losses;
+        const decisive = w + l;
+        return {
+          wins: w,
+          losses: l,
+          decisive,
+          hitRate: decisive > 0 ? w / decisive : null,
+        };
+      })()
+    : undefined;
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <div className="mb-6">
         <MlbSectionTabs />
       </div>
 
+      {/* Status banner — settled / live / upcoming / lines-pending.
+          Surfaces 'view audit' link when the date is settled so the
+          board page never becomes a dead end for historical slates. */}
+      <BoardDateStatusBanner
+        date={date}
+        gameCount={totalGames}
+        leanCount={board.leans?.length ?? 0}
+        isSettled={!!mlbReport}
+        sport="MLB"
+        settled={settledSummary}
+      />
+
       {/* Header strip */}
-      <section className="reveal">
+      <section className="reveal mt-6">
         <div
           className="font-mono uppercase tracking-[0.16em]"
           style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}

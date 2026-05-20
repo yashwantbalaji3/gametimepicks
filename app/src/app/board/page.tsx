@@ -3,6 +3,8 @@ import { formatDateLong, formatTimestamp } from "@/lib/format";
 import type { BoardData, DataMode, SlateDay } from "@/lib/types";
 import DataSourceBadge from "@/components/data-source-badge";
 import BoardWithTabs from "@/components/board-with-tabs";
+import BoardDateStatusBanner from "@/components/board-date-status-banner";
+import { getSettlementForDate } from "@/lib/settlement-data";
 import NewsletterSignup from "@/components/newsletter-signup";
 import TodayAwareSlateBanner from "@/components/today-aware-slate-banner";
 import NoCurrentSlate from "@/components/no-current-slate";
@@ -190,7 +192,39 @@ export default function BoardPage() {
       <div className="mb-6">
         <NbaSectionTabs />
       </div>
-      <div className="reveal vault-hero-eyebrow vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-6">
+      {/* Status banner — settled / live / upcoming / lines-pending.
+          Mirrors the MLB board banner so cross-sport readers see the
+          same status vocabulary on every date deep-link. */}
+      {(() => {
+        const selDate = activeSlate.selectedDate;
+        if (!selDate) return null;
+        const settled = getSettlementForDate(selDate);
+        const settledRows = settled.rows ?? [];
+        const isSettled = settledRows.length > 0;
+        const w = settledRows.filter((r) => r.result === "win").length;
+        const l = settledRows.filter((r) => r.result === "loss").length;
+        const dec = w + l;
+        return (
+          <BoardDateStatusBanner
+            date={selDate}
+            gameCount={primaryBoard?.games?.length ?? 0}
+            leanCount={primaryBoard?.leans?.length ?? 0}
+            isSettled={isSettled}
+            sport="NBA"
+            settled={
+              isSettled
+                ? {
+                    wins: w,
+                    losses: l,
+                    decisive: dec,
+                    hitRate: dec > 0 ? w / dec : null,
+                  }
+                : undefined
+            }
+          />
+        );
+      })()}
+      <div className="reveal vault-hero-eyebrow vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-6 mt-4">
         <NeonCornerBracket />
         <div
           className="vault-quiet-label"
