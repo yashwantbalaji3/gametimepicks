@@ -1,33 +1,30 @@
 import type { ReactNode } from "react";
 import { getMeta } from "@/lib/data";
 import DataSourceBadge from "@/components/data-source-badge";
+import SportOverviewHero from "@/components/sport-overview-hero";
 
 export default function MethodologyPage() {
   const meta = getMeta();
 
   return (
-    <div className="mx-auto max-w-[840px] px-6 py-12">
-      {/* Header */}
-      <div className="vault-hero-grid">
-        <div
-          className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3 inline-flex items-center gap-2"
-          style={{ color: "var(--vault-gold)" }}
-        >
-          <span
-            className="inline-block w-1.5 h-1.5 rounded-full vault-pulse"
-            style={{ background: "var(--vault-gold-bright)" }}
-          />
-          methodology · transparent by design
-        </div>
-        <h1 className="mt-2 font-display text-[36px] md:text-[48px] tracking-tightest font-semibold leading-[1]">
-          How the model works
-        </h1>
-        <p className="mt-3 text-[var(--text-mute)] text-[15px] leading-relaxed">
-          Transparency over performance. The model is intentionally explainable
-          — no deep learning, no black boxes — so the reasoning behind every
-          lean is auditable.
-        </p>
-      </div>
+    <div className="mx-auto max-w-[840px] px-4 sm:px-6 py-10">
+      <SportOverviewHero
+        eyebrow="Methodology · transparent by design"
+        sport="How it works"
+        tagline="inputs · model · audit"
+        statusKind="neutral"
+        statusLabel="Reference"
+        accent="gold"
+        ctas={[
+          {
+            href: "/results/model-audit",
+            label: "Audit deep-dive",
+            primary: true,
+          },
+          { href: "/results", label: "Latest results" },
+        ]}
+        framing="Transparency over performance. The model is intentionally explainable — no deep learning, no black boxes — so the reasoning behind every lean is auditable."
+      />
 
       <div className="mt-6 reveal reveal-d1">
         <DataSourceBadge meta={meta} />

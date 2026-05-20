@@ -1,16 +1,27 @@
-import Link from "next/link";
+/**
+ * IPL overview — PR #63.
+ *
+ * Same shared `SportOverviewHero` as `/nba`, `/mlb`, `/nhl` so the
+ * four sport hubs read as siblings. IPL ships in `providerPending`
+ * state: the schedule loads from ESPN's free cricket scoreboard but
+ * there is no per-batsman / per-bowler stats source wired yet, so the
+ * model board, parlays, and audit are honestly empty. We do **not**
+ * fabricate projections.
+ */
 import {
   activeIplDate,
   getAvailableIplScheduleDates,
   getIplScheduleForDate,
 } from "@/lib/data-ipl";
-import NeonStatPanel from "@/components/neon-stat-panel";
+
 import IplSectionTabs from "@/components/ipl/ipl-section-tabs";
+import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
+import QuickActionRail from "@/components/quick-action-rail";
+import SectionHeader from "@/components/section-header";
+import SportOverviewHero from "@/components/sport-overview-hero";
 import UpcomingSlateStrip, {
   type UpcomingSlateDay,
 } from "@/components/upcoming-slate-strip";
-import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
-import SportLobbyActions from "@/components/sport-lobby-actions";
 
 export const metadata = {
   title: "IPL · GameTime Picks",
@@ -39,149 +50,107 @@ export default function IplLandingPage() {
   const games = schedule.games ?? [];
   const scheduleLoaded = schedule.scheduleSource !== "unavailable";
 
+  const heroStats = [
+    {
+      label: "Matches on slate",
+      value: String(games.length),
+      sub: date,
+    },
+    {
+      label: "Model leans",
+      value: "—",
+      sub: "stats provider pending",
+    },
+    {
+      label: "Settled audit",
+      value: "—",
+      sub: "no settled IPL slates yet",
+    },
+  ];
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <div className="mb-6">
         <IplSectionTabs />
       </div>
 
-      <section className="reveal vault-data-orbit relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-8">
-        <div
-          className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
-        >
-          IPL · educational analytics · early days
-        </div>
-        <h1
-          className="mt-3 vault-display-h1"
-          style={{ color: "var(--vault-text)" }}
-        >
-          IPL is joining the lineup.
-        </h1>
-        <p
-          className="mt-4 max-w-2xl text-[14px] sm:text-[15px] leading-relaxed"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          Schedule loads from ESPN&apos;s free public cricket
-          scoreboard. The model board, parlays, and results stay
-          honestly pending until we wire a stable per-batsman and
-          per-bowler stats source. We will not surface IPL projections
-          before the data supports them.
-        </p>
-      </section>
+      <SportOverviewHero
+        eyebrow="IPL · educational analytics · early days"
+        sport="IPL"
+        tagline="schedule live · stats provider pending"
+        statusKind="providerPending"
+        statusLabel="Provider pending"
+        matchupLine={`Slate · ${date}`}
+        stats={heroStats}
+        accent="ipl"
+        ctas={[
+          { href: "/results", label: "Cross-sport audit", primary: true },
+          { href: "/methodology", label: "Why pending" },
+        ]}
+        framing="Schedule loads from ESPN's free public cricket scoreboard. Model board, parlays, and audit stay honestly empty until we wire a stable per-batsman / per-bowler stats source. We refuse to surface IPL projections before the data supports them."
+      />
 
-      <section className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
-        <NeonStatPanel
-          label="Matches on slate"
-          value={String(games.length)}
-          sub={date}
-          valueAccent={games.length > 0 ? "gold" : "mute"}
-          delay={1}
+      <section className="mt-10" aria-label="IPL slate">
+        <SectionHeader
+          eyebrow={`Slate · ${date}`}
+          title={
+            !scheduleLoaded || games.length === 0
+              ? "No IPL matches on the active date"
+              : `${games.length} match${games.length === 1 ? "" : "es"} on the slate`
+          }
+          sub={
+            !scheduleLoaded || games.length === 0
+              ? "ESPN's free cricket scoreboard will surface the next scheduled matches as the season advances."
+              : "Schedule loads from ESPN's free cricket scoreboard. Model wiring is pending."
+          }
         />
-        <NeonStatPanel
-          label="Model leans"
-          value="0"
-          sub="awaiting per-player stats"
-          valueAccent="mute"
-          delay={2}
-        />
-        <NeonStatPanel
-          label="Power Board"
-          value="—"
-          sub="Sixes + boundary watch"
-          valueAccent="mute"
-          delay={3}
-        />
-        <NeonStatPanel
-          label="Settled audit"
-          value="—"
-          sub="no settled IPL slates yet"
-          valueAccent="mute"
-          delay={4}
-        />
-      </section>
-
-      {/* Unified sport-lobby action grid. */}
-      <div className="mt-8">
-        <SportLobbyActions
-          sport="ipl"
-          status={{
-            board: { text: "stats provider pending", tone: "warn" },
-            parlays: { text: "pending model board", tone: "mute" },
-            power: { text: "high-variance watch", tone: "warn" },
-            results: {
-              text: "pending first settlement",
-              tone: "mute",
-            },
-          }}
-        />
-      </div>
-
-      <section className="mt-10">
-        <h2
-          className="font-mono uppercase tracking-[0.16em] mb-3"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
-        >
-          IPL slate · {date}
-        </h2>
-        {!scheduleLoaded || games.length === 0 ? (
-          <div
-            className="rounded-[6px] px-4 py-5 text-[13px]"
-            style={{
-              background: "rgba(7, 11, 26, 0.55)",
-              border: "1px solid var(--vault-border)",
-              color: "var(--vault-text-mute)",
-            }}
-          >
-            No IPL matches on the active date. The next match will
-            appear here as soon as ESPN&apos;s cricket scoreboard
-            publishes it.
-          </div>
-        ) : (
+        {scheduleLoaded && games.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {games.map((g) => (
               <div
                 key={String(g.matchId)}
-                className="flex items-center justify-between gap-3 rounded-[3px]"
+                className="flex items-center justify-between gap-3 rounded-[6px]"
                 style={{
-                  paddingTop: 10,
-                  paddingBottom: 10,
-                  paddingLeft: 14,
-                  paddingRight: 14,
+                  padding: "12px 14px",
                   border: "1px solid var(--vault-border)",
-                  background: "rgba(7, 11, 26, 0.45)",
-                  minWidth: 0,
-                  overflow: "hidden",
+                  background: "rgba(7, 11, 26, 0.55)",
                 }}
               >
                 <div className="flex flex-col gap-0.5 min-w-0">
                   <span
                     style={{
                       color: "var(--vault-text)",
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: 600,
                     }}
                   >
-                    {g.shortName ??
-                      `${g.awayTeamAbbr ?? "?"} v ${g.homeTeamAbbr ?? "?"}`}
+                    {g.awayTeamAbbr ?? "?"} vs {g.homeTeamAbbr ?? "?"}
                   </span>
                   <span
-                    style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
+                    style={{
+                      color: "var(--vault-text-faint)",
+                      fontSize: 11,
+                    }}
                   >
                     {g.venue ?? "IPL"}
-                    {g.status ? ` · ${g.status}` : ""}
                   </span>
                 </div>
                 <div className="flex flex-col items-end gap-0.5 shrink-0">
                   <span
                     className="font-mono"
-                    style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}
+                    style={{
+                      color: "var(--vault-gold-bright)",
+                      fontSize: 12,
+                    }}
                   >
                     {formatTipoffEt(g.gameDate)}
                   </span>
                   <span
                     className="font-mono uppercase tracking-[0.14em]"
-                    style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                    style={{
+                      color: "var(--vault-text-faint)",
+                      fontSize: 9,
+                    }}
                   >
                     schedule only
                   </span>
@@ -196,24 +165,54 @@ export default function IplLandingPage() {
         title="Upcoming · next 7 days"
         days={buildIplUpcomingDays(date)}
         boardHrefBase="/ipl/board"
-        emptyMessage="No upcoming IPL matches on disk yet. The next refresh will pull the rolling window."
+        emptyMessage="No upcoming IPL matches on disk yet. The next refresh will pull the schedule window."
+      />
+
+      <QuickActionRail
+        heading="In the meantime"
+        cards={[
+          {
+            href: "/nba",
+            eyebrow: "NBA",
+            title: "NBA hub",
+            sub: "Live model board + per-game projection cards.",
+          },
+          {
+            href: "/mlb",
+            eyebrow: "MLB",
+            title: "MLB hub",
+            sub: "Pitcher strikeouts + batter markets.",
+          },
+          {
+            href: "/results",
+            eyebrow: "Audit",
+            title: "Cross-sport audit",
+            sub: "Every settled NBA + MLB pick, graded honestly.",
+          },
+          {
+            href: "/methodology",
+            eyebrow: "About",
+            title: "Methodology",
+            sub: "What the model uses and what's coming next.",
+          },
+        ]}
       />
 
       <OverviewFooterDisclosure
         inputsLabel="What is wired today"
         inputsBody={
           <>
-            ESPN free cricket scoreboard for the active date. No paid
-            odds. No per-player projections. No fabricated picks.
-            Every other surface on /ipl/* clearly reads as pending
-            until the data is real.
+            ESPN's free public cricket scoreboard for the active date.
+            No paid odds. No projections. No fabricated picks. Every
+            other surface on /ipl/* clearly reads as pending until the
+            data is real.
           </>
         }
         framingBody={
           <>
-            Same educational-analytics framing as NBA, MLB and NHL.
-            The Results page is where hit-rate calibration will live
-            once settled IPL leans exist.
+            Same educational-analytics framing as NBA and MLB. The
+            Results page is where hit-rate calibration will live once
+            settled IPL leans exist.
           </>
         }
       />
@@ -224,7 +223,6 @@ export default function IplLandingPage() {
 function buildIplUpcomingDays(_activeDate: string): UpcomingSlateDay[] {
   const allDates = getAvailableIplScheduleDates();
   if (allDates.length === 0) return [];
-  // Window starts from today (ET).
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "America/New_York",
   });
@@ -239,13 +237,11 @@ function buildIplUpcomingDays(_activeDate: string): UpcomingSlateDay[] {
       teaser = "No matches scheduled";
     } else if (games.length === 1 && games[0]) {
       const g = games[0];
-      teaser = g.shortName ?? `${g.awayTeamAbbr ?? "?"} v ${g.homeTeamAbbr ?? "?"}`;
+      teaser = `${g.awayTeamAbbr ?? "?"} vs ${g.homeTeamAbbr ?? "?"}`;
     } else {
       const first = games[0];
       teaser = `${games.length} matches · ${
-        first?.shortName ??
-        `${first?.awayTeamAbbr ?? "?"} v ${first?.homeTeamAbbr ?? "?"}`
-      } +${games.length - 1} more`;
+        first?.awayTeamAbbr ?? "?"} vs ${first?.homeTeamAbbr ?? "?"} +${games.length - 1} more`;
     }
     return {
       date: d,

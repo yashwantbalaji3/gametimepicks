@@ -1,16 +1,24 @@
 import Link from "next/link";
-import { getMlbBoardForDate } from "@/lib/data-mlb";
 import {
+  getMlbAvailableScheduleDates,
+  getMlbBoardForDate,
+} from "@/lib/data-mlb";
+import {
+  getMlbAvailableResultDates,
   getMlbComparisonReport,
   getMlbLifetimeSummary,
 } from "@/lib/data-mlb-results";
 import { mlbMarketLabel } from "@/lib/format-mlb";
+import { currentEtDate } from "@/lib/freshness";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbTopLeansStrip from "@/components/mlb/mlb-top-leans-strip";
 import MlbBoardClient from "@/components/mlb/mlb-board-client";
 import NeonStatPanel from "@/components/neon-stat-panel";
 import BoardDateStatusBanner from "@/components/board-date-status-banner";
+import BoardDateRail, {
+  type BoardDateEntry,
+} from "@/components/board-date-rail";
 
 /**
  * Shared MLB Board body used by:
@@ -95,6 +103,17 @@ export default function MlbBoardBody({ date }: { date: string }) {
         sport="MLB"
         settled={settledSummary}
       />
+      {(() => {
+        const rail = buildMlbBoardRail(date);
+        if (rail.length === 0) return null;
+        return (
+          <BoardDateRail
+            entries={rail}
+            activeDate={date}
+            eyebrow="Slate · pick a date"
+          />
+        );
+      })()}
 
       {/* Header strip */}
       <section className="reveal mt-6">
@@ -424,4 +443,68 @@ function BackToOverviewLink() {
       </Link>
     </section>
   );
+}
+
+/**
+ * Build the BoardDateRail entries for the MLB board. Past settled dates
+ * deep-link to /results/date/<date>; live / pending future dates link
+ * to /mlb/board/<date>. Window: 4 days back + every forward date on
+ * disk, capped at 10 pills for mobile width.
+ */
+function buildMlbBoardRail(active: string): BoardDateEntry[] {
+  const today = currentEtDate();
+  const schedDates = getMlbAvailableScheduleDates();
+  const settledDates = new Set(getMlbAvailableResultDates().dates ?? []);
+
+  const candidates = new Set<string>(schedDates);
+  candidates.add(active);
+  for (const d of settledDates) candidates.add(d);
+
+  const sorted = Array.from(candidates).sort();
+  const filtered = sorted.filter((d) => {
+    if (d >= today) return true;
+    return settledDates.has(d) || d === active;
+  });
+
+  return filtered.slice(-10).map((d) => {
+    if (settledDates.has(d)) {
+      return {
+        date: d,
+        label: shortRailLabel(d, today),
+        status: "settled" as const,
+        href: `/results/date/${d}`,
+      };
+    }
+    const board = getMlbBoardForDate(d);
+    const hasLeans = board.propsAvailable && (board.leans?.length ?? 0) > 0;
+    const games = board.games ?? [];
+    return {
+      date: d,
+      label: shortRailLabel(d, today),
+      status: hasLeans
+        ? ("live" as const)
+        : games.length > 0
+          ? ("linesPending" as const)
+          : ("upcoming" as const),
+      href: `/mlb/board/${d}`,
+    };
+  });
+}
+
+function shortRailLabel(date: string, today: string): string {
+  try {
+    const t = new Date(`${date}T12:00:00Z`);
+    const p = new Date(`${today}T12:00:00Z`);
+    const delta = Math.round((t.getTime() - p.getTime()) / 86400000);
+    if (delta === 0) return "Today";
+    if (delta === 1) return "Tomorrow";
+    if (delta === -1) return "Yesterday";
+    return t.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return date;
+  }
 }
