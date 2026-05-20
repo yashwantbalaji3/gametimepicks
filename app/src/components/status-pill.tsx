@@ -47,54 +47,68 @@ const KIND_LABEL: Record<StatusPillKind, string> = {
 
 const KIND_COLOR: Record<
   StatusPillKind,
-  { fg: string; bg: string; border: string; dot: string; pulse: boolean }
+  {
+    fg: string;
+    bg: string;
+    border: string;
+    dot: string;
+    pulse: boolean;
+    /** Optional glow class to layer on the pill wrapper. */
+    extraClass?: string;
+  }
 > = {
+  // live = energetic. Brighter dot, surrounding ring glow.
   live: {
     fg: "var(--vault-success)",
-    bg: "rgba(74, 222, 128, 0.10)",
-    border: "rgba(74, 222, 128, 0.30)",
+    bg: "rgba(74, 222, 128, 0.14)",
+    border: "rgba(74, 222, 128, 0.42)",
     dot: "var(--vault-success)",
     pulse: true,
+    extraClass: "gtp-status-live-glow",
   },
+  // settled = authoritative. Crisp gold treatment, no animation.
   settled: {
-    fg: "var(--vault-gold)",
-    bg: "rgba(240, 199, 94, 0.08)",
-    border: "rgba(240, 199, 94, 0.30)",
+    fg: "var(--vault-gold-bright)",
+    bg: "rgba(240, 199, 94, 0.12)",
+    border: "rgba(240, 199, 94, 0.42)",
     dot: "var(--vault-gold-bright)",
     pulse: false,
   },
+  // lines pending = warm amber. Dim, calm.
   linesPending: {
     fg: "var(--vault-warn-amber)",
-    bg: "rgba(245, 195, 95, 0.08)",
-    border: "rgba(245, 195, 95, 0.28)",
+    bg: "rgba(245, 195, 95, 0.10)",
+    border: "rgba(245, 195, 95, 0.32)",
     dot: "var(--vault-warn-amber)",
     pulse: false,
   },
+  // upcoming = cool blue. Subtle.
   upcoming: {
-    fg: "rgba(150, 195, 255, 1)",
-    bg: "rgba(120, 175, 255, 0.08)",
-    border: "rgba(120, 175, 255, 0.28)",
-    dot: "rgba(150, 195, 255, 1)",
+    fg: "rgba(170, 205, 255, 1)",
+    bg: "rgba(120, 175, 255, 0.10)",
+    border: "rgba(120, 175, 255, 0.30)",
+    dot: "rgba(170, 205, 255, 1)",
     pulse: false,
   },
+  // provider pending = neutral / muted. Reads "intentionally empty".
   providerPending: {
     fg: "var(--vault-text-mute)",
-    bg: "rgba(255, 255, 255, 0.04)",
-    border: "rgba(255, 255, 255, 0.10)",
+    bg: "rgba(255, 255, 255, 0.05)",
+    border: "rgba(255, 255, 255, 0.12)",
     dot: "var(--vault-text-mute)",
     pulse: false,
   },
   neutral: {
     fg: "var(--vault-text)",
-    bg: "rgba(255, 255, 255, 0.04)",
+    bg: "rgba(255, 255, 255, 0.05)",
     border: "var(--vault-border)",
     dot: "var(--vault-text)",
     pulse: false,
   },
   warn: {
     fg: "var(--vault-warn-amber)",
-    bg: "rgba(245, 195, 95, 0.10)",
-    border: "rgba(245, 195, 95, 0.30)",
+    bg: "rgba(245, 195, 95, 0.12)",
+    border: "rgba(245, 195, 95, 0.34)",
     dot: "var(--vault-warn-amber)",
     pulse: false,
   },
@@ -113,16 +127,16 @@ export default function StatusPill({
   return (
     <span
       className={`inline-flex items-center gap-1.5 font-mono uppercase tracking-[0.14em] ${
-        className ?? ""
-      }`}
+        c.extraClass ?? ""
+      } ${className ?? ""}`}
       style={{
         color: c.fg,
         background: c.bg,
         border: `1px solid ${c.border}`,
-        padding: "3px 8px",
-        borderRadius: 3,
+        padding: "4px 9px",
+        borderRadius: 999,
         fontSize: 10,
-        letterSpacing: "0.14em",
+        letterSpacing: "0.16em",
         whiteSpace: "nowrap",
         ...style,
       }}
@@ -133,11 +147,13 @@ export default function StatusPill({
           className={c.pulse ? "gtp-neon-pulse" : undefined}
           style={{
             display: "inline-block",
-            width: 5,
-            height: 5,
+            width: 6,
+            height: 6,
             borderRadius: "50%",
             background: c.dot,
-            boxShadow: c.pulse ? `0 0 6px ${c.dot}` : "none",
+            boxShadow: c.pulse
+              ? `0 0 10px ${c.dot}, 0 0 4px ${c.dot}`
+              : `0 0 4px ${c.dot}`,
           }}
         />
       )}

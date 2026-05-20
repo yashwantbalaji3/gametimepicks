@@ -65,7 +65,7 @@ export default function BoardDateRail({
         </span>
       </div>
       <div
-        className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1"
+        className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1"
         style={{
           scrollbarWidth: "none",
           WebkitOverflowScrolling: "touch",
@@ -73,20 +73,53 @@ export default function BoardDateRail({
       >
         {entries.map((e) => {
           const isActive = e.date === activeDate;
+          // Per-status visual tone: settled = gold authority, live =
+          // green energy, lines pending = warm amber dim, upcoming =
+          // cool blue. The pill below already carries the same accent;
+          // matching the card border ties the two together visually.
+          const tone =
+            e.status === "settled"
+              ? {
+                  border: "rgba(240, 199, 94, 0.40)",
+                  bgIdle: "rgba(240, 199, 94, 0.06)",
+                  labelColor: "var(--vault-gold-bright)",
+                }
+              : e.status === "live"
+                ? {
+                    border: "rgba(74, 222, 128, 0.34)",
+                    bgIdle: "rgba(74, 222, 128, 0.05)",
+                    labelColor: "var(--vault-success)",
+                  }
+                : e.status === "linesPending"
+                  ? {
+                      border: "rgba(245, 195, 95, 0.28)",
+                      bgIdle: "rgba(7, 11, 26, 0.55)",
+                      labelColor: "var(--vault-text)",
+                    }
+                  : {
+                      border: "var(--vault-border)",
+                      bgIdle: "rgba(7, 11, 26, 0.55)",
+                      labelColor: "var(--vault-text)",
+                    };
           return (
             <Link
               key={e.date}
               href={e.href}
               prefetch={false}
-              className="shrink-0 flex flex-col gap-1 rounded-[6px] px-3 py-2 transition-colors"
+              className="shrink-0 flex flex-col gap-1.5 rounded-[8px] px-3.5 py-2.5 transition-all hover:-translate-y-0.5"
               style={{
                 background: isActive
-                  ? "rgba(240, 199, 94, 0.10)"
-                  : "rgba(7, 11, 26, 0.55)",
+                  ? "linear-gradient(155deg, rgba(240, 199, 94, 0.18), rgba(240, 199, 94, 0.04))"
+                  : tone.bgIdle,
                 border: isActive
-                  ? "1px solid rgba(240, 199, 94, 0.45)"
-                  : "1px solid var(--vault-border)",
-                minWidth: 134,
+                  ? "1px solid rgba(240, 199, 94, 0.55)"
+                  : `1px solid ${tone.border}`,
+                boxShadow: isActive
+                  ? "0 6px 18px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(240, 199, 94, 0.18)"
+                  : "none",
+                minWidth: 138,
+                color: "inherit",
+                textDecoration: "none",
               }}
             >
               <span
@@ -94,7 +127,7 @@ export default function BoardDateRail({
                 style={{
                   color: isActive
                     ? "var(--vault-gold-bright)"
-                    : "var(--vault-text)",
+                    : tone.labelColor,
                   fontSize: 11,
                 }}
               >

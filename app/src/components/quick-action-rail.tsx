@@ -83,16 +83,11 @@ export default function QuickActionRail({
           <Link
             key={c.href}
             href={c.href}
-            className="group rounded-[8px] px-4 py-4 flex flex-col gap-2 transition-all hover:-translate-y-0.5 vault-glow-hover"
-            style={{
-              background:
-                "linear-gradient(155deg, rgba(11, 16, 36, 0.92) 0%, rgba(7, 11, 26, 0.88) 100%)",
-              border: "1px solid var(--vault-border)",
-              minHeight: 120,
-            }}
+            className="group gtp-premium-tile relative px-4 py-4 flex flex-col gap-2"
+            style={{ minHeight: 134, color: "inherit", textDecoration: "none" }}
           >
             <span
-              className="font-mono uppercase tracking-[0.16em]"
+              className="font-mono uppercase tracking-[0.18em]"
               style={{ color: "var(--vault-gold)", fontSize: 9 }}
             >
               {c.eyebrow}
@@ -101,8 +96,9 @@ export default function QuickActionRail({
               className="font-display tracking-tight"
               style={{
                 color: "var(--vault-text)",
-                fontSize: 18,
+                fontSize: 19,
                 lineHeight: 1.15,
+                letterSpacing: "-0.005em",
               }}
             >
               {c.title}
@@ -116,7 +112,7 @@ export default function QuickActionRail({
             <div className="mt-auto flex items-center justify-between gap-2 pt-1">
               {c.caption ? (
                 <span
-                  className="font-mono uppercase tracking-[0.12em]"
+                  className="font-mono uppercase tracking-[0.14em]"
                   style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
                 >
                   {c.caption}
@@ -126,8 +122,8 @@ export default function QuickActionRail({
               )}
               <span
                 aria-hidden
-                className="font-mono group-hover:translate-x-0.5 transition-transform"
-                style={{ color: "var(--vault-gold)", fontSize: 12 }}
+                className="font-mono transition-transform group-hover:translate-x-1"
+                style={{ color: "var(--vault-gold-bright)", fontSize: 13 }}
               >
                 →
               </span>

@@ -78,48 +78,51 @@ export default function SportOverviewHero({
   accent = "gold",
 }: Props) {
   const accentColor = ACCENT[accent];
+  // Translate accent color into rgba glow values that the cinematic
+  // background reads via custom properties.
+  const glowAlpha = (alpha: number) => {
+    const m = accentColor.match(
+      /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/,
+    );
+    if (m) return `rgba(${m[1]}, ${m[2]}, ${m[3]}, ${alpha})`;
+    return `rgba(240, 199, 94, ${alpha})`;
+  };
+  const cssVars = {
+    "--accent-glow": glowAlpha(0.18),
+    "--accent-glow-secondary": glowAlpha(0.10),
+  } as React.CSSProperties;
+
   return (
     <section
       aria-label={`${sport} hero`}
-      className="relative overflow-hidden rounded-[10px] reveal"
+      className="relative overflow-hidden rounded-[14px] gtp-cinematic-bg-accent gtp-neon-rule"
       style={{
-        background:
-          "linear-gradient(155deg, rgba(7, 11, 26, 0.95) 0%, rgba(11, 16, 36, 0.92) 100%)",
-        border: "1px solid var(--vault-border)",
-        padding: "20px 20px 22px",
+        padding: "26px 22px 28px",
+        ...cssVars,
       }}
     >
-      {/* Soft radial accent glow */}
       <div
         aria-hidden
-        className="absolute inset-0 pointer-events-none"
+        className="gtp-hero-halo"
         style={{
-          background: `radial-gradient(circle at 92% -10%, ${accentColor}1a, transparent 55%)`,
-          opacity: 0.85,
-        }}
-      />
-      {/* Aurora line scan (already gated on prefers-reduced-motion) */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-px"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)`,
-          opacity: 0.45,
+          background: `radial-gradient(circle at 92% 0%, ${glowAlpha(
+            0.26,
+          )}, transparent 45%)`,
         }}
       />
       <div className="relative">
         {/* Eyebrow + status pill row */}
-        <div className="flex items-center gap-2 flex-wrap mb-2">
+        <div className="flex items-center gap-2 flex-wrap mb-2 gtp-cinematic-rise">
           <span
             aria-hidden
-            className="inline-block w-1.5 h-1.5 rounded-full"
+            className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: accentColor,
-              boxShadow: `0 0 8px ${accentColor}`,
+              boxShadow: `0 0 10px ${accentColor}`,
             }}
           />
           <span
-            className="font-mono uppercase tracking-[0.18em]"
+            className="font-mono uppercase tracking-[0.20em]"
             style={{ color: accentColor, fontSize: 10 }}
           >
             {eyebrow}
@@ -132,21 +135,21 @@ export default function SportOverviewHero({
         </div>
 
         {/* Sport headline */}
-        <div className="flex items-baseline gap-3 flex-wrap">
+        <div className="flex items-baseline gap-3 flex-wrap gtp-cinematic-rise gtp-cinematic-rise-d1">
           <h1
             className="font-display tracking-tight"
             style={{
               color: "var(--vault-text)",
-              fontSize: "clamp(34px, 6vw, 56px)",
+              fontSize: "clamp(36px, 6.4vw, 62px)",
               lineHeight: 1.0,
-              letterSpacing: "-0.01em",
+              letterSpacing: "-0.022em",
             }}
           >
             {sport}
           </h1>
           {tagline && (
             <span
-              className="font-mono uppercase tracking-[0.18em]"
+              className="font-mono uppercase tracking-[0.20em]"
               style={{
                 color: "var(--vault-text-mute)",
                 fontSize: 11,
@@ -160,7 +163,7 @@ export default function SportOverviewHero({
         {/* Matchup line */}
         {matchupLine && (
           <p
-            className="mt-3 text-[13px]"
+            className="mt-3 text-[13px] gtp-cinematic-rise gtp-cinematic-rise-d2"
             style={{ color: "var(--vault-text)" }}
           >
             {matchupLine}
@@ -169,18 +172,14 @@ export default function SportOverviewHero({
 
         {/* Scoreboard stats */}
         {stats && stats.length > 0 && (
-          <div className="mt-5 grid grid-cols-3 gap-2">
+          <div className="mt-6 grid grid-cols-3 gap-2.5 gtp-cinematic-rise gtp-cinematic-rise-d2">
             {stats.slice(0, 3).map((s, i) => (
               <div
                 key={`${s.label}-${i}`}
-                className="rounded-[6px] px-3 py-3 flex flex-col gap-0.5"
-                style={{
-                  background: "rgba(7, 11, 26, 0.55)",
-                  border: "1px solid var(--vault-border)",
-                }}
+                className="gtp-stat-tile px-3 py-3 flex flex-col gap-0.5"
               >
                 <span
-                  className="font-mono uppercase tracking-[0.14em]"
+                  className="font-mono uppercase tracking-[0.16em]"
                   style={{
                     color: "var(--vault-text-mute)",
                     fontSize: 9,
@@ -189,10 +188,10 @@ export default function SportOverviewHero({
                   {s.label}
                 </span>
                 <span
-                  className="font-display font-semibold gtp-scoreboard-number"
+                  className="font-display font-semibold gtp-stat-value"
                   style={{
                     color: "var(--vault-text)",
-                    fontSize: "clamp(18px, 4vw, 24px)",
+                    fontSize: "clamp(20px, 4.4vw, 26px)",
                     lineHeight: 1.0,
                   }}
                 >
@@ -200,7 +199,7 @@ export default function SportOverviewHero({
                 </span>
                 {s.sub && (
                   <span
-                    className="text-[10px] leading-tight"
+                    className="text-[10px] leading-tight font-mono"
                     style={{ color: "var(--vault-text-mute)" }}
                   >
                     {s.sub}
@@ -213,36 +212,19 @@ export default function SportOverviewHero({
 
         {/* CTA row */}
         {ctas && ctas.length > 0 && (
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-6 flex flex-wrap gap-2 gtp-cinematic-rise gtp-cinematic-rise-d3">
             {ctas.map((c) =>
               c.primary ? (
                 <Link
                   key={c.href}
                   href={c.href}
-                  className="inline-flex items-center gap-2 font-mono uppercase tracking-[0.14em] rounded-[4px] px-4 py-2.5 transition-all hover:brightness-110 vault-glow-hover"
-                  style={{
-                    background: "var(--vault-gold-bright)",
-                    color: "#06091a",
-                    fontSize: 11,
-                    fontWeight: 600,
-                    boxShadow: "0 0 22px rgba(240, 199, 94, 0.32)",
-                  }}
+                  className="gtp-btn-primary"
                 >
                   {c.label}
                   <span aria-hidden>→</span>
                 </Link>
               ) : (
-                <Link
-                  key={c.href}
-                  href={c.href}
-                  className="inline-flex items-center gap-2 font-mono uppercase tracking-[0.14em] rounded-[4px] px-4 py-2.5 transition-colors"
-                  style={{
-                    background: "transparent",
-                    color: "var(--vault-gold)",
-                    border: "1px solid rgba(240, 199, 94, 0.30)",
-                    fontSize: 11,
-                  }}
-                >
+                <Link key={c.href} href={c.href} className="gtp-btn-ghost">
                   {c.label}
                   <span aria-hidden>→</span>
                 </Link>
@@ -254,7 +236,7 @@ export default function SportOverviewHero({
         {/* Honesty framing line */}
         {framing && (
           <p
-            className="mt-5 text-[11px] leading-relaxed"
+            className="mt-6 text-[11px] leading-relaxed max-w-xl gtp-cinematic-rise gtp-cinematic-rise-d4"
             style={{ color: "var(--vault-text-mute)" }}
           >
             {framing}

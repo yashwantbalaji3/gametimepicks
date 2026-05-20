@@ -126,19 +126,22 @@ export default function Nav() {
                 <Link
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className="relative px-3 py-1.5 text-[12px] sm:text-[13px] font-medium tracking-tight whitespace-nowrap transition-colors rounded-[3px]"
+                  className="relative px-3.5 py-2 text-[12.5px] sm:text-[13px] font-medium tracking-tight whitespace-nowrap transition-all rounded-[6px]"
                   style={{
                     color: active
                       ? "var(--vault-gold-bright)"
                       : "var(--vault-text-mute)",
                     background: active
-                      ? "linear-gradient(180deg, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0) 90%)"
+                      ? "linear-gradient(180deg, rgba(240, 199, 94, 0.14) 0%, rgba(240, 199, 94, 0) 90%)"
                       : "transparent",
                     border: active
-                      ? "1px solid rgba(212, 175, 55, 0.30)"
+                      ? "1px solid rgba(240, 199, 94, 0.32)"
                       : "1px solid transparent",
                     textShadow: active && isSport
-                      ? "0 0 12px rgba(240, 199, 94, 0.40)"
+                      ? "0 0 14px rgba(240, 199, 94, 0.48)"
+                      : "none",
+                    boxShadow: active
+                      ? "0 0 16px rgba(240, 199, 94, 0.10)"
                       : "none",
                   }}
                 >
@@ -150,7 +153,7 @@ export default function Nav() {
                       style={{
                         background:
                           "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
-                        boxShadow: "0 0 6px rgba(240, 199, 94, 0.45)",
+                        boxShadow: "0 0 8px rgba(240, 199, 94, 0.55)",
                       }}
                     />
                   )}

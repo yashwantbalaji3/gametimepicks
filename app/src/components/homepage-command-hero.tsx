@@ -49,35 +49,17 @@ export default function HomepageCommandHero({
   return (
     <section
       aria-label="GameTime Picks command center"
-      className="relative overflow-hidden rounded-[12px] reveal"
+      className="relative overflow-hidden rounded-[14px] gtp-cinematic-bg gtp-neon-rule"
       style={{
-        background:
-          "linear-gradient(155deg, rgba(7, 11, 26, 0.96) 0%, rgba(12, 18, 40, 0.94) 100%)",
-        border: "1px solid var(--vault-border)",
-        padding: "22px 22px 24px",
+        padding: "28px 22px 30px",
       }}
     >
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle at 88% -10%, rgba(240, 199, 94, 0.12), transparent 55%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(240, 199, 94, 0.55), transparent)",
-        }}
-      />
+      <div aria-hidden className="gtp-hero-halo" />
 
-      <div className="relative grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 lg:gap-10 items-start">
+      <div className="relative grid grid-cols-1 lg:grid-cols-[1.25fr_1fr] gap-7 lg:gap-12 items-start">
         {/* Left — headline + CTAs */}
-        <div>
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
+        <div className="gtp-cinematic-rise">
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
             <span
               aria-hidden
               className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
@@ -87,7 +69,7 @@ export default function HomepageCommandHero({
               }}
             />
             <span
-              className="font-mono uppercase tracking-[0.18em]"
+              className="font-mono uppercase tracking-[0.20em]"
               style={{ color: "var(--vault-gold)", fontSize: 10 }}
             >
               GameTime Picks · command center
@@ -100,52 +82,33 @@ export default function HomepageCommandHero({
           </div>
 
           <h1
-            className="font-display tracking-tight"
+            className="font-display tracking-tight gtp-cinematic-rise gtp-cinematic-rise-d1"
             style={{
               color: "var(--vault-text)",
-              fontSize: "clamp(28px, 5vw, 44px)",
-              lineHeight: 1.05,
-              letterSpacing: "-0.01em",
-              maxWidth: 620,
+              fontSize: "clamp(30px, 5.4vw, 50px)",
+              lineHeight: 1.04,
+              letterSpacing: "-0.02em",
+              maxWidth: 640,
             }}
           >
             {headline}
           </h1>
           {subline && (
             <p
-              className="mt-3 text-[13px] leading-relaxed max-w-xl"
+              className="mt-4 text-[13.5px] leading-relaxed max-w-xl gtp-cinematic-rise gtp-cinematic-rise-d2"
               style={{ color: "var(--vault-text-mute)" }}
             >
               {subline}
             </p>
           )}
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              href={primaryCta.href}
-              className="inline-flex items-center gap-2 font-mono uppercase tracking-[0.14em] rounded-[4px] px-4 py-2.5 transition-all hover:brightness-110 vault-glow-hover"
-              style={{
-                background: "var(--vault-gold-bright)",
-                color: "#06091a",
-                fontSize: 11,
-                fontWeight: 600,
-                boxShadow: "0 0 22px rgba(240, 199, 94, 0.32)",
-              }}
-            >
+          <div className="mt-6 flex flex-wrap gap-2 gtp-cinematic-rise gtp-cinematic-rise-d3">
+            <Link href={primaryCta.href} className="gtp-btn-primary">
               {primaryCta.label}
               <span aria-hidden>→</span>
             </Link>
             {secondaryCta && (
-              <Link
-                href={secondaryCta.href}
-                className="inline-flex items-center gap-2 font-mono uppercase tracking-[0.14em] rounded-[4px] px-4 py-2.5 transition-colors"
-                style={{
-                  background: "transparent",
-                  color: "var(--vault-gold)",
-                  border: "1px solid rgba(240, 199, 94, 0.30)",
-                  fontSize: 11,
-                }}
-              >
+              <Link href={secondaryCta.href} className="gtp-btn-ghost">
                 {secondaryCta.label}
                 <span aria-hidden>→</span>
               </Link>
@@ -153,7 +116,7 @@ export default function HomepageCommandHero({
           </div>
 
           <p
-            className="mt-5 text-[11px] leading-relaxed max-w-xl"
+            className="mt-6 text-[11px] leading-relaxed max-w-xl gtp-cinematic-rise gtp-cinematic-rise-d4"
             style={{ color: "var(--vault-text-mute)" }}
           >
             Every projection compared to the sportsbook line. Every
@@ -164,18 +127,14 @@ export default function HomepageCommandHero({
 
         {/* Right — scoreboard tiles */}
         {tiles && tiles.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2.5 gtp-cinematic-rise gtp-cinematic-rise-d2">
             {tiles.slice(0, 3).map((t, i) => (
               <article
                 key={`${t.label}-${i}`}
-                className="rounded-[6px] px-4 py-3 flex flex-col gap-0.5"
-                style={{
-                  background: "rgba(7, 11, 26, 0.55)",
-                  border: "1px solid var(--vault-border)",
-                }}
+                className="gtp-stat-tile px-4 py-3.5 flex flex-col gap-1"
               >
                 <span
-                  className="font-mono uppercase tracking-[0.14em]"
+                  className="font-mono uppercase tracking-[0.16em]"
                   style={{
                     color: "var(--vault-text-mute)",
                     fontSize: 9,
@@ -184,10 +143,12 @@ export default function HomepageCommandHero({
                   {t.label}
                 </span>
                 <span
-                  className="font-display font-semibold gtp-scoreboard-number"
+                  className={`font-display font-semibold gtp-stat-value ${
+                    i === 0 ? "gtp-text-gradient-gold" : ""
+                  }`}
                   style={{
-                    color: "var(--vault-text)",
-                    fontSize: 26,
+                    color: i === 0 ? undefined : "var(--vault-text)",
+                    fontSize: i === 0 ? 30 : 26,
                     lineHeight: 1,
                   }}
                 >
@@ -195,7 +156,7 @@ export default function HomepageCommandHero({
                 </span>
                 {t.sub && (
                   <span
-                    className="text-[10px] leading-tight"
+                    className="text-[10px] leading-tight font-mono"
                     style={{ color: "var(--vault-text-mute)" }}
                   >
                     {t.sub}

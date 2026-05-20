@@ -313,25 +313,20 @@ export default function HomePage() {
           {STEPS.map((s, i) => (
             <article
               key={s.title}
-              className="rounded-[8px] px-4 py-4 flex flex-col gap-2 reveal"
-              style={{
-                background: "rgba(7, 11, 26, 0.55)",
-                border: "1px solid var(--vault-border)",
-              }}
+              className="gtp-premium-tile px-4 py-4 flex flex-col gap-2"
             >
               <div className="flex items-center gap-2">
                 <span
-                  className="font-display font-semibold"
+                  className="font-display font-semibold gtp-text-gradient-gold"
                   style={{
-                    color: "var(--vault-gold-bright)",
-                    fontSize: 22,
+                    fontSize: 26,
                     lineHeight: 1,
                   }}
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span
-                  className="font-mono uppercase tracking-[0.16em]"
+                  className="font-mono uppercase tracking-[0.18em]"
                   style={{ color: "var(--vault-gold)", fontSize: 10 }}
                 >
                   {s.eyebrow}
@@ -341,14 +336,14 @@ export default function HomePage() {
                 className="font-display tracking-tight"
                 style={{
                   color: "var(--vault-text)",
-                  fontSize: 16,
+                  fontSize: 17,
                   lineHeight: 1.25,
                 }}
               >
                 {s.title}
               </h3>
               <p
-                className="text-[12px] leading-snug"
+                className="text-[12.5px] leading-snug"
                 style={{ color: "var(--vault-text-mute)" }}
               >
                 {s.sub}

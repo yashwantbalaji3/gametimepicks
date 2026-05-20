@@ -20,20 +20,20 @@ export default function SectionHeader({
   compact,
 }: Props) {
   return (
-    <div className={compact ? "mb-3" : "mb-5"}>
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+    <div className={compact ? "mb-3" : "mb-6"}>
+      <div className="flex items-end justify-between gap-3 flex-wrap">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className="flex items-center gap-2 mb-2">
             <span
               aria-hidden
               className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
               style={{
                 background: "var(--vault-gold-bright)",
-                boxShadow: "0 0 8px rgba(240, 199, 94, 0.6)",
+                boxShadow: "0 0 10px rgba(240, 199, 94, 0.65)",
               }}
             />
             <span
-              className="font-mono uppercase tracking-[0.18em]"
+              className="font-mono uppercase tracking-[0.20em]"
               style={{ color: "var(--vault-gold)", fontSize: 10 }}
             >
               {eyebrow}
@@ -44,9 +44,10 @@ export default function SectionHeader({
             style={{
               color: "var(--vault-text)",
               fontSize: compact
-                ? "clamp(18px, 2.6vw, 22px)"
-                : "clamp(20px, 3vw, 26px)",
-              lineHeight: 1.2,
+                ? "clamp(19px, 2.7vw, 23px)"
+                : "clamp(22px, 3.2vw, 28px)",
+              lineHeight: 1.18,
+              letterSpacing: "-0.015em",
               maxWidth: 760,
             }}
           >
@@ -54,7 +55,7 @@ export default function SectionHeader({
           </h2>
           {sub && (
             <p
-              className="mt-1.5 text-[12px] leading-relaxed max-w-2xl"
+              className="mt-2 text-[12.5px] leading-relaxed max-w-2xl"
               style={{ color: "var(--vault-text-mute)" }}
             >
               {sub}
