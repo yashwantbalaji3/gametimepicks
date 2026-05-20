@@ -23,6 +23,7 @@
  */
 import type { TeamGameProjection } from "@/lib/data-team-projection";
 import StatusPill, { type StatusPillKind } from "@/components/status-pill";
+import TeamBadge from "@/components/team-badge";
 
 interface Props {
   projection: TeamGameProjection;
@@ -54,6 +55,9 @@ export default function TeamGameProjectionCard({ projection }: Props) {
   // exact reason. The player-prop board below this card on /nba/board
   // is unaffected and continues to render the 86 May 20 leans.
   if (isWithheld) {
+    const wMatchParts = projection.matchup.split("@").map((p) => p.trim());
+    const wAway = wMatchParts[0] || projection.away.teamAbbr;
+    const wHome = wMatchParts[1] || projection.home.teamAbbr;
     return (
       <article
         className="gtp-premium-tile relative p-4 sm:p-5 reveal"
@@ -64,7 +68,7 @@ export default function TeamGameProjectionCard({ projection }: Props) {
             className="font-mono uppercase tracking-[0.18em]"
             style={{ color: "var(--vault-gold)", fontSize: 10 }}
           >
-            Team view · educational
+            Matchup view · educational
           </span>
           {ctx.round && ctx.gameNumber != null && (
             <StatusPill
@@ -74,6 +78,27 @@ export default function TeamGameProjectionCard({ projection }: Props) {
           )}
           <StatusPill kind="warn" label="Unavailable" hideDot />
         </header>
+
+        {/* Matchup hero — team badges are always shown so the
+            withheld panel still feels like a real game card. */}
+        <div className="flex items-center gap-3 mb-4">
+          <TeamBadge team={wAway} size="lg" />
+          <span
+            className="font-mono uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+          >
+            @
+          </span>
+          <TeamBadge team={wHome} size="lg" />
+          <div className="ml-auto flex flex-col items-end gap-0.5">
+            <span
+              className="font-mono uppercase tracking-[0.14em]"
+              style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+            >
+              {projection.date}
+            </span>
+          </div>
+        </div>
 
         <h3
           className="font-display tracking-tight"
@@ -105,6 +130,12 @@ export default function TeamGameProjectionCard({ projection }: Props) {
     );
   }
 
+  // Parse matchup "AWAY @ HOME" into the two abbrevs so the hero
+  // matchup row shows team badges + the "@".
+  const matchParts = projection.matchup.split("@").map((p) => p.trim());
+  const awayAbbr = matchParts[0] || projection.away.teamAbbr;
+  const homeAbbr = matchParts[1] || projection.home.teamAbbr;
+
   return (
     <article
       className="gtp-premium-tile relative p-4 sm:p-5 reveal"
@@ -116,7 +147,7 @@ export default function TeamGameProjectionCard({ projection }: Props) {
           className="font-mono uppercase tracking-[0.18em]"
           style={{ color: "var(--vault-gold)", fontSize: 10 }}
         >
-          Team view · educational
+          Matchup view · educational
         </span>
         {ctx.round && ctx.gameNumber != null && (
           <StatusPill
@@ -126,6 +157,34 @@ export default function TeamGameProjectionCard({ projection }: Props) {
         )}
         <StatusPill kind={c.pill} label={c.label} />
       </header>
+
+      {/* Matchup hero — large team badges with "@" between */}
+      <div className="flex items-center gap-3 mb-4">
+        <TeamBadge
+          team={awayAbbr}
+          size="lg"
+          highlight={projection.projectedWinner === projection.away.teamAbbr}
+        />
+        <span
+          className="font-mono uppercase tracking-[0.18em]"
+          style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+        >
+          @
+        </span>
+        <TeamBadge
+          team={homeAbbr}
+          size="lg"
+          highlight={projection.projectedWinner === projection.home.teamAbbr}
+        />
+        <div className="ml-auto flex flex-col items-end gap-0.5">
+          <span
+            className="font-mono uppercase tracking-[0.14em]"
+            style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+          >
+            {projection.date}
+          </span>
+        </div>
+      </div>
 
       {/* Matchup row — team sides + projected points */}
       <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-4 sm:gap-6 items-stretch">
@@ -268,41 +327,44 @@ function TeamSide({
           : "1px solid var(--vault-border)",
       }}
     >
-      <div className="flex items-center gap-2 flex-wrap">
-        <span
-          className="font-mono uppercase tracking-[0.16em]"
-          style={{
-            color: "var(--vault-text-mute)",
-            fontSize: 9,
-          }}
-        >
-          {team.isHome === true
-            ? "Home"
-            : team.isHome === false
-            ? "Away"
-            : "Side"}
-        </span>
-        <span
-          className="font-display font-semibold tracking-tight"
-          style={{
-            color: "var(--vault-text)",
-            fontSize: 22,
-            lineHeight: 1,
-            letterSpacing: "-0.01em",
-          }}
-        >
-          {team.teamAbbr}
-        </span>
-        {favored && !partial && (
+      <div className="flex items-center gap-2.5 flex-wrap">
+        <TeamBadge team={team.teamAbbr} size="md" highlight={favored && !partial} />
+        <div className="flex flex-col gap-0.5">
           <span
-            aria-hidden
-            className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+            className="font-mono uppercase tracking-[0.16em]"
             style={{
-              background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 6px rgba(240, 199, 94, 0.6)",
+              color: "var(--vault-text-mute)",
+              fontSize: 9,
             }}
-          />
-        )}
+          >
+            {team.isHome === true
+              ? "Home"
+              : team.isHome === false
+              ? "Away"
+              : "Side"}
+          </span>
+          <span
+            className="font-display font-semibold tracking-tight inline-flex items-center gap-1.5"
+            style={{
+              color: "var(--vault-text)",
+              fontSize: 22,
+              lineHeight: 1,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {team.teamAbbr}
+            {favored && !partial && (
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+                style={{
+                  background: "var(--vault-gold-bright)",
+                  boxShadow: "0 0 6px rgba(240, 199, 94, 0.6)",
+                }}
+              />
+            )}
+          </span>
+        </div>
       </div>
       <div className="flex items-baseline gap-2">
         <span

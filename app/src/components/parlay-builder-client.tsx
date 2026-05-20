@@ -199,7 +199,11 @@ export default function ParlayBuilderClient({
           ? ([...selectedMarkets] as ("PTS" | "REB" | "AST")[])
           : undefined,
       riskProfile,
-      numCandidates: 3,
+      // PR #66 polish: surface more candidate slips. The underlying
+      // library caps internally at 8 (parlay-builder.ts:288). Six
+      // gives users meaningfully more comparison without inflating
+      // beyond what the dedupe / correlation guards return.
+      numCandidates: 6,
       includeBenchPlayers: effectiveIncludeBench,
       corePlayersPerTeam: 3,
     });

@@ -44,6 +44,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from . import playoff_context as PC
+from . import team_rosters as TR
 
 
 # ---------------------------------------------------------------------------
@@ -166,19 +167,28 @@ def _resolve_team_from_lean(
 ) -> str | None:
     """Return the team abbreviation for a lean.
 
-    Falls back through four sources, in priority order:
+    Falls back through four trusted sources, in priority order:
       1. The lean's own `team` field (most reliable when populated).
       2. `player_team_map[playerId]` — looked up against the
          `players.json` roster passed in by the caller. This rescues
          leans where the upstream `generate_daily_board.py` failed to
          attribute the player's team (a real production bug seen on
          May 19 NY-side and May 20 SA-side leans).
-      3. The lean's `homeAway` field combined with the game's home/away
-         pair from the playoff override. Last-resort — `homeAway`
-         itself can be wrong when the upstream lookup failed because
-         the pipeline defaults to "Home" on lookup failure, so this is
-         tried only when the more authoritative paths have nothing.
-      4. None when no source matches.
+      3. Static playoff-roster lookup via `pipeline/team_rosters.py`.
+         When players.json itself has empty `team` (the actual May 20
+         shape — every SAS player came through with team="" because
+         the nba_api roster fetch silently dropped them), this static
+         map resolves the team from the player name. Only the players
+         currently in playoff coverage are mapped; others return None.
+      4. None when no trusted source matches.
+
+    **Note on the missing homeAway fallback:** earlier revisions used
+    `lean.homeAway` as a last-resort signal. We removed that because
+    the upstream pipeline defaults `home_away = "Home"` whenever the
+    name→team lookup fails — which means an empty `team` + `homeAway`
+    = "Home" is the *exact* signature of a broken attribution, not a
+    trustworthy hint. Dropping unattributed leans is more honest than
+    routing them to whichever side the pipeline guessed by default.
     """
     team_field = (lean.get("team") or "").strip()
     if team_field:
@@ -188,11 +198,13 @@ def _resolve_team_from_lean(
         mapped = player_team_map.get(pid)
         if mapped:
             return mapped
-    ha = (lean.get("homeAway") or "").strip().lower()
-    if ha == "home" and home_team:
-        return home_team
-    if ha == "away" and away_team:
-        return away_team
+    # Static-roster rescue. Honest: only the playoff teams in
+    # team_rosters.py have entries; anyone else returns None.
+    name = (lean.get("playerName") or "").strip()
+    if name:
+        from_static = TR.team_for_player(name)
+        if from_static:
+            return from_static
     return None
 
 
