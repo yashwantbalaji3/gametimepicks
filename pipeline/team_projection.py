@@ -127,6 +127,7 @@ class GameProjection:
     playoffContext: dict[str, Any]
     marketSpread: float | None
     marketMoneyline: dict[str, int] | None
+    marketTotal: float | None
     confidence: str
     reasons: list[str]
     dataQualityFlag: str | None
@@ -146,6 +147,7 @@ class GameProjection:
             "playoffContext": self.playoffContext,
             "marketSpread": self.marketSpread,
             "marketMoneyline": self.marketMoneyline,
+            "marketTotal": self.marketTotal,
             "confidence": self.confidence,
             "reasons": self.reasons,
             "dataQualityFlag": self.dataQualityFlag,
@@ -382,6 +384,7 @@ def project_game(
     # present — never fabricate.
     market_spread: float | None = None
     market_moneyline: dict[str, int] | None = None
+    market_total: float | None = None
     if odds_lines:
         per_game = odds_lines.get(game_id) or {}
         if isinstance(per_game.get("spread"), (int, float)):
@@ -395,6 +398,8 @@ def project_game(
             and isinstance(ml.get("away"), int)
         ):
             market_moneyline = {"home": ml["home"], "away": ml["away"]}
+        if isinstance(per_game.get("total"), (int, float)):
+            market_total = float(per_game["total"])
 
     # Data-quality flag — fires when one side has too few resolved
     # contributors. Surfaces the May 19/20 production bug (team field
@@ -454,6 +459,7 @@ def project_game(
         playoffContext=ctx.to_dict(),
         marketSpread=market_spread,
         marketMoneyline=market_moneyline,
+        marketTotal=market_total,
         confidence=conf,
         reasons=reasons,
         dataQualityFlag=data_quality_flag,
@@ -581,10 +587,22 @@ def main(argv: list[str] | None = None) -> int:
         board = json.load(f)
 
     player_team_map = load_player_team_map()
+
+    # Pick up real h2h / spreads / totals when they're on disk so the
+    # team-projection artifact carries marketSpread / marketMoneyline /
+    # marketTotal instead of leaving the UI gate in "pending" state.
+    # Importing inside main() avoids a circular import at module load.
+    try:
+        from .fetch_game_markets import load_game_markets_for_odds_lines
+        odds_lines = load_game_markets_for_odds_lines(args.date)
+    except Exception:
+        odds_lines = None
+
     projections = project_board(
         sport="NBA",
         date=args.date,
         board=board,
+        odds_lines=odds_lines,
         player_team_map=player_team_map,
     )
     out = write_team_projection_artifact(

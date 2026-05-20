@@ -199,6 +199,7 @@ def test_market_lines_never_fabricated(s: Suite):
                         leans=leans, overrides_path=overrides, now=FROZEN_NOW)
     s.assert_eq(g.marketSpread, None, "marketSpread None")
     s.assert_eq(g.marketMoneyline, None, "marketMoneyline None")
+    s.assert_eq(g.marketTotal, None, "marketTotal None")
     s.assert_true(any("Market" in r for r in g.reasons), "reason mentions market pending")
     os.unlink(overrides)
 
@@ -215,12 +216,14 @@ def test_market_lines_populated_when_present(s: Suite):
     for i in range(10):
         leans.append(_lean(100+i,f"O{i}","PTS","Over",20,22,5,"High","OKC","Home","g"))
         leans.append(_lean(200+i,f"S{i}","PTS","Over",18,20,5,"High","SA","Away","g"))
-    odds = {"g": {"spread": -4.5, "moneyline": {"home": -180, "away": +160}}}
+    odds = {"g": {"spread": -4.5, "moneyline": {"home": -180, "away": +160},
+                  "total": 217.5}}
     g = TP.project_game(sport="NBA", date="2026-05-20", game=game,
                         leans=leans, odds_lines=odds,
                         overrides_path=overrides, now=FROZEN_NOW)
     s.assert_close(g.marketSpread, -4.5, 1e-9, "spread populated")
     s.assert_eq(g.marketMoneyline, {"home": -180, "away": 160}, "moneyline populated")
+    s.assert_close(g.marketTotal, 217.5, 1e-9, "total populated")
     # High confidence requires: 10+ per team + playoff override + market line
     s.assert_eq(g.confidence, "high", "confidence high path reached")
     os.unlink(overrides)
@@ -575,6 +578,7 @@ def test_market_lines_remain_pending_when_unavailable(s: Suite):
                         overrides_path=overrides, now=FROZEN_NOW)
     s.assert_eq(g.marketSpread, None, "spread None")
     s.assert_eq(g.marketMoneyline, None, "moneyline None")
+    s.assert_eq(g.marketTotal, None, "total None")
     s.assert_eq(g.publicDisplayMode, "full", "clean game stays full-display")
     s.assert_true(
         any("Market spread" in r for r in g.reasons),

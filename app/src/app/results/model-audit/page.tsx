@@ -31,6 +31,7 @@ import type {
   ModelAuditSport,
 } from "@/lib/results-audit-notes";
 import { formatPercent } from "@/lib/format";
+import HitRateSparkline from "@/components/hit-rate-sparkline";
 
 export const metadata = {
   title: "Model audit deep-dive · GameTime Picks",
@@ -285,6 +286,27 @@ function SportBlock({
         Per-date timeline
       </h3>
       <DateTimeline rows={sport.byDate} />
+
+      <h3 className="mt-8 mb-3 font-mono uppercase tracking-[0.16em]" style={fineHeader}>
+        Per-date hit rate sparkline
+      </h3>
+      <HitRateSparkline
+        rows={sport.byDate.map((r) => ({
+          date: r.date,
+          hitRate: r.hitRate,
+          wins: r.wins,
+          losses: r.losses,
+          decisive: r.decisive,
+        }))}
+        label={sport.sport === "nba" ? "NBA" : "MLB"}
+        color={
+          sport.sport === "nba"
+            ? "var(--vault-gold-bright)"
+            : "var(--vault-success)"
+        }
+        width={480}
+        height={120}
+      />
     </section>
   );
 }

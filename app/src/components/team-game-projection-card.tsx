@@ -265,26 +265,72 @@ export default function TeamGameProjectionCard({ projection }: Props) {
       </div>
 
       {/* Market line row — populated only when real odds exist */}
-      <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <MarketCell
-          label="Spread context"
+          label="Market spread (home)"
           value={
             projection.marketSpread !== null
               ? `${projection.marketSpread > 0 ? "+" : ""}${projection.marketSpread.toFixed(1)}`
               : null
           }
-          fallback="Market line pending"
+          fallback="Spread pending"
         />
         <MarketCell
-          label="Moneyline context"
+          label="Moneyline"
           value={
             projection.marketMoneyline
               ? `${formatMl(projection.marketMoneyline.home)} home · ${formatMl(projection.marketMoneyline.away)} away`
               : null
           }
-          fallback="Market line pending"
+          fallback="Moneyline pending"
+        />
+        <MarketCell
+          label="Total (O/U)"
+          value={
+            projection.marketTotal !== null && projection.marketTotal !== undefined
+              ? projection.marketTotal.toFixed(1)
+              : null
+          }
+          fallback="Total pending"
         />
       </div>
+
+      {/* Model PTS sum vs market total — honest framing.
+          The model sum is just the primary-rotation projected PTS;
+          bench scoring isn't modeled, so it nearly always trails the
+          market O/U. We show the gap so readers see exactly that
+          instead of mistaking the model number for a final-score call. */}
+      {projection.marketTotal !== null && projection.marketTotal !== undefined && (
+        <div
+          className="mt-3 rounded-[6px] px-3 py-2"
+          style={{
+            background: "rgba(7, 11, 26, 0.45)",
+            border: "1px solid var(--vault-border)",
+          }}
+        >
+          <span
+            className="font-mono uppercase tracking-[0.14em]"
+            style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+          >
+            Model PTS sum vs market total
+          </span>
+          <div
+            className="mt-0.5 text-[12px] leading-relaxed"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
+            Primary-rotation sum{" "}
+            <strong style={{ color: "var(--vault-text)" }}>
+              {(projection.home.projectedPts + projection.away.projectedPts).toFixed(1)}
+            </strong>{" "}
+            vs market{" "}
+            <strong style={{ color: "var(--vault-text)" }}>
+              {projection.marketTotal.toFixed(1)}
+            </strong>
+            . The model sum reflects only players carrying prop lines —
+            bench scoring is not modeled, so it usually trails the market.
+          </div>
+        </div>
+      )}
 
       {/* Reasons — always shown so readers see exactly what feeds the
           team view. Honest about partial data + missing market lines. */}

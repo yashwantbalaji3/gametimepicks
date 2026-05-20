@@ -47,6 +47,8 @@ import ResultsSportTabs from "@/components/results-sport-tabs";
 import ModelLessonsCard, {
   type ModelLesson,
 } from "@/components/model-lessons-card";
+import HitRateSparkline from "@/components/hit-rate-sparkline";
+import { loadModelAudit } from "@/lib/results-audit-notes";
 
 function findLatestScoredBoardDate(): string | null {
   const dates = getAvailableBoardDates().slice().sort().reverse();
@@ -193,6 +195,12 @@ export default function ResultsOverviewPage() {
         <KpiTile label="losses" value={String(overallLosses)} accent="danger" />
         <KpiTile label="pushes" value={String(overallPushes)} />
       </section>
+
+      {/* Hit-rate trend graphs — sparkline per scope (overall, NBA, MLB).
+          Reads pre-aggregated `byDate` from model_audit.json. Pushes are
+          already excluded upstream. We never claim a trend on small
+          samples; the component labels itself accordingly. */}
+      <HitRateTrendSection />
 
       {/* Per-sport summary cards. Each links to the sport-specific
           results page where every settled game expands to a projection-
@@ -348,6 +356,84 @@ function buildOverallLessons({
     ),
   });
   return lessons;
+}
+
+/**
+ * Hit-rate trend section — three sparklines (overall, NBA, MLB).
+ * Reads `model_audit.json` for pre-aggregated per-date rows. The
+ * "overall" series is the union of the per-sport date arrays, sorted
+ * chronologically. No imputed dates and no projected points.
+ */
+function HitRateTrendSection() {
+  const audit = loadModelAudit();
+  if (!audit) return null;
+
+  const nbaRows = audit.sports.nba.byDate.map((r) => ({
+    date: r.date,
+    hitRate: r.hitRate,
+    wins: r.wins,
+    losses: r.losses,
+    decisive: r.decisive,
+  }));
+  const mlbRows = audit.sports.mlb.byDate.map((r) => ({
+    date: r.date,
+    hitRate: r.hitRate,
+    wins: r.wins,
+    losses: r.losses,
+    decisive: r.decisive,
+  }));
+
+  // Overall: every slate from either sport is one chronological point.
+  // We do NOT merge same-date NBA + MLB into a blended hit rate — each
+  // sport is a separate slate with its own grading context, so the
+  // overall trend treats them as distinct entries.
+  const overallRows = [...nbaRows, ...mlbRows].sort((a, b) =>
+    a.date.localeCompare(b.date),
+  );
+
+  // Nothing settled yet for either sport — skip the whole block.
+  if (overallRows.length === 0) return null;
+
+  return (
+    <section className="mt-8">
+      <div className="flex items-center gap-3 mb-4">
+        <span
+          className="font-mono text-[10px] uppercase tracking-[0.18em] shrink-0"
+          style={{ color: "var(--vault-gold)" }}
+        >
+          Hit-rate trend · real settled slates only
+        </span>
+        <div className="flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <HitRateSparkline
+          rows={overallRows}
+          label="Overall"
+          color="var(--vault-gold-bright)"
+        />
+        <HitRateSparkline
+          rows={nbaRows}
+          label="NBA"
+          color="var(--vault-gold-bright)"
+        />
+        <HitRateSparkline
+          rows={mlbRows}
+          label="MLB"
+          color="var(--vault-success)"
+        />
+      </div>
+      <p
+        className="mt-3 text-[11px] leading-relaxed"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        Each dot is one settled slate, graded after final box scores.
+        Dashed line marks 50% (coin flip). The aggregate percentage
+        weights by decisive picks — same math as the hero. No
+        "improving" claim is made; the small-sample caveat is visible
+        on each sparkline.
+      </p>
+    </section>
+  );
 }
 
 /**
