@@ -11,7 +11,9 @@
 #      no Odds API; in-progress games refused at source layer)
 #   3. Run MLB settlement for that date (MLB Stats API; same rule)
 #   4. Export both sport audits to app/public/data/{results,mlb/results}
-#   5. Print a clear summary log
+#   5. Rebuild the model_audit.json artifact that powers /results and
+#      /results/model-audit (free; pure aggregation over settled JSONLs)
+#   6. Print a clear summary log
 #
 # Hard rules honored:
 #   - No paid API calls — settlement uses free public APIs only.
@@ -76,6 +78,7 @@ if [ "$DRY_RUN_SETTLE" = "1" ]; then
     info "would run: $PY -m pipeline.mlb.settle_mlb_results --date $TARGET_DATE"
     info "would run: $PY -m pipeline.export_results"
     info "would run: $PY -m pipeline.mlb.export_mlb_results"
+    info "would run: $PY -m pipeline.model_audit"
     exit 0
 fi
 
@@ -145,6 +148,22 @@ if [ "$MLB_SKIPPED" != "1" ]; then
     fi
 fi
 
+# ---------------------------------------------------------------------------
+# Model audit JSON — rebuilt from the freshly-settled JSONLs. This is the
+# artifact /results and /results/model-audit consume; rebuilding here keeps
+# the audit notes in sync with the settled record without a separate cron.
+# Pure aggregation, no API calls.
+# ---------------------------------------------------------------------------
+AUDIT_FAILED=0
+if [ "$NBA_SKIPPED" != "1" ] || [ "$MLB_SKIPPED" != "1" ]; then
+    if $PY -m pipeline.model_audit 2>&1 | tee /tmp/gtp_model_audit.log; then
+        ok "model_audit.json rebuilt"
+    else
+        err "model_audit FAILED — see /tmp/gtp_model_audit.log"
+        AUDIT_FAILED=1
+    fi
+fi
+
 DURATION=$(( $(date +%s) - START_TIME ))
 
 step "Summary"
@@ -152,6 +171,7 @@ info "target date:    $TARGET_DATE"
 info "nba step:       $([ "$NBA_SKIPPED" = 1 ] && echo skipped || ([ "$NBA_FAILED" = 1 ] && echo FAILED || echo ok))"
 info "mlb step:       $([ "$MLB_SKIPPED" = 1 ] && echo skipped || ([ "$MLB_FAILED" = 1 ] && echo FAILED || echo ok))"
 info "export step:    $([ "$EXPORT_FAILED" = 1 ] && echo FAILED || echo ok)"
+info "audit step:     $([ "$AUDIT_FAILED" = 1 ] && echo FAILED || echo ok)"
 info "elapsed:        ${DURATION}s"
 info "odds credits:   0 (settlement uses free public APIs only)"
 
@@ -164,7 +184,7 @@ if [ -f "pipeline/validation/mlb_comparison_report_${TARGET_DATE}.json" ]; then
     fi
 fi
 
-if [ "$NBA_FAILED" = "1" ] || [ "$MLB_FAILED" = "1" ] || [ "$EXPORT_FAILED" = "1" ]; then
+if [ "$NBA_FAILED" = "1" ] || [ "$MLB_FAILED" = "1" ] || [ "$EXPORT_FAILED" = "1" ] || [ "$AUDIT_FAILED" = "1" ]; then
     exit 2
 fi
 exit 0

@@ -41,6 +41,134 @@ const NBA_SETTLED_PATH = path.join(
   "settled_leans.jsonl",
 );
 
+const MODEL_AUDIT_PATH = path.join(
+  process.cwd(),
+  "public",
+  "data",
+  "audit",
+  "model_audit.json",
+);
+
+export interface ModelAuditCohort {
+  name: string;
+  wins: number;
+  losses: number;
+  decisive: number;
+  hitRate: number | null;
+  weight: "signal" | "lean" | "small-sample";
+}
+
+export interface ModelAuditDispersion {
+  nGames: number;
+  minHit: number | null;
+  maxHit: number | null;
+  stdev: number | null;
+  median: number | null;
+}
+
+export interface ModelAuditQuartile {
+  quartile: number;
+  lo: number;
+  hi: number;
+  wins: number;
+  losses: number;
+  decisive: number;
+  hitRate: number | null;
+}
+
+export interface ModelAuditMarket {
+  label: string;
+  wins: number;
+  losses: number;
+  decisive: number;
+  hitRate: number | null;
+  avgAbsErr: number | null;
+  medianAbsErr: number | null;
+  stdevErr: number | null;
+  bias: number | null;
+  nErr: number;
+}
+
+export interface ModelAuditDateRow {
+  date: string;
+  wins: number;
+  losses: number;
+  decisive: number;
+  hitRate: number | null;
+  gameContext: {
+    dateIso: string;
+    month: number;
+    dayOfWeek: number;
+    isPlayoff: boolean;
+    seasonPhase: string;
+    seriesState: string | null;
+    eliminationFlag: boolean | null;
+    paceProjection: number | null;
+    parkFactor: number | null;
+  } | null;
+}
+
+export interface ModelAuditSport {
+  sport: "nba" | "mlb";
+  sampleSize: {
+    decisive: number;
+    dates: number;
+    newestDate: string | null;
+    oldestDate: string | null;
+  };
+  lifetime: { wins: number; losses: number; hitRate: number | null };
+  byDate: ModelAuditDateRow[];
+  byMarket: ModelAuditMarket[];
+  bySide: BucketRow[];
+  byMarketSide: Array<{
+    market: string;
+    side: string;
+    wins: number;
+    losses: number;
+    decisive: number;
+    hitRate: number | null;
+  }>;
+  byConfidence: BucketRow[];
+  byEdgeBand: BucketRow[];
+  byEdgeQuartile: ModelAuditQuartile[];
+  byBookmaker: BucketRow[];
+  perGameDispersion: ModelAuditDispersion;
+  weakCohorts: ModelAuditCohort[];
+  strongCohorts: ModelAuditCohort[];
+}
+
+export interface ModelAuditArtifact {
+  generatedAt: string;
+  sports: {
+    nba: ModelAuditSport;
+    mlb: ModelAuditSport;
+    cross: {
+      wins: number;
+      losses: number;
+      decisive: number;
+      hitRate: number | null;
+      newestDate: string | null;
+    };
+  };
+}
+
+let _modelAuditCache: ModelAuditArtifact | null | undefined;
+
+export function loadModelAudit(): ModelAuditArtifact | null {
+  if (_modelAuditCache !== undefined) return _modelAuditCache;
+  if (!fs.existsSync(MODEL_AUDIT_PATH)) {
+    _modelAuditCache = null;
+    return null;
+  }
+  try {
+    const raw = fs.readFileSync(MODEL_AUDIT_PATH, "utf-8");
+    _modelAuditCache = JSON.parse(raw) as ModelAuditArtifact;
+  } catch {
+    _modelAuditCache = null;
+  }
+  return _modelAuditCache;
+}
+
 function readNbaSettledLeans(): SettledLean[] {
   if (!fs.existsSync(NBA_SETTLED_PATH)) return [];
   try {
@@ -405,10 +533,75 @@ export function buildCrossSportFraming(): {
     if (Math.abs(d) >= 5) {
       stronger = d > 0 ? "NBA" : "MLB";
       diffPp = d;
+      const strongerRate = stronger === "NBA" ? nba.hitRate : mlb.hitRate;
+      const otherRate = stronger === "NBA" ? mlb.hitRate : nba.hitRate;
+      const strongerN =
+        stronger === "NBA" ? nba.totalDecisive : mlb.totalDecisive;
+      const otherN = stronger === "NBA" ? mlb.totalDecisive : nba.totalDecisive;
+      // Re-tune the wording once the gap collapses to "marginal". The
+      // old "model leading" headline implied a confident edge that the
+      // current 53.7% / 50.3% split does not support.
+      const marginal = Math.abs(d) < 8;
       notes.push({
         weight: weightFor(Math.min(nba.totalDecisive, mlb.totalDecisive)),
-        headline: `${stronger} model leading on settled audit`,
-        body: `${stronger} settled at ${pct(stronger === "NBA" ? nba.hitRate : mlb.hitRate)} on ${stronger === "NBA" ? nba.totalDecisive : mlb.totalDecisive} picks; the other sport sits at ${pct(stronger === "NBA" ? mlb.hitRate : nba.hitRate)} on ${stronger === "NBA" ? mlb.totalDecisive : nba.totalDecisive}. Treat the gap as a calibration lean — the denominator is still small.`,
+        headline: marginal
+          ? `${stronger} marginally above coin flip; ${stronger === "NBA" ? "MLB" : "NBA"} essentially flat`
+          : `${stronger} model leading on settled audit`,
+        body: marginal
+          ? `${stronger} sits at ${pct(strongerRate)} on ${strongerN} decisive; the other sport at ${pct(otherRate)} on ${otherN}. The gap is real but small — treat as a calibration lean only, not a quality claim.`
+          : `${stronger} settled at ${pct(strongerRate)} on ${strongerN} picks; the other sport sits at ${pct(otherRate)} on ${otherN}. Treat the gap as a calibration lean — the denominator is still small.`,
+      });
+    } else if (
+      nba.totalDecisive >= 200 &&
+      mlb.totalDecisive >= 200
+    ) {
+      // Both sports near coin flip on real samples — surface the
+      // honest framing so readers don't infer an edge that isn't there.
+      notes.push({
+        weight: "signal",
+        headline: "Both sports near coin flip on settled audit",
+        body: `NBA at ${pct(nba.hitRate)} on ${nba.totalDecisive} decisive; MLB at ${pct(mlb.hitRate)} on ${mlb.totalDecisive}. Neither sport is statistically ahead at this sample size.`,
+      });
+    }
+  }
+
+  // ─── single-game dispersion alert ───────────────────────────────
+  // Use the JSON audit artifact when available. The dispersion stat
+  // (stdev of per-game hit rate) is the most decision-relevant number
+  // we publish — it tells readers a coin-flip-looking lifetime might
+  // hide huge per-game swings. May 19's 33.8% collapse is exactly the
+  // signal this note exists to surface.
+  const audit = loadModelAudit();
+  if (audit) {
+    const nbaDisp = audit.sports.nba.perGameDispersion;
+    if (
+      nbaDisp.nGames >= 3 &&
+      nbaDisp.stdev !== null &&
+      nbaDisp.stdev >= 0.08 &&
+      nbaDisp.minHit !== null &&
+      nbaDisp.maxHit !== null
+    ) {
+      // Find the worst settled date inside byDate so we can name it
+      // honestly. We name the date and rate, never claim a fix.
+      const worstDate = audit.sports.nba.byDate.reduce<
+        ModelAuditDateRow | null
+      >(
+        (acc, row) =>
+          row.hitRate !== null &&
+          (acc === null ||
+            row.hitRate < (acc.hitRate ?? Number.POSITIVE_INFINITY))
+            ? row
+            : acc,
+        null,
+      );
+      const stdevPp = (nbaDisp.stdev * 100).toFixed(1);
+      const worstStr = worstDate?.hitRate
+        ? ` Worst day: ${worstDate.date} at ${pct(worstDate.hitRate)} on ${worstDate.decisive} decisive picks.`
+        : "";
+      notes.push({
+        weight: weightFor(audit.sports.nba.sampleSize.decisive),
+        headline: "Single-game NBA hit-rate stdev is high",
+        body: `Per-game NBA hit rate ranges from ${pct(nbaDisp.minHit)} to ${pct(nbaDisp.maxHit)} across ${nbaDisp.nGames} settled games — stdev ${stdevPp}pp.${worstStr} The model has no game-leverage / OT-pace input yet, so single-game swings stay this wide.`,
       });
     }
   }

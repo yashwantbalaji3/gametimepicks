@@ -17,6 +17,8 @@
  *     conclusion.
  *   - No edits to underlying numbers; this is purely a visual surface.
  */
+import Link from "next/link";
+
 import type { AuditNote, BucketRow, SportAuditSummary } from "@/lib/results-audit-notes";
 import {
   buildCrossSportFraming,
@@ -46,6 +48,7 @@ export default function ResultsModelAuditNotes({ mode, sport }: Props) {
           }
         />
         <NotesGrid notes={framing.notes} />
+        <DeepDiveLink />
       </section>
     );
   }
@@ -66,7 +69,26 @@ export default function ResultsModelAuditNotes({ mode, sport }: Props) {
       />
       <NotesGrid notes={summary.notes} />
       <BreakdownTriple summary={summary} />
+      <DeepDiveLink />
     </section>
+  );
+}
+
+function DeepDiveLink() {
+  return (
+    <div className="mt-5 flex justify-end">
+      <Link
+        href="/results/model-audit"
+        className="inline-flex items-center gap-1 font-mono uppercase tracking-[0.16em] hover:underline"
+        style={{
+          color: "var(--vault-gold)",
+          fontSize: 11,
+        }}
+      >
+        Open the audit deep-dive
+        <span aria-hidden>→</span>
+      </Link>
+    </div>
   );
 }
 
