@@ -23,6 +23,7 @@
  */
 import type { TeamGameProjection } from "@/lib/data-team-projection";
 import StatusPill, { type StatusPillKind } from "@/components/status-pill";
+import TeamBadge from "@/components/team-badge";
 
 interface Props {
   projection: TeamGameProjection;
@@ -41,19 +42,46 @@ export default function TeamGameProjectionCard({ projection }: Props) {
   const c = CONFIDENCE_STYLE[projection.confidence];
   const partial = projection.dataQualityFlag === "team_attribution_partial";
   const ctx = projection.playoffContext;
-  // Default "full" so artifacts produced before this field existed
-  // continue to render normally; new artifacts explicitly opt into
-  // suppression via "withheld".
+  // Why "withheld" can fire:
+  //   1) explicit publicDisplayMode === "withheld" from the artifact
+  //   2) one team has 0 contributing players (attribution gap)
+  //   3) dataQualityFlag is set
+  //   4) **(new, 2026-05-20)** no real market spread on disk —
+  //      summing player-prop projections without a market reference
+  //      can produce unrealistic margins like "SA favored by 16.1",
+  //      so the projected score / margin / winner are withheld
+  //      from the public UI until real market lines exist
+  const noMarketLine = projection.marketSpread === null;
   const isWithheld =
     projection.publicDisplayMode === "withheld" ||
     projection.home.contributingPlayerCount <= 0 ||
     projection.away.contributingPlayerCount <= 0 ||
-    partial;
+    partial ||
+    noMarketLine;
+
+  // Pick the user-facing reason that best explains the withheld state.
+  // We surface the most specific cause first so a reader knows whether
+  // it's an attribution problem vs a market-data problem.
+  const withheldReasonHeadline = partial
+    ? "Team view unavailable · player-team attribution incomplete"
+    : projection.home.contributingPlayerCount <= 0 ||
+        projection.away.contributingPlayerCount <= 0
+      ? "Team view unavailable · player-team attribution incomplete"
+      : "Team view pending market line";
+  const withheldReasonBody = partial
+    ? "Player props are live, but the team projection is withheld until both sides have complete team attribution. The player board below is unaffected and still shows every model lean."
+    : projection.home.contributingPlayerCount <= 0 ||
+        projection.away.contributingPlayerCount <= 0
+      ? "Player props are live, but the team projection is withheld until both sides have complete team attribution. The player board below is unaffected and still shows every model lean."
+      : "Player props are live below. The projected score and margin unlock once a real market spread / total is on disk so the model has a market reference. We refuse to publish an unrealistic derived margin without one.";
 
   // Early withheld branch — show an honest panel that names the
   // exact reason. The player-prop board below this card on /nba/board
   // is unaffected and continues to render the 86 May 20 leans.
   if (isWithheld) {
+    const wMatchParts = projection.matchup.split("@").map((p) => p.trim());
+    const wAway = wMatchParts[0] || projection.away.teamAbbr;
+    const wHome = wMatchParts[1] || projection.home.teamAbbr;
     return (
       <article
         className="gtp-premium-tile relative p-4 sm:p-5 reveal"
@@ -64,7 +92,7 @@ export default function TeamGameProjectionCard({ projection }: Props) {
             className="font-mono uppercase tracking-[0.18em]"
             style={{ color: "var(--vault-gold)", fontSize: 10 }}
           >
-            Team view · educational
+            Matchup view · educational
           </span>
           {ctx.round && ctx.gameNumber != null && (
             <StatusPill
@@ -75,6 +103,27 @@ export default function TeamGameProjectionCard({ projection }: Props) {
           <StatusPill kind="warn" label="Unavailable" hideDot />
         </header>
 
+        {/* Matchup hero — team badges are always shown so the
+            withheld panel still feels like a real game card. */}
+        <div className="flex items-center gap-3 mb-4">
+          <TeamBadge team={wAway} size="lg" />
+          <span
+            className="font-mono uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+          >
+            @
+          </span>
+          <TeamBadge team={wHome} size="lg" />
+          <div className="ml-auto flex flex-col items-end gap-0.5">
+            <span
+              className="font-mono uppercase tracking-[0.14em]"
+              style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+            >
+              {projection.date}
+            </span>
+          </div>
+        </div>
+
         <h3
           className="font-display tracking-tight"
           style={{
@@ -84,15 +133,13 @@ export default function TeamGameProjectionCard({ projection }: Props) {
             letterSpacing: "-0.005em",
           }}
         >
-          Team view unavailable · player-team attribution incomplete
+          {withheldReasonHeadline}
         </h3>
         <p
           className="mt-2 text-[12.5px] leading-relaxed"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          Player props are live, but the team projection is withheld
-          until both sides have complete team attribution. The player
-          board below is unaffected and still shows every model lean.
+          {withheldReasonBody}
         </p>
         <p
           className="mt-3 text-[10.5px] leading-relaxed"
@@ -105,6 +152,12 @@ export default function TeamGameProjectionCard({ projection }: Props) {
     );
   }
 
+  // Parse matchup "AWAY @ HOME" into the two abbrevs so the hero
+  // matchup row shows team badges + the "@".
+  const matchParts = projection.matchup.split("@").map((p) => p.trim());
+  const awayAbbr = matchParts[0] || projection.away.teamAbbr;
+  const homeAbbr = matchParts[1] || projection.home.teamAbbr;
+
   return (
     <article
       className="gtp-premium-tile relative p-4 sm:p-5 reveal"
@@ -116,7 +169,7 @@ export default function TeamGameProjectionCard({ projection }: Props) {
           className="font-mono uppercase tracking-[0.18em]"
           style={{ color: "var(--vault-gold)", fontSize: 10 }}
         >
-          Team view · educational
+          Matchup view · educational
         </span>
         {ctx.round && ctx.gameNumber != null && (
           <StatusPill
@@ -126,6 +179,34 @@ export default function TeamGameProjectionCard({ projection }: Props) {
         )}
         <StatusPill kind={c.pill} label={c.label} />
       </header>
+
+      {/* Matchup hero — large team badges with "@" between */}
+      <div className="flex items-center gap-3 mb-4">
+        <TeamBadge
+          team={awayAbbr}
+          size="lg"
+          highlight={projection.projectedWinner === projection.away.teamAbbr}
+        />
+        <span
+          className="font-mono uppercase tracking-[0.18em]"
+          style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+        >
+          @
+        </span>
+        <TeamBadge
+          team={homeAbbr}
+          size="lg"
+          highlight={projection.projectedWinner === projection.home.teamAbbr}
+        />
+        <div className="ml-auto flex flex-col items-end gap-0.5">
+          <span
+            className="font-mono uppercase tracking-[0.14em]"
+            style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+          >
+            {projection.date}
+          </span>
+        </div>
+      </div>
 
       {/* Matchup row — team sides + projected points */}
       <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-4 sm:gap-6 items-stretch">
@@ -184,26 +265,72 @@ export default function TeamGameProjectionCard({ projection }: Props) {
       </div>
 
       {/* Market line row — populated only when real odds exist */}
-      <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <MarketCell
-          label="Spread context"
+          label="Market spread (home)"
           value={
             projection.marketSpread !== null
               ? `${projection.marketSpread > 0 ? "+" : ""}${projection.marketSpread.toFixed(1)}`
               : null
           }
-          fallback="Market line pending"
+          fallback="Spread pending"
         />
         <MarketCell
-          label="Moneyline context"
+          label="Moneyline"
           value={
             projection.marketMoneyline
               ? `${formatMl(projection.marketMoneyline.home)} home · ${formatMl(projection.marketMoneyline.away)} away`
               : null
           }
-          fallback="Market line pending"
+          fallback="Moneyline pending"
+        />
+        <MarketCell
+          label="Total (O/U)"
+          value={
+            projection.marketTotal !== null && projection.marketTotal !== undefined
+              ? projection.marketTotal.toFixed(1)
+              : null
+          }
+          fallback="Total pending"
         />
       </div>
+
+      {/* Model PTS sum vs market total — honest framing.
+          The model sum is just the primary-rotation projected PTS;
+          bench scoring isn't modeled, so it nearly always trails the
+          market O/U. We show the gap so readers see exactly that
+          instead of mistaking the model number for a final-score call. */}
+      {projection.marketTotal !== null && projection.marketTotal !== undefined && (
+        <div
+          className="mt-3 rounded-[6px] px-3 py-2"
+          style={{
+            background: "rgba(7, 11, 26, 0.45)",
+            border: "1px solid var(--vault-border)",
+          }}
+        >
+          <span
+            className="font-mono uppercase tracking-[0.14em]"
+            style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+          >
+            Model PTS sum vs market total
+          </span>
+          <div
+            className="mt-0.5 text-[12px] leading-relaxed"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
+            Primary-rotation sum{" "}
+            <strong style={{ color: "var(--vault-text)" }}>
+              {(projection.home.projectedPts + projection.away.projectedPts).toFixed(1)}
+            </strong>{" "}
+            vs market{" "}
+            <strong style={{ color: "var(--vault-text)" }}>
+              {projection.marketTotal.toFixed(1)}
+            </strong>
+            . The model sum reflects only players carrying prop lines —
+            bench scoring is not modeled, so it usually trails the market.
+          </div>
+        </div>
+      )}
 
       {/* Reasons — always shown so readers see exactly what feeds the
           team view. Honest about partial data + missing market lines. */}
@@ -268,41 +395,44 @@ function TeamSide({
           : "1px solid var(--vault-border)",
       }}
     >
-      <div className="flex items-center gap-2 flex-wrap">
-        <span
-          className="font-mono uppercase tracking-[0.16em]"
-          style={{
-            color: "var(--vault-text-mute)",
-            fontSize: 9,
-          }}
-        >
-          {team.isHome === true
-            ? "Home"
-            : team.isHome === false
-            ? "Away"
-            : "Side"}
-        </span>
-        <span
-          className="font-display font-semibold tracking-tight"
-          style={{
-            color: "var(--vault-text)",
-            fontSize: 22,
-            lineHeight: 1,
-            letterSpacing: "-0.01em",
-          }}
-        >
-          {team.teamAbbr}
-        </span>
-        {favored && !partial && (
+      <div className="flex items-center gap-2.5 flex-wrap">
+        <TeamBadge team={team.teamAbbr} size="md" highlight={favored && !partial} />
+        <div className="flex flex-col gap-0.5">
           <span
-            aria-hidden
-            className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+            className="font-mono uppercase tracking-[0.16em]"
             style={{
-              background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 6px rgba(240, 199, 94, 0.6)",
+              color: "var(--vault-text-mute)",
+              fontSize: 9,
             }}
-          />
-        )}
+          >
+            {team.isHome === true
+              ? "Home"
+              : team.isHome === false
+              ? "Away"
+              : "Side"}
+          </span>
+          <span
+            className="font-display font-semibold tracking-tight inline-flex items-center gap-1.5"
+            style={{
+              color: "var(--vault-text)",
+              fontSize: 22,
+              lineHeight: 1,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {team.teamAbbr}
+            {favored && !partial && (
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
+                style={{
+                  background: "var(--vault-gold-bright)",
+                  boxShadow: "0 0 6px rgba(240, 199, 94, 0.6)",
+                }}
+              />
+            )}
+          </span>
+        </div>
       </div>
       <div className="flex items-baseline gap-2">
         <span

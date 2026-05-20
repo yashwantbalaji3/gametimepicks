@@ -124,23 +124,30 @@ def test_duplicate_player_market_dedupes(s: Suite):
     os.unlink(overrides)
 
 
-def test_homeAway_fallback_when_team_empty(s: Suite):
-    print(f"\n  {BLUE}─── homeAway fallback resolves blank team field ───{RESET}")
+def test_unattributed_lean_dropped_no_homeaway_fallback(s: Suite):
+    """The legacy homeAway-only fallback was removed: an empty `team`
+    field plus a fake-name player (not in the static roster, no roster
+    map) must be dropped, NOT routed by `homeAway` (which itself is
+    unreliable when the upstream lookup failed)."""
+    print(f"\n  {BLUE}─── unattributed leans dropped — no homeAway fallback ───{RESET}")
     overrides = _temp_overrides({
         "g": {"round":"WCF","gameNumber":2,"seriesShort":"SA-OKC",
               "homeTeam":"OKC","awayTeam":"SA"},
     })
     game = {"gameId":"g","homeTeamAbbr":"OKC","awayTeamAbbr":"SA"}
     leans = [
-        # Some leans missing the team field — this matches the May 19/20
-        # data-quality bug seen in production.
-        _lean(1,"Shai","PTS","Over",27.5,30.0,5,"High","","Home","g"),
-        _lean(2,"Wemby","PTS","Over",25.5,28.0,5,"High","","Away","g"),
+        # Fake names — not in static roster, no team field. Pipeline's
+        # broken default would have stamped homeAway="Home" on both;
+        # the old code routed them to OKC. New code drops them.
+        _lean(99001,"Fake McFakeface","PTS","Over",27.5,30.0,5,"High","","Home","g"),
+        _lean(99002,"Phantom Player","PTS","Over",25.5,28.0,5,"High","","Home","g"),
     ]
     g = TP.project_game(sport="NBA", date="2026-05-20", game=game,
                         leans=leans, overrides_path=overrides, now=FROZEN_NOW)
-    s.assert_close(g.home.projectedPts, 30.0, 1e-6, "Shai routed to OKC via homeAway")
-    s.assert_close(g.away.projectedPts, 28.0, 1e-6, "Wemby routed to SA via homeAway")
+    s.assert_eq(g.home.contributingPlayerCount, 0,
+                "no fake-name attribution to OKC")
+    s.assert_eq(g.away.contributingPlayerCount, 0,
+                "no fake-name attribution to SA")
     os.unlink(overrides)
 
 
@@ -192,6 +199,7 @@ def test_market_lines_never_fabricated(s: Suite):
                         leans=leans, overrides_path=overrides, now=FROZEN_NOW)
     s.assert_eq(g.marketSpread, None, "marketSpread None")
     s.assert_eq(g.marketMoneyline, None, "marketMoneyline None")
+    s.assert_eq(g.marketTotal, None, "marketTotal None")
     s.assert_true(any("Market" in r for r in g.reasons), "reason mentions market pending")
     os.unlink(overrides)
 
@@ -208,12 +216,14 @@ def test_market_lines_populated_when_present(s: Suite):
     for i in range(10):
         leans.append(_lean(100+i,f"O{i}","PTS","Over",20,22,5,"High","OKC","Home","g"))
         leans.append(_lean(200+i,f"S{i}","PTS","Over",18,20,5,"High","SA","Away","g"))
-    odds = {"g": {"spread": -4.5, "moneyline": {"home": -180, "away": +160}}}
+    odds = {"g": {"spread": -4.5, "moneyline": {"home": -180, "away": +160},
+                  "total": 217.5}}
     g = TP.project_game(sport="NBA", date="2026-05-20", game=game,
                         leans=leans, odds_lines=odds,
                         overrides_path=overrides, now=FROZEN_NOW)
     s.assert_close(g.marketSpread, -4.5, 1e-9, "spread populated")
     s.assert_eq(g.marketMoneyline, {"home": -180, "away": 160}, "moneyline populated")
+    s.assert_close(g.marketTotal, 217.5, 1e-9, "total populated")
     # High confidence requires: 10+ per team + playoff override + market line
     s.assert_eq(g.confidence, "high", "confidence high path reached")
     os.unlink(overrides)
@@ -301,6 +311,68 @@ def test_artifact_round_trip(s: Suite):
         s.assert_eq(len(payload["games"]), 1, "1 game")
         s.assert_eq(payload["games"][0]["matchup"], "B @ A", "matchup string")
         s.assert_true("_disclaimer" in payload, "disclaimer present")
+    os.unlink(overrides)
+
+
+def test_static_roster_rescues_when_players_json_also_empty(s: Suite):
+    """The May 20 production reality: lean.team='' AND
+    players.json.team=''. The static team_rosters map must rescue
+    SAS players by name."""
+    print(f"\n  {BLUE}─── static roster rescues when players.json also empty ───{RESET}")
+    overrides = _temp_overrides({
+        "g": {"round":"WCF","gameNumber":2,"seriesShort":"SA-OKC",
+              "homeTeam":"OKC","awayTeam":"SA"},
+    })
+    game = {"gameId":"g","homeTeamAbbr":"OKC","awayTeamAbbr":"SA"}
+    # Real player names — present in pipeline/team_rosters.py.
+    # ≥3 per side so the dataQualityFlag is cleared.
+    def real(pid, name, proj):
+        return {"playerId":pid,"playerName":name,"market":"PTS",
+                "lean":"Over","line":10,"projection":proj,"edgePct":5,
+                "confidence":"High","team":"","homeAway":"Home","gameId":"g"}
+    leans = [
+        real(1001, "Shai Gilgeous-Alexander", 30.0),
+        real(1002, "Chet Holmgren",            20.0),
+        real(1003, "Jalen Williams",           16.0),
+        real(2001, "Victor Wembanyama",        28.0),
+        real(2002, "Stephon Castle",           16.0),
+        real(2003, "Devin Vassell",            12.0),
+    ]
+    # No player_team_map (simulates the players.json bug)
+    g = TP.project_game(sport="NBA", date="2026-05-20", game=game,
+                        leans=leans, overrides_path=overrides, now=FROZEN_NOW)
+    s.assert_close(g.home.projectedPts, 66.0, 1e-6,
+                   "OKC rescued: Shai 30 + Chet 20 + Williams 16 = 66")
+    s.assert_close(g.away.projectedPts, 56.0, 1e-6,
+                   "SA rescued: Wemby 28 + Castle 16 + Vassell 12 = 56")
+    s.assert_eq(g.home.contributingPlayerCount, 3, "3 OKC contributors")
+    s.assert_eq(g.away.contributingPlayerCount, 3, "3 SA contributors")
+    s.assert_eq(g.dataQualityFlag, None, "no data-quality flag — full coverage")
+    s.assert_eq(g.publicDisplayMode, "full",
+                "full display mode now that both sides resolved")
+    os.unlink(overrides)
+
+
+def test_static_roster_does_not_misattribute_unknown(s: Suite):
+    print(f"\n  {BLUE}─── static roster returns None for unknown players ───{RESET}")
+    overrides = _temp_overrides({
+        "g": {"round":"WCF","gameNumber":2,"seriesShort":"SA-OKC",
+              "homeTeam":"OKC","awayTeam":"SA"},
+    })
+    game = {"gameId":"g","homeTeamAbbr":"OKC","awayTeamAbbr":"SA"}
+    # Player not in any roster — must NOT be assigned a team
+    leans = [
+        {"playerId":9999,"playerName":"Unknown Mystery Player",
+         "market":"PTS","lean":"Over","line":10,"projection":12,
+         "edgePct":5,"confidence":"High","team":"","homeAway":"Home","gameId":"g"},
+    ]
+    g = TP.project_game(sport="NBA", date="2026-05-20", game=game,
+                        leans=leans, overrides_path=overrides, now=FROZEN_NOW)
+    # Player gets dropped — no contributors on either side
+    s.assert_eq(g.home.contributingPlayerCount, 0,
+                "unknown player NOT misattributed to home")
+    s.assert_eq(g.away.contributingPlayerCount, 0,
+                "unknown player NOT misattributed to away")
     os.unlink(overrides)
 
 
@@ -506,6 +578,7 @@ def test_market_lines_remain_pending_when_unavailable(s: Suite):
                         overrides_path=overrides, now=FROZEN_NOW)
     s.assert_eq(g.marketSpread, None, "spread None")
     s.assert_eq(g.marketMoneyline, None, "moneyline None")
+    s.assert_eq(g.marketTotal, None, "total None")
     s.assert_eq(g.publicDisplayMode, "full", "clean game stays full-display")
     s.assert_true(
         any("Market spread" in r for r in g.reasons),
@@ -534,7 +607,7 @@ def main():
     for t in (
         test_basic_margin_and_winner,
         test_duplicate_player_market_dedupes,
-        test_homeAway_fallback_when_team_empty,
+        test_unattributed_lean_dropped_no_homeaway_fallback,
         test_only_PTS_market_counts,
         test_no_play_excluded,
         test_market_lines_never_fabricated,
@@ -545,6 +618,8 @@ def main():
         test_project_board_iterates_games,
         test_artifact_round_trip,
         test_player_team_map_rescues_empty_team_field,
+        test_static_roster_rescues_when_players_json_also_empty,
+        test_static_roster_does_not_misattribute_unknown,
         test_data_quality_flag_fires_when_one_side_is_thin,
         test_data_quality_flag_not_set_when_both_sides_ok,
         test_public_display_mode_withheld_on_partial,

@@ -44,6 +44,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from . import playoff_context as PC
+from . import team_rosters as TR
 
 
 # ---------------------------------------------------------------------------
@@ -126,6 +127,7 @@ class GameProjection:
     playoffContext: dict[str, Any]
     marketSpread: float | None
     marketMoneyline: dict[str, int] | None
+    marketTotal: float | None
     confidence: str
     reasons: list[str]
     dataQualityFlag: str | None
@@ -145,6 +147,7 @@ class GameProjection:
             "playoffContext": self.playoffContext,
             "marketSpread": self.marketSpread,
             "marketMoneyline": self.marketMoneyline,
+            "marketTotal": self.marketTotal,
             "confidence": self.confidence,
             "reasons": self.reasons,
             "dataQualityFlag": self.dataQualityFlag,
@@ -166,19 +169,28 @@ def _resolve_team_from_lean(
 ) -> str | None:
     """Return the team abbreviation for a lean.
 
-    Falls back through four sources, in priority order:
+    Falls back through four trusted sources, in priority order:
       1. The lean's own `team` field (most reliable when populated).
       2. `player_team_map[playerId]` — looked up against the
          `players.json` roster passed in by the caller. This rescues
          leans where the upstream `generate_daily_board.py` failed to
          attribute the player's team (a real production bug seen on
          May 19 NY-side and May 20 SA-side leans).
-      3. The lean's `homeAway` field combined with the game's home/away
-         pair from the playoff override. Last-resort — `homeAway`
-         itself can be wrong when the upstream lookup failed because
-         the pipeline defaults to "Home" on lookup failure, so this is
-         tried only when the more authoritative paths have nothing.
-      4. None when no source matches.
+      3. Static playoff-roster lookup via `pipeline/team_rosters.py`.
+         When players.json itself has empty `team` (the actual May 20
+         shape — every SAS player came through with team="" because
+         the nba_api roster fetch silently dropped them), this static
+         map resolves the team from the player name. Only the players
+         currently in playoff coverage are mapped; others return None.
+      4. None when no trusted source matches.
+
+    **Note on the missing homeAway fallback:** earlier revisions used
+    `lean.homeAway` as a last-resort signal. We removed that because
+    the upstream pipeline defaults `home_away = "Home"` whenever the
+    name→team lookup fails — which means an empty `team` + `homeAway`
+    = "Home" is the *exact* signature of a broken attribution, not a
+    trustworthy hint. Dropping unattributed leans is more honest than
+    routing them to whichever side the pipeline guessed by default.
     """
     team_field = (lean.get("team") or "").strip()
     if team_field:
@@ -188,11 +200,13 @@ def _resolve_team_from_lean(
         mapped = player_team_map.get(pid)
         if mapped:
             return mapped
-    ha = (lean.get("homeAway") or "").strip().lower()
-    if ha == "home" and home_team:
-        return home_team
-    if ha == "away" and away_team:
-        return away_team
+    # Static-roster rescue. Honest: only the playoff teams in
+    # team_rosters.py have entries; anyone else returns None.
+    name = (lean.get("playerName") or "").strip()
+    if name:
+        from_static = TR.team_for_player(name)
+        if from_static:
+            return from_static
     return None
 
 
@@ -370,6 +384,7 @@ def project_game(
     # present — never fabricate.
     market_spread: float | None = None
     market_moneyline: dict[str, int] | None = None
+    market_total: float | None = None
     if odds_lines:
         per_game = odds_lines.get(game_id) or {}
         if isinstance(per_game.get("spread"), (int, float)):
@@ -383,6 +398,8 @@ def project_game(
             and isinstance(ml.get("away"), int)
         ):
             market_moneyline = {"home": ml["home"], "away": ml["away"]}
+        if isinstance(per_game.get("total"), (int, float)):
+            market_total = float(per_game["total"])
 
     # Data-quality flag — fires when one side has too few resolved
     # contributors. Surfaces the May 19/20 production bug (team field
@@ -442,6 +459,7 @@ def project_game(
         playoffContext=ctx.to_dict(),
         marketSpread=market_spread,
         marketMoneyline=market_moneyline,
+        marketTotal=market_total,
         confidence=conf,
         reasons=reasons,
         dataQualityFlag=data_quality_flag,
@@ -569,10 +587,22 @@ def main(argv: list[str] | None = None) -> int:
         board = json.load(f)
 
     player_team_map = load_player_team_map()
+
+    # Pick up real h2h / spreads / totals when they're on disk so the
+    # team-projection artifact carries marketSpread / marketMoneyline /
+    # marketTotal instead of leaving the UI gate in "pending" state.
+    # Importing inside main() avoids a circular import at module load.
+    try:
+        from .fetch_game_markets import load_game_markets_for_odds_lines
+        odds_lines = load_game_markets_for_odds_lines(args.date)
+    except Exception:
+        odds_lines = None
+
     projections = project_board(
         sport="NBA",
         date=args.date,
         board=board,
+        odds_lines=odds_lines,
         player_team_map=player_team_map,
     )
     out = write_team_projection_artifact(

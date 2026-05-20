@@ -64,6 +64,8 @@ export interface TeamGameProjection {
   };
   marketSpread: number | null;
   marketMoneyline: { home: number; away: number } | null;
+  /** Real over/under line from the bookmaker, or null when not on disk. */
+  marketTotal: number | null;
   confidence: "low" | "medium" | "high";
   reasons: string[];
   dataQualityFlag: string | null;

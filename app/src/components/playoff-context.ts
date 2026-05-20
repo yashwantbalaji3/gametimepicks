@@ -19,14 +19,25 @@
  *                     G = game number within the series (1..7)
  *
  * Conference is inferred from team abbreviations (the NBA's 30-team
- * East/West split is stable). For an ID we can't decode (e.g. ESPN's
- * shorter format on May 13), this returns `{ isPlayoffs: false }` so
- * callers can fall back to plain matchup labels.
+ * East/West split is stable).
  *
- * NEVER fabricates a game number. If the suffix decodes to something
- * outside 1..7 or the prefix doesn't match, the result is
- * `isPlayoffs: false`.
+ * **ESPN gameId fallback (added 2026-05-20):** when the schedule was
+ * pulled from ESPN's scoreboard (9-digit event IDs like `401873198`),
+ * the NBA-stats decoder above can't match. Before returning
+ * `isPlayoffs: false`, this utility consults
+ * `pipeline/overrides/playoff_series.json` — the same operator-curated
+ * file `pipeline/playoff_context.py` uses — and labels the game from
+ * its `round` field. That's how May 20 SA @ OKC correctly reads
+ * "Western Conference Finals · Game 2" instead of "regular season".
+ *
+ * NEVER fabricates a game number. If neither path produces a valid
+ * round/game-number, the result is `isPlayoffs: false`.
  */
+
+import {
+  getPlayoffSeriesOverride,
+  formatOverrideRoundLabel,
+} from "@/lib/playoff-series-overrides";
 
 const EAST_TEAMS = new Set([
   "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DET", "IND",
@@ -110,7 +121,31 @@ export function getPlayoffContext(
   // NBA stats playoff game-ID match. Anchored, exactly 10 chars,
   // 00425 prefix (playoffs of the 2025-26 season).
   const match = /^00425\d{2}([1-4])(\d)([1-7])$/.exec(gameId);
-  if (!match) return fallback;
+  if (!match) {
+    // ESPN scoreboard IDs (9-digit) don't fit the NBA-stats pattern.
+    // Fall back to the operator-curated override file before giving up.
+    const override = getPlayoffSeriesOverride(gameId);
+    if (override) {
+      const labels = formatOverrideRoundLabel(override.round);
+      const gameLabel = `Game ${override.gameNumber}`;
+      const parts = [labels.full, gameLabel];
+      if (matchup) parts.push(matchup);
+      const compactParts = [labels.compact, gameLabel];
+      if (matchup) compactParts.push(matchup);
+      return {
+        isPlayoffs: true,
+        roundLabel: labels.full,
+        roundLabelCompact: labels.compact,
+        conferenceLabel: labels.conference,
+        gameLabel,
+        gameNumber: override.gameNumber,
+        matchup,
+        fullLabel: parts.join(" · "),
+        compactLabel: compactParts.join(" · "),
+      };
+    }
+    return fallback;
+  }
 
   const round = Number(match[1]);
   const gameNumber = Number(match[3]);

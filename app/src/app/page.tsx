@@ -132,25 +132,25 @@ export default function HomePage() {
   const heroTiles: HeroTile[] = [
     combinedHitRate !== null
       ? {
-          label: "Audit hit rate",
+          label: "Hit rate",
           value: formatPercent(combinedHitRate),
           sub: `${combinedWins}–${combinedDecisive - combinedWins} on ${combinedDecisive}`,
         }
-      : { label: "Audit hit rate", value: "—", sub: "no settled data yet" },
+      : { label: "Hit rate", value: "—", sub: "no settled data yet" },
     lifetime?.hitRate != null
       ? {
           label: "NBA",
           value: formatPercent(lifetime.hitRate),
           sub: `${lifetime.wins}–${lifetime.losses} on ${lifetime.decisive}`,
         }
-      : { label: "NBA", value: "—", sub: "audit pending" },
+      : { label: "NBA", value: "—", sub: "results pending" },
     mlbLifetime?.hitRate != null
       ? {
           label: "MLB",
           value: formatPercent(mlbLifetime.hitRate),
           sub: `${mlbLifetime.wins}–${mlbLifetime.losses} on ${mlbLifetime.decisive}`,
         }
-      : { label: "MLB", value: "—", sub: "audit pending" },
+      : { label: "MLB", value: "—", sub: "results pending" },
   ];
 
   // SportsbookStatusBoard payload (latest scored slate).
@@ -226,7 +226,7 @@ export default function HomePage() {
             stats={statusBoardStats}
             footnote="Guardrails active · educational only"
             ctaHref={`/results/date/${latestScoredFinalDate}`}
-            ctaLabel="View audit for this date"
+            ctaLabel="View results for this date"
           />
         ) : (
           <SportsbookStatusBoard
@@ -271,7 +271,7 @@ export default function HomePage() {
           },
           {
             href: "/results",
-            eyebrow: "Audit",
+            eyebrow: "Results",
             title: "Latest results",
             sub:
               combinedHitRate !== null
@@ -280,8 +280,8 @@ export default function HomePage() {
           },
           {
             href: "/results/model-audit",
-            eyebrow: "Model",
-            title: "Audit deep-dive",
+            eyebrow: "Performance",
+            title: "Model performance",
             sub: "Per-market, per-edge, per-game dispersion.",
           },
           {
@@ -415,7 +415,7 @@ function decideHeroState({
       subline:
         "Every NBA + MLB lean stacked against the closing line. Open the model board to scan by sport, market, or confidence.",
       primaryCta: { href: "/board", label: "Open tonight's board" },
-      secondaryCta: { href: "/results/model-audit", label: "Audit deep-dive" },
+      secondaryCta: { href: "/results/model-audit", label: "Model performance" },
     };
   }
 
@@ -436,7 +436,7 @@ function decideHeroState({
           : "/board",
         label: "View latest scored board",
       },
-      secondaryCta: { href: "/results", label: "Latest audit" },
+      secondaryCta: { href: "/results", label: "Latest results" },
     };
   }
 
@@ -451,7 +451,7 @@ function decideHeroState({
         href: `/results/date/${latestScoredFinalDate}`,
         label: "View settled slate",
       },
-      secondaryCta: { href: "/results/model-audit", label: "Audit deep-dive" },
+      secondaryCta: { href: "/results/model-audit", label: "Model performance" },
     };
   }
 
