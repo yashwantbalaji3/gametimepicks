@@ -36,14 +36,14 @@ const DEFAULT_CARDS: QuickActionCard[] = [
   },
   {
     href: "/results",
-    eyebrow: "Audit",
+    eyebrow: "Results",
     title: "Latest results",
     sub: "Every settled lean, graded honestly.",
   },
   {
     href: "/results/model-audit",
-    eyebrow: "Model",
-    title: "Audit deep-dive",
+    eyebrow: "Performance",
+    title: "Model performance",
     sub: "Every cut of the settled record.",
   },
   {

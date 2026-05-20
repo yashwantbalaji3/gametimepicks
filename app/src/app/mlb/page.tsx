@@ -74,7 +74,7 @@ export default function MlbLandingPage() {
       sub:
         mlbLifetime?.hitRate != null
           ? `audit ${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive}`
-          : "audit pending",
+          : "results pending",
     },
   ];
 
@@ -99,7 +99,7 @@ export default function MlbLandingPage() {
         accent="mlb"
         ctas={[
           { href: "/mlb/board", label: primaryLabel, primary: true },
-          { href: "/results/mlb", label: "Latest audit" },
+          { href: "/results/mlb", label: "Latest results" },
         ]}
         framing="Pitcher strikeouts + batter hits / total bases projected from MLB Stats API game logs and compared to the closing line. Home runs live on a separate Power Board because the variance profile is different."
       />
@@ -217,7 +217,7 @@ export default function MlbLandingPage() {
           },
           {
             href: "/results/mlb",
-            eyebrow: "Audit",
+            eyebrow: "Results",
             title: "MLB results",
             sub:
               mlbLifetime?.hitRate != null
@@ -226,8 +226,8 @@ export default function MlbLandingPage() {
           },
           {
             href: "/results/model-audit",
-            eyebrow: "Model",
-            title: "Audit deep-dive",
+            eyebrow: "Performance",
+            title: "Model performance",
             sub: "Per-market, per-edge, per-game dispersion.",
           },
           {

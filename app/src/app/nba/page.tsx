@@ -134,7 +134,7 @@ export default function NbaLandingPage() {
         accent="nba"
         ctas={[
           { href: "/nba/board", label: primaryLabel, primary: true },
-          { href: "/results/nba", label: "Latest audit" },
+          { href: "/results/nba", label: "Latest results" },
         ]}
         framing="Points, rebounds, assists projected from each player's last 10 games and compared to the closing line. Edges above ~25pp are capped at Low confidence and tagged as anomalies — never sold as confident leans."
       />
@@ -239,7 +239,7 @@ export default function NbaLandingPage() {
           },
           {
             href: "/results/nba",
-            eyebrow: "Audit",
+            eyebrow: "Results",
             title: "NBA results",
             sub:
               lifetime?.hitRate != null
@@ -248,8 +248,8 @@ export default function NbaLandingPage() {
           },
           {
             href: "/results/model-audit",
-            eyebrow: "Model",
-            title: "Audit deep-dive",
+            eyebrow: "Performance",
+            title: "Model performance",
             sub: "Per-market, per-edge, per-game dispersion.",
           },
           {
