@@ -1,4 +1,16 @@
+/**
+ * NBA overview — PR #63.
+ *
+ * Replaces the previous paragraph hero with the shared `SportOverviewHero`
+ * so the four sport pages (`/nba`, `/mlb`, `/nhl`, `/ipl`) read like
+ * siblings. Same scoreboard stats, same status pill, same CTA pattern.
+ * The active-slate game strip stays below as a compact game selector.
+ *
+ * Honesty preserved: no fabricated projections; lean / game counts are
+ * computed from the same active-slate selector the model board uses.
+ */
 import Link from "next/link";
+
 import {
   getSlate,
   getBoardForDate,
@@ -7,13 +19,15 @@ import {
 } from "@/lib/data";
 import type { BoardData } from "@/lib/types";
 import { selectActiveSlate } from "@/lib/active-slate";
-import { currentEtDate } from "@/lib/freshness";
+import { currentEtDate, dayLabelFor } from "@/lib/freshness";
 import { formatDateLong } from "@/lib/format";
-import NeonStatPanel from "@/components/neon-stat-panel";
+
 import NbaSectionTabs from "@/components/nba/nba-section-tabs";
-import { getPlayoffContext } from "@/components/playoff-context";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
-import SportLobbyActions from "@/components/sport-lobby-actions";
+import QuickActionRail from "@/components/quick-action-rail";
+import SectionHeader from "@/components/section-header";
+import SportOverviewHero from "@/components/sport-overview-hero";
+import { getPlayoffContext } from "@/components/playoff-context";
 
 export const metadata = {
   title: "NBA · GameTime Picks",
@@ -24,16 +38,14 @@ export const metadata = {
 export default function NbaLandingPage() {
   const slate = getSlate();
   const lifetime = getLifetimeSummary();
-  const buildTimeToday = currentEtDate();
+  const today = currentEtDate();
   const allDates = getAvailableBoardDates();
 
-  // Mirror /board's active-slate logic so the Overview lines up with
-  // whatever the Model Board actually defaults to.
   const boardsByDate: Record<string, BoardData> = {};
   for (const d of allDates) {
     boardsByDate[d] = getBoardForDate(d);
   }
-  const rawActiveSlate = selectActiveSlate(allDates, buildTimeToday, boardsByDate);
+  const rawActiveSlate = selectActiveSlate(allDates, today, boardsByDate);
   const activeSlate = (() => {
     if (rawActiveSlate.kind !== "today") return rawActiveSlate;
     const todayDate = rawActiveSlate.selectedDate;
@@ -51,8 +63,10 @@ export default function NbaLandingPage() {
   const board = activeDate ? boardsByDate[activeDate] : undefined;
   const leans = board?.leans ?? [];
   const games = board?.games ?? [];
+  const usableLeans = leans.filter(
+    (l) => l.lean === "Over" || l.lean === "Under",
+  ).length;
   const highCount = leans.filter((l) => l.confidence === "High").length;
-  const mediumCount = leans.filter((l) => l.confidence === "Medium").length;
   const anomalyCount = leans.filter((l) =>
     (l.riskFlags ?? []).includes("suspicious_edge"),
   ).length;
@@ -63,125 +77,99 @@ export default function NbaLandingPage() {
       Number.isFinite(l.edgePct),
   );
 
+  const statusKind: "live" | "linesPending" | "upcoming" =
+    usableLeans > 0
+      ? "live"
+      : games.length > 0
+        ? "linesPending"
+        : "upcoming";
+  const statusCaption =
+    games.length > 0
+      ? `${games.length} game${games.length === 1 ? "" : "s"}`
+      : undefined;
+
+  const matchupLine = activeDate
+    ? `${dayLabelFor(activeDate, today)} · ${formatDateLong(activeDate)}`
+    : undefined;
+
+  const heroStats = [
+    {
+      label: "Games on slate",
+      value: String(games.length),
+      sub: activeDate || "—",
+    },
+    {
+      label: "Model leans",
+      value: String(leans.length),
+      sub: propsLoaded ? "real prop lines" : "lines pending",
+    },
+    {
+      label: "High conf · anomalies",
+      value: `${highCount} · ${anomalyCount}`,
+      sub:
+        lifetime?.hitRate != null
+          ? `audit ${(lifetime.hitRate * 100).toFixed(1)}% on ${lifetime.decisive}`
+          : "audit pending",
+    },
+  ];
+
+  const primaryLabel = propsLoaded
+    ? "View today's projections"
+    : "Open model board";
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <div className="mb-6">
         <NbaSectionTabs />
       </div>
 
-      {/* Hero — sport-eyebrow + headline. Same data-orbit shell as /mlb
-          so the two sport hubs feel like equal siblings. */}
-      <section className="reveal vault-data-orbit relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-8">
-        <div
-          className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
-        >
-          NBA · educational analytics
-        </div>
-        <h1
-          className="mt-3 vault-display-h1"
-          style={{ color: "var(--vault-text)" }}
-        >
-          NBA player props with a transparent model.
-        </h1>
-        <p
-          className="mt-4 max-w-2xl text-[14px] sm:text-[15px] leading-relaxed"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          We project points, rebounds, and assists from each
-          player&apos;s last 10 games, compare against posted prop
-          lines, and surface the gap. High-variance markets and edges
-          above ~25% are tagged as model anomalies and capped at Low
-          confidence — never sold as confident leans.
-        </p>
-      </section>
+      <SportOverviewHero
+        eyebrow="NBA · educational analytics"
+        sport="NBA"
+        tagline="model board · audit · parlay lab"
+        statusKind={statusKind}
+        statusCaption={statusCaption}
+        matchupLine={matchupLine}
+        stats={heroStats}
+        accent="nba"
+        ctas={[
+          { href: "/nba/board", label: primaryLabel, primary: true },
+          { href: "/results/nba", label: "Latest audit" },
+        ]}
+        framing="Points, rebounds, assists projected from each player's last 10 games and compared to the closing line. Edges above ~25pp are capped at Low confidence and tagged as anomalies — never sold as confident leans."
+      />
 
-      {/* KPI tiles — NBA at a glance for the active slate. */}
-      <section className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
-        <NeonStatPanel
-          label="Games on slate"
-          value={String(games.length)}
-          sub={activeDate || "—"}
-          valueAccent="gold"
-          delay={1}
-        />
-        <NeonStatPanel
-          label="Model leans"
-          value={String(leans.length)}
-          sub={propsLoaded ? "real prop lines" : "lines pending"}
-          valueAccent={propsLoaded ? "default" : "mute"}
-          delay={2}
-        />
-        <NeonStatPanel
-          label="High confidence"
-          value={String(highCount)}
-          sub={`${mediumCount} medium · ${anomalyCount} anomalies`}
-          valueAccent="success"
-          delay={3}
-        />
-        <NeonStatPanel
-          label="Settled audit"
-          value={
-            lifetime?.hitRate !== null && lifetime?.hitRate !== undefined
-              ? `${(lifetime.hitRate * 100).toFixed(1)}%`
-              : "—"
+      {/* Active slate strip */}
+      <section className="mt-10" aria-label="Active slate">
+        <SectionHeader
+          eyebrow={
+            activeDate
+              ? `${dayLabelFor(activeDate, today)} slate`
+              : "Active slate"
+          }
+          title={
+            activeDate
+              ? `${formatDateLong(activeDate)}`
+              : "No NBA games on the active slate"
           }
           sub={
-            lifetime
-              ? `${lifetime.wins}–${lifetime.losses} on ${lifetime.decisive}`
-              : "no settled slates yet"
+            games.length === 0
+              ? "The next refresh will surface tomorrow's matchups as soon as the schedule posts."
+              : undefined
           }
-          valueAccent={lifetime ? "default" : "mute"}
-          delay={4}
+          rightSlot={
+            activeDate ? (
+              <Link
+                href="/nba/board"
+                className="font-mono uppercase tracking-[0.14em]"
+                style={{ color: "var(--vault-gold)", fontSize: 11 }}
+              >
+                Open board →
+              </Link>
+            ) : undefined
+          }
         />
-      </section>
-
-      {/* Unified sport-lobby action grid — same 4 tiles across every
-          sport (NBA / MLB / NHL / IPL). Replaces the previous 2-card
-          CTA strip + audit-pointer chip. */}
-      <div className="mt-8">
-        <SportLobbyActions
-          sport="nba"
-          status={{
-            board: leans.length > 0
-              ? { text: `live · ${leans.length} leans`, tone: "success" }
-              : { text: "lines pending", tone: "warn" },
-            parlays: {
-              text: "NBA candidate slips · live",
-              tone: "gold",
-            },
-            power: { text: "high-variance watch", tone: "warn" },
-            results: lifetime
-              ? {
-                  text: `audit · ${lifetime.wins}–${lifetime.losses} on ${lifetime.decisive}`,
-                  tone: "gold",
-                }
-              : { text: "pending first settlement", tone: "mute" },
-          }}
-        />
-      </div>
-
-      {/* Slate strip — active-slate games with playoff context chips. */}
-      <section className="mt-10">
-        <h2
-          className="font-mono uppercase tracking-[0.16em] mb-3"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
-        >
-          Active slate · {activeDate ? formatDateLong(activeDate) : "—"}
-        </h2>
-        {games.length === 0 ? (
-          <div
-            className="rounded-[6px] px-4 py-5 text-[13px]"
-            style={{
-              background: "rgba(7, 11, 26, 0.55)",
-              border: "1px solid var(--vault-border)",
-              color: "var(--vault-text-mute)",
-            }}
-          >
-            No NBA games on the active slate. The next refresh will surface
-            tomorrow&apos;s matchups as soon as the schedule posts.
-          </div>
-        ) : (
+        {games.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {games.map((g) => {
               const ctx = getPlayoffContext(
@@ -192,17 +180,12 @@ export default function NbaLandingPage() {
               return (
                 <Link
                   key={g.gameId}
-                  href={`/nba/board`}
-                  className="vault-glow-hover flex items-center justify-between gap-3 rounded-[3px] focus:outline-none focus-visible:outline focus-visible:outline-2"
+                  href="/nba/board"
+                  className="vault-glow-hover flex items-center justify-between gap-3 rounded-[6px]"
                   style={{
-                    paddingTop: 10,
-                    paddingBottom: 10,
-                    paddingLeft: 14,
-                    paddingRight: 14,
+                    padding: "12px 14px",
                     border: "1px solid var(--vault-border)",
-                    background: "rgba(7, 11, 26, 0.45)",
-                    minWidth: 0,
-                    overflow: "hidden",
+                    background: "rgba(7, 11, 26, 0.55)",
                     color: "inherit",
                     textDecoration: "none",
                   }}
@@ -212,28 +195,30 @@ export default function NbaLandingPage() {
                     <span
                       style={{
                         color: "var(--vault-text)",
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: 600,
                       }}
                     >
                       {g.awayTeamAbbr ?? "?"} @ {g.homeTeamAbbr ?? "?"}
                     </span>
                     <span
-                      style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
+                      style={{
+                        color: "var(--vault-text-faint)",
+                        fontSize: 11,
+                      }}
                     >
                       {ctx.isPlayoffs
                         ? `${ctx.roundLabel} · ${ctx.gameLabel}`
                         : "regular season"}
                     </span>
                   </div>
-                  <div className="flex flex-col items-end gap-0.5 shrink-0">
-                    <span
-                      className="font-mono"
-                      style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}
-                    >
-                      View props →
-                    </span>
-                  </div>
+                  <span
+                    aria-hidden
+                    className="font-mono"
+                    style={{ color: "var(--vault-gold)", fontSize: 12 }}
+                  >
+                    →
+                  </span>
                 </Link>
               );
             })}
@@ -241,13 +226,48 @@ export default function NbaLandingPage() {
         )}
       </section>
 
+      <QuickActionRail
+        heading="More on NBA"
+        cards={[
+          {
+            href: "/nba/board",
+            eyebrow: "Tonight",
+            title: "Model board",
+            sub: propsLoaded
+              ? `${leans.length} projections across ${games.length} game${games.length === 1 ? "" : "s"}.`
+              : "Lines arriving soon — schedule live.",
+          },
+          {
+            href: "/results/nba",
+            eyebrow: "Audit",
+            title: "NBA results",
+            sub:
+              lifetime?.hitRate != null
+                ? `${(lifetime.hitRate * 100).toFixed(1)}% on ${lifetime.decisive} settled.`
+                : "Pending first settlement.",
+          },
+          {
+            href: "/results/model-audit",
+            eyebrow: "Model",
+            title: "Audit deep-dive",
+            sub: "Per-market, per-edge, per-game dispersion.",
+          },
+          {
+            href: "/parlay-lab",
+            eyebrow: "Build",
+            title: "Parlay Lab",
+            sub: "Educational candidate slips. No hit-rate claims.",
+          },
+        ]}
+      />
+
       <OverviewFooterDisclosure
         inputsLabel="Projection method"
         inputsBody={
           <>
             Last-10 weighted means with matchup adjustments,
             normal-approximation edges, and an R5 anomaly guardrail
-            that caps confidence on edges above 25 pp. See{" "}
+            that caps confidence on edges above 25pp. See{" "}
             <Link
               href="/methodology"
               style={{ color: "var(--vault-gold-bright)" }}
@@ -259,10 +279,10 @@ export default function NbaLandingPage() {
         }
         framingBody={
           <>
-            Educational analytics, not betting advice. The Results
-            page is where hit-rate calibration lives — every model
-            lean is logged at generation time and graded against the
-            final box score.
+            Educational analytics, not betting advice. The Results page
+            is where hit-rate calibration lives — every model lean is
+            logged at generation time and graded against the final box
+            score.
           </>
         }
       />

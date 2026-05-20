@@ -3426,3 +3426,360 @@ table,
   box-shadow: 0 0 8px rgba(240, 199, 94, 0.55);
 }
 
+/* ─────────────────────────────────────────────────────────────────────
+   PR #63 polish — cinematic primitives.
+
+   Adds depth + emotional weight without changing layout. Every keyframe
+   here has a reduced-motion fallback. Hover states gate on `:hover`
+   only so touch devices keep a calm baseline.
+   ─────────────────────────────────────────────────────────────────── */
+
+/* Ambient gradient background that slowly drifts behind heroes. The
+   gradient itself is static — what shifts is the `background-position`,
+   which is cheap (GPU-composited) and invisible-but-felt. */
+.gtp-cinematic-bg {
+  position: relative;
+  background:
+    radial-gradient(
+      ellipse 90% 60% at 85% -10%,
+      rgba(240, 199, 94, 0.16),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 70% 50% at 12% 110%,
+      rgba(120, 175, 255, 0.12),
+      transparent 60%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(7, 11, 26, 0.96) 0%,
+      rgba(12, 18, 40, 0.94) 100%
+    );
+  background-size: 200% 200%, 200% 200%, auto;
+  animation: gtp-cinematic-drift 28s ease-in-out infinite alternate;
+}
+@keyframes gtp-cinematic-drift {
+  0%   { background-position: 0% 0%, 100% 100%, 0 0; }
+  100% { background-position: 30% 20%, 70% 80%, 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-cinematic-bg { animation: none; }
+}
+
+/* Sport-tinted version — caller sets `--accent` (CSS custom property)
+   so NBA/MLB/NHL/IPL pages reuse the same drift with their own color. */
+.gtp-cinematic-bg-accent {
+  position: relative;
+  background:
+    radial-gradient(
+      ellipse 90% 60% at 85% -10%,
+      var(--accent-glow, rgba(240, 199, 94, 0.18)),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 70% 50% at 8% 110%,
+      var(--accent-glow-secondary, rgba(120, 175, 255, 0.12)),
+      transparent 60%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(7, 11, 26, 0.96) 0%,
+      rgba(12, 18, 40, 0.94) 100%
+    );
+  background-size: 200% 200%, 200% 200%, auto;
+  animation: gtp-cinematic-drift 28s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-cinematic-bg-accent { animation: none; }
+}
+
+/* Hero glow halo — a slow-breathing radial accent intended to live
+   inside `.gtp-cinematic-bg`. Pointer-events: none so it never
+   interferes with hit-testing. */
+.gtp-hero-halo {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 92% 0%,
+    rgba(240, 199, 94, 0.22),
+    transparent 45%
+  );
+  animation: gtp-hero-halo-breathe 9s ease-in-out infinite;
+  opacity: 0.9;
+}
+@keyframes gtp-hero-halo-breathe {
+  0%, 100% { opacity: 0.7; }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-hero-halo { animation: none; opacity: 0.85; }
+}
+
+/* Top-of-card neon hairline. Drawn as a 1px linear-gradient strip with
+   a gentle sweep so the eye reads it as a sportsbook scoreboard edge. */
+.gtp-neon-rule::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(240, 199, 94, 0.65),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: gtp-rule-sweep 8s linear infinite;
+  pointer-events: none;
+}
+@keyframes gtp-rule-sweep {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: -200% 0%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-neon-rule::before { animation: none; }
+}
+
+/* Premium tile — glass-like, lifts on hover, soft inner highlight. The
+   `::before` adds a subtle top-edge gloss; `::after` adds a diagonal
+   shimmer that only fires on hover. */
+.gtp-premium-tile {
+  position: relative;
+  background: linear-gradient(
+    155deg,
+    rgba(13, 19, 41, 0.78) 0%,
+    rgba(7, 11, 26, 0.78) 100%
+  );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  overflow: hidden;
+  transition:
+    transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 280ms ease,
+    box-shadow 280ms ease;
+}
+.gtp-premium-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.18),
+    transparent
+  );
+  pointer-events: none;
+}
+.gtp-premium-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(240, 199, 94, 0.10) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+.gtp-premium-tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(240, 199, 94, 0.28);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(240, 199, 94, 0.10);
+}
+.gtp-premium-tile:hover::after {
+  transform: translateX(100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-premium-tile,
+  .gtp-premium-tile::after {
+    transition: none;
+  }
+  .gtp-premium-tile:hover { transform: none; }
+  .gtp-premium-tile:hover::after { transform: translateX(-100%); }
+}
+
+/* Scoreboard stat tile — used inside heroes. Reads as a polished LED
+   read-out: glass background, gold tabular number, subtle gold inner
+   border that lights up on parent hover. */
+.gtp-stat-tile {
+  position: relative;
+  background: linear-gradient(
+    160deg,
+    rgba(15, 22, 47, 0.82) 0%,
+    rgba(7, 11, 26, 0.78) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+.gtp-stat-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(240, 199, 94, 0.35),
+    transparent
+  );
+}
+.gtp-stat-tile:hover {
+  border-color: rgba(240, 199, 94, 0.22);
+  box-shadow: 0 0 0 1px rgba(240, 199, 94, 0.08);
+}
+
+/* Primary action button — replaces "outlined" CTA look. Filled gold,
+   with a subtle inner shine + a ring that lights on hover. */
+.gtp-btn-primary {
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    var(--vault-gold-bright) 0%,
+    #d6a945 100%
+  );
+  color: #06091a;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 11px 18px;
+  font-size: 11px;
+  line-height: 1;
+  box-shadow:
+    0 0 22px rgba(240, 199, 94, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.30);
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.gtp-btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow:
+    0 0 30px rgba(240, 199, 94, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+.gtp-btn-primary:active {
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-btn-primary,
+  .gtp-btn-primary:hover { transform: none; transition: none; }
+}
+
+/* Secondary action — ghost button with a softer gold ring + warmer
+   hover. Replaces the previous flat-outlined look. */
+.gtp-btn-ghost {
+  position: relative;
+  background: rgba(240, 199, 94, 0.04);
+  color: var(--vault-gold-bright);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 11px 18px;
+  font-size: 11px;
+  line-height: 1;
+  border: 1px solid rgba(240, 199, 94, 0.28);
+  transition: background 200ms ease, border-color 200ms ease,
+    color 200ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.gtp-btn-ghost:hover {
+  background: rgba(240, 199, 94, 0.10);
+  border-color: rgba(240, 199, 94, 0.45);
+  color: var(--vault-gold-bright);
+}
+
+/* Status differentiation — small visual cues that read at a glance.
+   The pill component owns the colors; these classes layer subtle
+   motion on top so live feels energetic, settled feels authoritative,
+   pending feels subdued. */
+.gtp-status-live-glow {
+  position: relative;
+}
+.gtp-status-live-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.45);
+  animation: gtp-live-pulse 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes gtp-live-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.0); }
+  50%      { box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.18); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-status-live-glow::after { animation: none; }
+}
+
+/* Fade-up reveal for hero content. Slightly stronger than the existing
+   `.reveal` so above-the-fold copy lands cinematically. */
+.gtp-cinematic-rise {
+  animation: gtp-cinematic-rise 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+@keyframes gtp-cinematic-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.gtp-cinematic-rise-d1 { animation-delay: 0.06s; }
+.gtp-cinematic-rise-d2 { animation-delay: 0.12s; }
+.gtp-cinematic-rise-d3 { animation-delay: 0.18s; }
+.gtp-cinematic-rise-d4 { animation-delay: 0.24s; }
+@media (prefers-reduced-motion: reduce) {
+  .gtp-cinematic-rise { animation: none; }
+}
+
+/* Scoreboard numeric — large tabular gold value used inside hero stat
+   tiles. Adds a soft glow + tnum so 51.9% sits perfectly aligned. */
+.gtp-stat-value {
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 18px rgba(240, 199, 94, 0.18);
+  letter-spacing: -0.01em;
+}
+
+/* Gradient text accent — used for the audit hit-rate hero tile so the
+   lead number feels like a marquee, not a stat. */
+.gtp-text-gradient-gold {
+  background: linear-gradient(
+    180deg,
+    #fde9a8 0%,
+    var(--vault-gold-bright) 65%,
+    #b8862d 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 22px rgba(240, 199, 94, 0.20);
+}
+
+/* Soft frosted divider — used between sections instead of hard borders. */
+.gtp-section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.10),
+    transparent
+  );
+}
+

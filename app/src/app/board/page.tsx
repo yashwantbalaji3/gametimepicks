@@ -4,7 +4,13 @@ import type { BoardData, DataMode, SlateDay } from "@/lib/types";
 import DataSourceBadge from "@/components/data-source-badge";
 import BoardWithTabs from "@/components/board-with-tabs";
 import BoardDateStatusBanner from "@/components/board-date-status-banner";
-import { getSettlementForDate } from "@/lib/settlement-data";
+import BoardDateRail, {
+  type BoardDateEntry,
+} from "@/components/board-date-rail";
+import {
+  getAvailableSettlementDates,
+  getSettlementForDate,
+} from "@/lib/settlement-data";
 import NewsletterSignup from "@/components/newsletter-signup";
 import TodayAwareSlateBanner from "@/components/today-aware-slate-banner";
 import NoCurrentSlate from "@/components/no-current-slate";
@@ -221,6 +227,21 @@ export default function BoardPage() {
                   }
                 : undefined
             }
+          />
+        );
+      })()}
+      {(() => {
+        const railEntries = buildNbaBoardRail(
+          augmentedDays,
+          buildTimeToday,
+        );
+        const active = activeSlate.selectedDate ?? augmentedSlate.primaryDate;
+        if (!active || railEntries.length === 0) return null;
+        return (
+          <BoardDateRail
+            entries={railEntries}
+            activeDate={active}
+            eyebrow="Slate · pick a date"
           />
         );
       })()}
@@ -591,6 +612,50 @@ export default function BoardPage() {
       </div>
     </div>
   );
+}
+
+function buildNbaBoardRail(
+  days: SlateDay[],
+  today: string,
+): BoardDateEntry[] {
+  const settledDates = new Set(getAvailableSettlementDates());
+  // Show recent + active dates: 4 days back from today on disk + every
+  // future date. Keeps the rail scannable on mobile.
+  const candidates = days
+    .map((d) => d.date)
+    .filter(Boolean)
+    .sort();
+  const filtered = candidates.filter((d) => {
+    if (d >= today) return true;
+    // include past dates only if they have settled data — that's the
+    // useful click target ("view audit").
+    return settledDates.has(d);
+  });
+  return filtered.map((d) => {
+    if (settledDates.has(d)) {
+      return {
+        date: d,
+        label: dayLabelFor(d, today),
+        status: "settled" as const,
+        href: `/results/date/${d}`,
+      };
+    }
+    // future or today — link to board with query.
+    const isToday = d === today;
+    const board = days.find((x) => x.date === d);
+    const hasLeans =
+      (board?.leanCount ?? 0) > 0 && board?.propsAvailable;
+    return {
+      date: d,
+      label: dayLabelFor(d, today),
+      status: hasLeans
+        ? ("live" as const)
+        : (board?.gameCount ?? 0) > 0
+          ? ("linesPending" as const)
+          : ("upcoming" as const),
+      href: isToday ? "/board" : `/board?date=${d}`,
+    };
+  });
 }
 
 function dayLabelFor(date: string, primary: string): string {

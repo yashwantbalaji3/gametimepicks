@@ -79,11 +79,15 @@ export default function BoardDateStatusBanner({
       aria-label={`${sport} board status for ${date}`}
     >
       <div
-        className="rounded-[5px] px-4 py-3.5 sm:px-5 sm:py-4 flex flex-wrap items-center gap-x-4 gap-y-2"
+        className={`relative overflow-hidden rounded-[10px] px-4 py-3.5 sm:px-5 sm:py-4 flex flex-wrap items-center gap-x-4 gap-y-2 ${
+          state === "live" ? "gtp-status-live-glow" : ""
+        }`}
         style={{
           background: config.bg,
           border: `1px solid ${config.border}`,
           boxShadow: config.shadow,
+          backdropFilter: "blur(6px)",
+          WebkitBackdropFilter: "blur(6px)",
         }}
       >
         <div className="flex items-center gap-2 shrink-0">
@@ -132,16 +136,19 @@ export default function BoardDateStatusBanner({
         {state === "settled" && (
           <Link
             href={`/results/date/${date}`}
-            className="font-mono shrink-0"
+            className="font-mono shrink-0 transition-all hover:brightness-110"
             style={{
-              color: config.fg,
-              fontSize: 11,
+              color: "#06091a",
+              fontSize: 10.5,
               textTransform: "uppercase",
-              letterSpacing: "0.14em",
+              letterSpacing: "0.16em",
               textDecoration: "none",
-              border: `1px solid ${config.border}`,
-              padding: "6px 10px",
+              fontWeight: 600,
+              background:
+                "linear-gradient(180deg, var(--vault-gold-bright), #d6a945)",
+              padding: "7px 11px",
               borderRadius: 4,
+              boxShadow: "0 0 14px rgba(240, 199, 94, 0.30)",
             }}
           >
             View audit →
@@ -153,32 +160,37 @@ export default function BoardDateStatusBanner({
 }
 
 const STATE_CONFIG = {
+  // Settled now reads gold (authoritative) rather than green so it
+  // matches the "view audit →" CTA on the same row.
   settled: {
     eyebrow: "Settled · graded against final box scores",
-    fg: "var(--vault-success)",
-    bg: "rgba(74, 222, 128, 0.06)",
-    border: "rgba(74, 222, 128, 0.30)",
-    shadow: "0 0 18px rgba(74, 222, 128, 0.08)",
+    fg: "var(--vault-gold-bright)",
+    bg: "linear-gradient(155deg, rgba(240, 199, 94, 0.12), rgba(240, 199, 94, 0.04))",
+    border: "rgba(240, 199, 94, 0.40)",
+    shadow: "0 6px 22px rgba(0, 0, 0, 0.30), 0 0 0 1px rgba(240, 199, 94, 0.10)",
   },
+  // Live = energetic green with surrounding pulse glow (gtp-status-live-glow).
   live: {
     eyebrow: "Live tonight · today's slate",
-    fg: "var(--vault-gold-bright)",
-    bg: "rgba(240, 199, 94, 0.06)",
-    border: "rgba(240, 199, 94, 0.35)",
-    shadow: "0 0 18px rgba(240, 199, 94, 0.10)",
+    fg: "var(--vault-success)",
+    bg: "linear-gradient(155deg, rgba(74, 222, 128, 0.14), rgba(74, 222, 128, 0.04))",
+    border: "rgba(74, 222, 128, 0.42)",
+    shadow: "0 6px 22px rgba(0, 0, 0, 0.30)",
   },
+  // Upcoming = cool blue, calm.
   upcoming: {
     eyebrow: "Upcoming slate · projections arriving soon",
-    fg: "var(--vault-text-mute)",
-    bg: "rgba(7, 11, 26, 0.55)",
-    border: "var(--vault-border)",
-    shadow: "none",
+    fg: "rgba(170, 205, 255, 1)",
+    bg: "linear-gradient(155deg, rgba(120, 175, 255, 0.10), rgba(120, 175, 255, 0.03))",
+    border: "rgba(120, 175, 255, 0.30)",
+    shadow: "0 6px 22px rgba(0, 0, 0, 0.30)",
   },
+  // Lines pending = warm amber, calm.
   pending: {
     eyebrow: "Lines pending · projections arriving soon",
-    fg: "var(--vault-warn)",
-    bg: "rgba(212, 175, 55, 0.05)",
-    border: "rgba(212, 175, 55, 0.25)",
-    shadow: "none",
+    fg: "var(--vault-warn-amber)",
+    bg: "linear-gradient(155deg, rgba(245, 195, 95, 0.10), rgba(245, 195, 95, 0.03))",
+    border: "rgba(245, 195, 95, 0.32)",
+    shadow: "0 6px 22px rgba(0, 0, 0, 0.30)",
   },
 } as const;

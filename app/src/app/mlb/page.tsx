@@ -1,4 +1,15 @@
+/**
+ * MLB overview — PR #63.
+ *
+ * Mirrors the new NBA hero pattern via the shared `SportOverviewHero`
+ * so the sport hubs feel like siblings. Keeps the existing slate strip
+ * and upcoming-days strip; replaces the long paragraph hero + KPI grid.
+ *
+ * No fabricated projections. Lean / game counts come from the live
+ * board summary (already populated by the MLB pipeline).
+ */
 import Link from "next/link";
+
 import {
   activeMlbDate,
   getMlbAvailableScheduleDates,
@@ -7,14 +18,16 @@ import {
 } from "@/lib/data-mlb";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { formatTipoffEt } from "@/lib/format-mlb";
-import NeonStatPanel from "@/components/neon-stat-panel";
-import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
+
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
+import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
+import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
+import QuickActionRail from "@/components/quick-action-rail";
+import SectionHeader from "@/components/section-header";
+import SportOverviewHero from "@/components/sport-overview-hero";
 import UpcomingSlateStrip, {
   type UpcomingSlateDay,
 } from "@/components/upcoming-slate-strip";
-import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
-import SportLobbyActions from "@/components/sport-lobby-actions";
 
 export const metadata = {
   title: "MLB · GameTime Picks",
@@ -32,11 +45,42 @@ export default function MlbLandingPage() {
 
   const summary = board.summary;
   const propsAvailable = board.propsAvailable;
+  const games = schedule.games ?? [];
+  const gameCount = summary.scheduledGames || games.length || 0;
 
-  // Build the upcoming-slate strip from every available schedule date in
-  // the future (or today if no future dates). Pure derivation from disk
-  // contents — no fabrication.
-  const upcomingDays: UpcomingSlateDay[] = buildMlbUpcomingDays(date);
+  const statusKind: "live" | "linesPending" | "upcoming" =
+    propsAvailable && summary.leans > 0
+      ? "live"
+      : gameCount > 0
+        ? "linesPending"
+        : "upcoming";
+  const statusCaption =
+    gameCount > 0 ? `${gameCount} game${gameCount === 1 ? "" : "s"}` : undefined;
+
+  const heroStats = [
+    {
+      label: "Games today",
+      value: String(gameCount),
+      sub: date,
+    },
+    {
+      label: "Model leans",
+      value: String(summary.leans),
+      sub: propsAvailable ? "real prop lines" : "lines pending",
+    },
+    {
+      label: "High conf · anomalies",
+      value: `${summary.highConfidence} · ${summary.anomalies}`,
+      sub:
+        mlbLifetime?.hitRate != null
+          ? `audit ${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive}`
+          : "audit pending",
+    },
+  ];
+
+  const primaryLabel = propsAvailable
+    ? "View today's projections"
+    : "Open model board";
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -44,130 +88,66 @@ export default function MlbLandingPage() {
         <MlbSectionTabs />
       </div>
 
-      {/* Hero — sport-eyebrow + headline */}
-      <section className="reveal vault-data-orbit relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 py-8">
-        <div
-          className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
-        >
-          MLB · educational analytics
-        </div>
-        <h1
-          className="mt-3 vault-display-h1"
-          style={{ color: "var(--vault-text)" }}
-        >
-          MLB player props with a transparent model.
-        </h1>
-        <p
-          className="mt-4 max-w-2xl text-[14px] sm:text-[15px] leading-relaxed"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          We project pitcher strikeouts and batter markets from free MLB Stats
-          API game logs, compare against posted prop lines, and surface the gap.
-          Home-run picks live on a separate Power Board because the variance
-          profile is different.
-        </p>
-        <div className="mt-5">
-          <MlbSummaryStrip board={board} />
-        </div>
-      </section>
+      <SportOverviewHero
+        eyebrow="MLB · educational analytics"
+        sport="MLB"
+        tagline="model board · audit · power board"
+        statusKind={statusKind}
+        statusCaption={statusCaption}
+        matchupLine={`Slate · ${date}`}
+        stats={heroStats}
+        accent="mlb"
+        ctas={[
+          { href: "/mlb/board", label: primaryLabel, primary: true },
+          { href: "/results/mlb", label: "Latest audit" },
+        ]}
+        framing="Pitcher strikeouts + batter hits / total bases projected from MLB Stats API game logs and compared to the closing line. Home runs live on a separate Power Board because the variance profile is different."
+      />
 
-      {/* KPI tiles — today's MLB at a glance */}
-      <section className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
-        <NeonStatPanel
-          label="Games today"
-          value={String(summary.scheduledGames || schedule.games.length || 0)}
-          sub={date}
-          valueAccent="gold"
-          delay={1}
-        />
-        <NeonStatPanel
-          label="Model leans"
-          value={String(summary.leans)}
-          sub={propsAvailable ? "real prop lines" : "lines pending"}
-          valueAccent={propsAvailable ? "default" : "mute"}
-          delay={2}
-        />
-        <NeonStatPanel
-          label="High confidence"
-          value={String(summary.highConfidence)}
-          sub={`anomalies flagged ${summary.anomalies}`}
-          valueAccent="success"
-          delay={3}
-        />
-        <NeonStatPanel
-          label="Sample too small"
-          value={String(summary.insufficientData)}
-          sub="no projection emitted"
-          valueAccent="mute"
-          delay={4}
-        />
-      </section>
-
-      {/* Unified sport-lobby action grid — Model Board / Parlays /
-          Power Board / Results. Replaces the previous 2-card CTA
-          strip + audit-pointer chip. */}
-      <div className="mt-8">
-        <SportLobbyActions
-          sport="mlb"
-          status={{
-            board: propsAvailable
-              ? { text: `live · ${summary.leans} leans`, tone: "success" }
-              : { text: "lines pending", tone: "warn" },
-            parlays: {
-              text: "candidate slips · pending snapshots",
-              tone: "mute",
-            },
-            power: { text: "HR + boundary watch", tone: "warn" },
-            results: mlbLifetime
-              ? {
-                  text: `audit · ${mlbLifetime.wins}–${mlbLifetime.losses} on ${mlbLifetime.decisive}${mlbLifetime.partial ? " · partial" : ""}`,
-                  tone: "success",
-                }
-              : { text: "pending first settlement", tone: "mute" },
-          }}
-        />
+      <div className="mt-6">
+        <MlbSummaryStrip board={board} />
       </div>
 
       {/* Slate strip — today's matchups + tipoff */}
-      <section className="mt-10">
-        <h2
-          className="font-mono uppercase tracking-[0.16em] mb-3"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
-        >
-          Today's slate · {date}
-        </h2>
-        {schedule.games.length === 0 ? (
-          <div
-            className="rounded-[6px] px-4 py-5 text-[13px]"
-            style={{
-              background: "rgba(7, 11, 26, 0.55)",
-              border: "1px solid var(--vault-border)",
-              color: "var(--vault-text-mute)",
-            }}
-          >
-            Schedule warming up. The MLB Stats API will return today's games
-            shortly.
-          </div>
-        ) : (
+      <section className="mt-10" aria-label="Today's slate">
+        <SectionHeader
+          eyebrow={`Slate · ${date}`}
+          title={
+            games.length === 0
+              ? "Schedule warming up"
+              : `${games.length} game${games.length === 1 ? "" : "s"} on the slate`
+          }
+          sub={
+            games.length === 0
+              ? "The MLB Stats API will return today's games shortly."
+              : undefined
+          }
+          rightSlot={
+            games.length > 0 ? (
+              <Link
+                href="/mlb/board"
+                className="font-mono uppercase tracking-[0.14em]"
+                style={{ color: "var(--vault-gold)", fontSize: 11 }}
+              >
+                Open board →
+              </Link>
+            ) : undefined
+          }
+        />
+        {games.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {schedule.games.map((g) => {
+            {games.map((g) => {
               const anchor = `game-${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`;
               const tileKey = g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`;
               return (
                 <Link
                   key={tileKey}
                   href={`/mlb/board#${anchor}`}
-                  className="vault-glow-hover flex items-center justify-between gap-3 rounded-[3px] focus:outline-none focus-visible:outline focus-visible:outline-2"
+                  className="vault-glow-hover flex items-center justify-between gap-3 rounded-[6px]"
                   style={{
-                    paddingTop: 10,
-                    paddingBottom: 10,
-                    paddingLeft: 14,
-                    paddingRight: 14,
+                    padding: "12px 14px",
                     border: "1px solid var(--vault-border)",
-                    background: "rgba(7, 11, 26, 0.45)",
-                    minWidth: 0,
-                    overflow: "hidden",
+                    background: "rgba(7, 11, 26, 0.55)",
                     color: "inherit",
                     textDecoration: "none",
                   }}
@@ -177,14 +157,17 @@ export default function MlbLandingPage() {
                     <span
                       style={{
                         color: "var(--vault-text)",
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: 600,
                       }}
                     >
                       {g.awayTeamAbbr ?? "?"} @ {g.homeTeamAbbr ?? "?"}
                     </span>
                     <span
-                      style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
+                      style={{
+                        color: "var(--vault-text-faint)",
+                        fontSize: 11,
+                      }}
                     >
                       {g.venue ?? "MLB"}
                     </span>
@@ -192,15 +175,19 @@ export default function MlbLandingPage() {
                   <div className="flex flex-col items-end gap-0.5 shrink-0">
                     <span
                       className="font-mono"
-                      style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}
+                      style={{
+                        color: "var(--vault-gold-bright)",
+                        fontSize: 12,
+                      }}
                     >
                       {formatTipoffEt(g.gameDate)}
                     </span>
                     <span
-                      className="font-mono uppercase tracking-[0.14em]"
-                      style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                      aria-hidden
+                      className="font-mono"
+                      style={{ color: "var(--vault-gold)", fontSize: 12 }}
                     >
-                      View props →
+                      →
                     </span>
                   </div>
                 </Link>
@@ -212,19 +199,54 @@ export default function MlbLandingPage() {
 
       <UpcomingSlateStrip
         title="Upcoming · next 7 days"
-        days={upcomingDays}
+        days={buildMlbUpcomingDays(date)}
         boardHrefBase="/mlb/board"
         emptyMessage="No upcoming MLB slates on disk yet. The next refresh will pull the rolling window."
+      />
+
+      <QuickActionRail
+        heading="More on MLB"
+        cards={[
+          {
+            href: "/mlb/board",
+            eyebrow: "Tonight",
+            title: "Model board",
+            sub: propsAvailable
+              ? `${summary.leans} projections across ${gameCount} game${gameCount === 1 ? "" : "s"}.`
+              : "Lines arriving soon — schedule live.",
+          },
+          {
+            href: "/results/mlb",
+            eyebrow: "Audit",
+            title: "MLB results",
+            sub:
+              mlbLifetime?.hitRate != null
+                ? `${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive} settled.`
+                : "Pending first settlement.",
+          },
+          {
+            href: "/results/model-audit",
+            eyebrow: "Model",
+            title: "Audit deep-dive",
+            sub: "Per-market, per-edge, per-game dispersion.",
+          },
+          {
+            href: "/mlb/power",
+            eyebrow: "Power",
+            title: "Power Board",
+            sub: "Home runs tracked separately. High-variance watch.",
+          },
+        ]}
       />
 
       <OverviewFooterDisclosure
         inputsLabel="MVP projection method"
         inputsBody={
           <>
-            Pitcher strikeouts: 0.55 · last-3 mean + 0.45 · season
-            mean, normal approximation. Batters: 0.5 · last-10 mean +
-            0.5 · season mean, with floor on sigma. MLB R5 anomaly
-            guardrail caps edges above 20 pp to Low confidence.
+            Pitcher strikeouts: 0.55 · last-3 mean + 0.45 · season mean,
+            normal approximation. Batters: 0.5 · last-10 mean + 0.5 ·
+            season mean, with floor on sigma. MLB R5 anomaly guardrail
+            caps edges above 20pp to Low confidence.
           </>
         }
         framingBody={
@@ -238,21 +260,9 @@ export default function MlbLandingPage() {
   );
 }
 
-/**
- * Build a 7-day forward-looking slate for /mlb. Reads schedule files
- * already on disk (written nightly by the schedule refresher). The
- * window starts from today (ET) so the strip stays useful even when
- * the activeMlbDate() walks ahead. Each entry is honest about
- * whether projections live for that date or whether lines are
- * still pending — derived from the matching board's propsAvailable
- * + leans count.
- */
 function buildMlbUpcomingDays(_activeDate: string): UpcomingSlateDay[] {
   const allDates = getMlbAvailableScheduleDates();
   if (allDates.length === 0) return [];
-  // Forward-looking window starting from today (ET). The active
-  // date is intentionally NOT the lower bound — we want the strip
-  // to lead with "today" even when the active date jumps ahead.
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "America/New_York",
   });
@@ -286,15 +296,16 @@ function buildMlbUpcomingDays(_activeDate: string): UpcomingSlateDay[] {
 }
 
 function shortDateLabel(date: string): string {
-  // YYYY-MM-DD → "Sun · May 17"
   try {
     const dt = new Date(`${date}T17:00:00Z`);
-    return dt.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      timeZone: "America/New_York",
-    }).replace(",", " ·");
+    return dt
+      .toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        timeZone: "America/New_York",
+      })
+      .replace(",", " ·");
   } catch {
     return date;
   }

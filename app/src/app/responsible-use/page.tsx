@@ -1,25 +1,21 @@
+import SportOverviewHero from "@/components/sport-overview-hero";
+
 export default function ResponsibleUsePage() {
   return (
-    <div className="mx-auto max-w-[760px] px-6 py-12">
-      <div className="vault-hero-grid">
-        <div
-          className="font-mono text-[10px] uppercase tracking-[0.18em] mb-3 inline-flex items-center gap-2"
-          style={{ color: "var(--vault-gold)" }}
-        >
-          <span
-            className="inline-block w-1.5 h-1.5 rounded-full vault-pulse"
-            style={{ background: "var(--vault-gold-bright)" }}
-          />
-          responsible use · educational only
-        </div>
-        <h1 className="mt-2 font-display text-[36px] md:text-[48px] tracking-tightest font-semibold leading-[1]">
-          Read this before anything else.
-        </h1>
-        <p className="mt-3 text-[var(--text-mute)] text-[15px] leading-relaxed">
-          GametimePicks exists to demonstrate analytical methodology. It is not a
-          tipster service, not a betting advisory, and not a financial product.
-        </p>
-      </div>
+    <div className="mx-auto max-w-[760px] px-4 sm:px-6 py-10">
+      <SportOverviewHero
+        eyebrow="Responsible use · educational only"
+        sport="Read this first."
+        tagline="not a tipster · not a betting advisory"
+        statusKind="warn"
+        statusLabel="Reference"
+        accent="gold"
+        ctas={[
+          { href: "/methodology", label: "How the model works", primary: true },
+          { href: "/results", label: "Latest audit" },
+        ]}
+        framing="GameTimePicks exists to demonstrate analytical methodology. It is not a tipster service, not a betting advisory, and not a financial product."
+      />
 
       <div className="mt-10 space-y-6 text-[15px] text-[var(--text-mute)] leading-relaxed">
         <Block
