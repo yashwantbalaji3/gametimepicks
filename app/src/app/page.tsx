@@ -27,6 +27,7 @@ import {
   getAvailableBoardDates,
 } from "@/lib/data";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
+import { getAvailableSettlementDates } from "@/lib/settlement-data";
 import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
 import { formatPercent } from "@/lib/format";
 import type { BoardData, DataMode, PropLean } from "@/lib/types";
@@ -36,12 +37,7 @@ import HomepageCommandHero, {
 } from "@/components/homepage-command-hero";
 import HomepageSportsRail from "@/components/homepage-sports-rail";
 import NewsletterSignup from "@/components/newsletter-signup";
-import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
-import SportsbookStatusBoard, {
-  type StatusBoardGame,
-  type StatusBoardStat,
-} from "@/components/sportsbook-status-board";
 import { type StatusPillKind } from "@/components/status-pill";
 
 import { selectActiveSlate } from "@/lib/active-slate";
@@ -99,23 +95,19 @@ export default function HomePage() {
       : 0;
   const crossSportLeansLive = leansToday + mlbLeansLive;
 
-  // Latest scored slate (powers the "Today on the floor" panel).
+  // Latest SETTLED slate. After the fix in findLatestScoredBoardOnDisk
+  // (filters to dates in the real settlement manifest), this can never
+  // pick a future date even if the future board has scored projections.
   const latestScoredHit =
     findLatestScoredBoard(slateBoardsByDate) ?? findLatestScoredBoardOnDisk();
   const latestScoredFinalDate = latestScoredHit?.date ?? null;
   const latestScoredFinalBoard = latestScoredHit?.board ?? null;
   const latestScoredLeans: PropLean[] = latestScoredFinalBoard?.leans ?? [];
   const latestScoredLeanCount = latestScoredLeans.length;
-  const latestScoredHighCount = latestScoredLeans.filter(
-    (l) => l.confidence === "High",
-  ).length;
   const latestScoredMatchup = matchupForBoard(latestScoredFinalBoard);
   const latestScoredDayLabel = latestScoredFinalDate
     ? dayLabelFor(latestScoredFinalDate, today)
     : null;
-  const latestScoredAnomalyCount = latestScoredLeans.filter((l) =>
-    (l.riskFlags ?? []).includes("suspicious_edge"),
-  ).length;
 
   // ----- Hero state machine -------------------------------------------
   const heroState = decideHeroState({
@@ -153,35 +145,6 @@ export default function HomePage() {
       : { label: "MLB", value: "—", sub: "results pending" },
   ];
 
-  // SportsbookStatusBoard payload (latest scored slate).
-  const statusBoardGames: StatusBoardGame[] = latestScoredFinalBoard
-    ? (latestScoredFinalBoard.games ?? []).slice(0, 4).map((g) => ({
-        gameId: g.gameId,
-        awayTeamAbbr: g.awayTeamAbbr,
-        homeTeamAbbr: g.homeTeamAbbr,
-        tipoff: g.tipoff,
-      }))
-    : [];
-  const statusBoardStats: StatusBoardStat[] = latestScoredFinalDate
-    ? [
-        {
-          label: "Projections",
-          value: String(latestScoredLeanCount),
-          accent: "gold",
-        },
-        {
-          label: "Stronger signals",
-          value: String(latestScoredHighCount),
-          accent: "gold",
-        },
-        {
-          label: "High-variance",
-          value: String(latestScoredAnomalyCount),
-          accent: latestScoredAnomalyCount > 0 ? "warn" : "mute",
-        },
-      ]
-    : [];
-
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-10 md:py-16 overflow-x-hidden">
       {/* 1 — Command hero */}
@@ -196,91 +159,56 @@ export default function HomePage() {
         tiles={heroTiles}
       />
 
-      {/* 2 — Latest scored slate */}
-      <section className="mt-10 reveal" aria-label="Today on the floor">
-        <SectionHeader
-          eyebrow={
-            latestScoredFinalDate ? "Latest scored slate" : "Model lab"
-          }
-          title={
-            latestScoredFinalDate
-              ? `${latestScoredDayLabel ?? "Latest"} · graded against final box scores`
-              : "Model lab idle"
-          }
-          sub={
-            latestScoredFinalDate
-              ? "The newest fully-scored slate. Every projection compared to the closing line; every result settled against final box scores."
-              : "Projections land here once the next scheduled refresh completes."
-          }
-        />
-        {latestScoredFinalDate ? (
-          <SportsbookStatusBoard
-            eyebrow={`${latestScoredDayLabel ?? "Latest"} · graded`}
-            headline={
-              latestScoredMatchup
-                ? `${latestScoredMatchup}`
-                : `${statusBoardGames.length} NBA game${statusBoardGames.length === 1 ? "" : "s"}`
-            }
-            sub={`${latestScoredLeanCount} projections · ${latestScoredHighCount} stronger signals`}
-            games={statusBoardGames}
-            stats={statusBoardStats}
-            footnote="Risk filters active · educational only"
-            ctaHref={`/results/date/${latestScoredFinalDate}`}
-            ctaLabel="View results"
-          />
-        ) : (
-          <SportsbookStatusBoard
-            eyebrow="No live slate"
-            headline="Projections will land here soon"
-            sub="The next refresh adds new games and projections automatically."
-            steady
-            footnote="Educational analytics · not betting advice"
-            ctaHref="/methodology"
-            ctaLabel="How the model works"
-          />
-        )}
-      </section>
+      {/* 2 — Latest results pill (only when a real settled slate exists) */}
+      {latestScoredFinalDate && (
+        <section
+          className="mt-6 reveal"
+          aria-label="Latest results pill"
+        >
+          <Link
+            href={`/results/date/${latestScoredFinalDate}`}
+            className="inline-flex items-baseline gap-3 vault-glow-hover rounded-full px-4 py-2 font-mono"
+            style={{
+              background: "rgba(7,11,26,0.55)",
+              border: "1px solid var(--vault-border)",
+              textDecoration: "none",
+              fontSize: 11,
+              color: "var(--vault-text-mute)",
+            }}
+          >
+            <span
+              aria-hidden
+              className="inline-block w-1.5 h-1.5 rounded-full"
+              style={{
+                background: "var(--vault-gold-bright)",
+                boxShadow: "0 0 6px rgba(240, 199, 94, 0.55)",
+              }}
+            />
+            <span style={{ color: "var(--vault-gold)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
+              {latestScoredDayLabel ?? latestScoredFinalDate} · graded
+            </span>
+            <span style={{ color: "var(--vault-text)" }}>
+              {latestScoredMatchup ?? "Latest slate"}
+            </span>
+            <span style={{ color: "var(--vault-text-faint)" }}>
+              · {latestScoredLeanCount} projections settled
+            </span>
+            <span style={{ color: "var(--vault-gold-bright)" }}>
+              View →
+            </span>
+          </Link>
+        </section>
+      )}
 
       {/* 3 — Sport grid */}
       <section className="mt-12 reveal" aria-label="Sports">
         <SectionHeader
           eyebrow="Sports"
           title="Pick a sport"
-          sub="NBA and MLB have live projections. World Cup and other sports show what's on the schedule until the model unlocks."
+          sub="NBA and MLB run live projections. World Cup, NHL and IPL show what's on the schedule."
         />
         <HomepageSportsRail />
       </section>
-
-      {/* 4 — Quick actions */}
-      <QuickActionRail
-        heading="Jump in"
-        cards={[
-          {
-            href: "/projections",
-            eyebrow: "Today",
-            title: "View projections",
-            sub:
-              crossSportLeansLive > 0
-                ? `${crossSportLeansLive} live projections across NBA + MLB.`
-                : "Pick a sport — see today's slate, lines, and projections.",
-          },
-          {
-            href: "/parlay-lab",
-            eyebrow: "Build",
-            title: "Build candidate slips",
-            sub: "Candidate slip ideas. No hit-rate claims until they're persisted before games.",
-          },
-          {
-            href: "/results",
-            eyebrow: "Track record",
-            title: "See results",
-            sub:
-              combinedHitRate !== null
-                ? `${formatPercent(combinedHitRate)} on ${combinedDecisive} graded — every pick on the record.`
-                : "Every graded pick, kept honest.",
-          },
-        ]}
-      />
 
       {/* 5 — How it works */}
       <section className="mt-12 reveal" aria-label="How it works">
@@ -453,11 +381,23 @@ function decideHeroState({
   };
 }
 
+/**
+ * Find the most recent SETTLED (graded against final box scores) NBA
+ * slate. Critical: "scored" here means the slate has been graded post-
+ * game — not that the board has projections. A future board with
+ * projections is NOT a settled slate. Previously this function looked
+ * at every board with scored leans, which incorrectly picked May 21
+ * ("Tomorrow") as the latest "graded" slate before the games had even
+ * played. Now we filter against `getAvailableSettlementDates()`, which
+ * lists only dates with real settled rows on disk.
+ */
 function findLatestScoredBoard(
   boardsByDate: Record<string, BoardData>,
 ): { date: string; board: BoardData } | null {
+  const settledSet = new Set(getAvailableSettlementDates());
   const dates = Object.keys(boardsByDate).sort().reverse();
   for (const date of dates) {
+    if (!settledSet.has(date)) continue;
     const b = boardsByDate[date];
     if (!b) continue;
     if ((b.leans ?? []).some((l) => isScored(l))) {
@@ -471,7 +411,12 @@ function findLatestScoredBoardOnDisk(): {
   date: string;
   board: BoardData;
 } | null {
-  const allDates = getAvailableBoardDates().slice().sort().reverse();
+  const settledSet = new Set(getAvailableSettlementDates());
+  const allDates = getAvailableBoardDates()
+    .filter((d) => settledSet.has(d))
+    .slice()
+    .sort()
+    .reverse();
   for (const date of allDates) {
     const b = getBoardForDate(date);
     if ((b.leans ?? []).some((l) => isScored(l))) {

@@ -95,67 +95,32 @@ export default function ParlayLabPage() {
       <div className="mb-6">
         <NbaSectionTabs />
       </div>
-      {/* Hero — premium data-orbit backdrop + neon corner brackets +
-          subtle scanline. Sportsbook-lounge centerpiece. */}
-      <section className="vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pt-6 pb-2">
-        <NeonCornerBracket />
-        <div
-          className="vault-quiet-label mb-4 inline-flex items-center gap-2"
-          style={{ color: "var(--vault-gold)", letterSpacing: "0.08em" }}
-        >
-          <span
-            className="inline-block w-1.5 h-1.5 rounded-full vault-pulse"
-            style={{ background: "var(--vault-gold-bright)" }}
-          />
-          NBA Parlay Lab · educational analysis
-        </div>
-
+      {/* Slim hero — one headline, one subtitle, sport-mode pills + the
+          educational-only chip on a single row. Long explanations live in
+          the collapsible "How this works" below. */}
+      <section className="relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pt-2 pb-2">
         <h1
-          className="vault-display-h1 max-w-3xl"
-          style={{ color: "var(--vault-text)" }}
+          className="font-display font-semibold tracking-tight"
+          style={{
+            color: "var(--vault-text)",
+            fontSize: "clamp(32px, 5vw, 44px)",
+            lineHeight: 1.05,
+          }}
         >
-          Build with the{" "}
-          <span style={{ color: "var(--vault-gold-bright)" }}>model</span>
-          .
+          Build candidate slips.
         </h1>
-
         <p
-          className="mt-6 text-[15px] md:text-[17px] max-w-2xl leading-relaxed"
+          className="mt-3 text-[14px] max-w-2xl leading-relaxed"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          Generate candidate parlays from the slate&apos;s real NBA model
-          leans, or paste a slip you&apos;ve already built and compare each
-          leg to our projections, edges, and recent-trend data. We never
-          tell you to bet — we tell you what the model thinks.
+          Choose a style, then review the legs. No hit-rate claims until
+          slips are saved before games and graded after.
         </p>
 
-        <div className="mt-6 flex flex-wrap gap-3 items-center">
-          <DataSourceBadge meta={meta} />
+        {/* Sport filter pills + educational chip */}
+        <div className="mt-5 flex flex-wrap items-center gap-2">
           <span
-            className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.16em] px-2.5 py-1 rounded-full"
-            style={{
-              background: "var(--vault-warn-dim)",
-              color: "var(--vault-warn)",
-              border: "1px solid rgba(240, 199, 94, 0.30)",
-            }}
-          >
-            Educational only — not betting advice
-          </span>
-        </div>
-
-        {/* Sport-mode strip — discloses that the lab is NBA-only today,
-            so users understand the scope before they start building. The
-            MLB / Multi-sport stubs read as future modes, not bugs. */}
-        <div
-          className="mt-6 inline-flex flex-wrap items-stretch gap-1 p-1 rounded-[4px]"
-          style={{
-            background: "rgba(7, 11, 26, 0.55)",
-            border: "1px solid var(--vault-border)",
-          }}
-          aria-label="Parlay Lab sport modes"
-        >
-          <span
-            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
+            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[4px]"
             style={{
               fontSize: 11,
               color: "var(--vault-gold-bright)",
@@ -165,43 +130,42 @@ export default function ParlayLabPage() {
             }}
             aria-current="page"
           >
-            NBA only · active
+            🏀 NBA · active
           </span>
           <span
-            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
+            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[4px]"
             style={{
               fontSize: 11,
               color: "var(--vault-text-faint)",
               border: "1px solid var(--vault-border)",
-              cursor: "not-allowed",
             }}
-            title="Needs persisted MLB candidate snapshots before we can grade slips honestly."
+            title="MLB candidate slips unlock when slips are saved before games and graded after."
           >
-            MLB only · needs MLB snapshots
+            ⚾ MLB · pending
           </span>
           <span
-            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[3px]"
+            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-[4px]"
             style={{
               fontSize: 11,
               color: "var(--vault-text-faint)",
               border: "1px solid var(--vault-border)",
-              cursor: "not-allowed",
             }}
-            title="Needs both NBA + MLB candidate snapshots before we can audit cross-sport slips."
+            title="World Cup projection model launches before kickoff."
           >
-            Multi-sport · needs NBA + MLB snapshots
+            ⚽ World Cup · coming soon
+          </span>
+          <DataSourceBadge meta={meta} />
+          <span
+            className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.16em] px-2.5 py-1 rounded-full"
+            style={{
+              background: "var(--vault-warn-dim)",
+              color: "var(--vault-warn)",
+              border: "1px solid rgba(240, 199, 94, 0.30)",
+            }}
+          >
+            Educational only · not betting advice
           </span>
         </div>
-        <p
-          className="mt-3 max-w-2xl text-[12px] leading-relaxed"
-          style={{ color: "var(--vault-text-faint)" }}
-        >
-          MLB and multi-sport modes turn on after candidate slips are
-          snapshot-persisted at board-generation time and graded after
-          settlement — the same honest pipeline the NBA audit runs through.
-          Cross-sport mixes carry lower direct correlation but never
-          zero; no hit-rate claims until slips are persisted and graded.
-        </p>
       </section>
 
       {/* "How this works" — collapsible disclosure so it doesn't dominate
@@ -273,92 +237,6 @@ export default function ParlayLabPage() {
         </details>
       </section>
 
-      {/* Context desk — what slate-context the model currently surfaces,
-          and what's flagged as future free-data work. Honest: every chip
-          is either "on" (we have it) or "soon" (future PR). Never claims
-          unavailable context. */}
-      <section className="mt-8">
-        <div className="gtp-context-desk">
-          <div className="flex items-center justify-between gap-3 mb-2.5 flex-wrap">
-            <div className="flex items-center gap-2">
-              <span
-                aria-hidden
-                className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
-                style={{
-                  background: "var(--vault-gold-bright)",
-                  boxShadow: "0 0 7px rgba(240, 199, 94, 0.6)",
-                }}
-              />
-              <span
-                className="font-mono uppercase tracking-[0.18em]"
-                style={{ color: "var(--vault-gold)", fontSize: 10 }}
-              >
-                Context desk · what the model surfaces tonight
-              </span>
-            </div>
-            <Link
-              href="/results"
-              className="font-mono tracking-tight transition-colors"
-              style={{ color: "var(--vault-gold)", fontSize: 11 }}
-            >
-              see latest model audit →
-            </Link>
-          </div>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="gtp-context-pill" data-state="on">
-              Playoff game context
-            </span>
-            <span className="gtp-context-pill" data-state="on">
-              Last-10 recent form
-            </span>
-            <span className="gtp-context-pill" data-state="on">
-              Model anomaly guardrails
-            </span>
-            <span className="gtp-context-pill" data-state="on">
-              NBA headshots
-            </span>
-            <span className="gtp-context-pill" data-state="on">
-              Latest slate graded
-            </span>
-            <span className="gtp-context-pill" data-state="soon">
-              Injury / news notes · soon
-            </span>
-            <span className="gtp-context-pill" data-state="soon">
-              Series record · soon
-            </span>
-            <span className="gtp-context-pill" data-state="soon">
-              Live tipoff countdown · soon
-            </span>
-          </div>
-
-          {/* Game 7 educational note — surfaces only when the active slate
-              has a Game 7 game-chip. Reads as honest volatility
-              acknowledgement, not as betting advice. */}
-          <p
-            className="mt-3 text-[12px] leading-relaxed"
-            style={{ color: "var(--vault-text-mute)" }}
-          >
-            <span
-              className="font-mono uppercase tracking-[0.14em]"
-              style={{ color: "var(--vault-gold)", fontSize: 10 }}
-            >
-              Game 7 caveat ·
-            </span>{" "}
-            elimination games can shift minutes, rotations, and usage. The
-            model uses recent-10 averages and the R5 guardrail caps
-            extreme-edge picks at Low confidence, but it does not yet
-            simulate Game 7-specific rotation effects. The May 15 audit
-            (
-            <Link
-              href="/results"
-              style={{ color: "var(--vault-gold)", textDecoration: "underline" }}
-            >
-              55.2% hit rate, 80–65, Clean 57.0% vs R5 48.4%
-            </Link>
-            ) is the most relevant calibration reference we have so far.
-          </p>
-        </div>
-      </section>
 
       {/* Client interactive area — mode tabs hold both Build + Analyze */}
       <section className="mt-6">
