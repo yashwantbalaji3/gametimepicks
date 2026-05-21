@@ -17,6 +17,7 @@ import ResultsSportTabs from "@/components/results-sport-tabs";
 import SettledGameDetail, {
   type SettledLeanRow,
 } from "@/components/settled-game-detail";
+import PlayerResultsCards from "@/components/player-results-cards";
 import { getPlayoffContext } from "@/components/playoff-context";
 
 interface PageProps {
@@ -211,7 +212,14 @@ export default function ResultsDatePage({ params }: PageProps) {
         mlbReport={mlbReport ? (mlbReport as unknown as MlbReportLike) : null}
       />
 
-      {/* NBA per-game expandable cards */}
+      {/* NBA per-player card view — friendlier scan for non-bettors.
+          De-duplicates by (player, market) so each player surfaces once
+          with PTS/REB/AST rows showing line / projection / actual /
+          hit-miss color. Full per-bookmaker breakdown still renders
+          below for audit detail. */}
+      {nbaRows.length > 0 && <PlayerResultsCards rows={nbaRows} />}
+
+      {/* NBA per-game expandable cards — full audit detail */}
       {nbaRows.length > 0 && (
         <NbaGameGroups
           rows={nbaRows}
