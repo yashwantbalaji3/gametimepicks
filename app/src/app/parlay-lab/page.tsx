@@ -3,7 +3,6 @@ import type { PropLean, BoardData, ScheduleGame } from "@/lib/types";
 import ParlayLabModeTabs from "@/components/parlay-lab-mode-tabs";
 import DataSourceBadge from "@/components/data-source-badge";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
-import NbaSectionTabs from "@/components/nba/nba-section-tabs";
 import Link from "next/link";
 import { selectActiveSlate } from "@/lib/active-slate";
 import { currentEtDate } from "@/lib/freshness";
@@ -92,12 +91,12 @@ export default function ParlayLabPage() {
 
   return (
     <div className="vault-page-shell px-6 sm:px-8 py-12 md:py-20">
-      <div className="mb-6">
-        <NbaSectionTabs />
-      </div>
       {/* Slim hero — one headline, one subtitle, sport-mode pills + the
           educational-only chip on a single row. Long explanations live in
-          the collapsible "How this works" below. */}
+          the collapsible "How this works" below. The old NBA section
+          tabs (Overview / Model Board / Power Board / Parlays) were
+          removed — they made the page feel like an internal dashboard,
+          and the primary global nav already has a "Parlay Lab" tab. */}
       <section className="relative overflow-hidden -mx-6 sm:-mx-8 px-6 sm:px-8 pt-2 pb-2">
         <h1
           className="font-display font-semibold tracking-tight"
