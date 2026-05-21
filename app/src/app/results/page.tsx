@@ -119,7 +119,7 @@ export default function ResultsOverviewPage() {
             className="font-mono uppercase tracking-[0.18em]"
             style={{ color: "var(--vault-gold)", fontSize: 10 }}
           >
-            Model audit · overall · graded against final box scores
+            Track record · graded against final box scores
           </span>
         </div>
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
@@ -141,12 +141,12 @@ export default function ResultsOverviewPage() {
               fontSize: "clamp(18px, 2.6vw, 22px)",
             }}
           >
-            Overall hit rate · {overallWins}–{overallLosses}
+            Track record · {overallWins}–{overallLosses}
             {overallPushes > 0 ? `–${overallPushes}P` : ""} on{" "}
             <span style={{ color: "var(--vault-gold-bright)" }}>
               {overallDecisive}
             </span>{" "}
-            decisive picks
+            graded projections
           </span>
         </div>
         <p
@@ -181,16 +181,16 @@ export default function ResultsOverviewPage() {
             className="font-mono text-[12px] leading-relaxed"
             style={{ color: "var(--vault-text-mute)" }}
           >
-            {overallDecisive} decisive picks across NBA + MLB is below the
-            ~25-pick floor where hit rates start to be statistically
-            meaningful. Treat these numbers as descriptive, not predictive.
+            {overallDecisive} graded picks across NBA + MLB is still below
+            the ~25-pick floor where hit rates start to be statistically
+            meaningful. Treat these numbers as a record, not a forecast.
           </p>
         </aside>
       )}
 
       {/* Overall KPIs */}
       <section className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiTile label="settled rows" value={String(overallSettled)} />
+        <KpiTile label="graded picks" value={String(overallSettled)} />
         <KpiTile label="wins" value={String(overallWins)} accent="success" />
         <KpiTile label="losses" value={String(overallLosses)} accent="danger" />
         <KpiTile label="pushes" value={String(overallPushes)} />
@@ -207,7 +207,7 @@ export default function ResultsOverviewPage() {
           vs-actual table. */}
       <section className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-3">
         <SportSummaryCard
-          title="NBA audit"
+          title="NBA track record"
           hitRate={nbaLifetime.hitRate}
           wins={nbaLifetime.wins}
           losses={nbaLifetime.losses}
@@ -217,11 +217,11 @@ export default function ResultsOverviewPage() {
           smallSample={nbaLifetime.smallSample}
           newestDate={nbaLifetime.newestDate}
           detailHref="/results/nba"
-          detailLabel="Open NBA breakdown"
+          detailLabel="Open NBA results"
           accent="gold"
         />
         <SportSummaryCard
-          title="MLB audit"
+          title="MLB track record"
           hitRate={mlbLifetime?.hitRate ?? null}
           wins={mlbLifetime?.wins ?? 0}
           losses={mlbLifetime?.losses ?? 0}
@@ -231,7 +231,7 @@ export default function ResultsOverviewPage() {
           smallSample={mlbLifetime?.smallSample ?? true}
           newestDate={mlbLifetime?.newestDate ?? null}
           detailHref="/results/mlb"
-          detailLabel="Open MLB breakdown"
+          detailLabel="Open MLB results"
           accent="success"
           partial={mlbLifetime?.partial ?? false}
         />
@@ -291,7 +291,7 @@ export default function ResultsOverviewPage() {
           borderTop: "1px solid var(--vault-rule)",
         }}
       >
-        hit rate excludes pushes · settled decisive rows only · educational use only · not betting advice
+        hit rate excludes pushes · graded picks only · educational use only · not betting advice
       </footer>
     </div>
   );

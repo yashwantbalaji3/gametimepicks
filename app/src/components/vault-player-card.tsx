@@ -53,19 +53,19 @@ const CONFIDENCE_PILL: Record<
     fg: "var(--vault-gold-bright)",
     bg: "var(--vault-gold-dim)",
     border: "var(--vault-border-strong)",
-    label: "High confidence",
+    label: "Stronger signal",
   },
   Medium: {
     fg: "var(--vault-warn)",
     bg: "var(--vault-warn-dim)",
     border: "rgba(240, 199, 94, 0.30)",
-    label: "Medium",
+    label: "Watch",
   },
   Low: {
     fg: "var(--vault-text-mute)",
     bg: "var(--vault-panel-elevated)",
     border: "var(--vault-border)",
-    label: "Low",
+    label: "High-variance",
   },
   insufficient_data: {
     fg: "var(--vault-text-faint)",
@@ -86,7 +86,7 @@ const MARKET_ORDER: Market[] = ["PTS", "REB", "AST"];
 // Friendlier labels for guardrail-emitted riskFlags. Anything not in
 // this map falls back to underscore-to-space.
 const RISK_FLAG_LABEL: Record<string, string> = {
-  suspicious_edge: "Model anomaly",
+  suspicious_edge: "High-variance",
   news_risk_flag: "News risk",
   news_remove: "Removed by news",
   news_manual_review: "Manual review",

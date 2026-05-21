@@ -399,7 +399,7 @@ export default function BoardPage() {
               accent: highCount > 0 ? "gold" : "mute",
             },
             {
-              label: "Anomalies",
+              label: "High-variance",
               value: String(anomalyCount),
               accent: anomalyCount > 0 ? "warn" : "mute",
             },
@@ -501,7 +501,7 @@ export default function BoardPage() {
                 className="text-[12px] hidden sm:inline"
                 style={{ color: "var(--vault-text-faint)" }}
               >
-                line vs projection · confidence · model anomalies
+                line vs projection · signal strength · high-variance
               </span>
             </span>
             <span
@@ -580,7 +580,7 @@ export default function BoardPage() {
                     color: "var(--vault-warn)",
                   }}
                 >
-                  Model anomaly
+                  High-variance
                 </span>
                 <span>What it means</span>
               </h3>
