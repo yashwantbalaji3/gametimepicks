@@ -49,54 +49,32 @@ const TABS: TabSpec[] = [
   { slug: "parlays", label: "Parlays" },
 ];
 
-export default function SportSectionTabs({ sport }: { sport: SportKey }) {
-  const pathname = usePathname() || "/";
-  const base = `/${sport}`;
-  const sportLabel = SPORT_LABEL[sport];
-  const legacy = LEGACY_HREFS[sport] ?? {};
-
-  const isActive = (href: string, exact?: boolean) => {
-    const exactMatch = pathname === href || pathname === `${href}/`;
-    const prefixMatch = !exact && pathname.startsWith(`${href}/`);
-    if (exactMatch || prefixMatch) return true;
-    const legacyList = legacy[href] ?? [];
-    for (const l of legacyList) {
-      if (pathname === l || pathname === `${l}/`) return true;
-      if (!exact && pathname.startsWith(`${l}/`)) return true;
-    }
-    return false;
-  };
-
-  return (
-    <nav
-      aria-label={`${sportLabel} section`}
-      className="flex flex-wrap items-center gap-1 -mx-1"
-    >
-      {TABS.map((t) => {
-        const href = t.slug ? `${base}/${t.slug}` : base;
-        const active = isActive(href, t.exact);
-        return (
-          <Link
-            key={t.slug || "overview"}
-            href={href}
-            aria-current={active ? "page" : undefined}
-            className="px-3 py-1.5 text-[12px] font-mono uppercase tracking-[0.14em] rounded-[3px] transition-colors"
-            style={{
-              color: active
-                ? "var(--vault-gold-bright)"
-                : "var(--vault-text-mute)",
-              background: active
-                ? "linear-gradient(180deg, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0) 90%)"
-                : "transparent",
-              border: active
-                ? "1px solid rgba(212, 175, 55, 0.30)"
-                : "1px solid var(--vault-border)",
-            }}
-          >
-            {t.label}
-          </Link>
-        );
-      })}
-    </nav>
-  );
+/**
+ * NOTE — May 21 simplification (PR #74):
+ *   The legacy per-sport sub-tab strip ("Overview · Model Board ·
+ *   Power Board · Parlays") has been removed from the visible UI.
+ *   It made every sport page feel like an internal dashboard, and
+ *   the primary global nav (Home · Projections · Parlay Lab · Results
+ *   · About) covers every destination users actually need.
+ *
+ *   The component intentionally renders nothing now. The export +
+ *   `sport` prop are preserved so the 21 existing import sites
+ *   compile without churn — a follow-up PR can clean those imports
+ *   when we touch each page for other reasons.
+ *
+ *   Legacy URLs (/nba/board, /nba/power, /nba/parlays, etc.) keep
+ *   working — they're just no longer surfaced via the in-page tab
+ *   strip.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function SportSectionTabs(_props: { sport: SportKey }) {
+  return null;
 }
+
+// Legacy variables kept module-local so the original implementation
+// can be restored if needed without bringing back the imports.
+void SPORT_LABEL;
+void LEGACY_HREFS;
+void TABS;
+void Link;
+void usePathname;

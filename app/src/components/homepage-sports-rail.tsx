@@ -174,32 +174,42 @@ export default function HomepageSportsRail() {
   };
 
   // ─── World Cup ──────────────────────────────────────────────────────────
+  // Homepage "today" rail is for actionable events RIGHT NOW. The 2026
+  // World Cup kicks off June 11, so it does NOT belong in the tonight
+  // sport rail today — it would push live NBA/MLB cards below an event
+  // that's still weeks away. A small "World Cup · projections coming
+  // soon" teaser tile renders BELOW the active rail (see the JSX below).
   const wcMeta = loadWorldCupMeta();
   const wcSchedule = loadWorldCupSchedule();
   const wcDaysOut = daysUntilOpener();
   const wcOpener = wcSchedule[0];
-  const wcCard: SportCardData = {
-    sport: "World Cup",
-    emoji: "⚽",
-    accent: "warn",
-    href: "/world-cup",
-    matchup: wcOpener
-      ? `${wcOpener.home} vs ${wcOpener.away}`
-      : null,
-    statusText:
-      wcMeta && wcDaysOut > 0
-        ? `kickoff in ${wcDaysOut} day${wcDaysOut === 1 ? "" : "s"}`
-        : "tournament live",
-    statusTone: "warn",
-    auditLine:
-      wcMeta?.squadStatus?.officialFinalSquadsReleased
-        ? "Squads · official"
-        : "Squads pending June 1 · projections coming soon",
-    auditHref: "/world-cup/schedule",
-    activeDate: wcMeta?.schedule.openingMatch.date ?? null,
-  };
+  const wcHasMatchToday = wcSchedule.some((m) => m.date === today);
+  const wcCard: SportCardData | null = wcHasMatchToday
+    ? {
+        sport: "World Cup",
+        emoji: "⚽",
+        accent: "warn",
+        href: "/world-cup",
+        matchup: wcOpener
+          ? `${wcOpener.home} vs ${wcOpener.away}`
+          : null,
+        statusText: "Tournament live",
+        statusTone: "warn",
+        auditLine: "Schedule + groups official",
+        auditHref: "/world-cup/schedule",
+        activeDate: today,
+      }
+    : null;
 
-  const cards: SportCardData[] = [nbaCard, mlbCard, wcCard, nhlCard, iplCard];
+  // Only include the World Cup card in the primary rail when an actual
+  // match is on today's date.
+  const cards: SportCardData[] = [
+    nbaCard,
+    mlbCard,
+    ...(wcCard ? [wcCard] : []),
+    nhlCard,
+    iplCard,
+  ];
 
   return (
     <section
@@ -238,11 +248,51 @@ export default function HomepageSportsRail() {
         </span>
         <div className="flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${cards.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
         {cards.map((c) => (
           <SportCard key={c.sport} {...c} />
         ))}
       </div>
+
+      {/* World Cup teaser — only renders when there's no live WC match
+          today. Sits BELOW the primary rail so casual users get NBA +
+          MLB tonight first, with the tournament-coming-soon framing
+          honestly preserved underneath. */}
+      {!wcCard && wcMeta && wcDaysOut > 0 && (
+        <Link
+          href="/world-cup"
+          className="mt-3 vault-glow-hover rounded-[6px] px-4 py-3 flex items-center gap-3"
+          style={{
+            background: "rgba(7, 11, 26, 0.45)",
+            border: "1px solid var(--vault-border)",
+            textDecoration: "none",
+          }}
+        >
+          <span aria-hidden role="img" style={{ fontSize: 24, lineHeight: 1 }}>
+            ⚽
+          </span>
+          <div className="flex-1 min-w-0">
+            <div
+              className="font-mono uppercase tracking-[0.16em]"
+              style={{ color: "var(--vault-gold)", fontSize: 10 }}
+            >
+              FIFA World Cup 2026 · {wcDaysOut} day{wcDaysOut === 1 ? "" : "s"} to kickoff
+            </div>
+            <div
+              className="font-display tracking-tight"
+              style={{ color: "var(--vault-text)", fontSize: 14, marginTop: 2 }}
+            >
+              Schedule + groups live · projections coming soon
+            </div>
+          </div>
+          <span
+            className="font-mono uppercase tracking-[0.16em] shrink-0"
+            style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
+          >
+            Open →
+          </span>
+        </Link>
+      )}
       {/* Audit + Parlay CTA pair underneath the sport rail. Both styled
           like ticket slips so the casino rhythm carries from the rail
           straight into the actions. */}
