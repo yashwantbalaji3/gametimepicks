@@ -1,0 +1,73 @@
+{
+  "_disclaimer": "Tournament metadata derived from publicly published FIFA + ESPN sources. Educational analytics — not betting advice. Projections, squads, and odds are intentionally NOT included until official data is released; this artifact carries the structural facts only.",
+  "tournament": "FIFA World Cup 2026",
+  "edition": "23rd FIFA World Cup",
+  "hosts": [
+    {"country": "United States", "code": "US", "matchesShare": "majority"},
+    {"country": "Canada", "code": "CA", "matchesShare": "shared host"},
+    {"country": "Mexico", "code": "MX", "matchesShare": "shared host"}
+  ],
+  "format": {
+    "teams": 48,
+    "groups": 12,
+    "teamsPerGroup": 4,
+    "groupStageMatches": 72,
+    "knockoutMatches": 32,
+    "totalMatches": 104,
+    "knockoutRounds": ["Round of 32", "Round of 16", "Quarter-finals", "Semi-finals", "Third-place playoff", "Final"]
+  },
+  "schedule": {
+    "openingMatch": {
+      "date": "2026-06-11",
+      "matchup": "Mexico vs. South Africa",
+      "venueCity": "Mexico City"
+    },
+    "finalMatch": {
+      "date": "2026-07-19",
+      "venueCity": "East Rutherford"
+    },
+    "groupStageStart": "2026-06-11",
+    "groupStageEnd": "2026-06-27",
+    "knockoutStart": "2026-06-28"
+  },
+  "squadStatus": {
+    "officialFinalSquadsReleased": false,
+    "finalSubmissionDeadline": "2026-06-01",
+    "officialPublicationDate": "2026-06-02",
+    "preliminarySubmissionDeadline": "2026-05-11",
+    "notes": "FIFA requires each association to submit a 26-player final squad by June 1; FIFA publishes squads on June 2. Some federations have begun announcing early. This site refuses to publish player lists until each federation officially releases its squad."
+  },
+  "projectionStatus": {
+    "modelLive": false,
+    "plannedInputs": [
+      "Player form (rolling rate-stat trends)",
+      "Team strength (Elo + recent international results)",
+      "Market odds (h2h, totals, BTTS — paid)",
+      "Injuries + lineup confirmations",
+      "Travel + rest days between matches",
+      "Tournament context (group stakes, knockout-round leverage)"
+    ],
+    "notes": "No World Cup match projection model is currently active. Inputs above are the planned ingestion targets. Hit rate, parlay record, and confidence tiers will only appear after the model is live and matches settle."
+  },
+  "sources": [
+    {
+      "label": "FIFA — Official 2026 World Cup hub",
+      "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026"
+    },
+    {
+      "label": "FIFA — Final Draw results (Dec 5, 2025)",
+      "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/final-draw-results"
+    },
+    {
+      "label": "ESPN — Full 2026 World Cup format + match schedule",
+      "url": "https://www.espn.com/soccer/story/_/id/47108758/2026-fifa-world-cup-format-tiebreakers-fixtures-schedule"
+    },
+    {
+      "label": "FIFA — Squad lists number + dates",
+      "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/squad-lists-number-date"
+    }
+  ],
+  "generatedAt": "2026-05-20",
+  "dataQuality": "Schedule + groups: official + ESPN cross-referenced. Squads: pending official release. Stadium-name resolution: city-level confirmed; precise stadium names limited to the subset confirmed in source.",
+  "rebuild": "Hand-curated static JSON; refresh as official sources publish updates."
+}

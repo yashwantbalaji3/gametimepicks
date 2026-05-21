@@ -30,6 +30,7 @@ const NAV_ITEMS: Array<{
   { href: "/mlb", label: "MLB" },
   { href: "/nhl", label: "NHL" },
   { href: "/ipl", label: "IPL" },
+  { href: "/world-cup", label: "World Cup" },
   { href: "/parlay-lab", label: "Parlays", beforeDivider: true },
   { href: "/results", label: "Results" },
   { href: "/methodology", label: "Methodology", beforeDivider: true },
@@ -42,6 +43,7 @@ const SPORT_HREFS = new Set([
   "/mlb",
   "/nhl",
   "/ipl",
+  "/world-cup",
 ]);
 
 export default function Nav() {
