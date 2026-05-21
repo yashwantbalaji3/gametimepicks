@@ -317,7 +317,7 @@ function ConfidencePill({ confidence }: { confidence: string }) {
   const border = isHigh || isMed
     ? "var(--vault-border-strong)"
     : "var(--vault-border)";
-  const label = isHigh ? "High confidence" : isMed ? "Medium" : confidence;
+  const label = isHigh ? "Stronger signal" : isMed ? "Watch" : confidence;
   return (
     <span
       className="inline-flex items-center px-2.5 py-1 rounded-[3px] font-mono"

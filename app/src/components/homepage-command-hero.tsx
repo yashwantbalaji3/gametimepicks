@@ -119,8 +119,8 @@ export default function HomepageCommandHero({
             className="mt-6 text-[11px] leading-relaxed max-w-xl gtp-cinematic-rise gtp-cinematic-rise-d4"
             style={{ color: "var(--vault-text-mute)" }}
           >
-            Every projection compared to the sportsbook line. Every
-            settled lean graded honestly. Pushes excluded, pending
+            Every projection compared to the bookmaker line. Every
+            graded pick stays on the record. Pushes excluded, pending
             excluded. Educational only — not betting advice.
           </p>
         </div>

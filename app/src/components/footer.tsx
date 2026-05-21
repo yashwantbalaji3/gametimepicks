@@ -53,6 +53,68 @@ export default function Footer() {
           </span>
         </div>
 
+        {/* Secondary navigation — every destination not in the slim primary nav.
+            Casual users don't need to see these in the header; power users
+            still want them one click away. */}
+        <nav
+          aria-label="Site map"
+          className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 mb-10 text-[13px]"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          <div>
+            <div
+              className="vault-quiet-label mb-3"
+              style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
+            >
+              Sports
+            </div>
+            <ul className="space-y-2 list-none p-0">
+              <li><Link href="/nba" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>NBA</Link></li>
+              <li><Link href="/mlb" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>MLB</Link></li>
+              <li><Link href="/world-cup" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>World Cup</Link></li>
+              <li>
+                <Link href="/nhl" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
+                  NHL <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· provider pending</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/ipl" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
+                  IPL <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· provider pending</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <div
+              className="vault-quiet-label mb-3"
+              style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
+            >
+              Product
+            </div>
+            <ul className="space-y-2 list-none p-0">
+              <li><Link href="/parlay-lab" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Parlay Lab</Link></li>
+              <li><Link href="/results" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Results</Link></li>
+              <li>
+                <Link href="/results/model-audit" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
+                  Deep-dive track record
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <div
+              className="vault-quiet-label mb-3"
+              style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
+            >
+              About
+            </div>
+            <ul className="space-y-2 list-none p-0">
+              <li><Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>How the model works</Link></li>
+              <li><Link href="/responsible-use" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Responsible use</Link></li>
+            </ul>
+          </div>
+        </nav>
+
         <div
           className="grid grid-cols-1 md:grid-cols-2 gap-10 text-[13px]"
           style={{ color: "var(--vault-text-mute)" }}

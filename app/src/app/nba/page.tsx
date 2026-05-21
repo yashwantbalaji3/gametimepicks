@@ -99,17 +99,17 @@ export default function NbaLandingPage() {
       sub: activeDate || "—",
     },
     {
-      label: "Model leans",
+      label: "Projections",
       value: String(leans.length),
       sub: propsLoaded ? "real prop lines" : "lines pending",
     },
     {
-      label: "High conf · anomalies",
+      label: "Stronger signals · high-variance",
       value: `${highCount} · ${anomalyCount}`,
       sub:
         lifetime?.hitRate != null
-          ? `audit ${(lifetime.hitRate * 100).toFixed(1)}% on ${lifetime.decisive}`
-          : "audit pending",
+          ? `track record ${(lifetime.hitRate * 100).toFixed(1)}% on ${lifetime.decisive}`
+          : "track record pending",
     },
   ];
 
@@ -124,9 +124,9 @@ export default function NbaLandingPage() {
       </div>
 
       <SportOverviewHero
-        eyebrow="NBA · educational analytics"
+        eyebrow="NBA · today's slate"
         sport="NBA"
-        tagline="model board · audit · parlay lab"
+        tagline="projections · track record · parlay lab"
         statusKind={statusKind}
         statusCaption={statusCaption}
         matchupLine={matchupLine}
@@ -136,7 +136,7 @@ export default function NbaLandingPage() {
           { href: "/nba/board", label: primaryLabel, primary: true },
           { href: "/results/nba", label: "Latest results" },
         ]}
-        framing="Points, rebounds, assists projected from each player's last 10 games and compared to the closing line. Edges above ~25pp are capped at Low confidence and tagged as anomalies — never sold as confident leans."
+        framing="Points, rebounds and assists projected from each player's last 10 games and compared to the bookmaker line. Very large gaps (>~25 pp) are labeled high-variance — never sold as a sure thing."
       />
 
       {/* Active slate strip */}

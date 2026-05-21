@@ -170,12 +170,12 @@ export default function HomePage() {
           accent: "gold",
         },
         {
-          label: "High confidence",
+          label: "Stronger signals",
           value: String(latestScoredHighCount),
           accent: "gold",
         },
         {
-          label: "Model anomalies",
+          label: "High-variance",
           value: String(latestScoredAnomalyCount),
           accent: latestScoredAnomalyCount > 0 ? "warn" : "mute",
         },
@@ -215,24 +215,24 @@ export default function HomePage() {
         />
         {latestScoredFinalDate ? (
           <SportsbookStatusBoard
-            eyebrow={`${latestScoredDayLabel ?? "Latest"} slate · scored`}
+            eyebrow={`${latestScoredDayLabel ?? "Latest"} · graded`}
             headline={
               latestScoredMatchup
                 ? `${latestScoredMatchup}`
                 : `${statusBoardGames.length} NBA game${statusBoardGames.length === 1 ? "" : "s"}`
             }
-            sub={`${latestScoredLeanCount} projections · ${latestScoredHighCount} High confidence`}
+            sub={`${latestScoredLeanCount} projections · ${latestScoredHighCount} stronger signals`}
             games={statusBoardGames}
             stats={statusBoardStats}
-            footnote="Guardrails active · educational only"
+            footnote="Risk filters active · educational only"
             ctaHref={`/results/date/${latestScoredFinalDate}`}
-            ctaLabel="View results for this date"
+            ctaLabel="View results"
           />
         ) : (
           <SportsbookStatusBoard
-            eyebrow="Model lab · idle"
-            headline="No scored slate loaded"
-            sub="Projections will land here once the next scheduled refresh completes."
+            eyebrow="No live slate"
+            headline="Projections will land here soon"
+            sub="The next refresh adds new games and projections automatically."
             steady
             footnote="Educational analytics · not betting advice"
             ctaHref="/methodology"
@@ -245,8 +245,8 @@ export default function HomePage() {
       <section className="mt-12 reveal" aria-label="Sports">
         <SectionHeader
           eyebrow="Sports"
-          title="Every sport at a glance"
-          sub="NBA + MLB run live model boards. NHL + IPL are schedule-only until the projection pipelines ship — never faked."
+          title="Pick a sport"
+          sub="NBA and MLB have live projections. World Cup and other sports show what's on the schedule until the model unlocks."
         />
         <HomepageSportsRail />
       </section>
@@ -263,32 +263,26 @@ export default function HomePage() {
                   ? `/board?date=${latestScoredFinalDate}`
                   : "/board",
             eyebrow: "Tonight",
-            title: "Model board",
+            title: "Today's projections",
             sub:
               crossSportLeansLive > 0
                 ? `${crossSportLeansLive} live projections across NBA + MLB.`
-                : "Latest scored projections + line edges.",
+                : "The latest graded projections + line edges.",
           },
           {
             href: "/results",
-            eyebrow: "Results",
-            title: "Latest results",
+            eyebrow: "Track record",
+            title: "Results",
             sub:
               combinedHitRate !== null
-                ? `${formatPercent(combinedHitRate)} on ${combinedDecisive} decisive — every settled pick.`
-                : "Every settled pick, graded honestly.",
-          },
-          {
-            href: "/results/model-audit",
-            eyebrow: "Performance",
-            title: "Model performance",
-            sub: "Per-market, per-edge, per-game dispersion.",
+                ? `${formatPercent(combinedHitRate)} on ${combinedDecisive} graded — every pick on the record.`
+                : "Every graded pick, kept honest.",
           },
           {
             href: "/parlay-lab",
             eyebrow: "Build",
             title: "Parlay Lab",
-            sub: "Educational candidate slips. No hit-rate claims.",
+            sub: "Candidate slip ideas. No hit-rate claims.",
           },
         ]}
       />
@@ -297,8 +291,8 @@ export default function HomePage() {
       <section className="mt-12 reveal" aria-label="How it works">
         <SectionHeader
           eyebrow="How it works"
-          title="3 steps from data to audit"
-          sub="The model never invents projections. Numbers come from real game logs; every settled pick is graded against the final box score."
+          title="3 simple steps"
+          sub="Real data in, real projections out, every result graded after the game."
           rightSlot={
             <Link
               href="/methodology"
@@ -367,19 +361,19 @@ export default function HomePage() {
 
 const STEPS: Array<{ eyebrow: string; title: string; sub: string }> = [
   {
-    eyebrow: "Inputs",
-    title: "Real game logs + closing lines",
-    sub: "Recent-form rolling windows, season averages, opponent context — never invented.",
+    eyebrow: "Pick a game",
+    title: "Today's slate, top of the page",
+    sub: "Choose any NBA or MLB game on the schedule. Each one has a sportsbook line.",
   },
   {
-    eyebrow: "Model",
-    title: "Per-market projection",
-    sub: "Compared to the sportsbook line; edge stamped + guardrails applied for anomalies.",
+    eyebrow: "See the projection",
+    title: "The model's number, side by side",
+    sub: "We project every market — points, rebounds, assists — and show the gap vs. the line in plain English.",
   },
   {
-    eyebrow: "Audit",
-    title: "Settled against final box scores",
-    sub: "Pushes excluded, pending excluded. Every miss stays on the record.",
+    eyebrow: "Track every result",
+    title: "Graded after final stats",
+    sub: "Wins, losses and pushes are all kept on the record. No hiding misses.",
   },
 ];
 
@@ -409,13 +403,13 @@ function decideHeroState({
   if (crossSportLeansLive > 0) {
     return {
       kind: "live",
-      statusLabel: "Live tonight",
+      statusLabel: "Tonight",
       statusCaption: `${crossSportLeansLive} projections`,
-      headline: "Tonight's projections, ranked by edge.",
+      headline: "Today's sports projections, simplified.",
       subline:
-        "Every NBA + MLB lean stacked against the closing line. Open the model board to scan by sport, market, or confidence.",
-      primaryCta: { href: "/board", label: "Open tonight's board" },
-      secondaryCta: { href: "/results/model-audit", label: "Model performance" },
+        "Pick a game. See the model edge. Track every result.",
+      primaryCta: { href: "/board", label: "View today's projections" },
+      secondaryCta: { href: "/results", label: "See results" },
     };
   }
 
@@ -427,16 +421,16 @@ function decideHeroState({
     return {
       kind: "linesPending",
       statusCaption: `${todayGames || "—"} game${todayGames === 1 ? "" : "s"}`,
-      headline: "Schedule is live — projections arriving soon.",
+      headline: "Today's sports projections, simplified.",
       subline:
-        "The slate is confirmed; sportsbook lines + model leans land as soon as the next refresh completes.",
+        "Schedule is live — projections land as soon as bookmaker lines refresh.",
       primaryCta: {
         href: latestScoredFinalDate
           ? `/board?date=${latestScoredFinalDate}`
           : "/board",
-        label: "View latest scored board",
+        label: "View latest projections",
       },
-      secondaryCta: { href: "/results", label: "Latest results" },
+      secondaryCta: { href: "/results", label: "See results" },
     };
   }
 
@@ -444,24 +438,24 @@ function decideHeroState({
     return {
       kind: "settled",
       statusCaption: `${latestScoredFinalDate}`,
-      headline: "Latest settled slate is up.",
+      headline: "Today's sports projections, simplified.",
       subline:
-        "No live slate right now. Browse the most recent scored projections, or open the model audit to see every cut of the settled record.",
+        "No live slate right now — open the latest graded slate or browse the full track record.",
       primaryCta: {
         href: `/results/date/${latestScoredFinalDate}`,
-        label: "View settled slate",
+        label: "View latest results",
       },
-      secondaryCta: { href: "/results/model-audit", label: "Model performance" },
+      secondaryCta: { href: "/results", label: "Track record" },
     };
   }
 
   return {
     kind: "upcoming",
     statusLabel: "Refresh pending",
-    headline: "Model lab idle — next refresh pending.",
+    headline: "Today's sports projections, simplified.",
     subline:
-      "Projections will land here as soon as the next scheduled run completes. Educational analytics only.",
-    primaryCta: { href: "/methodology", label: "How the model works" },
+      "New projections will land here as soon as the next refresh completes.",
+    primaryCta: { href: "/methodology", label: "How it works" },
     secondaryCta: { href: "/parlay-lab", label: "Parlay Lab" },
   };
 }

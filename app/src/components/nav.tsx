@@ -28,21 +28,15 @@ const NAV_ITEMS: Array<{
   { href: "/", label: "Home" },
   { href: "/nba", label: "NBA" },
   { href: "/mlb", label: "MLB" },
-  { href: "/nhl", label: "NHL" },
-  { href: "/ipl", label: "IPL" },
   { href: "/world-cup", label: "World Cup" },
   { href: "/parlay-lab", label: "Parlays", beforeDivider: true },
   { href: "/results", label: "Results" },
-  { href: "/methodology", label: "Methodology", beforeDivider: true },
-  { href: "/responsible-use", label: "Responsible Use" },
 ];
 
 const SPORT_HREFS = new Set([
   "/nba",
   "/board",
   "/mlb",
-  "/nhl",
-  "/ipl",
   "/world-cup",
 ]);
 

@@ -156,21 +156,21 @@ export default function MlbBoardBody({ date }: { date: string }) {
           {/* KPI strip — confidence tier distribution */}
           <section className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
             <NeonStatPanel
-              label="High confidence"
+              label="Stronger signals"
               value={String(summary.highConfidence)}
               sub="clean edge ≥ 5 pp"
               valueAccent="success"
               delay={1}
             />
             <NeonStatPanel
-              label="Medium"
+              label="Watch"
               value={String(summary.mediumConfidence)}
               sub="edge ≥ 2.5 pp"
               valueAccent="gold"
               delay={2}
             />
             <NeonStatPanel
-              label="Low + anomalies"
+              label="High-variance"
               value={String(summary.lowConfidence)}
               sub={`${summary.anomalies} R5 anomalies`}
               valueAccent="warn"

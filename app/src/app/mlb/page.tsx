@@ -64,16 +64,16 @@ export default function MlbLandingPage() {
       sub: date,
     },
     {
-      label: "Model leans",
+      label: "Projections",
       value: String(summary.leans),
       sub: propsAvailable ? "real prop lines" : "lines pending",
     },
     {
-      label: "High conf · anomalies",
+      label: "Stronger signals · high-variance",
       value: `${summary.highConfidence} · ${summary.anomalies}`,
       sub:
         mlbLifetime?.hitRate != null
-          ? `audit ${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive}`
+          ? `track record ${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive}`
           : "results pending",
     },
   ];
@@ -89,9 +89,9 @@ export default function MlbLandingPage() {
       </div>
 
       <SportOverviewHero
-        eyebrow="MLB · educational analytics"
+        eyebrow="MLB · today's slate"
         sport="MLB"
-        tagline="model board · audit · power board"
+        tagline="projections · track record · power board"
         statusKind={statusKind}
         statusCaption={statusCaption}
         matchupLine={`Slate · ${date}`}
@@ -101,7 +101,7 @@ export default function MlbLandingPage() {
           { href: "/mlb/board", label: primaryLabel, primary: true },
           { href: "/results/mlb", label: "Latest results" },
         ]}
-        framing="Pitcher strikeouts + batter hits / total bases projected from MLB Stats API game logs and compared to the closing line. Home runs live on a separate Power Board because the variance profile is different."
+        framing="Pitcher strikeouts and batter hits / total bases projected from MLB Stats API game logs and compared to the bookmaker line. Home runs live on a separate Power Board because they're higher-variance."
       />
 
       <div className="mt-6">
