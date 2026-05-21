@@ -20,6 +20,11 @@ import {
   activeIplDate,
   getIplScheduleForDate,
 } from "@/lib/data-ipl";
+import {
+  loadWorldCupMeta,
+  loadWorldCupSchedule,
+  daysUntilOpener,
+} from "@/lib/data-world-cup";
 import { selectActiveSlate } from "@/lib/active-slate";
 import { currentEtDate } from "@/lib/freshness";
 
@@ -164,7 +169,32 @@ export default function HomepageSportsRail() {
     activeDate: iplDate,
   };
 
-  const cards: SportCardData[] = [nbaCard, mlbCard, nhlCard, iplCard];
+  // ─── World Cup ──────────────────────────────────────────────────────────
+  const wcMeta = loadWorldCupMeta();
+  const wcSchedule = loadWorldCupSchedule();
+  const wcDaysOut = daysUntilOpener();
+  const wcOpener = wcSchedule[0];
+  const wcCard: SportCardData = {
+    sport: "World Cup",
+    accent: "warn",
+    href: "/world-cup",
+    matchup: wcOpener
+      ? `${wcOpener.home} vs ${wcOpener.away}`
+      : null,
+    statusText:
+      wcMeta && wcDaysOut > 0
+        ? `kickoff in ${wcDaysOut} day${wcDaysOut === 1 ? "" : "s"}`
+        : "tournament live",
+    statusTone: "warn",
+    auditLine:
+      wcMeta?.squadStatus?.officialFinalSquadsReleased
+        ? "Squads · official"
+        : "Squads pending June 1 · projections coming soon",
+    auditHref: "/world-cup/schedule",
+    activeDate: wcMeta?.schedule.openingMatch.date ?? null,
+  };
+
+  const cards: SportCardData[] = [nbaCard, mlbCard, wcCard, nhlCard, iplCard];
 
   return (
     <section
@@ -203,7 +233,7 @@ export default function HomepageSportsRail() {
         </span>
         <div className="flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {cards.map((c) => (
           <SportCard key={c.sport} {...c} />
         ))}
