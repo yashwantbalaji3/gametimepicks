@@ -106,19 +106,64 @@ export default function ParlayLabPage() {
           className="font-display font-semibold tracking-tight"
           style={{
             color: "var(--vault-text)",
-            fontSize: "clamp(32px, 5vw, 44px)",
-            lineHeight: 1.05,
+            fontSize: "clamp(36px, 6vw, 56px)",
+            lineHeight: 1.02,
+            letterSpacing: "-0.02em",
           }}
         >
-          Build candidate slips.
+          Build tonight's slips.
         </h1>
         <p
-          className="mt-3 text-[14px] max-w-2xl leading-relaxed"
-          style={{ color: "var(--vault-text-mute)" }}
+          className="mt-3 max-w-2xl leading-relaxed"
+          style={{
+            color: "var(--vault-text-mute)",
+            fontSize: "clamp(14px, 1.4vw, 16px)",
+          }}
         >
-          Choose a style, then review the legs. No hit-rate claims until
-          slips are saved before games and graded after.
+          Pick games or players. The model builds the tickets.
         </p>
+
+        {/* Numbered builder hint — turns the page from "configuration"
+            into a clear consumer flow. The actual controls sit in the
+            builder client below. */}
+        <ol
+          className="mt-5 flex flex-wrap gap-1.5"
+          aria-label="Builder flow"
+        >
+          {[
+            "Pick sport",
+            "Pick games or players",
+            "Choose risk",
+            "Review tickets",
+          ].map((step, i) => (
+            <li
+              key={step}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
+              style={{
+                background: "rgba(7, 11, 26, 0.55)",
+                border: "1px solid var(--vault-border)",
+                color: "var(--vault-text-mute)",
+                fontSize: 12,
+              }}
+            >
+              <span
+                className="inline-flex items-center justify-center rounded-full font-mono"
+                style={{
+                  width: 18,
+                  height: 18,
+                  background:
+                    "linear-gradient(180deg, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0.05) 100%)",
+                  border: "1px solid rgba(212, 175, 55, 0.40)",
+                  color: "var(--vault-gold-bright)",
+                  fontSize: 10,
+                }}
+              >
+                {i + 1}
+              </span>
+              {step}
+            </li>
+          ))}
+        </ol>
 
         {/* Sport filter pills + educational chip */}
         <div className="mt-5 flex flex-wrap items-center gap-2">

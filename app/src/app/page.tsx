@@ -200,15 +200,10 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* 3 — Sport grid */}
-      <section className="mt-12 reveal" aria-label="Sports">
-        <SectionHeader
-          eyebrow="Sports"
-          title="Pick a sport"
-          sub="NBA and MLB run live projections. World Cup, NHL and IPL show what's on the schedule."
-        />
-        <HomepageSportsRail />
-      </section>
+      {/* 3 — Tonight's slate. The rail brings its own header (live
+          dot + "Tonight on GameTimePicks") so we don't double up with
+          a SectionHeader here. */}
+      <HomepageSportsRail />
 
       {/* 5 — How it works */}
       <section className="mt-12 reveal" aria-label="How it works">

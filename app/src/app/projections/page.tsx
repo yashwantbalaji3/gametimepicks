@@ -231,7 +231,7 @@ export default function ProjectionsHubPage() {
       <SectionHeader
         eyebrow="Tonight · pick a sport"
         title="Tonight's projections."
-        sub="NBA + MLB have live projections. NHL + IPL render schedule only until projection pipelines ship. Nothing here is invented; status badges reflect exactly what's on disk."
+        sub="NBA + MLB live tonight. NHL + IPL schedule only."
       />
 
       {/* Tonight's sport cards — emoji graphics + status badges */}
