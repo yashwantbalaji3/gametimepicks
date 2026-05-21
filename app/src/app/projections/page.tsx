@@ -220,22 +220,45 @@ export default function ProjectionsHubPage() {
     accentColor: "rgba(255, 195, 130, 1)",
   };
 
-  const cards: SportCard[] = [nbaCard, mlbCard, wcCard, nhlCard, iplCard];
+  // Split into "tonight" cards (live, lines-pending, or schedule-only
+  // for today) and "coming soon" cards (no game today). World Cup
+  // belongs in the coming-soon group until kickoff (June 11).
+  const tonightCards: SportCard[] = [nbaCard, mlbCard, nhlCard, iplCard];
+  const comingSoonCards: SportCard[] = [wcCard];
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <SectionHeader
-        eyebrow="Projections · pick a sport"
-        title="Pick a sport. See today's projections."
-        sub="Schedules, bookmaker lines, and model projections — all in one place. We never invent data; status badges reflect exactly what's on disk."
+        eyebrow="Tonight · pick a sport"
+        title="Tonight's projections."
+        sub="NBA + MLB have live projections. NHL + IPL render schedule only until projection pipelines ship. Nothing here is invented; status badges reflect exactly what's on disk."
       />
 
-      {/* Big sport cards with emoji graphics + status badges */}
+      {/* Tonight's sport cards — emoji graphics + status badges */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {cards.map((c) => (
+        {tonightCards.map((c) => (
           <SportProjectionCard key={c.key} card={c} />
         ))}
       </div>
+
+      {/* Coming soon — World Cup. Renders below the main rail so casual
+          users see tonight first; the tournament still has its own hub. */}
+      <section className="mt-8" aria-label="Coming soon">
+        <div className="flex items-center gap-3 mb-3">
+          <span
+            className="font-mono uppercase tracking-[0.16em] shrink-0"
+            style={{ color: "var(--vault-gold)", fontSize: 10 }}
+          >
+            Coming soon
+          </span>
+          <div className="flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {comingSoonCards.map((c) => (
+            <SportProjectionCard key={c.key} card={c} />
+          ))}
+        </div>
+      </section>
 
       {/* What the badges mean */}
       <section
