@@ -256,33 +256,28 @@ export default function HomePage() {
         heading="Jump in"
         cards={[
           {
-            href:
-              crossSportLeansLive > 0
-                ? "/board"
-                : latestScoredFinalDate
-                  ? `/board?date=${latestScoredFinalDate}`
-                  : "/board",
-            eyebrow: "Tonight",
-            title: "Today's projections",
+            href: "/projections",
+            eyebrow: "Today",
+            title: "View projections",
             sub:
               crossSportLeansLive > 0
                 ? `${crossSportLeansLive} live projections across NBA + MLB.`
-                : "The latest graded projections + line edges.",
-          },
-          {
-            href: "/results",
-            eyebrow: "Track record",
-            title: "Results",
-            sub:
-              combinedHitRate !== null
-                ? `${formatPercent(combinedHitRate)} on ${combinedDecisive} graded — every pick on the record.`
-                : "Every graded pick, kept honest.",
+                : "Pick a sport — see today's slate, lines, and projections.",
           },
           {
             href: "/parlay-lab",
             eyebrow: "Build",
-            title: "Parlay Lab",
-            sub: "Candidate slip ideas. No hit-rate claims.",
+            title: "Build candidate slips",
+            sub: "Candidate slip ideas. No hit-rate claims until they're persisted before games.",
+          },
+          {
+            href: "/results",
+            eyebrow: "Track record",
+            title: "See results",
+            sub:
+              combinedHitRate !== null
+                ? `${formatPercent(combinedHitRate)} on ${combinedDecisive} graded — every pick on the record.`
+                : "Every graded pick, kept honest.",
           },
         ]}
       />
@@ -405,10 +400,10 @@ function decideHeroState({
       kind: "live",
       statusLabel: "Tonight",
       statusCaption: `${crossSportLeansLive} projections`,
-      headline: "Today's sports projections, simplified.",
+      headline: "Sports projections made simple.",
       subline:
-        "Pick a game. See the model edge. Track every result.",
-      primaryCta: { href: "/board", label: "View today's projections" },
+        "Pick a game, compare the line, track every result.",
+      primaryCta: { href: "/projections", label: "View projections" },
       secondaryCta: { href: "/results", label: "See results" },
     };
   }
@@ -421,14 +416,12 @@ function decideHeroState({
     return {
       kind: "linesPending",
       statusCaption: `${todayGames || "—"} game${todayGames === 1 ? "" : "s"}`,
-      headline: "Today's sports projections, simplified.",
+      headline: "Sports projections made simple.",
       subline:
         "Schedule is live — projections land as soon as bookmaker lines refresh.",
       primaryCta: {
-        href: latestScoredFinalDate
-          ? `/board?date=${latestScoredFinalDate}`
-          : "/board",
-        label: "View latest projections",
+        href: "/projections",
+        label: "View projections",
       },
       secondaryCta: { href: "/results", label: "See results" },
     };
@@ -438,25 +431,25 @@ function decideHeroState({
     return {
       kind: "settled",
       statusCaption: `${latestScoredFinalDate}`,
-      headline: "Today's sports projections, simplified.",
+      headline: "Sports projections made simple.",
       subline:
         "No live slate right now — open the latest graded slate or browse the full track record.",
       primaryCta: {
         href: `/results/date/${latestScoredFinalDate}`,
-        label: "View latest results",
+        label: "Latest results",
       },
-      secondaryCta: { href: "/results", label: "Track record" },
+      secondaryCta: { href: "/projections", label: "View projections" },
     };
   }
 
   return {
     kind: "upcoming",
     statusLabel: "Refresh pending",
-    headline: "Today's sports projections, simplified.",
+    headline: "Sports projections made simple.",
     subline:
       "New projections will land here as soon as the next refresh completes.",
-    primaryCta: { href: "/methodology", label: "How it works" },
-    secondaryCta: { href: "/parlay-lab", label: "Parlay Lab" },
+    primaryCta: { href: "/projections", label: "View projections" },
+    secondaryCta: { href: "/about", label: "How it works" },
   };
 }
 
