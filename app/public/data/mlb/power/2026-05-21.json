@@ -1,8 +1,16 @@
 {
   "sport": "MLB",
+  "scope": "home_runs",
   "date": "2026-05-21",
   "generatedAt": "2026-05-21T15:30:17.315062+00:00",
-  "source": "mlb-statsapi.fetch_schedule",
+  "state": "pending",
+  "reason": "HR Power Board uses a separate variance profile and dedicated data inputs that aren't wired yet. Schedule below shows the slate the Power Board will analyze once those inputs are live.",
+  "inputsPlanned": [
+    "season slugging + hard-hit + barrel rate (Baseball Savant)",
+    "pitcher HR-allowed rate + handedness splits",
+    "park factor + weather",
+    "lineup position"
+  ],
   "games": [
     {
       "gamePk": 824274,

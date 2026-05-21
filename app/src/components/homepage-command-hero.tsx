@@ -85,24 +85,28 @@ export default function HomepageCommandHero({
             className="font-display tracking-tight gtp-cinematic-rise gtp-cinematic-rise-d1"
             style={{
               color: "var(--vault-text)",
-              fontSize: "clamp(30px, 5.4vw, 50px)",
-              lineHeight: 1.04,
-              letterSpacing: "-0.02em",
-              maxWidth: 640,
+              fontSize: "clamp(40px, 7vw, 72px)",
+              lineHeight: 1.02,
+              letterSpacing: "-0.025em",
+              maxWidth: 720,
+              fontWeight: 600,
             }}
           >
             {headline}
           </h1>
           {subline && (
             <p
-              className="mt-4 text-[13.5px] leading-relaxed max-w-xl gtp-cinematic-rise gtp-cinematic-rise-d2"
-              style={{ color: "var(--vault-text-mute)" }}
+              className="mt-5 leading-relaxed max-w-xl gtp-cinematic-rise gtp-cinematic-rise-d2"
+              style={{
+                color: "var(--vault-text-mute)",
+                fontSize: "clamp(15px, 1.6vw, 18px)",
+              }}
             >
               {subline}
             </p>
           )}
 
-          <div className="mt-6 flex flex-wrap gap-2 gtp-cinematic-rise gtp-cinematic-rise-d3">
+          <div className="mt-7 flex flex-wrap gap-2.5 gtp-cinematic-rise gtp-cinematic-rise-d3">
             <Link href={primaryCta.href} className="gtp-btn-primary">
               {primaryCta.label}
               <span aria-hidden>→</span>
@@ -116,12 +120,10 @@ export default function HomepageCommandHero({
           </div>
 
           <p
-            className="mt-6 text-[11px] leading-relaxed max-w-xl gtp-cinematic-rise gtp-cinematic-rise-d4"
-            style={{ color: "var(--vault-text-mute)" }}
+            className="mt-5 font-mono uppercase tracking-[0.14em] gtp-cinematic-rise gtp-cinematic-rise-d4"
+            style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
           >
-            Every projection compared to the bookmaker line. Every
-            graded pick stays on the record. Pushes excluded, pending
-            excluded. Educational only — not betting advice.
+            Educational analytics · pushes &amp; pending excluded · not betting advice
           </p>
         </div>
 
