@@ -61,6 +61,7 @@ export default function HomepageSportsRail() {
   const nbaActiveGames = nbaActiveBoard?.games?.length ?? 0;
   const nbaCard: SportCardData = {
     sport: "NBA",
+    emoji: "🏀",
     accent: "gold",
     href: "/nba/board",
     matchup: nbaActiveBoard?.games?.length
@@ -97,6 +98,7 @@ export default function HomepageSportsRail() {
   const mlbGames = mlbBoard?.games?.length ?? mlbSchedule?.games?.length ?? 0;
   const mlbCard: SportCardData = {
     sport: "MLB",
+    emoji: "⚾",
     accent: "success",
     href: "/mlb/board",
     matchup: mlbGames > 0 ? `${mlbGames} games` : null,
@@ -122,6 +124,7 @@ export default function HomepageSportsRail() {
   const nhlGames = nhlSchedule?.games?.length ?? 0;
   const nhlCard: SportCardData = {
     sport: "NHL",
+    emoji: "🏒",
     accent: "warn",
     href: "/nhl/board",
     matchup:
@@ -149,6 +152,7 @@ export default function HomepageSportsRail() {
   const iplGames = iplSchedule?.games?.length ?? 0;
   const iplCard: SportCardData = {
     sport: "IPL",
+    emoji: "🏏",
     accent: "warn",
     href: "/ipl/board",
     matchup:
@@ -176,6 +180,7 @@ export default function HomepageSportsRail() {
   const wcOpener = wcSchedule[0];
   const wcCard: SportCardData = {
     sport: "World Cup",
+    emoji: "⚽",
     accent: "warn",
     href: "/world-cup",
     matchup: wcOpener
@@ -243,18 +248,18 @@ export default function HomepageSportsRail() {
           straight into the actions. */}
       <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <TicketCta
-          eyebrow="Model audit"
+          eyebrow="Track record"
           headline="Every projection graded after final stats"
-          subline="Per-date, per-sport, per-game hit rates with projection vs actual tables."
-          ctaLabel="Open the audit hub"
+          subline="Wins, losses, pushes — kept honest. Pushes excluded; pending games never count as losses."
+          ctaLabel="See results"
           href="/results"
           accent="gold"
         />
         <TicketCta
           eyebrow="Parlay Lab"
-          headline="Candidate slips · risk-aware mixes"
-          subline="Conservative, balanced and wider-edge candidate slips built from clean leans. No hit-rate claims until candidate snapshots persist."
-          ctaLabel="Open the Parlay Lab"
+          headline="Candidate slip ideas"
+          subline="Pick a style and review the legs. We don't claim a parlay hit rate until pregame slips are persisted and graded after games."
+          ctaLabel="Open Parlay Lab"
           href="/parlay-lab"
           accent="success"
         />
@@ -266,6 +271,7 @@ export default function HomepageSportsRail() {
 
 interface SportCardData {
   sport: string;
+  emoji?: string;
   accent: "gold" | "success" | "warn";
   href: string;
   matchup: string | null;
@@ -278,6 +284,7 @@ interface SportCardData {
 
 function SportCard({
   sport,
+  emoji,
   accent,
   href,
   matchup,
@@ -343,9 +350,18 @@ function SportCard({
       >
         <div className="flex items-center justify-between gap-2 mb-2">
           <span
-            className="font-mono uppercase tracking-[0.18em]"
+            className="font-mono uppercase tracking-[0.18em] inline-flex items-center gap-2"
             style={{ color: accentColor, fontSize: 11 }}
           >
+            {emoji && (
+              <span
+                aria-hidden
+                role="img"
+                style={{ fontSize: 20, lineHeight: 1 }}
+              >
+                {emoji}
+              </span>
+            )}
             {sport}
           </span>
           <span

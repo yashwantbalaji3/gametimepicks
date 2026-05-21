@@ -26,18 +26,14 @@ const NAV_ITEMS: Array<{
   beforeDivider?: boolean;
 }> = [
   { href: "/", label: "Home" },
-  { href: "/nba", label: "NBA" },
-  { href: "/mlb", label: "MLB" },
-  { href: "/world-cup", label: "World Cup" },
-  { href: "/parlay-lab", label: "Parlays", beforeDivider: true },
+  { href: "/projections", label: "Projections" },
+  { href: "/parlay-lab", label: "Parlay Lab" },
   { href: "/results", label: "Results" },
+  { href: "/about", label: "About", beforeDivider: true },
 ];
 
 const SPORT_HREFS = new Set([
-  "/nba",
-  "/board",
-  "/mlb",
-  "/world-cup",
+  "/projections",
 ]);
 
 export default function Nav() {
@@ -45,18 +41,29 @@ export default function Nav() {
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/" || pathname === "";
-    // NBA top-level entry should match the legacy /board URL as well
-    // as /nba/* so the active state is honest from either entry point.
-    if (href === "/nba") {
+    // "Projections" lights up on the hub itself AND on any legacy
+    // sport route (/nba, /nba/board, /mlb, /world-cup, etc.) so the
+    // active state stays honest from either entry point.
+    if (href === "/projections") {
       return (
+        pathname === "/projections" ||
+        pathname.startsWith("/projections/") ||
         pathname === "/nba" ||
         pathname.startsWith("/nba/") ||
         pathname === "/board" ||
-        pathname.startsWith("/board/")
+        pathname.startsWith("/board/") ||
+        pathname === "/mlb" ||
+        pathname.startsWith("/mlb/") ||
+        pathname === "/nhl" ||
+        pathname.startsWith("/nhl/") ||
+        pathname === "/ipl" ||
+        pathname.startsWith("/ipl/") ||
+        pathname === "/world-cup" ||
+        pathname.startsWith("/world-cup/")
       );
     }
-    // Parlays in nav should be active on both legacy /parlay-lab and
-    // any sport-specific /<sport>/parlays as well as /results/parlays.
+    // Parlay Lab in nav should be active on the legacy /parlay-lab
+    // route and any sport-specific /<sport>/parlays.
     if (href === "/parlay-lab") {
       return (
         pathname === "/parlay-lab" ||
@@ -65,6 +72,20 @@ export default function Nav() {
         pathname.includes("/parlays/") ||
         pathname === "/results/parlays" ||
         pathname.startsWith("/results/parlays/")
+      );
+    }
+    // About should light up on /about and the technical surfaces
+    // (methodology, responsible-use, model-audit).
+    if (href === "/about") {
+      return (
+        pathname === "/about" ||
+        pathname.startsWith("/about/") ||
+        pathname === "/methodology" ||
+        pathname.startsWith("/methodology/") ||
+        pathname === "/responsible-use" ||
+        pathname.startsWith("/responsible-use/") ||
+        pathname === "/results/model-audit" ||
+        pathname.startsWith("/results/model-audit/")
       );
     }
     return pathname === href || pathname.startsWith(`${href}/`);
