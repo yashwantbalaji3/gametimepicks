@@ -247,30 +247,46 @@ export default function ResultsOverviewPage() {
           at an early sample. */}
       <ResultsModelAuditNotes mode="combined" />
 
-      <section
-        className="mt-8 rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
-        style={{
-          background: "rgba(7, 11, 26, 0.45)",
-          border: "1px solid var(--vault-border)",
-          color: "var(--vault-text-mute)",
-        }}
+      {/* Methodology disclosure — collapsed by default so the casual
+          reader sees the track-record numbers above-fold without a
+          dense paragraph of audit copy sitting in the same place. */}
+      <details
+        className="mt-8 rounded-[6px] vault-glass overflow-hidden group"
+        style={{ color: "var(--vault-text-mute)" }}
       >
-        <div
-          className="font-mono uppercase tracking-[0.14em] mb-2"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
+        <summary
+          className="cursor-pointer list-none flex items-center justify-between gap-3 px-4 py-3"
+          style={{ background: "rgba(7, 11, 26, 0.45)" }}
         >
-          How the overall hit rate is computed
+          <span
+            className="font-mono uppercase tracking-[0.14em]"
+            style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
+          >
+            How the overall hit rate is computed
+          </span>
+          <span
+            aria-hidden
+            className="font-mono text-[12px] leading-none transition-transform group-open:rotate-180"
+            style={{ color: "var(--vault-text-faint)" }}
+          >
+            ▾
+          </span>
+        </summary>
+        <div
+          className="px-4 py-3 text-[12px] leading-relaxed"
+          style={{ borderTop: "1px solid var(--vault-rule)" }}
+        >
+          Settled NBA player-prop rows plus settled MLB player-prop rows.
+          Pushes and No Plays are excluded from the denominator;
+          insufficient-data rows are never counted; pending games never
+          count as losses. Home-run markets live on the{" "}
+          <Link href="/mlb/power" style={{ color: "var(--vault-warn)" }}>
+            MLB Power Board
+          </Link>{" "}
+          and do not feed this hit rate. Parlay candidate slips are not
+          yet persisted, so no parlay hit rate is folded in here.
         </div>
-        Settled NBA player-prop rows plus settled MLB player-prop rows.
-        Pushes and No Plays are excluded from the denominator;
-        insufficient-data rows are never counted; pending games never
-        count as losses. Home-run markets live on the{" "}
-        <Link href="/mlb/power" style={{ color: "var(--vault-warn)" }}>
-          MLB Power Board
-        </Link>{" "}
-        and do not feed this hit rate. Parlay candidate slips are not
-        yet persisted, so no parlay hit rate is folded in here.
-      </section>
+      </details>
 
       {buildOverallLessons({
         nbaLifetime,
