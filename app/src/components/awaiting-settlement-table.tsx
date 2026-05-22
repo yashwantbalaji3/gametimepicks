@@ -17,6 +17,7 @@
  */
 import type { PropLean, ScheduleGame } from "@/lib/types";
 import { getPlayoffContext } from "./playoff-context";
+import { confidenceLabel } from "@/lib/confidence-labels";
 
 interface Props {
   /** Date label, e.g. "2026-05-15". */
@@ -338,7 +339,7 @@ export default function AwaitingSettlementTable({
                                 : "low"
                           }
                         >
-                          {r.confidence}
+                          {confidenceLabel(r.confidence)}
                         </span>
                       </span>
                       <span className="col-result">

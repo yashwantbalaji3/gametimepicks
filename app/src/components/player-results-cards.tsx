@@ -272,32 +272,27 @@ function MarketRow({
           : "—";
   return (
     <div
-      className="grid grid-cols-[36px_56px_56px_56px_56px] gap-1 items-baseline px-2.5 py-1.5"
+      className="grid grid-cols-[36px_1fr_1fr_1fr_64px] gap-2 items-end px-2.5 py-2"
       style={{
         background: "rgba(7,11,26,0.45)",
         borderTop: "1px solid var(--vault-rule)",
       }}
     >
       <span
-        className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: "var(--vault-gold)", fontSize: 9 }}
+        className="font-mono uppercase tracking-[0.14em] self-center"
+        style={{ color: "var(--vault-gold)", fontSize: 10 }}
       >
         {market}
       </span>
-      <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>L</span>{" "}
-        {row.line != null ? row.line.toFixed(1) : "—"}
-      </span>
-      <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>P</span>{" "}
-        {row.modelProjection != null ? row.modelProjection.toFixed(1) : "—"}
-      </span>
-      <span className="font-mono" style={{ color: "var(--vault-text)", fontSize: 11 }}>
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>A</span>{" "}
-        {typeof row.finalStat === "number" ? row.finalStat.toFixed(1) : "—"}
-      </span>
+      <ValueCell label="Line" value={row.line ?? null} tone="mute" />
+      <ValueCell label="Proj." value={row.modelProjection ?? null} tone="mute" />
+      <ValueCell
+        label="Actual"
+        value={typeof row.finalStat === "number" ? row.finalStat : null}
+        tone="strong"
+      />
       <span
-        className="font-mono uppercase tracking-[0.12em] inline-flex items-center justify-end gap-1"
+        className="font-mono uppercase tracking-[0.12em] inline-flex items-center justify-end gap-1 self-center"
         style={{ color: accent, fontSize: 10 }}
       >
         <span
@@ -308,5 +303,46 @@ function MarketRow({
         {resultLabel}
       </span>
     </div>
+  );
+}
+
+/**
+ * One stacked label / value cell inside a market row. Replaces the
+ * cryptic "L · P · A" shorthand with full friendly labels stacked
+ * above the number, so casual readers see "Line 8.5" / "Projection
+ * 9.3" / "Actual 10.0" at a glance.
+ */
+function ValueCell({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number | null;
+  tone: "mute" | "strong";
+}) {
+  return (
+    <span className="flex flex-col gap-0.5 min-w-0">
+      <span
+        className="font-mono uppercase tracking-[0.14em] truncate"
+        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+      >
+        {label}
+      </span>
+      <span
+        className="font-display tabular"
+        style={{
+          color:
+            tone === "strong"
+              ? "var(--vault-text)"
+              : "var(--vault-text-mute)",
+          fontSize: 13,
+          fontWeight: 600,
+          lineHeight: 1,
+        }}
+      >
+        {value != null ? value.toFixed(1) : "—"}
+      </span>
+    </span>
   );
 }
