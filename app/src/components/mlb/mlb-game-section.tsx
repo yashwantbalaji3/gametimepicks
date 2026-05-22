@@ -3,6 +3,7 @@ import type { MlbBoardLean, MlbScheduleGame } from "@/lib/types-mlb";
 import { formatTipoffEt } from "@/lib/format-mlb";
 import MlbLeanRow from "./mlb-lean-row";
 import MlbPlayerAvatar from "./mlb-player-avatar";
+import TeamLogo from "../team-logo";
 
 /**
  * One game's worth of MLB props grouped under a sportsbook-style header.
@@ -131,14 +132,23 @@ export default function MlbGameSection({
                 </span>
               )}
             </div>
-            <h3
-              className="font-display font-semibold tracking-tight"
-              style={{ color: "var(--vault-text)", fontSize: 20, lineHeight: 1.15 }}
-            >
-              {game.awayTeamAbbr ?? "?"} @ {game.homeTeamAbbr ?? "?"}
-            </h3>
+            <div className="flex items-center gap-3 mt-1">
+              {/* Official ESPN team logos with TeamBadge fallback —
+                  brings MLB cards into visual parity with the NBA
+                  matchup hero. */}
+              <TeamLogo team={game.awayTeamAbbr ?? null} sport="mlb" size="md" />
+              <h3
+                className="font-display font-semibold tracking-tight"
+                style={{ color: "var(--vault-text)", fontSize: 20, lineHeight: 1.15 }}
+              >
+                {game.awayTeamAbbr ?? "?"}
+                <span style={{ color: "var(--vault-text-mute)", margin: "0 8px" }}>@</span>
+                {game.homeTeamAbbr ?? "?"}
+              </h3>
+              <TeamLogo team={game.homeTeamAbbr ?? null} sport="mlb" size="md" />
+            </div>
             <p
-              className="text-[12px]"
+              className="text-[12px] mt-1"
               style={{ color: "var(--vault-text-mute)" }}
             >
               {game.awayTeamName} at {game.homeTeamName}
@@ -160,10 +170,40 @@ export default function MlbGameSection({
           </div>
         </div>
 
-        {/* Probable pitchers — avatar cards. */}
-        <div
-          className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-[12px]"
+        {/* Probable pitchers — collapsed into "Game details" so they
+            don't dominate the matchup card. May 21 user feedback:
+            the projections (hits / total bases / strikeouts) are the
+            main story; pitcher cards belong in the secondary detail
+            section. Strikeouts projections downstream still reference
+            the pitcher's name implicitly via the prop row's player. */}
+        <details
+          className="mt-4 rounded-[5px] vault-glass overflow-hidden group"
           style={{ color: "var(--vault-text-mute)" }}
+        >
+          <summary
+            className="cursor-pointer list-none flex items-center justify-between gap-3 px-3.5 py-2.5"
+            style={{ background: "rgba(7, 11, 26, 0.45)" }}
+          >
+            <span
+              className="font-mono uppercase tracking-[0.14em]"
+              style={{ color: "var(--vault-gold)", fontSize: 10 }}
+            >
+              Game details · probable pitchers
+            </span>
+            <span
+              aria-hidden
+              className="font-mono text-[12px] leading-none transition-transform group-open:rotate-180"
+              style={{ color: "var(--vault-text-faint)" }}
+            >
+              ▾
+            </span>
+          </summary>
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[12px] p-3"
+          style={{
+            color: "var(--vault-text-mute)",
+            borderTop: "1px solid var(--vault-rule)",
+          }}
         >
           {[
             {
@@ -224,6 +264,7 @@ export default function MlbGameSection({
             </div>
           ))}
         </div>
+        </details>
 
         {/* Body — final-game / pending / filters-hid-all / real rows */}
         {noPropsLoaded && gameState === "final" ? (
@@ -240,7 +281,7 @@ export default function MlbGameSection({
                   className="font-mono uppercase tracking-[0.16em] mb-2"
                   style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
                 >
-                  Probable pitcher · strikeouts
+                  Strikeouts
                 </div>
                 <div className="flex flex-col gap-2">
                   {pitcherLeans.map((l) => (
