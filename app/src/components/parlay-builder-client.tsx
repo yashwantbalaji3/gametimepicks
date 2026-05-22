@@ -32,6 +32,7 @@ import type { ActiveSlateKind } from "@/lib/active-slate";
 import PlayerAvatar from "./player-avatar";
 import PlayerRecentFormPanel from "./player-recent-form-panel";
 import { getPlayoffContext } from "./playoff-context";
+import { confidenceLabel } from "@/lib/confidence-labels";
 import {
   buildParlayCandidates,
   uniquePlayersFromLeans,
@@ -997,8 +998,8 @@ function CandidateCard({
                   valueColor="var(--vault-gold)"
                 />
                 <StatChip
-                  label="conf"
-                  value={lean.confidence}
+                  label="signal"
+                  value={confidenceLabel(lean.confidence)}
                   valueColor={
                     lean.confidence === "High"
                       ? "var(--vault-gold-bright)"

@@ -26,6 +26,7 @@ import type { PropLean, Market } from "@/lib/types";
 import PlayerAvatar from "./player-avatar";
 import VaultSparkline from "./vault-sparkline";
 import { getPlayoffContext } from "./playoff-context";
+import { confidenceLabel } from "@/lib/confidence-labels";
 
 interface Props {
   /** All loaded leans across the visible slate (not just this player). */
@@ -432,7 +433,7 @@ export default function PlayerRecentFormPanel({
                         }
                 }
               >
-                {activeLean.confidence}
+                {confidenceLabel(activeLean.confidence)}
               </span>
               {isAnomaly && (
                 <span

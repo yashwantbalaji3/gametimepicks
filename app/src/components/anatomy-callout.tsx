@@ -13,6 +13,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import PlayerAvatar from "./player-avatar";
 import { getPlayoffContext } from "./playoff-context";
+import { confidenceLabel } from "@/lib/confidence-labels";
 
 interface Props {
   playerName: string;
@@ -317,7 +318,7 @@ function ConfidencePill({ confidence }: { confidence: string }) {
   const border = isHigh || isMed
     ? "var(--vault-border-strong)"
     : "var(--vault-border)";
-  const label = isHigh ? "Stronger signal" : isMed ? "Watch" : confidence;
+  const label = confidenceLabel(confidence);
   return (
     <span
       className="inline-flex items-center px-2.5 py-1 rounded-[3px] font-mono"
