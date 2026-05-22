@@ -106,7 +106,7 @@ export default function HomepageCommandHero({
             </p>
           )}
 
-          <div className="mt-7 flex flex-wrap gap-2.5 gtp-cinematic-rise gtp-cinematic-rise-d3">
+          <div className="gtp-hero-cta-row mt-7 flex flex-wrap gap-2.5 gtp-cinematic-rise gtp-cinematic-rise-d3">
             <Link href={primaryCta.href} className="gtp-btn-primary">
               {primaryCta.label}
               <span aria-hidden>→</span>

@@ -3783,3 +3783,110 @@ table,
   );
 }
 
+/* ---------------------------------------------------------------------------
+   MLB game-card accordion (PR A — overnight 2026-05-22).
+   Each MLB game on /mlb/board is wrapped in a native <details> so the
+   page renders one expanded game at first paint instead of all 7-9 at
+   once. The hidden games still server-render (SEO + collapsed text
+   preview), but their lean rows / probable pitchers don't take screen
+   real estate until the user clicks. Chevron rotates on [open].
+   --------------------------------------------------------------------------- */
+.gtp-mlb-accordion > summary {
+  position: relative;
+}
+.gtp-mlb-accordion > summary::-webkit-details-marker { display: none; }
+.gtp-mlb-accordion-chevron {
+  transition: transform 180ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.gtp-mlb-accordion[open] > summary .gtp-mlb-accordion-chevron {
+  transform: rotate(180deg);
+}
+.gtp-mlb-accordion > summary:focus-visible {
+  outline: 2px solid var(--vault-gold-bright);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-mlb-accordion-chevron { transition: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Mobile density pass (PR A — overnight 2026-05-22).
+   The site used to feel "too zoomed in" on 390px because page shells used
+   py-8/py-10 paired with px-4, and cards inside used 20-24px internal
+   padding. That meant the first viewport on most pages showed a hero and
+   nothing else. These rules tighten vertical rhythm and card padding on
+   small screens WITHOUT touching desktop. Every selector here is mobile-
+   only (max-width: 640px). Desktop is unchanged.
+   --------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  /* Tighten the global page-shell padding utility callers use. The page
+     templates also pass tailwind `py-8`/`py-10`; we override with !important
+     on the shell scoped to mobile so we don't have to touch every page. */
+  .vault-page-shell {
+    padding-top: 20px !important;
+    padding-bottom: 28px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  /* Status-board / aurora-halo cards (used by MLB game sections,
+     homepage tonight matchups, methodology blocks). Reduce internal
+     padding from ~20px to ~14px to claw back ~12px each side. */
+  .gtp-status-board {
+    padding: 14px !important;
+  }
+
+  /* Premium tile pattern (homepage "How it works" cards, projection
+     hub tiles). */
+  .gtp-premium-tile {
+    padding: 12px 14px !important;
+  }
+
+  /* Aurora-halo wrapper inherits its child padding; nothing to override
+     except removing extra horizontal margin. */
+  .gtp-aurora-halo {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Section vertical rhythm. Pages stack `mt-6 mt-8 mt-10 mt-12` for
+     section breaks. On mobile those reads as gap-between-pages. Compress
+     to a tighter rhythm so two sections fit on one viewport. */
+  .vault-page-shell > section {
+    margin-top: 24px;
+  }
+  .vault-page-shell > section:first-of-type {
+    margin-top: 16px;
+  }
+
+  /* Hero CTAs on the command hero stack vertically by default. Force
+     two pills side-by-side on mobile by giving each flex-basis 0 so
+     content width doesn't push them past the viewport. */
+  .gtp-hero-cta-row {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .gtp-hero-cta-row > a {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    /* Tighter letter-spacing on mobile so labels like
+       "VIEW PROJECTIONS →" fit the half-width pill without clipping. */
+    letter-spacing: 0.08em !important;
+    font-size: 10.5px !important;
+  }
+
+  /* Sparkline cards — chart inside is ~96px tall and stacks 3 on mobile.
+     Halve the chart height so the trio fits within the first scroll. */
+  .gtp-sparkline-card {
+    padding: 12px 14px;
+  }
+  .gtp-sparkline-card svg {
+    height: 56px !important;
+  }
+}
+

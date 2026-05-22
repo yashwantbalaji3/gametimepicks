@@ -29,6 +29,9 @@ interface Props {
   /** Whether this game's props have been graded on MLB Results. Only
    *  consulted when `gameState === "final"`. */
   settled?: boolean;
+  /** When true, the accordion opens by default. The board client opens
+   *  the first game only — matches sportsbook UX conventions. */
+  defaultOpen?: boolean;
 }
 
 export default function MlbGameSection({
@@ -38,6 +41,7 @@ export default function MlbGameSection({
   density = "detailed",
   gameState,
   settled,
+  defaultOpen = false,
 }: Props) {
   // Leans already sorted by parent; we just split by role for sectioning.
   const pitcherLeans = leans.filter((l) => l.playerRole === "pitcher");
@@ -56,16 +60,21 @@ export default function MlbGameSection({
 
   return (
     <section
-      className="gtp-aurora-halo"
+      className="gtp-aurora-halo gtp-mlb-game-card"
       aria-label={`${game.awayTeamAbbr ?? "?"} at ${game.homeTeamAbbr ?? "?"}`}
       id={anchorId}
       style={{ scrollMarginTop: 80 }}
     >
-      <div
-        className="gtp-status-board p-5 sm:p-6"
+      <details
+        className="gtp-status-board p-5 sm:p-6 gtp-mlb-accordion"
         style={{ borderRadius: 8 }}
+        open={defaultOpen}
       >
-        {/* Header: matchup + tipoff + lean count chip */}
+        <summary
+          className="list-none cursor-pointer select-none -m-1 p-1 rounded-[6px]"
+          aria-label={`Toggle details for ${game.awayTeamAbbr ?? "?"} at ${game.homeTeamAbbr ?? "?"}`}
+        >
+        {/* Header: matchup + tipoff + lean count chip + expand chevron */}
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex flex-col gap-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -167,8 +176,18 @@ export default function MlbGameSection({
             >
               {tipoff}
             </div>
+            <span
+              aria-hidden
+              className="gtp-mlb-accordion-chevron font-mono text-[14px] leading-none mt-2 inline-block"
+              style={{ color: "var(--vault-text-faint)" }}
+            >
+              ▾
+            </span>
           </div>
         </div>
+        </summary>
+
+        {/* ---- accordion body (collapsed by default) ---- */}
 
         {/* Probable pitchers — collapsed into "Game details" so they
             don't dominate the matchup card. May 21 user feedback:
@@ -177,7 +196,7 @@ export default function MlbGameSection({
             section. Strikeouts projections downstream still reference
             the pitcher's name implicitly via the prop row's player. */}
         <details
-          className="mt-4 rounded-[5px] vault-glass overflow-hidden group"
+          className="mt-4 rounded-[5px] vault-glass overflow-hidden group/pitchers"
           style={{ color: "var(--vault-text-mute)" }}
         >
           <summary
@@ -192,7 +211,7 @@ export default function MlbGameSection({
             </span>
             <span
               aria-hidden
-              className="font-mono text-[12px] leading-none transition-transform group-open:rotate-180"
+              className="font-mono text-[12px] leading-none transition-transform group-open/pitchers:rotate-180"
               style={{ color: "var(--vault-text-faint)" }}
             >
               ▾
@@ -307,7 +326,7 @@ export default function MlbGameSection({
             )}
           </div>
         )}
-      </div>
+      </details>
     </section>
   );
 }
