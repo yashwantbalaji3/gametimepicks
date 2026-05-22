@@ -173,6 +173,125 @@ def test_no_snapshot_means_honest_noop(s: Suite):
     s.eq(graded["slips"], [], "no slips invented")
 
 
+def _mlb_settled(playerId, marketKey, lean, line, outcome, actual=None):
+    """MLB settled row in the raw on-disk shape (outcome/lean/marketKey).
+    Used to exercise the grader's normalization layer."""
+    return {
+        "playerId": playerId,
+        "playerName": f"MLBPlayer_{playerId}",
+        "marketKey": marketKey,
+        "marketLabel": marketKey.replace("_", " ").title(),
+        "lean": lean,
+        "line": line,
+        "outcome": outcome,
+        "actual": actual,
+    }
+
+
+def test_mlb_settled_lookup_normalization(s: Suite):
+    """The grader's lookup index must accept MLB rows alongside NBA
+    rows and key them by (playerId, marketKey, lean, line) — the
+    snapshot's MLB legs already use marketKey as `market`."""
+    print(f"\n  {BLUE}─── MLB settled lookup normalization ───{RESET}")
+    import tempfile, os, json as J
+    nba_rows = [_settled(1, "PTS", "Over", 20.5, "win", 24)]
+    mlb_rows = [
+        _mlb_settled(901, "pitcher_strikeouts", "Over", 5.5, "Win", 7),
+        _mlb_settled(902, "batter_hits", "Under", 1.5, "Loss", 2),
+        _mlb_settled(903, "batter_total_bases", "Over", 1.5, "Push", 1.5),
+    ]
+    with tempfile.TemporaryDirectory() as tmp:
+        nba_dir = os.path.join(tmp, "app", "public", "data", "results")
+        mlb_dir = os.path.join(tmp, "app", "public", "data", "mlb", "results")
+        os.makedirs(nba_dir, exist_ok=True)
+        os.makedirs(mlb_dir, exist_ok=True)
+        with open(os.path.join(nba_dir, "settled_leans.jsonl"), "w") as f:
+            for r in nba_rows:
+                f.write(J.dumps({**r, "date": "2099-01-01"}) + "\n")
+        with open(os.path.join(mlb_dir, "settled_leans.jsonl"), "w") as f:
+            for r in mlb_rows:
+                f.write(J.dumps({**r, "date": "2099-01-01"}) + "\n")
+        cwd = os.getcwd()
+        try:
+            os.chdir(tmp)
+            lookup = GP._settled_lookup_for_date("2099-01-01")
+        finally:
+            os.chdir(cwd)
+    # NBA key still present.
+    s.ok((1, "PTS", "Over", 20.5) in lookup, "NBA key present in lookup")
+    # MLB keys present with normalized shape.
+    mlb_win_key = (901, "pitcher_strikeouts", "Over", 5.5)
+    mlb_loss_key = (902, "batter_hits", "Under", 1.5)
+    mlb_push_key = (903, "batter_total_bases", "Over", 1.5)
+    s.ok(mlb_win_key in lookup, "MLB win key present")
+    s.ok(mlb_loss_key in lookup, "MLB loss key present")
+    s.ok(mlb_push_key in lookup, "MLB push key present")
+    s.eq(lookup[mlb_win_key].get("result"), "win",
+         "MLB outcome 'Win' normalized to result 'win'")
+    s.eq(lookup[mlb_loss_key].get("result"), "loss",
+         "MLB outcome 'Loss' normalized to result 'loss'")
+    s.eq(lookup[mlb_push_key].get("result"), "push",
+         "MLB outcome 'Push' normalized to result 'push'")
+    s.eq(lookup[mlb_win_key].get("finalStat"), 7,
+         "MLB 'actual' normalized to 'finalStat'")
+
+
+def test_mlb_only_slip_grades_correctly(s: Suite):
+    print(f"\n  {BLUE}─── MLB-only slip grades correctly ───{RESET}")
+    # Snapshot MLB leg shape: market=marketKey, side=lean.
+    legs = [
+        {"playerId": 901, "playerName": "P1", "sport": "mlb",
+         "market": "pitcher_strikeouts", "side": "Over", "line": 5.5},
+        {"playerId": 902, "playerName": "B1", "sport": "mlb",
+         "market": "batter_hits", "side": "Under", "line": 1.5},
+    ]
+    lookup = {
+        (901, "pitcher_strikeouts", "Over", 5.5): {"result": "win", "finalStat": 7},
+        (902, "batter_hits", "Under", 1.5): {"result": "win", "finalStat": 0},
+    }
+    graded = [GP._grade_leg(leg, lookup) for leg in legs]
+    status = GP._grade_slip_status([leg["result"] for leg in graded])
+    s.eq(status, "win", "MLB all-hit slip → win")
+
+
+def test_mlb_pending_when_one_unresolved(s: Suite):
+    print(f"\n  {BLUE}─── MLB slip with one unresolved → pending ───{RESET}")
+    legs = [
+        {"playerId": 901, "sport": "mlb",
+         "market": "pitcher_strikeouts", "side": "Over", "line": 5.5},
+        {"playerId": 902, "sport": "mlb",
+         "market": "batter_hits", "side": "Under", "line": 1.5},
+    ]
+    lookup = {
+        (901, "pitcher_strikeouts", "Over", 5.5): {"result": "win", "finalStat": 7},
+        # 902 row intentionally missing — leg should be unresolved.
+    }
+    graded = [GP._grade_leg(leg, lookup) for leg in legs]
+    s.eq(graded[1]["result"], "unresolved", "missing MLB row → unresolved")
+    status = GP._grade_slip_status([leg["result"] for leg in graded])
+    s.eq(status, "pending", "MLB unresolved leg → slip pending, not loss")
+
+
+def test_mixed_nba_mlb_slip_grades(s: Suite):
+    print(f"\n  {BLUE}─── mixed NBA + MLB slip grades correctly ───{RESET}")
+    legs = [
+        {"playerId": 1, "sport": "nba",
+         "market": "PTS", "side": "Over", "line": 20.5},
+        {"playerId": 901, "sport": "mlb",
+         "market": "pitcher_strikeouts", "side": "Over", "line": 5.5},
+        {"playerId": 902, "sport": "mlb",
+         "market": "batter_hits", "side": "Under", "line": 1.5},
+    ]
+    lookup = {
+        (1, "PTS", "Over", 20.5): {"result": "win", "finalStat": 24},
+        (901, "pitcher_strikeouts", "Over", 5.5): {"result": "win", "finalStat": 7},
+        (902, "batter_hits", "Under", 1.5): {"result": "loss", "finalStat": 2},
+    }
+    graded = [GP._grade_leg(leg, lookup) for leg in legs]
+    status = GP._grade_slip_status([leg["result"] for leg in graded])
+    s.eq(status, "loss", "mixed slip with one MLB loss → loss")
+
+
 def main():
     s = Suite()
     for t in (
@@ -183,6 +302,10 @@ def main():
         test_push_with_loss_still_lose,
         test_grade_snapshot_payload_end_to_end,
         test_no_snapshot_means_honest_noop,
+        test_mlb_settled_lookup_normalization,
+        test_mlb_only_slip_grades_correctly,
+        test_mlb_pending_when_one_unresolved,
+        test_mixed_nba_mlb_slip_grades,
     ):
         t(s)
     print(

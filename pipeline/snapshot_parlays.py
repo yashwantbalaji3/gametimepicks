@@ -160,6 +160,11 @@ class SnapshotLeg:
     bookmaker: str | None
     oddsForSide: int | None
     riskFlags: list[str] = field(default_factory=list)
+    # Friendly display name for the market. NBA leaves this as None (the
+    # market itself — PTS / REB / AST — is already friendly). MLB sets
+    # this to "Strikeouts" / "Hits" / "Total Bases" so the UI doesn't
+    # render the raw `pitcher_strikeouts` snake_case key.
+    marketLabel: str | None = None
 
 
 @dataclass(frozen=True)
@@ -289,6 +294,7 @@ def _lean_to_leg(lean: dict, sport: str, date: str) -> SnapshotLeg:
         bookmaker=lean.get("bookmaker"),
         oddsForSide=odds,
         riskFlags=lean.get("riskFlags") or [],
+        marketLabel=lean.get("marketLabel"),
     )
 
 
@@ -320,7 +326,71 @@ def load_nba_leans(date: str) -> list[dict]:
     except json.JSONDecodeError:
         return []
     leans = board.get("leans") if isinstance(board, dict) else None
-    return leans if isinstance(leans, list) else []
+    if not isinstance(leans, list):
+        return []
+    # Tag every lean with its sport so per-leg `sport` survives the
+    # builder which doesn't otherwise know which sport a lean came from.
+    return [{**l, "_sport": "nba"} for l in leans]
+
+
+def load_mlb_leans(date: str) -> list[dict]:
+    """Load MLB board leans for `date`, normalized to the NBA-shaped
+    dict the builder expects.
+
+    MLB and NBA boards use different field names — MLB writes
+    `marketKey`/`marketLabel`/`lean`/`playerTeamAbbr`/`opponentAbbr`/
+    `recentSeries`, NBA writes `market`/`lean`/`team`/`opponent`/
+    `recent10`. We translate at load time so the builder rules stay
+    sport-agnostic. Every field the eligibility checker reads
+    (`lean`, `confidence`, `edgePct`, `recent10`, `playerId`,
+    `riskFlags`) maps cleanly across sports.
+
+    Honest gates preserved:
+      - Pass / No Play leans are dropped at builder time (same as NBA).
+      - insufficient_data confidence is also dropped because no
+        production tier (High/Medium/Low) admits it.
+    """
+    path = os.path.join("app", "public", "data", "mlb", "boards", f"{date}.json")
+    if not os.path.exists(path):
+        return []
+    try:
+        board = json.load(open(path, "r", encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    raw = board.get("leans") if isinstance(board, dict) else None
+    if not isinstance(raw, list):
+        return []
+    out: list[dict] = []
+    for ml in raw:
+        if not isinstance(ml, dict):
+            continue
+        out.append({
+            "_sport": "mlb",
+            "gameId": ml.get("gameId"),
+            "playerId": ml.get("playerId"),
+            "playerName": ml.get("playerName"),
+            "team": ml.get("playerTeamAbbr"),
+            "opponent": ml.get("opponentAbbr"),
+            # Keep both keys so downstream consumers can render either.
+            # Builder reads `market` for the player+market dedupe key.
+            "market": ml.get("marketKey"),
+            "marketLabel": ml.get("marketLabel") or ml.get("marketKey"),
+            "lean": ml.get("lean"),
+            "line": ml.get("line"),
+            "projection": ml.get("projection"),
+            "edgePct": ml.get("edgePct"),
+            "confidence": ml.get("confidence"),
+            "oddsOver": ml.get("oddsOver"),
+            "oddsUnder": ml.get("oddsUnder"),
+            "bookmaker": ml.get("bookmaker"),
+            # recentSeries → recent10 (builder reads this for the
+            # `requireRecent10` rule; MLB sample sizes are similar).
+            "recent10": ml.get("recentSeries") or [],
+            "riskFlags": ml.get("riskFlags") or [],
+            # ISO commenceTime so the unstarted-game filter still works.
+            "tipoff": ml.get("commenceTime"),
+        })
+    return out
 
 
 def build_snapshot(
@@ -331,31 +401,76 @@ def build_snapshot(
     num_per_profile: int = 3,
 ) -> dict[str, Any]:
     """Pure function — builds the snapshot dict; does not write to disk.
-    Callers test against this directly."""
+    Callers test against this directly.
+
+    Generates three slip pools:
+      - NBA-only      (sport="nba")
+      - MLB-only      (sport="mlb")
+      - Multi-sport   (sport="multi" — only when both sport pools are non-empty)
+
+    Multi-sport candidates pull from the union of normalized pools.
+    Stable slip IDs use date + profile + sorted leg signature, so
+    reruns are idempotent (no duplicates across re-snapshots).
+    """
     nba_leans = _filter_unstarted(load_nba_leans(date), now_iso)
+    mlb_leans = _filter_unstarted(load_mlb_leans(date), now_iso)
+
     slips: list[SnapshotSlip] = []
+
+    def _emit(picked: list[dict], profile: str, sport: str) -> None:
+        sid = _stable_slip_id(date, profile, picked)
+        legs = [_lean_to_leg(l, l.get("_sport", sport), date) for l in picked]
+        unique_games = len({l.gameId for l in legs if l.gameId})
+        same_game = unique_games < len(legs)
+        has_anom = any("suspicious_edge" in (leg.riskFlags or []) for leg in legs)
+        score = sum(_leg_score(l) for l in picked) / max(len(picked), 1)
+        slips.append(
+            SnapshotSlip(
+                slipId=sid,
+                riskProfile=profile,
+                legs=legs,
+                score=round(score, 4),
+                sameGame=same_game,
+                hasAnomalyLeg=has_anom,
+                status="pending",
+                sport=sport,
+            )
+        )
+
     for profile in profiles:
+        # NBA-only pool
         for picked in _build_candidates(
             nba_leans, risk_profile=profile, num_candidates=num_per_profile,
         ):
-            sid = _stable_slip_id(date, profile, picked)
-            legs = [_lean_to_leg(l, "nba", date) for l in picked]
-            unique_games = len({l.gameId for l in legs if l.gameId})
-            same_game = unique_games < len(legs)
-            has_anom = any("suspicious_edge" in (leg.riskFlags or []) for leg in legs)
-            score = sum(_leg_score(l) for l in picked) / max(len(picked), 1)
-            slips.append(
-                SnapshotSlip(
-                    slipId=sid,
-                    riskProfile=profile,
-                    legs=legs,
-                    score=round(score, 4),
-                    sameGame=same_game,
-                    hasAnomalyLeg=has_anom,
-                    status="pending",
-                    sport="nba",
-                )
-            )
+            _emit(picked, profile, "nba")
+        # MLB-only pool
+        for picked in _build_candidates(
+            mlb_leans, risk_profile=profile, num_candidates=num_per_profile,
+        ):
+            _emit(picked, profile, "mlb")
+        # Multi-sport pool — only when both pools are non-empty.
+        # Aggressive only by design: cross-sport correlation is least
+        # studied; we don't recommend conservative/balanced mixed slips
+        # until we have settled multi-sport data to validate against.
+        if profile == "aggressive" and nba_leans and mlb_leans:
+            for picked in _build_candidates(
+                nba_leans + mlb_leans,
+                risk_profile=profile,
+                num_candidates=max(1, num_per_profile - 1),
+            ):
+                # Only keep if at least one leg from each sport.
+                sports = {l.get("_sport") for l in picked}
+                if "nba" in sports and "mlb" in sports:
+                    _emit(picked, profile, "multi")
+
+    sports_included: list[str] = []
+    if nba_leans:
+        sports_included.append("nba")
+    if mlb_leans:
+        sports_included.append("mlb")
+
+    source_boards = [date]  # Single-date snapshot; reads NBA + MLB board files.
+
     return {
         "_disclaimer": (
             "Pregame candidate slips captured before games started. "
@@ -365,8 +480,8 @@ def build_snapshot(
         ),
         "date": date,
         "generatedAt": now_iso or datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "sportsIncluded": ["nba"] if nba_leans else [],
-        "sourceBoardDates": [date],
+        "sportsIncluded": sports_included,
+        "sourceBoardDates": source_boards,
         "profilesGenerated": list(profiles),
         "slipsCount": len(slips),
         "slips": [

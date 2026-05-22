@@ -82,6 +82,15 @@ const RISK_PROFILES: { key: RiskProfile; label: string; sub: string }[] = [
   { key: "conservative", label: "Conservative", sub: "high only · clean" },
 ];
 
+/** Sport filter chips. "Mixed" surfaces the multi-sport slip pool. */
+type SportFilter = "all" | "nba" | "mlb" | "multi";
+const SPORT_FILTERS: { key: SportFilter; label: string; sub: string }[] = [
+  { key: "all", label: "All", sub: "every slip" },
+  { key: "nba", label: "🏀 NBA", sub: "basketball" },
+  { key: "mlb", label: "⚾ MLB", sub: "baseball" },
+  { key: "multi", label: "Mixed", sub: "NBA + MLB" },
+];
+
 export default function ParlayLabExperience({
   payload,
   snapshotsByDate,
@@ -93,6 +102,7 @@ export default function ParlayLabExperience({
   const urlDate = searchParams.get("date");
   const urlGameId = searchParams.get("game");
   const urlRisk = (searchParams.get("risk") as RiskProfile) || "balanced";
+  const urlSport = (searchParams.get("sport") as SportFilter) || "all";
 
   const selectedDate =
     urlDate && payload.dates.some((d) => d.date === urlDate)
@@ -116,12 +126,17 @@ export default function ParlayLabExperience({
     date?: string;
     game?: string | null;
     risk?: RiskProfile;
+    sport?: SportFilter;
   }) {
     const params = new URLSearchParams(searchParams.toString());
     if (next.date) params.set("date", next.date);
     if (next.game === null) params.delete("game");
     else if (typeof next.game === "string") params.set("game", next.game);
     if (next.risk) params.set("risk", next.risk);
+    if (next.sport) {
+      if (next.sport === "all") params.delete("sport");
+      else params.set("sport", next.sport);
+    }
     const qs = params.toString();
     router.replace(qs ? `/parlay-lab?${qs}` : "/parlay-lab", { scroll: false });
   }
@@ -183,12 +198,28 @@ export default function ParlayLabExperience({
             snapshotSource={snapshotForDate?.source ?? null}
           />
         ) : (
-          <GameCardGrid
-            games={activeDate.games}
-            snapshotPayload={snapshotForDate?.payload ?? null}
-            snapshotSource={snapshotForDate?.source ?? null}
-            onSelect={(gameId) => navigate({ game: gameId })}
-          />
+          <>
+            <SportFilterRow
+              activeSport={urlSport}
+              snapshotPayload={snapshotForDate?.payload ?? null}
+              games={activeDate.games}
+              onSelect={(sp) => navigate({ sport: sp })}
+            />
+            <TonightSavedSlipsRail
+              activeSport={urlSport}
+              snapshotPayload={snapshotForDate?.payload ?? null}
+              snapshotSource={snapshotForDate?.source ?? null}
+            />
+            <GameCardGrid
+              games={activeDate.games.filter((g) => {
+                if (urlSport === "all" || urlSport === "multi") return true;
+                return g.sport === urlSport;
+              })}
+              snapshotPayload={snapshotForDate?.payload ?? null}
+              snapshotSource={snapshotForDate?.source ?? null}
+              onSelect={(gameId) => navigate({ game: gameId })}
+            />
+          </>
         )
       ) : null}
 
@@ -237,6 +268,133 @@ function Header({
           : `${label} · choose a game, pick a style, review the ticket.`}
       </p>
     </header>
+  );
+}
+
+/* ============================================================================
+   Sport filter row
+============================================================================ */
+
+function SportFilterRow({
+  activeSport,
+  snapshotPayload,
+  games,
+  onSelect,
+}: {
+  activeSport: SportFilter;
+  snapshotPayload: ParlaySnapshot | null;
+  games: ProjectionsGame[];
+  onSelect: (s: SportFilter) => void;
+}) {
+  // Counts per chip — slip count for All / NBA / MLB / Multi from
+  // the snapshot, game count for sport chips when no snapshot.
+  const counts = useMemo(() => {
+    const out: Record<SportFilter, number> = {
+      all: 0,
+      nba: 0,
+      mlb: 0,
+      multi: 0,
+    };
+    if (snapshotPayload) {
+      for (const slip of snapshotPayload.slips ?? []) {
+        const sp = (slip.sport as SportFilter) || "all";
+        if (sp === "nba" || sp === "mlb" || sp === "multi") {
+          out[sp] += 1;
+          out.all += 1;
+        }
+      }
+    } else {
+      for (const g of games) {
+        if (g.sport === "nba") out.nba += 1;
+        else if (g.sport === "mlb") out.mlb += 1;
+        out.all += 1;
+      }
+    }
+    return out;
+  }, [snapshotPayload, games]);
+  return (
+    <nav
+      aria-label="Sport filter"
+      className="gtp-projections-date-row flex gap-2 overflow-x-auto -mx-1 px-1 pb-1"
+    >
+      {SPORT_FILTERS.map((f) => {
+        const active = activeSport === f.key;
+        const n = counts[f.key];
+        return (
+          <button
+            key={f.key}
+            type="button"
+            onClick={() => onSelect(f.key)}
+            className="gtp-projections-date-pill"
+            data-active={active ? "true" : "false"}
+            aria-pressed={active}
+          >
+            <span className="block font-mono uppercase tracking-[0.14em] text-[10px] leading-none">
+              {f.label}
+            </span>
+            <span
+              className="block tabular text-[12px] leading-none mt-1"
+              style={{ color: active ? "inherit" : "var(--vault-text-faint)" }}
+            >
+              {n > 0
+                ? `${n} ${snapshotPayload ? (n === 1 ? "slip" : "slips") : f.key === "all" ? "games" : "games"}`
+                : f.sub}
+            </span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/* ============================================================================
+   Tonight's saved slips rail (rendered above the game grid)
+============================================================================ */
+
+function TonightSavedSlipsRail({
+  activeSport,
+  snapshotPayload,
+  snapshotSource,
+}: {
+  activeSport: SportFilter;
+  snapshotPayload: ParlaySnapshot | null;
+  snapshotSource: "snapshot" | "graded" | null;
+}) {
+  const slips: ParlaySlip[] = useMemo(() => {
+    if (!snapshotPayload) return [];
+    return (snapshotPayload.slips ?? []).filter((slip) => {
+      if (activeSport === "all") return true;
+      return slip.sport === activeSport;
+    });
+  }, [snapshotPayload, activeSport]);
+
+  if (slips.length === 0) return null;
+
+  const sourceLabel =
+    snapshotSource === "graded"
+      ? "Tonight's slips · graded"
+      : "Tonight's slips · saved before games";
+
+  return (
+    <section
+      aria-label="Saved slips for tonight"
+      className="flex flex-col gap-3"
+    >
+      <SectionEyebrow
+        label={sourceLabel}
+        tone={snapshotSource === "graded" ? "success" : "warn"}
+        cta={{ href: "/results/parlays", label: "Full history" }}
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {slips.slice(0, 9).map((slip) => (
+          <ParlayTicketCard
+            key={slip.slipId}
+            slip={slip}
+            savedPregame={snapshotSource === "snapshot"}
+          />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -727,12 +885,14 @@ function MlbPreviewPendingPanel() {
         className="font-mono uppercase tracking-[0.14em] mb-1"
         style={{ color: "var(--vault-gold)", fontSize: 10 }}
       >
-        MLB live preview pending
+        Per-game live preview not shown for MLB
       </div>
       <p style={{ lineHeight: 1.55 }}>
-        Live MLB slip preview requires builder correlation rules and
-        grading joins for MLB props. When that ships, MLB matchup cards
-        will surface saved + preview tickets here too.
+        MLB candidate slips span multiple games (max 1-2 legs per game
+        by design), so they live in &quot;Tonight&apos;s slips&quot;
+        above the game grid rather than under a single matchup card.
+        Use the back link to see every MLB slip generated for this
+        slate.
       </p>
     </div>
   );

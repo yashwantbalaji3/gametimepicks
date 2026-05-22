@@ -185,7 +185,8 @@ function TicketLegRow({ leg }: { leg: ParlayLeg }) {
           className="font-mono"
           style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
         >
-          {leg.market} {leg.side} {leg.line != null ? leg.line.toFixed(1) : "—"}
+          {leg.marketLabel || leg.market}{" "}
+          {leg.side} {leg.line != null ? leg.line.toFixed(1) : "—"}
           {leg.team ? ` · ${leg.team}` : ""}
           {signal ? ` · ${signal}` : ""}
         </div>

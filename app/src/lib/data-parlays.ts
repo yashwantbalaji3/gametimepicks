@@ -36,6 +36,11 @@ export interface ParlayLeg {
   team: string | null;
   opponent: string | null;
   market: string;
+  /** Friendly display name for the market. NBA leaves this null (the
+   *  market value itself is already friendly: PTS/REB/AST). MLB sets
+   *  this to "Strikeouts" / "Hits" / "Total Bases" so the UI doesn't
+   *  render the raw snake_case `pitcher_strikeouts` key. */
+  marketLabel?: string | null;
   side: string;
   line: number | null;
   projection: number | null;
