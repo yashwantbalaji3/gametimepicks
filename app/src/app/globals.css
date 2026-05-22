@@ -3784,6 +3784,41 @@ table,
 }
 
 /* ---------------------------------------------------------------------------
+   Parlay ticket card (PR C — overnight 2026-05-22).
+   Sportsbook-receipt feel for parlay slips on /parlay-lab and
+   /results/parlays. Layered background, soft accent rule on top, lift +
+   gold border on hover. The accent itself is keyed to slip status via
+   the inline gradient applied by the component.
+   --------------------------------------------------------------------------- */
+.gtp-parlay-ticket {
+  position: relative;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg,
+      rgba(20, 24, 35, 0.95) 0%,
+      rgba(7, 11, 26, 0.88) 100%);
+  border: 1px solid var(--vault-border);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03) inset,
+    0 8px 22px -16px rgba(0, 0, 0, 0.55);
+  transition: border-color 200ms ease,
+    transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 240ms ease;
+}
+.gtp-parlay-ticket:hover {
+  border-color: var(--vault-border-strong);
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(212, 175, 55, 0.10) inset,
+    0 14px 32px -14px rgba(0, 0, 0, 0.65),
+    0 0 22px -10px rgba(240, 199, 94, 0.30);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-parlay-ticket,
+  .gtp-parlay-ticket:hover { transition: none; transform: none; }
+}
+
+/* ---------------------------------------------------------------------------
    MLB game-card accordion (PR A — overnight 2026-05-22).
    Each MLB game on /mlb/board is wrapped in a native <details> so the
    page renders one expanded game at first paint instead of all 7-9 at
