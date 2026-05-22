@@ -3784,6 +3784,123 @@ table,
 }
 
 /* ---------------------------------------------------------------------------
+   Projections experience (redesign — 2026-05-22).
+   Date pill row, matchup card, and player accordion styling for the
+   redesigned /projections flow. All mobile-first: pill row scrolls
+   horizontally with snap, matchup cards collapse to a single column
+   under 640px, accordions are native <details>.
+   --------------------------------------------------------------------------- */
+.gtp-projections-date-row {
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.gtp-projections-date-row::-webkit-scrollbar {
+  height: 4px;
+}
+.gtp-projections-date-row::-webkit-scrollbar-thumb {
+  background: var(--vault-border);
+  border-radius: 2px;
+}
+.gtp-projections-date-pill {
+  flex: 0 0 auto;
+  min-width: 78px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(7, 11, 26, 0.55);
+  border: 1px solid var(--vault-border);
+  color: var(--vault-text-mute);
+  scroll-snap-align: start;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease,
+    transform 160ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  cursor: pointer;
+  text-align: left;
+}
+.gtp-projections-date-pill:hover {
+  border-color: var(--vault-border-strong);
+  color: var(--vault-text);
+}
+.gtp-projections-date-pill[data-active="true"] {
+  background: linear-gradient(
+    180deg,
+    rgba(212, 175, 55, 0.18) 0%,
+    rgba(212, 175, 55, 0.05) 100%
+  );
+  border-color: rgba(240, 199, 94, 0.55);
+  color: var(--vault-gold-bright);
+  box-shadow: 0 0 16px -6px rgba(240, 199, 94, 0.55);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-projections-date-pill { transition: none; }
+}
+
+.gtp-matchup-card {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 24, 35, 0.92) 0%,
+    rgba(7, 11, 26, 0.68) 100%
+  );
+  border: 1px solid var(--vault-border);
+  transition: border-color 180ms ease, transform 180ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 220ms ease;
+  cursor: pointer;
+}
+.gtp-matchup-card:hover {
+  border-color: var(--vault-border-strong);
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(212, 175, 55, 0.10) inset,
+    0 12px 26px -14px rgba(0, 0, 0, 0.55),
+    0 0 18px -10px rgba(240, 199, 94, 0.28);
+}
+.gtp-matchup-card:focus-visible {
+  outline: 2px solid var(--vault-gold-bright);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-matchup-card,
+  .gtp-matchup-card:hover { transition: none; transform: none; }
+}
+
+.gtp-player-accordion {
+  background: rgba(7, 11, 26, 0.55);
+  border: 1px solid var(--vault-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.gtp-player-accordion[open] {
+  border-color: var(--vault-border-strong);
+  box-shadow: 0 1px 0 rgba(212, 175, 55, 0.08) inset;
+}
+.gtp-player-accordion > summary { position: relative; }
+.gtp-player-accordion > summary::-webkit-details-marker { display: none; }
+.gtp-player-accordion-summary { display: block; }
+.gtp-player-accordion-summary:focus-visible {
+  outline: 2px solid var(--vault-gold-bright);
+  outline-offset: -2px;
+}
+.gtp-player-accordion-chevron {
+  transition: transform 160ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.gtp-player-accordion[open] > summary .gtp-player-accordion-chevron {
+  transform: rotate(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-player-accordion-chevron { transition: none; }
+}
+
+/* Mobile density — even tighter padding on the projections experience.
+   The page should feel breathable but never claustrophobic. */
+@media (max-width: 640px) {
+  .gtp-matchup-card { padding: 10px 12px; }
+  .gtp-projections-date-pill { min-width: 70px; padding: 7px 10px; }
+  .gtp-player-accordion > summary > div { padding: 8px 10px; }
+}
+
+/* ---------------------------------------------------------------------------
    Parlay ticket card (PR C — overnight 2026-05-22).
    Sportsbook-receipt feel for parlay slips on /parlay-lab and
    /results/parlays. Layered background, soft accent rule on top, lift +
