@@ -249,3 +249,45 @@ export function getCuratedTonightPicks(date: string): {
   if (picks.length === 0) return null;
   return { date, source, picks };
 }
+
+/**
+ * Slips for a specific game on a specific date.
+ *
+ * Filters the snapshot (or graded payload, when settlement has run)
+ * down to slips whose legs all reference the given gameId. Used by
+ * the redesigned `/parlay-lab` flow to show saved slips for the
+ * currently-selected game card.
+ *
+ * Honest behavior:
+ *   - Returns `null` when no snapshot exists at all for the date.
+ *   - Returns `{ slips: [] }` when a snapshot exists but no slips
+ *     match the gameId (so the UI can render an empty-state).
+ *   - Source tag mirrors `getCuratedTonightPicks` semantics — the
+ *     caller can render different copy for "saved" vs "graded".
+ */
+export function getSlipsForGame(
+  date: string,
+  gameId: string,
+): {
+  date: string;
+  gameId: string;
+  source: "snapshot" | "graded";
+  slips: ParlaySlip[];
+} | null {
+  const graded = getGradedForDate(date);
+  const snapshot = graded ? null : getSnapshotForDate(date);
+  const payload = graded ?? snapshot;
+  if (!payload) return null;
+  const source: "snapshot" | "graded" = graded ? "graded" : "snapshot";
+
+  const matching = (payload.slips ?? []).filter((slip) => {
+    if (!slip.legs || slip.legs.length === 0) return false;
+    // Slip belongs to a game iff EVERY leg references that gameId.
+    // Cross-game slips (multi-sport in the future) are excluded from
+    // a game-detail view by design — they belong on a "Cross-game"
+    // surface that we don't render today.
+    return slip.legs.every((leg) => leg.gameId === gameId);
+  });
+
+  return { date, gameId, source, slips: matching };
+}
