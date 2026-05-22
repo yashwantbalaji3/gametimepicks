@@ -1,6 +1,6 @@
 {
   "_disclaimer": "Settled-data audit. Pushes excluded. Pending and insufficient_data rows not counted. Educational use only \u2014 not betting advice.",
-  "generatedAt": "2026-05-22T03:09:22+00:00",
+  "generatedAt": "2026-05-22T17:28:10+00:00",
   "sports": {
     "nba": {
       "sport": "nba",
@@ -406,15 +406,15 @@
     "mlb": {
       "sport": "mlb",
       "sampleSize": {
-        "decisive": 582,
-        "dates": 2,
-        "newestDate": "2026-05-18",
+        "decisive": 744,
+        "dates": 3,
+        "newestDate": "2026-05-21",
         "oldestDate": "2026-05-16"
       },
       "lifetime": {
-        "wins": 293,
-        "losses": 289,
-        "hitRate": 0.5034364261168385
+        "wins": 373,
+        "losses": 371,
+        "hitRate": 0.5013440860215054
       },
       "byDate": [
         {
@@ -452,133 +452,151 @@
             "paceProjection": null,
             "parkFactor": null
           }
+        },
+        {
+          "date": "2026-05-21",
+          "wins": 80,
+          "losses": 82,
+          "decisive": 162,
+          "hitRate": 0.49382716049382713,
+          "gameContext": {
+            "dateIso": "2026-05-21",
+            "month": 5,
+            "dayOfWeek": 3,
+            "isPlayoff": false,
+            "seasonPhase": "regular_season",
+            "seriesState": null,
+            "eliminationFlag": null,
+            "paceProjection": null,
+            "parkFactor": null
+          }
         }
       ],
       "byMarket": [
         {
           "label": "batter_hits",
-          "wins": 191,
-          "losses": 186,
-          "decisive": 377,
-          "hitRate": 0.506631299734748,
-          "avgAbsErr": 0.7044031830238727,
-          "medianAbsErr": 0.6799999999999999,
-          "stdevErr": 0.49235505808912194,
-          "bias": 0.08217506631299734,
-          "nErr": 377
+          "wins": 250,
+          "losses": 237,
+          "decisive": 487,
+          "hitRate": 0.5133470225872689,
+          "avgAbsErr": 0.6920123203285421,
+          "medianAbsErr": 0.67,
+          "stdevErr": 0.48545080115396105,
+          "bias": 0.0339835728952772,
+          "nErr": 487
         },
         {
           "label": "batter_total_bases",
-          "wins": 82,
-          "losses": 80,
-          "decisive": 162,
-          "hitRate": 0.5061728395061729,
-          "avgAbsErr": 1.4527777777777777,
-          "medianAbsErr": 1.28,
-          "stdevErr": 1.1577155293566639,
-          "bias": 0.39339506172839506,
-          "nErr": 162
+          "wins": 99,
+          "losses": 105,
+          "decisive": 204,
+          "hitRate": 0.4852941176470588,
+          "avgAbsErr": 1.4219607843137254,
+          "medianAbsErr": 1.2599999999999998,
+          "stdevErr": 1.1640000667203052,
+          "bias": 0.24872549019607842,
+          "nErr": 204
         },
         {
           "label": "pitcher_strikeouts",
-          "wins": 20,
-          "losses": 23,
-          "decisive": 43,
-          "hitRate": 0.46511627906976744,
-          "avgAbsErr": 1.7725581395348837,
-          "medianAbsErr": 1.67,
-          "stdevErr": 1.1084539684209562,
-          "bias": -0.014883720930232524,
-          "nErr": 43
+          "wins": 24,
+          "losses": 29,
+          "decisive": 53,
+          "hitRate": 0.4528301886792453,
+          "avgAbsErr": 1.9341509433962265,
+          "medianAbsErr": 1.7300000000000004,
+          "stdevErr": 1.1749081601398728,
+          "bias": 0.2605660377358491,
+          "nErr": 53
         }
       ],
       "bySide": [
         {
           "label": "Over",
-          "wins": 188,
-          "losses": 173,
-          "decisive": 361,
-          "hitRate": 0.5207756232686981
+          "wins": 238,
+          "losses": 231,
+          "decisive": 469,
+          "hitRate": 0.5074626865671642
         },
         {
           "label": "Under",
-          "wins": 105,
-          "losses": 116,
-          "decisive": 221,
-          "hitRate": 0.4751131221719457
+          "wins": 135,
+          "losses": 140,
+          "decisive": 275,
+          "hitRate": 0.4909090909090909
         }
       ],
       "byMarketSide": [
         {
           "market": "batter_hits",
           "side": "Over",
-          "wins": 124,
-          "losses": 102,
-          "decisive": 226,
-          "hitRate": 0.5486725663716814
+          "wins": 159,
+          "losses": 133,
+          "decisive": 292,
+          "hitRate": 0.5445205479452054
         },
         {
           "market": "batter_hits",
           "side": "Under",
-          "wins": 67,
-          "losses": 84,
-          "decisive": 151,
-          "hitRate": 0.44370860927152317
+          "wins": 91,
+          "losses": 104,
+          "decisive": 195,
+          "hitRate": 0.4666666666666667
         },
         {
           "market": "batter_total_bases",
           "side": "Over",
-          "wins": 53,
-          "losses": 60,
-          "decisive": 113,
-          "hitRate": 0.4690265486725664
+          "wins": 66,
+          "losses": 85,
+          "decisive": 151,
+          "hitRate": 0.4370860927152318
         },
         {
           "market": "batter_total_bases",
           "side": "Under",
-          "wins": 29,
+          "wins": 33,
           "losses": 20,
-          "decisive": 49,
-          "hitRate": 0.5918367346938775
+          "decisive": 53,
+          "hitRate": 0.6226415094339622
         },
         {
           "market": "pitcher_strikeouts",
           "side": "Over",
-          "wins": 11,
-          "losses": 11,
-          "decisive": 22,
+          "wins": 13,
+          "losses": 13,
+          "decisive": 26,
           "hitRate": 0.5
         },
         {
           "market": "pitcher_strikeouts",
           "side": "Under",
-          "wins": 9,
-          "losses": 12,
-          "decisive": 21,
-          "hitRate": 0.42857142857142855
+          "wins": 11,
+          "losses": 16,
+          "decisive": 27,
+          "hitRate": 0.4074074074074074
         }
       ],
       "byConfidence": [
         {
           "label": "High",
-          "wins": 128,
-          "losses": 123,
-          "decisive": 251,
-          "hitRate": 0.5099601593625498
+          "wins": 152,
+          "losses": 163,
+          "decisive": 315,
+          "hitRate": 0.48253968253968255
         },
         {
           "label": "Low",
-          "wins": 128,
-          "losses": 127,
-          "decisive": 255,
-          "hitRate": 0.5019607843137255
+          "wins": 168,
+          "losses": 159,
+          "decisive": 327,
+          "hitRate": 0.5137614678899083
         },
         {
           "label": "Medium",
-          "wins": 37,
-          "losses": 39,
-          "decisive": 76,
-          "hitRate": 0.4868421052631579
+          "wins": 53,
+          "losses": 49,
+          "decisive": 102,
+          "hitRate": 0.5196078431372549
         }
       ],
       "byEdgeBand": [
@@ -586,136 +604,136 @@
           "label": "0\u20135pp",
           "lo": 0.0,
           "hi": 5.0,
-          "wins": 142,
-          "losses": 147,
-          "decisive": 289,
-          "hitRate": 0.4913494809688581
+          "wins": 195,
+          "losses": 185,
+          "decisive": 380,
+          "hitRate": 0.5131578947368421
         },
         {
           "label": "5\u201310pp",
           "lo": 5.0,
           "hi": 10.0,
-          "wins": 73,
-          "losses": 53,
-          "decisive": 126,
-          "hitRate": 0.5793650793650794
+          "wins": 90,
+          "losses": 75,
+          "decisive": 165,
+          "hitRate": 0.5454545454545454
         },
         {
           "label": "10\u201315pp",
           "lo": 10.0,
           "hi": 15.0,
-          "wins": 34,
-          "losses": 36,
-          "decisive": 70,
-          "hitRate": 0.4857142857142857
+          "wins": 40,
+          "losses": 51,
+          "decisive": 91,
+          "hitRate": 0.43956043956043955
         },
         {
           "label": "15\u201325pp",
           "lo": 15.0,
           "hi": 25.0,
-          "wins": 31,
-          "losses": 43,
-          "decisive": 74,
-          "hitRate": 0.4189189189189189
+          "wins": 34,
+          "losses": 50,
+          "decisive": 84,
+          "hitRate": 0.40476190476190477
         },
         {
           "label": "25pp+",
           "lo": 25.0,
           "hi": null,
-          "wins": 13,
+          "wins": 14,
           "losses": 10,
-          "decisive": 23,
-          "hitRate": 0.5652173913043478
+          "decisive": 24,
+          "hitRate": 0.5833333333333334
         }
       ],
       "byEdgeQuartile": [
         {
           "quartile": 1,
           "lo": 0.01,
-          "hi": 2.11,
-          "wins": 69,
-          "losses": 76,
-          "decisive": 145,
-          "hitRate": 0.47586206896551725
+          "hi": 2.07,
+          "wins": 92,
+          "losses": 94,
+          "decisive": 186,
+          "hitRate": 0.4946236559139785
         },
         {
           "quartile": 2,
-          "lo": 2.13,
-          "hi": 5.01,
-          "wins": 73,
-          "losses": 73,
-          "decisive": 146,
-          "hitRate": 0.5
+          "lo": 2.1,
+          "hi": 4.67,
+          "wins": 97,
+          "losses": 89,
+          "decisive": 186,
+          "hitRate": 0.521505376344086
         },
         {
           "quartile": 3,
-          "lo": 5.08,
-          "hi": 11.33,
-          "wins": 86,
-          "losses": 59,
-          "decisive": 145,
-          "hitRate": 0.593103448275862
+          "lo": 4.68,
+          "hi": 10.49,
+          "wins": 104,
+          "losses": 82,
+          "decisive": 186,
+          "hitRate": 0.5591397849462365
         },
         {
           "quartile": 4,
-          "lo": 11.39,
+          "lo": 10.53,
           "hi": 41.51,
-          "wins": 65,
-          "losses": 81,
-          "decisive": 146,
-          "hitRate": 0.4452054794520548
+          "wins": 80,
+          "losses": 106,
+          "decisive": 186,
+          "hitRate": 0.43010752688172044
         }
       ],
       "byBookmaker": [],
       "perGameDispersion": {
-        "nGames": 24,
+        "nGames": 31,
         "minHit": 0.35,
         "maxHit": 0.6666666666666666,
-        "stdev": 0.08823195337795728,
-        "median": 0.5108695652173914
+        "stdev": 0.08184120627596313,
+        "median": 0.5
       },
       "weakCohorts": [
         {
           "name": "Edge 15\u201325pp",
-          "wins": 31,
-          "losses": 43,
-          "decisive": 74,
-          "hitRate": 0.4189189189189189,
+          "wins": 34,
+          "losses": 50,
+          "decisive": 84,
+          "hitRate": 0.40476190476190477,
           "weight": "lean"
         },
         {
-          "name": "batter_hits Under",
-          "wins": 67,
-          "losses": 84,
+          "name": "batter_total_bases Over",
+          "wins": 66,
+          "losses": 85,
           "decisive": 151,
-          "hitRate": 0.44370860927152317,
+          "hitRate": 0.4370860927152318,
+          "weight": "lean"
+        },
+        {
+          "name": "Edge 10\u201315pp",
+          "wins": 40,
+          "losses": 51,
+          "decisive": 91,
+          "hitRate": 0.43956043956043955,
           "weight": "lean"
         }
       ],
       "strongCohorts": [
         {
           "name": "batter_total_bases Under",
-          "wins": 29,
+          "wins": 33,
           "losses": 20,
-          "decisive": 49,
-          "hitRate": 0.5918367346938775,
+          "decisive": 53,
+          "hitRate": 0.6226415094339622,
           "weight": "small-sample"
-        },
-        {
-          "name": "Edge 5\u201310pp",
-          "wins": 73,
-          "losses": 53,
-          "decisive": 126,
-          "hitRate": 0.5793650793650794,
-          "weight": "lean"
         }
       ]
     },
     "cross": {
-      "wins": 657,
-      "losses": 596,
-      "decisive": 1253,
-      "hitRate": 0.524341580207502,
+      "wins": 737,
+      "losses": 678,
+      "decisive": 1415,
+      "hitRate": 0.5208480565371024,
       "newestDate": "2026-05-21"
     }
   }
