@@ -195,7 +195,36 @@ export default function AboutPage() {
               by edge × calibration-adjusted confidence × market
               strength. Inverted (sport, tier) combos are excluded.
               Better to see six trustworthy reads than 300 of mixed
-              quality.
+              quality. The picks are saved before games via{" "}
+              <code style={{ color: "var(--vault-text)" }}>
+                pipeline.snapshot_curated
+              </code>{" "}
+              and graded after settlement via{" "}
+              <code style={{ color: "var(--vault-text)" }}>
+                pipeline.grade_curated
+              </code>{" "}
+              — so the curated rail will eventually carry a real,
+              auditable hit rate of its own.
+            </li>
+            <li>
+              <strong style={{ color: "var(--vault-text-mute)" }}>
+                Calibration is now derived from the live audit
+              </strong>{" "}
+              — the confidence overlay reads{" "}
+              <Link
+                href="/results/model-audit"
+                style={{
+                  color: "var(--vault-gold-bright)",
+                  textDecoration: "none",
+                }}
+              >
+                model_audit.json
+              </Link>{" "}
+              every render. When the nightly settle adds more data,
+              labels adjust automatically. We fail closed: thin
+              samples stay informational, inverted tiers downgrade,
+              and no tier earns &quot;Stronger signal&quot; without
+              ≥ 100 settled rows and ≥ 57% hit rate.
             </li>
           </ul>
           <p

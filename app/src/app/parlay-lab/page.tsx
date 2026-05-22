@@ -31,6 +31,7 @@ import { Suspense } from "react";
 
 import ParlayLabExperience from "@/components/parlay-lab-experience";
 import { loadProjectionsPayload } from "@/lib/data-projections";
+import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import {
   getSnapshotForDate,
   getGradedForDate,
@@ -85,6 +86,7 @@ export default function ParlayLabPage() {
           payload={payload}
           snapshotsByDate={snapshotsByDate}
           nbaLeansByDate={nbaLeansByDate}
+          calibrationTable={loadCalibrationTable()}
         />
       </Suspense>
     </div>

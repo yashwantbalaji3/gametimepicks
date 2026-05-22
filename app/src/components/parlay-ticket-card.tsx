@@ -23,15 +23,24 @@ import {
 } from "@/lib/odds-math";
 import { confidenceLabel } from "@/lib/confidence-labels";
 import {
-  calibratedConfidenceLabel,
+  EMPTY_CALIBRATION_TABLE,
+  calibratedConfidenceLabelFromTable,
+  type CalibrationTable,
   type Sport,
-} from "@/lib/confidence-calibration";
+} from "@/lib/confidence-calibration-rules";
 
 interface Props {
   slip: ParlaySlip;
   /** When true, label the ticket as "Saved before games" (pregame
    *  snapshot) vs the default "Live preview" used by the builder. */
   savedPregame?: boolean;
+  /** Optional calibration table (pre-loaded on the server). When
+   *  absent, falls back to the empty table — every tier classifies
+   *  as "unknown" so we render the raw confidence label without an
+   *  overlay. Server pages pass this from `loadCalibrationTable()`;
+   *  client callers (e.g. ParlayLabExperience) should pass through
+   *  the table they received as their own prop. */
+  calibrationTable?: CalibrationTable;
 }
 
 function statusColor(status: ParlaySlip["status"]): string {
@@ -79,7 +88,11 @@ function statusLabel(status: ParlaySlip["status"]): string {
   }
 }
 
-export default function ParlayTicketCard({ slip, savedPregame }: Props) {
+export default function ParlayTicketCard({
+  slip,
+  savedPregame,
+  calibrationTable = EMPTY_CALIBRATION_TABLE,
+}: Props) {
   const accent = statusColor(slip.status);
   const profileColor = riskProfileColor(slip.riskProfile);
   const payout = combinedParlayPayoutPer100(slip.legs);
@@ -130,7 +143,7 @@ export default function ParlayTicketCard({ slip, savedPregame }: Props) {
       <ul className="px-4 space-y-1.5">
         {slip.legs.map((leg, i) => (
           <li key={`${slip.slipId}-${i}`}>
-            <TicketLegRow leg={leg} />
+            <TicketLegRow leg={leg} calibrationTable={calibrationTable} />
           </li>
         ))}
       </ul>
@@ -159,7 +172,13 @@ export default function ParlayTicketCard({ slip, savedPregame }: Props) {
   );
 }
 
-function TicketLegRow({ leg }: { leg: ParlayLeg }) {
+function TicketLegRow({
+  leg,
+  calibrationTable,
+}: {
+  leg: ParlayLeg;
+  calibrationTable: CalibrationTable;
+}) {
   const result = leg.result;
   const resultAccent =
     result === "win"
@@ -178,7 +197,11 @@ function TicketLegRow({ leg }: { leg: ParlayLeg }) {
     : null;
   const signal = leg.confidence
     ? sportKey
-      ? calibratedConfidenceLabel(sportKey, leg.confidence).label
+      ? calibratedConfidenceLabelFromTable(
+          sportKey,
+          leg.confidence,
+          calibrationTable[sportKey] ?? {},
+        ).label
       : confidenceLabel(leg.confidence)
     : null;
   return (

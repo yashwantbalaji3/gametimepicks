@@ -61,6 +61,10 @@ import type {
   ParlaySnapshot,
 } from "@/lib/data-parlays";
 import type { PropLean } from "@/lib/types";
+import {
+  EMPTY_CALIBRATION_TABLE,
+  type CalibrationTable,
+} from "@/lib/confidence-calibration-rules";
 
 interface Props {
   /** Same payload the redesigned /projections page already builds. */
@@ -70,6 +74,10 @@ interface Props {
     string,
     { source: "snapshot" | "graded"; payload: ParlaySnapshot }
   >;
+  /** Calibration table from `loadCalibrationTable()`. Threaded to
+   *  every `<ParlayTicketCard />` so tickets render calibrated
+   *  confidence labels. */
+  calibrationTable?: CalibrationTable;
   /** Raw NBA leans by date, used to build live preview slips inline.
    *  We only carry the dates we actually want to show live previews
    *  for so the bundle stays small. */
@@ -95,6 +103,7 @@ export default function ParlayLabExperience({
   payload,
   snapshotsByDate,
   nbaLeansByDate,
+  calibrationTable = EMPTY_CALIBRATION_TABLE,
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -196,6 +205,7 @@ export default function ParlayLabExperience({
             nbaLeans={nbaLeansByDate[activeDate.date] ?? []}
             snapshotPayload={snapshotForDate?.payload ?? null}
             snapshotSource={snapshotForDate?.source ?? null}
+            calibrationTable={calibrationTable}
           />
         ) : (
           <>
@@ -209,6 +219,7 @@ export default function ParlayLabExperience({
               activeSport={urlSport}
               snapshotPayload={snapshotForDate?.payload ?? null}
               snapshotSource={snapshotForDate?.source ?? null}
+              calibrationTable={calibrationTable}
             />
             <GameCardGrid
               games={activeDate.games.filter((g) => {
@@ -355,10 +366,12 @@ function TonightSavedSlipsRail({
   activeSport,
   snapshotPayload,
   snapshotSource,
+  calibrationTable,
 }: {
   activeSport: SportFilter;
   snapshotPayload: ParlaySnapshot | null;
   snapshotSource: "snapshot" | "graded" | null;
+  calibrationTable: CalibrationTable;
 }) {
   const slips: ParlaySlip[] = useMemo(() => {
     if (!snapshotPayload) return [];
@@ -391,6 +404,7 @@ function TonightSavedSlipsRail({
             key={slip.slipId}
             slip={slip}
             savedPregame={snapshotSource === "snapshot"}
+            calibrationTable={calibrationTable}
           />
         ))}
       </div>
@@ -615,6 +629,7 @@ function GameSlipDetail({
   nbaLeans,
   snapshotPayload,
   snapshotSource,
+  calibrationTable,
 }: {
   game: ProjectionsGame;
   risk: RiskProfile;
@@ -623,6 +638,7 @@ function GameSlipDetail({
   nbaLeans: PropLean[];
   snapshotPayload: ParlaySnapshot | null;
   snapshotSource: "snapshot" | "graded" | null;
+  calibrationTable: CalibrationTable;
 }) {
   const tipoff = formatTipoffEt(game.tipoffIso);
 
@@ -757,6 +773,7 @@ function GameSlipDetail({
                 key={slip.slipId}
                 slip={slip}
                 savedPregame={snapshotSource === "snapshot"}
+                calibrationTable={calibrationTable}
               />
             ))}
           </div>
@@ -797,7 +814,11 @@ function GameSlipDetail({
         previewSlips.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {previewSlips.map((slip) => (
-              <ParlayTicketCard key={slip.slipId} slip={slip} />
+              <ParlayTicketCard
+                key={slip.slipId}
+                slip={slip}
+                calibrationTable={calibrationTable}
+              />
             ))}
           </div>
         ) : (

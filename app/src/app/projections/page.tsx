@@ -29,6 +29,7 @@ import { Suspense } from "react";
 
 import ProjectionsExperience from "@/components/projections-experience";
 import { loadProjectionsPayload } from "@/lib/data-projections";
+import { loadCalibrationTable } from "@/lib/confidence-calibration";
 
 export const metadata = {
   title: "Projections · GameTime Picks",
@@ -47,7 +48,10 @@ export default function ProjectionsPage() {
           since the experience component renders fully on first
           render even before hydration. */}
       <Suspense fallback={<div className="min-h-[60vh]" aria-hidden />}>
-        <ProjectionsExperience payload={payload} />
+        <ProjectionsExperience
+          payload={payload}
+          calibrationTable={loadCalibrationTable()}
+        />
       </Suspense>
     </div>
   );

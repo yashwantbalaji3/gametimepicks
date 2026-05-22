@@ -34,10 +34,11 @@ import TeamLogo from "./team-logo";
 import PlayerAvatar from "./player-avatar";
 import { confidenceLabel } from "@/lib/confidence-labels";
 import {
-  calibratedConfidenceLabel,
-  calibrationHealthFor,
+  EMPTY_CALIBRATION_TABLE,
+  calibratedConfidenceLabelFromTable,
+  type CalibrationTable,
   type Sport,
-} from "@/lib/confidence-calibration";
+} from "@/lib/confidence-calibration-rules";
 import { formatAmerican } from "@/lib/odds-math";
 
 import type {
@@ -49,9 +50,17 @@ import type {
 
 interface Props {
   payload: ProjectionsPayload;
+  /** Calibration table loaded on the server. When absent (e.g.
+   *  audit missing), the experience falls back to the empty
+   *  table which classifies every tier as "unknown" — equivalent
+   *  to no overlay (raw labels render). */
+  calibrationTable?: CalibrationTable;
 }
 
-export default function ProjectionsExperience({ payload }: Props) {
+export default function ProjectionsExperience({
+  payload,
+  calibrationTable = EMPTY_CALIBRATION_TABLE,
+}: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -133,6 +142,7 @@ export default function ProjectionsExperience({ payload }: Props) {
             game={selectedGame}
             leans={activeDate.leansByGameId[selectedGame.gameId] ?? []}
             onBack={() => navigate({ game: null })}
+            calibrationTable={calibrationTable}
           />
         ) : (
           <GameCardGrid
@@ -411,10 +421,12 @@ function GameDetailView({
   game,
   leans,
   onBack,
+  calibrationTable,
 }: {
   game: ProjectionsGame;
   leans: ProjectionsLean[];
   onBack: () => void;
+  calibrationTable: CalibrationTable;
 }) {
   // Group leans by player so the accordion list is one row per player.
   const playerGroups = useMemo(() => groupLeansByPlayer(leans), [leans]);
@@ -548,7 +560,10 @@ function GameDetailView({
       </div>
 
       {/* Player accordions */}
-      <PlayerAccordionList groups={playerGroups} />
+      <PlayerAccordionList
+        groups={playerGroups}
+        calibrationTable={calibrationTable}
+      />
     </section>
   );
 }
@@ -640,7 +655,13 @@ function groupLeansByPlayer(leans: ProjectionsLean[]): PlayerGroup[] {
   });
 }
 
-function PlayerAccordionList({ groups }: { groups: PlayerGroup[] }) {
+function PlayerAccordionList({
+  groups,
+  calibrationTable,
+}: {
+  groups: PlayerGroup[];
+  calibrationTable: CalibrationTable;
+}) {
   // Track which accordion is open (one at a time on mobile, native
   // <details> elements handle the actual rendering).
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -669,6 +690,7 @@ function PlayerAccordionList({ groups }: { groups: PlayerGroup[] }) {
               group={g}
               isOpen={isOpen}
               onToggle={() => setOpenKey(isOpen ? null : key)}
+              calibrationTable={calibrationTable}
             />
           </li>
         );
@@ -677,15 +699,19 @@ function PlayerAccordionList({ groups }: { groups: PlayerGroup[] }) {
   );
 }
 
+interface PlayerAccordionProps {
+  group: PlayerGroup;
+  isOpen: boolean;
+  onToggle: () => void;
+  calibrationTable: CalibrationTable;
+}
+
 function PlayerAccordion({
   group,
   isOpen,
   onToggle,
-}: {
-  group: PlayerGroup;
-  isOpen: boolean;
-  onToggle: () => void;
-}) {
+  calibrationTable,
+}: PlayerAccordionProps) {
   const top = group.topLean;
   // Apply the calibration overlay so MLB High doesn't read "Stronger
   // signal" while audit data shows the tier is inverted. Falls back to
@@ -697,7 +723,11 @@ function PlayerAccordion({
       : null
     : null;
   const calibrated = top && sportKey
-    ? calibratedConfidenceLabel(sportKey, top.confidence)
+    ? calibratedConfidenceLabelFromTable(
+        sportKey,
+        top.confidence,
+        calibrationTable[sportKey] ?? {},
+      )
     : null;
   const confLabel = top
     ? calibrated?.label ?? confidenceLabel(top.confidence)
@@ -715,7 +745,6 @@ function PlayerAccordion({
     : "var(--vault-text-faint)";
   // Tag for tooltip / aria explanation (kept short).
   const confReason = calibrated?.reason ?? "";
-  void calibrationHealthFor; // re-exported elsewhere; ensure no unused warning
   return (
     <details
       className="gtp-player-accordion"
