@@ -242,6 +242,7 @@ function NbaTonight({
     <TonightMatchupCard
       sportEmoji="🏀"
       sportLabel="NBA"
+      sportKey="nba"
       awayTeam={game.awayTeamAbbr ?? null}
       homeTeam={game.homeTeamAbbr ?? null}
       awayTeamFull={game.awayTeamFull ?? null}
@@ -277,6 +278,7 @@ function MlbTonight({
     <TonightMatchupCard
       sportEmoji="⚾"
       sportLabel="MLB"
+      sportKey="mlb"
       awayTeam={firstGame?.awayTeamAbbr ?? null}
       homeTeam={firstGame?.homeTeamAbbr ?? null}
       awayTeamFull={firstGame?.awayTeamName ?? null}

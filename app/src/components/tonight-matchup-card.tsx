@@ -15,12 +15,14 @@
  * Pure presentation — every value is passed in, no fabricated stats.
  */
 import Link from "next/link";
-import TeamBadge from "./team-badge";
+import TeamLogo from "./team-logo";
 
 interface Props {
   /** Sport label and emoji (🏀 NBA / ⚾ MLB / etc.) */
   sportEmoji: string;
   sportLabel: string;
+  /** Sport key used to pick the right ESPN logo CDN path. */
+  sportKey: "nba" | "mlb" | "nhl";
   /** Away team abbreviation (or null for "team TBD" rendering). */
   awayTeam: string | null;
   homeTeam: string | null;
@@ -48,6 +50,7 @@ interface Props {
 export default function TonightMatchupCard({
   sportEmoji,
   sportLabel,
+  sportKey,
   awayTeam,
   homeTeam,
   awayTeamFull,
@@ -149,9 +152,10 @@ export default function TonightMatchupCard({
           </div>
         </div>
 
-        {/* Big matchup row */}
+        {/* Big matchup row — official ESPN team logos with TeamBadge
+            monogram fallback on load error. */}
         <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
-          <TeamBadge team={awayTeam} size="lg" />
+          <TeamLogo team={awayTeam} sport={sportKey} size="xl" />
           <div className="flex-1 min-w-0">
             <h2
               className="font-display tracking-tight"
@@ -203,7 +207,7 @@ export default function TonightMatchupCard({
               </div>
             )}
           </div>
-          <TeamBadge team={homeTeam} size="lg" />
+          <TeamLogo team={homeTeam} sport={sportKey} size="xl" />
         </div>
 
         {/* Market line row (only when present) */}
