@@ -2,14 +2,13 @@ import Link from "next/link";
 
 import NeonCornerBracket from "@/components/neon-corner-bracket";
 import ResultsSportTabs from "@/components/results-sport-tabs";
+import ParlayTicketCard from "@/components/parlay-ticket-card";
 import {
   getAvailableSnapshotDates,
   getAvailableGradedDates,
   getGradedForDate,
   getParlaySummary,
   getSnapshotForDate,
-  type ParlaySlip,
-  type ParlayLeg,
 } from "@/lib/data-parlays";
 
 export const metadata = {
@@ -173,7 +172,11 @@ export default function ResultsParlaysPage() {
           </h2>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {pendingSnapshot.slips.slice(0, 6).map((slip) => (
-              <SlipCard key={slip.slipId} slip={slip} />
+              <ParlayTicketCard
+                key={slip.slipId}
+                slip={slip}
+                savedPregame
+              />
             ))}
           </div>
         </section>
@@ -193,7 +196,7 @@ export default function ResultsParlaysPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {latestGraded.slips.map((slip) => (
-              <SlipCard key={slip.slipId} slip={slip} />
+              <ParlayTicketCard key={slip.slipId} slip={slip} />
             ))}
           </div>
         </section>
@@ -295,110 +298,6 @@ export default function ResultsParlaysPage() {
   );
 }
 
-function SlipCard({ slip }: { slip: ParlaySlip }) {
-  const statusColor =
-    slip.status === "win"
-      ? "var(--vault-success)"
-      : slip.status === "loss"
-        ? "var(--vault-warn)"
-        : slip.status === "push"
-          ? "var(--vault-text-mute)"
-          : "var(--vault-gold-bright)";
-  return (
-    <article
-      className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(7,11,26,0.85) 0%, rgba(7,11,26,0.55) 100%)",
-        border: "1px solid var(--vault-border)",
-      }}
-    >
-      <header className="flex items-center justify-between gap-2">
-        <span
-          className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-gold)", fontSize: 10 }}
-        >
-          {slip.riskProfile}
-        </span>
-        <span
-          className="font-mono uppercase tracking-[0.14em] px-2 py-0.5 rounded-[3px]"
-          style={{
-            color: statusColor,
-            border: `1px solid ${statusColor}`,
-            background: "rgba(7,11,26,0.55)",
-            fontSize: 9,
-          }}
-        >
-          {slip.status === "pending"
-            ? "Pending final stats"
-            : slip.status.charAt(0).toUpperCase() + slip.status.slice(1)}
-        </span>
-      </header>
-      <ul className="space-y-1.5">
-        {slip.legs.map((leg, i) => (
-          <li key={`${slip.slipId}-${i}`}>
-            <LegRow leg={leg} />
-          </li>
-        ))}
-      </ul>
-      <div
-        className="font-mono"
-        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-      >
-        {slip.legs.length} leg{slip.legs.length === 1 ? "" : "s"}
-        {slip.sameGame ? " · same-game" : ""}
-      </div>
-    </article>
-  );
-}
-
-function LegRow({ leg }: { leg: ParlayLeg }) {
-  const result = leg.result;
-  const resultColor =
-    result === "win"
-      ? "var(--vault-success)"
-      : result === "loss"
-        ? "var(--vault-warn)"
-        : result === "push"
-          ? "var(--vault-text-mute)"
-          : "var(--vault-text-faint)";
-  return (
-    <div
-      className="grid grid-cols-[1fr_auto] gap-2 items-center px-2 py-1.5 rounded-[4px]"
-      style={{
-        background: "rgba(7,11,26,0.55)",
-        border: "1px solid var(--vault-rule)",
-      }}
-    >
-      <div className="min-w-0">
-        <div
-          className="font-display tracking-tight truncate"
-          style={{ color: "var(--vault-text)", fontSize: 13 }}
-        >
-          {leg.playerName}
-        </div>
-        <div
-          className="font-mono"
-          style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
-        >
-          {leg.market} {leg.side} {leg.line ?? "—"}
-          {leg.team ? ` · ${leg.team}` : ""}
-        </div>
-      </div>
-      {result && (
-        <span
-          className="font-mono uppercase tracking-[0.12em] inline-flex items-center gap-1 shrink-0"
-          style={{ color: resultColor, fontSize: 9 }}
-        >
-          <span
-            aria-hidden
-            className="inline-block w-1.5 h-1.5 rounded-full"
-            style={{ background: resultColor }}
-          />
-          {result}
-          {typeof leg.finalStat === "number" ? ` · ${leg.finalStat}` : ""}
-        </span>
-      )}
-    </div>
-  );
-}
+// Slip + leg rendering is now centralized in
+// app/src/components/parlay-ticket-card.tsx (PR C — sportsbook-receipt
+// styling shared by /parlay-lab and /results/parlays).
