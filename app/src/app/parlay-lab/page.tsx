@@ -6,6 +6,11 @@ import NeonCornerBracket from "@/components/neon-corner-bracket";
 import Link from "next/link";
 import { selectActiveSlate } from "@/lib/active-slate";
 import { currentEtDate, dayLabelFor } from "@/lib/freshness";
+import {
+  getParlayStatusForDate,
+  getLatestSnapshotDate,
+  getLatestGradedDate,
+} from "@/lib/data-parlays";
 
 /**
  * /parlay-lab — Phase 17 active-slate-aware builder + analyze modes.
@@ -92,6 +97,16 @@ export default function ParlayLabPage() {
       isActiveDefault: date === activeSlate.selectedDate,
     });
   }
+
+  // Parlay persistence status — honest signal for the user about
+  // whether today's candidate slips have been saved before games and
+  // whether yesterday's already have results. Never claims a hit rate.
+  const parlayActiveDate = activeSlate.selectedDate ?? buildTimeToday;
+  const parlayStatus = parlayActiveDate
+    ? getParlayStatusForDate(parlayActiveDate)
+    : { state: "none" as const, snapshot: null, graded: null };
+  const latestGradedDate = getLatestGradedDate();
+  const latestSnapshotDate = getLatestSnapshotDate();
 
   return (
     <div className="vault-page-shell px-6 sm:px-8 py-12 md:py-20">
@@ -285,6 +300,96 @@ export default function ParlayLabPage() {
         </details>
       </section>
 
+
+      {/* Saved slip tracking banner — surfaces whether tonight's
+          candidate slips have been snapshot-persisted yet, and links
+          to the saved-slip history page. Honest copy: never claims a
+          parlay hit rate, never invents history. */}
+      <section className="mt-8">
+        <div
+          className="rounded-[8px] px-4 py-3.5 flex items-center gap-3 flex-wrap"
+          style={{
+            background: "rgba(7, 11, 26, 0.55)",
+            border: "1px solid var(--vault-border)",
+          }}
+        >
+          <span
+            aria-hidden
+            className={`inline-block w-1.5 h-1.5 rounded-full ${
+              parlayStatus.state === "graded" ? "gtp-neon-pulse" : ""
+            }`}
+            style={{
+              background:
+                parlayStatus.state === "saved-pregame"
+                  ? "var(--vault-warn)"
+                  : parlayStatus.state === "graded"
+                    ? "var(--vault-success)"
+                    : "var(--vault-text-faint)",
+              boxShadow:
+                parlayStatus.state === "saved-pregame"
+                  ? "0 0 6px rgba(212, 175, 55, 0.55)"
+                  : parlayStatus.state === "graded"
+                    ? "0 0 6px rgba(74, 222, 128, 0.55)"
+                    : "none",
+            }}
+          />
+          <div className="flex-1 min-w-0">
+            <div
+              className="font-mono uppercase tracking-[0.16em]"
+              style={{
+                color:
+                  parlayStatus.state === "saved-pregame"
+                    ? "var(--vault-warn)"
+                    : parlayStatus.state === "graded"
+                      ? "var(--vault-success)"
+                      : "var(--vault-gold)",
+                fontSize: 10,
+              }}
+            >
+              {parlayStatus.state === "saved-pregame"
+                ? `Saved before games · ${parlayActiveDate}`
+                : parlayStatus.state === "graded"
+                  ? `Graded · ${parlayActiveDate}`
+                  : "No saved slips for this date yet"}
+            </div>
+            <div
+              className="text-[12.5px] leading-relaxed"
+              style={{ color: "var(--vault-text-mute)", marginTop: 2 }}
+            >
+              {parlayStatus.state === "saved-pregame" &&
+                parlayStatus.snapshot && (
+                  <>
+                    {parlayStatus.snapshot.slipsCount} candidate slip
+                    {parlayStatus.snapshot.slipsCount === 1 ? "" : "s"} saved.
+                    Pending final stats — results post after settlement.
+                  </>
+                )}
+              {parlayStatus.state === "graded" && parlayStatus.graded && (
+                <>
+                  {parlayStatus.graded.slipsCount} slip
+                  {parlayStatus.graded.slipsCount === 1 ? "" : "s"} graded for
+                  this date.
+                </>
+              )}
+              {parlayStatus.state === "none" && (
+                <>
+                  History starts after candidate slips are saved before games
+                  begin. We never backfill past dates.
+                </>
+              )}
+            </div>
+          </div>
+          <Link
+            href="/results/parlays"
+            className="font-mono uppercase tracking-[0.16em] shrink-0"
+            style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
+          >
+            {latestGradedDate || latestSnapshotDate
+              ? "See history →"
+              : "How this works →"}
+          </Link>
+        </div>
+      </section>
 
       {/* Client interactive area — mode tabs hold both Build + Analyze */}
       <section className="mt-6">
