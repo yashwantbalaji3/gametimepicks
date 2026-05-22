@@ -185,3 +185,67 @@ export function getParlayStatusForDate(date: string): {
   if (snapshot) return { state: "saved-pregame", snapshot, graded: null };
   return { state: "none", snapshot: null, graded: null };
 }
+
+/**
+ * Curated picks for a date: top-1 slip per risk profile, sorted by
+ * snapshot `score` (then leg count desc as a tiebreaker so a deeper
+ * slip beats a shallow same-score one). Returns null when no snapshot
+ * exists or no profile produced a candidate. Pure read — never invents
+ * a slip, never returns more than one slip per profile.
+ *
+ * Why one-per-profile: the surface using this is a "Tonight's curated
+ * tickets" rail on the homepage / Parlay Lab. Rendering every slip the
+ * builder produced (often 5+ that overlap heavily on legs) clutters
+ * the surface and dilutes the recommendation. Top-of-profile is what
+ * a casual reader wants to see at a glance.
+ */
+export interface CuratedTonightPick {
+  profile: ParlayRiskProfile;
+  slip: ParlaySlip;
+  /** Either "snapshot" (saved before games) or "graded" (post-settlement).
+   *  Set to "snapshot" when only the pre-game file exists. */
+  source: "snapshot" | "graded";
+}
+
+export function getCuratedTonightPicks(date: string): {
+  date: string;
+  source: "snapshot" | "graded";
+  picks: CuratedTonightPick[];
+} | null {
+  const graded = getGradedForDate(date);
+  const snapshot = graded ? null : getSnapshotForDate(date);
+  const payload = graded ?? snapshot;
+  if (!payload) return null;
+  const source: "snapshot" | "graded" = graded ? "graded" : "snapshot";
+
+  const byProfile = new Map<ParlayRiskProfile, ParlaySlip[]>();
+  for (const slip of payload.slips ?? []) {
+    const list = byProfile.get(slip.riskProfile) ?? [];
+    list.push(slip);
+    byProfile.set(slip.riskProfile, list);
+  }
+
+  const order: ParlayRiskProfile[] = [
+    "conservative",
+    "balanced",
+    "aggressive",
+  ];
+  const picks: CuratedTonightPick[] = [];
+  for (const profile of order) {
+    const slips = byProfile.get(profile);
+    if (!slips || slips.length === 0) continue;
+    // Highest score wins; tie → more legs wins (deeper slip is more
+    // interesting); tie → stable by slipId for determinism.
+    const top = slips
+      .slice()
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (b.legs.length !== a.legs.length) return b.legs.length - a.legs.length;
+        return a.slipId.localeCompare(b.slipId);
+      })[0];
+    picks.push({ profile, slip: top, source });
+  }
+
+  if (picks.length === 0) return null;
+  return { date, source, picks };
+}
