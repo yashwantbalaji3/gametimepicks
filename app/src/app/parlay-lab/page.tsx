@@ -1,7 +1,7 @@
 import { getSlate, getMeta, getBoardForDate, getAvailableBoardDates } from "@/lib/data";
 import type { PropLean, BoardData, ScheduleGame } from "@/lib/types";
 import ParlayLabModeTabs from "@/components/parlay-lab-mode-tabs";
-import ParlayTicketCard from "@/components/parlay-ticket-card";
+import CuratedTonightCard from "@/components/curated-tonight-card";
 import DataSourceBadge from "@/components/data-source-badge";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
 import Link from "next/link";
@@ -392,53 +392,19 @@ export default function ParlayLabPage() {
         </div>
       </section>
 
-      {/* Saved-for-this-slate surface — when the morning snapshot has
-          captured candidate slips for the active date, render them as
-          sportsbook-style ticket cards ABOVE the live builder. Honest
-          framing: "Saved · pending" until graded, no fabricated hit
-          rate. Section disappears cleanly when no snapshot exists. */}
-      {parlayStatus.state !== "none" && (
-        <section className="mt-8">
-          <div className="flex items-center gap-3 mb-3">
-            <span
-              className="font-mono uppercase tracking-[0.18em]"
-              style={{
-                color:
-                  parlayStatus.state === "graded"
-                    ? "var(--vault-success)"
-                    : "var(--vault-warn)",
-                fontSize: 10,
-              }}
-            >
-              {parlayStatus.state === "graded"
-                ? "Graded · saved before games"
-                : "Saved for this slate · pending"}
-            </span>
-            <div
-              className="flex-1 h-px"
-              style={{ background: "var(--vault-rule)" }}
-            />
-            <Link
-              href="/results/parlays"
-              className="font-mono uppercase tracking-[0.14em]"
-              style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-            >
-              Full history →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {(parlayStatus.graded ?? parlayStatus.snapshot)?.slips
-              .slice(0, 6)
-              .map((slip) => (
-                <ParlayTicketCard
-                  key={slip.slipId}
-                  slip={slip}
-                  savedPregame={parlayStatus.state === "saved-pregame"}
-                />
-              ))}
-          </div>
-        </section>
-      )}
+      {/* Curated rail — top-1 slip per profile from today's snapshot,
+          rendered via the shared CuratedTonightCard. The earlier
+          "render every saved slip" rail was too noisy when the builder
+          produced 6 near-identical slips on a single-game slate.
+          Component returns null cleanly when no snapshot exists. */}
+      <div className="mt-8">
+        <CuratedTonightCard
+          date={parlayActiveDate}
+          contextLabel="Top by snapshot score"
+          ctaHref="/results/parlays"
+          ctaLabel="Full history"
+        />
+      </div>
 
       {/* Client interactive area — mode tabs hold both Build + Analyze */}
       <section className="mt-6">

@@ -143,6 +143,66 @@ export default function AboutPage() {
             </li>
           </ul>
         </Section>
+
+        <Section title="Model watchlist (May 22, 2026)">
+          Honest read of where the model is performing and where it isn&apos;t,
+          based on every settled projection on disk. We update this when the
+          numbers shift.
+          <ul className="mt-3 space-y-1 list-disc pl-5">
+            <li>
+              <strong style={{ color: "var(--vault-success)" }}>
+                NBA rebounds
+              </strong>{" "}
+              — the strongest cohort on record. The model has stable
+              signal on REB projections.
+            </li>
+            <li>
+              <strong style={{ color: "var(--vault-warn)" }}>
+                NBA points + assists
+              </strong>{" "}
+              — barely above coin flip on a large sample. We surface
+              these projections but treat them as watch-list calls, not
+              high-confidence reads.
+            </li>
+            <li>
+              <strong style={{ color: "var(--vault-warn)" }}>
+                MLB strikeouts
+              </strong>{" "}
+              — smallest sample of any market we cover and below coin
+              flip so far. The variance profile of pitcher hooks +
+              manager decisions makes this an honest weak spot.
+            </li>
+            <li>
+              <strong style={{ color: "var(--vault-text-mute)" }}>
+                Confidence calibration is being watched
+              </strong>{" "}
+              — on the current settled MLB sample the model&apos;s
+              &quot;Stronger signal&quot; tier isn&apos;t separating
+              cleanly from the rest. The next methodology pass will
+              tighten that gate before we promote signal-strength as a
+              filter on its own.
+            </li>
+          </ul>
+          <p
+            className="mt-3 text-[12px] leading-relaxed"
+            style={{ color: "var(--vault-text-faint)" }}
+          >
+            Numbers are pulled from{" "}
+            <Link
+              href="/results"
+              style={{
+                color: "var(--vault-gold-bright)",
+                textDecoration: "none",
+              }}
+            >
+              Results
+            </Link>
+            . Sample sizes are still small in absolute terms — anything
+            you read here is a record, not a forecast. No 80%-accuracy
+            claim is made anywhere on the site, and won&apos;t be until
+            we run a real out-of-sample backtest.
+          </p>
+        </Section>
       </div>
 
       {/* Footer links to the technical surfaces */}

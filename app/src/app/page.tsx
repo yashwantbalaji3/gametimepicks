@@ -36,6 +36,7 @@ import HomepageCommandHero, {
   type HeroTile,
 } from "@/components/homepage-command-hero";
 import HomepageSportsRail from "@/components/homepage-sports-rail";
+import CuratedTonightCard from "@/components/curated-tonight-card";
 import NewsletterSignup from "@/components/newsletter-signup";
 import SectionHeader from "@/components/section-header";
 import { type StatusPillKind } from "@/components/status-pill";
@@ -204,6 +205,19 @@ export default function HomePage() {
           dot + "Tonight on GameTimePicks") so we don't double up with
           a SectionHeader here. */}
       <HomepageSportsRail />
+
+      {/* 4 — Curated tickets. Only renders when a real pregame snapshot
+          exists for the active date; never invents slips. Picks the
+          top-1 slip per risk profile by snapshot score. */}
+      {activeDate && (
+        <div className="mt-10">
+          <CuratedTonightCard
+            date={activeDate}
+            ctaHref="/parlay-lab"
+            ctaLabel="Open Parlay Lab"
+          />
+        </div>
+      )}
 
       {/* 5 — How it works */}
       <section className="mt-12 reveal" aria-label="How it works">
