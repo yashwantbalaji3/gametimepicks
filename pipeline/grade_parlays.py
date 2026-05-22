@@ -42,6 +42,22 @@ from .snapshot_parlays import SNAPSHOT_DIR, SUMMARY_PATH
 
 GRADED_DIR = os.path.join("app", "public", "data", "parlays", "graded")
 SETTLED_PATH = os.path.join("app", "public", "data", "results", "settled_leans.jsonl")
+MLB_SETTLED_PATH = os.path.join(
+    "app", "public", "data", "mlb", "results", "settled_leans.jsonl"
+)
+
+
+# MLB settled rows use a different schema than NBA. Map them onto the
+# NBA-compatible shape so the lookup index can serve both sports with
+# the same (playerId, market, side, line) key.
+_MLB_OUTCOME_TO_RESULT = {
+    "Win": "win",
+    "Loss": "loss",
+    "Push": "push",
+    "win": "win",
+    "loss": "loss",
+    "push": "push",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -50,31 +66,78 @@ SETTLED_PATH = os.path.join("app", "public", "data", "results", "settled_leans.j
 
 
 def _settled_lookup_for_date(date: str) -> dict[tuple, dict]:
-    """Index settled rows by (playerId, market, side, line) for fast lookup.
-    Multiple bookmakers may share the same (player, market, side, line)
-    pair; the index value collapses those into the first row encountered
-    (their result is identical because the final stat is the same)."""
+    """Index settled NBA + MLB rows by (playerId, market, side, line)
+    for fast lookup. Multiple bookmakers may share the same key; the
+    index collapses those into the first row encountered (their final
+    stat is identical so the result matches).
+
+    MLB rows live in a separate JSONL file and use `outcome`/`lean`/
+    `marketKey` instead of `result`/`side`/`market`. We normalize at
+    read time so the snapshot legs (which already carry the
+    NBA-compatible field names per the snapshot writer) find their
+    settled rows cleanly."""
     out: dict[tuple, dict] = {}
-    if not os.path.exists(SETTLED_PATH):
-        return out
-    with open(SETTLED_PATH, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                r = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if r.get("date") != date:
-                continue
-            key = (
-                r.get("playerId"),
-                r.get("market"),
-                r.get("side"),
-                r.get("line"),
-            )
-            out.setdefault(key, r)
+
+    # NBA settled rows — native shape.
+    if os.path.exists(SETTLED_PATH):
+        with open(SETTLED_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    r = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if r.get("date") != date:
+                    continue
+                key = (
+                    r.get("playerId"),
+                    r.get("market"),
+                    r.get("side"),
+                    r.get("line"),
+                )
+                out.setdefault(key, r)
+
+    # MLB settled rows — normalize to NBA-compatible fields.
+    if os.path.exists(MLB_SETTLED_PATH):
+        with open(MLB_SETTLED_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    r = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if r.get("date") != date:
+                    continue
+                outcome = r.get("outcome")
+                result = (
+                    _MLB_OUTCOME_TO_RESULT.get(outcome)
+                    if isinstance(outcome, str)
+                    else r.get("result")
+                )
+                # Snapshot MLB legs store `market` = `marketKey`
+                # ("pitcher_strikeouts" etc.), `side` = `lean`
+                # (Over/Under). Lookup key must match exactly.
+                key = (
+                    r.get("playerId"),
+                    r.get("marketKey"),
+                    r.get("lean"),
+                    r.get("line"),
+                )
+                # Carry over the normalized fields the grader reads.
+                normalized = {
+                    **r,
+                    "market": r.get("marketKey"),
+                    "side": r.get("lean"),
+                    "result": result,
+                    "finalStat": r.get("actual"),
+                    "settlementSource": r.get("settlementSource") or "mlb_stats_api",
+                }
+                out.setdefault(key, normalized)
+
     return out
 
 

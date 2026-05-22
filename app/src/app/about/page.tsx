@@ -144,7 +144,7 @@ export default function AboutPage() {
           </ul>
         </Section>
 
-        <Section title="Model watchlist (May 22, 2026)">
+        <Section title="Model watchlist (latest: May 22, 2026)">
           Honest read of where the model is performing and where it isn&apos;t,
           based on every settled projection on disk. We update this when the
           numbers shift.
@@ -174,13 +174,14 @@ export default function AboutPage() {
             </li>
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>
-                Confidence calibration is being watched
+                MLB confidence is inverted right now
               </strong>{" "}
               — on the current settled MLB sample the model&apos;s
-              &quot;Stronger signal&quot; tier isn&apos;t separating
-              cleanly from the rest. The next methodology pass will
-              tighten that gate before we promote signal-strength as a
-              filter on its own.
+              &quot;Stronger signal&quot; tier (48.3% on 315 rows)
+              is below Medium (52.0%) and Low (51.4%). Treat the MLB
+              label as informational until a calibration pass ships.
+              A Monte Carlo guardrail prototype is in shadow mode and
+              has not been promoted to production scoring yet.
             </li>
           </ul>
           <p

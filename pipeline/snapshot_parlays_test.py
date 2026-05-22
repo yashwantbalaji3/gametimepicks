@@ -182,6 +182,162 @@ def test_stable_slip_ids_are_deterministic(s: Suite):
     s.ok(id_diff_date != id1, "different date → different slipId")
 
 
+def _fixture_mlb_leans() -> list[dict]:
+    """Hand-built MLB leans matching the raw board shape (marketKey /
+    playerTeamAbbr / etc.) so we can exercise `load_mlb_leans`'s
+    normalization layer."""
+    return [
+        # MLB game M1 — three High-confidence MLB legs.
+        {"gameId": "M1", "playerId": 901, "playerName": "Pitcher Alpha",
+         "playerTeamAbbr": "AAA", "opponentAbbr": "BBB",
+         "marketKey": "pitcher_strikeouts", "marketLabel": "Strikeouts",
+         "lean": "Over", "line": 5.5, "edgePct": 11, "confidence": "High",
+         "recentSeries": [5, 6, 7, 5, 6, 8], "oddsOver": -115, "oddsUnder": -105,
+         "bookmaker": "draftkings", "projection": 6.5,
+         "commenceTime": "2026-05-22T22:00:00Z"},
+        {"gameId": "M1", "playerId": 902, "playerName": "Batter Bravo",
+         "playerTeamAbbr": "AAA", "opponentAbbr": "BBB",
+         "marketKey": "batter_hits", "marketLabel": "Hits",
+         "lean": "Under", "line": 1.5, "edgePct": 9, "confidence": "High",
+         "recentSeries": [1, 1, 0, 1, 1], "oddsOver": -120, "oddsUnder": 100,
+         "bookmaker": "draftkings", "projection": 0.9,
+         "commenceTime": "2026-05-22T22:00:00Z"},
+        # MLB game M2.
+        {"gameId": "M2", "playerId": 910, "playerName": "Pitcher Echo",
+         "playerTeamAbbr": "CCC", "opponentAbbr": "DDD",
+         "marketKey": "pitcher_strikeouts", "marketLabel": "Strikeouts",
+         "lean": "Over", "line": 4.5, "edgePct": 6, "confidence": "Medium",
+         "recentSeries": [4, 5, 6, 3, 5], "oddsOver": -110, "oddsUnder": -110,
+         "bookmaker": "fanduel", "projection": 5.2,
+         "commenceTime": "2026-05-22T23:00:00Z"},
+        # insufficient_data — must be excluded by every profile (no
+        # confidence tier in PROFILE_RULES["confidence"] admits it).
+        {"gameId": "M2", "playerId": 911, "playerName": "Pitcher Foxtrot",
+         "playerTeamAbbr": "CCC", "opponentAbbr": "DDD",
+         "marketKey": "pitcher_strikeouts", "marketLabel": "Strikeouts",
+         "lean": "Pass", "line": 4.5, "edgePct": 0,
+         "confidence": "insufficient_data",
+         "recentSeries": [], "oddsOver": -110, "oddsUnder": -110,
+         "bookmaker": "draftkings", "projection": None},
+    ]
+
+
+def test_mlb_lean_normalization(s: Suite):
+    print(f"\n  {BLUE}─── MLB raw board lean → NBA-compatible shape ───{RESET}")
+    import tempfile, os, json as J
+    mlb = _fixture_mlb_leans()
+    # Write fixture to a temp MLB board file and point load_mlb_leans
+    # at it via the project root override.
+    with tempfile.TemporaryDirectory() as tmp:
+        boards_dir = os.path.join(tmp, "app", "public", "data", "mlb", "boards")
+        os.makedirs(boards_dir, exist_ok=True)
+        with open(os.path.join(boards_dir, "2099-01-01.json"), "w") as f:
+            J.dump({"date": "2099-01-01", "leans": mlb}, f)
+        cwd = os.getcwd()
+        try:
+            os.chdir(tmp)
+            leans = SP.load_mlb_leans("2099-01-01")
+        finally:
+            os.chdir(cwd)
+    s.eq(len(leans), 4, "4 MLB leans loaded")
+    first = leans[0]
+    s.eq(first.get("market"), "pitcher_strikeouts",
+         "MLB marketKey → market field")
+    s.eq(first.get("team"), "AAA", "MLB playerTeamAbbr → team")
+    s.eq(first.get("opponent"), "BBB", "MLB opponentAbbr → opponent")
+    s.eq(first.get("recent10"), [5, 6, 7, 5, 6, 8],
+         "MLB recentSeries → recent10")
+    s.eq(first.get("_sport"), "mlb", "MLB lean carries _sport=mlb tag")
+    # insufficient_data row should still be present (filter happens
+    # at builder time, not load time).
+    confs = {l.get("confidence") for l in leans}
+    s.ok("insufficient_data" in confs,
+         "load preserves all rows; filtering deferred to builder")
+
+
+def test_mlb_candidates_exclude_insufficient_data_and_pass(s: Suite):
+    print(f"\n  {BLUE}─── MLB candidates skip insufficient_data + Pass ───{RESET}")
+    import tempfile, os, json as J
+    mlb = _fixture_mlb_leans()
+    with tempfile.TemporaryDirectory() as tmp:
+        boards_dir = os.path.join(tmp, "app", "public", "data", "mlb", "boards")
+        os.makedirs(boards_dir, exist_ok=True)
+        with open(os.path.join(boards_dir, "2099-01-01.json"), "w") as f:
+            J.dump({"date": "2099-01-01", "leans": mlb}, f)
+        cwd = os.getcwd()
+        try:
+            os.chdir(tmp)
+            leans = SP.load_mlb_leans("2099-01-01")
+        finally:
+            os.chdir(cwd)
+    cands = SP._build_candidates(leans, risk_profile="balanced", num_candidates=3)
+    for slip in cands:
+        for leg in slip:
+            s.eq(leg.get("lean") in ("Over", "Under"), True,
+                 f"MLB leg {leg.get('playerName')} is Over/Under, not Pass")
+            s.ok(leg.get("confidence") in ("High", "Medium"),
+                 f"MLB balanced leg {leg.get('playerName')} confidence is "
+                 f"High/Medium (got {leg.get('confidence')})")
+
+
+def test_build_snapshot_multi_sport(s: Suite):
+    print(f"\n  {BLUE}─── build_snapshot emits NBA + MLB + multi slips ───{RESET}")
+    import tempfile, os, json as J
+    mlb = _fixture_mlb_leans()
+    nba = _fixture_leans()
+    with tempfile.TemporaryDirectory() as tmp:
+        nba_dir = os.path.join(tmp, "app", "public", "data", "boards")
+        mlb_dir = os.path.join(tmp, "app", "public", "data", "mlb", "boards")
+        os.makedirs(nba_dir, exist_ok=True)
+        os.makedirs(mlb_dir, exist_ok=True)
+        with open(os.path.join(nba_dir, "2099-01-01.json"), "w") as f:
+            J.dump({"date": "2099-01-01", "leans": nba}, f)
+        with open(os.path.join(mlb_dir, "2099-01-01.json"), "w") as f:
+            J.dump({"date": "2099-01-01", "leans": mlb}, f)
+        cwd = os.getcwd()
+        try:
+            os.chdir(tmp)
+            payload = SP.build_snapshot("2099-01-01")
+        finally:
+            os.chdir(cwd)
+    s.eq(payload["sportsIncluded"], ["nba", "mlb"],
+         "sportsIncluded reflects both pools")
+    sports = {slip["sport"] for slip in payload["slips"]}
+    s.ok("nba" in sports, "snapshot includes at least one NBA slip")
+    s.ok("mlb" in sports, "snapshot includes at least one MLB slip")
+    # Multi-sport slips are aggressive-only.
+    multi_slips = [s for s in payload["slips"] if s["sport"] == "multi"]
+    for slip in multi_slips:
+        s.eq(slip["riskProfile"], "aggressive",
+             "multi-sport slips are aggressive-only")
+        sports_in_legs = {leg["sport"] for leg in slip["legs"]}
+        s.ok("nba" in sports_in_legs and "mlb" in sports_in_legs,
+             "multi slip has at least one NBA + one MLB leg")
+    # Every leg knows its sport.
+    for slip in payload["slips"]:
+        for leg in slip["legs"]:
+            s.ok(leg.get("sport") in ("nba", "mlb"),
+                 f"every leg carries sport tag (got {leg.get('sport')})")
+    # MLB-only snapshot (no NBA board) still works honestly.
+    with tempfile.TemporaryDirectory() as tmp:
+        mlb_dir = os.path.join(tmp, "app", "public", "data", "mlb", "boards")
+        os.makedirs(mlb_dir, exist_ok=True)
+        with open(os.path.join(mlb_dir, "2099-01-02.json"), "w") as f:
+            J.dump({"date": "2099-01-02", "leans": mlb}, f)
+        cwd = os.getcwd()
+        try:
+            os.chdir(tmp)
+            mlb_only = SP.build_snapshot("2099-01-02")
+        finally:
+            os.chdir(cwd)
+    s.eq(mlb_only["sportsIncluded"], ["mlb"],
+         "MLB-only date reports sportsIncluded=['mlb']")
+    s.ok(
+        all(slip["sport"] == "mlb" for slip in mlb_only["slips"]),
+        "MLB-only date emits zero NBA / multi slips",
+    )
+
+
 def main():
     s = Suite()
     for t in (
@@ -192,6 +348,9 @@ def main():
         test_pass_leans_never_included,
         test_snapshot_payload_shape,
         test_stable_slip_ids_are_deterministic,
+        test_mlb_lean_normalization,
+        test_mlb_candidates_exclude_insufficient_data_and_pass,
+        test_build_snapshot_multi_sport,
     ):
         t(s)
     print(
