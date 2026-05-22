@@ -37,12 +37,14 @@ import HomepageCommandHero, {
 } from "@/components/homepage-command-hero";
 import HomepageSportsRail from "@/components/homepage-sports-rail";
 import CuratedTonightCard from "@/components/curated-tonight-card";
+import CuratedProjectionsCard from "@/components/curated-projections-card";
 import NewsletterSignup from "@/components/newsletter-signup";
 import SectionHeader from "@/components/section-header";
 import { type StatusPillKind } from "@/components/status-pill";
 
 import { selectActiveSlate } from "@/lib/active-slate";
 import { currentEtDate, dayLabelFor } from "@/lib/freshness";
+import { loadProjectionsPayload } from "@/lib/data-projections";
 
 export default function HomePage() {
   // ----- Data prep (mirrors prior helpers; unchanged math) ------------
@@ -206,9 +208,30 @@ export default function HomePage() {
           a SectionHeader here. */}
       <HomepageSportsRail />
 
-      {/* 4 — Curated tickets. Only renders when a real pregame snapshot
-          exists for the active date; never invents slips. Picks the
-          top-1 slip per risk profile by snapshot score. */}
+      {/* 4 — Curated single-leg projections. Picks ~6 of the strongest
+          reads tonight by edge × calibration-adjusted confidence ×
+          market strength. Returns null cleanly when no leans qualify. */}
+      {activeDate && (() => {
+        const projPayload = loadProjectionsPayload();
+        const dateRow = projPayload.dates.find((d) => d.date === activeDate);
+        if (!dateRow) return null;
+        const allLeans = Object.values(dateRow.leansByGameId).flat();
+        return (
+          <div className="mt-10">
+            <CuratedProjectionsCard
+              date={activeDate}
+              leans={allLeans}
+              totalLeans={dateRow.leanCount}
+              ctaHref="/projections"
+              ctaLabel="Open projections"
+            />
+          </div>
+        );
+      })()}
+
+      {/* 5 — Curated parlay tickets. Only renders when a real pregame
+          snapshot exists for the active date; never invents slips.
+          Picks the top-1 slip per risk profile by snapshot score. */}
       {activeDate && (
         <div className="mt-10">
           <CuratedTonightCard

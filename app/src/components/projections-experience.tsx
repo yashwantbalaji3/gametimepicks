@@ -33,6 +33,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import TeamLogo from "./team-logo";
 import PlayerAvatar from "./player-avatar";
 import { confidenceLabel } from "@/lib/confidence-labels";
+import {
+  calibratedConfidenceLabel,
+  calibrationHealthFor,
+  type Sport,
+} from "@/lib/confidence-calibration";
 import { formatAmerican } from "@/lib/odds-math";
 
 import type {
@@ -682,14 +687,35 @@ function PlayerAccordion({
   onToggle: () => void;
 }) {
   const top = group.topLean;
-  const confLabel = top ? confidenceLabel(top.confidence) : "";
+  // Apply the calibration overlay so MLB High doesn't read "Stronger
+  // signal" while audit data shows the tier is inverted. Falls back to
+  // the raw friendly label for sports outside the audit (e.g. future
+  // NHL/IPL projections).
+  const sportKey: Sport | null = top
+    ? top.sport === "mlb" || top.sport === "nba"
+      ? (top.sport as Sport)
+      : null
+    : null;
+  const calibrated = top && sportKey
+    ? calibratedConfidenceLabel(sportKey, top.confidence)
+    : null;
+  const confLabel = top
+    ? calibrated?.label ?? confidenceLabel(top.confidence)
+    : "";
+  // Downgraded labels (e.g. "Calibration watch") use a muted warn
+  // color so they don't read as Strong signals.
   const confColor = top
-    ? top.confidence === "High"
-      ? "var(--vault-success)"
-      : top.confidence === "Medium"
-        ? "var(--vault-gold-bright)"
-        : "var(--vault-warn)"
+    ? calibrated?.downgraded
+      ? "var(--vault-warn)"
+      : top.confidence === "High"
+        ? "var(--vault-success)"
+        : top.confidence === "Medium"
+          ? "var(--vault-gold-bright)"
+          : "var(--vault-warn)"
     : "var(--vault-text-faint)";
+  // Tag for tooltip / aria explanation (kept short).
+  const confReason = calibrated?.reason ?? "";
+  void calibrationHealthFor; // re-exported elsewhere; ensure no unused warning
   return (
     <details
       className="gtp-player-accordion"
@@ -749,6 +775,7 @@ function PlayerAccordion({
                 fontSize: 9,
                 border: `1px solid ${confColor}`,
               }}
+              title={confReason || undefined}
             >
               {confLabel}
             </span>

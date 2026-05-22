@@ -22,6 +22,10 @@ import {
   formatAmerican,
 } from "@/lib/odds-math";
 import { confidenceLabel } from "@/lib/confidence-labels";
+import {
+  calibratedConfidenceLabel,
+  type Sport,
+} from "@/lib/confidence-calibration";
 
 interface Props {
   slip: ParlaySlip;
@@ -165,7 +169,18 @@ function TicketLegRow({ leg }: { leg: ParlayLeg }) {
         : result === "push"
           ? "var(--vault-text-mute)"
           : "var(--vault-text-faint)";
-  const signal = leg.confidence ? confidenceLabel(leg.confidence) : null;
+  // Calibration-aware label: when the audit shows a (sport, tier) is
+  // inverted, we display "Calibration watch" instead of the model's
+  // raw "Stronger signal" so users don't trust the label more than the
+  // numbers justify. Falls back to the raw friendly label otherwise.
+  const sportKey = (leg.sport === "mlb" || leg.sport === "nba")
+    ? (leg.sport as Sport)
+    : null;
+  const signal = leg.confidence
+    ? sportKey
+      ? calibratedConfidenceLabel(sportKey, leg.confidence).label
+      : confidenceLabel(leg.confidence)
+    : null;
   return (
     <div
       className="grid grid-cols-[1fr_auto] gap-2 items-center px-2 py-1.5 rounded-[4px]"
