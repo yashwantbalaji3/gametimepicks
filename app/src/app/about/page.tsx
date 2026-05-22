@@ -178,10 +178,24 @@ export default function AboutPage() {
               </strong>{" "}
               — on the current settled MLB sample the model&apos;s
               &quot;Stronger signal&quot; tier (48.3% on 315 rows)
-              is below Medium (52.0%) and Low (51.4%). Treat the MLB
-              label as informational until a calibration pass ships.
-              A Monte Carlo guardrail prototype is in shadow mode and
-              has not been promoted to production scoring yet.
+              is below Medium (52.0%) and Low (51.4%). We now
+              automatically downgrade the MLB &quot;Stronger
+              signal&quot; label to &quot;Calibration watch&quot; on
+              every projection surface until the tier separates
+              cleanly. The Monte Carlo guardrail prototype runs in
+              shadow mode each slate; promotion to production scoring
+              requires a real out-of-sample backtest first.
+            </li>
+            <li>
+              <strong style={{ color: "var(--vault-gold-bright)" }}>
+                Curated rail prefers selectivity over volume
+              </strong>{" "}
+              — the homepage &quot;Tonight&apos;s curated
+              projections&quot; rail picks up to six leans per slate
+              by edge × calibration-adjusted confidence × market
+              strength. Inverted (sport, tier) combos are excluded.
+              Better to see six trustworthy reads than 300 of mixed
+              quality.
             </li>
           </ul>
           <p
