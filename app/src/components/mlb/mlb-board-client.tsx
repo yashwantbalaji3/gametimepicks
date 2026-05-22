@@ -93,30 +93,46 @@ export default function MlbBoardClient({
         totalCount={leans.length}
       />
 
-      {/* Game sections — wrapped in overflow-hidden to clip aurora-halo bleed. */}
+      {/* Game sections — wrapped in overflow-hidden to clip aurora-halo bleed.
+          Accordion default: only the first game with visible leans opens
+          on mount. Reduces initial DOM ~80% on dense MLB slates. */}
       <section className="mt-8 px-1 sm:px-2 overflow-hidden">
         <div className="flex flex-col gap-5">
-          {games.map((g) => {
-            const matchupKey = `${g.awayTeamAbbr}-${g.homeTeamAbbr}`;
-            const gameId = gameIdByMatchup[matchupKey];
-            const gameLeans = gameId ? visibleByGameId[gameId] ?? [] : [];
-            const totalForGame = gameId ? totalByGameId[gameId] ?? 0 : 0;
-            const gpk = g.gamePk;
-            const gameState =
-              gpk && gameStateByPk ? gameStateByPk[gpk] ?? null : null;
-            const settled = gpk ? settledSet.has(gpk) : false;
-            return (
-              <MlbGameSection
-                key={g.gamePk ?? matchupKey}
-                game={g}
-                leans={gameLeans}
-                totalLeansForGame={totalForGame}
-                density={state.density}
-                gameState={gameState}
-                settled={settled}
-              />
-            );
-          })}
+          {(() => {
+            // Pick the first game that has any visible leans; if every
+            // game is hidden by filters or pending, fall back to the
+            // chronologically first.
+            const firstWithLeans = games.find((g) => {
+              const id = gameIdByMatchup[`${g.awayTeamAbbr}-${g.homeTeamAbbr}`];
+              return id && (visibleByGameId[id]?.length ?? 0) > 0;
+            });
+            const openKey =
+              firstWithLeans?.gamePk ??
+              games[0]?.gamePk ??
+              null;
+            return games.map((g) => {
+              const matchupKey = `${g.awayTeamAbbr}-${g.homeTeamAbbr}`;
+              const gameId = gameIdByMatchup[matchupKey];
+              const gameLeans = gameId ? visibleByGameId[gameId] ?? [] : [];
+              const totalForGame = gameId ? totalByGameId[gameId] ?? 0 : 0;
+              const gpk = g.gamePk;
+              const gameState =
+                gpk && gameStateByPk ? gameStateByPk[gpk] ?? null : null;
+              const settled = gpk ? settledSet.has(gpk) : false;
+              return (
+                <MlbGameSection
+                  key={g.gamePk ?? matchupKey}
+                  game={g}
+                  leans={gameLeans}
+                  totalLeansForGame={totalForGame}
+                  density={state.density}
+                  gameState={gameState}
+                  settled={settled}
+                  defaultOpen={openKey != null && g.gamePk === openKey}
+                />
+              );
+            });
+          })()}
         </div>
       </section>
     </>

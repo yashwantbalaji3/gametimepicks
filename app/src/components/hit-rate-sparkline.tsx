@@ -53,7 +53,7 @@ export default function HitRateSparkline({
   if (usable.length === 0) {
     return (
       <div
-        className="rounded-[6px] px-4 py-4"
+        className="gtp-sparkline-card rounded-[6px] px-4 py-4"
         style={{
           background: "rgba(7, 11, 26, 0.55)",
           border: "1px solid var(--vault-border)",
@@ -130,7 +130,7 @@ export default function HitRateSparkline({
 
   return (
     <div
-      className="rounded-[6px] px-4 py-4"
+      className="gtp-sparkline-card rounded-[6px] px-4 py-4"
       style={{
         background: "rgba(7, 11, 26, 0.55)",
         border: "1px solid var(--vault-border)",
