@@ -164,6 +164,22 @@ if [ "$NBA_SKIPPED" != "1" ] || [ "$MLB_SKIPPED" != "1" ]; then
     fi
 fi
 
+# ---------------------------------------------------------------------------
+# Parlay grading — pure local read of the snapshot for the settled
+# date + this date's settled_leans. No API calls. Honest no-op if no
+# pregame snapshot exists for the date (we never invent history).
+# Always rebuilds the summary so any earlier graded dates remain
+# reflected.
+# ---------------------------------------------------------------------------
+GRADE_FAILED=0
+step "4/4  Parlay grading · $TARGET_DATE"
+if $PY -m pipeline.grade_parlays --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_grade_parlays.log; then
+    ok "parlay grading completed (no-op if no saved snapshot for $TARGET_DATE)"
+else
+    warn "parlay grading returned non-zero — see /tmp/gtp_grade_parlays.log"
+    GRADE_FAILED=1
+fi
+
 DURATION=$(( $(date +%s) - START_TIME ))
 
 step "Summary"
@@ -172,6 +188,7 @@ info "nba step:       $([ "$NBA_SKIPPED" = 1 ] && echo skipped || ([ "$NBA_FAILE
 info "mlb step:       $([ "$MLB_SKIPPED" = 1 ] && echo skipped || ([ "$MLB_FAILED" = 1 ] && echo FAILED || echo ok))"
 info "export step:    $([ "$EXPORT_FAILED" = 1 ] && echo FAILED || echo ok)"
 info "audit step:     $([ "$AUDIT_FAILED" = 1 ] && echo FAILED || echo ok)"
+info "grade step:     $([ "$GRADE_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
 info "elapsed:        ${DURATION}s"
 info "odds credits:   0 (settlement uses free public APIs only)"
 

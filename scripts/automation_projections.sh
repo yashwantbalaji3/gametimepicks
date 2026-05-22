@@ -193,12 +193,38 @@ BAL_AFTER_RAW=$($PY -m pipeline.credit_guard \
     --json 2>/dev/null) || true
 BAL_AFTER=$($PY -c "import json,sys; print(json.loads('''$BAL_AFTER_RAW''').get('remaining') or 'unknown')" 2>/dev/null || echo "unknown")
 
+# ---------------------------------------------------------------------------
+# Parlay candidate snapshot — pure local read of today's board; no
+# paid API. Captures pregame candidate slips so pipeline.grade_parlays
+# can later score them against settled results. Non-fatal: if the
+# NBA board failed earlier or produced no eligible candidates, we
+# still exit cleanly. Missing/empty snapshot is preferred over an
+# invented one.
+# ---------------------------------------------------------------------------
+SNAPSHOT_FAILED=0
+step "5/5  Parlay candidate snapshot"
+if [ "$NBA_FAILED" = "1" ] && [ "${SKIP_NBA:-0}" != "1" ]; then
+    warn "NBA board failed earlier — skipping parlay snapshot to avoid stale data"
+elif [ "${SKIP_NBA:-0}" = "1" ]; then
+    warn "SKIP_NBA=1 — parlay snapshot relies on NBA board, skipped"
+else
+    if $PY -m pipeline.snapshot_parlays --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_snapshot_parlays.log; then
+        ok "parlay snapshot written"
+    else
+        # Snapshot is best-effort. Surface a warning, don't break
+        # the projections pipeline.
+        warn "parlay snapshot returned non-zero — see /tmp/gtp_snapshot_parlays.log"
+        SNAPSHOT_FAILED=1
+    fi
+fi
+
 DURATION=$(( $(date +%s) - START_TIME ))
 
 step "Summary"
 info "target date:    $TARGET_DATE"
 info "nba step:       $([ "${SKIP_NBA:-0}" = 1 ] && echo skipped || ([ "$NBA_FAILED" = 1 ] && echo FAILED || echo ok))"
 info "mlb step:       $([ "${SKIP_MLB:-0}" = 1 ] && echo skipped || ([ "$MLB_FAILED" = 1 ] && echo FAILED || echo ok))"
+info "snapshot step:  $([ "$SNAPSHOT_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
 info "balance before: $BAL_BEFORE"
 info "balance after:  $BAL_AFTER"
 info "elapsed:        ${DURATION}s"
