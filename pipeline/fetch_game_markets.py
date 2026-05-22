@@ -59,11 +59,20 @@ from typing import Any
 
 from . import config as C
 from .credit_guard import check_balance
-from .providers.odds_api_provider import _http_get, API_BASE, SPORT_KEY
+from .providers.odds_api_provider import _http_get, API_BASE
 
 
 # Markets we ask The Odds API for. h2h = moneyline.
 GAME_MARKETS = ("h2h", "spreads", "totals")
+
+# Sport-key map. The Odds API uses `basketball_nba` and `baseball_mlb`
+# as canonical league keys. Adding a new sport here also requires the
+# matching board reader + output-path branch in the orchestration code
+# below.
+SPORT_KEYS: dict[str, str] = {
+    "nba": "basketball_nba",
+    "mlb": "baseball_mlb",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -250,10 +259,14 @@ def match_events_to_games(
     *,
     events: list[dict[str, Any]],
     games: list[dict[str, Any]],
+    sport: str = "nba",
 ) -> dict[str, dict[str, Any]]:
     """Pair Odds API events with board games by (home, away) full names.
 
     Returns a dict keyed by the **board** gameId -> the matched event dict.
+    NBA boards carry `homeTeamFull` + `gameId`; MLB boards carry
+    `homeTeamName` + `gamePk`. The function picks the right field per
+    sport so a single fetcher can serve both leagues.
     """
     by_pair: dict[tuple[str, str], dict[str, Any]] = {}
     for ev in events:
@@ -261,13 +274,16 @@ def match_events_to_games(
         away = (ev.get("away_team") or "").strip().lower()
         if home and away:
             by_pair[(home, away)] = ev
+    home_key = "homeTeamFull" if sport == "nba" else "homeTeamName"
+    away_key = "awayTeamFull" if sport == "nba" else "awayTeamName"
+    id_key = "gameId" if sport == "nba" else "gamePk"
     matched: dict[str, dict[str, Any]] = {}
     for g in games:
-        home = (g.get("homeTeamFull") or "").strip().lower()
-        away = (g.get("awayTeamFull") or "").strip().lower()
+        home = (g.get(home_key) or "").strip().lower()
+        away = (g.get(away_key) or "").strip().lower()
         ev = by_pair.get((home, away))
         if ev:
-            matched[str(g.get("gameId"))] = ev
+            matched[str(g.get(id_key))] = ev
     return matched
 
 
@@ -276,7 +292,15 @@ def match_events_to_games(
 # ---------------------------------------------------------------------------
 
 
-def _fetch_events_for_date(api_key: str, date: str) -> tuple[list, dict]:
+def _sport_key(sport: str) -> str:
+    if sport not in SPORT_KEYS:
+        raise RuntimeError(f"unsupported sport: {sport!r}")
+    return SPORT_KEYS[sport]
+
+
+def _fetch_events_for_date(
+    api_key: str, date: str, sport: str = "nba",
+) -> tuple[list, dict]:
     from datetime import timedelta
     from zoneinfo import ZoneInfo
 
@@ -290,7 +314,7 @@ def _fetch_events_for_date(api_key: str, date: str) -> tuple[list, dict]:
         "commenceTimeTo": local_end.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     events, headers = _http_get(
-        f"{API_BASE}/sports/{SPORT_KEY}/events",
+        f"{API_BASE}/sports/{_sport_key(sport)}/events",
         params=params,
     )
     if not isinstance(events, list):
@@ -302,6 +326,7 @@ def _fetch_event_odds(
     api_key: str,
     event_id: str,
     *,
+    sport: str = "nba",
     regions: tuple[str, ...] = ("us",),
     bookmakers: tuple[str, ...] = ("draftkings", "fanduel"),
 ) -> tuple[dict, dict]:
@@ -314,7 +339,7 @@ def _fetch_event_odds(
         "bookmakers": ",".join(bookmakers),
     }
     payload, headers = _http_get(
-        f"{API_BASE}/sports/{SPORT_KEY}/events/{event_id}/odds",
+        f"{API_BASE}/sports/{_sport_key(sport)}/events/{event_id}/odds",
         params=params,
     )
     if not isinstance(payload, dict):
@@ -332,26 +357,38 @@ def estimate_cost(num_events: int) -> int:
     return 3 * num_events
 
 
-def load_board_games(date: str) -> list[dict[str, Any]]:
-    path = Path("app/public/data/boards") / f"{date}.json"
-    if not path.exists():
+def load_board_games(date: str, sport: str = "nba") -> list[dict[str, Any]]:
+    board_path = (
+        Path("app/public/data/boards") / f"{date}.json"
+        if sport == "nba"
+        else Path("app/public/data/mlb/boards") / f"{date}.json"
+    )
+    if not board_path.exists():
         return []
     try:
-        data = json.loads(path.read_text())
+        data = json.loads(board_path.read_text())
     except json.JSONDecodeError:
         return []
     games = data.get("games") if isinstance(data, dict) else None
     return games if isinstance(games, list) else []
 
 
+def _default_out_dir(sport: str) -> str:
+    return os.path.join(
+        "app", "public", "data", sport, "game-markets",
+    )
+
+
 def write_artifact(
     *,
     date: str,
     payload: dict[str, Any],
-    out_dir: str = os.path.join("app", "public", "data", "nba", "game-markets"),
+    sport: str = "nba",
+    out_dir: str | None = None,
 ) -> str:
-    os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, f"{date}.json")
+    target_dir = out_dir or _default_out_dir(sport)
+    os.makedirs(target_dir, exist_ok=True)
+    path = os.path.join(target_dir, f"{date}.json")
     tmp = f"{path}.tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
@@ -363,6 +400,7 @@ def fetch_and_persist(
     *,
     date: str,
     api_key: str,
+    sport: str = "nba",
     min_remaining: int = 300,
     max_per_run: int = 75,
     bookmakers: tuple[str, ...] = ("draftkings", "fanduel"),
@@ -373,18 +411,18 @@ def fetch_and_persist(
     Returns a status dict the CLI can pretty-print. Never writes the
     artifact when the cost gate refuses the run.
     """
-    games = load_board_games(date)
+    games = load_board_games(date, sport=sport)
     if not games:
         return {
             "ok": False,
-            "reason": f"no board on disk for {date}",
+            "reason": f"no {sport.upper()} board on disk for {date}",
             "spent": 0,
         }
 
     # /events is free; call it first so we know exactly how many events
     # we'd hit before estimating cost.
     try:
-        events, _ = _fetch_events_for_date(api_key, date)
+        events, _ = _fetch_events_for_date(api_key, date, sport=sport)
     except Exception as e:
         return {
             "ok": False,
@@ -392,7 +430,7 @@ def fetch_and_persist(
             "spent": 0,
         }
 
-    matched = match_events_to_games(events=events, games=games)
+    matched = match_events_to_games(events=events, games=games, sport=sport)
     estimated = estimate_cost(len(matched))
 
     decision = check_balance(
@@ -427,6 +465,7 @@ def fetch_and_persist(
             payload, headers = _fetch_event_odds(
                 api_key=api_key,
                 event_id=event_id,
+                sport=sport,
                 regions=regions,
                 bookmakers=bookmakers,
             )
@@ -466,7 +505,7 @@ def fetch_and_persist(
             "Markets that the bookmaker has not posted appear as null; "
             "never fabricated."
         ),
-        "sport": "NBA",
+        "sport": sport.upper(),
         "date": date,
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "bookmakers": list(bookmakers),
@@ -479,7 +518,7 @@ def fetch_and_persist(
         "failed": failed,
         "games": out_games,
     }
-    path = write_artifact(date=date, payload=artifact)
+    path = write_artifact(date=date, payload=artifact, sport=sport)
 
     return {
         "ok": True,
@@ -558,6 +597,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     p.add_argument("--date", required=True, help="YYYY-MM-DD (ET)")
     p.add_argument(
+        "--sport", default="nba", choices=sorted(SPORT_KEYS.keys()),
+        help="Sport key (default nba). Affects board path, sport key, and output path.",
+    )
+    p.add_argument(
         "--min-remaining", type=int, default=300,
         help="Refuse the run if projected balance < this floor (default 300).",
     )
@@ -583,13 +626,13 @@ def main(argv: list[str] | None = None) -> int:
     bookmakers = tuple(b.strip() for b in args.bookmakers.split(",") if b.strip())
 
     if args.dry_run:
-        games = load_board_games(args.date)
+        games = load_board_games(args.date, sport=args.sport)
         try:
-            events, _ = _fetch_events_for_date(api_key, args.date)
+            events, _ = _fetch_events_for_date(api_key, args.date, sport=args.sport)
         except Exception as e:
             print(f"[fetch_game_markets] STOP /events call failed: {e}")
             return 1
-        matched = match_events_to_games(events=events, games=games)
+        matched = match_events_to_games(events=events, games=games, sport=args.sport)
         estimated = estimate_cost(len(matched))
         decision = check_balance(
             api_key=api_key,
@@ -608,6 +651,7 @@ def main(argv: list[str] | None = None) -> int:
     result = fetch_and_persist(
         date=args.date,
         api_key=api_key,
+        sport=args.sport,
         min_remaining=args.min_remaining,
         max_per_run=args.max_per_run,
         bookmakers=bookmakers,

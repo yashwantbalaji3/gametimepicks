@@ -114,7 +114,7 @@ export default function HomepageSportsRail() {
           <MlbTonight
             gameCount={mlbGames.length}
             leansCount={mlbLeans}
-            firstGame={mlbGames[0]}
+            firstGame={pickMlbFeaturedGame(mlbGames, mlbDate ?? today)}
             date={mlbDate ?? today}
           />
         )}
@@ -237,7 +237,7 @@ function NbaTonight({
   );
   // Optional market context (PR #68 added NBA game markets for this date).
   // Read lazily to avoid coupling the rail to the team-projection loader.
-  const gameMarket = loadNbaGameMarket(date, game.gameId);
+  const gameMarket = loadGameMarket("nba", date, game.gameId);
   return (
     <TonightMatchupCard
       sportEmoji="🏀"
@@ -271,9 +271,14 @@ function MlbTonight({
 }: {
   gameCount: number;
   leansCount: number;
-  firstGame: { awayTeamAbbr?: string | null; homeTeamAbbr?: string | null; awayTeamName?: string | null; homeTeamName?: string | null };
+  firstGame: { gamePk?: number | null; awayTeamAbbr?: string | null; homeTeamAbbr?: string | null; awayTeamName?: string | null; homeTeamName?: string | null };
   date: string;
 }) {
+  // Pull market chips from app/public/data/mlb/game-markets/<date>.json if
+  // present. Same fail-closed pattern as NBA: render only when on disk.
+  const mlbMarket = firstGame.gamePk
+    ? loadGameMarket("mlb", date, String(firstGame.gamePk))
+    : null;
   return (
     <TonightMatchupCard
       sportEmoji="⚾"
@@ -290,6 +295,9 @@ function MlbTonight({
       }
       tipoff={null}
       projectionCount={leansCount}
+      spread={mlbMarket?.spread ?? null}
+      total={mlbMarket?.total ?? null}
+      moneyline={mlbMarket?.moneyline ?? null}
       ctaHref={`/mlb/board?date=${date}`}
       ctaLabel="Open MLB projections"
       status="live"
@@ -360,7 +368,8 @@ type GameMarketEntry = {
   moneyline: string | null;
 };
 
-function loadNbaGameMarket(
+function loadGameMarket(
+  sport: "nba" | "mlb",
   date: string,
   gameId: string,
 ): GameMarketEntry | null {
@@ -373,7 +382,7 @@ function loadNbaGameMarket(
       process.cwd(),
       "public",
       "data",
-      "nba",
+      sport,
       "game-markets",
       `${date}.json`,
     );
@@ -416,4 +425,22 @@ function loadNbaGameMarket(
   } catch {
     return null;
   }
+}
+
+/**
+ * Pick the MLB game to feature on the homepage card. Prefer a game
+ * whose market lines are actually on disk — that way the card always
+ * shows spread/total/ML chips when ANY market exists, even if earlier
+ * day games have already finished. Falls back to first game on the
+ * slate if no markets exist yet.
+ */
+function pickMlbFeaturedGame<
+  T extends { gamePk?: number | null }
+>(games: T[], date: string): T {
+  for (const g of games) {
+    if (!g.gamePk) continue;
+    const mkt = loadGameMarket("mlb", date, String(g.gamePk));
+    if (mkt) return g;
+  }
+  return games[0];
 }
