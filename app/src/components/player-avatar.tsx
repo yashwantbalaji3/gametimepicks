@@ -22,11 +22,17 @@
 import { useState } from "react";
 
 interface Props {
-  /** NBA stats player ID. When missing, the fallback initials disc renders. */
+  /** NBA stats player ID OR MLB stats player ID, depending on `sport`.
+   *  When missing or the photo fails to load, the fallback initials
+   *  disc renders. */
   playerId?: number | null;
   playerName: string;
   /** 3-letter team abbreviation for the corner chip. */
   team?: string;
+  /** Which CDN to fetch the headshot from. Defaults to "nba" so existing
+   *  callers keep working. MLB players resolve via the official MLB
+   *  Stats people CDN, which is the same source mlb.com itself uses. */
+  sport?: "nba" | "mlb";
   size?: "xs" | "sm" | "md" | "lg";
   /** When true, no border/glow — for tight contexts like leg rows. */
   flat?: boolean;
@@ -50,6 +56,7 @@ export default function PlayerAvatar({
   playerId,
   playerName,
   team,
+  sport = "nba",
   size = "md",
   flat,
 }: Props) {
@@ -64,8 +71,12 @@ export default function PlayerAvatar({
   const showFallback = !hasPhoto || errored;
 
   const initials = initialsFor(playerName);
+  // NBA Stats CDN for NBA players; MLB Stats CDN for MLB players. Both
+  // are official public endpoints used by the leagues themselves.
   const photoUrl = hasPhoto
-    ? `https://cdn.nba.com/headshots/nba/latest/260x190/${playerId}.png`
+    ? sport === "mlb"
+      ? `https://midfield.mlbstatic.com/v1/people/${playerId}/spots/120`
+      : `https://cdn.nba.com/headshots/nba/latest/260x190/${playerId}.png`
     : null;
 
   const wrapperClass = `gtp-player-avatar${flat ? " gtp-player-avatar-flat" : ""}`;

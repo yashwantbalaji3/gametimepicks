@@ -22,6 +22,7 @@
  */
 import type { SettledLean } from "@/lib/settlement-data";
 import TeamBadge from "./team-badge";
+import PlayerAvatar from "./player-avatar";
 
 interface Props {
   rows: SettledLean[];
@@ -32,6 +33,7 @@ const MARKET_ORDER: Market[] = ["PTS", "REB", "AST"];
 
 interface PlayerGroup {
   playerName: string;
+  playerId: number | null;
   team: string | null;
   opponent: string | null;
   matchup: string | null;
@@ -56,6 +58,10 @@ function buildPlayerGroups(rows: SettledLean[]): PlayerGroup[] {
     if (!g) {
       g = {
         playerName: name,
+        playerId:
+          typeof r.playerId === "number" && r.playerId > 0
+            ? r.playerId
+            : null,
         team: r.team ?? null,
         opponent: r.opponent ?? null,
         matchup:
@@ -132,13 +138,6 @@ export default function PlayerResultsCards({ rows }: Props) {
 }
 
 function PlayerCard({ group }: { group: PlayerGroup }) {
-  const initials = group.playerName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
   const decisive = group.wins + group.losses;
   return (
     <article
@@ -151,22 +150,15 @@ function PlayerCard({ group }: { group: PlayerGroup }) {
     >
       {/* Player + team header */}
       <header className="flex items-center gap-3">
-        {/* Player avatar fallback — circular initials chip */}
-        <span
-          aria-hidden
-          className="inline-flex items-center justify-center rounded-full font-display font-semibold"
-          style={{
-            width: 36,
-            height: 36,
-            background: "rgba(7,11,26,0.85)",
-            border: "1px solid var(--vault-gold-dim)",
-            color: "var(--vault-gold-bright)",
-            fontSize: 13,
-            letterSpacing: "0.02em",
-          }}
-        >
-          {initials || "?"}
-        </span>
+        {/* Official NBA Stats headshot via PlayerAvatar; auto-fallback
+            to the gold-ring initials disc if the CDN 404s. */}
+        <PlayerAvatar
+          playerId={group.playerId}
+          playerName={group.playerName}
+          team={group.team ?? undefined}
+          sport="nba"
+          size="md"
+        />
         <div className="flex-1 min-w-0">
           <div
             className="font-display tracking-tight"
