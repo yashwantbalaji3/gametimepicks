@@ -213,7 +213,12 @@ export default function TonightMatchupCard({
         {/* Market line row (only when present) */}
         {hasMarketRow && (
           <div className="mt-5 flex flex-wrap gap-2.5">
-            {spread && <MarketChip label="Spread" value={spread} />}
+            {spread && (
+              <MarketChip
+                label={sportKey === "mlb" ? "Run line" : "Spread"}
+                value={spread}
+              />
+            )}
             {total && <MarketChip label="Total" value={total} />}
             {moneyline && <MarketChip label="ML" value={moneyline} />}
           </div>
