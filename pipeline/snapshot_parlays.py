@@ -56,10 +56,14 @@ PROFILE_RULES: dict[str, dict[str, Any]] = {
     "conservative": {
         "confidence": ["High"],
         "min_edge_pct": 3.0,
-        "max_legs": 3,
+        # User feedback (2026-05-23): keep conservative slips at
+        # EXACTLY 2 legs — the prior 2-3 range produced 3-leg
+        # conservative slips that the user found too noisy.
+        "max_legs": 2,
         "min_legs": 2,
         "require_recent10": True,
         "require_valid_player_id": True,
+        # Conservative: max 1 leg per game (dispersion preference).
         "max_legs_per_game": 1,
         "exclude_anomalies": True,
         "max_anomaly_legs": 0,
@@ -67,8 +71,9 @@ PROFILE_RULES: dict[str, dict[str, Any]] = {
     "balanced": {
         "confidence": ["High", "Medium"],
         "min_edge_pct": 2.0,
-        "max_legs": 4,
-        "min_legs": 2,
+        # Balanced: exactly 3 legs.
+        "max_legs": 3,
+        "min_legs": 3,
         "require_recent10": False,
         "require_valid_player_id": True,
         "max_legs_per_game": 2,
@@ -78,8 +83,11 @@ PROFILE_RULES: dict[str, dict[str, Any]] = {
     "aggressive": {
         "confidence": ["High", "Medium", "Low"],
         "min_edge_pct": 1.0,
+        # Aggressive: 4-5 legs. Bumped from 2-5 so this profile
+        # never produces a "thin" 2-leg slip that overlaps with
+        # the conservative pool.
         "max_legs": 5,
-        "min_legs": 2,
+        "min_legs": 4,
         "require_recent10": False,
         "require_valid_player_id": False,
         "max_legs_per_game": 3,
@@ -109,7 +117,16 @@ def _leg_score(lean: dict) -> float:
     edge = max(0.0, min(20.0, float(lean.get("edgePct") or 0)))
     recent_bonus = 0.15 if (lean.get("recent10") and len(lean["recent10"]) >= 5) else 0.0
     pid_bonus = 0.1 if (lean.get("playerId") or 0) > 0 else 0.0
-    return cw * 0.7 + (edge / 20) * 0.3 + recent_bonus + pid_bonus
+    base = cw * 0.7 + (edge / 20) * 0.3 + recent_bonus + pid_bonus
+
+    # MLB top-player boost — small, explicit preference for
+    # recognizable hitters. Locked by snapshot_parlays_test so the
+    # contract (top-player at +5pp beats non-top at +6pp;
+    # non-top at +10pp still beats top at +3pp) doesn't regress.
+    if lean.get("_sport") == "mlb":
+        from .mlb_top_players import top_player_boost
+        base += top_player_boost(lean.get("playerName"))
+    return base
 
 
 def _is_eligible(lean: dict, rules: dict[str, Any]) -> bool:
@@ -443,9 +460,13 @@ def build_snapshot(
             nba_leans, risk_profile=profile, num_candidates=num_per_profile,
         ):
             _emit(picked, profile, "nba")
-        # MLB-only pool
+        # MLB-only pool — user feedback (2026-05-23) asked for MORE
+        # MLB parlays per risk level. We generate up to 2x the
+        # default count for MLB so each profile lands ~3-5 slips
+        # after dedupe.
+        mlb_candidates = num_per_profile * 2
         for picked in _build_candidates(
-            mlb_leans, risk_profile=profile, num_candidates=num_per_profile,
+            mlb_leans, risk_profile=profile, num_candidates=mlb_candidates,
         ):
             _emit(picked, profile, "mlb")
         # Multi-sport pool — only when both pools are non-empty.

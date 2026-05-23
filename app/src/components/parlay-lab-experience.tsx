@@ -99,6 +99,17 @@ const SPORT_FILTERS: { key: SportFilter; label: string; sub: string }[] = [
   { key: "multi", label: "Mixed", sub: "NBA + MLB" },
 ];
 
+/** Risk-level filter for the saved-slip rail. Separate from the
+ *  in-game-detail RiskProfile so the user can scan only conservative
+ *  / balanced / aggressive saved slips without leaving the page. */
+type RiskFilter = "all" | "conservative" | "balanced" | "aggressive";
+const RISK_FILTERS: { key: RiskFilter; label: string; sub: string }[] = [
+  { key: "all", label: "All", sub: "every risk" },
+  { key: "conservative", label: "Conservative", sub: "2 legs · clean" },
+  { key: "balanced", label: "Balanced", sub: "3 legs · steady" },
+  { key: "aggressive", label: "Aggressive", sub: "4-5 legs · upside" },
+];
+
 export default function ParlayLabExperience({
   payload,
   snapshotsByDate,
@@ -112,6 +123,11 @@ export default function ParlayLabExperience({
   const urlGameId = searchParams.get("game");
   const urlRisk = (searchParams.get("risk") as RiskProfile) || "balanced";
   const urlSport = (searchParams.get("sport") as SportFilter) || "all";
+  // Risk-level filter for the landing-page saved-slip rail.
+  // Separate from `risk` (which drives the live preview generator
+  // inside a single game's detail view).
+  const urlRiskFilter =
+    (searchParams.get("riskFilter") as RiskFilter) || "all";
 
   const selectedDate =
     urlDate && payload.dates.some((d) => d.date === urlDate)
@@ -136,6 +152,7 @@ export default function ParlayLabExperience({
     game?: string | null;
     risk?: RiskProfile;
     sport?: SportFilter;
+    riskFilter?: RiskFilter;
   }) {
     const params = new URLSearchParams(searchParams.toString());
     if (next.date) params.set("date", next.date);
@@ -145,6 +162,10 @@ export default function ParlayLabExperience({
     if (next.sport) {
       if (next.sport === "all") params.delete("sport");
       else params.set("sport", next.sport);
+    }
+    if (next.riskFilter) {
+      if (next.riskFilter === "all") params.delete("riskFilter");
+      else params.set("riskFilter", next.riskFilter);
     }
     const qs = params.toString();
     router.replace(qs ? `/parlay-lab?${qs}` : "/parlay-lab", { scroll: false });
@@ -215,8 +236,19 @@ export default function ParlayLabExperience({
               games={activeDate.games}
               onSelect={(sp) => navigate({ sport: sp })}
             />
+            <RiskFilterRow
+              activeRisk={urlRiskFilter}
+              activeSport={urlSport}
+              snapshotPayload={snapshotForDate?.payload ?? null}
+              onSelect={(rf) => navigate({ riskFilter: rf })}
+            />
+            <MlbHitsDisclaimer
+              activeSport={urlSport}
+              snapshotPayload={snapshotForDate?.payload ?? null}
+            />
             <TonightSavedSlipsRail
               activeSport={urlSport}
+              activeRisk={urlRiskFilter}
               snapshotPayload={snapshotForDate?.payload ?? null}
               snapshotSource={snapshotForDate?.source ?? null}
               calibrationTable={calibrationTable}
@@ -359,16 +391,118 @@ function SportFilterRow({
 }
 
 /* ============================================================================
+   Risk filter row (mirrors the sport filter for landing-view slip
+   filtering — distinct from the in-detail RiskProfile picker)
+============================================================================ */
+
+function RiskFilterRow({
+  activeRisk,
+  activeSport,
+  snapshotPayload,
+  onSelect,
+}: {
+  activeRisk: RiskFilter;
+  activeSport: SportFilter;
+  snapshotPayload: ParlaySnapshot | null;
+  onSelect: (r: RiskFilter) => void;
+}) {
+  const counts = useMemo(() => {
+    const out: Record<RiskFilter, number> = {
+      all: 0,
+      conservative: 0,
+      balanced: 0,
+      aggressive: 0,
+    };
+    if (snapshotPayload) {
+      for (const slip of snapshotPayload.slips ?? []) {
+        // Honor the active sport chip so the count visible next
+        // to each risk-level pill reflects the current view.
+        if (activeSport !== "all" && slip.sport !== activeSport) continue;
+        const r = slip.riskProfile as RiskFilter;
+        if (r === "conservative" || r === "balanced" || r === "aggressive") {
+          out[r] += 1;
+          out.all += 1;
+        }
+      }
+    }
+    return out;
+  }, [snapshotPayload, activeSport]);
+  return (
+    <nav
+      aria-label="Risk filter"
+      className="gtp-projections-date-row flex gap-2 overflow-x-auto -mx-1 px-1 pb-1"
+    >
+      {RISK_FILTERS.map((f) => {
+        const active = activeRisk === f.key;
+        const n = counts[f.key];
+        return (
+          <button
+            key={f.key}
+            type="button"
+            onClick={() => onSelect(f.key)}
+            className="gtp-projections-date-pill"
+            data-active={active ? "true" : "false"}
+            aria-pressed={active}
+          >
+            <span className="block font-mono uppercase tracking-[0.14em] text-[10px] leading-none">
+              {f.label}
+            </span>
+            <span
+              className="block tabular text-[11px] leading-none mt-1"
+              style={{ color: active ? "inherit" : "var(--vault-text-faint)" }}
+            >
+              {n > 0 ? `${n} ${n === 1 ? "slip" : "slips"}` : f.sub}
+            </span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/* ============================================================================
+   MLB hits variance disclaimer — only renders when the user is
+   actually looking at the MLB filter on a day with MLB slips. Keeps
+   the disclaimer next to the surface where it matters.
+============================================================================ */
+
+function MlbHitsDisclaimer({
+  activeSport,
+  snapshotPayload,
+}: {
+  activeSport: SportFilter;
+  snapshotPayload: ParlaySnapshot | null;
+}) {
+  if (activeSport !== "mlb") return null;
+  if (!snapshotPayload) return null;
+  const hasMlb = (snapshotPayload.slips ?? []).some((s) => s.sport === "mlb");
+  if (!hasMlb) return null;
+  return (
+    <p
+      className="text-[11px] leading-relaxed -mt-1"
+      style={{ color: "var(--vault-text-faint)" }}
+    >
+      ⚾ MLB hits props are still variance-heavy on the audit. These
+      tickets are selected for top-player familiarity + calmer
+      profiles — not guarantees. Past model agreement does not
+      guarantee future outcomes.
+    </p>
+  );
+}
+
+/* ============================================================================
    Tonight's saved slips rail (rendered above the game grid)
 ============================================================================ */
 
 function TonightSavedSlipsRail({
   activeSport,
+  activeRisk,
   snapshotPayload,
   snapshotSource,
   calibrationTable,
 }: {
   activeSport: SportFilter;
+  activeRisk: RiskFilter;
   snapshotPayload: ParlaySnapshot | null;
   snapshotSource: "snapshot" | "graded" | null;
   calibrationTable: CalibrationTable;
@@ -376,17 +510,20 @@ function TonightSavedSlipsRail({
   const slips: ParlaySlip[] = useMemo(() => {
     if (!snapshotPayload) return [];
     return (snapshotPayload.slips ?? []).filter((slip) => {
-      if (activeSport === "all") return true;
-      return slip.sport === activeSport;
+      if (activeSport !== "all" && slip.sport !== activeSport) return false;
+      if (activeRisk !== "all" && slip.riskProfile !== activeRisk) return false;
+      return true;
     });
-  }, [snapshotPayload, activeSport]);
+  }, [snapshotPayload, activeSport, activeRisk]);
 
   if (slips.length === 0) return null;
 
   const sourceLabel =
     snapshotSource === "graded"
       ? "Tonight's slips · graded"
-      : "Tonight's slips · saved before games";
+      : activeSport === "mlb"
+        ? "Top-player MLB hits · saved before games"
+        : "Tonight's slips · saved before games";
 
   return (
     <section
@@ -399,7 +536,7 @@ function TonightSavedSlipsRail({
         cta={{ href: "/results/parlays", label: "Full history" }}
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {slips.slice(0, 9).map((slip) => (
+        {slips.slice(0, 15).map((slip) => (
           <ParlayTicketCard
             key={slip.slipId}
             slip={slip}
