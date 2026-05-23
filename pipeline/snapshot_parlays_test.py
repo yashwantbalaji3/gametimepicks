@@ -185,9 +185,12 @@ def test_stable_slip_ids_are_deterministic(s: Suite):
 def _fixture_mlb_leans() -> list[dict]:
     """Hand-built MLB leans matching the raw board shape (marketKey /
     playerTeamAbbr / etc.) so we can exercise `load_mlb_leans`'s
-    normalization layer."""
+    normalization layer. Includes enough hits + strikeouts leans
+    to satisfy the post-2026-05-23 tighter per-profile rules:
+    conservative needs 2 hits legs across 2 games; balanced needs 3
+    legs with ≤1 high-variance market; aggressive needs 4-5."""
     return [
-        # MLB game M1 — three High-confidence MLB legs.
+        # MLB game M1 — pitcher strikeouts (high variance) + batter hits.
         {"gameId": "M1", "playerId": 901, "playerName": "Pitcher Alpha",
          "playerTeamAbbr": "AAA", "opponentAbbr": "BBB",
          "marketKey": "pitcher_strikeouts", "marketLabel": "Strikeouts",
@@ -219,6 +222,30 @@ def _fixture_mlb_leans() -> list[dict]:
          "confidence": "insufficient_data",
          "recentSeries": [], "oddsOver": -110, "oddsUnder": -110,
          "bookmaker": "draftkings", "projection": None},
+        # Extra batter_hits leans across different MLB games so
+        # conservative (2 legs, 1 per game, hits-only) and balanced
+        # (3 legs) have enough pool.
+        {"gameId": "M2", "playerId": 912, "playerName": "Batter Golf",
+         "playerTeamAbbr": "CCC", "opponentAbbr": "DDD",
+         "marketKey": "batter_hits", "marketLabel": "Hits",
+         "lean": "Over", "line": 0.5, "edgePct": 10, "confidence": "High",
+         "recentSeries": [1, 2, 1, 1, 1], "oddsOver": -150, "oddsUnder": 130,
+         "bookmaker": "draftkings", "projection": 1.4,
+         "commenceTime": "2026-05-22T23:00:00Z"},
+        {"gameId": "M3", "playerId": 920, "playerName": "Batter Hotel",
+         "playerTeamAbbr": "EEE", "opponentAbbr": "FFF",
+         "marketKey": "batter_hits", "marketLabel": "Hits",
+         "lean": "Over", "line": 0.5, "edgePct": 8, "confidence": "High",
+         "recentSeries": [1, 1, 1, 0, 1], "oddsOver": -140, "oddsUnder": 120,
+         "bookmaker": "fanduel", "projection": 1.2,
+         "commenceTime": "2026-05-22T23:30:00Z"},
+        {"gameId": "M4", "playerId": 930, "playerName": "Batter India",
+         "playerTeamAbbr": "GGG", "opponentAbbr": "HHH",
+         "marketKey": "batter_hits", "marketLabel": "Hits",
+         "lean": "Over", "line": 0.5, "edgePct": 7, "confidence": "High",
+         "recentSeries": [1, 0, 1, 1, 1], "oddsOver": -135, "oddsUnder": 115,
+         "bookmaker": "draftkings", "projection": 1.15,
+         "commenceTime": "2026-05-22T23:30:00Z"},
     ]
 
 
@@ -239,7 +266,7 @@ def test_mlb_lean_normalization(s: Suite):
             leans = SP.load_mlb_leans("2099-01-01")
         finally:
             os.chdir(cwd)
-    s.eq(len(leans), 4, "4 MLB leans loaded")
+    s.eq(len(leans), 7, "7 MLB leans loaded (fixture grew with new market gates)")
     first = leans[0]
     s.eq(first.get("market"), "pitcher_strikeouts",
          "MLB marketKey → market field")
@@ -423,6 +450,93 @@ def test_top_player_boost_only_for_mlb(s: Suite):
          f"MLB top-player boost applies ({s_mlb:.3f} > {s_nba:.3f})")
 
 
+def test_conservative_mlb_hits_only(s: Suite):
+    print(f"\n  {BLUE}─── conservative MLB slips contain only batter_hits ───{RESET}")
+    import tempfile, os, json as J
+    mlb = _fixture_mlb_leans()
+    with tempfile.TemporaryDirectory() as tmp:
+        d = os.path.join(tmp, "app", "public", "data", "mlb", "boards")
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "2099-01-01.json"), "w") as f:
+            J.dump({"date": "2099-01-01", "leans": mlb}, f)
+        cwd = os.getcwd()
+        try:
+            os.chdir(tmp)
+            leans = SP.load_mlb_leans("2099-01-01")
+        finally:
+            os.chdir(cwd)
+    cands = SP._build_candidates(leans, risk_profile="conservative", num_candidates=5)
+    s.ok(len(cands) > 0, "conservative MLB pool produces ≥ 1 candidate")
+    for slip in cands:
+        for leg in slip:
+            s.eq(leg.get("market"), "batter_hits",
+                 f"conservative MLB leg is batter_hits (got {leg.get('market')})")
+
+
+def test_balanced_mlb_caps_high_variance_legs(s: Suite):
+    print(f"\n  {BLUE}─── balanced MLB caps high-variance legs at 1 ───{RESET}")
+    import tempfile, os, json as J
+    mlb = _fixture_mlb_leans()
+    with tempfile.TemporaryDirectory() as tmp:
+        d = os.path.join(tmp, "app", "public", "data", "mlb", "boards")
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "2099-01-01.json"), "w") as f:
+            J.dump({"date": "2099-01-01", "leans": mlb}, f)
+        cwd = os.getcwd()
+        try:
+            os.chdir(tmp)
+            leans = SP.load_mlb_leans("2099-01-01")
+        finally:
+            os.chdir(cwd)
+    cands = SP._build_candidates(leans, risk_profile="balanced", num_candidates=5)
+    s.ok(len(cands) > 0, "balanced MLB pool produces ≥ 1 candidate")
+    for slip in cands:
+        hv_count = sum(
+            1 for leg in slip
+            if leg.get("market") in SP.MLB_HIGH_VARIANCE_MARKETS
+        )
+        s.ok(hv_count <= 1,
+             f"balanced slip has ≤ 1 high-variance MLB leg (got {hv_count})")
+
+
+def test_aggressive_mlb_allows_multiple_markets(s: Suite):
+    print(f"\n  {BLUE}─── aggressive MLB allows total_bases + strikeouts ───{RESET}")
+    # The aggressive profile permits all four MLB markets and caps
+    # high-variance legs at 3 (so a 5-leg slip can carry up to 3
+    # strikeouts/total_bases legs).
+    import tempfile, os, json as J
+    mlb = _fixture_mlb_leans()
+    with tempfile.TemporaryDirectory() as tmp:
+        d = os.path.join(tmp, "app", "public", "data", "mlb", "boards")
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "2099-01-01.json"), "w") as f:
+            J.dump({"date": "2099-01-01", "leans": mlb}, f)
+        cwd = os.getcwd()
+        try:
+            os.chdir(tmp)
+            leans = SP.load_mlb_leans("2099-01-01")
+        finally:
+            os.chdir(cwd)
+    cands = SP._build_candidates(leans, risk_profile="aggressive", num_candidates=5)
+    markets_seen: set[str] = set()
+    for slip in cands:
+        for leg in slip:
+            m = leg.get("market")
+            if m:
+                markets_seen.add(m)
+    # Confirms multiple markets eligible (at least hits should be in
+    # there; strikeouts/total_bases depend on aggressive picking them).
+    s.ok("batter_hits" in markets_seen, "aggressive includes batter_hits")
+    # And that the high-variance cap is respected.
+    for slip in cands:
+        hv_count = sum(
+            1 for leg in slip
+            if leg.get("market") in SP.MLB_HIGH_VARIANCE_MARKETS
+        )
+        s.ok(hv_count <= 3,
+             f"aggressive slip has ≤ 3 high-variance MLB legs (got {hv_count})")
+
+
 def main():
     s = Suite()
     for t in (
@@ -439,6 +553,9 @@ def main():
         test_profile_leg_counts,
         test_mlb_top_player_boost_contract,
         test_top_player_boost_only_for_mlb,
+        test_conservative_mlb_hits_only,
+        test_balanced_mlb_caps_high_variance_legs,
+        test_aggressive_mlb_allows_multiple_markets,
     ):
         t(s)
     print(
