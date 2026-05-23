@@ -67,6 +67,14 @@ PROFILE_RULES: dict[str, dict[str, Any]] = {
         "max_legs_per_game": 1,
         "exclude_anomalies": True,
         "max_anomaly_legs": 0,
+        # Per-sport market gates. The MLB audit shows batter_hits is
+        # the calmest market (52.9% on 690); strikeouts at 46.2% and
+        # total_bases at 48.5% are higher-variance. Conservative
+        # restricts MLB to hits only.
+        "mlb_allowed_markets": ["batter_hits"],
+        # No cap on high-variance MLB markets — irrelevant when only
+        # batter_hits is allowed.
+        "mlb_max_high_variance_legs": 0,
     },
     "balanced": {
         "confidence": ["High", "Medium"],
@@ -79,6 +87,15 @@ PROFILE_RULES: dict[str, dict[str, Any]] = {
         "max_legs_per_game": 2,
         "exclude_anomalies": True,
         "max_anomaly_legs": 0,
+        # Balanced: hits + ONE optional total_bases/strikeouts leg.
+        # We surface variety without flooding the slip with
+        # high-variance markets.
+        "mlb_allowed_markets": [
+            "batter_hits",
+            "batter_total_bases",
+            "pitcher_strikeouts",
+        ],
+        "mlb_max_high_variance_legs": 1,
     },
     "aggressive": {
         "confidence": ["High", "Medium", "Low"],
@@ -93,7 +110,26 @@ PROFILE_RULES: dict[str, dict[str, Any]] = {
         "max_legs_per_game": 3,
         "exclude_anomalies": False,
         "max_anomaly_legs": 1,
+        # Aggressive: any MLB market. We still cap high-variance
+        # legs at 3 so we don't ship a slip that's all strikeouts.
+        "mlb_allowed_markets": [
+            "batter_hits",
+            "batter_total_bases",
+            "pitcher_strikeouts",
+            "batter_hits_runs_rbis",
+        ],
+        "mlb_max_high_variance_legs": 3,
     },
+}
+
+
+# Per-market classification for the "high variance" leg cap above.
+# Batter hits + H+R+RBI lean toward a single-event signal (any hit
+# clears 0.5); strikeouts + total bases have meaningfully higher
+# variance per the audit.
+MLB_HIGH_VARIANCE_MARKETS: set[str] = {
+    "batter_total_bases",
+    "pitcher_strikeouts",
 }
 
 
@@ -144,6 +180,15 @@ def _is_eligible(lean: dict, rules: dict[str, Any]) -> bool:
             return False
     if rules.get("exclude_anomalies") and _is_anomaly(lean):
         return False
+    # Per-sport market gating. Conservative MLB slips, for example,
+    # exclude pitcher_strikeouts + batter_total_bases (variance per
+    # the audit). NBA leans are unaffected by this filter.
+    if lean.get("_sport") == "mlb":
+        allowed = rules.get("mlb_allowed_markets")
+        if allowed is not None:
+            market = lean.get("market") or lean.get("marketKey")
+            if market not in allowed:
+                return False
     return True
 
 
@@ -210,6 +255,8 @@ def _greedy_build(
     players_used: set[str] = set()
     game_count: dict[str, int] = {}
     anomaly_count = 0
+    high_variance_mlb_count = 0
+    hv_cap = rules.get("mlb_max_high_variance_legs", 99)
     order = pool[start:] + pool[:start]
     for lean in order:
         if len(picked) >= rules["max_legs"]:
@@ -224,6 +271,14 @@ def _greedy_build(
         used = game_count.get(gid, 0)
         if used >= rules["max_legs_per_game"]:
             continue
+        # High-variance MLB leg cap (only applies to MLB leans
+        # in the per-profile MLB_HIGH_VARIANCE_MARKETS set).
+        if lean.get("_sport") == "mlb":
+            market = lean.get("market") or lean.get("marketKey")
+            if market in MLB_HIGH_VARIANCE_MARKETS:
+                if high_variance_mlb_count >= hv_cap:
+                    continue
+                high_variance_mlb_count += 1
         picked.append(lean)
         players_used.add(pkey)
         game_count[gid] = used + 1
