@@ -338,6 +338,91 @@ def test_build_snapshot_multi_sport(s: Suite):
     )
 
 
+def test_profile_leg_counts(s: Suite):
+    print(f"\n  {BLUE}─── per-profile leg counts (2 / 3 / 4-5) ───{RESET}")
+    # User asked: conservative=2 legs exactly, balanced=3, aggressive=4-5.
+    # Locked here so a regression doesn't quietly loosen them.
+    leans = _fixture_leans()
+    cons = SP._build_candidates(leans, risk_profile="conservative", num_candidates=3)
+    bal = SP._build_candidates(leans, risk_profile="balanced", num_candidates=3)
+    # The aggressive fixture isn't deep enough to satisfy minLegs=4
+    # so we extend it with a few extra eligible names — this test
+    # just confirms the leg-count constraints themselves, not pool depth.
+    extra_aggressive = leans + [
+        {"gameId": f"GX{i}", "playerId": 500 + i, "playerName": f"Extra {i}",
+         "team": "EEE", "opponent": "FFF",
+         "market": "PTS", "lean": "Over", "line": 10 + i, "edgePct": 5 + i,
+         "confidence": "High",
+         "recent10": [1, 2, 3, 4, 5, 6],
+         "oddsOver": -110, "oddsUnder": -110, "bookmaker": "draftkings"}
+        for i in range(4)
+    ]
+    agg = SP._build_candidates(extra_aggressive, risk_profile="aggressive", num_candidates=3)
+    for slip in cons:
+        s.eq(len(slip), 2, "conservative slip has exactly 2 legs")
+    for slip in bal:
+        s.eq(len(slip), 3, "balanced slip has exactly 3 legs")
+    for slip in agg:
+        s.ok(4 <= len(slip) <= 5,
+             f"aggressive slip leg count in [4, 5] (got {len(slip)})")
+
+
+def test_mlb_top_player_boost_contract(s: Suite):
+    print(f"\n  {BLUE}─── MLB top-player boost ranks recognizable hitters higher ───{RESET}")
+    from . import mlb_top_players as TP
+    # Sanity: known star is on the whitelist.
+    s.ok(TP.is_top_player("Aaron Judge"), "Aaron Judge is a top player")
+    s.ok(TP.is_top_player("aaron judge"), "case-insensitive match")
+    s.ok(TP.is_top_player("Ronald Acuña Jr."), "accent normalized inside full name")
+    s.ok(not TP.is_top_player("Andruw Monasterio"), "depth player NOT on whitelist")
+    s.ok(not TP.is_top_player(None), "None is not a top player")
+
+    # Boost contract: at comparable edge, top wins; at meaningfully
+    # stronger non-top edge, non-top still wins.
+    top_lean = {
+        "_sport": "mlb",
+        "playerName": "Aaron Judge",
+        "confidence": "High",
+        "edgePct": 5.0,
+        "playerId": 1, "lean": "Over", "line": 0.5, "market": "batter_hits",
+        "recent10": [1, 1, 0, 1, 1, 2],
+    }
+    non_top_close_lean = {
+        **top_lean,
+        "playerName": "Andruw Monasterio",
+        "edgePct": 6.0,
+    }
+    non_top_strong_lean = {
+        **top_lean,
+        "playerName": "Andruw Monasterio",
+        "edgePct": 12.0,
+    }
+    s_top = SP._leg_score(top_lean)
+    s_close = SP._leg_score(non_top_close_lean)
+    s_strong = SP._leg_score(non_top_strong_lean)
+    s.ok(s_top > s_close,
+         f"top at +5pp beats non-top at +6pp ({s_top:.3f} > {s_close:.3f})")
+    s.ok(s_strong > s_top,
+         f"non-top at +12pp still beats top at +5pp ({s_strong:.3f} > {s_top:.3f})")
+
+
+def test_top_player_boost_only_for_mlb(s: Suite):
+    print(f"\n  {BLUE}─── top-player boost is MLB-only ───{RESET}")
+    # NBA lean for a hypothetical name on the MLB whitelist: no
+    # boost should apply because _sport is nba. (Names rarely
+    # collide in practice; this guards against future collisions.)
+    lean_mlb = {
+        "_sport": "mlb", "playerName": "Juan Soto", "confidence": "High",
+        "edgePct": 5.0, "playerId": 1, "lean": "Over", "line": 0.5,
+        "market": "batter_hits", "recent10": [1, 1, 0, 1, 1, 2],
+    }
+    lean_nba = {**lean_mlb, "_sport": "nba", "market": "PTS"}
+    s_mlb = SP._leg_score(lean_mlb)
+    s_nba = SP._leg_score(lean_nba)
+    s.ok(s_mlb > s_nba,
+         f"MLB top-player boost applies ({s_mlb:.3f} > {s_nba:.3f})")
+
+
 def main():
     s = Suite()
     for t in (
@@ -351,6 +436,9 @@ def main():
         test_mlb_lean_normalization,
         test_mlb_candidates_exclude_insufficient_data_and_pass,
         test_build_snapshot_multi_sport,
+        test_profile_leg_counts,
+        test_mlb_top_player_boost_contract,
+        test_top_player_boost_only_for_mlb,
     ):
         t(s)
     print(
