@@ -144,7 +144,7 @@ export default function AboutPage() {
           </ul>
         </Section>
 
-        <Section title="Model watchlist (latest: May 22, 2026)">
+        <Section title="Model watchlist (latest: May 23, 2026)">
           Honest read of where the model is performing and where it isn&apos;t,
           based on every settled projection on disk. We update this when the
           numbers shift.
@@ -174,17 +174,31 @@ export default function AboutPage() {
             </li>
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>
-                MLB confidence is inverted right now
+                MLB confidence climbed back into &quot;watch&quot; on
+                the May 22 settlement
               </strong>{" "}
-              — on the current settled MLB sample the model&apos;s
-              &quot;Stronger signal&quot; tier (48.3% on 315 rows)
-              is below Medium (52.0%) and Low (51.4%). We now
-              automatically downgrade the MLB &quot;Stronger
-              signal&quot; label to &quot;Calibration watch&quot; on
-              every projection surface until the tier separates
-              cleanly. The Monte Carlo guardrail prototype runs in
-              shadow mode each slate; promotion to production scoring
-              requires a real out-of-sample backtest first.
+              — High is now 49.7% on 396 settled rows, Medium 50.4%
+              on 141, Low 53.3% on 435. Low is still the best MLB
+              cohort, but only ONE rival now beats High by ≥1.5pp
+              (was both before May 22). The calibration overlay
+              auto-promotes MLB High from &quot;Calibration
+              watch&quot; back to its raw label. The decision rule
+              is locked by tests — we only invert when ≥ 2 rivals
+              beat by ≥ 1.5pp, so a single best-tier (Low) can&apos;t
+              trigger inversion.
+            </li>
+            <li>
+              <strong style={{ color: "var(--vault-success)" }}>
+                Monte Carlo shadow validation — first real signal
+              </strong>{" "}
+              — joining 351 MC shadow entries to settled May 22 rows
+              produced 311 decisive joins. By recommendation: Strong
+              62.5% (10-6), Watch 65.2% (15-8), High-variance 55.6%
+              (149-119), Avoid 50.0% (2-2). Strong + Watch both
+              meaningfully outperform the raw slate (~53%). Sample
+              is still one date — not promoted to production scoring
+              yet, but the pattern is consistent with what the
+              shadow simulator was designed to find.
             </li>
             <li>
               <strong style={{ color: "var(--vault-gold-bright)" }}>
