@@ -1,68 +1,68 @@
 {
   "sport": "MLB",
   "date": "2026-05-23",
-  "generatedAt": "2026-05-24T03:57:03.359216+00:00",
+  "generatedAt": "2026-05-24T09:12:32.836563+00:00",
   "scheduledGames": 16,
-  "finalGames": 13,
-  "finalGamesSettled": 10,
-  "pendingGames": 3,
-  "partial": true,
-  "decisive": 215,
-  "wins": 98,
-  "losses": 117,
+  "finalGames": 16,
+  "finalGamesSettled": 13,
+  "pendingGames": 0,
+  "partial": false,
+  "decisive": 285,
+  "wins": 139,
+  "losses": 146,
   "pushes": 0,
-  "hitRate": 0.4558,
+  "hitRate": 0.4877,
   "smallSample": false,
   "byMarket": {
     "batter_hits": {
       "label": "batter_hits",
-      "total": 144,
-      "wins": 68,
-      "losses": 76,
+      "total": 189,
+      "wins": 93,
+      "losses": 96,
       "pushes": 0,
-      "hitRate": 0.4722222222222222
+      "hitRate": 0.49206349206349204
     },
     "pitcher_strikeouts": {
       "label": "pitcher_strikeouts",
-      "total": 16,
-      "wins": 5,
-      "losses": 11,
+      "total": 19,
+      "wins": 6,
+      "losses": 13,
       "pushes": 0,
-      "hitRate": 0.3125
+      "hitRate": 0.3157894736842105
     },
     "batter_total_bases": {
       "label": "batter_total_bases",
-      "total": 55,
-      "wins": 25,
-      "losses": 30,
+      "total": 77,
+      "wins": 40,
+      "losses": 37,
       "pushes": 0,
-      "hitRate": 0.45454545454545453
+      "hitRate": 0.5194805194805194
     }
   },
   "byConfidence": {
     "Low": {
       "label": "Low",
-      "total": 97,
-      "wins": 44,
-      "losses": 53,
+      "total": 126,
+      "wins": 59,
+      "losses": 67,
       "pushes": 0,
-      "hitRate": 0.4536082474226804
+      "hitRate": 0.46825396825396826
     },
     "Medium": {
       "label": "Medium",
-      "total": 44,
-      "wins": 24,
-      "losses": 20,
+      "total": 55,
+      "wins": 32,
+      "losses": 23,
       "pushes": 0,
-      "hitRate": 0.5454545454545454
+      "hitRate": 0.5818181818181818
     },
     "High": {
       "label": "High",
-      "total": 74,
-      "wins": 30,
-      "losses": 44,
+      "total": 104,
+      "wins": 48,
+      "losses": 56,
       "pushes": 0,
-      "hitRate": 0.40540540540540543
+      "hitRate": 0.46153846153846156
     }
   },
   "byGame": {
@@ -165,6 +165,36 @@
       "hitRate": 0.64,
       "matchup": "LAD @ MIL",
       "gameDate": "2026-05-23T23:15:00Z"
+    },
+    "823300": {
+      "label": "823300",
+      "total": 20,
+      "wins": 12,
+      "losses": 8,
+      "pushes": 0,
+      "hitRate": 0.6,
+      "matchup": "ATH @ SD",
+      "gameDate": "2026-05-24T01:40:00Z"
+    },
+    "824030": {
+      "label": "824030",
+      "total": 22,
+      "wins": 13,
+      "losses": 9,
+      "pushes": 0,
+      "hitRate": 0.5909090909090909,
+      "matchup": "TEX @ LAA",
+      "gameDate": "2026-05-24T02:05:00Z"
+    },
+    "825080": {
+      "label": "825080",
+      "total": 28,
+      "wins": 16,
+      "losses": 12,
+      "pushes": 0,
+      "hitRate": 0.5714285714285714,
+      "matchup": "COL @ AZ",
+      "gameDate": "2026-05-24T02:10:00Z"
     }
   },
   "topHits": [
@@ -191,8 +221,34 @@
       "outcome": "Win",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.350629+00:00",
+      "settledAt": "2026-05-24T09:12:32.832438+00:00",
       "isAnomaly": true
+    },
+    {
+      "id": "1b110a61227c86ab2f069fb32d6720af-Nick_Kurtz-batter_total_bases-1.5",
+      "date": "2026-05-23",
+      "gamePk": 823300,
+      "gameId": "1b110a61227c86ab2f069fb32d6720af",
+      "playerId": 701762,
+      "playerName": "Nick Kurtz",
+      "playerTeamAbbr": "ATH",
+      "opponentAbbr": "SD",
+      "playerRole": "batter",
+      "marketKey": "batter_total_bases",
+      "marketLabel": "Total Bases",
+      "line": 1.5,
+      "lean": "Over",
+      "confidence": "High",
+      "projection": 2.12,
+      "edgePct": 19.28,
+      "modelProbOver": 0.6392,
+      "modelProbUnder": 0.3608,
+      "actual": 2.0,
+      "outcome": "Win",
+      "graded": true,
+      "matchMethod": "id",
+      "settledAt": "2026-05-24T09:12:32.832698+00:00",
+      "isAnomaly": false
     },
     {
       "id": "8b80dbee1665ae5e68b02b12836273c5-Blake_Dunn-batter_hits-0.5",
@@ -217,7 +273,7 @@
       "outcome": "Win",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.345573+00:00",
+      "settledAt": "2026-05-24T09:12:32.830597+00:00",
       "isAnomaly": false
     },
     {
@@ -243,7 +299,7 @@
       "outcome": "Win",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.350031+00:00",
+      "settledAt": "2026-05-24T09:12:32.832154+00:00",
       "isAnomaly": false
     },
     {
@@ -269,7 +325,33 @@
       "outcome": "Win",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.347790+00:00",
+      "settledAt": "2026-05-24T09:12:32.831087+00:00",
+      "isAnomaly": false
+    },
+    {
+      "id": "cdafb9b5d32150ff1e65098271c992b2-Brandon_Nimmo-batter_total_bases-1.5",
+      "date": "2026-05-23",
+      "gamePk": 824030,
+      "gameId": "cdafb9b5d32150ff1e65098271c992b2",
+      "playerId": 607043,
+      "playerName": "Brandon Nimmo",
+      "playerTeamAbbr": "TEX",
+      "opponentAbbr": "LAA",
+      "playerRole": "batter",
+      "marketKey": "batter_total_bases",
+      "marketLabel": "Total Bases",
+      "line": 1.5,
+      "lean": "Over",
+      "confidence": "High",
+      "projection": 1.91,
+      "edgePct": 15.95,
+      "modelProbOver": 0.5796,
+      "modelProbUnder": 0.4204,
+      "actual": 2.0,
+      "outcome": "Win",
+      "graded": true,
+      "matchMethod": "id",
+      "settledAt": "2026-05-24T09:12:32.832759+00:00",
       "isAnomaly": false
     },
     {
@@ -295,85 +377,33 @@
       "outcome": "Win",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.350909+00:00",
+      "settledAt": "2026-05-24T09:12:32.832568+00:00",
       "isAnomaly": false
     },
     {
-      "id": "203ad61a573433f885122e8811cd8350-Colt_Emerson-batter_hits-0.5",
+      "id": "cdafb9b5d32150ff1e65098271c992b2-Zach_Neto-batter_total_bases-1.5",
       "date": "2026-05-23",
-      "gamePk": 824109,
-      "gameId": "203ad61a573433f885122e8811cd8350",
-      "playerId": 806068,
-      "playerName": "Colt Emerson",
-      "playerTeamAbbr": "SEA",
-      "opponentAbbr": "KC",
+      "gamePk": 824030,
+      "gameId": "cdafb9b5d32150ff1e65098271c992b2",
+      "playerId": 687263,
+      "playerName": "Zach Neto",
+      "playerTeamAbbr": "LAA",
+      "opponentAbbr": "TEX",
       "playerRole": "batter",
-      "marketKey": "batter_hits",
-      "marketLabel": "Hits",
-      "line": 0.5,
-      "lean": "Under",
-      "confidence": "High",
-      "projection": 0.4,
-      "edgePct": 15.0,
-      "modelProbOver": 0.4532,
-      "modelProbUnder": 0.5468,
-      "actual": 0.0,
-      "outcome": "Win",
-      "graded": true,
-      "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.349070+00:00",
-      "isAnomaly": false
-    },
-    {
-      "id": "8d35e402aab765eeda746ea98f694dc6-Keibert_Ruiz-batter_hits-0.5",
-      "date": "2026-05-23",
-      "gamePk": 824920,
-      "gameId": "8d35e402aab765eeda746ea98f694dc6",
-      "playerId": 660688,
-      "playerName": "Keibert Ruiz",
-      "playerTeamAbbr": "WSH",
-      "opponentAbbr": "ATL",
-      "playerRole": "batter",
-      "marketKey": "batter_hits",
-      "marketLabel": "Hits",
-      "line": 0.5,
+      "marketKey": "batter_total_bases",
+      "marketLabel": "Total Bases",
+      "line": 1.5,
       "lean": "Over",
       "confidence": "High",
-      "projection": 1.12,
-      "edgePct": 13.91,
-      "modelProbOver": 0.7645,
-      "modelProbUnder": 0.2355,
-      "actual": 1.0,
+      "projection": 1.89,
+      "edgePct": 15.31,
+      "modelProbOver": 0.5805,
+      "modelProbUnder": 0.4195,
+      "actual": 3.0,
       "outcome": "Win",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.348135+00:00",
-      "isAnomaly": false
-    },
-    {
-      "id": "5e73a3b37ba9f2d7f8672112ad0b5d3a-Mois\u00e9s_Ballesteros-batter_hits-0.5",
-      "date": "2026-05-23",
-      "gamePk": 824674,
-      "gameId": "5e73a3b37ba9f2d7f8672112ad0b5d3a",
-      "playerId": 694208,
-      "playerName": "Mois\u00e9s Ballesteros",
-      "playerTeamAbbr": "CHC",
-      "opponentAbbr": "HOU",
-      "playerRole": "batter",
-      "marketKey": "batter_hits",
-      "marketLabel": "Hits",
-      "line": 0.5,
-      "lean": "Under",
-      "confidence": "High",
-      "projection": 0.38,
-      "edgePct": 12.7,
-      "modelProbOver": 0.4439,
-      "modelProbUnder": 0.5561,
-      "actual": 0.0,
-      "outcome": "Win",
-      "graded": true,
-      "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.345831+00:00",
+      "settledAt": "2026-05-24T09:12:32.832752+00:00",
       "isAnomaly": false
     }
   ],
@@ -401,7 +431,7 @@
       "outcome": "Loss",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.350504+00:00",
+      "settledAt": "2026-05-24T09:12:32.832377+00:00",
       "isAnomaly": false
     },
     {
@@ -427,7 +457,7 @@
       "outcome": "Loss",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.350118+00:00",
+      "settledAt": "2026-05-24T09:12:32.832194+00:00",
       "isAnomaly": false
     },
     {
@@ -453,7 +483,7 @@
       "outcome": "Loss",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.350102+00:00",
+      "settledAt": "2026-05-24T09:12:32.832187+00:00",
       "isAnomaly": true
     },
     {
@@ -479,7 +509,7 @@
       "outcome": "Loss",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.350893+00:00",
+      "settledAt": "2026-05-24T09:12:32.832560+00:00",
       "isAnomaly": false
     },
     {
@@ -505,7 +535,7 @@
       "outcome": "Loss",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.351020+00:00",
+      "settledAt": "2026-05-24T09:12:32.832614+00:00",
       "isAnomaly": false
     },
     {
@@ -531,7 +561,7 @@
       "outcome": "Loss",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.348446+00:00",
+      "settledAt": "2026-05-24T09:12:32.831289+00:00",
       "isAnomaly": false
     },
     {
@@ -557,7 +587,7 @@
       "outcome": "Loss",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.350939+00:00",
+      "settledAt": "2026-05-24T09:12:32.832581+00:00",
       "isAnomaly": true
     },
     {
@@ -583,11 +613,11 @@
       "outcome": "Loss",
       "graded": true,
       "matchMethod": "id",
-      "settledAt": "2026-05-24T03:57:03.350739+00:00",
+      "settledAt": "2026-05-24T09:12:32.832487+00:00",
       "isAnomaly": false
     }
   ],
-  "unavailableCount": 18,
+  "unavailableCount": 22,
   "unavailable": [
     "Tyler Stephenson (batter_hits) \u2014 actual stat unavailable (player didn't appear)",
     "C\u00e9sar Prieto (batter_hits) \u2014 actual stat unavailable (player didn't appear)",
@@ -604,30 +634,15 @@
     "Javier Sanoja (batter_hits) \u2014 actual stat unavailable (player didn't appear)",
     "William Contreras (batter_hits) \u2014 actual stat unavailable (player didn't appear)",
     "Garrett Mitchell (batter_hits) \u2014 actual stat unavailable (player didn't appear)",
+    "Xander Bogaerts (batter_hits) \u2014 actual stat unavailable (player didn't appear)",
+    "Jorge Barrosa (batter_hits) \u2014 actual stat unavailable (player didn't appear)",
+    "Willi Castro (batter_hits) \u2014 actual stat unavailable (player didn't appear)",
+    "Edouard Julien (batter_hits) \u2014 actual stat unavailable (player didn't appear)",
     "Chris Paddack (pitcher_strikeouts) \u2014 actual stat unavailable (player didn't appear)",
     "Andre Pallante (pitcher_strikeouts) \u2014 actual stat unavailable (player didn't appear)",
     "William Contreras (batter_total_bases) \u2014 actual stat unavailable (player didn't appear)"
   ],
-  "pendingGameList": [
-    {
-      "gamePk": 823300,
-      "matchup": "ATH @ SD",
-      "abstractState": "Live",
-      "detailedState": "In Progress"
-    },
-    {
-      "gamePk": 824030,
-      "matchup": "TEX @ LAA",
-      "abstractState": "Live",
-      "detailedState": "In Progress"
-    },
-    {
-      "gamePk": 825080,
-      "matchup": "COL @ AZ",
-      "abstractState": "Live",
-      "detailedState": "In Progress"
-    }
-  ],
+  "pendingGameList": [],
   "nameFallbackCount": 0,
   "nameFallbackNotes": []
 }
