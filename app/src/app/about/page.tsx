@@ -144,7 +144,7 @@ export default function AboutPage() {
           </ul>
         </Section>
 
-        <Section title="Model watchlist (latest: May 23, 2026)">
+        <Section title="Model watchlist (latest: May 24, 2026)">
           Honest read of where the model is performing and where it isn&apos;t,
           based on every settled projection on disk. We update this when the
           numbers shift.
@@ -188,17 +188,30 @@ export default function AboutPage() {
               trigger inversion.
             </li>
             <li>
-              <strong style={{ color: "var(--vault-success)" }}>
-                Monte Carlo shadow validation — first real signal
+              <strong style={{ color: "var(--vault-text-mute)" }}>
+                Monte Carlo shadow validation — two-date check
               </strong>{" "}
-              — joining 351 MC shadow entries to settled May 22 rows
-              produced 311 decisive joins. By recommendation: Strong
-              62.5% (10-6), Watch 65.2% (15-8), High-variance 55.6%
-              (149-119), Avoid 50.0% (2-2). Strong + Watch both
-              meaningfully outperform the raw slate (~53%). Sample
-              is still one date — not promoted to production scoring
-              yet, but the pattern is consistent with what the
-              shadow simulator was designed to find.
+              — May 22 looked promising (MC Strong 62.5%, Watch
+              65.2% on 311 joins). May 23 reverted to roughly coin
+              flip (Strong 50.0%, Watch 29.4% on 287 joins). Two
+              dates is too small to draw a conclusion. Across both:
+              Strong 56.7% (17-13), Watch 50.0% (20-20),
+              High-variance 50.2% (259-257). Promotion to production
+              scoring is on hold until ≥ 5 dates show consistent
+              separation.
+            </li>
+            <li>
+              <strong style={{ color: "var(--vault-success)" }}>
+                Curated rail is outperforming parlays meaningfully
+              </strong>{" "}
+              — across the first 2 days of tracking, single-leg
+              curated picks are <strong>8-4 (66.7% on 12)</strong>
+              while multi-leg saved parlays are{" "}
+              <strong>6-44 (12.0% on 50)</strong>. MLB-only curated
+              picks are 5-1 (83.3%). The honest read: selectivity
+              over volume is working; correlation risk is brutal on
+              4-5 leg slips. We surface both tracks but expect
+              users to weight the curated rail more heavily.
             </li>
             <li>
               <strong style={{ color: "var(--vault-gold-bright)" }}>
