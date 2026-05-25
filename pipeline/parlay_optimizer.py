@@ -182,7 +182,10 @@ MARKET_STABILITY_WEIGHT: dict[str, float] = {
     "mlb:batter_hits": 1.15,
     "mlb:batter_total_bases": 0.85,
     "mlb:pitcher_strikeouts": 0.70,
-    "mlb:batter_hits_runs_rbis": 0.75,
+    # batter_hits_runs_rbis stays at 0.80 — the audit has zero
+    # decisive picks on this market yet, so we don't have data to
+    # justify moving the weight. Re-tune once N ≥ ~100 settled rows.
+    "mlb:batter_hits_runs_rbis": 0.80,
 }
 
 
