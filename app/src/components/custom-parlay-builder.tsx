@@ -1,0 +1,318 @@
+"use client";
+/**
+ * CustomParlayBuilder — "Build your own parlay" surface under the
+ * suggested parlays on the homepage + Parlay Lab.
+ *
+ * Honest framing (PR #101):
+ *   - User picks any available leg from the optimizer's `legPool`.
+ *   - We show a "Custom evaluation" card with model rating, average
+ *     edge, combined odds when available, risk label, and warnings.
+ *   - We do NOT compute win probability or expected value.
+ *   - We do NOT track custom slips — they never enter optimizer-
+ *     summary or /results. The card explicitly says
+ *     "Custom evaluation · not tracked".
+ */
+import { useMemo, useState } from "react";
+import SearchableSelect, { type SearchableOption } from "./searchable-select";
+import type { OptimizerLeg, OptimizerSnapshot } from "@/lib/parlay-optimizer";
+import {
+  CUSTOM_PARLAY_MAX_LEGS,
+  evaluateCustomParlay,
+  getLegPool,
+  warningLabel,
+  type CustomParlayWarning,
+} from "@/lib/custom-parlay";
+
+interface Props {
+  snapshot: OptimizerSnapshot | null;
+}
+
+export default function CustomParlayBuilder({ snapshot }: Props) {
+  const pool = useMemo(() => (snapshot ? getLegPool(snapshot) : []), [snapshot]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+
+  // Map keyed by leanId so duplicate selections are impossible. We
+  // key off leanId because (playerId, market, side, line) is what the
+  // pipeline uses to identify a unique leg.
+  const poolByKey = useMemo(() => {
+    const m = new Map<string, OptimizerLeg>();
+    for (const leg of pool) m.set(leg.leanId, leg);
+    return m;
+  }, [pool]);
+
+  const selectedLegs = useMemo(
+    () =>
+      selectedKeys
+        .map((k) => poolByKey.get(k))
+        .filter((l): l is OptimizerLeg => l != null),
+    [selectedKeys, poolByKey],
+  );
+
+  const evaluation = useMemo(
+    () => evaluateCustomParlay(selectedLegs),
+    [selectedLegs],
+  );
+
+  const options = useMemo<SearchableOption[]>(() => {
+    const out: SearchableOption[] = [
+      { value: null, label: "Pick a leg…" },
+    ];
+    for (const leg of pool) {
+      if (selectedKeys.includes(leg.leanId)) continue;
+      const sport = (leg.sport ?? "").toUpperCase();
+      const star = leg.isStar ? "⭐ " : "";
+      const line = leg.line != null ? leg.line : "—";
+      const edge =
+        typeof leg.edgePct === "number" ? `${leg.edgePct.toFixed(1)}pp` : "—";
+      out.push({
+        value: leg.leanId,
+        label: `${star}${leg.playerName} · ${leg.market} ${leg.side} ${line}`,
+        sub: `${sport} · ${leg.team ?? "?"} · edge ${edge} · ${leg.confidence ?? "?"}`,
+        searchText: `${leg.playerName} ${leg.team ?? ""} ${leg.market} ${sport}`,
+      });
+    }
+    return out;
+  }, [pool, selectedKeys]);
+
+  function addLeg(value: string | null) {
+    if (!value) return;
+    if (selectedKeys.includes(value)) return;
+    if (selectedKeys.length >= CUSTOM_PARLAY_MAX_LEGS) return;
+    setSelectedKeys((cur) => [...cur, value]);
+  }
+
+  function removeLeg(leanId: string) {
+    setSelectedKeys((cur) => cur.filter((k) => k !== leanId));
+  }
+
+  function clearAll() {
+    setSelectedKeys([]);
+  }
+
+  const atCap = selectedKeys.length >= CUSTOM_PARLAY_MAX_LEGS;
+
+  return (
+    <section
+      className="flex flex-col gap-4 rounded-lg border border-[color:var(--vault-divider)] p-4"
+      aria-label="Build your own parlay"
+    >
+      <header className="flex flex-col gap-1">
+        <span
+          className="font-mono uppercase tracking-[0.16em] text-[10px]"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          BUILD YOUR OWN PARLAY
+        </span>
+        <h3 className="text-lg font-semibold">
+          Pick legs. We score the slip with the model.
+        </h3>
+        <p
+          className="text-sm"
+          style={{ color: "var(--vault-text-soft)" }}
+        >
+          Select players from any sport. This is a Custom evaluation — not
+          a tracked result, no probability claims.
+        </p>
+      </header>
+
+      {pool.length === 0 ? (
+        <p className="text-sm" style={{ color: "var(--vault-text-soft)" }}>
+          No leg pool available for this slate yet.
+        </p>
+      ) : (
+        <>
+          <SearchableSelect
+            label="ADD LEG"
+            placeholder={
+              atCap
+                ? `Max ${CUSTOM_PARLAY_MAX_LEGS} legs reached`
+                : "Search by player, team, market…"
+            }
+            options={atCap ? [{ value: null, label: "Max legs reached" }] : options}
+            value={null}
+            onChange={addLeg}
+          />
+
+          {selectedLegs.length > 0 ? (
+            <ul
+              className="flex flex-col gap-2"
+              aria-label="Selected custom parlay legs"
+            >
+              {selectedLegs.map((leg) => (
+                <li
+                  key={leg.leanId}
+                  className="flex items-start justify-between gap-3 rounded-md border border-[color:var(--vault-divider)] p-3"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm font-medium">
+                      {leg.isStar ? "⭐ " : ""}
+                      {leg.playerName}{" "}
+                      <span
+                        className="font-mono text-[11px]"
+                        style={{ color: "var(--vault-text-soft)" }}
+                      >
+                        · {leg.market} {leg.side} {leg.line ?? "—"}
+                      </span>
+                    </span>
+                    <span
+                      className="text-[11px] font-mono uppercase tracking-wider"
+                      style={{ color: "var(--vault-text-faint)" }}
+                    >
+                      {(leg.sport ?? "?").toUpperCase()} · {leg.team ?? "?"} ·
+                      edge{" "}
+                      {typeof leg.edgePct === "number"
+                        ? `${leg.edgePct.toFixed(1)}pp`
+                        : "—"}{" "}
+                      · {leg.confidence ?? "?"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeLeg(leg.leanId)}
+                    aria-label={`Remove ${leg.playerName} leg`}
+                    className="text-xs font-mono uppercase tracking-wider px-2 py-1 rounded border border-[color:var(--vault-divider)] hover:border-[color:var(--vault-text-soft)]"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p
+              className="text-sm"
+              style={{ color: "var(--vault-text-faint)" }}
+            >
+              Add a leg to see the model's evaluation.
+            </p>
+          )}
+
+          {selectedLegs.length > 0 && (
+            <EvaluationCard evaluation={evaluation} onClearAll={clearAll} />
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
+function EvaluationCard({
+  evaluation,
+  onClearAll,
+}: {
+  evaluation: ReturnType<typeof evaluateCustomParlay>;
+  onClearAll: () => void;
+}) {
+  const {
+    legCount,
+    averageEdgePct,
+    modelRating,
+    combinedOdds,
+    riskLabel,
+    warnings,
+    starHeavy,
+  } = evaluation;
+  const oddsLabel =
+    combinedOdds == null
+      ? "—"
+      : combinedOdds >= 0
+      ? `+${combinedOdds}`
+      : `${combinedOdds}`;
+  const negativeWarnings = warnings.filter(
+    (w): w is Exclude<CustomParlayWarning, "star_heavy"> => w !== "star_heavy",
+  );
+  return (
+    <article
+      className="rounded-md border border-[color:var(--vault-divider)] bg-[color:var(--vault-surface-1,rgba(7,11,26,0.45))] p-3 flex flex-col gap-2"
+      aria-label="Custom evaluation"
+    >
+      <header className="flex items-center justify-between gap-2">
+        <span
+          className="font-mono uppercase tracking-[0.14em] text-[10px]"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          CUSTOM EVALUATION · NOT TRACKED
+        </span>
+        <button
+          type="button"
+          onClick={onClearAll}
+          className="text-[10px] font-mono uppercase tracking-wider"
+          style={{ color: "var(--vault-text-soft)" }}
+        >
+          Clear all
+        </button>
+      </header>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <Stat label="Legs" value={legCount.toString()} />
+        <Stat
+          label="Model rating"
+          value={modelRating.toFixed(2)}
+        />
+        <Stat
+          label="Avg edge"
+          value={
+            averageEdgePct == null ? "—" : `${averageEdgePct.toFixed(1)}pp`
+          }
+        />
+        <Stat label="Combined" value={oddsLabel} />
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Chip
+          label={riskLabel}
+          tone={riskLabel === "High variance" ? "warn" : "default"}
+        />
+        {starHeavy && <Chip label="Star-heavy" tone="positive" />}
+        {negativeWarnings.map((w) => (
+          <Chip key={w} label={warningLabel(w)} tone="warn" />
+        ))}
+      </div>
+      <p
+        className="text-[11px]"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        Custom evaluation only — not a tracked or recommended slip. Model
+        rating combines confidence, edge, recent form, market stability,
+        and correlation penalties.
+      </p>
+    </article>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span
+        className="text-[10px] font-mono uppercase tracking-[0.12em]"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        {label}
+      </span>
+      <span className="text-sm font-semibold">{value}</span>
+    </div>
+  );
+}
+
+function Chip({
+  label,
+  tone,
+}: {
+  label: string;
+  tone: "default" | "positive" | "warn";
+}) {
+  const color =
+    tone === "warn"
+      ? "var(--vault-warn)"
+      : tone === "positive"
+      ? "var(--vault-success)"
+      : "var(--vault-text-soft)";
+  return (
+    <span
+      className="text-[10px] font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
+      style={{
+        color,
+        border: `1px solid ${color}`,
+      }}
+    >
+      {label}
+    </span>
+  );
+}

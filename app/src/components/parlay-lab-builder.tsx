@@ -22,6 +22,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ParlayTicketCard from "./parlay-ticket-card";
 import PlayerRecentFormDrawer from "./player-recent-form-drawer";
+import CustomParlayBuilder from "./custom-parlay-builder";
 import SearchableSelect, {
   type SearchableOption,
 } from "./searchable-select";
@@ -272,6 +273,7 @@ export default function ParlayLabBuilder({
       />
 
       <AltLineComingSoon />
+      <CustomParlayBuilder snapshot={optimizerPayload ?? null} />
       <BuilderFootnote optimizerActive={optimizerActive} />
       <PlayerRecentFormDrawer leg={activeLeg} onClose={() => setActiveLeg(null)} />
     </section>
