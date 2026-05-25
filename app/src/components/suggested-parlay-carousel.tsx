@@ -489,6 +489,7 @@ const _PROFILE_DISPLAY: Record<ParlayRiskProfile, string> = {
   conservative: "Conservative",
   balanced: "Balanced",
   aggressive: "High variance",
+  star_power: "Star Power",
 };
 export function profileDisplayLabel(p: ParlayRiskProfile): string {
   return _PROFILE_DISPLAY[p] ?? p;

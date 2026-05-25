@@ -32,44 +32,75 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from typing import Any
 
-from .parlay_optimizer import optimize, OptimizedSlip
+from .parlay_optimizer import (
+    optimize,
+    OptimizedSlip,
+    OptimizerLean,
+    normalize_lean,
+    is_eligible,
+    leg_score_breakdown,
+    PROFILE_RULES_BY_NAME,
+)
 from .snapshot_parlays import load_nba_leans, load_mlb_leans
 
 
 OUT_DIR = os.path.join("app", "public", "data", "parlays", "optimizer")
 
 
-_PROFILES = ("conservative", "balanced", "aggressive")
+_PROFILES = ("conservative", "balanced", "aggressive", "star_power")
 _SPORTS = ("nba", "mlb", "multi", "all")
+
+# Profile used as the canonical scoring lens for `legPool` metadata
+# attached to each leg. Balanced is neutral — it sits between the
+# Conservative and Aggressive gate strictness, and uses no Star Power
+# market overrides. The custom-parlay builder reads these legScores so
+# the user's slip is scored with the same model the optimizer uses,
+# without duplicating the formula in TypeScript.
+_LEG_POOL_PROFILE = "balanced"
+
+
+def _leg_to_payload(leg: OptimizerLean) -> dict[str, Any]:
+    """Serialize a normalized OptimizerLean. Attaches the per-leg
+    scoring breakdown for `_LEG_POOL_PROFILE` so the custom builder
+    has the model's view of this leg without re-running anything."""
+    rules = PROFILE_RULES_BY_NAME[_LEG_POOL_PROFILE]
+    breakdown = leg_score_breakdown(leg, rules)
+    return {
+        "sport": leg.sport,
+        "leanId": leg.leanId,
+        "gameId": leg.gameId,
+        "playerId": leg.playerId,
+        "playerName": leg.playerName,
+        "team": leg.team,
+        "opponent": leg.opponent,
+        "market": leg.market,
+        "marketLabel": leg.marketLabel,
+        "side": leg.side,
+        "line": leg.line,
+        "projection": leg.projection,
+        "edgePct": leg.edgePct,
+        "confidence": leg.confidence,
+        "bookmaker": leg.bookmaker,
+        "oddsForSide": leg.oddsForSide,
+        "recent10Count": leg.recent10Count,
+        "recentSeries": list(leg.recentSeries),
+        "isAnomaly": leg.isAnomaly,
+        "isVolatileMlb": leg.isVolatileMlb,
+        "starTier": leg.starTier,
+        "isStar": leg.starTier != "none",
+        # Per-leg scoring metadata for the custom parlay builder.
+        # Computed against the canonical (`_LEG_POOL_PROFILE`) profile
+        # so the client's slip score mirrors the optimizer's view
+        # without duplicating any formula.
+        "legScore": round(float(breakdown["legScore"]), 4),
+        "marketStabilityWeight": breakdown["marketWeight"],
+        "starBoost": breakdown["starBoost"],
+        "scoreBreakdown": breakdown,
+    }
 
 
 def _slip_to_payload(slip: OptimizedSlip) -> dict[str, Any]:
-    legs = []
-    for leg in slip.legs:
-        legs.append({
-            "sport": leg.sport,
-            "leanId": leg.leanId,
-            "gameId": leg.gameId,
-            "playerId": leg.playerId,
-            "playerName": leg.playerName,
-            "team": leg.team,
-            "opponent": leg.opponent,
-            "market": leg.market,
-            "marketLabel": leg.marketLabel,
-            "side": leg.side,
-            "line": leg.line,
-            "projection": leg.projection,
-            "edgePct": leg.edgePct,
-            "confidence": leg.confidence,
-            "bookmaker": leg.bookmaker,
-            "oddsForSide": leg.oddsForSide,
-            "recent10Count": leg.recent10Count,
-            "recentSeries": list(leg.recentSeries),
-            "isAnomaly": leg.isAnomaly,
-            "isVolatileMlb": leg.isVolatileMlb,
-            "starTier": leg.starTier,
-            "isStar": leg.starTier != "none",
-        })
+    legs = [_leg_to_payload(leg) for leg in slip.legs]
     return {
         "slipId": slip.slipId,
         "profile": slip.profile,
@@ -83,6 +114,40 @@ def _slip_to_payload(slip: OptimizedSlip) -> dict[str, Any]:
     }
 
 
+def _build_leg_pool(
+    nba_raw: list[dict[str, Any]],
+    mlb_raw: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build the leg pool the custom-parlay builder consumes.
+
+    A leg is included if it passes the most permissive profile gate
+    (aggressive). That gives the user broad choice — any prop that
+    the optimizer would consider for ANY of its lanes is selectable —
+    while filtering out the obviously bad legs (Pass side, missing
+    confidence, etc).
+    """
+    rules = PROFILE_RULES_BY_NAME["aggressive"]
+    pool: list[dict[str, Any]] = []
+    for raw in nba_raw:
+        norm = normalize_lean(raw, sport="nba")
+        if is_eligible(norm, rules):
+            pool.append(_leg_to_payload(norm))
+    for raw in mlb_raw:
+        norm = normalize_lean(raw, sport="mlb")
+        if is_eligible(norm, rules):
+            pool.append(_leg_to_payload(norm))
+    # Stable order: sport, then descending edge so the search-default
+    # surfaces the strongest leans first.
+    pool.sort(
+        key=lambda l: (
+            l.get("sport") or "",
+            -(l.get("edgePct") or 0),
+            (l.get("playerName") or "").lower(),
+        )
+    )
+    return pool
+
+
 def build_optimizer_snapshot(
     date: str,
     *,
@@ -91,6 +156,7 @@ def build_optimizer_snapshot(
     nba = load_nba_leans(date)
     mlb = load_mlb_leans(date)
     combined = nba + mlb
+    leg_pool = _build_leg_pool(nba, mlb)
 
     # Each bucket holds the top-N candidates from the optimizer.
     buckets: dict[str, dict[str, list[dict[str, Any]]]] = {
@@ -146,6 +212,15 @@ def build_optimizer_snapshot(
         "sourcePools": {
             "nbaCount": len(nba),
             "mlbCount": len(mlb),
+        },
+        # Leg pool consumed by the custom-parlay builder. Every leg
+        # carries the same scoring metadata the optimizer used. The
+        # custom builder is NOT officially tracked (not graded into
+        # optimizer-summary); it's a "Custom evaluation" surface.
+        "legPool": {
+            "scoringProfile": _LEG_POOL_PROFILE,
+            "totalLegs": len(leg_pool),
+            "legs": leg_pool,
         },
     }
     return payload

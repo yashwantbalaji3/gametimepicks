@@ -82,6 +82,10 @@ class ProfileRules:
     recent10_bonus: float = 0.15
     pid_bonus: float = 0.10
     correlation_penalty_per_extra: float = 0.08
+    # Strict star-only eligibility — when True, non-star legs are
+    # rejected at the eligibility gate so the lane is composed only
+    # of recognizable players. Set on Star Power.
+    require_star: bool = False
 
 
 CONSERVATIVE_RULES = ProfileRules(
@@ -146,10 +150,47 @@ AGGRESSIVE_RULES = ProfileRules(
     correlation_penalty_per_extra=0.05,
 )
 
+# Star Power lane — recognizable-stars-first composition. Not "safer"
+# than Conservative; model-ranked among stars. Strict-star eligibility
+# means a Star Power slip never contains a non-star leg; the lane
+# returns empty when not enough stars pass the gate.
+#
+# Composition:
+#   - 2-3 legs (the slate decides; 3 only when enough stars exist
+#     across ≥2 games or NBA+MLB).
+#   - High or Medium confidence only (no Low — the lane prioritizes
+#     stars whose model already has data, not value-edge picks).
+#   - Edge ≥ 3pp.
+#   - MLB hits only (stable market — Star Power doesn't fish in
+#     volatile MLB cohorts).
+#   - Same-game cap 2 (lets us build NBA stacks like Brunson +
+#     Mobley on a 1-NBA-game night with different players, different
+#     teams when possible).
+#   - Same-team cap 1 (different players; no same-team stacks).
+#   - No anomalies.
+STAR_POWER_RULES = ProfileRules(
+    profile="star_power",
+    confidence=("High", "Medium"),
+    min_edge_pct=3.0,
+    min_legs=2,
+    max_legs=3,
+    require_recent10=True,
+    require_valid_player_id=True,
+    max_legs_per_game=2,
+    max_legs_per_team=1,
+    exclude_anomalies=True,
+    max_anomaly_legs=0,
+    mlb_allowed_markets=("batter_hits",),
+    mlb_max_volatile_legs=0,
+    correlation_penalty_per_extra=0.10,
+    require_star=True,
+)
+
 PROFILE_RULES_BY_NAME: dict[str, ProfileRules] = {
     "conservative": CONSERVATIVE_RULES,
     "balanced": BALANCED_RULES,
     "aggressive": AGGRESSIVE_RULES,
+    "star_power": STAR_POWER_RULES,
 }
 
 
@@ -186,6 +227,24 @@ MARKET_STABILITY_WEIGHT: dict[str, float] = {
     # decisive picks on this market yet, so we don't have data to
     # justify moving the weight. Re-tune once N ≥ ~100 settled rows.
     "mlb:batter_hits_runs_rbis": 0.80,
+}
+
+
+# Star Power-only market overrides. Restores audit-downweighted NBA
+# markets (AST 0.80, PTS 0.95) to 1.00 for SUPERSTAR/CORE stars on
+# High/Medium confidence leans inside the Star Power lane. This is
+# how Donovan Mitchell / Brunson AST surfaces in Star Power without
+# changing the global audit weighting that Conservative/Balanced rely
+# on. We do NOT override MLB markets here — Star Power still respects
+# the audit on the volatile MLB cohorts.
+#
+# This is a product lane preference, not a confidence claim. Star
+# Power is "model-ranked recognizable stars", not "safer".
+_STAR_POWER_MARKET_OVERRIDE: dict[str, float] = {
+    "nba:AST": 1.00,
+    "nba:PTS": 1.00,
+    # nba:REB already at 1.15 — keep it; the override is only useful
+    # where the audit penalty would suppress a star.
 }
 
 
@@ -362,6 +421,59 @@ _TIER_ADJUST: dict[tuple[str, str], float] = {
 }
 
 
+def leg_score_breakdown(
+    lean: OptimizerLean, rules: ProfileRules
+) -> dict[str, float | str]:
+    """Per-leg scoring components — exposed so the snapshot writer can
+    attach an honest, auditable score breakdown to each leg in the
+    optimizer JSON. The custom-parlay builder uses this on the client
+    so the user sees the same scoring the optimizer used, with no
+    duplicated formula in TypeScript.
+
+    Returns a dict with:
+      - `legScore`: the final `leg_score(lean, rules)` value.
+      - `confidenceComponent`: the confidence × tier-adjust × profile
+        confidence_weight term (before market weight).
+      - `edgeComponent`: the edge × profile edge_weight term.
+      - `recent10Bonus`, `pidBonus`: bonus values applied (or 0).
+      - `starBoost`: star bonus for this (tier, profile) or 0.
+      - `marketWeight`: effective market weight after Star Power
+        override (when applicable).
+      - `calibrationFactor`: 1.0 default.
+    """
+    cw = _CONFIDENCE_WEIGHT.get(lean.confidence or "", 0.10)
+    tier_adjust = _TIER_ADJUST.get((lean.sport, lean.confidence or ""), 1.0)
+    confidence_component = rules.confidence_weight * cw * tier_adjust
+    edge = max(0.0, min(20.0, float(lean.edgePct or 0)))
+    edge_component = rules.edge_weight * (edge / 20.0)
+    recent_bonus = rules.recent10_bonus if lean.recent10Count >= 5 else 0.0
+    pid_bonus = rules.pid_bonus if (lean.playerId or 0) > 0 else 0.0
+    star_bonus = 0.0
+    if lean.starTier != "none" and (lean.confidence in ("High", "Medium")):
+        from .star_players import star_boost
+        star_bonus = star_boost(lean.playerName, lean.sport, rules.profile)
+    market_weight = lean.marketWeight
+    if (
+        rules.profile == "star_power"
+        and lean.starTier in ("superstar", "core")
+        and lean.confidence in ("High", "Medium")
+    ):
+        market_key = f"{lean.sport}:{lean.market}"
+        override = _STAR_POWER_MARKET_OVERRIDE.get(market_key)
+        if override is not None and override > market_weight:
+            market_weight = override
+    return {
+        "legScore": leg_score(lean, rules),
+        "confidenceComponent": round(confidence_component, 4),
+        "edgeComponent": round(edge_component, 4),
+        "recent10Bonus": round(recent_bonus, 4),
+        "pidBonus": round(pid_bonus, 4),
+        "starBoost": round(star_bonus, 4),
+        "marketWeight": round(market_weight, 4),
+        "calibrationFactor": round(lean.calibrationFactor, 4),
+    }
+
+
 def leg_score(lean: OptimizerLean, rules: ProfileRules) -> float:
     """Higher = better fit for the profile.
 
@@ -371,7 +483,9 @@ def leg_score(lean: OptimizerLean, rules: ProfileRules) -> float:
       - recent10_bonus when recent10 has ≥5 numeric values
       - pid_bonus when playerId is real
       - star bonus (per-profile, bounded — see star_players.py)
-      - market stability (1.0 = neutral)
+      - market stability (1.0 = neutral; Star Power lane uses a
+        bounded override for NBA AST/PTS so superstar/core stars on
+        downweighted markets aren't suppressed)
       - calibration factor (1.0 = neutral)
     """
     cw = _CONFIDENCE_WEIGHT.get(lean.confidence or "", 0.10)
@@ -393,7 +507,22 @@ def leg_score(lean: OptimizerLean, rules: ProfileRules) -> float:
     if lean.starTier != "none" and (lean.confidence in ("High", "Medium")):
         from .star_players import star_boost
         base += star_boost(lean.playerName, lean.sport, rules.profile)
-    base *= lean.marketWeight
+    # Per-lane market weight. Star Power lane restores audit-
+    # downweighted NBA markets for superstar/core stars on High/Medium
+    # confidence so Donovan Mitchell / Brunson AST etc. can surface.
+    # Bounded — applies only inside Star Power; Conservative/Balanced
+    # /High Variance still respect the audit weighting.
+    market_weight = lean.marketWeight
+    if (
+        rules.profile == "star_power"
+        and lean.starTier in ("superstar", "core")
+        and lean.confidence in ("High", "Medium")
+    ):
+        market_key = f"{lean.sport}:{lean.market}"
+        override = _STAR_POWER_MARKET_OVERRIDE.get(market_key)
+        if override is not None and override > market_weight:
+            market_weight = override
+    base *= market_weight
     base *= max(0.0, min(2.0, lean.calibrationFactor))
     return base
 
@@ -423,6 +552,8 @@ def is_eligible(
     if rules.require_valid_player_id and (lean.playerId or 0) <= 0:
         return False
     if rules.exclude_anomalies and lean.isAnomaly:
+        return False
+    if rules.require_star and lean.starTier == "none":
         return False
     if lean.sport == "mlb" and rules.mlb_allowed_markets is not None:
         if lean.market not in rules.mlb_allowed_markets:

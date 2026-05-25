@@ -42,6 +42,29 @@ export interface OptimizerLeg {
   /** Star metadata — PR #99. */
   starTier?: "none" | "regular" | "core" | "superstar";
   isStar?: boolean;
+  /** Per-leg scoring metadata (PR #101). Persisted by
+   *  `pipeline.snapshot_optimizer._leg_to_payload`. Used by the
+   *  custom-parlay builder so the slip score the user sees mirrors
+   *  the optimizer's view without duplicating any formula in TS. */
+  legScore?: number;
+  marketStabilityWeight?: number;
+  starBoost?: number;
+  scoreBreakdown?: OptimizerLegScoreBreakdown;
+}
+
+/** Per-leg score components — sum of additive parts × market weight ×
+ *  calibration = legScore. Exposed by the Python `leg_score_breakdown`
+ *  helper so the client can reproduce the optimizer's slip score
+ *  honestly. */
+export interface OptimizerLegScoreBreakdown {
+  legScore: number;
+  confidenceComponent: number;
+  edgeComponent: number;
+  recent10Bonus: number;
+  pidBonus: number;
+  starBoost: number;
+  marketWeight: number;
+  calibrationFactor: number;
 }
 
 export interface OptimizerSlip {
@@ -56,19 +79,29 @@ export interface OptimizerSlip {
   rationale: string;
 }
 
+/** Leg pool consumed by the custom-parlay builder. NOT officially
+ *  tracked in results — see comments in pipeline.snapshot_optimizer. */
+export interface OptimizerLegPool {
+  scoringProfile: ParlayRiskProfile;
+  totalLegs: number;
+  legs: OptimizerLeg[];
+}
+
 export interface OptimizerSnapshot {
   _disclaimer?: string;
   date: string;
   generatedAt: string;
   totalSlips: number;
   buckets: Record<
-    "conservative" | "balanced" | "aggressive",
+    ParlayRiskProfile,
     Record<"nba" | "mlb" | "multi" | "all", OptimizerSlip[]>
   >;
   sourcePools: {
     nbaCount: number;
     mlbCount: number;
   };
+  /** Optional — only present on snapshots written after PR #101. */
+  legPool?: OptimizerLegPool;
 }
 
 // ---------------------------------------------------------------------------
@@ -144,6 +177,7 @@ export function bestOptimizerSlipsForRisk(
     "conservative",
     "balanced",
     "aggressive",
+    "star_power",
   ];
   const out: Array<{ profile: ParlayRiskProfile; slip: OptimizerSlip }> = [];
   for (const profile of profiles) {
@@ -182,6 +216,7 @@ export function topOptimizerSlipsForSport(
     "conservative",
     "balanced",
     "aggressive",
+    "star_power",
   ];
   const slips: OptimizerSlip[] = [];
   const seen = new Set<string>();
@@ -211,6 +246,7 @@ export function flattenOptimizerSlips(
     "conservative",
     "balanced",
     "aggressive",
+    "star_power",
   ];
   const sports: SuggestedSport[] = ["all", "nba", "mlb", "multi"];
   for (const profile of profiles) {
@@ -243,6 +279,7 @@ export function playersFromOptimizerPayload(
     "conservative",
     "balanced",
     "aggressive",
+    "star_power",
   ];
   for (const profile of profiles) {
     const bucket = payload.buckets?.[profile]?.[sport] ?? [];

@@ -233,6 +233,16 @@ _BOOST_TABLE: dict[tuple[str, str], float] = {
     ("superstar", "aggressive"):   0.08,
     ("core",      "aggressive"):   0.05,
     ("regular",   "aggressive"):   0.02,
+
+    # Star Power lane — the whole point of the lane is recognizable
+    # stars, so the boost is larger than Conservative. Regular tier
+    # gets a smaller bump because Star Power should not be carried by
+    # rotation guards. (Star Power's is_eligible also strict-filters
+    # non-stars out entirely; the boost here only affects ranking
+    # among the stars that pass the gate.)
+    ("superstar", "star_power"):   0.25,
+    ("core",      "star_power"):   0.15,
+    ("regular",   "star_power"):   0.05,
 }
 
 

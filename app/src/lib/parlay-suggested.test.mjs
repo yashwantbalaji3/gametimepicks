@@ -336,6 +336,32 @@ test("selectDiverseForDisplay: Conservative diversifies more strongly than Aggre
   assert.ok(consStar < 3, "Conservative top-3 should not all share the same anchor");
 });
 
+test("selectDiverseForDisplay: Star Power lane diversifies between star-led slips", () => {
+  // PR #101: star_power has its own display penalty entry. With 3
+  // slips that all share an MLB superstar but have varied NBA stars,
+  // the top-3 should rotate the second leg.
+  const mkLeg = (name, market, sport = "nba") => ({
+    sport, gameId: `g_${sport}`, gameDate: "2026-05-25",
+    playerId: name.length, playerName: name, team: "X",
+    opponent: null, market, side: "Over", line: 5, projection: 6,
+    edgePct: 8, confidence: "High", bookmaker: "draftkings",
+    oddsForSide: -110, starTier: "superstar", isStar: true,
+  });
+  const sp = (id, p2, score) => mkSlip({
+    slipId: id, riskProfile: "star_power", sport: "multi",
+    legs: [mkLeg("Mobley", "REB"), mkLeg(p2, "PTS")],
+    score,
+  });
+  const slips = [sp("a", "Brunson", 1.5), sp("b", "Mitchell", 1.45),
+                 sp("c", "KAT", 1.40)];
+  const top3 = selectDiverseForDisplay(slips, "star_power", 3);
+  assert.equal(top3[0].slipId, "a", "Top slip keeps highest score");
+  // Each subsequent pick must rotate the second leg to a different
+  // star (Mobley repeat is penalized).
+  const names = top3.map((s) => s.legs[1].playerName);
+  assert.equal(new Set(names).size, 3, `Star Power should rotate the second leg, got ${names}`);
+});
+
 test("selectDiverseForDisplay: no empty/junk fallback when real slips exist", () => {
   // Penalty should never drive the helper to return an empty list,
   // and it must never pick a slip with no legs.
