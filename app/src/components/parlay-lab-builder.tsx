@@ -68,17 +68,17 @@ const RISK_DISPLAY: Record<
 > = {
   conservative: {
     label: "Conservative",
-    sub: "2 legs · clean reads",
+    sub: "2 legs · star-driven · lower variance",
     accent: "var(--vault-success)",
   },
   balanced: {
     label: "Balanced",
-    sub: "3 legs · moderate variance",
+    sub: "3 legs · star + value mix",
     accent: "var(--vault-gold-bright)",
   },
   aggressive: {
     label: "High variance",
-    sub: "4–5 legs · longshot territory",
+    sub: "4–5 legs · higher payout · longshot territory",
     accent: "var(--vault-warn)",
   },
 };
@@ -264,6 +264,7 @@ export default function ParlayLabBuilder({
         onLegClick={setActiveLeg}
       />
 
+      <AltLineComingSoon />
       <BuilderFootnote optimizerActive={optimizerActive} />
       <PlayerRecentFormDrawer leg={activeLeg} onClose={() => setActiveLeg(null)} />
     </section>
@@ -592,6 +593,46 @@ function EmptyRiskCard({
           : "Today's slate doesn't satisfy this risk profile yet — too few eligible legs or correlation caps."}
       </p>
     </div>
+  );
+}
+
+/**
+ * Small placeholder card surfacing the upcoming alt-line lane. Honest
+ * copy — we don't ship the lane until alt-line coverage is reliable.
+ * See `docs/ALT_LINE_PARLAY_PLAN.md`.
+ */
+function AltLineComingSoon() {
+  return (
+    <aside
+      className="rounded-[8px] p-3 flex items-center gap-3"
+      style={{
+        background: "rgba(7,11,26,0.4)",
+        border: "1px dashed var(--vault-border)",
+      }}
+    >
+      <span
+        aria-hidden
+        style={{ fontSize: 18 }}
+      >
+        🎯
+      </span>
+      <div className="flex flex-col gap-0.5 min-w-0">
+        <span
+          className="font-mono uppercase tracking-[0.16em]"
+          style={{ color: "var(--vault-gold)", fontSize: 10 }}
+        >
+          Alt-line parlays · coming soon
+        </span>
+        <span
+          className="font-mono"
+          style={{ color: "var(--vault-text-mute)", fontSize: 11 }}
+        >
+          Lower-variance slips built on alternate lines. We need
+          richer alt-line coverage from the books first — no
+          fabricated slips.
+        </span>
+      </div>
+    </aside>
   );
 }
 
