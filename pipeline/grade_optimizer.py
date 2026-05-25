@@ -61,7 +61,7 @@ OPTIMIZER_SUMMARY_PATH = os.path.join(
 )
 
 
-_PROFILES = ("conservative", "balanced", "aggressive")
+_PROFILES = ("conservative", "balanced", "aggressive", "star_power")
 _SPORTS = ("nba", "mlb", "multi", "all")
 
 

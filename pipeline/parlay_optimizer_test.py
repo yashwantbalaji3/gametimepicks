@@ -494,5 +494,189 @@ class DiversitySelectorTests(unittest.TestCase):
                                     "Diversity must not promote low-edge junk into top visible slips")
 
 
+class StarPowerLaneTests(unittest.TestCase):
+    """Locks the Star Power lane contract (PR #101):
+      - Strict-star eligibility — non-stars are filtered out.
+      - Low-confidence stars are rejected (lane requires High/Medium).
+      - AST/PTS market override fires only for superstar/core stars on
+        High/Medium confidence inside Star Power; does NOT leak into
+        Conservative/Balanced/Aggressive scoring.
+      - Same-game cap=2 lets a 1-NBA-game slate produce a NBA stack.
+      - Lane returns empty when no eligible stars exist (no fabrication).
+    """
+
+    def test_star_power_strict_excludes_non_stars(self):
+        # Two strong High-conf NBA legs from a non-star + two real
+        # stars. Star Power should never pick the non-star.
+        raw = [
+            _nba_lean(playerName="Bench Guy", playerId=9001, edgePct=18,
+                      market="REB", line=5.5),
+            _nba_lean(playerName="Evan Mobley", playerId=9002,
+                      gameId="g_cle_ny", team="CLE", edgePct=14,
+                      market="REB", line=8.5),
+            _nba_lean(playerName="Jalen Brunson", playerId=9003,
+                      gameId="g_cle_ny", team="NY", edgePct=18,
+                      market="AST", line=6.5),
+        ]
+        slips = optimize(raw, profile="star_power", num_candidates=4)
+        for s in slips:
+            for leg in s.legs:
+                self.assertNotEqual(
+                    leg.playerName, "Bench Guy",
+                    "Star Power must not include non-stars when stars exist",
+                )
+
+    def test_star_power_rejects_low_confidence_stars(self):
+        # The lane's confidence gate is ("High", "Medium"). A Low-conf
+        # star should not enter Star Power even if its edge is huge.
+        raw = [
+            _mlb_lean(playerName="Corbin Carroll", playerId=8001,
+                      edgePct=27, confidence="Low"),
+            _mlb_lean(playerName="Pete Alonso", playerId=8002,
+                      gameId="m2", team="NYM", edgePct=13,
+                      confidence="High"),
+            _mlb_lean(playerName="Mookie Betts", playerId=8003,
+                      gameId="m3", team="LAD", edgePct=12,
+                      confidence="High"),
+        ]
+        slips = optimize(raw, profile="star_power", num_candidates=2)
+        for s in slips:
+            for leg in s.legs:
+                self.assertNotEqual(
+                    leg.playerName, "Corbin Carroll",
+                    "Low-conf star must not enter Star Power",
+                )
+
+    def test_star_power_ast_override_only_in_star_power(self):
+        # Brunson AST +18 High superstar should score HIGHER in Star
+        # Power than in Conservative because Star Power restores
+        # nba:AST market weight (0.80 -> 1.00) for superstar/core
+        # High/Medium leans only.
+        raw = _nba_lean(
+            playerName="Jalen Brunson", playerId=7777,
+            market="AST", line=6.5, edgePct=18, confidence="High",
+            team="NY", gameId="g_cle_ny",
+        )
+        lean = normalize_lean(raw, sport="nba")
+        cons_score = leg_score(lean, PROFILE_RULES_BY_NAME["conservative"])
+        sp_score = leg_score(lean, PROFILE_RULES_BY_NAME["star_power"])
+        self.assertGreater(
+            sp_score, cons_score,
+            f"Star Power should beat Conservative on AST superstar "
+            f"(cons={cons_score:.3f} sp={sp_score:.3f})",
+        )
+        # And the override must NOT affect Conservative — a regression
+        # would silently restore AST weight for everyone.
+        cons_rules = PROFILE_RULES_BY_NAME["conservative"]
+        from pipeline.parlay_optimizer import MARKET_STABILITY_WEIGHT
+        expected_market_weight = MARKET_STABILITY_WEIGHT["nba:AST"]
+        self.assertAlmostEqual(expected_market_weight, 0.80, places=3,
+                               msg="Global AST weight must stay 0.80")
+
+    def test_star_power_ast_override_does_not_fire_for_low_conf(self):
+        # A Low-conf superstar AST leg should NOT get the override
+        # (it only fires for High/Medium). The whole lane's confidence
+        # gate also rejects Low — this just guards the override clause
+        # independently of the gate.
+        from pipeline.parlay_optimizer import leg_score_breakdown
+        raw = _nba_lean(
+            playerName="Jalen Brunson", playerId=7777,
+            market="AST", line=6.5, edgePct=18, confidence="Low",
+            team="NY", gameId="g_cle_ny",
+        )
+        lean = normalize_lean(raw, sport="nba")
+        breakdown = leg_score_breakdown(lean, PROFILE_RULES_BY_NAME["star_power"])
+        self.assertAlmostEqual(
+            float(breakdown["marketWeight"]), 0.80, places=3,
+            msg="AST override must NOT fire for Low confidence",
+        )
+
+    def test_star_power_allows_same_game_two_legs(self):
+        # On a 1-NBA-game slate the lane should still build a 2-leg
+        # NBA stack (different players, different markets). Without
+        # same-game cap 2 the lane would return empty for NBA.
+        raw = [
+            _nba_lean(playerName="Evan Mobley", playerId=6001,
+                      gameId="g_cle_ny", team="CLE", market="REB",
+                      line=8.5, edgePct=14, confidence="High"),
+            _nba_lean(playerName="Jalen Brunson", playerId=6002,
+                      gameId="g_cle_ny", team="NY", market="AST",
+                      line=6.5, edgePct=18, confidence="High"),
+        ]
+        slips = optimize(raw, profile="star_power", sport="nba",
+                         num_candidates=2)
+        self.assertGreaterEqual(
+            len(slips), 1,
+            "Star Power must build a 2-leg NBA stack on a 1-game slate",
+        )
+        for s in slips:
+            # Same game but different teams (the cap allows it).
+            self.assertEqual(len(s.legs), 2)
+            game_ids = {l.gameId for l in s.legs}
+            self.assertEqual(len(game_ids), 1, "Both legs same game")
+            teams = {l.team for l in s.legs}
+            self.assertEqual(len(teams), 2, "Different teams")
+
+    def test_star_power_returns_empty_when_no_star_candidates(self):
+        # A pool with strong leans from non-stars only must produce
+        # zero Star Power slips. No fabrication, no fallback into
+        # non-star territory.
+        raw = [
+            _nba_lean(playerName=f"Bench {i}", playerId=5000 + i,
+                      gameId=f"g{i}", team=f"T{i}",
+                      edgePct=15, confidence="High")
+            for i in range(5)
+        ]
+        slips = optimize(raw, profile="star_power", num_candidates=4)
+        self.assertEqual(
+            slips, [],
+            "Star Power must be empty when no star candidates exist",
+        )
+
+
+class LegScoreBreakdownTests(unittest.TestCase):
+    """Locks the per-leg scoring breakdown used by the custom-parlay
+    builder. The breakdown must equal the components that compose
+    `leg_score` so the client can reproduce the optimizer's view of
+    each leg without duplicating any formula."""
+
+    def test_breakdown_components_sum_to_leg_score(self):
+        from pipeline.parlay_optimizer import leg_score_breakdown
+        raw = _nba_lean(
+            playerName="Evan Mobley", playerId=4001,
+            market="REB", line=8.5, edgePct=14, confidence="High",
+        )
+        lean = normalize_lean(raw, sport="nba")
+        rules = PROFILE_RULES_BY_NAME["balanced"]
+        bd = leg_score_breakdown(lean, rules)
+        # Sum the additive components then × marketWeight × calibration.
+        additive = (
+            float(bd["confidenceComponent"])
+            + float(bd["edgeComponent"])
+            + float(bd["recent10Bonus"])
+            + float(bd["pidBonus"])
+            + float(bd["starBoost"])
+        )
+        reconstructed = additive * float(bd["marketWeight"]) * float(bd["calibrationFactor"])
+        self.assertAlmostEqual(
+            reconstructed, float(bd["legScore"]), places=3,
+            msg=f"Breakdown components must reconstruct legScore "
+                f"(got {reconstructed:.3f} vs {bd['legScore']:.3f})",
+        )
+
+    def test_breakdown_includes_star_boost_for_star_in_high_medium(self):
+        from pipeline.parlay_optimizer import leg_score_breakdown
+        raw = _nba_lean(
+            playerName="Jalen Brunson", playerId=4002,
+            market="PTS", line=27.5, edgePct=12, confidence="High",
+        )
+        lean = normalize_lean(raw, sport="nba")
+        bd = leg_score_breakdown(lean, PROFILE_RULES_BY_NAME["balanced"])
+        self.assertGreater(
+            float(bd["starBoost"]), 0,
+            "Brunson superstar should get a positive star boost",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

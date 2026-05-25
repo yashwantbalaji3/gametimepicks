@@ -92,6 +92,27 @@ class StarBoostByProfileTests(unittest.TestCase):
     def test_unknown_profile_returns_zero(self):
         self.assertEqual(star_boost("Aaron Judge", "mlb", "no_such_profile"), 0.0)
 
+    def test_star_power_boost_larger_than_conservative(self):
+        # Star Power exists to surface stars — its boost is larger
+        # than Conservative so a star wins over a non-star even on
+        # a downweighted market inside the lane.
+        sp_super = star_boost("Aaron Judge", "mlb", "star_power")
+        cons_super = star_boost("Aaron Judge", "mlb", "conservative")
+        self.assertGreater(
+            sp_super, cons_super,
+            f"Star Power superstar boost ({sp_super}) must exceed "
+            f"Conservative ({cons_super})",
+        )
+
+    def test_star_power_descends_by_tier(self):
+        # superstar > core > regular in Star Power.
+        sp_super = star_boost("Donovan Mitchell", "nba", "star_power")
+        sp_core = star_boost("Josh Hart", "nba", "star_power")
+        sp_reg = star_boost("Landry Shamet", "nba", "star_power")
+        self.assertGreater(sp_super, sp_core)
+        self.assertGreater(sp_core, sp_reg)
+        self.assertGreater(sp_reg, 0)
+
 
 def _nba_lean(**kw) -> dict:
     base = {
