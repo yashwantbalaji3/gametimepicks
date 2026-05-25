@@ -21,6 +21,7 @@ const PROFILE_LABEL: Record<string, string> = {
   conservative: "Conservative",
   balanced: "Balanced",
   aggressive: "High variance",
+  star_power: "Star Power",
 };
 
 const SPORT_LABEL: Record<string, { label: string; icon: string }> = {
@@ -45,7 +46,7 @@ export default function ParlayResultsSummary({ summary }: Props) {
     <div className="flex flex-col gap-3">
       {/* Lifetime headline */}
       <div
-        className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-[8px]"
+        className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-3 rounded-[8px]"
         style={{
           background: "rgba(7,11,26,0.55)",
           border: "1px solid var(--vault-border)",
@@ -63,6 +64,10 @@ export default function ParlayResultsSummary({ summary }: Props) {
         <SummaryTile
           label={PROFILE_LABEL.balanced}
           bucket={profiles.balanced ?? null}
+        />
+        <SummaryTile
+          label={PROFILE_LABEL.star_power}
+          bucket={profiles.star_power ?? null}
         />
         <SummaryTile
           label={PROFILE_LABEL.aggressive}
