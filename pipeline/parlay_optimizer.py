@@ -597,6 +597,66 @@ def slip_score(legs: list[OptimizerLean], rules: ProfileRules) -> tuple[float, f
 # Top-level optimizer
 # ---------------------------------------------------------------------------
 
+# Recurrence penalty per profile — applied AFTER raw scoring, during
+# the diversified final-selection pass. Each time a player appears in
+# an already-selected visible slip, every remaining candidate that
+# includes that same player loses this much score. Encourages variety
+# across visible cards without sacrificing slip quality.
+_RECURRENCE_PENALTY: dict[str, float] = {
+    "conservative": 0.50,
+    "balanced":     0.30,
+    "aggressive":   0.15,
+}
+
+
+def _select_diverse(
+    candidates: list["OptimizedSlip"],
+    *,
+    profile: str,
+    limit: int,
+) -> list["OptimizedSlip"]:
+    """Final visible-slip selection pass.
+
+    Walks the candidate pool greedily, but penalizes slips containing
+    players already chosen. Quality (slip.score) still drives the
+    decision — diversity is a tiebreaker, not a way to ship junk.
+
+    Honest behavior:
+      - When fewer candidates exist than `limit`, returns them all.
+      - When recurrence dominates the pool (e.g. only one MLB star is
+        eligible), the same player can still repeat — we don't drop
+        the slip just to hit a diversity target. We just rank-down.
+    """
+    if limit <= 0 or not candidates:
+        return []
+    penalty_per_repeat = _RECURRENCE_PENALTY.get(profile, 0.20)
+    chosen: list[OptimizedSlip] = []
+    used_player_counts: dict[str, int] = {}
+    remaining = list(candidates)
+    while remaining and len(chosen) < limit:
+        # Score each remaining candidate with cumulative recurrence
+        # penalty based on already-chosen slips.
+        best_idx = 0
+        best_adj = float("-inf")
+        for i, c in enumerate(remaining):
+            repeat = 0
+            for leg in c.legs:
+                key = (leg.playerName or "").lower().strip()
+                if key and key in used_player_counts:
+                    repeat += used_player_counts[key]
+            adj_score = c.score - repeat * penalty_per_repeat
+            if adj_score > best_adj:
+                best_adj = adj_score
+                best_idx = i
+        pick = remaining.pop(best_idx)
+        chosen.append(pick)
+        for leg in pick.legs:
+            key = (leg.playerName or "").lower().strip()
+            if key:
+                used_player_counts[key] = used_player_counts.get(key, 0) + 1
+    return chosen
+
+
 def optimize(
     raw_leans: Iterable[dict[str, Any]],
     *,
@@ -656,10 +716,15 @@ def optimize(
     if len(pool) < rules.min_legs:
         return []
 
+    # Generate a larger candidate pool than what we'll display, so the
+    # diversity selector has room to pick varied slips without
+    # sacrificing too much quality. 4x the visible target is enough for
+    # typical slates; tighter slates still cap out earlier.
+    candidate_target = max(num_candidates * 4, num_candidates + 6)
     seen_sigs: set[tuple[Any, ...]] = set()
-    out: list[OptimizedSlip] = []
-    for start in range(min(len(pool), num_candidates * 3)):
-        if len(out) >= num_candidates:
+    candidates: list[OptimizedSlip] = []
+    for start in range(min(len(pool), candidate_target * 2)):
+        if len(candidates) >= candidate_target:
             break
         picked = _greedy(pool, start, rules, must_include_keys=must_include_set)
         if picked is None:
@@ -676,7 +741,7 @@ def optimize(
         sports = {l.sport for l in picked}
         slip_sport = "multi" if len(sports) > 1 else next(iter(sports))
         sid = _stable_slip_id(date or "", profile, picked)
-        out.append(OptimizedSlip(
+        candidates.append(OptimizedSlip(
             slipId=sid,
             profile=profile,
             sport=slip_sport,
@@ -687,9 +752,11 @@ def optimize(
             correlationPenalty=penalty,
             rationale=_rationale(picked, rules),
         ))
-    # Sort by score desc to guarantee best-first.
-    out.sort(key=lambda s: s.score, reverse=True)
-    return out
+    # Pre-sort candidates by raw score so the diversity selector starts
+    # from the best slips.
+    candidates.sort(key=lambda s: s.score, reverse=True)
+    # Final visible selection — diversify across players when alts exist.
+    return _select_diverse(candidates, profile=profile, limit=num_candidates)
 
 
 def _stable_slip_id(date: str, profile: str, picked: list[OptimizerLean]) -> str:
