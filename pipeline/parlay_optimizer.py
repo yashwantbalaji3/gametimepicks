@@ -223,10 +223,17 @@ class OptimizerLean:
     recentSeries: tuple[float, ...] = ()
     isAnomaly: bool = False
     isVolatileMlb: bool = False
+    # Star metadata — set by `normalize_lean` via `star_players.py`.
+    # `starTier` ∈ {"none", "regular", "core", "superstar"}.
+    starTier: str = "none"
     # Optional pre-computed calibration multiplier (1.0 = neutral).
     calibrationFactor: float = 1.0
     # Per-(sport, market) weight from the audit, defaults to 1.0.
     marketWeight: float = 1.0
+
+    @property
+    def isStar(self) -> bool:
+        return self.starTier != "none"
 
 
 @dataclass(frozen=True)
@@ -301,6 +308,7 @@ def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> Optimize
         oddsForSide=odds,
         recent10Count=recent_count,
         recentSeries=tuple(recent_values[:10]),
+        starTier=_compute_star_tier(raw.get("playerName"), s),
         isAnomaly="suspicious_edge" in (raw.get("riskFlags") or []),
         isVolatileMlb=(s == "mlb" and market in MLB_VOLATILE_MARKETS),
         calibrationFactor=float(raw.get("calibrationFactor", 1.0)),
@@ -313,6 +321,16 @@ def _fallback_lean_id(raw: dict[str, Any]) -> str:
     market = raw.get("market") or raw.get("marketKey") or "?"
     line = raw.get("line") or 0
     return f"{name}-{market}-{line}".replace(" ", "_")
+
+
+def _compute_star_tier(name: str | None, sport: str) -> str:
+    """Look up the player's star tier. Defensive import so test
+    fixtures that monkeypatch the registry don't break."""
+    try:
+        from .star_players import star_tier
+        return star_tier(name, sport)
+    except Exception:
+        return "none"
 
 
 # ---------------------------------------------------------------------------
@@ -352,6 +370,7 @@ def leg_score(lean: OptimizerLean, rules: ProfileRules) -> float:
       - edge_weight × (clipped edge / 20)
       - recent10_bonus when recent10 has ≥5 numeric values
       - pid_bonus when playerId is real
+      - star bonus (per-profile, bounded — see star_players.py)
       - market stability (1.0 = neutral)
       - calibration factor (1.0 = neutral)
     """
@@ -367,6 +386,13 @@ def leg_score(lean: OptimizerLean, rules: ProfileRules) -> float:
         base += rules.recent10_bonus
     if (lean.playerId or 0) > 0:
         base += rules.pid_bonus
+    # Star bonus — bounded, profile-aware. Only applied when the
+    # lean is in a calibration-supported tier (High / Medium).
+    # Bench/star-thin-data picks at Low tier don't get the boost so
+    # the lane still respects the audit.
+    if lean.starTier != "none" and (lean.confidence in ("High", "Medium")):
+        from .star_players import star_boost
+        base += star_boost(lean.playerName, lean.sport, rules.profile)
     base *= lean.marketWeight
     base *= max(0.0, min(2.0, lean.calibrationFactor))
     return base

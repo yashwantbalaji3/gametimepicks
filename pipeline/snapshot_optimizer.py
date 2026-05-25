@@ -67,6 +67,8 @@ def _slip_to_payload(slip: OptimizedSlip) -> dict[str, Any]:
             "recentSeries": list(leg.recentSeries),
             "isAnomaly": leg.isAnomaly,
             "isVolatileMlb": leg.isVolatileMlb,
+            "starTier": leg.starTier,
+            "isStar": leg.starTier != "none",
         })
     return {
         "slipId": slip.slipId,
