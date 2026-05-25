@@ -41,6 +41,11 @@ interface Props {
    *  client callers (e.g. ParlayLabExperience) should pass through
    *  the table they received as their own prop. */
   calibrationTable?: CalibrationTable;
+  /** Optional click handler. When provided each leg row becomes a
+   *  button that calls onLegClick(leg). The drawer that pops up is
+   *  the caller's responsibility — this component only emits the
+   *  click. */
+  onLegClick?: (leg: ParlayLeg) => void;
 }
 
 function statusColor(status: ParlaySlip["status"]): string {
@@ -92,6 +97,7 @@ export default function ParlayTicketCard({
   slip,
   savedPregame,
   calibrationTable = EMPTY_CALIBRATION_TABLE,
+  onLegClick,
 }: Props) {
   const accent = statusColor(slip.status);
   const profileColor = riskProfileColor(slip.riskProfile);
@@ -143,7 +149,11 @@ export default function ParlayTicketCard({
       <ul className="px-4 space-y-1.5">
         {slip.legs.map((leg, i) => (
           <li key={`${slip.slipId}-${i}`}>
-            <TicketLegRow leg={leg} calibrationTable={calibrationTable} />
+            <TicketLegRow
+              leg={leg}
+              calibrationTable={calibrationTable}
+              onLegClick={onLegClick}
+            />
           </li>
         ))}
       </ul>
@@ -175,9 +185,11 @@ export default function ParlayTicketCard({
 function TicketLegRow({
   leg,
   calibrationTable,
+  onLegClick,
 }: {
   leg: ParlayLeg;
   calibrationTable: CalibrationTable;
+  onLegClick?: (leg: ParlayLeg) => void;
 }) {
   const result = leg.result;
   const resultAccent =
@@ -204,12 +216,27 @@ function TicketLegRow({
         ).label
       : confidenceLabel(leg.confidence)
     : null;
+  // When onLegClick is provided we render the row as a button. The
+  // visible content is unchanged; only the wrapping element + a small
+  // affordance ("View form") at the bottom-left of the meta line
+  // signals the row is interactive.
+  const interactive = !!onLegClick;
+  const RowTag = interactive ? "button" : "div";
+  const rowProps: Record<string, unknown> = interactive
+    ? {
+        type: "button",
+        onClick: () => onLegClick?.(leg),
+        "aria-label": `View recent form for ${leg.playerName}`,
+      }
+    : {};
   return (
-    <div
-      className="grid grid-cols-[1fr_auto] gap-2 items-center px-2 py-1.5 rounded-[4px]"
+    <RowTag
+      {...rowProps}
+      className={`w-full text-left grid grid-cols-[1fr_auto] gap-2 items-center px-2 py-1.5 rounded-[4px] ${interactive ? "gtp-leg-button" : ""}`}
       style={{
         background: "rgba(7,11,26,0.55)",
         border: "1px solid var(--vault-rule)",
+        cursor: interactive ? "pointer" : "default",
       }}
     >
       <div className="min-w-0">
@@ -228,6 +255,17 @@ function TicketLegRow({
           {leg.side} {leg.line != null ? leg.line.toFixed(1) : "—"}
           {leg.team ? ` · ${leg.team}` : ""}
           {signal ? ` · ${signal}` : ""}
+          {interactive ? (
+            <span
+              style={{
+                marginLeft: 6,
+                color: "var(--vault-gold-bright)",
+                fontWeight: 500,
+              }}
+            >
+              · View form →
+            </span>
+          ) : null}
         </div>
       </div>
       <span
@@ -244,7 +282,7 @@ function TicketLegRow({
         {result ? result : formatAmerican(leg.oddsForSide ?? null)}
         {typeof leg.finalStat === "number" ? ` · ${leg.finalStat}` : ""}
       </span>
-    </div>
+    </RowTag>
   );
 }
 

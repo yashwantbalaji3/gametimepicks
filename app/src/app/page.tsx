@@ -1,240 +1,121 @@
 /**
- * Homepage — parlay-first experience.
+ * Homepage — parlay-first, lab-style.
  *
- * The product centers on suggested parlays. Above the fold, a reader
- * sees:
- *   1. Compact hero with a one-line value prop + CTAs.
- *   2. SuggestedParlayCarousel — the main attraction. Horizontally
- *      swipeable cards filtered by sport (All / NBA / MLB / Mixed),
- *      sorted by a transparent ranking score. Aggressive slips render
- *      with a "High variance" badge so users see the lifetime track
- *      record's warning, not just a marketing label.
- *   3. "What's underneath" — small honest stats strip (decisive
- *      record + tonight's slate at a glance). Pulled from real
- *      settled rows. We do NOT show fake ROI / lock claims.
- *   4. Pointers to Projections (individual research) and Parlay Lab
- *      (interactive builder) — those pages exist for users who want
- *      to go deeper.
+ * The homepage IS the Parlay Lab. We render the same
+ * `ParlayLabBuilder` component used on /parlay-lab so the
+ * experience is consistent (sport / team / player searchable
+ * dropdowns, three risk-level cards, clickable legs that pop
+ * recent form).
  *
- * Honest behavior preserved from PR #94:
- *   - We only render slips from real snapshots/graded files.
- *   - Empty buckets render an inline empty-state card (never a fake).
- *   - The "X dates of decisive results" strip cites N, not a ROI.
+ * Layout:
+ *   1. Compact hero (one line).
+ *   2. <ParlayLabBuilder /> — the main module. Renders best slips
+ *      immediately without requiring any filter.
+ *   3. Honest stats strip (decisive-only, no ROI).
+ *   4. Pointer tiles to Projections + Parlay Lab.
+ *
+ * Honesty preserved:
+ *   - Only real snapshots/graded files render here.
+ *   - Empty risk cards explain why honestly.
+ *   - High-variance slips are labeled.
  */
 import Link from "next/link";
 
-import {
-  getBoard,
-  getBoardForDate,
-  getLifetimeSummary,
-  getSlate,
-} from "@/lib/data";
+import { getLifetimeSummary } from "@/lib/data";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
-import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
 import {
   getSuggestedParlaysForDate,
-  getLatestParlayDate,
   getOptimizerSnapshotForDate,
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
-import { optimizerSlipToParlaySlip } from "@/lib/parlay-optimizer";
-import { flattenOptimizerSlips } from "@/lib/data-parlays";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { formatPercent } from "@/lib/format";
-import type { BoardData, DataMode } from "@/lib/types";
-import type { ParlaySlip as ParlaySlipForCarousel } from "@/lib/parlay-suggested";
 
-import SuggestedParlayCarousel from "@/components/suggested-parlay-carousel";
+import ParlayLabBuilder from "@/components/parlay-lab-builder";
 import NewsletterSignup from "@/components/newsletter-signup";
 import SectionHeader from "@/components/section-header";
 
-import { selectActiveSlate } from "@/lib/active-slate";
 import { currentEtDate } from "@/lib/freshness";
 
 export default function HomePage() {
-  // ----- Tonight's slate context (kept honest, no fabrication) -------
-  const board = getBoard();
-  const slate = getSlate();
+  const today = currentEtDate();
   const lifetime = getLifetimeSummary();
   const mlbLifetime = getMlbLifetimeSummary();
-
-  const today = currentEtDate();
-  const allBoardDates = slate.days.map((d) => d.date);
-  const slateBoardsByDate: Record<string, BoardData> = {};
-  for (const d of slate.days) {
-    slateBoardsByDate[d.date] = getBoardForDate(d.date);
-  }
-  const activeHomeSlate = selectActiveSlate(
-    allBoardDates,
-    today,
-    slateBoardsByDate,
-  );
-  const activeDate = activeHomeSlate.selectedDate;
-  const todayDay = activeDate
-    ? slate.days.find((d) => d.date === activeDate)
-    : undefined;
-  const todayMode: DataMode =
-    (todayDay?.dataMode as DataMode) ||
-    (board.dataMode as DataMode) ||
-    "ScheduleUnavailable";
-  const todayGames = todayDay?.gameCount ?? 0;
-
-  // Cross-sport live lean count (used in the stats strip below).
-  const activeBoard: BoardData | undefined = activeDate
-    ? slateBoardsByDate[activeDate]
-    : undefined;
-  const activeLeans = activeBoard?.leans ?? [];
-  const nbaLeansLive = activeLeans.filter((l) => l.lean !== "No Play").length;
-  const mlbTodayDate = activeMlbDate();
-  const mlbTodayBoard = mlbTodayDate ? getMlbBoardForDate(mlbTodayDate) : null;
-  const mlbLeansLive =
-    mlbTodayBoard?.propsAvailable && mlbTodayDate === today
-      ? (mlbTodayBoard.leans ?? []).filter(
-          (l) => l.lean === "Over" || l.lean === "Under",
-        ).length
-      : 0;
-  const crossSportLeansLive = nbaLeansLive + mlbLeansLive;
-
-  // ----- Suggested parlays for the carousel --------------------------
-  // The optimizer is the primary source of truth — it scores slips
-  // with calibration / market stability / correlation penalties. We
-  // walk:
-  //   1. Optimizer snapshot for today.
-  //   2. Optimizer snapshot for the active slate date.
-  //   3. Latest optimizer snapshot on disk.
-  //   4. Legacy parlay snapshot fallback (preserves history before
-  //      the optimizer existed).
-  const requestedDate =
-    activeDate ??
-    getLatestParlayDate()?.date ??
-    null;
   const calibrationTable = loadCalibrationTable();
 
-  // Resolve the best available parlay payload for the carousel.
-  const optimizerToday = getOptimizerSnapshotForDate(today);
-  const optimizerActive = requestedDate
-    ? getOptimizerSnapshotForDate(requestedDate)
-    : null;
-  const optimizerLatest = getLatestOptimizerSnapshot();
-  const optimizerPayload =
-    (optimizerToday && optimizerToday.totalSlips > 0 && optimizerToday) ||
-    (optimizerActive && optimizerActive.totalSlips > 0 && optimizerActive) ||
-    (optimizerLatest && optimizerLatest.payload.totalSlips > 0
-      ? optimizerLatest.payload
-      : null);
+  // Pick a parlay payload for the lab. Prefer today; otherwise the
+  // walk-back helper finds the latest non-empty snapshot.
+  const suggested = getSuggestedParlaysForDate(today);
+  const optimizerForDate =
+    getOptimizerSnapshotForDate(today) ||
+    (suggested ? getOptimizerSnapshotForDate(suggested.date) : null) ||
+    getLatestOptimizerSnapshot()?.payload ||
+    null;
 
-  let carouselSlips: ParlaySlipForCarousel[] = [];
-  let carouselDate = requestedDate ?? "";
-  let carouselSource: "snapshot" | "graded" = "snapshot";
-  let carouselIsFallback = false;
-  let carouselSourceLabel: "optimizer" | "snapshot" = "snapshot";
-
-  if (optimizerPayload && optimizerPayload.totalSlips > 0) {
-    const flat = flattenOptimizerSlips(optimizerPayload);
-    carouselSlips = flat.map((s) =>
-      optimizerSlipToParlaySlip(s, optimizerPayload.date),
-    );
-    carouselDate = optimizerPayload.date;
-    carouselIsFallback = optimizerPayload.date !== requestedDate;
-    carouselSourceLabel = "optimizer";
-  } else {
-    const suggested = getSuggestedParlaysForDate(requestedDate);
-    if (suggested) {
-      carouselSlips = suggested.slips;
-      carouselDate = suggested.date;
-      carouselSource = suggested.source;
-      carouselIsFallback = suggested.isFallback;
-    }
-  }
-
-  // ----- Lifetime stats strip (honest, decisive-only) ----------------
+  // Lifetime stats strip (honest, decisive-only)
   const combinedDecisive =
     (lifetime?.decisive ?? 0) + (mlbLifetime?.decisive ?? 0);
   const combinedWins = (lifetime?.wins ?? 0) + (mlbLifetime?.wins ?? 0);
   const combinedHitRate =
     combinedDecisive > 0 ? combinedWins / combinedDecisive : null;
 
-  // ----- Hero copy ---------------------------------------------------
-  const heroState = decideHeroState({
-    crossSportLeansLive,
-    todayMode,
-    todayGames,
-    activeDate,
-  });
-
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-10 md:py-14 overflow-x-hidden">
-      {/* 1 — Compact parlay-first hero */}
-      <section className="reveal" aria-label="Parlay-first hero">
-        <div className="flex flex-col gap-3 max-w-3xl">
+      {/* 1 — Compact hero */}
+      <section className="reveal" aria-label="Hero">
+        <div className="flex flex-col gap-2 max-w-3xl">
           <span
             className="font-mono uppercase tracking-[0.18em]"
             style={{ color: "var(--vault-gold)", fontSize: 11 }}
           >
-            {heroState.eyebrow}
+            Today · Suggested parlays
           </span>
           <h1
             className="font-display tracking-tight gtp-text-gradient-gold"
             style={{
-              fontSize: "clamp(28px, 6vw, 48px)",
+              fontSize: "clamp(28px, 6vw, 44px)",
               lineHeight: 1.05,
               letterSpacing: "-0.01em",
             }}
           >
-            {heroState.headline}
+            Today&apos;s best suggested parlays.
           </h1>
           <p
             className="text-[14px] sm:text-[15px] leading-relaxed"
-            style={{ color: "var(--vault-text-mute)", maxWidth: 600 }}
+            style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
           >
-            {heroState.subline}
+            Pick a sport, team, or player — or use the model&apos;s top slips below. No locks. High-variance slips are labeled. Every leg is tappable for recent form.
           </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <Link
-              href="/parlay-lab"
-              className="font-mono uppercase tracking-[0.14em] px-4 py-2 rounded-full"
-              style={{
-                color: "var(--vault-bg)",
-                background: "var(--vault-gold-bright)",
-                fontSize: 11,
-              }}
-            >
-              Customize →
-            </Link>
-            <Link
-              href="/projections"
-              className="font-mono uppercase tracking-[0.14em] px-4 py-2 rounded-full"
-              style={{
-                color: "var(--vault-text)",
-                border: "1px solid var(--vault-border)",
-                background: "rgba(7,11,26,0.55)",
-                fontSize: 11,
-              }}
-            >
-              Projections
-            </Link>
-          </div>
         </div>
       </section>
 
-      {/* 2 — Suggested parlay carousel: the main act */}
-      <div className="mt-8">
-        {carouselSlips.length > 0 ? (
-          <SuggestedParlayCarousel
-            slips={carouselSlips}
-            date={carouselDate}
-            source={carouselSource}
-            isFallback={carouselIsFallback}
+      {/* 2 — Parlay Lab interface (same component as /parlay-lab) */}
+      <div className="mt-6">
+        {suggested ? (
+          <ParlayLabBuilder
+            slips={suggested.slips}
+            date={suggested.date}
+            source={suggested.source}
+            isFallback={suggested.isFallback}
             calibrationTable={calibrationTable}
-            sourceLabel={carouselSourceLabel}
+            optimizerPayload={optimizerForDate}
+          />
+        ) : optimizerForDate && optimizerForDate.totalSlips > 0 ? (
+          <ParlayLabBuilder
+            slips={[]}
+            date={optimizerForDate.date}
+            source="snapshot"
+            isFallback={true}
+            calibrationTable={calibrationTable}
+            optimizerPayload={optimizerForDate}
           />
         ) : (
           <NoParlaysEmptyState />
         )}
       </div>
 
-      {/* 3 — Honest stats strip */}
-      <section className="mt-10 reveal" aria-label="Honest stats strip">
+      {/* 3 — Tracked-results stats strip */}
+      <section className="mt-10 reveal" aria-label="Tracked results strip">
         <div
           className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-[8px]"
           style={{
@@ -243,18 +124,7 @@ export default function HomePage() {
           }}
         >
           <StatTile
-            label="Tonight"
-            value={
-              crossSportLeansLive > 0
-                ? `${crossSportLeansLive} leans`
-                : todayGames > 0
-                  ? `${todayGames} game${todayGames === 1 ? "" : "s"}`
-                  : "—"
-            }
-            sub="across NBA + MLB"
-          />
-          <StatTile
-            label="Cross-sport hit rate"
+            label="Tracked hit rate"
             value={
               combinedHitRate != null
                 ? formatPercent(combinedHitRate)
@@ -276,7 +146,7 @@ export default function HomePage() {
             sub={
               lifetime
                 ? `${lifetime.wins}–${lifetime.losses} on ${lifetime.decisive}`
-                : "results pending"
+                : "pending"
             }
           />
           <StatTile
@@ -289,33 +159,56 @@ export default function HomePage() {
             sub={
               mlbLifetime
                 ? `${mlbLifetime.wins}–${mlbLifetime.losses} on ${mlbLifetime.decisive}`
-                : "results pending"
+                : "pending"
             }
           />
+          <Link
+            href="/results"
+            className="flex flex-col gap-1 min-w-0 vault-glow-hover"
+            style={{ textDecoration: "none" }}
+          >
+            <span
+              className="font-mono uppercase tracking-[0.16em]"
+              style={{ color: "var(--vault-gold)", fontSize: 9 }}
+            >
+              See full tracking
+            </span>
+            <span
+              className="font-display"
+              style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}
+            >
+              Open Results →
+            </span>
+            <span
+              className="font-mono"
+              style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
+            >
+              Parlays graded after games
+            </span>
+          </Link>
         </div>
         <p
           className="mt-2 text-[11px] leading-relaxed"
           style={{ color: "var(--vault-text-faint)" }}
         >
-          Decisive single-leg projections only. Pushes excluded. No ROI,
-          no guarantees — these are calibrated hit rates from real
-          graded settlements. See <Link href="/about" style={{ color: "var(--vault-gold)" }}>About</Link> for methodology.
+          Decisive single-leg projections only on this strip. Pushes excluded. Parlay-slip results live on{" "}
+          <Link href="/results" style={{ color: "var(--vault-gold)" }}>
+            Results
+          </Link>
+          .
         </p>
       </section>
 
-      {/* 4 — Pointers to deeper surfaces */}
+      {/* 4 — Deeper surfaces */}
       <section className="mt-10 reveal" aria-label="Deeper surfaces">
-        <SectionHeader
-          eyebrow="Go deeper"
-          title="Customize or research"
-        />
+        <SectionHeader eyebrow="Go deeper" title="Research or track" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <DeeperTile
-            href="/parlay-lab"
-            eyebrow="Parlay Lab"
-            title="Choose a team, choose players"
-            body="The model returns the best slip at every risk level — Conservative, Balanced, High variance."
-            cta="View picks"
+            href="/results"
+            eyebrow="Results"
+            title="Did the suggested parlays hit?"
+            body="Every saved slip is graded after games finish. Pushes and pending slips are excluded from hit rate."
+            cta="See tracked results"
           />
           <DeeperTile
             href="/projections"
@@ -444,9 +337,7 @@ function NoParlaysEmptyState() {
         className="text-[13px] leading-relaxed"
         style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}
       >
-        We only show slips that were saved before games started. The
-        next pregame snapshot lands when tonight&apos;s lines and projections
-        are ready. In the meantime, jump into{" "}
+        We only show slips that were saved before games started. The next pregame snapshot lands when tonight&apos;s lines and projections are ready. In the meantime, jump into{" "}
         <Link href="/projections" style={{ color: "var(--vault-gold)" }}>
           projections
         </Link>{" "}
@@ -454,46 +345,4 @@ function NoParlaysEmptyState() {
       </p>
     </section>
   );
-}
-
-function decideHeroState({
-  crossSportLeansLive,
-  todayMode,
-  todayGames,
-  activeDate,
-}: {
-  crossSportLeansLive: number;
-  todayMode: DataMode;
-  todayGames: number;
-  activeDate: string | null;
-}): {
-  eyebrow: string;
-  headline: string;
-  subline: string;
-} {
-  if (crossSportLeansLive > 0) {
-    return {
-      eyebrow: "Today · live model",
-      headline: "Today's best suggested parlays.",
-      subline:
-        "Built from today's projections. No locks. High-variance slips are labeled.",
-    };
-  }
-  if (
-    activeDate &&
-    (todayMode === "ScheduleLiveOddsUnavailable" || todayGames > 0)
-  ) {
-    return {
-      eyebrow: "Lines pending",
-      headline: "Today's best suggested parlays.",
-      subline:
-        "Schedule is live — slips drop as soon as bookmaker lines refresh.",
-    };
-  }
-  return {
-    eyebrow: "Latest available",
-    headline: "Today's best suggested parlays.",
-    subline:
-      "Built from the latest available projections. No locks. High-variance slips are labeled.",
-  };
 }
