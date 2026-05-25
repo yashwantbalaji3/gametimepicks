@@ -216,8 +216,13 @@ class OptimizerLean:
     bookmaker: str | None
     oddsForSide: int | None
     recent10Count: int
-    isAnomaly: bool
-    isVolatileMlb: bool
+    # Up to 10 most-recent numeric stat values for the leg's market.
+    # NBA reads `recent10`; MLB reads `recentSeries`. Snapshot writers
+    # persist this so the UI can render an honest "last-N games" popup
+    # without any new data fetch.
+    recentSeries: tuple[float, ...] = ()
+    isAnomaly: bool = False
+    isVolatileMlb: bool = False
     # Optional pre-computed calibration multiplier (1.0 = neutral).
     calibrationFactor: float = 1.0
     # Per-(sport, market) weight from the audit, defaults to 1.0.
@@ -263,10 +268,12 @@ def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> Optimize
     market_key = f"{s}:{market}"
     recent10 = raw.get("recent10") or raw.get("recentSeries") or []
     recent_count = 0
+    recent_values: list[float] = []
     if isinstance(recent10, list):
         for v in recent10:
             if isinstance(v, (int, float)) and not isinstance(v, bool) and v == v:
                 recent_count += 1
+                recent_values.append(float(v))
     side = raw.get("lean") or raw.get("side") or "Pass"
     odds = (
         raw.get("oddsOver")
@@ -293,6 +300,7 @@ def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> Optimize
         bookmaker=raw.get("bookmaker"),
         oddsForSide=odds,
         recent10Count=recent_count,
+        recentSeries=tuple(recent_values[:10]),
         isAnomaly="suspicious_edge" in (raw.get("riskFlags") or []),
         isVolatileMlb=(s == "mlb" and market in MLB_VOLATILE_MARKETS),
         calibrationFactor=float(raw.get("calibrationFactor", 1.0)),

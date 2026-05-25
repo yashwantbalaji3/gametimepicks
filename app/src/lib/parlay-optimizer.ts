@@ -33,6 +33,10 @@ export interface OptimizerLeg {
   bookmaker: string | null;
   oddsForSide: number | null;
   recent10Count: number;
+  /** Up to 10 most-recent numeric stat values for the leg's market.
+   *  Persisted by `pipeline.snapshot_optimizer`. May be absent on
+   *  older snapshot files. */
+  recentSeries?: number[];
   isAnomaly: boolean;
   isVolatileMlb: boolean;
 }
@@ -99,6 +103,7 @@ export function optimizerSlipToParlaySlip(
     confidence: leg.confidence,
     bookmaker: leg.bookmaker,
     oddsForSide: leg.oddsForSide,
+    recentSeries: leg.recentSeries,
   }));
   return {
     slipId: slip.slipId,

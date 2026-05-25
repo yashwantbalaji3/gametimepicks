@@ -64,6 +64,7 @@ def _slip_to_payload(slip: OptimizedSlip) -> dict[str, Any]:
             "bookmaker": leg.bookmaker,
             "oddsForSide": leg.oddsForSide,
             "recent10Count": leg.recent10Count,
+            "recentSeries": list(leg.recentSeries),
             "isAnomaly": leg.isAnomaly,
             "isVolatileMlb": leg.isVolatileMlb,
         })
