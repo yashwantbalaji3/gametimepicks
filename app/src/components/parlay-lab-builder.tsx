@@ -31,6 +31,7 @@ import {
   getAvailablePlayersForTeam,
   getAvailableSportsFromSlips,
   getAvailableTeamsFromSlips,
+  selectDiverseForDisplay,
   type ParlayRiskProfile,
   type ParlaySlip,
   type SuggestedSport,
@@ -198,21 +199,21 @@ export default function ParlayLabBuilder({
   );
 
   // For each risk profile, pick the best slip + up to 2 alternates.
+  // We pool slips across optimizer buckets (nba / mlb / multi / all)
+  // and pass them through `selectDiverseForDisplay`, which enforces
+  // a cross-slip recurrence penalty so the visible cards don't all
+  // share the same anchor player (e.g. the highest-edge MLB hitter
+  // winning slot #1 in every Conservative card).
+  //
   // When the filtered pool is empty for a profile, surface the top
   // unfiltered slip for that sport (clearly labeled as fallback).
   const cards = useMemo(() => {
-    function sortByScore(a: ParlaySlip, b: ParlaySlip): number {
-      return (b.score ?? 0) - (a.score ?? 0);
-    }
     return RISK_ORDER.map((profile) => {
-      const matched = filtered
-        .filter((s) => s.riskProfile === profile)
-        .slice()
-        .sort(sortByScore);
+      const matched = filtered.filter((s) => s.riskProfile === profile);
       if (matched.length > 0) {
         return {
           profile,
-          slips: matched.slice(0, 3),
+          slips: selectDiverseForDisplay(matched, profile, 3),
           isFallback: false,
         };
       }
