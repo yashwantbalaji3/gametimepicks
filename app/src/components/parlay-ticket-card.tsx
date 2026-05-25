@@ -16,7 +16,7 @@
  * or final stats. When the saved snapshot has missing data, the
  * corresponding cell shows "—" not a placeholder number.
  */
-import type { ParlaySlip, ParlayLeg } from "@/lib/data-parlays";
+import type { ParlaySlip, ParlayLeg } from "@/lib/parlay-suggested";
 import {
   combinedParlayPayoutPer100,
   formatAmerican,

@@ -1,21 +1,25 @@
 /**
- * Homepage — casino command center (PR #63).
+ * Homepage — parlay-first experience.
  *
- * Compresses the previous 10-section paragraph-heavy layout into 6
- * scannable blocks. Every number on this page traces to an on-disk
- * settled JSONL or schedule file — no fabrication.
+ * The product centers on suggested parlays. Above the fold, a reader
+ * sees:
+ *   1. Compact hero with a one-line value prop + CTAs.
+ *   2. SuggestedParlayCarousel — the main attraction. Horizontally
+ *      swipeable cards filtered by sport (All / NBA / MLB / Mixed),
+ *      sorted by a transparent ranking score. Aggressive slips render
+ *      with a "High variance" badge so users see the lifetime track
+ *      record's warning, not just a marketing label.
+ *   3. "What's underneath" — small honest stats strip (decisive
+ *      record + tonight's slate at a glance). Pulled from real
+ *      settled rows. We do NOT show fake ROI / lock claims.
+ *   4. Pointers to Projections (individual research) and Parlay Lab
+ *      (interactive builder) — those pages exist for users who want
+ *      to go deeper.
  *
- * Section order:
- *   1. HomepageCommandHero (status pill + 1-line headline + 2 CTAs +
- *      3 scoreboard tiles on the right)
- *   2. "Today on the floor" — SportsbookStatusBoard for the active slate
- *   3. Sport grid (HomepageSportsRail)
- *   4. QuickActionRail (Model Board / Results / Audit / Parlay Lab)
- *   5. "How it works" 3-tile compact explainer
- *   6. Newsletter signup
- *
- * Everything below the fold is optional and skippable; everything above
- * the fold answers "what is today's slate state" in three seconds.
+ * Honest behavior preserved from PR #94:
+ *   - We only render slips from real snapshots/graded files.
+ *   - Empty buckets render an inline empty-state card (never a fake).
+ *   - The "X dates of decisive results" strip cites N, not a ROI.
  */
 import Link from "next/link";
 
@@ -24,39 +28,30 @@ import {
   getBoardForDate,
   getLifetimeSummary,
   getSlate,
-  getAvailableBoardDates,
 } from "@/lib/data";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
-import { getAvailableSettlementDates } from "@/lib/settlement-data";
 import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
+import {
+  getSuggestedParlaysForDate,
+  getLatestParlayDate,
+} from "@/lib/data-parlays";
+import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { formatPercent } from "@/lib/format";
-import type { BoardData, DataMode, PropLean } from "@/lib/types";
+import type { BoardData, DataMode } from "@/lib/types";
 
-import HomepageCommandHero, {
-  type HeroTile,
-} from "@/components/homepage-command-hero";
-import HomepageSportsRail from "@/components/homepage-sports-rail";
-import CuratedTonightCard from "@/components/curated-tonight-card";
-import CuratedProjectionsCard from "@/components/curated-projections-card";
+import SuggestedParlayCarousel from "@/components/suggested-parlay-carousel";
 import NewsletterSignup from "@/components/newsletter-signup";
 import SectionHeader from "@/components/section-header";
-import { type StatusPillKind } from "@/components/status-pill";
 
 import { selectActiveSlate } from "@/lib/active-slate";
-import { currentEtDate, dayLabelFor } from "@/lib/freshness";
-import { loadProjectionsPayload } from "@/lib/data-projections";
+import { currentEtDate } from "@/lib/freshness";
 
 export default function HomePage() {
-  // ----- Data prep (mirrors prior helpers; unchanged math) ------------
+  // ----- Tonight's slate context (kept honest, no fabrication) -------
   const board = getBoard();
+  const slate = getSlate();
   const lifetime = getLifetimeSummary();
   const mlbLifetime = getMlbLifetimeSummary();
-  const combinedDecisive =
-    (lifetime?.decisive ?? 0) + (mlbLifetime?.decisive ?? 0);
-  const combinedWins = (lifetime?.wins ?? 0) + (mlbLifetime?.wins ?? 0);
-  const combinedHitRate =
-    combinedDecisive > 0 ? combinedWins / combinedDecisive : null;
-  const slate = getSlate();
 
   const today = currentEtDate();
   const allBoardDates = slate.days.map((d) => d.date);
@@ -78,16 +73,13 @@ export default function HomePage() {
     (board.dataMode as DataMode) ||
     "ScheduleUnavailable";
   const todayGames = todayDay?.gameCount ?? 0;
-  const noCurrentSlate =
-    activeHomeSlate.kind === "no_current" || activeHomeSlate.kind === "no_data";
 
+  // Cross-sport live lean count (used in the stats strip below).
   const activeBoard: BoardData | undefined = activeDate
     ? slateBoardsByDate[activeDate]
     : undefined;
   const activeLeans = activeBoard?.leans ?? [];
-  const leansToday = activeLeans.filter((l) => l.lean !== "No Play").length;
-
-  // Cross-sport "live model wall" count (NBA today + MLB today only).
+  const nbaLeansLive = activeLeans.filter((l) => l.lean !== "No Play").length;
   const mlbTodayDate = activeMlbDate();
   const mlbTodayBoard = mlbTodayDate ? getMlbBoardForDate(mlbTodayDate) : null;
   const mlbLeansLive =
@@ -96,213 +88,200 @@ export default function HomePage() {
           (l) => l.lean === "Over" || l.lean === "Under",
         ).length
       : 0;
-  const crossSportLeansLive = leansToday + mlbLeansLive;
+  const crossSportLeansLive = nbaLeansLive + mlbLeansLive;
 
-  // Latest SETTLED slate. After the fix in findLatestScoredBoardOnDisk
-  // (filters to dates in the real settlement manifest), this can never
-  // pick a future date even if the future board has scored projections.
-  const latestScoredHit =
-    findLatestScoredBoard(slateBoardsByDate) ?? findLatestScoredBoardOnDisk();
-  const latestScoredFinalDate = latestScoredHit?.date ?? null;
-  const latestScoredFinalBoard = latestScoredHit?.board ?? null;
-  const latestScoredLeans: PropLean[] = latestScoredFinalBoard?.leans ?? [];
-  const latestScoredLeanCount = latestScoredLeans.length;
-  const latestScoredMatchup = matchupForBoard(latestScoredFinalBoard);
-  const latestScoredDayLabel = latestScoredFinalDate
-    ? dayLabelFor(latestScoredFinalDate, today)
-    : null;
+  // ----- Suggested parlays for the carousel --------------------------
+  // Prefer the active slate date. Walk back through history when
+  // tonight has nothing (the helper enforces honest fallback — it
+  // never invents slips).
+  const requestedDate =
+    activeDate ??
+    getLatestParlayDate()?.date ??
+    null;
+  const suggested = getSuggestedParlaysForDate(requestedDate);
+  const calibrationTable = loadCalibrationTable();
 
-  // ----- Hero state machine -------------------------------------------
+  // ----- Lifetime stats strip (honest, decisive-only) ----------------
+  const combinedDecisive =
+    (lifetime?.decisive ?? 0) + (mlbLifetime?.decisive ?? 0);
+  const combinedWins = (lifetime?.wins ?? 0) + (mlbLifetime?.wins ?? 0);
+  const combinedHitRate =
+    combinedDecisive > 0 ? combinedWins / combinedDecisive : null;
+
+  // ----- Hero copy ---------------------------------------------------
   const heroState = decideHeroState({
-    noCurrentSlate,
+    crossSportLeansLive,
     todayMode,
     todayGames,
-    crossSportLeansLive,
     activeDate,
-    latestScoredFinalDate,
   });
 
-  // Right-column hero tiles. Audit hit-rate lead so honest sample-size
-  // framing is the first number a visitor sees.
-  const heroTiles: HeroTile[] = [
-    combinedHitRate !== null
-      ? {
-          label: "Hit rate",
-          value: formatPercent(combinedHitRate),
-          sub: `${combinedWins}–${combinedDecisive - combinedWins} on ${combinedDecisive}`,
-        }
-      : { label: "Hit rate", value: "—", sub: "no settled data yet" },
-    lifetime?.hitRate != null
-      ? {
-          label: "NBA",
-          value: formatPercent(lifetime.hitRate),
-          sub: `${lifetime.wins}–${lifetime.losses} on ${lifetime.decisive}`,
-        }
-      : { label: "NBA", value: "—", sub: "results pending" },
-    mlbLifetime?.hitRate != null
-      ? {
-          label: "MLB",
-          value: formatPercent(mlbLifetime.hitRate),
-          sub: `${mlbLifetime.wins}–${mlbLifetime.losses} on ${mlbLifetime.decisive}`,
-        }
-      : { label: "MLB", value: "—", sub: "results pending" },
-  ];
-
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-10 md:py-16 overflow-x-hidden">
-      {/* 1 — Command hero */}
-      <HomepageCommandHero
-        statusKind={heroState.kind}
-        statusLabel={heroState.statusLabel}
-        statusCaption={heroState.statusCaption}
-        headline={heroState.headline}
-        subline={heroState.subline}
-        primaryCta={heroState.primaryCta}
-        secondaryCta={heroState.secondaryCta}
-        tiles={heroTiles}
-      />
-
-      {/* 2 — Latest results pill (only when a real settled slate exists) */}
-      {latestScoredFinalDate && (
-        <section
-          className="mt-6 reveal"
-          aria-label="Latest results pill"
-        >
-          <Link
-            href={`/results/date/${latestScoredFinalDate}`}
-            className="inline-flex items-baseline gap-3 vault-glow-hover rounded-full px-4 py-2 font-mono"
+    <div className="vault-page-shell px-4 sm:px-8 py-10 md:py-14 overflow-x-hidden">
+      {/* 1 — Compact parlay-first hero */}
+      <section className="reveal" aria-label="Parlay-first hero">
+        <div className="flex flex-col gap-3 max-w-3xl">
+          <span
+            className="font-mono uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-gold)", fontSize: 11 }}
+          >
+            {heroState.eyebrow}
+          </span>
+          <h1
+            className="font-display tracking-tight gtp-text-gradient-gold"
             style={{
-              background: "rgba(7,11,26,0.55)",
-              border: "1px solid var(--vault-border)",
-              textDecoration: "none",
-              fontSize: 11,
-              color: "var(--vault-text-mute)",
+              fontSize: "clamp(28px, 6vw, 48px)",
+              lineHeight: 1.05,
+              letterSpacing: "-0.01em",
             }}
           >
-            <span
-              aria-hidden
-              className="inline-block w-1.5 h-1.5 rounded-full"
-              style={{
-                background: "var(--vault-gold-bright)",
-                boxShadow: "0 0 6px rgba(240, 199, 94, 0.55)",
-              }}
-            />
-            <span style={{ color: "var(--vault-gold)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
-              {latestScoredDayLabel ?? latestScoredFinalDate} · graded
-            </span>
-            <span style={{ color: "var(--vault-text)" }}>
-              {latestScoredMatchup ?? "Latest slate"}
-            </span>
-            <span style={{ color: "var(--vault-text-faint)" }}>
-              · {latestScoredLeanCount} projections settled
-            </span>
-            <span style={{ color: "var(--vault-gold-bright)" }}>
-              View →
-            </span>
-          </Link>
-        </section>
-      )}
-
-      {/* 3 — Tonight's slate. The rail brings its own header (live
-          dot + "Tonight on GameTimePicks") so we don't double up with
-          a SectionHeader here. */}
-      <HomepageSportsRail />
-
-      {/* 4 — Curated single-leg projections. Picks ~6 of the strongest
-          reads tonight by edge × calibration-adjusted confidence ×
-          market strength. Returns null cleanly when no leans qualify. */}
-      {activeDate && (() => {
-        const projPayload = loadProjectionsPayload();
-        const dateRow = projPayload.dates.find((d) => d.date === activeDate);
-        if (!dateRow) return null;
-        const allLeans = Object.values(dateRow.leansByGameId).flat();
-        return (
-          <div className="mt-10">
-            <CuratedProjectionsCard
-              date={activeDate}
-              leans={allLeans}
-              totalLeans={dateRow.leanCount}
-              ctaHref="/projections"
-              ctaLabel="Open projections"
-            />
-          </div>
-        );
-      })()}
-
-      {/* 5 — Curated parlay tickets. Only renders when a real pregame
-          snapshot exists for the active date; never invents slips.
-          Picks the top-1 slip per risk profile by snapshot score. */}
-      {activeDate && (
-        <div className="mt-10">
-          <CuratedTonightCard
-            date={activeDate}
-            ctaHref="/parlay-lab"
-            ctaLabel="Open Parlay Lab"
-          />
-        </div>
-      )}
-
-      {/* 5 — How it works */}
-      <section className="mt-12 reveal" aria-label="How it works">
-        <SectionHeader
-          eyebrow="How it works"
-          title="3 simple steps"
-          sub="Real data in, real projections out, every result graded after the game."
-          rightSlot={
+            {heroState.headline}
+          </h1>
+          <p
+            className="text-[14px] sm:text-[15px] leading-relaxed"
+            style={{ color: "var(--vault-text-mute)", maxWidth: 600 }}
+          >
+            {heroState.subline}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
             <Link
-              href="/methodology"
-              className="font-mono uppercase tracking-[0.14em]"
-              style={{ color: "var(--vault-gold)", fontSize: 11 }}
+              href="/parlay-lab"
+              className="font-mono uppercase tracking-[0.14em] px-4 py-2 rounded-full"
+              style={{
+                color: "var(--vault-bg)",
+                background: "var(--vault-gold-bright)",
+                fontSize: 11,
+              }}
             >
-              Methodology →
+              Open Parlay Lab →
             </Link>
-          }
-        />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {STEPS.map((s, i) => (
-            <article
-              key={s.title}
-              className="gtp-premium-tile px-4 py-4 flex flex-col gap-2"
+            <Link
+              href="/projections"
+              className="font-mono uppercase tracking-[0.14em] px-4 py-2 rounded-full"
+              style={{
+                color: "var(--vault-text)",
+                border: "1px solid var(--vault-border)",
+                background: "rgba(7,11,26,0.55)",
+                fontSize: 11,
+              }}
             >
-              <div className="flex items-center gap-2">
-                <span
-                  className="font-display font-semibold gtp-text-gradient-gold"
-                  style={{
-                    fontSize: 26,
-                    lineHeight: 1,
-                  }}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span
-                  className="font-mono uppercase tracking-[0.18em]"
-                  style={{ color: "var(--vault-gold)", fontSize: 10 }}
-                >
-                  {s.eyebrow}
-                </span>
-              </div>
-              <h3
-                className="font-display tracking-tight"
-                style={{
-                  color: "var(--vault-text)",
-                  fontSize: 17,
-                  lineHeight: 1.25,
-                }}
-              >
-                {s.title}
-              </h3>
-              <p
-                className="text-[12.5px] leading-snug"
-                style={{ color: "var(--vault-text-mute)" }}
-              >
-                {s.sub}
-              </p>
-            </article>
-          ))}
+              Browse projections
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* 6 — Newsletter */}
+      {/* 2 — Suggested parlay carousel: the main act */}
+      <div className="mt-8">
+        {suggested ? (
+          <SuggestedParlayCarousel
+            slips={suggested.slips}
+            date={suggested.date}
+            source={suggested.source}
+            isFallback={suggested.isFallback}
+            calibrationTable={calibrationTable}
+          />
+        ) : (
+          <NoParlaysEmptyState />
+        )}
+      </div>
+
+      {/* 3 — Honest stats strip */}
+      <section className="mt-10 reveal" aria-label="Honest stats strip">
+        <div
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-[8px]"
+          style={{
+            background: "rgba(7,11,26,0.55)",
+            border: "1px solid var(--vault-border)",
+          }}
+        >
+          <StatTile
+            label="Tonight"
+            value={
+              crossSportLeansLive > 0
+                ? `${crossSportLeansLive} leans`
+                : todayGames > 0
+                  ? `${todayGames} game${todayGames === 1 ? "" : "s"}`
+                  : "—"
+            }
+            sub="across NBA + MLB"
+          />
+          <StatTile
+            label="Cross-sport hit rate"
+            value={
+              combinedHitRate != null
+                ? formatPercent(combinedHitRate)
+                : "—"
+            }
+            sub={
+              combinedDecisive > 0
+                ? `${combinedWins}–${combinedDecisive - combinedWins} on ${combinedDecisive}`
+                : "no settled data"
+            }
+          />
+          <StatTile
+            label="NBA"
+            value={
+              lifetime?.hitRate != null
+                ? formatPercent(lifetime.hitRate)
+                : "—"
+            }
+            sub={
+              lifetime
+                ? `${lifetime.wins}–${lifetime.losses} on ${lifetime.decisive}`
+                : "results pending"
+            }
+          />
+          <StatTile
+            label="MLB"
+            value={
+              mlbLifetime?.hitRate != null
+                ? formatPercent(mlbLifetime.hitRate)
+                : "—"
+            }
+            sub={
+              mlbLifetime
+                ? `${mlbLifetime.wins}–${mlbLifetime.losses} on ${mlbLifetime.decisive}`
+                : "results pending"
+            }
+          />
+        </div>
+        <p
+          className="mt-2 text-[11px] leading-relaxed"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          Decisive single-leg projections only. Pushes excluded. No ROI,
+          no guarantees — these are calibrated hit rates from real
+          graded settlements. See <Link href="/about" style={{ color: "var(--vault-gold)" }}>About</Link> for methodology.
+        </p>
+      </section>
+
+      {/* 4 — Pointers to deeper surfaces */}
+      <section className="mt-10 reveal" aria-label="Deeper surfaces">
+        <SectionHeader
+          eyebrow="Go deeper"
+          title="Research individual props or build your own"
+          sub="Suggested parlays are the headline — these are the tools underneath."
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <DeeperTile
+            href="/projections"
+            eyebrow="Projections"
+            title="Every individual projection, by game"
+            body="Game cards, player accordions, per-prop edges. The same data the suggested parlays are built on."
+            cta="Open projections"
+          />
+          <DeeperTile
+            href="/parlay-lab"
+            eyebrow="Parlay Lab"
+            title="Filter by sport + players, then see the best slip per risk level"
+            body="Conservative · Balanced · High Variance. Sourced from saved snapshots — never invented."
+            cta="Open Parlay Lab"
+          />
+        </div>
+      </section>
+
+      {/* 5 — Newsletter */}
       <section className="mt-12 reveal">
         <NewsletterSignup variant="full" />
       </section>
@@ -311,162 +290,164 @@ export default function HomePage() {
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Sub-components
 // ---------------------------------------------------------------------------
 
-const STEPS: Array<{ eyebrow: string; title: string; sub: string }> = [
-  {
-    eyebrow: "Pick a game",
-    title: "Today's slate, top of the page",
-    sub: "Choose any NBA or MLB game on the schedule. Each one has a sportsbook line.",
-  },
-  {
-    eyebrow: "See the projection",
-    title: "The model's number, side by side",
-    sub: "We project every market — points, rebounds, assists — and show the gap vs. the line in plain English.",
-  },
-  {
-    eyebrow: "Track every result",
-    title: "Graded after final stats",
-    sub: "Wins, losses and pushes are all kept on the record. No hiding misses.",
-  },
-];
+function StatTile({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1 min-w-0">
+      <span
+        className="font-mono uppercase tracking-[0.16em] truncate"
+        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+      >
+        {label}
+      </span>
+      <span
+        className="font-display tabular truncate"
+        style={{
+          color: "var(--vault-text)",
+          fontSize: 18,
+          fontWeight: 600,
+          lineHeight: 1,
+        }}
+      >
+        {value}
+      </span>
+      <span
+        className="font-mono truncate"
+        style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
+      >
+        {sub}
+      </span>
+    </div>
+  );
+}
+
+function DeeperTile({
+  href,
+  eyebrow,
+  title,
+  body,
+  cta,
+}: {
+  href: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  cta: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="gtp-premium-tile px-4 py-4 flex flex-col gap-2 vault-glow-hover"
+      style={{ textDecoration: "none" }}
+    >
+      <span
+        className="font-mono uppercase tracking-[0.18em]"
+        style={{ color: "var(--vault-gold)", fontSize: 10 }}
+      >
+        {eyebrow}
+      </span>
+      <h3
+        className="font-display tracking-tight"
+        style={{ color: "var(--vault-text)", fontSize: 17, lineHeight: 1.25 }}
+      >
+        {title}
+      </h3>
+      <p
+        className="text-[12.5px] leading-snug"
+        style={{ color: "var(--vault-text-mute)" }}
+      >
+        {body}
+      </p>
+      <span
+        className="mt-2 font-mono uppercase tracking-[0.14em]"
+        style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
+      >
+        {cta} →
+      </span>
+    </Link>
+  );
+}
+
+function NoParlaysEmptyState() {
+  return (
+    <section
+      className="rounded-[8px] p-6 flex flex-col gap-3"
+      style={{
+        background: "rgba(7,11,26,0.55)",
+        border: "1px dashed var(--vault-border)",
+      }}
+      aria-label="No suggested parlays available"
+    >
+      <span
+        className="font-mono uppercase tracking-[0.16em]"
+        style={{ color: "var(--vault-gold)", fontSize: 11 }}
+      >
+        No suggested parlays yet
+      </span>
+      <p
+        className="text-[13px] leading-relaxed"
+        style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}
+      >
+        We only show slips that were saved before games started. The
+        next pregame snapshot lands when tonight&apos;s lines and projections
+        are ready. In the meantime, jump into{" "}
+        <Link href="/projections" style={{ color: "var(--vault-gold)" }}>
+          projections
+        </Link>{" "}
+        for individual prop research.
+      </p>
+    </section>
+  );
+}
 
 function decideHeroState({
-  noCurrentSlate,
+  crossSportLeansLive,
   todayMode,
   todayGames,
-  crossSportLeansLive,
   activeDate,
-  latestScoredFinalDate,
 }: {
-  noCurrentSlate: boolean;
+  crossSportLeansLive: number;
   todayMode: DataMode;
   todayGames: number;
-  crossSportLeansLive: number;
   activeDate: string | null;
-  latestScoredFinalDate: string | null;
 }): {
-  kind: StatusPillKind;
-  statusLabel?: string;
-  statusCaption?: string;
+  eyebrow: string;
   headline: string;
   subline: string;
-  primaryCta: { href: string; label: string };
-  secondaryCta?: { href: string; label: string };
 } {
   if (crossSportLeansLive > 0) {
     return {
-      kind: "live",
-      statusLabel: "Tonight",
-      statusCaption: `${crossSportLeansLive} projections`,
-      headline: "Sports projections made simple.",
+      eyebrow: "Tonight · live model",
+      headline: "Suggested parlays, built from calibrated projections.",
       subline:
-        "Pick a game, compare the line, track every result.",
-      primaryCta: { href: "/projections", label: "View projections" },
-      secondaryCta: { href: "/results", label: "See results" },
+        "Swipe through model-built slips by sport and risk level. Every slip is saved before tipoff and graded after final stats — no locks, no guarantees.",
     };
   }
-
   if (
-    !noCurrentSlate &&
     activeDate &&
     (todayMode === "ScheduleLiveOddsUnavailable" || todayGames > 0)
   ) {
     return {
-      kind: "linesPending",
-      statusCaption: `${todayGames || "—"} game${todayGames === 1 ? "" : "s"}`,
-      headline: "Sports projections made simple.",
+      eyebrow: "Lines pending",
+      headline: "Suggested parlays, built from calibrated projections.",
       subline:
-        "Schedule is live — projections land as soon as bookmaker lines refresh.",
-      primaryCta: {
-        href: "/projections",
-        label: "View projections",
-      },
-      secondaryCta: { href: "/results", label: "See results" },
+        "Tonight&apos;s schedule is live — slips drop as soon as bookmaker lines and projections refresh. Browse the latest available rail below.",
     };
   }
-
-  if (latestScoredFinalDate) {
-    return {
-      kind: "settled",
-      statusCaption: `${latestScoredFinalDate}`,
-      headline: "Sports projections made simple.",
-      subline:
-        "No live slate right now — open the latest graded slate or browse the full track record.",
-      primaryCta: {
-        href: `/results/date/${latestScoredFinalDate}`,
-        label: "Latest results",
-      },
-      secondaryCta: { href: "/projections", label: "View projections" },
-    };
-  }
-
   return {
-    kind: "upcoming",
-    statusLabel: "Refresh pending",
-    headline: "Sports projections made simple.",
+    eyebrow: "Latest available",
+    headline: "Suggested parlays, built from calibrated projections.",
     subline:
-      "New projections will land here as soon as the next refresh completes.",
-    primaryCta: { href: "/projections", label: "View projections" },
-    secondaryCta: { href: "/about", label: "How it works" },
+      "Browse model-built slips by sport and risk level — saved before games and graded after final stats. No locks, no fake records.",
   };
-}
-
-/**
- * Find the most recent SETTLED (graded against final box scores) NBA
- * slate. Critical: "scored" here means the slate has been graded post-
- * game — not that the board has projections. A future board with
- * projections is NOT a settled slate. Previously this function looked
- * at every board with scored leans, which incorrectly picked May 21
- * ("Tomorrow") as the latest "graded" slate before the games had even
- * played. Now we filter against `getAvailableSettlementDates()`, which
- * lists only dates with real settled rows on disk.
- */
-function findLatestScoredBoard(
-  boardsByDate: Record<string, BoardData>,
-): { date: string; board: BoardData } | null {
-  const settledSet = new Set(getAvailableSettlementDates());
-  const dates = Object.keys(boardsByDate).sort().reverse();
-  for (const date of dates) {
-    if (!settledSet.has(date)) continue;
-    const b = boardsByDate[date];
-    if (!b) continue;
-    if ((b.leans ?? []).some((l) => isScored(l))) {
-      return { date, board: b };
-    }
-  }
-  return null;
-}
-
-function findLatestScoredBoardOnDisk(): {
-  date: string;
-  board: BoardData;
-} | null {
-  const settledSet = new Set(getAvailableSettlementDates());
-  const allDates = getAvailableBoardDates()
-    .filter((d) => settledSet.has(d))
-    .slice()
-    .sort()
-    .reverse();
-  for (const date of allDates) {
-    const b = getBoardForDate(date);
-    if ((b.leans ?? []).some((l) => isScored(l))) {
-      return { date, board: b };
-    }
-  }
-  return null;
-}
-
-function isScored(l: PropLean): boolean {
-  return typeof l.projection === "number" && typeof l.edgePct === "number";
-}
-
-function matchupForBoard(board: BoardData | null): string | null {
-  if (!board) return null;
-  const games = board.games ?? [];
-  if (games.length === 0) return null;
-  const g = games[0];
-  if (!g.awayTeamAbbr || !g.homeTeamAbbr) return null;
-  return `${g.awayTeamAbbr} @ ${g.homeTeamAbbr}`;
 }
