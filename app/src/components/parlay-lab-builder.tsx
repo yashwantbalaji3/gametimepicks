@@ -21,6 +21,9 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import ParlayTicketCard from "./parlay-ticket-card";
+import SearchableSelect, {
+  type SearchableOption,
+} from "./searchable-select";
 import {
   fallbackToBestUnfilteredSlips,
   filterSlipsBySportTeamPlayer,
@@ -127,52 +130,59 @@ export default function ParlayLabBuilder({
     sportOptions[0]?.key ?? "all",
   );
   const [team, setTeam] = useState<string | null>(null);
-  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
+  const [player, setPlayer] = useState<string | null>(null);
 
   // Keep the active sport valid when the underlying pool changes.
   useEffect(() => {
     if (!availableSports.includes(sport)) {
       setSport(availableSports[0] ?? "all");
       setTeam(null);
-      setSelectedPlayers([]);
+      setPlayer(null);
     }
   }, [availableSports, sport]);
 
-  const teamOptions = useMemo(
-    () => getAvailableTeamsFromSlips(pool, sport),
-    [pool, sport],
-  );
-  const playerOptions = useMemo(
-    () => getAvailablePlayersForTeam(pool, sport, team),
-    [pool, sport, team],
-  );
+  const teamSelectOptions = useMemo<SearchableOption[]>(() => {
+    const teams = getAvailableTeamsFromSlips(pool, sport);
+    return [
+      { value: null, label: "All teams" },
+      ...teams.map((t) => ({
+        value: t.team,
+        label: t.team,
+        sub: t.sport.toUpperCase(),
+        searchText: t.team,
+      })),
+    ];
+  }, [pool, sport]);
+
+  const playerSelectOptions = useMemo<SearchableOption[]>(() => {
+    const players = getAvailablePlayersForTeam(pool, sport, team);
+    return [
+      { value: null, label: "All players" },
+      ...players.map((p) => ({
+        value: p.name,
+        label: p.name,
+        sub: p.team ? `${p.team} · ${p.sport.toUpperCase()}` : p.sport.toUpperCase(),
+        searchText: `${p.name} ${p.team ?? ""}`,
+      })),
+    ];
+  }, [pool, sport, team]);
 
   function changeSport(next: SuggestedSport) {
     if (next === sport) return;
     setSport(next);
     setTeam(null);
-    setSelectedPlayers([]);
+    setPlayer(null);
   }
 
   function changeTeam(next: string | null) {
     if (next === team) return;
     setTeam(next);
-    // Drop players whose team is now out of scope.
-    const allowed = new Set(
-      getAvailablePlayersForTeam(pool, sport, next).map((p) => p.name),
-    );
-    setSelectedPlayers((prev) => prev.filter((p) => allowed.has(p)));
+    setPlayer(null);
   }
 
-  function togglePlayer(name: string) {
-    setSelectedPlayers((prev) =>
-      prev.includes(name) ? prev.filter((p) => p !== name) : [...prev, name],
-    );
-  }
-
-  function clearTeamAndPlayers() {
-    setTeam(null);
-    setSelectedPlayers([]);
+  function changePlayer(next: string | null) {
+    if (next === player) return;
+    setPlayer(next);
   }
 
   // ---- Apply filters -------------------------------------------------
@@ -181,9 +191,9 @@ export default function ParlayLabBuilder({
       filterSlipsBySportTeamPlayer(pool, {
         sport,
         team,
-        playerNames: selectedPlayers,
+        playerNames: player ? [player] : [],
       }),
-    [pool, sport, team, selectedPlayers],
+    [pool, sport, team, player],
   );
 
   // For each risk profile, pick the best slip + up to 2 alternates.
@@ -219,7 +229,7 @@ export default function ParlayLabBuilder({
     });
   }, [filtered, pool, sport]);
 
-  const filterActive = team !== null || selectedPlayers.length > 0;
+  const filterActive = team !== null || player !== null;
 
   return (
     <section className="flex flex-col gap-5" aria-label="Parlay Lab builder">
@@ -230,17 +240,16 @@ export default function ParlayLabBuilder({
         optimizerActive={optimizerActive}
       />
 
-      <FilterCard
+      <LabFilters
         sport={sport}
         sportOptions={sportOptions}
         onSportChange={changeSport}
         team={team}
-        teamOptions={teamOptions}
+        teamOptions={teamSelectOptions}
         onTeamChange={changeTeam}
-        playerOptions={playerOptions}
-        selectedPlayers={selectedPlayers}
-        onTogglePlayer={togglePlayer}
-        onClearFilters={clearTeamAndPlayers}
+        player={player}
+        playerOptions={playerSelectOptions}
+        onPlayerChange={changePlayer}
       />
 
       <RiskGrid
@@ -320,28 +329,26 @@ function BuilderHeader({
 // Filters
 // ---------------------------------------------------------------------------
 
-function FilterCard({
+function LabFilters({
   sport,
   sportOptions,
   onSportChange,
   team,
   teamOptions,
   onTeamChange,
+  player,
   playerOptions,
-  selectedPlayers,
-  onTogglePlayer,
-  onClearFilters,
+  onPlayerChange,
 }: {
   sport: SuggestedSport;
   sportOptions: Array<{ key: SuggestedSport; label: string }>;
   onSportChange: (s: SuggestedSport) => void;
   team: string | null;
-  teamOptions: Array<{ team: string; sport: string }>;
+  teamOptions: SearchableOption[];
   onTeamChange: (t: string | null) => void;
-  playerOptions: Array<{ name: string; sport: string; team: string | null }>;
-  selectedPlayers: string[];
-  onTogglePlayer: (name: string) => void;
-  onClearFilters: () => void;
+  player: string | null;
+  playerOptions: SearchableOption[];
+  onPlayerChange: (p: string | null) => void;
 }) {
   return (
     <div
@@ -351,189 +358,63 @@ function FilterCard({
         border: "1px solid var(--vault-border)",
       }}
     >
-      <FilterRow label="Sport">
-        <PillRow>
-          {sportOptions.map((opt) => (
-            <PillButton
-              key={opt.key}
-              active={opt.key === sport}
-              onClick={() => onSportChange(opt.key)}
-              label={opt.label}
-            />
-          ))}
-        </PillRow>
-      </FilterRow>
-
-      <FilterRow
-        label="Team"
-        rightSlot={
-          team ? (
-            <button
-              type="button"
-              onClick={() => onTeamChange(null)}
-              className="font-mono uppercase tracking-[0.14em]"
-              style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
-            >
-              Any team
-            </button>
-          ) : null
-        }
-      >
-        {teamOptions.length === 0 ? (
-          <p className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
-            No team metadata for this sport yet.
-          </p>
-        ) : (
-          <PillRow wrap>
-            <PillButton
-              active={team === null}
-              onClick={() => onTeamChange(null)}
-              label="Any"
-            />
-            {teamOptions.map((t) => (
-              <PillButton
-                key={`${t.sport}-${t.team}`}
-                active={team === t.team}
-                onClick={() => onTeamChange(t.team)}
-                label={t.team}
-              />
-            ))}
-          </PillRow>
-        )}
-      </FilterRow>
-
-      <FilterRow
-        label={`Players (${selectedPlayers.length} selected)`}
-        rightSlot={
-          selectedPlayers.length > 0 || team ? (
-            <button
-              type="button"
-              onClick={onClearFilters}
-              className="font-mono uppercase tracking-[0.14em]"
-              style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
-            >
-              Clear
-            </button>
-          ) : null
-        }
-      >
-        {playerOptions.length === 0 ? (
-          <p className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
-            {team
-              ? `No players on ${team} appear in tonight's slips.`
-              : "No players in scope."}
-          </p>
-        ) : (
-          <div
-            className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto pr-1"
-            style={{ scrollbarWidth: "thin" }}
-          >
-            {playerOptions.map((p) => {
-              const active = selectedPlayers.includes(p.name);
-              return (
-                <button
-                  key={`${p.sport}-${p.team ?? "?"}-${p.name}`}
-                  type="button"
-                  onClick={() => onTogglePlayer(p.name)}
-                  aria-pressed={active}
-                  className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full"
-                  style={{
-                    color: active ? "var(--vault-bg)" : "var(--vault-text)",
-                    background: active
-                      ? "var(--vault-gold-bright)"
-                      : "rgba(0,0,0,0.3)",
-                    border: active
-                      ? "1px solid var(--vault-gold-bright)"
-                      : "1px solid var(--vault-rule)",
-                    fontSize: 10,
-                    cursor: "pointer",
-                  }}
-                >
-                  {p.name}
-                  {p.team ? (
-                    <span style={{ marginLeft: 4, opacity: 0.7 }}>{p.team}</span>
-                  ) : null}
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </FilterRow>
-    </div>
-  );
-}
-
-function FilterRow({
-  label,
-  rightSlot,
-  children,
-}: {
-  label: string;
-  rightSlot?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2">
         <span
           className="font-mono uppercase tracking-[0.16em]"
           style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
-          {label}
+          Sport
         </span>
-        {rightSlot}
+        <div
+          className="inline-flex flex-wrap items-center gap-1 p-1 rounded-full self-start"
+          style={{
+            background: "rgba(0,0,0,0.3)",
+            border: "1px solid var(--vault-rule)",
+          }}
+        >
+          {sportOptions.map((opt) => {
+            const active = opt.key === sport;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => onSportChange(opt.key)}
+                className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full"
+                style={{
+                  color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
+                  background: active ? "var(--vault-gold-bright)" : "transparent",
+                  fontSize: 10,
+                  cursor: "pointer",
+                }}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
-      {children}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <SearchableSelect
+          label="Team"
+          placeholder="All teams"
+          value={team}
+          options={teamOptions}
+          onChange={onTeamChange}
+          emptyMessage="No teams in this sport"
+        />
+        <SearchableSelect
+          label="Player"
+          placeholder="All players"
+          value={player}
+          options={playerOptions}
+          onChange={onPlayerChange}
+          emptyMessage="No players match"
+        />
+      </div>
     </div>
   );
 }
 
-function PillRow({
-  children,
-  wrap,
-}: {
-  children: React.ReactNode;
-  wrap?: boolean;
-}) {
-  return (
-    <div
-      className={`inline-flex items-center gap-1 p-1 rounded-full ${wrap ? "flex-wrap" : ""}`}
-      style={{
-        background: "rgba(0,0,0,0.3)",
-        border: "1px solid var(--vault-rule)",
-        maxWidth: "100%",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function PillButton({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full"
-      style={{
-        color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
-        background: active ? "var(--vault-gold-bright)" : "transparent",
-        fontSize: 10,
-        cursor: "pointer",
-      }}
-    >
-      {label}
-    </button>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Risk-level result grid

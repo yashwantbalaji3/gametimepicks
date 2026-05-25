@@ -66,6 +66,7 @@ export default function ProjectionsExperience({
 
   const urlDate = searchParams.get("date");
   const urlGameId = searchParams.get("game");
+  const urlSport = (searchParams.get("sport") ?? "all") as "all" | "nba" | "mlb";
 
   const selectedDate =
     urlDate && payload.dates.some((d) => d.date === urlDate)
@@ -85,11 +86,15 @@ export default function ProjectionsExperience({
     ? activeDate?.games.find((g) => g.gameId === selectedGameId) ?? null
     : null;
 
-  function navigate(next: { date?: string; game?: string | null }) {
+  function navigate(next: { date?: string; game?: string | null; sport?: "all" | "nba" | "mlb" }) {
     const params = new URLSearchParams(searchParams.toString());
     if (next.date) params.set("date", next.date);
     if (next.game === null) params.delete("game");
     else if (typeof next.game === "string") params.set("game", next.game);
+    if (next.sport) {
+      if (next.sport === "all") params.delete("sport");
+      else params.set("sport", next.sport);
+    }
     const qs = params.toString();
     router.replace(qs ? `/projections?${qs}` : "/projections", {
       scroll: false,
@@ -145,12 +150,216 @@ export default function ProjectionsExperience({
             calibrationTable={calibrationTable}
           />
         ) : (
-          <GameCardGrid
-            games={activeDate.games}
-            onSelect={(gameId) => navigate({ game: gameId })}
-          />
+          <>
+            <SportNav
+              activeDate={activeDate}
+              selectedSport={urlSport}
+              onSelect={(s) => navigate({ sport: s })}
+            />
+            <GameCardGroups
+              activeDate={activeDate}
+              selectedSport={urlSport}
+              onSelect={(gameId) => navigate({ game: gameId })}
+            />
+          </>
         )
       ) : null}
+    </div>
+  );
+}
+
+/* ============================================================================
+   Sport navigation
+============================================================================ */
+
+function SportNav({
+  activeDate,
+  selectedSport,
+  onSelect,
+}: {
+  activeDate: ProjectionsDate;
+  selectedSport: "all" | "nba" | "mlb";
+  onSelect: (s: "all" | "nba" | "mlb") => void;
+}) {
+  // Build per-sport counts from the active date's games.
+  const tallies: Record<"nba" | "mlb", { games: number; projections: number }> = {
+    nba: { games: 0, projections: 0 },
+    mlb: { games: 0, projections: 0 },
+  };
+  for (const g of activeDate.games) {
+    const s = (g.sport ?? "").toLowerCase();
+    if (s === "nba" || s === "mlb") {
+      tallies[s].games += 1;
+      tallies[s].projections += g.projectionCount ?? 0;
+    }
+  }
+  const totalGames = activeDate.games.length;
+  const totalProjections = activeDate.games.reduce(
+    (sum, g) => sum + (g.projectionCount ?? 0),
+    0,
+  );
+  // Only show sports that exist on this date.
+  const available: Array<{
+    key: "all" | "nba" | "mlb";
+    label: string;
+    icon: string | null;
+    games: number;
+    projections: number;
+  }> = [
+    { key: "all", label: "All", icon: null, games: totalGames, projections: totalProjections },
+  ];
+  if (tallies.nba.games > 0) {
+    available.push({ key: "nba", label: "NBA", icon: "🏀", ...tallies.nba });
+  }
+  if (tallies.mlb.games > 0) {
+    available.push({ key: "mlb", label: "MLB", icon: "⚾", ...tallies.mlb });
+  }
+  if (available.length <= 1) return null;
+  return (
+    <nav
+      aria-label="Sport filter"
+      className="flex flex-wrap gap-2"
+    >
+      {available.map((opt) => {
+        const active = opt.key === selectedSport;
+        return (
+          <button
+            key={opt.key}
+            type="button"
+            onClick={() => onSelect(opt.key)}
+            aria-pressed={active}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full"
+            style={{
+              background: active ? "var(--vault-gold-bright)" : "rgba(7,11,26,0.55)",
+              border: active
+                ? "1px solid var(--vault-gold-bright)"
+                : "1px solid var(--vault-border)",
+              color: active ? "var(--vault-bg)" : "var(--vault-text)",
+              fontSize: 12,
+              cursor: "pointer",
+            }}
+          >
+            {opt.icon ? <span aria-hidden>{opt.icon}</span> : null}
+            <span className="font-display" style={{ fontWeight: 600 }}>
+              {opt.label}
+            </span>
+            <span
+              className="font-mono"
+              style={{
+                color: active ? "var(--vault-bg)" : "var(--vault-text-faint)",
+                fontSize: 10,
+                opacity: active ? 0.7 : 1,
+              }}
+            >
+              {opt.games} game{opt.games === 1 ? "" : "s"} · {opt.projections} proj
+            </span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/* ============================================================================
+   Grouped game cards (sport-first)
+============================================================================ */
+
+function GameCardGroups({
+  activeDate,
+  selectedSport,
+  onSelect,
+}: {
+  activeDate: ProjectionsDate;
+  selectedSport: "all" | "nba" | "mlb";
+  onSelect: (gameId: string) => void;
+}) {
+  const filtered = activeDate.games.filter((g) => {
+    if (selectedSport === "all") return true;
+    return (g.sport ?? "").toLowerCase() === selectedSport;
+  });
+  if (filtered.length === 0) {
+    return (
+      <section
+        className="rounded-[8px] p-5"
+        style={{
+          background: "rgba(7,11,26,0.55)",
+          border: "1px dashed var(--vault-border)",
+        }}
+      >
+        <span
+          className="font-mono uppercase tracking-[0.16em]"
+          style={{ color: "var(--vault-gold)", fontSize: 11 }}
+        >
+          No {selectedSport.toUpperCase()} games today
+        </span>
+      </section>
+    );
+  }
+  if (selectedSport !== "all") {
+    return (
+      <GameCardGrid games={filtered} onSelect={onSelect} />
+    );
+  }
+  // "All" sport → group by NBA first, then MLB. Use a small section
+  // header so the visual rhythm matches the sport-first nav above.
+  const nbaGames = filtered.filter((g) => (g.sport ?? "").toLowerCase() === "nba");
+  const mlbGames = filtered.filter((g) => (g.sport ?? "").toLowerCase() === "mlb");
+  const otherGames = filtered.filter((g) => {
+    const s = (g.sport ?? "").toLowerCase();
+    return s !== "nba" && s !== "mlb";
+  });
+  return (
+    <div className="flex flex-col gap-5">
+      {nbaGames.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <SectionHeading icon="🏀" label="NBA" count={nbaGames.length} />
+          <GameCardGrid games={nbaGames} onSelect={onSelect} />
+        </section>
+      )}
+      {mlbGames.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <SectionHeading icon="⚾" label="MLB" count={mlbGames.length} />
+          <GameCardGrid games={mlbGames} onSelect={onSelect} />
+        </section>
+      )}
+      {otherGames.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <SectionHeading icon={null} label="Other" count={otherGames.length} />
+          <GameCardGrid games={otherGames} onSelect={onSelect} />
+        </section>
+      )}
+    </div>
+  );
+}
+
+function SectionHeading({
+  icon,
+  label,
+  count,
+}: {
+  icon: string | null;
+  label: string;
+  count: number;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      {icon ? <span aria-hidden>{icon}</span> : null}
+      <span
+        className="font-mono uppercase tracking-[0.18em]"
+        style={{ color: "var(--vault-gold)", fontSize: 11 }}
+      >
+        {label}
+      </span>
+      <span
+        className="font-mono"
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+      >
+        {count} game{count === 1 ? "" : "s"}
+      </span>
+      <div
+        className="flex-1 h-px"
+        style={{ background: "var(--vault-rule)" }}
+      />
     </div>
   );
 }
@@ -642,17 +851,58 @@ function groupLeansByPlayer(leans: ProjectionsLean[]): PlayerGroup[] {
     g.leans.push(l);
     if (
       !g.topLean ||
-      Math.abs(l.edgePct ?? 0) > Math.abs(g.topLean.edgePct ?? 0)
+      _projectionRelevance(l) > _projectionRelevance(g.topLean)
     ) {
       g.topLean = l;
     }
   }
   return [...groups.values()].sort((a, b) => {
-    const ea = Math.abs(a.topLean?.edgePct ?? 0);
-    const eb = Math.abs(b.topLean?.edgePct ?? 0);
-    if (eb !== ea) return eb - ea;
+    const ra = _projectionRelevance(a.topLean);
+    const rb = _projectionRelevance(b.topLean);
+    if (rb !== ra) return rb - ra;
     return a.playerName.localeCompare(b.playerName);
   });
+}
+
+/**
+ * Composite relevance score for a single projection — used to sort
+ * players inside a game detail view. Higher = more interesting to a
+ * casual reader.
+ *
+ * Inputs (ordered by impact):
+ *   1. confidence tier (High > Medium > Low > insufficient)
+ *   2. |edge| capped at 20pp to avoid extreme-edge outliers dominating
+ *   3. lean ∈ {Over, Under} — actionable picks beat "No Play"
+ *   4. recent10 array length (NBA: full sample = stronger signal)
+ *   5. market stability nudge (REB, batter_hits beat AST, strikeouts)
+ *
+ * Pure function. Safe for both NBA and MLB shapes.
+ */
+function _projectionRelevance(l: ProjectionsLean | null): number {
+  if (!l) return 0;
+  const conf =
+    l.confidence === "High"
+      ? 1.0
+      : l.confidence === "Medium"
+        ? 0.6
+        : l.confidence === "Low"
+          ? 0.3
+          : 0.05;
+  const edge = Math.min(20, Math.max(0, Math.abs(l.edgePct ?? 0)));
+  const actionable = l.side === "Over" || l.side === "Under" ? 0.1 : 0;
+  const recent10 = Array.isArray(l.recentSeries) ? Math.min(l.recentSeries.length, 10) : 0;
+  const recentBonus = recent10 >= 5 ? 0.1 : 0;
+  // Per-market stability nudge — mirrors the optimizer's market weights.
+  const sportMarket = `${(l.sport || "").toLowerCase()}:${l.market}`;
+  const marketStable =
+    sportMarket === "nba:REB" || sportMarket === "mlb:batter_hits"
+      ? 0.05
+      : sportMarket === "nba:AST" ||
+          sportMarket === "mlb:pitcher_strikeouts" ||
+          sportMarket === "mlb:batter_hits_runs_rbis"
+        ? -0.05
+        : 0;
+  return conf * 0.6 + (edge / 20) * 0.3 + actionable + recentBonus + marketStable;
 }
 
 function PlayerAccordionList({

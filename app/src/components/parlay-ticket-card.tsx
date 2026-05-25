@@ -217,6 +217,7 @@ function TicketLegRow({
           className="font-display tracking-tight truncate"
           style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}
         >
+          <SportBadge sport={leg.sport} />
           {leg.playerName}
         </div>
         <div
@@ -244,6 +245,32 @@ function TicketLegRow({
         {typeof leg.finalStat === "number" ? ` · ${leg.finalStat}` : ""}
       </span>
     </div>
+  );
+}
+
+/**
+ * SportBadge — small pill that visually tags a leg as NBA or MLB so a
+ * multi-sport slip is unmistakable. Uses 🏀/⚾ when supported. */
+function SportBadge({ sport }: { sport: string }) {
+  const s = (sport ?? "").toLowerCase();
+  if (s !== "nba" && s !== "mlb") return null;
+  const icon = s === "nba" ? "🏀" : "⚾";
+  const tone =
+    s === "nba" ? "var(--vault-gold-bright)" : "var(--vault-success)";
+  return (
+    <span
+      aria-hidden
+      className="inline-flex items-center mr-1.5 font-mono uppercase tracking-[0.12em]"
+      style={{
+        color: tone,
+        fontSize: 9,
+        verticalAlign: "middle",
+      }}
+      title={s.toUpperCase()}
+    >
+      <span style={{ marginRight: 2 }}>{icon}</span>
+      {s.toUpperCase()}
+    </span>
   );
 }
 
