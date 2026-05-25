@@ -21,6 +21,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import ParlayTicketCard from "./parlay-ticket-card";
+import PlayerRecentFormDrawer from "./player-recent-form-drawer";
 import SearchableSelect, {
   type SearchableOption,
 } from "./searchable-select";
@@ -231,6 +232,9 @@ export default function ParlayLabBuilder({
 
   const filterActive = team !== null || player !== null;
 
+  // Recent-form drawer state — tracks the clicked leg.
+  const [activeLeg, setActiveLeg] = useState<ParlaySlip["legs"][number] | null>(null);
+
   return (
     <section className="flex flex-col gap-5" aria-label="Parlay Lab builder">
       <BuilderHeader
@@ -257,9 +261,11 @@ export default function ParlayLabBuilder({
         source={source}
         calibrationTable={calibrationTable}
         filterActive={filterActive}
+        onLegClick={setActiveLeg}
       />
 
       <BuilderFootnote optimizerActive={optimizerActive} />
+      <PlayerRecentFormDrawer leg={activeLeg} onClose={() => setActiveLeg(null)} />
     </section>
   );
 }
@@ -425,6 +431,7 @@ function RiskGrid({
   source,
   calibrationTable,
   filterActive,
+  onLegClick,
 }: {
   cards: Array<{
     profile: ParlayRiskProfile;
@@ -434,6 +441,7 @@ function RiskGrid({
   source: "snapshot" | "graded";
   calibrationTable?: CalibrationTable;
   filterActive: boolean;
+  onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
 }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -446,6 +454,7 @@ function RiskGrid({
           source={source}
           calibrationTable={calibrationTable}
           filterActive={filterActive}
+          onLegClick={onLegClick}
         />
       ))}
     </div>
@@ -459,6 +468,7 @@ function RiskCard({
   source,
   calibrationTable,
   filterActive,
+  onLegClick,
 }: {
   profile: ParlayRiskProfile;
   slips: ParlaySlip[];
@@ -466,6 +476,7 @@ function RiskCard({
   source: "snapshot" | "graded";
   calibrationTable?: CalibrationTable;
   filterActive: boolean;
+  onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
 }) {
   const display = RISK_DISPLAY[profile];
   return (
@@ -522,6 +533,7 @@ function RiskCard({
                 slip={slip}
                 savedPregame={source === "snapshot"}
                 calibrationTable={calibrationTable}
+                onLegClick={onLegClick}
               />
             </div>
           ))}

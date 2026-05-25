@@ -19,6 +19,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import ParlayTicketCard from "./parlay-ticket-card";
+import PlayerRecentFormDrawer from "./player-recent-form-drawer";
 import SearchableSelect, {
   type SearchableOption,
 } from "./searchable-select";

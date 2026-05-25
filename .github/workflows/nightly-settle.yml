@@ -14,6 +14,12 @@
 #   - Run MLB settlement (settle_mlb_results uses MLB Stats API;
 #     partial settlement when games are still pending)
 #   - Export sanitized results to app/public/data/{results,mlb/results}
+#   - Rebuild model_audit.json from the freshly-settled JSONLs
+#   - Grade legacy parlay snapshots (grade_parlays)
+#   - Grade single-leg curated picks (grade_curated)
+#   - Grade optimizer parlay snapshots — the slips the homepage +
+#     /parlay-lab + /results actually display (grade_optimizer --all,
+#     added PR #98)
 #   - Commit + push the regenerated data so /results picks it up
 #
 # What this workflow does NOT do:
@@ -125,6 +131,17 @@ jobs:
           git add pipeline/validation/mlb_settled_leans.jsonl 2>/dev/null || true
           git add pipeline/validation/comparison_report_*.json 2>/dev/null || true
           git add pipeline/validation/mlb_comparison_report_*.json 2>/dev/null || true
+          # Parlay graders run by automation_settle.sh. The graded
+          # JSONs + summaries are what the homepage + /parlay-lab +
+          # /results read. PR #98 introduced optimizer-graded.
+          git add app/public/data/parlays/graded/ 2>/dev/null || true
+          git add app/public/data/parlays/summary.json 2>/dev/null || true
+          git add app/public/data/curated/graded/ 2>/dev/null || true
+          git add app/public/data/curated/summary.json 2>/dev/null || true
+          git add app/public/data/parlays/optimizer-graded/ 2>/dev/null || true
+          git add app/public/data/parlays/optimizer-summary.json 2>/dev/null || true
+          # model_audit.json is rebuilt every run.
+          git add app/public/data/audit/model_audit.json 2>/dev/null || true
 
           if git diff --staged --quiet; then
             echo "No settled-data changes — nothing to commit."
@@ -150,5 +167,9 @@ jobs:
           path: |
             /tmp/gtp_settle_*.log
             /tmp/gtp_export_*.log
+            /tmp/gtp_model_audit.log
+            /tmp/gtp_grade_parlays.log
+            /tmp/gtp_grade_curated.log
+            /tmp/gtp_grade_optimizer.log
           retention-days: 7
           if-no-files-found: ignore

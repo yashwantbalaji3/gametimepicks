@@ -79,6 +79,9 @@ if [ "$DRY_RUN_SETTLE" = "1" ]; then
     info "would run: $PY -m pipeline.export_results"
     info "would run: $PY -m pipeline.mlb.export_mlb_results"
     info "would run: $PY -m pipeline.model_audit"
+    info "would run: $PY -m pipeline.grade_parlays --date $TARGET_DATE"
+    info "would run: $PY -m pipeline.grade_curated --date $TARGET_DATE"
+    info "would run: $PY -m pipeline.grade_optimizer --all"
     exit 0
 fi
 
@@ -171,12 +174,47 @@ fi
 # Always rebuilds the summary so any earlier graded dates remain
 # reflected.
 # ---------------------------------------------------------------------------
+#
+# Three graders run in order. Each is a pure local read against
+# `settled_leans` we just wrote — no API calls.
+#
+#   grade_parlays    — legacy snapshot_parlays output (kept for
+#                      back-compat with /results/parlays).
+#   grade_curated    — single-leg curated picks shown on /about and
+#                      legacy curated rails.
+#   grade_optimizer  — NEW (PR #98). Grades the optimizer snapshots
+#                      that the homepage + /parlay-lab + parlay-first
+#                      /results actually display. Must run AFTER
+#                      settlement so settled_leans is current. Takes
+#                      --all so it also picks up any older snapshot
+#                      that wasn't fully decisive on its first run;
+#                      the summary regenerates from every graded
+#                      date on disk.
+#
+# Each grader is an honest no-op if no snapshot exists for the date,
+# and always rebuilds its own summary so earlier dates stay reflected.
 GRADE_FAILED=0
-step "4/4  Parlay grading · $TARGET_DATE"
+step "4/6  Legacy parlay grading · $TARGET_DATE"
 if $PY -m pipeline.grade_parlays --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_grade_parlays.log; then
-    ok "parlay grading completed (no-op if no saved snapshot for $TARGET_DATE)"
+    ok "legacy parlay grading completed (no-op if no saved snapshot for $TARGET_DATE)"
 else
-    warn "parlay grading returned non-zero — see /tmp/gtp_grade_parlays.log"
+    warn "legacy parlay grading returned non-zero — see /tmp/gtp_grade_parlays.log"
+    GRADE_FAILED=1
+fi
+
+step "5/6  Curated single-leg grading · $TARGET_DATE"
+if $PY -m pipeline.grade_curated --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_grade_curated.log; then
+    ok "curated grading completed (no-op if no saved snapshot for $TARGET_DATE)"
+else
+    warn "curated grading returned non-zero — see /tmp/gtp_grade_curated.log"
+    GRADE_FAILED=1
+fi
+
+step "6/6  Optimizer parlay grading · all dates on disk"
+if $PY -m pipeline.grade_optimizer --all 2>&1 | tee /tmp/gtp_grade_optimizer.log; then
+    ok "optimizer grading + summary refreshed"
+else
+    warn "optimizer grading returned non-zero — see /tmp/gtp_grade_optimizer.log"
     GRADE_FAILED=1
 fi
 

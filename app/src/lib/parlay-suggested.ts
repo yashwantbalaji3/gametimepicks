@@ -40,6 +40,10 @@ export interface ParlayLeg {
   result?: ParlayLegResult;
   finalStat?: number | null;
   settlementSource?: string | null;
+  /** Up to 10 most recent stat values for the market — used by the
+   *  recent-form popup. Optional; older snapshot files may not carry
+   *  it. */
+  recentSeries?: number[];
 }
 
 export interface ParlaySlip {
