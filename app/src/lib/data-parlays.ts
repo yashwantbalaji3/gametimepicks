@@ -15,99 +15,32 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import type {
+  ParlayLeg,
+  ParlayLegResult,
+  ParlayRiskProfile,
+  ParlaySlip,
+  ParlaySlipStatus,
+  ParlaySnapshot,
+  ParlaySummary,
+} from "./parlay-suggested";
+
 const ROOT = path.join(process.cwd(), "public", "data", "parlays");
 const SNAPSHOT_DIR = path.join(ROOT, "snapshots");
 const GRADED_DIR = path.join(ROOT, "graded");
 const SUMMARY_PATH = path.join(ROOT, "summary.json");
+const OPTIMIZER_DIR = path.join(ROOT, "optimizer");
 
-export type ParlaySlipStatus = "pending" | "win" | "loss" | "push" | "void";
-export type ParlayRiskProfile =
-  | "conservative"
-  | "balanced"
-  | "aggressive";
-export type ParlayLegResult = "win" | "loss" | "push" | "unresolved";
-
-export interface ParlayLeg {
-  sport: string;
-  gameId: string | null;
-  gameDate: string;
-  playerId: number | null;
-  playerName: string;
-  team: string | null;
-  opponent: string | null;
-  market: string;
-  /** Friendly display name for the market. NBA leaves this null (the
-   *  market value itself is already friendly: PTS/REB/AST). MLB sets
-   *  this to "Strikeouts" / "Hits" / "Total Bases" so the UI doesn't
-   *  render the raw snake_case `pitcher_strikeouts` key. */
-  marketLabel?: string | null;
-  side: string;
-  line: number | null;
-  projection: number | null;
-  edgePct: number | null;
-  confidence: string | null;
-  bookmaker: string | null;
-  oddsForSide: number | null;
-  riskFlags?: string[];
-  /** Filled in by the grader. Snapshot rows never carry this. */
-  result?: ParlayLegResult;
-  finalStat?: number | null;
-  settlementSource?: string | null;
-}
-
-export interface ParlaySlip {
-  slipId: string;
-  riskProfile: ParlayRiskProfile;
-  sport: string;
-  status: ParlaySlipStatus;
-  legs: ParlayLeg[];
-  score: number;
-  sameGame: boolean;
-  hasAnomalyLeg: boolean;
-  gradedAt?: string;
-}
-
-export interface ParlaySnapshot {
-  date: string;
-  generatedAt: string;
-  sportsIncluded: string[];
-  sourceBoardDates: string[];
-  profilesGenerated: string[];
-  slipsCount: number;
-  slips: ParlaySlip[];
-  /** Present once the grader has run on this date. */
-  gradedAt?: string;
-}
-
-export interface ParlaySummary {
-  generatedAt: string;
-  byDate: Array<{
-    date: string;
-    wins: number;
-    losses: number;
-    pushes: number;
-    pending: number;
-  }>;
-  lifetime: {
-    wins: number;
-    losses: number;
-    pushes: number;
-    pending: number;
-    decisive: number;
-    hitRate: number | null;
-  };
-  byProfile: Record<
-    string,
-    {
-      wins: number;
-      losses: number;
-      pushes: number;
-      pending: number;
-      decisive: number;
-      hitRate: number | null;
-    }
-  >;
-}
+// Re-export types so existing server-side imports keep working.
+export type {
+  ParlayLeg,
+  ParlayLegResult,
+  ParlayRiskProfile,
+  ParlaySlip,
+  ParlaySlipStatus,
+  ParlaySnapshot,
+  ParlaySummary,
+};
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -296,3 +229,187 @@ export function getSlipsForGame(
 
   return { date, gameId, source, slips: matching };
 }
+
+// ---------------------------------------------------------------------------
+// Suggested parlays — fs-backed loader (pure helpers live in
+// `parlay-suggested.ts` so client components can use them).
+// ---------------------------------------------------------------------------
+
+export type { SuggestedSport } from "./parlay-suggested";
+
+/**
+ * The most recent date with a real parlay payload (graded > snapshot).
+ *
+ * Honest behavior: we never return a date we don't have a real file
+ * for. When neither directory has any dates, returns null and the UI
+ * should render an "no parlays yet" empty state.
+ */
+export function getLatestParlayDate(): {
+  date: string;
+  source: "graded" | "snapshot";
+} | null {
+  const graded = _listDates(GRADED_DIR);
+  const snaps = _listDates(SNAPSHOT_DIR);
+  // Prefer the latest snapshot for *upcoming* dates; only fall back to
+  // graded when no upcoming snapshot exists. This is the right call
+  // for the homepage carousel which wants to feature "tonight" not
+  // "yesterday's results".
+  const latestSnap = snaps.length > 0 ? snaps[snaps.length - 1] : null;
+  if (latestSnap) {
+    const graded2 = _readJsonSafe<ParlaySnapshot>(
+      path.join(GRADED_DIR, `${latestSnap}.json`),
+    );
+    return { date: latestSnap, source: graded2 ? "graded" : "snapshot" };
+  }
+  const latestGraded = graded.length > 0 ? graded[graded.length - 1] : null;
+  if (latestGraded) return { date: latestGraded, source: "graded" };
+  return null;
+}
+
+/**
+ * Best suggested parlays for the carousel + lab "current slate".
+ *
+ * Resolution order:
+ *   1. Try the requested `date`. If that file has slips, use it.
+ *   2. Otherwise walk backward through every snapshot/graded date
+ *      until we find one with at least one slip — never further than
+ *      14 days, never silent — so an empty snapshot for tonight
+ *      doesn't leave the homepage blank.
+ *
+ * Returns `null` when no usable parlay file exists in history. The
+ * caller should render an honest empty state in that case (no
+ * fabrication).
+ */
+export function getSuggestedParlaysForDate(
+  date: string | null,
+  options: { maxLookbackDays?: number } = {},
+): {
+  date: string;
+  source: "snapshot" | "graded";
+  slips: ParlaySlip[];
+  isFallback: boolean;
+} | null {
+  const lookback = options.maxLookbackDays ?? 14;
+  const tried = new Set<string>();
+
+  const orderedCandidates: string[] = [];
+  if (date) orderedCandidates.push(date);
+  // Walk newest-first through every known snapshot date (graded too).
+  const snaps = _listDates(SNAPSHOT_DIR).slice().reverse();
+  const graded = _listDates(GRADED_DIR).slice().reverse();
+  for (const d of snaps) if (!orderedCandidates.includes(d)) orderedCandidates.push(d);
+  for (const d of graded) if (!orderedCandidates.includes(d)) orderedCandidates.push(d);
+
+  let walked = 0;
+  for (const candidate of orderedCandidates) {
+    if (tried.has(candidate)) continue;
+    tried.add(candidate);
+    walked += 1;
+    if (walked > lookback + 1) break;
+    const gradedPayload = getGradedForDate(candidate);
+    const snapPayload = gradedPayload ? null : getSnapshotForDate(candidate);
+    const payload = gradedPayload ?? snapPayload;
+    if (!payload) continue;
+    const slips = payload.slips ?? [];
+    if (slips.length === 0) continue;
+    return {
+      date: candidate,
+      source: gradedPayload ? "graded" : "snapshot",
+      slips: slips.slice(),
+      isFallback: candidate !== date,
+    };
+  }
+  return null;
+}
+
+// Pure helpers (groupSuggestedBySport / getBestSuggestedByRisk /
+// playersFromSlips / suggestedScore) are re-exported from
+// `parlay-suggested.ts` so server pages can import them from one
+// place too. Client code should import directly from
+// `./parlay-suggested` to avoid pulling fs into the client bundle.
+export {
+  suggestedScore,
+  groupSuggestedBySport,
+  getBestSuggestedByRisk,
+  playersFromSlips,
+} from "./parlay-suggested";
+
+// ---------------------------------------------------------------------------
+// Optimizer snapshot loader (the new richer pipeline)
+// ---------------------------------------------------------------------------
+
+import type {
+  OptimizerSnapshot,
+  OptimizerLeg,
+  OptimizerSlip,
+} from "./parlay-optimizer";
+
+/** Available dates with an optimizer snapshot on disk. */
+export function getAvailableOptimizerDates(): string[] {
+  return _listDates(OPTIMIZER_DIR).slice().reverse();
+}
+
+/** Optimizer payload for a specific date, or null when absent. */
+export function getOptimizerSnapshotForDate(
+  date: string,
+): OptimizerSnapshot | null {
+  return _readJsonSafe<OptimizerSnapshot>(
+    path.join(OPTIMIZER_DIR, `${date}.json`),
+  );
+}
+
+/**
+ * Latest optimizer snapshot — graded date never wins here because the
+ * optimizer is the *forward-looking* recommendation tool, not a
+ * results retrospective. Returns null when no file exists.
+ */
+export function getLatestOptimizerSnapshot(): {
+  date: string;
+  payload: OptimizerSnapshot;
+} | null {
+  const dates = _listDates(OPTIMIZER_DIR);
+  for (let i = dates.length - 1; i >= 0; i -= 1) {
+    const payload = getOptimizerSnapshotForDate(dates[i]);
+    if (!payload) continue;
+    if (payload.totalSlips > 0) {
+      return { date: dates[i], payload };
+    }
+  }
+  // No optimizer snapshot has slips — return latest empty one anyway
+  // so the UI can render an honest "0 slips" state with the date.
+  if (dates.length > 0) {
+    const latest = dates[dates.length - 1];
+    const payload = getOptimizerSnapshotForDate(latest);
+    if (payload) return { date: latest, payload };
+  }
+  return null;
+}
+
+/**
+ * Flatten an optimizer snapshot into a single list of slips, dedupe
+ * by slipId so the same slip surfaced under "mlb" and "all" buckets
+ * only appears once.
+ */
+export function flattenOptimizerSlips(
+  payload: OptimizerSnapshot,
+): OptimizerSlip[] {
+  const seen = new Set<string>();
+  const out: OptimizerSlip[] = [];
+  for (const profile of Object.keys(payload.buckets)) {
+    const buckets = payload.buckets[profile as keyof OptimizerSnapshot["buckets"]];
+    if (!buckets) continue;
+    for (const sport of Object.keys(buckets)) {
+      const slips = buckets[sport as keyof typeof buckets] ?? [];
+      for (const slip of slips) {
+        if (seen.has(slip.slipId)) continue;
+        seen.add(slip.slipId);
+        out.push(slip);
+      }
+    }
+  }
+  // Sort by score desc for stable rendering when the caller wants a flat list.
+  out.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  return out;
+}
+
+export type { OptimizerSnapshot, OptimizerLeg, OptimizerSlip };

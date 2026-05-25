@@ -1,94 +1,156 @@
 /**
- * /parlay-lab — game-first slip builder.
+ * /parlay-lab — sport + player picker that surfaces the best slip at
+ * every risk level (Conservative · Balanced · High variance).
  *
- * Replaces the prior tab-driven builder hub (Build + Analyze modes,
- * giant ParlayBuilderClient, sport pills, "How this works"
- * disclosure, etc.) with the same four-step pattern shipped in PR #86
- * for /projections:
- *
- *   1. Compact header   — "Build tonight's slips · Today"
- *   2. Date pill row    — Today / Tomorrow with leans
- *   3. Game card grid   — sportsbook-style matchup cards with a
- *                          "Saved · pending" badge when snapshot
- *                          slips exist for that game
- *   4. Game slip detail — hero + saved slips + risk pills +
- *                          live preview slips (NBA-only)
- *
- * Server component: loads the unified projections payload + the
- * per-date snapshot/graded payloads, hands both to the client. Uses
- * Suspense so static export builds.
+ * Server component: loads the latest pregame snapshot (or graded
+ * fallback) and hands its slips to a single client builder. The old
+ * game-by-game experience now lives behind /projections — that page
+ * is the right home for individual game research.
  *
  * Honesty:
- *   - Saved slips render the real snapshot file content. We never
- *     fabricate slips.
- *   - Live preview slips come from `buildParlayCandidates` over the
- *     loaded NBA leans for the selected game — no synthesised odds.
- *   - MLB games show an explicit "MLB live preview pending" panel
- *     rather than inventing slips.
- *   - The page never claims a parlay hit rate.
+ *   - Only renders slips from real snapshots on disk.
+ *   - The builder never invents legs; matching is filter-only against
+ *     existing pregame slips.
+ *   - When nothing matches, the per-risk card shows an honest empty
+ *     state explaining why.
  */
 import { Suspense } from "react";
+import Link from "next/link";
 
-import ParlayLabExperience from "@/components/parlay-lab-experience";
-import { loadProjectionsPayload } from "@/lib/data-projections";
+import ParlayLabBuilder from "@/components/parlay-lab-builder";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import {
-  getSnapshotForDate,
-  getGradedForDate,
-  type ParlaySnapshot,
+  getSuggestedParlaysForDate,
+  getOptimizerSnapshotForDate,
+  getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
-import { getBoardForDate } from "@/lib/data";
-import type { PropLean } from "@/lib/types";
+import { currentEtDate } from "@/lib/freshness";
 
 export const metadata = {
   title: "Parlay Lab · GameTime Picks",
   description:
-    "Game-first slip builder. Pick a date, pick a game, choose a risk style. Saved slips graded after final stats — never fabricated.",
+    "Pick a sport and players. See the best suggested parlay at every risk level. Saved before games, graded after — never fabricated.",
 };
 
 export default function ParlayLabPage() {
-  const payload = loadProjectionsPayload();
+  const today = currentEtDate();
+  const suggested = getSuggestedParlaysForDate(today);
+  const calibrationTable = loadCalibrationTable();
 
-  // For each date in the payload, attempt to load a snapshot OR
-  // graded payload. Graded wins — once the grader has run we never
-  // show the stale snapshot copy.
-  const snapshotsByDate: Record<
-    string,
-    { source: "snapshot" | "graded"; payload: ParlaySnapshot }
-  > = {};
-  for (const d of payload.dates) {
-    const graded = getGradedForDate(d.date);
-    if (graded) {
-      snapshotsByDate[d.date] = { source: "graded", payload: graded };
-      continue;
-    }
-    const snap = getSnapshotForDate(d.date);
-    if (snap) {
-      snapshotsByDate[d.date] = { source: "snapshot", payload: snap };
-    }
-  }
-
-  // Live preview slips need the raw NBA PropLean[] for the date.
-  // Only load NBA leans for dates that have at least one NBA game on
-  // the unified payload — keeps the static-export payload small.
-  const nbaLeansByDate: Record<string, PropLean[]> = {};
-  for (const d of payload.dates) {
-    const hasNba = d.games.some((g) => g.sport === "nba");
-    if (!hasNba) continue;
-    const board = getBoardForDate(d.date);
-    nbaLeansByDate[d.date] = board?.leans ?? [];
-  }
+  // Prefer the optimizer snapshot for the date we surfaced. When the
+  // snapshot fallback walked to an older date, also try the optimizer
+  // for the same older date. As a last resort, use whatever the latest
+  // optimizer file we have on disk is.
+  const optimizerForDate =
+    (suggested && getOptimizerSnapshotForDate(suggested.date)) ||
+    getOptimizerSnapshotForDate(today) ||
+    getLatestOptimizerSnapshot()?.payload ||
+    null;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden">
       <Suspense fallback={<div className="min-h-[60vh]" aria-hidden />}>
-        <ParlayLabExperience
-          payload={payload}
-          snapshotsByDate={snapshotsByDate}
-          nbaLeansByDate={nbaLeansByDate}
-          calibrationTable={loadCalibrationTable()}
-        />
+        {suggested ? (
+          <ParlayLabBuilder
+            slips={suggested.slips}
+            date={suggested.date}
+            source={suggested.source}
+            isFallback={suggested.isFallback}
+            calibrationTable={calibrationTable}
+            optimizerPayload={optimizerForDate}
+          />
+        ) : optimizerForDate && optimizerForDate.totalSlips > 0 ? (
+          // No legacy snapshot but we DO have an optimizer file — still
+          // useful. Synthesize an empty legacy-shape payload so the
+          // builder can render with the optimizer as the source.
+          <ParlayLabBuilder
+            slips={[]}
+            date={optimizerForDate.date}
+            source="snapshot"
+            isFallback={true}
+            calibrationTable={calibrationTable}
+            optimizerPayload={optimizerForDate}
+          />
+        ) : (
+          <EmptyLabState />
+        )}
       </Suspense>
+
+      <FooterPointer />
     </div>
+  );
+}
+
+function EmptyLabState() {
+  return (
+    <section
+      className="rounded-[8px] p-6 flex flex-col gap-3"
+      style={{
+        background: "rgba(7,11,26,0.55)",
+        border: "1px dashed var(--vault-border)",
+      }}
+      aria-label="No slips available"
+    >
+      <span
+        className="font-mono uppercase tracking-[0.16em]"
+        style={{ color: "var(--vault-gold)", fontSize: 11 }}
+      >
+        No saved slips yet
+      </span>
+      <p
+        className="text-[13px] leading-relaxed"
+        style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}
+      >
+        We only render slips that were saved before games started. The
+        next pregame snapshot lands when bookmaker lines and projections
+        refresh. In the meantime, jump into{" "}
+        <Link href="/projections" style={{ color: "var(--vault-gold)" }}>
+          projections
+        </Link>{" "}
+        to inspect individual props.
+      </p>
+    </section>
+  );
+}
+
+function FooterPointer() {
+  return (
+    <section
+      className="mt-10 rounded-[8px] p-4"
+      style={{
+        background: "rgba(7,11,26,0.4)",
+        border: "1px solid var(--vault-rule)",
+      }}
+      aria-label="Game-by-game research pointer"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <span
+            className="font-mono uppercase tracking-[0.16em]"
+            style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+          >
+            Want game-by-game research?
+          </span>
+          <span
+            className="font-display"
+            style={{ color: "var(--vault-text)", fontSize: 14 }}
+          >
+            Open Projections to inspect each game and its individual
+            prop projections.
+          </span>
+        </div>
+        <Link
+          href="/projections"
+          className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full shrink-0"
+          style={{
+            color: "var(--vault-gold-bright)",
+            border: "1px solid var(--vault-gold-bright)",
+            fontSize: 10,
+          }}
+        >
+          Open projections →
+        </Link>
+      </div>
+    </section>
   );
 }
