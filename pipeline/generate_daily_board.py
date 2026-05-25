@@ -824,6 +824,14 @@ def _score_real_props(
     name_to_team: dict[str, str] = {}
     name_to_pid: dict[str, int] = {}
 
+    def _normalize_name_key(name: str) -> str:
+        """Strip diacritics + lowercase so prop names like 'Schroder'
+        match roster names like 'Schröder'."""
+        import unicodedata
+        out = unicodedata.normalize("NFKD", name or "")
+        out = "".join(c for c in out if not unicodedata.combining(c))
+        return out.lower().strip()
+
     teams_seen: set[str] = set()
     for g in games:
         for abbr in (g.get("homeTeamAbbr"), g.get("awayTeamAbbr")):
@@ -835,7 +843,10 @@ def _score_real_props(
             roster, _src = fetch_team_roster(team_abbr)
             rosters_by_team[team_abbr] = roster
             for p in roster:
+                # Store BOTH the original name AND a diacritic-stripped
+                # key — bookmakers often drop accent marks.
                 name_to_team.setdefault(p.player_name, team_abbr)
+                name_to_team.setdefault(_normalize_name_key(p.player_name), team_abbr)
                 # PR 6: provider-supplied playerIds are NOT NBA-canonical.
                 # Observed failure: a roster provider returned id=1630224
                 # for "Anthony Edwards", but in nba_api's static index that
@@ -864,7 +875,7 @@ def _score_real_props(
             # silently rather than try to associate it.
             continue
 
-        team_abbr = name_to_team.get(p.player_name, "")
+        team_abbr = name_to_team.get(p.player_name) or name_to_team.get(_normalize_name_key(p.player_name), "")
         # Determine opponent based on which side the player is on
         if team_abbr == game.get("homeTeamAbbr"):
             home_away = "Home"
