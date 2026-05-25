@@ -199,7 +199,7 @@ export default function HomePage() {
                 fontSize: 11,
               }}
             >
-              Open Parlay Lab →
+              Customize →
             </Link>
             <Link
               href="/projections"
@@ -211,7 +211,7 @@ export default function HomePage() {
                 fontSize: 11,
               }}
             >
-              Browse projections
+              Projections
             </Link>
           </div>
         </div>
@@ -307,23 +307,22 @@ export default function HomePage() {
       <section className="mt-10 reveal" aria-label="Deeper surfaces">
         <SectionHeader
           eyebrow="Go deeper"
-          title="Research individual props or build your own"
-          sub="Suggested parlays are the headline — these are the tools underneath."
+          title="Customize or research"
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <DeeperTile
-            href="/projections"
-            eyebrow="Projections"
-            title="Every individual projection, by game"
-            body="Game cards, player accordions, per-prop edges. The same data the suggested parlays are built on."
-            cta="Open projections"
-          />
-          <DeeperTile
             href="/parlay-lab"
             eyebrow="Parlay Lab"
-            title="Filter by sport + players, then see the best slip per risk level"
-            body="Conservative · Balanced · High Variance. Sourced from saved snapshots — never invented."
-            cta="Open Parlay Lab"
+            title="Choose a team, choose players"
+            body="The model returns the best slip at every risk level — Conservative, Balanced, High variance."
+            cta="View picks"
+          />
+          <DeeperTile
+            href="/projections"
+            eyebrow="Projections"
+            title="Every projection, by game"
+            body="Game cards, player accordions, per-prop edges — the data the suggestions are built on."
+            cta="Open projections"
           />
         </div>
       </section>
@@ -474,10 +473,10 @@ function decideHeroState({
 } {
   if (crossSportLeansLive > 0) {
     return {
-      eyebrow: "Tonight · live model",
-      headline: "Suggested parlays, built from calibrated projections.",
+      eyebrow: "Today · live model",
+      headline: "Today's best suggested parlays.",
       subline:
-        "Swipe through model-built slips by sport and risk level. Every slip is saved before tipoff and graded after final stats — no locks, no guarantees.",
+        "Built from today's projections. No locks. High-variance slips are labeled.",
     };
   }
   if (
@@ -486,15 +485,15 @@ function decideHeroState({
   ) {
     return {
       eyebrow: "Lines pending",
-      headline: "Suggested parlays, built from calibrated projections.",
+      headline: "Today's best suggested parlays.",
       subline:
-        "Tonight&apos;s schedule is live — slips drop as soon as bookmaker lines and projections refresh. Browse the latest available rail below.",
+        "Schedule is live — slips drop as soon as bookmaker lines refresh.",
     };
   }
   return {
     eyebrow: "Latest available",
-    headline: "Suggested parlays, built from calibrated projections.",
+    headline: "Today's best suggested parlays.",
     subline:
-      "Browse model-built slips by sport and risk level — saved before games and graded after final stats. No locks, no fake records.",
+      "Built from the latest available projections. No locks. High-variance slips are labeled.",
   };
 }

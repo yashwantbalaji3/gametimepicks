@@ -188,6 +188,36 @@ export function topOptimizerSlipsForSport(
 }
 
 /**
+ * Flatten an optimizer snapshot into a single list of slips, dedupe
+ * by slipId so the same slip surfaced under "mlb" and "all" buckets
+ * only appears once. Pure — safe in client components.
+ */
+export function flattenOptimizerSlips(
+  payload: OptimizerSnapshot,
+): OptimizerSlip[] {
+  const seen = new Set<string>();
+  const out: OptimizerSlip[] = [];
+  const profiles: ParlayRiskProfile[] = [
+    "conservative",
+    "balanced",
+    "aggressive",
+  ];
+  const sports: SuggestedSport[] = ["all", "nba", "mlb", "multi"];
+  for (const profile of profiles) {
+    for (const sport of sports) {
+      const slips = payload.buckets?.[profile]?.[sport] ?? [];
+      for (const slip of slips) {
+        if (seen.has(slip.slipId)) continue;
+        seen.add(slip.slipId);
+        out.push(slip);
+      }
+    }
+  }
+  out.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  return out;
+}
+
+/**
  * Unique players appearing on any leg across an optimizer payload's
  * `all` bucket. Used by the Parlay Lab player chip selector.
  */

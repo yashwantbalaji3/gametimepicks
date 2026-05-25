@@ -431,8 +431,29 @@ class NbaApiProvider(NBADataProvider):
             from nba_api.stats.static import teams as static_teams
             from nba_api.stats.endpoints import commonteamroster
 
+            # ESPN/nba_api use different abbreviations for some teams.
+            # Map the ESPN abbreviation (used everywhere else in the
+            # pipeline) onto nba_api's static-index abbreviation so the
+            # roster lookup actually finds the team.
+            # Known mismatches as of 2025-26:
+            #   ESPN  → nba_api
+            #   NY    → NYK   (Knicks)
+            #   SA    → SAS   (Spurs)
+            #   GS    → GSW   (Warriors)
+            #   NO    → NOP   (Pelicans)
+            #   UTAH  → UTA   (Jazz)
+            #   WSH   → WAS   (Wizards)
+            ABBR_ALIAS = {
+                "NY": "NYK",
+                "SA": "SAS",
+                "GS": "GSW",
+                "NO": "NOP",
+                "UTAH": "UTA",
+                "WSH": "WAS",
+            }
+            lookup_abbr = ABBR_ALIAS.get(team_abbr, team_abbr)
             team = next(
-                (t for t in static_teams.get_teams() if t["abbreviation"] == team_abbr),
+                (t for t in static_teams.get_teams() if t["abbreviation"] == lookup_abbr),
                 None,
             )
             if team is None:

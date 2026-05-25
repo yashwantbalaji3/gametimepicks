@@ -20,6 +20,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ParlayTicketCard from "./parlay-ticket-card";
 import {
+  filterSlipsBySportTeamPlayer,
+  getAvailableTeamsFromSlips,
   groupSuggestedBySport,
   type ParlayRiskProfile,
   type ParlaySlip,
@@ -66,6 +68,7 @@ export default function SuggestedParlayCarousel({
 }: Props) {
   const buckets = useMemo(() => groupSuggestedBySport(slips), [slips]);
   const [activeTab, setActiveTab] = useState<SuggestedSport>("all");
+  const [teamFilter, setTeamFilter] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   // Default to the most populous tab so the rail never opens empty
@@ -87,7 +90,25 @@ export default function SuggestedParlayCarousel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  const slipsForTab = buckets[activeTab];
+  // Team filter resets whenever the user switches sport.
+  useEffect(() => {
+    setTeamFilter(null);
+  }, [activeTab]);
+
+  const teamsForTab = useMemo(
+    () => getAvailableTeamsFromSlips(slips, activeTab),
+    [slips, activeTab],
+  );
+
+  const slipsForTab = useMemo(() => {
+    const base = buckets[activeTab];
+    if (!teamFilter) return base;
+    return filterSlipsBySportTeamPlayer(base, {
+      sport: activeTab,
+      team: teamFilter,
+    });
+  }, [buckets, activeTab, teamFilter]);
+
   const totalCount = buckets.all.length;
 
   return (
@@ -115,6 +136,14 @@ export default function SuggestedParlayCarousel({
         }}
       />
 
+      {teamsForTab.length > 1 && (
+        <TeamChipRow
+          teams={teamsForTab.map((t) => t.team)}
+          activeTeam={teamFilter}
+          onChange={setTeamFilter}
+        />
+      )}
+
       <div
         ref={scrollRef}
         className="mt-4 flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth"
@@ -124,7 +153,7 @@ export default function SuggestedParlayCarousel({
         }}
       >
         {slipsForTab.length === 0 ? (
-          <EmptyCarouselCard sport={activeTab} />
+          <EmptyCarouselCard sport={activeTab} teamFilter={teamFilter} />
         ) : (
           slipsForTab.map((slip) => (
             <div
@@ -145,12 +174,72 @@ export default function SuggestedParlayCarousel({
         className="mt-3 text-[11px] leading-relaxed"
         style={{ color: "var(--vault-text-faint)" }}
       >
-        Suggested parlays — saved before games and graded after final
-        stats. Educational analytics, not betting advice. High-variance
-        slips are labeled honestly; the lifetime record for aggressive
-        builds is 4.5% on 22 decisive (see About).
+        Suggested parlays. Built by the model from today&apos;s projections.
+        No locks, no guarantees. High-variance slips are labeled.
       </p>
     </section>
+  );
+}
+
+function TeamChipRow({
+  teams,
+  activeTeam,
+  onChange,
+}: {
+  teams: string[];
+  activeTeam: string | null;
+  onChange: (t: string | null) => void;
+}) {
+  return (
+    <div
+      className="mt-3 flex flex-wrap gap-1.5 items-center"
+      aria-label="Filter by team"
+    >
+      <span
+        className="font-mono uppercase tracking-[0.16em]"
+        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+      >
+        Team
+      </span>
+      <button
+        type="button"
+        onClick={() => onChange(null)}
+        className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
+        style={{
+          color:
+            activeTeam === null ? "var(--vault-bg)" : "var(--vault-text-mute)",
+          background:
+            activeTeam === null ? "var(--vault-gold-bright)" : "transparent",
+          border: "1px solid var(--vault-rule)",
+          fontSize: 9,
+          cursor: "pointer",
+        }}
+        aria-pressed={activeTeam === null}
+      >
+        Any
+      </button>
+      {teams.map((t) => {
+        const active = activeTeam === t;
+        return (
+          <button
+            key={t}
+            type="button"
+            onClick={() => onChange(active ? null : t)}
+            className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
+            style={{
+              color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
+              background: active ? "var(--vault-gold-bright)" : "transparent",
+              border: "1px solid var(--vault-rule)",
+              fontSize: 9,
+              cursor: "pointer",
+            }}
+            aria-pressed={active}
+          >
+            {t}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -270,15 +359,33 @@ function SportTabs({
   );
 }
 
-function EmptyCarouselCard({ sport }: { sport: SuggestedSport }) {
-  const label =
-    sport === "nba"
-      ? "No NBA slips tonight"
-      : sport === "mlb"
-        ? "No MLB slips tonight"
-        : sport === "multi"
-          ? "No cross-sport slips tonight"
-          : "No suggested parlays tonight";
+function EmptyCarouselCard({
+  sport,
+  teamFilter,
+}: {
+  sport: SuggestedSport;
+  teamFilter?: string | null;
+}) {
+  let label: string;
+  let body: string;
+  if (teamFilter) {
+    label = `No clean ${sport === "all" ? "" : sport.toUpperCase() + " "}slip for ${teamFilter}`;
+    body =
+      "No optimizer slip features this team tonight. Try a different team or clear the filter.";
+  } else {
+    label =
+      sport === "nba"
+        ? "NBA projections live · no clean parlay yet"
+        : sport === "mlb"
+          ? "MLB projections live · no clean parlay yet"
+          : sport === "multi"
+            ? "No cross-sport slips tonight"
+            : "No suggested parlays tonight";
+    body =
+      sport === "nba" || sport === "mlb"
+        ? "Projections for this sport are live, but the slate doesn't satisfy any profile cleanly (e.g. too few games for correlation-safe stacks). Check the All or Mixed tabs."
+        : "The model has nothing to recommend at this filter. The rail stays empty — never fabricated.";
+  }
   return (
     <div
       className="snap-start shrink-0 w-[88vw] sm:w-[420px] max-w-[420px] rounded-[6px] p-6 flex flex-col gap-2 justify-center items-center text-center"
@@ -296,11 +403,9 @@ function EmptyCarouselCard({ sport }: { sport: SuggestedSport }) {
       </span>
       <p
         className="text-[12px] leading-snug"
-        style={{ color: "var(--vault-text-faint)", maxWidth: 280 }}
+        style={{ color: "var(--vault-text-faint)", maxWidth: 320 }}
       >
-        We only show slips that were saved before games started. When
-        the model has nothing to recommend, the rail stays empty —
-        never fabricated.
+        {body}
       </p>
     </div>
   );

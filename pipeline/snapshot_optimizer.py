@@ -83,7 +83,7 @@ def _slip_to_payload(slip: OptimizedSlip) -> dict[str, Any]:
 def build_optimizer_snapshot(
     date: str,
     *,
-    num_candidates: int = 4,
+    num_candidates: int = 8,
 ) -> dict[str, Any]:
     nba = load_nba_leans(date)
     mlb = load_mlb_leans(date)
@@ -159,7 +159,7 @@ def write_snapshot(date: str, payload: dict[str, Any]) -> str:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--date", required=True, help="YYYY-MM-DD")
-    p.add_argument("--num-candidates", type=int, default=4)
+    p.add_argument("--num-candidates", type=int, default=8)
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args(argv)
 
