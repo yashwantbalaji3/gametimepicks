@@ -245,6 +245,7 @@ function TicketLegRow({
           style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}
         >
           <SportBadge sport={leg.sport} />
+          <StarBadge tier={leg.starTier} />
           {leg.playerName}
         </div>
         <div
@@ -308,6 +309,42 @@ function SportBadge({ sport }: { sport: string }) {
     >
       <span style={{ marginRight: 2 }}>{icon}</span>
       {s.toUpperCase()}
+    </span>
+  );
+}
+
+/**
+ * StarBadge — small ⭐ pill that visually flags a featured player on
+ * the leg. Renders nothing when the leg isn't a star (no penalty,
+ * just no badge). Tier labels stay subtle: a single ⭐ covers all
+ * tiers; we don't want to clutter the card with 3 different stars.
+ */
+function StarBadge({
+  tier,
+}: {
+  tier?: "none" | "regular" | "core" | "superstar";
+}) {
+  if (!tier || tier === "none") return null;
+  // Tier-specific tooltip so power-users can see why a leg got the
+  // boost, but the visible glyph is the same single ⭐.
+  const title =
+    tier === "superstar"
+      ? "Featured superstar"
+      : tier === "core"
+        ? "Featured starter"
+        : "Featured rotation";
+  return (
+    <span
+      aria-hidden
+      className="inline-flex items-center mr-1.5"
+      style={{
+        color: "var(--vault-gold-bright)",
+        fontSize: 11,
+        verticalAlign: "middle",
+      }}
+      title={title}
+    >
+      ⭐
     </span>
   );
 }

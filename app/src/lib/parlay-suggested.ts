@@ -44,6 +44,11 @@ export interface ParlayLeg {
    *  recent-form popup. Optional; older snapshot files may not carry
    *  it. */
   recentSeries?: number[];
+  /** Star metadata (PR #99). `starTier` ∈
+   *  {"none","regular","core","superstar"}. Optional on legacy
+   *  snapshots. */
+  starTier?: "none" | "regular" | "core" | "superstar";
+  isStar?: boolean;
 }
 
 export interface ParlaySlip {

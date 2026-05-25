@@ -39,6 +39,9 @@ export interface OptimizerLeg {
   recentSeries?: number[];
   isAnomaly: boolean;
   isVolatileMlb: boolean;
+  /** Star metadata — PR #99. */
+  starTier?: "none" | "regular" | "core" | "superstar";
+  isStar?: boolean;
 }
 
 export interface OptimizerSlip {
@@ -104,6 +107,8 @@ export function optimizerSlipToParlaySlip(
     bookmaker: leg.bookmaker,
     oddsForSide: leg.oddsForSide,
     recentSeries: leg.recentSeries,
+    starTier: leg.starTier,
+    isStar: leg.isStar,
   }));
   return {
     slipId: slip.slipId,
