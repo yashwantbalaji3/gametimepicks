@@ -64,12 +64,24 @@ function statusColor(status: ParlaySlip["status"]): string {
   }
 }
 
+function humanProfileLabel(profile: ParlaySlip["riskProfile"]): string {
+  switch (profile) {
+    case "conservative": return "Conservative";
+    case "balanced": return "Balanced";
+    case "aggressive": return "High variance";
+    case "star_power": return "Star Power";
+    default: return profile;
+  }
+}
+
 function riskProfileColor(profile: ParlaySlip["riskProfile"]): string {
   switch (profile) {
     case "conservative":
       return "var(--vault-success)";
     case "aggressive":
       return "var(--vault-warn)";
+    case "star_power":
+      return "var(--vault-gold-bright)";
     case "balanced":
     default:
       return "var(--vault-gold-bright)";
@@ -102,10 +114,11 @@ export default function ParlayTicketCard({
   const accent = statusColor(slip.status);
   const profileColor = riskProfileColor(slip.riskProfile);
   const payout = combinedParlayPayoutPer100(slip.legs);
+  const profileLabel = humanProfileLabel(slip.riskProfile);
   return (
     <article
       className="gtp-parlay-ticket relative overflow-hidden flex flex-col gap-3"
-      aria-label={`${slip.riskProfile} parlay slip · ${slip.legs.length} legs · ${statusLabel(slip.status)}`}
+      aria-label={`${profileLabel} parlay slip · ${slip.legs.length} legs · ${statusLabel(slip.status)}`}
     >
       {/* Top accent rule keyed to status. Visual differentiator that
           gives the card a "ticket" feel without changing dimensions. */}
@@ -128,7 +141,7 @@ export default function ParlayTicketCard({
             className="inline-block w-1.5 h-1.5 rounded-full"
             style={{ background: profileColor }}
           />
-          {slip.riskProfile}
+          {profileLabel}
           {slip.sameGame ? " · same-game" : ""}
         </span>
         <span

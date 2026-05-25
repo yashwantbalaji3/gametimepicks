@@ -82,11 +82,17 @@ const RISK_DISPLAY: Record<
     sub: "4–5 legs · higher payout · longshot territory",
     accent: "var(--vault-warn)",
   },
+  star_power: {
+    label: "Star Power",
+    sub: "Recognizable stars · model-ranked",
+    accent: "var(--vault-gold-bright)",
+  },
 };
 
 const RISK_ORDER: ParlayRiskProfile[] = [
   "conservative",
   "balanced",
+  "star_power",
   "aggressive",
 ];
 

@@ -16,7 +16,8 @@ export type ParlaySlipStatus = "pending" | "win" | "loss" | "push" | "void";
 export type ParlayRiskProfile =
   | "conservative"
   | "balanced"
-  | "aggressive";
+  | "aggressive"
+  | "star_power";
 export type ParlayLegResult = "win" | "loss" | "push" | "unresolved";
 
 export interface ParlayLeg {
@@ -110,6 +111,10 @@ const _PROFILE_ORDER: Record<ParlayRiskProfile, number> = {
   conservative: 0,
   balanced: 1,
   aggressive: 2,
+  // Star Power is its own lane — model-ranked, not "safer". Order
+  // value is between Conservative and Aggressive so the suggestedScore
+  // sort doesn't disadvantage it inside cross-profile views.
+  star_power: 1,
 };
 
 /**
@@ -223,17 +228,24 @@ export function diversifiedAllOrder(
     conservative: [],
     balanced: [],
     aggressive: [],
+    star_power: [],
   };
   for (const s of slips) byProfile[s.riskProfile]?.push(s);
   for (const k of Object.keys(byProfile) as ParlayRiskProfile[]) {
     byProfile[k] = byProfile[k].slice().sort(_bySuggestedScore);
   }
   const out: ParlaySlip[] = [];
-  const order: ParlayRiskProfile[] = ["conservative", "balanced", "aggressive"];
+  const order: ParlayRiskProfile[] = [
+    "conservative",
+    "balanced",
+    "star_power",
+    "aggressive",
+  ];
   const idx: Record<ParlayRiskProfile, number> = {
     conservative: 0,
     balanced: 0,
     aggressive: 0,
+    star_power: 0,
   };
   // Track consecutive non-NBA picks. Once it hits a threshold we swap
   // in the next-best NBA slip (if any) to keep NBA visible. We
@@ -596,6 +608,11 @@ const _DISPLAY_PENALTY: Record<
   conservative: { perPlayer: 0.4, perPlayerMarketExtra: 0.3 },
   balanced: { perPlayer: 0.25, perPlayerMarketExtra: 0.2 },
   aggressive: { perPlayer: 0.12, perPlayerMarketExtra: 0.08 },
+  // Star Power — diversify between visible star-led slips like
+  // Balanced. Same player still allowed when the only alternative
+  // is a non-star (the lane's Python-side require_star already
+  // guarantees no non-star ever enters).
+  star_power: { perPlayer: 0.3, perPlayerMarketExtra: 0.25 },
 };
 
 /**
