@@ -385,31 +385,9 @@ export function getLatestOptimizerSnapshot(): {
   return null;
 }
 
-/**
- * Flatten an optimizer snapshot into a single list of slips, dedupe
- * by slipId so the same slip surfaced under "mlb" and "all" buckets
- * only appears once.
- */
-export function flattenOptimizerSlips(
-  payload: OptimizerSnapshot,
-): OptimizerSlip[] {
-  const seen = new Set<string>();
-  const out: OptimizerSlip[] = [];
-  for (const profile of Object.keys(payload.buckets)) {
-    const buckets = payload.buckets[profile as keyof OptimizerSnapshot["buckets"]];
-    if (!buckets) continue;
-    for (const sport of Object.keys(buckets)) {
-      const slips = buckets[sport as keyof typeof buckets] ?? [];
-      for (const slip of slips) {
-        if (seen.has(slip.slipId)) continue;
-        seen.add(slip.slipId);
-        out.push(slip);
-      }
-    }
-  }
-  // Sort by score desc for stable rendering when the caller wants a flat list.
-  out.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-  return out;
-}
+// flattenOptimizerSlips moved to parlay-optimizer.ts so client
+// components can import it without dragging node:fs into the bundle.
+// Re-exported here for compatibility with existing server-side imports.
+export { flattenOptimizerSlips } from "./parlay-optimizer";
 
 export type { OptimizerSnapshot, OptimizerLeg, OptimizerSlip };

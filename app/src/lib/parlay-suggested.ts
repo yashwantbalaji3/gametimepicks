@@ -253,3 +253,157 @@ export function playersFromSlips(slips: ParlaySlip[]): Array<{
     a.name.localeCompare(b.name),
   );
 }
+
+// ---------------------------------------------------------------------------
+// Team-first filtering helpers (client-safe — no fs imports anywhere)
+// ---------------------------------------------------------------------------
+
+/** Sports that have at least one slip in the pool, in tab-friendly order. */
+export function getAvailableSportsFromSlips(
+  slips: ParlaySlip[],
+): SuggestedSport[] {
+  const present = new Set<string>();
+  for (const slip of slips) {
+    const s = (slip.sport ?? "").toLowerCase();
+    if (s) present.add(s);
+  }
+  const order: SuggestedSport[] = ["all", "nba", "mlb", "multi"];
+  const out: SuggestedSport[] = [];
+  if (slips.length > 0) out.push("all");
+  for (const s of order) {
+    if (s === "all") continue;
+    if (present.has(s)) out.push(s);
+  }
+  return out;
+}
+
+/**
+ * Unique teams across the slips' legs, filtered to the given sport
+ * (or all sports when sport === "all"). Sorted alphabetically. Skips
+ * legs with no team metadata. This is the team picker source — never
+ * fabricates a team.
+ */
+export function getAvailableTeamsFromSlips(
+  slips: ParlaySlip[],
+  sport: SuggestedSport,
+): Array<{ team: string; sport: string }> {
+  const seen = new Map<string, { team: string; sport: string }>();
+  for (const slip of slips) {
+    if (sport !== "all") {
+      const slipSport = (slip.sport ?? "").toLowerCase();
+      if (slipSport !== sport) continue;
+    }
+    for (const leg of slip.legs ?? []) {
+      const t = (leg.team ?? "").toUpperCase().trim();
+      if (!t) continue;
+      const key = `${leg.sport}|${t}`;
+      if (!seen.has(key)) {
+        seen.set(key, { team: t, sport: leg.sport });
+      }
+    }
+  }
+  return Array.from(seen.values()).sort((a, b) => a.team.localeCompare(b.team));
+}
+
+/**
+ * Players that appear on a leg matching the given (sport, team) filter.
+ * If `team` is empty, returns every player for the sport.
+ */
+export function getAvailablePlayersForTeam(
+  slips: ParlaySlip[],
+  sport: SuggestedSport,
+  team: string | null,
+): Array<{ name: string; sport: string; team: string | null }> {
+  const wantedTeam = (team ?? "").toUpperCase().trim();
+  const seen = new Map<
+    string,
+    { name: string; sport: string; team: string | null }
+  >();
+  for (const slip of slips) {
+    if (sport !== "all") {
+      const slipSport = (slip.sport ?? "").toLowerCase();
+      if (slipSport !== sport) continue;
+    }
+    for (const leg of slip.legs ?? []) {
+      const legTeam = (leg.team ?? "").toUpperCase().trim();
+      if (wantedTeam && legTeam !== wantedTeam) continue;
+      const key = (leg.playerName ?? "").toLowerCase().trim();
+      if (!key) continue;
+      if (!seen.has(key)) {
+        seen.set(key, {
+          name: leg.playerName,
+          sport: leg.sport,
+          team: leg.team,
+        });
+      }
+    }
+  }
+  return Array.from(seen.values()).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+}
+
+/**
+ * Filter slips so every leg passes (sport, team, player) — when
+ * `team` is given, EVERY leg must be on that team; when `playerNames`
+ * is given, every player must appear on the slip.
+ *
+ * Returns `[]` when no slip matches, so the caller can fall back to
+ * unfiltered suggestions with a clear note.
+ */
+export function filterSlipsBySportTeamPlayer(
+  slips: ParlaySlip[],
+  filter: {
+    sport: SuggestedSport;
+    team?: string | null;
+    playerNames?: string[];
+  },
+): ParlaySlip[] {
+  const wantedTeam = (filter.team ?? "").toUpperCase().trim() || null;
+  const wantedPlayers = (filter.playerNames ?? [])
+    .map((p) => p.toLowerCase().trim())
+    .filter(Boolean);
+  return slips.filter((slip) => {
+    if (filter.sport !== "all") {
+      if ((slip.sport ?? "").toLowerCase() !== filter.sport) return false;
+    }
+    if (wantedTeam) {
+      // Conservative interpretation: at least ONE leg on this team.
+      // (Requiring every leg would zero out multi-team correlation-free
+      //  slips and rarely match user intent.)
+      const anyOnTeam = (slip.legs ?? []).some(
+        (l) => (l.team ?? "").toUpperCase().trim() === wantedTeam,
+      );
+      if (!anyOnTeam) return false;
+    }
+    if (wantedPlayers.length > 0) {
+      const slipPlayers = (slip.legs ?? []).map((l) =>
+        (l.playerName ?? "").toLowerCase().trim(),
+      );
+      const everyRequested = wantedPlayers.every((p) =>
+        slipPlayers.includes(p),
+      );
+      if (!everyRequested) return false;
+    }
+    return true;
+  });
+}
+
+/**
+ * Honest fallback: when filtered slips are empty, return the top-N
+ * unfiltered slips ranked by `suggestedScore`. Caller renders an
+ * inline note explaining the fallback so the user sees what happened.
+ */
+export function fallbackToBestUnfilteredSlips(
+  slips: ParlaySlip[],
+  sport: SuggestedSport,
+  limit: number = 3,
+): ParlaySlip[] {
+  const scored = slips
+    .filter((s) =>
+      sport === "all" ? true : (s.sport ?? "").toLowerCase() === sport,
+    )
+    .slice()
+    .sort((a, b) => suggestedScore(b) - suggestedScore(a));
+  return scored.slice(0, limit);
+}

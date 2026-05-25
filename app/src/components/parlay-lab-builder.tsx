@@ -1,68 +1,57 @@
 "use client";
 /**
- * ParlayLabBuilder — sport + player picker that returns optimizer-built
- * slips at every risk level.
+ * ParlayLabBuilder — team-first slip picker.
  *
- * UX flow:
- *   1. Sport segmented control (All · NBA · MLB · Mixed).
- *   2. Multi-select player chips. Pulled from the optimizer pool first;
- *      falls back to the legacy snapshot pool when no optimizer file
- *      exists.
- *   3. Three risk-level result cards (Conservative · Balanced · High
- *      variance). Each shows the BEST slip matching the current
- *      filters.
+ * Flow:
+ *   1. Sport pills (All · NBA · MLB · Mixed)
+ *   2. Team pills filtered by sport
+ *   3. Player chips filtered by sport + team
+ *   4. Three risk-level cards (Conservative · Balanced · High variance)
+ *      with the best matching optimizer slip plus up to 2 alternates.
  *
- * Source of truth:
- *   - When `optimizerPayload` is non-null, the lab uses it directly —
- *     slips ranked by the optimizer's transparent score (edge × calibration
- *     × market stability − correlation penalty) instead of just matching
- *     the legacy snapshot.
- *   - When `optimizerPayload` is null OR doesn't satisfy the filters,
- *     we fall back to filtering legacy snapshot slips.
+ * Honest fallback:
+ *   When the filter combination eliminates every slip for a profile,
+ *   we DO NOT render an empty card. Instead we render an inline note
+ *   ("No clean optimizer slip matches these filters. Showing best
+ *   unfiltered suggestions instead.") and surface the top unfiltered
+ *   slip for that profile. The user always sees something useful.
  *
- * Honesty:
- *   - No slip is ever fabricated. Empty cards explain why.
- *   - Aggressive slips render with a "High variance" badge everywhere.
- *   - Rationale text under each slip cites the actual constraints
- *     (avg edge, same-game flag, anomaly flag) instead of marketing copy.
+ * No fabrication anywhere — every slip rendered comes from an
+ * optimizer snapshot or legacy snapshot file on disk.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ParlayTicketCard from "./parlay-ticket-card";
 import {
-  getBestSuggestedByRisk,
-  groupSuggestedBySport,
-  playersFromSlips,
+  fallbackToBestUnfilteredSlips,
+  filterSlipsBySportTeamPlayer,
+  getAvailablePlayersForTeam,
+  getAvailableSportsFromSlips,
+  getAvailableTeamsFromSlips,
+  type ParlayRiskProfile,
   type ParlaySlip,
   type SuggestedSport,
 } from "@/lib/parlay-suggested";
 import {
-  bestOptimizerSlipsForRisk,
+  flattenOptimizerSlips,
   optimizerSlipToParlaySlip,
-  playersFromOptimizerPayload,
-  topOptimizerSlipsForSport,
-  type OptimizerSlip,
   type OptimizerSnapshot,
+  type OptimizerSlip,
 } from "@/lib/parlay-optimizer";
 import type { CalibrationTable } from "@/lib/confidence-calibration-rules";
 
 interface Props {
-  /** All slips for the current date — usually the latest snapshot. */
+  /** Legacy snapshot slips (used as fallback when optimizer is empty). */
   slips: ParlaySlip[];
   /** Date the slips came from (YYYY-MM-DD). */
   date: string;
-  /** "snapshot" (pregame) or "graded" (post-game). */
   source: "snapshot" | "graded";
-  /** True when we walked back from the requested date. */
   isFallback?: boolean;
-  /** Calibration table for the ticket cards. */
   calibrationTable?: CalibrationTable;
-  /** Optimizer snapshot for the same date. When present, the builder
-   *  uses it as the primary source. When null, falls back to the
-   *  legacy snapshot. */
+  /** Optimizer snapshot for the date. Preferred source when populated. */
   optimizerPayload?: OptimizerSnapshot | null;
 }
 
-const SPORT_OPTIONS: Array<{ key: SuggestedSport; label: string }> = [
+const ALL_SPORTS: Array<{ key: SuggestedSport; label: string }> = [
   { key: "all", label: "All" },
   { key: "nba", label: "NBA" },
   { key: "mlb", label: "MLB" },
@@ -70,7 +59,7 @@ const SPORT_OPTIONS: Array<{ key: SuggestedSport; label: string }> = [
 ];
 
 const RISK_DISPLAY: Record<
-  string,
+  ParlayRiskProfile,
   { label: string; sub: string; accent: string }
 > = {
   conservative: {
@@ -85,10 +74,16 @@ const RISK_DISPLAY: Record<
   },
   aggressive: {
     label: "High variance",
-    sub: "4-5 legs · longshot territory",
+    sub: "4–5 legs · longshot territory",
     accent: "var(--vault-warn)",
   },
 };
+
+const RISK_ORDER: ParlayRiskProfile[] = [
+  "conservative",
+  "balanced",
+  "aggressive",
+];
 
 export default function ParlayLabBuilder({
   slips,
@@ -98,43 +93,75 @@ export default function ParlayLabBuilder({
   calibrationTable,
   optimizerPayload = null,
 }: Props) {
-  const [sport, setSport] = useState<SuggestedSport>("all");
+  // ---- Source pool ---------------------------------------------------
+  // Optimizer is the primary source. We expand it into the legacy
+  // ParlaySlip shape so all helpers (team/player filters, etc.) reuse
+  // one set of utilities. When the optimizer file is empty / missing,
+  // we fall back to the legacy snapshot slips.
+  const optimizerActive =
+    optimizerPayload != null && optimizerPayload.totalSlips > 0;
+  const optimizerSlipsMap = useMemo(() => {
+    if (!optimizerPayload) return new Map<string, OptimizerSlip>();
+    const flat = flattenOptimizerSlips(optimizerPayload);
+    return new Map(flat.map((s) => [s.slipId, s] as const));
+  }, [optimizerPayload]);
+
+  const pool: ParlaySlip[] = useMemo(() => {
+    if (optimizerPayload && optimizerSlipsMap.size > 0) {
+      return Array.from(optimizerSlipsMap.values()).map((s) =>
+        optimizerSlipToParlaySlip(s, optimizerPayload.date),
+      );
+    }
+    return slips;
+  }, [optimizerPayload, optimizerSlipsMap, slips]);
+
+  // ---- Filter state -------------------------------------------------
+  const availableSports = useMemo(
+    () => getAvailableSportsFromSlips(pool),
+    [pool],
+  );
+  const sportOptions = ALL_SPORTS.filter((s) =>
+    availableSports.includes(s.key),
+  );
+  const [sport, setSport] = useState<SuggestedSport>(
+    sportOptions[0]?.key ?? "all",
+  );
+  const [team, setTeam] = useState<string | null>(null);
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
 
-  // Distinguish optimizer-backed from snapshot-backed runs so the
-  // header copy + per-card rationales can stay honest.
-  const optimizerActive = optimizerPayload != null && optimizerPayload.totalSlips > 0;
+  // Keep the active sport valid when the underlying pool changes.
+  useEffect(() => {
+    if (!availableSports.includes(sport)) {
+      setSport(availableSports[0] ?? "all");
+      setTeam(null);
+      setSelectedPlayers([]);
+    }
+  }, [availableSports, sport]);
 
-  // Player pool sourcing: prefer the optimizer payload when it has
-  // slips, fall back to the legacy snapshot pool. The legacy pool is
-  // what the lab shipped with — we keep it as a safety net so the lab
-  // is never empty when the optimizer is still spinning up.
-  const buckets = useMemo(() => groupSuggestedBySport(slips), [slips]);
-  const snapshotPlayerPool = useMemo(
-    () => playersFromSlips(buckets[sport] ?? []),
-    [buckets, sport],
+  const teamOptions = useMemo(
+    () => getAvailableTeamsFromSlips(pool, sport),
+    [pool, sport],
   );
-  const optimizerPlayerPool = useMemo(
-    () =>
-      optimizerPayload
-        ? playersFromOptimizerPayload(optimizerPayload, sport)
-        : [],
-    [optimizerPayload, sport],
+  const playerOptions = useMemo(
+    () => getAvailablePlayersForTeam(pool, sport, team),
+    [pool, sport, team],
   );
-  const playerPool = optimizerActive ? optimizerPlayerPool : snapshotPlayerPool;
 
   function changeSport(next: SuggestedSport) {
     if (next === sport) return;
     setSport(next);
-    setSelectedPlayers((prev) => {
-      const allowed = new Set(
-        (optimizerPayload
-          ? playersFromOptimizerPayload(optimizerPayload, next)
-          : playersFromSlips(buckets[next] ?? [])
-        ).map((p) => p.name),
-      );
-      return prev.filter((p) => allowed.has(p));
-    });
+    setTeam(null);
+    setSelectedPlayers([]);
+  }
+
+  function changeTeam(next: string | null) {
+    if (next === team) return;
+    setTeam(next);
+    // Drop players whose team is now out of scope.
+    const allowed = new Set(
+      getAvailablePlayersForTeam(pool, sport, next).map((p) => p.name),
+    );
+    setSelectedPlayers((prev) => prev.filter((p) => allowed.has(p)));
   }
 
   function togglePlayer(name: string) {
@@ -143,36 +170,56 @@ export default function ParlayLabBuilder({
     );
   }
 
-  function clearSelections() {
+  function clearTeamAndPlayers() {
+    setTeam(null);
     setSelectedPlayers([]);
   }
 
-  // ---- Best slip per risk profile -----------------------------------
-  // Optimizer first; legacy snapshot when optimizer is empty for the
-  // active sport so the builder is never silently blank.
-  const best = useMemo(() => {
-    if (optimizerPayload) {
-      const optimized = bestOptimizerSlipsForRisk(optimizerPayload, {
+  // ---- Apply filters -------------------------------------------------
+  const filtered = useMemo(
+    () =>
+      filterSlipsBySportTeamPlayer(pool, {
         sport,
+        team,
         playerNames: selectedPlayers,
-      });
-      if (optimized.length > 0) {
-        return optimized.map((entry) => ({
-          profile: entry.profile,
-          slip: optimizerSlipToParlaySlip(entry.slip, date),
-          rationale: entry.slip.rationale,
-        }));
-      }
+      }),
+    [pool, sport, team, selectedPlayers],
+  );
+
+  // For each risk profile, pick the best slip + up to 2 alternates.
+  // When the filtered pool is empty for a profile, surface the top
+  // unfiltered slip for that sport (clearly labeled as fallback).
+  const cards = useMemo(() => {
+    function sortByScore(a: ParlaySlip, b: ParlaySlip): number {
+      return (b.score ?? 0) - (a.score ?? 0);
     }
-    return getBestSuggestedByRisk(slips, {
-      sport,
-      playerNames: selectedPlayers,
-    }).map((entry) => ({
-      profile: entry.profile,
-      slip: entry.slip,
-      rationale: undefined,
-    }));
-  }, [optimizerPayload, slips, sport, selectedPlayers, date]);
+    return RISK_ORDER.map((profile) => {
+      const matched = filtered
+        .filter((s) => s.riskProfile === profile)
+        .slice()
+        .sort(sortByScore);
+      if (matched.length > 0) {
+        return {
+          profile,
+          slips: matched.slice(0, 3),
+          isFallback: false,
+        };
+      }
+      // Honest fallback — top unfiltered slip for the active sport.
+      const fb = fallbackToBestUnfilteredSlips(
+        pool.filter((s) => s.riskProfile === profile),
+        sport,
+        1,
+      );
+      return {
+        profile,
+        slips: fb,
+        isFallback: true,
+      };
+    });
+  }, [filtered, pool, sport]);
+
+  const filterActive = team !== null || selectedPlayers.length > 0;
 
   return (
     <section className="flex flex-col gap-5" aria-label="Parlay Lab builder">
@@ -183,28 +230,34 @@ export default function ParlayLabBuilder({
         optimizerActive={optimizerActive}
       />
 
-      <FilterBlock
+      <FilterCard
         sport={sport}
+        sportOptions={sportOptions}
         onSportChange={changeSport}
-        playerPool={playerPool}
+        team={team}
+        teamOptions={teamOptions}
+        onTeamChange={changeTeam}
+        playerOptions={playerOptions}
         selectedPlayers={selectedPlayers}
         onTogglePlayer={togglePlayer}
-        onClearPlayers={clearSelections}
-        sourceLabel={optimizerActive ? "optimizer pool" : "snapshot pool"}
+        onClearFilters={clearTeamAndPlayers}
       />
 
-      <RiskResultGrid
-        best={best}
+      <RiskGrid
+        cards={cards}
         source={source}
         calibrationTable={calibrationTable}
-        anyPlayersSelected={selectedPlayers.length > 0}
-        optimizerActive={optimizerActive}
+        filterActive={filterActive}
       />
 
-      <BuilderTodoCallout optimizerActive={optimizerActive} />
+      <BuilderFootnote optimizerActive={optimizerActive} />
     </section>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
 
 function BuilderHeader({
   date,
@@ -217,32 +270,27 @@ function BuilderHeader({
   isFallback: boolean;
   optimizerActive: boolean;
 }) {
-  const eyebrowAccent =
+  const accent =
     source === "graded" ? "var(--vault-success)" : "var(--vault-gold-bright)";
-  const eyebrowText = optimizerActive
-    ? `Parlay Lab · optimizer · ${source === "graded" ? "graded" : "saved before games"}`
-    : `Parlay Lab · ${source === "graded" ? "graded" : "saved before games"}`;
-  const subline = optimizerActive
-    ? `Slips below are built by the parlay optimizer over the ${date} projections${isFallback ? " (latest available)" : ""}. Ranking factors: calibrated edge × market stability × confidence − correlation penalty.`
-    : `Slips below come from the ${date} pregame snapshot${isFallback ? " (latest available)" : ""}. We never invent legs.`;
   return (
     <header className="flex flex-col gap-1.5">
       <span
         className="font-mono uppercase tracking-[0.18em] inline-flex items-center gap-2"
-        style={{ color: eyebrowAccent, fontSize: 10 }}
+        style={{ color: accent, fontSize: 10 }}
       >
         <span
           aria-hidden
           className="inline-block w-1.5 h-1.5 rounded-full"
           style={{
-            background: eyebrowAccent,
+            background: accent,
             boxShadow:
               source === "graded"
                 ? "0 0 6px rgba(74, 222, 128, 0.45)"
                 : "0 0 6px rgba(240, 199, 94, 0.45)",
           }}
         />
-        {eyebrowText}
+        Parlay Lab · {date}
+        {isFallback ? " · latest available" : ""}
       </span>
       <h1
         className="font-display tracking-tight"
@@ -254,35 +302,46 @@ function BuilderHeader({
           fontWeight: 600,
         }}
       >
-        Pick a sport. Pick players. See the best slip at every risk
-        level.
+        Build around a team or player.
       </h1>
       <p
         className="text-[13.5px] leading-relaxed"
         style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
       >
-        {subline}
+        {optimizerActive
+          ? "Pick a sport, a team, and the players you care about. The model returns the best slip at every risk level — Conservative, Balanced, High variance."
+          : "Pick a sport, a team, and the players you care about. Slips below come from today's pregame snapshot."}
       </p>
     </header>
   );
 }
 
-function FilterBlock({
+// ---------------------------------------------------------------------------
+// Filters
+// ---------------------------------------------------------------------------
+
+function FilterCard({
   sport,
+  sportOptions,
   onSportChange,
-  playerPool,
+  team,
+  teamOptions,
+  onTeamChange,
+  playerOptions,
   selectedPlayers,
   onTogglePlayer,
-  onClearPlayers,
-  sourceLabel,
+  onClearFilters,
 }: {
   sport: SuggestedSport;
+  sportOptions: Array<{ key: SuggestedSport; label: string }>;
   onSportChange: (s: SuggestedSport) => void;
-  playerPool: Array<{ name: string; sport: string; team: string | null }>;
+  team: string | null;
+  teamOptions: Array<{ team: string; sport: string }>;
+  onTeamChange: (t: string | null) => void;
+  playerOptions: Array<{ name: string; sport: string; team: string | null }>;
   selectedPlayers: string[];
   onTogglePlayer: (name: string) => void;
-  onClearPlayers: () => void;
-  sourceLabel?: string;
+  onClearFilters: () => void;
 }) {
   return (
     <div
@@ -293,42 +352,63 @@ function FilterBlock({
       }}
     >
       <FilterRow label="Sport">
-        <div
-          className="inline-flex flex-wrap items-center gap-1 p-1 rounded-full"
-          style={{
-            background: "rgba(0,0,0,0.3)",
-            border: "1px solid var(--vault-rule)",
-          }}
-        >
-          {SPORT_OPTIONS.map((opt) => {
-            const active = opt.key === sport;
-            return (
-              <button
-                key={opt.key}
-                type="button"
-                onClick={() => onSportChange(opt.key)}
-                className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full"
-                style={{
-                  color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
-                  background: active ? "var(--vault-gold-bright)" : "transparent",
-                  fontSize: 10,
-                  cursor: "pointer",
-                }}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
-        </div>
+        <PillRow>
+          {sportOptions.map((opt) => (
+            <PillButton
+              key={opt.key}
+              active={opt.key === sport}
+              onClick={() => onSportChange(opt.key)}
+              label={opt.label}
+            />
+          ))}
+        </PillRow>
       </FilterRow>
 
       <FilterRow
-        label={`Players (${selectedPlayers.length} selected${sourceLabel ? ` · ${sourceLabel}` : ""})`}
+        label="Team"
         rightSlot={
-          selectedPlayers.length > 0 ? (
+          team ? (
             <button
               type="button"
-              onClick={onClearPlayers}
+              onClick={() => onTeamChange(null)}
+              className="font-mono uppercase tracking-[0.14em]"
+              style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
+            >
+              Any team
+            </button>
+          ) : null
+        }
+      >
+        {teamOptions.length === 0 ? (
+          <p className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
+            No team metadata for this sport yet.
+          </p>
+        ) : (
+          <PillRow wrap>
+            <PillButton
+              active={team === null}
+              onClick={() => onTeamChange(null)}
+              label="Any"
+            />
+            {teamOptions.map((t) => (
+              <PillButton
+                key={`${t.sport}-${t.team}`}
+                active={team === t.team}
+                onClick={() => onTeamChange(t.team)}
+                label={t.team}
+              />
+            ))}
+          </PillRow>
+        )}
+      </FilterRow>
+
+      <FilterRow
+        label={`Players (${selectedPlayers.length} selected)`}
+        rightSlot={
+          selectedPlayers.length > 0 || team ? (
+            <button
+              type="button"
+              onClick={onClearFilters}
               className="font-mono uppercase tracking-[0.14em]"
               style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
             >
@@ -337,32 +417,28 @@ function FilterBlock({
           ) : null
         }
       >
-        {playerPool.length === 0 ? (
-          <p
-            className="text-[12px]"
-            style={{ color: "var(--vault-text-faint)" }}
-          >
-            No players in scope for this sport yet.
+        {playerOptions.length === 0 ? (
+          <p className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
+            {team
+              ? `No players on ${team} appear in tonight's slips.`
+              : "No players in scope."}
           </p>
         ) : (
           <div
             className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto pr-1"
-            style={{
-              scrollbarWidth: "thin",
-            }}
+            style={{ scrollbarWidth: "thin" }}
           >
-            {playerPool.map((p) => {
+            {playerOptions.map((p) => {
               const active = selectedPlayers.includes(p.name);
               return (
                 <button
-                  key={p.name}
+                  key={`${p.sport}-${p.team ?? "?"}-${p.name}`}
                   type="button"
                   onClick={() => onTogglePlayer(p.name)}
+                  aria-pressed={active}
                   className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full"
                   style={{
-                    color: active
-                      ? "var(--vault-bg)"
-                      : "var(--vault-text)",
+                    color: active ? "var(--vault-bg)" : "var(--vault-text)",
                     background: active
                       ? "var(--vault-gold-bright)"
                       : "rgba(0,0,0,0.3)",
@@ -372,13 +448,10 @@ function FilterBlock({
                     fontSize: 10,
                     cursor: "pointer",
                   }}
-                  aria-pressed={active}
                 >
                   {p.name}
                   {p.team ? (
-                    <span style={{ marginLeft: 4, opacity: 0.7 }}>
-                      {p.team}
-                    </span>
+                    <span style={{ marginLeft: 4, opacity: 0.7 }}>{p.team}</span>
                   ) : null}
                 </button>
               );
@@ -415,112 +488,191 @@ function FilterRow({
   );
 }
 
-function RiskResultGrid({
-  best,
+function PillRow({
+  children,
+  wrap,
+}: {
+  children: React.ReactNode;
+  wrap?: boolean;
+}) {
+  return (
+    <div
+      className={`inline-flex items-center gap-1 p-1 rounded-full ${wrap ? "flex-wrap" : ""}`}
+      style={{
+        background: "rgba(0,0,0,0.3)",
+        border: "1px solid var(--vault-rule)",
+        maxWidth: "100%",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function PillButton({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full"
+      style={{
+        color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
+        background: active ? "var(--vault-gold-bright)" : "transparent",
+        fontSize: 10,
+        cursor: "pointer",
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Risk-level result grid
+// ---------------------------------------------------------------------------
+
+function RiskGrid({
+  cards,
   source,
   calibrationTable,
-  anyPlayersSelected,
-  optimizerActive,
+  filterActive,
 }: {
-  best: Array<{ profile: string; slip: ParlaySlip; rationale?: string }>;
+  cards: Array<{
+    profile: ParlayRiskProfile;
+    slips: ParlaySlip[];
+    isFallback: boolean;
+  }>;
   source: "snapshot" | "graded";
   calibrationTable?: CalibrationTable;
-  anyPlayersSelected: boolean;
-  optimizerActive: boolean;
+  filterActive: boolean;
 }) {
-  const order: Array<"conservative" | "balanced" | "aggressive"> = [
-    "conservative",
-    "balanced",
-    "aggressive",
-  ];
-  const byProfile = new Map<
-    string,
-    { slip: ParlaySlip; rationale?: string }
-  >(best.map((b) => [b.profile, { slip: b.slip, rationale: b.rationale }]));
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-      {order.map((profile) => {
-        const entry = byProfile.get(profile) ?? null;
-        const slip = entry?.slip ?? null;
-        const rationale = entry?.rationale;
-        const display = RISK_DISPLAY[profile];
-        return (
-          <div key={profile} className="flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex flex-col gap-0.5 min-w-0">
+      {cards.map((card) => (
+        <RiskCard
+          key={card.profile}
+          profile={card.profile}
+          slips={card.slips}
+          isFallback={card.isFallback}
+          source={source}
+          calibrationTable={calibrationTable}
+          filterActive={filterActive}
+        />
+      ))}
+    </div>
+  );
+}
+
+function RiskCard({
+  profile,
+  slips,
+  isFallback,
+  source,
+  calibrationTable,
+  filterActive,
+}: {
+  profile: ParlayRiskProfile;
+  slips: ParlaySlip[];
+  isFallback: boolean;
+  source: "snapshot" | "graded";
+  calibrationTable?: CalibrationTable;
+  filterActive: boolean;
+}) {
+  const display = RISK_DISPLAY[profile];
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <span
+            className="font-mono uppercase tracking-[0.16em]"
+            style={{ color: display.accent, fontSize: 10 }}
+          >
+            {display.label}
+          </span>
+          <span
+            className="font-mono"
+            style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+          >
+            {display.sub}
+          </span>
+        </div>
+        {profile === "aggressive" && (
+          <span
+            className="font-mono uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-[3px]"
+            style={{
+              color: "var(--vault-warn)",
+              border: "1px solid var(--vault-warn)",
+              background: "rgba(7,11,26,0.55)",
+              fontSize: 9,
+            }}
+            title="Aggressive parlays have hit ~4.5% historically."
+          >
+            4.5% hit
+          </span>
+        )}
+      </div>
+
+      {slips.length === 0 ? (
+        <EmptyRiskCard profile={profile} filterActive={filterActive} />
+      ) : (
+        <>
+          {isFallback && filterActive && (
+            <FallbackNote profile={profile} />
+          )}
+          {slips.map((slip, i) => (
+            <div key={slip.slipId} className="flex flex-col gap-1">
+              {i > 0 && (
                 <span
-                  className="font-mono uppercase tracking-[0.16em]"
-                  style={{ color: display.accent, fontSize: 10 }}
+                  className="font-mono uppercase tracking-[0.14em]"
+                  style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
                 >
-                  {display.label}
-                </span>
-                <span
-                  className="font-mono"
-                  style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-                >
-                  {display.sub}
-                </span>
-              </div>
-              {profile === "aggressive" && (
-                <span
-                  className="font-mono uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-[3px]"
-                  style={{
-                    color: "var(--vault-warn)",
-                    border: "1px solid var(--vault-warn)",
-                    background: "rgba(7,11,26,0.55)",
-                    fontSize: 9,
-                  }}
-                  title="Aggressive parlays have hit ~4.5% historically."
-                >
-                  4.5% hit
+                  Alternate {i}
                 </span>
               )}
-            </div>
-
-            {slip ? (
-              <>
-                <ParlayTicketCard
-                  slip={slip}
-                  savedPregame={source === "snapshot"}
-                  calibrationTable={calibrationTable}
-                />
-                {rationale && (
-                  <span
-                    className="font-mono"
-                    style={{
-                      color: "var(--vault-text-faint)",
-                      fontSize: 10,
-                      lineHeight: 1.4,
-                    }}
-                    title="Optimizer rationale — the actual factors that put this slip in the bucket."
-                  >
-                    {rationale}
-                  </span>
-                )}
-              </>
-            ) : (
-              <EmptyRiskCard
-                profile={profile}
-                anyPlayersSelected={anyPlayersSelected}
-                optimizerActive={optimizerActive}
+              <ParlayTicketCard
+                slip={slip}
+                savedPregame={source === "snapshot"}
+                calibrationTable={calibrationTable}
               />
-            )}
-          </div>
-        );
-      })}
+            </div>
+          ))}
+        </>
+      )}
     </div>
+  );
+}
+
+function FallbackNote({ profile }: { profile: ParlayRiskProfile }) {
+  const label = RISK_DISPLAY[profile].label.toLowerCase();
+  return (
+    <p
+      className="text-[11.5px] leading-snug rounded-[4px] px-2 py-1.5"
+      style={{
+        color: "var(--vault-text-mute)",
+        background: "rgba(7,11,26,0.45)",
+        border: "1px dashed var(--vault-border)",
+      }}
+    >
+      No clean {label} slip with these filters. Showing the best
+      unfiltered suggestion instead.
+    </p>
   );
 }
 
 function EmptyRiskCard({
   profile,
-  anyPlayersSelected,
-  optimizerActive,
+  filterActive,
 }: {
-  profile: string;
-  anyPlayersSelected: boolean;
-  optimizerActive?: boolean;
+  profile: ParlayRiskProfile;
+  filterActive: boolean;
 }) {
   const display = RISK_DISPLAY[profile];
   return (
@@ -529,7 +681,7 @@ function EmptyRiskCard({
       style={{
         border: "1px dashed var(--vault-border)",
         background: "rgba(7,11,26,0.4)",
-        minHeight: 220,
+        minHeight: 180,
       }}
     >
       <span
@@ -542,40 +694,30 @@ function EmptyRiskCard({
         className="text-[12px] leading-snug"
         style={{ color: "var(--vault-text-mute)", maxWidth: 260 }}
       >
-        {anyPlayersSelected
-          ? "No slip at this risk level includes every player you selected. Try removing a player or switching sport."
-          : optimizerActive
-            ? "The optimizer can't satisfy this risk profile from tonight's projections — too few eligible legs or correlation caps would be violated."
-            : "No saved slip matches this risk level for the current sport. Try a different sport or check back when tonight's snapshot lands."}
+        {filterActive
+          ? "These filters left nothing the model could build cleanly. Try a different team or fewer players."
+          : "Today's slate doesn't satisfy this risk profile yet — too few eligible legs or correlation caps."}
       </p>
     </div>
   );
 }
 
-function BuilderTodoCallout({ optimizerActive }: { optimizerActive?: boolean }) {
+function BuilderFootnote({ optimizerActive }: { optimizerActive: boolean }) {
   return (
     <aside
-      className="rounded-[8px] p-4 flex flex-col gap-1.5"
+      className="rounded-[8px] p-4"
       style={{
         background: "rgba(7,11,26,0.4)",
         border: "1px dashed var(--vault-border)",
       }}
     >
-      <span
-        className="font-mono uppercase tracking-[0.16em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-      >
-        {optimizerActive
-          ? "How the optimizer scores slips"
-          : "Coming soon · on-demand slip building"}
-      </span>
       <p
         className="text-[12.5px] leading-relaxed"
         style={{ color: "var(--vault-text-mute)" }}
       >
         {optimizerActive
-          ? "Each slip is scored by avg leg edge × confidence tier × per-market stability weight (audit-derived) − a correlation penalty for same-game / same-team / volatile-MLB stacking. Empty cards mean the eligible pool was too small to satisfy the profile rules. We never fabricate a slip to fill a card."
-          : "Today the Lab matches your selections against pregame snapshots — so you only see slips the model already saved before tipoff. On-demand optimization (build a slip from scratch around any player) is on the roadmap. We'd rather show you nothing than fabricate a slip you can't verify."}
+          ? "Slips ranked by calibrated edge × confidence × per-market stability − correlation penalty. We never invent slips to fill a card. High-variance slips are labeled honestly."
+          : "Slips come from today's pregame snapshot. We never invent slips to fill a card. High-variance slips are labeled honestly."}
       </p>
     </aside>
   );
