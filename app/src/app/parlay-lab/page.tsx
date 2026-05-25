@@ -19,7 +19,11 @@ import Link from "next/link";
 
 import ParlayLabBuilder from "@/components/parlay-lab-builder";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
-import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
+import {
+  getSuggestedParlaysForDate,
+  getOptimizerSnapshotForDate,
+  getLatestOptimizerSnapshot,
+} from "@/lib/data-parlays";
 import { currentEtDate } from "@/lib/freshness";
 
 export const metadata = {
@@ -33,6 +37,16 @@ export default function ParlayLabPage() {
   const suggested = getSuggestedParlaysForDate(today);
   const calibrationTable = loadCalibrationTable();
 
+  // Prefer the optimizer snapshot for the date we surfaced. When the
+  // snapshot fallback walked to an older date, also try the optimizer
+  // for the same older date. As a last resort, use whatever the latest
+  // optimizer file we have on disk is.
+  const optimizerForDate =
+    (suggested && getOptimizerSnapshotForDate(suggested.date)) ||
+    getOptimizerSnapshotForDate(today) ||
+    getLatestOptimizerSnapshot()?.payload ||
+    null;
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden">
       <Suspense fallback={<div className="min-h-[60vh]" aria-hidden />}>
@@ -43,6 +57,19 @@ export default function ParlayLabPage() {
             source={suggested.source}
             isFallback={suggested.isFallback}
             calibrationTable={calibrationTable}
+            optimizerPayload={optimizerForDate}
+          />
+        ) : optimizerForDate && optimizerForDate.totalSlips > 0 ? (
+          // No legacy snapshot but we DO have an optimizer file — still
+          // useful. Synthesize an empty legacy-shape payload so the
+          // builder can render with the optimizer as the source.
+          <ParlayLabBuilder
+            slips={[]}
+            date={optimizerForDate.date}
+            source="snapshot"
+            isFallback={true}
+            calibrationTable={calibrationTable}
+            optimizerPayload={optimizerForDate}
           />
         ) : (
           <EmptyLabState />

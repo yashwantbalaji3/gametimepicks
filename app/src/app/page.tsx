@@ -34,10 +34,15 @@ import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
 import {
   getSuggestedParlaysForDate,
   getLatestParlayDate,
+  getOptimizerSnapshotForDate,
+  getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
+import { optimizerSlipToParlaySlip } from "@/lib/parlay-optimizer";
+import { flattenOptimizerSlips } from "@/lib/data-parlays";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { formatPercent } from "@/lib/format";
 import type { BoardData, DataMode } from "@/lib/types";
+import type { ParlaySlip as ParlaySlipForCarousel } from "@/lib/parlay-suggested";
 
 import SuggestedParlayCarousel from "@/components/suggested-parlay-carousel";
 import NewsletterSignup from "@/components/newsletter-signup";
@@ -91,15 +96,56 @@ export default function HomePage() {
   const crossSportLeansLive = nbaLeansLive + mlbLeansLive;
 
   // ----- Suggested parlays for the carousel --------------------------
-  // Prefer the active slate date. Walk back through history when
-  // tonight has nothing (the helper enforces honest fallback — it
-  // never invents slips).
+  // The optimizer is the primary source of truth — it scores slips
+  // with calibration / market stability / correlation penalties. We
+  // walk:
+  //   1. Optimizer snapshot for today.
+  //   2. Optimizer snapshot for the active slate date.
+  //   3. Latest optimizer snapshot on disk.
+  //   4. Legacy parlay snapshot fallback (preserves history before
+  //      the optimizer existed).
   const requestedDate =
     activeDate ??
     getLatestParlayDate()?.date ??
     null;
-  const suggested = getSuggestedParlaysForDate(requestedDate);
   const calibrationTable = loadCalibrationTable();
+
+  // Resolve the best available parlay payload for the carousel.
+  const optimizerToday = getOptimizerSnapshotForDate(today);
+  const optimizerActive = requestedDate
+    ? getOptimizerSnapshotForDate(requestedDate)
+    : null;
+  const optimizerLatest = getLatestOptimizerSnapshot();
+  const optimizerPayload =
+    (optimizerToday && optimizerToday.totalSlips > 0 && optimizerToday) ||
+    (optimizerActive && optimizerActive.totalSlips > 0 && optimizerActive) ||
+    (optimizerLatest && optimizerLatest.payload.totalSlips > 0
+      ? optimizerLatest.payload
+      : null);
+
+  let carouselSlips: ParlaySlipForCarousel[] = [];
+  let carouselDate = requestedDate ?? "";
+  let carouselSource: "snapshot" | "graded" = "snapshot";
+  let carouselIsFallback = false;
+  let carouselSourceLabel: "optimizer" | "snapshot" = "snapshot";
+
+  if (optimizerPayload && optimizerPayload.totalSlips > 0) {
+    const flat = flattenOptimizerSlips(optimizerPayload);
+    carouselSlips = flat.map((s) =>
+      optimizerSlipToParlaySlip(s, optimizerPayload.date),
+    );
+    carouselDate = optimizerPayload.date;
+    carouselIsFallback = optimizerPayload.date !== requestedDate;
+    carouselSourceLabel = "optimizer";
+  } else {
+    const suggested = getSuggestedParlaysForDate(requestedDate);
+    if (suggested) {
+      carouselSlips = suggested.slips;
+      carouselDate = suggested.date;
+      carouselSource = suggested.source;
+      carouselIsFallback = suggested.isFallback;
+    }
+  }
 
   // ----- Lifetime stats strip (honest, decisive-only) ----------------
   const combinedDecisive =
@@ -173,13 +219,14 @@ export default function HomePage() {
 
       {/* 2 — Suggested parlay carousel: the main act */}
       <div className="mt-8">
-        {suggested ? (
+        {carouselSlips.length > 0 ? (
           <SuggestedParlayCarousel
-            slips={suggested.slips}
-            date={suggested.date}
-            source={suggested.source}
-            isFallback={suggested.isFallback}
+            slips={carouselSlips}
+            date={carouselDate}
+            source={carouselSource}
+            isFallback={carouselIsFallback}
             calibrationTable={calibrationTable}
+            sourceLabel={carouselSourceLabel}
           />
         ) : (
           <NoParlaysEmptyState />

@@ -1,23 +1,30 @@
 "use client";
 /**
- * ParlayLabBuilder — simplified, sport-and-player-first slip picker.
+ * ParlayLabBuilder — sport + player picker that returns optimizer-built
+ * slips at every risk level.
  *
  * UX flow:
  *   1. Sport segmented control (All · NBA · MLB · Mixed).
- *   2. Multi-select player chips. Pulled from real legs across the
- *      pregame snapshot.
+ *   2. Multi-select player chips. Pulled from the optimizer pool first;
+ *      falls back to the legacy snapshot pool when no optimizer file
+ *      exists.
  *   3. Three risk-level result cards (Conservative · Balanced · High
  *      variance). Each shows the BEST slip matching the current
- *      filters — sourced from the snapshot only. Never invented.
+ *      filters.
+ *
+ * Source of truth:
+ *   - When `optimizerPayload` is non-null, the lab uses it directly —
+ *     slips ranked by the optimizer's transparent score (edge × calibration
+ *     × market stability − correlation penalty) instead of just matching
+ *     the legacy snapshot.
+ *   - When `optimizerPayload` is null OR doesn't satisfy the filters,
+ *     we fall back to filtering legacy snapshot slips.
  *
  * Honesty:
- *   - We only filter slips that exist on disk. If no slip matches
- *     a given risk level, that card surfaces an inline empty state.
- *   - Aggressive slips render with a "High variance" label everywhere.
- *   - There is a clear TODO panel acknowledging that true on-demand
- *     optimization (build a slip from scratch around a chosen player)
- *     is not yet implemented — the current build matches against
- *     pregame snapshots only.
+ *   - No slip is ever fabricated. Empty cards explain why.
+ *   - Aggressive slips render with a "High variance" badge everywhere.
+ *   - Rationale text under each slip cites the actual constraints
+ *     (avg edge, same-game flag, anomaly flag) instead of marketing copy.
  */
 import { useMemo, useState } from "react";
 import ParlayTicketCard from "./parlay-ticket-card";
@@ -28,6 +35,14 @@ import {
   type ParlaySlip,
   type SuggestedSport,
 } from "@/lib/parlay-suggested";
+import {
+  bestOptimizerSlipsForRisk,
+  optimizerSlipToParlaySlip,
+  playersFromOptimizerPayload,
+  topOptimizerSlipsForSport,
+  type OptimizerSlip,
+  type OptimizerSnapshot,
+} from "@/lib/parlay-optimizer";
 import type { CalibrationTable } from "@/lib/confidence-calibration-rules";
 
 interface Props {
@@ -41,6 +56,10 @@ interface Props {
   isFallback?: boolean;
   /** Calibration table for the ticket cards. */
   calibrationTable?: CalibrationTable;
+  /** Optimizer snapshot for the same date. When present, the builder
+   *  uses it as the primary source. When null, falls back to the
+   *  legacy snapshot. */
+  optimizerPayload?: OptimizerSnapshot | null;
 }
 
 const SPORT_OPTIONS: Array<{ key: SuggestedSport; label: string }> = [
@@ -77,26 +96,43 @@ export default function ParlayLabBuilder({
   source,
   isFallback,
   calibrationTable,
+  optimizerPayload = null,
 }: Props) {
   const [sport, setSport] = useState<SuggestedSport>("all");
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
 
-  // Player pool reflects the current sport tab so the chip list isn't
-  // overwhelming. When "All" is active, we surface every player.
-  const buckets = useMemo(() => groupSuggestedBySport(slips), [slips]);
-  const slipsForSport = buckets[sport] ?? [];
-  const playerPool = useMemo(
-    () => playersFromSlips(slipsForSport),
-    [slipsForSport],
-  );
+  // Distinguish optimizer-backed from snapshot-backed runs so the
+  // header copy + per-card rationales can stay honest.
+  const optimizerActive = optimizerPayload != null && optimizerPayload.totalSlips > 0;
 
-  // When sport changes, drop any selected players that no longer
-  // exist in the active pool.
+  // Player pool sourcing: prefer the optimizer payload when it has
+  // slips, fall back to the legacy snapshot pool. The legacy pool is
+  // what the lab shipped with — we keep it as a safety net so the lab
+  // is never empty when the optimizer is still spinning up.
+  const buckets = useMemo(() => groupSuggestedBySport(slips), [slips]);
+  const snapshotPlayerPool = useMemo(
+    () => playersFromSlips(buckets[sport] ?? []),
+    [buckets, sport],
+  );
+  const optimizerPlayerPool = useMemo(
+    () =>
+      optimizerPayload
+        ? playersFromOptimizerPayload(optimizerPayload, sport)
+        : [],
+    [optimizerPayload, sport],
+  );
+  const playerPool = optimizerActive ? optimizerPlayerPool : snapshotPlayerPool;
+
   function changeSport(next: SuggestedSport) {
     if (next === sport) return;
     setSport(next);
     setSelectedPlayers((prev) => {
-      const allowed = new Set(playersFromSlips(buckets[next] ?? []).map((p) => p.name));
+      const allowed = new Set(
+        (optimizerPayload
+          ? playersFromOptimizerPayload(optimizerPayload, next)
+          : playersFromSlips(buckets[next] ?? [])
+        ).map((p) => p.name),
+      );
       return prev.filter((p) => allowed.has(p));
     });
   }
@@ -111,18 +147,41 @@ export default function ParlayLabBuilder({
     setSelectedPlayers([]);
   }
 
-  const best = useMemo(
-    () =>
-      getBestSuggestedByRisk(slips, {
+  // ---- Best slip per risk profile -----------------------------------
+  // Optimizer first; legacy snapshot when optimizer is empty for the
+  // active sport so the builder is never silently blank.
+  const best = useMemo(() => {
+    if (optimizerPayload) {
+      const optimized = bestOptimizerSlipsForRisk(optimizerPayload, {
         sport,
         playerNames: selectedPlayers,
-      }),
-    [slips, sport, selectedPlayers],
-  );
+      });
+      if (optimized.length > 0) {
+        return optimized.map((entry) => ({
+          profile: entry.profile,
+          slip: optimizerSlipToParlaySlip(entry.slip, date),
+          rationale: entry.slip.rationale,
+        }));
+      }
+    }
+    return getBestSuggestedByRisk(slips, {
+      sport,
+      playerNames: selectedPlayers,
+    }).map((entry) => ({
+      profile: entry.profile,
+      slip: entry.slip,
+      rationale: undefined,
+    }));
+  }, [optimizerPayload, slips, sport, selectedPlayers, date]);
 
   return (
     <section className="flex flex-col gap-5" aria-label="Parlay Lab builder">
-      <BuilderHeader date={date} source={source} isFallback={!!isFallback} />
+      <BuilderHeader
+        date={date}
+        source={source}
+        isFallback={!!isFallback}
+        optimizerActive={optimizerActive}
+      />
 
       <FilterBlock
         sport={sport}
@@ -131,6 +190,7 @@ export default function ParlayLabBuilder({
         selectedPlayers={selectedPlayers}
         onTogglePlayer={togglePlayer}
         onClearPlayers={clearSelections}
+        sourceLabel={optimizerActive ? "optimizer pool" : "snapshot pool"}
       />
 
       <RiskResultGrid
@@ -138,9 +198,10 @@ export default function ParlayLabBuilder({
         source={source}
         calibrationTable={calibrationTable}
         anyPlayersSelected={selectedPlayers.length > 0}
+        optimizerActive={optimizerActive}
       />
 
-      <BuilderTodoCallout />
+      <BuilderTodoCallout optimizerActive={optimizerActive} />
     </section>
   );
 }
@@ -149,13 +210,21 @@ function BuilderHeader({
   date,
   source,
   isFallback,
+  optimizerActive,
 }: {
   date: string;
   source: "snapshot" | "graded";
   isFallback: boolean;
+  optimizerActive: boolean;
 }) {
   const eyebrowAccent =
     source === "graded" ? "var(--vault-success)" : "var(--vault-gold-bright)";
+  const eyebrowText = optimizerActive
+    ? `Parlay Lab · optimizer · ${source === "graded" ? "graded" : "saved before games"}`
+    : `Parlay Lab · ${source === "graded" ? "graded" : "saved before games"}`;
+  const subline = optimizerActive
+    ? `Slips below are built by the parlay optimizer over the ${date} projections${isFallback ? " (latest available)" : ""}. Ranking factors: calibrated edge × market stability × confidence − correlation penalty.`
+    : `Slips below come from the ${date} pregame snapshot${isFallback ? " (latest available)" : ""}. We never invent legs.`;
   return (
     <header className="flex flex-col gap-1.5">
       <span
@@ -173,7 +242,7 @@ function BuilderHeader({
                 : "0 0 6px rgba(240, 199, 94, 0.45)",
           }}
         />
-        Parlay Lab · {source === "graded" ? "graded" : "saved before games"}
+        {eyebrowText}
       </span>
       <h1
         className="font-display tracking-tight"
@@ -192,9 +261,7 @@ function BuilderHeader({
         className="text-[13.5px] leading-relaxed"
         style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
       >
-        Slips below come from the {date} pregame snapshot
-        {isFallback ? " (latest available)" : ""}. We never invent
-        legs or rebuild slips on the fly yet — see the note below.
+        {subline}
       </p>
     </header>
   );
@@ -207,6 +274,7 @@ function FilterBlock({
   selectedPlayers,
   onTogglePlayer,
   onClearPlayers,
+  sourceLabel,
 }: {
   sport: SuggestedSport;
   onSportChange: (s: SuggestedSport) => void;
@@ -214,6 +282,7 @@ function FilterBlock({
   selectedPlayers: string[];
   onTogglePlayer: (name: string) => void;
   onClearPlayers: () => void;
+  sourceLabel?: string;
 }) {
   return (
     <div
@@ -254,7 +323,7 @@ function FilterBlock({
       </FilterRow>
 
       <FilterRow
-        label={`Players (${selectedPlayers.length} selected)`}
+        label={`Players (${selectedPlayers.length} selected${sourceLabel ? ` · ${sourceLabel}` : ""})`}
         rightSlot={
           selectedPlayers.length > 0 ? (
             <button
@@ -351,25 +420,30 @@ function RiskResultGrid({
   source,
   calibrationTable,
   anyPlayersSelected,
+  optimizerActive,
 }: {
-  best: Array<{ profile: string; slip: ParlaySlip }>;
+  best: Array<{ profile: string; slip: ParlaySlip; rationale?: string }>;
   source: "snapshot" | "graded";
   calibrationTable?: CalibrationTable;
   anyPlayersSelected: boolean;
+  optimizerActive: boolean;
 }) {
   const order: Array<"conservative" | "balanced" | "aggressive"> = [
     "conservative",
     "balanced",
     "aggressive",
   ];
-  const byProfile = new Map<string, ParlaySlip>(
-    best.map((b) => [b.profile, b.slip]),
-  );
+  const byProfile = new Map<
+    string,
+    { slip: ParlaySlip; rationale?: string }
+  >(best.map((b) => [b.profile, { slip: b.slip, rationale: b.rationale }]));
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
       {order.map((profile) => {
-        const slip = byProfile.get(profile) ?? null;
+        const entry = byProfile.get(profile) ?? null;
+        const slip = entry?.slip ?? null;
+        const rationale = entry?.rationale;
         const display = RISK_DISPLAY[profile];
         return (
           <div key={profile} className="flex flex-col gap-2">
@@ -405,15 +479,31 @@ function RiskResultGrid({
             </div>
 
             {slip ? (
-              <ParlayTicketCard
-                slip={slip}
-                savedPregame={source === "snapshot"}
-                calibrationTable={calibrationTable}
-              />
+              <>
+                <ParlayTicketCard
+                  slip={slip}
+                  savedPregame={source === "snapshot"}
+                  calibrationTable={calibrationTable}
+                />
+                {rationale && (
+                  <span
+                    className="font-mono"
+                    style={{
+                      color: "var(--vault-text-faint)",
+                      fontSize: 10,
+                      lineHeight: 1.4,
+                    }}
+                    title="Optimizer rationale — the actual factors that put this slip in the bucket."
+                  >
+                    {rationale}
+                  </span>
+                )}
+              </>
             ) : (
               <EmptyRiskCard
                 profile={profile}
                 anyPlayersSelected={anyPlayersSelected}
+                optimizerActive={optimizerActive}
               />
             )}
           </div>
@@ -426,9 +516,11 @@ function RiskResultGrid({
 function EmptyRiskCard({
   profile,
   anyPlayersSelected,
+  optimizerActive,
 }: {
   profile: string;
   anyPlayersSelected: boolean;
+  optimizerActive?: boolean;
 }) {
   const display = RISK_DISPLAY[profile];
   return (
@@ -451,14 +543,16 @@ function EmptyRiskCard({
         style={{ color: "var(--vault-text-mute)", maxWidth: 260 }}
       >
         {anyPlayersSelected
-          ? "None of the saved slips at this risk level include every player you selected. Try removing a player or switching sport."
-          : "No saved slip matches this risk level for the current sport. Try a different sport or check back when tonight's snapshot lands."}
+          ? "No slip at this risk level includes every player you selected. Try removing a player or switching sport."
+          : optimizerActive
+            ? "The optimizer can't satisfy this risk profile from tonight's projections — too few eligible legs or correlation caps would be violated."
+            : "No saved slip matches this risk level for the current sport. Try a different sport or check back when tonight's snapshot lands."}
       </p>
     </div>
   );
 }
 
-function BuilderTodoCallout() {
+function BuilderTodoCallout({ optimizerActive }: { optimizerActive?: boolean }) {
   return (
     <aside
       className="rounded-[8px] p-4 flex flex-col gap-1.5"
@@ -471,17 +565,17 @@ function BuilderTodoCallout() {
         className="font-mono uppercase tracking-[0.16em]"
         style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
-        Coming soon · on-demand slip building
+        {optimizerActive
+          ? "How the optimizer scores slips"
+          : "Coming soon · on-demand slip building"}
       </span>
       <p
         className="text-[12.5px] leading-relaxed"
         style={{ color: "var(--vault-text-mute)" }}
       >
-        Today the Lab matches your selections against pregame snapshots
-        — so you only see slips the model already saved before tipoff.
-        On-demand optimization (build a slip from scratch around any
-        player) is on the roadmap. We&apos;d rather show you nothing than
-        fabricate a slip you can&apos;t verify.
+        {optimizerActive
+          ? "Each slip is scored by avg leg edge × confidence tier × per-market stability weight (audit-derived) − a correlation penalty for same-game / same-team / volatile-MLB stacking. Empty cards mean the eligible pool was too small to satisfy the profile rules. We never fabricate a slip to fill a card."
+          : "Today the Lab matches your selections against pregame snapshots — so you only see slips the model already saved before tipoff. On-demand optimization (build a slip from scratch around any player) is on the roadmap. We'd rather show you nothing than fabricate a slip you can't verify."}
       </p>
     </aside>
   );

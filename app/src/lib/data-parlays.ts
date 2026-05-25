@@ -29,6 +29,7 @@ const ROOT = path.join(process.cwd(), "public", "data", "parlays");
 const SNAPSHOT_DIR = path.join(ROOT, "snapshots");
 const GRADED_DIR = path.join(ROOT, "graded");
 const SUMMARY_PATH = path.join(ROOT, "summary.json");
+const OPTIMIZER_DIR = path.join(ROOT, "optimizer");
 
 // Re-export types so existing server-side imports keep working.
 export type {
@@ -332,3 +333,83 @@ export {
   getBestSuggestedByRisk,
   playersFromSlips,
 } from "./parlay-suggested";
+
+// ---------------------------------------------------------------------------
+// Optimizer snapshot loader (the new richer pipeline)
+// ---------------------------------------------------------------------------
+
+import type {
+  OptimizerSnapshot,
+  OptimizerLeg,
+  OptimizerSlip,
+} from "./parlay-optimizer";
+
+/** Available dates with an optimizer snapshot on disk. */
+export function getAvailableOptimizerDates(): string[] {
+  return _listDates(OPTIMIZER_DIR).slice().reverse();
+}
+
+/** Optimizer payload for a specific date, or null when absent. */
+export function getOptimizerSnapshotForDate(
+  date: string,
+): OptimizerSnapshot | null {
+  return _readJsonSafe<OptimizerSnapshot>(
+    path.join(OPTIMIZER_DIR, `${date}.json`),
+  );
+}
+
+/**
+ * Latest optimizer snapshot — graded date never wins here because the
+ * optimizer is the *forward-looking* recommendation tool, not a
+ * results retrospective. Returns null when no file exists.
+ */
+export function getLatestOptimizerSnapshot(): {
+  date: string;
+  payload: OptimizerSnapshot;
+} | null {
+  const dates = _listDates(OPTIMIZER_DIR);
+  for (let i = dates.length - 1; i >= 0; i -= 1) {
+    const payload = getOptimizerSnapshotForDate(dates[i]);
+    if (!payload) continue;
+    if (payload.totalSlips > 0) {
+      return { date: dates[i], payload };
+    }
+  }
+  // No optimizer snapshot has slips — return latest empty one anyway
+  // so the UI can render an honest "0 slips" state with the date.
+  if (dates.length > 0) {
+    const latest = dates[dates.length - 1];
+    const payload = getOptimizerSnapshotForDate(latest);
+    if (payload) return { date: latest, payload };
+  }
+  return null;
+}
+
+/**
+ * Flatten an optimizer snapshot into a single list of slips, dedupe
+ * by slipId so the same slip surfaced under "mlb" and "all" buckets
+ * only appears once.
+ */
+export function flattenOptimizerSlips(
+  payload: OptimizerSnapshot,
+): OptimizerSlip[] {
+  const seen = new Set<string>();
+  const out: OptimizerSlip[] = [];
+  for (const profile of Object.keys(payload.buckets)) {
+    const buckets = payload.buckets[profile as keyof OptimizerSnapshot["buckets"]];
+    if (!buckets) continue;
+    for (const sport of Object.keys(buckets)) {
+      const slips = buckets[sport as keyof typeof buckets] ?? [];
+      for (const slip of slips) {
+        if (seen.has(slip.slipId)) continue;
+        seen.add(slip.slipId);
+        out.push(slip);
+      }
+    }
+  }
+  // Sort by score desc for stable rendering when the caller wants a flat list.
+  out.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  return out;
+}
+
+export type { OptimizerSnapshot, OptimizerLeg, OptimizerSlip };

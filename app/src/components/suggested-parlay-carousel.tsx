@@ -40,6 +40,10 @@ interface Props {
   /** Calibration table for the ticket cards. Defaults to the empty
    *  table when omitted. */
   calibrationTable?: CalibrationTable;
+  /** "optimizer" when the slips came from the new optimizer snapshot;
+   *  "snapshot" when they came from the legacy snapshot. Drives the
+   *  eyebrow copy so a reader knows which path produced the slip. */
+  sourceLabel?: "optimizer" | "snapshot";
 }
 
 const SPORT_TABS: Array<{
@@ -58,6 +62,7 @@ export default function SuggestedParlayCarousel({
   source,
   isFallback,
   calibrationTable,
+  sourceLabel = "snapshot",
 }: Props) {
   const buckets = useMemo(() => groupSuggestedBySport(slips), [slips]);
   const [activeTab, setActiveTab] = useState<SuggestedSport>("all");
@@ -95,6 +100,7 @@ export default function SuggestedParlayCarousel({
         source={source}
         isFallback={!!isFallback}
         totalCount={totalCount}
+        sourceLabel={sourceLabel}
       />
 
       <SportTabs
@@ -153,18 +159,25 @@ function CarouselHeader({
   source,
   isFallback,
   totalCount,
+  sourceLabel,
 }: {
   date: string;
   source: "snapshot" | "graded";
   isFallback: boolean;
   totalCount: number;
+  sourceLabel: "optimizer" | "snapshot";
 }) {
   const eyebrowAccent =
     source === "graded"
       ? "var(--vault-success)"
       : "var(--vault-gold-bright)";
-  const eyebrow =
-    source === "graded" ? "Suggested parlays · graded" : "Suggested parlays";
+  const baseEyebrow =
+    sourceLabel === "optimizer"
+      ? "Suggested parlays · optimizer"
+      : source === "graded"
+        ? "Suggested parlays · graded"
+        : "Suggested parlays";
+  const eyebrow = baseEyebrow;
 
   return (
     <div className="flex items-center gap-3 mb-2">
