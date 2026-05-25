@@ -327,6 +327,54 @@ class OptimizerSlipBuildTests(unittest.TestCase):
             )
 
 
+class AuditDrivenWeightTests(unittest.TestCase):
+    """Locks the 2026-05-25 audit-driven re-weighting:
+      - NBA REB outscores NBA AST by a wider margin than before.
+      - MLB pitcher_strikeouts is excluded from Balanced.
+      - MLB High tier is flattened to roughly Medium-level weight.
+    """
+
+    def test_nba_reb_outscores_ast_by_wider_margin(self):
+        # Same High confidence + same edge — only the market differs.
+        reb = normalize_lean(_nba_lean(market="REB", confidence="High", edgePct=5))
+        ast = normalize_lean(_nba_lean(market="AST", confidence="High", edgePct=5))
+        reb_score = leg_score(reb, BALANCED_RULES)
+        ast_score = leg_score(ast, BALANCED_RULES)
+        self.assertGreater(reb_score, ast_score)
+        # The market weights (REB 1.15, AST 0.80) → the ratio should
+        # be at least 1.30 (1.15/0.80 ≈ 1.44). Pin a lower bound that
+        # makes the audit motivation visible in failure messages.
+        self.assertGreater(reb_score / ast_score, 1.30)
+
+    def test_balanced_blocks_pitcher_strikeouts(self):
+        leg = normalize_lean(_mlb_lean(market="pitcher_strikeouts", confidence="High", edgePct=8))
+        self.assertFalse(is_eligible(leg, BALANCED_RULES))
+        # Aggressive still allows strikeouts.
+        self.assertTrue(is_eligible(leg, AGGRESSIVE_RULES))
+
+    def test_mlb_high_tier_flattened_to_roughly_medium(self):
+        # An MLB High leg and an MLB Medium leg with the same edge
+        # should now score WITHIN 10% of each other (the audit-driven
+        # tier adjustment knocks High down to Medium's level).
+        # Same hits market on both, so the market weight is constant.
+        high = normalize_lean(_mlb_lean(market="batter_hits", confidence="High", edgePct=5))
+        med = normalize_lean(_mlb_lean(market="batter_hits", confidence="Medium", edgePct=5))
+        h_score = leg_score(high, BALANCED_RULES)
+        m_score = leg_score(med, BALANCED_RULES)
+        # High still beats Medium by a hair (because the base weight
+        # 1.0 × 0.65 = 0.65 vs Medium's 0.65 × 1.0 = 0.65 is exactly
+        # equal — plus the edge term is identical). They should be
+        # roughly tied.
+        self.assertAlmostEqual(h_score, m_score, places=4)
+
+    def test_nba_high_tier_NOT_flattened(self):
+        # NBA tier weights are untouched — the audit doesn't show
+        # NBA High as inverted, just that Medium happens to outperform.
+        high = normalize_lean(_nba_lean(market="REB", confidence="High", edgePct=5))
+        med = normalize_lean(_nba_lean(market="REB", confidence="Medium", edgePct=5))
+        self.assertGreater(leg_score(high, BALANCED_RULES), leg_score(med, BALANCED_RULES))
+
+
 class PlayerInjectionTests(unittest.TestCase):
     """Sanity that must_include_player_names biases ordering but never
     forces an ineligible leg in."""
