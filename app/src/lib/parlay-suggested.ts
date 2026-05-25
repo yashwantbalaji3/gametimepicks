@@ -562,3 +562,110 @@ export function fallbackToBestUnfilteredSlips(
     .sort((a, b) => suggestedScore(b) - suggestedScore(a));
   return scored.slice(0, limit);
 }
+
+// ---------------------------------------------------------------------------
+// Display-level cross-bucket diversity
+// ---------------------------------------------------------------------------
+
+/**
+ * Display-level diversity penalty table (PR #100 follow-up).
+ *
+ * The Python optimizer's `_select_diverse` runs per bucket
+ * (nba / mlb / multi / all). The homepage and Parlay Lab pool slips
+ * ACROSS buckets before showing visible cards — so a single dominant
+ * leg (e.g. the highest-edge MLB hitter on the slate) can still
+ * anchor every visible Conservative card because it wins both the
+ * multi-bucket #1 slot and the mlb-bucket #1 slot.
+ *
+ * This selector runs AFTER pooling and pushes near-duplicate visible
+ * cards down so the first three slots don't all share the same
+ * player. It is stronger than the Python-side penalty because it
+ * needs to overcome cross-bucket score parity.
+ *
+ *   conservative — strongest: a 3rd repeat of the same player loses
+ *                 ~0.80; same player + same market loses ~1.40.
+ *   balanced     — moderate.
+ *   aggressive   — light: high-variance cards may legitimately repeat
+ *                 value players (Schroder, Foscue) because their edges
+ *                 are real.
+ */
+const _DISPLAY_PENALTY: Record<
+  ParlayRiskProfile,
+  { perPlayer: number; perPlayerMarketExtra: number }
+> = {
+  conservative: { perPlayer: 0.4, perPlayerMarketExtra: 0.3 },
+  balanced: { perPlayer: 0.25, perPlayerMarketExtra: 0.2 },
+  aggressive: { perPlayer: 0.12, perPlayerMarketExtra: 0.08 },
+};
+
+/**
+ * Pick the top-N visible slips for a single risk profile, applying a
+ * cross-slip recurrence penalty so the same player doesn't anchor
+ * every visible card.
+ *
+ * The penalty is *bounded* — when no diverse alternative exists, the
+ * same player can still repeat. We rank-down, we never fabricate or
+ * promote junk just to hit a diversity target.
+ *
+ * Algorithm (greedy):
+ *   1. Sort candidates by `suggestedScore` desc.
+ *   2. For each remaining slip, compute an adjusted score:
+ *        adj = suggestedScore(slip)
+ *                − Σ (perPlayer × times player already chosen)
+ *                − Σ (perPlayerMarketExtra × times player+market
+ *                     already chosen)
+ *   3. Pick the slip with the best adjusted score. Add its players
+ *      and player+market keys to the running counts.
+ *   4. Repeat until `limit` reached or no slips remain.
+ *
+ * The first pick is always the top-`suggestedScore` slip (penalty is
+ * zero for the first pick), so a clearly-best slip stays #1.
+ */
+export function selectDiverseForDisplay(
+  slips: ParlaySlip[],
+  profile: ParlayRiskProfile,
+  limit: number,
+): ParlaySlip[] {
+  if (limit <= 0 || slips.length === 0) return [];
+  const penalties = _DISPLAY_PENALTY[profile] ?? _DISPLAY_PENALTY.balanced;
+  const remaining = slips
+    .slice()
+    .sort((a, b) => suggestedScore(b) - suggestedScore(a));
+  const chosen: ParlaySlip[] = [];
+  const playerCounts = new Map<string, number>();
+  const playerMarketCounts = new Map<string, number>();
+  while (chosen.length < limit && remaining.length > 0) {
+    let bestIdx = 0;
+    let bestAdj = -Infinity;
+    for (let i = 0; i < remaining.length; i++) {
+      const slip = remaining[i];
+      let penalty = 0;
+      for (const leg of slip.legs ?? []) {
+        const pKey = (leg.playerName ?? "").toLowerCase().trim();
+        if (!pKey) continue;
+        const pCount = playerCounts.get(pKey) ?? 0;
+        if (pCount > 0) penalty += pCount * penalties.perPlayer;
+        const market = (leg.market ?? "").toLowerCase().trim();
+        const pmKey = `${pKey}|${market}`;
+        const pmCount = playerMarketCounts.get(pmKey) ?? 0;
+        if (pmCount > 0) penalty += pmCount * penalties.perPlayerMarketExtra;
+      }
+      const adj = suggestedScore(slip) - penalty;
+      if (adj > bestAdj) {
+        bestAdj = adj;
+        bestIdx = i;
+      }
+    }
+    const pick = remaining.splice(bestIdx, 1)[0];
+    chosen.push(pick);
+    for (const leg of pick.legs ?? []) {
+      const pKey = (leg.playerName ?? "").toLowerCase().trim();
+      if (!pKey) continue;
+      playerCounts.set(pKey, (playerCounts.get(pKey) ?? 0) + 1);
+      const market = (leg.market ?? "").toLowerCase().trim();
+      const pmKey = `${pKey}|${market}`;
+      playerMarketCounts.set(pmKey, (playerMarketCounts.get(pmKey) ?? 0) + 1);
+    }
+  }
+  return chosen;
+}

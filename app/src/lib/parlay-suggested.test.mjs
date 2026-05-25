@@ -19,6 +19,7 @@ import {
   fallbackToBestUnfilteredSlips,
   groupSuggestedBySport,
   diversifiedAllOrder,
+  selectDiverseForDisplay,
   getSlipSports,
   slipContainsSport,
   slipContainsTeam,
@@ -192,6 +193,165 @@ test("slipContainsTeam + slipContainsPlayer", () => {
   assert.equal(slipContainsPlayer(POOL[3], "Brunson"), true);
   assert.equal(slipContainsPlayer(POOL[3], "brunson"), true); // case-insensitive
   assert.equal(slipContainsPlayer(POOL[3], "Tatum"), false);
+});
+
+// ---------------------------------------------------------------------------
+// Display-level cross-bucket diversity (PR #100 follow-up)
+// ---------------------------------------------------------------------------
+
+test("selectDiverseForDisplay: Conservative does not anchor every visible card on the same player when alternatives exist", () => {
+  // Three Carroll-anchored slips that win raw-score against three
+  // diverse alternatives — exactly the May-25 production scenario.
+  const carrollA = mkSlip({
+    slipId: "ca", riskProfile: "conservative", sport: "multi",
+    legs: [mkLeg({ sport: "nba", team: "CLE", playerName: "Mobley", market: "REB" }),
+           mkLeg({ sport: "mlb", team: "AZ", playerName: "Carroll", market: "Hits" })],
+    score: 1.46,
+  });
+  const carrollB = mkSlip({
+    slipId: "cb", riskProfile: "conservative", sport: "multi",
+    legs: [mkLeg({ sport: "nba", team: "CLE", playerName: "Merrill", market: "REB" }),
+           mkLeg({ sport: "mlb", team: "AZ", playerName: "Carroll", market: "Hits" })],
+    score: 1.42,
+  });
+  const carrollC = mkSlip({
+    slipId: "cc", riskProfile: "conservative", sport: "mlb",
+    legs: [mkLeg({ sport: "mlb", team: "AZ", playerName: "Carroll", market: "Hits" }),
+           mkLeg({ sport: "mlb", team: "CIN", playerName: "Steer", market: "Hits" })],
+    score: 1.29,
+  });
+  const altRuiz = mkSlip({
+    slipId: "alt1", riskProfile: "conservative", sport: "mlb",
+    legs: [mkLeg({ sport: "mlb", team: "WSH", playerName: "Ruiz", market: "Hits" }),
+           mkLeg({ sport: "mlb", team: "AZ", playerName: "Marte", market: "Hits" })],
+    score: 1.24,
+  });
+  const altHarden = mkSlip({
+    slipId: "alt2", riskProfile: "conservative", sport: "multi",
+    legs: [mkLeg({ sport: "nba", team: "NY", playerName: "Harden", market: "REB" }),
+           mkLeg({ sport: "mlb", team: "CIN", playerName: "Steer", market: "Hits" })],
+    score: 1.23,
+  });
+  const altSoto = mkSlip({
+    slipId: "alt3", riskProfile: "conservative", sport: "multi",
+    legs: [mkLeg({ sport: "mlb", team: "NYY", playerName: "Soto", market: "Hits" }),
+           mkLeg({ sport: "nba", team: "NY", playerName: "Hart", market: "REB" })],
+    score: 1.22,
+  });
+  const pool = [carrollA, carrollB, carrollC, altRuiz, altHarden, altSoto];
+  const top3 = selectDiverseForDisplay(pool, "conservative", 3);
+  assert.equal(top3.length, 3);
+  // Pick #1 keeps the top-scoring slip.
+  assert.equal(top3[0].slipId, "ca");
+  // The visible top-3 should NOT all contain Carroll. (Hits player)
+  const carrollHits = top3.filter((s) =>
+    s.legs.some((l) => l.playerName === "Carroll"),
+  ).length;
+  assert.ok(
+    carrollHits < 3,
+    `Conservative top-3 should not all contain Carroll, got ${carrollHits} of 3`,
+  );
+});
+
+test("selectDiverseForDisplay: repeated player+market penalty rotates the visible anchor", () => {
+  // Two slips both with player X market M, plus one alternative with
+  // a different player. Top-2 must contain the alternative as #2.
+  const a = mkSlip({
+    slipId: "a", riskProfile: "conservative", sport: "nba",
+    legs: [mkLeg({ playerName: "X", market: "REB" }),
+           mkLeg({ playerName: "Y", market: "PTS" })],
+    score: 1.5,
+  });
+  const b = mkSlip({
+    slipId: "b", riskProfile: "conservative", sport: "nba",
+    legs: [mkLeg({ playerName: "X", market: "REB" }), // same player+market as #a
+           mkLeg({ playerName: "Z", market: "PTS" })],
+    score: 1.45,
+  });
+  const c = mkSlip({
+    slipId: "c", riskProfile: "conservative", sport: "nba",
+    legs: [mkLeg({ playerName: "W", market: "AST" }),
+           mkLeg({ playerName: "Q", market: "REB" })],
+    score: 1.20,
+  });
+  const top2 = selectDiverseForDisplay([a, b, c], "conservative", 2);
+  assert.equal(top2[0].slipId, "a", "Top slip keeps highest suggestedScore");
+  assert.equal(
+    top2[1].slipId, "c",
+    "Repeat-player+market penalty should push c above b in #2 slot",
+  );
+});
+
+test("selectDiverseForDisplay: first slip is always the top-suggestedScore slip", () => {
+  // Five varied slips, well-separated scores. #1 must always be the
+  // top scorer — diversity is a tiebreaker, not a way to suppress
+  // the best slip.
+  const slips = [];
+  for (let i = 0; i < 5; i++) {
+    slips.push(mkSlip({
+      slipId: `s${i}`, riskProfile: "balanced", sport: "nba",
+      legs: [mkLeg({ playerName: `P${i}`, market: "REB" })],
+      score: 1.5 - i * 0.05,
+    }));
+  }
+  const top3 = selectDiverseForDisplay(slips, "balanced", 3);
+  assert.equal(top3[0].slipId, "s0", "Best slip stays first");
+  assert.equal(top3.length, 3);
+  // No empty fallback when real slips exist.
+  for (const s of top3) {
+    assert.ok(s != null && s.legs.length > 0);
+  }
+});
+
+test("selectDiverseForDisplay: Conservative diversifies more strongly than Aggressive", () => {
+  // Same pool, two profiles. Conservative should pick fewer repeats
+  // of the same player than Aggressive given identical inputs.
+  const make = (slipId, p1, p2, score, profile) =>
+    mkSlip({
+      slipId, riskProfile: profile, sport: "nba",
+      legs: [mkLeg({ playerName: p1, market: "REB" }),
+             mkLeg({ playerName: p2, market: "PTS" })],
+      score,
+    });
+  // 4 slips, all containing "Star" but with different secondaries.
+  const buildPool = (profile) => [
+    make("a", "Star", "X", 1.50, profile),
+    make("b", "Star", "Y", 1.45, profile),
+    make("c", "Star", "Z", 1.40, profile),
+    // Diverse alternative scoring slightly lower.
+    make("d", "Different", "Q", 1.20, profile),
+  ];
+  const consTop3 = selectDiverseForDisplay(buildPool("conservative"), "conservative", 3);
+  const aggTop3 = selectDiverseForDisplay(buildPool("aggressive"), "aggressive", 3);
+  const countStar = (slips) =>
+    slips.filter((s) => s.legs.some((l) => l.playerName === "Star")).length;
+  const consStar = countStar(consTop3);
+  const aggStar = countStar(aggTop3);
+  assert.ok(
+    consStar <= aggStar,
+    `Conservative should diversify >= Aggressive (Star repeats: cons=${consStar} agg=${aggStar})`,
+  );
+  // And conservative specifically should not anchor all 3 on Star
+  // when there is a non-Star alternative within ~0.3 raw score.
+  assert.ok(consStar < 3, "Conservative top-3 should not all share the same anchor");
+});
+
+test("selectDiverseForDisplay: no empty/junk fallback when real slips exist", () => {
+  // Penalty should never drive the helper to return an empty list,
+  // and it must never pick a slip with no legs.
+  const a = mkSlip({
+    slipId: "a", riskProfile: "balanced", sport: "nba",
+    legs: [mkLeg({ playerName: "P1", market: "REB" })],
+    score: 0.9,
+  });
+  // Single slip → must come back as the lone pick.
+  const onlyOne = selectDiverseForDisplay([a], "balanced", 3);
+  assert.equal(onlyOne.length, 1);
+  assert.equal(onlyOne[0].slipId, "a");
+  // Empty input → empty output (no fabrication).
+  assert.deepEqual(selectDiverseForDisplay([], "balanced", 3), []);
+  // limit 0 → empty.
+  assert.deepEqual(selectDiverseForDisplay([a], "balanced", 0), []);
 });
 
 test("diversifiedAllOrder keeps highest-scored slip first AND surfaces NBA after 2 non-NBA picks", () => {

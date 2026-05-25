@@ -100,13 +100,14 @@ _NBA_CORE_RAW: list[str] = [
 ]
 
 _NBA_REGULAR_RAW: list[str] = [
-    # Useful rotation pieces — small boost only.
-    "Mitchell Robinson",
-    "Miles McBride",
+    # Useful rotation pieces — minimal boost only. Kept tight so they
+    # don't dominate Conservative over true superstars/core. Removed
+    # 2026-05-25: Mitchell Robinson, Miles McBride, Dennis Schroder,
+    # Sam Hauser — high-edge rotation guys that were drowning out
+    # superstars like Brunson / Mitchell / KAT in the visible slips.
+    # They still appear in High Variance through model edge alone.
     "Donte DiVincenzo",
     "Landry Shamet",
-    "Dennis Schroder",  # high-volume rotation guard
-    "Sam Hauser",
     "Tyrese Maxey",
 ]
 
@@ -210,13 +211,17 @@ def is_star(name: str | None, sport: str | None) -> bool:
 _BOOST_TABLE: dict[tuple[str, str], float] = {
     # (tier, profile) → boost
     #
-    # Tuned so:
-    #   * a star at edge E beats a non-star at edge E (clear preference).
-    #   * a non-star at +10pp more edge than a star still wins (the
-    #     boost is bounded, not a guarantee — see star_players_test.py).
-    # The edge_weight contribution per pp is ~0.015 in `leg_score`, so
-    # a 10pp gap is worth ~0.15. Conservative's 0.20 superstar boost
-    # sits just below that gap.
+    # Tuned PR #99; preserved in PR #100. The visible-card
+    # repetition problem in PR #99 was NOT a boost-magnitude issue —
+    # it was that high-edge rotation players (Schroder, Robinson,
+    # McBride) were on the "regular" tier and got a small but
+    # meaningful boost. PR #100 removes them from the tier entirely
+    # so they compete on pure edge — and adds a final-selection
+    # diversity pass so the visible cards don't all share the same
+    # top legs.
+    #
+    # Bounded: a 10pp edge gap is worth ~0.15 in leg_score, so a
+    # non-star at +10pp still beats a superstar at +3pp.
     ("superstar", "conservative"): 0.20,
     ("core",      "conservative"): 0.12,
     ("regular",   "conservative"): 0.05,

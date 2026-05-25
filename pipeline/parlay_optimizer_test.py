@@ -395,5 +395,104 @@ class PlayerInjectionTests(unittest.TestCase):
         self.assertIn("Alex Bregman", names)
 
 
+class DiversitySelectorTests(unittest.TestCase):
+    """Locks the final-selection pass (PR #100):
+      - Multiple distinct star players surface across visible slips
+        when alternatives exist.
+      - Same player isn't repeated across every visible slip just
+        because they have the highest raw score.
+      - If no alternatives exist (single eligible MLB star), the
+        repeat is allowed — diversity is a tiebreaker, not censorship.
+      - Conservative diversifies more aggressively than Aggressive.
+    """
+
+    def _make_lean(self, **kw) -> dict:
+        base = {
+            "_sport": "nba",
+            "id": f"{kw.get('playerName','x')}-{kw.get('market','REB')}",
+            "gameId": kw.get("gameId", "g1"),
+            "playerId": kw.get("playerId", 1),
+            "playerName": kw.get("playerName", "Player"),
+            "team": kw.get("team", "OKC"),
+            "opponent": "SAS",
+            "market": "REB",
+            "lean": "Over",
+            "side": "Over",
+            "line": 5.5,
+            "projection": 7.0,
+            "edgePct": kw.get("edgePct", 6),
+            "confidence": "High",
+            "oddsOver": -110,
+            "oddsUnder": -110,
+            "bookmaker": "draftkings",
+            "recent10": [4, 5, 6, 7, 8, 5, 6, 7, 8, 9],
+            "riskFlags": [],
+        }
+        return base
+
+    def test_visible_balanced_diversifies_when_alternates_exist(self):
+        # Pool: 3 distinct game-pairs with 2 NBA stars each game so
+        # balanced can build 3-leg slips with different player sets.
+        raw = []
+        # Game 1
+        raw.append(self._make_lean(playerName="Donovan Mitchell", playerId=11, gameId="g1", team="CLE", edgePct=8))
+        raw.append(self._make_lean(playerName="Evan Mobley", playerId=12, gameId="g1", team="CLE", edgePct=10))
+        # Game 2
+        raw.append(self._make_lean(playerName="Jalen Brunson", playerId=21, gameId="g2", team="NY", edgePct=8))
+        raw.append(self._make_lean(playerName="Karl-Anthony Towns", playerId=22, gameId="g2", team="NY", edgePct=10))
+        # Game 3
+        raw.append(self._make_lean(playerName="Aaron Judge", playerId=31, gameId="g3", team="NYY", edgePct=12,
+                                   playerName_fix=None))
+        raw[-1]["_sport"] = "mlb"
+        raw[-1]["market"] = "batter_hits"
+        raw[-1]["line"] = 0.5
+        raw.append(self._make_lean(playerName="Mookie Betts", playerId=32, gameId="g4", team="LAD", edgePct=11))
+        raw[-1]["_sport"] = "mlb"
+        raw[-1]["market"] = "batter_hits"
+        raw[-1]["line"] = 0.5
+        slips = optimize(raw, profile="balanced", num_candidates=3)
+        # We should see at least 4 distinct player names across the 3
+        # visible balanced slips — proof the selector is varying picks.
+        names = []
+        for s in slips:
+            for leg in s.legs:
+                names.append(leg.playerName)
+        self.assertGreaterEqual(len(set(names)), 4,
+                                f"Balanced visible slips repeat too much: {names}")
+
+    def test_same_player_can_repeat_when_no_alternatives(self):
+        # Only 3 eligible players across 3 games → no diversity is
+        # possible for a 3-leg balanced slip. Same player is allowed
+        # to repeat across slips. The selector returns ≥1 slip and
+        # never invents an alternative.
+        raw = []
+        for i in range(1, 4):
+            raw.append(self._make_lean(playerName=f"P{i}", playerId=i, gameId=f"g{i}", team=f"T{i}", edgePct=8))
+        slips = optimize(raw, profile="balanced", num_candidates=5)
+        # We get the one possible slip; the selector doesn't fabricate.
+        self.assertGreaterEqual(len(slips), 1)
+        # Every slip has the same 3 players (since that's all we have).
+        for s in slips:
+            self.assertEqual(len(s.legs), 3)
+
+    def test_diversity_does_not_pick_low_quality_junk(self):
+        # Two strong star slips and one obviously bad low-edge slip.
+        # Diversity must NOT promote the junk slip over a repeat
+        # superstar slip — quality dominates.
+        raw = []
+        raw.append(self._make_lean(playerName="Jalen Brunson", playerId=1, gameId="g1", team="NY", edgePct=14))
+        raw.append(self._make_lean(playerName="Donovan Mitchell", playerId=2, gameId="g2", team="CLE", edgePct=13))
+        raw.append(self._make_lean(playerName="Evan Mobley", playerId=3, gameId="g3", team="CLE", edgePct=12))
+        # Junk: barely-eligible low-edge non-star
+        raw.append(self._make_lean(playerName="Bench Guy", playerId=4, gameId="g4", team="ZZZ", edgePct=2.5))
+        slips = optimize(raw, profile="conservative", num_candidates=2)
+        # Top slip should be Brunson + Mitchell (highest combined). Junk
+        # shouldn't make a top-2 visible slip.
+        for s in slips:
+            for leg in s.legs:
+                self.assertNotEqual(leg.playerName, "Bench Guy",
+                                    "Diversity must not promote low-edge junk into top visible slips")
+
+
 if __name__ == "__main__":
     unittest.main()
