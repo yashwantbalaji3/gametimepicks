@@ -144,10 +144,21 @@ function _bySuggestedScore(a: ParlaySlip, b: ParlaySlip): number {
 /**
  * Group + sort suggested parlays by sport for the homepage carousel.
  *
- * Returns one bucket per sport tab plus an "all" bucket. Each bucket
- * is sorted by `suggestedScore` desc. We do NOT invent slips for
- * empty buckets — the caller renders an honest empty-state tile when
- * the sport has nothing.
+ * The legacy implementation grouped by the slip-level `sport` tag,
+ * which meant a slip tagged `"multi"` (e.g. one NBA leg + one MLB leg)
+ * disappeared from the NBA tab entirely. That hid today's NBA game on
+ * dates with only one NBA matchup (the slate can't satisfy a NBA-only
+ * profile but it CAN appear as a leg inside a multi slip).
+ *
+ * New rule:
+ *   - `nba` bucket = every slip with ≥1 NBA leg (single-sport OR
+ *     multi-sport that includes NBA).
+ *   - `mlb` bucket = every slip with ≥1 MLB leg.
+ *   - `multi` bucket = slips with legs from BOTH sports (strict).
+ *   - `all` bucket = every slip, ranked.
+ *
+ * That matches the user's mental model: tapping NBA should surface
+ * NBA exposure today, even when it has to come via a mixed slip.
  */
 export function groupSuggestedBySport(
   slips: ParlaySlip[],
@@ -160,15 +171,139 @@ export function groupSuggestedBySport(
   };
   for (const slip of slips) {
     buckets.all.push(slip);
-    const sport = (slip.sport ?? "").toLowerCase();
-    if (sport === "nba") buckets.nba.push(slip);
-    else if (sport === "mlb") buckets.mlb.push(slip);
-    else if (sport === "multi") buckets.multi.push(slip);
+    const sportsOnSlip = new Set<string>();
+    for (const leg of slip.legs ?? []) {
+      const s = (leg.sport ?? "").toLowerCase();
+      if (s) sportsOnSlip.add(s);
+    }
+    // Fall back to slip-level sport tag if legs lack metadata.
+    if (sportsOnSlip.size === 0 && slip.sport) {
+      sportsOnSlip.add((slip.sport ?? "").toLowerCase());
+    }
+    if (sportsOnSlip.has("nba")) buckets.nba.push(slip);
+    if (sportsOnSlip.has("mlb")) buckets.mlb.push(slip);
+    if (sportsOnSlip.size > 1) buckets.multi.push(slip);
   }
   for (const key of Object.keys(buckets) as SuggestedSport[]) {
     buckets[key] = buckets[key].slice().sort(_bySuggestedScore);
   }
   return buckets;
+}
+
+/**
+ * Diversified "All tab" ordering. Used by the homepage so the first
+ * card on All is never a long string of MLB-only slips when NBA
+ * mixed slips exist alongside.
+ *
+ * Algorithm:
+ *   1. Bucket slips into [conservative, balanced, aggressive].
+ *   2. Within each profile bucket, sort by `suggestedScore` desc.
+ *   3. Walk each profile in order picking top-K alternately:
+ *      conservative #1, balanced #1, aggressive #1,
+ *      conservative #2, balanced #2, …
+ *      With a small bias: when an NBA-containing slip is available
+ *      and the last picked slip had no NBA legs, prefer the NBA one
+ *      next so the rail surfaces NBA naturally.
+ *
+ * This is purely a display order — no slip is filtered out.
+ */
+export function diversifiedAllOrder(
+  slips: ParlaySlip[],
+): ParlaySlip[] {
+  const byProfile: Record<ParlayRiskProfile, ParlaySlip[]> = {
+    conservative: [],
+    balanced: [],
+    aggressive: [],
+  };
+  for (const s of slips) byProfile[s.riskProfile]?.push(s);
+  for (const k of Object.keys(byProfile) as ParlayRiskProfile[]) {
+    byProfile[k] = byProfile[k].slice().sort(_bySuggestedScore);
+  }
+  const out: ParlaySlip[] = [];
+  const order: ParlayRiskProfile[] = ["conservative", "balanced", "aggressive"];
+  const idx: Record<ParlayRiskProfile, number> = {
+    conservative: 0,
+    balanced: 0,
+    aggressive: 0,
+  };
+  // Track consecutive non-NBA picks. Once it hits a threshold we swap
+  // in the next-best NBA slip (if any) to keep NBA visible. We
+  // intentionally do NOT swap on the first pick — that would push the
+  // top-scored slip below an NBA slip that scored lower.
+  const consecutiveNonNbaThreshold = 2;
+  let consecutiveNonNba = 0;
+  let remaining = slips.length;
+  while (remaining > 0) {
+    for (const profile of order) {
+      const pool = byProfile[profile];
+      if (idx[profile] >= pool.length) continue;
+      let pick = pool[idx[profile]];
+      const pickHasNba = (pick.legs ?? []).some((l) => l.sport === "nba");
+      if (!pickHasNba && consecutiveNonNba >= consecutiveNonNbaThreshold) {
+        const nbaPick = pool
+          .slice(idx[profile])
+          .find((s) => (s.legs ?? []).some((l) => l.sport === "nba"));
+        if (nbaPick) {
+          const pos = pool.indexOf(nbaPick, idx[profile]);
+          pool.splice(pos, 1);
+          pool.splice(idx[profile], 0, nbaPick);
+          pick = nbaPick;
+        }
+      }
+      out.push(pick);
+      consecutiveNonNba =
+        (pick.legs ?? []).some((l) => l.sport === "nba")
+          ? 0
+          : consecutiveNonNba + 1;
+      idx[profile] += 1;
+      remaining -= 1;
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// Slip-level inspection helpers (used by sport/team/player filters)
+// ---------------------------------------------------------------------------
+
+export function getSlipSports(slip: ParlaySlip): Set<string> {
+  const out = new Set<string>();
+  for (const leg of slip.legs ?? []) {
+    const s = (leg.sport ?? "").toLowerCase();
+    if (s) out.add(s);
+  }
+  if (out.size === 0 && slip.sport) {
+    out.add((slip.sport ?? "").toLowerCase());
+  }
+  return out;
+}
+
+export function slipContainsSport(slip: ParlaySlip, sport: string): boolean {
+  return getSlipSports(slip).has(sport.toLowerCase());
+}
+
+export function getSlipTeams(slip: ParlaySlip): Set<string> {
+  const out = new Set<string>();
+  for (const leg of slip.legs ?? []) {
+    const t = (leg.team ?? "").toUpperCase().trim();
+    if (t) out.add(t);
+  }
+  return out;
+}
+
+export function slipContainsTeam(slip: ParlaySlip, team: string): boolean {
+  return getSlipTeams(slip).has(team.toUpperCase().trim());
+}
+
+export function getSlipPlayers(slip: ParlaySlip): string[] {
+  return (slip.legs ?? [])
+    .map((l) => (l.playerName ?? "").trim())
+    .filter(Boolean);
+}
+
+export function slipContainsPlayer(slip: ParlaySlip, name: string): boolean {
+  const target = name.toLowerCase().trim();
+  return getSlipPlayers(slip).some((p) => p.toLowerCase().trim() === target);
 }
 
 /**
@@ -282,6 +417,9 @@ export function getAvailableSportsFromSlips(
  * (or all sports when sport === "all"). Sorted alphabetically. Skips
  * legs with no team metadata. This is the team picker source — never
  * fabricates a team.
+ *
+ * NBA tab includes teams from any leg whose sport === "nba", whether
+ * the slip itself is sport-tagged "nba" or "multi". Same for MLB.
  */
 export function getAvailableTeamsFromSlips(
   slips: ParlaySlip[],
@@ -289,11 +427,12 @@ export function getAvailableTeamsFromSlips(
 ): Array<{ team: string; sport: string }> {
   const seen = new Map<string, { team: string; sport: string }>();
   for (const slip of slips) {
-    if (sport !== "all") {
-      const slipSport = (slip.sport ?? "").toLowerCase();
-      if (slipSport !== sport) continue;
-    }
+    if (sport !== "all" && !slipContainsSport(slip, sport)) continue;
     for (const leg of slip.legs ?? []) {
+      if (sport !== "all" && sport !== "multi") {
+        // For sport-specific tabs, only show teams from THAT sport's legs.
+        if ((leg.sport ?? "").toLowerCase() !== sport) continue;
+      }
       const t = (leg.team ?? "").toUpperCase().trim();
       if (!t) continue;
       const key = `${leg.sport}|${t}`;
@@ -308,6 +447,10 @@ export function getAvailableTeamsFromSlips(
 /**
  * Players that appear on a leg matching the given (sport, team) filter.
  * If `team` is empty, returns every player for the sport.
+ *
+ * Sport-aware: NBA tab returns only NBA legs (not MLB legs that live
+ * inside a multi-sport slip), so the player dropdown stays scoped to
+ * what the user just picked.
  */
 export function getAvailablePlayersForTeam(
   slips: ParlaySlip[],
@@ -320,11 +463,11 @@ export function getAvailablePlayersForTeam(
     { name: string; sport: string; team: string | null }
   >();
   for (const slip of slips) {
-    if (sport !== "all") {
-      const slipSport = (slip.sport ?? "").toLowerCase();
-      if (slipSport !== sport) continue;
-    }
+    if (sport !== "all" && !slipContainsSport(slip, sport)) continue;
     for (const leg of slip.legs ?? []) {
+      if (sport !== "all" && sport !== "multi") {
+        if ((leg.sport ?? "").toLowerCase() !== sport) continue;
+      }
       const legTeam = (leg.team ?? "").toUpperCase().trim();
       if (wantedTeam && legTeam !== wantedTeam) continue;
       const key = (leg.playerName ?? "").toLowerCase().trim();
@@ -364,13 +507,14 @@ export function filterSlipsBySportTeamPlayer(
     .map((p) => p.toLowerCase().trim())
     .filter(Boolean);
   return slips.filter((slip) => {
-    if (filter.sport !== "all") {
-      if ((slip.sport ?? "").toLowerCase() !== filter.sport) return false;
+    if (filter.sport === "multi") {
+      // Mixed tab strictly requires legs from BOTH sports.
+      if (getSlipSports(slip).size < 2) return false;
+    } else if (filter.sport !== "all") {
+      // NBA / MLB tab: any slip with at least one leg of that sport.
+      if (!slipContainsSport(slip, filter.sport)) return false;
     }
     if (wantedTeam) {
-      // Conservative interpretation: at least ONE leg on this team.
-      // (Requiring every leg would zero out multi-team correlation-free
-      //  slips and rarely match user intent.)
       const anyOnTeam = (slip.legs ?? []).some(
         (l) => (l.team ?? "").toUpperCase().trim() === wantedTeam,
       );
@@ -400,9 +544,11 @@ export function fallbackToBestUnfilteredSlips(
   limit: number = 3,
 ): ParlaySlip[] {
   const scored = slips
-    .filter((s) =>
-      sport === "all" ? true : (s.sport ?? "").toLowerCase() === sport,
-    )
+    .filter((s) => {
+      if (sport === "all") return true;
+      if (sport === "multi") return getSlipSports(s).size > 1;
+      return slipContainsSport(s, sport);
+    })
     .slice()
     .sort((a, b) => suggestedScore(b) - suggestedScore(a));
   return scored.slice(0, limit);

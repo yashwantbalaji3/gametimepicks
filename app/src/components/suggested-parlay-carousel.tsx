@@ -19,10 +19,16 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import ParlayTicketCard from "./parlay-ticket-card";
+import SearchableSelect, {
+  type SearchableOption,
+} from "./searchable-select";
 import {
+  diversifiedAllOrder,
   filterSlipsBySportTeamPlayer,
+  getAvailablePlayersForTeam,
   getAvailableTeamsFromSlips,
   groupSuggestedBySport,
+  slipContainsSport,
   type ParlayRiskProfile,
   type ParlaySlip,
   type SuggestedSport,
@@ -69,14 +75,12 @@ export default function SuggestedParlayCarousel({
   const buckets = useMemo(() => groupSuggestedBySport(slips), [slips]);
   const [activeTab, setActiveTab] = useState<SuggestedSport>("all");
   const [teamFilter, setTeamFilter] = useState<string | null>(null);
+  const [playerFilter, setPlayerFilter] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  // Default to the most populous tab so the rail never opens empty
-  // when "All" has slips but a specific sport happens to be 0.
   useEffect(() => {
     if (buckets.all.length === 0) return;
     if (buckets[activeTab].length === 0) {
-      // Find a non-empty tab — prefer NBA > MLB > Mixed > All.
       for (const t of ["nba", "mlb", "multi", "all"] as SuggestedSport[]) {
         if (buckets[t].length > 0) {
           setActiveTab(t);
@@ -84,32 +88,65 @@ export default function SuggestedParlayCarousel({
         }
       }
     }
-    // Reset scroll position when the active tab changes so the user
-    // always starts at the first (best-ranked) card.
     scrollRef.current?.scrollTo({ left: 0, behavior: "auto" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  // Team filter resets whenever the user switches sport.
+  // Team + player filters reset when the user switches sport.
   useEffect(() => {
     setTeamFilter(null);
+    setPlayerFilter(null);
   }, [activeTab]);
 
-  const teamsForTab = useMemo(
-    () => getAvailableTeamsFromSlips(slips, activeTab),
-    [slips, activeTab],
-  );
+  // Drop player when the team changes.
+  useEffect(() => {
+    setPlayerFilter(null);
+  }, [teamFilter]);
+
+  const teamOptions = useMemo<SearchableOption[]>(() => {
+    const teams = getAvailableTeamsFromSlips(slips, activeTab);
+    return [
+      { value: null, label: "All teams" },
+      ...teams.map((t) => ({
+        value: t.team,
+        label: t.team,
+        sub: t.sport.toUpperCase(),
+        searchText: t.team,
+      })),
+    ];
+  }, [slips, activeTab]);
+
+  const playerOptions = useMemo<SearchableOption[]>(() => {
+    const players = getAvailablePlayersForTeam(slips, activeTab, teamFilter);
+    return [
+      { value: null, label: "All players" },
+      ...players.map((p) => ({
+        value: p.name,
+        label: p.name,
+        sub: p.team ? `${p.team} · ${p.sport.toUpperCase()}` : p.sport.toUpperCase(),
+        searchText: `${p.name} ${p.team ?? ""}`,
+      })),
+    ];
+  }, [slips, activeTab, teamFilter]);
 
   const slipsForTab = useMemo(() => {
-    const base = buckets[activeTab];
-    if (!teamFilter) return base;
+    const base = activeTab === "all"
+      ? diversifiedAllOrder(buckets.all)
+      : buckets[activeTab];
+    if (!teamFilter && !playerFilter) return base;
     return filterSlipsBySportTeamPlayer(base, {
       sport: activeTab,
       team: teamFilter,
+      playerNames: playerFilter ? [playerFilter] : [],
     });
-  }, [buckets, activeTab, teamFilter]);
+  }, [buckets, activeTab, teamFilter, playerFilter]);
 
   const totalCount = buckets.all.length;
+  const filterActive = teamFilter !== null || playerFilter !== null;
+  const nbaLegSlipCount = useMemo(
+    () => slips.filter((s) => slipContainsSport(s, "nba")).length,
+    [slips],
+  );
 
   return (
     <section
@@ -136,13 +173,37 @@ export default function SuggestedParlayCarousel({
         }}
       />
 
-      {teamsForTab.length > 1 && (
-        <TeamChipRow
-          teams={teamsForTab.map((t) => t.team)}
-          activeTeam={teamFilter}
-          onChange={setTeamFilter}
-        />
+      {/* NBA-visibility note: when NBA legs exist but no NBA-only slip
+          could be built (single NBA game on slate), tell the reader. */}
+      {activeTab === "nba" && buckets.nba.length > 0 && (
+        <p
+          className="mt-2 text-[11px] leading-snug"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          NBA legs appear inside {buckets.nba.length} mixed slip
+          {buckets.nba.length === 1 ? "" : "s"} below — pure NBA slips
+          aren&apos;t possible with one NBA game today.
+        </p>
       )}
+
+      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <SearchableSelect
+          label="Team"
+          placeholder="All teams"
+          value={teamFilter}
+          options={teamOptions}
+          onChange={setTeamFilter}
+          emptyMessage="No teams in this sport"
+        />
+        <SearchableSelect
+          label="Player"
+          placeholder="All players"
+          value={playerFilter}
+          options={playerOptions}
+          onChange={setPlayerFilter}
+          emptyMessage="No players match"
+        />
+      </div>
 
       <div
         ref={scrollRef}
@@ -153,7 +214,12 @@ export default function SuggestedParlayCarousel({
         }}
       >
         {slipsForTab.length === 0 ? (
-          <EmptyCarouselCard sport={activeTab} teamFilter={teamFilter} />
+          <EmptyCarouselCard
+            sport={activeTab}
+            teamFilter={teamFilter}
+            playerFilter={playerFilter}
+            nbaLegSlipCount={nbaLegSlipCount}
+          />
         ) : (
           slipsForTab.map((slip) => (
             <div
@@ -170,6 +236,16 @@ export default function SuggestedParlayCarousel({
         )}
       </div>
 
+      {filterActive && slipsForTab.length === 0 && (
+        <p
+          className="mt-2 text-[11px] leading-snug"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          No clean optimizer slip matched those filters. Try clearing the
+          team or player.
+        </p>
+      )}
+
       <p
         className="mt-3 text-[11px] leading-relaxed"
         style={{ color: "var(--vault-text-faint)" }}
@@ -178,68 +254,6 @@ export default function SuggestedParlayCarousel({
         No locks, no guarantees. High-variance slips are labeled.
       </p>
     </section>
-  );
-}
-
-function TeamChipRow({
-  teams,
-  activeTeam,
-  onChange,
-}: {
-  teams: string[];
-  activeTeam: string | null;
-  onChange: (t: string | null) => void;
-}) {
-  return (
-    <div
-      className="mt-3 flex flex-wrap gap-1.5 items-center"
-      aria-label="Filter by team"
-    >
-      <span
-        className="font-mono uppercase tracking-[0.16em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
-      >
-        Team
-      </span>
-      <button
-        type="button"
-        onClick={() => onChange(null)}
-        className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
-        style={{
-          color:
-            activeTeam === null ? "var(--vault-bg)" : "var(--vault-text-mute)",
-          background:
-            activeTeam === null ? "var(--vault-gold-bright)" : "transparent",
-          border: "1px solid var(--vault-rule)",
-          fontSize: 9,
-          cursor: "pointer",
-        }}
-        aria-pressed={activeTeam === null}
-      >
-        Any
-      </button>
-      {teams.map((t) => {
-        const active = activeTeam === t;
-        return (
-          <button
-            key={t}
-            type="button"
-            onClick={() => onChange(active ? null : t)}
-            className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
-            style={{
-              color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
-              background: active ? "var(--vault-gold-bright)" : "transparent",
-              border: "1px solid var(--vault-rule)",
-              fontSize: 9,
-              cursor: "pointer",
-            }}
-            aria-pressed={active}
-          >
-            {t}
-          </button>
-        );
-      })}
-    </div>
   );
 }
 
@@ -362,29 +376,42 @@ function SportTabs({
 function EmptyCarouselCard({
   sport,
   teamFilter,
+  playerFilter,
+  nbaLegSlipCount,
 }: {
   sport: SuggestedSport;
   teamFilter?: string | null;
+  playerFilter?: string | null;
+  nbaLegSlipCount?: number;
 }) {
   let label: string;
   let body: string;
-  if (teamFilter) {
-    label = `No clean ${sport === "all" ? "" : sport.toUpperCase() + " "}slip for ${teamFilter}`;
+  if (playerFilter || teamFilter) {
+    const filterDesc = [
+      playerFilter,
+      teamFilter,
+    ].filter(Boolean).join(" · ");
+    label = `No clean slip for ${filterDesc}`;
     body =
-      "No optimizer slip features this team tonight. Try a different team or clear the filter.";
+      "No optimizer slip features that combination tonight. Try another team/player or clear the filter.";
   } else {
-    label =
-      sport === "nba"
-        ? "NBA projections live · no clean parlay yet"
-        : sport === "mlb"
-          ? "MLB projections live · no clean parlay yet"
-          : sport === "multi"
-            ? "No cross-sport slips tonight"
-            : "No suggested parlays tonight";
-    body =
-      sport === "nba" || sport === "mlb"
-        ? "Projections for this sport are live, but the slate doesn't satisfy any profile cleanly (e.g. too few games for correlation-safe stacks). Check the All or Mixed tabs."
-        : "The model has nothing to recommend at this filter. The rail stays empty — never fabricated.";
+    if (sport === "nba") {
+      label = "NBA projections live · no clean NBA-only parlay";
+      body =
+        nbaLegSlipCount && nbaLegSlipCount > 0
+          ? `Today's slate has only one NBA game, so NBA-only parlays can't satisfy our correlation cap. NBA legs appear in ${nbaLegSlipCount} mixed slip${nbaLegSlipCount === 1 ? "" : "s"} on the All tab.`
+          : "Projections are live but the slate doesn't satisfy any NBA-only profile (too few games for correlation-safe stacks). Check All.";
+    } else if (sport === "mlb") {
+      label = "MLB projections live · no clean parlay";
+      body =
+        "Projections are live but the slate doesn't satisfy any MLB-only profile cleanly. Check All or Mixed.";
+    } else if (sport === "multi") {
+      label = "No cross-sport slips tonight";
+      body = "The model has nothing cross-sport at this filter.";
+    } else {
+      label = "No suggested parlays tonight";
+      body = "The model has nothing to recommend. Never fabricated.";
+    }
   }
   return (
     <div

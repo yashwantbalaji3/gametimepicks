@@ -113,10 +113,12 @@ BALANCED_RULES = ProfileRules(
     max_legs_per_team=2,
     exclude_anomalies=True,
     max_anomaly_legs=0,
+    # Audit 2026-05-25: pitcher_strikeouts is the worst MLB cohort
+    # (43.6% on 94 decisive). Pulled out of Balanced — Aggressive
+    # still allows it.
     mlb_allowed_markets=(
         "batter_hits",
         "batter_total_bases",
-        "pitcher_strikeouts",
     ),
     mlb_max_volatile_legs=1,
     correlation_penalty_per_extra=0.08,
@@ -164,13 +166,25 @@ MLB_VOLATILE_MARKETS: set[str] = {
 # Per (sport, market) strength weight. Used as a small ranking nudge so
 # the optimizer prefers leans on markets the audit shows are stable.
 # Values are NOT a hit rate — just a relative preference factor.
+#
+# Tuned 2026-05-25 against `model_audit.json` (8 NBA dates, 7 MLB
+# dates settled):
+#   - NBA REB hit rate 56.1% > PTS 52.2% > AST 51.3% on 800+ decisive.
+#     Widened the spread to make the audit-strong market (REB) more
+#     prominent in optimizer slips.
+#   - MLB batter_hits 51.9% is the only positive MLB cohort. Total
+#     bases (47.9%) and strikeouts (43.6%) are below coin-flip on the
+#     last ~250 decisive picks each. Pulled their weights further.
 MARKET_STABILITY_WEIGHT: dict[str, float] = {
-    "nba:REB": 1.10,
+    "nba:REB": 1.15,
     "nba:PTS": 0.95,
-    "nba:AST": 0.90,
-    "mlb:batter_hits": 1.10,
-    "mlb:batter_total_bases": 0.90,
-    "mlb:pitcher_strikeouts": 0.85,
+    "nba:AST": 0.80,
+    "mlb:batter_hits": 1.15,
+    "mlb:batter_total_bases": 0.85,
+    "mlb:pitcher_strikeouts": 0.70,
+    # batter_hits_runs_rbis stays at 0.80 — the audit has zero
+    # decisive picks on this market yet, so we don't have data to
+    # justify moving the weight. Re-tune once N ≥ ~100 settled rows.
     "mlb:batter_hits_runs_rbis": 0.80,
 }
 
@@ -297,10 +311,28 @@ def _fallback_lean_id(raw: dict[str, Any]) -> str:
 # Per-leg scoring
 # ---------------------------------------------------------------------------
 
+# Confidence-tier weights. NBA tier ordering matches priors. MLB is
+# different: the audit shows the High tier is *inverted* (227-243 =
+# 48.3%) while Medium / Low both clear 51%. We do not flip the labels
+# (the calibration overlay does that on the UI side), but we DO use
+# the audit-corrected weight here so the optimizer doesn't keep
+# selecting MLB High legs as if they were strong picks.
+#
+# We can't easily set per-sport tier weights without a wider refactor,
+# so we keep a single map and let the per-leg sport-aware adjustment
+# inside `leg_score` flatten MLB High.
 _CONFIDENCE_WEIGHT: dict[str, float] = {
     "High": 1.0,
     "Medium": 0.65,
     "Low": 0.30,
+}
+
+# Per-sport tier adjustments applied AFTER the base confidence
+# weight. Multiplicative. Sourced from model_audit.json on 2026-05-25.
+_TIER_ADJUST: dict[tuple[str, str], float] = {
+    # MLB High is calibration-inverted (48.3% audit). Down-weight to
+    # the level of Medium so it doesn't dominate the optimizer.
+    ("mlb", "High"): 0.65,
 }
 
 
@@ -308,7 +340,7 @@ def leg_score(lean: OptimizerLean, rules: ProfileRules) -> float:
     """Higher = better fit for the profile.
 
     Components:
-      - confidence_weight × tier weight
+      - confidence_weight × tier weight × per-(sport, tier) adjust
       - edge_weight × (clipped edge / 20)
       - recent10_bonus when recent10 has ≥5 numeric values
       - pid_bonus when playerId is real
@@ -316,6 +348,8 @@ def leg_score(lean: OptimizerLean, rules: ProfileRules) -> float:
       - calibration factor (1.0 = neutral)
     """
     cw = _CONFIDENCE_WEIGHT.get(lean.confidence or "", 0.10)
+    tier_adjust = _TIER_ADJUST.get((lean.sport, lean.confidence or ""), 1.0)
+    cw *= tier_adjust
     edge = max(0.0, min(20.0, float(lean.edgePct or 0)))
     base = (
         rules.confidence_weight * cw
