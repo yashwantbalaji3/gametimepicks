@@ -17,6 +17,7 @@ import AnomalyGuardrailPanel from "@/components/anomaly-guardrail-panel";
 import SettledGameDetail, {
   type SettledLeanRow,
 } from "@/components/settled-game-detail";
+import SettledPlayerList from "@/components/settled-player-list";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
 import { getPlayoffContext } from "@/components/playoff-context";
 import ModelLessonsCard from "@/components/model-lessons-card";
@@ -270,11 +271,59 @@ export default function NbaResultsPage() {
         boardLeans={boardLeans}
       />
 
+      {/* PR #111: player-by-player accordion grid as the first-paint
+          audit surface. Replaces the giant 8-column per-game table on
+          mobile + desktop. The per-game table stays accessible below
+          inside a `<details>` so power users can still cross-reference.
+       */}
+      {latest.rows.length > 0 && (
+        <section className="mt-10">
+          <SectionHeading>
+            {latest.date} · player audit · projection vs actual
+          </SectionHeading>
+          <div className="mt-4">
+            <SettledPlayerList
+              rows={latest.rows}
+              sport="nba"
+              matchupLabels={gameLabelMap}
+            />
+          </div>
+        </section>
+      )}
+
       {/* Settled games · tap to expand each game's projection-vs-actual
           audit. Same SettledGameDetail component used on the MLB Results
           page for consistent UX across sports. */}
       {latest.rows.length > 0 && (
         <section className="mt-10">
+          <details
+            className="group"
+            style={{
+              background: "rgba(7,11,26,0.40)",
+              border: "1px dashed var(--vault-border)",
+              borderRadius: 8,
+              padding: "10px 14px",
+            }}
+          >
+            <summary
+              className="list-none cursor-pointer flex items-center justify-between gap-2"
+              style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+            >
+              <span
+                className="font-mono uppercase tracking-[0.16em]"
+                style={{ color: "var(--vault-gold)", fontSize: 10 }}
+              >
+                Full per-game audit table · {latest.date}
+              </span>
+              <span
+                aria-hidden
+                className="font-mono transition-transform group-open:rotate-180"
+                style={{ color: "var(--vault-text-faint)" }}
+              >
+                ▾
+              </span>
+            </summary>
+            <div className="mt-3">
           <SectionHeading>
             {latest.date} · settled games · projection vs actual
           </SectionHeading>
@@ -358,12 +407,14 @@ export default function NbaResultsPage() {
                     hitRate={hitRate}
                     rows={detailRows}
                     tone="gold"
-                    defaultOpen={ordered.length === 1}
+                    defaultOpen={false}
                   />
                 );
               });
             })()}
-          </div>
+            </div>
+            </div>
+          </details>
         </section>
       )}
 

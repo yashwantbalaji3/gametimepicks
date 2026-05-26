@@ -16,6 +16,8 @@ import NeonStatPanel from "@/components/neon-stat-panel";
 import SettledGameDetail, {
   type SettledLeanRow,
 } from "@/components/settled-game-detail";
+import SettledPlayerList from "@/components/settled-player-list";
+import type { SettledLean } from "@/lib/settlement-data";
 import ModelLessonsCard from "@/components/model-lessons-card";
 import ResultsModelAuditNotes from "@/components/results-model-audit-notes";
 
@@ -126,28 +128,100 @@ export default function MlbResultsPage() {
 
       <MlbPendingGames games={report.pendingGameList || []} />
 
+      {/* PR #111: player-by-player accordion grid (mobile-first) before
+          the per-game table. Adapter maps MlbSettledLean → SettledLean
+          shape so the shared component renders identically across
+          NBA + MLB. */}
+      {settledRows.length > 0 && (() => {
+        const adapted: SettledLean[] = settledRows.map((r) => ({
+          date: r.date,
+          gameId: String(r.gamePk),
+          playerId: r.playerId ?? undefined,
+          playerName: r.playerName,
+          team: r.playerTeamAbbr ?? undefined,
+          opponent: r.opponentAbbr ?? undefined,
+          market: r.marketLabel as unknown as SettledLean["market"],
+          side: r.lean === "Over" || r.lean === "Under" ? r.lean : "Over",
+          line: r.line,
+          modelProjection: r.projection,
+          edgePct: r.edgePct,
+          confidence: r.confidence,
+          finalStat: r.actual,
+          result:
+            r.outcome === "Win"
+              ? "win"
+              : r.outcome === "Loss"
+                ? "loss"
+                : "push",
+        }));
+        const matchupLabels: Record<string, string | null> = {};
+        for (const r of settledRows) {
+          const key = String(r.gamePk);
+          if (!matchupLabels[key] && r.playerTeamAbbr && r.opponentAbbr) {
+            matchupLabels[key] = `${r.playerTeamAbbr} @ ${r.opponentAbbr}`;
+          }
+        }
+        return (
+          <section className="mt-10">
+            <div className="flex items-center gap-2 mb-3">
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5 rounded-full"
+                style={{
+                  background: "var(--vault-success)",
+                  boxShadow: "0 0 8px rgba(74, 222, 128, 0.55)",
+                }}
+              />
+              <span
+                className="font-mono uppercase tracking-[0.16em]"
+                style={{ color: "var(--vault-success)", fontSize: 11 }}
+              >
+                Player audit · projection vs actual
+              </span>
+            </div>
+            <SettledPlayerList
+              rows={adapted}
+              sport="mlb"
+              matchupLabels={matchupLabels}
+            />
+          </section>
+        );
+      })()}
+
       {/* Settled games · tap to expand each game's projection-vs-actual
-          audit. Each card shows W/L/P + per-game hit rate; opening it
-          reveals every settled lean for that matchup. */}
+          audit. Kept as a collapsed "Full per-game audit table" so power
+          users can still cross-reference. Hidden on first paint per
+          PR #111. */}
       {settledRows.length > 0 && (
         <section className="mt-10">
-          <div className="flex items-center gap-2 mb-3">
-            <span
-              aria-hidden
-              className="inline-block w-1.5 h-1.5 rounded-full"
-              style={{
-                background: "var(--vault-success)",
-                boxShadow: "0 0 8px rgba(74, 222, 128, 0.55)",
-              }}
-            />
-            <span
-              className="font-mono uppercase tracking-[0.16em]"
-              style={{ color: "var(--vault-success)", fontSize: 11 }}
+          <details
+            className="group"
+            style={{
+              background: "rgba(7,11,26,0.40)",
+              border: "1px dashed var(--vault-border)",
+              borderRadius: 8,
+              padding: "10px 14px",
+            }}
+          >
+            <summary
+              className="list-none cursor-pointer flex items-center justify-between gap-2"
+              style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
             >
-              Settled games · projection vs actual
-            </span>
-          </div>
-          <div className="flex flex-col gap-3">
+              <span
+                className="font-mono uppercase tracking-[0.16em]"
+                style={{ color: "var(--vault-success)", fontSize: 10 }}
+              >
+                Full per-game audit table
+              </span>
+              <span
+                aria-hidden
+                className="font-mono transition-transform group-open:rotate-180"
+                style={{ color: "var(--vault-text-faint)" }}
+              >
+                ▾
+              </span>
+            </summary>
+            <div className="mt-3 flex flex-col gap-3">
             {(() => {
               const byGame = new Map<number, typeof settledRows>();
               for (const r of settledRows) {
@@ -202,7 +276,8 @@ export default function MlbResultsPage() {
                 );
               });
             })()}
-          </div>
+            </div>
+          </details>
         </section>
       )}
 
