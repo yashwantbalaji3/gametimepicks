@@ -48,15 +48,39 @@ export default function ResultsPage() {
     const unique = payload.uniqueSlips ?? [];
     const sorted = sortGradedSlipsForDisplay(unique);
     // Convert each OptimizerSlip → ParlaySlip for the ticket card.
-    const displaySlips = sorted.map((s) => ({
-      ...optimizerSlipToParlaySlip(s, date),
-      status: ((s as unknown as { status?: string }).status ?? "pending") as
-        | "pending"
-        | "win"
-        | "loss"
-        | "push"
-        | "void",
-    }));
+    //
+    // PR #111: the graded payload ships with `riskProfile: null` on
+    // every uniqueSlip — the lane is encoded in the slipId
+    // (`opt_<date>_<lane>_<hash>`). The V2 results section sub-groups
+    // missed slips by lane, so we derive `riskProfile` from the slipId
+    // here. Falls back to the value already on the slip when present.
+    const deriveLane = (s: { slipId?: string; riskProfile?: unknown }) => {
+      if (s.riskProfile && typeof s.riskProfile === "string") {
+        return s.riskProfile;
+      }
+      const id = s.slipId ?? "";
+      const m = id.match(/^opt_\d{4}-\d{2}-\d{2}_([a-z_]+?)(?:_[a-f0-9]{6,}|_(?:nba|mlb|multi|all)_)/);
+      if (m) {
+        const lane = m[1].replace(/_(?:nba|mlb|multi|all)$/, "");
+        if (lane === "conservative" || lane === "balanced" || lane === "aggressive" || lane === "star_power") {
+          return lane;
+        }
+      }
+      return null;
+    };
+    const displaySlips = sorted.map((s) => {
+      const ps = optimizerSlipToParlaySlip(s, date);
+      return {
+        ...ps,
+        riskProfile: (deriveLane(s) ?? ps.riskProfile) as typeof ps.riskProfile,
+        status: ((s as unknown as { status?: string }).status ?? "pending") as
+          | "pending"
+          | "win"
+          | "loss"
+          | "push"
+          | "void",
+      };
+    });
     const totals = {
       wins: unique.filter((s) => (s as unknown as { status?: string }).status === "win").length,
       losses: unique.filter((s) => (s as unknown as { status?: string }).status === "loss").length,
