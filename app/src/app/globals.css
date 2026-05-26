@@ -4042,3 +4042,134 @@ table,
   }
 }
 
+/* ───────────────────────────────────────────────────────────────────────
+   Market ticker — premium right-to-left "stock board" strip used on
+   Home / Projections / Parlay Lab. PR #112 (feat/market-ticker).
+   Mobile-first: thin, subtle gold/neon, never pushes content down by
+   more than ~28px on phone-width viewports.
+   ─────────────────────────────────────────────────────────────────── */
+.gtp-market-ticker {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--vault-rule);
+  border-bottom: 1px solid var(--vault-rule);
+  background: linear-gradient(
+    90deg,
+    rgba(7, 11, 26, 0.55) 0%,
+    rgba(7, 11, 26, 0.30) 50%,
+    rgba(7, 11, 26, 0.55) 100%
+  );
+  /* Edge fade so items scroll under the borders cleanly. */
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black 32px,
+    black calc(100% - 32px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black 32px,
+    black calc(100% - 32px),
+    transparent 100%
+  );
+}
+
+.gtp-market-ticker-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 28px;
+  padding: 6px 0;
+  white-space: nowrap;
+  /* The track holds TWO copies of the item list back-to-back so the
+     animation loops seamlessly. We translate by exactly -50%. */
+  animation: gtp-market-ticker-scroll 60s linear infinite;
+  will-change: transform;
+}
+
+.gtp-market-ticker:hover .gtp-market-ticker-track,
+.gtp-market-ticker:focus-within .gtp-market-ticker-track {
+  animation-play-state: paused;
+}
+
+@keyframes gtp-market-ticker-scroll {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.gtp-market-ticker-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--vault-text-mute);
+  text-decoration: none;
+}
+
+.gtp-market-ticker-item[data-href="true"]:hover {
+  color: var(--vault-text);
+}
+
+.gtp-market-ticker-item .gtp-market-ticker-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.gtp-market-ticker-item .gtp-market-ticker-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.gtp-market-ticker-item[data-tone="positive"] .gtp-market-ticker-value {
+  color: var(--vault-success);
+}
+.gtp-market-ticker-item[data-tone="warning"] .gtp-market-ticker-value {
+  color: var(--vault-warn);
+}
+.gtp-market-ticker-item[data-tone="info"] .gtp-market-ticker-value {
+  color: var(--vault-gold-bright);
+}
+
+.gtp-market-ticker-sep {
+  color: var(--vault-text-faint);
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+/* Reduced-motion users — keep the row, drop the animation. The
+   strip stays scrollable via touch / scroll wheel. */
+@media (prefers-reduced-motion: reduce) {
+  .gtp-market-ticker-track {
+    animation: none;
+    overflow-x: auto;
+    width: 100%;
+    scroll-snap-type: x mandatory;
+  }
+  .gtp-market-ticker-item {
+    scroll-snap-align: start;
+  }
+  /* Hide the second (duplicate) copy so reduced-motion users don't see
+     the same items twice. We accomplish this with an opacity-0 visual
+     state on the duplicate set — the markup contains aria-hidden so
+     screen readers also skip it. */
+  .gtp-market-ticker-track > [data-ticker-copy="duplicate"] {
+    display: none;
+  }
+}
+
+/* Mobile compaction — drop a tiny bit of padding + speed so the
+   strip never feels chunky on a 375px viewport. */
+@media (max-width: 640px) {
+  .gtp-market-ticker-track {
+    gap: 20px;
+    animation-duration: 50s;
+  }
+  .gtp-market-ticker-item {
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+  }
+}
+

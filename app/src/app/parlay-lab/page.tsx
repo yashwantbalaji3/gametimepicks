@@ -18,12 +18,17 @@ import { Suspense } from "react";
 import Link from "next/link";
 
 import ParlayLabBuilder from "@/components/parlay-lab-builder";
+import MarketTicker from "@/components/market-ticker";
+import { buildMarketTickerItems } from "@/lib/market-ticker";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import {
   getSuggestedParlaysForDate,
   getOptimizerSnapshotForDate,
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
+import { getBoardForDate } from "@/lib/data";
+import { getMlbBoardForDate } from "@/lib/data-mlb";
+import { getOptimizerSummary } from "@/lib/parlay-results";
 import { currentEtDate } from "@/lib/freshness";
 
 export const metadata = {
@@ -47,8 +52,22 @@ export default function ParlayLabPage() {
     getLatestOptimizerSnapshot()?.payload ||
     null;
 
+  // ---- Market ticker (PR #112) ------------------------------------------
+  // Parlay Lab surface: lead with the safety-filter context so users
+  // understand what's promoted vs hidden, then surface live data.
+  const nbaBoard = getBoardForDate(today);
+  const mlbBoard = getMlbBoardForDate(today);
+  const optimizerSummary = getOptimizerSummary();
+  const tickerItems = buildMarketTickerItems({
+    surface: "parlay_lab",
+    optimizerSummary,
+    nba: nbaBoard,
+    mlb: mlbBoard,
+  });
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden">
+      <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6 mb-4 sm:mb-6" />
       <Suspense fallback={<div className="min-h-[60vh]" aria-hidden />}>
         {suggested ? (
           <ParlayLabBuilder
