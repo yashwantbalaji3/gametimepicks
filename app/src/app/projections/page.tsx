@@ -33,6 +33,7 @@ import { loadProjectionsPayload } from "@/lib/data-projections";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { getActiveCricketBoard } from "@/lib/data-cricket";
 import { getCricketContextForDate } from "@/lib/data-cricket-context";
+import { getCricketPlayerProjectionsForDate } from "@/lib/data-cricket-players";
 
 export const metadata = {
   title: "Projections · GameTime Picks",
@@ -48,6 +49,9 @@ export default function ProjectionsPage() {
   const cricketContext = cricketBoard
     ? getCricketContextForDate(cricketBoard.date)
     : null;
+  const cricketPlayers = cricketBoard
+    ? getCricketPlayerProjectionsForDate(cricketBoard.date)
+    : null;
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       {/* Suspense is required because <ProjectionsExperience />'s
@@ -62,7 +66,11 @@ export default function ProjectionsPage() {
           calibrationTable={loadCalibrationTable()}
         />
       </Suspense>
-      <CricketBoardSection board={cricketBoard} context={cricketContext} />
+      <CricketBoardSection
+        board={cricketBoard}
+        context={cricketContext}
+        playerProjections={cricketPlayers}
+      />
     </div>
   );
 }

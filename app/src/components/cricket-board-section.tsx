@@ -19,6 +19,7 @@
  */
 import type { CricketBoard, CricketMatch } from "@/lib/data-cricket";
 import type { CricketContext } from "@/lib/data-cricket-context";
+import type { CricketPlayerProjectionsFile } from "@/lib/data-cricket-players";
 import {
   formatAmericanOdds,
   formatProbPct,
@@ -26,13 +27,19 @@ import {
 } from "@/lib/cricket-projection";
 import CricketTeamBadge from "./cricket-team-badge";
 import CricketContextCards from "./cricket-context-cards";
+import CricketPlayerProjections from "./cricket-player-projections";
 
 interface Props {
   board: CricketBoard | null;
   context?: CricketContext | null;
+  playerProjections?: CricketPlayerProjectionsFile | null;
 }
 
-export default function CricketBoardSection({ board, context = null }: Props) {
+export default function CricketBoardSection({
+  board,
+  context = null,
+  playerProjections = null,
+}: Props) {
   // Don't render anything when nothing is on disk — projections page
   // shouldn't show an empty cricket header on NBA/MLB-only days.
   if (!board || board.matches.length === 0) return null;
@@ -60,6 +67,11 @@ export default function CricketBoardSection({ board, context = null }: Props) {
         context={context}
         totalsAvailable={totalsAvailable}
       />
+      {/* Player projection drilldown — collapsed-by-default <details>
+          accordion. Body shows context-only role notes per player.
+          Numeric runs/wickets only render when projectionType is
+          "numeric" — never fabricated. */}
+      <CricketPlayerProjections projections={playerProjections} />
       <p
         className="text-[11px] leading-relaxed"
         style={{ color: "var(--vault-text-faint)" }}
