@@ -25,6 +25,7 @@ import { useEffect, useMemo, useState } from "react";
 import ParlayTicketCard from "./parlay-ticket-card";
 import PlayerRecentFormDrawer from "./player-recent-form-drawer";
 import CustomParlayBuilder from "./custom-parlay-builder";
+import CustomParlayGenerator from "./custom-parlay-generator";
 import SearchableSelect, {
   type SearchableOption,
 } from "./searchable-select";
@@ -332,6 +333,10 @@ export default function ParlayLabBuilder({
 
       <AltLineComingSoon />
       <CustomParlayBuilder snapshot={optimizerPayload ?? null} />
+      {/* PR #115: "Generate for me" — synthesizes 1–5 custom slips
+          from the same leg pool using model scoring + DNP guard.
+          Never persisted, never tracked publicly. */}
+      <CustomParlayGenerator snapshot={optimizerPayload ?? null} />
       <BuilderFootnote optimizerActive={optimizerActive} />
       <PlayerRecentFormDrawer leg={activeLeg} onClose={() => setActiveLeg(null)} />
     </section>
