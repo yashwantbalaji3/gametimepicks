@@ -19,7 +19,7 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
+    <div className="vault-page-shell px-3 sm:px-6 lg:px-8 py-5 sm:py-10 md:py-14 overflow-x-hidden">
       <SectionHeader
         eyebrow="About"
         title="Sports projections made simple."
@@ -337,17 +337,13 @@ function Section({
 }) {
   return (
     <section
-      className="rounded-[8px] px-5 py-5"
-      style={{
-        background: "rgba(7,11,26,0.55)",
-        border: "1px solid var(--vault-border)",
-      }}
+      className="vault-deluxe-card rounded-[8px] px-4 sm:px-5 py-4 sm:py-5"
     >
       <h2
         className="font-display tracking-tight mb-3"
         style={{
           color: "var(--vault-gold-bright)",
-          fontSize: 20,
+          fontSize: 18,
           lineHeight: 1.25,
         }}
       >

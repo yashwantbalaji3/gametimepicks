@@ -68,6 +68,7 @@ export default function ParlayResultsSummary({ summary }: Props) {
         <SummaryTile
           label={PROFILE_LABEL.star_power}
           bucket={profiles.star_power ?? null}
+          starPower
         />
         <SummaryTile
           label={PROFILE_LABEL.aggressive}
@@ -108,10 +109,12 @@ function SummaryTile({
   label,
   bucket,
   emphasis,
+  starPower,
 }: {
   label: string;
   bucket: OptimizerSummaryBucket | null;
   emphasis?: boolean;
+  starPower?: boolean;
 }) {
   const decisive = bucket?.decisive ?? 0;
   const hitRate = bucket?.hitRate ?? null;
@@ -127,11 +130,29 @@ function SummaryTile({
         ? `${pending} pending`
         : "no graded slips";
   return (
-    <div className="flex flex-col gap-1 min-w-0">
+    <div
+      className="flex flex-col gap-1 min-w-0 relative px-2 py-1.5 rounded-[5px]"
+      style={
+        starPower
+          ? {
+              background:
+                "linear-gradient(160deg, rgba(240,199,94,0.12), rgba(212,175,55,0.02))",
+              border: "1px solid rgba(212,175,55,0.30)",
+              boxShadow: "0 0 14px -4px rgba(240,199,94,0.22)",
+            }
+          : undefined
+      }
+    >
       <span
-        className="font-mono uppercase tracking-[0.16em] truncate"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        className="font-mono uppercase tracking-[0.16em] truncate inline-flex items-center gap-1"
+        style={{
+          color: starPower
+            ? "var(--vault-gold-bright)"
+            : "var(--vault-text-faint)",
+          fontSize: 9,
+        }}
       >
+        {starPower ? <span aria-hidden>★</span> : null}
         {label}
       </span>
       <span

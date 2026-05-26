@@ -110,7 +110,7 @@ export default function Nav() {
             <BrandMark variant="hero" />
           </span>
           <span className="inline-flex sm:hidden">
-            <BrandMark variant="lockup" />
+            <BrandMark variant="compact" />
           </span>
         </Link>
       </div>

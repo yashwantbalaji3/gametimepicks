@@ -57,11 +57,11 @@ interface Props {
   optimizerPayload?: OptimizerSnapshot | null;
 }
 
-const ALL_SPORTS: Array<{ key: SuggestedSport; label: string }> = [
+const ALL_SPORTS: Array<{ key: SuggestedSport; label: string; icon?: string }> = [
   { key: "all", label: "All" },
-  { key: "nba", label: "NBA" },
-  { key: "mlb", label: "MLB" },
-  { key: "multi", label: "Mixed" },
+  { key: "nba", label: "NBA", icon: "🏀" },
+  { key: "mlb", label: "MLB", icon: "⚾" },
+  { key: "multi", label: "Mixed", icon: "🔀" },
 ];
 
 const RISK_DISPLAY: Record<
@@ -361,7 +361,7 @@ function LabFilters({
   onPlayerChange,
 }: {
   sport: SuggestedSport;
-  sportOptions: Array<{ key: SuggestedSport; label: string }>;
+  sportOptions: Array<{ key: SuggestedSport; label: string; icon?: string }>;
   onSportChange: (s: SuggestedSport) => void;
   team: string | null;
   teamOptions: SearchableOption[];
@@ -399,7 +399,7 @@ function LabFilters({
                 key={opt.key}
                 type="button"
                 onClick={() => onSportChange(opt.key)}
-                className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full"
+                className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full inline-flex items-center gap-1.5"
                 style={{
                   color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
                   background: active ? "var(--vault-gold-bright)" : "transparent",
@@ -407,6 +407,7 @@ function LabFilters({
                   cursor: "pointer",
                 }}
               >
+                {opt.icon ? <span aria-hidden style={{ fontSize: 12 }}>{opt.icon}</span> : null}
                 {opt.label}
               </button>
             );

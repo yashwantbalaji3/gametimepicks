@@ -61,16 +61,30 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
     ];
     for (const leg of pool) {
       if (selectedKeys.includes(leg.leanId)) continue;
+      const sportLower = (leg.sport ?? "").toLowerCase();
       const sport = (leg.sport ?? "").toUpperCase();
       const star = leg.isStar ? "⭐ " : "";
       const line = leg.line != null ? leg.line : "—";
       const edge =
         typeof leg.edgePct === "number" ? `${leg.edgePct.toFixed(1)}pp` : "—";
+      const avatarSport = (sportLower === "mlb" || sportLower === "nba")
+        ? (sportLower as "mlb" | "nba")
+        : "nba";
       out.push({
         value: leg.leanId,
         label: `${star}${leg.playerName} · ${leg.market} ${leg.side} ${line}`,
         sub: `${sport} · ${leg.team ?? "?"} · edge ${edge} · ${leg.confidence ?? "?"}`,
         searchText: `${leg.playerName} ${leg.team ?? ""} ${leg.market} ${sport}`,
+        leadIcon: (
+          <PlayerAvatar
+            playerId={leg.playerId ?? null}
+            playerName={leg.playerName}
+            team={leg.team ?? undefined}
+            sport={avatarSport}
+            size="xs"
+            flat
+          />
+        ),
       });
     }
     return out;

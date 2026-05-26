@@ -117,9 +117,10 @@ export default function ParlayTicketCard({
   const profileColor = riskProfileColor(slip.riskProfile);
   const payout = combinedParlayPayoutPer100(slip.legs);
   const profileLabel = humanProfileLabel(slip.riskProfile);
+  const isStarPower = slip.riskProfile === "star_power";
   return (
     <article
-      className="gtp-parlay-ticket relative overflow-hidden flex flex-col gap-3"
+      className={`gtp-parlay-ticket relative overflow-hidden flex flex-col gap-3 ${isStarPower ? "casino-glow-card" : ""}`}
       aria-label={`${profileLabel} parlay slip · ${slip.legs.length} legs · ${statusLabel(slip.status)}`}
     >
       {/* Top accent rule keyed to status. Visual differentiator that
