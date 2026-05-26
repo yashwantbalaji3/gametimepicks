@@ -201,6 +201,19 @@ BAL_AFTER=$($PY -c "import json,sys; print(json.loads('''$BAL_AFTER_RAW''').get(
 # still exit cleanly. Missing/empty snapshot is preferred over an
 # invented one.
 # ---------------------------------------------------------------------------
+CRICKET_FAILED=0
+step "4b/5  IPL cricket board (free schedule + optional odds)"
+# Cricket fetch is single-call, low cost. ESPN schedule is free; if
+# ODDS_API_KEY is set, we also pull cricket_ipl h2h+totals in one
+# combined request (~2 credits per slate). Projections-only — never
+# enters the parlay optimizer / custom builder / Results.
+if $PY -m pipeline.cricket.fetch_ipl_board --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_cricket_board.log; then
+    ok "cricket board written for $TARGET_DATE"
+else
+    warn "cricket board returned non-zero — see /tmp/gtp_cricket_board.log"
+    CRICKET_FAILED=1
+fi
+
 SNAPSHOT_FAILED=0
 step "5/5  Parlay candidate snapshot"
 if [ "$NBA_FAILED" = "1" ] && [ "${SKIP_NBA:-0}" != "1" ]; then
@@ -224,6 +237,7 @@ step "Summary"
 info "target date:    $TARGET_DATE"
 info "nba step:       $([ "${SKIP_NBA:-0}" = 1 ] && echo skipped || ([ "$NBA_FAILED" = 1 ] && echo FAILED || echo ok))"
 info "mlb step:       $([ "${SKIP_MLB:-0}" = 1 ] && echo skipped || ([ "$MLB_FAILED" = 1 ] && echo FAILED || echo ok))"
+info "cricket step:   $([ "$CRICKET_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
 info "snapshot step:  $([ "$SNAPSHOT_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
 info "balance before: $BAL_BEFORE"
 info "balance after:  $BAL_AFTER"
