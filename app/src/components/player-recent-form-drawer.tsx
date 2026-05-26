@@ -20,6 +20,7 @@
  */
 import { useEffect, useMemo, useRef } from "react";
 import type { ParlayLeg } from "@/lib/parlay-suggested";
+import { takeNewestFirst } from "@/lib/recent-form-order";
 import PlayerAvatar from "./player-avatar";
 import TeamLogo from "./team-logo";
 
@@ -49,21 +50,34 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
 
   if (!leg) return null;
 
-  const series = leg.recentSeries ?? [];
-  const recentGames = leg.recentGames ?? [];
-  // PR #114: prefer the enriched `recentGames` rows when the
-  // pipeline provided them (date/opponent/isHome). Otherwise fall
-  // back to the legacy numeric series — never fabricate dates or
-  // opponents we don't have on disk.
-  const enriched = recentGames.slice(0, 5);
-  const recent5 = series.slice(0, 5);
+  // PR #116 ordering: the pipeline emits `recentGames` and
+  // `recentSeries` in OLDEST → NEWEST order (matches sparkline
+  // rendering). The drawer's "Last 5 games" label means the user's
+  // MOST RECENT 5 games — so we reverse a copy and then take the
+  // top 5 via `takeNewestFirst`. The same `limit=5` applied to both
+  // arrays preserves the 1:1 alignment between `recentGames[i]` and
+  // `recentSeries[i]` after ordering, so the value in row `i`
+  // always matches the date/opponent in row `i`.
+  const seriesOldestFirst = leg.recentSeries ?? [];
+  const recentGamesOldestFirst = leg.recentGames ?? [];
+  // Prefer the enriched `recentGames` rows when the pipeline provided
+  // them (date/opponent/isHome). Otherwise fall back to the legacy
+  // numeric series — never fabricate dates or opponents we don't have
+  // on disk.
+  const enriched = takeNewestFirst(recentGamesOldestFirst, 5);
+  const recent5 = takeNewestFirst(seriesOldestFirst, 5);
   const recentAvg =
-    enriched.length > 0
-      ? enriched.reduce((sum, r) => sum + (r.value ?? 0), 0) / enriched.length
-      : series.length > 0
-        ? series.reduce((sum, v) => sum + v, 0) / series.length
+    recentGamesOldestFirst.length > 0
+      ? recentGamesOldestFirst.reduce((sum, r) => sum + (r.value ?? 0), 0) /
+        recentGamesOldestFirst.length
+      : seriesOldestFirst.length > 0
+        ? seriesOldestFirst.reduce((sum, v) => sum + v, 0) /
+          seriesOldestFirst.length
         : null;
-  const totalCount = enriched.length > 0 ? recentGames.length : series.length;
+  const totalCount =
+    recentGamesOldestFirst.length > 0
+      ? recentGamesOldestFirst.length
+      : seriesOldestFirst.length;
   const stat = formatMarketLabel(leg.sport, leg.market, leg.marketLabel);
 
   return (
