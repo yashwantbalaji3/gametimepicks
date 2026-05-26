@@ -18,21 +18,30 @@
  *     so /projections doesn't display an empty cricket header.
  */
 import type { CricketBoard, CricketMatch } from "@/lib/data-cricket";
+import type { CricketContext } from "@/lib/data-cricket-context";
 import {
   formatAmericanOdds,
   formatProbPct,
   formatTotalLine,
 } from "@/lib/cricket-projection";
 import CricketTeamBadge from "./cricket-team-badge";
+import CricketContextCards from "./cricket-context-cards";
 
 interface Props {
   board: CricketBoard | null;
+  context?: CricketContext | null;
 }
 
-export default function CricketBoardSection({ board }: Props) {
+export default function CricketBoardSection({ board, context = null }: Props) {
   // Don't render anything when nothing is on disk — projections page
   // shouldn't show an empty cricket header on NBA/MLB-only days.
   if (!board || board.matches.length === 0) return null;
+  // Totals are considered "available" only when the first match's
+  // totals market has a real consensus line. The Odds API may or may
+  // not return totals for cricket_ipl; we never fabricate when it's
+  // missing.
+  const firstMatch = board.matches[0];
+  const totalsAvailable = !!firstMatch?.markets?.total;
   return (
     <section
       className="flex flex-col gap-3 reveal"
@@ -44,6 +53,13 @@ export default function CricketBoardSection({ board }: Props) {
           <CricketMatchCard key={m.matchId} match={m} board={board} />
         ))}
       </div>
+      {/* Contextual research cards — team form, head-to-head, key
+          players, venue. Renders an "unavailable" line when no context
+          file exists; otherwise the cards self-render. */}
+      <CricketContextCards
+        context={context}
+        totalsAvailable={totalsAvailable}
+      />
       <p
         className="text-[11px] leading-relaxed"
         style={{ color: "var(--vault-text-faint)" }}
