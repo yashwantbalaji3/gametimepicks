@@ -138,7 +138,11 @@ test("MLB board count renders when games present", () => {
 // Cricket — pre-toss vs moneyline
 // ---------------------------------------------------------------------------
 
-test("cricket moneyline item renders when projection + consensus present", () => {
+// PR #113: cricket is unwired from every visible surface. The
+// builder must NEVER emit cricket items, even when a caller passes
+// cricket data. These tests lock that contract so a future
+// re-enable can't silently leak cricket back into the ticker.
+test("PR #113: cricket moneyline input does NOT emit a ticker item", () => {
   const out = buildMarketTickerItems({
     surface: "projections",
     cricket: {
@@ -162,14 +166,17 @@ test("cricket moneyline item renders when projection + consensus present", () =>
       }],
     },
   });
-  const it = out.find((i) => i.id.startsWith("cricket-ml-"));
-  assert.ok(it, "should emit cricket moneyline item");
-  assert.ok(it.label.includes("RCB"));
-  assert.ok(it.label.includes("-125"));
-  assert.equal(it.value, "53.1% consensus");
+  assert.equal(
+    out.find((i) => i.id.startsWith("cricket-")),
+    undefined,
+    "no cricket item should appear in the ticker output",
+  );
+  // The output text must not mention IPL / RCB / GT.
+  const combined = out.map((i) => i.label + " " + (i.value ?? "")).join(" ");
+  assert.equal(/RCB|GT|IPL|cricket/i.test(combined), false);
 });
 
-test("cricket pre-toss caveat renders when moneyline data is missing", () => {
+test("PR #113: cricket pre-toss input also produces no ticker item", () => {
   const out = buildMarketTickerItems({
     surface: "projections",
     cricket: {
@@ -180,9 +187,11 @@ test("cricket pre-toss caveat renders when moneyline data is missing", () => {
       }],
     },
   });
-  const it = out.find((i) => i.id.startsWith("cricket-pre-toss-"));
-  assert.ok(it);
-  assert.ok(it.label.toLowerCase().includes("pre-toss"));
+  assert.equal(
+    out.find((i) => i.id.startsWith("cricket-")),
+    undefined,
+    "no cricket pre-toss item should appear in the ticker output",
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -271,6 +280,12 @@ test("no surface ever produces banned ticker copy", () => {
         assert.equal(hasBannedTickerCopy(it.value), false,
           `banned copy in value for ${fx.surface}: ${it.value}`);
       }
+      // PR #113: no cricket items can survive build, even when
+      // cricket fixtures are passed in.
+      assert.equal(/^cricket-/.test(it.id), false,
+        `cricket item leaked into ${fx.surface}: ${it.id}`);
+      assert.equal(/RCB|GT|IPL|cricket/i.test(it.label), false,
+        `cricket text leaked into ${fx.surface} label: ${it.label}`);
     }
   }
 });
@@ -304,17 +319,13 @@ test("items preserve href when supplied", () => {
 });
 
 test("buildMarketTickerItems dedupes by id within a single build", () => {
-  // Two cricket matches with identical shortName would collide.
-  const out = buildMarketTickerItems({
-    surface: "projections",
-    cricket: {
-      matches: [
-        { shortName: "X v Y", markets: { moneyline: null } },
-        { shortName: "X v Y", markets: { moneyline: null } },
-      ],
-    },
-  });
-  const cricketHits = out.filter((i) => i.id.startsWith("cricket-pre-toss-"));
-  assert.equal(cricketHits.length, 1,
-    "dedupe should collapse identical-id cricket items");
+  // The dedupe behavior is also exercised by dedupeTickerItems
+  // directly. Here we just confirm the helper returns each unique
+  // id once when assembling a real surface — even if upstream
+  // generators ever produce duplicates, the build step strips them.
+  const out = buildMarketTickerItems({ surface: "parlay_lab" });
+  const ids = out.map((i) => i.id);
+  const unique = new Set(ids);
+  assert.equal(ids.length, unique.size,
+    "buildMarketTickerItems output must contain unique ids only");
 });

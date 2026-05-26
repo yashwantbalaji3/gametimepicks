@@ -13,10 +13,8 @@ import {
   activeNhlDate,
   getNhlScheduleForDate,
 } from "@/lib/data-nhl";
-import {
-  activeIplDate,
-  getIplScheduleForDate,
-} from "@/lib/data-ipl";
+// PR #113: IPL loader imports removed; the schedule still exists on
+// disk for future re-enablement but is no longer surfaced.
 import {
   loadWorldCupMeta,
   loadWorldCupSchedule,
@@ -61,13 +59,11 @@ export default function HomepageSportsRail() {
   const mlbLeans = mlbBoard?.summary?.leans ?? 0;
   const mlbGames = mlbBoard?.games ?? mlbSchedule?.games ?? [];
 
-  // ─── NHL / IPL (schedule-only) ──────────────────────────────────────
+  // ─── NHL (schedule-only) ────────────────────────────────────────────
+  // PR #113: IPL schedule no longer loaded for the homepage rail.
   const nhlDate = activeNhlDate() ?? null;
   const nhlSchedule = nhlDate ? getNhlScheduleForDate(nhlDate) : null;
   const nhlGames = nhlSchedule?.games ?? [];
-  const iplDate = activeIplDate() ?? null;
-  const iplSchedule = iplDate ? getIplScheduleForDate(iplDate) : null;
-  const iplGames = iplSchedule?.games ?? [];
 
   // ─── World Cup (kickoff countdown) ──────────────────────────────────
   const wcMeta = loadWorldCupMeta();
@@ -153,25 +149,17 @@ export default function HomepageSportsRail() {
         )}
       </div>
 
-      {/* Pending sports — slim row */}
-      {(nhlGames.length > 0 || iplGames.length > 0) && (
+      {/* Pending sports — slim row (PR #113: IPL tile removed,
+          NHL kept). The IPL schedule loader still exists in the
+          codebase but no longer renders. */}
+      {nhlGames.length > 0 && (
         <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {nhlGames.length > 0 && (
-            <PendingTile
-              emoji="🏒"
-              sport="NHL"
-              line={`${nhlGames.length} game${nhlGames.length === 1 ? "" : "s"} · projection model pending`}
-              href="/nhl/board"
-            />
-          )}
-          {iplGames.length > 0 && (
-            <PendingTile
-              emoji="🏏"
-              sport="IPL"
-              line={`${iplGames.length} match${iplGames.length === 1 ? "" : "es"} · stats provider pending`}
-              href="/ipl/board"
-            />
-          )}
+          <PendingTile
+            emoji="🏒"
+            sport="NHL"
+            line={`${nhlGames.length} game${nhlGames.length === 1 ? "" : "s"} · projection model pending`}
+            href="/nhl/board"
+          />
         </div>
       )}
 
