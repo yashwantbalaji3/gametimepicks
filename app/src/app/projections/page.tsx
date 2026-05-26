@@ -28,8 +28,10 @@
 import { Suspense } from "react";
 
 import ProjectionsExperience from "@/components/projections-experience";
+import CricketBoardSection from "@/components/cricket-board-section";
 import { loadProjectionsPayload } from "@/lib/data-projections";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
+import { getActiveCricketBoard } from "@/lib/data-cricket";
 
 export const metadata = {
   title: "Projections · GameTime Picks",
@@ -39,8 +41,11 @@ export const metadata = {
 
 export default function ProjectionsPage() {
   const payload = loadProjectionsPayload();
+  // Cricket runs as a separate sport surface here — projections-only,
+  // never enters the parlay optimizer / custom builder / Results.
+  const cricketBoard = getActiveCricketBoard();
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden">
+    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       {/* Suspense is required because <ProjectionsExperience />'s
           useSearchParams() call needs a client boundary for static
           export. The fallback is intentionally minimal — first paint
@@ -53,6 +58,7 @@ export default function ProjectionsPage() {
           calibrationTable={loadCalibrationTable()}
         />
       </Suspense>
+      <CricketBoardSection board={cricketBoard} />
     </div>
   );
 }
