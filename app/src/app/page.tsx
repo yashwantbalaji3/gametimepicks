@@ -60,7 +60,7 @@ export default function HomePage() {
     combinedDecisive > 0 ? combinedWins / combinedDecisive : null;
 
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-10 md:py-14 overflow-x-hidden">
+    <div className="vault-page-shell px-3 sm:px-6 lg:px-8 py-5 sm:py-10 md:py-14 overflow-x-hidden">
       {/* 1 — Compact hero */}
       <section className="reveal" aria-label="Hero">
         <div className="flex flex-col gap-2 max-w-3xl">
@@ -73,15 +73,15 @@ export default function HomePage() {
           <h1
             className="font-display tracking-tight gtp-text-gradient-gold"
             style={{
-              fontSize: "clamp(28px, 6vw, 44px)",
+              fontSize: "clamp(24px, 5.5vw, 44px)",
               lineHeight: 1.05,
-              letterSpacing: "-0.01em",
+              letterSpacing: "-0.015em",
             }}
           >
             Today&apos;s best suggested parlays.
           </h1>
           <p
-            className="text-[14px] sm:text-[15px] leading-relaxed"
+            className="text-[13px] sm:text-[15px] leading-relaxed"
             style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
           >
             Pick a sport, team, or player — or use the model&apos;s top slips below. No locks. High-variance slips are labeled. Every leg is tappable for recent form.

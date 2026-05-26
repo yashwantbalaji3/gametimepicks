@@ -22,6 +22,7 @@
  * context applies.
  */
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 export interface SearchableOption {
   /** The value passed back to onChange. Use null for the "clear" entry. */
@@ -33,6 +34,13 @@ export interface SearchableOption {
   /** Free-text aliases the search should match against (e.g. full team
    *  name, alt abbreviation). */
   searchText?: string;
+  /** Optional renderable leading icon (e.g. PlayerAvatar / TeamLogo).
+   *  Rendered in a 28px tall slot to the left of label/sub. Pure
+   *  cosmetic — does NOT affect search or value. Use ReactNode so
+   *  callers can pass any small component. */
+  leadIcon?: ReactNode;
+  /** Optional renderable trailing chip (e.g. edge percentage badge). */
+  trailIcon?: ReactNode;
 }
 
 interface Props {
@@ -243,7 +251,7 @@ export default function SearchableSelect({
                     aria-selected={isSelected}
                     onMouseEnter={() => setFocusIdx(i)}
                     onClick={() => commit(opt.value)}
-                    className="w-full text-left px-3 py-2 flex flex-col gap-0.5"
+                    className="w-full text-left px-3 py-2 flex items-center gap-2.5"
                     style={{
                       background: isActive
                         ? "rgba(240,199,94,0.10)"
@@ -256,17 +264,29 @@ export default function SearchableSelect({
                       cursor: "pointer",
                     }}
                   >
-                    <span className="font-display truncate" style={{ fontWeight: 500 }}>
-                      {opt.label}
-                    </span>
-                    {opt.sub && (
-                      <span
-                        className="font-mono truncate"
-                        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-                      >
-                        {opt.sub}
+                    {opt.leadIcon ? (
+                      <span className="shrink-0 inline-flex items-center justify-center" style={{ width: 28, height: 28 }}>
+                        {opt.leadIcon}
                       </span>
-                    )}
+                    ) : null}
+                    <span className="flex flex-col gap-0.5 min-w-0 flex-1">
+                      <span className="font-display truncate" style={{ fontWeight: 500 }}>
+                        {opt.label}
+                      </span>
+                      {opt.sub && (
+                        <span
+                          className="font-mono truncate"
+                          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+                        >
+                          {opt.sub}
+                        </span>
+                      )}
+                    </span>
+                    {opt.trailIcon ? (
+                      <span className="shrink-0 inline-flex items-center">
+                        {opt.trailIcon}
+                      </span>
+                    ) : null}
                   </button>
                 );
               })

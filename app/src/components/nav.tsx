@@ -100,7 +100,7 @@ export default function Nav() {
       }}
     >
       {/* Row 1: centered brand */}
-      <div className="mx-auto max-w-[1440px] px-6 sm:px-8 pt-3 pb-2 flex items-center justify-center">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-1.5 pb-1 sm:pt-3 sm:pb-2 flex items-center justify-center">
         <Link
           href="/"
           aria-label="GameTimePicks home"
@@ -110,7 +110,7 @@ export default function Nav() {
             <BrandMark variant="hero" />
           </span>
           <span className="inline-flex sm:hidden">
-            <BrandMark variant="lockup" />
+            <BrandMark variant="compact" />
           </span>
         </Link>
       </div>
@@ -121,7 +121,7 @@ export default function Nav() {
         className="overflow-x-auto"
         style={{ borderTop: "1px solid var(--vault-rule)" }}
       >
-        <div className="mx-auto max-w-[1440px] px-3 sm:px-6 py-1.5 flex items-center justify-start sm:justify-center gap-0 min-w-max">
+        <div className="mx-auto max-w-[1440px] px-3 sm:px-6 py-1 sm:py-1.5 flex items-center justify-start sm:justify-center gap-0 min-w-max">
           {NAV_ITEMS.map((item, idx) => {
             const active = isActive(item.href);
             const isSport = SPORT_HREFS.has(item.href);

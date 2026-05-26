@@ -28,6 +28,8 @@ import {
   type CalibrationTable,
   type Sport,
 } from "@/lib/confidence-calibration-rules";
+import PlayerAvatar from "./player-avatar";
+import TeamLogo from "./team-logo";
 
 interface Props {
   slip: ParlaySlip;
@@ -115,9 +117,10 @@ export default function ParlayTicketCard({
   const profileColor = riskProfileColor(slip.riskProfile);
   const payout = combinedParlayPayoutPer100(slip.legs);
   const profileLabel = humanProfileLabel(slip.riskProfile);
+  const isStarPower = slip.riskProfile === "star_power";
   return (
     <article
-      className="gtp-parlay-ticket relative overflow-hidden flex flex-col gap-3"
+      className={`gtp-parlay-ticket relative overflow-hidden flex flex-col gap-3 ${isStarPower ? "casino-glow-card" : ""}`}
       aria-label={`${profileLabel} parlay slip · ${slip.legs.length} legs · ${statusLabel(slip.status)}`}
     >
       {/* Top accent rule keyed to status. Visual differentiator that
@@ -242,44 +245,63 @@ function TicketLegRow({
         "aria-label": `View recent form for ${leg.playerName}`,
       }
     : {};
+  const avatarSport = (leg.sport === "mlb" || leg.sport === "nba")
+    ? (leg.sport as "mlb" | "nba")
+    : "nba";
+  const teamSport = (leg.sport === "mlb" || leg.sport === "nba" || leg.sport === "nhl")
+    ? (leg.sport as "mlb" | "nba" | "nhl")
+    : undefined;
   return (
     <RowTag
       {...rowProps}
-      className={`w-full text-left grid grid-cols-[1fr_auto] gap-2 items-center px-2 py-1.5 rounded-[4px] ${interactive ? "gtp-leg-button" : ""}`}
+      className={`w-full text-left grid grid-cols-[auto_1fr_auto] gap-2 sm:gap-2.5 items-center px-2 py-1.5 rounded-[4px] ${interactive ? "gtp-leg-button" : ""}`}
       style={{
         background: "rgba(7,11,26,0.55)",
         border: "1px solid var(--vault-rule)",
         cursor: interactive ? "pointer" : "default",
       }}
     >
+      <PlayerAvatar
+        playerId={leg.playerId ?? null}
+        playerName={leg.playerName}
+        team={leg.team ?? undefined}
+        sport={avatarSport}
+        size="xs"
+        flat
+      />
       <div className="min-w-0">
         <div
-          className="font-display tracking-tight truncate"
+          className="font-display tracking-tight truncate flex items-center gap-1.5"
           style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}
         >
           <SportBadge sport={leg.sport} />
           <StarBadge tier={leg.starTier} />
-          {leg.playerName}
+          <span className="truncate">{leg.playerName}</span>
         </div>
         <div
-          className="font-mono"
+          className="font-mono flex items-center gap-1.5 min-w-0"
           style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
         >
-          {leg.marketLabel || leg.market}{" "}
-          {leg.side} {leg.line != null ? leg.line.toFixed(1) : "—"}
-          {leg.team ? ` · ${leg.team}` : ""}
-          {signal ? ` · ${signal}` : ""}
-          {interactive ? (
-            <span
-              style={{
-                marginLeft: 6,
-                color: "var(--vault-gold-bright)",
-                fontWeight: 500,
-              }}
-            >
-              · View form →
-            </span>
+          {leg.team && teamSport ? (
+            <TeamLogo team={leg.team} sport={teamSport} size="sm" />
           ) : null}
+          <span className="truncate">
+            {leg.marketLabel || leg.market}{" "}
+            {leg.side} {leg.line != null ? leg.line.toFixed(1) : "—"}
+            {leg.team ? ` · ${leg.team}` : ""}
+            {signal ? ` · ${signal}` : ""}
+            {interactive ? (
+              <span
+                style={{
+                  marginLeft: 6,
+                  color: "var(--vault-gold-bright)",
+                  fontWeight: 500,
+                }}
+              >
+                · View form →
+              </span>
+            ) : null}
+          </span>
         </div>
       </div>
       <span
