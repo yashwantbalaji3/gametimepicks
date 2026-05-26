@@ -309,6 +309,13 @@ class OptimizerLean:
     # persist this so the UI can render an honest "last-N games" popup
     # without any new data fetch.
     recentSeries: tuple[float, ...] = ()
+    # PR #116 — per-game metadata parallel to `recentSeries`. Each
+    # entry: {"date": "YYYY-MM-DD", "opponent": "NYK"|None,
+    # "isHome": bool|None, "value": float}. Same chronological order
+    # (oldest → newest) and the same length as `recentSeries` when
+    # populated. May be empty when the upstream source (NBA boards
+    # for now) didn't attach the metadata. Never fabricated.
+    recentGames: tuple[dict, ...] = ()
     isAnomaly: bool = False
     isVolatileMlb: bool = False
     # Star metadata — set by `normalize_lean` via `star_players.py`.
@@ -369,6 +376,27 @@ def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> Optimize
             if isinstance(v, (int, float)) and not isinstance(v, bool) and v == v:
                 recent_count += 1
                 recent_values.append(float(v))
+    # PR #116 — pass through `recentGames` metadata when the upstream
+    # board attached it. Each entry should already be a dict with
+    # `{date, opponent, isHome, value}`; we sanity-coerce here so the
+    # snapshot stays JSON-safe.
+    raw_games = raw.get("recentGames") or []
+    recent_games_tuple: tuple[dict, ...] = ()
+    if isinstance(raw_games, list):
+        cleaned: list[dict] = []
+        for g in raw_games:
+            if not isinstance(g, dict):
+                continue
+            value = g.get("value")
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                continue
+            cleaned.append({
+                "date": g.get("date") if isinstance(g.get("date"), str) else None,
+                "opponent": g.get("opponent") if isinstance(g.get("opponent"), str) else None,
+                "isHome": g.get("isHome") if isinstance(g.get("isHome"), bool) else None,
+                "value": float(value),
+            })
+        recent_games_tuple = tuple(cleaned[:10])
     side = raw.get("lean") or raw.get("side") or "Pass"
     odds = (
         raw.get("oddsOver")
@@ -396,6 +424,7 @@ def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> Optimize
         oddsForSide=odds,
         recent10Count=recent_count,
         recentSeries=tuple(recent_values[:10]),
+        recentGames=recent_games_tuple,
         starTier=_compute_star_tier(raw.get("playerName"), s),
         isAnomaly="suspicious_edge" in (raw.get("riskFlags") or []),
         isVolatileMlb=(s == "mlb" and market in MLB_VOLATILE_MARKETS),

@@ -134,3 +134,105 @@ def extract_recent10_all_markets(
         m: extract_recent10(logs, m, last_n=last_n)
         for m in SUPPORTED_MARKETS
     }
+
+
+# ---------------------------------------------------------------------------
+# PR #116 — recentGames metadata extractor
+# ---------------------------------------------------------------------------
+# Companion to `extract_recent10`. Same filtering rules, same chronological
+# ordering, same `last_n` cap — but emits per-game DICTS carrying:
+#   - date          ISO YYYY-MM-DD (`game_date`)
+#   - opponent      opponent team abbreviation (`opponent_abbr`)
+#   - isHome        True iff `home_away` == "Home" (case-insensitive)
+#   - value         numeric stat for the requested market
+#
+# Honesty rules:
+#   - When `game_date` is missing OR the stat value is non-numeric, the
+#     ENTIRE entry is dropped (mirrors `extract_recent10`).
+#   - When `opponent_abbr` is missing, we emit `opponent: None` rather
+#     than guessing. The UI knows how to render "—".
+#   - When `home_away` is missing, we emit `isHome: None`.
+#
+# Order is OLDEST → NEWEST (matches `recent10`) so the drawer's display
+# logic can slice the LAST 5 entries cleanly without re-sorting.
+
+
+def extract_recent_games(
+    logs: Iterable[Any],
+    market: str,
+    *,
+    last_n: int = 10,
+) -> list[dict[str, Any]]:
+    """Per-game metadata + value list for the recent-form drawer.
+
+    Returns a list of `{date, opponent, isHome, value}` dicts in
+    oldest→newest order, capped at `last_n`. Empty list when no entries
+    have both a valid `game_date` and a valid numeric stat value.
+
+    Pure read-only helper. No I/O, no fabrication. Each row in the
+    output corresponds 1:1 to a row in `extract_recent10(logs, market)`
+    so the drawer can cross-check if it wants to.
+    """
+    if market not in SUPPORTED_MARKETS:
+        return []
+    field = _MARKET_TO_FIELD[market]
+    if not isinstance(last_n, int) or last_n <= 0:
+        return []
+    # Same valid-row filter as `extract_recent10`.
+    valid: list[tuple[str, dict[str, Any]]] = []
+    for log in logs or []:
+        date = _get_field(log, "game_date")
+        if not isinstance(date, str) or len(date) < 8:
+            continue
+        v = _get_field(log, field)
+        if not _is_real_number(v):
+            continue
+        opp = _get_field(log, "opponent_abbr")
+        ha = _get_field(log, "home_away")
+        is_home: bool | None
+        if isinstance(ha, str):
+            ha_norm = ha.strip().lower()
+            if ha_norm == "home":
+                is_home = True
+            elif ha_norm == "away":
+                is_home = False
+            else:
+                # Unknown sentinel ("?", "-", etc.) — emit None rather
+                # than guessing. UI renders "—" / "vs" in this case.
+                is_home = None
+        else:
+            is_home = None
+        valid.append(
+            (
+                date,
+                {
+                    "date": date,
+                    "opponent": opp if isinstance(opp, str) and opp else None,
+                    "isHome": is_home,
+                    "value": float(v),
+                },
+            )
+        )
+    if not valid:
+        return []
+    # Same deterministic sort + truncation as `extract_recent10`.
+    valid_indexed = list(enumerate(valid))
+    valid_indexed.sort(key=lambda t: (t[1][0], t[0]))
+    sorted_rows = [pair for _, pair in valid_indexed]
+    if len(sorted_rows) > last_n:
+        sorted_rows = sorted_rows[-last_n:]
+    return [row for _, row in sorted_rows]
+
+
+def extract_recent_games_all_markets(
+    logs: Iterable[Any],
+    *,
+    last_n: int = 10,
+) -> dict[str, list[dict[str, Any]]]:
+    """Returns {"PTS": [{date, opponent, isHome, value}, ...], "REB":..., "AST":...}."""
+    if not isinstance(logs, (list, tuple)):
+        logs = list(logs or [])
+    return {
+        m: extract_recent_games(logs, m, last_n=last_n)
+        for m in SUPPORTED_MARKETS
+    }

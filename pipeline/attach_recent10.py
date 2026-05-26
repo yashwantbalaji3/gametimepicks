@@ -45,7 +45,10 @@ from .confidence_guardrails import (
     MEDIUM_CONF_MIN_LOGS,
     downgrade_lean,
 )
-from .recent10_extractor import extract_recent10_all_markets
+from .recent10_extractor import (
+    extract_recent10_all_markets,
+    extract_recent_games_all_markets,
+)
 
 log = logging.getLogger("gtp.attach_recent10")
 logging.basicConfig(
@@ -122,6 +125,10 @@ def attach_recent10_to_board(
         log.info(f"  fetching game logs via nba_api for {len(unique_pids)} players...")
 
     by_player_logs: dict[int, dict[str, list[float]]] = {}
+    # PR #116: per-player + per-market recent-game METADATA (date,
+    # opponent, isHome, value). Same shape and chronological order as
+    # `by_player_logs` so the two can be zipped 1:1 by the caller.
+    by_player_games: dict[int, dict[str, list[dict]]] = {}
     statuses: dict[int, PlayerStatus] = {}
 
     for pid in unique_pids:
@@ -131,12 +138,14 @@ def attach_recent10_to_board(
             st.reason = "zero_id"
             statuses[pid] = st
             by_player_logs[pid] = {"PTS": [], "REB": [], "AST": []}
+            by_player_games[pid] = {"PTS": [], "REB": [], "AST": []}
             continue
 
         if dry_run:
             st.reason = "dry_run_skipped"
             statuses[pid] = st
             by_player_logs[pid] = {"PTS": [], "REB": [], "AST": []}
+            by_player_games[pid] = {"PTS": [], "REB": [], "AST": []}
             continue
 
         logs, err = fetch_logs_for_player(pid)
@@ -144,12 +153,14 @@ def attach_recent10_to_board(
             st.reason = err
             statuses[pid] = st
             by_player_logs[pid] = {"PTS": [], "REB": [], "AST": []}
+            by_player_games[pid] = {"PTS": [], "REB": [], "AST": []}
             continue
 
         if not logs:
             st.reason = "no_logs"
             statuses[pid] = st
             by_player_logs[pid] = {"PTS": [], "REB": [], "AST": []}
+            by_player_games[pid] = {"PTS": [], "REB": [], "AST": []}
             continue
 
         st.matched = True
@@ -157,6 +168,11 @@ def attach_recent10_to_board(
         st.reason = "ok"
         market_data = extract_recent10_all_markets(logs, last_n=10)
         by_player_logs[pid] = market_data
+        # PR #116 — per-game metadata parallel to `market_data`.
+        # Same filter rules + chronological order so the i-th value
+        # in `market_data[m]` matches the i-th entry in
+        # `by_player_games[pid][m]`.
+        by_player_games[pid] = extract_recent_games_all_markets(logs, last_n=10)
         st.pts_attached = len(market_data.get("PTS", []))
         st.reb_attached = len(market_data.get("REB", []))
         st.ast_attached = len(market_data.get("AST", []))
@@ -188,6 +204,12 @@ def attach_recent10_to_board(
         values = by_player_logs[pid].get(market, [])
         if values:
             lean["recent10"] = values
+            # PR #116: also attach the per-game metadata when available.
+            # `extract_recent_games_all_markets` mirrors the numeric
+            # filter, so the two arrays are 1:1 in chronological order.
+            games_meta = (by_player_games.get(pid) or {}).get(market, [])
+            if games_meta:
+                lean["recentGames"] = games_meta
             leans_updated += 1
             # Rescue an R1-suppressed lean when we now have enough log
             # values for at least the Medium threshold. We don't fabricate
