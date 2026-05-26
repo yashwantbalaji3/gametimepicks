@@ -92,6 +92,24 @@ fi
 ok   "ODDS_API_KEY:      set"
 
 # ---------------------------------------------------------------------------
+# IPL cricket board (PR #105 — moved before the NBA/MLB credit guard
+# on purpose). The cricket call is tiny (~2 credits at most when odds
+# are pulled) and must not be blocked by the NBA/MLB budget floor
+# during IPL season. `fetch_ipl_board` is robust: when ODDS_API_KEY is
+# missing or the call fails, it writes `oddsStatus: "pending"` rather
+# than fabricating odds. Projections-only — never feeds the parlay
+# optimizer / custom builder / Results.
+# ---------------------------------------------------------------------------
+CRICKET_FAILED=0
+step "0b/4 IPL cricket board (free schedule + tiny optional odds)"
+if $PY -m pipeline.cricket.fetch_ipl_board --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_cricket_board.log; then
+    ok "cricket board written for $TARGET_DATE"
+else
+    warn "cricket board returned non-zero — see /tmp/gtp_cricket_board.log"
+    CRICKET_FAILED=1
+fi
+
+# ---------------------------------------------------------------------------
 # Cost estimation. We count today's MLB events from the on-disk
 # schedule (if present) — the schedule itself is free to fetch from
 # MLB Stats API, and the auto-refresh pass should have written it
@@ -201,19 +219,6 @@ BAL_AFTER=$($PY -c "import json,sys; print(json.loads('''$BAL_AFTER_RAW''').get(
 # still exit cleanly. Missing/empty snapshot is preferred over an
 # invented one.
 # ---------------------------------------------------------------------------
-CRICKET_FAILED=0
-step "4b/5  IPL cricket board (free schedule + optional odds)"
-# Cricket fetch is single-call, low cost. ESPN schedule is free; if
-# ODDS_API_KEY is set, we also pull cricket_ipl h2h+totals in one
-# combined request (~2 credits per slate). Projections-only — never
-# enters the parlay optimizer / custom builder / Results.
-if $PY -m pipeline.cricket.fetch_ipl_board --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_cricket_board.log; then
-    ok "cricket board written for $TARGET_DATE"
-else
-    warn "cricket board returned non-zero — see /tmp/gtp_cricket_board.log"
-    CRICKET_FAILED=1
-fi
-
 SNAPSHOT_FAILED=0
 step "5/5  Parlay candidate snapshot"
 if [ "$NBA_FAILED" = "1" ] && [ "${SKIP_NBA:-0}" != "1" ]; then
