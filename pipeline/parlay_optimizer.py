@@ -133,7 +133,12 @@ AGGRESSIVE_RULES = ProfileRules(
     confidence=("High", "Medium", "Low"),
     min_edge_pct=1.0,
     min_legs=4,
-    max_legs=5,
+    # PR #110 safety filter: 5-leg slips went 0W-14L (0.0%) on
+    # 2026-05-25. Cap visible aggressive slips at 4 legs so the
+    # combinatorial slip-math doesn't keep building unwinnable 5-leg
+    # builds. Users who explicitly want 5+ legs can still build them
+    # in the custom-parlay builder.
+    max_legs=4,
     require_recent10=False,
     require_valid_player_id=False,
     max_legs_per_game=3,
@@ -155,17 +160,20 @@ AGGRESSIVE_RULES = ProfileRules(
 # means a Star Power slip never contains a non-star leg; the lane
 # returns empty when not enough stars pass the gate.
 #
-# Composition:
+# Composition (updated PR #110 after 5/25 audit):
 #   - 2-3 legs (the slate decides; 3 only when enough stars exist
 #     across ≥2 games or NBA+MLB).
-#   - High or Medium confidence only (no Low — the lane prioritizes
-#     stars whose model already has data, not value-edge picks).
+#   - High or Medium confidence only.
 #   - Edge ≥ 3pp.
 #   - MLB hits only (stable market — Star Power doesn't fish in
 #     volatile MLB cohorts).
-#   - Same-game cap 2 (lets us build NBA stacks like Brunson +
-#     Mobley on a 1-NBA-game night with different players, different
-#     teams when possible).
+#   - Same-game cap **1** (was 2). PR #110 safety: same-game NBA
+#     stacks on 5/25 went 1W-23L (4.2%). The Knicks blowout flattened
+#     both teams' volume props simultaneously, and same-game stacks
+#     in blowouts are structurally correlated losses. We do not have
+#     pregame spread data wired in yet, so we default to the safer
+#     cap=1 unconditionally. Once spread context is available we can
+#     re-relax to 2 when the spread is small.
 #   - Same-team cap 1 (different players; no same-team stacks).
 #   - No anomalies.
 STAR_POWER_RULES = ProfileRules(
@@ -176,7 +184,7 @@ STAR_POWER_RULES = ProfileRules(
     max_legs=3,
     require_recent10=True,
     require_valid_player_id=True,
-    max_legs_per_game=2,
+    max_legs_per_game=1,
     max_legs_per_team=1,
     exclude_anomalies=True,
     max_anomaly_legs=0,
@@ -444,8 +452,9 @@ def leg_score_breakdown(
     cw = _CONFIDENCE_WEIGHT.get(lean.confidence or "", 0.10)
     tier_adjust = _TIER_ADJUST.get((lean.sport, lean.confidence or ""), 1.0)
     confidence_component = rules.confidence_weight * cw * tier_adjust
-    edge = max(0.0, min(20.0, float(lean.edgePct or 0)))
-    edge_component = rules.edge_weight * (edge / 20.0)
+    # PR #110: edge clip 20 → 15 (see leg_score docstring)
+    edge = max(0.0, min(15.0, float(lean.edgePct or 0)))
+    edge_component = rules.edge_weight * (edge / 15.0)
     recent_bonus = rules.recent10_bonus if lean.recent10Count >= 5 else 0.0
     pid_bonus = rules.pid_bonus if (lean.playerId or 0) > 0 else 0.0
     star_bonus = 0.0
@@ -453,10 +462,12 @@ def leg_score_breakdown(
         from .star_players import star_boost
         star_bonus = star_boost(lean.playerName, lean.sport, rules.profile)
     market_weight = lean.marketWeight
+    # PR #110: AST/PTS override now ALSO requires recent10Count ≥ 7
     if (
         rules.profile == "star_power"
         and lean.starTier in ("superstar", "core")
         and lean.confidence in ("High", "Medium")
+        and lean.recent10Count >= 7
     ):
         market_key = f"{lean.sport}:{lean.market}"
         override = _STAR_POWER_MARKET_OVERRIDE.get(market_key)
@@ -479,22 +490,29 @@ def leg_score(lean: OptimizerLean, rules: ProfileRules) -> float:
 
     Components:
       - confidence_weight × tier weight × per-(sport, tier) adjust
-      - edge_weight × (clipped edge / 20)
+      - edge_weight × (clipped edge / 15)  (clip tightened in PR #110;
+        was 20pp — high-edge leans were noisy bench/value players)
       - recent10_bonus when recent10 has ≥5 numeric values
       - pid_bonus when playerId is real
       - star bonus (per-profile, bounded — see star_players.py)
       - market stability (1.0 = neutral; Star Power lane uses a
         bounded override for NBA AST/PTS so superstar/core stars on
-        downweighted markets aren't suppressed)
+        downweighted markets aren't suppressed — gated on recent10
+        support post-PR #110 after AST went 0-5 on 5/25)
       - calibration factor (1.0 = neutral)
     """
     cw = _CONFIDENCE_WEIGHT.get(lean.confidence or "", 0.10)
     tier_adjust = _TIER_ADJUST.get((lean.sport, lean.confidence or ""), 1.0)
     cw *= tier_adjust
-    edge = max(0.0, min(20.0, float(lean.edgePct or 0)))
+    # PR #110 safety: tighten edge clip from 20pp → 15pp. Edges above
+    # 20pp were dominated by bench/value players whose 5/25 hit rate
+    # was meaningfully below their model edge. Clipping at 15pp
+    # caps the contribution of noisy outliers without crushing real
+    # superstar edges (which usually sit in the 5-15pp range anyway).
+    edge = max(0.0, min(15.0, float(lean.edgePct or 0)))
     base = (
         rules.confidence_weight * cw
-        + rules.edge_weight * (edge / 20.0)
+        + rules.edge_weight * (edge / 15.0)
     )
     if lean.recent10Count >= 5:
         base += rules.recent10_bonus
@@ -510,13 +528,16 @@ def leg_score(lean: OptimizerLean, rules: ProfileRules) -> float:
     # Per-lane market weight. Star Power lane restores audit-
     # downweighted NBA markets for superstar/core stars on High/Medium
     # confidence so Donovan Mitchell / Brunson AST etc. can surface.
-    # Bounded — applies only inside Star Power; Conservative/Balanced
-    # /High Variance still respect the audit weighting.
+    # PR #110 safety: AST market went 0W-5L on 5/25 (Mitchell AST
+    # Over 4.5 sank 3 Star Power slips). The override now ALSO
+    # requires recent10Count ≥ 7 — stars without recent stable
+    # game-log support don't get the AST/PTS rescue.
     market_weight = lean.marketWeight
     if (
         rules.profile == "star_power"
         and lean.starTier in ("superstar", "core")
         and lean.confidence in ("High", "Medium")
+        and lean.recent10Count >= 7
     ):
         market_key = f"{lean.sport}:{lean.market}"
         override = _STAR_POWER_MARKET_OVERRIDE.get(market_key)

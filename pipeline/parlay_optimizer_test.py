@@ -591,10 +591,13 @@ class StarPowerLaneTests(unittest.TestCase):
             msg="AST override must NOT fire for Low confidence",
         )
 
-    def test_star_power_allows_same_game_two_legs(self):
-        # On a 1-NBA-game slate the lane should still build a 2-leg
-        # NBA stack (different players, different markets). Without
-        # same-game cap 2 the lane would return empty for NBA.
+    def test_star_power_refuses_nba_same_game_stacks(self):
+        # PR #110 safety filter: same-game NBA stacks went 1W-23L
+        # (4.2%) on 5/25. The Star Power lane's max_legs_per_game
+        # was tightened from 2 to 1, so a 1-NBA-game slate must NOT
+        # produce a 2-leg NBA-only Star Power slip. The lane returns
+        # empty for NBA-only on a single-game slate; cross-sport
+        # multi slips remain viable.
         raw = [
             _nba_lean(playerName="Evan Mobley", playerId=6001,
                       gameId="g_cle_ny", team="CLE", market="REB",
@@ -605,17 +608,14 @@ class StarPowerLaneTests(unittest.TestCase):
         ]
         slips = optimize(raw, profile="star_power", sport="nba",
                          num_candidates=2)
-        self.assertGreaterEqual(
-            len(slips), 1,
-            "Star Power must build a 2-leg NBA stack on a 1-game slate",
-        )
+        # No 2-leg NBA-only slip should build: the cap blocks legs from
+        # the same gameId.
         for s in slips:
-            # Same game but different teams (the cap allows it).
-            self.assertEqual(len(s.legs), 2)
             game_ids = {l.gameId for l in s.legs}
-            self.assertEqual(len(game_ids), 1, "Both legs same game")
-            teams = {l.team for l in s.legs}
-            self.assertEqual(len(teams), 2, "Different teams")
+            self.assertEqual(
+                len(game_ids), len(s.legs),
+                "Star Power must NOT stack multiple legs from the same NBA game"
+            )
 
     def test_star_power_returns_empty_when_no_star_candidates(self):
         # A pool with strong leans from non-stars only must produce
@@ -675,6 +675,89 @@ class LegScoreBreakdownTests(unittest.TestCase):
         self.assertGreater(
             float(bd["starBoost"]), 0,
             "Brunson superstar should get a positive star boost",
+        )
+
+
+class SafetyFiltersTests(unittest.TestCase):
+    """Locks the PR #110 safety filters after the 5/25 audit (6W-54L
+    overall · 10.0% decisive hit rate · 5-leg 0/14 · same-game NBA
+    1/24 · AST market 0/5).
+    """
+
+    def test_aggressive_max_legs_capped_at_4(self):
+        # PR #110: 5-leg aggressive slips went 0/14. Aggressive lane
+        # now caps at 4 visible legs.
+        self.assertEqual(
+            AGGRESSIVE_RULES.max_legs, 4,
+            "Aggressive lane must cap visible slips at 4 legs after the "
+            "5/25 audit where 5-leg slips went 0W-14L",
+        )
+
+    def test_star_power_same_game_cap_is_1(self):
+        # PR #110: same-game NBA Star Power stacks went 1W-23L.
+        from pipeline.parlay_optimizer import STAR_POWER_RULES
+        self.assertEqual(
+            STAR_POWER_RULES.max_legs_per_game, 1,
+            "Star Power must cap same-game stacks at 1 leg until pregame "
+            "spread context is wired in",
+        )
+
+    def test_leg_score_edge_clipped_at_15pp(self):
+        # PR #110: edge clip 20→15. A leg with 15pp edge should
+        # produce the same score as a leg with 20pp edge — both
+        # saturate at the new ceiling.
+        from pipeline.parlay_optimizer import leg_score
+        rules = PROFILE_RULES_BY_NAME["balanced"]
+        # Use a high-edge non-star (e.g. Dean Wade) — anyone whose
+        # leg_score is dominated by edge contribution.
+        l15 = normalize_lean(_nba_lean(
+            playerName="High Edge Guy A", playerId=11111,
+            market="REB", line=2.5, edgePct=15.0, confidence="High",
+        ), sport="nba")
+        l20 = normalize_lean(_nba_lean(
+            playerName="High Edge Guy B", playerId=11112,
+            market="REB", line=2.5, edgePct=20.0, confidence="High",
+        ), sport="nba")
+        # Same player attributes, only edge differs. With the new clip
+        # both should produce identical scores (both saturate the
+        # 15pp ceiling).
+        self.assertAlmostEqual(
+            leg_score(l15, rules), leg_score(l20, rules), places=4,
+            msg="Edge > 15pp must saturate; 15pp and 20pp must score equally",
+        )
+
+    def test_star_power_ast_override_requires_recent10(self):
+        # PR #110: AST went 0W-5L on 5/25. The Star Power AST/PTS
+        # market override now also requires recent10Count >= 7.
+        # Without recent10 support, a superstar AST leg gets the
+        # default 0.80 market weight (not the 1.00 override).
+        from pipeline.parlay_optimizer import leg_score_breakdown
+        sp_rules = PROFILE_RULES_BY_NAME["star_power"]
+        # Brunson AST + only 4 recent games — under the new floor
+        raw_thin = _nba_lean(
+            playerName="Jalen Brunson", playerId=7777,
+            market="AST", line=6.5, edgePct=10, confidence="High",
+            team="NY", gameId="g_cle_ny",
+        )
+        raw_thin["recent10"] = [4, 6, 5, 7]  # only 4 values
+        thin = normalize_lean(raw_thin, sport="nba")
+        bd_thin = leg_score_breakdown(thin, sp_rules)
+        self.assertAlmostEqual(
+            float(bd_thin["marketWeight"]), 0.80, places=3,
+            msg="Override must NOT fire when recent10Count < 7",
+        )
+        # Brunson AST + 8 recent games — clears the floor
+        raw_full = _nba_lean(
+            playerName="Jalen Brunson", playerId=7778,
+            market="AST", line=6.5, edgePct=10, confidence="High",
+            team="NY", gameId="g_cle_ny",
+        )
+        raw_full["recent10"] = [4, 6, 5, 7, 8, 6, 5, 9]  # 8 values
+        full = normalize_lean(raw_full, sport="nba")
+        bd_full = leg_score_breakdown(full, sp_rules)
+        self.assertAlmostEqual(
+            float(bd_full["marketWeight"]), 1.00, places=3,
+            msg="Override must fire when recent10Count >= 7",
         )
 
 
