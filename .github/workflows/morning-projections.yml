@@ -160,6 +160,10 @@ jobs:
           git add app/public/data/players.json 2>/dev/null || true
           git add app/public/data/trends.json 2>/dev/null || true
           git add app/public/data/meta.json 2>/dev/null || true
+          # Cricket / IPL board (added PR #104). Projections-only; the
+          # cricket pipeline writes here with optional odds when the
+          # ODDS_API_KEY secret is present.
+          git add app/public/data/cricket/boards/ 2>/dev/null || true
           git add pipeline/validation/leans_log.jsonl 2>/dev/null || true
 
           if git diff --staged --quiet; then
