@@ -20,6 +20,8 @@
  */
 import { useEffect, useMemo, useRef } from "react";
 import type { ParlayLeg } from "@/lib/parlay-suggested";
+import PlayerAvatar from "./player-avatar";
+import TeamLogo from "./team-logo";
 
 interface Props {
   leg: ParlayLeg | null;
@@ -82,40 +84,57 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <header
-          className="flex items-start justify-between gap-3 px-4 py-3"
+          className="flex items-center justify-between gap-3 px-4 py-3"
           style={{ borderBottom: "1px solid var(--vault-rule)" }}
         >
-          <div className="flex flex-col min-w-0">
-            <span
-              className="font-mono uppercase tracking-[0.16em]"
-              style={{ color: "var(--vault-gold)", fontSize: 10 }}
-            >
-              Recent form · {leg.sport.toUpperCase()}
-            </span>
-            <span
-              className="font-display tracking-tight"
-              style={{
-                color: "var(--vault-text)",
-                fontSize: 18,
-                fontWeight: 600,
-                lineHeight: 1.2,
-              }}
-            >
-              {leg.playerName}
+          <div className="flex items-center gap-3 min-w-0">
+            <PlayerAvatar
+              playerId={leg.playerId ?? null}
+              playerName={leg.playerName}
+              team={leg.team ?? undefined}
+              sport={(leg.sport === "mlb" || leg.sport === "nba") ? (leg.sport as "mlb" | "nba") : "nba"}
+              size="md"
+            />
+            <div className="flex flex-col min-w-0">
+              <span
+                className="font-mono uppercase tracking-[0.16em]"
+                style={{ color: "var(--vault-gold)", fontSize: 10 }}
+              >
+                Recent form · {leg.sport.toUpperCase()}
+              </span>
+              <span
+                className="font-display tracking-tight truncate"
+                style={{
+                  color: "var(--vault-text)",
+                  fontSize: 18,
+                  fontWeight: 600,
+                  lineHeight: 1.2,
+                }}
+              >
+                {leg.playerName}
+              </span>
               {leg.team ? (
                 <span
+                  className="flex items-center gap-1.5 mt-0.5"
                   style={{
-                    marginLeft: 8,
                     color: "var(--vault-text-mute)",
-                    fontWeight: 400,
-                    fontSize: 13,
+                    fontSize: 12,
                   }}
                 >
-                  {leg.team}
-                  {leg.opponent ? ` vs ${leg.opponent}` : ""}
+                  {(leg.sport === "mlb" || leg.sport === "nba" || leg.sport === "nhl") ? (
+                    <TeamLogo
+                      team={leg.team}
+                      sport={leg.sport as "mlb" | "nba" | "nhl"}
+                      size="sm"
+                    />
+                  ) : null}
+                  <span>
+                    {leg.team}
+                    {leg.opponent ? ` vs ${leg.opponent}` : ""}
+                  </span>
                 </span>
               ) : null}
-            </span>
+            </div>
           </div>
           <button
             ref={closeRef}

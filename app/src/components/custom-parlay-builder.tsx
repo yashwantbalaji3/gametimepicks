@@ -14,6 +14,8 @@
  */
 import { useMemo, useState } from "react";
 import SearchableSelect, { type SearchableOption } from "./searchable-select";
+import PlayerAvatar from "./player-avatar";
+import TeamLogo from "./team-logo";
 import type { OptimizerLeg, OptimizerSnapshot } from "@/lib/parlay-optimizer";
 import {
   CUSTOM_PARLAY_MAX_LEGS,
@@ -138,44 +140,68 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
               className="flex flex-col gap-2"
               aria-label="Selected custom parlay legs"
             >
-              {selectedLegs.map((leg) => (
-                <li
-                  key={leg.leanId}
-                  className="flex items-start justify-between gap-3 rounded-md border border-[color:var(--vault-divider)] p-3"
-                >
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-medium">
-                      {leg.isStar ? "⭐ " : ""}
-                      {leg.playerName}{" "}
-                      <span
-                        className="font-mono text-[11px]"
-                        style={{ color: "var(--vault-text-soft)" }}
-                      >
-                        · {leg.market} {leg.side} {leg.line ?? "—"}
-                      </span>
-                    </span>
-                    <span
-                      className="text-[11px] font-mono uppercase tracking-wider"
-                      style={{ color: "var(--vault-text-faint)" }}
-                    >
-                      {(leg.sport ?? "?").toUpperCase()} · {leg.team ?? "?"} ·
-                      edge{" "}
-                      {typeof leg.edgePct === "number"
-                        ? `${leg.edgePct.toFixed(1)}pp`
-                        : "—"}{" "}
-                      · {leg.confidence ?? "?"}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeLeg(leg.leanId)}
-                    aria-label={`Remove ${leg.playerName} leg`}
-                    className="text-xs font-mono uppercase tracking-wider px-2 py-1 rounded border border-[color:var(--vault-divider)] hover:border-[color:var(--vault-text-soft)]"
+              {selectedLegs.map((leg) => {
+                const sport = (leg.sport ?? "").toLowerCase();
+                const avatarSport = (sport === "mlb" || sport === "nba")
+                  ? (sport as "mlb" | "nba")
+                  : "nba";
+                const teamSport = (sport === "mlb" || sport === "nba" || sport === "nhl")
+                  ? (sport as "mlb" | "nba" | "nhl")
+                  : null;
+                return (
+                  <li
+                    key={leg.leanId}
+                    className="flex items-center justify-between gap-3 rounded-md border border-[color:var(--vault-divider)] p-2.5 sm:p-3"
+                    style={{ background: "rgba(7,11,26,0.55)" }}
                   >
-                    Remove
-                  </button>
-                </li>
-              ))}
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <PlayerAvatar
+                        playerId={leg.playerId ?? null}
+                        playerName={leg.playerName}
+                        team={leg.team ?? undefined}
+                        sport={avatarSport}
+                        size="sm"
+                      />
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <span className="text-sm font-medium truncate">
+                          {leg.isStar ? "⭐ " : ""}
+                          {leg.playerName}{" "}
+                          <span
+                            className="font-mono text-[11px]"
+                            style={{ color: "var(--vault-text-soft)" }}
+                          >
+                            · {leg.market} {leg.side} {leg.line ?? "—"}
+                          </span>
+                        </span>
+                        <span
+                          className="text-[11px] font-mono uppercase tracking-wider flex items-center gap-1.5 truncate"
+                          style={{ color: "var(--vault-text-faint)" }}
+                        >
+                          {teamSport && leg.team ? (
+                            <TeamLogo team={leg.team} sport={teamSport} size="sm" />
+                          ) : null}
+                          <span className="truncate">
+                            {(leg.sport ?? "?").toUpperCase()} · {leg.team ?? "?"} ·
+                            edge{" "}
+                            {typeof leg.edgePct === "number"
+                              ? `${leg.edgePct.toFixed(1)}pp`
+                              : "—"}{" "}
+                            · {leg.confidence ?? "?"}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeLeg(leg.leanId)}
+                      aria-label={`Remove ${leg.playerName} leg`}
+                      className="text-xs font-mono uppercase tracking-wider px-2 py-1 rounded border border-[color:var(--vault-divider)] hover:border-[color:var(--vault-text-soft)] shrink-0"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <p

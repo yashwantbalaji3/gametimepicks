@@ -66,27 +66,31 @@ const ALL_SPORTS: Array<{ key: SuggestedSport; label: string }> = [
 
 const RISK_DISPLAY: Record<
   ParlayRiskProfile,
-  { label: string; sub: string; accent: string }
+  { label: string; sub: string; accent: string; icon: string }
 > = {
   conservative: {
     label: "Conservative",
     sub: "2 legs · star-driven · lower variance",
     accent: "var(--vault-success)",
+    icon: "◆",
   },
   balanced: {
     label: "Balanced",
     sub: "3 legs · star + value mix",
     accent: "var(--vault-gold-bright)",
+    icon: "◈",
   },
   aggressive: {
     label: "High variance",
     sub: "4–5 legs · higher payout · longshot territory",
     accent: "var(--vault-warn)",
+    icon: "⟁",
   },
   star_power: {
     label: "Star Power",
     sub: "Recognizable stars · model-ranked",
     accent: "var(--vault-gold-bright)",
+    icon: "★",
   },
 };
 
@@ -489,26 +493,50 @@ function RiskCard({
   onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
 }) {
   const display = RISK_DISPLAY[profile];
+  const isStarPower = profile === "star_power";
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex flex-col gap-0.5 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           <span
-            className="font-mono uppercase tracking-[0.16em]"
-            style={{ color: display.accent, fontSize: 10 }}
+            aria-hidden
+            className="inline-flex items-center justify-center shrink-0"
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: 5,
+              color: display.accent,
+              background: isStarPower
+                ? "linear-gradient(160deg, rgba(240,199,94,0.18), rgba(212,175,55,0.05))"
+                : "rgba(7,11,26,0.55)",
+              border: `1px solid ${display.accent}`,
+              fontSize: 12,
+              lineHeight: 1,
+              boxShadow: isStarPower
+                ? "0 0 14px -2px rgba(240,199,94,0.40)"
+                : "none",
+            }}
           >
-            {display.label}
+            {display.icon}
           </span>
-          <span
-            className="font-mono"
-            style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-          >
-            {display.sub}
-          </span>
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span
+              className="font-mono uppercase tracking-[0.14em] sm:tracking-[0.16em]"
+              style={{ color: display.accent, fontSize: 10 }}
+            >
+              {display.label}
+            </span>
+            <span
+              className="font-mono truncate"
+              style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+            >
+              {display.sub}
+            </span>
+          </div>
         </div>
         {profile === "aggressive" && (
           <span
-            className="font-mono uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-[3px]"
+            className="font-mono uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-[3px] shrink-0"
             style={{
               color: "var(--vault-warn)",
               border: "1px solid var(--vault-warn)",
