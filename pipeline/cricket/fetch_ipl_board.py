@@ -174,18 +174,72 @@ def fetch_cricket_odds(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]
     except Exception as ex:
         print(f"[fetch_ipl_board] odds-api error: {ex}", file=sys.stderr)
         return {}
+    # Diagnostic logging — helps debug team-name aliasing without
+    # additional API calls. Never logs the API key or credentials.
+    print(
+        f"[fetch_ipl_board] odds-api returned {len(odds_events)} cricket_ipl events"
+    )
+    for o in odds_events[:5]:
+        bm_count = len(o.get("bookmakers") or [])
+        print(
+            f"  · {o.get('away_team','?')} @ {o.get('home_team','?')}  "
+            f"start={o.get('commence_time')}  books={bm_count}"
+        )
     by_match: dict[str, dict[str, Any]] = {}
     for ev in events:
         match = _match_odds_event(ev, odds_events)
         if not match:
+            espn_home = (ev.get("home") or {}).get("name")
+            espn_away = (ev.get("away") or {}).get("name")
+            print(
+                f"[fetch_ipl_board] no odds-api match for ESPN event "
+                f"{espn_away} @ {espn_home}  (normalized: "
+                f"{_normalize_team(espn_away)} / {_normalize_team(espn_home)})"
+            )
             continue
         by_match[ev["matchId"]] = _shape_match_odds(match, ev)
     return by_match
 
 
+# IPL franchise rename aliases. The Bangalore→Bengaluru rename
+# happened ahead of the 2024 season but some book/data feeds still
+# emit the old name. Mapping is bidirectional: both alias and
+# canonical normalize to the same key. New aliases added when we
+# observe a real source using a different form.
+_IPL_TEAM_ALIASES: dict[str, str] = {
+    # franchise stem (normalized) → canonical key
+    "royalchallengersbangalore": "royalchallengersbengaluru",
+    "royalchallengersbengaluru": "royalchallengersbengaluru",
+    # Other common short forms used by some books. Mapped to the
+    # full canonical name above so substring matches catch them.
+    "rcb": "royalchallengersbengaluru",
+    "gt": "gujarattitans",
+    "gujarattitans": "gujarattitans",
+    "kolkataknightriders": "kolkataknightriders",
+    "kkr": "kolkataknightriders",
+    "chennaisuperkings": "chennaisuperkings",
+    "csk": "chennaisuperkings",
+    "mumbaiindians": "mumbaiindians",
+    "mi": "mumbaiindians",
+    "delhicapitals": "delhicapitals",
+    "dc": "delhicapitals",
+    "rajasthanroyals": "rajasthanroyals",
+    "rr": "rajasthanroyals",
+    "punjabkings": "punjabkings",
+    "pbks": "punjabkings",
+    "sunrisershyderabad": "sunrisershyderabad",
+    "srh": "sunrisershyderabad",
+    "lucknowsupergiants": "lucknowsupergiants",
+    "lsg": "lucknowsupergiants",
+}
+
+
 def _normalize_team(name: str | None) -> str:
     out = (name or "").lower()
-    return "".join(ch for ch in out if ch.isalnum())
+    normalized = "".join(ch for ch in out if ch.isalnum())
+    # Resolve through the alias map so Bangalore→Bengaluru variants
+    # all map to one canonical key for matching purposes.
+    return _IPL_TEAM_ALIASES.get(normalized, normalized)
 
 
 def _match_odds_event(
