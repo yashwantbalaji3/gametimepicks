@@ -222,6 +222,71 @@ class EligibilityTests(unittest.TestCase):
         self.assertFalse(is_eligible(thin, AGGRESSIVE_RULES))
         self.assertTrue(is_eligible(ok, AGGRESSIVE_RULES))
 
+    # ------------------------------------------------------------------
+    # PR #116 — recentGames metadata pass-through
+    # ------------------------------------------------------------------
+
+    def test_recent_games_metadata_passes_through_normalize(self):
+        """When the upstream board lean carries `recentGames`, the
+        normalizer must preserve it on the OptimizerLean — and only
+        clean it up enough to stay JSON-safe."""
+        raw = _nba_lean(
+            recent10=[5, 6, 7, 8, 9],
+            recentGames=[
+                {"date": "2026-05-15", "opponent": "SAS", "isHome": True, "value": 5},
+                {"date": "2026-05-17", "opponent": "DAL", "isHome": False, "value": 6},
+                {"date": "2026-05-20", "opponent": "LAL", "isHome": True, "value": 7},
+            ],
+        )
+        leg = normalize_lean(raw)
+        self.assertEqual(len(leg.recentGames), 3)
+        self.assertEqual(leg.recentGames[0]["date"], "2026-05-15")
+        self.assertEqual(leg.recentGames[0]["opponent"], "SAS")
+        self.assertEqual(leg.recentGames[0]["isHome"], True)
+        self.assertEqual(leg.recentGames[0]["value"], 5.0)
+        # Numeric series still populated independently.
+        self.assertEqual(leg.recentSeries, (5.0, 6.0, 7.0, 8.0, 9.0))
+
+    def test_recent_games_missing_is_empty_tuple(self):
+        """No `recentGames` on the source lean → empty tuple (not None)."""
+        leg = normalize_lean(_nba_lean())
+        self.assertEqual(leg.recentGames, ())
+
+    def test_recent_games_drops_rows_with_invalid_value(self):
+        """Rows without a numeric `value` are excluded — never invented."""
+        raw = _nba_lean(recentGames=[
+            {"date": "2026-05-15", "opponent": "SAS", "isHome": True, "value": 5},
+            {"date": "2026-05-17", "opponent": "DAL", "isHome": False, "value": "not-a-number"},
+            {"date": "2026-05-20", "opponent": "LAL", "isHome": True, "value": 7},
+        ])
+        leg = normalize_lean(raw)
+        self.assertEqual(len(leg.recentGames), 2)
+        self.assertEqual([g["date"] for g in leg.recentGames],
+                         ["2026-05-15", "2026-05-20"])
+
+    def test_recent_games_caps_at_10(self):
+        raw = _nba_lean(recentGames=[
+            {"date": f"2026-05-{10+i}", "opponent": "X", "isHome": True, "value": float(i)}
+            for i in range(15)
+        ])
+        leg = normalize_lean(raw)
+        self.assertEqual(len(leg.recentGames), 10)
+
+    def test_recent_games_invalid_opponent_becomes_none(self):
+        raw = _nba_lean(recentGames=[
+            {"date": "2026-05-15", "opponent": 12345, "isHome": True, "value": 5},
+        ])
+        leg = normalize_lean(raw)
+        self.assertIsNone(leg.recentGames[0]["opponent"],
+                          msg="non-string opponent must be set to None, never fabricated")
+
+    def test_recent_games_invalid_home_flag_becomes_none(self):
+        raw = _nba_lean(recentGames=[
+            {"date": "2026-05-15", "opponent": "SAS", "isHome": "home", "value": 5},
+        ])
+        leg = normalize_lean(raw)
+        self.assertIsNone(leg.recentGames[0]["isHome"])
+
 
 class OptimizerSlipBuildTests(unittest.TestCase):
 

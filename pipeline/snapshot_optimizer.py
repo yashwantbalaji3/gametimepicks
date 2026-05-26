@@ -84,6 +84,13 @@ def _leg_to_payload(leg: OptimizerLean) -> dict[str, Any]:
         "oddsForSide": leg.oddsForSide,
         "recent10Count": leg.recent10Count,
         "recentSeries": list(leg.recentSeries),
+        # PR #116 — per-game metadata parallel to `recentSeries`.
+        # Same chronological order, same length when populated.
+        # Empty list when the upstream board didn't attach metadata
+        # (legacy snapshots, MLB pre-enrichment, etc.). Never
+        # fabricated. The drawer falls back to numeric `recentSeries`
+        # when this is empty.
+        "recentGames": [dict(g) for g in leg.recentGames],
         "isAnomaly": leg.isAnomaly,
         "isVolatileMlb": leg.isVolatileMlb,
         "starTier": leg.starTier,
