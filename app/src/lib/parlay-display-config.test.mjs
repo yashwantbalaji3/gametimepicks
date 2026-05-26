@@ -31,14 +31,18 @@ test("PR #110 A: safe lanes never include the longshot lane", () => {
   );
 });
 
-test("PR #110 A: visible-per-lane cap for safe lanes is 2", () => {
-  assert.equal(VISIBLE_PER_LANE_SAFE, 2,
-    "Safe lanes must cap at 2 visible (down from 3) per the 5/25 audit");
+test("PR #115: visible-per-lane cap for safe lanes is 5 (up from 2)", () => {
+  // User asked for "at least 5 suggested parlays per risk level
+  // per sport when data supports it". The cap rises to 5; the
+  // display selector still rotates for diversity so the visible 5
+  // are not just the top-5 raw scores when alternatives exist.
+  assert.equal(VISIBLE_PER_LANE_SAFE, 5);
 });
 
-test("PR #110 G: visible-per-lane cap inside the longshot lane is also 2", () => {
-  assert.equal(VISIBLE_PER_LANE_HV, 2,
-    "High-variance lane visible cap must stay <= 4 from spec G; we use 2");
+test("PR #115: visible cap inside the longshot lane is 4", () => {
+  // Spec G in PR #110 required aggressive visible cap <= 4. We
+  // hold at 4 now (was 2 under the tightest interpretation).
+  assert.equal(VISIBLE_PER_LANE_HV, 4);
   assert.ok(VISIBLE_PER_LANE_HV <= 4,
     "Spec G requires aggressive visible cap <= 4");
 });

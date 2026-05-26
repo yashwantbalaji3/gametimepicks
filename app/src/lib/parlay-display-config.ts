@@ -30,11 +30,21 @@ export const SAFE_RISK_ORDER: ParlayRiskProfile[] = [
 export const HIGH_VARIANCE_PROFILE: ParlayRiskProfile = "aggressive";
 
 /** Cap on visible slips per safe lane (Conservative / Balanced /
- *  Star Power). */
-export const VISIBLE_PER_LANE_SAFE = 2;
+ *  Star Power).
+ *
+ *  PR #115 raised this from 2 → 5. Per the user spec: "at least 5
+ *  suggested parlays for each risk level for each sport when data
+ *  supports it." The display selector keeps the same cross-player
+ *  diversity rotation in place — when alternatives exist the top
+ *  N visible are NOT just the top-N raw scores. When the safe
+ *  pool is smaller than 5, the lane honestly shows fewer slips
+ *  instead of fabricating filler. */
+export const VISIBLE_PER_LANE_SAFE = 5;
 
-/** Cap on visible slips inside the expanded High-Variance lane. */
-export const VISIBLE_PER_LANE_HV = 2;
+/** Cap on visible slips inside the expanded High-Variance lane.
+ *  Spec G in PR #110 said "aggressive visible cap <= 4". We use
+ *  4 here (was 2). Longshot stays opt-in via the toggle. */
+export const VISIBLE_PER_LANE_HV = 4;
 
 /** Default open-state of the "Show high variance" toggle. We
  *  default to *hidden* so the longshot lane never appears as a
