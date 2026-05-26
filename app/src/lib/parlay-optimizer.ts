@@ -37,6 +37,16 @@ export interface OptimizerLeg {
    *  Persisted by `pipeline.snapshot_optimizer`. May be absent on
    *  older snapshot files. */
   recentSeries?: number[];
+  /** PR #116 — per-game metadata parallel to `recentSeries`. Each
+   *  entry: {date, opponent, isHome, value}. Empty list when the
+   *  upstream board didn't attach metadata (legacy snapshots, MLB
+   *  pre-enrichment). Never fabricated. */
+  recentGames?: Array<{
+    date: string | null;
+    opponent: string | null;
+    isHome: boolean | null;
+    value: number;
+  }>;
   isAnomaly: boolean;
   isVolatileMlb: boolean;
   /** Star metadata — PR #99. */
@@ -140,6 +150,11 @@ export function optimizerSlipToParlaySlip(
     bookmaker: leg.bookmaker,
     oddsForSide: leg.oddsForSide,
     recentSeries: leg.recentSeries,
+    // PR #116 — carry the rich per-game metadata through so the
+    // drawer can render date + opponent + isHome rows when the
+    // pipeline has populated them. Falls back to the numeric
+    // `recentSeries` view when absent.
+    recentGames: leg.recentGames,
     starTier: leg.starTier,
     isStar: leg.isStar,
   }));
