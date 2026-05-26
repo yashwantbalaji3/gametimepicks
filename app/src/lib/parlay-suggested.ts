@@ -45,6 +45,22 @@ export interface ParlayLeg {
    *  recent-form popup. Optional; older snapshot files may not carry
    *  it. */
   recentSeries?: number[];
+  /** PR #114: optional enriched recent-form rows. When the pipeline
+   *  has the data, each row carries the game date, opponent
+   *  abbreviation, and home/away flag — so the drawer can render
+   *  "May 23 · vs NYK · 8 REB · UNDER" instead of "G-1 · 8 · UNDER".
+   *  We don't fabricate this — when the source doesn't have it,
+   *  drawer falls back to the legacy `recentSeries` numeric list. */
+  recentGames?: Array<{
+    /** ISO YYYY-MM-DD. */
+    date?: string | null;
+    /** Opponent team abbreviation (NBA/MLB short code). */
+    opponent?: string | null;
+    /** True if the player's team was home for this game. */
+    isHome?: boolean | null;
+    /** Player's stat value for the leg's market on that day. */
+    value: number;
+  }>;
   /** Star metadata (PR #99). `starTier` ∈
    *  {"none","regular","core","superstar"}. Optional on legacy
    *  snapshots. */
@@ -532,8 +548,20 @@ export function filterSlipsBySportTeamPlayer(
       // Mixed tab strictly requires legs from BOTH sports.
       if (getSlipSports(slip).size < 2) return false;
     } else if (filter.sport !== "all") {
-      // NBA / MLB tab: any slip with at least one leg of that sport.
-      if (!slipContainsSport(slip, filter.sport)) return false;
+      // PR #114 contract change: NBA / MLB tab now requires the slip
+      // to be SINGLE-SPORT for the requested sport. Previously the
+      // filter used `slipContainsSport()` which let any slip with ≥1
+      // leg of that sport pass — meaning a Mixed slip with one NBA
+      // leg would surface under the NBA tab. That misled users who
+      // expected an NBA-only build.
+      // New behavior:
+      //   - "nba" → every leg must be NBA (no MLB legs allowed).
+      //   - "mlb" → every leg must be MLB.
+      //   - "all" → no sport filter.
+      //   - "multi" → must contain ≥2 sports.
+      const sports = getSlipSports(slip);
+      if (sports.size !== 1) return false;
+      if (!sports.has(filter.sport)) return false;
     }
     if (wantedTeam) {
       const anyOnTeam = (slip.legs ?? []).some(
@@ -566,9 +594,13 @@ export function fallbackToBestUnfilteredSlips(
 ): ParlaySlip[] {
   const scored = slips
     .filter((s) => {
+      // PR #114 contract: keep this in sync with
+      // `filterSlipsBySportTeamPlayer`. Single-sport pills require
+      // the slip's sport-set to be exactly that sport.
       if (sport === "all") return true;
       if (sport === "multi") return getSlipSports(s).size > 1;
-      return slipContainsSport(s, sport);
+      const sports = getSlipSports(s);
+      return sports.size === 1 && sports.has(sport);
     })
     .slice()
     .sort((a, b) => suggestedScore(b) - suggestedScore(a));

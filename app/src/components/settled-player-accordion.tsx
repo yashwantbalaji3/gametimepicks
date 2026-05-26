@@ -25,8 +25,9 @@ import type { ReactNode } from "react";
 import type { SettledLean } from "@/lib/settlement-data";
 import { getResultIcon, normalizeResult } from "@/lib/result-icons";
 import {
-  groupPlayerRowsByMarket,
+  dedupeSettledPicksByMarket,
   type PlayerResultSummary,
+  type SettledPickGroup,
 } from "@/lib/settled-player-summary";
 import PlayerAvatar from "./player-avatar";
 import TeamLogo from "./team-logo";
@@ -243,20 +244,29 @@ function PlayerAuditBody({ rows }: { rows: SettledLean[] }) {
       </p>
     );
   }
-  const groups = groupPlayerRowsByMarket(rows);
+  // PR #114: collapse per-bookmaker duplicates so each player/market
+  // pick renders once. Eight FanDuel/DraftKings rows for the same
+  // PTS Over 18.5 used to render as eight near-identical lines.
+  const groups = dedupeSettledPicksByMarket(rows);
   return (
     <div
       className="px-3 sm:px-4 py-3 flex flex-col gap-3"
       style={{ borderTop: "1px solid var(--vault-rule)" }}
     >
       {groups.map((g) => (
-        <MarketGroup key={g.market} market={g.market} rows={g.rows} />
+        <MarketGroup key={g.market} market={g.market} groups={g.groups} />
       ))}
     </div>
   );
 }
 
-function MarketGroup({ market, rows }: { market: string; rows: SettledLean[] }) {
+function MarketGroup({
+  market,
+  groups,
+}: {
+  market: string;
+  groups: SettledPickGroup[];
+}) {
   return (
     <section className="flex flex-col gap-1.5">
       <div className="flex items-center gap-2">
@@ -273,9 +283,9 @@ function MarketGroup({ market, rows }: { market: string; rows: SettledLean[] }) 
         />
       </div>
       <ul className="flex flex-col gap-1">
-        {rows.map((r, i) => (
-          <li key={`${r.gameId ?? "_"}-${market}-${i}`}>
-            <PickRow row={r} />
+        {groups.map((g) => (
+          <li key={g.id}>
+            <PickRow group={g} />
           </li>
         ))}
       </ul>
@@ -283,10 +293,9 @@ function MarketGroup({ market, rows }: { market: string; rows: SettledLean[] }) 
   );
 }
 
-function PickRow({ row }: { row: SettledLean }) {
-  const meta = getResultIcon(row.result);
-  const kind = normalizeResult(row.result);
-  const odds = row.side === "Over" ? row.oddsOver : row.oddsUnder;
+function PickRow({ group }: { group: SettledPickGroup }) {
+  const meta = getResultIcon(group.result);
+  const kind = normalizeResult(group.result);
   return (
     <div
       className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_auto_auto] gap-2 items-center px-2 py-1.5 rounded-[4px]"
@@ -321,9 +330,9 @@ function PickRow({ row }: { row: SettledLean }) {
             fontVariantNumeric: "tabular-nums",
           }}
         >
-          <span style={{ color: "var(--vault-gold-bright)" }}>{row.side ?? "—"}</span>{" "}
-          {fmt(row.line, 1)}
-          {row.confidence ? (
+          <span style={{ color: "var(--vault-gold-bright)" }}>{group.side ?? "—"}</span>{" "}
+          {fmt(group.line, 1)}
+          {group.confidence ? (
             <span
               style={{
                 marginLeft: 6,
@@ -333,7 +342,7 @@ function PickRow({ row }: { row: SettledLean }) {
                 letterSpacing: "0.1em",
               }}
             >
-              · {row.confidence}
+              · {group.confidence}
             </span>
           ) : null}
         </div>
@@ -345,15 +354,15 @@ function PickRow({ row }: { row: SettledLean }) {
             fontVariantNumeric: "tabular-nums",
           }}
         >
-          Proj {fmt(row.modelProjection ?? null, 2)} · Actual{" "}
-          {fmt(typeof row.finalStat === "number" ? row.finalStat : null, 0)}
-          {row.edgePct !== null && row.edgePct !== undefined ? (
-            <> · Edge {row.edgePct >= 0 ? "+" : ""}{(row.edgePct as number).toFixed(1)}%</>
+          Proj {fmt(group.projection, 2)} · Actual{" "}
+          {fmt(typeof group.actual === "number" ? group.actual : null, 0)}
+          {group.edgePct !== null && group.edgePct !== undefined ? (
+            <> · Edge {group.edgePct >= 0 ? "+" : ""}{(group.edgePct as number).toFixed(1)}%</>
           ) : null}
-          {row.bookmaker ? (
+          {group.bookCount > 0 ? (
             <span style={{ color: "var(--vault-text-faint)" }}>
-              {" "}
-              · {fmtOdds(odds)} {row.bookmaker}
+              {" "}· {group.bookCount} book{group.bookCount === 1 ? "" : "s"}
+              {group.oddsRange ? ` (${group.oddsRange})` : ""}
             </span>
           ) : null}
         </div>
@@ -375,7 +384,7 @@ function PickRow({ row }: { row: SettledLean }) {
           fontSize: 10,
         }}
       >
-        {row.gameId ? row.gameId.slice(0, 6) : ""}
+        {group.rows[0]?.gameId ? group.rows[0].gameId.slice(0, 6) : ""}
       </span>
     </div>
   );

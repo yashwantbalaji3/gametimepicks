@@ -279,7 +279,10 @@ export default function ParlayLabBuilder({
     HIGH_VARIANCE_DEFAULT_OPEN,
   );
 
-  const filterActive = team !== null || player !== null;
+  // PR #114: sport pills now count as active filters so the
+  // empty-state copy below switches into sport-aware mode when
+  // the user picks NBA / MLB / Mixed and gets nothing back.
+  const filterActive = team !== null || player !== null || sport !== "all";
 
   // Recent-form drawer state — tracks the clicked leg.
   const [activeLeg, setActiveLeg] = useState<ParlaySlip["legs"][number] | null>(null);
@@ -312,6 +315,7 @@ export default function ParlayLabBuilder({
         source={source}
         calibrationTable={calibrationTable}
         filterActive={filterActive}
+        sport={sport}
         onLegClick={setActiveLeg}
       />
 
@@ -322,6 +326,7 @@ export default function ParlayLabBuilder({
         source={source}
         calibrationTable={calibrationTable}
         filterActive={filterActive}
+        sport={sport}
         onLegClick={setActiveLeg}
       />
 
@@ -495,6 +500,7 @@ function RiskGrid({
   source,
   calibrationTable,
   filterActive,
+  sport,
   onLegClick,
 }: {
   cards: Array<{
@@ -505,6 +511,7 @@ function RiskGrid({
   source: "snapshot" | "graded";
   calibrationTable?: CalibrationTable;
   filterActive: boolean;
+  sport: SuggestedSport;
   onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
 }) {
   return (
@@ -518,6 +525,7 @@ function RiskGrid({
           source={source}
           calibrationTable={calibrationTable}
           filterActive={filterActive}
+          sport={sport}
           onLegClick={onLegClick}
         />
       ))}
@@ -532,6 +540,7 @@ function RiskCard({
   source,
   calibrationTable,
   filterActive,
+  sport,
   onLegClick,
 }: {
   profile: ParlayRiskProfile;
@@ -539,6 +548,7 @@ function RiskCard({
   isFallback: boolean;
   source: "snapshot" | "graded";
   calibrationTable?: CalibrationTable;
+  sport: SuggestedSport;
   filterActive: boolean;
   onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
 }) {
@@ -601,7 +611,7 @@ function RiskCard({
       </div>
 
       {slips.length === 0 ? (
-        <EmptyRiskCard profile={profile} filterActive={filterActive} />
+        <EmptyRiskCard profile={profile} filterActive={filterActive} sport={sport} />
       ) : (
         <>
           {isFallback && filterActive && (
@@ -651,11 +661,42 @@ function FallbackNote({ profile }: { profile: ParlayRiskProfile }) {
 function EmptyRiskCard({
   profile,
   filterActive,
+  sport,
 }: {
   profile: ParlayRiskProfile;
   filterActive: boolean;
+  sport: SuggestedSport;
 }) {
   const display = RISK_DISPLAY[profile];
+  // PR #114: sport-aware empty-state copy. When a user picks the
+  // NBA-only or MLB-only tab and gets nothing back, the message
+  // should explicitly say "no NBA-only slip" / "no MLB-only slip"
+  // (not just "filters too tight") so they don't think the page is
+  // broken. Mixed tab gets an explanation that it only carries
+  // cross-sport slips by design.
+  let title: string;
+  let body: string;
+  if (sport === "nba") {
+    title = "No NBA-only slip";
+    body =
+      "Current safety filters did not find a clean NBA-only build for this risk profile. Try the Mixed tab — or the All tab to widen the pool.";
+  } else if (sport === "mlb") {
+    title = "No MLB-only slip";
+    body =
+      "Current safety filters did not find a clean MLB-only build for this risk profile. Try the Mixed tab — or the All tab to widen the pool.";
+  } else if (sport === "multi") {
+    title = `No mixed ${display.label.toLowerCase()} slip`;
+    body =
+      "Mixed combines sports. Use NBA or MLB tabs for single-sport slips, or All to see everything.";
+  } else if (filterActive) {
+    title = `No ${display.label.toLowerCase()} slip`;
+    body =
+      "These filters left nothing the model could build cleanly. Try a different team or fewer players.";
+  } else {
+    title = `No ${display.label.toLowerCase()} slip`;
+    body =
+      "Today's slate doesn't satisfy this risk profile yet — too few eligible legs or correlation caps.";
+  }
   return (
     <div
       className="rounded-[6px] p-5 flex flex-col gap-2 justify-center items-center text-center"
@@ -669,15 +710,13 @@ function EmptyRiskCard({
         className="font-mono uppercase tracking-[0.16em]"
         style={{ color: display.accent, fontSize: 10 }}
       >
-        No {display.label.toLowerCase()} slip
+        {title}
       </span>
       <p
         className="text-[12px] leading-snug"
         style={{ color: "var(--vault-text-mute)", maxWidth: 260 }}
       >
-        {filterActive
-          ? "These filters left nothing the model could build cleanly. Try a different team or fewer players."
-          : "Today's slate doesn't satisfy this risk profile yet — too few eligible legs or correlation caps."}
+        {body}
       </p>
     </div>
   );
@@ -740,6 +779,7 @@ function HighVarianceToggle({
   source,
   calibrationTable,
   filterActive,
+  sport,
   onLegClick,
 }: {
   open: boolean;
@@ -752,6 +792,7 @@ function HighVarianceToggle({
   source: "snapshot" | "graded";
   calibrationTable?: CalibrationTable;
   filterActive: boolean;
+  sport: SuggestedSport;
   onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
 }) {
   return (
@@ -784,6 +825,7 @@ function HighVarianceToggle({
               source={source}
               calibrationTable={calibrationTable}
               filterActive={filterActive}
+              sport={sport}
               onLegClick={onLegClick}
             />
           </div>

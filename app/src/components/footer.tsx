@@ -21,17 +21,17 @@ export default function Footer() {
           "linear-gradient(180deg, rgba(7, 11, 26, 0) 0%, rgba(14, 21, 48, 0.55) 100%)",
       }}
     >
-      {/* Running-dots Vegas marquee accent above the gold edge line —
-          gives the footer a hint of lounge ambience without competing
-          with the disclaimer banner up top. */}
-      <div aria-hidden className="gtp-vegas-marquee" />
-      {/* Soft gold edge accent immediately below the marquee. */}
+      {/* PR #114: replaced the running-dots "Vegas marquee" with a
+          static, subtle gold gradient divider. The animated dotted
+          line was reading as noisy / immature and competed with the
+          MarketTicker up top. Mature premium look now. */}
       <div
         aria-hidden
         className="h-px"
         style={{
           background:
-            "linear-gradient(90deg, transparent, var(--vault-border-strong), transparent)",
+            "linear-gradient(90deg, transparent, var(--vault-border-strong) 50%, transparent)",
+          opacity: 0.85,
         }}
       />
       <div className="mx-auto max-w-[1440px] px-6 sm:px-8 py-14">

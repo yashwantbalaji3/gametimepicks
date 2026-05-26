@@ -958,40 +958,11 @@ table,
   .gtp-neon-pulse { animation: none; }
 }
 
-/* Vegas marquee — running gold dots used VERY sparingly. Reserved for
-   the footer top-edge accent. Not for the disclaimer banner. */
-.gtp-vegas-marquee {
-  position: relative;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(212, 175, 55, 0.45) 50%,
-    transparent 100%
-  );
-}
-.gtp-vegas-marquee::before {
-  content: "";
-  position: absolute;
-  inset: -1px 0;
-  background-image: radial-gradient(
-    circle,
-    rgba(240, 199, 94, 0.85) 0,
-    rgba(240, 199, 94, 0) 60%
-  );
-  background-size: 14px 4px;
-  background-repeat: repeat-x;
-  background-position: 0 50%;
-  animation: gtp-marquee-run 18s linear infinite;
-  opacity: 0.5;
-}
-@keyframes gtp-marquee-run {
-  0%   { background-position-x: 0; }
-  100% { background-position-x: 280px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .gtp-vegas-marquee::before { animation: none; opacity: 0.3; }
-}
+/* PR #114: `.gtp-vegas-marquee` (the running-dots footer accent) was
+   removed. The footer now uses a static subtle gradient divider
+   inline in Footer.tsx — see that component for the replacement.
+   The class is intentionally NOT redefined here; if any stale
+   reference survives it will render as a no-op div. */
 
 /* ============================================================================
    Iteration 2 — composed sportsbook modules.

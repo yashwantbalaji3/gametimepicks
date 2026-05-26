@@ -311,9 +311,13 @@ export function loadProjectionsPayload(): ProjectionsPayload {
     const mlbLeans = (mlbBoard?.leans ?? []).map(_normalizeMlbLean);
     const allLeans = [...nbaLeans, ...mlbLeans];
 
-    // Skip dates with zero leans on both sports — the date pill row
-    // never offers an empty date.
-    if (allLeans.length === 0) continue;
+    // Skip dates with zero leans AND zero MLB schedule games. We
+    // still want to surface MLB game cards on dates where the
+    // schedule is live but player props haven't been posted yet
+    // (PR #114) — those render as honest "props unavailable" cards
+    // rather than disappearing.
+    const mlbScheduleGames = mlbBoard?.games ?? [];
+    if (allLeans.length === 0 && mlbScheduleGames.length === 0) continue;
 
     const leansByGameId: Record<string, ProjectionsLean[]> = {};
     for (const l of allLeans) {
@@ -349,16 +353,21 @@ export function loadProjectionsPayload(): ProjectionsPayload {
           (l.team === g.awayTeamAbbr && l.opponent === g.homeTeamAbbr) ||
           (l.team === g.homeTeamAbbr && l.opponent === g.awayTeamAbbr),
       );
-      if (filtered.length === 0) continue;
-      // Re-index THESE leans under the matchup's effective gameId
-      const gameId = filtered[0].gameId;
+      // PR #114: even when this matchup has zero leans (player props
+      // not yet posted by the books), we still render the game card
+      // with an honest "props unavailable" projectionCount of 0.
+      // Previously this `continue` silently dropped MLB cards on dates
+      // where the schedule was live but props weren't, so /projections
+      // looked like an NBA-only page even with 15 MLB games today.
       const markets =
         g.awayTeamName && g.homeTeamName
           ? _gameMarketsFor("mlb", date, g.homeTeamName, g.awayTeamName)
           : null;
       games.push(_normalizeMlbGame(g, filtered, markets));
-      // Ensure the lookup map keys all match this canonical gameId.
-      leansByGameId[gameId] = filtered;
+      if (filtered.length > 0) {
+        // Re-index THESE leans under the matchup's effective gameId.
+        leansByGameId[filtered[0].gameId] = filtered;
+      }
     }
 
     if (games.length === 0) continue;
