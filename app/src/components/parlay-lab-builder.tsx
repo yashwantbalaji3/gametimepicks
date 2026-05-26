@@ -6,8 +6,10 @@
  *   1. Sport pills (All · NBA · MLB · Mixed)
  *   2. Team pills filtered by sport
  *   3. Player chips filtered by sport + team
- *   4. Three risk-level cards (Conservative · Balanced · High variance)
- *      with the best matching optimizer slip plus up to 2 alternates.
+ *   4. Three safe risk-level cards (Conservative · Balanced · Star
+ *      Power), each with up to 2 visible slips. The Longshot /
+ *      "high variance" lane is collapsed behind a "Show high
+ *      variance" toggle (PR #110 safety filters A + B).
  *
  * Honest fallback:
  *   When the filter combination eliminates every slip for a profile,
@@ -37,6 +39,14 @@ import {
   type ParlaySlip,
   type SuggestedSport,
 } from "@/lib/parlay-suggested";
+import {
+  HIGH_VARIANCE_DEFAULT_OPEN,
+  HIGH_VARIANCE_PROFILE,
+  SAFE_RISK_ORDER,
+  VISIBLE_PER_LANE_HV,
+  VISIBLE_PER_LANE_SAFE,
+  isAllowedOfficialSlip,
+} from "@/lib/parlay-display-config";
 import {
   flattenOptimizerSlips,
   optimizerSlipToParlaySlip,
@@ -81,8 +91,8 @@ const RISK_DISPLAY: Record<
     icon: "◈",
   },
   aggressive: {
-    label: "High variance",
-    sub: "4–5 legs · higher payout · longshot territory",
+    label: "Longshot · experimental",
+    sub: "Up to 4 legs · higher payout · longshot territory",
     accent: "var(--vault-warn)",
     icon: "⟁",
   },
@@ -94,12 +104,8 @@ const RISK_DISPLAY: Record<
   },
 };
 
-const RISK_ORDER: ParlayRiskProfile[] = [
-  "conservative",
-  "balanced",
-  "star_power",
-  "aggressive",
-];
+// Lane caps + ordering live in `@/lib/parlay-display-config` so the
+// constants can be unit-tested without booting a JSX renderer.
 
 export default function ParlayLabBuilder({
   slips,
@@ -209,38 +215,69 @@ export default function ParlayLabBuilder({
     [pool, sport, team, player],
   );
 
-  // For each risk profile, pick the best slip + up to 2 alternates.
+  // For each risk profile, pick the best slip + up to N alternates
+  // (N driven by VISIBLE_PER_LANE_*).
+  //
   // We pool slips across optimizer buckets (nba / mlb / multi / all)
-  // and pass them through `selectDiverseForDisplay`, which enforces
-  // a cross-slip recurrence penalty so the visible cards don't all
-  // share the same anchor player (e.g. the highest-edge MLB hitter
-  // winning slot #1 in every Conservative card).
+  // and pass them through `selectDiverseForDisplay`, which enforces a
+  // cross-slip recurrence penalty so the visible cards don't all
+  // share the same anchor player. PR #110 filter D also applies a
+  // Mixed-sport penalty inside that selector so Conservative/Balanced
+  // prefer single-sport slips when possible.
+  //
+  // PR #110 filter A: safe lanes (Conservative/Balanced/Star Power)
+  // are capped at 2 visible per lane (down from 3). High Variance is
+  // built separately and rendered behind a "Show high variance"
+  // toggle (see `hvCard` below).
   //
   // When the filtered pool is empty for a profile, surface the top
   // unfiltered slip for that sport (clearly labeled as fallback).
-  const cards = useMemo(() => {
-    return RISK_ORDER.map((profile) => {
-      const matched = filtered.filter((s) => s.riskProfile === profile);
-      if (matched.length > 0) {
-        return {
-          profile,
-          slips: selectDiverseForDisplay(matched, profile, 3),
-          isFallback: false,
-        };
-      }
-      // Honest fallback — top unfiltered slip for the active sport.
-      const fb = fallbackToBestUnfilteredSlips(
-        pool.filter((s) => s.riskProfile === profile),
-        sport,
-        1,
-      );
+  const buildCardForProfile = (
+    profile: ParlayRiskProfile,
+    limit: number,
+  ) => {
+    // PR #110 filter G: hide 5+ leg slips from official suggestions.
+    // Backend already caps newly-generated snapshots at 4 legs; this
+    // is a safety belt for legacy snapshot files. Custom Builder
+    // remains untouched — users can still build risky combos there.
+    const matched = filtered
+      .filter((s) => s.riskProfile === profile)
+      .filter(isAllowedOfficialSlip);
+    if (matched.length > 0) {
       return {
         profile,
-        slips: fb,
-        isFallback: true,
+        slips: selectDiverseForDisplay(matched, profile, limit),
+        isFallback: false,
       };
-    });
-  }, [filtered, pool, sport]);
+    }
+    const fb = fallbackToBestUnfilteredSlips(
+      pool.filter((s) => s.riskProfile === profile).filter(isAllowedOfficialSlip),
+      sport,
+      1,
+    );
+    return { profile, slips: fb, isFallback: true };
+  };
+
+  const cards = useMemo(
+    () =>
+      SAFE_RISK_ORDER.map((profile) =>
+        buildCardForProfile(profile, VISIBLE_PER_LANE_SAFE),
+      ),
+    // buildCardForProfile is stable enough — its inputs (filtered,
+    // pool, sport) are listed below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filtered, pool, sport],
+  );
+
+  const hvCard = useMemo(
+    () => buildCardForProfile(HIGH_VARIANCE_PROFILE, VISIBLE_PER_LANE_HV),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filtered, pool, sport],
+  );
+
+  const [showHighVariance, setShowHighVariance] = useState(
+    HIGH_VARIANCE_DEFAULT_OPEN,
+  );
 
   const filterActive = team !== null || player !== null;
 
@@ -268,8 +305,20 @@ export default function ParlayLabBuilder({
         onPlayerChange={changePlayer}
       />
 
+      <ExperimentalDisclaimer />
+
       <RiskGrid
         cards={cards}
+        source={source}
+        calibrationTable={calibrationTable}
+        filterActive={filterActive}
+        onLegClick={setActiveLeg}
+      />
+
+      <HighVarianceToggle
+        open={showHighVariance}
+        onToggle={() => setShowHighVariance((v) => !v)}
+        card={hvCard}
         source={source}
         calibrationTable={calibrationTable}
         filterActive={filterActive}
@@ -338,7 +387,7 @@ function BuilderHeader({
         style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
       >
         {optimizerActive
-          ? "Pick a sport, a team, and the players you care about. The model returns the best slip at every risk level — Conservative, Balanced, High variance."
+          ? "Pick a sport, a team, and the players you care about. The model returns the best slip in each safer lane — Conservative, Balanced, Star Power. High variance is opt-in."
           : "Pick a sport, a team, and the players you care about. Slips below come from today's pregame snapshot."}
       </p>
     </header>
@@ -544,9 +593,9 @@ function RiskCard({
               background: "rgba(7,11,26,0.55)",
               fontSize: 9,
             }}
-            title="Aggressive parlays have hit ~4.5% historically."
+            title="Longshot lane went 0-14 in the 5/25 audit. Tracked publicly."
           >
-            4.5% hit
+            Longshot
           </span>
         )}
       </div>
@@ -630,6 +679,116 @@ function EmptyRiskCard({
           ? "These filters left nothing the model could build cleanly. Try a different team or fewer players."
           : "Today's slate doesn't satisfy this risk profile yet — too few eligible legs or correlation caps."}
       </p>
+    </div>
+  );
+}
+
+/**
+ * Public-tracking disclaimer banner (PR #110 filter A).
+ *
+ * After the 5/25 audit (6W-54L-0P-10 pending on 70 unique slips, 10%
+ * decisive hit rate) we surface honest "experimental + publicly
+ * tracked" copy directly above the lane grid. No win-rate spin, no
+ * "guaranteed" / "lock" / "free money" / "can't miss" language —
+ * just the truth that these are tracked publicly so users can see
+ * for themselves.
+ */
+function ExperimentalDisclaimer() {
+  return (
+    <aside
+      className="rounded-[8px] p-3 flex items-start gap-3"
+      style={{
+        background: "rgba(7,11,26,0.45)",
+        border: "1px dashed var(--vault-border)",
+      }}
+      role="note"
+    >
+      <span aria-hidden style={{ fontSize: 14, lineHeight: 1.2 }}>
+        ⚠
+      </span>
+      <div className="flex flex-col gap-0.5 min-w-0">
+        <span
+          className="font-mono uppercase tracking-[0.16em]"
+          style={{ color: "var(--vault-warn)", fontSize: 10 }}
+        >
+          Experimental · publicly tracked
+        </span>
+        <span
+          className="text-[12.5px] leading-snug"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          Suggested slips are experimental and tracked publicly on the
+          Results page. Past performance does not predict future
+          results.
+        </span>
+      </div>
+    </aside>
+  );
+}
+
+/**
+ * Collapsible "Show high variance" section (PR #110 filter B).
+ *
+ * The Longshot lane is hidden by default. Users opt in explicitly —
+ * the audit showed Aggressive went 0-14 on 5/25, so it should never
+ * present itself as a peer to the safer lanes on first paint.
+ */
+function HighVarianceToggle({
+  open,
+  onToggle,
+  card,
+  source,
+  calibrationTable,
+  filterActive,
+  onLegClick,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  card: {
+    profile: ParlayRiskProfile;
+    slips: ParlaySlip[];
+    isFallback: boolean;
+  };
+  source: "snapshot" | "graded";
+  calibrationTable?: CalibrationTable;
+  filterActive: boolean;
+  onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="self-start font-mono uppercase tracking-[0.16em] px-3 py-1.5 rounded-[6px] inline-flex items-center gap-2"
+        style={{
+          color: "var(--vault-warn)",
+          border: "1px solid var(--vault-warn)",
+          background: "rgba(7,11,26,0.55)",
+          fontSize: 10,
+          cursor: "pointer",
+        }}
+      >
+        <span aria-hidden style={{ fontSize: 12 }}>
+          {open ? "▾" : "▸"}
+        </span>
+        {open ? "Hide" : "Show"} high variance
+      </button>
+      {open && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="md:col-span-3 max-w-[420px]">
+            <RiskCard
+              profile={card.profile}
+              slips={card.slips}
+              isFallback={card.isFallback}
+              source={source}
+              calibrationTable={calibrationTable}
+              filterActive={filterActive}
+              onLegClick={onLegClick}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

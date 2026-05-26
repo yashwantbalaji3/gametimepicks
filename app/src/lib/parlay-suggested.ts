@@ -600,19 +600,54 @@ export function fallbackToBestUnfilteredSlips(
  *   aggressive   — light: high-variance cards may legitimately repeat
  *                 value players (Schroder, Foscue) because their edges
  *                 are real.
+ *
+ * `mixedSportPenalty` (PR #110 safety filter D):
+ *   Subtracted from the adjusted score of any multi-sport (Mixed) slip.
+ *   Mixed slips went 0-26 on 5/25 — every visible Mixed card lost. The
+ *   penalty steers Conservative/Balanced toward single-sport
+ *   alternatives unless the Mixed slip is *materially* better. We do
+ *   NOT hard-filter — if Mixed is the only viable option, it can still
+ *   surface, but the bar is now higher.
+ *     conservative — strongest (0.50). Roughly equivalent to a 1.5×
+ *                    same-player repeat penalty.
+ *     balanced     — moderate (0.30).
+ *     star_power   — light (0.10). Star-led slips often span sports
+ *                    naturally; only nudge.
+ *     aggressive   — none (0.00). High Variance lane is allowed to
+ *                    take mixed-sport longshots.
  */
 const _DISPLAY_PENALTY: Record<
   ParlayRiskProfile,
-  { perPlayer: number; perPlayerMarketExtra: number }
+  {
+    perPlayer: number;
+    perPlayerMarketExtra: number;
+    mixedSportPenalty: number;
+  }
 > = {
-  conservative: { perPlayer: 0.4, perPlayerMarketExtra: 0.3 },
-  balanced: { perPlayer: 0.25, perPlayerMarketExtra: 0.2 },
-  aggressive: { perPlayer: 0.12, perPlayerMarketExtra: 0.08 },
+  conservative: {
+    perPlayer: 0.4,
+    perPlayerMarketExtra: 0.3,
+    mixedSportPenalty: 0.5,
+  },
+  balanced: {
+    perPlayer: 0.25,
+    perPlayerMarketExtra: 0.2,
+    mixedSportPenalty: 0.3,
+  },
+  aggressive: {
+    perPlayer: 0.12,
+    perPlayerMarketExtra: 0.08,
+    mixedSportPenalty: 0.0,
+  },
   // Star Power — diversify between visible star-led slips like
   // Balanced. Same player still allowed when the only alternative
   // is a non-star (the lane's Python-side require_star already
   // guarantees no non-star ever enters).
-  star_power: { perPlayer: 0.3, perPlayerMarketExtra: 0.25 },
+  star_power: {
+    perPlayer: 0.3,
+    perPlayerMarketExtra: 0.25,
+    mixedSportPenalty: 0.1,
+  },
 };
 
 /**
@@ -666,6 +701,14 @@ export function selectDiverseForDisplay(
         const pmKey = `${pKey}|${market}`;
         const pmCount = playerMarketCounts.get(pmKey) ?? 0;
         if (pmCount > 0) penalty += pmCount * penalties.perPlayerMarketExtra;
+      }
+      // PR #110 safety filter D: penalize Mixed (multi-sport) slips so
+      // Conservative/Balanced prefer single-sport alternatives. Mixed
+      // slips went 0-26 on 5/25. A Mixed slip can still win if it is
+      // *materially* better than every single-sport alternative — we
+      // do not hard-filter.
+      if (penalties.mixedSportPenalty > 0 && getSlipSports(slip).size > 1) {
+        penalty += penalties.mixedSportPenalty;
       }
       const adj = suggestedScore(slip) - penalty;
       if (adj > bestAdj) {
