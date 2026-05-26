@@ -28,7 +28,7 @@ import { optimizerSlipToParlaySlip } from "@/lib/parlay-optimizer";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 
 import ParlayResultsSummary from "@/components/parlay-results-summary";
-import ParlayResultsDateSection from "@/components/parlay-results-date-section";
+import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
 
 export const metadata = {
   title: "Suggested parlay results · GameTime Picks",
@@ -106,7 +106,7 @@ export default function ResultsPage() {
           <EmptyState />
         ) : (
           dateSections.map((section) => (
-            <ParlayResultsDateSection
+            <ParlayResultsDateSectionV2
               key={section.date}
               date={section.date}
               slips={section.slips}
