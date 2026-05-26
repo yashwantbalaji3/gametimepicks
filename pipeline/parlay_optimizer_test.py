@@ -173,6 +173,55 @@ class EligibilityTests(unittest.TestCase):
         self.assertTrue(is_eligible(leg, BALANCED_RULES, selected_game_ids={"g7"}))
         self.assertFalse(is_eligible(leg, BALANCED_RULES, selected_game_ids={"g8"}))
 
+    # ------------------------------------------------------------------
+    # PR #115 DNP guard
+    # ------------------------------------------------------------------
+
+    def test_dnp_guard_nba_conservative_requires_7_recent10(self):
+        """Conservative NBA leg with only 6 recent values is rejected.
+
+        Catches the 5/25 audit pattern where DNP players (Soto, Ruiz,
+        Schroder, Bauers) had insufficient activity but still slipped
+        into safe lanes."""
+        thin = normalize_lean(_nba_lean(recent10=[5, 6, 7, 5, 6, 7]))
+        full = normalize_lean(_nba_lean(recent10=[5, 6, 7, 5, 6, 7, 8, 9]))
+        self.assertFalse(is_eligible(thin, CONSERVATIVE_RULES),
+                         msg="NBA leg with recent10Count=6 must be rejected from Conservative")
+        self.assertTrue(is_eligible(full, CONSERVATIVE_RULES),
+                        msg="NBA leg with recent10Count=8 must be allowed in Conservative")
+
+    def test_dnp_guard_nba_balanced_requires_5_recent10(self):
+        """Balanced is the relaxed-vs-Conservative tier."""
+        thin = normalize_lean(_nba_lean(recent10=[5, 6, 7, 8]))
+        full = normalize_lean(_nba_lean(recent10=[5, 6, 7, 8, 9, 6]))
+        self.assertFalse(is_eligible(thin, BALANCED_RULES),
+                         msg="Balanced still excludes recent10Count=4")
+        self.assertTrue(is_eligible(full, BALANCED_RULES))
+
+    def test_dnp_guard_aggressive_loose_but_excludes_empty(self):
+        """Aggressive/Longshot tolerates more volatility but still
+        excludes legs with zero or near-zero recent activity."""
+        empty = normalize_lean(_nba_lean(recent10=[], confidence="Low", edgePct=1.5))
+        thin = normalize_lean(_nba_lean(recent10=[5, 6, 7], confidence="Low", edgePct=1.5))
+        self.assertFalse(is_eligible(empty, AGGRESSIVE_RULES),
+                         msg="Aggressive must still exclude empty recent10")
+        self.assertTrue(is_eligible(thin, AGGRESSIVE_RULES),
+                        msg="Aggressive allows recent10Count=3 (loosest tier)")
+
+    def test_dnp_guard_mlb_conservative_requires_5_series(self):
+        """MLB Conservative requires len(recentSeries) >= 5."""
+        thin = normalize_lean(_mlb_lean(recentSeries=[1, 0, 1, 1]))
+        full = normalize_lean(_mlb_lean(recentSeries=[1, 0, 1, 1, 2]))
+        self.assertFalse(is_eligible(thin, CONSERVATIVE_RULES),
+                         msg="MLB leg with 4-game series must be rejected from Conservative")
+        self.assertTrue(is_eligible(full, CONSERVATIVE_RULES))
+
+    def test_dnp_guard_mlb_aggressive_min_3_series(self):
+        thin = normalize_lean(_mlb_lean(recentSeries=[1, 0], confidence="Low", edgePct=1.5))
+        ok = normalize_lean(_mlb_lean(recentSeries=[1, 0, 1], confidence="Low", edgePct=1.5))
+        self.assertFalse(is_eligible(thin, AGGRESSIVE_RULES))
+        self.assertTrue(is_eligible(ok, AGGRESSIVE_RULES))
+
 
 class OptimizerSlipBuildTests(unittest.TestCase):
 

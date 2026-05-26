@@ -86,6 +86,19 @@ class ProfileRules:
     # rejected at the eligibility gate so the lane is composed only
     # of recognizable players. Set on Star Power.
     require_star: bool = False
+    # PR #115 DNP guard — minimum recent-activity signal required for
+    # a leg to enter this official lane. Independent of
+    # `require_recent10` (which was the older NBA-only gate at 5).
+    # The new gate runs on every profile:
+    #   - NBA leg requires `recent10Count >= dnp_min_nba_recent10`.
+    #   - MLB leg requires `len(recentSeries) >= dnp_min_mlb_series`.
+    # Catches the 5/25 audit pattern where all 10 pending slips were
+    # blocked by a single DNP player (Soto x4, Ruiz x3, Schroder x3,
+    # Bauers x1). Custom Parlay Generator can still surface these
+    # legs with a `risk` warning chip — only the official lanes
+    # exclude them.
+    dnp_min_nba_recent10: int = 7
+    dnp_min_mlb_series: int = 5
 
 
 CONSERVATIVE_RULES = ProfileRules(
@@ -126,6 +139,9 @@ BALANCED_RULES = ProfileRules(
     ),
     mlb_max_volatile_legs=1,
     correlation_penalty_per_extra=0.08,
+    # PR #115 DNP guard — Balanced relaxed vs Conservative/Star
+    # Power. NBA leg needs >= 5 recent10 values (was implicitly 0).
+    dnp_min_nba_recent10=5,
 )
 
 AGGRESSIVE_RULES = ProfileRules(
@@ -153,6 +169,11 @@ AGGRESSIVE_RULES = ProfileRules(
     ),
     mlb_max_volatile_legs=3,
     correlation_penalty_per_extra=0.05,
+    # PR #115 DNP guard — Longshot tolerates more volatility but
+    # still excludes pure no-data legs. NBA leg needs >= 3
+    # recent10 values; MLB leg needs >= 3 series values.
+    dnp_min_nba_recent10=3,
+    dnp_min_mlb_series=3,
 )
 
 # Star Power lane — recognizable-stars-first composition. Not "safer"
@@ -570,6 +591,18 @@ def is_eligible(
         return False
     if rules.require_recent10 and lean.recent10Count < 5:
         return False
+    # PR #115 DNP guard — applies to every official lane. NBA legs
+    # need `recent10Count >= dnp_min_nba_recent10`; MLB legs need
+    # `len(recentSeries) >= dnp_min_mlb_series`. Excludes the 5/25
+    # audit pattern where all 10 pending slips were blocked by a
+    # single DNP player (Soto x4, Ruiz x3, Schroder x3, Bauers x1).
+    if lean.sport == "nba":
+        if lean.recent10Count < rules.dnp_min_nba_recent10:
+            return False
+    elif lean.sport == "mlb":
+        series_len = len(lean.recentSeries) if lean.recentSeries else 0
+        if series_len < rules.dnp_min_mlb_series:
+            return False
     if rules.require_valid_player_id and (lean.playerId or 0) <= 0:
         return False
     if rules.exclude_anomalies and lean.isAnomaly:
