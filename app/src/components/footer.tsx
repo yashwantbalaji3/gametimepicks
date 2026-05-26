@@ -77,11 +77,9 @@ export default function Footer() {
                   NHL <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· provider pending</span>
                 </Link>
               </li>
-              <li>
-                <Link href="/ipl" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
-                  IPL <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· provider pending</span>
-                </Link>
-              </li>
+              {/* PR #113: IPL link removed from the footer. The /ipl
+                  routes still exist for future re-enablement but are
+                  no longer surfaced from any nav. */}
             </ul>
           </div>
           <div>

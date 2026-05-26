@@ -28,16 +28,15 @@
 import { Suspense } from "react";
 
 import ProjectionsExperience from "@/components/projections-experience";
-import CricketBoardSection from "@/components/cricket-board-section";
+// Cricket components + loaders stay in the codebase but are
+// intentionally NOT imported here — PR #113 unwired cricket from
+// every user-facing surface.
 import MarketTicker from "@/components/market-ticker";
 import { buildMarketTickerItems } from "@/lib/market-ticker";
 import { loadProjectionsPayload } from "@/lib/data-projections";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { getBoardForDate } from "@/lib/data";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
-import { getActiveCricketBoard } from "@/lib/data-cricket";
-import { getCricketContextForDate } from "@/lib/data-cricket-context";
-import { getCricketPlayerProjectionsForDate } from "@/lib/data-cricket-players";
 import { currentEtDate } from "@/lib/freshness";
 
 export const metadata = {
@@ -48,19 +47,13 @@ export const metadata = {
 
 export default function ProjectionsPage() {
   const payload = loadProjectionsPayload();
-  // Cricket runs as a separate sport surface here — projections-only,
-  // never enters the parlay optimizer / custom builder / Results.
-  const cricketBoard = getActiveCricketBoard();
-  const cricketContext = cricketBoard
-    ? getCricketContextForDate(cricketBoard.date)
-    : null;
-  const cricketPlayers = cricketBoard
-    ? getCricketPlayerProjectionsForDate(cricketBoard.date)
-    : null;
+  // PR #113: cricket fully unwired from this surface. The IPL board
+  // section, context cards, and player accordion are no longer
+  // rendered until cricket is intentionally re-enabled.
 
   // ---- Market ticker (PR #112) ------------------------------------------
   // Projections surface: lead with the live data this page is about
-  // to show (NBA count, MLB games, cricket consensus / pre-toss).
+  // to show (NBA count, MLB games).
   const today = currentEtDate();
   const nbaBoard = getBoardForDate(today);
   const mlbBoard = getMlbBoardForDate(today);
@@ -68,7 +61,6 @@ export default function ProjectionsPage() {
     surface: "projections",
     nba: nbaBoard,
     mlb: mlbBoard,
-    cricket: cricketBoard,
   });
 
   return (
@@ -86,11 +78,7 @@ export default function ProjectionsPage() {
           calibrationTable={loadCalibrationTable()}
         />
       </Suspense>
-      <CricketBoardSection
-        board={cricketBoard}
-        context={cricketContext}
-        playerProjections={cricketPlayers}
-      />
+      {/* PR #113: <CricketBoardSection /> intentionally not rendered. */}
     </div>
   );
 }

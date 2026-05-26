@@ -317,7 +317,14 @@ export function buildMarketTickerItems(
   input: BuildMarketTickerInput,
 ): MarketTickerItem[] {
   const items: MarketTickerItem[] = [];
-  const { surface, nba, mlb, cricket, optimizerSummary } = input;
+  // PR #113: `cricket` input is intentionally destructured but never
+  // consumed. The cricket loader stays in the codebase and the type
+  // is preserved so a future PR can re-enable cricket without a
+  // schema migration — but the build pipeline emits zero cricket
+  // items in this version. The helper preserves dead-code-friendly
+  // shape for forward compatibility.
+  const { surface, nba, mlb, optimizerSummary } = input;
+  void input.cricket;
 
   // Surface-specific ordering.
   if (surface === "projections") {
@@ -325,7 +332,7 @@ export function buildMarketTickerItems(
     if (nbaItem) items.push(nbaItem);
     const mlbItem = _mlbBoardItem(mlb);
     if (mlbItem) items.push(mlbItem);
-    items.push(..._cricketItems(cricket));
+    // Cricket items intentionally omitted (PR #113).
     // Skip lifetime hit-rate here — projections are pregame focus.
     // Only show the "tracked publicly" honest note when the caller
     // actually supplied a summary AND nothing is decisive yet.
@@ -347,7 +354,7 @@ export function buildMarketTickerItems(
     if (nbaItem) items.push(nbaItem);
     const mlbItem = _mlbBoardItem(mlb);
     if (mlbItem) items.push(mlbItem);
-    items.push(..._cricketItems(cricket));
+    // Cricket items intentionally omitted (PR #113).
     items.push(..._safetyNoteItems("home"));
   } else if (surface === "parlay_lab") {
     items.push(..._safetyNoteItems("parlay_lab"));

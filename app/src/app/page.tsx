@@ -24,7 +24,9 @@ import Link from "next/link";
 import { getLifetimeSummary, getBoardForDate } from "@/lib/data";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
-import { getActiveCricketBoard } from "@/lib/data-cricket";
+// Cricket loader stays in the codebase (`@/lib/data-cricket`) for
+// future re-enablement, but we deliberately do NOT import it here.
+// PR #113 unwired cricket from every user-facing surface.
 import { getOptimizerSummary } from "@/lib/parlay-results";
 import {
   getSuggestedParlaysForDate,
@@ -69,14 +71,14 @@ export default function HomePage() {
   // reads. No new API calls. Server-rendered.
   const nbaBoard = getBoardForDate(today);
   const mlbBoard = getMlbBoardForDate(today);
-  const cricketBoard = getActiveCricketBoard();
   const optimizerSummary = getOptimizerSummary();
+  // PR #113: cricket explicitly NOT passed. Ticker generator already
+  // tolerates missing cricket input and emits zero cricket items.
   const tickerItems = buildMarketTickerItems({
     surface: "home",
     optimizerSummary,
     nba: nbaBoard,
     mlb: mlbBoard,
-    cricket: cricketBoard,
   });
 
   return (
