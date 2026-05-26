@@ -32,6 +32,7 @@ import CricketBoardSection from "@/components/cricket-board-section";
 import { loadProjectionsPayload } from "@/lib/data-projections";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { getActiveCricketBoard } from "@/lib/data-cricket";
+import { getCricketContextForDate } from "@/lib/data-cricket-context";
 
 export const metadata = {
   title: "Projections · GameTime Picks",
@@ -44,6 +45,9 @@ export default function ProjectionsPage() {
   // Cricket runs as a separate sport surface here — projections-only,
   // never enters the parlay optimizer / custom builder / Results.
   const cricketBoard = getActiveCricketBoard();
+  const cricketContext = cricketBoard
+    ? getCricketContextForDate(cricketBoard.date)
+    : null;
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       {/* Suspense is required because <ProjectionsExperience />'s
@@ -58,7 +62,7 @@ export default function ProjectionsPage() {
           calibrationTable={loadCalibrationTable()}
         />
       </Suspense>
-      <CricketBoardSection board={cricketBoard} />
+      <CricketBoardSection board={cricketBoard} context={cricketContext} />
     </div>
   );
 }

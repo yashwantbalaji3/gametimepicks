@@ -109,6 +109,19 @@ else
     CRICKET_FAILED=1
 fi
 
+# Context fetch is FREE (ESPN scoreboard backward walk + optional
+# manual overlay merge). Runs only if the board step succeeded so we
+# don't generate context for a date with no match. Non-fatal — UI
+# falls back to "context unavailable" if this fails.
+if [ "$CRICKET_FAILED" = "0" ]; then
+    step "0c/4 IPL cricket context (free auto + manual overlay)"
+    if $PY -m pipeline.cricket.fetch_ipl_context --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_cricket_context.log; then
+        ok "cricket context written for $TARGET_DATE"
+    else
+        warn "cricket context returned non-zero — see /tmp/gtp_cricket_context.log"
+    fi
+fi
+
 # ---------------------------------------------------------------------------
 # Cost estimation. We count today's MLB events from the on-disk
 # schedule (if present) — the schedule itself is free to fetch from
