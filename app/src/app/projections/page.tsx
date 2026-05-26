@@ -29,11 +29,16 @@ import { Suspense } from "react";
 
 import ProjectionsExperience from "@/components/projections-experience";
 import CricketBoardSection from "@/components/cricket-board-section";
+import MarketTicker from "@/components/market-ticker";
+import { buildMarketTickerItems } from "@/lib/market-ticker";
 import { loadProjectionsPayload } from "@/lib/data-projections";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
+import { getBoardForDate } from "@/lib/data";
+import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { getActiveCricketBoard } from "@/lib/data-cricket";
 import { getCricketContextForDate } from "@/lib/data-cricket-context";
 import { getCricketPlayerProjectionsForDate } from "@/lib/data-cricket-players";
+import { currentEtDate } from "@/lib/freshness";
 
 export const metadata = {
   title: "Projections · GameTime Picks",
@@ -52,8 +57,23 @@ export default function ProjectionsPage() {
   const cricketPlayers = cricketBoard
     ? getCricketPlayerProjectionsForDate(cricketBoard.date)
     : null;
+
+  // ---- Market ticker (PR #112) ------------------------------------------
+  // Projections surface: lead with the live data this page is about
+  // to show (NBA count, MLB games, cricket consensus / pre-toss).
+  const today = currentEtDate();
+  const nbaBoard = getBoardForDate(today);
+  const mlbBoard = getMlbBoardForDate(today);
+  const tickerItems = buildMarketTickerItems({
+    surface: "projections",
+    nba: nbaBoard,
+    mlb: mlbBoard,
+    cricket: cricketBoard,
+  });
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
+      <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6" />
       {/* Suspense is required because <ProjectionsExperience />'s
           useSearchParams() call needs a client boundary for static
           export. The fallback is intentionally minimal — first paint

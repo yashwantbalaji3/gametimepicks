@@ -21,8 +21,11 @@
  */
 import Link from "next/link";
 
-import { getLifetimeSummary } from "@/lib/data";
+import { getLifetimeSummary, getBoardForDate } from "@/lib/data";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
+import { getMlbBoardForDate } from "@/lib/data-mlb";
+import { getActiveCricketBoard } from "@/lib/data-cricket";
+import { getOptimizerSummary } from "@/lib/parlay-results";
 import {
   getSuggestedParlaysForDate,
   getOptimizerSnapshotForDate,
@@ -34,6 +37,8 @@ import { formatPercent } from "@/lib/format";
 import ParlayLabBuilder from "@/components/parlay-lab-builder";
 import NewsletterSignup from "@/components/newsletter-signup";
 import SectionHeader from "@/components/section-header";
+import MarketTicker from "@/components/market-ticker";
+import { buildMarketTickerItems } from "@/lib/market-ticker";
 
 import { currentEtDate } from "@/lib/freshness";
 
@@ -59,8 +64,27 @@ export default function HomePage() {
   const combinedHitRate =
     combinedDecisive > 0 ? combinedWins / combinedDecisive : null;
 
+  // ---- Market ticker (PR #112) ------------------------------------------
+  // Composed from the same JSON loaders the rest of the page already
+  // reads. No new API calls. Server-rendered.
+  const nbaBoard = getBoardForDate(today);
+  const mlbBoard = getMlbBoardForDate(today);
+  const cricketBoard = getActiveCricketBoard();
+  const optimizerSummary = getOptimizerSummary();
+  const tickerItems = buildMarketTickerItems({
+    surface: "home",
+    optimizerSummary,
+    nba: nbaBoard,
+    mlb: mlbBoard,
+    cricket: cricketBoard,
+  });
+
   return (
     <div className="vault-page-shell px-3 sm:px-6 lg:px-8 py-5 sm:py-10 md:py-14 overflow-x-hidden">
+      {/* Market ticker — premium "stock board" strip. Hidden when no
+          honest items can be built. PR #112. */}
+      <MarketTicker items={tickerItems} className="-mx-3 sm:-mx-6 lg:-mx-8 mb-4 sm:mb-6" />
+
       {/* 1 — Compact hero */}
       <section className="reveal" aria-label="Hero">
         <div className="flex flex-col gap-2 max-w-3xl">
