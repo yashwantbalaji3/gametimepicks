@@ -12,6 +12,7 @@ import {
   summarizePlayerResults,
   sortPlayerResultsForDisplay,
   groupPlayerRowsByMarket,
+  dedupeSettledPicksByMarket,
   summarizeSlipLegResults,
   isNearMissSlip,
   getSlipLosingLegIndices,
@@ -217,4 +218,103 @@ test("classifySlipStatus derives from legs when status missing", () => {
   assert.equal(classifySlipStatus({ legs: [{ result: "win" }, { result: "unresolved" }] }),
     "pending",
     "Pending legs with no losses → slip pending");
+});
+
+// ---------------------------------------------------------------------------
+// PR #114: dedupe per-bookmaker duplicate audit rows
+// ---------------------------------------------------------------------------
+
+function bookRow({ book, player = "P1", market = "PTS", line = 18.5, side = "Over",
+                  result = "win", finalStat = 19, projection = 19.2, edge = 4,
+                  oddsOver = -110, gameId = "g1" } = {}) {
+  return {
+    date: "2026-05-25",
+    gameId,
+    playerId: 1,
+    playerName: player,
+    team: "CLE",
+    market,
+    side,
+    line,
+    bookmaker: book,
+    oddsOver,
+    oddsUnder: -110,
+    modelProjection: projection,
+    edgePct: edge,
+    confidence: "High",
+    finalStat,
+    result,
+  };
+}
+
+test("PR #114: dedupe collapses 8 book rows into 1 group with bookCount=8", () => {
+  const rows = [
+    bookRow({ book: "draftkings", oddsOver: -110 }),
+    bookRow({ book: "fanduel",    oddsOver: -108 }),
+    bookRow({ book: "betmgm",     oddsOver: -115 }),
+    bookRow({ book: "caesars",    oddsOver: -109 }),
+    bookRow({ book: "espnbet",    oddsOver: -112 }),
+    bookRow({ book: "betrivers",  oddsOver: -110 }),
+    bookRow({ book: "unibet",     oddsOver: -113 }),
+    bookRow({ book: "pointsbet",  oddsOver: -111 }),
+  ];
+  const out = dedupeSettledPicksByMarket(rows);
+  assert.equal(out.length, 1, "single market bucket");
+  assert.equal(out[0].market, "PTS");
+  assert.equal(out[0].groups.length, 1, "single deduped group");
+  const g = out[0].groups[0];
+  assert.equal(g.bookCount, 8);
+  assert.equal(g.result, "win");
+  assert.equal(g.actual, 19);
+  assert.equal(g.line, 18.5);
+  assert.equal(g.side, "Over");
+  assert.equal(g.oddsRange, "-115 / -108",
+    "odds range surfaces min/max across books");
+});
+
+test("PR #114: dedupe keeps distinct (line, side) tuples separate", () => {
+  const rows = [
+    bookRow({ book: "draftkings", line: 18.5, side: "Over"  }),
+    bookRow({ book: "fanduel",    line: 18.5, side: "Over"  }),
+    bookRow({ book: "draftkings", line: 19.5, side: "Over"  }),
+    bookRow({ book: "fanduel",    line: 18.5, side: "Under" }),
+  ];
+  const out = dedupeSettledPicksByMarket(rows);
+  // Three distinct tuples: (18.5 Over), (19.5 Over), (18.5 Under).
+  assert.equal(out[0].groups.length, 3,
+    "three distinct (line, side) tuples must produce three groups");
+});
+
+test("PR #114: dedupe survives book disagreement on projection by taking the median", () => {
+  const rows = [
+    bookRow({ book: "a", projection: 17.0 }),
+    bookRow({ book: "b", projection: 19.0 }),
+    bookRow({ book: "c", projection: 25.0 }), // outlier
+  ];
+  const g = dedupeSettledPicksByMarket(rows)[0].groups[0];
+  assert.equal(g.projection, 19.0,
+    "median projection — outlier book does not drag the headline");
+});
+
+test("PR #114: dedupe surfaces a single result + actual even if rows disagree", () => {
+  // Should never happen in practice (all books grade against the
+  // same box score), but the helper picks the mode.
+  const rows = [
+    bookRow({ book: "a", result: "win",  finalStat: 19 }),
+    bookRow({ book: "b", result: "win",  finalStat: 19 }),
+    bookRow({ book: "c", result: "loss", finalStat: 19 }),
+  ];
+  const g = dedupeSettledPicksByMarket(rows)[0].groups[0];
+  assert.equal(g.result, "win", "mode result wins");
+  assert.equal(g.actual, 19);
+});
+
+test("PR #114: dedupe keeps NBA market order PTS → REB → AST", () => {
+  const rows = [
+    bookRow({ book: "a", market: "AST", finalStat: 5 }),
+    bookRow({ book: "a", market: "PTS", finalStat: 20 }),
+    bookRow({ book: "a", market: "REB", finalStat: 8 }),
+  ];
+  const out = dedupeSettledPicksByMarket(rows);
+  assert.deepEqual(out.map((m) => m.market), ["PTS", "REB", "AST"]);
 });

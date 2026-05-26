@@ -190,6 +190,145 @@ export function groupPlayerRowsByMarket(
 }
 
 // ---------------------------------------------------------------------------
+// Display-layer dedupe: one row per (player, market, line, side, game)
+// ---------------------------------------------------------------------------
+
+/**
+ * Display-level summary of every row we kept on a (player, market,
+ * line, side, gameId) tuple. The graded JSONL contains one row PER
+ * bookmaker — eight FanDuel/DraftKings/etc. lines for the same
+ * player+market+line — and that duplication was rendering as 8
+ * identical-looking rows on `/results/nba`. PR #114 dedupes for
+ * display only; the underlying JSONL and the optimizer/grader math
+ * are untouched.
+ */
+export interface SettledPickGroup {
+  /** Stable key — used as React `key`. */
+  id: string;
+  market: string;
+  side: SettledLean["side"];
+  line: number | null;
+  /** Player-actual stat. Identical across books. */
+  actual: number | null | undefined;
+  /** Final result for the tuple — identical across books. */
+  result: SettledLean["result"];
+  /** Most-common confidence label observed across books. */
+  confidence: string | null;
+  /** Model projection — books share the same value in practice. */
+  projection: number | null;
+  /** Edge percentage (best-edge representative). */
+  edgePct: number | null;
+  /** How many bookmaker rows backed this display row. */
+  bookCount: number;
+  /** Compact American odds range across books, e.g. "-105 / -120". */
+  oddsRange: string | null;
+  /** First row from the bucket — useful when callers want full
+   *  per-book detail in an expandable "books sampled" panel. */
+  rows: SettledLean[];
+}
+
+function _modeString(values: ReadonlyArray<string | undefined>): string | null {
+  const counts = new Map<string, number>();
+  for (const v of values) {
+    if (!v) continue;
+    counts.set(v, (counts.get(v) ?? 0) + 1);
+  }
+  let best: string | null = null;
+  let bestCount = 0;
+  for (const [v, c] of counts.entries()) {
+    if (c > bestCount) {
+      best = v;
+      bestCount = c;
+    }
+  }
+  return best;
+}
+
+function _oddsRangeForRows(rows: SettledLean[]): string | null {
+  const all: number[] = [];
+  for (const r of rows) {
+    const o = r.side === "Over" ? r.oddsOver : r.oddsUnder;
+    if (typeof o === "number" && Number.isFinite(o)) all.push(Math.round(o));
+  }
+  if (all.length === 0) return null;
+  const min = Math.min(...all);
+  const max = Math.max(...all);
+  const fmt = (n: number) => (n > 0 ? `+${n}` : `${n}`);
+  return min === max ? fmt(min) : `${fmt(min)} / ${fmt(max)}`;
+}
+
+/**
+ * Collapse the per-book duplicate rows in a player's settled set
+ * down to one display row per (market, line, side, gameId) tuple.
+ *
+ * Returns the deduped groups in the SAME order produced by
+ * `groupPlayerRowsByMarket()` so the caller can swap one helper for
+ * the other.
+ */
+export function dedupeSettledPicksByMarket(
+  rows: SettledLean[],
+): Array<{ market: string; groups: SettledPickGroup[] }> {
+  const grouped = groupPlayerRowsByMarket(rows);
+  return grouped.map(({ market, rows: marketRows }) => {
+    // Bucket by (market, line, side, gameId, date) — every member
+    // of a bucket should share player_actual / result / projection.
+    const buckets = new Map<string, SettledLean[]>();
+    for (const r of marketRows) {
+      const key = [
+        r.date ?? "",
+        r.gameId ?? "",
+        r.market ?? "",
+        r.side ?? "",
+        r.line ?? "",
+      ].join("|");
+      const list = buckets.get(key) ?? [];
+      list.push(r);
+      buckets.set(key, list);
+    }
+    const groups: SettledPickGroup[] = [];
+    for (const [key, bucket] of buckets.entries()) {
+      // Sanity: all rows in a bucket SHOULD share actual/result.
+      // We surface the first non-null actual and the modal result.
+      const actual = bucket.find((r) => typeof r.finalStat === "number")?.finalStat ?? null;
+      // Most rows share a single result string. Pick the first
+      // decisive one, falling back to mode if needed.
+      const resultMode = _modeString(bucket.map((r) => r.result));
+      const result = (resultMode ?? bucket[0]?.result ?? null) as SettledLean["result"];
+      const confidence = _modeString(bucket.map((r) => r.confidence));
+      // For numeric fields, take the median across books to avoid a
+      // single outlier driving the headline.
+      const projections = bucket
+        .map((r) => r.modelProjection ?? null)
+        .filter((p): p is number => typeof p === "number");
+      const projection = projections.length > 0
+        ? projections.sort((a, b) => a - b)[Math.floor(projections.length / 2)]
+        : null;
+      const edges = bucket
+        .map((r) => r.edgePct ?? null)
+        .filter((p): p is number => typeof p === "number");
+      // For edge, take the BEST (highest) edge across books — that
+      // is the line a model-aware bettor would target.
+      const edgePct = edges.length > 0 ? Math.max(...edges) : null;
+      groups.push({
+        id: `${bucket[0]?.playerId ?? "?"}-${key}`,
+        market: bucket[0]?.market ?? "—",
+        side: bucket[0]?.side ?? "Over",
+        line: bucket[0]?.line ?? null,
+        actual,
+        result,
+        confidence,
+        projection,
+        edgePct,
+        bookCount: bucket.length,
+        oddsRange: _oddsRangeForRows(bucket),
+        rows: bucket,
+      });
+    }
+    return { market, groups };
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Slip-level helpers (for the parlay-first /results page)
 // ---------------------------------------------------------------------------
 

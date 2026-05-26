@@ -121,13 +121,15 @@ test("getAvailablePlayersForTeam returns all sport players when team is null", (
 });
 
 test("filterSlipsBySportTeamPlayer matches when any leg is on the team", () => {
-  // OKC matches s1 (both legs OKC).
+  // OKC matches s1 (both legs OKC, NBA-only).
   const okc = filterSlipsBySportTeamPlayer(POOL, { sport: "nba", team: "OKC" });
   assert.deepEqual(okc.map((s) => s.slipId), ["s1"]);
-  // NY matches s2 (NY leg) AND s4 (multi-sport slip with an NY NBA leg).
-  // Under the new NBA-aware sport rule, multi slips count under "nba".
+  // PR #114 contract: NBA tab now means NBA-only. Even though s4 is
+  // a multi-sport slip with an NY NBA leg, the NBA tab must NOT
+  // include it — it belongs in the Mixed tab. NY only matches s2.
   const ny = filterSlipsBySportTeamPlayer(POOL, { sport: "nba", team: "NY" });
-  assert.deepEqual(ny.map((s) => s.slipId).sort(), ["s2", "s4"]);
+  assert.deepEqual(ny.map((s) => s.slipId).sort(), ["s2"],
+    "NBA tab must exclude multi-sport slips even when their NBA leg is on the team");
 });
 
 test("filterSlipsBySportTeamPlayer player filter requires every selected name", () => {
@@ -155,10 +157,47 @@ test("fallbackToBestUnfilteredSlips ranks by suggestedScore", () => {
   assert.equal(top[1].slipId, "s2");
 });
 
-test("fallbackToBestUnfilteredSlips honors sport filter (MLB tab includes multi)", () => {
-  // s3 is MLB-only, s4 contains an MLB leg → both should appear under MLB.
+test("fallbackToBestUnfilteredSlips honors single-sport filter (MLB tab is MLB-only)", () => {
+  // PR #114 contract: MLB tab now means MLB-only. s3 is MLB-only;
+  // s4 is multi-sport (contains an MLB leg + an NBA leg) and must
+  // NOT appear under MLB. Mixed tab is the only home for s4.
   const top = fallbackToBestUnfilteredSlips(POOL, "mlb", 5);
-  assert.deepEqual(top.map((s) => s.slipId).sort(), ["s3", "s4"]);
+  assert.deepEqual(top.map((s) => s.slipId).sort(), ["s3"],
+    "MLB tab must exclude multi-sport slips");
+});
+
+test("PR #114: NBA tab is NBA-only", () => {
+  const nbaOnly = filterSlipsBySportTeamPlayer(POOL, { sport: "nba" });
+  // s1 + s2 are NBA-only; s3 is MLB; s4 is multi. Tab returns s1, s2.
+  assert.deepEqual(nbaOnly.map((s) => s.slipId).sort(), ["s1", "s2"]);
+});
+
+test("PR #114: MLB tab is MLB-only", () => {
+  const mlbOnly = filterSlipsBySportTeamPlayer(POOL, { sport: "mlb" });
+  // s3 is the only MLB-only slip.
+  assert.deepEqual(mlbOnly.map((s) => s.slipId), ["s3"]);
+});
+
+test("PR #114: Mixed tab is the only home for cross-sport slips", () => {
+  const mixed = filterSlipsBySportTeamPlayer(POOL, { sport: "multi" });
+  // s4 is the only cross-sport slip.
+  assert.deepEqual(mixed.map((s) => s.slipId), ["s4"]);
+});
+
+test("PR #114: All tab includes every slip (no sport filter)", () => {
+  const all = filterSlipsBySportTeamPlayer(POOL, { sport: "all" });
+  assert.deepEqual(all.length, POOL.length,
+    "All tab must return every slip regardless of sport composition");
+});
+
+test("PR #114: NBA tab returns empty when only mixed-NBA slips exist", () => {
+  // Pool with one multi-sport slip and one MLB-only slip — no
+  // NBA-only slip → NBA tab must honestly return [].
+  const nbaTab = filterSlipsBySportTeamPlayer([MULTI, MLB_LAD], {
+    sport: "nba",
+  });
+  assert.deepEqual(nbaTab, [],
+    "NBA tab must return [] when no NBA-only slip exists — caller is expected to render an honest empty state");
 });
 
 // ---------------------------------------------------------------------------

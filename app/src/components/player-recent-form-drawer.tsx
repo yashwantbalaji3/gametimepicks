@@ -50,13 +50,20 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
   if (!leg) return null;
 
   const series = leg.recentSeries ?? [];
-  // We render up to 5 most-recent values prominently; if more exist
-  // we still surface the average over all available values.
+  const recentGames = leg.recentGames ?? [];
+  // PR #114: prefer the enriched `recentGames` rows when the
+  // pipeline provided them (date/opponent/isHome). Otherwise fall
+  // back to the legacy numeric series — never fabricate dates or
+  // opponents we don't have on disk.
+  const enriched = recentGames.slice(0, 5);
   const recent5 = series.slice(0, 5);
   const recentAvg =
-    series.length > 0
-      ? series.reduce((sum, v) => sum + v, 0) / series.length
-      : null;
+    enriched.length > 0
+      ? enriched.reduce((sum, r) => sum + (r.value ?? 0), 0) / enriched.length
+      : series.length > 0
+        ? series.reduce((sum, v) => sum + v, 0) / series.length
+        : null;
+  const totalCount = enriched.length > 0 ? recentGames.length : series.length;
   const stat = formatMarketLabel(leg.sport, leg.market, leg.marketLabel);
 
   return (
@@ -155,12 +162,29 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
 
         <div className="px-4 py-3 flex flex-col gap-3 overflow-y-auto">
           <PickSummary leg={leg} stat={stat} />
-          {recent5.length > 0 ? (
-            <RecentList
-              values={recent5}
+          {enriched.length > 0 ? (
+            <EnrichedRecentList
+              games={enriched}
               statLabel={stat}
               line={leg.line}
+              sport={leg.sport}
             />
+          ) : recent5.length > 0 ? (
+            <>
+              <RecentList
+                values={recent5}
+                statLabel={stat}
+                line={leg.line}
+              />
+              <p
+                className="text-[11px] leading-snug"
+                style={{ color: "var(--vault-text-faint)" }}
+              >
+                Per-game opponent / date metadata isn&apos;t attached to
+                this source — we surface raw stat values only. Pipeline
+                follow-up will enrich these rows.
+              </p>
+            </>
           ) : (
             <FallbackNote />
           )}
@@ -170,17 +194,9 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
               style={{ color: "var(--vault-text-mute)", fontSize: 11 }}
             >
               Recent average · {stat} {recentAvg.toFixed(2)} on last{" "}
-              {series.length} {series.length === 1 ? "game" : "games"} on record
+              {totalCount} {totalCount === 1 ? "game" : "games"} on record
             </p>
           )}
-          <p
-            className="text-[11px] leading-relaxed"
-            style={{ color: "var(--vault-text-faint)" }}
-          >
-            Game-by-game stat history. We don&apos;t fabricate logs — when
-            data is unavailable we say so. Opponents and dates aren&apos;t
-            attached to each row yet (roadmap).
-          </p>
         </div>
       </div>
     </div>
@@ -294,6 +310,127 @@ function RecentList({
       </ol>
     </div>
   );
+}
+
+/**
+ * PR #114: enriched recent-form list — renders date + opponent +
+ * opponent team logo per row. Only used when the pipeline has
+ * persisted the `recentGames` field on the leg; otherwise we fall
+ * back to the legacy `RecentList` numeric view.
+ */
+function EnrichedRecentList({
+  games,
+  statLabel,
+  line,
+  sport,
+}: {
+  games: NonNullable<ParlayLeg["recentGames"]>;
+  statLabel: string;
+  line: number | null;
+  sport: string;
+}) {
+  const logoSport: "nba" | "mlb" | "nhl" | null =
+    sport === "nba" || sport === "mlb" || sport === "nhl"
+      ? (sport as "nba" | "mlb" | "nhl")
+      : null;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span
+        className="font-mono uppercase tracking-[0.16em]"
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+      >
+        Last {games.length} {games.length === 1 ? "game" : "games"} · {statLabel}
+      </span>
+      <ol className="flex flex-col gap-1">
+        {games.map((g, i) => {
+          const cleared = line != null ? g.value > line : null;
+          const dateLabel = _formatShortDate(g.date ?? null);
+          const matchupPrefix = g.isHome === true ? "vs" : g.isHome === false ? "@" : "vs";
+          return (
+            <li
+              key={i}
+              className="grid grid-cols-[auto_1fr_auto_auto] gap-2 items-center px-2.5 py-1.5 rounded-[4px]"
+              style={{
+                background: "rgba(0,0,0,0.25)",
+                border: "1px solid var(--vault-rule)",
+              }}
+            >
+              <span
+                className="font-mono uppercase tracking-[0.12em]"
+                style={{
+                  color: "var(--vault-text-faint)",
+                  fontSize: 10,
+                  minWidth: 48,
+                }}
+              >
+                {dateLabel ?? `G−${i + 1}`}
+              </span>
+              <span
+                className="font-mono inline-flex items-center gap-1.5 min-w-0"
+                style={{ color: "var(--vault-text-mute)", fontSize: 11 }}
+              >
+                <span>{matchupPrefix}</span>
+                {g.opponent ? (
+                  <>
+                    {logoSport ? (
+                      <TeamLogo
+                        team={g.opponent}
+                        sport={logoSport}
+                        size="sm"
+                      />
+                    ) : null}
+                    <span style={{ color: "var(--vault-text)" }}>
+                      {g.opponent}
+                    </span>
+                  </>
+                ) : (
+                  <span style={{ color: "var(--vault-text-faint)" }}>—</span>
+                )}
+              </span>
+              <span
+                className="font-display tabular text-right"
+                style={{
+                  color: "var(--vault-text)",
+                  fontSize: 14,
+                  fontWeight: 600,
+                }}
+              >
+                {Number.isInteger(g.value) ? g.value : g.value.toFixed(1)}
+              </span>
+              <span
+                className="font-mono uppercase tracking-[0.12em] text-right"
+                style={{
+                  color:
+                    cleared === true
+                      ? "var(--vault-success)"
+                      : cleared === false
+                        ? "var(--vault-warn)"
+                        : "var(--vault-text-faint)",
+                  fontSize: 9,
+                  minWidth: 40,
+                }}
+              >
+                {cleared === true ? "Over" : cleared === false ? "Under" : "—"}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+/** "2026-05-23" → "May 23". Returns null on parse failure. */
+function _formatShortDate(iso: string | null): string | null {
+  if (!iso) return null;
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const mi = parseInt(m[2], 10) - 1;
+  const day = parseInt(m[3], 10);
+  if (mi < 0 || mi > 11 || isNaN(day)) return null;
+  return `${months[mi]} ${day}`;
 }
 
 function FallbackNote() {
