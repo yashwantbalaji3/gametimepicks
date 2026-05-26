@@ -168,6 +168,10 @@ jobs:
           # plus optional manual overlay (sources cited). Added PR
           # #107.
           git add app/public/data/cricket/context/ 2>/dev/null || true
+          # Cricket player projections — curated context-only player
+          # cards (every entry manual + sourced; no fake numeric
+          # runs/wickets). Added PR #108.
+          git add app/public/data/cricket/player-projections/ 2>/dev/null || true
           git add pipeline/validation/leans_log.jsonl 2>/dev/null || true
 
           if git diff --staged --quiet; then
