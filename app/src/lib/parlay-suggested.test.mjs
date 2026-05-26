@@ -241,8 +241,15 @@ test("selectDiverseForDisplay: Conservative does not anchor every visible card o
   const pool = [carrollA, carrollB, carrollC, altRuiz, altHarden, altSoto];
   const top3 = selectDiverseForDisplay(pool, "conservative", 3);
   assert.equal(top3.length, 3);
-  // Pick #1 keeps the top-scoring slip.
-  assert.equal(top3[0].slipId, "ca");
+  // PR #110 filter D: Conservative now applies a Mixed-sport
+  // (multi) display penalty, so a single-sport slip (carrollC,
+  // sport: "mlb", score 1.29) outranks the multi-sport carrollA
+  // (score 1.46) once the 0.5 mixed penalty is applied. Pick #1
+  // should NOT be a mixed slip when a single-sport alternative is
+  // available with score-after-penalty >= the mixed slip's
+  // score-after-penalty.
+  assert.equal(top3[0].slipId, "cc",
+    "Conservative #1 should prefer single-sport when mixed-penalty wipes its lead");
   // The visible top-3 should NOT all contain Carroll. (Hits player)
   const carrollHits = top3.filter((s) =>
     s.legs.some((l) => l.playerName === "Carroll"),
@@ -397,4 +404,112 @@ test("diversifiedAllOrder keeps highest-scored slip first AND surfaces NBA after
     legs: [mkLeg({ sport: "nba", team: "NY", playerName: "NBA1" })], score: 1.0 });
   const out = diversifiedAllOrder([cMlb1, cMlb2, cMlb3, cMulti]);
   assert.deepEqual(out.map((s) => s.slipId), ["cm1", "cm2", "cmu", "cm3"]);
+});
+
+// ---------------------------------------------------------------------------
+// PR #110 safety filters — display-level Mixed penalty (filter D)
+// ---------------------------------------------------------------------------
+
+test("PR #110 D: Conservative prefers single-sport over mixed when scores are close", () => {
+  // Mixed went 0-26 on 5/25. Conservative should down-rank a mixed
+  // slip when a single-sport alternative is within ~0.5 of its score.
+  const mixedTop = mkSlip({
+    slipId: "mx", riskProfile: "conservative", sport: "multi",
+    legs: [mkLeg({ sport: "nba", team: "OKC", playerName: "SGA" }),
+           mkLeg({ sport: "mlb", team: "LAD", playerName: "Betts" })],
+    score: 1.30,
+  });
+  const singleSport = mkSlip({
+    slipId: "ss", riskProfile: "conservative", sport: "mlb",
+    legs: [mkLeg({ sport: "mlb", team: "AZ", playerName: "Carroll" }),
+           mkLeg({ sport: "mlb", team: "CIN", playerName: "Steer" })],
+    score: 1.00,
+  });
+  const out = selectDiverseForDisplay([mixedTop, singleSport], "conservative", 2);
+  // Mixed raw score wins by 0.30 — penalty 0.5 flips the order.
+  assert.equal(out[0].slipId, "ss",
+    "Conservative #1 should be the single-sport slip after the mixed penalty applies");
+  assert.equal(out[1].slipId, "mx",
+    "Mixed should still surface as #2 (we never hard-filter)");
+});
+
+test("PR #110 D: Conservative still picks Mixed when it is materially better", () => {
+  // If the mixed slip is *clearly* better (score gap > 0.5), it
+  // should still win #1 — we down-rank, we don't hard-filter.
+  const mixedTop = mkSlip({
+    slipId: "mx", riskProfile: "conservative", sport: "multi",
+    legs: [mkLeg({ sport: "nba", team: "OKC", playerName: "SGA" }),
+           mkLeg({ sport: "mlb", team: "LAD", playerName: "Betts" })],
+    score: 2.00,
+  });
+  const singleSport = mkSlip({
+    slipId: "ss", riskProfile: "conservative", sport: "mlb",
+    legs: [mkLeg({ sport: "mlb", team: "AZ", playerName: "Carroll" }),
+           mkLeg({ sport: "mlb", team: "CIN", playerName: "Steer" })],
+    score: 1.00,
+  });
+  const out = selectDiverseForDisplay([mixedTop, singleSport], "conservative", 2);
+  assert.equal(out[0].slipId, "mx",
+    "Mixed should still win when materially better than single-sport");
+});
+
+test("PR #110 D: Aggressive does NOT apply a mixed-sport penalty", () => {
+  // Aggressive / longshot lane allows mixed slips at face value.
+  const mixedTop = mkSlip({
+    slipId: "mx", riskProfile: "aggressive", sport: "multi",
+    legs: [mkLeg({ sport: "nba", team: "OKC", playerName: "SGA" }),
+           mkLeg({ sport: "mlb", team: "LAD", playerName: "Betts" })],
+    score: 1.30,
+  });
+  const singleSport = mkSlip({
+    slipId: "ss", riskProfile: "aggressive", sport: "mlb",
+    legs: [mkLeg({ sport: "mlb", team: "AZ", playerName: "Carroll" }),
+           mkLeg({ sport: "mlb", team: "CIN", playerName: "Steer" })],
+    score: 1.00,
+  });
+  const out = selectDiverseForDisplay([mixedTop, singleSport], "aggressive", 2);
+  // No mixed-penalty in aggressive — raw score wins.
+  assert.equal(out[0].slipId, "mx",
+    "Aggressive should keep the top-scoring slip even if mixed");
+});
+
+test("PR #110 D: Balanced applies a moderate mixed penalty", () => {
+  // Balanced penalty is 0.3 — score gap of 0.2 should flip the order.
+  const mixedTop = mkSlip({
+    slipId: "mx", riskProfile: "balanced", sport: "multi",
+    legs: [mkLeg({ sport: "nba", team: "OKC", playerName: "SGA" }),
+           mkLeg({ sport: "mlb", team: "LAD", playerName: "Betts" })],
+    score: 1.20,
+  });
+  const singleSport = mkSlip({
+    slipId: "ss", riskProfile: "balanced", sport: "mlb",
+    legs: [mkLeg({ sport: "mlb", team: "AZ", playerName: "Carroll" }),
+           mkLeg({ sport: "mlb", team: "CIN", playerName: "Steer" })],
+    score: 1.00,
+  });
+  const out = selectDiverseForDisplay([mixedTop, singleSport], "balanced", 2);
+  assert.equal(out[0].slipId, "ss",
+    "Balanced #1 should be single-sport when mixed lead < 0.3");
+});
+
+test("PR #110 D: mixed penalty does not produce empty output when only mixed slips exist", () => {
+  // Honest fallback — if every candidate is mixed, the selector
+  // should still return the top-scoring mixed slip rather than an
+  // empty list.
+  const mixedA = mkSlip({
+    slipId: "ma", riskProfile: "conservative", sport: "multi",
+    legs: [mkLeg({ sport: "nba", team: "OKC", playerName: "SGA" }),
+           mkLeg({ sport: "mlb", team: "LAD", playerName: "Betts" })],
+    score: 1.50,
+  });
+  const mixedB = mkSlip({
+    slipId: "mb", riskProfile: "conservative", sport: "multi",
+    legs: [mkLeg({ sport: "nba", team: "BOS", playerName: "Tatum" }),
+           mkLeg({ sport: "mlb", team: "NYY", playerName: "Soto" })],
+    score: 1.40,
+  });
+  const out = selectDiverseForDisplay([mixedA, mixedB], "conservative", 2);
+  assert.equal(out.length, 2,
+    "Selector must return mixed slips when no single-sport alternative exists");
+  assert.equal(out[0].slipId, "ma", "Highest-scoring mixed still wins #1");
 });
