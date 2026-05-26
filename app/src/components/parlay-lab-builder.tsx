@@ -40,6 +40,14 @@ import {
   type SuggestedSport,
 } from "@/lib/parlay-suggested";
 import {
+  HIGH_VARIANCE_DEFAULT_OPEN,
+  HIGH_VARIANCE_PROFILE,
+  SAFE_RISK_ORDER,
+  VISIBLE_PER_LANE_HV,
+  VISIBLE_PER_LANE_SAFE,
+  isAllowedOfficialSlip,
+} from "@/lib/parlay-display-config";
+import {
   flattenOptimizerSlips,
   optimizerSlipToParlaySlip,
   type OptimizerSnapshot,
@@ -96,29 +104,8 @@ const RISK_DISPLAY: Record<
   },
 };
 
-/**
- * Visible-by-default lanes (PR #110 safety filter A).
- * High-variance is moved into a collapsed "Show high variance" toggle
- * so it never appears as a default top card on the homepage.
- */
-const SAFE_RISK_ORDER: ParlayRiskProfile[] = [
-  "conservative",
-  "balanced",
-  "star_power",
-];
-
-const HIGH_VARIANCE_PROFILE: ParlayRiskProfile = "aggressive";
-
-/**
- * How many visible slips to show per lane. PR #110 filter A drops this
- * from 3 → 2 for the safe lanes because audit (5/25) showed the 3rd
- * alternate routinely lost across Conservative/Balanced/Star Power.
- * High Variance also capped at 2 visible (cap from spec G: "cap
- * aggressive at 4 visible" — we go tighter at 2 to match the rest of
- * the surface).
- */
-const VISIBLE_PER_LANE_SAFE = 2;
-const VISIBLE_PER_LANE_HV = 2;
+// Lane caps + ordering live in `@/lib/parlay-display-config` so the
+// constants can be unit-tested without booting a JSX renderer.
 
 export default function ParlayLabBuilder({
   slips,
@@ -249,7 +236,13 @@ export default function ParlayLabBuilder({
     profile: ParlayRiskProfile,
     limit: number,
   ) => {
-    const matched = filtered.filter((s) => s.riskProfile === profile);
+    // PR #110 filter G: hide 5+ leg slips from official suggestions.
+    // Backend already caps newly-generated snapshots at 4 legs; this
+    // is a safety belt for legacy snapshot files. Custom Builder
+    // remains untouched — users can still build risky combos there.
+    const matched = filtered
+      .filter((s) => s.riskProfile === profile)
+      .filter(isAllowedOfficialSlip);
     if (matched.length > 0) {
       return {
         profile,
@@ -258,7 +251,7 @@ export default function ParlayLabBuilder({
       };
     }
     const fb = fallbackToBestUnfilteredSlips(
-      pool.filter((s) => s.riskProfile === profile),
+      pool.filter((s) => s.riskProfile === profile).filter(isAllowedOfficialSlip),
       sport,
       1,
     );
@@ -282,7 +275,9 @@ export default function ParlayLabBuilder({
     [filtered, pool, sport],
   );
 
-  const [showHighVariance, setShowHighVariance] = useState(false);
+  const [showHighVariance, setShowHighVariance] = useState(
+    HIGH_VARIANCE_DEFAULT_OPEN,
+  );
 
   const filterActive = team !== null || player !== null;
 
