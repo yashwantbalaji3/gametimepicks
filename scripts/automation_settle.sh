@@ -82,6 +82,7 @@ if [ "$DRY_RUN_SETTLE" = "1" ]; then
     info "would run: $PY -m pipeline.grade_parlays --date $TARGET_DATE"
     info "would run: $PY -m pipeline.grade_curated --date $TARGET_DATE"
     info "would run: $PY -m pipeline.grade_optimizer --all"
+    info "would run: $PY -m pipeline.audit_daily --date $TARGET_DATE"
     exit 0
 fi
 
@@ -210,12 +211,30 @@ else
     GRADE_FAILED=1
 fi
 
-step "6/6  Optimizer parlay grading · all dates on disk"
+step "6/7  Optimizer parlay grading · all dates on disk"
 if $PY -m pipeline.grade_optimizer --all 2>&1 | tee /tmp/gtp_grade_optimizer.log; then
     ok "optimizer grading + summary refreshed"
 else
     warn "optimizer grading returned non-zero — see /tmp/gtp_grade_optimizer.log"
     GRADE_FAILED=1
+fi
+
+# ---------------------------------------------------------------------------
+# Daily audit (PR #117) — reads the freshly-graded optimizer file and writes
+# a compact postmortem JSON to app/public/data/audit/daily/<date>.json. This
+# is the foundation for the model-learning loop (docs/MODEL_LEARNING_LOOP.md):
+# pure aggregation over the just-graded slate, no API calls, never adjusts
+# weights. Runs LAST so it sees the up-to-date optimizer-graded artifact.
+# Honest no-op if the graded file doesn't exist (writes empty payload +
+# warning).
+# ---------------------------------------------------------------------------
+AUDIT_DAILY_FAILED=0
+step "7/7  Daily postmortem audit · $TARGET_DATE"
+if $PY -m pipeline.audit_daily --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_audit_daily.log; then
+    ok "daily audit written to app/public/data/audit/daily/${TARGET_DATE}.json"
+else
+    warn "daily audit returned non-zero — see /tmp/gtp_audit_daily.log"
+    AUDIT_DAILY_FAILED=1
 fi
 
 DURATION=$(( $(date +%s) - START_TIME ))
@@ -227,6 +246,7 @@ info "mlb step:       $([ "$MLB_SKIPPED" = 1 ] && echo skipped || ([ "$MLB_FAILE
 info "export step:    $([ "$EXPORT_FAILED" = 1 ] && echo FAILED || echo ok)"
 info "audit step:     $([ "$AUDIT_FAILED" = 1 ] && echo FAILED || echo ok)"
 info "grade step:     $([ "$GRADE_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
+info "audit step:     $([ "$AUDIT_DAILY_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
 info "elapsed:        ${DURATION}s"
 info "odds credits:   0 (settlement uses free public APIs only)"
 
