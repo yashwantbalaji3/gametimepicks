@@ -29,6 +29,8 @@ import { loadCalibrationTable } from "@/lib/confidence-calibration";
 
 import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
+import DailyAuditBanner from "@/components/daily-audit-banner";
+import { getLatestDailyAudit } from "@/lib/data-daily-audit";
 
 export const metadata = {
   title: "Suggested parlay results · GameTime Picks",
@@ -38,6 +40,10 @@ export const metadata = {
 
 export default function ResultsPage() {
   const summary = getOptimizerSummary();
+  // PR #117: small honest banner above the lifetime summary, only
+  // rendered when an audit JSON has been generated for at least one
+  // settled slate. Never fabricates a row.
+  const latestAudit = getLatestDailyAudit();
   const dates = getOptimizerGradedDates();
   const calibrationTable = loadCalibrationTable();
 
@@ -120,6 +126,12 @@ export default function ResultsPage() {
           wins or losses.
         </p>
       </header>
+
+      {latestAudit && (
+        <div className="mt-6">
+          <DailyAuditBanner audit={latestAudit} />
+        </div>
+      )}
 
       <div className="mt-6">
         <ParlayResultsSummary summary={summary} />

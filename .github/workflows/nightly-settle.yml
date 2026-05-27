@@ -20,6 +20,8 @@
 #   - Grade optimizer parlay snapshots — the slips the homepage +
 #     /parlay-lab + /results actually display (grade_optimizer --all,
 #     added PR #98)
+#   - Run daily postmortem audit (audit_daily, added PR #117) over the
+#     freshly-graded slate — pure aggregation, never adjusts weights
 #   - Commit + push the regenerated data so /results picks it up
 #
 # What this workflow does NOT do:
@@ -142,6 +144,10 @@ jobs:
           git add app/public/data/parlays/optimizer-summary.json 2>/dev/null || true
           # model_audit.json is rebuilt every run.
           git add app/public/data/audit/model_audit.json 2>/dev/null || true
+          # PR #117: daily postmortem JSONs (one per settled date)
+          # written by pipeline.audit_daily — foundation of the model
+          # learning loop. Pure aggregation, never adjusts weights.
+          git add app/public/data/audit/daily/ 2>/dev/null || true
 
           if git diff --staged --quiet; then
             echo "No settled-data changes — nothing to commit."
@@ -171,5 +177,6 @@ jobs:
             /tmp/gtp_grade_parlays.log
             /tmp/gtp_grade_curated.log
             /tmp/gtp_grade_optimizer.log
+            /tmp/gtp_audit_daily.log
           retention-days: 7
           if-no-files-found: ignore
