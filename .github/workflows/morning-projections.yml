@@ -168,6 +168,13 @@ jobs:
           # these paths anymore. Restore this block + the script section
           # together if cricket / NHL ever ships in product.
           git add pipeline/validation/leans_log.jsonl 2>/dev/null || true
+          # PR #120 — suggested-parlay snapshot the homepage carousel
+          # + Parlay Lab actually read. Pure local read of today's
+          # board; no API spend.
+          git add app/public/data/parlays/optimizer/ 2>/dev/null || true
+          # Legacy snapshot_parlays output (kept until the UI fully
+          # migrates off it). Produced by the same orchestrator.
+          git add app/public/data/parlays/snapshots/ 2>/dev/null || true
 
           if git diff --staged --quiet; then
             echo "No board changes — nothing to commit."
@@ -191,5 +198,6 @@ jobs:
           path: |
             /tmp/gtp_nba_*.log
             /tmp/gtp_mlb_*.log
+            /tmp/gtp_snapshot_*.log
           retention-days: 7
           if-no-files-found: ignore

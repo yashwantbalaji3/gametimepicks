@@ -151,6 +151,8 @@ if [ "$DRY_RUN_PROJECTIONS" = "1" ]; then
     info "would run: $PY -m pipeline.generate_daily_board --date $TARGET_DATE"
     info "would run: $PY -m pipeline.attach_recent10 --date $TARGET_DATE"
     info "would run: $PY -m pipeline.mlb.generate_mlb_board --date $TARGET_DATE --min-credits-remaining $MIN_REMAINING"
+    info "would run: $PY -m pipeline.snapshot_parlays --date $TARGET_DATE"
+    info "would run: $PY -m pipeline.snapshot_optimizer --date $TARGET_DATE"
     exit 0
 fi
 
@@ -215,7 +217,7 @@ BAL_AFTER=$($PY -c "import json,sys; print(json.loads('''$BAL_AFTER_RAW''').get(
 # invented one.
 # ---------------------------------------------------------------------------
 SNAPSHOT_FAILED=0
-step "5/5  Parlay candidate snapshot"
+step "5/6  Legacy parlay candidate snapshot"
 if [ "$NBA_FAILED" = "1" ] && [ "${SKIP_NBA:-0}" != "1" ]; then
     warn "NBA board failed earlier — skipping parlay snapshot to avoid stale data"
 elif [ "${SKIP_NBA:-0}" = "1" ]; then
@@ -231,6 +233,42 @@ else
     fi
 fi
 
+# ---------------------------------------------------------------------------
+# Optimizer snapshot (PR #120 — fix/wire-snapshot-optimizer-cron) — pure
+# local read of today's board(s); no paid API. Produces the snapshot
+# the homepage carousel + Parlay Lab actually display:
+#   app/public/data/parlays/optimizer/<date>.json
+# The nightly settle workflow then grades this snapshot via
+# `pipeline.grade_optimizer --all`, which writes the optimizer-graded
+# file the audit + Results page consume. Without this step, those
+# downstream artifacts stay empty for the date (which is what happened
+# on 5/26 — board existed, snapshot was never produced via cron).
+#
+# Non-fatal by design: if both NBA failed AND MLB skipped, the
+# optimizer still runs against whatever boards exist on disk and
+# honestly emits 0 slips when the eligible pool is too small (1
+# NBA Finals game + 0 MLB props → no 2+ leg parlays possible). We
+# never invent slips.
+# ---------------------------------------------------------------------------
+OPTIMIZER_SNAPSHOT_FAILED=0
+step "6/6  Optimizer snapshot · $TARGET_DATE"
+if $PY -m pipeline.snapshot_optimizer --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_snapshot_optimizer.log; then
+    # Surface the slip count from the snapshot itself for the operator
+    # log. The file is JSON; a missing `totalSlips` field is treated
+    # as 0 so the line never breaks the script.
+    OPT_FILE="app/public/data/parlays/optimizer/${TARGET_DATE}.json"
+    if [ -f "$OPT_FILE" ]; then
+        OPT_COUNT=$($PY -c "import json; d=json.load(open('$OPT_FILE')); print(d.get('totalSlips') or 0)" 2>/dev/null || echo "?")
+        ok "optimizer snapshot written ($OPT_COUNT slips) → $OPT_FILE"
+    else
+        warn "optimizer snapshot completed but no output file at $OPT_FILE"
+        OPTIMIZER_SNAPSHOT_FAILED=1
+    fi
+else
+    warn "optimizer snapshot returned non-zero — see /tmp/gtp_snapshot_optimizer.log"
+    OPTIMIZER_SNAPSHOT_FAILED=1
+fi
+
 DURATION=$(( $(date +%s) - START_TIME ))
 
 step "Summary"
@@ -238,6 +276,7 @@ info "target date:    $TARGET_DATE"
 info "nba step:       $([ "${SKIP_NBA:-0}" = 1 ] && echo skipped || ([ "$NBA_FAILED" = 1 ] && echo FAILED || echo ok))"
 info "mlb step:       $([ "${SKIP_MLB:-0}" = 1 ] && echo skipped || ([ "$MLB_FAILED" = 1 ] && echo FAILED || echo ok))"
 info "snapshot step:  $([ "$SNAPSHOT_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
+info "optimizer step: $([ "$OPTIMIZER_SNAPSHOT_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
 info "balance before: $BAL_BEFORE"
 info "balance after:  $BAL_AFTER"
 info "elapsed:        ${DURATION}s"
