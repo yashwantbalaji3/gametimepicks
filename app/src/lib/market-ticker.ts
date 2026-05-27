@@ -16,7 +16,16 @@
  *     not phantom totals.
  *   - Hit rate only surfaces when `decisive > 0`. We never
  *     substitute 0% when nothing decisive has settled.
+ *   - Public parlay tracking starts 2026-05-27. Pre-era rows in any
+ *     supplied summary are filtered out and the lifetime aggregate
+ *     is recomputed from the remaining rows so we cannot leak a
+ *     pre-era hit rate even if the caller passes the raw JSON.
  */
+import {
+  PUBLIC_PARLAY_RESULTS_START_DATE,
+  isInPublicParlayEra,
+  aggregateBuckets,
+} from "./public-parlay-era";
 
 export type MarketTickerTone =
   | "neutral"
@@ -232,20 +241,26 @@ function _settledItems(
   // payload. Truly empty input must produce zero items so the
   // ticker can hide gracefully when no data has loaded.
   if (!summary) return out;
-  const life = summary.lifetime;
-  if (!life || (life.decisive ?? 0) <= 0) {
-    // Summary loaded but nothing decisive yet — emit the honest
-    // "tracked publicly" note instead of a fake rate.
+  // Filter byDate to the public era and recompute lifetime from the
+  // surviving rows so pre-era numbers can never reach the ticker even
+  // when the caller passes the raw summary JSON.
+  const postEraByDate = (summary.byDate ?? []).filter((d) =>
+    isInPublicParlayEra(d.date),
+  );
+  const lifetime = aggregateBuckets(postEraByDate);
+  if (lifetime.decisive <= 0) {
+    // No decisive slips in the new tracking era yet — emit an honest
+    // fresh-era note instead of a fake rate or a pre-era leak.
     out.push({
       id: "results-tracked",
       icon: "🧪",
-      label: "Suggested slips tracked publicly",
+      label: `Public parlay tracking starts ${PUBLIC_PARLAY_RESULTS_START_DATE}`,
       tone: "info",
       href: "/results",
     });
     return out;
   }
-  const rate = life.hitRate;
+  const rate = lifetime.hitRate;
   const ratePct =
     typeof rate === "number" ? `${(rate * 100).toFixed(1)}%` : null;
   if (ratePct) {
@@ -258,8 +273,8 @@ function _settledItems(
       href: "/results",
     });
   }
-  // Most recent date with at least one decisive slip.
-  const recent = (summary?.byDate ?? [])
+  // Most recent post-era date with at least one decisive slip.
+  const recent = postEraByDate
     .slice()
     .filter((d) => (d.decisive ?? 0) > 0)
     .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))[0];
@@ -334,19 +349,24 @@ export function buildMarketTickerItems(
     if (mlbItem) items.push(mlbItem);
     // Cricket items intentionally omitted (PR #113).
     // Skip lifetime hit-rate here — projections are pregame focus.
-    // Only show the "tracked publicly" honest note when the caller
-    // actually supplied a summary AND nothing is decisive yet.
-    if (
-      optimizerSummary &&
-      (optimizerSummary.lifetime?.decisive ?? 0) === 0
-    ) {
-      items.push({
-        id: "results-tracked",
-        icon: "🧪",
-        label: "Suggested slips tracked publicly",
-        tone: "info",
-        href: "/results",
-      });
+    // Only show the "fresh tracking era" honest note when the caller
+    // actually supplied a summary AND nothing decisive has settled
+    // in the public era yet.
+    if (optimizerSummary) {
+      const postEraDecisive = aggregateBuckets(
+        (optimizerSummary.byDate ?? []).filter((d) =>
+          isInPublicParlayEra(d.date),
+        ),
+      ).decisive;
+      if (postEraDecisive === 0) {
+        items.push({
+          id: "results-tracked",
+          icon: "🧪",
+          label: `Public parlay tracking starts ${PUBLIC_PARLAY_RESULTS_START_DATE}`,
+          tone: "info",
+          href: "/results",
+        });
+      }
     }
   } else if (surface === "home") {
     items.push(..._settledItems(optimizerSummary));
