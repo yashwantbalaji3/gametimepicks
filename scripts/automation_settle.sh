@@ -83,6 +83,7 @@ if [ "$DRY_RUN_SETTLE" = "1" ]; then
     info "would run: $PY -m pipeline.grade_curated --date $TARGET_DATE"
     info "would run: $PY -m pipeline.grade_optimizer --all"
     info "would run: $PY -m pipeline.audit_daily --date $TARGET_DATE"
+    info "would run: $PY -m pipeline.audit_signal_policy"
     exit 0
 fi
 
@@ -229,12 +230,28 @@ fi
 # warning).
 # ---------------------------------------------------------------------------
 AUDIT_DAILY_FAILED=0
-step "7/7  Daily postmortem audit · $TARGET_DATE"
+step "7/8  Daily postmortem audit · $TARGET_DATE"
 if $PY -m pipeline.audit_daily --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_audit_daily.log; then
     ok "daily audit written to app/public/data/audit/daily/${TARGET_DATE}.json"
 else
     warn "daily audit returned non-zero — see /tmp/gtp_audit_daily.log"
     AUDIT_DAILY_FAILED=1
+fi
+
+# ---------------------------------------------------------------------------
+# Confirmed-signal policy (PR #118) — pure aggregation over the daily
+# audit JSON rolling window. Emits app/public/data/audit/policy.json.
+# Demotion-only; one bad slate cannot move the model (3 confirming days
+# required for any model-changing signal). Non-fatal: a missing or
+# malformed audit becomes a warning in the policy itself.
+# ---------------------------------------------------------------------------
+POLICY_FAILED=0
+step "8/8  Audit signal policy · rolling window"
+if $PY -m pipeline.audit_signal_policy 2>&1 | tee /tmp/gtp_audit_policy.log; then
+    ok "policy written to app/public/data/audit/policy.json"
+else
+    warn "policy generation returned non-zero — see /tmp/gtp_audit_policy.log"
+    POLICY_FAILED=1
 fi
 
 DURATION=$(( $(date +%s) - START_TIME ))
@@ -247,6 +264,7 @@ info "export step:    $([ "$EXPORT_FAILED" = 1 ] && echo FAILED || echo ok)"
 info "model_audit:    $([ "$AUDIT_FAILED" = 1 ] && echo FAILED || echo ok)"
 info "grade step:     $([ "$GRADE_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
 info "audit_daily:    $([ "$AUDIT_DAILY_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
+info "audit_policy:   $([ "$POLICY_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
 info "elapsed:        ${DURATION}s"
 info "odds credits:   0 (settlement uses free public APIs only)"
 
