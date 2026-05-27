@@ -21,6 +21,14 @@ const AUDIT_DIR = path.join(
   "daily",
 );
 
+const POLICY_PATH = path.join(
+  process.cwd(),
+  "public",
+  "data",
+  "audit",
+  "policy.json",
+);
+
 export interface DailyAuditSummary {
   wins: number;
   losses: number;
@@ -98,4 +106,59 @@ export function getLatestDailyAudit(): DailyAuditPayload | null {
   const dates = listDailyAuditDates();
   if (dates.length === 0) return null;
   return getDailyAudit(dates[dates.length - 1]);
+}
+
+// ---------------------------------------------------------------------------
+// PR #118 — confirming-signal policy summary loader
+// ---------------------------------------------------------------------------
+
+/**
+ * Minimal subset of `app/public/data/audit/policy.json` that the
+ * /results banner uses. Server-only — the full policy stays a build
+ * artifact; this loader returns only what's safe to render publicly.
+ *
+ * `null` when the policy file is missing or malformed. Consumers must
+ * tolerate that — the banner still renders without it.
+ */
+export interface DailyAuditPolicySummary {
+  daysAvailable: number;
+  daysRequired: number;
+  windowDays: number;
+  confirmed: boolean;
+  /** Names of model-changing + UI signals that have confirmed. */
+  confirmedSignalNames: string[];
+  warnings: string[];
+}
+
+export function getDailyAuditPolicy(): DailyAuditPolicySummary | null {
+  if (!fs.existsSync(POLICY_PATH)) return null;
+  try {
+    const raw = JSON.parse(fs.readFileSync(POLICY_PATH, "utf8")) as Record<string, unknown>;
+    const window = (raw.window ?? {}) as Record<string, unknown>;
+    const signals = (raw.signals ?? {}) as Record<string, unknown>;
+    const confirmedNames: string[] = [];
+    for (const [name, sig] of Object.entries(signals)) {
+      if (name === "marketDemotions") {
+        const m = (sig ?? {}) as Record<string, { confirmed?: boolean }>;
+        for (const [mk, mv] of Object.entries(m)) {
+          if (mv && mv.confirmed) confirmedNames.push(`market:${mk}`);
+        }
+      } else {
+        const s = sig as { confirmed?: boolean } | null;
+        if (s && s.confirmed) confirmedNames.push(name);
+      }
+    }
+    return {
+      daysAvailable: Number(window.daysAvailable ?? 0),
+      daysRequired: Number(window.daysRequired ?? 0),
+      windowDays: Number(window.windowDays ?? 0),
+      confirmed: Boolean(raw.confirmed),
+      confirmedSignalNames: confirmedNames,
+      warnings: Array.isArray(raw.warnings)
+        ? raw.warnings.filter((w): w is string => typeof w === "string")
+        : [],
+    };
+  } catch {
+    return null;
+  }
 }

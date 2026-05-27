@@ -13,6 +13,7 @@ import {
   listDailyAuditDates,
   getDailyAudit,
   getLatestDailyAudit,
+  getDailyAuditPolicy,
 } from "./data-daily-audit.ts";
 
 const FIXTURE_DIR = path.join(
@@ -75,6 +76,60 @@ test("loader is defensive against malformed JSON / missing fields", () => {
       "malformed JSON must return null, not throw");
   } finally {
     fs.unlinkSync(corrupt);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// PR #118 — getDailyAuditPolicy
+// ---------------------------------------------------------------------------
+
+const POLICY_PATH = path.join(
+  process.cwd(),
+  "public",
+  "data",
+  "audit",
+  "policy.json",
+);
+
+test("getDailyAuditPolicy returns a sane summary for current policy.json", () => {
+  // PR #118 writes the policy on every settle. If the file doesn't
+  // exist locally yet, skip — the contract just says the loader must
+  // not crash.
+  if (!fs.existsSync(POLICY_PATH)) {
+    const out = getDailyAuditPolicy();
+    assert.equal(out, null,
+      "loader must return null when policy.json absent — never invented");
+    return;
+  }
+  const out = getDailyAuditPolicy();
+  assert.ok(out, "loader must return a summary when policy.json exists");
+  assert.equal(typeof out.daysAvailable, "number");
+  assert.equal(typeof out.daysRequired, "number");
+  assert.equal(typeof out.confirmed, "boolean");
+  assert.ok(Array.isArray(out.confirmedSignalNames));
+  // With ≤ 2 audit days, top-level confirmed MUST be false. We don't
+  // hard-code 1 here because tonight's cron may have added a second.
+  if (out.daysAvailable < out.daysRequired) {
+    assert.equal(out.confirmed, false,
+      "top-level confirmed must be false below threshold");
+  }
+});
+
+test("getDailyAuditPolicy is defensive against malformed JSON", () => {
+  // Back up real file if present.
+  const backup = fs.existsSync(POLICY_PATH)
+    ? fs.readFileSync(POLICY_PATH, "utf8")
+    : null;
+  try {
+    fs.writeFileSync(POLICY_PATH, "{ this isn't json");
+    assert.equal(getDailyAuditPolicy(), null,
+      "malformed policy.json must return null, not throw");
+  } finally {
+    if (backup !== null) {
+      fs.writeFileSync(POLICY_PATH, backup);
+    } else {
+      fs.unlinkSync(POLICY_PATH);
+    }
   }
 });
 
