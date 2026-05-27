@@ -22,6 +22,9 @@
 #     added PR #98)
 #   - Run daily postmortem audit (audit_daily, added PR #117) over the
 #     freshly-graded slate — pure aggregation, never adjusts weights
+#   - Run confirmed-signal policy (audit_signal_policy, added PR #118)
+#     over the rolling audit window — demotion-only, requires 3+
+#     confirming days for any model-changing signal
 #   - Commit + push the regenerated data so /results picks it up
 #
 # What this workflow does NOT do:
@@ -148,6 +151,10 @@ jobs:
           # written by pipeline.audit_daily — foundation of the model
           # learning loop. Pure aggregation, never adjusts weights.
           git add app/public/data/audit/daily/ 2>/dev/null || true
+          # PR #118: confirmed-signal policy aggregated over the
+          # rolling window. Single JSON file rewritten every run.
+          # Pure aggregation, demotion-only, never raises a weight.
+          git add app/public/data/audit/policy.json 2>/dev/null || true
 
           if git diff --staged --quiet; then
             echo "No settled-data changes — nothing to commit."
@@ -178,5 +185,6 @@ jobs:
             /tmp/gtp_grade_curated.log
             /tmp/gtp_grade_optimizer.log
             /tmp/gtp_audit_daily.log
+            /tmp/gtp_audit_policy.log
           retention-days: 7
           if-no-files-found: ignore

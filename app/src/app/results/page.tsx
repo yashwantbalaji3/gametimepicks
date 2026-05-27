@@ -30,7 +30,7 @@ import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
 import DailyAuditBanner from "@/components/daily-audit-banner";
-import { getLatestDailyAudit } from "@/lib/data-daily-audit";
+import { getLatestDailyAudit, getDailyAuditPolicy } from "@/lib/data-daily-audit";
 
 export const metadata = {
   title: "Suggested parlay results · GameTime Picks",
@@ -44,6 +44,10 @@ export default function ResultsPage() {
   // rendered when an audit JSON has been generated for at least one
   // settled slate. Never fabricates a row.
   const latestAudit = getLatestDailyAudit();
+  // PR #118: confirming-days policy. Banner shows a single status
+  // line when the file exists; renders nothing otherwise. Never moves
+  // the model on its own — that's the next PR.
+  const auditPolicy = getDailyAuditPolicy();
   const dates = getOptimizerGradedDates();
   const calibrationTable = loadCalibrationTable();
 
@@ -129,7 +133,7 @@ export default function ResultsPage() {
 
       {latestAudit && (
         <div className="mt-6">
-          <DailyAuditBanner audit={latestAudit} />
+          <DailyAuditBanner audit={latestAudit} policy={auditPolicy} />
         </div>
       )}
 

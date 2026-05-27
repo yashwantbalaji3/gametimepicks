@@ -7,13 +7,21 @@
  * Never fabricates: when the audit JSON is absent the parent simply
  * does not render us.
  */
-import type { DailyAuditPayload } from "@/lib/data-daily-audit";
+import type {
+  DailyAuditPayload,
+  DailyAuditPolicySummary,
+} from "@/lib/data-daily-audit";
 
 interface Props {
   audit: DailyAuditPayload;
+  /** Optional — when present, the banner shows a one-line policy
+   *  status (e.g. "Policy window: 1/3 confirming days — no model
+   *  demotions active yet."). Never invented; renders nothing when
+   *  the policy JSON is absent. */
+  policy?: DailyAuditPolicySummary | null;
 }
 
-export default function DailyAuditBanner({ audit }: Props) {
+export default function DailyAuditBanner({ audit, policy }: Props) {
   const { date, summary, recommendations, warnings } = audit;
   const warnRecs = recommendations.filter((r) => r.severity === "warn");
   return (
@@ -87,6 +95,21 @@ export default function DailyAuditBanner({ audit }: Props) {
             ))}
           </ul>
         </details>
+      )}
+      {policy && (
+        <p
+          className="text-[11px] leading-snug font-mono"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          Policy window: {policy.daysAvailable}/{policy.daysRequired} confirming
+          {" "}days
+          {policy.confirmed
+            ? " — model demotions: " +
+              policy.confirmedSignalNames
+                .filter((n) => n !== "longshotKeepCollapsed")
+                .join(", ")
+            : " — no model demotions active yet."}
+        </p>
       )}
       {warnings.length > 0 && (
         <p
