@@ -113,8 +113,19 @@ CONSERVATIVE_RULES = ProfileRules(
     max_legs_per_team=1,
     exclude_anomalies=True,
     max_anomaly_legs=0,
-    mlb_allowed_markets=("batter_hits",),
-    mlb_max_volatile_legs=0,
+    # PR `fix/parlays-mlb-market-diversity`: open Conservative to
+    # admit ONE batter_total_bases leg per 2-leg slip (still requires
+    # at least one batter_hits leg via the volatile cap). Strikeouts
+    # stay blocked at the eligibility gate (audit-weakest cohort at
+    # 43.6%, well below the >=50% Conservative threshold). Net effect:
+    # Conservative slips become "hits + total_bases" combos instead
+    # of "hits + hits". H+R+RBI stays out of Conservative — too little
+    # audit data and structurally noisier than singles-only hits.
+    mlb_allowed_markets=(
+        "batter_hits",
+        "batter_total_bases",
+    ),
+    mlb_max_volatile_legs=1,
     correlation_penalty_per_extra=0.12,
 )
 
@@ -130,12 +141,29 @@ BALANCED_RULES = ProfileRules(
     max_legs_per_team=2,
     exclude_anomalies=True,
     max_anomaly_legs=0,
-    # Audit 2026-05-25: pitcher_strikeouts is the worst MLB cohort
-    # (43.6% on 94 decisive). Pulled out of Balanced — Aggressive
-    # still allows it.
+    # PR `fix/parlays-mlb-market-diversity`: expand Balanced to a
+    # four-market allowlist (hits + total_bases + H+R+RBI + pitcher
+    # strikeouts). H+R+RBI was previously aggressive-only — adding
+    # it here gives Balanced a legitimate third-leg variant beyond
+    # repeated hits. Pitcher strikeouts re-admitted into Balanced
+    # because:
+    #   - `confidence=("High","Medium")` already filters out the
+    #     low-conviction pitching props that drove the audit pain.
+    #   - `mlb_max_volatile_legs=1` caps total volatile content per
+    #     slip — at most one of {total_bases, strikeouts, H+R+RBI}
+    #     can land in any visible Balanced slip.
+    #   - Market stability weight (0.70) keeps strikeouts ranked
+    #     below hits naturally, so it surfaces only when a Medium-
+    #     confidence pitcher leg is genuinely the best alternative
+    #     to a third hits leg.
+    # Result: Balanced slips become richer ("hits + hits + total_bases"
+    # or "hits + H+R+RBI + total_bases") instead of "hits + hits +
+    # hits".
     mlb_allowed_markets=(
         "batter_hits",
         "batter_total_bases",
+        "batter_hits_runs_rbis",
+        "pitcher_strikeouts",
     ),
     mlb_max_volatile_legs=1,
     correlation_penalty_per_extra=0.08,
@@ -209,8 +237,19 @@ STAR_POWER_RULES = ProfileRules(
     max_legs_per_team=1,
     exclude_anomalies=True,
     max_anomaly_legs=0,
-    mlb_allowed_markets=("batter_hits",),
-    mlb_max_volatile_legs=0,
+    # PR `fix/parlays-mlb-market-diversity`: expand Star Power beyond
+    # hits-only to surface star batters across hits / total_bases /
+    # H+R+RBI. Pitcher strikeouts stay OUT of Star Power — the lane
+    # exists for recognizable batters; pitcher props don't fit the
+    # composition. `mlb_max_volatile_legs=1` caps total volatile
+    # content per slip so a Star Power slip is always at least one
+    # stable hits leg paired with at most one volatile partner.
+    mlb_allowed_markets=(
+        "batter_hits",
+        "batter_total_bases",
+        "batter_hits_runs_rbis",
+    ),
+    mlb_max_volatile_legs=1,
     correlation_penalty_per_extra=0.10,
     require_star=True,
 )
@@ -685,11 +724,23 @@ def _greedy(
     appear if the rules allow). This is honored as a *soft* preference
     — if a must-include key can't fit (e.g. they're an anomaly leg in a
     conservative profile), the slip still builds without them.
+
+    PR `fix/parlays-mlb-market-diversity`: within-slip market diversity
+    is applied during the walk via `_WITHIN_SLIP_MARKET_PENALTY`. Each
+    candidate leg's effective score is reduced by
+    `markets_used[market] * penalty` so a hits leg loses ranking
+    against an equally-strong total_bases leg once a hits leg is
+    already in the slip. Hard cap behavior (player/game/team/volatile)
+    is unchanged — diversity only operates as a tiebreaker among
+    legs that all pass the hard gates. When no alternative-market
+    leg is eligible, the same-market leg still wins and the slip
+    builds as before.
     """
     picked: list[OptimizerLean] = []
     used_players: set[str] = set()
     games_used: dict[str, int] = {}
     teams_used: dict[str, int] = {}
+    markets_used: dict[str, int] = {}
     anomaly_count = 0
     volatile_count = 0
 
@@ -704,53 +755,143 @@ def _greedy(
         ordered = pool
 
     order = ordered[start:] + ordered[:start]
-    for lean in order:
-        if len(picked) >= rules.max_legs:
-            break
+    market_penalty = _WITHIN_SLIP_MARKET_PENALTY.get(rules.profile, 0.0)
+
+    def _is_eligible_for_slip(lean: OptimizerLean) -> bool:
+        """Hard-constraint check used during the walk. Mirrors the
+        sequential filter that lived inline before market diversity
+        was added — extracted so we can both walk in order AND look
+        ahead for a higher-diversity alternative."""
         pkey = _player_key(lean)
         if pkey in used_players:
-            continue
+            return False
         if lean.isAnomaly and anomaly_count >= rules.max_anomaly_legs:
-            continue
+            return False
         gkey = str(lean.gameId or "")
-        if gkey:
-            if games_used.get(gkey, 0) >= rules.max_legs_per_game:
-                continue
+        if gkey and games_used.get(gkey, 0) >= rules.max_legs_per_game:
+            return False
         tkey = (lean.team or "").upper()
-        if tkey:
-            if teams_used.get(tkey, 0) >= rules.max_legs_per_team:
-                continue
-        if lean.isVolatileMlb:
-            if volatile_count >= rules.mlb_max_volatile_legs:
-                continue
-            volatile_count += 1
-        picked.append(lean)
-        used_players.add(pkey)
+        if tkey and teams_used.get(tkey, 0) >= rules.max_legs_per_team:
+            return False
+        if lean.isVolatileMlb and volatile_count >= rules.mlb_max_volatile_legs:
+            return False
+        return True
+
+    # Two-phase walk. Phase 1 picks the first eligible leg from the
+    # rotation (preserves the existing seed behavior so the rotation
+    # `start` parameter still drives the slip's "anchor" choice).
+    # Phase 2+ uses market-aware re-ranking: among ALL remaining
+    # eligible legs in the rotation, pick the one with the best
+    # effective score = leg_score - markets_used[market] * penalty.
+    # This gives diversity teeth without abandoning quality — when
+    # only one market is eligible, the rotation-order leg still wins.
+    for idx, lean in enumerate(order):
+        if len(picked) >= rules.max_legs:
+            break
+        if not _is_eligible_for_slip(lean):
+            continue
+        if not picked or market_penalty <= 0:
+            # Anchor leg (or no diversity penalty configured) —
+            # preserve the existing rotation-based selection.
+            chosen = lean
+            chosen_idx = idx
+        else:
+            # Phase 2+: search the remaining rotation for the best
+            # market-adjusted candidate. Stop once we've searched a
+            # reasonable horizon — full-pool re-rank is O(N*max_legs)
+            # which is fine for current pool sizes (~700) but bound it
+            # explicitly so this can't pathologize on giant slates.
+            best_lean = lean
+            best_idx = idx
+            best_adj = (
+                # Approximate effective score: lean's leg_score adjusted
+                # by repeat-market penalty.
+                leg_score(lean, rules)
+                - markets_used.get(lean.market or "", 0) * market_penalty
+            )
+            search_horizon = min(len(order), idx + 250)
+            for j in range(idx + 1, search_horizon):
+                cand = order[j]
+                if not _is_eligible_for_slip(cand):
+                    continue
+                adj = (
+                    leg_score(cand, rules)
+                    - markets_used.get(cand.market or "", 0) * market_penalty
+                )
+                if adj > best_adj:
+                    best_adj = adj
+                    best_lean = cand
+                    best_idx = j
+            chosen = best_lean
+            chosen_idx = best_idx
+        # Commit the chosen leg + update all running counters.
+        picked.append(chosen)
+        used_players.add(_player_key(chosen))
+        gkey = str(chosen.gameId or "")
         if gkey:
             games_used[gkey] = games_used.get(gkey, 0) + 1
+        tkey = (chosen.team or "").upper()
         if tkey:
             teams_used[tkey] = teams_used.get(tkey, 0) + 1
-        if lean.isAnomaly:
+        if (chosen.market or ""):
+            mkey = chosen.market
+            markets_used[mkey] = markets_used.get(mkey, 0) + 1
+        if chosen.isVolatileMlb:
+            volatile_count += 1
+        if chosen.isAnomaly:
             anomaly_count += 1
+        # When we re-ranked and ended up choosing a leg further into
+        # the rotation, we still need to keep walking from the same
+        # base idx. The for-loop's natural advance (idx+1) handles
+        # this correctly — we never revisit `chosen_idx` because it
+        # would be filtered by the duplicate-player check. The
+        # variable is kept for clarity / future use.
+        _ = chosen_idx
     if len(picked) < rules.min_legs:
         return None
     return picked
 
 
+# Per-profile within-slip market diversity penalty (applied in _greedy
+# during slip assembly). Larger values produce more aggressive market
+# variety; values that exceed the typical market-stability-weight gap
+# (~0.30) would over-diversify and force genuinely weaker legs into
+# slips, so we keep these well under that threshold.
+_WITHIN_SLIP_MARKET_PENALTY: dict[str, float] = {
+    "conservative": 0.12,
+    "balanced":     0.12,
+    "star_power":   0.12,
+    "aggressive":   0.10,
+}
+
+
 def _correlation_penalty(legs: list[OptimizerLean], rules: ProfileRules) -> float:
-    """Quantifies how much same-game / same-team / volatile exposure a
-    slip carries. Subtracted from the raw score.
+    """Quantifies how much same-game / same-team / same-market / volatile
+    exposure a slip carries. Subtracted from the raw score.
+
+    PR `fix/parlays-mlb-market-diversity`: same-market penalty added.
+    Before this PR, _greedy + raw scoring produced 100% batter_hits
+    visible slips on MLB-only slates even though the leg pool spanned
+    four markets. The within-slip same-market penalty makes a mixed-
+    market candidate slip score competitively against an all-hits
+    slip when raw leg scores are close, so the candidate pool itself
+    contains varied builds for the cross-card diversifier to choose
+    from. The penalty is small enough that when no alternatives exist,
+    the all-hits slip still wins on quality.
     """
     if not legs:
         return 0.0
     game_counts: dict[str, int] = {}
     team_counts: dict[str, int] = {}
+    market_counts: dict[str, int] = {}
     volatile = 0
     for lean in legs:
         if lean.gameId:
             game_counts[lean.gameId] = game_counts.get(lean.gameId, 0) + 1
         if lean.team:
             team_counts[lean.team] = team_counts.get(lean.team, 0) + 1
+        if lean.market:
+            market_counts[lean.market] = market_counts.get(lean.market, 0) + 1
         if lean.isVolatileMlb:
             volatile += 1
     penalty = 0.0
@@ -760,6 +901,14 @@ def _correlation_penalty(legs: list[OptimizerLean], rules: ProfileRules) -> floa
     for count in team_counts.values():
         if count > 1:
             penalty += (count - 1) * (rules.correlation_penalty_per_extra * 0.5)
+    # Same-market within-slip penalty. 0.10 per extra leg of the same
+    # market is large enough to flip the candidate ranking when leg
+    # scores are close (e.g. one hits leg + one total_bases star vs
+    # two hits legs of similar quality) but small enough that a hits-
+    # only slip with markedly stronger raw scores still wins.
+    for count in market_counts.values():
+        if count > 1:
+            penalty += (count - 1) * 0.10
     if volatile > 1:
         penalty += (volatile - 1) * 0.04
     return penalty
@@ -822,6 +971,29 @@ _RECURRENCE_PENALTY: dict[str, float] = {
     "aggressive":   0.15,
 }
 
+# PR `fix/parlays-mlb-market-diversity`: parallel penalty for repeated
+# *markets* across visible cards. The original `_select_diverse` only
+# penalized repeated players, which let a slate with one strong market
+# (e.g. batter_hits dominating MLB-only days) ship 5 visible cards all
+# composed of hits legs — across different players, but cosmetically
+# identical.
+#
+# The market penalty is calibrated SMALLER than the player penalty so
+# diversity never ships an inferior slip — when an alternative leg
+# scores within ~0.3 of the top hits leg, the diversifier prefers a
+# slip that mixes markets; otherwise it still ships the highest-scoring
+# slip. Tuned per profile:
+#   - conservative: 0.20 — willing to nudge but still hits-first
+#   - balanced:     0.18 — wider allowlist, more room to vary
+#   - star_power:   0.20 — strict but visibly diversifying
+#   - aggressive:   0.08 — already diverse; small nudge only
+_MARKET_RECURRENCE_PENALTY: dict[str, float] = {
+    "conservative": 0.20,
+    "balanced":     0.18,
+    "star_power":   0.20,
+    "aggressive":   0.08,
+}
+
 
 def _select_diverse(
     candidates: list["OptimizedSlip"],
@@ -832,42 +1004,62 @@ def _select_diverse(
     """Final visible-slip selection pass.
 
     Walks the candidate pool greedily, but penalizes slips containing
-    players already chosen. Quality (slip.score) still drives the
-    decision — diversity is a tiebreaker, not a way to ship junk.
+    players AND markets already chosen across the visible set.
+    Quality (slip.score) still drives the decision — diversity is a
+    tiebreaker, not a way to ship junk.
 
     Honest behavior:
       - When fewer candidates exist than `limit`, returns them all.
       - When recurrence dominates the pool (e.g. only one MLB star is
-        eligible), the same player can still repeat — we don't drop
-        the slip just to hit a diversity target. We just rank-down.
+        eligible, or only batter_hits is allowed for the profile),
+        the same player/market can still repeat — we don't drop the
+        slip just to hit a diversity target. We just rank-down.
+      - Market diversity penalty is calibrated smaller than the
+        player penalty so the diversifier never trades meaningful
+        quality for cosmetic variety (`_MARKET_RECURRENCE_PENALTY`).
     """
     if limit <= 0 or not candidates:
         return []
-    penalty_per_repeat = _RECURRENCE_PENALTY.get(profile, 0.20)
+    player_penalty = _RECURRENCE_PENALTY.get(profile, 0.20)
+    market_penalty = _MARKET_RECURRENCE_PENALTY.get(profile, 0.10)
     chosen: list[OptimizedSlip] = []
     used_player_counts: dict[str, int] = {}
+    used_market_counts: dict[str, int] = {}
     remaining = list(candidates)
     while remaining and len(chosen) < limit:
         # Score each remaining candidate with cumulative recurrence
-        # penalty based on already-chosen slips.
+        # penalty based on already-chosen slips. Players and markets
+        # are tracked separately so a slip can repeat a market without
+        # paying the player penalty (and vice versa).
         best_idx = 0
         best_adj = float("-inf")
         for i, c in enumerate(remaining):
-            repeat = 0
+            player_repeat = 0
+            market_repeat = 0
             for leg in c.legs:
-                key = (leg.playerName or "").lower().strip()
-                if key and key in used_player_counts:
-                    repeat += used_player_counts[key]
-            adj_score = c.score - repeat * penalty_per_repeat
+                pkey = (leg.playerName or "").lower().strip()
+                if pkey and pkey in used_player_counts:
+                    player_repeat += used_player_counts[pkey]
+                mkey = (leg.market or "").lower().strip()
+                if mkey and mkey in used_market_counts:
+                    market_repeat += used_market_counts[mkey]
+            adj_score = (
+                c.score
+                - player_repeat * player_penalty
+                - market_repeat * market_penalty
+            )
             if adj_score > best_adj:
                 best_adj = adj_score
                 best_idx = i
         pick = remaining.pop(best_idx)
         chosen.append(pick)
         for leg in pick.legs:
-            key = (leg.playerName or "").lower().strip()
-            if key:
-                used_player_counts[key] = used_player_counts.get(key, 0) + 1
+            pkey = (leg.playerName or "").lower().strip()
+            if pkey:
+                used_player_counts[pkey] = used_player_counts.get(pkey, 0) + 1
+            mkey = (leg.market or "").lower().strip()
+            if mkey:
+                used_market_counts[mkey] = used_market_counts.get(mkey, 0) + 1
     return chosen
 
 
