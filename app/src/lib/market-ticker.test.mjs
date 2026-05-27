@@ -199,6 +199,10 @@ test("PR #113: cricket pre-toss input also produces no ticker item", () => {
 // ---------------------------------------------------------------------------
 
 test("settlement item renders decisive hit rate only when decisive > 0", () => {
+  // Post-era byDate row drives the lifetime recompute. The supplied
+  // `lifetime` field is ignored — the ticker rebuilds lifetime from
+  // byDate filtered to the public era so pre-era numbers can never
+  // leak in even when a caller passes the raw summary JSON.
   const out = buildMarketTickerItems({
     surface: "home",
     optimizerSummary: {
@@ -206,6 +210,9 @@ test("settlement item renders decisive hit rate only when decisive > 0", () => {
         wins: 6, losses: 54, pushes: 0, pending: 10,
         decisive: 60, hitRate: 0.1,
       },
+      byDate: [
+        { date: "2026-05-27", wins: 6, losses: 54, pushes: 0, pending: 10, decisive: 60, hitRate: 0.1 },
+      ],
     },
   });
   const it = out.find((i) => i.id === "results-hitrate");
@@ -311,6 +318,9 @@ test("items preserve href when supplied", () => {
     surface: "home",
     optimizerSummary: {
       lifetime: { wins: 6, losses: 54, pushes: 0, pending: 0, decisive: 60, hitRate: 0.1 },
+      byDate: [
+        { date: "2026-05-27", wins: 6, losses: 54, pushes: 0, pending: 0, decisive: 60, hitRate: 0.1 },
+      ],
     },
   });
   const it = out.find((i) => i.id === "results-hitrate");
@@ -328,4 +338,95 @@ test("buildMarketTickerItems dedupes by id within a single build", () => {
   const unique = new Set(ids);
   assert.equal(ids.length, unique.size,
     "buildMarketTickerItems output must contain unique ids only");
+});
+
+// ---------------------------------------------------------------------------
+// Public parlay era filter (PR: fix/parlay-public-era-reset)
+//
+// On 2026-05-27 we reset public parlay tracking. Pre-era rows must
+// NEVER leak into the ticker, even when the caller passes the raw
+// pipeline JSON with old dates still in `byDate`.
+// ---------------------------------------------------------------------------
+
+test("era: pre-era-only byDate yields fresh-era note instead of hit rate", () => {
+  // The whole byDate is pre-era — ticker must filter them all out
+  // and emit the fresh-era tracking note instead of any hit rate.
+  const out = buildMarketTickerItems({
+    surface: "home",
+    optimizerSummary: {
+      lifetime: { wins: 8, losses: 42, pushes: 0, pending: 12, decisive: 50, hitRate: 0.16 },
+      byDate: [
+        { date: "2026-05-25", wins: 8, losses: 42, pushes: 0, pending: 12, decisive: 50, hitRate: 0.16 },
+        { date: "2026-05-26", wins: 0, losses: 0, pushes: 0, pending: 0, decisive: 0, hitRate: null },
+      ],
+    },
+  });
+  const ids = out.map((i) => i.id);
+  assert.equal(out.find((i) => i.id === "results-hitrate"), undefined,
+    "pre-era hit rate must not appear in ticker");
+  assert.equal(out.find((i) => /^results-date-2026-05-2[56]$/.test(i.id)), undefined,
+    "pre-era recent-date item must not appear in ticker");
+  assert.ok(ids.includes("results-tracked"),
+    "fresh-era tracking note must appear when only pre-era rows are present");
+  const note = out.find((i) => i.id === "results-tracked");
+  assert.match(note.label, /Public parlay tracking starts 2026-05-27/,
+    "fresh-era note must name the era start date");
+});
+
+test("era: mixed pre+post byDate recomputes lifetime from post-era only", () => {
+  // Pre-era row would inflate to 8W-42L (16%) — that must be dropped.
+  // Post-era row 3W-2L = 60% must be the only thing surfaced.
+  const out = buildMarketTickerItems({
+    surface: "home",
+    optimizerSummary: {
+      lifetime: { wins: 11, losses: 44, pushes: 0, pending: 14, decisive: 55, hitRate: 0.2 },
+      byDate: [
+        { date: "2026-05-25", wins: 8, losses: 42, pushes: 0, pending: 12, decisive: 50, hitRate: 0.16 },
+        { date: "2026-05-27", wins: 3, losses: 2, pushes: 0, pending: 2, decisive: 5, hitRate: 0.6 },
+      ],
+    },
+  });
+  const hit = out.find((i) => i.id === "results-hitrate");
+  assert.ok(hit, "hit-rate item should appear once a post-era row is present");
+  assert.equal(hit.value, "60.0%",
+    "lifetime must be recomputed from post-era rows only (3W of 5 = 60%)");
+  const recent = out.find((i) => /^results-date-/.test(i.id));
+  assert.ok(recent);
+  assert.equal(recent.id, "results-date-2026-05-27",
+    "most-recent-date item must be the post-era row, never the pre-era row");
+});
+
+test("era: post-era-only byDate emits hit rate and recent-date item", () => {
+  const out = buildMarketTickerItems({
+    surface: "home",
+    optimizerSummary: {
+      lifetime: { wins: 4, losses: 6, pushes: 0, pending: 1, decisive: 10, hitRate: 0.4 },
+      byDate: [
+        { date: "2026-05-27", wins: 4, losses: 6, pushes: 0, pending: 1, decisive: 10, hitRate: 0.4 },
+      ],
+    },
+  });
+  const hit = out.find((i) => i.id === "results-hitrate");
+  assert.ok(hit);
+  assert.equal(hit.value, "40.0%");
+  const recent = out.find((i) => i.id === "results-date-2026-05-27");
+  assert.ok(recent);
+  assert.match(recent.label, /4W · 6L/);
+});
+
+test("era: projections surface fresh-era note when summary has no post-era data", () => {
+  const out = buildMarketTickerItems({
+    surface: "projections",
+    optimizerSummary: {
+      lifetime: { wins: 8, losses: 42, pushes: 0, pending: 12, decisive: 50, hitRate: 0.16 },
+      byDate: [
+        { date: "2026-05-25", wins: 8, losses: 42, pushes: 0, pending: 12, decisive: 50, hitRate: 0.16 },
+      ],
+    },
+    nba: { leans: [{ projection: 5 }] },
+  });
+  const note = out.find((i) => i.id === "results-tracked");
+  assert.ok(note,
+    "projections surface should emit fresh-era note when only pre-era settlements exist");
+  assert.match(note.label, /Public parlay tracking starts 2026-05-27/);
 });

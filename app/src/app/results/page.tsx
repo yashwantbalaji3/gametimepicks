@@ -4,17 +4,27 @@
  * The product centers on suggested parlays. This page answers the
  * single question that matters: did the model-suggested parlays hit?
  *
- * Layout:
- *   1. Hero + subcopy
- *   2. Summary tiles (lifetime, by profile, by sport)
- *   3. Date sections (newest first) with every graded slip
- *   4. Pointer to the projection-level audit (secondary)
+ * Layout (post-era-reset):
+ *   1. Hero + subcopy (mentions the fresh tracking era).
+ *   2. Fresh-era status block — "Public parlay tracking starts
+ *      2026-05-27". Replaces the old DateStatusHeader that was
+ *      surfacing the pre-era settled-slate counts.
+ *   3. Daily projection-level audit banner (intact — distinct from
+ *      parlay tracking; tracks per-prop accuracy).
+ *   4. Lifetime / by-profile / by-sport summary tiles (era-filtered
+ *      so pre-era numbers never reach the UI).
+ *   5. Date sections (newest first, era-filtered) with every graded
+ *      slip. Renders an empty state until a post-era slate settles.
+ *   6. Pointer to the projection-level audit pages (secondary).
  *
  * Honesty contract:
  *   - Hit rates only count decisive slips (win + loss).
  *   - Pushes excluded from denominator.
  *   - Pending slips excluded from denominator.
  *   - Empty pool → empty state. Never fabricates a slip.
+ *   - Pre-era data is filtered out at the loader (`parlay-results.ts`
+ *     applies `public-parlay-era.ts`). Files stay on disk as
+ *     internal/dev archive; the UI never reads them.
  */
 import Link from "next/link";
 
@@ -24,6 +34,7 @@ import {
   getOptimizerGradedForDate,
   sortGradedSlipsForDisplay,
 } from "@/lib/parlay-results";
+import { PUBLIC_PARLAY_RESULTS_START_DATE } from "@/lib/public-parlay-era";
 import { optimizerSlipToParlaySlip } from "@/lib/parlay-optimizer";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 
@@ -31,9 +42,6 @@ import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
 import DailyAuditBanner from "@/components/daily-audit-banner";
 import { getLatestDailyAudit, getDailyAuditPolicy } from "@/lib/data-daily-audit";
-import DateStatusHeader from "@/components/date-status-header";
-import ReplaySection from "@/components/replay-section";
-import { getLatestReplay } from "@/lib/data-replay";
 
 export const metadata = {
   title: "Suggested parlay results · GameTime Picks",
@@ -51,9 +59,6 @@ export default function ResultsPage() {
   // line when the file exists; renders nothing otherwise. Never moves
   // the model on its own — that's the next PR.
   const auditPolicy = getDailyAuditPolicy();
-  // PR #122: retrospective model replay (clearly labeled, NEVER folded
-  // into the lifetime hit rate). Renders only when a replay JSON exists.
-  const latestReplay = getLatestReplay();
   const dates = getOptimizerGradedDates();
   const calibrationTable = loadCalibrationTable();
 
@@ -131,41 +136,20 @@ export default function ResultsPage() {
           className="text-[14px] sm:text-[15px] leading-relaxed"
           style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
         >
+          Public parlay tracking starts {PUBLIC_PARLAY_RESULTS_START_DATE}.
           Every saved model slip is graded after games finish. Pending
           slips are excluded from the hit rate. Pushes do not count toward
           wins or losses.
         </p>
       </header>
 
-      {/* PR #124: makes the official latest-settled date obvious BEFORE
-          the audit banner / replay section. Counts pulled from the
-          lifetime summary so the user can grok the record at a glance. */}
-      {latestAudit && (
-        <div className="mt-6">
-          <DateStatusHeader
-            date={latestAudit.date}
-            label="official"
-            context="Latest settled slate · official"
-            counts={{
-              slips: latestAudit.summary.totalSlips,
-              wins: latestAudit.summary.wins,
-              losses: latestAudit.summary.losses,
-              pushes: latestAudit.summary.pushes,
-              pending: latestAudit.summary.pending,
-            }}
-          />
-        </div>
-      )}
+      <div className="mt-6">
+        <FreshEraStatusBlock hasAnyDateSection={dateSections.length > 0} />
+      </div>
 
       {latestAudit && (
         <div className="mt-4">
           <DailyAuditBanner audit={latestAudit} policy={auditPolicy} />
-        </div>
-      )}
-
-      {latestReplay && (
-        <div className="mt-4">
-          <ReplaySection replay={latestReplay} />
         </div>
       )}
 
@@ -236,21 +220,70 @@ export default function ResultsPage() {
             >
               MLB audit →
             </Link>
-            <Link
-              href="/results/parlays"
-              className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full"
-              style={{
-                color: "var(--vault-text-mute)",
-                border: "1px solid var(--vault-rule)",
-                fontSize: 10,
-              }}
-            >
-              Legacy parlay history
-            </Link>
           </div>
         </div>
       </section>
     </div>
+  );
+}
+
+/**
+ * Fresh-era status block. Replaces the prior DateStatusHeader at the
+ * top of /results so the page no longer surfaces the pre-era settled
+ * slate as if it were tracked public history. Compact, honest, and
+ * adapts copy based on whether any post-era date has been graded.
+ */
+function FreshEraStatusBlock({ hasAnyDateSection }: { hasAnyDateSection: boolean }) {
+  return (
+    <section
+      aria-label="Public parlay tracking era"
+      className="rounded-[8px] p-4 sm:p-5 flex flex-col gap-2"
+      style={{
+        background: "rgba(7,11,26,0.4)",
+        border: "1px solid var(--vault-rule)",
+      }}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <span
+            className="font-mono uppercase tracking-[0.18em]"
+            style={{ color: "var(--vault-gold)", fontSize: 10 }}
+          >
+            Public parlay tracking era
+          </span>
+          <span
+            className="font-display tracking-tight"
+            style={{
+              color: "var(--vault-text)",
+              fontSize: "clamp(20px, 3.5vw, 26px)",
+              fontWeight: 600,
+              lineHeight: 1.15,
+            }}
+          >
+            Fresh tracking era · starts {PUBLIC_PARLAY_RESULTS_START_DATE}
+          </span>
+        </div>
+        <span
+          className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full shrink-0"
+          style={{
+            color: "var(--vault-success)",
+            border: "1px solid var(--vault-success)",
+            background: "rgba(80,180,120,0.10)",
+            fontSize: 10,
+          }}
+        >
+          New era
+        </span>
+      </div>
+      <p
+        className="text-[12px] leading-snug"
+        style={{ color: "var(--vault-text-mute)", maxWidth: 620 }}
+      >
+        {hasAnyDateSection
+          ? `Tracking suggested parlays publicly from ${PUBLIC_PARLAY_RESULTS_START_DATE} forward. Older slips are excluded from the official public hit rate.`
+          : `Today's suggested slips are live and will appear here after settlement. Older slips are excluded from the official public hit rate.`}
+      </p>
+    </section>
   );
 }
 
@@ -267,15 +300,15 @@ function EmptyState() {
         className="font-mono uppercase tracking-[0.16em]"
         style={{ color: "var(--vault-gold)", fontSize: 11 }}
       >
-        No tracked slips yet
+        No settled public parlay results yet
       </span>
       <p
         className="text-[13px] leading-relaxed"
         style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}
       >
-        We only count slips that were saved before games started and
-        graded after settlement. As soon as tonight&apos;s slate finishes
-        and the grader runs, results will appear here.
+        Public parlay tracking starts {PUBLIC_PARLAY_RESULTS_START_DATE}.
+        As soon as a slate from this era finishes and the grader runs,
+        results will appear here.
       </p>
     </section>
   );

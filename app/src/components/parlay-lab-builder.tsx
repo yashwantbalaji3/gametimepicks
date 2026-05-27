@@ -691,7 +691,7 @@ function RiskCard({
               background: "rgba(7,11,26,0.55)",
               fontSize: 9,
             }}
-            title="Longshot lane went 0-14 in the 5/25 audit. Tracked publicly."
+            title="Longshot lane carries the highest variance — opt-in, hidden by default."
           >
             Longshot
           </span>
@@ -816,12 +816,10 @@ function EmptyRiskCard({
 /**
  * Public-tracking disclaimer banner (PR #110 filter A).
  *
- * After the 5/25 audit (6W-54L-0P-10 pending on 70 unique slips, 10%
- * decisive hit rate) we surface honest "experimental + publicly
- * tracked" copy directly above the lane grid. No win-rate spin, no
- * "guaranteed" / "lock" / "free money" / "can't miss" language —
- * just the truth that these are tracked publicly so users can see
- * for themselves.
+ * Honest "experimental + publicly tracked" copy directly above the
+ * lane grid. No win-rate spin, no banned phrasing — just the truth
+ * that these are tracked publicly so users can see for themselves.
+ * Public parlay tracking resets each era (see `public-parlay-era.ts`).
  */
 function ExperimentalDisclaimer() {
   return (
@@ -859,9 +857,9 @@ function ExperimentalDisclaimer() {
 /**
  * Collapsible "Show high variance" section (PR #110 filter B).
  *
- * The Longshot lane is hidden by default. Users opt in explicitly —
- * the audit showed Aggressive went 0-14 on 5/25, so it should never
- * present itself as a peer to the safer lanes on first paint.
+ * The Longshot lane is hidden by default. Users opt in explicitly so
+ * the highest-variance lane never presents itself as a peer to the
+ * safer lanes on first paint.
  */
 function HighVarianceToggle({
   open,
