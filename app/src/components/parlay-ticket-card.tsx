@@ -28,6 +28,7 @@ import {
   type CalibrationTable,
   type Sport,
 } from "@/lib/confidence-calibration-rules";
+import { formatSlateChip } from "@/lib/slate-label";
 import PlayerAvatar from "./player-avatar";
 import TeamLogo from "./team-logo";
 
@@ -48,6 +49,26 @@ interface Props {
    *  the caller's responsibility — this component only emits the
    *  click. */
   onLegClick?: (leg: ParlayLeg) => void;
+  /** PR #125 — the slate date this slip belongs to (YYYY-MM-DD).
+   *  Renders as a compact mono chip in the card sub-header so users
+   *  can never lose context about which date they're looking at.
+   *  When `isFallback` is true the chip says "Latest available · …"
+   *  instead of "Today · …". */
+  slateDate?: string | null;
+  /** PR #125 — true when the snapshot date is older than today (ET)
+   *  because the page walked back to find the latest available data. */
+  slateIsFallback?: boolean;
+  /** PR #125 — origin classification for the card. Shown as a small
+   *  chip alongside the slate date so users can never mistake a
+   *  custom-generated or replay slip for an officially-tracked one.
+   *  Defaults to "official" for backward compatibility with existing
+   *  call sites. */
+  origin?: "official" | "custom" | "replay";
+  /** PR #125 — sport-bucket pill (NBA-only / MLB-only / Mixed).
+   *  Optional; defaults to deriving from `slip.sport`. Passed
+   *  explicitly when the caller already knows the bucket so the card
+   *  doesn't have to re-derive. */
+  sportBucketLabel?: string;
 }
 
 function statusColor(status: ParlaySlip["status"]): string {
@@ -90,6 +111,23 @@ function riskProfileColor(profile: ParlaySlip["riskProfile"]): string {
   }
 }
 
+/** PR #125 — colour for the slate chip tone tokens emitted by
+ *  `formatSlateChip`. Kept local to the card so we don't grow another
+ *  exported helper. */
+function _slateColor(tone: "today" | "latest-available" | "neutral" | "missing"): string {
+  switch (tone) {
+    case "today":
+      return "var(--vault-gold-bright)";
+    case "latest-available":
+      return "var(--vault-text-mute)";
+    case "missing":
+      return "var(--vault-warn)";
+    case "neutral":
+    default:
+      return "var(--vault-text-mute)";
+  }
+}
+
 function statusLabel(status: ParlaySlip["status"]): string {
   switch (status) {
     case "pending":
@@ -112,12 +150,30 @@ export default function ParlayTicketCard({
   savedPregame,
   calibrationTable = EMPTY_CALIBRATION_TABLE,
   onLegClick,
+  slateDate,
+  slateIsFallback = false,
+  origin = "official",
+  sportBucketLabel,
 }: Props) {
   const accent = statusColor(slip.status);
   const profileColor = riskProfileColor(slip.riskProfile);
   const payout = combinedParlayPayoutPer100(slip.legs);
   const profileLabel = humanProfileLabel(slip.riskProfile);
   const isStarPower = slip.riskProfile === "star_power";
+  // PR #125 — derive the per-card chips. Slate chip respects the
+  // helper's tone so the colour matches the page-level
+  // <DateStatusHeader>. Origin chip explicitly labels custom + replay
+  // so users can never mistake their provenance.
+  const slate = slateDate
+    ? formatSlateChip(slateDate, slateIsFallback)
+    : null;
+  const bucketLabel =
+    sportBucketLabel ??
+    (slip.sport === "multi"
+      ? "Mixed"
+      : slip.sport
+        ? `${slip.sport.toUpperCase()}-only`
+        : null);
   return (
     <article
       className={`gtp-parlay-ticket relative overflow-hidden flex flex-col gap-3 ${isStarPower ? "casino-glow-card" : ""}`}
@@ -161,6 +217,72 @@ export default function ParlayTicketCard({
             : statusLabel(slip.status)}
         </span>
       </header>
+
+      {/* PR #125 — sub-header chips: slate date · origin · sport bucket.
+          Wraps to a second visual line below the profile/status header
+          row, never pushes the existing header height. Always reserves
+          its own padding so an empty chip row doesn't collapse layout. */}
+      {(slate || origin !== "official" || bucketLabel) && (
+        <div
+          className="flex flex-wrap items-center gap-1.5 px-4 -mt-1"
+          aria-label="Slip context"
+        >
+          {slate && (
+            <span
+              className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
+              style={{
+                color: _slateColor(slate.tone),
+                background: "rgba(0,0,0,0.35)",
+                border: `1px solid ${_slateColor(slate.tone)}`,
+                fontSize: 9,
+              }}
+            >
+              {slate.label}
+            </span>
+          )}
+          {origin !== "official" && (
+            <span
+              className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
+              style={{
+                color: origin === "replay" ? "var(--vault-warn)" : "var(--vault-text-mute)",
+                background: "rgba(0,0,0,0.35)",
+                border: `1px dashed ${origin === "replay" ? "var(--vault-warn)" : "var(--vault-text-mute)"}`,
+                fontSize: 9,
+              }}
+            >
+              {origin === "replay"
+                ? "Replay · not official"
+                : "Custom · not officially tracked"}
+            </span>
+          )}
+          {origin === "official" && (
+            <span
+              className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
+              style={{
+                color: "var(--vault-success)",
+                background: "rgba(0,0,0,0.35)",
+                border: "1px solid var(--vault-success)",
+                fontSize: 9,
+              }}
+            >
+              Official
+            </span>
+          )}
+          {bucketLabel && (
+            <span
+              className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
+              style={{
+                color: "var(--vault-text-mute)",
+                background: "rgba(0,0,0,0.35)",
+                border: "1px solid var(--vault-rule)",
+                fontSize: 9,
+              }}
+            >
+              {bucketLabel}
+            </span>
+          )}
+        </div>
+      )}
 
       <ul className="px-4 space-y-1.5">
         {slip.legs.map((leg, i) => (

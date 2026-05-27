@@ -311,6 +311,15 @@ export default function ParlayLabBuilder({
 
       <ExperimentalDisclaimer />
 
+      {/* PR #125 — explicit section eyebrows so users can never
+          mistake official suggested slips for the custom tools below.
+          Every block has its own labelled banner. */}
+      <SectionEyebrow
+        tone="official"
+        label={`Official suggested parlays · ${date}${isFallback ? " · latest available" : " slate"}`}
+        sub="Saved before games, graded after. Capped at 4 legs per slip."
+      />
+
       <RiskGrid
         cards={cards}
         source={source}
@@ -318,6 +327,8 @@ export default function ParlayLabBuilder({
         filterActive={filterActive}
         sport={sport}
         onLegClick={setActiveLeg}
+        slateDate={date}
+        slateIsFallback={!!isFallback}
       />
 
       <HighVarianceToggle
@@ -329,10 +340,24 @@ export default function ParlayLabBuilder({
         filterActive={filterActive}
         sport={sport}
         onLegClick={setActiveLeg}
+        slateDate={date}
+        slateIsFallback={!!isFallback}
       />
 
       <AltLineComingSoon />
+
+      <SectionEyebrow
+        tone="custom"
+        label="Manual builder · not officially tracked"
+        sub="Build your own slip from the eligible leg pool. Exploration only."
+      />
       <CustomParlayBuilder snapshot={optimizerPayload ?? null} />
+
+      <SectionEyebrow
+        tone="custom"
+        label="Custom generator · not officially tracked"
+        sub="Model-ranked custom slips synthesized from the same leg pool. Not included in the official public hit rate."
+      />
       {/* PR #115: "Generate for me" — synthesizes 1–5 custom slips
           from the same leg pool using model scoring + DNP guard.
           Never persisted, never tracked publicly. */}
@@ -340,6 +365,51 @@ export default function ParlayLabBuilder({
       <BuilderFootnote optimizerActive={optimizerActive} />
       <PlayerRecentFormDrawer leg={activeLeg} onClose={() => setActiveLeg(null)} />
     </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Section eyebrow — small mono label that separates Official / Custom /
+// Manual blocks visually without adding a heavy headline. Tone keys the
+// accent colour so the official block reads success-green and the
+// custom blocks read muted-mute. PR #125.
+// ---------------------------------------------------------------------------
+
+function SectionEyebrow({
+  tone,
+  label,
+  sub,
+}: {
+  tone: "official" | "custom";
+  label: string;
+  sub?: string;
+}) {
+  const accent =
+    tone === "official"
+      ? "var(--vault-success)"
+      : "var(--vault-text-mute)";
+  return (
+    <header className="flex flex-col gap-1 mt-2">
+      <span
+        className="font-mono uppercase tracking-[0.18em] inline-flex items-center gap-2"
+        style={{ color: accent, fontSize: 11 }}
+      >
+        <span
+          aria-hidden
+          className="inline-block w-1.5 h-1.5 rounded-full"
+          style={{ background: accent }}
+        />
+        {label}
+      </span>
+      {sub && (
+        <p
+          className="text-[12px] leading-snug"
+          style={{ color: "var(--vault-text-faint)", maxWidth: 640 }}
+        >
+          {sub}
+        </p>
+      )}
+    </header>
   );
 }
 
@@ -390,15 +460,15 @@ function BuilderHeader({
           fontWeight: 600,
         }}
       >
-        Build around a team or player.
+        Today&apos;s suggested parlays.
       </h1>
       <p
         className="text-[13.5px] leading-relaxed"
         style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
       >
         {optimizerActive
-          ? "Pick a sport, a team, and the players you care about. The model returns the best slip in each safer lane — Conservative, Balanced, Star Power. High variance is opt-in."
-          : "Pick a sport, a team, and the players you care about. Slips below come from today's pregame snapshot."}
+          ? "Model-ranked slips in each safer lane — Conservative, Balanced, Star Power — saved before games and graded after. Use the filters to narrow by sport, team, or player. High variance and custom tools sit below."
+          : "Pregame snapshots saved before games, graded after. Use the filters to narrow by sport, team, or player. Custom tools sit below."}
       </p>
     </header>
   );
@@ -507,6 +577,8 @@ function RiskGrid({
   filterActive,
   sport,
   onLegClick,
+  slateDate,
+  slateIsFallback,
 }: {
   cards: Array<{
     profile: ParlayRiskProfile;
@@ -518,6 +590,9 @@ function RiskGrid({
   filterActive: boolean;
   sport: SuggestedSport;
   onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
+  /** PR #125 — the active snapshot date threaded down to each card. */
+  slateDate?: string;
+  slateIsFallback?: boolean;
 }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -532,6 +607,8 @@ function RiskGrid({
           filterActive={filterActive}
           sport={sport}
           onLegClick={onLegClick}
+          slateDate={slateDate}
+          slateIsFallback={slateIsFallback}
         />
       ))}
     </div>
@@ -547,6 +624,8 @@ function RiskCard({
   filterActive,
   sport,
   onLegClick,
+  slateDate,
+  slateIsFallback,
 }: {
   profile: ParlayRiskProfile;
   slips: ParlaySlip[];
@@ -556,6 +635,10 @@ function RiskCard({
   sport: SuggestedSport;
   filterActive: boolean;
   onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
+  /** PR #125 — passed through to ParlayTicketCard so each slip card
+   *  shows the slate date chip. */
+  slateDate?: string;
+  slateIsFallback?: boolean;
 }) {
   const display = RISK_DISPLAY[profile];
   const isStarPower = profile === "star_power";
@@ -637,6 +720,9 @@ function RiskCard({
                 savedPregame={source === "snapshot"}
                 calibrationTable={calibrationTable}
                 onLegClick={onLegClick}
+                slateDate={slateDate}
+                slateIsFallback={slateIsFallback}
+                origin="official"
               />
             </div>
           ))}
@@ -786,6 +872,8 @@ function HighVarianceToggle({
   filterActive,
   sport,
   onLegClick,
+  slateDate,
+  slateIsFallback,
 }: {
   open: boolean;
   onToggle: () => void;
@@ -799,6 +887,9 @@ function HighVarianceToggle({
   filterActive: boolean;
   sport: SuggestedSport;
   onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
+  /** PR #125 — threaded through to the high-variance ticket card. */
+  slateDate?: string;
+  slateIsFallback?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -832,6 +923,8 @@ function HighVarianceToggle({
               filterActive={filterActive}
               sport={sport}
               onLegClick={onLegClick}
+              slateDate={slateDate}
+              slateIsFallback={slateIsFallback}
             />
           </div>
         </div>
