@@ -3,7 +3,7 @@
  * documented in `docs/UI_UX_AUDIT_2026-05-27.md`. Each variant carries
  * its own eyebrow, body, and tone. Pages pick a variant rather than
  * writing prose inline so the copy stays consistent and the tests can
- * lock it down.
+ * enforce it.
  *
  * Honesty rules:
  *   - No banned copy. The audit doc lists the forbidden words; the
