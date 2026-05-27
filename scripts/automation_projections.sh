@@ -171,10 +171,22 @@ else
     if ODDS_DRY_RUN=false ODDS_MAX_EVENTS_PER_RUN="${ODDS_MAX_EVENTS_PER_RUN:-4}" \
        $PY -m pipeline.generate_daily_board --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_nba_refresh.log; then
         ok "NBA board generation completed"
-        if $PY -m pipeline.attach_recent10 --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_nba_recent10.log; then
+        # `attach_recent10` is a best-effort enrichment over the
+        # already-written board. When `stats.nba.com` is slow it can
+        # hit a 25-second `nba_api` Read-Timeout on each player; with
+        # 80+ players on a board that can blow past the workflow's
+        # 25-minute wall-clock cap, killing the MLB + snapshot steps
+        # downstream. Cap the step at 8 minutes (configurable via
+        # ATTACH_RECENT10_TIMEOUT) so a slow upstream never starves
+        # the rest of the pipeline. The board itself has already
+        # written by this point; this step only adds recent-form
+        # confidence enrichment. Lost enrichment is non-fatal —
+        # leans are still on disk and will surface to users.
+        ATTACH_TIMEOUT="${ATTACH_RECENT10_TIMEOUT:-8m}"
+        if timeout "$ATTACH_TIMEOUT" $PY -m pipeline.attach_recent10 --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_nba_recent10.log; then
             ok "NBA recent10 + R1 rescue completed"
         else
-            warn "attach_recent10 returned non-zero — board still wrote; rescue may not have run"
+            warn "attach_recent10 returned non-zero or hit ${ATTACH_TIMEOUT} timeout — board still wrote; rescue may not have run"
         fi
     else
         err "NBA refresh FAILED — see /tmp/gtp_nba_refresh.log"
