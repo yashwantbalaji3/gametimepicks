@@ -31,6 +31,8 @@ import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
 import DailyAuditBanner from "@/components/daily-audit-banner";
 import { getLatestDailyAudit, getDailyAuditPolicy } from "@/lib/data-daily-audit";
+import ReplaySection from "@/components/replay-section";
+import { getLatestReplay } from "@/lib/data-replay";
 
 export const metadata = {
   title: "Suggested parlay results · GameTime Picks",
@@ -48,6 +50,9 @@ export default function ResultsPage() {
   // line when the file exists; renders nothing otherwise. Never moves
   // the model on its own — that's the next PR.
   const auditPolicy = getDailyAuditPolicy();
+  // PR #122: retrospective model replay (clearly labeled, NEVER folded
+  // into the lifetime hit rate). Renders only when a replay JSON exists.
+  const latestReplay = getLatestReplay();
   const dates = getOptimizerGradedDates();
   const calibrationTable = loadCalibrationTable();
 
@@ -134,6 +139,12 @@ export default function ResultsPage() {
       {latestAudit && (
         <div className="mt-6">
           <DailyAuditBanner audit={latestAudit} policy={auditPolicy} />
+        </div>
+      )}
+
+      {latestReplay && (
+        <div className="mt-4">
+          <ReplaySection replay={latestReplay} />
         </div>
       )}
 
