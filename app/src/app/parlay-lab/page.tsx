@@ -19,6 +19,7 @@ import Link from "next/link";
 
 import ParlayLabBuilder from "@/components/parlay-lab-builder";
 import MarketTicker from "@/components/market-ticker";
+import DateStatusHeader from "@/components/date-status-header";
 import { buildMarketTickerItems } from "@/lib/market-ticker";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import {
@@ -65,9 +66,43 @@ export default function ParlayLabPage() {
     mlb: mlbBoard,
   });
 
+  // PR #124 — derive the active data date + a tiny per-sport slip count
+  // for the header. We pull `nba`/`mlb`/`multi` totals straight from the
+  // optimizer payload's bucket structure when present. Everything stays
+  // server-side so the header lands above the client builder.
+  const activeDate = suggested?.date ?? optimizerForDate?.date ?? today;
+  const isFallback = !!suggested?.isFallback || activeDate !== today;
+  const optBuckets = (optimizerForDate?.buckets ?? null) as
+    | Record<string, Record<string, unknown[]>>
+    | null;
+  const sportSlipCount = optBuckets
+    ? (sport: "nba" | "mlb" | "multi") =>
+        ["conservative", "balanced", "aggressive", "star_power"].reduce(
+          (acc, p) => acc + (optBuckets[p]?.[sport]?.length ?? 0),
+          0,
+        )
+    : null;
+  const nbaSlips = sportSlipCount ? sportSlipCount("nba") : 0;
+  const mlbSlips = sportSlipCount ? sportSlipCount("mlb") : 0;
+  const mixedSlips = sportSlipCount ? sportSlipCount("multi") : 0;
+  const totalSlips = optimizerForDate?.totalSlips ?? suggested?.slips?.length ?? 0;
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden">
       <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6 mb-4 sm:mb-6" />
+      <div className="mb-4 sm:mb-6">
+        <DateStatusHeader
+          date={activeDate}
+          label={isFallback ? "latest-available" : "today"}
+          context="Suggested parlays · official slate"
+          counts={{ slips: totalSlips }}
+          note={
+            totalSlips === 0
+              ? "No official suggested parlays for this slate. The safety filters did not find a clean slip."
+              : `NBA-only ${nbaSlips} · MLB-only ${mlbSlips} · Mixed ${mixedSlips}`
+          }
+        />
+      </div>
       <Suspense fallback={<div className="min-h-[60vh]" aria-hidden />}>
         {suggested ? (
           <ParlayLabBuilder

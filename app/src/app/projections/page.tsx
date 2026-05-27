@@ -32,6 +32,7 @@ import ProjectionsExperience from "@/components/projections-experience";
 // intentionally NOT imported here — PR #113 unwired cricket from
 // every user-facing surface.
 import MarketTicker from "@/components/market-ticker";
+import DateStatusHeader from "@/components/date-status-header";
 import { buildMarketTickerItems } from "@/lib/market-ticker";
 import { loadProjectionsPayload } from "@/lib/data-projections";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
@@ -63,9 +64,33 @@ export default function ProjectionsPage() {
     mlb: mlbBoard,
   });
 
+  // PR #124 — server-side header that anchors today's date BEFORE the
+  // client `<ProjectionsExperience>` takes over. The client component
+  // owns date-pill state; this header just makes the entry point
+  // unambiguous when the page loads. Counts are derived from today's
+  // boards (honest 0s when boards are empty).
+  const nbaGames = nbaBoard?.games?.length ?? 0;
+  const nbaLeans = nbaBoard?.leans?.length ?? 0;
+  const mlbGames = mlbBoard?.games?.length ?? 0;
+  const mlbLeans = mlbBoard?.leans?.length ?? 0;
+  const projectionsCount = nbaLeans + mlbLeans;
+  const headerNote =
+    `NBA · ${nbaGames} games / ${nbaLeans} props` +
+    ` · MLB · ${mlbGames} games / ${mlbLeans} props`;
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6" />
+      <DateStatusHeader
+        date={today}
+        label="today"
+        context="Today's projections"
+        counts={{
+          games: nbaGames + mlbGames,
+          projections: projectionsCount,
+        }}
+        note={headerNote}
+      />
       {/* Suspense is required because <ProjectionsExperience />'s
           useSearchParams() call needs a client boundary for static
           export. The fallback is intentionally minimal — first paint

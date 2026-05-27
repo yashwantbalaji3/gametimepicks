@@ -75,6 +75,19 @@
   --vault-shadow-soft: 0 1px 0 rgba(212, 175, 55, 0.04);
   --vault-focus-ring: 0 0 0 1px var(--vault-gold), 0 0 0 4px rgba(212, 175, 55, 0.18);
 
+  /* PR #124 — gold/light theme TOKENS only. NOT applied yet — they
+     exist so the follow-up PR (per docs/UI_UX_AUDIT_2026-05-27.md
+     "Theme tokens first, theme flip later") can swap a single
+     `:root[data-theme="gold-light"]` selector without touching every
+     component. Do not reference these tokens anywhere yet. */
+  --gtp-paper: #F8F2E6;          /* champagne base */
+  --gtp-paper-deep: #EDE0C7;      /* cards / secondary surface */
+  --gtp-champagne: #E5D5A8;
+  --gtp-gold-soft: #C9A958;       /* accent — replaces gold on light */
+  --gtp-ink: #1B1408;             /* primary text on paper */
+  --gtp-ink-mute: #5B4A28;
+  --gtp-surface-light: #FAF6EE;
+
   /* Phase 8.4 — premium polish tokens. Used by .vault-card-elevated and
      .vault-hero-eyebrow only. Existing surfaces unchanged. */
   --vault-shadow-elevated: 0 1px 0 rgba(212, 175, 55, 0.06), 0 8px 24px rgba(0, 0, 0, 0.32);

@@ -31,6 +31,7 @@ import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
 import DailyAuditBanner from "@/components/daily-audit-banner";
 import { getLatestDailyAudit, getDailyAuditPolicy } from "@/lib/data-daily-audit";
+import DateStatusHeader from "@/components/date-status-header";
 import ReplaySection from "@/components/replay-section";
 import { getLatestReplay } from "@/lib/data-replay";
 
@@ -136,8 +137,28 @@ export default function ResultsPage() {
         </p>
       </header>
 
+      {/* PR #124: makes the official latest-settled date obvious BEFORE
+          the audit banner / replay section. Counts pulled from the
+          lifetime summary so the user can grok the record at a glance. */}
       {latestAudit && (
         <div className="mt-6">
+          <DateStatusHeader
+            date={latestAudit.date}
+            label="official"
+            context="Latest settled slate · official"
+            counts={{
+              slips: latestAudit.summary.totalSlips,
+              wins: latestAudit.summary.wins,
+              losses: latestAudit.summary.losses,
+              pushes: latestAudit.summary.pushes,
+              pending: latestAudit.summary.pending,
+            }}
+          />
+        </div>
+      )}
+
+      {latestAudit && (
+        <div className="mt-4">
           <DailyAuditBanner audit={latestAudit} policy={auditPolicy} />
         </div>
       )}
