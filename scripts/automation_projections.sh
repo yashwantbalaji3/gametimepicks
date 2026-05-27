@@ -92,35 +92,17 @@ fi
 ok   "ODDS_API_KEY:      set"
 
 # ---------------------------------------------------------------------------
-# IPL cricket board (PR #105 — moved before the NBA/MLB credit guard
-# on purpose). The cricket call is tiny (~2 credits at most when odds
-# are pulled) and must not be blocked by the NBA/MLB budget floor
-# during IPL season. `fetch_ipl_board` is robust: when ODDS_API_KEY is
-# missing or the call fails, it writes `oddsStatus: "pending"` rather
-# than fabricating odds. Projections-only — never feeds the parlay
-# optimizer / custom builder / Results.
+# Cricket / IPL projection pipeline was removed from user-facing surfaces
+# in PR #113 (May 26). The data-pipeline calls that lived here were left
+# behind by accident and were quietly committing cricket board / context
+# JSONs to the public data directory on every morning cron — surfacing
+# nowhere but adding noise to git history and burning ~2 credits/day.
+# Removed in fix/may27-refresh-pipeline. If WNBA / cricket / NHL ship in
+# the future, restore the relevant block then.
 # ---------------------------------------------------------------------------
-CRICKET_FAILED=0
-step "0b/4 IPL cricket board (free schedule + tiny optional odds)"
-if $PY -m pipeline.cricket.fetch_ipl_board --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_cricket_board.log; then
-    ok "cricket board written for $TARGET_DATE"
-else
-    warn "cricket board returned non-zero — see /tmp/gtp_cricket_board.log"
-    CRICKET_FAILED=1
-fi
-
-# Context fetch is FREE (ESPN scoreboard backward walk + optional
-# manual overlay merge). Runs only if the board step succeeded so we
-# don't generate context for a date with no match. Non-fatal — UI
-# falls back to "context unavailable" if this fails.
-if [ "$CRICKET_FAILED" = "0" ]; then
-    step "0c/4 IPL cricket context (free auto + manual overlay)"
-    if $PY -m pipeline.cricket.fetch_ipl_context --date "$TARGET_DATE" 2>&1 | tee /tmp/gtp_cricket_context.log; then
-        ok "cricket context written for $TARGET_DATE"
-    else
-        warn "cricket context returned non-zero — see /tmp/gtp_cricket_context.log"
-    fi
-fi
+CRICKET_FAILED=0   # kept as a defined variable so the summary line below
+                   # (and any other downstream references) stays well-formed
+                   # without a behavior change.
 
 # ---------------------------------------------------------------------------
 # Cost estimation. We count today's MLB events from the on-disk
@@ -255,7 +237,6 @@ step "Summary"
 info "target date:    $TARGET_DATE"
 info "nba step:       $([ "${SKIP_NBA:-0}" = 1 ] && echo skipped || ([ "$NBA_FAILED" = 1 ] && echo FAILED || echo ok))"
 info "mlb step:       $([ "${SKIP_MLB:-0}" = 1 ] && echo skipped || ([ "$MLB_FAILED" = 1 ] && echo FAILED || echo ok))"
-info "cricket step:   $([ "$CRICKET_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
 info "snapshot step:  $([ "$SNAPSHOT_FAILED" = 1 ] && echo non-fatal-warn || echo ok)"
 info "balance before: $BAL_BEFORE"
 info "balance after:  $BAL_AFTER"
