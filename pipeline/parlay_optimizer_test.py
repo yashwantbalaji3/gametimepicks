@@ -18,6 +18,7 @@ from pipeline.parlay_optimizer import (
     CONSERVATIVE_RULES,
     OptimizerLean,
     PROFILE_RULES_BY_NAME,
+    STAR_POWER_RULES,
     is_eligible,
     leg_score,
     normalize_lean,
@@ -460,11 +461,24 @@ class AuditDrivenWeightTests(unittest.TestCase):
         # makes the audit motivation visible in failure messages.
         self.assertGreater(reb_score / ast_score, 1.30)
 
-    def test_balanced_blocks_pitcher_strikeouts(self):
+    def test_balanced_re_admits_pitcher_strikeouts(self):
+        # PR `fix/parlays-mlb-market-diversity`: pitcher_strikeouts
+        # was previously blocked at the Balanced eligibility gate.
+        # The PR re-admits it because:
+        #   - `confidence=("High","Medium")` already filters out
+        #     low-conviction pitcher legs.
+        #   - `mlb_max_volatile_legs=1` caps at most ONE volatile leg
+        #     per Balanced slip — so a slip can never become
+        #     "strikeouts + strikeouts + strikeouts".
+        #   - Market stability weight (0.70) keeps strikeouts ranked
+        #     below hits naturally — surfacing only when a Medium leg
+        #     is the best alternative to a third hits leg.
         leg = normalize_lean(_mlb_lean(market="pitcher_strikeouts", confidence="High", edgePct=8))
-        self.assertFalse(is_eligible(leg, BALANCED_RULES))
-        # Aggressive still allows strikeouts.
+        self.assertTrue(is_eligible(leg, BALANCED_RULES))
         self.assertTrue(is_eligible(leg, AGGRESSIVE_RULES))
+        # Star Power continues to exclude pitcher props (the lane is
+        # for recognizable BATTERS).
+        self.assertFalse(is_eligible(leg, STAR_POWER_RULES))
 
     def test_mlb_high_tier_flattened_to_roughly_medium(self):
         # An MLB High leg and an MLB Medium leg with the same edge
@@ -606,6 +620,129 @@ class DiversitySelectorTests(unittest.TestCase):
             for leg in s.legs:
                 self.assertNotEqual(leg.playerName, "Bench Guy",
                                     "Diversity must not promote low-edge junk into top visible slips")
+
+    # PR `fix/parlays-mlb-market-diversity` — three locks below pin the
+    # new across-card market diversity behavior added to
+    # `_select_diverse`. The audit (5/27 snapshot) found 100% of
+    # visible MLB-only slip legs were `batter_hits` despite the leg
+    # pool containing total_bases + H+R+RBI + strikeouts variety.
+
+    def _mlb_pool_with_market_variety(self) -> list[dict]:
+        """Build an MLB leg pool with strong leans across multiple
+        markets so the diversifier has alternatives. Eight high-edge
+        legs spread across hits / total_bases / H+R+RBI / strikeouts
+        with different players + games."""
+        pool: list[dict] = []
+        spec = [
+            # (player, game, team, market, line, edgePct)
+            ("Mookie Betts", "g_la", "LAD", "batter_hits", 0.5, 11),
+            ("Aaron Judge", "g_ny", "NYY", "batter_hits", 0.5, 12),
+            ("Juan Soto", "g_nym", "NYM", "batter_hits", 0.5, 10),
+            ("Corbin Carroll", "g_az", "AZ", "batter_total_bases", 1.5, 10),
+            ("Ketel Marte", "g_az", "AZ", "batter_total_bases", 1.5, 11),
+            ("William Contreras", "g_mil", "MIL", "batter_hits_runs_rbis", 1.5, 9),
+            ("Spencer Steer", "g_cin", "CIN", "batter_hits_runs_rbis", 1.5, 10),
+            ("Jacob deGrom", "g_tex", "TEX", "pitcher_strikeouts", 6.5, 9),
+        ]
+        for i, (player, game, team, market, line, edge) in enumerate(spec):
+            pool.append({
+                "_sport": "mlb",
+                "id": f"{player}-{market}",
+                "gameId": game,
+                "playerId": 1000 + i,
+                "playerName": player,
+                "team": team,
+                "opponent": "OPP",
+                "market": market,
+                "lean": "Over",
+                "side": "Over",
+                "line": line,
+                "projection": line + 0.5,
+                "edgePct": edge,
+                "confidence": "High",
+                "oddsOver": -150,
+                "oddsUnder": +130,
+                "bookmaker": "draftkings",
+                "recentSeries": [1, 2, 1, 1, 2],  # >= dnp_min_mlb_series
+                "isStar": True,
+                "riskFlags": [],
+            })
+        return pool
+
+    def test_balanced_visible_slips_mix_markets_when_alternates_exist(self):
+        # Pool spans hits + total_bases + H+R+RBI + strikeouts on
+        # different players/games. With the new market-diversity
+        # penalty in `_select_diverse`, visible Balanced slips should
+        # surface MORE than one distinct market across the top 3.
+        pool = self._mlb_pool_with_market_variety()
+        slips = optimize(pool, profile="balanced", num_candidates=3)
+        self.assertGreaterEqual(len(slips), 1)
+        markets = set()
+        for s in slips:
+            for leg in s.legs:
+                markets.add(leg.market)
+        self.assertGreaterEqual(
+            len(markets), 2,
+            f"Balanced visible slips should mix at least 2 markets "
+            f"when the pool has variety; got {markets}",
+        )
+
+    def test_star_power_visible_slips_mix_markets_when_alternates_exist(self):
+        # Star Power was hits-only before this PR. With the expanded
+        # allowlist + diversity penalty, it should now surface a mix
+        # of hits / total_bases / H+R+RBI across visible slips.
+        pool = self._mlb_pool_with_market_variety()
+        slips = optimize(pool, profile="star_power", num_candidates=3)
+        # Pool is star-flagged so the strict-star gate passes.
+        if len(slips) >= 2:
+            markets = set()
+            for s in slips:
+                for leg in s.legs:
+                    markets.add(leg.market)
+            self.assertGreaterEqual(
+                len(markets), 2,
+                f"Star Power visible slips should mix at least 2 markets "
+                f"when the pool has variety; got {markets}",
+            )
+
+    def test_market_diversity_does_not_force_inferior_legs(self):
+        # If only hits legs are eligible (no alternative markets in
+        # the pool), the diversifier must NOT skip viable hits slips
+        # just to chase a market it can't reach. Same-market repetition
+        # is the honest output.
+        pool: list[dict] = []
+        for i, player in enumerate(["Mookie Betts", "Aaron Judge", "Juan Soto", "Corbin Carroll", "Ketel Marte"]):
+            pool.append({
+                "_sport": "mlb",
+                "id": f"{player}-hits",
+                "gameId": f"g_{i}",
+                "playerId": 2000 + i,
+                "playerName": player,
+                "team": f"T{i}",
+                "opponent": "OPP",
+                "market": "batter_hits",
+                "lean": "Over",
+                "side": "Over",
+                "line": 0.5,
+                "projection": 1.0,
+                "edgePct": 10,
+                "confidence": "High",
+                "oddsOver": -150,
+                "oddsUnder": +130,
+                "bookmaker": "draftkings",
+                "recentSeries": [1, 1, 1, 2, 1],
+                "isStar": True,
+                "riskFlags": [],
+            })
+        slips = optimize(pool, profile="balanced", num_candidates=3)
+        # We get slips back (the pool supports balanced 3-leg builds).
+        # Every leg is batter_hits — proof the diversifier ranks down
+        # but never drops viable hits slips when no alternatives exist.
+        self.assertGreaterEqual(len(slips), 1)
+        for s in slips:
+            for leg in s.legs:
+                self.assertEqual(leg.market, "batter_hits",
+                                 "Diversity must not force a market that doesn't exist in the pool")
 
 
 class StarPowerLaneTests(unittest.TestCase):
