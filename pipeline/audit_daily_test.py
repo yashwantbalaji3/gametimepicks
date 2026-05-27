@@ -472,6 +472,29 @@ class RecommendationTests(unittest.TestCase):
         }
         self.assertIn("dnp_guard_strengthen", rec_ids)
 
+    def test_samegame_nba_warning_fires_when_threshold_met(self):
+        # 10 same-game NBA losses → decisive=10, hit rate=0%, fires.
+        slips = [
+            _slip(sport="nba", status="loss", same_game=True)
+            for _ in range(10)
+        ]
+        rec_ids = {
+            r["id"] for r in audit("2026-05-25", graded=_graded(slips))["recommendations"]
+        }
+        self.assertIn("samegame_nba_cap_conservative", rec_ids)
+
+    def test_samegame_nba_warning_does_not_fire_below_threshold(self):
+        # 9 same-game NBA losses is below the decisive>=10 threshold —
+        # sparse-slate guard, mirrors the mixed-sport rule.
+        slips = [
+            _slip(sport="nba", status="loss", same_game=True)
+            for _ in range(9)
+        ]
+        rec_ids = {
+            r["id"] for r in audit("2026-05-25", graded=_graded(slips))["recommendations"]
+        }
+        self.assertNotIn("samegame_nba_cap_conservative", rec_ids)
+
 
 # ---------------------------------------------------------------------------
 # Missing input
