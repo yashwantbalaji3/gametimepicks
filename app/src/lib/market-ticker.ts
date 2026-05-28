@@ -296,15 +296,15 @@ function _safetyNoteItems(surface: string): MarketTickerItem[] {
   const out: MarketTickerItem[] = [];
   if (surface === "home" || surface === "parlay_lab") {
     out.push({
-      id: "safety-conservative",
+      id: "lane-variance-anchor-core",
       icon: "🛡",
-      label: "Conservative & Balanced lanes safety-filtered",
+      label: "Anchor & Core lanes filtered for lower variance",
       tone: "info",
     });
     out.push({
-      id: "safety-longshot-hidden",
+      id: "lane-swing-hidden",
       icon: "⚠",
-      label: "Longshot lane hidden by default · opt-in",
+      label: "Swing lane hidden by default · opt-in",
       tone: "warning",
     });
   }
