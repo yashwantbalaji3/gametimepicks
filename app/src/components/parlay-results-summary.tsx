@@ -48,7 +48,7 @@ export default function ParlayResultsSummary({ summary }: Props) {
       <div
         className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-3 rounded-[8px]"
         style={{
-          background: "rgba(7,11,26,0.55)",
+          background: "var(--gtp-card)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -80,7 +80,7 @@ export default function ParlayResultsSummary({ summary }: Props) {
       <div
         className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 rounded-[8px]"
         style={{
-          background: "rgba(7,11,26,0.4)",
+          background: "var(--gtp-card)",
           border: "1px solid var(--vault-rule)",
         }}
       >

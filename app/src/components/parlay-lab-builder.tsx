@@ -503,7 +503,7 @@ function LabFilters({
     <div
       className="rounded-[8px] px-4 py-4 flex flex-col gap-4"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "var(--gtp-card)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -656,7 +656,7 @@ function RiskCard({
               color: display.accent,
               background: isStarPower
                 ? "linear-gradient(160deg, rgba(240,199,94,0.18), rgba(212,175,55,0.05))"
-                : "rgba(7,11,26,0.55)",
+                : "var(--gtp-card)",
               border: `1px solid ${display.accent}`,
               fontSize: 12,
               lineHeight: 1,
@@ -688,7 +688,7 @@ function RiskCard({
             style={{
               color: "var(--vault-warn)",
               border: "1px solid var(--vault-warn)",
-              background: "rgba(7,11,26,0.55)",
+              background: "var(--gtp-card)",
               fontSize: 9,
             }}
             title="Longshot lane carries the highest variance — opt-in, hidden by default."
@@ -739,7 +739,7 @@ function FallbackNote({ profile }: { profile: ParlayRiskProfile }) {
       className="text-[11.5px] leading-snug rounded-[4px] px-2 py-1.5"
       style={{
         color: "var(--vault-text-mute)",
-        background: "rgba(7,11,26,0.45)",
+        background: "var(--gtp-card)",
         border: "1px dashed var(--vault-border)",
       }}
     >
@@ -793,7 +793,7 @@ function EmptyRiskCard({
       className="rounded-[6px] p-5 flex flex-col gap-2 justify-center items-center text-center"
       style={{
         border: "1px dashed var(--vault-border)",
-        background: "rgba(7,11,26,0.4)",
+        background: "var(--gtp-card)",
         minHeight: 180,
       }}
     >
@@ -826,7 +826,7 @@ function ExperimentalDisclaimer() {
     <aside
       className="rounded-[8px] p-3 flex items-start gap-3"
       style={{
-        background: "rgba(7,11,26,0.45)",
+        background: "var(--gtp-card)",
         border: "1px dashed var(--vault-border)",
       }}
       role="note"
@@ -899,7 +899,7 @@ function HighVarianceToggle({
         style={{
           color: "var(--vault-warn)",
           border: "1px solid var(--vault-warn)",
-          background: "rgba(7,11,26,0.55)",
+          background: "var(--gtp-card)",
           fontSize: 10,
           cursor: "pointer",
         }}
@@ -941,7 +941,7 @@ function AltLineComingSoon() {
     <aside
       className="rounded-[8px] p-3 flex items-center gap-3"
       style={{
-        background: "rgba(7,11,26,0.4)",
+        background: "var(--gtp-card)",
         border: "1px dashed var(--vault-border)",
       }}
     >
@@ -976,7 +976,7 @@ function BuilderFootnote({ optimizerActive }: { optimizerActive: boolean }) {
     <aside
       className="rounded-[8px] p-4"
       style={{
-        background: "rgba(7,11,26,0.4)",
+        background: "var(--gtp-card)",
         border: "1px dashed var(--vault-border)",
       }}
     >

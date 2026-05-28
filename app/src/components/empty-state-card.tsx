@@ -43,7 +43,7 @@ export default function EmptyStateCard({ variant, sport, dateLabel, hint }: Prop
       aria-label={`Empty state: ${copy.eyebrow}`}
       className="rounded-[8px] p-5 flex flex-col gap-2 items-start"
       style={{
-        background: "rgba(7,11,26,0.4)",
+        background: "var(--gtp-card)",
         border: `1px dashed ${eyebrowColor}`,
       }}
     >

@@ -208,7 +208,7 @@ function ResultPill({
       className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[3px]"
       style={{
         color: meta.tone,
-        background: "rgba(7,11,26,0.45)",
+        background: "var(--gtp-card)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -288,7 +288,7 @@ function WinsSection({
           className="text-[12px] leading-relaxed rounded-[6px] px-3 py-2"
           style={{
             color: "var(--vault-text-mute)",
-            background: "rgba(7,11,26,0.40)",
+            background: "var(--gtp-card)",
             border: "1px dashed var(--vault-border)",
           }}
         >
@@ -326,7 +326,7 @@ function WinsSection({
           style={{
             color: "var(--vault-success)",
             border: "1px solid var(--vault-success)",
-            background: "rgba(7,11,26,0.55)",
+            background: "var(--gtp-card)",
             fontSize: 10,
             cursor: "pointer",
           }}
@@ -352,7 +352,7 @@ function NearMissesSection({
     <details
       className="group rounded-[6px]"
       style={{
-        background: "rgba(7,11,26,0.40)",
+        background: "var(--gtp-card)",
         border: "1px dashed var(--vault-warn)",
         padding: "10px 12px",
       }}
@@ -421,7 +421,7 @@ function MissedSection({
     <details
       className="group rounded-[6px]"
       style={{
-        background: "rgba(7,11,26,0.40)",
+        background: "var(--gtp-card)",
         border: "1px dashed var(--vault-border)",
         padding: "10px 12px",
       }}
@@ -535,7 +535,7 @@ function PendingSection({
     <details
       className="group rounded-[6px]"
       style={{
-        background: "rgba(7,11,26,0.40)",
+        background: "var(--gtp-card)",
         border: "1px dashed var(--vault-border)",
         padding: "10px 12px",
       }}

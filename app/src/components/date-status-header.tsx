@@ -85,7 +85,7 @@ export default function DateStatusHeader({
       aria-label={`Date status — ${date}`}
       className="rounded-[8px] p-4 sm:p-5 flex flex-col gap-3"
       style={{
-        background: "rgba(7,11,26,0.4)",
+        background: "var(--gtp-card)",
         border: "1px solid var(--vault-rule)",
       }}
     >

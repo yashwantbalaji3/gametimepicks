@@ -29,7 +29,7 @@ export default function DailyAuditBanner({ audit, policy }: Props) {
       aria-label={`Daily audit for ${date}`}
       className="rounded-[8px] p-4 flex flex-col gap-2"
       style={{
-        background: "rgba(7,11,26,0.4)",
+        background: "var(--gtp-card)",
         border: "1px solid var(--vault-rule)",
       }}
     >

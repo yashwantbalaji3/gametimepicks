@@ -137,7 +137,7 @@ export default function CustomParlayGenerator({ snapshot }: Props) {
     <section
       className="rounded-[10px] p-4 sm:p-5 flex flex-col gap-3"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "var(--gtp-card)",
         border: "1px solid var(--vault-border)",
       }}
       aria-label="Custom parlay generator"
@@ -299,7 +299,7 @@ function PillRow({
               className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full"
               style={{
                 color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
-                background: active ? "var(--vault-gold-bright)" : "rgba(7,11,26,0.55)",
+                background: active ? "var(--vault-gold-bright)" : "var(--gtp-card)",
                 border: `1px solid ${active ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
                 fontSize: 10,
                 cursor: "pointer",
@@ -351,7 +351,7 @@ function GeneratedSlipCard({ slip }: { slip: GeneratedSlip }) {
     <article
       className="rounded-[8px] p-3 flex flex-col gap-2"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "var(--gtp-card)",
         border: `1px solid ${slip.containsRiskLeg ? "var(--vault-warn)" : "var(--vault-border)"}`,
       }}
     >
@@ -416,7 +416,7 @@ function LegRow({ leg }: { leg: OptimizerLeg }) {
     <div
       className="grid grid-cols-[auto_1fr_auto] gap-2 items-center px-2 py-1.5 rounded-[4px]"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "var(--gtp-card)",
         border: "1px solid var(--vault-rule)",
       }}
     >
