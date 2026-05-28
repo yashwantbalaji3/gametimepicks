@@ -88,7 +88,20 @@ export default function ParlayLabPage() {
   const totalSlips = optimizerForDate?.totalSlips ?? suggested?.slips?.length ?? 0;
 
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden">
+    <div
+      // PR `feature/premium-gold-theme-foundation` — premium-gold
+      // pilot wrapper. Every vault-* token resolves to its
+      // cream/champagne counterpart inside this subtree (see
+      // globals.css [data-theme="premium-gold"]). The wrapper
+      // also paints the cream background full-bleed so the area
+      // beyond the centered 1440px content column doesn't show the
+      // app's dark body bg. Removing the attribute reverts the page
+      // to the dark vault look instantly.
+      data-theme="premium-gold"
+      className="min-h-screen"
+      style={{ background: "var(--vault-bg)" }}
+    >
+      <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden">
       <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6 mb-4 sm:mb-6" />
       <div className="mb-4 sm:mb-6">
         <DateStatusHeader
@@ -131,6 +144,7 @@ export default function ParlayLabPage() {
       </Suspense>
 
       <FooterPointer />
+      </div>
     </div>
   );
 }

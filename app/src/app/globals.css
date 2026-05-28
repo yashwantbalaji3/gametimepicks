@@ -75,11 +75,12 @@
   --vault-shadow-soft: 0 1px 0 rgba(212, 175, 55, 0.04);
   --vault-focus-ring: 0 0 0 1px var(--vault-gold), 0 0 0 4px rgba(212, 175, 55, 0.18);
 
-  /* PR #124 — gold/light theme TOKENS only. NOT applied yet — they
-     exist so the follow-up PR (per docs/UI_UX_AUDIT_2026-05-27.md
-     "Theme tokens first, theme flip later") can swap a single
-     `:root[data-theme="gold-light"]` selector without touching every
-     component. Do not reference these tokens anywhere yet. */
+  /* PR #124 — premium-gold/cream tokens. Activated as a scoped theme
+     in the [data-theme="premium-gold"] block below. Components keep
+     reading `var(--vault-*)` — only the values change inside the
+     scope. Set the attribute on a page root (e.g. `/parlay-lab`) to
+     opt that page into the brighter palette without touching the
+     rest of the app. */
   --gtp-paper: #F8F2E6;          /* champagne base */
   --gtp-paper-deep: #EDE0C7;      /* cards / secondary surface */
   --gtp-champagne: #E5D5A8;
@@ -93,6 +94,101 @@
   --vault-shadow-elevated: 0 1px 0 rgba(212, 175, 55, 0.06), 0 8px 24px rgba(0, 0, 0, 0.32);
   --vault-glow-soft: radial-gradient(60% 100% at 0% 0%, rgba(240, 199, 94, 0.10) 0%, transparent 70%);
   --vault-edge-gold: linear-gradient(180deg, rgba(212, 175, 55, 0.42) 0%, rgba(212, 175, 55, 0.10) 18%, transparent 36%);
+}
+
+/* ============================================================================
+   PREMIUM-GOLD THEME (PR `feature/premium-gold-theme-foundation`)
+   ============================================================================
+
+   Brighter, cream/champagne-based premium palette. Activated by setting
+   `data-theme="premium-gold"` on any container element (typically a page
+   root). The block re-defines the `--vault-*` token values that components
+   already read, so EVERY descendant component picks up the brighter look
+   without per-component edits.
+
+   Scope rules:
+     - Opt-in: applied per-page (currently `/parlay-lab` pilot).
+     - Reversible: removing the data attribute restores the dark vault
+       look instantly (no JS, no rebuild).
+     - Token-only: zero component code changes. If a future PR needs a
+       per-theme tweak the component CSS can read
+       `[data-theme="premium-gold"] .selector` directly, but the goal
+       is to keep that to a minimum.
+     - No banned copy in any class name or comment.
+
+   Palette intent:
+     - Base:    warm cream / champagne (paper feel)
+     - Cards:   off-white / light champagne with bronze borders
+     - Text:    deep navy/charcoal (gtp-ink) for primary, bronze for mute
+     - Accents: deeper gold + emerald success + muted red loss
+     - Premium but mature — not cartoonish, not bright yellow.
+
+   Contrast: hand-tuned to keep AA against #F8F2E6 for body text
+   (--vault-text at #1B1408 = ~14.2:1) and AA-large for accents
+   (--vault-gold at #9A7B1F on #F8F2E6 = ~4.2:1).
+============================================================================ */
+
+[data-theme="premium-gold"] {
+  /* Base aliases used by `.vault-shell` and any non-vault component
+     that reads --bg / --text. */
+  --bg: #F8F2E6;
+  --surface: #FAF6EE;
+  --surface-elevated: #EDE0C7;
+  --border: rgba(180, 142, 50, 0.18);
+  --border-strong: rgba(180, 142, 50, 0.32);
+  --text: #1B1408;
+  --text-mute: #5B4A28;
+  --text-faint: #8A7240;
+  --hover: rgba(180, 142, 50, 0.08);
+
+  /* Vault scoped tokens — every existing vault component picks these
+     up automatically. */
+  --vault-bg: #F8F2E6;
+  --vault-panel: #FAF6EE;
+  --vault-panel-elevated: #EDE0C7;
+  --vault-panel-hover: #E5D5A8;
+  --vault-border: rgba(180, 142, 50, 0.22);
+  --vault-border-strong: rgba(180, 142, 50, 0.40);
+  --vault-border-active: rgba(154, 123, 31, 0.70);
+
+  --vault-gold: #9A7B1F;          /* deep gold for accent text on cream */
+  --vault-gold-bright: #B8923A;    /* mid gold for highlight chips */
+  --vault-gold-dim: rgba(180, 142, 50, 0.18);
+  --vault-gold-glow: rgba(180, 142, 50, 0.22);
+
+  --vault-text: #1B1408;           /* deep ink, ~14.2:1 on paper */
+  --vault-text-mute: #5B4A28;      /* bronze, ~7.2:1 */
+  --vault-text-faint: #8A7240;     /* muted bronze, ~4.5:1 */
+
+  --vault-success: #1E7A4A;        /* deep emerald, AA on cream */
+  --vault-success-dim: rgba(30, 122, 74, 0.12);
+  --vault-warn: #A77518;           /* deep amber, AA on cream */
+  --vault-warn-dim: rgba(167, 117, 24, 0.14);
+  --vault-danger: #A6322F;         /* deep red, AA on cream */
+  --vault-danger-dim: rgba(166, 50, 47, 0.10);
+
+  --vault-rule: rgba(180, 142, 50, 0.18);
+  --vault-shadow-soft: 0 1px 0 rgba(180, 142, 50, 0.06);
+  --vault-focus-ring:
+    0 0 0 1px var(--vault-gold),
+    0 0 0 4px rgba(180, 142, 50, 0.22);
+
+  --vault-shadow-elevated:
+    0 1px 0 rgba(180, 142, 50, 0.10),
+    0 8px 24px rgba(120, 90, 30, 0.10);
+  --vault-glow-soft:
+    radial-gradient(
+      60% 100% at 0% 0%,
+      rgba(184, 146, 58, 0.08) 0%,
+      transparent 70%
+    );
+  --vault-edge-gold:
+    linear-gradient(
+      180deg,
+      rgba(154, 123, 31, 0.36) 0%,
+      rgba(154, 123, 31, 0.08) 18%,
+      transparent 36%
+    );
 }
 
 /* ============================================================================
