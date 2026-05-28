@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import Nav from "@/components/nav";
 import Footer from "@/components/footer";
 import DisclaimerBanner from "@/components/disclaimer-banner";
+import MobileBottomNav from "@/components/mobile-bottom-nav";
+import DesktopSportsRail from "@/components/desktop-sports-rail";
 
 import "./globals.css";
 
@@ -37,8 +39,19 @@ export default function RootLayout({
         <span aria-hidden className="gtp-floor-lights" />
         <DisclaimerBanner />
         <Nav />
-        <main className="relative z-10">{children}</main>
+        {/* Desktop-only fixed left sports rail. Hidden at < lg.
+            Mounted siblings to <main> so it overlays from the left. */}
+        <DesktopSportsRail />
+        {/* `lg:pl-[64px]` offsets content to the right of the rail
+            on desktop. `pb-[88px]` clears the mobile bottom nav so
+            content isn't hidden under it on small viewports.
+            md:pb-0 removes that padding once the bottom nav is hidden. */}
+        <main className="relative z-10 lg:pl-[64px] pb-[88px] md:pb-0">
+          {children}
+        </main>
         <Footer />
+        {/* Mobile bottom nav — fixed bottom, hidden at md+. */}
+        <MobileBottomNav />
       </body>
     </html>
   );
