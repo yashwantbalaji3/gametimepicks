@@ -55,6 +55,10 @@ interface Props {
   emptyMessage?: string;
   /** Optional max panel height in px. Defaults to 260. */
   maxPanelHeight?: number;
+  /** Inline toolbar variant: hides the visible label-above and uses
+   *  a shorter button. The label is still applied as `aria-label` for
+   *  screen-reader users. Defaults to false. */
+  compact?: boolean;
 }
 
 export default function SearchableSelect({
@@ -66,6 +70,7 @@ export default function SearchableSelect({
   disabled = false,
   emptyMessage = "No matches",
   maxPanelHeight = 260,
+  compact = false,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -144,21 +149,24 @@ export default function SearchableSelect({
 
   return (
     <div className="relative inline-block w-full">
-      <span
-        className="block font-mono uppercase tracking-[0.16em] mb-1"
-        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-      >
-        {label}
-      </span>
+      {!compact && (
+        <span
+          className="block font-mono uppercase tracking-[0.16em] mb-1"
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+        >
+          {label}
+        </span>
+      )}
       <button
         ref={buttonRef}
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={`${id}-listbox`}
+        aria-label={compact ? label : undefined}
         disabled={disabled}
         onClick={() => !disabled && setOpen((v) => !v)}
-        className="w-full inline-flex items-center justify-between gap-2 px-3 py-2 rounded-[6px]"
+        className="w-full inline-flex items-center justify-between gap-2 px-3 rounded-[6px]"
         style={{
           background: "rgba(7,11,26,0.55)",
           border: "1px solid var(--vault-border)",
@@ -168,7 +176,9 @@ export default function SearchableSelect({
           fontSize: 13,
           cursor: disabled ? "not-allowed" : "pointer",
           opacity: disabled ? 0.5 : 1,
-          minHeight: 38,
+          minHeight: compact ? 34 : 38,
+          paddingTop: compact ? 6 : 8,
+          paddingBottom: compact ? 6 : 8,
         }}
       >
         <span className="flex flex-col items-start min-w-0">

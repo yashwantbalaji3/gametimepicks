@@ -91,12 +91,12 @@ const RAIL_ITEMS: ReadonlyArray<RailItem> = [
 function RailGlyph({ kind, active }: { kind: string; active: boolean }) {
   const stroke = active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)";
   const props = {
-    width: 16,
-    height: 16,
+    width: 18,
+    height: 18,
     viewBox: "0 0 24 24",
     fill: "none",
     stroke,
-    strokeWidth: 1.7,
+    strokeWidth: 1.8,
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
     "aria-hidden": true,
@@ -156,11 +156,11 @@ export default function DesktopSportsRail() {
   return (
     <aside
       aria-label="Sports navigation"
-      className="hidden lg:flex fixed left-0 z-20 flex-col items-stretch gap-1 px-1.5 py-3"
+      className="hidden lg:flex fixed left-0 z-20 flex-col items-stretch gap-1 px-2 py-3"
       style={{
         top: "var(--gtp-nav-offset, 96px)",
         bottom: 0,
-        width: 64,
+        width: 76,
         background: "rgba(7, 11, 26, 0.55)",
         borderRight: "1px solid var(--vault-rule)",
         backdropFilter: "blur(10px)",
@@ -176,23 +176,31 @@ export default function DesktopSportsRail() {
               href={item.href}
               aria-current={active ? "page" : undefined}
               aria-label={item.label}
-              className="flex flex-col items-center justify-center gap-1 py-2.5 rounded-[6px] transition-colors"
+              className="relative flex flex-col items-center justify-center gap-1.5 py-3 rounded-[6px] transition-colors"
               style={{
                 background: active
-                  ? "linear-gradient(180deg, rgba(240, 199, 94, 0.12) 0%, rgba(240, 199, 94, 0) 100%)"
+                  ? "linear-gradient(180deg, rgba(240, 199, 94, 0.14) 0%, rgba(240, 199, 94, 0) 100%)"
                   : "transparent",
                 border: active
                   ? "1px solid rgba(240, 199, 94, 0.30)"
                   : "1px solid transparent",
               }}
             >
+              {active && (
+                <span
+                  aria-hidden
+                  className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-[2px]"
+                  style={{ background: "var(--vault-gold-bright)" }}
+                />
+              )}
               <RailGlyph kind={item.key} active={active} />
               <span
                 className="font-mono uppercase tracking-[0.14em]"
                 style={{
                   color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
-                  fontSize: 9,
+                  fontSize: 10,
                   lineHeight: 1,
+                  fontWeight: active ? 600 : 500,
                 }}
               >
                 {item.label}
