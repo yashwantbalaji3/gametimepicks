@@ -389,22 +389,25 @@ function SectionEyebrow({
       ? "var(--vault-success)"
       : "var(--vault-text-mute)";
   return (
-    <header className="flex flex-col gap-1 mt-2">
+    // PR #4 — more vertical breathing room between sections, stronger
+    // eyebrow typography, sub copy bumped 12→13 to read clearly on the
+    // hybrid theme's light canvas.
+    <header className="flex flex-col gap-1.5 mt-6 sm:mt-8">
       <span
-        className="font-mono uppercase tracking-[0.18em] inline-flex items-center gap-2"
-        style={{ color: accent, fontSize: 11 }}
+        className="font-mono uppercase tracking-[0.16em] inline-flex items-center gap-2.5"
+        style={{ color: accent, fontSize: 12, lineHeight: 1.2 }}
       >
         <span
           aria-hidden
-          className="inline-block w-1.5 h-1.5 rounded-full"
+          className="inline-block w-2 h-2 rounded-full"
           style={{ background: accent }}
         />
         {label}
       </span>
       {sub && (
         <p
-          className="text-[12px] leading-snug"
-          style={{ color: "var(--vault-text-faint)", maxWidth: 640 }}
+          className="text-[13px] leading-relaxed"
+          style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
         >
           {sub}
         </p>
@@ -431,14 +434,14 @@ function BuilderHeader({
   const accent =
     source === "graded" ? "var(--vault-success)" : "var(--vault-gold-bright)";
   return (
-    <header className="flex flex-col gap-1.5">
+    <header className="flex flex-col gap-2">
       <span
-        className="font-mono uppercase tracking-[0.18em] inline-flex items-center gap-2"
-        style={{ color: accent, fontSize: 10 }}
+        className="font-mono uppercase tracking-[0.16em] inline-flex items-center gap-2.5"
+        style={{ color: accent, fontSize: 12, lineHeight: 1.2 }}
       >
         <span
           aria-hidden
-          className="inline-block w-1.5 h-1.5 rounded-full"
+          className="inline-block w-2 h-2 rounded-full"
           style={{
             background: accent,
             boxShadow:
@@ -454,7 +457,7 @@ function BuilderHeader({
         className="font-display tracking-tight"
         style={{
           color: "var(--vault-text)",
-          fontSize: "clamp(24px, 4.5vw, 38px)",
+          fontSize: "clamp(26px, 5vw, 42px)",
           lineHeight: 1.05,
           letterSpacing: "-0.015em",
           fontWeight: 600,
@@ -463,8 +466,8 @@ function BuilderHeader({
         Today&apos;s suggested parlays.
       </h1>
       <p
-        className="text-[13.5px] leading-relaxed"
-        style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
+        className="text-[14px] leading-relaxed"
+        style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
       >
         {optimizerActive
           ? "Model-ranked slips in each safer lane — Conservative, Balanced, Star Power — saved before games and graded after. Use the filters to narrow by sport, team, or player. High variance and custom tools sit below."
@@ -789,23 +792,26 @@ function EmptyRiskCard({
       "Today's slate doesn't satisfy this risk profile yet — too few eligible legs or correlation caps.";
   }
   return (
+    // PR #4 — empty card: lift padding + title/body type so it reads
+    // as a deliberate state rather than a thin shrug. Border kept
+    // dashed to signal "intentional blank" vs error.
     <div
-      className="rounded-[6px] p-5 flex flex-col gap-2 justify-center items-center text-center"
+      className="rounded-[10px] p-6 flex flex-col gap-2.5 justify-center items-center text-center"
       style={{
-        border: "1px dashed var(--vault-border)",
+        border: "1px dashed var(--vault-border-strong)",
         background: "var(--gtp-card)",
-        minHeight: 180,
+        minHeight: 200,
       }}
     >
       <span
-        className="font-mono uppercase tracking-[0.16em]"
-        style={{ color: display.accent, fontSize: 10 }}
+        className="font-mono uppercase tracking-[0.14em]"
+        style={{ color: display.accent, fontSize: 12, lineHeight: 1.2 }}
       >
         {title}
       </span>
       <p
-        className="text-[12px] leading-snug"
-        style={{ color: "var(--vault-text-mute)", maxWidth: 260 }}
+        className="text-[13px] leading-relaxed"
+        style={{ color: "var(--vault-text-mute)", maxWidth: 280 }}
       >
         {body}
       </p>

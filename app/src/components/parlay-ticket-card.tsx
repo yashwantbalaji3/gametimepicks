@@ -219,22 +219,23 @@ export default function ParlayTicketCard({
       </header>
 
       {/* PR #125 — sub-header chips: slate date · origin · sport bucket.
-          Wraps to a second visual line below the profile/status header
-          row, never pushes the existing header height. Always reserves
-          its own padding so an empty chip row doesn't collapse layout. */}
+          PR #4 (layout rebuild): bumped 9px → 11px font size, looser
+          tracking, more chip padding so they read clearly at 1280px
+          laptop + 375px mobile. Hierarchy unchanged. */}
       {(slate || origin !== "official" || bucketLabel) && (
         <div
-          className="flex flex-wrap items-center gap-1.5 px-4 -mt-1"
+          className="flex flex-wrap items-center gap-2 px-4 -mt-1"
           aria-label="Slip context"
         >
           {slate && (
             <span
-              className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
+              className="font-mono uppercase tracking-[0.08em] px-2.5 py-1 rounded-[4px]"
               style={{
                 color: _slateColor(slate.tone),
                 background: "var(--gtp-card-sunken)",
                 border: `1px solid ${_slateColor(slate.tone)}`,
-                fontSize: 9,
+                fontSize: 11,
+                lineHeight: 1.1,
               }}
             >
               {slate.label}
@@ -242,12 +243,13 @@ export default function ParlayTicketCard({
           )}
           {origin !== "official" && (
             <span
-              className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
+              className="font-mono uppercase tracking-[0.08em] px-2.5 py-1 rounded-[4px]"
               style={{
                 color: origin === "replay" ? "var(--vault-warn)" : "var(--vault-text-mute)",
                 background: "var(--gtp-card-sunken)",
                 border: `1px dashed ${origin === "replay" ? "var(--vault-warn)" : "var(--vault-text-mute)"}`,
-                fontSize: 9,
+                fontSize: 11,
+                lineHeight: 1.1,
               }}
             >
               {origin === "replay"
@@ -257,12 +259,13 @@ export default function ParlayTicketCard({
           )}
           {origin === "official" && (
             <span
-              className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
+              className="font-mono uppercase tracking-[0.08em] px-2.5 py-1 rounded-[4px]"
               style={{
                 color: "var(--vault-success)",
                 background: "var(--gtp-card-sunken)",
                 border: "1px solid var(--vault-success)",
-                fontSize: 9,
+                fontSize: 11,
+                lineHeight: 1.1,
               }}
             >
               Official
@@ -270,12 +273,13 @@ export default function ParlayTicketCard({
           )}
           {bucketLabel && (
             <span
-              className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
+              className="font-mono uppercase tracking-[0.08em] px-2.5 py-1 rounded-[4px]"
               style={{
                 color: "var(--vault-text-mute)",
                 background: "var(--gtp-card-sunken)",
                 border: "1px solid var(--vault-rule)",
-                fontSize: 9,
+                fontSize: 11,
+                lineHeight: 1.1,
               }}
             >
               {bucketLabel}
