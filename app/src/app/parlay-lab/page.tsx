@@ -88,17 +88,14 @@ export default function ParlayLabPage() {
   const totalSlips = optimizerForDate?.totalSlips ?? suggested?.slips?.length ?? 0;
 
   return (
-    <div
-      // PR `feature/theme-rebuild-professional` (2026-05-28) — hybrid
-      // theme. Dark app shell (from .vault-shell on body) keeps the
-      // top nav + desktop sports rail + mobile bottom nav + ticker
-      // premium-dark. This wrapper paints the warm light content
-      // area so the centered 1440px content column reads with
-      // deep-navy text on cream. See docs/UI_REBUILD_DIRECTION_2026-05-28.md
-      // for the full token + contrast contract.
-      className="gtp-canvas min-h-screen"
-    >
-      <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden">
+    // PR `feature/professional-design-system` (2026-05-28) — reverted
+    // the hybrid cream pilot. The dark shell + cream content created
+    // a "donut" visual where the cream content area felt washed out
+    // against the rich dark perimeter. The page now uses the unified
+    // refined-dark premium theme (see globals.css §"Refined dark
+    // premium" tokens). Cards inherit `--gtp-card-dark` for a deeper
+    // charcoal surface that stays readable on the dark shell.
+    <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
       <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6 mb-4 sm:mb-6" />
       <div className="mb-4 sm:mb-6">
         <DateStatusHeader
@@ -141,7 +138,6 @@ export default function ParlayLabPage() {
       </Suspense>
 
       <FooterPointer />
-      </div>
     </div>
   );
 }

@@ -309,7 +309,13 @@ export default function ParlayLabBuilder({
         onPlayerChange={changePlayer}
       />
 
-      <ExperimentalDisclaimer />
+      {/* PR `feature/professional-design-system`: removed the
+          ExperimentalDisclaimer banner. The subcopy on the page
+          headline + the disclaimer banner at the top of the app +
+          the audit-pointer on /results already cover the
+          "experimental, tracked publicly" framing. The extra inline
+          aside was visual noise that pushed the first slip card
+          another ~60px below the fold. */}
 
       {/* PR #125 — explicit section eyebrows so users can never
           mistake official suggested slips for the custom tools below.
@@ -431,33 +437,23 @@ function BuilderHeader({
   isFallback: boolean;
   optimizerActive: boolean;
 }) {
-  const accent =
-    source === "graded" ? "var(--vault-success)" : "var(--vault-gold-bright)";
+  // PR `feature/professional-design-system`: removed the duplicate
+  // eyebrow line. DateStatusHeader above already shows "Parlay Lab ·
+  // 2026-05-27 · today" — repeating it as a second eyebrow wasted a
+  // line and competed for visual attention. The h1 + subcopy now read
+  // as the page's main hero. Subcopy also tightened.
+  // `source`/`isFallback` are kept in the signature so callers (and
+  // future variants) can still pass them; tone is now derived from
+  // `optimizerActive` so the headline color follows graded state.
+  // The unused params are silenced for the lint pass.
+  void source; void isFallback;
   return (
     <header className="flex flex-col gap-2">
-      <span
-        className="font-mono uppercase tracking-[0.16em] inline-flex items-center gap-2.5"
-        style={{ color: accent, fontSize: 12, lineHeight: 1.2 }}
-      >
-        <span
-          aria-hidden
-          className="inline-block w-2 h-2 rounded-full"
-          style={{
-            background: accent,
-            boxShadow:
-              source === "graded"
-                ? "0 0 6px rgba(74, 222, 128, 0.45)"
-                : "0 0 6px rgba(240, 199, 94, 0.45)",
-          }}
-        />
-        Parlay Lab · {date}
-        {isFallback ? " · latest available" : ""}
-      </span>
       <h1
         className="font-display tracking-tight"
         style={{
           color: "var(--vault-text)",
-          fontSize: "clamp(26px, 5vw, 42px)",
+          fontSize: "clamp(26px, 5vw, 40px)",
           lineHeight: 1.05,
           letterSpacing: "-0.015em",
           fontWeight: 600,
@@ -470,8 +466,8 @@ function BuilderHeader({
         style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
       >
         {optimizerActive
-          ? "Model-ranked slips in each safer lane — Conservative, Balanced, Star Power — saved before games and graded after. Use the filters to narrow by sport, team, or player. High variance and custom tools sit below."
-          : "Pregame snapshots saved before games, graded after. Use the filters to narrow by sport, team, or player. Custom tools sit below."}
+          ? "Model-ranked slips in each safer lane — Conservative, Balanced, Star Power — saved before games and graded after. High variance and custom tools sit below."
+          : "Pregame snapshots saved before games, graded after. Custom tools sit below."}
       </p>
     </header>
   );
@@ -819,46 +815,11 @@ function EmptyRiskCard({
   );
 }
 
-/**
- * Public-tracking disclaimer banner (PR #110 filter A).
- *
- * Honest "experimental + publicly tracked" copy directly above the
- * lane grid. No win-rate spin, no banned phrasing — just the truth
- * that these are tracked publicly so users can see for themselves.
- * Public parlay tracking resets each era (see `public-parlay-era.ts`).
- */
-function ExperimentalDisclaimer() {
-  return (
-    <aside
-      className="rounded-[8px] p-3 flex items-start gap-3"
-      style={{
-        background: "var(--gtp-card)",
-        border: "1px dashed var(--vault-border)",
-      }}
-      role="note"
-    >
-      <span aria-hidden style={{ fontSize: 14, lineHeight: 1.2 }}>
-        ⚠
-      </span>
-      <div className="flex flex-col gap-0.5 min-w-0">
-        <span
-          className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-warn)", fontSize: 10 }}
-        >
-          Experimental · publicly tracked
-        </span>
-        <span
-          className="text-[12.5px] leading-snug"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          Suggested slips are experimental and tracked publicly on the
-          Results page. Past performance does not predict future
-          results.
-        </span>
-      </div>
-    </aside>
-  );
-}
+/* `ExperimentalDisclaimer` removed in PR `feature/professional-
+   design-system` — its message was redundant with the global
+   DisclaimerBanner ("Educational analytics · Not betting advice")
+   plus the page subcopy. Removing freed ~60px of vertical space so
+   the first slip card lands closer to the fold. */
 
 /**
  * Collapsible "Show high variance" section (PR #110 filter B).

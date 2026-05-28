@@ -99,29 +99,91 @@ export default function Nav() {
         borderBottom: "1px solid var(--vault-border)",
       }}
     >
-      {/* Row 1: centered brand */}
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-1.5 pb-1 sm:pt-3 sm:pb-2 flex items-center justify-center">
+      {/* PR `feature/professional-design-system` — collapsed two-row
+          nav into one row on desktop (brand-left + links-centered) so
+          the sticky header is ~50px instead of 155px. Mobile still
+          uses stacked rows because the brand mark needs the full
+          width and the nav strip wraps. */}
+
+      {/* Mobile (< sm): row 1 = centered brand */}
+      <div className="sm:hidden px-4 pt-1.5 pb-1 flex items-center justify-center">
         <Link
           href="/"
           aria-label="GameTimePicks home"
           className="vault-glow-hover rounded-[4px] py-1 px-2 inline-flex items-center"
         >
-          <span className="hidden sm:inline-flex">
-            <BrandMark variant="hero" />
-          </span>
-          <span className="inline-flex sm:hidden">
-            <BrandMark variant="compact" />
-          </span>
+          <BrandMark variant="compact" />
         </Link>
       </div>
 
-      {/* Row 2: nav strip — horizontal scroll on mobile, centered on desktop */}
+      {/* Desktop (sm+): single row — brand left, links centered */}
+      <div className="hidden sm:flex mx-auto max-w-[1440px] px-6 lg:px-8 py-2 items-center gap-6">
+        <Link
+          href="/"
+          aria-label="GameTimePicks home"
+          className="vault-glow-hover rounded-[4px] py-1 px-2 inline-flex items-center shrink-0"
+        >
+          <BrandMark variant="compact" />
+        </Link>
+        <nav
+          aria-label="Primary (desktop)"
+          className="flex-1 flex items-center justify-center gap-0 min-w-0"
+        >
+          {NAV_ITEMS.map((item, idx) => {
+            const active = isActive(item.href);
+            const isSport = SPORT_HREFS.has(item.href);
+            return (
+              <span key={item.href} className="inline-flex items-center">
+                {item.beforeDivider && idx > 0 && (
+                  <span
+                    aria-hidden
+                    className="mx-1.5 inline-block"
+                    style={{
+                      width: 4,
+                      height: 4,
+                      borderRadius: 999,
+                      background: "var(--vault-gold-dim)",
+                      boxShadow: "0 0 6px rgba(212, 175, 55, 0.30)",
+                    }}
+                  />
+                )}
+                <Link
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className="relative px-3.5 py-1.5 text-[13px] font-medium tracking-tight whitespace-nowrap transition-all rounded-[6px]"
+                  style={{
+                    color: active
+                      ? "var(--vault-gold-bright)"
+                      : "var(--vault-text-mute)",
+                    background: active
+                      ? "linear-gradient(180deg, rgba(240, 199, 94, 0.14) 0%, rgba(240, 199, 94, 0) 90%)"
+                      : "transparent",
+                    border: active
+                      ? "1px solid rgba(240, 199, 94, 0.32)"
+                      : "1px solid transparent",
+                    textShadow:
+                      active && isSport
+                        ? "0 0 14px rgba(240, 199, 94, 0.48)"
+                        : "none",
+                  }}
+                >
+                  {item.label}
+                </Link>
+              </span>
+            );
+          })}
+        </nav>
+        {/* Right spacer — keeps the nav links visually centered. */}
+        <span aria-hidden className="shrink-0" style={{ width: 80 }} />
+      </div>
+
+      {/* Mobile (< sm): row 2 = horizontal-scrolling nav strip */}
       <nav
         aria-label="Primary"
-        className="overflow-x-auto"
+        className="sm:hidden overflow-x-auto"
         style={{ borderTop: "1px solid var(--vault-rule)" }}
       >
-        <div className="mx-auto max-w-[1440px] px-3 sm:px-6 py-1 sm:py-1.5 flex items-center justify-start sm:justify-center gap-0 min-w-max">
+        <div className="mx-auto px-3 py-1 flex items-center justify-start gap-0 min-w-max">
           {NAV_ITEMS.map((item, idx) => {
             const active = isActive(item.href);
             const isSport = SPORT_HREFS.has(item.href);

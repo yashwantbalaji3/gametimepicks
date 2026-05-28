@@ -16,7 +16,7 @@ export default function DisclaimerBanner() {
         borderBottom: "1px solid var(--vault-border)",
       }}
     >
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-2 flex items-center gap-3 text-[11px] tracking-[0.04em] font-mono">
+      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-1 flex items-center gap-3 text-[10px] tracking-[0.04em] font-mono">
         <span
           className="hidden sm:inline-flex items-center gap-2 shrink-0"
           style={{ color: "var(--vault-text-mute)" }}
