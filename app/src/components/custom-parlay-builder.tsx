@@ -16,6 +16,7 @@ import { useMemo, useState } from "react";
 import SearchableSelect, { type SearchableOption } from "./searchable-select";
 import PlayerAvatar from "./player-avatar";
 import TeamLogo from "./team-logo";
+import CustomParlayGradeCard from "./custom-parlay-grade-card";
 import type { OptimizerLeg, OptimizerSnapshot } from "@/lib/parlay-optimizer";
 import {
   CUSTOM_PARLAY_MAX_LEGS,
@@ -229,6 +230,14 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
           {selectedLegs.length > 0 && (
             <EvaluationCard evaluation={evaluation} onClearAll={clearAll} />
           )}
+
+          {/* PR `feature/custom-parlay-grading-scale` — informational
+              A/B/C/D/F grade with positives/warnings + collapsed factor
+              breakdown. Renders whenever the user has picked at least
+              one leg so the grade can guide their build. Empty pool
+              still renders a neutral "pick legs" state inside the
+              component. */}
+          <CustomParlayGradeCard legs={selectedLegs} context="Manual Builder" />
         </>
       )}
     </section>

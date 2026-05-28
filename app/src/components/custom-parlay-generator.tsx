@@ -19,6 +19,7 @@ import { useMemo, useState } from "react";
 import PlayerAvatar from "./player-avatar";
 import TeamLogo from "./team-logo";
 import SearchableSelect, { type SearchableOption } from "./searchable-select";
+import CustomParlayGradeCard from "./custom-parlay-grade-card";
 import type { OptimizerLeg, OptimizerSnapshot } from "@/lib/parlay-optimizer";
 import { getLegPool } from "@/lib/custom-parlay";
 import {
@@ -397,6 +398,13 @@ function GeneratedSlipCard({ slip }: { slip: GeneratedSlip }) {
           tone={profit !== null ? "success" : "faint"}
         />
       </footer>
+
+      {/* PR `feature/custom-parlay-grading-scale` — informational
+          grade for each generated custom slip. Renders alongside the
+          existing stats so the user sees A/B/C/D/F + score + top
+          positives/warnings before considering this build. Custom
+          slips remain not officially tracked. */}
+      <CustomParlayGradeCard legs={slip.legs} />
     </article>
   );
 }
