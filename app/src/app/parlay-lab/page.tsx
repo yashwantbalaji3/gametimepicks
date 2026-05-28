@@ -45,13 +45,16 @@ export default function ParlayLabPage() {
   const suggested = getSuggestedParlaysForDate(today);
   const calibrationTable = loadCalibrationTable();
 
-  // Prefer the optimizer snapshot for the date we surfaced. When the
-  // snapshot fallback walked to an older date, also try the optimizer
-  // for the same older date. As a last resort, use whatever the latest
-  // optimizer file we have on disk is.
+  // Prefer TODAY's optimizer snapshot when it exists, even if the
+  // legacy `getSuggestedParlaysForDate` walked back to an earlier date.
+  // (PR `fix/parlay-lab-prefer-optimizer-date` — the morning workflow
+  // writes the optimizer file directly without populating the legacy
+  // snapshot path, so on a fresh slate the legacy loader returns the
+  // previous day. Without this reorder, the page would render
+  // yesterday's slip cards even though today's optimizer is on disk.)
   const optimizerForDate =
-    (suggested && getOptimizerSnapshotForDate(suggested.date)) ||
     getOptimizerSnapshotForDate(today) ||
+    (suggested && getOptimizerSnapshotForDate(suggested.date)) ||
     getLatestOptimizerSnapshot()?.payload ||
     null;
 
@@ -72,8 +75,11 @@ export default function ParlayLabPage() {
   // for the header. We pull `nba`/`mlb`/`multi` totals straight from the
   // optimizer payload's bucket structure when present. Everything stays
   // server-side so the header lands above the client builder.
-  const activeDate = suggested?.date ?? optimizerForDate?.date ?? today;
-  const isFallback = !!suggested?.isFallback || activeDate !== today;
+  // Prefer the optimizer date (now reordered to favor today) so the
+  // slate strip + suggested slips reflect today's slate even when the
+  // legacy snapshot loader fell back to yesterday.
+  const activeDate = optimizerForDate?.date ?? suggested?.date ?? today;
+  const isFallback = activeDate !== today;
   const optBuckets = (optimizerForDate?.buckets ?? null) as
     | Record<string, Record<string, unknown[]>>
     | null;
