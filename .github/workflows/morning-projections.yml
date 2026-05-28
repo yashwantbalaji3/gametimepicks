@@ -61,6 +61,16 @@ on:
         type: string
         required: false
         default: "300"
+      skip_nba:
+        description: "Skip NBA refresh (use when stats.nba.com is timing out and only MLB is needed)."
+        type: boolean
+        required: false
+        default: false
+      skip_mlb:
+        description: "Skip MLB refresh (rare — use only when MLB pipeline is wedged)."
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   group: morning-projections
@@ -81,6 +91,12 @@ jobs:
       DRY_RUN_PROJECTIONS: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
       MAX_PER_RUN: ${{ github.event.inputs.max_per_run || vars.MAX_PER_RUN || '75' }}
       MIN_REMAINING: ${{ github.event.inputs.min_remaining || vars.MIN_REMAINING || '300' }}
+      # PR `data/may28-projections-and-parlays` (2026-05-28): explicit
+      # skip switches so a dispatch can route around upstream NBA stats
+      # API outages without editing the orchestrator script. Default
+      # remains "0" so the scheduled cron runs both sports.
+      SKIP_NBA: ${{ github.event.inputs.skip_nba == 'true' && '1' || '0' }}
+      SKIP_MLB: ${{ github.event.inputs.skip_mlb == 'true' && '1' || '0' }}
       # NBA pipeline event cap. Conservative — playoff days have at most
       # 1 NBA game; regular season tops out around 8 — overridable.
       ODDS_MAX_EVENTS_PER_RUN: ${{ vars.ODDS_MAX_EVENTS_PER_RUN || '8' }}
