@@ -1,131 +1,111 @@
 "use client";
-
 /**
- * Phase 17 — ParlayLabModeTabs.
+ * ParlayLabModeTabs — three-way switcher that gives /parlay-lab a
+ * real product structure (PR `feature/parlay-lab-mode-tabs-bankroll`,
+ * 2026-05-28).
  *
- * Container that switches between the two Parlay Lab modes:
- *   - "build"    → ParlayBuilderClient — model-assisted builder
- *   - "analyze"  → ParlayLabClient — paste-and-analyze
+ *   • Suggested      — official model-ranked lane spreads (default)
+ *   • Build Your Own — Custom Generator + Manual Builder (not tracked)
+ *   • Bankroll Plan  — educational allocation planner
  *
- * Both modes receive the active-slate metadata so the Build mode can
- * default to the current/upcoming date instead of the stale primary,
- * and so each mode can clearly label archived dates as such.
+ * Keyboard nav: ArrowLeft / ArrowRight cycles tabs. Active tab gets a
+ * gold pill + heavier font weight. Mobile-safe at 375px (horizontal
+ * scroll fallback if labels grow longer than the viewport).
  *
- * Pure client component. No fetches.
+ * Presentation only — the active mode lives in the caller's state so
+ * the builder can swap content sections without remounting filters or
+ * losing the recent-form drawer's open leg.
+ *
+ * (The earlier "Phase 17" version of this file was dead code with no
+ * consumers; it has been replaced by this active component.)
  */
-import { useState } from "react";
-import type { PropLean, ScheduleGame } from "@/lib/types";
-import type { ActiveSlateKind } from "@/lib/active-slate";
-import ParlayLabClient from "./parlay-lab-client";
-import ParlayBuilderClient from "./parlay-builder-client";
+import { useRef } from "react";
 
-type LabMode = "build" | "analyze";
+export type ParlayLabMode = "suggested" | "build" | "bankroll";
 
-interface DateOption {
-  date: string;
+export const PARLAY_LAB_MODES: ReadonlyArray<{
+  key: ParlayLabMode;
   label: string;
-  isArchived: boolean;
-  isActiveDefault: boolean;
-}
+  sub: string;
+}> = [
+  {
+    key: "suggested",
+    label: "Suggested",
+    sub: "Model-ranked lane spreads",
+  },
+  {
+    key: "build",
+    label: "Build Your Own",
+    sub: "Custom slips · not officially tracked",
+  },
+  {
+    key: "bankroll",
+    label: "Bankroll Plan",
+    sub: "Educational allocation planner",
+  },
+];
 
 interface Props {
-  allLeans: PropLean[];
-  datesAvailable: DateOption[];
-  activeSlateKind: ActiveSlateKind;
-  activeDate: string | null;
-  gamesByGameId: Record<string, ScheduleGame>;
+  active: ParlayLabMode;
+  onChange: (next: ParlayLabMode) => void;
 }
 
-export default function ParlayLabModeTabs({
-  allLeans,
-  datesAvailable,
-  activeSlateKind,
-  activeDate,
-  gamesByGameId,
-}: Props) {
-  const [mode, setMode] = useState<LabMode>("build");
+export default function ParlayLabModeTabs({ active, onChange }: Props) {
+  const refs = useRef<Map<ParlayLabMode, HTMLButtonElement | null>>(new Map());
+
+  function onKey(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    const idx = PARLAY_LAB_MODES.findIndex((m) => m.key === active);
+    if (idx === -1) return;
+    e.preventDefault();
+    const delta = e.key === "ArrowRight" ? 1 : -1;
+    const next = PARLAY_LAB_MODES[
+      (idx + delta + PARLAY_LAB_MODES.length) % PARLAY_LAB_MODES.length
+    ];
+    onChange(next.key);
+    refs.current.get(next.key)?.focus();
+  }
 
   return (
-    <div>
-      <div
-        className="flex gap-2 mb-6 border-b"
-        style={{ borderColor: "var(--vault-border)" }}
-      >
-        <ModeTab
-          active={mode === "build"}
-          label="Build with model"
-          subtitle="Generate candidate parlays from real slate leans"
-          onClick={() => setMode("build")}
-        />
-        <ModeTab
-          active={mode === "analyze"}
-          label="Analyze slip"
-          subtitle="Paste a slip and compare each leg to the model"
-          onClick={() => setMode("analyze")}
-        />
-      </div>
-
-      {mode === "build" ? (
-        <ParlayBuilderClient
-          allLeans={allLeans}
-          datesAvailable={datesAvailable}
-          activeSlateKind={activeSlateKind}
-          activeDate={activeDate}
-          gamesByGameId={gamesByGameId}
-        />
-      ) : (
-        <ParlayLabClient
-          allLeans={allLeans}
-          datesAvailable={datesAvailable.map((d) => ({
-            date: d.date,
-            label: d.label,
-          }))}
-        />
-      )}
-    </div>
-  );
-}
-
-function ModeTab({
-  active,
-  label,
-  subtitle,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  subtitle: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex-1 sm:flex-initial text-left px-4 sm:px-5 py-3 transition-all ${
-        active ? "vault-tab-active" : ""
-      }`}
+    <div
+      role="tablist"
+      aria-label="Parlay Lab mode"
+      onKeyDown={onKey}
+      className="flex items-center gap-1.5 p-1 rounded-full self-start overflow-x-auto"
       style={{
-        borderBottom: `2px solid ${
-          active ? "var(--vault-gold)" : "transparent"
-        }`,
-        marginBottom: "-1px",
-        minWidth: "180px",
+        background: "var(--gtp-card-sunken)",
+        border: "1px solid var(--vault-rule)",
+        maxWidth: "100%",
       }}
     >
-      <div
-        className="font-display text-[14px] sm:text-[15px] font-semibold tracking-tight"
-        style={{
-          color: active ? "var(--vault-text)" : "var(--vault-text-mute)",
-        }}
-      >
-        {label}
-      </div>
-      <div
-        className="text-[11px] mt-0.5 leading-snug"
-        style={{ color: "var(--vault-text-faint)" }}
-      >
-        {subtitle}
-      </div>
-    </button>
+      {PARLAY_LAB_MODES.map((mode) => {
+        const isActive = mode.key === active;
+        return (
+          <button
+            key={mode.key}
+            ref={(el) => {
+              refs.current.set(mode.key, el);
+            }}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            tabIndex={isActive ? 0 : -1}
+            onClick={() => onChange(mode.key)}
+            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full inline-flex items-center whitespace-nowrap"
+            style={{
+              color: isActive ? "var(--vault-bg)" : "var(--vault-text-mute)",
+              background: isActive ? "var(--vault-gold-bright)" : "transparent",
+              fontSize: 11,
+              fontWeight: isActive ? 600 : 500,
+              cursor: "pointer",
+              transition: "background-color 120ms ease",
+            }}
+            title={mode.sub}
+          >
+            {mode.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }

@@ -26,6 +26,10 @@ import LaneSpread, { SwingLaneToggle } from "./lane-spread";
 import PlayerRecentFormDrawer from "./player-recent-form-drawer";
 import CustomParlayBuilder from "./custom-parlay-builder";
 import CustomParlayGenerator from "./custom-parlay-generator";
+import BankrollPlanPanel from "./bankroll-plan-panel";
+import ParlayLabModeTabs, {
+  type ParlayLabMode,
+} from "./parlay-lab-mode-tabs";
 import SearchableSelect, {
   type SearchableOption,
 } from "./searchable-select";
@@ -266,47 +270,125 @@ export default function ParlayLabBuilder({
   // Recent-form drawer state — tracks the clicked leg.
   const [activeLeg, setActiveLeg] = useState<ParlaySlip["legs"][number] | null>(null);
 
+  // PR `feature/parlay-lab-mode-tabs-bankroll` (2026-05-28) — top-level
+  // mode switcher. Suggested is the default mode and renders the
+  // official lane spreads. Build Your Own surfaces the custom-builder
+  // tools clearly framed as "not officially tracked." Bankroll Plan is
+  // a planning aid layered on top of the same officially-suggested
+  // slips. Filters stay applied for Suggested and Bankroll modes (so
+  // the pool is consistent); Build Your Own runs against the full
+  // optimizer snapshot.
+  const [mode, setMode] = useState<ParlayLabMode>("suggested");
+
+  // Pool of suggested slips used by the Bankroll Plan — same filter
+  // pool as Suggested mode, with the safe-lane visibility cap removed
+  // so the bankroll allocator can pick across more than just the
+  // top-N visible cards. The cap was an editorial decision for the
+  // 3-column grid; the bankroll allocator is its own surface.
+  const bankrollPoolSlips = useMemo<ParlaySlip[]>(() => {
+    return filtered.filter(isAllowedOfficialSlip);
+  }, [filtered]);
+
   return (
     <section className="flex flex-col gap-5" aria-label="Parlay Lab builder">
       <BuilderHeader
+        mode={mode}
         date={date}
         source={source}
         isFallback={!!isFallback}
         optimizerActive={optimizerActive}
       />
 
-      <LabFilters
-        sport={sport}
-        sportOptions={sportOptions}
-        onSportChange={changeSport}
-        team={team}
-        teamOptions={teamSelectOptions}
-        onTeamChange={changeTeam}
-        player={player}
-        playerOptions={playerSelectOptions}
-        onPlayerChange={changePlayer}
-        onClearAll={() => {
-          setSport(sportOptions[0]?.key ?? "all");
-          setTeam(null);
-          setPlayer(null);
-        }}
-      />
+      <ParlayLabModeTabs active={mode} onChange={setMode} />
 
-      {/* PR `feature/professional-design-system`: removed the
-          ExperimentalDisclaimer banner. The subcopy on the page
-          headline + the disclaimer banner at the top of the app +
-          the audit-pointer on /results already cover the
-          "experimental, tracked publicly" framing. The extra inline
-          aside was visual noise that pushed the first slip card
-          another ~60px below the fold. */}
+      {/* Filters live above all modes EXCEPT Build Your Own — the
+          custom builder + generator have their own pickers and the
+          shared sport/team/player toolbar is noise there. */}
+      {mode !== "build" && (
+        <LabFilters
+          sport={sport}
+          sportOptions={sportOptions}
+          onSportChange={changeSport}
+          team={team}
+          teamOptions={teamSelectOptions}
+          onTeamChange={changeTeam}
+          player={player}
+          playerOptions={playerSelectOptions}
+          onPlayerChange={changePlayer}
+          onClearAll={() => {
+            setSport(sportOptions[0]?.key ?? "all");
+            setTeam(null);
+            setPlayer(null);
+          }}
+        />
+      )}
 
-      {/* PR `feature/lane-spread-slip-cards` (2026-05-28): each
-          lane gets its own premium "spread" with a featured slip and
-          alternates. The lane header carries slate-date + sport
-          bucket + Official chip + slip count, so the previous
-          full-width SectionEyebrow + repeated per-card chips are
-          consolidated. One short editorial eyebrow remains above
-          the lanes as the section's intro line. */}
+      {mode === "suggested" && (
+        <SuggestedMode
+          cards={cards}
+          hvCard={hvCard}
+          date={date}
+          isFallback={!!isFallback}
+          sport={sport}
+          filterActive={filterActive}
+          source={source}
+          calibrationTable={calibrationTable}
+          onLegClick={setActiveLeg}
+        />
+      )}
+
+      {mode === "build" && (
+        <BuildYourOwnMode optimizerPayload={optimizerPayload ?? null} />
+      )}
+
+      {mode === "bankroll" && (
+        <BankrollMode slips={bankrollPoolSlips} />
+      )}
+
+      <BuilderFootnote optimizerActive={optimizerActive} mode={mode} />
+      <PlayerRecentFormDrawer leg={activeLeg} onClose={() => setActiveLeg(null)} />
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Mode-specific sections
+// ---------------------------------------------------------------------------
+
+function SuggestedMode({
+  cards,
+  hvCard,
+  date,
+  isFallback,
+  sport,
+  filterActive,
+  source,
+  calibrationTable,
+  onLegClick,
+}: {
+  cards: Array<{
+    profile: ParlayRiskProfile;
+    slips: ParlaySlip[];
+    isFallback: boolean;
+  }>;
+  hvCard: {
+    profile: ParlayRiskProfile;
+    slips: ParlaySlip[];
+    isFallback: boolean;
+  };
+  date: string;
+  isFallback: boolean;
+  sport: SuggestedSport;
+  filterActive: boolean;
+  source: "snapshot" | "graded";
+  calibrationTable?: CalibrationTable;
+  onLegClick: (leg: ParlaySlip["legs"][number]) => void;
+}) {
+  return (
+    <>
+      {/* PR `feature/lane-spread-slip-cards`: each lane gets its own
+          premium spread. One editorial eyebrow remains above the
+          lanes as the section's intro line. */}
       <SectionEyebrow
         tone="official"
         label="Official suggested parlays"
@@ -321,10 +403,10 @@ export default function ParlayLabBuilder({
             slips={card.slips}
             isFallback={card.isFallback}
             slateDate={date}
-            slateIsFallback={!!isFallback}
+            slateIsFallback={isFallback}
             sportBucketLabel={bucketLabelForSport(sport)}
             calibrationTable={calibrationTable}
-            onLegClick={setActiveLeg}
+            onLegClick={onLegClick}
             source={source}
             sport={sport}
             filterActive={filterActive}
@@ -338,36 +420,48 @@ export default function ParlayLabBuilder({
         slips={hvCard.slips}
         isFallback={hvCard.isFallback}
         slateDate={date}
-        slateIsFallback={!!isFallback}
+        slateIsFallback={isFallback}
         sportBucketLabel={bucketLabelForSport(sport)}
         calibrationTable={calibrationTable}
-        onLegClick={setActiveLeg}
+        onLegClick={onLegClick}
         source={source}
         sport={sport}
         filterActive={filterActive}
       />
 
       <AltLineComingSoon />
+    </>
+  );
+}
 
+function BuildYourOwnMode({
+  optimizerPayload,
+}: {
+  optimizerPayload: OptimizerSnapshot | null;
+}) {
+  return (
+    <>
       <SectionEyebrow
         tone="custom"
-        label="Manual builder · not officially tracked"
-        sub="Build your own slip from the eligible leg pool. Exploration only."
+        label="Build your own · not officially tracked"
+        sub="Custom slips here are exploratory. They are not included in the public hit-rate that /results tracks."
       />
-      <CustomParlayBuilder snapshot={optimizerPayload ?? null} />
+      <CustomParlayGenerator snapshot={optimizerPayload} />
+      <CustomParlayBuilder snapshot={optimizerPayload} />
+    </>
+  );
+}
 
+function BankrollMode({ slips }: { slips: ParlaySlip[] }) {
+  return (
+    <>
       <SectionEyebrow
         tone="custom"
-        label="Custom generator · not officially tracked"
-        sub="Model-ranked custom slips synthesized from the same leg pool. Not included in the official public hit rate."
+        label="Bankroll plan · educational"
+        sub="Set a bankroll and a risk preference. The planner distributes it across today's model-ranked slips. Stakes are editable; payouts are projections, not guarantees."
       />
-      {/* PR #115: "Generate for me" — synthesizes 1–5 custom slips
-          from the same leg pool using model scoring + DNP guard.
-          Never persisted, never tracked publicly. */}
-      <CustomParlayGenerator snapshot={optimizerPayload ?? null} />
-      <BuilderFootnote optimizerActive={optimizerActive} />
-      <PlayerRecentFormDrawer leg={activeLeg} onClose={() => setActiveLeg(null)} />
-    </section>
+      <BankrollPlanPanel slips={slips} />
+    </>
   );
 }
 
@@ -424,26 +518,33 @@ function SectionEyebrow({
 // ---------------------------------------------------------------------------
 
 function BuilderHeader({
+  mode,
   date,
   source,
   isFallback,
   optimizerActive,
 }: {
+  mode: ParlayLabMode;
   date: string;
   source: "snapshot" | "graded";
   isFallback: boolean;
   optimizerActive: boolean;
 }) {
-  // PR `feature/professional-design-system`: removed the duplicate
-  // eyebrow line. DateStatusHeader above already shows "Parlay Lab ·
-  // 2026-05-27 · today" — repeating it as a second eyebrow wasted a
-  // line and competed for visual attention. The h1 + subcopy now read
-  // as the page's main hero. Subcopy also tightened.
-  // `source`/`isFallback` are kept in the signature so callers (and
-  // future variants) can still pass them; tone is now derived from
-  // `optimizerActive` so the headline color follows graded state.
-  // The unused params are silenced for the lint pass.
-  void source; void isFallback;
+  void source; void isFallback; void date;
+  const title =
+    mode === "build"
+      ? "Build your own."
+      : mode === "bankroll"
+        ? "Plan your bankroll."
+        : "Today's suggested parlays.";
+  const subcopy =
+    mode === "build"
+      ? "Generate custom slips or compose them by hand from the same leg pool. Custom slips are exploratory — they do not count toward the public hit-rate."
+      : mode === "bankroll"
+        ? "Set a bankroll, pick a risk preference, and the planner suggests stake sizes across today's model-ranked slips. Educational — not financial advice."
+        : optimizerActive
+          ? "Model-ranked slips in three lanes — Anchor, Core, Spotlight — saved before games and graded after. Swing (high-variance) sits behind a toggle."
+          : "Pregame snapshots saved before games, graded after.";
   return (
     <header className="flex flex-col gap-2">
       <h1
@@ -456,15 +557,13 @@ function BuilderHeader({
           fontWeight: 600,
         }}
       >
-        Today&apos;s suggested parlays.
+        {title}
       </h1>
       <p
         className="text-[14px] leading-relaxed"
         style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
       >
-        {optimizerActive
-          ? "Model-ranked slips in three lanes — Anchor, Core, Spotlight — saved before games and graded after. Swing (high-variance) sits behind a toggle. Custom tools below."
-          : "Pregame snapshots saved before games, graded after. Custom tools sit below."}
+        {subcopy}
       </p>
     </header>
   );
@@ -632,7 +731,16 @@ function AltLineComingSoon() {
   );
 }
 
-function BuilderFootnote({ optimizerActive }: { optimizerActive: boolean }) {
+function BuilderFootnote({
+  optimizerActive,
+  mode,
+}: {
+  optimizerActive: boolean;
+  mode: ParlayLabMode;
+}) {
+  // Footnote describes the official suggested-slip scoring math — only
+  // relevant when the user is looking at the official lanes.
+  if (mode !== "suggested") return null;
   return (
     <aside
       className="rounded-[8px] p-4"
