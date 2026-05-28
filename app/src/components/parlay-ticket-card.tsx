@@ -1,33 +1,47 @@
+"use client";
 /**
- * ParlayTicketCard — sportsbook-style ticket rendering for a single
- * `ParlaySlip`. Replaces the previous flat 3-row card with a layered
- * receipt feel:
+ * ParlayTicketCard — research-card rendering for a single `ParlaySlip`.
  *
- *   - Top accent line keyed to status (gold for pending, green for win,
- *     amber for loss, mute for push)
- *   - Risk-profile badge top-left, status pill top-right
- *   - Per-leg rows with player, market, side, line, friendly
- *     confidence, and (when graded) the final stat + hit/miss dot
- *   - Bottom footer with combined American odds + per-$100 profit
- *     (when every leg has stored odds — otherwise we show "—" honestly)
+ * Rebuilt in PR `feature/lane-spread-slip-cards` (2026-05-28) as part
+ * of the Option C editorial direction:
  *
- * Source: app/src/lib/data-parlays.ts ParlaySlip. Pure presentation:
- * caller passes a real slip, we render it. No fabricated odds, payouts,
- * or final stats. When the saved snapshot has missing data, the
- * corresponding cell shows "—" not a placeholder number.
+ *   - Header pairs the lane chip with a prominent right-aligned
+ *     combined-odds pill. Combined odds is the single largest number
+ *     on the card so the user's eye lands there first.
+ *   - "Pending final stats" copy is dropped on active suggested cards;
+ *     graded cards still surface the resolved status ("Slip hit" /
+ *     "Slip missed" / etc.) because that IS the most important fact
+ *     about a graded slip.
+ *   - The per-card slate / origin / sport-bucket chip row is gone;
+ *     the lane spread carries that context once for the whole lane.
+ *   - The per-leg "Calibration watch" signal text is replaced with a
+ *     tiny tone-dot on the market label — same information, no noise.
+ *   - "View form →" copy on each leg becomes "Form →".
+ *   - Footer is now a stake input + projected payout pair. Stake math
+ *     uses the existing odds-math + new parlay-payout helpers; the
+ *     payout is null whenever any leg's `oddsForSide` is missing, so
+ *     no fabricated dollar figures ever render.
+ *
+ * Source: `ParlaySlip` from `@/lib/parlay-suggested`. Pure
+ * presentation — no fetches, no fabricated odds, payouts, or stats.
  */
+import { useId, useState } from "react";
 import type { ParlaySlip, ParlayLeg } from "@/lib/parlay-suggested";
+import { formatAmerican } from "@/lib/odds-math";
 import {
-  combinedParlayPayoutPer100,
-  formatAmerican,
-} from "@/lib/odds-math";
-import { confidenceLabel } from "@/lib/confidence-labels";
+  DEFAULT_STAKE,
+  MAX_STAKE,
+  MIN_STAKE,
+  projectedPayoutForStake,
+  sanitizeStake,
+} from "@/lib/parlay-payout";
 import {
   EMPTY_CALIBRATION_TABLE,
   calibratedConfidenceLabelFromTable,
   type CalibrationTable,
   type Sport,
 } from "@/lib/confidence-calibration-rules";
+import { getLaneDisplay } from "@/lib/lane-display";
 import { formatSlateChip } from "@/lib/slate-label";
 import PlayerAvatar from "./player-avatar";
 import TeamLogo from "./team-logo";
@@ -49,26 +63,64 @@ interface Props {
    *  the caller's responsibility — this component only emits the
    *  click. */
   onLegClick?: (leg: ParlayLeg) => void;
-  /** PR #125 — the slate date this slip belongs to (YYYY-MM-DD).
-   *  Renders as a compact mono chip in the card sub-header so users
-   *  can never lose context about which date they're looking at.
-   *  When `isFallback` is true the chip says "Latest available · …"
-   *  instead of "Today · …". */
+  /** PR `feature/lane-spread-slip-cards` — visual emphasis level.
+   *  Featured slips get a heavier ticket presentation; alternates
+   *  render slightly more subdued so the lane has a clear hierarchy.
+   *  Defaults to "featured" for backward compatibility. */
+  emphasis?: "featured" | "alternate";
+  /** PR `feature/lane-spread-slip-cards` — whether to render the
+   *  stake/payout footer. The lane spread surfaces the featured
+   *  slip's payout footer; alternates can opt out via false to keep
+   *  the lane compact. Defaults to true. */
+  showStakeFooter?: boolean;
+  /** Per-card slate date chip (YYYY-MM-DD). Lane-spread callers
+   *  pass `null`/omit because the lane header already shows the
+   *  slate context once. Non-Lab surfaces (e.g. /results) still
+   *  pass it so each card carries its own date. */
   slateDate?: string | null;
-  /** PR #125 — true when the snapshot date is older than today (ET)
-   *  because the page walked back to find the latest available data. */
+  /** True when `slateDate` is older than today (ET). */
   slateIsFallback?: boolean;
-  /** PR #125 — origin classification for the card. Shown as a small
-   *  chip alongside the slate date so users can never mistake a
-   *  custom-generated or replay slip for an officially-tracked one.
-   *  Defaults to "official" for backward compatibility with existing
-   *  call sites. */
+  /** Origin classification chip. Lane-spread callers omit (lane
+   *  header carries one canonical "Official" pill); historical
+   *  surfaces still pass to distinguish official / custom / replay. */
   origin?: "official" | "custom" | "replay";
-  /** PR #125 — sport-bucket pill (NBA-only / MLB-only / Mixed).
-   *  Optional; defaults to deriving from `slip.sport`. Passed
-   *  explicitly when the caller already knows the bucket so the card
-   *  doesn't have to re-derive. */
-  sportBucketLabel?: string;
+  /** Sport-bucket chip ("NBA-only", "MLB-only", "Mixed"). Same rule
+   *  as `slateDate`/`origin`: lane spread omits, other surfaces pass. */
+  sportBucketLabel?: string | null;
+}
+
+/** Resolved/graded status copy. Active "pending" slips intentionally
+ *  show NO status text — the user already knows the slip is live by
+ *  context (it's on the Lab page), and surfacing "Pending final
+ *  stats" on every active card was visual noise. */
+function gradedStatusLabel(status: ParlaySlip["status"]): string | null {
+  switch (status) {
+    case "win":
+      return "Slip hit";
+    case "loss":
+      return "Slip missed";
+    case "push":
+      return "Slip push";
+    case "void":
+      return "Slip void";
+    case "pending":
+    default:
+      return null;
+  }
+}
+
+function slateChipColor(tone: "today" | "latest-available" | "neutral" | "missing"): string {
+  switch (tone) {
+    case "today":
+      return "var(--vault-gold-bright)";
+    case "latest-available":
+      return "var(--vault-text-mute)";
+    case "missing":
+      return "var(--vault-warn)";
+    case "neutral":
+    default:
+      return "var(--vault-text-mute)";
+  }
 }
 
 function statusColor(status: ParlaySlip["status"]): string {
@@ -87,97 +139,57 @@ function statusColor(status: ParlaySlip["status"]): string {
   }
 }
 
-function humanProfileLabel(profile: ParlaySlip["riskProfile"]): string {
-  switch (profile) {
-    case "conservative": return "Conservative";
-    case "balanced": return "Balanced";
-    case "aggressive": return "High variance";
-    case "star_power": return "Star Power";
-    default: return profile;
-  }
-}
-
-function riskProfileColor(profile: ParlaySlip["riskProfile"]): string {
-  switch (profile) {
-    case "conservative":
-      return "var(--vault-success)";
-    case "aggressive":
-      return "var(--vault-warn)";
-    case "star_power":
-      return "var(--vault-gold-bright)";
-    case "balanced":
-    default:
-      return "var(--vault-gold-bright)";
-  }
-}
-
-/** PR #125 — colour for the slate chip tone tokens emitted by
- *  `formatSlateChip`. Kept local to the card so we don't grow another
- *  exported helper. */
-function _slateColor(tone: "today" | "latest-available" | "neutral" | "missing"): string {
-  switch (tone) {
-    case "today":
-      return "var(--vault-gold-bright)";
-    case "latest-available":
-      return "var(--vault-text-mute)";
-    case "missing":
-      return "var(--vault-warn)";
-    case "neutral":
-    default:
-      return "var(--vault-text-mute)";
-  }
-}
-
-function statusLabel(status: ParlaySlip["status"]): string {
-  switch (status) {
-    case "pending":
-      return "Pending final stats";
-    case "win":
-      return "Slip hit";
-    case "loss":
-      return "Slip missed";
-    case "push":
-      return "Slip push";
-    case "void":
-      return "Slip void";
-    default:
-      return status;
-  }
-}
-
 export default function ParlayTicketCard({
   slip,
   savedPregame,
   calibrationTable = EMPTY_CALIBRATION_TABLE,
   onLegClick,
-  slateDate,
+  emphasis = "featured",
+  showStakeFooter = true,
+  slateDate = null,
   slateIsFallback = false,
-  origin = "official",
-  sportBucketLabel,
+  origin,
+  sportBucketLabel = null,
 }: Props) {
   const accent = statusColor(slip.status);
-  const profileColor = riskProfileColor(slip.riskProfile);
-  const payout = combinedParlayPayoutPer100(slip.legs);
-  const profileLabel = humanProfileLabel(slip.riskProfile);
+  const lane = getLaneDisplay(slip.riskProfile);
   const isStarPower = slip.riskProfile === "star_power";
-  // PR #125 — derive the per-card chips. Slate chip respects the
-  // helper's tone so the colour matches the page-level
-  // <DateStatusHeader>. Origin chip explicitly labels custom + replay
-  // so users can never mistake their provenance.
-  const slate = slateDate
-    ? formatSlateChip(slateDate, slateIsFallback)
+  const isFeatured = emphasis === "featured";
+  const gradedLabel = gradedStatusLabel(slip.status);
+  const slate = slateDate ? formatSlateChip(slateDate, slateIsFallback) : null;
+  const showChipRow = !!(slate || origin || sportBucketLabel);
+  const combined = projectedPayoutForStake(slip.legs, 1);
+  // combined odds are derived from the same decimal math as the
+  // payout helper. We only need the American format here.
+  const combinedAmerican = combined
+    ? (() => {
+        const decimal = combined.totalReturn; // stake=1 → decimal
+        if (decimal >= 2) return Math.round((decimal - 1) * 100);
+        if (decimal > 1) return -Math.round(100 / (decimal - 1));
+        return 0;
+      })()
     : null;
-  const bucketLabel =
-    sportBucketLabel ??
-    (slip.sport === "multi"
-      ? "Mixed"
-      : slip.sport
-        ? `${slip.sport.toUpperCase()}-only`
-        : null);
+
+  // Stake input lives in the card itself so the user can edit per
+  // slip without a global stake setting. Sanitised on commit; the
+  // raw string is kept for input control so the user can type freely.
+  const [stakeInput, setStakeInput] = useState<string>(`${DEFAULT_STAKE}`);
+  const stake = sanitizeStake(stakeInput) ?? DEFAULT_STAKE;
+  const payout = projectedPayoutForStake(slip.legs, stake);
+  const stakeId = useId();
+
   return (
     <article
-      className={`gtp-parlay-ticket relative overflow-hidden flex flex-col gap-3 ${isStarPower ? "casino-glow-card" : ""}`}
-      aria-label={`${profileLabel} parlay slip · ${slip.legs.length} legs · ${statusLabel(slip.status)}`}
+      className={`gtp-parlay-ticket relative overflow-hidden flex flex-col ${
+        isFeatured ? "gap-3" : "gap-2"
+      } ${isStarPower && isFeatured ? "casino-glow-card" : ""}`}
+      data-emphasis={emphasis}
+      style={{
+        opacity: isFeatured ? 1 : 0.95,
+      }}
+      aria-label={`${lane.name} parlay slip · ${slip.legs.length} legs${
+        gradedLabel ? ` · ${gradedLabel}` : ""
+      }`}
     >
       {/* Top accent rule keyed to status. Visual differentiator that
           gives the card a "ticket" feel without changing dimensions. */}
@@ -186,43 +198,39 @@ export default function ParlayTicketCard({
         className="absolute inset-x-0 top-0 h-[2px]"
         style={{
           background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
-          opacity: 0.75,
+          opacity: isFeatured ? 0.75 : 0.5,
         }}
       />
 
-      <header className="flex items-center justify-between gap-2 pt-3 px-4">
+      <header
+        className={`flex items-center justify-between gap-3 px-4 ${
+          isFeatured ? "pt-3.5" : "pt-3"
+        }`}
+      >
         <span
-          className="font-mono uppercase tracking-[0.16em] inline-flex items-center gap-1.5"
-          style={{ color: profileColor, fontSize: 10 }}
+          className="font-mono uppercase tracking-[0.16em] inline-flex items-center gap-1.5 min-w-0"
+          style={{ color: lane.accentVar, fontSize: isFeatured ? 11 : 10 }}
         >
           <span
             aria-hidden
-            className="inline-block w-1.5 h-1.5 rounded-full"
-            style={{ background: profileColor }}
+            className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+            style={{ background: lane.accentVar }}
           />
-          {profileLabel}
-          {slip.sameGame ? " · same-game" : ""}
+          <span className="truncate">
+            {lane.name}
+            {slip.sameGame ? " · same-game" : ""}
+          </span>
         </span>
-        <span
-          className="font-mono uppercase tracking-[0.14em] px-2 py-0.5 rounded-[3px]"
-          style={{
-            color: accent,
-            border: `1px solid ${accent}`,
-            background: "var(--gtp-card)",
-            fontSize: 9,
-          }}
-        >
-          {savedPregame && slip.status === "pending"
-            ? "Saved · pending"
-            : statusLabel(slip.status)}
-        </span>
+        <CombinedOddsPill
+          american={combinedAmerican}
+          emphasis={emphasis}
+          gradedLabel={gradedLabel}
+          accent={accent}
+          savedPregame={savedPregame}
+        />
       </header>
 
-      {/* PR #125 — sub-header chips: slate date · origin · sport bucket.
-          PR #4 (layout rebuild): bumped 9px → 11px font size, looser
-          tracking, more chip padding so they read clearly at 1280px
-          laptop + 375px mobile. Hierarchy unchanged. */}
-      {(slate || origin !== "official" || bucketLabel) && (
+      {showChipRow && (
         <div
           className="flex flex-wrap items-center gap-2 px-4 -mt-1"
           aria-label="Slip context"
@@ -231,30 +239,14 @@ export default function ParlayTicketCard({
             <span
               className="font-mono uppercase tracking-[0.08em] px-2.5 py-1 rounded-[4px]"
               style={{
-                color: _slateColor(slate.tone),
+                color: slateChipColor(slate.tone),
                 background: "var(--gtp-card-sunken)",
-                border: `1px solid ${_slateColor(slate.tone)}`,
+                border: `1px solid ${slateChipColor(slate.tone)}`,
                 fontSize: 11,
                 lineHeight: 1.1,
               }}
             >
               {slate.label}
-            </span>
-          )}
-          {origin !== "official" && (
-            <span
-              className="font-mono uppercase tracking-[0.08em] px-2.5 py-1 rounded-[4px]"
-              style={{
-                color: origin === "replay" ? "var(--vault-warn)" : "var(--vault-text-mute)",
-                background: "var(--gtp-card-sunken)",
-                border: `1px dashed ${origin === "replay" ? "var(--vault-warn)" : "var(--vault-text-mute)"}`,
-                fontSize: 11,
-                lineHeight: 1.1,
-              }}
-            >
-              {origin === "replay"
-                ? "Replay · not official"
-                : "Custom · not officially tracked"}
             </span>
           )}
           {origin === "official" && (
@@ -271,7 +263,30 @@ export default function ParlayTicketCard({
               Official
             </span>
           )}
-          {bucketLabel && (
+          {(origin === "custom" || origin === "replay") && (
+            <span
+              className="font-mono uppercase tracking-[0.08em] px-2.5 py-1 rounded-[4px]"
+              style={{
+                color:
+                  origin === "replay"
+                    ? "var(--vault-warn)"
+                    : "var(--vault-text-mute)",
+                background: "var(--gtp-card-sunken)",
+                border: `1px dashed ${
+                  origin === "replay"
+                    ? "var(--vault-warn)"
+                    : "var(--vault-text-mute)"
+                }`,
+                fontSize: 11,
+                lineHeight: 1.1,
+              }}
+            >
+              {origin === "replay"
+                ? "Replay · not official"
+                : "Custom · not officially tracked"}
+            </span>
+          )}
+          {sportBucketLabel && (
             <span
               className="font-mono uppercase tracking-[0.08em] px-2.5 py-1 rounded-[4px]"
               style={{
@@ -282,45 +297,156 @@ export default function ParlayTicketCard({
                 lineHeight: 1.1,
               }}
             >
-              {bucketLabel}
+              {sportBucketLabel}
             </span>
           )}
         </div>
       )}
 
-      <ul className="px-4 space-y-1.5">
+      <ul className={`px-4 ${isFeatured ? "space-y-2" : "space-y-1.5"}`}>
         {slip.legs.map((leg, i) => (
           <li key={`${slip.slipId}-${i}`}>
             <TicketLegRow
               leg={leg}
               calibrationTable={calibrationTable}
               onLegClick={onLegClick}
+              emphasis={emphasis}
             />
           </li>
         ))}
       </ul>
 
-      <footer
-        className="mx-4 mb-3 mt-1 pt-2 grid grid-cols-3 gap-2"
-        style={{ borderTop: "1px solid var(--vault-rule)" }}
-      >
-        <FooterCell
-          label="Legs"
-          value={`${slip.legs.length}`}
-          accent="var(--vault-text)"
-        />
-        <FooterCell
-          label="Combined"
-          value={payout ? formatAmerican(payout.american) : "—"}
-          accent="var(--vault-gold-bright)"
-        />
-        <FooterCell
-          label="Per $100"
-          value={payout ? `+$${payout.profitPer100.toFixed(0)}` : "—"}
-          accent={payout ? "var(--vault-success)" : "var(--vault-text-faint)"}
-        />
-      </footer>
+      {showStakeFooter && (
+        <footer
+          className="mx-4 mb-3 mt-1 pt-2.5 flex flex-wrap items-end justify-between gap-3"
+          style={{ borderTop: "1px solid var(--vault-rule)" }}
+        >
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor={`${stakeId}-stake`}
+              className="font-mono uppercase tracking-[0.16em]"
+              style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+            >
+              Stake (USD)
+            </label>
+            <div
+              className="inline-flex items-center rounded-[6px]"
+              style={{
+                background: "var(--gtp-card-sunken)",
+                border: "1px solid var(--vault-rule)",
+              }}
+            >
+              <span
+                aria-hidden
+                className="px-2 font-mono"
+                style={{ color: "var(--vault-text-faint)", fontSize: 12 }}
+              >
+                $
+              </span>
+              <input
+                id={`${stakeId}-stake`}
+                type="number"
+                inputMode="decimal"
+                min={MIN_STAKE}
+                max={MAX_STAKE}
+                step={1}
+                value={stakeInput}
+                onChange={(e) => setStakeInput(e.target.value)}
+                aria-label="Stake amount in USD"
+                className="bg-transparent outline-none font-display tabular text-right pr-2 py-1.5 w-[72px]"
+                style={{
+                  color: "var(--vault-text)",
+                  fontSize: 14,
+                  fontWeight: 600,
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1 text-right">
+            <span
+              className="font-mono uppercase tracking-[0.16em]"
+              style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+            >
+              Projected payout
+            </span>
+            <span
+              className="font-display tabular"
+              style={{
+                color: payout ? "var(--vault-success)" : "var(--vault-text-faint)",
+                fontSize: 18,
+                fontWeight: 600,
+                lineHeight: 1,
+              }}
+            >
+              {payout ? `$${payout.totalReturn.toFixed(2)}` : "—"}
+            </span>
+          </div>
+        </footer>
+      )}
     </article>
+  );
+}
+
+/** Combined-odds pill that anchors the top-right of the slip card.
+ *  Active "pending" slips show ONLY the odds (no status text). Graded
+ *  slips replace the odds pill with a status pill (win/loss/etc.)
+ *  because the resolved status is the most important fact on a graded
+ *  slip. */
+function CombinedOddsPill({
+  american,
+  emphasis,
+  gradedLabel,
+  accent,
+  savedPregame,
+}: {
+  american: number | null;
+  emphasis: "featured" | "alternate";
+  gradedLabel: string | null;
+  accent: string;
+  savedPregame: boolean | undefined;
+}) {
+  // Graded slip → status pill replaces the odds pill.
+  if (gradedLabel) {
+    return (
+      <span
+        className="font-mono uppercase tracking-[0.14em] px-2.5 py-1 rounded-[4px] shrink-0"
+        style={{
+          color: accent,
+          border: `1px solid ${accent}`,
+          background: "var(--gtp-card-sunken)",
+          fontSize: 10,
+          lineHeight: 1.1,
+        }}
+      >
+        {gradedLabel}
+      </span>
+    );
+  }
+  // Active suggested slip → big combined-odds pill anchors the eye.
+  return (
+    <span
+      className="font-display tabular inline-flex items-center gap-2 px-3 py-1 rounded-[6px] shrink-0"
+      style={{
+        color: "var(--vault-gold-bright)",
+        background: "var(--gtp-card-sunken)",
+        border: "1px solid var(--vault-gold-bright)",
+        fontSize: emphasis === "featured" ? 18 : 15,
+        fontWeight: 600,
+        lineHeight: 1,
+      }}
+      aria-label={
+        american != null
+          ? `Combined American odds ${formatAmerican(american)}`
+          : "Combined odds unavailable"
+      }
+      title={
+        savedPregame
+          ? "Combined American odds — saved pregame"
+          : "Combined American odds"
+      }
+    >
+      {american != null ? formatAmerican(american) : "—"}
+    </span>
   );
 }
 
@@ -328,10 +454,12 @@ function TicketLegRow({
   leg,
   calibrationTable,
   onLegClick,
+  emphasis,
 }: {
   leg: ParlayLeg;
   calibrationTable: CalibrationTable;
   onLegClick?: (leg: ParlayLeg) => void;
+  emphasis: "featured" | "alternate";
 }) {
   const result = leg.result;
   const resultAccent =
@@ -342,26 +470,34 @@ function TicketLegRow({
         : result === "push"
           ? "var(--vault-text-mute)"
           : "var(--vault-text-faint)";
-  // Calibration-aware label: when the audit shows a (sport, tier) is
-  // inverted, we display "Calibration watch" instead of the model's
-  // raw "Stronger signal" so users don't trust the label more than the
-  // numbers justify. Falls back to the raw friendly label otherwise.
+  // Calibration-aware label is still computed so the dot indicator can
+  // surface tone, but the verbose "· Calibration watch" suffix is no
+  // longer appended to the meta line.
   const sportKey = (leg.sport === "mlb" || leg.sport === "nba")
     ? (leg.sport as Sport)
     : null;
-  const signal = leg.confidence
-    ? sportKey
-      ? calibratedConfidenceLabelFromTable(
-          sportKey,
-          leg.confidence,
-          calibrationTable[sportKey] ?? {},
-        ).label
-      : confidenceLabel(leg.confidence)
+  const calibrated = leg.confidence && sportKey
+    ? calibratedConfidenceLabelFromTable(
+        sportKey,
+        leg.confidence,
+        calibrationTable[sportKey] ?? {},
+      )
     : null;
-  // When onLegClick is provided we render the row as a button. The
-  // visible content is unchanged; only the wrapping element + a small
-  // affordance ("View form") at the bottom-left of the meta line
-  // signals the row is interactive.
+  // Dot indicator replaces the noisy "· Calibration watch" suffix that
+  // used to repeat on every leg. Amber dot = audit downgraded this
+  // tier ("Calibration watch"). Green dot = label held its strength.
+  // No dot when we have no confidence signal.
+  const calibrationDotColor = calibrated && calibrated.label
+    ? calibrated.downgraded
+      ? "var(--vault-warn)"
+      : "var(--vault-success)"
+    : null;
+  const calibrationDotTitle = calibrated && calibrated.label
+    ? calibrated.downgraded
+      ? `Calibration watch — ${calibrated.reason}`
+      : calibrated.label
+    : null;
+
   const interactive = !!onLegClick;
   const RowTag = interactive ? "button" : "div";
   const rowProps: Record<string, unknown> = interactive
@@ -380,7 +516,7 @@ function TicketLegRow({
   return (
     <RowTag
       {...rowProps}
-      className={`w-full text-left grid grid-cols-[auto_1fr_auto] gap-2 sm:gap-2.5 items-center px-2 py-1.5 rounded-[4px] ${interactive ? "gtp-leg-button" : ""}`}
+      className={`w-full text-left grid grid-cols-[auto_1fr_auto] gap-2 sm:gap-2.5 items-center px-2.5 py-2 rounded-[5px] ${interactive ? "gtp-leg-button" : ""}`}
       style={{
         background: "var(--gtp-card)",
         border: "1px solid var(--vault-rule)",
@@ -398,7 +534,11 @@ function TicketLegRow({
       <div className="min-w-0">
         <div
           className="font-display tracking-tight truncate flex items-center gap-1.5"
-          style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}
+          style={{
+            color: "var(--vault-text)",
+            fontSize: emphasis === "featured" ? 13.5 : 13,
+            fontWeight: 600,
+          }}
         >
           <SportBadge sport={leg.sport} />
           <StarBadge tier={leg.starTier} />
@@ -406,16 +546,23 @@ function TicketLegRow({
         </div>
         <div
           className="font-mono flex items-center gap-1.5 min-w-0"
-          style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
+          style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}
         >
           {leg.team && teamSport ? (
             <TeamLogo team={leg.team} sport={teamSport} size="sm" />
           ) : null}
+          {calibrationDotColor && (
+            <span
+              aria-hidden
+              className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+              style={{ background: calibrationDotColor }}
+              title={calibrationDotTitle ?? undefined}
+            />
+          )}
           <span className="truncate">
             {leg.marketLabel || leg.market}{" "}
             {leg.side} {leg.line != null ? leg.line.toFixed(1) : "—"}
             {leg.team ? ` · ${leg.team}` : ""}
-            {signal ? ` · ${signal}` : ""}
             {interactive ? (
               <span
                 style={{
@@ -424,15 +571,15 @@ function TicketLegRow({
                   fontWeight: 500,
                 }}
               >
-                · View form →
+                · Form →
               </span>
             ) : null}
           </span>
         </div>
       </div>
       <span
-        className="font-mono uppercase tracking-[0.12em] inline-flex items-center gap-1 shrink-0 text-right"
-        style={{ color: resultAccent, fontSize: 9 }}
+        className="font-mono uppercase tracking-[0.12em] inline-flex items-center gap-1 shrink-0 text-right tabular"
+        style={{ color: resultAccent, fontSize: 11 }}
       >
         {result && (
           <span
@@ -486,8 +633,6 @@ function StarBadge({
   tier?: "none" | "regular" | "core" | "superstar";
 }) {
   if (!tier || tier === "none") return null;
-  // Tier-specific tooltip so power-users can see why a leg got the
-  // boost, but the visible glyph is the same single ⭐.
   const title =
     tier === "superstar"
       ? "Featured superstar"
@@ -507,32 +652,5 @@ function StarBadge({
     >
       ⭐
     </span>
-  );
-}
-
-function FooterCell({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: string;
-  accent: string;
-}) {
-  return (
-    <div className="flex flex-col gap-0.5 min-w-0">
-      <span
-        className="font-mono uppercase tracking-[0.16em] truncate"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
-      >
-        {label}
-      </span>
-      <span
-        className="font-display tabular truncate"
-        style={{ color: accent, fontSize: 14, fontWeight: 600, lineHeight: 1 }}
-      >
-        {value}
-      </span>
-    </div>
   );
 }
