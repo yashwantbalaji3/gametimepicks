@@ -176,7 +176,7 @@ export default function ResultsPage() {
       <section
         className="mt-10 rounded-[8px] p-4"
         style={{
-          background: "rgba(7,11,26,0.4)",
+          background: "var(--gtp-card)",
           border: "1px solid var(--vault-rule)",
         }}
         aria-label="Projection-level audit pointer"
@@ -239,7 +239,7 @@ function FreshEraStatusBlock({ hasAnyDateSection }: { hasAnyDateSection: boolean
       aria-label="Public parlay tracking era"
       className="rounded-[8px] p-4 sm:p-5 flex flex-col gap-2"
       style={{
-        background: "rgba(7,11,26,0.4)",
+        background: "var(--gtp-card)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -292,7 +292,7 @@ function EmptyState() {
     <section
       className="rounded-[8px] p-6 flex flex-col gap-3"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "var(--gtp-card)",
         border: "1px dashed var(--vault-border)",
       }}
     >

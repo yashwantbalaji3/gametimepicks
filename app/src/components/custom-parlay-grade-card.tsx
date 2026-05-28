@@ -51,7 +51,7 @@ export default function CustomParlayGradeCard({ legs, context }: Props) {
       aria-label="Custom parlay grade"
       className="rounded-[8px] p-3 sm:p-4 flex flex-col gap-3"
       style={{
-        background: "rgba(7,11,26,0.40)",
+        background: "var(--gtp-card)",
         border: "1px solid var(--vault-rule)",
       }}
     >

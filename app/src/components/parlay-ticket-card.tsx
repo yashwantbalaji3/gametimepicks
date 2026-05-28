@@ -208,7 +208,7 @@ export default function ParlayTicketCard({
           style={{
             color: accent,
             border: `1px solid ${accent}`,
-            background: "rgba(7,11,26,0.55)",
+            background: "var(--gtp-card)",
             fontSize: 9,
           }}
         >
@@ -232,7 +232,7 @@ export default function ParlayTicketCard({
               className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
               style={{
                 color: _slateColor(slate.tone),
-                background: "rgba(0,0,0,0.35)",
+                background: "var(--gtp-card-sunken)",
                 border: `1px solid ${_slateColor(slate.tone)}`,
                 fontSize: 9,
               }}
@@ -245,7 +245,7 @@ export default function ParlayTicketCard({
               className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
               style={{
                 color: origin === "replay" ? "var(--vault-warn)" : "var(--vault-text-mute)",
-                background: "rgba(0,0,0,0.35)",
+                background: "var(--gtp-card-sunken)",
                 border: `1px dashed ${origin === "replay" ? "var(--vault-warn)" : "var(--vault-text-mute)"}`,
                 fontSize: 9,
               }}
@@ -260,7 +260,7 @@ export default function ParlayTicketCard({
               className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
               style={{
                 color: "var(--vault-success)",
-                background: "rgba(0,0,0,0.35)",
+                background: "var(--gtp-card-sunken)",
                 border: "1px solid var(--vault-success)",
                 fontSize: 9,
               }}
@@ -273,7 +273,7 @@ export default function ParlayTicketCard({
               className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"
               style={{
                 color: "var(--vault-text-mute)",
-                background: "rgba(0,0,0,0.35)",
+                background: "var(--gtp-card-sunken)",
                 border: "1px solid var(--vault-rule)",
                 fontSize: 9,
               }}
@@ -378,7 +378,7 @@ function TicketLegRow({
       {...rowProps}
       className={`w-full text-left grid grid-cols-[auto_1fr_auto] gap-2 sm:gap-2.5 items-center px-2 py-1.5 rounded-[4px] ${interactive ? "gtp-leg-button" : ""}`}
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "var(--gtp-card)",
         border: "1px solid var(--vault-rule)",
         cursor: interactive ? "pointer" : "default",
       }}

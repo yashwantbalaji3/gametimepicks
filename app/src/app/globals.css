@@ -94,101 +94,86 @@
   --vault-shadow-elevated: 0 1px 0 rgba(212, 175, 55, 0.06), 0 8px 24px rgba(0, 0, 0, 0.32);
   --vault-glow-soft: radial-gradient(60% 100% at 0% 0%, rgba(240, 199, 94, 0.10) 0%, transparent 70%);
   --vault-edge-gold: linear-gradient(180deg, rgba(212, 175, 55, 0.42) 0%, rgba(212, 175, 55, 0.10) 18%, transparent 36%);
-}
 
-/* ============================================================================
-   PREMIUM-GOLD THEME (PR `feature/premium-gold-theme-foundation`)
-   ============================================================================
+  /* ==========================================================================
+     HYBRID PREMIUM THEME (PR `feature/theme-rebuild-professional`, 2026-05-28)
+     ==========================================================================
 
-   Brighter, cream/champagne-based premium palette. Activated by setting
-   `data-theme="premium-gold"` on any container element (typically a page
-   root). The block re-defines the `--vault-*` token values that components
-   already read, so EVERY descendant component picks up the brighter look
-   without per-component edits.
+     New `--gtp-*` semantic tokens defining a hybrid:
+       - dark premium app shell (header / nav / sports rail / mobile nav /
+         market ticker / footer)
+       - warm light content surface (canvas + off-white cards with deep-navy
+         text for readability)
 
-   Scope rules:
-     - Opt-in: applied per-page (currently `/parlay-lab` pilot).
-     - Reversible: removing the data attribute restores the dark vault
-       look instantly (no JS, no rebuild).
-     - Token-only: zero component code changes. If a future PR needs a
-       per-theme tweak the component CSS can read
-       `[data-theme="premium-gold"] .selector` directly, but the goal
-       is to keep that to a minimum.
-     - No banned copy in any class name or comment.
+     Replaces the failed PR #129 premium-gold pilot. That pilot only overrode
+     `--vault-*` token VALUES; many components used hard-coded
+     `rgba(7,11,26,0.40)` for card surfaces and ignored the theme entirely,
+     producing 1.1:1 contrast on the grade card. This token set provides
+     EXPLICIT card / canvas / shell tokens so components can read the
+     intended surface without hard-coding RGBs.
 
-   Palette intent:
-     - Base:    warm cream / champagne (paper feel)
-     - Cards:   off-white / light champagne with bronze borders
-     - Text:    deep navy/charcoal (gtp-ink) for primary, bronze for mute
-     - Accents: deeper gold + emerald success + muted red loss
-     - Premium but mature — not cartoonish, not bright yellow.
+     Contrast (hand-verified):
+       --gtp-on-card    (#14182E) on --gtp-card    (#FAF6EE) = ~14.0:1
+       --gtp-on-shell   (#F5E7C4) on --gtp-shell   (#0B0F1F) = ~13.4:1
+       --gtp-gold-on-light (#9A7B1F) on --gtp-card (#FAF6EE) = ~4.3:1 (AA-large)
+       --gtp-success    (#1B6F44) on --gtp-card    (#FAF6EE) = ~5.8:1 (AA)
+       --gtp-warn       (#8E6310) on --gtp-card    (#FAF6EE) = ~4.8:1 (AA)
+       --gtp-danger     (#9A2B28) on --gtp-card    (#FAF6EE) = ~5.6:1 (AA)
 
-   Contrast: hand-tuned to keep AA against #F8F2E6 for body text
-   (--vault-text at #1B1408 = ~14.2:1) and AA-large for accents
-   (--vault-gold at #9A7B1F on #F8F2E6 = ~4.2:1).
-============================================================================ */
+     See docs/UI_REBUILD_DIRECTION_2026-05-28.md §4.
+     ========================================================================== */
 
-[data-theme="premium-gold"] {
-  /* Base aliases used by `.vault-shell` and any non-vault component
-     that reads --bg / --text. */
-  --bg: #F8F2E6;
-  --surface: #FAF6EE;
-  --surface-elevated: #EDE0C7;
-  --border: rgba(180, 142, 50, 0.18);
-  --border-strong: rgba(180, 142, 50, 0.32);
-  --text: #1B1408;
-  --text-mute: #5B4A28;
-  --text-faint: #8A7240;
-  --hover: rgba(180, 142, 50, 0.08);
+  /* Shell surfaces — dark premium */
+  --gtp-shell:           #0B0F1F;
+  --gtp-shell-elevated:  #131830;
+  --gtp-shell-rail:      #0F1326;
+  --gtp-shell-overlay:   rgba(11, 15, 31, 0.92);
+  --gtp-shell-border:    rgba(212, 175, 55, 0.18);
+  --gtp-shell-rule:      rgba(212, 175, 55, 0.10);
 
-  /* Vault scoped tokens — every existing vault component picks these
-     up automatically. */
-  --vault-bg: #F8F2E6;
-  --vault-panel: #FAF6EE;
-  --vault-panel-elevated: #EDE0C7;
-  --vault-panel-hover: #E5D5A8;
-  --vault-border: rgba(180, 142, 50, 0.22);
-  --vault-border-strong: rgba(180, 142, 50, 0.40);
-  --vault-border-active: rgba(154, 123, 31, 0.70);
+  /* Content surfaces — warm light */
+  --gtp-canvas:          #F4EFE4;
+  --gtp-canvas-edge:     #ECE5D2;
+  --gtp-card:            #FAF6EE;
+  --gtp-card-elevated:   #FFFFFF;
+  --gtp-card-sunken:     #ECE5D2;
+  --gtp-card-border:     rgba(20, 28, 56, 0.10);
+  --gtp-card-border-strong: rgba(20, 28, 56, 0.20);
+  --gtp-card-shadow:     0 1px 0 rgba(20, 28, 56, 0.04),
+                         0 6px 18px rgba(20, 28, 56, 0.08);
 
-  --vault-gold: #9A7B1F;          /* deep gold for accent text on cream */
-  --vault-gold-bright: #B8923A;    /* mid gold for highlight chips */
-  --vault-gold-dim: rgba(180, 142, 50, 0.18);
-  --vault-gold-glow: rgba(180, 142, 50, 0.22);
+  /* Text on dark shell */
+  --gtp-on-shell:        #F5E7C4;
+  --gtp-on-shell-muted:  #B7A77C;
+  --gtp-on-shell-faint:  #8C7E5A;
 
-  --vault-text: #1B1408;           /* deep ink, ~14.2:1 on paper */
-  --vault-text-mute: #5B4A28;      /* bronze, ~7.2:1 */
-  --vault-text-faint: #8A7240;     /* muted bronze, ~4.5:1 */
+  /* Text on light card */
+  --gtp-on-card:         #14182E;
+  --gtp-on-card-muted:   #4A5276;
+  --gtp-on-card-faint:   #7B82A0;
 
-  --vault-success: #1E7A4A;        /* deep emerald, AA on cream */
-  --vault-success-dim: rgba(30, 122, 74, 0.12);
-  --vault-warn: #A77518;           /* deep amber, AA on cream */
-  --vault-warn-dim: rgba(167, 117, 24, 0.14);
-  --vault-danger: #A6322F;         /* deep red, AA on cream */
-  --vault-danger-dim: rgba(166, 50, 47, 0.10);
+  /* Accent + semantic — explicitly tuned for light cards */
+  --gtp-gold:            #D4AF37;
+  --gtp-gold-on-light:   #9A7B1F;
+  --gtp-gold-soft:       rgba(212, 175, 55, 0.14);
 
-  --vault-rule: rgba(180, 142, 50, 0.18);
-  --vault-shadow-soft: 0 1px 0 rgba(180, 142, 50, 0.06);
-  --vault-focus-ring:
-    0 0 0 1px var(--vault-gold),
-    0 0 0 4px rgba(180, 142, 50, 0.22);
+  --gtp-success:         #1B6F44;
+  --gtp-success-soft:    rgba(27, 111, 68, 0.10);
+  --gtp-warn:            #8E6310;
+  --gtp-warn-soft:       rgba(142, 99, 16, 0.10);
+  --gtp-danger:          #9A2B28;
+  --gtp-danger-soft:     rgba(154, 43, 40, 0.10);
 
-  --vault-shadow-elevated:
-    0 1px 0 rgba(180, 142, 50, 0.10),
-    0 8px 24px rgba(120, 90, 30, 0.10);
-  --vault-glow-soft:
-    radial-gradient(
-      60% 100% at 0% 0%,
-      rgba(184, 146, 58, 0.08) 0%,
-      transparent 70%
-    );
-  --vault-edge-gold:
-    linear-gradient(
-      180deg,
-      rgba(154, 123, 31, 0.36) 0%,
-      rgba(154, 123, 31, 0.08) 18%,
-      transparent 36%
-    );
+  /* Inverse versions for the dark shell */
+  --gtp-success-on-dark: #6EE7A8;
+  --gtp-warn-on-dark:    #F0C75E;
+  --gtp-danger-on-dark:  #F08A8A;
+
+  /* Radius + border helpers */
+  --gtp-radius-sm:      6px;
+  --gtp-radius:         10px;
+  --gtp-radius-lg:      14px;
+  --gtp-radius-pill:    9999px;
 }
 
 /* ============================================================================
@@ -573,9 +558,72 @@ table,
    layout.tsx. Used so future foundation tweaks don't require global
    selectors. */
 .vault-shell {
-  background: var(--bg);
-  color: var(--text);
+  /* Dark premium shell. Holds nav, sports rail, mobile bottom nav,
+     ticker, footer. Body bg stays dark across the whole app. */
+  background: var(--gtp-shell);
+  color: var(--gtp-on-shell);
   position: relative;
+}
+
+/* ----------------------------------------------------------------
+   Hybrid theme — light content area
+   PR `feature/theme-rebuild-professional` (2026-05-28).
+   Wrap a page's content with `.gtp-canvas` to opt into the warm
+   light reading surface. Cards inside should use `var(--gtp-card)`
+   for background and `var(--gtp-on-card)` for text. Cards continue
+   to use existing `.vault-page-shell` for max-width centering.
+   ---------------------------------------------------------------- */
+.gtp-canvas {
+  background: var(--gtp-canvas);
+  color: var(--gtp-on-card);
+  /* Scoped overrides — existing components keep reading
+     `var(--vault-*)` from their inline styles and pick up the
+     canvas-appropriate values automatically. Text becomes deep
+     navy, mute becomes slate, gold loses its glow for cards.
+     The dark shell outside `.gtp-canvas` keeps the original
+     vault palette unchanged. */
+  --vault-text: var(--gtp-on-card);
+  --vault-text-mute: var(--gtp-on-card-muted);
+  --vault-text-faint: var(--gtp-on-card-faint);
+  --vault-gold: var(--gtp-gold-on-light);
+  --vault-gold-bright: var(--gtp-gold-on-light);
+  --vault-gold-dim: var(--gtp-gold-soft);
+  --vault-gold-glow: var(--gtp-gold-soft);
+  --vault-success: var(--gtp-success);
+  --vault-success-dim: var(--gtp-success-soft);
+  --vault-warn: var(--gtp-warn);
+  --vault-warn-dim: var(--gtp-warn-soft);
+  --vault-danger: var(--gtp-danger);
+  --vault-danger-dim: var(--gtp-danger-soft);
+  --vault-rule: var(--gtp-card-border);
+  --vault-border: var(--gtp-card-border);
+  --vault-border-strong: var(--gtp-card-border-strong);
+  --vault-bg: var(--gtp-canvas);
+  --vault-panel: var(--gtp-card);
+  --vault-panel-elevated: var(--gtp-card-elevated);
+  --vault-panel-hover: var(--gtp-card-sunken);
+  --vault-shadow-soft: 0 1px 0 rgba(20, 28, 56, 0.04);
+  --vault-shadow-elevated: var(--gtp-card-shadow);
+}
+.gtp-canvas a {
+  color: var(--gtp-gold-on-light);
+}
+.gtp-canvas a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* Light-canvas defaults: paragraphs/lists/divs inherit the canvas
+   color so any descendant that doesn't set an explicit color stays
+   readable against the cream surface. */
+.gtp-canvas p,
+.gtp-canvas li,
+.gtp-canvas dd,
+.gtp-canvas dt {
+  color: var(--gtp-on-card);
+}
+.gtp-canvas .gtp-muted,
+.gtp-canvas [data-muted] {
+  color: var(--gtp-on-card-muted);
 }
 
 /* PR makeover — wider premium page container. Replaces the prior
@@ -4009,6 +4057,20 @@ table,
     0 1px 0 rgba(212, 175, 55, 0.10) inset,
     0 14px 32px -14px rgba(0, 0, 0, 0.65),
     0 0 22px -10px rgba(240, 199, 94, 0.30);
+}
+/* Hybrid-theme override — when the slip card lives inside a light
+   `.gtp-canvas` (e.g. /parlay-lab post-PR #3), swap to an off-white
+   card surface so deep-navy chip text reads at AA contrast. */
+.gtp-canvas .gtp-parlay-ticket {
+  background: var(--gtp-card);
+  border: 1px solid var(--gtp-card-border);
+  box-shadow: var(--gtp-card-shadow);
+}
+.gtp-canvas .gtp-parlay-ticket:hover {
+  border-color: var(--gtp-card-border-strong);
+  box-shadow:
+    var(--gtp-card-shadow),
+    0 0 22px -10px rgba(212, 175, 55, 0.25);
 }
 @media (prefers-reduced-motion: reduce) {
   .gtp-parlay-ticket,

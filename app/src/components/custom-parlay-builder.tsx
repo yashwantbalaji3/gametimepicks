@@ -167,7 +167,7 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
                   <li
                     key={leg.leanId}
                     className="flex items-center justify-between gap-3 rounded-md border border-[color:var(--vault-divider)] p-2.5 sm:p-3"
-                    style={{ background: "rgba(7,11,26,0.55)" }}
+                    style={{ background: "var(--gtp-card)" }}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <PlayerAvatar

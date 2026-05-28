@@ -89,17 +89,14 @@ export default function ParlayLabPage() {
 
   return (
     <div
-      // PR `feature/premium-gold-theme-foundation` — premium-gold
-      // pilot wrapper. Every vault-* token resolves to its
-      // cream/champagne counterpart inside this subtree (see
-      // globals.css [data-theme="premium-gold"]). The wrapper
-      // also paints the cream background full-bleed so the area
-      // beyond the centered 1440px content column doesn't show the
-      // app's dark body bg. Removing the attribute reverts the page
-      // to the dark vault look instantly.
-      data-theme="premium-gold"
-      className="min-h-screen"
-      style={{ background: "var(--vault-bg)" }}
+      // PR `feature/theme-rebuild-professional` (2026-05-28) — hybrid
+      // theme. Dark app shell (from .vault-shell on body) keeps the
+      // top nav + desktop sports rail + mobile bottom nav + ticker
+      // premium-dark. This wrapper paints the warm light content
+      // area so the centered 1440px content column reads with
+      // deep-navy text on cream. See docs/UI_REBUILD_DIRECTION_2026-05-28.md
+      // for the full token + contrast contract.
+      className="gtp-canvas min-h-screen"
     >
       <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden">
       <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6 mb-4 sm:mb-6" />
@@ -154,7 +151,7 @@ function EmptyLabState() {
     <section
       className="rounded-[8px] p-6 flex flex-col gap-3"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "var(--gtp-card)",
         border: "1px dashed var(--vault-border)",
       }}
       aria-label="No slips available"
@@ -186,7 +183,7 @@ function FooterPointer() {
     <section
       className="mt-10 rounded-[8px] p-4"
       style={{
-        background: "rgba(7,11,26,0.4)",
+        background: "var(--gtp-card)",
         border: "1px solid var(--vault-rule)",
       }}
       aria-label="Game-by-game research pointer"
