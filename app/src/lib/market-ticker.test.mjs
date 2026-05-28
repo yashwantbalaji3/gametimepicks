@@ -94,8 +94,8 @@ test("home surface with NO summary loaded still emits the safety notes (no data 
   // ticker always carries them on home + parlay_lab.
   const out = buildMarketTickerItems({ surface: "home" });
   const ids = out.map((i) => i.id);
-  assert.ok(ids.includes("safety-conservative"));
-  assert.ok(ids.includes("safety-longshot-hidden"));
+  assert.ok(ids.includes("lane-variance-anchor-core"));
+  assert.ok(ids.includes("lane-swing-hidden"));
   // But NO results-tracked / results-hitrate when no summary input.
   assert.ok(!ids.includes("results-tracked"));
   assert.ok(!ids.includes("results-hitrate"));
@@ -242,8 +242,8 @@ test("hit rate NOT emitted when decisive === 0 (no fake 0%)", () => {
 test("home surface includes the lane-safety notes", () => {
   const out = buildMarketTickerItems({ surface: "home" });
   const ids = out.map((i) => i.id);
-  assert.ok(ids.includes("safety-conservative"));
-  assert.ok(ids.includes("safety-longshot-hidden"));
+  assert.ok(ids.includes("lane-variance-anchor-core"));
+  assert.ok(ids.includes("lane-swing-hidden"));
 });
 
 test("parlay_lab surface includes the custom-builder caveat", () => {

@@ -43,6 +43,7 @@ import {
 } from "@/lib/confidence-calibration-rules";
 import { getLaneDisplay } from "@/lib/lane-display";
 import { formatSlateChip } from "@/lib/slate-label";
+import { formatSideLine, humanMarketLabel } from "@/lib/market-label";
 import PlayerAvatar from "./player-avatar";
 import TeamLogo from "./team-logo";
 
@@ -513,10 +514,29 @@ function TicketLegRow({
   const teamSport = (leg.sport === "mlb" || leg.sport === "nba" || leg.sport === "nhl")
     ? (leg.sport as "mlb" | "nba" | "nhl")
     : undefined;
+  const marketName = humanMarketLabel(leg.sport, leg.market, leg.marketLabel);
+  const sideLineLabel = formatSideLine(leg.side, leg.line);
+  const bookLabel = formatBookLabel(leg.bookmaker);
+  const gameDateLabel = formatGameDate(leg.gameDate);
+  // Matchup context: we don't know home/away at slip-card time so use
+  // "TEAM vs OPP" as the conventional non-directional matchup string.
+  // Never fabricate — when opponent is missing, fall back to team alone.
+  const matchupLabel = leg.team
+    ? leg.opponent
+      ? `${leg.team} vs ${leg.opponent}`
+      : leg.team
+    : leg.opponent ?? null;
+  // Right-anchored value for line 1: graded leg shows the result+stat;
+  // active leg shows the per-leg American odds.
+  const rightValue = result
+    ? `${result.toUpperCase()}${typeof leg.finalStat === "number" ? ` · ${leg.finalStat}` : ""}`
+    : formatAmerican(leg.oddsForSide ?? null);
+  const rightValueColor = result ? resultAccent : "var(--vault-text)";
+
   return (
     <RowTag
       {...rowProps}
-      className={`w-full text-left grid grid-cols-[auto_1fr_auto] gap-2 sm:gap-2.5 items-center px-2.5 py-2 rounded-[5px] ${interactive ? "gtp-leg-button" : ""}`}
+      className={`w-full text-left grid grid-cols-[auto_1fr] gap-2.5 items-start px-2.5 py-2 rounded-[6px] ${interactive ? "gtp-leg-button" : ""}`}
       style={{
         background: "var(--gtp-card)",
         border: "1px solid var(--vault-rule)",
@@ -528,97 +548,139 @@ function TicketLegRow({
         playerName={leg.playerName}
         team={leg.team ?? undefined}
         sport={avatarSport}
-        size="xs"
+        size="sm"
         flat
       />
-      <div className="min-w-0">
-        <div
-          className="font-display tracking-tight truncate flex items-center gap-1.5"
-          style={{
-            color: "var(--vault-text)",
-            fontSize: emphasis === "featured" ? 13.5 : 13,
-            fontWeight: 600,
-          }}
-        >
-          <SportBadge sport={leg.sport} />
-          <StarBadge tier={leg.starTier} />
-          <span className="truncate">{leg.playerName}</span>
-        </div>
-        <div
-          className="font-mono flex items-center gap-1.5 min-w-0"
-          style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}
-        >
-          {leg.team && teamSport ? (
-            <TeamLogo team={leg.team} sport={teamSport} size="sm" />
-          ) : null}
-          {calibrationDotColor && (
+      <div className="min-w-0 flex flex-col gap-0.5">
+        {/* Line 1: team logo · player name · matchup · odds (right-aligned) */}
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+            {leg.team && teamSport ? (
+              <TeamLogo team={leg.team} sport={teamSport} size="sm" />
+            ) : null}
+            <StarBadge tier={leg.starTier} />
             <span
-              aria-hidden
-              className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
-              style={{ background: calibrationDotColor }}
-              title={calibrationDotTitle ?? undefined}
-            />
-          )}
-          <span className="truncate">
-            {leg.marketLabel || leg.market}{" "}
-            {leg.side} {leg.line != null ? leg.line.toFixed(1) : "—"}
-            {leg.team ? ` · ${leg.team}` : ""}
-            {interactive ? (
+              className="font-display tracking-tight truncate"
+              style={{
+                color: "var(--vault-text)",
+                fontSize: emphasis === "featured" ? 14 : 13,
+                fontWeight: 600,
+              }}
+            >
+              {leg.playerName}
+            </span>
+            {matchupLabel && (
               <span
+                className="font-mono truncate shrink"
                 style={{
-                  marginLeft: 6,
-                  color: "var(--vault-gold-bright)",
-                  fontWeight: 500,
+                  color: "var(--vault-text-faint)",
+                  fontSize: 11,
                 }}
               >
-                · Form →
+                · {matchupLabel}
               </span>
-            ) : null}
+            )}
+          </div>
+          <span
+            className="font-display tabular shrink-0 text-right"
+            style={{
+              color: rightValueColor,
+              fontSize: emphasis === "featured" ? 14 : 13,
+              fontWeight: 700,
+              lineHeight: 1,
+            }}
+            aria-label={result ? `Result: ${rightValue}` : `Per-leg American odds ${rightValue}`}
+          >
+            {rightValue}
           </span>
         </div>
+        {/* Line 2: calibration dot · market · side+line · book · game date · Form action */}
+        <div className="flex items-center gap-2 min-w-0">
+          <div
+            className="flex items-center gap-1.5 min-w-0 flex-1 font-mono"
+            style={{ color: "var(--vault-text-mute)", fontSize: 11 }}
+          >
+            {calibrationDotColor && (
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                style={{ background: calibrationDotColor }}
+                title={calibrationDotTitle ?? undefined}
+              />
+            )}
+            <span
+              className="truncate"
+              style={{ color: "var(--vault-text)" }}
+            >
+              {marketName} {sideLineLabel}
+            </span>
+            {bookLabel && (
+              <span className="shrink-0">
+                · <span style={{ color: "var(--vault-text-mute)" }}>{bookLabel}</span>
+              </span>
+            )}
+            {gameDateLabel && (
+              <span className="shrink-0 hidden sm:inline">
+                · <span style={{ color: "var(--vault-text-faint)" }}>{gameDateLabel}</span>
+              </span>
+            )}
+          </div>
+          {interactive ? (
+            <span
+              className="font-mono uppercase tracking-[0.12em] shrink-0"
+              style={{
+                color: "var(--vault-gold-bright)",
+                fontSize: 10,
+                fontWeight: 500,
+              }}
+            >
+              Form →
+            </span>
+          ) : null}
+        </div>
       </div>
-      <span
-        className="font-mono uppercase tracking-[0.12em] inline-flex items-center gap-1 shrink-0 text-right tabular"
-        style={{ color: resultAccent, fontSize: 11 }}
-      >
-        {result && (
-          <span
-            aria-hidden
-            className="inline-block w-1.5 h-1.5 rounded-full"
-            style={{ background: resultAccent }}
-          />
-        )}
-        {result ? result : formatAmerican(leg.oddsForSide ?? null)}
-        {typeof leg.finalStat === "number" ? ` · ${leg.finalStat}` : ""}
-      </span>
     </RowTag>
   );
 }
 
-/**
- * SportBadge — small pill that visually tags a leg as NBA or MLB so a
- * multi-sport slip is unmistakable. Uses 🏀/⚾ when supported. */
-function SportBadge({ sport }: { sport: string }) {
-  const s = (sport ?? "").toLowerCase();
-  if (s !== "nba" && s !== "mlb") return null;
-  const icon = s === "nba" ? "🏀" : "⚾";
-  const tone =
-    s === "nba" ? "var(--vault-gold-bright)" : "var(--vault-success)";
-  return (
-    <span
-      aria-hidden
-      className="inline-flex items-center mr-1.5 font-mono uppercase tracking-[0.12em]"
-      style={{
-        color: tone,
-        fontSize: 9,
-        verticalAlign: "middle",
-      }}
-      title={s.toUpperCase()}
-    >
-      <span style={{ marginRight: 2 }}>{icon}</span>
-      {s.toUpperCase()}
-    </span>
-  );
+/** Best-effort book label normaliser. Maps known bookmaker keys to
+ *  their display names; falls through to the raw string with the first
+ *  letter capitalised. Pure presentation — never throws. */
+function formatBookLabel(book: string | null | undefined): string | null {
+  if (!book) return null;
+  const k = book.toLowerCase().trim();
+  if (!k) return null;
+  const known: Record<string, string> = {
+    draftkings: "DraftKings",
+    fanduel: "FanDuel",
+    betmgm: "BetMGM",
+    caesars: "Caesars",
+    pointsbet: "PointsBet",
+    barstool: "Barstool",
+    wynnbet: "WynnBet",
+    bet365: "bet365",
+    pinnacle: "Pinnacle",
+    espnbet: "ESPN BET",
+    fanatics: "Fanatics",
+    hardrockbet: "Hard Rock Bet",
+  };
+  return known[k] ?? book.charAt(0).toUpperCase() + book.slice(1);
+}
+
+/** "2026-05-28" → "May 28". Returns null on parse failure. Honest:
+ *  the leg payload only carries the date (no time), so we surface
+ *  date only and let PR3 thread the start-time when board metadata is
+ *  available. */
+function formatGameDate(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const mi = parseInt(m[2], 10) - 1;
+  const day = parseInt(m[3], 10);
+  if (mi < 0 || mi > 11 || Number.isNaN(day)) return null;
+  return `${months[mi]} ${day}`;
 }
 
 /**

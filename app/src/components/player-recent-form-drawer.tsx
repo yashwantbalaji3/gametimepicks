@@ -18,11 +18,13 @@
  *   - Desktop: centered modal with max-width.
  *   - Focus trap is light-touch (focuses the close button on open).
  */
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { ParlayLeg } from "@/lib/parlay-suggested";
 import { takeNewestFirst } from "@/lib/recent-form-order";
+import { humanMarketLabel } from "@/lib/market-label";
 import PlayerAvatar from "./player-avatar";
 import TeamLogo from "./team-logo";
+import RecentFormSparkline from "./recent-form-sparkline";
 
 interface Props {
   leg: ParlayLeg | null;
@@ -78,7 +80,17 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
     recentGamesOldestFirst.length > 0
       ? recentGamesOldestFirst.length
       : seriesOldestFirst.length;
-  const stat = formatMarketLabel(leg.sport, leg.market, leg.marketLabel);
+  const stat = humanMarketLabel(leg.sport, leg.market, leg.marketLabel);
+  // Sparkline wants newest-first; the takeNewestFirst above already
+  // reversed the series. recent5 = newest-first numeric values.
+  const sparklineValues = recent5;
+  // Compute over/under summary across the available history for an
+  // honest "X of Y cleared the line" subtitle. Skip when we have no
+  // line.
+  const clearedCount =
+    leg.line != null
+      ? recent5.filter((v) => v > (leg.line as number)).length
+      : null;
 
   return (
     <div
@@ -176,6 +188,14 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
 
         <div className="px-4 py-3 flex flex-col gap-3 overflow-y-auto">
           <PickSummary leg={leg} stat={stat} />
+          {sparklineValues.length > 0 && (
+            <TrendPanel
+              values={sparklineValues}
+              line={leg.line}
+              statLabel={stat}
+              clearedCount={clearedCount}
+            />
+          )}
           {enriched.length > 0 ? (
             <EnrichedRecentList
               games={enriched}
@@ -211,6 +231,7 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
               {totalCount} {totalCount === 1 ? "game" : "games"} on record
             </p>
           )}
+          <ProvenanceNote sport={leg.sport} />
         </div>
       </div>
     </div>
@@ -463,24 +484,84 @@ function FallbackNote() {
   );
 }
 
-function formatMarketLabel(
-  sport: string,
-  market: string,
-  marketLabel: string | null | undefined,
-): string {
-  if (marketLabel && marketLabel !== market) return marketLabel;
+/** Compact trend panel — sparkline + "X of Y cleared" eyebrow. The
+ *  sparkline values are always passed newest-first to match the list
+ *  rendered below; it visualises the same five games. */
+function TrendPanel({
+  values,
+  line,
+  statLabel,
+  clearedCount,
+}: {
+  values: number[];
+  line: number | null;
+  statLabel: string;
+  clearedCount: number | null;
+}) {
+  if (values.length === 0) return null;
+  return (
+    <div
+      className="px-3 py-3 rounded-[6px] flex flex-col gap-2"
+      style={{
+        background: "rgba(0,0,0,0.30)",
+        border: "1px solid var(--vault-rule)",
+      }}
+    >
+      <div className="flex items-baseline justify-between gap-2">
+        <span
+          className="font-mono uppercase tracking-[0.16em]"
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+        >
+          Trend · {statLabel}
+        </span>
+        {clearedCount !== null && line !== null && (
+          <span
+            className="font-mono"
+            style={{ color: "var(--vault-text-mute)", fontSize: 11 }}
+          >
+            {clearedCount} of {values.length} cleared {line.toFixed(1)}
+          </span>
+        )}
+      </div>
+      <div className="flex justify-center">
+        <RecentFormSparkline values={values} threshold={line} />
+      </div>
+      {line !== null && (
+        <span
+          className="font-mono"
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+        >
+          Dashed line = prop line ({line.toFixed(1)}). Bars above = cleared.
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Honest data-source note. Recent-form values come from settlement
+ *  feeds (MLB Stats API / nba_api) attached to each leg by the morning
+ *  pipeline. Game start times are not currently persisted on the leg
+ *  payload — surfacing date only is intentional, not a missing field. */
+function ProvenanceNote({ sport }: { sport: string }) {
   const s = (sport || "").toLowerCase();
-  const m = (market || "").toLowerCase();
-  if (s === "nba") {
-    if (m === "pts") return "PTS";
-    if (m === "reb") return "REB";
-    if (m === "ast") return "AST";
-  }
-  if (s === "mlb") {
-    if (m === "batter_hits") return "Hits";
-    if (m === "batter_total_bases") return "Total Bases";
-    if (m === "pitcher_strikeouts") return "K";
-    if (m === "batter_hits_runs_rbis") return "H+R+RBI";
-  }
-  return market || "Stat";
+  const sourceLabel =
+    s === "mlb"
+      ? "MLB Stats API"
+      : s === "nba"
+        ? "nba_api"
+        : "settlement feed";
+  return (
+    <p
+      className="text-[10.5px] leading-snug rounded-[4px] px-2.5 py-1.5"
+      style={{
+        color: "var(--vault-text-faint)",
+        background: "rgba(0,0,0,0.20)",
+        border: "1px dashed var(--vault-rule)",
+      }}
+    >
+      Recent-form values from {sourceLabel} via the daily settlement
+      pipeline. Game start times aren&apos;t persisted on each leg yet —
+      dates only.
+    </p>
+  );
 }
