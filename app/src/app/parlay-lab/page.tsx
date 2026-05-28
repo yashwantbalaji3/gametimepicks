@@ -19,7 +19,9 @@ import Link from "next/link";
 
 import ParlayLabBuilder from "@/components/parlay-lab-builder";
 import MarketTicker from "@/components/market-ticker";
-import DateStatusHeader from "@/components/date-status-header";
+// DateStatusHeader import removed in PR `feature/parlay-lab-compact-hero`.
+// The new <SlateStrip> below replaces it on /parlay-lab. Other surfaces
+// (/results, /projections) continue to use DateStatusHeader.
 import { buildMarketTickerItems } from "@/lib/market-ticker";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import {
@@ -88,28 +90,21 @@ export default function ParlayLabPage() {
   const totalSlips = optimizerForDate?.totalSlips ?? suggested?.slips?.length ?? 0;
 
   return (
-    // PR `feature/professional-design-system` (2026-05-28) — reverted
-    // the hybrid cream pilot. The dark shell + cream content created
-    // a "donut" visual where the cream content area felt washed out
-    // against the rich dark perimeter. The page now uses the unified
-    // refined-dark premium theme (see globals.css §"Refined dark
-    // premium" tokens). Cards inherit `--gtp-card-dark` for a deeper
-    // charcoal surface that stays readable on the dark shell.
-    <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
-      <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6 mb-4 sm:mb-6" />
-      <div className="mb-4 sm:mb-6">
-        <DateStatusHeader
-          date={activeDate}
-          label={isFallback ? "latest-available" : "today"}
-          context="Suggested parlays · official slate"
-          counts={{ slips: totalSlips }}
-          note={
-            totalSlips === 0
-              ? "No official suggested parlays for this slate. The safety filters did not find a clean slip."
-              : `NBA-only ${nbaSlips} · MLB-only ${mlbSlips} · Mixed ${mixedSlips}`
-          }
-        />
-      </div>
+    // PR `feature/parlay-lab-compact-hero` (2026-05-28) — collapsed
+    // the 120px DateStatusHeader card into a 32px inline slate strip.
+    // Pulls 2-3 additional slip cards above the fold without losing
+    // any of the date / status / count info. Big DateStatusHeader
+    // is still available for other surfaces (results, projections).
+    <div className="vault-page-shell px-4 sm:px-8 py-4 sm:py-6 overflow-x-hidden">
+      <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6 mb-3" />
+      <SlateStrip
+        date={activeDate}
+        isFallback={isFallback}
+        totalSlips={totalSlips}
+        nbaSlips={nbaSlips}
+        mlbSlips={mlbSlips}
+        mixedSlips={mixedSlips}
+      />
       <Suspense fallback={<div className="min-h-[60vh]" aria-hidden />}>
         {suggested ? (
           <ParlayLabBuilder
@@ -139,6 +134,105 @@ export default function ParlayLabPage() {
 
       <FooterPointer />
     </div>
+  );
+}
+
+/**
+ * Compact one-line slate strip — replaces the large DateStatusHeader
+ * card on /parlay-lab.  Shows date · status · slip counts in a single
+ * 32px-tall row so the actual slip cards sit much closer to the fold.
+ *
+ * Format (desktop):
+ *   ● Wed · May 27   ·   64 slips   ·   NBA 0 · MLB 32 · Mixed 0
+ *                                                           [Latest available]
+ *
+ * On mobile the right-hand "Latest available" chip wraps to a second
+ * line if needed.  Date format uses the `formatDateForHeader` helper
+ * already used by other date surfaces, so it stays consistent.
+ */
+function SlateStrip({
+  date,
+  isFallback,
+  totalSlips,
+  nbaSlips,
+  mlbSlips,
+  mixedSlips,
+}: {
+  date: string;
+  isFallback: boolean;
+  totalSlips: number;
+  nbaSlips: number;
+  mlbSlips: number;
+  mixedSlips: number;
+}) {
+  // Format date as "Wed · May 27" for the strip.  Local helper to
+  // avoid pulling formatDateForHeader for one-line use.
+  let pretty = date;
+  try {
+    const d = new Date(`${date}T12:00:00`);
+    const weekday = d.toLocaleDateString("en-US", { weekday: "short" });
+    const month = d.toLocaleDateString("en-US", { month: "short" });
+    const day = d.getDate();
+    pretty = `${weekday} · ${month} ${day}`;
+  } catch {
+    /* fallback to raw ISO if parse fails */
+  }
+  const isToday = date === currentEtDate() && !isFallback;
+  const statusLabel = isToday ? "Today" : "Latest available";
+  const statusColor = isToday
+    ? "var(--vault-gold-bright)"
+    : "var(--vault-text-mute)";
+  return (
+    <section
+      aria-label="Slate overview"
+      className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[8px] px-3 sm:px-4 py-2.5"
+      style={{
+        background: "var(--gtp-card)",
+        border: "1px solid var(--gtp-card-border)",
+      }}
+    >
+      <span
+        className="inline-flex items-center gap-2"
+        style={{ color: "var(--vault-text)" }}
+      >
+        <span
+          aria-hidden
+          className="inline-block w-1.5 h-1.5 rounded-full"
+          style={{ background: statusColor }}
+        />
+        <span className="font-display text-[15px] font-semibold tracking-tight">
+          {pretty}
+        </span>
+      </span>
+      <span
+        className="text-[13px]"
+        style={{ color: "var(--vault-text-mute)" }}
+      >
+        {totalSlips} slip{totalSlips === 1 ? "" : "s"}
+      </span>
+      <span
+        className="text-[13px] font-mono"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        NBA <span style={{ color: "var(--vault-text-mute)" }}>{nbaSlips}</span>
+        {"  "}·{"  "}MLB{" "}
+        <span style={{ color: "var(--vault-text-mute)" }}>{mlbSlips}</span>
+        {"  "}·{"  "}Mixed{" "}
+        <span style={{ color: "var(--vault-text-mute)" }}>{mixedSlips}</span>
+      </span>
+      <span
+        className="ml-auto font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[4px]"
+        style={{
+          color: statusColor,
+          background: "transparent",
+          border: `1px solid ${statusColor}`,
+          fontSize: 10,
+          lineHeight: 1.2,
+        }}
+      >
+        {statusLabel}
+      </span>
+    </section>
   );
 }
 
