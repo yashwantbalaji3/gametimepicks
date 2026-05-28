@@ -112,11 +112,22 @@ export default function ResultsPage() {
   });
 
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-10 md:py-14 overflow-x-hidden">
-      <header className="flex flex-col gap-2 max-w-3xl">
+    // PR #5 — apply hybrid theme to /results. Wrap in `.gtp-canvas`
+    // so the public parlay results card, daily audit, lifetime tiles,
+    // per-date sections, and audit-pointer all read on the warm light
+    // surface. The dark app shell (top nav, sports rail, ticker,
+    // bottom nav) stays unchanged. See
+    // docs/UI_REBUILD_DIRECTION_2026-05-28.md §5.2.
+    <div className="gtp-canvas min-h-screen">
+      <div className="vault-page-shell px-4 sm:px-8 py-10 md:py-14 overflow-x-hidden">
+      <header className="flex flex-col gap-2.5 max-w-3xl">
         <span
-          className="font-mono uppercase tracking-[0.18em]"
-          style={{ color: "var(--vault-gold)", fontSize: 11 }}
+          className="font-mono uppercase tracking-[0.16em]"
+          // PR #5 — eyebrow uses text-mute (deeper slate on canvas =
+          // ~6.4:1) instead of gold (~3.7:1 on cream) so it clears
+          // AA. Same change applied to the fresh-era card eyebrow
+          // and the empty-state eyebrow below.
+          style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.2 }}
         >
           Tracked · suggested parlays
         </span>
@@ -134,7 +145,7 @@ export default function ResultsPage() {
         </h1>
         <p
           className="text-[14px] sm:text-[15px] leading-relaxed"
-          style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
+          style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
         >
           Public parlay tracking starts {PUBLIC_PARLAY_RESULTS_START_DATE}.
           Every saved model slip is graded after games finish. Pending
@@ -191,7 +202,7 @@ export default function ResultsPage() {
             </span>
             <span
               className="font-display"
-              style={{ color: "var(--vault-text)", fontSize: 14 }}
+              style={{ color: "var(--vault-text)", fontSize: 15, lineHeight: 1.3 }}
             >
               Per-prop hit rate on every settled lean is on the legacy
               audit pages.
@@ -200,22 +211,24 @@ export default function ResultsPage() {
           <div className="flex flex-wrap gap-2 shrink-0">
             <Link
               href="/results/nba"
-              className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full"
+              className="font-mono uppercase tracking-[0.12em] px-3.5 py-2 rounded-full"
               style={{
                 color: "var(--vault-gold-bright)",
                 border: "1px solid var(--vault-gold-bright)",
-                fontSize: 10,
+                fontSize: 12,
+                lineHeight: 1.1,
               }}
             >
               NBA audit →
             </Link>
             <Link
               href="/results/mlb"
-              className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full"
+              className="font-mono uppercase tracking-[0.12em] px-3.5 py-2 rounded-full"
               style={{
                 color: "var(--vault-gold-bright)",
                 border: "1px solid var(--vault-gold-bright)",
-                fontSize: 10,
+                fontSize: 12,
+                lineHeight: 1.1,
               }}
             >
               MLB audit →
@@ -223,6 +236,7 @@ export default function ResultsPage() {
           </div>
         </div>
       </section>
+      </div>
     </div>
   );
 }
@@ -235,19 +249,22 @@ export default function ResultsPage() {
  */
 function FreshEraStatusBlock({ hasAnyDateSection }: { hasAnyDateSection: boolean }) {
   return (
+    // PR #5 — fresh-era card: bumped eyebrow + chip typography out of
+    // the 10px floor, lifted padding for a more prominent state.
     <section
       aria-label="Public parlay tracking era"
-      className="rounded-[8px] p-4 sm:p-5 flex flex-col gap-2"
+      className="rounded-[10px] p-5 sm:p-6 flex flex-col gap-2.5"
       style={{
         background: "var(--gtp-card)",
-        border: "1px solid var(--vault-rule)",
+        border: "1px solid var(--gtp-card-border)",
+        boxShadow: "var(--gtp-card-shadow)",
       }}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-col gap-0.5 min-w-0">
+        <div className="flex flex-col gap-1 min-w-0">
           <span
-            className="font-mono uppercase tracking-[0.18em]"
-            style={{ color: "var(--vault-gold)", fontSize: 10 }}
+            className="font-mono uppercase tracking-[0.16em]"
+            style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.2 }}
           >
             Public parlay tracking era
           </span>
@@ -264,20 +281,21 @@ function FreshEraStatusBlock({ hasAnyDateSection }: { hasAnyDateSection: boolean
           </span>
         </div>
         <span
-          className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full shrink-0"
+          className="font-mono uppercase tracking-[0.12em] px-3 py-1.5 rounded-full shrink-0"
           style={{
             color: "var(--vault-success)",
             border: "1px solid var(--vault-success)",
-            background: "rgba(80,180,120,0.10)",
-            fontSize: 10,
+            background: "var(--vault-success-dim)",
+            fontSize: 11,
+            lineHeight: 1.1,
           }}
         >
           New era
         </span>
       </div>
       <p
-        className="text-[12px] leading-snug"
-        style={{ color: "var(--vault-text-mute)", maxWidth: 620 }}
+        className="text-[13px] leading-relaxed"
+        style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
       >
         {hasAnyDateSection
           ? `Tracking suggested parlays publicly from ${PUBLIC_PARLAY_RESULTS_START_DATE} forward. Older slips are excluded from the official public hit rate.`
@@ -290,21 +308,21 @@ function FreshEraStatusBlock({ hasAnyDateSection }: { hasAnyDateSection: boolean
 function EmptyState() {
   return (
     <section
-      className="rounded-[8px] p-6 flex flex-col gap-3"
+      className="rounded-[10px] p-6 flex flex-col gap-3"
       style={{
         background: "var(--gtp-card)",
-        border: "1px dashed var(--vault-border)",
+        border: "1px dashed var(--gtp-card-border-strong)",
       }}
     >
       <span
-        className="font-mono uppercase tracking-[0.16em]"
-        style={{ color: "var(--vault-gold)", fontSize: 11 }}
+        className="font-mono uppercase tracking-[0.14em]"
+        style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.2 }}
       >
         No settled public parlay results yet
       </span>
       <p
         className="text-[13px] leading-relaxed"
-        style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}
+        style={{ color: "var(--vault-text-mute)", maxWidth: 600 }}
       >
         Public parlay tracking starts {PUBLIC_PARLAY_RESULTS_START_DATE}.
         As soon as a slate from this era finishes and the grader runs,
