@@ -70,19 +70,57 @@ test("getOptimizerSummary: lifetime recomputed from post-era rows", () => {
   }
 });
 
-test("getOptimizerSummary: byProfile/bySport zeroed when zero post-era rows on disk", () => {
+test("getOptimizerSummary: byProfile/bySport empty when zero post-era rows on disk", () => {
+  // After PR `fix/settle-may27-results`: byProfile/bySport are
+  // recomputed from post-era graded files only. When no post-era
+  // file exists on disk both maps come back EMPTY (not zeroed) so
+  // the UI hides them cleanly. Once a post-era day grades, the keys
+  // appear with real recomputed values.
   const summary = getOptimizerSummary();
   if (!summary) return;
   if ((summary.byDate ?? []).length === 0) {
-    for (const [k, b] of Object.entries(summary.byProfile ?? {})) {
-      assert.equal(b.wins, 0, `byProfile.${k}.wins must be zeroed pre-era`);
-      assert.equal(b.losses, 0, `byProfile.${k}.losses must be zeroed pre-era`);
-      assert.equal(b.hitRate, null, `byProfile.${k}.hitRate must be null pre-era`);
-    }
-    for (const [k, b] of Object.entries(summary.bySport ?? {})) {
-      assert.equal(b.wins, 0, `bySport.${k}.wins must be zeroed pre-era`);
-      assert.equal(b.losses, 0, `bySport.${k}.losses must be zeroed pre-era`);
-      assert.equal(b.hitRate, null, `bySport.${k}.hitRate must be null pre-era`);
+    assert.deepEqual(summary.byProfile, {},
+      "byProfile must be {} when no post-era graded files exist");
+    assert.deepEqual(summary.bySport, {},
+      "bySport must be {} when no post-era graded files exist");
+  }
+});
+
+test("getOptimizerSummary: byProfile/bySport recomputed from post-era graded files only (no pre-era leak)", () => {
+  // When at least one post-era graded file exists, every key in
+  // byProfile/bySport must aggregate over post-era files ONLY. The
+  // sum of wins across all byProfile keys must equal lifetime.wins
+  // (proves no pre-era contribution slipped in through the
+  // pipeline's full-disk aggregate in optimizer-summary.json).
+  const summary = getOptimizerSummary();
+  if (!summary) return;
+  if ((summary.byDate ?? []).length === 0) return;
+  const profileWinsSum = Object.values(summary.byProfile ?? {}).reduce(
+    (a, b) => a + (b.wins ?? 0),
+    0,
+  );
+  const profileLossesSum = Object.values(summary.byProfile ?? {}).reduce(
+    (a, b) => a + (b.losses ?? 0),
+    0,
+  );
+  assert.equal(profileWinsSum, summary.lifetime.wins,
+    "byProfile wins must sum to lifetime wins (proves post-era-only recompute)");
+  assert.equal(profileLossesSum, summary.lifetime.losses,
+    "byProfile losses must sum to lifetime losses (proves post-era-only recompute)");
+  const sportWinsSum = Object.values(summary.bySport ?? {}).reduce(
+    (a, b) => a + (b.wins ?? 0),
+    0,
+  );
+  assert.equal(sportWinsSum, summary.lifetime.wins,
+    "bySport wins must sum to lifetime wins (proves post-era-only recompute)");
+  // Every bucket's hit rate consistent with its decisive count.
+  for (const [k, b] of Object.entries(summary.byProfile ?? {})) {
+    if (b.decisive === 0) {
+      assert.equal(b.hitRate, null,
+        `byProfile.${k}.hitRate must be null when decisive=0`);
+    } else {
+      assert.ok(Math.abs((b.hitRate ?? 0) - b.wins / b.decisive) < 1e-9,
+        `byProfile.${k}.hitRate must equal wins/decisive`);
     }
   }
 });
