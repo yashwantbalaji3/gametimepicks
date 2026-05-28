@@ -25,9 +25,28 @@ interface Props {
 export default function PoolAvailabilityNote({ availability }: Props) {
   const lines: string[] = [];
   if (availability.nba === "pool-but-no-slips") {
-    lines.push(
-      "NBA leans are loaded but every leg dropped at the recent-form gate — game logs didn't attach this morning. No NBA-only slips today.",
-    );
+    // Two honest causes are possible when NBA leans are loaded but no
+    // NBA-only slips were produced:
+    //   (a) recent-form game logs failed to attach (R1 guardrail) —
+    //       every NBA lean ended up "No Play". This is the case on
+    //       outage mornings.
+    //   (b) NBA legs DID survive eligibility and even appear in
+    //       Mixed slips, but the same-game cap (1 leg/game in the
+    //       safer lanes, per PR #110's documented quality decision)
+    //       makes NBA-only impossible when only one NBA game is on
+    //       the slate.
+    // We use Mixed availability as the tell: if Mixed is "present",
+    // NBA legs were obviously good enough to clear the gate — the
+    // remaining gap is structural, not data.
+    if (availability.multi === "present") {
+      lines.push(
+        "NBA legs appear in the Mixed lane below. NBA-only single-sport slips need ≥2 NBA games to build under the model's same-game cap, and tonight's slate has one NBA game.",
+      );
+    } else {
+      lines.push(
+        "NBA leans are loaded but every leg dropped at the recent-form gate — game logs didn't attach this morning. No NBA-only slips today.",
+      );
+    }
   }
   if (availability.mlb === "pool-but-no-slips") {
     lines.push(
