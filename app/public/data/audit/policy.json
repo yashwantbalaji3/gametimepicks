@@ -1,11 +1,12 @@
 {
   "_disclaimer": "Confirmed-signal policy over the daily audit window — see docs/MODEL_LEARNING_LOOP.md. Demotion only; one bad slate cannot move the model.",
-  "generatedAt": "2026-05-27T10:44:40.195116+00:00",
+  "generatedAt": "2026-05-28T05:04:43.958238+00:00",
   "window": {
-    "daysAvailable": 2,
+    "daysAvailable": 3,
     "daysRequired": 3,
     "windowDays": 7,
     "dates": [
+      "2026-05-27",
       "2026-05-26",
       "2026-05-25"
     ]
@@ -32,6 +33,12 @@
         "weightMultiplier": 1.0
       },
       "REB": {
+        "fires": 1,
+        "daysRequired": 3,
+        "confirmed": false,
+        "weightMultiplier": 1.0
+      },
+      "batter_total_bases": {
         "fires": 1,
         "daysRequired": 3,
         "confirmed": false,

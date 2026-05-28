@@ -95,34 +95,62 @@ export function getOptimizerSummary(): OptimizerSummary | null {
     isInPublicParlayEra(row.date),
   );
   const lifetime = aggregateBuckets(postEraByDate);
-  // by-profile / by-sport are pipeline-aggregated over ALL dates on
-  // disk. Without per-date breakdowns in those slices we cannot
-  // safely recompute them post-era, so we zero them out when no
-  // post-era date has settled. Once at least one post-era date is
-  // graded, the pipeline overwrites these buckets and they line up
-  // with the recomputed lifetime again.
-  const hasPostEraData = postEraByDate.length > 0;
-  const zeroBucket = emptyPublicParlayBucket();
+
+  // by-profile / by-sport in the on-disk summary are pipeline-
+  // aggregated across EVERY date in `optimizer-graded/*.json`, which
+  // includes pre-era files left on disk as internal archive. Passing
+  // those through would leak pre-era 5/25 numbers into the post-era
+  // tiles. To stay honest we ignore the summary's pre-aggregated
+  // values and recompute byProfile/bySport directly from the
+  // post-era per-date graded files (which we already filter via
+  // `getOptimizerGradedDates`). When no post-era day has settled,
+  // both maps are empty — the UI hides them.
   const filteredByProfile: Record<string, PublicParlayBucket> = {};
-  if (hasPostEraData) {
-    for (const [k, v] of Object.entries(raw.byProfile ?? {})) {
-      filteredByProfile[k] = v;
-    }
-  } else {
-    for (const k of Object.keys(raw.byProfile ?? {})) {
-      filteredByProfile[k] = { ...zeroBucket };
-    }
-  }
   const filteredBySport: Record<string, PublicParlayBucket> = {};
-  if (hasPostEraData) {
-    for (const [k, v] of Object.entries(raw.bySport ?? {})) {
-      filteredBySport[k] = v;
-    }
-  } else {
-    for (const k of Object.keys(raw.bySport ?? {})) {
-      filteredBySport[k] = { ...zeroBucket };
+  for (const date of getOptimizerGradedDates()) {
+    const payload = _readJsonSafe<OptimizerGradedPayload>(
+      path.join(OPTIMIZER_GRADED_DIR, `${date}.json`),
+    );
+    for (const slip of payload?.uniqueSlips ?? []) {
+      const status = ((slip as unknown as { status?: string }).status ?? "")
+        .toLowerCase();
+      const profile = ((slip as unknown as { profile?: string }).profile ?? "")
+        .toLowerCase();
+      const sport = ((slip as unknown as { sport?: string }).sport ?? "")
+        .toLowerCase();
+      const apply = (bucket: PublicParlayBucket) => {
+        if (status === "win") {
+          bucket.wins += 1;
+          bucket.decisive += 1;
+        } else if (status === "loss") {
+          bucket.losses += 1;
+          bucket.decisive += 1;
+        } else if (status === "push") {
+          bucket.pushes += 1;
+        } else {
+          bucket.pending += 1;
+        }
+      };
+      if (profile) {
+        if (!filteredByProfile[profile]) {
+          filteredByProfile[profile] = emptyPublicParlayBucket();
+        }
+        apply(filteredByProfile[profile]);
+      }
+      if (sport) {
+        if (!filteredBySport[sport]) {
+          filteredBySport[sport] = emptyPublicParlayBucket();
+        }
+        apply(filteredBySport[sport]);
+      }
     }
   }
+  // Final pass — compute hitRate per bucket.
+  const seal = (b: PublicParlayBucket) => {
+    b.hitRate = b.decisive > 0 ? b.wins / b.decisive : null;
+  };
+  Object.values(filteredByProfile).forEach(seal);
+  Object.values(filteredBySport).forEach(seal);
   return {
     ...raw,
     byDate: postEraByDate,
