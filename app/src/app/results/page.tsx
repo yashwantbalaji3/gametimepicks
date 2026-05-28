@@ -112,14 +112,12 @@ export default function ResultsPage() {
   });
 
   return (
-    // PR #5 — apply hybrid theme to /results. Wrap in `.gtp-canvas`
-    // so the public parlay results card, daily audit, lifetime tiles,
-    // per-date sections, and audit-pointer all read on the warm light
-    // surface. The dark app shell (top nav, sports rail, ticker,
-    // bottom nav) stays unchanged. See
-    // docs/UI_REBUILD_DIRECTION_2026-05-28.md §5.2.
-    <div className="gtp-canvas min-h-screen">
-      <div className="vault-page-shell px-4 sm:px-8 py-10 md:py-14 overflow-x-hidden">
+    // PR `feature/professional-design-system` (2026-05-28) — reverted
+    // the .gtp-canvas wrapper. The hybrid cream surface looked
+    // washed out next to the dark shell; the refined-dark theme
+    // reads better for dense parlay data. Cards inherit
+    // `--gtp-card-dark` for elevated charcoal.
+    <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
       <header className="flex flex-col gap-2.5 max-w-3xl">
         <span
           className="font-mono uppercase tracking-[0.16em]"
@@ -236,7 +234,6 @@ export default function ResultsPage() {
           </div>
         </div>
       </section>
-      </div>
     </div>
   );
 }

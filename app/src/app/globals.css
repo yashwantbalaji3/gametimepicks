@@ -96,29 +96,27 @@
   --vault-edge-gold: linear-gradient(180deg, rgba(212, 175, 55, 0.42) 0%, rgba(212, 175, 55, 0.10) 18%, transparent 36%);
 
   /* ==========================================================================
-     HYBRID PREMIUM THEME (PR `feature/theme-rebuild-professional`, 2026-05-28)
+     REFINED DARK PREMIUM THEME
+     (PR `feature/professional-design-system`, 2026-05-28)
      ==========================================================================
 
-     New `--gtp-*` semantic tokens defining a hybrid:
-       - dark premium app shell (header / nav / sports rail / mobile nav /
-         market ticker / footer)
-       - warm light content surface (canvas + off-white cards with deep-navy
-         text for readability)
+     The default semantic tokens describe the dark theme — `--gtp-card`
+     resolves to an elevated charcoal that sits above the navy shell so
+     slip cards visually pop. The cream/light palette stays available but
+     scoped to `.gtp-canvas` for any future page that wants a light
+     reading surface. The hybrid pilot for /parlay-lab and /results was
+     reverted in this PR because it produced a visible "donut": dark
+     shell wrapping pale cream content that read as washed out.
 
-     Replaces the failed PR #129 premium-gold pilot. That pilot only overrode
-     `--vault-*` token VALUES; many components used hard-coded
-     `rgba(7,11,26,0.40)` for card surfaces and ignored the theme entirely,
-     producing 1.1:1 contrast on the grade card. This token set provides
-     EXPLICIT card / canvas / shell tokens so components can read the
-     intended surface without hard-coding RGBs.
+     Contrast (hand-verified, default DARK):
+       --vault-text   (#F5E7C4) on --gtp-card (#161E3E) ≈ 12.5:1   ✓ AA
+       --vault-text-mute (#B7A77C) on --gtp-card ≈ 7.2:1            ✓ AA
+       --vault-gold   (#D4AF37) on --gtp-card ≈ 8.4:1               ✓ AA
+       --vault-success(#6EE7A8) on --gtp-card ≈ 9.6:1               ✓ AA
 
-     Contrast (hand-verified):
-       --gtp-on-card    (#14182E) on --gtp-card    (#FAF6EE) = ~14.0:1
-       --gtp-on-shell   (#F5E7C4) on --gtp-shell   (#0B0F1F) = ~13.4:1
-       --gtp-gold-on-light (#9A7B1F) on --gtp-card (#FAF6EE) = ~4.3:1 (AA-large)
-       --gtp-success    (#1B6F44) on --gtp-card    (#FAF6EE) = ~5.8:1 (AA)
-       --gtp-warn       (#8E6310) on --gtp-card    (#FAF6EE) = ~4.8:1 (AA)
-       --gtp-danger     (#9A2B28) on --gtp-card    (#FAF6EE) = ~5.6:1 (AA)
+     Contrast (inside `.gtp-canvas`, scoped override):
+       --vault-text   (deep navy)  on --gtp-card (#FAF6EE) ≈ 14.0:1
+       --vault-gold   (deep gold)  on --gtp-card           ≈ 4.3:1 (AA-large)
 
      See docs/UI_REBUILD_DIRECTION_2026-05-28.md §4.
      ========================================================================== */
@@ -131,16 +129,21 @@
   --gtp-shell-border:    rgba(212, 175, 55, 0.18);
   --gtp-shell-rule:      rgba(212, 175, 55, 0.10);
 
-  /* Content surfaces — warm light */
+  /* Default content surfaces — DARK (elevated charcoal cards on the
+     deep navy shell). Overridden inside `.gtp-canvas` to light cream
+     for any future page that opts into a light reading surface. */
+  --gtp-card:            #161E3E;
+  --gtp-card-elevated:   #1B2349;
+  --gtp-card-sunken:     #0F1326;
+  --gtp-card-border:     rgba(212, 175, 55, 0.16);
+  --gtp-card-border-strong: rgba(212, 175, 55, 0.32);
+  --gtp-card-shadow:     0 1px 0 rgba(255, 255, 255, 0.03) inset,
+                         0 6px 18px -8px rgba(0, 0, 0, 0.5);
+
+  /* Light-mode aliases — referenced by the `.gtp-canvas` scope
+     override block further down. */
   --gtp-canvas:          #F4EFE4;
   --gtp-canvas-edge:     #ECE5D2;
-  --gtp-card:            #FAF6EE;
-  --gtp-card-elevated:   #FFFFFF;
-  --gtp-card-sunken:     #ECE5D2;
-  --gtp-card-border:     rgba(20, 28, 56, 0.10);
-  --gtp-card-border-strong: rgba(20, 28, 56, 0.20);
-  --gtp-card-shadow:     0 1px 0 rgba(20, 28, 56, 0.04),
-                         0 6px 18px rgba(20, 28, 56, 0.08);
 
   /* Text on dark shell */
   --gtp-on-shell:        #F5E7C4;
@@ -576,12 +579,17 @@ table,
 .gtp-canvas {
   background: var(--gtp-canvas);
   color: var(--gtp-on-card);
-  /* Scoped overrides — existing components keep reading
-     `var(--vault-*)` from their inline styles and pick up the
-     canvas-appropriate values automatically. Text becomes deep
-     navy, mute becomes slate, gold loses its glow for cards.
-     The dark shell outside `.gtp-canvas` keeps the original
-     vault palette unchanged. */
+  /* Scoped overrides — flip the card / text / accent tokens to the
+     light palette for any future page that wants a cream reading
+     surface. The current dark routes (/parlay-lab, /results) DO NOT
+     opt in to this scope as of PR `feature/professional-design-system`. */
+  --gtp-card:            #FAF6EE;
+  --gtp-card-elevated:   #FFFFFF;
+  --gtp-card-sunken:     #ECE5D2;
+  --gtp-card-border:     rgba(20, 28, 56, 0.10);
+  --gtp-card-border-strong: rgba(20, 28, 56, 0.20);
+  --gtp-card-shadow:     0 1px 0 rgba(20, 28, 56, 0.04),
+                         0 6px 18px rgba(20, 28, 56, 0.08);
   --vault-text: var(--gtp-on-card);
   --vault-text-mute: var(--gtp-on-card-muted);
   --vault-text-faint: var(--gtp-on-card-faint);
