@@ -22,7 +22,7 @@
  * optimizer snapshot or legacy snapshot file on disk.
  */
 import { useEffect, useMemo, useState } from "react";
-import ParlayTicketCard from "./parlay-ticket-card";
+import LaneSpread, { SwingLaneToggle } from "./lane-spread";
 import PlayerRecentFormDrawer from "./player-recent-form-drawer";
 import CustomParlayBuilder from "./custom-parlay-builder";
 import CustomParlayGenerator from "./custom-parlay-generator";
@@ -75,35 +75,17 @@ const ALL_SPORTS: Array<{ key: SuggestedSport; label: string; icon?: string }> =
   { key: "multi", label: "Mixed", icon: "🔀" },
 ];
 
-const RISK_DISPLAY: Record<
-  ParlayRiskProfile,
-  { label: string; sub: string; accent: string; icon: string }
-> = {
-  conservative: {
-    label: "Conservative",
-    sub: "2 legs · star-driven · lower variance",
-    accent: "var(--vault-success)",
-    icon: "◆",
-  },
-  balanced: {
-    label: "Balanced",
-    sub: "3 legs · star + value mix",
-    accent: "var(--vault-gold-bright)",
-    icon: "◈",
-  },
-  aggressive: {
-    label: "Longshot · experimental",
-    sub: "Up to 4 legs · higher payout · longshot territory",
-    accent: "var(--vault-warn)",
-    icon: "⟁",
-  },
-  star_power: {
-    label: "Star Power",
-    sub: "Recognizable stars · model-ranked",
-    accent: "var(--vault-gold-bright)",
-    icon: "★",
-  },
-};
+/** UI-only sport bucket label for the lane header. Mirrors the
+ *  bucket derivation that ParlayTicketCard uses for non-spread
+ *  surfaces; centralised here so all lanes in the spread agree on
+ *  one label. Null for the "All" tab — the lane header still has
+ *  the slate-date + Official + slip-count chips. */
+function bucketLabelForSport(s: SuggestedSport): string | null {
+  if (s === "nba") return "NBA-only";
+  if (s === "mlb") return "MLB-only";
+  if (s === "multi") return "Mixed";
+  return null;
+}
 
 // Lane caps + ordering live in `@/lib/parlay-display-config` so the
 // constants can be unit-tested without booting a JSX renderer.
@@ -276,10 +258,6 @@ export default function ParlayLabBuilder({
     [filtered, pool, sport],
   );
 
-  const [showHighVariance, setShowHighVariance] = useState(
-    HIGH_VARIANCE_DEFAULT_OPEN,
-  );
-
   // PR #114: sport pills now count as active filters so the
   // empty-state copy below switches into sport-aware mode when
   // the user picks NBA / MLB / Mixed and gets nothing back.
@@ -322,37 +300,51 @@ export default function ParlayLabBuilder({
           aside was visual noise that pushed the first slip card
           another ~60px below the fold. */}
 
-      {/* PR #125 — explicit section eyebrows so users can never
-          mistake official suggested slips for the custom tools below.
-          Every block has its own labelled banner. */}
+      {/* PR `feature/lane-spread-slip-cards` (2026-05-28): each
+          lane gets its own premium "spread" with a featured slip and
+          alternates. The lane header carries slate-date + sport
+          bucket + Official chip + slip count, so the previous
+          full-width SectionEyebrow + repeated per-card chips are
+          consolidated. One short editorial eyebrow remains above
+          the lanes as the section's intro line. */}
       <SectionEyebrow
         tone="official"
-        label={`Official suggested parlays · ${date}${isFallback ? " · latest available" : " slate"}`}
+        label="Official suggested parlays"
         sub="Saved before games, graded after. Capped at 4 legs per slip."
       />
 
-      <RiskGrid
-        cards={cards}
-        source={source}
-        calibrationTable={calibrationTable}
-        filterActive={filterActive}
-        sport={sport}
-        onLegClick={setActiveLeg}
-        slateDate={date}
-        slateIsFallback={!!isFallback}
-      />
+      <div className="flex flex-col gap-4">
+        {cards.map((card) => (
+          <LaneSpread
+            key={card.profile}
+            profile={card.profile}
+            slips={card.slips}
+            isFallback={card.isFallback}
+            slateDate={date}
+            slateIsFallback={!!isFallback}
+            sportBucketLabel={bucketLabelForSport(sport)}
+            calibrationTable={calibrationTable}
+            onLegClick={setActiveLeg}
+            source={source}
+            sport={sport}
+            filterActive={filterActive}
+          />
+        ))}
+      </div>
 
-      <HighVarianceToggle
-        open={showHighVariance}
-        onToggle={() => setShowHighVariance((v) => !v)}
-        card={hvCard}
-        source={source}
-        calibrationTable={calibrationTable}
-        filterActive={filterActive}
-        sport={sport}
-        onLegClick={setActiveLeg}
+      <SwingLaneToggle
+        defaultOpen={HIGH_VARIANCE_DEFAULT_OPEN}
+        profile={hvCard.profile}
+        slips={hvCard.slips}
+        isFallback={hvCard.isFallback}
         slateDate={date}
         slateIsFallback={!!isFallback}
+        sportBucketLabel={bucketLabelForSport(sport)}
+        calibrationTable={calibrationTable}
+        onLegClick={setActiveLeg}
+        source={source}
+        sport={sport}
+        filterActive={filterActive}
       />
 
       <AltLineComingSoon />
@@ -471,7 +463,7 @@ function BuilderHeader({
         style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
       >
         {optimizerActive
-          ? "Model-ranked slips in each safer lane — Conservative, Balanced, Star Power — saved before games and graded after. High variance and custom tools sit below."
+          ? "Model-ranked slips in three lanes — Anchor, Core, Spotlight — saved before games and graded after. Swing (high-variance) sits behind a toggle. Custom tools below."
           : "Pregame snapshots saved before games, graded after. Custom tools sit below."}
       </p>
     </header>
@@ -595,340 +587,6 @@ function LabFilters({
         >
           Clear
         </button>
-      )}
-    </div>
-  );
-}
-
-
-// ---------------------------------------------------------------------------
-// Risk-level result grid
-// ---------------------------------------------------------------------------
-
-function RiskGrid({
-  cards,
-  source,
-  calibrationTable,
-  filterActive,
-  sport,
-  onLegClick,
-  slateDate,
-  slateIsFallback,
-}: {
-  cards: Array<{
-    profile: ParlayRiskProfile;
-    slips: ParlaySlip[];
-    isFallback: boolean;
-  }>;
-  source: "snapshot" | "graded";
-  calibrationTable?: CalibrationTable;
-  filterActive: boolean;
-  sport: SuggestedSport;
-  onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
-  /** PR #125 — the active snapshot date threaded down to each card. */
-  slateDate?: string;
-  slateIsFallback?: boolean;
-}) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-      {cards.map((card) => (
-        <RiskCard
-          key={card.profile}
-          profile={card.profile}
-          slips={card.slips}
-          isFallback={card.isFallback}
-          source={source}
-          calibrationTable={calibrationTable}
-          filterActive={filterActive}
-          sport={sport}
-          onLegClick={onLegClick}
-          slateDate={slateDate}
-          slateIsFallback={slateIsFallback}
-        />
-      ))}
-    </div>
-  );
-}
-
-function RiskCard({
-  profile,
-  slips,
-  isFallback,
-  source,
-  calibrationTable,
-  filterActive,
-  sport,
-  onLegClick,
-  slateDate,
-  slateIsFallback,
-}: {
-  profile: ParlayRiskProfile;
-  slips: ParlaySlip[];
-  isFallback: boolean;
-  source: "snapshot" | "graded";
-  calibrationTable?: CalibrationTable;
-  sport: SuggestedSport;
-  filterActive: boolean;
-  onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
-  /** PR #125 — passed through to ParlayTicketCard so each slip card
-   *  shows the slate date chip. */
-  slateDate?: string;
-  slateIsFallback?: boolean;
-}) {
-  const display = RISK_DISPLAY[profile];
-  const isStarPower = profile === "star_power";
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <span
-            aria-hidden
-            className="inline-flex items-center justify-center shrink-0"
-            style={{
-              width: 22,
-              height: 22,
-              borderRadius: 5,
-              color: display.accent,
-              background: isStarPower
-                ? "linear-gradient(160deg, rgba(240,199,94,0.18), rgba(212,175,55,0.05))"
-                : "var(--gtp-card)",
-              border: `1px solid ${display.accent}`,
-              fontSize: 12,
-              lineHeight: 1,
-              boxShadow: isStarPower
-                ? "0 0 14px -2px rgba(240,199,94,0.40)"
-                : "none",
-            }}
-          >
-            {display.icon}
-          </span>
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span
-              className="font-mono uppercase tracking-[0.14em] sm:tracking-[0.16em]"
-              style={{ color: display.accent, fontSize: 10 }}
-            >
-              {display.label}
-            </span>
-            <span
-              className="font-mono truncate"
-              style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-            >
-              {display.sub}
-            </span>
-          </div>
-        </div>
-        {profile === "aggressive" && (
-          <span
-            className="font-mono uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-[3px] shrink-0"
-            style={{
-              color: "var(--vault-warn)",
-              border: "1px solid var(--vault-warn)",
-              background: "var(--gtp-card)",
-              fontSize: 9,
-            }}
-            title="Longshot lane carries the highest variance — opt-in, hidden by default."
-          >
-            Longshot
-          </span>
-        )}
-      </div>
-
-      {slips.length === 0 ? (
-        <EmptyRiskCard profile={profile} filterActive={filterActive} sport={sport} />
-      ) : (
-        <>
-          {isFallback && filterActive && (
-            <FallbackNote profile={profile} />
-          )}
-          {slips.map((slip, i) => (
-            <div key={slip.slipId} className="flex flex-col gap-1">
-              {i > 0 && (
-                <span
-                  className="font-mono uppercase tracking-[0.14em]"
-                  style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
-                >
-                  Alternate {i}
-                </span>
-              )}
-              <ParlayTicketCard
-                slip={slip}
-                savedPregame={source === "snapshot"}
-                calibrationTable={calibrationTable}
-                onLegClick={onLegClick}
-                slateDate={slateDate}
-                slateIsFallback={slateIsFallback}
-                origin="official"
-              />
-            </div>
-          ))}
-        </>
-      )}
-    </div>
-  );
-}
-
-function FallbackNote({ profile }: { profile: ParlayRiskProfile }) {
-  const label = RISK_DISPLAY[profile].label.toLowerCase();
-  return (
-    <p
-      className="text-[11.5px] leading-snug rounded-[4px] px-2 py-1.5"
-      style={{
-        color: "var(--vault-text-mute)",
-        background: "var(--gtp-card)",
-        border: "1px dashed var(--vault-border)",
-      }}
-    >
-      No clean {label} slip with these filters. Showing the best
-      unfiltered suggestion instead.
-    </p>
-  );
-}
-
-function EmptyRiskCard({
-  profile,
-  filterActive,
-  sport,
-}: {
-  profile: ParlayRiskProfile;
-  filterActive: boolean;
-  sport: SuggestedSport;
-}) {
-  const display = RISK_DISPLAY[profile];
-  // PR #114: sport-aware empty-state copy. When a user picks the
-  // NBA-only or MLB-only tab and gets nothing back, the message
-  // should explicitly say "no NBA-only slip" / "no MLB-only slip"
-  // (not just "filters too tight") so they don't think the page is
-  // broken. Mixed tab gets an explanation that it only carries
-  // cross-sport slips by design.
-  let title: string;
-  let body: string;
-  if (sport === "nba") {
-    title = "No NBA-only slip";
-    body =
-      "Current safety filters did not find a clean NBA-only build for this risk profile. Try the Mixed tab — or the All tab to widen the pool.";
-  } else if (sport === "mlb") {
-    title = "No MLB-only slip";
-    body =
-      "Current safety filters did not find a clean MLB-only build for this risk profile. Try the Mixed tab — or the All tab to widen the pool.";
-  } else if (sport === "multi") {
-    title = `No mixed ${display.label.toLowerCase()} slip`;
-    body =
-      "Mixed combines sports. Use NBA or MLB tabs for single-sport slips, or All to see everything.";
-  } else if (filterActive) {
-    title = `No ${display.label.toLowerCase()} slip`;
-    body =
-      "These filters left nothing the model could build cleanly. Try a different team or fewer players.";
-  } else {
-    title = `No ${display.label.toLowerCase()} slip`;
-    body =
-      "Today's slate doesn't satisfy this risk profile yet — too few eligible legs or correlation caps.";
-  }
-  return (
-    // PR #4 — empty card: lift padding + title/body type so it reads
-    // as a deliberate state rather than a thin shrug. Border kept
-    // dashed to signal "intentional blank" vs error.
-    <div
-      className="rounded-[10px] p-6 flex flex-col gap-2.5 justify-center items-center text-center"
-      style={{
-        border: "1px dashed var(--vault-border-strong)",
-        background: "var(--gtp-card)",
-        minHeight: 200,
-      }}
-    >
-      <span
-        className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: display.accent, fontSize: 12, lineHeight: 1.2 }}
-      >
-        {title}
-      </span>
-      <p
-        className="text-[13px] leading-relaxed"
-        style={{ color: "var(--vault-text-mute)", maxWidth: 280 }}
-      >
-        {body}
-      </p>
-    </div>
-  );
-}
-
-/* `ExperimentalDisclaimer` removed in PR `feature/professional-
-   design-system` — its message was redundant with the global
-   DisclaimerBanner ("Educational analytics · Not betting advice")
-   plus the page subcopy. Removing freed ~60px of vertical space so
-   the first slip card lands closer to the fold. */
-
-/**
- * Collapsible "Show high variance" section (PR #110 filter B).
- *
- * The Longshot lane is hidden by default. Users opt in explicitly so
- * the highest-variance lane never presents itself as a peer to the
- * safer lanes on first paint.
- */
-function HighVarianceToggle({
-  open,
-  onToggle,
-  card,
-  source,
-  calibrationTable,
-  filterActive,
-  sport,
-  onLegClick,
-  slateDate,
-  slateIsFallback,
-}: {
-  open: boolean;
-  onToggle: () => void;
-  card: {
-    profile: ParlayRiskProfile;
-    slips: ParlaySlip[];
-    isFallback: boolean;
-  };
-  source: "snapshot" | "graded";
-  calibrationTable?: CalibrationTable;
-  filterActive: boolean;
-  sport: SuggestedSport;
-  onLegClick?: (leg: ParlaySlip["legs"][number]) => void;
-  /** PR #125 — threaded through to the high-variance ticket card. */
-  slateDate?: string;
-  slateIsFallback?: boolean;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="self-start font-mono uppercase tracking-[0.16em] px-3 py-1.5 rounded-[6px] inline-flex items-center gap-2"
-        style={{
-          color: "var(--vault-warn)",
-          border: "1px solid var(--vault-warn)",
-          background: "var(--gtp-card)",
-          fontSize: 10,
-          cursor: "pointer",
-        }}
-      >
-        <span aria-hidden style={{ fontSize: 12 }}>
-          {open ? "▾" : "▸"}
-        </span>
-        {open ? "Hide" : "Show"} high variance
-      </button>
-      {open && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="md:col-span-3 max-w-[420px]">
-            <RiskCard
-              profile={card.profile}
-              slips={card.slips}
-              isFallback={card.isFallback}
-              source={source}
-              calibrationTable={calibrationTable}
-              filterActive={filterActive}
-              sport={sport}
-              onLegClick={onLegClick}
-              slateDate={slateDate}
-              slateIsFallback={slateIsFallback}
-            />
-          </div>
-        </div>
       )}
     </div>
   );

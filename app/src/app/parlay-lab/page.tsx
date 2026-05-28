@@ -113,11 +113,19 @@ export default function ParlayLabPage() {
       />
       <Suspense fallback={<div className="min-h-[60vh]" aria-hidden />}>
         {suggested ? (
+          // PR `feature/lane-spread-slip-cards` (2026-05-28) — pass
+          // the active optimizer date (when present) instead of the
+          // legacy snapshot date. Previously the slate strip used
+          // `optimizerForDate.date` (today's slate) while the section
+          // eyebrow + per-card slate chip received `suggested.date`
+          // (yesterday's legacy snapshot), so on the same page the
+          // header said "Thu · May 28" and the cards said "MAY 27".
+          // Single source of truth: `activeDate` derived above.
           <ParlayLabBuilder
             slips={suggested.slips}
-            date={suggested.date}
+            date={activeDate}
             source={suggested.source}
-            isFallback={suggested.isFallback}
+            isFallback={isFallback}
             calibrationTable={calibrationTable}
             optimizerPayload={optimizerForDate}
           />
@@ -127,9 +135,9 @@ export default function ParlayLabPage() {
           // builder can render with the optimizer as the source.
           <ParlayLabBuilder
             slips={[]}
-            date={optimizerForDate.date}
+            date={activeDate}
             source="snapshot"
-            isFallback={true}
+            isFallback={isFallback}
             calibrationTable={calibrationTable}
             optimizerPayload={optimizerForDate}
           />
