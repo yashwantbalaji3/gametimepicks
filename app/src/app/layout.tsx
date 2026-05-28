@@ -42,11 +42,12 @@ export default function RootLayout({
         {/* Desktop-only fixed left sports rail. Hidden at < lg.
             Mounted siblings to <main> so it overlays from the left. */}
         <DesktopSportsRail />
-        {/* `lg:pl-[64px]` offsets content to the right of the rail
-            on desktop. `pb-[88px]` clears the mobile bottom nav so
-            content isn't hidden under it on small viewports.
-            md:pb-0 removes that padding once the bottom nav is hidden. */}
-        <main className="relative z-10 lg:pl-[64px] pb-[88px] md:pb-0">
+        {/* `lg:pl-[76px]` offsets content to the right of the rail
+            on desktop (matches DesktopSportsRail width). `pb-[88px]`
+            clears the mobile bottom nav so content isn't hidden under
+            it on small viewports. md:pb-0 removes that padding once
+            the bottom nav is hidden. */}
+        <main className="relative z-10 lg:pl-[76px] pb-[88px] md:pb-0">
           {children}
         </main>
         <Footer />

@@ -307,6 +307,11 @@ export default function ParlayLabBuilder({
         player={player}
         playerOptions={playerSelectOptions}
         onPlayerChange={changePlayer}
+        onClearAll={() => {
+          setSport(sportOptions[0]?.key ?? "all");
+          setTeam(null);
+          setPlayer(null);
+        }}
       />
 
       {/* PR `feature/professional-design-system`: removed the
@@ -487,6 +492,7 @@ function LabFilters({
   player,
   playerOptions,
   onPlayerChange,
+  onClearAll,
 }: {
   sport: SuggestedSport;
   sportOptions: Array<{ key: SuggestedSport; label: string; icon?: string }>;
@@ -497,69 +503,99 @@ function LabFilters({
   player: string | null;
   playerOptions: SearchableOption[];
   onPlayerChange: (p: string | null) => void;
+  onClearAll: () => void;
 }) {
+  const defaultSport = sportOptions[0]?.key ?? "all";
+  const anyFilterActive = team !== null || player !== null || sport !== defaultSport;
   return (
+    // PR `feature/parlay-lab-filter-rail-polish` (2026-05-28):
+    // collapsed the previous 3-row, ~150px filter card into a single
+    // inline toolbar (~56px on desktop, ~104px on mobile).  Sport
+    // pills are the primary control; Team/Player searchable selects
+    // sit inline with no redundant "TEAM"/"PLAYER" eyebrows above
+    // them — the placeholders ("All teams"/"All players") are the
+    // labels.  A `Clear` chip appears only when the user has set a
+    // non-default filter.
     <div
-      className="rounded-[8px] px-4 py-4 flex flex-col gap-4"
+      aria-label="Parlay Lab filters"
+      role="toolbar"
+      className="rounded-[8px] px-3 py-2 flex flex-wrap items-center gap-2 sm:gap-3"
       style={{
         background: "var(--gtp-card)",
         border: "1px solid var(--vault-border)",
       }}
     >
-      <div className="flex flex-col gap-2">
-        <span
-          className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-        >
-          Sport
-        </span>
-        <div
-          className="inline-flex flex-wrap items-center gap-1 p-1 rounded-full self-start"
-          style={{
-            background: "rgba(0,0,0,0.3)",
-            border: "1px solid var(--vault-rule)",
-          }}
-        >
-          {sportOptions.map((opt) => {
-            const active = opt.key === sport;
-            return (
-              <button
-                key={opt.key}
-                type="button"
-                onClick={() => onSportChange(opt.key)}
-                className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full inline-flex items-center gap-1.5"
-                style={{
-                  color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
-                  background: active ? "var(--vault-gold-bright)" : "transparent",
-                  fontSize: 10,
-                  cursor: "pointer",
-                }}
-              >
-                {opt.icon ? <span aria-hidden style={{ fontSize: 12 }}>{opt.icon}</span> : null}
-                {opt.label}
-              </button>
-            );
-          })}
+      <div
+        className="inline-flex flex-wrap items-center gap-1 p-1 rounded-full"
+        style={{
+          background: "rgba(0,0,0,0.3)",
+          border: "1px solid var(--vault-rule)",
+        }}
+      >
+        {sportOptions.map((opt) => {
+          const active = opt.key === sport;
+          return (
+            <button
+              key={opt.key}
+              type="button"
+              onClick={() => onSportChange(opt.key)}
+              aria-pressed={active}
+              className="font-mono uppercase tracking-[0.14em] px-2.5 py-1 rounded-full inline-flex items-center gap-1.5"
+              style={{
+                color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
+                background: active ? "var(--vault-gold-bright)" : "transparent",
+                fontSize: 10,
+                cursor: "pointer",
+                fontWeight: active ? 600 : 500,
+              }}
+            >
+              {opt.icon ? <span aria-hidden style={{ fontSize: 12 }}>{opt.icon}</span> : null}
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex flex-1 min-w-[180px] gap-2 sm:gap-3">
+        <div className="flex-1 min-w-0">
+          <SearchableSelect
+            label="Team filter"
+            placeholder="All teams"
+            value={team}
+            options={teamOptions}
+            onChange={onTeamChange}
+            emptyMessage="No teams in this sport"
+            compact
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <SearchableSelect
+            label="Player filter"
+            placeholder="All players"
+            value={player}
+            options={playerOptions}
+            onChange={onPlayerChange}
+            emptyMessage="No players match"
+            compact
+          />
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <SearchableSelect
-          label="Team"
-          placeholder="All teams"
-          value={team}
-          options={teamOptions}
-          onChange={onTeamChange}
-          emptyMessage="No teams in this sport"
-        />
-        <SearchableSelect
-          label="Player"
-          placeholder="All players"
-          value={player}
-          options={playerOptions}
-          onChange={onPlayerChange}
-          emptyMessage="No players match"
-        />
-      </div>
+      {anyFilterActive && (
+        <button
+          type="button"
+          onClick={onClearAll}
+          aria-label="Clear all filters"
+          className="font-mono uppercase tracking-[0.14em] px-2.5 py-1 rounded-full"
+          style={{
+            color: "var(--vault-text-mute)",
+            background: "transparent",
+            border: "1px solid var(--vault-rule)",
+            fontSize: 10,
+            cursor: "pointer",
+          }}
+        >
+          Clear
+        </button>
+      )}
     </div>
   );
 }
