@@ -30,6 +30,12 @@ import BankrollPlanPanel from "./bankroll-plan-panel";
 import ParlayLabModeTabs, {
   type ParlayLabMode,
 } from "./parlay-lab-mode-tabs";
+import PoolAvailabilityNote from "./pool-availability-note";
+import {
+  classifyPoolAvailability,
+  hasPoolWithoutSlips,
+  type PoolAvailability,
+} from "@/lib/pool-availability";
 import SearchableSelect, {
   type SearchableOption,
 } from "./searchable-select";
@@ -289,6 +295,15 @@ export default function ParlayLabBuilder({
     return filtered.filter(isAllowedOfficialSlip);
   }, [filtered]);
 
+  // PR `feature/nba-pool-availability-note` (2026-05-28): classify each
+  // sport pool. When `sourcePools.nbaCount > 0` but every NBA lean was
+  // dropped (R1 guardrail), the user otherwise sees only MLB without
+  // explanation. PoolAvailabilityNote surfaces the honest cause.
+  const poolAvailability: PoolAvailability = useMemo(
+    () => classifyPoolAvailability(optimizerPayload ?? null),
+    [optimizerPayload],
+  );
+
   return (
     <section className="flex flex-col gap-5" aria-label="Parlay Lab builder">
       <BuilderHeader
@@ -334,6 +349,7 @@ export default function ParlayLabBuilder({
           source={source}
           calibrationTable={calibrationTable}
           onLegClick={setActiveLeg}
+          poolAvailability={poolAvailability}
         />
       )}
 
@@ -365,6 +381,7 @@ function SuggestedMode({
   source,
   calibrationTable,
   onLegClick,
+  poolAvailability,
 }: {
   cards: Array<{
     profile: ParlayRiskProfile;
@@ -383,6 +400,7 @@ function SuggestedMode({
   source: "snapshot" | "graded";
   calibrationTable?: CalibrationTable;
   onLegClick: (leg: ParlaySlip["legs"][number]) => void;
+  poolAvailability: PoolAvailability;
 }) {
   return (
     <>
@@ -394,6 +412,10 @@ function SuggestedMode({
         label="Official suggested parlays"
         sub="Saved before games, graded after. Capped at 4 legs per slip."
       />
+
+      {hasPoolWithoutSlips(poolAvailability) && (
+        <PoolAvailabilityNote availability={poolAvailability} />
+      )}
 
       <div className="flex flex-col gap-4">
         {cards.map((card) => (

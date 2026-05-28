@@ -337,11 +337,11 @@ function LaneEmptyState({
   if (sport === "nba") {
     title = `No NBA-only ${name.toLowerCase()} slip`;
     body =
-      "Current safety filters did not find a clean NBA-only build for this lane. Try the Mixed tab — or the All tab to widen the pool.";
+      "Today's slate didn't produce a clean NBA-only build for this lane. Try the Mixed tab — or the All tab to widen the pool.";
   } else if (sport === "mlb") {
     title = `No MLB-only ${name.toLowerCase()} slip`;
     body =
-      "Current safety filters did not find a clean MLB-only build for this lane. Try the Mixed tab — or the All tab to widen the pool.";
+      "Today's slate didn't produce a clean MLB-only build for this lane. Try the Mixed tab — or the All tab to widen the pool.";
   } else if (sport === "multi") {
     title = `No mixed ${name.toLowerCase()} slip`;
     body =
