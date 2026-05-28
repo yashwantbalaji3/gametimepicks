@@ -45,6 +45,11 @@ from .confidence_guardrails import (
     MEDIUM_CONF_MIN_LOGS,
     downgrade_lean,
 )
+from .recent10_cache_fallback import (
+    DEFAULT_STALE_TTL_DAYS,
+    cache_age_label,
+    load_stale_recent10_cache,
+)
 from .recent10_extractor import (
     extract_recent10_all_markets,
     extract_recent_games_all_markets,
@@ -70,7 +75,14 @@ class PlayerStatus:
     pts_attached: int = 0
     reb_attached: int = 0
     ast_attached: int = 0
-    reason: str = ""  # ok / zero_id / no_logs / fetch_error / dry_run_skipped
+    reason: str = ""  # ok / zero_id / no_logs / fetch_error / dry_run_skipped /
+                      # ok_stale_cache
+    # PR `fix/nba-recent10-resilience` — when the live fetch failed and
+    # we fell back to the stale on-disk cache, these record provenance
+    # so attach_recent10_to_board can stamp `_recent10Source` /
+    # `_recent10CachedAt` on the lean. Empty when not used.
+    cache_source: str = ""        # "" | "live" | "stale_cache"
+    cache_cached_at: str = ""     # original cached_at ISO when stale_cache used
 
 
 def fetch_logs_for_player(player_id: int) -> tuple[list, Optional[str]]:
@@ -84,6 +96,27 @@ def fetch_logs_for_player(player_id: int) -> tuple[list, Optional[str]]:
         return list(logs or []), None
     except Exception as e:
         return [], f"fetch_error: {type(e).__name__}"
+
+
+def _derive_target_date(board: dict, fallback_name: str) -> str | None:
+    """Best-effort target date for the cache-fallback date filter.
+
+    Prefer the board's authoritative ``date`` / ``generatedFor`` /
+    ``requestedDate`` field, then fall back to parsing the file name.
+    Returns ``None`` if nothing usable was found — the caller still
+    works without a target_date (cache fallback just won't drop
+    future-dated rows), but provenance is clearer when we can pass
+    something.
+    """
+    for k in ("date", "generatedFor", "requestedDate"):
+        v = board.get(k)
+        if isinstance(v, str) and len(v) >= 10 and v[4] == "-" and v[7] == "-":
+            return v[:10]
+    # Fall back to the board file's basename "YYYY-MM-DD.json".
+    stem = fallback_name.replace(".json", "")
+    if len(stem) == 10 and stem[4] == "-" and stem[7] == "-":
+        return stem
+    return None
 
 
 def attach_recent10_to_board(
@@ -120,6 +153,8 @@ def attach_recent10_to_board(
     else:
         unique_pids = sorted(name_by_pid.keys())
 
+    target_date = _derive_target_date(board, board_path.name)
+
     log.info(f"  {board_path.name}: {len(leans)} leans, {len(unique_pids)} unique players")
     if not dry_run and unique_pids:
         log.info(f"  fetching game logs via nba_api for {len(unique_pids)} players...")
@@ -130,6 +165,37 @@ def attach_recent10_to_board(
     # `by_player_logs` so the two can be zipped 1:1 by the caller.
     by_player_games: dict[int, dict[str, list[dict]]] = {}
     statuses: dict[int, PlayerStatus] = {}
+
+    def _try_stale_cache(pid: int, st: PlayerStatus) -> bool:
+        """When the live fetch returns nothing usable, try the
+        stale on-disk cache. Returns True on success and side-effects
+        ``by_player_logs`` / ``by_player_games`` / ``st`` directly.
+        Honest provenance: ``st.cache_source = "stale_cache"`` and
+        ``st.cache_cached_at`` is set to the original cached_at ISO.
+        """
+        logs_cached, cached_at = load_stale_recent10_cache(
+            pid,
+            last_n=10,
+            target_date=target_date,
+        )
+        if not logs_cached:
+            return False
+        market_data = extract_recent10_all_markets(logs_cached, last_n=10)
+        if not any(market_data.values()):
+            return False
+        by_player_logs[pid] = market_data
+        by_player_games[pid] = extract_recent_games_all_markets(
+            logs_cached, last_n=10
+        )
+        st.matched = True
+        st.logs_count = len(logs_cached)
+        st.reason = "ok_stale_cache"
+        st.cache_source = "stale_cache"
+        st.cache_cached_at = cached_at or ""
+        st.pts_attached = len(market_data.get("PTS", []))
+        st.reb_attached = len(market_data.get("REB", []))
+        st.ast_attached = len(market_data.get("AST", []))
+        return True
 
     for pid in unique_pids:
         st = PlayerStatus(player_id=pid, player_name=name_by_pid.get(pid, ""))
@@ -149,15 +215,18 @@ def attach_recent10_to_board(
             continue
 
         logs, err = fetch_logs_for_player(pid)
-        if err:
-            st.reason = err
-            statuses[pid] = st
-            by_player_logs[pid] = {"PTS": [], "REB": [], "AST": []}
-            by_player_games[pid] = {"PTS": [], "REB": [], "AST": []}
-            continue
-
-        if not logs:
-            st.reason = "no_logs"
+        # PR `fix/nba-recent10-resilience`: when the live fetch failed
+        # OR returned an empty log set, fall back to the stale on-disk
+        # cache. Real prior game logs from a healthier day are an
+        # honest source — they describe immutable historical games and
+        # the cache fallback filters out any game on/after the slate
+        # date so today's game can never leak in.
+        if err or not logs:
+            if _try_stale_cache(pid, st):
+                statuses[pid] = st
+                continue
+            st.reason = err or "no_logs"
+            st.cache_source = "live"
             statuses[pid] = st
             by_player_logs[pid] = {"PTS": [], "REB": [], "AST": []}
             by_player_games[pid] = {"PTS": [], "REB": [], "AST": []}
@@ -166,6 +235,7 @@ def attach_recent10_to_board(
         st.matched = True
         st.logs_count = len(logs)
         st.reason = "ok"
+        st.cache_source = "live"
         market_data = extract_recent10_all_markets(logs, last_n=10)
         by_player_logs[pid] = market_data
         # PR #116 — per-game metadata parallel to `market_data`.
@@ -196,6 +266,7 @@ def attach_recent10_to_board(
     # restore the model's first-pass confidence when the new log count
     # would have satisfied the threshold in the first place.
     leans_rescued = 0
+    leans_from_stale_cache = 0
     for lean in leans:
         pid = lean.get("playerId")
         market = lean.get("market")
@@ -211,6 +282,16 @@ def attach_recent10_to_board(
             if games_meta:
                 lean["recentGames"] = games_meta
             leans_updated += 1
+            # PR `fix/nba-recent10-resilience`: stamp provenance when
+            # the recent10 came from the stale on-disk cache. We DON'T
+            # stamp anything for live fetches — those keep the existing
+            # default shape.
+            st_for_pid = statuses.get(pid)
+            if st_for_pid and st_for_pid.cache_source == "stale_cache":
+                lean["_recent10Source"] = "stale_cache"
+                if st_for_pid.cache_cached_at:
+                    lean["_recent10CachedAt"] = st_for_pid.cache_cached_at
+                leans_from_stale_cache += 1
             # Rescue an R1-suppressed lean when we now have enough log
             # values for at least the Medium threshold. We don't fabricate
             # the lean side — derive it from the model's projection vs
@@ -260,6 +341,7 @@ def attach_recent10_to_board(
         "leansUpdated": leans_updated,
         "leansCleared": leans_cleared,
         "leansRescued": leans_rescued,
+        "leansFromStaleCache": leans_from_stale_cache,
         "unmatchedByReason": unmatched_by_reason,
         "playerStatuses": statuses,
         "dryRun": dry_run,
@@ -272,10 +354,13 @@ def _iso_now() -> str:
 
 def _print_summary(summaries: list[dict], *, verbose: bool = False) -> None:
     print()
-    print("  " + "─" * 70)
-    print(f"  {'board':<22} {'leans':>6} {'players':>8} {'matched':>9} {'updated':>8}")
-    print("  " + "─" * 70)
+    print("  " + "─" * 78)
+    print(
+        f"  {'board':<22} {'leans':>6} {'players':>8} {'matched':>9} {'updated':>8} {'cache':>8}"
+    )
+    print("  " + "─" * 78)
     total_leans = total_players = total_matched = total_updated = total_cleared = 0
+    total_stale_cache = 0
     overall_unmatched: dict[str, int] = {}
     for s in summaries:
         if "error" in s:
@@ -286,7 +371,8 @@ def _print_summary(summaries: list[dict], *, verbose: bool = False) -> None:
             f"{s['totalLeans']:>6} "
             f"{s['uniquePlayers']:>8} "
             f"{s['matchedPlayers']:>9} "
-            f"{s['leansUpdated']:>8}"
+            f"{s['leansUpdated']:>8} "
+            f"{s.get('leansFromStaleCache', 0):>8}"
             f"{'  [dry]' if s['dryRun'] else ''}"
         )
         total_leans += s["totalLeans"]
@@ -294,18 +380,25 @@ def _print_summary(summaries: list[dict], *, verbose: bool = False) -> None:
         total_matched += s["matchedPlayers"]
         total_updated += s["leansUpdated"]
         total_cleared += s["leansCleared"]
+        total_stale_cache += s.get("leansFromStaleCache", 0)
         for reason, n in s["unmatchedByReason"].items():
             overall_unmatched[reason] = overall_unmatched.get(reason, 0) + n
-    print("  " + "─" * 70)
+    print("  " + "─" * 78)
     print(
         f"  {'TOTAL':<22} "
         f"{total_leans:>6} "
         f"{total_players:>8} "
         f"{total_matched:>9} "
-        f"{total_updated:>8}"
+        f"{total_updated:>8} "
+        f"{total_stale_cache:>8}"
     )
     if total_cleared:
         print(f"  ({total_cleared} stale recent10 arrays cleared)")
+    if total_stale_cache:
+        print(
+            f"  ({total_stale_cache} leans recovered from stale on-disk cache "
+            f"— provenance stamped on each lean)"
+        )
     print()
 
     if overall_unmatched:
@@ -313,11 +406,18 @@ def _print_summary(summaries: list[dict], *, verbose: bool = False) -> None:
         for reason, n in sorted(overall_unmatched.items(), key=lambda x: -x[1]):
             label = {
                 "zero_id": "playerId is 0 / missing in board JSON",
-                "no_logs": "nba_api returned no game logs",
-                "fetch_error": "nba_api request raised an error",
+                "no_logs": "nba_api returned no game logs (no stale cache either)",
+                "fetch_error": "nba_api request raised an error (no stale cache either)",
                 "dry_run_skipped": "dry-run (no network calls)",
                 "import_error": "could not import nba_api provider",
             }.get(reason, reason)
+            # Strip the "fetch_error:" prefix the provider attaches so the
+            # label stays clean. Original reason still appears in the
+            # per-player verbose table below.
+            if reason.startswith("fetch_error:"):
+                label = "nba_api request raised an error (no stale cache either)"
+            elif reason.startswith("import_error:"):
+                label = "could not import nba_api provider"
             print(f"    {n:>4}  {label}")
         print()
 

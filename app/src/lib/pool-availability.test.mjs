@@ -95,6 +95,25 @@ test("NBA absent (board not generated) — not flagged as 'pool-but-no-slips'", 
   assert.equal(hasPoolWithoutSlips(p), false);
 });
 
+test("single-game NBA scenario: NBA pool-but-no-slips, Mixed present", () => {
+  // Live 2026-05-28 post-fix case: NBA leans rescued via stale cache
+  // (87 in legPool) and contributed to 32 Mixed slips, but with only
+  // one NBA game tonight the same-game cap (1 leg/game in safer lanes)
+  // makes NBA-only structurally impossible.
+  const p = classifyPoolAvailability(
+    fakePayload(91, 259, {
+      conservative: { mlb: 8, nba: 0, multi: 8, all: 16 },
+      balanced:     { mlb: 8, nba: 0, multi: 8, all: 16 },
+      aggressive:   { mlb: 8, nba: 0, multi: 8, all: 16 },
+      star_power:   { mlb: 8, nba: 0, multi: 8, all: 16 },
+    }),
+  );
+  assert.equal(p.nba, "pool-but-no-slips");
+  assert.equal(p.mlb, "present");
+  assert.equal(p.multi, "present");
+  assert.equal(hasPoolWithoutSlips(p), true);
+});
+
 test("Mixed-only failure: both pools present but no multi slips → multi pool-but-no-slips", () => {
   // Hypothetical: both NBA and MLB produce single-sport slips, but
   // mixed generation rejects them all (e.g. correlation caps).
