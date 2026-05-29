@@ -92,6 +92,44 @@ export default function MethodologyCard() {
           className="font-mono uppercase tracking-[0.14em]"
           style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
+          Learning roadmap
+        </span>
+        <p
+          className="text-[12.5px] leading-relaxed"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          What happens next: audit signals are tracked first,
+          shadow-tested second, and only then considered for the
+          optimizer. Advanced ML ideas are on the roadmap, but not
+          active until they beat the current rules in out-of-time
+          tests. Full sequence —{" "}
+          <a
+            href="https://github.com/yashwantbalaji3/gametimepicks/blob/main/docs/MODEL_LEARNING_ROADMAP_2026-05-28.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "var(--vault-gold-bright)",
+              textDecoration: "underline",
+              textUnderlineOffset: 3,
+            }}
+          >
+            MODEL_LEARNING_ROADMAP_2026-05-28.md
+          </a>
+          .
+        </p>
+      </div>
+
+      <div
+        className="rounded-[8px] p-4 flex flex-col gap-2"
+        style={{
+          background: "var(--gtp-card-sunken)",
+          border: "1px dashed var(--vault-border)",
+        }}
+      >
+        <span
+          className="font-mono uppercase tracking-[0.14em]"
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+        >
           What we explicitly don&apos;t claim
         </span>
         <ul
