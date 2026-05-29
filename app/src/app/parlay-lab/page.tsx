@@ -111,6 +111,13 @@ export default function ParlayLabPage() {
   const activeDateGraded = getOptimizerGradedForDate(activeDate);
   const isActiveSettled =
     !!activeDateGraded && (activeDateGraded.uniqueSlips ?? []).length > 0;
+  // PR `fix/today-results-flow-clarity` (2026-05-29) — the inverse:
+  // when we have a pregame snapshot for the active date but no
+  // graded file yet, render a tiny Pregame chip that tells the user
+  // results land after games finish, and link them to /results to
+  // see the most recent settled slate while they wait.
+  const isActivePregame =
+    !!optimizerForDate && (optimizerForDate.totalSlips ?? 0) > 0 && !activeDateGraded;
 
   return (
     // PR `feature/parlay-lab-compact-hero` (2026-05-28) — collapsed
@@ -161,6 +168,47 @@ export default function ParlayLabPage() {
             }}
           >
             View on Results →
+          </Link>
+        </section>
+      )}
+      {/* PR `fix/today-results-flow-clarity` (2026-05-29) — Pregame
+         counterpart to the Settled chip above. Renders only when the
+         active date has a pregame snapshot but hasn't been graded
+         yet (e.g. today's MLB games haven't started). Tells users
+         exactly when results show up and links to the most recent
+         settled slate while they wait. */}
+      {isActivePregame && (
+        <section
+          aria-label="Pregame slate"
+          className="mt-2 mb-1 flex flex-wrap items-baseline gap-x-2 gap-y-1 px-3 py-2 rounded-[6px]"
+          style={{
+            background: "var(--gtp-card)",
+            border: "1px solid var(--vault-rule)",
+          }}
+        >
+          <span
+            className="font-mono uppercase tracking-[0.14em]"
+            style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
+          >
+            Pregame
+          </span>
+          <span
+            className="text-[12px] leading-snug"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
+            Results update after games finish.
+          </span>
+          <Link
+            href="/results/"
+            className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full ml-auto"
+            style={{
+              color: "var(--vault-gold-bright)",
+              border: "1px solid var(--vault-gold-bright)",
+              fontSize: 11,
+              lineHeight: 1.1,
+            }}
+          >
+            View latest settled →
           </Link>
         </section>
       )}
