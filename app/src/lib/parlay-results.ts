@@ -43,6 +43,23 @@ export interface OptimizerSummary {
   lifetime: OptimizerSummaryBucket;
   byProfile: Record<string, OptimizerSummaryBucket>;
   bySport: Record<string, OptimizerSummaryBucket>;
+  /** PR `feature/risk-section-results-data` — per-section breakdown
+   *  of the user-facing `publicRiskSections` slips. Keyed by
+   *  section ("low"/"medium"/"high"/"longshot"). Lifetime aggregates
+   *  the post-era dates; `byDate` exposes per-day rows so the UI can
+   *  ground a specific slate in the section data the pipeline
+   *  graded. Optional for back-compat with summaries written before
+   *  the field landed. */
+  byPublicSection?: {
+    lifetime: Record<string, OptimizerSummaryBucket>;
+    byDate: Record<string, Record<string, OptimizerSummaryBucket>>;
+  };
+  /** Same shape, but bucketed by sport tab the publicRiskSections
+   *  slips lived under ("nba"/"mlb"/"multi"). */
+  bySportBucket?: {
+    lifetime: Record<string, OptimizerSummaryBucket>;
+    byDate: Record<string, Record<string, OptimizerSummaryBucket>>;
+  };
 }
 
 /** The optimizer snapshot shape extended with grader-stamped fields. */

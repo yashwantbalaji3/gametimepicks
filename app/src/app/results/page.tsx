@@ -178,14 +178,28 @@ export default function ResultsPage() {
          slate. Pulled in above the per-date sections so the user can
          see the Low / Medium / High / Longshot performance + the
          NBA-only / MLB-only / Mixed performance at a glance.
-         Loader-side classification of already-graded uniqueSlips via
-         `summarizeByRiskSection` + `summarizeBySportBucket` —
-         pipeline-backed summary fields come in a follow-up PR. */}
+
+         PR `feature/risk-section-results-data` (2026-05-29) —
+         pipeline now grades `publicRiskSections` slips directly and
+         persists per-section + per-sport-bucket summaries on
+         `optimizer-summary.json`. We prefer those over the
+         loader-side classifier so the numbers match what users
+         actually saw in Suggested mode. Falls back to the
+         loader-side classification of `uniqueSlips` for any date
+         the pipeline hasn't graded section-wise yet. */}
       {dateSections.length > 0 && (() => {
         const newest = dateSections[0];
-        const riskBreakdown = summarizeByRiskSection(newest.slips);
-        const sportBreakdown = summarizeBySportBucket(newest.slips);
         const label = formatResultsDateLabel(newest.date);
+        const pipelineSections =
+          summary?.byPublicSection?.byDate?.[newest.date];
+        const pipelineSportBuckets =
+          summary?.bySportBucket?.byDate?.[newest.date];
+        const riskBreakdown = pipelineSections
+          ? buildBreakdownFromPipeline(pipelineSections)
+          : summarizeByRiskSection(newest.slips);
+        const sportBreakdown = pipelineSportBuckets
+          ? buildSportBreakdownFromPipeline(pipelineSportBuckets)
+          : summarizeBySportBucket(newest.slips);
         return (
           <div className="mt-6 flex flex-col gap-4">
             <RiskSectionResultsTable
@@ -274,6 +288,84 @@ export default function ResultsPage() {
       </section>
     </div>
   );
+}
+
+/** Adapter — turn pipeline `byPublicSection.byDate[date]` into the
+ *  shape `RiskSectionResultsTable` consumes. Always fills every
+ *  section key with a zeroed row when missing so the UI renders
+ *  "Not enough settled slips yet." instead of skipping a section. */
+function buildBreakdownFromPipeline(
+  byPublicSection: Record<string, {
+    wins: number;
+    losses: number;
+    pushes: number;
+    pending: number;
+    decisive: number;
+    hitRate: number | null;
+  }>,
+): import("@/lib/results-breakdown").RiskSectionBreakdown {
+  const zero = {
+    total: 0, wins: 0, losses: 0, pushes: 0, pending: 0, decisive: 0,
+    hitRate: null,
+  };
+  const sec = (k: string) => {
+    const r = byPublicSection[k];
+    if (!r) return { ...zero };
+    return {
+      total: r.wins + r.losses + r.pushes + r.pending,
+      wins: r.wins,
+      losses: r.losses,
+      pushes: r.pushes,
+      pending: r.pending,
+      decisive: r.decisive,
+      hitRate: r.hitRate,
+    };
+  };
+  return {
+    sections: {
+      low: sec("low"),
+      medium: sec("medium"),
+      high: sec("high"),
+      longshot: sec("longshot"),
+    },
+    unaligned: { ...zero },
+  };
+}
+
+/** Same adapter for the sport-bucket breakdown. */
+function buildSportBreakdownFromPipeline(
+  bySportBucket: Record<string, {
+    wins: number;
+    losses: number;
+    pushes: number;
+    pending: number;
+    decisive: number;
+    hitRate: number | null;
+  }>,
+): import("@/lib/results-breakdown").SportBucketBreakdown {
+  const zero = {
+    total: 0, wins: 0, losses: 0, pushes: 0, pending: 0, decisive: 0,
+    hitRate: null,
+  };
+  const row = (k: string) => {
+    const r = bySportBucket[k];
+    if (!r) return { ...zero };
+    return {
+      total: r.wins + r.losses + r.pushes + r.pending,
+      wins: r.wins,
+      losses: r.losses,
+      pushes: r.pushes,
+      pending: r.pending,
+      decisive: r.decisive,
+      hitRate: r.hitRate,
+    };
+  };
+  return {
+    nba: row("nba"),
+    mlb: row("mlb"),
+    multi: row("multi"),
+    other: { ...zero },
+  };
 }
 
 /** Pure: format a `YYYY-MM-DD` to "May 28" using America/New_York
