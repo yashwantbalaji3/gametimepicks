@@ -295,3 +295,101 @@ behind an audit-trail file.
 If a roadmap item ships, this doc gets an entry move from
 "roadmap" to "implemented" with a PR link. The doc lies if it
 ever drifts from the live code.
+
+---
+
+## 11. What changed recently (2026-05-29 update)
+
+A few honest, code-level changes have shipped since May 28's
+settlement. None of them are model improvements in the
+"the model learned" sense — they are plumbing fixes and UI
+surfaces that make the existing rules easier to read.
+
+### 11.1 We found a grading blind spot
+
+Before 2026-05-29, the MLB grader silently dropped every
+`batter_hits_runs_rbis` (H+R+RBI) prop as "unsupported market".
+Every H+R+RBI leg therefore came back as `unresolved`, and any
+slip that contained one stayed `pending` regardless of what
+actually happened on the field. PR #166 added a `_stat_for_market`
+clause that sums `hits + runs + rbi` from the box score with the
+same did-not-appear guard as `batter_hits` and `batter_total_bases`.
+
+On May 28: 21 of 43 H+R+RBI legs now grade cleanly (2W-19L). The
+remaining 22 are real "stats unavailable" cases (the batter took
+zero plate appearances). The `/results` Slip Details drilldown
+surfaces these honestly as `UNRESOLVED` per-leg chips inside a
+`PENDING` slip badge.
+
+This was a coverage gap in the settlement pipeline, not a model
+change. The fix means our hit rates are now slightly more
+complete; it does NOT mean the model is better at predicting
+H+R+RBI.
+
+### 11.2 We track public risk sections separately now
+
+PR #152 introduced the public risk-section selector (Low /
+Medium / High / Longshot). Before May 28 these slips were
+generated but never graded as their own group. PR #159 added a
+pipeline pass that grades the `publicRiskSections.*` block of the
+graded payload and rolls per-section + per-sport-bucket totals
+into `optimizer-summary.json`'s `byPublicSection` and
+`bySportBucket` fields.
+
+So when `/results` shows "Low Risk 2W-1L · 66.7%" today, that is
+the same set of slips the user actually saw under "Low Risk" in
+Parlay Lab the day before — not a re-bucketing of the internal
+profile pool. Honest 1:1 alignment.
+
+### 11.3 We still require a sample before any model behavior changes
+
+The strict numeric gates from `docs/AUDIT_INFORMED_OPTIMIZER_NOTES_2026-05-28.md`
+section 3 are unchanged. Today (post-May-28 settlement):
+
+- Aggressive profile sits at 7.5% (40 decisive, 14 pp below
+  lifetime). The gap test clears the 8 pp threshold but the
+  sample is n=40, still below the n=60 floor. **No demotion.**
+- Every public risk section sits at n=3-4 — far below the n=40
+  cap-tightening floor. **No cap change.**
+- Every sport bucket sits at n=4-15 — same story.
+- `market:batter_total_bases` is at 2 of 3 confirming days — one
+  more qualifying day flips it to confirmed.
+
+The `/results` Learning Signals table (PR #160 + #167) surfaces
+every row with an explicit shortfall ("needs 20 more decisive
+slips before demotion can be considered"). No row claims the
+model "learned" anything.
+
+### 11.4 Confirmed signals stay operator-gated
+
+`audit/policy.json` already has one confirmed signal:
+`longshotKeepCollapsed` (1 of 1 confirming days). It is **not
+consumed by the optimizer**. The Learning Signals table labels it
+"Confirmed — not consumed" and the policy consumption hook stays
+gated behind an operator approval step. We will not consume an
+audit signal in the optimizer until the user explicitly approves
+it; the doc gets a PR-link entry when that happens.
+
+### 11.5 Honest off-day handling
+
+Today (2026-05-29) is an NBA Finals rest day. NBA-only and Mixed
+buckets are honestly empty (`nbaCount: 0`); the Parlay Lab slate
+strip reads "MLB-only slate" instead of pretending there's an NBA
+pool. Sport tabs hide what isn't there. We did not invent NBA
+games or recycle May 28 NBA legs.
+
+### 11.6 Game time + sportsbook comparison are surface-only
+
+`commenceTime` / `gameTime` (PR #153) is threaded through the
+payload and rendered on every leg row. The book-comparison row on
+`/projections` (PR #156) is read-only — no scraping, no affiliate
+links, no copied sportsbook UI. Neither change touches the
+optimizer's leg-scoring math.
+
+---
+
+These are honest, small, code-grounded changes. None of them
+qualifies as "the model learned." When something does qualify —
+when we ship a calibration or shadow-tested signal that beats
+the deterministic baseline in out-of-time validation — it lands
+with its own PR-link entry in section 3 of this doc.
