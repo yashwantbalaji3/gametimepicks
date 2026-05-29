@@ -31,7 +31,10 @@ import {
 } from "@/lib/data-parlays";
 import { getBoardForDate } from "@/lib/data";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
-import { getOptimizerSummary } from "@/lib/parlay-results";
+import {
+  getOptimizerSummary,
+  getOptimizerGradedForDate,
+} from "@/lib/parlay-results";
 import { currentEtDate } from "@/lib/freshness";
 
 export const metadata = {
@@ -45,17 +48,22 @@ export default function ParlayLabPage() {
   const suggested = getSuggestedParlaysForDate(today);
   const calibrationTable = loadCalibrationTable();
 
-  // Prefer TODAY's optimizer snapshot when it exists, even if the
-  // legacy `getSuggestedParlaysForDate` walked back to an earlier date.
-  // (PR `fix/parlay-lab-prefer-optimizer-date` — the morning workflow
-  // writes the optimizer file directly without populating the legacy
-  // snapshot path, so on a fresh slate the legacy loader returns the
-  // previous day. Without this reorder, the page would render
-  // yesterday's slip cards even though today's optimizer is on disk.)
+  // PR `fix/results-parlay-final-polish` (2026-05-29) — reordered
+  // the fallback chain so the LATEST optimizer snapshot wins over
+  // the legacy `suggested.date`, which often points to an older
+  // settled date. The chain is now:
+  //   1. TODAY's snapshot, if it exists
+  //   2. LATEST snapshot on disk (newest forward-looking date)
+  //   3. `suggested.date` snapshot (legacy fallback)
+  //
+  // Without step 2 coming before step 3 the page was rendering May
+  // 27 (older legacy `suggested.date`) even after a fresh May 28
+  // optimizer snapshot landed on disk. PR `fix/parlay-lab-prefer-
+  // optimizer-date` introduced step 1; this PR adds the reorder.
   const optimizerForDate =
     getOptimizerSnapshotForDate(today) ||
-    (suggested && getOptimizerSnapshotForDate(suggested.date)) ||
     getLatestOptimizerSnapshot()?.payload ||
+    (suggested && getOptimizerSnapshotForDate(suggested.date)) ||
     null;
 
   // ---- Market ticker (PR #112) ------------------------------------------
@@ -95,6 +103,15 @@ export default function ParlayLabPage() {
   const mixedSlips = sportSlipCount ? sportSlipCount("multi") : 0;
   const totalSlips = optimizerForDate?.totalSlips ?? suggested?.slips?.length ?? 0;
 
+  // PR `fix/results-parlay-final-polish` — when the active date has
+  // already been settled, surface a tiny "Settled · view on Results"
+  // chip so users understand they're looking at historical
+  // recommendations (still useful — same model, same picks the
+  // graded record is built on) AND know where the W/L numbers live.
+  const activeDateGraded = getOptimizerGradedForDate(activeDate);
+  const isActiveSettled =
+    !!activeDateGraded && (activeDateGraded.uniqueSlips ?? []).length > 0;
+
   return (
     // PR `feature/parlay-lab-compact-hero` (2026-05-28) — collapsed
     // the 120px DateStatusHeader card into a 32px inline slate strip.
@@ -111,6 +128,42 @@ export default function ParlayLabPage() {
         mlbSlips={mlbSlips}
         mixedSlips={mixedSlips}
       />
+      {isActiveSettled && (
+        <section
+          aria-label="Active slate already settled"
+          className="mt-2 mb-1 flex flex-wrap items-baseline gap-x-2 gap-y-1 px-3 py-2 rounded-[6px]"
+          style={{
+            background: "var(--gtp-card)",
+            border: "1px solid var(--vault-rule)",
+          }}
+        >
+          <span
+            className="font-mono uppercase tracking-[0.14em]"
+            style={{ color: "var(--vault-success)", fontSize: 11 }}
+          >
+            Settled
+          </span>
+          <span
+            className="text-[12px] leading-snug"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
+            This slate has finished and been graded. The cards below
+            are kept for transparency.
+          </span>
+          <Link
+            href="/results/"
+            className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full ml-auto"
+            style={{
+              color: "var(--vault-gold-bright)",
+              border: "1px solid var(--vault-gold-bright)",
+              fontSize: 11,
+              lineHeight: 1.1,
+            }}
+          >
+            View on Results →
+          </Link>
+        </section>
+      )}
       <Suspense fallback={<div className="min-h-[60vh]" aria-hidden />}>
         {suggested ? (
           // PR `feature/lane-spread-slip-cards` (2026-05-28) — pass

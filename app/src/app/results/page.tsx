@@ -207,16 +207,29 @@ export default function ResultsPage() {
           ? buildSportBreakdownFromPipeline(pipelineSportBuckets)
           : summarizeBySportBucket(newest.slips);
         return (
-          <div className="mt-6 flex flex-col gap-4">
-            <RiskSectionResultsTable
-              breakdown={riskBreakdown}
-              contextLabel={label}
-            />
-            <SportMixResultsTable
-              breakdown={sportBreakdown}
-              contextLabel={label}
-            />
-          </div>
+          <section
+            aria-label={`${label} breakdowns`}
+            className="mt-6 flex flex-col gap-4"
+          >
+            {/* PR `fix/results-parlay-final-polish` — single shared
+               eyebrow so the date label isn't repeated on each card. */}
+            <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span
+                className="font-mono uppercase tracking-[0.16em]"
+                style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+              >
+                {label} breakdowns
+              </span>
+              <span
+                className="font-mono"
+                style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
+              >
+                public risk sections + sport mix
+              </span>
+            </header>
+            <RiskSectionResultsTable breakdown={riskBreakdown} />
+            <SportMixResultsTable breakdown={sportBreakdown} />
+          </section>
         );
       })()}
 
