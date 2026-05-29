@@ -94,6 +94,18 @@ interface Props {
   /** Sport-bucket chip ("NBA-only", "MLB-only", "Mixed"). Same rule
    *  as `slateDate`/`origin`: lane spread omits, other surfaces pass. */
   sportBucketLabel?: string | null;
+  /** PR `feature/build-my-card-selected-slips` — opt-in selection
+   *  affordance. When true, the card renders an "Add to my card" toggle
+   *  below the legs. Strictly opt-in: every existing surface (Results,
+   *  homepage, Build Your Own) omits these props and renders exactly as
+   *  before. */
+  selectable?: boolean;
+  /** Whether this slip is currently in the user's selected set. Only
+   *  meaningful when `selectable` is true. */
+  selected?: boolean;
+  /** Toggle handler — receives the slip so the caller can dedupe by
+   *  slipId. Only wired when `selectable` is true. */
+  onToggleSelect?: (slip: ParlaySlip) => void;
 }
 
 /** Resolved/graded status copy. Active "pending" slips intentionally
@@ -157,6 +169,9 @@ export default function ParlayTicketCard({
   slateIsFallback = false,
   origin,
   sportBucketLabel = null,
+  selectable = false,
+  selected = false,
+  onToggleSelect,
 }: Props) {
   const accent = statusColor(slip.status);
   // PR `feature/parlay-risk-section-simplification` (2026-05-28) —
@@ -359,6 +374,17 @@ export default function ParlayTicketCard({
         ))}
       </ul>
 
+      {selectable && (
+        <div className="px-4 -mt-0.5">
+          <SelectToggle
+            slip={slip}
+            selected={selected}
+            onToggleSelect={onToggleSelect}
+            riskLabel={riskSection.label}
+          />
+        </div>
+      )}
+
       {showStakeFooter && (
         <footer
           className="mx-4 mb-3 mt-1 pt-2.5 flex flex-wrap items-end justify-between gap-3"
@@ -427,6 +453,50 @@ export default function ParlayTicketCard({
         </footer>
       )}
     </article>
+  );
+}
+
+/** Opt-in "Add to my card" toggle rendered below the legs when the
+ *  card is `selectable`. Pure presentation — emits the slip on click so
+ *  the caller dedupes by slipId. Accessible: `aria-pressed` reflects the
+ *  selected state and the label changes between "Add to my card" and
+ *  "Added to my card". No banned copy, no "lock"/"safe" language. */
+function SelectToggle({
+  slip,
+  selected,
+  onToggleSelect,
+  riskLabel,
+}: {
+  slip: ParlaySlip;
+  selected: boolean;
+  onToggleSelect?: (slip: ParlaySlip) => void;
+  riskLabel: string;
+}) {
+  const accent = selected ? "var(--vault-success)" : "var(--vault-gold-bright)";
+  return (
+    <button
+      type="button"
+      onClick={() => onToggleSelect?.(slip)}
+      aria-pressed={selected}
+      aria-label={
+        selected
+          ? `Remove this ${riskLabel} slip from my card`
+          : `Add this ${riskLabel} slip to my card`
+      }
+      className="w-full inline-flex items-center justify-center gap-2 rounded-[6px] py-2 font-mono uppercase tracking-[0.14em] transition-colors"
+      style={{
+        color: selected ? "var(--vault-success)" : "var(--vault-text-mute)",
+        background: selected ? "rgba(74, 222, 128, 0.08)" : "var(--gtp-card-sunken)",
+        border: `1px ${selected ? "solid" : "dashed"} ${accent}`,
+        fontSize: 11,
+        cursor: "pointer",
+      }}
+    >
+      <span aria-hidden style={{ fontSize: 12, lineHeight: 1 }}>
+        {selected ? "✓" : "+"}
+      </span>
+      {selected ? "Added to my card" : "Add to my card"}
+    </button>
   );
 }
 
