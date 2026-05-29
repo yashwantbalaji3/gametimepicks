@@ -33,13 +33,15 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .parlay_optimizer import (
-    optimize,
+    NBA_SGP_PROFILE_DEFAULTS,
+    PROFILE_RULES_BY_NAME,
     OptimizedSlip,
     OptimizerLean,
-    normalize_lean,
+    generate_nba_sgp_slips,
     is_eligible,
     leg_score_breakdown,
-    PROFILE_RULES_BY_NAME,
+    normalize_lean,
+    optimize,
 )
 from .snapshot_parlays import load_nba_leans, load_mlb_leans
 
@@ -118,6 +120,11 @@ def _slip_to_payload(slip: OptimizedSlip) -> dict[str, Any]:
         "score": round(slip.score, 4),
         "correlationPenalty": round(slip.correlationPenalty, 4),
         "rationale": slip.rationale,
+        # PR `feature/nba-single-game-parlay-methodology` — explicit
+        # single-game flag so the UI can render the "Single-game ·
+        # higher variance" chip and the pool-availability banner can
+        # branch when NBA-only slips exist on a one-NBA-game slate.
+        "singleGame": slip.singleGame,
     }
 
 
@@ -178,6 +185,16 @@ def build_optimizer_snapshot(
         "all": combined,
     }
 
+    # Pre-compute NBA single-game eligibility. The SGP path only runs
+    # when the slate has exactly one unique NBA game AND the standard
+    # NBA-only bucket comes back empty for the profile (because of the
+    # per-profile `max_legs_per_game` arithmetic). When both conditions
+    # hold we backfill the bucket with explicit single-game NBA slips
+    # that carry `singleGame=True` so the UI labels them as higher
+    # variance.
+    nba_game_ids = {l.get("gameId") for l in nba if l.get("gameId")}
+    nba_single_game = len(nba_game_ids) == 1
+
     for profile in _PROFILES:
         for sport in _SPORTS:
             pool = sport_pools[sport]
@@ -199,6 +216,39 @@ def build_optimizer_snapshot(
                     date=date,
                 )
             buckets[profile][sport] = [_slip_to_payload(s) for s in slips]
+
+        # PR `feature/nba-single-game-parlay-methodology` —
+        # explicit NBA single-game backfill. ONLY fires when:
+        #   1. NBA pool has at least 2 legs (otherwise no slip is
+        #      possible),
+        #   2. The slate has exactly one unique NBA game,
+        #   3. Standard NBA-only generation returned empty,
+        #   4. The profile is whitelisted in NBA_SGP_PROFILE_DEFAULTS
+        #      (conservative/Anchor is intentionally excluded — its
+        #      "Lower-variance builds" framing would be contradicted
+        #      by stacking two legs from one matchup).
+        if (
+            nba
+            and nba_single_game
+            and not buckets[profile]["nba"]
+            and profile in NBA_SGP_PROFILE_DEFAULTS
+        ):
+            sgp_slips = generate_nba_sgp_slips(
+                nba,
+                profile=profile,
+                date=date,
+            )
+            buckets[profile]["nba"] = [_slip_to_payload(s) for s in sgp_slips]
+            # Also surface them under the "all" bucket if it's currently
+            # smaller than the standard cap and we have room — keeps
+            # the All filter consistent with the NBA tab.
+            if sgp_slips:
+                payloads = [_slip_to_payload(s) for s in sgp_slips]
+                existing = buckets[profile]["all"]
+                seen_ids = {s.get("slipId") for s in existing}
+                for p in payloads:
+                    if p.get("slipId") not in seen_ids:
+                        existing.append(p)
 
     total = sum(
         len(slips)

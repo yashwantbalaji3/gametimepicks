@@ -219,7 +219,11 @@ export default function ParlayTicketCard({
           />
           <span className="truncate">
             {lane.name}
-            {slip.sameGame ? " · same-game" : ""}
+            {slip.singleGame
+              ? " · single-game"
+              : slip.sameGame
+                ? " · same-game"
+                : ""}
           </span>
         </span>
         <CombinedOddsPill
@@ -230,6 +234,28 @@ export default function ParlayTicketCard({
           savedPregame={savedPregame}
         />
       </header>
+
+      {slip.singleGame && (
+        <div
+          className="px-4 -mt-1"
+          aria-label="Single-game variance note"
+        >
+          <span
+            className="font-mono uppercase tracking-[0.10em] inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px]"
+            style={{
+              color: "var(--vault-warn)",
+              background: "var(--gtp-card-sunken)",
+              border: "1px solid var(--vault-warn)",
+              fontSize: 10,
+              lineHeight: 1.1,
+            }}
+            title="Single-game build — all legs share one matchup, so the slip carries correlation risk and reads as higher variance than a multi-game slip with the same legs."
+          >
+            <span aria-hidden style={{ fontSize: 11 }}>⟁</span>
+            Single-game · higher variance
+          </span>
+        </div>
+      )}
 
       {showChipRow && (
         <div

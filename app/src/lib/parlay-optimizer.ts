@@ -87,6 +87,13 @@ export interface OptimizerSlip {
   score: number;
   correlationPenalty: number;
   rationale: string;
+  /** PR `feature/nba-single-game-parlay-methodology` — true when the
+   *  slip was emitted by the explicit single-game NBA path. The UI
+   *  renders a "Single-game · higher variance" chip on these cards so
+   *  users always see the framing that every leg shares one matchup
+   *  and carries correlation risk. Optional for back-compat with any
+   *  cached payload predating this PR. */
+  singleGame?: boolean;
 }
 
 /** Leg pool consumed by the custom-parlay builder. NOT officially
@@ -167,6 +174,10 @@ export function optimizerSlipToParlaySlip(
     score: slip.score,
     sameGame: slip.sameGame,
     hasAnomalyLeg: slip.hasAnomalyLeg,
+    // PR `feature/nba-single-game-parlay-methodology` — preserve the
+    // single-game flag so the ParlayTicketCard can render the
+    // "Single-game · higher variance" chip.
+    singleGame: slip.singleGame ?? false,
   };
 }
 

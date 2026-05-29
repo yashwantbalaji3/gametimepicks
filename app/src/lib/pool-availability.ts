@@ -33,6 +33,12 @@ export interface PoolAvailability {
    *  when both source pools are present but no Mixed slips were
    *  produced (typically because one sport's leans were all dropped). */
   multi: SportPoolState;
+  /** PR `feature/nba-single-game-parlay-methodology` — true when NBA
+   *  is "present" AND every NBA-only slip carries `singleGame=true`
+   *  (i.e. all came from the explicit single-game generator because
+   *  the slate has exactly one NBA game). The UI uses this to render
+   *  the friendly framing banner instead of the structural-gap copy. */
+  nbaSingleGameOnly: boolean;
 }
 
 /** Classify each sport pool inside an optimizer snapshot. Pure. */
@@ -40,7 +46,12 @@ export function classifyPoolAvailability(
   payload: OptimizerSnapshot | null | undefined,
 ): PoolAvailability {
   if (!payload) {
-    return { nba: "absent", mlb: "absent", multi: "absent" };
+    return {
+      nba: "absent",
+      mlb: "absent",
+      multi: "absent",
+      nbaSingleGameOnly: false,
+    };
   }
   const nbaCount = payload.sourcePools?.nbaCount ?? 0;
   const mlbCount = payload.sourcePools?.mlbCount ?? 0;
@@ -48,16 +59,31 @@ export function classifyPoolAvailability(
   let nbaSlipsTotal = 0;
   let mlbSlipsTotal = 0;
   let multiSlipsTotal = 0;
+  let nbaSingleGameSlips = 0;
   for (const profile of Object.keys(buckets) as Array<keyof typeof buckets>) {
     const perSport = buckets[profile];
-    nbaSlipsTotal += perSport?.nba?.length ?? 0;
+    const nbaBucket = perSport?.nba ?? [];
+    nbaSlipsTotal += nbaBucket.length;
     mlbSlipsTotal += perSport?.mlb?.length ?? 0;
     multiSlipsTotal += perSport?.multi?.length ?? 0;
+    for (const slip of nbaBucket) {
+      if ((slip as { singleGame?: boolean }).singleGame === true) {
+        nbaSingleGameSlips++;
+      }
+    }
   }
+  const nba = classifySingle(nbaCount, nbaSlipsTotal);
+  // "Single-game only" is true when every NBA-only slip in the bucket
+  // came from the explicit single-game generator. When at least one
+  // multi-game NBA slip exists, the flag flips to false even if some
+  // SGP slips co-exist — the banner then defers to standard framing.
+  const nbaSingleGameOnly =
+    nba === "present" && nbaSlipsTotal > 0 && nbaSingleGameSlips === nbaSlipsTotal;
   return {
-    nba: classifySingle(nbaCount, nbaSlipsTotal),
+    nba,
     mlb: classifySingle(mlbCount, mlbSlipsTotal),
     multi: classifyMulti(nbaCount, mlbCount, multiSlipsTotal),
+    nbaSingleGameOnly,
   };
 }
 
@@ -83,4 +109,10 @@ export function hasPoolWithoutSlips(p: PoolAvailability): boolean {
     p.mlb === "pool-but-no-slips" ||
     p.multi === "pool-but-no-slips"
   );
+}
+
+/** True when the banner should render *anything* — either a missing-
+ *  data warning, or the friendly single-game NBA framing. */
+export function shouldRenderAvailabilityNote(p: PoolAvailability): boolean {
+  return hasPoolWithoutSlips(p) || p.nbaSingleGameOnly;
 }

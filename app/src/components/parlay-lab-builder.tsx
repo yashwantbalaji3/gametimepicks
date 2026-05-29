@@ -33,7 +33,7 @@ import ParlayLabModeTabs, {
 import PoolAvailabilityNote from "./pool-availability-note";
 import {
   classifyPoolAvailability,
-  hasPoolWithoutSlips,
+  shouldRenderAvailabilityNote,
   type PoolAvailability,
 } from "@/lib/pool-availability";
 import SearchableSelect, {
@@ -413,7 +413,7 @@ function SuggestedMode({
         sub="Saved before games, graded after. Capped at 4 legs per slip."
       />
 
-      {hasPoolWithoutSlips(poolAvailability) && (
+      {shouldRenderAvailabilityNote(poolAvailability) && (
         <PoolAvailabilityNote availability={poolAvailability} />
       )}
 
