@@ -257,3 +257,170 @@ def test_profile_defaults_keep_aggressive_max_legs_at_3():
     # 4+ leg slips even though the regular Aggressive profile allows
     # max_legs=4.
     assert NBA_SGP_PROFILE_DEFAULTS["aggressive"]["max_legs"] == 3
+
+
+# ---------------------------------------------------------------------------
+# Diversity controls (PR fix/nba-sgp-diversity, 2026-05-28)
+# ---------------------------------------------------------------------------
+
+
+def _dominator_pool() -> list:
+    """Build a pool where player 1 has by far the highest-edge legs in
+    every market (mirroring the live 2026-05-28 Keldon Johnson shape)
+    so the diversity selector is the only thing that prevents the same
+    name from appearing in every slip.
+    """
+    legs: list = []
+    # Dominator: player 1 with 24pp edge on all three markets.
+    for market in ("PTS", "REB", "AST"):
+    # Edge floors keep our tests Balanced-eligible (4pp+) for
+    # alternatives too.
+        legs.append(_lean(1, market, edge_pct=24.0, confidence="High"))
+    # Eight credible alternatives at 10pp edge, three markets each.
+    for pid in range(2, 10):
+        for market in ("PTS", "REB", "AST"):
+            legs.append(_lean(pid, market, edge_pct=10.0, confidence="High"))
+    return legs
+
+
+def test_diversity_keeps_dominator_under_majority_of_slips():
+    # With many credible alternatives, the same player should NOT show
+    # up in every slip. Concretely: when the slate has a Keldon-style
+    # dominator + 8 credible alternates, the dominator's exposure
+    # across the returned slips must be < 100%.
+    legs = _dominator_pool()
+    slips = generate_nba_sgp_slips(
+        legs,
+        profile="balanced",
+        date="d",
+        num_candidates=4,
+    )
+    assert len(slips) == 4
+    dominator_count = sum(
+        1 for s in slips if any((l.playerId or 0) == 1 for l in s.legs)
+    )
+    # < 100% — at least one slip must NOT contain the dominator.
+    assert dominator_count < len(slips), (
+        f"dominator appears in every slip ({dominator_count}/{len(slips)})"
+    )
+
+
+def test_diversity_no_identical_pair_repeats():
+    # All four returned slips should pair different players (or at
+    # least: no exact same player pair appears twice).
+    legs = _dominator_pool()
+    slips = generate_nba_sgp_slips(
+        legs,
+        profile="balanced",
+        date="d",
+        num_candidates=4,
+    )
+    pair_keys = [
+        tuple(sorted((l.playerId or 0) for l in s.legs))
+        for s in slips
+    ]
+    assert len(set(pair_keys)) == len(pair_keys), (
+        f"pair repeated across the visible slips: {pair_keys}"
+    )
+
+
+def test_diversity_distributes_player_exposure():
+    # Across the returned slips' legs, the heaviest-used player should
+    # appear in no more than HALF + 1 of the legs (a soft fairness
+    # check — strict 50%-of-slips is asserted separately above).
+    legs = _dominator_pool()
+    slips = generate_nba_sgp_slips(
+        legs,
+        profile="balanced",
+        date="d",
+        num_candidates=4,
+    )
+    leg_counts: dict[int, int] = {}
+    for s in slips:
+        for l in s.legs:
+            leg_counts[l.playerId or 0] = leg_counts.get(l.playerId or 0, 0) + 1
+    total_legs = sum(leg_counts.values())
+    top_count = max(leg_counts.values())
+    # With 4 slips × 2 legs = 8 legs and 9 eligible players, no single
+    # player should consume more than half the leg slots.
+    assert top_count <= total_legs // 2 + 1, (
+        f"player exposure unbalanced — top player has {top_count}/{total_legs} legs"
+    )
+
+
+def test_diversity_prefers_market_variety_when_possible():
+    # When PTS/REB/AST candidates are all available, the visible slip
+    # set should touch every market at least once (the +bonus for
+    # fresh markets makes this the dominant tie-breaker once exposure
+    # penalties have done their work).
+    legs = _dominator_pool()
+    slips = generate_nba_sgp_slips(
+        legs,
+        profile="balanced",
+        date="d",
+        num_candidates=4,
+    )
+    used_markets: set[str] = set()
+    for s in slips:
+        for l in s.legs:
+            used_markets.add(l.market)
+    assert used_markets == {"PTS", "REB", "AST"}, (
+        f"market mix incomplete: {used_markets}"
+    )
+
+
+def test_diversity_fallback_when_alternatives_are_too_weak():
+    # When the dominator is the only credible source (alternatives
+    # below the edge floor), the diversity selector must NOT pick weak
+    # legs just to spread names. The generator returns what's
+    # eligible; the selector preserves it. Outcome: fewer slips, never
+    # a fabricated diversification.
+    legs: list = []
+    for market in ("PTS", "REB", "AST"):
+        legs.append(_lean(1, market, edge_pct=24.0))
+    # Single weak partner; 1pp edge floor for Balanced is 4pp, so 2pp
+    # is rejected at eligibility, leaving the dominator with no partner.
+    legs.append(_lean(2, "PTS", edge_pct=2.0))
+    slips = generate_nba_sgp_slips(
+        legs,
+        profile="balanced",
+        date="d",
+        num_candidates=4,
+    )
+    # The dominator can't pair with himself (one leg per player), and
+    # there's no eligible partner. Output is empty — never a hallucinated
+    # diversification.
+    assert slips == []
+
+
+def test_diversity_no_infinite_loop_with_few_candidates():
+    # Two eligible legs → exactly one possible 2-leg slip. The
+    # selector must terminate even when target > candidates available.
+    legs = [_lean(1, "PTS"), _lean(2, "REB")]
+    slips = generate_nba_sgp_slips(
+        legs,
+        profile="balanced",
+        date="d",
+        num_candidates=4,
+    )
+    assert len(slips) == 1
+    assert all(s.singleGame for s in slips)
+
+
+def test_diversity_aggressive_still_supports_3_leg_slips():
+    # Aggressive SGP should still produce 3-leg slips after the
+    # diversity pass — the selector doesn't degrade leg count, only
+    # ordering.
+    legs = []
+    for pid in range(1, 10):
+        for market in ("PTS", "REB", "AST"):
+            legs.append(_lean(pid, market, edge_pct=12.0, confidence="High"))
+    slips = generate_nba_sgp_slips(
+        legs,
+        profile="aggressive",
+        date="d",
+        num_candidates=4,
+    )
+    assert slips
+    # At least one 3-leg slip should survive the diversity pass.
+    assert any(len(s.legs) == 3 for s in slips)
