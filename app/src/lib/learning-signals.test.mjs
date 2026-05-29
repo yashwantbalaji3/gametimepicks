@@ -188,6 +188,72 @@ test("buildLearningSignalRows: never says 'AI' or 'deep learning' in copy", () =
   }
 });
 
+test("buildLearningSignalRows: too-small profile row surfaces shortfall", () => {
+  const rows = buildLearningSignalRows(
+    {
+      _disclaimer: "",
+      generatedAt: "",
+      byDate: [],
+      lifetime: _bucket(50, 150),
+      byProfile: { conservative: _bucket(20, 14) }, // n=34
+      bySport: {},
+    },
+    null,
+  );
+  const r = rows.find((x) => x.id === "profile:conservative");
+  assert.ok(r);
+  assert.equal(r.status, "too-small");
+  // Profile floor is n=60 → needs 26 more
+  assert.match(r.explanation, /needs 26 more decisive slips/);
+});
+
+test("buildLearningSignalRows: too-small section row surfaces shortfall", () => {
+  const rows = buildLearningSignalRows(
+    {
+      _disclaimer: "",
+      generatedAt: "",
+      byDate: [],
+      lifetime: _bucket(50, 150),
+      byProfile: {},
+      bySport: {},
+      byPublicSection: {
+        lifetime: { longshot: _bucket(0, 4) }, // n=4
+        byDate: {},
+      },
+    },
+    null,
+  );
+  const r = rows.find((x) => x.id === "section:longshot");
+  assert.ok(r);
+  assert.equal(r.status, "too-small");
+  // Section floor is n=40 → needs 36 more
+  assert.match(r.explanation, /needs 36 more decisive slips/);
+});
+
+test("buildLearningSignalRows: too-small sport row surfaces shortfall", () => {
+  const rows = buildLearningSignalRows(
+    {
+      _disclaimer: "",
+      generatedAt: "",
+      byDate: [],
+      lifetime: _bucket(50, 150),
+      byProfile: {},
+      bySport: {},
+      byPublicSection: { lifetime: {}, byDate: {} },
+      bySportBucket: {
+        lifetime: { nba: _bucket(4, 0) }, // n=4
+        byDate: {},
+      },
+    },
+    null,
+  );
+  const r = rows.find((x) => x.id === "sport:nba");
+  assert.ok(r);
+  assert.equal(r.status, "too-small");
+  // Sport floor is n=40 → needs 36 more
+  assert.match(r.explanation, /needs 36 more decisive slips/);
+});
+
 test("getStatusDisplay: stable labels", () => {
   assert.equal(getStatusDisplay("confirmed-not-consumed").label, "Confirmed — not consumed");
   assert.equal(getStatusDisplay("shadow-test-candidate").label, "Shadow-test candidate");
