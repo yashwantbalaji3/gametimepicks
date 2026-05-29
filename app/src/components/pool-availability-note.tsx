@@ -24,7 +24,16 @@ interface Props {
 
 export default function PoolAvailabilityNote({ availability }: Props) {
   const lines: string[] = [];
-  if (availability.nba === "pool-but-no-slips") {
+  // PR `feature/nba-single-game-parlay-methodology` — when the NBA
+  // bucket exists AND every slip in it carries `singleGame=true`, the
+  // single-game generator is the only NBA-only path that fired. Tell
+  // the user why those slips are higher variance than the standard
+  // multi-game build.
+  if (availability.nbaSingleGameOnly) {
+    lines.push(
+      "Tonight's NBA-only slips are single-game builds — every leg shares the same matchup, so the cards are labeled higher variance. The lower-variance Anchor lane stays NBA-empty by design.",
+    );
+  } else if (availability.nba === "pool-but-no-slips") {
     // Two honest causes are possible when NBA leans are loaded but no
     // NBA-only slips were produced:
     //   (a) recent-form game logs failed to attach (R1 guardrail) —

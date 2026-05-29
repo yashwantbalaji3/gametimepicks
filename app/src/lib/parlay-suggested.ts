@@ -78,6 +78,11 @@ export interface ParlaySlip {
   sameGame: boolean;
   hasAnomalyLeg: boolean;
   gradedAt?: string;
+  /** PR `feature/nba-single-game-parlay-methodology` — true when every
+   *  leg comes from one game and the slip was emitted by the explicit
+   *  single-game NBA path. The UI uses this to render a
+   *  "Single-game · higher variance" chip. Optional for back-compat. */
+  singleGame?: boolean;
 }
 
 export interface ParlaySnapshot {
