@@ -4,7 +4,13 @@ import Nav from "@/components/nav";
 import Footer from "@/components/footer";
 import DisclaimerBanner from "@/components/disclaimer-banner";
 import MobileBottomNav from "@/components/mobile-bottom-nav";
-import DesktopSportsRail from "@/components/desktop-sports-rail";
+// PR `feature/results-ux-restructure` (2026-05-29) — removed the
+// `DesktopSportsRail` import. The rail duplicated the top nav
+// (Home / Parlay Lab / Results) for desktop users and surfaced
+// sport filter pills (All / NBA / MLB / Mixed / Custom) that
+// only matter inside Parlay Lab's own filter toolbar. Removing
+// it claws back the lg:pl-[76px] offset and gives /results,
+// /parlay-lab, and /projections a wider, less cluttered shell.
 
 import "./globals.css";
 
@@ -39,15 +45,12 @@ export default function RootLayout({
         <span aria-hidden className="gtp-floor-lights" />
         <DisclaimerBanner />
         <Nav />
-        {/* Desktop-only fixed left sports rail. Hidden at < lg.
-            Mounted siblings to <main> so it overlays from the left. */}
-        <DesktopSportsRail />
-        {/* `lg:pl-[76px]` offsets content to the right of the rail
-            on desktop (matches DesktopSportsRail width). `pb-[88px]`
-            clears the mobile bottom nav so content isn't hidden under
-            it on small viewports. md:pb-0 removes that padding once
-            the bottom nav is hidden. */}
-        <main className="relative z-10 lg:pl-[76px] pb-[88px] md:pb-0">
+        {/* PR `feature/results-ux-restructure` (2026-05-29) — dropped
+            the lg:pl-[76px] offset along with the desktop sports rail.
+            Content now uses the full viewport width on desktop, and
+            the existing `pb-[88px] md:pb-0` clears the mobile bottom
+            nav unchanged. */}
+        <main className="relative z-10 pb-[88px] md:pb-0">
           {children}
         </main>
         <Footer />
