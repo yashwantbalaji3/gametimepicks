@@ -47,6 +47,10 @@ import type {
   ProjectionsGame,
   ProjectionsLean,
 } from "@/lib/data-projections";
+import {
+  groupLeansByMarket,
+  type ProjectionsMarketGroup,
+} from "@/lib/projections-market-group";
 
 interface Props {
   payload: ProjectionsPayload;
@@ -1072,10 +1076,14 @@ function PlayerAccordion({
         className="px-3 pb-3 pt-1 flex flex-col gap-2"
         style={{ borderTop: "1px solid var(--vault-rule)" }}
       >
-        {group.leans.map((l, i) => (
-          <PlayerLeanRow
-            key={`${l.market}-${l.side}-${l.bookmaker}-${i}`}
-            lean={l}
+        {/* PR `feature/projections-page-cleanup` (2026-05-28): group
+            leans by (market, side, line) so per-book duplicates
+            collapse into one row per stat. The 6-leans-per-player
+            shape (3 markets × 2 books) now reads as 3 clean rows. */}
+        {groupLeansByMarket(group.leans).map((mg, i) => (
+          <PlayerMarketRow
+            key={`${mg.market}-${mg.side}-${mg.line ?? "null"}-${i}`}
+            group={mg}
           />
         ))}
       </div>
@@ -1083,22 +1091,22 @@ function PlayerAccordion({
   );
 }
 
-function PlayerLeanRow({ lean }: { lean: ProjectionsLean }) {
+/** Render one consolidated row per (market, side, line) group. When
+ *  multiple books contributed to the group, the right side shows the
+ *  best-of price and a small "N books" chip. The collapsed per-book
+ *  breakdown is exposed as a tiny disclosure below the row so the
+ *  default expanded view stays scannable. */
+function PlayerMarketRow({ group }: { group: ProjectionsMarketGroup }) {
   const edgeColor =
-    lean.edgePct != null && lean.edgePct > 0
+    group.bestEdgePct != null && group.bestEdgePct > 0
       ? "var(--vault-success)"
-      : lean.edgePct != null && lean.edgePct < 0
+      : group.bestEdgePct != null && group.bestEdgePct < 0
         ? "var(--vault-warn)"
         : "var(--vault-text-faint)";
-  const odds =
-    lean.side === "Over"
-      ? lean.oddsOver
-      : lean.side === "Under"
-        ? lean.oddsUnder
-        : null;
+  const showBookChip = group.bookCount > 1;
   return (
     <div
-      className="grid grid-cols-[1fr_1fr_1fr_64px] gap-2 items-baseline px-2 py-1.5 rounded-[5px]"
+      className="grid grid-cols-[1fr_1fr_1fr_72px] gap-2 items-baseline px-2 py-1.5 rounded-[5px]"
       style={{
         background: "rgba(7,11,26,0.55)",
         border: "1px solid var(--vault-rule)",
@@ -1106,29 +1114,49 @@ function PlayerLeanRow({ lean }: { lean: ProjectionsLean }) {
     >
       <div className="flex flex-col gap-0.5 min-w-0">
         <span
-          className="font-mono uppercase tracking-[0.14em] truncate"
+          className="font-mono uppercase tracking-[0.14em] truncate flex items-center gap-1.5"
           style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
         >
-          {lean.marketLabel}
+          <span className="truncate">{group.marketLabel}</span>
+          {showBookChip && (
+            <span
+              aria-label={`Best of ${group.bookCount} books`}
+              title={
+                group.bookmakers.length > 0
+                  ? `Books: ${group.bookmakers.join(" · ")}`
+                  : undefined
+              }
+              className="font-mono uppercase tracking-[0.10em] px-1 rounded-[3px] shrink-0"
+              style={{
+                color: "var(--vault-text-mute)",
+                background: "rgba(0,0,0,0.30)",
+                border: "1px solid var(--vault-rule)",
+                fontSize: 8,
+                lineHeight: 1.2,
+              }}
+            >
+              {group.bookCount} books
+            </span>
+          )}
         </span>
         <span
           className="font-mono"
           style={{ color: "var(--vault-text)", fontSize: 12, fontWeight: 600 }}
         >
-          {lean.side}{" "}
-          {lean.line != null ? lean.line.toFixed(1) : "—"}
+          {group.side}{" "}
+          {group.line != null ? group.line.toFixed(1) : "—"}
         </span>
       </div>
       <ValueCell
         label="Proj."
-        value={lean.projection != null ? lean.projection.toFixed(1) : "—"}
+        value={group.projection != null ? group.projection.toFixed(1) : "—"}
         tone="mute"
       />
       <ValueCell
         label="Edge"
         value={
-          lean.edgePct != null
-            ? `${lean.edgePct > 0 ? "+" : ""}${lean.edgePct.toFixed(1)}%`
+          group.bestEdgePct != null
+            ? `${group.bestEdgePct > 0 ? "+" : ""}${group.bestEdgePct.toFixed(1)}%`
             : "—"
         }
         color={edgeColor}
@@ -1138,24 +1166,58 @@ function PlayerLeanRow({ lean }: { lean: ProjectionsLean }) {
           className="font-mono uppercase tracking-[0.14em]"
           style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
         >
-          Odds
+          {showBookChip ? "Best odds" : "Odds"}
         </span>
         <span
           className="font-mono"
           style={{ color: "var(--vault-text-mute)", fontSize: 11 }}
         >
-          {formatAmerican(odds)}
+          {formatAmerican(group.bestOdds)}
         </span>
+        {group.bestBookmaker && showBookChip && (
+          <span
+            className="font-mono truncate"
+            style={{
+              color: "var(--vault-text-faint)",
+              fontSize: 9,
+              lineHeight: 1.2,
+            }}
+            title={`Best price at ${group.bestBookmaker}`}
+          >
+            {_humanBook(group.bestBookmaker)}
+          </span>
+        )}
       </div>
-      {lean.recentSeries && lean.recentSeries.length >= 2 && (
+      {group.recentSeries && group.recentSeries.length >= 2 && (
         <RecentSeriesSparkline
-          values={lean.recentSeries}
-          line={lean.line}
+          values={group.recentSeries}
+          line={group.line}
         />
       )}
     </div>
   );
 }
+
+/** Compact bookmaker display label. Mirrors the leg-row helper in
+ *  parlay-ticket-card.tsx so both surfaces show "FanDuel" rather than
+ *  "fanduel". Local copy keeps the projections-experience module
+ *  self-contained. */
+function _humanBook(book: string): string {
+  const k = book.toLowerCase().trim();
+  const known: Record<string, string> = {
+    draftkings: "DraftKings",
+    fanduel: "FanDuel",
+    betmgm: "BetMGM",
+    caesars: "Caesars",
+    pointsbet: "PointsBet",
+    bet365: "bet365",
+    espnbet: "ESPN BET",
+    fanatics: "Fanatics",
+    hardrockbet: "Hard Rock Bet",
+  };
+  return known[k] ?? book.charAt(0).toUpperCase() + book.slice(1);
+}
+
 
 function ValueCell({
   label,
