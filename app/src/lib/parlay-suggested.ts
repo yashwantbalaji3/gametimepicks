@@ -11,6 +11,11 @@
  * with existing server-side imports; new code should import from
  * here directly.
  */
+import { combinedParlayPayoutPer100 } from "./odds-math";
+import {
+  classifyOddsSection,
+  type RiskSectionKey,
+} from "./parlay-risk-sections";
 
 export type ParlaySlipStatus = "pending" | "win" | "loss" | "push" | "void";
 export type ParlayRiskProfile =
@@ -774,4 +779,165 @@ export function selectDiverseForDisplay(
     }
   }
   return chosen;
+}
+
+// ---------------------------------------------------------------------------
+// Bank Builder — Daily Builder Slip selector (design doc §3.4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Result of `selectBuilderSlip` — the chosen slip plus the combined-odds
+ * facts that justified the choice. `combinedDecimal` is the value that
+ * was compared against the ladder step's multiplier target.
+ */
+export interface BuilderSlipSelection {
+  slip: ParlaySlip;
+  combinedAmerican: number;
+  combinedDecimal: number;
+  section: RiskSectionKey;
+}
+
+export interface SelectBuilderSlipOptions {
+  /**
+   * Combined DECIMAL odds the slip's parlay must clear (the active
+   * ladder step's `multiplier`). A slip qualifies when its combined
+   * decimal odds are ≥ this value.
+   */
+  minDecimal: number;
+  /**
+   * 1-indexed ladder step. On "early" rungs (≤ {@link BUILDER_EARLY_STEP_MAX})
+   * we avoid surfacing a Longshot-section slip as the marquee Builder
+   * Slip. Omit (or pass a late step) to allow Longshot — it is still
+   * ranked last regardless.
+   */
+  stepNumber?: number;
+}
+
+/** Steps 1–2 are "early": avoid surfacing a Longshot Builder Slip. */
+export const BUILDER_EARLY_STEP_MAX = 2;
+
+/** Section preference: lower is better (Low → Medium → High → Longshot). */
+const _BUILDER_SECTION_PREF: Record<RiskSectionKey, number> = {
+  low: 0,
+  medium: 1,
+  high: 2,
+  longshot: 3,
+};
+
+/**
+ * Distinct games represented on a slip — a diversity signal (more
+ * distinct games ⇒ less correlated, a "cleaner" parlay). Uses `gameId`
+ * when present, falling back to a `gameDate|team|opponent` composite so
+ * sparse legs still contribute a key. Never throws on missing fields.
+ */
+function _builderDistinctGames(slip: ParlaySlip): number {
+  const seen = new Set<string>();
+  for (const leg of slip.legs ?? []) {
+    const id = (leg.gameId ?? "").trim();
+    const key =
+      id || `${leg.gameDate ?? ""}|${leg.team ?? ""}|${leg.opponent ?? ""}`;
+    if (key.replace(/\|/g, "")) seen.add(key);
+  }
+  return seen.size;
+}
+
+/**
+ * Count of legs whose real game start time is known (`commenceTime` ISO
+ * or the `gameTime` ET display string). A higher count means the pick is
+ * gradable on a clear, published schedule — we prefer it, but we never
+ * fabricate a time when the board didn't carry one.
+ */
+function _builderLegsWithKnownStart(slip: ParlaySlip): number {
+  let n = 0;
+  for (const leg of slip.legs ?? []) {
+    if ((leg.commenceTime ?? "").trim() || (leg.gameTime ?? "").trim()) n += 1;
+  }
+  return n;
+}
+
+/**
+ * Select the single "Today's Builder Slip" for a Bank Builder rung from
+ * the already-published suggested pool (design doc §3.4). Pure,
+ * deterministic, and read-only — it NEVER mutates the input, fabricates
+ * odds, or surfaces a settled outcome as a forward-looking pick.
+ *
+ * Eligibility (hard filters — a slip that fails any is dropped):
+ *   1. `status === "pending"` — a graded slip is never a Builder Slip.
+ *   2. The legs produce a computable combined price
+ *      (`combinedParlayPayoutPer100` ≠ null) — no fabricated odds.
+ *   3. Combined decimal odds ≥ `minDecimal` (clears the rung target).
+ *   4. The combined American odds classify into a known risk section.
+ *   5. On early rungs (`stepNumber ≤ BUILDER_EARLY_STEP_MAX`) Longshot
+ *      slips are excluded.
+ *
+ * Ranking (applied to a freshly built candidate array — the caller's
+ * `slips` is never reordered):
+ *   1. Lower-risk section first (Low → Medium → High → Longshot) —
+ *      matches the §3.4 "highest-confidence Low/Medium" default.
+ *   2. Higher `suggestedScore` (model confidence).
+ *   3. More distinct games (diversity / lower correlation).
+ *   4. More legs with a known start time (clean gradability).
+ *   5. `slipId` ascending — a stable, deterministic final tiebreak.
+ *
+ * Returns `null` when no slip is eligible — the caller renders an honest
+ * "no qualifying Builder Slip" state rather than inventing one.
+ */
+export function selectBuilderSlip(
+  slips: ReadonlyArray<ParlaySlip>,
+  options: SelectBuilderSlipOptions,
+): BuilderSlipSelection | null {
+  const { minDecimal, stepNumber } = options;
+  if (!Number.isFinite(minDecimal)) return null;
+  const isEarly =
+    stepNumber != null &&
+    Number.isFinite(stepNumber) &&
+    stepNumber <= BUILDER_EARLY_STEP_MAX;
+
+  type Cand = BuilderSlipSelection & {
+    sectionPref: number;
+    score: number;
+    distinctGames: number;
+    knownStarts: number;
+  };
+  const candidates: Cand[] = [];
+
+  for (const slip of slips ?? []) {
+    if (slip.status !== "pending") continue; // never a settled outcome
+    const combined = combinedParlayPayoutPer100(slip.legs ?? []);
+    if (!combined) continue; // no usable price — never fabricate one
+    if (combined.decimal < minDecimal) continue; // misses the rung target
+    const section = classifyOddsSection(combined.american);
+    if (section == null) continue; // unclassifiable odds — skip
+    if (isEarly && section === "longshot") continue; // avoid Longshot early
+
+    candidates.push({
+      slip,
+      combinedAmerican: combined.american,
+      combinedDecimal: combined.decimal,
+      section,
+      sectionPref: _BUILDER_SECTION_PREF[section],
+      score: suggestedScore(slip),
+      distinctGames: _builderDistinctGames(slip),
+      knownStarts: _builderLegsWithKnownStart(slip),
+    });
+  }
+
+  if (candidates.length === 0) return null;
+
+  candidates.sort(
+    (a, b) =>
+      a.sectionPref - b.sectionPref ||
+      b.score - a.score ||
+      b.distinctGames - a.distinctGames ||
+      b.knownStarts - a.knownStarts ||
+      a.slip.slipId.localeCompare(b.slip.slipId),
+  );
+
+  const best = candidates[0];
+  return {
+    slip: best.slip,
+    combinedAmerican: best.combinedAmerican,
+    combinedDecimal: best.combinedDecimal,
+    section: best.section,
+  };
 }
