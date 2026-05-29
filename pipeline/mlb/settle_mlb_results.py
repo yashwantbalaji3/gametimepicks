@@ -186,6 +186,31 @@ def _stat_for_market(rec: dict, market: str) -> int | None:
             singles = h - d - t - hr
             return singles + 2 * d + 3 * t + 4 * hr
         return None
+    if market == "batter_hits_runs_rbis":
+        # PR `fix/public-risk-pending-audit` (2026-05-29) — the
+        # H+R+RBI prop sums three independent batting stats from a
+        # single box-score row. The MLB Stats API exposes each one
+        # directly under `stats.batting`:
+        #
+        #   hits   ← b["hits"]
+        #   runs   ← b["runs"]
+        #   rbi    ← b["rbi"]
+        #
+        # We require the batter to have actually appeared (atBats or
+        # plateAppearances > 0) so a benched player doesn't get
+        # graded as 0-0-0 = 0. Returns None for an absent batter so
+        # the grader treats the leg as "stats_unavailable" honestly.
+        b = stats.get("batting") or {}
+        ab = b.get("atBats")
+        pa = b.get("plateAppearances")
+        if not b or ((ab is None or int(ab) == 0) and (pa is None or int(pa) == 0)):
+            return None
+        h = b.get("hits")
+        r = b.get("runs")
+        rbi = b.get("rbi")
+        if all(isinstance(x, (int, str)) and str(x).strip() not in ("", "-") for x in (h, r, rbi)):
+            return int(h) + int(r) + int(rbi)
+        return None
     return None
 
 
@@ -203,7 +228,19 @@ def _grade(side: str, line: float, actual: float) -> str:
 # ---------------------------------------------------------------------------
 # Core
 # ---------------------------------------------------------------------------
-GRADABLE_MARKETS = {"pitcher_strikeouts", "batter_hits", "batter_total_bases"}
+GRADABLE_MARKETS = {
+    "pitcher_strikeouts",
+    "batter_hits",
+    "batter_total_bases",
+    # PR `fix/public-risk-pending-audit` (2026-05-29) — the optimizer
+    # has been generating H+R+RBI props for weeks; the grader was
+    # silently dropping every settlement as "unsupported market",
+    # which propagated as `result="unresolved"` on the leg and a
+    # blanket `status="pending"` on every publicRiskSections slip
+    # that contained one. The new `_stat_for_market` clause above
+    # computes the actual H+R+RBI from the box score.
+    "batter_hits_runs_rbis",
+}
 
 
 def settle(date_iso: str, *, board_path: Path | None = None) -> dict:

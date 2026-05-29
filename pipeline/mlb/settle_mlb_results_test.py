@@ -98,6 +98,79 @@ def test_pitcher_did_not_pitch_is_unavailable():
     _ok("pitcher empty-stats unavailable")
 
 
+def test_batter_hits_runs_rbis_sums_three_components():
+    # PR `fix/public-risk-pending-audit` (2026-05-29) — H+R+RBI now
+    # graded. Sums hits + runs + rbi from the box-score `batting`
+    # record. Requires the batter to have actually appeared.
+    print("\n─── H+R+RBI = hits + runs + rbi ───")
+    rec = {
+        "stats": {
+            "batting": {
+                "atBats": 4,
+                "plateAppearances": 4,
+                "hits": 2,
+                "runs": 1,
+                "rbi": 3,
+            }
+        }
+    }
+    assert_eq(_stat_for_market(rec, "batter_hits_runs_rbis"), 6, "2+1+3=6")
+    _ok("H+R+RBI summed correctly")
+
+
+def test_batter_hits_runs_rbis_no_appearance_is_unavailable():
+    print("\n─── H+R+RBI honors did-not-appear gate ───")
+    rec = {"stats": {"batting": {"atBats": 0, "plateAppearances": 0, "hits": 0, "runs": 0, "rbi": 0}}}
+    assert _stat_for_market(rec, "batter_hits_runs_rbis") is None, "no AB+PA → unavailable"
+    _ok("H+R+RBI batter no-AB unavailable")
+
+
+def test_batter_hits_runs_rbis_missing_component_is_unavailable():
+    print("\n─── H+R+RBI bails when a component is missing ───")
+    rec = {
+        "stats": {
+            "batting": {
+                "atBats": 4,
+                "plateAppearances": 4,
+                "hits": 2,
+                # runs intentionally omitted
+                "rbi": 1,
+            }
+        }
+    }
+    assert _stat_for_market(rec, "batter_hits_runs_rbis") is None, "missing runs → None"
+    _ok("H+R+RBI missing-component handled honestly")
+
+
+def test_batter_hits_runs_rbis_zero_zero_zero_is_valid():
+    # An 0-AB-walk who scored 0 runs and drove in 0 RBI still
+    # counts: PA>0 and all three stats present and zero.
+    print("\n─── H+R+RBI 0/0/0 with PA>0 returns 0 ───")
+    rec = {
+        "stats": {
+            "batting": {
+                "atBats": 0,
+                "plateAppearances": 1,
+                "hits": 0,
+                "runs": 0,
+                "rbi": 0,
+            }
+        }
+    }
+    assert_eq(_stat_for_market(rec, "batter_hits_runs_rbis"), 0, "0+0+0=0 when PA>0")
+    _ok("H+R+RBI 0 with PA>0 is valid")
+
+
+def test_batter_hits_runs_rbis_in_gradable_markets():
+    # PR `fix/public-risk-pending-audit` — the market MUST be in
+    # GRADABLE_MARKETS or the orchestrator falls back to
+    # "stats_unavailable" for every leg before _stat_for_market is
+    # even called.
+    assert "batter_hits_runs_rbis" in GRADABLE_MARKETS, (
+        "H+R+RBI must be a gradable market"
+    )
+
+
 def test_pitcher_with_innings_returns_k():
     print("\n─── pitcher K reads stats.pitching.strikeOuts ───")
     rec = {
@@ -153,9 +226,11 @@ def test_gradable_markets_locked():
     print("\n─── gradable market set is locked ───")
     assert _stat_for_market({}, "batter_home_runs") is None, "HR not gradable on main board"
     _ok("HR market intentionally not handled on main board")
+    # PR `fix/public-risk-pending-audit` (2026-05-29) — added
+    # batter_hits_runs_rbis. Keep the set in alpha order.
     assert_eq(
         sorted(GRADABLE_MARKETS),
-        ["batter_hits", "batter_total_bases", "pitcher_strikeouts"],
+        ["batter_hits", "batter_hits_runs_rbis", "batter_total_bases", "pitcher_strikeouts"],
         "gradable markets",
     )
 
