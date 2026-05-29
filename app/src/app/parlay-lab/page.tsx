@@ -277,16 +277,54 @@ function SlateStrip({
       >
         {totalSlips} slip{totalSlips === 1 ? "" : "s"}
       </span>
-      <span
-        className="text-[13px] font-mono"
-        style={{ color: "var(--vault-text-faint)" }}
-      >
-        NBA <span style={{ color: "var(--vault-text-mute)" }}>{nbaSlips}</span>
-        {"  "}·{"  "}MLB{" "}
-        <span style={{ color: "var(--vault-text-mute)" }}>{mlbSlips}</span>
-        {"  "}·{"  "}Mixed{" "}
-        <span style={{ color: "var(--vault-text-mute)" }}>{mixedSlips}</span>
-      </span>
+      {/* PR `feature/parlay-lab-active-slate-polish` (2026-05-29) —
+         when the slate is mono-sport (one sport has 0 slips), the
+         per-sport breakdown read as noise ("NBA 0 · MLB 32 · Mixed
+         0"). Replaced with a compact "MLB-only" or "NBA-only" chip
+         in that case. Multi-sport slates keep the full breakdown so
+         the user can compare NBA / MLB / Mixed counts at a glance. */}
+      {(() => {
+        const nonZero =
+          (nbaSlips > 0 ? 1 : 0) +
+          (mlbSlips > 0 ? 1 : 0) +
+          (mixedSlips > 0 ? 1 : 0);
+        const monoSport = nonZero === 1;
+        const monoLabel =
+          monoSport && nbaSlips > 0
+            ? "NBA-only"
+            : monoSport && mlbSlips > 0
+              ? "MLB-only"
+              : monoSport && mixedSlips > 0
+                ? "Mixed-only"
+                : null;
+        if (monoLabel) {
+          return (
+            <span
+              className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[4px]"
+              style={{
+                color: "var(--vault-text)",
+                border: "1px solid var(--vault-rule)",
+                fontSize: 10,
+                lineHeight: 1.2,
+              }}
+            >
+              {monoLabel} slate
+            </span>
+          );
+        }
+        return (
+          <span
+            className="text-[13px] font-mono"
+            style={{ color: "var(--vault-text-faint)" }}
+          >
+            NBA <span style={{ color: "var(--vault-text-mute)" }}>{nbaSlips}</span>
+            {"  "}·{"  "}MLB{" "}
+            <span style={{ color: "var(--vault-text-mute)" }}>{mlbSlips}</span>
+            {"  "}·{"  "}Mixed{" "}
+            <span style={{ color: "var(--vault-text-mute)" }}>{mixedSlips}</span>
+          </span>
+        );
+      })()}
       <span
         className="ml-auto font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[4px]"
         style={{
