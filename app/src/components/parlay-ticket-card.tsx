@@ -42,6 +42,11 @@ import {
   type Sport,
 } from "@/lib/confidence-calibration-rules";
 import { getLaneDisplay } from "@/lib/lane-display";
+import {
+  classifyRiskSection,
+  combinedAmericanOddsFromLegs,
+  getRiskSectionDisplay,
+} from "@/lib/parlay-risk-sections";
 import { formatSlateChip } from "@/lib/slate-label";
 import { formatSideLine, humanMarketLabel } from "@/lib/market-label";
 import PlayerAvatar from "./player-avatar";
@@ -153,7 +158,17 @@ export default function ParlayTicketCard({
   sportBucketLabel = null,
 }: Props) {
   const accent = statusColor(slip.status);
+  // PR `feature/parlay-risk-section-simplification` (2026-05-28) —
+  // The public chip on each card now shows the odds-derived risk
+  // section (Low / Medium / High / Longshot), not the internal lane
+  // name (Anchor / Core / Spotlight / Swing). The internal name still
+  // drives the Star Power glow + Bankroll Plan allocator math, but
+  // the user-facing label is unified.
   const lane = getLaneDisplay(slip.riskProfile);
+  const _combinedForChip = combinedAmericanOddsFromLegs(slip.legs);
+  const riskSection = getRiskSectionDisplay(
+    classifyRiskSection(_combinedForChip),
+  );
   const isStarPower = slip.riskProfile === "star_power";
   const isFeatured = emphasis === "featured";
   const gradedLabel = gradedStatusLabel(slip.status);
@@ -188,7 +203,7 @@ export default function ParlayTicketCard({
       style={{
         opacity: isFeatured ? 1 : 0.95,
       }}
-      aria-label={`${lane.name} parlay slip · ${slip.legs.length} legs${
+      aria-label={`${riskSection.label} parlay slip · ${slip.legs.length} legs${
         gradedLabel ? ` · ${gradedLabel}` : ""
       }`}
     >
@@ -210,15 +225,15 @@ export default function ParlayTicketCard({
       >
         <span
           className="font-mono uppercase tracking-[0.16em] inline-flex items-center gap-1.5 min-w-0"
-          style={{ color: lane.accentVar, fontSize: isFeatured ? 11 : 10 }}
+          style={{ color: riskSection.accentVar, fontSize: isFeatured ? 11 : 10 }}
         >
           <span
             aria-hidden
             className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
-            style={{ background: lane.accentVar }}
+            style={{ background: riskSection.accentVar }}
           />
           <span className="truncate">
-            {lane.name}
+            {riskSection.label}
             {slip.singleGame
               ? " · single-game"
               : slip.sameGame

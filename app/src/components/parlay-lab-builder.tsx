@@ -22,7 +22,7 @@
  * optimizer snapshot or legacy snapshot file on disk.
  */
 import { useEffect, useMemo, useState } from "react";
-import LaneSpread, { SwingLaneToggle } from "./lane-spread";
+import RiskSectionSpread from "./risk-section-spread";
 import PlayerRecentFormDrawer from "./player-recent-form-drawer";
 import CustomParlayBuilder from "./custom-parlay-builder";
 import CustomParlayGenerator from "./custom-parlay-generator";
@@ -402,56 +402,35 @@ function SuggestedMode({
   onLegClick: (leg: ParlaySlip["legs"][number]) => void;
   poolAvailability: PoolAvailability;
 }) {
+  // PR `feature/parlay-risk-section-simplification` (2026-05-28) —
+  // replaced the four per-profile <LaneSpread>s plus the Swing toggle
+  // with a single <RiskSectionSpread> that groups every visible slip
+  // by combined-odds-derived risk section (Low / Medium / High /
+  // Longshot). Internal profile names (Anchor / Core / Spotlight /
+  // Swing) are kept in the optimizer payload + Bankroll Plan
+  // allocator, but the public Suggested mode no longer surfaces them.
+  // The previous SectionEyebrow + AltLineComingSoon callouts are
+  // dropped — the slate strip + each section header carry the same
+  // context with much less internal-jargon copy.
+  void filterActive; // soft-handled by RiskSectionSpread's empty state
+  void date;
+  void isFallback;
+  const allSlips: ParlaySlip[] = [
+    ...cards.flatMap((c) => c.slips),
+    ...hvCard.slips,
+  ];
   return (
     <>
-      {/* PR `feature/lane-spread-slip-cards`: each lane gets its own
-          premium spread. One editorial eyebrow remains above the
-          lanes as the section's intro line. */}
-      <SectionEyebrow
-        tone="official"
-        label="Official suggested parlays"
-        sub="Saved before games, graded after. Capped at 4 legs per slip."
-      />
-
       {shouldRenderAvailabilityNote(poolAvailability) && (
         <PoolAvailabilityNote availability={poolAvailability} />
       )}
-
-      <div className="flex flex-col gap-4">
-        {cards.map((card) => (
-          <LaneSpread
-            key={card.profile}
-            profile={card.profile}
-            slips={card.slips}
-            isFallback={card.isFallback}
-            slateDate={date}
-            slateIsFallback={isFallback}
-            sportBucketLabel={bucketLabelForSport(sport)}
-            calibrationTable={calibrationTable}
-            onLegClick={onLegClick}
-            source={source}
-            sport={sport}
-            filterActive={filterActive}
-          />
-        ))}
-      </div>
-
-      <SwingLaneToggle
-        defaultOpen={HIGH_VARIANCE_DEFAULT_OPEN}
-        profile={hvCard.profile}
-        slips={hvCard.slips}
-        isFallback={hvCard.isFallback}
-        slateDate={date}
-        slateIsFallback={isFallback}
-        sportBucketLabel={bucketLabelForSport(sport)}
+      <RiskSectionSpread
+        slips={allSlips}
+        sport={sport}
+        source={source}
         calibrationTable={calibrationTable}
         onLegClick={onLegClick}
-        source={source}
-        sport={sport}
-        filterActive={filterActive}
       />
-
-      <AltLineComingSoon />
     </>
   );
 }
@@ -565,7 +544,7 @@ function BuilderHeader({
       : mode === "bankroll"
         ? "Set a bankroll, pick a risk preference, and the planner suggests stake sizes across today's model-ranked slips. Educational — not financial advice."
         : optimizerActive
-          ? "Model-ranked slips in three lanes — Anchor, Core, Spotlight — saved before games and graded after. Swing (high-variance) sits behind a toggle."
+          ? "Model-ranked parlays grouped by combined odds — Low Risk, Medium Risk, High Risk, Longshot. Saved before games and graded after."
           : "Pregame snapshots saved before games, graded after.";
   return (
     <header className="flex flex-col gap-2">

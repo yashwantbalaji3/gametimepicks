@@ -38,6 +38,11 @@ import {
 } from "@/lib/parlay-payout";
 import { formatAmerican } from "@/lib/odds-math";
 import { getLaneDisplay } from "@/lib/lane-display";
+import {
+  classifyRiskSection,
+  combinedAmericanOddsFromLegs,
+  getRiskSectionDisplay,
+} from "@/lib/parlay-risk-sections";
 import type { ParlaySlip } from "@/lib/parlay-suggested";
 
 interface Props {
@@ -410,20 +415,16 @@ function AllocationRow({
   onStakeChange: (v: string) => void;
   stakeInputValue: string;
 }) {
-  const lane = getLaneDisplay(row.slip.riskProfile);
-  // Compute combined American odds via the same path the slip card uses.
-  const combined = projectedPayoutForStake(row.slip.legs, 1);
-  const combinedAmerican = combined
-    ? (() => {
-        const d = combined.totalReturn;
-        if (d >= 2) return Math.round((d - 1) * 100);
-        if (d > 1) return -Math.round(100 / (d - 1));
-        return 0;
-      })()
-    : null;
+  // Internal lane label is kept on the slip's `riskProfile` for the
+  // allocator math; the user-visible chip uses the new public risk
+  // section derived from combined odds.
+  void getLaneDisplay;
+  const combinedAmerican = combinedAmericanOddsFromLegs(row.slip.legs);
+  const sectionKey = classifyRiskSection(combinedAmerican);
+  const section = getRiskSectionDisplay(sectionKey);
   return (
     <article
-      aria-label={`${lane.name} allocation`}
+      aria-label={`${section.label} allocation`}
       className="rounded-[8px] px-3 py-3 flex flex-wrap items-center gap-3"
       style={{
         background: "var(--gtp-card-sunken)",
@@ -432,14 +433,14 @@ function AllocationRow({
     >
       <span
         className="font-mono uppercase tracking-[0.14em] inline-flex items-center gap-1.5 shrink-0"
-        style={{ color: lane.accentVar, fontSize: 11 }}
+        style={{ color: section.accentVar, fontSize: 11 }}
       >
         <span
           aria-hidden
           className="inline-block w-1.5 h-1.5 rounded-full"
-          style={{ background: lane.accentVar }}
+          style={{ background: section.accentVar }}
         />
-        {lane.name}
+        {section.label}
       </span>
       <span
         className="font-mono shrink-0"
@@ -487,7 +488,7 @@ function AllocationRow({
             step={1}
             value={stakeInputValue}
             onChange={(e) => onStakeChange(e.target.value)}
-            aria-label={`Stake for ${lane.name} slip`}
+            aria-label={`Stake for ${section.label} slip`}
             className="bg-transparent outline-none font-display tabular text-right pr-2 py-1 w-[68px]"
             style={{
               color: "var(--vault-text)",
