@@ -30,6 +30,7 @@
  * audit policy are untouched.
  */
 import ParlayTicketCard from "./parlay-ticket-card";
+import { useBuildMyCard } from "./build-my-card-context";
 import {
   RISK_SECTION_ORDER,
   getRiskSectionDisplay,
@@ -63,6 +64,11 @@ export interface RiskSectionSpreadProps {
   calibrationTable?: CalibrationTable;
   /** Leg click handler — opens the recent-form drawer. */
   onLegClick?: (leg: ParlayLeg) => void;
+  /** PR `feature/build-my-card-selected-slips` — when true, each card
+   *  renders the "Add to my card" toggle and reads/writes the
+   *  BuildMyCard selection context. Opt-in: omitted everywhere except
+   *  the Parlay Lab Suggested mode. */
+  selectable?: boolean;
 }
 
 /** When two slips' scores differ by less than this, prefer the one
@@ -112,7 +118,11 @@ export default function RiskSectionSpread({
   source,
   calibrationTable,
   onLegClick,
+  selectable = false,
 }: RiskSectionSpreadProps) {
+  // Build My Card selection. Reads the no-op default when no provider
+  // is mounted, so this is safe even on surfaces that don't opt in.
+  const buildMyCard = useBuildMyCard();
   // Server-bucketed path wins when provided. Otherwise re-bucket the
   // visible slips client-side using the strict both-must-match rule.
   const buckets: Record<RiskSectionKey, ParlaySlip[]> = sections
@@ -182,6 +192,9 @@ export default function RiskSectionSpread({
                     savedPregame={savedPregame}
                     calibrationTable={calibrationTable}
                     onLegClick={onLegClick}
+                    selectable={selectable}
+                    selected={selectable && buildMyCard.isSelected(slip.slipId)}
+                    onToggleSelect={selectable ? buildMyCard.toggle : undefined}
                   />
                 ))}
               </div>

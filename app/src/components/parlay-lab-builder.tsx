@@ -23,6 +23,8 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import RiskSectionSpread from "./risk-section-spread";
+import { BuildMyCardProvider } from "./build-my-card-context";
+import SelectedSlipsTray from "./selected-slips-tray";
 import PlayerRecentFormDrawer from "./player-recent-form-drawer";
 import CustomParlayBuilder from "./custom-parlay-builder";
 import CustomParlayGenerator from "./custom-parlay-generator";
@@ -359,6 +361,11 @@ export default function ParlayLabBuilder({
   }, [sportSections, sport, team, player]);
 
   return (
+    // PR `feature/build-my-card-selected-slips` — the provider holds the
+    // ephemeral "Build My Card" selection (in-memory only). It wraps the
+    // whole builder so the selection survives mode switches, but the
+    // selection affordance + tray are only wired into Suggested mode.
+    <BuildMyCardProvider>
     <section className="flex flex-col gap-5" aria-label="Parlay Lab builder">
       <BuilderHeader
         mode={mode}
@@ -405,6 +412,7 @@ export default function ParlayLabBuilder({
           onLegClick={setActiveLeg}
           poolAvailability={poolAvailability}
           sections={teamPlayerFiltered}
+          selectable
         />
       )}
 
@@ -418,7 +426,13 @@ export default function ParlayLabBuilder({
 
       <BuilderFootnote optimizerActive={optimizerActive} mode={mode} />
       <PlayerRecentFormDrawer leg={activeLeg} onClose={() => setActiveLeg(null)} />
+
+      {/* Selected Slips tray — only surfaced in Suggested mode, where the
+          selection toggles live. The selection itself persists in the
+          provider across mode switches. */}
+      {mode === "suggested" && <SelectedSlipsTray />}
     </section>
+    </BuildMyCardProvider>
   );
 }
 
@@ -438,6 +452,7 @@ function SuggestedMode({
   onLegClick,
   poolAvailability,
   sections,
+  selectable = false,
 }: {
   cards: Array<{
     profile: ParlayRiskProfile;
@@ -462,6 +477,9 @@ function SuggestedMode({
    *  predates the server-side selector — RiskSectionSpread falls back
    *  to its client-side classifier in that case. */
   sections?: Partial<Record<RiskSectionKey, ParlaySlip[]>>;
+  /** When true, each ticket card renders the opt-in "Add to my card"
+   *  toggle and reads/writes the BuildMyCard selection context. */
+  selectable?: boolean;
 }) {
   // PR `feature/parlay-risk-section-simplification` (2026-05-28) —
   // replaced the four per-profile <LaneSpread>s plus the Swing toggle
@@ -492,6 +510,7 @@ function SuggestedMode({
         source={source}
         calibrationTable={calibrationTable}
         onLegClick={onLegClick}
+        selectable={selectable}
       />
     </>
   );
