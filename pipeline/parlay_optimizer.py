@@ -1327,12 +1327,45 @@ def generate_nba_sgp_slips(
 
     candidates: list[OptimizedSlip] = []
     seen_sigs: set[tuple[Any, ...]] = set()
-    target = max(eff_num * 3, eff_num + 4)
+    # PR `fix/nba-sgp-diversity` (2026-05-28) — bumped the candidate
+    # target from `eff_num*3` to `eff_num*12` AND split the budget so
+    # 2-leg vs 3-leg phases each get their own quota. Two bugs the old
+    # caps caused:
+    #
+    #   1. With a small target, the i=0 row in the leg pool produced
+    #      every candidate (the leg-pool sort by `_sgp_leg_quality`
+    #      put the dominator's three best legs at indices 0/1/2, so
+    #      pairings with i=0 filled the budget before i=1 even
+    #      started). The diversity selector then never saw a non-
+    #      dominator candidate to pick from.
+    #   2. Aggressive's 3-leg pass was guarded by
+    #      `if eff_max_legs >= 3 and len(candidates) < target`, so it
+    #      never ran once the 2-leg pass filled the target.
+    #
+    # Splitting the target gives 2-leg a generous quota AND guarantees
+    # 3-leg gets its own room when the profile allows it. Practical
+    # pool sizes (10-30 unique legs) keep this well under the order-of-
+    # 1000 ceiling for either combinatoric loop, so memory/CPU stays
+    # negligible.
+    # When the pool is sorted by `_sgp_leg_quality`, a single dominant
+    # player's three market legs cluster at indices 0/1/2 and produce
+    # ~3 × (len(pool) − 1) candidates before any non-dominator pairing
+    # appears. Live OKC@SAS slate has ~48 unique (player, market) legs
+    # → ~141 dominator candidates before the first alt-alt pair. The
+    # selector can't pick a non-dominator if no alt-alt candidate
+    # exists in the candidate list at all, so the target is generous:
+    # eff_num × 50, floor 200. Memory/CPU cost is negligible —
+    # candidates are tiny dataclasses, and the live slate's 2-leg
+    # combo space caps at ~1100.
+    target_total = max(eff_num * 50, 200)
+    two_leg_target = (
+        target_total // 2 if eff_max_legs >= 3 else target_total
+    )
 
     # Generate 2-leg combos first; if profile allows 3, then 3-leg too.
     for i in range(len(pool)):
         for j in range(i + 1, len(pool)):
-            if len(candidates) >= target:
+            if len(candidates) >= two_leg_target:
                 break
             leg_i, leg_j = pool[i], pool[j]
             if _player_key(leg_i) == _player_key(leg_j):
@@ -1345,14 +1378,14 @@ def generate_nba_sgp_slips(
                     continue
                 seen_sigs.add(sig)
                 candidates.append(slip)
-        if len(candidates) >= target:
+        if len(candidates) >= two_leg_target:
             break
 
-    if eff_max_legs >= 3 and len(candidates) < target:
+    if eff_max_legs >= 3:
         for i in range(len(pool)):
             for j in range(i + 1, len(pool)):
                 for k in range(j + 1, len(pool)):
-                    if len(candidates) >= target:
+                    if len(candidates) >= target_total:
                         break
                     legs = [pool[i], pool[j], pool[k]]
                     keys = [_player_key(l) for l in legs]
@@ -1365,13 +1398,102 @@ def generate_nba_sgp_slips(
                             continue
                         seen_sigs.add(sig)
                         candidates.append(slip)
-                if len(candidates) >= target:
+                if len(candidates) >= target_total:
                     break
-            if len(candidates) >= target:
+            if len(candidates) >= target_total:
                 break
 
     candidates.sort(key=lambda s: s.score, reverse=True)
-    return candidates[:eff_num]
+    return _select_diverse_sgp(candidates, eff_num)
+
+
+# PR `fix/nba-sgp-diversity` (2026-05-28) — diversity-aware selector.
+# Penalties below are linear in player exposure so over-used players
+# eventually drop out of contention when ANY alternative beats their
+# penalised score, but stay in the running when alternatives are
+# genuinely weaker (so we never select a worse leg just to spread
+# names). Numbers were chosen empirically against the live OKC@SAS
+# slate where Keldon Johnson's +24.5pp REB edge dominates: a 1-prior-
+# exposure penalty of 0.20 means a 0.245-base Keldon combo drops to
+# 0.045 while a clean 0.22 partner pair holds its score — and a
+# 2-prior penalty of 0.40 puts Keldon out of reach unless the next-
+# best alt is below 0. The pair penalty is heavier because re-picking
+# the exact same player pair adds zero new information; the market
+# bonus is small because market choice is constrained (PTS/REB/AST)
+# and we don't want it to outweigh edge quality.
+#: Per-prior-exposure penalty on the heaviest-used player in the slip.
+_SGP_PLAYER_EXPOSURE_PENALTY: float = 0.20
+#: Flat penalty when an exact player pair was already selected.
+_SGP_DUPLICATE_PAIR_PENALTY: float = 0.30
+#: Bonus per "fresh" market (not yet used by any chosen slip).
+_SGP_FRESH_MARKET_BONUS: float = 0.05
+
+
+def _select_diverse_sgp(
+    candidates: list[OptimizedSlip],
+    target: int,
+) -> list[OptimizedSlip]:
+    """Greedy diversity selector for NBA single-game slips.
+
+    Repeatedly re-ranks the remaining candidates by:
+      base score
+        − ``_SGP_PLAYER_EXPOSURE_PENALTY`` × max prior exposure across
+          the slip's legs (linear so a 2x-used player loses twice the
+          score)
+        − ``_SGP_DUPLICATE_PAIR_PENALTY`` if this exact player pair
+          (player set, ignoring order) was already picked
+        + ``_SGP_FRESH_MARKET_BONUS`` × number of markets in this slip
+          that haven't appeared in any picked slip yet
+
+    Then picks the top remaining candidate, updates exposure counters,
+    and repeats until ``target`` is reached or the candidate pool is
+    empty.
+
+    Honest fallback: when penalised scores all go negative, the slip
+    with the LEAST-negative adjusted score still wins — we never
+    select a weaker leg purely for diversity, but we also never spin
+    indefinitely. Pre-existing eligibility (edge, confidence, recent10,
+    no anomalies, no thin pids, no duplicate players in one slip) is
+    enforced by the caller; this selector only re-orders the already-
+    eligible candidates.
+    """
+    if not candidates or target <= 0:
+        return []
+    chosen: list[OptimizedSlip] = []
+    player_count: dict[str, int] = {}
+    pair_count: dict[tuple[str, ...], int] = {}
+    market_count: dict[str, int] = {}
+    remaining = list(candidates)
+
+    def _slip_player_keys(slip: OptimizedSlip) -> list[str]:
+        return [_player_key(l) for l in slip.legs]
+
+    def _adjusted_score(slip: OptimizedSlip) -> float:
+        keys = _slip_player_keys(slip)
+        max_exposure = max((player_count.get(k, 0) for k in keys), default=0)
+        player_penalty = _SGP_PLAYER_EXPOSURE_PENALTY * max_exposure
+        pair_key: tuple[str, ...] = tuple(sorted(keys))
+        pair_penalty = (
+            _SGP_DUPLICATE_PAIR_PENALTY if pair_count.get(pair_key, 0) > 0 else 0.0
+        )
+        slip_markets = {l.market for l in slip.legs}
+        market_bonus = _SGP_FRESH_MARKET_BONUS * sum(
+            1 for m in slip_markets if market_count.get(m, 0) == 0
+        )
+        return slip.score - player_penalty - pair_penalty + market_bonus
+
+    while remaining and len(chosen) < target:
+        remaining.sort(key=_adjusted_score, reverse=True)
+        winner = remaining.pop(0)
+        chosen.append(winner)
+        for k in _slip_player_keys(winner):
+            player_count[k] = player_count.get(k, 0) + 1
+        pair_key = tuple(sorted(_slip_player_keys(winner)))
+        pair_count[pair_key] = pair_count.get(pair_key, 0) + 1
+        for leg in winner.legs:
+            market_count[leg.market] = market_count.get(leg.market, 0) + 1
+
+    return chosen
 
 
 def _sgp_signature(legs: list[OptimizerLean]) -> tuple[Any, ...]:
