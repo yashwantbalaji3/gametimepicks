@@ -537,6 +537,24 @@ table,
   .vault-rise { animation: none; }
 }
 
+/* ============================================================================
+   Bank Builder tower (PR feature/bank-builder-visual-ladder).
+   The vertical progress tube grows its fill from 0 → target height on
+   mount via a CSS height transition; the component flips the height in a
+   post-mount frame so the transition plays. Reduced-motion users get the
+   target height immediately with no transition. The active-segment glow
+   reuses the shared `vault-pulse` reduced-motion gate. Pure presentation —
+   the fill height reflects only *cleared* rungs, never fabricated progress
+   inside an unresolved rung.
+   ============================================================================ */
+.gtp-tower-fill {
+  transition: height 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: height;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-tower-fill { transition: none; }
+}
+
 /* Glassy panel — used on the freshness chip and key data callouts.
    Cheap glassmorphism without backdrop-filter overuse. */
 .vault-glass {

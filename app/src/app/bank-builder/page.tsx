@@ -28,6 +28,8 @@
 import Link from "next/link";
 
 import ParlayTicketCard from "@/components/parlay-ticket-card";
+import BankBuilderTower from "@/components/bank-builder-tower";
+import BankBuilderShareCard from "@/components/bank-builder-share-card";
 import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { currentEtDate } from "@/lib/freshness";
@@ -40,15 +42,28 @@ import {
   BANK_BUILDER_LADDER,
   formatLadderUsd,
   ladderMultiplierLabel,
-  ladderTargetAmerican,
   resolveLadderStep,
   type LadderStep,
 } from "@/lib/bank-builder-ladder";
 
+const META_TITLE = "Bank Builder · GameTime Picks";
+const META_DESCRIPTION =
+  "An educational $100 → $3,000 paper-bankroll ladder. One Daily Builder Pick per step, drawn from the published suggested pool. Paper only — we do not take real money.";
+
 export const metadata = {
-  title: "Bank Builder · GameTime Picks",
-  description:
-    "An educational $100 → $3,000 paper-bankroll ladder. One Daily Builder Pick per step, drawn from the published suggested pool. Paper only — we do not take real money.",
+  title: META_TITLE,
+  description: META_DESCRIPTION,
+  openGraph: {
+    title: META_TITLE,
+    description: META_DESCRIPTION,
+    type: "website",
+    url: "/bank-builder/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: META_TITLE,
+    description: META_DESCRIPTION,
+  },
 };
 
 const DISCLAIMER =
@@ -156,7 +171,10 @@ export default function BankBuilderPage() {
 
       {/* ---- Ladder + Today's Builder Pick --------------------------- */}
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-5">
-        <LadderRungs activeStepNumber={activeStep.step} />
+        <BankBuilderTower
+          activeStepNumber={activeStep.step}
+          currentBankroll={currentBankroll}
+        />
         <TodaysBuilderPick
           step={activeStep}
           pick={builderPick}
@@ -169,6 +187,12 @@ export default function BankBuilderPage() {
 
       {/* ---- Ladder history (honest no-history state) ---------------- */}
       <LadderHistory />
+
+      {/* ---- Screenshot-friendly share card -------------------------- */}
+      <BankBuilderShareCard
+        activeStepNumber={activeStep.step}
+        currentBankroll={currentBankroll}
+      />
 
       {/* ---- Bottom disclaimer + responsible-use link ---------------- */}
       <DisclaimerBanner placement="bottom" />
@@ -208,98 +232,6 @@ function DisclaimerBanner({ placement }: { placement: "top" | "bottom" }) {
       </span>
       {DISCLAIMER}
     </p>
-  );
-}
-
-/** The five rungs, rendered base ($100) at the bottom → crown ($3,000)
- *  at the top. The active rung is highlighted. Non-animated in this PR;
- *  the animated tower lands in a later visual PR. */
-function LadderRungs({ activeStepNumber }: { activeStepNumber: number }) {
-  // Render top → bottom visually, so reverse the base→crown ladder.
-  const rungsTopFirst = [...BANK_BUILDER_LADDER].reverse();
-  return (
-    <section
-      aria-label="Bank Builder ladder"
-      className="rounded-[10px] overflow-hidden"
-      style={{ background: "var(--gtp-card)", border: "1px solid var(--gtp-card-border)" }}
-    >
-      <header
-        className="px-3.5 py-3 flex items-baseline gap-2"
-        style={{ background: "var(--gtp-card-sunken)", borderBottom: "1px solid var(--vault-rule)" }}
-      >
-        <span
-          className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}
-        >
-          The ladder
-        </span>
-        <span className="font-mono ml-auto" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-          base → crown
-        </span>
-      </header>
-      <ol className="flex flex-col list-none">
-        {rungsTopFirst.map((rung) => {
-          const isActive = rung.step === activeStepNumber;
-          const isCleared = rung.step < activeStepNumber;
-          return (
-            <li
-              key={rung.step}
-              aria-current={isActive ? "step" : undefined}
-              className="px-3.5 py-3 flex items-center gap-3"
-              style={{
-                borderBottom:
-                  rung.step === BANK_BUILDER_LADDER[0].step
-                    ? "none"
-                    : "1px solid var(--vault-rule)",
-                background: isActive
-                  ? "linear-gradient(90deg, rgba(240,199,94,0.10), rgba(240,199,94,0))"
-                  : "transparent",
-              }}
-            >
-              <span
-                className="font-mono shrink-0 inline-flex items-center justify-center rounded-full"
-                style={{
-                  width: 26,
-                  height: 26,
-                  fontSize: 12,
-                  color: isActive ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
-                  border: `1px solid ${isActive ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
-                }}
-              >
-                {rung.step}
-              </span>
-              <div className="flex flex-col min-w-0">
-                <span
-                  className="font-semibold"
-                  style={{
-                    color: isActive ? "var(--vault-gold-bright)" : "var(--vault-text)",
-                    fontSize: 15,
-                  }}
-                >
-                  {formatLadderUsd(rung.start)} → {formatLadderUsd(rung.goal)}
-                </span>
-                <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
-                  needs ≥ {ladderMultiplierLabel(rung)} ({formatAmerican(ladderTargetAmerican(rung))})
-                </span>
-              </div>
-              <span
-                className="font-mono ml-auto uppercase tracking-[0.12em] shrink-0"
-                style={{
-                  fontSize: 10,
-                  color: isActive
-                    ? "var(--vault-gold-bright)"
-                    : isCleared
-                      ? "var(--vault-success)"
-                      : "var(--vault-text-faint)",
-                }}
-              >
-                {isActive ? "Active" : isCleared ? "Cleared" : "Upcoming"}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-    </section>
   );
 }
 
