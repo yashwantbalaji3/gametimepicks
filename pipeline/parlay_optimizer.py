@@ -1565,3 +1565,485 @@ def _stable_slip_id(date: str, profile: str, picked: list[OptimizerLean]) -> str
         parts.append(f"{(l.line or 0):.2f}")
     h = hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()[:12]
     return f"opt_{date}_{profile}_{h}"
+
+
+# ---------------------------------------------------------------------------
+# Public risk-section generator — PR `fix/public-risk-range-leg-counts`
+# ---------------------------------------------------------------------------
+# The internal optimizer profiles (Conservative / Balanced / Star Power /
+# Aggressive) cap individual slips at 4 legs, so no profile produces the
+# 5–6 leg combos required for the user's public Longshot section. This
+# layer sits ABOVE the optimizer and builds 2-3 / 3-4 / 4-5 / 5-6 leg
+# slips directly from the already-qualified legPool that
+# `pipeline.snapshot_optimizer._build_leg_pool` emits (every leg in the
+# pool has already passed the Aggressive eligibility gate — `is_eligible`
+# enforces side, confidence, edge floor, DNP guard, anomalies, valid
+# player id). The new layer:
+#
+#   * Generates section-specific candidates by combining legs with the
+#     required leg-count target,
+#   * Filters out any slip whose combined American odds fall outside
+#     the section's odds window,
+#   * Enforces no-duplicate-player-in-slip (matches every existing
+#     official path),
+#   * Caps same-game stacking at 2 legs per game by default to avoid
+#     over-correlated single-game NBA Longshots (the user's "do not
+#     generate obviously over-correlated 5-6 leg single-game NBA
+#     Longshots unless explicitly opt-in" requirement),
+#   * Applies the same diversity selector pattern as PR #150 so no
+#     single player monopolises a section's visible slips,
+#   * Returns slips bucketed by sport (all / nba / mlb / multi) for
+#     the UI's per-sport tabs.
+
+#: User-spec for the four public sections. The odds bounds are half-
+#: open at the top (`max_am_exclusive`) so a slip at +600 never lands
+#: in both Medium and High. The leg ranges are inclusive.
+PUBLIC_RISK_SECTION_SPECS: dict[str, dict[str, Any]] = {
+    "low": {
+        "min_legs": 2,
+        "max_legs": 3,
+        "min_am_inclusive": float("-inf"),
+        "max_am_exclusive": 300.0,
+    },
+    "medium": {
+        "min_legs": 3,
+        "max_legs": 4,
+        "min_am_inclusive": 300.0,
+        "max_am_exclusive": 600.0,
+    },
+    "high": {
+        "min_legs": 4,
+        "max_legs": 5,
+        "min_am_inclusive": 600.0,
+        "max_am_exclusive": 1000.0,
+    },
+    "longshot": {
+        "min_legs": 5,
+        "max_legs": 6,
+        "min_am_inclusive": 1000.0,
+        "max_am_exclusive": float("inf"),
+    },
+}
+
+PUBLIC_RISK_SECTION_ORDER: tuple[str, ...] = ("low", "medium", "high", "longshot")
+
+#: Default cap on same-game legs in a public-section slip. The internal
+#: Balanced rule uses 2 — matching that here avoids dishonest single-
+#: game stacking on a one-NBA-game slate (PR #110 audit found 1W-23L on
+#: same-game NBA stacks 5/25).
+_PUBLIC_SECTION_MAX_LEGS_PER_GAME: int = 2
+
+#: Default ceiling on candidate generation per section. The diversity
+#: selector picks `target_per_section` slips from this pool.
+_PUBLIC_SECTION_CANDIDATE_CEILING: int = 600
+
+#: Default visible-slip target per section per sport bucket. The user
+#: asked for 3-4 per section in the All view; we default to 4 so the
+#: UI has a small buffer when a sport tab filters tighter.
+PUBLIC_RISK_SECTION_TARGET_PER_BUCKET: int = 4
+
+
+def _combined_american_odds(legs: list[OptimizerLean]) -> float | None:
+    """Compute combined American odds from a slip's legs. Returns None
+    when any leg lacks a price (so the caller can drop the slip
+    rather than render a fabricated payout)."""
+    decimal = 1.0
+    for leg in legs:
+        o = leg.oddsForSide
+        if o is None or not isinstance(o, (int, float)) or o == 0:
+            return None
+        decimal *= 1 + o / 100 if o > 0 else 1 + 100 / abs(o)
+    if decimal >= 2:
+        return float(round((decimal - 1) * 100))
+    if decimal > 1:
+        return float(-round(100 / (decimal - 1)))
+    return 0.0
+
+
+def _legs_compatible(legs: list[OptimizerLean]) -> bool:
+    """Reject combos with duplicate players, duplicate (player, market),
+    or any over-cap same-game stack."""
+    players: set[str] = set()
+    pid_market: set[tuple[str, str]] = set()
+    games: dict[str, int] = {}
+    for leg in legs:
+        key = _player_key(leg)
+        if key in players:
+            return False
+        players.add(key)
+        pm = (key, leg.market or "")
+        if pm in pid_market:
+            return False
+        pid_market.add(pm)
+        gkey = leg.gameId or ""
+        if gkey:
+            games[gkey] = games.get(gkey, 0) + 1
+            if games[gkey] > _PUBLIC_SECTION_MAX_LEGS_PER_GAME:
+                return False
+    return True
+
+
+def _lean_from_payload(d: dict[str, Any]) -> OptimizerLean:
+    """Reconstruct an OptimizerLean from a legPool payload dict
+    (the shape `snapshot_optimizer` writes). The payload is already in
+    canonical form — `oddsForSide` is the resolved per-side price, and
+    `side` is the canonical "Over"/"Under" — so we skip the raw-board
+    path that would silently drop the price."""
+    raw_games = d.get("recentGames") or []
+    cleaned_games: list[dict] = []
+    if isinstance(raw_games, list):
+        for g in raw_games:
+            if not isinstance(g, dict):
+                continue
+            value = g.get("value")
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                continue
+            cleaned_games.append({
+                "date": g.get("date") if isinstance(g.get("date"), str) else None,
+                "opponent": g.get("opponent") if isinstance(g.get("opponent"), str) else None,
+                "isHome": g.get("isHome") if isinstance(g.get("isHome"), bool) else None,
+                "value": float(value),
+            })
+    series = d.get("recentSeries") or []
+    series_vals: list[float] = []
+    if isinstance(series, list):
+        for v in series:
+            if isinstance(v, (int, float)) and not isinstance(v, bool) and v == v:
+                series_vals.append(float(v))
+    sport = (d.get("sport") or "nba").lower()
+    market = d.get("market") or "?"
+    market_key = f"{sport}:{market}"
+    return OptimizerLean(
+        sport=sport,
+        leanId=str(d.get("leanId") or d.get("id") or _fallback_lean_id(d)),
+        gameId=str(d.get("gameId")) if d.get("gameId") else None,
+        playerId=d.get("playerId"),
+        playerName=d.get("playerName") or "—",
+        team=d.get("team"),
+        opponent=d.get("opponent"),
+        market=market,
+        marketLabel=d.get("marketLabel"),
+        side=d.get("side") or "Pass",
+        line=d.get("line"),
+        projection=d.get("projection"),
+        edgePct=d.get("edgePct"),
+        confidence=d.get("confidence"),
+        bookmaker=d.get("bookmaker"),
+        oddsForSide=d.get("oddsForSide"),
+        recent10Count=int(d.get("recent10Count") or 0),
+        recentSeries=tuple(series_vals[:10]),
+        recentGames=tuple(cleaned_games[:10]),
+        starTier=d.get("starTier") or _compute_star_tier(d.get("playerName"), sport),
+        isAnomaly=bool(d.get("isAnomaly")),
+        isVolatileMlb=bool(d.get("isVolatileMlb")) or (
+            sport == "mlb" and market in MLB_VOLATILE_MARKETS
+        ),
+        calibrationFactor=1.0,
+        marketWeight=MARKET_STABILITY_WEIGHT.get(market_key, 1.0),
+    )
+
+
+def _slip_sport(legs: list[OptimizerLean]) -> str:
+    sports = {l.sport for l in legs if l.sport}
+    if len(sports) == 0:
+        return "nba"
+    if len(sports) == 1:
+        return next(iter(sports))
+    return "multi"
+
+
+#: Cap on the per-section DFS pool size. The combined legPool today is
+#: ~250 legs; C(250,6) is astronomical. Capping to the top-K-by-quality
+#: keeps DFS tractable while leaving plenty of headroom for the
+#: diversity selector to pick visibly distinct slips.
+_PUBLIC_SECTION_POOL_CAP: int = 50
+
+
+def _build_section_slips_for_pool(
+    pool: list[OptimizerLean],
+    *,
+    spec: dict[str, Any],
+    section_key: str,
+    date: str,
+    candidate_ceiling: int,
+) -> list[OptimizedSlip]:
+    """Generate candidate slips for one (section, pool). Uses the
+    `_sgp_leg_quality` ranking so the seeded order surfaces the
+    highest-quality legs first; the diversity selector down-stream
+    then prunes player monopolisation.
+
+    Performance: this is a bounded DFS over the top-K legs by quality,
+    with two pruning rules in decimal-odds space:
+
+      1. **Upper-bound prune** — multiplying by any leg's decimal odds
+         (always > 1) only grows the running product. So once the prefix
+         product reaches or exceeds the section's upper decimal bound,
+         no extension can land back inside the window; abort.
+      2. **Lower-bound prune** — multiply the prefix by the largest
+         `remaining` decimals in the pool. If that ceiling still falls
+         short of the section's lower bound, no extension can reach it;
+         abort.
+
+    Together these keep generation under ~50ms per section on a
+    250-leg pool — without them the recursion ran several minutes."""
+    if len(pool) < spec["min_legs"]:
+        return []
+
+    # Dedup the pool per (player, market) so we never seed two of the
+    # same prop into the same slip.
+    best_per_key: dict[tuple[str, str], OptimizerLean] = {}
+    for leg in pool:
+        k = (_player_key(leg), leg.market or "")
+        if (
+            k not in best_per_key
+            or _sgp_leg_quality(leg) > _sgp_leg_quality(best_per_key[k])
+        ):
+            best_per_key[k] = leg
+    deduped_all = sorted(
+        best_per_key.values(),
+        key=_sgp_leg_quality,
+        reverse=True,
+    )
+    # Cap to a manageable DFS pool. The downstream diversity selector
+    # picks the visible slips; this only bounds search work.
+    deduped = deduped_all[:_PUBLIC_SECTION_POOL_CAP]
+    if len(deduped) < spec["min_legs"]:
+        return []
+
+    # Pre-compute decimal odds per leg. Drop legs with no usable price
+    # — we never want to emit a slip we can't price.
+    legs_with_dec: list[tuple[OptimizerLean, float]] = []
+    for leg in deduped:
+        o = leg.oddsForSide
+        if o is None or not isinstance(o, (int, float)) or o == 0:
+            continue
+        d = 1.0 + o / 100.0 if o > 0 else 1.0 + 100.0 / abs(o)
+        legs_with_dec.append((leg, d))
+    if len(legs_with_dec) < spec["min_legs"]:
+        return []
+
+    leg_arr: list[OptimizerLean] = [x[0] for x in legs_with_dec]
+    dec_arr: list[float] = [x[1] for x in legs_with_dec]
+    n = len(leg_arr)
+    # Largest decimals first — used for the lower-bound projection in
+    # `_extend` (max achievable when adding `remaining` more legs).
+    dec_sorted_desc = sorted(dec_arr, reverse=True)
+
+    # Convert section's American bounds to decimal-space bounds for
+    # fast prefix checks.
+    def _am_to_decimal(am: float) -> float:
+        if am == float("-inf"):
+            return 0.0
+        if am == float("inf"):
+            return float("inf")
+        if am >= 0:
+            return 1.0 + am / 100.0
+        return 1.0 + 100.0 / abs(am)
+
+    min_dec_inclusive = _am_to_decimal(spec["min_am_inclusive"])
+    max_dec_exclusive = _am_to_decimal(spec["max_am_exclusive"])
+
+    candidates: list[OptimizedSlip] = []
+    seen_sigs: set[tuple[Any, ...]] = set()
+
+    target_size_min: int = spec["min_legs"]
+    target_size_max: int = spec["max_legs"]
+
+    def _emit(prefix: list[OptimizerLean], prefix_dec: float) -> None:
+        # Final compatibility check (same-game / dup-player are
+        # enforced incrementally; this catches anything residual).
+        if not _legs_compatible(prefix):
+            return
+        if (
+            prefix_dec < min_dec_inclusive
+            or prefix_dec >= max_dec_exclusive
+        ):
+            return
+        sig = tuple(sorted(
+            (l.playerId or 0, l.market, l.side, l.line or 0)
+            for l in prefix
+        ))
+        if sig in seen_sigs:
+            return
+        seen_sigs.add(sig)
+        sport = _slip_sport(prefix)
+        single_game = len({l.gameId for l in prefix if l.gameId}) == 1
+        sid = _stable_slip_id(
+            date + "_public_" + section_key, sport, prefix
+        )
+        penalty = 0.05 * (len(prefix) - 2)
+        raw = sum((l.edgePct or 0.0) for l in prefix) / 100.0
+        slip = OptimizedSlip(
+            slipId=sid,
+            profile=section_key,
+            sport=sport,
+            legs=list(prefix),
+            sameGame=single_game and len(prefix) > 1,
+            hasAnomalyLeg=any(l.isAnomaly for l in prefix),
+            score=raw - penalty,
+            correlationPenalty=penalty,
+            rationale=_public_rationale(prefix, section_key),
+            # NBA single-game flag: every leg shares one game AND the
+            # slip is NBA-only. The UI uses this to render the
+            # "Single-game · higher variance" chip.
+            singleGame=(sport == "nba" and single_game and len(prefix) > 1),
+        )
+        candidates.append(slip)
+
+    def _extend(
+        prefix: list[OptimizerLean],
+        prefix_dec: float,
+        start_idx: int,
+        size: int,
+    ) -> None:
+        if len(candidates) >= candidate_ceiling:
+            return
+        # Upper-bound prune: any extension only grows prefix_dec.
+        if prefix_dec >= max_dec_exclusive and len(prefix) > 0:
+            return
+        remaining = size - len(prefix)
+        if remaining == 0:
+            _emit(prefix, prefix_dec)
+            return
+        # Lower-bound prune: best case is multiplying by the top
+        # `remaining` decimals in the pool. If that still can't reach
+        # the section's lower bound, no extension can rescue it.
+        max_achievable = prefix_dec
+        for d in dec_sorted_desc[:remaining]:
+            max_achievable *= d
+        if max_achievable < min_dec_inclusive:
+            return
+        for i in range(start_idx, n):
+            if len(candidates) >= candidate_ceiling:
+                return
+            cand = leg_arr[i]
+            cand_d = dec_arr[i]
+            # Dup-player short-circuit.
+            ck = _player_key(cand)
+            if any(_player_key(p) == ck for p in prefix):
+                continue
+            # Same-game cap.
+            if cand.gameId:
+                same_game = sum(
+                    1 for p in prefix if p.gameId == cand.gameId
+                )
+                if same_game >= _PUBLIC_SECTION_MAX_LEGS_PER_GAME:
+                    continue
+            prefix.append(cand)
+            _extend(prefix, prefix_dec * cand_d, i + 1, size)
+            prefix.pop()
+
+    for size in range(target_size_min, target_size_max + 1):
+        # Try every starting leg so the search isn't monopolised by
+        # the absolute-highest-quality leg (matches PR #150's
+        # diversity goal).
+        for start in range(n):
+            if len(candidates) >= candidate_ceiling:
+                break
+            _extend([leg_arr[start]], dec_arr[start], start + 1, size)
+        if len(candidates) >= candidate_ceiling:
+            break
+
+    return candidates
+
+
+def _public_rationale(legs: list[OptimizerLean], section_key: str) -> str:
+    n = len(legs)
+    label = section_key.capitalize()
+    if section_key == "longshot":
+        label = "Longshot"
+    games = {l.gameId for l in legs if l.gameId}
+    same_game_note = " (single-game build)" if len(games) == 1 else ""
+    return (
+        f"Public {label} build · {n} legs · combined model edge "
+        f"{sum((l.edgePct or 0.0) for l in legs):.1f}pp{same_game_note}."
+    )
+
+
+def generate_public_risk_sections(
+    leg_pool_raw: Iterable[dict[str, Any]] | Iterable[OptimizerLean],
+    *,
+    date: str,
+    target_per_bucket: int = PUBLIC_RISK_SECTION_TARGET_PER_BUCKET,
+    candidate_ceiling: int = _PUBLIC_SECTION_CANDIDATE_CEILING,
+) -> dict[str, dict[str, list[OptimizedSlip]]]:
+    """Build the public-section buckets from the already-qualified
+    legPool. Returns a `{section: {sport: [OptimizedSlip]}}` mapping
+    in canonical section order (low → medium → high → longshot).
+
+    Each (section, sport) bucket caps at ``target_per_bucket`` visible
+    slips and applies the PR #150 diversity selector pattern to spread
+    player exposure. The slips are tagged with ``profile = section_key``
+    + ``singleGame = True`` when NBA-only and all legs share one game.
+    """
+    # Normalize input. Three accepted shapes:
+    #   1. ``OptimizerLean`` instances (tests pass these directly).
+    #   2. Already-serialized legPool dicts (what `snapshot_optimizer`
+    #      passes — these have `oddsForSide` already resolved per side).
+    #   3. Raw board dicts (have `oddsOver`/`oddsUnder` per market side).
+    # We detect shape (2) by the presence of `oddsForSide` and bypass
+    # `normalize_lean` so we don't lose the price (the raw-path picks
+    # odds from `oddsOver`/`oddsUnder`, which the legPool dict lacks).
+    normed: list[OptimizerLean] = []
+    for item in leg_pool_raw:
+        if isinstance(item, OptimizerLean):
+            normed.append(item)
+        elif isinstance(item, dict) and "oddsForSide" in item:
+            normed.append(_lean_from_payload(item))
+        else:
+            normed.append(normalize_lean(item))
+
+    nba_pool = [l for l in normed if l.sport == "nba"]
+    mlb_pool = [l for l in normed if l.sport == "mlb"]
+
+    output: dict[str, dict[str, list[OptimizedSlip]]] = {}
+    for section_key in PUBLIC_RISK_SECTION_ORDER:
+        spec = PUBLIC_RISK_SECTION_SPECS[section_key]
+        by_sport: dict[str, list[OptimizedSlip]] = {
+            "all": [], "nba": [], "mlb": [], "multi": [],
+        }
+
+        # Combined pool → feeds the "all" tab and surfaces the natural
+        # mix of sport-pure and cross-sport slips.
+        combined_candidates = _build_section_slips_for_pool(
+            normed,
+            spec=spec,
+            section_key=section_key,
+            date=date,
+            candidate_ceiling=candidate_ceiling,
+        )
+        combined_candidates.sort(key=lambda s: s.score, reverse=True)
+        by_sport["all"] = _select_diverse_sgp(
+            combined_candidates, target_per_bucket
+        )
+        # "multi" — only cross-sport slips that survived combined gen.
+        multi_subset = [c for c in combined_candidates if c.sport == "multi"]
+        by_sport["multi"] = _select_diverse_sgp(multi_subset, target_per_bucket)
+
+        # Sport-pure buckets are generated from sport-restricted pools so
+        # the NBA / MLB tabs aren't starved by combined-pool diversity
+        # preferring cross-sport candidates.
+        if len(nba_pool) >= spec["min_legs"]:
+            nba_cands = _build_section_slips_for_pool(
+                nba_pool,
+                spec=spec,
+                section_key=section_key,
+                date=date,
+                candidate_ceiling=candidate_ceiling,
+            )
+            nba_cands.sort(key=lambda s: s.score, reverse=True)
+            by_sport["nba"] = _select_diverse_sgp(nba_cands, target_per_bucket)
+        if len(mlb_pool) >= spec["min_legs"]:
+            mlb_cands = _build_section_slips_for_pool(
+                mlb_pool,
+                spec=spec,
+                section_key=section_key,
+                date=date,
+                candidate_ceiling=candidate_ceiling,
+            )
+            mlb_cands.sort(key=lambda s: s.score, reverse=True)
+            by_sport["mlb"] = _select_diverse_sgp(mlb_cands, target_per_bucket)
+
+        output[section_key] = by_sport
+
+    return output

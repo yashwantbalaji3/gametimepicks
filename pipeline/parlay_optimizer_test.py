@@ -18,7 +18,12 @@ from pipeline.parlay_optimizer import (
     CONSERVATIVE_RULES,
     OptimizerLean,
     PROFILE_RULES_BY_NAME,
+    PUBLIC_RISK_SECTION_ORDER,
+    PUBLIC_RISK_SECTION_SPECS,
     STAR_POWER_RULES,
+    _combined_american_odds,
+    _lean_from_payload,
+    generate_public_risk_sections,
     is_eligible,
     leg_score,
     normalize_lean,
@@ -1010,6 +1015,202 @@ class SafetyFiltersTests(unittest.TestCase):
             float(bd_full["marketWeight"]), 1.00, places=3,
             msg="Override must fire when recent10Count >= 7",
         )
+
+
+class PublicRiskSectionTests(unittest.TestCase):
+    """Lock the user-spec ranges for the public risk sections and the
+    honest "both odds + leg count must align" rule."""
+
+    def _build_pool(self, *, n_nba: int = 0, n_mlb: int = 0) -> list[OptimizerLean]:
+        legs: list[OptimizerLean] = []
+        for i in range(n_nba):
+            legs.append(normalize_lean(_nba_lean(
+                id=f"nba_{i}",
+                playerName=f"NBA Player {i}",
+                playerId=10000 + i,
+                gameId=f"nba_g{i // 2}",  # 2 legs per game so same-game cap matters
+                market=("PTS" if i % 2 == 0 else "REB"),
+                line=10.5 + i * 0.5,
+                edgePct=8.0,
+                oddsOver=-120 + (i % 4) * 10,  # mix of -120/-110/-100/-90
+                oddsUnder=+100 - (i % 4) * 10,
+                confidence="High",
+            )))
+        for i in range(n_mlb):
+            legs.append(normalize_lean(_mlb_lean(
+                id=f"mlb_{i}",
+                playerName=f"MLB Player {i}",
+                playerId=20000 + i,
+                gameId=f"mlb_g{i // 2}",
+                market=("batter_hits" if i % 2 == 0 else "batter_total_bases"),
+                line=0.5 + (i % 3) * 0.5,
+                edgePct=7.5,
+                oddsOver=-110 + (i % 5) * 15,
+                oddsUnder=+95 - (i % 5) * 12,
+                confidence="High",
+            )))
+        return legs
+
+    def test_section_order_is_canonical(self):
+        self.assertEqual(
+            PUBLIC_RISK_SECTION_ORDER, ("low", "medium", "high", "longshot"),
+        )
+
+    def test_section_specs_match_user_ranges(self):
+        # User spec: Low <300, Medium 300-599, High 600-999, Longshot >=1000.
+        self.assertEqual(PUBLIC_RISK_SECTION_SPECS["low"]["max_am_exclusive"], 300.0)
+        self.assertEqual(PUBLIC_RISK_SECTION_SPECS["medium"]["min_am_inclusive"], 300.0)
+        self.assertEqual(PUBLIC_RISK_SECTION_SPECS["medium"]["max_am_exclusive"], 600.0)
+        self.assertEqual(PUBLIC_RISK_SECTION_SPECS["high"]["min_am_inclusive"], 600.0)
+        self.assertEqual(PUBLIC_RISK_SECTION_SPECS["high"]["max_am_exclusive"], 1000.0)
+        self.assertEqual(PUBLIC_RISK_SECTION_SPECS["longshot"]["min_am_inclusive"], 1000.0)
+        # Leg-count bands.
+        self.assertEqual(
+            (PUBLIC_RISK_SECTION_SPECS["low"]["min_legs"],
+             PUBLIC_RISK_SECTION_SPECS["low"]["max_legs"]),
+            (2, 3),
+        )
+        self.assertEqual(
+            (PUBLIC_RISK_SECTION_SPECS["medium"]["min_legs"],
+             PUBLIC_RISK_SECTION_SPECS["medium"]["max_legs"]),
+            (3, 4),
+        )
+        self.assertEqual(
+            (PUBLIC_RISK_SECTION_SPECS["high"]["min_legs"],
+             PUBLIC_RISK_SECTION_SPECS["high"]["max_legs"]),
+            (4, 5),
+        )
+        self.assertEqual(
+            (PUBLIC_RISK_SECTION_SPECS["longshot"]["min_legs"],
+             PUBLIC_RISK_SECTION_SPECS["longshot"]["max_legs"]),
+            (5, 6),
+        )
+
+    def test_empty_pool_returns_empty_buckets(self):
+        out = generate_public_risk_sections([], date="2026-05-28")
+        for key in PUBLIC_RISK_SECTION_ORDER:
+            self.assertIn(key, out)
+            for sport in ("all", "nba", "mlb", "multi"):
+                self.assertEqual(out[key][sport], [])
+
+    def test_combined_american_odds_handles_missing_price(self):
+        leg_a = normalize_lean(_nba_lean(playerName="A"))
+        leg_b = normalize_lean(_nba_lean(playerName="B", oddsOver=None, oddsUnder=None))
+        # leg_b has no usable price after normalize → odds is None
+        self.assertIsNone(leg_b.oddsForSide)
+        self.assertIsNone(_combined_american_odds([leg_a, leg_b]))
+
+    def test_combined_american_odds_two_minus_110_is_about_plus_265(self):
+        legs = [
+            normalize_lean(_nba_lean(playerName="A", oddsOver=-110)),
+            normalize_lean(_nba_lean(playerName="B", oddsOver=-110, id="b", playerId=2)),
+        ]
+        am = _combined_american_odds(legs)
+        # 1.909^2 = 3.645 → am = +265
+        self.assertIsNotNone(am)
+        self.assertGreater(am, 250)
+        self.assertLess(am, 280)
+
+    def test_every_slip_meets_both_odds_and_leg_count(self):
+        # Diverse pool so each section can produce >0 slips honestly.
+        pool = self._build_pool(n_nba=20, n_mlb=20)
+        out = generate_public_risk_sections(pool, date="2026-05-28")
+        for section_key, by_sport in out.items():
+            spec = PUBLIC_RISK_SECTION_SPECS[section_key]
+            for sport, slips in by_sport.items():
+                for slip in slips:
+                    am = _combined_american_odds(slip.legs)
+                    self.assertIsNotNone(am, f"{section_key}/{sport} slip missing price")
+                    self.assertGreaterEqual(am, spec["min_am_inclusive"])
+                    self.assertLess(am, spec["max_am_exclusive"])
+                    self.assertGreaterEqual(len(slip.legs), spec["min_legs"])
+                    self.assertLessEqual(len(slip.legs), spec["max_legs"])
+
+    def test_no_duplicate_players_within_slip(self):
+        pool = self._build_pool(n_nba=10, n_mlb=20)
+        out = generate_public_risk_sections(pool, date="2026-05-28")
+        for by_sport in out.values():
+            for slips in by_sport.values():
+                for slip in slips:
+                    names = [l.playerName for l in slip.legs]
+                    self.assertEqual(
+                        len(names), len(set(names)),
+                        f"Duplicate player in slip: {names}",
+                    )
+
+    def test_same_game_cap_holds_per_slip(self):
+        # 1 NBA game + 1 MLB game with many legs each. The same-game cap
+        # is 2 — so any 3+ leg slip must span more than one game.
+        pool = self._build_pool(n_nba=12, n_mlb=12)
+        out = generate_public_risk_sections(pool, date="2026-05-28")
+        for by_sport in out.values():
+            for slips in by_sport.values():
+                for slip in slips:
+                    if len(slip.legs) < 3:
+                        continue
+                    games: dict[str, int] = {}
+                    for l in slip.legs:
+                        if l.gameId:
+                            games[l.gameId] = games.get(l.gameId, 0) + 1
+                    self.assertLessEqual(
+                        max(games.values(), default=0), 2,
+                        f"Over-cap same-game stack in slip: {games}",
+                    )
+
+    def test_mlb_only_can_fill_higher_sections(self):
+        # MLB-only with multiple games + diverse odds should produce
+        # at least one Medium/High/Longshot slip honestly.
+        pool = self._build_pool(n_mlb=30)
+        out = generate_public_risk_sections(pool, date="2026-05-28")
+        # Low always fills with this pool size.
+        self.assertGreater(len(out["low"]["mlb"]), 0)
+        # Higher sections may produce something if the pool is rich.
+        # We assert at least Medium fills — it's the most permissive of
+        # the >=3 leg sections.
+        self.assertGreater(
+            len(out["medium"]["mlb"]) + len(out["high"]["mlb"]),
+            0,
+            "MLB-only should generate at least one Medium/High slip",
+        )
+
+    def test_lean_from_payload_round_trips_odds_and_player(self):
+        # Mirrors what `snapshot_optimizer._leg_to_payload` produces.
+        payload = {
+            "sport": "nba", "leanId": "x1", "gameId": "g1",
+            "playerId": 333, "playerName": "Round Tripper",
+            "team": "OKC", "opponent": "SAS",
+            "market": "PTS", "marketLabel": "Points",
+            "side": "Over", "line": 22.5, "projection": 25.0,
+            "edgePct": 9.5, "confidence": "High",
+            "bookmaker": "draftkings", "oddsForSide": -118,
+            "recent10Count": 9, "recentSeries": [22, 25, 28],
+            "recentGames": [], "isAnomaly": False,
+            "isVolatileMlb": False, "starTier": "none",
+        }
+        leg = _lean_from_payload(payload)
+        self.assertEqual(leg.sport, "nba")
+        self.assertEqual(leg.playerName, "Round Tripper")
+        self.assertEqual(leg.oddsForSide, -118)
+        self.assertEqual(leg.market, "PTS")
+        self.assertEqual(leg.side, "Over")
+
+    def test_nba_single_game_slate_keeps_higher_buckets_honest(self):
+        # All NBA legs from a single game → NBA-only Medium/High/Longshot
+        # MUST be empty (same-game cap = 2 blocks 3+ leg slips).
+        pool = [
+            normalize_lean(_nba_lean(
+                id=f"sg_{i}", playerName=f"P{i}", playerId=80000 + i,
+                gameId="single_game",
+                market=("PTS" if i % 2 == 0 else "REB"),
+                line=10 + i, edgePct=8.0,
+                oddsOver=-115, oddsUnder=+100,
+            )) for i in range(20)
+        ]
+        out = generate_public_risk_sections(pool, date="2026-05-28")
+        # The honest behavior: 0 NBA-only slips for sections needing >=3 legs.
+        self.assertEqual(out["medium"]["nba"], [])
+        self.assertEqual(out["high"]["nba"], [])
+        self.assertEqual(out["longshot"]["nba"], [])
 
 
 if __name__ == "__main__":

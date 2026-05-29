@@ -1,31 +1,41 @@
 /**
- * Risk-section classifier — pure mapping from combined American odds
- * to a public risk label.
+ * Risk-section classifier — pure mapping from a slip's combined
+ * American odds + leg count to a public risk label.
  *
- * This module replaces the internal-lane public exposure (Anchor /
- * Core / Spotlight / Swing) on /parlay-lab with four odds-derived
- * sections users actually understand:
+ * Updated 2026-05-28 (PR `fix/public-risk-range-leg-counts`) to the
+ * user-specified definitions:
  *
- *   Low Risk     — combined odds under +250
- *   Medium Risk  — combined odds +250 to +449
- *   High Risk    — combined odds +450 to +749
- *   Longshot     — combined odds +750 and higher
+ *   Low Risk     — combined odds <  +300, 2–3 legs
+ *   Medium Risk  — combined odds  +300 – +599, 3–4 legs
+ *   High Risk    — combined odds  +600 – +999, 4–5 legs
+ *   Longshot     — combined odds ≥ +1000, 5–6 legs
  *
- * Boundaries were chosen against the live 2026-05-28 production
- * distribution (min +134, median +335, max +1048) so each section in
- * the All / MLB / Mixed views holds ≥3 slips. NBA-only High and
- * Longshot are honestly thin on a one-NBA-game slate because the SGP
- * cap of 2-3 legs prevents per-leg odds from compounding to +750+ —
- * the existing pool-availability banner handles that gap.
+ * Boundary discipline: each section is half-open at the top to avoid
+ * any double-counting. The odds buckets read:
  *
- * Honesty constraints (matched to the spec):
+ *   Low      = (-∞, +300)
+ *   Medium   = [+300, +600)
+ *   High     = [+600, +1000)
+ *   Longshot = [+1000, +∞)
+ *
+ * The leg-count ranges intentionally overlap at 3 and 4 and 5 so the
+ * UI can pick the right bucket from the BOTH-must-match rule below.
+ *
+ * Public surfaces (parlay-lab Suggested mode, slip-card chip,
+ * Bankroll Plan rows) ONLY show a slip under a section when BOTH its
+ * combined odds AND its leg count fall in that section's ranges. A
+ * slip that fails either filter is excluded from public display
+ * (it's still in the internal optimizer JSON; the public selector
+ * handles the gap by generating section-aligned slips on the
+ * pipeline side).
+ *
+ * Honesty constraints:
  *   - Does NOT use "safe" / "safety" anywhere.
  *   - Does NOT imply certainty of payout.
  *   - Does NOT change the optimizer or settlement.
  *   - When a slip has no computable combined odds (some leg's
- *     `oddsForSide` is null), it falls into "low" so the UI still
- *     renders something — but the card itself will show "—" for the
- *     payout, never a fabricated number.
+ *     `oddsForSide` is null), it is excluded — the UI never shows a
+ *     fabricated payout.
  */
 
 export type RiskSectionKey = "low" | "medium" | "high" | "longshot";
@@ -34,21 +44,74 @@ export interface RiskSectionDisplay {
   key: RiskSectionKey;
   /** Public-facing label rendered as the section header. */
   label: string;
-  /** Compact odds-range subtitle (e.g. "+250 to +449"). */
+  /** Compact odds-range chip (e.g. "+300 to +599"). */
   oddsRange: string;
+  /** Compact leg-count chip (e.g. "3–4 legs"). */
+  legRange: string;
   /** One-line subtitle for the section header. No "safe" language. */
   subtitle: string;
   /** CSS variable name resolved by the renderer. */
   accentVar: string;
+  /** Inclusive lower bound on combined American odds. `-Infinity`
+   *  for Low. */
+  oddsLowInclusive: number;
+  /** Exclusive upper bound. `Infinity` for Longshot. */
+  oddsHighExclusive: number;
+  /** Inclusive lower bound on leg count. */
+  legLowInclusive: number;
+  /** Inclusive upper bound. */
+  legHighInclusive: number;
 }
 
-/** Inclusive lower bound (American odds) — anything below this lives
- *  in the section ranked one lower. */
-const SECTION_BOUNDARIES: Record<RiskSectionKey, number> = {
-  low: -Infinity,
-  medium: 250,
-  high: 450,
-  longshot: 750,
+const SECTION_DISPLAY: Record<RiskSectionKey, RiskSectionDisplay> = {
+  low: {
+    key: "low",
+    label: "Low Risk",
+    oddsRange: "under +300",
+    legRange: "2–3 legs",
+    subtitle: "Shorter combined odds, fewer legs.",
+    accentVar: "var(--vault-success)",
+    oddsLowInclusive: Number.NEGATIVE_INFINITY,
+    oddsHighExclusive: 300,
+    legLowInclusive: 2,
+    legHighInclusive: 3,
+  },
+  medium: {
+    key: "medium",
+    label: "Medium Risk",
+    oddsRange: "+300 to +599",
+    legRange: "3–4 legs",
+    subtitle: "Balanced combined odds and leg count.",
+    accentVar: "var(--vault-gold-bright)",
+    oddsLowInclusive: 300,
+    oddsHighExclusive: 600,
+    legLowInclusive: 3,
+    legHighInclusive: 4,
+  },
+  high: {
+    key: "high",
+    label: "High Risk",
+    oddsRange: "+600 to +999",
+    legRange: "4–5 legs",
+    subtitle: "Longer combined odds, more legs.",
+    accentVar: "var(--vault-warn)",
+    oddsLowInclusive: 600,
+    oddsHighExclusive: 1000,
+    legLowInclusive: 4,
+    legHighInclusive: 5,
+  },
+  longshot: {
+    key: "longshot",
+    label: "Longshot",
+    oddsRange: "+1000 and up",
+    legRange: "5–6 legs",
+    subtitle: "Longest combined odds, most legs.",
+    accentVar: "var(--vault-warn)",
+    oddsLowInclusive: 1000,
+    oddsHighExclusive: Number.POSITIVE_INFINITY,
+    legLowInclusive: 5,
+    legHighInclusive: 6,
+  },
 };
 
 export const RISK_SECTION_ORDER: ReadonlyArray<RiskSectionKey> = [
@@ -58,61 +121,54 @@ export const RISK_SECTION_ORDER: ReadonlyArray<RiskSectionKey> = [
   "longshot",
 ];
 
-const SECTION_DISPLAY: Record<RiskSectionKey, RiskSectionDisplay> = {
-  low: {
-    key: "low",
-    label: "Low Risk",
-    oddsRange: "under +250",
-    subtitle: "Shorter combined odds, smaller projected payouts.",
-    accentVar: "var(--vault-success)",
-  },
-  medium: {
-    key: "medium",
-    label: "Medium Risk",
-    oddsRange: "+250 to +449",
-    subtitle: "Balanced combined odds and projected payouts.",
-    accentVar: "var(--vault-gold-bright)",
-  },
-  high: {
-    key: "high",
-    label: "High Risk",
-    oddsRange: "+450 to +749",
-    subtitle: "Longer combined odds, bigger projected payouts.",
-    accentVar: "var(--vault-warn)",
-  },
-  longshot: {
-    key: "longshot",
-    label: "Longshot",
-    oddsRange: "+750 and higher",
-    subtitle: "Longest combined odds, largest projected payouts.",
-    accentVar: "var(--vault-warn)",
-  },
-};
-
-/** Classify a single combined American-odds value into a risk section. */
-export function classifyRiskSection(
-  combinedAmericanOdds: number | null | undefined,
-): RiskSectionKey {
-  if (
-    combinedAmericanOdds == null ||
-    !Number.isFinite(combinedAmericanOdds)
-  ) {
-    // Honest fallback: when odds can't be computed, keep the card
-    // visible by parking it in Low Risk. The card itself will still
-    // render "—" for the payout (no fabrication).
-    return "low";
-  }
-  if (combinedAmericanOdds >= SECTION_BOUNDARIES.longshot) return "longshot";
-  if (combinedAmericanOdds >= SECTION_BOUNDARIES.high) return "high";
-  if (combinedAmericanOdds >= SECTION_BOUNDARIES.medium) return "medium";
-  return "low";
-}
-
 /** Lookup the public display metadata for a section. */
 export function getRiskSectionDisplay(
   key: RiskSectionKey,
 ): RiskSectionDisplay {
   return SECTION_DISPLAY[key];
+}
+
+/** Classify a slip's combined American odds into an "odds-only"
+ *  section. This is intermediate — the UI only shows a slip under
+ *  a section when both odds AND legs align via `classifySlipBySection`.
+ *  Returns null when odds are missing (no fabricated payout). */
+export function classifyOddsSection(
+  combinedAmericanOdds: number | null | undefined,
+): RiskSectionKey | null {
+  if (
+    combinedAmericanOdds == null ||
+    !Number.isFinite(combinedAmericanOdds)
+  ) {
+    return null;
+  }
+  for (const key of RISK_SECTION_ORDER) {
+    const d = SECTION_DISPLAY[key];
+    if (
+      combinedAmericanOdds >= d.oddsLowInclusive &&
+      combinedAmericanOdds < d.oddsHighExclusive
+    ) {
+      return key;
+    }
+  }
+  return null;
+}
+
+/** Strict classification: returns the section key only when BOTH the
+ *  slip's combined American odds AND its leg count fall inside that
+ *  section's ranges. Returns null otherwise (the slip is excluded
+ *  from public display). */
+export function classifySlipBySection(
+  combinedAmericanOdds: number | null | undefined,
+  legCount: number,
+): RiskSectionKey | null {
+  if (!Number.isInteger(legCount) || legCount < 0) return null;
+  const oddsSection = classifyOddsSection(combinedAmericanOdds);
+  if (oddsSection == null) return null;
+  const d = SECTION_DISPLAY[oddsSection];
+  if (legCount < d.legLowInclusive || legCount > d.legHighInclusive) {
+    return null;
+  }
+  return oddsSection;
 }
 
 /** Combined American odds derived from per-leg `oddsForSide` values.
@@ -133,21 +189,47 @@ export function combinedAmericanOddsFromLegs(
   return 0;
 }
 
-/** Group an array of slips into per-section buckets. The buckets are
- *  returned in the canonical section order; each section preserves
- *  the caller's input order. Pure. */
+/** Group an array of slips into per-section buckets using the strict
+ *  "both odds AND legs must align" rule. Slips that don't align with
+ *  any section are returned in `excluded` so the caller can decide
+ *  whether to surface them (e.g. an "Other" fallback). */
 export function groupSlipsByRiskSection<
   T extends { legs: ReadonlyArray<{ oddsForSide: number | null | undefined }> },
->(slips: ReadonlyArray<T>): Array<{ section: RiskSectionKey; slips: T[] }> {
+>(
+  slips: ReadonlyArray<T>,
+): {
+  sections: Array<{ section: RiskSectionKey; slips: T[] }>;
+  excluded: T[];
+} {
   const buckets = new Map<RiskSectionKey, T[]>();
   for (const key of RISK_SECTION_ORDER) buckets.set(key, []);
+  const excluded: T[] = [];
   for (const slip of slips) {
     const am = combinedAmericanOddsFromLegs(slip.legs);
-    const key = classifyRiskSection(am);
-    buckets.get(key)!.push(slip);
+    const sec = classifySlipBySection(am, slip.legs.length);
+    if (sec == null) {
+      excluded.push(slip);
+      continue;
+    }
+    buckets.get(sec)!.push(slip);
   }
-  return RISK_SECTION_ORDER.map((section) => ({
-    section,
-    slips: buckets.get(section)!,
-  }));
+  return {
+    sections: RISK_SECTION_ORDER.map((section) => ({
+      section,
+      slips: buckets.get(section)!,
+    })),
+    excluded,
+  };
+}
+
+/** Back-compat shim used by ParlayTicketCard's lane chip:
+ *  classify by odds only so a slip in High Risk (4 legs at +700)
+ *  shows the "High Risk" chip even if it isn't aligned with the
+ *  4-5 leg constraint of a section spread. The public spread itself
+ *  uses the strict classifier — the per-card chip just labels the
+ *  payout class. */
+export function classifyRiskSection(
+  combinedAmericanOdds: number | null | undefined,
+): RiskSectionKey {
+  return classifyOddsSection(combinedAmericanOdds) ?? "low";
 }
