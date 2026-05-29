@@ -40,9 +40,15 @@ import { loadCalibrationTable } from "@/lib/confidence-calibration";
 
 import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
+import RiskSectionResultsTable from "@/components/risk-section-results-table";
+import SportMixResultsTable from "@/components/sport-mix-results-table";
 import DailyAuditBanner from "@/components/daily-audit-banner";
 import MethodologyCard from "@/components/methodology-card";
 import { getLatestDailyAudit, getDailyAuditPolicy } from "@/lib/data-daily-audit";
+import {
+  summarizeByRiskSection,
+  summarizeBySportBucket,
+} from "@/lib/results-breakdown";
 
 export const metadata = {
   title: "Suggested parlay results · GameTime Picks",
@@ -167,6 +173,33 @@ export default function ResultsPage() {
         <ParlayResultsSummary summary={summary} />
       </div>
 
+      {/* PR `feature/consolidated-results-tab` (2026-05-29) — risk-
+         section and sport-mix breakdowns of the most recent settled
+         slate. Pulled in above the per-date sections so the user can
+         see the Low / Medium / High / Longshot performance + the
+         NBA-only / MLB-only / Mixed performance at a glance.
+         Loader-side classification of already-graded uniqueSlips via
+         `summarizeByRiskSection` + `summarizeBySportBucket` —
+         pipeline-backed summary fields come in a follow-up PR. */}
+      {dateSections.length > 0 && (() => {
+        const newest = dateSections[0];
+        const riskBreakdown = summarizeByRiskSection(newest.slips);
+        const sportBreakdown = summarizeBySportBucket(newest.slips);
+        const label = formatResultsDateLabel(newest.date);
+        return (
+          <div className="mt-6 flex flex-col gap-4">
+            <RiskSectionResultsTable
+              breakdown={riskBreakdown}
+              contextLabel={label}
+            />
+            <SportMixResultsTable
+              breakdown={sportBreakdown}
+              contextLabel={label}
+            />
+          </div>
+        );
+      })()}
+
       <div className="mt-8 flex flex-col gap-6">
         {dateSections.length === 0 ? (
           <EmptyState />
@@ -241,6 +274,22 @@ export default function ResultsPage() {
       </section>
     </div>
   );
+}
+
+/** Pure: format a `YYYY-MM-DD` to "May 28" using America/New_York
+ *  so the breakdown caption stays consistent with the rest of the
+ *  results UI. Returns the raw input if it doesn't parse. */
+function formatResultsDateLabel(date: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!m) return date;
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+  const mi = parseInt(m[2], 10) - 1;
+  const day = parseInt(m[3], 10);
+  if (mi < 0 || mi > 11 || Number.isNaN(day)) return date;
+  return `${months[mi]} ${day}`;
 }
 
 /**
