@@ -86,16 +86,18 @@ export default function PoolAvailabilityNote({ availability }: Props) {
     availability.nba === "absent" &&
     availability.mlb === "present"
   ) {
-    lines.push(
-      "No NBA games scheduled today — MLB-only slate. NBA-only and Mixed buckets are honestly empty.",
-    );
+    // PR `fix/mono-sport-parlay-lab-polish` (2026-05-29) — tightened
+    // the copy now that empty sport tabs (NBA-only, Mixed) are hidden
+    // entirely by `getAvailableSportsFromSlips`. The user never sees
+    // those tabs on a mono-sport slate, so spelling out "NBA-only and
+    // Mixed buckets are honestly empty" added noise without
+    // information.
+    lines.push("No NBA games scheduled today — MLB-only slate.");
   } else if (
     availability.mlb === "absent" &&
     availability.nba === "present"
   ) {
-    lines.push(
-      "No MLB games scheduled today — NBA-only slate. MLB-only and Mixed buckets are honestly empty.",
-    );
+    lines.push("No MLB games scheduled today — NBA-only slate.");
   }
   if (lines.length === 0) return null;
   return (
