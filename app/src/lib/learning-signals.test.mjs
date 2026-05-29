@@ -255,7 +255,7 @@ test("buildLearningSignalRows: too-small sport row surfaces shortfall", () => {
 });
 
 test("getStatusDisplay: stable labels", () => {
-  assert.equal(getStatusDisplay("confirmed-not-consumed").label, "Confirmed — not consumed");
+  assert.equal(getStatusDisplay("confirmed-not-consumed").label, "Confirmed · operator review");
   assert.equal(getStatusDisplay("shadow-test-candidate").label, "Shadow-test candidate");
   assert.equal(getStatusDisplay("too-small").label, "Too small to act on");
   assert.equal(getStatusDisplay("tracking").label, "Tracking");

@@ -84,9 +84,13 @@ export default function ResultsHero({
           className="text-[12px] leading-snug"
           style={{ color: "var(--vault-text-faint)", maxWidth: 560 }}
         >
-          Public parlay tracking starts {PUBLIC_PARLAY_RESULTS_START_DATE}.
-          Pushes are excluded from the hit rate. Pending slips never count
-          as losses.
+          {/* PR `fix/results-overview-copy` (2026-05-29) — collapsed
+             the legacy three-sentence preamble into one plain-English
+             line. The hit-rate / pending / pushes rule is the same
+             one we've enforced since launch; we just say it once. */}
+          Public tracking from {PUBLIC_PARLAY_RESULTS_START_DATE}. Hit
+          rate only counts finished slips — pending and pushes are
+          shown separately.
         </p>
       </div>
 

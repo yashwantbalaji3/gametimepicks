@@ -305,7 +305,12 @@ export function getStatusDisplay(status: LearningSignalStatus): {
   switch (status) {
     case "confirmed-not-consumed":
       return {
-        label: "Confirmed — not consumed",
+        // PR `fix/results-overview-copy` (2026-05-29) — the old
+        // "Confirmed — not consumed" label was accurate but read
+        // technical to a non-engineer. The new copy keeps the
+        // honest meaning ("signal cleared the gate, optimizer is
+        // intentionally not consuming it yet") in plain English.
+        label: "Confirmed · operator review",
         toneVar: "var(--vault-gold-bright)",
       };
     case "shadow-test-candidate":

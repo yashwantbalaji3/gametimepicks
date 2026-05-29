@@ -353,13 +353,13 @@ export default function ResultsPage() {
             className="font-mono uppercase tracking-[0.16em]"
             style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
           >
-            By internal profile
+            By model profile
           </span>
           <span
             className="font-mono"
             style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
           >
-            historical lane view — kept for transparency
+            historical view · the framing we shipped earlier
           </span>
         </header>
         <ParlayResultsSummary summary={summary} />
