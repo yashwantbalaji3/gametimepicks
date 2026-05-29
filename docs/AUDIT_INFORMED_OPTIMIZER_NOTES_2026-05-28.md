@@ -266,3 +266,59 @@ saw, and why we did not act on it."
 The `/results` Learning Signals table (PR #160) already exposes
 these statuses live; this section keeps the same record in the
 docs for posterity / future PR diff context.
+
+---
+
+## 7. May 29 audit follow-up
+
+Added 2026-05-29 after PRs #170-#172 reshaped the Results UI and
+PR #166 fixed the H+R+RBI grader.
+
+### 7.1 Why the numbers moved
+
+After PR #166's regrade May 28's lifetime moved from `41-149`
+(n=190) to `41-150` (n=191). One additional decisive loss on the
+books — small in absolute terms, but it closed a structural blind
+spot: every prior `batter_hits_runs_rbis` prop had been silently
+counted as `unresolved`.
+
+### 7.2 Nothing yet clears the gates
+
+The numeric gates in section 3 are unchanged. Today's reading:
+
+- Aggressive profile: 7.5% at n=40 — passes the gap test (-14pp
+  vs lifetime) but n is still below the n=60 floor. **No
+  demotion.**
+- Public risk-section samples: Low n=3, Medium n=3, High n=4,
+  Longshot n=4 — all far below the n=40 cap-tightening floor.
+- Sport bucket: NBA-only n=4 (100% — single-game sweep),
+  MLB-only n=15, Mixed n=14 — below n=40 for any cap change.
+- `market:batter_total_bases` at 2/3 — next confirming day
+  could flip it.
+- `longshotKeepCollapsed` remains confirmed but not consumed.
+
+### 7.3 What the user can read on /results today
+
+The PR-#171 in-page nav exposes the section structure cleanly:
+
+  OVERVIEW → RISK SECTIONS → SPORT MIX → SLIP DETAILS
+  → PROJECTION AUDIT → LEARNING SIGNALS
+
+Learning Signals is collapsed by default; the summary chip carries
+the headline counts ("1 confirmed · 7 tracking · 11 too small").
+No row asserts the model learned anything; every row says exactly
+where it sits relative to the published gate.
+
+### 7.4 Next observable threshold
+
+At ~76 slips/day the next gates likely to fire:
+
+- Aggressive demotion (n>=60): ~2026-06-01.
+- `market:batter_total_bases` confirmed: probably the next 1-2
+  nights.
+- Low Risk section cap floor (n>=40): ~2026-06-08 at 4 Low slips
+  per slate.
+
+When any of these crosses its gate, the PR that proposes a
+deterministic behavior change must point to this section's row
+and include the shadow-eval artifact for review.

@@ -81,6 +81,55 @@ export default function MethodologyCard() {
         />
       </ol>
 
+      {/* PR `docs/methodology-recent-learnings` (2026-05-29) — short
+         "what changed recently" block. Plain English, no
+         overclaiming, no "the model learned" framing. */}
+      <div
+        className="rounded-[8px] p-4 flex flex-col gap-2"
+        style={{
+          background: "var(--gtp-card-sunken)",
+          border: "1px dashed var(--vault-border)",
+        }}
+      >
+        <span
+          className="font-mono uppercase tracking-[0.14em]"
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+        >
+          What changed recently
+        </span>
+        <ul
+          className="flex flex-col gap-1.5 text-[12.5px] leading-relaxed list-none p-0 m-0"
+          style={{ color: "var(--vault-text-mute)" }}
+        >
+          <li>
+            <strong style={{ color: "var(--vault-text)" }}>
+              We found a grading blind spot.
+            </strong>{" "}
+            Hits + Runs + RBIs props used to come back unresolved
+            because the MLB grader didn&apos;t know how to read them.
+            They now grade off the box score the same way Hits and
+            Total Bases do.
+          </li>
+          <li>
+            <strong style={{ color: "var(--vault-text)" }}>
+              We track public risk sections separately.
+            </strong>{" "}
+            Low / Medium / High / Longshot get their own results row.
+            The hit rate you see on Results matches what you saw on
+            Parlay Lab the day before, not a re-bucketing.
+          </li>
+          <li>
+            <strong style={{ color: "var(--vault-text)" }}>
+              We still need a sample before any model behavior moves.
+            </strong>{" "}
+            Every Learning Signals row says exactly how many more
+            decisive slips it needs before its gate can fire.
+            Confirmed signals stay operator-gated and aren&apos;t
+            consumed automatically.
+          </li>
+        </ul>
+      </div>
+
       <div
         className="rounded-[8px] p-4 flex flex-col gap-2"
         style={{
