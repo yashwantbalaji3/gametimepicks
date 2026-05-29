@@ -400,9 +400,32 @@ def load_nba_leans(date: str) -> list[dict]:
     leans = board.get("leans") if isinstance(board, dict) else None
     if not isinstance(leans, list):
         return []
-    # Tag every lean with its sport so per-leg `sport` survives the
-    # builder which doesn't otherwise know which sport a lean came from.
-    return [{**l, "_sport": "nba"} for l in leans]
+    # PR `feature/leg-game-time-threading` — join each NBA lean with its
+    # game so the leg payload can show the real tipoff. NBA boards store
+    # `tipoff` as a pre-formatted ET display string (e.g. "8:30 PM ET");
+    # we pass it through verbatim under `gameTime`. We never fabricate
+    # — when a game lacks `tipoff`, the lean simply has `gameTime=None`
+    # and the frontend falls back to the date.
+    games = board.get("games") if isinstance(board, dict) else None
+    game_time_lookup: dict[str, str] = {}
+    if isinstance(games, list):
+        for g in games:
+            if not isinstance(g, dict):
+                continue
+            gid = g.get("gameId") or g.get("id")
+            tip = g.get("tipoff")
+            if gid and isinstance(tip, str) and tip.strip():
+                game_time_lookup[str(gid)] = tip.strip()
+    out: list[dict] = []
+    for l in leans:
+        if not isinstance(l, dict):
+            continue
+        enriched = {**l, "_sport": "nba"}
+        gid = l.get("gameId")
+        if gid and str(gid) in game_time_lookup and not enriched.get("gameTime"):
+            enriched["gameTime"] = game_time_lookup[str(gid)]
+        out.append(enriched)
+    return out
 
 
 def load_mlb_leans(date: str) -> list[dict]:
@@ -461,6 +484,13 @@ def load_mlb_leans(date: str) -> list[dict]:
             "riskFlags": ml.get("riskFlags") or [],
             # ISO commenceTime so the unstarted-game filter still works.
             "tipoff": ml.get("commenceTime"),
+            # PR `feature/leg-game-time-threading` — pass MLB's ISO UTC
+            # start through under `commenceTime` so the optimizer leg
+            # payload can render real game time. None when missing.
+            "commenceTime": ml.get("commenceTime"),
+            # recentGames is already JSON-safe metadata; pass through so
+            # the optimizer leg payload exposes it.
+            "recentGames": ml.get("recentGames") or [],
         })
     return out
 

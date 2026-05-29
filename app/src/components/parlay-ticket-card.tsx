@@ -48,6 +48,7 @@ import {
   getRiskSectionDisplay,
 } from "@/lib/parlay-risk-sections";
 import { formatSlateChip } from "@/lib/slate-label";
+import { formatLegGameTime } from "@/lib/leg-game-time";
 import { formatSideLine, humanMarketLabel } from "@/lib/market-label";
 import PlayerAvatar from "./player-avatar";
 import TeamLogo from "./team-logo";
@@ -558,7 +559,17 @@ function TicketLegRow({
   const marketName = humanMarketLabel(leg.sport, leg.market, leg.marketLabel);
   const sideLineLabel = formatSideLine(leg.side, leg.line);
   const bookLabel = formatBookLabel(leg.bookmaker);
-  const gameDateLabel = formatGameDate(leg.gameDate);
+  // PR `feature/leg-game-time-threading` — prefer the optimizer's
+  // real `commenceTime` / `gameTime` over the date-only `gameDate`.
+  // Falls back to date only when neither time is present, so single-
+  // game / pregame slates still get the same compact label they had
+  // before. Never fabricates a time.
+  const gameDateLabel =
+    formatLegGameTime({
+      gameDate: leg.gameDate,
+      commenceTime: leg.commenceTime ?? null,
+      gameTime: leg.gameTime ?? null,
+    }) || formatGameDate(leg.gameDate);
   // Matchup context: we don't know home/away at slip-card time so use
   // "TEAM vs OPP" as the conventional non-directional matchup string.
   // Never fabricate — when opponent is missing, fall back to team alone.
