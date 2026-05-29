@@ -7,6 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   classifyPoolAvailability,
+  hasMonoSportSlate,
   hasPoolWithoutSlips,
   shouldRenderAvailabilityNote,
 } from "./pool-availability.ts";
@@ -237,6 +238,48 @@ test("shouldRenderAvailabilityNote: fires for single-game-only NBA scenario", ()
   assert.equal(p.nbaSingleGameOnly, true);
   assert.equal(shouldRenderAvailabilityNote(p), true);
   assert.equal(hasPoolWithoutSlips(p), false);
+});
+
+test("hasMonoSportSlate: NBA absent + MLB present → true (MLB-only night)", () => {
+  // Live 2026-05-29 case: NBA Finals off-day. NBA board has 0 leans,
+  // MLB has 639. The UI should explain the gap honestly.
+  const p = classifyPoolAvailability(
+    fakePayload(0, 639, {
+      balanced: { mlb: 4, nba: 0, multi: 0, all: 4 },
+    }),
+  );
+  assert.equal(p.nba, "absent");
+  assert.equal(p.mlb, "present");
+  assert.equal(hasMonoSportSlate(p), true);
+  assert.equal(shouldRenderAvailabilityNote(p), true);
+});
+
+test("hasMonoSportSlate: MLB absent + NBA present → true (NBA-only night)", () => {
+  const p = classifyPoolAvailability(
+    fakePayload(91, 0, {
+      balanced: { mlb: 0, nba: 4, multi: 0, all: 4 },
+    }),
+  );
+  assert.equal(p.nba, "present");
+  assert.equal(p.mlb, "absent");
+  assert.equal(hasMonoSportSlate(p), true);
+  assert.equal(shouldRenderAvailabilityNote(p), true);
+});
+
+test("hasMonoSportSlate: both absent → false (page already shows empty)", () => {
+  const p = classifyPoolAvailability(fakePayload(0, 0, {}));
+  assert.equal(p.nba, "absent");
+  assert.equal(p.mlb, "absent");
+  assert.equal(hasMonoSportSlate(p), false);
+});
+
+test("hasMonoSportSlate: both present → false (banner not needed)", () => {
+  const p = classifyPoolAvailability(
+    fakePayload(91, 259, {
+      balanced: { mlb: 6, nba: 4, multi: 3, all: 13 },
+    }),
+  );
+  assert.equal(hasMonoSportSlate(p), false);
 });
 
 test("shouldRenderAvailabilityNote: silent on a fully-healthy slate", () => {
