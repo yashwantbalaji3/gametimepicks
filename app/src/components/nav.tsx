@@ -28,6 +28,7 @@ const NAV_ITEMS: Array<{
   { href: "/", label: "Home" },
   { href: "/projections", label: "Projections" },
   { href: "/parlay-lab", label: "Parlay Lab" },
+  { href: "/bank-builder", label: "Bank Builder" },
   { href: "/results", label: "Results" },
   { href: "/about", label: "About", beforeDivider: true },
 ];
