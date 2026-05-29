@@ -47,6 +47,9 @@ import LearningSignalsTable from "@/components/learning-signals-table";
 import DailyAuditBanner from "@/components/daily-audit-banner";
 import MethodologyCard from "@/components/methodology-card";
 import ResultsHero from "@/components/results-hero";
+import ResultsSectionNav, {
+  summarizeLearningSignalCounts,
+} from "@/components/results-section-nav";
 import {
   getLatestDailyAudit,
   getDailyAuditPolicy,
@@ -144,6 +147,39 @@ export default function ResultsPage() {
         lifetime={summary?.lifetime ?? null}
       />
 
+      {/* PR `feature/results-details-navigation` (2026-05-29) — pill
+         nav anchored to the section IDs below. Renders only the
+         pills whose target sections actually exist on this render
+         (no dead anchors). Stays under 60px tall on desktop and
+         mobile. */}
+      {dateSections.length > 0 && (() => {
+        const rawPolicy = getRawAuditPolicy();
+        const learningRows = buildLearningSignalRows(summary, rawPolicy);
+        const items = [
+          { id: "overview", label: "Overview" },
+          { id: "risk-sections", label: "Risk sections" },
+          { id: "sport-mix", label: "Sport mix" },
+          { id: "slip-details", label: "Slip details" },
+          ...(latestAudit
+            ? [{ id: "projection-audit", label: "Projection audit" }]
+            : []),
+          ...(learningRows.length > 0
+            ? [
+                {
+                  id: "learning-signals",
+                  label: "Learning signals",
+                  hint: summarizeLearningSignalCounts(learningRows),
+                },
+              ]
+            : []),
+        ];
+        return (
+          <div className="mt-4">
+            <ResultsSectionNav items={items} />
+          </div>
+        );
+      })()}
+
       {/* PR `feature/consolidated-results-tab` (2026-05-29) — risk-
          section and sport-mix breakdowns of the most recent settled
          slate. Pulled in above the per-date sections so the user can
@@ -180,6 +216,8 @@ export default function ResultsPage() {
           <section
             aria-label={`${label} breakdowns`}
             className="mt-6 flex flex-col gap-4"
+            id="overview"
+            style={{ scrollMarginTop: 80 }}
           >
             {/* PR `fix/results-parlay-final-polish` — single shared
                eyebrow so the date label isn't repeated on each card. */}
@@ -197,22 +235,30 @@ export default function ResultsPage() {
                 public risk sections + sport mix
               </span>
             </header>
-            <RiskSectionResultsTable breakdown={riskBreakdown} />
-            <SportMixResultsTable breakdown={sportBreakdown} />
-            <RiskSectionDrilldown
-              bySection={drilldown}
-              contextLabel={label}
-              date={newest.date}
-            />
+            <div id="risk-sections" style={{ scrollMarginTop: 80 }}>
+              <RiskSectionResultsTable breakdown={riskBreakdown} />
+            </div>
+            <div id="sport-mix" style={{ scrollMarginTop: 80 }}>
+              <SportMixResultsTable breakdown={sportBreakdown} />
+            </div>
+            <div id="slip-details" style={{ scrollMarginTop: 80 }}>
+              <RiskSectionDrilldown
+                bySection={drilldown}
+                contextLabel={label}
+                date={newest.date}
+              />
+            </div>
           </section>
         );
       })()}
 
       {/* PR `feature/results-ux-restructure` — Daily Audit Banner
          moved here (below the breakdowns). It's useful detail but it
-         was 667px tall up top and shoved everything else down. */}
+         was 667px tall up top and shoved everything else down.
+         PR `feature/results-details-navigation` — assigns the
+         `projection-audit` anchor for the in-page nav. */}
       {latestAudit && (
-        <div className="mt-8">
+        <div id="projection-audit" className="mt-8" style={{ scrollMarginTop: 80 }}>
           <DailyAuditBanner audit={latestAudit} policy={auditPolicy} />
         </div>
       )}
@@ -264,17 +310,67 @@ export default function ResultsPage() {
       {/* PR `feature/learning-signal-tables` (2026-05-29) — read-only
          table of every audit signal the model is watching, sized
          against the published numeric thresholds. Renders nothing
-         when there's no honest data to show (e.g. no summary). */}
+         when there's no honest data to show (e.g. no summary).
+
+         PR `feature/results-details-navigation` (2026-05-29) — wraps
+         the table in a `<details>` so it stays collapsed by default
+         when there are more than 6 rows. The summary chip carries
+         the headline counts ("1 confirmed · 7 tracking · 11 too
+         small") so the reader gets the gist without expanding. */}
       {(() => {
-        // The audit-policy summary loader strips per-signal fires +
-        // strength values; we need them for the table. Pull them
-        // direct from the raw policy file.
         const rawPolicy = getRawAuditPolicy();
         const rows = buildLearningSignalRows(summary, rawPolicy);
         if (rows.length === 0) return null;
+        const headline = summarizeLearningSignalCounts(rows);
         return (
-          <div className="mt-8">
-            <LearningSignalsTable rows={rows} />
+          <div
+            id="learning-signals"
+            className="mt-8"
+            style={{ scrollMarginTop: 80 }}
+          >
+            <details
+              className="rounded-[10px] overflow-hidden"
+              style={{
+                background: "var(--gtp-card)",
+                border: "1px solid var(--gtp-card-border)",
+              }}
+            >
+              <summary
+                className="px-4 sm:px-5 py-3.5 flex flex-wrap items-baseline gap-x-3 gap-y-1 cursor-pointer list-none"
+                style={{
+                  background: "var(--gtp-card-sunken)",
+                  borderBottom: "1px solid var(--vault-rule)",
+                }}
+              >
+                <span
+                  className="font-mono uppercase tracking-[0.16em]"
+                  style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+                >
+                  Learning signals
+                </span>
+                <span
+                  className="font-mono"
+                  style={{
+                    color: "var(--vault-text-faint)",
+                    fontSize: 11,
+                  }}
+                >
+                  · {headline}
+                </span>
+                <span
+                  className="font-mono ml-auto"
+                  style={{
+                    color: "var(--vault-text-faint)",
+                    fontSize: 10,
+                  }}
+                >
+                  click to expand
+                </span>
+              </summary>
+              <div className="p-0">
+                <LearningSignalsTable rows={rows} />
+              </div>
+            </details>
           </div>
         );
       })()}
