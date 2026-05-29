@@ -130,6 +130,89 @@ export interface DailyAuditPolicySummary {
   warnings: string[];
 }
 
+/** PR `feature/learning-signal-tables` — raw signal dictionary
+ *  read straight from the policy file so the learning-signals
+ *  helper can show fires / daysRequired / confirmed per row.
+ *  Returns null when the policy file is missing or malformed. */
+export function getRawAuditPolicy(): {
+  confirmed?: boolean;
+  signals?: Record<
+    string,
+    {
+      fires?: number;
+      daysRequired?: number;
+      confirmed?: boolean;
+      strength?: number;
+      weightMultiplier?: number;
+    }
+  >;
+} | null {
+  if (!fs.existsSync(POLICY_PATH)) return null;
+  try {
+    const raw = JSON.parse(fs.readFileSync(POLICY_PATH, "utf8")) as Record<
+      string,
+      unknown
+    >;
+    const sigsIn = (raw.signals ?? {}) as Record<string, unknown>;
+    const sigsOut: Record<
+      string,
+      {
+        fires?: number;
+        daysRequired?: number;
+        confirmed?: boolean;
+        strength?: number;
+        weightMultiplier?: number;
+      }
+    > = {};
+    for (const [name, sig] of Object.entries(sigsIn)) {
+      if (!sig || typeof sig !== "object") continue;
+      // `marketDemotions` is a per-market dict; flatten each market
+      // entry into a top-level `market:<market>` signal so the
+      // learning-signals table can surface each one.
+      if (name === "marketDemotions") {
+        const m = sig as Record<string, Record<string, unknown>>;
+        for (const [mk, mv] of Object.entries(m)) {
+          if (!mv || typeof mv !== "object") continue;
+          sigsOut[`market:${mk}`] = {
+            fires: Number((mv as { fires?: number }).fires ?? 0),
+            daysRequired: Number(
+              (mv as { daysRequired?: number }).daysRequired ?? 0,
+            ),
+            confirmed: Boolean(
+              (mv as { confirmed?: boolean }).confirmed,
+            ),
+            strength: Number(
+              (mv as { strength?: number }).strength ?? 0,
+            ),
+            weightMultiplier: Number(
+              (mv as { weightMultiplier?: number }).weightMultiplier ?? 1,
+            ),
+          };
+        }
+        continue;
+      }
+      const s = sig as {
+        fires?: number;
+        daysRequired?: number;
+        confirmed?: boolean;
+        strength?: number;
+      };
+      sigsOut[name] = {
+        fires: Number(s.fires ?? 0),
+        daysRequired: Number(s.daysRequired ?? 0),
+        confirmed: Boolean(s.confirmed),
+        strength: Number(s.strength ?? 0),
+      };
+    }
+    return {
+      confirmed: Boolean(raw.confirmed),
+      signals: sigsOut,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function getDailyAuditPolicy(): DailyAuditPolicySummary | null {
   if (!fs.existsSync(POLICY_PATH)) return null;
   try {

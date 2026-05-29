@@ -42,13 +42,19 @@ import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
 import RiskSectionResultsTable from "@/components/risk-section-results-table";
 import SportMixResultsTable from "@/components/sport-mix-results-table";
+import LearningSignalsTable from "@/components/learning-signals-table";
 import DailyAuditBanner from "@/components/daily-audit-banner";
 import MethodologyCard from "@/components/methodology-card";
-import { getLatestDailyAudit, getDailyAuditPolicy } from "@/lib/data-daily-audit";
+import {
+  getLatestDailyAudit,
+  getDailyAuditPolicy,
+  getRawAuditPolicy,
+} from "@/lib/data-daily-audit";
 import {
   summarizeByRiskSection,
   summarizeBySportBucket,
 } from "@/lib/results-breakdown";
+import { buildLearningSignalRows } from "@/lib/learning-signals";
 
 export const metadata = {
   title: "Suggested parlay results · GameTime Picks",
@@ -229,6 +235,24 @@ export default function ResultsPage() {
           ))
         )}
       </div>
+
+      {/* PR `feature/learning-signal-tables` (2026-05-29) — read-only
+         table of every audit signal the model is watching, sized
+         against the published numeric thresholds. Renders nothing
+         when there's no honest data to show (e.g. no summary). */}
+      {(() => {
+        // The audit-policy summary loader strips per-signal fires +
+        // strength values; we need them for the table. Pull them
+        // direct from the raw policy file.
+        const rawPolicy = getRawAuditPolicy();
+        const rows = buildLearningSignalRows(summary, rawPolicy);
+        if (rows.length === 0) return null;
+        return (
+          <div className="mt-8">
+            <LearningSignalsTable rows={rows} />
+          </div>
+        );
+      })()}
 
       <div className="mt-10">
         <MethodologyCard />
