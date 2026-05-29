@@ -64,6 +64,7 @@ import {
   type OptimizerSnapshot,
   type OptimizerSlip,
 } from "@/lib/parlay-optimizer";
+import type { RiskSectionKey } from "@/lib/parlay-risk-sections";
 import type { CalibrationTable } from "@/lib/confidence-calibration-rules";
 
 interface Props {
@@ -304,6 +305,59 @@ export default function ParlayLabBuilder({
     [optimizerPayload],
   );
 
+  // PR `fix/public-risk-range-leg-counts` (2026-05-28) — pre-bucketed
+  // public risk sections from the snapshot, filtered to the active
+  // sport tab. When the snapshot predates this PR (no
+  // `publicRiskSections` key), this stays undefined and RiskSectionSpread
+  // falls back to its client-side classifier over the visible slips.
+  const sportSections: Partial<Record<RiskSectionKey, ParlaySlip[]>> | undefined =
+    useMemo(() => {
+      const psr = optimizerPayload?.publicRiskSections;
+      if (!psr) return undefined;
+      const sportKey = (sport === "all" ? "all" : sport) as
+        | "all"
+        | "nba"
+        | "mlb"
+        | "multi";
+      const sectionKeys: RiskSectionKey[] = ["low", "medium", "high", "longshot"];
+      const out: Partial<Record<RiskSectionKey, ParlaySlip[]>> = {};
+      for (const key of sectionKeys) {
+        const slipsForSection = psr[key]?.[sportKey] ?? [];
+        // The Suggested mode also filters by team / player via the
+        // sport-aware Lab filters. When a team or player filter is
+        // active we drop server-bucketed sections and let the
+        // client-side classifier handle the user's narrowed pool —
+        // otherwise the publicRiskSections (which is sport-only) would
+        // show slips that ignore the user's team/player choice.
+        out[key] = slipsForSection.map((s) =>
+          optimizerSlipToParlaySlip(s, optimizerPayload!.date),
+        );
+      }
+      return out;
+    }, [optimizerPayload, sport]);
+
+  // When team or player is active we must honor that filter — the
+  // server-bucketed sections are sport-only, so apply the team/player
+  // filter on top of them. If the result starves a section, the
+  // honest empty-state copy renders.
+  const teamPlayerFiltered = useMemo<
+    Partial<Record<RiskSectionKey, ParlaySlip[]>> | undefined
+  >(() => {
+    if (!sportSections) return undefined;
+    if (team == null && player == null) return sportSections;
+    const out: Partial<Record<RiskSectionKey, ParlaySlip[]>> = {};
+    for (const [k, arr] of Object.entries(sportSections) as Array<
+      [RiskSectionKey, ParlaySlip[]]
+    >) {
+      out[k] = filterSlipsBySportTeamPlayer(arr, {
+        sport,
+        team,
+        playerNames: player ? [player] : [],
+      });
+    }
+    return out;
+  }, [sportSections, sport, team, player]);
+
   return (
     <section className="flex flex-col gap-5" aria-label="Parlay Lab builder">
       <BuilderHeader
@@ -350,6 +404,7 @@ export default function ParlayLabBuilder({
           calibrationTable={calibrationTable}
           onLegClick={setActiveLeg}
           poolAvailability={poolAvailability}
+          sections={teamPlayerFiltered}
         />
       )}
 
@@ -382,6 +437,7 @@ function SuggestedMode({
   calibrationTable,
   onLegClick,
   poolAvailability,
+  sections,
 }: {
   cards: Array<{
     profile: ParlayRiskProfile;
@@ -401,6 +457,11 @@ function SuggestedMode({
   calibrationTable?: CalibrationTable;
   onLegClick: (leg: ParlaySlip["legs"][number]) => void;
   poolAvailability: PoolAvailability;
+  /** Server-bucketed public risk sections, already filtered to the
+   *  active sport (and team/player). Undefined when the snapshot
+   *  predates the server-side selector — RiskSectionSpread falls back
+   *  to its client-side classifier in that case. */
+  sections?: Partial<Record<RiskSectionKey, ParlaySlip[]>>;
 }) {
   // PR `feature/parlay-risk-section-simplification` (2026-05-28) —
   // replaced the four per-profile <LaneSpread>s plus the Swing toggle
@@ -426,6 +487,7 @@ function SuggestedMode({
       )}
       <RiskSectionSpread
         slips={allSlips}
+        sections={sections}
         sport={sport}
         source={source}
         calibrationTable={calibrationTable}

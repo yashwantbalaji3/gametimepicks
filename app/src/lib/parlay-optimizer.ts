@@ -104,6 +104,15 @@ export interface OptimizerLegPool {
   legs: OptimizerLeg[];
 }
 
+/** Public risk-section key — matches `RiskSectionKey` in
+ *  `parlay-risk-sections.ts`. Kept as a string literal here to avoid a
+ *  circular import. */
+export type OptimizerPublicSectionKey =
+  | "low"
+  | "medium"
+  | "high"
+  | "longshot";
+
 export interface OptimizerSnapshot {
   _disclaimer?: string;
   date: string;
@@ -119,6 +128,17 @@ export interface OptimizerSnapshot {
   };
   /** Optional — only present on snapshots written after PR #101. */
   legPool?: OptimizerLegPool;
+  /** PR `fix/public-risk-range-leg-counts` (2026-05-28) — server-side
+   *  selector for the public risk sections (Low / Medium / High /
+   *  Longshot). Each slip in here was generated under the strict
+   *  "BOTH odds AND leg count match the section's window" rule.
+   *  Optional for back-compat with snapshots written before this PR;
+   *  when absent the UI falls back to client-side odds-only
+   *  classification of the existing profile buckets. */
+  publicRiskSections?: Record<
+    OptimizerPublicSectionKey,
+    Record<"all" | "nba" | "mlb" | "multi", OptimizerSlip[]>
+  >;
 }
 
 // ---------------------------------------------------------------------------

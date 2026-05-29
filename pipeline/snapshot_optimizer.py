@@ -35,9 +35,11 @@ from typing import Any
 from .parlay_optimizer import (
     NBA_SGP_PROFILE_DEFAULTS,
     PROFILE_RULES_BY_NAME,
+    PUBLIC_RISK_SECTION_ORDER,
     OptimizedSlip,
     OptimizerLean,
     generate_nba_sgp_slips,
+    generate_public_risk_sections,
     is_eligible,
     leg_score_breakdown,
     normalize_lean,
@@ -279,6 +281,25 @@ def build_optimizer_snapshot(
             "totalLegs": len(leg_pool),
             "legs": leg_pool,
         },
+    }
+
+    # PR `fix/public-risk-range-leg-counts` (2026-05-28) — generate
+    # the public risk sections (Low / Medium / High / Longshot) by
+    # leg count + combined odds, sourced from the already-qualified
+    # legPool. Stored under `publicRiskSections` so the UI can render
+    # the user-spec'd sections without retro-fitting the internal
+    # profile buckets above (those keep producing slips for the
+    # internal optimizer record; this layer sits on top of them).
+    public_sections = generate_public_risk_sections(
+        leg_pool,
+        date=date,
+    )
+    payload["publicRiskSections"] = {
+        section_key: {
+            sport_key: [_slip_to_payload(s) for s in slips]
+            for sport_key, slips in by_sport.items()
+        }
+        for section_key, by_sport in public_sections.items()
     }
     return payload
 
