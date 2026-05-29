@@ -41,6 +41,7 @@ import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
 import DailyAuditBanner from "@/components/daily-audit-banner";
+import MethodologyCard from "@/components/methodology-card";
 import { getLatestDailyAudit, getDailyAuditPolicy } from "@/lib/data-daily-audit";
 
 export const metadata = {
@@ -182,8 +183,12 @@ export default function ResultsPage() {
         )}
       </div>
 
+      <div className="mt-10">
+        <MethodologyCard />
+      </div>
+
       <section
-        className="mt-10 rounded-[8px] p-4"
+        className="mt-6 rounded-[8px] p-4"
         style={{
           background: "var(--gtp-card)",
           border: "1px solid var(--vault-rule)",

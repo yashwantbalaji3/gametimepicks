@@ -223,7 +223,63 @@ following must be true:
 Until all five are true, a new market is **Custom Generator
 only** (eligible by user choice) or **Longshot only**.
 
-## 10. Related docs
+## 10. NBA single-game (SGP) path
+
+Added 2026-05-28 in PR `feature/nba-single-game-parlay-methodology`.
+
+The standard per-profile rules cap NBA at 1–3 legs per game.
+When the slate has exactly one NBA game (e.g. an OKC @ SAS
+playoff matchup), the standard path produces zero NBA-only
+slips because `min_legs` cannot be satisfied with one game. The
+explicit single-game generator (`generate_nba_sgp_slips` in
+`pipeline/parlay_optimizer.py`) fires ONLY when all four
+conditions hold:
+
+1. The NBA source pool has ≥ 2 leans.
+2. The slate has exactly one unique NBA gameId.
+3. Standard NBA-only generation returned empty for the profile.
+4. The profile is in `NBA_SGP_PROFILE_DEFAULTS` (Conservative /
+   Anchor is intentionally excluded — its "Lower-variance
+   builds" framing would be contradicted by stacking two legs
+   from one matchup).
+
+Stricter eligibility than the source profile:
+- Edge floor 4–5pp (vs 2–3pp normal).
+- Confidence whitelist: High + Medium (Aggressive also accepts
+  Low).
+- `recent10Count >= 7` (matches the existing DNP guard).
+- No anomalies, no thin pids; Star Power still requires
+  `starTier != "none"`.
+
+Composition controls:
+- One leg per unique player (no doubling on a single star).
+- 2 legs by default; Spotlight / Swing can also produce 3.
+- Slip score = `sum(edge%/100) − correlation penalty`. Market
+  overlap (two PTS legs together) adds extra penalty so the
+  generator prefers PTS + REB over PTS + PTS.
+
+UI labeling:
+- Each SGP slip carries `singleGame=true` + `sameGame=true`.
+- Lane chip in the slip header reads "CORE · SINGLE-GAME" (or
+  Spotlight / Swing).
+- Separate "⟁ SINGLE-GAME · HIGHER VARIANCE" chip below the
+  header, with a hover tooltip explaining the correlation risk.
+- `/parlay-lab` pool-availability banner switches to the
+  framing copy ("Tonight's NBA-only slips are single-game
+  builds…") whenever every NBA-only slip is `singleGame=true`.
+
+What this does NOT do:
+- Does NOT loosen R1–R5 confidence guardrails.
+- Does NOT loosen PR #110's same-game cap on the standard
+  multi-game NBA path (unchanged behavior on multi-game NBA
+  slates).
+- Does NOT fabricate sides — every SGP slip's Over/Under comes
+  from the model's `projection > line` decision via the
+  existing rescue logic.
+
+Tests: `pipeline/nba_sgp_test.py` (19 cases).
+
+## 11. Related docs
 
 - `docs/MODEL_LEARNING_LOOP.md` — daily settle / audit / promote.
 - `docs/PROP_MARKET_EXPANSION.md` — per-market audit table.
