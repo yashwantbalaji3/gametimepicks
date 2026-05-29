@@ -42,6 +42,7 @@ import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
 import RiskSectionResultsTable from "@/components/risk-section-results-table";
 import SportMixResultsTable from "@/components/sport-mix-results-table";
+import RiskSectionDrilldown from "@/components/risk-section-drilldown";
 import LearningSignalsTable from "@/components/learning-signals-table";
 import DailyAuditBanner from "@/components/daily-audit-banner";
 import MethodologyCard from "@/components/methodology-card";
@@ -55,6 +56,7 @@ import {
   summarizeBySportBucket,
 } from "@/lib/results-breakdown";
 import { buildLearningSignalRows } from "@/lib/learning-signals";
+import { buildRiskSectionDrilldown } from "@/lib/results-drilldown";
 
 export const metadata = {
   title: "Suggested parlay results · GameTime Picks",
@@ -206,6 +208,11 @@ export default function ResultsPage() {
         const sportBreakdown = pipelineSportBuckets
           ? buildSportBreakdownFromPipeline(pipelineSportBuckets)
           : summarizeBySportBucket(newest.slips);
+        // PR `feature/results-risk-section-drilldown` — pull the
+        // graded payload for the same date so the drilldown can
+        // expose the actual settled slips under each section.
+        const gradedPayload = getOptimizerGradedForDate(newest.date);
+        const drilldown = buildRiskSectionDrilldown(gradedPayload ?? null);
         return (
           <section
             aria-label={`${label} breakdowns`}
@@ -229,6 +236,11 @@ export default function ResultsPage() {
             </header>
             <RiskSectionResultsTable breakdown={riskBreakdown} />
             <SportMixResultsTable breakdown={sportBreakdown} />
+            <RiskSectionDrilldown
+              bySection={drilldown}
+              contextLabel={label}
+              date={newest.date}
+            />
           </section>
         );
       })()}
