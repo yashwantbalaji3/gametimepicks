@@ -51,6 +51,7 @@ import {
   groupLeansByMarket,
   type ProjectionsMarketGroup,
 } from "@/lib/projections-market-group";
+import { buildBookOddsComparison } from "@/lib/sportsbook-comparison";
 
 interface Props {
   payload: ProjectionsPayload;
@@ -1194,6 +1195,76 @@ function PlayerMarketRow({ group }: { group: ProjectionsMarketGroup }) {
           line={group.line}
         />
       )}
+      {/* PR `feature/sportsbook-comparison-foundation` — when more
+          than one book exposes a price for the model's chosen side,
+          surface the per-book breakdown read-only. Pure presentation;
+          no affiliate links, no "place bet" buttons. Books without a
+          usable price are dropped, not rendered as "—". */}
+      {group.bookCount > 1 && (
+        <BookComparisonRow
+          side={group.side}
+          leans={group.leans}
+        />
+      )}
+    </div>
+  );
+}
+
+/** Inline per-book breakdown for one market row. Pure presentation —
+ *  consumes `buildBookOddsComparison` from `sportsbook-comparison.ts`
+ *  so the math + honesty rules live in one place. */
+function BookComparisonRow({
+  side,
+  leans,
+}: {
+  side: string;
+  leans: ReadonlyArray<{
+    bookmaker?: string | null;
+    oddsOver?: number | null;
+    oddsUnder?: number | null;
+  }>;
+}) {
+  const rows = buildBookOddsComparison({ side, leans });
+  if (rows.length === 0) return null;
+  return (
+    <div
+      className="col-span-4 flex flex-wrap items-center gap-1 mt-1"
+      aria-label="Per-book price comparison"
+    >
+      <span
+        className="font-mono uppercase tracking-[0.14em] shrink-0"
+        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+      >
+        Books
+      </span>
+      {rows.map((r) => (
+        <span
+          key={r.bookmaker}
+          className="font-mono inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[3px]"
+          style={{
+            background: r.isBest
+              ? "rgba(212,172,99,0.12)"
+              : "rgba(0,0,0,0.30)",
+            border: `1px solid ${r.isBest ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
+            color: r.isBest
+              ? "var(--vault-gold-bright)"
+              : "var(--vault-text-mute)",
+            fontSize: 10,
+            lineHeight: 1.2,
+          }}
+          title={r.isBest ? "Best price among books" : undefined}
+        >
+          <span className="truncate" style={{ maxWidth: 110 }}>
+            {r.bookmakerLabel}
+          </span>
+          <span
+            className="tabular shrink-0"
+            style={{ fontWeight: 600 }}
+          >
+            {formatAmerican(r.americanOdds)}
+          </span>
+        </span>
+      ))}
     </div>
   );
 }
