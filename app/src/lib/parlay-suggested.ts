@@ -66,6 +66,15 @@ export interface ParlayLeg {
    *  snapshots. */
   starTier?: "none" | "regular" | "core" | "superstar";
   isStar?: boolean;
+  /** PR `feature/leg-game-time-threading` — real ISO UTC game start
+   *  time from the source board (MLB writes this directly). Frontend
+   *  prefers `commenceTime` and falls back to `gameTime`. Null when
+   *  the board didn't carry it; never fabricated. */
+  commenceTime?: string | null;
+  /** Pre-formatted ET display string (e.g. `"8:30 PM ET"`) from the
+   *  NBA board's `tipoff` field. Used when the source only carries
+   *  the display string rather than ISO UTC. Null when missing. */
+  gameTime?: string | null;
 }
 
 export interface ParlaySlip {

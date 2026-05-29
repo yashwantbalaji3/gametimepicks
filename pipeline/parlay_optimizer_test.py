@@ -1017,6 +1017,113 @@ class SafetyFiltersTests(unittest.TestCase):
         )
 
 
+class GameTimeThreadingTests(unittest.TestCase):
+    """PR `feature/leg-game-time-threading` — lock the behavior that
+    real board times flow through `normalize_lean` onto the leg
+    payload, and the date-only fallback when the source doesn't carry
+    a usable time."""
+
+    def test_normalize_passes_mlb_commenceTime(self):
+        raw = _mlb_lean(commenceTime="2026-05-28T17:11:00Z")
+        leg = normalize_lean(raw)
+        self.assertEqual(leg.commenceTime, "2026-05-28T17:11:00Z")
+        self.assertIsNone(leg.gameTime)
+
+    def test_normalize_passes_nba_gameTime(self):
+        raw = _nba_lean()
+        raw["gameTime"] = "8:30 PM ET"
+        leg = normalize_lean(raw)
+        self.assertEqual(leg.gameTime, "8:30 PM ET")
+        # NBA boards don't write commenceTime today; tolerate that.
+        self.assertIsNone(leg.commenceTime)
+
+    def test_normalize_missing_time_is_none(self):
+        raw = _nba_lean()
+        leg = normalize_lean(raw)
+        self.assertIsNone(leg.commenceTime)
+        self.assertIsNone(leg.gameTime)
+
+    def test_normalize_non_string_time_is_treated_as_missing(self):
+        # Don't crash, just drop the field.
+        raw = _nba_lean()
+        raw["gameTime"] = 12345
+        raw["commenceTime"] = ""
+        leg = normalize_lean(raw)
+        self.assertIsNone(leg.gameTime)
+        self.assertIsNone(leg.commenceTime)
+
+    def test_round_trip_through_payload_preserves_times(self):
+        raw = _nba_lean()
+        raw["gameTime"] = "8:30 PM ET"
+        leg = normalize_lean(raw)
+        # Build the legPool payload shape `snapshot_optimizer` writes,
+        # then reconstruct via `_lean_from_payload` and check the
+        # public-section path preserves the time fields.
+        payload = {
+            "sport": leg.sport,
+            "leanId": leg.leanId,
+            "gameId": leg.gameId,
+            "playerId": leg.playerId,
+            "playerName": leg.playerName,
+            "team": leg.team,
+            "opponent": leg.opponent,
+            "market": leg.market,
+            "marketLabel": leg.marketLabel,
+            "side": leg.side,
+            "line": leg.line,
+            "projection": leg.projection,
+            "edgePct": leg.edgePct,
+            "confidence": leg.confidence,
+            "bookmaker": leg.bookmaker,
+            "oddsForSide": leg.oddsForSide,
+            "recent10Count": leg.recent10Count,
+            "recentSeries": list(leg.recentSeries),
+            "recentGames": [dict(g) for g in leg.recentGames],
+            "isAnomaly": leg.isAnomaly,
+            "isVolatileMlb": leg.isVolatileMlb,
+            "starTier": leg.starTier,
+            "isStar": leg.starTier != "none",
+            "commenceTime": leg.commenceTime,
+            "gameTime": leg.gameTime,
+        }
+        rebuilt = _lean_from_payload(payload)
+        self.assertEqual(rebuilt.gameTime, "8:30 PM ET")
+        self.assertIsNone(rebuilt.commenceTime)
+
+    def test_public_risk_section_slips_carry_time(self):
+        # Build a multi-game MLB pool with explicit commenceTimes; the
+        # public-section selector must preserve them.
+        pool: list[OptimizerLean] = []
+        for i in range(20):
+            raw = _mlb_lean(
+                id=f"mlb_t_{i}",
+                playerName=f"MLB Player {i}",
+                playerId=30000 + i,
+                gameId=f"mlb_gt_{i // 2}",
+                market=("batter_hits" if i % 2 == 0 else "batter_total_bases"),
+                line=0.5 + (i % 3) * 0.5,
+                edgePct=8.0,
+                oddsOver=-110 + (i % 5) * 15,
+                oddsUnder=+95,
+                confidence="High",
+                commenceTime=f"2026-05-28T1{7 + (i % 3)}:10:00Z",
+            )
+            pool.append(normalize_lean(raw))
+        out = generate_public_risk_sections(pool, date="2026-05-28")
+        any_time_found = False
+        for by_sport in out.values():
+            for slips in by_sport.values():
+                for slip in slips:
+                    for leg in slip.legs:
+                        if leg.commenceTime:
+                            any_time_found = True
+                            self.assertRegex(leg.commenceTime, r"^2026-05-28T\d{2}:\d{2}:\d{2}Z$")
+        self.assertTrue(
+            any_time_found,
+            "Expected at least one public-section slip leg to carry commenceTime",
+        )
+
+
 class PublicRiskSectionTests(unittest.TestCase):
     """Lock the user-spec ranges for the public risk sections and the
     honest "both odds + leg count must align" rule."""

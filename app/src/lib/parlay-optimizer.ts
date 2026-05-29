@@ -52,6 +52,16 @@ export interface OptimizerLeg {
   /** Star metadata — PR #99. */
   starTier?: "none" | "regular" | "core" | "superstar";
   isStar?: boolean;
+  /** PR `feature/leg-game-time-threading` — real game start time
+   *  threaded from the source board. ISO UTC string when present
+   *  (preferred — MLB boards write this directly). Null when the
+   *  board didn't carry it. The frontend prefers `commenceTime` and
+   *  falls back to `gameTime`; never fabricated. */
+  commenceTime?: string | null;
+  /** Pre-formatted ET display string from the NBA board's `tipoff`
+   *  (e.g. `"8:30 PM ET"`). Used when the source only provides the
+   *  display string rather than ISO UTC. Null when missing. */
+  gameTime?: string | null;
   /** Per-leg scoring metadata (PR #101). Persisted by
    *  `pipeline.snapshot_optimizer._leg_to_payload`. Used by the
    *  custom-parlay builder so the slip score the user sees mirrors
@@ -184,6 +194,12 @@ export function optimizerSlipToParlaySlip(
     recentGames: leg.recentGames,
     starTier: leg.starTier,
     isStar: leg.isStar,
+    // PR `feature/leg-game-time-threading` — preserve real game-time
+    // fields so the ticket card + drawer can render "May 28 · 8:30 PM
+    // ET" instead of the date-only fallback. Both nullable; never
+    // fabricated.
+    commenceTime: leg.commenceTime ?? null,
+    gameTime: leg.gameTime ?? null,
   }));
   return {
     slipId: slip.slipId,

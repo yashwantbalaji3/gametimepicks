@@ -540,8 +540,9 @@ function TrendPanel({
 
 /** Honest data-source note. Recent-form values come from settlement
  *  feeds (MLB Stats API / nba_api) attached to each leg by the morning
- *  pipeline. Game start times are not currently persisted on the leg
- *  payload — surfacing date only is intentional, not a missing field. */
+ *  pipeline. Game-time string (PR `feature/leg-game-time-threading`) is
+ *  sourced from pregame board metadata — never fabricated, and only
+ *  shown on legs whose board carried a usable start time. */
 function ProvenanceNote({ sport }: { sport: string }) {
   const s = (sport || "").toLowerCase();
   const sourceLabel =
@@ -560,8 +561,9 @@ function ProvenanceNote({ sport }: { sport: string }) {
       }}
     >
       Recent-form values from {sourceLabel} via the daily settlement
-      pipeline. Game start times aren&apos;t persisted on each leg yet —
-      dates only.
+      pipeline. Game time is sourced from pregame board metadata when
+      available — when the source doesn&apos;t carry one, the leg shows
+      the date only.
     </p>
   );
 }

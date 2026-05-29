@@ -99,6 +99,14 @@ def _leg_to_payload(leg: OptimizerLean) -> dict[str, Any]:
         "isVolatileMlb": leg.isVolatileMlb,
         "starTier": leg.starTier,
         "isStar": leg.starTier != "none",
+        # PR `feature/leg-game-time-threading` — real game-time fields
+        # from the source board. Both nullable; the frontend prefers
+        # `commenceTime` (ISO UTC, MLB) and falls back to `gameTime`
+        # (pre-formatted ET string, NBA tipoff) before showing
+        # date-only. Never fabricated — `null` means the source board
+        # didn't carry a usable time for this game.
+        "commenceTime": leg.commenceTime,
+        "gameTime": leg.gameTime,
         # Per-leg scoring metadata for the custom parlay builder.
         # Computed against the canonical (`_LEG_POOL_PROFILE`) profile
         # so the client's slip score mirrors the optimizer's view

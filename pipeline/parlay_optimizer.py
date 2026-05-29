@@ -364,6 +364,16 @@ class OptimizerLean:
     calibrationFactor: float = 1.0
     # Per-(sport, market) weight from the audit, defaults to 1.0.
     marketWeight: float = 1.0
+    # PR `feature/leg-game-time-threading` — real game start time
+    # threaded from the source board. `commenceTime` is an ISO UTC
+    # string (preferred when present — MLB boards already write this;
+    # NBA boards may add it in future). `gameTime` is a pre-formatted
+    # display string for sports whose board only carries that (NBA
+    # boards write `tipoff` as e.g. "8:30 PM ET"). Both default to
+    # None; consumers render the date-only fallback when both are
+    # missing. Never fabricated.
+    commenceTime: str | None = None
+    gameTime: str | None = None
 
     @property
     def isStar(self) -> bool:
@@ -476,6 +486,24 @@ def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> Optimize
         isVolatileMlb=(s == "mlb" and market in MLB_VOLATILE_MARKETS),
         calibrationFactor=float(raw.get("calibrationFactor", 1.0)),
         marketWeight=MARKET_STABILITY_WEIGHT.get(market_key, 1.0),
+        # PR `feature/leg-game-time-threading` — preserve the upstream
+        # game-time fields when the loader attached them. Loaders fill
+        # `commenceTime` from MLB's ISO UTC `commenceTime` and
+        # `gameTime` from NBA's pre-formatted ET `tipoff`. We only
+        # accept strings; anything else is treated as missing so the
+        # frontend renders the honest date-only fallback.
+        commenceTime=(
+            raw.get("commenceTime")
+            if isinstance(raw.get("commenceTime"), str)
+            and raw.get("commenceTime").strip()
+            else None
+        ),
+        gameTime=(
+            raw.get("gameTime")
+            if isinstance(raw.get("gameTime"), str)
+            and raw.get("gameTime").strip()
+            else None
+        ),
     )
 
 
@@ -1740,6 +1768,10 @@ def _lean_from_payload(d: dict[str, Any]) -> OptimizerLean:
         ),
         calibrationFactor=1.0,
         marketWeight=MARKET_STABILITY_WEIGHT.get(market_key, 1.0),
+        # Round-trip the game-time fields so the public-section selector
+        # carries the same provenance the standard buckets do.
+        commenceTime=d.get("commenceTime") if isinstance(d.get("commenceTime"), str) else None,
+        gameTime=d.get("gameTime") if isinstance(d.get("gameTime"), str) else None,
     )
 
 
