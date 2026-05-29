@@ -46,6 +46,7 @@ import RiskSectionDrilldown from "@/components/risk-section-drilldown";
 import LearningSignalsTable from "@/components/learning-signals-table";
 import DailyAuditBanner from "@/components/daily-audit-banner";
 import MethodologyCard from "@/components/methodology-card";
+import ResultsHero from "@/components/results-hero";
 import {
   getLatestDailyAudit,
   getDailyAuditPolicy,
@@ -133,53 +134,15 @@ export default function ResultsPage() {
     // reads better for dense parlay data. Cards inherit
     // `--gtp-card-dark` for elevated charcoal.
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
-      <header className="flex flex-col gap-2.5 max-w-3xl">
-        <span
-          className="font-mono uppercase tracking-[0.16em]"
-          // PR #5 — eyebrow uses text-mute (deeper slate on canvas =
-          // ~6.4:1) instead of gold (~3.7:1 on cream) so it clears
-          // AA. Same change applied to the fresh-era card eyebrow
-          // and the empty-state eyebrow below.
-          style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.2 }}
-        >
-          Tracked · suggested parlays
-        </span>
-        <h1
-          className="font-display tracking-tight"
-          style={{
-            color: "var(--vault-text)",
-            fontSize: "clamp(28px, 6vw, 44px)",
-            lineHeight: 1.05,
-            letterSpacing: "-0.01em",
-            fontWeight: 600,
-          }}
-        >
-          Suggested parlay results.
-        </h1>
-        <p
-          className="text-[14px] sm:text-[15px] leading-relaxed"
-          style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
-        >
-          Public parlay tracking starts {PUBLIC_PARLAY_RESULTS_START_DATE}.
-          Every saved model slip is graded after games finish. Pending
-          slips are excluded from the hit rate. Pushes do not count toward
-          wins or losses.
-        </p>
-      </header>
-
-      <div className="mt-6">
-        <FreshEraStatusBlock hasAnyDateSection={dateSections.length > 0} />
-      </div>
-
-      {latestAudit && (
-        <div className="mt-4">
-          <DailyAuditBanner audit={latestAudit} policy={auditPolicy} />
-        </div>
-      )}
-
-      <div className="mt-6">
-        <ParlayResultsSummary summary={summary} />
-      </div>
+      {/* PR `feature/results-ux-restructure` (2026-05-29) — compact
+         hero replaces the 737px FreshEraStatusBlock card and the
+         5-tile profile lifetime row from ParlayResultsSummary.
+         Settled date + lifetime hit rate up top so the user sees
+         what matters in the first 200px. */}
+      <ResultsHero
+        settledDate={dateSections[0]?.date ?? null}
+        lifetime={summary?.lifetime ?? null}
+      />
 
       {/* PR `feature/consolidated-results-tab` (2026-05-29) — risk-
          section and sport-mix breakdowns of the most recent settled
@@ -245,6 +208,15 @@ export default function ResultsPage() {
         );
       })()}
 
+      {/* PR `feature/results-ux-restructure` — Daily Audit Banner
+         moved here (below the breakdowns). It's useful detail but it
+         was 667px tall up top and shoved everything else down. */}
+      {latestAudit && (
+        <div className="mt-8">
+          <DailyAuditBanner audit={latestAudit} policy={auditPolicy} />
+        </div>
+      )}
+
       <div className="mt-8 flex flex-col gap-6">
         {dateSections.length === 0 ? (
           <EmptyState />
@@ -260,6 +232,34 @@ export default function ResultsPage() {
           ))
         )}
       </div>
+
+      {/* PR `feature/results-ux-restructure` — kept the legacy
+         per-profile tile row (Conservative / Balanced / Star Power /
+         Aggressive) but moved it deep into the page under a
+         "By internal profile" eyebrow. The primary frame is now the
+         risk-section / sport-mix breakdowns above; this row stays
+         visible for users who want the historical lane view but no
+         longer competes with the dashboard. */}
+      <section
+        aria-label="Profile lifetime tiles"
+        className="mt-10 flex flex-col gap-2"
+      >
+        <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <span
+            className="font-mono uppercase tracking-[0.16em]"
+            style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+          >
+            By internal profile
+          </span>
+          <span
+            className="font-mono"
+            style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
+          >
+            historical lane view — kept for transparency
+          </span>
+        </header>
+        <ParlayResultsSummary summary={summary} />
+      </section>
 
       {/* PR `feature/learning-signal-tables` (2026-05-29) — read-only
          table of every audit signal the model is watching, sized
