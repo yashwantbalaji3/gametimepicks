@@ -118,13 +118,42 @@ def grade_optimizer_payload(payload: dict[str, Any]) -> dict[str, Any]:
             for slip in slips or []:
                 new_buckets[profile][sport].append(grade_slip_once(slip))
 
-    return {
+    # PR `feature/risk-section-results-data` (2026-05-29) — the
+    # `publicRiskSections` slips (PR #152) have their own deterministic
+    # slipIds and were NOT graded by the bucket loop above. Walk them
+    # now and grade each one with the same per-leg lookup, sharing the
+    # `seen` dedupe so a slip with matching ID still grades exactly
+    # once. The result is a parallel `publicRiskSections` block in the
+    # graded payload where each section/sport bucket carries graded
+    # slips with `status`, and the same slips also live in
+    # `uniqueSlips` so `update_summary()` can fold them into per-section
+    # accumulators below.
+    src_prs = payload.get("publicRiskSections") or {}
+    new_prs: dict[str, dict[str, list[dict[str, Any]]]] = {}
+    if isinstance(src_prs, dict):
+        for section_key, by_sport in src_prs.items():
+            if not isinstance(by_sport, dict):
+                continue
+            new_prs[section_key] = {}
+            for sport_key, slips in by_sport.items():
+                graded_list: list[dict[str, Any]] = []
+                if isinstance(slips, list):
+                    for slip in slips:
+                        if isinstance(slip, dict):
+                            graded_list.append(grade_slip_once(slip))
+                new_prs[section_key][sport_key] = graded_list
+
+    out_payload = {
         **payload,
         "gradedAt": now,
         "buckets": new_buckets,
-        # Convenience top-level flat list of unique graded slips.
+        # Convenience top-level flat list of unique graded slips —
+        # union of buckets + publicRiskSections (dedupe via `seen`).
         "uniqueSlips": list(seen.values()),
     }
+    if new_prs:
+        out_payload["publicRiskSections"] = new_prs
+    return out_payload
 
 
 def write_graded(date: str, payload: dict[str, Any]) -> str:
@@ -161,7 +190,22 @@ def _finalize(acc: dict[str, Any]) -> dict[str, Any]:
 
 
 def update_summary() -> dict[str, Any]:
-    """Recompute optimizer-summary.json by walking every graded file."""
+    """Recompute optimizer-summary.json by walking every graded file.
+
+    PR `feature/risk-section-results-data` adds two extra accumulator
+    blocks the UI uses for the consolidated Results tab:
+
+      - ``byPublicSection`` — only the slips that lived under
+        ``publicRiskSections`` (PR #152). These are the slips the
+        Suggested mode actually showed users; the bucket pool above
+        (Conservative / Balanced / Aggressive / Star Power) is an
+        internal-only ranking.
+      - ``bySportBucket`` — same source set, bucketed by NBA-only /
+        MLB-only / Mixed / All using the sport tab the optimizer
+        wrote the slip under.
+
+    Both blocks are nested ``{date_key: row}`` shapes so the UI can
+    show "May 28 by section" without re-walking the graded files."""
     summary: dict[str, Any] = {
         "_disclaimer": (
             "Optimizer-built parlay track record. Only counts slips that "
@@ -174,6 +218,10 @@ def update_summary() -> dict[str, Any]:
         "lifetime": _empty_acc(),
         "byProfile": {},
         "bySport": {},
+        # Per-date AND lifetime breakdowns over the publicRiskSections
+        # slips only (the user-facing surface).
+        "byPublicSection": {"lifetime": {}, "byDate": {}},
+        "bySportBucket": {"lifetime": {}, "byDate": {}},
     }
     if not os.path.isdir(OPTIMIZER_GRADED_DIR):
         return summary
@@ -181,6 +229,11 @@ def update_summary() -> dict[str, Any]:
     profile_acc: dict[str, dict[str, Any]] = {}
     sport_acc: dict[str, dict[str, Any]] = {}
     date_rows: list[dict[str, Any]] = []
+
+    section_lifetime: dict[str, dict[str, Any]] = {}
+    section_by_date: dict[str, dict[str, dict[str, Any]]] = {}
+    sport_bucket_lifetime: dict[str, dict[str, Any]] = {}
+    sport_bucket_by_date: dict[str, dict[str, dict[str, Any]]] = {}
 
     for fname in sorted(os.listdir(OPTIMIZER_GRADED_DIR)):
         if not fname.endswith(".json"):
@@ -208,10 +261,66 @@ def update_summary() -> dict[str, Any]:
         _finalize(date_acc)
         date_rows.append({"date": date, **date_acc})
 
+        # PR `feature/risk-section-results-data` — walk the graded
+        # publicRiskSections and fold each (section, sport) cell into
+        # the lifetime + per-date accumulators. We only count the
+        # `all` sport bucket so we never double-count a slip that
+        # also lives under `nba` / `mlb` / `multi`. The sport bucket
+        # accumulator uses the sport-tab key directly, capturing the
+        # same dedup at source.
+        prs = payload.get("publicRiskSections") or {}
+        if isinstance(prs, dict):
+            section_by_date.setdefault(date, {})
+            sport_bucket_by_date.setdefault(date, {})
+            for section_key, by_sport in prs.items():
+                if not isinstance(by_sport, dict):
+                    continue
+                # Section accumulator — fold only the `all` tab to
+                # avoid double-counting per-sport duplicates.
+                all_slips = by_sport.get("all") or []
+                if isinstance(all_slips, list):
+                    section_lifetime.setdefault(section_key, _empty_acc())
+                    section_by_date[date].setdefault(section_key, _empty_acc())
+                    for s in all_slips:
+                        if not isinstance(s, dict):
+                            continue
+                        st = s.get("status") or "pending"
+                        _accumulate(section_lifetime[section_key], st)
+                        _accumulate(section_by_date[date][section_key], st)
+                # Sport bucket accumulator — fold each per-sport tab
+                # (nba / mlb / multi) as its own bucket, skipping
+                # `all` so we never double count.
+                for sport_key in ("nba", "mlb", "multi"):
+                    sslips = by_sport.get(sport_key) or []
+                    if not isinstance(sslips, list):
+                        continue
+                    sport_bucket_lifetime.setdefault(sport_key, _empty_acc())
+                    sport_bucket_by_date[date].setdefault(sport_key, _empty_acc())
+                    for s in sslips:
+                        if not isinstance(s, dict):
+                            continue
+                        st = s.get("status") or "pending"
+                        _accumulate(sport_bucket_lifetime[sport_key], st)
+                        _accumulate(sport_bucket_by_date[date][sport_key], st)
+
     summary["byDate"] = sorted(date_rows, key=lambda r: r["date"])
     summary["lifetime"] = _finalize(summary["lifetime"])
     summary["byProfile"] = {p: _finalize(acc) for p, acc in profile_acc.items()}
     summary["bySport"] = {s: _finalize(acc) for s, acc in sport_acc.items()}
+    summary["byPublicSection"] = {
+        "lifetime": {k: _finalize(v) for k, v in section_lifetime.items()},
+        "byDate": {
+            date: {k: _finalize(v) for k, v in by_sec.items()}
+            for date, by_sec in section_by_date.items()
+        },
+    }
+    summary["bySportBucket"] = {
+        "lifetime": {k: _finalize(v) for k, v in sport_bucket_lifetime.items()},
+        "byDate": {
+            date: {k: _finalize(v) for k, v in by_sp.items()}
+            for date, by_sp in sport_bucket_by_date.items()
+        },
+    }
     return summary
 
 

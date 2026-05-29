@@ -129,6 +129,39 @@ class GradeOptimizerPayloadTests(unittest.TestCase):
         graded = grade_optimizer_payload(payload)
         self.assertEqual(graded["uniqueSlips"], [])
 
+    def test_publicRiskSections_get_graded_too(self):
+        # PR `feature/risk-section-results-data` — slips that live under
+        # publicRiskSections must come out of `grade_optimizer_payload`
+        # with `status` populated, just like the bucket slips. Their
+        # legs use the same per-leg lookup so the grading is consistent.
+        slip = _mk_slip("public_low_x1", [
+            {"playerId": 1, "market": "REB", "side": "Over", "line": 5.5, "sport": "nba"},
+        ])
+        payload = _mk_payload([slip])
+        # Re-use the same slip dict under publicRiskSections.low.all so
+        # the dedup path is also exercised.
+        payload["publicRiskSections"] = {
+            "low": {
+                "all": [{"slipId": "prs_low_1", "legs": slip["legs"], "profile": "low", "sport": "all"}],
+                "nba": [],
+                "mlb": [],
+                "multi": [],
+            },
+            "medium": {"all": [], "nba": [], "mlb": [], "multi": []},
+            "high": {"all": [], "nba": [], "mlb": [], "multi": []},
+            "longshot": {"all": [], "nba": [], "mlb": [], "multi": []},
+        }
+        graded = grade_optimizer_payload(payload)
+        prs = graded.get("publicRiskSections") or {}
+        # Section slip should now have a status field (even if pending
+        # because the leg lookup is empty in this fixture).
+        low_all = prs.get("low", {}).get("all") or []
+        self.assertEqual(len(low_all), 1)
+        self.assertIn(low_all[0].get("status"), ("win", "loss", "push", "pending"))
+        # It also lands in uniqueSlips (parallel to the bucket slips).
+        unique_ids = {s.get("slipId") for s in graded.get("uniqueSlips") or []}
+        self.assertIn("prs_low_1", unique_ids)
+
 
 if __name__ == "__main__":
     unittest.main()
