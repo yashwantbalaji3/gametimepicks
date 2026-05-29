@@ -34,6 +34,10 @@ import {
   getOptimizerGradedForDate,
   sortGradedSlipsForDisplay,
 } from "@/lib/parlay-results";
+import {
+  getLatestOptimizerSnapshot,
+} from "@/lib/data-parlays";
+import { currentEtDate } from "@/lib/freshness";
 import { PUBLIC_PARLAY_RESULTS_START_DATE } from "@/lib/public-parlay-era";
 import { optimizerSlipToParlaySlip } from "@/lib/parlay-optimizer";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
@@ -146,6 +150,60 @@ export default function ResultsPage() {
         settledDate={dateSections[0]?.date ?? null}
         lifetime={summary?.lifetime ?? null}
       />
+
+      {/* PR `fix/today-results-flow-clarity` (2026-05-29) — when an
+         optimizer snapshot exists for a date strictly newer than the
+         newest settled date, surface a small chip that tells the
+         user today's picks live in Parlay Lab and links them there.
+         This is the inverse of /parlay-lab's Pregame chip; both
+         chips keep the user from confusing "active slate" with
+         "settled results". */}
+      {(() => {
+        const newestSettled = dateSections[0]?.date ?? null;
+        const latest = getLatestOptimizerSnapshot();
+        const today = currentEtDate();
+        const activeDate = latest?.date ?? today;
+        const isFreshActive =
+          !!latest &&
+          (!newestSettled || activeDate > newestSettled);
+        if (!isFreshActive) return null;
+        const activeLabel = formatResultsDateLabel(activeDate);
+        return (
+          <section
+            aria-label="Today's picks pointer"
+            className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1 rounded-[8px] px-3 py-2"
+            style={{
+              background: "var(--gtp-card)",
+              border: "1px solid var(--vault-rule)",
+            }}
+          >
+            <span
+              className="font-mono uppercase tracking-[0.14em]"
+              style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
+            >
+              Pregame
+            </span>
+            <span
+              className="text-[12.5px] leading-snug"
+              style={{ color: "var(--vault-text-mute)" }}
+            >
+              {activeLabel} picks live in Parlay Lab until games finish.
+            </span>
+            <Link
+              href="/parlay-lab/"
+              className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full ml-auto"
+              style={{
+                color: "var(--vault-gold-bright)",
+                border: "1px solid var(--vault-gold-bright)",
+                fontSize: 11,
+                lineHeight: 1.1,
+              }}
+            >
+              View today&apos;s picks →
+            </Link>
+          </section>
+        );
+      })()}
 
       {/* PR `feature/results-details-navigation` (2026-05-29) — pill
          nav anchored to the section IDs below. Renders only the
