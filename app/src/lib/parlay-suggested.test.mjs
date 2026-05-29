@@ -24,6 +24,8 @@ import {
   slipContainsSport,
   slipContainsTeam,
   slipContainsPlayer,
+  selectBuilderSlip,
+  BUILDER_EARLY_STEP_MAX,
 } from "./parlay-suggested.ts";
 
 function mkLeg({ sport = "nba", team = "OKC", playerName = "Player A", market = "PTS" } = {}) {
@@ -551,4 +553,236 @@ test("PR #110 D: mixed penalty does not produce empty output when only mixed sli
   assert.equal(out.length, 2,
     "Selector must return mixed slips when no single-sport alternative exists");
   assert.equal(out[0].slipId, "ma", "Highest-scoring mixed still wins #1");
+});
+
+// ---------------------------------------------------------------------------
+// Bank Builder — selectBuilderSlip (design doc §3.4)
+// ---------------------------------------------------------------------------
+//
+// Section-by-combined-odds reference (parlay-risk-sections.ts):
+//   low      (-∞, +300)     medium [+300, +600)
+//   high     [+600, +1000)  longshot [+1000, +∞)
+// Two-leg fixtures, combined American odds (decimal):
+//   two -110  → +264  (3.645)  → Low      (clears a 2.0× target)
+//   two +120  → +384  (4.84)   → Medium
+//   two +200  → +800  (9.0)    → High
+//   two +300  → +1500 (16.0)   → Longshot
+
+/** Builder-test leg: full ParlayLeg shape with controllable odds /
+ *  gameId / start time. Defaults to a -110 NBA prop. */
+function bLeg({
+  odds = -110,
+  gameId = "g1",
+  commenceTime = null,
+  gameTime = null,
+  playerName = "Player",
+  team = "OKC",
+  market = "PTS",
+} = {}) {
+  return {
+    sport: "nba",
+    gameId,
+    gameDate: "2026-05-29",
+    playerId: 1,
+    playerName,
+    team,
+    opponent: null,
+    market,
+    side: "Over",
+    line: 5,
+    projection: 6,
+    edgePct: 5,
+    confidence: "High",
+    bookmaker: "draftkings",
+    oddsForSide: odds,
+    commenceTime,
+    gameTime,
+  };
+}
+
+/** Builder-test slip with controllable status / score / legs. */
+function bSlip({ slipId, status = "pending", score = 1, legs = [], sameGame = false } = {}) {
+  return {
+    slipId,
+    riskProfile: "balanced",
+    sport: "nba",
+    status,
+    legs,
+    score,
+    sameGame,
+    hasAnomalyLeg: false,
+  };
+}
+
+// Two-leg fixtures in each section, distinct games, no settled outcome.
+const B_LOW = bSlip({
+  slipId: "low",
+  score: 1.0,
+  legs: [bLeg({ odds: -110, gameId: "g1" }), bLeg({ odds: -110, gameId: "g2" })],
+});
+const B_MED = bSlip({
+  slipId: "med",
+  score: 2.0,
+  legs: [bLeg({ odds: 120, gameId: "g3" }), bLeg({ odds: 120, gameId: "g4" })],
+});
+const B_HIGH = bSlip({
+  slipId: "high",
+  score: 3.0,
+  legs: [bLeg({ odds: 200, gameId: "g5" }), bLeg({ odds: 200, gameId: "g6" })],
+});
+const B_LONGSHOT = bSlip({
+  slipId: "ls",
+  score: 4.0,
+  legs: [bLeg({ odds: 300, gameId: "g7" }), bLeg({ odds: 300, gameId: "g8" })],
+});
+
+test("selectBuilderSlip: risk preference — Low beats Medium/High even at lower score", () => {
+  // B_LOW has the LOWEST raw score but the lowest-risk section, so the
+  // section preference must dominate the confidence score.
+  const r = selectBuilderSlip([B_HIGH, B_MED, B_LOW], { minDecimal: 2, stepNumber: 1 });
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "low");
+  assert.equal(r.section, "low");
+});
+
+test("selectBuilderSlip: within a section, higher suggestedScore wins", () => {
+  const a = bSlip({ slipId: "a", score: 1.0, legs: [bLeg({ gameId: "g1" }), bLeg({ gameId: "g2" })] });
+  const b = bSlip({ slipId: "b", score: 1.5, legs: [bLeg({ gameId: "g3" }), bLeg({ gameId: "g4" })] });
+  const r = selectBuilderSlip([a, b], { minDecimal: 2, stepNumber: 1 });
+  assert.equal(r.slip.slipId, "b");
+});
+
+test("selectBuilderSlip: returns combined American + decimal that cleared the target", () => {
+  const r = selectBuilderSlip([B_LOW], { minDecimal: 2, stepNumber: 1 });
+  assert.ok(r);
+  assert.equal(r.combinedAmerican, 264);
+  assert.ok(Math.abs(r.combinedDecimal - 3.6446) < 0.01,
+    `expected ~3.6446, got ${r.combinedDecimal}`);
+});
+
+test("selectBuilderSlip: NEVER surfaces a settled slip; prefers a pending one", () => {
+  // A settled (win) Low slip would be the best candidate by section +
+  // score, but settled outcomes are never forward-looking picks.
+  const settledLow = bSlip({
+    slipId: "settled",
+    status: "win",
+    score: 9.0,
+    legs: [bLeg({ odds: -110, gameId: "g1" }), bLeg({ odds: -110, gameId: "g2" })],
+  });
+  const r = selectBuilderSlip([settledLow, B_HIGH], { minDecimal: 2, stepNumber: 1 });
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "high", "must skip the settled slip and take the pending High");
+});
+
+test("selectBuilderSlip: returns null when every clearing slip is settled", () => {
+  const win = bSlip({ slipId: "w", status: "win", legs: [bLeg({ gameId: "g1" }), bLeg({ gameId: "g2" })] });
+  const loss = bSlip({ slipId: "l", status: "loss", legs: [bLeg({ gameId: "g3" }), bLeg({ gameId: "g4" })] });
+  const push = bSlip({ slipId: "p", status: "push", legs: [bLeg({ gameId: "g5" }), bLeg({ gameId: "g6" })] });
+  assert.equal(selectBuilderSlip([win, loss, push], { minDecimal: 2, stepNumber: 1 }), null);
+});
+
+test("selectBuilderSlip: returns null for an empty pool or when nothing clears the target", () => {
+  assert.equal(selectBuilderSlip([], { minDecimal: 2, stepNumber: 1 }), null);
+  // Single -110 leg → decimal 1.909 < 2.0 → misses the target → null.
+  const short = bSlip({ slipId: "short", legs: [bLeg({ odds: -110, gameId: "g1" })] });
+  assert.equal(selectBuilderSlip([short], { minDecimal: 2, stepNumber: 1 }), null);
+});
+
+test("selectBuilderSlip: skips a slip with a missing leg price (never fabricates odds)", () => {
+  const nullOdds = bSlip({
+    slipId: "nullodds",
+    legs: [bLeg({ odds: -110, gameId: "g1" }), { ...bLeg({ gameId: "g2" }), oddsForSide: null }],
+  });
+  assert.equal(selectBuilderSlip([nullOdds], { minDecimal: 2, stepNumber: 1 }), null);
+});
+
+test("selectBuilderSlip: avoids Longshot on early rungs, allows it later", () => {
+  assert.equal(BUILDER_EARLY_STEP_MAX, 2);
+  // Steps 1 & 2 are early → a lone Longshot is excluded → null.
+  assert.equal(selectBuilderSlip([B_LONGSHOT], { minDecimal: 2, stepNumber: 1 }), null);
+  assert.equal(selectBuilderSlip([B_LONGSHOT], { minDecimal: 2, stepNumber: 2 }), null);
+  // Step 3+ → Longshot is eligible (ranked last, but selectable).
+  const late = selectBuilderSlip([B_LONGSHOT], { minDecimal: 2, stepNumber: 3 });
+  assert.ok(late);
+  assert.equal(late.slip.slipId, "ls");
+  assert.equal(late.section, "longshot");
+  // Omitted stepNumber → treated as a late step (Longshot allowed).
+  const noStep = selectBuilderSlip([B_LONGSHOT], { minDecimal: 2 });
+  assert.ok(noStep);
+  assert.equal(noStep.slip.slipId, "ls");
+});
+
+test("selectBuilderSlip: on an early rung, a Longshot is dropped but a lower section still wins", () => {
+  const r = selectBuilderSlip([B_LONGSHOT, B_HIGH], { minDecimal: 2, stepNumber: 1 });
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "high", "Longshot excluded early; High is the best remaining");
+});
+
+test("selectBuilderSlip: is deterministic and order-independent", () => {
+  const r1 = selectBuilderSlip([B_HIGH, B_MED, B_LOW], { minDecimal: 2, stepNumber: 1 });
+  const r2 = selectBuilderSlip([B_HIGH, B_MED, B_LOW], { minDecimal: 2, stepNumber: 1 });
+  const r3 = selectBuilderSlip([B_LOW, B_HIGH, B_MED], { minDecimal: 2, stepNumber: 1 });
+  assert.equal(r1.slip.slipId, r2.slip.slipId);
+  assert.equal(r1.slip.slipId, r3.slip.slipId,
+    "winner must not depend on input ordering");
+});
+
+test("selectBuilderSlip: does NOT mutate the caller's pool", () => {
+  const pool = [B_HIGH, B_MED, B_LOW];
+  const before = pool.map((s) => s.slipId);
+  selectBuilderSlip(pool, { minDecimal: 2, stepNumber: 1 });
+  assert.deepEqual(pool.map((s) => s.slipId), before,
+    "input array order must be unchanged");
+});
+
+test("selectBuilderSlip: stable slipId tiebreak when all signals are equal", () => {
+  // Identical section / score / diversity / known-starts → ascending
+  // slipId breaks the tie.
+  const zzz = bSlip({ slipId: "zzz", score: 1.0, legs: [bLeg({ gameId: "g1" }), bLeg({ gameId: "g2" })] });
+  const aaa = bSlip({ slipId: "aaa", score: 1.0, legs: [bLeg({ gameId: "g3" }), bLeg({ gameId: "g4" })] });
+  const r = selectBuilderSlip([zzz, aaa], { minDecimal: 2, stepNumber: 1 });
+  assert.equal(r.slip.slipId, "aaa");
+});
+
+test("selectBuilderSlip: diversity tiebreak prefers more distinct games", () => {
+  // Equal section + score; the same-game slip ('onegame', both legs on
+  // gameId gX) loses to the two-game slip even though its slipId sorts
+  // first — proving the distinct-games tiebreak fires before slipId.
+  const oneGame = bSlip({ slipId: "onegame", score: 1.0, legs: [bLeg({ gameId: "gX" }), bLeg({ gameId: "gX" })] });
+  const twoGame = bSlip({ slipId: "twogame", score: 1.0, legs: [bLeg({ gameId: "gA" }), bLeg({ gameId: "gB" })] });
+  const r = selectBuilderSlip([oneGame, twoGame], { minDecimal: 2, stepNumber: 1 });
+  assert.equal(r.slip.slipId, "twogame");
+});
+
+test("selectBuilderSlip: game-time tiebreak prefers slips with known start times", () => {
+  // Equal section / score / distinct-games; the slip whose legs carry a
+  // real commenceTime is preferred over the timeless one even though its
+  // slipId sorts later — proving the known-start tiebreak fires before
+  // slipId. We never fabricate a time when the board lacks one.
+  const noTime = bSlip({ slipId: "anotime", score: 1.0, legs: [bLeg({ gameId: "g1" }), bLeg({ gameId: "g2" })] });
+  const withTime = bSlip({
+    slipId: "btime",
+    score: 1.0,
+    legs: [
+      bLeg({ gameId: "g3", commenceTime: "2026-05-29T23:00:00Z" }),
+      bLeg({ gameId: "g4", commenceTime: "2026-05-29T23:30:00Z" }),
+    ],
+  });
+  const r = selectBuilderSlip([noTime, withTime], { minDecimal: 2, stepNumber: 1 });
+  assert.equal(r.slip.slipId, "btime");
+});
+
+test("selectBuilderSlip: non-finite minDecimal returns null", () => {
+  assert.equal(selectBuilderSlip([B_LOW], { minDecimal: NaN, stepNumber: 1 }), null);
+  assert.equal(selectBuilderSlip([B_LOW], { minDecimal: Infinity, stepNumber: 1 }), null);
+});
+
+test("selectBuilderSlip: respects the step-5 1.875× target (decimal, not American)", () => {
+  // Step 5 needs combined decimal ≥ 1.875. Two -110 legs (decimal
+  // 3.645) clear it; a single -200 leg (decimal 1.5) does not.
+  const clears = bSlip({ slipId: "clears", legs: [bLeg({ odds: -110, gameId: "g1" }), bLeg({ odds: -110, gameId: "g2" })] });
+  const misses = bSlip({ slipId: "misses", legs: [bLeg({ odds: -200, gameId: "g3" })] });
+  const r = selectBuilderSlip([clears, misses], { minDecimal: 1.875, stepNumber: 5 });
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "clears");
 });

@@ -33,9 +33,11 @@ import BankBuilderShareCard from "@/components/bank-builder-share-card";
 import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { currentEtDate } from "@/lib/freshness";
-import { suggestedScore, type ParlaySlip } from "@/lib/parlay-suggested";
-import { combinedParlayPayoutPer100, formatAmerican } from "@/lib/odds-math";
-import { classifyOddsSection } from "@/lib/parlay-risk-sections";
+import {
+  selectBuilderSlip,
+  type BuilderSlipSelection,
+} from "@/lib/parlay-suggested";
+import { formatAmerican } from "@/lib/odds-math";
 import {
   BANK_BUILDER_BASE,
   BANK_BUILDER_GOAL,
@@ -69,60 +71,6 @@ export const metadata = {
 const DISCLAIMER =
   "Educational only. Past results do not predict future outcomes. We do not take real money.";
 
-/**
- * Minimal prototype Builder-Slip selector (design doc §3.4 default).
- * Picks the highest-confidence pending slip from the published pool
- * whose combined decimal odds clear the rung's multiplier target,
- * preferring lower-risk sections and never surfacing a settled slip.
- * Pure + deterministic (stable slipId tiebreak). A later PR replaces
- * this with the tested `selectBuilderSlip` helper.
- */
-function pickBuilderSlip(
-  slips: ReadonlyArray<ParlaySlip>,
-  step: LadderStep,
-): { slip: ParlaySlip; combinedAmerican: number } | null {
-  type Cand = {
-    slip: ParlaySlip;
-    combinedAmerican: number;
-    sectionPref: number;
-    score: number;
-  };
-  const candidates: Cand[] = [];
-  for (const slip of slips) {
-    // Never present a graded outcome as a forward-looking pick.
-    if (slip.status !== "pending") continue;
-    const combined = combinedParlayPayoutPer100(slip.legs);
-    if (!combined) continue; // no usable price — never fabricate one
-    if (combined.decimal < step.multiplier) continue; // misses the rung target
-    const section = classifyOddsSection(combined.american);
-    // Prefer Low, then Medium, then High; push Longshot last so the
-    // marquee Builder Pick isn't a longshot on an early rung.
-    const sectionPref =
-      section === "low"
-        ? 0
-        : section === "medium"
-          ? 1
-          : section === "high"
-            ? 2
-            : 3;
-    candidates.push({
-      slip,
-      combinedAmerican: combined.american,
-      sectionPref,
-      score: suggestedScore(slip),
-    });
-  }
-  if (candidates.length === 0) return null;
-  candidates.sort(
-    (a, b) =>
-      a.sectionPref - b.sectionPref ||
-      b.score - a.score ||
-      a.slip.slipId.localeCompare(b.slip.slipId),
-  );
-  const best = candidates[0];
-  return { slip: best.slip, combinedAmerican: best.combinedAmerican };
-}
-
 export default function BankBuilderPage() {
   const today = currentEtDate();
   const suggested = getSuggestedParlaysForDate(today);
@@ -134,7 +82,10 @@ export default function BankBuilderPage() {
   const activeStep = resolveLadderStep(currentBankroll) ?? BANK_BUILDER_LADDER[0];
 
   const pool = suggested?.slips ?? [];
-  const builderPick = pickBuilderSlip(pool, activeStep);
+  const builderPick = selectBuilderSlip(pool, {
+    minDecimal: activeStep.multiplier,
+    stepNumber: activeStep.step,
+  });
   const poolDate = suggested?.date ?? today;
   const poolIsFallback = suggested?.isFallback ?? false;
   const savedPregame = suggested?.source === "snapshot";
@@ -244,7 +195,7 @@ function TodaysBuilderPick({
   poolIsFallback,
 }: {
   step: LadderStep;
-  pick: { slip: ParlaySlip; combinedAmerican: number } | null;
+  pick: BuilderSlipSelection | null;
   calibrationTable: ReturnType<typeof loadCalibrationTable>;
   savedPregame: boolean;
   poolDate: string;
