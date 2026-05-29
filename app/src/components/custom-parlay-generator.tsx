@@ -43,9 +43,13 @@ interface Props {
   snapshot: OptimizerSnapshot | null;
 }
 
+// PR `fix/ui-final-polish-pass` — replaced user-facing "safest"/"safe
+// pool" copy with model-grounded language ("strictest gate" /
+// "filtered pool") so the Custom Builder reads consistent with the
+// public risk-section vocabulary.
 const RISK_OPTIONS: Array<{ key: GeneratorRisk; label: string; sub: string }> = [
-  { key: "conservative", label: "Conservative", sub: "2 legs · safest pool" },
-  { key: "balanced",     label: "Balanced",     sub: "2–3 legs · safe pool" },
+  { key: "conservative", label: "Conservative", sub: "2 legs · strictest filter" },
+  { key: "balanced",     label: "Balanced",     sub: "2–3 legs · filtered pool" },
   { key: "star_power",   label: "Star Power",   sub: "Recognizable stars only" },
   { key: "aggressive",   label: "Longshot",     sub: "3–4 legs · higher variance" },
 ];

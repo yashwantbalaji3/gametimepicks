@@ -295,16 +295,19 @@ function _safetyNoteItems(surface: string): MarketTickerItem[] {
   // can honestly act on.
   const out: MarketTickerItem[] = [];
   if (surface === "home" || surface === "parlay_lab") {
+    // PR `fix/ui-final-polish-pass` — replaced legacy lane jargon
+    // (Anchor / Core / Swing) with the public risk-section names the
+    // user actually sees today (Low / Medium / High / Longshot).
     out.push({
       id: "lane-variance-anchor-core",
       icon: "🛡",
-      label: "Anchor & Core lanes filtered for lower variance",
+      label: "Low & Medium Risk sections filtered for lower variance",
       tone: "info",
     });
     out.push({
       id: "lane-swing-hidden",
       icon: "⚠",
-      label: "Swing lane hidden by default · opt-in",
+      label: "Longshot section labeled higher variance",
       tone: "warning",
     });
   }
