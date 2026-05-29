@@ -162,3 +162,107 @@ public risk section.
 If a future PR ships any of section 3's deterministic changes, it
 should append a row to this doc with the PR link and the evidence
 that cleared the gate.
+
+---
+
+## 6. May 28 follow-up (2026-05-29)
+
+Logged after the May 28 nightly settle + PR #159 added per-section
+pipeline grading. **No optimizer behavior change.** Every section-3
+gate is still un-cleared.
+
+### 6.1 Updated lifetime numbers
+
+Source: `app/public/data/parlays/optimizer-summary.json` after
+`pipeline.grade_optimizer` re-ran on the May 28 graded payload.
+
+| Profile      | Wins | Losses | Decisive | Hit rate | Gate status            |
+|--------------|------|--------|----------|----------|------------------------|
+| Conservative | 18   | 16     | 34       | 52.9%    | n=34 — below n=60 floor |
+| Balanced     | 5    | 37     | 42       | 11.9%    | n=42 — below n=60 floor |
+| Aggressive   | 3    | 37     | 40       | 7.5%     | n=40 — below n=60 floor |
+| Star Power   | 10   | 30     | 40       | 25.0%    | n=40 — below n=60 floor |
+| **Lifetime** | 41   | 149    | 190      | 21.6%    | Whole-product baseline  |
+
+Public risk-section lifetime (May 28-only sample, since PR #152
+introduced the section selector that same day):
+
+| Section      | Wins | Losses | Decisive | Hit rate | Gate status         |
+|--------------|------|--------|----------|----------|---------------------|
+| Low Risk     | 2    | 1      | 3        | 66.7%    | n=3 — below n=40    |
+| Medium Risk  | 1    | 2      | 3        | 33.3%    | n=3 — below n=40    |
+| High Risk    | 0    | 4      | 4        | 0.0%     | n=4 — below n=40    |
+| Longshot     | 0    | 4      | 4        | 0.0%     | n=4 — below n=40    |
+
+Per-sport-tab lifetime (also May 28-only):
+
+| Bucket      | Wins | Losses | Decisive | Hit rate | Gate status         |
+|-------------|------|--------|----------|----------|---------------------|
+| NBA-only    | 4    | 0      | 4        | 100.0%   | n=4 — single-game sweep, can't generalise |
+| MLB-only    | 0    | 15     | 15       | 0.0%     | n=15 — below n=40   |
+| Mixed       | 1    | 13     | 14       | 7.1%     | n=14 — below n=40   |
+
+Audit policy (`app/public/data/audit/policy.json`):
+
+- Window: 4 of 3 required days available (5/25-5/28).
+- Overall `confirmed: false`.
+- Confirmed signals: **`longshotKeepCollapsed` only** (1 of 1 days
+  required, confirmed=true). This is the only signal that has
+  cleared its threshold. It is **not consumed by the optimizer** —
+  the `/results` Learning Signals table surfaces it as
+  "Confirmed — not consumed" so the gate is transparent. The
+  optimizer side still requires explicit operator approval per the
+  policy-consumption contract.
+- Other 7 signals (mixedSportDownrank, sameGameNbaCap,
+  dnpGuardStrengthen, market:AST/PTS/REB/batter_total_bases) still
+  fire 1-2/3 days; none confirmed.
+
+### 6.2 Why no change yet
+
+Reading section 3 of this doc against the new numbers:
+
+- **3.1 Profile demotion** (`n >= 60` AND `-8 pp` below lifetime
+  AND OOT validation): Aggressive at 7.5% with n=40 is 14 pp below
+  the lifetime 21.6% — would clear the gap test, but **n=40 is
+  still below the n=60 floor**. No demotion.
+- **3.2 Section-level cap** (`n >= 40` per section AND below
+  floors): no section has n ≥ 40. No cap change.
+- **3.3 Market-level demotion**: policy `confirmed: false`. No
+  consumption hook fires.
+- **3.4 Same-market Longshot cap**: still no instrumentation. Not
+  enough Longshot data either way (n=4 lifetime).
+
+### 6.3 Next observable threshold
+
+If May 29 and following slates also settle ~76 unique slips/day,
+the lifetime decisive count rises ~76/day. At that rate:
+
+- Profile-demotion floor (n=60) for Aggressive: would clear after
+  ~3 more slates (currently n=40 → ~63 by 2026-06-01 if rate
+  holds). Worth re-checking after 5/31.
+- Section-cap floor (n=40) for the highest-volume section (Low):
+  if PR #152's selector emits ~4 Low slips per slate (the
+  PUBLIC_RISK_SECTION_TARGET_PER_BUCKET), Low would clear n=40
+  around 2026-06-08 (May 28 = 4 → +4/day → 40 by day 10).
+  Cap-tightening decisions stay paused until then.
+- Audit policy: the next `confirmed: true` would arrive when any
+  market demotion hits 3 of 3 days. `market:batter_total_bases`
+  is currently 2/3 — one more confirming day flips it.
+
+The next PR to **change** optimizer behavior (vs purely surface
+observations) is the one that crosses the first threshold above.
+Until then this doc is the single source of truth for "what we
+saw, and why we did not act on it."
+
+### 6.4 What did NOT change in this update
+
+- No optimizer / settlement / data file edited.
+- No audit policy threshold lowered.
+- No Longshot cap tightened (sample still 4).
+- No profile demoted.
+- No fabricated rows or fake confirming days.
+- No claim that the model "learned" from May 28.
+
+The `/results` Learning Signals table (PR #160) already exposes
+these statuses live; this section keeps the same record in the
+docs for posterity / future PR diff context.
