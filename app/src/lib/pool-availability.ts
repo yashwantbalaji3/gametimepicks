@@ -111,8 +111,26 @@ export function hasPoolWithoutSlips(p: PoolAvailability): boolean {
   );
 }
 
+/** True when one sport is fully absent (no upstream board) AND the
+ *  other sport is present. Used by the UI to explain a sport-pure
+ *  slate (e.g. MLB-only off-night) instead of leaving the user to
+ *  wonder why NBA-only / Mixed buckets are empty. Returns false when
+ *  both sports are absent — the page already shows an empty state in
+ *  that case. */
+export function hasMonoSportSlate(p: PoolAvailability): boolean {
+  return (
+    (p.nba === "absent" && p.mlb === "present") ||
+    (p.mlb === "absent" && p.nba === "present")
+  );
+}
+
 /** True when the banner should render *anything* — either a missing-
- *  data warning, or the friendly single-game NBA framing. */
+ *  data warning, the friendly single-game NBA framing, or the new
+ *  mono-sport-slate explanation. */
 export function shouldRenderAvailabilityNote(p: PoolAvailability): boolean {
-  return hasPoolWithoutSlips(p) || p.nbaSingleGameOnly;
+  return (
+    hasPoolWithoutSlips(p) ||
+    p.nbaSingleGameOnly ||
+    hasMonoSportSlate(p)
+  );
 }

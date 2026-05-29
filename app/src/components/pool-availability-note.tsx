@@ -74,6 +74,29 @@ export default function PoolAvailabilityNote({ availability }: Props) {
       "Mixed builds didn't clear the model's correlation caps today. Single-sport lanes only.",
     );
   }
+  // PR `fix/results-active-date-polish` (2026-05-29) — when one
+  // sport's pool is fully absent (no upstream board data at all, not
+  // just "pool but no slips"), the user otherwise sees the other
+  // sport's slips with no explanation of the gap. Tell them
+  // honestly: no games scheduled today for that sport. The line
+  // never appears when BOTH sports are absent (the page already
+  // shows an empty state in that case) and never overrides the more
+  // specific "pool-but-no-slips" / "single-game" lines above.
+  if (
+    availability.nba === "absent" &&
+    availability.mlb === "present"
+  ) {
+    lines.push(
+      "No NBA games scheduled today — MLB-only slate. NBA-only and Mixed buckets are honestly empty.",
+    );
+  } else if (
+    availability.mlb === "absent" &&
+    availability.nba === "present"
+  ) {
+    lines.push(
+      "No MLB games scheduled today — NBA-only slate. MLB-only and Mixed buckets are honestly empty.",
+    );
+  }
   if (lines.length === 0) return null;
   return (
     <aside
