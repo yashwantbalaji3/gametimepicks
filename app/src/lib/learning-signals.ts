@@ -169,6 +169,10 @@ export function buildLearningSignalRows(
       lifetime.hitRate,
     );
     const direction = _formatDirection(bucket, lifetime);
+    // PR `feature/risk-section-learning-signals` — surface the
+    // shortfall on too-small rows so the user can read progress
+    // at a glance.
+    const needed = Math.max(0, _PROFILE_DEMOTION_MIN_N - n);
     rows.push({
       id: `profile:${key}`,
       signal: label,
@@ -180,7 +184,7 @@ export function buildLearningSignalRows(
         status === "shadow-test-candidate"
           ? "Past the n + gap thresholds — qualifies for shadow evaluation before any optimizer change."
           : status === "too-small"
-            ? "Below the n=60 floor; honest read requires more decisive slips."
+            ? `Below the n=${_PROFILE_DEMOTION_MIN_N} floor; needs ${needed} more decisive slips before demotion can be considered.`
             : "Within the variance band; no action needed.",
     });
   }
@@ -201,6 +205,11 @@ export function buildLearningSignalRows(
     if (status === "tracking" && bucket?.hitRate != null && bucket.hitRate < floor) {
       status = "shadow-test-candidate";
     }
+    // PR `feature/risk-section-learning-signals` (2026-05-29) —
+    // surface the shortfall to the gate so the user can read
+    // progress at a glance ("needs 37 more decisive slips") instead
+    // of having to subtract n from the floor in their head.
+    const needed = Math.max(0, _SECTION_CAP_MIN_N - n);
     const direction =
       bucket && bucket.decisive > 0
         ? `${(bucket.hitRate! * 100).toFixed(1)}% hit · floor ${(floor * 100).toFixed(0)}%`
@@ -216,7 +225,7 @@ export function buildLearningSignalRows(
         status === "shadow-test-candidate"
           ? "Below the published floor and past the n=40 gate — flagged for shadow evaluation."
           : status === "too-small"
-            ? "Section sample below n=40; cap stays where PR #152 set it."
+            ? `Section sample below n=${_SECTION_CAP_MIN_N}; needs ${needed} more decisive slips before the cap can move.`
             : "Within the published floor; section cap stays unchanged.",
     });
   }
@@ -230,6 +239,9 @@ export function buildLearningSignalRows(
   for (const { key, label } of sportOrder) {
     const bucket = sportBucketLifetime[key];
     const n = bucket?.decisive ?? 0;
+    // PR `feature/risk-section-learning-signals` — same shortfall
+    // disclosure as the section rows above.
+    const needed = Math.max(0, _SECTION_CAP_MIN_N - n);
     rows.push({
       id: `sport:${key}`,
       signal: label,
@@ -242,7 +254,7 @@ export function buildLearningSignalRows(
       status: n < _SECTION_CAP_MIN_N ? "too-small" : "tracking",
       explanation:
         n < _SECTION_CAP_MIN_N
-          ? "Sample below n=40; honest read requires more decisive slips."
+          ? `Sample below n=${_SECTION_CAP_MIN_N}; needs ${needed} more decisive slips before this bucket can move audit-policy state.`
           : "Tracked at the audit-policy level — no behavior change yet.",
     });
   }
