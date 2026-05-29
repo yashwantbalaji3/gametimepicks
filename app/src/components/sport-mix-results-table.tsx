@@ -114,27 +114,80 @@ function Row({
             label="W · L"
             value={`${row.wins} · ${row.losses}`}
           />
-          <Stat
-            label="Pending"
-            value={
-              row.pending + row.pushes > 0
-                ? `${row.pending}${row.pushes > 0 ? ` · ${row.pushes}P` : ""}`
-                : "0"
-            }
-          />
+          <PendingStat pending={row.pending} pushes={row.pushes} />
           <Stat
             label="Hit rate"
-            value={isPending ? "—" : rate}
+            value={isPending ? "All pending" : rate}
             tone={
-              row.hitRate != null && row.hitRate >= 0.5
-                ? "win"
-                : row.hitRate != null && row.hitRate < 0.2
-                  ? "loss"
-                  : "neutral"
+              isPending
+                ? "neutral"
+                : row.hitRate != null && row.hitRate >= 0.5
+                  ? "win"
+                  : row.hitRate != null && row.hitRate < 0.2
+                    ? "loss"
+                    : "neutral"
             }
           />
         </>
       )}
+    </div>
+  );
+}
+
+/** Compact pending column — mirrors the one in
+ *  `risk-section-results-table.tsx`. Em-dash when nothing's pending so
+ *  the row visually flattens for fully-settled buckets. */
+function PendingStat({
+  pending,
+  pushes,
+}: {
+  pending: number;
+  pushes: number;
+}) {
+  if (pending === 0 && pushes === 0) {
+    return (
+      <div className="flex flex-col gap-0.5 items-end shrink-0">
+        <span
+          className="font-mono uppercase tracking-[0.14em]"
+          style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        >
+          Pending
+        </span>
+        <span
+          className="font-mono tabular"
+          style={{
+            color: "var(--vault-text-faint)",
+            fontSize: 13,
+            fontWeight: 600,
+            lineHeight: 1.2,
+          }}
+        >
+          —
+        </span>
+      </div>
+    );
+  }
+  const value =
+    pushes > 0 ? `${pending} · ${pushes}P` : `${pending}`;
+  return (
+    <div className="flex flex-col gap-0.5 items-end shrink-0">
+      <span
+        className="font-mono uppercase tracking-[0.14em]"
+        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+      >
+        Pending
+      </span>
+      <span
+        className="font-mono tabular"
+        style={{
+          color: "var(--vault-text)",
+          fontSize: 13,
+          fontWeight: 600,
+          lineHeight: 1.2,
+        }}
+      >
+        {value}
+      </span>
     </div>
   );
 }
