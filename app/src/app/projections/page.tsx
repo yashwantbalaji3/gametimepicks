@@ -67,16 +67,38 @@ export default function ProjectionsPage() {
   // PR #124 — server-side header that anchors today's date BEFORE the
   // client `<ProjectionsExperience>` takes over. The client component
   // owns date-pill state; this header just makes the entry point
-  // unambiguous when the page loads. Counts are derived from today's
-  // boards (honest 0s when boards are empty).
-  const nbaGames = nbaBoard?.games?.length ?? 0;
-  const nbaLeans = nbaBoard?.leans?.length ?? 0;
-  const mlbGames = mlbBoard?.games?.length ?? 0;
-  const mlbLeans = mlbBoard?.leans?.length ?? 0;
-  const projectionsCount = nbaLeans + mlbLeans;
+  // unambiguous when the page loads.
+  //
+  // PR `fix/projections-header-count-source` (2026-05-30) — the header
+  // counts now derive from the SAME payload `<ProjectionsExperience>`
+  // renders from, so the "N games · M projections" headline can never
+  // disagree with the game grid (and per-sport filter pills) below it.
+  // Previously the header summed the RAW board leans, which include
+  // team-less orphan rows the grid can't attribute to any game (e.g.
+  // 55 MLB rows with a null `playerTeamAbbr`/`opponentAbbr` on the
+  // 2026-05-30 slate). That made the header over-count what the user
+  // could actually browse — 769 in the header vs 714 in the grid. The
+  // payload's per-game `projectionCount` only counts leans that map to
+  // a scheduled matchup, so summing it keeps every count honest and
+  // identical to what's on screen. Pluralization is fixed in passing
+  // ("1 game", not "1 games").
+  const todayEntry = payload.dates.find((d) => d.date === today) ?? null;
+  const todayGames = todayEntry?.games ?? [];
+  const countFor = (sport: "nba" | "mlb") =>
+    todayGames
+      .filter((g) => g.sport === sport)
+      .reduce(
+        (acc, g) => ({ games: acc.games + 1, props: acc.props + g.projectionCount }),
+        { games: 0, props: 0 },
+      );
+  const nba = countFor("nba");
+  const mlb = countFor("mlb");
+  const gamesCount = nba.games + mlb.games;
+  const projectionsCount = nba.props + mlb.props;
+  const plural = (n: number) => (n === 1 ? "" : "s");
   const headerNote =
-    `NBA · ${nbaGames} games / ${nbaLeans} props` +
-    ` · MLB · ${mlbGames} games / ${mlbLeans} props`;
+    `NBA · ${nba.games} game${plural(nba.games)} / ${nba.props} props` +
+    ` · MLB · ${mlb.games} game${plural(mlb.games)} / ${mlb.props} props`;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
@@ -86,7 +108,7 @@ export default function ProjectionsPage() {
         label="today"
         context="Today's projections"
         counts={{
-          games: nbaGames + mlbGames,
+          games: gamesCount,
           projections: projectionsCount,
         }}
         note={headerNote}
