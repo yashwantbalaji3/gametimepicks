@@ -686,6 +686,55 @@ test("selectBuilderSlip: returns null when every clearing slip is settled", () =
   assert.equal(selectBuilderSlip([win, loss, push], { minDecimal: 2, stepNumber: 1 }), null);
 });
 
+test("selectBuilderSlip: drops a pending slip that has an already-graded leg", () => {
+  // Slip-level status is "pending", but one game finished and graded
+  // its leg (result: "win"). Showing this as a live Builder Pick would
+  // surface a graded leg as a forward-looking pick — must be dropped,
+  // even though it's the lowest-risk highest-score candidate.
+  const partiallyGraded = bSlip({
+    slipId: "partial",
+    status: "pending",
+    score: 9.0,
+    legs: [
+      { ...bLeg({ odds: -110, gameId: "g1" }), result: "win" },
+      bLeg({ odds: -110, gameId: "g2" }),
+    ],
+  });
+  const r = selectBuilderSlip([partiallyGraded, B_HIGH], { minDecimal: 2, stepNumber: 1 });
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "high", "must skip the slip with a graded leg");
+});
+
+test("selectBuilderSlip: a graded 'push'/'loss' leg also disqualifies the slip", () => {
+  const withPush = bSlip({
+    slipId: "push",
+    status: "pending",
+    legs: [{ ...bLeg({ gameId: "g1" }), result: "push" }, bLeg({ gameId: "g2" })],
+  });
+  const withLoss = bSlip({
+    slipId: "loss",
+    status: "pending",
+    legs: [{ ...bLeg({ gameId: "g3" }), result: "loss" }, bLeg({ gameId: "g4" })],
+  });
+  assert.equal(selectBuilderSlip([withPush, withLoss], { minDecimal: 2, stepNumber: 1 }), null);
+});
+
+test("selectBuilderSlip: keeps a slip whose legs are unresolved / unset (not yet graded)", () => {
+  // result: "unresolved" and a missing result both mean not-yet-graded,
+  // so the slip is still a valid forward-looking pick.
+  const unresolved = bSlip({
+    slipId: "unresolved",
+    status: "pending",
+    legs: [
+      { ...bLeg({ odds: -110, gameId: "g1" }), result: "unresolved" },
+      bLeg({ odds: -110, gameId: "g2" }),
+    ],
+  });
+  const r = selectBuilderSlip([unresolved], { minDecimal: 2, stepNumber: 1 });
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "unresolved");
+});
+
 test("selectBuilderSlip: returns null for an empty pool or when nothing clears the target", () => {
   assert.equal(selectBuilderSlip([], { minDecimal: 2, stepNumber: 1 }), null);
   // Single -110 leg → decimal 1.909 < 2.0 → misses the target → null.

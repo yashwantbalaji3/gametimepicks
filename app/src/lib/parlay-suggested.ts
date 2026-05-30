@@ -950,6 +950,23 @@ function _builderLegsWithKnownStart(slip: ParlaySlip): number {
 }
 
 /**
+ * True when ANY leg already carries a decided result (`win` / `loss` /
+ * `push`). A forward-looking Builder Slip must be entirely unsettled —
+ * a slip can read `status: "pending"` at the slip level while one of its
+ * games has already finished and graded that leg (partial settlement, or
+ * a fallback to a most-recent-slate snapshot). Surfacing such a slip
+ * would show a graded leg as a live pick, so we drop it. `unresolved`
+ * and missing `result` are treated as not-yet-graded.
+ */
+function _builderHasGradedLeg(slip: ParlaySlip): boolean {
+  for (const leg of slip.legs ?? []) {
+    const r = leg.result;
+    if (r === "win" || r === "loss" || r === "push") return true;
+  }
+  return false;
+}
+
+/**
  * Select the single "Today's Builder Slip" for a Bank Builder rung from
  * the already-published suggested pool (design doc §3.4). Pure,
  * deterministic, and read-only — it NEVER mutates the input, fabricates
@@ -957,11 +974,14 @@ function _builderLegsWithKnownStart(slip: ParlaySlip): number {
  *
  * Eligibility (hard filters — a slip that fails any is dropped):
  *   1. `status === "pending"` — a graded slip is never a Builder Slip.
- *   2. The legs produce a computable combined price
+ *   2. No leg already carries a decided result (`win`/`loss`/`push`) —
+ *      a live pick must be fully unsettled, so a slip that is pending
+ *      overall but has one already-graded leg is dropped too.
+ *   3. The legs produce a computable combined price
  *      (`combinedParlayPayoutPer100` ≠ null) — no fabricated odds.
- *   3. Combined decimal odds ≥ `minDecimal` (clears the rung target).
- *   4. The combined American odds classify into a known risk section.
- *   5. On early rungs (`stepNumber ≤ BUILDER_EARLY_STEP_MAX`) Longshot
+ *   4. Combined decimal odds ≥ `minDecimal` (clears the rung target).
+ *   5. The combined American odds classify into a known risk section.
+ *   6. On early rungs (`stepNumber ≤ BUILDER_EARLY_STEP_MAX`) Longshot
  *      slips are excluded.
  *
  * Ranking (applied to a freshly built candidate array — the caller's
@@ -997,6 +1017,7 @@ export function selectBuilderSlip(
 
   for (const slip of slips ?? []) {
     if (slip.status !== "pending") continue; // never a settled outcome
+    if (_builderHasGradedLeg(slip)) continue; // no already-graded leg in a live pick
     const combined = combinedParlayPayoutPer100(slip.legs ?? []);
     if (!combined) continue; // no usable price — never fabricate one
     if (combined.decimal < minDecimal) continue; // misses the rung target
