@@ -25,6 +25,9 @@ import {
   slipContainsTeam,
   slipContainsPlayer,
   selectBuilderSlip,
+  selectPlus100BuilderSlip,
+  BUILDER_PLUS100_IDEAL_BAND,
+  BUILDER_PLUS100_FALLBACK_BAND,
   BUILDER_EARLY_STEP_MAX,
   legGameKey,
   legGameLabel,
@@ -839,6 +842,163 @@ test("selectBuilderSlip: respects the step-5 1.875× target (decimal, not Americ
   const r = selectBuilderSlip([clears, misses], { minDecimal: 1.875, stepNumber: 5 });
   assert.ok(r);
   assert.equal(r.slip.slipId, "clears");
+});
+
+// ---------------------------------------------------------------------------
+// Bank Builder — selectPlus100BuilderSlip (May-30 runbook Phase 3)
+// ---------------------------------------------------------------------------
+//
+// Combined-American reference for the +100 target (verified against
+// combinedParlayPayoutPer100):
+//   two -240 → +101 (decimal 2.007)  → IDEAL  (80–140), closest to +100
+//   two -200 → +125 (decimal 2.250)  → IDEAL
+//   two -190 → +133 (decimal 2.330)  → IDEAL
+//   three -380 → +102 (decimal 2.016)→ IDEAL  (3-leg)
+//   two -180 → +142 (decimal 2.420)  → FALLBACK (140–180)
+//   two -170 → +152 (decimal 2.523)  → FALLBACK
+//   two -150 → +178 (decimal 2.778)  → FALLBACK
+//   two -110 → +264 (decimal 3.645)  → OUTSIDE both bands
+//   two +200 → +800 (decimal 9.000)  → OUTSIDE both bands
+// Note: because decimal odds in (1.0, 2.0) map to NEGATIVE American, no
+// parlay lands in American (−100, +100). The configured ideal floor of
+// +80 is therefore a harmless cushion — the reachable ideal band is
+// effectively [+100, +140], which is exactly the "$100 → ~$200" target.
+
+const P_101 = bSlip({ slipId: "p101", score: 1.0, legs: [bLeg({ odds: -240, gameId: "g1" }), bLeg({ odds: -240, gameId: "g2" })] });
+const P_125 = bSlip({ slipId: "p125", score: 5.0, legs: [bLeg({ odds: -200, gameId: "g3" }), bLeg({ odds: -200, gameId: "g4" })] });
+const P_133 = bSlip({ slipId: "p133", score: 9.0, legs: [bLeg({ odds: -190, gameId: "g5" }), bLeg({ odds: -190, gameId: "g6" })] });
+const P_142 = bSlip({ slipId: "p142", score: 9.0, legs: [bLeg({ odds: -180, gameId: "g7" }), bLeg({ odds: -180, gameId: "g8" })] });
+const P_152 = bSlip({ slipId: "p152", score: 1.0, legs: [bLeg({ odds: -170, gameId: "g9" }), bLeg({ odds: -170, gameId: "g10" })] });
+const P_178 = bSlip({ slipId: "p178", score: 9.0, legs: [bLeg({ odds: -150, gameId: "g11" }), bLeg({ odds: -150, gameId: "g12" })] });
+const P_264 = bSlip({ slipId: "p264", score: 9.0, legs: [bLeg({ odds: -110, gameId: "g13" }), bLeg({ odds: -110, gameId: "g14" })] });
+const P_800 = bSlip({ slipId: "p800", score: 9.0, legs: [bLeg({ odds: 200, gameId: "g15" }), bLeg({ odds: 200, gameId: "g16" })] });
+
+test("selectPlus100BuilderSlip: bands are the documented +100 target", () => {
+  assert.deepEqual({ ...BUILDER_PLUS100_IDEAL_BAND }, { lo: 80, hi: 140 });
+  assert.deepEqual({ ...BUILDER_PLUS100_FALLBACK_BAND }, { lo: 60, hi: 180 });
+});
+
+test("selectPlus100BuilderSlip: picks the ideal-band slip CLOSEST to +100", () => {
+  // P_125 has the higher score, but P_101 is closer to the +100 anchor —
+  // closeness beats raw score inside a band.
+  const r = selectPlus100BuilderSlip([P_125, P_101, P_152, P_264]);
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "p101");
+  assert.equal(r.combinedAmerican, 101);
+  assert.equal(r.section, "low");
+});
+
+test("selectPlus100BuilderSlip: ignores slips outside BOTH bands (never stretches to a +264/+800 slip)", () => {
+  assert.equal(selectPlus100BuilderSlip([P_264, P_800]), null);
+});
+
+test("selectPlus100BuilderSlip: falls back to the wider band only when the ideal band is empty", () => {
+  // No ideal-band slip present → the closest fallback (P_152, +152) wins
+  // over the farther P_178 (+178), despite P_178's higher score.
+  const r = selectPlus100BuilderSlip([P_178, P_152, P_264]);
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "p152");
+  assert.equal(r.combinedAmerican, 152);
+});
+
+test("selectPlus100BuilderSlip: an ideal-band slip beats a fallback-band slip regardless of score", () => {
+  // P_142 (+142, fallback, score 9) vs P_133 (+133, ideal, score 9) →
+  // the ideal tier wins even though both share a score.
+  const r = selectPlus100BuilderSlip([P_142, P_133]);
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "p133");
+});
+
+test("selectPlus100BuilderSlip: prefers the 2-leg structure ('2-leg if possible')", () => {
+  // P3_102 is a 3-leg ideal slip closer to +100 (+102) than the 2-leg
+  // P_133 (+133), but the preferred 2-leg structure wins the leg-penalty
+  // tiebreak before closeness is consulted.
+  const P3_102 = bSlip({
+    slipId: "p3-102",
+    score: 9.0,
+    legs: [
+      bLeg({ odds: -380, gameId: "g20" }),
+      bLeg({ odds: -380, gameId: "g21" }),
+      bLeg({ odds: -380, gameId: "g22" }),
+    ],
+  });
+  const r = selectPlus100BuilderSlip([P3_102, P_133]);
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "p133", "2-leg preferred over a closer 3-leg");
+});
+
+test("selectPlus100BuilderSlip: NEVER surfaces a settled slip", () => {
+  const settled = bSlip({
+    slipId: "settled",
+    status: "win",
+    score: 9.0,
+    legs: [bLeg({ odds: -240, gameId: "g1" }), bLeg({ odds: -240, gameId: "g2" })],
+  });
+  // The settled +101 is skipped; the pending fallback +152 is the only
+  // live in-band slip.
+  const r = selectPlus100BuilderSlip([settled, P_152]);
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "p152");
+});
+
+test("selectPlus100BuilderSlip: returns null when every in-band slip is settled", () => {
+  const win = bSlip({ slipId: "w", status: "win", legs: [bLeg({ odds: -240, gameId: "g1" }), bLeg({ odds: -240, gameId: "g2" })] });
+  const loss = bSlip({ slipId: "l", status: "loss", legs: [bLeg({ odds: -200, gameId: "g3" }), bLeg({ odds: -200, gameId: "g4" })] });
+  assert.equal(selectPlus100BuilderSlip([win, loss]), null);
+});
+
+test("selectPlus100BuilderSlip: drops a pending slip that has an already-graded leg", () => {
+  const partial = bSlip({
+    slipId: "partial",
+    status: "pending",
+    score: 9.0,
+    legs: [
+      { ...bLeg({ odds: -240, gameId: "g1" }), result: "win" },
+      bLeg({ odds: -240, gameId: "g2" }),
+    ],
+  });
+  // The partially-graded ideal slip is dropped; the clean fallback wins.
+  const r = selectPlus100BuilderSlip([partial, P_152]);
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "p152");
+});
+
+test("selectPlus100BuilderSlip: never fabricates a price (missing leg odds → skipped)", () => {
+  const nullOdds = bSlip({
+    slipId: "nullodds",
+    legs: [bLeg({ odds: -240, gameId: "g1" }), { ...bLeg({ gameId: "g2" }), oddsForSide: null }],
+  });
+  assert.equal(selectPlus100BuilderSlip([nullOdds]), null);
+});
+
+test("selectPlus100BuilderSlip: returns null for an empty pool", () => {
+  assert.equal(selectPlus100BuilderSlip([]), null);
+});
+
+test("selectPlus100BuilderSlip: is deterministic and order-independent", () => {
+  const r1 = selectPlus100BuilderSlip([P_125, P_101, P_152]);
+  const r2 = selectPlus100BuilderSlip([P_125, P_101, P_152]);
+  const r3 = selectPlus100BuilderSlip([P_152, P_125, P_101]);
+  assert.equal(r1.slip.slipId, "p101");
+  assert.equal(r1.slip.slipId, r2.slip.slipId);
+  assert.equal(r1.slip.slipId, r3.slip.slipId, "winner must not depend on input ordering");
+});
+
+test("selectPlus100BuilderSlip: stable slipId tiebreak when band/legs/closeness/score are equal", () => {
+  // Two identical +125 ideal 2-leg slips, equal score → ascending slipId.
+  const zzz = bSlip({ slipId: "zzz", score: 1.0, legs: [bLeg({ odds: -200, gameId: "g1" }), bLeg({ odds: -200, gameId: "g2" })] });
+  const aaa = bSlip({ slipId: "aaa", score: 1.0, legs: [bLeg({ odds: -200, gameId: "g3" }), bLeg({ odds: -200, gameId: "g4" })] });
+  const r = selectPlus100BuilderSlip([zzz, aaa]);
+  assert.equal(r.slip.slipId, "aaa");
+});
+
+test("selectPlus100BuilderSlip: does NOT mutate the caller's pool", () => {
+  const pool = [P_125, P_101, P_152];
+  const before = pool.map((s) => s.slipId);
+  const snapshot = JSON.stringify(pool);
+  selectPlus100BuilderSlip(pool);
+  assert.deepEqual(pool.map((s) => s.slipId), before, "input array order must be unchanged");
+  assert.equal(JSON.stringify(pool), snapshot, "no slip object may be mutated");
 });
 
 // ---------------------------------------------------------------------------

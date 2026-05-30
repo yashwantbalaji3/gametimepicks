@@ -1056,3 +1056,144 @@ export function selectBuilderSlip(
     section: best.section,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Bank Builder — +100 target selector (May-30 runbook Phase 3)
+// ---------------------------------------------------------------------------
+//
+// The Bank Builder's headline goal is intentionally modest and honest: a
+// $100 paper stake on a slip priced near **+100** aims for roughly a $200
+// total return (~$100 profit). That is decimal ≈ 2.0 / American ≈ +100.
+//
+// `selectBuilderSlip` (above) only enforces a *floor* (combined decimal ≥
+// the rung multiplier) with no ceiling, so it can surface a +400 or
+// +3000 slip — which over-promises relative to the "~+100" framing. This
+// selector instead centers on +100 with an explicit tolerance band, and
+// returns `null` (honest empty state) when nothing prices into the band.
+
+/** Ideal combined-American band for the +100 Builder Slip target. */
+export const BUILDER_PLUS100_IDEAL_BAND = Object.freeze({ lo: 80, hi: 140 });
+/** Wider fallback band, used only when the ideal band is empty. */
+export const BUILDER_PLUS100_FALLBACK_BAND = Object.freeze({ lo: 60, hi: 180 });
+/** Combined-American anchor the selector centers on ($100 → ~$200). */
+export const BUILDER_PLUS100_TARGET = 100;
+/** Default preferred leg count — a 2-leg slip is the lowest-variance
+ *  structure that still reaches +100, so we prefer it ("2-leg if possible"). */
+export const BUILDER_PLUS100_PREFERRED_LEGS = 2;
+
+export interface SelectPlus100Options {
+  /**
+   * Preferred number of legs. Slips with this many legs rank ahead of
+   * slips with more/fewer legs (but the others remain eligible). Defaults
+   * to {@link BUILDER_PLUS100_PREFERRED_LEGS} (2).
+   */
+  preferredLegCount?: number;
+}
+
+/**
+ * Select the single "Today's Builder Slip" centered on **+100** combined
+ * odds (May-30 runbook Phase 3). Pure, deterministic, read-only — never
+ * mutates the input, fabricates a price, or surfaces a settled outcome.
+ *
+ * Eligibility (a slip failing any is dropped):
+ *   1. `status === "pending"` — never a settled slip.
+ *   2. No leg already carries a decided result (`win`/`loss`/`push`) —
+ *      a live pick must be fully unsettled.
+ *   3. The legs produce a computable combined price (no fabricated odds).
+ *   4. Combined American odds fall inside the ideal band
+ *      ({@link BUILDER_PLUS100_IDEAL_BAND}) or, failing that, the wider
+ *      fallback band ({@link BUILDER_PLUS100_FALLBACK_BAND}). Anything
+ *      outside both bands is dropped — we never stretch to a +400 slip
+ *      and call it a "+100" target.
+ *   5. The combined American odds classify into a known risk section.
+ *
+ * Ranking (on a freshly built array — the caller's `slips` is untouched):
+ *   1. Band tier (ideal before fallback).
+ *   2. Closer to the preferred leg count (prefer the 2-leg structure).
+ *   3. Closer to +100 (the dollar-for-dollar target).
+ *   4. Higher `suggestedScore` (model confidence).
+ *   5. More distinct games (diversity / lower correlation).
+ *   6. More legs with a known start time (clean gradability).
+ *   7. `slipId` ascending — a stable, deterministic final tiebreak.
+ *
+ * Returns `null` when nothing prices into either band — the caller renders
+ * an honest empty state rather than inventing a slip.
+ */
+export function selectPlus100BuilderSlip(
+  slips: ReadonlyArray<ParlaySlip>,
+  options: SelectPlus100Options = {},
+): BuilderSlipSelection | null {
+  const preferredLegCount =
+    options.preferredLegCount ?? BUILDER_PLUS100_PREFERRED_LEGS;
+
+  type Cand = BuilderSlipSelection & {
+    tier: number; // 0 = ideal band, 1 = fallback band
+    legPenalty: number; // |legCount - preferred|
+    distanceTo100: number;
+    score: number;
+    distinctGames: number;
+    knownStarts: number;
+  };
+  const candidates: Cand[] = [];
+
+  for (const slip of slips ?? []) {
+    if (slip.status !== "pending") continue; // never a settled outcome
+    if (_builderHasGradedLeg(slip)) continue; // no already-graded leg
+    const combined = combinedParlayPayoutPer100(slip.legs ?? []);
+    if (!combined) continue; // no usable price — never fabricate one
+    const american = combined.american;
+
+    let tier: number;
+    if (
+      american >= BUILDER_PLUS100_IDEAL_BAND.lo &&
+      american <= BUILDER_PLUS100_IDEAL_BAND.hi
+    ) {
+      tier = 0;
+    } else if (
+      american >= BUILDER_PLUS100_FALLBACK_BAND.lo &&
+      american <= BUILDER_PLUS100_FALLBACK_BAND.hi
+    ) {
+      tier = 1;
+    } else {
+      continue; // outside both bands — never surfaced
+    }
+
+    const section = classifyOddsSection(american);
+    if (section == null) continue; // unclassifiable odds — skip
+
+    const legCount = (slip.legs ?? []).length;
+    candidates.push({
+      slip,
+      combinedAmerican: american,
+      combinedDecimal: combined.decimal,
+      section,
+      tier,
+      legPenalty: Math.abs(legCount - preferredLegCount),
+      distanceTo100: Math.abs(american - BUILDER_PLUS100_TARGET),
+      score: suggestedScore(slip),
+      distinctGames: _builderDistinctGames(slip),
+      knownStarts: _builderLegsWithKnownStart(slip),
+    });
+  }
+
+  if (candidates.length === 0) return null;
+
+  candidates.sort(
+    (a, b) =>
+      a.tier - b.tier ||
+      a.legPenalty - b.legPenalty ||
+      a.distanceTo100 - b.distanceTo100 ||
+      b.score - a.score ||
+      b.distinctGames - a.distinctGames ||
+      b.knownStarts - a.knownStarts ||
+      a.slip.slipId.localeCompare(b.slip.slipId),
+  );
+
+  const best = candidates[0];
+  return {
+    slip: best.slip,
+    combinedAmerican: best.combinedAmerican,
+    combinedDecimal: best.combinedDecimal,
+    section: best.section,
+  };
+}
