@@ -199,6 +199,14 @@ def test_mlb_settled_lookup_normalization(s: Suite):
         _mlb_settled(901, "pitcher_strikeouts", "Over", 5.5, "Win", 7),
         _mlb_settled(902, "batter_hits", "Under", 1.5, "Loss", 2),
         _mlb_settled(903, "batter_total_bases", "Over", 1.5, "Push", 1.5),
+        # REGRESSION (fix/results-clear-pending-slips, 2026-05-30): the
+        # H+R+RBI market must normalize through the same lookup. May 27
+        # was settled before HRR support existed, so its HRR board leans
+        # never produced settled rows and every optimizer HRR leg (e.g.
+        # Juan Soto, actual 4 > 1.5) stayed `unresolved`. Re-settling
+        # fixed the data; this row guards the normalization path so a
+        # future HRR settled row always reaches the grader.
+        _mlb_settled(904, "batter_hits_runs_rbis", "Over", 1.5, "Win", 4),
     ]
     with tempfile.TemporaryDirectory() as tmp:
         nba_dir = os.path.join(tmp, "app", "public", "data", "results")
@@ -223,17 +231,23 @@ def test_mlb_settled_lookup_normalization(s: Suite):
     mlb_win_key = (901, "pitcher_strikeouts", "Over", 5.5)
     mlb_loss_key = (902, "batter_hits", "Under", 1.5)
     mlb_push_key = (903, "batter_total_bases", "Over", 1.5)
+    mlb_hrr_key = (904, "batter_hits_runs_rbis", "Over", 1.5)
     s.ok(mlb_win_key in lookup, "MLB win key present")
     s.ok(mlb_loss_key in lookup, "MLB loss key present")
     s.ok(mlb_push_key in lookup, "MLB push key present")
+    s.ok(mlb_hrr_key in lookup, "MLB H+R+RBI key present")
     s.eq(lookup[mlb_win_key].get("result"), "win",
          "MLB outcome 'Win' normalized to result 'win'")
     s.eq(lookup[mlb_loss_key].get("result"), "loss",
          "MLB outcome 'Loss' normalized to result 'loss'")
     s.eq(lookup[mlb_push_key].get("result"), "push",
          "MLB outcome 'Push' normalized to result 'push'")
+    s.eq(lookup[mlb_hrr_key].get("result"), "win",
+         "MLB H+R+RBI outcome normalized to result 'win'")
     s.eq(lookup[mlb_win_key].get("finalStat"), 7,
          "MLB 'actual' normalized to 'finalStat'")
+    s.eq(lookup[mlb_hrr_key].get("finalStat"), 4,
+         "MLB H+R+RBI 'actual' (4) normalized to 'finalStat'")
 
 
 def test_mlb_only_slip_grades_correctly(s: Suite):
@@ -272,6 +286,34 @@ def test_mlb_pending_when_one_unresolved(s: Suite):
     s.eq(status, "pending", "MLB unresolved leg → slip pending, not loss")
 
 
+def test_mlb_hrr_optimizer_leg_resolves(s: Suite):
+    """REGRESSION (fix/results-clear-pending-slips, 2026-05-30).
+
+    An optimizer-built H+R+RBI leg (market=`batter_hits_runs_rbis`,
+    side=`Over`) must resolve when the MLB settled lookup carries the
+    matching normalized row. This is the Juan Soto May 27 case: he
+    played (H2 R1 RBI1 → HRR 4 > 1.5 = Over win) but his HRR leg sat
+    `unresolved` for days because May 27 was settled before HRR support
+    landed. Once re-settled, the leg must grade to `win` — and the slip
+    flip from pending to win. Guards the full leg→lookup→slip path."""
+    print(f"\n  {BLUE}─── MLB H+R+RBI optimizer leg resolves ───{RESET}")
+    legs = [
+        {"playerId": 665742, "sport": "mlb",
+         "market": "batter_hits_runs_rbis", "side": "Over", "line": 1.5},
+        {"playerId": 901, "sport": "mlb",
+         "market": "pitcher_strikeouts", "side": "Over", "line": 5.5},
+    ]
+    lookup = {
+        (665742, "batter_hits_runs_rbis", "Over", 1.5): {"result": "win", "finalStat": 4},
+        (901, "pitcher_strikeouts", "Over", 5.5): {"result": "win", "finalStat": 7},
+    }
+    graded = [GP._grade_leg(leg, lookup) for leg in legs]
+    s.eq(graded[0]["result"], "win", "HRR leg with settled row → win, not unresolved")
+    s.eq(graded[0]["finalStat"], 4, "HRR finalStat carried through (4)")
+    status = GP._grade_slip_status([leg["result"] for leg in graded])
+    s.eq(status, "win", "all-win HRR slip → win (no lingering pending)")
+
+
 def test_mixed_nba_mlb_slip_grades(s: Suite):
     print(f"\n  {BLUE}─── mixed NBA + MLB slip grades correctly ───{RESET}")
     legs = [
@@ -305,6 +347,7 @@ def main():
         test_mlb_settled_lookup_normalization,
         test_mlb_only_slip_grades_correctly,
         test_mlb_pending_when_one_unresolved,
+        test_mlb_hrr_optimizer_leg_resolves,
         test_mixed_nba_mlb_slip_grades,
     ):
         t(s)
