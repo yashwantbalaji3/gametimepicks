@@ -1,18 +1,19 @@
 {
   "_disclaimer": "Confirmed-signal policy over the daily audit window — see docs/MODEL_LEARNING_LOOP.md. Demotion only; one bad slate cannot move the model.",
-  "generatedAt": "2026-05-29T10:37:13.278762+00:00",
+  "generatedAt": "2026-05-30T06:03:06.371533+00:00",
   "window": {
-    "daysAvailable": 4,
+    "daysAvailable": 5,
     "daysRequired": 3,
     "windowDays": 7,
     "dates": [
+      "2026-05-29",
       "2026-05-28",
       "2026-05-27",
       "2026-05-26",
       "2026-05-25"
     ]
   },
-  "confirmed": false,
+  "confirmed": true,
   "signals": {
     "mixedSportDownrank": {
       "fires": 1,
@@ -46,14 +47,14 @@
         "weightMultiplier": 1.0
       },
       "batter_total_bases": {
-        "fires": 2,
+        "fires": 3,
         "daysRequired": 3,
-        "confirmed": false,
-        "weightMultiplier": 1.0
+        "confirmed": true,
+        "weightMultiplier": 0.85
       }
     },
     "dnpGuardStrengthen": {
-      "fires": 1,
+      "fires": 2,
       "daysRequired": 3,
       "confirmed": false,
       "strength": 0
