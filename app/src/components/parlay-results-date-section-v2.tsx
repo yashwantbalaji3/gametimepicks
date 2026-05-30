@@ -152,12 +152,16 @@ function DateHeader({
 }) {
   return (
     <header className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-      <span
-        className="font-mono uppercase tracking-[0.18em]"
+      {/* PR `fix/results-simplify-dashboard` — real <h2> so each
+         settled-date block is a first-class node in the heading
+         outline (screen-reader + skim scannability). Styling
+         unchanged. */}
+      <h2
+        className="font-mono uppercase tracking-[0.18em] m-0 font-normal"
         style={{ color: "var(--vault-gold)", fontSize: 11 }}
       >
         {date}
-      </span>
+      </h2>
       {totals && (
         <div
           className="flex items-center gap-1.5 font-mono"
@@ -517,6 +521,26 @@ function LaneBucket({
   );
 }
 
+/**
+ * Honest per-slip pending reason, derived purely from how many legs
+ * have already graded. We state only what the leg data verifiably
+ * shows — the count of unresolved legs — and never infer a cause
+ * (DNP vs. not-started) we can't confirm from `result` alone. The
+ * group prose below covers the two possible causes in general terms.
+ */
+function pendingReasonForSlip(slip: ParlaySlip): string {
+  const c = summarizeSlipLegResults(slip);
+  const resolved = c.wins + c.losses + c.pushes;
+  if (c.pending <= 0) {
+    // Every leg graded but the slip hasn't settled — grading lag.
+    return "Settlement pending";
+  }
+  if (resolved > 0) {
+    return `Waiting on ${c.pending} of ${c.total} legs`;
+  }
+  return `All ${c.total} legs pending`;
+}
+
 function PendingSection({
   slips,
   calibrationTable,
@@ -527,10 +551,6 @@ function PendingSection({
   onLegClick: (l: ParlayLeg) => void;
 }) {
   if (slips.length === 0) return null;
-  // Classify pending into DNP/unavailable vs in-flight by checking the
-  // legs: if every unresolved leg has finalStat null AND status was
-  // "pending" but date is in the past, label as DNP/unavailable.
-  // For simplicity we just show the union here with a footnote.
   return (
     <details
       className="group rounded-[6px]"
@@ -580,13 +600,20 @@ function PendingSection({
       </p>
       <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {slips.map((slip) => (
-          <ParlayTicketCard
-            key={slip.slipId}
-            slip={slip}
-            savedPregame={false}
-            calibrationTable={calibrationTable}
-            onLegClick={onLegClick}
-          />
+          <div key={slip.slipId} className="flex flex-col gap-1">
+            <span
+              className="font-mono uppercase tracking-[0.14em]"
+              style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+            >
+              {pendingReasonForSlip(slip)}
+            </span>
+            <ParlayTicketCard
+              slip={slip}
+              savedPregame={false}
+              calibrationTable={calibrationTable}
+              onLegClick={onLegClick}
+            />
+          </div>
         ))}
       </div>
     </details>

@@ -5,17 +5,19 @@
  * single question that matters: did the model-suggested parlays hit?
  *
  * Layout (post-era-reset):
- *   1. Hero + subcopy (mentions the fresh tracking era).
- *   2. Fresh-era status block — "Public parlay tracking starts
- *      2026-05-27". Replaces the old DateStatusHeader that was
- *      surfacing the pre-era settled-slate counts.
+ *   1. Compact hero (`ResultsHero`) — settled-slate date + lifetime
+ *      public hit rate, with the fresh-era start date as a subline.
+ *      (Replaced the old 737px Fresh-era status block.)
+ *   2. Risk-section + sport-mix breakdowns of the newest settled slate
+ *      (the primary dashboard frame), under an <h2> section heading.
  *   3. Daily projection-level audit banner (intact — distinct from
  *      parlay tracking; tracks per-prop accuracy).
- *   4. Lifetime / by-profile / by-sport summary tiles (era-filtered
- *      so pre-era numbers never reach the UI).
- *   5. Date sections (newest first, era-filtered) with every graded
+ *   4. Per-date sections (newest first, era-filtered) with every graded
  *      slip. Renders an empty state until a post-era slate settles.
- *   6. Pointer to the projection-level audit pages (secondary).
+ *   5. By-model-profile lifetime tiles (historical view), under an
+ *      <h2> heading, deep on the page so it no longer competes.
+ *   6. Learning signals (collapsed) + methodology + projection-audit
+ *      pointer (secondary).
  *
  * Honesty contract:
  *   - Hit rates only count decisive slips (win + loss).
@@ -142,10 +144,10 @@ export default function ResultsPage() {
     // `--gtp-card-dark` for elevated charcoal.
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
       {/* PR `feature/results-ux-restructure` (2026-05-29) — compact
-         hero replaces the 737px FreshEraStatusBlock card and the
-         5-tile profile lifetime row from ParlayResultsSummary.
-         Settled date + lifetime hit rate up top so the user sees
-         what matters in the first 200px. */}
+         hero (now the only top-of-page block) shows the settled date +
+         lifetime hit rate so the user sees what matters in the first
+         200px. It replaced a tall fresh-era status card and the 5-tile
+         profile lifetime row from ParlayResultsSummary. */}
       <ResultsHero
         settledDate={dateSections[0]?.date ?? null}
         lifetime={summary?.lifetime ?? null}
@@ -278,14 +280,19 @@ export default function ResultsPage() {
             style={{ scrollMarginTop: 80 }}
           >
             {/* PR `fix/results-parlay-final-polish` — single shared
-               eyebrow so the date label isn't repeated on each card. */}
+               eyebrow so the date label isn't repeated on each card.
+               PR `fix/results-simplify-dashboard` — promoted to a real
+               <h2> so the dashboard has a scannable heading outline
+               (one <h1> in the hero, an <h2> per major section) for
+               screen readers and skim-readers alike. Visual styling is
+               unchanged. */}
             <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span
-                className="font-mono uppercase tracking-[0.16em]"
+              <h2
+                className="font-mono uppercase tracking-[0.16em] m-0 font-normal"
                 style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
               >
                 {label} breakdowns
-              </span>
+              </h2>
               <span
                 className="font-mono"
                 style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
@@ -349,12 +356,12 @@ export default function ResultsPage() {
         className="mt-10 flex flex-col gap-2"
       >
         <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span
-            className="font-mono uppercase tracking-[0.16em]"
+          <h2
+            className="font-mono uppercase tracking-[0.16em] m-0 font-normal"
             style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
           >
             By model profile
-          </span>
+          </h2>
           <span
             className="font-mono"
             style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
@@ -585,70 +592,6 @@ function formatResultsDateLabel(date: string): string {
   const day = parseInt(m[3], 10);
   if (mi < 0 || mi > 11 || Number.isNaN(day)) return date;
   return `${months[mi]} ${day}`;
-}
-
-/**
- * Fresh-era status block. Replaces the prior DateStatusHeader at the
- * top of /results so the page no longer surfaces the pre-era settled
- * slate as if it were tracked public history. Compact, honest, and
- * adapts copy based on whether any post-era date has been graded.
- */
-function FreshEraStatusBlock({ hasAnyDateSection }: { hasAnyDateSection: boolean }) {
-  return (
-    // PR #5 — fresh-era card: bumped eyebrow + chip typography out of
-    // the 10px floor, lifted padding for a more prominent state.
-    <section
-      aria-label="Public parlay tracking era"
-      className="rounded-[10px] p-5 sm:p-6 flex flex-col gap-2.5"
-      style={{
-        background: "var(--gtp-card)",
-        border: "1px solid var(--gtp-card-border)",
-        boxShadow: "var(--gtp-card-shadow)",
-      }}
-    >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-col gap-1 min-w-0">
-          <span
-            className="font-mono uppercase tracking-[0.16em]"
-            style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.2 }}
-          >
-            Public parlay tracking era
-          </span>
-          <span
-            className="font-display tracking-tight"
-            style={{
-              color: "var(--vault-text)",
-              fontSize: "clamp(20px, 3.5vw, 26px)",
-              fontWeight: 600,
-              lineHeight: 1.15,
-            }}
-          >
-            Fresh tracking era · starts {PUBLIC_PARLAY_RESULTS_START_DATE}
-          </span>
-        </div>
-        <span
-          className="font-mono uppercase tracking-[0.12em] px-3 py-1.5 rounded-full shrink-0"
-          style={{
-            color: "var(--vault-success)",
-            border: "1px solid var(--vault-success)",
-            background: "var(--vault-success-dim)",
-            fontSize: 11,
-            lineHeight: 1.1,
-          }}
-        >
-          New era
-        </span>
-      </div>
-      <p
-        className="text-[13px] leading-relaxed"
-        style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
-      >
-        {hasAnyDateSection
-          ? `Tracking suggested parlays publicly from ${PUBLIC_PARLAY_RESULTS_START_DATE} forward. Older slips are excluded from the official public hit rate.`
-          : `Today's suggested slips are live and will appear here after settlement. Older slips are excluded from the official public hit rate.`}
-      </p>
-    </section>
-  );
 }
 
 function EmptyState() {
