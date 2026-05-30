@@ -35,7 +35,8 @@ import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { currentEtDate } from "@/lib/freshness";
 import {
-  selectBuilderSlip,
+  selectPlus100BuilderSlip,
+  BUILDER_PLUS100_TARGET,
   type BuilderSlipSelection,
 } from "@/lib/parlay-suggested";
 import { formatAmerican } from "@/lib/odds-math";
@@ -44,9 +45,7 @@ import {
   BANK_BUILDER_GOAL,
   BANK_BUILDER_LADDER,
   formatLadderUsd,
-  ladderMultiplierLabel,
   resolveLadderStep,
-  type LadderStep,
 } from "@/lib/bank-builder-ladder";
 
 const META_TITLE = "Bank Builder · GameTime Picks";
@@ -83,10 +82,11 @@ export default function BankBuilderPage() {
   const activeStep = resolveLadderStep(currentBankroll) ?? BANK_BUILDER_LADDER[0];
 
   const pool = suggested?.slips ?? [];
-  const builderPick = selectBuilderSlip(pool, {
-    minDecimal: activeStep.multiplier,
-    stepNumber: activeStep.step,
-  });
+  // The Builder Slip targets ~+100 combined odds: a $100 paper stake aims
+  // for roughly a $200 total return (~$100 profit). We pick the pending,
+  // fully-unsettled slip priced closest to +100 (2-leg preferred), and
+  // render an honest empty state when nothing prices into the band.
+  const builderPick = selectPlus100BuilderSlip(pool);
   const poolDate = suggested?.date ?? today;
   const poolIsFallback = suggested?.isFallback ?? false;
   const savedPregame = suggested?.source === "snapshot";
@@ -119,7 +119,6 @@ export default function BankBuilderPage() {
           currentBankroll={currentBankroll}
         />
         <TodaysBuilderPick
-          step={activeStep}
           pick={builderPick}
           calibrationTable={calibrationTable}
           savedPregame={savedPregame}
@@ -179,14 +178,12 @@ function DisclaimerBanner({ placement }: { placement: "top" | "bottom" }) {
 }
 
 function TodaysBuilderPick({
-  step,
   pick,
   calibrationTable,
   savedPregame,
   poolDate,
   poolIsFallback,
 }: {
-  step: LadderStep;
   pick: BuilderSlipSelection | null;
   calibrationTable: ReturnType<typeof loadCalibrationTable>;
   savedPregame: boolean;
@@ -210,8 +207,8 @@ function TodaysBuilderPick({
           Today&apos;s Builder Slip
         </span>
         <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
-          · Step {step.step} · {formatLadderUsd(step.start)} → {formatLadderUsd(step.goal)} · needs ≥{" "}
-          {ladderMultiplierLabel(step)}
+          · Paper bankroll · {formatLadderUsd(BANK_BUILDER_BASE)} starting bank ·
+          Target: about {formatAmerican(BUILDER_PLUS100_TARGET)}
         </span>
       </header>
 
@@ -221,9 +218,12 @@ function TodaysBuilderPick({
             <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
               Drawn from the published suggested pool ({poolDate}
               {poolIsFallback ? " · most recent slate" : ""}). Combined{" "}
-              {formatAmerican(pick.combinedAmerican)} clears this rung&apos;s{" "}
-              {ladderMultiplierLabel(step)} target. Graded on the existing nightly
-              pipeline — never edited after games start.
+              {formatAmerican(pick.combinedAmerican)} — a{" "}
+              {formatLadderUsd(BANK_BUILDER_BASE)} paper stake aims for about{" "}
+              {formatLadderUsd(BANK_BUILDER_BASE * pick.combinedDecimal)} back
+              (~{formatLadderUsd(BANK_BUILDER_BASE * (pick.combinedDecimal - 1))}{" "}
+              profit). Results update after games finish — never edited after
+              games start.
             </p>
             <ParlayTicketCard
               slip={pick.slip}
@@ -239,9 +239,10 @@ function TodaysBuilderPick({
             style={{ minHeight: 120 }}
           >
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 380 }}>
-              No qualifying Builder Slip in today&apos;s pool. A pick appears once
-              the published pool has a pending slip whose combined odds clear this
-              rung&apos;s {ladderMultiplierLabel(step)} target.
+              No Builder Slip near {formatAmerican(BUILDER_PLUS100_TARGET)} in
+              today&apos;s pool. A pick appears once the published pool has a
+              pending, fully-unsettled slip priced close to{" "}
+              {formatAmerican(BUILDER_PLUS100_TARGET)} combined.
             </p>
             <Link
               href="/parlay-lab/"
