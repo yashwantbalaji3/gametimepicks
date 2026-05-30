@@ -19,6 +19,20 @@ test("MOBILE_NAV_ITEMS has 4 items in the documented order", () => {
   );
 });
 
+test("MOBILE_NAV_ITEMS labels match the desktop top-nav names", () => {
+  // Regression guard for the nav-consistency fix: the bottom nav must
+  // not relabel a destination (it previously said "Picks"/"Lab" while
+  // the top nav said "Projections"/"Parlay Lab"). The same href must
+  // read the same in both navs.
+  const byHref = Object.fromEntries(
+    MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
+  );
+  assert.equal(byHref["/"], "Home");
+  assert.equal(byHref["/projections"], "Projections");
+  assert.equal(byHref["/parlay-lab"], "Parlay Lab");
+  assert.equal(byHref["/results"], "Results");
+});
+
 test("home: '/' and '' resolve to home", () => {
   assert.equal(resolveMobileNavBucket("/"), "home");
   assert.equal(resolveMobileNavBucket(""), null); // empty is treated as null input

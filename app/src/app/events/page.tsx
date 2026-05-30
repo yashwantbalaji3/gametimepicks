@@ -21,6 +21,7 @@
  * so the whole thing renders cleanly into the static export.
  */
 import EventScheduleHub from "@/components/event-schedule-hub";
+import PageHero from "@/components/page-hero";
 import { listLeagueSchedules } from "@/lib/event-schedules";
 
 const META_TITLE = "Sports Event Hub · GameTime Picks";
@@ -49,33 +50,18 @@ export default function EventsPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-8 overflow-x-hidden">
       {/* ---- Hero --------------------------------------------------- */}
-      <header className="flex flex-col gap-3">
-        <span
-          className="font-mono uppercase tracking-[0.18em]"
-          style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
-        >
-          Schedule hub · no odds · no projections
-        </span>
-        <h1
-          className="font-semibold tracking-tight"
-          style={{
-            color: "var(--vault-gold-bright)",
-            fontSize: 30,
-            lineHeight: 1.05,
-          }}
-        >
-          Sports Event Hub
-        </h1>
-        <p
-          className="text-[14px] leading-relaxed"
-          style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
-        >
-          Upcoming schedules for the WNBA, UFC, and FIFA World Cup — dates,
-          matchups, and venues only. We do not model these leagues, so you
-          won&apos;t find odds, projections, or picks here. Each tab shows a
-          point-in-time snapshot from a public feed, attributed inline.
-        </p>
-      </header>
+      <PageHero
+        eyebrow="Schedule hub · no odds · no projections"
+        title="Sports Event Hub"
+        sub={
+          <>
+            Upcoming schedules for the WNBA, UFC, and FIFA World Cup — dates,
+            matchups, and venues only. We do not model these leagues, so you
+            won&apos;t find odds, projections, or picks here. Each tab shows a
+            point-in-time snapshot from a public feed, attributed inline.
+          </>
+        }
+      />
 
       {/* ---- Honesty note ------------------------------------------- */}
       <p

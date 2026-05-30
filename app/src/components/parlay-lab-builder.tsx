@@ -80,6 +80,15 @@ interface Props {
   calibrationTable?: CalibrationTable;
   /** Optimizer snapshot for the date. Preferred source when populated. */
   optimizerPayload?: OptimizerSnapshot | null;
+  /**
+   * Rendered inside a page that already supplies its own H1 hero
+   * (the homepage). When true the builder suppresses its own
+   * Suggested-mode title — which would otherwise duplicate the page
+   * hero — and demotes the Build/Bankroll-mode titles to an `<h2>` so
+   * the page keeps a single H1. On the standalone `/parlay-lab` route
+   * this stays false and the builder owns the page H1 as before.
+   */
+  embedded?: boolean;
 }
 
 const ALL_SPORTS: Array<{ key: SuggestedSport; label: string; icon?: string }> = [
@@ -111,6 +120,7 @@ export default function ParlayLabBuilder({
   isFallback,
   calibrationTable,
   optimizerPayload = null,
+  embedded = false,
 }: Props) {
   // ---- Source pool ---------------------------------------------------
   // Optimizer is the primary source. We expand it into the legacy
@@ -398,6 +408,7 @@ export default function ParlayLabBuilder({
         source={source}
         isFallback={!!isFallback}
         optimizerActive={optimizerActive}
+        embedded={embedded}
       />
 
       <ParlayLabModeTabs active={mode} onChange={setMode} />
@@ -634,14 +645,25 @@ function BuilderHeader({
   source,
   isFallback,
   optimizerActive,
+  embedded,
 }: {
   mode: ParlayLabMode;
   date: string;
   source: "snapshot" | "graded";
   isFallback: boolean;
   optimizerActive: boolean;
+  /** When the builder is embedded under a page that already owns the
+   *  H1 hero (the homepage), the Suggested-mode title is suppressed
+   *  (it would duplicate the hero) and the remaining titles render as
+   *  an `<h2>` so the page keeps a single H1. */
+  embedded?: boolean;
 }) {
   void source; void isFallback; void date;
+  // On the homepage the page hero already says "Today's best suggested
+  // parlays.", so rendering the builder's own Suggested title here
+  // would duplicate it. Suppress it; Build/Bankroll modes still get a
+  // contextual section title (as an <h2>).
+  if (embedded && mode === "suggested") return null;
   const title =
     mode === "build"
       ? "Build your own."
@@ -656,20 +678,21 @@ function BuilderHeader({
         : optimizerActive
           ? "Model-ranked parlays grouped by combined odds — Low Risk, Medium Risk, High Risk, Longshot. Saved before games and graded after."
           : "Pregame snapshots saved before games, graded after.";
+  const Heading = embedded ? "h2" : "h1";
   return (
     <header className="flex flex-col gap-2">
-      <h1
+      <Heading
         className="font-display tracking-tight"
         style={{
           color: "var(--vault-text)",
-          fontSize: "clamp(26px, 5vw, 40px)",
+          fontSize: embedded ? "clamp(20px, 4vw, 30px)" : "clamp(26px, 5vw, 40px)",
           lineHeight: 1.05,
           letterSpacing: "-0.015em",
           fontWeight: 600,
         }}
       >
         {title}
-      </h1>
+      </Heading>
       <p
         className="text-[14px] leading-relaxed"
         style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}

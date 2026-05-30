@@ -9,7 +9,7 @@
  */
 import Link from "next/link";
 
-import SectionHeader from "@/components/section-header";
+import PageHero from "@/components/page-hero";
 
 export const metadata = {
   title: "About · GameTime Picks",
@@ -20,13 +20,13 @@ export const metadata = {
 export default function AboutPage() {
   return (
     <div className="vault-page-shell px-3 sm:px-6 lg:px-8 py-5 sm:py-10 md:py-14 overflow-x-hidden">
-      <SectionHeader
+      <PageHero
         eyebrow="About"
         title="Sports projections made simple."
         sub="A short explainer for anyone visiting the site for the first time — no sports-betting background required."
       />
 
-      <div className="space-y-6 max-w-3xl">
+      <div className="space-y-6 max-w-3xl mt-6">
         <Section title="What is GameTimePicks?">
           GameTimePicks is an educational sports analytics project. We
           compare a statistical model's per-game player projections

@@ -25,17 +25,20 @@ export interface MobileNavItem {
  * Honesty / scope notes:
  *   - 4 items only — anything beyond ~4 starts to feel cramped on
  *     375px and small-thumb-friendly tap targets become hard.
- *   - "Picks" maps to /projections — short, clear label that fits a
- *     32px-wide chip without ellipsis.
- *   - "Lab" maps to /parlay-lab.
- *   - No "About" / "Custom" / "Sports" — those live in the top nav
- *     and (in PR #4) the desktop sports rail. Bottom nav stays
- *     ruthlessly minimal to be useful one-handed.
+ *   - Labels MATCH the desktop top nav so the same destination reads
+ *     the same in both navs: "Projections" (/projections) and
+ *     "Parlay Lab" (/parlay-lab). Previously the bottom nav said
+ *     "Picks"/"Lab" while the top nav said "Projections"/"Parlay Lab",
+ *     which made the two navs look like different sites. The `picks`
+ *     and `lab` *bucket ids* are unchanged (route resolution is keyed
+ *     on them) — only the visible labels changed.
+ *   - No "About" / "Bank Builder" / "Events" — those live in the top
+ *     nav. Bottom nav stays ruthlessly minimal to be useful one-handed.
  */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "home", href: "/", label: "Home" },
-  { bucket: "picks", href: "/projections", label: "Picks" },
-  { bucket: "lab", href: "/parlay-lab", label: "Lab" },
+  { bucket: "picks", href: "/projections", label: "Projections" },
+  { bucket: "lab", href: "/parlay-lab", label: "Parlay Lab" },
   { bucket: "results", href: "/results", label: "Results" },
 ] as const;
 

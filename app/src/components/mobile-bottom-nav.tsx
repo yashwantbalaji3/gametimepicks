@@ -120,10 +120,10 @@ export default function MobileBottomNav() {
               >
                 <NavGlyph bucket={item.bucket} active={active} />
                 <span
-                  className="font-mono uppercase tracking-[0.12em]"
+                  className="font-mono uppercase tracking-[0.08em] whitespace-nowrap"
                   style={{
                     color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
-                    fontSize: 10,
+                    fontSize: 9.5,
                     lineHeight: 1,
                   }}
                 >
