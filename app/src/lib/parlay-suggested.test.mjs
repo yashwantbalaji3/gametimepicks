@@ -26,6 +26,11 @@ import {
   slipContainsPlayer,
   selectBuilderSlip,
   BUILDER_EARLY_STEP_MAX,
+  legGameKey,
+  legGameLabel,
+  getSlipGames,
+  slipContainsGame,
+  getAvailableGamesFromSlips,
 } from "./parlay-suggested.ts";
 
 function mkLeg({ sport = "nba", team = "OKC", playerName = "Player A", market = "PTS" } = {}) {
@@ -785,4 +790,137 @@ test("selectBuilderSlip: respects the step-5 1.875× target (decimal, not Americ
   const r = selectBuilderSlip([clears, misses], { minDecimal: 1.875, stepNumber: 5 });
   assert.ok(r);
   assert.equal(r.slip.slipId, "clears");
+});
+
+// ---------------------------------------------------------------------------
+// Game / matchup filter helpers (PR #9 — feature/parlay-lab-game-filter)
+//
+// Contract: a parlay "involves" a game when ANY leg belongs to it — the
+// helpers must scan EVERY leg, never just leg 1, and must list every game
+// on the slate (never a subset). No fabricated matchups.
+// ---------------------------------------------------------------------------
+
+// A leg whose gameId is blank so the order-normalized {team,opponent}
+// fallback key is exercised. Both sides of the same matchup must collide
+// onto one key/label regardless of which team the leg's player is on.
+const FALLBACK_GAME = mkSlip({
+  slipId: "s5",
+  sport: "nba",
+  legs: [
+    { ...mkLeg({ team: "BOS", playerName: "Tatum" }), gameId: "", opponent: "MIA" },
+    { ...mkLeg({ team: "MIA", playerName: "Herro" }), gameId: "", opponent: "BOS" },
+  ],
+});
+
+test("legGameKey prefers the leg's gameId when present", () => {
+  assert.equal(legGameKey(mkLeg({ team: "OKC" })), "g-OKC");
+});
+
+test("legGameKey falls back to an order-normalized matchup when gameId is blank", () => {
+  const a = { ...mkLeg({ team: "NY" }), gameId: "", opponent: "BOS" };
+  const b = { ...mkLeg({ team: "BOS" }), gameId: "", opponent: "NY" };
+  // Same game, opposite sides → identical key.
+  assert.equal(legGameKey(a), "BOS@NY");
+  assert.equal(legGameKey(b), "BOS@NY");
+});
+
+test("legGameKey returns null when the leg carries no game identity", () => {
+  const blank = { ...mkLeg({ team: "NY" }), gameId: "", team: null, opponent: null };
+  assert.equal(legGameKey(blank), null);
+});
+
+test("legGameLabel is an order-normalized 'vs' matchup (never implies a venue)", () => {
+  const a = { ...mkLeg({ team: "NY" }), opponent: "BOS" };
+  const b = { ...mkLeg({ team: "BOS" }), opponent: "NY" };
+  assert.equal(legGameLabel(a), "BOS vs NY");
+  assert.equal(legGameLabel(b), "BOS vs NY");
+  // One side known → just the team; both unknown → null.
+  assert.equal(legGameLabel({ ...mkLeg({ team: "NY" }), opponent: null }), "NY");
+  assert.equal(legGameLabel({ ...mkLeg(), team: null, opponent: null }), null);
+});
+
+test("getSlipGames spans EVERY leg, not just leg 1", () => {
+  // NBA_NYK's two legs are different games (g-NY on leg 1, g-CLE on leg 2).
+  const games = getSlipGames(NBA_NYK);
+  assert.deepEqual([...games].sort(), ["g-CLE", "g-NY"]);
+  // FALLBACK_GAME's two sides collide onto one normalized key.
+  assert.deepEqual([...getSlipGames(FALLBACK_GAME)], ["BOS@MIA"]);
+});
+
+test("slipContainsGame matches a game on a non-first leg", () => {
+  // g-CLE only appears on NBA_NYK's SECOND leg.
+  assert.equal(slipContainsGame(NBA_NYK, "g-CLE"), true);
+  assert.equal(slipContainsGame(NBA_NYK, "g-NY"), true);
+  assert.equal(slipContainsGame(NBA_NYK, "g-OKC"), false);
+  // Empty key never matches.
+  assert.equal(slipContainsGame(NBA_NYK, ""), false);
+});
+
+test("getAvailableGamesFromSlips lists EVERY game for the sport (never a subset)", () => {
+  // NBA tab: g-OKC (NBA_OKC), g-NY + g-CLE (NBA_NYK), and MULTI's NBA leg
+  // (g-NY, already counted). MLB game g-LAD must NOT appear.
+  const nba = getAvailableGamesFromSlips(POOL, "nba").map((g) => g.key);
+  assert.deepEqual(nba.sort(), ["g-CLE", "g-NY", "g-OKC"]);
+  // MLB tab: only the MLB game.
+  const mlb = getAvailableGamesFromSlips(POOL, "mlb").map((g) => g.key);
+  assert.deepEqual(mlb, ["g-LAD"]);
+  // All tab spans every game on the slate.
+  const all = getAvailableGamesFromSlips(POOL, "all").map((g) => g.key);
+  assert.deepEqual(all.sort(), ["g-CLE", "g-LAD", "g-NY", "g-OKC"]);
+});
+
+test("getAvailableGamesFromSlips carries a label and is sorted by it", () => {
+  const games = getAvailableGamesFromSlips([FALLBACK_GAME], "nba");
+  assert.equal(games.length, 1);
+  assert.equal(games[0].key, "BOS@MIA");
+  assert.equal(games[0].label, "BOS vs MIA");
+  assert.equal(games[0].sport, "nba");
+});
+
+test("filterSlipsBySportTeamPlayer gameKey matches when ANY leg belongs to the game", () => {
+  // g-CLE lives only on NBA_NYK's second leg — proves all-legs scanning.
+  const cle = filterSlipsBySportTeamPlayer(POOL, { sport: "nba", gameKey: "g-CLE" });
+  assert.deepEqual(cle.map((s) => s.slipId), ["s2"]);
+  // g-LAD on the All tab surfaces both the MLB slip and the multi slip.
+  const lad = filterSlipsBySportTeamPlayer(POOL, { sport: "all", gameKey: "g-LAD" });
+  assert.deepEqual(lad.map((s) => s.slipId).sort(), ["s3", "s4"]);
+});
+
+test("filterSlipsBySportTeamPlayer gameKey respects the sport pill", () => {
+  // g-LAD is an MLB game; the NBA tab (single-sport NBA) must return [].
+  const none = filterSlipsBySportTeamPlayer(POOL, { sport: "nba", gameKey: "g-LAD" });
+  assert.deepEqual(none, []);
+});
+
+test("filterSlipsBySportTeamPlayer empty/absent gameKey is a no-op", () => {
+  const all = filterSlipsBySportTeamPlayer(POOL, { sport: "all", gameKey: "" });
+  assert.equal(all.length, POOL.length);
+  const allNull = filterSlipsBySportTeamPlayer(POOL, { sport: "all", gameKey: null });
+  assert.equal(allNull.length, POOL.length);
+});
+
+test("REGRESSION: team filter matches a team on a NON-FIRST leg", () => {
+  // CLE appears only on NBA_NYK's second leg. The team filter must scan
+  // every leg — locking the all-legs contract so a future refactor can't
+  // silently regress to leg-1-only matching.
+  const cle = filterSlipsBySportTeamPlayer(POOL, { sport: "nba", team: "CLE" });
+  assert.deepEqual(cle.map((s) => s.slipId), ["s2"]);
+});
+
+test("game + team filters compose (both must hold)", () => {
+  // NBA_NYK has leg1 NY/g-NY and leg2 CLE/g-CLE. Asking for team NY AND
+  // game g-CLE still matches (NY on one leg, g-CLE on another).
+  const both = filterSlipsBySportTeamPlayer(POOL, {
+    sport: "nba",
+    team: "NY",
+    gameKey: "g-CLE",
+  });
+  assert.deepEqual(both.map((s) => s.slipId), ["s2"]);
+  // Team OKC + game g-CLE share no slip → empty.
+  const none = filterSlipsBySportTeamPlayer(POOL, {
+    sport: "nba",
+    team: "OKC",
+    gameKey: "g-CLE",
+  });
+  assert.deepEqual(none, []);
 });
