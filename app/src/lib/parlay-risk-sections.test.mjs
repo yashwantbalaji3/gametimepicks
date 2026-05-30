@@ -16,9 +16,19 @@ import {
   classifyRiskSection,
   classifySlipBySection,
   combinedAmericanOddsFromLegs,
+  countDisplaySlips,
+  getDisplaySectionBuckets,
   getRiskSectionDisplay,
   groupSlipsByRiskSection,
 } from "./parlay-risk-sections.ts";
+
+/** Build a slip with `legCount` legs each priced at `odds` (American). */
+function mkSlip(slipId, legCount, odds) {
+  return {
+    slipId,
+    legs: Array.from({ length: legCount }, () => ({ oddsForSide: odds })),
+  };
+}
 
 test("RISK_SECTION_ORDER: Low → Medium → High → Longshot", () => {
   assert.deepEqual(
@@ -168,4 +178,52 @@ test("classifyRiskSection (back-compat shim): odds-only classification", () => {
   assert.equal(classifyRiskSection(700), "high");
   assert.equal(classifyRiskSection(1500), "longshot");
   assert.equal(classifyRiskSection(null), "low");
+});
+
+// ---------------------------------------------------------------------------
+// Display buckets + count (powers the "Showing N parlays" summary line).
+// The summary MUST derive from the same source the cards render from, so
+// these lock that the count never disagrees with the rendered sections.
+// ---------------------------------------------------------------------------
+
+test("getDisplaySectionBuckets: server `sections` win and fill missing keys", () => {
+  const a = mkSlip("a", 2, -150);
+  const b = mkSlip("b", 3, -200);
+  const buckets = getDisplaySectionBuckets({
+    sections: { low: [a], medium: [b] },
+    // `slips` must be IGNORED when sections are present:
+    slips: [mkSlip("z", 6, 1200)],
+  });
+  assert.deepEqual(buckets.low.map((s) => s.slipId), ["a"]);
+  assert.deepEqual(buckets.medium.map((s) => s.slipId), ["b"]);
+  assert.deepEqual(buckets.high, []);
+  assert.deepEqual(buckets.longshot, []);
+});
+
+test("countDisplaySlips: server sections → sum of section lengths", () => {
+  const n = countDisplaySlips({
+    sections: {
+      low: [mkSlip("a", 2, -150)],
+      medium: [mkSlip("b", 3, -200), mkSlip("c", 3, -200)],
+    },
+    slips: [mkSlip("z", 6, 1200), mkSlip("y", 6, 1300)], // ignored
+  });
+  assert.equal(n, 3);
+});
+
+test("countDisplaySlips: no sections → strict client bucketing of visible slips", () => {
+  // a: 2 legs @ -200 → +125 combined, 2 legs → Low (counts)
+  // b: 3 legs @ -200 → +237 combined, 3 legs → Low (counts)
+  // bad: 6 legs @ -1000 → +77 combined (Low odds) but 6 legs is out of
+  //      Low's 2–3 range → excluded from every section → NOT counted.
+  const n = countDisplaySlips({
+    slips: [mkSlip("a", 2, -200), mkSlip("b", 3, -200), mkSlip("bad", 6, -1000)],
+  });
+  assert.equal(n, 2);
+});
+
+test("countDisplaySlips: empty / absent inputs → 0", () => {
+  assert.equal(countDisplaySlips({}), 0);
+  assert.equal(countDisplaySlips({ slips: [] }), 0);
+  assert.equal(countDisplaySlips({ sections: {} }), 0);
 });

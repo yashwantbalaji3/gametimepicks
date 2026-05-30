@@ -222,6 +222,57 @@ export function groupSlipsByRiskSection<
   };
 }
 
+/**
+ * Resolve the four per-section buckets exactly the way the public
+ * Suggested-mode spread renders them, so any caller that needs a count
+ * (e.g. a "Showing N parlays" summary line) derives it from the SAME
+ * source the cards are drawn from — no risk of the summary disagreeing
+ * with what's on screen.
+ *
+ * Two paths, mirroring `RiskSectionSpread`:
+ *   - `sections` (server-bucketed `publicRiskSections`, already filtered
+ *     to the active sport/team/player) wins when provided. Missing keys
+ *     resolve to empty arrays.
+ *   - otherwise the visible `slips` are re-bucketed client-side with the
+ *     strict "both odds AND legs must align" rule (`groupSlipsByRiskSection`).
+ */
+export function getDisplaySectionBuckets<
+  T extends { legs: ReadonlyArray<{ oddsForSide: number | null | undefined }> },
+>(args: {
+  sections?: Partial<Record<RiskSectionKey, ReadonlyArray<T>>>;
+  slips?: ReadonlyArray<T>;
+}): Record<RiskSectionKey, T[]> {
+  if (args.sections) {
+    return {
+      low: [...(args.sections.low ?? [])],
+      medium: [...(args.sections.medium ?? [])],
+      high: [...(args.sections.high ?? [])],
+      longshot: [...(args.sections.longshot ?? [])],
+    };
+  }
+  const out: Record<RiskSectionKey, T[]> = {
+    low: [],
+    medium: [],
+    high: [],
+    longshot: [],
+  };
+  const { sections } = groupSlipsByRiskSection(args.slips ?? []);
+  for (const { section, slips } of sections) out[section] = slips;
+  return out;
+}
+
+/** Total parlays that will actually render across all four sections —
+ *  the honest count behind the "Showing N parlays" summary line. */
+export function countDisplaySlips<
+  T extends { legs: ReadonlyArray<{ oddsForSide: number | null | undefined }> },
+>(args: {
+  sections?: Partial<Record<RiskSectionKey, ReadonlyArray<T>>>;
+  slips?: ReadonlyArray<T>;
+}): number {
+  const buckets = getDisplaySectionBuckets(args);
+  return RISK_SECTION_ORDER.reduce((n, key) => n + buckets[key].length, 0);
+}
+
 /** Back-compat shim used by ParlayTicketCard's lane chip:
  *  classify by odds only so a slip in High Risk (4 legs at +700)
  *  shows the "High Risk" chip even if it isn't aligned with the
