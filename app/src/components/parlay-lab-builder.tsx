@@ -44,6 +44,7 @@ import SearchableSelect, {
 import {
   fallbackToBestUnfilteredSlips,
   filterSlipsBySportTeamPlayer,
+  getAvailableGamesFromSlips,
   getAvailablePlayersForTeam,
   getAvailableSportsFromSlips,
   getAvailableTeamsFromSlips,
@@ -145,6 +146,7 @@ export default function ParlayLabBuilder({
     sportOptions[0]?.key ?? "all",
   );
   const [team, setTeam] = useState<string | null>(null);
+  const [game, setGame] = useState<string | null>(null);
   const [player, setPlayer] = useState<string | null>(null);
 
   // Keep the active sport valid when the underlying pool changes.
@@ -152,6 +154,7 @@ export default function ParlayLabBuilder({
     if (!availableSports.includes(sport)) {
       setSport(availableSports[0] ?? "all");
       setTeam(null);
+      setGame(null);
       setPlayer(null);
     }
   }, [availableSports, sport]);
@@ -165,6 +168,19 @@ export default function ParlayLabBuilder({
         label: t.team,
         sub: t.sport.toUpperCase(),
         searchText: t.team,
+      })),
+    ];
+  }, [pool, sport]);
+
+  const gameSelectOptions = useMemo<SearchableOption[]>(() => {
+    const games = getAvailableGamesFromSlips(pool, sport);
+    return [
+      { value: null, label: "All games" },
+      ...games.map((g) => ({
+        value: g.key,
+        label: g.label,
+        sub: g.sport.toUpperCase(),
+        searchText: g.label,
       })),
     ];
   }, [pool, sport]);
@@ -186,6 +202,7 @@ export default function ParlayLabBuilder({
     if (next === sport) return;
     setSport(next);
     setTeam(null);
+    setGame(null);
     setPlayer(null);
   }
 
@@ -193,6 +210,11 @@ export default function ParlayLabBuilder({
     if (next === team) return;
     setTeam(next);
     setPlayer(null);
+  }
+
+  function changeGame(next: string | null) {
+    if (next === game) return;
+    setGame(next);
   }
 
   function changePlayer(next: string | null) {
@@ -206,9 +228,10 @@ export default function ParlayLabBuilder({
       filterSlipsBySportTeamPlayer(pool, {
         sport,
         team,
+        gameKey: game,
         playerNames: player ? [player] : [],
       }),
-    [pool, sport, team, player],
+    [pool, sport, team, game, player],
   );
 
   // For each risk profile, pick the best slip + up to N alternates
@@ -274,7 +297,8 @@ export default function ParlayLabBuilder({
   // PR #114: sport pills now count as active filters so the
   // empty-state copy below switches into sport-aware mode when
   // the user picks NBA / MLB / Mixed and gets nothing back.
-  const filterActive = team !== null || player !== null || sport !== "all";
+  const filterActive =
+    team !== null || game !== null || player !== null || sport !== "all";
 
   // Recent-form drawer state — tracks the clicked leg.
   const [activeLeg, setActiveLeg] = useState<ParlaySlip["legs"][number] | null>(null);
@@ -346,7 +370,7 @@ export default function ParlayLabBuilder({
     Partial<Record<RiskSectionKey, ParlaySlip[]>> | undefined
   >(() => {
     if (!sportSections) return undefined;
-    if (team == null && player == null) return sportSections;
+    if (team == null && game == null && player == null) return sportSections;
     const out: Partial<Record<RiskSectionKey, ParlaySlip[]>> = {};
     for (const [k, arr] of Object.entries(sportSections) as Array<
       [RiskSectionKey, ParlaySlip[]]
@@ -354,11 +378,12 @@ export default function ParlayLabBuilder({
       out[k] = filterSlipsBySportTeamPlayer(arr, {
         sport,
         team,
+        gameKey: game,
         playerNames: player ? [player] : [],
       });
     }
     return out;
-  }, [sportSections, sport, team, player]);
+  }, [sportSections, sport, team, game, player]);
 
   return (
     // PR `feature/build-my-card-selected-slips` — the provider holds the
@@ -388,12 +413,16 @@ export default function ParlayLabBuilder({
           team={team}
           teamOptions={teamSelectOptions}
           onTeamChange={changeTeam}
+          game={game}
+          gameOptions={gameSelectOptions}
+          onGameChange={changeGame}
           player={player}
           playerOptions={playerSelectOptions}
           onPlayerChange={changePlayer}
           onClearAll={() => {
             setSport(sportOptions[0]?.key ?? "all");
             setTeam(null);
+            setGame(null);
             setPlayer(null);
           }}
         />
@@ -662,6 +691,9 @@ function LabFilters({
   team,
   teamOptions,
   onTeamChange,
+  game,
+  gameOptions,
+  onGameChange,
   player,
   playerOptions,
   onPlayerChange,
@@ -673,13 +705,17 @@ function LabFilters({
   team: string | null;
   teamOptions: SearchableOption[];
   onTeamChange: (t: string | null) => void;
+  game: string | null;
+  gameOptions: SearchableOption[];
+  onGameChange: (g: string | null) => void;
   player: string | null;
   playerOptions: SearchableOption[];
   onPlayerChange: (p: string | null) => void;
   onClearAll: () => void;
 }) {
   const defaultSport = sportOptions[0]?.key ?? "all";
-  const anyFilterActive = team !== null || player !== null || sport !== defaultSport;
+  const anyFilterActive =
+    team !== null || game !== null || player !== null || sport !== defaultSport;
   return (
     // PR `feature/parlay-lab-filter-rail-polish` (2026-05-28):
     // collapsed the previous 3-row, ~150px filter card into a single
@@ -728,8 +764,8 @@ function LabFilters({
           );
         })}
       </div>
-      <div className="flex flex-1 min-w-[180px] gap-2 sm:gap-3">
-        <div className="flex-1 min-w-0">
+      <div className="flex flex-1 min-w-[180px] flex-wrap gap-2 sm:gap-3">
+        <div className="flex-1 min-w-[140px]">
           <SearchableSelect
             label="Team filter"
             placeholder="All teams"
@@ -740,7 +776,18 @@ function LabFilters({
             compact
           />
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-[140px]">
+          <SearchableSelect
+            label="Game filter"
+            placeholder="All games"
+            value={game}
+            options={gameOptions}
+            onChange={onGameChange}
+            emptyMessage="No games in this sport"
+            compact
+          />
+        </div>
+        <div className="flex-1 min-w-[140px]">
           <SearchableSelect
             label="Player filter"
             placeholder="All players"

@@ -26,6 +26,7 @@ import SearchableSelect, {
 import {
   diversifiedAllOrder,
   filterSlipsBySportTeamPlayer,
+  getAvailableGamesFromSlips,
   getAvailablePlayersForTeam,
   getAvailableTeamsFromSlips,
   groupSuggestedBySport,
@@ -76,6 +77,7 @@ export default function SuggestedParlayCarousel({
   const buckets = useMemo(() => groupSuggestedBySport(slips), [slips]);
   const [activeTab, setActiveTab] = useState<SuggestedSport>("all");
   const [teamFilter, setTeamFilter] = useState<string | null>(null);
+  const [gameFilter, setGameFilter] = useState<string | null>(null);
   const [playerFilter, setPlayerFilter] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -93,9 +95,10 @@ export default function SuggestedParlayCarousel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  // Team + player filters reset when the user switches sport.
+  // Team + game + player filters reset when the user switches sport.
   useEffect(() => {
     setTeamFilter(null);
+    setGameFilter(null);
     setPlayerFilter(null);
   }, [activeTab]);
 
@@ -117,6 +120,19 @@ export default function SuggestedParlayCarousel({
     ];
   }, [slips, activeTab]);
 
+  const gameOptions = useMemo<SearchableOption[]>(() => {
+    const games = getAvailableGamesFromSlips(slips, activeTab);
+    return [
+      { value: null, label: "All games" },
+      ...games.map((g) => ({
+        value: g.key,
+        label: g.label,
+        sub: g.sport.toUpperCase(),
+        searchText: g.label,
+      })),
+    ];
+  }, [slips, activeTab]);
+
   const playerOptions = useMemo<SearchableOption[]>(() => {
     const players = getAvailablePlayersForTeam(slips, activeTab, teamFilter);
     return [
@@ -134,16 +150,18 @@ export default function SuggestedParlayCarousel({
     const base = activeTab === "all"
       ? diversifiedAllOrder(buckets.all)
       : buckets[activeTab];
-    if (!teamFilter && !playerFilter) return base;
+    if (!teamFilter && !gameFilter && !playerFilter) return base;
     return filterSlipsBySportTeamPlayer(base, {
       sport: activeTab,
       team: teamFilter,
+      gameKey: gameFilter,
       playerNames: playerFilter ? [playerFilter] : [],
     });
-  }, [buckets, activeTab, teamFilter, playerFilter]);
+  }, [buckets, activeTab, teamFilter, gameFilter, playerFilter]);
 
   const totalCount = buckets.all.length;
-  const filterActive = teamFilter !== null || playerFilter !== null;
+  const filterActive =
+    teamFilter !== null || gameFilter !== null || playerFilter !== null;
   const nbaLegSlipCount = useMemo(
     () => slips.filter((s) => slipContainsSport(s, "nba")).length,
     [slips],
@@ -187,7 +205,7 @@ export default function SuggestedParlayCarousel({
         </p>
       )}
 
-      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
         <SearchableSelect
           label="Team"
           placeholder="All teams"
@@ -195,6 +213,14 @@ export default function SuggestedParlayCarousel({
           options={teamOptions}
           onChange={setTeamFilter}
           emptyMessage="No teams in this sport"
+        />
+        <SearchableSelect
+          label="Game"
+          placeholder="All games"
+          value={gameFilter}
+          options={gameOptions}
+          onChange={setGameFilter}
+          emptyMessage="No games in this sport"
         />
         <SearchableSelect
           label="Player"
@@ -218,6 +244,8 @@ export default function SuggestedParlayCarousel({
           <EmptyCarouselCard
             sport={activeTab}
             teamFilter={teamFilter}
+            gameFilter={gameFilter}
+            gameOptions={gameOptions}
             playerFilter={playerFilter}
             nbaLegSlipCount={nbaLegSlipCount}
           />
@@ -243,7 +271,7 @@ export default function SuggestedParlayCarousel({
           style={{ color: "var(--vault-text-mute)" }}
         >
           No clean optimizer slip matched those filters. Try clearing the
-          team or player.
+          team, game, or player.
         </p>
       )}
 
@@ -377,24 +405,32 @@ function SportTabs({
 function EmptyCarouselCard({
   sport,
   teamFilter,
+  gameFilter,
+  gameOptions,
   playerFilter,
   nbaLegSlipCount,
 }: {
   sport: SuggestedSport;
   teamFilter?: string | null;
+  gameFilter?: string | null;
+  gameOptions?: SearchableOption[];
   playerFilter?: string | null;
   nbaLegSlipCount?: number;
 }) {
   let label: string;
   let body: string;
-  if (playerFilter || teamFilter) {
+  if (playerFilter || teamFilter || gameFilter) {
+    const gameLabel = gameFilter
+      ? gameOptions?.find((o) => o.value === gameFilter)?.label ?? gameFilter
+      : null;
     const filterDesc = [
       playerFilter,
       teamFilter,
+      gameLabel,
     ].filter(Boolean).join(" · ");
     label = `No clean slip for ${filterDesc}`;
     body =
-      "No optimizer slip features that combination tonight. Try another team/player or clear the filter.";
+      "No optimizer slip features that combination tonight. Try another team/game/player or clear the filter.";
   } else {
     if (sport === "nba") {
       label = "NBA projections live · no clean NBA-only parlay";

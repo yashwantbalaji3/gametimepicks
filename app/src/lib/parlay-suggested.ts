@@ -351,6 +351,55 @@ export function slipContainsTeam(slip: ParlaySlip, team: string): boolean {
   return getSlipTeams(slip).has(team.toUpperCase().trim());
 }
 
+/**
+ * Stable per-game key for a single leg. Prefers the leg's `gameId` (the
+ * canonical source identifier); when that's missing, falls back to an
+ * order-normalized matchup of the two team abbreviations so two legs
+ * from the same game collide on the same key regardless of which side a
+ * leg's player is on. Returns null when the leg carries neither a
+ * gameId nor enough team metadata. Never fabricates an identity.
+ */
+export function legGameKey(leg: ParlayLeg): string | null {
+  const gid = (leg.gameId ?? "").trim();
+  if (gid) return gid;
+  const t = (leg.team ?? "").toUpperCase().trim();
+  const o = (leg.opponent ?? "").toUpperCase().trim();
+  if (t && o) return [t, o].sort().join("@");
+  return null;
+}
+
+/**
+ * Human-readable matchup label for a leg, order-normalized
+ * (alphabetical) so the same game renders identically no matter which
+ * side a leg came from. Uses "vs" rather than "@" on purpose — the leg
+ * does not carry home/away, so we never imply a venue we don't know.
+ * Returns null when neither team is known.
+ */
+export function legGameLabel(leg: ParlayLeg): string | null {
+  const t = (leg.team ?? "").toUpperCase().trim();
+  const o = (leg.opponent ?? "").toUpperCase().trim();
+  if (t && o) return [t, o].sort().join(" vs ");
+  if (t) return t;
+  return null;
+}
+
+/** Set of game keys spanning EVERY leg of the slip (not just leg 1). */
+export function getSlipGames(slip: ParlaySlip): Set<string> {
+  const out = new Set<string>();
+  for (const leg of slip.legs ?? []) {
+    const k = legGameKey(leg);
+    if (k) out.add(k);
+  }
+  return out;
+}
+
+/** True when ANY leg of the slip belongs to the given game key. */
+export function slipContainsGame(slip: ParlaySlip, gameKey: string): boolean {
+  const target = (gameKey ?? "").trim();
+  if (!target) return false;
+  return getSlipGames(slip).has(target);
+}
+
 export function getSlipPlayers(slip: ParlaySlip): string[] {
   return (slip.legs ?? [])
     .map((l) => (l.playerName ?? "").trim())
@@ -501,6 +550,39 @@ export function getAvailableTeamsFromSlips(
 }
 
 /**
+ * Unique games across the slips' legs, filtered to the given sport (or
+ * all sports when sport === "all"). Each entry carries the stable
+ * grouping `key` (what the filter matches on) and a display `label`.
+ * Sorted by label. Skips legs with no game identity. This is the game
+ * picker source — it lists EVERY game present in the pool (never a
+ * subset) and never fabricates a matchup.
+ *
+ * Sport-aware exactly like getAvailableTeamsFromSlips: the NBA / MLB
+ * tabs only surface games from that sport's legs, "multi" and "all"
+ * span everything in the slip.
+ */
+export function getAvailableGamesFromSlips(
+  slips: ParlaySlip[],
+  sport: SuggestedSport,
+): Array<{ key: string; label: string; sport: string }> {
+  const seen = new Map<string, { key: string; label: string; sport: string }>();
+  for (const slip of slips) {
+    if (sport !== "all" && !slipContainsSport(slip, sport)) continue;
+    for (const leg of slip.legs ?? []) {
+      if (sport !== "all" && sport !== "multi") {
+        if ((leg.sport ?? "").toLowerCase() !== sport) continue;
+      }
+      const key = legGameKey(leg);
+      if (!key) continue;
+      if (!seen.has(key)) {
+        seen.set(key, { key, label: legGameLabel(leg) ?? key, sport: leg.sport });
+      }
+    }
+  }
+  return Array.from(seen.values()).sort((a, b) => a.label.localeCompare(b.label));
+}
+
+/**
  * Players that appear on a leg matching the given (sport, team) filter.
  * If `team` is empty, returns every player for the sport.
  *
@@ -555,10 +637,12 @@ export function filterSlipsBySportTeamPlayer(
   filter: {
     sport: SuggestedSport;
     team?: string | null;
+    gameKey?: string | null;
     playerNames?: string[];
   },
 ): ParlaySlip[] {
   const wantedTeam = (filter.team ?? "").toUpperCase().trim() || null;
+  const wantedGame = (filter.gameKey ?? "").trim() || null;
   const wantedPlayers = (filter.playerNames ?? [])
     .map((p) => p.toLowerCase().trim())
     .filter(Boolean);
@@ -587,6 +671,11 @@ export function filterSlipsBySportTeamPlayer(
         (l) => (l.team ?? "").toUpperCase().trim() === wantedTeam,
       );
       if (!anyOnTeam) return false;
+    }
+    if (wantedGame) {
+      // A slip matches a game when ANY leg belongs to it — scans every
+      // leg, never just the first.
+      if (!slipContainsGame(slip, wantedGame)) return false;
     }
     if (wantedPlayers.length > 0) {
       const slipPlayers = (slip.legs ?? []).map((l) =>
