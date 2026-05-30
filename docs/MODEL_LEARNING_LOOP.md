@@ -1,6 +1,13 @@
 # Model learning loop — daily settle → audit → promotion/demotion
 
-Last updated: 2026-05-26 (PR #113).
+Last updated: 2026-05-30 (post-05-29 settlement).
+
+> **Dated settled-record notes** (results-only, no model change) live
+> alongside this process doc. Most recent:
+> [`LEARNING_NOTES_2026-05-29_SETTLEMENT.md`](./LEARNING_NOTES_2026-05-29_SETTLEMENT.md)
+> — public-era record through 05-29 (19.8% on 182 decisive slips), with
+> the risk-section and sport-bucket splits. No promotion/demotion was
+> taken; sample is still below the §7 gates.
 
 This doc captures the operating loop the GameTime Picks model runs
 on. The goal isn't to promise a hit rate — it's to make every day
