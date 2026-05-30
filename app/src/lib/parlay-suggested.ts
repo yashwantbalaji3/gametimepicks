@@ -625,9 +625,14 @@ export function getAvailablePlayersForTeam(
 }
 
 /**
- * Filter slips so every leg passes (sport, team, player) — when
- * `team` is given, EVERY leg must be on that team; when `playerNames`
- * is given, every player must appear on the slip.
+ * Filter slips by (sport, team, game, player). Match semantics:
+ *   - team   → a slip matches when ANY leg is on that team (scans every
+ *              leg, not just the first), so a multi-leg slip surfaces
+ *              under "NYM" if it contains a single NYM leg.
+ *   - game   → a slip matches when ANY leg belongs to that game.
+ *   - player → EVERY requested player must appear somewhere on the slip.
+ *   - sport  → "nba"/"mlb" require a single-sport slip of that sport;
+ *              "multi" requires ≥2 sports; "all" applies no sport filter.
  *
  * Returns `[]` when no slip matches, so the caller can fall back to
  * unfiltered suggestions with a clear note.

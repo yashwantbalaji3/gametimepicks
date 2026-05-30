@@ -125,7 +125,10 @@ export default function ParlayLabPage() {
     // Pulls 2-3 additional slip cards above the fold without losing
     // any of the date / status / count info. Big DateStatusHeader
     // is still available for other surfaces (results, projections).
-    <div className="vault-page-shell px-4 sm:px-8 py-4 sm:py-6 overflow-x-hidden">
+    // `pb-28` reserves clearance for the fixed Selected-slips tray
+    // (docked ~68px above the bottom) so it never covers the footer
+    // pointer when scrolled to the end of the page.
+    <div className="vault-page-shell px-4 sm:px-8 pt-4 sm:pt-6 pb-28 overflow-x-hidden">
       <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6 mb-3" />
       <SlateStrip
         date={activeDate}

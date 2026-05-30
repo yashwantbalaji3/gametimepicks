@@ -33,8 +33,8 @@ import ParlayTicketCard from "./parlay-ticket-card";
 import { useBuildMyCard } from "./build-my-card-context";
 import {
   RISK_SECTION_ORDER,
+  getDisplaySectionBuckets,
   getRiskSectionDisplay,
-  groupSlipsByRiskSection,
   type RiskSectionKey,
 } from "@/lib/parlay-risk-sections";
 import type {
@@ -98,19 +98,6 @@ function _sortWithStarTiebreaker(
   return arr;
 }
 
-function _bucketSlipsClientSide(
-  slips: ReadonlyArray<ParlaySlip>,
-): Record<RiskSectionKey, ParlaySlip[]> {
-  const { sections } = groupSlipsByRiskSection(slips);
-  const out: Record<RiskSectionKey, ParlaySlip[]> = {
-    low: [], medium: [], high: [], longshot: [],
-  };
-  for (const { section, slips: bucketSlips } of sections) {
-    out[section] = bucketSlips;
-  }
-  return out;
-}
-
 export default function RiskSectionSpread({
   slips,
   sections,
@@ -125,14 +112,12 @@ export default function RiskSectionSpread({
   const buildMyCard = useBuildMyCard();
   // Server-bucketed path wins when provided. Otherwise re-bucket the
   // visible slips client-side using the strict both-must-match rule.
-  const buckets: Record<RiskSectionKey, ParlaySlip[]> = sections
-    ? {
-        low: [...(sections.low ?? [])],
-        medium: [...(sections.medium ?? [])],
-        high: [...(sections.high ?? [])],
-        longshot: [...(sections.longshot ?? [])],
-      }
-    : _bucketSlipsClientSide(slips ?? []);
+  // Shared with the builder's "Showing N parlays" summary so the count
+  // and the rendered cards always agree.
+  const buckets: Record<RiskSectionKey, ParlaySlip[]> = getDisplaySectionBuckets({
+    sections,
+    slips: slips ?? [],
+  });
 
   const savedPregame = source === "snapshot";
 

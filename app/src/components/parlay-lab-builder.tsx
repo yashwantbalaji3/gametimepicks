@@ -67,7 +67,10 @@ import {
   type OptimizerSnapshot,
   type OptimizerSlip,
 } from "@/lib/parlay-optimizer";
-import type { RiskSectionKey } from "@/lib/parlay-risk-sections";
+import {
+  countDisplaySlips,
+  type RiskSectionKey,
+} from "@/lib/parlay-risk-sections";
 import type { CalibrationTable } from "@/lib/confidence-calibration-rules";
 
 interface Props {
@@ -395,6 +398,31 @@ export default function ParlayLabBuilder({
     return out;
   }, [sportSections, sport, team, game, player]);
 
+  // ---- "Showing N parlays" summary ----------------------------------
+  // The count is derived from the SAME buckets RiskSectionSpread renders
+  // (getDisplaySectionBuckets via countDisplaySlips), so the headline
+  // number can never disagree with the cards actually on screen. The
+  // server-bucketed `teamPlayerFiltered` sections win when present;
+  // otherwise we fall back to re-bucketing the visible slips.
+  const suggestedDisplaySlips = useMemo<ParlaySlip[]>(
+    () => [...cards.flatMap((c) => c.slips), ...hvCard.slips],
+    [cards, hvCard],
+  );
+  const displayedSlipCount = useMemo(
+    () =>
+      countDisplaySlips({
+        sections: teamPlayerFiltered,
+        slips: suggestedDisplaySlips,
+      }),
+    [teamPlayerFiltered, suggestedDisplaySlips],
+  );
+  const filterContextLabel = useMemo(() => {
+    const gameLabel = game
+      ? gameSelectOptions.find((o) => o.value === game)?.label ?? null
+      : null;
+    return buildFilterContextLabel({ sport, team, gameLabel, player });
+  }, [sport, team, game, gameSelectOptions, player]);
+
   return (
     // PR `feature/build-my-card-selected-slips` — the provider holds the
     // ephemeral "Build My Card" selection (in-memory only). It wraps the
@@ -440,20 +468,26 @@ export default function ParlayLabBuilder({
       )}
 
       {mode === "suggested" && (
-        <SuggestedMode
-          cards={cards}
-          hvCard={hvCard}
-          date={date}
-          isFallback={!!isFallback}
-          sport={sport}
-          filterActive={filterActive}
-          source={source}
-          calibrationTable={calibrationTable}
-          onLegClick={setActiveLeg}
-          poolAvailability={poolAvailability}
-          sections={teamPlayerFiltered}
-          selectable
-        />
+        <>
+          <FilterSummaryLine
+            count={displayedSlipCount}
+            context={filterContextLabel}
+          />
+          <SuggestedMode
+            cards={cards}
+            hvCard={hvCard}
+            date={date}
+            isFallback={!!isFallback}
+            sport={sport}
+            filterActive={filterActive}
+            source={source}
+            calibrationTable={calibrationTable}
+            onLegClick={setActiveLeg}
+            poolAvailability={poolAvailability}
+            sections={teamPlayerFiltered}
+            selectable
+          />
+        </>
       )}
 
       {mode === "build" && (
@@ -700,6 +734,70 @@ function BuilderHeader({
         {subcopy}
       </p>
     </header>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Filter summary
+// ---------------------------------------------------------------------------
+
+/** Compose the "· NBA · NYM · Aaron Judge" context suffix from the
+ *  active filters. Returns null when nothing beyond the default "All"
+ *  sport is selected, so the summary reads a clean "Showing N parlays". */
+function buildFilterContextLabel({
+  sport,
+  team,
+  gameLabel,
+  player,
+}: {
+  sport: SuggestedSport;
+  team: string | null;
+  gameLabel: string | null;
+  player: string | null;
+}): string | null {
+  const parts: string[] = [];
+  if (sport === "nba") parts.push("NBA");
+  else if (sport === "mlb") parts.push("MLB");
+  else if (sport === "multi") parts.push("Mixed");
+  if (team) parts.push(team);
+  if (gameLabel) parts.push(gameLabel);
+  if (player) parts.push(player);
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
+/**
+ * One-line orientation summary above the risk sections: "Showing N
+ * parlays" plus the active-filter context. `count` is the exact number
+ * of cards rendered below (shared bucket source), so the line is always
+ * truthful — including "Showing 0 parlays · NYM" when a filter starves
+ * the pool, which pairs with the per-section empty states. `aria-live`
+ * announces the new count to screen readers as filters change.
+ */
+function FilterSummaryLine({
+  count,
+  context,
+}: {
+  count: number;
+  context: string | null;
+}) {
+  return (
+    <p
+      className="font-mono text-[12px] -mt-1"
+      style={{ color: "var(--vault-text-mute)" }}
+      aria-live="polite"
+    >
+      Showing{" "}
+      <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
+        {count}
+      </span>{" "}
+      {count === 1 ? "parlay" : "parlays"}
+      {context ? (
+        <>
+          {" "}
+          · <span style={{ color: "var(--vault-text)" }}>{context}</span>
+        </>
+      ) : null}
+    </p>
   );
 }
 
