@@ -110,7 +110,7 @@ export default function HomePage() {
             className="text-[13px] sm:text-[15px] leading-relaxed"
             style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
           >
-            Pick a sport, team, or player — or use the model&apos;s top slips below. No locks. High-variance slips are labeled. Every leg is tappable for recent form.
+            Pick a sport, team, or player — or start from the model&apos;s top-ranked slips below. High-variance slips are labeled, every leg is tappable for recent form, and every slip is saved before games and graded after.
           </p>
         </div>
       </section>
@@ -125,6 +125,7 @@ export default function HomePage() {
             isFallback={suggested.isFallback}
             calibrationTable={calibrationTable}
             optimizerPayload={optimizerForDate}
+            embedded
           />
         ) : optimizerForDate && optimizerForDate.totalSlips > 0 ? (
           <ParlayLabBuilder
@@ -134,6 +135,7 @@ export default function HomePage() {
             isFallback={true}
             calibrationTable={calibrationTable}
             optimizerPayload={optimizerForDate}
+            embedded
           />
         ) : (
           <NoParlaysEmptyState />

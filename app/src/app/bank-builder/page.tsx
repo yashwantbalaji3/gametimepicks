@@ -28,6 +28,7 @@
 import Link from "next/link";
 
 import ParlayTicketCard from "@/components/parlay-ticket-card";
+import PageHero from "@/components/page-hero";
 import BankBuilderTower from "@/components/bank-builder-tower";
 import BankBuilderShareCard from "@/components/bank-builder-share-card";
 import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
@@ -93,30 +94,21 @@ export default function BankBuilderPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-8 overflow-x-hidden">
       {/* ---- Hero + top disclaimer ----------------------------------- */}
-      <header className="flex flex-col gap-3">
-        <span
-          className="font-mono uppercase tracking-[0.18em]"
-          style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
-        >
-          Educational paper-trading · simulated bankroll
-        </span>
-        <h1
-          className="font-semibold tracking-tight"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 30, lineHeight: 1.05 }}
-        >
-          Bank Builder
-        </h1>
-        <p
-          className="text-[14px] leading-relaxed"
-          style={{ color: "var(--vault-text-mute)", maxWidth: 620 }}
-        >
-          A {formatLadderUsd(BANK_BUILDER_BASE)} → {formatLadderUsd(BANK_BUILDER_GOAL)}{" "}
-          paper-bankroll ladder. Five rungs, one Daily Builder Pick per rung,
-          drawn from the same published suggested pool that powers Parlay Lab.
-          On a loss the ladder resets to the {formatLadderUsd(BANK_BUILDER_BASE)}{" "}
-          base — the reset is always shown, never hidden.
-        </p>
-      </header>
+      <PageHero
+        eyebrow="Educational paper-trading · simulated bankroll"
+        title="Bank Builder"
+        subMaxWidth={620}
+        sub={
+          <>
+            A {formatLadderUsd(BANK_BUILDER_BASE)} →{" "}
+            {formatLadderUsd(BANK_BUILDER_GOAL)} paper-bankroll ladder. Five
+            rungs, one Daily Builder Pick per rung, drawn from the same
+            published suggested pool that powers Parlay Lab. On a loss the
+            ladder resets to the {formatLadderUsd(BANK_BUILDER_BASE)} base — the
+            reset is always shown, never hidden.
+          </>
+        }
+      />
 
       <DisclaimerBanner placement="top" />
 
