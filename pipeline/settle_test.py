@@ -578,6 +578,80 @@ def test_settle_for_date_end_to_end(s: Suite, tmp_dir: Path) -> None:
     s.assert_eq(len(rows), 4, "4 rows in output (5 - 1 skipped)")
 
 
+def test_espn_event_id_resolver(s: Suite) -> None:
+    """Bridge NBA.com game ids → ESPN event ids by date + team abbrevs,
+    so final games still settle when nba_api is unavailable (CI IP block)."""
+    print(f"\n  {BLUE}─── ESPN event-id bridge (date + teams) ───{RESET}")
+
+    # Tolerant abbreviation matcher collapses ESPN/board mismatches.
+    s.assert_eq(SR._nba_abbr_match("SAS", "SA"), True, "SAS ↔ SA (Spurs)")
+    s.assert_eq(SR._nba_abbr_match("GSW", "GS"), True, "GSW ↔ GS (Warriors)")
+    s.assert_eq(SR._nba_abbr_match("OKC", "OKC"), True, "exact match")
+    s.assert_eq(SR._nba_abbr_match("LAL", "LAC"), False, "LAL ≠ LAC (no false collapse)")
+    s.assert_eq(SR._nba_abbr_match("", "OKC"), False, "empty → no match")
+
+    scoreboard = {
+        "events": [
+            {
+                "id": "401873203",
+                "competitions": [{
+                    "competitors": [
+                        {"team": {"abbreviation": "OKC"}},
+                        {"team": {"abbreviation": "SA"}},
+                    ]
+                }],
+            },
+            {
+                "id": "401873299",
+                "competitions": [{
+                    "competitors": [
+                        {"team": {"abbreviation": "BOS"}},
+                        {"team": {"abbreviation": "NY"}},
+                    ]
+                }],
+            },
+        ]
+    }
+    fetch = lambda _url: scoreboard
+
+    s.assert_eq(
+        SR.resolve_espn_event_id_for_teams(
+            "2026-05-30", "OKC", "SAS", fetch_json=fetch),
+        "401873203",
+        "resolves OKC/SAS → ESPN event id (SAS matches ESPN 'SA')",
+    )
+    s.assert_eq(
+        SR.resolve_espn_event_id_for_teams(
+            "2026-05-30", "SAS", "OKC", fetch_json=fetch),
+        "401873203",
+        "team order is irrelevant",
+    )
+    s.assert_eq(
+        SR.resolve_espn_event_id_for_teams(
+            "2026-05-30", "NYK", "BOS", fetch_json=fetch),
+        "401873299",
+        "resolves NYK/BOS → second event (NYK matches ESPN 'NY')",
+    )
+    s.assert_eq(
+        SR.resolve_espn_event_id_for_teams(
+            "2026-05-30", "MIA", "DEN", fetch_json=fetch),
+        None,
+        "no matching game on date → None (never guesses)",
+    )
+    s.assert_eq(
+        SR.resolve_espn_event_id_for_teams(
+            "not-a-date", "OKC", "SAS", fetch_json=fetch),
+        None,
+        "malformed date → None",
+    )
+    s.assert_eq(
+        SR.resolve_espn_event_id_for_teams(
+            "2026-05-30", "OKC", "SAS", fetch_json=lambda _u: None),
+        None,
+        "scoreboard fetch failure → None (no settle from missing data)",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -592,6 +666,7 @@ def main() -> int:
     test_invalid_and_unavailable(s)
     test_projection_error(s)
     test_comparison_report(s)
+    test_espn_event_id_resolver(s)
 
     # Tests that need a temp scratch dir
     with tempfile.TemporaryDirectory() as td:

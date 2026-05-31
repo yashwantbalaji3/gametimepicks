@@ -386,6 +386,109 @@ def fetch_final_stats_via_nba_api(game_id: str) -> dict[int, dict[str, float]] |
         return None
 
 
+def _nba_abbr_match(a: str | None, b: str | None) -> bool:
+    """
+    Tolerant NBA team-abbreviation comparison.
+
+    Our boards and ESPN disagree on a handful of abbreviations
+    (ESPN: "SA"/"GS"/"NO"/"NY"/"UTAH"/"WSH"; boards: "SAS"/"GSW"/"NOP"/
+    "NYK"/"UTA"/"WAS"). Rather than maintain an exhaustive alias table,
+    two abbreviations are treated as the same franchise when either is a
+    prefix of the other (case-insensitive, min length 2). That collapses
+    SA/SAS, GS/GSW, NO/NOP, NY/NYK, UTA/UTAH without hard-coding every
+    team. False collisions are effectively impossible because both
+    abbreviations must also belong to the *same* scoreboard event.
+    """
+    a = (a or "").strip().upper()
+    b = (b or "").strip().upper()
+    if len(a) < 2 or len(b) < 2:
+        return False
+    return a == b or a.startswith(b) or b.startswith(a)
+
+
+def resolve_espn_event_id_for_teams(
+    date: str,
+    team: str | None,
+    opponent: str | None,
+    *,
+    fetch_json: Callable[[str], dict[str, Any] | None] | None = None,
+) -> str | None:
+    """
+    Resolve an ESPN NBA event id from a game date + the two team
+    abbreviations on our board.
+
+    Why this exists: our NBA boards key games by NBA.com 10-digit game
+    ids (e.g. "0042500317"). When nba_api is unavailable — not installed,
+    or NBA.com blocks the runner's IP, which is common on CI — settlement
+    has no way to fetch the box score, because `fetch_final_stats_via_espn`
+    only accepts ESPN's own 9-digit event ids. This bridges the two id
+    spaces using only the public ESPN scoreboard (no key, not IP-blocked),
+    so a final game still settles from official stats instead of being
+    left perpetually `stats_unavailable`.
+
+    Returns the ESPN event id string, or None when no game on that date
+    matches both team abbreviations one-to-one.
+
+    Pure-ish: network only when `fetch_json` is None (tests inject a fake
+    fetcher to stay offline).
+    """
+    if not date or not team or not opponent:
+        return None
+    ymd = date.replace("-", "")
+    if not (len(ymd) == 8 and ymd.isdigit()):
+        return None
+    url = (
+        "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/"
+        f"scoreboard?dates={ymd}"
+    )
+    if fetch_json is None:
+        try:
+            import urllib.request
+
+            with urllib.request.urlopen(url, timeout=15) as resp:  # noqa: S310
+                payload = json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            log.warning(f"ESPN scoreboard failed for date={date!r}: {e}")
+            return None
+    else:
+        payload = fetch_json(url)
+        if payload is None:
+            return None
+
+    try:
+        want = [team, opponent]
+        for event in payload.get("events", []) or []:
+            comps = (event.get("competitions") or [{}])[0].get(
+                "competitors", []
+            )
+            abbrs = [
+                (c.get("team", {}) or {}).get("abbreviation") for c in comps
+            ]
+            if len(abbrs) != 2:
+                continue
+            # Both board abbreviations must match the two ESPN
+            # abbreviations one-to-one (no reusing a side twice).
+            used = [False, False]
+            matched_all = True
+            for w in want:
+                hit = False
+                for i, eb in enumerate(abbrs):
+                    if not used[i] and _nba_abbr_match(w, eb):
+                        used[i] = True
+                        hit = True
+                        break
+                if not hit:
+                    matched_all = False
+                    break
+            if matched_all:
+                eid = event.get("id")
+                return str(eid) if eid is not None else None
+        return None
+    except Exception as e:
+        log.warning(f"ESPN scoreboard parse failed for date={date!r}: {e}")
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Resolve final stat for a single lean
 # ---------------------------------------------------------------------------
@@ -709,12 +812,23 @@ def settle_for_date(
     auto_stats_by_game: dict[str, dict[int, dict[str, float]]] = {}
     espn_stats_by_game: dict[str, dict[str, dict[str, float]]] = {}
     if use_auto:
-        unique_game_ids = {
-            l.get("gameId") for l in leans if l.get("gameId")
-        }
-        for gid in unique_game_ids:
-            if gid is None:
-                continue
+        # Map each gameId to a representative (date, team, opponent) from
+        # its leans so we can bridge NBA.com ids → ESPN event ids by
+        # date+teams when the direct id paths fail. Insertion order is
+        # deterministic, which keeps re-runs reproducible.
+        gid_meta: dict[str, tuple[str | None, str | None, str | None]] = {}
+        for l in leans:
+            gid = l.get("gameId")
+            if gid and gid not in gid_meta:
+                gid_meta[gid] = (
+                    l.get("date") or date,
+                    l.get("team"),
+                    l.get("opponent"),
+                )
+        # Cache scoreboard lookups by date so a multi-game NBA slate only
+        # hits the ESPN scoreboard once per date.
+        espn_eid_cache: dict[tuple[str | None, str | None, str | None], str | None] = {}
+        for gid in gid_meta:
             # Try nba_api first for NBA.com-format ids; if that fails (or
             # the id is ESPN-format), fall through to ESPN summary.
             stats = fetch_final_stats_via_nba_api(str(gid))
@@ -724,6 +838,23 @@ def settle_for_date(
             espn_stats = fetch_final_stats_via_espn(str(gid))
             if espn_stats:
                 espn_stats_by_game[gid] = espn_stats
+                continue
+            # Last resort: the gameId is an NBA.com id (not an ESPN event
+            # id) and nba_api was unavailable. Bridge to ESPN via the
+            # public scoreboard (date + team abbreviations), then fetch
+            # the ESPN box score. Keeps final games settling from official
+            # stats when nba_api is blocked (e.g. on CI runners).
+            d, tm, opp = gid_meta[gid]
+            meta_key = (d, tm, opp)
+            if meta_key not in espn_eid_cache:
+                espn_eid_cache[meta_key] = resolve_espn_event_id_for_teams(
+                    d, tm, opp
+                )
+            espn_eid = espn_eid_cache[meta_key]
+            if espn_eid:
+                bridged = fetch_final_stats_via_espn(str(espn_eid))
+                if bridged:
+                    espn_stats_by_game[gid] = bridged
 
     settled_rows: list[dict] = []
     skipped_no_pick = 0
