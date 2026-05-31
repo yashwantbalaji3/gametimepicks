@@ -50,7 +50,20 @@
 - **May 28 / 29 (already settled):** the unresolved legs (Eli White PA=0; Ha-Seong Kim & Bryan Torres DNP) were re-verified against official MLB game logs as **genuine no-shows** — correctly left pending, not grader bugs.
 - **Classification of the May-30 fix:** "stat unavailable from source" → root-caused to an **id-space mismatch + nba_api unavailability**, not a no-show. Fixed at the source (grader), with tests.
 
-## 4. Phase 3 — May 31 projections & suggested parlays — **PENDING (clock-blocked)**
+## 4. Phase 3 — May 31 projections & suggested parlays — **MISSED (run timed out; slate now over)**
+
+> **Evening update (7:30pm ET):** the scheduled `morning-projections` run
+> **timed out at its 25-min limit and was cancelled** — every NBA player's
+> `nba_api` game-log fetch read-timed-out at 25 s (NBA.com blocks CI IPs; same
+> root cause as PR #202) and the ESPN game-log fallback is unimplemented, so the
+> orchestrator hung and never committed. May 31 therefore got **no projections**.
+> By evening the slate is **over** (MLB 14 Final / 1 Live, **no NBA games**), so
+> dispatching now would create post-hoc data and violate snapshot-before-games —
+> **deliberately not done.** Full root-cause + recommended fixes:
+> `docs/PROJECTION_PIPELINE_NBA_CI_TIMEOUT_2026-05-31.md`. The site stays honest
+> (no May-31 projections, no fabrication); next clean cycle is June 1.
+
+The pre-evening state (retained for the record):
 | File | Status |
 |---|---|
 | `boards/2026-05-31.json` | exists but **empty shell** (0 leans, `NoGames`, generated yesterday) |
@@ -103,7 +116,7 @@ ls app/public/data/{boards,mlb/boards}/2026-05-31.json \
 No May-31 settlement; May-30 settled only after all games final; no fabricated outcomes/stats/odds/projections; no manual outcome edits; official pipeline only; no May-26 replay; no May-25/26 leak; no cricket/IPL; WNBA/UFC/FIFA schedule-only; no secrets exposed; no sportsbook scraping/links/branding; audit policy **not** consumed by optimizer; no banned copy; Bank Builder paper-only.
 
 ## 11. Known limitations / next work
-1. **May-31 projections pending** the 13:30 UTC `morning-projections` run (the one open phase). Verify per §9.
+1. **May-31 projections MISSED** — the `morning-projections` run timed out (nba_api blocked on CI; no game-log fallback in the model path). Too late to backfill (slate over). Diagnosis + recommended fixes in `docs/PROJECTION_PIPELINE_NBA_CI_TIMEOUT_2026-05-31.md`. **Action:** watch the June-1 13:30 UTC run; if it times out the same way, add a circuit-breaker to `fetch_player_game_logs` (and/or wire the recent10 cache fallback into the model path, with operator sign-off).
 2. **Medium/High section calibration** (6%≈6% over 3 slates) — watch 2–3 more settled slates; only re-band as a deliberate, tested, operator-approved change.
 3. **`batter_total_bases` demotion confirmed but not consumed** — awaits explicit operator approval before any optimizer wiring.
 4. **`/projections` empty-today copy** — optional one-line "generates each morning" note.
