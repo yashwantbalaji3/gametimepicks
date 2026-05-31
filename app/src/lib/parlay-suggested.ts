@@ -412,6 +412,36 @@ export function slipContainsPlayer(slip: ParlaySlip, name: string): boolean {
 }
 
 /**
+ * Flatten a per-section bucket map (publicRiskSections-shaped) into a
+ * deduped slip list. Used to derive the Parlay Lab filter dropdowns
+ * (team / game / player) from the slips that ACTUALLY render in the
+ * Suggested-mode spread, so the filters never offer an option that
+ * leads to an all-empty view. Dedups by slipId because a slip can be
+ * referenced from more than one bucket. Returns [] for null/undefined
+ * (the caller then falls back to the raw pool for legacy snapshots that
+ * predate publicRiskSections). Never fabricates a slip.
+ */
+export function flattenSectionSlips(
+  sections:
+    | Partial<Record<string, ReadonlyArray<ParlaySlip>>>
+    | null
+    | undefined,
+): ParlaySlip[] {
+  if (!sections) return [];
+  const seen = new Set<string>();
+  const out: ParlaySlip[] = [];
+  for (const arr of Object.values(sections)) {
+    for (const slip of arr ?? []) {
+      if (slip && !seen.has(slip.slipId)) {
+        seen.add(slip.slipId);
+        out.push(slip);
+      }
+    }
+  }
+  return out;
+}
+
+/**
  * Best slip per risk profile, filtered to the given sport and an
  * optional set of player names (used by the Parlay Lab builder UI).
  *
@@ -518,13 +548,34 @@ export function getAvailableSportsFromSlips(
 }
 
 /**
+ * Whether a slip belongs under a given sport tab, using the SAME
+ * semantics as `filterSlipsBySportTeamPlayer`:
+ *   - "all"   → every slip.
+ *   - "multi" → slip must carry ≥2 sports (a true Mixed build).
+ *   - "nba"/"mlb" → slip must be SINGLE-SPORT of that sport.
+ *
+ * This is what makes the dropdown sources honest: every team / game /
+ * player they offer maps to a slip the filter will actually return.
+ * The previous `slipContainsSport(slip, sport)` guard broke the Mixed
+ * tab entirely (no leg is ever sport "multi", so it matched nothing)
+ * and, on the NBA/MLB tabs, surfaced options drawn from Mixed slips
+ * that the filter would then exclude.
+ */
+function slipMatchesSportTab(slip: ParlaySlip, sport: SuggestedSport): boolean {
+  if (sport === "all") return true;
+  const sports = getSlipSports(slip);
+  if (sport === "multi") return sports.size >= 2;
+  return sports.size === 1 && sports.has(sport);
+}
+
+/**
  * Unique teams across the slips' legs, filtered to the given sport
  * (or all sports when sport === "all"). Sorted alphabetically. Skips
  * legs with no team metadata. This is the team picker source — never
  * fabricates a team.
  *
- * NBA tab includes teams from any leg whose sport === "nba", whether
- * the slip itself is sport-tagged "nba" or "multi". Same for MLB.
+ * NBA / MLB tabs only surface teams from single-sport slips of that
+ * sport. The Mixed tab spans both sports' legs across its slips.
  */
 export function getAvailableTeamsFromSlips(
   slips: ParlaySlip[],
@@ -532,7 +583,7 @@ export function getAvailableTeamsFromSlips(
 ): Array<{ team: string; sport: string }> {
   const seen = new Map<string, { team: string; sport: string }>();
   for (const slip of slips) {
-    if (sport !== "all" && !slipContainsSport(slip, sport)) continue;
+    if (!slipMatchesSportTab(slip, sport)) continue;
     for (const leg of slip.legs ?? []) {
       if (sport !== "all" && sport !== "multi") {
         // For sport-specific tabs, only show teams from THAT sport's legs.
@@ -567,7 +618,7 @@ export function getAvailableGamesFromSlips(
 ): Array<{ key: string; label: string; sport: string }> {
   const seen = new Map<string, { key: string; label: string; sport: string }>();
   for (const slip of slips) {
-    if (sport !== "all" && !slipContainsSport(slip, sport)) continue;
+    if (!slipMatchesSportTab(slip, sport)) continue;
     for (const leg of slip.legs ?? []) {
       if (sport !== "all" && sport !== "multi") {
         if ((leg.sport ?? "").toLowerCase() !== sport) continue;
@@ -601,7 +652,7 @@ export function getAvailablePlayersForTeam(
     { name: string; sport: string; team: string | null }
   >();
   for (const slip of slips) {
-    if (sport !== "all" && !slipContainsSport(slip, sport)) continue;
+    if (!slipMatchesSportTab(slip, sport)) continue;
     for (const leg of slip.legs ?? []) {
       if (sport !== "all" && sport !== "multi") {
         if ((leg.sport ?? "").toLowerCase() !== sport) continue;

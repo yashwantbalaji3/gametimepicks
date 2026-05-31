@@ -35,6 +35,7 @@ import {
   slipContainsGame,
   getAvailableGamesFromSlips,
   buildSectionEmptyActions,
+  flattenSectionSlips,
 } from "./parlay-suggested.ts";
 
 function mkLeg({ sport = "nba", team = "OKC", playerName = "Player A", market = "PTS" } = {}) {
@@ -106,12 +107,15 @@ test("getAvailableSportsFromSlips returns [] for empty pool", () => {
   assert.deepEqual(getAvailableSportsFromSlips([]), []);
 });
 
-test("getAvailableTeamsFromSlips respects sport filter (NBA tab includes multi-slip NBA legs)", () => {
-  // NBA tab should include teams from any NBA leg, including legs
-  // inside multi-sport slips (s4 has a NY NBA leg).
+test("getAvailableTeamsFromSlips respects sport filter (NBA/MLB tabs are single-sport only)", () => {
+  // NBA tab lists teams from single-sport NBA slips only (s1 OKC/OKC,
+  // s2 NY/CLE). The multi-sport slip s4's NY NBA leg is NOT a new
+  // source here — NY already comes from s2, and s4 itself belongs to
+  // the Mixed tab, mirroring filterSlipsBySportTeamPlayer.
   const nbaTeams = getAvailableTeamsFromSlips(POOL, "nba").map((t) => t.team);
   assert.deepEqual(nbaTeams.sort(), ["CLE", "NY", "OKC"]);
-  // MLB tab includes LAD from s3 + from the MLB leg inside s4.
+  // MLB tab lists LAD from the single-sport MLB slip s3. s4 (multi) is
+  // excluded; LAD already appears via s3 so the result is unchanged.
   const mlbTeams = getAvailableTeamsFromSlips(POOL, "mlb").map((t) => t.team);
   assert.deepEqual(mlbTeams, ["LAD"]);
 });
@@ -129,6 +133,59 @@ test("getAvailablePlayersForTeam filters to selected team", () => {
 test("getAvailablePlayersForTeam returns all sport players when team is null", () => {
   const allNba = getAvailablePlayersForTeam(POOL, "nba", null).map((p) => p.name);
   assert.deepEqual(allNba.sort(), ["Brunson", "Holmgren", "Mitchell", "SGA"]);
+});
+
+test("Mixed tab dropdowns populate from multi-sport slips; single-sport tabs exclude multi-only options", () => {
+  // Regression: getAvailable*FromSlips(_, "multi") used to return []
+  // because the old guard checked slipContainsSport(slip, "multi"),
+  // and no leg is ever sport "multi". A team/game that lives ONLY in a
+  // Mixed slip must surface on the Mixed tab AND be absent from the
+  // NBA/MLB tabs (where filterSlipsBySportTeamPlayer would exclude it).
+  const mixedOnly = mkSlip({
+    slipId: "m1",
+    sport: "multi",
+    legs: [
+      mkLeg({ sport: "nba", team: "PHX", playerName: "Booker" }),
+      mkLeg({ sport: "mlb", team: "SEA", playerName: "Raleigh" }),
+    ],
+  });
+  const nbaOnly = mkSlip({
+    slipId: "n1",
+    sport: "nba",
+    legs: [
+      mkLeg({ sport: "nba", team: "OKC", playerName: "SGA" }),
+      mkLeg({ sport: "nba", team: "OKC", playerName: "Holmgren" }),
+    ],
+  });
+  const pool = [mixedOnly, nbaOnly];
+
+  // Mixed tab now lists both games / teams / players from the Mixed slip.
+  assert.deepEqual(
+    getAvailableGamesFromSlips(pool, "multi").map((g) => g.key).sort(),
+    ["g-PHX", "g-SEA"],
+  );
+  assert.deepEqual(
+    getAvailableTeamsFromSlips(pool, "multi").map((t) => t.team).sort(),
+    ["PHX", "SEA"],
+  );
+  assert.deepEqual(
+    getAvailablePlayersForTeam(pool, "multi", null).map((p) => p.name).sort(),
+    ["Booker", "Raleigh"],
+  );
+
+  // NBA tab: PHX only lives in the Mixed slip → excluded. Only OKC shows.
+  assert.deepEqual(
+    getAvailableTeamsFromSlips(pool, "nba").map((t) => t.team).sort(),
+    ["OKC"],
+  );
+  assert.deepEqual(
+    getAvailableGamesFromSlips(pool, "nba").map((g) => g.key).sort(),
+    ["g-OKC"],
+  );
+
+  // MLB tab: SEA only lives in the Mixed slip and there is no single-
+  // sport MLB slip → empty (honest, not fabricated).
+  assert.deepEqual(getAvailableTeamsFromSlips(pool, "mlb"), []);
 });
 
 test("filterSlipsBySportTeamPlayer matches when any leg is on the team", () => {
@@ -1270,4 +1327,59 @@ test("with a game set, Show All for this game and Clear sport filter coexist", (
     allHasContent: true,
   });
   assert.deepEqual(kinds(actions), ["switch-all", "clear-game", "clear-sport"]);
+});
+
+// ---------------------------------------------------------------------------
+// flattenSectionSlips — filter dropdowns derive from rendered sections
+// ---------------------------------------------------------------------------
+
+test("flattenSectionSlips returns [] for null/undefined (legacy fallback)", () => {
+  assert.deepEqual(flattenSectionSlips(null), []);
+  assert.deepEqual(flattenSectionSlips(undefined), []);
+  assert.deepEqual(flattenSectionSlips({}), []);
+});
+
+test("flattenSectionSlips collects across sections and dedups by slipId", () => {
+  const a = mkSlip({ slipId: "a", legs: [mkLeg({ team: "OKC" })] });
+  const b = mkSlip({ slipId: "b", legs: [mkLeg({ team: "SAS" })] });
+  const sections = {
+    low: [a],
+    medium: [b],
+    high: [],
+    // `a` referenced again — must appear only once.
+    longshot: [a],
+  };
+  const flat = flattenSectionSlips(sections);
+  assert.deepEqual(
+    flat.map((s) => s.slipId).sort(),
+    ["a", "b"],
+  );
+});
+
+test("game dropdown derived from sections EXCLUDES a ghost game (only in the pool)", () => {
+  // The core Parlay Lab completeness fix: a game that only exists in the
+  // raw optimizer pool (never selected into a published section) must not
+  // be offered as a filter option, because selecting it renders nothing.
+  const inSection = mkSlip({
+    slipId: "covered",
+    legs: [mkLeg({ team: "OKC" })],
+  });
+  const ghost = mkSlip({
+    slipId: "ghost",
+    legs: [mkLeg({ team: "HOU" })],
+  });
+  const pool = [inSection, ghost];
+  const sections = { low: [inSection], medium: [], high: [], longshot: [] };
+
+  // Pool-sourced dropdown would offer BOTH games (the old buggy behavior).
+  const poolGames = getAvailableGamesFromSlips(pool, "all").map((g) => g.key);
+  assert.ok(poolGames.includes("g-OKC"));
+  assert.ok(poolGames.includes("g-HOU"));
+
+  // Section-sourced dropdown offers only the covered game.
+  const sectionGames = getAvailableGamesFromSlips(
+    flattenSectionSlips(sections),
+    "all",
+  ).map((g) => g.key);
+  assert.deepEqual(sectionGames, ["g-OKC"]);
 });

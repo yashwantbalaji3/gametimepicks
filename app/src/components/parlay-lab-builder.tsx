@@ -48,6 +48,7 @@ import {
   getAvailablePlayersForTeam,
   getAvailableSportsFromSlips,
   getAvailableTeamsFromSlips,
+  flattenSectionSlips,
   selectDiverseForDisplay,
   slipContainsGame,
   type ParlayRiskProfile,
@@ -175,8 +176,38 @@ export default function ParlayLabBuilder({
     }
   }, [availableSports, sport]);
 
+  // Sport pills come from the full pool, but the Team / Game / Player
+  // dropdowns are derived from the slips that ACTUALLY render in the
+  // active sport's Suggested-mode sections (`publicRiskSections.<sport>`),
+  // not the raw optimizer pool. The pool carries slips for games that
+  // never made the curated top-N-per-section cut, so a pool-sourced game
+  // dropdown offered "ghost" games that rendered four empty boxes. Keying
+  // the filters to the rendered sections makes every offered option land
+  // on real content. Legacy snapshots without publicRiskSections (or any
+  // unexpectedly empty sport lane) fall back to the full pool so the
+  // filters are never starved.
+  const browsablePool = useMemo<ParlaySlip[]>(() => {
+    const psr = optimizerPayload?.publicRiskSections;
+    if (!psr) return pool;
+    const sportKey = (sport === "all" ? "all" : sport) as
+      | "all"
+      | "nba"
+      | "mlb"
+      | "multi";
+    const sectionKeys: RiskSectionKey[] = ["low", "medium", "high", "longshot"];
+    const map: Partial<Record<string, ParlaySlip[]>> = {};
+    for (const key of sectionKeys) {
+      const raw = psr[key]?.[sportKey] ?? [];
+      map[key] = raw.map((s) =>
+        optimizerSlipToParlaySlip(s, optimizerPayload!.date),
+      );
+    }
+    const flat = flattenSectionSlips(map);
+    return flat.length > 0 ? flat : pool;
+  }, [optimizerPayload, sport, pool]);
+
   const teamSelectOptions = useMemo<SearchableOption[]>(() => {
-    const teams = getAvailableTeamsFromSlips(pool, sport);
+    const teams = getAvailableTeamsFromSlips(browsablePool, sport);
     return [
       { value: null, label: "All teams" },
       ...teams.map((t) => ({
@@ -186,10 +217,10 @@ export default function ParlayLabBuilder({
         searchText: t.team,
       })),
     ];
-  }, [pool, sport]);
+  }, [browsablePool, sport]);
 
   const gameSelectOptions = useMemo<SearchableOption[]>(() => {
-    const games = getAvailableGamesFromSlips(pool, sport);
+    const games = getAvailableGamesFromSlips(browsablePool, sport);
     return [
       { value: null, label: "All games" },
       ...games.map((g) => ({
@@ -199,10 +230,10 @@ export default function ParlayLabBuilder({
         searchText: g.label,
       })),
     ];
-  }, [pool, sport]);
+  }, [browsablePool, sport]);
 
   const playerSelectOptions = useMemo<SearchableOption[]>(() => {
-    const players = getAvailablePlayersForTeam(pool, sport, team);
+    const players = getAvailablePlayersForTeam(browsablePool, sport, team);
     return [
       { value: null, label: "All players" },
       ...players.map((p) => ({
@@ -212,7 +243,7 @@ export default function ParlayLabBuilder({
         searchText: `${p.name} ${p.team ?? ""}`,
       })),
     ];
-  }, [pool, sport, team]);
+  }, [browsablePool, sport, team]);
 
   function changeSport(next: SuggestedSport) {
     if (next === sport) return;
