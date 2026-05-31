@@ -10,6 +10,11 @@
 > time of writing, so this note deliberately excludes any May-30
 > outcome. It describes only what was *published pregame* plus the
 > already-graded record through 2026-05-29.
+>
+> **➡ Settled (2026-05-31):** the post-settlement read — including a fixed
+> NBA settlement gap (PR #202) — now lives in
+> `docs/LEARNING_NOTES_2026-05-30_SETTLEMENT.md`. This pregame note is
+> retained verbatim as the historical pregame snapshot.
 
 Continues `docs/LEARNING_NOTES_2026-05-29_SETTLEMENT.md`. The public era
 starts **2026-05-27** (`public-parlay-era.ts`); pre-era slates (05-25,
