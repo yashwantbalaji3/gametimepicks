@@ -1058,6 +1058,113 @@ export function selectBuilderSlip(
 }
 
 // ---------------------------------------------------------------------------
+// Empty-section quick actions (Parlay Lab Suggested mode)
+// ---------------------------------------------------------------------------
+//
+// When a risk section renders empty for the active sport/game filter, the
+// honest move is not just to explain *why* it is empty but to offer the
+// user a path to content that genuinely exists. This pure helper decides
+// which quick-action buttons to surface for one empty section. It NEVER
+// invents an alternative: the caller passes in whether the Mixed / All
+// lanes actually carry slips for this section (respecting the active game
+// filter), and an action toward a lane is only returned when that lane has
+// real content. The reset actions (clear game / clear sport) are always
+// valid escapes when the corresponding filter is active.
+
+export type SectionEmptyActionKind =
+  | "switch-mixed"
+  | "switch-all"
+  | "clear-game"
+  | "clear-sport";
+
+export interface SectionEmptyAction {
+  kind: SectionEmptyActionKind;
+  /** Button label. Game-aware ("…with this game") when a game is set. */
+  label: string;
+  /** Target sport for switch actions; null for pure filter resets. */
+  targetSport: SuggestedSport | null;
+  /** Whether the action preserves the active game filter. */
+  keepGame: boolean;
+}
+
+export interface SectionEmptyActionContext {
+  /** Active sport tab. */
+  sport: SuggestedSport;
+  /** Active game key, or null. */
+  game: string | null;
+  /** Does the Mixed (multi) lane for THIS section carry ≥1 slip,
+   *  respecting the active game filter when one is set? The caller
+   *  computes this from the published sections — the helper trusts it
+   *  and never fabricates availability. */
+  mixedHasContent: boolean;
+  /** Does the All lane for THIS section carry ≥1 slip, respecting the
+   *  active game filter when one is set? */
+  allHasContent: boolean;
+}
+
+/**
+ * Ordered list of quick actions for an empty risk section. Only actions
+ * that lead to real content (or reset an active filter) are returned, so
+ * a button never lands the user on another empty view. Capped at three to
+ * keep the empty state compact. Pure + deterministic for unit testing.
+ */
+export function buildSectionEmptyActions(
+  ctx: SectionEmptyActionContext,
+): SectionEmptyAction[] {
+  const actions: SectionEmptyAction[] = [];
+  const hasGame = ctx.game != null && ctx.game !== "";
+
+  // 1. Switch toward Mixed when the current tab is a single sport and the
+  //    Mixed lane actually carries this section (the SAS@OKC case: NBA
+  //    Medium/High/Longshot are empty, but every Mixed slip in those
+  //    sections contains the NBA game, so this lands on real content).
+  if ((ctx.sport === "nba" || ctx.sport === "mlb") && ctx.mixedHasContent) {
+    actions.push({
+      kind: "switch-mixed",
+      label: hasGame ? "Show Mixed with this game" : "Show Mixed",
+      targetSport: "multi",
+      keepGame: true,
+    });
+  }
+
+  // 2. Switch to All when the current tab is not already All and the All
+  //    lane carries this section.
+  if (ctx.sport !== "all" && ctx.allHasContent) {
+    actions.push({
+      kind: "switch-all",
+      label: hasGame ? "Show All for this game" : "Show All",
+      targetSport: "all",
+      keepGame: true,
+    });
+  }
+
+  // 3. Clear the game filter — a valid escape whenever a game is set.
+  if (hasGame) {
+    actions.push({
+      kind: "clear-game",
+      label: "Clear game filter",
+      targetSport: null,
+      keepGame: false,
+    });
+  }
+
+  // 4. Clear the sport filter (back to All). Skipped when a Show All
+  //    action with no game is already present — both land on the same
+  //    place, so showing both would be redundant.
+  const hasSwitchAll = actions.some((a) => a.kind === "switch-all");
+  if (ctx.sport !== "all" && !(hasSwitchAll && !hasGame)) {
+    actions.push({
+      kind: "clear-sport",
+      label: "Clear sport filter",
+      targetSport: "all",
+      keepGame: false,
+    });
+  }
+
+  return actions.slice(0, 3);
+}
+
+// ---------------------------------------------------------------------------
 // Bank Builder — +100 target selector (May-30 runbook Phase 3)
 // ---------------------------------------------------------------------------
 //

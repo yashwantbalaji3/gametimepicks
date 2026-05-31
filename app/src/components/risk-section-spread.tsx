@@ -37,12 +37,22 @@ import {
   getRiskSectionDisplay,
   type RiskSectionKey,
 } from "@/lib/parlay-risk-sections";
-import type {
-  ParlayLeg,
-  ParlaySlip,
-  SuggestedSport,
+import {
+  buildSectionEmptyActions,
+  type ParlayLeg,
+  type ParlaySlip,
+  type SectionEmptyAction,
+  type SuggestedSport,
 } from "@/lib/parlay-suggested";
 import type { CalibrationTable } from "@/lib/confidence-calibration-rules";
+
+/** Per-section availability of the Mixed / All lanes, computed by the
+ *  builder from the published sections (respecting the active game
+ *  filter). Threaded down so an empty section only offers a switch
+ *  action when that lane actually carries content. */
+export type SectionAlternatives = Partial<
+  Record<RiskSectionKey, { mixed: boolean; all: boolean }>
+>;
 
 export interface RiskSectionSpreadProps {
   /** Fallback path: visible slips when `sections` is not provided
@@ -69,6 +79,17 @@ export interface RiskSectionSpreadProps {
    *  BuildMyCard selection context. Opt-in: omitted everywhere except
    *  the Parlay Lab Suggested mode. */
   selectable?: boolean;
+  /** Active game key (or null) — surfaces "…with this game" copy in the
+   *  empty-state quick actions. */
+  game?: string | null;
+  /** Per-section Mixed/All lane availability for the empty-state quick
+   *  actions. When omitted, empty sections render the explanation only
+   *  (no switch buttons). */
+  sectionAlternatives?: SectionAlternatives;
+  /** Invoked when the user taps an empty-section quick action. The
+   *  builder interprets the action kind (switch sport / clear filter).
+   *  When omitted, no action buttons render. */
+  onEmptyAction?: (action: SectionEmptyAction) => void;
 }
 
 /** When two slips' scores differ by less than this, prefer the one
@@ -106,6 +127,9 @@ export default function RiskSectionSpread({
   calibrationTable,
   onLegClick,
   selectable = false,
+  game = null,
+  sectionAlternatives,
+  onEmptyAction,
 }: RiskSectionSpreadProps) {
   // Build My Card selection. Reads the no-op default when no provider
   // is mounted, so this is safe even on surfaces that don't opt in.
@@ -165,7 +189,13 @@ export default function RiskSectionSpread({
             </header>
 
             {sectionSlips.length === 0 ? (
-              <SectionEmpty sport={sport} sectionKey={sectionKey} />
+              <SectionEmpty
+                sport={sport}
+                sectionKey={sectionKey}
+                game={game}
+                alternatives={sectionAlternatives?.[sectionKey]}
+                onEmptyAction={onEmptyAction}
+              />
             ) : (
               <div className="px-3 sm:px-4 py-4 grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
                 {sectionSlips.map((slip) => (
@@ -194,39 +224,109 @@ export default function RiskSectionSpread({
 function SectionEmpty({
   sport,
   sectionKey,
+  game,
+  alternatives,
+  onEmptyAction,
 }: {
   sport: SuggestedSport;
   sectionKey: RiskSectionKey;
+  game?: string | null;
+  alternatives?: { mixed: boolean; all: boolean };
+  onEmptyAction?: (action: SectionEmptyAction) => void;
 }) {
   const display = getRiskSectionDisplay(sectionKey);
+  const hasGame = game != null && game !== "";
+  const gameWord = hasGame ? "this game" : "today's slate";
   // The user spec requires honest empty copy that names *why* the
   // section is empty without implying alternatives that don't exist.
+  // When a real alternative lane DOES carry this section, the copy points
+  // at it and the quick-action buttons below make the switch one tap.
+  const mixedHasContent = alternatives?.mixed ?? false;
+  const allHasContent = alternatives?.all ?? false;
   let body: string;
   if (sport === "nba") {
     body =
-      `No NBA-only ${display.legRange} parlays available right now. ` +
+      `No NBA-only ${display.legRange} parlays for ${gameWord} right now. ` +
       `On single-game slates the model's same-game cap keeps NBA-only ` +
-      `slips at 2 legs — try the Mixed or All tabs for ${display.legRange}.`;
+      `slips at 2 legs` +
+      (mixedHasContent
+        ? ` — but Mixed parlays in this section include the NBA game.`
+        : allHasContent
+          ? ` — the All tab carries this section.`
+          : `.`);
   } else if (sport === "mlb") {
-    body = `No MLB-only ${display.legRange} parlays in today's qualified pool.`;
+    body =
+      `No MLB-only ${display.legRange} parlays for ${gameWord} in today's ` +
+      `qualified pool` +
+      (mixedHasContent
+        ? ` — Mixed parlays in this section include MLB legs.`
+        : allHasContent
+          ? ` — the All tab carries this section.`
+          : `.`);
   } else if (sport === "multi") {
-    body = `No Mixed (NBA + MLB) ${display.legRange} parlays in today's qualified pool.`;
+    body =
+      `No Mixed (NBA + MLB) ${display.legRange} parlays for ${gameWord} in ` +
+      `today's qualified pool` +
+      (allHasContent ? ` — the All tab carries this section.` : `.`);
   } else {
     body =
-      `No ${display.legRange} parlays in today's qualified pool that ` +
-      `also land in ${display.oddsRange}.`;
+      `No ${display.legRange} parlays for ${gameWord} that also land in ` +
+      `${display.oddsRange}.`;
   }
+
+  // Pure helper decides which buttons make sense — only switch actions
+  // that lead to a lane with real content, plus valid filter resets.
+  const actions: SectionEmptyAction[] = onEmptyAction
+    ? buildSectionEmptyActions({
+        sport,
+        game: game ?? null,
+        mixedHasContent,
+        allHasContent,
+      })
+    : [];
+
   return (
     <div
-      className="px-3 sm:px-4 pb-5 pt-3 flex flex-col items-center text-center gap-1.5"
+      className="px-3 sm:px-4 pb-5 pt-3 flex flex-col items-center text-center gap-2.5"
       style={{ minHeight: 96 }}
     >
       <p
         className="text-[12.5px] leading-relaxed"
-        style={{ color: "var(--vault-text-mute)", maxWidth: 380 }}
+        style={{ color: "var(--vault-text-mute)", maxWidth: 420 }}
       >
         {body}
       </p>
+      {actions.length > 0 && (
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {actions.map((action) => (
+            <button
+              key={action.kind}
+              type="button"
+              onClick={() => onEmptyAction?.(action)}
+              className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full"
+              style={{
+                color:
+                  action.kind === "switch-mixed" || action.kind === "switch-all"
+                    ? "var(--vault-bg)"
+                    : "var(--vault-text-mute)",
+                background:
+                  action.kind === "switch-mixed" || action.kind === "switch-all"
+                    ? "var(--vault-gold-bright)"
+                    : "transparent",
+                border:
+                  action.kind === "switch-mixed" || action.kind === "switch-all"
+                    ? "none"
+                    : "1px solid var(--vault-rule)",
+                fontSize: 10,
+                cursor: "pointer",
+                fontWeight: 600,
+              }}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

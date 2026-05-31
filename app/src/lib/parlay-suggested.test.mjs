@@ -34,6 +34,7 @@ import {
   getSlipGames,
   slipContainsGame,
   getAvailableGamesFromSlips,
+  buildSectionEmptyActions,
 } from "./parlay-suggested.ts";
 
 function mkLeg({ sport = "nba", team = "OKC", playerName = "Player A", market = "PTS" } = {}) {
@@ -1132,4 +1133,141 @@ test("game + team filters compose (both must hold)", () => {
     gameKey: "g-CLE",
   });
   assert.deepEqual(none, []);
+});
+
+// ---------------------------------------------------------------------------
+// buildSectionEmptyActions — empty-section quick actions
+// ---------------------------------------------------------------------------
+
+const kinds = (actions) => actions.map((a) => a.kind);
+
+test("NBA empty section + Mixed has the game → offers Show Mixed with this game", () => {
+  // The SAS@OKC screenshot case: NBA Medium/High/Longshot are empty but
+  // every Mixed slip in that section contains the NBA game.
+  const actions = buildSectionEmptyActions({
+    sport: "nba",
+    game: "0042500317",
+    mixedHasContent: true,
+    allHasContent: true,
+  });
+  assert.ok(kinds(actions).includes("switch-mixed"));
+  const mixed = actions.find((a) => a.kind === "switch-mixed");
+  assert.equal(mixed.label, "Show Mixed with this game");
+  assert.equal(mixed.targetSport, "multi");
+  assert.equal(mixed.keepGame, true);
+  // Clearing the game is always a valid escape when a game is set.
+  assert.ok(kinds(actions).includes("clear-game"));
+  // Capped at 3 to stay compact.
+  assert.ok(actions.length <= 3);
+});
+
+test("NBA empty section, no game → Show Mixed (no '…with this game')", () => {
+  const actions = buildSectionEmptyActions({
+    sport: "nba",
+    game: null,
+    mixedHasContent: true,
+    allHasContent: true,
+  });
+  const mixed = actions.find((a) => a.kind === "switch-mixed");
+  assert.equal(mixed.label, "Show Mixed");
+  assert.equal(mixed.keepGame, true);
+  // No game is set, so clear-game must NOT appear.
+  assert.ok(!kinds(actions).includes("clear-game"));
+});
+
+test("switch-all only offered when the All lane actually has content", () => {
+  const withAll = buildSectionEmptyActions({
+    sport: "mlb",
+    game: null,
+    mixedHasContent: false,
+    allHasContent: true,
+  });
+  assert.ok(kinds(withAll).includes("switch-all"));
+  assert.equal(
+    withAll.find((a) => a.kind === "switch-all").label,
+    "Show All",
+  );
+  const withoutAll = buildSectionEmptyActions({
+    sport: "mlb",
+    game: null,
+    mixedHasContent: false,
+    allHasContent: false,
+  });
+  assert.ok(!kinds(withoutAll).includes("switch-all"));
+  assert.ok(!kinds(withoutAll).includes("switch-mixed"));
+  // Only the clear-sport escape remains (sport is single, no game).
+  assert.deepEqual(kinds(withoutAll), ["clear-sport"]);
+});
+
+test("Show All for this game keeps the game when a game is set", () => {
+  const actions = buildSectionEmptyActions({
+    sport: "mlb",
+    game: "g-DET-CWS",
+    mixedHasContent: false,
+    allHasContent: true,
+  });
+  const all = actions.find((a) => a.kind === "switch-all");
+  assert.equal(all.label, "Show All for this game");
+  assert.equal(all.keepGame, true);
+  assert.equal(all.targetSport, "all");
+});
+
+test("Mixed tab empty section never offers switch-mixed (it IS the mixed lane)", () => {
+  const actions = buildSectionEmptyActions({
+    sport: "multi",
+    game: null,
+    mixedHasContent: true, // ignored for the multi tab itself
+    allHasContent: true,
+  });
+  assert.ok(!kinds(actions).includes("switch-mixed"));
+  // But it can fall back to the All lane.
+  assert.ok(kinds(actions).includes("switch-all"));
+});
+
+test("All tab empty section with a ghost game → only Clear game filter", () => {
+  // A game with zero published-section coverage on the All tab: nothing
+  // to switch to, the honest escape is clearing the game.
+  const actions = buildSectionEmptyActions({
+    sport: "all",
+    game: "g-ghost",
+    mixedHasContent: false,
+    allHasContent: false,
+  });
+  assert.deepEqual(kinds(actions), ["clear-game"]);
+});
+
+test("All tab empty section, no game → no actions (genuinely nothing)", () => {
+  const actions = buildSectionEmptyActions({
+    sport: "all",
+    game: null,
+    mixedHasContent: false,
+    allHasContent: false,
+  });
+  assert.deepEqual(actions, []);
+});
+
+test("clear-sport is suppressed when Show All (no game) already lands there", () => {
+  // Show All with no game and Clear sport filter both end on the All tab
+  // with no game — surfacing both would be redundant.
+  const actions = buildSectionEmptyActions({
+    sport: "nba",
+    game: null,
+    mixedHasContent: false,
+    allHasContent: true,
+  });
+  assert.ok(kinds(actions).includes("switch-all"));
+  assert.ok(!kinds(actions).includes("clear-sport"));
+});
+
+test("with a game set, Show All for this game and Clear sport filter coexist", () => {
+  // They differ: Show All keeps the game, Clear sport filter drops it.
+  // Cap is 3, so switch-mixed + switch-all + clear-game fill first; with
+  // mixed absent we get switch-all + clear-game + clear-sport.
+  const actions = buildSectionEmptyActions({
+    sport: "nba",
+    game: "0042500317",
+    mixedHasContent: false,
+    allHasContent: true,
+  });
+  assert.deepEqual(kinds(actions), ["switch-all", "clear-game", "clear-sport"]);
 });

@@ -49,10 +49,13 @@ import {
   getAvailableSportsFromSlips,
   getAvailableTeamsFromSlips,
   selectDiverseForDisplay,
+  slipContainsGame,
   type ParlayRiskProfile,
   type ParlaySlip,
+  type SectionEmptyAction,
   type SuggestedSport,
 } from "@/lib/parlay-suggested";
+import type { SectionAlternatives } from "./risk-section-spread";
 import {
   HIGH_VARIANCE_DEFAULT_OPEN,
   HIGH_VARIANCE_PROFILE,
@@ -235,6 +238,39 @@ export default function ParlayLabBuilder({
     setPlayer(next);
   }
 
+  // Switch the sport tab while OPTIONALLY preserving the active game
+  // filter. `changeSport` always resets the game (a different sport has
+  // different games), but the empty-section "Show Mixed with this game"
+  // quick action needs to keep the game when crossing NBA → Mixed/All.
+  // Team + player are always cleared on a sport switch (sport-scoped).
+  function switchSportKeepGame(next: SuggestedSport, keepGame: boolean) {
+    setSport(next);
+    setTeam(null);
+    setPlayer(null);
+    if (!keepGame) setGame(null);
+  }
+
+  // Interpret an empty-section quick action emitted by RiskSectionSpread.
+  function handleEmptyAction(action: SectionEmptyAction) {
+    switch (action.kind) {
+      case "switch-mixed":
+      case "switch-all":
+        if (action.targetSport) {
+          switchSportKeepGame(action.targetSport, action.keepGame);
+        }
+        break;
+      case "clear-game":
+        setGame(null);
+        break;
+      case "clear-sport":
+        setSport(sportOptions[0]?.key ?? "all");
+        setTeam(null);
+        setGame(null);
+        setPlayer(null);
+        break;
+    }
+  }
+
   // ---- Apply filters -------------------------------------------------
   const filtered = useMemo(
     () =>
@@ -398,6 +434,56 @@ export default function ParlayLabBuilder({
     return out;
   }, [sportSections, sport, team, game, player]);
 
+  // Per-section availability of the Mixed / All lanes, honoring the
+  // active game filter. Drives the empty-section quick actions so a
+  // "Show Mixed with this game" button is only offered when that lane
+  // genuinely carries this section for that game. Lane selection is
+  // fixed (multi / all) and independent of the active sport tab — the
+  // switch action will move the user to that tab. Team/player are NOT
+  // applied here because switching sport clears them.
+  const sectionAlternatives = useMemo<SectionAlternatives | undefined>(() => {
+    const psr = optimizerPayload?.publicRiskSections;
+    if (!psr) return undefined;
+    const sectionKeys: RiskSectionKey[] = ["low", "medium", "high", "longshot"];
+    const laneHasContent = (
+      lane: "multi" | "all",
+      key: RiskSectionKey,
+    ): boolean => {
+      const raw = psr[key]?.[lane] ?? [];
+      if (raw.length === 0) return false;
+      if (game == null) return true;
+      return raw
+        .map((s) => optimizerSlipToParlaySlip(s, optimizerPayload!.date))
+        .some((s) => slipContainsGame(s, game));
+    };
+    const out: SectionAlternatives = {};
+    for (const key of sectionKeys) {
+      out[key] = {
+        mixed: laneHasContent("multi", key),
+        all: laneHasContent("all", key),
+      };
+    }
+    return out;
+  }, [optimizerPayload, game]);
+
+  // Honest cross-lane hint for the summary line (runbook req 1): when the
+  // user is on a single-sport tab and Mixed/All lanes carry that sport's
+  // legs for the active game, surface that those lanes exist rather than
+  // implying the single-sport tab is the whole story.
+  const crossLaneHint = useMemo<string | null>(() => {
+    if (sport !== "nba" && sport !== "mlb") return null;
+    if (!sectionAlternatives) return null;
+    const anyMixed = Object.values(sectionAlternatives).some((a) => a?.mixed);
+    const anyAll = Object.values(sectionAlternatives).some((a) => a?.all);
+    if (!anyMixed && !anyAll) return null;
+    const sportLabel = sport === "nba" ? "NBA" : "MLB";
+    const scope = game ? "this game" : "today's slate";
+    if (anyMixed) {
+      return `Mixed parlays with ${sportLabel} legs are also available for ${scope}.`;
+    }
+    return `The All tab carries more ${sportLabel} parlays for ${scope}.`;
+  }, [sport, sectionAlternatives, game]);
+
   // ---- "Showing N parlays" summary ----------------------------------
   // The count is derived from the SAME buckets RiskSectionSpread renders
   // (getDisplaySectionBuckets via countDisplaySlips), so the headline
@@ -472,6 +558,7 @@ export default function ParlayLabBuilder({
           <FilterSummaryLine
             count={displayedSlipCount}
             context={filterContextLabel}
+            hint={crossLaneHint}
           />
           <SuggestedMode
             cards={cards}
@@ -485,6 +572,9 @@ export default function ParlayLabBuilder({
             onLegClick={setActiveLeg}
             poolAvailability={poolAvailability}
             sections={teamPlayerFiltered}
+            game={game}
+            sectionAlternatives={sectionAlternatives}
+            onEmptyAction={handleEmptyAction}
             selectable
           />
         </>
@@ -526,6 +616,9 @@ function SuggestedMode({
   onLegClick,
   poolAvailability,
   sections,
+  game,
+  sectionAlternatives,
+  onEmptyAction,
   selectable = false,
 }: {
   cards: Array<{
@@ -551,6 +644,12 @@ function SuggestedMode({
    *  predates the server-side selector — RiskSectionSpread falls back
    *  to its client-side classifier in that case. */
   sections?: Partial<Record<RiskSectionKey, ParlaySlip[]>>;
+  /** Active game key (or null) for empty-state quick-action copy. */
+  game?: string | null;
+  /** Per-section Mixed/All lane availability for empty-state actions. */
+  sectionAlternatives?: SectionAlternatives;
+  /** Empty-section quick-action handler. */
+  onEmptyAction?: (action: SectionEmptyAction) => void;
   /** When true, each ticket card renders the opt-in "Add to my card"
    *  toggle and reads/writes the BuildMyCard selection context. */
   selectable?: boolean;
@@ -584,6 +683,9 @@ function SuggestedMode({
         source={source}
         calibrationTable={calibrationTable}
         onLegClick={onLegClick}
+        game={game}
+        sectionAlternatives={sectionAlternatives}
+        onEmptyAction={onEmptyAction}
         selectable={selectable}
       />
     </>
@@ -776,28 +878,42 @@ function buildFilterContextLabel({
 function FilterSummaryLine({
   count,
   context,
+  hint,
 }: {
   count: number;
   context: string | null;
+  /** Optional honest cross-lane hint (e.g. "Mixed parlays with NBA legs
+   *  are also available.") rendered as a quiet second line. */
+  hint?: string | null;
 }) {
   return (
-    <p
-      className="font-mono text-[12px] -mt-1"
-      style={{ color: "var(--vault-text-mute)" }}
-      aria-live="polite"
-    >
-      Showing{" "}
-      <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
-        {count}
-      </span>{" "}
-      {count === 1 ? "parlay" : "parlays"}
-      {context ? (
-        <>
-          {" "}
-          · <span style={{ color: "var(--vault-text)" }}>{context}</span>
-        </>
+    <div className="flex flex-col gap-0.5 -mt-1">
+      <p
+        className="font-mono text-[12px]"
+        style={{ color: "var(--vault-text-mute)" }}
+        aria-live="polite"
+      >
+        Showing{" "}
+        <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
+          {count}
+        </span>{" "}
+        {count === 1 ? "parlay" : "parlays"}
+        {context ? (
+          <>
+            {" "}
+            · <span style={{ color: "var(--vault-text)" }}>{context}</span>
+          </>
+        ) : null}
+      </p>
+      {hint ? (
+        <p
+          className="text-[11.5px] leading-snug"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          {hint}
+        </p>
       ) : null}
-    </p>
+    </div>
   );
 }
 
