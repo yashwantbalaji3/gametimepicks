@@ -9,17 +9,32 @@ not just colors.
 
 ## Links
 
-| Version | Where | Preview URL |
-|---|---|---|
-| **Current (production)** | `gametimepicks.yashwantbalaji.com` | https://gametimepicks.yashwantbalaji.com |
-| **A — Command Center** | PR #213 | https://gametimepicks-git-previe-68fe9e-yashwantbalaji33-7164s-projects.vercel.app |
-| **B — Social Story** | PR #214 | https://gametimepicks-git-previe-7665da-yashwantbalaji33-7164s-projects.vercel.app |
-| **C — Guided Flow** | PR #215 | https://gametimepicks-git-previe-a65588-yashwantbalaji33-7164s-projects.vercel.app |
+Each PR deploys to **two** Vercel projects: the production project
+`gametimepicks` (preview is **Deployment-Protected → 401** unless you're signed
+in) and a duplicate project `gametime-picks` (preview is **public → 200**). The
+`gametime-picks` link is the one you can open directly in any browser; both
+serve the **same concept code**. Curl-verified 2026-06-01 across `/`,
+`/parlay-lab/`, `/bank-builder/`, `/results/`.
 
-> Preview URLs are Vercel deployment-protected (401 to the public). Open the
-> PR on GitHub and click the Vercel bot's **Visit Preview** link while signed
-> into Vercel as the project owner, or open it from the Vercel dashboard
-> (project `gametimepicks` → Deployments → the `preview/structural-*` branch).
+| Version | PR | **Open directly (public, 200)** | Protected (401 — sign in to Vercel) |
+|---|---|---|---|
+| **Current (production)** | — | https://gametimepicks.yashwantbalaji.com | — |
+| **A — Command Center** | #213 | https://gametime-picks-git-previ-316fb1-yashwantbalaji33-7164s-projects.vercel.app | https://gametimepicks-git-previe-68fe9e-yashwantbalaji33-7164s-projects.vercel.app |
+| **B — Social Story** | #214 | https://gametime-picks-git-previ-5b39f1-yashwantbalaji33-7164s-projects.vercel.app | https://gametimepicks-git-previe-7665da-yashwantbalaji33-7164s-projects.vercel.app |
+| **C — Guided Flow** | #215 | https://gametime-picks-git-previ-e2bbfe-yashwantbalaji33-7164s-projects.vercel.app | https://gametimepicks-git-previe-a65588-yashwantbalaji33-7164s-projects.vercel.app |
+
+> **Reading the responses, and why a link can break:**
+> - **200** — the public `gametime-picks` link; opens directly. Use these.
+> - **401 "Authentication Required"** — Vercel **Deployment Protection** on the
+>   production project. The deployment is **valid**; sign into Vercel (or click
+>   the PR's Vercel bot **Visit Preview** link as the project owner) to view.
+> - **404 NOT_FOUND** — the URL is **stale/invalid**, *not* a sign the concept
+>   is gone. Vercel branch-alias URLs are truncated with a hash and can drift;
+>   if one 404s, **don't trust it** — go to the PR and use the Vercel bot's
+>   current **Visit Preview** link, which is the source of truth.
+>
+> Most reliable path: open the **PR** (#213 / #214 / #215) → the Vercel bot
+> comment → **Visit Preview**.
 
 ### Superseded
 The earlier CSS-only concepts — **PRs #209 / #210 / #211** (doc #212) — were
