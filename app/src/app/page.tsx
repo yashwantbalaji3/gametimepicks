@@ -31,6 +31,7 @@ import { formatPercent } from "@/lib/format";
 
 import ParlayLabBuilder from "@/components/parlay-lab-builder";
 import ParlayTicketCard from "@/components/parlay-ticket-card";
+import GuidedStart from "@/components/guided-start/guided-start";
 import NewsletterSignup from "@/components/newsletter-signup";
 import MarketTicker from "@/components/market-ticker";
 import { buildMarketTickerItems } from "@/lib/market-ticker";
@@ -148,8 +149,17 @@ export default function HomePage() {
       <MarketTicker items={tickerItems} className="-mx-3 sm:-mx-5 lg:-mx-6" />
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
-        {/* Main column — featured card + full builder */}
+        {/* Main column — guided start + featured card + full builder */}
         <div className="xl:col-span-8 flex flex-col gap-4">
+          {/* Additive "New here?" beginner finder — does not replace the
+              builder or the featured slip; reuses the same slips/helpers. */}
+          <GuidedStart
+            slips={suggested?.slips ?? []}
+            slateDate={suggested?.date ?? today}
+            isFallback={suggested?.isFallback ?? true}
+            calibrationTable={calibrationTable}
+          />
+
           {featured && (
             <ModuleCard title="Featured slip" meta={slateLabel}>
               <div className="p-2 sm:p-3">
