@@ -1,6 +1,8 @@
 # Diagnosis — May-31 morning-projections timeout (NBA on CI)
 
-**Date:** 2026-05-31 (evening) · **Status:** root-caused, **no code shipped** (see §4)
+**Date:** 2026-05-31 (evening) · **Status:** root-caused; **fix #1 (circuit
+breaker) now implemented** with operator approval (see §5). §4 records why no
+fix was shipped on the first pass.
 
 ## 1. What happened
 The scheduled `morning-projections` run for **May 31** (`26715992048`, 13:30 UTC
@@ -64,13 +66,21 @@ fast fallback when nba_api is down — it just slow-fails every player.
 In rough priority — each should land with tests and be watched on the next
 `morning-projections` run:
 
-1. **Circuit-breaker in `fetch_player_game_logs`** *(lowest risk, offline-testable)*
-   — after *K* consecutive `Read timed out` failures from the slow primary
-   provider, stop attempting it for the rest of the run (fast-fail the remaining
-   players). Failure-path only; the success path is unchanged; downstream already
-   handles `[]`→ suppressed projection. Converts a 25-min hang into ~K×25 s, so
-   the job **completes and commits** (MLB board + any cached/available NBA)
-   instead of producing nothing.
+1. **✅ IMPLEMENTED — Circuit-breaker around the NBA provider chain.**
+   `pipeline/provider_circuit_breaker.py` (new) + `pipeline/fetch_nba_data.py`
+   (refactored). A process-wide breaker, **shared across game-logs / roster /
+   box-score**, trips a provider when its *slow* failures (elapsed ≥ 10 s) reach
+   4 in a row **or** cumulative failed-time reaches 120 s, then skips it for the
+   rest of the run. Fast failures (`ProviderNotImplemented`, ~0 s) never trip it;
+   any success resets the streak; an unexpected (non-`ProviderError`) exception is
+   contained, recorded, and the walk continues (no single provider can abort
+   failover). **Bound:** a hung host wastes ≤ ~125 s total per run regardless of
+   roster size (verified: 500 players cost ~100 s vs. the old ~12,500 s). The
+   success/healthy path is byte-for-byte unchanged. When everything fails the
+   result is empty and the player's projection is honestly suppressed — **no
+   data invented, stale cache NOT auto-consulted in the model path.** Covered by
+   `pipeline/fetch_nba_data_test.py` (37 assertions) + an independent
+   three-lens adversarial review.
 2. **Wire `load_stale_recent10_cache` into `fetch_player_game_logs`** as a
    fallback *after* nba_api fails — so NBA projections still generate from honest
    cached game logs when nba_api is blocked. **Requires an operator decision** on
@@ -97,5 +107,10 @@ In rough priority — each should land with tests and be watched on the next
 - `nightly-settle` (07:00 UTC Jun 1) settles **May 31** — but there are no May-31
   suggested parlays to grade (none generated), so the track record simply has no
   May-31 row. Honest.
-- `morning-projections` (13:30 UTC Jun 1) generates **June 1**. **Watch this run.**
-  If it times out the same way, apply fix #1 (and/or #2) above.
+- `morning-projections` (13:30 UTC Jun 1) generates **June 1** — now with the
+  circuit breaker in place. **Watch this run:** it should finish in its usual
+  ~1–2 min, or — if NBA.com is blocking the runner — finish *fast* with NBA
+  honestly suppressed (MLB board still committed) instead of timing out. The
+  breaker only changes behaviour when a provider hangs; a healthy run is
+  unaffected. If June 1 still stalls, the next levers are fix #2 (wire the
+  recent10 cache into the model fetch, operator-approved) and #3/#4.
