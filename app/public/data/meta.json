@@ -1,15 +1,15 @@
 {
   "appName": "GametimePicks",
   "version": "0.5.0",
-  "lastPipelineRun": "2026-05-30T14:51:06+00:00",
+  "lastPipelineRun": "2026-06-01T19:10:34+00:00",
   "isDemo": false,
-  "dataMode": "Live",
-  "nbaScheduleSource": "nba_api",
-  "nbaStatsSource": "nba_api",
-  "oddsSource": "the_odds_api",
+  "dataMode": "ScheduleUnavailable",
+  "nbaScheduleSource": "unavailable",
+  "nbaStatsSource": "unavailable",
+  "oddsSource": "unavailable",
   "activeProvider": {
-    "nba": "nba_api",
-    "odds": "the_odds_api"
+    "nba": "unavailable",
+    "odds": "unavailable"
   },
   "providerStatuses": [
     {
@@ -21,9 +21,9 @@
       "api_key_configured": true,
       "is_demo": false,
       "is_stub": false,
-      "last_status": "ok",
-      "last_error": null,
-      "last_run_at": "2026-05-30T14:50:51+00:00",
+      "last_status": "error",
+      "last_error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
+      "last_run_at": "2026-06-01T19:09:44+00:00",
       "notes": "Official NBA.com Stats endpoints. No API key needed."
     },
     {
@@ -77,9 +77,9 @@
       "api_key_configured": true,
       "is_demo": true,
       "is_stub": false,
-      "last_status": "not_run",
+      "last_status": "ok",
       "last_error": null,
-      "last_run_at": null,
+      "last_run_at": "2026-06-01T19:09:44+00:00",
       "notes": "Bundled demo data. Always works."
     },
     {
@@ -145,7 +145,7 @@
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-05-30T14:51:06+00:00",
+  "lastSuccessfulFetch": "2026-06-01T19:10:34+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -174,18 +174,18 @@
     }
   ],
   "slateDays": 4,
-  "primaryDate": "2026-05-30",
+  "primaryDate": "2026-06-01",
   "newsSignalsConfigured": true,
   "newsSignalsActive": 0,
   "scheduleOverridesConfigured": true,
-  "todayDataMode": "Live",
-  "todayFailureReason": null,
+  "todayDataMode": "ScheduleUnavailable",
+  "todayFailureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
   "todayManualOverrideUsed": false,
   "oddsApiKeyConfigured": true,
-  "todayOddsProviderStatus": "ok_with_props",
+  "todayOddsProviderStatus": "not_configured",
   "todayOddsFailureReason": null,
-  "todayOddsQuotaRemaining": 19901,
-  "todayParsedPropCount": 95,
+  "todayOddsQuotaRemaining": null,
+  "todayParsedPropCount": 0,
   "oddsBookmakersConfigured": [
     "draftkings",
     "fanduel"
