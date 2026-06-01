@@ -1,0 +1,46 @@
+/* ============================================================================
+   CONCEPT C — Guided Flow theme (calm LIGHT). PREVIEW ONLY.
+   Warm paper + ink + single emerald accent so the wizard feels approachable.
+   ============================================================================ */
+:root {
+  --vault-bg: #F7F6F2;
+  --vault-panel: #FFFFFF;
+  --vault-panel-elevated: #FFFFFF;
+  --vault-gold: #0E9F6E;
+  --vault-gold-bright: #0B8457;
+  --vault-gold-dim: rgba(14, 159, 110, 0.10);
+  --vault-border: rgba(20, 22, 18, 0.10);
+  --vault-border-strong: rgba(20, 22, 18, 0.18);
+  --vault-rule: rgba(20, 22, 18, 0.08);
+  --vault-text: #1B1D18;
+  --vault-text-mute: #5C6058;
+  --vault-text-faint: #8A8E84;
+  --vault-success: #0E9F6E;
+  --gtp-shell: #F7F6F2;
+  --gtp-canvas: #FFFFFF;
+  --gtp-card: #FFFFFF;
+  --gtp-card-elevated: #FFFFFF;
+  --gtp-card-border: rgba(20, 22, 18, 0.10);
+  --gtp-card-shadow: 0 1px 3px rgba(20, 22, 18, 0.08), 0 8px 24px -16px rgba(20, 22, 18, 0.12);
+  --gtp-ink: #1B1D18;
+  --gtp-on-card: #1B1D18;
+  --gtp-on-card-muted: #5C6058;
+  --gtp-gold: #0E9F6E;
+  --gtp-gold-on-light: #0B8457;
+  --gtp-radius-lg: 14px;
+  --gtp-radius-sm: 8px;
+  --gtp-radius-pill: 999px;
+}
+.vault-shell { background: linear-gradient(180deg, #FBFAF7 0%, #F4F3EE 100%) !important; color: var(--vault-text); }
+.gtp-floor-lights { display: none !important; }
+header.sticky { background: rgba(255, 255, 255, 0.88) !important; border-bottom: 1px solid rgba(20, 22, 18, 0.08) !important; }
+.gtp-text-gradient-gold {
+  background: none !important; -webkit-background-clip: initial !important; background-clip: initial !important;
+  color: var(--vault-text) !important; -webkit-text-fill-color: var(--vault-text) !important;
+}
+[class*="rounded-[8px]"], [class*="rounded-[10px]"], [class*="rounded-[12px]"] { border-radius: 14px !important; }
+/* Lighten the fixed mobile bottom-nav (overrides its inline navy). */
+nav.fixed[class*="bottom-0"] {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-top: 1px solid rgba(20, 22, 18, 0.10) !important;
+}
