@@ -19,7 +19,7 @@ import Link from "next/link";
 import { getLifetimeSummary, getBoardForDate } from "@/lib/data";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
-import { getOptimizerSummary } from "@/lib/parlay-results";
+import { getOptimizerSummary, getOptimizerGradedDates } from "@/lib/parlay-results";
 import {
   getSuggestedParlaysForDate,
   getOptimizerSnapshotForDate,
@@ -31,6 +31,7 @@ import { formatPercent } from "@/lib/format";
 
 import ParlayLabBuilder from "@/components/parlay-lab-builder";
 import ParlayTicketCard from "@/components/parlay-ticket-card";
+import HomePathCards, { type PathCard } from "@/components/home-path-cards";
 import GuidedStart from "@/components/guided-start/guided-start";
 import NewsletterSignup from "@/components/newsletter-signup";
 import MarketTicker from "@/components/market-ticker";
@@ -144,9 +145,62 @@ export default function HomePage() {
     ? `${suggested.date} · ${showingTodayPregame ? "today" : suggested.isFallback ? "latest slate" : "today"}`
     : "—";
 
+  // ---- "Where do you want to start?" path cards ------------------------
+  // Five plain-language entry points mapping to the clear user paths. Any
+  // status shown is computed here, server-side, from the same honest
+  // loaders the rest of the app uses — real counts/dates only, never
+  // fabricated. Parlay Lab cards use the hash deep-links from PR #223.
+  const totalSlips = optimizerForDate?.totalSlips ?? suggested?.slips?.length ?? 0;
+  const gradedDates = getOptimizerGradedDates();
+  const latestSettled = gradedDates.length ? [...gradedDates].sort().slice(-1)[0] : null;
+  const pathCards: PathCard[] = [
+    {
+      href: "/projections/",
+      glyph: "◷",
+      title: "Straight Bets",
+      blurb: "Model projections and edges for individual player props — the picks behind every parlay.",
+      cta: "View projections →",
+      status: null,
+    },
+    {
+      href: "/parlay-lab/#suggested",
+      glyph: "⊞",
+      title: "Suggested Parlays",
+      blurb: "The model's top-ranked parlays for the slate, grouped by risk level.",
+      cta: "See suggested →",
+      status: totalSlips > 0 ? `${totalSlips} slips` : null,
+    },
+    {
+      href: "/parlay-lab/#build",
+      glyph: "✎",
+      title: "Build Your Own",
+      blurb: "Assemble a custom parlay from the same pool. Exploratory — not officially tracked.",
+      cta: "Build a parlay →",
+      status: null,
+    },
+    {
+      href: "/bank-builder/",
+      glyph: "▰",
+      title: "Bank Builder",
+      blurb: "A $100 → $3,000 paper ladder, one daily pick per rung. Educational, paper-only.",
+      cta: "Open Bank Builder →",
+      status: "$100 paper",
+    },
+    {
+      href: "/results/",
+      glyph: "✓",
+      title: "Results",
+      blurb: "Every suggested slip, graded after games — the honest W/L track record.",
+      cta: "View results →",
+      status: latestSettled ? `Latest ${latestSettled}` : null,
+    },
+  ];
+
   return (
     <div className="vault-page-shell px-3 sm:px-5 lg:px-6 py-4 lg:py-6 overflow-x-hidden flex flex-col gap-4">
       <MarketTicker items={tickerItems} className="-mx-3 sm:-mx-5 lg:-mx-6" />
+
+      <HomePathCards cards={pathCards} />
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
         {/* Main column — guided start + featured card + full builder */}
