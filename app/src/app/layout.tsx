@@ -13,6 +13,9 @@ import MobileBottomNav from "@/components/mobile-bottom-nav";
 // /parlay-lab, and /projections a wider, less cluttered shell.
 
 import "./globals.css";
+// CONCEPT B (Social Story) PREVIEW ONLY — vibrant theme; structural change
+// is the single-column story-feed home in page.tsx. Do not merge.
+import "./concept-b-theme.css";
 
 export const metadata: Metadata = {
   title: "GametimePicks — Sports Prop Analytics Lab",

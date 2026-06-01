@@ -1,0 +1,47 @@
+/* ============================================================================
+   CONCEPT B — Social Story theme. PREVIEW ONLY.
+   Vibrant indigo + magenta/violet so the story feed feels energetic and
+   screenshot-ready. Token + chrome overrides only.
+   ============================================================================ */
+:root {
+  --vault-bg: #140A2B;
+  --vault-panel: #1E1142;
+  --vault-panel-elevated: #2A1A57;
+  --vault-gold: #E4339A;
+  --vault-gold-bright: #FF5CB8;
+  --vault-gold-dim: rgba(228, 51, 154, 0.14);
+  --vault-gold-glow: rgba(228, 51, 154, 0.30);
+  --vault-border: rgba(168, 85, 247, 0.26);
+  --vault-border-strong: rgba(168, 85, 247, 0.48);
+  --vault-rule: rgba(168, 85, 247, 0.16);
+  --vault-text: #F7F2FF;
+  --vault-text-mute: #C7B6E8;
+  --vault-text-faint: #8B79B5;
+  --vault-success: #34E5C0;
+  --gtp-shell: #140A2B;
+  --gtp-canvas: #1E1142;
+  --gtp-card: #241552;
+  --gtp-card-elevated: #2E1B63;
+  --gtp-card-border: rgba(168, 85, 247, 0.30);
+  --gtp-on-card: #F7F2FF;
+  --gtp-on-card-muted: #C7B6E8;
+  --gtp-gold: #E4339A;
+  --gtp-gold-on-light: #FF5CB8;
+  --gtp-radius-lg: 22px;
+  --gtp-radius-sm: 14px;
+  --gtp-radius-pill: 999px;
+}
+.vault-shell {
+  background:
+    radial-gradient(1200px 600px at 100% -10%, rgba(228, 51, 154, 0.20), transparent 60%),
+    radial-gradient(1000px 600px at -10% 8%, rgba(124, 58, 237, 0.26), transparent 55%),
+    linear-gradient(180deg, #140A2B 0%, #1A0E36 100%) !important;
+}
+.gtp-floor-lights { opacity: 0.7 !important; filter: hue-rotate(255deg) saturate(1.4); }
+header.sticky { background: rgba(20, 10, 43, 0.8) !important; border-bottom: 1px solid rgba(255, 92, 184, 0.30) !important; }
+.gtp-text-gradient-gold {
+  background: linear-gradient(92deg, #FF5CB8 0%, #A855F7 55%, #34E5C0 120%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+}
+[class*="rounded-[8px]"], [class*="rounded-[10px]"], [class*="rounded-[12px]"] { border-radius: 18px !important; }
+.cb-story { border-radius: 24px !important; }
