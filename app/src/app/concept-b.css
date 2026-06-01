@@ -1,0 +1,121 @@
+/* ============================================================================
+   CONCEPT B — "Card Break" social / viral
+   DESIGN PREVIEW ONLY — do not merge to production.
+
+   Theme-override layer imported AFTER globals.css. Tokens + chrome only —
+   no markup, data, or logic changes.
+
+   Direction: vibrant deep-indigo canvas, hot-magenta + electric-violet
+   accent, large rounded cards, bold gradients and glow — built to look
+   energetic and screenshot well on X / Reddit. Honest copy is unchanged;
+   this is pure visual energy, no betting hype.
+   ============================================================================ */
+
+:root {
+  /* Surfaces — deep indigo / violet night */
+  --vault-bg: #140A2B;
+  --vault-panel: #1E1142;
+  --vault-panel-elevated: #2A1A57;
+  --vault-panel-hover: #34206B;
+
+  /* Accent — hot magenta replaces gold */
+  --vault-gold: #E4339A;
+  --vault-gold-bright: #FF5CB8;
+  --vault-gold-dim: rgba(228, 51, 154, 0.14);
+  --vault-gold-glow: rgba(228, 51, 154, 0.30);
+
+  /* Borders — violet, a touch stronger so cards pop */
+  --vault-border: rgba(168, 85, 247, 0.26);
+  --vault-border-strong: rgba(168, 85, 247, 0.48);
+  --vault-border-active: rgba(255, 92, 184, 0.75);
+  --vault-rule: rgba(168, 85, 247, 0.16);
+
+  /* Text — bright with a lavender tint */
+  --vault-text: #F7F2FF;
+  --vault-text-mute: #C7B6E8;
+  --vault-text-faint: #8B79B5;
+
+  --vault-success: #34E5C0;
+  --vault-success-dim: rgba(52, 229, 192, 0.16);
+  --vault-warn: #FFC857;
+  --vault-warn-dim: rgba(255, 200, 87, 0.16);
+  --vault-danger: #FF6B8B;
+  --vault-danger-dim: rgba(255, 107, 139, 0.16);
+
+  --vault-shadow-soft: 0 2px 0 rgba(168, 85, 247, 0.10);
+  --vault-focus-ring: 0 0 0 2px var(--vault-gold-bright), 0 0 0 6px rgba(228, 51, 154, 0.28);
+
+  /* --gtp-* surface/card tokens → vibrant violet cards */
+  --gtp-shell: #140A2B;
+  --gtp-canvas: #1E1142;
+  --gtp-canvas-edge: #160C32;
+  --gtp-paper: #1E1142;
+  --gtp-paper-deep: #150B30;
+  --gtp-card: #241552;
+  --gtp-card-elevated: #2E1B63;
+  --gtp-card-sunken: #1A0F40;
+  --gtp-card-border: rgba(168, 85, 247, 0.30);
+  --gtp-card-border-strong: rgba(255, 92, 184, 0.55);
+  --gtp-card-shadow: 0 14px 40px -16px rgba(168, 85, 247, 0.55);
+  --gtp-ink: #F7F2FF;
+  --gtp-ink-mute: #C7B6E8;
+  --gtp-on-card: #F7F2FF;
+  --gtp-on-card-muted: #C7B6E8;
+  --gtp-on-card-faint: #8B79B5;
+  --gtp-on-shell: #F7F2FF;
+  --gtp-on-shell-muted: #C7B6E8;
+  --gtp-on-shell-faint: #8B79B5;
+  --gtp-gold: #E4339A;
+  --gtp-gold-soft: rgba(228, 51, 154, 0.16);
+  --gtp-gold-on-light: #FF5CB8;
+  --gtp-champagne: #FF5CB8;
+
+  /* Big, friendly, bubbly geometry */
+  --gtp-radius-lg: 22px;
+  --gtp-radius-sm: 12px;
+  --gtp-radius-pill: 999px;
+
+  --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Saturated gradient wash behind everything — energetic. */
+.vault-shell {
+  background:
+    radial-gradient(1200px 600px at 100% -10%, rgba(228, 51, 154, 0.22), transparent 60%),
+    radial-gradient(1000px 600px at -10% 10%, rgba(124, 58, 237, 0.28), transparent 55%),
+    linear-gradient(180deg, #140A2B 0%, #1A0E36 100%) !important;
+}
+
+/* Header → glossy translucent bar with a magenta underline. */
+header.sticky {
+  background: rgba(20, 10, 43, 0.78) !important;
+  border-bottom: 1px solid rgba(255, 92, 184, 0.30) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+}
+
+/* Bigger, bolder, pill-rounded cards everywhere. */
+.surface,
+[class*="rounded-[8px]"],
+[class*="rounded-[10px]"],
+[class*="rounded-[12px]"] {
+  border-radius: 20px !important;
+}
+
+/* Headline gold gradient text → vivid magenta→violet. */
+.gtp-text-gradient-gold {
+  background: linear-gradient(92deg, #FF5CB8 0%, #A855F7 55%, #34E5C0 120%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+/* Make the decorative floor lights a bright magenta sweep. */
+.gtp-floor-lights {
+  opacity: 0.7 !important;
+  filter: hue-rotate(255deg) saturate(1.4) brightness(1.1);
+}
+
+/* Card hover lifts more dramatically — feels tactile/shareable. */
+.vault-glow-hover:hover {
+  box-shadow: 0 18px 50px -18px rgba(255, 92, 184, 0.6) !important;
+  transform: translateY(-1px);
+}

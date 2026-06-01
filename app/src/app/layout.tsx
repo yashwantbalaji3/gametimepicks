@@ -13,6 +13,9 @@ import MobileBottomNav from "@/components/mobile-bottom-nav";
 // /parlay-lab, and /projections a wider, less cluttered shell.
 
 import "./globals.css";
+// DESIGN PREVIEW ONLY (Concept B — Card Break social). Theme-override layer
+// imported after globals.css; remaps design tokens + chrome only. Do not merge.
+import "./concept-b.css";
 
 export const metadata: Metadata = {
   title: "GametimePicks — Sports Prop Analytics Lab",
