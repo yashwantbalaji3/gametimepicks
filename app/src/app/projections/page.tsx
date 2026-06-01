@@ -26,6 +26,7 @@
  *     helper introduced in PR #82.
  */
 import { Suspense } from "react";
+import Link from "next/link";
 
 import ProjectionsExperience from "@/components/projections-experience";
 // Cricket components + loaders stay in the codebase but are
@@ -112,13 +113,32 @@ export default function ProjectionsPage() {
       <DateStatusHeader
         date={today}
         label="today"
-        context="Today's projections"
+        context="Straight bets · projections"
         counts={{
           games: gamesCount,
           projections: projectionsCount,
         }}
         note={headerNote}
       />
+      {/* PR `feat/projections-straight-bets-framing` (2026-06-01) — one
+          plain-English line so first-time visitors know what this page
+          is (single straight-bet projections, not parlays) and how to
+          use it. Purely explanatory copy — no banned betting language. */}
+      <p
+        className="text-[13px] leading-relaxed -mt-4"
+        style={{ color: "var(--vault-text-mute)", maxWidth: 720 }}
+      >
+        <strong style={{ color: "var(--vault-text)", fontWeight: 600 }}>
+          Straight bet recommendations
+        </strong>{" "}
+        — single player-prop projections, not parlays. Each game lists the
+        model&apos;s projected line and edge for individual players; pick a game
+        to review them. The parlays in{" "}
+        <Link href="/parlay-lab/#suggested" style={{ color: "var(--vault-gold-bright)" }}>
+          Parlay Lab
+        </Link>{" "}
+        are built from these same projections.
+      </p>
       {/* Suspense is required because <ProjectionsExperience />'s
           useSearchParams() call needs a client boundary for static
           export. The fallback is intentionally minimal — first paint

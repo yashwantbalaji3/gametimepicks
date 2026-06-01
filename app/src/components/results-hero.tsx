@@ -87,10 +87,12 @@ export default function ResultsHero({
           {/* PR `fix/results-overview-copy` (2026-05-29) — collapsed
              the legacy three-sentence preamble into one plain-English
              line. The hit-rate / pending / pushes rule is the same
-             one we've enforced since launch; we just say it once. */}
-          Public tracking from {PUBLIC_PARLAY_RESULTS_START_DATE}. Hit
-          rate only counts finished slips — pending and pushes are
-          shown separately.
+             one we've enforced since launch; we just say it once.
+             PR `feat/results-framing` (2026-06-01) — make the
+             save-before / grade-after track-record contract explicit. */}
+          Public tracking from {PUBLIC_PARLAY_RESULTS_START_DATE}. Slips
+          are saved before games and graded after — hit rate counts only
+          finished slips; pending and pushes are shown separately.
         </p>
       </div>
 
