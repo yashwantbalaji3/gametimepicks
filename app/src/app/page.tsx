@@ -1,48 +1,61 @@
 /**
- * Homepage — parlay-first, lab-style.
+ * Homepage — CONCEPT B "Social Story / Daily Feed" PREVIEW ONLY.
  *
- * The homepage IS the Parlay Lab. We render the same
- * `ParlayLabBuilder` component used on /parlay-lab so the
- * experience is consistent (sport / team / player searchable
- * dropdowns, three risk-level cards, clickable legs that pop
- * recent form).
+ * Structural change vs. production: the home is a single-column vertical
+ * STORY FEED of big, full-width, screenshot-friendly blocks (slate hero →
+ * featured slip → browse-all → track-record recap → bank ladder → game
+ * teasers), instead of the hero → builder → strip stack. Same data + the
+ * same ParlayLabBuilder / ParlayTicketCard; only composition differs.
  *
- * Layout:
- *   1. Compact hero (one line).
- *   2. <ParlayLabBuilder /> — the main module. Renders best slips
- *      immediately without requiring any filter.
- *   3. Honest stats strip (decisive-only, no ROI).
- *   4. Pointer tiles to Projections + Parlay Lab.
- *
- * Honesty preserved:
- *   - Only real snapshots/graded files render here.
- *   - Empty risk cards explain why honestly.
- *   - High-variance slips are labeled.
+ * Do not merge. No data/pipeline/optimizer/logic changes.
  */
 import Link from "next/link";
 
 import { getLifetimeSummary, getBoardForDate } from "@/lib/data";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
-// Cricket loader stays in the codebase (`@/lib/data-cricket`) for
-// future re-enablement, but we deliberately do NOT import it here.
-// PR #113 unwired cricket from every user-facing surface.
 import { getOptimizerSummary } from "@/lib/parlay-results";
 import {
   getSuggestedParlaysForDate,
   getOptimizerSnapshotForDate,
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
+import { selectPlus100BuilderSlip } from "@/lib/parlay-suggested";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { formatPercent } from "@/lib/format";
 
 import ParlayLabBuilder from "@/components/parlay-lab-builder";
-import NewsletterSignup from "@/components/newsletter-signup";
-import SectionHeader from "@/components/section-header";
+import ParlayTicketCard from "@/components/parlay-ticket-card";
 import MarketTicker from "@/components/market-ticker";
 import { buildMarketTickerItems } from "@/lib/market-ticker";
-
 import { currentEtDate } from "@/lib/freshness";
+
+function Story({
+  kicker,
+  children,
+  className,
+}: {
+  kicker?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      className={`cb-story w-full ${className ?? ""}`}
+      style={{ background: "var(--gtp-card)", border: "1px solid var(--vault-border)", overflow: "hidden" }}
+    >
+      {kicker && (
+        <div
+          className="px-5 sm:px-6 pt-4 font-mono uppercase tracking-[0.18em]"
+          style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
+        >
+          {kicker}
+        </div>
+      )}
+      <div className="p-5 sm:p-6">{children}</div>
+    </section>
+  );
+}
 
 export default function HomePage() {
   const today = currentEtDate();
@@ -50,335 +63,147 @@ export default function HomePage() {
   const mlbLifetime = getMlbLifetimeSummary();
   const calibrationTable = loadCalibrationTable();
 
-  // Pick a parlay payload for the lab. Prefer today; otherwise the
-  // walk-back helper finds the latest non-empty snapshot.
   const suggested = getSuggestedParlaysForDate(today);
   const optimizerForDate =
     getOptimizerSnapshotForDate(today) ||
     (suggested ? getOptimizerSnapshotForDate(suggested.date) : null) ||
     getLatestOptimizerSnapshot()?.payload ||
     null;
-  // The hero only claims "today" when we're actually showing today's
-  // pregame slate. When today's snapshot hasn't posted yet, the lab below
-  // falls back to the most recent slate (often already graded/settled, with
-  // its own SETTLED banner), so the hero must not call those "today's".
-  const showingTodayPregame =
-    !!suggested && !suggested.isFallback && suggested.source === "snapshot";
 
-  // Lifetime stats strip (honest, decisive-only)
-  const combinedDecisive =
-    (lifetime?.decisive ?? 0) + (mlbLifetime?.decisive ?? 0);
+  const combinedDecisive = (lifetime?.decisive ?? 0) + (mlbLifetime?.decisive ?? 0);
   const combinedWins = (lifetime?.wins ?? 0) + (mlbLifetime?.wins ?? 0);
-  const combinedHitRate =
-    combinedDecisive > 0 ? combinedWins / combinedDecisive : null;
+  const combinedHitRate = combinedDecisive > 0 ? combinedWins / combinedDecisive : null;
 
-  // ---- Market ticker (PR #112) ------------------------------------------
-  // Composed from the same JSON loaders the rest of the page already
-  // reads. No new API calls. Server-rendered.
   const nbaBoard = getBoardForDate(today);
   const mlbBoard = getMlbBoardForDate(today);
-  const optimizerSummary = getOptimizerSummary();
-  // PR #113: cricket explicitly NOT passed. Ticker generator already
-  // tolerates missing cricket input and emits zero cricket items.
   const tickerItems = buildMarketTickerItems({
     surface: "home",
-    optimizerSummary,
+    optimizerSummary: getOptimizerSummary(),
     nba: nbaBoard,
     mlb: mlbBoard,
   });
 
-  return (
-    <div className="vault-page-shell px-3 sm:px-6 lg:px-8 py-5 sm:py-10 md:py-14 overflow-x-hidden">
-      {/* Market ticker — premium "stock board" strip. Hidden when no
-          honest items can be built. PR #112. */}
-      <MarketTicker items={tickerItems} className="-mx-3 sm:-mx-6 lg:-mx-8 mb-4 sm:mb-6" />
+  // Featured slip: prefer a pending ~+100 builder pick; else the top slip of
+  // the latest published slate (the card shows its own settled/pending state).
+  const featured =
+    selectPlus100BuilderSlip(suggested?.slips ?? [])?.slip ??
+    suggested?.slips?.[0] ??
+    null;
+  const slateLabel = suggested
+    ? `${suggested.date}${suggested.isFallback ? " · latest slate" : " · tonight"}`
+    : "—";
 
-      {/* 1 — Compact hero */}
-      <section className="reveal" aria-label="Hero">
-        <div className="flex flex-col gap-2 max-w-3xl">
-          <span
-            className="font-mono uppercase tracking-[0.18em]"
-            style={{ color: "var(--vault-gold)", fontSize: 11 }}
-          >
-            {showingTodayPregame ? "Today · Suggested parlays" : "Latest · Suggested parlays"}
-          </span>
+  return (
+    <div className="vault-page-shell overflow-x-hidden">
+      <MarketTicker items={tickerItems} className="" />
+      {/* Single-column story feed */}
+      <div className="mx-auto max-w-2xl px-3 sm:px-4 py-5 sm:py-8 flex flex-col gap-5">
+        {/* 1 — Slate hero */}
+        <Story kicker={suggested?.isFallback ? "Latest slate" : "Tonight"}>
           <h1
             className="font-display tracking-tight gtp-text-gradient-gold"
-            style={{
-              fontSize: "clamp(24px, 5.5vw, 44px)",
-              lineHeight: 1.05,
-              letterSpacing: "-0.015em",
-            }}
+            style={{ fontSize: "clamp(28px, 8vw, 46px)", lineHeight: 1.02, letterSpacing: "-0.02em" }}
           >
-            {showingTodayPregame
-              ? "Today’s best suggested parlays."
-              : "The latest suggested parlays."}
+            The model&apos;s best slips, ranked.
           </h1>
-          <p
-            className="text-[13px] sm:text-[15px] leading-relaxed"
-            style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
-          >
-            Pick a sport, team, or player — or start from the model&apos;s top-ranked slips below. High-variance slips are labeled, every leg is tappable for recent form, and every slip is saved before games and graded after.
+          <p className="mt-3 text-[14px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+            {slateLabel} — saved before games, graded after. High-variance slips are labeled.
+            Scroll the feed, tap any card to build your own.
           </p>
-        </div>
-      </section>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href="/parlay-lab/" className="px-4 py-2 rounded-full font-mono uppercase tracking-[0.12em]"
+              style={{ fontSize: 11, color: "var(--vault-bg)", background: "var(--vault-gold-bright)" }}>
+              Browse all slips →
+            </Link>
+            <Link href="/results/" className="px-4 py-2 rounded-full font-mono uppercase tracking-[0.12em]"
+              style={{ fontSize: 11, color: "var(--vault-text)", border: "1px solid var(--vault-border-strong)" }}>
+              See the record
+            </Link>
+          </div>
+        </Story>
 
-      {/* 2 — Parlay Lab interface (same component as /parlay-lab) */}
-      <div className="mt-6">
-        {suggested ? (
-          <ParlayLabBuilder
-            slips={suggested.slips}
-            date={suggested.date}
-            source={suggested.source}
-            isFallback={suggested.isFallback}
-            calibrationTable={calibrationTable}
-            optimizerPayload={optimizerForDate}
-            embedded
-          />
-        ) : optimizerForDate && optimizerForDate.totalSlips > 0 ? (
-          <ParlayLabBuilder
-            slips={[]}
-            date={optimizerForDate.date}
-            source="snapshot"
-            isFallback={true}
-            calibrationTable={calibrationTable}
-            optimizerPayload={optimizerForDate}
-            embedded
-          />
-        ) : (
-          <NoParlaysEmptyState />
+        {/* 2 — Featured slip card */}
+        {featured && (
+          <Story kicker="Featured slip">
+            <ParlayTicketCard
+              slip={featured}
+              emphasis="featured"
+              savedPregame={suggested?.source === "snapshot"}
+              calibrationTable={calibrationTable}
+            />
+          </Story>
         )}
+
+        {/* 3 — Track-record recap (shareable) */}
+        <Story kicker="The honest record">
+          <div className="flex items-end justify-between gap-4 flex-wrap">
+            <div className="flex flex-col">
+              <span className="font-display tabular" style={{ fontSize: 44, fontWeight: 700, lineHeight: 1, color: "var(--vault-text)" }}>
+                {combinedHitRate != null ? formatPercent(combinedHitRate) : "—"}
+              </span>
+              <span className="mt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+                tracked single-leg hit rate · {combinedDecisive > 0 ? `${combinedWins}–${combinedDecisive - combinedWins} of ${combinedDecisive}` : "no settled data"} · pushes excluded
+              </span>
+            </div>
+            <div className="flex gap-5">
+              <div className="flex flex-col"><span className="font-mono uppercase tracking-[0.16em]" style={{ fontSize: 9, color: "var(--vault-text-faint)" }}>NBA</span><span className="font-display tabular" style={{ fontSize: 20, fontWeight: 600, color: "var(--vault-text)" }}>{lifetime?.hitRate != null ? formatPercent(lifetime.hitRate) : "—"}</span></div>
+              <div className="flex flex-col"><span className="font-mono uppercase tracking-[0.16em]" style={{ fontSize: 9, color: "var(--vault-text-faint)" }}>MLB</span><span className="font-display tabular" style={{ fontSize: 20, fontWeight: 600, color: "var(--vault-text)" }}>{mlbLifetime?.hitRate != null ? formatPercent(mlbLifetime.hitRate) : "—"}</span></div>
+            </div>
+          </div>
+          <Link href="/results/" className="mt-3 inline-block font-mono uppercase tracking-[0.12em]" style={{ fontSize: 11, color: "var(--vault-gold-bright)" }}>
+            Full parlay results →
+          </Link>
+        </Story>
+
+        {/* 4 — Bank Builder ladder teaser */}
+        <Story kicker="Bank Builder · paper only">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex flex-col">
+              <span className="font-display" style={{ fontSize: 24, fontWeight: 700, color: "var(--vault-text)" }}>$100 → $3,000</span>
+              <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>five-rung paper ladder · one daily pick per rung · resets to $100 on a loss (always shown)</span>
+            </div>
+            <Link href="/bank-builder/" className="px-4 py-2 rounded-full font-mono uppercase tracking-[0.12em] whitespace-nowrap"
+              style={{ fontSize: 11, color: "var(--vault-bg)", background: "var(--vault-gold-bright)" }}>
+              Open ladder →
+            </Link>
+          </div>
+        </Story>
+
+        {/* 5 — Browse-all module (full builder, in-feed) */}
+        <Story kicker="Browse every slip">
+          {suggested ? (
+            <ParlayLabBuilder
+              slips={suggested.slips}
+              date={suggested.date}
+              source={suggested.source}
+              isFallback={suggested.isFallback}
+              calibrationTable={calibrationTable}
+              optimizerPayload={optimizerForDate}
+              embedded
+            />
+          ) : (
+            <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
+              No suggested slips posted yet — the next pregame snapshot lands once tonight&apos;s lines and projections are ready.
+            </p>
+          )}
+        </Story>
+
+        {/* 6 — Game / events teasers */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <Story kicker="Projections">
+            <p className="text-[13px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
+              Every game, every prop the picks are built on — game cards + player accordions.
+            </p>
+            <Link href="/projections/" className="mt-3 inline-block font-mono uppercase tracking-[0.12em]" style={{ fontSize: 11, color: "var(--vault-gold-bright)" }}>Open projections →</Link>
+          </Story>
+          <Story kicker="Events">
+            <p className="text-[13px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
+              WNBA · UFC · FIFA — schedule only. No odds, no projections.
+            </p>
+            <Link href="/events/" className="mt-3 inline-block font-mono uppercase tracking-[0.12em]" style={{ fontSize: 11, color: "var(--vault-gold-bright)" }}>See schedules →</Link>
+          </Story>
+        </div>
       </div>
-
-      {/* 3 — Tracked-results stats strip */}
-      <section className="mt-10 reveal" aria-label="Tracked results strip">
-        <div
-          className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 rounded-[8px]"
-          style={{
-            background: "rgba(7,11,26,0.55)",
-            border: "1px solid var(--vault-border)",
-          }}
-        >
-          <StatTile
-            label="Tracked hit rate"
-            value={
-              combinedHitRate != null
-                ? formatPercent(combinedHitRate)
-                : "—"
-            }
-            sub={
-              combinedDecisive > 0
-                ? `${combinedWins}–${combinedDecisive - combinedWins} on ${combinedDecisive}`
-                : "no settled data"
-            }
-          />
-          <StatTile
-            label="NBA"
-            value={
-              lifetime?.hitRate != null
-                ? formatPercent(lifetime.hitRate)
-                : "—"
-            }
-            sub={
-              lifetime
-                ? `${lifetime.wins}–${lifetime.losses} on ${lifetime.decisive}`
-                : "pending"
-            }
-          />
-          <StatTile
-            label="MLB"
-            value={
-              mlbLifetime?.hitRate != null
-                ? formatPercent(mlbLifetime.hitRate)
-                : "—"
-            }
-            sub={
-              mlbLifetime
-                ? `${mlbLifetime.wins}–${mlbLifetime.losses} on ${mlbLifetime.decisive}`
-                : "pending"
-            }
-          />
-          <Link
-            href="/results"
-            className="flex flex-col gap-1 min-w-0 vault-glow-hover"
-            style={{ textDecoration: "none" }}
-          >
-            <span
-              className="font-mono uppercase tracking-[0.16em]"
-              style={{ color: "var(--vault-gold)", fontSize: 9 }}
-            >
-              See full tracking
-            </span>
-            <span
-              className="font-display"
-              style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}
-            >
-              Open Results →
-            </span>
-            <span
-              className="font-mono"
-              style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
-            >
-              Parlays graded after games
-            </span>
-          </Link>
-        </div>
-        <p
-          className="mt-2 text-[11px] leading-relaxed"
-          style={{ color: "var(--vault-text-faint)" }}
-        >
-          Decisive single-leg projections only on this strip. Pushes excluded. Parlay-slip results live on{" "}
-          <Link href="/results" style={{ color: "var(--vault-gold)" }}>
-            Results
-          </Link>
-          .
-        </p>
-      </section>
-
-      {/* 4 — Deeper surfaces */}
-      <section className="mt-10 reveal" aria-label="Deeper surfaces">
-        <SectionHeader eyebrow="Go deeper" title="Research or track" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <DeeperTile
-            href="/results"
-            eyebrow="Results"
-            title="Did the suggested parlays hit?"
-            body="Every saved slip is graded after games finish. Pushes and pending slips are excluded from hit rate."
-            cta="See tracked results"
-          />
-          <DeeperTile
-            href="/projections"
-            eyebrow="Projections"
-            title="Every projection, by game"
-            body="Game cards, player accordions, per-prop edges — the data the suggestions are built on."
-            cta="Open projections"
-          />
-        </div>
-      </section>
-
-      {/* 5 — Newsletter */}
-      <section className="mt-12 reveal">
-        <NewsletterSignup variant="full" />
-      </section>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-function StatTile({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string;
-  sub: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1 min-w-0">
-      <span
-        className="font-mono uppercase tracking-[0.16em] truncate"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
-      >
-        {label}
-      </span>
-      <span
-        className="font-display tabular truncate"
-        style={{
-          color: "var(--vault-text)",
-          fontSize: 18,
-          fontWeight: 600,
-          lineHeight: 1,
-        }}
-      >
-        {value}
-      </span>
-      <span
-        className="font-mono truncate"
-        style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
-      >
-        {sub}
-      </span>
-    </div>
-  );
-}
-
-function DeeperTile({
-  href,
-  eyebrow,
-  title,
-  body,
-  cta,
-}: {
-  href: string;
-  eyebrow: string;
-  title: string;
-  body: string;
-  cta: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="gtp-premium-tile px-4 py-4 flex flex-col gap-2 vault-glow-hover"
-      style={{ textDecoration: "none" }}
-    >
-      <span
-        className="font-mono uppercase tracking-[0.18em]"
-        style={{ color: "var(--vault-gold)", fontSize: 10 }}
-      >
-        {eyebrow}
-      </span>
-      <h3
-        className="font-display tracking-tight"
-        style={{ color: "var(--vault-text)", fontSize: 17, lineHeight: 1.25 }}
-      >
-        {title}
-      </h3>
-      <p
-        className="text-[12.5px] leading-snug"
-        style={{ color: "var(--vault-text-mute)" }}
-      >
-        {body}
-      </p>
-      <span
-        className="mt-2 font-mono uppercase tracking-[0.14em]"
-        style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
-      >
-        {cta} →
-      </span>
-    </Link>
-  );
-}
-
-function NoParlaysEmptyState() {
-  return (
-    <section
-      className="rounded-[8px] p-6 flex flex-col gap-3"
-      style={{
-        background: "rgba(7,11,26,0.55)",
-        border: "1px dashed var(--vault-border)",
-      }}
-      aria-label="No suggested parlays available"
-    >
-      <span
-        className="font-mono uppercase tracking-[0.16em]"
-        style={{ color: "var(--vault-gold)", fontSize: 11 }}
-      >
-        No suggested parlays yet
-      </span>
-      <p
-        className="text-[13px] leading-relaxed"
-        style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}
-      >
-        We only show slips that were saved before games started. The next pregame snapshot lands when tonight&apos;s lines and projections are ready. In the meantime, jump into{" "}
-        <Link href="/projections" style={{ color: "var(--vault-gold)" }}>
-          projections
-        </Link>{" "}
-        for individual prop research.
-      </p>
-    </section>
   );
 }
