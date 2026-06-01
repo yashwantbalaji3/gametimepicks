@@ -13,6 +13,9 @@ import MobileBottomNav from "@/components/mobile-bottom-nav";
 // /parlay-lab, and /projections a wider, less cluttered shell.
 
 import "./globals.css";
+// CONCEPT C (Guided Flow) PREVIEW ONLY — calm light theme; structural change
+// is the 3-step wizard home (components/concept-c/guided-home). Do not merge.
+import "./concept-c-theme.css";
 
 export const metadata: Metadata = {
   title: "GametimePicks — Sports Prop Analytics Lab",
