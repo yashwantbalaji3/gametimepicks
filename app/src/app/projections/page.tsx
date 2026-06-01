@@ -96,9 +96,15 @@ export default function ProjectionsPage() {
   const gamesCount = nba.games + mlb.games;
   const projectionsCount = nba.props + mlb.props;
   const plural = (n: number) => (n === 1 ? "" : "s");
+  // When today has projections, show the per-sport breakdown. When it
+  // doesn't — the morning board run hasn't posted yet, or there are no
+  // games scheduled — explain the cadence instead of a bare "0 / 0", and
+  // point at the most recent slate the experience falls back to below.
   const headerNote =
-    `NBA · ${nba.games} game${plural(nba.games)} / ${nba.props} props` +
-    ` · MLB · ${mlb.games} game${plural(mlb.games)} / ${mlb.props} props`;
+    projectionsCount > 0
+      ? `NBA · ${nba.games} game${plural(nba.games)} / ${nba.props} props` +
+        ` · MLB · ${mlb.games} game${plural(mlb.games)} / ${mlb.props} props`
+      : "Today's board posts each morning once lineups and odds are set, and stays empty on days with no scheduled games. The most recent slate is shown below.";
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
