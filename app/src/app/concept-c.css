@@ -1,0 +1,137 @@
+/* ============================================================================
+   CONCEPT C — "Clean Slate" minimal, beginner-friendly (LIGHT)
+   DESIGN PREVIEW ONLY — do not merge to production.
+
+   Theme-override layer imported AFTER globals.css. Tokens + chrome only.
+
+   Direction: a calm LIGHT theme — warm off-white paper, near-black ink, a
+   single calm emerald accent, soft shadows, generous whitespace and medium
+   radii. Airy and approachable for first-time visitors. Same content/logic.
+   ============================================================================ */
+
+:root {
+  /* Surfaces — warm paper / white cards */
+  --vault-bg: #F7F6F2;
+  --vault-panel: #FFFFFF;
+  --vault-panel-elevated: #FFFFFF;
+  --vault-panel-hover: #F1F0EB;
+
+  /* Accent — a single calm emerald */
+  --vault-gold: #0E9F6E;
+  --vault-gold-bright: #0B8457;
+  --vault-gold-dim: rgba(14, 159, 110, 0.10);
+  --vault-gold-glow: rgba(14, 159, 110, 0.16);
+
+  /* Borders — soft ink hairlines */
+  --vault-border: rgba(20, 22, 18, 0.10);
+  --vault-border-strong: rgba(20, 22, 18, 0.18);
+  --vault-border-active: rgba(14, 159, 110, 0.55);
+  --vault-rule: rgba(20, 22, 18, 0.08);
+
+  /* Text — near-black ink + soft greys */
+  --vault-text: #1B1D18;
+  --vault-text-mute: #5C6058;
+  --vault-text-faint: #8A8E84;
+
+  --vault-success: #0E9F6E;
+  --vault-success-dim: rgba(14, 159, 110, 0.12);
+  --vault-warn: #B7791F;
+  --vault-warn-dim: rgba(183, 121, 31, 0.12);
+  --vault-danger: #D14343;
+  --vault-danger-dim: rgba(209, 67, 67, 0.10);
+
+  --vault-shadow-soft: 0 1px 2px rgba(20, 22, 18, 0.06);
+  --vault-focus-ring: 0 0 0 1px var(--vault-gold), 0 0 0 4px rgba(14, 159, 110, 0.20);
+
+  /* --gtp-* surface/card tokens → light paper + white cards */
+  --gtp-shell: #F7F6F2;
+  --gtp-canvas: #FFFFFF;
+  --gtp-canvas-edge: #EFEEE8;
+  --gtp-paper: #FFFFFF;
+  --gtp-paper-deep: #F1F0EB;
+  --gtp-card: #FFFFFF;
+  --gtp-card-elevated: #FFFFFF;
+  --gtp-card-sunken: #F7F6F2;
+  --gtp-card-border: rgba(20, 22, 18, 0.10);
+  --gtp-card-border-strong: rgba(20, 22, 18, 0.18);
+  --gtp-card-shadow: 0 1px 3px rgba(20, 22, 18, 0.08), 0 8px 24px -16px rgba(20, 22, 18, 0.12);
+  --gtp-ink: #1B1D18;
+  --gtp-ink-mute: #5C6058;
+  --gtp-on-card: #1B1D18;
+  --gtp-on-card-muted: #5C6058;
+  --gtp-on-card-faint: #8A8E84;
+  --gtp-on-shell: #1B1D18;
+  --gtp-on-shell-muted: #5C6058;
+  --gtp-on-shell-faint: #8A8E84;
+  --gtp-gold: #0E9F6E;
+  --gtp-gold-soft: rgba(14, 159, 110, 0.12);
+  --gtp-gold-on-light: #0B8457;
+  --gtp-champagne: #0E9F6E;
+
+  /* Soft, friendly radii */
+  --gtp-radius-lg: 14px;
+  --gtp-radius-sm: 8px;
+  --gtp-radius-pill: 999px;
+
+  --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Light, airy shell wash. */
+.vault-shell {
+  background:
+    linear-gradient(180deg, #FBFAF7 0%, #F4F3EE 100%) !important;
+  color: var(--vault-text);
+}
+
+/* Header → clean white bar with a soft hairline. */
+header.sticky {
+  background: rgba(255, 255, 255, 0.86) !important;
+  border-bottom: 1px solid rgba(20, 22, 18, 0.08) !important;
+  backdrop-filter: blur(12px) saturate(110%);
+}
+
+/* Soft white cards with gentle shadow + medium radius. */
+.surface {
+  box-shadow: var(--gtp-card-shadow);
+}
+[class*="rounded-[8px]"],
+[class*="rounded-[10px]"],
+[class*="rounded-[12px]"] {
+  border-radius: 14px !important;
+}
+
+/* Headline gold-gradient text → solid emerald (cleaner on light). */
+.gtp-text-gradient-gold {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  color: var(--vault-text) !important;
+  -webkit-text-fill-color: var(--vault-text) !important;
+}
+
+/* The dark decorative floor-lights sweep does not belong on a light theme. */
+.gtp-floor-lights {
+  display: none !important;
+}
+
+/* Tame heavy dark glows into soft light-mode lifts. */
+.vault-glow-hover:hover {
+  box-shadow: 0 6px 18px -8px rgba(20, 22, 18, 0.18) !important;
+}
+
+/* Body text colour fallback so any component reading `color: inherit`
+   from the shell stays dark on the light canvas. */
+body.vault-shell {
+  color: var(--vault-text);
+}
+
+/* The fixed mobile bottom-nav sets a hardcoded navy inline; lighten it so
+   the frame matches the light shell. (`!important` overrides the inline.)
+   NOTE: a handful of components still use a hardcoded translucent navy
+   (`rgba(7,11,26,.x)`) for inner panels that tokens can't reach — a full
+   production light theme would migrate those to tokens. This preview shows
+   the light DIRECTION; those panels read a little darker by design here. */
+nav.fixed[class*="bottom-0"] {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-top: 1px solid rgba(20, 22, 18, 0.10) !important;
+}
