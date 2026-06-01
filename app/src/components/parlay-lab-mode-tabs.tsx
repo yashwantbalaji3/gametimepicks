@@ -30,7 +30,7 @@ export const PARLAY_LAB_MODES: ReadonlyArray<{
 }> = [
   {
     key: "suggested",
-    label: "Suggested",
+    label: "Suggested Parlays",
     sub: "Model-ranked lane spreads",
   },
   {
@@ -44,6 +44,18 @@ export const PARLAY_LAB_MODES: ReadonlyArray<{
     sub: "Educational allocation planner",
   },
 ];
+
+/**
+ * Parse a URL hash (e.g. `#build`, `build`, or `#BUILD`) into a known
+ * ParlayLabMode. Returns null for a missing or unrecognized hash so the
+ * caller can fall back to its default — the mode keys here stay the one
+ * source of truth (no separately-hardcoded hash strings elsewhere).
+ */
+export function parseParlayLabModeHash(hash: string): ParlayLabMode | null {
+  const cleaned = (hash || "").replace(/^#/, "").trim().toLowerCase();
+  const match = PARLAY_LAB_MODES.find((m) => m.key === cleaned);
+  return match ? match.key : null;
+}
 
 interface Props {
   active: ParlayLabMode;

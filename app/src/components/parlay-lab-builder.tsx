@@ -21,7 +21,7 @@
  * No fabrication anywhere — every slip rendered comes from an
  * optimizer snapshot or legacy snapshot file on disk.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import RiskSectionSpread from "./risk-section-spread";
 import { BuildMyCardProvider } from "./build-my-card-context";
 import SelectedSlipsTray from "./selected-slips-tray";
@@ -30,6 +30,7 @@ import CustomParlayBuilder from "./custom-parlay-builder";
 import CustomParlayGenerator from "./custom-parlay-generator";
 import BankrollPlanPanel from "./bankroll-plan-panel";
 import ParlayLabModeTabs, {
+  parseParlayLabModeHash,
   type ParlayLabMode,
 } from "./parlay-lab-mode-tabs";
 import PoolAvailabilityNote from "./pool-availability-note";
@@ -393,6 +394,45 @@ export default function ParlayLabBuilder({
   // optimizer snapshot.
   const [mode, setMode] = useState<ParlayLabMode>("suggested");
 
+  // PR `feature/parlay-lab-deep-linking` (2026-06-01) — make the active
+  // mode deep-linkable via the URL hash on the standalone /parlay-lab
+  // route:
+  //   /parlay-lab#suggested · /parlay-lab#build · /parlay-lab#bankroll
+  // Missing/invalid hash falls back to the default ("suggested"). The
+  // effect reads the hash on mount and listens for `hashchange`, so
+  // manual URL edits AND browser back/forward both sync the mode. It is
+  // intentionally scoped to `!embedded` so the homepage embed keeps its
+  // own default and never has its mode hijacked by the page hash. The
+  // mode keys live in `parlay-lab-mode-tabs.tsx` (single source of
+  // truth) via `parseParlayLabModeHash`.
+  useEffect(() => {
+    if (embedded || typeof window === "undefined") return;
+    const sync = () => {
+      setMode(parseParlayLabModeHash(window.location.hash) ?? "suggested");
+    };
+    sync(); // honor an initial deep link on first render
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, [embedded]);
+
+  // Tab clicks update the mode immediately and, on the standalone route,
+  // reflect it back to the URL hash. Assigning `location.hash` adds a
+  // history entry (so back/forward navigates between modes) and fires
+  // `hashchange`, which the effect above turns into the canonical
+  // setMode. Setting an already-matching hash is a no-op — no history
+  // spam from re-clicking the active tab. When embedded, the hash is
+  // left untouched so the homepage URL stays clean.
+  const handleModeChange = useCallback(
+    (next: ParlayLabMode) => {
+      setMode(next);
+      if (embedded || typeof window === "undefined") return;
+      if (window.location.hash.replace(/^#/, "") !== next) {
+        window.location.hash = next;
+      }
+    },
+    [embedded],
+  );
+
   // Pool of suggested slips used by the Bankroll Plan — same filter
   // pool as Suggested mode, with the safe-lane visibility cap removed
   // so the bankroll allocator can pick across more than just the
@@ -556,7 +596,13 @@ export default function ParlayLabBuilder({
         embedded={embedded}
       />
 
-      <ParlayLabModeTabs active={mode} onChange={setMode} />
+      <ParlayLabModeTabs active={mode} onChange={handleModeChange} />
+
+      {/* Plain-English caption naming all three modes. The per-mode
+          BuilderHeader above only describes the ACTIVE mode, so this
+          one-liner orients first-time users to the three tabs. Hidden
+          on the homepage embed to avoid duplicating dashboard copy. */}
+      {!embedded && <ModesIntro />}
 
       {/* Filters live above all modes EXCEPT Build Your Own — the
           custom builder + generator have their own pickers and the
@@ -867,6 +913,34 @@ function BuilderHeader({
         {subcopy}
       </p>
     </header>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Modes intro
+// ---------------------------------------------------------------------------
+
+/** One-line caption that names the three Parlay Lab modes so first-time
+ *  visitors understand what the tabs above switch between. Purely
+ *  explanatory copy — no banned betting language. */
+function ModesIntro() {
+  const strong = {
+    color: "var(--vault-text)",
+    fontWeight: 600,
+  } as const;
+  return (
+    <p
+      className="text-[12.5px] leading-relaxed"
+      style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
+    >
+      Three ways to use Parlay Lab:{" "}
+      <strong style={strong}>Suggested Parlays</strong> are the model&apos;s
+      top-ranked slips for this slate.{" "}
+      <strong style={strong}>Build Your Own</strong> assembles a custom slip
+      (not officially tracked).{" "}
+      <strong style={strong}>Bankroll Plan</strong> is an educational planner
+      for sizing stakes across the suggested slips.
+    </p>
   );
 }
 
