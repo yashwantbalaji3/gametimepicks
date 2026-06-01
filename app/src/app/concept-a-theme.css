@@ -1,0 +1,38 @@
+/* ============================================================================
+   CONCEPT A — Command Center theme reinforcement. PREVIEW ONLY.
+   Cool slate + teal accent so the dashboard/rail read as an analytics OS.
+   Token + chrome overrides only.
+   ============================================================================ */
+:root {
+  --vault-bg: #06080F;
+  --vault-panel: #0C111C;
+  --vault-panel-elevated: #121A2A;
+  --vault-gold: #2DD4BF;
+  --vault-gold-bright: #5EEAD4;
+  --vault-gold-dim: rgba(45, 212, 191, 0.10);
+  --vault-gold-glow: rgba(45, 212, 191, 0.20);
+  --vault-border: rgba(94, 234, 212, 0.14);
+  --vault-border-strong: rgba(94, 234, 212, 0.30);
+  --vault-rule: rgba(148, 163, 184, 0.10);
+  --vault-text: #E6EDF5;
+  --vault-text-mute: #9DB0C6;
+  --vault-text-faint: #5C6B80;
+  --gtp-shell: #06080F;
+  --gtp-canvas: #0C111C;
+  --gtp-card: #0E1626;
+  --gtp-card-elevated: #131D30;
+  --gtp-card-border: rgba(94, 234, 212, 0.14);
+  --gtp-on-card: #E6EDF5;
+  --gtp-on-card-muted: #9DB0C6;
+  --gtp-gold: #2DD4BF;
+  --gtp-gold-on-light: #5EEAD4;
+  --gtp-radius-lg: 6px;
+  --gtp-radius-sm: 3px;
+  --gtp-radius-pill: 6px;
+}
+.vault-shell { background: linear-gradient(180deg, #06080F 0%, #080C16 100%) !important; }
+.gtp-floor-lights { display: none !important; }
+/* (Content offset for the fixed left rail is handled by the layout wrapper's
+   lg:pl-[232px] so the disclaimer + footer clear the rail too.) */
+/* Square cards a touch for the terminal feel. */
+[class*="rounded-[8px]"], [class*="rounded-[10px]"], [class*="rounded-[12px]"] { border-radius: 6px !important; }

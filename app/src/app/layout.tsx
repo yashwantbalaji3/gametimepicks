@@ -4,6 +4,9 @@ import Nav from "@/components/nav";
 import Footer from "@/components/footer";
 import DisclaimerBanner from "@/components/disclaimer-banner";
 import MobileBottomNav from "@/components/mobile-bottom-nav";
+// CONCEPT A (Command Center) PREVIEW ONLY — left rail + status bar shell.
+import CommandRail from "@/components/concept-a/command-rail";
+import StatusBar from "@/components/concept-a/status-bar";
 // PR `feature/results-ux-restructure` (2026-05-29) — removed the
 // `DesktopSportsRail` import. The rail duplicated the top nav
 // (Home / Parlay Lab / Results) for desktop users and surfaced
@@ -13,6 +16,7 @@ import MobileBottomNav from "@/components/mobile-bottom-nav";
 // /parlay-lab, and /projections a wider, less cluttered shell.
 
 import "./globals.css";
+import "./concept-a-theme.css";
 
 export const metadata: Metadata = {
   title: "GametimePicks — Sports Prop Analytics Lab",
@@ -42,18 +46,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="vault-shell">
-        <span aria-hidden className="gtp-floor-lights" />
-        <DisclaimerBanner />
-        <Nav />
-        {/* PR `feature/results-ux-restructure` (2026-05-29) — dropped
-            the lg:pl-[76px] offset along with the desktop sports rail.
-            Content now uses the full viewport width on desktop, and
-            the existing `pb-[88px] md:pb-0` clears the mobile bottom
-            nav unchanged. */}
-        <main className="relative z-10 pb-[88px] md:pb-0">
-          {children}
-        </main>
-        <Footer />
+        {/* CONCEPT A (Command Center) PREVIEW ONLY — persistent left rail
+            on desktop; the production top Nav is kept for mobile only.
+            Everything except the rail lives in an offset content column. */}
+        <CommandRail />
+        <div className="lg:pl-[232px]">
+          <DisclaimerBanner />
+          <div className="lg:hidden">
+            <Nav />
+          </div>
+          <main className="relative z-10 pb-[88px] md:pb-0">
+            <StatusBar />
+            {children}
+          </main>
+          <Footer />
+        </div>
         {/* Mobile bottom nav — fixed bottom, hidden at md+. */}
         <MobileBottomNav />
       </body>
