@@ -58,6 +58,12 @@ export default function HomePage() {
     (suggested ? getOptimizerSnapshotForDate(suggested.date) : null) ||
     getLatestOptimizerSnapshot()?.payload ||
     null;
+  // The hero only claims "today" when we're actually showing today's
+  // pregame slate. When today's snapshot hasn't posted yet, the lab below
+  // falls back to the most recent slate (often already graded/settled, with
+  // its own SETTLED banner), so the hero must not call those "today's".
+  const showingTodayPregame =
+    !!suggested && !suggested.isFallback && suggested.source === "snapshot";
 
   // Lifetime stats strip (honest, decisive-only)
   const combinedDecisive =
@@ -94,7 +100,7 @@ export default function HomePage() {
             className="font-mono uppercase tracking-[0.18em]"
             style={{ color: "var(--vault-gold)", fontSize: 11 }}
           >
-            Today · Suggested parlays
+            {showingTodayPregame ? "Today · Suggested parlays" : "Latest · Suggested parlays"}
           </span>
           <h1
             className="font-display tracking-tight gtp-text-gradient-gold"
@@ -104,7 +110,9 @@ export default function HomePage() {
               letterSpacing: "-0.015em",
             }}
           >
-            Today&apos;s best suggested parlays.
+            {showingTodayPregame
+              ? "Today’s best suggested parlays."
+              : "The latest suggested parlays."}
           </h1>
           <p
             className="text-[13px] sm:text-[15px] leading-relaxed"
