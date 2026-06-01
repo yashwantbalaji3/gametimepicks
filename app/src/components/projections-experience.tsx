@@ -399,7 +399,9 @@ function HeaderRow({
         >
           {selectedGame
             ? `${selectedGame.awayTeamAbbr} @ ${selectedGame.homeTeamAbbr}`
-            : "Tonight's projections"}
+            : activeDate.date === todayEt
+              ? "Tonight's projections"
+              : "Projections"}
         </h1>
         <span
           className="font-mono"
