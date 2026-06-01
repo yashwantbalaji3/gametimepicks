@@ -13,6 +13,9 @@ import MobileBottomNav from "@/components/mobile-bottom-nav";
 // /parlay-lab, and /projections a wider, less cluttered shell.
 
 import "./globals.css";
+// DESIGN PREVIEW ONLY (Concept A — Terminal dashboard). Theme-override layer
+// imported after globals.css; remaps design tokens + chrome only. Do not merge.
+import "./concept-a.css";
 
 export const metadata: Metadata = {
   title: "GametimePicks — Sports Prop Analytics Lab",

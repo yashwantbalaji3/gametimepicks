@@ -1,0 +1,126 @@
+/* ============================================================================
+   CONCEPT A — "Terminal" premium analytics dashboard
+   DESIGN PREVIEW ONLY — do not merge to production.
+
+   A theme-level override layer imported AFTER globals.css. It only changes
+   design tokens + chrome appearance — no markup, data, or logic changes — so
+   every page inherits the new look while all behaviour stays identical.
+
+   Direction: cool near-black slate + electric teal/cyan accent (replaces the
+   warm gold), tighter geometry (small radii, hairline borders), denser nav,
+   a Bloomberg-style "command center" feel.
+   ============================================================================ */
+
+:root {
+  /* Surfaces — cool slate instead of warm navy */
+  --vault-bg: #06080F;
+  --vault-panel: #0C111C;
+  --vault-panel-elevated: #121A2A;
+  --vault-panel-hover: #182236;
+
+  /* Accent — teal/cyan replaces gold everywhere it is referenced */
+  --vault-gold: #2DD4BF;
+  --vault-gold-bright: #5EEAD4;
+  --vault-gold-dim: rgba(45, 212, 191, 0.10);
+  --vault-gold-glow: rgba(45, 212, 191, 0.20);
+
+  /* Borders — hairline, cyan-tinted */
+  --vault-border: rgba(94, 234, 212, 0.14);
+  --vault-border-strong: rgba(94, 234, 212, 0.30);
+  --vault-border-active: rgba(94, 234, 212, 0.60);
+  --vault-rule: rgba(148, 163, 184, 0.10);
+
+  /* Text — cool whites / slate greys */
+  --vault-text: #E6EDF5;
+  --vault-text-mute: #9DB0C6;
+  --vault-text-faint: #5C6B80;
+
+  /* Status — keep semantics, cool them slightly */
+  --vault-success: #34D399;
+  --vault-success-dim: rgba(52, 211, 153, 0.12);
+  --vault-warn: #FBBF24;
+  --vault-warn-dim: rgba(251, 191, 36, 0.12);
+  --vault-danger: #F87171;
+  --vault-danger-dim: rgba(248, 113, 113, 0.12);
+
+  --vault-shadow-soft: 0 1px 0 rgba(94, 234, 212, 0.05);
+  --vault-focus-ring: 0 0 0 1px var(--vault-gold), 0 0 0 4px rgba(45, 212, 191, 0.20);
+
+  /* --gtp-* surface/card tokens (light-card components) → dark slate cards */
+  --gtp-shell: #06080F;
+  --gtp-canvas: #0C111C;
+  --gtp-canvas-edge: #0A0F18;
+  --gtp-paper: #0C111C;
+  --gtp-paper-deep: #090D16;
+  --gtp-card: #0E1626;
+  --gtp-card-elevated: #131D30;
+  --gtp-card-sunken: #0A1120;
+  --gtp-card-border: rgba(94, 234, 212, 0.14);
+  --gtp-card-border-strong: rgba(94, 234, 212, 0.28);
+  --gtp-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --gtp-ink: #E6EDF5;
+  --gtp-ink-mute: #9DB0C6;
+  --gtp-on-card: #E6EDF5;
+  --gtp-on-card-muted: #9DB0C6;
+  --gtp-on-card-faint: #5C6B80;
+  --gtp-on-shell: #E6EDF5;
+  --gtp-on-shell-muted: #9DB0C6;
+  --gtp-on-shell-faint: #5C6B80;
+  --gtp-gold: #2DD4BF;
+  --gtp-gold-soft: rgba(45, 212, 191, 0.12);
+  --gtp-gold-on-light: #5EEAD4;
+  --gtp-champagne: #5EEAD4;
+
+  /* Sharper geometry — terminal, not casino */
+  --gtp-radius-lg: 6px;
+  --gtp-radius-sm: 3px;
+  --gtp-radius-pill: 6px;
+
+  /* Tighter, more technical display type */
+  --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Cool the shell wash + add a faint technical grid feel. */
+.vault-shell {
+  background:
+    linear-gradient(180deg, #06080F 0%, #080C16 100%) !important;
+}
+
+/* Header → dense command bar with a hard hairline rule. */
+header.sticky {
+  background: rgba(6, 8, 15, 0.92) !important;
+  border-bottom: 1px solid rgba(94, 234, 212, 0.16) !important;
+  backdrop-filter: blur(14px) saturate(120%);
+}
+
+/* Tighten nav links into compact, monospace-ish terminal tabs. */
+header nav a {
+  letter-spacing: 0.01em;
+  border-radius: 4px !important;
+}
+
+/* Cards: square the corners, hairline cyan border, subtle lift. */
+.surface,
+[class*="rounded-[8px]"],
+[class*="rounded-[10px]"],
+[class*="rounded-[12px]"] {
+  border-radius: 6px !important;
+}
+
+/* Replace gold focus glow shadows site-wide via the token (already remapped),
+   plus damp the heavy casino glow shadows to crisp 1px borders. */
+.vault-glow-hover:hover {
+  box-shadow: 0 0 0 1px var(--vault-border-strong) !important;
+}
+
+/* The decorative "floor lights" gold sweep → cool cyan, much subtler. */
+.gtp-floor-lights {
+  opacity: 0.35 !important;
+  filter: hue-rotate(150deg) saturate(0.7);
+}
+
+/* Market-ticker / scoreboard strips read as data tape: monospace, tight. */
+[aria-label*="ticker" i],
+[class*="ticker" i] {
+  font-feature-settings: "tnum" 1;
+}
