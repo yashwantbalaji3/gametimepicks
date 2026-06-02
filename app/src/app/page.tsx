@@ -32,6 +32,7 @@ import { formatPercent } from "@/lib/format";
 
 import ParlayTicketCard from "@/components/parlay-ticket-card";
 import HomePathCards, { type PathCard } from "@/components/home-path-cards";
+import HomeSportsCoverage from "@/components/home-sports-coverage";
 import GuidedStart from "@/components/guided-start/guided-start";
 import NewsletterSignup from "@/components/newsletter-signup";
 import MarketTicker from "@/components/market-ticker";
@@ -344,12 +345,16 @@ export default function HomePage() {
             </div>
           </ModuleCard>
 
-          <ModuleCard title="Events" href="/events">
-            <div className="px-3.5 py-3">
-              <span className="text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
-                WNBA · UFC · FIFA — schedule only. No odds, no projections.
-              </span>
-            </div>
+          {/* Sports coverage — honest at-a-glance of every league we
+              surface. NBA/MLB link to picks; schedule-only leagues link to
+              their schedule; MLS/EPL are dimmed "coming soon" with no link.
+              Full grid + schedules live on /events. */}
+          <ModuleCard title="Sports coverage" href="/events">
+            <HomeSportsCoverage />
+            <p className="px-3.5 py-2.5 text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)", borderTop: "1px solid var(--vault-rule)" }}>
+              NBA &amp; MLB have projections + model parlays. Other leagues are
+              schedule-only or not yet modelled — never picks.
+            </p>
           </ModuleCard>
         </div>
       </div>
