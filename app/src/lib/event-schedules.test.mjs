@@ -40,8 +40,8 @@ const ALLOWED_EVENT_KEYS = new Set([
 // Registry / ordering
 // ---------------------------------------------------------------------------
 
-test("league order is WNBA, UFC, FIFA World Cup", () => {
-  assert.deepEqual(EVENT_LEAGUE_ORDER, ["wnba", "ufc", "fifa-world-cup"]);
+test("league order is WNBA, UFC, MLS, FIFA World Cup", () => {
+  assert.deepEqual(EVENT_LEAGUE_ORDER, ["wnba", "ufc", "mls", "fifa-world-cup"]);
 });
 
 test("listLeagueSchedules returns leagues in tab order", () => {
@@ -103,12 +103,28 @@ test("events expose schedule-only fields (no odds/projection/pick keys)", () => 
   }
 });
 
-test("UFC card lists the main event first", () => {
+test("UFC cards are schedule-only (named cards, no betting fields)", () => {
   const ufc = getLeagueSchedule("ufc");
-  const card = ufc.events[0];
-  assert.ok(Array.isArray(card.competitors));
-  assert.equal(card.competitors[0], "Song Yadong vs. Deiveson Figueiredo");
-  assert.equal(card.competitors.length, 13);
+  assert.ok(ufc.events.length >= 1, "UFC has upcoming cards");
+  for (const card of ufc.events) {
+    assert.ok(card.name.length > 0, "card has a name");
+    assert.match(card.startUtc, ISO_INSTANT);
+    // schedule-only — no odds/projection/pick fields ever
+    assert.equal(card.odds, undefined);
+    assert.equal(card.projection, undefined);
+    assert.equal(card.pick, undefined);
+  }
+});
+
+test("MLS is a real schedule-only league with future fixtures", () => {
+  const mls = getLeagueSchedule("mls");
+  assert.equal(mls.key, "mls");
+  assert.equal(mls.status, "connected");
+  assert.ok(mls.events.length >= 1, "MLS has upcoming fixtures");
+  for (const ev of mls.events) {
+    assert.match(ev.startUtc, ISO_INSTANT);
+    assert.ok(ev.name.length > 0);
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -155,16 +171,22 @@ test("groupEventsByDate bins by Eastern calendar day and sorts ascending", () =>
   assert.equal(groups[1].events[0].id, "b");
 });
 
-test("WNBA late-night UTC tip-offs collapse into one Eastern day", () => {
+test("late-night UTC tip-offs collapse into one Eastern day", () => {
   // Three games at 23:30Z (7:30pm ET) + one at 02:00Z next UTC day
-  // (10:00pm ET same Eastern evening) → all 2026-05-29 in ET.
-  const wnba = getLeagueSchedule("wnba");
-  const groups = groupEventsByDate(wnba.events);
+  // (10:00pm ET same Eastern evening) → all one Eastern calendar day.
+  // Synthetic fixture so the test is robust to schedule refreshes.
+  const events = [
+    { id: "1", startUtc: "2026-06-02T23:30Z", name: "A" },
+    { id: "2", startUtc: "2026-06-02T23:30Z", name: "B" },
+    { id: "3", startUtc: "2026-06-02T23:30Z", name: "C" },
+    { id: "4", startUtc: "2026-06-03T02:00Z", name: "D" },
+  ];
+  const groups = groupEventsByDate(events);
   assert.equal(groups.length, 1);
-  assert.equal(groups[0].dateKey, "2026-05-29");
+  assert.equal(groups[0].dateKey, "2026-06-02");
   assert.equal(groups[0].events.length, 4);
   // Sorted ascending by start; the 02:00Z game is last.
-  assert.equal(groups[0].events[3].startUtc, "2026-05-30T02:00Z");
+  assert.equal(groups[0].events[3].startUtc, "2026-06-03T02:00Z");
 });
 
 test("groupEventsByDate does not mutate its input", () => {

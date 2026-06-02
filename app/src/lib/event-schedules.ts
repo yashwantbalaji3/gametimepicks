@@ -24,7 +24,7 @@
  * it (and so `tsx --test` can import it directly).
  */
 
-export type LeagueKey = "wnba" | "ufc" | "fifa-world-cup";
+export type LeagueKey = "wnba" | "ufc" | "fifa-world-cup" | "mls";
 
 /** Whether a league's upstream feed is wired up for this build. */
 export type SourceStatus = "connected" | "disabled";
@@ -80,12 +80,18 @@ export interface LeagueSchedule {
   moreLabel?: string;
 }
 
+// FIFA World Cup opener snapshot retrieval (unchanged — official Final
+// Draw data, not re-fetched).
 const ESPN_RETRIEVED_AT = "2026-05-29T20:56:00Z";
+// WNBA / UFC / MLS refreshed straight from the live ESPN public scoreboard
+// on 2026-06-02. Verbatim event ids/dates/matchups/venues from that feed.
+const ESPN_RETRIEVED_AT_JUN02 = "2026-06-02T03:06:05Z";
 
 /**
- * Baked schedule snapshots. ESPN public scoreboard JSON, inspected by
- * hand on 2026-05-29. Verbatim event ids/dates/matchups — see the module
- * header for the honesty contract.
+ * Baked schedule snapshots. ESPN public scoreboard JSON — WNBA/UFC/MLS
+ * refreshed 2026-06-02, FIFA opener from the 2026-05-29 Final-Draw
+ * cross-check. Verbatim event ids/dates/matchups straight from the feed —
+ * see the module header for the honesty contract.
  */
 const WNBA_SCHEDULE: LeagueSchedule = {
   key: "wnba",
@@ -95,39 +101,67 @@ const WNBA_SCHEDULE: LeagueSchedule = {
   source: {
     name: "ESPN public scoreboard",
     url: "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard",
-    retrievedAt: ESPN_RETRIEVED_AT,
-    rangeStart: "2026-05-29",
-    rangeEnd: "2026-05-30",
+    retrievedAt: ESPN_RETRIEVED_AT_JUN02,
+    rangeStart: "2026-06-02",
+    rangeEnd: "2026-06-05",
     note: "Point-in-time snapshot of the public ESPN scoreboard — schedule only, not live, and not a betting product. Verify times against the league before relying on them.",
   },
   events: [
     {
-      id: "401856945",
-      startUtc: "2026-05-29T23:30Z",
-      name: "Phoenix Mercury at New York Liberty",
-      shortName: "PHX @ NY",
-      venue: "Barclays Center",
+      id: "401856955",
+      startUtc: "2026-06-02T23:30Z",
+      name: "Connecticut Sun at Atlanta Dream",
+      shortName: "CON @ ATL",
+      venue: "Gateway Center",
     },
     {
-      id: "401856946",
-      startUtc: "2026-05-29T23:30Z",
-      name: "Los Angeles Sparks at Washington Mystics",
-      shortName: "LA @ WSH",
+      id: "401856956",
+      startUtc: "2026-06-02T23:30Z",
+      name: "Chicago Sky at Washington Mystics",
+      shortName: "CHI @ WSH",
       venue: "CareFirst Arena",
     },
     {
-      id: "401856947",
-      startUtc: "2026-05-29T23:30Z",
-      name: "Minnesota Lynx at Chicago Sky",
-      shortName: "MIN @ CHI",
-      venue: "Wintrust Arena",
+      id: "401856957",
+      startUtc: "2026-06-03T02:00Z",
+      name: "Portland Fire at Golden State Valkyries",
+      shortName: "POR @ GS",
+      venue: "Chase Center",
     },
     {
-      id: "401856948",
-      startUtc: "2026-05-30T02:00Z",
-      name: "Atlanta Dream at Portland Fire",
-      shortName: "ATL @ POR",
-      venue: "Moda Center",
+      id: "401856958",
+      startUtc: "2026-06-03T02:00Z",
+      name: "Las Vegas Aces at Los Angeles Sparks",
+      shortName: "LV @ LA",
+      venue: "crypto.com Arena",
+    },
+    {
+      id: "401856959",
+      startUtc: "2026-06-03T23:30Z",
+      name: "Toronto Tempo at New York Liberty",
+      shortName: "TOR @ NY",
+      venue: "Barclays Center",
+    },
+    {
+      id: "401856960",
+      startUtc: "2026-06-04T02:00Z",
+      name: "Phoenix Mercury at Seattle Storm",
+      shortName: "PHX @ SEA",
+      venue: "Climate Pledge Arena",
+    },
+    {
+      id: "401856961",
+      startUtc: "2026-06-04T23:00Z",
+      name: "Atlanta Dream at Indiana Fever",
+      shortName: "ATL @ IND",
+      venue: "Gainbridge Fieldhouse",
+    },
+    {
+      id: "401856962",
+      startUtc: "2026-06-05T01:00Z",
+      name: "Golden State Valkyries at Minnesota Lynx",
+      shortName: "GS @ MIN",
+      venue: "Target Center",
     },
   ],
 };
@@ -140,34 +174,41 @@ const UFC_SCHEDULE: LeagueSchedule = {
   source: {
     name: "ESPN public scoreboard",
     url: "https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard",
-    retrievedAt: ESPN_RETRIEVED_AT,
-    rangeStart: "2026-05-30",
-    rangeEnd: "2026-05-30",
+    retrievedAt: ESPN_RETRIEVED_AT_JUN02,
+    rangeStart: "2026-06-06",
+    rangeEnd: "2026-07-11",
     note: "Point-in-time snapshot of the public ESPN scoreboard — schedule only, not live, and not a betting product. Cards can change; verify against the promotion before relying on them.",
   },
   events: [
     {
-      id: "600058517",
-      startUtc: "2026-05-30T08:00Z",
-      name: "UFC Fight Night: Song vs. Figueiredo",
-      shortName: "UFC Fight Night",
-      venue: "Galaxy Arena",
-      detail: "13-bout card · Main event: Song Yadong vs. Deiveson Figueiredo",
-      competitors: [
-        "Song Yadong vs. Deiveson Figueiredo",
-        "Alonzo Menifield vs. Zhang Mingyang",
-        "Sergei Pavlovich vs. Tallison Teixeira",
-        "Kai Asakura vs. Cameron Smotherman",
-        "Jake Matthews vs. Carlston Harris",
-        "Alex Perez vs. Sumudaerji",
-        "Luis Felipe Dias vs. Yi Sak Lee",
-        "Ding Meng vs. Jose Henrique",
-        "Aoriqileng vs. Cody Haddon",
-        "Rei Tsuruya vs. Luis Gurule",
-        "Angela Hill vs. Jingnan Xiong",
-        "Rodrigo Vera vs. Zhu Kangjie",
-        "Loma Lookboonmee vs. Jaqueline Amorim",
-      ],
+      id: "600058949",
+      startUtc: "2026-06-06T21:00Z",
+      name: "UFC Fight Night: Muhammad vs. Bonfim",
+      venue: "Meta APEX",
+    },
+    {
+      id: "600058854",
+      startUtc: "2026-06-15T00:00Z",
+      name: "UFC Freedom 250: Topuria vs. Gaethje",
+      venue: "South Lawn of the White House",
+    },
+    {
+      id: "600059467",
+      startUtc: "2026-06-20T21:00Z",
+      name: "UFC Fight Night: Kape vs. Horiguchi",
+      venue: "Meta APEX",
+    },
+    {
+      id: "600059254",
+      startUtc: "2026-06-27T13:00Z",
+      name: "UFC Fight Night: Fiziev vs. Torres",
+      venue: "National Gymnastics Arena",
+    },
+    {
+      id: "600059148",
+      startUtc: "2026-07-11T21:00Z",
+      name: "UFC 329: McGregor vs. Holloway 2",
+      venue: "T-Mobile Arena",
     },
   ],
 };
@@ -207,9 +248,83 @@ const FIFA_WORLD_CUP_SCHEDULE: LeagueSchedule = {
   ],
 };
 
+const MLS_SCHEDULE: LeagueSchedule = {
+  key: "mls",
+  label: "MLS",
+  longLabel: "Major League Soccer",
+  status: "connected",
+  source: {
+    name: "ESPN public scoreboard",
+    url: "https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard",
+    retrievedAt: ESPN_RETRIEVED_AT_JUN02,
+    rangeStart: "2026-07-16",
+    rangeEnd: "2026-07-22",
+    note: "Point-in-time snapshot of the public ESPN scoreboard — schedule only, not live, and not a betting product. MLS pauses for the FIFA World Cup, so the next fixtures resume in July. Verify times against the league before relying on them.",
+  },
+  events: [
+    {
+      id: "761659",
+      startUtc: "2026-07-16T23:30Z",
+      name: "Toronto FC at CF Montréal",
+      shortName: "TOR @ MTL",
+      venue: "Stade Saputo",
+    },
+    {
+      id: "761660",
+      startUtc: "2026-07-17T00:30Z",
+      name: "Vancouver Whitecaps at Chicago Fire FC",
+      shortName: "VAN @ CHI",
+      venue: "Soldier Field",
+    },
+    {
+      id: "761661",
+      startUtc: "2026-07-17T00:30Z",
+      name: "Sporting Kansas City at St. Louis CITY SC",
+      shortName: "SKC @ STL",
+      venue: "Energizer Park",
+    },
+    {
+      id: "761662",
+      startUtc: "2026-07-17T02:30Z",
+      name: "Portland Timbers at Seattle Sounders FC",
+      shortName: "POR @ SEA",
+      venue: "Lumen Field",
+    },
+    {
+      id: "761663",
+      startUtc: "2026-07-18T00:00Z",
+      name: "Atlanta United FC at Nashville SC",
+      shortName: "ATL @ NSH",
+      venue: "GEODIS Park",
+    },
+    {
+      id: "761664",
+      startUtc: "2026-07-18T02:45Z",
+      name: "LAFC at LA Galaxy",
+      shortName: "LAFC @ LA",
+      venue: "Dignity Health Sports Park",
+    },
+    {
+      id: "761668",
+      startUtc: "2026-07-22T23:30Z",
+      name: "New York City FC at Columbus Crew",
+      shortName: "NYC @ CLB",
+      venue: "ScottsMiracle-Gro Field",
+    },
+    {
+      id: "761669",
+      startUtc: "2026-07-22T23:30Z",
+      name: "Vancouver Whitecaps at FC Cincinnati",
+      shortName: "VAN @ CIN",
+      venue: "TQL Stadium",
+    },
+  ],
+};
+
 const SCHEDULES: Record<LeagueKey, LeagueSchedule> = {
   wnba: WNBA_SCHEDULE,
   ufc: UFC_SCHEDULE,
+  mls: MLS_SCHEDULE,
   "fifa-world-cup": FIFA_WORLD_CUP_SCHEDULE,
 };
 
@@ -217,6 +332,7 @@ const SCHEDULES: Record<LeagueKey, LeagueSchedule> = {
 export const EVENT_LEAGUE_ORDER: LeagueKey[] = [
   "wnba",
   "ufc",
+  "mls",
   "fifa-world-cup",
 ];
 

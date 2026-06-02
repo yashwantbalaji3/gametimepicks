@@ -55,8 +55,9 @@ export const COVERAGE_BADGE: Record<
  * Coverage registry, ordered most-supported first. Levels reflect what is
  * ACTUALLY on disk / wired in the app as of this writing:
  *   - NBA + MLB: real projection pipelines + graded parlay results.
- *   - NHL/IPL/World Cup/WNBA/UFC: schedule-only surfaces that already ship.
- *   - MLS/EPL: nothing wired anywhere — honest "coming soon".
+ *   - NHL/IPL/World Cup/WNBA/UFC/MLS: schedule-only surfaces that ship real,
+ *     attributed schedule snapshots.
+ *   - EPL: no upcoming fixtures sourceable yet — honest "coming soon".
  */
 export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
   {
@@ -127,16 +128,16 @@ export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
     key: "mls",
     label: "MLS",
     longLabel: "Major League Soccer",
-    level: "coming-soon",
-    blurb: "Not modelled yet — no projections, parlays, or schedule published.",
-    links: [],
+    level: "schedule",
+    blurb: "Upcoming fixtures — schedule only. Resumes in July after the World Cup break.",
+    links: [{ label: "Schedule", href: "/events/" }],
   },
   {
     key: "epl",
     label: "EPL",
     longLabel: "English Premier League",
     level: "coming-soon",
-    blurb: "Not modelled yet — no projections, parlays, or schedule published.",
+    blurb: "Not modelled yet, and no upcoming fixtures published — schedule coming when the season returns.",
     links: [],
   },
 ];
