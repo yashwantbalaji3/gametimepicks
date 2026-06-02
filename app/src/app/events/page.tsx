@@ -21,9 +21,17 @@
  * so the whole thing renders cleanly into the static export.
  */
 import EventScheduleHub from "@/components/event-schedule-hub";
-import SportsCoverageGrid from "@/components/sports-coverage-grid";
+import SportsCoverageBoard, {
+  type CoverageExtra,
+} from "@/components/sports-coverage-board";
 import PageHero from "@/components/page-hero";
-import { listLeagueSchedules } from "@/lib/event-schedules";
+import {
+  listLeagueSchedules,
+  getLeagueSchedule,
+  EVENT_LEAGUE_ORDER,
+  formatEventDateLabel,
+  formatEventTimeLabel,
+} from "@/lib/event-schedules";
 import { SPORTS_COVERAGE } from "@/lib/sports-coverage";
 
 const META_TITLE = "Sports & Events · GameTime Picks";
@@ -49,6 +57,25 @@ export const metadata = {
 export default function EventsPage() {
   const leagues = listLeagueSchedules();
 
+  // Server-computed "next event + source" for the leagues whose schedule we
+  // surface directly (keys match the sports-coverage keys). Read from the
+  // same baked, attributed snapshots — never fabricated.
+  const coverageExtras: Record<string, CoverageExtra> = {};
+  for (const lk of EVENT_LEAGUE_ORDER) {
+    const sched = getLeagueSchedule(lk);
+    const next = sched.events[0];
+    coverageExtras[lk] = {
+      nextEvent: next
+        ? {
+            dateLabel: formatEventDateLabel(next.startUtc),
+            timeLabel: formatEventTimeLabel(next.startUtc),
+            name: next.name,
+          }
+        : undefined,
+      source: { name: sched.source.name, retrievedAt: sched.source.retrievedAt },
+    };
+  }
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-8 overflow-x-hidden">
       {/* ---- Hero --------------------------------------------------- */}
@@ -66,16 +93,16 @@ export default function EventsPage() {
         }
       />
 
-      {/* ---- Sports coverage grid ----------------------------------- */}
-      <section aria-label="Sports coverage" className="mt-6 flex flex-col gap-2.5">
+      {/* ---- Sports coverage board (mobile-first) ------------------- */}
+      <div className="mt-6 flex flex-col gap-3">
         <h2
           className="font-mono uppercase tracking-[0.16em]"
           style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
         >
           Sports coverage
         </h2>
-        <SportsCoverageGrid sports={SPORTS_COVERAGE} columns={3} />
-      </section>
+        <SportsCoverageBoard sports={SPORTS_COVERAGE} extras={coverageExtras} />
+      </div>
 
       {/* ---- Schedules heading ------------------------------------- */}
       <h2
