@@ -16,6 +16,7 @@ import {
   classifyOddsSection,
   type RiskSectionKey,
 } from "./parlay-risk-sections";
+import { slipRecentFormSummary } from "./recent-form";
 
 export type ParlaySlipStatus = "pending" | "win" | "loss" | "push" | "void";
 export type ParlayRiskProfile =
@@ -1289,6 +1290,7 @@ export function selectPlus100BuilderSlip(
     legPenalty: number; // |legCount - preferred|
     distanceTo100: number;
     score: number;
+    avgL10: number; // soft recent-form preference (NOT a performance claim)
     distinctGames: number;
     knownStarts: number;
   };
@@ -1329,6 +1331,11 @@ export function selectPlus100BuilderSlip(
       legPenalty: Math.abs(legCount - preferredLegCount),
       distanceTo100: Math.abs(american - BUILDER_PLUS100_TARGET),
       score: suggestedScore(slip),
+      // Soft recent-form preference: among otherwise-equal candidates, prefer
+      // stronger L10 support. Cards without L10 data sort last on this key
+      // (−1) but are NOT excluded. This is eligibility/ordering, NOT a
+      // win-probability claim, and uses recentSeries (not edgePct/confidence).
+      avgL10: slipRecentFormSummary(slip).avgRate ?? -1,
       distinctGames: _builderDistinctGames(slip),
       knownStarts: _builderLegsWithKnownStart(slip),
     });
@@ -1342,6 +1349,7 @@ export function selectPlus100BuilderSlip(
       a.legPenalty - b.legPenalty ||
       a.distanceTo100 - b.distanceTo100 ||
       b.score - a.score ||
+      b.avgL10 - a.avgL10 || // soft recent-form tie-breaker
       b.distinctGames - a.distinctGames ||
       b.knownStarts - a.knownStarts ||
       a.slip.slipId.localeCompare(b.slip.slipId),

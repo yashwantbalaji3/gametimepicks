@@ -43,6 +43,16 @@ scripts/model-calibration-analysis.mjs` (and `shadow-audit-quality-gates.mjs`,
 `shadow-volume-discipline.mjs`, `shadow-projection-recalibration.mjs`,
 `shadow-l10-audit.mjs`, `audit-suggested-section-funnel.mjs`).
 
+## Recent-form (L10) — display + soft preference only (Bank Builder, PR 4)
+
+The #249 shadow-L10 finding (L10 weakly monotonic, **not** anti-predictive; a
+hard ≥70–80% all-legs gate starves candidates) was applied conservatively in
+**Bank Builder (PR 4)**: L10 is a **transparent per-leg display badge** (from
+real `recentSeries`) and a **soft ranking tie-breaker** in the +100 selector —
+**no hard L10 gate, no performance/win-rate claim**, and `edgePct`/`confidence`
+are not used. Helpers: `recent-form.ts`, `bank-builder-eligibility.ts`. See
+`PRODUCT_UX_AND_SPORTS_PROJECTION_AUDIT_2026-06-02.md` §8/§11.
+
 ## Projection→probability recalibration — studied (shadow), NOT wired
 
 The recalibration proposed by #240 has now been **run offline, shadow-only**

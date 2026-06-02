@@ -111,9 +111,20 @@ reflects the live product as of main `5a1777d` (2026-06-02).
 - **Paper-only / educational** `$100 → $3,000` ladder. Disclaimers top +
   bottom; never real-money advice; resets to base on a loss (always shown).
 - Picks a single pending, fully-unsettled slip near **+100** from the
-  published pool; **never shows a settled slip** as today's pick. When none
-  qualifies, an **honest empty state** ("No Builder Slip near +100 in
-  today's pool…").
+  **official** (single-sport, no mixed) published pool; **never shows a settled
+  slip** as today's pick; **never forces a card**.
+- **Eligibility transparency (PR 4, 2026-06-02).** A panel states the criteria
+  (official cards only · pending & fully unsettled · priced near +100 ·
+  recent-form shown · no forced card). When none qualifies, the empty state
+  lists the **specific** honest reason (no pending cards / none near +100 /
+  etc.) via `diagnoseBuilderPool` — never "nothing is good enough to win".
+- **Recent-form (L10) transparency.** Each leg shows its **L10** (recent games
+  that cleared the line, from real `recentSeries`; enriched from the optimizer
+  legPool when the snapshot omits it). L10 is **display + a soft ranking
+  tie-breaker only — never a win-rate/performance claim**, and **no hard
+  ≥70/80 gate** is applied (it would starve candidates, per the #249 audit).
+  `edgePct`/`confidence` are **not** used. Helpers: `recent-form.ts`,
+  `bank-builder-eligibility.ts`.
 
 ## Results (`/results`)
 
