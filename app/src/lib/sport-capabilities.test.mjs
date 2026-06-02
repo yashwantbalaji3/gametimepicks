@@ -29,6 +29,8 @@ import {
   slipAllowedInBuildYourOwn,
   filterOfficialSuggestedSlips,
   filterBuildYourOwnSlips,
+  filterOfficialSuggestedSections,
+  isMixedSportSlip,
   unsupportedSportsInOfficialSections,
   normalizeSportKey,
 } from "./sport-capabilities.ts";
@@ -180,6 +182,39 @@ test("unsupportedSportsInOfficialSections detects mixed + unsupported leaks", ()
 
   assert.deepEqual(unsupportedSportsInOfficialSections(null), []);
   assert.deepEqual(unsupportedSportsInOfficialSections(undefined), []);
+});
+
+test("isMixedSportSlip flags cross-sport slips only", () => {
+  assert.equal(isMixedSportSlip(nbaSlip), false);
+  assert.equal(isMixedSportSlip(mlbSlip), false);
+  assert.equal(isMixedSportSlip(mixedSlip), true);
+  assert.equal(isMixedSportSlip(nhlSlip), false);
+});
+
+// --- filterOfficialSuggestedSections (publicRiskSections "all"-bucket leak) --
+test("filterOfficialSuggestedSections drops mixed from every section incl 'all'", () => {
+  // Mirrors publicRiskSections where the per-sport buckets include an "all"
+  // union bucket that, on a mixed slate, carries mixed slips.
+  const sections = {
+    low: [nbaSlip, mlbSlip, mixedSlip], // 'all'-style union with a mixed slip
+    medium: [mixedSlip, nhlSlip], // mixed + unsupported only
+    high: [mlbSlip],
+    longshot: [],
+  };
+  const out = filterOfficialSuggestedSections(sections);
+  assert.deepEqual(out.low, [nbaSlip, mlbSlip]); // mixed dropped
+  assert.deepEqual(out.medium, []); // mixed + nhl both dropped
+  assert.deepEqual(out.high, [mlbSlip]);
+  assert.deepEqual(out.longshot, []);
+  // section keys preserved
+  assert.deepEqual(Object.keys(out).sort(), ["high", "longshot", "low", "medium"]);
+  // and the result has NO mixed/unsupported leak
+  assert.deepEqual(unsupportedSportsInOfficialSections(out), []);
+});
+
+test("filterOfficialSuggestedSections handles null/undefined", () => {
+  assert.deepEqual(filterOfficialSuggestedSections(null), {});
+  assert.deepEqual(filterOfficialSuggestedSections(undefined), {});
 });
 
 // --- registry sync ----------------------------------------------------------

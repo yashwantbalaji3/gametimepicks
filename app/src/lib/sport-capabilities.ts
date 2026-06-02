@@ -279,6 +279,33 @@ export function filterBuildYourOwnSlips<T extends SlipLike>(
   return slips.filter((s) => slipAllowedInBuildYourOwn(s));
 }
 
+/** True when a slip spans more than one sport (a "mixed" / "multi" slip). */
+export function isMixedSportSlip(slip: SlipLike): boolean {
+  return sportsOnSlip(slip).length > 1;
+}
+
+/**
+ * Filter a per-section bucket map (publicRiskSections-shaped: each value an
+ * array of slips) down to slips allowed as official Suggested Parlays. Drops
+ * mixed-sport, unsupported-sport, and unknown-sport slips from EVERY section
+ * (including an "all"/union bucket), preserving the section keys. Pure; never
+ * mutates the input. This is the chokepoint PR B wires so no mixed/unsupported
+ * slip can render in any official Suggested section or its count.
+ */
+export function filterOfficialSuggestedSections<
+  K extends string,
+  T extends SlipLike,
+>(
+  sections: Partial<Record<K, ReadonlyArray<T>>> | null | undefined,
+): Partial<Record<K, T[]>> {
+  const out: Partial<Record<K, T[]>> = {};
+  if (!sections) return out;
+  for (const key of Object.keys(sections) as K[]) {
+    out[key] = filterOfficialSuggestedSlips(sections[key] ?? []);
+  }
+  return out;
+}
+
 /**
  * Detector for tests/guards: given a publicRiskSections-shaped object (each
  * value an array of slips), return the distinct sport keys that appear but

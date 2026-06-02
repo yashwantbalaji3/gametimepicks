@@ -54,15 +54,16 @@ reflects the live product as of main `5a1777d` (2026-06-02).
   [`VOLUME_DISCIPLINE_2026-06-02.md`](./VOLUME_DISCIPLINE_2026-06-02.md).
 - Hash deep-links (`#suggested` / `#build` / `#bankroll`) drive the active
   mode; back/forward + the rail stay in sync.
-- **Single-sport only (target rule).** Official Suggested Parlays must be
+- **Single-sport only (enforced).** Official Suggested Parlays are
   **individual-sport** — never cross-sport ("mixed"). Mixed-sport belongs in
-  Build Your Own only. The capability gates that enforce this live in
+  Build Your Own only. Enforced by
   [`app/src/lib/sport-capabilities.ts`](../app/src/lib/sport-capabilities.ts)
-  (`isOfficialSuggestedParlayAllowed`). **Status:** gates + tests shipped;
-  wiring the Suggested UI to per-sport tabs and removing the "Mixed" pill is
-  the approval-gated **PR B** in
-  [`SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md`](./SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md)
-  (a "Mixed" Suggested pill is still present until then).
+  (`filterOfficialSuggestedSlips` / `filterOfficialSuggestedSections`), wired
+  into the Suggested surface (PR B): the **"Mixed" sport pill is removed**, and
+  every Suggested section — including the **"All" tab** (the union of
+  single-sport official slips) — drops mixed-sport cards. The same official
+  filter feeds the **Home** suggested preview/featured/guided and the **Bank
+  Builder** pool. Build Your Own keeps mixed-sport (modeled sports only).
 
 ## Build Your Own (`/parlay-lab#build`) + Build My Card
 

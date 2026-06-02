@@ -39,6 +39,7 @@ import {
   BUILDER_PLUS100_TARGET,
   type BuilderSlipSelection,
 } from "@/lib/parlay-suggested";
+import { filterOfficialSuggestedSlips } from "@/lib/sport-capabilities";
 import { formatAmerican } from "@/lib/odds-math";
 import {
   BANK_BUILDER_BASE,
@@ -81,7 +82,12 @@ export default function BankBuilderPage() {
   const currentBankroll = BANK_BUILDER_BASE;
   const activeStep = resolveLadderStep(currentBankroll) ?? BANK_BUILDER_LADDER[0];
 
-  const pool = suggested?.slips ?? [];
+  // PR `feature/sport-specific-suggested` (2026-06-02): the Builder Slip is
+  // drawn only from OFFICIAL Suggested slips — single-sport only. Filtering out
+  // mixed-sport slips keeps Bank Builder consistent with the official surface
+  // (no mixed Builder card) without forcing a pick: when nothing single-sport
+  // prices near +100, the honest empty state still renders.
+  const pool = filterOfficialSuggestedSlips(suggested?.slips ?? []);
   // The Builder Slip targets ~+100 combined odds: a $100 paper stake aims
   // for roughly a $200 total return (~$100 profit). We pick the pending,
   // fully-unsettled slip priced closest to +100 (2-leg preferred), and
