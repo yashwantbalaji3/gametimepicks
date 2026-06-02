@@ -179,6 +179,55 @@ truthful empty states — not a number we cannot promise.
 
 ---
 
-*Audit date 2026-06-02 ~05:10 ET. Latest settled 2026-06-01. No code wired;
-this document is the review package for the PHASE 4 implementation, which is
-paused pending approval.*
+## PART D — Shadow-audit RESULTS (PHASE 4 step 2) — important negative finding
+
+Built pure, tested helpers (`parlay-decorrelation.ts` + tests; the leg
+gates already existed) and an **offline shadow audit**
+(`app/scripts/shadow-audit-quality-gates.mjs`) that re-evaluates every
+published slip on the 5 settled public-era slates under (a) today's
+effective gate/caps vs (b) the proposed per-section leg-quality ladder +
+decorrelation caps. **Filter-based** (it does not re-run the optimizer
+search), reads only pregame leg structure + each slip's own graded result
+⇒ **no same-slate leakage**. May 25/26 excluded.
+
+| Date | published | proposed-kept | pub slip% | new slip% | pub leg% | consGate leg% |
+|------|----------:|--------------:|----------:|----------:|---------:|--------------:|
+| 05-27 | 32 | 24 | 31% | 21% | 61% | 58% |
+| 05-28 | 114 | 47 | 21% | 17% | 55% | 60% |
+| 05-29 | 48 | 28 | 4% | 0% | 60% | 55% |
+| 05-30 | 115 | 60 | 7% | 7% | 46% | 43% |
+| 06-01 | 48 | 17 | 2% | 0% | 31% | **19%** |
+| **agg** | **357** | **176 (49%)** | **13%** | **10%** | **50%** | **49%** |
+
+**Key finding — the gates cut volume but do NOT improve hit rate.**
+- Volume drops ~51% (357 → 176 slips). ✅ a real *discipline* win.
+- But slip-hit **13% → 10%** and leg-hit **50% → 48%** — **no quality gain**;
+  the conservative leg gate's "higher-quality" legs hit **49% vs 50%** for
+  all legs, and on June 1 the gated legs hit **19% vs 31%** (the model's
+  *highest-confidence* legs did **worse**).
+- ⇒ The projection model's `confidence`/`edge` signal is **not predictive
+  enough** to make a per-leg quality ladder pay off on out-of-sample data.
+  Wiring `PROPOSED_SECTION_LEG_GATES` as a "quality improver" is **not
+  supported by evidence.**
+
+**Revised recommendation (honest):**
+1. **DO** ship pure volume discipline + truthful empty states (publish far
+   fewer slips; never pad sections with weak fallbacks). This is a UX /
+   honesty win that does **not** depend on any hit-rate claim.
+2. **DO NOT** wire the per-section leg-quality ladder or decorrelation caps
+   as a hit-rate improver — the 5-day shadow audit shows no edge. Keep them
+   as tested, inert proposals (now committed) for future re-evaluation on
+   more data.
+3. **Escalate the real root cause:** the model's confidence/edge calibration
+   (its best legs don't outperform). That is a larger, separate model
+   investigation — documented, not fabricated, not shipped here.
+
+The helpers + shadow audit are committed (non-wiring) so this evidence is
+reproducible: `cd app && npx tsx scripts/shadow-audit-quality-gates.mjs`.
+
+---
+
+*Audit date 2026-06-02 ~05:30 ET. Latest settled 2026-06-01. Helpers +
+shadow audit committed (inert); NO live optimizer/UI wiring. Next decision
+(volume-only discipline vs deeper model-calibration work) is paused pending
+operator direction.*
