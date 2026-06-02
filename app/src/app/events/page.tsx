@@ -21,12 +21,14 @@
  * so the whole thing renders cleanly into the static export.
  */
 import EventScheduleHub from "@/components/event-schedule-hub";
+import SportsCoverageGrid from "@/components/sports-coverage-grid";
 import PageHero from "@/components/page-hero";
 import { listLeagueSchedules } from "@/lib/event-schedules";
+import { SPORTS_COVERAGE } from "@/lib/sports-coverage";
 
-const META_TITLE = "Sports Event Hub · GameTime Picks";
+const META_TITLE = "Sports & Events · GameTime Picks";
 const META_DESCRIPTION =
-  "Upcoming WNBA, UFC, and FIFA World Cup schedules — dates, matchups, and venues only. We do not publish odds, projections, or picks for these leagues.";
+  "What GameTime Picks covers: NBA and MLB projections + parlays, plus schedule-only coverage for NHL, WNBA, UFC, FIFA World Cup and IPL. No odds, projections, or picks for schedule-only leagues.";
 
 export const metadata = {
   title: META_TITLE,
@@ -51,17 +53,37 @@ export default function EventsPage() {
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-8 overflow-x-hidden">
       {/* ---- Hero --------------------------------------------------- */}
       <PageHero
-        eyebrow="Schedule hub · no odds · no projections"
-        title="Sports Event Hub"
+        eyebrow="Sports coverage · schedules"
+        title="Sports & Events"
+        subMaxWidth={680}
         sub={
           <>
-            Upcoming schedules for the WNBA, UFC, and FIFA World Cup — dates,
-            matchups, and venues only. We do not model these leagues, so you
-            won&apos;t find odds, projections, or picks here. Each tab shows a
-            point-in-time snapshot from a public feed, attributed inline.
+            Everything GameTime Picks covers, in one place. NBA and MLB have
+            real player-prop projections and model parlays; the other leagues
+            below are schedule-only or not yet modelled. Nothing here implies
+            picks for a league we don&apos;t model.
           </>
         }
       />
+
+      {/* ---- Sports coverage grid ----------------------------------- */}
+      <section aria-label="Sports coverage" className="mt-6 flex flex-col gap-2.5">
+        <h2
+          className="font-mono uppercase tracking-[0.16em]"
+          style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
+        >
+          Sports coverage
+        </h2>
+        <SportsCoverageGrid sports={SPORTS_COVERAGE} columns={3} />
+      </section>
+
+      {/* ---- Schedules heading ------------------------------------- */}
+      <h2
+        className="mt-8 font-mono uppercase tracking-[0.16em]"
+        style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
+      >
+        Schedules
+      </h2>
 
       {/* ---- Honesty note ------------------------------------------- */}
       <p

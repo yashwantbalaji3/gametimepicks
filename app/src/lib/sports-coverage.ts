@@ -1,0 +1,152 @@
+/**
+ * sports-coverage — the single, honest source of truth for WHICH sports
+ * GameTimePicks covers and at WHAT level.
+ *
+ * HARD honesty rules (mirrors the repo's product guardrails):
+ *   - A sport is only marked "full" (Projections + Parlays) when it has a
+ *     REAL player-prop projection pipeline AND graded parlay results. Today
+ *     that is exactly NBA and MLB.
+ *   - "schedule" means we surface a real, attributed schedule snapshot only
+ *     — no odds, no projections, no parlays, no picks. (NHL, WNBA, UFC,
+ *     FIFA World Cup, IPL.)
+ *   - "coming-soon" means we publish NOTHING for that sport yet — no
+ *     schedule, no odds, no projections. It must never link anywhere that
+ *     implies coverage. (MLS, EPL.)
+ *   - No fabricated data of any kind. Every link points at a real surface
+ *     that already exists in the app.
+ *
+ * Client-safe: pure data + pure helpers, no `fs`/server-only imports, so
+ * both server pages and client components can import it (and `tsx --test`
+ * can exercise it directly).
+ */
+
+export type SportCoverageLevel = "full" | "projections" | "schedule" | "coming-soon";
+
+export interface SportCoverageLink {
+  label: string;
+  href: string;
+}
+
+export interface SportCoverage {
+  key: string;
+  /** Short label, e.g. "MLB". */
+  label: string;
+  /** Full name, e.g. "Major League Baseball". */
+  longLabel: string;
+  level: SportCoverageLevel;
+  /** One honest line describing what we publish for this sport. */
+  blurb: string;
+  /** Real in-app destinations. Empty for "coming-soon" (no coverage yet). */
+  links: SportCoverageLink[];
+}
+
+/** Badge vocabulary the UI renders per level. Tone is a CSS var. */
+export const COVERAGE_BADGE: Record<
+  SportCoverageLevel,
+  { label: string; tone: string }
+> = {
+  full: { label: "Projections + Parlays", tone: "var(--vault-gold-bright)" },
+  projections: { label: "Projections", tone: "var(--vault-gold)" },
+  schedule: { label: "Schedule only", tone: "var(--vault-text-mute)" },
+  "coming-soon": { label: "Coming soon", tone: "var(--vault-text-faint)" },
+};
+
+/**
+ * Coverage registry, ordered most-supported first. Levels reflect what is
+ * ACTUALLY on disk / wired in the app as of this writing:
+ *   - NBA + MLB: real projection pipelines + graded parlay results.
+ *   - NHL/IPL/World Cup/WNBA/UFC: schedule-only surfaces that already ship.
+ *   - MLS/EPL: nothing wired anywhere — honest "coming soon".
+ */
+export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
+  {
+    key: "mlb",
+    label: "MLB",
+    longLabel: "Major League Baseball",
+    level: "full",
+    blurb: "Player-prop projections and model parlays, graded after games.",
+    links: [
+      { label: "Straight bets", href: "/projections/" },
+      { label: "Parlays", href: "/parlay-lab/#suggested" },
+      { label: "Results", href: "/results/" },
+    ],
+  },
+  {
+    key: "nba",
+    label: "NBA",
+    longLabel: "National Basketball Association",
+    level: "full",
+    blurb: "Player-prop projections and model parlays on game days, graded after.",
+    links: [
+      { label: "Straight bets", href: "/projections/" },
+      { label: "Parlays", href: "/parlay-lab/#suggested" },
+      { label: "Results", href: "/results/" },
+    ],
+  },
+  {
+    key: "nhl",
+    label: "NHL",
+    longLabel: "National Hockey League",
+    level: "schedule",
+    blurb: "Upcoming games — schedule only. No model projections or parlays yet.",
+    links: [{ label: "Schedule", href: "/nhl/" }],
+  },
+  {
+    key: "wnba",
+    label: "WNBA",
+    longLabel: "Women's National Basketball Association",
+    level: "schedule",
+    blurb: "Upcoming games — schedule only, no odds or projections.",
+    links: [{ label: "Schedule", href: "/events/" }],
+  },
+  {
+    key: "ufc",
+    label: "UFC",
+    longLabel: "Ultimate Fighting Championship",
+    level: "schedule",
+    blurb: "Upcoming fight cards — schedule only, no odds or projections.",
+    links: [{ label: "Schedule", href: "/events/" }],
+  },
+  {
+    key: "fifa-world-cup",
+    label: "World Cup",
+    longLabel: "FIFA World Cup",
+    level: "schedule",
+    blurb: "Official 104-match schedule and groups — schedule only.",
+    links: [{ label: "World Cup hub", href: "/world-cup/" }],
+  },
+  {
+    key: "ipl",
+    label: "IPL",
+    longLabel: "Indian Premier League · Cricket",
+    level: "schedule",
+    blurb: "Match schedule only — we do not publish player projections.",
+    links: [{ label: "Schedule", href: "/ipl/" }],
+  },
+  {
+    key: "mls",
+    label: "MLS",
+    longLabel: "Major League Soccer",
+    level: "coming-soon",
+    blurb: "Not modelled yet — no projections, parlays, or schedule published.",
+    links: [],
+  },
+  {
+    key: "epl",
+    label: "EPL",
+    longLabel: "English Premier League",
+    level: "coming-soon",
+    blurb: "Not modelled yet — no projections, parlays, or schedule published.",
+    links: [],
+  },
+];
+
+/** Sports with a real projection + parlay pipeline (level "full"). */
+export function fullyCoveredSports(): SportCoverage[] {
+  return SPORTS_COVERAGE.filter((s) => s.level === "full");
+}
+
+/** Convenience lookup by key. */
+export function getSportCoverage(key: string): SportCoverage | undefined {
+  return SPORTS_COVERAGE.find((s) => s.key === key);
+}

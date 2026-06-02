@@ -38,7 +38,7 @@ const ITEMS: RailItem[] = [
   { href: "/parlay-lab/#build", label: "Build a Parlay", glyph: "✎", parlayMode: "build" },
   { href: "/bank-builder", label: "Bank Builder", glyph: "▰" },
   { href: "/results", label: "Results", glyph: "✓", group: "Track record" },
-  { href: "/events", label: "Events", glyph: "◇", group: "More" },
+  { href: "/events", label: "Sports & Events", glyph: "◇", group: "More" },
   { href: "/about", label: "About", glyph: "ⓘ" },
 ];
 
