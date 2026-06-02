@@ -5,12 +5,15 @@
 > wires those gates into the UI: **official Suggested Parlays are single-sport
 > only — the "Mixed" pill is removed and mixed cards are filtered out of every
 > Suggested section including "All"**; the same filter feeds Home + Bank
-> Builder; mixed-sport stays in Build Your Own (modeled sports only). Still
-> **no new sport projections, no fake data, no optimizer/workflow/generated-data
-> changes.** PR C (mixed-sport BYO leg-gating) and PR D (one new sport,
-> shadow-first) remain approval-gated.
+> Builder; mixed-sport stays in Build Your Own (modeled sports only). **PR C**
+> (now implemented) gates the Build Your Own candidate pool (`getLegPool`) to
+> modeled-sport legs only — schedule-only / coming-soon / unknown / missing
+> legs can never be selected; mixed NBA+MLB customs stay allowed + untracked.
+> Still **no new sport projections, no fake data, no
+> optimizer/workflow/generated-data changes.** PR D (one new sport,
+> shadow-first) remains approval-gated.
 
-> **PR B status (implemented in this change):** see §8 — marked DONE.
+> **PR B + PR C status (implemented):** see §8 (PR B) and §9 (PR C) — DONE.
 
 ---
 
@@ -200,17 +203,28 @@ in a later pipeline PR).
 - **Tests:** Suggested renders single-sport only; Mixed pill absent from
   Suggested; per-sport caps honored; empty states honest.
 
-## 9. PR C plan — mixed-sport Build Your Own (NOT in this PR; approval-gated)
+## 9. PR C — mixed-sport Build Your Own leg-gating — **DONE (2026-06-02)**
 
-- Allow mixed-sport **custom** builds from **modeled sports with real current
-  projections/odds** only (gate every candidate leg with
-  `canUseInBuildYourOwn`; reject any schedule-only/coming-soon sport).
-- Keep the **"Custom · not officially tracked"** framing unless/until a real
-  save+track+grade pipeline exists.
-- Never fabricate odds/projections; mixed customs never enter official
-  Results.
-- **Tests:** BYO can combine NBA+MLB; BYO rejects any leg from a non-modeled
-  sport; custom mixed slips are labeled untracked and excluded from Results.
+**Implemented:**
+- Added leg-level gates in `sport-capabilities.ts`: `getLegSport`,
+  `canUseLegInBuildYourOwn`, `filterBuildYourOwnLegs`, and the
+  `unsupportedSportsInBuildYourOwn` detector.
+- Gated the Build Your Own candidate pool at the single chokepoint —
+  `getLegPool` in `custom-parlay.ts` now runs `filterBuildYourOwnLegs`, so the
+  custom generator AND the manual builder only ever see modeled-sport legs. A
+  schedule-only / coming-soon / unknown / missing-sport leg can never be
+  selected (fail-closed). Mixed NBA+MLB customs remain permitted.
+- Framing unchanged: "Custom · not officially tracked"; mixed customs never
+  enter official Results (no save/track/grade pipeline exists).
+- **Tests:** BYO allows NBA-only / MLB-only / mixed NBA+MLB; rejects WNBA /
+  NHL / EPL / unknown / missing-sport legs; `getLegPool` fixture proves only
+  NBA+MLB Over/Under legs survive the pool gate. 617 lib tests pass.
+
+**Not changed:** optimizer, pipeline, workflows, generated data, settlement/
+grading. Suggested remains single-sport (PR B); Bank Builder remains
+official-only + paper-only; Results unchanged.
+
+### Original PR C plan (for reference)
 
 ## 10. PR D plan — one sport at a time modeling pipeline (NOT in this PR; approval-gated)
 

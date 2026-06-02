@@ -11,6 +11,7 @@ import {
   evaluateCustomParlay,
   computeCombinedAmericanOdds,
   warningLabel,
+  getLegPool,
   CUSTOM_PARLAY_MAX_LEGS,
 } from "./custom-parlay.ts";
 
@@ -203,4 +204,47 @@ test("warningLabel maps every warning code to a human string", () => {
     const label = warningLabel(c);
     assert.ok(label.length > 0 && label !== c, `${c} should map to a human label`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// getLegPool — Build Your Own candidate-pool gate (PR `byo-modeled-sport-gating`)
+// ---------------------------------------------------------------------------
+function poolLeg(sport, leanId, side = "Over") {
+  return { sport, leanId, side, market: "PTS", line: 1.5, oddsForSide: -110 };
+}
+
+test("getLegPool keeps only modeled-sport Over/Under legs (BYO gate)", () => {
+  const snapshot = {
+    legPool: {
+      legs: [
+        poolLeg("nba", "a"),
+        poolLeg("mlb", "b"),
+        poolLeg("nhl", "c"), // schedule-only — excluded
+        poolLeg("wnba", "d"), // schedule-only — excluded
+        poolLeg("epl", "e"), // coming-soon — excluded
+        poolLeg("cricket", "f"), // unknown — excluded
+        poolLeg("", "g"), // missing sport — excluded
+        poolLeg("nba", "h", "Push"), // non-Over/Under — excluded by existing guard
+      ],
+    },
+  };
+  const pool = getLegPool(snapshot);
+  assert.deepEqual(
+    pool.map((l) => l.leanId).sort(),
+    ["a", "b"],
+    "only NBA + MLB Over/Under legs survive the BYO pool gate",
+  );
+});
+
+test("getLegPool allows a mixed NBA+MLB pool (mixed BYO is permitted)", () => {
+  const snapshot = {
+    legPool: { legs: [poolLeg("nba", "x"), poolLeg("mlb", "y")] },
+  };
+  const sports = new Set(getLegPool(snapshot).map((l) => l.sport));
+  assert.deepEqual([...sports].sort(), ["mlb", "nba"]);
+});
+
+test("getLegPool handles a missing/empty legPool", () => {
+  assert.deepEqual(getLegPool({}), []);
+  assert.deepEqual(getLegPool({ legPool: { legs: [] } }), []);
 });

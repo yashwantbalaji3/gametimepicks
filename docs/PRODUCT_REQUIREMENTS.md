@@ -71,11 +71,13 @@ reflects the live product as of main `5a1777d` (2026-06-02).
   exploratory and **not officially tracked**.
 - **Mixed-sport allowed here only.** Build Your Own may combine legs across
   modeled sports (NBA+MLB) — this is the *only* surface where cross-sport
-  slips are permitted. Every leg must come from a **modeled** sport
-  (`canUseInBuildYourOwn`); schedule-only / coming-soon sports are never
-  selectable. Mixed customs stay **untracked** and never enter official
-  Results (until a real save/track/grade pipeline exists). *(Leg-level gating
-  is the approval-gated PR C.)*
+  slips are permitted. **Leg-level gating is enforced (PR C):** the Build
+  Your Own candidate pool (`getLegPool` in `custom-parlay.ts`) runs every leg
+  through `canUseLegInBuildYourOwn`/`filterBuildYourOwnLegs`, so a
+  schedule-only / coming-soon / unknown / missing-sport leg can never be
+  selected (fail-closed). Both the custom generator and the manual builder
+  draw from this single gated pool. Mixed customs stay **untracked** and never
+  enter official Results (until a real save/track/grade pipeline exists).
 - **Build My Card** (selectable slips tray) works in Suggested mode; shows
   stake + projected payout. It never invents legs.
 

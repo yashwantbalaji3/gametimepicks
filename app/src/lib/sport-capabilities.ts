@@ -238,6 +238,35 @@ export function isBuildYourOwnParlayAllowed(
 type LegLike = { sport?: string | null };
 type SlipLike = { sport?: string | null; legs?: ReadonlyArray<LegLike> | null };
 
+/** Normalized sport for a single leg, optionally falling back to a slip-level
+ *  sport tag when the leg carries none. Returns "" when neither is present
+ *  (caller treats "" as ineligible — fail closed). */
+export function getLegSport(
+  leg: LegLike | null | undefined,
+  fallbackSlipSport?: string | null,
+): string {
+  const own = normalizeSportKey(leg?.sport);
+  return own || normalizeSportKey(fallbackSlipSport);
+}
+
+/** May this single leg be used in a Build Your Own custom slip? True only when
+ *  the leg's sport is modeled (NBA/MLB today). Fail-closed for schedule-only,
+ *  coming-soon, unknown, or missing-sport legs — no fabrication, never a
+ *  schedule-only leg in a custom build. */
+export function canUseLegInBuildYourOwn(leg: LegLike | null | undefined): boolean {
+  return canUseInBuildYourOwn(getLegSport(leg));
+}
+
+/** Drop any leg whose sport is not modeled. This is the Build Your Own
+ *  candidate-pool gate: both the custom generator and the manual builder draw
+ *  from the filtered pool, so a non-modeled-sport leg can never be selected.
+ *  Pure; never mutates. */
+export function filterBuildYourOwnLegs<T extends LegLike>(
+  legs: ReadonlyArray<T>,
+): T[] {
+  return legs.filter((l) => canUseLegInBuildYourOwn(l));
+}
+
 /** Distinct sports actually present on a slip's legs, falling back to the
  *  slip-level `sport` tag when legs carry no sport metadata. Mirrors
  *  `parlay-suggested.getSlipSports` but kept local to avoid a dependency. */
@@ -331,6 +360,26 @@ export function unsupportedSportsInOfficialSections(
         // it under a synthetic "multi" marker so callers see the violation.
         if (sportsOnSlip(slip).length > 1) offenders.add("multi");
       }
+    }
+  }
+  return [...offenders];
+}
+
+/**
+ * Detector for tests/guards: given a list of slips, return the distinct sport
+ * keys that appear but are NOT eligible for Build Your Own (schedule-only,
+ * coming-soon, unknown, or missing). Mixed-of-modeled is allowed in BYO, so it
+ * is NOT flagged here. Empty array == clean.
+ */
+export function unsupportedSportsInBuildYourOwn(
+  slips: ReadonlyArray<SlipLike> | null | undefined,
+): string[] {
+  if (!slips) return [];
+  const offenders = new Set<string>();
+  for (const slip of slips) {
+    if (!slip) continue;
+    for (const k of sportsOnSlip(slip)) {
+      if (!canUseInBuildYourOwn(k)) offenders.add(k);
     }
   }
   return [...offenders];

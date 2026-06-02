@@ -32,6 +32,10 @@ import {
   filterOfficialSuggestedSections,
   isMixedSportSlip,
   unsupportedSportsInOfficialSections,
+  unsupportedSportsInBuildYourOwn,
+  getLegSport,
+  canUseLegInBuildYourOwn,
+  filterBuildYourOwnLegs,
   normalizeSportKey,
 } from "./sport-capabilities.ts";
 
@@ -189,6 +193,57 @@ test("isMixedSportSlip flags cross-sport slips only", () => {
   assert.equal(isMixedSportSlip(mlbSlip), false);
   assert.equal(isMixedSportSlip(mixedSlip), true);
   assert.equal(isMixedSportSlip(nhlSlip), false);
+});
+
+// --- Build Your Own leg-level gating (PR C) ---------------------------------
+test("getLegSport reads leg sport, falls back to slip sport, else ''", () => {
+  assert.equal(getLegSport({ sport: "NBA" }), "nba");
+  assert.equal(getLegSport({ sport: null }, "mlb"), "mlb");
+  assert.equal(getLegSport({}, null), "");
+  assert.equal(getLegSport(null), "");
+});
+
+test("canUseLegInBuildYourOwn allows modeled legs, blocks the rest", () => {
+  assert.equal(canUseLegInBuildYourOwn({ sport: "nba" }), true);
+  assert.equal(canUseLegInBuildYourOwn({ sport: "mlb" }), true);
+  assert.equal(canUseLegInBuildYourOwn({ sport: "nhl" }), false);
+  assert.equal(canUseLegInBuildYourOwn({ sport: "wnba" }), false);
+  assert.equal(canUseLegInBuildYourOwn({ sport: "epl" }), false);
+  assert.equal(canUseLegInBuildYourOwn({ sport: "cricket" }), false); // unknown
+  assert.equal(canUseLegInBuildYourOwn({ sport: "" }), false); // missing
+  assert.equal(canUseLegInBuildYourOwn({}), false); // missing
+  assert.equal(canUseLegInBuildYourOwn(null), false);
+});
+
+test("filterBuildYourOwnLegs keeps only modeled legs (the candidate-pool gate)", () => {
+  const legs = [
+    { sport: "nba", playerName: "A" },
+    { sport: "mlb", playerName: "B" },
+    { sport: "nhl", playerName: "C" }, // schedule-only
+    { sport: "wnba", playerName: "D" }, // schedule-only
+    { sport: "epl", playerName: "E" }, // coming-soon
+    { sport: "", playerName: "F" }, // missing
+    { playerName: "G" }, // missing
+  ];
+  const kept = filterBuildYourOwnLegs(legs);
+  assert.deepEqual(kept.map((l) => l.playerName), ["A", "B"]);
+});
+
+test("Build Your Own allows mixed NBA+MLB but rejects any non-modeled leg", () => {
+  // A mixed modeled slip is allowed (slip-level), and every modeled leg passes
+  assert.equal(isBuildYourOwnParlayAllowed(["nba", "mlb"]), true);
+  assert.equal(filterBuildYourOwnLegs([{ sport: "nba" }, { sport: "mlb" }]).length, 2);
+  // A would-be mixed slip with a WNBA / NHL leg loses that leg entirely
+  assert.equal(filterBuildYourOwnLegs([{ sport: "nba" }, { sport: "wnba" }]).length, 1);
+  assert.equal(filterBuildYourOwnLegs([{ sport: "mlb" }, { sport: "nhl" }]).length, 1);
+});
+
+test("unsupportedSportsInBuildYourOwn flags non-modeled, ignores mixed-of-modeled", () => {
+  assert.deepEqual(unsupportedSportsInBuildYourOwn([nbaSlip, mlbSlip, mixedSlip]), []);
+  assert.deepEqual(unsupportedSportsInBuildYourOwn([nhlSlip]).sort(), ["nhl"]);
+  const withWnba = { sport: "multi", legs: [{ sport: "nba" }, { sport: "wnba" }] };
+  assert.deepEqual(unsupportedSportsInBuildYourOwn([withWnba]).sort(), ["wnba"]);
+  assert.deepEqual(unsupportedSportsInBuildYourOwn(null), []);
 });
 
 // --- filterOfficialSuggestedSections (publicRiskSections "all"-bucket leak) --

@@ -21,6 +21,7 @@
  */
 
 import type { OptimizerLeg } from "./parlay-optimizer";
+import { filterBuildYourOwnLegs } from "./sport-capabilities";
 
 // ---------------------------------------------------------------------------
 // Volatile market list — mirror of pipeline.parlay_optimizer's
@@ -226,12 +227,19 @@ export function computeCombinedAmericanOdds(
 }
 
 /** Returns the `legPool` from the snapshot if present, else an empty
- *  list. Filters out non-Over/Under sides as a defensive guard. */
+ *  list. Filters out non-Over/Under sides as a defensive guard, and —
+ *  PR `feature/byo-modeled-sport-gating` (2026-06-02) — gates the pool to
+ *  MODELED sports only (`filterBuildYourOwnLegs`). Build Your Own may combine
+ *  modeled-sport legs (NBA+MLB, mixed allowed) but must never include a
+ *  schedule-only / coming-soon / unknown / missing-sport leg. Both the custom
+ *  generator and the manual builder consume this pool, so this single gate
+ *  covers every Build-Your-Own candidate. Fail-closed; no fabrication. */
 export function getLegPool(snapshot: {
   legPool?: { legs?: OptimizerLeg[] };
 }): OptimizerLeg[] {
   const legs = snapshot.legPool?.legs ?? [];
-  return legs.filter((l) => l.side === "Over" || l.side === "Under");
+  const sided = legs.filter((l) => l.side === "Over" || l.side === "Under");
+  return filterBuildYourOwnLegs(sided);
 }
 
 /** Human label for a CustomParlayWarning — kept here so the UI
