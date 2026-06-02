@@ -694,7 +694,11 @@ function main() {
   console.log(`  Bank-eligible legs=${availTrue.bankEligible}`);
   console.log("");
   console.log("Key blockers detected:");
-  console.log(`  1. DATA PLUMBING: published recentSeries is oldest-10 for ~88% of MLB legs; true L5/L10 require board full series. (Low-elig flips: ${flips})`);
+  console.log(
+    flips === 0
+      ? `  1. DATA PLUMBING: RESOLVED — persisted optimizer recentSeries now matches the board recent tail (Low-elig flips: 0). Regenerate any remaining stale slates before relying on the field.`
+      : `  1. DATA PLUMBING: published recentSeries is oldest-10 for ~88% of MLB legs; true L5/L10 require board full series. (Low-elig flips: ${flips})`,
+  );
   console.log(`  2. CAP CONFLICT: v2 targets (~16) exceed #241 totalMax=${CAPS_241.totalMax}; market cap (${CAPS_241.market}) throttles total cards with few MLB markets.`);
   console.log(`  3. LOW STARVATION: Low requires 5/5 AND <=-150 simultaneously (eligible=${availTrue.lowEligible}).`);
   console.log("");

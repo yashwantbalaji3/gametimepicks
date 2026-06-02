@@ -20,14 +20,25 @@
 > evidence-gated change before any live v2.** See §15–§16.
 
 > **UPDATE (`fix/optimizer-recentseries-recency`, follow-up PR):** the data
-> plumbing fix is now **landed for forward generation** — `normalize_lean` /
+> plumbing fix is **landed for forward generation** — `normalize_lean` /
 > `_lean_from_payload` persist the recent tail (`last_n_recent_values`,
-> `series[-10:]`) instead of the oldest 10. **Committed artifacts are NOT yet
-> regenerated**, so existing files still carry the stale window. Remaining
-> preconditions before any live v2 are now: (1) a one-time **data
-> regeneration**, (2) **rerun this shadow audit** on the corrected data, (3)
-> **thicker settled samples**, (4) the `#241` cap-vs-target reconciliation. v2
-> **remains shadow-only**; no methodology wired.
+> `series[-10:]`) instead of the oldest 10.
+
+> **UPDATE 2 (`regen/june2-recentseries`, this PR):** the **June-2 optimizer
+> artifact has been regenerated** offline from the committed board
+> (`python -m pipeline.snapshot_optimizer --date 2026-06-02`). The diff is
+> **isolated to `recentSeries`** (433/454 legPool legs + 56 publicRiskSections
+> legs corrected; **0 legs changed odds / projection / edge / score / slipId**;
+> only `generatedAt` bumped). Rerunning this shadow audit now shows the
+> **truncated-vs-true gap CLOSED: 0 Low-eligibility flips (was 28)** — persisted
+> Low/L5-5/5/Bank counts now equal the board-sourced TRUE counts
+> (21 / 38 / 69). The remaining preconditions before any live v2 are now: (1)
+> **thicker settled samples** (L5 5/5 N=17, Low N=14 are still too thin), (2)
+> the `#241` cap-vs-target reconciliation, and (3) regeneration of any other
+> slates a future live v2 would read. **The snapshot file is unchanged — it
+> does not persist `recentSeries`; Bank Builder enriches from the now-corrected
+> optimizer legPool.** v2 **remains shadow-only**; no methodology wired; no
+> settlement; June-2 not settled.
 
 ---
 
