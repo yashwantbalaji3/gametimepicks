@@ -10,7 +10,7 @@
  * a React tree.
  */
 
-export type MobileNavBucket = "home" | "picks" | "lab" | "results";
+export type MobileNavBucket = "home" | "picks" | "lab" | "results" | "sports";
 
 export interface MobileNavItem {
   bucket: MobileNavBucket;
@@ -23,23 +23,25 @@ export interface MobileNavItem {
  * preserved by the consumer (the component renders these in order).
  *
  * Honesty / scope notes:
- *   - 4 items only — anything beyond ~4 starts to feel cramped on
- *     375px and small-thumb-friendly tap targets become hard.
- *   - Labels MATCH the desktop top nav so the same destination reads
- *     the same in both navs: "Projections" (/projections) and
- *     "Parlay Lab" (/parlay-lab). Previously the bottom nav said
- *     "Picks"/"Lab" while the top nav said "Projections"/"Parlay Lab",
- *     which made the two navs look like different sites. The `picks`
- *     and `lab` *bucket ids* are unchanged (route resolution is keyed
- *     on them) — only the visible labels changed.
- *   - No "About" / "Bank Builder" / "Events" — those live in the top
- *     nav. Bottom nav stays ruthlessly minimal to be useful one-handed.
+ *   - 5 items max — 5 is the upper bound for comfortable 375px thumb
+ *     targets; anything beyond that crowds the labels.
+ *   - Labels MATCH the mobile top nav so the same destination reads the
+ *     same in both navs: "Projections" (/projections), "Parlay Lab"
+ *     (/parlay-lab), "Sports" (/events). The `picks`/`lab`/`sports`
+ *     *bucket ids* are route-resolution keys; only the visible labels
+ *     are user-facing.
+ *   - Sports points at /events (the Sports & Events hub) — surfaced
+ *     here because the schedule-only leagues are otherwise buried in the
+ *     scrollable top strip on mobile.
+ *   - No "About" / "Bank Builder" — those live in the top nav. Bottom
+ *     nav stays minimal to be useful one-handed.
  */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "home", href: "/", label: "Home" },
   { bucket: "picks", href: "/projections", label: "Projections" },
   { bucket: "lab", href: "/parlay-lab", label: "Parlay Lab" },
   { bucket: "results", href: "/results", label: "Results" },
+  { bucket: "sports", href: "/events", label: "Sports" },
 ] as const;
 
 /**
@@ -81,13 +83,19 @@ export function resolveMobileNavBucket(
   if (p === "/projections" || p.startsWith("/projections/")) return "picks";
   if (p === "/parlay-lab" || p.startsWith("/parlay-lab/")) return "lab";
   if (p === "/results" || p.startsWith("/results/")) return "results";
-  // Sport boards live under /nba, /mlb, /nhl — these are picks-class
-  // surfaces (projections / player props).
+  // NBA + MLB boards have real projections / player props → picks.
   if (p === "/nba" || p.startsWith("/nba/")) return "picks";
   if (p === "/mlb" || p.startsWith("/mlb/")) return "picks";
-  if (p === "/nhl" || p.startsWith("/nhl/")) return "picks";
-  // Everything else (/about, /responsible-use, /trends, /world-cup/*,
-  // future routes) returns null so the bottom nav shows nothing
-  // highlighted. Better silent than misleading.
+  // Schedule-only surfaces all live under the Sports & Events hub:
+  // /events itself plus the standalone schedule pages (NHL / IPL /
+  // World Cup). These carry no projections, so they belong to "sports",
+  // not "picks".
+  if (p === "/events" || p.startsWith("/events/")) return "sports";
+  if (p === "/nhl" || p.startsWith("/nhl/")) return "sports";
+  if (p === "/ipl" || p.startsWith("/ipl/")) return "sports";
+  if (p === "/world-cup" || p.startsWith("/world-cup/")) return "sports";
+  // Everything else (/about, /responsible-use, /trends, future routes)
+  // returns null so the bottom nav shows nothing highlighted. Better
+  // silent than misleading.
   return null;
 }

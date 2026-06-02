@@ -11,19 +11,18 @@ import {
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
 
-test("MOBILE_NAV_ITEMS has 4 items in the documented order", () => {
-  assert.equal(MOBILE_NAV_ITEMS.length, 4);
+test("MOBILE_NAV_ITEMS has 5 items in the documented order", () => {
+  assert.equal(MOBILE_NAV_ITEMS.length, 5);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "picks", "lab", "results"],
+    ["home", "picks", "lab", "results", "sports"],
   );
 });
 
-test("MOBILE_NAV_ITEMS labels match the desktop top-nav names", () => {
+test("MOBILE_NAV_ITEMS labels match the mobile top-nav names", () => {
   // Regression guard for the nav-consistency fix: the bottom nav must
-  // not relabel a destination (it previously said "Picks"/"Lab" while
-  // the top nav said "Projections"/"Parlay Lab"). The same href must
-  // read the same in both navs.
+  // not relabel a destination. The same href must read the same in both
+  // navs.
   const byHref = Object.fromEntries(
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
@@ -31,6 +30,7 @@ test("MOBILE_NAV_ITEMS labels match the desktop top-nav names", () => {
   assert.equal(byHref["/projections"], "Projections");
   assert.equal(byHref["/parlay-lab"], "Parlay Lab");
   assert.equal(byHref["/results"], "Results");
+  assert.equal(byHref["/events"], "Sports");
 });
 
 test("home: '/' and '' resolve to home", () => {
@@ -59,19 +59,26 @@ test("results: /results and every nested results route", () => {
   assert.equal(resolveMobileNavBucket("/results/parlays"), "results");
 });
 
-test("sport boards (/nba, /mlb, /nhl) map to picks", () => {
+test("NBA + MLB boards map to picks (real projections)", () => {
   assert.equal(resolveMobileNavBucket("/nba"), "picks");
   assert.equal(resolveMobileNavBucket("/nba/board/2026-05-27"), "picks");
   assert.equal(resolveMobileNavBucket("/mlb"), "picks");
-  assert.equal(resolveMobileNavBucket("/nhl"), "picks");
+});
+
+test("schedule-only surfaces map to sports", () => {
+  assert.equal(resolveMobileNavBucket("/events"), "sports");
+  assert.equal(resolveMobileNavBucket("/events/"), "sports");
+  assert.equal(resolveMobileNavBucket("/nhl"), "sports");
+  assert.equal(resolveMobileNavBucket("/nhl/"), "sports");
+  assert.equal(resolveMobileNavBucket("/ipl"), "sports");
+  assert.equal(resolveMobileNavBucket("/world-cup"), "sports");
+  assert.equal(resolveMobileNavBucket("/world-cup/groups"), "sports");
 });
 
 test("non-bucketed routes return null (no false highlight)", () => {
   assert.equal(resolveMobileNavBucket("/about"), null);
   assert.equal(resolveMobileNavBucket("/responsible-use"), null);
   assert.equal(resolveMobileNavBucket("/trends"), null);
-  assert.equal(resolveMobileNavBucket("/world-cup"), null);
-  assert.equal(resolveMobileNavBucket("/world-cup/groups"), null);
 });
 
 test("invalid input returns null defensively", () => {
