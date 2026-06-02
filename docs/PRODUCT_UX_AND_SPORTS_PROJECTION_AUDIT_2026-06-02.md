@@ -349,14 +349,19 @@ never selectable). **No optimizer/projection/workflow/data change; leg pool
 stays modeled-only (PR #248); Suggested + Bank Builder untouched.** 639 tests
 pass; tsc clean; build green.
 
-**PR 4 — Bank Builder redesign + L10 (audit-backed).** Scope: eligibility panel
-(target odds · modeled-only · official-only · pending-unsettled · recent-form ·
-variety · no forced card); L10 as **badge + soft preference** (and/or a
-conservative ≥60% floor), per the §8 evidence; itemized "why no card" empty
-state. Keep paper-only. Files: `bank-builder/page.tsx`,
-`parlay-suggested.ts` selector, `sport-capabilities.ts`/new `recent-form.ts`,
-tests. Risk: medium (selection logic) — gate L10 behind the audit; do **not**
-make it a hard ≥70–80% gate.
+**PR 4 — Bank Builder redesign + L10 — DONE (2026-06-02).** Shipped: an
+**eligibility panel** (chips Paper-only · Published-card pool · Recent-form
+review + the official/pending/near-+100/no-forced-card criteria); a **specific
+honest empty state** via `diagnoseBuilderPool` (no pending cards / none near
++100 / unpriced / all started — never a "good enough to win" framing); and a
+**Recent-form (L10) support panel** showing each leg's L10 from real
+`recentSeries` (enriched from the optimizer legPool by playerId+market+line+side,
+since the snapshot omits it — verified live: "L10 8/10", "L10 3/10"). L10 is
+**display + a soft ranking tie-breaker only** in `selectPlus100BuilderSlip`
+(after model score) — **no hard ≥70/80 gate** (would starve candidates per §8);
+**no performance claim**; `edgePct`/`confidence` not used. New tested
+`recent-form.ts` + `bank-builder-eligibility.ts`. Paper-only preserved; pool
+stays official single-sport (no mixed). 656 tests pass; tsc clean; build green.
 
 **PR 5 — WNBA shadow pipeline feasibility.** Scope: verify real WNBA odds/stats/
 grading; build a **shadow** model only; **no public projections/parlays** until

@@ -31,7 +31,12 @@ import ParlayTicketCard from "@/components/parlay-ticket-card";
 import PageHero from "@/components/page-hero";
 import BankBuilderTower from "@/components/bank-builder-tower";
 import BankBuilderShareCard from "@/components/bank-builder-share-card";
-import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
+import {
+  getSuggestedParlaysForDate,
+  getOptimizerSnapshotForDate,
+  getLatestOptimizerSnapshot,
+} from "@/lib/data-parlays";
+import { getLegPool } from "@/lib/custom-parlay";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { currentEtDate } from "@/lib/freshness";
 import {
@@ -41,6 +46,13 @@ import {
 } from "@/lib/parlay-suggested";
 import { filterOfficialSuggestedSlips } from "@/lib/sport-capabilities";
 import { formatAmerican } from "@/lib/odds-math";
+import {
+  legRecentFormLabel,
+  slipRecentFormSummary,
+  indexRecentSeries,
+  attachRecentSeries,
+} from "@/lib/recent-form";
+import { diagnoseBuilderPool } from "@/lib/bank-builder-eligibility";
 import {
   BANK_BUILDER_BASE,
   BANK_BUILDER_GOAL,
@@ -87,13 +99,29 @@ export default function BankBuilderPage() {
   // mixed-sport slips keeps Bank Builder consistent with the official surface
   // (no mixed Builder card) without forcing a pick: when nothing single-sport
   // prices near +100, the honest empty state still renders.
-  const pool = filterOfficialSuggestedSlips(suggested?.slips ?? []);
+  const poolDate = suggested?.date ?? today;
+  const officialPool = filterOfficialSuggestedSlips(suggested?.slips ?? []);
+  // PR 4: enrich the official pool's legs with REAL recentSeries from the
+  // optimizer legPool (the published snapshot omits it) so L10 can be shown.
+  // Pure, real-data-only join by (playerId, market, line, side); never
+  // fabricated. Falls back to the latest optimizer when today's is absent.
+  const optimizerForDate =
+    getOptimizerSnapshotForDate(poolDate) ??
+    getLatestOptimizerSnapshot()?.payload ??
+    null;
+  const recentSeriesIndex = indexRecentSeries(
+    optimizerForDate ? getLegPool(optimizerForDate) : [],
+  );
+  const pool = attachRecentSeries(officialPool, recentSeriesIndex);
   // The Builder Slip targets ~+100 combined odds: a $100 paper stake aims
   // for roughly a $200 total return (~$100 profit). We pick the pending,
   // fully-unsettled slip priced closest to +100 (2-leg preferred), and
   // render an honest empty state when nothing prices into the band.
   const builderPick = selectPlus100BuilderSlip(pool);
-  const poolDate = suggested?.date ?? today;
+  // PR 4: transparent eligibility diagnosis — when no card qualifies, show the
+  // EXACT honest reason (no pending cards / none near +100 / etc.), never a
+  // "nothing good enough to win" framing.
+  const diagnosis = diagnoseBuilderPool(pool);
   const poolIsFallback = suggested?.isFallback ?? false;
   const savedPregame = suggested?.source === "snapshot";
 
@@ -118,6 +146,9 @@ export default function BankBuilderPage() {
 
       <DisclaimerBanner placement="top" />
 
+      {/* ---- Eligibility chips + transparent criteria (PR 4) --------- */}
+      <EligibilityPanel />
+
       {/* ---- Ladder + Today's Builder Pick --------------------------- */}
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-5">
         <BankBuilderTower
@@ -126,6 +157,7 @@ export default function BankBuilderPage() {
         />
         <TodaysBuilderPick
           pick={builderPick}
+          diagnosis={diagnosis}
           calibrationTable={calibrationTable}
           savedPregame={savedPregame}
           poolDate={poolDate}
@@ -185,17 +217,20 @@ function DisclaimerBanner({ placement }: { placement: "top" | "bottom" }) {
 
 function TodaysBuilderPick({
   pick,
+  diagnosis,
   calibrationTable,
   savedPregame,
   poolDate,
   poolIsFallback,
 }: {
   pick: BuilderSlipSelection | null;
+  diagnosis: ReturnType<typeof diagnoseBuilderPool>;
   calibrationTable: ReturnType<typeof loadCalibrationTable>;
   savedPregame: boolean;
   poolDate: string;
   poolIsFallback: boolean;
 }) {
+  const recentForm = pick ? slipRecentFormSummary(pick.slip) : null;
   return (
     <section
       aria-label="Today's Builder Slip"
@@ -238,18 +273,32 @@ function TodaysBuilderPick({
               savedPregame={savedPregame}
               calibrationTable={calibrationTable}
             />
+            <RecentFormSupport pick={pick} recentForm={recentForm} />
           </>
         ) : (
           <div
             className="flex flex-col items-center text-center gap-2 py-6"
             style={{ minHeight: 120 }}
           >
-            <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 380 }}>
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 400 }}>
               No Builder Slip near {formatAmerican(BUILDER_PLUS100_TARGET)} in
-              today&apos;s pool. A pick appears once the published pool has a
-              pending, fully-unsettled slip priced close to{" "}
-              {formatAmerican(BUILDER_PLUS100_TARGET)} combined.
+              today&apos;s published pool yet.
             </p>
+            {/* PR 4: specific, honest eligibility reasons — never a
+                "nothing good enough to win" framing. */}
+            <ul
+              className="flex flex-col gap-1 text-[12px] leading-snug"
+              style={{ color: "var(--vault-text-faint)", maxWidth: 400 }}
+            >
+              {(diagnosis.reasons.length
+                ? diagnosis.reasons
+                : [
+                    `A pick appears once the published pool has a pending, fully-unsettled slip priced close to ${formatAmerican(BUILDER_PLUS100_TARGET)} combined.`,
+                  ]
+              ).map((r) => (
+                <li key={r}>· {r}</li>
+              ))}
+            </ul>
             <Link
               href="/parlay-lab/"
               className="font-mono uppercase tracking-[0.12em] px-3 py-1.5 rounded-full"
@@ -264,6 +313,113 @@ function TodaysBuilderPick({
           </div>
         )}
       </div>
+    </section>
+  );
+}
+
+/** Transparent eligibility chips + criteria (PR 4). Every Builder Slip must
+ *  pass these — shown so the user sees exactly how a card is chosen. No
+ *  win-rate or performance claim. */
+function EligibilityPanel() {
+  const chips = ["Paper-only", "Published-card pool", "Recent-form review"];
+  const criteria = [
+    "Official Suggested cards only (modeled sports — no mixed cards)",
+    "Pending and fully unsettled only (never a settled slip)",
+    `Priced near ${formatAmerican(BUILDER_PLUS100_TARGET)} combined`,
+    "Recent-form (L10) shown for transparency — never a win-rate claim",
+    "No forced card — an honest empty state when nothing qualifies",
+  ];
+  return (
+    <section
+      aria-label="Builder Slip eligibility"
+      className="mt-4 rounded-[8px] px-3.5 py-3 flex flex-col gap-2"
+      style={{ background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" }}
+    >
+      <div className="flex flex-wrap items-center gap-1.5">
+        {chips.map((c) => (
+          <span
+            key={c}
+            className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
+            style={{
+              color: "var(--vault-text-mute)",
+              background: "var(--gtp-card)",
+              border: "1px solid var(--vault-rule)",
+              fontSize: 9.5,
+            }}
+          >
+            {c}
+          </span>
+        ))}
+      </div>
+      <ul
+        className="flex flex-col gap-0.5 text-[11.5px] leading-snug"
+        style={{ color: "var(--vault-text-faint)", maxWidth: 640 }}
+      >
+        {criteria.map((c) => (
+          <li key={c}>· {c}</li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Recent-form (L10) support for the chosen Builder Slip — a transparent,
+ *  per-leg readout of how often the player has recently cleared the line.
+ *  Display only; never a win-probability claim; uses recentSeries, not
+ *  edgePct/confidence. */
+function RecentFormSupport({
+  pick,
+  recentForm,
+}: {
+  pick: BuilderSlipSelection;
+  recentForm: ReturnType<typeof slipRecentFormSummary> | null;
+}) {
+  const legs = pick.slip.legs ?? [];
+  return (
+    <section
+      aria-label="Recent-form support"
+      className="rounded-[8px] px-3.5 py-3 flex flex-col gap-2"
+      style={{ background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" }}
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+        <span
+          className="font-mono uppercase tracking-[0.16em]"
+          style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}
+        >
+          Recent-form support
+        </span>
+        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+          {recentForm && recentForm.legsWithData < recentForm.totalLegs
+            ? `${recentForm.legsWithData}/${recentForm.totalLegs} legs have L10 data`
+            : "L10 = recent games clearing the line"}
+        </span>
+      </div>
+      <ul className="flex flex-col gap-1">
+        {legs.map((leg, i) => (
+          <li
+            key={`${leg.playerName}-${leg.market}-${i}`}
+            className="flex items-center justify-between gap-2 text-[12px]"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
+            <span className="truncate">
+              {leg.playerName}{" "}
+              <span style={{ color: "var(--vault-text-faint)" }}>
+                · {leg.market} {leg.side} {leg.line ?? "—"}
+              </span>
+            </span>
+            <span
+              className="font-mono shrink-0"
+              style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
+            >
+              {legRecentFormLabel(leg)}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
+        Recent form is shown for transparency only — it is not a prediction or a
+        win-rate claim.
+      </p>
     </section>
   );
 }
