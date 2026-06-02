@@ -65,11 +65,14 @@ See [`SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md`](./SPORTS_PROJECTIONS_EXP
 6. **Official Suggested Parlays are single-sport only.** A cross-sport
    ("mixed") slip must **never** appear as an official Suggested Parlay.
    Mixed-sport is allowed **only** in Build Your Own (custom, untracked), and
-   only when **every** sport on the slip is itself modeled. Enforced by
-   `isOfficialSuggestedParlayAllowed` / `filterOfficialSuggestedSlips` in
-   `sport-capabilities.ts`, **wired (PR B)** into the Parlay Lab Suggested
-   surface (no "Mixed" pill; the "All" tab is the union of single-sport
-   slips), Home preview, and Bank Builder. Results may still show a historical
+   only when **every** leg is from a modeled sport. Enforced by
+   `sport-capabilities.ts`: `filterOfficialSuggestedSlips` is **wired (PR B)**
+   into the Parlay Lab Suggested surface (no "Mixed" pill; the "All" tab is the
+   union of single-sport slips), Home preview, and Bank Builder; and
+   `canUseLegInBuildYourOwn` / `filterBuildYourOwnLegs` is **wired (PR C)** into
+   the Build Your Own candidate pool (`getLegPool`) so a schedule-only /
+   coming-soon / unknown / missing-sport leg can never enter a custom slip
+   (fail-closed). Mixed NBA+MLB customs are permitted; they stay untracked. Results may still show a historical
    **Mixed** sport-mix row from previously generated/graded slips (labeled as
    such — not today's official behavior); settlement/grading are unchanged.
 
