@@ -218,18 +218,25 @@ export default function CustomParlayGenerator({ snapshot }: Props) {
             emptyMessage="No players match"
           />
         </div>
-        {/* Risk-legs toggle */}
-        <label
-          className="inline-flex items-center gap-2 text-[12px]"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          <input
-            type="checkbox"
-            checked={allowRiskLegs}
-            onChange={(e) => setAllowRiskLegs(e.target.checked)}
-          />
-          Include DNP-risk legs (each slip flagged)
-        </label>
+        {/* Availability filters — DNP-risk toggle lives here (advanced),
+            not in the primary flow. */}
+        <details className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+          <summary
+            className="font-mono uppercase tracking-[0.14em] cursor-pointer"
+            style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+          >
+            Availability filters
+          </summary>
+          <label className="mt-2 inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={allowRiskLegs}
+              onChange={(e) => setAllowRiskLegs(e.target.checked)}
+            />
+            Include DNP-risk legs (a player who may not play; each slip is
+            flagged)
+          </label>
+        </details>
         {/* Generate button */}
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -452,11 +459,13 @@ function LegRow({ leg }: { leg: OptimizerLeg }) {
           </span>
         </div>
       </div>
+      {/* PR 3: de-emphasize edgePct (non-predictive per #240). Show the
+          leg's price instead — a neutral, factual readout. */}
       <span
         className="font-mono shrink-0 text-right"
         style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
       >
-        {typeof leg.edgePct === "number" ? `${leg.edgePct.toFixed(1)}pp` : "—"}
+        {typeof leg.oddsForSide === "number" ? formatAmerican(leg.oddsForSide) : "—"}
       </span>
     </div>
   );
