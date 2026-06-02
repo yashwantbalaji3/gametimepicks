@@ -137,7 +137,12 @@ export default function ProjectionsPage() {
         <Link href="/parlay-lab/#suggested" style={{ color: "var(--vault-gold-bright)" }}>
           Parlay Lab
         </Link>{" "}
-        are built from these same projections.
+        are built from these same projections. Only NBA and MLB are modelled
+        — other leagues are schedule-only in{" "}
+        <Link href="/events/" style={{ color: "var(--vault-gold-bright)" }}>
+          Sports &amp; Events
+        </Link>
+        .
       </p>
       {/* Suspense is required because <ProjectionsExperience />'s
           useSearchParams() call needs a client boundary for static
