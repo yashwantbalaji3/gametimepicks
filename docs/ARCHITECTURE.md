@@ -40,9 +40,13 @@ picks/schedules; everything is baked by the pipeline.
 - **Key libs (`app/src/lib`):** `parlay-suggested.ts`,
   `parlay-risk-sections.ts`, `parlay-volume-discipline.ts` (PR #241),
   `leg-quality-gates.ts` (inert proposal), `parlay-decorrelation.ts` (inert
-  proposal), `sports-coverage.ts`, `event-schedules.ts`, `data-parlays.ts`,
-  `data-projections.ts`, `parlay-results.ts`, `public-parlay-era.ts`,
-  `nav-active-route.ts`, `freshness.ts`.
+  proposal), `sports-coverage.ts`, `sport-capabilities.ts` (typed capability
+  gates derived from `sports-coverage.ts` — `canShowProjections` /
+  `canShowSuggestedParlays` / `canUseInBuildYourOwn` / `canGradeSport` + the
+  mixed-sport rules; see `SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md`),
+  `event-schedules.ts`, `data-parlays.ts`, `data-projections.ts`,
+  `parlay-results.ts`, `public-parlay-era.ts`, `nav-active-route.ts`,
+  `freshness.ts`.
 - **Tests:** `app/src/lib/*.test.mjs` run via `npx tsx --test` (590 as of
   main `5a1777d`).
 - **Offline analysis scripts (not bundled):** `app/scripts/*.mjs` —

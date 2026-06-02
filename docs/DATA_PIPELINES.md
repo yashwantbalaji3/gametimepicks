@@ -83,3 +83,11 @@ boundaries that keep it honest.
 - No ingestion of odds/projections for NHL/WNBA/UFC/FIFA/IPL/MLS/EPL.
   Schedule-only data is attribution-stamped; coming-soon sports get nothing.
   See `SPORTS_COVERAGE_POLICY.md`.
+- The optimizer/snapshot/grading wiring is **NBA + MLB only** (sport-agnostic
+  core, but `snapshot_optimizer` loads only `load_nba_leans` + `load_mlb_leans`;
+  `grade_optimizer._SPORTS = ("nba","mlb","multi","all")`;
+  `settle_results.SUPPORTED_MARKETS = PTS/REB/AST`). A new sport reaches
+  Projections+Parlays only after a real `pipeline/<sport>/` (ingestion + model
+  + grader + tests) ships — never by UI/flag alone. Frontend capability gates
+  that mirror this live in `app/src/lib/sport-capabilities.ts`; the staged
+  rollout is in `SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md`.
