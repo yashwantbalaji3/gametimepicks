@@ -30,6 +30,31 @@ boundaries that keep it honest.
   latest available slate. **Never fabricate early data; never dispatch the
   paid run early just to fill the page.**
 
+### 2.1 Persisted `recentSeries` contract (recency window)
+
+- **Order:** per-game values are **oldest → newest** everywhere — NBA
+  `recent10` (`recent10_extractor.extract_recent10`) and MLB `recentSeries`
+  (`mlb/mlb_model.py`). `recentGames` metadata is the same order + 1:1 aligned.
+- **Window:** the persisted leg field (optimizer legPool / snapshot /
+  `publicRiskSections` / graded) carries the **MOST RECENT** games — at most
+  **10**, sliced from the **tail** (`series[-10:]`). L5 = `recentSeries[-5:]`;
+  L10 = `recentSeries[-10:]` (or the whole field when length ≤ 10).
+- **`recent10Count`** is the FULL count of valid recent games (may exceed 10);
+  it is **not** the persisted window length.
+- **Implementation:** `pipeline/parlay_optimizer.py::last_n_recent_values`
+  (used by `normalize_lean` + `_lean_from_payload`). It is **input-order
+  normalized, not sport-aware**: because both sports are oldest→newest, the
+  recent window is always the tail. NBA `recent10` is already ≤10 (the
+  extractor tail-slices), so it is a no-op there; MLB passes the full season
+  series, so the tail slice is the fix.
+- **History (the bug fixed by `fix/optimizer-recentseries-recency`):** the
+  prior code sliced the **head** (`series[:10]`), persisting the player's
+  **oldest** 10 games for the ~88% of MLB legs with >10 games. See
+  `SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md` §6 / `MODEL_AND_OPTIMIZER.md`.
+  **Committed artifacts generated before that fix still carry the stale
+  (oldest-10) window** until a separate, approval-gated one-time regeneration
+  runs; forward generation is correct.
+
 ## 3. Auto-refresh (periodic)
 
 - Props-only refresh of the boards; commits generated data to `main` with

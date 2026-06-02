@@ -25,6 +25,7 @@ from pipeline.parlay_optimizer import (
     _lean_from_payload,
     generate_public_risk_sections,
     is_eligible,
+    last_n_recent_values,
     leg_score,
     normalize_lean,
     optimize,
@@ -107,6 +108,86 @@ class NormalizeLeanTests(unittest.TestCase):
     def test_anomaly_flag_propagates(self):
         leg = normalize_lean(_nba_lean(riskFlags=["suspicious_edge"]))
         self.assertTrue(leg.isAnomaly)
+
+
+class RecentSeriesRecencyWindowTests(unittest.TestCase):
+    """Locks the recentSeries recency-window fix (truncate the TAIL, not the
+    head). Persisted recentSeries must carry the MOST RECENT games, because the
+    board / mlb_model series are oldest -> newest and MLB passes the FULL season
+    series. Prior code did `series[:10]` and persisted the OLDEST 10 games for
+    >10-game players. See SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md."""
+
+    # ---- last_n_recent_values helper ---------------------------------------
+    def test_helper_keeps_most_recent_n_for_long_series(self):
+        series = list(range(1, 15))  # 1..14 oldest -> newest
+        self.assertEqual(last_n_recent_values(series, 10), list(range(5, 15)))
+
+    def test_helper_does_not_reverse_order(self):
+        self.assertEqual(last_n_recent_values([1, 2, 3, 4, 5], 3), [3, 4, 5])
+
+    def test_helper_short_series_unchanged(self):
+        self.assertEqual(last_n_recent_values([1, 2, 3], 10), [1, 2, 3])
+
+    def test_helper_empty_and_none_unchanged(self):
+        self.assertEqual(last_n_recent_values([], 10), [])
+        self.assertEqual(last_n_recent_values(None, 10), [])
+
+    # ---- MLB: full season series -> persisted recent 10 (the FIX) ----------
+    def test_mlb_full_series_persists_most_recent_10_not_oldest(self):
+        # 14 DISTINCT values, oldest -> newest (mlb_model emits this shape).
+        full = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 8, 7, 0, 2]
+        leg = normalize_lean(_mlb_lean(recentSeries=full))
+        # Persisted = the most recent 10 (tail), NOT the oldest 10 (head).
+        self.assertEqual(leg.recentSeries, tuple(float(v) for v in full[-10:]))
+        self.assertNotEqual(leg.recentSeries, tuple(float(v) for v in full[:10]))
+        self.assertEqual(len(leg.recentSeries), 10)
+        # Order preserved (not reversed): last persisted == newest game value.
+        self.assertEqual(leg.recentSeries[-1], float(full[-1]))
+
+    def test_persisted_L5_and_L10_match_full_series_tail(self):
+        full = [2, 0, 1, 3, 2, 1, 0, 4, 2, 1, 3, 0, 5, 1]
+        leg = normalize_lean(_mlb_lean(recentSeries=full))
+        # L10 window = persisted series == full[-10:]; L5 window = its tail.
+        self.assertEqual(list(leg.recentSeries), [float(v) for v in full[-10:]])
+        self.assertEqual(list(leg.recentSeries[-5:]), [float(v) for v in full[-5:]])
+
+    def test_recent10count_reflects_full_count_even_when_truncated(self):
+        full = list(range(1, 15))  # 14 valid games
+        leg = normalize_lean(_mlb_lean(recentSeries=full))
+        self.assertEqual(leg.recent10Count, 14, "recent10Count is the full count")
+        self.assertEqual(len(leg.recentSeries), 10, "persisted window capped at 10")
+
+    def test_mlb_short_series_unchanged(self):
+        leg = normalize_lean(_mlb_lean(recentSeries=[1, 0, 1]))
+        self.assertEqual(leg.recentSeries, (1.0, 0.0, 1.0))
+
+    def test_mlb_empty_series_unchanged(self):
+        leg = normalize_lean(_mlb_lean(recentSeries=[]))
+        self.assertEqual(leg.recentSeries, ())
+
+    # ---- NBA: recent10 already <= 10 oldest->newest -> no-op ---------------
+    def test_nba_recent10_already_capped_is_unchanged(self):
+        r10 = [4, 5, 6, 7, 8, 5, 6, 7, 8, 9]  # 10 values, oldest -> newest
+        leg = normalize_lean(_nba_lean(recent10=r10))
+        self.assertEqual(leg.recentSeries, tuple(float(v) for v in r10))
+        self.assertEqual(leg.recentSeries[-1], 9.0, "newest value preserved at tail")
+
+    # ---- round-trip (_lean_from_payload) keeps the tail too ----------------
+    def test_lean_from_payload_keeps_recent_tail(self):
+        full = list(range(1, 13))  # 12 values oldest -> newest
+        payload = {
+            "sport": "mlb",
+            "leanId": "X-batter_hits-0.5",
+            "playerId": 2001,
+            "market": "batter_hits",
+            "side": "Over",
+            "line": 0.5,
+            "oddsForSide": -150,
+            "recent10Count": 12,
+            "recentSeries": full,
+        }
+        leg = _lean_from_payload(payload)
+        self.assertEqual(leg.recentSeries, tuple(float(v) for v in full[-10:]))
 
 
 class LegScoreTests(unittest.TestCase):
