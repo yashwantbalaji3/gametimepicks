@@ -19,6 +19,16 @@
 > **Recommendation: ship this audit + spec; fix the data plumbing as a separate
 > evidence-gated change before any live v2.** See §15–§16.
 
+> **UPDATE (`fix/optimizer-recentseries-recency`, follow-up PR):** the data
+> plumbing fix is now **landed for forward generation** — `normalize_lean` /
+> `_lean_from_payload` persist the recent tail (`last_n_recent_values`,
+> `series[-10:]`) instead of the oldest 10. **Committed artifacts are NOT yet
+> regenerated**, so existing files still carry the stale window. Remaining
+> preconditions before any live v2 are now: (1) a one-time **data
+> regeneration**, (2) **rerun this shadow audit** on the corrected data, (3)
+> **thicker settled samples**, (4) the `#241` cap-vs-target reconciliation. v2
+> **remains shadow-only**; no methodology wired.
+
 ---
 
 ## 1. Executive summary
@@ -350,14 +360,17 @@ adjustment).
 
 ## 16. Whether implementation is recommended
 
-**Not yet. Shadow-only.** Three things must change before a live v2 is safe:
+**Not yet. Shadow-only.** Things that must change before a live v2 is safe:
 
-1. **Fix the `recentSeries` truncation at the source** (pipeline:
-   `parlay_optimizer.py` should persist the **recent tail**, e.g.
-   `recent_values[-10:]` with documented ordering, and v2's L5/L10 must read the
-   true recent window). This is a **pipeline + generated-data change** —
-   broad, touches the data the whole app reads — so it is its own
-   evidence-gated PR, **not** bundled with a display tweak.
+1. **Fix the `recentSeries` truncation at the source** — ✅ **DONE
+   (forward-generation)** in `fix/optimizer-recentseries-recency`:
+   `normalize_lean` / `_lean_from_payload` now persist the **recent tail**
+   (`last_n_recent_values`, `series[-10:]`), documented order oldest→newest,
+   locked by `RecentSeriesRecencyWindowTests`. **Still pending:** a one-time
+   **data regeneration** of existing committed artifacts (they still carry the
+   stale oldest-10 window) — a separate, approval-gated step — and a **rerun of
+   this shadow audit** on the corrected data to confirm the truncated/true gap
+   closes.
 2. **Grow the settled sample.** The only rules with positive signal (L5 5/5
    N=17; Low N=14) are below a usable threshold. Re-run this audit as more
    public-era slates settle; require a stable lift before a hit-rate-adjacent

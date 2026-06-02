@@ -414,6 +414,30 @@ class OptimizedSlip:
 # Normalization
 # ---------------------------------------------------------------------------
 
+def last_n_recent_values(series, n: int = 10) -> list:
+    """Return the MOST-RECENT ``n`` entries of an OLDEST → NEWEST series.
+
+    Both sports emit per-game values in oldest→newest order: NBA `recent10`
+    (`recent10_extractor.extract_recent10`, already capped to the most-recent
+    ``n`` via a tail slice) and MLB `recentSeries` (`mlb_model`, the FULL
+    season series, untruncated). The persisted leg field must carry the
+    player's MOST RECENT games, so we slice the TAIL (``series[-n:]``), never
+    the head.
+
+      - MLB (full season series) → this is the FIX: keeps the recent ``n``,
+        not the oldest ``n`` (the prior ``series[:10]`` bug — see
+        ``docs/SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md``).
+      - NBA (already ≤ ``n``, oldest→newest) → no-op (``x[-n:] == x``).
+      - Series shorter than ``n`` or empty → returned unchanged.
+
+    Order is PRESERVED (never reversed), so the i-th persisted value still
+    lines up with the i-th ``recentGames`` entry. Pure; no I/O; no fabrication.
+    """
+    if n <= 0:
+        return []
+    return list(series or [])[-n:]
+
+
 def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> OptimizerLean:
     """Convert a board lean (NBA or MLB shape) into an OptimizerLean.
 
@@ -452,7 +476,7 @@ def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> Optimize
                 "isHome": g.get("isHome") if isinstance(g.get("isHome"), bool) else None,
                 "value": float(value),
             })
-        recent_games_tuple = tuple(cleaned[:10])
+        recent_games_tuple = tuple(last_n_recent_values(cleaned, 10))
     side = raw.get("lean") or raw.get("side") or "Pass"
     odds = (
         raw.get("oddsOver")
@@ -479,7 +503,7 @@ def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> Optimize
         bookmaker=raw.get("bookmaker"),
         oddsForSide=odds,
         recent10Count=recent_count,
-        recentSeries=tuple(recent_values[:10]),
+        recentSeries=tuple(last_n_recent_values(recent_values, 10)),
         recentGames=recent_games_tuple,
         starTier=_compute_star_tier(raw.get("playerName"), s),
         isAnomaly="suspicious_edge" in (raw.get("riskFlags") or []),
@@ -1759,8 +1783,8 @@ def _lean_from_payload(d: dict[str, Any]) -> OptimizerLean:
         bookmaker=d.get("bookmaker"),
         oddsForSide=d.get("oddsForSide"),
         recent10Count=int(d.get("recent10Count") or 0),
-        recentSeries=tuple(series_vals[:10]),
-        recentGames=tuple(cleaned_games[:10]),
+        recentSeries=tuple(last_n_recent_values(series_vals, 10)),
+        recentGames=tuple(last_n_recent_values(cleaned_games, 10)),
         starTier=d.get("starTier") or _compute_star_tier(d.get("playerName"), sport),
         isAnomaly=bool(d.get("isAnomaly")),
         isVolatileMlb=bool(d.get("isVolatileMlb")) or (

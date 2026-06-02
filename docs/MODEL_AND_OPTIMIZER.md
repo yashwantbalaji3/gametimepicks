@@ -33,27 +33,37 @@
 - Per-section odds + size ordering **is** honest (combined-odds math): Low >
   Medium > High > Longshot in slip hit rate.
 
-## `recentSeries` truncation — known data bug (surfaced by the v2 shadow audit)
+## `recentSeries` recency window — FIXED forward (`fix/optimizer-recentseries-recency`)
 
 - The board (`mlb/boards/<date>.json` → `leans[].recentSeries`) carries the
   **full season** per-game series in chronological order **oldest → newest**
   (verified: the model's projection uses the recent tail `series[-3:]`, e.g.
-  Jack Flaherty 6.07). `normalize_lean` then persists
+  Jack Flaherty 6.07). **The bug:** `normalize_lean` previously persisted
   `recentSeries=tuple(recent_values[:10])` — the **first 10 = the OLDEST 10
-  games** for the ≈**88%** of MLB legs with >10 games. So the `recentSeries`
-  on optimizer / snapshot / `publicRiskSections` / graded legs is **not** recent
-  form for most legs.
-- **Impact:** any "recent form" computed from the persisted field (the L10 badge
-  `#253`, `scripts/shadow-l10-audit.mjs`) is, for most legs, the **oldest** 10
-  games. Today this only feeds a **soft tie-breaker / display** (no hard gate),
-  so it is not wrong-facing — but a **hard** L5/L10 gate (Methodology v2) on this
-  field would mis-select legs. On June-2, **28 legs flip Low-eligibility** true
-  vs truncated.
-- **True L5/L10 source:** the board full series sliced `series.slice(-5)` /
-  `series.slice(-10)`. **Fix before any live v2 L5/L10 gate** — persist the
-  recent tail at the pipeline source. See
-  `SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md` + the read-only
-  `scripts/shadow-parlay-methodology-v2.mjs`.
+  games** for the ≈**88%** of MLB legs with >10 games, so the `recentSeries` on
+  optimizer / snapshot / `publicRiskSections` / graded legs was **not** recent
+  form for most legs (NBA `recent10` is pre-truncated to ≤10 by its extractor,
+  so NBA was unaffected).
+- **The fix:** both truncation sites now use
+  `last_n_recent_values(series, 10)` = the **tail** `series[-10:]` (the
+  most-recent 10), in `pipeline/parlay_optimizer.py` (`normalize_lean` +
+  `_lean_from_payload`). It is **input-order-normalized, not sport-aware**
+  (both sports are oldest→newest, so the recent window is always the tail; NBA
+  ≤10 → no-op). Persisted order stays oldest→newest, so **L5 =
+  `recentSeries[-5:]`, L10 = `recentSeries[-10:]`** and the recent-form drawer's
+  last-5 slice is now genuinely recent. `recent10Count` still reports the full
+  count. Locked by `RecentSeriesRecencyWindowTests`.
+- **Side effect (improvement, not a methodology change):** the L10 badge
+  (`#253`) and `scripts/shadow-l10-audit.mjs` now read genuinely-recent values
+  going forward. They remain a **soft tie-breaker / display** only — no hard
+  gate, no win-rate claim.
+- **Data not yet regenerated.** Committed artifacts generated **before** this
+  fix still carry the stale oldest-10 window (June-2 shadow audit: 28 legs flip
+  Low-eligibility true vs persisted). A separate, **approval-gated one-time
+  regeneration** is required before anything reads the persisted field for
+  quality; the v2 shadow audit (which sources the board full series directly)
+  should be **rerun after regeneration**. See
+  `SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md` §6 + `DATA_PIPELINES.md` §2.1.
 
 ## Suggested Parlay Methodology v2 — SHADOW-ONLY (not wired)
 
@@ -61,9 +71,12 @@
   + a per-section odds cap** (Low = L5 5/5 & odds ≤ −150) and revised daily
   targets (~15 cards). **Shadow-audited, not implemented.** Settled signal: L5
   5/5 = 71% / Low(5/5 & ≤−150) = 79% but small-sample (N=17/14); **L5 4/5+ = 52%
-  = baseline (no edge)**; Bank L10≥8/10 = 63% (N=64). Blocked on the truncation
-  bug above + thin samples + the `#241` cap-vs-target conflict. **Do not wire
-  without operator approval and a source-level recentSeries fix.**
+  = baseline (no edge)**; Bank L10≥8/10 = 63% (N=64). The source-level
+  `recentSeries` recency fix above is now **landed (forward-generation)** — the
+  remaining preconditions are a one-time **data regeneration** + a **rerun of
+  the shadow audit on corrected data** + **thicker settled samples** + the
+  `#241` cap-vs-target reconciliation. **Still do not wire v2 without operator
+  approval.**
 
 ## Confidence / edge lineage
 
