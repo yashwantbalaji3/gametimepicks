@@ -19,6 +19,8 @@ import {
   countDisplaySlips,
   getDisplaySectionBuckets,
   getRiskSectionDisplay,
+  getRiskSectionDisplaySummary,
+  getEmptySectionReason,
   groupSlipsByRiskSection,
 } from "./parlay-risk-sections.ts";
 
@@ -226,4 +228,50 @@ test("countDisplaySlips: empty / absent inputs → 0", () => {
   assert.equal(countDisplaySlips({}), 0);
   assert.equal(countDisplaySlips({ slips: [] }), 0);
   assert.equal(countDisplaySlips({ sections: {} }), 0);
+});
+
+// --- empty-section clarity (PR 2) ------------------------------------------
+test("getRiskSectionDisplaySummary counts cards + sections with/without cards", () => {
+  // Low 3, Medium 2, High 0, Longshot 0 — the June-2 MLB-only shape.
+  const buckets = {
+    low: [1, 2, 3],
+    medium: [1, 2],
+    high: [],
+    longshot: [],
+  };
+  const s = getRiskSectionDisplaySummary(buckets);
+  assert.deepEqual(s, {
+    displayedCards: 5,
+    sectionsWithCards: 2,
+    emptySections: 2,
+    totalSections: 4,
+  });
+});
+
+test("getRiskSectionDisplaySummary: all empty → 0 cards, 4 empty (no padding implied)", () => {
+  const s = getRiskSectionDisplaySummary({ low: [], medium: [], high: [], longshot: [] });
+  assert.equal(s.displayedCards, 0);
+  assert.equal(s.sectionsWithCards, 0);
+  assert.equal(s.emptySections, 4);
+});
+
+test("getRiskSectionDisplaySummary: all full → 4 sections, 0 empty", () => {
+  const s = getRiskSectionDisplaySummary({ low: [1], medium: [1], high: [1], longshot: [1] });
+  assert.equal(s.sectionsWithCards, 4);
+  assert.equal(s.emptySections, 0);
+});
+
+test("getEmptySectionReason names the filters, states no padding, never claims a win edge", () => {
+  const r = getEmptySectionReason("high");
+  assert.match(r, /sport, variety, and volume filters/);
+  assert.match(r, /not padded/i);
+  // No banned betting copy and no win-likelihood claim.
+  for (const banned of ["lock", "guaranteed", "sure thing", "likelier to win", "more likely to win"]) {
+    assert.ok(!r.toLowerCase().includes(banned), `must not contain "${banned}"`);
+  }
+});
+
+test("getEmptySectionReason adds a clear-filter hint when a filter is active", () => {
+  assert.match(getEmptySectionReason("longshot", true), /Clearing the active filter/);
+  assert.ok(!getEmptySectionReason("longshot", false).includes("Clearing"));
 });

@@ -273,6 +273,67 @@ export function countDisplaySlips<
   return RISK_SECTION_ORDER.reduce((n, key) => n + buckets[key].length, 0);
 }
 
+// ---------------------------------------------------------------------------
+// Suggested-mode section display summary (PR: empty-section clarity)
+// ---------------------------------------------------------------------------
+
+export interface RiskSectionDisplaySummary {
+  /** Total cards rendered across all sections. */
+  displayedCards: number;
+  /** Sections that have ≥1 card. */
+  sectionsWithCards: number;
+  /** Sections rendered empty (after sport / variety / volume filters). */
+  emptySections: number;
+  /** Total sections (always 4: Low / Medium / High / Longshot). */
+  totalSections: number;
+}
+
+/**
+ * Summarize the per-section display buckets for the honest "N cards across M
+ * of 4 sections · K empty after filters" line above the Suggested spread.
+ * Pure; derives only from what will actually render (no padding implied).
+ */
+export function getRiskSectionDisplaySummary<T>(
+  buckets: Record<RiskSectionKey, ReadonlyArray<T>>,
+): RiskSectionDisplaySummary {
+  let displayedCards = 0;
+  let sectionsWithCards = 0;
+  for (const key of RISK_SECTION_ORDER) {
+    const n = buckets[key]?.length ?? 0;
+    displayedCards += n;
+    if (n > 0) sectionsWithCards += 1;
+  }
+  const totalSections = RISK_SECTION_ORDER.length;
+  return {
+    displayedCards,
+    sectionsWithCards,
+    emptySections: totalSections - sectionsWithCards,
+    totalSections,
+  };
+}
+
+/**
+ * Honest, generic reason an individual section rendered empty. We never claim
+ * a specific cause we can't prove per-slate (volume/exposure caps vs sport
+ * filter vs odds/leg band) — we name the real filter set and state plainly
+ * that sections are NOT padded. `hasActiveFilter` = a team/game/player filter
+ * is set, which adds a "clearing the filter may surface more" hint.
+ *
+ * No banned betting copy; never implies the shown cards are likelier to win.
+ */
+export function getEmptySectionReason(
+  sectionKey: RiskSectionKey,
+  hasActiveFilter: boolean = false,
+): string {
+  const d = SECTION_DISPLAY[sectionKey];
+  const base =
+    `No qualifying ${d.legRange} parlays after sport, variety, and volume ` +
+    `filters. Sections are not padded.`;
+  return hasActiveFilter
+    ? `${base} Clearing the active filter may surface more.`
+    : base;
+}
+
 /** Back-compat shim used by ParlayTicketCard's lane chip:
  *  classify by odds only so a slip in High Risk (4 legs at +700)
  *  shows the "High Risk" chip even if it isn't aligned with the

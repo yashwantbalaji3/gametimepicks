@@ -60,6 +60,15 @@ reflects the live product as of main `5a1777d` (2026-06-02).
   **empty** (honest empty copy) rather than padded. This is an
   anti-overpublishing policy, **not** a hit-rate claim. See
   [`VOLUME_DISCIPLINE_2026-06-02.md`](./VOLUME_DISCIPLINE_2026-06-02.md).
+- **Empty-section clarity (PR 2, 2026-06-02).** A compact summary sits above
+  the sections ("N cards across M of 4 risk sections · K empty after filters ·
+  sections are not padded"). Empty High/Longshot sections render a **compact**
+  one-line honest reason ("No qualifying … parlays after sport, variety, and
+  volume filters. Sections are not padded.") with the section header kept — not
+  a full-width block. **Sections are never padded and no cards are fabricated;
+  odds bands and optimizer output are unchanged.** Copy never implies the shown
+  cards are likelier to win. Helpers: `getRiskSectionDisplaySummary` /
+  `getEmptySectionReason` in `parlay-risk-sections.ts`.
 - Hash deep-links (`#suggested` / `#build` / `#bankroll`) drive the active
   mode; back/forward + the rail stay in sync.
 - **Single-sport only (enforced).** Official Suggested Parlays are
