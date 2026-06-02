@@ -54,11 +54,27 @@ reflects the live product as of main `5a1777d` (2026-06-02).
   [`VOLUME_DISCIPLINE_2026-06-02.md`](./VOLUME_DISCIPLINE_2026-06-02.md).
 - Hash deep-links (`#suggested` / `#build` / `#bankroll`) drive the active
   mode; back/forward + the rail stay in sync.
+- **Single-sport only (target rule).** Official Suggested Parlays must be
+  **individual-sport** — never cross-sport ("mixed"). Mixed-sport belongs in
+  Build Your Own only. The capability gates that enforce this live in
+  [`app/src/lib/sport-capabilities.ts`](../app/src/lib/sport-capabilities.ts)
+  (`isOfficialSuggestedParlayAllowed`). **Status:** gates + tests shipped;
+  wiring the Suggested UI to per-sport tabs and removing the "Mixed" pill is
+  the approval-gated **PR B** in
+  [`SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md`](./SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md)
+  (a "Mixed" Suggested pill is still present until then).
 
 ## Build Your Own (`/parlay-lab#build`) + Build My Card
 
 - Custom slip construction from the same real leg pool; framed as
   exploratory and **not officially tracked**.
+- **Mixed-sport allowed here only.** Build Your Own may combine legs across
+  modeled sports (NBA+MLB) — this is the *only* surface where cross-sport
+  slips are permitted. Every leg must come from a **modeled** sport
+  (`canUseInBuildYourOwn`); schedule-only / coming-soon sports are never
+  selectable. Mixed customs stay **untracked** and never enter official
+  Results (until a real save/track/grade pipeline exists). *(Leg-level gating
+  is the approval-gated PR C.)*
 - **Build My Card** (selectable slips tray) works in Suggested mode; shows
   stake + projected payout. It never invents legs.
 

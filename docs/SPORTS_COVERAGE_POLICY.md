@@ -9,6 +9,17 @@ Source of truth in code:
 [`app/src/lib/sports-coverage.ts`](../app/src/lib/sports-coverage.ts) (the
 `SPORTS_COVERAGE` registry, locked by `sports-coverage.test.mjs`).
 
+**Capability gates:**
+[`app/src/lib/sport-capabilities.ts`](../app/src/lib/sport-capabilities.ts)
+**derives** strict, typed capability booleans from that registry
+(`hasSchedule / hasOdds / hasProjections / hasSuggestedParlays /
+hasBuildYourOwn / hasGrading`, plus a coarse `status`) and exposes pure gates
+(`canShowProjections`, `canShowSuggestedParlays`, `canUseInBuildYourOwn`,
+`canGradeSport`) and the mixed-sport rules below. Locked by
+`sport-capabilities.test.mjs`. **One source of truth** — graduate a sport by
+changing its `level` in `sports-coverage.ts`; the gates + tests do the rest.
+See [`SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md`](./SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md).
+
 ## Coverage table (as of main `5a1777d`)
 
 | Sport | Level | What's published | Where |
@@ -51,6 +62,14 @@ Source of truth in code:
 5. **Promotion path:** a schedule-only league can become "full" only after a
    real `pipeline/<sport>/` (ingestion + model + grader + tests) ships and
    produces graded results — never by UI change alone.
+6. **Official Suggested Parlays are single-sport only.** A cross-sport
+   ("mixed") slip must **never** appear as an official Suggested Parlay.
+   Mixed-sport is allowed **only** in Build Your Own (custom, untracked), and
+   only when **every** sport on the slip is itself modeled. Enforced by
+   `isOfficialSuggestedParlayAllowed` / `isBuildYourOwnParlayAllowed` in
+   `sport-capabilities.ts`. *(Foundation + gates shipped; wiring the live
+   Suggested UI to drop the "Mixed" pill is the approval-gated PR B in the
+   expansion plan.)*
 
 ## Changing coverage
 
