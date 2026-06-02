@@ -324,11 +324,17 @@ actionable slate" / "Upcoming slate" note. Verified: `/projections` now reads
 prop lines · pending"; the misleading "80 projections" is gone. 630 tests
 pass; tsc clean; build green. **No workflow/model/data change.**
 
-**PR 2 — Suggested empty-section UX.** Scope: summary line ("N of 4 sections
-have cards"), collapse empty sections with honest "No qualifying cards after
-volume & sport filters" + "why empty?" disclosure; keep #241; no bands/padding.
-Files: `risk-section-spread.tsx`, `parlay-lab-builder.tsx`, small lib for the
-summary, tests. Risk: low.
+**PR 2 — Suggested empty-section UX — DONE (2026-06-02).** Shipped: a compact
+summary above the sections ("N cards across M of 4 risk sections · K empty
+after filters · sections are not padded") and a **compact** honest empty state
+for High/Longshot ("No qualifying … parlays after sport, variety, and volume
+filters. Sections are not padded.") — the section header is kept; empty
+sections now render at ~82px instead of full-width blocks. Helpers
+`getRiskSectionDisplaySummary` / `getEmptySectionReason` in
+`parlay-risk-sections.ts` (tested). **No odds-band / optimizer / volume-cap
+change; no fabricated or padded cards.** Re-verified funnel: June-2 (MLB-only)
+High/Longshot had 4 official candidates each, emptied by #241 exposure caps;
+mixed slates empty via PR #247. 635 tests pass; tsc clean; build green.
 
 **PR 3 — Build a Parlay redesign.** Scope: stepped Quick-Generate / Manual-Build
 (see §6); modeled-only; mixed clearly custom/untracked; drop edgePct/confidence

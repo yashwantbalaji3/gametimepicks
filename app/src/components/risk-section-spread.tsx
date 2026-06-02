@@ -35,6 +35,8 @@ import {
   RISK_SECTION_ORDER,
   getDisplaySectionBuckets,
   getRiskSectionDisplay,
+  getRiskSectionDisplaySummary,
+  getEmptySectionReason,
   type RiskSectionKey,
 } from "@/lib/parlay-risk-sections";
 import {
@@ -144,9 +146,15 @@ export default function RiskSectionSpread({
   });
 
   const savedPregame = source === "snapshot";
+  const summary = getRiskSectionDisplaySummary(buckets);
+  // A team/game/player filter is "active" only when a game is set here (the
+  // builder narrows server sections by team/player upstream); used to add a
+  // "clearing the filter may surface more" hint to empty-section copy.
+  const hasActiveFilter = game != null && game !== "";
 
   return (
     <div className="flex flex-col gap-5">
+      <RiskSectionSummary summary={summary} />
       {RISK_SECTION_ORDER.map((sectionKey) => {
         const display = getRiskSectionDisplay(sectionKey);
         const sectionSlips = _sortWithStarTiebreaker(buckets[sectionKey]);
@@ -193,6 +201,7 @@ export default function RiskSectionSpread({
                 sport={sport}
                 sectionKey={sectionKey}
                 game={game}
+                hasActiveFilter={hasActiveFilter}
                 alternatives={sectionAlternatives?.[sectionKey]}
                 onEmptyAction={onEmptyAction}
               />
@@ -221,112 +230,134 @@ export default function RiskSectionSpread({
   );
 }
 
+/**
+ * Compact, honest empty-section state (PR: empty-section clarity). A
+ * full-width 96px block per empty section read as "broken"; this renders a
+ * slim one-line reason instead, with an optional `<details>` "why empty?"
+ * disclosure and (only when a user filter is active) clear-filter actions.
+ * No padding, no fabricated cards, no claim that the shown cards win more.
+ */
 function SectionEmpty({
   sport,
   sectionKey,
   game,
+  hasActiveFilter = false,
   alternatives,
   onEmptyAction,
 }: {
   sport: SuggestedSport;
   sectionKey: RiskSectionKey;
   game?: string | null;
+  hasActiveFilter?: boolean;
   alternatives?: { mixed: boolean; all: boolean };
   onEmptyAction?: (action: SectionEmptyAction) => void;
 }) {
-  const display = getRiskSectionDisplay(sectionKey);
-  const hasGame = game != null && game !== "";
-  const gameWord = hasGame ? "this game" : "today's slate";
-  // The user spec requires honest empty copy that names *why* the
-  // section is empty without implying alternatives that don't exist.
-  // When a real alternative lane DOES carry this section, the copy points
-  // at it and the quick-action buttons below make the switch one tap.
-  const mixedHasContent = alternatives?.mixed ?? false;
-  const allHasContent = alternatives?.all ?? false;
-  let body: string;
-  if (sport === "nba") {
-    body =
-      `No NBA-only ${display.legRange} parlays for ${gameWord} right now. ` +
-      `On single-game slates the model's same-game cap keeps NBA-only ` +
-      `slips at 2 legs` +
-      (mixedHasContent
-        ? ` — but Mixed parlays in this section include the NBA game.`
-        : allHasContent
-          ? ` — the All tab carries this section.`
-          : `.`);
-  } else if (sport === "mlb") {
-    body =
-      `No MLB-only ${display.legRange} parlays for ${gameWord} in today's ` +
-      `qualified pool` +
-      (mixedHasContent
-        ? ` — Mixed parlays in this section include MLB legs.`
-        : allHasContent
-          ? ` — the All tab carries this section.`
-          : `.`);
-  } else if (sport === "multi") {
-    body =
-      `No Mixed (NBA + MLB) ${display.legRange} parlays for ${gameWord} in ` +
-      `today's qualified pool` +
-      (allHasContent ? ` — the All tab carries this section.` : `.`);
-  } else {
-    body =
-      `No ${display.legRange} parlays for ${gameWord} that also land in ` +
-      `${display.oddsRange}.`;
-  }
-
-  // Pure helper decides which buttons make sense — only switch actions
-  // that lead to a lane with real content, plus valid filter resets.
+  const reason = getEmptySectionReason(sectionKey, hasActiveFilter);
+  // Quick actions only when a real escape exists (an active filter to clear,
+  // or a lane that genuinely carries content). The pure helper decides.
   const actions: SectionEmptyAction[] = onEmptyAction
     ? buildSectionEmptyActions({
         sport,
         game: game ?? null,
-        mixedHasContent,
-        allHasContent,
+        mixedHasContent: false, // mixed is not an official Suggested lane (PR #247)
+        allHasContent: alternatives?.all ?? false,
       })
     : [];
 
   return (
-    <div
-      className="px-3 sm:px-4 pb-5 pt-3 flex flex-col items-center text-center gap-2.5"
-      style={{ minHeight: 96 }}
-    >
-      <p
-        className="text-[12.5px] leading-relaxed"
-        style={{ color: "var(--vault-text-mute)", maxWidth: 420 }}
+    <div className="px-3 sm:px-4 py-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+      <span
+        aria-hidden
+        className="inline-block w-1.5 h-1.5 rounded-full"
+        style={{ background: "var(--vault-text-faint)" }}
+      />
+      <span
+        className="text-[12px] leading-snug"
+        style={{ color: "var(--vault-text-mute)" }}
       >
-        {body}
-      </p>
+        {reason}
+      </span>
       {actions.length > 0 && (
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <span className="flex flex-wrap items-center gap-1.5">
           {actions.map((action) => (
             <button
               key={action.kind}
               type="button"
               onClick={() => onEmptyAction?.(action)}
-              className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full"
+              className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
               style={{
-                color:
-                  action.kind === "switch-mixed" || action.kind === "switch-all"
-                    ? "var(--vault-bg)"
-                    : "var(--vault-text-mute)",
-                background:
-                  action.kind === "switch-mixed" || action.kind === "switch-all"
-                    ? "var(--vault-gold-bright)"
-                    : "transparent",
-                border:
-                  action.kind === "switch-mixed" || action.kind === "switch-all"
-                    ? "none"
-                    : "1px solid var(--vault-rule)",
-                fontSize: 10,
+                color: "var(--vault-text-mute)",
+                background: "transparent",
+                border: "1px solid var(--vault-rule)",
+                fontSize: 9.5,
                 cursor: "pointer",
-                fontWeight: 600,
               }}
             >
               {action.label}
             </button>
           ))}
-        </div>
+        </span>
       )}
+    </div>
+  );
+}
+
+/**
+ * Honest one-line summary above the risk sections: how many cards across how
+ * many of the four sections, and how many sections are empty after filters.
+ * States plainly that sections are not padded. Never a performance claim.
+ */
+function RiskSectionSummary({
+  summary,
+}: {
+  summary: {
+    displayedCards: number;
+    sectionsWithCards: number;
+    emptySections: number;
+    totalSections: number;
+  };
+}) {
+  const { displayedCards, sectionsWithCards, emptySections, totalSections } =
+    summary;
+  return (
+    <div
+      className="rounded-[8px] px-3.5 py-2.5 flex flex-col gap-0.5"
+      style={{
+        background: "var(--gtp-card-sunken)",
+        border: "1px solid var(--vault-rule)",
+      }}
+      aria-label="Risk section summary"
+    >
+      <p
+        className="font-mono text-[12px]"
+        style={{ color: "var(--vault-text-mute)" }}
+        aria-live="polite"
+      >
+        <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
+          {displayedCards}
+        </span>{" "}
+        {displayedCards === 1 ? "card" : "cards"} across{" "}
+        <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
+          {sectionsWithCards}
+        </span>{" "}
+        of {totalSections} risk sections
+        {emptySections > 0 ? (
+          <>
+            {" "}
+            ·{" "}
+            <span style={{ color: "var(--vault-text-faint)" }}>
+              {emptySections} empty after filters
+            </span>
+          </>
+        ) : null}
+      </p>
+      <p
+        className="text-[11px] leading-snug"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        Sections are not padded — we show fewer cards when sport, variety, and
+        volume filters remove the rest.
+      </p>
     </div>
   );
 }
