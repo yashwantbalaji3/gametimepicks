@@ -17,6 +17,22 @@ model/settlement audits, and acquisition diligence.
 > honestly, including poor ones. See
 > [`KNOWN_LIMITATIONS_AND_RISKS.md`](./KNOWN_LIMITATIONS_AND_RISKS.md).
 
+## Path conventions (read this)
+
+Paths in this documentation are **repo-relative** unless otherwise noted.
+For example, `docs/release/PR_LEDGER.csv` means the file inside the
+checked-out repository at
+`/Users/yashwantbalaji/Downloads/gametimepicks/docs/release/PR_LEDGER.csv`,
+or the equivalent GitHub blob URL on `main`:
+`https://github.com/yashwantbalaji3/gametimepicks/blob/main/docs/release/PR_LEDGER.csv`.
+
+These are **not** ChatGPT/Claude session attachments. A chat-UI message
+like *"File could not be read… or it lives outside the session folder"*
+when you click a repo-relative path is **expected and not a missing file** —
+open the path in your local checkout or via its GitHub blob URL instead.
+Within Markdown, links use relative paths (e.g. `./release/PR_LEDGER.csv`)
+that resolve from the file they appear in.
+
 ---
 
 ## Canonical documents (start here)
