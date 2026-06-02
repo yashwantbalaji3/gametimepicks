@@ -255,6 +255,15 @@ coming-soon. Unsupported sports never get picks. Mixed-sport never appears as
 an official Suggested Parlay. No performance/hit-rate claims. `audit/policy.json`
 is not consumed. #245 recalibration remains shadow-only.
 
+## 12b. Product-quality sprint (supersedes the immediate next step)
+
+New-sport modeling (PR D / §10) is **paused** in favor of a product-quality
+sprint driven by user feedback — see
+[`PRODUCT_UX_AND_SPORTS_PROJECTION_AUDIT_2026-06-02.md`](./PRODUCT_UX_AND_SPORTS_PROJECTION_AUDIT_2026-06-02.md).
+Its 5-PR roadmap (Projection fallback clarity → Suggested empty-section UX →
+Build a Parlay redesign → Bank Builder + L10 → WNBA shadow) is the active plan.
+WNBA (this doc's PR D) becomes that sprint's PR 5, shadow-first.
+
 ## 13. Next decision point
 
 PR A is foundation-only and safe to merge. **Before PR B** (removing the Mixed

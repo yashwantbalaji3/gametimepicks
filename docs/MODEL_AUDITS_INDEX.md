@@ -8,6 +8,7 @@ honest response is discipline + tracking, not edge claims.**
 
 | Doc / PR | What it found |
 |----------|---------------|
+| [`PRODUCT_UX_AND_SPORTS_PROJECTION_AUDIT_2026-06-02.md`](./PRODUCT_UX_AND_SPORTS_PROJECTION_AUDIT_2026-06-02.md) (audit + **shadow L10**) | Product/UX/data audit. **Shadow L10 (recent-form) audit** (`scripts/shadow-l10-audit.mjs`, 217 settled public-era legs, 100% coverage): L10 is **weakly monotonic + NOT anti-predictive** (<50%→42% … 80–100%→58%), but beyond-market lift is small-n and a hard ≥70–80% all-legs gate starves candidates → recommend **display badge + soft preference**, not a hard gate. **Nothing wired.** Also traces the Projections fallback bug + the honest empty High/Longshot Suggested sections. |
 | [`MODEL_RECALIBRATION_SHADOW_2026-06-02.md`](./MODEL_RECALIBRATION_SHADOW_2026-06-02.md) (shadow study) | Recalibrated the projection→probability step (σ-scale + projection shrink), evaluated leave-one-day-out. **Fixes calibration** (OOS Brier 0.275→0.244, the model is ~2.3–3.8× overconfident) but **does NOT beat the market OOS** (0.2444 vs 0.2436; 1/5 folds). **Kept SHADOW — not wired.** Not a hit-rate claim. |
 | [`VOLUME_DISCIPLINE_2026-06-02.md`](./VOLUME_DISCIPLINE_2026-06-02.md) (#241) | Anti-overpublishing: cap public cards 16→≤9/slate + honest empty states. **Not a hit-rate claim.** |
 | [`MODEL_CALIBRATION_2026-06-02.md`](./MODEL_CALIBRATION_2026-06-02.md) (#240) | 217 settled legs: `edgePct` **anti-predictive** (top-edge 49% vs bottom 57%); `confidence` non-predictive; **market implied is the only separating signal**; model overconfident (Brier ≈ coin-flip). Not a code bug. |
@@ -39,7 +40,8 @@ honest response is discipline + tracking, not edge claims.**
 
 Reproducible offline analyses: `cd app && npx tsx
 scripts/model-calibration-analysis.mjs` (and `shadow-audit-quality-gates.mjs`,
-`shadow-volume-discipline.mjs`, `shadow-projection-recalibration.mjs`).
+`shadow-volume-discipline.mjs`, `shadow-projection-recalibration.mjs`,
+`shadow-l10-audit.mjs`, `audit-suggested-section-funnel.mjs`).
 
 ## Projection→probability recalibration — studied (shadow), NOT wired
 
