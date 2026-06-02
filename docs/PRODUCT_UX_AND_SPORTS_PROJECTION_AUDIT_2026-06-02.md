@@ -263,6 +263,18 @@ badge + a soft, configurable preference / tie-breaker**, and optionally a
 **not** a hard ≥70–80% all-legs gate yet (it starves candidates and the lift is
 small-n). Keep tracking; **no performance claim**; do not use edgePct/confidence.
 
+> **Correction / follow-up (2026-06-02, Methodology v2 shadow audit).** The L10
+> figures in section 8 were computed on the **persisted** `recentSeries`, which
+> the later v2 audit found is `series[:10]` = the player's **OLDEST 10** games
+> for ~88% of MLB legs (optimizer truncation; the model itself uses the recent
+> tail). So that L10 is mostly *oldest*-form, not recent-form. It still only
+> feeds a **soft tie-breaker / display** (no hard gate), so nothing there is
+> wrong-facing — but the **true** recent window must come from the **board full
+> series** (`series.slice(-10)`) before any hard L10 gate. Re-derived with the
+> true source, Bank-eligible (L10 >= 8/10) hits **63%** (N=64). See
+> [`SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md`](./SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md)
+> + `scripts/shadow-parlay-methodology-v2.mjs`.
+
 ---
 
 ## 9. Sports projection expansion feasibility

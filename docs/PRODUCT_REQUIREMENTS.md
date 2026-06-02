@@ -54,6 +54,16 @@ reflects the live product as of main `5a1777d` (2026-06-02).
 - Model parlays grouped into **Low / Medium / High / Longshot** sections by
   **combined odds + leg count** (this ordering is honest by the math of
   combined odds; it is **not** a per-leg quality claim).
+- **Suggested Parlay Methodology v2 — SHADOW-ONLY, not live.** A proposed v2
+  (L5/L10 per-leg recent-form gates + a Low odds cap ≤ −150 + ~15-card daily
+  targets) has been **shadow-audited and documented only** — no live behavior
+  changed. It is blocked on a data-integrity bug (the persisted `recentSeries`
+  is the player's **oldest** 10 games, not the most recent — true L5/L10 require
+  the board full series) plus thin settled samples and a target-vs-`#241`-cap
+  conflict. See
+  [`SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md`](./SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md).
+  Daily targets, if ever wired, are **targets only** — no padding, no fake
+  cards; honest empty states when candidates don't qualify.
 - **Volume discipline (PR #241):** the published set is capped — Low 3,
   Medium 3, High 2, Longshot 1; total ≤ 9; and per-player ≤2 / per-market
   ≤4 / per-game ≤3 exposure across the published set. Sections may be
