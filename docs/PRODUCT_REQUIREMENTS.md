@@ -1,0 +1,108 @@
+# Product Requirements
+
+Per-surface behavior and the honesty rules each surface must uphold. This
+reflects the live product as of main `5a1777d` (2026-06-02).
+
+## Global rules (apply everywhere)
+
+- **No fabrication**, **no unsupported-sport picks**, **no same-slate
+  contamination**, **no public-era (May 25/26) leakage**, **no
+  guaranteed/target hit-rate copy**, **no banned betting copy** (see
+  `PROJECT_OVERVIEW.md`).
+- Honest empty states are always acceptable and preferred over fabricated
+  or padded content.
+- Gold/vault brand throughout; mobile-first, no horizontal overflow at
+  375px; no console errors.
+
+## Home (`/`)
+
+- Persistent **status bar** (today · active slate + settled/pregame · latest
+  settled · `$100 paper`) — values read from real loaders, never fabricated.
+- **"Where do you want to start?"** five path cards: Straight Bets,
+  Suggested Parlays, Build Your Own, Bank Builder, Results (honest live
+  status where cheap, e.g. slip count, latest-settled date).
+- **Featured slip** (the model's headline slip; honest settled/pending
+  chip).
+- **Compact Suggested-parlays preview** (≤2 real cards + CTAs to
+  `/parlay-lab#suggested` and `#build`). The **full builder lives on
+  `/parlay-lab`, not Home**.
+- **Sports coverage** module + **Track record** / **Bank Builder** modules.
+- Mobile ordering: status → path cards → featured → bank builder → sports
+  coverage → suggested preview → track record → guided → newsletter.
+
+## Straight Bets / Projections (`/projections`)
+
+- Single player-prop **projections** (NBA + MLB only), framed as **"Straight
+  bet recommendations … single player-prop projections, not parlays."**
+- Pick a game → review the model's projected line + edge per player.
+- Honest date/empty states: when today's board hasn't posted (clock-gated
+  to the morning run) or no games are scheduled, show `0/0` with the
+  explanation "board posts each morning" and fall back to the latest slate.
+- A pointer states only NBA/MLB are modeled; other leagues → Sports &
+  Events.
+
+## Suggested Parlays (`/parlay-lab#suggested`)
+
+- Model parlays grouped into **Low / Medium / High / Longshot** sections by
+  **combined odds + leg count** (this ordering is honest by the math of
+  combined odds; it is **not** a per-leg quality claim).
+- **Volume discipline (PR #241):** the published set is capped — Low 3,
+  Medium 3, High 2, Longshot 1; total ≤ 9; and per-player ≤2 / per-market
+  ≤4 / per-game ≤3 exposure across the published set. Sections may be
+  **empty** (honest empty copy) rather than padded. This is an
+  anti-overpublishing policy, **not** a hit-rate claim. See
+  [`VOLUME_DISCIPLINE_2026-06-02.md`](./VOLUME_DISCIPLINE_2026-06-02.md).
+- Hash deep-links (`#suggested` / `#build` / `#bankroll`) drive the active
+  mode; back/forward + the rail stay in sync.
+
+## Build Your Own (`/parlay-lab#build`) + Build My Card
+
+- Custom slip construction from the same real leg pool; framed as
+  exploratory and **not officially tracked**.
+- **Build My Card** (selectable slips tray) works in Suggested mode; shows
+  stake + projected payout. It never invents legs.
+
+## Bank Builder (`/bank-builder`)
+
+- **Paper-only / educational** `$100 → $3,000` ladder. Disclaimers top +
+  bottom; never real-money advice; resets to base on a loss (always shown).
+- Picks a single pending, fully-unsettled slip near **+100** from the
+  published pool; **never shows a settled slip** as today's pick. When none
+  qualifies, an **honest empty state** ("No Builder Slip near +100 in
+  today's pool…").
+
+## Results (`/results`)
+
+- Settled track record, **public-era only** (from `2026-05-27`). **May 25/26
+  never leak.** Latest-settled date shown honestly (currently `2026-06-01`).
+- Hit rate counts only finished slips; pending/pushes shown separately.
+  Framed "saved before games and graded after."
+- Never force-grade; never settle a future/in-progress slate.
+
+## Sports & Events (`/events`)
+
+- Coverage hub: a badged card per league — **Projections + Parlays**
+  (NBA/MLB) / **Schedule only** (NHL/WNBA/UFC/FIFA/IPL/MLS) / **Coming
+  soon** (EPL). Mobile-first board with category filters + next-event +
+  source attribution.
+- Schedule-only leagues show **schedule only** (dates/matchups/venues), with
+  source name + URL + `retrievedAt` + range. **No odds/projections/
+  parlays/results** for unsupported sports. Coming-soon leagues link
+  nowhere (no fabricated schedule). See
+  [`SPORTS_COVERAGE_POLICY.md`](./SPORTS_COVERAGE_POLICY.md).
+
+## Navigation
+
+- **Desktop:** Command Center left rail (Home, Straight Bets, Suggested
+  Parlays, Build a Parlay, Bank Builder, Results, **Sports & Events**,
+  About), grouped, with hash-aware active highlighting for the two parlay
+  modes.
+- **Mobile:** top scrollable strip + a 5-item bottom nav (Home,
+  Projections, Parlay Lab, Results, **Sports**); schedule-only routes
+  highlight Sports.
+
+## Empty-state requirements
+
+- Name *why* a section/surface is empty without implying alternatives that
+  don't exist; no banned copy; no claim that fewer cards means a higher win
+  rate.
