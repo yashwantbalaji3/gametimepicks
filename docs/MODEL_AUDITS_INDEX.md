@@ -8,6 +8,7 @@ honest response is discipline + tracking, not edge claims.**
 
 | Doc / PR | What it found |
 |----------|---------------|
+| [`MODEL_RECALIBRATION_SHADOW_2026-06-02.md`](./MODEL_RECALIBRATION_SHADOW_2026-06-02.md) (shadow study) | Recalibrated the projection→probability step (σ-scale + projection shrink), evaluated leave-one-day-out. **Fixes calibration** (OOS Brier 0.275→0.244, the model is ~2.3–3.8× overconfident) but **does NOT beat the market OOS** (0.2444 vs 0.2436; 1/5 folds). **Kept SHADOW — not wired.** Not a hit-rate claim. |
 | [`VOLUME_DISCIPLINE_2026-06-02.md`](./VOLUME_DISCIPLINE_2026-06-02.md) (#241) | Anti-overpublishing: cap public cards 16→≤9/slate + honest empty states. **Not a hit-rate claim.** |
 | [`MODEL_CALIBRATION_2026-06-02.md`](./MODEL_CALIBRATION_2026-06-02.md) (#240) | 217 settled legs: `edgePct` **anti-predictive** (top-edge 49% vs bottom 57%); `confidence` non-predictive; **market implied is the only separating signal**; model overconfident (Brier ≈ coin-flip). Not a code bug. |
 | [`MODEL_AUDIT_2026-06-02_PARLAY_QUALITY.md`](./MODEL_AUDIT_2026-06-02_PARLAY_QUALITY.md) (#238/#239) | Pipeline audit + June-1 failure analysis; shadow audit showed proposed gates **cut volume but didn't improve hit rate**. |
@@ -38,15 +39,21 @@ honest response is discipline + tracking, not edge claims.**
 
 Reproducible offline analyses: `cd app && npx tsx
 scripts/model-calibration-analysis.mjs` (and `shadow-audit-quality-gates.mjs`,
-`shadow-volume-discipline.mjs`).
+`shadow-volume-discipline.mjs`, `shadow-projection-recalibration.mjs`).
 
-## Future recalibration needs (not started)
+## Projection→probability recalibration — studied (shadow), NOT wired
 
-Recalibrate the **projection→probability** step (variance/`sigma`,
-per-market bias); prove calibrated probabilities beat the market
-out-of-sample before any live wiring. The evidence path for selection is
-**market-implied probability**, not model edge. Approval-gated; see
-`MODEL_AND_OPTIMIZER.md`.
+The recalibration proposed by #240 has now been **run offline, shadow-only**
+([`MODEL_RECALIBRATION_SHADOW_2026-06-02.md`](./MODEL_RECALIBRATION_SHADOW_2026-06-02.md)).
+Outcome: σ-widening recalibrates the overconfident projection→probability
+step (OOS Brier 0.275 → 0.244) but the recalibrated probability **does not
+beat market-implied probability out-of-sample** (leave-one-day-out: pooled
+0.2444 vs 0.2436; 1/5 folds). Per the decision rule, it is **kept
+shadow/observational and not wired.** Next: more settled history, a
+de-vigged market baseline, and (only if it then beats the market OOS) a
+market-anchored blend behind a `/results` shadow column for ≥2 weeks before
+any live decision. **The selection signal remains market-implied
+probability, not model edge.** Approval-gated; see `MODEL_AND_OPTIMIZER.md`.
 
 ## Honest bottom line for diligence
 

@@ -76,13 +76,35 @@ not wire it without instruction.**
 Both are pure + tested but **not** consumed by selection; the #239/#240
 evidence does not support wiring them as quality improvers.
 
-## Future projection-recalibration plan (not started)
+## Projection-recalibration study — done (SHADOW), NOT wired
 
-The real fix is recalibrating the **projection→probability** step (variance
-/ `sigma` estimation; per-market projection-bias correction) and **proving
-calibrated probabilities beat the market out-of-sample** before any wiring.
-The evidence path for picking is **market-implied probability**, not the
-model's edge. This is a separate, approval-gated model project.
+The recalibration of the **projection→probability** step has now been run
+**offline, shadow-only** (leave-one-day-out over the 217 settled public-era
+legs). See
+[`MODEL_RECALIBRATION_SHADOW_2026-06-02.md`](./MODEL_RECALIBRATION_SHADOW_2026-06-02.md);
+reproduce with `cd app && npx tsx scripts/shadow-projection-recalibration.mjs`.
+
+- **The projection→probability step is materially overconfident** — `sigma`
+  is ~**2.3–3.8× too tight**. Widening it (σ-scale, plus a gentle
+  projection-toward-line shrink) cuts the model's **out-of-sample Brier from
+  0.275 → 0.244** (from worse-than-coin-flip to ≈ market).
+- **But the recalibrated probability does NOT beat the market
+  out-of-sample** (pooled OOS Brier 0.2444 vs market 0.2436 — and the market
+  baseline still carries vig, so the true bar is harder; recal wins only 1/5
+  day-folds; fitted σ-scale is unstable across folds).
+- σ/λ recalibration is ~monotone in the model's own ranking, so it fixes
+  **calibration**, not **discrimination** — the model still adds no reliable
+  edge over the market. The apparent +17pp vs +13pp separation is
+  **parasitic on the market line** (model_prob ≈ implied + an
+  anti-predictive edge), not independent skill.
+
+**Decision (per the rule "wire only if recalibrated beats the market
+out-of-sample"): kept SHADOW / observational. Nothing wired.** Recalibrating
+is a real calibration fix but is **not** a reason to wire and is **not** a
+hit-rate claim. The selection signal remains **market-implied probability**.
+Next steps (more settled history; de-vigged market baseline; a market-anchored
+blend behind a `/results` shadow column for ≥2 weeks) are **approval-gated** —
+pause for operator approval before any live wiring.
 
 ## What must NOT be claimed publicly
 
