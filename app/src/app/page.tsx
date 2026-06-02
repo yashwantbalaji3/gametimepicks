@@ -27,6 +27,7 @@ import {
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
 import { selectPlus100BuilderSlip } from "@/lib/parlay-suggested";
+import { filterOfficialSuggestedSlips } from "@/lib/sport-capabilities";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { formatPercent } from "@/lib/format";
 
@@ -121,12 +122,21 @@ export default function HomePage() {
   const showingTodayPregame =
     !!suggested && !suggested.isFallback && suggested.source === "snapshot";
 
+  // PR `feature/sport-specific-suggested` (2026-06-02): Home previews the same
+  // OFFICIAL Suggested surface as Parlay Lab — single-sport only. Drop any
+  // mixed-sport slip so the featured card, the preview cards, and the Guided
+  // finder never present a mixed slip as an official suggested parlay. Real
+  // slips only; no fabrication.
+  const officialSuggestedSlips = filterOfficialSuggestedSlips(
+    suggested?.slips ?? [],
+  );
+
   // Featured slip: prefer a pending ~+100 builder pick; otherwise the top
   // slip of the latest published slate. The card shows its own honest
   // settled/pending state — never fabricated.
   const featured =
-    selectPlus100BuilderSlip(suggested?.slips ?? [])?.slip ??
-    suggested?.slips?.[0] ??
+    selectPlus100BuilderSlip(officialSuggestedSlips)?.slip ??
+    officialSuggestedSlips[0] ??
     null;
 
   const combinedDecisive = (lifetime?.decisive ?? 0) + (mlbLifetime?.decisive ?? 0);
@@ -204,7 +214,7 @@ export default function HomePage() {
   // top-ranked slips (the featured one is shown separately just above, so
   // exclude it to avoid a duplicate card) plus CTAs into the two Parlay
   // Lab modes. Real slips only — no fabrication.
-  const previewSlips = (suggested?.slips ?? [])
+  const previewSlips = officialSuggestedSlips
     .filter((s) => s.slipId !== featured?.slipId)
     .slice(0, 2);
 
@@ -356,7 +366,7 @@ export default function HomePage() {
             the dashboard so it never crowds the top on mobile. */}
         <div className="order-7 xl:order-6 xl:col-span-8">
           <GuidedStart
-            slips={suggested?.slips ?? []}
+            slips={officialSuggestedSlips}
             slateDate={suggested?.date ?? today}
             isFallback={suggested?.isFallback ?? true}
             calibrationTable={calibrationTable}

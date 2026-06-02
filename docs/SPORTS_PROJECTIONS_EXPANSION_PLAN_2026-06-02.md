@@ -1,11 +1,16 @@
 # Sports Projections / Parlays Expansion Plan (2026-06-02)
 
-> **Foundation + plan doc.** PR A (this change) adds a typed sports
-> **capability gate** layer + tests + docs. It adds **no new sport
-> projections, no fake odds/projections/parlays/results**, and **changes no
-> live Projections / Parlay Lab / Build-Your-Own behavior**. Mixed-sport and
-> per-sport Suggested UI changes are planned (PR B/C) but **not** implemented
-> here — they are approval-gated.
+> **Foundation + plan doc.** **PR A** added a typed sports **capability gate**
+> layer + tests + docs (no live behavior change). **PR B** (now implemented)
+> wires those gates into the UI: **official Suggested Parlays are single-sport
+> only — the "Mixed" pill is removed and mixed cards are filtered out of every
+> Suggested section including "All"**; the same filter feeds Home + Bank
+> Builder; mixed-sport stays in Build Your Own (modeled sports only). Still
+> **no new sport projections, no fake data, no optimizer/workflow/generated-data
+> changes.** PR C (mixed-sport BYO leg-gating) and PR D (one new sport,
+> shadow-first) remain approval-gated.
+
+> **PR B status (implemented in this change):** see §8 — marked DONE.
 
 ---
 
@@ -139,7 +144,37 @@ model + grader before promotion (PR D, shadow-first).
   leak), so it is sequenced, not hot-fixed.
 - **No new sport** was modeled, scheduled differently, or graduated.
 
-## 8. PR B plan — sport-specific Suggested Parlays (NOT in this PR; approval-gated)
+## 8. PR B — sport-specific Suggested Parlays — **DONE (2026-06-02)**
+
+**Implemented:**
+- Removed the **"Mixed" pill** from the Parlay Lab sport toolbar (`ALL_SPORTS`
+  in `parlay-lab-builder.tsx`). Suggested pills are now `All · NBA · MLB`
+  (modeled sports present that day).
+- Wired `filterOfficialSuggestedSlips` into every Suggested data path: the
+  server-bucketed `sportSections` (incl. the **"All"** union bucket), the
+  client-side `filtered`/card path, and the team/game/player dropdown source.
+  Verified on real mixed slates: 2026-05-28 "All" bucket 14/16 mixed → **0
+  mixed after filter**; 2026-05-30 13 mixed → **0 after**.
+- Removed the now-misleading "Mixed parlays also available" cross-lane hint
+  and the "Show Mixed" empty-section quick action.
+- #241 volume discipline still applies (it runs on the now-filtered, official
+  single-sport sections); the "Showing N" count derives from the filtered set.
+- **Home** preview/featured/Guided and **Bank Builder** pool now use the same
+  `filterOfficialSuggestedSlips` (no mixed featured/preview/Builder card; Bank
+  Builder still renders its honest empty state, never forced).
+- **Results** keeps its historical **Mixed** sport-mix row (real graded
+  record) with an added caption that it is a historical/generated record and
+  official Suggested is now single-sport. Settlement/grading unchanged.
+- Build Your Own unchanged (already modeled-sports-only via the optimizer
+  payload; mixed NBA+MLB customs remain allowed + labeled "not officially
+  tracked"). Leg-level BYO gating is PR C.
+
+**Not changed:** optimizer, pipeline, workflows, generated data files,
+settlement/grading. The pipeline still emits a `multi` bucket internally;
+it is simply never surfaced as official Suggested (optionally stop emitting it
+in a later pipeline PR).
+
+### Original PR B plan (for reference)
 
 - **UX:** replace the Suggested-mode sport pills `All · NBA · MLB · Mixed`
   with **per-modeled-sport** sections/tabs (NBA, MLB, …) + an "All" view that

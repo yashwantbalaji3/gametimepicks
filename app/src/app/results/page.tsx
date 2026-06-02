@@ -305,6 +305,18 @@ export default function ResultsPage() {
             </div>
             <div id="sport-mix" style={{ scrollMarginTop: 80 }}>
               <SportMixResultsTable breakdown={sportBreakdown} />
+              {/* PR `feature/sport-specific-suggested` (2026-06-02) — official
+                  Suggested Parlays are now single-sport only. The "Mixed" row
+                  here is the historical/generated graded record; it is not a
+                  card type the live Suggested surface offers anymore. */}
+              <p
+                className="px-1 pt-2 text-[11px] leading-snug"
+                style={{ color: "var(--vault-text-faint)" }}
+              >
+                Mixed reflects the historical generated/graded record. Official
+                Suggested Parlays are now single-sport only; cross-sport slips
+                live in Build Your Own.
+              </p>
             </div>
             <div id="slip-details" style={{ scrollMarginTop: 80 }}>
               <RiskSectionDrilldown

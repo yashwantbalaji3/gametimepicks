@@ -76,6 +76,7 @@ import {
   countDisplaySlips,
   type RiskSectionKey,
 } from "@/lib/parlay-risk-sections";
+import { filterOfficialSuggestedSlips } from "@/lib/sport-capabilities";
 import {
   applyVolumeDiscipline,
   PUBLIC_VOLUME_CAPS,
@@ -103,11 +104,15 @@ interface Props {
   embedded?: boolean;
 }
 
+// PR `feature/sport-specific-suggested` (2026-06-02): official Suggested
+// Parlays are INDIVIDUAL-SPORT only — no "Mixed" pill here. Mixed-sport slips
+// are reserved for Build Your Own (which has its own pickers and does not
+// render this toolbar). The "All" tab shows the union of single-sport official
+// slips (mixed cards are filtered out — see `filterOfficialSuggestedSlips`).
 const ALL_SPORTS: Array<{ key: SuggestedSport; label: string; icon?: string }> = [
   { key: "all", label: "All" },
   { key: "nba", label: "NBA", icon: "🏀" },
   { key: "mlb", label: "MLB", icon: "⚾" },
-  { key: "multi", label: "Mixed", icon: "🔀" },
 ];
 
 /** UI-only sport bucket label for the lane header. Mirrors the
@@ -207,8 +212,11 @@ export default function ParlayLabBuilder({
         optimizerSlipToParlaySlip(s, optimizerPayload!.date),
       );
     }
-    const flat = flattenSectionSlips(map);
-    return flat.length > 0 ? flat : pool;
+    // Official Suggested is single-sport only — drop any mixed-sport slip so
+    // the team/game/player dropdowns never offer an option that maps only to
+    // a mixed card (which Suggested no longer renders).
+    const flat = filterOfficialSuggestedSlips(flattenSectionSlips(map));
+    return flat.length > 0 ? flat : filterOfficialSuggestedSlips(pool);
   }, [optimizerPayload, sport, pool]);
 
   const teamSelectOptions = useMemo<SearchableOption[]>(() => {
@@ -308,14 +316,19 @@ export default function ParlayLabBuilder({
   }
 
   // ---- Apply filters -------------------------------------------------
+  // `filterOfficialSuggestedSlips` enforces the single-sport rule: even on the
+  // "All" tab (which applies no sport filter) mixed-sport slips are dropped, so
+  // the client-side card path + counts never include a mixed official card.
   const filtered = useMemo(
     () =>
-      filterSlipsBySportTeamPlayer(pool, {
-        sport,
-        team,
-        gameKey: game,
-        playerNames: player ? [player] : [],
-      }),
+      filterOfficialSuggestedSlips(
+        filterSlipsBySportTeamPlayer(pool, {
+          sport,
+          team,
+          gameKey: game,
+          playerNames: player ? [player] : [],
+        }),
+      ),
     [pool, sport, team, game, player],
   );
 
@@ -479,8 +492,15 @@ export default function ParlayLabBuilder({
         // client-side classifier handle the user's narrowed pool —
         // otherwise the publicRiskSections (which is sport-only) would
         // show slips that ignore the user's team/player choice.
-        out[key] = slipsForSection.map((s) =>
-          optimizerSlipToParlaySlip(s, optimizerPayload!.date),
+        //
+        // Official Suggested is single-sport only: filter out any
+        // mixed-sport slip. This matters most for the "all" bucket, which
+        // is the union of every sport's slips and (on a mixed slate) would
+        // otherwise surface mixed cards under the "All" tab.
+        out[key] = filterOfficialSuggestedSlips(
+          slipsForSection.map((s) =>
+            optimizerSlipToParlaySlip(s, optimizerPayload!.date),
+          ),
         );
       }
       return out;
@@ -550,30 +570,23 @@ export default function ParlayLabBuilder({
     const out: SectionAlternatives = {};
     for (const key of sectionKeys) {
       out[key] = {
-        mixed: laneHasContent("multi", key),
+        // Official Suggested no longer has a Mixed destination, so never
+        // offer a "Show Mixed" quick action. The "All" lane (union of
+        // single-sport official slips) remains a valid escape.
+        mixed: false,
         all: laneHasContent("all", key),
       };
     }
     return out;
   }, [optimizerPayload, game]);
 
-  // Honest cross-lane hint for the summary line (runbook req 1): when the
-  // user is on a single-sport tab and Mixed/All lanes carry that sport's
-  // legs for the active game, surface that those lanes exist rather than
-  // implying the single-sport tab is the whole story.
-  const crossLaneHint = useMemo<string | null>(() => {
-    if (sport !== "nba" && sport !== "mlb") return null;
-    if (!sectionAlternatives) return null;
-    const anyMixed = Object.values(sectionAlternatives).some((a) => a?.mixed);
-    const anyAll = Object.values(sectionAlternatives).some((a) => a?.all);
-    if (!anyMixed && !anyAll) return null;
-    const sportLabel = sport === "nba" ? "NBA" : "MLB";
-    const scope = game ? "this game" : "today's slate";
-    if (anyMixed) {
-      return `Mixed parlays with ${sportLabel} legs are also available for ${scope}.`;
-    }
-    return `The All tab carries more ${sportLabel} parlays for ${scope}.`;
-  }, [sport, sectionAlternatives, game]);
+  // PR `feature/sport-specific-suggested` (2026-06-02): the previous
+  // cross-lane hint pointed users at a "Mixed" Suggested lane. Official
+  // Suggested is now single-sport only (no Mixed lane), and the "All" tab is
+  // simply the union of the single-sport official slips — so it never carries
+  // "more" of a single sport than that sport's own tab. The hint would now be
+  // misleading, so it is removed.
+  const crossLaneHint: string | null = null;
 
   // ---- "Showing N parlays" summary ----------------------------------
   // The count is derived from the SAME buckets RiskSectionSpread renders

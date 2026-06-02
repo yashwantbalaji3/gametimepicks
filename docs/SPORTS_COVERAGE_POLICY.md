@@ -66,10 +66,12 @@ See [`SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md`](./SPORTS_PROJECTIONS_EXP
    ("mixed") slip must **never** appear as an official Suggested Parlay.
    Mixed-sport is allowed **only** in Build Your Own (custom, untracked), and
    only when **every** sport on the slip is itself modeled. Enforced by
-   `isOfficialSuggestedParlayAllowed` / `isBuildYourOwnParlayAllowed` in
-   `sport-capabilities.ts`. *(Foundation + gates shipped; wiring the live
-   Suggested UI to drop the "Mixed" pill is the approval-gated PR B in the
-   expansion plan.)*
+   `isOfficialSuggestedParlayAllowed` / `filterOfficialSuggestedSlips` in
+   `sport-capabilities.ts`, **wired (PR B)** into the Parlay Lab Suggested
+   surface (no "Mixed" pill; the "All" tab is the union of single-sport
+   slips), Home preview, and Bank Builder. Results may still show a historical
+   **Mixed** sport-mix row from previously generated/graded slips (labeled as
+   such — not today's official behavior); settlement/grading are unchanged.
 
 ## Changing coverage
 
