@@ -40,13 +40,20 @@ test("only NBA and MLB are 'full' (real projections + parlays)", () => {
 
 test("coming-soon sports publish nothing — no links", () => {
   const coming = SPORTS_COVERAGE.filter((s) => s.level === "coming-soon");
-  assert.ok(coming.length >= 2, "expected MLS + EPL as coming-soon");
+  assert.ok(coming.length >= 1, "expected at least EPL as coming-soon");
   for (const s of coming) {
     assert.equal(s.links.length, 0, `${s.key} must not link anywhere`);
   }
-  // MLS + EPL specifically must be coming-soon (no fabricated schedule).
-  assert.equal(getSportCoverage("mls")?.level, "coming-soon");
+  // EPL has no sourceable fixtures yet → coming-soon (no fabricated schedule).
   assert.equal(getSportCoverage("epl")?.level, "coming-soon");
+});
+
+test("MLS now has a real sourced schedule (schedule-only, linked)", () => {
+  const mls = getSportCoverage("mls");
+  assert.equal(mls?.level, "schedule");
+  assert.ok((mls?.links.length ?? 0) >= 1, "MLS links to its schedule");
+  // still must NOT claim projections/parlays
+  assert.notEqual(mls?.level, "full");
 });
 
 test("every covered (non-coming-soon) sport has at least one real link", () => {
