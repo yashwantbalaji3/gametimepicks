@@ -85,11 +85,14 @@ export default function ProjectionsPage() {
   // ("1 game", not "1 games").
   const todayEntry = payload.dates.find((d) => d.date === today) ?? null;
   const todayGames = todayEntry?.games ?? [];
+  // PR 1 (2026-06-02): count ACTIONABLE projections, not raw leans. A
+  // props-only board (posted lines, no projection yet) must not inflate the
+  // "projections" headline — those are prop lines, not projections.
   const countFor = (sport: "nba" | "mlb") =>
     todayGames
       .filter((g) => g.sport === sport)
       .reduce(
-        (acc, g) => ({ games: acc.games + 1, props: acc.props + g.projectionCount }),
+        (acc, g) => ({ games: acc.games + 1, props: acc.props + g.actionableCount }),
         { games: 0, props: 0 },
       );
   const nba = countFor("nba");
@@ -103,9 +106,9 @@ export default function ProjectionsPage() {
   // point at the most recent slate the experience falls back to below.
   const headerNote =
     projectionsCount > 0
-      ? `NBA · ${nba.games} game${plural(nba.games)} / ${nba.props} props` +
-        ` · MLB · ${mlb.games} game${plural(mlb.games)} / ${mlb.props} props`
-      : "Today's board posts each morning once lineups and odds are set, and stays empty on days with no scheduled games. The most recent slate is shown below.";
+      ? `NBA · ${nba.games} game${plural(nba.games)} / ${nba.props} projection${plural(nba.props)}` +
+        ` · MLB · ${mlb.games} game${plural(mlb.games)} / ${mlb.props} projection${plural(mlb.props)}`
+      : "Today's board posts each morning once lineups and odds are set, and stays empty on days with no scheduled games. The latest actionable slate is shown below — posted lines without a model projection are labelled as prop lines, not projections.";
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">

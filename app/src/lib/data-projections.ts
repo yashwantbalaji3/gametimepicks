@@ -27,6 +27,12 @@ import { currentEtDate } from "@/lib/freshness";
 
 import type { PropLean, ScheduleGame } from "@/lib/types";
 import type { MlbBoardLean, MlbScheduleGame } from "@/lib/types-mlb";
+import {
+  getActionableProjectionCount,
+  getPropLineCount,
+  selectDefaultProjectionDate,
+  type DefaultDateMode,
+} from "@/lib/projection-availability";
 
 export type SportKey = "nba" | "mlb";
 
@@ -41,8 +47,14 @@ export interface ProjectionsGame {
   homeTeamName: string | null;
   /** ISO tipoff (UTC). UI formats to ET. */
   tipoffIso: string | null;
-  /** Number of model leans on disk for THIS game (after de-dup). */
+  /** Total model leans on disk for THIS game (after de-dup). Includes
+   *  prop-line / insufficient-data entries — use `actionableCount` for the
+   *  honest "projections" count. Kept for back-compat. */
   projectionCount: number;
+  /** Leans that are ACTIONABLE projections (real projection + Over/Under). */
+  actionableCount: number;
+  /** Posted prop lines that are NOT yet actionable (awaiting a projection). */
+  propLineCount: number;
   /** Sport-agnostic market chips. Each chip is "—" friendly when null. */
   markets: GameMarketSummary | null;
   venue: string | null;
@@ -82,8 +94,13 @@ export interface ProjectionsDate {
   date: string;
   /** Total games with at least one lean on this date. */
   gameCount: number;
-  /** Total leans across all games on this date. */
+  /** Total leans across all games on this date (incl. prop-line /
+   *  insufficient). Kept for back-compat — prefer `actionableCount`. */
   leanCount: number;
+  /** Actionable projections across all games on this date. */
+  actionableCount: number;
+  /** Posted prop lines (not yet actionable) across all games. */
+  propLineCount: number;
   games: ProjectionsGame[];
   /** All leans keyed by gameId for fast per-game lookup. */
   leansByGameId: Record<string, ProjectionsLean[]>;
@@ -92,9 +109,11 @@ export interface ProjectionsDate {
 export interface ProjectionsPayload {
   /** Dates rendered in the date pill row, ascending. */
   dates: ProjectionsDate[];
-  /** Default selected date (today if present, else first future date,
-   *  else last historical date). */
+  /** Default selected date — prefers the latest ACTIONABLE slate over a
+   *  future props-only board (see `selectDefaultProjectionDate`). */
   defaultDate: string | null;
+  /** Why `defaultDate` was chosen — drives honest header labeling. */
+  defaultDateMode: DefaultDateMode;
   /** Today's ET date for relative labels (Today / Tomorrow / etc.). */
   todayEt: string;
 }
@@ -226,6 +245,8 @@ function _normalizeNbaGame(
     homeTeamName: g.homeTeamFull ?? null,
     tipoffIso: g.tipoff ?? null,
     projectionCount: leansForGame.length,
+    actionableCount: getActionableProjectionCount(leansForGame),
+    propLineCount: getPropLineCount(leansForGame),
     markets,
     venue: null,
   };
@@ -249,6 +270,8 @@ function _normalizeMlbGame(
     homeTeamName: g.homeTeamName ?? null,
     tipoffIso: g.gameDate ?? null,
     projectionCount: leansForGame.length,
+    actionableCount: getActionableProjectionCount(leansForGame),
+    propLineCount: getPropLineCount(leansForGame),
     markets,
     venue: g.venue ?? null,
   };
@@ -376,34 +399,46 @@ export function loadProjectionsPayload(): ProjectionsPayload {
       date,
       gameCount: games.length,
       leanCount: games.reduce((acc, g) => acc + g.projectionCount, 0),
+      actionableCount: games.reduce((acc, g) => acc + g.actionableCount, 0),
+      propLineCount: games.reduce((acc, g) => acc + g.propLineCount, 0),
       games,
       leansByGameId,
     });
   }
 
-  // Filter to today + future ONLY. Historical dates belong on /results
-  // (they're already graded, audited, and surfaced there). The
-  // /projections page is the "tonight + upcoming" surface — historical
-  // pills crowd the date row and lead casual readers away from the
-  // live slate.
-  const forwardDates = dates.filter((d) => d.date >= today);
+  // Honest default-date selection (PR 1, 2026-06-02): prefer the latest
+  // ACTIONABLE slate over a future props-only board. A future shell whose
+  // legs are all `insufficient_data` (posted lines, no projection yet) must
+  // NOT be presented as today's "projections". See projection-availability.ts.
+  const choice = selectDefaultProjectionDate(
+    dates.map((d) => ({
+      date: d.date,
+      actionableCount: d.actionableCount,
+      propLineCount: d.propLineCount,
+    })),
+    today,
+  );
+  const defaultDate = choice.date;
 
-  // Default date selection: today if available, else next future date,
-  // else last available historical date as a fallback if nothing forward
-  // exists (e.g. offseason with no future projections).
-  let defaultDate: string | null = null;
-  const todayMatch = forwardDates.find((d) => d.date === today);
-  if (todayMatch) defaultDate = todayMatch.date;
-  if (!defaultDate && forwardDates.length > 0) {
-    defaultDate = forwardDates[0].date;
+  // Date pills = the forward window (tonight + upcoming) PLUS the chosen
+  // default, so the latest actionable slate is reachable even when it is
+  // historical (e.g. yesterday's real MLB board when today hasn't posted).
+  // Deduped + ascending.
+  const pillByDate = new Map<string, ProjectionsDate>();
+  for (const d of dates) if (d.date >= today) pillByDate.set(d.date, d);
+  if (defaultDate) {
+    const chosen = dates.find((d) => d.date === defaultDate);
+    if (chosen) pillByDate.set(chosen.date, chosen);
   }
-  if (!defaultDate && dates.length > 0) {
-    defaultDate = dates[dates.length - 1].date;
-  }
+  let pills = Array.from(pillByDate.values()).sort((a, b) =>
+    a.date.localeCompare(b.date),
+  );
+  if (pills.length === 0) pills = dates.slice(-1);
 
   return {
-    dates: forwardDates.length > 0 ? forwardDates : dates.slice(-1),
+    dates: pills,
     defaultDate,
+    defaultDateMode: choice.mode,
     todayEt: today,
   };
 }

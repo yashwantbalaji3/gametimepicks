@@ -309,13 +309,20 @@ Each PR is approval-gated, with the standard merge gate (real
 `Vercel – gametimepicks` + `mergeStateStatus = CLEAN`), tests/tsc/build, and
 browser checks (desktop 1280 + mobile 375).
 
-**PR 1 — Projection availability / fallback clarity.** Scope: prefer the latest
-**actionable** modeled slate over a future props-only shell; relabel counts
-(scheduled / prop lines / actionable projections / pass-insufficient); per-sport
-honest empty states; never call props-only "projections". Files:
-`data-projections.ts`, `projections/page.tsx`, `projections-experience.tsx`,
-`date-status-header.tsx`, tests. Risk: low (display/selection only). Rollback:
-revert PR. **No workflow change.**
+**PR 1 — Projection availability / fallback clarity — DONE (2026-06-02).**
+Shipped: `app/src/lib/projection-availability.ts` (pure helpers —
+`isActionableProjection`, `classifyProjectionEntry`,
+`getActionableProjectionCount`, `getPropLineCount`,
+`selectDefaultProjectionDate`) + tests; `data-projections.ts` adds
+`actionableCount`/`propLineCount` per game+date and selects the **latest
+actionable slate** over a future props-only shell (June-1 MLB now defaults,
+not the June-3 props-only board); `projections/page.tsx` +
+`projections-experience.tsx` show **actionable** counts, label props-only
+entries as **prop lines · projections pending**, and add an honest "Latest
+actionable slate" / "Upcoming slate" note. Verified: `/projections` now reads
+"330 projections" (June-1 MLB) by default; June-3 reads "0 projections · 80
+prop lines · pending"; the misleading "80 projections" is gone. 630 tests
+pass; tsc clean; build green. **No workflow/model/data change.**
 
 **PR 2 — Suggested empty-section UX.** Scope: summary line ("N of 4 sections
 have cards"), collapse empty sections with honest "No qualifying cards after

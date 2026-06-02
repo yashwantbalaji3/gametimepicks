@@ -139,6 +139,8 @@ export default function ProjectionsExperience({
         todayEt={payload.todayEt}
       />
 
+      <SlateModeNote activeDate={activeDate} todayEt={payload.todayEt} />
+
       <DatePillRow
         dates={payload.dates}
         selectedDate={selectedDate}
@@ -195,12 +197,14 @@ function SportNav({
     const s = (g.sport ?? "").toLowerCase();
     if (s === "nba" || s === "mlb") {
       tallies[s].games += 1;
-      tallies[s].projections += g.projectionCount ?? 0;
+      // Count ACTIONABLE projections only (props-only/insufficient legs are
+      // not "projections"). See projection-availability.ts.
+      tallies[s].projections += g.actionableCount ?? 0;
     }
   }
   const totalGames = activeDate.games.length;
   const totalProjections = activeDate.games.reduce(
-    (sum, g) => sum + (g.projectionCount ?? 0),
+    (sum, g) => sum + (g.actionableCount ?? 0),
     0,
   );
   // Only show sports that exist on this date.
@@ -420,10 +424,64 @@ function HeaderRow({
         </span>
         <span>·</span>
         <span style={{ color: "var(--vault-gold-bright)" }}>
-          {activeDate.leanCount} projections
+          {activeDate.actionableCount}{" "}
+          {activeDate.actionableCount === 1 ? "projection" : "projections"}
         </span>
+        {activeDate.actionableCount === 0 && activeDate.propLineCount > 0 ? (
+          <>
+            <span>·</span>
+            <span style={{ color: "var(--vault-text-faint)" }}>
+              {activeDate.propLineCount} prop line
+              {activeDate.propLineCount === 1 ? "" : "s"} · projections pending
+            </span>
+          </>
+        ) : null}
       </div>
     </header>
+  );
+}
+
+/* ============================================================================
+   Slate-mode note — honest context when the active slate isn't today's picks
+============================================================================ */
+
+function SlateModeNote({
+  activeDate,
+  todayEt,
+}: {
+  activeDate?: ProjectionsDate;
+  todayEt: string;
+}) {
+  if (!activeDate) return null;
+  const d = activeDate.date;
+  let text: string | null = null;
+  if (d < todayEt && activeDate.actionableCount > 0) {
+    text =
+      "Latest actionable slate — not today's picks. Today's board posts after the morning projection run.";
+  } else if (d > todayEt && activeDate.actionableCount === 0 && activeDate.propLineCount > 0) {
+    text =
+      "Upcoming slate — sportsbook lines are posted, but model projections haven't been generated yet.";
+  } else if (d > todayEt && activeDate.actionableCount > 0) {
+    text = "Upcoming slate — projections for a future date.";
+  }
+  if (!text) return null;
+  return (
+    <aside
+      className="rounded-[8px] px-3.5 py-2.5 text-[12px] leading-snug"
+      style={{
+        background: "rgba(7,11,26,0.55)",
+        border: "1px solid var(--vault-border)",
+        color: "var(--vault-text-mute)",
+      }}
+    >
+      <span
+        className="font-mono uppercase tracking-[0.14em] mr-2"
+        style={{ color: "var(--vault-gold)", fontSize: 10 }}
+      >
+        Slate
+      </span>
+      {text}
+    </aside>
   );
 }
 
@@ -595,8 +653,11 @@ function MatchupCard({
         }}
       >
         <span style={{ color: "var(--vault-text-mute)" }}>
-          {game.projectionCount} projection
-          {game.projectionCount === 1 ? "" : "s"}
+          {game.actionableCount > 0
+            ? `${game.actionableCount} projection${game.actionableCount === 1 ? "" : "s"}`
+            : game.propLineCount > 0
+              ? `${game.propLineCount} prop line${game.propLineCount === 1 ? "" : "s"} · pending`
+              : "no projections yet"}
         </span>
         <span style={{ color: "var(--vault-gold-bright)" }}>Open →</span>
       </div>

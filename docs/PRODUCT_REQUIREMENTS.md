@@ -38,6 +38,14 @@ reflects the live product as of main `5a1777d` (2026-06-02).
 - Honest date/empty states: when today's board hasn't posted (clock-gated
   to the morning run) or no games are scheduled, show `0/0` with the
   explanation "board posts each morning" and fall back to the latest slate.
+- **Actionable vs prop lines (PR 1, 2026-06-02):** the "projections" count is
+  **actionable projections only** (real projection + Over/Under). Posted lines
+  with no model projection yet (`projection: null` / `insufficient_data` /
+  `Pass`) are counted + labelled as **prop lines**, never "projections". The
+  default date prefers the **latest actionable slate** over a future
+  props-only board ("Latest actionable slate — not today's picks"); a future
+  props-only board reads "Upcoming slate — lines posted, projections pending".
+  Gated by `app/src/lib/projection-availability.ts`.
 - A pointer states only NBA/MLB are modeled; other leagues → Sports &
   Events.
 
