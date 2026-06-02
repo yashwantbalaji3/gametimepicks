@@ -251,7 +251,29 @@ export default function ParlayLabPage() {
       </Suspense>
 
       <FooterPointer />
+      <OtherSportsPointer />
     </div>
+  );
+}
+
+/**
+ * Small honest pointer: Parlay Lab only carries NBA/MLB model parlays, so
+ * link curious visitors to the schedule-only coverage for other leagues
+ * instead of leaving them hunting for tabs that (correctly) don't exist.
+ */
+function OtherSportsPointer() {
+  return (
+    <p
+      className="mt-3 text-[12px] leading-snug"
+      style={{ color: "var(--vault-text-faint)" }}
+    >
+      Parlay Lab covers NBA and MLB. Looking for UFC, MLS, EPL or other
+      leagues? They&apos;re schedule-only in{" "}
+      <Link href="/events/" style={{ color: "var(--vault-gold-bright)" }}>
+        Sports &amp; Events
+      </Link>
+      .
+    </p>
   );
 }
 
