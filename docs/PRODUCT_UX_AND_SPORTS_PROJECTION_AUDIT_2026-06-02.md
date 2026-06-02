@@ -336,12 +336,18 @@ change; no fabricated or padded cards.** Re-verified funnel: June-2 (MLB-only)
 High/Longshot had 4 official candidates each, emptied by #241 exposure caps;
 mixed slates empty via PR #247. 635 tests pass; tsc clean; build green.
 
-**PR 3 — Build a Parlay redesign.** Scope: stepped Quick-Generate / Manual-Build
-(see §6); modeled-only; mixed clearly custom/untracked; drop edgePct/confidence
-from leg display; fix stale "any sport" copy; mobile-first. Files: new
-`build-a-parlay/*` components, refactor generator/builder, `parlay-lab-builder.tsx`,
-tests. Risk: medium (UI surface). Rollback: revert; old components retained
-until cutover.
+**PR 3 — Build a Parlay redesign — DONE (2026-06-02).** Shipped: a
+**build-type switch (Quick Generate / Manual Build)** in `BuildYourOwnMode`
+that renders only the selected tool (the two tools are no longer stacked);
+header **"Build a Parlay"** + status chips (Custom · Modeled sports only · Not
+officially tracked) + modeled-only note; DNP-risk toggle moved under
+**"Availability filters"** (advanced); `edgePct`/`confidence` de-emphasized on
+leg rows (factual sport/team/price instead); stale "any sport" copy fixed to
+modeled-only. New tested `build-a-parlay-config.ts` (build types + status chips
++ sport scope derived from the capability registry — schedule-only/coming-soon
+never selectable). **No optimizer/projection/workflow/data change; leg pool
+stays modeled-only (PR #248); Suggested + Bank Builder untouched.** 639 tests
+pass; tsc clean; build green.
 
 **PR 4 — Bank Builder redesign + L10 (audit-backed).** Scope: eligibility panel
 (target odds · modeled-only · official-only · pending-unsettled · recent-form ·

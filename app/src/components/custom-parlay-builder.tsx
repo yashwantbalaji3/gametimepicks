@@ -66,15 +66,15 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
       const sport = (leg.sport ?? "").toUpperCase();
       const star = leg.isStar ? "⭐ " : "";
       const line = leg.line != null ? leg.line : "—";
-      const edge =
-        typeof leg.edgePct === "number" ? `${leg.edgePct.toFixed(1)}pp` : "—";
       const avatarSport = (sportLower === "mlb" || sportLower === "nba")
         ? (sportLower as "mlb" | "nba")
         : "nba";
       out.push({
         value: leg.leanId,
         label: `${star}${leg.playerName} · ${leg.market} ${leg.side} ${line}`,
-        sub: `${sport} · ${leg.team ?? "?"} · edge ${edge} · ${leg.confidence ?? "?"}`,
+        // PR 3: de-emphasize edgePct/confidence (non-predictive per #240).
+        // Show factual sport · team only.
+        sub: `${sport} · ${leg.team ?? "?"}`,
         searchText: `${leg.playerName} ${leg.team ?? ""} ${leg.market} ${sport}`,
         leadIcon: (
           <PlayerAvatar
@@ -127,8 +127,9 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
           className="text-sm"
           style={{ color: "var(--vault-text-soft)" }}
         >
-          Select players from any sport. This is a Custom evaluation — not
-          a tracked result, no probability claims.
+          Select players from available MLB and NBA model legs (mixed is
+          allowed). This is a Custom evaluation — not officially tracked, no
+          probability claims.
         </p>
       </header>
 
@@ -196,12 +197,13 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
                             <TeamLogo team={leg.team} sport={teamSport} size="sm" />
                           ) : null}
                           <span className="truncate">
-                            {(leg.sport ?? "?").toUpperCase()} · {leg.team ?? "?"} ·
-                            edge{" "}
-                            {typeof leg.edgePct === "number"
-                              ? `${leg.edgePct.toFixed(1)}pp`
-                              : "—"}{" "}
-                            · {leg.confidence ?? "?"}
+                            {/* PR 3: de-emphasize edgePct/confidence
+                                (non-predictive per #240). Factual sport ·
+                                team · price only. */}
+                            {(leg.sport ?? "?").toUpperCase()} · {leg.team ?? "?"}
+                            {typeof leg.oddsForSide === "number"
+                              ? ` · ${leg.oddsForSide > 0 ? "+" : ""}${leg.oddsForSide}`
+                              : ""}
                           </span>
                         </span>
                       </div>

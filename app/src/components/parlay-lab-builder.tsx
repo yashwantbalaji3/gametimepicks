@@ -78,6 +78,11 @@ import {
 } from "@/lib/parlay-risk-sections";
 import { filterOfficialSuggestedSlips } from "@/lib/sport-capabilities";
 import {
+  BUILD_TYPES,
+  BUILD_STATUS_CHIPS,
+  type BuildType,
+} from "@/lib/build-a-parlay-config";
+import {
   applyVolumeDiscipline,
   PUBLIC_VOLUME_CAPS,
 } from "@/lib/parlay-volume-discipline";
@@ -815,16 +820,97 @@ function BuildYourOwnMode({
 }: {
   optimizerPayload: OptimizerSnapshot | null;
 }) {
+  // PR 3 redesign: a single clear build-type switch instead of two stacked
+  // tools. Only the selected build type renders its controls.
+  const [buildType, setBuildType] = useState<BuildType>("quick");
   return (
-    <>
-      <SectionEyebrow
-        tone="custom"
-        label="Build your own · not officially tracked"
-        sub="Custom slips here are exploratory. They are not included in the public hit-rate that /results tracks."
-      />
-      <CustomParlayGenerator snapshot={optimizerPayload} />
-      <CustomParlayBuilder snapshot={optimizerPayload} />
-    </>
+    <div className="flex flex-col gap-4">
+      <BuildStatusChips />
+      <BuildTypeSwitch active={buildType} onChange={setBuildType} />
+      {buildType === "quick" ? (
+        <CustomParlayGenerator snapshot={optimizerPayload} />
+      ) : (
+        <CustomParlayBuilder snapshot={optimizerPayload} />
+      )}
+    </div>
+  );
+}
+
+/** Honest status chips + modeled-only note for Build a Parlay. */
+function BuildStatusChips() {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
+        {BUILD_STATUS_CHIPS.map((chip) => (
+          <span
+            key={chip}
+            className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
+            style={{
+              color: "var(--vault-text-mute)",
+              background: "var(--gtp-card-sunken)",
+              border: "1px solid var(--vault-rule)",
+              fontSize: 9.5,
+            }}
+          >
+            {chip}
+          </span>
+        ))}
+      </div>
+      <p
+        className="text-[11.5px] leading-snug"
+        style={{ color: "var(--vault-text-faint)", maxWidth: 640 }}
+      >
+        Build from available MLB and NBA model legs. Mixed cards combine MLB +
+        NBA and are custom only. Schedule-only sports do not have model legs
+        yet.
+      </p>
+    </div>
+  );
+}
+
+/** Two-way switch: Quick Generate vs Manual Build. Only the active panel
+ *  renders below, so the two tools are no longer stacked at once. */
+function BuildTypeSwitch({
+  active,
+  onChange,
+}: {
+  active: BuildType;
+  onChange: (next: BuildType) => void;
+}) {
+  return (
+    <div
+      role="tablist"
+      aria-label="Build type"
+      className="flex items-center gap-1.5 p-1 rounded-full self-start"
+      style={{
+        background: "var(--gtp-card-sunken)",
+        border: "1px solid var(--vault-rule)",
+      }}
+    >
+      {BUILD_TYPES.map((bt) => {
+        const isActive = bt.key === active;
+        return (
+          <button
+            key={bt.key}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            title={bt.sub}
+            onClick={() => onChange(bt.key)}
+            className="font-mono uppercase tracking-[0.14em] px-3 py-1.5 rounded-full inline-flex items-center whitespace-nowrap"
+            style={{
+              color: isActive ? "var(--vault-bg)" : "var(--vault-text-mute)",
+              background: isActive ? "var(--vault-gold-bright)" : "transparent",
+              fontSize: 11,
+              fontWeight: isActive ? 600 : 500,
+              cursor: "pointer",
+            }}
+          >
+            {bt.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -920,13 +1006,13 @@ function BuilderHeader({
   if (embedded && mode === "suggested") return null;
   const title =
     mode === "build"
-      ? "Build your own."
+      ? "Build a Parlay"
       : mode === "bankroll"
         ? "Plan your bankroll."
         : "Today's suggested parlays.";
   const subcopy =
     mode === "build"
-      ? "Generate custom slips or compose them by hand from the same leg pool. Custom slips are exploratory — they do not count toward the public hit-rate."
+      ? "Create a custom card from modeled-sport legs. Custom cards are not official Suggested Parlays and are not publicly tracked."
       : mode === "bankroll"
         ? "Set a bankroll, pick a risk preference, and the planner suggests stake sizes across today's model-ranked slips. Educational — not financial advice."
         : optimizerActive

@@ -44,9 +44,11 @@ picks/schedules; everything is baked by the pipeline.
   gates derived from `sports-coverage.ts` — `canShowProjections` /
   `canShowSuggestedParlays` / `canUseInBuildYourOwn` / `canGradeSport` + the
   mixed-sport rules; see `SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md`),
-  `event-schedules.ts`, `data-parlays.ts`, `data-projections.ts`,
-  `parlay-results.ts`, `public-parlay-era.ts`, `nav-active-route.ts`,
-  `freshness.ts`.
+  `projection-availability.ts` (actionable-vs-prop-line + latest-actionable
+  default date, PR 1), `build-a-parlay-config.ts` (Quick Generate / Manual
+  Build switch + modeled-only sport scope, PR 3), `event-schedules.ts`,
+  `data-parlays.ts`, `data-projections.ts`, `parlay-results.ts`,
+  `public-parlay-era.ts`, `nav-active-route.ts`, `freshness.ts`.
 - **Tests:** `app/src/lib/*.test.mjs` run via `npx tsx --test` (590 as of
   main `5a1777d`).
 - **Offline analysis scripts (not bundled):** `app/scripts/*.mjs` —

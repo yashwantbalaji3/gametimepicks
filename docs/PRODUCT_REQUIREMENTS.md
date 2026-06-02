@@ -84,6 +84,14 @@ reflects the live product as of main `5a1777d` (2026-06-02).
 
 ## Build Your Own (`/parlay-lab#build`) + Build My Card
 
+- **Build a Parlay flow (PR 3, 2026-06-02).** Header reads **"Build a Parlay"**
+  with status chips **Custom · Modeled sports only · Not officially tracked**
+  and a modeled-only note ("Schedule-only sports do not have model legs yet").
+  A clear **build-type switch — Quick Generate / Manual Build** — renders only
+  the selected tool (no longer two stacked tools). The DNP-risk toggle lives
+  under **"Availability filters"** (advanced), not the primary path.
+  `edgePct`/`confidence` are de-emphasized on leg displays (non-predictive per
+  #240) in favor of factual sport/team/price. Config: `build-a-parlay-config.ts`.
 - Custom slip construction from the same real leg pool; framed as
   exploratory and **not officially tracked**.
 - **Mixed-sport allowed here only.** Build Your Own may combine legs across
