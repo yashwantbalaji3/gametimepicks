@@ -77,6 +77,16 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <path d="m8.5 12.5 2.5 2.5 4.5-5" />
         </svg>
       );
+    case "sports":
+      // Calendar — the Sports & Events schedules hub.
+      return (
+        <svg {...props}>
+          <rect x="3" y="4.5" width="18" height="16" rx="2" />
+          <path d="M3 9h18" />
+          <path d="M8 2.5v4" />
+          <path d="M16 2.5v4" />
+        </svg>
+      );
   }
 }
 
