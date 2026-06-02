@@ -206,27 +206,27 @@ export default function HomePage() {
   // Lab modes. Real slips only — no fabrication.
   const previewSlips = (suggested?.slips ?? [])
     .filter((s) => s.slipId !== featured?.slipId)
-    .slice(0, 3);
+    .slice(0, 2);
 
+  // Mobile-first ordering (PR `feat/home-mobile-order`, 2026-06-02): a
+  // single flattened grid whose children carry BOTH a mobile `order-*` and
+  // a desktop `xl:order-*`/`xl:col-span-*`. On 375 the modules stack in the
+  // exact priority order (paths → featured → bank builder → sports →
+  // suggested preview → track record); on xl the same modules pack into a
+  // clean two-column (8/4) dashboard with no gaps. No data changes.
   return (
     <div className="vault-page-shell px-3 sm:px-5 lg:px-6 py-4 lg:py-6 overflow-x-hidden flex flex-col gap-4">
       <MarketTicker items={tickerItems} className="-mx-3 sm:-mx-5 lg:-mx-6" />
 
-      <HomePathCards cards={pathCards} />
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 xl:items-start">
+        {/* 1 · Five clear paths */}
+        <div className="order-1 xl:order-1 xl:col-span-12">
+          <HomePathCards cards={pathCards} />
+        </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
-        {/* Main column — guided start + featured card + suggested preview */}
-        <div className="xl:col-span-8 flex flex-col gap-4">
-          {/* Additive "New here?" beginner finder — does not replace the
-              builder or the featured slip; reuses the same slips/helpers. */}
-          <GuidedStart
-            slips={suggested?.slips ?? []}
-            slateDate={suggested?.date ?? today}
-            isFallback={suggested?.isFallback ?? true}
-            calibrationTable={calibrationTable}
-          />
-
-          {featured && (
+        {/* 2 · Featured slip */}
+        {featured && (
+          <div className="order-2 xl:order-2 xl:col-span-8">
             <ModuleCard title="Featured slip" meta={slateLabel}>
               <div className="p-2 sm:p-3">
                 <ParlayTicketCard
@@ -241,11 +241,38 @@ export default function HomePage() {
                 </p>
               </div>
             </ModuleCard>
-          )}
+          </div>
+        )}
 
-          {/* Compact Suggested-parlays preview — a few real cards + CTAs
-              into the full Parlay Lab workspace. The full builder (filters,
-              risk lanes, Build My Card) lives on /parlay-lab, not here. */}
+        {/* 3 · Bank Builder */}
+        <div className="order-3 xl:order-3 xl:col-span-4">
+          <ModuleCard title="Bank Builder" href="/bank-builder">
+            <div className="px-3.5 py-3 flex flex-col gap-1.5">
+              <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 600 }}>
+                $100 → $3,000 paper ladder
+              </span>
+              <span className="text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
+                Five rungs, one daily pick per rung, target ~+100. Paper-trading / educational only —
+                resets to the $100 base on a loss, always shown.
+              </span>
+            </div>
+          </ModuleCard>
+        </div>
+
+        {/* 4 · Sports coverage (compact, honest at-a-glance) */}
+        <div className="order-4 xl:order-5 xl:col-span-4">
+          <ModuleCard title="Sports coverage" href="/events">
+            <HomeSportsCoverage />
+            <p className="px-3.5 py-2.5 text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)", borderTop: "1px solid var(--vault-rule)" }}>
+              NBA &amp; MLB have projections + model parlays. Other leagues are
+              schedule-only or not yet modelled — never picks.
+            </p>
+          </ModuleCard>
+        </div>
+
+        {/* 5 · Suggested-parlays preview — a few real cards + CTAs into the
+            full Parlay Lab workspace (filters + Build My Card live there). */}
+        <div className="order-5 xl:order-4 xl:col-span-8">
           <ModuleCard
             title="Suggested parlays"
             meta={suggested ? slateLabel : undefined}
@@ -298,8 +325,8 @@ export default function HomePage() {
           </ModuleCard>
         </div>
 
-        {/* Sidebar — modules */}
-        <div className="xl:col-span-4 flex flex-col gap-4">
+        {/* 6 · Track record */}
+        <div className="order-6 xl:order-7 xl:col-span-4">
           <ModuleCard title="Track record" href="/results">
             <div className="grid grid-cols-3">
               <Metric
@@ -323,45 +350,24 @@ export default function HomePage() {
               <Link href="/results/" style={{ color: "var(--vault-gold)" }}>Results</Link>.
             </p>
           </ModuleCard>
+        </div>
 
-          <ModuleCard title="Bank Builder" href="/bank-builder">
-            <div className="px-3.5 py-3 flex flex-col gap-1.5">
-              <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 600 }}>
-                $100 → $3,000 paper ladder
-              </span>
-              <span className="text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
-                Five rungs, one daily pick per rung, target ~+100. Paper-trading / educational only —
-                resets to the $100 base on a loss, always shown.
-              </span>
-            </div>
-          </ModuleCard>
+        {/* 7 · Guided "New here?" finder — kept for beginners, demoted below
+            the dashboard so it never crowds the top on mobile. */}
+        <div className="order-7 xl:order-6 xl:col-span-8">
+          <GuidedStart
+            slips={suggested?.slips ?? []}
+            slateDate={suggested?.date ?? today}
+            isFallback={suggested?.isFallback ?? true}
+            calibrationTable={calibrationTable}
+          />
+        </div>
 
-          <ModuleCard title="Projections" href="/projections">
-            <div className="px-3.5 py-3">
-              <span className="text-[12.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
-                Every game, every player prop the suggestions are built on — game cards, player
-                accordions, per-prop edges. Today&apos;s board posts each morning.
-              </span>
-            </div>
-          </ModuleCard>
-
-          {/* Sports coverage — honest at-a-glance of every league we
-              surface. NBA/MLB link to picks; schedule-only leagues link to
-              their schedule; MLS/EPL are dimmed "coming soon" with no link.
-              Full grid + schedules live on /events. */}
-          <ModuleCard title="Sports coverage" href="/events">
-            <HomeSportsCoverage />
-            <p className="px-3.5 py-2.5 text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)", borderTop: "1px solid var(--vault-rule)" }}>
-              NBA &amp; MLB have projections + model parlays. Other leagues are
-              schedule-only or not yet modelled — never picks.
-            </p>
-          </ModuleCard>
+        {/* 8 · Newsletter */}
+        <div className="order-8 xl:order-8 xl:col-span-12">
+          <NewsletterSignup variant="full" />
         </div>
       </div>
-
-      <section className="mt-2">
-        <NewsletterSignup variant="full" />
-      </section>
     </div>
   );
 }
