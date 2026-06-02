@@ -226,7 +226,20 @@ official-only + paper-only; Results unchanged.
 
 ### Original PR C plan (for reference)
 
-## 10. PR D plan — one sport at a time modeling pipeline (NOT in this PR; approval-gated)
+## 10. PR D / WNBA — feasibility assessed (2026-06-02): KEEP SCHEDULE-ONLY
+
+The WNBA feasibility check is **done** — see
+[`WNBA_SHADOW_FEASIBILITY_2026-06-02.md`](./WNBA_SHADOW_FEASIBILITY_2026-06-02.md).
+**Verdict: not ready — WNBA stays schedule-only.** It has a real ESPN schedule
+snapshot but **no odds/player-prop ingestion, no WNBA stat source, and no
+grading**; the NBA projection math + sport-aware optimizer are reusable but the
+ingestion + settlement layers are NBA-specific. The single biggest blocker is
+**whether a real WNBA player-prop odds source is even available** (unverified).
+Next is a **decision gate** (confirm an odds source) before any approval-gated
+**shadow ingestion** — no public WNBA surface, no registry flip, until the full
+shadow→graduation criteria in that doc are met.
+
+### Original PR D plan (for reference)
 
 - Pick **one** sport after the feasibility audit (**WNBA** is the leading
   candidate). Build, in order: schedule+odds ingestion → projection model

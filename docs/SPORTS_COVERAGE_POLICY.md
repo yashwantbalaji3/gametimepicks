@@ -80,3 +80,10 @@ See [`SPORTS_PROJECTIONS_EXPANSION_PLAN_2026-06-02.md`](./SPORTS_PROJECTIONS_EXP
 
 Any change to a sport's level **must** update `sports-coverage.ts` (and its
 test) and this doc. See `DOCUMENTATION_GOVERNANCE.md`.
+
+**WNBA (assessed 2026-06-02):** feasibility checked — **remains schedule-only**.
+Real schedule snapshot, but no odds/player-prop ingestion, no WNBA stat source,
+and no grading (the biggest blocker is an unverified WNBA player-prop odds
+source). See
+[`WNBA_SHADOW_FEASIBILITY_2026-06-02.md`](./WNBA_SHADOW_FEASIBILITY_2026-06-02.md).
+Promotion would be shadow-first and approval-gated; **not** modeled today.
