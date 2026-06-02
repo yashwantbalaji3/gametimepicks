@@ -76,6 +76,10 @@ import {
   countDisplaySlips,
   type RiskSectionKey,
 } from "@/lib/parlay-risk-sections";
+import {
+  applyVolumeDiscipline,
+  PUBLIC_VOLUME_CAPS,
+} from "@/lib/parlay-volume-discipline";
 import type { CalibrationTable } from "@/lib/confidence-calibration-rules";
 
 interface Props {
@@ -482,17 +486,33 @@ export default function ParlayLabBuilder({
       return out;
     }, [optimizerPayload, sport]);
 
-  // When team or player is active we must honor that filter — the
-  // server-bucketed sections are sport-only, so apply the team/player
-  // filter on top of them. If the result starves a section, the
-  // honest empty-state copy renders.
-  const teamPlayerFiltered = useMemo<
+  // PR `feat/public-volume-discipline` (2026-06-02) — anti-overpublishing
+  // policy applied to the per-sport published set BEFORE team/player
+  // narrowing. Caps cards per section + total + per-player/market/game
+  // exposure. It does NOT use edgePct/confidence (the calibration audit
+  // found those non-/anti-predictive), does NOT reorder, and makes NO
+  // performance claim — it just shows fewer, less-repetitive cards and
+  // lets sections empty out (the honest empty-state copy renders) rather
+  // than padding. See docs/VOLUME_DISCIPLINE_2026-06-02.md.
+  const disciplinedSportSections = useMemo<
     Partial<Record<RiskSectionKey, ParlaySlip[]>> | undefined
   >(() => {
     if (!sportSections) return undefined;
-    if (team == null && game == null && player == null) return sportSections;
+    return applyVolumeDiscipline(sportSections, PUBLIC_VOLUME_CAPS).sections;
+  }, [sportSections]);
+
+  // When team or player is active we must honor that filter — the
+  // server-bucketed sections are sport-only, so apply the team/player
+  // filter on top of the disciplined set. If the result starves a
+  // section, the honest empty-state copy renders.
+  const teamPlayerFiltered = useMemo<
+    Partial<Record<RiskSectionKey, ParlaySlip[]>> | undefined
+  >(() => {
+    if (!disciplinedSportSections) return undefined;
+    if (team == null && game == null && player == null)
+      return disciplinedSportSections;
     const out: Partial<Record<RiskSectionKey, ParlaySlip[]>> = {};
-    for (const [k, arr] of Object.entries(sportSections) as Array<
+    for (const [k, arr] of Object.entries(disciplinedSportSections) as Array<
       [RiskSectionKey, ParlaySlip[]]
     >) {
       out[k] = filterSlipsBySportTeamPlayer(arr, {
@@ -503,7 +523,7 @@ export default function ParlayLabBuilder({
       });
     }
     return out;
-  }, [sportSections, sport, team, game, player]);
+  }, [disciplinedSportSections, sport, team, game, player]);
 
   // Per-section availability of the Mixed / All lanes, honoring the
   // active game filter. Drives the empty-section quick actions so a
@@ -637,6 +657,14 @@ export default function ParlayLabBuilder({
             context={filterContextLabel}
             hint={crossLaneHint}
           />
+          <p
+            className="text-[11.5px] leading-snug -mt-1"
+            style={{ color: "var(--vault-text-faint)", maxWidth: 680 }}
+          >
+            We cap how many cards we publish per slate and show fewer when the
+            slate doesn&apos;t produce enough varied combinations — sections can
+            be empty rather than padded.
+          </p>
           <SuggestedMode
             cards={cards}
             hvCard={hvCard}
