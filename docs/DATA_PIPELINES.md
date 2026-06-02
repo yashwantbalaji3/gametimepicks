@@ -52,8 +52,18 @@ boundaries that keep it honest.
   **oldest** 10 games for the ~88% of MLB legs with >10 games. See
   `SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md` §6 / `MODEL_AND_OPTIMIZER.md`.
   **Committed artifacts generated before that fix still carry the stale
-  (oldest-10) window** until a separate, approval-gated one-time regeneration
-  runs; forward generation is correct.
+  (oldest-10) window** until regenerated; forward generation is correct.
+- **Regeneration (offline, deterministic, no API spend):**
+  `python -m pipeline.snapshot_optimizer --date <date>` rebuilds
+  `parlays/optimizer/<date>.json` (legPool + `publicRiskSections`) from the
+  committed board via the fixed `normalize_lean`. It recomputes **only**
+  `recentSeries`/`recentGames` (+ a `generatedAt` bump) — odds, projections,
+  edges, scores, and slip selection are unchanged when the board is unchanged.
+  The legacy `snapshot_parlays` output does **not** persist `recentSeries`
+  (Bank Builder enriches from the optimizer legPool), so it needs no regen for
+  this fix. **June-2 was regenerated** in `regen/june2-recentseries` (0
+  Low-eligibility flips vs the board tail, was 28). Other slates can be
+  regenerated the same way if a consumer needs the persisted field corrected.
 
 ## 3. Auto-refresh (periodic)
 

@@ -57,12 +57,14 @@
   (`#253`) and `scripts/shadow-l10-audit.mjs` now read genuinely-recent values
   going forward. They remain a **soft tie-breaker / display** only — no hard
   gate, no win-rate claim.
-- **Data not yet regenerated.** Committed artifacts generated **before** this
-  fix still carry the stale oldest-10 window (June-2 shadow audit: 28 legs flip
-  Low-eligibility true vs persisted). A separate, **approval-gated one-time
-  regeneration** is required before anything reads the persisted field for
-  quality; the v2 shadow audit (which sources the board full series directly)
-  should be **rerun after regeneration**. See
+- **Data regeneration — June-2 done.** The offline
+  `python -m pipeline.snapshot_optimizer --date <date>` rebuilds the optimizer
+  artifact from the committed board with the corrected window (recentSeries-only
+  diff; odds/projections/scores/slip selection unchanged). **June-2 was
+  regenerated** (`regen/june2-recentseries`): the shadow audit's truncated-vs-true
+  gap **closed to 0 Low-eligibility flips** (was 28). Other committed slates
+  still carry the stale window until regenerated the same way (only matters if a
+  consumer reads the persisted field for quality). See
   `SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md` §6 + `DATA_PIPELINES.md` §2.1.
 
 ## Suggested Parlay Methodology v2 — SHADOW-ONLY (not wired)
