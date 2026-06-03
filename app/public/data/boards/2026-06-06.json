@@ -1,46 +1,34 @@
 {
-  "generatedFor": "2026-06-05",
-  "generatedAt": "2026-06-03T18:08:02+00:00",
+  "generatedFor": "2026-06-06",
+  "generatedAt": "2026-06-03T18:08:18+00:00",
   "dataSources": [
-    "espn_scoreboard",
-    "the_odds_api"
+    "multi_source"
   ],
   "isDemo": false,
   "leans": [],
   "scheduleAvailable": true,
   "propsAvailable": false,
-  "scheduleSource": "espn_scoreboard",
-  "oddsSource": "the_odds_api",
-  "games": [
-    {
-      "gameId": "401859964",
-      "date": "2026-06-05",
-      "tipoff": "8:30 PM ET",
-      "homeTeamAbbr": "SA",
-      "homeTeamFull": "San Antonio Spurs",
-      "awayTeamAbbr": "NY",
-      "awayTeamFull": "New York Knicks",
-      "status": "Scheduled"
-    }
-  ],
-  "dataMode": "ScheduleLiveOddsUnavailable",
+  "scheduleSource": "multi_source",
+  "oddsSource": "unavailable",
+  "games": [],
+  "dataMode": "NoGames",
   "failureReason": null,
-  "requestedDate": "2026-06-05",
+  "requestedDate": "2026-06-06",
   "timezone": "America/New_York",
   "scheduleProviderStatus": "ok",
   "scheduleFetchAttempted": true,
   "scheduleFetchSucceeded": true,
   "scheduleFailureReason": null,
-  "rawGameCountBeforeFiltering": 1,
-  "parsedGameCountAfterFiltering": 1,
+  "rawGameCountBeforeFiltering": 0,
+  "parsedGameCountAfterFiltering": 0,
   "manualOverrideUsed": false,
   "manualOverrideSource": null,
   "endpointHistory": [
     {
       "endpoint": "scoreboardv2",
-      "status": "error",
-      "raw_count": 1,
-      "error": "int() argument must be a string, a bytes-like object or a real number, not 'NoneType'"
+      "status": "ok",
+      "raw_count": 0,
+      "error": null
     },
     {
       "endpoint": "leaguegamefinder",
@@ -65,13 +53,13 @@
     {
       "provider": "espn_scoreboard",
       "status": "ok",
-      "games": 1,
+      "games": 0,
       "error": null
     }
   ],
-  "oddsProviderStatus": "ok_no_props",
-  "oddsFetchAttempted": true,
-  "oddsFetchSucceeded": true,
+  "oddsProviderStatus": "not_configured",
+  "oddsFetchAttempted": false,
+  "oddsFetchSucceeded": false,
   "oddsFailureReason": null,
   "rawOddsEventCount": 0,
   "matchedOddsEventCount": 0,
@@ -79,9 +67,9 @@
   "parsedPropCount": 0,
   "oddsCacheStatus": "miss",
   "oddsCachedAt": null,
-  "oddsQuotaRemaining": 19898,
-  "oddsQuotaUsed": 102,
-  "oddsLastCallCost": 0,
+  "oddsQuotaRemaining": null,
+  "oddsQuotaUsed": null,
+  "oddsLastCallCost": null,
   "oddsCostEstimatePerRun": 0,
   "oddsBookmakers": [
     "draftkings",
