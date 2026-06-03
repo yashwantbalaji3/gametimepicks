@@ -179,10 +179,13 @@ direction.
 
 ## 8. Exact prompts for each possible next choice
 
-- **Continue shadow-only (recommended):**
-  > "Keep Methodology v2 shadow-only. Each new settled public-era slate, re-run
-  > `scripts/shadow-parlay-methodology-v2.mjs`, append the L5 5/5 / Low / Bank
-  > sample sizes + hit rates to the v2 doc, and stop. Do not wire live behavior."
+- **Continue shadow-only (recommended):** follow
+  [`METHODOLOGY_V2_SHADOW_TRACKING_RUNBOOK.md`](./METHODOLOGY_V2_SHADOW_TRACKING_RUNBOOK.md).
+  After each nightly settle run
+  `npx tsx scripts/shadow-parlay-methodology-v2.mjs --write-report` (auto-discovers
+  newly-settled slates, excludes banned May 25/26, refreshes
+  `docs/audits/methodology-v2-shadow-latest.md`), and stop. Re-decide when L5 5/5
+  / Low reach ~40 decided legs. Do not wire live behavior.
 - **Bank Builder review (low value):**
   > "Audit whether Bank Builder already enforces $100 + treats L10 8/10 as a soft
   > 'ideally' preference with no forced card. If it does, change nothing and
