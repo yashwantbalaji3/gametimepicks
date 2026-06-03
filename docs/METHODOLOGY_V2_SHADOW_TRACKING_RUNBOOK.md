@@ -6,7 +6,9 @@
 > live behavior, changes risk sections / daily targets / Bank Builder rules, or
 > touches workflow schedules. It pairs with
 > `SUGGESTED_PARLAY_METHODOLOGY_V2_2026-06-02.md` (spec) and
-> `METHODOLOGY_V2_IMPLEMENTATION_DECISION_2026-06-02.md` (decision matrix).
+> `METHODOLOGY_V2_IMPLEMENTATION_DECISION_2026-06-02.md` (decision matrix). For
+> the short step-by-step to run after each settle, see
+> `METHODOLOGY_V2_POST_SETTLE_CHECKLIST.md`.
 
 ---
 
