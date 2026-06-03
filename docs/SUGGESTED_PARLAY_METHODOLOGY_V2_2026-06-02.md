@@ -40,6 +40,15 @@
 > optimizer legPool.** v2 **remains shadow-only**; no methodology wired; no
 > settlement; June-2 not settled.
 
+> **DECISION (`docs/v2-implementation-decision`):** the implementation options
+> were weighed in
+> [`METHODOLOGY_V2_IMPLEMENTATION_DECISION_2026-06-02.md`](./METHODOLOGY_V2_IMPLEMENTATION_DECISION_2026-06-02.md)
+> (7-option matrix + approval gates). **Recommendation: keep v2 shadow-only and
+> gather ~7–14 more settled slates (Option A/G)** until L5 5/5 / Low samples
+> reach ~40 decided legs. No narrow live increment clears the bar today —
+> Bank Builder already matches the desired direction ($100, soft L10, no forced
+> card), and a hard L10 gate would starve (`#249`). No live v2 wired.
+
 ---
 
 ## 1. Executive summary
