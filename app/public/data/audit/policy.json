@@ -1,18 +1,18 @@
 {
   "_disclaimer": "Confirmed-signal policy over the daily audit window — see docs/MODEL_LEARNING_LOOP.md. Demotion only; one bad slate cannot move the model.",
-  "generatedAt": "2026-06-02T11:10:23.624686+00:00",
+  "generatedAt": "2026-06-03T11:49:21.618756+00:00",
   "window": {
     "daysAvailable": 7,
     "daysRequired": 3,
     "windowDays": 7,
     "dates": [
+      "2026-06-02",
       "2026-06-01",
       "2026-05-31",
       "2026-05-30",
       "2026-05-29",
       "2026-05-28",
-      "2026-05-27",
-      "2026-05-26"
+      "2026-05-27"
     ]
   },
   "confirmed": true,
@@ -59,6 +59,12 @@
         "daysRequired": 3,
         "confirmed": true,
         "weightMultiplier": 0.8
+      },
+      "pitcher_strikeouts": {
+        "fires": 1,
+        "daysRequired": 3,
+        "confirmed": false,
+        "weightMultiplier": 1.0
       }
     },
     "dnpGuardStrengthen": {
