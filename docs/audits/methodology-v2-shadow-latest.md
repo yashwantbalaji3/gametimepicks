@@ -7,32 +7,32 @@
 > series (MLB). Pushes & pending excluded; `edgePct`/`confidence` never used.
 
 ## Coverage
-- **Settled public-era slates (5):** 2026-05-27, 2026-05-28, 2026-05-29, 2026-05-30, 2026-06-01
+- **Settled public-era slates (6):** 2026-05-27, 2026-05-28, 2026-05-29, 2026-05-30, 2026-06-01, 2026-06-02
 - **Excluded** (banned May 25/26 or pre-era): 2026-05-25, 2026-05-26
-- **Active slate** (latest optimizer): 2026-06-02 — settled? no (availability only)
+- **Active slate** (latest optimizer): 2026-06-03 — settled? no (availability only)
 - Public era starts `2026-05-27`. Sample threshold: **40** decided legs per gated bucket.
 
 ## Sample sizes (decided MLB legs) & threshold
 | Bucket | Decided N | ≥40 met? |
 |--------|------:|:--:|
-| all (model-selected) | 166 | n/a |
-| **L5 5/5** | 17 | NO |
-| L5 4/5+ | 77 | n/a |
-| **Low-eligible** | 14 | NO |
-| Bank-eligible (L10 8/10+) | 64 | n/a |
+| all (model-selected) | 211 | n/a |
+| **L5 5/5** | 31 | NO |
+| L5 4/5+ | 107 | n/a |
+| **Low-eligible** | 23 | NO |
+| Bank-eligible (L10 8/10+) | 80 | n/a |
 
 ## Historical hit rates (true L5, MLB)
 | Leg group | Hit rate | N |
 |-----------|------:|------:|
-| all (model-selected) | 52% | 166 |
-| L5 5/5 | 71% | 17 |
-| L5 4/5 | 47% | 60 |
-| L5 4/5+ | 52% | 77 |
-| L5 3/5 or worse | 53% | 89 |
-| Low-eligible (5/5 & ≤−150) | 79% | 14 |
-| Bank-eligible (L10 ≥8/10) | 63% | 64 |
+| all (model-selected) | 54% | 211 |
+| L5 5/5 | 77% | 31 |
+| L5 4/5 | 45% | 76 |
+| L5 4/5+ | 54% | 107 |
+| L5 3/5 or worse | 54% | 104 |
+| Low-eligible (5/5 & ≤−150) | 83% | 23 |
+| Bank-eligible (L10 ≥8/10) | 63% | 80 |
 
-Published cards (graded publicRiskSections): slips 64, leg 60%, slip win of decided 15% (8W/47L).
+Published cards (graded publicRiskSections): slips 80, leg 60%, slip win of decided 15% (11W/60L).
 
 ## Per-slate (true L5)
 | date | MLBdec | all | L5 5/5 | L5 4/5+ | LowElig |
@@ -42,15 +42,16 @@ Published cards (graded publicRiskSections): slips 64, leg 60%, slip win of deci
 | 2026-05-29 | 31 | 20/31=65% | 3/5=60% | 11/19=58% | 2/3=67% |
 | 2026-05-30 | 40 | 23/40=58% | 4/4=100% | 15/25=60% | 4/4=100% |
 | 2026-06-01 | 32 | 18/32=56% | 1/2=50% | 4/10=40% | 1/2=50% |
+| 2026-06-02 | 45 | 27/45=60% | 12/14=86% | 18/30=60% | 8/9=89% |
 
-## Active-slate feasibility (2026-06-02, true form)
-- Eligible legs: Low **21**, Med/High/Longshot **139**, Bank (L10 ≥8/10) **69**.
-- Cards under **live #241 caps**: low 3/5, med 3/5, high 2/3, longshot 0/3 (total 8).
+## Active-slate feasibility (2026-06-03, true form)
+- Eligible legs: Low **33**, Med/High/Longshot **171**, Bank (L10 ≥8/10) **86**.
+- Cards under **live #241 caps**: low 3/5, med 3/5, high 1/3, longshot 0/3 (total 7).
 - Cards under **relaxed caps** (headroom only): low 5, med 5, high 3, longshot 3 (total 16).
 - Bank Builder qualifying card exists? yes.
 
 ## Recommendation
-- **KEEP v2 SHADOW-ONLY — gather more settled slates.** L5 5/5 N=17 and/or Low N=14 are below the 40-decided-leg threshold; the signal is not yet conclusive. Re-run after each nightly settle.
+- **KEEP v2 SHADOW-ONLY — gather more settled slates.** L5 5/5 N=31 and/or Low N=23 are below the 40-decided-leg threshold; the signal is not yet conclusive. Re-run after each nightly settle.
 - Data plumbing: RESOLVED (0 Low-eligibility flips on the active slate).
 - L5 4/5+ historically shows no lift over the model-selected baseline; do not gate Medium/High/Longshot on it without stronger evidence.
 
