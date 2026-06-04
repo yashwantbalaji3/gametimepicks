@@ -96,9 +96,15 @@ function buildMlbSample() {
     const sumImp = (typeof io === "number" && typeof iu === "number") ? io + iu : null;
     const side = r.lean;
     const devig = sumImp ? (side === "Over" ? io : iu) / sumImp : null;
+    const isHome =
+      bl.playerTeamAbbr != null && bl.homeTeamAbbr != null
+        ? bl.playerTeamAbbr === bl.homeTeamAbbr
+        : null;
     legs.push({
       date: r.date, market: r.marketKey, side, win: out === "win",
       devig, confidence: r.confidence, edgePct: r.edgePct, line: r.line,
+      modelProb: side === "Over" ? r.modelProbOver : r.modelProbUnder,
+      isHome,
       l5h: windowHits(bl.recentSeries, 5, r.line, side),
       l10h: windowHits(bl.recentSeries, 10, r.line, side),
       oddsForSide: side === "Over" ? bl.oddsOver : bl.oddsUnder,
@@ -157,7 +163,8 @@ function analyze() {
   add("mlb_all_priced_overall", mlb.legs);
   add("mlb_side_over", mlb.legs.filter((l) => l.side === "Over"));
   add("mlb_side_under", mlb.legs.filter((l) => l.side === "Under"));
-  for (const mk of [...new Set(mlb.legs.map((l) => l.market))].sort())
+  const markets = [...new Set(mlb.legs.map((l) => l.market))].sort();
+  for (const mk of markets)
     add(`mlb_market_${mk}`, mlb.legs.filter((l) => l.market === mk));
   for (const c of ["High", "Medium", "Low"])
     add(`mlb_conf_${c.toLowerCase()}`, mlb.legs.filter((l) => l.confidence === c), true);
@@ -179,7 +186,36 @@ function analyze() {
   add("mlb_recentform_L5_5of5", mlb.legs.filter((l) => l.l5h === 5));
   add("mlb_recentform_L5_4plus", mlb.legs.filter((l) => l.l5h != null && l.l5h >= 4));
   add("mlb_recentform_L10_8plus", mlb.legs.filter((l) => l.l10h != null && l.l10h >= 8));
+  add("mlb_recentform_L10_7plus", mlb.legs.filter((l) => l.l10h != null && l.l10h >= 7));
   add("mlb_low_gate_5of5_and_-150", mlb.legs.filter((l) => l.l5h === 5 && typeof l.oddsForSide === "number" && l.oddsForSide <= LOW_MAX_AMERICAN));
+  // Low gate split by side.
+  add("mlb_lowgate_over", mlb.legs.filter((l) => l.l5h === 5 && l.side === "Over" && typeof l.oddsForSide === "number" && l.oddsForSide <= LOW_MAX_AMERICAN));
+  add("mlb_lowgate_under", mlb.legs.filter((l) => l.l5h === 5 && l.side === "Under" && typeof l.oddsForSide === "number" && l.oddsForSide <= LOW_MAX_AMERICAN));
+
+  // --- Expanded segments (Phase 4) ---
+  // Model-probability buckets (does the model's own probability beat market?).
+  const mpb = [
+    ["lt50", (l) => typeof l.modelProb === "number" && l.modelProb < 0.5],
+    ["50to60", (l) => typeof l.modelProb === "number" && l.modelProb >= 0.5 && l.modelProb < 0.6],
+    ["60to70", (l) => typeof l.modelProb === "number" && l.modelProb >= 0.6 && l.modelProb < 0.7],
+    ["ge70", (l) => typeof l.modelProb === "number" && l.modelProb >= 0.7],
+  ];
+  for (const [lab, fn] of mpb) add(`mlb_modelprob_${lab}`, mlb.legs.filter(fn));
+  // Line-value buckets.
+  const lnb = [
+    ["le0_5", (l) => typeof l.line === "number" && l.line <= 0.5],
+    ["1_5", (l) => l.line === 1.5],
+    ["2_5", (l) => l.line === 2.5],
+    ["ge3_5", (l) => typeof l.line === "number" && l.line >= 3.5],
+  ];
+  for (const [lab, fn] of lnb) add(`mlb_line_${lab}`, mlb.legs.filter(fn));
+  // Market-specific Low gate (recent form + heavy favorite, per market).
+  for (const mk of markets)
+    add(`mlb_lowgate_${mk}`, mlb.legs.filter((l) => l.market === mk && l.l5h === 5 && typeof l.oddsForSide === "number" && l.oddsForSide <= LOW_MAX_AMERICAN));
+  // Home / away (derived from board home/away vs player team).
+  add("mlb_home", mlb.legs.filter((l) => l.isHome === true));
+  add("mlb_away", mlb.legs.filter((l) => l.isHome === false));
+
   add("nba_all_priced_overall", nba.legs);
 
   const numTests = segs.length;
@@ -191,7 +227,15 @@ function analyze() {
     return { name: s.name, ...r };
   });
 
-  return { mlb, nba, overallN, numTests, cfg, results };
+  const blockedFamilies = [
+    { name: "mlb_batter_handedness", reason: "no batter-handedness field in settled leans or board → blocked_missing_data" },
+    { name: "mlb_pitcher_handedness", reason: "no pitcher-handedness field → blocked_missing_data" },
+    { name: "mlb_probable_starter", reason: "no confirmed-starter field → blocked_missing_data" },
+    { name: "mlb_platoon_split", reason: "market already prices platoon (prior market-only study); no handedness data to re-derive → market_already_prices_it / blocked_missing_data" },
+    { name: "mlb_team_opponent", reason: "per-team/opponent buckets all fall below the 40-leg floor → blocked_sample_size" },
+    { name: "nba_by_market", reason: "NBA public-era sample too small (June 4 is an NBA off-day; few settled dates) → blocked_sample_size" },
+  ];
+  return { mlb, nba, overallN, numTests, cfg, results, blockedFamilies };
 }
 
 // ---------------------------------------------------------------------------
@@ -238,6 +282,12 @@ function render(a) {
     for (const r of watch) {
       L(`- \`${r.name}\`: ${pctS(r.w, r.n)} (N=${r.n}) vs de-vig ${f1(r.meanDevig)} (edge ${r.edge >= 0 ? "+" : ""}${(r.edge * 100).toFixed(1)}pp). Failed gates: ${r.failedGates.join(", ")}. naive CI ${Math.round(r.naiveCI.lo * 100)}–${Math.round(r.naiveCI.hi * 100)}%, corrected ${Math.round(r.correctedCI.lo * 100)}–${Math.round(r.correctedCI.hi * 100)}%, p-adj ${r.pAdj.toFixed(3)}, dates+ ${r.positiveDates}/${r.totalDates}.`);
     }
+  }
+  L("");
+  if (a.blockedFamilies && a.blockedFamilies.length) {
+    L("");
+    L("## Blocked families (no data / out of scope)");
+    for (const b of a.blockedFamilies) L(`- \`${b.name}\`: ${b.reason}`);
   }
   L("");
   L("## Reading this");
