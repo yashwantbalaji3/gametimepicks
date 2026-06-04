@@ -72,6 +72,16 @@ export function classifyV2WatchlistLeg(leg: WatchlistLegInput): string[] {
   }).map((r) => r.key);
 }
 
+/**
+ * True iff a leg is on the internal watchlist ONLY (matches a watchlist rule but
+ * is NOT launch-ready). Every current rule is `shadow_watchlist`, so any match is
+ * watchlist-only. This NEVER means "recommend": with `ENABLE_V2_SHADOW_CANDIDATE`
+ * false there is no apply path, and even when matched the leg is not official.
+ */
+export function isV2WatchlistOnly(leg: WatchlistLegInput): boolean {
+  return classifyV2WatchlistLeg(leg).length > 0;
+}
+
 export interface WatchlistSummary {
   total: number;
   byRule: Record<string, number>;

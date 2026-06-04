@@ -9,6 +9,7 @@ import {
   classifyV2WatchlistLeg,
   summarizeV2Watchlist,
   explainFailedLaunchGates,
+  isV2WatchlistOnly,
   WATCHLIST_RULES,
 } from "./v2-watchlist-rules.ts";
 
@@ -66,6 +67,13 @@ test("explainFailedLaunchGates returns the corrected-CI reason", () => {
   assert.ok(reasons.length >= 1);
   assert.ok(reasons.some((r) => /corrected|multiple-comparisons/i.test(r)));
   assert.deepEqual(explainFailedLaunchGates("unknown_segment"), []);
+});
+
+test("isV2WatchlistOnly true for a matching leg, false otherwise", () => {
+  assert.equal(isV2WatchlistOnly(leg()), true);
+  assert.equal(isV2WatchlistOnly(leg({ l5hits: 4 })), false);
+  assert.equal(isV2WatchlistOnly(leg({ oddsForSide: -120 })), false);
+  assert.equal(isV2WatchlistOnly(leg({ l5hits: null })), false);
 });
 
 test("emits no banned public copy", () => {
