@@ -186,7 +186,11 @@ function analyze() {
   add("mlb_recentform_L5_5of5", mlb.legs.filter((l) => l.l5h === 5));
   add("mlb_recentform_L5_4plus", mlb.legs.filter((l) => l.l5h != null && l.l5h >= 4));
   add("mlb_recentform_L10_8plus", mlb.legs.filter((l) => l.l10h != null && l.l10h >= 8));
+  add("mlb_recentform_L10_7plus", mlb.legs.filter((l) => l.l10h != null && l.l10h >= 7));
   add("mlb_low_gate_5of5_and_-150", mlb.legs.filter((l) => l.l5h === 5 && typeof l.oddsForSide === "number" && l.oddsForSide <= LOW_MAX_AMERICAN));
+  // Low gate split by side.
+  add("mlb_lowgate_over", mlb.legs.filter((l) => l.l5h === 5 && l.side === "Over" && typeof l.oddsForSide === "number" && l.oddsForSide <= LOW_MAX_AMERICAN));
+  add("mlb_lowgate_under", mlb.legs.filter((l) => l.l5h === 5 && l.side === "Under" && typeof l.oddsForSide === "number" && l.oddsForSide <= LOW_MAX_AMERICAN));
 
   // --- Expanded segments (Phase 4) ---
   // Model-probability buckets (does the model's own probability beat market?).
