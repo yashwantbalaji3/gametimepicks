@@ -38,34 +38,43 @@ gate fails on sample size, no-lift, market-already-prices-it, or missing data.
 
 ## 1b. Unbiased de-vigged candidate search (stronger confirmation)
 
-`app/scripts/audit-v2-candidate-search.mjs` re-ran the search on the **unbiased
-all-priced** settled sample — every priced + settled MLB lean (2,787 legs over
-May 27–Jun 2), not just the optimizer's picks — joined to the pregame board for
-a **proper two-sided de-vig** (`devig(side) = impliedSide / (impliedOver +
-impliedUnder)`). A feature is only a candidate if its win rate's 95% Wilson
-lower bound exceeds the mean de-vigged probability of the legs it selects, and
-the effect holds across dates. **Result: no `launch_candidate`.**
+`app/scripts/audit-v2-candidate-search.mjs` searches the **unbiased all-priced**
+settled sample — every priced + settled MLB lean (now **3,356 legs over the 7
+public-era slates May 27–Jun 3**), not just the optimizer's picks — joined to the
+pregame board for a **proper two-sided de-vig** (`devig(side) = impliedSide /
+(impliedOver + impliedUnder)`). Because ~24 segments are searched at once, a
+naive 95% CI is not sufficient: the launch gate (in
+`src/lib/v2-candidate-gates.ts`, unit-tested) requires the **Bonferroni-corrected
+CI** lower bound (z ≈ 3.08 for 24 tests) to beat de-vig, an **adjusted p-value**
+< 0.05, **date-split stability**, and **no single-date overdependence**.
+**Result: no `launch_candidate`.**
 
 | Candidate (segment) | N | Win% | de-vig | edge | Verdict |
 |---|--:|---:|---:|---:|---|
-| all-priced overall | 2787 | 51% | 50.2% | +0.6pp | `market_already_prices_it` |
-| highest model edge (edgePct ≥ 15) | 269 | 43% | 47.1% | **−3.9pp** | `rejected` (edge anti-predictive) |
-| recent-form L5 5/5 (unbiased) | 169 | 59% | 56.1% | +2.5pp (CI overlaps) | `market_already_prices_it` |
-| Low gate (5/5 & ≤−150) | 94 | 70% | 61.8% | +8.4pp (CI.lo 60% < 61.8%) | `needs_more_data` |
-| NBA all-priced | 539 | 59% | 50.4% | +8.3pp | `blocked_unstable` (only 2 dates) |
+| all-priced overall | 3356 | 50% | 50.2% | −0.1pp | `market_already_prices_it` |
+| highest model edge (edgePct ≥ 15) | 344 | 43% | 47.5% | **−4.x pp** | `rejected` (edge anti-predictive) |
+| recent-form L5 5/5 (unbiased) | 219 | 63% | 56.5% | +6.5pp (naive CI.lo 56% ≤ de-vig) | `needs_more_data` |
+| **Low gate (5/5 & ≤−150)** | **129** | **72%** | **62.0%** | **+10.1pp** | **`shadow_watchlist`** |
+| NBA all-priced | 794 | 53% | 50.3% | +2.x pp | `market_already_prices_it` |
+
+Why the **Low gate is `shadow_watchlist`, not a launch candidate** (it *looked*
+like one under a naive 95% CI — exactly the trap the hardened gate prevents):
+- Naive 95% Wilson CI = 63.8–79.1% → lower bound clears de-vig by only ~1.8pp.
+- **Bonferroni-corrected CI (24 tests, z=3.08) = 59.0–82.3% → lower bound 59.0%
+  is BELOW the 62.0% de-vig.** Fails the correction.
+- **Adjusted p ≈ 0.21** (Poisson-binomial p≈0.009 × 24) → not significant.
+- **Single-date overdependence:** removing the single best date (Jun 2, 84%)
+  drops the naive lower bound below de-vig.
+- Per-date volatile: 5/7 positive but Jun 1 at −26pp (4/11).
+- Failed launch gates: `corrected_ci`, `adjusted_p`, `single_date_overdependence`.
 
 Key takeaways:
-- On the **larger unbiased** sample the picture is the same as the selected-only
-  audit: the **de-vigged market prices priced props efficiently** (overall win
-  rate within ~0.6pp of the de-vigged line).
-- `edgePct` is **anti-predictive** even unbiased — the top-edge bucket *loses*
-  relative to the de-vig (−3.9pp). It must never be sold as a quality signal.
-- The recent-form gates do **not** beat the de-vigged market once you account
-  for the fact that 5/5 legs are already-favored (the market already prices the
-  recency into the line); their CI lower bounds sit below the de-vig baseline.
-- The only two "beats the CI" signals are **NBA (2 dates only → unstable)** and
-  the **Low gate is close but does not clear** — both are watch items, not
-  candidates.
+- On the larger unbiased sample the **de-vigged market prices priced props
+  efficiently** (overall within ~0.1pp of the de-vigged line).
+- `edgePct` is **anti-predictive** even unbiased — must never be a quality signal.
+- The recent-form gates do **not** robustly beat the de-vigged market; the Low
+  gate is the strongest **watch item** but is not launch-ready until it clears
+  the corrected CI + adjusted p across more slates without single-date reliance.
 
 ## 2. What data is missing
 
