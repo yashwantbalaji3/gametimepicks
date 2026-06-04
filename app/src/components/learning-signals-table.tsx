@@ -68,7 +68,7 @@ export default function LearningSignalsTable({
         className="px-4 sm:px-5 pb-3 text-[11px] leading-snug"
         style={{ color: "var(--vault-text-faint)" }}
       >
-        Every signal here is tracked first, shadow-tested second, and
+        Every signal here is tracked first, reviewed internally second, and
         only then considered for the optimizer. We never say the
         model &quot;learned&quot; from a single slate, and we do not
         consume an audit signal until the confirming-days threshold

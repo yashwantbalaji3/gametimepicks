@@ -437,7 +437,7 @@ function EmptyCarouselCard({
       body =
         nbaLegSlipCount && nbaLegSlipCount > 0
           ? `Today's slate has only one NBA game, so NBA-only parlays can't satisfy our correlation cap. NBA legs appear in ${nbaLegSlipCount} mixed slip${nbaLegSlipCount === 1 ? "" : "s"} on the All tab.`
-          : "Projections are live but the slate doesn't satisfy any NBA-only profile (too few games for correlation-safe stacks). Check All.";
+          : "Projections are live but the slate doesn't satisfy any NBA-only profile (too few games for low-correlation stacks). Check All.";
     } else if (sport === "mlb") {
       label = "MLB projections live · no clean parlay";
       body =

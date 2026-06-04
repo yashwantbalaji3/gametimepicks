@@ -189,7 +189,7 @@ export default function AboutPage() {
             </li>
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>
-                Monte Carlo shadow validation — two-date check
+                Monte Carlo internal validation — two-date check
               </strong>{" "}
               — May 22 looked promising (MC Strong 62.5%, Watch
               65.2% on 311 joins). May 23 reverted to roughly coin

@@ -40,7 +40,7 @@ const SPORT_META: Record<SuggestedSport, { label: string; glyph: string }> = {
 };
 
 const COMFORTS: Array<{ key: RiskSectionKey; label: string; range: string; blurb: string }> = [
-  { key: "low", label: "Safer", range: "under +300", blurb: "Steadiest model picks, lower variance." },
+  { key: "low", label: "Steadier", range: "under +300", blurb: "Steadiest model picks, lower variance." },
   { key: "medium", label: "Balanced", range: "+300 to +599", blurb: "A bit more upside for a bit more risk." },
   { key: "high", label: "Bolder", range: "+600 to +999", blurb: "Higher payout, higher variance — labelled." },
   { key: "longshot", label: "Longshot", range: "+1000 and up", blurb: "Lottery-style — most miss. Have fun, stay honest." },
