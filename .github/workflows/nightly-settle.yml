@@ -1,11 +1,16 @@
 # ----------------------------------------------------------------------------
 # nightly-settle.yml
 #
-# Settles yesterday's NBA + MLB slates after late West-Coast MLB and
-# Pacific-time NBA games have finalized. Runs daily at 07:00 UTC =
-# 3:00 AM ET (EDT) / 2:00 AM EST. Cron is interpreted in UTC, so the
-# clock walks by an hour at the DST boundary — picking 07:00 UTC keeps
-# us safely past 2 AM ET year-round.
+# Settles yesterday's NBA + MLB slates close to when the night's games
+# finish. Runs TWICE daily (both interpreted in UTC):
+#   - 05:30 UTC — early "first results" pass (1:30 AM EDT / 12:30 AM EST)
+#   - 07:30 UTC — completeness / repair pass (3:30 AM EDT / 2:30 AM EST)
+# Cron is interpreted in UTC, so the wall-clock ET time walks by an hour
+# at the DST boundary. Settlement is idempotent and refuses in-progress
+# games at the source layer, so the early pass can settle the bulk of the
+# slate while any late West-Coast / extra-inning game stays honestly
+# pending until the repair pass (or a manual re-run) finalizes it.
+# Pending NEVER counts as a loss. See docs/SETTLEMENT_CRON_TIMING.md.
 #
 # What this workflow DOES:
 #   - Resolve yesterday's date in America/New_York
@@ -45,10 +50,22 @@ name: nightly-settle
 
 on:
   schedule:
-    # 07:00 UTC = 3 AM EDT / 2 AM EST. Late West-Coast MLB games can
-    # run to ~01:30 AM ET on rain delays, so 3 AM EDT gives a comfortable
-    # margin.
-    - cron: "0 7 * * *"
+    # Two-pass nightly settlement (both interpreted in UTC):
+    #
+    #   05:30 UTC — early "first results" pass = 1:30 AM EDT / 12:30 AM EST.
+    #     NBA is always final by then (June = Finals: one prime-time game,
+    #     done ~11:30 PM ET). Most MLB games are final; any West-Coast or
+    #     extra-inning game still in progress is refused at the source layer
+    #     and excluded from W/L (never a loss) — it stays honestly pending.
+    #
+    #   07:30 UTC — completeness / repair pass = 3:30 AM EDT / 2:30 AM EST.
+    #     Re-targets the SAME "yesterday in ET" date and is fully idempotent,
+    #     so it finalizes any game that was still in progress at 05:30. This
+    #     is 30 min later than the previous single 07:00 run, giving extra
+    #     margin for the longest games. It only commits/deploys when it finds
+    #     newly-final games, so a clean night produces no second deploy.
+    - cron: "30 5 * * *"
+    - cron: "30 7 * * *"
   workflow_dispatch:
     inputs:
       settle_date:
