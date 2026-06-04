@@ -103,6 +103,20 @@ export function summarizeV2Watchlist(legs: WatchlistLegInput[]): WatchlistSummar
   return { total, byRule, byMarket };
 }
 
+/**
+ * Defensive invariant: v2 is NOT public-ready. Audit/scaffold code can call this
+ * to guarantee no live path runs while the kill switch is off. Throws if the
+ * switch was flipped on without going through the operator-approval gate.
+ */
+export function assertNotPublicReady(): true {
+  if (ENABLE_V2_SHADOW_CANDIDATE) {
+    throw new Error(
+      "v2 shadow candidate is enabled but v2 has not cleared the launch gates + operator approval. Refusing to proceed.",
+    );
+  }
+  return true;
+}
+
 /** Human-readable reasons a watchlist segment is NOT launch-ready. */
 export function explainFailedLaunchGates(ruleKey: string): string[] {
   const rule = WATCHLIST_RULES.find((r) => r.key === ruleKey || r.segment === ruleKey);
