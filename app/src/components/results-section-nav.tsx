@@ -92,7 +92,7 @@ export function summarizeLearningSignalCounts(
   }
   const parts: string[] = [];
   if (c.confirmed) parts.push(`${c.confirmed} confirmed`);
-  if (c.shadow) parts.push(`${c.shadow} shadow`);
+  if (c.shadow) parts.push(`${c.shadow} in review`);
   if (c.tracking) parts.push(`${c.tracking} tracking`);
   if (c.tooSmall) parts.push(`${c.tooSmall} too small`);
   return parts.join(" · ");

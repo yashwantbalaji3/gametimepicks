@@ -148,7 +148,7 @@ export default function MethodologyCard() {
           style={{ color: "var(--vault-text-mute)" }}
         >
           What happens next: audit signals are tracked first,
-          shadow-tested second, and only then considered for the
+          reviewed internally second, and only then considered for the
           optimizer. Advanced ML ideas are on the roadmap, but not
           active until they beat the current rules in out-of-time
           tests. Full sequence —{" "}

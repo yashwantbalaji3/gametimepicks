@@ -30,10 +30,10 @@ test("mixed bucket counts in canonical order", () => {
     { status: "shadow-test-candidate" },
     { status: "tracking" },
   ];
-  // Expected order: confirmed → shadow → tracking → too-small
+  // Expected order: confirmed → in review → tracking → too-small
   assert.equal(
     summarizeLearningSignalCounts(rows),
-    "1 confirmed · 1 shadow · 2 tracking · 3 too small",
+    "1 confirmed · 1 in review · 2 tracking · 3 too small",
   );
 });
 
