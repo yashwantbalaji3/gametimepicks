@@ -77,6 +77,7 @@ import {
   type RiskSectionKey,
 } from "@/lib/parlay-risk-sections";
 import { filterOfficialSuggestedSlips } from "@/lib/sport-capabilities";
+import { sectionSlipsForSport } from "@/lib/suggested-parlay-grouping";
 import {
   BUILD_TYPES,
   BUILD_STATUS_CHIPS,
@@ -212,7 +213,10 @@ export default function ParlayLabBuilder({
     const sectionKeys: RiskSectionKey[] = ["low", "medium", "high", "longshot"];
     const map: Partial<Record<string, ParlaySlip[]>> = {};
     for (const key of sectionKeys) {
-      const raw = psr[key]?.[sportKey] ?? [];
+      // "all" = deduped union of nba+mlb+multi (NOT the stored capped `all`
+      // bucket), so the All view is never smaller than its child tabs. Mixed is
+      // filtered out downstream for official (single-sport) suggested.
+      const raw = sectionSlipsForSport(psr[key], sportKey);
       map[key] = raw.map((s) =>
         optimizerSlipToParlaySlip(s, optimizerPayload!.date),
       );
@@ -490,7 +494,8 @@ export default function ParlayLabBuilder({
       const sectionKeys: RiskSectionKey[] = ["low", "medium", "high", "longshot"];
       const out: Partial<Record<RiskSectionKey, ParlaySlip[]>> = {};
       for (const key of sectionKeys) {
-        const slipsForSection = psr[key]?.[sportKey] ?? [];
+        // "all" = union of the single-sport buckets (see browsablePool note).
+        const slipsForSection = sectionSlipsForSport(psr[key], sportKey);
         // The Suggested mode also filters by team / player via the
         // sport-aware Lab filters. When a team or player filter is
         // active we drop server-bucketed sections and let the
@@ -565,7 +570,8 @@ export default function ParlayLabBuilder({
       lane: "multi" | "all",
       key: RiskSectionKey,
     ): boolean => {
-      const raw = psr[key]?.[lane] ?? [];
+      // "all" lane = union of the single-sport buckets (not the stored bucket).
+      const raw = sectionSlipsForSport(psr[key], lane);
       if (raw.length === 0) return false;
       if (game == null) return true;
       return raw
