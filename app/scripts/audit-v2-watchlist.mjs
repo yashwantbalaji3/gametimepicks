@@ -19,6 +19,7 @@
 import { readFileSync, readdirSync, existsSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { classifyV2WatchlistLeg } from "../src/lib/v2-watchlist-rules.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA = resolve(__dirname, "..", "public", "data");
@@ -47,8 +48,11 @@ function l5hits(series, line, side) {
 }
 const sig = (pid, market, line, side) => `${pid}|${market}|${line}|${(side || "").toLowerCase()}`;
 
-// Active slate = latest optimizer date.
-const ACTIVE = (datesInDir(resolve(DATA, "parlays", "optimizer")).slice(-1)[0]) || null;
+// Active slate = explicit --date, else latest optimizer date.
+const _argv = typeof process !== "undefined" ? process.argv : [];
+const _di = _argv.indexOf("--date");
+const _dateArg = _di >= 0 && _argv[_di + 1] && /^\d{4}-\d{2}-\d{2}$/.test(_argv[_di + 1]) ? _argv[_di + 1] : null;
+const ACTIVE = _dateArg || datesInDir(resolve(DATA, "parlays", "optimizer")).slice(-1)[0] || null;
 
 function publishedLegSignatures(date) {
   const o = loadJSON(resolve(DATA, "parlays", "optimizer", `${date}.json`));
@@ -75,14 +79,18 @@ function watchlistLegs(date) {
     if (side !== "Over" && side !== "Under") continue;
     const odds = side === "Over" ? ln.oddsOver : ln.oddsUnder;
     const l5 = l5hits(ln.recentSeries, ln.line, side);
-    if (l5 !== 5) continue;
-    if (!(typeof odds === "number" && odds <= LOW_MAX_AMERICAN)) continue;
+    // Use the shared, tested watchlist classifier (single source of truth).
+    const matched = classifyV2WatchlistLeg({
+      sport: (ln.sport ?? "mlb"), market: ln.marketKey, side, line: ln.line,
+      oddsForSide: odds, l5hits: l5,
+    });
+    if (!matched.includes("low_gate")) continue;
     const io = ln.impliedOver, iu = ln.impliedUnder;
     const devig = typeof io === "number" && typeof iu === "number" ? (side === "Over" ? io : iu) / (io + iu) : americanToImplied(odds);
     out.push({
       player: ln.playerName, team: ln.playerTeamAbbr, opp: ln.opponentAbbr,
       gameId: ln.gameId, market: ln.marketKey, line: ln.line, side,
-      odds, devig, l5, sig: sig(ln.playerId, ln.marketKey, ln.line, side),
+      odds, devig, l5, rules: matched, sig: sig(ln.playerId, ln.marketKey, ln.line, side),
     });
   }
   // deterministic order: market, then heaviest favorite, then player
