@@ -76,6 +76,26 @@ Key takeaways:
   gate is the strongest **watch item** but is not launch-ready until it clears
   the corrected CI + adjusted p across more slates without single-date reliance.
 
+## 1c. Expanded segment search (Phase 4, 2026-06-04)
+
+`audit-v2-candidate-search.mjs` was extended to **38 segments** (added model-
+probability buckets, line-value buckets, market-specific Low gates, and
+home/away). More segments → a **stricter** Bonferroni correction (z ≈ 3.21).
+**Result unchanged: no `launch_candidate`.** Notable confirmations:
+- **Model probability adds no edge:** legs the model rates ≥70% win **60%** —
+  exactly the de-vig (60.1%). The model is well-calibrated *to the market*, not
+  beyond it.
+- **No home/away edge** (home 50% vs de-vig 50.5%; away 50% vs 50.0%).
+- A second watchlist item appears — `mlb_lowgate_batter_hits` (97 legs, 74% vs
+  de-vig 62.8%) — same story as the overall Low gate: clears the naive CI but
+  fails corrected_ci + adjusted_p + single-date overdependence → `shadow_watchlist`.
+- Families with **no data** stay blocked: batter/pitcher handedness, probable
+  starter, platoon (market already prices it), team/opponent (sample), NBA-by-
+  market (June 4 off-day, tiny sample).
+
+Internal watchlist + June-4 simulation: `docs/audits/v2-watchlist-latest.md`,
+`docs/audits/v2-june4-simulation-latest.md` (observational; no public effect).
+
 ## 2. What data is missing
 
 - **MLB batter/pitcher handedness** and **confirmed-starter** fields are not
