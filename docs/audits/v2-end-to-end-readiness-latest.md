@@ -9,10 +9,10 @@
 No v2 feature is a `launch_candidate`. v2 stays **shadow-only / current-live**.
 
 ## 1. Data availability
-- Settled public-era slates (**6**): 2026-05-27, 2026-05-28, 2026-05-29, 2026-05-30, 2026-06-01, 2026-06-02
+- Settled public-era slates (**7**): 2026-05-27, 2026-05-28, 2026-05-29, 2026-05-30, 2026-06-01, 2026-06-02, 2026-06-03
 - Excluded graded (banned May 25/26 or pre-era): 2026-05-25, 2026-05-26
-- Active slate: `2026-06-03` — settled? no (availability only)
-- MLB boards: 18 · NBA boards: 0 · World Cup: no
+- Active slate: `2026-06-04` — settled? no (availability only)
+- MLB boards: 19 · NBA boards: 0 · World Cup: no
 
 ## 2. Leakage gate
 - **CLEAN.** May 25/26 and pre-era graded files exist on disk but are excluded by date filter. Each slate's L5/L10 is sourced from THAT slate's board full series (no future leakage). recentSeries truncation avoided by board sourcing.
@@ -20,12 +20,12 @@ No v2 feature is a `launch_candidate`. v2 stays **shadow-only / current-live**.
 ## 3. Sample-size gate (≥40 decided per gated bucket)
 | Bucket | Decided N | Threshold | Met? |
 |--------|------:|------:|:--:|
-| L5 5/5 | 31 | 40 | ❌ |
-| Low-eligible (5/5 & ≤−150) | 23 | 40 | ❌ |
-| overall props (learning-loop) | 211 | 200 | ✅ |
+| L5 5/5 | 39 | 40 | ❌ |
+| Low-eligible (5/5 & ≤−150) | 30 | 40 | ❌ |
+| overall props (learning-loop) | 249 | 200 | ✅ |
 
 ## 4. Date split / OOS stability
-- Slates: 6 · all-leg per-slate hit-rate range **34–65%** · L5 5/5 per-slate range **50–100%**
+- Slates: 7 · all-leg per-slate hit-rate range **34–65%** · L5 5/5 per-slate range **50–100%**
 
 Per-slate (true L5, MLB decided):
 | date | MLB decided | all | L5 5/5 | L5 4/5+ | Low-elig |
@@ -36,24 +36,25 @@ Per-slate (true L5, MLB decided):
 | 2026-05-30 | 40 | 23/40=58% | 4/4=100% | 15/25=60% | 4/4=100% |
 | 2026-06-01 | 32 | 18/32=56% | 1/2=50% | 4/10=40% | 1/2=50% |
 | 2026-06-02 | 45 | 27/45=60% | 12/14=86% | 18/30=60% | 8/9=89% |
+| 2026-06-03 | 38 | 21/38=55% | 8/8=100% | 16/23=70% | 7/7=100% |
 
 ## 5. Market-only calibration
-- Implied-prob **top-half 63%** vs **bottom-half 45%** (n=106+105). The de-vigged market rank is the only separating signal; `edgePct`/`confidence` are not.
+- Implied-prob **top-half 66%** vs **bottom-half 43%** (n=125+124). The de-vigged market rank is the only separating signal; `edgePct`/`confidence` are not.
 
 ## 6. Feature verdicts
 | Feature | Verdict | N | Hit | 95% CI | Gate |
 |---------|---------|--:|----:|:------:|------|
-| `all_priced_props_signal` | `needs_more_data` | 211 | 114W/97L (54%) | 47–61% | 200+ overall AND 95% CI lower bound > 50% |
-| `mlb_recent_form_L5_5of5` | `blocked_sample_size` | 31 | 24W/7L (77%) | 60–89% | 40 decided |
-| `mlb_low_gate_5of5_and_-150` | `blocked_sample_size` | 23 | 19W/4L (83%) | 63–93% | 40 decided |
-| `mlb_recent_form_L5_4plus` | `needs_more_data` | 107 | 58W/49L (54%) | 45–63% | 40 decided + lift over baseline |
-| `mlb_bank_builder_L10_8of10` | `shadow_evaluable` | 80 | 50W/30L (63%) | 52–72% | display/soft only — no hard gate, no win-rate claim |
-| `market_only_calibration` | `market_already_prices_it` | 211 | — | — | must beat de-vigged market OOS |
+| `all_priced_props_signal` | `needs_more_data` | 249 | 135W/114L (54%) | 48–60% | 200+ overall AND 95% CI lower bound > 50% |
+| `mlb_recent_form_L5_5of5` | `blocked_sample_size` | 39 | 32W/7L (82%) | 67–91% | 40 decided |
+| `mlb_low_gate_5of5_and_-150` | `blocked_sample_size` | 30 | 26W/4L (87%) | 70–95% | 40 decided |
+| `mlb_recent_form_L5_4plus` | `needs_more_data` | 130 | 74W/56L (57%) | 48–65% | 40 decided + lift over baseline |
+| `mlb_bank_builder_L10_8of10` | `shadow_evaluable` | 96 | 64W/32L (67%) | 57–75% | display/soft only — no hard gate, no win-rate claim |
+| `market_only_calibration` | `market_already_prices_it` | 249 | — | — | must beat de-vigged market OOS |
 | `projection_probability_recalibration` | `needs_more_data` | — | — | — | must beat market-implied OOS |
 | `mlb_platoon_handedness` | `market_already_prices_it` | — | — | — | must add signal beyond the de-vigged market |
 | `mlb_confirmed_starter` | `blocked_missing_data` | — | — | — | needs a confirmed-starter field/signal |
 | `mlb_pitcher_handedness` | `blocked_missing_data` | — | — | — | needs a handedness field + sample |
-| `nba_pregame_features` | `blocked_missing_data` | 51 | — | — | needs verified NBA board recent-form ordering |
+| `nba_pregame_features` | `blocked_missing_data` | 77 | — | — | needs verified NBA board recent-form ordering |
 | `worldcup_pregame_features` | `blocked_missing_data` | — | — | — | needs real World Cup pregame data |
 
 Verdict notes:
@@ -62,12 +63,12 @@ Verdict notes:
 - **mlb_low_gate_5of5_and_-150** — Heaviest-signal v2 bucket (recent form + heavy favorite).
 - **mlb_recent_form_L5_4plus** — Baseline (all) = 54%. 4/5+ shows no durable lift over baseline => not a usable gate.
 - **mlb_bank_builder_L10_8of10** — Already shipped as a DISPLAY badge + soft tie-breaker only. Not a live win-rate gate.
-- **market_only_calibration** — Market-implied probability is the only separating signal (implied-prob top-half 63% vs bottom-half 45% (n=106+105)). edgePct is anti-predictive and confidence is non-predictive (see MODEL_CALIBRATION_2026-06-02.md). No edge to harvest beyond the market.
+- **market_only_calibration** — Market-implied probability is the only separating signal (implied-prob top-half 66% vs bottom-half 43% (n=125+124)). edgePct is anti-predictive and confidence is non-predictive (see MODEL_CALIBRATION_2026-06-02.md). No edge to harvest beyond the market.
 - **projection_probability_recalibration** — Recalibration fixes overconfidence (OOS Brier 0.275->0.244) but TIES, not beats, the market OOS. Kept shadow (shadow-projection-recalibration.mjs).
 - **mlb_platoon_handedness** — Prior market-only platoon study: market_calibrated (the de-vigged market already prices the platoon split). No batter/pitcher handedness field exists on graded legs, so it also cannot be independently re-derived here.
 - **mlb_confirmed_starter** — No confirmed-starter field is present on graded optimizer legs; cannot validate from data on disk.
 - **mlb_pitcher_handedness** — No pitcher-handedness field on graded legs; no sample to evaluate.
-- **nba_pregame_features** — No app/public/data/nba/boards directory; NBA recent-form ordering is unverified -> fails closed. 51 decided NBA legs excluded from true-L5 analysis.
+- **nba_pregame_features** — No app/public/data/nba/boards directory; NBA recent-form ordering is unverified -> fails closed. 77 decided NBA legs excluded from true-L5 analysis.
 - **worldcup_pregame_features** — No World Cup data directory present; out of scope.
 
 ## 7. Promotion decision
