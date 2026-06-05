@@ -18,9 +18,11 @@
  *     NBA and MLB (`level: "full"`).
  *   - Schedule-only and coming-soon sports can NEVER show projections,
  *     suggested parlays, or enter Build Your Own.
- *   - Mixed-sport parlays are NOT allowed as official Suggested Parlays.
- *     Mixed sport is allowed ONLY inside Build Your Own, and only when EVERY
- *     sport on the slip is itself modeled (real legs, never fabricated).
+ *   - Mixed-sport parlays MAY appear as official Suggested Parlays — rendered in
+ *     a clearly labeled "Mixed" section — but ONLY when EVERY sport on the slip
+ *     is itself modeled (real legs, never fabricated). A slip carrying any
+ *     non-modeled sport is never official-suggested-eligible. (Build Your Own
+ *     keeps the same all-modeled rule.)
  *   - Fail closed: an unknown / unregistered sport key has NO capabilities.
  *
  * This file is pure data + pure helpers — no `fs` / server-only imports — so
@@ -202,17 +204,19 @@ function distinctSportKeys(sports: Iterable<string | null | undefined>): string[
 /**
  * Is this set of sports allowed as an OFFICIAL Suggested Parlay?
  *
- * Rule: official Suggested Parlays are INDIVIDUAL-SPORT only. The slip must
- * carry exactly one distinct sport, and that sport must be eligible for
- * suggested parlays (modeled). Mixed-sport slips are rejected here — they may
- * only live in Build Your Own.
+ * Rule: EVERY distinct sport on the slip must be modeled (eligible for suggested
+ * parlays). A single-sport slip of a modeled sport qualifies; a mixed-sport slip
+ * qualifies too as long as every sport on it is modeled (it renders in the
+ * clearly labeled "Mixed" section). Empty slips, or any slip carrying a
+ * non-modeled (schedule-only / coming-soon / unknown) sport, are rejected. The
+ * legs are always real generated/model-ranked legs — never fabricated.
  */
 export function isOfficialSuggestedParlayAllowed(
   sports: Iterable<string | null | undefined>,
 ): boolean {
   const keys = distinctSportKeys(sports);
-  if (keys.length !== 1) return false; // no mixed, no empty
-  return canShowSuggestedParlays(keys[0]);
+  if (keys.length === 0) return false; // no empty
+  return keys.every((k) => canShowSuggestedParlays(k)); // mixed-of-modeled allowed
 }
 
 /**
@@ -291,9 +295,10 @@ export function slipAllowedInBuildYourOwn(slip: SlipLike): boolean {
 
 /**
  * Drop any slip that is not allowed as an official Suggested Parlay
- * (mixed-sport, schedule-only, coming-soon, or unknown-sport slips). Pure;
- * never mutates the input. Wire this at the official-suggested boundary
- * (PR B) so the public surface can never carry a disallowed slip.
+ * (schedule-only, coming-soon, or unknown-sport slips, or empty slips). Pure;
+ * never mutates the input. Mixed-sport slips of modeled sports are KEPT (they
+ * render in the labeled "Mixed" section). Wire this at the official-suggested
+ * boundary so the public surface can never carry a disallowed slip.
  */
 export function filterOfficialSuggestedSlips<T extends SlipLike>(
   slips: ReadonlyArray<T>,
@@ -353,12 +358,11 @@ export function unsupportedSportsInOfficialSections(
     for (const slip of arr ?? []) {
       if (!slip) continue;
       if (!slipAllowedInOfficialSuggested(slip)) {
+        // Only genuinely non-modeled sports are offenders now. Mixed-of-modeled
+        // slips are allowed as official suggested (labeled "Mixed" section).
         for (const k of sportsOnSlip(slip)) {
           if (!canShowSuggestedParlays(k)) offenders.add(k);
         }
-        // A multi-sport slip of two modeled sports is also disallowed; flag
-        // it under a synthetic "multi" marker so callers see the violation.
-        if (sportsOnSlip(slip).length > 1) offenders.add("multi");
       }
     }
   }

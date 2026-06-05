@@ -99,13 +99,14 @@ test("sport keys are case/whitespace insensitive", () => {
 });
 
 // --- mixed-sport rule -------------------------------------------------------
-test("official suggested parlays are single-sport only (no mixed)", () => {
+test("official suggested parlays allow modeled single AND mixed sports", () => {
   assert.equal(isOfficialSuggestedParlayAllowed(["nba"]), true);
   assert.equal(isOfficialSuggestedParlayAllowed(["mlb"]), true);
-  // mixed NBA+MLB rejected from official suggested
-  assert.equal(isOfficialSuggestedParlayAllowed(["nba", "mlb"]), false);
-  // duplicate of the same sport is still single-sport → allowed
+  // mixed NBA+MLB (both modeled) is now ALLOWED as official suggested (Mixed section)
+  assert.equal(isOfficialSuggestedParlayAllowed(["nba", "mlb"]), true);
   assert.equal(isOfficialSuggestedParlayAllowed(["nba", "nba"]), true);
+  // a mixed slip carrying ANY non-modeled sport is still rejected
+  assert.equal(isOfficialSuggestedParlayAllowed(["nba", "nhl"]), false);
   // unsupported single sport rejected
   assert.equal(isOfficialSuggestedParlayAllowed(["nhl"]), false);
   assert.equal(isOfficialSuggestedParlayAllowed(["epl"]), false);
@@ -124,10 +125,13 @@ test("Build Your Own allows mixed sport, but only across modeled sports", () => 
   assert.equal(isBuildYourOwnParlayAllowed([]), false);
 });
 
-test("mixed NBA+MLB is BYO-only: allowed in BYO, blocked in official suggested", () => {
+test("mixed NBA+MLB (modeled) is allowed in BOTH official suggested and BYO", () => {
   const mixed = ["nba", "mlb"];
   assert.equal(isBuildYourOwnParlayAllowed(mixed), true);
-  assert.equal(isOfficialSuggestedParlayAllowed(mixed), false);
+  assert.equal(isOfficialSuggestedParlayAllowed(mixed), true); // Mixed section
+  // mixed with a non-modeled sport is allowed in neither
+  assert.equal(isBuildYourOwnParlayAllowed(["nba", "nhl"]), false);
+  assert.equal(isOfficialSuggestedParlayAllowed(["nba", "nhl"]), false);
 });
 
 // --- slip-level helpers -----------------------------------------------------
@@ -146,7 +150,7 @@ test("sportsOnSlip reads legs, falls back to slip tag", () => {
 test("slip gates: official suggested vs BYO", () => {
   assert.equal(slipAllowedInOfficialSuggested(nbaSlip), true);
   assert.equal(slipAllowedInOfficialSuggested(mlbSlip), true);
-  assert.equal(slipAllowedInOfficialSuggested(mixedSlip), false); // mixed blocked
+  assert.equal(slipAllowedInOfficialSuggested(mixedSlip), true); // mixed-of-modeled now allowed
   assert.equal(slipAllowedInOfficialSuggested(nhlSlip), false); // unsupported blocked
 
   assert.equal(slipAllowedInBuildYourOwn(nbaSlip), true);
@@ -154,9 +158,9 @@ test("slip gates: official suggested vs BYO", () => {
   assert.equal(slipAllowedInBuildYourOwn(nhlSlip), false); // unsupported never
 });
 
-test("filterOfficialSuggestedSlips drops mixed + unsupported, keeps single modeled", () => {
+test("filterOfficialSuggestedSlips keeps modeled single + mixed, drops unsupported", () => {
   const kept = filterOfficialSuggestedSlips([nbaSlip, mlbSlip, mixedSlip, nhlSlip]);
-  assert.deepEqual(kept, [nbaSlip, mlbSlip]);
+  assert.deepEqual(kept, [nbaSlip, mlbSlip, mixedSlip]); // mixed-of-modeled kept, nhl dropped
 });
 
 test("filterBuildYourOwnSlips keeps mixed-of-modeled, drops unsupported", () => {
@@ -165,23 +169,23 @@ test("filterBuildYourOwnSlips keeps mixed-of-modeled, drops unsupported", () => 
 });
 
 // --- publicRiskSections leak guard -----------------------------------------
-test("unsupportedSportsInOfficialSections detects mixed + unsupported leaks", () => {
-  // clean official sections: single-sport modeled slips only
+test("unsupportedSportsInOfficialSections detects only non-modeled leaks (mixed-of-modeled OK)", () => {
+  // clean official sections: modeled single AND mixed-of-modeled slips are fine
   const clean = {
-    low: [nbaSlip],
+    low: [nbaSlip, mixedSlip],
     medium: [mlbSlip],
     high: [],
     longshot: [],
   };
   assert.deepEqual(unsupportedSportsInOfficialSections(clean), []);
 
-  // leaky sections: a mixed slip and an NHL slip slipped in
+  // leaky sections: only the NHL (non-modeled) slip is an offender now
   const leaky = {
     low: [nbaSlip, mixedSlip],
     medium: [nhlSlip],
   };
   const offenders = unsupportedSportsInOfficialSections(leaky).sort();
-  assert.ok(offenders.includes("multi"), "mixed flagged");
+  assert.ok(!offenders.includes("multi"), "mixed-of-modeled NOT flagged");
   assert.ok(offenders.includes("nhl"), "nhl flagged");
 
   assert.deepEqual(unsupportedSportsInOfficialSections(null), []);
@@ -247,23 +251,23 @@ test("unsupportedSportsInBuildYourOwn flags non-modeled, ignores mixed-of-modele
 });
 
 // --- filterOfficialSuggestedSections (publicRiskSections "all"-bucket leak) --
-test("filterOfficialSuggestedSections drops mixed from every section incl 'all'", () => {
+test("filterOfficialSuggestedSections keeps mixed-of-modeled, drops only non-modeled", () => {
   // Mirrors publicRiskSections where the per-sport buckets include an "all"
   // union bucket that, on a mixed slate, carries mixed slips.
   const sections = {
     low: [nbaSlip, mlbSlip, mixedSlip], // 'all'-style union with a mixed slip
-    medium: [mixedSlip, nhlSlip], // mixed + unsupported only
+    medium: [mixedSlip, nhlSlip], // mixed-of-modeled + unsupported
     high: [mlbSlip],
     longshot: [],
   };
   const out = filterOfficialSuggestedSections(sections);
-  assert.deepEqual(out.low, [nbaSlip, mlbSlip]); // mixed dropped
-  assert.deepEqual(out.medium, []); // mixed + nhl both dropped
+  assert.deepEqual(out.low, [nbaSlip, mlbSlip, mixedSlip]); // mixed-of-modeled kept
+  assert.deepEqual(out.medium, [mixedSlip]); // nhl dropped, mixed kept
   assert.deepEqual(out.high, [mlbSlip]);
   assert.deepEqual(out.longshot, []);
   // section keys preserved
   assert.deepEqual(Object.keys(out).sort(), ["high", "longshot", "low", "medium"]);
-  // and the result has NO mixed/unsupported leak
+  // and the result has NO non-modeled leak
   assert.deepEqual(unsupportedSportsInOfficialSections(out), []);
 });
 
