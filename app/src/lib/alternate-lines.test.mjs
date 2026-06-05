@@ -9,6 +9,7 @@ import {
   validateAlternateLineRecord,
   classifyAlternateLineCompleteness,
   groupAlternateLinesByPlayerMarket,
+  classifyVsMainLine,
 } from "./alternate-lines.ts";
 
 test("americanToImplied handles favorites, underdogs, invalid", () => {
@@ -70,6 +71,14 @@ test("groupAlternateLinesByPlayerMarket builds sorted ladders", () => {
   assert.equal(Object.keys(g).length, 2);
   assert.deepEqual(g["123|batter_hits"].map((r) => r.alternateLine), [0.5, 1.5, 2.5]);
   assert.equal(g["999|batter_hits"].length, 1);
+});
+
+test("classifyVsMainLine: lower / same / higher / unknown", () => {
+  assert.equal(classifyVsMainLine(0.5, 1.5), "lower");
+  assert.equal(classifyVsMainLine(2.5, 1.5), "higher");
+  assert.equal(classifyVsMainLine(1.5, 1.5), "same");
+  assert.equal(classifyVsMainLine(1.5, null), "unknown");
+  assert.equal(classifyVsMainLine(1.5, undefined), "unknown");
 });
 
 test("group skips records without playerId/market; deterministic", () => {
