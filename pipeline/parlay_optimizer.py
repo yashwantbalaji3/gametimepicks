@@ -1479,6 +1479,12 @@ _SGP_PLAYER_EXPOSURE_PENALTY: float = 0.20
 _SGP_DUPLICATE_PAIR_PENALTY: float = 0.30
 #: Bonus per "fresh" market (not yet used by any chosen slip).
 _SGP_FRESH_MARKET_BONUS: float = 0.05
+#: Escalating penalty for MARKET concentration — mirrors the player-exposure
+#: penalty so deeper buckets (target raised 4→6) don't all cluster on the single
+#: highest-scored market. PR `feature/generation-curation-public-risk-depth`
+#: (2026-06-05). Diversity tiebreaker among already-eligible slips only; it never
+#: ships an ineligible slip (the least-negative fallback below still wins).
+_SGP_MARKET_EXPOSURE_PENALTY: float = 0.08
 
 
 def _select_diverse_sgp(
@@ -1532,7 +1538,19 @@ def _select_diverse_sgp(
         market_bonus = _SGP_FRESH_MARKET_BONUS * sum(
             1 for m in slip_markets if market_count.get(m, 0) == 0
         )
-        return slip.score - player_penalty - pair_penalty + market_bonus
+        # Escalating penalty for reusing an already-published market, scaled by
+        # the most-used market on this slip — spreads the (now deeper) slots
+        # across markets instead of repeating the top-scored one.
+        market_penalty = _SGP_MARKET_EXPOSURE_PENALTY * max(
+            (market_count.get(m, 0) for m in slip_markets), default=0
+        )
+        return (
+            slip.score
+            - player_penalty
+            - pair_penalty
+            - market_penalty
+            + market_bonus
+        )
 
     while remaining and len(chosen) < target:
         remaining.sort(key=_adjusted_score, reverse=True)
@@ -1689,10 +1707,15 @@ _PUBLIC_SECTION_MAX_LEGS_PER_GAME: int = 2
 #: selector picks `target_per_section` slips from this pool.
 _PUBLIC_SECTION_CANDIDATE_CEILING: int = 600
 
-#: Default visible-slip target per section per sport bucket. The user
-#: asked for 3-4 per section in the All view; we default to 4 so the
-#: UI has a small buffer when a sport tab filters tighter.
-PUBLIC_RISK_SECTION_TARGET_PER_BUCKET: int = 4
+#: Default visible-slip target per section per sport bucket. Raised 4→6
+#: (PR `feature/generation-curation-public-risk-depth`, 2026-06-05) so a
+#: supply-rich slate can surface a deeper, more diverse published set
+#: (e.g. ~10-15 MLB across sections after the display-layer diversity caps).
+#: This is a CURATION depth knob, not a scoring/projection change: the
+#: diversity selector still only re-orders already-eligible candidates and
+#: returns ONLY real slips (no padding — a thin section yields fewer). NBA
+#: stays supply-limited automatically (the selector returns what exists).
+PUBLIC_RISK_SECTION_TARGET_PER_BUCKET: int = 6
 
 
 def _combined_american_odds(legs: list[OptimizerLean]) -> float | None:
