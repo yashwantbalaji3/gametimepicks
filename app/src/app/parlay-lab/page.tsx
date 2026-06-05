@@ -348,7 +348,7 @@ function SlateStrip({
         className="text-[13px]"
         style={{ color: "var(--vault-text-mute)" }}
       >
-        {totalSlips} slip{totalSlips === 1 ? "" : "s"}
+        {totalSlips} generated combination{totalSlips === 1 ? "" : "s"}
       </span>
       {/* PR `feature/parlay-lab-active-slate-polish` (2026-05-29) —
          when the slate is mono-sport (one sport has 0 slips), the
