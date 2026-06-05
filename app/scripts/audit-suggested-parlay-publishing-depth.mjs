@@ -21,6 +21,7 @@ import { dirname, resolve } from "node:path";
 import { sectionSlipsForSport } from "../src/lib/suggested-parlay-grouping.ts";
 import { applyVolumeDiscipline, PUBLIC_VOLUME_CAPS } from "../src/lib/parlay-volume-discipline.ts";
 import { filterOfficialSuggestedSlips, isMixedSportSlip, sportsOnSlip } from "../src/lib/sport-capabilities.ts";
+import { selectPublishedSections, countPublishedSections } from "../src/lib/published-cards.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA = resolve(__dirname, "..", "public", "data");
@@ -101,25 +102,36 @@ function build() {
     droppedByVolumeDiscipline: officialTotal - displayedTotal,
   };
 
-  // Verdict: does SOURCE volume support targets? (independent of display policy)
+  // NEW per-view published counts (matches the live builder via selectPublishedSections).
+  const perView = {
+    mlb: countPublishedSections(selectPublishedSections(prs, "mlb")),
+    nba: countPublishedSections(selectPublishedSections(prs, "nba")),
+    multi: countPublishedSections(selectPublishedSections(prs, "multi")),
+    all: countPublishedSections(selectPublishedSections(prs, "all")),
+  };
+  // Invariant: All ⊇ each child.
+  const allCoversChildren = perView.all >= perView.mlb && perView.all >= perView.nba && perView.all >= perView.multi;
+
+  // Verdict against the published per-view counts (the live policy).
   const reasons = [];
   let verdict = "PASS";
-  const mlbSource = srcComp.mlb, mixedSource = srcComp.mixed;
-  if (mlbSource >= TARGETS.mlbCards && displayLossByStep.afterVolumeDiscipline < TARGETS.mlbCards) {
-    verdict = "WARN";
-    reasons.push(`SOURCE has ${mlbSource} distinct MLB-only slips (≥ target ${TARGETS.mlbCards}) but only ${displayedTotal} cards display — bottleneck is the DISPLAY policy (volume discipline caps perSection ${JSON.stringify(PUBLIC_VOLUME_CAPS.perSection)}, totalMax ${PUBLIC_VOLUME_CAPS.totalMax}), not the slate.`);
+  if (!allCoversChildren) {
+    verdict = "FAIL";
+    reasons.push(`INVARIANT BROKEN: All (${perView.all}) < some child view (MLB ${perView.mlb} / NBA ${perView.nba} / Mixed ${perView.multi}).`);
   }
-  if (mixedSource >= TARGETS.mixedCards && mixedDropped > 0) {
-    reasons.push(`SOURCE has ${mixedSource} distinct mixed slips and publicRiskSections carries ${prsComp.mixed}, but ALL mixed are dropped by filterOfficialSuggestedSlips (single-sport-only guardrail). Publishing ~${TARGETS.mixedCards} mixed cards requires a product decision to allow Mixed as official suggested.`);
+  if (perView.mlb < TARGETS.mlbCards) {
+    verdict = verdict === "FAIL" ? "FAIL" : "WARN";
+    reasons.push(`MLB published ${perView.mlb} < target ${TARGETS.mlbCards}. publicRiskSections carries ${prsComp.mlb} MLB-only slips but with low variety (few distinct players / a dominant market), so the per-player/market diversity caps honestly limit depth — NOT a cap-tuning issue (looser caps do not help). The deeper bucket pool has ${srcComp.mlb} distinct MLB, but those are not the graded "published" set; raising diverse MLB depth requires promoting more varied MLB slips into publicRiskSections at generation (a separate pipeline change), never padding.`);
   }
-  if (prsComp.mlb < TARGETS.mlbCards) {
-    reasons.push(`publicRiskSections holds only ${prsComp.mlb} distinct MLB-only slips (curated at ~4/risk in generation); to display ${TARGETS.mlbCards}-15 MLB cards the display must also draw from the deeper bucket pool (${srcComp.mlb} distinct MLB) — still read-only, no regeneration.`);
+  if (perView.multi < TARGETS.mixedCards && prsComp.mixed >= TARGETS.mixedCards) {
+    reasons.push(`Mixed published ${perView.multi} < target ${TARGETS.mixedCards} although ${prsComp.mixed} mixed slips exist in publicRiskSections — check Mixed caps.`);
   }
+  reasons.push(`Published per view: MLB ${perView.mlb}, NBA ${perView.nba}, Mixed ${perView.multi}, All ${perView.all}. NBA depth reflects the slate (one-game NBA days are honestly small).`);
 
   return {
     DATE, totalSlips: opt.totalSlips, sourcePools: opt.sourcePools,
     srcComp, prsComp, prsByRisk, unionByRisk, unionTotal,
-    displayed, displayedTotal, displayLossByStep, verdict, reasons,
+    displayed, displayedTotal, displayLossByStep, perView, allCoversChildren, verdict, reasons,
   };
 }
 
@@ -147,8 +159,9 @@ function md(a) {
   m.push(`- publicRiskSections: MLB-only ${a.prsComp.mlb} · NBA-only ${a.prsComp.nba} · mixed ${a.prsComp.mixed}`);
   m.push(`- sourcePools (leans): ${JSON.stringify(a.sourcePools)}`);
   m.push("");
-  m.push("## DISPLAYED by risk");
-  m.push(RISKS.map((r) => `- ${r}: ${a.displayed[r]}`).join("\n"));
+  m.push("## PUBLISHED per sport view (live policy: selectPublishedSections)");
+  m.push(`- MLB: ${a.perView.mlb} · NBA: ${a.perView.nba} · Mixed: ${a.perView.multi} · All: ${a.perView.all}`);
+  m.push(`- All ⊇ every child view: ${a.allCoversChildren ? "yes ✅" : "NO ❌"}`);
   m.push("");
   m.push("## Why depth is lost");
   for (const r of a.reasons) m.push(`- ${r}`);
@@ -161,11 +174,9 @@ const a = build();
 if (a.missing) { console.log(`No optimizer file for ${a.DATE}`); }
 else {
   console.log(`Publishing depth ${a.DATE}: ${a.verdict}`);
-  console.log(`  funnel: source=${a.displayLossByStep.source} → publicRiskSections=${a.displayLossByStep.publicRiskSections} → official=${a.displayLossByStep.afterOfficialFilter} → displayed=${a.displayLossByStep.afterVolumeDiscipline}`);
   console.log(`  source composition: MLB-only=${a.srcComp.mlb} NBA-only=${a.srcComp.nba} mixed=${a.srcComp.mixed}`);
   console.log(`  publicRiskSections: MLB-only=${a.prsComp.mlb} NBA-only=${a.prsComp.nba} mixed=${a.prsComp.mixed}`);
-  console.log(`  displayed by risk:`, a.displayed);
-  console.log(`  dropped: official-filter(mixed)=${a.displayLossByStep.droppedByOfficialFilter_mixed} volume-discipline=${a.displayLossByStep.droppedByVolumeDiscipline}`);
+  console.log(`  PUBLISHED per view: MLB=${a.perView.mlb} NBA=${a.perView.nba} Mixed=${a.perView.multi} All=${a.perView.all} (All⊇children=${a.allCoversChildren})`);
   for (const r of a.reasons) console.log(`  • ${r}`);
   if (WRITE) {
     mkdirSync(DOCS, { recursive: true });

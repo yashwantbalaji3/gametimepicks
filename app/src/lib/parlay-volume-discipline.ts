@@ -33,16 +33,45 @@ export interface VolumeCaps {
 }
 
 /**
- * Default caps. These are an editorial anti-overpublishing choice, not a
- * tuned number. Per-section sums to 9, which is also the total ceiling.
+ * Default caps for a single-sport (or the All) Suggested view. These are an
+ * editorial publishing-depth choice, not a tuned/performance number: they let a
+ * full slate publish a healthy set of cards (per-section sums to 15) while the
+ * per-player / per-market / per-game caps keep one entity from dominating the
+ * published set. Sections still empty out honestly rather than being padded.
  */
 export const PUBLIC_VOLUME_CAPS: VolumeCaps = {
-  perSection: { low: 3, medium: 3, high: 2, longshot: 1 },
-  totalMax: 9,
-  maxPlayerExposure: 2,
-  maxMarketExposure: 4,
-  maxGameExposure: 3,
+  perSection: { low: 5, medium: 5, high: 3, longshot: 2 },
+  totalMax: 15,
+  maxPlayerExposure: 3,
+  maxMarketExposure: 6,
+  maxGameExposure: 5,
 };
+
+/**
+ * Mixed (cross-sport) view caps. On a thin slate one sport may field only a
+ * game or two, so virtually EVERY mixed slip reuses those few games — a low
+ * game-exposure cap would collapse the Mixed section to a handful of cards even
+ * when many genuinely distinct mixed slips exist. We relax the game-exposure cap
+ * for Mixed (diversity is still enforced by the per-player cap) and keep
+ * per-section / total depth comparable to single-sport. No fabrication: it only
+ * ever keeps real generated slips.
+ */
+export const MIXED_VOLUME_CAPS: VolumeCaps = {
+  perSection: { low: 4, medium: 4, high: 3, longshot: 2 },
+  totalMax: 13,
+  maxPlayerExposure: 3,
+  maxMarketExposure: 8,
+  maxGameExposure: 13,
+};
+
+/**
+ * Caps for the active Suggested sport view. The "multi" (Mixed) view relaxes
+ * game exposure (see MIXED_VOLUME_CAPS); every other view (nba / mlb / all) uses
+ * PUBLIC_VOLUME_CAPS. Pure + deterministic.
+ */
+export function capsForSuggestedView(view: string | null | undefined): VolumeCaps {
+  return view === "multi" ? MIXED_VOLUME_CAPS : PUBLIC_VOLUME_CAPS;
+}
 
 interface DiscLeg {
   playerId?: number | null;

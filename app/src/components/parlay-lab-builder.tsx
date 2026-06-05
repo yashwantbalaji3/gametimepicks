@@ -83,10 +83,7 @@ import {
   BUILD_STATUS_CHIPS,
   type BuildType,
 } from "@/lib/build-a-parlay-config";
-import {
-  applyVolumeDiscipline,
-  PUBLIC_VOLUME_CAPS,
-} from "@/lib/parlay-volume-discipline";
+import { selectPublishedSections } from "@/lib/published-cards";
 import type { CalibrationTable } from "@/lib/confidence-calibration-rules";
 
 interface Props {
@@ -110,15 +107,17 @@ interface Props {
   embedded?: boolean;
 }
 
-// PR `feature/sport-specific-suggested` (2026-06-02): official Suggested
-// Parlays are INDIVIDUAL-SPORT only — no "Mixed" pill here. Mixed-sport slips
-// are reserved for Build Your Own (which has its own pickers and does not
-// render this toolbar). The "All" tab shows the union of single-sport official
-// slips (mixed cards are filtered out — see `filterOfficialSuggestedSlips`).
+// PR `feature/suggested-parlay-depth-and-mixed` (2026-06-05): Suggested Parlays
+// now include a clearly labeled "Mixed" tab — cross-sport cards built from real,
+// model-ranked legs of modeled sports (NBA + MLB today). Every leg is genuine
+// (never fabricated); a slip carrying any non-modeled sport is still excluded.
+// The "All" tab is the deduped union of the displayed NBA + MLB + Mixed cards
+// (see `selectPublishedSections`), so All is always ≥ each child tab.
 const ALL_SPORTS: Array<{ key: SuggestedSport; label: string; icon?: string }> = [
   { key: "all", label: "All" },
   { key: "nba", label: "NBA", icon: "🏀" },
   { key: "mlb", label: "MLB", icon: "⚾" },
+  { key: "multi", label: "Mixed", icon: "🔀" },
 ];
 
 /** UI-only sport bucket label for the lane header. Mirrors the
@@ -482,54 +481,43 @@ export default function ParlayLabBuilder({
   // sport tab. When the snapshot predates this PR (no
   // `publicRiskSections` key), this stays undefined and RiskSectionSpread
   // falls back to its client-side classifier over the visible slips.
-  const sportSections: Partial<Record<RiskSectionKey, ParlaySlip[]>> | undefined =
-    useMemo(() => {
-      const psr = optimizerPayload?.publicRiskSections;
-      if (!psr) return undefined;
-      const sportKey = (sport === "all" ? "all" : sport) as
-        | "all"
-        | "nba"
-        | "mlb"
-        | "multi";
-      const sectionKeys: RiskSectionKey[] = ["low", "medium", "high", "longshot"];
-      const out: Partial<Record<RiskSectionKey, ParlaySlip[]>> = {};
-      for (const key of sectionKeys) {
-        // "all" = union of the single-sport buckets (see browsablePool note).
-        const slipsForSection = sectionSlipsForSport(psr[key], sportKey);
-        // The Suggested mode also filters by team / player via the
-        // sport-aware Lab filters. When a team or player filter is
-        // active we drop server-bucketed sections and let the
-        // client-side classifier handle the user's narrowed pool —
-        // otherwise the publicRiskSections (which is sport-only) would
-        // show slips that ignore the user's team/player choice.
-        //
-        // Official Suggested is single-sport only: filter out any
-        // mixed-sport slip. This matters most for the "all" bucket, which
-        // is the union of every sport's slips and (on a mixed slate) would
-        // otherwise surface mixed cards under the "All" tab.
-        out[key] = filterOfficialSuggestedSlips(
-          slipsForSection.map((s) =>
-            optimizerSlipToParlaySlip(s, optimizerPayload!.date),
-          ),
-        );
-      }
-      return out;
-    }, [optimizerPayload, sport]);
-
-  // PR `feat/public-volume-discipline` (2026-06-02) — anti-overpublishing
-  // policy applied to the per-sport published set BEFORE team/player
-  // narrowing. Caps cards per section + total + per-player/market/game
-  // exposure. It does NOT use edgePct/confidence (the calibration audit
-  // found those non-/anti-predictive), does NOT reorder, and makes NO
-  // performance claim — it just shows fewer, less-repetitive cards and
-  // lets sections empty out (the honest empty-state copy renders) rather
-  // than padding. See docs/VOLUME_DISCIPLINE_2026-06-02.md.
+  // PR `feature/suggested-parlay-depth-and-mixed` (2026-06-05) — the published
+  // cards for the active sport view, selected by `selectPublishedSections`:
+  //   publicRiskSections[risk][sport]
+  //     → official filter (keeps modeled single AND mixed-of-modeled slips;
+  //        drops only non-modeled-sport slips — never fabricated)
+  //       → volume discipline (depth + per-player/market/game diversity caps;
+  //          Mixed relaxes game exposure since cross-sport slips share a thin
+  //          slate's games). No edge/confidence used, no reorder, no padding.
+  // The "all" view is the per-risk deduped UNION of the displayed nba+mlb+multi
+  // cards, so All is always ≥ each child tab and equals the on-screen union.
   const disciplinedSportSections = useMemo<
     Partial<Record<RiskSectionKey, ParlaySlip[]>> | undefined
   >(() => {
-    if (!sportSections) return undefined;
-    return applyVolumeDiscipline(sportSections, PUBLIC_VOLUME_CAPS).sections;
-  }, [sportSections]);
+    const psr = optimizerPayload?.publicRiskSections;
+    if (!psr) return undefined;
+    const view = (sport === "all" ? "all" : sport) as
+      | "all"
+      | "nba"
+      | "mlb"
+      | "multi";
+    // selectPublishedSections operates on the raw optimizer slips; convert the
+    // selected slips to the legacy ParlaySlip shape for rendering.
+    const selected = selectPublishedSections(
+      psr as Parameters<typeof selectPublishedSections>[0],
+      view,
+    );
+    const out: Partial<Record<RiskSectionKey, ParlaySlip[]>> = {};
+    for (const key of ["low", "medium", "high", "longshot"] as RiskSectionKey[]) {
+      out[key] = (selected[key] ?? []).map((s) =>
+        optimizerSlipToParlaySlip(
+          s as Parameters<typeof optimizerSlipToParlaySlip>[0],
+          optimizerPayload!.date,
+        ),
+      );
+    }
+    return out;
+  }, [optimizerPayload, sport]);
 
   // When team or player is active we must honor that filter — the
   // server-bucketed sections are sport-only, so apply the team/player
