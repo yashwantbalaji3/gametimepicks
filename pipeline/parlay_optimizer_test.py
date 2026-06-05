@@ -24,6 +24,7 @@ from pipeline.parlay_optimizer import (
     _combined_american_odds,
     _lean_from_payload,
     generate_public_risk_sections,
+    low_risk_leg_eligible,
     is_eligible,
     last_n_recent_values,
     leg_score,
@@ -1350,8 +1351,10 @@ class PublicRiskSectionTests(unittest.TestCase):
         # at least one Medium/High/Longshot slip honestly.
         pool = self._build_pool(n_mlb=30)
         out = generate_public_risk_sections(pool, date="2026-05-28")
-        # Low always fills with this pool size.
-        self.assertGreater(len(out["low"]["mlb"]), 0)
+        # LOW now requires trusted recent form (low_risk_leg_eligible). The
+        # default _build_pool legs carry no recentGames provenance, so LOW is
+        # correctly EMPTY (fail-closed) — higher sections are unaffected.
+        self.assertEqual(len(out["low"]["mlb"]), 0)
         # Higher sections may produce something if the pool is rich.
         # We assert at least Medium fills — it's the most permissive of
         # the >=3 leg sections.
@@ -1407,8 +1410,19 @@ class PublicRiskSectionDepthCurationTests(unittest.TestCase):
     re-orders already-eligible candidates and never pads."""
 
     def _rich_mlb_pool(self, *, n_players: int, markets: list[str]) -> list[OptimizerLean]:
-        """A supply-rich MLB pool: many distinct players across several
-        markets, low-odds so 2-leg slips land in the Low section."""
+        """A supply-rich MLB pool: many distinct players across several markets,
+        conservative odds so 2-leg slips land in Low. LOW-RISK-ELIGIBLE: every
+        leg carries trusted, non-stale recent form (10 recent games clearing the
+        line → 100% L10) and odds <= -150, so the new low_risk_leg_eligible gate
+        admits them. Slate date in these tests is 2026-06-05."""
+        # 10 recent games within 21 days of the 2026-06-05 slate, all clearing 0.5.
+        recent_games = [
+            {"date": d, "opponent": "OPP", "isHome": True, "value": 2.0}
+            for d in (
+                "2026-05-22", "2026-05-24", "2026-05-26", "2026-05-28", "2026-05-30",
+                "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05",
+            )
+        ]
         legs: list[OptimizerLean] = []
         for i in range(n_players):
             legs.append(normalize_lean(_mlb_lean(
@@ -1419,9 +1433,11 @@ class PublicRiskSectionDepthCurationTests(unittest.TestCase):
                 market=markets[i % len(markets)],
                 line=0.5,
                 edgePct=8.0,
-                oddsOver=-120,
-                oddsUnder=+110,
+                oddsOver=-160,  # <= -150 Low-Risk odds floor
+                oddsUnder=+140,
                 confidence="High",
+                recentSeries=[2.0] * 10,   # 10/10 clear line 0.5 → L10 100%
+                recentGames=recent_games,  # trusted, non-stale provenance
             )))
         return legs
 
@@ -1496,6 +1512,67 @@ class PublicRiskSectionDepthCurationTests(unittest.TestCase):
         self.assertTrue(hasattr(s, "legs") and len(s.legs) >= 2)
         self.assertTrue(hasattr(s, "score"))
         self.assertTrue(getattr(s, "slipId", None))
+
+
+class LowRiskLegEligibilityTests(unittest.TestCase):
+    """PR `fix/june5-risk-methodology-and-form` (2026-06-05) — Low Risk requires
+    trusted, non-stale recent form (>=80% L10) + a conservative price. Fail-closed
+    on missing/stale form. No projection/scoring/grading change."""
+
+    SLATE = "2026-06-05"
+    FRESH_GAMES = [  # 10 recent games within 21 days of the slate
+        {"date": d, "opponent": "OPP", "isHome": True, "value": 2.0}
+        for d in ("2026-05-22", "2026-05-24", "2026-05-26", "2026-05-28", "2026-05-30",
+                  "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05")
+    ]
+
+    def _leg(self, *, odds, series, line=0.5, side="Over", games=None):
+        return normalize_lean(_mlb_lean(
+            id="lrt", playerName="LR Tester", playerId=99001, market="batter_hits",
+            line=line, lean=side, side=side, oddsOver=odds, oddsUnder=-odds if odds else +120,
+            recentSeries=series, recentGames=games if games is not None else self.FRESH_GAMES,
+        ))
+
+    def test_plus_money_leg_never_low_even_with_great_form(self):
+        leg = self._leg(odds=+130, series=[2.0] * 10)  # 10/10 but +130 > +110
+        self.assertFalse(low_risk_leg_eligible(leg, self.SLATE))
+
+    def test_minus104_with_l10_below_80_not_low(self):
+        # -104 is within -150..+110 → needs >=90% L10; 7/10 fails.
+        leg = self._leg(odds=-104, series=[2, 2, 2, 2, 2, 2, 2, 0, 0, 0])
+        self.assertFalse(low_risk_leg_eligible(leg, self.SLATE))
+
+    def test_l10_5of10_not_low(self):
+        leg = self._leg(odds=-200, series=[2, 2, 2, 2, 2, 0, 0, 0, 0, 0])  # 5/10
+        self.assertFalse(low_risk_leg_eligible(leg, self.SLATE))
+
+    def test_heavy_favorite_l10_8of10_is_low(self):
+        leg = self._leg(odds=-200, series=[2, 2, 2, 2, 2, 2, 2, 2, 0, 0])  # 8/10
+        self.assertTrue(low_risk_leg_eligible(leg, self.SLATE))
+
+    def test_near_even_needs_90pct_l10(self):
+        ok = self._leg(odds=-104, series=[2, 2, 2, 2, 2, 2, 2, 2, 2, 0])   # 9/10 + near-even
+        self.assertTrue(low_risk_leg_eligible(ok, self.SLATE))
+
+    def test_missing_recent_series_fails_closed(self):
+        leg = self._leg(odds=-200, series=[])  # no form
+        self.assertFalse(low_risk_leg_eligible(leg, self.SLATE))
+
+    def test_missing_dated_provenance_defers_to_recentseries(self):
+        # MLB legs carry recentSeries but no dated recentGames. Staleness can't
+        # be checked, so trust defers to recentSeries (>=10) + L10 + odds. A
+        # strong 10/10 heavy-favorite leg with no provenance is still eligible.
+        leg = self._leg(odds=-200, series=[2.0] * 10, games=[])
+        self.assertTrue(low_risk_leg_eligible(leg, self.SLATE))
+        # ...but a weak / short series with no provenance still fails closed.
+        weak = self._leg(odds=-200, series=[2, 2, 0, 0, 0], games=[])  # <10 sample
+        self.assertFalse(low_risk_leg_eligible(weak, self.SLATE))
+
+    def test_stale_regular_season_form_fails_closed(self):
+        # Keldon-style: 10 games but latest is 54 days before the slate.
+        stale = [{"date": "2026-04-12", "opponent": "DEN", "isHome": True, "value": 18.0}] * 10
+        leg = self._leg(odds=-200, line=6.5, series=[18.0] * 10, games=stale)
+        self.assertFalse(low_risk_leg_eligible(leg, self.SLATE))
 
 
 if __name__ == "__main__":

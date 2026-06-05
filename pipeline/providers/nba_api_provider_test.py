@@ -120,5 +120,51 @@ class EndpointHistorySerializationTests(unittest.TestCase):
             self.assertNotIn("games", entry)
 
 
+class _FakeDF:
+    """Minimal pandas-like df: yields (idx, row-dict) from iterrows()."""
+    def __init__(self, rows):
+        self._rows = rows
+    def iterrows(self):
+        for i, r in enumerate(self._rows):
+            yield i, r
+
+
+class PlayerGameLogParseAndMergeTests(unittest.TestCase):
+    """PR `fix/june5-risk-methodology-and-form` — player game logs now merge
+    Regular Season + Playoffs and take the most-recent N, so postseason form
+    surfaces (the season_type bug)."""
+
+    def test_parse_rows_normalizes_date_and_matchup(self):
+        df = _FakeDF([
+            {"MATCHUP": "SAS vs. NYK", "GAME_DATE": "Jun 03, 2026", "MIN": 34, "PTS": 22, "REB": 4, "AST": 5},
+            {"MATCHUP": "SAS @ OKC", "GAME_DATE": "May 28, 2026", "MIN": 30, "PTS": 18, "REB": 6, "AST": 3},
+        ])
+        rows = nap._parse_player_gamelog_rows(df, player_id=1)
+        self.assertEqual(rows[0].game_date, "2026-06-03")
+        self.assertEqual(rows[0].home_away, "Home")
+        self.assertEqual(rows[0].opponent_abbr, "NYK")
+        self.assertEqual(rows[1].home_away, "Away")
+        self.assertEqual(rows[1].opponent_abbr, "OKC")
+
+    def test_merge_takes_most_recent_across_season_types(self):
+        # Playoffs (recent) + Regular Season (older) → most-recent-N are playoffs.
+        playoffs = nap._parse_player_gamelog_rows(_FakeDF([
+            {"MATCHUP": "SAS vs. NYK", "GAME_DATE": "Jun 03, 2026", "PTS": 20},
+            {"MATCHUP": "SAS @ OKC", "GAME_DATE": "May 30, 2026", "PTS": 18},
+        ]), player_id=1)
+        regular = nap._parse_player_gamelog_rows(_FakeDF([
+            {"MATCHUP": "SAS vs. DEN", "GAME_DATE": "Apr 12, 2026", "PTS": 18},
+            {"MATCHUP": "SAS vs. DAL", "GAME_DATE": "Apr 10, 2026", "PTS": 17},
+        ]), player_id=1)
+        merged = playoffs + regular
+        merged.sort(key=lambda g: g.game_date or "", reverse=True)
+        top = merged[:2]
+        self.assertEqual([g.game_date for g in top], ["2026-06-03", "2026-05-30"])
+        self.assertTrue(all(g.game_date >= "2026-05-01" for g in top), "playoff games surface, not April regular season")
+
+    def test_parse_handles_non_df_gracefully(self):
+        self.assertEqual(nap._parse_player_gamelog_rows(None, player_id=1), [])
+
+
 if __name__ == "__main__":
     unittest.main()
