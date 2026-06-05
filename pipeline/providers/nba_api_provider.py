@@ -61,6 +61,39 @@ def _cache_put(key: str, data: object) -> None:
     }))
 
 
+def _parse_player_gamelog_rows(df, player_id: int) -> list[GameLog]:
+    """Parse an nba_api PlayerGameLog dataframe into GameLog rows. Pure parsing
+    helper shared across season types (Regular Season + Playoffs) so the
+    most-recent-N merge in fetch_player_game_logs has one consistent shape."""
+    rows: list[GameLog] = []
+    try:
+        iterator = df.iterrows()
+    except AttributeError:
+        return rows
+    for _, r in iterator:
+        # MATCHUP looks like "GSW @ DAL" or "GSW vs. DAL"
+        matchup = str(r.get("MATCHUP", ""))
+        home_away = "Home" if "vs." in matchup else "Away"
+        opp = matchup.split()[-1] if matchup else ""
+        game_date = str(r.get("GAME_DATE", ""))
+        # nba_api returns "MMM DD, YYYY" — normalize to YYYY-MM-DD
+        try:
+            iso_date = datetime.strptime(game_date, "%b %d, %Y").strftime("%Y-%m-%d")
+        except ValueError:
+            iso_date = game_date
+        rows.append(GameLog(
+            player_id=int(player_id),
+            game_date=iso_date,
+            opponent_abbr=opp,
+            home_away=home_away,
+            minutes=float(r.get("MIN") or 0),
+            pts=int(r.get("PTS") or 0),
+            reb=int(r.get("REB") or 0),
+            ast=int(r.get("AST") or 0),
+        ))
+    return rows
+
+
 # ---------------------------------------------------------------------------
 # Provider
 # ---------------------------------------------------------------------------
@@ -381,36 +414,29 @@ class NbaApiProvider(NBADataProvider):
 
         try:
             from nba_api.stats.endpoints import playergamelog
-            log = playergamelog.PlayerGameLog(
-                player_id=player_id,
-                season_type_all_star="Regular Season",
-                timeout=C.HTTP_TIMEOUT_SECONDS,
-            )
-            df = log.player_game_log.get_data_frame()
-            df = df.head(last_n)
-
-            logs: list[GameLog] = []
-            for _, r in df.iterrows():
-                # MATCHUP looks like "GSW @ DAL" or "GSW vs. DAL"
-                matchup = str(r.get("MATCHUP", ""))
-                home_away = "Home" if "vs." in matchup else "Away"
-                opp = matchup.split()[-1] if matchup else ""
-                game_date = str(r.get("GAME_DATE", ""))
-                # nba_api returns "MMM DD, YYYY" — normalize to YYYY-MM-DD
+            # Fetch BOTH Regular Season AND Playoffs, then take the most-recent
+            # N across both. Hardcoding "Regular Season" froze "recent form" at
+            # the final regular-season games during the postseason (the player's
+            # actual recent playoff games were never surfaced — see
+            # docs/audits/nba-recent-form-source-audit-2026-06-05.md). Playoffs
+            # returns empty outside the postseason, so this is a no-op then.
+            collected: list[GameLog] = []
+            for season_type in ("Playoffs", "Regular Season"):
                 try:
-                    iso_date = datetime.strptime(game_date, "%b %d, %Y").strftime("%Y-%m-%d")
-                except ValueError:
-                    iso_date = game_date
-                logs.append(GameLog(
-                    player_id=int(player_id),
-                    game_date=iso_date,
-                    opponent_abbr=opp,
-                    home_away=home_away,
-                    minutes=float(r.get("MIN") or 0),
-                    pts=int(r.get("PTS") or 0),
-                    reb=int(r.get("REB") or 0),
-                    ast=int(r.get("AST") or 0),
-                ))
+                    log = playergamelog.PlayerGameLog(
+                        player_id=player_id,
+                        season_type_all_star=season_type,
+                        timeout=C.HTTP_TIMEOUT_SECONDS,
+                    )
+                    df = log.player_game_log.get_data_frame()
+                except Exception:
+                    # A single season-type query failing (e.g. no playoff games
+                    # yet) must not lose the other; skip it honestly.
+                    continue
+                collected.extend(_parse_player_gamelog_rows(df, player_id))
+            # Most-recent N across both season types (ISO dates sort lexically).
+            collected.sort(key=lambda g: g.game_date or "", reverse=True)
+            logs = collected[:last_n]
 
             _cache_put(cache_key, [vars(g) for g in logs])
             self._mark_ok()
