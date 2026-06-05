@@ -93,6 +93,20 @@ export function classifyAlternateLineCompleteness(rec: Partial<AlternateLineReco
   return "partial";
 }
 
+export type VsMainLine = "lower" | "same" | "higher" | "unknown";
+
+/** Classify an alternate line relative to the player's main line. Neutral: a
+ *  lower line is "lower" (higher de-vigged probability / lower payout) — never
+ *  "safe". Returns "unknown" if the main line is not numeric. */
+export function classifyVsMainLine(altLine: number, mainLine: number | null | undefined): VsMainLine {
+  if (typeof mainLine !== "number" || !Number.isFinite(mainLine) || typeof altLine !== "number" || !Number.isFinite(altLine)) {
+    return "unknown";
+  }
+  if (altLine < mainLine) return "lower";
+  if (altLine > mainLine) return "higher";
+  return "same";
+}
+
 /** Group alternate-line records into per-(playerId|market) ladders, each sorted
  *  ascending by alternateLine. Deterministic. */
 export function groupAlternateLinesByPlayerMarket(
