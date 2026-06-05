@@ -327,7 +327,7 @@ export function getEmptySectionReason(
 ): string {
   const d = SECTION_DISPLAY[sectionKey];
   const base =
-    `No qualifying ${d.legRange} parlays after sport, variety, and volume ` +
+    `No qualifying ${d.legRange} cards after sport, variety, and volume ` +
     `filters. Sections are not padded.`;
   return hasActiveFilter
     ? `${base} Clearing the active filter may surface more.`

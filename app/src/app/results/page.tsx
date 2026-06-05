@@ -300,6 +300,13 @@ export default function ResultsPage() {
                 public risk sections + sport mix
               </span>
             </header>
+            <p
+              className="font-mono leading-snug m-0"
+              style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
+            >
+              These breakdowns reflect the published cards shown on the slate. The
+              lifetime record above reflects the full generated optimizer pool.
+            </p>
             <div id="risk-sections" style={{ scrollMarginTop: 80 }}>
               <RiskSectionResultsTable breakdown={riskBreakdown} />
             </div>

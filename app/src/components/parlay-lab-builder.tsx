@@ -1135,13 +1135,19 @@ function FilterSummaryLine({
         <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
           {count}
         </span>{" "}
-        {count === 1 ? "parlay" : "parlays"}
+        {count === 1 ? "published card" : "published cards"}
         {context ? (
           <>
             {" "}
             · <span style={{ color: "var(--vault-text)" }}>{context}</span>
           </>
         ) : null}
+      </p>
+      <p
+        className="text-[11.5px] leading-snug"
+        style={{ color: "var(--vault-text-faint)" }}
+      >
+        Published cards are a curated subset of the generated pool.
       </p>
       {hint ? (
         <p
