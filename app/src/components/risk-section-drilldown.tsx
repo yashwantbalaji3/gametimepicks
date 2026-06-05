@@ -91,7 +91,7 @@ export default function RiskSectionDrilldown({
           className="font-mono uppercase tracking-[0.16em]"
           style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
         >
-          Settled risk-section slips
+          Settled published cards
         </span>
         {contextLabel && (
           <span

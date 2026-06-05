@@ -35,26 +35,20 @@ export interface ResultsHeroProps {
   /** The newest settled slate date (`YYYY-MM-DD`). Null when no slate
    *  has settled in the public era yet. */
   settledDate: string | null;
-  /** Lifetime breakdown from the optimizer summary. Null when the
-   *  summary file is missing. */
+  /** Lifetime breakdown from the optimizer summary (the GENERATED POOL —
+   *  the full deduped optimizer-graded universe). Null when missing. */
   lifetime: OptimizerSummaryBucket | null | undefined;
+  /** Lifetime record of the PUBLISHED CARDS users actually saw on Suggested
+   *  Parlays (summed from `byPublicSection.lifetime`). Null when missing. */
+  publishedLifetime?: OptimizerSummaryBucket | null | undefined;
 }
 
 export default function ResultsHero({
   settledDate,
   lifetime,
+  publishedLifetime,
 }: ResultsHeroProps) {
   const settledLabel = settledDate ? formatDateLabel(settledDate) : null;
-  const hitRateLabel =
-    lifetime && lifetime.decisive > 0 && lifetime.hitRate != null
-      ? `${(lifetime.hitRate * 100).toFixed(1)}%`
-      : "—";
-  const wl =
-    lifetime && (lifetime.wins > 0 || lifetime.losses > 0)
-      ? `${lifetime.wins} W · ${lifetime.losses} L`
-      : null;
-  const pending =
-    lifetime && lifetime.pending > 0 ? `${lifetime.pending} pending` : null;
   return (
     <header
       aria-label="Results header"
@@ -96,56 +90,103 @@ export default function ResultsHero({
         </p>
       </div>
 
+      {/* PR `feature/results-ux-published-vs-generated` (2026-06-05) — two
+         clearly separated lifetime records so users don't read the broad
+         generated-pool number as the cards they saw. Published-cards record is
+         the curated cards shown on Suggested Parlays; the generated pool is the
+         full model output tracked separately. Neutral copy; no edge claim. */}
       <div
-        aria-label="Lifetime public parlay record"
-        className="flex flex-wrap items-baseline gap-x-4 gap-y-1 rounded-[8px] px-3 py-2"
-        style={{
-          background: "var(--gtp-card)",
-          border: "1px solid var(--vault-rule)",
-        }}
+        aria-label="Lifetime records"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-2"
       >
-        <span
-          className="font-mono uppercase tracking-[0.14em]"
-          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-        >
-          Lifetime · public era
-        </span>
-        <span
-          className="font-display tabular"
-          style={{
-            color: "var(--vault-text)",
-            fontSize: 18,
-            fontWeight: 600,
-          }}
-        >
-          {hitRateLabel}
-        </span>
-        {wl && (
-          <span
-            className="font-mono"
-            style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
-          >
-            · {wl}
-          </span>
-        )}
-        {lifetime && lifetime.decisive > 0 && (
-          <span
-            className="font-mono"
-            style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
-          >
-            · {lifetime.decisive} decisive
-          </span>
-        )}
-        {pending && (
-          <span
-            className="font-mono"
-            style={{ color: "var(--vault-text-faint)", fontSize: 12 }}
-          >
-            · {pending}
-          </span>
-        )}
+        <RecordCard
+          label="Published cards · lifetime"
+          record={publishedLifetime}
+          emphasis
+        />
+        <RecordCard label="Generated pool · lifetime" record={lifetime} />
       </div>
+      <p
+        className="font-mono leading-snug m-0"
+        style={{ color: "var(--vault-text-faint)", fontSize: 11, maxWidth: 620 }}
+      >
+        Published cards are the curated cards shown on Suggested Parlays before
+        games. The generated pool is the broader model output tracked separately.
+        Hit rate counts finished cards only; pending and pushes are separate.
+      </p>
     </header>
+  );
+}
+
+/** One lifetime record chip (W·L · hit rate · decisive · pending). Renders a
+ *  stable shape; "—" when there is no decisive record yet. Never fabricates. */
+function RecordCard({
+  label,
+  record,
+  emphasis = false,
+}: {
+  label: string;
+  record: OptimizerSummaryBucket | null | undefined;
+  emphasis?: boolean;
+}) {
+  const hitRateLabel =
+    record && record.decisive > 0 && record.hitRate != null
+      ? `${(record.hitRate * 100).toFixed(1)}%`
+      : "—";
+  const wl =
+    record && (record.wins > 0 || record.losses > 0)
+      ? `${record.wins} W · ${record.losses} L`
+      : null;
+  const pending =
+    record && record.pending > 0 ? `${record.pending} pending` : null;
+  return (
+    <div
+      aria-label={label}
+      className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-[8px] px-3 py-2"
+      style={{
+        background: "var(--gtp-card)",
+        border: emphasis
+          ? "1px solid var(--vault-gold-bright)"
+          : "1px solid var(--vault-rule)",
+      }}
+    >
+      <span
+        className="font-mono uppercase tracking-[0.14em] w-full"
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+      >
+        {label}
+      </span>
+      <span
+        className="font-display tabular"
+        style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 600 }}
+      >
+        {hitRateLabel}
+      </span>
+      {wl && (
+        <span
+          className="font-mono"
+          style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+        >
+          · {wl}
+        </span>
+      )}
+      {record && record.decisive > 0 && (
+        <span
+          className="font-mono"
+          style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+        >
+          · {record.decisive} decisive
+        </span>
+      )}
+      {pending && (
+        <span
+          className="font-mono"
+          style={{ color: "var(--vault-text-faint)", fontSize: 12 }}
+        >
+          · {pending}
+        </span>
+      )}
+    </div>
   );
 }
 

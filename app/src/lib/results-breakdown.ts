@@ -187,6 +187,49 @@ export function summarizeBySportBucket(
   return out;
 }
 
+/** A settled record (W/L/P/pending + decisive + hit rate). Mirrors the
+ *  optimizer-summary bucket shape so the Results hero can show two clearly
+ *  separated lifetime records: published cards vs the generated pool. */
+export interface SettledRecord {
+  wins: number;
+  losses: number;
+  pushes: number;
+  pending: number;
+  decisive: number;
+  hitRate: number | null;
+}
+
+/**
+ * Aggregate a per-section / per-bucket map (each value a record with
+ * wins/losses/pushes/pending) into ONE record. Used to turn
+ * `byPublicSection.lifetime` (low/medium/high/longshot) or
+ * `byPublicSection.byDate[date]` into the single "published cards" record. Pure;
+ * never fabricates — sums only what is present. hitRate = wins / (wins+losses).
+ */
+export function summarizePublishedRecord(
+  sectionMap:
+    | Record<string, { wins?: number; losses?: number; pushes?: number; pending?: number }>
+    | null
+    | undefined,
+): SettledRecord {
+  const acc = { wins: 0, losses: 0, pushes: 0, pending: 0 };
+  if (sectionMap) {
+    for (const r of Object.values(sectionMap)) {
+      if (!r) continue;
+      acc.wins += r.wins ?? 0;
+      acc.losses += r.losses ?? 0;
+      acc.pushes += r.pushes ?? 0;
+      acc.pending += r.pending ?? 0;
+    }
+  }
+  const decisive = acc.wins + acc.losses;
+  return {
+    ...acc,
+    decisive,
+    hitRate: decisive > 0 ? acc.wins / decisive : null,
+  };
+}
+
 /** Format a hit rate row for display. Always returns a stable
  *  shape; the UI decides whether to render "—" for the rate when
  *  decisive is 0. */
