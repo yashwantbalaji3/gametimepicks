@@ -48,7 +48,7 @@ export default function SportMixResultsTable({
           className="font-mono uppercase tracking-[0.16em]"
           style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
         >
-          Sport-mix breakdown
+          Published cards by sport mix
         </span>
         {contextLabel && (
           <span

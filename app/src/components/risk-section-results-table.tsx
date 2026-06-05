@@ -50,7 +50,7 @@ export default function RiskSectionResultsTable({
           className="font-mono uppercase tracking-[0.16em]"
           style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
         >
-          Risk-section breakdown
+          Published cards by risk
         </span>
         {contextLabel && (
           <span

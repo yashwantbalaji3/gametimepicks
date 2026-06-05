@@ -64,6 +64,7 @@ import {
 import {
   summarizeByRiskSection,
   summarizeBySportBucket,
+  summarizePublishedRecord,
 } from "@/lib/results-breakdown";
 import { buildLearningSignalRows } from "@/lib/learning-signals";
 import { buildRiskSectionDrilldown } from "@/lib/results-drilldown";
@@ -151,6 +152,11 @@ export default function ResultsPage() {
       <ResultsHero
         settledDate={dateSections[0]?.date ?? null}
         lifetime={summary?.lifetime ?? null}
+        publishedLifetime={
+          summary?.byPublicSection?.lifetime
+            ? summarizePublishedRecord(summary.byPublicSection.lifetime)
+            : null
+        }
       />
 
       {/* PR `fix/today-results-flow-clarity` (2026-05-29) — when an
@@ -297,32 +303,32 @@ export default function ResultsPage() {
                 className="font-mono"
                 style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
               >
-                public risk sections + sport mix
+                published cards — by risk and by sport mix
               </span>
             </header>
             <p
               className="font-mono leading-snug m-0"
               style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
             >
-              These breakdowns reflect the published cards shown on the slate. The
-              lifetime record above reflects the full generated optimizer pool.
+              The breakdowns below count the published cards shown on Suggested
+              Parlays for this slate. The generated pool record (broader model
+              output) is in the second card at the top.
             </p>
             <div id="risk-sections" style={{ scrollMarginTop: 80 }}>
               <RiskSectionResultsTable breakdown={riskBreakdown} />
             </div>
             <div id="sport-mix" style={{ scrollMarginTop: 80 }}>
               <SportMixResultsTable breakdown={sportBreakdown} />
-              {/* PR `feature/sport-specific-suggested` (2026-06-02) — official
-                  Suggested Parlays are now single-sport only. The "Mixed" row
-                  here is the historical/generated graded record; it is not a
-                  card type the live Suggested surface offers anymore. */}
+              {/* PR `feature/results-ux-published-vs-generated` (2026-06-05) —
+                  #278 added a Mixed Suggested tab, so Mixed is now a published
+                  card type. The Mixed row reflects published cross-sport
+                  (NBA + MLB) cards; it reads zero when none settled on a slate. */}
               <p
                 className="px-1 pt-2 text-[11px] leading-snug"
                 style={{ color: "var(--vault-text-faint)" }}
               >
-                Mixed reflects the historical generated/graded record. Official
-                Suggested Parlays are now single-sport only; cross-sport slips
-                live in Build Your Own.
+                Mixed = published cross-sport (NBA + MLB) cards. When no Mixed
+                cards settled on this slate, the row reads zero.
               </p>
             </div>
             <div id="slip-details" style={{ scrollMarginTop: 80 }}>

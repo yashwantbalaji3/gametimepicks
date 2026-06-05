@@ -15,7 +15,33 @@ import {
   formatHitRateLabel,
   summarizeByRiskSection,
   summarizeBySportBucket,
+  summarizePublishedRecord,
 } from "./results-breakdown.ts";
+
+test("summarizePublishedRecord sums sections; hitRate excludes pushes+pending", () => {
+  const r = summarizePublishedRecord({
+    low: { wins: 3, losses: 1, pushes: 0, pending: 0 },
+    medium: { wins: 1, losses: 3, pushes: 0, pending: 0 },
+    high: { wins: 0, losses: 4, pushes: 1, pending: 2 },
+    longshot: { wins: 0, losses: 0, pushes: 0, pending: 0 },
+  });
+  assert.equal(r.wins, 4);
+  assert.equal(r.losses, 8);
+  assert.equal(r.pushes, 1);
+  assert.equal(r.pending, 2);
+  assert.equal(r.decisive, 12); // wins+losses only
+  assert.ok(Math.abs(r.hitRate - 4 / 12) < 1e-9);
+});
+
+test("summarizePublishedRecord: empty / null → zeroed record, hitRate null (no fabrication)", () => {
+  for (const input of [null, undefined, {}]) {
+    const r = summarizePublishedRecord(input);
+    assert.deepEqual(
+      { w: r.wins, l: r.losses, p: r.pushes, pend: r.pending, d: r.decisive, hr: r.hitRate },
+      { w: 0, l: 0, p: 0, pend: 0, d: 0, hr: null },
+    );
+  }
+});
 
 function _mkSlip({ status, sports = ["mlb"], odds = [-110, -110] }) {
   const legs = odds.map((o, i) => ({
