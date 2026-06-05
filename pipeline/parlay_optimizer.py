@@ -51,6 +51,7 @@ Honest framing:
 from __future__ import annotations
 
 import hashlib
+from datetime import datetime
 from dataclasses import dataclass, field, asdict
 from typing import Any, Iterable
 
@@ -2039,6 +2040,94 @@ def _public_rationale(legs: list[OptimizerLean], section_key: str) -> str:
     )
 
 
+# --- Low-Risk per-leg eligibility (methodology guard, future-slate) ---------
+# A leg may anchor a LOW-risk public card only with strong, TRUSTED, non-stale
+# recent form AND a conservative price. This is a CURATION/classification guard
+# — NOT a projection/scoring/grading change: it only restricts which legs feed
+# the LOW section's candidate pool. Higher-variance legs still flow to Medium /
+# High / Longshot unchanged. Fail-closed on missing/stale form. No padding: if
+# few legs qualify, Low simply has fewer real cards.
+# PR `fix/june5-risk-methodology-and-form` (2026-06-05).
+_LOW_RISK_MIN_L10_HITRATE: float = 0.80      # >= 80% (8/10) last-10 for the chosen side
+_LOW_RISK_STRICT_L10_HITRATE: float = 0.90   # >= 90% for the near-even-price exception
+_LOW_RISK_ODDS_FLOOR: int = -150             # default: heavier favorite than -150
+_LOW_RISK_EXCEPTION_ODDS_MAX: int = 110      # near-even allowed ONLY with the strict L10
+_LOW_RISK_MAX_FORM_STALE_DAYS: int = 21      # latest recent game must be within N days of slate
+
+
+def _l10_hit_rate(leg: OptimizerLean) -> float | None:
+    """Strict last-10 hit rate for the leg's chosen side vs its line, from
+    ``recentSeries``. Returns None (fail-closed) when the line is unknown, the
+    side is not Over/Under, or fewer than 10 values exist. Pushes (value == line)
+    are excluded from the denominator."""
+    series = list(leg.recentSeries or ())
+    line = leg.line
+    side = (leg.side or "").lower()
+    if line is None or len(series) < 10 or side not in ("over", "under"):
+        return None
+    window = series[-10:]
+    decided = 0
+    hits = 0
+    for v in window:
+        if v == line:
+            continue  # push — excluded from denominator
+        decided += 1
+        if (v > line) if side == "over" else (v < line):
+            hits += 1
+    if decided == 0:
+        return None
+    return hits / decided
+
+
+def _form_is_stale(leg: OptimizerLean, date: str | None) -> bool:
+    """True when the leg's DATED recent-game provenance shows the most-recent
+    game is too old relative to the slate (e.g., NBA regular-season logs
+    surfaced during the playoffs — the season_type provider bug). When
+    ``recentGames`` dated provenance is ABSENT (e.g. MLB legs carry only
+    ``recentSeries`` values from a reliable daily source), staleness cannot be
+    determined here; we return False and let the ``recentSeries`` >= 10 + L10
+    checks in ``low_risk_leg_eligible`` govern trust instead. A malformed date
+    is treated as stale (fail-closed)."""
+    games = list(leg.recentGames or ())
+    if not games:
+        return False  # no dated provenance → defer to recentSeries checks
+    if not date:
+        return True
+    try:
+        latest = max(str(g.get("date") or "") for g in games)
+        if not latest:
+            return True
+        d_latest = datetime.strptime(latest, "%Y-%m-%d")
+        d_slate = datetime.strptime(date, "%Y-%m-%d")
+    except (ValueError, TypeError):
+        return True
+    return (d_slate - d_latest).days > _LOW_RISK_MAX_FORM_STALE_DAYS
+
+
+def low_risk_leg_eligible(leg: OptimizerLean, date: str | None) -> bool:
+    """Whether a leg may appear in a LOW-risk public card. Requires a supported
+    Over/Under prop with a known line, TRUSTED non-stale recent form, last-10
+    hit rate >= 80% (>= 90% for a near-even price), and a conservative price:
+    odds <= -150, OR between -150 and +110 with the stricter 90% L10. Plus-money
+    beyond +110 is never Low. Pure; restricts only the LOW pool."""
+    side = (leg.side or "").lower()
+    if side not in ("over", "under") or leg.line is None:
+        return False
+    if _form_is_stale(leg, date):
+        return False
+    hr = _l10_hit_rate(leg)
+    if hr is None or hr < _LOW_RISK_MIN_L10_HITRATE:
+        return False
+    odds = leg.oddsForSide
+    if odds is None:
+        return False
+    if odds <= _LOW_RISK_ODDS_FLOOR:
+        return True  # heavier favorite than -150 + >=80% L10
+    if odds <= _LOW_RISK_EXCEPTION_ODDS_MAX and hr >= _LOW_RISK_STRICT_L10_HITRATE:
+        return True  # near-even (-150..+110) allowed ONLY with >=90% L10
+    return False
+
+
 def generate_public_risk_sections(
     leg_pool_raw: Iterable[dict[str, Any]] | Iterable[OptimizerLean],
     *,
@@ -2082,10 +2171,21 @@ def generate_public_risk_sections(
             "all": [], "nba": [], "mlb": [], "multi": [],
         }
 
+        # LOW risk uses a stricter leg pool (trusted recent form + >=80% L10 +
+        # conservative price — see low_risk_leg_eligible). Medium/High/Longshot
+        # keep the full pool so higher-variance legs remain available. No
+        # padding: a thin eligible pool simply yields fewer Low cards.
+        if section_key == "low":
+            sec_all = [l for l in normed if low_risk_leg_eligible(l, date)]
+            sec_nba = [l for l in nba_pool if low_risk_leg_eligible(l, date)]
+            sec_mlb = [l for l in mlb_pool if low_risk_leg_eligible(l, date)]
+        else:
+            sec_all, sec_nba, sec_mlb = normed, nba_pool, mlb_pool
+
         # Combined pool → feeds the "all" tab and surfaces the natural
         # mix of sport-pure and cross-sport slips.
         combined_candidates = _build_section_slips_for_pool(
-            normed,
+            sec_all,
             spec=spec,
             section_key=section_key,
             date=date,
@@ -2102,9 +2202,9 @@ def generate_public_risk_sections(
         # Sport-pure buckets are generated from sport-restricted pools so
         # the NBA / MLB tabs aren't starved by combined-pool diversity
         # preferring cross-sport candidates.
-        if len(nba_pool) >= spec["min_legs"]:
+        if len(sec_nba) >= spec["min_legs"]:
             nba_cands = _build_section_slips_for_pool(
-                nba_pool,
+                sec_nba,
                 spec=spec,
                 section_key=section_key,
                 date=date,
@@ -2112,9 +2212,9 @@ def generate_public_risk_sections(
             )
             nba_cands.sort(key=lambda s: s.score, reverse=True)
             by_sport["nba"] = _select_diverse_sgp(nba_cands, target_per_bucket)
-        if len(mlb_pool) >= spec["min_legs"]:
+        if len(sec_mlb) >= spec["min_legs"]:
             mlb_cands = _build_section_slips_for_pool(
-                mlb_pool,
+                sec_mlb,
                 spec=spec,
                 section_key=section_key,
                 date=date,
