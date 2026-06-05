@@ -1401,5 +1401,102 @@ class PublicRiskSectionTests(unittest.TestCase):
         self.assertEqual(out["longshot"]["nba"], [])
 
 
+class PublicRiskSectionDepthCurationTests(unittest.TestCase):
+    """PR `feature/generation-curation-public-risk-depth` (2026-06-05) —
+    deeper + more market-diverse publicRiskSections. The selector still only
+    re-orders already-eligible candidates and never pads."""
+
+    def _rich_mlb_pool(self, *, n_players: int, markets: list[str]) -> list[OptimizerLean]:
+        """A supply-rich MLB pool: many distinct players across several
+        markets, low-odds so 2-leg slips land in the Low section."""
+        legs: list[OptimizerLean] = []
+        for i in range(n_players):
+            legs.append(normalize_lean(_mlb_lean(
+                id=f"rich_{i}",
+                playerName=f"Rich MLB {i}",
+                playerId=30000 + i,
+                gameId=f"rich_g{i // 2}",  # 2 players per game
+                market=markets[i % len(markets)],
+                line=0.5,
+                edgePct=8.0,
+                oddsOver=-120,
+                oddsUnder=+110,
+                confidence="High",
+            )))
+        return legs
+
+    def test_target_raised_allows_more_than_four_when_supply_exists(self):
+        # Rich supply (16 players, 4 markets) → Low MLB bucket should exceed the
+        # old cap of 4 (target is now 6).
+        pool = self._rich_mlb_pool(
+            n_players=16,
+            markets=["batter_hits", "batter_total_bases", "batter_hits_runs_rbis", "batter_runs_scored"],
+        )
+        out = generate_public_risk_sections(pool, date="2026-06-05")
+        low_mlb = out["low"]["mlb"]
+        self.assertGreater(len(low_mlb), 4, "deeper target should surface >4 when supply exists")
+        self.assertLessEqual(len(low_mlb), 6, "must never exceed target_per_bucket")
+
+    def test_no_duplicate_slip_ids_in_any_bucket(self):
+        pool = self._rich_mlb_pool(
+            n_players=16,
+            markets=["batter_hits", "batter_total_bases", "batter_hits_runs_rbis", "batter_runs_scored"],
+        )
+        out = generate_public_risk_sections(pool, date="2026-06-05")
+        for by_sport in out.values():
+            for slips in by_sport.values():
+                ids = [s.slipId for s in slips if getattr(s, "slipId", None)]
+                self.assertEqual(len(ids), len(set(ids)), "no duplicate slip IDs")
+
+    def test_market_diversity_spread_across_deeper_bucket(self):
+        # With 4 markets available, the deeper Low MLB bucket should span MORE
+        # than one distinct market (the escalating market-concentration penalty
+        # stops a single market dominating all slots).
+        pool = self._rich_mlb_pool(
+            n_players=16,
+            markets=["batter_hits", "batter_total_bases", "batter_hits_runs_rbis", "batter_runs_scored"],
+        )
+        out = generate_public_risk_sections(pool, date="2026-06-05")
+        low_mlb = out["low"]["mlb"]
+        markets = {l.market for s in low_mlb for l in s.legs}
+        self.assertGreaterEqual(
+            len(markets), 2, "deeper bucket should span multiple markets, not cluster on one",
+        )
+
+    def test_no_padding_when_supply_is_short(self):
+        # Only 2 players → at most 1 two-leg slip; never padded up to target.
+        pool = self._rich_mlb_pool(n_players=2, markets=["batter_hits"])
+        out = generate_public_risk_sections(pool, date="2026-06-05")
+        self.assertLessEqual(len(out["low"]["mlb"]), 1)
+
+    def test_only_modeled_sports_in_published_slips(self):
+        # NBA + MLB both supplied → every published leg is a modeled sport.
+        pool = self._rich_mlb_pool(
+            n_players=8, markets=["batter_hits", "batter_total_bases"],
+        )
+        for i in range(8):
+            pool.append(normalize_lean(_nba_lean(
+                id=f"mix_nba_{i}", playerName=f"Mix NBA {i}", playerId=40000 + i,
+                gameId="mix_nba_g", market=("PTS" if i % 2 == 0 else "REB"),
+                line=10.5, edgePct=8.0, oddsOver=-120, oddsUnder=+110, confidence="High",
+            )))
+        out = generate_public_risk_sections(pool, date="2026-06-05")
+        for by_sport in out.values():
+            for slips in by_sport.values():
+                for s in slips:
+                    for leg in s.legs:
+                        self.assertIn(leg.sport, ("nba", "mlb"))
+
+    def test_slip_shape_compatible(self):
+        pool = self._rich_mlb_pool(n_players=8, markets=["batter_hits", "batter_total_bases"])
+        out = generate_public_risk_sections(pool, date="2026-06-05")
+        sample = out["low"]["mlb"]
+        self.assertTrue(sample, "expected at least one Low MLB slip from rich supply")
+        s = sample[0]
+        self.assertTrue(hasattr(s, "legs") and len(s.legs) >= 2)
+        self.assertTrue(hasattr(s, "score"))
+        self.assertTrue(getattr(s, "slipId", None))
+
+
 if __name__ == "__main__":
     unittest.main()
