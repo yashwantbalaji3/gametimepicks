@@ -43,7 +43,10 @@ import { currentEtDate } from "@/lib/freshness";
 import { PUBLIC_PARLAY_RESULTS_START_DATE } from "@/lib/public-parlay-era";
 import { optimizerSlipToParlaySlip } from "@/lib/parlay-optimizer";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
+import { getLifetimeSummary } from "@/lib/data";
+import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 
+import ProjectionAccuracySummary from "@/components/projection-accuracy-summary";
 import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
 import RiskSectionResultsTable from "@/components/risk-section-results-table";
@@ -77,6 +80,37 @@ export const metadata = {
 
 export default function ResultsPage() {
   const summary = getOptimizerSummary();
+
+  // Leg-level PROJECTION accuracy (the model-quality lead) — settled-only,
+  // sourced from lifetime_summary.json (NBA = results/, MLB = mlb/results/).
+  // These are individual leaned picks graded vs the line; pushes/voids are
+  // already excluded from `decisive` by the loaders. Never pregame, never
+  // fabricated.
+  const nbaLeg = getLifetimeSummary();
+  const mlbLeg = getMlbLifetimeSummary();
+  const toProj = (
+    s: { wins: number; losses: number; decisive: number; hitRate: number | null } | null,
+  ) =>
+    s && s.decisive > 0
+      ? { wins: s.wins, losses: s.losses, decisive: s.decisive, hitRate: s.hitRate }
+      : null;
+  const nbaProj = toProj(nbaLeg);
+  const mlbProj = toProj(mlbLeg);
+  const overallProj =
+    nbaProj || mlbProj
+      ? (() => {
+          const wins = (nbaProj?.wins ?? 0) + (mlbProj?.wins ?? 0);
+          const losses = (nbaProj?.losses ?? 0) + (mlbProj?.losses ?? 0);
+          const decisive = (nbaProj?.decisive ?? 0) + (mlbProj?.decisive ?? 0);
+          return {
+            wins,
+            losses,
+            decisive,
+            hitRate: decisive > 0 ? wins / decisive : null,
+          };
+        })()
+      : null;
+
   // PR #117: small honest banner above the lifetime summary, only
   // rendered when an audit JSON has been generated for at least one
   // settled slate. Never fabricates a row.
@@ -144,11 +178,42 @@ export default function ResultsPage() {
     // reads better for dense parlay data. Cards inherit
     // `--gtp-card-dark` for elevated charcoal.
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+      {/* Lead with LEG-LEVEL projection accuracy — the cleaner read on model
+         quality than parlay (card) hit rate, which is naturally low because
+         every leg must hit. Settled-only, real graded data. */}
+      {overallProj && (
+        <div className="mb-6">
+          <ProjectionAccuracySummary
+            overall={overallProj}
+            mlb={mlbProj}
+            nba={nbaProj}
+            eraStart={PUBLIC_PARLAY_RESULTS_START_DATE}
+          />
+        </div>
+      )}
+
+      {/* Parlay card performance — repositioned BELOW projection accuracy and
+         explicitly framed as higher-variance. The two-record (Published cards /
+         Generated pool) UX is preserved inside ResultsHero. */}
+      <div className="flex flex-col gap-1 max-w-5xl mb-2">
+        <span
+          className="font-mono uppercase tracking-[0.18em]"
+          style={{ color: "var(--vault-text-mute)", fontSize: 11 }}
+        >
+          Parlay card performance · higher variance
+        </span>
+        <p
+          className="text-[12px] leading-snug"
+          style={{ color: "var(--vault-text-faint)", maxWidth: 620 }}
+        >
+          Parlays are stricter: every leg must hit for the card to cash, so card
+          hit rate is naturally lower than individual projection accuracy. The
+          published cards you saw are tracked below for full transparency.
+        </p>
+      </div>
       {/* PR `feature/results-ux-restructure` (2026-05-29) — compact
-         hero (now the only top-of-page block) shows the settled date +
-         lifetime hit rate so the user sees what matters in the first
-         200px. It replaced a tall fresh-era status card and the 5-tile
-         profile lifetime row from ParlayResultsSummary. */}
+         hero shows the settled date + parlay lifetime records (two-record:
+         Published cards / Generated pool). */}
       <ResultsHero
         settledDate={dateSections[0]?.date ?? null}
         lifetime={summary?.lifetime ?? null}
