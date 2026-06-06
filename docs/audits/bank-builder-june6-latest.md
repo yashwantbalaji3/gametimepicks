@@ -1,28 +1,23 @@
 # Bank Builder — June 6 (latest)
 
-> **Verdict: NO responsible NBA-only Bank Builder slip for June 6.**
+> **Verdict: NO NBA-only Bank Builder slip for June 6** — there is no NBA slate.
 
 ## Why
-The NBA-only Bank Builder is gated on four conditions; June 6 fails the first:
-1. **An NBA game exists** — ❌ **0 NBA games on 2026-06-06** (Finals rest day,
-   free ESPN schedule). No NBA slate, no NBA legs.
-2. Recent form fresh/trusted — moot (no slate; latest NBA form is stale anyway,
-   fails Low closed).
-3. Candidate legs pass conservative/Low-Risk criteria — moot.
-4. $100 → $200+ achievable with real odds — moot.
+The NBA-only Bank Builder requires an NBA game. June 6 has **0 NBA games**
+(Finals rest day, free ESPN schedule confirmed), so there are no NBA legs and no
+recent NBA form to draw on. No internal slip is produced, and **nothing is
+fabricated or published** in its place. No guarantee language, no public UI.
 
-With no NBA game there is nothing to build from, so no internal recommended slip
-is produced. This is an honest "no supply" outcome — **no fabricated or padded
-slip, no guarantee language, no public UI exposure.**
-
-## MLB note
-A Bank Builder over the June-6 MLB slate is out of scope here (the Bank Builder
-product is NBA-only) and is **not** generated yet besides — June 6 MLB hasn't
-been produced. Do not improvise an MLB bank slip.
+## MLB note (now that June 6 is generated, MLB-only)
+The June-6 MLB slate generated cleanly (15/15 games, 686 leans, Low gate PASS
+with 0 violations). The Bank Builder product is **NBA-only**, so an MLB bank slip
+is **out of scope** and is **not** published as a Bank Builder entry. The MLB
+slate is surfaced through Suggested Parlays (8 published cards, Low/Medium-led),
+not the Bank Builder. Do not improvise or relabel an MLB slip as NBA.
 
 ## Action
-Re-evaluate on the next NBA-bearing slate (next Finals game) **only if** recent
-form is fresh and conservative/Low-Risk legs at real odds support a credible
-$100 → $200+ path. Otherwise continue to publish no slip.
+Re-evaluate the NBA-only Bank Builder on the next NBA-bearing slate (next Finals
+game) **only if** recent form is fresh and conservative/Low-Risk legs at real
+odds support a credible $100 → $200+ path. Otherwise continue to publish no slip.
 
 *Read-only evaluation. No paid API, no fabricated data, no guarantee copy.*

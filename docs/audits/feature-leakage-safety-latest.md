@@ -3,17 +3,20 @@
 > `audit-feature-leakage-safety.mjs --write-report` · READ-ONLY · no paid API · no data/model/grading change.
 > Confirms predictive inputs use only before-game info; flags stale/missing recent form.
 
-## Verdict: WARN (fails=0, warns=1)
+## Verdict: PASS (fails=0, warns=0)
 
 ### Failures (leakage)
 - none
 
 ### Warnings (staleness / missing provenance)
-- NBA: generatedAt 2026-06-05T16:11:20+00:00 != slate 2026-06-06
+- none
 
 ### Info
-- MLB: board absent
-- NBA: 0 games · 0 actionable leans · generatedAt 2026-06-05T16:11:20+00:00
+- MLB: 15 games · 634 actionable leans · generatedAt 2026-06-06T16:04:12.913113+00:00
+- MLB: no post-game outcome fields on leans ✅
+- MLB: no recentGames dated on/after slate ✅
+- MLB: 23 leans have <10 recent values (L10 not computable → not Low-eligible)
+- NBA: 0 games · 0 actionable leans · generatedAt 2026-06-06T15:46:35+00:00
 - NBA: no post-game outcome fields on leans ✅
 - NBA: no recentGames dated on/after slate ✅
 
