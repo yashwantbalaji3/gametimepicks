@@ -16,6 +16,7 @@
 - MLB: no post-game outcome fields on leans ✅
 - MLB: no recentGames dated on/after slate ✅
 - MLB: 23 leans have <10 recent values (L10 not computable → not Low-eligible)
+- MLB: latest recentGames date across leans = 2026-06-05
 - NBA: 0 games · 0 actionable leans · generatedAt 2026-06-06T15:46:35+00:00
 - NBA: no post-game outcome fields on leans ✅
 - NBA: no recentGames dated on/after slate ✅

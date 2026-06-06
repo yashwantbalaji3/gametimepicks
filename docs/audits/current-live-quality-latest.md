@@ -40,7 +40,7 @@ MLB board: 15 games · 634 actionable leans (Over/Under) · 52 Pass (model-decli
 - provider endpoint errors (non-fatal if fallback worked): scoreboardv2, leaguegamefinder
 
 ### Optimizer
-- totalSlips 64 · legPool 477 · generatedAt 2026-06-06T16:05:25+00:00
+- totalSlips 64 · legPool 477 · generatedAt 2026-06-06T17:23:02+00:00
 - risk sections (all / nba / mlb / multi):
   - low: 6 / 0 / 6 / 0
   - medium: 6 / 0 / 6 / 0

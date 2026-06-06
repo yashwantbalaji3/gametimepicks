@@ -1363,3 +1363,73 @@ export function selectPlus100BuilderSlip(
     section: best.section,
   };
 }
+
+/**
+ * Select the BANK BUILDER / "Top Pick of the Day" slip — the SAFEST,
+ * highest-confidence conservative parlay (NOT the highest payout). Used for the
+ * prominent home / Parlay-Lab feature card.
+ *
+ * Hard filters (never fabricated): pending status, no already-graded leg, a
+ * usable combined price, 2–3 legs, and EVERY leg priced as a negative-odds
+ * favorite (no plus-money / no even-money) — the operator's intent that the top
+ * pick is a stable favorite stack, not a +100 swing.
+ *
+ * Ranking (safest first): prefer 2 legs; then the LOWEST combined decimal
+ * (shortest odds = highest implied win probability); then stronger recent form
+ * (L10 avg, a soft tiebreaker, not a win claim); then more distinct games
+ * (decorrelation) and more known-start legs. Returns null when no qualifying
+ * conservative slip exists.
+ */
+export function selectBankBuilderSlip(
+  slips: ReadonlyArray<ParlaySlip>,
+): BuilderSlipSelection | null {
+  type Cand = BuilderSlipSelection & {
+    legPenalty: number;
+    avgL10: number;
+    distinctGames: number;
+    knownStarts: number;
+  };
+  const candidates: Cand[] = [];
+  for (const slip of slips ?? []) {
+    if (slip.status !== "pending") continue;
+    if (_builderHasGradedLeg(slip)) continue;
+    const legs = slip.legs ?? [];
+    const legCount = legs.length;
+    if (legCount < 2 || legCount > 3) continue;
+    const allNegative = legs.every(
+      (l) => typeof l.oddsForSide === "number" && l.oddsForSide < 0,
+    );
+    if (!allNegative) continue; // no plus-money / even-money in the top pick
+    const combined = combinedParlayPayoutPer100(legs);
+    if (!combined) continue;
+    const section = classifyOddsSection(combined.american);
+    if (section == null) continue;
+    candidates.push({
+      slip,
+      combinedAmerican: combined.american,
+      combinedDecimal: combined.decimal,
+      section,
+      legPenalty: Math.abs(legCount - 2),
+      avgL10: slipRecentFormSummary(slip).avgRate ?? -1,
+      distinctGames: _builderDistinctGames(slip),
+      knownStarts: _builderLegsWithKnownStart(slip),
+    });
+  }
+  if (candidates.length === 0) return null;
+  candidates.sort(
+    (a, b) =>
+      a.legPenalty - b.legPenalty ||
+      a.combinedDecimal - b.combinedDecimal || // lowest payout = safest
+      b.avgL10 - a.avgL10 ||
+      b.distinctGames - a.distinctGames ||
+      b.knownStarts - a.knownStarts ||
+      a.slip.slipId.localeCompare(b.slip.slipId),
+  );
+  const best = candidates[0];
+  return {
+    slip: best.slip,
+    combinedAmerican: best.combinedAmerican,
+    combinedDecimal: best.combinedDecimal,
+    section: best.section,
+  };
+}

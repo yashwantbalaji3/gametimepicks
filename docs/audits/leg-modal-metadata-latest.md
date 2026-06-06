@@ -4,8 +4,8 @@
 > Confirms MLB leg modals show real last-N date/opponent rows (not generic G-1..G-5) and never leak the target game.
 
 ## Verdict: PASS
-- MLB published legs: 20; with recentGames: 20
-- shown rows: 100 · with date: 100 · with opponent: 100
+- MLB published legs: 45; with recentGames: 45
+- shown rows: 225 · with date: 225 · with opponent: 225
 - leakage rows (≥ slate): 0; unattached legs: 0; low-coverage legs: 0
 
 

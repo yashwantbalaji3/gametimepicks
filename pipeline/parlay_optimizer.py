@@ -1487,10 +1487,25 @@ _SGP_FRESH_MARKET_BONUS: float = 0.05
 #: ships an ineligible slip (the least-negative fallback below still wins).
 _SGP_MARKET_EXPOSURE_PENALTY: float = 0.08
 
+#: HARD cross-board exposure caps (applied across all risk sections of a sport,
+#: via shared counters). Keeps one player / one exact leg from anchoring most of
+#: the published board — the operator's "don't let one player ruin the slate"
+#: ask. A leg/player may still repeat (value carries over), just not dominate.
+#: With ~13-15 displayed cards these map to roughly 25-30% / 20% max share.
+_PUBLIC_MAX_PLAYER_EXPOSURE: int = 4
+_PUBLIC_MAX_LEG_EXPOSURE: int = 3
+
 
 def _select_diverse_sgp(
     candidates: list[OptimizedSlip],
     target: int,
+    *,
+    player_count: dict[str, int] | None = None,
+    pair_count: dict[tuple[str, ...], int] | None = None,
+    market_count: dict[str, int] | None = None,
+    leg_count: dict[tuple, int] | None = None,
+    max_player_exposure: int | None = None,
+    max_leg_exposure: int | None = None,
 ) -> list[OptimizedSlip]:
     """Greedy diversity selector for NBA single-game slips.
 
@@ -1519,13 +1534,40 @@ def _select_diverse_sgp(
     if not candidates or target <= 0:
         return []
     chosen: list[OptimizedSlip] = []
-    player_count: dict[str, int] = {}
-    pair_count: dict[tuple[str, ...], int] = {}
-    market_count: dict[str, int] = {}
+    # When the caller passes shared counters they persist ACROSS section calls so
+    # exposure is spread over the whole published board (Low+Medium+High+Longshot
+    # for a sport), not just within one section — prevents one player/leg from
+    # backing most cards. Soft penalty with a least-negative fallback, so a
+    # section is never starved (it always fills `target` if candidates exist).
+    if player_count is None:
+        player_count = {}
+    if pair_count is None:
+        pair_count = {}
+    if market_count is None:
+        market_count = {}
+    if leg_count is None:
+        leg_count = {}
     remaining = list(candidates)
 
     def _slip_player_keys(slip: OptimizedSlip) -> list[str]:
         return [_player_key(l) for l in slip.legs]
+
+    def _slip_leg_sigs(slip: OptimizedSlip) -> list[tuple]:
+        return [(l.playerId or 0, l.market, l.side, l.line or 0) for l in slip.legs]
+
+    def _within_hard_caps(slip: OptimizedSlip) -> bool:
+        """A hard cross-board cap so no one player or exact leg can back more
+        than ``max_*`` published cards. Returns False if picking this slip would
+        breach a cap (the caller then prefers a within-cap candidate)."""
+        if max_player_exposure is not None:
+            for k in _slip_player_keys(slip):
+                if player_count.get(k, 0) + 1 > max_player_exposure:
+                    return False
+        if max_leg_exposure is not None:
+            for sig in _slip_leg_sigs(slip):
+                if leg_count.get(sig, 0) + 1 > max_leg_exposure:
+                    return False
+        return True
 
     def _adjusted_score(slip: OptimizedSlip) -> float:
         keys = _slip_player_keys(slip)
@@ -1555,7 +1597,15 @@ def _select_diverse_sgp(
 
     while remaining and len(chosen) < target:
         remaining.sort(key=_adjusted_score, reverse=True)
-        winner = remaining.pop(0)
+        # Prefer the highest adjusted-score candidate that stays within the hard
+        # player/leg caps. Only when EVERY remaining candidate would breach a cap
+        # (a genuinely thin pool) do we fall back to the best available — the
+        # documented exception so a section is never starved.
+        idx = next(
+            (i for i, c in enumerate(remaining) if _within_hard_caps(c)),
+            None,
+        )
+        winner = remaining.pop(idx if idx is not None else 0)
         chosen.append(winner)
         for k in _slip_player_keys(winner):
             player_count[k] = player_count.get(k, 0) + 1
@@ -1563,6 +1613,8 @@ def _select_diverse_sgp(
         pair_count[pair_key] = pair_count.get(pair_key, 0) + 1
         for leg in winner.legs:
             market_count[leg.market] = market_count.get(leg.market, 0) + 1
+        for sig in _slip_leg_sigs(winner):
+            leg_count[sig] = leg_count.get(sig, 0) + 1
 
     return chosen
 
@@ -1706,7 +1758,7 @@ _PUBLIC_SECTION_MAX_LEGS_PER_GAME: int = 2
 
 #: Default ceiling on candidate generation per section. The diversity
 #: selector picks `target_per_section` slips from this pool.
-_PUBLIC_SECTION_CANDIDATE_CEILING: int = 600
+_PUBLIC_SECTION_CANDIDATE_CEILING: int = 1500
 
 #: Default visible-slip target per section per sport bucket. Raised 4→6
 #: (PR `feature/generation-curation-public-risk-depth`, 2026-06-05) so a
@@ -1975,8 +2027,9 @@ def _build_section_slips_for_pool(
         prefix_dec: float,
         start_idx: int,
         size: int,
+        stop_at: int,
     ) -> None:
-        if len(candidates) >= candidate_ceiling:
+        if len(candidates) >= candidate_ceiling or len(candidates) >= stop_at:
             return
         # Upper-bound prune: any extension only grows prefix_dec.
         if prefix_dec >= max_dec_exclusive and len(prefix) > 0:
@@ -1994,7 +2047,7 @@ def _build_section_slips_for_pool(
         if max_achievable < min_dec_inclusive:
             return
         for i in range(start_idx, n):
-            if len(candidates) >= candidate_ceiling:
+            if len(candidates) >= candidate_ceiling or len(candidates) >= stop_at:
                 return
             cand = leg_arr[i]
             cand_d = dec_arr[i]
@@ -2010,9 +2063,17 @@ def _build_section_slips_for_pool(
                 if same_game >= _PUBLIC_SECTION_MAX_LEGS_PER_GAME:
                     continue
             prefix.append(cand)
-            _extend(prefix, prefix_dec * cand_d, i + 1, size)
+            _extend(prefix, prefix_dec * cand_d, i + 1, size, stop_at)
             prefix.pop()
 
+    # Per-start cap: bound how many candidates any single STARTING leg may
+    # contribute, so the ceiling isn't consumed by combos that all begin with
+    # (and therefore contain) the few highest-quality legs. Because _extend only
+    # adds legs of higher index, combos that start AFTER a dominant leg never
+    # contain it — so spreading generation across starts guarantees the pool also
+    # holds slips that exclude the top player. This is what lets the downstream
+    # diversity selector + exposure caps avoid one player anchoring every card.
+    per_start_cap = max(12, candidate_ceiling // max(1, min(n, 50)))
     for size in range(target_size_min, target_size_max + 1):
         # Try every starting leg so the search isn't monopolised by
         # the absolute-highest-quality leg (matches PR #150's
@@ -2020,7 +2081,13 @@ def _build_section_slips_for_pool(
         for start in range(n):
             if len(candidates) >= candidate_ceiling:
                 break
-            _extend([leg_arr[start]], dec_arr[start], start + 1, size)
+            _extend(
+                [leg_arr[start]],
+                dec_arr[start],
+                start + 1,
+                size,
+                len(candidates) + per_start_cap,
+            )
         if len(candidates) >= candidate_ceiling:
             break
 
@@ -2049,9 +2116,15 @@ def _public_rationale(legs: list[OptimizerLean], section_key: str) -> str:
 # few legs qualify, Low simply has fewer real cards.
 # PR `fix/june5-risk-methodology-and-form` (2026-06-05).
 _LOW_RISK_MIN_L10_HITRATE: float = 0.80      # >= 80% (8/10) last-10 for the chosen side
-_LOW_RISK_STRICT_L10_HITRATE: float = 0.90   # >= 90% for the near-even-price exception
-_LOW_RISK_ODDS_FLOOR: int = -150             # default: heavier favorite than -150
-_LOW_RISK_EXCEPTION_ODDS_MAX: int = 110      # near-even allowed ONLY with the strict L10
+_LOW_RISK_STRICT_L10_HITRATE: float = 0.90   # >= 90% for the favorite/near-even bands
+_LOW_RISK_ODDS_FLOOR: int = -150             # <= -150: heavy favorite, only needs >=80% L10
+_LOW_RISK_NEAR_EVEN_FLOOR: int = -105        # -150..-105: negative favorites, need >=90% L10
+#: Low Risk is negative-odds/favorites by design. Plus-money (> +100) is NEVER
+#: Low. A near-even price (-104..+100) is allowed ONLY as a documented fallback:
+#: PERFECT last-5 (5/5) recent form AND >=90% L10. This keeps Low conservative
+#: and shareable (the operator wants stable favorites, not +100 swings) while
+#: still admitting an even-money leg with flawless recent form.
+_LOW_RISK_PLUS_MONEY_MAX: int = 100          # odds > +100 are never Low (reserve for High/Longshot)
 _LOW_RISK_MAX_FORM_STALE_DAYS: int = 21      # latest recent game must be within N days of slate
 
 
@@ -2071,6 +2144,31 @@ def _l10_hit_rate(leg: OptimizerLean) -> float | None:
     for v in window:
         if v == line:
             continue  # push — excluded from denominator
+        decided += 1
+        if (v > line) if side == "over" else (v < line):
+            hits += 1
+    if decided == 0:
+        return None
+    return hits / decided
+
+
+def _l5_hit_rate(leg: OptimizerLean) -> float | None:
+    """Last-5 hit rate for the leg's chosen side vs its line, from
+    ``recentSeries``. Returns None when the line is unknown, the side is not
+    Over/Under, or fewer than 5 values exist. Pushes (value == line) are excluded
+    from the denominator. Used for the Low-Risk near-even fallback (a near-even
+    price is only Low-eligible with PERFECT recent form)."""
+    series = list(leg.recentSeries or ())
+    line = leg.line
+    side = (leg.side or "").lower()
+    if line is None or len(series) < 5 or side not in ("over", "under"):
+        return None
+    window = series[-5:]
+    decided = 0
+    hits = 0
+    for v in window:
+        if v == line:
+            continue
         decided += 1
         if (v > line) if side == "over" else (v < line):
             hits += 1
@@ -2106,10 +2204,14 @@ def _form_is_stale(leg: OptimizerLean, date: str | None) -> bool:
 
 def low_risk_leg_eligible(leg: OptimizerLean, date: str | None) -> bool:
     """Whether a leg may appear in a LOW-risk public card. Requires a supported
-    Over/Under prop with a known line, TRUSTED non-stale recent form, last-10
-    hit rate >= 80% (>= 90% for a near-even price), and a conservative price:
-    odds <= -150, OR between -150 and +110 with the stricter 90% L10. Plus-money
-    beyond +110 is never Low. Pure; restricts only the LOW pool."""
+    Over/Under prop with a known line, TRUSTED non-stale recent form, last-10 hit
+    rate >= 80%, and a conservative NEGATIVE-ODDS price:
+      - odds <= -150 (heavy favorite): >= 80% L10.
+      - -150 < odds <= -105 (favorite): >= 90% L10.
+      - -104 <= odds <= +100 (near-even): documented FALLBACK only — needs
+        PERFECT 5/5 last-5 AND >= 90% L10.
+      - odds > +100 (plus-money): NEVER Low (reserved for High/Longshot).
+    Pure; restricts only the LOW pool."""
     side = (leg.side or "").lower()
     if side not in ("over", "under") or leg.line is None:
         return False
@@ -2121,11 +2223,19 @@ def low_risk_leg_eligible(leg: OptimizerLean, date: str | None) -> bool:
     odds = leg.oddsForSide
     if odds is None:
         return False
+    if odds > _LOW_RISK_PLUS_MONEY_MAX:
+        return False  # plus-money is never Low — reserve for High/Longshot
     if odds <= _LOW_RISK_ODDS_FLOOR:
-        return True  # heavier favorite than -150 + >=80% L10
-    if odds <= _LOW_RISK_EXCEPTION_ODDS_MAX and hr >= _LOW_RISK_STRICT_L10_HITRATE:
-        return True  # near-even (-150..+110) allowed ONLY with >=90% L10
-    return False
+        return True  # heavy favorite (<= -150) + >= 80% L10
+    if odds <= _LOW_RISK_NEAR_EVEN_FLOOR:
+        return hr >= _LOW_RISK_STRICT_L10_HITRATE  # negative favorite needs strict L10
+    # near-even (-104..+100): fallback only with PERFECT recent form + strict L10
+    l5 = _l5_hit_rate(leg)
+    return (
+        l5 is not None
+        and l5 >= 1.0 - 1e-9
+        and hr >= _LOW_RISK_STRICT_L10_HITRATE
+    )
 
 
 def generate_public_risk_sections(
@@ -2165,6 +2275,15 @@ def generate_public_risk_sections(
     mlb_pool = [l for l in normed if l.sport == "mlb"]
 
     output: dict[str, dict[str, list[OptimizedSlip]]] = {}
+    # Shared exposure counters PER SPORT BUCKET, persisting across the section
+    # loop (low → medium → high → longshot) so a popular player/leg/market is
+    # spread over the whole published board instead of anchoring every risk tier.
+    # Soft penalty + least-negative fallback in _select_diverse_sgp means no
+    # section is starved — it just prefers fresher names in the deeper tiers.
+    shared: dict[str, dict[str, dict]] = {
+        sport: {"player": {}, "pair": {}, "market": {}, "leg": {}}
+        for sport in ("all", "nba", "mlb", "multi")
+    }
     for section_key in PUBLIC_RISK_SECTION_ORDER:
         spec = PUBLIC_RISK_SECTION_SPECS[section_key]
         by_sport: dict[str, list[OptimizedSlip]] = {
@@ -2193,11 +2312,27 @@ def generate_public_risk_sections(
         )
         combined_candidates.sort(key=lambda s: s.score, reverse=True)
         by_sport["all"] = _select_diverse_sgp(
-            combined_candidates, target_per_bucket
+            combined_candidates,
+            target_per_bucket,
+            player_count=shared["all"]["player"],
+            pair_count=shared["all"]["pair"],
+            market_count=shared["all"]["market"],
+            leg_count=shared["all"]["leg"],
+            max_player_exposure=_PUBLIC_MAX_PLAYER_EXPOSURE,
+            max_leg_exposure=_PUBLIC_MAX_LEG_EXPOSURE,
         )
         # "multi" — only cross-sport slips that survived combined gen.
         multi_subset = [c for c in combined_candidates if c.sport == "multi"]
-        by_sport["multi"] = _select_diverse_sgp(multi_subset, target_per_bucket)
+        by_sport["multi"] = _select_diverse_sgp(
+            multi_subset,
+            target_per_bucket,
+            player_count=shared["multi"]["player"],
+            pair_count=shared["multi"]["pair"],
+            market_count=shared["multi"]["market"],
+            leg_count=shared["multi"]["leg"],
+            max_player_exposure=_PUBLIC_MAX_PLAYER_EXPOSURE,
+            max_leg_exposure=_PUBLIC_MAX_LEG_EXPOSURE,
+        )
 
         # Sport-pure buckets are generated from sport-restricted pools so
         # the NBA / MLB tabs aren't starved by combined-pool diversity
@@ -2211,7 +2346,16 @@ def generate_public_risk_sections(
                 candidate_ceiling=candidate_ceiling,
             )
             nba_cands.sort(key=lambda s: s.score, reverse=True)
-            by_sport["nba"] = _select_diverse_sgp(nba_cands, target_per_bucket)
+            by_sport["nba"] = _select_diverse_sgp(
+                nba_cands,
+                target_per_bucket,
+                player_count=shared["nba"]["player"],
+                pair_count=shared["nba"]["pair"],
+                market_count=shared["nba"]["market"],
+                leg_count=shared["nba"]["leg"],
+                max_player_exposure=_PUBLIC_MAX_PLAYER_EXPOSURE,
+                max_leg_exposure=_PUBLIC_MAX_LEG_EXPOSURE,
+            )
         if len(sec_mlb) >= spec["min_legs"]:
             mlb_cands = _build_section_slips_for_pool(
                 sec_mlb,
@@ -2221,7 +2365,16 @@ def generate_public_risk_sections(
                 candidate_ceiling=candidate_ceiling,
             )
             mlb_cands.sort(key=lambda s: s.score, reverse=True)
-            by_sport["mlb"] = _select_diverse_sgp(mlb_cands, target_per_bucket)
+            by_sport["mlb"] = _select_diverse_sgp(
+                mlb_cands,
+                target_per_bucket,
+                player_count=shared["mlb"]["player"],
+                pair_count=shared["mlb"]["pair"],
+                market_count=shared["mlb"]["market"],
+                leg_count=shared["mlb"]["leg"],
+                max_player_exposure=_PUBLIC_MAX_PLAYER_EXPOSURE,
+                max_leg_exposure=_PUBLIC_MAX_LEG_EXPOSURE,
+            )
 
         output[section_key] = by_sport
 
