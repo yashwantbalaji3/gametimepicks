@@ -203,8 +203,26 @@ jobs:
           ET=$(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')
           MSG="auto: morning projections ${ET} [skip ci]"
           git commit -m "$MSG"
-          git push origin HEAD:main
-          echo "Pushed: $MSG"
+
+          # Pull-rebase before push so a commit landing during this ~20-min run
+          # (e.g. daily-refresh / auto-refresh) cannot reject our push and
+          # discard the freshly generated, paid slate. Retry the race a few
+          # times; fail loudly (never force-push) on a genuine conflict.
+          pushed=0
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then
+              echo "Pushed: $MSG (attempt $attempt)"
+              pushed=1
+              break
+            fi
+            echo "push rejected (attempt $attempt) — rebasing onto origin/main and retrying"
+            git fetch origin main || { echo "ERROR: fetch failed"; exit 1; }
+            git rebase origin/main || { echo "ERROR: rebase conflict — aborting, not force-pushing"; git rebase --abort || true; exit 1; }
+          done
+          if [ "$pushed" -ne 1 ]; then
+            echo "ERROR: push still failing after retries"
+            exit 1
+          fi
 
       - name: Upload failure logs
         if: failure()
