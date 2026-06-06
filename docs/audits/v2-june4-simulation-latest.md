@@ -8,10 +8,10 @@
 ## Active slate: 2026-06-06
 
 ### What the watchlist gate would flag
-- **0** MLB legs match the Low-gate watchlist condition (L5 5/5 & odds ≤ −150).
-- By market: (none).
-- Across 0 game(s).
-- **0** of these are already in the current published Suggested Parlays; 0 are not.
+- **20** MLB legs match the Low-gate watchlist condition (L5 5/5 & odds ≤ −150).
+- By market: batter_hits=15, batter_hits_runs_rbis=3, batter_total_bases=2.
+- Across 10 game(s).
+- **2** of these are already in the current published Suggested Parlays; 18 are not.
 
 ### Hypothetical change if the gate were live (NOT applied)
 - The Low gate is **`shadow_watchlist`**, not a launch candidate, so **no live
