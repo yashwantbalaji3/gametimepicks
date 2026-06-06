@@ -26,7 +26,7 @@ import {
   getOptimizerSnapshotForDate,
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
-import { selectPlus100BuilderSlip } from "@/lib/parlay-suggested";
+import { selectPlus100BuilderSlip, selectBankBuilderSlip } from "@/lib/parlay-suggested";
 import { filterOfficialSuggestedSlips } from "@/lib/sport-capabilities";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { formatPercent } from "@/lib/format";
@@ -131,13 +131,18 @@ export default function HomePage() {
     suggested?.slips ?? [],
   );
 
-  // Featured slip: prefer a pending ~+100 builder pick; otherwise the top
-  // slip of the latest published slate. The card shows its own honest
-  // settled/pending state — never fabricated.
+  // Top Pick of the Day = the BANK BUILDER slip: the safest, highest-confidence
+  // conservative stack (negative-odds favorites, strong recent form), NOT the
+  // highest payout. Falls back to the top published slip only when no qualifying
+  // conservative stack exists. The card shows its own honest settled/pending
+  // state — never fabricated.
+  const bankBuilderPick = selectBankBuilderSlip(officialSuggestedSlips);
   const featured =
-    selectPlus100BuilderSlip(officialSuggestedSlips)?.slip ??
+    bankBuilderPick?.slip ??
     officialSuggestedSlips[0] ??
     null;
+  const featuredIsBankBuilder =
+    !!bankBuilderPick && featured?.slipId === bankBuilderPick.slip.slipId;
 
   const combinedDecisive = (lifetime?.decisive ?? 0) + (mlbLifetime?.decisive ?? 0);
   const combinedWins = (lifetime?.wins ?? 0) + (mlbLifetime?.wins ?? 0);
@@ -234,11 +239,35 @@ export default function HomePage() {
           <HomePathCards cards={pathCards} />
         </div>
 
-        {/* 2 · Featured slip */}
+        {/* 2 · Top Pick of the Day (Bank Builder = safest conservative stack) */}
         {featured && (
           <div className="order-2 xl:order-2 xl:col-span-8">
-            <ModuleCard title="Featured slip" meta={slateLabel}>
+            <ModuleCard
+              title={featuredIsBankBuilder ? "Top Pick of the Day" : "Featured slip"}
+              meta={slateLabel}
+            >
               <div className="p-2 sm:p-3">
+                {featuredIsBankBuilder && (
+                  <div className="px-1 pb-2 flex flex-wrap items-center gap-1.5">
+                    <span
+                      className="font-mono uppercase tracking-[0.14em] px-2 py-0.5 rounded-[4px]"
+                      style={{
+                        fontSize: 10,
+                        color: "var(--vault-bg, #0b0b14)",
+                        background: "var(--vault-accent, #d4af37)",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Bank Builder
+                    </span>
+                    <span
+                      className="font-mono uppercase tracking-[0.12em]"
+                      style={{ fontSize: 10, color: "var(--vault-text-faint)" }}
+                    >
+                      Most conservative stack · negative-odds favorites
+                    </span>
+                  </div>
+                )}
                 <ParlayTicketCard
                   slip={featured}
                   emphasis="featured"
@@ -246,8 +275,9 @@ export default function HomePage() {
                   calibrationTable={calibrationTable}
                 />
                 <p className="px-1 pt-2 text-[11px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-                  The model&apos;s headline slip from the {slateLabel} slate — saved before games,
-                  graded after. High-variance slips are labelled.
+                  {featuredIsBankBuilder
+                    ? `The safest stack on the ${slateLabel} slate — negative-odds favorites with strong recent form, saved before games and graded after. Conservative does not mean guaranteed.`
+                    : `The model's headline slip from the ${slateLabel} slate — saved before games, graded after. High-variance slips are labelled.`}
                 </p>
               </div>
             </ModuleCard>

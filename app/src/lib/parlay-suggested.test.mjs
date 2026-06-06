@@ -26,6 +26,7 @@ import {
   slipContainsPlayer,
   selectBuilderSlip,
   selectPlus100BuilderSlip,
+  selectBankBuilderSlip,
   BUILDER_PLUS100_IDEAL_BAND,
   BUILDER_PLUS100_FALLBACK_BAND,
   BUILDER_EARLY_STEP_MAX,
@@ -1382,4 +1383,40 @@ test("game dropdown derived from sections EXCLUDES a ghost game (only in the poo
     "all",
   ).map((g) => g.key);
   assert.deepEqual(sectionGames, ["g-OKC"]);
+});
+
+// ---------------------------------------------------------------------------
+// Bank Builder / Top Pick — selectBankBuilderSlip (safest conservative stack)
+// ---------------------------------------------------------------------------
+test("selectBankBuilderSlip: picks the SAFEST (lowest combined decimal) all-negative 2-leg stack", () => {
+  // P_101 (two -240, decimal 2.007) is safer than P_125 (2.250) / P_133 (2.330).
+  const r = selectBankBuilderSlip([P_125, P_101, P_133]);
+  assert.ok(r);
+  assert.equal(r.slip.slipId, "p101");
+});
+
+test("selectBankBuilderSlip: never picks a slip with a plus-money or even-money leg", () => {
+  const withPlus = bSlip({ slipId: "plus", legs: [bLeg({ odds: -150, gameId: "g1" }), bLeg({ odds: 150, gameId: "g2" })] });
+  // only a plus-money-containing slip present → no qualifying conservative pick
+  assert.equal(selectBankBuilderSlip([withPlus, P_800]), null);
+  // mixed pool → still excludes the plus-money slip, returns the all-negative one
+  const r = selectBankBuilderSlip([withPlus, P_125]);
+  assert.equal(r.slip.slipId, "p125");
+});
+
+test("selectBankBuilderSlip: prefers a 2-leg stack over a 3-leg one", () => {
+  const threeLeg = bSlip({ slipId: "three", legs: [bLeg({ odds: -300, gameId: "g1" }), bLeg({ odds: -300, gameId: "g2" }), bLeg({ odds: -300, gameId: "g3" })] });
+  const twoLeg = bSlip({ slipId: "two", legs: [bLeg({ odds: -200, gameId: "g4" }), bLeg({ odds: -200, gameId: "g5" })] });
+  const r = selectBankBuilderSlip([threeLeg, twoLeg]);
+  assert.equal(r.slip.slipId, "two");
+});
+
+test("selectBankBuilderSlip: returns null when no all-negative 2-3 leg stack exists", () => {
+  assert.equal(selectBankBuilderSlip([P_800]), null);
+  assert.equal(selectBankBuilderSlip([]), null);
+});
+
+test("selectBankBuilderSlip: never returns a settled slip", () => {
+  const settled = bSlip({ slipId: "settled", status: "win", legs: [bLeg({ odds: -200, gameId: "g1" }), bLeg({ odds: -200, gameId: "g2" })] });
+  assert.equal(selectBankBuilderSlip([settled]), null);
 });

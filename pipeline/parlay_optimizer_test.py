@@ -1550,9 +1550,37 @@ class LowRiskLegEligibilityTests(unittest.TestCase):
         leg = self._leg(odds=-200, series=[2, 2, 2, 2, 2, 2, 2, 2, 0, 0])  # 8/10
         self.assertTrue(low_risk_leg_eligible(leg, self.SLATE))
 
-    def test_near_even_needs_90pct_l10(self):
-        ok = self._leg(odds=-104, series=[2, 2, 2, 2, 2, 2, 2, 2, 2, 0])   # 9/10 + near-even
-        self.assertTrue(low_risk_leg_eligible(ok, self.SLATE))
+    def test_near_even_imperfect_l5_not_low(self):
+        # -104 near-even, 9/10 L10 but last-5 = [2,2,2,2,0] = 4/5 (not perfect)
+        # → Low now requires PERFECT 5/5 L5 for a near-even price.
+        leg = self._leg(odds=-104, series=[2, 2, 2, 2, 2, 2, 2, 2, 2, 0])
+        self.assertFalse(low_risk_leg_eligible(leg, self.SLATE))
+
+    def test_near_even_perfect_l5_is_low_fallback(self):
+        # -104 near-even with 10/10 L10 AND perfect 5/5 L5 → eligible (fallback).
+        leg = self._leg(odds=-104, series=[2.0] * 10)
+        self.assertTrue(low_risk_leg_eligible(leg, self.SLATE))
+
+    def test_even_money_plus100_needs_perfect_l5(self):
+        # +100 (even money) with 9/10 L10 but 4/5 L5 → NOT Low (the +100 case
+        # the operator flagged). Reserve for higher-risk sections.
+        imperfect = self._leg(odds=+100, series=[2, 2, 2, 2, 2, 2, 2, 2, 2, 0])
+        self.assertFalse(low_risk_leg_eligible(imperfect, self.SLATE))
+        # +100 with perfect 5/5 L5 is allowed by the fallback.
+        perfect = self._leg(odds=+100, series=[2.0] * 10)
+        self.assertTrue(low_risk_leg_eligible(perfect, self.SLATE))
+
+    def test_plus_money_over_100_never_low(self):
+        # +101 is plus-money — never Low even with perfect form.
+        leg = self._leg(odds=+101, series=[2.0] * 10)
+        self.assertFalse(low_risk_leg_eligible(leg, self.SLATE))
+
+    def test_negative_favorite_needs_90pct_l10(self):
+        # -120 favorite (between -150 and -105) needs >=90% L10; 8/10 fails.
+        weak = self._leg(odds=-120, series=[2, 2, 2, 2, 2, 2, 2, 2, 0, 0])  # 8/10
+        self.assertFalse(low_risk_leg_eligible(weak, self.SLATE))
+        strong = self._leg(odds=-120, series=[2, 2, 2, 2, 2, 2, 2, 2, 2, 0])  # 9/10
+        self.assertTrue(low_risk_leg_eligible(strong, self.SLATE))
 
     def test_missing_recent_series_fails_closed(self):
         leg = self._leg(odds=-200, series=[])  # no form

@@ -8,7 +8,7 @@
 | risk | generated | displayed | note |
 |------|----------:|----------:|------|
 | low | 6 | 5 | capped (honest) |
-| medium | 6 | 3 | capped (honest) |
+| medium | 6 | 5 | capped (honest) |
 | high | 6 | 3 | capped (honest) |
 | longshot | 6 | 2 | capped (honest) |
 

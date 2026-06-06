@@ -3,7 +3,7 @@
 > `audit-low-risk-methodology.mjs --write-report` · READ-ONLY · no paid API · no data/model/grading change.
 > Asserts every LOW leg: L10>=80% (>=90% near-even), trusted non-stale form, no plus-money>+110, no missing series.
 
-## Verdict: PASS — 12 LOW legs, 0 violations
+## Verdict: PASS — 15 LOW legs, 0 violations
 
 No LOW-risk leg violates the conservative policy. ✅
 
