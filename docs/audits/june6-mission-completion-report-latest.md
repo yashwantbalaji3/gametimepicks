@@ -1,61 +1,102 @@
 # June-6 Mission Completion Report (latest)
 
-> Post-cron June-6 validation mission. Free settlement + internal V2 hardening
-> only. **No paid API spent. No public V2 exposure. No projection/grading-math
-> change.** June-6 quality validation is deferred to the morning-projections
-> cron (see "Blocked" below).
+> Mission: June-6 post-generation execution — best projections, Low-Risk QA, V2
+> blockers, Bank Builder, browser QA. **No paid API spent. No public V2 exposure.
+> No projection/grading-math change. No data overwrite.**
 
-## What shipped
+## Baseline
+- `main` = `origin/main` = **b28c8f4** (clean tree).
+- Active displayed slate: **2026-06-05 · settled** (honestly labeled).
+- Latest settled: **2026-06-05** (21W/97L generated; 2W/22L published).
+- Time of run: 2026-06-06 ~07:2x UTC.
 
-### 1. June-5 slate settled (free) — PR #286 (merged)
-`nightly-settle`'s June-6 pass had stalled (last run 2026-06-05 10:57 UTC,
-before June 5 games finished) while all June 5 games were final. Ran the free
-public-API settlement (`SETTLE_DATE=2026-06-05 scripts/automation_settle.sh`,
-**0 Odds API credits**).
+## June-6 generation: NOT generated → NO DISPATCH
+- Artifacts: NBA board = placeholder (0 games/0 leans); **MLB board, optimizer,
+  snapshot, graded all ABSENT.**
+- `morning-projections` has not run for June 6 and is **not stalled** (its normal
+  window is ≈14:15–18:07 UTC; it was ~07:2x UTC). An `auto-refresh` run was also
+  in progress.
+- Free ESPN schedule: **MLB 15 games (all pre/not-started), NBA 0 games** (Finals
+  rest day) → June 6 will be **MLB-only**.
+- **Decision: did not dispatch.** Dispatch conditions (cron stalled + no run in
+  progress) not met; cost/balance guards not exercised; **0 paid credits**.
+- Safety note: the cron window overlaps MLB first pitches (~17 UTC); a manual
+  full-overwrite regen would be unsafe once games start. Prefer the surgical
+  `snapshot_optimizer` path or wait if the cron stalls past first pitch.
 
-- optimizer generated pool: **21W / 97L / 0P** (118 decisive, 17.8%)
-- published cards: **2W / 22L** (low 2W/4L · medium 0/6 · high 0/6 · longshot 0/6)
-- bySportBucket: mlb 2W/22L · multi 0/18 · nba 0/0
-- lifetime: **108-611** on 719 decisive
-- data-only diff; prior-date `gradedAt` churn restored (0 prior-date record changes)
+## #281 / #282 / #284 confirmed on the latest real slate (June 5)
+- **Low-risk methodology audit: PASS** — 12 Low legs, **0 violations**;
+  `publicRiskSections` low **0/6/0** (NBA Low empty — stale form fails closed;
+  MLB Low 6 valid), medium/high/longshot each 6 MLB + 6 multi (depth = #281).
+- **Feature-leakage audit: WARN** — **0 leakage**; 38 NBA leans stale (Low fails
+  closed). No outcome fields, no future-dated recent games.
+- **Coverage audit: PASS** — All (42) ≥ NBA (0) / MLB (24) / Mixed (18); no dup
+  slips.
+- **Count consistency: WARN (CASE 1, expected labels)** — 120 generated → 42
+  public-union → 9 displayed (5 Low + 4 Medium), volume-disciplined.
+- `current-live-quality` FAIL is a single `graded-absent` artifact (June 5 is
+  settled yet still the latest-generated slate because June 6 isn't generated) —
+  transient pre-generation state, not a defect.
 
-### 2. V2 distinct-dates gate hardening — PR #287
-Settling June 5 made the internal learning-feedback audit surface ONE mechanical
-launch candidate: `nba_market_PTS` (N=424, 57.8% vs 49.7% de-vig, 4/4 dates
-positive, LOO 56.1%, padj=0.010). Those 424 legs came from a **single 4-date
-NBA Finals series** — correlated within slate, so effective independence is ~4
-slates, not 424 trials. Added `minDistinctDates` (default 8) + a `too_few_dates`
-launch gate to `v2-candidate-gates.ts`. On the exact triggering data it now
-reads `shadow_watchlist (fail:too_few_dates)`; **launch candidates = 0**.
-Conservative-only (never makes launch easier); V2 stays internal
-(`ENABLE_V2_SHADOW_CANDIDATE=false`).
+## NBA recent-form (Phase 4): N/A for June 6
+No NBA slate June 6 → nothing to verify; NBA Low fails closed regardless. The
+#282 playoff-inclusive provider fix remains in effect (109 pipeline tests pass);
+re-verify on the next Finals game.
 
-## Validation
-- app suite **712/712**, `tsc --noEmit` clean, `next build` ✓
-- V2 gate suite **15/15** (NBA-Finals 4-slate → shadow_watchlist; same edge over
-  8 slates → launch_candidate; 8-date launch fixture intact)
-- canonical candidate-search: **GLOBAL: no launch_candidate**
-- learning-feedback (9 settled dates): **0 launch candidates**
-- low-risk methodology audit (June 5): PASS
-- feature-leakage audit (June 5): WARN (0 leakage, stale NBA form only)
+## Suggested-parlay depth (Phase 5)
+Cannot measure (no June-6 optimizer). Expected once generated: **MLB + Mixed
+only**, NBA = 0 (no slate). 3–5-per-risk reachable for MLB/Mixed where supply and
+the strict Low gate allow; NBA honestly empty. No padding.
 
-## Blocked — June-6 quality validation (Phases 2-6, 9, 10)
-June 6 is **not generated yet**. Only a day-old NBA placeholder board exists
-(`generatedAt 2026-06-05T16:11`, **0 games / 0 leans**); no MLB board, no
-optimizer, no risk sections. The June-6 `morning-projections` cron has not run
-(latest June 5 16:10 UTC; next ~13:30 UTC).
+## Bank Builder (Phase 6): no slip
+**No responsible NBA-only Bank Builder slip for June 6** — 0 NBA games. No
+fabricated slip, no guarantee copy, no public UI.
 
-**Did NOT dispatch a paid run** — the cron is not stalled (its scheduled time
-has not arrived) and the full slate needs that run; dispatching now would be
-premature. Once `morning-projections` lands June 6, run: quality audits, depth,
-NBA recent-form re-verify, Bank Builder, the free leakage + low-risk audits, and
-UI/UX QA on the generated slate.
+## V2 (Phase 7): honest / internal, 0 launch candidates
+- learning-feedback (9 settled dates): **0 launch candidates**;
+  `nba_market_PTS` held at `shadow_watchlist` via `too_few_dates` (only 4 NBA
+  Finals dates); `nba_market_REB` shadow_watchlist (multiple fails).
+- candidate-search: **GLOBAL: no launch_candidate.**
+- end-to-end-readiness: **`v2_not_ready` (WARN), launch candidate present? no.**
+- dataset-inventory: MLB 4334 settled / 9 dates; NBA 1139 / **4 dates** (thin).
+- watchlist (June 6): 0 active legs. `ENABLE_V2_SHADOW_CANDIDATE=false`.
+- **V2 stays internal. No public wiring.**
 
-## State for next session
-- `main` has June 5 settled (`optimizer-summary` June 5 = 21W/97L) + (on merge)
-  the distinct-dates gate.
-- No open paid actions. No V2 wired live. No started-game slate overwritten.
-- Next trigger: June-6 `morning-projections` (~13:30 UTC) → validate the fresh
-  slate per the deferred phases above.
+## Browser QA (Phase 8): PASS
+- All 7 pages (/, /parlay-lab/, /results/, /projections/, /events/,
+  /methodology/, /about/, /nba/) return **200**; **zero console errors**.
+- **No horizontal overflow at 375px** (results + parlay-lab page-level
+  scrollWidth == clientWidth; only intentional horizontal tab/chip strip).
+- Honest labeling: "ACTIVE SLATE 2026-06-05 · settled", "EDUCATIONAL · PAPER
+  ONLY".
+- Tabs present and working: Suggested Parlays / Build Your Own / Bankroll Plan;
+  All / NBA / MLB / **Mixed**.
+- Results **two-record UX intact**: PUBLISHED CARDS (21W/106L, 127 decisive, 9
+  pending) vs GENERATED POOL (100W/569L, 669 decisive, 15 pending), public
+  tracking from 2026-05-27.
+- **No banned copy** (static scan + visible disclaimers are negating/educational;
+  "edge" is the caveated projection-gap vocabulary; "v2" appears only in a
+  non-user-visible component filename). **No stale May 25/26 dates.**
 
-*Free settlement + read-only audits + conservative internal gate hardening only.*
+## Validation (Phase 9)
+- app: **712/712** tests, `tsc --noEmit` clean, `next build` ✓.
+- pipeline: `py_compile` ✓ (parlay_optimizer, nba_api_provider); **pytest 109
+  passed**.
+
+## Blockers remaining
+1. **June-6 generation** — pending `morning-projections` (~14–18 UTC). Validate
+   the MLB-only slate after it lands (checklist in
+   `june6-generation-inspection-latest.md`).
+2. **NBA staleness** — off-season/rest-day data gap; NBA Low/Bank/form resume on
+   the next Finals game.
+
+## Exact next recommendation
+Wait for the `morning-projections` cron to generate June 6 (MLB-only). After it
+lands and **before first MLB pitch**: sync main, re-run the Phase-3 audits with
+`--date 2026-06-06` (expect PASS), confirm MLB Low passes the strict gate and NBA
+stays empty, re-measure depth, browser-QA the live slate. **Do not** manually
+dispatch a full-overwrite regen once any June-6 game has started — use the
+surgical `snapshot_optimizer` path instead.
+
+*Free schedule check + read-only audits + browser QA only. No paid API, no data/
+model/grading change, no public V2 exposure.*

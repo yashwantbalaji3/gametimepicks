@@ -5,13 +5,13 @@
 > **Nothing is applied:** no write to `app/public/data`, no optimizer/projection/
 > UI change. v2 is not live.
 
-## Active slate: 2026-06-04
+## Active slate: 2026-06-06
 
 ### What the watchlist gate would flag
-- **19** MLB legs match the Low-gate watchlist condition (L5 5/5 & odds ≤ −150).
-- By market: batter_hits=14, batter_hits_runs_rbis=4, batter_total_bases=1.
-- Across 8 game(s).
-- **1** of these are already in the current published Suggested Parlays; 18 are not.
+- **0** MLB legs match the Low-gate watchlist condition (L5 5/5 & odds ≤ −150).
+- By market: (none).
+- Across 0 game(s).
+- **0** of these are already in the current published Suggested Parlays; 0 are not.
 
 ### Hypothetical change if the gate were live (NOT applied)
 - The Low gate is **`shadow_watchlist`**, not a launch candidate, so **no live
