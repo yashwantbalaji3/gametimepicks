@@ -126,6 +126,49 @@ test("single-date overdependence blocks launch", () => {
   assert.ok(r.failedGates.includes("single_date_overdependence"));
 });
 
+test("too few distinct dates blocks launch (NBA-Finals shape: strong+stable but only 4 slates)", () => {
+  // Mirrors the real nba_market_PTS June-2026 case: ~58% over a ~49.7% de-vig,
+  // every date positive, LOO-robust — but drawn from a single playoff series
+  // (4 slates). Leg-count n overstates evidence when within-slate legs are
+  // correlated, so this must NOT launch; it falls back to shadow_watchlist.
+  const input = build(
+    [
+      { n: 96, w: 54 }, // 56%
+      { n: 98, w: 55 }, // 56%
+      { n: 100, w: 56 }, // 56%
+      { n: 130, w: 80 }, // 62%
+    ],
+    0.497,
+  );
+  const r = classifyCandidate(input, cfg(424));
+  assert.equal(r.beatsNaive, true);
+  assert.equal(r.beatsCorrected, true, "corrected CI clears de-vig on leg-count");
+  assert.equal(r.stable, true, "all 4 dates positive");
+  assert.equal(r.singleDateDependent, false, "LOO-robust");
+  assert.equal(r.totalDates, 4);
+  assert.notEqual(r.verdict, "launch_candidate");
+  assert.equal(r.verdict, "shadow_watchlist");
+  assert.ok(r.failedGates.includes("too_few_dates"), "too_few_dates must block");
+});
+
+test("same strong edge across 8 distinct slates DOES launch (date count is the only difference)", () => {
+  // Identical per-slate strength as the 4-date case, but spread over 8 slates:
+  // now there are enough independent dates and it clears every gate.
+  const input = build(
+    Array.from({ length: 8 }, () => ({ n: 60, w: 35 })), // ~58% vs de-vig 49.7%
+    0.497,
+  );
+  const r = classifyCandidate(input, cfg(480));
+  assert.equal(r.totalDates, 8);
+  assert.ok(!r.failedGates.includes("too_few_dates"), "8 dates clears the date-count gate");
+  assert.equal(r.verdict, "launch_candidate");
+  assert.deepEqual(r.failedGates, []);
+});
+
+test("DEFAULT_GATES requires more dates than a single best-of-7 series", () => {
+  assert.ok(DEFAULT_GATES.minDistinctDates >= 8, "min distinct dates must exceed a 7-game series");
+});
+
 test("edge/confidence-driven segment can never launch", () => {
   const input = {
     ...build(Array.from({ length: 8 }, () => ({ n: 50, w: 30 })), 0.5),

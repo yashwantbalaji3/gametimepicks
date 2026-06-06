@@ -159,6 +159,17 @@ export interface GateConfig {
   minPositiveDateFrac: number;
   /** within-margin (in proportion) of de-vig => "market already prices it" */
   marginProp: number;
+  /**
+   * Minimum number of DISTINCT contributing dates (independent slates) a bucket
+   * needs before it can launch. The bucket's leg-count `n` overstates evidence
+   * when legs within one slate are correlated (e.g. an NBA Finals slate's PTS
+   * Overs all share pace/officiating/matchup), so a few hundred legs drawn from
+   * a single playoff series is NOT a few hundred independent trials. Requiring
+   * more dates than a single best-of-7 series keeps a thin, single-matchup
+   * sample from clearing the launch gate; sub-threshold buckets fall back to
+   * `shadow_watchlist`.
+   */
+  minDistinctDates: number;
 }
 
 export const DEFAULT_GATES: Omit<GateConfig, "overallN" | "numTests"> = {
@@ -167,6 +178,7 @@ export const DEFAULT_GATES: Omit<GateConfig, "overallN" | "numTests"> = {
   alpha: 0.05,
   minPositiveDateFrac: 0.7,
   marginProp: 0.03,
+  minDistinctDates: 8,
 };
 
 export interface CandidateResult {
@@ -227,8 +239,9 @@ function isSingleDateDependent(input: CandidateInput): boolean {
  * Classify a searched segment. `launch_candidate` requires ALL hard gates:
  *  bucket N, overall N, beats de-vig, naive CI lower > de-vig, multiple-
  *  comparisons-corrected CI lower > de-vig, adjusted p < alpha, date-split
- *  stable, no single-date overdependence, not edge/confidence-driven, leakage
- *  clean. Anything that clears only the naive CI is `shadow_watchlist`.
+ *  stable, enough distinct dates (independent slates, not just legs), no
+ *  single-date overdependence, not edge/confidence-driven, leakage clean.
+ *  Anything that clears only the naive CI is `shadow_watchlist`.
  */
 export function classifyCandidate(
   input: CandidateInput,
@@ -297,6 +310,7 @@ export function classifyCandidate(
   if (!beatsCorrected) failedGates.push("corrected_ci");
   if (pAdj >= cfg.alpha) failedGates.push("adjusted_p");
   if (!stable) failedGates.push("date_stability");
+  if (totalDates < cfg.minDistinctDates) failedGates.push("too_few_dates");
   if (singleDateDependent) failedGates.push("single_date_overdependence");
   if (input.edgeOrConfidenceDriven) failedGates.push("edge_or_confidence_driven");
 
