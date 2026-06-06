@@ -25,6 +25,18 @@ from typing import Any, Iterable
 API_BASE = "https://statsapi.mlb.com/api/v1"
 USER_AGENT = "gametimepicks/0.4 (educational analytics)"
 
+# Stable MLB Stats API team-id → abbreviation. The gameLog `opponent` object
+# carries only {id, name} (no abbreviation), so we resolve the abbreviation
+# from the id here. IDs are stable across seasons. 133 = Athletics ("ATH",
+# matching the schedule/board convention).
+TEAM_ID_ABBR: dict[int, str] = {
+    108: "LAA", 109: "ARI", 110: "BAL", 111: "BOS", 112: "CHC", 113: "CIN",
+    114: "CLE", 115: "COL", 116: "DET", 117: "HOU", 118: "KC", 119: "LAD",
+    120: "WSH", 121: "NYM", 133: "ATH", 134: "PIT", 135: "SD", 136: "SEA",
+    137: "SF", 138: "STL", 139: "TB", 140: "TEX", 141: "TOR", 142: "MIN",
+    143: "PHI", 144: "ATL", 145: "CHW", 146: "MIA", 147: "NYY", 158: "MIL",
+}
+
 
 class MlbStatsError(Exception):
     """Raised when the MLB Stats API call fails terminally (after retries)."""
@@ -141,10 +153,22 @@ def fetch_player_game_log(player_id: int, season: int, group: str) -> list[dict]
     out: list[dict] = []
     for s in splits:
         stat = s.get("stat", {}) or {}
+        # isHome is provided by the gameLog split when available; emit it so the
+        # leg-detail modal can show @ / vs. None when the API omits it (the UI
+        # then shows the opponent without a home/away marker).
+        is_home = s.get("isHome")
+        # The gameLog `opponent` object carries id + name but NOT abbreviation
+        # (only the schedule endpoint has abbreviation). Resolve via the stable
+        # team-id map, falling back to an explicit abbreviation if present.
+        opp = s.get("opponent") or {}
+        team = s.get("team") or {}
         out.append(
             {
                 "date": s.get("date"),
-                "opponentAbbr": (s.get("opponent") or {}).get("abbreviation"),
+                "opponentAbbr": opp.get("abbreviation") or TEAM_ID_ABBR.get(opp.get("id")),
+                "opponentName": opp.get("name"),
+                "playerTeamAbbr": team.get("abbreviation") or TEAM_ID_ABBR.get(team.get("id")),
+                "isHome": is_home if isinstance(is_home, bool) else None,
                 "stat": stat,
             }
         )

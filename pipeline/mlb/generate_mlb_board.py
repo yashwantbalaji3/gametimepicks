@@ -210,6 +210,7 @@ def _build_lean(
         "sigma": projection.get("sigma") or None,
         "samples": projection.get("samples", 0),
         "recentSeries": projection.get("recentSeries", []),
+        "recentGames": projection.get("recentGames", []),
         "lean": grade["lean"],
         "confidence": grade["confidence"],
         "modelProbOver": grade["modelProbOver"],

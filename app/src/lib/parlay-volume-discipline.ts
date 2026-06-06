@@ -111,21 +111,38 @@ function keysOf(slip: DiscSlip) {
  * exposure cap is skipped (the next slip in that section is tried). Pure +
  * deterministic: same input + caps ⇒ same output, so the rendered cards
  * and the "Showing N" count never disagree.
+ *
+ * EXPOSURE CAPS ARE PER-SECTION, not cumulative across sections. The
+ * player/market/game exposure caps exist to stop one entity from dominating a
+ * *section's* visible cards. On a single-sport slate the market vocabulary is
+ * small (MLB ≈ hits / total bases / H+R+RBI / strikeouts), so a cumulative
+ * market cap was being fully consumed by Low + Medium and then STARVED High and
+ * Longshot to zero even though the optimizer generated qualifying 4–5 / 5–6 leg
+ * cards (June 6: publicRiskSections had 6 High + 6 Longshot, UI showed 0). The
+ * 2-leg Low card and the 5-leg Longshot card are different products at different
+ * risk; a popular market/player legitimately appears in both. Resetting the
+ * exposure counters per section keeps each section internally diverse while
+ * letting High/Longshot render. The per-section count caps and the global
+ * `totalMax` still bound overall volume. (No padding: still only ever keeps real
+ * generated slips, in the optimizer's order.)
  */
 export function applyVolumeDiscipline<T extends DiscSlip>(
   sections: Partial<Record<RiskSectionKey, ReadonlyArray<T>>>,
   caps: VolumeCaps = PUBLIC_VOLUME_CAPS,
 ): VolumeDisciplineResult<T> {
   const out: Record<RiskSectionKey, T[]> = { low: [], medium: [], high: [], longshot: [] };
-  const playerCt = new Map<string, number>();
-  const marketCt = new Map<string, number>();
-  const gameCt = new Map<string, number>();
   let total = 0;
   let inputTotal = 0;
   for (const sec of RISK_SECTION_ORDER) inputTotal += (sections[sec] ?? []).length;
 
   for (const sec of RISK_SECTION_ORDER) {
     if (total >= caps.totalMax) break;
+    // Per-section exposure counters: a section's diversity is enforced within
+    // itself, so a market/player/game consumed by an earlier section cannot
+    // starve this one.
+    const playerCt = new Map<string, number>();
+    const marketCt = new Map<string, number>();
+    const gameCt = new Map<string, number>();
     for (const slip of sections[sec] ?? []) {
       if (out[sec].length >= caps.perSection[sec]) break;
       if (total >= caps.totalMax) break;

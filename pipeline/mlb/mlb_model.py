@@ -136,6 +136,89 @@ def batter_stat_series(game_logs: list[dict], stat_key: str) -> list[float]:
 
 
 # ---------------------------------------------------------------------------
+# Per-game metadata for the leg-detail modal (mirrors NBA recentGames shape:
+# {date, opponent, isHome, value}). Built with the SAME per-game value +
+# inclusion rules as the series above so each row's value matches recentSeries.
+# ---------------------------------------------------------------------------
+def _per_game_value(stat: dict, market_key: str):
+    """Return (value, appeared) for one game's stat line, or (None, _) to skip.
+
+    `appeared` mirrors batter_stat_series' PA/AB > 0 filter; pitcher rows are
+    always counted when a strikeout value is present.
+    """
+    if market_key == "pitcher_strikeouts":
+        k = stat.get("strikeOuts")
+        if k is None:
+            return None, True
+        try:
+            return int(k), True
+        except (TypeError, ValueError):
+            return None, True
+    try:
+        pa = float(stat.get("plateAppearances", 0) or 0)
+        ab = float(stat.get("atBats", 0) or 0)
+    except (TypeError, ValueError):
+        pa, ab = 0.0, 0.0
+    appeared = pa > 0 or ab > 0
+    if market_key == "batter_hits_runs_rbis":
+        try:
+            v = (
+                float(stat.get("hits", 0) or 0)
+                + float(stat.get("runs", 0) or 0)
+                + float(stat.get("rbi", 0) or 0)
+            )
+        except (TypeError, ValueError):
+            return None, appeared
+        return v, appeared
+    key = {"batter_hits": "hits", "batter_total_bases": "totalBases"}.get(market_key)
+    if key is None:
+        return None, appeared
+    raw = stat.get(key)
+    if raw is None:
+        return None, appeared
+    try:
+        return float(raw), appeared
+    except (TypeError, ValueError):
+        return None, appeared
+
+
+def recent_games_for_market(
+    game_logs: list[dict], market_key: str, last_n: int = 10
+) -> list[dict]:
+    """Per-game metadata rows for a market, oldest→newest, last `last_n`.
+
+    Each row: {date, opponent, isHome, value}. Uses the SAME inclusion rule as
+    the matching *_series builder so row[i].value lines up with recentSeries.
+    Rows with no usable value (or a batter who did not appear) are skipped, never
+    zero-filled — exactly like the series. `date` is required (a row with no date
+    is dropped so the modal never invents one).
+    """
+    out: list[dict] = []
+    pitcher = market_key == "pitcher_strikeouts"
+    for g in game_logs:
+        stat = g.get("stat", {}) or {}
+        value, appeared = _per_game_value(stat, market_key)
+        if value is None:
+            continue
+        if not pitcher and not appeared:
+            continue
+        date = g.get("date")
+        if not date:
+            continue  # never fabricate a date
+        opp = g.get("opponentAbbr")
+        is_home = g.get("isHome")
+        out.append(
+            {
+                "date": date,
+                "opponent": opp if opp else None,
+                "isHome": is_home if isinstance(is_home, bool) else None,
+                "value": value,
+            }
+        )
+    return out[-last_n:] if last_n and last_n > 0 else out
+
+
+# ---------------------------------------------------------------------------
 # Per-market projection
 # ---------------------------------------------------------------------------
 def project_pitcher_strikeouts(game_logs: list[dict]) -> dict:
@@ -147,6 +230,7 @@ def project_pitcher_strikeouts(game_logs: list[dict]) -> dict:
        "insufficient": bool, "recentSeries": list[int]}
     """
     series = pitcher_strikeouts_series(game_logs)
+    games = recent_games_for_market(game_logs, "pitcher_strikeouts")
     n = len(series)
     if n < MIN_GAMES_PITCHER:
         return {
@@ -157,6 +241,7 @@ def project_pitcher_strikeouts(game_logs: list[dict]) -> dict:
             "seasonMean": None,
             "insufficient": True,
             "recentSeries": series,
+            "recentGames": games,
         }
     last3 = series[-3:]
     last3_mean = _safe_mean(last3)
@@ -171,6 +256,7 @@ def project_pitcher_strikeouts(game_logs: list[dict]) -> dict:
         "seasonMean": round(season_mean, 2),
         "insufficient": False,
         "recentSeries": series,
+        "recentGames": games,
     }
 
 
@@ -202,8 +288,10 @@ def project_batter_market(game_logs: list[dict], market_key: str) -> dict:
             "seasonMean": None,
             "insufficient": True,
             "recentSeries": [],
+            "recentGames": [],
         }
 
+    games = recent_games_for_market(game_logs, market_key)
     n = len(series)
     if n < MIN_GAMES_BATTER:
         return {
@@ -214,6 +302,7 @@ def project_batter_market(game_logs: list[dict], market_key: str) -> dict:
             "seasonMean": None,
             "insufficient": True,
             "recentSeries": series,
+            "recentGames": games,
         }
     last10 = series[-10:]
     last10_mean = _safe_mean(last10)
@@ -229,6 +318,7 @@ def project_batter_market(game_logs: list[dict], market_key: str) -> dict:
         "seasonMean": round(season_mean, 2),
         "insufficient": False,
         "recentSeries": series,
+        "recentGames": games,
     }
 
 
