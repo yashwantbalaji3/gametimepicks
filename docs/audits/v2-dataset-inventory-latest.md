@@ -6,21 +6,21 @@
 ## Settled validation data (public era ≥ 2026-05-27; May 25/26 banned)
 
 ### MLB settled leans (`pipeline/validation/mlb_settled_leans.jsonl`)
-- Rows: total 4906, public-era 3356. Dates: 2026-05-27, 2026-05-28, 2026-05-29, 2026-05-30, 2026-06-01, 2026-06-02, 2026-06-03
-- Outcomes (public era): **1682W / 1674L** · push/pending 0
-- Markets: pitcher_strikeouts=154, batter_hits=1317, batter_total_bases=565, batter_hits_runs_rbis=1320
+- Rows: total 5884, public-era 4334. Dates: 2026-05-27, 2026-05-28, 2026-05-29, 2026-05-30, 2026-06-01, 2026-06-02, 2026-06-03, 2026-06-04, 2026-06-05
+- Outcomes (public era): **2164W / 2170L** · push/pending 0
+- Markets: pitcher_strikeouts=194, batter_hits=1688, batter_total_bases=761, batter_hits_runs_rbis=1691
 - model probability: yes · odds inline: no (join board for odds/de-vig)
 
 ### NBA settled leans (`pipeline/validation/settled_leans.jsonl`)
-- Rows: total 2308, public-era 794. Dates: 2026-05-28, 2026-05-30, 2026-06-03
-- Outcomes (public era): **421W / 373L**
-- Markets: AST=232, PTS=294, REB=268
+- Rows: total 2653, public-era 1139. Dates: 2026-05-28, 2026-05-30, 2026-06-03, 2026-06-05
+- Outcomes (public era): **597W / 542L**
+- Markets: AST=333, PTS=424, REB=382
 - odds inline: yes (oddsOver/Under). NBA recent-form fails closed (ordering unverified).
 
 ### Boards & graded
-- MLB boards: 19 dates (2026-05-16 … 2026-06-04). Two-way odds: 426/426 on 2026-06-04.
-- NBA boards: 35 dates (2026-05-04 … 2026-06-07).
-- optimizer-graded: 9 dates; public-era 7 (2026-05-27, 2026-05-28, 2026-05-29, 2026-05-30, 2026-06-01, 2026-06-02, 2026-06-03).
+- MLB boards: 20 dates (2026-05-16 … 2026-06-05). Two-way odds: 687/687 on 2026-06-05.
+- NBA boards: 36 dates (2026-05-04 … 2026-06-08).
+- optimizer-graded: 11 dates; public-era 9 (2026-05-27, 2026-05-28, 2026-05-29, 2026-05-30, 2026-06-01, 2026-06-02, 2026-06-03, 2026-06-04, 2026-06-05).
 
 ## Leakage posture
 - Settled-only (outcomes from the settled log); recent form sourced from THAT date's pregame board (no future leakage).
