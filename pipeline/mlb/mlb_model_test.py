@@ -140,6 +140,43 @@ def main() -> None:
     assert_eq(r5["confidence"], "insufficient_data", "insufficient_data tier")
     assert_eq(r5.get("contextTag"), None, "no contextTag when no projection")
 
+    print("\n─── recent_games_for_market: per-game modal metadata ───")
+    logs = [
+        {"date": "2026-05-31", "opponentAbbr": "SD", "isHome": False,
+         "stat": {"hits": 2, "runs": 1, "rbi": 0, "totalBases": 3, "atBats": 4, "plateAppearances": 4}},
+        {"date": "2026-06-01", "opponentAbbr": "SD", "isHome": False,
+         "stat": {"hits": 0, "runs": 0, "rbi": 0, "totalBases": 0, "atBats": 3, "plateAppearances": 3}},
+        {"date": "2026-06-03", "opponentAbbr": "HOU", "isHome": True,
+         "stat": {"hits": 2, "runs": 0, "rbi": 1, "totalBases": 2, "atBats": 4, "plateAppearances": 4}},
+        # no-date row must be DROPPED (never fabricate a date)
+        {"date": None, "opponentAbbr": "X", "isHome": True,
+         "stat": {"hits": 1, "atBats": 2, "plateAppearances": 2}},
+        # did-not-appear row (0 PA/AB) must be DROPPED for batter markets
+        {"date": "2026-06-04", "opponentAbbr": "LAD", "isHome": False,
+         "stat": {"hits": 0, "atBats": 0, "plateAppearances": 0}},
+    ]
+    hits = mlb_model.recent_games_for_market(logs, "batter_hits")
+    assert_eq(len(hits), 3, "recentGames(hits) drops no-date and DNP rows")
+    assert_eq([g["date"] for g in hits], ["2026-05-31", "2026-06-01", "2026-06-03"], "recentGames dates oldest->newest")
+    assert_eq([g["opponent"] for g in hits], ["SD", "SD", "HOU"], "recentGames opponents present")
+    assert_eq([g["isHome"] for g in hits], [False, False, True], "recentGames isHome present")
+    assert_eq([g["value"] for g in hits], [2.0, 0.0, 2.0], "recentGames(hits) per-game value")
+    hrr = mlb_model.recent_games_for_market(logs, "batter_hits_runs_rbis")
+    assert_eq([g["value"] for g in hrr], [3.0, 0.0, 3.0], "recentGames(hrr) = hits+runs+rbi per game")
+    tb = mlb_model.recent_games_for_market(logs, "batter_total_bases")
+    assert_eq([g["value"] for g in tb], [3.0, 0.0, 2.0], "recentGames(total bases) per game")
+    plogs = [
+        {"date": "2026-05-20", "opponentAbbr": "NYY", "isHome": True, "stat": {"strikeOuts": 6}},
+        {"date": "2026-05-26", "opponentAbbr": "BOS", "isHome": False, "stat": {"strikeOuts": 4}},
+    ]
+    pk = mlb_model.recent_games_for_market(plogs, "pitcher_strikeouts")
+    assert_eq([g["value"] for g in pk], [6, 4], "recentGames(strikeouts) per game")
+    many = [{"date": f"2026-05-{d:02d}", "opponentAbbr": "SD", "isHome": True,
+             "stat": {"hits": 1, "atBats": 4, "plateAppearances": 4}} for d in range(1, 15)]
+    capped = mlb_model.recent_games_for_market(many, "batter_hits", last_n=10)
+    assert_eq(len(capped), 10, "recentGames respects last_n cap")
+    assert_eq(capped[-1]["date"], "2026-05-14", "recentGames keeps the NEWEST when capping")
+
     print(f"\n{GREEN}✓ all mlb_model assertions passed{RESET}\n")
 
 

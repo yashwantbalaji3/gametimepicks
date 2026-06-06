@@ -104,6 +104,33 @@ test("deterministic: same input + caps → identical output", () => {
   );
 });
 
+test("exposure caps are PER-SECTION: a single-sport slate does not starve High/Longshot", () => {
+  // Reproduces the June-6 MLB-only bug: every section's slips reuse the same
+  // small market vocabulary. With cumulative cross-section exposure caps, Low +
+  // Medium consumed the market budget and High + Longshot rendered 0. With
+  // per-section counters, each section renders up to its perSection cap.
+  const MKTS = ["batter_hits", "batter_total_bases"]; // tiny single-sport vocab
+  let n = 0;
+  // every slip uses both shared markets but distinct players/games (so only the
+  // MARKET cap could bind across sections)
+  const mlbSlip = () =>
+    slip([
+      { playerId: ++n, playerName: `P${n}`, market: MKTS[0], gameId: `g${++n}` },
+      { playerId: ++n, playerName: `P${n}`, market: MKTS[1], gameId: `g${++n}` },
+    ]);
+  const sections = { low: fill2(mlbSlip, 6), medium: fill2(mlbSlip, 6), high: fill2(mlbSlip, 6), longshot: fill2(mlbSlip, 6) };
+  const r = applyVolumeDiscipline(sections, PUBLIC_VOLUME_CAPS);
+  // High and Longshot MUST render (this is the regression): not starved to 0.
+  assert.ok(r.sections.high.length > 0, `High starved: got ${r.sections.high.length}`);
+  assert.ok(r.sections.longshot.length > 0, `Longshot starved: got ${r.sections.longshot.length}`);
+  // and each section honours its own perSection cap
+  assert.equal(r.sections.high.length, PUBLIC_VOLUME_CAPS.perSection.high);
+  assert.equal(r.sections.longshot.length, PUBLIC_VOLUME_CAPS.perSection.longshot);
+});
+
+// helper: build n slips from a factory
+function fill2(factory, n) { return Array.from({ length: n }, factory); }
+
 // --- current editorial cap values (depth fix 2026-06-05) -------------------
 test("default PUBLIC caps: per-section sum == totalMax (15) — deeper publishing", () => {
   const c = PUBLIC_VOLUME_CAPS;

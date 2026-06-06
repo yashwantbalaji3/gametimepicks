@@ -368,6 +368,10 @@ function EnrichedRecentList({
     sport === "nba" || sport === "mlb" || sport === "nhl"
       ? (sport as "nba" | "mlb" | "nhl")
       : null;
+  // Honest provenance: flag only when MOST rows lack opponent/date metadata, so
+  // a mostly-enriched list isn't noised up. Per-row gaps already render as "—".
+  const missingMeta = games.filter((g) => !g.date || !g.opponent).length;
+  const lowMetaCoverage = games.length > 0 && missingMeta > 2;
   return (
     <div className="flex flex-col gap-1.5">
       <span
@@ -451,6 +455,15 @@ function EnrichedRecentList({
           );
         })}
       </ol>
+      {lowMetaCoverage && (
+        <p
+          className="text-[11px] leading-snug"
+          style={{ color: "var(--vault-text-faint)" }}
+        >
+          Opponent / date metadata is missing for {missingMeta} of {games.length}{" "}
+          recent games from this source — stat values are still accurate.
+        </p>
+      )}
     </div>
   );
 }
