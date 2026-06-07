@@ -1,9 +1,9 @@
-# Low-Risk Methodology Audit — 2026-06-06 (auto-generated)
+# Low-Risk Methodology Audit — 2026-06-07 (auto-generated)
 
 > `audit-low-risk-methodology.mjs --write-report` · READ-ONLY · no paid API · no data/model/grading change.
 > Asserts every LOW leg: L10>=80% (>=90% near-even), trusted non-stale form, no plus-money>+110, no missing series.
 
-## Verdict: PASS — 15 LOW legs, 0 violations
+## Verdict: PASS — 16 LOW legs, 0 violations
 
 No LOW-risk leg violates the conservative policy. ✅
 

@@ -1,4 +1,4 @@
-# Risk-Section Display Audit — 2026-06-06 (auto-generated)
+# Risk-Section Display Audit — 2026-06-07 (auto-generated)
 
 > `audit-risk-section-display.mjs --write-report` · READ-ONLY · no paid API · no data/model change.
 > FAIL = a risk bucket the optimizer generated renders 0 on screen (UI/discipline starvation).
