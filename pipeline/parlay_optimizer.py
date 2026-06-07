@@ -1334,10 +1334,35 @@ def _market_reliability_delta(leg: OptimizerLean) -> float:
     return max(-_RELIABILITY_MAX_DELTA, min(_RELIABILITY_MAX_DELTA, d))
 
 
+# Recent-form quality signal (PR recent-form-quality-signal). Settled research
+# shows the leaned side's RECENT HIT RATE vs its line is monotonically
+# predictive (MLB L5 5/5 ~59%, ≤2/5 ~45%; same shape on L10) — more so than the
+# model's own confidence label, which graded ~flat-to-inverse (High ≤ Low in
+# both sports). The quality score previously rewarded only recent10 *fullness*
+# (having data), not *good* form. This adds a bounded reward for legs actually
+# hitting their line lately, preferring the stabler L10 and falling back to L5.
+# Applies across all sections (Low already gates on L10≥80%, so it just prefers
+# the strongest-form eligible legs). Zero when no usable series exists.
+_RECENT_FORM_WEIGHT: float = 10.0
+_RECENT_FORM_MAX_DELTA: float = 0.30  # clamp |recentHitRate − 0.5|
+
+
+def _recent_form_quality_delta(leg: OptimizerLean) -> float:
+    """Bounded (recentHitRate − 0.5) for the leg's chosen side: prefer L10,
+    fall back to L5, else 0. Pure; uses only recentSeries (no fabrication)."""
+    rate = _l10_hit_rate(leg)
+    if rate is None:
+        rate = _l5_hit_rate(leg)
+    if rate is None:
+        return 0.0
+    d = rate - 0.5
+    return max(-_RECENT_FORM_MAX_DELTA, min(_RECENT_FORM_MAX_DELTA, d))
+
+
 def _sgp_leg_quality(leg: OptimizerLean) -> float:
-    """Compact quality score for SGP eligibility ranking. Higher is
-    better. Pure: edge × confidence × recent10 fullness, plus a small
-    bounded market-reliability tiebreaker from settled history."""
+    """Compact quality score for SGP eligibility ranking. Higher is better:
+    edge × confidence + recent10 fullness + bounded market-reliability and
+    recent-form tiebreakers from settled history (the terms shown predictive)."""
     conf_weight = (
         1.0 if leg.confidence == "High"
         else 0.7 if leg.confidence == "Medium"
@@ -1347,7 +1372,8 @@ def _sgp_leg_quality(leg: OptimizerLean) -> float:
     edge = max(0.0, leg.edgePct or 0.0)
     recent = min(10, leg.recent10Count or 0) / 10.0
     reliability = _RELIABILITY_WEIGHT * _market_reliability_delta(leg)
-    return edge * conf_weight + 5.0 * recent + reliability
+    recent_form = _RECENT_FORM_WEIGHT * _recent_form_quality_delta(leg)
+    return edge * conf_weight + 5.0 * recent + reliability + recent_form
 
 
 def generate_nba_sgp_slips(
