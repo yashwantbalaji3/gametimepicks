@@ -70,6 +70,21 @@
   --vault-danger: #F08A8A;
   --vault-danger-dim: rgba(240, 138, 138, 0.12);
 
+  /* Risk-tier accent system (premium "sportsbook board" color-coded lanes).
+     Distinct hues so Low / Medium / High / Longshot read as a risk escalation
+     (cool → brand-gold → warm → exotic) instead of three shades of gold. Used
+     only on risk-specific elements (section headers, per-card risk chips,
+     results risk tables) — the gold theme stays the global anchor. These imply
+     RISK LEVEL, never likelihood of winning. */
+  --risk-low: #45D9A0;        /* emerald — conservative */
+  --risk-low-dim: rgba(69, 217, 160, 0.13);
+  --risk-medium: #F0C75E;     /* brand gold — balanced */
+  --risk-medium-dim: rgba(240, 199, 94, 0.13);
+  --risk-high: #FB923C;       /* orange — higher variance */
+  --risk-high-dim: rgba(251, 146, 60, 0.13);
+  --risk-longshot: #C084FC;   /* violet — highest variance */
+  --risk-longshot-dim: rgba(192, 132, 252, 0.14);
+
   /* Phase 7B-7 — refinement tokens for spacing, dividers, focus */
   --vault-rule: rgba(212, 175, 55, 0.08);     /* internal section dividers */
   --vault-shadow-soft: 0 1px 0 rgba(212, 175, 55, 0.04);

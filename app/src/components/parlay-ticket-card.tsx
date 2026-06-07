@@ -185,6 +185,11 @@ export default function ParlayTicketCard({
   const riskSection = getRiskSectionDisplay(
     classifyRiskSection(_combinedForChip),
   );
+  // Top accent rule: a pregame card shows its RISK-TIER lane colour (the
+  // "sportsbook board" feel — Low green / Medium gold / High orange / Longshot
+  // violet); a settled card keeps its win/loss/push status colour so Results
+  // reads as a record. Risk colour implies tier, never likelihood of winning.
+  const topRuleColor = slip.status === "pending" ? riskSection.accentVar : accent;
   const isStarPower = slip.riskProfile === "star_power";
   const isFeatured = emphasis === "featured";
   const gradedLabel = gradedStatusLabel(slip.status);
@@ -229,8 +234,8 @@ export default function ParlayTicketCard({
         aria-hidden
         className="absolute inset-x-0 top-0 h-[2px]"
         style={{
-          background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
-          opacity: isFeatured ? 0.75 : 0.5,
+          background: `linear-gradient(90deg, transparent, ${topRuleColor}, transparent)`,
+          opacity: isFeatured ? 0.85 : 0.55,
         }}
       />
 
