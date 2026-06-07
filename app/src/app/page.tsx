@@ -276,7 +276,7 @@ export default function HomePage() {
                 />
                 <p className="px-1 pt-2 text-[11px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
                   {featuredIsBankBuilder
-                    ? `The safest stack on the ${slateLabel} slate — negative-odds favorites with strong recent form, saved before games and graded after. Conservative does not mean guaranteed.`
+                    ? `The most conservative stack on the ${slateLabel} slate — negative-odds favorites with strong recent form, saved before games and graded after. Conservative does not mean guaranteed.`
                     : `The model's headline slip from the ${slateLabel} slate — saved before games, graded after. High-variance slips are labelled.`}
                 </p>
               </div>
