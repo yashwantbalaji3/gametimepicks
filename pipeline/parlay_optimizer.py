@@ -1362,12 +1362,20 @@ def _recent_form_quality_delta(leg: OptimizerLean) -> float:
 def _sgp_leg_quality(leg: OptimizerLean) -> float:
     """Compact quality score for SGP eligibility ranking. Higher is better:
     edge × confidence + recent10 fullness + bounded market-reliability and
-    recent-form tiebreakers from settled history (the terms shown predictive)."""
+    recent-form tiebreakers from settled history (the terms shown predictive).
+
+    Confidence weighting is COMPRESSED (1.0 / 0.85 / 0.7 vs the old 1.0 / 0.7 /
+    0.4): settled data shows the model's confidence label is non-predictive —
+    High graded ≤ Low in BOTH sports (MLB High 48.6% < Low 50.4%; NBA High 51.1%
+    < Low 55.9%) — so heavily discounting Low-confidence high-edge legs was
+    unjustified. We reduce confidence's influence (not invert it; insufficient-
+    data stays 0) and let the predictive terms (edge, recent form, market
+    reliability) drive selection. Applies to FUTURE generation."""
     conf_weight = (
         1.0 if leg.confidence == "High"
-        else 0.7 if leg.confidence == "Medium"
-        else 0.4 if leg.confidence == "Low"
-        else 0.0
+        else 0.85 if leg.confidence == "Medium"
+        else 0.7 if leg.confidence == "Low"
+        else 0.0  # insufficient_data / unknown — graded worst, stays unweighted
     )
     edge = max(0.0, leg.edgePct or 0.0)
     recent = min(10, leg.recent10Count or 0) / 10.0

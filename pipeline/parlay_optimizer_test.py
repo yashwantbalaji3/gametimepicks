@@ -1642,6 +1642,29 @@ class RecentFormQualityTests(unittest.TestCase):
         self.assertGreater(_sgp_leg_quality(cold_big_edge), _sgp_leg_quality(hot_tiny_edge))
 
 
+class ConfidenceWeightCompressionTests(unittest.TestCase):
+    """The compressed confidence weighting in _sgp_leg_quality (1.0/0.85/0.7).
+    Confidence graded non-predictive, so its influence is reduced (not inverted);
+    insufficient_data stays unweighted. Equal market + series isolate confidence."""
+
+    def _leg(self, conf, edge):
+        return normalize_lean(_mlb_lean(market="batter_hits", confidence=conf, edgePct=edge,
+                                        line=0.5, lean="Over", side="Over", recentSeries=[1] * 10))
+
+    def test_order_preserved_at_equal_edge(self):
+        h, m, l = self._leg("High", 6), self._leg("Medium", 6), self._leg("Low", 6)
+        self.assertGreater(_sgp_leg_quality(h), _sgp_leg_quality(m))
+        self.assertGreater(_sgp_leg_quality(m), _sgp_leg_quality(l))
+
+    def test_compression_lets_stronger_edge_low_conf_beat_weak_high_conf(self):
+        # OLD weights (1.0/0.4): Low edge-10 (4.0) lost to High edge-5 (5.0).
+        # Compressed (0.7): 7.0 > 5.0 — higher edge wins (confidence non-predictive).
+        self.assertGreater(_sgp_leg_quality(self._leg("Low", 10)), _sgp_leg_quality(self._leg("High", 5)))
+
+    def test_insufficient_data_stays_unweighted(self):
+        self.assertGreater(_sgp_leg_quality(self._leg("Low", 10)), _sgp_leg_quality(self._leg("insufficient_data", 10)))
+
+
 class MarketReliabilityNudgeTests(unittest.TestCase):
     """The bounded settled-history market-reliability tiebreaker in
     _sgp_leg_quality. Inject a controlled cache so the test is independent of
