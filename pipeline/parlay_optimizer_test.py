@@ -16,6 +16,7 @@ import pipeline.parlay_optimizer as po
 from pipeline.parlay_optimizer import (
     _sgp_leg_quality,
     _market_reliability_delta,
+    _recent_form_quality_delta,
     AGGRESSIVE_RULES,
     BALANCED_RULES,
     CONSERVATIVE_RULES,
@@ -1604,6 +1605,41 @@ class LowRiskLegEligibilityTests(unittest.TestCase):
         stale = [{"date": "2026-04-12", "opponent": "DEN", "isHome": True, "value": 18.0}] * 10
         leg = self._leg(odds=-200, line=6.5, series=[18.0] * 10, games=stale)
         self.assertFalse(low_risk_leg_eligible(leg, self.SLATE))
+
+
+class RecentFormQualityTests(unittest.TestCase):
+    """The bounded recent-form (L10→L5) quality signal in _sgp_leg_quality."""
+
+    def test_delta_sign_and_clamp(self):
+        # Over 0.5: all-2s = 10/10 hit → +0.5 clamps to +0.30
+        strong = normalize_lean(_mlb_lean(line=0.5, lean="Over", side="Over", recentSeries=[2] * 10))
+        # Over 0.5: all-0s = 0/10 hit → −0.5 clamps to −0.30
+        weak = normalize_lean(_mlb_lean(line=0.5, lean="Over", side="Over", recentSeries=[0] * 10))
+        self.assertAlmostEqual(_recent_form_quality_delta(strong), 0.30, places=6)
+        self.assertAlmostEqual(_recent_form_quality_delta(weak), -0.30, places=6)
+
+    def test_no_series_is_zero(self):
+        none = normalize_lean(_mlb_lean(recentSeries=[]))
+        self.assertEqual(_recent_form_quality_delta(none), 0.0)
+
+    def test_falls_back_to_l5_when_under_10(self):
+        # 5 values, Over 0.5, 4 hits / 5 → 0.8 → delta 0.30 (clamped from 0.30)
+        five = normalize_lean(_mlb_lean(line=0.5, lean="Over", side="Over", recentSeries=[2, 2, 2, 2, 0]))
+        self.assertAlmostEqual(_recent_form_quality_delta(five), 0.30, places=6)
+
+    def test_strong_form_outranks_weak_at_equal_edge_and_market(self):
+        strong = normalize_lean(_mlb_lean(market="batter_hits", edgePct=8.0, confidence="High",
+                                          line=0.5, lean="Over", side="Over", recentSeries=[2] * 10))
+        weak = normalize_lean(_mlb_lean(market="batter_hits", edgePct=8.0, confidence="High",
+                                        line=0.5, lean="Over", side="Over", recentSeries=[0] * 10))
+        self.assertGreater(_sgp_leg_quality(strong), _sgp_leg_quality(weak))
+
+    def test_recent_form_does_not_override_much_stronger_edge(self):
+        cold_big_edge = normalize_lean(_mlb_lean(market="batter_hits", edgePct=25.0, confidence="High",
+                                                 line=0.5, lean="Over", side="Over", recentSeries=[0] * 10))
+        hot_tiny_edge = normalize_lean(_mlb_lean(market="batter_hits", edgePct=1.0, confidence="High",
+                                                 line=0.5, lean="Over", side="Over", recentSeries=[2] * 10))
+        self.assertGreater(_sgp_leg_quality(cold_big_edge), _sgp_leg_quality(hot_tiny_edge))
 
 
 class MarketReliabilityNudgeTests(unittest.TestCase):
