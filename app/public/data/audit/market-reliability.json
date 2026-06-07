@@ -1,0 +1,134 @@
+{
+  "_disclaimer": "Settled-only market reliability (shrunk to a 0.5 prior, k=60). Read-only research signal; sample-floored. Not a profit claim.",
+  "generatedAtNote": "stamped by the build that runs this audit",
+  "shrinkPrior": 0.5,
+  "shrinkK": 60,
+  "minSampleForConfident": 100,
+  "mlb": {
+    "batter_hits": {
+      "wins": 1571,
+      "decisive": 2964,
+      "rawHitRate": 0.53,
+      "shrunkHitRate": 0.5294,
+      "wilsonLo": 0.512,
+      "enoughSample": true
+    },
+    "batter_hits_runs_rbis": {
+      "wins": 943,
+      "decisive": 1903,
+      "rawHitRate": 0.4955,
+      "shrunkHitRate": 0.4957,
+      "wilsonLo": 0.4731,
+      "enoughSample": true
+    },
+    "batter_total_bases": {
+      "wins": 525,
+      "decisive": 1224,
+      "rawHitRate": 0.4289,
+      "shrunkHitRate": 0.4322,
+      "wilsonLo": 0.4015,
+      "enoughSample": true
+    },
+    "pitcher_strikeouts": {
+      "wins": 161,
+      "decisive": 341,
+      "rawHitRate": 0.4721,
+      "shrunkHitRate": 0.4763,
+      "wilsonLo": 0.4198,
+      "enoughSample": true
+    }
+  },
+  "nba": {
+    "PTS": {
+      "wins": 522,
+      "decisive": 972,
+      "rawHitRate": 0.537,
+      "shrunkHitRate": 0.5349,
+      "wilsonLo": 0.5056,
+      "enoughSample": true
+    },
+    "REB": {
+      "wins": 486,
+      "decisive": 874,
+      "rawHitRate": 0.5561,
+      "shrunkHitRate": 0.5525,
+      "wilsonLo": 0.523,
+      "enoughSample": true
+    },
+    "AST": {
+      "wins": 335,
+      "decisive": 753,
+      "rawHitRate": 0.4449,
+      "shrunkHitRate": 0.449,
+      "wilsonLo": 0.4098,
+      "enoughSample": true
+    }
+  },
+  "insights": {
+    "strongestMarkets": [
+      {
+        "market": "REB",
+        "label": "NBA Rebounds",
+        "hitRate": 55.6
+      },
+      {
+        "market": "PTS",
+        "label": "NBA Points",
+        "hitRate": 53.7
+      },
+      {
+        "market": "batter_hits",
+        "label": "MLB Hits",
+        "hitRate": 53
+      }
+    ],
+    "weakestMarkets": [
+      {
+        "market": "batter_total_bases",
+        "label": "MLB Total Bases",
+        "hitRate": 42.9
+      },
+      {
+        "market": "AST",
+        "label": "NBA Assists",
+        "hitRate": 44.5
+      },
+      {
+        "market": "pitcher_strikeouts",
+        "label": "MLB Strikeouts",
+        "hitRate": 47.2
+      },
+      {
+        "market": "batter_hits_runs_rbis",
+        "label": "MLB H+R+RBI",
+        "hitRate": 49.5
+      }
+    ],
+    "oddsBandRates": {
+      "favorite": {
+        "hitRate": 55.8,
+        "decisive": 1904
+      },
+      "plus_money": {
+        "hitRate": 41.5,
+        "decisive": 1881
+      },
+      "mild_fav": {
+        "hitRate": 50.1,
+        "decisive": 919
+      },
+      "heavy_fav": {
+        "hitRate": 67.5,
+        "decisive": 770
+      },
+      "near_even": {
+        "hitRate": 44,
+        "decisive": 493
+      },
+      "high_plus": {
+        "hitRate": 34.2,
+        "decisive": 465
+      }
+    }
+  }
+}

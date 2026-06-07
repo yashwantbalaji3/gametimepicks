@@ -45,8 +45,10 @@ import { optimizerSlipToParlaySlip } from "@/lib/parlay-optimizer";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { getLifetimeSummary } from "@/lib/data";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
+import { getMarketReliabilityInsights } from "@/lib/market-reliability";
 
 import ProjectionAccuracySummary from "@/components/projection-accuracy-summary";
+import ModelNotesPanel from "@/components/model-notes-panel";
 import ParlayResultsSummary from "@/components/parlay-results-summary";
 import ParlayResultsDateSectionV2 from "@/components/parlay-results-date-section-v2";
 import RiskSectionResultsTable from "@/components/risk-section-results-table";
@@ -88,6 +90,7 @@ export default function ResultsPage() {
   // fabricated.
   const nbaLeg = getLifetimeSummary();
   const mlbLeg = getMlbLifetimeSummary();
+  const marketInsights = getMarketReliabilityInsights();
   const toProj = (
     s: { wins: number; losses: number; decisive: number; hitRate: number | null } | null,
   ) =>
@@ -189,6 +192,15 @@ export default function ResultsPage() {
             nba={nbaProj}
             eraStart={PUBLIC_PARLAY_RESULTS_START_DATE}
           />
+        </div>
+      )}
+
+      {/* Honest, settled-data "what's working / what we're improving" note —
+         transparency that the model learns from results (including losses) and
+         why plus-money is confined to higher-variance sections. */}
+      {marketInsights && (
+        <div className="mb-6">
+          <ModelNotesPanel insights={marketInsights} />
         </div>
       )}
 

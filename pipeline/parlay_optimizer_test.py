@@ -12,7 +12,10 @@ from __future__ import annotations
 
 import unittest
 
+import pipeline.parlay_optimizer as po
 from pipeline.parlay_optimizer import (
+    _sgp_leg_quality,
+    _market_reliability_delta,
     AGGRESSIVE_RULES,
     BALANCED_RULES,
     CONSERVATIVE_RULES,
@@ -1601,6 +1604,47 @@ class LowRiskLegEligibilityTests(unittest.TestCase):
         stale = [{"date": "2026-04-12", "opponent": "DEN", "isHome": True, "value": 18.0}] * 10
         leg = self._leg(odds=-200, line=6.5, series=[18.0] * 10, games=stale)
         self.assertFalse(low_risk_leg_eligible(leg, self.SLATE))
+
+
+class MarketReliabilityNudgeTests(unittest.TestCase):
+    """The bounded settled-history market-reliability tiebreaker in
+    _sgp_leg_quality. Inject a controlled cache so the test is independent of
+    the live market-reliability.json artifact."""
+
+    def setUp(self):
+        self._orig = po._reliability_cache
+        po._reliability_cache = {
+            "mlb": {"batter_hits": 0.60, "batter_total_bases": 0.40, "wild": 0.99},
+            "nba": {"REB": 0.56},
+        }
+
+    def tearDown(self):
+        po._reliability_cache = self._orig
+
+    def test_delta_sign_and_clamp(self):
+        strong = normalize_lean(_mlb_lean(market="batter_hits"))
+        weak = normalize_lean(_mlb_lean(market="batter_total_bases"))
+        wild = normalize_lean(_mlb_lean(market="wild"))
+        self.assertAlmostEqual(_market_reliability_delta(strong), 0.10, places=6)  # 0.60-0.5=0.10
+        self.assertAlmostEqual(_market_reliability_delta(weak), -0.10, places=6)  # 0.40-0.5=-0.10
+        # 0.99-0.5=0.49 must clamp to the +0.10 ceiling (no runaway influence)
+        self.assertAlmostEqual(_market_reliability_delta(wild), 0.10, places=6)
+
+    def test_unknown_market_is_zero(self):
+        unk = normalize_lean(_mlb_lean(market="batter_walks"))
+        self.assertEqual(_market_reliability_delta(unk), 0.0)
+
+    def test_reliable_market_outranks_weak_at_equal_edge(self):
+        strong = normalize_lean(_mlb_lean(market="batter_hits", edgePct=8.0, confidence="High"))
+        weak = normalize_lean(_mlb_lean(market="batter_total_bases", edgePct=8.0, confidence="High"))
+        self.assertGreater(_sgp_leg_quality(strong), _sgp_leg_quality(weak))
+
+    def test_nudge_is_bounded_and_does_not_override_strong_edge(self):
+        # a weak-market leg with a much bigger edge still outranks a strong-market
+        # leg with a tiny edge — reliability is a tiebreaker, not a takeover.
+        weak_big_edge = normalize_lean(_mlb_lean(market="batter_total_bases", edgePct=20.0, confidence="High"))
+        strong_small_edge = normalize_lean(_mlb_lean(market="batter_hits", edgePct=2.0, confidence="High"))
+        self.assertGreater(_sgp_leg_quality(weak_big_edge), _sgp_leg_quality(strong_small_edge))
 
 
 if __name__ == "__main__":

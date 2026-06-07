@@ -51,8 +51,10 @@ Honest framing:
 from __future__ import annotations
 
 import hashlib
+import json
 from datetime import datetime
 from dataclasses import dataclass, field, asdict
+from pathlib import Path
 from typing import Any, Iterable
 
 
@@ -1280,9 +1282,62 @@ NBA_SGP_PROFILE_DEFAULTS: dict[str, dict[str, Any]] = {
 }
 
 
+# Market-reliability ranking nudge (PR overnight-research-learning). A small,
+# bounded tiebreaker that prefers markets which have historically graded better
+# (e.g. MLB batter_hits ~53%, NBA REB ~56%) over weak ones (MLB
+# batter_total_bases ~43%, NBA AST ~45%) on SETTLED data. Sourced from the
+# read-only `market-reliability.json` artifact, which is already shrunk toward a
+# 0.5 prior (k=60) and sample-floored — so a thin/streaky market never moves the
+# score. Bounded to ±_RELIABILITY_MAX_DELTA so it only breaks ties between
+# similar-edge legs; it never overrides a genuinely stronger projection. Absent
+# artifact ⇒ zero adjustment (current behaviour preserved).
+_RELIABILITY_WEIGHT: float = 12.0
+_RELIABILITY_MAX_DELTA: float = 0.10  # clamp |shrunkHitRate − 0.5|
+_RELIABILITY_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "app" / "public" / "data" / "audit" / "market-reliability.json"
+)
+_reliability_cache: dict[str, dict[str, float]] | None = None
+
+
+def _load_market_reliability() -> dict[str, dict[str, float]]:
+    """{sport: {market: shrunkHitRate}} for sample-confident markets only.
+    Cached; returns {} on any error so generation never depends on it."""
+    global _reliability_cache
+    if _reliability_cache is not None:
+        return _reliability_cache
+    out: dict[str, dict[str, float]] = {}
+    try:
+        raw = json.loads(_RELIABILITY_PATH.read_text())
+        for sport in ("mlb", "nba"):
+            block = raw.get(sport) or {}
+            out[sport] = {
+                mkt: float(v["shrunkHitRate"])
+                for mkt, v in block.items()
+                if isinstance(v, dict) and v.get("enoughSample") and "shrunkHitRate" in v
+            }
+    except Exception:
+        out = {}
+    _reliability_cache = out
+    return out
+
+
+def _market_reliability_delta(leg: OptimizerLean) -> float:
+    """Bounded (shrunkHitRate − 0.5) for the leg's sport+market, or 0."""
+    rel = _load_market_reliability()
+    sport = (leg.sport or "").lower()
+    mkt = leg.market or ""
+    hit = (rel.get(sport) or {}).get(mkt)
+    if hit is None:
+        return 0.0
+    d = hit - 0.5
+    return max(-_RELIABILITY_MAX_DELTA, min(_RELIABILITY_MAX_DELTA, d))
+
+
 def _sgp_leg_quality(leg: OptimizerLean) -> float:
     """Compact quality score for SGP eligibility ranking. Higher is
-    better. Pure: edge × confidence × recent10 fullness."""
+    better. Pure: edge × confidence × recent10 fullness, plus a small
+    bounded market-reliability tiebreaker from settled history."""
     conf_weight = (
         1.0 if leg.confidence == "High"
         else 0.7 if leg.confidence == "Medium"
@@ -1291,7 +1346,8 @@ def _sgp_leg_quality(leg: OptimizerLean) -> float:
     )
     edge = max(0.0, leg.edgePct or 0.0)
     recent = min(10, leg.recent10Count or 0) / 10.0
-    return edge * conf_weight + 5.0 * recent
+    reliability = _RELIABILITY_WEIGHT * _market_reliability_delta(leg)
+    return edge * conf_weight + 5.0 * recent + reliability
 
 
 def generate_nba_sgp_slips(
