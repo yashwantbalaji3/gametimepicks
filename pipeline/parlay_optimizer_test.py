@@ -1793,5 +1793,79 @@ class MarketQuarantineTests(unittest.TestCase):
         self.assertFalse(low_risk_leg_eligible(self._leg("meh"), "2026-06-05"))
 
 
+class VolatilityAndBankBuilderEligibilityTests(unittest.TestCase):
+    """leg_volatility_score + is_low_volatility_leg + is_bank_builder_eligible
+    (high-hit-rate filter mission). Bank Builder is the strictest subset."""
+
+    FRESH_GAMES = [
+        {"date": d, "opponent": "OPP", "isHome": True, "value": 2.0}
+        for d in ("2026-05-22", "2026-05-24", "2026-05-26", "2026-05-28", "2026-05-30",
+                  "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05")
+    ]
+    STALE_GAMES = [  # all > 21 days before the 2026-06-05 slate → stale form
+        {"date": d, "opponent": "OPP", "isHome": True, "value": 2.0}
+        for d in ("2026-04-01", "2026-04-03", "2026-04-05", "2026-04-07", "2026-04-09",
+                  "2026-04-11", "2026-04-13", "2026-04-15", "2026-04-17", "2026-04-19")
+    ]
+
+    def setUp(self):
+        self._orig = po._market_wilson_cache
+        po._market_wilson_cache = {
+            "mlb": {
+                "good": {"wilsonLo": 0.55, "status": None},   # allowed
+                "meh": {"wilsonLo": 0.48, "status": None},    # downweighted
+                "bad": {"wilsonLo": 0.38, "status": None},    # disabled
+            },
+        }
+
+    def tearDown(self):
+        po._market_wilson_cache = self._orig
+
+    def _leg(self, *, market="good", odds=-200, series=None, games="fresh"):
+        return normalize_lean(_mlb_lean(
+            id="vol", playerName="Vol Tester", playerId=99003, market=market,
+            line=0.5, lean="Over", side="Over", oddsOver=odds, oddsUnder=-odds,
+            recentSeries=series if series is not None else [2.0] * 10,
+            recentGames=self.FRESH_GAMES if games == "fresh" else self.STALE_GAMES,
+        ))
+
+    def test_steady_heavy_favorite_is_low_volatility(self):
+        leg = self._leg(market="good", odds=-200, series=[2.0] * 10)
+        self.assertLessEqual(po.leg_volatility_score(leg, "2026-06-05"), 0.5)
+        self.assertTrue(po.is_low_volatility_leg(leg, "2026-06-05"))
+
+    def test_plus_money_increases_volatility(self):
+        self.assertGreater(po.leg_volatility_score(self._leg(odds=+120), "2026-06-05"),
+                           po.leg_volatility_score(self._leg(odds=-200), "2026-06-05"))
+
+    def test_stale_form_increases_volatility(self):
+        self.assertGreater(po.leg_volatility_score(self._leg(games="stale"), "2026-06-05"),
+                           po.leg_volatility_score(self._leg(games="fresh"), "2026-06-05"))
+
+    def test_small_sample_increases_volatility(self):
+        self.assertGreater(po.leg_volatility_score(self._leg(series=[2.0, 2.0, 2.0]), "2026-06-05"),
+                           po.leg_volatility_score(self._leg(series=[2.0] * 10), "2026-06-05"))
+
+    def test_disabled_market_more_volatile_than_allowed(self):
+        self.assertGreater(po.leg_volatility_score(self._leg(market="bad"), "2026-06-05"),
+                           po.leg_volatility_score(self._leg(market="good"), "2026-06-05"))
+
+    def test_bank_builder_eligible_strictest(self):
+        self.assertTrue(po.is_bank_builder_eligible(
+            self._leg(market="good", odds=-200, series=[2.0] * 10), "2026-06-05"))
+
+    def test_bank_builder_rejects_shallow_favorite(self):
+        self.assertFalse(po.is_bank_builder_eligible(
+            self._leg(odds=-120, series=[2.0] * 10), "2026-06-05"))
+
+    def test_bank_builder_rejects_non_allowed_market(self):
+        self.assertFalse(po.is_bank_builder_eligible(self._leg(market="meh", odds=-200), "2026-06-05"))
+        self.assertFalse(po.is_bank_builder_eligible(self._leg(market="bad", odds=-200), "2026-06-05"))
+
+    def test_bank_builder_rejects_plus_money_and_stale(self):
+        self.assertFalse(po.is_bank_builder_eligible(self._leg(odds=+120), "2026-06-05"))
+        self.assertFalse(po.is_bank_builder_eligible(self._leg(games="stale"), "2026-06-05"))
+
+
 if __name__ == "__main__":
     unittest.main()

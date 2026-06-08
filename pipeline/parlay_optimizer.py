@@ -2441,6 +2441,84 @@ def low_risk_leg_eligible(leg: OptimizerLean, date: str | None) -> bool:
     )
 
 
+# ---------------------------------------------------------------------------
+# Volatility score + tiered eligibility (high-hit-rate filter mission). A single
+# explicit "how trustworthy / how volatile is this leg" score built ONLY from
+# existing fields — no fabrication, no target-game data. Higher = more volatile /
+# less trustworthy. Used as a ranking tiebreaker (prefer steadier legs) and as
+# the basis for the strict Bank-Builder gate. Complements #306's hard market
+# quarantine; it does NOT add new hard gates to Low/Medium/High/Longshot (so it
+# cannot silently empty a section — selection just prefers steadier legs).
+_VOLATILITY_MARKET = {"allowed": 0.0, "downweighted": 1.0, "high_risk_only": 2.0, "disabled": 3.0}
+_VOLATILITY_PENALTY_WEIGHT: float = 1.5   # tiebreaker weight inside _sgp_leg_quality
+_LOW_VOLATILITY_MAX: float = 1.0          # is_low_volatility_leg threshold
+_BANK_BUILDER_ODDS_MAX: int = -150        # Bank Builder: heavy favorites only
+_BANK_BUILDER_MIN_L10: float = 0.80       # Bank Builder: >= 80% last-10
+_BANK_BUILDER_MIN_SAMPLE: int = 8         # Bank Builder: near-full recent sample
+_BANK_BUILDER_MAX_VOLATILITY: float = 0.5  # Bank Builder: lowest-volatility only
+
+
+def leg_volatility_score(leg: OptimizerLean, date: str | None = None) -> float:
+    """0 = steadiest. Higher = more volatile/less trustworthy. Inputs (existing
+    fields only): market quarantine status, odds band (plus-money/near-even =
+    volatile), stale form, small/missing recent sample, overprojection (high
+    edge), and L5/L10 disagreement. Pure; no leakage."""
+    score = _VOLATILITY_MARKET.get(market_suggested_status(leg.sport, leg.market), 1.0)
+    odds = leg.oddsForSide
+    if odds is None:
+        score += 1.0
+    elif odds > 100:
+        score += 2.0   # plus-money — historically the most volatile band
+    elif odds > -110:
+        score += 1.0   # near-even
+    if _form_is_stale(leg, date):
+        score += 2.0
+    n = leg.recent10Count or 0
+    if n < 5:
+        score += 1.5   # missing / tiny recent sample
+    elif n < 10:
+        score += 0.5
+    if (leg.edgePct or 0.0) > 15.0:
+        score += 1.0   # overprojection flag
+    l10 = _l10_hit_rate(leg)
+    l5 = _l5_hit_rate(leg)
+    if l10 is not None and l5 is not None and abs(l5 - l10) >= 0.4:
+        score += 1.0   # recent-form instability (L5 vs L10 disagree sharply)
+    return score
+
+
+def is_low_volatility_leg(leg: OptimizerLean, date: str | None = None) -> bool:
+    """A leg steady enough to highlight as lower-volatility (not a parlay gate)."""
+    return leg_volatility_score(leg, date) <= _LOW_VOLATILITY_MAX
+
+
+def is_suggested_parlay_eligible(leg: OptimizerLean, section_key: str) -> bool:
+    """Whether a leg may appear in the given public Suggested section — the #306
+    market quarantine (disabled never; high-risk-only High/Longshot; downweighted
+    not Low). Exposed as the canonical public-eligibility check."""
+    return _market_allowed_for_section(leg, section_key)
+
+
+def is_bank_builder_eligible(leg: OptimizerLean, date: str | None) -> bool:
+    """STRICTEST gate (stricter than Low). Bank Builder may only use a leg that:
+    passes the full Low gate, is an 'allowed' market, is a HEAVY favorite
+    (<= -150), has >= 80% last-10 on a near-full sample, and is lowest-volatility.
+    If none qualify, Bank Builder shows no responsible card (no padding)."""
+    if not low_risk_leg_eligible(leg, date):
+        return False
+    if market_suggested_status(leg.sport, leg.market) != "allowed":
+        return False
+    odds = leg.oddsForSide
+    if odds is None or odds > _BANK_BUILDER_ODDS_MAX:
+        return False
+    l10 = _l10_hit_rate(leg)
+    if l10 is None or l10 < _BANK_BUILDER_MIN_L10:
+        return False
+    if (leg.recent10Count or 0) < _BANK_BUILDER_MIN_SAMPLE:
+        return False
+    return leg_volatility_score(leg, date) <= _BANK_BUILDER_MAX_VOLATILITY
+
+
 def generate_public_risk_sections(
     leg_pool_raw: Iterable[dict[str, Any]] | Iterable[OptimizerLean],
     *,

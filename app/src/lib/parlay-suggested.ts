@@ -1380,6 +1380,11 @@ export function selectPlus100BuilderSlip(
  * (decorrelation) and more known-start legs. Returns null when no qualifying
  * conservative slip exists.
  */
+/** Strict Bank-Builder odds ceiling: every leg must be at least this favored
+ *  (American <= -150). The heavy-favorite band is the steadiest at the leg
+ *  level; Bank Builder is intentionally stricter than Low Risk. */
+const BANK_BUILDER_MAX_ODDS = -150;
+
 export function selectBankBuilderSlip(
   slips: ReadonlyArray<ParlaySlip>,
 ): BuilderSlipSelection | null {
@@ -1396,10 +1401,15 @@ export function selectBankBuilderSlip(
     const legs = slip.legs ?? [];
     const legCount = legs.length;
     if (legCount < 2 || legCount > 3) continue;
-    const allNegative = legs.every(
-      (l) => typeof l.oddsForSide === "number" && l.oddsForSide < 0,
+    // Strict Bank Builder: every leg must be a HEAVY favorite (<= -150) — the
+    // odds band that historically clears the most at the leg level (much
+    // stricter than Low, which allows favorites down to -105). No plus-money,
+    // even-money, or shallow favorites in the top pick. If nothing qualifies the
+    // function returns null and the page shows no responsible card (no padding).
+    const allHeavyFavorites = legs.every(
+      (l) => typeof l.oddsForSide === "number" && l.oddsForSide <= BANK_BUILDER_MAX_ODDS,
     );
-    if (!allNegative) continue; // no plus-money / even-money in the top pick
+    if (!allHeavyFavorites) continue;
     const combined = combinedParlayPayoutPer100(legs);
     if (!combined) continue;
     const section = classifyOddsSection(combined.american);
