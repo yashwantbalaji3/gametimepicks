@@ -35,7 +35,9 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -197,6 +199,21 @@ def attach_recent10_to_board(
         st.ast_attached = len(market_data.get("AST", []))
         return True
 
+    # Fail-soft total budget for LIVE nba_api fetches. On a cold cache the
+    # sequential game-log fetches can exceed the CI job timeout — this was the
+    # June-8 generation cancellation root cause (the run hung here ~25 min). Once
+    # the budget is spent we stop making NEW live calls and fall back to the real
+    # on-disk stale cache (leakage-filtered) or preserve existing recent10 —
+    # never fabricated. MLB generation + the optimizer then proceed; NBA legs
+    # without fresh form stay out of Low/Bank via the freshness gates. Tunable via
+    # ATTACH_RECENT10_BUDGET_SEC (default 600s, well under the job timeout).
+    try:
+        _live_budget_sec = float(os.environ.get("ATTACH_RECENT10_BUDGET_SEC", "600"))
+    except ValueError:
+        _live_budget_sec = 600.0
+    _live_deadline = time.monotonic() + _live_budget_sec
+    budget_skipped = 0
+
     for pid in unique_pids:
         st = PlayerStatus(player_id=pid, player_name=name_by_pid.get(pid, ""))
 
@@ -212,6 +229,21 @@ def attach_recent10_to_board(
             statuses[pid] = st
             by_player_logs[pid] = {"PTS": [], "REB": [], "AST": []}
             by_player_games[pid] = {"PTS": [], "REB": [], "AST": []}
+            continue
+
+        # Budget exhausted → no more live nba_api calls (avoid the CI timeout).
+        # Use the real on-disk stale cache if present, else preserve existing
+        # recent10. This is the surgical fail-soft that keeps generation alive.
+        if time.monotonic() > _live_deadline:
+            if _try_stale_cache(pid, st):
+                statuses[pid] = st
+                continue
+            st.reason = "budget_exhausted"
+            st.cache_source = "live"
+            statuses[pid] = st
+            by_player_logs[pid] = {"PTS": [], "REB": [], "AST": []}
+            by_player_games[pid] = {"PTS": [], "REB": [], "AST": []}
+            budget_skipped += 1
             continue
 
         logs, err = fetch_logs_for_player(pid)
@@ -247,6 +279,14 @@ def attach_recent10_to_board(
         st.reb_attached = len(market_data.get("REB", []))
         st.ast_attached = len(market_data.get("AST", []))
         statuses[pid] = st
+
+    if budget_skipped:
+        log.warning(
+            "  recent-form live budget (%.0fs) exhausted: %d player(s) skipped "
+            "live fetch (used stale cache / preserved prior form). Generation "
+            "continues; NBA legs without fresh form stay out of Low/Bank.",
+            _live_budget_sec, budget_skipped,
+        )
 
     leans_updated = 0
     # PR 21: leans_cleared is preserved at 0 for summary-table back-compat.
