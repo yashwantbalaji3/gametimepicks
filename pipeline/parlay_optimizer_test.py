@@ -1716,25 +1716,25 @@ class MarketReliabilityNudgeTests(unittest.TestCase):
 
 
 class MarketQuarantineTests(unittest.TestCase):
-    """Emergency market quarantine: markets below realized break-even are gated
-    out of the public Suggested sections by Wilson lower bound (with an explicit
-    suggestedStatus override). Injects a controlled wilson cache."""
+    """Market status tiers: allowed (>=0.50) / restricted (0.35-0.50, per-player
+    consistency) / disabled (<0.35 or explicit). Injects a controlled cache."""
 
     FRESH_GAMES = [
         {"date": d, "opponent": "OPP", "isHome": True, "value": 2.0}
         for d in ("2026-05-22", "2026-05-24", "2026-05-26", "2026-05-28", "2026-05-30",
                   "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05")
     ]
+    STRONG = [2.0] * 10            # 10/10 over 0.5 → L10 100%
+    WEAK = [2, 2, 0, 0, 0, 0, 0, 0, 0, 0]  # 2/10 → L10 20%
 
     def setUp(self):
         self._orig = po._market_wilson_cache
         po._market_wilson_cache = {
             "mlb": {
-                "good": {"wilsonLo": 0.55, "status": None},     # allowed (>=0.50)
-                "meh": {"wilsonLo": 0.48, "status": None},      # downweighted (0.46-0.50)
-                "weak": {"wilsonLo": 0.44, "status": None},     # high_risk_only (0.41-0.46)
-                "bad": {"wilsonLo": 0.38, "status": None},      # disabled (<0.41)
-                "forced_off": {"wilsonLo": 0.99, "status": "disabled"},  # explicit override wins
+                "good": {"wilsonLo": 0.55, "status": None},          # allowed
+                "restricted": {"wilsonLo": 0.45, "status": None},    # restricted (0.35-0.50)
+                "catastrophic": {"wilsonLo": 0.30, "status": None},  # disabled (<0.35)
+                "forced_off": {"wilsonLo": 0.99, "status": "disabled"},  # explicit override
             },
         }
 
@@ -1745,14 +1745,13 @@ class MarketQuarantineTests(unittest.TestCase):
         return normalize_lean(_mlb_lean(
             id="mq", playerName="MQ Tester", playerId=99002, market=market,
             line=0.5, lean="Over", side="Over", oddsOver=odds, oddsUnder=-odds,
-            recentSeries=series or [2.0] * 10, recentGames=self.FRESH_GAMES,
+            recentSeries=series if series is not None else self.STRONG, recentGames=self.FRESH_GAMES,
         ))
 
     def test_status_derivation_from_wilson(self):
         self.assertEqual(po.market_suggested_status("mlb", "good"), "allowed")
-        self.assertEqual(po.market_suggested_status("mlb", "meh"), "downweighted")
-        self.assertEqual(po.market_suggested_status("mlb", "weak"), "high_risk_only")
-        self.assertEqual(po.market_suggested_status("mlb", "bad"), "disabled")
+        self.assertEqual(po.market_suggested_status("mlb", "restricted"), "restricted")
+        self.assertEqual(po.market_suggested_status("mlb", "catastrophic"), "disabled")
 
     def test_explicit_status_override_wins(self):
         self.assertEqual(po.market_suggested_status("mlb", "forced_off"), "disabled")
@@ -1761,36 +1760,28 @@ class MarketQuarantineTests(unittest.TestCase):
         self.assertEqual(po.market_suggested_status("mlb", "never_seen"), "allowed")
 
     def test_disabled_never_publishes_in_any_section(self):
-        leg = self._leg("bad")
+        leg = self._leg("catastrophic")  # even with perfect form
         for sec in ("low", "medium", "high", "longshot"):
-            self.assertFalse(po._market_allowed_for_section(leg, sec))
-
-    def test_high_risk_only_excluded_from_low_and_medium(self):
-        leg = self._leg("weak")
-        self.assertFalse(po._market_allowed_for_section(leg, "low"))
-        self.assertFalse(po._market_allowed_for_section(leg, "medium"))
-        self.assertTrue(po._market_allowed_for_section(leg, "high"))
-        self.assertTrue(po._market_allowed_for_section(leg, "longshot"))
-
-    def test_downweighted_excluded_from_low_only(self):
-        leg = self._leg("meh")
-        self.assertFalse(po._market_allowed_for_section(leg, "low"))
-        self.assertTrue(po._market_allowed_for_section(leg, "medium"))
-        self.assertTrue(po._market_allowed_for_section(leg, "high"))
+            self.assertFalse(po._market_allowed_for_section(leg, sec, "2026-06-05"))
 
     def test_allowed_market_everywhere(self):
         leg = self._leg("good")
         for sec in ("low", "medium", "high", "longshot"):
-            self.assertTrue(po._market_allowed_for_section(leg, sec))
+            self.assertTrue(po._market_allowed_for_section(leg, sec, "2026-06-05"))
 
-    def test_low_eligible_requires_allowed_market(self):
-        # Identical perfect heavy-favorite legs: an 'allowed' market is Low-eligible,
-        # a 'disabled'/'downweighted'/'high_risk_only' market is not — the only
-        # difference is realized market reliability.
+    def test_restricted_needs_player_consistency(self):
+        # Strong-form restricted leg is eligible per tier; weak-form is not.
+        strong = self._leg("restricted", series=self.STRONG)
+        weak = self._leg("restricted", series=self.WEAK)
+        for sec in ("low", "medium", "high", "longshot"):
+            self.assertTrue(po._market_allowed_for_section(strong, sec, "2026-06-05"), sec)
+            self.assertFalse(po._market_allowed_for_section(weak, sec, "2026-06-05"), sec)
+
+    def test_low_eligible_allowed_or_consistent_restricted(self):
         self.assertTrue(low_risk_leg_eligible(self._leg("good"), "2026-06-05"))
-        self.assertFalse(low_risk_leg_eligible(self._leg("bad"), "2026-06-05"))
-        self.assertFalse(low_risk_leg_eligible(self._leg("weak"), "2026-06-05"))
-        self.assertFalse(low_risk_leg_eligible(self._leg("meh"), "2026-06-05"))
+        self.assertFalse(low_risk_leg_eligible(self._leg("catastrophic"), "2026-06-05"))
+        self.assertTrue(low_risk_leg_eligible(self._leg("restricted", series=self.STRONG), "2026-06-05"))
+        self.assertFalse(low_risk_leg_eligible(self._leg("restricted", series=self.WEAK), "2026-06-05"))
 
 
 class VolatilityAndBankBuilderEligibilityTests(unittest.TestCase):
@@ -1812,9 +1803,9 @@ class VolatilityAndBankBuilderEligibilityTests(unittest.TestCase):
         self._orig = po._market_wilson_cache
         po._market_wilson_cache = {
             "mlb": {
-                "good": {"wilsonLo": 0.55, "status": None},   # allowed
-                "meh": {"wilsonLo": 0.48, "status": None},    # downweighted
-                "bad": {"wilsonLo": 0.38, "status": None},    # disabled
+                "good": {"wilsonLo": 0.55, "status": None},          # allowed
+                "restricted": {"wilsonLo": 0.45, "status": None},    # restricted (per-player)
+                "catastrophic": {"wilsonLo": 0.30, "status": None},  # disabled
             },
         }
 
@@ -1847,7 +1838,7 @@ class VolatilityAndBankBuilderEligibilityTests(unittest.TestCase):
                            po.leg_volatility_score(self._leg(series=[2.0] * 10), "2026-06-05"))
 
     def test_disabled_market_more_volatile_than_allowed(self):
-        self.assertGreater(po.leg_volatility_score(self._leg(market="bad"), "2026-06-05"),
+        self.assertGreater(po.leg_volatility_score(self._leg(market="catastrophic"), "2026-06-05"),
                            po.leg_volatility_score(self._leg(market="good"), "2026-06-05"))
 
     def test_bank_builder_eligible_strictest(self):
@@ -1858,13 +1849,122 @@ class VolatilityAndBankBuilderEligibilityTests(unittest.TestCase):
         self.assertFalse(po.is_bank_builder_eligible(
             self._leg(odds=-120, series=[2.0] * 10), "2026-06-05"))
 
-    def test_bank_builder_rejects_non_allowed_market(self):
-        self.assertFalse(po.is_bank_builder_eligible(self._leg(market="meh", odds=-200), "2026-06-05"))
-        self.assertFalse(po.is_bank_builder_eligible(self._leg(market="bad", odds=-200), "2026-06-05"))
+    def test_bank_builder_restricted_needs_elite_consistency(self):
+        # restricted + ELITE exact-market form (10/10) + heavy fav → eligible
+        elite = self._leg(market="restricted", odds=-200, series=[2.0] * 10)
+        self.assertTrue(po.is_bank_builder_eligible(elite, "2026-06-05"))
+        # restricted + Low-eligible-but-not-elite form (8/10 = 80% < 85 bank bar) → rejected
+        not_elite = self._leg(market="restricted", odds=-200, series=[2, 2, 2, 2, 2, 2, 2, 2, 0, 0])
+        self.assertFalse(po.is_bank_builder_eligible(not_elite, "2026-06-05"))
+        # disabled market → never, even with perfect form
+        self.assertFalse(po.is_bank_builder_eligible(self._leg(market="catastrophic", odds=-200, series=[2.0] * 10), "2026-06-05"))
 
     def test_bank_builder_rejects_plus_money_and_stale(self):
         self.assertFalse(po.is_bank_builder_eligible(self._leg(odds=+120), "2026-06-05"))
         self.assertFalse(po.is_bank_builder_eligible(self._leg(games="stale"), "2026-06-05"))
+
+
+class RestrictedMarketConsistencyTests(unittest.TestCase):
+    """Volatile-but-important markets (batter_total_bases / NBA AST /
+    pitcher_strikeouts) are RESTRICTED, not blanket-excluded: a leg publishes only
+    when the player's exact-market recent form clears the per-tier bar. Weak legs
+    stay out; strong-consistency legs can appear. Bank Builder stays strictest."""
+
+    FRESH_GAMES = [
+        {"date": d, "opponent": "OPP", "isHome": True, "value": 2.0}
+        for d in ("2026-05-22", "2026-05-24", "2026-05-26", "2026-05-28", "2026-05-30",
+                  "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05")
+    ]
+    STRONG = [2.0] * 10                       # 10/10 over 0.5 → L10 100%
+    MID = [2, 2, 2, 2, 2, 2, 0, 0, 0, 0]      # 6/10 → L10 60%
+    WEAK = [2, 2, 0, 0, 0, 0, 0, 0, 0, 0]     # 2/10 → L10 20%
+
+    def setUp(self):
+        self._orig = po._market_wilson_cache
+        po._market_wilson_cache = {
+            "mlb": {
+                "batter_total_bases": {"wilsonLo": 0.40, "status": None},  # restricted
+                "pitcher_strikeouts": {"wilsonLo": 0.42, "status": None},  # restricted
+                "batter_hits": {"wilsonLo": 0.51, "status": None},         # allowed
+            },
+            "nba": {
+                "AST": {"wilsonLo": 0.41, "status": None},  # restricted
+                "PTS": {"wilsonLo": 0.51, "status": None},  # allowed
+            },
+        }
+
+    def tearDown(self):
+        po._market_wilson_cache = self._orig
+
+    def _leg(self, market, *, odds=-200, series=None, games="fresh"):
+        return normalize_lean(_mlb_lean(
+            id="rm", playerName="RM Tester", playerId=99004, market=market,
+            line=0.5, lean="Over", side="Over", oddsOver=odds, oddsUnder=-odds,
+            recentSeries=series if series is not None else self.STRONG,
+            recentGames=self.FRESH_GAMES if games == "fresh" else [],
+        ))
+
+    # 1 + 2 — batter_total_bases is not blanket-disabled; weak out, strong in.
+    def test_total_bases_is_restricted_not_disabled(self):
+        self.assertEqual(po.market_suggested_status("mlb", "batter_total_bases"), "restricted")
+
+    def test_weak_total_bases_excluded_everywhere(self):
+        weak = self._leg("batter_total_bases", series=self.WEAK)
+        for sec in ("low", "medium", "high", "longshot"):
+            self.assertFalse(po._market_allowed_for_section(weak, sec, "2026-06-05"), sec)
+
+    def test_strong_total_bases_can_appear(self):
+        strong = self._leg("batter_total_bases", series=self.STRONG)
+        for sec in ("low", "medium", "high", "longshot"):
+            self.assertTrue(po._market_allowed_for_section(strong, sec, "2026-06-05"), sec)
+        self.assertTrue(low_risk_leg_eligible(strong, "2026-06-05"))
+
+    # 3 + 4 — NBA AST restricted (status; eligibility shares the same code path).
+    def test_ast_is_restricted_not_disabled(self):
+        self.assertEqual(po.market_suggested_status("nba", "AST"), "restricted")
+
+    # 5 + 6 — pitcher_strikeouts: weak out of Low/Medium; mid only High; strong all.
+    def test_weak_strikeouts_excluded_from_low_and_medium(self):
+        weak = self._leg("pitcher_strikeouts", series=self.WEAK)
+        self.assertFalse(po._market_allowed_for_section(weak, "low", "2026-06-05"))
+        self.assertFalse(po._market_allowed_for_section(weak, "medium", "2026-06-05"))
+
+    def test_mid_consistency_excluded_all_tiers(self):
+        # 60% L10 is below the uniform elite bar (80%) → excluded EVERYWHERE.
+        # Backtest showed looser bars (60-70%) admitted sub-50% restricted legs.
+        mid = self._leg("pitcher_strikeouts", series=self.MID)
+        for sec in ("low", "medium", "high", "longshot"):
+            self.assertFalse(po._market_allowed_for_section(mid, sec, "2026-06-05"), sec)
+
+    def test_strong_strikeouts_can_appear_all_tiers(self):
+        strong = self._leg("pitcher_strikeouts", series=self.STRONG)
+        for sec in ("low", "medium", "high", "longshot"):
+            self.assertTrue(po._market_allowed_for_section(strong, sec, "2026-06-05"), sec)
+
+    # 7 — Bank Builder: restricted only with strictest consistency.
+    def test_bank_builder_restricted_requires_elite(self):
+        elite = self._leg("batter_total_bases", odds=-200, series=self.STRONG)      # L10 100%
+        good = self._leg("batter_total_bases", odds=-200, series=[2,2,2,2,2,2,2,2,0,0])  # 80% < 85
+        self.assertTrue(po.is_bank_builder_eligible(elite, "2026-06-05"))
+        self.assertFalse(po.is_bank_builder_eligible(good, "2026-06-05"))
+
+    # 8 — missing exact-market hit-rate / sample → restricted excluded.
+    def test_missing_data_excludes_restricted(self):
+        no_series = self._leg("batter_total_bases", series=[])
+        self.assertFalse(po._market_allowed_for_section(no_series, "high", "2026-06-05"))
+        tiny = self._leg("batter_total_bases", series=[2, 2, 2])  # sample 3 < 5
+        self.assertFalse(po._market_allowed_for_section(tiny, "high", "2026-06-05"))
+
+    # 9 — weak restricted legs never "pad": the gate returns False (no leg admitted).
+    def test_weak_restricted_does_not_pad(self):
+        self.assertFalse(po._market_allowed_for_section(self._leg("batter_total_bases", series=self.WEAK), "longshot", "2026-06-05"))
+
+    # 10 — existing reliability gate still works: allowed market eligible everywhere.
+    def test_allowed_market_still_eligible(self):
+        hits = self._leg("batter_hits", series=self.STRONG)
+        for sec in ("low", "medium", "high", "longshot"):
+            self.assertTrue(po._market_allowed_for_section(hits, sec, "2026-06-05"), sec)
+        self.assertEqual(po.market_suggested_status("nba", "PTS"), "allowed")
 
 
 if __name__ == "__main__":

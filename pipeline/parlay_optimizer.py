@@ -1350,17 +1350,34 @@ def _market_reliability_delta(leg: OptimizerLean) -> float:
 # bound on settled history — leakage-free, sample-floored). Generated-pool
 # tracking is unaffected; this only restricts what we PUBLISH.
 #
-# Status tiers (lower bound thresholds, tunable; an explicit `suggestedStatus`
-# in market-reliability.json overrides the derived value as a manual kill-switch):
-#   disabled       wilsonLo < 0.42  → never in any Suggested section
-#   high_risk_only 0.42–0.46        → only High / Longshot (never Low / Medium)
-#   downweighted   0.46–0.50        → allowed but never Low; penalized in ranking
-#   allowed        wilsonLo >= 0.50 → eligible everywhere
+# Status tiers (tunable; an explicit `suggestedStatus` in market-reliability.json
+# overrides the derived value as a manual kill-switch):
+#   disabled    wilsonLo < 0.35  → catastrophic / no usable form → never published
+#   restricted  0.35 ≤ wilsonLo < 0.50 → market-level burden NOT met; a leg may
+#               appear ONLY when the SPECIFIC PLAYER passes a per-tier exact-market
+#               consistency gate (see is_consistency_eligible_volatile_market).
+#               This replaces blanket "disabled/high-risk-only" exclusion — an
+#               important-but-volatile market (batter_total_bases, NBA AST,
+#               pitcher_strikeouts) is allowed for players with strong recent form.
+#   allowed     wilsonLo >= 0.50 → eligible everywhere (subject to normal gates)
 # Markets without a confident settled sample default to "allowed" (unmeasured is
-# not penalized — we never invent a negative signal).
-_MARKET_DISABLED_MAX_WILSON: float = 0.41   # badly losing → never published
-_MARKET_HIGH_RISK_MAX_WILSON: float = 0.46  # sub-break-even → High/Longshot only
-_MARKET_DOWNWEIGHT_MAX_WILSON: float = 0.50  # under 50% → never Low; ranked lower
+# not penalized). Market reliability sets the BURDEN OF PROOF; player consistency
+# decides eligibility.
+_MARKET_RESTRICTED_FLOOR_WILSON: float = 0.35  # below this → disabled (catastrophic)
+_MARKET_ALLOWED_MIN_WILSON: float = 0.50       # at/above → allowed everywhere
+# Exact-market player consistency thresholds for RESTRICTED markets (the leg's
+# own recentSeries → _l10/_l5 hit rate vs its line = real per-player, per-market
+# evidence; no fabrication). BACKTEST-CALIBRATED (Jun 5-7): only L10 >= 80% (with
+# L5 >= 80%) lifts restricted markets to break-even+ (~52%); looser bars (70/60%)
+# admitted sub-50% legs (~46%) and would reintroduce the June-7 failure mode. So
+# restricted markets require ELITE consistency in EVERY published tier — the tier
+# differs only in its OTHER gates (Low = negative odds; High = plus-money OK).
+# Bank Builder is stricter still (>= 85% L10).
+_RESTRICTED_MIN_SAMPLE: int = 5
+_RESTRICTED_MIN_L10: float = 0.80
+_RESTRICTED_MIN_L5: float = 0.80
+_RESTRICTED_BANK_MIN_L10: float = 0.85
+_RESTRICTED_BANK_MIN_L5: float = 0.80
 _market_wilson_cache: dict[str, dict[str, dict[str, Any]]] | None = None
 
 
@@ -1400,33 +1417,68 @@ def market_suggested_status(sport: str | None, market: str | None) -> str:
     if not info:
         return "allowed"
     explicit = info.get("status")
-    if explicit in ("allowed", "downweighted", "high_risk_only", "disabled"):
+    # Explicit overrides (manual kill-switch). "restricted" is the new default for
+    # sub-break-even markets; older tiers kept for back-compat config.
+    if explicit in ("allowed", "restricted", "downweighted", "high_risk_only", "disabled"):
         return explicit
     w = info.get("wilsonLo")
     if w is None:
         return "allowed"
-    if w < _MARKET_DISABLED_MAX_WILSON:
-        return "disabled"
-    if w < _MARKET_HIGH_RISK_MAX_WILSON:
-        return "high_risk_only"
-    if w < _MARKET_DOWNWEIGHT_MAX_WILSON:
-        return "downweighted"
+    if w < _MARKET_RESTRICTED_FLOOR_WILSON:
+        return "disabled"  # catastrophic / no usable signal
+    if w < _MARKET_ALLOWED_MIN_WILSON:
+        return "restricted"  # burden not met → per-player consistency required
     return "allowed"
 
 
-def _market_allowed_for_section(leg: OptimizerLean, section_key: str) -> bool:
-    """Whether a leg's market may appear in the given public section, per its
-    quarantine status. 'disabled' never publishes; 'high_risk_only' is High/
-    Longshot only; 'downweighted' is excluded from Low (and Medium gets it but
-    ranked lower via _sgp_leg_quality); 'allowed' is everywhere."""
+def is_consistency_eligible_volatile_market(
+    leg: OptimizerLean, section_key: str, date: str | None = None
+) -> bool:
+    """For a RESTRICTED market, whether THIS player's exact-market recent form is
+    consistent enough to publish the leg in the given tier. Uses only real fields:
+    the leg's own recentSeries → last-10 / last-5 hit rate vs its line (= the
+    player's exact-market consistency), recent sample size, and form freshness.
+    Missing/insufficient data → not eligible (kept out, never assumed good).
+    Thresholds tighten by tier (Low strictest, High loosest). Bank Builder uses
+    its own stricter gate in is_bank_builder_eligible."""
+    if section_key not in ("low", "medium", "high", "longshot"):
+        return False
+    l10 = _l10_hit_rate(leg)
+    l5 = _l5_hit_rate(leg)
+    n = leg.recent10Count or 0
+    if l10 is None or n < _RESTRICTED_MIN_SAMPLE:
+        return False  # no exact-market hit-rate evidence → out
+    if _form_is_stale(leg, date):
+        return False
+    # Uniform ELITE bar across tiers (backtest-calibrated: only this clears
+    # break-even for volatile markets). Section-specific odds/variance gates are
+    # applied by the caller (low_risk_leg_eligible, section pools).
+    if l10 < _RESTRICTED_MIN_L10:
+        return False
+    if l5 is not None and l5 < _RESTRICTED_MIN_L5:
+        return False
+    return True
+
+
+def _market_allowed_for_section(
+    leg: OptimizerLean, section_key: str, date: str | None = None
+) -> bool:
+    """Whether a leg's market may appear in the given public section. 'allowed'
+    everywhere; 'disabled' never; 'restricted' (sub-break-even but has form +
+    grading) ONLY when the player passes the per-tier exact-market consistency
+    gate — replacing blanket exclusion. 'high_risk_only'/'downweighted' kept for
+    explicit-override back-compat, now also requiring player consistency."""
     status = market_suggested_status(leg.sport, leg.market)
     if status == "disabled":
         return False
+    if status == "allowed":
+        return True
     if status == "high_risk_only":
-        return section_key in ("high", "longshot")
+        return section_key in ("high", "longshot") and is_consistency_eligible_volatile_market(leg, section_key, date)
     if status == "downweighted":
-        return section_key != "low"
-    return True
+        return section_key != "low" and is_consistency_eligible_volatile_market(leg, section_key, date)
+    # restricted (the new default for sub-break-even markets)
+    return is_consistency_eligible_volatile_market(leg, section_key, date)
 
 
 # Recent-form quality signal (PR recent-form-quality-signal). Settled research
@@ -1479,7 +1531,7 @@ def _sgp_leg_quality(leg: OptimizerLean) -> float:
     )  # only insufficient_data / unknown is penalized; the label itself is not trusted
     downweight_penalty = (
         -_DOWNWEIGHT_MARKET_PENALTY
-        if market_suggested_status(leg.sport, leg.market) == "downweighted"
+        if market_suggested_status(leg.sport, leg.market) in ("downweighted", "restricted")
         else 0.0
     )
     return (
@@ -2413,10 +2465,15 @@ def low_risk_leg_eligible(leg: OptimizerLean, date: str | None) -> bool:
     side = (leg.side or "").lower()
     if side not in ("over", "under") or leg.line is None:
         return False
-    # Market quarantine: Low may only use markets whose settled reliability clears
-    # break-even ('allowed'). Downweighted/high-risk-only/disabled markets (e.g.
-    # MLB batter_total_bases) can never anchor a Low card.
-    if market_suggested_status(leg.sport, leg.market) != "allowed":
+    # Market gate: an 'allowed' market clears the bar by itself. A 'restricted'
+    # market (sub-break-even but with form + grading, e.g. batter_total_bases /
+    # NBA AST / pitcher_strikeouts) may anchor a Low card ONLY when the player's
+    # exact-market recent form passes the strict Low consistency gate. 'disabled'
+    # never. This replaces blanket exclusion with per-player evidence.
+    _mkt_status = market_suggested_status(leg.sport, leg.market)
+    if _mkt_status == "disabled":
+        return False
+    if _mkt_status != "allowed" and not is_consistency_eligible_volatile_market(leg, "low", date):
         return False
     if _form_is_stale(leg, date):
         return False
@@ -2449,7 +2506,7 @@ def low_risk_leg_eligible(leg: OptimizerLean, date: str | None) -> bool:
 # the basis for the strict Bank-Builder gate. Complements #306's hard market
 # quarantine; it does NOT add new hard gates to Low/Medium/High/Longshot (so it
 # cannot silently empty a section — selection just prefers steadier legs).
-_VOLATILITY_MARKET = {"allowed": 0.0, "downweighted": 1.0, "high_risk_only": 2.0, "disabled": 3.0}
+_VOLATILITY_MARKET = {"allowed": 0.0, "restricted": 1.5, "downweighted": 1.0, "high_risk_only": 2.0, "disabled": 3.0}
 _VOLATILITY_PENALTY_WEIGHT: float = 1.5   # tiebreaker weight inside _sgp_leg_quality
 _LOW_VOLATILITY_MAX: float = 1.0          # is_low_volatility_leg threshold
 _BANK_BUILDER_ODDS_MAX: int = -150        # Bank Builder: heavy favorites only
@@ -2501,13 +2558,24 @@ def is_suggested_parlay_eligible(leg: OptimizerLean, section_key: str) -> bool:
 
 def is_bank_builder_eligible(leg: OptimizerLean, date: str | None) -> bool:
     """STRICTEST gate (stricter than Low). Bank Builder may only use a leg that:
-    passes the full Low gate, is an 'allowed' market, is a HEAVY favorite
-    (<= -150), has >= 80% last-10 on a near-full sample, and is lowest-volatility.
+    passes the full Low gate, is a HEAVY favorite (<= -150), has >= 80% last-10 on
+    a near-full sample, and is lowest-volatility. 'allowed' markets qualify by
+    default; a 'restricted' market qualifies ONLY with the strictest per-player
+    consistency (>= 85% L10 and, if present, >= 80% L5) — so a volatile market can
+    enter Bank Builder only for a genuinely elite-form player. 'disabled' never.
     If none qualify, Bank Builder shows no responsible card (no padding)."""
     if not low_risk_leg_eligible(leg, date):
         return False
-    if market_suggested_status(leg.sport, leg.market) != "allowed":
+    _bank_status = market_suggested_status(leg.sport, leg.market)
+    if _bank_status == "disabled":
         return False
+    if _bank_status != "allowed":
+        _bank_l10 = _l10_hit_rate(leg)
+        _bank_l5 = _l5_hit_rate(leg)
+        if _bank_l10 is None or _bank_l10 < _RESTRICTED_BANK_MIN_L10:
+            return False
+        if _bank_l5 is not None and _bank_l5 < _RESTRICTED_BANK_MIN_L5:
+            return False
     odds = leg.oddsForSide
     if odds is None or odds > _BANK_BUILDER_ODDS_MAX:
         return False
@@ -2516,7 +2584,13 @@ def is_bank_builder_eligible(leg: OptimizerLean, date: str | None) -> bool:
         return False
     if (leg.recent10Count or 0) < _BANK_BUILDER_MIN_SAMPLE:
         return False
-    return leg_volatility_score(leg, date) <= _BANK_BUILDER_MAX_VOLATILITY
+    vol = leg_volatility_score(leg, date)
+    if _bank_status != "allowed":
+        # The strict per-player consistency gate above already vets the market
+        # risk for THIS player, so don't double-count the market-status volatility
+        # component — judge the remaining (odds/stale/sample/edge/form) volatility.
+        vol -= _VOLATILITY_MARKET.get(_bank_status, 0.0)
+    return vol <= _BANK_BUILDER_MAX_VOLATILITY
 
 
 def generate_public_risk_sections(
@@ -2580,7 +2654,7 @@ def generate_public_risk_sections(
         # 'high_risk_only' only in High/Longshot, 'downweighted' never in Low.
         # No padding: a thinner eligible pool simply yields fewer cards.
         def _mkt_ok(leg: OptimizerLean, _sk: str = section_key) -> bool:
-            return _market_allowed_for_section(leg, _sk)
+            return _market_allowed_for_section(leg, _sk, date)
 
         if section_key == "low":
             sec_all = [l for l in normed if low_risk_leg_eligible(l, date) and _mkt_ok(l)]
