@@ -687,8 +687,9 @@ export default function ParlayLabBuilder({
             style={{ color: "var(--vault-text-faint)", maxWidth: 680 }}
           >
             We cap how many cards we publish per slate and show fewer when the
-            slate doesn&apos;t produce enough varied combinations — sections can
-            be empty rather than padded.
+            slate doesn&apos;t produce enough cards that clear the quality gates
+            (market reliability, recent form, odds) — sections can be empty
+            rather than padded with weaker cards.
           </p>
           <SuggestedMode
             cards={cards}

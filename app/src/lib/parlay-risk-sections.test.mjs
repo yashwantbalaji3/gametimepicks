@@ -261,10 +261,12 @@ test("getRiskSectionDisplaySummary: all full → 4 sections, 0 empty", () => {
   assert.equal(s.emptySections, 0);
 });
 
-test("getEmptySectionReason names the filters, states no padding, never claims a win edge", () => {
+test("getEmptySectionReason names the quality gates + filters, states no padding, never claims a win edge", () => {
   const r = getEmptySectionReason("high");
-  assert.match(r, /sport, variety, and volume filters/);
-  assert.match(r, /not padded/i);
+  assert.match(r, /quality gates/i);
+  assert.match(r, /market reliability/i);
+  assert.match(r, /variety, and volume/);
+  assert.match(r, /rather than padding/i);
   // No banned betting copy and no win-likelihood claim.
   for (const banned of ["lock", "guaranteed", "sure thing", "likelier to win", "more likely to win"]) {
     assert.ok(!r.toLowerCase().includes(banned), `must not contain "${banned}"`);
