@@ -120,6 +120,19 @@ const ALL_SPORTS: Array<{ key: SuggestedSport; label: string; icon?: string }> =
   { key: "multi", label: "Mixed", icon: "🔀" },
 ];
 
+// Sport accent (premium "sportsbook board" — colours the active sport tab by
+// sport). Distinct from the risk-tier lanes and only on sport elements, so the
+// two colour systems never collide. Implies SPORT, not likelihood of winning.
+const SPORT_ACCENT_VAR: Record<string, string> = {
+  all: "var(--sport-all)",
+  nba: "var(--sport-nba)",
+  mlb: "var(--sport-mlb)",
+  multi: "var(--sport-mixed)",
+};
+function sportAccentVar(key: string): string {
+  return SPORT_ACCENT_VAR[key] ?? "var(--vault-gold-bright)";
+}
+
 /** UI-only sport bucket label for the lane header. Mirrors the
  *  bucket derivation that ParlayTicketCard uses for non-spread
  *  surfaces; centralised here so all lanes in the spread agree on
@@ -1221,7 +1234,7 @@ function LabFilters({
               className="font-mono uppercase tracking-[0.14em] px-2.5 py-1 rounded-full inline-flex items-center gap-1.5"
               style={{
                 color: active ? "var(--vault-bg)" : "var(--vault-text-mute)",
-                background: active ? "var(--vault-gold-bright)" : "transparent",
+                background: active ? sportAccentVar(opt.key) : "transparent",
                 fontSize: 10,
                 cursor: "pointer",
                 fontWeight: active ? 600 : 500,
