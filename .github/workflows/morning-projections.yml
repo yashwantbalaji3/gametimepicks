@@ -83,10 +83,21 @@ jobs:
   refresh:
     name: refresh today's projections
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # Raised from 25 → 45: on a COLD nba_api cache (e.g. an NBA-Finals slate) the
+    # sequential game-log fetches in the NBA board + attach_recent10 ran ~18min +
+    # ~6min and hit the old 25-min wall (June-8 cancellation root cause). 45 min
+    # gives the (slow-but-progressing) cold-cache run room to finish and SAVE the
+    # nba_api cache so subsequent runs are fast. attach_recent10 also self-caps
+    # via ATTACH_RECENT10_BUDGET_SEC below (fail-soft to stale cache).
+    timeout-minutes: 45
 
     env:
       TZ: "America/New_York"
+      # Fail-soft cap on live nba_api recent-form fetching (seconds). Once spent,
+      # attach_recent10 stops new live calls and falls back to the real on-disk
+      # stale cache / preserves prior form — never fabricated. Keeps the run under
+      # the job timeout even on a cold cache.
+      ATTACH_RECENT10_BUDGET_SEC: ${{ vars.ATTACH_RECENT10_BUDGET_SEC || '420' }}
       PROJECTIONS_DATE: ${{ github.event.inputs.projections_date || '' }}
       DRY_RUN_PROJECTIONS: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
       MAX_PER_RUN: ${{ github.event.inputs.max_per_run || vars.MAX_PER_RUN || '75' }}
