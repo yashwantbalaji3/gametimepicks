@@ -237,7 +237,7 @@ export default function MethodologyPage() {
             />
             <LimitationRow
               title="No causal claims"
-              body="A positive edge is correlation between recent stats and the line, not a guarantee."
+              body="A model edge just means the projection differs from the line — it is one input, not a guarantee, and large edges often reflect overprojection. Selection leans on realized market reliability and recent form."
             />
           </ul>
         </div>
