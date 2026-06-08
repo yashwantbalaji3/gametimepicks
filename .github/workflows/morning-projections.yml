@@ -98,6 +98,10 @@ jobs:
       # stale cache / preserves prior form — never fabricated. Keeps the run under
       # the job timeout even on a cold cache.
       ATTACH_RECENT10_BUDGET_SEC: ${{ vars.ATTACH_RECENT10_BUDGET_SEC || '420' }}
+      # Shell-level cap on the attach_recent10 nba_api fetch (the orchestrator
+      # wraps it in `timeout`). Overridable so an NBA-focused recovery run can
+      # extend it; default 8m for normal runs.
+      ATTACH_RECENT10_TIMEOUT: ${{ vars.ATTACH_RECENT10_TIMEOUT || '8m' }}
       PROJECTIONS_DATE: ${{ github.event.inputs.projections_date || '' }}
       DRY_RUN_PROJECTIONS: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
       MAX_PER_RUN: ${{ github.event.inputs.max_per_run || vars.MAX_PER_RUN || '75' }}
