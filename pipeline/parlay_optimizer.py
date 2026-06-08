@@ -1291,8 +1291,14 @@ NBA_SGP_PROFILE_DEFAULTS: dict[str, dict[str, Any]] = {
 # score. Bounded to ±_RELIABILITY_MAX_DELTA so it only breaks ties between
 # similar-edge legs; it never overrides a genuinely stronger projection. Absent
 # artifact ⇒ zero adjustment (current behaviour preserved).
-_RELIABILITY_WEIGHT: float = 12.0
+_RELIABILITY_WEIGHT: float = 25.0  # emergency: realized reliability now a primary driver (was 12.0)
 _RELIABILITY_MAX_DELTA: float = 0.10  # clamp |shrunkHitRate − 0.5|
+# Edge is NEGATIVELY predictive above ~10% (settled: 10-20% edge ≈ 44.9%, 20%+ ≈
+# 41.2% vs 0-10% ≈ 51%). Treat large edge as an OVERPROJECTION risk flag, not a
+# reward: zero credit up to the threshold, a penalty above it.
+_EDGE_OVERPROJ_THRESH: float = 10.0
+_EDGE_OVERPROJ_WEIGHT: float = 0.4
+_DOWNWEIGHT_MARKET_PENALTY: float = 3.0  # 'downweighted' markets rank below 'allowed'
 _RELIABILITY_PATH = (
     Path(__file__).resolve().parents[1]
     / "app" / "public" / "data" / "audit" / "market-reliability.json"
@@ -1334,6 +1340,95 @@ def _market_reliability_delta(leg: OptimizerLean) -> float:
     return max(-_RELIABILITY_MAX_DELTA, min(_RELIABILITY_MAX_DELTA, d))
 
 
+# ---------------------------------------------------------------------------
+# Market quarantine (emergency, evidence-backed). Settled leg-level reliability
+# shows some markets are systematically below break-even (MLB batter_total_bases
+# Wilson-lo ~0.40, NBA AST ~0.41, MLB pitcher_strikeouts ~0.42), while only a few
+# clear 50% (MLB batter_hits, NBA PTS/REB). A market that can't beat a coin-flip
+# at the leg level cannot anchor an honest multi-leg parlay, so we gate markets
+# OUT of the public Suggested sections by realized reliability (Wilson lower
+# bound on settled history — leakage-free, sample-floored). Generated-pool
+# tracking is unaffected; this only restricts what we PUBLISH.
+#
+# Status tiers (lower bound thresholds, tunable; an explicit `suggestedStatus`
+# in market-reliability.json overrides the derived value as a manual kill-switch):
+#   disabled       wilsonLo < 0.42  → never in any Suggested section
+#   high_risk_only 0.42–0.46        → only High / Longshot (never Low / Medium)
+#   downweighted   0.46–0.50        → allowed but never Low; penalized in ranking
+#   allowed        wilsonLo >= 0.50 → eligible everywhere
+# Markets without a confident settled sample default to "allowed" (unmeasured is
+# not penalized — we never invent a negative signal).
+_MARKET_DISABLED_MAX_WILSON: float = 0.41   # badly losing → never published
+_MARKET_HIGH_RISK_MAX_WILSON: float = 0.46  # sub-break-even → High/Longshot only
+_MARKET_DOWNWEIGHT_MAX_WILSON: float = 0.50  # under 50% → never Low; ranked lower
+_market_wilson_cache: dict[str, dict[str, dict[str, Any]]] | None = None
+
+
+def _load_market_wilson() -> dict[str, dict[str, dict[str, Any]]]:
+    """{sport: {market: {"wilsonLo": float, "status": str|None}}} for
+    sample-confident markets. Cached; {} on any error so generation never
+    depends on it."""
+    global _market_wilson_cache
+    if _market_wilson_cache is not None:
+        return _market_wilson_cache
+    out: dict[str, dict[str, dict[str, Any]]] = {}
+    try:
+        raw = json.loads(_RELIABILITY_PATH.read_text())
+        for sport in ("mlb", "nba"):
+            block = raw.get(sport) or {}
+            out[sport] = {
+                mkt: {
+                    "wilsonLo": float(v["wilsonLo"]),
+                    "status": v.get("suggestedStatus"),
+                }
+                for mkt, v in block.items()
+                if isinstance(v, dict)
+                and v.get("enoughSample")
+                and "wilsonLo" in v
+            }
+    except Exception:
+        out = {}
+    _market_wilson_cache = out
+    return out
+
+
+def market_suggested_status(sport: str | None, market: str | None) -> str:
+    """'allowed' | 'downweighted' | 'high_risk_only' | 'disabled' for a market in
+    the public Suggested sections. Explicit `suggestedStatus` wins; else derived
+    from settled Wilson lower bound; unmeasured markets default to 'allowed'."""
+    info = _load_market_wilson().get((sport or "").lower(), {}).get(market or "")
+    if not info:
+        return "allowed"
+    explicit = info.get("status")
+    if explicit in ("allowed", "downweighted", "high_risk_only", "disabled"):
+        return explicit
+    w = info.get("wilsonLo")
+    if w is None:
+        return "allowed"
+    if w < _MARKET_DISABLED_MAX_WILSON:
+        return "disabled"
+    if w < _MARKET_HIGH_RISK_MAX_WILSON:
+        return "high_risk_only"
+    if w < _MARKET_DOWNWEIGHT_MAX_WILSON:
+        return "downweighted"
+    return "allowed"
+
+
+def _market_allowed_for_section(leg: OptimizerLean, section_key: str) -> bool:
+    """Whether a leg's market may appear in the given public section, per its
+    quarantine status. 'disabled' never publishes; 'high_risk_only' is High/
+    Longshot only; 'downweighted' is excluded from Low (and Medium gets it but
+    ranked lower via _sgp_leg_quality); 'allowed' is everywhere."""
+    status = market_suggested_status(leg.sport, leg.market)
+    if status == "disabled":
+        return False
+    if status == "high_risk_only":
+        return section_key in ("high", "longshot")
+    if status == "downweighted":
+        return section_key != "low"
+    return True
+
+
 # Recent-form quality signal (PR recent-form-quality-signal). Settled research
 # shows the leaned side's RECENT HIT RATE vs its line is monotonically
 # predictive (MLB L5 5/5 ~59%, ≤2/5 ~45%; same shape on L10) — more so than the
@@ -1360,28 +1455,41 @@ def _recent_form_quality_delta(leg: OptimizerLean) -> float:
 
 
 def _sgp_leg_quality(leg: OptimizerLean) -> float:
-    """Compact quality score for SGP eligibility ranking. Higher is better:
-    edge × confidence + recent10 fullness + bounded market-reliability and
-    recent-form tiebreakers from settled history (the terms shown predictive).
+    """Compact quality score for SGP eligibility ranking. Higher is better.
 
-    Confidence weighting is COMPRESSED (1.0 / 0.85 / 0.7 vs the old 1.0 / 0.7 /
-    0.4): settled data shows the model's confidence label is non-predictive —
-    High graded ≤ Low in BOTH sports (MLB High 48.6% < Low 50.4%; NBA High 51.1%
-    < Low 55.9%) — so heavily discounting Low-confidence high-edge legs was
-    unjustified. We reduce confidence's influence (not invert it; insufficient-
-    data stays 0) and let the predictive terms (edge, recent form, market
-    reliability) drive selection. Applies to FUTURE generation."""
-    conf_weight = (
-        1.0 if leg.confidence == "High"
-        else 0.85 if leg.confidence == "Medium"
-        else 0.7 if leg.confidence == "Low"
-        else 0.0  # insufficient_data / unknown — graded worst, stays unweighted
-    )
-    edge = max(0.0, leg.edgePct or 0.0)
-    recent = min(10, leg.recent10Count or 0) / 10.0
+    EMERGENCY REVAMP (post-June-7 0-23): the prior score was `edge × confidence
+    + …`, which rewarded exactly the legs that lose. Settled leg-level data shows
+    both drivers are inverted/non-predictive:
+      • Edge is NEGATIVELY predictive above ~10% (10-20% ≈ 44.9%, 20%+ ≈ 41.2%
+        vs 0-10% ≈ 51%) — big "edge" is overprojection.
+      • Confidence is inverted — High (48.1%) < Low (50.6%) < Medium (51.2%).
+    So selection is now driven by terms that ARE predictive — realized market
+    reliability and recent form (the leaned side's recent hit rate vs its line) —
+    while large edge becomes a penalty (overprojection risk) and the confidence
+    label is dropped (only 'insufficient_data' is penalized). 'downweighted'
+    markets rank below 'allowed' ones. Applies to FUTURE generation; combined
+    with the hard market quarantine, it stops us selecting known-bad legs."""
     reliability = _RELIABILITY_WEIGHT * _market_reliability_delta(leg)
     recent_form = _RECENT_FORM_WEIGHT * _recent_form_quality_delta(leg)
-    return edge * conf_weight + 5.0 * recent + reliability + recent_form
+    recent = min(10, leg.recent10Count or 0) / 10.0
+    edge = leg.edgePct or 0.0
+    edge_penalty = -_EDGE_OVERPROJ_WEIGHT * max(0.0, edge - _EDGE_OVERPROJ_THRESH)
+    conf_penalty = (
+        0.0 if leg.confidence in ("High", "Medium", "Low") else -2.0
+    )  # only insufficient_data / unknown is penalized; the label itself is not trusted
+    downweight_penalty = (
+        -_DOWNWEIGHT_MARKET_PENALTY
+        if market_suggested_status(leg.sport, leg.market) == "downweighted"
+        else 0.0
+    )
+    return (
+        reliability
+        + recent_form
+        + 3.0 * recent
+        + edge_penalty
+        + conf_penalty
+        + downweight_penalty
+    )
 
 
 def generate_nba_sgp_slips(
@@ -2305,6 +2413,11 @@ def low_risk_leg_eligible(leg: OptimizerLean, date: str | None) -> bool:
     side = (leg.side or "").lower()
     if side not in ("over", "under") or leg.line is None:
         return False
+    # Market quarantine: Low may only use markets whose settled reliability clears
+    # break-even ('allowed'). Downweighted/high-risk-only/disabled markets (e.g.
+    # MLB batter_total_bases) can never anchor a Low card.
+    if market_suggested_status(leg.sport, leg.market) != "allowed":
+        return False
     if _form_is_stale(leg, date):
         return False
     hr = _l10_hit_rate(leg)
@@ -2384,12 +2497,21 @@ def generate_public_risk_sections(
         # conservative price — see low_risk_leg_eligible). Medium/High/Longshot
         # keep the full pool so higher-variance legs remain available. No
         # padding: a thin eligible pool simply yields fewer Low cards.
+        # Market quarantine (emergency): drop legs whose market is not allowed in
+        # this section by realized reliability — 'disabled' markets never publish,
+        # 'high_risk_only' only in High/Longshot, 'downweighted' never in Low.
+        # No padding: a thinner eligible pool simply yields fewer cards.
+        def _mkt_ok(leg: OptimizerLean, _sk: str = section_key) -> bool:
+            return _market_allowed_for_section(leg, _sk)
+
         if section_key == "low":
-            sec_all = [l for l in normed if low_risk_leg_eligible(l, date)]
-            sec_nba = [l for l in nba_pool if low_risk_leg_eligible(l, date)]
-            sec_mlb = [l for l in mlb_pool if low_risk_leg_eligible(l, date)]
+            sec_all = [l for l in normed if low_risk_leg_eligible(l, date) and _mkt_ok(l)]
+            sec_nba = [l for l in nba_pool if low_risk_leg_eligible(l, date) and _mkt_ok(l)]
+            sec_mlb = [l for l in mlb_pool if low_risk_leg_eligible(l, date) and _mkt_ok(l)]
         else:
-            sec_all, sec_nba, sec_mlb = normed, nba_pool, mlb_pool
+            sec_all = [l for l in normed if _mkt_ok(l)]
+            sec_nba = [l for l in nba_pool if _mkt_ok(l)]
+            sec_mlb = [l for l in mlb_pool if _mkt_ok(l)]
 
         # Combined pool → feeds the "all" tab and surfaces the natural
         # mix of sport-pure and cross-sport slips.

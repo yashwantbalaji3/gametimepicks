@@ -1634,35 +1634,43 @@ class RecentFormQualityTests(unittest.TestCase):
                                         line=0.5, lean="Over", side="Over", recentSeries=[0] * 10))
         self.assertGreater(_sgp_leg_quality(strong), _sgp_leg_quality(weak))
 
-    def test_recent_form_does_not_override_much_stronger_edge(self):
+    def test_hot_form_beats_overprojected_big_edge(self):
+        # EMERGENCY REVAMP: settled data shows big edge is overprojection (10-20%
+        # ~45%, 20%+ ~41%) while hot recent form is predictive. So a hot leg with
+        # a tiny edge must now OUTRANK a cold leg with a huge (penalized) edge —
+        # the reverse of the old "edge dominates" assumption.
         cold_big_edge = normalize_lean(_mlb_lean(market="batter_hits", edgePct=25.0, confidence="High",
                                                  line=0.5, lean="Over", side="Over", recentSeries=[0] * 10))
         hot_tiny_edge = normalize_lean(_mlb_lean(market="batter_hits", edgePct=1.0, confidence="High",
                                                  line=0.5, lean="Over", side="Over", recentSeries=[2] * 10))
-        self.assertGreater(_sgp_leg_quality(cold_big_edge), _sgp_leg_quality(hot_tiny_edge))
+        self.assertGreater(_sgp_leg_quality(hot_tiny_edge), _sgp_leg_quality(cold_big_edge))
 
 
 class ConfidenceWeightCompressionTests(unittest.TestCase):
-    """The compressed confidence weighting in _sgp_leg_quality (1.0/0.85/0.7).
-    Confidence graded non-predictive, so its influence is reduced (not inverted);
-    insufficient_data stays unweighted. Equal market + series isolate confidence."""
+    """EMERGENCY REVAMP: the confidence LABEL is not trusted in _sgp_leg_quality
+    (settled: High 48.1% < Low 50.6% < Medium 51.2% — inverted). Real labels
+    (High/Medium/Low) carry NO differential weight; only insufficient_data is
+    penalized. Equal market + series isolate confidence."""
 
     def _leg(self, conf, edge):
         return normalize_lean(_mlb_lean(market="batter_hits", confidence=conf, edgePct=edge,
                                         line=0.5, lean="Over", side="Over", recentSeries=[1] * 10))
 
-    def test_order_preserved_at_equal_edge(self):
+    def test_confidence_label_not_trusted(self):
+        # High / Medium / Low score EQUAL at equal edge+market+series — the label
+        # is non-predictive so it must not move the ranking either way.
         h, m, l = self._leg("High", 6), self._leg("Medium", 6), self._leg("Low", 6)
-        self.assertGreater(_sgp_leg_quality(h), _sgp_leg_quality(m))
-        self.assertGreater(_sgp_leg_quality(m), _sgp_leg_quality(l))
+        self.assertAlmostEqual(_sgp_leg_quality(h), _sgp_leg_quality(m), places=6)
+        self.assertAlmostEqual(_sgp_leg_quality(m), _sgp_leg_quality(l), places=6)
 
-    def test_compression_lets_stronger_edge_low_conf_beat_weak_high_conf(self):
-        # OLD weights (1.0/0.4): Low edge-10 (4.0) lost to High edge-5 (5.0).
-        # Compressed (0.7): 7.0 > 5.0 — higher edge wins (confidence non-predictive).
-        self.assertGreater(_sgp_leg_quality(self._leg("Low", 10)), _sgp_leg_quality(self._leg("High", 5)))
+    def test_overprojected_edge_is_penalized(self):
+        # A large edge (overprojection, ~41% realized) must score BELOW a modest
+        # edge below the threshold, all else equal.
+        self.assertGreater(_sgp_leg_quality(self._leg("High", 5)), _sgp_leg_quality(self._leg("High", 25)))
 
     def test_insufficient_data_stays_unweighted(self):
-        self.assertGreater(_sgp_leg_quality(self._leg("Low", 10)), _sgp_leg_quality(self._leg("insufficient_data", 10)))
+        # insufficient_data is the only label that is penalized (graded worst).
+        self.assertGreater(_sgp_leg_quality(self._leg("Low", 5)), _sgp_leg_quality(self._leg("insufficient_data", 5)))
 
 
 class MarketReliabilityNudgeTests(unittest.TestCase):
@@ -1698,12 +1706,91 @@ class MarketReliabilityNudgeTests(unittest.TestCase):
         weak = normalize_lean(_mlb_lean(market="batter_total_bases", edgePct=8.0, confidence="High"))
         self.assertGreater(_sgp_leg_quality(strong), _sgp_leg_quality(weak))
 
-    def test_nudge_is_bounded_and_does_not_override_strong_edge(self):
-        # a weak-market leg with a much bigger edge still outranks a strong-market
-        # leg with a tiny edge — reliability is a tiebreaker, not a takeover.
+    def test_reliability_now_drives_over_edge(self):
+        # EMERGENCY REVAMP: reliability is now a PRIMARY driver and big edge is a
+        # penalty. A strong-market leg with a tiny edge must OUTRANK a weak-market
+        # leg with a big (overprojected) edge — the reverse of the old tiebreaker.
         weak_big_edge = normalize_lean(_mlb_lean(market="batter_total_bases", edgePct=20.0, confidence="High"))
         strong_small_edge = normalize_lean(_mlb_lean(market="batter_hits", edgePct=2.0, confidence="High"))
-        self.assertGreater(_sgp_leg_quality(weak_big_edge), _sgp_leg_quality(strong_small_edge))
+        self.assertGreater(_sgp_leg_quality(strong_small_edge), _sgp_leg_quality(weak_big_edge))
+
+
+class MarketQuarantineTests(unittest.TestCase):
+    """Emergency market quarantine: markets below realized break-even are gated
+    out of the public Suggested sections by Wilson lower bound (with an explicit
+    suggestedStatus override). Injects a controlled wilson cache."""
+
+    FRESH_GAMES = [
+        {"date": d, "opponent": "OPP", "isHome": True, "value": 2.0}
+        for d in ("2026-05-22", "2026-05-24", "2026-05-26", "2026-05-28", "2026-05-30",
+                  "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05")
+    ]
+
+    def setUp(self):
+        self._orig = po._market_wilson_cache
+        po._market_wilson_cache = {
+            "mlb": {
+                "good": {"wilsonLo": 0.55, "status": None},     # allowed (>=0.50)
+                "meh": {"wilsonLo": 0.48, "status": None},      # downweighted (0.46-0.50)
+                "weak": {"wilsonLo": 0.44, "status": None},     # high_risk_only (0.41-0.46)
+                "bad": {"wilsonLo": 0.38, "status": None},      # disabled (<0.41)
+                "forced_off": {"wilsonLo": 0.99, "status": "disabled"},  # explicit override wins
+            },
+        }
+
+    def tearDown(self):
+        po._market_wilson_cache = self._orig
+
+    def _leg(self, market, *, odds=-200, series=None):
+        return normalize_lean(_mlb_lean(
+            id="mq", playerName="MQ Tester", playerId=99002, market=market,
+            line=0.5, lean="Over", side="Over", oddsOver=odds, oddsUnder=-odds,
+            recentSeries=series or [2.0] * 10, recentGames=self.FRESH_GAMES,
+        ))
+
+    def test_status_derivation_from_wilson(self):
+        self.assertEqual(po.market_suggested_status("mlb", "good"), "allowed")
+        self.assertEqual(po.market_suggested_status("mlb", "meh"), "downweighted")
+        self.assertEqual(po.market_suggested_status("mlb", "weak"), "high_risk_only")
+        self.assertEqual(po.market_suggested_status("mlb", "bad"), "disabled")
+
+    def test_explicit_status_override_wins(self):
+        self.assertEqual(po.market_suggested_status("mlb", "forced_off"), "disabled")
+
+    def test_unmeasured_market_defaults_allowed(self):
+        self.assertEqual(po.market_suggested_status("mlb", "never_seen"), "allowed")
+
+    def test_disabled_never_publishes_in_any_section(self):
+        leg = self._leg("bad")
+        for sec in ("low", "medium", "high", "longshot"):
+            self.assertFalse(po._market_allowed_for_section(leg, sec))
+
+    def test_high_risk_only_excluded_from_low_and_medium(self):
+        leg = self._leg("weak")
+        self.assertFalse(po._market_allowed_for_section(leg, "low"))
+        self.assertFalse(po._market_allowed_for_section(leg, "medium"))
+        self.assertTrue(po._market_allowed_for_section(leg, "high"))
+        self.assertTrue(po._market_allowed_for_section(leg, "longshot"))
+
+    def test_downweighted_excluded_from_low_only(self):
+        leg = self._leg("meh")
+        self.assertFalse(po._market_allowed_for_section(leg, "low"))
+        self.assertTrue(po._market_allowed_for_section(leg, "medium"))
+        self.assertTrue(po._market_allowed_for_section(leg, "high"))
+
+    def test_allowed_market_everywhere(self):
+        leg = self._leg("good")
+        for sec in ("low", "medium", "high", "longshot"):
+            self.assertTrue(po._market_allowed_for_section(leg, sec))
+
+    def test_low_eligible_requires_allowed_market(self):
+        # Identical perfect heavy-favorite legs: an 'allowed' market is Low-eligible,
+        # a 'disabled'/'downweighted'/'high_risk_only' market is not — the only
+        # difference is realized market reliability.
+        self.assertTrue(low_risk_leg_eligible(self._leg("good"), "2026-06-05"))
+        self.assertFalse(low_risk_leg_eligible(self._leg("bad"), "2026-06-05"))
+        self.assertFalse(low_risk_leg_eligible(self._leg("weak"), "2026-06-05"))
+        self.assertFalse(low_risk_leg_eligible(self._leg("meh"), "2026-06-05"))
 
 
 if __name__ == "__main__":
