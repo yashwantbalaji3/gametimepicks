@@ -173,9 +173,12 @@ jobs:
           # Alternate NBA game-log/stats provider (BallDontLie) so the NBA model +
           # recent form can still build when nba_api blocks CI IPs. Real stats only.
           BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
-          # Enable the BallDontLie provider (config default is false). nba_api IP-
-          # blocks CI, so this real-stats fallback must be ON in the cloud.
-          ENABLE_BALLDONTLIE_FALLBACK: "true"
+          # BallDontLie provider toggle. OFF by default: its /stats (game logs)
+          # endpoint is PAID-tier (free key 401s), so leaving it on wastes ~45s/
+          # player on 401s. Flip vars.ENABLE_BALLDONTLIE_FALLBACK=true AFTER the
+          # BallDontLie key is upgraded to a tier that includes /stats — then the
+          # (working) /players?search resolver + stats fetch produce real NBA data.
+          ENABLE_BALLDONTLIE_FALLBACK: ${{ vars.ENABLE_BALLDONTLIE_FALLBACK || 'false' }}
         run: bash scripts/automation_projections.sh
 
       - name: Show diff stat (informational)
