@@ -33,7 +33,7 @@ import ProjectionsExperience from "@/components/projections-experience";
 // intentionally NOT imported here — PR #113 unwired cricket from
 // every user-facing surface.
 import MarketTicker from "@/components/market-ticker";
-import DateStatusHeader from "@/components/date-status-header";
+import BoardStatTile, { fmtShortDate } from "@/components/board-stat-tile";
 import { buildMarketTickerItems } from "@/lib/market-ticker";
 import { loadProjectionsPayload } from "@/lib/data-projections";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
@@ -113,16 +113,108 @@ export default function ProjectionsPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6" />
-      <DateStatusHeader
-        date={today}
-        label="today"
-        context="Straight bets · projections"
-        counts={{
-          games: gamesCount,
-          projections: projectionsCount,
+
+      {/* Premium projections-board hero — matches the Home / Parlay Lab style:
+          layered gradient frame, gold top accent rule, headline + a sportsbook
+          board-style scoreboard stat strip. All values are real payload counts;
+          no data/model change (replaces the prior static DateStatusHeader on
+          this page only — the shared component is untouched). */}
+      <section
+        className="relative overflow-hidden rounded-[14px]"
+        style={{
+          border: "1px solid var(--vault-border-strong)",
+          background:
+            "radial-gradient(120% 150% at 0% 0%, rgba(240,199,94,0.09) 0%, transparent 55%)," +
+            "linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(11,15,31,0.96) 60%, rgba(7,11,26,0.97) 100%)",
+          boxShadow: "var(--vault-shadow-elevated)",
         }}
-        note={headerNote}
-      />
+      >
+        <span
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-[2px]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
+            opacity: 0.7,
+          }}
+        />
+        <div className="relative flex flex-col gap-5 px-5 py-6 sm:px-7 sm:py-7 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-2.5 lg:max-w-md">
+            <span
+              className="self-start font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full"
+              style={{
+                fontSize: 9,
+                color: "var(--vault-gold-bright)",
+                border: "1px solid var(--vault-border-strong)",
+                background: "var(--vault-gold-dim)",
+              }}
+            >
+              Straight bets · projections
+            </span>
+            <h1
+              className="font-display tracking-tight"
+              style={{
+                color: "var(--vault-text)",
+                fontSize: "clamp(26px, 5vw, 38px)",
+                fontWeight: 700,
+                lineHeight: 1.05,
+                letterSpacing: "-0.015em",
+              }}
+            >
+              Today&apos;s projections board.
+            </h1>
+            <p
+              className="text-[13px] leading-snug"
+              style={{ color: "var(--vault-text-mute)", maxWidth: "46ch" }}
+            >
+              Single player-prop projections — the model&apos;s line and recent
+              form per player. The parlays in Parlay Lab are built from these.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 lg:w-[440px] shrink-0">
+            <BoardStatTile
+              label="Active slate"
+              value={fmtShortDate(today)}
+              sub="today"
+              accent="var(--risk-low)"
+            />
+            <BoardStatTile
+              label="Games"
+              value={`${gamesCount}`}
+              sub="scheduled"
+              accent="var(--sport-mlb)"
+            />
+            <BoardStatTile
+              label="Projections"
+              value={`${projectionsCount}`}
+              sub={projectionsCount > 0 ? "actionable" : "posting"}
+              accent="var(--vault-gold-bright)"
+            />
+            <BoardStatTile
+              label="Sports"
+              value={`${(nba.games > 0 ? 1 : 0) + (mlb.games > 0 ? 1 : 0)}`}
+              sub={
+                nba.games > 0 && mlb.games > 0
+                  ? "NBA · MLB"
+                  : nba.games > 0
+                    ? "NBA"
+                    : mlb.games > 0
+                      ? "MLB"
+                      : "—"
+              }
+              accent="var(--risk-longshot)"
+            />
+          </div>
+        </div>
+        {projectionsCount === 0 && (
+          <p
+            className="relative px-5 sm:px-7 pb-5 -mt-1 text-[11.5px] leading-snug"
+            style={{ color: "var(--vault-text-faint)" }}
+          >
+            {headerNote}
+          </p>
+        )}
+      </section>
       {/* PR `feat/projections-straight-bets-framing` (2026-06-01) — one
           plain-English line so first-time visitors know what this page
           is (single straight-bet projections, not parlays) and how to
