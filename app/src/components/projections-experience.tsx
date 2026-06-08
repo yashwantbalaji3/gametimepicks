@@ -569,17 +569,32 @@ function MatchupCard({
   onSelect: () => void;
 }) {
   const tipoff = formatTipoffEt(game.tipoffIso);
+  // Sport accent (premium "sportsbook board" — a left lane rail + sport label
+  // keyed to sport, reusing the #301 sport-accent tokens). Decorative only;
+  // implies sport, never a likelihood of winning.
+  const sportAccent =
+    game.sport === "nba"
+      ? "var(--sport-nba)"
+      : game.sport === "mlb"
+        ? "var(--sport-mlb)"
+        : "var(--vault-gold-bright)";
   return (
     <button
       type="button"
       onClick={onSelect}
       className="gtp-matchup-card text-left"
+      style={{ position: "relative", overflow: "hidden" }}
       aria-label={`Open ${game.awayTeamAbbr} at ${game.homeTeamAbbr}`}
     >
+      <span
+        aria-hidden
+        className="absolute left-0 top-0 bottom-0 w-[3px]"
+        style={{ background: sportAccent, opacity: 0.85 }}
+      />
       <div className="flex items-center justify-between gap-2 mb-2">
         <span
           className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}
+          style={{ color: sportAccent, fontSize: 9 }}
         >
           {game.sport.toUpperCase()}
         </span>
@@ -1170,7 +1185,7 @@ function PlayerMarketRow({ group }: { group: ProjectionsMarketGroup }) {
   const showBookChip = group.bookCount > 1;
   return (
     <div
-      className="grid grid-cols-[1fr_1fr_1fr_72px] gap-2 items-baseline px-2 py-1.5 rounded-[5px]"
+      className="gtp-proj-row grid grid-cols-[1fr_1fr_1fr_72px] gap-2 items-baseline px-2 py-1.5 rounded-[5px]"
       style={{
         background: "rgba(7,11,26,0.55)",
         border: "1px solid var(--vault-rule)",

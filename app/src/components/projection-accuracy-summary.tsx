@@ -144,6 +144,29 @@ function AccuracyCard({
             {record!.wins.toLocaleString()} of {record!.decisive.toLocaleString()} picks hit
             {positive ? " · above 50%" : ""}
           </span>
+          {/* Mini stat-bar — an honest visualization of the SAME hit rate (fill
+              width = pct), with a 50% reference tick. Colour matches the card's
+              existing positive/neutral convention. No new value judgment. */}
+          <div
+            className="mt-1.5 relative h-1.5 rounded-full overflow-hidden"
+            role="presentation"
+            style={{ background: "var(--gtp-card-sunken)" }}
+          >
+            <span
+              className="absolute inset-y-0 left-0 rounded-full"
+              style={{
+                width: `${Math.min(100, Math.max(0, pct))}%`,
+                background: positive
+                  ? "var(--vault-success, #4ade80)"
+                  : "var(--vault-gold-bright)",
+              }}
+            />
+            <span
+              aria-hidden
+              className="absolute inset-y-0"
+              style={{ left: "50%", width: 1, background: "var(--vault-text-faint)", opacity: 0.55 }}
+            />
+          </div>
         </>
       ) : (
         <>
