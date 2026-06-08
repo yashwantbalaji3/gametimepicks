@@ -115,6 +115,10 @@ jobs:
       # NBA pipeline event cap. Conservative — playoff days have at most
       # 1 NBA game; regular season tops out around 8 — overridable.
       ODDS_MAX_EVENTS_PER_RUN: ${{ vars.ODDS_MAX_EVENTS_PER_RUN || '8' }}
+      # NBA data-provider chain primary. Default nba_api; override to "balldontlie"
+      # when nba_api is IP-blocked from CI (the chain still falls back). Real data
+      # only — never invents stats.
+      NBA_DATA_PROVIDER: ${{ vars.NBA_DATA_PROVIDER || 'nba_api' }}
 
     steps:
       - name: Checkout
@@ -166,6 +170,9 @@ jobs:
       - name: Run projection refresh orchestrator
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Alternate NBA game-log/stats provider (BallDontLie) so the NBA model +
+          # recent form can still build when nba_api blocks CI IPs. Real stats only.
+          BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
         run: bash scripts/automation_projections.sh
 
       - name: Show diff stat (informational)
