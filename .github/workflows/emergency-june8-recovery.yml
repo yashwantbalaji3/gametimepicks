@@ -1,0 +1,153 @@
+# ----------------------------------------------------------------------------
+# emergency-june8-recovery.yml  (TEMPORARY — delete after 2026-06-08)
+#
+# Cloud-safe retry for the June-8 slate after the scheduled morning-projections
+# runs cancelled on a cold nba_api cache. Runs entirely in GitHub Actions so it
+# does NOT depend on any local machine. It reuses the proven generation
+# orchestrator (scripts/automation_projections.sh) which self-guards paid spend
+# via pipeline.credit_guard (cap 75 / floor 300 / hard refuse).
+#
+# SELF-NEUTERING + IDEMPOTENT (the guard step exits 0 — no spend — unless ALL
+# hold): today (ET) is 2026-06-08; before the 22:30 UTC first-pitch cutoff; the
+# June-8 optimizer is still absent on main; no June-8 game has started; and no
+# other generation/recovery run is active. So after June 8 is generated OR after
+# first pitch OR on any later day it is a cheap no-op. Hardcoded to 2026-06-08 so
+# it can never act on a future slate. Cleanup: remove this file once June 8 is
+# live (Phase 8).
+# ----------------------------------------------------------------------------
+name: emergency-june8-recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Target date (recovery is hardcoded to 2026-06-08)."
+        type: string
+        required: false
+        default: "2026-06-08"
+      allow_paid_run:
+        description: "Allow the single guarded paid generation."
+        type: boolean
+        required: false
+        default: true
+  schedule:
+    # Every 13 min. The guard makes every fire a no-op unless the June-8
+    # recovery window is genuinely open. Off-minute to avoid the :00 stampede.
+    - cron: "*/13 * * * *"
+
+concurrency:
+  group: june8-generation-recovery-2026-06-08
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  RECOVERY_DATE: "2026-06-08"
+  FIRST_PITCH_CUTOFF_UTC: "22:30"   # MLB first pitch ~22:35 UTC; stop before any game
+
+jobs:
+  recover:
+    name: emergency June-8 recovery
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TZ: "America/New_York"
+      PROJECTIONS_DATE: "2026-06-08"
+      DRY_RUN_PROJECTIONS: "0"
+      ATTACH_RECENT10_BUDGET_SEC: ${{ vars.ATTACH_RECENT10_BUDGET_SEC || '420' }}
+      MAX_PER_RUN: ${{ vars.MAX_PER_RUN || '75' }}
+      MIN_REMAINING: ${{ vars.MIN_REMAINING || '300' }}
+      ODDS_MAX_EVENTS_PER_RUN: ${{ vars.ODDS_MAX_EVENTS_PER_RUN || '8' }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Guard — only proceed inside the open recovery window
+        id: guard
+        run: |
+          set -euo pipefail
+          proceed=true; reason="ok"
+          today_et=$(TZ=America/New_York date '+%Y-%m-%d')
+          now_utc_hm=$(date -u '+%H:%M')
+          # 1) hardcoded recovery date / self-neuter on later days
+          if [ "$today_et" != "$RECOVERY_DATE" ]; then proceed=false; reason="not the recovery date (ET=$today_et)"; fi
+          # 2) first-pitch cutoff (string compare HH:MM works lexically)
+          if [ "$proceed" = "true" ] && [ "$now_utc_hm" \> "$FIRST_PITCH_CUTOFF_UTC" ]; then proceed=false; reason="past first-pitch cutoff ($now_utc_hm UTC)"; fi
+          # 3) already generated?
+          if [ "$proceed" = "true" ] && [ -f "app/public/data/parlays/optimizer/${RECOVERY_DATE}.json" ]; then proceed=false; reason="June-8 optimizer already present"; fi
+          # 4) any June-8 MLB game started? (free ESPN; the 22:30 cutoff in #2 is
+          #    the primary guard, so fail-open here is acceptable.)
+          if [ "$proceed" = "true" ]; then
+            started=$(curl -s "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=20260608" | python3 -c "import sys,json;d=json.load(sys.stdin);print(sum(1 for e in d.get('events',[]) if e.get('status',{}).get('type',{}).get('state') in ('in','post')))" 2>/dev/null || echo 0)
+            if [ "${started:-0}" -gt 0 ]; then proceed=false; reason="a June-8 MLB game has started"; fi
+          fi
+          # 5) another generation/recovery run already active? (exclude self).
+          #    FAIL-CLOSED: if the check itself errors, do NOT proceed (never risk
+          #    a paid double-dispatch on a transient gh failure).
+          if [ "$proceed" = "true" ]; then
+            if active=$(gh run list --limit 30 --json databaseId,workflowName,status \
+              -q "[.[]|select((.status==\"in_progress\" or .status==\"queued\") and (.workflowName==\"morning-projections\" or .workflowName==\"emergency-june8-recovery\") and (.databaseId != ${GITHUB_RUN_ID}))]|length" 2>/dev/null); then
+              if [ "${active:-0}" -gt 0 ]; then proceed=false; reason="another generation/recovery run is active"; fi
+            else
+              proceed=false; reason="active-run check failed (fail-closed)"
+            fi
+          fi
+          echo "proceed=$proceed" >> "$GITHUB_OUTPUT"
+          echo "  recovery guard → proceed=$proceed ($reason) | ET=$today_et UTC=$now_utc_hm"
+
+      - name: Set up Python
+        if: steps.guard.outputs.proceed == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        if: steps.guard.outputs.proceed == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f pipeline/requirements.txt ]; then pip install -r pipeline/requirements.txt; else pip install requests nba_api; fi
+
+      - name: Restore nba_api cache
+        if: steps.guard.outputs.proceed == 'true'
+        uses: actions/cache@v4
+        with:
+          path: pipeline/cache/
+          key: nba-api-cache-${{ github.run_id }}
+          restore-keys: |
+            nba-api-cache-
+
+      - name: Run generation orchestrator (one guarded paid run)
+        if: steps.guard.outputs.proceed == 'true' && (github.event_name == 'schedule' || github.event.inputs.allow_paid_run == 'true')
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: bash scripts/automation_projections.sh
+
+      - name: Commit and push generated June-8 data
+        if: steps.guard.outputs.proceed == 'true'
+        run: |
+          git add app/public/data/boards/ 2>/dev/null || true
+          git add app/public/data/mlb/boards/ 2>/dev/null || true
+          git add app/public/data/mlb/schedule/ 2>/dev/null || true
+          git add app/public/data/mlb/power/ 2>/dev/null || true
+          git add app/public/data/board.json app/public/data/slate.json app/public/data/schedule.json 2>/dev/null || true
+          git add app/public/data/odds_props.json app/public/data/players.json app/public/data/trends.json app/public/data/meta.json 2>/dev/null || true
+          git add pipeline/validation/leans_log.jsonl 2>/dev/null || true
+          git add app/public/data/parlays/optimizer/ app/public/data/parlays/snapshots/ 2>/dev/null || true
+          if git diff --staged --quiet; then echo "No new June-8 data — nothing to commit."; exit 0; fi
+          git config user.name "GametimePicks Bot"
+          git config user.email "noreply@github.com"
+          MSG="Generate June 8 projections via emergency recovery [skip ci]"
+          git commit -m "$MSG"
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then echo "Pushed (attempt $attempt)"; exit 0; fi
+            git fetch origin main || { echo "fetch failed"; exit 1; }
+            git rebase origin/main || { echo "rebase conflict — not force-pushing"; git rebase --abort || true; exit 1; }
+          done
+          echo "ERROR: push failed after retries"; exit 1
