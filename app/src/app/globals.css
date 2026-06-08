@@ -4044,6 +4044,19 @@ table,
   .gtp-matchup-card:hover { transition: none; transform: none; }
 }
 
+/* Projection rows — subtle premium hover. Uses an inset ring (box-shadow) so it
+   layers over the row's inline border without needing !important. */
+.gtp-proj-row {
+  transition: box-shadow 160ms ease;
+}
+.gtp-proj-row:hover {
+  box-shadow: 0 0 0 1px var(--vault-border-strong) inset,
+    0 6px 16px -12px rgba(0, 0, 0, 0.55);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-proj-row { transition: none; }
+}
+
 .gtp-player-accordion {
   background: rgba(7, 11, 26, 0.55);
   border: 1px solid var(--vault-border);
