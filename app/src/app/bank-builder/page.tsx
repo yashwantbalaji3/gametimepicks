@@ -29,6 +29,7 @@ import Link from "next/link";
 
 import ParlayTicketCard from "@/components/parlay-ticket-card";
 import PageHero from "@/components/page-hero";
+import BoardStatTile from "@/components/board-stat-tile";
 import BankBuilderTower from "@/components/bank-builder-tower";
 import BankBuilderShareCard from "@/components/bank-builder-share-card";
 import {
@@ -143,6 +144,36 @@ export default function BankBuilderPage() {
           </>
         }
       />
+
+      {/* Board-style target-path strip — the ladder progression at a glance.
+          Honest: a per-step TARGET (not a promise), the current step, and the
+          loss reset shown openly. Real ladder constants only. */}
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <BoardStatTile
+          label="Start"
+          value={formatLadderUsd(BANK_BUILDER_BASE)}
+          sub="paper base"
+          accent="var(--risk-low)"
+        />
+        <BoardStatTile
+          label="Step target"
+          value="~2×"
+          sub="≈ +100 odds"
+          accent="var(--vault-gold-bright)"
+        />
+        <BoardStatTile
+          label="Current step"
+          value={`${activeStep.step} / 5`}
+          sub={formatLadderUsd(currentBankroll)}
+          accent="var(--sport-mlb)"
+        />
+        <BoardStatTile
+          label="On a loss"
+          value="Reset"
+          sub={`to ${formatLadderUsd(BANK_BUILDER_BASE)}`}
+          accent="var(--risk-longshot)"
+        />
+      </div>
 
       <DisclaimerBanner placement="top" />
 
