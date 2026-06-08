@@ -91,6 +91,50 @@ function ModuleCard({
   );
 }
 
+/** "Jun 7" from an ISO date, locale-stable on the server. */
+function fmtShort(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(`${iso}T12:00:00Z`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+/** Scoreboard-style stat tile for the command-center hero. Renders real
+ *  loader data only; the left accent rail is purely decorative. */
+function StatTile({
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  accent: string;
+}) {
+  return (
+    <div
+      className="relative flex flex-col gap-1 rounded-[10px] px-3 py-2.5 sm:px-3.5 sm:py-3 min-w-0 overflow-hidden"
+      style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
+    >
+      <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: accent }} />
+      <span className="font-mono uppercase tracking-[0.14em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+        {label}
+      </span>
+      <span className="font-display tabular truncate" style={{ color: "var(--vault-text)", fontSize: 21, fontWeight: 700, lineHeight: 1 }}>
+        {value}
+      </span>
+      <span className="font-mono truncate" style={{ color: accent, fontSize: 9.5 }}>
+        {sub}
+      </span>
+    </div>
+  );
+}
+
 function Metric({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div className="flex flex-col gap-1 px-3.5 py-3 min-w-0">
@@ -131,8 +175,8 @@ export default function HomePage() {
     suggested?.slips ?? [],
   );
 
-  // Top Pick of the Day = the BANK BUILDER slip: the safest, highest-confidence
-  // conservative stack (negative-odds favorites, strong recent form), NOT the
+  // Top Pick of the Day = the BANK BUILDER slip: the most conservative
+  // stack (negative-odds favorites, strong recent form), NOT the
   // highest payout. Falls back to the top published slip only when no qualifying
   // conservative stack exists. The card shows its own honest settled/pending
   // state — never fabricated.
@@ -232,6 +276,106 @@ export default function HomePage() {
   return (
     <div className="vault-page-shell px-3 sm:px-5 lg:px-6 py-4 lg:py-6 overflow-x-hidden flex flex-col gap-4">
       <MarketTicker items={tickerItems} className="-mx-3 sm:-mx-5 lg:-mx-6" />
+
+      {/* 0 · Premium command-center hero — layered gradient frame, headline,
+          paper-only badge, sportsbook-style scoreboard stat strip (real loader
+          data only), and the two primary CTAs. No data/model change. */}
+      <section
+        className="relative overflow-hidden rounded-[14px]"
+        style={{
+          border: "1px solid var(--vault-border-strong)",
+          background:
+            "radial-gradient(120% 150% at 0% 0%, rgba(240,199,94,0.10) 0%, transparent 55%)," +
+            "linear-gradient(135deg, rgba(22,30,62,0.96) 0%, rgba(11,15,31,0.97) 55%, rgba(7,11,26,0.98) 100%)",
+          boxShadow: "var(--vault-shadow-elevated)",
+        }}
+      >
+        <span
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-[2px]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
+            opacity: 0.7,
+          }}
+        />
+        <div className="relative flex flex-col gap-6 px-5 py-6 sm:px-7 sm:py-7 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-3 lg:max-w-lg">
+            <span
+              className="self-start font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full"
+              style={{
+                fontSize: 9,
+                color: "var(--vault-gold-bright)",
+                border: "1px solid var(--vault-border-strong)",
+                background: "var(--vault-gold-dim)",
+              }}
+            >
+              Educational · paper picks only
+            </span>
+            <h1
+              className="font-display"
+              style={{
+                color: "var(--vault-text)",
+                fontSize: "clamp(26px, 5.2vw, 40px)",
+                fontWeight: 700,
+                lineHeight: 1.05,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Today&apos;s board, ranked by the model.
+            </h1>
+            <p
+              className="text-[13px] sm:text-[14px] leading-snug"
+              style={{ color: "var(--vault-text-mute)", maxWidth: "46ch" }}
+            >
+              Player-prop parlays grouped by risk — saved before first pitch and
+              graded after. Honest paper tracking, not betting advice.
+            </p>
+            <div className="flex flex-wrap gap-2.5 pt-1">
+              <Link
+                href="/parlay-lab/#suggested"
+                className="px-4 py-2.5 rounded-full text-[12.5px] font-semibold"
+                style={{ background: "var(--vault-gold-bright)", color: "var(--vault-bg)" }}
+              >
+                Today&apos;s Suggested Parlays →
+              </Link>
+              <Link
+                href="/results/"
+                className="px-4 py-2.5 rounded-full text-[12.5px] font-medium"
+                style={{ border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)" }}
+              >
+                Track record →
+              </Link>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2 sm:gap-2.5 lg:w-[416px] shrink-0">
+            <StatTile
+              label="Active slate"
+              value={fmtShort(suggested?.date)}
+              sub={
+                showingTodayPregame
+                  ? "today · pregame"
+                  : suggested?.isFallback
+                    ? "latest slate"
+                    : "today"
+              }
+              accent="var(--risk-low)"
+            />
+            <StatTile
+              label="Latest settled"
+              value={fmtShort(latestSettled)}
+              sub={latestSettled ? "graded" : "—"}
+              accent="var(--sport-mlb)"
+            />
+            <StatTile
+              label="Tracked accuracy"
+              value={combinedHitRate != null ? formatPercent(combinedHitRate) : "—"}
+              sub={combinedDecisive > 0 ? `${combinedWins}/${combinedDecisive} legs` : "no settled data"}
+              accent="var(--vault-gold-bright)"
+            />
+          </div>
+        </div>
+      </section>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 xl:items-start">
         {/* 1 · Five clear paths */}

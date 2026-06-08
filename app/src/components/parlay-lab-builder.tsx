@@ -1026,8 +1026,42 @@ function BuilderHeader({
           ? "Model-ranked parlays grouped by combined odds — Low Risk, Medium Risk, High Risk, Longshot. Saved before games and graded after."
           : "Pregame snapshots saved before games, graded after.";
   const Heading = embedded ? "h2" : "h1";
+  // Premium command-center hero band for the main (non-embedded) Suggested
+  // Parlays page — a layered gradient frame + gold top accent rule that matches
+  // the homepage hero, so the #1 product page reads as a sportsbook board. Build
+  // / Bankroll / embedded headers stay plain to avoid layout churn. No data
+  // change — same title/subcopy.
+  const heroBand = !embedded && mode === "suggested";
   return (
-    <header className="flex flex-col gap-2">
+    <header
+      className={
+        heroBand
+          ? "relative overflow-hidden rounded-[14px] px-5 py-6 sm:px-6 sm:py-7 flex flex-col gap-2"
+          : "flex flex-col gap-2"
+      }
+      style={
+        heroBand
+          ? {
+              border: "1px solid var(--vault-border-strong)",
+              background:
+                "radial-gradient(120% 150% at 0% 0%, rgba(240,199,94,0.09) 0%, transparent 55%)," +
+                "linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(11,15,31,0.96) 60%, rgba(7,11,26,0.97) 100%)",
+              boxShadow: "var(--vault-shadow-elevated)",
+            }
+          : undefined
+      }
+    >
+      {heroBand && (
+        <span
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-[2px]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
+            opacity: 0.7,
+          }}
+        />
+      )}
       <Heading
         className="font-display tracking-tight"
         style={{
