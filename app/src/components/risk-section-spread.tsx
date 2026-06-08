@@ -355,8 +355,9 @@ function RiskSectionSummary({
         className="text-[11px] leading-snug"
         style={{ color: "var(--vault-text-faint)" }}
       >
-        Sections are not padded — we show fewer cards when sport, variety, and
-        volume filters remove the rest.
+        Sections are not padded — we show fewer cards when the quality gates
+        (market reliability, recent form, odds), sport, variety, and volume
+        filters remove the rest.
       </p>
     </div>
   );
