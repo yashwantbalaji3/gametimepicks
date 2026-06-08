@@ -225,14 +225,56 @@ class BallDontLieProvider(NBADataProvider):
         log.info(f"balldontlie: built player index with {len(mapping)} mappings ({page} pages)")
         return mapping
 
+    def _bdl_search_player(self, full_name: str) -> int | None:
+        """FREE-TIER resolution: map a player NAME to a BallDontLie id via
+        ``/nba/v1/players?search=`` (the paid ``/players/active`` index 401s on
+        free-tier keys). Strict: only an EXACT normalized full-name match counts,
+        so we never mis-map (suffix-aware via player_resolver.normalize_name)."""
+        from ..player_resolver import normalize_name
+
+        parts = full_name.split()
+        search_term = parts[-1] if parts else full_name  # surname widens the search
+        data = _do_get(
+            f"{API_BASE}/nba/v1/players",
+            self._key,
+            params={"search": search_term, "per_page": 100},
+        )
+        target = normalize_name(full_name)
+        for p in data.get("data") or []:
+            cand = normalize_name(f"{p.get('first_name','')} {p.get('last_name','')}")
+            if cand == target and isinstance(p.get("id"), int):
+                return int(p["id"])
+        return None
+
+    def _resolve_bdl_id(self, nba_id: int) -> int | None:
+        """Resolve a board (nba_api) player id → BallDontLie id, cached.
+        Name comes from nba_api's OFFLINE static list, then a free-tier search.
+        Negative results cache as 0 so we don't re-search every run."""
+        ck = f"bdlid_{int(nba_id)}"
+        cached = _cache_get(ck, ttl_hours=PLAYER_INDEX_TTL_HOURS)
+        if isinstance(cached, int):
+            return cached or None
+        from ..player_resolver import _load_static_index
+
+        name = (_load_static_index().get("by_id") or {}).get(int(nba_id))
+        if not name:
+            _cache_put(ck, 0)
+            return None
+        try:
+            bdl = self._bdl_search_player(name)
+        except requests.RequestException as e:
+            # transient — do NOT negative-cache; let the next run retry
+            raise ProviderRequestFailed(f"balldontlie player search failed: {e}") from e
+        _cache_put(ck, int(bdl) if bdl else 0)
+        return bdl
+
     def fetch_player_game_logs(self, player_id: int, last_n: int = 10) -> list[GameLog]:
         self._ensure_configured()
-        self._ensure_player_index()
 
-        bdl_id = (self._player_index or {}).get(int(player_id))
+        bdl_id = self._resolve_bdl_id(int(player_id))
         if not bdl_id:
             raise ProviderRequestFailed(
-                f"player_id {player_id} not in balldontlie index"
+                f"player_id {player_id} not resolvable on balldontlie (free-tier search)"
             )
 
         cache_key = f"gamelogs_{player_id}_{last_n}"
