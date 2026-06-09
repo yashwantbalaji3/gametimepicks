@@ -27,10 +27,8 @@ def _implied(o):
 
 
 def _fighter_index(fighters_art: dict) -> dict:
-    idx = {}
-    for f in fighters_art.get("fighters", []):
-        idx[_norm_name(f.get("canonicalName", ""))] = f
-    return idx
+    from .name_matching import build_index
+    return build_index(fighters_art.get("fighters", []), name_of=lambda f: f.get("canonicalName", ""))
 
 
 def _feat(f: dict) -> dict:
@@ -112,7 +110,10 @@ def build(odds: dict, fighters: dict, now: datetime | None = None,
             blocked.append({"bout": fs, "reason": "not on the real ESPN card (futures/unmatched)"}); continue
         if not (fetched and ct and fetched < ct):
             blocked.append({"bout": fs, "reason": "odds not pregame / stale"}); continue
-        fa, fb = idx.get(_norm_name(fs[0])), idx.get(_norm_name(fs[1]))
+        from .name_matching import resolve
+        fa, mta = resolve(fs[0], idx); fb, mtb = resolve(fs[1], idx)
+        if mta == "ambiguous" or mtb == "ambiguous":
+            blocked.append({"bout": fs, "reason": "ambiguous fighter name match"}); continue
         if not fa or not fb:
             blocked.append({"bout": fs, "reason": "fighter stats missing for one/both"}); continue
         sides = {s.get("name"): s for s in b.get("sides", [])}
