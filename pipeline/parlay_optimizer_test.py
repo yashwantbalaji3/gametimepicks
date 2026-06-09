@@ -1258,10 +1258,13 @@ class PublicRiskSectionTests(unittest.TestCase):
         self.assertEqual(PUBLIC_RISK_SECTION_SPECS["high"]["max_am_exclusive"], 1000.0)
         self.assertEqual(PUBLIC_RISK_SECTION_SPECS["longshot"]["min_am_inclusive"], 1000.0)
         # Leg-count bands.
+        # Low capped to exactly 2 legs (simulation-backed tightening):
+        # conservative lane stays short so the ~56% leg rate converts to a
+        # materially higher card hit rate.
         self.assertEqual(
             (PUBLIC_RISK_SECTION_SPECS["low"]["min_legs"],
              PUBLIC_RISK_SECTION_SPECS["low"]["max_legs"]),
-            (2, 3),
+            (2, 2),
         )
         self.assertEqual(
             (PUBLIC_RISK_SECTION_SPECS["medium"]["min_legs"],
@@ -1318,6 +1321,34 @@ class PublicRiskSectionTests(unittest.TestCase):
                     self.assertLess(am, spec["max_am_exclusive"])
                     self.assertGreaterEqual(len(slip.legs), spec["min_legs"])
                     self.assertLessEqual(len(slip.legs), spec["max_legs"])
+
+    def test_low_cards_capped_at_two_legs(self):
+        # Simulation-backed tightening: Low is the conservative lane, exactly 2 legs.
+        pool = self._build_pool(n_nba=20, n_mlb=20)
+        out = generate_public_risk_sections(pool, date="2026-05-28")
+        for sport, slips in out["low"].items():
+            for slip in slips:
+                self.assertLessEqual(len(slip.legs), 2, f"Low/{sport} card must be <=2 legs")
+
+    def test_edge_cap_excludes_inverted_high_edge_legs(self):
+        # Realized edge is inverted above ~10%: edge>=20 must never publish in any
+        # section; edge>=15 must not appear in Low/Medium. Edge never promotes.
+        pool = self._build_pool(n_nba=20, n_mlb=20)
+        pool.append(normalize_lean(_mlb_lean(
+            id="hi25", playerName="HiEdge25", playerId=30001, gameId="mlb_hi1",
+            market="batter_hits", edgePct=25.0, oddsOver=-130, oddsUnder=110)))
+        pool.append(normalize_lean(_mlb_lean(
+            id="hi16", playerName="HiEdge16", playerId=30002, gameId="mlb_hi2",
+            market="batter_hits", edgePct=16.0, oddsOver=-130, oddsUnder=110)))
+        out = generate_public_risk_sections(pool, date="2026-05-28")
+        for section_key, by_sport in out.items():
+            for slips in by_sport.values():
+                for slip in slips:
+                    for leg in slip.legs:
+                        e = float(leg.edgePct or 0.0)
+                        self.assertLess(e, 20.0, f"edge>=20 must not publish ({section_key})")
+                        if section_key in ("low", "medium"):
+                            self.assertLess(e, 15.0, f"edge>=15 must not be in {section_key}")
 
     def test_no_duplicate_players_within_slip(self):
         pool = self._build_pool(n_nba=10, n_mlb=20)

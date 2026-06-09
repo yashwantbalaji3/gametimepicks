@@ -1974,7 +1974,11 @@ def _stable_slip_id(date: str, profile: str, picked: list[OptimizerLean]) -> str
 PUBLIC_RISK_SECTION_SPECS: dict[str, dict[str, Any]] = {
     "low": {
         "min_legs": 2,
-        "max_legs": 3,
+        # Capped 3 -> 2 (simulation-backed): at the ~56% Low leg hit rate a 2-leg
+        # card converts ~32% vs ~18% for 3 legs; backtest lifted Low card hit rate
+        # 26% -> 37% (docs/audits/selection-policy-simulation-latest.md). Low is the
+        # conservative / Bank-Builder-adjacent lane — keep it short.
+        "max_legs": 2,
         "min_am_inclusive": float("-inf"),
         "max_am_exclusive": 300.0,
     },
@@ -1999,6 +2003,14 @@ PUBLIC_RISK_SECTION_SPECS: dict[str, dict[str, Any]] = {
 }
 
 PUBLIC_RISK_SECTION_ORDER: tuple[str, ...] = ("low", "medium", "high", "longshot")
+
+#: Edge caps for public sections (simulation-backed). Realized edge is INVERTED
+#: above ~10% (overprojection): edge>=20% legs hit ~40% in the settled universe.
+#: High-edge legs are EXCLUDED from public cards (never used to promote): >=20%
+#: everywhere, >=15% additionally barred from Low/Medium. See
+#: docs/audits/selection-policy-simulation-latest.md + the postmortem (#321).
+_PUBLIC_EDGE_CAP_ALL: float = 20.0
+_PUBLIC_EDGE_CAP_LOW_MEDIUM: float = 15.0
 
 #: Default cap on same-game legs in a public-section slip. The internal
 #: Balanced rule uses 2 — matching that here avoids dishonest single-
@@ -2656,14 +2668,28 @@ def generate_public_risk_sections(
         def _mkt_ok(leg: OptimizerLean, _sk: str = section_key) -> bool:
             return _market_allowed_for_section(leg, _sk, date)
 
+        # Edge cap (simulation-backed, PR `tighten-public-parlay-construction`):
+        # realized edge is INVERTED above ~10% (overprojection) — edge>=20% legs
+        # hit ~40% in the settled universe, edge>=15% in Low/Med underperform. So
+        # exclude high-edge legs from the public sections (NEVER use edge to
+        # promote). Edge is not a ranking signal here; this only filters out the
+        # anti-predictive tail. See docs/audits/selection-policy-simulation-latest.md.
+        def _edge_ok(leg: OptimizerLean, _sk: str = section_key) -> bool:
+            e = float(leg.edgePct or 0.0)
+            if e >= _PUBLIC_EDGE_CAP_ALL:
+                return False
+            if _sk in ("low", "medium") and e >= _PUBLIC_EDGE_CAP_LOW_MEDIUM:
+                return False
+            return True
+
         if section_key == "low":
-            sec_all = [l for l in normed if low_risk_leg_eligible(l, date) and _mkt_ok(l)]
-            sec_nba = [l for l in nba_pool if low_risk_leg_eligible(l, date) and _mkt_ok(l)]
-            sec_mlb = [l for l in mlb_pool if low_risk_leg_eligible(l, date) and _mkt_ok(l)]
+            sec_all = [l for l in normed if low_risk_leg_eligible(l, date) and _mkt_ok(l) and _edge_ok(l)]
+            sec_nba = [l for l in nba_pool if low_risk_leg_eligible(l, date) and _mkt_ok(l) and _edge_ok(l)]
+            sec_mlb = [l for l in mlb_pool if low_risk_leg_eligible(l, date) and _mkt_ok(l) and _edge_ok(l)]
         else:
-            sec_all = [l for l in normed if _mkt_ok(l)]
-            sec_nba = [l for l in nba_pool if _mkt_ok(l)]
-            sec_mlb = [l for l in mlb_pool if _mkt_ok(l)]
+            sec_all = [l for l in normed if _mkt_ok(l) and _edge_ok(l)]
+            sec_nba = [l for l in nba_pool if _mkt_ok(l) and _edge_ok(l)]
+            sec_mlb = [l for l in mlb_pool if _mkt_ok(l) and _edge_ok(l)]
 
         # Combined pool → feeds the "all" tab and surfaces the natural
         # mix of sport-pure and cross-sport slips.
