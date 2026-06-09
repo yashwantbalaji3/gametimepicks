@@ -1,0 +1,53 @@
+# ufc-pre-card.yml — full PRE-card lifecycle: schedule → odds (+ immutable pregame
+# snapshot) → features → internal projections → internal parlay candidates →
+# readiness → ops-status. Derived artifacts only; NO public picks unless gates pass.
+name: ufc-pre-card
+on:
+  workflow_dispatch:
+    inputs:
+      max_events: { description: "OddsAPI events to price", type: string, required: false, default: "20" }
+      dry_run: { description: "Build+print only", type: boolean, required: false, default: false }
+      commit_artifacts: { description: "Commit UFC artifacts", type: boolean, required: false, default: true }
+concurrency: { group: ufc-pre-card, cancel-in-progress: false }
+permissions: { contents: write }
+jobs:
+  pre_card:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env: { TZ: "America/New_York" }
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 1, persist-credentials: true }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: "pip" }
+      - run: pip install requests
+      - name: Pre-card pipeline (schedule → odds → projections → readiness)
+        env: { ODDS_API_KEY: "${{ secrets.ODDS_API_KEY }}" }
+        run: |
+          set -e
+          python -m pipeline.ufc.build_schedule
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            python -m pipeline.ufc.build_odds --max-events "${{ github.event.inputs.max_events || '20' }}" --dry-run
+          else
+            python -m pipeline.ufc.build_odds --max-events "${{ github.event.inputs.max_events || '20' }}"
+          fi
+          python -m pipeline.ufc.build_fighter_stats || echo "::warning::fighter stats refresh skipped"
+          python -m pipeline.ufc.build_features --card-only
+          python -m pipeline.ufc.model_moneyline --card-only
+          python -m pipeline.ufc.build_suggested_parlays --card-only
+          python -m pipeline.ufc.build_readiness
+          python -m pipeline.ufc.build_ops_status
+      - name: Summary
+        run: |
+          python -c "import json;d=json.load(open('app/public/data/ufc/features-card-latest.json'));print('matched',d.get('matchedFightCount'),'/',d.get('scheduledFightCount'),'blocked',d.get('blockedCount'))"
+          python -c "import json;d=json.load(open('app/public/data/ufc/ops-status-latest.json'));print('stage',d['currentStage'],d['currentStageName'],'publicPicks',d['publicPicksVisible'])"
+      - name: Commit derived UFC artifacts (no raw CSV, no public picks unless gated)
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.commit_artifacts != 'false' }}
+        run: |
+          git add app/public/data/ufc/ 2>/dev/null || true
+          git reset -q app/public/data/ufc/*.csv 2>/dev/null || true
+          if git diff --staged --quiet; then echo "no changes"; exit 0; fi
+          git config user.name "GametimePicks Bot"; git config user.email "noreply@github.com"
+          git commit -m "auto: UFC pre-card refresh (derived, picks gated) [skip ci]"
+          for a in 1 2 3 4 5; do git push origin HEAD:main && exit 0; git fetch origin main && git rebase origin/main || { git rebase --abort||true; exit 1; }; done
+          exit 1
