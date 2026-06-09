@@ -68,6 +68,54 @@ def odds_gate(path: Path = ODDS_ARTIFACT, now: datetime | None = None) -> tuple[
     return ready, status
 
 
+FIGHTERS_ARTIFACT = REPO_ROOT / "app" / "public" / "data" / "ufc" / "fighters-latest.json"
+FIGHTER_MIN_COUNT = 200          # need a real fighter database, not a stub
+FIGHTER_FRESH_DAYS = 120         # latest fight within ~4 months
+
+
+def fighter_stats_gate(path: Path = FIGHTERS_ARTIFACT, now: datetime | None = None) -> tuple[bool, dict]:
+    """Derive fighterStatsReady from the REAL derived fighter artifact: exists,
+    has provider+license metadata, >= FIGHTER_MIN_COUNT fighters, fresh latest
+    fight, and enough fighters carry usable rates. Fail-closed."""
+    status = {"configured": True, "fighterCount": 0, "fightCount": 0,
+              "latestFightDate": None, "fighterStatsReady": False, "warnings": []}
+    if not path.exists():
+        status["warnings"].append("fighters artifact missing")
+        return False, status
+    try:
+        art = json.loads(path.read_text())
+    except Exception:
+        status["warnings"].append("fighters artifact corrupt")
+        return False, status
+    status["fighterCount"] = art.get("fighterCount", 0)
+    status["fightCount"] = art.get("fightCount", 0)
+    status["latestFightDate"] = art.get("latestFightDate")
+    if not art.get("provider") or not art.get("sourceLicense"):
+        status["warnings"].append("missing provider/license metadata")
+        return False, status
+    if status["fighterCount"] < FIGHTER_MIN_COUNT:
+        status["warnings"].append(f"too few fighters ({status['fighterCount']})")
+        return False, status
+    fresh = False
+    ld = art.get("latestFightDate")
+    if isinstance(ld, str):
+        try:
+            fresh = ((now or datetime.now(timezone.utc)).date() - datetime.fromisoformat(ld).date()).days <= FIGHTER_FRESH_DAYS
+        except Exception:
+            fresh = False
+    if not fresh:
+        status["warnings"].append("fighter data stale")
+        return False, status
+    # require a reasonable share of fighters to carry strike/TD rates
+    fighters = art.get("fighters") or []
+    with_rates = sum(1 for f in fighters if (f.get("rates") or {}).get("statRounds"))
+    if fighters and with_rates / len(fighters) < 0.5:
+        status["warnings"].append("insufficient fighters with stat rates")
+        return False, status
+    status["fighterStatsReady"] = True
+    return True, status
+
+
 def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
     """Fail-closed derivation. projections require schedule+odds+stats+grading;
     parlays additionally require a backtest. Each derived flag is the AND of its
@@ -132,17 +180,22 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
 
 def build(date: str | None, gates: dict[str, bool] | None = None) -> dict[str, object]:
     base = dict(gates if gates is not None else CURRENT_GATES)
-    # Derive oddsReady from the REAL odds artifact (fail-closed) unless the caller
-    # explicitly supplied gates (tests pass exact gates).
-    odds_status = None
+    # Derive oddsReady + fighterStatsReady from the REAL artifacts (fail-closed)
+    # unless the caller supplied explicit gates (tests pass exact gates).
+    odds_status = stats_status = None
     if gates is None:
         odds_ready, odds_status = odds_gate()
         base["oddsReady"] = odds_ready
+        stats_ready, stats_status = fighter_stats_gate()
+        base["fighterStatsReady"] = stats_ready
     payload = {"generatedFor": date, "nextEventDate": None}
     payload.update(derive_readiness(base))
-    if odds_status is not None:
+    if odds_status is not None or stats_status is not None:
         payload.setdefault("providerStatus", {})
-        payload["providerStatus"]["oddsapi"] = odds_status
+        if odds_status is not None:
+            payload["providerStatus"]["oddsapi"] = odds_status
+        if stats_status is not None:
+            payload["providerStatus"]["greco1899_ufcstats_csv"] = stats_status
     return payload
 
 

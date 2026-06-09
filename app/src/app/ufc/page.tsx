@@ -67,7 +67,7 @@ const fmtDate = (iso?: string) => {
 const LAYERS: { key: keyof Readiness; label: string; detail: string }[] = [
   { key: "scheduleReady", label: "Schedule", detail: "Event cards + fighters (free ESPN MMA)" },
   { key: "oddsReady", label: "Odds", detail: "Sportsbook moneyline lines (The Odds API MMA)" },
-  { key: "fighterStatsReady", label: "Fighter stats", detail: "Records, striking, takedowns, finish rates — not connected yet" },
+  { key: "fighterStatsReady", label: "Fighter stats", detail: "Records, striking, takedowns, finish rates (UFCStats-derived, GPL-3.0)" },
   { key: "gradingReady", label: "Results grading", detail: "Winner / method / round settlement — not built yet" },
   { key: "backtestReady", label: "Backtest", detail: "Walk-forward calibration on historical fights — pending" },
 ];

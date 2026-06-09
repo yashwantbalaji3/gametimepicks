@@ -110,3 +110,64 @@ class UfcOddsGateTests(unittest.TestCase):
         self._write(oddsReady=False, marketCount=0, bouts=[])
         ready, status = odds_gate(self._path)
         self.assertFalse(ready)
+
+
+class UfcFighterStatsGateTests(unittest.TestCase):
+    """fighterStatsReady from the real derived artifact; never unlocks picks."""
+
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+        self._tmp = tempfile.NamedTemporaryFile(suffix=".json", delete=False)
+        self._tmp.close()
+        self._path = Path(self._tmp.name)
+
+    def tearDown(self):
+        import os
+        try: os.unlink(self._tmp.name)
+        except OSError: pass
+
+    def _write(self, **over):
+        import json
+        from datetime import datetime, timezone
+        base = {"provider": "greco1899_ufcstats_csv", "sourceLicense": "GPL-3.0",
+                "fighterCount": 2695, "fightCount": 17402,
+                "latestFightDate": datetime.now(timezone.utc).date().isoformat(),
+                "fighters": [{"rates": {"statRounds": 5}} for _ in range(10)]}
+        base.update(over)
+        self._path.write_text(json.dumps(base))
+
+    def test_fresh_valid_flips_fighterStatsReady(self):
+        from pipeline.ufc.build_readiness import fighter_stats_gate
+        self._write()
+        ready, status = fighter_stats_gate(self._path)
+        self.assertTrue(ready)
+        self.assertEqual(status["fighterCount"], 2695)
+
+    def test_too_few_fighters_fails_closed(self):
+        from pipeline.ufc.build_readiness import fighter_stats_gate
+        self._write(fighterCount=50)
+        self.assertFalse(fighter_stats_gate(self._path)[0])
+
+    def test_missing_license_metadata_fails_closed(self):
+        from pipeline.ufc.build_readiness import fighter_stats_gate
+        self._write(sourceLicense=None)
+        self.assertFalse(fighter_stats_gate(self._path)[0])
+
+    def test_stale_fighter_data_fails_closed(self):
+        from pipeline.ufc.build_readiness import fighter_stats_gate
+        self._write(latestFightDate="2024-01-01")
+        self.assertFalse(fighter_stats_gate(self._path)[0])
+
+    def test_missing_artifact_fails_closed(self):
+        import os
+        from pipeline.ufc.build_readiness import fighter_stats_gate
+        os.unlink(self._tmp.name)
+        self.assertFalse(fighter_stats_gate(self._path)[0])
+
+    def test_stats_plus_odds_still_lock_projections(self):
+        from pipeline.ufc.build_readiness import derive_readiness
+        r = derive_readiness({"scheduleReady": True, "oddsReady": True, "fighterStatsReady": True})
+        self.assertEqual(r["publicLevel"], "projections-internal")
+        self.assertFalse(r["projectionsReady"])
+        self.assertFalse(r["parlayReady"])
