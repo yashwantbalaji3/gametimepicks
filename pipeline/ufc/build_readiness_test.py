@@ -31,9 +31,11 @@ class UfcReadinessFailClosedTests(unittest.TestCase):
         self.assertEqual(r["publicLevel"], "projections-internal")
         self.assertFalse(r["projectionsReady"])
 
-    def test_grading_without_backtest_no_parlays(self):
+    def test_grading_without_backtest_stays_internal(self):
+        # Grading connected but NO backtest → grading-internal; public picks locked.
         r = derive_readiness({**ALL, "backtestReady": False})
-        self.assertTrue(r["projectionsReady"])
+        self.assertEqual(r["publicLevel"], "grading-internal")
+        self.assertFalse(r["projectionsReady"])
         self.assertFalse(r["parlayReady"])
 
     def test_all_gates_unlock_parlays(self):
@@ -47,10 +49,6 @@ class UfcReadinessFailClosedTests(unittest.TestCase):
         self.assertFalse(r["projectionsReady"])
         self.assertFalse(r["parlayReady"])
         self.assertIn("odds provider not connected (Odds API MMA)", r["blockers"])
-
-
-if __name__ == "__main__":
-    unittest.main()
 
 
 class UfcOddsGateTests(unittest.TestCase):
@@ -171,3 +169,65 @@ class UfcFighterStatsGateTests(unittest.TestCase):
         self.assertEqual(r["publicLevel"], "projections-internal")
         self.assertFalse(r["projectionsReady"])
         self.assertFalse(r["parlayReady"])
+
+
+class UfcGradingGateTests(unittest.TestCase):
+    """gradingReady from real results + a working grader; never unlocks public picks."""
+
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+        self._d = tempfile.TemporaryDirectory()
+        self.res = Path(self._d.name) / "results.json"
+        self.grd = Path(self._d.name) / "graded.json"
+
+    def tearDown(self):
+        self._d.cleanup()
+
+    def _write(self, *, final=1519, latest=None, license_="GPL-3.0", decisive=1):
+        import json
+        from datetime import datetime, timezone
+        latest = latest or datetime.now(timezone.utc).date().isoformat()
+        self.res.write_text(json.dumps({"provider": "greco1899_ufcstats_csv", "sourceLicense": license_,
+                                        "eventCount": 126, "finalBoutCount": final, "latestEventDate": latest}))
+        self.grd.write_text(json.dumps({"tally": {"win": decisive, "loss": 1, "pending": 8}}))
+
+    def test_valid_results_and_grader_flip_gradingReady(self):
+        from pipeline.ufc.build_readiness import grading_gate
+        self._write()
+        self.assertTrue(grading_gate(self.res, self.grd)[0])
+
+    def test_too_few_final_bouts_fails_closed(self):
+        from pipeline.ufc.build_readiness import grading_gate
+        self._write(final=10)
+        self.assertFalse(grading_gate(self.res, self.grd)[0])
+
+    def test_stale_results_fail_closed(self):
+        from pipeline.ufc.build_readiness import grading_gate
+        self._write(latest="2024-01-01")
+        self.assertFalse(grading_gate(self.res, self.grd)[0])
+
+    def test_no_grader_artifact_fails_closed(self):
+        from pipeline.ufc.build_readiness import grading_gate
+        self._write()
+        self.grd.unlink()
+        self.assertFalse(grading_gate(self.res, self.grd)[0])
+
+    def test_grader_no_decisive_fails_closed(self):
+        from pipeline.ufc.build_readiness import grading_gate
+        self._write(decisive=0)
+        # tally win=0,loss=1 → decisive=1 still; force both 0
+        self.grd.write_text('{"tally":{"win":0,"loss":0,"pending":8}}')
+        self.assertFalse(grading_gate(self.res, self.grd)[0])
+
+    def test_grading_plus_stats_odds_still_lock_projections(self):
+        from pipeline.ufc.build_readiness import derive_readiness
+        r = derive_readiness({"scheduleReady": True, "oddsReady": True,
+                              "fighterStatsReady": True, "gradingReady": True})
+        self.assertEqual(r["publicLevel"], "grading-internal")
+        self.assertFalse(r["projectionsReady"])
+        self.assertFalse(r["parlayReady"])
+
+
+if __name__ == "__main__":
+    unittest.main()

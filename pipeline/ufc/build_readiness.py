@@ -116,17 +116,71 @@ def fighter_stats_gate(path: Path = FIGHTERS_ARTIFACT, now: datetime | None = No
     return True, status
 
 
+RESULTS_ARTIFACT = REPO_ROOT / "app" / "public" / "data" / "ufc" / "results-latest.json"
+GRADED_ARTIFACT = REPO_ROOT / "app" / "public" / "data" / "ufc" / "graded-moneylines-latest.json"
+GRADING_MIN_FINAL = 100          # need a real results corpus
+GRADING_FRESH_DAYS = 120
+
+
+def grading_gate(results_path: Path = RESULTS_ARTIFACT, graded_path: Path = GRADED_ARTIFACT,
+                 now: datetime | None = None) -> tuple[bool, dict]:
+    """Derive gradingReady: a real results artifact (>=100 final bouts, fresh,
+    licensed) AND a working moneyline grader (graded artifact present + has graded
+    >=1 decisive result, proving the grader functions). Fail-closed."""
+    status = {"configured": True, "eventCount": 0, "finalBoutCount": 0,
+              "latestEventDate": None, "gradingReady": False, "warnings": []}
+    if not results_path.exists():
+        status["warnings"].append("results artifact missing")
+        return False, status
+    try:
+        res = json.loads(results_path.read_text())
+    except Exception:
+        status["warnings"].append("results artifact corrupt")
+        return False, status
+    status["eventCount"] = res.get("eventCount", 0)
+    status["finalBoutCount"] = res.get("finalBoutCount", 0)
+    status["latestEventDate"] = res.get("latestEventDate")
+    if not res.get("provider") or not res.get("sourceLicense"):
+        status["warnings"].append("missing provider/license metadata")
+        return False, status
+    if status["finalBoutCount"] < GRADING_MIN_FINAL:
+        status["warnings"].append(f"too few final bouts ({status['finalBoutCount']})")
+        return False, status
+    ld = res.get("latestEventDate")
+    fresh = isinstance(ld, str) and (((now or datetime.now(timezone.utc)).date() - datetime.fromisoformat(ld).date()).days <= GRADING_FRESH_DAYS)
+    if not fresh:
+        status["warnings"].append("results stale")
+        return False, status
+    # grader must function: a graded artifact exists with >=1 decisive grade
+    if not graded_path.exists():
+        status["warnings"].append("moneyline grader has not run")
+        return False, status
+    try:
+        gr = json.loads(graded_path.read_text())
+        decisive = (gr.get("tally", {}).get("win", 0) + gr.get("tally", {}).get("loss", 0))
+    except Exception:
+        decisive = 0
+    if decisive < 1:
+        status["warnings"].append("grader produced no decisive grades to validate")
+        return False, status
+    status["gradingReady"] = True
+    return True, status
+
+
 def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
-    """Fail-closed derivation. projections require schedule+odds+stats+grading;
-    parlays additionally require a backtest. Each derived flag is the AND of its
-    real prerequisites — there is no way to flip picks on without the data."""
+    """Fail-closed derivation matching ufc-types.ts. PUBLIC projections require
+    schedule+odds+stats+grading+BACKTEST (a model with no out-of-sample validation
+    never publishes); parlays additionally require a parlay simulation (folded into
+    backtest for now). Grading without a backtest stays INTERNAL — picks locked."""
     schedule = bool(gates.get("scheduleReady"))
     odds = bool(gates.get("oddsReady"))
     stats = bool(gates.get("fighterStatsReady"))
     grading = bool(gates.get("gradingReady"))
     backtest = bool(gates.get("backtestReady"))
 
-    projections_ready = schedule and odds and stats and grading
+    # Public picks require the FULL ladder including a backtest. Grading alone only
+    # advances the INTERNAL level — it never unlocks public projections/parlays.
+    projections_ready = schedule and odds and stats and grading and backtest
     parlay_ready = projections_ready and backtest
 
     blockers: list[str] = []
@@ -143,6 +197,8 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
         public_level = "parlays-public"
     elif projections_ready:
         public_level = "projections-public"
+    elif schedule and odds and stats and grading:
+        public_level = "grading-internal"
     elif schedule and odds and stats:
         public_level = "projections-internal"
     elif schedule and odds:
@@ -152,8 +208,8 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
 
     if public_level == "schedule-only":
         public_message = "UFC coverage is being built — schedule available; predictions publish only after odds, fighter stats, results grading, and backtesting are connected."
-    elif public_level in ("odds-internal", "projections-internal"):
-        public_message = "UFC odds/stats are being connected. Model picks publish only after results grading and a backtest pass."
+    elif public_level in ("odds-internal", "projections-internal", "grading-internal"):
+        public_message = "UFC odds, fighter stats, and results grading are being connected. Model picks publish only after a backtest passes."
     else:
         public_message = "UFC model picks are live."
 
@@ -182,20 +238,24 @@ def build(date: str | None, gates: dict[str, bool] | None = None) -> dict[str, o
     base = dict(gates if gates is not None else CURRENT_GATES)
     # Derive oddsReady + fighterStatsReady from the REAL artifacts (fail-closed)
     # unless the caller supplied explicit gates (tests pass exact gates).
-    odds_status = stats_status = None
+    odds_status = stats_status = grading_status = None
     if gates is None:
         odds_ready, odds_status = odds_gate()
         base["oddsReady"] = odds_ready
         stats_ready, stats_status = fighter_stats_gate()
         base["fighterStatsReady"] = stats_ready
+        grading_ready, grading_status = grading_gate()
+        base["gradingReady"] = grading_ready
     payload = {"generatedFor": date, "nextEventDate": None}
     payload.update(derive_readiness(base))
-    if odds_status is not None or stats_status is not None:
+    if odds_status or stats_status or grading_status:
         payload.setdefault("providerStatus", {})
         if odds_status is not None:
             payload["providerStatus"]["oddsapi"] = odds_status
         if stats_status is not None:
             payload["providerStatus"]["greco1899_ufcstats_csv"] = stats_status
+        if grading_status is not None:
+            payload["providerStatus"]["greco1899_results"] = grading_status
     return payload
 
 
