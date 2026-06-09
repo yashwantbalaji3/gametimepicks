@@ -99,9 +99,10 @@ def build(features: dict, validated: bool = False, now: datetime | None = None) 
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(); ap.add_argument("--out", default=str(OUT)); args = ap.parse_args(argv)
+    ap = argparse.ArgumentParser(); ap.add_argument("--out", default=None); ap.add_argument("--card-only", action="store_true"); args = ap.parse_args(argv)
+    feat_file = "features-card-latest.json" if args.card_only else "features-latest.json"
     try:
-        feats = json.loads((DATA / "features-latest.json").read_text())
+        feats = json.loads((DATA / feat_file).read_text())
     except Exception:
         feats = {"features": []}
     # validated comes from the backtest gate — false today.
@@ -111,8 +112,9 @@ def main(argv=None) -> int:
     except Exception:
         validated = False
     payload = build(feats, validated=validated)
-    Path(args.out).write_text(json.dumps(payload, indent=2) + "\n")
-    print(f"wrote {args.out} → bouts={payload['boutCount']} publicEligible={payload['publicEligibleCount']} validated={validated}")
+    out = Path(args.out) if args.out else (DATA / ("projections-internal-card-latest.json" if args.card_only else "projections-internal-latest.json"))
+    out.write_text(json.dumps(payload, indent=2) + "\n")
+    print(f"wrote {out} → bouts={payload['boutCount']} publicEligible={payload['publicEligibleCount']} validated={validated}")
     return 0
 
 
