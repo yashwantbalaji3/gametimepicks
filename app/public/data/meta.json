@@ -1,15 +1,15 @@
 {
   "appName": "GametimePicks",
   "version": "0.5.0",
-  "lastPipelineRun": "2026-06-08T23:50:42+00:00",
+  "lastPipelineRun": "2026-06-09T16:35:51+00:00",
   "isDemo": false,
-  "dataMode": "Live",
-  "nbaScheduleSource": "espn_scoreboard",
-  "nbaStatsSource": "espn_scoreboard",
-  "oddsSource": "the_odds_api",
+  "dataMode": "ScheduleUnavailable",
+  "nbaScheduleSource": "unavailable",
+  "nbaStatsSource": "unavailable",
+  "oddsSource": "unavailable",
   "activeProvider": {
-    "nba": "espn_scoreboard",
-    "odds": "the_odds_api"
+    "nba": "unavailable",
+    "odds": "unavailable"
   },
   "providerStatuses": [
     {
@@ -23,21 +23,21 @@
       "is_stub": false,
       "last_status": "ok",
       "last_error": null,
-      "last_run_at": "2026-06-08T23:48:11+00:00",
+      "last_run_at": "2026-06-09T16:34:10+00:00",
       "notes": "Official NBA.com Stats endpoints. No API key needed."
     },
     {
       "name": "balldontlie",
       "kind": "nba",
       "tier": 1,
-      "enabled": true,
+      "enabled": false,
       "requires_api_key": true,
       "api_key_configured": true,
       "is_demo": false,
       "is_stub": false,
-      "last_status": "error",
-      "last_error": "401 Client Error: Unauthorized for url: https://api.balldontlie.io/nba/v1/stats?player_ids%5B%5D=1057262518&seasons%5B%5D=2025&per_page=100",
-      "last_run_at": "2026-06-08T23:48:11+00:00",
+      "last_status": "not_configured",
+      "last_error": null,
+      "last_run_at": null,
       "notes": "balldontlie API. Game logs only. Rate-limited to free-tier safe."
     },
     {
@@ -79,7 +79,7 @@
       "is_stub": false,
       "last_status": "ok",
       "last_error": null,
-      "last_run_at": "2026-06-08T23:45:47+00:00",
+      "last_run_at": "2026-06-09T16:19:58+00:00",
       "notes": "Bundled demo data. Always works."
     },
     {
@@ -141,11 +141,11 @@
   ],
   "fallbackSourcesAvailable": {
     "espn": "enabled",
-    "balldontlie": "enabled",
+    "balldontlie": "disabled",
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-06-08T23:50:42+00:00",
+  "lastSuccessfulFetch": "2026-06-09T16:35:51+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -174,18 +174,18 @@
     }
   ],
   "slateDays": 4,
-  "primaryDate": "2026-06-08",
+  "primaryDate": "2026-06-09",
   "newsSignalsConfigured": true,
   "newsSignalsActive": 0,
   "scheduleOverridesConfigured": true,
-  "todayDataMode": "Live",
-  "todayFailureReason": null,
+  "todayDataMode": "ScheduleUnavailable",
+  "todayFailureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
   "todayManualOverrideUsed": false,
   "oddsApiKeyConfigured": true,
-  "todayOddsProviderStatus": "ok_with_props",
+  "todayOddsProviderStatus": "not_configured",
   "todayOddsFailureReason": null,
-  "todayOddsQuotaRemaining": 19500,
-  "todayParsedPropCount": 95,
+  "todayOddsQuotaRemaining": null,
+  "todayParsedPropCount": 0,
   "oddsBookmakersConfigured": [
     "draftkings",
     "fanduel"
