@@ -1409,26 +1409,144 @@ def _load_market_wilson() -> dict[str, dict[str, dict[str, Any]]]:
     return out
 
 
+# ---------------------------------------------------------------------------
+# Learned selection policy (PR `apply-learned-selection-policy`). Generation
+# READS the daily artifact written by the post-settlement learning loop and
+# applies it as a TIGHTENING overlay only — never loosens, never enables NBA/UFC,
+# never overrides stale/missing-form fail-closed. Fully fail-closed: any problem
+# (missing / corrupt / version mismatch / noLiveWire / thin sample / stale /
+# leakage risk) → no policy loaded → the static conservative behavior stands.
+# ---------------------------------------------------------------------------
+_LEARNING_POLICY_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "app" / "public" / "data" / "learning" / "selection-policy-latest.json"
+)
+_LEARNING_SUPPORTED_VERSION: int = 1
+_LEARNING_MIN_UNIVERSE: int = 200      # below this the artifact sets noLiveWire anyway
+_LEARNING_MAX_STALE_DAYS: int = 21     # ignore a policy whose settled data is too old
+# Tightness ordering — a higher number is a STRICTER public-section status.
+_STATUS_TIGHTNESS: dict[str, int] = {
+    "allowed": 0, "restricted": 2, "downweighted": 2, "high_risk_only": 3, "disabled": 4,
+}
+_active_selection_policy: dict | None = None
+_active_selection_policy_meta: dict[str, Any] = {"learningPolicyLoaded": False, "learningPolicyApplied": False}
+
+
+def selection_policy_metadata() -> dict[str, Any]:
+    """Generation metadata describing whether/why the learned policy was applied."""
+    return dict(_active_selection_policy_meta)
+
+
+def _days_between(a: str, b: str) -> int | None:
+    try:
+        return (datetime.fromisoformat(b[:10]) - datetime.fromisoformat(a[:10])).days
+    except Exception:
+        return None
+
+
+def load_selection_policy(generation_date: str | None) -> dict | None:
+    """Load + validate the learned policy for a generation run. Sets module state
+    used by the market-status overlay and returns the validated dict (or None).
+    FAIL-CLOSED: returns None on any problem and records the reason in metadata."""
+    global _active_selection_policy, _active_selection_policy_meta
+    meta: dict[str, Any] = {"learningPolicyLoaded": False, "learningPolicyApplied": False,
+                            "learningPolicyFallbackReason": None}
+
+    def _fallback(reason: str) -> None:
+        nonlocal meta
+        meta["learningPolicyFallbackReason"] = reason
+        globals()["_active_selection_policy"] = None
+        globals()["_active_selection_policy_meta"] = meta
+
+    if not _LEARNING_POLICY_PATH.exists():
+        _fallback("missing")
+        return None
+    try:
+        pol = json.loads(_LEARNING_POLICY_PATH.read_text())
+    except Exception:
+        _fallback("corrupt")
+        return None
+    if not isinstance(pol, dict):
+        _fallback("corrupt")
+        return None
+    meta["learningPolicyLoaded"] = True
+    meta["learningPolicyVersion"] = pol.get("policyVersion")
+    meta["learningPolicyDate"] = pol.get("latestSettledDate")
+    meta["learningPolicyTrainingWindow"] = [pol.get("trainingWindowStart"), pol.get("trainingWindowEnd")]
+    meta["learningPolicyLatestSettledDate"] = pol.get("latestSettledDate")
+    meta["policyWarnings"] = pol.get("warnings") or []
+
+    if pol.get("policyVersion") != _LEARNING_SUPPORTED_VERSION:
+        _fallback("version_mismatch"); return None
+    if pol.get("noLiveWire") is True:
+        _fallback("noLiveWire"); return None
+    rms = pol.get("recommendedMarketStatus")
+    if not isinstance(rms, dict) or not rms:
+        _fallback("no_market_status"); return None
+    n = (pol.get("sampleSizes") or {}).get("universeLegs", 0)
+    if not isinstance(n, int) or n < _LEARNING_MIN_UNIVERSE:
+        _fallback("thin_sample"); return None
+    settled = pol.get("latestSettledDate")
+    if not isinstance(settled, str) or len(settled) < 10:
+        _fallback("no_settled_date"); return None
+    if generation_date:
+        # leakage guard: the training data must END strictly BEFORE the slate we
+        # are generating (never train on the day we're predicting).
+        if settled >= generation_date:
+            _fallback("leakage_risk"); return None
+        stale = _days_between(settled, generation_date)
+        if stale is not None and stale > _LEARNING_MAX_STALE_DAYS:
+            _fallback("stale"); return None
+    meta["learningPolicyApplied"] = True
+    globals()["_active_selection_policy"] = pol
+    globals()["_active_selection_policy_meta"] = meta
+    return pol
+
+
+def _learned_status_overlay(market: str | None, static_status: str) -> str:
+    """Tighten (never loosen) the static market status using the loaded policy.
+    NBA/UFC markets are absent from the MLB learning artifact → unchanged here,
+    and remain governed by their own fail-closed gates."""
+    pol = _active_selection_policy
+    if not pol or not market:
+        return static_status
+    rec = (pol.get("recommendedMarketStatus") or {}).get(market)
+    if not isinstance(rec, dict):
+        return static_status
+    learned = rec.get("recommendedStatus")
+    # insufficient_sample never tightens (no evidence) and never loosens.
+    if learned not in _STATUS_TIGHTNESS:
+        return static_status
+    if _STATUS_TIGHTNESS[learned] > _STATUS_TIGHTNESS.get(static_status, 0):
+        return learned  # strictly tighter → adopt
+    return static_status
+
+
 def market_suggested_status(sport: str | None, market: str | None) -> str:
     """'allowed' | 'downweighted' | 'high_risk_only' | 'disabled' for a market in
     the public Suggested sections. Explicit `suggestedStatus` wins; else derived
     from settled Wilson lower bound; unmeasured markets default to 'allowed'."""
     info = _load_market_wilson().get((sport or "").lower(), {}).get(market or "")
     if not info:
-        return "allowed"
+        # unmeasured here, but the learning loop may still have evidence → overlay
+        return _learned_status_overlay(market, "allowed")
     explicit = info.get("status")
     # Explicit overrides (manual kill-switch). "restricted" is the new default for
-    # sub-break-even markets; older tiers kept for back-compat config.
+    # sub-break-even markets; older tiers kept for back-compat config. A human
+    # kill-switch wins outright — the learned overlay does NOT override it.
     if explicit in ("allowed", "restricted", "downweighted", "high_risk_only", "disabled"):
         return explicit
     w = info.get("wilsonLo")
     if w is None:
-        return "allowed"
-    if w < _MARKET_RESTRICTED_FLOOR_WILSON:
-        return "disabled"  # catastrophic / no usable signal
-    if w < _MARKET_ALLOWED_MIN_WILSON:
-        return "restricted"  # burden not met → per-player consistency required
-    return "allowed"
+        static = "allowed"
+    elif w < _MARKET_RESTRICTED_FLOOR_WILSON:
+        static = "disabled"  # catastrophic / no usable signal
+    elif w < _MARKET_ALLOWED_MIN_WILSON:
+        static = "restricted"  # burden not met → per-player consistency required
+    else:
+        static = "allowed"
+    # Learned policy can only TIGHTEN the auto-derived status (never loosen).
+    return _learned_status_overlay(market, static)
 
 
 def is_consistency_eligible_volatile_market(
@@ -2629,6 +2747,9 @@ def generate_public_risk_sections(
     # We detect shape (2) by the presence of `oddsForSide` and bypass
     # `normalize_lean` so we don't lose the price (the raw-path picks
     # odds from `oddsOver`/`oddsUnder`, which the legPool dict lacks).
+    # Load the learned selection policy for THIS slate (fail-closed; tightening
+    # overlay only). market_suggested_status reads it via the module overlay.
+    load_selection_policy(date)
     normed: list[OptimizerLean] = []
     for item in leg_pool_raw:
         if isinstance(item, OptimizerLean):
