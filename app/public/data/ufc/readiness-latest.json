@@ -3,21 +3,20 @@
   "nextEventDate": null,
   "scheduleReady": true,
   "oddsReady": true,
-  "fighterStatsReady": false,
+  "fighterStatsReady": true,
   "gradingReady": false,
   "backtestReady": false,
   "projectionsReady": false,
   "parlayReady": false,
-  "publicLevel": "odds-internal",
+  "publicLevel": "projections-internal",
   "blockers": [
-    "fighter-stat provider not connected",
     "results grading not implemented",
     "no historical backtest yet"
   ],
   "providerStatus": {
     "schedule": "espn_mma",
     "odds": "the_odds_api_mma",
-    "fighterStats": "not_connected",
+    "fighterStats": "connected",
     "grading": "not_connected",
     "oddsapi": {
       "configured": true,
@@ -26,8 +25,16 @@
       "marketCount": 5,
       "oddsReady": true,
       "warnings": []
+    },
+    "greco1899_ufcstats_csv": {
+      "configured": true,
+      "fighterCount": 2695,
+      "fightCount": 17402,
+      "latestFightDate": "2026-05-16",
+      "fighterStatsReady": true,
+      "warnings": []
     }
   },
   "publicMessage": "UFC odds/stats are being connected. Model picks publish only after results grading and a backtest pass.",
-  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['fighter-stat provider not connected', 'results grading not implemented', 'no historical backtest yet']"
+  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['results grading not implemented', 'no historical backtest yet']"
 }
