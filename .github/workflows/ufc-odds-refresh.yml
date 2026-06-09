@@ -59,7 +59,7 @@ jobs:
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           # STRICT allowlist: UFC artifacts only. Never touches MLB/NBA/picks.
-          git add app/public/data/ufc/odds-latest.json app/public/data/ufc/readiness-latest.json 2>/dev/null || true
+          git add app/public/data/ufc/odds-latest.json app/public/data/ufc/readiness-latest.json app/public/data/ufc/odds-snapshots/ 2>/dev/null || true
           if git diff --staged --quiet; then echo "no UFC odds changes"; exit 0; fi
           git config user.name "GametimePicks Bot"
           git config user.email "noreply@github.com"

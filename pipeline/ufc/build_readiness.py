@@ -33,6 +33,7 @@ CURRENT_GATES: dict[str, bool] = {
     "fighterStatsReady": False,  # no fighter-stat provider (paid decision pending)
     "gradingReady": False,       # no results-grading contract
     "backtestReady": False,      # no historical backtest
+    "parlaySimReady": False,     # no parlay simulation yet
 }
 
 
@@ -167,21 +168,52 @@ def grading_gate(results_path: Path = RESULTS_ARTIFACT, graded_path: Path = GRAD
     return True, status
 
 
+BACKTEST_SUMMARY = REPO_ROOT / "app" / "public" / "data" / "ufc" / "backtest-summary-latest.json"
+BACKTEST_MIN_ROWS = 150          # public projections need a real out-of-sample sample
+
+
+def backtest_gate(summary_path: Path = BACKTEST_SUMMARY) -> tuple[bool, dict]:
+    """Derive backtestReady: a leakage-safe backtest summary with >= 150 clean
+    rows, no leakage failures, and launchDecision == 'pass'. Fail-closed."""
+    status = {"configured": True, "rowCount": 0, "marketImpliedBrier": None,
+              "launchDecision": "hold", "backtestReady": False, "warnings": []}
+    if not summary_path.exists():
+        status["warnings"].append("backtest summary missing (collecting odds snapshots)")
+        return False, status
+    try:
+        s = json.loads(summary_path.read_text())
+    except Exception:
+        status["warnings"].append("backtest summary corrupt")
+        return False, status
+    status["rowCount"] = s.get("rowCount", 0)
+    status["marketImpliedBrier"] = s.get("marketImpliedBrier")
+    status["launchDecision"] = s.get("launchDecision", "hold")
+    if status["rowCount"] < BACKTEST_MIN_ROWS:
+        status["warnings"].append(f"insufficient clean rows ({status['rowCount']}/{BACKTEST_MIN_ROWS})")
+        return False, status
+    if s.get("launchDecision") != "pass":
+        status["warnings"].append("launch decision not pass")
+        return False, status
+    status["backtestReady"] = True
+    return True, status
+
+
 def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
-    """Fail-closed derivation matching ufc-types.ts. PUBLIC projections require
-    schedule+odds+stats+grading+BACKTEST (a model with no out-of-sample validation
-    never publishes); parlays additionally require a parlay simulation (folded into
-    backtest for now). Grading without a backtest stays INTERNAL — picks locked."""
+    """Fail-closed derivation. PUBLIC projections require
+    schedule+odds+stats+grading+BACKTEST (no out-of-sample validation → no publish).
+    PUBLIC parlays require all of the above PLUS a separate parlay simulation
+    (parlaySimReady) — a passing single-fight backtest never auto-enables parlays."""
     schedule = bool(gates.get("scheduleReady"))
     odds = bool(gates.get("oddsReady"))
     stats = bool(gates.get("fighterStatsReady"))
     grading = bool(gates.get("gradingReady"))
     backtest = bool(gates.get("backtestReady"))
+    parlay_sim = bool(gates.get("parlaySimReady"))
 
     # Public picks require the FULL ladder including a backtest. Grading alone only
-    # advances the INTERNAL level — it never unlocks public projections/parlays.
+    # advances the INTERNAL level. Parlays additionally require a parlay simulation.
     projections_ready = schedule and odds and stats and grading and backtest
-    parlay_ready = projections_ready and backtest
+    parlay_ready = projections_ready and parlay_sim
 
     blockers: list[str] = []
     if not odds:
@@ -219,6 +251,7 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
         "fighterStatsReady": stats,
         "gradingReady": grading,
         "backtestReady": backtest,
+        "parlaySimReady": parlay_sim,
         "projectionsReady": projections_ready,
         "parlayReady": parlay_ready,
         "publicLevel": public_level,
@@ -246,9 +279,13 @@ def build(date: str | None, gates: dict[str, bool] | None = None) -> dict[str, o
         base["fighterStatsReady"] = stats_ready
         grading_ready, grading_status = grading_gate()
         base["gradingReady"] = grading_ready
+        backtest_ready, backtest_status = backtest_gate()
+        base["backtestReady"] = backtest_ready
+    else:
+        backtest_status = None
     payload = {"generatedFor": date, "nextEventDate": None}
     payload.update(derive_readiness(base))
-    if odds_status or stats_status or grading_status:
+    if odds_status or stats_status or grading_status or backtest_status:
         payload.setdefault("providerStatus", {})
         if odds_status is not None:
             payload["providerStatus"]["oddsapi"] = odds_status
@@ -256,6 +293,8 @@ def build(date: str | None, gates: dict[str, bool] | None = None) -> dict[str, o
             payload["providerStatus"]["greco1899_ufcstats_csv"] = stats_status
         if grading_status is not None:
             payload["providerStatus"]["greco1899_results"] = grading_status
+        if backtest_status is not None:
+            payload["providerStatus"]["backtest"] = backtest_status
     return payload
 
 

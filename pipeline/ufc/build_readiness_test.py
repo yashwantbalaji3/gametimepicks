@@ -6,7 +6,7 @@ import unittest
 from pipeline.ufc.build_readiness import derive_readiness, CURRENT_GATES
 
 ALL = {"scheduleReady": True, "oddsReady": True, "fighterStatsReady": True,
-       "gradingReady": True, "backtestReady": True}
+       "gradingReady": True, "backtestReady": True, "parlaySimReady": True}
 
 
 class UfcReadinessFailClosedTests(unittest.TestCase):
@@ -38,11 +38,18 @@ class UfcReadinessFailClosedTests(unittest.TestCase):
         self.assertFalse(r["projectionsReady"])
         self.assertFalse(r["parlayReady"])
 
-    def test_all_gates_unlock_parlays(self):
+    def test_all_gates_incl_parlaysim_unlock_parlays(self):
         r = derive_readiness(ALL)
         self.assertEqual(r["publicLevel"], "parlays-public")
         self.assertTrue(r["projectionsReady"])
         self.assertTrue(r["parlayReady"])
+
+    def test_backtest_without_parlaysim_unlocks_projections_only(self):
+        # all gates EXCEPT parlay simulation → projections public, parlays LOCKED.
+        r = derive_readiness({**ALL, "parlaySimReady": False})
+        self.assertEqual(r["publicLevel"], "projections-public")
+        self.assertTrue(r["projectionsReady"])
+        self.assertFalse(r["parlayReady"])
 
     def test_missing_odds_blocks_everything(self):
         r = derive_readiness({**ALL, "oddsReady": False})

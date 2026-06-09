@@ -6,6 +6,7 @@
   "fighterStatsReady": true,
   "gradingReady": true,
   "backtestReady": false,
+  "parlaySimReady": false,
   "projectionsReady": false,
   "parlayReady": false,
   "publicLevel": "grading-internal",
@@ -40,6 +41,16 @@
       "latestEventDate": "2026-05-16",
       "gradingReady": true,
       "warnings": []
+    },
+    "backtest": {
+      "configured": true,
+      "rowCount": 0,
+      "marketImpliedBrier": null,
+      "launchDecision": "hold",
+      "backtestReady": false,
+      "warnings": [
+        "insufficient clean rows (0/150)"
+      ]
     }
   },
   "publicMessage": "UFC odds, fighter stats, and results grading are being connected. Model picks publish only after a backtest passes.",
