@@ -16,21 +16,56 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_DEFAULT = REPO_ROOT / "app" / "public" / "data" / "ufc" / "readiness-latest.json"
+ODDS_ARTIFACT = REPO_ROOT / "app" / "public" / "data" / "ufc" / "odds-latest.json"
+ODDS_FRESH_HOURS = 48  # odds older than this are stale → oddsReady stays false
 
-# The REAL current gate state. Update a flag ONLY when its provider is genuinely
-# connected + validated — never optimistically. (Matches UFC_CURRENT_GATES in
-# ufc-types.ts.)
+# The REAL current gate state. scheduleReady is static (free ESPN MMA); oddsReady
+# is now DERIVED from the real odds artifact (see odds_gate). The rest stay false
+# until their providers are genuinely connected — never optimistically.
 CURRENT_GATES: dict[str, bool] = {
     "scheduleReady": True,       # free ESPN MMA schedule
-    "oddsReady": False,          # Odds API MMA not connected
-    "fighterStatsReady": False,  # no fighter-stat provider
+    "oddsReady": False,          # DERIVED from odds-latest.json at build time
+    "fighterStatsReady": False,  # no fighter-stat provider (paid decision pending)
     "gradingReady": False,       # no results-grading contract
     "backtestReady": False,      # no historical backtest
 }
+
+
+def odds_gate(path: Path = ODDS_ARTIFACT, now: datetime | None = None) -> tuple[bool, dict]:
+    """Derive oddsReady from the REAL odds artifact: it must exist, report
+    oddsReady=true, carry >=1 bout, and be fresh (<48h). Fail-closed on any
+    problem. Returns (oddsReady, providerStatus)."""
+    status = {"configured": True, "lastFetchAt": None, "eventCount": 0,
+              "marketCount": 0, "oddsReady": False, "warnings": []}
+    if not path.exists():
+        status["warnings"].append("odds artifact missing")
+        return False, status
+    try:
+        art = json.loads(path.read_text())
+    except Exception:
+        status["warnings"].append("odds artifact corrupt")
+        return False, status
+    status["lastFetchAt"] = art.get("generatedAt")
+    status["eventCount"] = art.get("eventCount", 0)
+    status["marketCount"] = art.get("marketCount", 0)
+    fresh = True
+    ts = art.get("generatedAt")
+    if isinstance(ts, str):
+        try:
+            age_h = ((now or datetime.now(timezone.utc)) - datetime.fromisoformat(ts)).total_seconds() / 3600.0
+            fresh = age_h <= ODDS_FRESH_HOURS
+            if not fresh:
+                status["warnings"].append(f"odds stale ({age_h:.0f}h)")
+        except Exception:
+            fresh = False
+    ready = bool(art.get("oddsReady")) and (art.get("marketCount", 0) > 0) and fresh
+    status["oddsReady"] = ready
+    return ready, status
 
 
 def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
@@ -96,8 +131,18 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
 
 
 def build(date: str | None, gates: dict[str, bool] | None = None) -> dict[str, object]:
+    base = dict(gates if gates is not None else CURRENT_GATES)
+    # Derive oddsReady from the REAL odds artifact (fail-closed) unless the caller
+    # explicitly supplied gates (tests pass exact gates).
+    odds_status = None
+    if gates is None:
+        odds_ready, odds_status = odds_gate()
+        base["oddsReady"] = odds_ready
     payload = {"generatedFor": date, "nextEventDate": None}
-    payload.update(derive_readiness(gates if gates is not None else CURRENT_GATES))
+    payload.update(derive_readiness(base))
+    if odds_status is not None:
+        payload.setdefault("providerStatus", {})
+        payload["providerStatus"]["oddsapi"] = odds_status
     return payload
 
 
