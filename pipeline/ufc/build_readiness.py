@@ -252,6 +252,13 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
         "gradingReady": grading,
         "backtestReady": backtest,
         "parlaySimReady": parlay_sim,
+        # Prop markets (method/distance/round) require their OWN OddsAPI markets,
+        # which The Odds API MMA does NOT expose (h2h only, confirmed by the
+        # discovery probe). So these are hard-false — no odds to anchor a model.
+        "distancePropsReady": False,
+        "methodPropsReady": False,
+        "roundPropsReady": False,
+        "propMarketsAvailable": {"h2h": True, "method": False, "distance": False, "rounds": False},
         "projectionsReady": projections_ready,
         "parlayReady": parlay_ready,
         "publicLevel": public_level,
