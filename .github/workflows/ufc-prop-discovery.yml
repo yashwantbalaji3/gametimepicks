@@ -1,0 +1,19 @@
+name: ufc-prop-discovery
+on: { workflow_dispatch: {} }
+concurrency: { group: ufc-prop-discovery, cancel-in-progress: false }
+permissions: { contents: read }
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install requests
+      - name: Probe UFC prop markets
+        env: { ODDS_API_KEY: "${{ secrets.ODDS_API_KEY }}" }
+        run: |
+          python -m pipeline.ufc.build_prop_odds --discover --out /tmp/disc.json
+          echo "::group::discovery"; cat /tmp/disc.json; echo "::endgroup::"
