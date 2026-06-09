@@ -58,6 +58,19 @@ function loadOdds(): OddsArtifact {
   }
 }
 
+type OpsStatus = {
+  currentStage: number; currentStageName: string;
+  cleanGradedRows: number; targetRowsForPublicMoneyline: number;
+  latestPregameSnapshotAt?: string; latestResultsRefreshAt?: string;
+  publicPicksVisible: boolean; blockers: string[];
+  nextCard?: { eventName?: string; eventDate?: string };
+};
+
+function loadOps(): OpsStatus | null {
+  const p = path.join(process.cwd(), "public", "data", "ufc", "ops-status-latest.json");
+  try { return JSON.parse(fs.readFileSync(p, "utf-8")) as OpsStatus; } catch { return null; }
+}
+
 const fmtAmerican = (p: number) => (p > 0 ? `+${p}` : `${p}`);
 const fmtDate = (iso?: string) => {
   if (!iso) return "";
@@ -75,6 +88,8 @@ const LAYERS: { key: keyof Readiness; label: string; detail: string }[] = [
 export default function UfcPage() {
   const r = loadReadiness();
   const odds = loadOdds();
+  const ops = loadOps();
+  const pct = ops ? Math.min(100, Math.round((ops.cleanGradedRows / Math.max(1, ops.targetRowsForPublicMoneyline)) * 100)) : 0;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -142,6 +157,36 @@ export default function UfcPage() {
           </li>
         </ul>
       </section>
+
+      {/* Live ops status: stage + validation progress (non-pick, honest) */}
+      {ops && !ops.publicPicksVisible && (
+        <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900/30 p-5">
+          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+              Model status — {ops.currentStageName}
+            </h2>
+            {ops.latestPregameSnapshotAt && (
+              <span className="text-[11px] text-zinc-500">odds snapshot {fmtDate(ops.latestPregameSnapshotAt)}</span>
+            )}
+          </div>
+          <p className="mb-3 text-[12.5px] leading-relaxed text-zinc-400">
+            The model pipeline is built; public picks appear only after out-of-sample
+            validation. Validation collects one completed card at a time.
+          </p>
+          <div className="mb-1 flex items-center justify-between text-[12px] text-zinc-300">
+            <span>Validation progress</span>
+            <span className="tabular-nums text-zinc-400">{ops.cleanGradedRows} / {ops.targetRowsForPublicMoneyline} clean graded fights</span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
+            <div className="h-full rounded-full bg-emerald-500/50" style={{ width: `${pct}%` }} aria-hidden />
+          </div>
+          <p className="mt-3 text-[12px] leading-snug text-zinc-500">
+            Props (method / distance / rounds): currently <strong>not offered by the
+            sportsbook feed</strong> — a prop-odds provider is being evaluated. Moneyline
+            publishes first.
+          </p>
+        </section>
+      )}
 
       {/* Case B: model built + internal, public picks awaiting validation */}
       <p className="mb-8 max-w-2xl text-[12.5px] leading-relaxed text-zinc-500">

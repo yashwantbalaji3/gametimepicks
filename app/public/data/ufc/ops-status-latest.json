@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-06-09T22:54:57+00:00",
+  "currentStage": 1,
+  "currentStageName": "Internal moneyline model (public locked)",
+  "nextCard": {
+    "eventName": "UFC Freedom 250: Topuria vs. Gaethje",
+    "eventDate": "2026-06-15T00:00Z",
+    "fightCount": 7,
+    "isRealCard": true
+  },
+  "scheduleStatus": "ready",
+  "oddsStatus": "ready",
+  "fighterStatsStatus": "ready",
+  "gradingStatus": "ready",
+  "backtestStatus": "collecting",
+  "parlaySimStatus": "pending",
+  "cleanGradedRows": 0,
+  "targetRowsForPublicMoneyline": 150,
+  "latestPregameSnapshotAt": "2026-06-09T22:17:31+00:00",
+  "latestResultsRefreshAt": "2026-06-09T21:38:21+00:00",
+  "latestBacktestRunAt": "2026-06-09T21:51:28+00:00",
+  "propMarketStatus": {
+    "method": "unavailable",
+    "distance": "unavailable",
+    "rounds": "unavailable",
+    "note": "Not offered by the current sportsbook feed (The Odds API MMA = h2h only)."
+  },
+  "publicPicksVisible": false,
+  "blockers": [
+    "backtest: 0/150 clean graded rows",
+    "parlay simulation not yet run",
+    "no prop markets from current sportsbook feed (The Odds API MMA = h2h only)"
+  ],
+  "nextActions": [
+    "run ufc-pre-card before each card (logs pregame snapshot), ufc-post-card after (grades + accumulates)",
+    "connect a prop-odds provider (see ufc-prop-odds-provider-search) to unlock method/distance/round"
+  ]
+}
