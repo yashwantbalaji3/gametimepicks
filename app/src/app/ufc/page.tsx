@@ -69,7 +69,7 @@ const LAYERS: { key: keyof Readiness; label: string; detail: string }[] = [
   { key: "oddsReady", label: "Odds", detail: "Sportsbook moneyline lines (The Odds API MMA)" },
   { key: "fighterStatsReady", label: "Fighter stats", detail: "Records, striking, takedowns, finish rates (UFCStats-derived, GPL-3.0)" },
   { key: "gradingReady", label: "Results grading", detail: "Moneyline grading vs settled fights (UFCStats-derived results)" },
-  { key: "backtestReady", label: "Backtest", detail: "Walk-forward calibration on historical fights — pending" },
+  { key: "backtestReady", label: "Backtest", detail: "Logging pregame odds snapshots now; calibration needs ~150 completed clean fights" },
 ];
 
 export default function UfcPage() {

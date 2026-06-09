@@ -95,9 +95,24 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", default=str(OUT))
     args = ap.parse_args(argv)
     payload = build(args.max_events, args.dry_run, args.regions)
+    # Tag each bout pregame (fetched strictly before its commence time) — only
+    # pregame odds are eligible for the backtest (no post-start / settled-line leak).
+    fetched = payload.get("generatedAt")
+    for b in payload.get("bouts", []):
+        ct = b.get("commenceTime")
+        b["pregame"] = bool(fetched and ct and fetched < ct)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2) + "\n")
+    # Immutable, timestamped snapshot for backtest accumulation (never overwritten).
+    if not args.dry_run and payload.get("bouts"):
+        snap_dir = out.parent / "odds-snapshots"
+        snap_dir.mkdir(parents=True, exist_ok=True)
+        ts = (fetched or "").replace(":", "-")
+        snap = snap_dir / f"odds-{ts}.json"
+        if not snap.exists():
+            snap.write_text(json.dumps(payload, indent=2) + "\n")
+            print(f"wrote snapshot {snap}")
     print(f"wrote {out} → oddsReady={payload['oddsReady']} bouts={payload.get('marketCount')} "
           f"credits={payload.get('creditCost')} remaining={payload.get('creditsRemaining')}")
     return 0

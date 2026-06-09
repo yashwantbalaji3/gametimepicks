@@ -23,6 +23,8 @@ jobs:
           set -e
           python -m pipeline.ufc.build_results
           python -m pipeline.ufc.grade_moneylines
+          python -m pipeline.ufc.build_backtest_dataset
+          python -m pipeline.ufc.backtest_moneyline_model
           python -m pipeline.ufc.build_readiness
       - name: Summary
         run: |
@@ -31,7 +33,7 @@ jobs:
       - name: Commit derived UFC artifacts only (no raw CSV)
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
-          git add app/public/data/ufc/results-latest.json app/public/data/ufc/graded-moneylines-latest.json app/public/data/ufc/readiness-latest.json 2>/dev/null || true
+          git add app/public/data/ufc/results-latest.json app/public/data/ufc/graded-moneylines-latest.json app/public/data/ufc/backtest-dataset-latest.json app/public/data/ufc/backtest-summary-latest.json app/public/data/ufc/readiness-latest.json 2>/dev/null || true
           if git diff --staged --quiet; then echo "no changes"; exit 0; fi
           git config user.name "GametimePicks Bot"; git config user.email "noreply@github.com"
           git commit -m "auto: refresh UFC results + moneyline grading (derived, GPL-attributed) [skip ci]"
