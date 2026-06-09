@@ -143,6 +143,14 @@ export default function UfcPage() {
         </ul>
       </section>
 
+      {/* Case B: model built + internal, public picks awaiting validation */}
+      <p className="mb-8 max-w-2xl text-[12.5px] leading-relaxed text-zinc-500">
+        Model status: the UFC moneyline methodology + feature/model pipeline are
+        built and generating <em>internal</em> projections. Public projections and
+        Suggested Parlays stay locked until a leakage-safe backtest passes — and we
+        only publish for real scheduled cards, never futures markets.
+      </p>
+
       {/* Real sportsbook odds board (odds-only, NOT model projections) */}
       {odds.oddsReady && odds.bouts.length > 0 && (
         <section className="mb-10">
