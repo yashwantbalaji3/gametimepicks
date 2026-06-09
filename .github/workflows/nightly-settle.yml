@@ -134,6 +134,30 @@ jobs:
       - name: Run nightly settlement orchestrator
         run: bash scripts/automation_settle.sh
 
+      # ---- Daily learning loop (PR `update-learning-after-settlement`) ----
+      # Runs ONLY here, AFTER settlement+grading — never in generation. Reads
+      # settled outcomes only (no same-day leakage) and rewrites the conservative
+      # selection-policy artifact the optimizer reads. Non-fatal: if it fails, the
+      # prior artifact stays and generation keeps its conservative fallback.
+      - name: Set up Node (selection-learning)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
+
+      - name: Update selection-learning policy
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          cd app
+          npm ci --no-audit --no-fund || { echo "npm ci failed — skipping learning update (conservative fallback retained)"; exit 0; }
+          if npx --yes tsx scripts/update-selection-learning.mjs --write-report; then
+            echo "::notice::selection-learning policy updated"
+          else
+            echo "::warning::selection-learning update failed — prior policy retained (conservative fallback)"
+          fi
+
       - name: Show diff stat (informational)
         run: |
           echo "::group::git status"
@@ -162,6 +186,11 @@ jobs:
           git add app/public/data/curated/summary.json 2>/dev/null || true
           git add app/public/data/parlays/optimizer-graded/ 2>/dev/null || true
           git add app/public/data/parlays/optimizer-summary.json 2>/dev/null || true
+          # Daily learning artifact (settled-outcomes only) + its report. The
+          # optimizer reads selection-policy-latest.json with a conservative
+          # static fallback if missing/corrupt/noLiveWire.
+          git add app/public/data/learning/ 2>/dev/null || true
+          git add docs/audits/daily-selection-learning-latest.md 2>/dev/null || true
           # model_audit.json is rebuilt every run.
           git add app/public/data/audit/model_audit.json 2>/dev/null || true
           # PR #117: daily postmortem JSONs (one per settled date)
