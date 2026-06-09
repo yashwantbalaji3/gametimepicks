@@ -1351,6 +1351,18 @@ class PublicRiskSectionTests(unittest.TestCase):
                         if section_key in ("low", "medium"):
                             self.assertLess(e, 15.0, f"edge>=15 must not be in {section_key}")
 
+    def test_at_most_one_volatile_mlb_leg_per_card(self):
+        # Volatile MLB markets (total_bases / HRR / strikeouts) capped to 1 per
+        # public card — stacking them compounds variance (June postmortem).
+        pool = self._build_pool(n_nba=10, n_mlb=24)  # alternates batter_hits / batter_total_bases
+        out = generate_public_risk_sections(pool, date="2026-05-28")
+        VOL = {"batter_total_bases", "batter_hits_runs_rbis", "pitcher_strikeouts"}
+        for section_key, by_sport in out.items():
+            for slips in by_sport.values():
+                for slip in slips:
+                    nvol = sum(1 for leg in slip.legs if leg.market in VOL)
+                    self.assertLessEqual(nvol, 1, f"{section_key} card has {nvol} volatile legs")
+
     def test_no_duplicate_players_within_slip(self):
         pool = self._build_pool(n_nba=10, n_mlb=20)
         out = generate_public_risk_sections(pool, date="2026-05-28")
