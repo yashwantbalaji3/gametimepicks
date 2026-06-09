@@ -105,8 +105,11 @@ export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
     label: "UFC",
     longLabel: "Ultimate Fighting Championship",
     level: "schedule",
-    blurb: "Upcoming fight cards — schedule only, no odds or projections.",
-    links: [{ label: "Schedule", href: "/events/" }],
+    blurb: "Schedule available — model picks are data-gated until odds, fighter stats, grading, and a backtest are connected.",
+    links: [
+      { label: "Overview", href: "/ufc/" },
+      { label: "Schedule", href: "/events/" },
+    ],
   },
   {
     key: "fifa-world-cup",
