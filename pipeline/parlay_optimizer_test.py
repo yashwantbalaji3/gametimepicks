@@ -10,6 +10,7 @@ These lock the public contract:
 """
 from __future__ import annotations
 
+import json
 import unittest
 
 import pipeline.parlay_optimizer as po
@@ -1996,6 +1997,123 @@ class RestrictedMarketConsistencyTests(unittest.TestCase):
         for sec in ("low", "medium", "high", "longshot"):
             self.assertTrue(po._market_allowed_for_section(hits, sec, "2026-06-05"), sec)
         self.assertEqual(po.market_suggested_status("nba", "PTS"), "allowed")
+
+
+class LearnedSelectionPolicyTests(unittest.TestCase):
+    """PR `apply-learned-selection-policy`: fail-closed loader + tightening overlay."""
+
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+        self._orig_path = po._LEARNING_POLICY_PATH
+        self._tmp = tempfile.NamedTemporaryFile(suffix=".json", delete=False)
+        self._tmp.close()
+        po._LEARNING_POLICY_PATH = Path(self._tmp.name)
+        po._active_selection_policy = None
+        po._active_selection_policy_meta = {"learningPolicyLoaded": False, "learningPolicyApplied": False}
+
+    def tearDown(self):
+        import os
+        po._LEARNING_POLICY_PATH = self._orig_path
+        po._active_selection_policy = None
+        po._active_selection_policy_meta = {"learningPolicyLoaded": False, "learningPolicyApplied": False}
+        try: os.unlink(self._tmp.name)
+        except OSError: pass
+
+    def _write(self, **overrides):
+        base = {
+            "policyVersion": 1,
+            "latestSettledDate": "2026-06-08",
+            "trainingWindowStart": "2026-06-01",
+            "trainingWindowEnd": "2026-06-08",
+            "noLiveWire": False,
+            "sampleSizes": {"universeLegs": 3877, "publishedLegs": 548},
+            "recommendedMarketStatus": {
+                "batter_total_bases": {"recommendedStatus": "disabled", "n": 706, "wilsonLB": 0.38},
+                "batter_doubles": {"recommendedStatus": "disabled", "n": 120, "wilsonLB": 0.40},
+                "batter_hits": {"recommendedStatus": "allowed", "n": 1497, "wilsonLB": 0.50},
+                "mystery_market": {"recommendedStatus": "insufficient_sample", "n": 5, "wilsonLB": 0.30},
+            },
+            "warnings": [],
+        }
+        base.update(overrides)
+        po._LEARNING_POLICY_PATH.write_text(json.dumps(base))
+
+    def _delete(self):
+        import os
+        os.unlink(po._LEARNING_POLICY_PATH)
+
+    # ---- loader: valid + every fail-closed path ----
+    def test_valid_policy_loads_and_applies(self):
+        self._write()
+        pol = po.load_selection_policy("2026-06-09")
+        self.assertIsNotNone(pol)
+        self.assertTrue(po.selection_policy_metadata()["learningPolicyApplied"])
+
+    def test_missing_policy_falls_back(self):
+        self._delete()
+        self.assertIsNone(po.load_selection_policy("2026-06-09"))
+        self.assertEqual(po.selection_policy_metadata()["learningPolicyFallbackReason"], "missing")
+
+    def test_corrupt_policy_falls_back(self):
+        po._LEARNING_POLICY_PATH.write_text("{ not valid json")
+        self.assertIsNone(po.load_selection_policy("2026-06-09"))
+        self.assertEqual(po.selection_policy_metadata()["learningPolicyFallbackReason"], "corrupt")
+
+    def test_nolivewire_falls_back(self):
+        self._write(noLiveWire=True)
+        self.assertIsNone(po.load_selection_policy("2026-06-09"))
+        self.assertEqual(po.selection_policy_metadata()["learningPolicyFallbackReason"], "noLiveWire")
+
+    def test_thin_sample_falls_back(self):
+        self._write(sampleSizes={"universeLegs": 50})
+        self.assertIsNone(po.load_selection_policy("2026-06-09"))
+        self.assertEqual(po.selection_policy_metadata()["learningPolicyFallbackReason"], "thin_sample")
+
+    def test_version_mismatch_falls_back(self):
+        self._write(policyVersion=99)
+        self.assertIsNone(po.load_selection_policy("2026-06-09"))
+        self.assertEqual(po.selection_policy_metadata()["learningPolicyFallbackReason"], "version_mismatch")
+
+    def test_leakage_risk_falls_back(self):
+        # training data ending on/after the generation date must be rejected.
+        self._write()
+        self.assertIsNone(po.load_selection_policy("2026-06-08"))
+        self.assertEqual(po.selection_policy_metadata()["learningPolicyFallbackReason"], "leakage_risk")
+
+    def test_stale_policy_falls_back(self):
+        self._write()
+        self.assertIsNone(po.load_selection_policy("2026-08-01"))
+        self.assertEqual(po.selection_policy_metadata()["learningPolicyFallbackReason"], "stale")
+
+    # ---- overlay: tighten-only, never loosen, NBA-safe ----
+    def test_overlay_tightens_static_status(self):
+        self._write()
+        po.load_selection_policy("2026-06-09")
+        # batter_doubles is unmeasured statically (-> allowed) but learned-disabled.
+        self.assertEqual(po.market_suggested_status("mlb", "batter_doubles"), "disabled")
+
+    def test_overlay_never_loosens(self):
+        self._write()
+        po.load_selection_policy("2026-06-09")
+        # learned 'allowed' must NOT loosen a stricter static status.
+        self.assertEqual(po._learned_status_overlay("batter_hits", "disabled"), "disabled")
+
+    def test_overlay_insufficient_sample_is_noop(self):
+        self._write()
+        po.load_selection_policy("2026-06-09")
+        self.assertEqual(po._learned_status_overlay("mystery_market", "allowed"), "allowed")
+
+    def test_overlay_inactive_without_policy(self):
+        # no load -> no overlay -> static behavior preserved.
+        po._active_selection_policy = None
+        self.assertEqual(po._learned_status_overlay("batter_total_bases", "allowed"), "allowed")
+
+    def test_overlay_cannot_enable_nba_market(self):
+        # NBA markets are absent from the MLB learning artifact -> never enabled.
+        self._write()
+        po.load_selection_policy("2026-06-09")
+        self.assertEqual(po._learned_status_overlay("PTS", "allowed"), "allowed")
 
 
 if __name__ == "__main__":

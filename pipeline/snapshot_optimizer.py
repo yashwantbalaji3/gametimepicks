@@ -309,6 +309,14 @@ def build_optimizer_snapshot(
         }
         for section_key, by_sport in public_sections.items()
     }
+    # Observability: record whether the learned selection policy was applied for
+    # this slate (set as a side-effect of generate_public_risk_sections), or the
+    # fail-closed fallback reason. Pure metadata — does not affect the slips.
+    try:
+        from .parlay_optimizer import selection_policy_metadata
+        payload["learningPolicy"] = selection_policy_metadata()
+    except Exception:
+        payload["learningPolicy"] = {"learningPolicyLoaded": False, "learningPolicyApplied": False}
     return payload
 
 
