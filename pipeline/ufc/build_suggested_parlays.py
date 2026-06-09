@@ -48,7 +48,7 @@ def build(projections: dict, backtest_ready: bool, parlay_sim_ready: bool,
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(); ap.add_argument("--out", default=None); args = ap.parse_args(argv)
+    ap = argparse.ArgumentParser(); ap.add_argument("--out", default=None); ap.add_argument("--card-only", action="store_true"); args = ap.parse_args(argv)
     def L(p):
         try: return json.loads((DATA / p).read_text())
         except Exception: return {}
@@ -56,8 +56,10 @@ def main(argv=None) -> int:
     bt = backtest_gate()[0]
     # parlaySimReady is its own gate (default false; no parlay sim yet)
     psr = False
-    payload = build(L("projections-internal-latest.json"), bt, psr)
-    out = Path(args.out) if args.out else (PUBLIC if payload["publicReady"] else INTERNAL)
+    proj_file = "projections-internal-card-latest.json" if args.card_only else "projections-internal-latest.json"
+    payload = build(L(proj_file), bt, psr)
+    internal = DATA / ("suggested-parlays-internal-card-latest.json" if args.card_only else "suggested-parlays-internal-latest.json")
+    out = Path(args.out) if args.out else (PUBLIC if payload["publicReady"] else internal)
     out.write_text(json.dumps(payload, indent=2) + "\n")
     print(f"wrote {out} → publicReady={payload['publicReady']} eligibleLegs={payload['eligibleLegCount']} blockers={payload['blockers']}")
     return 0
