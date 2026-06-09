@@ -44,9 +44,29 @@ function loadReadiness(): Readiness {
   }
 }
 
+type OddsSide = { name: string; price: number; impliedProbability: number };
+type OddsBout = { eventId?: string; commenceTime?: string; fighters: string[]; bookmaker?: string; lastUpdate?: string; sides: OddsSide[] };
+type OddsArtifact = { oddsReady: boolean; generatedAt?: string; bouts: OddsBout[] };
+
+function loadOdds(): OddsArtifact {
+  const p = path.join(process.cwd(), "public", "data", "ufc", "odds-latest.json");
+  try {
+    const a = JSON.parse(fs.readFileSync(p, "utf-8"));
+    return { oddsReady: Boolean(a.oddsReady), generatedAt: a.generatedAt, bouts: Array.isArray(a.bouts) ? a.bouts : [] };
+  } catch {
+    return { oddsReady: false, bouts: [] };
+  }
+}
+
+const fmtAmerican = (p: number) => (p > 0 ? `+${p}` : `${p}`);
+const fmtDate = (iso?: string) => {
+  if (!iso) return "";
+  try { return new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" }); } catch { return iso; }
+};
+
 const LAYERS: { key: keyof Readiness; label: string; detail: string }[] = [
   { key: "scheduleReady", label: "Schedule", detail: "Event cards + fighters (free ESPN MMA)" },
-  { key: "oddsReady", label: "Odds", detail: "Moneyline / method / rounds — provider not connected yet" },
+  { key: "oddsReady", label: "Odds", detail: "Sportsbook moneyline lines (The Odds API MMA)" },
   { key: "fighterStatsReady", label: "Fighter stats", detail: "Records, striking, takedowns, finish rates — not connected yet" },
   { key: "gradingReady", label: "Results grading", detail: "Winner / method / round settlement — not built yet" },
   { key: "backtestReady", label: "Backtest", detail: "Walk-forward calibration on historical fights — pending" },
@@ -54,6 +74,7 @@ const LAYERS: { key: keyof Readiness; label: string; detail: string }[] = [
 
 export default function UfcPage() {
   const r = loadReadiness();
+  const odds = loadOdds();
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -121,6 +142,49 @@ export default function UfcPage() {
           </li>
         </ul>
       </section>
+
+      {/* Real sportsbook odds board (odds-only, NOT model projections) */}
+      {odds.oddsReady && odds.bouts.length > 0 && (
+        <section className="mb-10">
+          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+              UFC odds board
+            </h2>
+            <span className="text-[11px] text-zinc-500">
+              Sportsbook market lines · updated {fmtDate(odds.generatedAt)}
+            </span>
+          </div>
+          <p className="mb-3 text-[12.5px] leading-relaxed text-zinc-400">
+            Real moneyline prices from sportsbooks, with market-implied probability
+            (de-vig-free, single-side). These are <strong>book lines, not model
+            projections</strong> — our model picks stay locked until fighter stats,
+            grading, and a backtest are connected.
+          </p>
+          <ul className="flex flex-col gap-2">
+            {odds.bouts.map((b, i) => (
+              <li key={b.eventId || i} className="rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <span className="text-[11px] uppercase tracking-wide text-zinc-500">{fmtDate(b.commenceTime)}</span>
+                  <span className="text-[11px] text-zinc-600">{b.bookmaker}</span>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {b.sides.map((s) => (
+                    <div key={s.name} className="flex items-center justify-between gap-3">
+                      <span className="text-[14px] font-semibold text-zinc-100">{s.name}</span>
+                      <span className="flex items-center gap-3">
+                        <span className="tabular-nums text-[13px] text-zinc-300">{fmtAmerican(s.price)}</span>
+                        <span className="tabular-nums text-[12px] text-zinc-500">
+                          {Math.round(s.impliedProbability * 100)}%<span className="ml-1 text-zinc-600">implied</span>
+                        </span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Honest gated empty states */}
       <section className="grid gap-4 sm:grid-cols-2">
