@@ -2136,6 +2136,13 @@ _PUBLIC_EDGE_CAP_LOW_MEDIUM: float = 15.0
 #: same-game NBA stacks 5/25).
 _PUBLIC_SECTION_MAX_LEGS_PER_GAME: int = 2
 
+#: At most one high-variance MLB leg (batter_total_bases / batter_hits_runs_rbis /
+#: pitcher_strikeouts — see MLB_VOLATILE_MARKETS) per public card. Stacking volatile
+#: markets compounds correlation + variance (June postmortem). Matches the legacy
+#: conservative/balanced mlb_max_volatile_legs. Risk-management cap, not a coverage
+#: knob — a card simply takes a non-volatile leg instead.
+_PUBLIC_SECTION_MAX_VOLATILE_LEGS: int = 1
+
 #: Default ceiling on candidate generation per section. The diversity
 #: selector picks `target_per_section` slips from this pool.
 _PUBLIC_SECTION_CANDIDATE_CEILING: int = 1500
@@ -2441,6 +2448,14 @@ def _build_section_slips_for_pool(
                     1 for p in prefix if p.gameId == cand.gameId
                 )
                 if same_game >= _PUBLIC_SECTION_MAX_LEGS_PER_GAME:
+                    continue
+            # Volatile-market cap (PR `mlb-selection-caps`): at most one
+            # high-variance MLB leg (total_bases / HRR / strikeouts) per public
+            # card. Stacking volatile markets compounds correlation + variance and
+            # was net-negative in the June postmortem; this brings public cards in
+            # line with the legacy conservative/balanced mlb_max_volatile_legs=1.
+            if cand.isVolatileMlb:
+                if sum(1 for p in prefix if p.isVolatileMlb) >= _PUBLIC_SECTION_MAX_VOLATILE_LEGS:
                     continue
             prefix.append(cand)
             _extend(prefix, prefix_dec * cand_d, i + 1, size, stop_at)
