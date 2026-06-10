@@ -69,6 +69,15 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <path d="M7.5 14h9" />
         </svg>
       );
+    case "bank":
+      // Stacked coins — the paper-bankroll Bank Builder ladder.
+      return (
+        <svg {...props}>
+          <ellipse cx="12" cy="6" rx="7" ry="2.5" />
+          <path d="M5 6v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6" />
+          <path d="M5 11v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-5" />
+        </svg>
+      );
     case "results":
       // Check-in-circle — settled results.
       return (
