@@ -14,7 +14,7 @@
  *     about a graded slip.
  *   - The per-card slate / origin / sport-bucket chip row is gone;
  *     the lane spread carries that context once for the whole lane.
- *   - The per-leg "Calibration watch" signal text is replaced with a
+ *   - The per-leg "downgrade label" signal text is replaced with a
  *     tiny tone-dot on the market label — same information, no noise.
  *   - "View form →" copy on each leg becomes "Form →".
  *   - Footer is now a stake input + projected payout pair. Stake math
@@ -589,7 +589,7 @@ function TicketLegRow({
           ? "var(--vault-text-mute)"
           : "var(--vault-text-faint)";
   // Calibration-aware label is still computed so the dot indicator can
-  // surface tone, but the verbose "· Calibration watch" suffix is no
+  // surface tone, but the verbose "· downgrade label" suffix is no
   // longer appended to the meta line.
   const sportKey = (leg.sport === "mlb" || leg.sport === "nba")
     ? (leg.sport as Sport)
@@ -601,9 +601,9 @@ function TicketLegRow({
         calibrationTable[sportKey] ?? {},
       )
     : null;
-  // Dot indicator replaces the noisy "· Calibration watch" suffix that
+  // Dot indicator replaces the noisy "· downgrade label" suffix that
   // used to repeat on every leg. Amber dot = audit downgraded this
-  // tier ("Calibration watch"). Green dot = label held its strength.
+  // tier ("downgrade label"). Green dot = label held its strength.
   // No dot when we have no confidence signal.
   const calibrationDotColor = calibrated && calibrated.label
     ? calibrated.downgraded
@@ -612,7 +612,7 @@ function TicketLegRow({
     : null;
   const calibrationDotTitle = calibrated && calibrated.label
     ? calibrated.downgraded
-      ? `Calibration watch — ${calibrated.reason}`
+      ? `${calibrated.label} — ${calibrated.reason}`
       : calibrated.label
     : null;
 

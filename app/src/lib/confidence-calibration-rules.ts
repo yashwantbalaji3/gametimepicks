@@ -123,7 +123,10 @@ export function calibratedConfidenceLabelFromTable(
 
   if (health === "inverted") {
     return {
-      label: "Calibration watch",
+      // Public-facing label — plain language, no internal "calibration"
+      // jargon. An inverted tier isn't reliably outperforming a lower tier
+      // on settled data yet, so we tell the user it still needs validation.
+      label: "Needs more tracking",
       health,
       downgraded: true,
       reason:
