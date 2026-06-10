@@ -13,7 +13,7 @@ import path from "node:path";
 export const metadata = {
   title: "UFC · GameTime Picks",
   description:
-    "UFC coverage is being built — schedule available. Model picks publish only after odds, fighter stats, results grading, and backtesting are connected. Educational analytics, no guarantees.",
+    "UFC V1 moneyline projections + suggested moneyline parlays from real schedule, sportsbook lines, and fighter stats. Validation in progress; props (method/distance/round) not offered yet. Educational analytics, no guarantees.",
 };
 
 type Readiness = {
@@ -71,10 +71,10 @@ function loadOps(): OpsStatus | null {
   try { return JSON.parse(fs.readFileSync(p, "utf-8")) as OpsStatus; } catch { return null; }
 }
 
-type BetaProjection = { fighter: string; opponent: string; oddsPrice: number; marketImpliedProbability: number; modelProbability: number; label: string };
-type BetaProjections = { betaProjectionsEligible: boolean; officiallyValidated: boolean; eventName?: string; generatedAt?: string; disclaimer?: string; projections: BetaProjection[] };
-type BetaCard = { riskLabel: string; legs: { fighter: string; modelProbability: number }[]; modelCombinedProbability?: number };
-type BetaParlays = { betaParlaysEligible: boolean; cards: BetaCard[]; disclaimer?: string };
+type V1Projection = { fighter: string; opponent: string; oddsPrice: number; marketImpliedProbability: number; modelProbability: number; label: string };
+type V1Projections = { moneylineV1Ready: boolean; moneylineValidated: boolean; validationStatus?: string; eventName?: string; generatedAt?: string; disclaimer?: string; projections: V1Projection[] };
+type V1Card = { riskLabel: string; legs: { fighter: string; modelProbability: number }[]; modelCombinedProbability?: number };
+type V1Parlays = { parlayV1Ready: boolean; parlayValidated: boolean; cards: V1Card[]; disclaimer?: string };
 
 function loadJSONUfc<T>(name: string): T | null {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", name), "utf-8")) as T; } catch { return null; }
@@ -98,10 +98,11 @@ export default function UfcPage() {
   const r = loadReadiness();
   const odds = loadOdds();
   const ops = loadOps();
-  const betaProj = loadJSONUfc<BetaProjections>("beta-projections-latest.json");
-  const betaParlays = loadJSONUfc<BetaParlays>("beta-suggested-parlays-latest.json");
-  const showBetaProj = Boolean(betaProj?.betaProjectionsEligible && betaProj.projections?.length);
-  const showBetaParlays = Boolean(betaParlays?.betaParlaysEligible && betaParlays.cards?.length);
+  const v1Proj = loadJSONUfc<V1Projections>("projections-latest.json");
+  const v1Parlays = loadJSONUfc<V1Parlays>("suggested-parlays-latest.json");
+  const showV1Proj = Boolean(v1Proj?.moneylineV1Ready && v1Proj.projections?.length);
+  const showV1Parlays = Boolean(v1Parlays?.parlayV1Ready && v1Parlays.cards?.length);
+  const v1Validated = Boolean(v1Proj?.moneylineValidated);
   const pct = ops ? Math.min(100, Math.round((ops.cleanGradedRows / Math.max(1, ops.targetRowsForPublicMoneyline)) * 100)) : 0;
   const pctOdds = (p: number) => `${Math.round(p * 100)}%`;
 
@@ -112,13 +113,13 @@ export default function UfcPage() {
           GameTime Picks · UFC
         </p>
         <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-zinc-50">
-          UFC coverage is being built
+          {showV1Proj ? "UFC V1 Moneyline Model" : "UFC coverage is being built"}
         </h1>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-300">
-          {r.publicMessage} Everything here is educational analytics — no wagers and no
-          guarantees. {showBetaProj
-            ? "Beta model projections below are experimental and not yet backtested; official validated picks stay gated until backtesting passes."
-            : "No predictions until the data and backtesting gates pass."}
+          Everything here is educational analytics — no wagers and no guarantees.{" "}
+          {showV1Proj
+            ? "The V1 moneyline model is live from real schedule, sportsbook lines, and fighter stats. Validation is in progress — results are tracked after each card and the validated badge unlocks once the model reaches the backtest threshold. Method/distance/round props are not offered yet (current feed is h2h only)."
+            : `${r.publicMessage} No predictions until the data gates pass.`}
         </p>
       </header>
 
@@ -155,19 +156,22 @@ export default function UfcPage() {
               </li>
             );
           })}
-          {/* Picks gate — always derived, always last */}
+          {/* V1 / validation status — always derived, always last */}
           <li className="flex items-start gap-3 rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3 sm:col-span-2">
-            <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-zinc-700/40 text-[11px] font-bold text-zinc-400" aria-hidden>
-              🔒
+            <span className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${showV1Proj ? "bg-emerald-500/20 text-emerald-300" : "bg-zinc-700/40 text-zinc-400"}`} aria-hidden>
+              {showV1Proj ? "✓" : "🔒"}
             </span>
             <span className="flex flex-col">
               <span className="text-[14px] font-semibold text-zinc-100">
-                Model picks &amp; Suggested Parlays{" "}
-                <span className="text-[11px] font-medium text-zinc-500">locked</span>
+                Moneyline projections &amp; Suggested Parlays{" "}
+                <span className={`text-[11px] font-medium ${showV1Proj ? "text-emerald-400" : "text-zinc-500"}`}>
+                  {showV1Proj ? "V1 live" : "pending"}
+                </span>
               </span>
               <span className="text-[12.5px] leading-snug text-zinc-400">
-                Unlocks only when odds, fighter stats, results grading, and a backtest
-                are all connected — not before.
+                {showV1Proj
+                  ? `V1 moneyline model is live from real data. Validation ${v1Validated ? "passed" : "in progress"} — the validated badge unlocks at the backtest threshold. Method/distance/round props require a prop-odds provider (current feed is h2h only).`
+                  : "Goes live as V1 once odds, fighter stats, and grading are connected; validation tracked separately."}
               </span>
             </span>
           </li>
@@ -186,8 +190,9 @@ export default function UfcPage() {
             )}
           </div>
           <p className="mb-3 text-[12.5px] leading-relaxed text-zinc-400">
-            The model pipeline is built; public picks appear only after out-of-sample
-            validation. Validation collects one completed card at a time.
+            {showV1Proj
+              ? "The V1 moneyline model is live. The separate “validated” badge unlocks after out-of-sample validation reaches threshold — collected one completed card at a time."
+              : "The model pipeline is built; projections appear once the data gates pass. Validation collects one completed card at a time."}
           </p>
           <div className="mb-1 flex items-center justify-between text-[12px] text-zinc-300">
             <span>Validation progress</span>
@@ -204,25 +209,27 @@ export default function UfcPage() {
         </section>
       )}
 
-      {/* PUBLIC BETA — moneyline projections (experimental, not yet backtested) */}
-      {showBetaProj && betaProj && (
-        <section className="mb-10 rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-5">
+      {/* OFFICIAL V1 — moneyline projections (live; validation tracked separately) */}
+      {showV1Proj && v1Proj && (
+        <section className="mb-10 rounded-2xl border border-sky-500/30 bg-sky-500/[0.04] p-5">
           <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
-              <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-amber-300">BETA</span>
-              Moneyline projections — {betaProj.eventName}
+            <h2 className="flex flex-wrap items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-200">
+              <span className="rounded-md bg-sky-500/20 px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-sky-300">V1</span>
+              UFC V1 Moneyline Projections — {v1Proj.eventName}
+              <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-[0.08em] ${v1Validated ? "bg-emerald-500/20 text-emerald-300" : "bg-zinc-700/50 text-zinc-300"}`}>
+                {v1Validated ? "validated" : "validation in progress"}
+              </span>
             </h2>
-            <span className="text-[11px] text-zinc-500">updated {fmtDate(betaProj.generatedAt)}</span>
+            <span className="text-[11px] text-zinc-500">updated {fmtDate(v1Proj.generatedAt)}</span>
           </div>
-          <p className="mb-4 text-[12.5px] leading-relaxed text-amber-200/80">
-            Beta model projections · <strong>moneyline only</strong> · not yet fully
-            backtested. These are experimental model outputs from real schedule, real
-            sportsbook lines, and fighter statistics — educational only, not betting
-            advice and not an official validated pick. Official validated picks unlock
-            after the backtest criteria are met.
+          <p className="mb-4 text-[12.5px] leading-relaxed text-sky-200/80">
+            Official V1 model · <strong>moneyline only</strong> · from real schedule,
+            real sportsbook lines, and fighter statistics. Validation is in progress —
+            results are tracked after each card and the validated badge unlocks once the
+            model reaches the backtest threshold. Educational only, not betting advice.
           </p>
           <ul className="flex flex-col gap-2">
-            {betaProj.projections.map((p, i) => {
+            {v1Proj.projections.map((p, i) => {
               const favorsFighter = p.modelProbability >= 0.5;
               const fav = favorsFighter ? p.fighter : p.opponent;
               const favProb = favorsFighter ? p.modelProbability : 1 - p.modelProbability;
@@ -244,20 +251,21 @@ export default function UfcPage() {
         </section>
       )}
 
-      {/* PUBLIC BETA — suggested parlays (conservative, moneyline only) */}
-      {showBetaParlays && betaParlays && (
-        <section className="mb-10 rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-5">
-          <h2 className="mb-2 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
-            <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-amber-300">BETA</span>
-            Suggested parlays — experimental
+      {/* OFFICIAL V1 — suggested moneyline parlays (conservative, moneyline only) */}
+      {showV1Parlays && v1Parlays && (
+        <section className="mb-10 rounded-2xl border border-sky-500/30 bg-sky-500/[0.04] p-5">
+          <h2 className="mb-2 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-200">
+            <span className="rounded-md bg-sky-500/20 px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-sky-300">V1</span>
+            UFC V1 Suggested Moneyline Parlays
+            <span className="rounded-md bg-zinc-700/50 px-2 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-zinc-300">validation in progress</span>
           </h2>
-          <p className="mb-4 text-[12.5px] leading-relaxed text-amber-200/80">
-            Conservative beta cards built only from moneyline legs — no props, no
-            same-fight combinations. Experimental and not yet validated; educational
-            only, not betting advice.
+          <p className="mb-4 text-[12.5px] leading-relaxed text-sky-200/80">
+            Conservative cards built only from moneyline legs — no props, no same-fight
+            combinations. Validation tracked separately; educational only, not betting
+            advice.
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
-            {betaParlays.cards.map((c, i) => (
+            {v1Parlays.cards.map((c, i) => (
               <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
                 <div className="mb-2 flex items-baseline justify-between">
                   <span className="text-[13px] font-semibold text-zinc-100">{c.riskLabel}</span>
@@ -279,12 +287,11 @@ export default function UfcPage() {
         </section>
       )}
 
-      {/* Case B: model built + internal, public picks awaiting validation */}
+      {/* Model status footnote */}
       <p className="mb-8 max-w-2xl text-[12.5px] leading-relaxed text-zinc-500">
-        Model status: the UFC moneyline methodology + feature/model pipeline are
-        built and generating <em>internal</em> projections. Public projections and
-        Suggested Parlays stay locked until a leakage-safe backtest passes — and we
-        only publish for real scheduled cards, never futures markets.
+        {showV1Proj
+          ? "Model status: the UFC V1 moneyline model is live for real scheduled cards only (never futures). The separate validated badge requires a leakage-safe backtest threshold; method/distance/round props require a prop-odds provider not yet connected."
+          : "Model status: the UFC moneyline methodology + feature/model pipeline are built and generating internal projections; the public V1 surface goes live once odds, fighter stats, and grading are connected for a real card — never futures markets."}
       </p>
 
       {/* Real sportsbook odds board (odds-only, NOT model projections) */}

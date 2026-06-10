@@ -26,13 +26,14 @@ market** and **capped at ±4 percentage points** (further shrunk when data quali
 This keeps every projection close to the market — by design, the model expresses a *lean*,
 not a contrarian call.
 
-## Beta status (public, experimental) — 2026-06-09
-The model powers a **public beta** track (`beta-projections-latest.json`,
-`beta-suggested-parlays-latest.json`): real ESPN schedule + The Odds API h2h lines +
-fighter stats + the conservative model above. Beta is clearly labeled experimental and
-**not yet backtested**; `officiallyValidated` is always false while `backtestReady=false`.
-Beta parlays are **moneyline only**, conservative (strong model favorites ≥0.65, ≤2 legs,
-no same-fight duplicates).
+## Official V1 status (public, live) — 2026-06-09
+The model powers the **official V1** public surface (`projections-latest.json`,
+`suggested-parlays-latest.json`): real ESPN schedule + The Odds API h2h lines + fighter
+stats + the conservative model above. V1 is **live** (not "beta"); validation is shown
+**separately** — `moneylineValidated`/`parlayValidated` stay false until the leakage-safe
+backtest / parlay-simulation thresholds pass, but that is a quality badge, not a launch
+blocker. V1 parlays are **moneyline only**, conservative (strong model favorites ≥0.65,
+≤2 legs, no same-fight duplicates).
 
 ## Official launch gates
 - `projectionsReady` requires `backtestReady=true` — ≥150 clean graded fights from
