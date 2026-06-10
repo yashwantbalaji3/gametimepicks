@@ -60,25 +60,29 @@ def build(now: datetime | None = None) -> dict:
         blockers.append("no prop markets from current sportsbook feed (The Odds API MMA = h2h only)")
         next_actions.append("connect a prop-odds provider (see ufc-prop-odds-provider-search) to unlock method/distance/round")
 
-    beta_proj = _load("beta-projections-latest.json")
-    beta_parlays = _load("beta-suggested-parlays-latest.json")
-    beta = {
-        "betaProjectionsEligible": bool(beta_proj.get("betaProjectionsEligible")),
-        "betaParlaysEligible": bool(beta_parlays.get("betaParlaysEligible")),
-        "officiallyValidated": False,  # always false while backtest is not ready
+    v1_proj = _load("projections-latest.json")
+    v1_parlays = _load("suggested-parlays-latest.json")
+    v1 = {
+        "moneylineV1Ready": bool(v1_proj.get("moneylineV1Ready")),
+        "moneylineValidated": bool(v1_proj.get("moneylineValidated")),
+        "parlayV1Ready": bool(v1_parlays.get("parlayV1Ready")),
+        "parlayValidated": bool(v1_parlays.get("parlayValidated")),
+        "validationStatus": v1_proj.get("validationStatus", "in_progress"),
         "marketScope": "h2h_moneyline_only",
-        "betaProjectionCount": len(beta_proj.get("projections", [])),
-        "betaParlayCount": len(beta_parlays.get("cards", [])),
-        "reason": ("Beta uses real card schedule, real sportsbook moneylines, and "
-                   "fighter statistics with a conservative model; official validation "
-                   "(backtest) is still collecting."),
+        "propsProviderReady": False,
+        "methodPropsReady": False, "distancePropsReady": False, "roundPropsReady": False,
+        "projectionCount": len(v1_proj.get("projections", [])),
+        "parlayCount": len(v1_parlays.get("cards", [])),
+        "reason": ("Official V1 uses real card schedule, real sportsbook moneylines, "
+                   "and fighter statistics with a conservative model; validation "
+                   "(backtest threshold) is in progress."),
     }
 
     return {
         "generatedAt": ref.isoformat(timespec="seconds"),
         "currentStage": stage,
         "currentStageName": stage_name,
-        "beta": beta,
+        "v1": v1,
         "nextCard": {"eventName": sched.get("eventName"), "eventDate": sched.get("eventDate"),
                      "fightCount": sched.get("fightCount"), "isRealCard": sched.get("isRealCard")},
         "scheduleStatus": "ready" if sR else "pending",

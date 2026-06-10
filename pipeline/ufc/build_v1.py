@@ -1,11 +1,12 @@
 """
-build_beta — public UFC BETA artifacts from real-card internal projections. BETA =
-real schedule + real sportsbook moneylines + fighter stats + a conservative model,
-CLEARLY labeled unvalidated/experimental. Does NOT touch official gates
-(projectionsReady/parlayReady stay false until backtestReady). Moneyline only —
-no props (no prop odds). officiallyValidated is ALWAYS false while backtest is false.
+build_v1 — OFFICIAL UFC V1 moneyline artifacts from real-card internal projections.
+V1 = real ESPN schedule + real sportsbook moneylines + fighter stats + a conservative
+model. It is LIVE (not "beta"), with validation shown SEPARATELY: `moneylineValidated`
+stays false until the leakage-safe backtest reaches threshold — validation is a quality
+badge, not a launch blocker. Moneyline only (The Odds API MMA = h2h). No props, no fake
+data, no method/distance/round.
 
-Run: python -m pipeline.ufc.build_beta
+Run: python -m pipeline.ufc.build_v1
 """
 from __future__ import annotations
 
@@ -16,12 +17,13 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA = REPO_ROOT / "app" / "public" / "data" / "ufc"
-PROJ_OUT = DATA / "beta-projections-latest.json"
-PARLAY_OUT = DATA / "beta-suggested-parlays-latest.json"
+PROJ_OUT = DATA / "projections-latest.json"
+PARLAY_OUT = DATA / "suggested-parlays-latest.json"
 MIN_DQ = 0.75
-DISCLAIMER = ("Beta model output from real schedule + sportsbook moneylines + fighter "
-              "stats. Experimental, not yet backtested, educational only — not betting "
-              "advice and not an official validated pick.")
+DISCLAIMER = ("Official V1 moneyline model — real schedule + sportsbook lines + fighter "
+              "stats. Validation is in progress: results are tracked after each card and "
+              "the validated badge unlocks once the model reaches the backtest threshold. "
+              "Educational only — not betting advice.")
 
 
 def _load(name):
@@ -47,7 +49,8 @@ def build(now: datetime | None = None) -> tuple[dict, dict]:
     event_name = proj.get("eventName") or sched.get("eventName")
     event_date = proj.get("eventDate") or sched.get("eventDate")
     readiness = _load("readiness-latest.json")
-    backtest_ready = bool(readiness.get("backtestReady"))  # official validation
+    moneyline_validated = bool(readiness.get("backtestReady"))      # backtest threshold met
+    parlay_validated = bool(readiness.get("parlaySimReady"))        # parlay simulation passed
 
     rows = []
     for p in proj.get("projections", []):
@@ -71,22 +74,24 @@ def build(now: datetime | None = None) -> tuple[dict, dict]:
             "disclaimer": DISCLAIMER,
             "warnings": p.get("warnings") or [],
         })
-    proj_eligible = bool(rows) and bool(event_name)
+    moneyline_v1_ready = bool(rows) and bool(event_name)
     projections = {
         "generatedAt": ref.isoformat(timespec="seconds"),
-        "eventName": event_name,
-        "eventDate": event_date,
-        "beta": True, "officiallyValidated": False, "validationStatus": "collecting",
+        "version": "v1", "productStage": "official_v1_moneyline",
+        "eventName": event_name, "eventDate": event_date,
+        "moneylineV1Ready": moneyline_v1_ready,
+        "moneylineValidated": moneyline_validated,
+        "validationStatus": "validated" if moneyline_validated else "in_progress",
         "marketScope": "h2h_moneyline_only",
-        "betaProjectionsEligible": proj_eligible,
+        "propsProviderReady": False,
+        "methodPropsReady": False, "distancePropsReady": False, "roundPropsReady": False,
         "sourceArtifacts": ["projections-internal-card-latest.json", "schedule-latest.json", "odds-latest.json"],
         "disclaimer": DISCLAIMER,
         "projections": rows,
     }
 
-    # Conservative beta parlays — moneyline only, strongest model favorites, no
-    # same-fight dupes, short cards. modelCombinedProbability shown (independence
-    # approximation is defensible for cross-fight moneyline legs).
+    # Conservative V1 parlays — moneyline only, strongest model favorites, no same-fight
+    # dupes, short cards. modelCombinedProbability uses a cross-fight independence approx.
     favs = sorted(
         [{"fighter": r["fighter"] if r["modelProbability"] >= 0.5 else r["opponent"],
           "boutId": r["boutId"],
@@ -95,7 +100,7 @@ def build(now: datetime | None = None) -> tuple[dict, dict]:
         key=lambda x: -x["modelProbability"])
     strong = [f for f in favs if f["modelProbability"] >= 0.65]
     cards = []
-    if proj_eligible and len(strong) >= 2:
+    if moneyline_v1_ready and len(strong) >= 2:
         def _card(label, legs):
             seen, picked = set(), []
             for l in legs:
@@ -105,22 +110,24 @@ def build(now: datetime | None = None) -> tuple[dict, dict]:
             mp = 1.0
             for l in picked:
                 mp *= l["modelProbability"]
-            return {"riskLabel": label, "beta": True, "officiallyValidated": False,
+            return {"riskLabel": label,
                     "legs": [{"fighter": l["fighter"], "boutId": l["boutId"], "modelProbability": l["modelProbability"]} for l in picked],
                     "modelCombinedProbability": round(mp, 4),
                     "rationale": "Strongest model favorites this card (moneyline only).",
                     "disclaimer": DISCLAIMER, "warnings": []}
-        cards.append(_card("Conservative beta card", strong[:2]))
+        cards.append(_card("Conservative card", strong[:2]))
         if len(strong) >= 3:
-            cards.append(_card("Balanced beta card", strong[1:3]))
+            cards.append(_card("Balanced card", strong[1:3]))
     parlays = {
         "generatedAt": ref.isoformat(timespec="seconds"),
-        "eventName": projections["eventName"],
-        "beta": True, "officiallyValidated": False, "marketScope": "h2h_moneyline_only",
-        "betaParlaysEligible": bool(cards),
+        "version": "v1", "eventName": event_name,
+        "moneylineV1Ready": moneyline_v1_ready,
+        "parlayV1Ready": bool(cards),
+        "parlayValidated": parlay_validated,
+        "marketScope": "h2h_moneyline_only",
         "publicReady": bool(cards),
         "disclaimer": DISCLAIMER,
-        "blockers": [] if cards else ["not enough strong model favorites for a conservative beta card"],
+        "blockers": [] if cards else ["not enough strong model favorites for a conservative card"],
         "cards": cards,
     }
     return projections, parlays
@@ -131,8 +138,10 @@ def main(argv=None) -> int:
     projections, parlays = build()
     PROJ_OUT.write_text(json.dumps(projections, indent=2) + "\n")
     PARLAY_OUT.write_text(json.dumps(parlays, indent=2) + "\n")
-    print(f"wrote beta-projections ({len(projections['projections'])} rows, eligible="
-          f"{projections['betaProjectionsEligible']}) + beta-parlays ({len(parlays['cards'])} cards)")
+    print(f"wrote projections-latest ({len(projections['projections'])} rows, "
+          f"moneylineV1Ready={projections['moneylineV1Ready']}, "
+          f"validated={projections['moneylineValidated']}) + suggested-parlays "
+          f"({len(parlays['cards'])} cards, parlayV1Ready={parlays['parlayV1Ready']})")
     return 0
 
 
