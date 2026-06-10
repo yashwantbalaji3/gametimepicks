@@ -19,16 +19,26 @@ import {
   ladderMultiplierLabel,
 } from "@/lib/bank-builder-ladder";
 
+export interface BankBuilderShareCardLastSlip {
+  result: "win" | "loss" | "push";
+  dateLabel: string;
+  profitUsd: number;
+  legs: Array<{ player: string; selection: string }>;
+}
+
 export interface BankBuilderShareCardProps {
   /** 1-indexed active rung (the rung currently being climbed). */
   activeStepNumber: number;
   /** Current paper bankroll in USD. */
   currentBankroll: number;
+  /** Optional last settled slip (compact, current-run framing — no lifetime record). */
+  lastSlip?: BankBuilderShareCardLastSlip | null;
 }
 
 export default function BankBuilderShareCard({
   activeStepNumber,
   currentBankroll,
+  lastSlip = null,
 }: BankBuilderShareCardProps) {
   const clearedSteps = Math.max(
     0,
@@ -97,6 +107,30 @@ export default function BankBuilderShareCard({
               </span>
             </div>
           </div>
+
+          {/* Last settled slip — compact current-run framing (no lifetime record). */}
+          {lastSlip && lastSlip.result === "win" && (
+            <div
+              className="rounded-[10px] px-4 py-3"
+              style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.3)" }}
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                  Last slip · {lastSlip.dateLabel}
+                </span>
+                <span className="font-semibold tabular-nums" style={{ color: "#6ee7b7", fontSize: 14 }}>
+                  WIN +{formatLadderUsd(lastSlip.profitUsd)}
+                </span>
+              </div>
+              <div className="mt-1 flex flex-col gap-0.5">
+                {lastSlip.legs.map((l, i) => (
+                  <span key={i} style={{ color: "var(--vault-text)", fontSize: 12 }}>
+                    {l.player} <span style={{ color: "var(--vault-text-mute)" }}>· {l.selection}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Horizontal progress bar — cleared rungs only. */}
           <div className="flex flex-col gap-1.5">

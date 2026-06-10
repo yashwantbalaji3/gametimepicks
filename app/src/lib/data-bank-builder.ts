@@ -28,11 +28,19 @@ export interface BankBuilderSummary {
   } | null;
 }
 
+export interface BankBuilderLeg {
+  player: string; market: string; side: string; line: number;
+  odds?: number; result: string; finalStat?: number; source?: string;
+}
+
 export interface BankBuilderLedgerEntry {
-  date: string; result: "win" | "loss" | "push"; combinedAmerican: number;
-  bankrollBefore: number; bankrollAfter: number; progressionStepBefore: number;
-  progressionStepAfter: number; legs: Array<{ player: string; market: string; side: string; line: number; result: string }>;
-  settlementSource: string; audit: Record<string, boolean>;
+  date: string; sport?: string; slipId?: string; riskProfile?: string;
+  result: "win" | "loss" | "push"; combinedAmerican: number; combinedDecimal?: number;
+  stakeUnits?: number; payoutUnits?: number; profitUnits?: number;
+  bankrollBefore: number; bankrollAfter: number;
+  progressionStepBefore: number; progressionStepAfter: number;
+  legs: BankBuilderLeg[]; settledAt?: string; settlementSource: string;
+  audit: Record<string, boolean>;
 }
 
 function read<T>(rel: string): T | null {
@@ -49,4 +57,50 @@ export function loadBankBuilderSummary(): BankBuilderSummary | null {
 
 export function loadBankBuilderLedger(): { entries: BankBuilderLedgerEntry[] } | null {
   return read<{ entries: BankBuilderLedgerEntry[] }>("ledger-latest.json");
+}
+
+/**
+ * Public view of the Bank Builder ledger: separates the current paper run + last
+ * settled slip + next slip from the lifetime experimental audit. The lifetime record
+ * is preserved (honest) but flagged `hiddenFromHero` so the product page never leads
+ * with it. Pure — safe to unit-test.
+ */
+export interface BankBuilderPublicView {
+  currentRun: {
+    startingBankroll: number; currentBankroll: number; profit: number; roiPct: number;
+    currentStep: number; streak: string; lastSettledDate: string | null; lastSettledResult: string | null;
+  };
+  lastSettledSlip: {
+    date: string; sport: string; result: string; paperStake: number; americanOdds: number;
+    paperReturn: number; paperProfit: number;
+    legs: Array<{ name: string; market: string; selection: string; finalStat?: number; result: string }>;
+  } | null;
+  nextSlip: { status: string; date: string | null };
+  lifetimeAudit: { record: string; hiddenFromHero: true };
+}
+
+export function toPublicBankBuilderView(
+  summary: BankBuilderSummary | null,
+  lastEntry: BankBuilderLedgerEntry | null,
+): BankBuilderPublicView | null {
+  if (!summary) return null;
+  const streak = summary.currentStreak > 0 ? `W${summary.currentStreak}`
+    : summary.currentStreak < 0 ? `L${-summary.currentStreak}` : "—";
+  return {
+    currentRun: {
+      startingBankroll: summary.startingBankrollUnits, currentBankroll: summary.currentBankrollUnits,
+      profit: summary.currentRunProfitUnits, roiPct: summary.currentRunRoiPct,
+      currentStep: summary.currentProgressionStep, streak,
+      lastSettledDate: summary.lastSettledDate, lastSettledResult: summary.lastSettledResult,
+    },
+    lastSettledSlip: lastEntry ? {
+      date: lastEntry.date, sport: (lastEntry.sport ?? "MLB").toUpperCase(), result: lastEntry.result,
+      paperStake: lastEntry.stakeUnits ?? lastEntry.bankrollBefore, americanOdds: lastEntry.combinedAmerican,
+      paperReturn: lastEntry.bankrollAfter, paperProfit: Math.round((lastEntry.bankrollAfter - lastEntry.bankrollBefore) * 100) / 100,
+      legs: (lastEntry.legs ?? []).map((l) => ({ name: l.player, market: l.market, selection: `${l.side} ${l.line}`, finalStat: l.finalStat, result: l.result })),
+    } : null,
+    nextSlip: { status: summary.nextPick ? "ready" : "pending", date: summary.nextEligibleDate },
+    // Lifetime record kept for transparency but explicitly hidden from the hero.
+    lifetimeAudit: { record: `${summary.record.wins}-${summary.record.losses}`, hiddenFromHero: true },
+  };
 }

@@ -86,6 +86,29 @@ export const metadata = {
 const DISCLAIMER =
   "Educational only. Past results do not predict future outcomes. We do not take real money.";
 
+function fmtBuilderDate(d: string): string {
+  try {
+    return new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return d;
+  }
+}
+
+const MARKET_LABELS: Record<string, string> = {
+  batter_hits: "batter hits",
+  batter_total_bases: "total bases",
+  batter_home_runs: "home runs",
+  pitcher_strikeouts: "strikeouts",
+  PTS: "points",
+  REB: "rebounds",
+  AST: "assists",
+};
+const prettyMarket = (m: string) => MARKET_LABELS[m] ?? m.replace(/_/g, " ");
+
 export default function BankBuilderPage() {
   const today = currentEtDate();
   const suggested = getSuggestedParlaysForDate(today);
@@ -150,91 +173,109 @@ export default function BankBuilderPage() {
         }
       />
 
-      {/* Board-style target-path strip — the ladder progression at a glance.
-          Honest: a per-step TARGET (not a promise), the current step, and the
-          loss reset shown openly. Real ladder constants only. */}
+      {/* Product KPIs — current paper run at a glance. Lifetime experimental
+          record is intentionally NOT a hero KPI (audit-only, below). */}
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
         <BoardStatTile
-          label="Start"
-          value={formatLadderUsd(BANK_BUILDER_BASE)}
-          sub="paper base"
+          label="Paper Bankroll"
+          value={formatLadderUsd(currentBankroll)}
+          sub="current run"
           accent="var(--risk-low)"
         />
         <BoardStatTile
-          label="Step target"
-          value="~2×"
-          sub="≈ +100 odds"
-          accent="var(--vault-gold-bright)"
-        />
-        <BoardStatTile
-          label="Current step"
+          label="Current Step"
           value={`${activeStep.step} / 5`}
-          sub={formatLadderUsd(currentBankroll)}
+          sub={`${formatLadderUsd(activeStep.start)} → ${formatLadderUsd(activeStep.goal)} target zone`}
           accent="var(--sport-mlb)"
         />
         <BoardStatTile
-          label="On a loss"
-          value="Reset"
-          sub={`to ${formatLadderUsd(BANK_BUILDER_BASE)}`}
+          label="Last Settled Slip"
+          value={lastSettled ? lastSettled.result.toUpperCase() : "—"}
+          sub={
+            lastSettled
+              ? `${fmtBuilderDate(lastSettled.date)} · ${lastSettled.result === "win" ? "+" : ""}${formatLadderUsd(lastSettled.bankrollAfter - lastSettled.bankrollBefore)} paper profit`
+              : "tracking begins on first settled slip"
+          }
+          accent="var(--vault-gold-bright)"
+        />
+        <BoardStatTile
+          label="Next Slip"
+          value={bbSummary?.nextPick ? "Ready" : "Pending"}
+          sub={bbSummary?.nextPick ? "today's qualified slip" : "awaiting today's qualified slate"}
           accent="var(--risk-longshot)"
         />
       </div>
 
-      {/* ---- Paper Tracker (durable settled history, §4.2) ----------- */}
-      {bbSummary && bbSummary.settledPickCount > 0 && (
-        <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
-              Bank Builder Paper Tracker
+      {/* ---- Last Settled Builder Slip (polished slip card) ---------- */}
+      {lastSettled && lastSettled.result === "win" && (
+        <section className="mt-5 overflow-hidden rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.04]">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/20 bg-emerald-500/[0.06] px-5 py-3">
+            <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-200">
+              Last Settled Builder Slip
             </h2>
-            <span className="text-[11px] text-zinc-500">
-              educational tracking · not betting advice · not a guarantee
+            <span className="rounded-md bg-emerald-500/20 px-2.5 py-1 text-[11px] font-bold tracking-[0.1em] text-emerald-300">
+              WIN
             </span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            <div>
-              <div className="text-[20px] font-bold tabular-nums text-zinc-100">{formatLadderUsd(bbSummary.currentBankrollUnits)}</div>
-              <div className="text-[11px] text-zinc-500">paper bankroll (current run)</div>
-            </div>
-            <div>
-              <div className={`text-[20px] font-bold tabular-nums ${bbSummary.currentRunProfitUnits >= 0 ? "text-emerald-400" : "text-zinc-300"}`}>
-                {bbSummary.currentRunProfitUnits >= 0 ? "+" : ""}{formatLadderUsd(bbSummary.currentRunProfitUnits)}
-              </div>
-              <div className="text-[11px] text-zinc-500">current-run P/L ({bbSummary.currentRunRoiPct}%)</div>
-            </div>
-            <div>
-              <div className="text-[20px] font-bold tabular-nums text-zinc-100">
-                {bbSummary.record.wins}-{bbSummary.record.losses}{bbSummary.record.pushes ? `-${bbSummary.record.pushes}` : ""}
-              </div>
-              <div className="text-[11px] text-zinc-500">settled picks (W-L{bbSummary.record.pushes ? "-P" : ""})</div>
-            </div>
-            <div>
-              <div className="text-[20px] font-bold tabular-nums text-zinc-100">{activeStep.step} / 5</div>
-              <div className="text-[11px] text-zinc-500">current step · streak {bbSummary.currentStreak > 0 ? `W${bbSummary.currentStreak}` : bbSummary.currentStreak < 0 ? `L${-bbSummary.currentStreak}` : "—"}</div>
-            </div>
+          <div className="px-5 pt-3 pb-1 text-[12px] text-zinc-400">
+            {fmtBuilderDate(lastSettled.date)} · {(lastSettled.sport ?? "MLB").toUpperCase()} · settled from official results
           </div>
-          {lastSettled && (
-            <p className="mt-3 text-[12.5px] leading-relaxed text-zinc-400">
-              Last settled Builder Pick ({lastSettled.date}):{" "}
-              <span className={lastSettled.result === "win" ? "text-emerald-400 font-semibold" : "text-zinc-300 font-semibold"}>
-                {lastSettled.result.toUpperCase()}
-              </span>{" "}
-              ({formatAmerican(lastSettled.combinedAmerican)}) —{" "}
-              {lastSettled.legs.map((l, i) => (
-                <span key={i}>
-                  {i > 0 ? " + " : ""}{l.player} {l.side} {l.line} {l.market.replace(/_/g, " ")}{" "}
-                  <span className={l.result === "win" ? "text-emerald-400" : "text-zinc-500"}>({l.result})</span>
+          <ul className="divide-y divide-zinc-800/70 px-5">
+            {lastSettled.legs.map((l, i) => (
+              <li key={i} className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <div className="truncate text-[14px] font-semibold text-zinc-100">{l.player}</div>
+                  <div className="text-[12.5px] text-zinc-400">
+                    {l.side} {l.line} {prettyMarket(l.market)}
+                    {typeof l.finalStat === "number" && (
+                      <span className="text-zinc-500"> · result: {l.finalStat}</span>
+                    )}
+                  </div>
+                </div>
+                <span className={`shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold ${l.result === "win" ? "bg-emerald-500/15 text-emerald-300" : "bg-zinc-700/40 text-zinc-300"}`}>
+                  {l.result === "win" ? "Won" : l.result === "loss" ? "Lost" : "Push"}
                 </span>
-              ))}
-              . Settled from official results ({lastSettled.settlementSource}); paper bankroll moved{" "}
-              {formatLadderUsd(lastSettled.bankrollBefore)} → {formatLadderUsd(lastSettled.bankrollAfter)}.
-            </p>
-          )}
-          <p className="mt-2 text-[12px] leading-snug text-zinc-500">
-            {bbSummary.nextPick
-              ? `Next Builder Pick (${bbSummary.nextEligibleDate}): step ${bbSummary.nextPick.step}, ${bbSummary.nextPick.legCount}-leg ${formatAmerican(bbSummary.nextPick.combinedAmerican)} — pending settlement.`
-              : "Next Builder Pick: pending until the next slate generates a qualifying pick. We never force a pick to keep the streak alive."}
+              </li>
+            ))}
+          </ul>
+          <div className="grid grid-cols-2 gap-y-1 border-t border-zinc-800/70 px-5 py-3 text-[12.5px] sm:grid-cols-4">
+            <div><span className="text-zinc-500">Paper stake</span><br /><span className="font-semibold text-zinc-100">{formatLadderUsd(lastSettled.stakeUnits ?? lastSettled.bankrollBefore)}</span></div>
+            <div><span className="text-zinc-500">Odds</span><br /><span className="font-semibold text-zinc-100">{formatAmerican(lastSettled.combinedAmerican)}</span></div>
+            <div><span className="text-zinc-500">Paper return</span><br /><span className="font-semibold text-zinc-100">{formatLadderUsd(lastSettled.bankrollAfter)}</span></div>
+            <div><span className="text-zinc-500">Paper profit</span><br /><span className="font-semibold text-emerald-400">+{formatLadderUsd(lastSettled.bankrollAfter - lastSettled.bankrollBefore)}</span></div>
+          </div>
+        </section>
+      )}
+
+      {/* ---- Current run timeline + collapsed audit ------------------ */}
+      {bbSummary && bbSummary.settledPickCount > 0 && lastSettled && (
+        <section className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
+          <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
+            Current Paper Run
+          </h2>
+          <ol className="flex flex-col gap-2">
+            <li className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-2.5 text-[12.5px]">
+              <span className="font-semibold text-zinc-200">{fmtBuilderDate(lastSettled.date)}</span>
+              <span className="text-zinc-500">Step {lastSettled.progressionStepBefore}</span>
+              <span className={`rounded px-1.5 py-0.5 text-[11px] font-semibold ${lastSettled.result === "win" ? "bg-emerald-500/15 text-emerald-300" : "bg-zinc-700/40 text-zinc-300"}`}>{lastSettled.result.toUpperCase()}</span>
+              <span className="tabular-nums text-zinc-400">{formatLadderUsd(lastSettled.bankrollBefore)} → {formatLadderUsd(lastSettled.bankrollAfter)}</span>
+            </li>
+          </ol>
+          <p className="mt-3 text-[12px] leading-snug text-zinc-500">
+            The ladder only advances when the published slate produces a qualifying Builder
+            Slip. We do not force a pick to keep the run going.
           </p>
+          <details className="mt-3 text-[12px] text-zinc-500">
+            <summary className="cursor-pointer text-zinc-400 hover:text-zinc-300">View audit details</summary>
+            <div className="mt-2 space-y-1 rounded-lg border border-zinc-800 bg-zinc-950/40 p-3 font-mono text-[11px] leading-relaxed text-zinc-500">
+              <div>slipId: {lastSettled.slipId ?? "—"}</div>
+              <div>settlementSource: {lastSettled.settlementSource}</div>
+              <div>lifetime settled record (all experimental runs): {bbSummary.record.wins}-{bbSummary.record.losses}{bbSummary.record.pushes ? `-${bbSummary.record.pushes}` : ""}</div>
+              <div>current streak: {bbSummary.currentStreak > 0 ? `W${bbSummary.currentStreak}` : bbSummary.currentStreak < 0 ? `L${-bbSummary.currentStreak}` : "—"}</div>
+              <div>audit flags: {Object.entries(lastSettled.audit).map(([k, v]) => `${k}=${v}`).join(" · ")}</div>
+              <div>generatedAt: {bbSummary.generatedAt}</div>
+            </div>
+          </details>
         </section>
       )}
 
@@ -259,13 +300,23 @@ export default function BankBuilderPage() {
         />
       </div>
 
-      {/* ---- Ladder history (honest no-history state) ---------------- */}
-      <LadderHistory />
-
       {/* ---- Screenshot-friendly share card -------------------------- */}
       <BankBuilderShareCard
         activeStepNumber={activeStep.step}
         currentBankroll={currentBankroll}
+        lastSlip={
+          lastSettled && lastSettled.result === "win"
+            ? {
+                result: "win",
+                dateLabel: fmtBuilderDate(lastSettled.date),
+                profitUsd: lastSettled.bankrollAfter - lastSettled.bankrollBefore,
+                legs: lastSettled.legs.map((l) => ({
+                  player: l.player,
+                  selection: `${l.side} ${l.line} ${prettyMarket(l.market)}`,
+                })),
+              }
+            : null
+        }
       />
 
       {/* ---- Bottom disclaimer + responsible-use link ---------------- */}
@@ -521,34 +572,3 @@ function RecentFormSupport({
 /** Honest no-history state. A durable ladder history is deferred
  *  (§4.2) — until a Builder Slip settles in the public era there is
  *  nothing real to show, and we never invent past runs. */
-function LadderHistory() {
-  return (
-    <section
-      aria-label="Ladder history"
-      className="mt-5 rounded-[10px] overflow-hidden"
-      style={{ background: "var(--gtp-card)", border: "1px solid var(--gtp-card-border)" }}
-    >
-      <header
-        className="px-3.5 py-3"
-        style={{ background: "var(--gtp-card-sunken)", borderBottom: "1px solid var(--vault-rule)" }}
-      >
-        <span
-          className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
-        >
-          Ladder history
-        </span>
-      </header>
-      <div className="px-3.5 py-6 flex flex-col items-center text-center gap-1.5" style={{ minHeight: 96 }}>
-        <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
-          Tracking starts when a Builder Slip settles.
-        </p>
-        <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-faint)", maxWidth: 420 }}>
-          History is derived from the real graded record — no invented past runs.
-          Each rung&apos;s result (cleared or reset) shows here after its games
-          finish and the nightly pipeline grades the slip.
-        </p>
-      </div>
-    </section>
-  );
-}
