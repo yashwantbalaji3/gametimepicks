@@ -53,6 +53,119 @@ from .base import (
 log = logging.getLogger(__name__)
 
 API_BASE = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba"
+# Athlete game logs live on the "web" API (common/v3), a different host.
+GAMELOG_BASE = "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba"
+
+# ESPN team id by ESPN-native abbreviation (fetched from the public teams endpoint).
+ESPN_TEAM_ID = {
+    "ATL": "1", "BOS": "2", "BKN": "17", "CHA": "30", "CHI": "4", "CLE": "5",
+    "DAL": "6", "DEN": "7", "DET": "8", "GS": "9", "HOU": "10", "IND": "11",
+    "LAC": "12", "LAL": "13", "MEM": "29", "MIA": "14", "MIL": "15", "MIN": "16",
+    "NO": "3", "NY": "18", "OKC": "25", "ORL": "19", "PHI": "20", "PHX": "21",
+    "POR": "22", "SAC": "23", "SA": "24", "TOR": "28", "UTAH": "26", "WSH": "27",
+}
+# Standard (nba_api / odds) abbreviations that differ from ESPN's.
+_ABBR_ALIASES = {"GSW": "GS", "NOP": "NO", "NYK": "NY", "SAS": "SA", "UTA": "UTAH",
+                 "WAS": "WSH", "NOH": "NO", "PHO": "PHX", "BRK": "BKN"}
+
+
+def _espn_team_id(team_abbr: str) -> str | None:
+    a = (team_abbr or "").strip().upper()
+    a = _ABBR_ALIASES.get(a, a)
+    return ESPN_TEAM_ID.get(a)
+
+
+def _stat_indices(labels: list[str]) -> dict[str, int]:
+    """Map our markets to column indices by label (robust to column re-ordering)."""
+    want = {"MIN": "minutes", "REB": "reb", "AST": "ast", "PTS": "pts"}
+    out: dict[str, int] = {}
+    for i, lab in enumerate(labels or []):
+        if lab in want:
+            out[want[lab]] = i
+    return out
+
+
+def _to_int(s) -> int:
+    try:
+        return int(round(float(str(s).strip())))
+    except Exception:
+        return 0
+
+
+def _to_float(s) -> float:
+    try:
+        return float(str(s).strip())
+    except Exception:
+        return 0.0
+
+
+def _parse_roster_athletes(data: dict, team_abbr: str) -> list:
+    """ESPN team roster JSON -> list[Player]. Pure (testable offline)."""
+    out: list[Player] = []
+    for a in (data or {}).get("athletes", []) or []:
+        if not isinstance(a, dict):
+            continue
+        pid = a.get("id")
+        name = a.get("displayName") or a.get("fullName")
+        if not pid or not name:
+            continue
+        pos = ((a.get("position") or {}).get("abbreviation")) or ""
+        status = ((a.get("status") or {}).get("type")) or (a.get("status") or {}).get("name") or "Active"
+        out.append(Player(player_id=_to_int(pid), player_name=str(name),
+                          team_abbr=team_abbr, position=str(pos),
+                          status=str(status).title() if status else "Active"))
+    return out
+
+
+def _parse_gamelog(data: dict, player_id: int, last_n: int = 10) -> list:
+    """ESPN athlete gamelog JSON -> list[GameLog], newest first, postseason then
+    regular season, capped at last_n. Pure (testable offline). Never invents rows."""
+    if not isinstance(data, dict):
+        return []
+    idx = _stat_indices(data.get("labels") or [])
+    if "pts" not in idx:
+        return []
+    meta = data.get("events") or {}  # eventId -> {atVs, gameDate, opponent, ...}
+
+    def _flatten(season_types: list, postseason: bool) -> list:
+        rows = []
+        for s in season_types or []:
+            name = (s.get("displayName") or "").lower()
+            is_post = "post" in name
+            if is_post != postseason:
+                continue
+            seen_ids = set()
+            for cat in s.get("categories") or []:
+                for e in cat.get("events") or []:
+                    eid = str(e.get("eventId") or "")
+                    if not eid or eid in seen_ids:
+                        continue
+                    seen_ids.add(eid)
+                    stats = e.get("stats") or []
+                    if len(stats) <= idx["pts"]:
+                        continue
+                    m = meta.get(eid, {}) if isinstance(meta, dict) else {}
+                    opp = m.get("opponent")
+                    opp_abbr = opp.get("abbreviation") if isinstance(opp, dict) else (opp or "")
+                    home_away = "Home" if m.get("atVs") == "vs" else "Away"
+                    gdate = str(m.get("gameDate") or m.get("date") or "")[:10]
+                    rows.append(GameLog(
+                        player_id=int(player_id),
+                        game_date=gdate, opponent_abbr=str(opp_abbr or ""),
+                        home_away=home_away,
+                        minutes=_to_float(stats[idx["minutes"]]) if "minutes" in idx and len(stats) > idx["minutes"] else 0.0,
+                        pts=_to_int(stats[idx["pts"]]),
+                        reb=_to_int(stats[idx["reb"]]) if "reb" in idx and len(stats) > idx["reb"] else 0,
+                        ast=_to_int(stats[idx["ast"]]) if "ast" in idx and len(stats) > idx["ast"] else 0,
+                    ))
+        return rows
+
+    season_types = data.get("seasonTypes") or []
+    # Collect postseason + regular, then sort by game_date DESC so "recent N" is the
+    # genuine most-recent N games regardless of how the API orders its arrays.
+    rows = _flatten(season_types, postseason=True) + _flatten(season_types, postseason=False)
+    rows.sort(key=lambda g: g.game_date, reverse=True)
+    return rows[:last_n]
 
 
 # ---------------------------------------------------------------------------
@@ -100,7 +213,7 @@ class EspnProvider(NBADataProvider):
     name = "espn_scoreboard"
     tier = 3
     requires_api_key = False
-    supported = {"schedule"}
+    supported = {"schedule", "rosters", "game_logs"}
 
     def __init__(self) -> None:
         self._last_status = "not_run"
@@ -289,17 +402,62 @@ class EspnProvider(NBADataProvider):
             return "TBD"
 
     # ------------------------------------------------------------------
-    # Not supported by this provider
+    # HTTP helper (requests; retry/backoff; short cache) — reused by roster + gamelog
     # ------------------------------------------------------------------
-    def fetch_player_game_logs(self, player_id: int, last_n: int = 10) -> list[GameLog]:
-        raise ProviderNotImplemented(
-            "espn.fetch_player_game_logs — not supported by this provider"
-        )
+    def _get_json(self, url: str, cache_key: str, params: dict | None = None) -> dict:
+        if not C.ENABLE_ESPN_FALLBACK:
+            raise ProviderUnavailable("ESPN fallback disabled — set ENABLE_ESPN_FALLBACK=true")
+        cached = _cache_get(cache_key)
+        if cached is not None:
+            self._mark_ok()
+            return cached
+        try:
+            import requests
+        except ImportError as e:
+            self._mark_err(str(e))
+            raise ProviderUnavailable(f"requests not installed: {e}") from e
+        last_err: Exception | None = None
+        for attempt in range(C.HTTP_MAX_RETRIES):
+            try:
+                r = requests.get(
+                    url, params=params or {}, timeout=C.HTTP_TIMEOUT_SECONDS,
+                    headers={"User-Agent": "GametimePicks/0.5 (+https://github.com/yashwantbalaji3/gametimepicks)"},
+                )
+                if r.status_code in (429, 503):
+                    last_err = Exception(f"ESPN status {r.status_code}")
+                    if attempt < C.HTTP_MAX_RETRIES - 1:
+                        time.sleep(C.HTTP_BACKOFF_SECONDS * (attempt + 1))
+                    continue
+                r.raise_for_status()
+                data = r.json()
+                _cache_put(cache_key, data)
+                self._mark_ok()
+                return data
+            except Exception as e:  # noqa: BLE001 — bounded retry boundary
+                last_err = e
+                if attempt < C.HTTP_MAX_RETRIES - 1:
+                    time.sleep(C.HTTP_BACKOFF_SECONDS * (attempt + 1))
+        self._mark_err(str(last_err))
+        raise ProviderRequestFailed(f"ESPN request failed ({url}): {last_err}")
 
+    # ------------------------------------------------------------------
+    # Rosters + player game logs (free ESPN JSON; works where stats.nba.com is blocked)
+    # ------------------------------------------------------------------
     def fetch_team_roster(self, team_abbr: str) -> list[Player]:
-        raise ProviderNotImplemented(
-            "espn.fetch_team_roster — not supported by this provider"
-        )
+        tid = _espn_team_id(team_abbr)
+        if not tid:
+            raise ProviderRequestFailed(f"espn: unknown team abbr '{team_abbr}'")
+        data = self._get_json(f"{API_BASE}/teams/{tid}/roster", f"roster_{tid}")
+        return _parse_roster_athletes(data, team_abbr)
+
+    def fetch_player_game_logs(self, player_id: int, last_n: int = 10) -> list[GameLog]:
+        data = self._get_json(f"{GAMELOG_BASE}/athletes/{int(player_id)}/gamelog",
+                              f"gamelog_{int(player_id)}")
+        logs = _parse_gamelog(data, int(player_id), last_n=last_n)
+        if not logs:
+            raise ProviderRequestFailed(
+                f"espn: no game-log rows parsed for athlete {player_id}")
+        return logs
 
     def fetch_box_score(self, game_id: str) -> list[GameLog]:
         raise ProviderNotImplemented(

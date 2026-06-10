@@ -71,6 +71,11 @@ on:
         type: boolean
         required: false
         default: false
+      nba_data_provider:
+        description: "Override NBA stats provider for this run (e.g. espn_scoreboard when stats.nba.com is blocked). Empty = default."
+        type: string
+        required: false
+        default: ""
 
 concurrency:
   group: morning-projections
@@ -118,7 +123,7 @@ jobs:
       # NBA data-provider chain primary. Default nba_api; override to "balldontlie"
       # when nba_api is IP-blocked from CI (the chain still falls back). Real data
       # only — never invents stats.
-      NBA_DATA_PROVIDER: ${{ vars.NBA_DATA_PROVIDER || 'nba_api' }}
+      NBA_DATA_PROVIDER: ${{ github.event.inputs.nba_data_provider || vars.NBA_DATA_PROVIDER || 'nba_api' }}
 
     steps:
       - name: Checkout
