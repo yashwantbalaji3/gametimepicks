@@ -328,7 +328,7 @@ export default function HomePage() {
               className="text-[13px] sm:text-[14px] leading-snug"
               style={{ color: "var(--vault-text-mute)", maxWidth: "46ch" }}
             >
-              Player-prop parlays grouped by risk — saved before first pitch and
+              Player-prop parlays grouped by risk — saved before games start and
               graded after. Honest paper tracking, not betting advice.
             </p>
             <div className="flex flex-wrap gap-2.5 pt-1">
@@ -383,7 +383,7 @@ export default function HomePage() {
           <HomePathCards cards={pathCards} />
         </div>
 
-        {/* 2 · Top Pick of the Day (Bank Builder = safest conservative stack) */}
+        {/* 2 · Top Pick of the Day (Bank Builder = most conservative stack) */}
         {featured && (
           <div className="order-2 xl:order-2 xl:col-span-8">
             <ModuleCard

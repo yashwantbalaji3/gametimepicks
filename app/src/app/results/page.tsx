@@ -181,6 +181,20 @@ export default function ResultsPage() {
     // reads better for dense parlay data. Cards inherit
     // `--gtp-card-dark` for elevated charcoal.
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+      {/* Plain-English "how to read this page" — collapsed by default so it
+         orients new users without adding clutter. Copy only. */}
+      <details className="mb-4 rounded-[8px] px-4 py-3" style={{ background: "var(--gtp-card)", border: "1px solid var(--vault-rule)" }}>
+        <summary className="cursor-pointer text-[12.5px] font-semibold" style={{ color: "var(--vault-text-mute)" }}>
+          How to read this page
+        </summary>
+        <ul className="mt-2 pl-4 flex flex-col gap-1 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", listStyle: "disc" }}>
+          <li><strong>Projection accuracy</strong> — how often individual player projections beat the line (the cleanest read on model quality).</li>
+          <li><strong>Published cards</strong> — the parlays actually shown to users on Suggested Parlays; <strong>all generated cards</strong> is the broader model output tracked internally.</li>
+          <li><strong>Only settled outcomes count</strong> toward hit rate — pending games are not counted yet; pushes are listed separately.</li>
+          <li>Detailed per-slip rows are tucked under the sections below. Educational analytics — not betting advice.</li>
+        </ul>
+      </details>
+
       {/* Lead with LEG-LEVEL projection accuracy — the cleaner read on model
          quality than parlay (card) hit rate, which is naturally low because
          every leg must hit. Settled-only, real graded data. */}
