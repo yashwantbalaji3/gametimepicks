@@ -60,10 +60,25 @@ def build(now: datetime | None = None) -> dict:
         blockers.append("no prop markets from current sportsbook feed (The Odds API MMA = h2h only)")
         next_actions.append("connect a prop-odds provider (see ufc-prop-odds-provider-search) to unlock method/distance/round")
 
+    beta_proj = _load("beta-projections-latest.json")
+    beta_parlays = _load("beta-suggested-parlays-latest.json")
+    beta = {
+        "betaProjectionsEligible": bool(beta_proj.get("betaProjectionsEligible")),
+        "betaParlaysEligible": bool(beta_parlays.get("betaParlaysEligible")),
+        "officiallyValidated": False,  # always false while backtest is not ready
+        "marketScope": "h2h_moneyline_only",
+        "betaProjectionCount": len(beta_proj.get("projections", [])),
+        "betaParlayCount": len(beta_parlays.get("cards", [])),
+        "reason": ("Beta uses real card schedule, real sportsbook moneylines, and "
+                   "fighter statistics with a conservative model; official validation "
+                   "(backtest) is still collecting."),
+    }
+
     return {
         "generatedAt": ref.isoformat(timespec="seconds"),
         "currentStage": stage,
         "currentStageName": stage_name,
+        "beta": beta,
         "nextCard": {"eventName": sched.get("eventName"), "eventDate": sched.get("eventDate"),
                      "fightCount": sched.get("fightCount"), "isRealCard": sched.get("isRealCard")},
         "scheduleStatus": "ready" if sR else "pending",

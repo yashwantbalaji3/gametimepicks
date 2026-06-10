@@ -71,6 +71,15 @@ function loadOps(): OpsStatus | null {
   try { return JSON.parse(fs.readFileSync(p, "utf-8")) as OpsStatus; } catch { return null; }
 }
 
+type BetaProjection = { fighter: string; opponent: string; oddsPrice: number; marketImpliedProbability: number; modelProbability: number; label: string };
+type BetaProjections = { betaProjectionsEligible: boolean; officiallyValidated: boolean; eventName?: string; generatedAt?: string; disclaimer?: string; projections: BetaProjection[] };
+type BetaCard = { riskLabel: string; legs: { fighter: string; modelProbability: number }[]; modelCombinedProbability?: number };
+type BetaParlays = { betaParlaysEligible: boolean; cards: BetaCard[]; disclaimer?: string };
+
+function loadJSONUfc<T>(name: string): T | null {
+  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", name), "utf-8")) as T; } catch { return null; }
+}
+
 const fmtAmerican = (p: number) => (p > 0 ? `+${p}` : `${p}`);
 const fmtDate = (iso?: string) => {
   if (!iso) return "";
@@ -89,7 +98,12 @@ export default function UfcPage() {
   const r = loadReadiness();
   const odds = loadOdds();
   const ops = loadOps();
+  const betaProj = loadJSONUfc<BetaProjections>("beta-projections-latest.json");
+  const betaParlays = loadJSONUfc<BetaParlays>("beta-suggested-parlays-latest.json");
+  const showBetaProj = Boolean(betaProj?.betaProjectionsEligible && betaProj.projections?.length);
+  const showBetaParlays = Boolean(betaParlays?.betaParlaysEligible && betaParlays.cards?.length);
   const pct = ops ? Math.min(100, Math.round((ops.cleanGradedRows / Math.max(1, ops.targetRowsForPublicMoneyline)) * 100)) : 0;
+  const pctOdds = (p: number) => `${Math.round(p * 100)}%`;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -101,8 +115,10 @@ export default function UfcPage() {
           UFC coverage is being built
         </h1>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-300">
-          {r.publicMessage} Everything here is educational analytics — no wagers, no
-          guarantees, and no predictions until the data and backtesting gates pass.
+          {r.publicMessage} Everything here is educational analytics — no wagers and no
+          guarantees. {showBetaProj
+            ? "Beta model projections below are experimental and not yet backtested; official validated picks stay gated until backtesting passes."
+            : "No predictions until the data and backtesting gates pass."}
         </p>
       </header>
 
@@ -185,6 +201,81 @@ export default function UfcPage() {
             sportsbook feed</strong> — a prop-odds provider is being evaluated. Moneyline
             publishes first.
           </p>
+        </section>
+      )}
+
+      {/* PUBLIC BETA — moneyline projections (experimental, not yet backtested) */}
+      {showBetaProj && betaProj && (
+        <section className="mb-10 rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-5">
+          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
+              <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-amber-300">BETA</span>
+              Moneyline projections — {betaProj.eventName}
+            </h2>
+            <span className="text-[11px] text-zinc-500">updated {fmtDate(betaProj.generatedAt)}</span>
+          </div>
+          <p className="mb-4 text-[12.5px] leading-relaxed text-amber-200/80">
+            Beta model projections · <strong>moneyline only</strong> · not yet fully
+            backtested. These are experimental model outputs from real schedule, real
+            sportsbook lines, and fighter statistics — educational only, not betting
+            advice and not an official validated pick. Official validated picks unlock
+            after the backtest criteria are met.
+          </p>
+          <ul className="flex flex-col gap-2">
+            {betaProj.projections.map((p, i) => {
+              const favorsFighter = p.modelProbability >= 0.5;
+              const fav = favorsFighter ? p.fighter : p.opponent;
+              const favProb = favorsFighter ? p.modelProbability : 1 - p.modelProbability;
+              return (
+                <li key={i} className="rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-[14px] font-semibold text-zinc-100">{p.fighter} <span className="text-zinc-500">vs</span> {p.opponent}</span>
+                    <span className="rounded-md bg-zinc-800 px-2 py-0.5 text-[11px] font-medium text-zinc-300">{p.label}</span>
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 text-[12px] text-zinc-400">
+                    <span>Model lean: <strong className="text-zinc-200">{fav}</strong> {pctOdds(favProb)}</span>
+                    <span>Market implied: {pctOdds(p.marketImpliedProbability)}</span>
+                    <span>Price: {fmtAmerican(p.oddsPrice)}</span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {/* PUBLIC BETA — suggested parlays (conservative, moneyline only) */}
+      {showBetaParlays && betaParlays && (
+        <section className="mb-10 rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-5">
+          <h2 className="mb-2 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
+            <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-amber-300">BETA</span>
+            Suggested parlays — experimental
+          </h2>
+          <p className="mb-4 text-[12.5px] leading-relaxed text-amber-200/80">
+            Conservative beta cards built only from moneyline legs — no props, no
+            same-fight combinations. Experimental and not yet validated; educational
+            only, not betting advice.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {betaParlays.cards.map((c, i) => (
+              <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                <div className="mb-2 flex items-baseline justify-between">
+                  <span className="text-[13px] font-semibold text-zinc-100">{c.riskLabel}</span>
+                  {typeof c.modelCombinedProbability === "number" && (
+                    <span className="text-[11px] text-zinc-400">model combined {pctOdds(c.modelCombinedProbability)}</span>
+                  )}
+                </div>
+                <ul className="flex flex-col gap-1.5">
+                  {c.legs.map((l, j) => (
+                    <li key={j} className="flex items-center justify-between text-[12.5px] text-zinc-300">
+                      <span>{l.fighter}</span>
+                      <span className="tabular-nums text-zinc-500">{pctOdds(l.modelProbability)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </section>
       )}
 
