@@ -10,7 +10,13 @@
  * a React tree.
  */
 
-export type MobileNavBucket = "home" | "picks" | "lab" | "results" | "sports";
+export type MobileNavBucket =
+  | "home"
+  | "picks"
+  | "lab"
+  | "bank"
+  | "results"
+  | "sports";
 
 export interface MobileNavItem {
   bucket: MobileNavBucket;
@@ -23,25 +29,23 @@ export interface MobileNavItem {
  * preserved by the consumer (the component renders these in order).
  *
  * Honesty / scope notes:
- *   - 5 items max — 5 is the upper bound for comfortable 375px thumb
+ *   - 5 items max — 5 is the upper bound for comfortable 360px thumb
  *     targets; anything beyond that crowds the labels.
- *   - Labels MATCH the mobile top nav so the same destination reads the
- *     same in both navs: "Projections" (/projections), "Parlay Lab"
- *     (/parlay-lab), "Sports" (/events). The `picks`/`lab`/`sports`
- *     *bucket ids* are route-resolution keys; only the visible labels
- *     are user-facing.
- *   - Sports points at /events (the Sports & Events hub) — surfaced
- *     here because the schedule-only leagues are otherwise buried in the
- *     scrollable top strip on mobile.
- *   - No "About" / "Bank Builder" — those live in the top nav. Bottom
- *     nav stays minimal to be useful one-handed.
+ *   - Bank Builder is a flagship journey, so it earns a bottom-nav slot
+ *     (the user reaches the paper-bankroll ladder one-handed). "Sports"
+ *     (/events, schedule-only leagues) was the least core of the five, so
+ *     it moves to the scrollable top nav to make room.
+ *   - Labels MATCH the mobile top nav where the destination is the same:
+ *     "Projections" (/projections), "Results" (/results). "Parlays" and
+ *     "Bank" are abbreviated for thumb-width. The bucket ids are
+ *     route-resolution keys; only the visible labels are user-facing.
  */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "home", href: "/", label: "Home" },
   { bucket: "picks", href: "/projections", label: "Projections" },
-  { bucket: "lab", href: "/parlay-lab", label: "Parlay Lab" },
+  { bucket: "lab", href: "/parlay-lab", label: "Parlays" },
+  { bucket: "bank", href: "/bank-builder", label: "Bank" },
   { bucket: "results", href: "/results", label: "Results" },
-  { bucket: "sports", href: "/events", label: "Sports" },
 ] as const;
 
 /**
@@ -82,6 +86,7 @@ export function resolveMobileNavBucket(
   if (p === "" || p === "/") return "home";
   if (p === "/projections" || p.startsWith("/projections/")) return "picks";
   if (p === "/parlay-lab" || p.startsWith("/parlay-lab/")) return "lab";
+  if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
   if (p === "/results" || p.startsWith("/results/")) return "results";
   // NBA + MLB boards have real projections / player props → picks.
   if (p === "/nba" || p.startsWith("/nba/")) return "picks";

@@ -15,22 +15,25 @@ test("MOBILE_NAV_ITEMS has 5 items in the documented order", () => {
   assert.equal(MOBILE_NAV_ITEMS.length, 5);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "picks", "lab", "results", "sports"],
+    ["home", "picks", "lab", "bank", "results"],
   );
 });
 
-test("MOBILE_NAV_ITEMS labels match the mobile top-nav names", () => {
-  // Regression guard for the nav-consistency fix: the bottom nav must
-  // not relabel a destination. The same href must read the same in both
-  // navs.
+test("MOBILE_NAV_ITEMS labels are correct (Bank Builder earns a slot)", () => {
   const byHref = Object.fromEntries(
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
   assert.equal(byHref["/"], "Home");
   assert.equal(byHref["/projections"], "Projections");
-  assert.equal(byHref["/parlay-lab"], "Parlay Lab");
+  assert.equal(byHref["/parlay-lab"], "Parlays");
+  assert.equal(byHref["/bank-builder"], "Bank");
   assert.equal(byHref["/results"], "Results");
-  assert.equal(byHref["/events"], "Sports");
+});
+
+test("bank: /bank-builder and descendants resolve to bank", () => {
+  assert.equal(resolveMobileNavBucket("/bank-builder"), "bank");
+  assert.equal(resolveMobileNavBucket("/bank-builder/"), "bank");
+  assert.equal(resolveMobileNavBucket("/bank-builder/ledger"), "bank");
 });
 
 test("home: '/' and '' resolve to home", () => {

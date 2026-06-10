@@ -123,10 +123,12 @@ export function calibratedConfidenceLabelFromTable(
 
   if (health === "inverted") {
     return {
-      // Public-facing label — plain language, no internal "calibration"
-      // jargon. An inverted tier isn't reliably outperforming a lower tier
-      // on settled data yet, so we tell the user it still needs validation.
-      label: "Needs more tracking",
+      // Public-facing label — confident but honest. A downgraded tier isn't
+      // reliably outperforming a lower tier on settled data yet, so we present
+      // it as a neutral "Model lean" (NOT a top-tier signal) rather than a
+      // warning-styled badge. The muted color + tooltip `reason` carry the
+      // nuance; the visible chip never reads as an alarm.
+      label: "Model lean",
       health,
       downgraded: true,
       reason:

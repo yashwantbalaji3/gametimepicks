@@ -18,7 +18,7 @@
  *   - Desktop: centered modal with max-width.
  *   - Focus trap is light-touch (focuses the close button on open).
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ParlayLeg } from "@/lib/parlay-suggested";
 import { takeNewestFirst } from "@/lib/recent-form-order";
 import { humanMarketLabel } from "@/lib/market-label";
@@ -33,6 +33,7 @@ interface Props {
 
 export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
   const closeRef = useRef<HTMLButtonElement | null>(null);
+  const [showLast10, setShowLast10] = useState(false);
 
   useEffect(() => {
     if (!leg) return;
@@ -66,8 +67,16 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
   // them (date/opponent/isHome). Otherwise fall back to the legacy
   // numeric series — never fabricate dates or opponents we don't have
   // on disk.
-  const enriched = takeNewestFirst(recentGamesOldestFirst, 5);
-  const recent5 = takeNewestFirst(seriesOldestFirst, 5);
+  // Default to the last 5 games (clear, immediate pattern). The optional
+  // toggle expands to the last 10 only when the user asks — never the default.
+  const totalAvailable = Math.max(
+    recentGamesOldestFirst.length,
+    seriesOldestFirst.length,
+  );
+  const canExpand = totalAvailable > 5;
+  const windowN = showLast10 && canExpand ? 10 : 5;
+  const enriched = takeNewestFirst(recentGamesOldestFirst, windowN);
+  const recent5 = takeNewestFirst(seriesOldestFirst, windowN);
   const recentAvg =
     recentGamesOldestFirst.length > 0
       ? recentGamesOldestFirst.reduce((sum, r) => sum + (r.value ?? 0), 0) /
@@ -106,19 +115,24 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
         className="absolute inset-0"
         style={{ background: "rgba(0,0,0,0.65)" }}
       />
-      {/* Sheet / modal */}
+      {/* Sheet / modal — flex column so the header stays put and the body
+          scrolls independently. Uses 90dvh (dynamic viewport height) so mobile
+          browser chrome never clips the bottom; falls back to vh on older UAs. */}
       <div
-        className="relative w-full sm:max-w-md sm:rounded-[10px] rounded-t-[14px] overflow-hidden"
+        className="relative w-full sm:max-w-md sm:rounded-[10px] rounded-t-[14px] overflow-hidden flex flex-col"
         style={{
           background: "rgba(7,11,26,0.97)",
           border: "1px solid var(--vault-border)",
-          maxHeight: "85vh",
+          maxHeight: "90dvh",
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <header
-          className="flex items-center justify-between gap-3 px-4 py-3"
-          style={{ borderBottom: "1px solid var(--vault-rule)" }}
+          className="flex items-center justify-between gap-3 px-4 py-3 shrink-0"
+          style={{
+            borderBottom: "1px solid var(--vault-rule)",
+            background: "rgba(7,11,26,0.97)",
+          }}
         >
           <div className="flex items-center gap-3 min-w-0">
             <PlayerAvatar
@@ -126,7 +140,7 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
               playerName={leg.playerName}
               team={leg.team ?? undefined}
               sport={(leg.sport === "mlb" || leg.sport === "nba") ? (leg.sport as "mlb" | "nba") : "nba"}
-              size="lg"
+              size="xl"
             />
             <div className="flex flex-col min-w-0">
               <span
@@ -186,7 +200,10 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
           </button>
         </header>
 
-        <div className="px-4 py-3 flex flex-col gap-3 overflow-y-auto">
+        <div
+          className="px-4 py-3 flex flex-col gap-3 overflow-y-auto flex-1 min-h-0"
+          style={{ overscrollBehavior: "contain" }}
+        >
           <PickSummary leg={leg} stat={stat} />
           {sparklineValues.length > 0 && (
             <TrendPanel
@@ -204,6 +221,22 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
             clearedCount={clearedCount}
             windowSize={recent5.length}
           />
+          {canExpand && (
+            <button
+              type="button"
+              onClick={() => setShowLast10((v) => !v)}
+              className="self-start font-mono uppercase tracking-[0.14em] px-2.5 py-1 rounded-[4px]"
+              style={{
+                color: "var(--vault-gold-bright)",
+                border: "1px solid var(--vault-rule)",
+                fontSize: 10,
+                cursor: "pointer",
+              }}
+              aria-pressed={showLast10}
+            >
+              {showLast10 ? "Show last 5" : "Show last 10"}
+            </button>
+          )}
           {enriched.length > 0 ? (
             <EnrichedRecentList
               games={enriched}

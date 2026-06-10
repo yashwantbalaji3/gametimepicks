@@ -33,7 +33,7 @@ interface Props {
    *  callers keep working. MLB players resolve via the official MLB
    *  Stats people CDN, which is the same source mlb.com itself uses. */
   sport?: "nba" | "mlb";
-  size?: "xs" | "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   /** When true, no border/glow — for tight contexts like leg rows. */
   flat?: boolean;
 }
@@ -43,6 +43,7 @@ const SIZE_PX: Record<NonNullable<Props["size"]>, number> = {
   sm: 32,
   md: 44,
   lg: 64,
+  xl: 84,
 };
 
 function initialsFor(name: string): string {
@@ -61,8 +62,10 @@ export default function PlayerAvatar({
   flat,
 }: Props) {
   const px = SIZE_PX[size];
-  const fontPx = size === "xs" ? 9 : size === "sm" ? 11 : size === "md" ? 14 : 18;
-  const teamChipPx = size === "xs" ? 7 : size === "sm" ? 8 : size === "md" ? 9 : 10;
+  const fontPx =
+    size === "xs" ? 9 : size === "sm" ? 11 : size === "md" ? 14 : size === "xl" ? 24 : 18;
+  const teamChipPx =
+    size === "xs" ? 7 : size === "sm" ? 8 : size === "md" ? 9 : size === "xl" ? 11 : 10;
 
   // Start in the photo state when we have a playerId; otherwise jump
   // straight to fallback.
