@@ -31,13 +31,17 @@ from __future__ import annotations
 
 from typing import Any, Iterable
 
-SUPPORTED_MARKETS = ("PTS", "REB", "AST")
+SUPPORTED_MARKETS = ("PTS", "REB", "AST", "3PM", "PRA", "BLK", "STL")
 
 # Map market label → log attribute / dict key
 _MARKET_TO_FIELD = {
     "PTS": "pts",
     "REB": "reb",
     "AST": "ast",
+    "3PM": "fg3m",
+    "BLK": "blk",
+    "STL": "stl",
+    # "PRA" is a composite (pts + reb + ast) handled by _market_value.
 }
 
 
@@ -46,6 +50,18 @@ def _get_field(log: Any, key: str) -> Any:
     if isinstance(log, dict):
         return log.get(key)
     return getattr(log, key, None)
+
+
+def _market_value(log: Any, market: str) -> Any:
+    """Stat value for a market. PRA is the pts+reb+ast composite; everything else
+    reads its mapped field. Returns None if any required component is missing."""
+    if market == "PRA":
+        parts = [_get_field(log, "pts"), _get_field(log, "reb"), _get_field(log, "ast")]
+        if any(not _is_real_number(x) for x in parts):
+            return None
+        return float(parts[0]) + float(parts[1]) + float(parts[2])
+    field = _MARKET_TO_FIELD.get(market)
+    return _get_field(log, field) if field else None
 
 
 def _is_real_number(v: Any) -> bool:
@@ -83,7 +99,6 @@ def extract_recent10(
     if market not in SUPPORTED_MARKETS:
         return []
 
-    field = _MARKET_TO_FIELD[market]
     if not isinstance(last_n, int) or last_n <= 0:
         return []
 
@@ -94,7 +109,7 @@ def extract_recent10(
         date = _get_field(log, "game_date")
         if not isinstance(date, str) or len(date) < 8:
             continue
-        v = _get_field(log, field)
+        v = _market_value(log, market)
         if not _is_real_number(v):
             continue
         valid.append((date, float(v)))
@@ -175,7 +190,6 @@ def extract_recent_games(
     """
     if market not in SUPPORTED_MARKETS:
         return []
-    field = _MARKET_TO_FIELD[market]
     if not isinstance(last_n, int) or last_n <= 0:
         return []
     # Same valid-row filter as `extract_recent10`.
@@ -184,7 +198,7 @@ def extract_recent_games(
         date = _get_field(log, "game_date")
         if not isinstance(date, str) or len(date) < 8:
             continue
-        v = _get_field(log, field)
+        v = _market_value(log, market)
         if not _is_real_number(v):
             continue
         opp = _get_field(log, "opponent_abbr")
