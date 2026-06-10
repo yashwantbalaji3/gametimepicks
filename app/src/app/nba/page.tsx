@@ -23,6 +23,8 @@ import { currentEtDate, dayLabelFor } from "@/lib/freshness";
 import { formatDateLong } from "@/lib/format";
 
 import NbaSectionTabs from "@/components/nba/nba-section-tabs";
+import GameOutlookSection from "@/components/game-outlook-card";
+import { getGameOutlook } from "@/lib/data-game-outlook";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
@@ -116,6 +118,8 @@ export default function NbaLandingPage() {
   const primaryLabel = propsLoaded
     ? "View today's projections"
     : "Open model board";
+
+  const gameOutlook = getGameOutlook("nba");
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -225,6 +229,8 @@ export default function NbaLandingPage() {
           </div>
         )}
       </section>
+
+      <GameOutlookSection outlook={gameOutlook} />
 
       <QuickActionRail
         heading="More on NBA"

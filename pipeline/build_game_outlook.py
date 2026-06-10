@@ -38,14 +38,25 @@ def derive_game(g: dict) -> dict:
     else:
         missing.append("moneyline")
     line = total.get("line")
+    over, under = total.get("over"), total.get("under")
+    # Honest data-quality guard: a TRUE main total has balanced juice (~ -110/-110).
+    # When both sides are far from even (max raw implied prob > 0.70) the line is an
+    # alternate / stale opener, NOT the consensus main total — drop it rather than
+    # display a misleading number. We do NOT invent a replacement; we flag it missing.
+    suspect_total = (
+        isinstance(over, (int, float)) and isinstance(under, (int, float))
+        and max(american_to_probability(over), american_to_probability(under)) > 0.70
+    )
     sp_home = spread.get("home")
+    valid_total = isinstance(line, (int, float)) and not suspect_total
     team_home = team_away = None
-    if isinstance(line, (int, float)) and isinstance(sp_home, (int, float)):
+    if valid_total and isinstance(sp_home, (int, float)):
         # total = home + away ; home - away = -spread.home
         team_home = _round((line - sp_home) / 2.0)
         team_away = _round((line + sp_home) / 2.0)
-    if not isinstance(line, (int, float)):
-        missing.append("total")
+    if not valid_total:
+        line = None
+        missing.append("total_suspect_juice" if suspect_total else "total")
     if not isinstance(sp_home, (int, float)):
         missing.append("spread")
     return {
@@ -55,10 +66,14 @@ def derive_game(g: dict) -> dict:
         "moneyline": ml or None,
         "impliedWinProbHome": win_home, "impliedWinProbAway": win_away,
         "spread": spread or None,
-        "total": line if isinstance(line, (int, float)) else None,
+        "total": line,
         "teamTotalHome": team_home, "teamTotalAway": team_away,
         "bookmaker": g.get("bookmaker"),
         "lastUpdate": g.get("lastUpdate"),
+        # hasMarket drives the UI: true when there's a real win prob OR a trustworthy
+        # total. A game with only a stale alternate / no main markets renders the
+        # friendly "market not posted yet" state instead of a misleading partial card.
+        "hasMarket": (win_home is not None) or (line is not None),
         "missing": missing,
     }
 
