@@ -1,22 +1,24 @@
 {
   "generatedFor": "2026-06-11",
-  "generatedAt": "2026-06-10T20:49:39+00:00",
-  "dataSources": [],
+  "generatedAt": "2026-06-10T20:55:05+00:00",
+  "dataSources": [
+    "multi_source"
+  ],
   "isDemo": false,
   "leans": [],
-  "scheduleAvailable": false,
+  "scheduleAvailable": true,
   "propsAvailable": false,
-  "scheduleSource": "unavailable",
+  "scheduleSource": "multi_source",
   "oddsSource": "unavailable",
   "games": [],
-  "dataMode": "ScheduleUnavailable",
-  "failureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
+  "dataMode": "NoGames",
+  "failureReason": null,
   "requestedDate": "2026-06-11",
   "timezone": "America/New_York",
-  "scheduleProviderStatus": "failed",
+  "scheduleProviderStatus": "ok",
   "scheduleFetchAttempted": true,
-  "scheduleFetchSucceeded": false,
-  "scheduleFailureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
+  "scheduleFetchSucceeded": true,
+  "scheduleFailureReason": null,
   "rawGameCountBeforeFiltering": 0,
   "parsedGameCountAfterFiltering": 0,
   "manualOverrideUsed": false,
@@ -24,15 +26,15 @@
   "endpointHistory": [
     {
       "endpoint": "scoreboardv2",
-      "status": "error",
+      "status": "ok",
       "raw_count": 0,
-      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)"
+      "error": null
     },
     {
       "endpoint": "leaguegamefinder",
-      "status": "error",
+      "status": "ok",
       "raw_count": 0,
-      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)"
+      "error": null
     }
   ],
   "scheduleProviderHistory": [
@@ -44,9 +46,9 @@
     },
     {
       "provider": "nba_api",
-      "status": "failed",
+      "status": "ok",
       "games": 0,
-      "error": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)"
+      "error": null
     },
     {
       "provider": "espn_scoreboard",

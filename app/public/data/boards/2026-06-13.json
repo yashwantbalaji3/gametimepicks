@@ -1,6 +1,6 @@
 {
   "generatedFor": "2026-06-13",
-  "generatedAt": "2026-06-10T20:51:20+00:00",
+  "generatedAt": "2026-06-10T20:55:06+00:00",
   "dataSources": [
     "espn_scoreboard",
     "the_odds_api"
@@ -39,14 +39,14 @@
     {
       "endpoint": "scoreboardv2",
       "status": "error",
-      "raw_count": 0,
-      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)"
+      "raw_count": 1,
+      "error": "int() argument must be a string, a bytes-like object or a real number, not 'NoneType'"
     },
     {
       "endpoint": "leaguegamefinder",
-      "status": "error",
+      "status": "ok",
       "raw_count": 0,
-      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)"
+      "error": null
     }
   ],
   "scheduleProviderHistory": [
@@ -58,9 +58,9 @@
     },
     {
       "provider": "nba_api",
-      "status": "failed",
+      "status": "ok",
       "games": 0,
-      "error": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)"
+      "error": null
     },
     {
       "provider": "espn_scoreboard",
@@ -77,11 +77,11 @@
   "matchedOddsEventCount": 0,
   "attemptedOddsEventCount": 0,
   "parsedPropCount": 0,
-  "oddsCacheStatus": "miss",
-  "oddsCachedAt": null,
-  "oddsQuotaRemaining": 19315,
-  "oddsQuotaUsed": 685,
-  "oddsLastCallCost": 0,
+  "oddsCacheStatus": "fresh",
+  "oddsCachedAt": "2026-06-10T20:51:20.242997+00:00",
+  "oddsQuotaRemaining": null,
+  "oddsQuotaUsed": null,
+  "oddsLastCallCost": null,
   "oddsCostEstimatePerRun": 0,
   "oddsBookmakers": [
     "draftkings",
