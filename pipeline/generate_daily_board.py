@@ -822,6 +822,10 @@ def _score_real_props(
     # leave team blank and label confidence = "insufficient_data".
     rosters_by_team: dict[str, list] = {}
     name_to_team: dict[str, str] = {}
+    # normalized name -> provider roster player_id. Only TRUSTED as a game-log id
+    # when the active stats provider is the SAME one that returned the roster (so
+    # the id space matches). Used for ESPN, whose athlete ids differ from nba_api's.
+    roster_id_by_name: dict[str, int] = {}
     name_to_pid: dict[str, int] = {}
 
     def _normalize_name_key(name: str) -> str:
@@ -847,6 +851,8 @@ def _score_real_props(
                 # key — bookmakers often drop accent marks.
                 name_to_team.setdefault(p.player_name, team_abbr)
                 name_to_team.setdefault(_normalize_name_key(p.player_name), team_abbr)
+                if getattr(p, "player_id", 0):
+                    roster_id_by_name.setdefault(_normalize_name_key(p.player_name), p.player_id)
                 # PR 6: provider-supplied playerIds are NOT NBA-canonical.
                 # Observed failure: a roster provider returned id=1630224
                 # for "Anthony Edwards", but in nba_api's static index that
@@ -892,6 +898,14 @@ def _score_real_props(
         # PR 6: canonical resolver via nba_api static index. Returns 0
         # when no confident match - caller marks confidence=insufficient_data.
         player_id, _resolve_conf = resolve_player_id(p.player_name)
+        # When the active stats provider is ESPN, game logs are fetched from
+        # ESPN's athlete endpoint, which uses ESPN athlete ids — NOT nba_api's.
+        # Use the id from the ESPN roster we just fetched (same id space), so the
+        # gamelog lookup resolves instead of 404-ing on an nba_api id.
+        if C.NBA_DATA_PROVIDER == "espn_scoreboard":
+            espn_pid = roster_id_by_name.get(_normalize_name_key(p.player_name))
+            if espn_pid:
+                player_id, _resolve_conf = espn_pid, "espn_roster"
 
         # Fetch features if we have an ID and haven't already
         scored = None
