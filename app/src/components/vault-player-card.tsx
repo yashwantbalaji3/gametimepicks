@@ -239,13 +239,13 @@ function buildLeanReasonBullets(input: BulletInput): ReasonBullet[] {
   }
 
   // 6. Guardrail explanation — paired with the confidence cap. Use the
-  // calmer "Calibration watch" framing on anomalies so the card never
+  // calmer "downgrade label" framing on anomalies so the card never
   // reads as "free money even though the model says no".
   const gr = input.guardrail;
   const orig = input.originalConfidence;
   if (gr === "R5_suspicious_edge") {
     bullets.push({
-      label: "Calibration watch",
+      label: "Higher variance",
       text: `Edge is unusually wide (≥25%). Confidence is capped at Low${
         orig ? ` — the raw model said ${orig}.` : "."
       }`,
@@ -253,14 +253,14 @@ function buildLeanReasonBullets(input: BulletInput): ReasonBullet[] {
     });
   } else if (gr === "R2_extreme_edge_thin_sample") {
     bullets.push({
-      label: "Calibration watch",
+      label: "Higher variance",
       text:
         "Edge above 30% on a thin sample — the model declines to lean here.",
       tone: "warn",
     });
   } else if (gr === "R3_thin_sample_capped_medium") {
     bullets.push({
-      label: "Calibration watch",
+      label: "Limited history",
       text: `Fewer than 8 recent games — confidence capped at Medium${
         orig ? ` (originally ${orig}).` : "."
       }`,
@@ -268,7 +268,7 @@ function buildLeanReasonBullets(input: BulletInput): ReasonBullet[] {
     });
   } else if (gr === "R4_thin_sample_capped_low") {
     bullets.push({
-      label: "Calibration watch",
+      label: "Limited history",
       text: `Fewer than 5 recent games — confidence capped at Low${
         orig ? ` (originally ${orig}).` : "."
       }`,
@@ -276,7 +276,7 @@ function buildLeanReasonBullets(input: BulletInput): ReasonBullet[] {
     });
   } else if (gr === "R1_no_logs_insufficient_data") {
     bullets.push({
-      label: "Calibration watch",
+      label: "Limited history",
       text: "Recent log data unavailable — the model can't grade this prop yet.",
       tone: "warn",
     });
@@ -588,7 +588,7 @@ function MarketRowView({ row }: { row: MarketRow }) {
 
       {/* REASON — bulleted explanation (iteration 4). Each bullet has a
           short mono-uppercase label ("Projection", "Recent form",
-          "Minutes", "Context", "Calibration watch", "Verdict") so the
+          "Minutes", "Context", "downgrade label", "Verdict") so the
           reading rhythm reads as a sportsbook readout rather than a
           paragraph. Tagged bullets are sourced only from data already
           on the lean. */}

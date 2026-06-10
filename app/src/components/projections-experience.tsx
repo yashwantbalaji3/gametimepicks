@@ -1065,7 +1065,7 @@ function PlayerAccordion({
   const confLabel = top
     ? calibrated?.label ?? confidenceLabel(top.confidence)
     : "";
-  // Downgraded labels (e.g. "Calibration watch") use a muted warn
+  // Downgraded labels (e.g. "downgrade label") use a muted warn
   // color so they don't read as Strong signals.
   const confColor = top
     ? calibrated?.downgraded

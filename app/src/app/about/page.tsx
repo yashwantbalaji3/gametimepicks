@@ -181,9 +181,9 @@ export default function AboutPage() {
               on 141, Low 53.3% on 435. Low is still the best MLB
               cohort, but only ONE rival now beats High by ≥1.5pp
               (was both before May 22). The calibration overlay
-              auto-promotes MLB High from &quot;Calibration
-              watch&quot; back to its raw label. The decision rule
-              is locked by tests — we only invert when ≥ 2 rivals
+              auto-promotes MLB High from a &quot;Needs more
+              tracking&quot; downgrade back to its raw label. The
+              decision rule is pinned by tests — we only invert when ≥ 2 rivals
               beat by ≥ 1.5pp, so a single best-tier (Low) can&apos;t
               trigger inversion.
             </li>

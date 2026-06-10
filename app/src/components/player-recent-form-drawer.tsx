@@ -126,7 +126,7 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
               playerName={leg.playerName}
               team={leg.team ?? undefined}
               sport={(leg.sport === "mlb" || leg.sport === "nba") ? (leg.sport as "mlb" | "nba") : "nba"}
-              size="md"
+              size="lg"
             />
             <div className="flex flex-col min-w-0">
               <span
@@ -196,6 +196,14 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
               clearedCount={clearedCount}
             />
           )}
+          <WhyThisPick
+            leg={leg}
+            stat={stat}
+            recentAvg={recentAvg}
+            recentCount={totalCount}
+            clearedCount={clearedCount}
+            windowSize={recent5.length}
+          />
           {enriched.length > 0 ? (
             <EnrichedRecentList
               games={enriched}
@@ -238,40 +246,178 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
   );
 }
 
+/** Friendly, non-technical confidence label + tone. */
+function friendlyConfidence(
+  c: string | null | undefined,
+): { label: string; color: string } | null {
+  switch ((c || "").toLowerCase()) {
+    case "high":
+      return { label: "Stronger signal", color: "var(--vault-gold-bright)" };
+    case "medium":
+      return { label: "Worth a look", color: "var(--vault-warn)" };
+    case "low":
+      return { label: "Higher variance", color: "var(--vault-text-mute)" };
+    default:
+      return null;
+  }
+}
+
+/** "-110" / "+120" from American odds. */
+function fmtOdds(n: number | null | undefined): string | null {
+  if (n == null || !Number.isFinite(n)) return null;
+  return n > 0 ? `+${n}` : `${n}`;
+}
+
+/**
+ * PickSummary — the single most important block in the drawer. The pick
+ * is rendered large + obvious ("Over 2.5 3PM"), with a market badge, the
+ * book price, the model projection/edge, and a plain-language confidence
+ * chip. Every value is read straight off the leg — nothing fabricated.
+ */
 function PickSummary({ leg, stat }: { leg: ParlayLeg; stat: string }) {
+  const conf = friendlyConfidence(leg.confidence);
+  const odds = fmtOdds(leg.oddsForSide);
+  const isOver = (leg.side || "").toLowerCase().startsWith("o");
   return (
     <div
-      className="px-3 py-2.5 rounded-[6px] flex flex-col gap-1"
+      className="px-3.5 py-3 rounded-[8px] flex flex-col gap-2"
       style={{
-        background: "rgba(0,0,0,0.35)",
-        border: "1px solid var(--vault-rule)",
+        background: "rgba(0,0,0,0.40)",
+        border: "1px solid var(--vault-border)",
       }}
     >
-      <span
-        className="font-mono uppercase tracking-[0.16em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-      >
-        Pick
-      </span>
-      <span
-        className="font-display"
-        style={{
-          color: "var(--vault-text)",
-          fontSize: 14,
-          fontWeight: 600,
-        }}
-      >
-        {stat} {leg.side}{" "}
-        {leg.line != null ? leg.line.toFixed(1) : "—"}
-      </span>
+      <div className="flex items-center justify-between gap-2">
+        <span
+          className="font-mono uppercase tracking-[0.14em] px-2 py-0.5 rounded-[4px]"
+          style={{
+            color: "var(--vault-gold)",
+            border: "1px solid var(--vault-rule)",
+            fontSize: 10,
+          }}
+        >
+          {stat}
+        </span>
+        {conf ? (
+          <span
+            className="font-mono uppercase tracking-[0.12em]"
+            style={{ color: conf.color, fontSize: 10 }}
+          >
+            {conf.label}
+          </span>
+        ) : null}
+      </div>
+      {/* The pick — large + obvious */}
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <span
+          className="font-display"
+          style={{
+            color: isOver ? "var(--vault-success)" : "var(--vault-warn)",
+            fontSize: 26,
+            fontWeight: 700,
+            lineHeight: 1.05,
+          }}
+        >
+          {leg.side} {leg.line != null ? leg.line.toFixed(1) : "—"}
+        </span>
+        <span
+          className="font-display"
+          style={{ color: "var(--vault-text-mute)", fontSize: 15, fontWeight: 600 }}
+        >
+          {stat}
+        </span>
+      </div>
+      {/* Price + book */}
+      {(odds || leg.bookmaker) && (
+        <span
+          className="font-mono"
+          style={{ color: "var(--vault-text)", fontSize: 12 }}
+        >
+          {odds ?? "—"}
+          {leg.bookmaker ? ` · ${leg.bookmaker}` : ""}
+        </span>
+      )}
+      {/* Model line */}
       {leg.projection != null && leg.edgePct != null && (
         <span
           className="font-mono"
           style={{ color: "var(--vault-text-mute)", fontSize: 11 }}
         >
-          Model {stat} {leg.projection.toFixed(2)} · edge {leg.edgePct.toFixed(1)}pp
+          Model projects {leg.projection.toFixed(1)} {stat} · {leg.edgePct >= 0 ? "+" : ""}
+          {leg.edgePct.toFixed(1)}pp vs the market
         </span>
       )}
+    </div>
+  );
+}
+
+/**
+ * WhyThisPick — 2–4 plain-language bullets the model can justify from
+ * data already on the leg. Never overclaims; only renders a bullet when
+ * the underlying value exists.
+ */
+function WhyThisPick({
+  leg,
+  stat,
+  recentAvg,
+  recentCount,
+  clearedCount,
+  windowSize,
+}: {
+  leg: ParlayLeg;
+  stat: string;
+  recentAvg: number | null;
+  recentCount: number;
+  clearedCount: number | null;
+  windowSize: number;
+}) {
+  const bullets: string[] = [];
+  const isOver = (leg.side || "").toLowerCase().startsWith("o");
+  if (recentAvg != null && recentCount > 0) {
+    bullets.push(
+      `Averaging ${recentAvg.toFixed(1)} ${stat} over the last ${recentCount} game${recentCount === 1 ? "" : "s"} on record.`,
+    );
+  }
+  if (leg.projection != null && leg.line != null) {
+    const diff = leg.projection - leg.line;
+    bullets.push(
+      `Model projects ${leg.projection.toFixed(1)} — ${Math.abs(diff).toFixed(1)} ${diff >= 0 ? "above" : "below"} the ${leg.line.toFixed(1)} line, supporting the ${leg.side} lean.`,
+    );
+  }
+  if (clearedCount != null && windowSize > 0) {
+    bullets.push(
+      `${isOver ? "Cleared" : "Stayed under"} the line in ${isOver ? clearedCount : windowSize - clearedCount} of the last ${windowSize}.`,
+    );
+  }
+  const conf = (leg.confidence || "").toLowerCase();
+  if (conf === "low") {
+    bullets.push(
+      "Higher-variance market — treat as a lean, not a strong signal.",
+    );
+  } else if (["blk", "stl"].includes((leg.market || "").toLowerCase())) {
+    bullets.push(
+      "Blocks/steals are low-count, high-variance markets — capped conservatively.",
+    );
+  }
+  if (bullets.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span
+        className="font-mono uppercase tracking-[0.16em]"
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+      >
+        Why this pick
+      </span>
+      <ul className="flex flex-col gap-1 m-0 pl-4" style={{ listStyle: "disc" }}>
+        {bullets.slice(0, 4).map((b, i) => (
+          <li
+            key={i}
+            className="text-[12px] leading-snug"
+            style={{ color: "var(--vault-text-mute)" }}
+          >
+            {b}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -562,7 +708,7 @@ function ProvenanceNote({ sport }: { sport: string }) {
     s === "mlb"
       ? "MLB Stats API"
       : s === "nba"
-        ? "nba_api"
+        ? "ESPN"
         : "settlement feed";
   return (
     <p
