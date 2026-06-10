@@ -53,3 +53,12 @@ gh workflow run morning-projections.yml -f projections_date=2026-06-10 \
 ## Rollback
 Revert the auto-commit (NBA board) — projections disappear and the page falls back to
 its fail-closed state. The ESPN provider stays available for future runs.
+
+## Deployment (2026-06-10)
+The corrected board (96/96 projections, generatedAt 04:57) is on `main`. Production
+initially lagged at the pre-fix run (96 null projections) because Vercel's free-tier
+**build-rate-limit** failed the deploy of the later commits (many PR merges in one day,
+across two Vercel projects). No code/data issue — the artifacts and local build are
+correct. This commit re-triggers the normal production deploy of latest `main`; once
+Vercel's build quota allows it, production serves the corrected board. Same-game
+correlation caps and public parlay gates were NOT modified.
