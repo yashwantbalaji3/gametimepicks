@@ -158,6 +158,19 @@ jobs:
             echo "::warning::selection-learning update failed — prior policy retained (conservative fallback)"
           fi
 
+      # ---- Bank Builder paper-bankroll ledger (settled-only, §4.2 durable history) ----
+      # Runs AFTER grading; reuses the site's own selector + ladder math. Settled results
+      # only — no fabrication, idempotent. Non-fatal: prior ledger retained on failure.
+      - name: Update Bank Builder ledger
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          cd app
+          if npx --yes tsx scripts/build-bank-builder-ledger.mjs; then
+            echo "::notice::Bank Builder ledger updated"
+          else
+            echo "::warning::Bank Builder ledger update failed — prior ledger retained"
+          fi
+
       - name: Show diff stat (informational)
         run: |
           echo "::group::git status"
@@ -185,6 +198,8 @@ jobs:
           git add app/public/data/curated/graded/ 2>/dev/null || true
           git add app/public/data/curated/summary.json 2>/dev/null || true
           git add app/public/data/parlays/optimizer-graded/ 2>/dev/null || true
+          # Bank Builder paper-bankroll ledger (settled-only durable history).
+          git add app/public/data/bank-builder/ 2>/dev/null || true
           git add app/public/data/parlays/optimizer-summary.json 2>/dev/null || true
           # Daily learning artifact (settled-outcomes only) + its report. The
           # optimizer reads selection-policy-latest.json with a conservative

@@ -61,6 +61,7 @@ import {
   formatLadderUsd,
   resolveLadderStep,
 } from "@/lib/bank-builder-ladder";
+import { loadBankBuilderSummary, loadBankBuilderLedger } from "@/lib/data-bank-builder";
 
 const META_TITLE = "Bank Builder · GameTime Picks";
 const META_DESCRIPTION =
@@ -90,9 +91,13 @@ export default function BankBuilderPage() {
   const suggested = getSuggestedParlaysForDate(today);
   const calibrationTable = loadCalibrationTable();
 
-  // No durable ladder history yet (§4.2). The prototype starts honestly
-  // at the base rung — we never fabricate prior progress.
-  const currentBankroll = BANK_BUILDER_BASE;
+  // Durable ladder history (§4.2): read the persisted, SETTLED-only paper-bankroll
+  // ledger (scripts/build-bank-builder-ledger.mjs). Fail-closed — if the artifact is
+  // absent we fall back to the honest base rung. We never fabricate prior progress.
+  const bbSummary = loadBankBuilderSummary();
+  const bbLedger = loadBankBuilderLedger();
+  const lastSettled = bbLedger?.entries?.[bbLedger.entries.length - 1] ?? null;
+  const currentBankroll = bbSummary?.currentBankrollUnits ?? BANK_BUILDER_BASE;
   const activeStep = resolveLadderStep(currentBankroll) ?? BANK_BUILDER_LADDER[0];
 
   // PR `feature/sport-specific-suggested` (2026-06-02): the Builder Slip is
@@ -174,6 +179,64 @@ export default function BankBuilderPage() {
           accent="var(--risk-longshot)"
         />
       </div>
+
+      {/* ---- Paper Tracker (durable settled history, §4.2) ----------- */}
+      {bbSummary && bbSummary.settledPickCount > 0 && (
+        <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
+              Bank Builder Paper Tracker
+            </h2>
+            <span className="text-[11px] text-zinc-500">
+              educational tracking · not betting advice · not a guarantee
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div>
+              <div className="text-[20px] font-bold tabular-nums text-zinc-100">{formatLadderUsd(bbSummary.currentBankrollUnits)}</div>
+              <div className="text-[11px] text-zinc-500">paper bankroll (current run)</div>
+            </div>
+            <div>
+              <div className={`text-[20px] font-bold tabular-nums ${bbSummary.currentRunProfitUnits >= 0 ? "text-emerald-400" : "text-zinc-300"}`}>
+                {bbSummary.currentRunProfitUnits >= 0 ? "+" : ""}{formatLadderUsd(bbSummary.currentRunProfitUnits)}
+              </div>
+              <div className="text-[11px] text-zinc-500">current-run P/L ({bbSummary.currentRunRoiPct}%)</div>
+            </div>
+            <div>
+              <div className="text-[20px] font-bold tabular-nums text-zinc-100">
+                {bbSummary.record.wins}-{bbSummary.record.losses}{bbSummary.record.pushes ? `-${bbSummary.record.pushes}` : ""}
+              </div>
+              <div className="text-[11px] text-zinc-500">settled picks (W-L{bbSummary.record.pushes ? "-P" : ""})</div>
+            </div>
+            <div>
+              <div className="text-[20px] font-bold tabular-nums text-zinc-100">{activeStep.step} / 5</div>
+              <div className="text-[11px] text-zinc-500">current step · streak {bbSummary.currentStreak > 0 ? `W${bbSummary.currentStreak}` : bbSummary.currentStreak < 0 ? `L${-bbSummary.currentStreak}` : "—"}</div>
+            </div>
+          </div>
+          {lastSettled && (
+            <p className="mt-3 text-[12.5px] leading-relaxed text-zinc-400">
+              Last settled Builder Pick ({lastSettled.date}):{" "}
+              <span className={lastSettled.result === "win" ? "text-emerald-400 font-semibold" : "text-zinc-300 font-semibold"}>
+                {lastSettled.result.toUpperCase()}
+              </span>{" "}
+              ({formatAmerican(lastSettled.combinedAmerican)}) —{" "}
+              {lastSettled.legs.map((l, i) => (
+                <span key={i}>
+                  {i > 0 ? " + " : ""}{l.player} {l.side} {l.line} {l.market.replace(/_/g, " ")}{" "}
+                  <span className={l.result === "win" ? "text-emerald-400" : "text-zinc-500"}>({l.result})</span>
+                </span>
+              ))}
+              . Settled from official results ({lastSettled.settlementSource}); paper bankroll moved{" "}
+              {formatLadderUsd(lastSettled.bankrollBefore)} → {formatLadderUsd(lastSettled.bankrollAfter)}.
+            </p>
+          )}
+          <p className="mt-2 text-[12px] leading-snug text-zinc-500">
+            {bbSummary.nextPick
+              ? `Next Builder Pick (${bbSummary.nextEligibleDate}): step ${bbSummary.nextPick.step}, ${bbSummary.nextPick.legCount}-leg ${formatAmerican(bbSummary.nextPick.combinedAmerican)} — pending settlement.`
+              : "Next Builder Pick: pending until the next slate generates a qualifying pick. We never force a pick to keep the streak alive."}
+          </p>
+        </section>
+      )}
 
       <DisclaimerBanner placement="top" />
 
