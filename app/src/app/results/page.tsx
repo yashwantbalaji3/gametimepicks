@@ -388,8 +388,8 @@ export default function ResultsPage() {
               style={{ color: "var(--vault-text-faint)", fontSize: 11 }}
             >
               The breakdowns below count the published cards shown on Suggested
-              Parlays for this slate. The generated pool record (broader model
-              output) is in the second card at the top.
+              Parlays for this slate. The all-generated-cards record (every card the
+              model produced, tracked internally) is the second card at the top.
             </p>
             <div id="risk-sections" style={{ scrollMarginTop: 80 }}>
               <RiskSectionResultsTable breakdown={riskBreakdown} />

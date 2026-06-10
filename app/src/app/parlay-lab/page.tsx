@@ -428,19 +428,35 @@ function EmptyLabState() {
         className="font-mono uppercase tracking-[0.16em]"
         style={{ color: "var(--vault-gold)", fontSize: 11 }}
       >
-        No saved slips yet
+        No Suggested Parlays for this slate yet
       </span>
       <p
         className="text-[13px] leading-relaxed"
         style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}
       >
-        We only render slips that were saved before games started. The
-        next pregame snapshot lands when bookmaker lines and projections
-        refresh. In the meantime, jump into{" "}
+        This is normal — we never force a card. A slate can be empty when:
+      </p>
+      <ul
+        className="text-[12.5px] leading-relaxed m-0 pl-4 flex flex-col gap-1"
+        style={{ color: "var(--vault-text-mute)", maxWidth: 560, listStyle: "disc" }}
+      >
+        <li>today&apos;s slate hasn&apos;t generated yet (waiting for bookmaker lines + projections), or</li>
+        <li>no combination cleared the safety gates, or</li>
+        <li>it&apos;s a single-game slate, where same-game stacking is limited on purpose.</li>
+      </ul>
+      <p
+        className="text-[12.5px] leading-relaxed"
+        style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}
+      >
+        In the meantime, jump into{" "}
         <Link href="/projections" style={{ color: "var(--vault-gold)" }}>
           projections
         </Link>{" "}
-        to inspect individual props.
+        to inspect individual props, or check{" "}
+        <Link href="/bank-builder" style={{ color: "var(--vault-gold)" }}>
+          Bank Builder
+        </Link>{" "}
+        for today&apos;s single qualifying slip.
       </p>
     </section>
   );
