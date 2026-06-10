@@ -53,12 +53,50 @@ def discover(markets: list[str], now: datetime | None = None) -> dict:
     return result
 
 
+def write_status(now: datetime | None = None) -> dict:
+    """Emit the public-facing prop availability artifact. Reflects the last discovery
+    probe if present; otherwise honestly reports unavailable. Never fabricates props."""
+    from .providers.prop_odds_base import props_available
+    ref = now or datetime.now(timezone.utc)
+    disc = {}
+    try:
+        disc = json.loads((DATA / "prop-odds-discovery-latest.json").read_text())
+    except Exception:
+        pass
+    avail = disc.get("available", {})
+    method = bool(avail.get("fight_result_method", {}).get("returned") or avail.get("method_of_victory", {}).get("returned"))
+    distance = bool(avail.get("fight_to_go_distance", {}).get("returned") or avail.get("go_the_distance", {}).get("returned"))
+    rounds = bool(avail.get("rounds", {}).get("returned") or avail.get("totals", {}).get("returned"))
+    connected = props_available()
+    status = {
+        "generatedAt": ref.isoformat(timespec="seconds"),
+        "status": "available" if (connected and (method or distance or rounds)) else "unavailable",
+        "providerConnected": connected,
+        "methodPropsReady": bool(connected and method),
+        "distancePropsReady": bool(connected and distance),
+        "roundPropsReady": bool(connected and rounds),
+        "marketScope": [m for m, ok in (("method", method), ("distance", distance), ("rounds", rounds)) if ok] if connected else [],
+        "reason": ("Prop-odds provider connected." if connected else
+                   "No prop-odds provider connected. The Odds API MMA exposes h2h only."),
+        "blocker": None if connected else "no real prop odds provider connected",
+        "candidateProviders": ["OpticOdds (paid, approval required)", "SportsDataIO MMA (paid, approval required)"],
+        "lastDiscoveryAt": disc.get("generatedAt"),
+    }
+    (DATA / "prop-odds-latest.json").write_text(json.dumps(status, indent=2) + "\n")
+    return status
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--discover", action="store_true")
+    ap.add_argument("--write-status", action="store_true")
     ap.add_argument("--markets", default=",".join(CANDIDATE_MARKETS))
     ap.add_argument("--out", default=str(DATA / "prop-odds-discovery-latest.json"))
     args = ap.parse_args(argv)
+    if args.write_status:
+        st = write_status()
+        print(f"wrote prop-odds-latest.json status={st['status']} connected={st['providerConnected']}")
+        return 0
     if args.discover:
         payload = discover(args.markets.split(","))
         Path(args.out).write_text(json.dumps(payload, indent=2) + "\n")
