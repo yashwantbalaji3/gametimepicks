@@ -18,6 +18,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 
 import ParlayLabBuilder from "@/components/parlay-lab-builder";
+import ParlayCoverageGrid from "@/components/parlay-coverage-grid";
 import MarketTicker from "@/components/market-ticker";
 // DateStatusHeader import removed in PR `feature/parlay-lab-compact-hero`.
 // The new <SlateStrip> below replaces it on /parlay-lab. Other surfaces
@@ -138,6 +139,7 @@ export default function ParlayLabPage() {
         mlbSlips={mlbSlips}
         mixedSlips={mixedSlips}
       />
+      <ParlayCoverageGrid payload={optimizerForDate} />
       {isActiveSettled && (
         <section
           aria-label="Active slate already settled"
