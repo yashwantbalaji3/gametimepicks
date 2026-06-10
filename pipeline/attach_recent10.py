@@ -55,6 +55,7 @@ from .recent10_cache_fallback import (
 from .recent10_extractor import (
     extract_recent10_all_markets,
     extract_recent_games_all_markets,
+    SUPPORTED_MARKETS,
 )
 
 log = logging.getLogger("gtp.attach_recent10")
@@ -310,7 +311,7 @@ def attach_recent10_to_board(
     for lean in leans:
         pid = lean.get("playerId")
         market = lean.get("market")
-        if pid not in by_player_logs or market not in ("PTS", "REB", "AST"):
+        if pid not in by_player_logs or market not in SUPPORTED_MARKETS:
             continue
         values = by_player_logs[pid].get(market, [])
         if values:
