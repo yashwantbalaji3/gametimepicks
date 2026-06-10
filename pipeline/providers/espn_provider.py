@@ -76,13 +76,23 @@ def _espn_team_id(team_abbr: str) -> str | None:
 
 
 def _stat_indices(labels: list[str]) -> dict[str, int]:
-    """Map our markets to column indices by label (robust to column re-ordering)."""
-    want = {"MIN": "minutes", "REB": "reb", "AST": "ast", "PTS": "pts"}
+    """Map our markets to column indices by label (robust to column re-ordering).
+    ESPN NBA gamelog labels: MIN FG FG% 3PT 3P% FT FT% REB AST BLK STL PF TO PTS."""
+    want = {"MIN": "minutes", "REB": "reb", "AST": "ast", "PTS": "pts",
+            "3PT": "fg3", "BLK": "blk", "STL": "stl", "TO": "tov"}
     out: dict[str, int] = {}
     for i, lab in enumerate(labels or []):
         if lab in want:
             out[want[lab]] = i
     return out
+
+
+def _made_of(s) -> int:
+    """Parse a 'made-attempted' cell like '3-5' -> 3 (made). Plain ints pass through."""
+    try:
+        return int(str(s).strip().split("-")[0])
+    except Exception:
+        return 0
 
 
 def _to_int(s) -> int:
@@ -149,14 +159,21 @@ def _parse_gamelog(data: dict, player_id: int, last_n: int = 10) -> list:
                     opp_abbr = opp.get("abbreviation") if isinstance(opp, dict) else (opp or "")
                     home_away = "Home" if m.get("atVs") == "vs" else "Away"
                     gdate = str(m.get("gameDate") or m.get("date") or "")[:10]
+                    def _cell(key):
+                        return stats[idx[key]] if key in idx and len(stats) > idx[key] else None
                     rows.append(GameLog(
                         player_id=int(player_id),
                         game_date=gdate, opponent_abbr=str(opp_abbr or ""),
                         home_away=home_away,
-                        minutes=_to_float(stats[idx["minutes"]]) if "minutes" in idx and len(stats) > idx["minutes"] else 0.0,
+                        minutes=_to_float(_cell("minutes")) if _cell("minutes") is not None else 0.0,
                         pts=_to_int(stats[idx["pts"]]),
-                        reb=_to_int(stats[idx["reb"]]) if "reb" in idx and len(stats) > idx["reb"] else 0,
-                        ast=_to_int(stats[idx["ast"]]) if "ast" in idx and len(stats) > idx["ast"] else 0,
+                        reb=_to_int(_cell("reb")) if _cell("reb") is not None else 0,
+                        ast=_to_int(_cell("ast")) if _cell("ast") is not None else 0,
+                        # Extended box score (made-3PT cell is "X-Y"; the rest are ints).
+                        fg3m=_made_of(_cell("fg3")) if _cell("fg3") is not None else 0,
+                        blk=_to_int(_cell("blk")) if _cell("blk") is not None else 0,
+                        stl=_to_int(_cell("stl")) if _cell("stl") is not None else 0,
+                        tov=_to_int(_cell("tov")) if _cell("tov") is not None else 0,
                     ))
         return rows
 
