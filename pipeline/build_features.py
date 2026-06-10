@@ -71,6 +71,12 @@ def build_player_features(logs: list[GameLog]) -> dict[str, float]:
     reb = [g.reb for g in logs]
     ast = [g.ast for g in logs]
     minutes = [g.minutes for g in logs]
+    # Expanded box-score markets (ESPN-sourced). Feature keys are lowercased to
+    # match score_model's `last5_{market_lower}` lookup ("3PM"->"3pm", etc.).
+    fg3 = [getattr(g, "fg3m", 0) for g in logs]
+    blk = [getattr(g, "blk", 0) for g in logs]
+    stl = [getattr(g, "stl", 0) for g in logs]
+    pra = [g.pts + g.reb + g.ast for g in logs]
 
     last5_pts = pts[:5]
     last5_reb = reb[:5]
@@ -116,6 +122,14 @@ def build_player_features(logs: list[GameLog]) -> dict[str, float]:
 
         "minutes_trend": minutes_trend,
 
+        # Expanded markets — same 0.45/0.35/0.20 (last5/last10/season) shape, keyed by
+        # lowercased market ("3pm","pra","blk","stl"). No home/away split for these
+        # (smaller samples); project_stat falls back to base when a split key is absent.
+        "last5_3pm": _avg(fg3[:5]), "last10_3pm": _avg(fg3[:10]), "season_3pm": _avg(fg3),
+        "last5_pra": _avg(pra[:5]), "last10_pra": _avg(pra[:10]), "season_pra": _avg(pra),
+        "last5_blk": _avg(blk[:5]), "last10_blk": _avg(blk[:10]), "season_blk": _avg(blk),
+        "last5_stl": _avg(stl[:5]), "last10_stl": _avg(stl[:10]), "season_stl": _avg(stl),
+
         # Dispersion floors are calibrated to realistic NBA per-game variance.
         # Without these floors a tightly-clustered 5-game window produces
         # σ≈2 and z-scores that yield wild model probabilities (e.g. 85%+).
@@ -123,6 +137,12 @@ def build_player_features(logs: list[GameLog]) -> dict[str, float]:
         "dispersion_pts": _std(last10_pts, floor=6.0),
         "dispersion_reb": _std(last10_reb, floor=3.0),
         "dispersion_ast": _std(last10_ast, floor=2.5),
+        # Volatile defense props get higher relative floors (conservative — fewer
+        # confident calls); PRA is a sum so its floor is larger.
+        "dispersion_3pm": _std(fg3[:10], floor=1.6),
+        "dispersion_pra": _std(pra[:10], floor=9.0),
+        "dispersion_blk": _std(blk[:10], floor=1.1),
+        "dispersion_stl": _std(stl[:10], floor=1.1),
     }
 
 
@@ -136,6 +156,12 @@ def _empty_features() -> dict[str, float]:
         "away_pts": 0.0, "away_reb": 0.0, "away_ast": 0.0,
         "minutes_trend": 0.0,
         "dispersion_pts": 5.0, "dispersion_reb": 2.0, "dispersion_ast": 2.0,
+        "last5_3pm": 0.0, "last10_3pm": 0.0, "season_3pm": 0.0,
+        "last5_pra": 0.0, "last10_pra": 0.0, "season_pra": 0.0,
+        "last5_blk": 0.0, "last10_blk": 0.0, "season_blk": 0.0,
+        "last5_stl": 0.0, "last10_stl": 0.0, "season_stl": 0.0,
+        "dispersion_3pm": 1.6, "dispersion_pra": 9.0,
+        "dispersion_blk": 1.1, "dispersion_stl": 1.1,
     }
 
 

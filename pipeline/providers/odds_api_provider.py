@@ -52,6 +52,11 @@ MARKET_MAP = {
     "PTS": "player_points",
     "REB": "player_rebounds",
     "AST": "player_assists",
+    # Expanded markets confirmed available via the OddsAPI probe (2026-06-10).
+    "3PM": "player_threes",
+    "PRA": "player_points_rebounds_assists",
+    "BLK": "player_blocks",
+    "STL": "player_steals",
 }
 INVERSE_MARKET_MAP = {v: k for k, v in MARKET_MAP.items()}
 

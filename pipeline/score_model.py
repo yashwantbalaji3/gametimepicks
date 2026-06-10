@@ -163,6 +163,11 @@ def score_prop(
     else:
         confidence = "Low"
 
+    # Volatility cap — blocks/steals are low-count, high-variance markets; never
+    # surface them at High confidence (conservative by design).
+    if market.upper() in ("BLK", "STL") and confidence == "High":
+        confidence = "Medium"
+
     # Edge below the medium threshold → No Play
     if edge_pct < C.EDGE_THRESHOLD_MEDIUM:
         lean = "No Play"

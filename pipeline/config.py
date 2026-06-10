@@ -156,7 +156,11 @@ HTTP_BACKOFF_SECONDS = 1.0
 # credit cost (markets × regions). The free tier covers all three of these.
 ODDS_MARKETS = _parse_csv_list(
     "ODDS_MARKETS",
-    default=["player_points", "player_rebounds", "player_assists"],
+    default=[
+        "player_points", "player_rebounds", "player_assists",
+        "player_threes", "player_points_rebounds_assists",
+        "player_blocks", "player_steals",
+    ],
 )
 
 # Bookmaker regions. "us" only is standard for NBA props. Adding "us2"
