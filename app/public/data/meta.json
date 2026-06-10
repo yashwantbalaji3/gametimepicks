@@ -1,15 +1,15 @@
 {
   "appName": "GametimePicks",
   "version": "0.5.0",
-  "lastPipelineRun": "2026-06-09T16:35:51+00:00",
+  "lastPipelineRun": "2026-06-10T04:44:21+00:00",
   "isDemo": false,
-  "dataMode": "ScheduleUnavailable",
-  "nbaScheduleSource": "unavailable",
-  "nbaStatsSource": "unavailable",
-  "oddsSource": "unavailable",
+  "dataMode": "Live",
+  "nbaScheduleSource": "espn_scoreboard",
+  "nbaStatsSource": "espn_scoreboard",
+  "oddsSource": "the_odds_api",
   "activeProvider": {
-    "nba": "unavailable",
-    "odds": "unavailable"
+    "nba": "espn_scoreboard",
+    "odds": "the_odds_api"
   },
   "providerStatuses": [
     {
@@ -23,7 +23,7 @@
       "is_stub": false,
       "last_status": "ok",
       "last_error": null,
-      "last_run_at": "2026-06-09T16:34:10+00:00",
+      "last_run_at": "2026-06-10T04:41:50+00:00",
       "notes": "Official NBA.com Stats endpoints. No API key needed."
     },
     {
@@ -49,9 +49,9 @@
       "api_key_configured": true,
       "is_demo": false,
       "is_stub": false,
-      "last_status": "not_run",
-      "last_error": null,
-      "last_run_at": null,
+      "last_status": "error",
+      "last_error": "404 Client Error: Not Found for url: https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/1628368/gamelog",
+      "last_run_at": "2026-06-10T04:41:50+00:00",
       "notes": "ESPN public scoreboard JSON. Free, no auth, no scraping. Used as a schedule-only fallback when nba_api fails or returns empty. Set ENABLE_ESPN_FALLBACK=false to disable."
     },
     {
@@ -77,9 +77,9 @@
       "api_key_configured": true,
       "is_demo": true,
       "is_stub": false,
-      "last_status": "ok",
+      "last_status": "not_run",
       "last_error": null,
-      "last_run_at": "2026-06-09T16:19:58+00:00",
+      "last_run_at": null,
       "notes": "Bundled demo data. Always works."
     },
     {
@@ -145,7 +145,7 @@
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-06-09T16:35:51+00:00",
+  "lastSuccessfulFetch": "2026-06-10T04:44:21+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -174,18 +174,18 @@
     }
   ],
   "slateDays": 4,
-  "primaryDate": "2026-06-09",
+  "primaryDate": "2026-06-10",
   "newsSignalsConfigured": true,
   "newsSignalsActive": 0,
   "scheduleOverridesConfigured": true,
-  "todayDataMode": "ScheduleUnavailable",
-  "todayFailureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
+  "todayDataMode": "Live",
+  "todayFailureReason": null,
   "todayManualOverrideUsed": false,
   "oddsApiKeyConfigured": true,
-  "todayOddsProviderStatus": "not_configured",
+  "todayOddsProviderStatus": "ok_with_props",
   "todayOddsFailureReason": null,
-  "todayOddsQuotaRemaining": null,
-  "todayParsedPropCount": 0,
+  "todayOddsQuotaRemaining": 19408,
+  "todayParsedPropCount": 96,
   "oddsBookmakersConfigured": [
     "draftkings",
     "fanduel"
