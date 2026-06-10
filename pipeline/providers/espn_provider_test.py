@@ -15,7 +15,7 @@ from pathlib import Path
 sys.modules.setdefault("requests", types.ModuleType("requests"))  # parsers don't use it
 
 from pipeline.providers.espn_provider import (  # noqa: E402
-    _parse_roster_athletes, _parse_gamelog, _espn_team_id, _stat_indices,
+    _parse_roster_athletes, _parse_gamelog, _espn_team_id, _stat_indices, _made_of,
 )
 
 FIX = Path(__file__).parent / "testdata"
@@ -85,6 +85,51 @@ class EspnGameLogParseTests(unittest.TestCase):
         self.assertEqual(_parse_gamelog({"labels": ["MIN"], "seasonTypes": []}, 1), [])
         self.assertEqual(_parse_gamelog({}, 1), [])
         self.assertEqual(_parse_gamelog(None, 1), [])
+
+
+
+class EspnExtendedBoxScoreTests(unittest.TestCase):
+    def setUp(self):
+        self.data = json.loads((FIX / "espn_gamelog_brunson.json").read_text())
+
+    def test_made_of_parses_made_attempted(self):
+        self.assertEqual(_made_of("3-5"), 3)
+        self.assertEqual(_made_of("0-2"), 0)
+        self.assertEqual(_made_of("11-25"), 11)
+        self.assertEqual(_made_of(None), 0)
+        self.assertEqual(_made_of("x"), 0)
+
+    def test_stat_indices_extended_labels(self):
+        idx = _stat_indices(["MIN", "FG", "FG%", "3PT", "3P%", "FT", "FT%", "REB",
+                             "AST", "BLK", "STL", "PF", "TO", "PTS"])
+        self.assertEqual(idx["fg3"], 3)
+        self.assertEqual(idx["blk"], 9)
+        self.assertEqual(idx["stl"], 10)
+        self.assertEqual(idx["tov"], 12)
+
+    def test_gamelog_populates_extended_fields(self):
+        logs = _parse_gamelog(self.data, 3934672, last_n=10)
+        g = logs[0]  # 2026-06-09 Game 3
+        # PTS/REB/AST unchanged
+        self.assertEqual(g.pts, 32)
+        self.assertEqual(g.reb, 5)
+        self.assertEqual(g.ast, 5)
+        # extended fields populated from the real box score
+        self.assertEqual(g.fg3m, 3)   # "3-5" -> 3 made
+        self.assertEqual(g.tov, 5)
+        self.assertEqual(g.blk, 0)
+        self.assertIsInstance(g.stl, int)
+
+    def test_extended_fields_default_zero_when_absent(self):
+        # a labels set without BLK/STL/TO still parses (fields default 0)
+        data = {"labels": ["MIN", "REB", "AST", "PTS"],
+                "events": {"1": {"atVs": "vs", "gameDate": "2026-06-01", "opponent": {"abbreviation": "X"}}},
+                "seasonTypes": [{"displayName": "2025-26 Regular Season",
+                                 "categories": [{"events": [{"eventId": "1", "stats": ["30", "5", "5", "20"]}]}]}]}
+        logs = _parse_gamelog(data, 1, 10)
+        self.assertEqual(logs[0].pts, 20)
+        self.assertEqual(logs[0].fg3m, 0)
+        self.assertEqual(logs[0].blk, 0)
 
 
 if __name__ == "__main__":

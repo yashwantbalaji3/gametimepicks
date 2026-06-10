@@ -99,7 +99,12 @@ class Player:
 
 @dataclass
 class GameLog:
-    """One stat line for one player in one game."""
+    """One stat line for one player in one game.
+
+    Extended box-score fields (fg3m/blk/stl/tov) default to 0 so every existing
+    provider + consumer keeps working unchanged; ESPN populates them when the
+    source row carries them. They power expanded NBA prop markets (3PM, defense
+    props) only once odds + model support exist — PTS/REB/AST are unchanged."""
     player_id: int
     game_date: str                    # YYYY-MM-DD
     opponent_abbr: str
@@ -108,6 +113,10 @@ class GameLog:
     pts: int
     reb: int
     ast: int
+    fg3m: int = 0                     # made three-pointers
+    blk: int = 0
+    stl: int = 0
+    tov: int = 0                      # turnovers
 
 
 @dataclass
