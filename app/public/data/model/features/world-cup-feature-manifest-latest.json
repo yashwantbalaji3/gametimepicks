@@ -1,0 +1,119 @@
+{
+  "sport": "world-cup",
+  "generatedAt": "2026-06-10T06:30:00+00:00",
+  "legend": {
+    "active": "computed AND consumed by the model",
+    "partial": "computed but not a primary projection driver",
+    "pending": "data exists in repo but not yet wired into the model",
+    "provider-needed": "requires a data provider not connected",
+    "unavailable": "no known source",
+    "intentionally-deferred": "deliberately not built yet"
+  },
+  "counts": {
+    "active": 2,
+    "partial": 0,
+    "pending": 0,
+    "provider-needed": 4,
+    "intentionally-deferred": 1
+  },
+  "features": [
+    {
+      "featureGroup": "structural",
+      "feature": "schedule / fixtures",
+      "status": "active",
+      "source": "FIFA/ESPN structural",
+      "artifactPath": "world-cup/schedule.json",
+      "freshnessExpectation": "static",
+      "leakageRisk": "none",
+      "currentGameExcluded": "n/a",
+      "sampleSizeFlag": "no",
+      "missingStaleFlag": "no",
+      "modelConsumption": "no (display only)",
+      "notes": "104 matches; schedule-only surface"
+    },
+    {
+      "featureGroup": "structural",
+      "feature": "teams / groups",
+      "status": "active",
+      "source": "FIFA structural",
+      "artifactPath": "world-cup/teams.json",
+      "freshnessExpectation": "static",
+      "leakageRisk": "none",
+      "currentGameExcluded": "n/a",
+      "sampleSizeFlag": "no",
+      "missingStaleFlag": "no",
+      "modelConsumption": "no (display only)",
+      "notes": "48 teams, 12 groups"
+    },
+    {
+      "featureGroup": "team strength",
+      "feature": "FIFA ranking / Elo / recent xG",
+      "status": "provider-needed",
+      "source": "(soccer stats feed)",
+      "artifactPath": "\u2014",
+      "freshnessExpectation": "weekly",
+      "leakageRisk": "low",
+      "currentGameExcluded": "yes",
+      "sampleSizeFlag": "yes",
+      "missingStaleFlag": "yes (to add)",
+      "modelConsumption": "no",
+      "notes": "fail-closed; no provider"
+    },
+    {
+      "featureGroup": "market",
+      "feature": "match odds (1X2/totals) + player props",
+      "status": "provider-needed",
+      "source": "(soccer odds feed)",
+      "artifactPath": "\u2014",
+      "freshnessExpectation": "pre-match",
+      "leakageRisk": "low",
+      "currentGameExcluded": "n/a",
+      "sampleSizeFlag": "no",
+      "missingStaleFlag": "yes (to add)",
+      "modelConsumption": "no",
+      "notes": "check The Odds API soccer key near tournament; else paid"
+    },
+    {
+      "featureGroup": "player role",
+      "feature": "starting XI / projected minutes / set-piece+penalty taker",
+      "status": "provider-needed",
+      "source": "(lineup feed)",
+      "artifactPath": "\u2014",
+      "freshnessExpectation": "pre-match (time-sensitive)",
+      "leakageRisk": "high",
+      "currentGameExcluded": "n/a",
+      "sampleSizeFlag": "no",
+      "missingStaleFlag": "yes (to add)",
+      "modelConsumption": "no",
+      "notes": "CRITICAL; lineups confirm ~1h pre-kickoff"
+    },
+    {
+      "featureGroup": "referee",
+      "feature": "referee card/penalty tendencies",
+      "status": "provider-needed",
+      "source": "(referee feed)",
+      "artifactPath": "\u2014",
+      "freshnessExpectation": "static",
+      "leakageRisk": "low",
+      "currentGameExcluded": "yes",
+      "sampleSizeFlag": "yes",
+      "missingStaleFlag": "yes (to add)",
+      "modelConsumption": "no",
+      "notes": "key for cards/penalties"
+    },
+    {
+      "featureGroup": "tournament",
+      "feature": "stage / advancement vs 90-min separation",
+      "status": "intentionally-deferred",
+      "source": "derivable from schedule",
+      "artifactPath": "schedule",
+      "freshnessExpectation": "static",
+      "leakageRisk": "none",
+      "currentGameExcluded": "n/a",
+      "sampleSizeFlag": "no",
+      "missingStaleFlag": "yes (to add)",
+      "modelConsumption": "no",
+      "notes": "build only when match markets exist; regulation vs advancement must be separated"
+    }
+  ]
+}
