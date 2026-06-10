@@ -21,6 +21,8 @@ import { formatTipoffEt } from "@/lib/format-mlb";
 
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
+import GameOutlookSection from "@/components/game-outlook-card";
+import { getGameOutlook } from "@/lib/data-game-outlook";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
@@ -47,6 +49,7 @@ export default function MlbLandingPage() {
   const propsAvailable = board.propsAvailable;
   const games = schedule.games ?? [];
   const gameCount = summary.scheduledGames || games.length || 0;
+  const gameOutlook = getGameOutlook("mlb");
 
   const statusKind: "live" | "linesPending" | "upcoming" =
     propsAvailable && summary.leans > 0
@@ -196,6 +199,8 @@ export default function MlbLandingPage() {
           </div>
         )}
       </section>
+
+      <GameOutlookSection outlook={gameOutlook} />
 
       <UpcomingSlateStrip
         title="Upcoming · next 7 days"

@@ -32,6 +32,28 @@ class GameOutlookTests(unittest.TestCase):
         self.assertIsNotNone(o["impliedWinProbHome"])     # has ML
         self.assertIsNone(o["teamTotalHome"])             # no total/spread -> no fabricated totals
 
+    def test_suspect_total_juice_dropped(self):
+        # 16.5 with over +204 / under -278 is an alternate/stale line, not a main total.
+        o = derive_game({"moneyline": None, "spread": {"home": 3.5},
+                         "total": {"line": 16.5, "over": 204, "under": -278}})
+        self.assertIsNone(o["total"])
+        self.assertIn("total_suspect_juice", o["missing"])
+        self.assertIsNone(o["teamTotalHome"])
+        self.assertFalse(o["hasMarket"])                  # no ML + no trustworthy total
+
+    def test_legit_high_total_kept(self):
+        # Coors/Sutter-park high totals with BALANCED juice are real main lines — keep them.
+        o = derive_game({"moneyline": {"home": -120, "away": 100},
+                         "spread": {"home": 1.5}, "total": {"line": 12.0, "over": -108, "under": -112}})
+        self.assertEqual(o["total"], 12.0)
+        self.assertNotIn("total_suspect_juice", o["missing"])
+        self.assertTrue(o["hasMarket"])
+
+    def test_has_market_true_with_only_total(self):
+        o = derive_game({"moneyline": None, "spread": {"home": 1.5},
+                         "total": {"line": 8.5, "over": -110, "under": -110}})
+        self.assertTrue(o["hasMarket"])
+
 
 if __name__ == "__main__":
     unittest.main()
