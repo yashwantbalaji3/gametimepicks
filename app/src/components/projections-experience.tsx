@@ -806,41 +806,69 @@ function GameDetailView({
         </div>
 
         {game.markets && hasAnyMarketValue(game.markets) ? (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {game.markets.moneyline && (
-              <BigMarketCell
-                label="Moneyline"
-                primary={formatMoneylineSide(
-                  game.markets.moneyline.away,
-                  game.awayTeamAbbr,
-                )}
-                secondary={formatMoneylineSide(
-                  game.markets.moneyline.home,
-                  game.homeTeamAbbr,
-                )}
-              />
-            )}
-            {game.markets.spread && (
-              <BigMarketCell
-                label={game.sport === "mlb" ? "Run line" : "Spread"}
-                primary={formatSpreadSide(
-                  game.markets.spread.away,
-                  game.awayTeamAbbr,
-                )}
-                secondary={formatSpreadSide(
-                  game.markets.spread.home,
-                  game.homeTeamAbbr,
-                )}
-              />
-            )}
-            {game.markets.total && game.markets.total.line != null && (
-              <BigMarketCell
-                label="Total"
-                primary={`O ${game.markets.total.line.toFixed(1)}`}
-                secondary={`U ${game.markets.total.line.toFixed(1)}`}
-              />
-            )}
-          </div>
+          (() => {
+            const win = impliedWinPct(game.markets.moneyline);
+            const tt = teamTotals(game.markets.total, game.markets.spread);
+            return (
+              <div className="mt-3 flex flex-col gap-1.5">
+                <span
+                  className="font-mono uppercase tracking-[0.16em]"
+                  style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                >
+                  Market outlook · implied by sportsbook prices — not a model pick
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {win && (
+                    <BigMarketCell
+                      label="Implied win %"
+                      primary={`${game.awayTeamAbbr} ${win.away}%`}
+                      secondary={`${game.homeTeamAbbr} ${win.home}%`}
+                    />
+                  )}
+                  {game.markets.moneyline && (
+                    <BigMarketCell
+                      label="Moneyline"
+                      primary={formatMoneylineSide(
+                        game.markets.moneyline.away,
+                        game.awayTeamAbbr,
+                      )}
+                      secondary={formatMoneylineSide(
+                        game.markets.moneyline.home,
+                        game.homeTeamAbbr,
+                      )}
+                    />
+                  )}
+                  {game.markets.spread && (
+                    <BigMarketCell
+                      label={game.sport === "mlb" ? "Run line" : "Spread"}
+                      primary={formatSpreadSide(
+                        game.markets.spread.away,
+                        game.awayTeamAbbr,
+                      )}
+                      secondary={formatSpreadSide(
+                        game.markets.spread.home,
+                        game.homeTeamAbbr,
+                      )}
+                    />
+                  )}
+                  {game.markets.total && game.markets.total.line != null && (
+                    <BigMarketCell
+                      label="Total"
+                      primary={`O ${game.markets.total.line.toFixed(1)}`}
+                      secondary={`U ${game.markets.total.line.toFixed(1)}`}
+                    />
+                  )}
+                  {tt && (
+                    <BigMarketCell
+                      label="Team totals"
+                      primary={`${game.awayTeamAbbr} ${tt.away}`}
+                      secondary={`${game.homeTeamAbbr} ${tt.home}`}
+                    />
+                  )}
+                </div>
+              </div>
+            );
+          })()
         ) : (
           <p
             className="mt-3 font-mono"
@@ -858,6 +886,45 @@ function GameDetailView({
       />
     </section>
   );
+}
+
+/** American odds → raw implied probability. */
+function _americanToProb(odds: number): number {
+  return odds > 0 ? 100 / (odds + 100) : -odds / (-odds + 100);
+}
+
+/** De-vigged implied win % from a two-way moneyline. Market-implied — NOT a
+ *  model pick. Returns null when either side is missing. */
+function impliedWinPct(
+  ml: { home: number | null; away: number | null } | null,
+): { home: number; away: number } | null {
+  if (!ml || ml.home == null || ml.away == null) return null;
+  const ph = _americanToProb(ml.home);
+  const pa = _americanToProb(ml.away);
+  const sum = ph + pa;
+  if (sum <= 0) return null;
+  return { home: Math.round((ph / sum) * 100), away: Math.round((pa / sum) * 100) };
+}
+
+/** Team implied totals from total ± spread. Applies the same honest juice
+ *  guard as the outlook builder: a total with implausible juice (max raw
+ *  implied > 0.70) is an alternate/stale line, so we decline rather than
+ *  show a misleading number. */
+function teamTotals(
+  total: { line: number | null; over: number | null; under: number | null } | null,
+  spread: { home: number | null; away: number | null } | null,
+): { home: string; away: string } | null {
+  if (!total || total.line == null || !spread || spread.home == null) return null;
+  if (
+    total.over != null &&
+    total.under != null &&
+    Math.max(_americanToProb(total.over), _americanToProb(total.under)) > 0.7
+  ) {
+    return null;
+  }
+  const home = (total.line - spread.home) / 2;
+  const away = (total.line + spread.home) / 2;
+  return { home: home.toFixed(1), away: away.toFixed(1) };
 }
 
 function BigMarketCell({
