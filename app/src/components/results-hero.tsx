@@ -100,19 +100,20 @@ export default function ResultsHero({
         className="grid grid-cols-1 sm:grid-cols-2 gap-2"
       >
         <RecordCard
-          label="Published cards · lifetime"
+          label="Published cards (shown to users) · lifetime"
           record={publishedLifetime}
           emphasis
         />
-        <RecordCard label="Generated pool · lifetime" record={lifetime} />
+        <RecordCard label="All generated cards (internal tracking) · lifetime" record={lifetime} />
       </div>
       <p
         className="font-mono leading-snug m-0"
         style={{ color: "var(--vault-text-faint)", fontSize: 11, maxWidth: 620 }}
       >
-        Published cards are the curated cards shown on Suggested Parlays before
-        games. The generated pool is the broader model output tracked separately.
-        Hit rate counts finished cards only; pending and pushes are separate.
+        Published cards are the ones shown to users on Suggested Parlays before
+        games. The second number is every card the model generated, tracked
+        internally for transparency. Only settled outcomes count toward hit rate —
+        pending games are not counted yet, and pushes are listed separately.
       </p>
     </header>
   );
