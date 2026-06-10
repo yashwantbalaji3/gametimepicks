@@ -71,12 +71,18 @@ export default function PlayerAvatar({
   const showFallback = !hasPhoto || errored;
 
   const initials = initialsFor(playerName);
-  // NBA Stats CDN for NBA players; MLB Stats CDN for MLB players. Both
-  // are official public endpoints used by the leagues themselves.
+  // Headshot CDNs (official public endpoints used by the leagues themselves):
+  //  - MLB: MLB Stats people CDN, keyed by MLB Stats API player id.
+  //  - NBA: ESPN headshot CDN, keyed by ESPN athlete id. The NBA board is
+  //    powered by espn_scoreboard, so `playerId` is an ESPN athlete id — the
+  //    old cdn.nba.com pattern expects NBA.com stats ids and returns a generic
+  //    silhouette (HTTP 200) for ESPN ids, which is why real faces were missing.
+  //    ESPN's CDN returns the real photo for valid ESPN ids and a clean 404 for
+  //    unknown ids, so `onError` falls through to the initials disc.
   const photoUrl = hasPhoto
     ? sport === "mlb"
       ? `https://midfield.mlbstatic.com/v1/people/${playerId}/spots/120`
-      : `https://cdn.nba.com/headshots/nba/latest/260x190/${playerId}.png`
+      : `https://a.espncdn.com/i/headshots/nba/players/full/${playerId}.png`
     : null;
 
   const wrapperClass = `gtp-player-avatar${flat ? " gtp-player-avatar-flat" : ""}`;
