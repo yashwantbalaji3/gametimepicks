@@ -1,5 +1,7 @@
 # UFC prop-odds provider search (method / distance / rounds)
 
+**Connected-keys check (2026-06-09):** repo secrets are `ODDS_API_KEY` + `BALLDONTLIE_API_KEY` ONLY — no `OPTICODDS_API_KEY`, `SPORTSDATAIO_API_KEY`, or `SPORTSGAMEODDS_API_KEY`. So no paid-provider discovery probe is possible tonight; connecting any of them is a **paid decision requiring user approval**. The Odds API is re-probed automatically by `ufc-prop-discovery.yml` in case it adds MMA props.
+
 **Confirmed:** The Odds API MMA exposes `h2h` ONLY (live probe — totals/method/
 distance/rounds all unavailable). To unlock prop projections we need a provider
 that actually carries MMA props. Options (NO paid activation here):
@@ -11,6 +13,7 @@ that actually carries MMA props. Options (NO paid activation here):
 | OpticOdds | broad props (method/rounds) | yes | **paid** | low | yes | strong candidate (paid) |
 | Pinnacle (direct) | method/distance/rounds | restricted | acct/paid | ToS | limited | hard to access |
 | Sportradar MMA | method/rounds (enterprise) | yes | **paid (enterprise)** | low | yes | enterprise pricing — overkill |
+| Sports Game Odds | h2h + some MMA props | yes | **paid** | low | some | mid candidate (paid) |
 | Betfair Exchange | some MMA markets | yes (acct) | acct | regional/ToS | limited | regional friction |
 | BetMGM/DK/FD direct | rich props | no public API | — | **scrape risk** | no | NOT recommended |
 | RapidAPI MMA odds | varies/unreliable | yes | varies | varies | varies | low-confidence |
