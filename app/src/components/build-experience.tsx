@@ -81,7 +81,17 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
         <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{selected.length} leg{selected.length === 1 ? "" : "s"}</span>
       </div>
       {selected.length === 0 ? (
-        <p style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Add eligible legs from the list to build a paper card.</p>
+        <div className="flex flex-col gap-2">
+          <p style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Build a paper card in three steps:</p>
+          <ol className="flex flex-col gap-1">
+            {["Pick a sport above", "Tap + on any eligible leg", "Set a stake to see the payout"].map((s, i) => (
+              <li key={i} className="flex items-center gap-2">
+                <span className="font-mono rounded-full flex items-center justify-center shrink-0" style={{ width: 18, height: 18, background: "var(--vault-gold-dim)", color: "var(--vault-gold-bright)", fontSize: 10, fontWeight: 700 }}>{i + 1}</span>
+                <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{s}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
       ) : (
         <>
           <div className="flex flex-col gap-1.5">
@@ -137,9 +147,17 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
           </div>
         </div>
 
-        <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-          {filtered.length} eligible leg{filtered.length === 1 ? "" : "s"}
-        </span>
+        <div className="flex items-center justify-between gap-2">
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+            {filtered.length} eligible leg{filtered.length === 1 ? "" : "s"}
+          </span>
+          {(sport !== "All" || risk !== "All" || market !== "All" || q || gameFilter || selected.length > 0) ? (
+            <button type="button" onClick={() => { setSport("All"); setRisk("All"); setMarket("All"); setQ(""); setGameFilter(null); setSelected([]); }}
+              className="vault-press font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>
+              Start over ✕
+            </button>
+          ) : null}
+        </div>
         <div className="flex flex-col gap-1.5 max-h-[60vh] overflow-y-auto pr-1">
           {filtered.map((l) => {
             const on = selectedIds.has(l.id);
