@@ -1,65 +1,66 @@
 /**
- * BankBuilderFinalsSpotlight — a FEATURED NBA Finals same-game card on the Bank
- * Builder page, rendered OUTSIDE the tracked $100→$3,000 paper ladder.
+ * BankBuilderFinalsSlip — today's TRACKED active Builder Slip when a user-approved
+ * NBA Finals event override is in effect.
  *
- * Why outside the ladder: the canonical ledger is settled-only and never
- * fabricated — we do not swap the tracked Daily Builder Pick. This is an
- * illustrative spotlight for tonight's Finals game, drawn from the same real
- * model leans + book odds. It is clearly labeled as featured / illustrative and
- * does not affect bankroll history.
+ * This is a pre-tip, user-approved replacement of today's NEXT rung (the slip is
+ * still PENDING — no settled history is touched; the June 9 win is unchanged). The
+ * MLB candidate it supersedes is preserved in a collapsed audit note by the caller.
+ *
+ * Honesty: real model leans + real book odds; combined odds = exact product of the
+ * per-leg decimals; paper stake = the exact current ladder bankroll. Never implies a
+ * result before the game finishes.
  */
 import type { FinalsCard } from "@/lib/nba-finals-cards";
 import { fmtAmerican } from "@/lib/nba-finals-cards";
 import PlayerAvatar from "./player-avatar";
 
 function usd(n: number): string {
-  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export default function BankBuilderFinalsSpotlight({
+export default function BankBuilderFinalsSlip({
   card,
-  illustrativeStake,
+  stake,
+  stepNumber,
+  stepGoal,
 }: {
   card: FinalsCard | null;
-  illustrativeStake: number;
+  stake: number;
+  stepNumber: number;
+  stepGoal: number;
 }) {
   if (!card) return null;
-  const ret = Math.round(illustrativeStake * card.combinedDecimal);
+  const ret = stake * card.combinedDecimal;
+  const profit = ret - stake;
 
   return (
     <section
-      aria-label="Featured NBA Finals card"
-      className="mt-6 rounded-[10px] p-4 sm:p-5"
+      aria-label="Today's NBA Finals Builder Slip"
+      className="rounded-[10px] p-4 sm:p-5 flex flex-col gap-3"
       style={{
         background:
           "linear-gradient(180deg, rgba(20,24,35,0.92) 0%, rgba(7,11,26,0.62) 100%)",
         border: "1px solid var(--sport-nba, var(--vault-border))",
       }}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <span
           className="font-mono uppercase tracking-[0.16em]"
           style={{ color: "var(--sport-nba)", fontSize: 10 }}
         >
-          Featured · NBA Finals Game 4
+          Today&apos;s Builder Slip · NBA Finals Game 4
         </span>
         <span
           className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[4px]"
-          style={{ color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", fontSize: 9.5 }}
+          style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", fontSize: 9.5 }}
         >
-          Outside the tracked ladder
+          Step {stepNumber} · pending
         </span>
       </div>
-      <h2
-        className="font-display tracking-tight"
-        style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 700 }}
-      >
-        NBA Finals same-game spotlight
-      </h2>
-      <p className="text-[12px] leading-snug mt-0.5 mb-3" style={{ color: "var(--vault-text-mute)", maxWidth: 600 }}>
-        An illustrative {card.legs.length}-leg same-game card from tonight&apos;s game — real
-        model leans, real book odds. This is a featured example, not the tracked Daily
-        Builder Pick, so it doesn&apos;t change bankroll history.
+
+      <p className="text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)", maxWidth: 620 }}>
+        A {card.legs.length}-leg same-game card from tonight&apos;s game — real model leans,
+        real book odds. Paper only; result posts after the game finishes.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -100,38 +101,49 @@ export default function BankBuilderFinalsSpotlight({
           })}
         </div>
 
-        {/* Paper math */}
+        {/* Paper math — exact stake / projected return / profit / step target */}
         <div
-          className="flex flex-col justify-center gap-1 rounded-[8px] px-4 py-3"
+          className="flex flex-col justify-center gap-1.5 rounded-[8px] px-4 py-3"
           style={{ background: "rgba(0,0,0,0.35)", border: "1px solid var(--vault-rule)" }}
         >
-          <div className="flex items-baseline justify-between gap-2">
-            <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Combined odds</span>
-            <span className="font-display" style={{ color: "var(--vault-gold-bright)", fontSize: 20, fontWeight: 700 }}>
-              {fmtAmerican(card.combinedAmerican)}
-            </span>
-          </div>
-          <div className="flex items-baseline justify-between gap-2">
-            <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Paper stake</span>
-            <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 15 }}>
-              {usd(illustrativeStake)}
-            </span>
-          </div>
-          <div className="flex items-baseline justify-between gap-2">
-            <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Potential paper return</span>
-            <span className="font-display tabular" style={{ color: "var(--vault-success)", fontSize: 17, fontWeight: 700 }}>
-              {usd(ret)}
-            </span>
-          </div>
+          <Row label="Combined odds" value={fmtAmerican(card.combinedAmerican)} big accent="var(--vault-gold-bright)" />
+          <Row label="Paper stake" value={usd(stake)} />
+          <Row label="Projected return" value={usd(ret)} accent="var(--vault-success)" big />
+          <Row label="Projected profit" value={`+${usd(profit)}`} accent="var(--vault-success)" />
+          <Row label="Step target" value={usd(stepGoal)} />
           <span style={{ color: "var(--vault-text-faint)", fontSize: 9.5, marginTop: 2 }}>
-            {card.combinedDecimal.toFixed(2)}× · paper only, no real money
+            {card.combinedDecimal.toFixed(2)}× · paper only, not betting advice
           </span>
         </div>
       </div>
 
-      <p style={{ color: "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.4, marginTop: 12 }}>
+      <p style={{ color: "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.4 }}>
         {card.correlationNote}
       </p>
     </section>
+  );
+}
+
+function Row({
+  label,
+  value,
+  accent,
+  big,
+}: {
+  label: string;
+  value: string;
+  accent?: string;
+  big?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-2">
+      <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{label}</span>
+      <span
+        className="font-display tabular"
+        style={{ color: accent ?? "var(--vault-text)", fontSize: big ? 18 : 14, fontWeight: big ? 700 : 600 }}
+      >
+        {value}
+      </span>
+    </div>
   );
 }
