@@ -36,13 +36,18 @@ export interface WcProjection {
   sampleSizeWarning: boolean;
   factors: string[];
   notes: string[];
+  caveats?: string[];
+  modelVersion?: string;
+  opponentStrengthCoverage?: number;
   // Upgraded methodology (2026-06-11). Only `active` projections are public.
   projectionStatus?:
     | "active"
     | "research_only"
     | "gated_market_sanity"
     | "gated_sample_size"
-    | "gated_missing_features";
+    | "gated_missing_features"
+    | "gated_low_edge"
+    | "gated_opponent_strength_missing";
   public?: boolean;
   statusReason?: string;
 }

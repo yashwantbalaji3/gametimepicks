@@ -86,14 +86,18 @@ def classify_projection(
     sample_min: int,
     opponent_adjusted: bool,
     is_underdog: bool,
+    strength_missing: bool = False,
 ) -> tuple[str, bool, str]:
     """Return (projectionStatus, isPublic, reason). The ONLY path to `active`/public is clearing
-    every gate. Order matters: market-sanity first (kills extreme underdogs), then sample, then
-    missing-feature caps, then minimum edge."""
+    every gate. Order: market-sanity (kills extreme underdogs) → opponent/strength availability
+    → sample → missing-feature caps → minimum edge."""
     edge = model_prob - market_prob
     if is_underdog and market_prob < UNDERDOG_MARKET_FLOOR:
         return ("gated_market_sanity", False,
                 f"extreme underdog (market {market_prob*100:.0f}% < {UNDERDOG_MARKET_FLOOR*100:.0f}%) — not a model pick")
+    if strength_missing and is_underdog:
+        return ("gated_opponent_strength_missing", False,
+                "a team's strength rating is unavailable — underdog pick gated (no opponent-strength backing)")
     if sample_min < MIN_SAMPLE_ACTIVE:
         return ("gated_sample_size", False,
                 f"recent-form sample {sample_min} < {MIN_SAMPLE_ACTIVE} — too thin to publish")
@@ -102,9 +106,60 @@ def classify_projection(
                 "underdog model-lift exceeds the cap allowed without opponent-strength adjustment")
     min_edge = MIN_EDGE_ML if market_type == "moneyline_90" else MIN_EDGE_TOTAL
     if edge < min_edge:
-        return ("research_only", False,
+        return ("gated_low_edge", False,
                 f"edge {edge*100:+.1f}% below the {min_edge*100:.1f}% active threshold for {market_type}")
-    return ("active", True, "passes market-sanity + sample + feature + edge gates")
+    return ("active", True, "passes market-sanity + strength + sample + feature + edge gates")
+
+
+def project_ensemble(
+    market_hda: tuple[float, float, float],
+    *,
+    strength_exp: tuple[float, float] | None = None,
+    form_exp: tuple[float, float] | None = None,
+    sample_min: int = 0,
+    opp_coverage: float = 0.0,
+    total_line: float | None = None,
+    market_over: float | None = None,
+) -> dict:
+    """Ensemble 90-minute H/D/A (+ optional total) blending three INDEPENDENT components:
+      - market prior (de-vigged) — strongest, especially early;
+      - team-strength prior — FIFA-points expected goals (`strength_exp`), independent of market;
+      - opponent-adjusted recent form (`form_exp`).
+    Base weights market 0.60 / strength 0.25 / form 0.15. Missing strength or form folds its
+    weight back into the market; form weight is further scaled by opponent-strength coverage.
+    Never echoes the market: the strength + form components move it on real, independent data."""
+    w_m, w_s, w_f = 0.60, 0.25, 0.15
+    has_s = strength_exp is not None
+    has_f = form_exp is not None and sample_min > 0
+    if not has_s:
+        w_m += w_s; w_s = 0.0
+    if not has_f:
+        w_m += w_f; w_f = 0.0
+    else:
+        eff = w_f * max(0.0, min(1.0, opp_coverage))
+        w_m += (w_f - eff); w_f = eff
+    s_hda = poisson_hda(*strength_exp) if has_s else market_hda
+    f_hda = poisson_hda(*form_exp) if has_f else market_hda
+    ph = w_m * market_hda[0] + w_s * s_hda[0] + w_f * f_hda[0]
+    pd = w_m * market_hda[1] + w_s * s_hda[1] + w_f * f_hda[1]
+    pa = w_m * market_hda[2] + w_s * s_hda[2] + w_f * f_hda[2]
+    tot = ph + pd + pa
+    out: dict = {
+        "moneyline": {"home": ph / tot, "draw": pd / tot, "away": pa / tot},
+        "weights": {"market": round(w_m, 3), "strength": round(w_s, 3), "form": round(w_f, 3)},
+        "confidence": "Low", "sampleSizeWarning": sample_min < MIN_SAMPLE_ACTIVE,
+        "opponentCoverage": round(opp_coverage, 2), "usedStrength": has_s, "usedForm": has_f,
+    }
+    if total_line is not None and market_over is not None:
+        comps = [(w_m, market_over)]
+        if has_s:
+            comps.append((w_s, poisson_over_under(sum(strength_exp), total_line)[0]))
+        if has_f:
+            comps.append((w_f, poisson_over_under(sum(form_exp), total_line)[0]))
+        wsum = sum(w for w, _ in comps) or 1.0
+        over = sum(w * pq for w, pq in comps) / wsum
+        out["total"] = {"line": total_line, "over": over, "under": 1 - over}
+    return out
 
 
 def project_match(

@@ -12,9 +12,12 @@ Bank Builder ladder is untouched.
 projection) returns `goals.home`/`goals.away` once `fixture.status.short == "FT"` — the
 **90-minute regulation** score (AET/PEN are separate fields we deliberately do NOT use for
 90-minute markets). Grade moneyline on home/draw/away vs that score; grade totals on
-`goals.home + goals.away` vs the line. A settler (`pipeline/world_cup/settle.py`) is the next
-step — run it only AFTER `status==FT`; it must be idempotent and never alter pre-game
-odds/lines.
+`goals.home + goals.away` vs the line. The settler **`pipeline/world_cup/settle.py`** is
+implemented (pure `grade_moneyline`/`grade_total` core + a bounded runner). It grades ONLY
+public/active picks (never research/gated, never the Market Outlook), reads regulation `goals`
+when `status ∈ {FT,AET,PEN}` (90-minute markets graded on the FT regulation score; extra
+time/penalties excluded), is idempotent, and never alters pre-game odds/lines. It runs in the
+discovery workflow as a no-op until a public/active pick exists and its match finishes.
 
 ## When projections/parlays DO go live (after a stats provider connects)
 Settle per market, official sources only, regulation-time only:
