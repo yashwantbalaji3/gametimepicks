@@ -41,6 +41,8 @@ jobs:
             python -m pipeline.world_cup.build_suggested_parlays --date "$D" || echo "[wc-parlay] non-fatal"
             # Settlement — grades public/active picks from FT regulation score (no-op if none).
             python -m pipeline.world_cup.settle --date "$D" || echo "[wc-settle] non-fatal"
+            # Daily MIXED-SPORT cards — combines parlay-eligible legs across sports (no-op if thin).
+            python -m pipeline.daily.build_mixed_sport_cards --date "$D" || echo "[mixed-cards] non-fatal"
           else
             python -m pipeline.world_cup.readiness --date "$D" --provider "$WC_STATS_PROVIDER"
           fi
@@ -54,6 +56,7 @@ jobs:
           for sub in stats provider-discovery projections parlays settlement markets player-markets player-projections player-features; do
             git add "app/public/data/world-cup/$sub/" 2>/dev/null || true
           done
+          git add app/public/data/daily/cards/ 2>/dev/null || true
           if git diff --staged --quiet; then echo "no changes"; exit 0; fi
           git config user.name "GametimePicks Bot"; git config user.email "noreply@github.com"
           git commit -m "auto: World Cup stats readiness [skip ci]"

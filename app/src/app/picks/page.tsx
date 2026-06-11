@@ -13,6 +13,7 @@ import {
   normalizeWcCards,
   normalizeOptimizerSlips,
   normalizeUfcCards,
+  loadDailyMixedCards,
   type PublicSuggestedCard,
 } from "@/lib/normalize";
 import PicksExperience from "@/components/picks-experience";
@@ -37,6 +38,7 @@ function loadUfc(): unknown {
 export default function PicksPage() {
   const today = currentEtDate();
   const cards: PublicSuggestedCard[] = [
+    ...loadDailyMixedCards(),
     ...normalizeWcCards(loadWorldCupParlays()),
     ...normalizeOptimizerSlips(getSuggestedParlaysForDate(today)?.slips ?? null, { date: today }),
     ...normalizeUfcCards(loadUfc() as Parameters<typeof normalizeUfcCards>[0], today),
