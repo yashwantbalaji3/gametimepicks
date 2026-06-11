@@ -25,6 +25,12 @@ import {
 } from "@/lib/data-world-cup";
 import { currentEtDate } from "@/lib/freshness";
 
+import {
+  loadWorldCupMarketOutlook,
+  loadWorldCupProjectionReadiness,
+  outlookForMatch,
+} from "@/lib/world-cup/market-outlook";
+import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
 import WorldCupSectionTabs from "@/components/world-cup/world-cup-section-tabs";
 import FlagBadge from "@/components/flag-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
@@ -54,6 +60,12 @@ export default function WorldCupLandingPage() {
   const opener = schedule.find((m) => m.id === 1);
   const finalMatch = schedule.find((m) => m.id === 104);
   const upcomingMatches = schedule.filter((m) => m.stage === "group").slice(0, 6);
+
+  // Real market outlook (de-vigged H/D/A + totals) from The Odds API. Market-implied,
+  // NOT a model pick. Fail-closed: null when no ready odds.
+  const outlook = loadWorldCupMarketOutlook();
+  const readiness = loadWorldCupProjectionReadiness();
+  const oddsReady = !!readiness?.oddsReady && (outlook?.readyCount ?? 0) > 0;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -105,7 +117,7 @@ export default function WorldCupLandingPage() {
           { href: "/world-cup/groups", label: "Groups" },
           { href: "/world-cup/teams", label: "Teams" },
         ]}
-        framing="Official schedule, groups, and qualified squads from FIFA. Match projections, parlays, and odds are NOT live yet — World Cup is fail-closed until real soccer odds and stats providers are connected, so we never print a projection we can't back with data. The schedule and tournament structure are fully live now."
+        framing="Official schedule + groups from FIFA, plus a live 90-minute Market Outlook — de-vigged Home/Draw/Away + totals implied by current sportsbook prices for today's matches (market-implied, not a model pick). Independent projections, player props, and parlays stay fail-closed until a soccer stats provider connects: we never print a model edge we can't back with data."
         accent="gold"
       />
 
@@ -117,20 +129,25 @@ export default function WorldCupLandingPage() {
             title="Today's World Cup fixtures"
             sub="Kickoff times in venue local time. Schedule is live; market outlooks and projections appear only once real odds + stats gates pass."
           />
-          {/* Readiness badge — honest, fail-closed market-outlook state. */}
+          {/* Readiness badge — reflects the real odds gate. */}
           <div
             className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[8px] px-3.5 py-2.5"
             style={{ background: "var(--gtp-card)", border: "1px solid var(--gtp-card-border)" }}
           >
             <span
               className="font-mono uppercase tracking-[0.14em] px-2 py-0.5 rounded-[4px]"
-              style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", fontSize: 10 }}
+              style={{
+                color: oddsReady ? "var(--vault-success)" : "var(--vault-gold-bright)",
+                border: `1px solid ${oddsReady ? "var(--vault-success)" : "var(--vault-gold-bright)"}`,
+                fontSize: 10,
+              }}
             >
-              Schedule live
+              {oddsReady ? "Market outlook live" : "Schedule live"}
             </span>
             <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-              Odds &amp; projections pending — they unlock only when a real soccer odds + stats
-              provider is connected. No placeholder prices are shown.
+              {oddsReady
+                ? "90-minute Home/Draw/Away + totals implied by current sportsbook prices — market outlook, not a model pick. Player props + independent projections stay off until a soccer stats provider is connected."
+                : "Odds & projections pending — they unlock only when a real soccer odds + stats provider is connected. No placeholder prices are shown."}
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -138,38 +155,17 @@ export default function WorldCupLandingPage() {
               const homeTeam = teams.find((t) => t.name === m.home);
               const awayTeam = teams.find((t) => t.name === m.away);
               return (
-                <article
+                <WcMatchOutlookCard
                   key={m.id}
-                  className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
-                  style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono uppercase tracking-[0.18em]" style={{ color: "var(--vault-gold)", fontSize: 9 }}>
-                      {m.stage === "group" ? `Group ${m.group}` : m.stage} · match {m.id}
-                    </span>
-                    <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-                      {m.kickoffLocal} · {m.venueCity}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <FlagBadge code={homeTeam?.code ?? ""} size="md" />
-                      <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 600 }}>
-                        {m.home}
-                      </span>
-                    </div>
-                    <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>vs</span>
-                    <div className="flex items-center gap-2 min-w-0 justify-end">
-                      <span className="font-display tracking-tight truncate text-right" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 600 }}>
-                        {m.away}
-                      </span>
-                      <FlagBadge code={awayTeam?.code ?? ""} size="md" />
-                    </div>
-                  </div>
-                  <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-                    90-minute markets unavailable — odds provider not connected yet
-                  </span>
-                </article>
+                  match={outlookForMatch(m.home ?? "", m.away ?? "", outlook)}
+                  homeCode={homeTeam?.code ?? ""}
+                  awayCode={awayTeam?.code ?? ""}
+                  homeName={m.home ?? ""}
+                  awayName={m.away ?? ""}
+                  kickoff={m.kickoffLocal}
+                  group={(m.stage === "group" ? m.group : m.stage) ?? null}
+                  venue={m.venueCity}
+                />
               );
             })}
           </div>
@@ -457,11 +453,12 @@ export default function WorldCupLandingPage() {
         }
         framingBody={
           <>
-            Projections, parlay candidate slips, and odds are intentionally
-            absent for World Cup matches — the surface is fail-closed until a
-            real soccer odds + stats provider is connected. We refuse to invent
-            rosters, results, prices, or &quot;model edge&quot; before the model
-            is live. The schedule, groups, and qualified teams are fully live.
+            A live 90-minute Market Outlook (sportsbook-implied Home/Draw/Away +
+            totals) is shown for today&apos;s matches, clearly labeled as
+            market-implied — not a model pick. Independent projections, player
+            props, and parlays stay fail-closed until a real soccer stats provider
+            is connected: we refuse to invent rosters, results, or
+            &quot;model edge&quot; before the model is live.
           </>
         }
       />
