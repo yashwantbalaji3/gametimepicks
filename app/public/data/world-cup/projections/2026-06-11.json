@@ -1,12 +1,19 @@
 {
-  "generatedAt": "2026-06-11T13:18:43+00:00",
+  "generatedAt": "2026-06-11T13:54:22+00:00",
   "sport": "world_cup",
   "date": "2026-06-11",
   "provider": "api_football",
   "oddsProvider": "odds_api",
   "disclaimer": "GameTime Picks model projections \u2014 90-minute regulation only. Educational/paper, not betting advice.",
+  "methodology": "Market-anchored Poisson (market prior >= ~0.89 on opening day; recent-form weight capped, reduced when opponent-unadjusted). Market-sanity + sample + feature + edge gates; only `active` projections are public.",
   "matchCount": 2,
   "projectionCount": 4,
+  "activeCount": 0,
+  "public": false,
+  "methodologyReviewRequired": true,
+  "statusCounts": {
+    "research_only": 4
+  },
   "matches": [
     {
       "sport": "world_cup",
@@ -21,27 +28,31 @@
       "sampleSizeWarning": false,
       "provider": "api_football",
       "oddsProvider": "odds_api",
-      "id": "wc_2026-06-11_mexico_southafrica_ml_away",
+      "id": "wc_2026-06-11_mexico_southafrica_ml_draw",
       "market": "moneyline_90",
-      "pick": "away",
-      "pickLabel": "South Africa",
+      "pick": "draw",
+      "pickLabel": "Draw",
       "line": null,
-      "americanOdds": 750,
+      "americanOdds": 340,
       "bookmaker": "draftkings",
-      "modelProbability": 0.1301,
-      "marketProbability": 0.1124,
-      "edgePct": 1.77,
+      "modelProbability": 0.2211,
+      "marketProbability": 0.2172,
+      "edgePct": 0.39,
       "confidence": "Low",
-      "riskTier": "Longshot",
+      "projectionStatus": "research_only",
+      "public": false,
+      "statusReason": "edge +0.4% below the 3.0% active threshold for moneyline_90",
+      "riskTier": "High",
       "factors": [
         "Recent form: Mexico 1.875\u20130.25 GF/GA per match (last 8)",
         "Recent form: South Africa 1.125\u20131.25 GF/GA per match (last 8)",
         "Model expected goals 1.56\u20130.69",
-        "Market-implied South Africa 11%"
+        "Market-implied Draw 22% \u00b7 model weight 0.108"
       ],
       "notes": [
         "90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
-        "Early tournament \u2014 model blends recent national-team form with the market; confidence capped Low"
+        "Market-anchored model; recent form is opponent-unadjusted so its weight is capped low",
+        "edge +0.4% below the 3.0% active threshold for moneyline_90"
       ]
     },
     {
@@ -64,17 +75,21 @@
       "line": 2.5,
       "americanOdds": -140,
       "bookmaker": "draftkings",
-      "modelProbability": 0.5786,
+      "modelProbability": 0.5671,
       "marketProbability": 0.562,
-      "edgePct": 1.66,
+      "edgePct": 0.51,
       "confidence": "Low",
+      "projectionStatus": "research_only",
+      "public": false,
+      "statusReason": "edge +0.5% below the 2.5% active threshold for match_total_goals",
       "riskTier": "Low",
       "factors": [
         "Model expected total 2.25 goals",
-        "Market total line 2.5 (Over 44%)"
+        "Market total line 2.5 (Over 44%) \u00b7 model weight 0.108"
       ],
       "notes": [
-        "90-minute regulation goals only"
+        "90-minute regulation goals only",
+        "edge +0.5% below the 2.5% active threshold for match_total_goals"
       ]
     },
     {
@@ -97,20 +112,24 @@
       "line": null,
       "americanOdds": 185,
       "bookmaker": "draftkings",
-      "modelProbability": 0.39,
+      "modelProbability": 0.3527,
       "marketProbability": 0.3361,
-      "edgePct": 5.39,
+      "edgePct": 1.66,
       "confidence": "Low",
+      "projectionStatus": "research_only",
+      "public": false,
+      "statusReason": "edge +1.7% below the 3.0% active threshold for moneyline_90",
       "riskTier": "Medium",
       "factors": [
         "Recent form: South Korea 1.375\u20131.25 GF/GA per match (last 8)",
         "Recent form: Czechia 2.0\u20130.875 GF/GA per match (last 8)",
         "Model expected goals 1.12\u20131.62",
-        "Market-implied Czechia 34%"
+        "Market-implied Czechia 34% \u00b7 model weight 0.108"
       ],
       "notes": [
         "90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
-        "Early tournament \u2014 model blends recent national-team form with the market; confidence capped Low"
+        "Market-anchored model; recent form is opponent-unadjusted so its weight is capped low",
+        "edge +1.7% below the 3.0% active threshold for moneyline_90"
       ]
     },
     {
@@ -133,17 +152,21 @@
       "line": 2.5,
       "americanOdds": 125,
       "bookmaker": "draftkings",
-      "modelProbability": 0.4603,
+      "modelProbability": 0.4386,
       "marketProbability": 0.4289,
-      "edgePct": 3.14,
+      "edgePct": 0.97,
       "confidence": "Low",
+      "projectionStatus": "research_only",
+      "public": false,
+      "statusReason": "edge +1.0% below the 2.5% active threshold for match_total_goals",
       "riskTier": "Medium",
       "factors": [
         "Model expected total 2.74 goals",
-        "Market total line 2.5 (Over 43%)"
+        "Market total line 2.5 (Over 43%) \u00b7 model weight 0.108"
       ],
       "notes": [
-        "90-minute regulation goals only"
+        "90-minute regulation goals only",
+        "edge +1.0% below the 2.5% active threshold for match_total_goals"
       ]
     }
   ]
