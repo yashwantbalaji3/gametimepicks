@@ -104,6 +104,26 @@ export default function TodayPage() {
         </div>
       </section>
 
+      {/* Quick actions — the four primary destinations, above the fold on mobile */}
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        {[
+          { href: "/games", label: "Games", sub: "Tonight, all sports" },
+          { href: "/picks", label: "Picks", sub: "Suggested cards" },
+          { href: "/build", label: "Build", sub: "Your own card" },
+          { href: "/bank-builder", label: "Bank", sub: bank ? `$${bank.currentBankrollUnits}` : "Ladder" },
+        ].map((a) => (
+          <Link
+            key={a.href}
+            href={a.href}
+            className="vault-glow-hover rounded-[10px] px-3 py-3.5 flex flex-col gap-0.5"
+            style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", textDecoration: "none" }}
+          >
+            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>{a.label}</span>
+            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{a.sub}</span>
+          </Link>
+        ))}
+      </section>
+
       {/* Sport cards */}
       <section>
         <SectionHeader eyebrow="Active sports" title="Jump into a sport" sub="Counts are today's live data. Tap a card to open the full sport board." />
