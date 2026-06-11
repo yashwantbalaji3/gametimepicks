@@ -35,7 +35,7 @@ const NAV_ITEMS: Array<{
   { href: "/sports", label: "Sports" },
   { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
   { href: "/results", label: "Results" },
-  { href: "/methodology", label: "Learn" },
+  { href: "/learn", label: "Learn" },
   { href: "/about", label: "About" },
 ];
 
@@ -57,9 +57,9 @@ export default function Nav() {
     if (href === "/sports") return SPORT_RE.test(pathname);
     // Results, but not the model-audit surface (that lives under Learn).
     if (href === "/results") return pathname === "/results" || (pathname.startsWith("/results/") && !pathname.startsWith("/results/model-audit"));
-    // Learn = methodology hub + responsible-use + model audit.
-    if (href === "/methodology") {
-      return pathname === "/methodology" || pathname.startsWith("/methodology/") || pathname === "/responsible-use" || pathname.startsWith("/responsible-use/") || pathname === "/results/model-audit" || pathname.startsWith("/results/model-audit/");
+    // Learn = the education hub + methodology + responsible-use + model audit.
+    if (href === "/learn") {
+      return pathname === "/learn" || pathname.startsWith("/learn/") || pathname === "/methodology" || pathname.startsWith("/methodology/") || pathname === "/responsible-use" || pathname.startsWith("/responsible-use/") || pathname === "/results/model-audit" || pathname.startsWith("/results/model-audit/");
     }
     return pathname === href || pathname.startsWith(`${href}/`);
   };
