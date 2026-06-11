@@ -27,9 +27,13 @@ export default function SuggestedCard({
     >
       <div className="flex items-center justify-between gap-2">
         <RiskTierBadge tier={card.riskTier} prefix={card.sportLabels.join(" + ")} />
-        <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>
-          {formatAmerican(card.combinedAmericanOdds)}
-        </span>
+        {card.combinedAmericanOdds !== 0 ? (
+          <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>
+            {formatAmerican(card.combinedAmericanOdds)}
+          </span>
+        ) : (
+          <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>model</span>
+        )}
       </div>
 
       <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>
@@ -53,12 +57,22 @@ export default function SuggestedCard({
                 <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{l.sublabel}</span>
               ) : null}
             </div>
-            <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>
+            {l.americanOdds !== 0 ? (
+              <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>
+            ) : null}
           </div>
         ))}
       </div>
 
-      <StakePayoutInput combinedAmerican={card.combinedAmericanOdds} defaultStake={card.defaultStake} lockedStake={lockedStake} />
+      {card.combinedAmericanOdds !== 0 ? (
+        <StakePayoutInput combinedAmerican={card.combinedAmericanOdds} defaultStake={card.defaultStake} lockedStake={lockedStake} />
+      ) : (
+        <div className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+            Model card · no market odds (no paper payout)
+          </span>
+        </div>
+      )}
 
       {card.caveats && card.caveats.length > 0 ? (
         <details>

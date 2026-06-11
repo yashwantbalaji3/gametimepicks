@@ -26,6 +26,7 @@ const NAV_ITEMS: Array<{
   beforeDivider?: boolean;
 }> = [
   { href: "/today", label: "Today" },
+  { href: "/picks", label: "Picks" },
   { href: "/", label: "Home" },
   { href: "/projections", label: "Projections" },
   { href: "/parlay-lab", label: "Parlay Lab" },
