@@ -190,3 +190,13 @@ export function getGameDetail(sport: string, slug: string): PublicGameDetail | n
 export function gameDetailParams(): Array<{ sport: string; gameId: string }> {
   return buildAllGameDetails().map((d) => ({ sport: urlSport(d.sport), gameId: d.slug }));
 }
+
+/** Detail-page href for a fixture by its two teams (order/date-independent). Used by the sport
+ *  hubs to link each listed game straight to its detail page; null when no detail exists. */
+export function detailHrefForTeams(sport: SportKey, teamA: string, teamB: string): string | null {
+  const key = [slugify(teamA), slugify(teamB)].sort().join("|");
+  const d = buildAllGameDetails().find(
+    (x) => x.sport === sport && [slugify(x.homeTeam ?? ""), slugify(x.awayTeam ?? "")].sort().join("|") === key,
+  );
+  return d ? `/games/${urlSport(d.sport)}/${d.slug}` : null;
+}
