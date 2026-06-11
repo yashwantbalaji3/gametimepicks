@@ -1,15 +1,15 @@
 {
   "appName": "GametimePicks",
   "version": "0.5.0",
-  "lastPipelineRun": "2026-06-10T20:55:06+00:00",
+  "lastPipelineRun": "2026-06-11T15:33:14+00:00",
   "isDemo": false,
-  "dataMode": "Live",
-  "nbaScheduleSource": "espn_scoreboard",
-  "nbaStatsSource": "espn_scoreboard",
-  "oddsSource": "the_odds_api",
+  "dataMode": "ScheduleUnavailable",
+  "nbaScheduleSource": "unavailable",
+  "nbaStatsSource": "unavailable",
+  "oddsSource": "unavailable",
   "activeProvider": {
-    "nba": "espn_scoreboard",
-    "odds": "the_odds_api"
+    "nba": "unavailable",
+    "odds": "unavailable"
   },
   "providerStatuses": [
     {
@@ -51,7 +51,7 @@
       "is_stub": false,
       "last_status": "ok",
       "last_error": null,
-      "last_run_at": "2026-06-10T20:55:05+00:00",
+      "last_run_at": "2026-06-11T15:32:23+00:00",
       "notes": "ESPN public scoreboard JSON. Free, no auth, no scraping. Used as a schedule-only fallback when nba_api fails or returns empty. Set ENABLE_ESPN_FALLBACK=false to disable."
     },
     {
@@ -145,7 +145,7 @@
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-06-10T20:55:06+00:00",
+  "lastSuccessfulFetch": "2026-06-11T15:33:14+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -174,18 +174,18 @@
     }
   ],
   "slateDays": 4,
-  "primaryDate": "2026-06-10",
+  "primaryDate": "2026-06-11",
   "newsSignalsConfigured": true,
   "newsSignalsActive": 0,
   "scheduleOverridesConfigured": true,
-  "todayDataMode": "Live",
-  "todayFailureReason": null,
+  "todayDataMode": "ScheduleUnavailable",
+  "todayFailureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
   "todayManualOverrideUsed": false,
   "oddsApiKeyConfigured": true,
-  "todayOddsProviderStatus": "ok_with_props",
+  "todayOddsProviderStatus": "not_configured",
   "todayOddsFailureReason": null,
   "todayOddsQuotaRemaining": null,
-  "todayParsedPropCount": 201,
+  "todayParsedPropCount": 0,
   "oddsBookmakersConfigured": [
     "draftkings",
     "fanduel"
