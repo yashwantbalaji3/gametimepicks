@@ -15,7 +15,7 @@ import {
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { loadBankBuilderSummary } from "@/lib/data-bank-builder";
 import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
-import { normalizeWcCards, type SportSummary } from "@/lib/normalize";
+import { normalizeWcCards, loadDailyMixedCards, type SportSummary } from "@/lib/normalize";
 import SuggestedCard from "@/components/ui/suggested-card";
 import SportCard from "@/components/ui/sport-card";
 import SectionHeader from "@/components/section-header";
@@ -52,7 +52,8 @@ export default function TodayPage() {
   const wcLive = wcGames > 0 || !!wcProj;
   const mlbLive = (mlb.summary.scheduledGames ?? 0) > 0;
   const activeSports = (wcLive ? 1 : 0) + (mlbLive ? 1 : 0);
-  const topCards = normalizeWcCards(wcCards).slice(0, 4);
+  const mixedCards = loadDailyMixedCards();
+  const topCards = [...mixedCards, ...normalizeWcCards(wcCards)].slice(0, 4);
   const sportSummaries: SportSummary[] = [
     {
       sport: "world_cup", label: "World Cup", href: "/world-cup", accent: "var(--vault-gold-bright)", live: wcLive,
@@ -97,8 +98,8 @@ export default function TodayPage() {
         </h1>
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Stat label="Sports live" value={activeSports} />
+          <Stat label="Mixed cards" value={mixedCards.length} />
           <Stat label="WC cards" value={wcCards?.cardCount ?? 0} />
-          <Stat label="WC player props" value={wcPlayers?.projectionCount ?? 0} />
           <Stat label="Bank Builder" value={bank ? `$${bank.currentBankrollUnits}` : "—"} />
         </div>
       </section>
@@ -116,7 +117,7 @@ export default function TodayPage() {
       {/* Top cards with interactive stake */}
       {topCards.length > 0 && (
         <section>
-          <SectionHeader eyebrow={`Top cards · ${wcCards!.cardCount} live`} title="Suggested paper cards" sub="Enter any stake to see the projected paper return. Educational / paper, not betting advice." />
+          <SectionHeader eyebrow={`Top cards · ${mixedCards.length} mixed-sport`} title="Suggested paper cards" sub="Mixed-sport + single-sport cards. Enter any stake to see the projected paper return. Educational / paper, not betting advice." />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {topCards.map((c) => (
               <SuggestedCard key={c.id} card={c} />

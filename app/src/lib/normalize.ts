@@ -3,8 +3,23 @@
  * sport identically. Adapters convert sport-specific artifacts into these contracts. World Cup
  * adapters are implemented here; MLB/NBA/UFC adapters follow the same contract in later PRs.
  */
+import fs from "node:fs";
+import path from "node:path";
 import type { WcParlays, WcProjections, WcPlayerProjections } from "@/lib/world-cup/projections";
 import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
+
+/** Daily mixed-sport cards (built by pipeline.daily.build_mixed_sport_cards). The artifact already
+ *  matches the PublicSuggestedCard contract; returns [] when none. */
+export function loadDailyMixedCards(): PublicSuggestedCard[] {
+  try {
+    const d = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), "public", "data", "daily", "cards", "latest.json"), "utf8"),
+    ) as { cards?: PublicSuggestedCard[] };
+    return Array.isArray(d.cards) ? d.cards : [];
+  } catch {
+    return [];
+  }
+}
 
 export type SportKey = "world_cup" | "mlb" | "nba" | "ufc";
 export type RiskTier = "Low" | "Medium" | "High" | "Longshot";
