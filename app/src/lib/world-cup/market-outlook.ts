@@ -59,6 +59,7 @@ export interface WcStatsReadiness {
   lineupsReady: boolean; playerStatsReady: boolean;
   marketOutlookReady: boolean; projectionsAllowed: boolean;
   playerPropsAllowed: boolean; parlayAllowed: boolean;
+  providerPlanBlock?: string;
   failClosedReasons: string[];
 }
 export function loadWorldCupStatsReadiness(): WcStatsReadiness | null {
