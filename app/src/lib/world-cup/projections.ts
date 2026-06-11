@@ -148,6 +148,48 @@ export function worldCupMethodologyReview(): boolean {
   return loadWorldCupStatsReadiness()?.methodologyReviewRequired === true;
 }
 
+export interface WcMarketStatus {
+  key: string;
+  label: string;
+  kind: "team" | "player";
+  oddsProvider: string;
+  oddsReady: boolean;
+  dataReady: boolean;
+  lineupsReady: boolean | null;
+  projectionReady: boolean;
+  status: string;
+  reason: string;
+}
+export interface WcMarketAvailability {
+  generatedAt: string;
+  date: string;
+  providers: {
+    oddsApi: { connected: boolean; sportKey: string; creditsRemaining?: string | null };
+    apiFootball: { connected: boolean; plan?: string };
+  };
+  markets: Record<string, WcMarketStatus>;
+  requestedMarketsComplete: boolean;
+}
+/** Per-market availability matrix (real probe), or null. Drives the "Requested markets"
+ *  section so no requested market is ever silently missing. */
+export function loadWorldCupMarketAvailability(): WcMarketAvailability | null {
+  const a = read<WcMarketAvailability>("markets/availability-latest.json");
+  return a && a.markets ? a : null;
+}
+/** Friendly chip label + tone for a market status. */
+export function marketStatusChip(status: string): { label: string; tone: string } {
+  switch (status) {
+    case "live": return { label: "Live", tone: "var(--vault-success)" };
+    case "research_only": return { label: "Model research", tone: "var(--vault-gold-bright)" };
+    case "waiting_on_odds": return { label: "Waiting on odds", tone: "var(--vault-text-mute)" };
+    case "waiting_on_lineups": return { label: "Waiting on lineups", tone: "var(--vault-gold)" };
+    case "waiting_on_provider_stats": return { label: "Waiting on stats", tone: "var(--vault-text-mute)" };
+    case "waiting_on_edge_threshold": return { label: "Awaiting edge", tone: "var(--vault-gold)" };
+    case "unavailable_from_provider": return { label: "No provider odds", tone: "var(--vault-text-faint)" };
+    default: return { label: status, tone: "var(--vault-text-faint)" };
+  }
+}
+
 export interface WcTeamStrengthSummary {
   source: string;
   sourceDate: string;
