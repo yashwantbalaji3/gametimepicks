@@ -5,7 +5,7 @@
  * input any stake (StakePayoutInput), and see live correlation / pre-lineup / regulation-only
  * warnings + Bank Builder eligibility. Paper-only, educational.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { BuildLeg } from "@/lib/build-legs";
 import { americanToDecimal, decimalToAmerican, formatAmerican } from "@/lib/odds-math";
 import StakePayoutInput from "@/components/ui/stake-payout-input";
@@ -29,10 +29,21 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
   const [risk, setRisk] = useState<string>("All");
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<BuildLeg[]>([]);
+  const [slipOpen, setSlipOpen] = useState(false);
 
   const selectedIds = new Set(selected.map((l) => l.id));
   const markets = useMemo(() => Array.from(new Set(pool.map((l) => l.marketLabel))).sort(), [pool]);
   const [market, setMarket] = useState<string>("All");
+
+  // Deep-link prefilter: /build?sport=mlb&q=Seager preselects the sport filter + search
+  // (read client-side so it works under static export). "Build from this game" links here.
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const sp = p.get("sport");
+    if (sp && ["world_cup", "mlb", "nba", "ufc"].includes(sp)) setSport(sp);
+    const query = p.get("q");
+    if (query) setQ(query);
+  }, []);
 
   const filtered = useMemo(
     () =>
@@ -58,6 +69,43 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
   const hasPrelineup = selected.some((l) => l.prelineup);
   const hasSoccer = selected.some((l) => l.regulationOnly);
   const bankEligible = selected.length >= 2 && selected.every((l) => l.bankBuilderEligible);
+
+  const betslipCard = (
+    <div className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Your card</span>
+        <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{selected.length} leg{selected.length === 1 ? "" : "s"}</span>
+      </div>
+      {selected.length === 0 ? (
+        <p style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Add eligible legs from the list to build a paper card.</p>
+      ) : (
+        <>
+          <div className="flex flex-col gap-1.5">
+            {selected.map((l) => (
+              <div key={l.id} className="flex items-center justify-between gap-2 min-w-0">
+                <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{l.label}</span>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>
+                  <button type="button" onClick={() => remove(l.id)} aria-label="Remove" style={{ color: "var(--vault-text-faint)", fontSize: 14 }}>×</button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <StakePayoutInput combinedAmerican={combinedAmerican} defaultStake={25} />
+          {(correlated || hasPrelineup || hasSoccer || selected.length < 2 || bankEligible) ? (
+            <div className="flex flex-col gap-1 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
+              {selected.length < 2 ? <StatusChip label="Single leg — add another for a parlay" /> : null}
+              {correlated ? <StatusChip label="Correlated — legs share a game" /> : null}
+              {hasPrelineup ? <StatusChip label="Pre-lineup — confirm starter" /> : null}
+              {hasSoccer ? <StatusChip label="Soccer legs are 90-min regulation only" /> : null}
+              <StatusChip label={bankEligible ? "Bank Builder eligible" : "Not Bank Builder eligible"} />
+            </div>
+          ) : null}
+        </>
+      )}
+      <span style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>Paper only — not betting advice.</span>
+    </div>
+  );
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -113,42 +161,32 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
         </div>
       </div>
 
-      {/* Betslip */}
-      <div className="flex flex-col gap-3 lg:sticky lg:top-4 self-start">
-        <div className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Your card</span>
-            <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{selected.length} leg{selected.length === 1 ? "" : "s"}</span>
-          </div>
-          {selected.length === 0 ? (
-            <p style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Add eligible legs from the list to build a paper card.</p>
-          ) : (
-            <>
-              <div className="flex flex-col gap-1.5">
-                {selected.map((l) => (
-                  <div key={l.id} className="flex items-center justify-between gap-2 min-w-0">
-                    <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{l.label}</span>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>
-                      <button type="button" onClick={() => remove(l.id)} aria-label="Remove" style={{ color: "var(--vault-text-faint)", fontSize: 14 }}>×</button>
-                    </div>
-                  </div>
-                ))}
+      {/* Betslip — desktop sticky column */}
+      <div className="hidden lg:flex flex-col gap-3 lg:sticky lg:top-4 self-start">
+        {betslipCard}
+      </div>
+
+      {/* Betslip — mobile sticky bottom bar + slide-up drawer */}
+      <div className="lg:hidden">
+        {!slipOpen && (
+          <button type="button" onClick={() => setSlipOpen(true)}
+            className="fixed left-3 right-3 z-40 flex items-center justify-between gap-2 rounded-full px-5 py-3 shadow-lg"
+            style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 64px)", background: "var(--vault-gold-bright)", color: "#0b0f1f", fontWeight: 700, border: "none" }}>
+            <span style={{ fontSize: 14 }}>View card · {selected.length} leg{selected.length === 1 ? "" : "s"}</span>
+            <span className="font-mono tabular" style={{ fontSize: 14 }}>{selected.length >= 1 ? formatAmerican(combinedAmerican) : "—"}</span>
+          </button>
+        )}
+        {slipOpen && (
+          <div className="fixed inset-0 z-50 flex flex-col justify-end" style={{ background: "rgba(0,0,0,0.6)" }} onClick={() => setSlipOpen(false)}>
+            <div className="rounded-t-[16px] max-h-[82vh] overflow-y-auto px-3 pb-6 pt-3" onClick={(e) => e.stopPropagation()} style={{ background: "var(--vault-bg, #0b0f1f)", borderTop: "1px solid var(--vault-border-strong)" }}>
+              <div className="flex items-center justify-between gap-2 mb-2 px-1">
+                <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Your card</span>
+                <button type="button" onClick={() => setSlipOpen(false)} className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>Close ✕</button>
               </div>
-              <StakePayoutInput combinedAmerican={combinedAmerican} defaultStake={25} />
-              {(correlated || hasPrelineup || hasSoccer || selected.length < 2 || bankEligible) ? (
-                <div className="flex flex-col gap-1 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                  {selected.length < 2 ? <StatusChip label="Single leg — add another for a parlay" /> : null}
-                  {correlated ? <StatusChip label="Correlated — legs share a game" /> : null}
-                  {hasPrelineup ? <StatusChip label="Pre-lineup — confirm starter" /> : null}
-                  {hasSoccer ? <StatusChip label="Soccer legs are 90-min regulation only" /> : null}
-                  <StatusChip label={bankEligible ? "Bank Builder eligible" : "Not Bank Builder eligible"} />
-                </div>
-              ) : null}
-            </>
-          )}
-          <span style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>Paper only — not betting advice.</span>
-        </div>
+              {betslipCard}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
