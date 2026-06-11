@@ -78,6 +78,15 @@ def main(argv=None) -> int:
     readiness["provider"] = "api_football"
     readiness["evidence"] = evidence
     readiness["callsMade"] = p.calls_made
+    # Accurate blocker: API-Football returns a `plan` error when the account's tier doesn't
+    # cover the requested season (free tier excludes 2026). Surface it verbatim.
+    plan_err = (fx_raw.get("errors") or {}).get("plan") if isinstance(fx_raw, dict) else None
+    if plan_err:
+        readiness["providerPlanBlock"] = plan_err
+        readiness["failClosedReasons"] = [
+            f"API-Football account plan does not cover season {WC_SEASON}: \"{plan_err}\" "
+            f"— upgrade the API-Football plan to a tier that includes 2026 to unlock fixtures + stats."
+        ] + [r for r in readiness["failClosedReasons"] if "just started" not in r]
 
     normalized = {
         "generatedAt": now, "date": args.date, "provider": "api_football",
