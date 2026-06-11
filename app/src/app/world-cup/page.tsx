@@ -23,7 +23,6 @@ import {
   loadWorldCupMarketOutlook,
   loadWorldCupProjectionReadiness,
   loadWorldCupStatsReadiness,
-  outlookForMatch,
   upcomingReadyOutlook,
   normTeamName,
 } from "@/lib/world-cup/market-outlook";
@@ -43,7 +42,7 @@ import {
 } from "@/lib/normalize";
 import WcMarketMatrix from "@/components/world-cup/wc-market-matrix";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
-import { detailHrefForTeams } from "@/lib/game-detail";
+import { getDetailForTeams } from "@/lib/game-detail";
 import WorldCupSectionTabs from "@/components/world-cup/world-cup-section-tabs";
 import FlagBadge from "@/components/flag-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
@@ -190,23 +189,40 @@ export default function WorldCupLandingPage() {
     <div className="flex flex-col gap-8">
       {isLive && todayMatches.length > 0 ? (
         <section aria-label="Today's matches">
-          <SectionHeader eyebrow={`Today · ${todayMatches.length} match${todayMatches.length === 1 ? "" : "es"}`} title="Today's World Cup fixtures" sub="Kickoff in venue local time. 90-minute Home/Draw/Away + totals implied by current sportsbook prices — market outlook, not a model pick." />
+          <SectionHeader eyebrow={`Today · ${todayMatches.length} match${todayMatches.length === 1 ? "" : "es"}`} title="Today's World Cup fixtures" sub="Tap a match for its projections, player props, and suggested cards — just like MLB and NBA." />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {todayMatches.map((m) => {
               const homeTeam = teams.find((t) => t.name === m.home);
               const awayTeam = teams.find((t) => t.name === m.away);
-              const detailHref = detailHrefForTeams("world_cup", m.home ?? "", m.away ?? "");
+              const det = getDetailForTeams("world_cup", m.home ?? "", m.away ?? "");
+              const detailHref = det ? `/games/world-cup/${det.slug}` : null;
+              const grp = (m.stage === "group" ? `Group ${m.group}` : m.stage) ?? "";
               return (
-                <div key={m.id} className="flex flex-col gap-1.5">
-                  <WcMatchOutlookCard match={outlookForMatch(m.home ?? "", m.away ?? "", outlook)}
-                    homeCode={homeTeam?.code ?? ""} awayCode={awayTeam?.code ?? ""} homeName={m.home ?? ""} awayName={m.away ?? ""}
-                    kickoff={m.kickoffLocal} group={(m.stage === "group" ? m.group : m.stage) ?? null} venue={m.venueCity} />
-                  {detailHref ? (
-                    <Link href={detailHref} className="vault-press self-start font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>
-                      View game · projections + props →
-                    </Link>
-                  ) : null}
-                </div>
+                <article key={m.id} className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderLeft: "3px solid var(--vault-gold-bright)" }}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full" style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", fontSize: 9 }}>World Cup</span>
+                    <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{m.kickoffLocal}{grp ? " · " + grp : ""}</span>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2"><FlagBadge code={homeTeam?.code ?? ""} size="sm" /><span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{m.home}</span></div>
+                    <div className="flex items-center gap-2"><FlagBadge code={awayTeam?.code ?? ""} size="sm" /><span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{m.away}</span></div>
+                  </div>
+                  {det ? (
+                    <div className="flex items-center gap-3 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+                      <span>{det.teamProjections.length} projections</span>
+                      <span>{det.playerProps.length ? `${det.playerProps.length} player props` : "props pending"}</span>
+                      {det.suggestedCards.length ? <span>{det.suggestedCards.length} cards</span> : null}
+                    </div>
+                  ) : (
+                    <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>Team markets live · player props pending</span>
+                  )}
+                  <div className="flex items-center gap-2 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                    {detailHref ? (
+                      <Link href={detailHref} className="vault-press flex-1 text-center rounded-[6px] py-1.5 font-mono uppercase tracking-[0.1em]" style={{ background: "var(--vault-gold-dim)", border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", fontSize: 10.5, textDecoration: "none" }}>View game</Link>
+                    ) : null}
+                    <Link href={det?.buildUrl ?? `/build?sport=world_cup&q=${encodeURIComponent(m.home ?? "")}`} className="vault-press flex-1 text-center rounded-[6px] py-1.5 font-mono uppercase tracking-[0.1em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5, textDecoration: "none" }}>Build</Link>
+                  </div>
+                </article>
               );
             })}
           </div>
