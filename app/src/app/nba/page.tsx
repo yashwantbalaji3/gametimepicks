@@ -237,7 +237,7 @@ export default function NbaLandingPage() {
         cards={[
           {
             href: "/nba/board",
-            eyebrow: "Tonight",
+            eyebrow: "Latest slate",
             title: "Model board",
             sub: propsLoaded
               ? `${leans.length} projections across ${games.length} game${games.length === 1 ? "" : "s"}.`

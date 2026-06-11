@@ -116,7 +116,7 @@ export default function ParlayCoverageGrid({
           className="mt-2 text-[12px] leading-snug"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          NBA is a single-game slate tonight. Same-game stacking is intentionally
+          NBA is a single-game slate here. Same-game stacking is intentionally
           limited, so we show fewer NBA cards — and only at the lower-risk tier —
           even when many player projections exist. MLB and Mixed fill every tier.
         </p>
