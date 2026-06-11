@@ -29,3 +29,13 @@ are public. Bank Builder Step 3 stays protected at $728.76 (no Low-risk eligible
 
 ## Re-run hook (lineup time)
 `gh workflow run world-cup-stats-discovery.yml -f provider=api_football -f date=2026-06-11 -f dry_run=false`
+
+## Pre-lineup player projections (2026-06-11)
+Player projections are now published PRE-LINEUP using the sportsbook player universe (the books'
+own listed players) mapped to API-Football squad identities (real photos/positions) + recent
+national-team stats. 19 players matched across today's two games; 76 projection views (shots,
+SOT, assists, anytime goalscorer), each labeled pre-lineup. The model is heavily market-anchored
+(+ a ±6pt cap) because pre-lineup samples are tiny, so 0 player legs are parlay-eligible today —
+honest: we don't turn thin-sample noise into picks. They upgrade/gate automatically when official
+lineups post (confirmed_starter / confirmed_sub / not_in_lineup). Anytime goalscorer is never
+Low-risk; pre-lineup player props are never Bank Builder.
