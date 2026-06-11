@@ -27,6 +27,7 @@ DATA = REPO / "app" / "public" / "data" / "world-cup"
 SPORT = "soccer_fifa_world_cup"
 PLAYER_ODDS_KEYS = ["player_shots", "player_shots_on_target", "player_assists", "player_goal_scorer_anytime"]
 CORNER_ODDS_KEY = "alternate_totals_corners"
+DOUBLE_CHANCE_KEY = "double_chance"
 
 
 def _events(api_key: str) -> tuple[list[dict], dict]:
@@ -106,8 +107,8 @@ def main(argv=None) -> int:
     today = load_schedule_for_date(args.date)
     today_pairs = {pair_key(m.get("home"), m.get("away")) for m in today}
 
-    # --- The Odds API per-event probe (player props + corners) ---
-    player_supported, corner_supported, credits = set(), False, {"remaining": None}
+    # --- The Odds API per-event probe (player props + corners + double chance) ---
+    player_supported, corner_supported, dc_supported, credits = set(), False, False, {"remaining": None}
     corner_odds_by_pair: dict = {}
     odds_events = []
     if odds_key:
@@ -117,16 +118,19 @@ def main(argv=None) -> int:
         for ev in odds_events[:2]:  # bounded: today's matches only
             present, _, _ = _event_markets(odds_key, ev["id"], ",".join(PLAYER_ODDS_KEYS))
             player_supported |= present
-            corners, cdata, _ = _event_markets(odds_key, ev["id"], CORNER_ODDS_KEY)
+            corners, cdata, _ = _event_markets(odds_key, ev["id"], f"{CORNER_ODDS_KEY},{DOUBLE_CHANCE_KEY}")
             if CORNER_ODDS_KEY in corners:
                 corner_supported = True
                 parsed = _parse_corner_total(cdata)
                 if parsed:
                     corner_odds_by_pair[pair_key(ev.get("home_team"), ev.get("away_team"))] = {
                         "home": ev.get("home_team"), "away": ev.get("away_team"), **parsed}
+            if DOUBLE_CHANCE_KEY in corners:
+                dc_supported = True
         diag["oddsApi"]["todayEvents"] = len(odds_events)
         diag["oddsApi"]["playerMarketsFound"] = sorted(player_supported)
         diag["oddsApi"]["cornerMarketFound"] = corner_supported
+        diag["oddsApi"]["doubleChanceFound"] = dc_supported
 
     # --- API-Football: lineups + corner feature history (bounded) ---
     lineups_ready, corner_features = False, False
@@ -170,6 +174,9 @@ def main(argv=None) -> int:
         elif k == "match_total_goals":
             probe[k] = {"oddsSupported": True, "oddsReady": True, "dataReady": True,
                         **states["match_total_goals"]}
+        elif k == "double_chance":
+            # Odds present → public probability view (computed from H/D/A); model can derive it.
+            probe[k] = {"oddsSupported": dc_supported, "oddsReady": dc_supported, "dataReady": True}
         elif k == "match_total_corners":
             probe[k] = {"oddsSupported": corner_supported, "oddsReady": corner_supported,
                         "dataReady": corner_features, **states["match_total_corners"]}
