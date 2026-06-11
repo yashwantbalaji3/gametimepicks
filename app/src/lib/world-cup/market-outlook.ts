@@ -60,6 +60,11 @@ export interface WcStatsReadiness {
   marketOutlookReady: boolean; projectionsAllowed: boolean;
   playerPropsAllowed: boolean; parlayAllowed: boolean;
   providerPlanBlock?: string;
+  // Methodology-review public gates (2026-06-11). `*Allowed` means the artifact exists;
+  // `*Public` means it has passed the upgraded methodology gates and may show publicly.
+  methodologyReviewRequired?: boolean;
+  projectionsPublic?: boolean;
+  parlayPublic?: boolean;
   failClosedReasons: string[];
 }
 export function loadWorldCupStatsReadiness(): WcStatsReadiness | null {

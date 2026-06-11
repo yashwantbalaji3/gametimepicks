@@ -36,6 +36,7 @@ import {
 import {
   loadWorldCupProjections,
   loadWorldCupParlays,
+  worldCupMethodologyReview,
   type WcProjection,
 } from "@/lib/world-cup/projections";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
@@ -87,6 +88,9 @@ export default function WorldCupLandingPage() {
   const parlays = loadWorldCupParlays();
   const projectionsLive = !!projections && projections.matches.length > 0;
   const parlaysLive = !!parlays && parlays.cards.length > 0;
+  // Methodology review (2026-06-11): model projections/parlays are produced + preserved for
+  // audit but held from public surfaces until the upgraded gates classify a pick as `active`.
+  const methodologyReview = worldCupMethodologyReview();
   const statsNote = stats?.teamStatsReady
     ? "API-Football Pro · recent-form sample"
     : planBlock
@@ -99,8 +103,8 @@ export default function WorldCupLandingPage() {
     { label: "Team stats", on: !!stats?.teamStatsReady, note: statsNote },
     { label: "xG / xGA", on: !!stats?.xgReady, note: "API-Football has no xG" },
     { label: "Lineups / minutes", on: !!stats?.lineupsReady, note: "posted near kickoff" },
-    { label: "Model projections", on: projectionsLive, note: projectionsLive ? `${projections!.projectionCount} picks · 90-min` : "needs team stats + odds" },
-    { label: "Suggested parlays", on: parlaysLive, note: parlaysLive ? `${parlays!.cardCount} cards` : "needs projections" },
+    { label: "Model projections", on: projectionsLive, note: projectionsLive ? `${projections!.projectionCount} picks · 90-min` : methodologyReview ? "under methodology review" : "needs team stats + odds" },
+    { label: "Suggested parlays", on: parlaysLive, note: parlaysLive ? `${parlays!.cardCount} cards` : methodologyReview ? "under methodology review" : "needs projections" },
   ];
   // Group projections by match for the projection cards (moneyline + total per match).
   const projByMatch = new Map<number, WcProjection[]>();
@@ -241,6 +245,31 @@ export default function WorldCupLandingPage() {
                 />
               );
             })}
+          </div>
+        </section>
+      )}
+
+      {/* ─── Model under methodology review (projections paused) ────── */}
+      {!projectionsLive && methodologyReview && oddsReady && (
+        <section className="mt-10" aria-label="Model projections under review">
+          <div
+            className="rounded-[8px] px-4 py-4 flex flex-col gap-2"
+            style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
+          >
+            <div className="flex items-center gap-2">
+              <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--vault-warn)", boxShadow: "0 0 6px rgba(212,175,55,0.55)" }} />
+              <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-warn)", fontSize: 10 }}>
+                Model projections under methodology review
+              </span>
+            </div>
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              GameTime Picks model projections and suggested parlays for the World Cup are paused
+              from public release while we deepen the soccer methodology (heavier market anchoring,
+              opponent-strength adjustment, and market-sanity gates so thin-sample extreme
+              underdogs aren&apos;t surfaced as model leans). The <strong style={{ color: "var(--vault-text)" }}>Market Outlook</strong> above
+              stays live — sportsbook-implied Home/Draw/Away + totals, clearly market-implied, not a
+              model pick. Projections return once the upgraded gates classify a pick as defensible.
+            </p>
           </div>
         </section>
       )}
