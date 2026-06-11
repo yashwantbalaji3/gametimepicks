@@ -15,8 +15,9 @@ import {
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { loadBankBuilderSummary } from "@/lib/data-bank-builder";
 import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
-import { formatAmerican } from "@/lib/odds-math";
-import StakePayoutInput from "@/components/ui/stake-payout-input";
+import { normalizeWcCards, type SportSummary } from "@/lib/normalize";
+import SuggestedCard from "@/components/ui/suggested-card";
+import SportCard from "@/components/ui/sport-card";
 import SectionHeader from "@/components/section-header";
 
 export const metadata = {
@@ -38,57 +39,6 @@ function Stat({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-function SportCard({
-  href,
-  name,
-  accent,
-  live,
-  stats,
-}: {
-  href: string;
-  name: string;
-  accent: string;
-  live: boolean;
-  stats: Array<{ label: string; value: string | number }>;
-}) {
-  return (
-    <Link
-      href={href}
-      className="rounded-[10px] px-4 py-4 flex flex-col gap-3 vault-glow-hover"
-      style={{
-        background: "rgba(7,11,26,0.55)",
-        border: "1px solid var(--vault-border)",
-        borderTop: `2px solid ${accent}`,
-        textDecoration: "none",
-      }}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>
-          {name}
-        </span>
-        <span
-          className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
-          style={{
-            color: live ? "var(--vault-success)" : "var(--vault-text-faint)",
-            border: `1px solid ${live ? "var(--vault-success)" : "var(--vault-rule)"}`,
-            fontSize: 9,
-          }}
-        >
-          {live ? "Live today" : "Off today"}
-        </span>
-      </div>
-      <div className="grid grid-cols-4 gap-2">
-        {stats.map((s) => (
-          <Stat key={s.label} label={s.label} value={s.value} />
-        ))}
-      </div>
-      <span className="font-mono uppercase tracking-[0.16em]" style={{ color: accent, fontSize: 10 }}>
-        View {name} →
-      </span>
-    </Link>
-  );
-}
-
 export default function TodayPage() {
   const today = currentEtDate();
   loadWorldCupSchedule(); // warm + ensure data dir
@@ -102,7 +52,27 @@ export default function TodayPage() {
   const wcLive = wcGames > 0 || !!wcProj;
   const mlbLive = (mlb.summary.scheduledGames ?? 0) > 0;
   const activeSports = (wcLive ? 1 : 0) + (mlbLive ? 1 : 0);
-  const topCards = (wcCards?.cards ?? []).slice(0, 4);
+  const topCards = normalizeWcCards(wcCards).slice(0, 4);
+  const sportSummaries: SportSummary[] = [
+    {
+      sport: "world_cup", label: "World Cup", href: "/world-cup", accent: "var(--vault-gold-bright)", live: wcLive,
+      stats: [
+        { label: "Games", value: wcGames },
+        { label: "Projections", value: wcProj?.projectionCount ?? 0 },
+        { label: "Player props", value: wcPlayers?.projectionCount ?? 0 },
+        { label: "Cards", value: wcCards?.cardCount ?? 0 },
+      ],
+    },
+    {
+      sport: "mlb", label: "MLB", href: "/mlb", accent: "#3b82f6", live: mlbLive,
+      stats: [
+        { label: "Games", value: mlb.summary.scheduledGames ?? 0 },
+        { label: "Leans", value: mlb.summary.leans ?? 0 },
+        { label: "High conf", value: (mlb.summary as { highConfidence?: number }).highConfidence ?? 0 },
+        { label: "Slate", value: today.slice(5) },
+      ],
+    },
+  ];
   const dateLabel = new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric",
   });
@@ -137,24 +107,9 @@ export default function TodayPage() {
       <section>
         <SectionHeader eyebrow="Active sports" title="Jump into a sport" sub="Counts are today's live data. Tap a card to open the full sport board." />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <SportCard
-            href="/world-cup" name="World Cup" accent="var(--vault-gold-bright)" live={wcLive}
-            stats={[
-              { label: "Games", value: wcGames },
-              { label: "Projections", value: wcProj?.projectionCount ?? 0 },
-              { label: "Player props", value: wcPlayers?.projectionCount ?? 0 },
-              { label: "Cards", value: wcCards?.cardCount ?? 0 },
-            ]}
-          />
-          <SportCard
-            href="/mlb" name="MLB" accent="#3b82f6" live={mlbLive}
-            stats={[
-              { label: "Games", value: mlb.summary.scheduledGames ?? 0 },
-              { label: "Leans", value: mlb.summary.leans ?? 0 },
-              { label: "High conf", value: (mlb.summary as { highConfidence?: number }).highConfidence ?? 0 },
-              { label: "Slate", value: today.slice(5) },
-            ]}
-          />
+          {sportSummaries.map((s) => (
+            <SportCard key={s.sport} summary={s} />
+          ))}
         </div>
       </section>
 
@@ -164,30 +119,7 @@ export default function TodayPage() {
           <SectionHeader eyebrow={`Top cards · ${wcCards!.cardCount} live`} title="Suggested paper cards" sub="Enter any stake to see the projected paper return. Educational / paper, not betting advice." />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {topCards.map((c) => (
-              <article
-                key={c.id}
-                className="rounded-[10px] px-4 py-4 flex flex-col gap-3"
-                style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
-                        style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", fontSize: 9 }}>
-                    World Cup · {c.riskTier}
-                  </span>
-                  <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>
-                    {formatAmerican(c.combinedAmericanOdds)}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  {c.legs.map((l, i) => (
-                    <div key={i} className="flex items-center justify-between gap-2 min-w-0">
-                      <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 13 }}>{l.pick}</span>
-                      <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>
-                    </div>
-                  ))}
-                </div>
-                <StakePayoutInput combinedAmerican={c.combinedAmericanOdds} defaultStake={c.defaultStake} />
-              </article>
+              <SuggestedCard key={c.id} card={c} />
             ))}
           </div>
           <div className="mt-3">
