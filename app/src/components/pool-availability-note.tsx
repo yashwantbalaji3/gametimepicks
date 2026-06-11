@@ -31,7 +31,7 @@ export default function PoolAvailabilityNote({ availability }: Props) {
   // multi-game build.
   if (availability.nbaSingleGameOnly) {
     lines.push(
-      "Tonight's NBA-only slips are single-game builds — every leg shares the same matchup, so the cards are labeled higher variance. The lower-risk public sections stay NBA-empty by design.",
+      "This slate's NBA-only slips are single-game builds — every leg shares the same matchup, so the cards are labeled higher variance. The lower-risk public sections stay NBA-empty by design.",
     );
   } else if (availability.nba === "pool-but-no-slips") {
     // Two honest causes are possible when NBA leans are loaded but no
@@ -49,7 +49,7 @@ export default function PoolAvailabilityNote({ availability }: Props) {
     // remaining gap is structural, not data.
     if (availability.multi === "present") {
       lines.push(
-        "NBA legs appear in the Mixed lane below. NBA-only single-sport slips need ≥2 NBA games to build under the model's same-game cap, and tonight's slate has one NBA game.",
+        "NBA legs appear in the Mixed lane below. NBA-only single-sport slips need ≥2 NBA games to build under the model's same-game cap, and this slate has one NBA game.",
       );
     } else {
       lines.push(
