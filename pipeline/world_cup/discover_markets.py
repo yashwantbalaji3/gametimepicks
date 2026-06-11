@@ -35,8 +35,8 @@ def _events(api_key: str) -> tuple[list[dict], dict]:
     return (data if isinstance(data, list) else []), {"code": code, "remaining": rem}
 
 
-def _event_markets(api_key: str, event_id: str, markets: str) -> tuple[set[str], int]:
-    """Return the set of market keys actually present (with ≥1 outcome) + the http code."""
+def _event_markets(api_key: str, event_id: str, markets: str) -> tuple[set[str], dict, int]:
+    """Return (present market keys, raw event payload, http code)."""
     code, data, _ = _http_get(
         f"{API_BASE}/sports/{SPORT}/events/{event_id}/odds",
         {"apiKey": api_key, "regions": "us", "markets": markets, "oddsFormat": "american"},
@@ -47,13 +47,40 @@ def _event_markets(api_key: str, event_id: str, markets: str) -> tuple[set[str],
             for m in bk.get("markets") or []:
                 if m.get("outcomes"):
                     present.add(m.get("key"))
-    return present, code
+    return present, (data if isinstance(data, dict) else {}), code
+
+
+def _parse_corner_total(event: dict) -> dict | None:
+    """From an alternate_totals_corners event payload, pick the MAIN line — the one whose
+    Over/Under American prices are closest to balanced — and return line + over/under odds."""
+    best = None
+    for bk in event.get("bookmakers") or []:
+        for m in bk.get("markets") or []:
+            if m.get("key") != CORNER_ODDS_KEY:
+                continue
+            by_line: dict = {}
+            for o in m.get("outcomes") or []:
+                pt, name, price = o.get("point"), (o.get("name") or "").lower(), o.get("price")
+                if pt is None or price is None:
+                    continue
+                by_line.setdefault(pt, {})[name] = price
+            for line, sides in by_line.items():
+                if "over" in sides and "under" in sides:
+                    bal = abs(sides["over"] - sides["under"])
+                    if best is None or bal < best["bal"]:
+                        best = {"line": line, "overOdds": sides["over"], "underOdds": sides["under"],
+                                "bal": bal, "bookmaker": bk.get("key")}
+    if not best:
+        return None
+    return {"line": best["line"], "overOdds": best["overOdds"], "underOdds": best["underOdds"],
+            "bookmaker": best["bookmaker"]}
 
 
 def _projection_states() -> dict:
     """Per team-market: whether an active or research(model-ran) projection exists."""
     out = {"moneyline_90": {"active": False, "research": False},
-           "match_total_goals": {"active": False, "research": False}}
+           "match_total_goals": {"active": False, "research": False},
+           "match_total_corners": {"active": False, "research": False}}
     try:
         for p in json.loads((DATA / "projections" / "latest.json").read_text()).get("matches", []):
             mk = p.get("market")
@@ -81,17 +108,22 @@ def main(argv=None) -> int:
 
     # --- The Odds API per-event probe (player props + corners) ---
     player_supported, corner_supported, credits = set(), False, {"remaining": None}
+    corner_odds_by_pair: dict = {}
     odds_events = []
     if odds_key:
         evs, meta = _events(odds_key)
         credits["remaining"] = meta.get("remaining")
         odds_events = [e for e in evs if pair_key(e.get("home_team"), e.get("away_team")) in today_pairs]
         for ev in odds_events[:2]:  # bounded: today's matches only
-            present, _ = _event_markets(odds_key, ev["id"], ",".join(PLAYER_ODDS_KEYS))
+            present, _, _ = _event_markets(odds_key, ev["id"], ",".join(PLAYER_ODDS_KEYS))
             player_supported |= present
-            corners, ccode = _event_markets(odds_key, ev["id"], CORNER_ODDS_KEY)
+            corners, cdata, _ = _event_markets(odds_key, ev["id"], CORNER_ODDS_KEY)
             if CORNER_ODDS_KEY in corners:
                 corner_supported = True
+                parsed = _parse_corner_total(cdata)
+                if parsed:
+                    corner_odds_by_pair[pair_key(ev.get("home_team"), ev.get("away_team"))] = {
+                        "home": ev.get("home_team"), "away": ev.get("away_team"), **parsed}
         diag["oddsApi"]["todayEvents"] = len(odds_events)
         diag["oddsApi"]["playerMarketsFound"] = sorted(player_supported)
         diag["oddsApi"]["cornerMarketFound"] = corner_supported
@@ -140,7 +172,7 @@ def main(argv=None) -> int:
                         **states["match_total_goals"]}
         elif k == "match_total_corners":
             probe[k] = {"oddsSupported": corner_supported, "oddsReady": corner_supported,
-                        "dataReady": corner_features}
+                        "dataReady": corner_features, **states["match_total_corners"]}
         else:  # player markets
             present = m["oddsKey"] in player_supported
             probe[k] = {"oddsSupported": present, "oddsReady": present,
@@ -160,6 +192,9 @@ def main(argv=None) -> int:
     (DATA / "markets").mkdir(parents=True, exist_ok=True)
     (DATA / "markets" / f"availability-{args.date}.json").write_text(json.dumps(payload, indent=2) + "\n")
     (DATA / "markets" / "availability-latest.json").write_text(json.dumps(payload, indent=2) + "\n")
+    # Real corner-total odds (line + O/U) per today match, for the corner projection model.
+    (DATA / "markets" / "corner-odds-latest.json").write_text(json.dumps(
+        {"generatedAt": now, "date": args.date, "byPair": corner_odds_by_pair}, indent=2) + "\n")
     print(f"[wc-markets] players={sorted(player_supported)} corners={corner_supported} "
           f"lineups={lineups_ready} cornerFeatures={corner_features} afCalls={af_calls} "
           f"complete={matrix['requestedMarketsComplete']}")

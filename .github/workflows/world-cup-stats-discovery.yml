@@ -28,15 +28,15 @@ jobs:
           D="${{ github.event.inputs.date || '2026-06-11' }}"
           if [ "$WC_STATS_PROVIDER" = "api_football" ]; then
             python -m pipeline.world_cup.build_stats --date "$D"
-            # Team-level projections (bounded): recent-form Poisson anchored to the market.
-            # Only emits picks where real form evidence exists; gates otherwise.
+            # Market availability FIRST — bounded probe of player-prop/corner odds + lineups;
+            # captures real corner-total odds the projection build consumes below.
+            python -m pipeline.world_cup.discover_markets --date "$D" || echo "[wc-markets] non-fatal"
+            # Team-level projections (bounded ensemble): moneyline + total goals + total corners.
             python -m pipeline.world_cup.build_team_projections --date "$D" || echo "[wc-proj] non-fatal"
-            # Suggested parlays — only built from real projections (no-op if none).
+            # Suggested parlays — only built from real ACTIVE projections (no-op if none).
             python -m pipeline.world_cup.build_suggested_parlays --date "$D" || echo "[wc-parlay] non-fatal"
             # Settlement — grades public/active picks from FT regulation score (no-op if none).
             python -m pipeline.world_cup.settle --date "$D" || echo "[wc-settle] non-fatal"
-            # Market availability — bounded probe of player-prop/corner odds + lineups/features.
-            python -m pipeline.world_cup.discover_markets --date "$D" || echo "[wc-markets] non-fatal"
           else
             python -m pipeline.world_cup.readiness --date "$D" --provider "$WC_STATS_PROVIDER"
           fi
