@@ -97,26 +97,31 @@ class ApiFootballProvider(SoccerStatsProvider):
         data = self._get("/fixtures", {"team": team_id, "last": last})
         rows = (data or {}).get("response", []) or []
         gf = ga = played = 0
-        recent = []
+        recent, opponents = [], []
         for f in rows:
             status = ((f.get("fixture") or {}).get("status") or {}).get("short")
             if status not in ("FT", "AET", "PEN"):
                 continue
             tm, goals = f.get("teams") or {}, f.get("goals") or {}
-            is_home = (tm.get("home") or {}).get("id") == team_id
+            home, away = tm.get("home") or {}, tm.get("away") or {}
+            is_home = home.get("id") == team_id
             hg, ag = goals.get("home"), goals.get("away")
             if not isinstance(hg, int) or not isinstance(ag, int):
                 continue
             scored, conceded = (hg, ag) if is_home else (ag, hg)
+            opp = (away if is_home else home).get("name")
             gf += scored; ga += conceded; played += 1
-            recent.append({"for": scored, "against": conceded})
+            recent.append({"for": scored, "against": conceded, "opponent": opp})
+            if opp:
+                opponents.append(opp)
         if played == 0:
-            return {"played": 0, "goalsFor90": None, "goalsAgainst90": None, "recent": []}
+            return {"played": 0, "goalsFor90": None, "goalsAgainst90": None, "recent": [], "opponents": []}
         return {
             "played": played,
             "goalsFor90": round(gf / played, 3),
             "goalsAgainst90": round(ga / played, 3),
             "recent": recent[:last],
+            "opponents": opponents[:last],
         }
 
     def player_roles(self, team: str) -> list[PlayerRole]:

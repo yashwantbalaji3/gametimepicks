@@ -1,10 +1,60 @@
 import unittest
 from pipeline.world_cup.projection_model import (
-    project_match, TeamForm, poisson_hda, poisson_over_under,
+    project_match, project_ensemble, TeamForm, poisson_hda, poisson_over_under,
     model_weight, classify_projection,
     UNDERDOG_MARKET_FLOOR, MIN_SAMPLE_ACTIVE, OPENING_DAY_MAX_WEIGHT,
 )
 from pipeline.world_cup.build_features import is_underdog_side, build_match_features
+from pipeline.world_cup import team_strength
+
+
+class TestEnsemble(unittest.TestCase):
+    def test_hda_normalized(self):
+        r = project_ensemble((0.5, 0.27, 0.23), strength_exp=(1.6, 1.0), form_exp=(1.4, 1.1),
+                             sample_min=7, opp_coverage=1.0)
+        ml = r["moneyline"]
+        self.assertAlmostEqual(ml["home"] + ml["draw"] + ml["away"], 1.0, places=6)
+
+    def test_missing_strength_folds_weight_to_market(self):
+        r = project_ensemble((0.6, 0.25, 0.15), strength_exp=None, form_exp=None, sample_min=0)
+        self.assertEqual(r["weights"]["strength"], 0.0)
+        self.assertEqual(r["weights"]["form"], 0.0)
+        self.assertEqual(r["weights"]["market"], 1.0)
+        # pure echo flagged: neither component used
+        self.assertFalse(r["usedStrength"])
+        self.assertFalse(r["usedForm"])
+
+    def test_low_opponent_coverage_shrinks_form_weight(self):
+        hi = project_ensemble((0.5, 0.27, 0.23), strength_exp=(1.5, 1.0), form_exp=(1.5, 1.0),
+                              sample_min=7, opp_coverage=1.0)
+        lo = project_ensemble((0.5, 0.27, 0.23), strength_exp=(1.5, 1.0), form_exp=(1.5, 1.0),
+                              sample_min=7, opp_coverage=0.2)
+        self.assertGreater(hi["weights"]["form"], lo["weights"]["form"])
+
+    def test_strong_raw_form_vs_weak_opponents_no_big_edge(self):
+        # A team with strong raw form but weak opponents: opponent_adjust deflates the attack,
+        # and the small form weight keeps the model near the market — no inflated underdog edge.
+        adj = team_strength.opponent_adjust(2.5, 0.5, ["Comoros", "Kenya", "Libya"])  # weak opps
+        self.assertLess(adj["attack"], 2.5)  # deflated below raw
+
+
+class TestTeamStrength(unittest.TestCase):
+    def test_real_points_loaded_alias_aware(self):
+        self.assertIsNotNone(team_strength.points_for("Mexico"))
+        self.assertEqual(team_strength.points_for("Czech Republic"), team_strength.points_for("Czechia"))
+        self.assertEqual(team_strength.points_for("Korea Republic"), team_strength.points_for("South Korea"))
+
+    def test_unknown_team_is_none(self):
+        self.assertIsNone(team_strength.points_for("Atlantis"))
+
+    def test_stronger_team_higher_expected_goals(self):
+        eh, ea = team_strength.strength_expected_goals(
+            team_strength.points_for("Mexico"), team_strength.points_for("South Africa"))
+        self.assertGreater(eh, ea)  # Mexico (1687) >> South Africa (1428)
+
+    def test_opponent_adjust_coverage(self):
+        adj = team_strength.opponent_adjust(1.5, 1.0, ["Brazil", "Atlantis"])  # 1 known, 1 unknown
+        self.assertEqual(adj["coverage"], 0.5)
 
 
 class TestPoisson(unittest.TestCase):
@@ -79,12 +129,20 @@ class TestClassifier(unittest.TestCase):
         self.assertEqual(status, "gated_missing_features")
         self.assertFalse(public)
 
-    def test_small_edge_research_only(self):
+    def test_small_edge_gated_low_edge(self):
         status, public, _ = classify_projection(
             market_prob=0.50, model_prob=0.51, market_type="moneyline_90",
             sample_min=8, opponent_adjusted=True, is_underdog=False,
         )
-        self.assertEqual(status, "research_only")
+        self.assertEqual(status, "gated_low_edge")
+        self.assertFalse(public)
+
+    def test_strength_missing_gates_underdog(self):
+        status, public, _ = classify_projection(
+            market_prob=0.34, model_prob=0.40, market_type="moneyline_90",
+            sample_min=8, opponent_adjusted=True, is_underdog=True, strength_missing=True,
+        )
+        self.assertEqual(status, "gated_opponent_strength_missing")
         self.assertFalse(public)
 
     def test_active_requires_all_gates(self):

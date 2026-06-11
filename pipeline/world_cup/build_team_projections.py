@@ -15,9 +15,10 @@ from pathlib import Path
 
 from .providers.api_football import ApiFootballProvider, WC_LEAGUE_ID, WC_SEASON
 from .projection_model import (
-    project_match, TeamForm, classify_projection, UNDERDOG_MARKET_FLOOR,
+    project_ensemble, classify_projection, UNDERDOG_MARKET_FLOOR,
 )
 from .build_features import is_underdog_side
+from .team_strength import points_for, rank_for, strength_expected_goals, opponent_adjust
 from .team_aliases import norm, pair_key
 
 REPO = Path(__file__).resolve().parents[2]
@@ -98,33 +99,54 @@ def main(argv=None) -> int:
         if None in market_hda:
             continue
         totals = ol.get("totals") or {}
-        proj = project_match(
-            market_hda,
-            TeamForm(hf.get("goalsFor90"), hf.get("goalsAgainst90"), hf.get("played") or 0),
-            TeamForm(af.get("goalsFor90"), af.get("goalsAgainst90"), af.get("played") or 0),
+
+        # --- Strength prior (real FIFA points) + opponent-adjusted recent form ---
+        home_pts, away_pts = points_for(g["home"]), points_for(g["away"])
+        strength_missing = home_pts is None or away_pts is None
+        strength_exp = strength_expected_goals(home_pts, away_pts) if not strength_missing else None
+        adj_h = opponent_adjust(hf.get("goalsFor90"), hf.get("goalsAgainst90"), hf.get("opponents"))
+        adj_a = opponent_adjust(af.get("goalsFor90"), af.get("goalsAgainst90"), af.get("opponents"))
+        sample_min = min(hf.get("played") or 0, af.get("played") or 0)
+        opp_cov = min(adj_h.get("coverage") or 0.0, adj_a.get("coverage") or 0.0)
+        form_exp = None
+        if adj_h.get("attack") is not None and adj_a.get("attack") is not None:
+            form_exp = (max((adj_h["attack"] + adj_a["defense"]) / 2, 0.15),
+                        max((adj_a["attack"] + adj_h["defense"]) / 2, 0.15))
+
+        proj = project_ensemble(
+            market_hda, strength_exp=strength_exp, form_exp=form_exp,
+            sample_min=sample_min, opp_coverage=opp_cov,
             total_line=totals.get("line"), market_over=totals.get("overPct"),
         )
-        if not proj.get("moneyline"):
-            continue  # no independent evidence → market outlook only, not a projection
-        opp_adj = bool(proj.get("opponentAdjusted"))
-        sample_min = proj.get("sampleMin", 0)
+        # No independent evidence at all (no strength AND no form) → market outlook only.
+        if not proj.get("usedStrength") and not proj.get("usedForm"):
+            continue
+        opp_adj = bool(proj.get("usedForm")) and opp_cov > 0
+        wts = proj.get("weights", {})
         ml = proj["moneyline"]
         sides = [
             ("home", g["home"], ml["home"], market_hda[0], res.get("homeOdds")),
             ("draw", "Draw", ml["draw"], market_hda[1], res.get("drawOdds")),
             ("away", g["away"], ml["away"], market_hda[2], res.get("awayOdds")),
         ]
-        # ML headline pick = best model edge AMONG sides that clear market sanity (>= floor).
-        # This structurally stops an extreme underdog (e.g. South Africa 11%) from ever being the
-        # headline pick. If none clears sanity, fall back to best edge overall (it will classify
-        # gated_market_sanity and stay non-public).
+        # ML headline pick = best model edge AMONG sides that clear market sanity (>= floor), so
+        # an extreme underdog (e.g. South Africa 11%) can never be the headline pick.
         sane = [s for s in sides if s[3] is not None and s[3] >= UNDERDOG_MARKET_FLOOR]
         pick_pool = sane or sides
         pick_side, pick_name, mp, mkt, odds = max(pick_pool, key=lambda s: s[2] - s[3])
         ml_status, ml_public, ml_reason = classify_projection(
             market_prob=mkt, model_prob=mp, market_type="moneyline_90",
             sample_min=sample_min, opponent_adjusted=opp_adj,
-            is_underdog=is_underdog_side(odds, mkt),
+            is_underdog=is_underdog_side(odds, mkt), strength_missing=strength_missing,
+        )
+        hr, ar = rank_for(g["home"]), rank_for(g["away"])
+        strength_factor = (
+            f"FIFA strength: {g['home']} {f'#{hr}' if hr else 'unranked'} ({home_pts or '—'}) vs "
+            f"{g['away']} {f'#{ar}' if ar else 'unranked'} ({away_pts or '—'})"
+        )
+        ensemble_factor = (
+            f"Ensemble weights — market {wts.get('market')}, strength {wts.get('strength')}, "
+            f"form {wts.get('form')} (opponent coverage {round(opp_cov*100)}%)"
         )
         common = {
             "sport": "world_cup", "date": args.date,
@@ -133,7 +155,8 @@ def main(argv=None) -> int:
             "kickoffUtc": (fx.get("fixture") or {}).get("date"),
             "homeLogo": home_t.get("logo"), "awayLogo": away_t.get("logo"),
             "regulationOnly": True, "sampleSizeWarning": proj.get("sampleSizeWarning", True),
-            "provider": "api_football", "oddsProvider": "odds_api",
+            "opponentStrengthCoverage": round(opp_cov, 2),
+            "provider": "api_football", "oddsProvider": "odds_api", "modelVersion": "wc-ensemble-v2",
         }
         projections.append({
             **common,
@@ -146,14 +169,14 @@ def main(argv=None) -> int:
             "projectionStatus": ml_status, "public": ml_public, "statusReason": ml_reason,
             "riskTier": _risk_tier(int(odds)) if odds else "Medium",
             "factors": [
-                f"Recent form: {g['home']} {hf.get('goalsFor90')}–{hf.get('goalsAgainst90')} GF/GA per match (last {hf.get('played')})",
-                f"Recent form: {g['away']} {af.get('goalsFor90')}–{af.get('goalsAgainst90')} GF/GA per match (last {af.get('played')})",
-                f"Model expected goals {proj.get('expGoals',{}).get('home')}–{proj.get('expGoals',{}).get('away')}",
-                f"Market-implied {pick_name} {round(mkt*100)}% · model weight {proj.get('modelWeight')}",
+                strength_factor,
+                f"Opponent-adjusted form: {g['home']} att {adj_h.get('attack')} / {g['away']} att {adj_a.get('attack')}",
+                ensemble_factor,
+                f"Market-implied {pick_name} {round(mkt*100)}% vs model {round(mp*100)}%",
             ],
-            "notes": ["90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
-                      "Market-anchored model; recent form is opponent-unadjusted so its weight is capped low",
-                      ml_reason],
+            "caveats": ["90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
+                        "Early-tournament sample; confidence capped Low", ml_reason],
+            "notes": ["90-minute regulation only (Draw is a real outcome; no extra time/penalties)", ml_reason],
         })
         # Match total projection (independent over/under).
         if proj.get("total"):
@@ -163,6 +186,7 @@ def main(argv=None) -> int:
             t_status, t_public, t_reason = classify_projection(
                 market_prob=tmkt or 0, model_prob=tprob, market_type="match_total_goals",
                 sample_min=sample_min, opponent_adjusted=opp_adj, is_underdog=False,
+                strength_missing=strength_missing,
             )
             projections.append({
                 **common,
@@ -174,8 +198,11 @@ def main(argv=None) -> int:
                 "confidence": "Low",
                 "projectionStatus": t_status, "public": t_public, "statusReason": t_reason,
                 "riskTier": _risk_tier(int(todds)) if todds else "Low",
-                "factors": [f"Model expected total {round((proj['expGoals']['home']+proj['expGoals']['away']),2)} goals",
-                            f"Market total line {t['line']} (Over {round((totals.get('overPct') or 0)*100)}%) · model weight {proj.get('modelWeight')}"],
+                "factors": [
+                    f"Market total {t['line']} — model {round(t['over']*100)}% Over vs market {round((totals.get('overPct') or 0)*100)}%",
+                    ensemble_factor,
+                ],
+                "caveats": ["90-minute regulation goals only", t_reason],
                 "notes": ["90-minute regulation goals only", t_reason],
             })
 
@@ -183,15 +210,19 @@ def main(argv=None) -> int:
     status_counts = {}
     for p in projections:
         status_counts[p["projectionStatus"]] = status_counts.get(p["projectionStatus"], 0) + 1
+    avg_cov = round(sum(p.get("opponentStrengthCoverage", 0) for p in projections) / len(projections), 2) if projections else 0.0
     payload = {
         "generatedAt": now, "sport": "world_cup", "date": args.date,
+        "modelVersion": "wc-ensemble-v2",
         "provider": "api_football", "oddsProvider": "odds_api",
+        "strengthSource": "FIFA/Coca-Cola World Ranking (2026-06-10)",
         "disclaimer": "GameTime Picks model projections — 90-minute regulation only. Educational/paper, not betting advice.",
-        "methodology": "Market-anchored Poisson (market prior >= ~0.89 on opening day; recent-form "
-                       "weight capped, reduced when opponent-unadjusted). Market-sanity + sample + "
-                       "feature + edge gates; only `active` projections are public.",
+        "methodology": "Ensemble: de-vigged market prior (0.60) + FIFA-points strength prior (0.25) "
+                       "+ opponent-adjusted recent form (0.15, scaled by opponent coverage). "
+                       "Market-sanity + strength + sample + edge gates; only `active` is public.",
         "matchCount": len(today_games), "projectionCount": len(projections),
         "activeCount": len(active), "public": len(active) > 0,
+        "opponentStrengthCoverage": avg_cov,
         "methodologyReviewRequired": True, "statusCounts": status_counts,
         "matches": projections,
     }

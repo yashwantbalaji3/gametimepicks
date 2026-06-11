@@ -5,6 +5,9 @@ ALIASES = {
     "czechrepublic": "czechia", "korearepublic": "southkorea",
     "bosniaherzegovina": "bosniaandherzegovina", "unitedstates": "usa", "us": "usa",
     "ivorycoast": "cotedivoire", "iranislamicrepublic": "iran",
+    # Strength-source / provider naming variants → canonical (team-strength file) names.
+    "turkiye": "turkey", "caboverde": "capeverde", "ireland": "republicofireland",
+    "drcongo": "congodr", "democraticrepublicofthecongo": "congodr", "china": "chinapr",
 }
 
 
