@@ -27,6 +27,7 @@ const NAV_ITEMS: Array<{
 }> = [
   { href: "/today", label: "Today" },
   { href: "/picks", label: "Picks" },
+  { href: "/build", label: "Build" },
   { href: "/", label: "Home" },
   { href: "/projections", label: "Projections" },
   { href: "/parlay-lab", label: "Parlay Lab" },
