@@ -31,6 +31,8 @@ jobs:
             # Market availability FIRST — bounded probe of player-prop/corner odds + lineups;
             # captures real corner-total odds the projection build consumes below.
             python -m pipeline.world_cup.discover_markets --date "$D" || echo "[wc-markets] non-fatal"
+            # Sportsbook player-prop universe (the books' listed players) for pre-lineup props.
+            python -m pipeline.world_cup.build_player_market_universe --date "$D" || echo "[wc-player-universe] non-fatal"
             # Team-level projections (bounded ensemble): moneyline + total goals + total corners.
             python -m pipeline.world_cup.build_team_projections --date "$D" || echo "[wc-proj] non-fatal"
             # Suggested parlays — only built from real ACTIVE projections (no-op if none).
@@ -46,7 +48,7 @@ jobs:
           test -f app/public/data/world-cup/stats/normalized-latest.json && { echo "::group::normalized"; cat app/public/data/world-cup/stats/normalized-latest.json | head -60; echo "::endgroup::"; } || true
       - name: Commit readiness
         run: |
-          git add app/public/data/world-cup/stats/*.json app/public/data/world-cup/provider-discovery/*.json app/public/data/world-cup/projections/*.json app/public/data/world-cup/parlays/*.json app/public/data/world-cup/settlement/*.json app/public/data/world-cup/markets/*.json 2>/dev/null || true
+          git add app/public/data/world-cup/stats/*.json app/public/data/world-cup/provider-discovery/*.json app/public/data/world-cup/projections/*.json app/public/data/world-cup/parlays/*.json app/public/data/world-cup/settlement/*.json app/public/data/world-cup/markets/*.json app/public/data/world-cup/player-markets/*.json app/public/data/world-cup/player-projections/*.json app/public/data/world-cup/player-features/*.json 2>/dev/null || true
           if git diff --staged --quiet; then echo "no changes"; exit 0; fi
           git config user.name "GametimePicks Bot"; git config user.email "noreply@github.com"
           git commit -m "auto: World Cup stats readiness [skip ci]"
