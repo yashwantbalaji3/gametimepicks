@@ -34,6 +34,7 @@ import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import { getPlayoffContext } from "@/components/playoff-context";
+import { detailHrefForTeams } from "@/lib/game-detail";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
@@ -118,10 +119,11 @@ export default function NbaLandingPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {games.map((g) => {
           const ctx = getPlayoffContext(g.gameId, g.awayTeamAbbr, g.homeTeamAbbr);
+          const detailHref = detailHrefForTeams("nba", g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "") ?? "/nba/board";
           return (
             <Link
               key={g.gameId}
-              href="/nba/board"
+              href={detailHref}
               className="vault-glow-hover flex items-center justify-between gap-3 rounded-[6px]"
               style={{ padding: "12px 14px", border: "1px solid var(--vault-border)", background: "rgba(7, 11, 26, 0.55)", color: "inherit", textDecoration: "none" }}
               aria-label={`View props for ${g.awayTeamAbbr ?? "?"} at ${g.homeTeamAbbr ?? "?"}`}

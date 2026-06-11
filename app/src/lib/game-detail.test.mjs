@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { gameSlug, slugify, urlSport, buildAllGameDetails, getGameDetail } from "./game-detail.ts";
+import { gameSlug, slugify, urlSport, buildAllGameDetails, getGameDetail, detailHrefForTeams } from "./game-detail.ts";
 
 test("gameSlug is deterministic: <home>-vs-<away>-<date>", () => {
   assert.equal(gameSlug("Mexico", "South Africa", "2026-06-11"), "mexico-vs-south-africa-2026-06-11");
@@ -36,4 +36,16 @@ test("getGameDetail resolves by url sport + slug, null for unknown", () => {
   const wc = all.find((d) => d.sport === "world_cup");
   assert.ok(getGameDetail("world-cup", wc.slug));
   assert.equal(getGameDetail("world-cup", "not-a-real-slug-2099-01-01"), null);
+});
+
+test("detailHrefForTeams resolves a fixture by team pair (order-independent), null when none", () => {
+  const all = buildAllGameDetails();
+  const wc = all.find((d) => d.sport === "world_cup");
+  if (wc) {
+    const href1 = detailHrefForTeams("world_cup", wc.homeTeam, wc.awayTeam);
+    const href2 = detailHrefForTeams("world_cup", wc.awayTeam, wc.homeTeam);
+    assert.equal(href1, href2);                 // order-independent
+    assert.match(href1, /^\/games\/world-cup\//);
+  }
+  assert.equal(detailHrefForTeams("world_cup", "Nowhere FC", "Nobody United"), null);
 });

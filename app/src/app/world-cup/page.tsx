@@ -43,6 +43,7 @@ import {
 } from "@/lib/normalize";
 import WcMarketMatrix from "@/components/world-cup/wc-market-matrix";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
+import { detailHrefForTeams } from "@/lib/game-detail";
 import WorldCupSectionTabs from "@/components/world-cup/world-cup-section-tabs";
 import FlagBadge from "@/components/flag-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
@@ -194,10 +195,18 @@ export default function WorldCupLandingPage() {
             {todayMatches.map((m) => {
               const homeTeam = teams.find((t) => t.name === m.home);
               const awayTeam = teams.find((t) => t.name === m.away);
+              const detailHref = detailHrefForTeams("world_cup", m.home ?? "", m.away ?? "");
               return (
-                <WcMatchOutlookCard key={m.id} match={outlookForMatch(m.home ?? "", m.away ?? "", outlook)}
-                  homeCode={homeTeam?.code ?? ""} awayCode={awayTeam?.code ?? ""} homeName={m.home ?? ""} awayName={m.away ?? ""}
-                  kickoff={m.kickoffLocal} group={(m.stage === "group" ? m.group : m.stage) ?? null} venue={m.venueCity} />
+                <div key={m.id} className="flex flex-col gap-1.5">
+                  <WcMatchOutlookCard match={outlookForMatch(m.home ?? "", m.away ?? "", outlook)}
+                    homeCode={homeTeam?.code ?? ""} awayCode={awayTeam?.code ?? ""} homeName={m.home ?? ""} awayName={m.away ?? ""}
+                    kickoff={m.kickoffLocal} group={(m.stage === "group" ? m.group : m.stage) ?? null} venue={m.venueCity} />
+                  {detailHref ? (
+                    <Link href={detailHref} className="vault-press self-start font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>
+                      View game · projections + props →
+                    </Link>
+                  ) : null}
+                </div>
               );
             })}
           </div>

@@ -24,6 +24,7 @@ import {
   normalizeOptimizerSlips,
   type PublicProjection,
 } from "@/lib/normalize";
+import { detailHrefForTeams } from "@/lib/game-detail";
 
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
@@ -98,10 +99,11 @@ export default function MlbLandingPage() {
         {games.map((g) => {
           const anchor = `game-${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`;
           const tileKey = g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`;
+          const detailHref = detailHrefForTeams("mlb", g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "") ?? `/mlb/board#${anchor}`;
           return (
             <Link
               key={tileKey}
-              href={`/mlb/board#${anchor}`}
+              href={detailHref}
               className="vault-glow-hover flex items-center justify-between gap-3 rounded-[6px]"
               style={{ padding: "12px 14px", border: "1px solid var(--vault-border)", background: "rgba(7, 11, 26, 0.55)", color: "inherit", textDecoration: "none" }}
               aria-label={`View props for ${g.awayTeamAbbr ?? "?"} at ${g.homeTeamAbbr ?? "?"}`}
