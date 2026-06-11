@@ -1,16 +1,31 @@
 """
-Pure team-level soccer projection model — Poisson goals anchored to the de-vigged market.
+Pure team-level soccer projection model — Poisson goals anchored to the de-vigged market, with
+an explicit market-sanity / sample / feature classifier (methodology upgrade 2026-06-11).
 
-Honesty: this is an INDEPENDENT model (recent-form goals → Poisson H/D/A) BLENDED with the
-de-vigged sportsbook prior, with a conservative cap. It is NOT a copy of the market: when real
-recent-form evidence exists it moves the probabilities; when the sample is thin the model
-weight is small and confidence is capped Low (per the factor guide). Regulation-time only.
-No xG is used or invented. Pure — fully unit-testable.
+Design principles (see docs/audits/world-cup-methodology-review-2026-06-11.md):
+  - The market is a STRONG prior, especially on opening day (it already prices team
+    strength/talent/rank that thin recent form does not).
+  - Recent national-team form may ADJUST the prior, but cannot overwhelm it: the model weight is
+    small and shrinks further when there is no opponent-strength adjustment.
+  - Extreme underdogs need stricter evidence: a pick is only `active` (public) when it clears
+    market-sanity (no sub-15% underdog), sample-size, missing-feature, and minimum-edge gates.
+  - It NEVER echoes the market: with no independent form evidence it returns no pick.
+  - No xG is used or invented. Draw is modeled explicitly. Regulation time only.
+
+Pure — fully unit-testable.
 """
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+
+# --- gate constants ---------------------------------------------------------
+UNDERDOG_MARKET_FLOOR = 0.15      # no public ML for an underdog priced below this
+MIN_SAMPLE_ACTIVE = 5             # recent finished matches needed for an active pick
+MIN_EDGE_ML = 0.03                # 3.0% model-vs-market edge for an active moneyline pick
+MIN_EDGE_TOTAL = 0.025            # 2.5% for an active total
+MAX_UNDERDOG_LIFT_NO_OPP = 0.03   # cap on an underdog's model lift when opponent-unadjusted
+OPENING_DAY_MAX_WEIGHT = 0.18     # hard cap on the independent-model weight early
 
 
 @dataclass
@@ -50,13 +65,46 @@ def poisson_over_under(exp_total: float, line: float, max_goals: int = 12) -> tu
     return (1 - p_under, p_under)
 
 
-def _model_weight(home: TeamForm, away: TeamForm) -> float:
-    """Blend weight for the independent model vs the market prior. Small when the sample is
-    thin (early tournament) so we never overstate edge. Capped at 0.35."""
+def model_weight(home: TeamForm, away: TeamForm, *, opponent_adjusted: bool) -> float:
+    """Independent-model blend weight vs the market prior. Small and sample-scaled, hard-capped
+    at OPENING_DAY_MAX_WEIGHT, and reduced 40% when the recent form is NOT opponent-adjusted
+    (raw goals are easily inflated by weak opposition). The market keeps >= ~0.89 weight."""
     smin = min(home.sample, away.sample)
     if smin <= 0:
         return 0.0
-    return min(0.35, 0.05 * smin)  # 5 matches → 0.25; 7+ → 0.35
+    w = min(OPENING_DAY_MAX_WEIGHT, 0.03 * smin)
+    if not opponent_adjusted:
+        w *= 0.6
+    return w
+
+
+def classify_projection(
+    *,
+    market_prob: float,
+    model_prob: float,
+    market_type: str,
+    sample_min: int,
+    opponent_adjusted: bool,
+    is_underdog: bool,
+) -> tuple[str, bool, str]:
+    """Return (projectionStatus, isPublic, reason). The ONLY path to `active`/public is clearing
+    every gate. Order matters: market-sanity first (kills extreme underdogs), then sample, then
+    missing-feature caps, then minimum edge."""
+    edge = model_prob - market_prob
+    if is_underdog and market_prob < UNDERDOG_MARKET_FLOOR:
+        return ("gated_market_sanity", False,
+                f"extreme underdog (market {market_prob*100:.0f}% < {UNDERDOG_MARKET_FLOOR*100:.0f}%) — not a model pick")
+    if sample_min < MIN_SAMPLE_ACTIVE:
+        return ("gated_sample_size", False,
+                f"recent-form sample {sample_min} < {MIN_SAMPLE_ACTIVE} — too thin to publish")
+    if is_underdog and not opponent_adjusted and edge > MAX_UNDERDOG_LIFT_NO_OPP:
+        return ("gated_missing_features", False,
+                "underdog model-lift exceeds the cap allowed without opponent-strength adjustment")
+    min_edge = MIN_EDGE_ML if market_type == "moneyline_90" else MIN_EDGE_TOTAL
+    if edge < min_edge:
+        return ("research_only", False,
+                f"edge {edge*100:+.1f}% below the {min_edge*100:.1f}% active threshold for {market_type}")
+    return ("active", True, "passes market-sanity + sample + feature + edge gates")
 
 
 def project_match(
@@ -66,12 +114,15 @@ def project_match(
     *,
     total_line: float | None = None,
     market_over: float | None = None,
+    opponent_adjusted: bool = False,
 ):
-    """Returns a dict with blended moneyline (+ optional total) probs, confidence, factors.
-    `market_hda` = de-vigged (home, draw, away). Returns None for moneyline projection when
-    there is NO independent evidence (would just echo the market)."""
-    w = _model_weight(home, away)
-    out: dict = {"modelWeight": round(w, 3), "sampleMin": min(home.sample, away.sample)}
+    """Blended moneyline (+ optional total) probabilities + metadata. Returns None moneyline when
+    there is NO independent evidence (would just echo the market). `opponent_adjusted` reflects
+    whether the recent-form goals were adjusted for opponent strength (false today → lower weight,
+    stricter underdog gating downstream)."""
+    w = model_weight(home, away, opponent_adjusted=opponent_adjusted)
+    out: dict = {"modelWeight": round(w, 3), "sampleMin": min(home.sample, away.sample),
+                 "opponentAdjusted": opponent_adjusted}
     has_form = (
         home.goals_for_90 is not None and home.goals_against_90 is not None
         and away.goals_for_90 is not None and away.goals_against_90 is not None
@@ -88,7 +139,7 @@ def project_match(
         out["moneyline"] = {"home": ph / s, "draw": pd / s, "away": pa / s}
         out["expGoals"] = {"home": round(exp_home, 2), "away": round(exp_away, 2)}
         out["confidence"] = "Low"  # early tournament — never High without xG + bigger sample
-        out["sampleSizeWarning"] = min(home.sample, away.sample) < 5
+        out["sampleSizeWarning"] = min(home.sample, away.sample) < MIN_SAMPLE_ACTIVE
         if total_line is not None and market_over is not None:
             t_over, t_under = poisson_over_under(exp_home + exp_away, total_line)
             out["total"] = {
@@ -97,7 +148,7 @@ def project_match(
                 "under": (1 - w) * (1 - market_over) + w * t_under,
             }
     else:
-        out["moneyline"] = None  # no independent evidence → market outlook only, NOT a projection
+        out["moneyline"] = None
         out["confidence"] = None
         out["sampleSizeWarning"] = True
     return out

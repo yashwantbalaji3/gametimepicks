@@ -263,12 +263,13 @@ export default function WorldCupLandingPage() {
               </span>
             </div>
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-              GameTime Picks model projections and suggested parlays for the World Cup are paused
-              from public release while we deepen the soccer methodology (heavier market anchoring,
-              opponent-strength adjustment, and market-sanity gates so thin-sample extreme
-              underdogs aren&apos;t surfaced as model leans). The <strong style={{ color: "var(--vault-text)" }}>Market Outlook</strong> above
-              stays live — sportsbook-implied Home/Draw/Away + totals, clearly market-implied, not a
-              model pick. Projections return once the upgraded gates classify a pick as defensible.
+              A GameTime Picks model projection appears only when a pick clears the upgraded
+              market-sanity, sample-size, and edge gates — so a thin-sample extreme underdog (like a
+              +750 moneyline) is never surfaced as a model lean. Today&apos;s World Cup picks don&apos;t
+              clear those gates yet (early-tournament form, opponent-unadjusted), so only the{" "}
+              <strong style={{ color: "var(--vault-text)" }}>Market Outlook</strong> above is shown —
+              sportsbook-implied Home/Draw/Away + totals, clearly market-implied, not a model pick.
+              Projections return as the sample deepens and opponent-strength adjustment lands.
             </p>
           </div>
         </section>

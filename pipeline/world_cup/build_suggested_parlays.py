@@ -76,8 +76,13 @@ def main(argv=None) -> int:
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     pf = DATA / "projections" / "latest.json"
     projections = json.loads(pf.read_text()).get("matches", []) if pf.exists() else []
-    # Only legs where the MODEL sees value (positive edge) and we have odds.
-    value = [p for p in projections if p.get("americanOdds") is not None and (p.get("edgePct") or 0) > 0.5]
+    # Parlays may ONLY be built from `active` (public) projections — never research_only/gated
+    # picks (e.g. thin-sample extreme underdogs). This is the core public-trust gate.
+    value = [
+        p for p in projections
+        if p.get("projectionStatus") == "active" and p.get("public") is True
+        and p.get("americanOdds") is not None and (p.get("edgePct") or 0) > 0.5
+    ]
 
     # Build all valid 2-leg CROSS-MATCH combinations (1 leg per match → no in-card correlation).
     by_match: dict = {}
@@ -127,12 +132,14 @@ def main(argv=None) -> int:
     (DATA / "parlays" / f"{args.date}.json").write_text(json.dumps(payload, indent=2) + "\n")
     (DATA / "parlays" / "latest.json").write_text(json.dumps(payload, indent=2) + "\n")
 
-    # Flip parlayAllowed in readiness based on real cards.
+    # Flip parlay flags in readiness. parlayAllowed = artifacts exist; parlayPublic = built from
+    # active projections (the public gate). Both false today (no active projections).
     rp = DATA / "stats" / "readiness-latest.json"
     if rp.exists():
         rd = json.loads(rp.read_text())
         rd["parlayReady"] = len(cards) > 0
         rd["parlayAllowed"] = len(cards) > 0
+        rd["parlayPublic"] = len(cards) > 0
         rp.write_text(json.dumps(rd, indent=2) + "\n")
     print(f"[wc-parlay] cards={len(cards)} valueLegs={len(value)} reasons={len(reasons)}")
     return 0
