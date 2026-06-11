@@ -133,6 +133,26 @@ def _projection_states() -> dict:
     return out
 
 
+def _player_states() -> dict:
+    """Per requested player market: whether a parlay-eligible / public pre-lineup projection
+    exists. Maps the projection oddsKeys back to the requested-market keys."""
+    odds_to_req = {"player_shots": "player_total_shots", "player_shots_on_target": "player_shots_on_target",
+                   "player_assists": "player_assists", "player_goal_scorer_anytime": "anytime_goalscorer"}
+    out = {v: {"active": False, "research": False} for v in odds_to_req.values()}
+    try:
+        for p in json.loads((DATA / "player-projections" / "latest.json").read_text()).get("matches", []):
+            req = odds_to_req.get(p.get("market"))
+            if not req:
+                continue
+            if p.get("parlayEligible") is True:
+                out[req]["active"] = True
+            elif p.get("public") is True:
+                out[req]["research"] = True
+    except Exception:
+        pass
+    return out
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", required=True)
@@ -207,6 +227,7 @@ def main(argv=None) -> int:
     diag["apiFootball"]["calls"] = af_calls
 
     states = _projection_states()
+    pstates = _player_states()
     # Build the probe input per requested market.
     probe = {}
     for m in REQUESTED_MARKETS:
@@ -227,7 +248,8 @@ def main(argv=None) -> int:
         else:  # player markets
             present = m["oddsKey"] in player_supported
             probe[k] = {"oddsSupported": present, "oddsReady": present,
-                        "dataReady": af.is_configured(), "lineupsReady": lineups_ready}
+                        "dataReady": af.is_configured(), "lineupsReady": lineups_ready,
+                        **pstates.get(k, {})}
 
     matrix = build_availability(probe)
     payload = {

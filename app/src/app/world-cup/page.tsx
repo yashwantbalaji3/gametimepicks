@@ -39,9 +39,11 @@ import {
   worldCupMethodologyReview,
   loadWorldCupTeamStrengthSummary,
   loadWorldCupMarketAvailability,
+  loadWorldCupPlayerProjections,
   type WcProjection,
 } from "@/lib/world-cup/projections";
 import WcMarketMatrix from "@/components/world-cup/wc-market-matrix";
+import WcPlayerProps from "@/components/world-cup/wc-player-props";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
 import WcProjectionCard from "@/components/world-cup/wc-projection-card";
 import WcParlayCard from "@/components/world-cup/wc-parlay-card";
@@ -103,6 +105,7 @@ export default function WorldCupLandingPage() {
         : "no provider connected";
   const strength = loadWorldCupTeamStrengthSummary();
   const availability = loadWorldCupMarketAvailability();
+  const playerProjections = loadWorldCupPlayerProjections();
   // Per-market public-status hints for the data-status panel (real probe).
   const mkt = availability?.markets ?? {};
   const cornerOdds = mkt["match_total_corners"]?.oddsReady ?? false;
@@ -351,6 +354,9 @@ export default function WorldCupLandingPage() {
           />
         </section>
       )}
+
+      {/* ─── Pre-lineup player projections (sportsbook universe) ────── */}
+      {playerProjections && <WcPlayerProps projections={playerProjections} />}
 
       {/* ─── Upcoming · Market Outlook (real odds) ──────────────────── */}
       {oddsReady && upcomingOutlook.length > 0 && (

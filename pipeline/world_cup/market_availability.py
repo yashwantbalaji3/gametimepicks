@@ -57,17 +57,19 @@ def market_status(
     elif not odds_ready:
         status, reason, ready = (STATUS_WAITING_ODDS,
                                  f"no {market['label']} odds posted for today's matches yet", False)
+    elif has_active_projection:
+        status, reason, ready = (STATUS_LIVE, "parlay-eligible pick published — passed all gates", True)
+    elif has_research_projection:
+        # A published projection (incl. pre-lineup player views) counts as live.
+        status, reason, ready = (STATUS_PUBLIC_VIEW,
+                                 ("pre-lineup player projections live (starter status pending)" if is_player
+                                  else "public model probability view live (no edge that clears the suggested-card gate)"), True)
     elif is_player and not lineups_ready:
         status, reason, ready = (STATUS_WAITING_LINEUPS,
                                  "player prop odds present but lineups/minutes not posted yet", False)
     elif not data_ready:
         status, reason, ready = (STATUS_WAITING_FEATURES,
                                  f"odds present but no defensible feature source for {market['label']} yet", False)
-    elif has_active_projection:
-        status, reason, ready = (STATUS_LIVE, "parlay-eligible pick published — passed all gates", True)
-    elif has_research_projection:
-        status, reason, ready = (STATUS_PUBLIC_VIEW,
-                                 "public model probability view live (no edge that clears the suggested-card gate)", True)
     else:
         status, reason, ready = (STATUS_WAITING_EDGE,
                                  "odds + data ready; awaiting an edge that clears the publish gate", True)

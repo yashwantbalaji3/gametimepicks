@@ -172,7 +172,10 @@ def main(argv=None) -> int:
                     elif mk == "player_goal_scorer_anytime":
                         model = _p_at_least_one(ps.get("goals90", 0)); have_model = True
                 if have_model:
-                    model = 0.55 * mkt + 0.45 * model  # pre-lineup → market-anchored blend
+                    # Pre-lineup samples are tiny → heavy market anchor + a hard cap on how far the
+                    # model may deviate, so noisy recent rates can't manufacture absurd edges.
+                    model = 0.80 * mkt + 0.20 * model
+                    model = max(mkt - 0.06, min(mkt + 0.06, model))
                 edge = model - mkt
                 pol = parlay_eligibility(market=mk, edge=edge, market_prob=mkt,
                                          american_odds=over["americanOdds"], sample_min=apps,
@@ -182,7 +185,10 @@ def main(argv=None) -> int:
                 # Pre-lineup player props are never Low (Medium/High/Longshot only).
                 if lstatus != "confirmed_starter" and tier == "Low":
                     tier = "Medium"
-                eligible = pol["parlayEligible"] and have_model and lstatus != "pre_lineup_unknown"
+                # Player-prop market-sanity: only eligible on a defensible sample + a non-longshot,
+                # non-near-cert market price + a modest (not noise-sized) edge. Otherwise view only.
+                sane = (have_model and apps >= 3 and 0.30 <= mkt <= 0.82 and 0.015 <= edge <= 0.06)
+                eligible = pol["parlayEligible"] and sane and lstatus != "pre_lineup_unknown"
                 projections.append({
                     "id": f"wc_{args.date}_{norm(team_name[team_id])}_{norm_join(pdata['name'])}_{mk}",
                     "sport": "world_cup", "date": args.date, "matchId": fid,
