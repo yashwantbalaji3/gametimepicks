@@ -343,11 +343,53 @@ export default function WorldCupLandingPage() {
             </div>
           ))}
         </div>
+        {/* Planned soccer markets + risk tiers — from the factor guide.
+            PLANNED, not active: nothing prices these until odds + stats land. */}
+        <div className="mt-4">
+          <span
+            className="font-mono uppercase tracking-[0.14em]"
+            style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+          >
+            Planned markets · not yet active
+          </span>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {[
+              ["Moneyline (90-min, 3-way)", "Low/Med"],
+              ["Team total goals", "Medium"],
+              ["Match total goals", "Med/High"],
+              ["Player shots", "Low/Med"],
+              ["Shots on target", "Low/Med"],
+              ["Player assists", "Medium"],
+              ["Corners", "Low/Med"],
+              ["Anytime goalscorer", "Med/High"],
+            ].map(([market, tier]) => (
+              <span
+                key={market}
+                className="inline-flex items-center gap-1.5 rounded-[6px] px-2.5 py-1"
+                style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-rule)" }}
+              >
+                <span style={{ color: "var(--vault-text)", fontSize: 12 }}>{market}</span>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                  {tier}
+                </span>
+              </span>
+            ))}
+          </div>
+        </div>
         <p
           className="mt-4 text-[11.5px] leading-relaxed"
           style={{ color: "var(--vault-text-faint)" }}
         >
-          {meta?.projectionStatus?.notes}
+          {meta?.projectionStatus?.notes} Soccer markets are kept explicit — the 90-minute
+          regulation result (with Draw as a real third outcome) is never mixed with
+          advancement or extra-time markets. Full factor framework:{" "}
+          <Link
+            href="/methodology"
+            style={{ color: "var(--vault-gold-bright)" }}
+          >
+            methodology
+          </Link>
+          .
         </p>
       </section>
 
