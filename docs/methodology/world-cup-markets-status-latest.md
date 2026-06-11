@@ -1,33 +1,31 @@
 # World Cup Markets — Status (latest)
 
-Every requested market has an explicit, honest status (surfaced on /world-cup). Real probe of
-The Odds API (per-event) + API-Football, 2026-06-11.
+Public projection **visibility** is separate from **parlay eligibility**: a market's model
+probability VIEW is published whenever real odds + features exist; a market only becomes a
+suggested-card leg when its edge clears the stricter eligibility gate.
 
-## Team / game markets
-| Market | Odds | Data | Status | Note |
-|---|---|---|---|---|
-| Moneyline (90-min H/D/A) | ✅ The Odds API `h2h` | ✅ market + FIFA strength + opponent-adj form | **Model research** | ensemble edge below the 3% publish threshold today |
-| Total goals | ✅ The Odds API `totals` | ✅ | **Model research** | edge below the 2.5% publish threshold today |
-| Total corners | ✅ The Odds API `alternate_totals_corners` | ✅ API-Football fixture-statistics corners | **Model research** | real edges (~6–7%) but corner-stat sample < 5 → `gated_sample_size` |
+## Team / game markets — PUBLIC PROBABILITY VIEWS LIVE
+| Market | Odds | Data | Public view | Parlay-eligible | Note |
+|---|---|---|---|---|---|
+| Moneyline (90-min H/D/A) | ✅ `h2h` | ✅ market+FIFA+form | ✅ live | ❌ | edges ≤ ~1.3% < 3% threshold |
+| Total goals | ✅ `totals` | ✅ | ✅ live | ❌ | edges ≤ ~2.0% < 2.5% threshold |
+| Total corners | ✅ `alternate_totals_corners` | ✅ 10-match corner sample | ✅ live | ❌ | deepening the sample (5→10) collapsed the apparent +6–7% edge to ~+1.5%/+0.6% — it was thin-sample noise; honestly below threshold |
+
+The corner case is the key lesson: the previous +6–7% "edges" were a 2–4 match artifact. With a
+real 10-match corner sample the edges are small — so corners are a public view, not a card.
 
 ## Player markets — odds EXIST, waiting on lineups
-The Odds API returns all four for the WC: `player_shots`, `player_shots_on_target`,
-`player_assists`, `player_goal_scorer_anytime`. They publish only with confirmed lineups/minutes,
-which post ~1 hour before kickoff — so today they are **Waiting on lineups** (not unavailable).
+The Odds API returns all four (`player_shots`, `player_shots_on_target`, `player_assists`,
+`player_goal_scorer_anytime`). They publish only with confirmed lineups/minutes, which post
+~1 hour before kickoff (Mexico–S.Africa KO 15:00 ET, Korea–Czechia 22:00 ET). Re-dispatch the
+discovery workflow near kickoff to activate them — no code change needed.
 
-| Market | Odds | Gate |
-|---|---|---|
-| Player total shots | ✅ | lineups/minutes not posted |
-| Player shots on target | ✅ | lineups/minutes not posted |
-| Player assists | ✅ | lineups/minutes not posted |
-| Anytime goalscorer | ✅ | lineups/minutes not posted; never Low-risk |
+## Parlay eligibility (what would publish a card)
+- Moneyline: edge ≥ 3%, market prob ≥ 15% (no extreme-underdog pick), sample ≥ 5.
+- Totals / corners: edge ≥ 2.5%, sample ≥ 5 (corners need ≥ 5 corner-stat matches).
+- Anytime goalscorer: never Low-risk; requires lineup + role.
+Today **0 markets** clear eligibility → 0 suggested cards (honest), while 6 probability views
+are public. Bank Builder Step 3 stays protected at $728.76 (no Low-risk eligible card).
 
-## How a market goes live
-A team market publishes when its ensemble edge clears the threshold (ML 3% / totals 2.5%) with
-sample + strength backing. Player markets publish when lineups post AND a player's prop has real
-shot/SOT/assist/role evidence + edge. Anytime goalscorer is never Low-risk. Bank Builder requires
-an active Low-risk card near +174 — none today, so Step 3 stays protected at $728.76.
-
-## Bounded provider usage
-Odds API per-event probe (player + corners) for today's 2 matches; API-Football lineups +
-corner-stat probes. ~30 Odds API credits used across runs (19,249 remaining).
+## Re-run hook (lineup time)
+`gh workflow run world-cup-stats-discovery.yml -f provider=api_football -f date=2026-06-11 -f dry_run=false`
