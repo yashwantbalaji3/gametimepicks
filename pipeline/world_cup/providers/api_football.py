@@ -91,6 +91,34 @@ class ApiFootballProvider(SoccerStatsProvider):
             goals_against_90=float(ga) if ga not in (None, "") else None,
         )
 
+    def recent_form(self, team_id: int, *, last: int = 8) -> dict:
+        """Recent FINISHED national-team fixtures → goals for/against per match. Used for the
+        team-strength baseline when the WC-2026 season has no completed games yet. 1 call."""
+        data = self._get("/fixtures", {"team": team_id, "last": last})
+        rows = (data or {}).get("response", []) or []
+        gf = ga = played = 0
+        recent = []
+        for f in rows:
+            status = ((f.get("fixture") or {}).get("status") or {}).get("short")
+            if status not in ("FT", "AET", "PEN"):
+                continue
+            tm, goals = f.get("teams") or {}, f.get("goals") or {}
+            is_home = (tm.get("home") or {}).get("id") == team_id
+            hg, ag = goals.get("home"), goals.get("away")
+            if not isinstance(hg, int) or not isinstance(ag, int):
+                continue
+            scored, conceded = (hg, ag) if is_home else (ag, hg)
+            gf += scored; ga += conceded; played += 1
+            recent.append({"for": scored, "against": conceded})
+        if played == 0:
+            return {"played": 0, "goalsFor90": None, "goalsAgainst90": None, "recent": []}
+        return {
+            "played": played,
+            "goalsFor90": round(gf / played, 3),
+            "goalsAgainst90": round(ga / played, 3),
+            "recent": recent[:last],
+        }
+
     def player_roles(self, team: str) -> list[PlayerRole]:
         tid = self._team_id(team)
         if tid is None:
