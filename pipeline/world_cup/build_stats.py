@@ -93,6 +93,34 @@ def main(argv=None) -> int:
         "note": "Bounded API-Football discovery. Projections gate on a real team-stats sample; "
                 "early in the tournament (few finished matches) this stays fail-closed honestly.",
     }
+    # Diagnostics — only when ZERO fixtures came back, to pin the cause (wrong league id /
+    # plan season coverage) without guessing. No secret is ever written.
+    if len(norm_fixtures) == 0:
+        acct = (p._get("/status", {}) or {}).get("response") or {}
+        lg_by_id = (p._get("/leagues", {"id": WC_LEAGUE_ID}) or {}).get("response", []) or []
+        lg_search = (p._get("/leagues", {"search": "world cup"}) or {}).get("response", []) or []
+        discovery["diagnostics"] = {
+            "fixturesQuery": {"league": WC_LEAGUE_ID, "season": WC_SEASON, "date": args.date},
+            "rawFixturesResults": fx_raw.get("results") if isinstance(fx_raw, dict) else None,
+            "rawFixturesErrors": fx_raw.get("errors") if isinstance(fx_raw, dict) else None,
+            "account": {
+                "plan": (acct.get("subscription") or {}).get("plan"),
+                "active": (acct.get("subscription") or {}).get("active"),
+                "requestsLimitDay": (acct.get("requests") or {}).get("limit_day"),
+            },
+            "leagueId_lookup": [
+                {"id": (e.get("league") or {}).get("id"), "name": (e.get("league") or {}).get("name"),
+                 "seasonYears": [s.get("year") for s in (e.get("seasons") or [])]}
+                for e in lg_by_id[:2]
+            ],
+            "worldCup_search": [
+                {"id": (e.get("league") or {}).get("id"), "name": (e.get("league") or {}).get("name"),
+                 "country": (e.get("country") or {}).get("name"),
+                 "seasonYears": [s.get("year") for s in (e.get("seasons") or [])]}
+                for e in lg_search[:8]
+            ],
+        }
+        discovery["callsMade"] = readiness["callsMade"] = p.calls_made
     (DATA / "provider-discovery").mkdir(parents=True, exist_ok=True)
     (DATA / "stats").mkdir(parents=True, exist_ok=True)
     (DATA / "provider-discovery" / f"api_football-{args.date}.json").write_text(json.dumps(discovery, indent=2) + "\n")
