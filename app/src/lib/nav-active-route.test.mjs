@@ -15,7 +15,7 @@ test("MOBILE_NAV_ITEMS has 5 items in the product-spine order", () => {
   assert.equal(MOBILE_NAV_ITEMS.length, 5);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "picks", "lab", "sports", "bank"],
+    ["home", "games", "picks", "lab", "bank"],
   );
 });
 
@@ -24,9 +24,9 @@ test("MOBILE_NAV_ITEMS labels are the product spine (Today/Picks/Build/Sports/Ba
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
   assert.equal(byHref["/today"], "Today");
+  assert.equal(byHref["/games"], "Games");
   assert.equal(byHref["/picks"], "Picks");
   assert.equal(byHref["/build"], "Build");
-  assert.equal(byHref["/sports"], "Sports");
   assert.equal(byHref["/bank-builder"], "Bank");
 });
 
@@ -61,21 +61,22 @@ test("results no longer has a bottom-nav slot (lives in top nav)", () => {
 });
 
 test("every sport hub/board maps to sports (uniform tabbed sports)", () => {
-  assert.equal(resolveMobileNavBucket("/nba"), "sports");
-  assert.equal(resolveMobileNavBucket("/nba/board/2026-05-27"), "sports");
-  assert.equal(resolveMobileNavBucket("/mlb"), "sports");
-  assert.equal(resolveMobileNavBucket("/ufc"), "sports");
-  assert.equal(resolveMobileNavBucket("/projections"), "sports");
+  assert.equal(resolveMobileNavBucket("/games"), "games");
+  assert.equal(resolveMobileNavBucket("/nba"), "games");
+  assert.equal(resolveMobileNavBucket("/nba/board/2026-05-27"), "games");
+  assert.equal(resolveMobileNavBucket("/mlb"), "games");
+  assert.equal(resolveMobileNavBucket("/ufc"), "games");
+  assert.equal(resolveMobileNavBucket("/projections"), "games");
 });
 
-test("schedule-only + directory surfaces map to sports", () => {
-  assert.equal(resolveMobileNavBucket("/sports"), "sports");
-  assert.equal(resolveMobileNavBucket("/events"), "sports");
-  assert.equal(resolveMobileNavBucket("/events/"), "sports");
-  assert.equal(resolveMobileNavBucket("/nhl"), "sports");
-  assert.equal(resolveMobileNavBucket("/ipl"), "sports");
-  assert.equal(resolveMobileNavBucket("/world-cup"), "sports");
-  assert.equal(resolveMobileNavBucket("/world-cup/groups"), "sports");
+test("schedule-only + directory surfaces map to games", () => {
+  assert.equal(resolveMobileNavBucket("/sports"), "games");
+  assert.equal(resolveMobileNavBucket("/events"), "games");
+  assert.equal(resolveMobileNavBucket("/events/"), "games");
+  assert.equal(resolveMobileNavBucket("/nhl"), "games");
+  assert.equal(resolveMobileNavBucket("/ipl"), "games");
+  assert.equal(resolveMobileNavBucket("/world-cup"), "games");
+  assert.equal(resolveMobileNavBucket("/world-cup/groups"), "games");
 });
 
 test("non-bucketed routes return null (no false highlight)", () => {

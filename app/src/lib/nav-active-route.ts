@@ -12,6 +12,7 @@
 
 export type MobileNavBucket =
   | "home"
+  | "games"
   | "picks"
   | "lab"
   | "bank"
@@ -42,9 +43,9 @@ export interface MobileNavItem {
  */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "home", href: "/today", label: "Today" },
+  { bucket: "games", href: "/games", label: "Games" },
   { bucket: "picks", href: "/picks", label: "Picks" },
   { bucket: "lab", href: "/build", label: "Build" },
-  { bucket: "sports", href: "/sports", label: "Sports" },
   { bucket: "bank", href: "/bank-builder", label: "Bank" },
 ] as const;
 
@@ -89,9 +90,10 @@ export function resolveMobileNavBucket(
   // Build folds in the legacy /parlay-lab alias.
   if (p === "/build" || p.startsWith("/build/") || p === "/parlay-lab" || p.startsWith("/parlay-lab/")) return "lab";
   if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
-  // Every sport hub/board + the Sports directory + schedule-only leagues
-  // all resolve to the Sports bucket (uniform now that all sports are tabbed).
+  // The unified Games board + the Sports directory + every sport hub/board + schedule-only
+  // leagues all resolve to the Games bucket (Games is the cross-sport entry on mobile).
   if (
+    p === "/games" || p.startsWith("/games/") ||
     p === "/sports" || p.startsWith("/sports/") ||
     p === "/events" || p.startsWith("/events/") ||
     p === "/world-cup" || p.startsWith("/world-cup/") ||
@@ -102,7 +104,7 @@ export function resolveMobileNavBucket(
     p === "/ipl" || p.startsWith("/ipl/") ||
     p === "/projections" || p.startsWith("/projections/") ||
     p === "/board" || p.startsWith("/board/")
-  ) return "sports";
+  ) return "games";
   // Everything else (/results, /about, /methodology, /responsible-use, /trends)
   // returns null so the bottom nav shows nothing highlighted — those live in
   // the top nav / drawer. Better silent than misleading.
