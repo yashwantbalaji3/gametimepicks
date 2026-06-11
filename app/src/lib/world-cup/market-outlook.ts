@@ -51,6 +51,26 @@ export function loadWorldCupProjectionReadiness(): WcProjectionReadiness | null 
   return read<WcProjectionReadiness>("projection-readiness-latest.json");
 }
 
+/** Soccer stats-provider readiness (fail-closed gating), written by
+ *  `pipeline.world_cup.readiness`. Null when no artifact yet. */
+export interface WcStatsReadiness {
+  provider: string; providerConfigured: boolean;
+  oddsReady: boolean; teamStatsReady: boolean; xgReady: boolean;
+  lineupsReady: boolean; playerStatsReady: boolean;
+  marketOutlookReady: boolean; projectionsAllowed: boolean;
+  playerPropsAllowed: boolean; parlayAllowed: boolean;
+  failClosedReasons: string[];
+}
+export function loadWorldCupStatsReadiness(): WcStatsReadiness | null {
+  try {
+    return JSON.parse(
+      fs.readFileSync(path.join(DIR, "stats", "readiness-latest.json"), "utf8"),
+    ) as WcStatsReadiness;
+  } catch {
+    return null;
+  }
+}
+
 // Team-name normalization + a small alias map so schedule names (FIFA) match the
 // Odds API names (e.g. "Czechia" ↔ "Czech Republic").
 const ALIASES: Record<string, string> = {

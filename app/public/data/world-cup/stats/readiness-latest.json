@@ -1,0 +1,30 @@
+{
+  "generatedAt": "2026-06-11T06:45:39+00:00",
+  "provider": "sample",
+  "providerConfigured": false,
+  "oddsReady": true,
+  "teamStatsReady": false,
+  "xgReady": false,
+  "lineupsReady": false,
+  "playerStatsReady": false,
+  "marketOutlookReady": true,
+  "projectionsAllowed": false,
+  "playerPropsAllowed": false,
+  "parlayAllowed": false,
+  "perMarket": {
+    "moneyline90": "market_outlook_only",
+    "matchTotal": "market_outlook_only",
+    "teamTotals": "unavailable_no_market_or_stats",
+    "corners": "unavailable_no_market_or_stats",
+    "anytimeGoalscorer": "unavailable_no_lineups_or_odds",
+    "playerShots": "unavailable_no_lineups_or_odds",
+    "playerSOT": "unavailable_no_lineups_or_odds",
+    "assists": "unavailable_no_lineups_or_odds"
+  },
+  "failClosedReasons": [
+    "no soccer stats provider configured (env <none> unset) \u2192 fail closed",
+    "no lineups/minutes source \u2192 player props disabled",
+    "no xG source \u2192 xG-dependent confidence stays Low/limited",
+    "odds present but no independent team baseline \u2192 market outlook only, no projection edge"
+  ]
+}
