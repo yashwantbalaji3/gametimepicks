@@ -62,8 +62,78 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
     [cards, sport, risk, bankOnly],
   );
 
+  // Summary matrix: rows (All/Mixed/World Cup/MLB/NBA/UFC) × cols (Low/Medium/High/Longshot).
+  const MATRIX_ROWS: Array<{ key: string; label: string }> = [
+    { key: "all", label: "All" },
+    { key: "mixed", label: "Mixed" },
+    { key: "world_cup", label: "World Cup" },
+    { key: "mlb", label: "MLB" },
+    { key: "nba", label: "NBA" },
+    { key: "ufc", label: "UFC" },
+  ];
+  const MATRIX_COLS = ["Low", "Medium", "High", "Longshot"];
+  const matchRow = (c: PublicSuggestedCard, key: string) =>
+    key === "all" ? true : key === "mixed" ? c.cardType === "mixed_sport"
+      : c.cardType !== "mixed_sport" && c.sports.includes(key as PublicSuggestedCard["sports"][number]);
+  const cellCount = (rowKey: string, col: string) =>
+    cards.filter((c) => matchRow(c, rowKey) && c.riskTier === col).length;
+  const rowTotal = (rowKey: string) => cards.filter((c) => matchRow(c, rowKey)).length;
+
   return (
     <div className="flex flex-col gap-4">
+      {/* Summary matrix — every sport (incl. World Cup) × risk tier; tap a cell to filter. */}
+      <div className="rounded-[10px] overflow-x-auto" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <table className="w-full min-w-[440px]" style={{ borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th className="text-left px-3 py-2 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9, fontWeight: 600 }}>Suggested cards</th>
+              {MATRIX_COLS.map((col) => (
+                <th key={col} className="px-2 py-2">
+                  <button type="button" onClick={() => { setSport("all"); setRisk(col); setBankOnly(false); }}
+                    className="font-mono uppercase tracking-[0.08em] w-full" style={{ color: risk === col && sport === "all" ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 9.5, fontWeight: 600 }}>
+                    {col}
+                  </button>
+                </th>
+              ))}
+              <th className="px-2 py-2 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>All</th>
+            </tr>
+          </thead>
+          <tbody>
+            {MATRIX_ROWS.map((row) => {
+              const total = rowTotal(row.key);
+              return (
+                <tr key={row.key} style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                  <td className="px-3 py-1.5">
+                    <button type="button" onClick={() => { setSport(row.key); setRisk("All"); setBankOnly(false); }}
+                      className="text-left" style={{ color: sport === row.key ? "var(--vault-gold-bright)" : "var(--vault-text)", fontSize: 12, fontWeight: 600 }}>
+                      {row.label}
+                    </button>
+                  </td>
+                  {MATRIX_COLS.map((col) => {
+                    const n = cellCount(row.key, col);
+                    const on = sport === row.key && risk === col;
+                    return (
+                      <td key={col} className="px-1 py-1 text-center">
+                        <button type="button" disabled={n === 0} onClick={() => { setSport(row.key); setRisk(col); setBankOnly(false); }}
+                          className="w-full rounded-[5px] py-1 transition-colors tabular font-mono"
+                          style={{
+                            background: on ? "var(--vault-gold-dim)" : n > 0 ? "rgba(255,255,255,0.03)" : "transparent",
+                            border: `1px solid ${on ? "var(--vault-gold-bright)" : "transparent"}`,
+                            color: n === 0 ? "var(--vault-text-faint)" : on ? "var(--vault-gold-bright)" : "var(--vault-text)",
+                            fontSize: 13, fontWeight: n > 0 ? 700 : 400, cursor: n === 0 ? "default" : "pointer",
+                          }}>
+                          {n === 0 ? "·" : n}
+                        </button>
+                      </td>
+                    );
+                  })}
+                  <td className="px-2 py-1 text-center font-mono tabular" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{total || "·"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
         {SPORTS.map((s) => (
           <Pill key={s.key} on={sport === s.key} onClick={() => setSport(s.key)}>
