@@ -31,7 +31,7 @@ const NAV_ITEMS: Array<{
   { href: "/today", label: "Today" },
   { href: "/picks", label: "Picks" },
   { href: "/build", label: "Build" },
-  { href: "/events", label: "Sports" },
+  { href: "/sports", label: "Sports" },
   { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
   { href: "/results", label: "Results" },
   { href: "/methodology", label: "Learn" },
@@ -39,8 +39,8 @@ const NAV_ITEMS: Array<{
 ];
 
 // Sport routes that should light up the "Sports" nav item.
-const SPORT_RE = /^\/(world-cup|mlb|nba|ufc|nhl|ipl|board|projections|trends|events)(\/|$)/;
-const SPORT_HREFS = new Set(["/events"]);
+const SPORT_RE = /^\/(sports|world-cup|mlb|nba|ufc|nhl|ipl|board|projections|trends|events)(\/|$)/;
+const SPORT_HREFS = new Set(["/sports"]);
 
 export default function Nav() {
   const pathname = usePathname() || "/";
@@ -53,7 +53,7 @@ export default function Nav() {
       return pathname === "/build" || pathname.startsWith("/build/") || pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/") || pathname.endsWith("/parlays") || pathname.includes("/parlays/");
     }
     // Sports lights up on the directory + every sport hub/board route.
-    if (href === "/events") return SPORT_RE.test(pathname);
+    if (href === "/sports") return SPORT_RE.test(pathname);
     // Results, but not the model-audit surface (that lives under Learn).
     if (href === "/results") return pathname === "/results" || (pathname.startsWith("/results/") && !pathname.startsWith("/results/model-audit"));
     // Learn = methodology hub + responsible-use + model audit.
