@@ -15,23 +15,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      # A real provider key is injected here once an adapter exists, e.g.
-      #   API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
       WC_STATS_PROVIDER: ${{ github.event.inputs.provider || 'sample' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install requests
-      - name: Compute readiness (fails closed without a provider key)
+      - name: Bounded discovery / readiness (fails closed without data)
         run: |
           D="${{ github.event.inputs.date || '2026-06-11' }}"
-          python -m pipeline.world_cup.readiness --date "$D" --provider "$WC_STATS_PROVIDER"
+          if [ "$WC_STATS_PROVIDER" = "api_football" ]; then
+            python -m pipeline.world_cup.build_stats --date "$D"
+          else
+            python -m pipeline.world_cup.readiness --date "$D" --provider "$WC_STATS_PROVIDER"
+          fi
       - name: Show
-        run: cat app/public/data/world-cup/stats/readiness-latest.json
+        run: |
+          echo "::group::readiness"; cat app/public/data/world-cup/stats/readiness-latest.json; echo "::endgroup::"
+          test -f app/public/data/world-cup/stats/normalized-latest.json && { echo "::group::normalized"; cat app/public/data/world-cup/stats/normalized-latest.json | head -60; echo "::endgroup::"; } || true
       - name: Commit readiness
         run: |
-          git add app/public/data/world-cup/stats/readiness-latest.json app/public/data/world-cup/stats/*.json 2>/dev/null || true
+          git add app/public/data/world-cup/stats/*.json app/public/data/world-cup/provider-discovery/*.json 2>/dev/null || true
           if git diff --staged --quiet; then echo "no changes"; exit 0; fi
           git config user.name "GametimePicks Bot"; git config user.email "noreply@github.com"
           git commit -m "auto: World Cup stats readiness [skip ci]"
