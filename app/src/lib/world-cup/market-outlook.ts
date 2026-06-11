@@ -86,6 +86,24 @@ function norm(s: string | null | undefined): string {
   const base = (s || "").toLowerCase().replace(/[^a-z]/g, "");
   return ALIASES[base] ?? base;
 }
+/** Exported alias-aware team-name normalizer (for joins in the UI). */
+export function normTeamName(s: string | null | undefined): string {
+  return norm(s);
+}
+
+/** Next `limit` READY outlook matches kicking off at/after `afterIso`, sorted by
+ *  kickoff. Used for the "Upcoming · Market Outlook" section (real odds data). */
+export function upcomingReadyOutlook(
+  outlook: WcMarketOutlook | null,
+  afterIso: string,
+  limit: number,
+): WcOutlookMatch[] {
+  if (!outlook) return [];
+  return outlook.matches
+    .filter((m) => m.status === "ready" && (m.commenceTime ?? "") >= afterIso)
+    .sort((a, b) => (a.commenceTime ?? "").localeCompare(b.commenceTime ?? ""))
+    .slice(0, limit);
+}
 
 /** Find the outlook card for a scheduled match (by team-pair, alias-aware). */
 export function outlookForMatch(

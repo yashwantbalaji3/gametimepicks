@@ -448,8 +448,9 @@ export default function HomePage() {
           <ModuleCard title="Sports coverage" href="/events">
             <HomeSportsCoverage />
             <p className="px-3.5 py-2.5 text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)", borderTop: "1px solid var(--vault-rule)" }}>
-              NBA &amp; MLB have projections + model parlays. Other leagues are
-              schedule-only or not yet modelled — never picks.
+              NBA &amp; MLB have projections + model parlays; World Cup has a live
+              market outlook (sportsbook-implied, not a model pick). Other leagues
+              are schedule-only — never picks.
             </p>
           </ModuleCard>
         </div>
