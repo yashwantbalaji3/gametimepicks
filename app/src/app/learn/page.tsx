@@ -49,10 +49,47 @@ export default function LearnPage() {
       <SectionHeader
         eyebrow="Learn"
         title="How to read GameTime Picks"
-        sub="A 2-minute guide for everyone — no betting background needed. Everything here is educational and paper-only: there are no real wagers and no guarantees."
+        sub="A 2-minute guide for everyone — no betting background needed. Everything here is educational and paper-only: there are no real wagers, just hypothetical paper tracked honestly."
       />
 
-      <section className="flex flex-col gap-3">
+      {/* Anchor quick-nav */}
+      <nav aria-label="Learn sections" className="flex flex-wrap gap-1.5">
+        {[
+          { href: "#start", label: "Start here" },
+          { href: "#projections", label: "Projections" },
+          { href: "#picks", label: "Picks" },
+          { href: "#build", label: "Build" },
+          { href: "#bank-builder", label: "Bank Builder" },
+          { href: "#sports", label: "Sports" },
+          { href: "#glossary", label: "Glossary" },
+        ].map((a) => (
+          <a key={a.href} href={a.href} className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.08em]"
+            style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10, textDecoration: "none" }}>
+            {a.label}
+          </a>
+        ))}
+      </nav>
+
+      {/* Start here — the whole flow in one line */}
+      <section id="start" className="scroll-mt-16 flex flex-col gap-3">
+        <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Start here</h2>
+        <div className="rounded-[10px] px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+          {[
+            { n: "1", t: "Today", d: "What's live now", href: "/today" },
+            { n: "2", t: "Games", d: "Pick a game, any sport", href: "/games" },
+            { n: "3", t: "Picks", d: "The model's cards", href: "/picks" },
+            { n: "4", t: "Build", d: "Make your own", href: "/build" },
+          ].map((s) => (
+            <Link key={s.n} href={s.href} className="vault-press flex flex-col gap-0.5" style={{ textDecoration: "none" }}>
+              <span className="font-mono" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{s.n}</span>
+              <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{s.t}</span>
+              <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{s.d}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section id="projections" className="scroll-mt-16 flex flex-col gap-3">
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>The numbers on a card</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Concept term="Model probability">Our model&apos;s estimate of how likely an outcome is — e.g. &ldquo;Model 56%&rdquo; means the model thinks it happens 56 times out of 100.</Concept>
@@ -74,7 +111,8 @@ export default function LearnPage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-3">
+      <span id="build" className="scroll-mt-16" aria-hidden />
+      <section id="picks" className="scroll-mt-16 flex flex-col gap-3">
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>The three tools</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Concept term="Projections">Every market the model has a read on — shown with model %, market %, and edge. A &ldquo;projection view&rdquo; is information; not every view is suggested as a card.</Concept>
@@ -83,7 +121,7 @@ export default function LearnPage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-3">
+      <section id="bank-builder" className="scroll-mt-16 flex flex-col gap-3">
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Bank Builder</h2>
         <div className="rounded-[10px] px-4 py-4" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.55 }}>
@@ -92,7 +130,7 @@ export default function LearnPage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-3">
+      <section id="sports" className="scroll-mt-16 flex flex-col gap-3">
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>By sport</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {SPORTS.map((s) => (
@@ -111,6 +149,28 @@ export default function LearnPage() {
             <div key={g.label} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(7,11,26,0.45)", border: "1px solid var(--vault-border)" }}>
               <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{g.label}</span>
               <p className="mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 12, lineHeight: 1.5 }}>{g.note}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="glossary" className="scroll-mt-16 flex flex-col gap-3">
+        <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Glossary</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {[
+            ["Model probability", "Our model's estimate that an outcome happens, 0–100%."],
+            ["Implied / market probability", "The same chance baked into the sportsbook price, margin removed."],
+            ["Edge", "Model probability minus market probability. Positive = the model likes it more than the price."],
+            ["American odds", "−150 = risk 150 to win 100; +130 = risk 100 to win 130."],
+            ["Parlay", "Several picks combined into one card — all must hit; the odds multiply."],
+            ["Leg", "A single pick inside a parlay card."],
+            ["Pre-lineup", "A player prop shown before the starting lineup is confirmed — clearly labeled."],
+            ["Model-only", "A pick the model rates but the sportsbook doesn't price — shown without a paper payout (e.g. some UFC cards)."],
+            ["Gated", "A projection the model has, but that hasn't cleared our bar to be a suggested card yet."],
+          ].map(([term, def]) => (
+            <div key={term} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+              <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{term}</span>
+              <p className="mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 12, lineHeight: 1.5 }}>{def}</p>
             </div>
           ))}
         </div>
