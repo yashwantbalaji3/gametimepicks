@@ -25,6 +25,7 @@ const NAV_ITEMS: Array<{
   /** When true, render a faint gold divider chip BEFORE this item. */
   beforeDivider?: boolean;
 }> = [
+  { href: "/today", label: "Today" },
   { href: "/", label: "Home" },
   { href: "/projections", label: "Projections" },
   { href: "/parlay-lab", label: "Parlay Lab" },
