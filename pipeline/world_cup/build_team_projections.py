@@ -74,6 +74,10 @@ def main(argv=None) -> int:
         corner_odds = json.loads((DATA / "markets" / "corner-odds-latest.json").read_text()).get("byPair", {})
     except Exception:
         corner_odds = {}
+    try:
+        dc_odds = json.loads((DATA / "markets" / "double-chance-odds-latest.json").read_text()).get("byPair", {})
+    except Exception:
+        dc_odds = {}
     for g in today_games:
         pk = pair_key(g.get("home"), g.get("away"))
         fx = fix_by_pair.get(pk)
@@ -201,6 +205,44 @@ def main(argv=None) -> int:
                         "Early-tournament sample; confidence capped Low", ml_reason],
             "notes": ["90-minute regulation only (Draw is a real outcome; no extra time/penalties)", ml_reason],
         })
+        # Double chance — model probs derived from the ensemble H/D/A; real DC odds from The Odds API.
+        dco = dc_odds.get(pk)
+        if dco and all(k in dco for k in ("home_or_draw", "away_or_draw", "home_or_away")):
+            dc_model = {
+                "home_or_draw": ml["home"] + ml["draw"], "away_or_draw": ml["away"] + ml["draw"],
+                "home_or_away": ml["home"] + ml["away"],
+            }
+            raw = {k: american_to_prob(dco[k]) for k in dc_model}
+            tot = sum(raw.values()) or 1.0
+            dc_market = {k: v * 2 / tot for k, v in raw.items()}  # de-vig: 3 DC bets cover 2× the outcomes
+            dc_labels = {"home_or_draw": f"{g['home']} or Draw", "away_or_draw": f"{g['away']} or Draw",
+                         "home_or_away": f"{g['home']} or {g['away']}"}
+            dc_sides = [(k, dc_labels[k], dc_model[k], dc_market[k], dco[k]) for k in dc_model]
+            dpick, dlabel, dmp, dmkt, dodds = max(dc_sides, key=lambda s: s[2] - s[3])
+            dc_pol = parlay_eligibility(market="double_chance", edge=dmp - dmkt, market_prob=dmkt,
+                                        american_odds=dodds, sample_min=sample_min, is_underdog=False)
+            dc_eligible = dc_pol["parlayEligible"]
+            projections.append({
+                **common,
+                "id": f"wc_{args.date}_{norm(g['home'])}_{norm(g['away'])}_dc",
+                "market": "double_chance", "pick": dpick if dc_eligible else None,
+                "pickLabel": dlabel if dc_eligible else None, "line": None,
+                "americanOdds": dodds, "bookmaker": dco.get("bookmaker"),
+                "modelProbability": round(dmp, 4), "marketProbability": round(dmkt, 4),
+                "edgePct": round((dmp - dmkt) * 100, 2),
+                "outcomes": [{"label": s[1], "side": s[0], "modelProbability": round(s[2], 4),
+                              "marketProbability": round(s[3], 4), "americanOdds": s[4]} for s in dc_sides],
+                "confidence": "Low",
+                "projectionStatus": "parlay_eligible" if dc_eligible else "public_projection_no_edge",
+                "public": True, "parlayEligible": dc_eligible,
+                "bankBuilderEligible": dc_pol["bankBuilderEligible"], "settlementSupport": "automated",
+                "statusReason": dc_pol["reason"], "riskTier": dc_pol["riskTier"],
+                "factors": [f"Model {dlabel} {round(dmp*100)}% vs market {round(dmkt*100)}%",
+                            "Double chance derived from the ensemble Home/Draw/Away — real DC odds",
+                            ensemble_factor],
+                "caveats": ["90-minute regulation only (Draw is a real outcome; no extra time/penalties)", dc_pol["reason"]],
+                "notes": ["90-minute regulation only (covers two of three results)", dc_pol["reason"]],
+            })
         # Match total goals — public Over/Under probability view.
         if proj.get("total"):
             t = proj["total"]
