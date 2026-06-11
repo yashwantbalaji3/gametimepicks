@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-11T07:18:46+00:00",
-  "provider": "sample",
-  "providerConfigured": false,
+  "generatedAt": "2026-06-11T07:25:12+00:00",
+  "provider": "api_football",
+  "providerConfigured": true,
   "oddsReady": true,
   "teamStatsReady": false,
   "xgReady": false,
@@ -22,9 +22,15 @@
     "assists": "unavailable_no_lineups_or_odds"
   },
   "failClosedReasons": [
-    "no soccer stats provider configured (env <none> unset) \u2192 fail closed",
-    "no lineups/minutes source \u2192 player props disabled",
+    "provider connected but no usable team-stats sample yet (e.g. tournament just started / 0 finished matches) \u2192 projections fail closed",
+    "no posted lineups/minutes \u2192 player props disabled",
     "no xG source \u2192 xG-dependent confidence stays Low/limited",
     "odds present but no independent team baseline \u2192 market outlook only, no projection edge"
-  ]
+  ],
+  "evidence": {
+    "teamStrengthTeams": 0,
+    "lineupsFixtures": 0,
+    "playerStatsRows": 0
+  },
+  "callsMade": 1
 }
