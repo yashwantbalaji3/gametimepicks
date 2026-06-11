@@ -11,23 +11,23 @@ import {
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
 
-test("MOBILE_NAV_ITEMS has 5 items in the documented order", () => {
+test("MOBILE_NAV_ITEMS has 5 items in the product-spine order", () => {
   assert.equal(MOBILE_NAV_ITEMS.length, 5);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "picks", "lab", "bank", "results"],
+    ["home", "picks", "lab", "sports", "bank"],
   );
 });
 
-test("MOBILE_NAV_ITEMS labels are correct (Bank Builder earns a slot)", () => {
+test("MOBILE_NAV_ITEMS labels are the product spine (Today/Picks/Build/Sports/Bank)", () => {
   const byHref = Object.fromEntries(
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
-  assert.equal(byHref["/"], "Home");
-  assert.equal(byHref["/projections"], "Projections");
-  assert.equal(byHref["/parlay-lab"], "Parlays");
+  assert.equal(byHref["/today"], "Today");
+  assert.equal(byHref["/picks"], "Picks");
+  assert.equal(byHref["/build"], "Build");
+  assert.equal(byHref["/events"], "Sports");
   assert.equal(byHref["/bank-builder"], "Bank");
-  assert.equal(byHref["/results"], "Results");
 });
 
 test("bank: /bank-builder and descendants resolve to bank", () => {
@@ -36,43 +36,42 @@ test("bank: /bank-builder and descendants resolve to bank", () => {
   assert.equal(resolveMobileNavBucket("/bank-builder/ledger"), "bank");
 });
 
-test("home: '/' and '' resolve to home", () => {
+test("home (Today): '/', '/today' resolve to home", () => {
   assert.equal(resolveMobileNavBucket("/"), "home");
+  assert.equal(resolveMobileNavBucket("/today"), "home");
   assert.equal(resolveMobileNavBucket(""), null); // empty is treated as null input
 });
 
-test("picks: /projections and descendants", () => {
-  assert.equal(resolveMobileNavBucket("/projections"), "picks");
-  assert.equal(resolveMobileNavBucket("/projections/"), "picks");
-  assert.equal(resolveMobileNavBucket("/projections/2026-05-27"), "picks");
+test("picks: /picks and descendants", () => {
+  assert.equal(resolveMobileNavBucket("/picks"), "picks");
+  assert.equal(resolveMobileNavBucket("/picks/"), "picks");
+  assert.equal(resolveMobileNavBucket("/picks/low"), "picks");
 });
 
-test("lab: /parlay-lab and descendants", () => {
+test("lab (Build): /build + legacy /parlay-lab alias", () => {
+  assert.equal(resolveMobileNavBucket("/build"), "lab");
+  assert.equal(resolveMobileNavBucket("/build/"), "lab");
   assert.equal(resolveMobileNavBucket("/parlay-lab"), "lab");
-  assert.equal(resolveMobileNavBucket("/parlay-lab/"), "lab");
   assert.equal(resolveMobileNavBucket("/parlay-lab/builder"), "lab");
 });
 
-test("results: /results and every nested results route", () => {
-  assert.equal(resolveMobileNavBucket("/results"), "results");
-  assert.equal(resolveMobileNavBucket("/results/"), "results");
-  assert.equal(resolveMobileNavBucket("/results/nba"), "results");
-  assert.equal(resolveMobileNavBucket("/results/mlb"), "results");
-  assert.equal(resolveMobileNavBucket("/results/date/2026-05-27"), "results");
-  assert.equal(resolveMobileNavBucket("/results/parlays"), "results");
+test("results no longer has a bottom-nav slot (lives in top nav)", () => {
+  assert.equal(resolveMobileNavBucket("/results"), null);
+  assert.equal(resolveMobileNavBucket("/results/nba"), null);
 });
 
-test("NBA + MLB boards map to picks (real projections)", () => {
-  assert.equal(resolveMobileNavBucket("/nba"), "picks");
-  assert.equal(resolveMobileNavBucket("/nba/board/2026-05-27"), "picks");
-  assert.equal(resolveMobileNavBucket("/mlb"), "picks");
+test("every sport hub/board maps to sports (uniform tabbed sports)", () => {
+  assert.equal(resolveMobileNavBucket("/nba"), "sports");
+  assert.equal(resolveMobileNavBucket("/nba/board/2026-05-27"), "sports");
+  assert.equal(resolveMobileNavBucket("/mlb"), "sports");
+  assert.equal(resolveMobileNavBucket("/ufc"), "sports");
+  assert.equal(resolveMobileNavBucket("/projections"), "sports");
 });
 
-test("schedule-only surfaces map to sports", () => {
+test("schedule-only + directory surfaces map to sports", () => {
   assert.equal(resolveMobileNavBucket("/events"), "sports");
   assert.equal(resolveMobileNavBucket("/events/"), "sports");
   assert.equal(resolveMobileNavBucket("/nhl"), "sports");
-  assert.equal(resolveMobileNavBucket("/nhl/"), "sports");
   assert.equal(resolveMobileNavBucket("/ipl"), "sports");
   assert.equal(resolveMobileNavBucket("/world-cup"), "sports");
   assert.equal(resolveMobileNavBucket("/world-cup/groups"), "sports");
