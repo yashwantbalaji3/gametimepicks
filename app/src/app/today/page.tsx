@@ -115,7 +115,7 @@ export default function TodayPage() {
           <Link
             key={a.href}
             href={a.href}
-            className="vault-glow-hover rounded-[10px] px-3 py-3.5 flex flex-col gap-0.5"
+            className="vault-glow-hover vault-press rounded-[10px] px-3 py-3.5 flex flex-col gap-0.5"
             style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", textDecoration: "none" }}
           >
             <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>{a.label}</span>

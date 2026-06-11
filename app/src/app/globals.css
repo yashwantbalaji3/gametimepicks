@@ -4379,3 +4379,27 @@ table,
   }
 }
 
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Final launch polish — tab-panel transitions + tap feedback.
+   Pure CSS, SSG-safe, fully reduced-motion-guarded. The SportShell renders
+   every tab panel and toggles [hidden]; when a panel becomes visible it
+   gently fades up so tab switches feel smooth on all four sport hubs.
+   ───────────────────────────────────────────────────────────────────────── */
+@keyframes vault-panel-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: none; }
+}
+[role="tabpanel"]:not([hidden]) {
+  animation: vault-panel-in 240ms ease both;
+}
+
+/* Tap/press feedback for primary tap targets (mobile sportsbook feel). */
+.vault-press { transition: transform 120ms ease, filter 120ms ease; }
+.vault-press:active { transform: scale(0.97); filter: brightness(1.05); }
+
+@media (prefers-reduced-motion: reduce) {
+  [role="tabpanel"]:not([hidden]) { animation: none; }
+  .vault-press { transition: none; }
+  .vault-press:active { transform: none; filter: none; }
+}

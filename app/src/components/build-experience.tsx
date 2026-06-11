@@ -181,7 +181,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
       <div className="lg:hidden">
         {!slipOpen && (
           <button type="button" onClick={() => setSlipOpen(true)}
-            className="fixed left-3 right-3 z-40 flex items-center justify-between gap-2 rounded-full px-5 py-3 shadow-lg"
+            className="vault-press fixed left-3 right-3 z-40 flex items-center justify-between gap-2 rounded-full px-5 py-3 shadow-lg"
             style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 64px)", background: "var(--vault-gold-bright)", color: "#0b0f1f", fontWeight: 700, border: "none" }}>
             <span style={{ fontSize: 14 }}>View card · {selected.length} leg{selected.length === 1 ? "" : "s"}</span>
             <span className="font-mono tabular" style={{ fontSize: 14 }}>{selected.length >= 1 ? formatAmerican(combinedAmerican) : "—"}</span>

@@ -67,10 +67,10 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
                 <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{g.timeLabel}{g.projections > 0 ? ` · ${g.projections} projection${g.projections === 1 ? "" : "s"}` : ""}</span>
               </div>
               <div className="flex items-center gap-2 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                <Link href={g.href} className="flex-1 text-center rounded-[6px] py-1.5 font-mono uppercase tracking-[0.1em]" style={{ background: "var(--vault-gold-dim)", border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", fontSize: 10.5, textDecoration: "none" }}>
+                <Link href={g.href} className="vault-press flex-1 text-center rounded-[6px] py-1.5 font-mono uppercase tracking-[0.1em]" style={{ background: "var(--vault-gold-dim)", border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", fontSize: 10.5, textDecoration: "none" }}>
                   View {g.sportLabel}
                 </Link>
-                <Link href={g.buildHref} className="flex-1 text-center rounded-[6px] py-1.5 font-mono uppercase tracking-[0.1em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5, textDecoration: "none" }}>
+                <Link href={g.buildHref} className="vault-press flex-1 text-center rounded-[6px] py-1.5 font-mono uppercase tracking-[0.1em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5, textDecoration: "none" }}>
                   Build
                 </Link>
               </div>
