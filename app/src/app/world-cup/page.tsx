@@ -38,8 +38,10 @@ import {
   loadWorldCupParlays,
   worldCupMethodologyReview,
   loadWorldCupTeamStrengthSummary,
+  loadWorldCupMarketAvailability,
   type WcProjection,
 } from "@/lib/world-cup/projections";
+import WcMarketMatrix from "@/components/world-cup/wc-market-matrix";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
 import WcProjectionCard from "@/components/world-cup/wc-projection-card";
 import WcParlayCard from "@/components/world-cup/wc-parlay-card";
@@ -100,12 +102,20 @@ export default function WorldCupLandingPage() {
         ? "API-Football connected · awaiting coverage"
         : "no provider connected";
   const strength = loadWorldCupTeamStrengthSummary();
+  const availability = loadWorldCupMarketAvailability();
+  // Per-market public-status hints for the data-status panel (real probe).
+  const mkt = availability?.markets ?? {};
+  const cornerOdds = mkt["match_total_corners"]?.oddsReady ?? false;
+  const playerOdds = (mkt["player_shots_on_target"]?.oddsReady || mkt["anytime_goalscorer"]?.oddsReady) ?? false;
+  const lineupsReady = mkt["player_shots_on_target"]?.lineupsReady ?? false;
   const dataStatus: Array<{ label: string; on: boolean; note: string }> = [
     { label: "Odds / Market outlook", on: oddsReady, note: "The Odds API · 3-way + totals" },
     { label: "Team strength", on: !!strength, note: strength ? `FIFA ranking · ${strength.teamCount} teams` : "no source" },
     { label: "Team stats", on: !!stats?.teamStatsReady, note: statsNote },
     { label: "xG / xGA", on: !!stats?.xgReady, note: "API-Football has no xG" },
-    { label: "Lineups / minutes", on: !!stats?.lineupsReady, note: "posted near kickoff" },
+    { label: "Corner-total odds", on: cornerOdds, note: cornerOdds ? "The Odds API · corners" : "not offered for WC" },
+    { label: "Player-prop odds", on: playerOdds, note: playerOdds ? "shots · SOT · assists · scorer" : "not offered for WC" },
+    { label: "Lineups / minutes", on: lineupsReady, note: lineupsReady ? "posted" : "posted ~1h before kickoff" },
     { label: "Model projections", on: projectionsLive, note: projectionsLive ? `${projections!.projectionCount} picks · 90-min` : methodologyReview ? "under methodology review" : "needs team stats + odds" },
     { label: "Suggested parlays", on: parlaysLive, note: parlaysLive ? `${parlays!.cardCount} cards` : methodologyReview ? "under methodology review" : "needs projections" },
   ];
@@ -362,6 +372,9 @@ export default function WorldCupLandingPage() {
           </div>
         </section>
       )}
+
+      {/* ─── Requested markets matrix (no market silently missing) ──── */}
+      {availability && <WcMarketMatrix availability={availability} />}
 
       {/* ─── Data status — honest, fail-closed gates ────────────────── */}
       <section className="mt-8" aria-label="Data status">
