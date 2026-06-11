@@ -217,6 +217,52 @@ export function normalizeMlbLeans(board: MlbBoardLike | null): PublicProjection[
   });
 }
 
+// ── NBA board-lean adapter (model player-prop projections → projection views) ──
+const NBA_MARKET_LABEL: Record<string, string> = {
+  PTS: "Points", REB: "Rebounds", AST: "Assists", "3PM": "Threes Made",
+  PRA: "Pts+Reb+Ast", BLK: "Blocks", STL: "Steals", PR: "Pts+Reb", PA: "Pts+Ast", RA: "Reb+Ast",
+};
+type NbaLean = {
+  id?: string; playerName?: string; market?: string; line?: number | null; lean?: string;
+  confidence?: string; edgePct?: number | null; modelProbability?: number | null; impliedProbability?: number | null;
+  oddsOver?: number | null; oddsUnder?: number | null; team?: string; opponent?: string; gameId?: string; date?: string;
+};
+type NbaBoardLike = { date?: string; generatedFor?: string; leans?: NbaLean[] };
+
+/** NBA board leans → PublicProjection views. Only actual plays (Over/Under) become views;
+ *  "No Play" leans (no edge / lines pending) are skipped. parlayEligible=false (projection views). */
+export function normalizeNbaLeans(board: NbaBoardLike | null): PublicProjection[] {
+  const leans = board?.leans ?? [];
+  return leans
+    .filter((l) => l.lean === "Over" || l.lean === "Under")
+    .map((l, i) => {
+      const over = l.lean === "Over";
+      return {
+        id: l.id ?? `nba_lean_${i}`,
+        sport: "nba",
+        sportLabel: "NBA",
+        date: l.date ?? board?.date ?? board?.generatedFor ?? "",
+        matchId: l.gameId ?? null,
+        gameLabel: `${l.team ?? ""} vs ${l.opponent ?? ""}`.trim().replace(/^vs |vs $/g, ""),
+        market: l.market ?? "",
+        marketLabel: NBA_MARKET_LABEL[l.market ?? ""] ?? l.market ?? "",
+        participantType: "player",
+        player: { name: l.playerName ?? "Player", team: l.team ?? undefined },
+        pickLabel: `${l.lean} ${l.line ?? ""}`.trim(),
+        line: l.line ?? null,
+        americanOdds: over ? l.oddsOver ?? null : l.oddsUnder ?? null,
+        modelProbability: l.modelProbability ?? null,
+        marketProbability: l.impliedProbability ?? null,
+        edgePct: l.edgePct ?? null,
+        confidence: l.confidence === "High" || l.confidence === "Medium" ? l.confidence : "Low",
+        public: true,
+        parlayEligible: false,
+        bankBuilderEligible: false,
+        status: "public_projection",
+      };
+    });
+}
+
 // ── NBA / MLB optimizer-slip adapter (defensive — works for either slip shape) ──
 const PROFILE_TIER: Record<string, RiskTier> = {
   conservative: "Low", balanced: "Medium", aggressive: "High", lottery: "Longshot",
