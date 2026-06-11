@@ -29,6 +29,7 @@ const NAV_ITEMS: Array<{
   // like "Projections"/"Parlay Lab" in primary nav; those stay reachable as
   // routes and fold into Build/Sports active states). Brand mark links Home.
   { href: "/today", label: "Today" },
+  { href: "/games", label: "Games" },
   { href: "/picks", label: "Picks" },
   { href: "/build", label: "Build" },
   { href: "/sports", label: "Sports" },

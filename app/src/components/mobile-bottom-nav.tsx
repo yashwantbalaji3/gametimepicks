@@ -50,6 +50,16 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <path d="M5 10v10h14V10" />
         </svg>
       );
+    case "games":
+      // Grid of game cards — the unified cross-sport games board.
+      return (
+        <svg {...props}>
+          <rect x="3" y="3" width="7" height="7" rx="1.5" />
+          <rect x="14" y="3" width="7" height="7" rx="1.5" />
+          <rect x="3" y="14" width="7" height="7" rx="1.5" />
+          <rect x="14" y="14" width="7" height="7" rx="1.5" />
+        </svg>
+      );
     case "picks":
       // Chart/bars motif — projections live here.
       return (
