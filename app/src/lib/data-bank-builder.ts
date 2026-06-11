@@ -59,6 +59,26 @@ export function loadBankBuilderLedger(): { entries: BankBuilderLedgerEntry[] } |
   return read<{ entries: BankBuilderLedgerEntry[] }>("ledger-latest.json");
 }
 
+/** Featured (non-ladder) special-event card — e.g. the NBA Finals same-game card.
+ *  Settled from official box-score data; trackedLadder is false. Null when none. */
+export interface FeaturedBuilderLeg {
+  player: string; playerId?: number | null; team?: string | null; opponent?: string | null;
+  market: string; marketLabel?: string | null; side: string; line: number | null;
+  oddsForSide?: number | null; confidence?: string | null;
+  finalStat?: number | null; result?: "win" | "loss" | "push" | null;
+}
+export interface FeaturedBuilderCard {
+  date: string; sport: string; event: string; cardType: string;
+  trackedLadder: boolean; status: string; result: "win" | "loss" | "push" | null;
+  stakeDollars: number; combinedAmerican: number; combinedDecimal: number;
+  projectedReturn: number; settledReturn: number; profit: number;
+  officialResultConfirmed: boolean; settlementSource: string; settledAt?: string;
+  correlationNote?: string; legs: FeaturedBuilderLeg[];
+}
+export function loadFeaturedBuilderCard(): FeaturedBuilderCard | null {
+  return read<FeaturedBuilderCard>("featured-latest.json");
+}
+
 /**
  * Public view of the Bank Builder ledger: separates the current paper run + last
  * settled slip + next slip from the lifetime experimental audit. The lifetime record

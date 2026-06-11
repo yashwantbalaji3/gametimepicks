@@ -119,8 +119,14 @@ export default function ParlayLabPage() {
     (l) => (l as { sport?: string }).sport === "nba",
   ) as unknown as FinalsLeg[];
   const nbaGameIds = new Set(nbaLegs.map((l) => (l as { gameId?: string }).gameId).filter(Boolean));
+  // Only render the NBA Finals same-game cards for a FRESH same-day slate — never a
+  // stale fallback. Once the slate has been graded/settled (game over), drop the
+  // section so the page doesn't imply tonight's game is still pre-tip.
+  const isFreshSlate = optimizerForDate?.date === today;
   const finalsCards =
-    nbaLegs.length > 0 && nbaGameIds.size === 1 ? buildFinalsCards(nbaLegs, { perTier: 5 }) : null;
+    isFreshSlate && nbaLegs.length > 0 && nbaGameIds.size === 1
+      ? buildFinalsCards(nbaLegs, { perTier: 5 })
+      : null;
 
   const activeDateGraded = getOptimizerGradedForDate(activeDate);
   const isActiveSettled =
