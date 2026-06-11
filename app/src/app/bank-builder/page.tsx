@@ -222,7 +222,7 @@ export default function BankBuilderPage() {
         <BoardStatTile
           label="Next Target"
           value={formatLadderUsd(activeStep.goal)}
-          sub={`from ${formatLadderUsd(currentBankroll)} · Step ${activeStep.step} of 5`}
+          sub={`from ${formatLadderUsdPrecise(currentBankroll)} · Step ${activeStep.step} of 5`}
           accent="var(--risk-longshot)"
         />
       </div>
