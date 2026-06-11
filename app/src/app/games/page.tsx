@@ -59,7 +59,14 @@ export default function GamesPage() {
   const mlbDate = activeMlbDate() ?? today;
   const mlbBoard = getMlbBoardForDate(mlbDate);
   const mlbByGame = countBy(normalizeMlbLeans(mlbBoard as Parameters<typeof normalizeMlbLeans>[0]), (l) => l.matchId);
+  // Bridge gamePk → optimizer gameId (hash) via the leans so "Build from this game" deep-links to
+  // exactly that game's legs (build legs key on the hash, board games key on gamePk).
+  const mlbGameIdByPk = new Map<string, string>();
+  for (const l of (mlbBoard.leans ?? []) as Array<{ gamePk?: number | string; gameId?: string }>) {
+    if (l.gamePk != null && l.gameId) mlbGameIdByPk.set(String(l.gamePk), l.gameId);
+  }
   for (const g of mlbBoard.games ?? []) {
+    const gid = mlbGameIdByPk.get(String(g.gamePk));
     rows.push({
       id: `mlb_${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`,
       sport: "mlb",
@@ -70,7 +77,7 @@ export default function GamesPage() {
       statusLabel: mlbDate === today ? "Today" : mlbDate.slice(5),
       projections: mlbByGame.get(String(g.gamePk)) ?? 0,
       href: "/mlb?tab=games",
-      buildHref: "/build?sport=mlb",
+      buildHref: gid ? `/build?sport=mlb&game=${encodeURIComponent(gid)}` : "/build?sport=mlb",
     });
   }
 
@@ -90,7 +97,7 @@ export default function GamesPage() {
       statusLabel: "Finals",
       projections: nbaByGame.get(String(g.gameId)) ?? 0,
       href: "/nba?tab=games",
-      buildHref: "/build?sport=nba",
+      buildHref: g.gameId ? `/build?sport=nba&game=${encodeURIComponent(g.gameId)}` : "/build?sport=nba",
     });
   }
 

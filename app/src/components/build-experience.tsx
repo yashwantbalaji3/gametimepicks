@@ -30,6 +30,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<BuildLeg[]>([]);
   const [slipOpen, setSlipOpen] = useState(false);
+  const [gameFilter, setGameFilter] = useState<string | null>(null);
 
   const selectedIds = new Set(selected.map((l) => l.id));
   const markets = useMemo(() => Array.from(new Set(pool.map((l) => l.marketLabel))).sort(), [pool]);
@@ -43,18 +44,21 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
     if (sp && ["world_cup", "mlb", "nba", "ufc"].includes(sp)) setSport(sp);
     const query = p.get("q");
     if (query) setQ(query);
+    const game = p.get("game");
+    if (game) setGameFilter(game);
   }, []);
 
   const filtered = useMemo(
     () =>
       pool.filter((l) => {
+        if (gameFilter && String(l.gameId) !== gameFilter) return false;
         if (sport !== "All" && l.sport !== sport) return false;
         if (risk !== "All" && l.riskTier !== risk) return false;
         if (market !== "All" && l.marketLabel !== market) return false;
         if (q && !l.searchKey.includes(q.toLowerCase())) return false;
         return true;
       }),
-    [pool, sport, risk, market, q],
+    [pool, sport, risk, market, q, gameFilter],
   );
 
   const add = (l: BuildLeg) => setSelected((s) => (s.some((x) => x.id === l.id) ? s : [...s, l]));
@@ -115,6 +119,13 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team or player…"
             className="rounded-[8px] px-3 py-2"
             style={{ background: "rgba(7,11,26,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
+          {gameFilter ? (
+            <button type="button" onClick={() => setGameFilter(null)}
+              className="self-start inline-flex items-center gap-2 rounded-full px-3 py-1"
+              style={{ background: "var(--vault-gold-dim)", border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", fontSize: 11.5, fontWeight: 600 }}>
+              Showing one game&apos;s legs <span style={{ opacity: 0.85 }}>· clear ✕</span>
+            </button>
+          ) : null}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
             {SPORTS.map((s) => <Pill key={s} on={sport === s} onClick={() => setSport(s)}>{SPORT_LABEL[s]}</Pill>)}
           </div>
