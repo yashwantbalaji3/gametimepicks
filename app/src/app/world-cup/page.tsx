@@ -44,6 +44,7 @@ import {
 } from "@/lib/world-cup/projections";
 import WcMarketMatrix from "@/components/world-cup/wc-market-matrix";
 import WcPlayerProps from "@/components/world-cup/wc-player-props";
+import WcStickyTabs from "@/components/world-cup/wc-sticky-tabs";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
 import WcProjectionCard from "@/components/world-cup/wc-projection-card";
 import WcParlayCard from "@/components/world-cup/wc-parlay-card";
@@ -212,9 +213,22 @@ export default function WorldCupLandingPage() {
         accent="gold"
       />
 
+      {/* ─── Sticky sportsbook section nav (Player Props one click away) ─ */}
+      {isLive && (
+        <WcStickyTabs
+          tabs={[
+            ...(todayMatches.length > 0 ? [{ key: "games", label: "Games", badge: todayMatches.length }] : []),
+            ...(projectionsLive ? [{ key: "projections", label: "Projections", badge: projections!.projectionCount }] : []),
+            ...(playerProjections ? [{ key: "player-props", label: "Player Props", badge: playerProjections.projectionCount }] : []),
+            ...(parlaysLive || projectionsLive ? [{ key: "cards", label: "Cards", badge: parlays?.cardCount ?? 0 }] : []),
+            ...(availability ? [{ key: "markets", label: "Markets", badge: null }] : []),
+          ]}
+        />
+      )}
+
       {/* ─── Today's matches + readiness (fail-closed) ──────────────── */}
       {isLive && todayMatches.length > 0 && (
-        <section className="mt-8" aria-label="Today's matches">
+        <section id="games" className="mt-8 scroll-mt-16" aria-label="Today's matches">
           <SectionHeader
             eyebrow={`Today · ${todayMatches.length} match${todayMatches.length === 1 ? "" : "es"}`}
             title="Today's World Cup fixtures"
@@ -267,7 +281,7 @@ export default function WorldCupLandingPage() {
 
       {/* ─── Model under methodology review (projections paused) ────── */}
       {!projectionsLive && methodologyReview && oddsReady && (
-        <section className="mt-10" aria-label="Model projections under review">
+        <section id="projections" className="mt-10 scroll-mt-16" aria-label="Model projections under review">
           <div
             className="rounded-[8px] px-4 py-4 flex flex-col gap-2"
             style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
@@ -294,7 +308,7 @@ export default function WorldCupLandingPage() {
 
       {/* ─── Today's model projections (GameTime Picks) ─────────────── */}
       {projectionsLive && (
-        <section className="mt-10" aria-label="Model projections">
+        <section id="projections" className="mt-10 scroll-mt-16" aria-label="Model projections">
           <SectionHeader
             eyebrow={`Projections live · ${projections!.projectionCount} market views`}
             title="GameTime Picks model projections"
@@ -325,7 +339,7 @@ export default function WorldCupLandingPage() {
 
       {/* ─── Suggested parlays (from model projections) ─────────────── */}
       {parlaysLive && (
-        <section className="mt-10" aria-label="Suggested parlays">
+        <section id="cards" className="mt-10 scroll-mt-16" aria-label="Suggested parlays">
           <SectionHeader
             eyebrow={`Suggested cards · ${parlays!.cardCount} live`}
             title="World Cup suggested parlays"
@@ -346,7 +360,7 @@ export default function WorldCupLandingPage() {
 
       {/* ─── Suggested parlays: honest gated state (projections live, no eligible legs) ─── */}
       {!parlaysLive && projectionsLive && (
-        <section className="mt-10" aria-label="Suggested parlays status">
+        <section id="cards" className="mt-10 scroll-mt-16" aria-label="Suggested parlays status">
           <SectionHeader
             eyebrow="Suggested cards · 0 today"
             title="World Cup suggested parlays"
@@ -356,7 +370,9 @@ export default function WorldCupLandingPage() {
       )}
 
       {/* ─── Pre-lineup player projections (sportsbook universe) ────── */}
-      {playerProjections && <WcPlayerProps projections={playerProjections} />}
+      <div id="player-props" className="scroll-mt-16">
+        {playerProjections && <WcPlayerProps projections={playerProjections} />}
+      </div>
 
       {/* ─── Upcoming · Market Outlook (real odds) ──────────────────── */}
       {oddsReady && upcomingOutlook.length > 0 && (
@@ -391,7 +407,9 @@ export default function WorldCupLandingPage() {
       )}
 
       {/* ─── Requested markets matrix (no market silently missing) ──── */}
-      {availability && <WcMarketMatrix availability={availability} />}
+      <div id="markets" className="scroll-mt-16">
+        {availability && <WcMarketMatrix availability={availability} />}
+      </div>
 
       {/* ─── Data status — honest, fail-closed gates ────────────────── */}
       <section className="mt-8" aria-label="Data status">
