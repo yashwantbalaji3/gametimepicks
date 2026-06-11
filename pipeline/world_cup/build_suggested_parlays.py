@@ -76,11 +76,11 @@ def main(argv=None) -> int:
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     pf = DATA / "projections" / "latest.json"
     projections = json.loads(pf.read_text()).get("matches", []) if pf.exists() else []
-    # Parlays may ONLY be built from `active` (public) projections — never research_only/gated
-    # picks (e.g. thin-sample extreme underdogs). This is the core public-trust gate.
+    # Parlays may ONLY be built from PARLAY-ELIGIBLE projections — never public-only probability
+    # views or research/gated picks. This is the core public-trust gate.
     value = [
         p for p in projections
-        if p.get("projectionStatus") == "active" and p.get("public") is True
+        if p.get("parlayEligible") is True
         and p.get("americanOdds") is not None and (p.get("edgePct") or 0) > 0.5
     ]
 

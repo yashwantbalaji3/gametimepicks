@@ -26,7 +26,8 @@ REQUESTED_MARKETS = [
 ]
 
 # Public status vocabulary (UI maps these to friendly chips).
-STATUS_LIVE = "live"                                  # published active projection(s)
+STATUS_LIVE = "live"                                  # parlay-eligible pick(s) published
+STATUS_PUBLIC_VIEW = "public_projection"              # public probability view (no bettable edge)
 STATUS_RESEARCH = "research_only"                     # model ran, below publish threshold
 STATUS_WAITING_ODDS = "waiting_on_odds"               # odds source has it but none today
 STATUS_WAITING_LINEUPS = "waiting_on_lineups"         # player market; lineups/minutes not posted
@@ -61,10 +62,10 @@ def market_status(
         status, reason, ready = (STATUS_WAITING_FEATURES,
                                  f"odds present but no defensible feature source for {market['label']} yet", False)
     elif has_active_projection:
-        status, reason, ready = (STATUS_LIVE, "published — passed all gates", True)
+        status, reason, ready = (STATUS_LIVE, "parlay-eligible pick published — passed all gates", True)
     elif has_research_projection:
-        status, reason, ready = (STATUS_RESEARCH,
-                                 "model ran on real data but the edge is below the publish threshold", True)
+        status, reason, ready = (STATUS_PUBLIC_VIEW,
+                                 "public model probability view live (no edge that clears the suggested-card gate)", True)
     else:
         status, reason, ready = (STATUS_WAITING_EDGE,
                                  "odds + data ready; awaiting an edge that clears the publish gate", True)

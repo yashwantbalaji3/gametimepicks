@@ -124,13 +124,17 @@ class ApiFootballProvider(SoccerStatsProvider):
             "opponents": opponents[:last],
         }
 
-    def recent_corners(self, team_id: int, *, last: int = 5) -> dict:
-        """Recent corners for/against per match from fixture statistics. Bounded: 1 fixtures call
-        + 1 statistics call per recent finished fixture (≤ last). Real data only."""
+    def recent_corners(self, team_id: int, *, last: int = 20, target: int = 10) -> dict:
+        """Recent corners for/against per match from fixture statistics. Scans up to `last` recent
+        finished fixtures, stopping early once `target` matches with real corner stats are found
+        (corner stats aren't recorded for every international fixture). Bounded: 1 fixtures call +
+        ≤ last statistics calls. Real data only."""
         data = self._get("/fixtures", {"team": team_id, "last": last})
         rows = (data or {}).get("response", []) or []
         cf = ca = played = 0
         for f in rows:
+            if played >= target:
+                break
             status = ((f.get("fixture") or {}).get("status") or {}).get("short")
             if status not in ("FT", "AET", "PEN"):
                 continue

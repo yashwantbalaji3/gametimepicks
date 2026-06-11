@@ -26,6 +26,57 @@ MIN_EDGE_ML = 0.03                # 3.0% model-vs-market edge for an active mone
 MIN_EDGE_TOTAL = 0.025            # 2.5% for an active total
 MAX_UNDERDOG_LIFT_NO_OPP = 0.03   # cap on an underdog's model lift when opponent-unadjusted
 OPENING_DAY_MAX_WEIGHT = 0.18     # hard cap on the independent-model weight early
+CORNER_PUBLIC_MIN = 3             # min corner-stat matches to PUBLISH a corner probability view
+CORNER_PARLAY_MIN = 5             # min corner-stat matches for corner PARLAY eligibility
+
+
+def classify_v2(
+    *,
+    market_prob: float,
+    model_prob: float,
+    market_type: str,
+    sample_min: int,
+    is_underdog: bool,
+    strength_missing: bool = False,
+    corner_sample: int | None = None,
+) -> tuple[bool, bool, str, str]:
+    """Separate PUBLIC visibility from PARLAY eligibility (2026-06-11 reframe).
+
+    Returns (public, parlayEligible, status, reason). A market's probability VIEW is public when
+    the ensemble ran on real features (corners additionally need a minimal sample). Parlay
+    eligibility is stricter: edge + sample + market-sanity. This lets users see real model
+    probabilities for every game without weak edges ever becoming suggested cards."""
+    edge = model_prob - market_prob
+    is_corner = market_type == "match_total_corners"
+    # Public visibility.
+    if is_corner and (corner_sample or 0) < CORNER_PUBLIC_MIN:
+        return (False, False, "gated_sample_size",
+                f"corner-stat sample {corner_sample or 0} < {CORNER_PUBLIC_MIN} — not enough to publish")
+    public = True
+    # Parlay eligibility (stricter).
+    min_edge = MIN_EDGE_ML if market_type == "moneyline_90" else MIN_EDGE_TOTAL
+    eligible = edge >= min_edge
+    sanity_block = market_type == "moneyline_90" and is_underdog and (
+        market_prob < UNDERDOG_MARKET_FLOOR or strength_missing)
+    if sanity_block:
+        eligible = False
+    if sample_min < MIN_SAMPLE_ACTIVE:
+        eligible = False
+    if is_corner and (corner_sample or 0) < CORNER_PARLAY_MIN:
+        eligible = False
+    if eligible:
+        return (True, True, "parlay_eligible", "clears edge + sample + sanity gates → parlay eligible")
+    # Public-but-not-eligible reasons.
+    if sanity_block:
+        reason = "market-sanity gate — shown as a probability view, not a suggested pick"
+    elif is_corner and edge >= min_edge and (corner_sample or 0) < CORNER_PARLAY_MIN:
+        return (True, False, "public_projection_sample_capped",
+                f"edge {edge*100:+.1f}% but corner sample {corner_sample or 0} < {CORNER_PARLAY_MIN} → projection only")
+    elif edge < min_edge:
+        reason = f"edge {edge*100:+.1f}% below the {min_edge*100:.1f}% suggested-card threshold → projection only"
+    else:
+        reason = f"recent-form sample {sample_min} < {MIN_SAMPLE_ACTIVE} → projection only"
+    return (True, False, "public_projection_no_edge", reason)
 
 
 @dataclass

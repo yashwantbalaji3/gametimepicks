@@ -15,7 +15,7 @@ from pathlib import Path
 
 from .providers.api_football import ApiFootballProvider, WC_LEAGUE_ID, WC_SEASON
 from .projection_model import (
-    project_ensemble, classify_projection, poisson_over_under, UNDERDOG_MARKET_FLOOR,
+    project_ensemble, classify_v2, poisson_over_under, UNDERDOG_MARKET_FLOOR,
 )
 from .build_features import is_underdog_side, american_to_prob
 from .team_strength import points_for, rank_for, strength_expected_goals, opponent_adjust
@@ -140,10 +140,16 @@ def main(argv=None) -> int:
         sane = [s for s in sides if s[3] is not None and s[3] >= UNDERDOG_MARKET_FLOOR]
         pick_pool = sane or sides
         pick_side, pick_name, mp, mkt, odds = max(pick_pool, key=lambda s: s[2] - s[3])
-        ml_status, ml_public, ml_reason = classify_projection(
+        # Public PROBABILITY VIEW — all three outcomes (model vs market). Always shown.
+        ml_outcomes = [
+            {"label": s[1], "side": s[0], "modelProbability": round(s[2], 4),
+             "marketProbability": round(s[3], 4), "americanOdds": s[4]}
+            for s in sides
+        ]
+        ml_public, ml_eligible, ml_status, ml_reason = classify_v2(
             market_prob=mkt, model_prob=mp, market_type="moneyline_90",
-            sample_min=sample_min, opponent_adjusted=opp_adj,
-            is_underdog=is_underdog_side(odds, mkt), strength_missing=strength_missing,
+            sample_min=sample_min, is_underdog=is_underdog_side(odds, mkt),
+            strength_missing=strength_missing,
         )
         hr, ar = rank_for(g["home"]), rank_for(g["away"])
         strength_factor = (
@@ -166,43 +172,51 @@ def main(argv=None) -> int:
         }
         projections.append({
             **common,
-            "id": f"wc_{args.date}_{norm(g['home'])}_{norm(g['away'])}_ml_{pick_side}",
-            "market": "moneyline_90", "pick": pick_side, "pickLabel": pick_name, "line": None,
+            "id": f"wc_{args.date}_{norm(g['home'])}_{norm(g['away'])}_ml",
+            "market": "moneyline_90", "pick": pick_side if ml_eligible else None,
+            "pickLabel": pick_name if ml_eligible else None, "line": None,
             "americanOdds": odds, "bookmaker": res.get("bookmaker"),
             "modelProbability": round(mp, 4), "marketProbability": round(mkt, 4),
-            "edgePct": round((mp - mkt) * 100, 2),
+            "edgePct": round((mp - mkt) * 100, 2), "outcomes": ml_outcomes,
             "confidence": proj.get("confidence"),
-            "projectionStatus": ml_status, "public": ml_public, "statusReason": ml_reason,
+            "projectionStatus": ml_status, "public": ml_public, "parlayEligible": ml_eligible,
+            "statusReason": ml_reason,
             "riskTier": _risk_tier(int(odds)) if odds else "Medium",
             "factors": [
                 strength_factor,
                 f"Opponent-adjusted form: {g['home']} att {adj_h.get('attack')} / {g['away']} att {adj_a.get('attack')}",
                 ensemble_factor,
-                f"Market-implied {pick_name} {round(mkt*100)}% vs model {round(mp*100)}%",
             ],
             "caveats": ["90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
                         "Early-tournament sample; confidence capped Low", ml_reason],
             "notes": ["90-minute regulation only (Draw is a real outcome; no extra time/penalties)", ml_reason],
         })
-        # Match total projection (independent over/under).
+        # Match total goals — public Over/Under probability view.
         if proj.get("total"):
             t = proj["total"]
             over_edge = t["over"] - (totals.get("overPct") or 0)
             tside, tprob, tmkt, todds = ("over", t["over"], totals.get("overPct"), totals.get("overOdds")) if over_edge >= 0 else ("under", t["under"], totals.get("underPct"), totals.get("underOdds"))
-            t_status, t_public, t_reason = classify_projection(
+            t_public, t_eligible, t_status, t_reason = classify_v2(
                 market_prob=tmkt or 0, model_prob=tprob, market_type="match_total_goals",
-                sample_min=sample_min, opponent_adjusted=opp_adj, is_underdog=False,
-                strength_missing=strength_missing,
+                sample_min=sample_min, is_underdog=False, strength_missing=strength_missing,
             )
+            t_outcomes = [
+                {"label": f"Over {t['line']}", "side": "over", "modelProbability": round(t["over"], 4),
+                 "marketProbability": round(totals.get("overPct") or 0, 4), "americanOdds": totals.get("overOdds")},
+                {"label": f"Under {t['line']}", "side": "under", "modelProbability": round(t["under"], 4),
+                 "marketProbability": round(totals.get("underPct") or 0, 4), "americanOdds": totals.get("underOdds")},
+            ]
             projections.append({
                 **common,
-                "id": f"wc_{args.date}_{norm(g['home'])}_{norm(g['away'])}_total_{tside}",
-                "market": "match_total_goals", "pick": tside, "pickLabel": f"{tside.title()} {t['line']}",
+                "id": f"wc_{args.date}_{norm(g['home'])}_{norm(g['away'])}_total",
+                "market": "match_total_goals", "pick": tside if t_eligible else None,
+                "pickLabel": f"{tside.title()} {t['line']}" if t_eligible else None,
                 "line": t["line"], "americanOdds": todds, "bookmaker": res.get("bookmaker"),
                 "modelProbability": round(tprob, 4), "marketProbability": round(tmkt or 0, 4),
-                "edgePct": round((tprob - (tmkt or 0)) * 100, 2),
+                "edgePct": round((tprob - (tmkt or 0)) * 100, 2), "outcomes": t_outcomes,
                 "confidence": "Low",
-                "projectionStatus": t_status, "public": t_public, "statusReason": t_reason,
+                "projectionStatus": t_status, "public": t_public, "parlayEligible": t_eligible,
+                "statusReason": t_reason,
                 "riskTier": _risk_tier(int(todds)) if todds else "Low",
                 "factors": [
                     f"Market total {t['line']} — model {round(t['over']*100)}% Over vs market {round((totals.get('overPct') or 0)*100)}%",
@@ -217,7 +231,7 @@ def main(argv=None) -> int:
         if co and co.get("line") is not None:
             def corners_for(tid):
                 if tid not in corner_cache:
-                    corner_cache[tid] = p.recent_corners(tid, last=5)
+                    corner_cache[tid] = p.recent_corners(tid, last=20, target=10)
                 return corner_cache[tid]
             hc, ac = corners_for(home_t.get("id")), corners_for(away_t.get("id"))
             if hc.get("cornersFor90") is not None and ac.get("cornersFor90") is not None:
@@ -227,38 +241,45 @@ def main(argv=None) -> int:
                 mkt_over = american_to_prob(co["overOdds"]) / devig if devig else 0.5
                 model_over = poisson_over_under(exp_corners, co["line"])[0]
                 c_sample = min(hc.get("played") or 0, ac.get("played") or 0)
-                # Blend: corner sample is thin → anchor to market (0.75 market / 0.25 model).
-                blend_over = 0.75 * mkt_over + 0.25 * model_over
+                # Blend: corner sample is thin → anchor to market (0.65 market / 0.35 model).
+                blend_over = 0.65 * mkt_over + 0.35 * model_over
                 c_over_edge = blend_over - mkt_over
                 cside, cprob, cmkt, codds = (("over", blend_over, mkt_over, co["overOdds"])
                                              if c_over_edge >= 0 else
                                              ("under", 1 - blend_over, 1 - mkt_over, co["underOdds"]))
-                c_status, c_public, c_reason = classify_projection(
+                c_public, c_eligible, c_status, c_reason = classify_v2(
                     market_prob=cmkt, model_prob=cprob, market_type="match_total_corners",
-                    sample_min=c_sample, opponent_adjusted=False, is_underdog=False,
-                    strength_missing=False,
+                    sample_min=c_sample, is_underdog=False, corner_sample=c_sample,
                 )
+                c_outcomes = [
+                    {"label": f"Over {co['line']}", "side": "over", "modelProbability": round(blend_over, 4),
+                     "marketProbability": round(mkt_over, 4), "americanOdds": co["overOdds"]},
+                    {"label": f"Under {co['line']}", "side": "under", "modelProbability": round(1 - blend_over, 4),
+                     "marketProbability": round(1 - mkt_over, 4), "americanOdds": co["underOdds"]},
+                ]
                 projections.append({
                     **common,
-                    "id": f"wc_{args.date}_{norm(g['home'])}_{norm(g['away'])}_corners_{cside}",
-                    "market": "match_total_corners", "pick": cside,
-                    "pickLabel": f"{cside.title()} {co['line']} corners",
+                    "id": f"wc_{args.date}_{norm(g['home'])}_{norm(g['away'])}_corners",
+                    "market": "match_total_corners", "pick": cside if c_eligible else None,
+                    "pickLabel": f"{cside.title()} {co['line']} corners" if c_eligible else None,
                     "line": co["line"], "americanOdds": codds, "bookmaker": co.get("bookmaker"),
                     "modelProbability": round(cprob, 4), "marketProbability": round(cmkt, 4),
-                    "edgePct": round((cprob - cmkt) * 100, 2),
-                    "confidence": "Low",
-                    "projectionStatus": c_status, "public": c_public, "statusReason": c_reason,
+                    "edgePct": round((cprob - cmkt) * 100, 2), "outcomes": c_outcomes,
+                    "confidence": "Low", "cornerSample": c_sample,
+                    "projectionStatus": c_status, "public": c_public, "parlayEligible": c_eligible,
+                    "statusReason": c_reason,
                     "riskTier": _risk_tier(int(codds)) if codds else "Medium",
                     "factors": [
                         f"Recent corners: {g['home']} {hc.get('cornersFor90')}/{hc.get('cornersAgainst90')} for/against (last {hc.get('played')})",
                         f"Recent corners: {g['away']} {ac.get('cornersFor90')}/{ac.get('cornersAgainst90')} for/against (last {ac.get('played')})",
-                        f"Model expected {round(exp_corners,1)} corners vs market line {co['line']}",
+                        f"Model expected {round(exp_corners,1)} corners vs market line {co['line']} ({c_sample}-match corner sample)",
                     ],
                     "caveats": ["90-minute regulation corners only", c_reason],
                     "notes": ["90-minute regulation corners only", c_reason],
                 })
 
-    active = [p for p in projections if p.get("projectionStatus") == "active" and p.get("public")]
+    public_projs = [p for p in projections if p.get("public")]
+    eligible = [p for p in projections if p.get("parlayEligible")]
     status_counts = {}
     for p in projections:
         status_counts[p["projectionStatus"]] = status_counts.get(p["projectionStatus"], 0) + 1
@@ -270,40 +291,39 @@ def main(argv=None) -> int:
         "strengthSource": "FIFA/Coca-Cola World Ranking (2026-06-10)",
         "disclaimer": "GameTime Picks model projections — 90-minute regulation only. Educational/paper, not betting advice.",
         "methodology": "Ensemble: de-vigged market prior (0.60) + FIFA-points strength prior (0.25) "
-                       "+ opponent-adjusted recent form (0.15, scaled by opponent coverage). "
-                       "Market-sanity + strength + sample + edge gates; only `active` is public.",
+                       "+ opponent-adjusted recent form (0.15). Public PROBABILITY VIEWS are shown "
+                       "for every game/market with real odds + features; PARLAY ELIGIBILITY is "
+                       "stricter (edge + sample + market sanity).",
         "matchCount": len(today_games), "projectionCount": len(projections),
-        "activeCount": len(active), "public": len(active) > 0,
-        "opponentStrengthCoverage": avg_cov,
-        "methodologyReviewRequired": True, "statusCounts": status_counts,
+        "publicCount": len(public_projs), "parlayEligibleCount": len(eligible),
+        "public": len(public_projs) > 0,
+        "opponentStrengthCoverage": avg_cov, "statusCounts": status_counts,
         "matches": projections,
     }
     (DATA / "projections").mkdir(parents=True, exist_ok=True)
     (DATA / "projections" / f"{args.date}.json").write_text(json.dumps(payload, indent=2) + "\n")
     (DATA / "projections" / "latest.json").write_text(json.dumps(payload, indent=2) + "\n")
 
-    # Update readiness with the real evidence.
+    # Update readiness. projectionsPublic = any public probability view exists (visibility);
+    # parlay eligibility is tracked separately and gates the suggested-cards surface.
     rd = json.loads((DATA / "stats" / "readiness-latest.json").read_text())
     rd["teamStatsReady"] = teams_with_sample > 0
     rd["teamProjectionsReady"] = len(projections) > 0
-    rd["projectionsAllowed"] = len(projections) > 0  # artifacts exist (incl. research/gated)
-    # PUBLIC gate (methodology upgrade): only `active` projections may show publicly. On opening
-    # day, with opponent-unadjusted thin form, picks classify research_only/gated → 0 active →
-    # projectionsPublic=false → public sees Market Outlook + "under review". Honest, not noisy.
-    rd["projectionsPublic"] = len(active) > 0
-    rd["methodologyReviewRequired"] = True
+    rd["projectionsAllowed"] = len(projections) > 0
+    rd["projectionsPublic"] = len(public_projs) > 0
+    rd["parlayEligibleCount"] = len(eligible)
+    rd["methodologyReviewRequired"] = len(public_projs) == 0
     rd["fixturesReady"] = len(normalized_fixtures) > 0
     rd["teamLogosReady"] = any(f["homeTeam"].get("logo") for f in normalized_fixtures)
     rd["evidence"] = {**rd.get("evidence", {}), "teamFormTeams": teams_with_sample,
-                      "projections": len(projections), "activeProjections": len(active),
-                      "projectionStatusCounts": status_counts}
-    rd["projectionReasons"] = [] if active else (
-        ["projections produced but none cleared the upgraded market-sanity/sample/edge gates "
-         "(opponent-unadjusted thin form) → held under methodology review"] if projections
-        else ["no mappable fixture+odds with recent-form sample yet"])
+                      "projections": len(projections), "publicProjections": len(public_projs),
+                      "parlayEligible": len(eligible), "projectionStatusCounts": status_counts}
+    rd["projectionReasons"] = [] if eligible else [
+        "public probability views are shown; no leg cleared the stricter parlay-eligibility gate (edge/sample)"]
     (DATA / "stats" / "readiness-latest.json").write_text(json.dumps(rd, indent=2) + "\n")
     (DATA / "stats" / "normalized-fixtures-latest.json").write_text(json.dumps({"generatedAt": now, "date": args.date, "fixtures": normalized_fixtures}, indent=2) + "\n")
-    print(f"[wc-proj] calls={p.calls_made} games={len(today_games)} projections={len(projections)} teamsWithForm={teams_with_sample}")
+    print(f"[wc-proj] calls={p.calls_made} games={len(today_games)} projections={len(projections)} "
+          f"public={len(public_projs)} parlayEligible={len(eligible)} teamsWithForm={teams_with_sample}")
     return 0
 
 
