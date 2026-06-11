@@ -148,6 +148,25 @@ export function worldCupMethodologyReview(): boolean {
   return loadWorldCupStatsReadiness()?.methodologyReviewRequired === true;
 }
 
+export interface WcTeamStrengthSummary {
+  source: string;
+  sourceDate: string;
+  teamCount: number;
+}
+/** Summary of the real team-strength source (FIFA ranking), or null. Drives the data-status
+ *  "Team strength" row — independent of whether projections are public. */
+export function loadWorldCupTeamStrengthSummary(): WcTeamStrengthSummary | null {
+  const s = read<{ source?: string; sourceDate?: string; teamCount?: number }>(
+    "team-strength/team-strength-latest.json",
+  );
+  if (!s || !s.teamCount) return null;
+  return {
+    source: s.source ?? "FIFA ranking",
+    sourceDate: s.sourceDate ?? "",
+    teamCount: s.teamCount,
+  };
+}
+
 /** Format an American price for display, always signed. */
 export function fmtAmerican(odds: number | null | undefined): string {
   if (odds === null || odds === undefined) return "—";

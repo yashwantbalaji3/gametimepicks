@@ -37,6 +37,7 @@ import {
   loadWorldCupProjections,
   loadWorldCupParlays,
   worldCupMethodologyReview,
+  loadWorldCupTeamStrengthSummary,
   type WcProjection,
 } from "@/lib/world-cup/projections";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
@@ -98,8 +99,10 @@ export default function WorldCupLandingPage() {
       : statsConnected
         ? "API-Football connected · awaiting coverage"
         : "no provider connected";
+  const strength = loadWorldCupTeamStrengthSummary();
   const dataStatus: Array<{ label: string; on: boolean; note: string }> = [
     { label: "Odds / Market outlook", on: oddsReady, note: "The Odds API · 3-way + totals" },
+    { label: "Team strength", on: !!strength, note: strength ? `FIFA ranking · ${strength.teamCount} teams` : "no source" },
     { label: "Team stats", on: !!stats?.teamStatsReady, note: statsNote },
     { label: "xG / xGA", on: !!stats?.xgReady, note: "API-Football has no xG" },
     { label: "Lineups / minutes", on: !!stats?.lineupsReady, note: "posted near kickoff" },
@@ -263,13 +266,14 @@ export default function WorldCupLandingPage() {
               </span>
             </div>
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-              A GameTime Picks model projection appears only when a pick clears the upgraded
-              market-sanity, sample-size, and edge gates — so a thin-sample extreme underdog (like a
-              +750 moneyline) is never surfaced as a model lean. Today&apos;s World Cup picks don&apos;t
-              clear those gates yet (early-tournament form, opponent-unadjusted), so only the{" "}
+              The World Cup model is an ensemble — de-vigged market prior + FIFA-ranking team
+              strength + opponent-adjusted recent form — and a pick is published only when it clears
+              market-sanity, sample-size, and edge gates. That&apos;s why a thin-sample extreme
+              underdog (like a +750 moneyline) is never surfaced as a model lean. Today&apos;s World
+              Cup edges are all small and below the publish threshold, so only the{" "}
               <strong style={{ color: "var(--vault-text)" }}>Market Outlook</strong> above is shown —
               sportsbook-implied Home/Draw/Away + totals, clearly market-implied, not a model pick.
-              Projections return as the sample deepens and opponent-strength adjustment lands.
+              Projections publish automatically once an edge clears the gates.
             </p>
           </div>
         </section>
