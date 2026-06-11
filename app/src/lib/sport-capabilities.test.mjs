@@ -39,8 +39,10 @@ import {
   normalizeSportKey,
 } from "./sport-capabilities.ts";
 
-const SCHEDULE_ONLY = ["nhl", "wnba", "ufc", "ipl", "mls"];
-const PROJECTIONS_ONLY = ["fifa-world-cup"];
+const SCHEDULE_ONLY = ["nhl", "wnba", "ufc", "fifa-world-cup", "ipl", "mls"];
+// No sport is at the "projections" coverage level right now — World Cup model projections
+// are under methodology review (held from public), so World Cup is schedule-only publicly.
+const PROJECTIONS_ONLY = [];
 const COMING_SOON = ["epl"];
 
 // --- modeled sports ---------------------------------------------------------

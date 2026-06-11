@@ -9,6 +9,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { loadWorldCupStatsReadiness } from "./market-outlook";
 
 export interface WcProjection {
   id: string;
@@ -35,6 +36,15 @@ export interface WcProjection {
   sampleSizeWarning: boolean;
   factors: string[];
   notes: string[];
+  // Upgraded methodology (2026-06-11). Only `active` projections are public.
+  projectionStatus?:
+    | "active"
+    | "research_only"
+    | "gated_market_sanity"
+    | "gated_sample_size"
+    | "gated_missing_features";
+  public?: boolean;
+  statusReason?: string;
 }
 export interface WcProjections {
   generatedAt: string;
@@ -93,16 +103,44 @@ function read<T>(rel: string): T | null {
   }
 }
 
-/** Today's model projections, or null when none were generated (gates failed). */
-export function loadWorldCupProjections(): WcProjections | null {
-  const p = read<WcProjections>("projections/latest.json");
-  return p && Array.isArray(p.matches) && p.matches.length > 0 ? p : null;
+/** True when projections may be shown PUBLICLY (passed the methodology-review gate). */
+function projectionsArePublic(): boolean {
+  return loadWorldCupStatsReadiness()?.projectionsPublic === true;
+}
+/** True when suggested parlays may be shown PUBLICLY. */
+function parlaysArePublic(): boolean {
+  return loadWorldCupStatsReadiness()?.parlayPublic === true;
 }
 
-/** Today's suggested parlays, or null when no valid cards exist. */
+/**
+ * Today's PUBLIC model projections, or null. Fail-closed twice over:
+ *   1. methodology-review gate — returns null unless `projectionsPublic === true`;
+ *   2. only `active` (public) projections are returned, never research/gated picks.
+ * The raw artifact is still on disk for audit; this loader is the public boundary.
+ */
+export function loadWorldCupProjections(): WcProjections | null {
+  if (!projectionsArePublic()) return null;
+  const p = read<WcProjections>("projections/latest.json");
+  if (!p || !Array.isArray(p.matches)) return null;
+  // Only surface picks explicitly classified active/public by the upgraded model.
+  const active = p.matches.filter(
+    (m) => m.projectionStatus === "active" && m.public !== false,
+  );
+  return active.length > 0
+    ? { ...p, matches: active, projectionCount: active.length }
+    : null;
+}
+
+/** Today's PUBLIC suggested parlays, or null (methodology-review gate). */
 export function loadWorldCupParlays(): WcParlays | null {
+  if (!parlaysArePublic()) return null;
   const p = read<WcParlays>("parlays/latest.json");
   return p && Array.isArray(p.cards) && p.cards.length > 0 ? p : null;
+}
+
+/** Whether the model is paused under methodology review (drives the public note). */
+export function worldCupMethodologyReview(): boolean {
+  return loadWorldCupStatsReadiness()?.methodologyReviewRequired === true;
 }
 
 /** Format an American price for display, always signed. */
