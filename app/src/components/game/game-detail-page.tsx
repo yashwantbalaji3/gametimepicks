@@ -35,20 +35,6 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
           </span>
         </div>
       ) : null}
-      <section>
-        <SectionHeader eyebrow="Market readiness" title="What's available for this game" sub="We only show markets a real book is pricing. Pending/unavailable markets are labeled, never faked." />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {detail.dataStatus.map((d) => (
-            <div key={d.label} className="flex items-center justify-between gap-2 rounded-[8px] px-3 py-2.5" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
-              <div className="flex flex-col min-w-0">
-                <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{d.label}</span>
-                {d.detail ? <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{d.detail}</span> : null}
-              </div>
-              <StatusChip label={STATUS_LABEL[d.status] ?? d.status} />
-            </div>
-          ))}
-        </div>
-      </section>
       {detail.caveats.length > 0 ? (
         <ul className="flex flex-col gap-1">
           {detail.caveats.map((c, i) => <li key={i} className="text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>· {c}</li>)}
@@ -107,11 +93,30 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
     </div>
   );
 
+  const marketsTab = (
+    <div className="flex flex-col gap-3">
+      <SectionHeader eyebrow="Markets" title="What's available for this game" sub="We only show markets a real book is pricing. Pending/unavailable markets are labeled, never faked." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {detail.dataStatus.map((d) => (
+          <div key={d.label} className="flex items-center justify-between gap-2 rounded-[8px] px-3 py-2.5" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+            <div className="flex flex-col min-w-0">
+              <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{d.label}</span>
+              {d.detail ? <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{d.detail}</span> : null}
+            </div>
+            <StatusChip label={STATUS_LABEL[d.status] ?? d.status} />
+          </div>
+        ))}
+      </div>
+      <Link href="/learn#sports" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>How soccer markets work →</Link>
+    </div>
+  );
+
   const tabs: ShellTab[] = [
     { key: "overview", label: "Overview", content: overviewTab },
-    { key: "projections", label: "Projections", badge: detail.teamProjections.length || null, content: projectionsTab },
+    { key: "projections", label: detail.sport === "world_cup" ? "Team Projections" : "Projections", badge: detail.teamProjections.length || null, content: projectionsTab },
     { key: "player-props", label: "Player Props", badge: detail.playerProps.length || null, content: playerPropsTab },
     { key: "cards", label: "Suggested Cards", badge: detail.suggestedCards.length || null, content: cardsTab },
+    { key: "markets", label: "Markets", content: marketsTab },
   ];
 
   return (
