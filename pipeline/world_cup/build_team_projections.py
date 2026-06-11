@@ -347,8 +347,8 @@ def main(argv=None) -> int:
     public_projs = [p for p in projections if p.get("public")]
     eligible = [p for p in projections if p.get("parlayEligible")]
     status_counts = {}
-    for p in projections:
-        status_counts[p["projectionStatus"]] = status_counts.get(p["projectionStatus"], 0) + 1
+    for _pp in projections:
+        status_counts[_pp["projectionStatus"]] = status_counts.get(_pp["projectionStatus"], 0) + 1
     avg_cov = round(sum(p.get("opponentStrengthCoverage", 0) for p in projections) / len(projections), 2) if projections else 0.0
     payload = {
         "generatedAt": now, "sport": "world_cup", "date": args.date,
