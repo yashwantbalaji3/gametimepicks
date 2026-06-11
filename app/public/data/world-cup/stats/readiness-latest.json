@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-11T07:27:39+00:00",
+  "generatedAt": "2026-06-11T07:29:33+00:00",
   "provider": "api_football",
   "providerConfigured": true,
   "oddsReady": true,
@@ -22,7 +22,7 @@
     "assists": "unavailable_no_lineups_or_odds"
   },
   "failClosedReasons": [
-    "provider connected but no usable team-stats sample yet (e.g. tournament just started / 0 finished matches) \u2192 projections fail closed",
+    "API-Football account plan does not cover season 2026: \"Free plans do not have access to this season, try from 2022 to 2024.\" \u2014 upgrade the API-Football plan to a tier that includes 2026 to unlock fixtures + stats.",
     "no posted lineups/minutes \u2192 player props disabled",
     "no xG source \u2192 xG-dependent confidence stays Low/limited",
     "odds present but no independent team baseline \u2192 market outlook only, no projection edge"
@@ -32,5 +32,6 @@
     "lineupsFixtures": 0,
     "playerStatsRows": 0
   },
-  "callsMade": 4
+  "callsMade": 4,
+  "providerPlanBlock": "Free plans do not have access to this season, try from 2022 to 2024."
 }
