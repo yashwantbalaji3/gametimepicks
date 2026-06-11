@@ -30,6 +30,8 @@ import {
   loadWorldCupProjectionReadiness,
   loadWorldCupStatsReadiness,
   outlookForMatch,
+  upcomingReadyOutlook,
+  normTeamName,
 } from "@/lib/world-cup/market-outlook";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
 import WorldCupSectionTabs from "@/components/world-cup/world-cup-section-tabs";
@@ -86,6 +88,28 @@ export default function WorldCupLandingPage() {
     { label: "Model projections", on: !!stats?.projectionsAllowed, note: "needs team stats + odds" },
     { label: "Suggested parlays", on: !!stats?.parlayAllowed, note: "needs projections" },
   ];
+
+  // Upcoming · Market Outlook — the next ready matches (real odds), excluding the
+  // ones already shown in the Today section. Enriched with team codes + schedule
+  // metadata (group/venue/kickoff) via alias-aware joins.
+  const teamCodeByNorm = new Map(teams.map((t) => [normTeamName(t.name), t.code]));
+  const scheduleByPair = new Map(
+    schedule.map((m) => [
+      [normTeamName(m.home), normTeamName(m.away)].sort().join("|"),
+      m,
+    ]),
+  );
+  const todayPairs = new Set(
+    todayMatches.map((m) => [normTeamName(m.home), normTeamName(m.away)].sort().join("|")),
+  );
+  const upcomingOutlook = upcomingReadyOutlook(outlook, `${today}T00:00:00Z`, 16)
+    .filter(
+      (m) =>
+        !todayPairs.has(
+          [normTeamName(m.homeTeam), normTeamName(m.awayTeam)].sort().join("|"),
+        ),
+    )
+    .slice(0, 8);
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -185,6 +209,38 @@ export default function WorldCupLandingPage() {
                   kickoff={m.kickoffLocal}
                   group={(m.stage === "group" ? m.group : m.stage) ?? null}
                   venue={m.venueCity}
+                />
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* ─── Upcoming · Market Outlook (real odds) ──────────────────── */}
+      {oddsReady && upcomingOutlook.length > 0 && (
+        <section className="mt-10" aria-label="Upcoming market outlook">
+          <SectionHeader
+            eyebrow="Upcoming · market outlook"
+            title="Next World Cup matches"
+            sub="90-minute Home/Draw/Away + totals implied by current sportsbook prices. Market outlook, not a model pick — regulation time only (Draw included; no extra time/penalties)."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {upcomingOutlook.map((m) => {
+              const sched = scheduleByPair.get(
+                [normTeamName(m.homeTeam), normTeamName(m.awayTeam)].sort().join("|"),
+              );
+              // Keep the card's home/away orientation matching the odds card.
+              return (
+                <WcMatchOutlookCard
+                  key={m.oddsEventId ?? `${m.homeTeam}-${m.awayTeam}`}
+                  match={m}
+                  homeCode={teamCodeByNorm.get(normTeamName(m.homeTeam)) ?? ""}
+                  awayCode={teamCodeByNorm.get(normTeamName(m.awayTeam)) ?? ""}
+                  homeName={m.homeTeam}
+                  awayName={m.awayTeam}
+                  kickoff={sched?.kickoffLocal ?? (m.commenceTime ?? "").slice(11, 16)}
+                  group={(sched?.stage === "group" ? sched?.group : sched?.stage) ?? null}
+                  venue={sched?.venueCity ?? null}
                 />
               );
             })}
