@@ -4,6 +4,7 @@
  * adapters are implemented here; MLB/NBA/UFC adapters follow the same contract in later PRs.
  */
 import type { WcParlays, WcProjections, WcPlayerProjections } from "@/lib/world-cup/projections";
+import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
 
 export type SportKey = "world_cup" | "mlb" | "nba" | "ufc";
 export type RiskTier = "Low" | "Medium" | "High" | "Longshot";
@@ -155,5 +156,106 @@ export function normalizeWcPlayerProps(players: WcPlayerProjections | null): Pub
     status: p.projectionStatus ?? "pre_lineup_public_projection",
     lineupStatus: p.lineupStatus,
     caveats: p.dataCaveats,
+  }));
+}
+
+// ── NBA / MLB optimizer-slip adapter (defensive — works for either slip shape) ──
+const PROFILE_TIER: Record<string, RiskTier> = {
+  conservative: "Low", balanced: "Medium", aggressive: "High", lottery: "Longshot",
+  low: "Low", medium: "Medium", high: "High", longshot: "Longshot",
+};
+type LooseLeg = {
+  playerName?: string; displayName?: string; teamAbbr?: string; opponentAbbr?: string;
+  marketLabel?: string | null; market?: string; side?: string; line?: number | null;
+  oddsForSide?: number | null; odds?: number | null; americanOdds?: number | null;
+};
+type LooseSlip = {
+  slipId?: string; id?: string; profile?: string; riskProfile?: string;
+  sport?: string; legs?: LooseLeg[]; combinedAmerican?: number | null; rationale?: string;
+};
+
+function legOdds(l: LooseLeg): number | null {
+  return l.oddsForSide ?? l.odds ?? l.americanOdds ?? null;
+}
+function legLabel(l: LooseLeg): string {
+  const who = l.playerName || l.displayName || l.teamAbbr || "Leg";
+  const mkt = l.marketLabel || l.market || "";
+  const side = l.side ? ` ${l.side}` : "";
+  const line = l.line != null ? ` ${l.line}` : "";
+  return `${who} · ${mkt}${side}${line}`.replace(/\s+/g, " ").trim();
+}
+
+export function normalizeOptimizerSlips(
+  slips: LooseSlip[] | null | undefined,
+  opts: { sportFilter?: "nba" | "mlb"; date: string } = { date: "" },
+): PublicSuggestedCard[] {
+  if (!Array.isArray(slips)) return [];
+  const out: PublicSuggestedCard[] = [];
+  for (const s of slips) {
+    const sport = (s.sport ?? "").toLowerCase();
+    if (opts.sportFilter && sport !== opts.sportFilter) continue;
+    if (sport !== "nba" && sport !== "mlb" && sport !== "multi") continue;
+    const legs = (s.legs ?? []).filter((l) => legOdds(l) != null);
+    if (legs.length === 0) continue;
+    const dec = legs.reduce((acc, l) => acc * americanToDecimal(legOdds(l) as number), 1);
+    const sports: SportKey[] = sport === "multi"
+      ? Array.from(new Set(legs.map((l) => "nba" as SportKey))) // refined below
+      : [sport as SportKey];
+    const distinct = Array.from(new Set((s.legs ?? []).map((l) => (l as { sport?: string }).sport).filter(Boolean))) as SportKey[];
+    const finalSports = distinct.length ? distinct : sports;
+    const label = (k: SportKey) => (k === "nba" ? "NBA" : k === "mlb" ? "MLB" : k === "ufc" ? "UFC" : "World Cup");
+    out.push({
+      id: s.slipId || s.id || `opt_${out.length}`,
+      date: opts.date,
+      title: finalSports.length > 1 ? "Mixed-sport card" : `${label(finalSports[0])} parlay`,
+      sports: finalSports,
+      sportLabels: finalSports.map(label),
+      cardType: finalSports.length > 1 ? "mixed_sport" : "single_sport",
+      riskTier: PROFILE_TIER[(s.profile ?? s.riskProfile ?? "").toLowerCase()] ?? "Medium",
+      legs: legs.map((l) => ({
+        sport: ((l as { sport?: string }).sport as SportKey) ?? (finalSports[0] ?? "nba"),
+        label: legLabel(l),
+        americanOdds: legOdds(l) as number,
+      })),
+      combinedAmericanOdds: s.combinedAmerican ?? decimalToAmerican(dec),
+      defaultStake: 25,
+      isPublic: true,
+      bankBuilderEligible: false,
+      whyThisCard: s.rationale ? [s.rationale] : undefined,
+    });
+  }
+  return out;
+}
+
+// ── UFC adapter (V1 moneyline, model-only — no market odds, so no stake payout) ──
+type UfcLeg = { fighter?: string; modelProbability?: number };
+type UfcCard = { riskLabel?: string; legs?: UfcLeg[]; modelCombinedProbability?: number; rationale?: string };
+export function normalizeUfcCards(
+  ufc: { cards?: UfcCard[]; eventName?: string; publicReady?: boolean } | null,
+  date: string,
+): PublicSuggestedCard[] {
+  if (!ufc?.publicReady || !Array.isArray(ufc.cards)) return [];
+  const tier = (label?: string): RiskTier =>
+    /conserv/i.test(label ?? "") ? "Low" : /balanc/i.test(label ?? "") ? "Medium" : /aggress/i.test(label ?? "") ? "High" : "Longshot";
+  return ufc.cards.map((c, i) => ({
+    id: `ufc_${date}_${i}`,
+    date,
+    title: c.riskLabel || "UFC moneyline card",
+    sports: ["ufc"],
+    sportLabels: ["UFC"],
+    cardType: "single_sport",
+    riskTier: tier(c.riskLabel),
+    legs: (c.legs ?? []).map((l) => ({
+      sport: "ufc" as SportKey,
+      label: l.fighter ?? "Fighter",
+      sublabel: l.modelProbability != null ? `Model ${Math.round(l.modelProbability * 100)}%` : undefined,
+      americanOdds: 0, // model-only V1: no market odds → stake/payout not shown for UFC
+    })),
+    combinedAmericanOdds: 0,
+    defaultStake: 25,
+    isPublic: true,
+    bankBuilderEligible: false,
+    whyThisCard: c.rationale ? [c.rationale] : undefined,
+    caveats: ["UFC V1 is moneyline, model-probability only — no market odds, so no paper payout shown."],
   }));
 }
