@@ -124,6 +124,39 @@ class ApiFootballProvider(SoccerStatsProvider):
             "opponents": opponents[:last],
         }
 
+    def recent_corners(self, team_id: int, *, last: int = 5) -> dict:
+        """Recent corners for/against per match from fixture statistics. Bounded: 1 fixtures call
+        + 1 statistics call per recent finished fixture (≤ last). Real data only."""
+        data = self._get("/fixtures", {"team": team_id, "last": last})
+        rows = (data or {}).get("response", []) or []
+        cf = ca = played = 0
+        for f in rows:
+            status = ((f.get("fixture") or {}).get("status") or {}).get("short")
+            if status not in ("FT", "AET", "PEN"):
+                continue
+            fid = (f.get("fixture") or {}).get("id")
+            if not fid:
+                continue
+            stats = (self._get("/fixtures/statistics", {"fixture": fid}) or {}).get("response", []) or []
+            mine = oppo = None
+            for ts in stats:
+                corners = None
+                for s in ts.get("statistics") or []:
+                    if (s.get("type") or "").lower().startswith("corner"):
+                        corners = s.get("value")
+                if corners is None:
+                    continue
+                if (ts.get("team") or {}).get("id") == team_id:
+                    mine = corners
+                else:
+                    oppo = corners
+            if isinstance(mine, int) and isinstance(oppo, int):
+                cf += mine; ca += oppo; played += 1
+        if played == 0:
+            return {"played": 0, "cornersFor90": None, "cornersAgainst90": None}
+        return {"played": played, "cornersFor90": round(cf / played, 2),
+                "cornersAgainst90": round(ca / played, 2)}
+
     def player_roles(self, team: str) -> list[PlayerRole]:
         tid = self._team_id(team)
         if tid is None:

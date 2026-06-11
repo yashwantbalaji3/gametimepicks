@@ -192,3 +192,22 @@ class TestFeatures(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestCornersClassify(unittest.TestCase):
+    def test_corner_low_edge_gated(self):
+        # corner total uses the totals threshold (2.5%); a 1% edge gates.
+        status, public, _ = classify_projection(
+            market_prob=0.50, model_prob=0.51, market_type="match_total_corners",
+            sample_min=5, opponent_adjusted=False, is_underdog=False,
+        )
+        self.assertEqual(status, "gated_low_edge")
+        self.assertFalse(public)
+
+    def test_corner_active_with_edge(self):
+        status, public, _ = classify_projection(
+            market_prob=0.50, model_prob=0.54, market_type="match_total_corners",
+            sample_min=5, opponent_adjusted=False, is_underdog=False,
+        )
+        self.assertEqual(status, "active")
+        self.assertTrue(public)

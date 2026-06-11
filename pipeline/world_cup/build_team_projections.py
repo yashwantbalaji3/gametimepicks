@@ -15,9 +15,9 @@ from pathlib import Path
 
 from .providers.api_football import ApiFootballProvider, WC_LEAGUE_ID, WC_SEASON
 from .projection_model import (
-    project_ensemble, classify_projection, UNDERDOG_MARKET_FLOOR,
+    project_ensemble, classify_projection, poisson_over_under, UNDERDOG_MARKET_FLOOR,
 )
-from .build_features import is_underdog_side
+from .build_features import is_underdog_side, american_to_prob
 from .team_strength import points_for, rank_for, strength_expected_goals, opponent_adjust
 from .team_aliases import norm, pair_key
 
@@ -66,7 +66,13 @@ def main(argv=None) -> int:
         fix_by_pair[pair_key(h.get("name"), a.get("name"))] = f
 
     projections, normalized_fixtures, form_cache = [], [], {}
+    corner_cache = {}
     teams_with_sample = 0
+    # Real corner-total odds (from discover_markets), keyed by team pair. Empty if not fetched.
+    try:
+        corner_odds = json.loads((DATA / "markets" / "corner-odds-latest.json").read_text()).get("byPair", {})
+    except Exception:
+        corner_odds = {}
     for g in today_games:
         pk = pair_key(g.get("home"), g.get("away"))
         fx = fix_by_pair.get(pk)
@@ -205,6 +211,52 @@ def main(argv=None) -> int:
                 "caveats": ["90-minute regulation goals only", t_reason],
                 "notes": ["90-minute regulation goals only", t_reason],
             })
+
+        # --- Total corners (real corner odds + recent corner rates) ---
+        co = corner_odds.get(pk)
+        if co and co.get("line") is not None:
+            def corners_for(tid):
+                if tid not in corner_cache:
+                    corner_cache[tid] = p.recent_corners(tid, last=5)
+                return corner_cache[tid]
+            hc, ac = corners_for(home_t.get("id")), corners_for(away_t.get("id"))
+            if hc.get("cornersFor90") is not None and ac.get("cornersFor90") is not None:
+                exp_corners = ((hc["cornersFor90"] + ac["cornersAgainst90"]) / 2
+                               + (ac["cornersFor90"] + hc["cornersAgainst90"]) / 2)
+                devig = american_to_prob(co["overOdds"]) + american_to_prob(co["underOdds"])
+                mkt_over = american_to_prob(co["overOdds"]) / devig if devig else 0.5
+                model_over = poisson_over_under(exp_corners, co["line"])[0]
+                c_sample = min(hc.get("played") or 0, ac.get("played") or 0)
+                # Blend: corner sample is thin → anchor to market (0.75 market / 0.25 model).
+                blend_over = 0.75 * mkt_over + 0.25 * model_over
+                c_over_edge = blend_over - mkt_over
+                cside, cprob, cmkt, codds = (("over", blend_over, mkt_over, co["overOdds"])
+                                             if c_over_edge >= 0 else
+                                             ("under", 1 - blend_over, 1 - mkt_over, co["underOdds"]))
+                c_status, c_public, c_reason = classify_projection(
+                    market_prob=cmkt, model_prob=cprob, market_type="match_total_corners",
+                    sample_min=c_sample, opponent_adjusted=False, is_underdog=False,
+                    strength_missing=False,
+                )
+                projections.append({
+                    **common,
+                    "id": f"wc_{args.date}_{norm(g['home'])}_{norm(g['away'])}_corners_{cside}",
+                    "market": "match_total_corners", "pick": cside,
+                    "pickLabel": f"{cside.title()} {co['line']} corners",
+                    "line": co["line"], "americanOdds": codds, "bookmaker": co.get("bookmaker"),
+                    "modelProbability": round(cprob, 4), "marketProbability": round(cmkt, 4),
+                    "edgePct": round((cprob - cmkt) * 100, 2),
+                    "confidence": "Low",
+                    "projectionStatus": c_status, "public": c_public, "statusReason": c_reason,
+                    "riskTier": _risk_tier(int(codds)) if codds else "Medium",
+                    "factors": [
+                        f"Recent corners: {g['home']} {hc.get('cornersFor90')}/{hc.get('cornersAgainst90')} for/against (last {hc.get('played')})",
+                        f"Recent corners: {g['away']} {ac.get('cornersFor90')}/{ac.get('cornersAgainst90')} for/against (last {ac.get('played')})",
+                        f"Model expected {round(exp_corners,1)} corners vs market line {co['line']}",
+                    ],
+                    "caveats": ["90-minute regulation corners only", c_reason],
+                    "notes": ["90-minute regulation corners only", c_reason],
+                })
 
     active = [p for p in projections if p.get("projectionStatus") == "active" and p.get("public")]
     status_counts = {}
