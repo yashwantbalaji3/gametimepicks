@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-11T14:46:52+00:00",
+  "generatedAt": "2026-06-11T15:10:01+00:00",
   "sport": "world_cup",
   "date": "2026-06-11",
   "modelVersion": "wc-ensemble-v2",
@@ -7,16 +7,15 @@
   "oddsProvider": "odds_api",
   "strengthSource": "FIFA/Coca-Cola World Ranking (2026-06-10)",
   "disclaimer": "GameTime Picks model projections \u2014 90-minute regulation only. Educational/paper, not betting advice.",
-  "methodology": "Ensemble: de-vigged market prior (0.60) + FIFA-points strength prior (0.25) + opponent-adjusted recent form (0.15, scaled by opponent coverage). Market-sanity + strength + sample + edge gates; only `active` is public.",
+  "methodology": "Ensemble: de-vigged market prior (0.60) + FIFA-points strength prior (0.25) + opponent-adjusted recent form (0.15). Public PROBABILITY VIEWS are shown for every game/market with real odds + features; PARLAY ELIGIBILITY is stricter (edge + sample + market sanity).",
   "matchCount": 2,
   "projectionCount": 6,
-  "activeCount": 0,
-  "public": false,
+  "publicCount": 6,
+  "parlayEligibleCount": 0,
+  "public": true,
   "opponentStrengthCoverage": 0.62,
-  "methodologyReviewRequired": true,
   "statusCounts": {
-    "gated_low_edge": 4,
-    "gated_sample_size": 2
+    "public_projection_no_edge": 6
   },
   "matches": [
     {
@@ -34,35 +33,58 @@
       "provider": "api_football",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-ensemble-v2",
-      "id": "wc_2026-06-11_mexico_southafrica_ml_draw",
+      "id": "wc_2026-06-11_mexico_southafrica_ml",
       "market": "moneyline_90",
-      "pick": "draw",
-      "pickLabel": "Draw",
+      "pick": null,
+      "pickLabel": null,
       "line": null,
       "americanOdds": 340,
       "bookmaker": "draftkings",
       "modelProbability": 0.2253,
       "marketProbability": 0.2172,
       "edgePct": 0.81,
+      "outcomes": [
+        {
+          "label": "Mexico",
+          "side": "home",
+          "modelProbability": 0.639,
+          "marketProbability": 0.6704,
+          "americanOdds": -235
+        },
+        {
+          "label": "Draw",
+          "side": "draw",
+          "modelProbability": 0.2253,
+          "marketProbability": 0.2172,
+          "americanOdds": 340
+        },
+        {
+          "label": "South Africa",
+          "side": "away",
+          "modelProbability": 0.1356,
+          "marketProbability": 0.1124,
+          "americanOdds": 750
+        }
+      ],
       "confidence": "Low",
-      "projectionStatus": "gated_low_edge",
-      "public": false,
-      "statusReason": "edge +0.8% below the 3.0% active threshold for moneyline_90",
+      "projectionStatus": "public_projection_no_edge",
+      "public": true,
+      "parlayEligible": false,
+      "statusReason": "edge +0.8% below the 3.0% suggested-card threshold \u2192 projection only",
       "riskTier": "High",
       "factors": [
         "FIFA strength: Mexico #14 (1687.48) vs South Africa #60 (1428.38)",
         "Opponent-adjusted form: Mexico att 1.898 / South Africa att 1.093",
-        "Ensemble weights \u2014 market 0.637, strength 0.25, form 0.112 (opponent coverage 75%)",
-        "Market-implied Draw 22% vs model 23%"
+        "Ensemble weights \u2014 market 0.637, strength 0.25, form 0.112 (opponent coverage 75%)"
       ],
       "caveats": [
         "90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
         "Early-tournament sample; confidence capped Low",
-        "edge +0.8% below the 3.0% active threshold for moneyline_90"
+        "edge +0.8% below the 3.0% suggested-card threshold \u2192 projection only"
       ],
       "notes": [
         "90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
-        "edge +0.8% below the 3.0% active threshold for moneyline_90"
+        "edge +0.8% below the 3.0% suggested-card threshold \u2192 projection only"
       ]
     },
     {
@@ -80,20 +102,37 @@
       "provider": "api_football",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-ensemble-v2",
-      "id": "wc_2026-06-11_mexico_southafrica_total_over",
+      "id": "wc_2026-06-11_mexico_southafrica_total",
       "market": "match_total_goals",
-      "pick": "over",
-      "pickLabel": "Over 2.5",
+      "pick": null,
+      "pickLabel": null,
       "line": 2.5,
       "americanOdds": 120,
       "bookmaker": "draftkings",
       "modelProbability": 0.4439,
       "marketProbability": 0.438,
       "edgePct": 0.59,
+      "outcomes": [
+        {
+          "label": "Over 2.5",
+          "side": "over",
+          "modelProbability": 0.4439,
+          "marketProbability": 0.438,
+          "americanOdds": 120
+        },
+        {
+          "label": "Under 2.5",
+          "side": "under",
+          "modelProbability": 0.5561,
+          "marketProbability": 0.562,
+          "americanOdds": -140
+        }
+      ],
       "confidence": "Low",
-      "projectionStatus": "gated_low_edge",
-      "public": false,
-      "statusReason": "edge +0.6% below the 2.5% active threshold for match_total_goals",
+      "projectionStatus": "public_projection_no_edge",
+      "public": true,
+      "parlayEligible": false,
+      "statusReason": "edge +0.6% below the 2.5% suggested-card threshold \u2192 projection only",
       "riskTier": "Medium",
       "factors": [
         "Market total 2.5 \u2014 model 44% Over vs market 44%",
@@ -101,11 +140,11 @@
       ],
       "caveats": [
         "90-minute regulation goals only",
-        "edge +0.6% below the 2.5% active threshold for match_total_goals"
+        "edge +0.6% below the 2.5% suggested-card threshold \u2192 projection only"
       ],
       "notes": [
         "90-minute regulation goals only",
-        "edge +0.6% below the 2.5% active threshold for match_total_goals"
+        "edge +0.6% below the 2.5% suggested-card threshold \u2192 projection only"
       ]
     },
     {
@@ -123,33 +162,51 @@
       "provider": "api_football",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-ensemble-v2",
-      "id": "wc_2026-06-11_mexico_southafrica_corners_under",
+      "id": "wc_2026-06-11_mexico_southafrica_corners",
       "market": "match_total_corners",
-      "pick": "under",
-      "pickLabel": "Under 8.5 corners",
+      "pick": null,
+      "pickLabel": null,
       "line": 8.5,
-      "americanOdds": -118,
+      "americanOdds": -115,
       "bookmaker": "betmgm",
-      "modelProbability": 0.5685,
-      "marketProbability": 0.4981,
-      "edgePct": 7.04,
+      "modelProbability": 0.5097,
+      "marketProbability": 0.4951,
+      "edgePct": 1.46,
+      "outcomes": [
+        {
+          "label": "Over 8.5",
+          "side": "over",
+          "modelProbability": 0.4903,
+          "marketProbability": 0.5049,
+          "americanOdds": -120
+        },
+        {
+          "label": "Under 8.5",
+          "side": "under",
+          "modelProbability": 0.5097,
+          "marketProbability": 0.4951,
+          "americanOdds": -115
+        }
+      ],
       "confidence": "Low",
-      "projectionStatus": "gated_sample_size",
-      "public": false,
-      "statusReason": "recent-form sample 4 < 5 \u2014 too thin to publish",
+      "cornerSample": 10,
+      "projectionStatus": "public_projection_no_edge",
+      "public": true,
+      "parlayEligible": false,
+      "statusReason": "edge +1.5% below the 2.5% suggested-card threshold \u2192 projection only",
       "riskTier": "Low",
       "factors": [
-        "Recent corners: Mexico 4.6/2.6 for/against (last 5)",
-        "Recent corners: South Africa 4.5/1.5 for/against (last 4)",
-        "Model expected 6.6 corners vs market line 8.5"
+        "Recent corners: Mexico 5.2/2.8 for/against (last 10)",
+        "Recent corners: South Africa 5.1/3.7 for/against (last 10)",
+        "Model expected 8.4 corners vs market line 8.5 (10-match corner sample)"
       ],
       "caveats": [
         "90-minute regulation corners only",
-        "recent-form sample 4 < 5 \u2014 too thin to publish"
+        "edge +1.5% below the 2.5% suggested-card threshold \u2192 projection only"
       ],
       "notes": [
         "90-minute regulation corners only",
-        "recent-form sample 4 < 5 \u2014 too thin to publish"
+        "edge +1.5% below the 2.5% suggested-card threshold \u2192 projection only"
       ]
     },
     {
@@ -167,35 +224,58 @@
       "provider": "api_football",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-ensemble-v2",
-      "id": "wc_2026-06-11_southkorea_czechia_ml_home",
+      "id": "wc_2026-06-11_southkorea_czechia_ml",
       "market": "moneyline_90",
-      "pick": "home",
-      "pickLabel": "South Korea",
+      "pick": null,
+      "pickLabel": null,
       "line": null,
       "americanOdds": 170,
       "bookmaker": "draftkings",
       "modelProbability": 0.368,
       "marketProbability": 0.3548,
       "edgePct": 1.32,
+      "outcomes": [
+        {
+          "label": "South Korea",
+          "side": "home",
+          "modelProbability": 0.368,
+          "marketProbability": 0.3548,
+          "americanOdds": 170
+        },
+        {
+          "label": "Draw",
+          "side": "draw",
+          "modelProbability": 0.2922,
+          "marketProbability": 0.309,
+          "americanOdds": 210
+        },
+        {
+          "label": "Czechia",
+          "side": "away",
+          "modelProbability": 0.3398,
+          "marketProbability": 0.3361,
+          "americanOdds": 185
+        }
+      ],
       "confidence": "Low",
-      "projectionStatus": "gated_low_edge",
-      "public": false,
-      "statusReason": "edge +1.3% below the 3.0% active threshold for moneyline_90",
+      "projectionStatus": "public_projection_no_edge",
+      "public": true,
+      "parlayEligible": false,
+      "statusReason": "edge +1.3% below the 3.0% suggested-card threshold \u2192 projection only",
       "riskTier": "Medium",
       "factors": [
         "FIFA strength: South Korea #25 (1591.63) vs Czechia #39 (1505.74)",
         "Opponent-adjusted form: South Korea att 1.321 / Czechia att 1.966",
-        "Ensemble weights \u2014 market 0.675, strength 0.25, form 0.075 (opponent coverage 50%)",
-        "Market-implied South Korea 35% vs model 37%"
+        "Ensemble weights \u2014 market 0.675, strength 0.25, form 0.075 (opponent coverage 50%)"
       ],
       "caveats": [
         "90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
         "Early-tournament sample; confidence capped Low",
-        "edge +1.3% below the 3.0% active threshold for moneyline_90"
+        "edge +1.3% below the 3.0% suggested-card threshold \u2192 projection only"
       ],
       "notes": [
         "90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
-        "edge +1.3% below the 3.0% active threshold for moneyline_90"
+        "edge +1.3% below the 3.0% suggested-card threshold \u2192 projection only"
       ]
     },
     {
@@ -213,20 +293,37 @@
       "provider": "api_football",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-ensemble-v2",
-      "id": "wc_2026-06-11_southkorea_czechia_total_over",
+      "id": "wc_2026-06-11_southkorea_czechia_total",
       "market": "match_total_goals",
-      "pick": "over",
-      "pickLabel": "Over 2.5",
+      "pick": null,
+      "pickLabel": null,
       "line": 2.5,
       "americanOdds": 125,
       "bookmaker": "draftkings",
       "modelProbability": 0.4486,
       "marketProbability": 0.4289,
       "edgePct": 1.97,
+      "outcomes": [
+        {
+          "label": "Over 2.5",
+          "side": "over",
+          "modelProbability": 0.4486,
+          "marketProbability": 0.4289,
+          "americanOdds": 125
+        },
+        {
+          "label": "Under 2.5",
+          "side": "under",
+          "modelProbability": 0.5514,
+          "marketProbability": 0.5711,
+          "americanOdds": -145
+        }
+      ],
       "confidence": "Low",
-      "projectionStatus": "gated_low_edge",
-      "public": false,
-      "statusReason": "edge +2.0% below the 2.5% active threshold for match_total_goals",
+      "projectionStatus": "public_projection_no_edge",
+      "public": true,
+      "parlayEligible": false,
+      "statusReason": "edge +2.0% below the 2.5% suggested-card threshold \u2192 projection only",
       "riskTier": "Medium",
       "factors": [
         "Market total 2.5 \u2014 model 45% Over vs market 43%",
@@ -234,11 +331,11 @@
       ],
       "caveats": [
         "90-minute regulation goals only",
-        "edge +2.0% below the 2.5% active threshold for match_total_goals"
+        "edge +2.0% below the 2.5% suggested-card threshold \u2192 projection only"
       ],
       "notes": [
         "90-minute regulation goals only",
-        "edge +2.0% below the 2.5% active threshold for match_total_goals"
+        "edge +2.0% below the 2.5% suggested-card threshold \u2192 projection only"
       ]
     },
     {
@@ -256,33 +353,51 @@
       "provider": "api_football",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-ensemble-v2",
-      "id": "wc_2026-06-11_southkorea_czechia_corners_over",
+      "id": "wc_2026-06-11_southkorea_czechia_corners",
       "market": "match_total_corners",
-      "pick": "over",
-      "pickLabel": "Over 8.5 corners",
+      "pick": null,
+      "pickLabel": null,
       "line": 8.5,
       "americanOdds": -125,
       "bookmaker": "draftkings",
-      "modelProbability": 0.5758,
+      "modelProbability": 0.5204,
       "marketProbability": 0.5147,
-      "edgePct": 6.11,
+      "edgePct": 0.57,
+      "outcomes": [
+        {
+          "label": "Over 8.5",
+          "side": "over",
+          "modelProbability": 0.5204,
+          "marketProbability": 0.5147,
+          "americanOdds": -125
+        },
+        {
+          "label": "Under 8.5",
+          "side": "under",
+          "modelProbability": 0.4796,
+          "marketProbability": 0.4853,
+          "americanOdds": -110
+        }
+      ],
       "confidence": "Low",
-      "projectionStatus": "gated_sample_size",
-      "public": false,
-      "statusReason": "recent-form sample 3 < 5 \u2014 too thin to publish",
+      "cornerSample": 10,
+      "projectionStatus": "public_projection_no_edge",
+      "public": true,
+      "parlayEligible": false,
+      "statusReason": "edge +0.6% below the 2.5% suggested-card threshold \u2192 projection only",
       "riskTier": "Low",
       "factors": [
-        "Recent corners: South Korea 6.2/2.6 for/against (last 5)",
-        "Recent corners: Czechia 8.33/4.67 for/against (last 3)",
-        "Model expected 10.9 corners vs market line 8.5"
+        "Recent corners: South Korea 4.9/3.1 for/against (last 10)",
+        "Recent corners: Czechia 6.4/3.4 for/against (last 10)",
+        "Model expected 8.9 corners vs market line 8.5 (10-match corner sample)"
       ],
       "caveats": [
         "90-minute regulation corners only",
-        "recent-form sample 3 < 5 \u2014 too thin to publish"
+        "edge +0.6% below the 2.5% suggested-card threshold \u2192 projection only"
       ],
       "notes": [
         "90-minute regulation corners only",
-        "recent-form sample 3 < 5 \u2014 too thin to publish"
+        "edge +0.6% below the 2.5% suggested-card threshold \u2192 projection only"
       ]
     }
   ]
