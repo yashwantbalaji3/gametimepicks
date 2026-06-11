@@ -51,7 +51,7 @@ export default function GamesPage() {
       statusLabel: "Today",
       projections: 0,
       href: "/world-cup?tab=games",
-      buildHref: "/build",
+      buildHref: `/build?sport=world_cup&q=${encodeURIComponent(m.home ?? "")}`,
     });
   }
 
@@ -70,7 +70,7 @@ export default function GamesPage() {
       statusLabel: mlbDate === today ? "Today" : mlbDate.slice(5),
       projections: mlbByGame.get(String(g.gamePk)) ?? 0,
       href: "/mlb?tab=games",
-      buildHref: "/build",
+      buildHref: "/build?sport=mlb",
     });
   }
 
@@ -90,7 +90,7 @@ export default function GamesPage() {
       statusLabel: "Finals",
       projections: nbaByGame.get(String(g.gameId)) ?? 0,
       href: "/nba?tab=games",
-      buildHref: "/build",
+      buildHref: "/build?sport=nba",
     });
   }
 
