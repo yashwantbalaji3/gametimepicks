@@ -15,6 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import GamesExperience, { type GameRow } from "@/components/games-experience";
 import SectionHeader from "@/components/section-header";
+import { buildAllGameDetails, gameSlug } from "@/lib/game-detail";
 
 export const metadata = {
   title: "Games · GameTime Picks",
@@ -35,12 +36,16 @@ function countBy<T>(items: T[], key: (t: T) => string | number | null | undefine
 export default function GamesPage() {
   const today = currentEtDate();
   const rows: GameRow[] = [];
+  // Fixture detail pages (real data only) — link "View game" + the exact build URL when present.
+  const detailMap = new Map(buildAllGameDetails().map((d) => [`${d.sport}/${d.slug}`, d]));
 
   // World Cup
   loadWorldCupSchedule();
   const wcMatches = matchesOnDate(today);
   void loadWorldCupProjections();
   for (const m of wcMatches) {
+    const wcSlug = gameSlug(m.home ?? "", m.away ?? "", today);
+    const det = detailMap.get(`world_cup/${wcSlug}`);
     rows.push({
       id: `wc_${m.id}`,
       sport: "world_cup",
@@ -49,9 +54,11 @@ export default function GamesPage() {
       matchup: `${m.home} vs ${m.away}`,
       timeLabel: `${m.kickoffLocal ?? ""}${m.venueCity ? " · " + m.venueCity : ""}`.trim(),
       statusLabel: "Today",
-      projections: 0,
+      projections: det?.teamProjections.length ?? 0,
       href: "/world-cup?tab=games",
-      buildHref: `/build?sport=world_cup&q=${encodeURIComponent(m.home ?? "")}`,
+      // Exact-fixture build link when the fixture resolved (real matchId); team-search fallback otherwise.
+      buildHref: det?.buildUrl ?? `/build?sport=world_cup&q=${encodeURIComponent(m.home ?? "")}`,
+      detailHref: det ? `/games/world-cup/${wcSlug}` : undefined,
     });
   }
 
@@ -78,6 +85,9 @@ export default function GamesPage() {
       projections: mlbByGame.get(String(g.gamePk)) ?? 0,
       href: "/mlb?tab=games",
       buildHref: gid ? `/build?sport=mlb&game=${encodeURIComponent(gid)}` : "/build?sport=mlb",
+      detailHref: detailMap.has(`mlb/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", mlbDate)}`)
+        ? `/games/mlb/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", mlbDate)}`
+        : undefined,
     });
   }
 
@@ -98,6 +108,9 @@ export default function GamesPage() {
       projections: nbaByGame.get(String(g.gameId)) ?? 0,
       href: "/nba?tab=games",
       buildHref: g.gameId ? `/build?sport=nba&game=${encodeURIComponent(g.gameId)}` : "/build?sport=nba",
+      detailHref: detailMap.has(`nba/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", nbaDate)}`)
+        ? `/games/nba/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", nbaDate)}`
+        : undefined,
     });
   }
 
