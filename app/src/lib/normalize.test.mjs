@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeWcCards, normalizeWcProjections, normalizeWcPlayerProps, normalizeOptimizerSlips, normalizeUfcCards, normalizeMlbLeans } from "./normalize.ts";
+import { normalizeWcCards, normalizeWcProjections, normalizeWcPlayerProps, normalizeOptimizerSlips, normalizeUfcCards, normalizeMlbLeans, normalizeNbaLeans } from "./normalize.ts";
 
 test("normalizeWcCards maps to the public card contract", () => {
   const out = normalizeWcCards({ date: "2026-06-11", cardCount: 1, byRisk: {}, cards: [
@@ -94,4 +94,28 @@ test("normalizeMlbLeans handles empty + Over side", () => {
   const out = normalizeMlbLeans({ leans: [{ playerName: "X", lean: "Over", line: 1.5, oddsOver: 120, oddsUnder: -140, modelProbOver: 0.55, impliedOver: 0.45, marketLabel: "Hits" }] });
   assert.equal(out[0].americanOdds, 120);
   assert.equal(out[0].modelProbability, 0.55);
+});
+
+test("normalizeNbaLeans maps the leaned side + single model/implied prob, skips No Play", () => {
+  const out = normalizeNbaLeans({ date: "2026-06-10", leans: [
+    { id: "N1", playerName: "Dylan Harper", market: "AST", line: 3.5, lean: "Under", confidence: "Low",
+      edgePct: 2.13, modelProbability: 0.4464, impliedProbability: 0.425, oddsOver: 122, oddsUnder: -156, team: "SA", opponent: "NY" },
+    { id: "N2", playerName: "X", market: "PTS", line: 20.5, lean: "No Play", confidence: "insufficient_data", oddsOver: 100, oddsUnder: -120 },
+  ] });
+  assert.equal(out.length, 1);                       // No Play skipped
+  assert.equal(out[0].sport, "nba");
+  assert.equal(out[0].marketLabel, "Assists");
+  assert.equal(out[0].pickLabel, "Under 3.5");
+  assert.equal(out[0].americanOdds, -156);           // Under side
+  assert.equal(out[0].modelProbability, 0.4464);
+  assert.equal(out[0].marketProbability, 0.425);
+  assert.equal(out[0].parlayEligible, false);
+  assert.equal(out[0].gameLabel, "SA vs NY");
+});
+
+test("normalizeNbaLeans handles empty + Over side + market label fallback", () => {
+  assert.equal(normalizeNbaLeans(null).length, 0);
+  const out = normalizeNbaLeans({ leans: [{ playerName: "Y", market: "PRA", lean: "Over", line: 30.5, oddsOver: 110, modelProbability: 0.56, impliedProbability: 0.47, edgePct: 9 }] });
+  assert.equal(out[0].marketLabel, "Pts+Reb+Ast");
+  assert.equal(out[0].americanOdds, 110);
 });
