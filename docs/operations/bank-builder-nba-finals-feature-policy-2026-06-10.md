@@ -1,43 +1,36 @@
-# Bank Builder — NBA Finals Featured-Card Policy (2026-06-10)
+# Bank Builder — NBA Finals Active-Slip Override Policy (2026-06-10)
 
-## Decision
-For NBA Finals Game 4 we surface a **Featured NBA Finals same-game card** on
-`/bank-builder` **outside the tracked $100→$3,000 paper ladder**. We do **not**
-replace the canonical Daily Builder Pick or alter any settled history.
+## Decision (updated — now the TRACKED active slip)
+For NBA Finals Game 4, today's **active tracked Builder Slip** is a user-approved
+**NBA Finals same-game card**, replacing the MLB candidate for **today's pending
+rung only**. This is a pre-tip, user-approved event override — **not** a retroactive
+result edit. The June 9 settled win and all settled history are unchanged.
 
-## Why outside the ladder (not a swap)
-The canonical ladder is **settled-only and never fabricated** (built by
-`scripts/build-bank-builder-ledger.mjs`, surfaced via `data-bank-builder.ts`). Its
-Daily Builder Pick is drawn from the official single-sport Suggested pool via
-`selectPlus100BuilderSlip`. Swapping in an NBA same-game parlay would:
-- change the tracked bankroll math on a correlation profile the ledger wasn't
-  built to grade, and
-- risk implying the June 9 settled win or the ladder progression changed.
+## Honesty + audit guarantees
+- **Settled ledger untouched.** The ledger (`build-bank-builder-ledger.mjs`) is
+  settled-only; June 9's win and the bankroll progression to ~$211.85 are unchanged.
+- **MLB candidate superseded, not deleted.** The original MLB Daily Builder Pick is
+  still computed (`selectPlus100BuilderSlip`) and shown on `/bank-builder` in a
+  collapsed "superseded by the NBA Finals event slip" details block.
+- **Audit artifact** `app/public/data/bank-builder/active-builder-slip-2026-06-10.json`
+  records the override with: date, sport=NBA, event, status=pending, paperStake (exact
+  current bankroll), combined odds, projected return/profit, full legs, and
+  `replacement { previousCandidateSport: MLB, replacementReason:
+  user_approved_nba_finals_feature, replacementTimestamp, noResultOverride: true }`.
+- **No result implied** before the game finishes (status pending).
 
-Neither is acceptable. So the NBA Finals card is a **clearly-labeled featured
-spotlight**, illustrative only, that does not touch bankroll history.
-
-## How the featured card is chosen (honest, deterministic)
-`selectFeaturedFinalsCard()` (in `lib/nba-finals-cards.ts`):
-1. Source = the real optimizer NBA leg pool (model leans + real book odds) for a
-   genuine **one-game** NBA slate. Returns null otherwise (page keeps only the
-   canonical slip).
-2. Candidate = a **2-leg same-game** card with combined odds in **+150…+400** where
-   **both legs are Medium+ model confidence**.
-3. Pick = highest total leg score (deterministic tie-break by card id).
-4. Display = player photos, picks, real odds, combined odds, and an illustrative
-   "paper stake → potential paper return" using the **current ladder bankroll** as
-   the stake. Paper only; clearly marked "outside the tracked ladder".
-
-## Guardrails honored
-- No fabricated odds, legs, or results; combined odds = exact product of per-leg
-  decimals.
-- No "lock / safe / guaranteed / sure thing / free money / risk-free / can't miss"
-  language.
-- A correlation note states the legs share one game.
-- If no card qualifies, nothing is shown (the canonical slip stands alone).
+## Selection (deterministic, real data)
+`selectFeaturedFinalsCard()` over the real NBA leg pool: a 2-leg same-game card,
+combined odds +150…+400, **both legs Medium+ model confidence**, highest leg score.
+Stake = exact current ladder bankroll; projected return = stake × combined decimal;
+projected profit = return − stake.
 
 ## Tonight's selection (2026-06-10)
-The selector surfaces a 2-leg, both-High-confidence card (e.g. *Castle REB Over 4.5
-+ Anunoby PRA Over 23.5*, ~+244, ~3.4×) → at the current ~$211.85 bankroll that's an
-illustrative ~$700+ paper return. Exact card auto-updates with the leg pool.
+**Stephon Castle REB Over 4.5 (−130, High) + OG Anunoby PRA Over 23.5 (−106, High)**
+· combined **+244** (3.44×) · paper stake **$211.85** → projected **$728.76**
+(profit +$516.91). Auto-updates with the leg pool.
+
+## Guardrails honored
+No fabricated odds/legs/results; combined odds = exact product of decimals. No "lock /
+safe / guaranteed / sure thing / free money / risk-free / can't miss" copy. Correlation
+note states the legs share one game. Paper only; not betting advice.

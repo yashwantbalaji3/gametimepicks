@@ -153,7 +153,7 @@ export default function ParlayLabPage() {
         mixedSlips={mixedSlips}
       />
       <NbaFinalsCardsSection cards={finalsCards} />
-      <ParlayCoverageGrid payload={optimizerForDate} />
+      <ParlayCoverageGrid payload={optimizerForDate} excludeNba={finalsCards != null} />
       {isActiveSettled && (
         <section
           aria-label="Active slate already settled"

@@ -17,7 +17,7 @@ const RISK_COLS = [
   { key: "longshot", label: "Longshot" },
 ] as const;
 
-const SPORT_ROWS = [
+const SPORT_ROWS_ALL = [
   { key: "nba", label: "NBA" },
   { key: "mlb", label: "MLB" },
   { key: "multi", label: "Mixed" },
@@ -25,11 +25,19 @@ const SPORT_ROWS = [
 
 export default function ParlayCoverageGrid({
   payload,
+  /** When true, NBA is shown in its own NBA Finals section, so this grid
+   *  covers only the multi-game Main pool (MLB · Mixed) to avoid two
+   *  conflicting NBA counts on one page. */
+  excludeNba = false,
 }: {
   payload: OptimizerSnapshot | null;
+  excludeNba?: boolean;
 }) {
   const prs = payload?.publicRiskSections;
   if (!prs) return null;
+  const SPORT_ROWS = excludeNba
+    ? SPORT_ROWS_ALL.filter((r) => r.key !== "nba")
+    : SPORT_ROWS_ALL;
 
   const countAt = (risk: string, sport: string): number => {
     const section = (prs as Record<string, Record<string, unknown[]>>)[risk];
@@ -54,7 +62,7 @@ export default function ParlayCoverageGrid({
         className="font-mono uppercase tracking-[0.16em]"
         style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
-        Cards by sport &amp; risk
+        {excludeNba ? "Main pool · MLB & Mixed by risk" : "Cards by sport & risk"}
       </span>
       <div className="mt-2 overflow-x-auto">
         <table className="w-full" style={{ borderCollapse: "collapse", minWidth: 320 }}>
@@ -103,7 +111,7 @@ export default function ParlayCoverageGrid({
           </tbody>
         </table>
       </div>
-      {nbaSingleGame && (
+      {!excludeNba && nbaSingleGame && (
         <p
           className="mt-2 text-[12px] leading-snug"
           style={{ color: "var(--vault-text-mute)" }}

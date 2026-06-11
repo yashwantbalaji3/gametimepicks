@@ -11,6 +11,7 @@
 import type { FinalsCard, FinalsTier } from "@/lib/nba-finals-cards";
 import { FINALS_TIER_ORDER, fmtAmerican } from "@/lib/nba-finals-cards";
 import PlayerAvatar from "./player-avatar";
+import NbaFinalsStakeRow from "./nba-finals-stake-row";
 
 const TIER_META: Record<FinalsTier, { label: string; accent: string; blurb: string }> = {
   low: { label: "Low", accent: "var(--risk-low)", blurb: "Shorter combined odds" },
@@ -19,7 +20,6 @@ const TIER_META: Record<FinalsTier, { label: string; accent: string; blurb: stri
   longshot: { label: "Longshot", accent: "var(--risk-longshot)", blurb: "Longest combined odds" },
 };
 
-const SAMPLE_STAKE = 10;
 
 export default function NbaFinalsCardsSection({
   cards,
@@ -101,7 +101,6 @@ export default function NbaFinalsCardsSection({
 }
 
 function FinalsCardView({ card, accent }: { card: FinalsCard; accent: string }) {
-  const payout = Math.round(SAMPLE_STAKE * card.combinedDecimal);
   return (
     <div
       className="rounded-[10px] p-3.5 flex flex-col gap-3"
@@ -157,16 +156,12 @@ function FinalsCardView({ card, accent }: { card: FinalsCard; accent: string }) 
         })}
       </div>
 
-      <div className="flex items-center justify-between gap-2 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-          ${SAMPLE_STAKE} paper → ${payout} ({card.combinedDecimal.toFixed(2)}×)
+      <NbaFinalsStakeRow decimal={card.combinedDecimal} />
+      {card.volatileLegCount > 0 ? (
+        <span className="font-mono self-end" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+          Higher-variance leg
         </span>
-        {card.volatileLegCount > 0 ? (
-          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-            Higher-variance leg
-          </span>
-        ) : null}
-      </div>
+      ) : null}
 
       <p style={{ color: "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.35 }}>
         {card.correlationNote}

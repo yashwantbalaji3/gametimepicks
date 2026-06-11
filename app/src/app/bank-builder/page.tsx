@@ -32,7 +32,7 @@ import PageHero from "@/components/page-hero";
 import BoardStatTile from "@/components/board-stat-tile";
 import BankBuilderTower from "@/components/bank-builder-tower";
 import BankBuilderShareCard from "@/components/bank-builder-share-card";
-import BankBuilderFinalsSpotlight from "@/components/bank-builder-finals-spotlight";
+import BankBuilderFinalsSlip from "@/components/bank-builder-finals-spotlight";
 import {
   buildFinalsCards,
   selectFeaturedFinalsCard,
@@ -160,9 +160,10 @@ export default function BankBuilderPage() {
   const poolIsFallback = suggested?.isFallback ?? false;
   const savedPregame = suggested?.source === "snapshot";
 
-  // Featured NBA Finals spotlight (Phase 5) — illustrative same-game card shown
-  // OUTSIDE the tracked ladder. Derived from the same real optimizer leg pool;
-  // never alters the canonical settled ledger. Only for a one-game NBA slate.
+  // NBA Finals event override — today's ACTIVE tracked Builder Slip is a
+  // user-approved NBA Finals same-game card, derived from the real optimizer leg
+  // pool. It supersedes the MLB candidate for today's pending rung only; the
+  // settled ledger (June 9 win) is never altered. Only for a one-game NBA slate.
   const nbaFinalsLegs = (optimizerForDate?.legPool?.legs ?? []).filter(
     (l) => (l as { sport?: string }).sport === "nba",
   ) as unknown as FinalsLeg[];
@@ -301,29 +302,57 @@ export default function BankBuilderPage() {
 
       <DisclaimerBanner placement="top" />
 
-      <BankBuilderFinalsSpotlight
-        card={featuredFinalsCard}
-        illustrativeStake={currentBankroll}
-      />
-
       {/* ---- Eligibility chips + transparent criteria (PR 4) --------- */}
       <EligibilityPanel />
 
-      {/* ---- Ladder + Today's Builder Pick --------------------------- */}
+      {/* ---- Ladder + today's active Builder Slip -------------------- */}
+      {/* For NBA Finals Game 4 a user-approved event override makes the
+          active rung an NBA Finals same-game card. The original MLB
+          candidate is preserved (collapsed) below as superseded — never
+          deleted. Settled history (June 9 win) is untouched. */}
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-5">
         <BankBuilderTower
           activeStepNumber={activeStep.step}
           currentBankroll={currentBankroll}
         />
-        <TodaysBuilderPick
-          pick={builderPick}
-          diagnosis={diagnosis}
-          calibrationTable={calibrationTable}
-          savedPregame={savedPregame}
-          poolDate={poolDate}
-          poolIsFallback={poolIsFallback}
-        />
+        {featuredFinalsCard ? (
+          <BankBuilderFinalsSlip
+            card={featuredFinalsCard}
+            stake={currentBankroll}
+            stepNumber={activeStep.step}
+            stepGoal={activeStep.goal}
+          />
+        ) : (
+          <TodaysBuilderPick
+            pick={builderPick}
+            diagnosis={diagnosis}
+            calibrationTable={calibrationTable}
+            savedPregame={savedPregame}
+            poolDate={poolDate}
+            poolIsFallback={poolIsFallback}
+          />
+        )}
       </div>
+
+      {/* Superseded MLB candidate — preserved for audit, collapsed. */}
+      {featuredFinalsCard && builderPick && (
+        <details className="mt-3 rounded-[8px] px-3.5 py-2.5"
+          style={{ background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" }}>
+          <summary className="cursor-pointer text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+            Today&apos;s MLB candidate — superseded by the NBA Finals event slip
+          </summary>
+          <div className="mt-2">
+            <TodaysBuilderPick
+              pick={builderPick}
+              diagnosis={diagnosis}
+              calibrationTable={calibrationTable}
+              savedPregame={savedPregame}
+              poolDate={poolDate}
+              poolIsFallback={poolIsFallback}
+            />
+          </div>
+        </details>
+      )}
 
       {/* ---- Screenshot-friendly share card -------------------------- */}
       <BankBuilderShareCard
