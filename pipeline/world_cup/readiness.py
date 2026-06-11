@@ -12,14 +12,17 @@ from pathlib import Path
 
 from .providers.base import SoccerStatsProvider
 from .providers.sample import SampleProvider
+from .providers.api_football import ApiFootballProvider
 
 REPO = Path(__file__).resolve().parents[2]
 STATS_DIR = REPO / "app" / "public" / "data" / "world-cup" / "stats"
 OUTLOOK_PATH = REPO / "app" / "public" / "data" / "world-cup" / "market-outlook-latest.json"
 
-# Registry of known provider classes. A real provider is added here once its
-# concrete adapter + env key exist; until then only the unconfigured sample is wired.
-PROVIDERS: dict[str, type[SoccerStatsProvider]] = {"sample": SampleProvider}
+# Registry of known provider classes.
+PROVIDERS: dict[str, type[SoccerStatsProvider]] = {
+    "sample": SampleProvider,
+    "api_football": ApiFootballProvider,
+}
 
 
 def _odds_ready() -> bool:
@@ -29,12 +32,27 @@ def _odds_ready() -> bool:
         return False
 
 
-def compute_readiness(provider: SoccerStatsProvider, *, odds_ready: bool) -> dict:
+def compute_readiness(
+    provider: SoccerStatsProvider, *, odds_ready: bool, evidence: dict | None = None
+) -> dict:
+    """Evidence-driven fail-closed gating. When `evidence` (actual fetched-data counts)
+    is given it OVERRIDES the static capability flags: a provider that *can* return team
+    stats but returned an empty/insufficient sample (e.g. the tournament just started) is
+    still gated off. Required evidence keys (all optional, default 0):
+      teamStrengthTeams — teams with a usable strength sample (sample_size >= min)
+      lineupsFixtures   — today's fixtures with a posted lineup
+      playerStatsRows   — player rows with real minutes/role
+    """
     configured = provider.is_configured()
-    team_stats = configured and provider.supports_team_stats
+    if evidence is not None:
+        team_stats = configured and (evidence.get("teamStrengthTeams", 0) > 0)
+        lineups = configured and (evidence.get("lineupsFixtures", 0) > 0)
+        player_stats = configured and (evidence.get("playerStatsRows", 0) > 0)
+    else:
+        team_stats = configured and provider.supports_team_stats
+        lineups = configured and provider.supports_lineups
+        player_stats = configured and provider.supports_player_stats
     xg = configured and provider.supports_xg
-    lineups = configured and provider.supports_lineups
-    player_stats = configured and provider.supports_player_stats
     # Independent team-level projections need a real team baseline AND odds.
     projections_allowed = bool(odds_ready and team_stats)
     # Player props additionally need lineups (minutes/role) + player stats.
@@ -44,10 +62,12 @@ def compute_readiness(provider: SoccerStatsProvider, *, odds_ready: bool) -> dic
     reasons = []
     if not configured:
         reasons.append(f"no soccer stats provider configured (env {provider.env_key or '<none>'} unset) → fail closed")
-    if configured and not team_stats:
+    elif evidence is not None and not team_stats:
+        reasons.append("provider connected but no usable team-stats sample yet (e.g. tournament just started / 0 finished matches) → projections fail closed")
+    elif configured and not team_stats:
         reasons.append("provider does not expose team match stats")
     if not lineups:
-        reasons.append("no lineups/minutes source → player props disabled")
+        reasons.append("no posted lineups/minutes → player props disabled")
     if not xg:
         reasons.append("no xG source → xG-dependent confidence stays Low/limited")
     if odds_ready and not projections_allowed:

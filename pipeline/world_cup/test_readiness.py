@@ -60,6 +60,19 @@ class ReadinessTests(unittest.TestCase):
         )
         self.assertTrue(r["playerPropsAllowed"])
 
+    def test_evidence_overrides_capability_flags(self):
+        # Provider CAN return team stats, but the actual sample is empty (tournament
+        # just started) → projections must stay fail-closed.
+        p = _FakeProvider(configured=True, team=True, players=True, lineups=True)
+        r = compute_readiness(p, odds_ready=True, evidence={"teamStrengthTeams": 0, "lineupsFixtures": 0, "playerStatsRows": 0})
+        self.assertFalse(r["projectionsAllowed"])
+        self.assertFalse(r["playerPropsAllowed"])
+        self.assertTrue(any("just started" in x or "team-stats sample" in x for x in r["failClosedReasons"]))
+        # Once a real sample exists, projections unlock (lineups still gate player props).
+        r2 = compute_readiness(p, odds_ready=True, evidence={"teamStrengthTeams": 4, "lineupsFixtures": 0, "playerStatsRows": 0})
+        self.assertTrue(r2["projectionsAllowed"])
+        self.assertFalse(r2["playerPropsAllowed"])
+
     def test_sample_provider_never_fabricates(self):
         p = SampleProvider()
         self.assertFalse(p.is_configured())
