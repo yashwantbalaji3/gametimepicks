@@ -40,6 +40,17 @@ import { loadCalibrationTable } from "@/lib/confidence-calibration";
 import { getBoardForDate } from "@/lib/data";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { currentEtDate } from "@/lib/freshness";
+import {
+  loadWorldCupProjections,
+  type WcProjection,
+} from "@/lib/world-cup/projections";
+import {
+  loadWorldCupTeams,
+  loadWorldCupSchedule,
+} from "@/lib/data-world-cup";
+import { normTeamName } from "@/lib/world-cup/market-outlook";
+import WcProjectionCard from "@/components/world-cup/wc-projection-card";
+import SectionHeader from "@/components/section-header";
 
 export const metadata = {
   title: "Projections · GameTime Picks",
@@ -98,6 +109,25 @@ export default function ProjectionsPage() {
   const nba = countFor("nba");
   const mlb = countFor("mlb");
   const gamesCount = nba.games + mlb.games;
+
+  // World Cup model projections (fail-closed: null when gates didn't pass).
+  const wcProjections = loadWorldCupProjections();
+  const wcTeams = loadWorldCupTeams();
+  const wcSchedule = loadWorldCupSchedule();
+  const wcScheduleByPair = new Map(
+    wcSchedule.map((m) => [
+      [normTeamName(m.home), normTeamName(m.away)].sort().join("|"),
+      m,
+    ]),
+  );
+  const wcByMatch = new Map<number, WcProjection[]>();
+  if (wcProjections) {
+    for (const p of wcProjections.matches) {
+      const arr = wcByMatch.get(p.matchId) ?? [];
+      arr.push(p);
+      wcByMatch.set(p.matchId, arr);
+    }
+  }
   const projectionsCount = nba.props + mlb.props;
   const plural = (n: number) => (n === 1 ? "" : "s");
   // When today has projections, show the per-sport breakdown. When it
@@ -215,6 +245,45 @@ export default function ProjectionsPage() {
           </p>
         )}
       </section>
+
+      {/* World Cup model projections — team-level 90-minute model leans (separate
+          from the NBA/MLB player-prop board below). Real data only; hidden when
+          gates haven't passed. */}
+      {wcProjections && wcByMatch.size > 0 && (
+        <section aria-label="World Cup projections">
+          <SectionHeader
+            eyebrow={`World Cup · ${wcProjections.projectionCount} model picks`}
+            title="World Cup model projections"
+            sub="Team-level 90-minute projections (recent national-team form blended with the market). Draw is a real outcome; regulation time only. Full match outlooks live on the World Cup page."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {Array.from(wcByMatch.entries()).map(([matchId, projs]) => {
+              const head = projs[0];
+              const homeTeam = wcTeams.find((t) => t.name === head.homeTeam);
+              const awayTeam = wcTeams.find((t) => t.name === head.awayTeam);
+              const sched = wcScheduleByPair.get(
+                [normTeamName(head.homeTeam), normTeamName(head.awayTeam)].sort().join("|"),
+              );
+              return (
+                <WcProjectionCard
+                  key={matchId}
+                  projections={projs}
+                  homeCode={homeTeam?.code ?? ""}
+                  awayCode={awayTeam?.code ?? ""}
+                  group={(sched?.stage === "group" ? sched?.group : sched?.stage) ?? null}
+                  kickoff={sched?.kickoffLocal ?? null}
+                />
+              );
+            })}
+          </div>
+          <div className="mt-3">
+            <Link href="/world-cup" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+              Full World Cup board →
+            </Link>
+          </div>
+        </section>
+      )}
+
       {/* PR `feat/projections-straight-bets-framing` (2026-06-01) — one
           plain-English line so first-time visitors know what this page
           is (single straight-bet projections, not parlays) and how to
@@ -232,8 +301,9 @@ export default function ProjectionsPage() {
         <Link href="/parlay-lab/#suggested" style={{ color: "var(--vault-gold-bright)" }}>
           Parlay Lab
         </Link>{" "}
-        are built from these same projections. Only NBA and MLB are modelled
-        — other leagues are schedule-only in{" "}
+        are built from these same projections. NBA and MLB have player-prop
+        projections; World Cup has team-level 90-minute model projections (shown
+        above when live). Other leagues are schedule-only in{" "}
         <Link href="/events/" style={{ color: "var(--vault-gold-bright)" }}>
           Sports &amp; Events
         </Link>

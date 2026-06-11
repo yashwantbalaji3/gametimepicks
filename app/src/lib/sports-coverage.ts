@@ -115,8 +115,8 @@ export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
     key: "fifa-world-cup",
     label: "World Cup",
     longLabel: "FIFA World Cup",
-    level: "schedule",
-    blurb: "Official 104-match schedule and groups — schedule only.",
+    level: "projections",
+    blurb: "Team-level 90-minute model projections + live market outlook + suggested cards. No player props yet (lineups/player-prop odds pending).",
     links: [{ label: "World Cup hub", href: "/world-cup/" }],
   },
   {

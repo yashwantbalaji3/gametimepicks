@@ -39,7 +39,8 @@ import {
   normalizeSportKey,
 } from "./sport-capabilities.ts";
 
-const SCHEDULE_ONLY = ["nhl", "wnba", "ufc", "fifa-world-cup", "ipl", "mls"];
+const SCHEDULE_ONLY = ["nhl", "wnba", "ufc", "ipl", "mls"];
+const PROJECTIONS_ONLY = ["fifa-world-cup"];
 const COMING_SOON = ["epl"];
 
 // --- modeled sports ---------------------------------------------------------
@@ -66,6 +67,22 @@ test("schedule-only sports cannot show projections or parlays", () => {
     // ...but they DO have a real schedule.
     assert.equal(getSportCapabilities(s).hasSchedule, true, `${s} schedule`);
     assert.equal(getSportCapabilities(s).status, "schedule_only");
+  }
+});
+
+// --- projections-only sports (World Cup: team-level model projections, but no
+//     graded parlay pipeline → NOT in the generic optimizer / BYO / grading) ---
+test("projections-only sports show projections but not suggested/BYO/grading", () => {
+  for (const s of PROJECTIONS_ONLY) {
+    const caps = getSportCapabilities(s);
+    assert.equal(caps.status, "projections_only", `${s} status`);
+    assert.equal(canShowProjections(s), true, `${s} projections must be true`);
+    assert.equal(caps.hasSchedule, true, `${s} schedule`);
+    // Still fail-closed for the generic NBA/MLB suggested/BYO/grading machinery —
+    // World Cup's own suggested cards render via a separate surface.
+    assert.equal(canShowSuggestedParlays(s), false, `${s} official-suggested must be false`);
+    assert.equal(canUseInBuildYourOwn(s), false, `${s} byo must be false`);
+    assert.equal(canGradeSport(s), false, `${s} grading must be false`);
   }
 });
 
