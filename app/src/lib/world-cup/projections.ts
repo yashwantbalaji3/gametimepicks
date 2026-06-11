@@ -156,6 +156,62 @@ export function worldCupMethodologyReview(): boolean {
   return loadWorldCupStatsReadiness()?.methodologyReviewRequired === true;
 }
 
+export interface WcPlayerProjection {
+  id: string;
+  matchId: number;
+  player: {
+    id: number;
+    name: string;
+    sportsbookName: string;
+    team: string;
+    teamLogo: string | null;
+    position: string | null;
+    photo: string | null;
+  };
+  market: string;
+  line: number | null;
+  pick: string;
+  americanOdds: number;
+  bookmaker: string | null;
+  modelProbability: number;
+  marketProbability: number;
+  edgePct: number;
+  public: boolean;
+  parlayEligible: boolean;
+  projectionStatus: string;
+  riskTier: string;
+  confidence: string;
+  lineupStatus: string;
+  modelHasEvidence: boolean;
+  factors: string[];
+  dataCaveats: string[];
+}
+export interface WcPlayerProjections {
+  generatedAt: string;
+  date: string;
+  lineupsPosted: boolean;
+  projectionCount: number;
+  publicCount: number;
+  parlayEligibleCount: number;
+  byMarket: Record<string, number>;
+  matchedPlayers: number;
+  matches: WcPlayerProjection[];
+}
+/** Pre-lineup player projections (public views), or null. */
+export function loadWorldCupPlayerProjections(): WcPlayerProjections | null {
+  const p = read<WcPlayerProjections>("player-projections/latest.json");
+  return p && Array.isArray(p.matches) && p.matches.length > 0 ? p : null;
+}
+const PLAYER_MARKET_LABEL: Record<string, string> = {
+  player_shots: "Shots",
+  player_shots_on_target: "Shots on target",
+  player_assists: "Assists",
+  player_goal_scorer_anytime: "Anytime goalscorer",
+};
+export function playerMarketLabel(key: string): string {
+  return PLAYER_MARKET_LABEL[key] ?? key;
+}
+
 export interface WcMarketStatus {
   key: string;
   label: string;
