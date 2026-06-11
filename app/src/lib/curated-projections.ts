@@ -34,7 +34,7 @@ import type { ProjectionsLean } from "@/lib/data-projections";
 export interface CuratedPick {
   lean: ProjectionsLean;
   /** Reason tag rendered on the card. Examples: "strong market",
-   *  "needs more tracking", "tight recent form". */
+   *  "model lean", "tight recent form". */
   reasonTag: "strong-market" | "watchlist" | "high-variance" | "calibration-thin";
   /** Friendly label for the reason — shown next to the pick. */
   reasonLabel: string;
