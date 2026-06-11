@@ -12,6 +12,7 @@ import FlagBadge from "@/components/flag-badge";
 
 const MARKET_LABEL: Record<string, string> = {
   moneyline_90: "90-min result",
+  double_chance: "Double chance",
   match_total_goals: "Total goals",
   match_total_corners: "Total corners",
 };
@@ -94,7 +95,7 @@ export default function WcProjectionCard({
 }) {
   if (projections.length === 0) return null;
   // Stable market order: moneyline → goals → corners.
-  const order = ["moneyline_90", "match_total_goals", "match_total_corners"];
+  const order = ["moneyline_90", "double_chance", "match_total_goals", "match_total_corners"];
   const sorted = [...projections].sort((a, b) => order.indexOf(a.market) - order.indexOf(b.market));
   const head = sorted[0];
   const anyLean = sorted.some((p) => p.parlayEligible);

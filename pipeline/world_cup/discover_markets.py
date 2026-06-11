@@ -77,9 +77,47 @@ def _parse_corner_total(event: dict) -> dict | None:
             "bookmaker": best["bookmaker"]}
 
 
+def _dc_kind(name: str, home: str, away: str) -> str | None:
+    """Classify a double_chance outcome name into home_or_draw / away_or_draw / home_or_away.
+    Handles team-name forms ('Mexico or Draw', 'Mexico/Draw') and code forms (1X / X2 / 12)."""
+    n = (name or "").lower()
+    hn, an = (home or "").lower(), (away or "").lower()
+    has_h, has_a, has_d = hn and hn in n, an and an in n, "draw" in n
+    if n in ("1x", "home/draw", "home or draw") or (has_h and has_d):
+        return "home_or_draw"
+    if n in ("x2", "away/draw", "draw/away", "away or draw") or (has_a and has_d):
+        return "away_or_draw"
+    if n in ("12", "home/away", "home or away") or (has_h and has_a):
+        return "home_or_away"
+    return None
+
+
+def _parse_double_chance(event: dict, home: str, away: str) -> dict | None:
+    """Best (most-balanced/complete) double_chance triplet → {home_or_draw, away_or_draw,
+    home_or_away} American odds + raw outcomes for audit."""
+    best, raw = None, []
+    for bk in event.get("bookmakers") or []:
+        for m in bk.get("markets") or []:
+            if m.get("key") != DOUBLE_CHANCE_KEY:
+                continue
+            triplet = {}
+            for o in m.get("outcomes") or []:
+                kind = _dc_kind(o.get("name"), home, away)
+                if kind and o.get("price") is not None:
+                    triplet[kind] = o["price"]
+                    raw.append({"name": o.get("name"), "price": o.get("price"), "book": bk.get("key")})
+            if len(triplet) == 3 and (best is None):
+                best = {"bookmaker": bk.get("key"), **triplet}
+    if best:
+        best["rawOutcomes"] = raw[:6]
+        return best
+    return {"rawOutcomes": raw[:6]} if raw else None
+
+
 def _projection_states() -> dict:
     """Per team-market: whether an active or research(model-ran) projection exists."""
     out = {"moneyline_90": {"active": False, "research": False},
+           "double_chance": {"active": False, "research": False},
            "match_total_goals": {"active": False, "research": False},
            "match_total_corners": {"active": False, "research": False}}
     try:
@@ -110,6 +148,7 @@ def main(argv=None) -> int:
     # --- The Odds API per-event probe (player props + corners + double chance) ---
     player_supported, corner_supported, dc_supported, credits = set(), False, False, {"remaining": None}
     corner_odds_by_pair: dict = {}
+    dc_odds_by_pair: dict = {}
     odds_events = []
     if odds_key:
         evs, meta = _events(odds_key)
@@ -127,6 +166,10 @@ def main(argv=None) -> int:
                         "home": ev.get("home_team"), "away": ev.get("away_team"), **parsed}
             if DOUBLE_CHANCE_KEY in corners:
                 dc_supported = True
+                dc = _parse_double_chance(cdata, ev.get("home_team"), ev.get("away_team"))
+                if dc:
+                    dc_odds_by_pair[pair_key(ev.get("home_team"), ev.get("away_team"))] = {
+                        "home": ev.get("home_team"), "away": ev.get("away_team"), **dc}
         diag["oddsApi"]["todayEvents"] = len(odds_events)
         diag["oddsApi"]["playerMarketsFound"] = sorted(player_supported)
         diag["oddsApi"]["cornerMarketFound"] = corner_supported
@@ -176,7 +219,8 @@ def main(argv=None) -> int:
                         **states["match_total_goals"]}
         elif k == "double_chance":
             # Odds present → public probability view (computed from H/D/A); model can derive it.
-            probe[k] = {"oddsSupported": dc_supported, "oddsReady": dc_supported, "dataReady": True}
+            probe[k] = {"oddsSupported": dc_supported, "oddsReady": dc_supported, "dataReady": True,
+                        **states["double_chance"]}
         elif k == "match_total_corners":
             probe[k] = {"oddsSupported": corner_supported, "oddsReady": corner_supported,
                         "dataReady": corner_features, **states["match_total_corners"]}
@@ -202,6 +246,9 @@ def main(argv=None) -> int:
     # Real corner-total odds (line + O/U) per today match, for the corner projection model.
     (DATA / "markets" / "corner-odds-latest.json").write_text(json.dumps(
         {"generatedAt": now, "date": args.date, "byPair": corner_odds_by_pair}, indent=2) + "\n")
+    # Real double-chance odds per today match (1X / X2 / 12) for the double-chance model.
+    (DATA / "markets" / "double-chance-odds-latest.json").write_text(json.dumps(
+        {"generatedAt": now, "date": args.date, "byPair": dc_odds_by_pair}, indent=2) + "\n")
     print(f"[wc-markets] players={sorted(player_supported)} corners={corner_supported} "
           f"lineups={lineups_ready} cornerFeatures={corner_features} afCalls={af_calls} "
           f"complete={matrix['requestedMarketsComplete']}")
