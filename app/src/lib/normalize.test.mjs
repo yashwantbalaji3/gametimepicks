@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeWcCards, normalizeWcProjections, normalizeWcPlayerProps, normalizeOptimizerSlips, normalizeUfcCards, normalizeMlbLeans, normalizeNbaLeans } from "./normalize.ts";
+import { normalizeWcCards, normalizeWcProjections, normalizeWcPlayerProps, normalizeOptimizerSlips, normalizeUfcCards, normalizeMlbLeans, normalizeNbaLeans, normalizeUfcProjections } from "./normalize.ts";
 
 test("normalizeWcCards maps to the public card contract", () => {
   const out = normalizeWcCards({ date: "2026-06-11", cardCount: 1, byRisk: {}, cards: [
@@ -118,4 +118,25 @@ test("normalizeNbaLeans handles empty + Over side + market label fallback", () =
   const out = normalizeNbaLeans({ leans: [{ playerName: "Y", market: "PRA", lean: "Over", line: 30.5, oddsOver: 110, modelProbability: 0.56, impliedProbability: 0.47, edgePct: 9 }] });
   assert.equal(out[0].marketLabel, "Pts+Reb+Ast");
   assert.equal(out[0].americanOdds, 110);
+});
+
+test("normalizeUfcProjections maps real moneyline odds + model/market/edge", () => {
+  const out = normalizeUfcProjections({ eventName: "UFC Freedom 250", projections: [
+    { fighter: "Ilia Topuria", opponent: "Justin Gaethje", oddsPrice: -160, marketImpliedProbability: 0.615, modelProbability: 0.68, label: "Topuria -160" },
+  ] });
+  assert.equal(out.length, 1);
+  assert.equal(out[0].sport, "ufc");
+  assert.equal(out[0].participantType, "fighter");
+  assert.equal(out[0].marketLabel, "Moneyline");
+  assert.equal(out[0].americanOdds, -160);
+  assert.equal(out[0].modelProbability, 0.68);
+  assert.equal(out[0].marketProbability, 0.615);
+  assert.equal(out[0].edgePct, 6.5);             // (0.68 - 0.615) * 100
+  assert.equal(out[0].parlayEligible, false);
+  assert.equal(out[0].gameLabel, "Ilia Topuria vs Justin Gaethje");
+});
+
+test("normalizeUfcProjections handles empty/null", () => {
+  assert.equal(normalizeUfcProjections(null).length, 0);
+  assert.equal(normalizeUfcProjections({ projections: [] }).length, 0);
 });

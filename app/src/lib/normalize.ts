@@ -331,6 +331,45 @@ export function normalizeOptimizerSlips(
   return out;
 }
 
+// ── UFC V1 moneyline-projection adapter (real moneyline odds → projection views) ──
+type UfcV1Projection = {
+  fighter?: string; opponent?: string; oddsPrice?: number; marketImpliedProbability?: number;
+  modelProbability?: number; label?: string;
+};
+type UfcV1ProjectionsLike = { eventName?: string; generatedAt?: string; projections?: UfcV1Projection[] };
+
+/** UFC V1 moneyline projections → PublicProjection views (real moneyline odds; participantType
+ *  fighter). parlayEligible=false — the suggested cards are the model-only curated subset. */
+export function normalizeUfcProjections(v1: UfcV1ProjectionsLike | null): PublicProjection[] {
+  const projs = v1?.projections ?? [];
+  return projs.map((p, i) => {
+    const model = p.modelProbability ?? null;
+    const market = p.marketImpliedProbability ?? null;
+    return {
+      id: `ufc_proj_${i}`,
+      sport: "ufc",
+      sportLabel: "UFC",
+      date: "",
+      gameLabel: `${p.fighter ?? ""} vs ${p.opponent ?? ""}`.trim(),
+      market: "moneyline",
+      marketLabel: "Moneyline",
+      participantType: "fighter",
+      player: { name: p.fighter ?? "Fighter" },
+      pickLabel: `${p.fighter ?? "Fighter"} ML`,
+      line: null,
+      americanOdds: p.oddsPrice ?? null,
+      modelProbability: model,
+      marketProbability: market,
+      edgePct: model != null && market != null ? Math.round((model - market) * 1000) / 10 : null,
+      confidence: "Low",
+      public: true,
+      parlayEligible: false,
+      bankBuilderEligible: false,
+      status: "public_projection",
+    };
+  });
+}
+
 // ── UFC adapter (V1 moneyline, model-only — no market odds, so no stake payout) ──
 type UfcLeg = { fighter?: string; modelProbability?: number };
 type UfcCard = { riskLabel?: string; legs?: UfcLeg[]; modelCombinedProbability?: number; rationale?: string };
