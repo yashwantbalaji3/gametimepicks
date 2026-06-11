@@ -52,3 +52,22 @@ Until a key exists, the page stays **Market-Outlook-only** and everything stats-
 4. Bounded discovery → readiness flips per real capabilities → build the team-level projection
    engine (`build_features` → Poisson 3-way) → parlays → Bank Builder Step-3 (only if a Low card
    qualifies near +174 for $728.76 → ~$2,000).
+
+---
+
+## Empirical finding (2026-06-11, key added + adapter run)
+The API-Football adapter was implemented and ran a bounded discovery with the real
+`API_FOOTBALL_KEY`. Result:
+- **League id 1 IS the World Cup** (API confirms seasons 2010/2014/2018/2022/**2026**) — our
+  query (`league=1&season=2026`) is correct.
+- **The account is on the Free plan**, which returned the error verbatim:
+  > "Free plans do not have access to this season, try from 2022 to 2024."
+- So **fixtures + team/player stats for season 2026 are plan-gated** → 0 rows → readiness stays
+  fail-closed (`projectionsAllowed=false`, `parlayAllowed=false`), now with the accurate reason
+  `providerPlanBlock` recorded.
+
+**Action to unlock:** upgrade the API-Football account to a **paid tier that includes the 2026
+season** (their Pro/Mega plans do). No code change is needed — the adapter, gates, workflow,
+and UI are ready; re-running `world-cup-stats-discovery.yml -f provider=api_football` after the
+upgrade will flip the gates as the real data arrives (team-level projections first, once a few
+matches are finished + a usable sample exists; player props once lineups post near kickoff).

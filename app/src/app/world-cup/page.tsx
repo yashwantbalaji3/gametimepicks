@@ -68,13 +68,21 @@ export default function WorldCupLandingPage() {
   const readiness = loadWorldCupProjectionReadiness();
   const stats = loadWorldCupStatsReadiness();
   const oddsReady = !!readiness?.oddsReady && (outlook?.readyCount ?? 0) > 0;
-  // Honest data-status gates (fail-closed). Odds/outlook are live; everything
-  // stats-dependent stays off until a real soccer stats provider is connected.
+  // Honest data-status gates (fail-closed). Odds/outlook are live; the stats provider
+  // (API-Football) is wired but its free plan doesn't cover the 2026 season yet, so
+  // everything stats-dependent stays off until the plan is upgraded.
+  const statsConnected = !!stats?.providerConfigured;
+  const planBlock = stats?.providerPlanBlock;
+  const statsNote = planBlock
+    ? "API-Football connected · 2026 needs a paid plan"
+    : statsConnected
+      ? "API-Football connected · awaiting coverage"
+      : "no provider connected";
   const dataStatus: Array<{ label: string; on: boolean; note: string }> = [
     { label: "Odds / Market outlook", on: oddsReady, note: "The Odds API · 3-way + totals" },
-    { label: "Team stats", on: !!stats?.teamStatsReady, note: "no provider connected" },
-    { label: "xG / xGA", on: !!stats?.xgReady, note: "no provider connected" },
-    { label: "Lineups / minutes", on: !!stats?.lineupsReady, note: "no provider connected" },
+    { label: "Team stats", on: !!stats?.teamStatsReady, note: statsNote },
+    { label: "xG / xGA", on: !!stats?.xgReady, note: "API-Football has no xG" },
+    { label: "Lineups / minutes", on: !!stats?.lineupsReady, note: statsNote },
     { label: "Model projections", on: !!stats?.projectionsAllowed, note: "needs team stats + odds" },
     { label: "Suggested parlays", on: !!stats?.parlayAllowed, note: "needs projections" },
   ];
