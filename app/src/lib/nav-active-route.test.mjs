@@ -26,7 +26,7 @@ test("MOBILE_NAV_ITEMS labels are the product spine (Today/Picks/Build/Sports/Ba
   assert.equal(byHref["/today"], "Today");
   assert.equal(byHref["/picks"], "Picks");
   assert.equal(byHref["/build"], "Build");
-  assert.equal(byHref["/events"], "Sports");
+  assert.equal(byHref["/sports"], "Sports");
   assert.equal(byHref["/bank-builder"], "Bank");
 });
 
@@ -69,6 +69,7 @@ test("every sport hub/board maps to sports (uniform tabbed sports)", () => {
 });
 
 test("schedule-only + directory surfaces map to sports", () => {
+  assert.equal(resolveMobileNavBucket("/sports"), "sports");
   assert.equal(resolveMobileNavBucket("/events"), "sports");
   assert.equal(resolveMobileNavBucket("/events/"), "sports");
   assert.equal(resolveMobileNavBucket("/nhl"), "sports");

@@ -44,7 +44,7 @@ export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "home", href: "/today", label: "Today" },
   { bucket: "picks", href: "/picks", label: "Picks" },
   { bucket: "lab", href: "/build", label: "Build" },
-  { bucket: "sports", href: "/events", label: "Sports" },
+  { bucket: "sports", href: "/sports", label: "Sports" },
   { bucket: "bank", href: "/bank-builder", label: "Bank" },
 ] as const;
 
@@ -92,6 +92,7 @@ export function resolveMobileNavBucket(
   // Every sport hub/board + the Sports directory + schedule-only leagues
   // all resolve to the Sports bucket (uniform now that all sports are tabbed).
   if (
+    p === "/sports" || p.startsWith("/sports/") ||
     p === "/events" || p.startsWith("/events/") ||
     p === "/world-cup" || p.startsWith("/world-cup/") ||
     p === "/mlb" || p.startsWith("/mlb/") ||
