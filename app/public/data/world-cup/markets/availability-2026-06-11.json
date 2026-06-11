@@ -1,0 +1,120 @@
+{
+  "generatedAt": "2026-06-11T14:35:39+00:00",
+  "date": "2026-06-11",
+  "providers": {
+    "oddsApi": {
+      "connected": true,
+      "sportKey": "soccer_fifa_world_cup",
+      "creditsRemaining": "19269"
+    },
+    "apiFootball": {
+      "connected": true,
+      "plan": "pro",
+      "calls": 4
+    }
+  },
+  "diagnostics": {
+    "oddsApi": {
+      "connected": true,
+      "todayEvents": 2,
+      "playerMarketsFound": [
+        "player_assists",
+        "player_goal_scorer_anytime",
+        "player_shots",
+        "player_shots_on_target"
+      ],
+      "cornerMarketFound": true
+    },
+    "apiFootball": {
+      "connected": true,
+      "calls": 4
+    }
+  },
+  "markets": {
+    "moneyline_90": {
+      "key": "moneyline_90",
+      "label": "Moneyline (90-min H/D/A)",
+      "kind": "team",
+      "oddsProvider": "odds_api",
+      "oddsReady": true,
+      "dataReady": true,
+      "lineupsReady": null,
+      "projectionReady": true,
+      "status": "research_only",
+      "reason": "model ran on real data but the edge is below the publish threshold"
+    },
+    "match_total_goals": {
+      "key": "match_total_goals",
+      "label": "Total goals",
+      "kind": "team",
+      "oddsProvider": "odds_api",
+      "oddsReady": true,
+      "dataReady": true,
+      "lineupsReady": null,
+      "projectionReady": true,
+      "status": "research_only",
+      "reason": "model ran on real data but the edge is below the publish threshold"
+    },
+    "match_total_corners": {
+      "key": "match_total_corners",
+      "label": "Total corners",
+      "kind": "team",
+      "oddsProvider": "odds_api",
+      "oddsReady": true,
+      "dataReady": true,
+      "lineupsReady": null,
+      "projectionReady": true,
+      "status": "waiting_on_edge_threshold",
+      "reason": "odds + data ready; awaiting an edge that clears the publish gate"
+    },
+    "player_total_shots": {
+      "key": "player_total_shots",
+      "label": "Player total shots",
+      "kind": "player",
+      "oddsProvider": "odds_api",
+      "oddsReady": true,
+      "dataReady": true,
+      "lineupsReady": false,
+      "projectionReady": false,
+      "status": "waiting_on_lineups",
+      "reason": "player prop odds present but lineups/minutes not posted yet"
+    },
+    "player_shots_on_target": {
+      "key": "player_shots_on_target",
+      "label": "Player shots on target",
+      "kind": "player",
+      "oddsProvider": "odds_api",
+      "oddsReady": true,
+      "dataReady": true,
+      "lineupsReady": false,
+      "projectionReady": false,
+      "status": "waiting_on_lineups",
+      "reason": "player prop odds present but lineups/minutes not posted yet"
+    },
+    "player_assists": {
+      "key": "player_assists",
+      "label": "Player assists",
+      "kind": "player",
+      "oddsProvider": "odds_api",
+      "oddsReady": true,
+      "dataReady": true,
+      "lineupsReady": false,
+      "projectionReady": false,
+      "status": "waiting_on_lineups",
+      "reason": "player prop odds present but lineups/minutes not posted yet"
+    },
+    "anytime_goalscorer": {
+      "key": "anytime_goalscorer",
+      "label": "Anytime goalscorer",
+      "kind": "player",
+      "oddsProvider": "odds_api",
+      "oddsReady": true,
+      "dataReady": true,
+      "lineupsReady": false,
+      "projectionReady": false,
+      "status": "waiting_on_lineups",
+      "reason": "player prop odds present but lineups/minutes not posted yet"
+    }
+  },
+  "requestedMarketsComplete": false
+}
