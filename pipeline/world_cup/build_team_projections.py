@@ -14,7 +14,10 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from .providers.api_football import ApiFootballProvider, WC_LEAGUE_ID, WC_SEASON
-from .projection_model import project_match, TeamForm
+from .projection_model import (
+    project_match, TeamForm, classify_projection, UNDERDOG_MARKET_FLOOR,
+)
+from .build_features import is_underdog_side
 from .team_aliases import norm, pair_key
 
 REPO = Path(__file__).resolve().parents[2]
@@ -103,15 +106,26 @@ def main(argv=None) -> int:
         )
         if not proj.get("moneyline"):
             continue  # no independent evidence → market outlook only, not a projection
+        opp_adj = bool(proj.get("opponentAdjusted"))
+        sample_min = proj.get("sampleMin", 0)
         ml = proj["moneyline"]
         sides = [
             ("home", g["home"], ml["home"], market_hda[0], res.get("homeOdds")),
             ("draw", "Draw", ml["draw"], market_hda[1], res.get("drawOdds")),
             ("away", g["away"], ml["away"], market_hda[2], res.get("awayOdds")),
         ]
-        # Pick = the side with the best positive model edge over the market.
-        best = max(sides, key=lambda s: s[2] - s[3])
-        pick_side, pick_name, mp, mkt, odds = best
+        # ML headline pick = best model edge AMONG sides that clear market sanity (>= floor).
+        # This structurally stops an extreme underdog (e.g. South Africa 11%) from ever being the
+        # headline pick. If none clears sanity, fall back to best edge overall (it will classify
+        # gated_market_sanity and stay non-public).
+        sane = [s for s in sides if s[3] is not None and s[3] >= UNDERDOG_MARKET_FLOOR]
+        pick_pool = sane or sides
+        pick_side, pick_name, mp, mkt, odds = max(pick_pool, key=lambda s: s[2] - s[3])
+        ml_status, ml_public, ml_reason = classify_projection(
+            market_prob=mkt, model_prob=mp, market_type="moneyline_90",
+            sample_min=sample_min, opponent_adjusted=opp_adj,
+            is_underdog=is_underdog_side(odds, mkt),
+        )
         common = {
             "sport": "world_cup", "date": args.date,
             "matchId": (fx.get("fixture") or {}).get("id"),
@@ -128,21 +142,28 @@ def main(argv=None) -> int:
             "americanOdds": odds, "bookmaker": res.get("bookmaker"),
             "modelProbability": round(mp, 4), "marketProbability": round(mkt, 4),
             "edgePct": round((mp - mkt) * 100, 2),
-            "confidence": proj.get("confidence"), "riskTier": _risk_tier(int(odds)) if odds else "Medium",
+            "confidence": proj.get("confidence"),
+            "projectionStatus": ml_status, "public": ml_public, "statusReason": ml_reason,
+            "riskTier": _risk_tier(int(odds)) if odds else "Medium",
             "factors": [
                 f"Recent form: {g['home']} {hf.get('goalsFor90')}–{hf.get('goalsAgainst90')} GF/GA per match (last {hf.get('played')})",
                 f"Recent form: {g['away']} {af.get('goalsFor90')}–{af.get('goalsAgainst90')} GF/GA per match (last {af.get('played')})",
                 f"Model expected goals {proj.get('expGoals',{}).get('home')}–{proj.get('expGoals',{}).get('away')}",
-                f"Market-implied {pick_name} {round(mkt*100)}%",
+                f"Market-implied {pick_name} {round(mkt*100)}% · model weight {proj.get('modelWeight')}",
             ],
             "notes": ["90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
-                      "Early tournament — model blends recent national-team form with the market; confidence capped Low"],
+                      "Market-anchored model; recent form is opponent-unadjusted so its weight is capped low",
+                      ml_reason],
         })
         # Match total projection (independent over/under).
         if proj.get("total"):
             t = proj["total"]
             over_edge = t["over"] - (totals.get("overPct") or 0)
             tside, tprob, tmkt, todds = ("over", t["over"], totals.get("overPct"), totals.get("overOdds")) if over_edge >= 0 else ("under", t["under"], totals.get("underPct"), totals.get("underOdds"))
+            t_status, t_public, t_reason = classify_projection(
+                market_prob=tmkt or 0, model_prob=tprob, market_type="match_total_goals",
+                sample_min=sample_min, opponent_adjusted=opp_adj, is_underdog=False,
+            )
             projections.append({
                 **common,
                 "id": f"wc_{args.date}_{norm(g['home'])}_{norm(g['away'])}_total_{tside}",
@@ -150,17 +171,28 @@ def main(argv=None) -> int:
                 "line": t["line"], "americanOdds": todds, "bookmaker": res.get("bookmaker"),
                 "modelProbability": round(tprob, 4), "marketProbability": round(tmkt or 0, 4),
                 "edgePct": round((tprob - (tmkt or 0)) * 100, 2),
-                "confidence": "Low", "riskTier": _risk_tier(int(todds)) if todds else "Low",
+                "confidence": "Low",
+                "projectionStatus": t_status, "public": t_public, "statusReason": t_reason,
+                "riskTier": _risk_tier(int(todds)) if todds else "Low",
                 "factors": [f"Model expected total {round((proj['expGoals']['home']+proj['expGoals']['away']),2)} goals",
-                            f"Market total line {t['line']} (Over {round((totals.get('overPct') or 0)*100)}%)"],
-                "notes": ["90-minute regulation goals only"],
+                            f"Market total line {t['line']} (Over {round((totals.get('overPct') or 0)*100)}%) · model weight {proj.get('modelWeight')}"],
+                "notes": ["90-minute regulation goals only", t_reason],
             })
 
+    active = [p for p in projections if p.get("projectionStatus") == "active" and p.get("public")]
+    status_counts = {}
+    for p in projections:
+        status_counts[p["projectionStatus"]] = status_counts.get(p["projectionStatus"], 0) + 1
     payload = {
         "generatedAt": now, "sport": "world_cup", "date": args.date,
         "provider": "api_football", "oddsProvider": "odds_api",
         "disclaimer": "GameTime Picks model projections — 90-minute regulation only. Educational/paper, not betting advice.",
+        "methodology": "Market-anchored Poisson (market prior >= ~0.89 on opening day; recent-form "
+                       "weight capped, reduced when opponent-unadjusted). Market-sanity + sample + "
+                       "feature + edge gates; only `active` projections are public.",
         "matchCount": len(today_games), "projectionCount": len(projections),
+        "activeCount": len(active), "public": len(active) > 0,
+        "methodologyReviewRequired": True, "statusCounts": status_counts,
         "matches": projections,
     }
     (DATA / "projections").mkdir(parents=True, exist_ok=True)
@@ -171,11 +203,21 @@ def main(argv=None) -> int:
     rd = json.loads((DATA / "stats" / "readiness-latest.json").read_text())
     rd["teamStatsReady"] = teams_with_sample > 0
     rd["teamProjectionsReady"] = len(projections) > 0
-    rd["projectionsAllowed"] = len(projections) > 0
+    rd["projectionsAllowed"] = len(projections) > 0  # artifacts exist (incl. research/gated)
+    # PUBLIC gate (methodology upgrade): only `active` projections may show publicly. On opening
+    # day, with opponent-unadjusted thin form, picks classify research_only/gated → 0 active →
+    # projectionsPublic=false → public sees Market Outlook + "under review". Honest, not noisy.
+    rd["projectionsPublic"] = len(active) > 0
+    rd["methodologyReviewRequired"] = True
     rd["fixturesReady"] = len(normalized_fixtures) > 0
     rd["teamLogosReady"] = any(f["homeTeam"].get("logo") for f in normalized_fixtures)
-    rd["evidence"] = {**rd.get("evidence", {}), "teamFormTeams": teams_with_sample, "projections": len(projections)}
-    rd["projectionReasons"] = [] if projections else ["no mappable fixture+odds with recent-form sample yet"]
+    rd["evidence"] = {**rd.get("evidence", {}), "teamFormTeams": teams_with_sample,
+                      "projections": len(projections), "activeProjections": len(active),
+                      "projectionStatusCounts": status_counts}
+    rd["projectionReasons"] = [] if active else (
+        ["projections produced but none cleared the upgraded market-sanity/sample/edge gates "
+         "(opponent-unadjusted thin form) → held under methodology review"] if projections
+        else ["no mappable fixture+odds with recent-form sample yet"])
     (DATA / "stats" / "readiness-latest.json").write_text(json.dumps(rd, indent=2) + "\n")
     (DATA / "stats" / "normalized-fixtures-latest.json").write_text(json.dumps({"generatedAt": now, "date": args.date, "fixtures": normalized_fixtures}, indent=2) + "\n")
     print(f"[wc-proj] calls={p.calls_made} games={len(today_games)} projections={len(projections)} teamsWithForm={teams_with_sample}")
