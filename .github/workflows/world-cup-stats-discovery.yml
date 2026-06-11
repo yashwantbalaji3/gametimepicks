@@ -1,0 +1,38 @@
+name: world-cup-stats-discovery
+on:
+  workflow_dispatch:
+    inputs:
+      date: { description: "YYYY-MM-DD", type: string, required: false, default: "2026-06-11" }
+      provider: { description: "provider key (sample until a real adapter is added)", type: string, required: false, default: "sample" }
+      dry_run: { description: "dry run", type: boolean, required: false, default: true }
+permissions:
+  contents: write
+concurrency:
+  group: world-cup-stats-discovery
+  cancel-in-progress: false
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # A real provider key is injected here once an adapter exists, e.g.
+      #   API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      WC_STATS_PROVIDER: ${{ github.event.inputs.provider || 'sample' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install requests
+      - name: Compute readiness (fails closed without a provider key)
+        run: |
+          D="${{ github.event.inputs.date || '2026-06-11' }}"
+          python -m pipeline.world_cup.readiness --date "$D" --provider "$WC_STATS_PROVIDER"
+      - name: Show
+        run: cat app/public/data/world-cup/stats/readiness-latest.json
+      - name: Commit readiness
+        run: |
+          git add app/public/data/world-cup/stats/readiness-latest.json app/public/data/world-cup/stats/*.json 2>/dev/null || true
+          if git diff --staged --quiet; then echo "no changes"; exit 0; fi
+          git config user.name "GametimePicks Bot"; git config user.email "noreply@github.com"
+          git commit -m "auto: World Cup stats readiness [skip ci]"
+          for a in 1 2 3 4 5; do git push origin HEAD:main && exit 0; git fetch origin main && git rebase origin/main || { git rebase --abort||true; exit 1; }; done

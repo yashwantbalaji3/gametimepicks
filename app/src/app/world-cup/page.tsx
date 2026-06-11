@@ -28,6 +28,7 @@ import { currentEtDate } from "@/lib/freshness";
 import {
   loadWorldCupMarketOutlook,
   loadWorldCupProjectionReadiness,
+  loadWorldCupStatsReadiness,
   outlookForMatch,
 } from "@/lib/world-cup/market-outlook";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
@@ -65,7 +66,18 @@ export default function WorldCupLandingPage() {
   // NOT a model pick. Fail-closed: null when no ready odds.
   const outlook = loadWorldCupMarketOutlook();
   const readiness = loadWorldCupProjectionReadiness();
+  const stats = loadWorldCupStatsReadiness();
   const oddsReady = !!readiness?.oddsReady && (outlook?.readyCount ?? 0) > 0;
+  // Honest data-status gates (fail-closed). Odds/outlook are live; everything
+  // stats-dependent stays off until a real soccer stats provider is connected.
+  const dataStatus: Array<{ label: string; on: boolean; note: string }> = [
+    { label: "Odds / Market outlook", on: oddsReady, note: "The Odds API · 3-way + totals" },
+    { label: "Team stats", on: !!stats?.teamStatsReady, note: "no provider connected" },
+    { label: "xG / xGA", on: !!stats?.xgReady, note: "no provider connected" },
+    { label: "Lineups / minutes", on: !!stats?.lineupsReady, note: "no provider connected" },
+    { label: "Model projections", on: !!stats?.projectionsAllowed, note: "needs team stats + odds" },
+    { label: "Suggested parlays", on: !!stats?.parlayAllowed, note: "needs projections" },
+  ];
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -171,6 +183,39 @@ export default function WorldCupLandingPage() {
           </div>
         </section>
       )}
+
+      {/* ─── Data status — honest, fail-closed gates ────────────────── */}
+      <section className="mt-8" aria-label="Data status">
+        <SectionHeader
+          eyebrow="Data status"
+          title="What's live vs gated"
+          sub="We only show what real data supports. Market outlook is live from sportsbook prices; model projections + parlays stay off until a real soccer stats provider is connected — no fabricated prices, lineups, or edges."
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {dataStatus.map((d) => (
+            <div
+              key={d.label}
+              className="flex items-center justify-between gap-2 rounded-[6px] px-3 py-2.5"
+              style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
+            >
+              <div className="flex flex-col min-w-0">
+                <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{d.label}</span>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{d.note}</span>
+              </div>
+              <span
+                className="font-mono uppercase tracking-[0.1em] shrink-0 px-2 py-0.5 rounded-[4px]"
+                style={{
+                  color: d.on ? "var(--vault-success)" : "var(--vault-text-faint)",
+                  border: `1px solid ${d.on ? "var(--vault-success)" : "var(--vault-rule)"}`,
+                  fontSize: 9.5,
+                }}
+              >
+                {d.on ? "Live" : "Gated"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* ─── Qualified teams · flag rail ─────────────────────────────── */}
       <section className="mt-10" aria-label="Qualified nations">
