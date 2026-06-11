@@ -60,9 +60,16 @@ import {
   BANK_BUILDER_GOAL,
   BANK_BUILDER_LADDER,
   formatLadderUsd,
+  formatLadderUsdPrecise,
   resolveLadderStep,
 } from "@/lib/bank-builder-ladder";
-import { loadBankBuilderSummary, loadBankBuilderLedger, loadFeaturedBuilderCard } from "@/lib/data-bank-builder";
+import {
+  loadBankBuilderSummary,
+  loadBankBuilderLedger,
+  loadFeaturedBuilderCard,
+  loadPublicBankBuilderSummary,
+  loadPublicBankBuilderLedger,
+} from "@/lib/data-bank-builder";
 
 const META_TITLE = "Bank Builder · GameTime Picks";
 const META_DESCRIPTION =
@@ -121,7 +128,15 @@ export default function BankBuilderPage() {
   const bbSummary = loadBankBuilderSummary();
   const bbLedger = loadBankBuilderLedger();
   const lastSettled = bbLedger?.entries?.[bbLedger.entries.length - 1] ?? null;
-  const currentBankroll = bbSummary?.currentBankrollUnits ?? BANK_BUILDER_BASE;
+
+  // PUBLIC $100→$10,000 ladder (2026-06-11 migration) is the source of truth for
+  // the public hero/ladder. The canonical tracked ledger (bbSummary / bbLedger) is
+  // preserved untouched and surfaced below as audit/history. Falls back to the
+  // canonical summary pre-migration.
+  const pubSummary = loadPublicBankBuilderSummary();
+  const pubLedger = loadPublicBankBuilderLedger();
+  const currentBankroll =
+    pubSummary?.currentBankrollUnits ?? bbSummary?.currentBankrollUnits ?? BANK_BUILDER_BASE;
   const activeStep = resolveLadderStep(currentBankroll) ?? BANK_BUILDER_LADDER[0];
 
   // PR `feature/sport-specific-suggested` (2026-06-02): the Builder Slip is
@@ -184,7 +199,7 @@ export default function BankBuilderPage() {
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
         <BoardStatTile
           label="Paper Bankroll"
-          value={formatLadderUsd(currentBankroll)}
+          value={formatLadderUsdPrecise(currentBankroll)}
           sub="current run"
           accent="var(--risk-low)"
         />
@@ -195,22 +210,78 @@ export default function BankBuilderPage() {
           accent="var(--sport-mlb)"
         />
         <BoardStatTile
-          label="Last Settled Slip"
-          value={lastSettled ? lastSettled.result.toUpperCase() : "—"}
+          label="Last Builder Slip"
+          value={pubSummary?.lastSettledLabel ?? (lastSettled ? lastSettled.result.toUpperCase() : "—")}
           sub={
-            lastSettled
-              ? `${fmtBuilderDate(lastSettled.date)} · ${lastSettled.result === "win" ? "+" : ""}${formatLadderUsd(lastSettled.bankrollAfter - lastSettled.bankrollBefore)} paper profit`
+            pubSummary
+              ? `${fmtBuilderDate(pubSummary.lastSettledDate ?? "")} · settled from official results`
               : "tracking begins on first settled slip"
           }
           accent="var(--vault-gold-bright)"
         />
         <BoardStatTile
-          label="Next Slip"
-          value={bbSummary?.nextPick ? "Ready" : "Pending"}
-          sub={bbSummary?.nextPick ? "today's qualified slip" : "awaiting today's qualified slate"}
+          label="Next Target"
+          value={formatLadderUsd(activeStep.goal)}
+          sub={`from ${formatLadderUsd(currentBankroll)} · Step ${activeStep.step} of 5`}
           accent="var(--risk-longshot)"
         />
       </div>
+
+      {/* ---- Current PUBLIC run ($100→$10,000 ladder) --------------- */}
+      {pubLedger && (
+        <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
+          <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-200">
+              Current public run · $100 → $10,000 paper ladder
+            </h2>
+            <span className="text-[11px] text-zinc-500">Educational paper tracking · not betting advice</span>
+          </div>
+          <ol className="mt-2 flex flex-col gap-2">
+            {pubLedger.entries.map((e) => (
+              <li
+                key={e.step}
+                className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] px-4 py-2.5 text-[12.5px]"
+              >
+                <span className="font-semibold text-zinc-200">Step {e.step}</span>
+                <span className="text-zinc-500">{fmtBuilderDate(e.date)} · {e.sport}{e.event ? ` · ${e.event}` : ""}</span>
+                <span className="rounded px-1.5 py-0.5 text-[11px] font-bold tracking-[0.08em] bg-emerald-500/15 text-emerald-300">
+                  {e.result === "win" ? (e.sport === "NBA" ? "NBA FINALS HIT" : "WIN") : e.result.toUpperCase()}
+                </span>
+                <span className="tabular-nums text-zinc-300">
+                  {formatLadderUsdPrecise(e.bankrollBefore)} → {formatLadderUsdPrecise(e.bankrollAfter)}
+                </span>
+                <span className="ml-auto truncate text-[11.5px] text-zinc-500">
+                  {e.legs.map((l) => `${l.player} ${l.side} ${l.line ?? ""} ${prettyMarket(l.market)}`).join(" + ")}
+                </span>
+              </li>
+            ))}
+            {/* Active step */}
+            <li className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-amber-400/30 bg-amber-400/[0.05] px-4 py-2.5 text-[12.5px]">
+              <span className="font-semibold text-zinc-200">Step {activeStep.step}</span>
+              <span className="rounded px-1.5 py-0.5 text-[11px] font-bold tracking-[0.08em] bg-amber-400/15 text-amber-300">ACTIVE</span>
+              <span className="tabular-nums text-zinc-300">
+                {formatLadderUsdPrecise(currentBankroll)} → target {formatLadderUsd(activeStep.goal)}
+              </span>
+              <span className="ml-auto text-[11.5px] text-zinc-500">
+                Next Builder Slip stakes {formatLadderUsdPrecise(pubLedger.nextStakeUnits)} ·{" "}
+                {pubLedger.nextPickStatus === "pending" ? "pending today's slate" : pubLedger.nextPickStatus}
+              </span>
+            </li>
+          </ol>
+        </section>
+      )}
+
+      {/* ---- Original tracked ledger — PRESERVED for audit ----------- */}
+      {/* Per the 2026-06-11 policy migration, the public run above recognizes the
+          officially-confirmed NBA Finals featured hit as Step 2. The original
+          canonical tracked ledger (which settles on the official MLB Builder pick)
+          is preserved unchanged here — the MLB June 10 slip also won. This is a
+          forward policy migration, not an edited settlement result. */}
+      <details className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/30 px-4 py-3">
+        <summary className="cursor-pointer text-[12.5px] text-zinc-400 hover:text-zinc-300">
+          Original tracked ledger (audit) — settles on the official MLB Builder pick; preserved unchanged
+        </summary>
+        <div className="mt-3">
 
       {/* ---- Last Settled Builder Slip (polished slip card) ---------- */}
       {lastSettled && lastSettled.result === "win" && (
@@ -284,6 +355,8 @@ export default function BankBuilderPage() {
           </details>
         </section>
       )}
+        </div>
+      </details>
 
       <DisclaimerBanner placement="top" />
 

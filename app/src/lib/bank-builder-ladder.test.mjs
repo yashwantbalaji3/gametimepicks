@@ -23,7 +23,7 @@ import {
 
 test("ladder constants match the design doc", () => {
   assert.equal(BANK_BUILDER_BASE, 100);
-  assert.equal(BANK_BUILDER_GOAL, 3000);
+  assert.equal(BANK_BUILDER_GOAL, 10000);
   assert.equal(BANK_BUILDER_STEP_COUNT, 5);
   assert.equal(BANK_BUILDER_LADDER.length, 5);
 });
@@ -33,10 +33,10 @@ test("ladder rungs carry the exact design-doc dollar amounts", () => {
     BANK_BUILDER_LADDER.map((s) => [s.step, s.start, s.goal]),
     [
       [1, 100, 200],
-      [2, 200, 400],
-      [3, 400, 800],
-      [4, 800, 1600],
-      [5, 1600, 3000],
+      [2, 200, 700],
+      [3, 700, 2000],
+      [4, 2000, 4500],
+      [5, 4500, 10000],
     ],
   );
 });
@@ -50,10 +50,10 @@ test("each multiplier equals goal / start", () => {
   }
 });
 
-test("multipliers are 2.0 for steps 1-4 and 1.875 for step 5", () => {
+test("multipliers match the $100→$10,000 ladder (goal/start per rung)", () => {
   assert.deepEqual(
     BANK_BUILDER_LADDER.map((s) => s.multiplier),
-    [2, 2, 2, 2, 1.875],
+    [200 / 100, 700 / 200, 2000 / 700, 4500 / 2000, 10000 / 4500],
   );
 });
 
@@ -83,12 +83,14 @@ test("resolveLadderStep maps a bankroll to its rung window [start, goal)", () =>
   assert.equal(resolveLadderStep(150)?.step, 1);
   assert.equal(resolveLadderStep(199.99)?.step, 1);
   assert.equal(resolveLadderStep(200)?.step, 2);
-  assert.equal(resolveLadderStep(399)?.step, 2);
-  assert.equal(resolveLadderStep(400)?.step, 3);
-  assert.equal(resolveLadderStep(800)?.step, 4);
-  assert.equal(resolveLadderStep(1599)?.step, 4);
-  assert.equal(resolveLadderStep(1600)?.step, 5);
-  assert.equal(resolveLadderStep(2999)?.step, 5);
+  assert.equal(resolveLadderStep(699)?.step, 2);
+  assert.equal(resolveLadderStep(700)?.step, 3);
+  assert.equal(resolveLadderStep(728.76)?.step, 3); // current public bankroll
+  assert.equal(resolveLadderStep(1999)?.step, 3);
+  assert.equal(resolveLadderStep(2000)?.step, 4);
+  assert.equal(resolveLadderStep(4499)?.step, 4);
+  assert.equal(resolveLadderStep(4500)?.step, 5);
+  assert.equal(resolveLadderStep(9999)?.step, 5);
 });
 
 test("resolveLadderStep clamps sub-base bankrolls to Step 1", () => {
@@ -98,8 +100,8 @@ test("resolveLadderStep clamps sub-base bankrolls to Step 1", () => {
 });
 
 test("resolveLadderStep returns null once the crown is reached", () => {
-  assert.equal(resolveLadderStep(3000), null);
-  assert.equal(resolveLadderStep(5000), null);
+  assert.equal(resolveLadderStep(10000), null);
+  assert.equal(resolveLadderStep(15000), null);
 });
 
 test("resolveLadderStep falls back to Step 1 for non-finite input", () => {
@@ -114,13 +116,15 @@ test("resolveLadderStep falls back to Step 1 for non-finite input", () => {
 test("ladderTargetAmerican converts the decimal multiplier to American", () => {
   // 2.000× decimal == +100 American (the breakeven even-money price).
   assert.equal(ladderTargetAmerican(BANK_BUILDER_LADDER[0]), 100);
-  // 1.875× decimal == -114 American (favorite-side breakeven).
-  assert.equal(ladderTargetAmerican(BANK_BUILDER_LADDER[4]), -114);
+  // 3.500× decimal (step 2) == +250 American.
+  assert.equal(ladderTargetAmerican(BANK_BUILDER_LADDER[1]), 250);
+  // 10000/4500 ≈ 2.2222× decimal (step 5) == +122 American.
+  assert.equal(ladderTargetAmerican(BANK_BUILDER_LADDER[4]), 122);
 });
 
 test("ladderMultiplierLabel renders three decimals", () => {
   assert.equal(ladderMultiplierLabel(BANK_BUILDER_LADDER[0]), "2.000×");
-  assert.equal(ladderMultiplierLabel(BANK_BUILDER_LADDER[4]), "1.875×");
+  assert.equal(ladderMultiplierLabel(BANK_BUILDER_LADDER[4]), "2.222×");
 });
 
 test("formatLadderUsd renders whole dollars with thousands separators", () => {
