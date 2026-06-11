@@ -1,0 +1,83 @@
+{
+  "_disclaimer": "Public paper bankroll — educational tracking only, not betting advice, not a guarantee.",
+  "ladder": "100-to-10000",
+  "base": 100,
+  "goal": 10000,
+  "migratedAt": "2026-06-11T05:10:00Z",
+  "migrationDoc": "docs/operations/bank-builder-100-to-10000-policy-migration-2026-06-11.md",
+  "entries": [
+    {
+      "step": 1,
+      "date": "2026-06-09",
+      "sport": "MLB",
+      "result": "win",
+      "bankrollBefore": 100,
+      "bankrollAfter": 211.85,
+      "stakeUnits": 100,
+      "payoutUnits": 211.85,
+      "profitUnits": 111.85,
+      "combinedAmerican": 112,
+      "settlementSource": "mlb_stats_api",
+      "officialResultConfirmed": true,
+      "legs": [
+        {
+          "player": "Shohei Ohtani",
+          "market": "batter_hits",
+          "side": "Over",
+          "line": 0.5,
+          "result": "win",
+          "finalStat": 1
+        },
+        {
+          "player": "Corey Seager",
+          "market": "batter_hits",
+          "side": "Under",
+          "line": 1.5,
+          "result": "win",
+          "finalStat": 1
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "date": "2026-06-10",
+      "sport": "NBA",
+      "event": "NBA Finals Game 4",
+      "result": "win",
+      "bankrollBefore": 211.85,
+      "bankrollAfter": 728.76,
+      "stakeUnits": 211.85,
+      "payoutUnits": 728.76,
+      "profitUnits": 516.91,
+      "combinedAmerican": 244,
+      "settlementSource": "espn_summary_boxscore",
+      "officialResultConfirmed": true,
+      "sameGame": true,
+      "correlationNote": "Single-game card — every leg is from tonight's game, so the legs are more connected than a multi-game parlay.",
+      "legs": [
+        {
+          "player": "Stephon Castle",
+          "market": "REB",
+          "side": "Over",
+          "line": 4.5,
+          "oddsForSide": -130,
+          "result": "win",
+          "finalStat": 5
+        },
+        {
+          "player": "OG Anunoby",
+          "market": "PRA",
+          "side": "Over",
+          "line": 23.5,
+          "oddsForSide": -106,
+          "result": "win",
+          "finalStat": 38
+        }
+      ]
+    }
+  ],
+  "nextPickStatus": "pending",
+  "nextEligibleDate": "2026-06-11",
+  "nextStakeUnits": 728.76,
+  "nextTargetUnits": 2000
+}

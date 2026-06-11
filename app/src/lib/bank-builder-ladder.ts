@@ -39,19 +39,20 @@ export interface LadderStep {
 export const BANK_BUILDER_BASE = 100;
 
 /** Crown of the ladder — the educational target, never a guarantee. */
-export const BANK_BUILDER_GOAL = 3000;
+export const BANK_BUILDER_GOAL = 10000;
 
 /**
- * The five ladder rungs, base → crown (design doc §3.2). Frozen so no
- * caller can mutate the shared definition. Each `multiplier` equals
- * `goal / start` (verified in the test suite).
+ * The five ladder rungs, base → crown. Migrated 2026-06-11 to the public
+ * $100 → $10,000 ladder (see docs/operations/bank-builder-100-to-10000-policy-
+ * migration-2026-06-11.md). Frozen so no caller can mutate the shared
+ * definition. Each `multiplier` equals `goal / start` (verified in tests).
  */
 export const BANK_BUILDER_LADDER: ReadonlyArray<LadderStep> = Object.freeze([
-  Object.freeze({ step: 1, start: 100, goal: 200, multiplier: 2 }),
-  Object.freeze({ step: 2, start: 200, goal: 400, multiplier: 2 }),
-  Object.freeze({ step: 3, start: 400, goal: 800, multiplier: 2 }),
-  Object.freeze({ step: 4, start: 800, goal: 1600, multiplier: 2 }),
-  Object.freeze({ step: 5, start: 1600, goal: 3000, multiplier: 1.875 }),
+  Object.freeze({ step: 1, start: 100, goal: 200, multiplier: 200 / 100 }),
+  Object.freeze({ step: 2, start: 200, goal: 700, multiplier: 700 / 200 }),
+  Object.freeze({ step: 3, start: 700, goal: 2000, multiplier: 2000 / 700 }),
+  Object.freeze({ step: 4, start: 2000, goal: 4500, multiplier: 4500 / 2000 }),
+  Object.freeze({ step: 5, start: 4500, goal: 10000, multiplier: 10000 / 4500 }),
 ]) as ReadonlyArray<LadderStep>;
 
 /** Number of rungs in the ladder. */
@@ -106,4 +107,14 @@ export function ladderMultiplierLabel(step: LadderStep): string {
 export function formatLadderUsd(amount: number): string {
   const rounded = Math.round(amount);
   return `$${rounded.toLocaleString("en-US")}`;
+}
+
+/** Cents-precise USD — shows ".00"-trimmed cents (e.g. "$728.76", "$2,000").
+ *  Used for the public ladder values where exact paper amounts matter. */
+export function formatLadderUsdPrecise(amount: number): string {
+  const isWhole = Math.abs(amount - Math.round(amount)) < 0.005;
+  return `$${amount.toLocaleString("en-US", {
+    minimumFractionDigits: isWhole ? 0 : 2,
+    maximumFractionDigits: isWhole ? 0 : 2,
+  })}`;
 }

@@ -79,6 +79,35 @@ export function loadFeaturedBuilderCard(): FeaturedBuilderCard | null {
   return read<FeaturedBuilderCard>("featured-latest.json");
 }
 
+/** Public $100→$10,000 ladder (2026-06-11 migration). Source of truth for the
+ *  public Bank Builder hero/ladder. The canonical tracked ledger is preserved
+ *  separately as audit/history. Null pre-migration (falls back to canonical). */
+export interface PublicBuilderSummary {
+  ladder: string; startingBankrollUnits: number; currentBankrollUnits: number;
+  currentProgressionStep: number; currentStepStart: number | null; currentStepGoal: number | null;
+  goalUnits: number; record: { wins: number; losses: number; pushes: number };
+  currentStreak: number; lastSettledDate: string | null; lastSettledResult: string | null;
+  lastSettledLabel?: string | null; nextTargetUnits: number; generatedAt: string;
+}
+export interface PublicBuilderEntry {
+  step: number; date: string; sport: string; event?: string; result: "win" | "loss" | "push";
+  bankrollBefore: number; bankrollAfter: number; stakeUnits: number; payoutUnits: number;
+  profitUnits: number; combinedAmerican?: number; settlementSource?: string;
+  officialResultConfirmed?: boolean; sameGame?: boolean; correlationNote?: string;
+  legs: Array<{ player: string; market: string; side: string; line: number | null; oddsForSide?: number | null; result?: string; finalStat?: number | null }>;
+}
+export interface PublicBuilderLedger {
+  ladder: string; base: number; goal: number; migratedAt: string; migrationDoc: string;
+  entries: PublicBuilderEntry[]; nextPickStatus: string; nextEligibleDate: string;
+  nextStakeUnits: number; nextTargetUnits: number;
+}
+export function loadPublicBankBuilderSummary(): PublicBuilderSummary | null {
+  return read<PublicBuilderSummary>("public-summary-latest.json");
+}
+export function loadPublicBankBuilderLedger(): PublicBuilderLedger | null {
+  return read<PublicBuilderLedger>("public-ledger-latest.json");
+}
+
 /**
  * Public view of the Bank Builder ledger: separates the current paper run + last
  * settled slip + next slip from the lifetime experimental audit. The lifetime record
