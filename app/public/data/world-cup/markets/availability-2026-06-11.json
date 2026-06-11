@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-11T15:10:00+00:00",
+  "generatedAt": "2026-06-11T15:36:04+00:00",
   "date": "2026-06-11",
   "providers": {
     "oddsApi": {
       "connected": true,
       "sportKey": "soccer_fifa_world_cup",
-      "creditsRemaining": "19239"
+      "creditsRemaining": "19190"
     },
     "apiFootball": {
       "connected": true,
@@ -23,7 +23,8 @@
         "player_shots",
         "player_shots_on_target"
       ],
-      "cornerMarketFound": true
+      "cornerMarketFound": true,
+      "doubleChanceFound": true
     },
     "apiFootball": {
       "connected": true,
@@ -40,12 +41,24 @@
       "dataReady": true,
       "lineupsReady": null,
       "projectionReady": true,
-      "status": "waiting_on_edge_threshold",
-      "reason": "odds + data ready; awaiting an edge that clears the publish gate"
+      "status": "public_projection",
+      "reason": "public model probability view live (no edge that clears the suggested-card gate)"
     },
     "match_total_goals": {
       "key": "match_total_goals",
       "label": "Total goals",
+      "kind": "team",
+      "oddsProvider": "odds_api",
+      "oddsReady": true,
+      "dataReady": true,
+      "lineupsReady": null,
+      "projectionReady": true,
+      "status": "public_projection",
+      "reason": "public model probability view live (no edge that clears the suggested-card gate)"
+    },
+    "double_chance": {
+      "key": "double_chance",
+      "label": "Double chance",
       "kind": "team",
       "oddsProvider": "odds_api",
       "oddsReady": true,
@@ -64,8 +77,8 @@
       "dataReady": true,
       "lineupsReady": null,
       "projectionReady": true,
-      "status": "waiting_on_edge_threshold",
-      "reason": "odds + data ready; awaiting an edge that clears the publish gate"
+      "status": "public_projection",
+      "reason": "public model probability view live (no edge that clears the suggested-card gate)"
     },
     "player_total_shots": {
       "key": "player_total_shots",
