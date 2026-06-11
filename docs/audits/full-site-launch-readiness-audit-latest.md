@@ -32,3 +32,13 @@ About. Each sport: Overview · Games · Projections · Player Props · Cards · 
 7. Global nav + mobile bottom nav restructure (Today/Picks/Build/Sports/Bank), old-route aliases.
 8. `/methodology` hub + text reduction. Visual/typography polish. Daily runbook + workflows.
 Each ships behind tests + production verification.
+
+## Launch rebuild progress
+- Step 1 — `/today` daily board + interactive StakePayoutInput + Today in nav. ✅
+- Step 2 — public-visibility filters + normalized contracts + shared UI kit. ✅
+- Step 3 — MLB/NBA/UFC adapters + `/picks` unified card lobby. ✅
+- Step 4 — `/build` custom paper-card builder (eligible legs only). ✅
+- Step 5 — daily mixed-sport suggested cards (`pipeline/daily/build_mixed_sport_cards.py`). ✅
+- Step 6 — `/world-cup` as a uniform tabbed SportShell. ✅
+- Step 7 — `/mlb` as a uniform tabbed SportShell (shared kit). ✅
+- Next: NBA shell → UFC shell → global nav + `/methodology` hub + visual polish.
