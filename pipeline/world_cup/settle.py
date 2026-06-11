@@ -62,8 +62,9 @@ def main(argv=None) -> int:
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     pf = DATA / "projections" / "latest.json"
     projections = json.loads(pf.read_text()).get("matches", []) if pf.exists() else []
-    # ONLY grade public/active picks — never research/gated, never the market outlook.
-    gradeable = [p for p in projections if p.get("projectionStatus") == "active" and p.get("public") is True]
+    # ONLY grade parlay-eligible picks (the ones published as suggested legs) — never public-only
+    # probability views, never research/gated, never the market outlook.
+    gradeable = [p for p in projections if p.get("parlayEligible") is True and p.get("pick")]
     if not gradeable:
         print("[wc-settle] no public/active World Cup picks to settle — nothing graded")
         (DATA / "settlement").mkdir(parents=True, exist_ok=True)

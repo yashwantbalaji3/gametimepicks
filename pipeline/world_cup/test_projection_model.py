@@ -211,3 +211,55 @@ class TestCornersClassify(unittest.TestCase):
         )
         self.assertEqual(status, "active")
         self.assertTrue(public)
+
+
+class TestClassifyV2(unittest.TestCase):
+    def test_low_edge_is_public_not_eligible(self):
+        from pipeline.world_cup.projection_model import classify_v2
+        public, eligible, status, _ = classify_v2(
+            market_prob=0.50, model_prob=0.51, market_type="moneyline_90",
+            sample_min=8, is_underdog=False)
+        self.assertTrue(public)           # probability view IS public
+        self.assertFalse(eligible)        # but not a parlay leg
+        self.assertEqual(status, "public_projection_no_edge")
+
+    def test_strong_edge_is_eligible(self):
+        from pipeline.world_cup.projection_model import classify_v2
+        public, eligible, status, _ = classify_v2(
+            market_prob=0.50, model_prob=0.55, market_type="moneyline_90",
+            sample_min=8, is_underdog=False)
+        self.assertTrue(public and eligible)
+        self.assertEqual(status, "parlay_eligible")
+
+    def test_extreme_underdog_public_view_never_eligible(self):
+        from pipeline.world_cup.projection_model import classify_v2
+        public, eligible, status, _ = classify_v2(
+            market_prob=0.11, model_prob=0.14, market_type="moneyline_90",
+            sample_min=8, is_underdog=True)
+        self.assertTrue(public)           # the GAME probability view is public...
+        self.assertFalse(eligible)        # ...but the underdog is never a suggested pick
+
+    def test_corner_sample_capped_public_not_eligible(self):
+        from pipeline.world_cup.projection_model import classify_v2
+        public, eligible, status, _ = classify_v2(
+            market_prob=0.50, model_prob=0.57, market_type="match_total_corners",
+            sample_min=4, is_underdog=False, corner_sample=4)
+        self.assertTrue(public)                     # sample 4 >= public min 3 → view shown
+        self.assertFalse(eligible)                  # sample 4 < parlay min 5 → not eligible
+        self.assertEqual(status, "public_projection_sample_capped")
+
+    def test_corner_eligible_with_sample_and_edge(self):
+        from pipeline.world_cup.projection_model import classify_v2
+        public, eligible, status, _ = classify_v2(
+            market_prob=0.50, model_prob=0.57, market_type="match_total_corners",
+            sample_min=8, is_underdog=False, corner_sample=8)
+        self.assertTrue(public and eligible)
+        self.assertEqual(status, "parlay_eligible")
+
+    def test_corner_below_public_min_gated(self):
+        from pipeline.world_cup.projection_model import classify_v2
+        public, eligible, status, _ = classify_v2(
+            market_prob=0.50, model_prob=0.57, market_type="match_total_corners",
+            sample_min=2, is_underdog=False, corner_sample=2)
+        self.assertFalse(public)
+        self.assertEqual(status, "gated_sample_size")

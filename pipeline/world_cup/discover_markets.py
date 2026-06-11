@@ -85,10 +85,10 @@ def _projection_states() -> dict:
         for p in json.loads((DATA / "projections" / "latest.json").read_text()).get("matches", []):
             mk = p.get("market")
             if mk in out:
-                if p.get("projectionStatus") == "active":
+                if p.get("parlayEligible") is True:
                     out[mk]["active"] = True
-                elif p.get("projectionStatus"):
-                    out[mk]["research"] = True  # model ran (gated/research)
+                elif p.get("public") is True:
+                    out[mk]["research"] = True  # public probability view (model ran, no edge)
     except Exception:
         pass
     return out

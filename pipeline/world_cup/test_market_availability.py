@@ -1,7 +1,7 @@
 import unittest
 from pipeline.world_cup.market_availability import (
     build_availability, REQUESTED_MARKETS,
-    STATUS_LIVE, STATUS_RESEARCH, STATUS_WAITING_ODDS, STATUS_WAITING_LINEUPS,
+    STATUS_LIVE, STATUS_PUBLIC_VIEW, STATUS_RESEARCH, STATUS_WAITING_ODDS, STATUS_WAITING_LINEUPS,
     STATUS_WAITING_FEATURES, STATUS_UNAVAILABLE, STATUS_WAITING_EDGE,
 )
 
@@ -35,10 +35,10 @@ class TestMarketAvailability(unittest.TestCase):
         out = build_availability({"player_assists": {"oddsSupported": False}})
         self.assertEqual(out["markets"]["player_assists"]["status"], STATUS_UNAVAILABLE)
 
-    def test_team_market_research_when_model_ran_below_threshold(self):
+    def test_team_market_public_view_when_model_ran_below_threshold(self):
         out = build_availability({"moneyline_90":
                                   {"oddsSupported": True, "oddsReady": True, "dataReady": True, "research": True}})
-        self.assertEqual(out["markets"]["moneyline_90"]["status"], STATUS_RESEARCH)
+        self.assertEqual(out["markets"]["moneyline_90"]["status"], STATUS_PUBLIC_VIEW)
 
     def test_team_market_live_when_active(self):
         out = build_availability({"match_total_goals":
