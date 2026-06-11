@@ -19,6 +19,8 @@ import Link from "next/link";
 
 import ParlayLabBuilder from "@/components/parlay-lab-builder";
 import ParlayCoverageGrid from "@/components/parlay-coverage-grid";
+import NbaFinalsCardsSection from "@/components/nba-finals-cards-section";
+import { buildFinalsCards, type FinalsLeg } from "@/lib/nba-finals-cards";
 import MarketTicker from "@/components/market-ticker";
 // DateStatusHeader import removed in PR `feature/parlay-lab-compact-hero`.
 // The new <SlateStrip> below replaces it on /parlay-lab. Other surfaces
@@ -109,6 +111,17 @@ export default function ParlayLabPage() {
   // chip so users understand they're looking at historical
   // recommendations (still useful — same model, same picks the
   // graded record is built on) AND know where the W/L numbers live.
+  // NBA Finals Same-Game Cards — derived live from the optimizer leg pool (real
+  // model leans + real book odds). Single-game cards, tiered by combined odds,
+  // shown as a separate clearly-labeled surface (does not touch the global
+  // multi-game optimizer). Only renders when there's a one-game NBA slate.
+  const nbaLegs = (optimizerForDate?.legPool?.legs ?? []).filter(
+    (l) => (l as { sport?: string }).sport === "nba",
+  ) as unknown as FinalsLeg[];
+  const nbaGameIds = new Set(nbaLegs.map((l) => (l as { gameId?: string }).gameId).filter(Boolean));
+  const finalsCards =
+    nbaLegs.length > 0 && nbaGameIds.size === 1 ? buildFinalsCards(nbaLegs, { perTier: 5 }) : null;
+
   const activeDateGraded = getOptimizerGradedForDate(activeDate);
   const isActiveSettled =
     !!activeDateGraded && (activeDateGraded.uniqueSlips ?? []).length > 0;
@@ -139,6 +152,7 @@ export default function ParlayLabPage() {
         mlbSlips={mlbSlips}
         mixedSlips={mixedSlips}
       />
+      <NbaFinalsCardsSection cards={finalsCards} />
       <ParlayCoverageGrid payload={optimizerForDate} />
       {isActiveSettled && (
         <section
