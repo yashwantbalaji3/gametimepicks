@@ -39,6 +39,15 @@ export interface WcProjection {
   caveats?: string[];
   modelVersion?: string;
   opponentStrengthCoverage?: number;
+  cornerSample?: number;
+  parlayEligible?: boolean;
+  outcomes?: Array<{
+    label: string;
+    side: string;
+    modelProbability: number;
+    marketProbability: number;
+    americanOdds: number | null;
+  }>;
   // Upgraded methodology (2026-06-11). Only `active` projections are public.
   projectionStatus?:
     | "active"
@@ -127,12 +136,11 @@ export function loadWorldCupProjections(): WcProjections | null {
   if (!projectionsArePublic()) return null;
   const p = read<WcProjections>("projections/latest.json");
   if (!p || !Array.isArray(p.matches)) return null;
-  // Only surface picks explicitly classified active/public by the upgraded model.
-  const active = p.matches.filter(
-    (m) => m.projectionStatus === "active" && m.public !== false,
-  );
-  return active.length > 0
-    ? { ...p, matches: active, projectionCount: active.length }
+  // Surface every PUBLIC probability view (model vs market). A "pick" only renders when the
+  // projection is parlay-eligible — weak edges show as a view, never as a suggested lean.
+  const pub = p.matches.filter((m) => m.public === true);
+  return pub.length > 0
+    ? { ...p, matches: pub, projectionCount: pub.length }
     : null;
 }
 

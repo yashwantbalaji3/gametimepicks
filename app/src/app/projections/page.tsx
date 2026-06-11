@@ -252,9 +252,9 @@ export default function ProjectionsPage() {
       {wcProjections && wcByMatch.size > 0 && (
         <section aria-label="World Cup projections">
           <SectionHeader
-            eyebrow={`World Cup · ${wcProjections.projectionCount} model picks`}
+            eyebrow={`World Cup · ${wcProjections.projectionCount} market views`}
             title="World Cup model projections"
-            sub="Team-level 90-minute projections (recent national-team form blended with the market). Draw is a real outcome; regulation time only. Full match outlooks live on the World Cup page."
+            sub="Team-level 90-minute model probability views for moneyline, total goals, and total corners (market + FIFA strength + opponent-adjusted form). A “Lean” shows only where an edge clears the suggested-card threshold. Draw is a real outcome; regulation time only."
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {Array.from(wcByMatch.entries()).map(([matchId, projs]) => {

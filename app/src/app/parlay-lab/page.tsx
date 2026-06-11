@@ -290,7 +290,23 @@ export default function ParlayLabPage() {
  */
 function WorldCupSuggestedCards() {
   const parlays = loadWorldCupParlays();
-  if (!parlays || parlays.cards.length === 0) return null;
+  if (!parlays || parlays.cards.length === 0) {
+    // Gated state — projection views may be live, but no parlay-eligible legs today.
+    return (
+      <section id="world-cup" aria-label="World Cup suggested parlays" className="mt-10">
+        <SectionHeader
+          eyebrow="World Cup · 0 cards today"
+          title="World Cup suggested parlays"
+          sub="World Cup cards are built only from parlay-eligible projections (a model edge that clears the suggested-card threshold). None qualified today — see the live model probability views on the World Cup hub. Cards publish automatically when an edge qualifies."
+        />
+        <div className="mt-3">
+          <Link href="/world-cup" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+            World Cup model views →
+          </Link>
+        </div>
+      </section>
+    );
+  }
   return (
     <section id="world-cup" aria-label="World Cup suggested parlays" className="mt-10">
       <SectionHeader
