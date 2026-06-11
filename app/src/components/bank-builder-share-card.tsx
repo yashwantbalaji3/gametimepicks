@@ -16,6 +16,7 @@ import {
   BANK_BUILDER_LADDER,
   BANK_BUILDER_STEP_COUNT,
   formatLadderUsd,
+  formatLadderUsdPrecise,
   ladderMultiplierLabel,
 } from "@/lib/bank-builder-ladder";
 
@@ -103,7 +104,7 @@ export default function BankBuilderShareCard({
                 className="font-semibold tabular-nums"
                 style={{ color: "var(--vault-text)", fontSize: 22 }}
               >
-                {formatLadderUsd(currentBankroll)}
+                {formatLadderUsdPrecise(currentBankroll)}
               </span>
             </div>
           </div>

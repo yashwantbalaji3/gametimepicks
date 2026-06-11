@@ -29,6 +29,7 @@ import {
   BANK_BUILDER_LADDER,
   BANK_BUILDER_STEP_COUNT,
   formatLadderUsd,
+  formatLadderUsdPrecise,
   ladderMultiplierLabel,
 } from "@/lib/bank-builder-ladder";
 
@@ -237,7 +238,7 @@ export default function BankBuilderTower({
                         whiteSpace: "nowrap",
                       }}
                     >
-                      You are here · {formatLadderUsd(currentBankroll)}
+                      You are here · {formatLadderUsdPrecise(currentBankroll)}
                     </span>
                   )}
                 </span>
