@@ -293,9 +293,9 @@ export default function WorldCupLandingPage() {
       {projectionsLive && (
         <section className="mt-10" aria-label="Model projections">
           <SectionHeader
-            eyebrow={`Projections live · ${projections!.projectionCount} model picks`}
+            eyebrow={`Projections live · ${projections!.projectionCount} market views`}
             title="GameTime Picks model projections"
-            sub="Recent national-team form blended with the de-vigged market — a model lean, not the raw market outlook. 90-minute regulation only (Draw is a real outcome). Early-tournament sample, so confidence is capped Low."
+            sub="Model probabilities for moneyline, total goals, and total corners on every game — an ensemble of the de-vigged market + FIFA-ranking strength + opponent-adjusted form. We show the probability view for every market; a “Lean” appears only where an edge clears the suggested-card threshold. 90-minute regulation only (Draw is a real outcome); early-tournament sample, confidence capped Low."
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {Array.from(projByMatch.entries()).map(([matchId, projs]) => {
@@ -338,6 +338,17 @@ export default function WorldCupLandingPage() {
               {parlays!.gateReasons.join(" · ")}.
             </p>
           )}
+        </section>
+      )}
+
+      {/* ─── Suggested parlays: honest gated state (projections live, no eligible legs) ─── */}
+      {!parlaysLive && projectionsLive && (
+        <section className="mt-10" aria-label="Suggested parlays status">
+          <SectionHeader
+            eyebrow="Suggested cards · 0 today"
+            title="World Cup suggested parlays"
+            sub="Suggested cards are built only from parlay-eligible projections (a model edge that clears the suggested-card threshold). Today none of the markets cleared it — the probability views above are shown, but we don't turn a sub-threshold edge into a card. They publish automatically when an edge qualifies."
+          />
         </section>
       )}
 

@@ -1,16 +1,82 @@
 /**
- * WcProjectionCard — GameTime Picks MODEL projection for one World Cup match (90-minute
- * regulation). Shows the model pick(s) with model probability vs market probability, edge,
- * confidence, and the recent-form factors that moved it. This is a model lean (recent-form
- * Poisson blended with the de-vigged market), NOT the raw market outlook. Draw is a real
- * outcome; extra time/penalties are excluded.
+ * WcProjectionCard — GameTime Picks MODEL projection views for one World Cup match (90-minute
+ * regulation). Shows, per market (moneyline / total goals / total corners), the model's
+ * probability for every outcome next to the market-implied probability. A market is shown as a
+ * PROBABILITY VIEW even when no edge clears the suggested-card threshold; a "Suggested lean"
+ * badge appears only when the projection is parlay-eligible. Ensemble = market + FIFA strength +
+ * opponent-adjusted form. Draw is a real outcome; extra time/penalties excluded.
  */
 import type { WcProjection } from "@/lib/world-cup/projections";
 import { fmtAmerican } from "@/lib/world-cup/projections";
 import FlagBadge from "@/components/flag-badge";
 
+const MARKET_LABEL: Record<string, string> = {
+  moneyline_90: "90-min result",
+  match_total_goals: "Total goals",
+  match_total_corners: "Total corners",
+};
+
 function pct(p: number): string {
   return `${Math.round(p * 100)}%`;
+}
+
+function MarketRow({ p }: { p: WcProjection }) {
+  const outcomes = p.outcomes ?? [];
+  // The model's preferred outcome (highest model probability) — highlighted, but only labelled a
+  // "lean" when parlay-eligible.
+  const top = outcomes.reduce(
+    (best, o) => (o.modelProbability > (best?.modelProbability ?? -1) ? o : best),
+    outcomes[0],
+  );
+  return (
+    <div
+      className="rounded-[6px] px-3 py-2.5 flex flex-col gap-2"
+      style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}
+    >
+      <div className="flex items-center justify-between gap-2 min-w-0">
+        <span className="font-mono uppercase tracking-[0.10em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+          {MARKET_LABEL[p.market] ?? p.market}
+        </span>
+        {p.parlayEligible && p.pickLabel ? (
+          <span
+            className="font-mono uppercase tracking-[0.08em] shrink-0 px-1.5 py-0.5 rounded-[3px]"
+            style={{ color: "var(--vault-success)", border: "1px solid var(--vault-success)", fontSize: 8.5 }}
+          >
+            Lean · {p.pickLabel}
+          </span>
+        ) : (
+          <span className="font-mono uppercase tracking-[0.08em] shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+            view · {p.edgePct >= 0 ? "+" : ""}{p.edgePct.toFixed(1)}% edge
+          </span>
+        )}
+      </div>
+      <div className={`grid gap-1.5 ${outcomes.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
+        {outcomes.map((o) => {
+          const isTop = top && o.side === top.side;
+          return (
+            <div
+              key={o.side}
+              className="rounded-[5px] px-1.5 py-1.5 flex flex-col items-center gap-0.5"
+              style={{
+                background: isTop ? "rgba(240,199,94,0.08)" : "rgba(0,0,0,0.25)",
+                border: `1px solid ${isTop ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
+              }}
+            >
+              <span className="font-mono uppercase truncate w-full text-center" style={{ color: "var(--vault-text-mute)", fontSize: 8.5, letterSpacing: "0.03em" }}>
+                {o.label}
+              </span>
+              <span className="font-display tabular" style={{ color: isTop ? "var(--vault-gold-bright)" : "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>
+                {pct(o.modelProbability)}
+              </span>
+              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+                mkt {pct(o.marketProbability)} · {fmtAmerican(o.americanOdds)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export default function WcProjectionCard({
@@ -27,8 +93,11 @@ export default function WcProjectionCard({
   kickoff?: string | null;
 }) {
   if (projections.length === 0) return null;
-  const head = projections[0];
-  const sampleWarn = projections.some((p) => p.sampleSizeWarning);
+  // Stable market order: moneyline → goals → corners.
+  const order = ["moneyline_90", "match_total_goals", "match_total_corners"];
+  const sorted = [...projections].sort((a, b) => order.indexOf(a.market) - order.indexOf(b.market));
+  const head = sorted[0];
+  const anyLean = sorted.some((p) => p.parlayEligible);
 
   return (
     <article
@@ -44,7 +113,6 @@ export default function WcProjectionCard({
         </span>
       </div>
 
-      {/* Matchup */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <FlagBadge code={homeCode} size="md" />
@@ -61,71 +129,16 @@ export default function WcProjectionCard({
         </div>
       </div>
 
-      {/* Model picks */}
       <div className="flex flex-col gap-2">
-        {projections.map((p) => {
-          const edgePos = p.edgePct >= 0;
-          return (
-            <div
-              key={p.id}
-              className="rounded-[6px] px-3 py-2.5 flex flex-col gap-1.5"
-              style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}
-            >
-              <div className="flex items-center justify-between gap-2 min-w-0">
-                <span className="font-mono uppercase tracking-[0.10em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-                  {p.market === "moneyline_90" ? "90-min result" : p.market === "match_total_goals" ? "Match total" : p.market}
-                </span>
-                <span
-                  className="font-mono uppercase tracking-[0.08em] shrink-0 px-1.5 py-0.5 rounded-[3px]"
-                  style={{
-                    color: p.confidence ? "var(--vault-gold-bright)" : "var(--vault-text-faint)",
-                    border: `1px solid ${p.confidence ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
-                    fontSize: 8.5,
-                  }}
-                >
-                  {p.confidence ?? "—"} conf
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-2 min-w-0">
-                <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>
-                  {p.pickLabel}
-                </span>
-                <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
-                  {fmtAmerican(p.americanOdds)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
-                  Model {pct(p.modelProbability)} · Market {pct(p.marketProbability)}
-                </span>
-                <span
-                  className="font-mono tabular shrink-0"
-                  style={{ color: edgePos ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 11, fontWeight: 600 }}
-                >
-                  {edgePos ? "+" : ""}{p.edgePct.toFixed(1)}% edge
-                </span>
-              </div>
-            </div>
-          );
-        })}
+        {sorted.map((p) => (
+          <MarketRow key={p.id} p={p} />
+        ))}
       </div>
 
-      {/* Factors */}
-      {head.factors.length > 0 && (
-        <ul className="flex flex-col gap-0.5">
-          {head.factors.slice(0, 3).map((f, i) => (
-            <li key={i} className="text-[10.5px] leading-snug flex gap-1.5" style={{ color: "var(--vault-text-mute)" }}>
-              <span aria-hidden style={{ color: "var(--vault-gold)" }}>·</span>
-              <span className="min-w-0">{f}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
       <p style={{ color: "var(--vault-text-faint)", fontSize: 9.5, lineHeight: 1.4 }}>
-        GameTime Picks model — recent national-team form blended with the market.
-        {sampleWarn ? " Early-tournament sample; confidence capped Low." : ""} 90-minute regulation
-        only (Draw is a real outcome; extra time/penalties not included). Educational / paper only.
+        GameTime Picks model — ensemble of market + FIFA-ranking strength + opponent-adjusted form.
+        Bold = model&apos;s most-likely outcome. {anyLean ? "A “Lean” marks a parlay-eligible edge. " : "No market cleared the suggested-card edge threshold today — these are probability views, not picks. "}
+        90-minute regulation only (Draw is a real outcome; extra time/penalties not included). Educational / paper only.
       </p>
     </article>
   );
