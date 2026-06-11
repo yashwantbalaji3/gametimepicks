@@ -41,11 +41,11 @@ export interface MobileNavItem {
  *     route-resolution keys; only the visible labels are user-facing.
  */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
-  { bucket: "home", href: "/", label: "Home" },
-  { bucket: "picks", href: "/projections", label: "Projections" },
-  { bucket: "lab", href: "/parlay-lab", label: "Parlays" },
+  { bucket: "home", href: "/today", label: "Today" },
+  { bucket: "picks", href: "/picks", label: "Picks" },
+  { bucket: "lab", href: "/build", label: "Build" },
+  { bucket: "sports", href: "/events", label: "Sports" },
   { bucket: "bank", href: "/bank-builder", label: "Bank" },
-  { bucket: "results", href: "/results", label: "Results" },
 ] as const;
 
 /**
@@ -83,24 +83,27 @@ export function resolveMobileNavBucket(
   const p = pathname.length > 1 && pathname.endsWith("/")
     ? pathname.slice(0, -1)
     : pathname;
-  if (p === "" || p === "/") return "home";
-  if (p === "/projections" || p.startsWith("/projections/")) return "picks";
-  if (p === "/parlay-lab" || p.startsWith("/parlay-lab/")) return "lab";
+  // Today owns the root/home as the default landing experience.
+  if (p === "" || p === "/" || p === "/today" || p.startsWith("/today/")) return "home";
+  if (p === "/picks" || p.startsWith("/picks/")) return "picks";
+  // Build folds in the legacy /parlay-lab alias.
+  if (p === "/build" || p.startsWith("/build/") || p === "/parlay-lab" || p.startsWith("/parlay-lab/")) return "lab";
   if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
-  if (p === "/results" || p.startsWith("/results/")) return "results";
-  // NBA + MLB boards have real projections / player props → picks.
-  if (p === "/nba" || p.startsWith("/nba/")) return "picks";
-  if (p === "/mlb" || p.startsWith("/mlb/")) return "picks";
-  // Schedule-only surfaces all live under the Sports & Events hub:
-  // /events itself plus the standalone schedule pages (NHL / IPL /
-  // World Cup). These carry no projections, so they belong to "sports",
-  // not "picks".
-  if (p === "/events" || p.startsWith("/events/")) return "sports";
-  if (p === "/nhl" || p.startsWith("/nhl/")) return "sports";
-  if (p === "/ipl" || p.startsWith("/ipl/")) return "sports";
-  if (p === "/world-cup" || p.startsWith("/world-cup/")) return "sports";
-  // Everything else (/about, /responsible-use, /trends, future routes)
-  // returns null so the bottom nav shows nothing highlighted. Better
-  // silent than misleading.
+  // Every sport hub/board + the Sports directory + schedule-only leagues
+  // all resolve to the Sports bucket (uniform now that all sports are tabbed).
+  if (
+    p === "/events" || p.startsWith("/events/") ||
+    p === "/world-cup" || p.startsWith("/world-cup/") ||
+    p === "/mlb" || p.startsWith("/mlb/") ||
+    p === "/nba" || p.startsWith("/nba/") ||
+    p === "/ufc" || p.startsWith("/ufc/") ||
+    p === "/nhl" || p.startsWith("/nhl/") ||
+    p === "/ipl" || p.startsWith("/ipl/") ||
+    p === "/projections" || p.startsWith("/projections/") ||
+    p === "/board" || p.startsWith("/board/")
+  ) return "sports";
+  // Everything else (/results, /about, /methodology, /responsible-use, /trends)
+  // returns null so the bottom nav shows nothing highlighted — those live in
+  // the top nav / drawer. Better silent than misleading.
   return null;
 }

@@ -25,73 +25,40 @@ const NAV_ITEMS: Array<{
   /** When true, render a faint gold divider chip BEFORE this item. */
   beforeDivider?: boolean;
 }> = [
+  // Product spine — clean, user-facing labels only (no implementation routes
+  // like "Projections"/"Parlay Lab" in primary nav; those stay reachable as
+  // routes and fold into Build/Sports active states). Brand mark links Home.
   { href: "/today", label: "Today" },
   { href: "/picks", label: "Picks" },
   { href: "/build", label: "Build" },
-  { href: "/", label: "Home" },
-  { href: "/projections", label: "Projections" },
-  { href: "/parlay-lab", label: "Parlay Lab" },
-  { href: "/bank-builder", label: "Bank Builder" },
   { href: "/events", label: "Sports" },
+  { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
   { href: "/results", label: "Results" },
-  { href: "/about", label: "About", beforeDivider: true },
+  { href: "/methodology", label: "Learn" },
+  { href: "/about", label: "About" },
 ];
 
-const SPORT_HREFS = new Set([
-  "/projections",
-]);
+// Sport routes that should light up the "Sports" nav item.
+const SPORT_RE = /^\/(world-cup|mlb|nba|ufc|nhl|ipl|board|projections|trends|events)(\/|$)/;
+const SPORT_HREFS = new Set(["/events"]);
 
 export default function Nav() {
   const pathname = usePathname() || "/";
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/" || pathname === "";
-    // "Projections" lights up on the hub itself AND on any legacy
-    // sport route (/nba, /nba/board, /mlb, /world-cup, etc.) so the
-    // active state stays honest from either entry point.
-    if (href === "/projections") {
-      return (
-        pathname === "/projections" ||
-        pathname.startsWith("/projections/") ||
-        pathname === "/nba" ||
-        pathname.startsWith("/nba/") ||
-        pathname === "/board" ||
-        pathname.startsWith("/board/") ||
-        pathname === "/mlb" ||
-        pathname.startsWith("/mlb/") ||
-        pathname === "/nhl" ||
-        pathname.startsWith("/nhl/") ||
-        pathname === "/ipl" ||
-        pathname.startsWith("/ipl/") ||
-        pathname === "/world-cup" ||
-        pathname.startsWith("/world-cup/")
-      );
+    // Today owns the root/home as the default landing experience.
+    if (href === "/today") return pathname === "/today" || pathname === "/" || pathname === "";
+    // Build folds in the legacy /parlay-lab route (now an alias destination).
+    if (href === "/build") {
+      return pathname === "/build" || pathname.startsWith("/build/") || pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/") || pathname.endsWith("/parlays") || pathname.includes("/parlays/");
     }
-    // Parlay Lab in nav should be active on the legacy /parlay-lab
-    // route and any sport-specific /<sport>/parlays.
-    if (href === "/parlay-lab") {
-      return (
-        pathname === "/parlay-lab" ||
-        pathname.startsWith("/parlay-lab/") ||
-        pathname.endsWith("/parlays") ||
-        pathname.includes("/parlays/") ||
-        pathname === "/results/parlays" ||
-        pathname.startsWith("/results/parlays/")
-      );
-    }
-    // About should light up on /about and the technical surfaces
-    // (methodology, responsible-use, model-audit).
-    if (href === "/about") {
-      return (
-        pathname === "/about" ||
-        pathname.startsWith("/about/") ||
-        pathname === "/methodology" ||
-        pathname.startsWith("/methodology/") ||
-        pathname === "/responsible-use" ||
-        pathname.startsWith("/responsible-use/") ||
-        pathname === "/results/model-audit" ||
-        pathname.startsWith("/results/model-audit/")
-      );
+    // Sports lights up on the directory + every sport hub/board route.
+    if (href === "/events") return SPORT_RE.test(pathname);
+    // Results, but not the model-audit surface (that lives under Learn).
+    if (href === "/results") return pathname === "/results" || (pathname.startsWith("/results/") && !pathname.startsWith("/results/model-audit"));
+    // Learn = methodology hub + responsible-use + model audit.
+    if (href === "/methodology") {
+      return pathname === "/methodology" || pathname.startsWith("/methodology/") || pathname === "/responsible-use" || pathname.startsWith("/responsible-use/") || pathname === "/results/model-audit" || pathname.startsWith("/results/model-audit/");
     }
     return pathname === href || pathname.startsWith(`${href}/`);
   };

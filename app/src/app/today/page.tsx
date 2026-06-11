@@ -124,7 +124,7 @@ export default function TodayPage() {
             ))}
           </div>
           <div className="mt-3">
-            <Link href="/parlay-lab" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+            <Link href="/picks" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
               All suggested cards →
             </Link>
           </div>
