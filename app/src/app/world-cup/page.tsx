@@ -33,7 +33,14 @@ import {
   upcomingReadyOutlook,
   normTeamName,
 } from "@/lib/world-cup/market-outlook";
+import {
+  loadWorldCupProjections,
+  loadWorldCupParlays,
+  type WcProjection,
+} from "@/lib/world-cup/projections";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
+import WcProjectionCard from "@/components/world-cup/wc-projection-card";
+import WcParlayCard from "@/components/world-cup/wc-parlay-card";
 import WorldCupSectionTabs from "@/components/world-cup/world-cup-section-tabs";
 import FlagBadge from "@/components/flag-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
@@ -75,19 +82,35 @@ export default function WorldCupLandingPage() {
   // everything stats-dependent stays off until the plan is upgraded.
   const statsConnected = !!stats?.providerConfigured;
   const planBlock = stats?.providerPlanBlock;
-  const statsNote = planBlock
-    ? "API-Football connected · 2026 needs a paid plan"
-    : statsConnected
-      ? "API-Football connected · awaiting coverage"
-      : "no provider connected";
+  // Real model projections + suggested parlays (fail-closed: null when gates didn't pass).
+  const projections = loadWorldCupProjections();
+  const parlays = loadWorldCupParlays();
+  const projectionsLive = !!projections && projections.matches.length > 0;
+  const parlaysLive = !!parlays && parlays.cards.length > 0;
+  const statsNote = stats?.teamStatsReady
+    ? "API-Football Pro · recent-form sample"
+    : planBlock
+      ? "API-Football connected · 2026 needs a paid plan"
+      : statsConnected
+        ? "API-Football connected · awaiting coverage"
+        : "no provider connected";
   const dataStatus: Array<{ label: string; on: boolean; note: string }> = [
     { label: "Odds / Market outlook", on: oddsReady, note: "The Odds API · 3-way + totals" },
     { label: "Team stats", on: !!stats?.teamStatsReady, note: statsNote },
     { label: "xG / xGA", on: !!stats?.xgReady, note: "API-Football has no xG" },
-    { label: "Lineups / minutes", on: !!stats?.lineupsReady, note: statsNote },
-    { label: "Model projections", on: !!stats?.projectionsAllowed, note: "needs team stats + odds" },
-    { label: "Suggested parlays", on: !!stats?.parlayAllowed, note: "needs projections" },
+    { label: "Lineups / minutes", on: !!stats?.lineupsReady, note: "posted near kickoff" },
+    { label: "Model projections", on: projectionsLive, note: projectionsLive ? `${projections!.projectionCount} picks · 90-min` : "needs team stats + odds" },
+    { label: "Suggested parlays", on: parlaysLive, note: parlaysLive ? `${parlays!.cardCount} cards` : "needs projections" },
   ];
+  // Group projections by match for the projection cards (moneyline + total per match).
+  const projByMatch = new Map<number, WcProjection[]>();
+  if (projections) {
+    for (const p of projections.matches) {
+      const arr = projByMatch.get(p.matchId) ?? [];
+      arr.push(p);
+      projByMatch.set(p.matchId, arr);
+    }
+  }
 
   // Upcoming · Market Outlook — the next ready matches (real odds), excluding the
   // ones already shown in the Today section. Enriched with team codes + schedule
@@ -161,7 +184,11 @@ export default function WorldCupLandingPage() {
           { href: "/world-cup/groups", label: "Groups" },
           { href: "/world-cup/teams", label: "Teams" },
         ]}
-        framing="Official schedule + groups from FIFA, plus a live 90-minute Market Outlook — de-vigged Home/Draw/Away + totals implied by current sportsbook prices for today's matches (market-implied, not a model pick). Independent projections, player props, and parlays stay fail-closed until a soccer stats provider connects: we never print a model edge we can't back with data."
+        framing={
+          projectionsLive
+            ? "Official FIFA schedule + groups, a live 90-minute Market Outlook (sportsbook-implied Home/Draw/Away + totals), and — now live — GameTime Picks model projections for today's matches: a recent national-team form model blended with the market (a model lean, capped Low this early). Suggested paper parlays are built only from positive-edge projections. Player props stay fail-closed until lineups + player-prop odds post: we never print an edge we can't back with data."
+            : "Official schedule + groups from FIFA, plus a live 90-minute Market Outlook — de-vigged Home/Draw/Away + totals implied by current sportsbook prices for today's matches (market-implied, not a model pick). Independent projections, player props, and parlays stay fail-closed until a soccer stats provider connects: we never print a model edge we can't back with data."
+        }
         accent="gold"
       />
 
@@ -181,17 +208,19 @@ export default function WorldCupLandingPage() {
             <span
               className="font-mono uppercase tracking-[0.14em] px-2 py-0.5 rounded-[4px]"
               style={{
-                color: oddsReady ? "var(--vault-success)" : "var(--vault-gold-bright)",
-                border: `1px solid ${oddsReady ? "var(--vault-success)" : "var(--vault-gold-bright)"}`,
+                color: projectionsLive || oddsReady ? "var(--vault-success)" : "var(--vault-gold-bright)",
+                border: `1px solid ${projectionsLive || oddsReady ? "var(--vault-success)" : "var(--vault-gold-bright)"}`,
                 fontSize: 10,
               }}
             >
-              {oddsReady ? "Market outlook live" : "Schedule live"}
+              {projectionsLive ? "Projections live" : oddsReady ? "Market outlook live" : "Schedule live"}
             </span>
             <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-              {oddsReady
-                ? "90-minute Home/Draw/Away + totals implied by current sportsbook prices — market outlook, not a model pick. Player props + independent projections stay off until a soccer stats provider is connected."
-                : "Odds & projections pending — they unlock only when a real soccer odds + stats provider is connected. No placeholder prices are shown."}
+              {projectionsLive
+                ? "GameTime Picks model projections are live for today — recent national-team form blended with the market (a model lean, not the raw outlook). Plus the 90-minute Home/Draw/Away market outlook. Player props stay off until lineups + player-prop odds post."
+                : oddsReady
+                  ? "90-minute Home/Draw/Away + totals implied by current sportsbook prices — market outlook, not a model pick. Player props + independent projections stay off until a soccer stats provider is connected."
+                  : "Odds & projections pending — they unlock only when a real soccer odds + stats provider is connected. No placeholder prices are shown."}
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -213,6 +242,58 @@ export default function WorldCupLandingPage() {
               );
             })}
           </div>
+        </section>
+      )}
+
+      {/* ─── Today's model projections (GameTime Picks) ─────────────── */}
+      {projectionsLive && (
+        <section className="mt-10" aria-label="Model projections">
+          <SectionHeader
+            eyebrow={`Projections live · ${projections!.projectionCount} model picks`}
+            title="GameTime Picks model projections"
+            sub="Recent national-team form blended with the de-vigged market — a model lean, not the raw market outlook. 90-minute regulation only (Draw is a real outcome). Early-tournament sample, so confidence is capped Low."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {Array.from(projByMatch.entries()).map(([matchId, projs]) => {
+              const head = projs[0];
+              const homeTeam = teams.find((t) => t.name === head.homeTeam);
+              const awayTeam = teams.find((t) => t.name === head.awayTeam);
+              const sched = scheduleByPair.get(
+                [normTeamName(head.homeTeam), normTeamName(head.awayTeam)].sort().join("|"),
+              );
+              return (
+                <WcProjectionCard
+                  key={matchId}
+                  projections={projs}
+                  homeCode={homeTeam?.code ?? ""}
+                  awayCode={awayTeam?.code ?? ""}
+                  group={(sched?.stage === "group" ? sched?.group : sched?.stage) ?? null}
+                  kickoff={sched?.kickoffLocal ?? null}
+                />
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* ─── Suggested parlays (from model projections) ─────────────── */}
+      {parlaysLive && (
+        <section className="mt-10" aria-label="Suggested parlays">
+          <SectionHeader
+            eyebrow={`Suggested cards · ${parlays!.cardCount} live`}
+            title="World Cup suggested parlays"
+            sub="Built only from positive-edge model projections (one leg per match — no in-card correlation). Default paper stakes; projected paper payouts. Educational / paper, not betting advice."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {parlays!.cards.map((c) => (
+              <WcParlayCard key={c.id} card={c} />
+            ))}
+          </div>
+          {parlays!.gateReasons.length > 0 && (
+            <p className="mt-3 text-[10.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
+              {parlays!.gateReasons.join(" · ")}.
+            </p>
+          )}
         </section>
       )}
 

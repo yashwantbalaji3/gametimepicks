@@ -1,9 +1,20 @@
 # World Cup Settlement Runbook
 
-## Current state: nothing tracked to settle yet
-Only the **Market Outlook** (sportsbook-implied, not a model pick) is live. We publish **no
-tracked World Cup projections, parlays, or Bank Builder slips**, so there is nothing to grade.
-A market outlook is informational and is never settled as a pick.
+## Current state (2026-06-11): team-level projections + suggested parlays LIVE
+API-Football **Pro** access is connected, so **team-level 90-minute model projections**
+(moneyline H/D/A + match total) and **suggested parlays** are now published for today's games
+(`projections/latest.json`, `parlays/latest.json`). These ARE tracked picks and must be graded
+once matches finish. The **Market Outlook** remains informational and is never settled.
+No World Cup **Bank Builder** slip is tracked (no qualifying Low-risk card near target), so the
+Bank Builder ladder is untouched.
+
+**Settlement source = API-Football.** `/fixtures?id=<fixtureId>` (the `matchId` stored on each
+projection) returns `goals.home`/`goals.away` once `fixture.status.short == "FT"` — the
+**90-minute regulation** score (AET/PEN are separate fields we deliberately do NOT use for
+90-minute markets). Grade moneyline on home/draw/away vs that score; grade totals on
+`goals.home + goals.away` vs the line. A settler (`pipeline/world_cup/settle.py`) is the next
+step — run it only AFTER `status==FT`; it must be idempotent and never alter pre-game
+odds/lines.
 
 ## When projections/parlays DO go live (after a stats provider connects)
 Settle per market, official sources only, regulation-time only:

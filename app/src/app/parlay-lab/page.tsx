@@ -39,6 +39,9 @@ import {
   getOptimizerGradedForDate,
 } from "@/lib/parlay-results";
 import { currentEtDate } from "@/lib/freshness";
+import { loadWorldCupParlays } from "@/lib/world-cup/projections";
+import WcParlayCard from "@/components/world-cup/wc-parlay-card";
+import SectionHeader from "@/components/section-header";
 
 export const metadata = {
   title: "Parlay Lab · GameTime Picks",
@@ -272,9 +275,40 @@ export default function ParlayLabPage() {
         )}
       </Suspense>
 
+      <WorldCupSuggestedCards />
+
       <FooterPointer />
       <OtherSportsPointer />
     </div>
+  );
+}
+
+/**
+ * World Cup suggested parlays — built only from real World Cup model projections
+ * (separate engine from the NBA/MLB optimizer above). Renders nothing when the
+ * projection gates haven't passed, so we never show empty/fabricated soccer cards.
+ */
+function WorldCupSuggestedCards() {
+  const parlays = loadWorldCupParlays();
+  if (!parlays || parlays.cards.length === 0) return null;
+  return (
+    <section id="world-cup" aria-label="World Cup suggested parlays" className="mt-10">
+      <SectionHeader
+        eyebrow={`World Cup · ${parlays.cardCount} suggested card${parlays.cardCount === 1 ? "" : "s"}`}
+        title="World Cup suggested parlays"
+        sub="Built only from positive-edge World Cup model projections (one leg per match — no in-card correlation). 90-minute regulation only. Educational / paper, not betting advice."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {parlays.cards.map((c) => (
+          <WcParlayCard key={c.id} card={c} />
+        ))}
+      </div>
+      <div className="mt-3">
+        <Link href="/world-cup" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+          Full World Cup board →
+        </Link>
+      </div>
+    </section>
   );
 }
 

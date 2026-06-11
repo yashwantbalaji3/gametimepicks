@@ -52,6 +52,23 @@ def _card(cid, title, tier, legs, stake=25):
     }
 
 
+def _tier_for(american: int) -> str:
+    """Risk tier from the card's ACTUAL combined odds — not from construction order."""
+    if american <= 150:
+        return "Low"
+    if american <= 400:
+        return "Medium"
+    if american <= 1000:
+        return "High"
+    return "Longshot"
+
+
+_TITLES = {
+    "Low": "World Cup Low-Risk Card", "Medium": "World Cup Medium Card",
+    "High": "World Cup High-Variance Card", "Longshot": "World Cup Longshot Card",
+}
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", required=True)
@@ -61,57 +78,48 @@ def main(argv=None) -> int:
     projections = json.loads(pf.read_text()).get("matches", []) if pf.exists() else []
     # Only legs where the MODEL sees value (positive edge) and we have odds.
     value = [p for p in projections if p.get("americanOdds") is not None and (p.get("edgePct") or 0) > 0.5]
-    cards, reasons = [], []
 
-    # Cross-match favorites (negative odds, moneyline) → Low card (≤2 legs, 1 per match).
-    fav = sorted([p for p in value if p["market"] == "moneyline_90" and int(p["americanOdds"]) < 0],
-                 key=lambda p: -(p["edgePct"]))
-    seen_matches, low_legs = set(), []
-    for p in fav:
-        if p["matchId"] in seen_matches:
-            continue
-        low_legs.append(_leg(p)); seen_matches.add(p["matchId"])
-        if len(low_legs) == 2:
-            break
-    if len(low_legs) >= 2:
-        cards.append(_card(f"wc_{args.date}_low_001", "World Cup Low-Risk — Cross-Match Favorites", "Low", low_legs))
-    else:
-        reasons.append("Low card needs 2 positive-edge moneyline favorites across different matches")
+    # Build all valid 2-leg CROSS-MATCH combinations (1 leg per match → no in-card correlation).
+    by_match: dict = {}
+    for p in value:
+        by_match.setdefault(p["matchId"], []).append(p)
+    match_ids = list(by_match.keys())
+    combos = []
+    for i in range(len(match_ids)):
+        for j in range(i + 1, len(match_ids)):
+            for a in by_match[match_ids[i]]:
+                for b in by_match[match_ids[j]]:
+                    dec = _am_to_dec(int(a["americanOdds"])) * _am_to_dec(int(b["americanOdds"]))
+                    combos.append({
+                        "legs": [_leg(a), _leg(b)], "dec": dec, "american": _dec_to_am(dec),
+                        "totalEdge": round((a["edgePct"] + b["edgePct"]), 2),
+                    })
 
-    # Medium: best 2-3 positive-edge legs (moneyline or total), max 1 per match.
-    med_pool = sorted(value, key=lambda p: -(p["edgePct"]))
-    seen, med_legs = set(), []
-    for p in med_pool:
-        if p["matchId"] in seen:
-            continue
-        med_legs.append(_leg(p)); seen.add(p["matchId"])
-        if len(med_legs) == 3:
+    # Bucket each combo by its ACTUAL combined odds; keep the highest-total-edge card per tier
+    # (deduped). No padding, no mislabeling — a card's tier reflects its real combined odds.
+    cards, reasons, used = [], [], set()
+    seq = {"Low": 0, "Medium": 0, "High": 0, "Longshot": 0}
+    for tier in ("Low", "Medium", "High", "Longshot"):
+        pool = sorted([c for c in combos if _tier_for(c["american"]) == tier], key=lambda c: -c["totalEdge"])
+        placed = False
+        for c in pool:
+            key = frozenset((l["matchId"], l["pick"]) for l in c["legs"])
+            if key in used:
+                continue
+            used.add(key); seq[tier] += 1
+            card = _card(f"wc_{args.date}_{tier.lower()}_{seq[tier]:03d}", _TITLES[tier], tier, c["legs"])
+            card["combinedTotalEdgePct"] = c["totalEdge"]
+            if tier in ("High", "Longshot"):
+                card["dataCaveats"].insert(0, "Higher variance: plus-money outcomes (Draw/underdog/over) — long odds by design")
+            cards.append(card); placed = True
             break
-    if len(med_legs) >= 2:
-        cards.append(_card(f"wc_{args.date}_med_001", "World Cup Medium — Top Model Edges", "Medium", med_legs))
-    else:
-        reasons.append("Medium card needs 2+ positive-edge legs across different matches")
-
-    # High: plus-money model picks (≥2), clearly higher variance.
-    plus = sorted([p for p in value if int(p["americanOdds"]) >= 120], key=lambda p: -(p["edgePct"]))
-    seen, hi_legs = set(), []
-    for p in plus:
-        if p["matchId"] in seen:
-            continue
-        hi_legs.append(_leg(p)); seen.add(p["matchId"])
-        if len(hi_legs) == 2:
-            break
-    if len(hi_legs) >= 2:
-        c = _card(f"wc_{args.date}_high_001", "World Cup High Variance — Plus-Money Model Picks", "High", hi_legs)
-        c["dataCaveats"].insert(0, "Higher variance: plus-money outcomes including Draw/underdog results")
-        cards.append(c)
-    else:
-        reasons.append("High card needs 2+ plus-money positive-edge legs")
+        if not placed:
+            reasons.append(f"No {tier} card: no positive-edge cross-match combo lands in the {tier} odds range")
 
     payload = {
         "generatedAt": now, "sport": "world_cup", "date": args.date,
         "disclaimer": "Suggested paper parlays from GameTime Picks model projections — 90-minute regulation only. Not betting advice.",
-        "cardCount": len(cards), "byRisk": {t: sum(1 for c in cards if c["riskTier"] == t) for t in ("Low", "Medium", "High")},
+        "cardCount": len(cards), "byRisk": {t: sum(1 for c in cards if c["riskTier"] == t) for t in ("Low", "Medium", "High", "Longshot")},
         "cards": cards, "gateReasons": reasons,
         "sourceProjections": len(projections), "valueLegs": len(value),
     }
