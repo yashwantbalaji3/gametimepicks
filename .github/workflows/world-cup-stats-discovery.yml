@@ -48,7 +48,10 @@ jobs:
           test -f app/public/data/world-cup/stats/normalized-latest.json && { echo "::group::normalized"; cat app/public/data/world-cup/stats/normalized-latest.json | head -60; echo "::endgroup::"; } || true
       - name: Commit readiness
         run: |
-          git add app/public/data/world-cup/stats/*.json app/public/data/world-cup/provider-discovery/*.json app/public/data/world-cup/projections/*.json app/public/data/world-cup/parlays/*.json app/public/data/world-cup/settlement/*.json app/public/data/world-cup/markets/*.json app/public/data/world-cup/player-markets/*.json app/public/data/world-cup/player-projections/*.json app/public/data/world-cup/player-features/*.json 2>/dev/null || true
+          # Add each subdir independently so a not-yet-existing path never aborts the whole add.
+          for sub in stats provider-discovery projections parlays settlement markets player-markets player-projections player-features; do
+            git add "app/public/data/world-cup/$sub/" 2>/dev/null || true
+          done
           if git diff --staged --quiet; then echo "no changes"; exit 0; fi
           git config user.name "GametimePicks Bot"; git config user.email "noreply@github.com"
           git commit -m "auto: World Cup stats readiness [skip ci]"
