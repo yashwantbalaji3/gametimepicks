@@ -18,6 +18,7 @@ from .projection_model import (
     project_ensemble, classify_v2, poisson_over_under, UNDERDOG_MARKET_FLOOR,
 )
 from .build_features import is_underdog_side, american_to_prob
+from .soccer_policy import parlay_eligibility
 from .team_strength import points_for, rank_for, strength_expected_goals, opponent_adjust
 from .team_aliases import norm, pair_key
 
@@ -146,11 +147,19 @@ def main(argv=None) -> int:
              "marketProbability": round(s[3], 4), "americanOdds": s[4]}
             for s in sides
         ]
-        ml_public, ml_eligible, ml_status, ml_reason = classify_v2(
+        ml_public, _ev2, ml_status, ml_reason = classify_v2(
             market_prob=mkt, model_prob=mp, market_type="moneyline_90",
             sample_min=sample_min, is_underdog=is_underdog_side(odds, mkt),
             strength_missing=strength_missing,
         )
+        # Hybrid parlay eligibility (soccer-specific thresholds, lower than the old wall).
+        ml_pol = parlay_eligibility(
+            market="moneyline_90", edge=mp - mkt, market_prob=mkt, american_odds=odds,
+            sample_min=sample_min, is_underdog=is_underdog_side(odds, mkt),
+        )
+        ml_eligible = ml_pol["parlayEligible"]
+        if ml_eligible:
+            ml_status = "parlay_eligible"; ml_reason = ml_pol["reason"]
         hr, ar = rank_for(g["home"]), rank_for(g["away"])
         strength_factor = (
             f"FIFA strength: {g['home']} {f'#{hr}' if hr else 'unranked'} ({home_pts or '—'}) vs "
@@ -180,8 +189,9 @@ def main(argv=None) -> int:
             "edgePct": round((mp - mkt) * 100, 2), "outcomes": ml_outcomes,
             "confidence": proj.get("confidence"),
             "projectionStatus": ml_status, "public": ml_public, "parlayEligible": ml_eligible,
-            "statusReason": ml_reason,
-            "riskTier": _risk_tier(int(odds)) if odds else "Medium",
+            "bankBuilderEligible": ml_pol["bankBuilderEligible"], "statusReason": ml_reason,
+            "settlementSupport": "automated",
+            "riskTier": ml_pol["riskTier"],
             "factors": [
                 strength_factor,
                 f"Opponent-adjusted form: {g['home']} att {adj_h.get('attack')} / {g['away']} att {adj_a.get('attack')}",
@@ -196,10 +206,16 @@ def main(argv=None) -> int:
             t = proj["total"]
             over_edge = t["over"] - (totals.get("overPct") or 0)
             tside, tprob, tmkt, todds = ("over", t["over"], totals.get("overPct"), totals.get("overOdds")) if over_edge >= 0 else ("under", t["under"], totals.get("underPct"), totals.get("underOdds"))
-            t_public, t_eligible, t_status, t_reason = classify_v2(
+            t_public, _tv2, t_status, t_reason = classify_v2(
                 market_prob=tmkt or 0, model_prob=tprob, market_type="match_total_goals",
                 sample_min=sample_min, is_underdog=False, strength_missing=strength_missing,
             )
+            t_pol = parlay_eligibility(
+                market="match_total_goals", edge=tprob - (tmkt or 0), market_prob=tmkt or 0,
+                american_odds=todds, sample_min=sample_min, is_underdog=False)
+            t_eligible = t_pol["parlayEligible"]
+            if t_eligible:
+                t_status = "parlay_eligible"; t_reason = t_pol["reason"]
             t_outcomes = [
                 {"label": f"Over {t['line']}", "side": "over", "modelProbability": round(t["over"], 4),
                  "marketProbability": round(totals.get("overPct") or 0, 4), "americanOdds": totals.get("overOdds")},
@@ -216,8 +232,9 @@ def main(argv=None) -> int:
                 "edgePct": round((tprob - (tmkt or 0)) * 100, 2), "outcomes": t_outcomes,
                 "confidence": "Low",
                 "projectionStatus": t_status, "public": t_public, "parlayEligible": t_eligible,
-                "statusReason": t_reason,
-                "riskTier": _risk_tier(int(todds)) if todds else "Low",
+                "bankBuilderEligible": t_pol["bankBuilderEligible"], "statusReason": t_reason,
+                "settlementSupport": "automated",
+                "riskTier": t_pol["riskTier"],
                 "factors": [
                     f"Market total {t['line']} — model {round(t['over']*100)}% Over vs market {round((totals.get('overPct') or 0)*100)}%",
                     ensemble_factor,
@@ -247,10 +264,16 @@ def main(argv=None) -> int:
                 cside, cprob, cmkt, codds = (("over", blend_over, mkt_over, co["overOdds"])
                                              if c_over_edge >= 0 else
                                              ("under", 1 - blend_over, 1 - mkt_over, co["underOdds"]))
-                c_public, c_eligible, c_status, c_reason = classify_v2(
+                c_public, _cv2, c_status, c_reason = classify_v2(
                     market_prob=cmkt, model_prob=cprob, market_type="match_total_corners",
                     sample_min=c_sample, is_underdog=False, corner_sample=c_sample,
                 )
+                c_pol = parlay_eligibility(
+                    market="match_total_corners", edge=cprob - cmkt, market_prob=cmkt,
+                    american_odds=codds, corner_sample=c_sample, is_underdog=False)
+                c_eligible = c_pol["parlayEligible"]
+                if c_eligible:
+                    c_status = "parlay_eligible"; c_reason = c_pol["reason"]
                 c_outcomes = [
                     {"label": f"Over {co['line']}", "side": "over", "modelProbability": round(blend_over, 4),
                      "marketProbability": round(mkt_over, 4), "americanOdds": co["overOdds"]},
@@ -267,8 +290,9 @@ def main(argv=None) -> int:
                     "edgePct": round((cprob - cmkt) * 100, 2), "outcomes": c_outcomes,
                     "confidence": "Low", "cornerSample": c_sample,
                     "projectionStatus": c_status, "public": c_public, "parlayEligible": c_eligible,
-                    "statusReason": c_reason,
-                    "riskTier": _risk_tier(int(codds)) if codds else "Medium",
+                    "bankBuilderEligible": c_pol["bankBuilderEligible"], "statusReason": c_reason,
+                    "settlementSupport": "automated",
+                    "riskTier": c_pol["riskTier"],
                     "factors": [
                         f"Recent corners: {g['home']} {hc.get('cornersFor90')}/{hc.get('cornersAgainst90')} for/against (last {hc.get('played')})",
                         f"Recent corners: {g['away']} {ac.get('cornersFor90')}/{ac.get('cornersAgainst90')} for/against (last {ac.get('played')})",

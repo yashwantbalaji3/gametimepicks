@@ -13,6 +13,8 @@ REQUESTED_MARKETS = [
      "oddsKey": "h2h", "oddsProvider": "odds_api"},
     {"key": "match_total_goals", "label": "Total goals", "kind": "team",
      "oddsKey": "totals", "oddsProvider": "odds_api"},
+    {"key": "double_chance", "label": "Double chance", "kind": "team",
+     "oddsKey": "double_chance", "oddsProvider": "odds_api"},
     {"key": "match_total_corners", "label": "Total corners", "kind": "team",
      "oddsKey": "alternate_totals_corners", "oddsProvider": "odds_api"},
     {"key": "player_total_shots", "label": "Player total shots", "kind": "player",

@@ -10,7 +10,7 @@ class TestMarketAvailability(unittest.TestCase):
     def test_all_requested_markets_present(self):
         keys = {m["key"] for m in REQUESTED_MARKETS}
         self.assertEqual(keys, {
-            "moneyline_90", "match_total_goals", "match_total_corners",
+            "moneyline_90", "double_chance", "match_total_goals", "match_total_corners",
             "player_total_shots", "player_shots_on_target", "player_assists", "anytime_goalscorer",
         })
 

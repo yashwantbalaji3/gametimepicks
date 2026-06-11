@@ -84,29 +84,45 @@ def main(argv=None) -> int:
         and p.get("americanOdds") is not None and (p.get("edgePct") or 0) > 0.5
     ]
 
-    # Build all valid 2-leg CROSS-MATCH combinations (1 leg per match → no in-card correlation).
+    # Candidate cards from PARLAY-ELIGIBLE legs: singles (a suggested straight pick), 2-leg
+    # cross-match combos, and 2-leg same-match combos (correlated → High/Longshot only).
     by_match: dict = {}
     for p in value:
         by_match.setdefault(p["matchId"], []).append(p)
     match_ids = list(by_match.keys())
-    combos = []
+    candidates = []
+    # Single-leg suggested picks.
+    for p in value:
+        dec = _am_to_dec(int(p["americanOdds"]))
+        candidates.append({"legs": [_leg(p)], "dec": dec, "american": _dec_to_am(dec),
+                           "totalEdge": round(p["edgePct"], 2), "correlated": False})
+    # 2-leg cross-match combos (no in-card correlation).
     for i in range(len(match_ids)):
         for j in range(i + 1, len(match_ids)):
             for a in by_match[match_ids[i]]:
                 for b in by_match[match_ids[j]]:
                     dec = _am_to_dec(int(a["americanOdds"])) * _am_to_dec(int(b["americanOdds"]))
-                    combos.append({
-                        "legs": [_leg(a), _leg(b)], "dec": dec, "american": _dec_to_am(dec),
-                        "totalEdge": round((a["edgePct"] + b["edgePct"]), 2),
-                    })
+                    candidates.append({"legs": [_leg(a), _leg(b)], "dec": dec, "american": _dec_to_am(dec),
+                                       "totalEdge": round(a["edgePct"] + b["edgePct"], 2), "correlated": False})
+    # 2-leg same-match combos — correlated; allowed only in High/Longshot.
+    for mid, legs in by_match.items():
+        for x in range(len(legs)):
+            for y in range(x + 1, len(legs)):
+                a, b = legs[x], legs[y]
+                dec = _am_to_dec(int(a["americanOdds"])) * _am_to_dec(int(b["americanOdds"]))
+                candidates.append({"legs": [_leg(a), _leg(b)], "dec": dec, "american": _dec_to_am(dec),
+                                   "totalEdge": round(a["edgePct"] + b["edgePct"], 2), "correlated": True})
 
-    # Bucket each combo by its ACTUAL combined odds; keep the highest-total-edge card per tier
-    # (deduped). No padding, no mislabeling — a card's tier reflects its real combined odds.
+    # Bucket by ACTUAL combined odds; keep up to 2 cards per tier (best total-edge, deduped). Low/
+    # Medium reject correlated same-match combos. A card's tier reflects its real combined odds.
     cards, reasons, used = [], [], set()
     seq = {"Low": 0, "Medium": 0, "High": 0, "Longshot": 0}
     for tier in ("Low", "Medium", "High", "Longshot"):
-        pool = sorted([c for c in combos if _tier_for(c["american"]) == tier], key=lambda c: -c["totalEdge"])
-        placed = False
+        allow_corr = tier in ("High", "Longshot")
+        pool = sorted([c for c in candidates
+                       if _tier_for(c["american"]) == tier and (allow_corr or not c["correlated"])],
+                      key=lambda c: -c["totalEdge"])
+        placed = 0
         for c in pool:
             key = frozenset((l["matchId"], l["pick"]) for l in c["legs"])
             if key in used:
@@ -114,12 +130,16 @@ def main(argv=None) -> int:
             used.add(key); seq[tier] += 1
             card = _card(f"wc_{args.date}_{tier.lower()}_{seq[tier]:03d}", _TITLES[tier], tier, c["legs"])
             card["combinedTotalEdgePct"] = c["totalEdge"]
-            if tier in ("High", "Longshot"):
-                card["dataCaveats"].insert(0, "Higher variance: plus-money outcomes (Draw/underdog/over) — long odds by design")
-            cards.append(card); placed = True
-            break
-        if not placed:
-            reasons.append(f"No {tier} card: no positive-edge cross-match combo lands in the {tier} odds range")
+            card["single"] = len(c["legs"]) == 1
+            if c["correlated"]:
+                card["correlationNotes"].insert(0, "Legs share a match — correlated; higher variance")
+            if allow_corr:
+                card["dataCaveats"].insert(0, "Higher variance: plus-money / correlated outcomes — long odds by design")
+            cards.append(card); placed += 1
+            if placed >= 2:
+                break
+        if placed < 2:
+            reasons.append(f"{tier}: {placed} card(s) — not enough parlay-eligible legs in the {tier} odds range to reach the 2-per-tier target")
 
     payload = {
         "generatedAt": now, "sport": "world_cup", "date": args.date,
