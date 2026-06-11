@@ -1,0 +1,39 @@
+name: world-cup-odds
+on:
+  workflow_dispatch:
+    inputs:
+      date: { description: "Slate date YYYY-MM-DD (ET)", type: string, required: false, default: "2026-06-11" }
+      markets: { description: "Odds API markets", type: string, required: false, default: "h2h,totals" }
+permissions:
+  contents: write
+concurrency:
+  group: world-cup-odds
+  cancel-in-progress: false
+jobs:
+  odds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install requests
+      - name: Discover + build World Cup market outlook
+        run: |
+          D="${{ github.event.inputs.date || '2026-06-11' }}"
+          M="${{ github.event.inputs.markets || 'h2h,totals' }}"
+          python -m pipeline.world_cup.odds_api --date "$D" --markets "$M"
+      - name: Show
+        run: |
+          echo "::group::discovery"; cat app/public/data/world-cup/odds-discovery-latest.json | head -60; echo "::endgroup::"
+          echo "::group::outlook"; cat app/public/data/world-cup/market-outlook-latest.json | head -60; echo "::endgroup::"
+          echo "::group::readiness"; cat app/public/data/world-cup/projection-readiness-latest.json; echo "::endgroup::"
+      - name: Commit artifacts
+        run: |
+          git add app/public/data/world-cup/odds-discovery-*.json app/public/data/world-cup/market-outlook-*.json app/public/data/world-cup/projection-readiness-latest.json 2>/dev/null || true
+          if git diff --staged --quiet; then echo "no changes"; exit 0; fi
+          git config user.name "GametimePicks Bot"; git config user.email "noreply@github.com"
+          git commit -m "auto: World Cup market outlook (real odds) [skip ci]"
+          for a in 1 2 3 4 5; do git push origin HEAD:main && exit 0; git fetch origin main && git rebase origin/main || { git rebase --abort||true; exit 1; }; done
