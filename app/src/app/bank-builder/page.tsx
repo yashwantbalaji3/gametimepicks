@@ -32,6 +32,12 @@ import PageHero from "@/components/page-hero";
 import BoardStatTile from "@/components/board-stat-tile";
 import BankBuilderTower from "@/components/bank-builder-tower";
 import BankBuilderShareCard from "@/components/bank-builder-share-card";
+import BankBuilderFinalsSpotlight from "@/components/bank-builder-finals-spotlight";
+import {
+  buildFinalsCards,
+  selectFeaturedFinalsCard,
+  type FinalsLeg,
+} from "@/lib/nba-finals-cards";
 import {
   getSuggestedParlaysForDate,
   getOptimizerSnapshotForDate,
@@ -153,6 +159,20 @@ export default function BankBuilderPage() {
   const diagnosis = diagnoseBuilderPool(pool);
   const poolIsFallback = suggested?.isFallback ?? false;
   const savedPregame = suggested?.source === "snapshot";
+
+  // Featured NBA Finals spotlight (Phase 5) — illustrative same-game card shown
+  // OUTSIDE the tracked ladder. Derived from the same real optimizer leg pool;
+  // never alters the canonical settled ledger. Only for a one-game NBA slate.
+  const nbaFinalsLegs = (optimizerForDate?.legPool?.legs ?? []).filter(
+    (l) => (l as { sport?: string }).sport === "nba",
+  ) as unknown as FinalsLeg[];
+  const nbaFinalsGameIds = new Set(
+    nbaFinalsLegs.map((l) => (l as { gameId?: string }).gameId).filter(Boolean),
+  );
+  const featuredFinalsCard =
+    nbaFinalsLegs.length > 0 && nbaFinalsGameIds.size === 1
+      ? selectFeaturedFinalsCard(buildFinalsCards(nbaFinalsLegs, { perTier: 8 }))
+      : null;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-8 overflow-x-hidden">
@@ -280,6 +300,11 @@ export default function BankBuilderPage() {
       )}
 
       <DisclaimerBanner placement="top" />
+
+      <BankBuilderFinalsSpotlight
+        card={featuredFinalsCard}
+        illustrativeStake={currentBankroll}
+      />
 
       {/* ---- Eligibility chips + transparent criteria (PR 4) --------- */}
       <EligibilityPanel />

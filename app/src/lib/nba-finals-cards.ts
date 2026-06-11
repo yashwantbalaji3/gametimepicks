@@ -219,3 +219,34 @@ export function buildFinalsCards(
 export function fmtAmerican(o: number): string {
   return o > 0 ? `+${o}` : `${o}`;
 }
+
+/**
+ * Pick a single FEATURED 2-leg NBA Finals card for the Bank Builder spotlight.
+ * Honest selection: a 2-leg same-game card in a sensible odds window where BOTH
+ * legs are model-supported (Medium+ confidence). Returns the highest-quality
+ * such card, or null when none qualifies (caller keeps the canonical slip).
+ * Deterministic — never random.
+ */
+export function selectFeaturedFinalsCard(
+  cards: Record<FinalsTier, FinalsCard[]>,
+  opts: { minAmerican?: number; maxAmerican?: number } = {},
+): FinalsCard | null {
+  const minA = opts.minAmerican ?? 150;
+  const maxA = opts.maxAmerican ?? 400;
+  const okConf = (c: string | null | undefined) =>
+    (c || "").toLowerCase() === "high" || (c || "").toLowerCase() === "medium";
+  const pool = [...cards.low, ...cards.medium].filter(
+    (c) =>
+      c.legs.length === 2 &&
+      c.combinedAmerican >= minA &&
+      c.combinedAmerican <= maxA &&
+      c.legs.every((l) => okConf(l.confidence)),
+  );
+  if (pool.length === 0) return null;
+  pool.sort(
+    (a, b) =>
+      b.legs.reduce((s, l) => s + (l.legScore ?? 0), 0) -
+        a.legs.reduce((s, l) => s + (l.legScore ?? 0), 0) || a.cardId.localeCompare(b.cardId),
+  );
+  return pool[0];
+}
