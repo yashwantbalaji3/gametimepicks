@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeWcCards, normalizeWcProjections, normalizeWcPlayerProps, normalizeOptimizerSlips, normalizeUfcCards } from "./normalize.ts";
+import { normalizeWcCards, normalizeWcProjections, normalizeWcPlayerProps, normalizeOptimizerSlips, normalizeUfcCards, normalizeMlbLeans } from "./normalize.ts";
 
 test("normalizeWcCards maps to the public card contract", () => {
   const out = normalizeWcCards({ date: "2026-06-11", cardCount: 1, byRisk: {}, cards: [
@@ -68,4 +68,30 @@ test("normalizeUfcCards is model-only (no odds) + needs publicReady", () => {
   assert.equal(out[0].combinedAmericanOdds, 0);
   assert.equal(out[0].legs[0].label, "Mauricio Ruffy");
   assert.equal(normalizeUfcCards({ publicReady: false, cards: [] }, "x").length, 0);
+});
+
+test("normalizeMlbLeans maps the picked side (Under) + flags as projection view", () => {
+  const out = normalizeMlbLeans({ date: "2026-06-11", leans: [
+    { id: "L1", playerName: "Merrill Kelly", playerRole: "pitcher", playerTeamAbbr: "AZ",
+      awayTeamAbbr: "AZ", homeTeamAbbr: "MIA", marketKey: "pitcher_strikeouts", marketLabel: "Strikeouts",
+      line: 4.5, lean: "Under", confidence: "High", edgePct: 13.4, edgePctOver: -19.48, edgePctUnder: 13.4,
+      modelProbOver: 0.266, modelProbUnder: 0.734, impliedOver: 0.4608, impliedUnder: 0.6,
+      oddsOver: 117, oddsUnder: -150, gamePk: 823855 },
+  ] });
+  assert.equal(out.length, 1);
+  assert.equal(out[0].sport, "mlb");
+  assert.equal(out[0].participantType, "player");
+  assert.equal(out[0].pickLabel, "Under 4.5");
+  assert.equal(out[0].americanOdds, -150);          // Under side
+  assert.equal(out[0].modelProbability, 0.734);     // Under side
+  assert.equal(out[0].marketProbability, 0.6);      // Under side
+  assert.equal(out[0].parlayEligible, false);       // projection view, not a card leg
+  assert.equal(out[0].player.position, "pitcher");
+});
+
+test("normalizeMlbLeans handles empty + Over side", () => {
+  assert.equal(normalizeMlbLeans(null).length, 0);
+  const out = normalizeMlbLeans({ leans: [{ playerName: "X", lean: "Over", line: 1.5, oddsOver: 120, oddsUnder: -140, modelProbOver: 0.55, impliedOver: 0.45, marketLabel: "Hits" }] });
+  assert.equal(out[0].americanOdds, 120);
+  assert.equal(out[0].modelProbability, 0.55);
 });

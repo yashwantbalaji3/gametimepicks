@@ -174,6 +174,49 @@ export function normalizeWcPlayerProps(players: WcPlayerProjections | null): Pub
   }));
 }
 
+// ── MLB board-lean adapter (model player-prop projections → projection views) ──
+type MlbLean = {
+  id?: string; playerName?: string; playerRole?: string; playerTeamAbbr?: string; playerTeamName?: string;
+  opponentAbbr?: string; awayTeamAbbr?: string; homeTeamAbbr?: string; marketKey?: string; marketLabel?: string;
+  line?: number | null; lean?: string; confidence?: string; date?: string; gamePk?: number | string;
+  edgePct?: number | null; edgePctOver?: number | null; edgePctUnder?: number | null;
+  modelProbOver?: number | null; modelProbUnder?: number | null; impliedOver?: number | null; impliedUnder?: number | null;
+  oddsOver?: number | null; oddsUnder?: number | null;
+};
+type MlbBoardLike = { date?: string; leans?: MlbLean[] };
+
+/** MLB board leans → PublicProjection views (player props). These are model projection VIEWS
+ *  (parlayEligible=false); the parlay-eligible subset comes from the optimizer cards. */
+export function normalizeMlbLeans(board: MlbBoardLike | null): PublicProjection[] {
+  const leans = board?.leans ?? [];
+  return leans.map((l, i) => {
+    const over = (l.lean ?? "").toLowerCase() === "over";
+    return {
+      id: l.id ?? `mlb_lean_${i}`,
+      sport: "mlb",
+      sportLabel: "MLB",
+      date: l.date ?? board?.date ?? "",
+      matchId: l.gamePk ?? null,
+      gameLabel: `${l.awayTeamAbbr ?? ""} @ ${l.homeTeamAbbr ?? ""}`.trim(),
+      market: l.marketKey ?? "",
+      marketLabel: l.marketLabel ?? l.marketKey ?? "",
+      participantType: "player",
+      player: { name: l.playerName ?? "Player", team: l.playerTeamAbbr ?? l.playerTeamName, position: l.playerRole ?? null },
+      pickLabel: `${l.lean ?? ""} ${l.line ?? ""}`.trim(),
+      line: l.line ?? null,
+      americanOdds: over ? l.oddsOver ?? null : l.oddsUnder ?? null,
+      modelProbability: over ? l.modelProbOver ?? null : l.modelProbUnder ?? null,
+      marketProbability: over ? l.impliedOver ?? null : l.impliedUnder ?? null,
+      edgePct: l.edgePct ?? (over ? l.edgePctOver : l.edgePctUnder) ?? null,
+      confidence: (l.confidence as "Low" | "Medium" | "High") ?? "Low",
+      public: true,
+      parlayEligible: false,
+      bankBuilderEligible: false,
+      status: "public_projection",
+    };
+  });
+}
+
 // ── NBA / MLB optimizer-slip adapter (defensive — works for either slip shape) ──
 const PROFILE_TIER: Record<string, RiskTier> = {
   conservative: "Low", balanced: "Medium", aggressive: "High", lottery: "Longshot",
