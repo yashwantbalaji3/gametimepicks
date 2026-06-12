@@ -29,6 +29,7 @@ import {
 import {
   loadWorldCupProjections,
   loadWorldCupParlays,
+  loadWorldCupSettlement,
   worldCupMethodologyReview,
   loadWorldCupTeamStrengthSummary,
   loadWorldCupMarketAvailability,
@@ -87,6 +88,7 @@ export default function WorldCupLandingPage() {
   const planBlock = stats?.providerPlanBlock;
   const projections = loadWorldCupProjections();
   const parlays = loadWorldCupParlays();
+  const settlement = loadWorldCupSettlement();
   const projectionsLive = !!projections && projections.matches.length > 0;
   const parlaysLive = !!parlays && parlays.cards.length > 0;
   const methodologyReview = worldCupMethodologyReview();
@@ -353,14 +355,84 @@ export default function WorldCupLandingPage() {
     </div>
   );
 
+  const settledCards = (parlays?.cards ?? []).filter((c) => c.result && c.result !== "pending");
   const resultsTab = (
-    <div className="flex flex-col gap-3">
-      <SectionHeader eyebrow="Results" title="World Cup settlement" sub="Settled cards + leg outcomes appear here after matches finish (90-minute regulation grading)." />
-      <div className="rounded-[8px] px-4 py-6 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
-        <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No settled World Cup cards yet</p>
-        <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Grading runs automatically once today's matches reach full time. Full cross-sport history lives on the Results page.</p>
-        <div className="mt-3"><Link href="/results" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Open Results →</Link></div>
-      </div>
+    <div className="flex flex-col gap-4">
+      <SectionHeader eyebrow="Results" title="World Cup settlement" sub="Official 90-minute regulation grading. Soccer settles on the FT regulation score — Draw is a real outcome; extra time and penalties never count for these markets." />
+      {settlement ? (
+        <>
+          {/* Official finals */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {(settlement.finals ?? []).map((f) => (
+              <div key={String(f.matchId)} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+                <div className="flex items-center justify-between gap-2">
+                  <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>{f.match}</span>
+                  <span className="font-display tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 16, fontWeight: 700 }}>{f.regulationScore}</span>
+                </div>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                  Full time (90′ regulation){f.corners ? ` · corners ${f.corners.home}–${f.corners.away}` : ""}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Graded published picks */}
+          <div className="flex flex-col gap-1.5">
+            {settlement.graded.map((g) => (
+              <div key={g.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[8px] px-4 py-2.5" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+                <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{g.pick}</span>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.market.replace(/_/g, " ")} · final {g.regulationScore}</span>
+                <span
+                  className="ml-auto rounded px-2 py-0.5 font-mono text-[10px] font-bold tracking-[0.08em]"
+                  style={g.outcome === "win"
+                    ? { color: "#6EE7A8", background: "rgba(110,231,168,0.14)" }
+                    : g.outcome === "push"
+                      ? { color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.06)" }
+                      : { color: "#F08A8A", background: "rgba(240,138,138,0.12)" }}
+                >
+                  {g.outcome.toUpperCase()}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Settled suggested cards */}
+          {settledCards.length > 0 && (
+            <div>
+              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                Suggested cards · {settledCards.filter((c) => c.result === "won").length} won / {settledCards.filter((c) => c.result === "lost").length} lost
+              </span>
+              <div className="mt-2 flex flex-col gap-1.5">
+                {settledCards.map((c) => (
+                  <div key={c.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[8px] px-4 py-2.5" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+                    <span style={{ color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600 }}>{c.riskTier} card</span>
+                    <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+                      {c.legs.map((l) => l.pick).join(" + ")}
+                    </span>
+                    <span
+                      className="ml-auto rounded px-2 py-0.5 font-mono text-[10px] font-bold tracking-[0.08em]"
+                      style={c.result === "won"
+                        ? { color: "#6EE7A8", background: "rgba(110,231,168,0.14)" }
+                        : { color: "#F08A8A", background: "rgba(240,138,138,0.12)" }}
+                    >
+                      {(c.result ?? "").toUpperCase()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+            Source: {settlement.settlementSource ?? "official final scores"} · settled {settlement.generatedAt}. Paper-only educational tracking.
+          </p>
+        </>
+      ) : (
+        <div className="rounded-[8px] px-4 py-6 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+          <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No settled World Cup cards yet</p>
+          <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Grading runs automatically once today's matches reach full time. Full cross-sport history lives on the Results page.</p>
+          <div className="mt-3"><Link href="/results" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Open Results →</Link></div>
+        </div>
+      )}
     </div>
   );
 

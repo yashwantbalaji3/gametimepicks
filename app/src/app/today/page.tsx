@@ -58,10 +58,16 @@ export default function TodayPage() {
   const activeSports = (wcLive ? 1 : 0) + (mlbLive ? 1 : 0);
   const mixedCards = loadDailyMixedCards();
   const topCards = [...mixedCards, ...normalizeWcCards(wcCards)].slice(0, 4);
-  // Official Step-3 candidate stake is the public ladder bankroll ($728.76), not the internal
-  // summary figure — kept consistent with /bank-builder so the same card surfaces on both.
-  const officialStep3 = loadOfficialStep3Candidate(728.76);
-  const flexLeg = officialStep3 ? null : loadWorldCupFlexLeg();
+  // The official World Cup candidate (and the spotlight Flex Card) were STEP 3 cards. Once
+  // Step 3 settles (currentProgressionStep advances past 3), neither may re-render as
+  // pending — /today shows the updated ladder status instead, matching /bank-builder.
+  const onStep3 = bank?.currentProgressionStep === 3;
+  const officialStep3 =
+    onStep3 && bank ? loadOfficialStep3Candidate(bank.currentBankrollUnits) : null;
+  const flexLeg = officialStep3 || !onStep3 ? null : loadWorldCupFlexLeg();
+  const bankrollLabel = bank
+    ? `$${bank.currentBankrollUnits.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : null;
   const sportSummaries: SportSummary[] = [
     {
       sport: "world_cup", label: "World Cup", href: "/world-cup", accent: "var(--vault-gold-bright)", live: wcLive,
@@ -108,7 +114,7 @@ export default function TodayPage() {
           <Stat label="Sports live" value={activeSports} />
           <Stat label="Mixed cards" value={mixedCards.length} />
           <Stat label="WC cards" value={wcCards?.cardCount ?? 0} />
-          <Stat label="Bank Builder" value={bank ? `$${bank.currentBankrollUnits}` : "—"} />
+          <Stat label="Bank Builder" value={bankrollLabel ?? "—"} />
         </div>
       </section>
 
@@ -118,7 +124,7 @@ export default function TodayPage() {
           { href: "/games", label: "Games", sub: "Tonight, all sports" },
           { href: "/picks", label: "Picks", sub: "Suggested cards" },
           { href: "/build", label: "Build", sub: "Your own card" },
-          { href: "/bank-builder", label: "Bank", sub: bank ? `$${bank.currentBankrollUnits}` : "Ladder" },
+          { href: "/bank-builder", label: "Bank", sub: bankrollLabel ?? "Ladder" },
         ].map((a) => (
           <Link
             key={a.href}
@@ -169,7 +175,7 @@ export default function TodayPage() {
             style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
           >
             <div className="grid grid-cols-3 gap-4">
-              <Stat label="Bankroll" value={`$${bank.currentBankrollUnits}`} />
+              <Stat label="Bankroll" value={bankrollLabel ?? "—"} />
               <Stat label="Step" value={`${bank.currentProgressionStep} / 5`} />
               <Stat label="Record" value={`${bank.record.wins}-${bank.record.losses}-${bank.record.pushes}`} />
             </div>

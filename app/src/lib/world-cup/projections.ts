@@ -80,6 +80,8 @@ export interface WcParlayLeg {
   edgePct: number;
   confidence: string | null;
   regulationOnly: boolean;
+  /** Settlement outcome — present only after official 90-minute grading. */
+  result?: "win" | "loss" | "push" | "pending" | string;
 }
 export interface WcParlayCard {
   id: string;
@@ -97,6 +99,10 @@ export interface WcParlayCard {
   whyThisCard: string[];
   correlationNotes: string[];
   dataCaveats: string[];
+  /** Card settlement state — present only after every leg is officially graded. */
+  result?: "won" | "lost" | "push" | "pending" | string;
+  settledAt?: string;
+  settlementSource?: string;
 }
 export interface WcParlays {
   generatedAt: string;
@@ -154,6 +160,36 @@ export function loadWorldCupParlays(): WcParlays | null {
 /** Whether the model is paused under methodology review (drives the public note). */
 export function worldCupMethodologyReview(): boolean {
   return loadWorldCupStatsReadiness()?.methodologyReviewRequired === true;
+}
+
+// ── Settlement (written by pipeline.world_cup.settle from official FT scores) ──
+export interface WcSettlementFinal {
+  matchId: number | string;
+  match: string;
+  regulationScore: string;
+  corners?: { home: number; away: number };
+}
+export interface WcSettlementGraded {
+  id: string;
+  matchId?: number | string;
+  market: string;
+  pick: string;
+  regulationScore: string;
+  outcome: "win" | "loss" | "push" | string;
+}
+export interface WcSettlement {
+  generatedAt: string;
+  date: string;
+  settlementSource?: string;
+  finals?: WcSettlementFinal[];
+  graded: WcSettlementGraded[];
+}
+
+/** The World Cup settlement artifact (official 90-minute grading), or null before
+ *  any match has settled. */
+export function loadWorldCupSettlement(): WcSettlement | null {
+  const s = read<WcSettlement>("settlement/latest.json");
+  return s && Array.isArray(s.graded) && s.graded.length > 0 ? s : null;
 }
 
 export interface WcPlayerProjection {

@@ -60,13 +60,21 @@ export interface PublicSuggestedCard {
   sportLabels: string[];
   cardType: "single_sport" | "mixed_sport" | "bank_builder_candidate";
   riskTier: RiskTier;
-  legs: Array<{ sport: SportKey; label: string; sublabel?: string; americanOdds: number; photo?: string | null }>;
+  legs: Array<{
+    sport: SportKey; label: string; sublabel?: string; americanOdds: number; photo?: string | null;
+    /** Settlement outcome for this leg — present only after official grading. */
+    result?: "win" | "loss" | "push" | "pending" | string;
+  }>;
   combinedAmericanOdds: number;
   defaultStake: number;
   isPublic: boolean;
   bankBuilderEligible: boolean;
   whyThisCard?: string[];
   caveats?: string[];
+  /** Card settlement state — present only after official grading of every leg. */
+  result?: "won" | "lost" | "push" | "pending" | string;
+  settledAt?: string;
+  settlementSource?: string;
 }
 
 export interface SportSummary {
@@ -104,6 +112,7 @@ export function normalizeWcCards(parlays: WcParlays | null): PublicSuggestedCard
       label: l.pick,
       sublabel: l.match,
       americanOdds: l.americanOdds,
+      result: l.result,
     })),
     combinedAmericanOdds: c.combinedAmericanOdds,
     defaultStake: c.defaultStake,
@@ -111,6 +120,9 @@ export function normalizeWcCards(parlays: WcParlays | null): PublicSuggestedCard
     bankBuilderEligible: false,
     whyThisCard: c.whyThisCard,
     caveats: c.dataCaveats,
+    result: c.result,
+    settledAt: c.settledAt,
+    settlementSource: c.settlementSource,
   }));
 }
 

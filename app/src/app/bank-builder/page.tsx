@@ -47,7 +47,11 @@ export default function BankBuilderPage() {
   const activeStep = resolveLadderStep(currentBankroll) ?? BANK_BUILDER_LADDER[0];
   const rec = pubSummary?.record ?? { wins: 0, losses: 0, pushes: 0 };
   const recordLabel = `${rec.wins}–${rec.losses}${rec.pushes ? `–${rec.pushes}` : ""}`;
-  const officialStep3 = loadOfficialStep3Candidate(currentBankroll);
+  // The official World Cup candidate was the STEP 3 card. Once Step 3 is settled
+  // (currentProgressionStep advances past 3), it must never re-render as pending —
+  // the settled card lives in Previous hits instead.
+  const officialStep3 =
+    pubSummary?.currentProgressionStep === 3 ? loadOfficialStep3Candidate(currentBankroll) : null;
   const hits = (pubLedger?.entries ?? []).filter((e) => e.result === "win");
 
   return (
@@ -126,7 +130,7 @@ export default function BankBuilderPage() {
           })}
         </ol>
         <p className="mt-3 text-[11.5px] leading-snug text-zinc-500">
-          Tomorrow and Saturday are planned only if today&apos;s card settles successfully. A loss resets the run to the {formatLadderUsd(BANK_BUILDER_LADDER[0].start)} base. Paper-only educational tracking.
+          Later steps are planned only if today&apos;s step settles successfully. A loss resets the run to the {formatLadderUsd(BANK_BUILDER_LADDER[0].start)} base. Paper-only educational tracking.
         </p>
       </section>
 
