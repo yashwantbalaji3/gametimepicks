@@ -94,6 +94,13 @@
   --sport-mlb: #56C2F0;       /* sky blue — diamond */
   --sport-nba: #FB7185;       /* rose */
   --sport-mixed: #2DD4BF;     /* teal — cross-sport */
+  /* Identity-system additions (sport-identity.ts). Established hues above
+     are preserved; these fill the sports that previously had no token. */
+  --sport-soccer: #34D399;    /* emerald — pitch / World Cup */
+  --sport-ufc: #F87171;       /* fight red — octagon */
+  --sport-nhl: #93C5FD;       /* ice blue — rink */
+  --sport-ipl: #FBBF24;       /* amber — cricket */
+  --sport-bank: #F0C75E;      /* gold — Bank Builder vault */
 
   /* Phase 7B-7 — refinement tokens for spacing, dividers, focus */
   --vault-rule: rgba(212, 175, 55, 0.08);     /* internal section dividers */
@@ -4402,4 +4409,67 @@ table,
   [role="tabpanel"]:not([hidden]) { animation: none; }
   .vault-press { transition: none; }
   .vault-press:active { transform: none; filter: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Visual-polish utilities (end-to-end upgrade, 2026-06-11). CSS-first; every
+   animated one is gated behind prefers-reduced-motion below. Reuse the shared
+   reveal-up / vault-pulse keyframes where possible; add only what's missing.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Entrance: fade + lift. Add an inline animation-delay for a stagger. */
+.gtp-fade-up { animation: reveal-up 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+/* Hover lift for interactive cards. */
+.gtp-card-hover { transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease; }
+.gtp-card-hover:hover { transform: translateY(-2px); box-shadow: var(--vault-shadow-elevated); }
+
+/* Tap feedback for primary tap targets (mobile sportsbook feel). */
+.gtp-pressable { transition: transform 120ms ease, filter 120ms ease; }
+.gtp-pressable:active { transform: scale(0.975); filter: brightness(1.06); }
+
+/* Active-step glow breath — gentle gold by default; override via --gtp-glow. */
+@keyframes gtp-active-glow {
+  0%, 100% { box-shadow: 0 0 0 1px var(--gtp-glow, rgba(240,199,94,0.42)), 0 0 14px -2px var(--gtp-glow, rgba(240,199,94,0.28)); }
+  50%      { box-shadow: 0 0 0 1px var(--gtp-glow, rgba(240,199,94,0.62)), 0 0 22px 0 var(--gtp-glow, rgba(240,199,94,0.48)); }
+}
+.gtp-active-glow { animation: gtp-active-glow 3.2s ease-in-out infinite; }
+
+/* Sport orb — circular gradient badge for a sport glyph. Set --orb-grad. */
+.gtp-sport-orb {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9999px; line-height: 1;
+  background: var(--orb-grad, radial-gradient(circle at 30% 30%, rgba(240,199,94,0.30), rgba(7,11,26,0.6)));
+  border: 1px solid var(--vault-border);
+}
+
+/* Progress rail — vertical gradient spine for ladders/timelines. */
+.gtp-progress-rail {
+  background: linear-gradient(180deg, rgba(240,199,94,0.35) 0%, rgba(240,199,94,0.08) 60%, transparent 100%);
+}
+
+/* Completed-step sparkle — subtle, CSS-only, on cleared rungs. */
+@keyframes gtp-spark {
+  0%   { opacity: 0; transform: scale(0.6); }
+  40%  { opacity: 0.85; }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+.gtp-spark { animation: gtp-spark 2.8s ease-in-out infinite; }
+
+/* Soft pitch/court grid motif for hero backdrops. Decorative, low-opacity. */
+.gtp-field-grid {
+  background-image:
+    linear-gradient(rgba(240,199,94,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240,199,94,0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gtp-fade-up { animation: none; }
+  .gtp-card-hover { transition: none; }
+  .gtp-card-hover:hover { transform: none; box-shadow: none; }
+  .gtp-pressable { transition: none; }
+  .gtp-pressable:active { transform: none; filter: none; }
+  .gtp-active-glow { animation: none; }
+  .gtp-spark { animation: none; opacity: 0; }
 }

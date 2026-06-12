@@ -171,7 +171,9 @@ export default function BankBuilderTower({
                 }}
               >
                 <span
-                  className="font-mono shrink-0 inline-flex items-center justify-center rounded-full"
+                  className={`font-mono shrink-0 inline-flex items-center justify-center rounded-full${
+                    isActive ? " gtp-active-glow" : ""
+                  }`}
                   style={{
                     width: 26,
                     height: 26,
@@ -188,9 +190,13 @@ export default function BankBuilderTower({
                           ? "var(--vault-success)"
                           : "var(--vault-rule)"
                     }`,
+                    // Cleared rungs carry a soft emerald "completed" glow; the
+                    // active rung breathes via .gtp-active-glow (gold).
+                    boxShadow: isCleared ? "0 0 10px rgba(110, 231, 168, 0.40)" : undefined,
+                    ["--gtp-glow" as string]: isActive ? "rgba(240, 199, 94, 0.55)" : undefined,
                   }}
                 >
-                  {rung.step}
+                  {isCleared ? "✓" : rung.step}
                 </span>
 
                 <div className="flex flex-col min-w-0">
