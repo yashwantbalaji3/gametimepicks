@@ -29,12 +29,12 @@ test("isBankBuilderCandidate requires explicit flag", () => {
 
 test("getPublicGateReason is user-friendly, never raw jargon", () => {
   assert.equal(getPublicGateReason({ parlayEligible: true }), null);
-  assert.equal(getPublicGateReason({ parlayEligible: false, lineupStatus: "pre_lineup_unknown" }), "Waiting on player evidence");
+  assert.equal(getPublicGateReason({ parlayEligible: false, lineupStatus: "pre_lineup_unknown" }), "Player evidence pending");
   assert.equal(getPublicGateReason({ parlayEligible: false, projectionStatus: "gated_low_edge" }), "Edge below card threshold");
   assert.equal(getPublicGateReason({ parlayEligible: false, projectionStatus: "unavailable_from_provider" }), "Market unavailable from current provider");
 });
 
 test("friendlyStatusLabel maps known + de-snakes unknown", () => {
-  assert.equal(friendlyStatusLabel("waiting_on_lineups"), "Waiting on lineups");
+  assert.equal(friendlyStatusLabel("waiting_on_lineups"), "Lineups pending");
   assert.equal(friendlyStatusLabel("some_new_status"), "some new status");
 });

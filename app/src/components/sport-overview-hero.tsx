@@ -60,6 +60,8 @@ interface Props {
   iconGradient?: string;
   /** Accessible name for the icon (from sport-identity ballLabel). */
   iconLabel?: string;
+  /** Optional competition/league badge rendered beside the status pill. */
+  badge?: React.ReactNode;
 }
 
 const ACCENT: Record<NonNullable<Props["accent"]>, string> = {
@@ -88,6 +90,7 @@ export default function SportOverviewHero({
   icon,
   iconGradient,
   iconLabel,
+  badge,
 }: Props) {
   const accentColor = ACCENT[accent];
   // Translate accent color into rgba glow values that the cinematic
@@ -144,6 +147,7 @@ export default function SportOverviewHero({
             label={statusLabel}
             caption={statusCaption}
           />
+          {badge}
         </div>
 
         {/* Sport headline */}

@@ -62,7 +62,7 @@ def market_status(
     elif has_research_projection:
         # A published projection (incl. pre-lineup player views) counts as live.
         status, reason, ready = (STATUS_PUBLIC_VIEW,
-                                 ("pre-lineup player projections live (starter status pending)" if is_player
+                                 ("lineup-pending player projections live (starter status pending)" if is_player
                                   else "public model probability view live (no edge that clears the suggested-card gate)"), True)
     elif is_player and not lineups_ready:
         status, reason, ready = (STATUS_WAITING_LINEUPS,

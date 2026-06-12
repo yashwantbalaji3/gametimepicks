@@ -7,6 +7,8 @@ const TONE: Record<string, string> = {
   "Card eligible": "var(--vault-success)",
   "Projection view": "var(--vault-gold-bright)",
   "Pre-lineup": "var(--vault-gold)",
+  "Lineup pending": "var(--vault-gold)",
+  "Projected starter": "var(--vault-success)",
   "Confirmed starter": "var(--vault-success)",
   "Substitute": "var(--vault-text-mute)",
   "Not in lineup": "var(--vault-text-faint)",

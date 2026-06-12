@@ -8,6 +8,7 @@ import type { PublicGameDetail } from "@/lib/game-detail";
 import type { PublicProjection } from "@/lib/normalize";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import FlagBadge from "@/components/flag-badge";
+import CompetitionBadge from "@/components/ui/competition-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
 import { teamByName } from "@/lib/data-world-cup";
 import SectionHeader from "@/components/section-header";
@@ -65,7 +66,7 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
 
   const playerPropsTab = (
     <div className="flex flex-col gap-6">
-      <SectionHeader eyebrow={`Player props · ${detail.playerProps.length}`} title="Player props for this game" sub="From the current books, grouped by market. Pre-lineup props are labeled until the starting lineup confirms." />
+      <SectionHeader eyebrow={`Player props · ${detail.playerProps.length}`} title="Player props for this game" sub="From the current books — top recommendations first, with market tabs, team filter, and player search." />
       {detail.playerProps.length > 0 ? (
         <PlayerPropsExplorer props={detail.playerProps} />
       ) : (
@@ -132,7 +133,8 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
           >
             {identity.icon}
           </span>
-          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.sportLabel} · {detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
+          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
+          <CompetitionBadge sport={detail.sport} size="sm" />
         </span>
         <div className="mt-1.5 flex items-center gap-3 min-w-0">
           {homeCode || awayCode ? (

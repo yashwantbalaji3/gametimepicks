@@ -64,8 +64,18 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
       .sort((a, b) => (b.edgePct ?? -99) - (a.edgePct ?? -99));
   }, [props, market, team, q]);
 
+  const anyPreLineup = props.some((p) => (p.lineupStatus ?? "").startsWith("pre_lineup") || p.lineupStatus === "waiting_on_lineups");
+
   return (
     <div className="flex flex-col gap-3">
+      {anyPreLineup ? (
+        <div className="flex items-center gap-2 rounded-[8px] px-3 py-2" style={{ background: "rgba(240,199,94,0.06)", border: "1px solid rgba(240,199,94,0.25)" }}>
+          <span aria-hidden style={{ fontSize: 12 }}>ⓘ</span>
+          <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
+            Lineups usually confirm closer to kickoff — player props stay projection-based until then.
+          </span>
+        </div>
+      ) : null}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
         <Pill on={market === "top"} onClick={() => setMarket("top")}>★ Top picks</Pill>
         {markets.map(([m, n]) => (

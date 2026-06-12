@@ -7,6 +7,7 @@
  * FAIL-CLOSED: nothing publishes until the readiness gates pass. No fake odds/props; no banned copy.
  */
 import fs from "node:fs";
+import CompetitionBadge from "@/components/ui/competition-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
 import path from "node:path";
 
@@ -227,6 +228,7 @@ export default function UfcPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <SportOverviewHero
+        badge={<CompetitionBadge sport="ufc" size="sm" />}
         icon={getSportIdentity("ufc").icon}
         iconGradient={getSportIdentity("ufc").gradient}
         iconLabel={getSportIdentity("ufc").ballLabel}

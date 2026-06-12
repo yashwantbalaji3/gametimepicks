@@ -118,7 +118,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
             <div className="flex flex-col gap-1 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
               {selected.length < 2 ? <StatusChip label="Single leg — add another for a parlay" /> : null}
               {correlated ? <StatusChip label="Correlated — legs share a game" /> : null}
-              {hasPrelineup ? <StatusChip label="Pre-lineup — confirm starter" /> : null}
+              {hasPrelineup ? <StatusChip label="Lineup pending — confirm starter" /> : null}
               {hasSoccer ? <StatusChip label="Soccer legs are 90-min regulation only" /> : null}
               <StatusChip label={bankEligible ? "Bank Builder eligible" : "Not Bank Builder eligible"} />
             </div>
@@ -196,7 +196,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{l.label}</span>
                   <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                    {l.sportLabel} · {l.sublabel}{l.prelineup ? " · pre-lineup" : ""}
+                    {l.sportLabel} · {l.sublabel}{l.prelineup ? " · lineup pending" : ""}
                   </span>
                 </div>
                 <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>

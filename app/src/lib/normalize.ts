@@ -187,7 +187,10 @@ export function normalizeWcPlayerProps(players: WcPlayerProjections | null): Pub
     bankBuilderEligible: false,
     status: p.projectionStatus ?? "pre_lineup_public_projection",
     lineupStatus: p.lineupStatus,
-    caveats: p.dataCaveats,
+    // Presentation filter: the page-level banner explains lineup timing ONCE;
+    // the artifact's per-prop "Pre-lineup projection" caveat would otherwise
+    // repeat on every card (and in the serialized client payload).
+    caveats: (p.dataCaveats ?? []).filter((c) => !/pre-?lineup/i.test(c)),
   }));
 }
 
