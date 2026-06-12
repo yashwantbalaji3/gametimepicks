@@ -50,9 +50,9 @@ export const BANK_BUILDER_GOAL = 10000;
 export const BANK_BUILDER_LADDER: ReadonlyArray<LadderStep> = Object.freeze([
   Object.freeze({ step: 1, start: 100, goal: 200, multiplier: 200 / 100 }),
   Object.freeze({ step: 2, start: 200, goal: 700, multiplier: 700 / 200 }),
-  Object.freeze({ step: 3, start: 700, goal: 2000, multiplier: 2000 / 700 }),
-  Object.freeze({ step: 4, start: 2000, goal: 4500, multiplier: 4500 / 2000 }),
-  Object.freeze({ step: 5, start: 4500, goal: 10000, multiplier: 10000 / 4500 }),
+  Object.freeze({ step: 3, start: 700, goal: 1400, multiplier: 1400 / 700 }),
+  Object.freeze({ step: 4, start: 1400, goal: 3500, multiplier: 3500 / 1400 }),
+  Object.freeze({ step: 5, start: 3500, goal: 10000, multiplier: 10000 / 3500 }),
 ]) as ReadonlyArray<LadderStep>;
 
 /** Number of rungs in the ladder. */
