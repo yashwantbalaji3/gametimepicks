@@ -43,7 +43,7 @@ export default function OfficialStep3CandidateCard({ candidate }: { candidate: O
           ))}
         </div>
         <p className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
-          Target this step: {usd(c.targetMin)}–{usd(c.targetPreferred)}+ · stake locked to {usd(c.stake)} · combined model probability {Math.round(c.combinedModelProbability * 100)}%
+          Target this step: {usd(c.targetMin)}–{usd(c.targetPreferred)}+ · stake fixed at {usd(c.stake)} · combined model probability {Math.round(c.combinedModelProbability * 100)}%
         </p>
 
         {/* Legs */}

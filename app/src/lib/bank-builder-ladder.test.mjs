@@ -34,9 +34,9 @@ test("ladder rungs carry the exact design-doc dollar amounts", () => {
     [
       [1, 100, 200],
       [2, 200, 700],
-      [3, 700, 2000],
-      [4, 2000, 4500],
-      [5, 4500, 10000],
+      [3, 700, 1400],
+      [4, 1400, 3500],
+      [5, 3500, 10000],
     ],
   );
 });
@@ -53,7 +53,7 @@ test("each multiplier equals goal / start", () => {
 test("multipliers match the $100→$10,000 ladder (goal/start per rung)", () => {
   assert.deepEqual(
     BANK_BUILDER_LADDER.map((s) => s.multiplier),
-    [200 / 100, 700 / 200, 2000 / 700, 4500 / 2000, 10000 / 4500],
+    [200 / 100, 700 / 200, 1400 / 700, 3500 / 1400, 10000 / 3500],
   );
 });
 
@@ -86,10 +86,10 @@ test("resolveLadderStep maps a bankroll to its rung window [start, goal)", () =>
   assert.equal(resolveLadderStep(699)?.step, 2);
   assert.equal(resolveLadderStep(700)?.step, 3);
   assert.equal(resolveLadderStep(728.76)?.step, 3); // current public bankroll
-  assert.equal(resolveLadderStep(1999)?.step, 3);
-  assert.equal(resolveLadderStep(2000)?.step, 4);
-  assert.equal(resolveLadderStep(4499)?.step, 4);
-  assert.equal(resolveLadderStep(4500)?.step, 5);
+  assert.equal(resolveLadderStep(1399)?.step, 3);
+  assert.equal(resolveLadderStep(1400)?.step, 4);
+  assert.equal(resolveLadderStep(3499)?.step, 4);
+  assert.equal(resolveLadderStep(3500)?.step, 5);
   assert.equal(resolveLadderStep(9999)?.step, 5);
 });
 
@@ -118,13 +118,14 @@ test("ladderTargetAmerican converts the decimal multiplier to American", () => {
   assert.equal(ladderTargetAmerican(BANK_BUILDER_LADDER[0]), 100);
   // 3.500× decimal (step 2) == +250 American.
   assert.equal(ladderTargetAmerican(BANK_BUILDER_LADDER[1]), 250);
-  // 10000/4500 ≈ 2.2222× decimal (step 5) == +122 American.
-  assert.equal(ladderTargetAmerican(BANK_BUILDER_LADDER[4]), 122);
+  // 10000/3500 ≈ 2.857× decimal (step 5) == +186 American.
+  assert.equal(ladderTargetAmerican(BANK_BUILDER_LADDER[4]), 186);
 });
 
 test("ladderMultiplierLabel renders three decimals", () => {
   assert.equal(ladderMultiplierLabel(BANK_BUILDER_LADDER[0]), "2.000×");
-  assert.equal(ladderMultiplierLabel(BANK_BUILDER_LADDER[4]), "2.222×");
+  // Step 5 climbs $3,500 → $10,000 == 2.857× decimal.
+  assert.equal(ladderMultiplierLabel(BANK_BUILDER_LADDER[4]), "2.857×");
 });
 
 test("formatLadderUsd renders whole dollars with thousands separators", () => {
@@ -133,4 +134,26 @@ test("formatLadderUsd renders whole dollars with thousands separators", () => {
   assert.equal(formatLadderUsd(1600), "$1,600");
   assert.equal(formatLadderUsd(3000), "$3,000");
   assert.equal(formatLadderUsd(100.4), "$100");
+});
+
+test("/bank-builder run-plan rows: Today/Tomorrow/Saturday with the public 3-step run plan", () => {
+  // Mirrors the exact run-plan expression in app/bank-builder/page.tsx:
+  // the active rung + the next two, day-labelled, rendered as
+  // `${formatLadderUsd(start)} → ${formatLadderUsd(goal)}`. With the public
+  // bankroll at $728.76 the active rung is Step 3, so the rows are the
+  // Today $700→$1,400 / Tomorrow $1,400→$3,500 / Saturday $3,500→$10,000 plan.
+  const activeStep = resolveLadderStep(728.76);
+  assert.equal(activeStep?.step, 3); // Today is Step 3, not yet $1,400
+  const planRows = BANK_BUILDER_LADDER.filter((s) => s.step >= activeStep.step)
+    .slice(0, 3)
+    .map((s, i) => ({
+      day: ["Today", "Tomorrow", "Saturday"][i],
+      range: `${formatLadderUsd(s.start)} → ${formatLadderUsd(s.goal)}`,
+      state: i === 0 ? "Active · pending" : "Planned",
+    }));
+  assert.deepEqual(planRows, [
+    { day: "Today", range: "$700 → $1,400", state: "Active · pending" },
+    { day: "Tomorrow", range: "$1,400 → $3,500", state: "Planned" },
+    { day: "Saturday", range: "$3,500 → $10,000", state: "Planned" },
+  ]);
 });

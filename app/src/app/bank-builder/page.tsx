@@ -65,15 +65,53 @@ export default function BankBuilderPage() {
       />
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
         <BoardStatTile label="Paper bankroll" value={formatLadderUsdPrecise(currentBankroll)} sub="current run" accent="var(--risk-low)" />
-        <BoardStatTile label="Step" value={`${activeStep.step} / 5`} sub={`${formatLadderUsd(activeStep.start)} → next target`} accent="var(--sport-mlb)" />
+        <BoardStatTile label="Step" value={`${activeStep.step} / 5`} sub={`Today · ${formatLadderUsd(activeStep.start)} → ${formatLadderUsd(activeStep.goal)}`} accent="var(--sport-mlb)" />
         <BoardStatTile label="Public record" value={recordLabel} sub="settled ladder steps" accent="var(--vault-gold-bright)" />
         <BoardStatTile label="Today's card" value={officialStep3 ? "Pending" : "—"} sub={officialStep3 ? "World Cup · Step 3" : "none cleared yet"} accent="var(--risk-longshot)" />
       </div>
 
-      {/* SECTION 2 — the ladder */}
+      {/* SECTION 2 — the ladder + the day-by-day run plan */}
       <div className="mt-6">
         <BankBuilderTower activeStepNumber={activeStep.step} currentBankroll={currentBankroll} />
       </div>
+
+      <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5" aria-label="Run plan">
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">Run plan</h2>
+          <span className="text-[11.5px] text-zinc-500">Bankroll today is {formatLadderUsdPrecise(currentBankroll)} — targets below are goals, not the current balance.</span>
+        </div>
+        <ol className="flex flex-col gap-2">
+          {BANK_BUILDER_LADDER.filter((s) => s.step >= activeStep.step).slice(0, 3).map((s, i) => {
+            const day = ["Today", "Tomorrow", "Saturday"][i] ?? `Step ${s.step}`;
+            const isActive = i === 0;
+            return (
+              <li
+                key={s.step}
+                className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-4 py-2.5 text-[12.5px]"
+                style={{
+                  border: isActive ? "1px solid rgba(240,199,94,0.40)" : "1px solid var(--vault-rule)",
+                  background: isActive ? "rgba(240,199,94,0.06)" : "rgba(7,11,26,0.40)",
+                }}
+              >
+                <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{day}</span>
+                <span className="tabular-nums" style={{ color: "var(--vault-text)" }}>{formatLadderUsd(s.start)} → {formatLadderUsd(s.goal)}</span>
+                <span
+                  className="ml-auto rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em]"
+                  style={{
+                    color: isActive ? "var(--vault-gold-bright)" : "var(--vault-text-faint)",
+                    border: `1px solid ${isActive ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
+                  }}
+                >
+                  {isActive ? "Active · pending" : "Planned"}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+        <p className="mt-3 text-[11.5px] leading-snug text-zinc-500">
+          Tomorrow and Saturday are planned only if today&apos;s card settles successfully. A loss resets the run to the {formatLadderUsd(BANK_BUILDER_LADDER[0].start)} base. Paper-only educational tracking.
+        </p>
+      </section>
 
       {/* SECTION 3 — today's official card */}
       {officialStep3 ? (
