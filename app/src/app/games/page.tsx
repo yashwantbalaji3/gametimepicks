@@ -10,6 +10,7 @@ import { loadWorldCupProjections } from "@/lib/world-cup/projections";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
 import { formatTipoffEt } from "@/lib/format-mlb";
+import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import { normalizeMlbLeans, normalizeNbaLeans } from "@/lib/normalize";
 import fs from "node:fs";
 import path from "node:path";
@@ -82,6 +83,8 @@ export default function GamesPage() {
       id: `mlb_${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`,
       sport: "mlb",
       sportLabel: "MLB",
+      homeLogo: mlbTeamLogoUrl(g.homeTeamId),
+      awayLogo: mlbTeamLogoUrl(g.awayTeamId),
       matchup: `${g.awayTeamAbbr ?? "?"} @ ${g.homeTeamAbbr ?? "?"}`,
       timeLabel: `${formatTipoffEt(g.gameDate)}${g.venue ? " · " + g.venue : ""}`,
       statusLabel: mlbDate === today ? "Today" : mlbDate.slice(5),
