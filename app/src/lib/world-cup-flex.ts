@@ -6,6 +6,7 @@
  * This never touches the Bank Builder bankroll, ledger, step, or nextPick.
  */
 import { loadWorldCupProjections } from "@/lib/world-cup/projections";
+import { currentEtDate } from "@/lib/freshness";
 import { teamByName } from "@/lib/data-world-cup";
 import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
 
@@ -35,6 +36,8 @@ type LooseProj = {
 export function loadWorldCupFlexLeg(): WorldCupFlexLeg | null {
   const proj = loadWorldCupProjections();
   if (!proj) return null;
+  // Slate freshness: never spotlight a leg from an already-played slate.
+  if ((proj as { date?: string }).date !== currentEtDate()) return null;
   const cands = (proj.matches as LooseProj[])
     .filter((m) => m.parlayEligible && m.riskTier === "Low" && (m.modelProbability ?? 0) >= 0.6 && m.americanOdds != null)
     .sort((a, b) => (b.modelProbability ?? 0) - (a.modelProbability ?? 0));
@@ -92,22 +95,38 @@ export interface OfficialStep3Candidate {
 type LoosePartial = { matchId?: number | string; homeTeam?: string; awayTeam?: string; market?: string; bookmaker?: string | null; riskTier?: string; outcomes?: Array<{ label?: string; americanOdds?: number | null; modelProbability?: number | null; marketProbability?: number | null }> };
 
 /**
- * Builds the official Step-3 World Cup candidate: the cross-match two-leg card of model-favored
- * team-market legs (model ≥55%) whose paper return on the stake hits the $1,400 floor, maximizing
- * combined model probability. Real projection outcomes only; null when none clears. NEVER mutates
- * the bankroll/ledger/nextPick — this is a pending candidate rendered from data, not a settlement.
+ * Builds the official Bank Builder candidate for ANY ladder step: the cross-match two-leg card
+ * of model-AND-market-supported team-market legs whose paper return on the stake hits the step's
+ * ladder floor, maximizing combined model probability.
+ *
+ * Gates (bank-builder-methodology-current.md, tightened from settled June-11 results):
+ *   - team markets only, real posted odds;
+ *   - every leg model probability ≥55% AND market probability ≥50% (model+market agreement —
+ *     the model-disfavored +195 DC leg lost on June 11; agreement favorites delivered);
+ *   - legs from DIFFERENT matches (no same-game correlation);
+ *   - return on the FULL stake ≥ targetMin (never forced with weak filler legs).
+ *
+ * Real projection outcomes only; null when none clears ("no card" is a valid outcome). NEVER
+ * mutates the bankroll/ledger/nextPick — a pending candidate rendered from data, not a settlement.
  */
-export function loadOfficialStep3Candidate(stake = 728.76): OfficialStep3Candidate | null {
+export function loadOfficialStepCandidate(
+  stake: number,
+  targetMin: number,
+  targetPreferred = Math.round(targetMin * 1.05),
+): OfficialStep3Candidate | null {
   const proj = loadWorldCupProjections();
   if (!proj) return null;
-  const TARGET_MIN = 1400, TARGET_PREF = 1500;
+  // Slate freshness: an official candidate may only come from TODAY's projections.
+  // A stale (already-played) slate must never resurface as a pending card.
+  if ((proj as { date?: string }).date !== currentEtDate()) return null;
+  const TARGET_MIN = targetMin, TARGET_PREF = targetPreferred;
   // Best model-favored team leg per (match, market) from real outcomes.
   const legs: OfficialStep3Leg[] = [];
   for (const m of proj.matches as LoosePartial[]) {
     if (!m.market || !TEAM_MARKETS.has(m.market) || m.matchId == null) continue;
     for (const o of m.outcomes ?? []) {
       const mdl = o.modelProbability ?? 0, mkt = o.marketProbability ?? 0, odds = o.americanOdds;
-      if (odds == null || mdl < 0.55 || odds > 200 || odds < -2000) continue; // model-favored, sane price
+      if (odds == null || mdl < 0.55 || mkt < 0.5 || odds > 200 || odds < -2000) continue; // model+market agreement, sane price
       const homeTeam = m.homeTeam ?? "", awayTeam = m.awayTeam ?? "";
       legs.push({
         label: o.label ?? "", gameLabel: `${homeTeam} vs ${awayTeam}`.trim(),
@@ -140,4 +159,9 @@ export function loadOfficialStep3Candidate(stake = 728.76): OfficialStep3Candida
     }
   }
   return best;
+}
+
+/** Back-compat wrapper — the Step-3 review at its lowered $1,400–$1,500 target. */
+export function loadOfficialStep3Candidate(stake = 728.76): OfficialStep3Candidate | null {
+  return loadOfficialStepCandidate(stake, 1400, 1500);
 }

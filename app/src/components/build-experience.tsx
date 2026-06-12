@@ -10,9 +10,17 @@ import type { BuildLeg } from "@/lib/build-legs";
 import { americanToDecimal, decimalToAmerican, formatAmerican } from "@/lib/odds-math";
 import StakePayoutInput from "@/components/ui/stake-payout-input";
 import StatusChip from "@/components/ui/status-chip";
+import { getSportIdentity } from "@/lib/sport-identity";
 
 const SPORTS = ["All", "world_cup", "mlb", "nba", "ufc"] as const;
 const SPORT_LABEL: Record<string, string> = { All: "All", world_cup: "World Cup", mlb: "MLB", nba: "NBA", ufc: "UFC" };
+const SPORT_ICON: Record<string, string> = {
+  All: "",
+  world_cup: getSportIdentity("world_cup").icon,
+  mlb: getSportIdentity("mlb").icon,
+  nba: getSportIdentity("nba").icon,
+  ufc: getSportIdentity("ufc").icon,
+};
 const RISKS = ["All", "Low", "Medium", "High", "Longshot"] as const;
 
 function Pill({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
@@ -137,7 +145,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
             </button>
           ) : null}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-            {SPORTS.map((s) => <Pill key={s} on={sport === s} onClick={() => setSport(s)}>{SPORT_LABEL[s]}</Pill>)}
+            {SPORTS.map((s) => <Pill key={s} on={sport === s} onClick={() => setSport(s)}>{SPORT_ICON[s] ? <span aria-hidden style={{ marginRight: 5, fontSize: 11 }}>{SPORT_ICON[s]}</span> : null}{SPORT_LABEL[s]}</Pill>)}
           </div>
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
             {RISKS.map((r) => <Pill key={r} on={risk === r} onClick={() => setRisk(r)}>{r}</Pill>)}

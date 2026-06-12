@@ -57,6 +57,23 @@ def _wc_legs() -> list[dict]:
     return out
 
 
+def leg_passes_settled_guardrails(leg: dict) -> bool:
+    """Settled-data guardrails for SUGGESTED-card legs (public projection views are
+    unchanged). From docs/methodology/june12-model-learning-notes.md — 8,814 decisive
+    settled MLB leans across 21 dates:
+      - batter_total_bases Overs settled 42.3% and pitcher_strikeouts Overs 44.7%
+        (over-projected) → excluded;
+      - legs claiming |edge| > 20% settled 44.4% (big model-vs-market gaps are model
+        error, not value) → excluded.
+    """
+    market, side = leg.get("market"), (leg.get("side") or "")
+    if side == "Over" and market in ("batter_total_bases", "pitcher_strikeouts"):
+        return False
+    if abs(leg.get("edgePct") or 0) > 20:
+        return False
+    return True
+
+
 def _opt_legs(date: str) -> list[dict]:
     """Top NBA/MLB optimizer legs (real odds), deduped by player+market+side, ranked by edge."""
     try:
@@ -69,6 +86,8 @@ def _opt_legs(date: str) -> list[dict]:
         o = l.get("oddsForSide")
         sport = (l.get("sport") or "").lower()
         if o is None or sport not in ("mlb", "nba"):
+            continue
+        if not leg_passes_settled_guardrails(l):
             continue
         key = (sport, l.get("playerName"), l.get("market"), l.get("side"), l.get("line"))
         if key in seen:

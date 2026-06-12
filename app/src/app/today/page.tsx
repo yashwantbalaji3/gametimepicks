@@ -14,14 +14,16 @@ import {
 } from "@/lib/world-cup/projections";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
+import { resolveLadderStep } from "@/lib/bank-builder-ladder";
 import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
 import { normalizeWcCards, loadDailyMixedCards, type SportSummary } from "@/lib/normalize";
-import { loadWorldCupFlexLeg, loadOfficialStep3Candidate } from "@/lib/world-cup-flex";
+import { loadWorldCupFlexLeg, loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import SuggestedCard from "@/components/ui/suggested-card";
 import SportCard from "@/components/ui/sport-card";
 import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
 import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
 import SectionHeader from "@/components/section-header";
+import YesterdaySummary from "@/components/yesterday-summary";
 
 export const metadata = {
   title: "Today · GameTime Picks",
@@ -44,6 +46,10 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 
 export default function TodayPage() {
   const today = currentEtDate();
+  // Yesterday (ET) — drives the settled-results strip; UTC-noon math avoids off-by-one.
+  const yesterday = new Date(new Date(`${today}T12:00:00Z`).getTime() - 86400000)
+    .toISOString()
+    .slice(0, 10);
   loadWorldCupSchedule(); // warm + ensure data dir
   const wcGames = matchesOnDate(today).length;
   const wcCards = loadWorldCupParlays();
@@ -58,13 +64,15 @@ export default function TodayPage() {
   const activeSports = (wcLive ? 1 : 0) + (mlbLive ? 1 : 0);
   const mixedCards = loadDailyMixedCards();
   const topCards = [...mixedCards, ...normalizeWcCards(wcCards)].slice(0, 4);
-  // The official World Cup candidate (and the spotlight Flex Card) were STEP 3 cards. Once
-  // Step 3 settles (currentProgressionStep advances past 3), neither may re-render as
-  // pending — /today shows the updated ladder status instead, matching /bank-builder.
-  const onStep3 = bank?.currentProgressionStep === 3;
+  // The official candidate is loaded for the ACTIVE rung (stake = full bankroll, floor =
+  // the rung's ladder goal), matching /bank-builder. The loader's slate-freshness gate
+  // returns null for stale (already-played) slates, so a settled step can never
+  // re-render as a pending card. The spotlight Flex Card only shows alongside a live slate
+  // when no official card cleared.
+  const activeRung = bank ? resolveLadderStep(bank.currentBankrollUnits) : null;
   const officialStep3 =
-    onStep3 && bank ? loadOfficialStep3Candidate(bank.currentBankrollUnits) : null;
-  const flexLeg = officialStep3 || !onStep3 ? null : loadWorldCupFlexLeg();
+    bank && activeRung ? loadOfficialStepCandidate(bank.currentBankrollUnits, activeRung.goal) : null;
+  const flexLeg = officialStep3 ? null : loadWorldCupFlexLeg();
   const bankrollLabel = bank
     ? `$${bank.currentBankrollUnits.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     : null;
@@ -184,17 +192,27 @@ export default function TodayPage() {
         </section>
       )}
 
+      {/* Yesterday's settled results — official outcomes only */}
+      <YesterdaySummary date={yesterday} />
+
       {/* Official Step-3 World Cup candidate (pending) — or the separate Flex Card when none */}
       {officialStep3 ? (
         <section>
-          <SectionHeader eyebrow="Bank Builder · Step 3" title="Official World Cup candidate" sub="Pending result — paper-only. The ladder bankroll only changes after the matches settle." />
-          <OfficialStep3CandidateCard candidate={officialStep3} />
+          <SectionHeader eyebrow={`Bank Builder · Step ${activeRung?.step ?? "—"}`} title="Official World Cup candidate" sub="Pending result — paper-only. The ladder bankroll only changes after the matches settle." />
+          <OfficialStep3CandidateCard candidate={officialStep3} stepNumber={activeRung?.step ?? 3} />
         </section>
       ) : flexLeg ? (
         <section>
           <WorldCupFlexCard leg={flexLeg} exampleStake={bank?.currentBankrollUnits ?? 728.76} />
         </section>
       ) : null}
+      {/* Trust cue — how the model works */}
+      <p className="text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
+        Every number is a real model or market value — settled from official results.{" "}
+        <Link href="/learn" className="underline" style={{ color: "var(--vault-text-mute)" }}>How it works</Link>
+        {" · "}
+        <Link href="/methodology" className="underline" style={{ color: "var(--vault-text-mute)" }}>Methodology</Link>
+      </p>
     </div>
   );
 }

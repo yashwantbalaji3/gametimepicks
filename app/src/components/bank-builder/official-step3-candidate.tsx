@@ -30,13 +30,13 @@ function LegMatchup({ leg }: { leg: OfficialStep3Leg }) {
   );
 }
 
-export default function OfficialStep3CandidateCard({ candidate }: { candidate: OfficialStep3Candidate }) {
+export default function OfficialStep3CandidateCard({ candidate, stepNumber = 3 }: { candidate: OfficialStep3Candidate; stepNumber?: number }) {
   const c = candidate;
   return (
     <section
       className="gtp-fade-up mt-5 overflow-hidden rounded-2xl"
       style={{ border: "1px solid rgba(240,199,94,0.45)", background: "rgba(240,199,94,0.05)", boxShadow: "var(--vault-shadow-elevated)" }}
-      aria-label="Official Bank Builder Step 3 candidate"
+      aria-label={`Official Bank Builder Step ${stepNumber} candidate`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5" style={{ borderBottom: "1px solid rgba(240,199,94,0.30)", background: "rgba(240,199,94,0.09)" }}>
         <div className="flex items-center gap-2.5 min-w-0">
@@ -50,7 +50,7 @@ export default function OfficialStep3CandidateCard({ candidate }: { candidate: O
           </span>
           <div className="flex flex-col min-w-0">
             <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] truncate" style={{ color: "var(--vault-gold-bright)" }}>
-              Official Step 3 candidate
+              Official Step {stepNumber} candidate
             </h2>
             <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>
               FIFA World Cup · paper ladder

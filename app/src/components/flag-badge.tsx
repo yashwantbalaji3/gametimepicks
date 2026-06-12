@@ -7,7 +7,7 @@
  * For unsupported codes the badge falls back to a monogram so we never
  * render an empty box.
  */
-import { flagEmoji } from "@/lib/data-world-cup";
+import { flagEmoji } from "@/lib/flag-emoji";
 
 interface Props {
   code: string;

@@ -8,6 +8,7 @@
  * density elsewhere. All data is real + fail-closed — no fabricated prices, lineups, or edges.
  */
 import Link from "next/link";
+import { getSportIdentity } from "@/lib/sport-identity";
 
 import {
   loadWorldCupMeta,
@@ -502,6 +503,9 @@ export default function WorldCupLandingPage() {
       </div>
 
       <SportOverviewHero
+        icon={getSportIdentity("world_cup").icon}
+        iconGradient={getSportIdentity("world_cup").gradient}
+        iconLabel={getSportIdentity("world_cup").ballLabel}
         eyebrow="FIFA World Cup 2026 · educational analytics"
         sport="World Cup"
         tagline={daysOut > 0 ? `kickoff in ${daysOut} day${daysOut === 1 ? "" : "s"}` : "tournament live"}
@@ -530,7 +534,7 @@ export default function WorldCupLandingPage() {
             ? "Official FIFA schedule + groups, a live 90-minute Market Outlook, and GameTime Picks model projections for today's matches — a recent national-team form model blended with the market (a model lean, capped Low this early). Suggested paper parlays are built only from positive-edge projections."
             : "Official schedule + groups from FIFA, plus a live 90-minute Market Outlook — de-vigged Home/Draw/Away + totals implied by current sportsbook prices (market-implied, not a model pick). Independent projections, player props, and parlays stay fail-closed until gates pass."
         }
-        accent="gold"
+        accent="wc"
       />
 
       <SportShell tabs={tabs} />

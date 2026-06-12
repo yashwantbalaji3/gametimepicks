@@ -135,7 +135,7 @@ export default function AboutPage() {
             </li>
             <li>
               World Cup projection model — the schedule + groups are
-              already on disk; the model unlocks before kickoff.
+              already on disk; the model opens before kickoff.
             </li>
             <li>
               Wider market coverage on NBA/MLB game lines (moneyline,

@@ -8,6 +8,7 @@
  * preserved. No fabricated projections; counts come from the active-slate board.
  */
 import Link from "next/link";
+import { getSportIdentity } from "@/lib/sport-identity";
 
 import {
   getSlate,
@@ -282,6 +283,9 @@ export default function NbaLandingPage() {
       </div>
 
       <SportOverviewHero
+        icon={getSportIdentity("nba").icon}
+        iconGradient={getSportIdentity("nba").gradient}
+        iconLabel={getSportIdentity("nba").ballLabel}
         eyebrow="NBA · today's slate"
         sport="NBA"
         tagline="projections · track record · parlay lab"
