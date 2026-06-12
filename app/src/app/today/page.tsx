@@ -37,7 +37,7 @@ function Stat({ label, value }: { label: string; value: string | number }) {
       <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 700 }}>
         {value}
       </span>
-      <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+      <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
         {label}
       </span>
     </div>

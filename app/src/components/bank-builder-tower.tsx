@@ -171,7 +171,7 @@ export default function BankBuilderTower({
                 }}
               >
                 <span
-                  className={`font-mono shrink-0 inline-flex items-center justify-center rounded-full${
+                  className={`font-mono shrink-0 relative inline-flex items-center justify-center rounded-full${
                     isActive ? " gtp-active-glow" : ""
                   }`}
                   style={{
@@ -197,6 +197,21 @@ export default function BankBuilderTower({
                   }}
                 >
                   {isCleared ? "✓" : rung.step}
+                  {isCleared && (
+                    // Completed-step sparkle — subtle, CSS-only, motion-gated.
+                    <span
+                      aria-hidden
+                      className="gtp-spark absolute rounded-full"
+                      style={{
+                        width: 5,
+                        height: 5,
+                        top: -2,
+                        right: -2,
+                        background: "var(--vault-success)",
+                        boxShadow: "0 0 6px rgba(110, 231, 168, 0.8)",
+                      }}
+                    />
+                  )}
                 </span>
 
                 <div className="flex flex-col min-w-0">

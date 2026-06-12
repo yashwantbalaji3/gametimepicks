@@ -153,6 +153,9 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
         ))}
         <span className="mx-1" style={{ color: "var(--vault-rule)" }}>|</span>
         <Pill on={bankOnly} onClick={() => setBankOnly((b) => !b)}>Bank Builder eligible</Pill>
+        <span className="self-center font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+          = clears the ladder gates: real odds, model + market support, low correlation
+        </span>
       </div>
 
       {filtered.length > 0 ? (

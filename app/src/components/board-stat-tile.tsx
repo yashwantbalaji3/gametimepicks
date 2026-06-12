@@ -45,17 +45,17 @@ export default function BoardStatTile({
       />
       <span
         className="font-mono uppercase tracking-[0.14em] truncate"
-        style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         {label}
       </span>
       <span
         className="font-display tabular truncate"
-        style={{ color: "var(--vault-text)", fontSize: 21, fontWeight: 700, lineHeight: 1 }}
+        style={{ color: "var(--vault-text)", fontSize: 22, fontWeight: 700, lineHeight: 1 }}
       >
         {value}
       </span>
-      <span className="font-mono truncate" style={{ color: accent, fontSize: 9.5 }}>
+      <span className="font-mono truncate" style={{ color: accent, fontSize: 11 }}>
         {sub}
       </span>
     </div>

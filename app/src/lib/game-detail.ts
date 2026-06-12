@@ -58,6 +58,21 @@ export function gameSlug(home: string, away: string, date: string): string {
   return `${slugify(home)}-vs-${slugify(away)}-${date}`;
 }
 
+/**
+ * True when EVERY leg of a suggested card belongs to the given fixture (the leg
+ * sublabel carries the "Home vs Away" match string). Fixture detail pages show
+ * fixture-specific cards ONLY — a cross-game card (e.g. a leg from another match)
+ * is confusing on a single game's page, so it is excluded here and stays on
+ * /picks where the cross-game context is explicit.
+ */
+export function cardBelongsToFixture(
+  card: { legs: Array<{ sublabel?: string }> },
+  gameLabel: string | undefined,
+): boolean {
+  if (!gameLabel || card.legs.length === 0) return false;
+  return card.legs.every((l) => l.sublabel === gameLabel);
+}
+
 // ── World Cup ──
 function worldCupDetails(): PublicGameDetail[] {
   const projections = normalizeWcProjections(loadWorldCupProjections());
@@ -77,9 +92,7 @@ function worldCupDetails(): PublicGameDetail[] {
     const head = teamProjections[0];
     const [homeTeam, awayTeam] = head.gameLabel.split(" vs ");
     const playerProps = players.filter((p) => String(p.matchId) === matchId);
-    const cardsForGame = cards.filter((c) =>
-      c.legs.some((l) => l.sublabel && head.gameLabel && l.sublabel.includes(homeTeam ?? "###")),
-    );
+    const cardsForGame = cards.filter((c) => cardBelongsToFixture(c, head.gameLabel));
     const playerMarkets = new Set(playerProps.map((p) => p.marketLabel));
     out.push({
       slug: gameSlug(homeTeam ?? "", awayTeam ?? "", head.date),

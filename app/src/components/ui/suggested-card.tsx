@@ -8,6 +8,7 @@ import type { PublicSuggestedCard } from "@/lib/normalize";
 import { formatAmerican } from "@/lib/odds-math";
 import StakePayoutInput from "@/components/ui/stake-payout-input";
 import RiskTierBadge from "@/components/ui/risk-tier-badge";
+import { getSportIdentity } from "@/lib/sport-identity";
 
 function initials(name: string): string {
   return name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -36,7 +37,7 @@ export default function SuggestedCard({
 }) {
   return (
     <article
-      className="rounded-[10px] px-4 py-4 flex flex-col gap-3"
+      className="gtp-card-hover rounded-[10px] px-4 py-4 flex flex-col gap-3"
       style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
@@ -74,11 +75,21 @@ export default function SuggestedCard({
             {l.photo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={l.photo} alt="" width={26} height={26} className="rounded-full shrink-0" style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }} />
+            ) : card.cardType === "mixed_sport" ? (
+              // Mixed-sport cards: identify each leg's sport at a glance.
+              <span
+                className="gtp-sport-orb shrink-0"
+                style={{ width: 22, height: 22, fontSize: 12, ["--orb-grad" as string]: getSportIdentity(l.sport).gradient }}
+                role="img"
+                aria-label={getSportIdentity(l.sport).label}
+              >
+                {getSportIdentity(l.sport).icon}
+              </span>
             ) : null}
             <div className="flex flex-col min-w-0 flex-1">
               <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{l.label}</span>
               {l.sublabel ? (
-                <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{l.sublabel}</span>
+                <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{l.sublabel}</span>
               ) : null}
             </div>
             {l.americanOdds !== 0 ? (
@@ -116,7 +127,7 @@ export default function SuggestedCard({
 
       {card.caveats && card.caveats.length > 0 ? (
         <details>
-          <summary className="font-mono uppercase tracking-[0.12em] cursor-pointer" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+          <summary className="font-mono uppercase tracking-[0.12em] cursor-pointer" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             Details
           </summary>
           <ul className="mt-1.5 flex flex-col gap-0.5">
