@@ -57,6 +57,8 @@ export default function GamesPage() {
       props: det?.playerProps.length ?? 0,
       homeCode: teamByName(m.home ?? "")?.code ?? "",
       awayCode: teamByName(m.away ?? "")?.code ?? "",
+      homeLogo: det?.homeLogo ?? null,
+      awayLogo: det?.awayLogo ?? null,
       href: "/world-cup?tab=games",
       // Exact-fixture build link when the fixture resolved (real matchId); team-search fallback otherwise.
       buildHref: det?.buildUrl ?? `/build?sport=world_cup&q=${encodeURIComponent(m.home ?? "")}`,

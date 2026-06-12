@@ -5,13 +5,13 @@
  * betslip. Mobile-first: chips scroll horizontally, cards stack one column.
  *
  * Visual identity comes from the central sport-identity system (orb glyph + accent); World Cup
- * cards show real country flags (ISO codes from teams.json — FlagBadge degrades to a monogram).
+ * cards show real provider team logos (api-sports) with flag/monogram fallback via TeamMark.
  */
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import { getSportIdentity } from "@/lib/sport-identity";
-import FlagBadge from "@/components/flag-badge";
+import TeamMark from "@/components/ui/team-mark";
 
 export interface GameRow {
   id: string;
@@ -29,6 +29,9 @@ export interface GameRow {
   /** ISO flag codes for soccer fixtures (real teams.json codes). */
   homeCode?: string;
   awayCode?: string;
+  /** Real provider team-logo URLs (api-sports) when the artifact carries them. */
+  homeLogo?: string | null;
+  awayLogo?: string | null;
 }
 
 const CHIPS = ["all", "world_cup", "mlb", "nba", "ufc"] as const;
@@ -75,11 +78,11 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
                   <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.statusLabel}</span>
                 </div>
                 <div className="flex items-center gap-2.5 min-w-0">
-                  {g.homeCode || g.awayCode ? (
+                  {g.homeCode || g.awayCode || g.homeLogo || g.awayLogo ? (
                     <span className="inline-flex items-center gap-1 shrink-0" aria-hidden>
-                      <FlagBadge code={g.homeCode || "??"} size="md" />
+                      <TeamMark logoUrl={g.homeLogo} flagCode={g.homeCode} size="md" />
                       <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>v</span>
-                      <FlagBadge code={g.awayCode || "??"} size="md" />
+                      <TeamMark logoUrl={g.awayLogo} flagCode={g.awayCode} size="md" />
                     </span>
                   ) : null}
                   <div className="flex flex-col gap-0.5 min-w-0">

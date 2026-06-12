@@ -82,7 +82,35 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Summary matrix — every sport (incl. World Cup) × risk tier; tap a cell to filter. */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+        {SPORTS.map((s) => (
+          <Pill key={s.key} on={sport === s.key} onClick={() => setSport(s.key)}>
+            {s.icon ? <span aria-hidden style={{ marginRight: 5, fontSize: 11 }}>{s.icon}</span> : null}
+            {s.label}
+            {s.key !== "all" && counts[s.key] ? (
+              <span className="ml-1.5 font-mono" style={{ fontSize: 10, opacity: 0.8 }}>{counts[s.key]}</span>
+            ) : null}
+          </Pill>
+        ))}
+      </div>
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+        {RISKS.map((r) => (
+          <Pill key={r} on={risk === r} onClick={() => setRisk(r)}>{r}</Pill>
+        ))}
+        <span className="mx-1" style={{ color: "var(--vault-rule)" }}>|</span>
+        <Pill on={bankOnly} onClick={() => setBankOnly((b) => !b)}>Bank Builder eligible</Pill>
+        <span className="self-center font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+          = clears the ladder gates: real odds, model + market support, low correlation
+        </span>
+      </div>
+
+      {/* Sport/risk matrix — demoted below the filter chips and collapsed by
+          default (v4 simplification): filters are the primary control; the
+          matrix is the power-user overview. */}
+      <details className="rounded-[10px]" style={{ border: "1px solid var(--vault-rule)" }}>
+        <summary className="cursor-pointer px-3 py-2 text-[12px] font-semibold" style={{ color: "var(--vault-text-mute)" }}>
+          Card counts by sport × risk
+        </summary>
       <div className="rounded-[10px] overflow-x-auto" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
         <table className="w-full min-w-[440px]" style={{ borderCollapse: "collapse" }}>
           <thead>
@@ -136,27 +164,8 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
           </tbody>
         </table>
       </div>
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-        {SPORTS.map((s) => (
-          <Pill key={s.key} on={sport === s.key} onClick={() => setSport(s.key)}>
-            {s.icon ? <span aria-hidden style={{ marginRight: 5, fontSize: 11 }}>{s.icon}</span> : null}
-            {s.label}
-            {s.key !== "all" && counts[s.key] ? (
-              <span className="ml-1.5 font-mono" style={{ fontSize: 10, opacity: 0.8 }}>{counts[s.key]}</span>
-            ) : null}
-          </Pill>
-        ))}
-      </div>
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-        {RISKS.map((r) => (
-          <Pill key={r} on={risk === r} onClick={() => setRisk(r)}>{r}</Pill>
-        ))}
-        <span className="mx-1" style={{ color: "var(--vault-rule)" }}>|</span>
-        <Pill on={bankOnly} onClick={() => setBankOnly((b) => !b)}>Bank Builder eligible</Pill>
-        <span className="self-center font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
-          = clears the ladder gates: real odds, model + market support, low correlation
-        </span>
-      </div>
+      </details>
+
 
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

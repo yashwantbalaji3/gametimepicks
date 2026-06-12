@@ -7,7 +7,7 @@ import Link from "next/link";
 import type { PublicGameDetail } from "@/lib/game-detail";
 import type { PublicProjection } from "@/lib/normalize";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
-import FlagBadge from "@/components/flag-badge";
+import TeamMark from "@/components/ui/team-mark";
 import CompetitionBadge from "@/components/ui/competition-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
 import { teamByName } from "@/lib/data-world-cup";
@@ -137,11 +137,11 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
           <CompetitionBadge sport={detail.sport} size="sm" />
         </span>
         <div className="mt-1.5 flex items-center gap-3 min-w-0">
-          {homeCode || awayCode ? (
+          {homeCode || awayCode || detail.homeLogo || detail.awayLogo ? (
             <span className="inline-flex items-center gap-1.5 shrink-0" aria-label={`${detail.homeTeam} versus ${detail.awayTeam}`}>
-              <FlagBadge code={homeCode || (detail.homeTeam ?? "").slice(0, 2)} fallback={(detail.homeTeam ?? "").slice(0, 2).toUpperCase()} size="lg" ariaLabel={detail.homeTeam} />
+              <TeamMark name={detail.homeTeam} logoUrl={detail.homeLogo} flagCode={homeCode} size="lg" />
               <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>v</span>
-              <FlagBadge code={awayCode || (detail.awayTeam ?? "").slice(0, 2)} fallback={(detail.awayTeam ?? "").slice(0, 2).toUpperCase()} size="lg" ariaLabel={detail.awayTeam} />
+              <TeamMark name={detail.awayTeam} logoUrl={detail.awayLogo} flagCode={awayCode} size="lg" />
             </span>
           ) : null}
           <h1 className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.5vw,32px)", fontWeight: 700, lineHeight: 1.05 }}>{detail.title}</h1>
