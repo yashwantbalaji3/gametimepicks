@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-12T16:40:47+00:00",
+  "generatedAt": "2026-06-12T20:48:22+00:00",
   "sport": "world_cup",
   "date": "2026-06-12",
   "modelVersion": "wc-ensemble-v2",
@@ -11,12 +11,12 @@
   "matchCount": 2,
   "projectionCount": 8,
   "publicCount": 8,
-  "parlayEligibleCount": 4,
+  "parlayEligibleCount": 5,
   "public": true,
-  "opponentStrengthCoverage": 0.75,
+  "opponentStrengthCoverage": 0.79,
   "statusCounts": {
-    "public_projection_no_edge": 4,
-    "parlay_eligible": 4
+    "parlay_eligible": 5,
+    "public_projection_no_edge": 3
   },
   "matches": [
     {
@@ -30,64 +30,64 @@
       "awayLogo": "https://media.api-sports.io/football/teams/1113.png",
       "regulationOnly": true,
       "sampleSizeWarning": false,
-      "opponentStrengthCoverage": 0.62,
+      "opponentStrengthCoverage": 0.71,
       "provider": "api_football",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-ensemble-v2",
       "id": "wc_2026-06-12_canada_bosniaandherzegovina_ml",
       "market": "moneyline_90",
-      "pick": null,
-      "pickLabel": null,
+      "pick": "away",
+      "pickLabel": "Bosnia and Herzegovina",
       "line": null,
       "americanOdds": 360,
       "bookmaker": "draftkings",
-      "modelProbability": 0.231,
+      "modelProbability": 0.2336,
       "marketProbability": 0.2081,
-      "edgePct": 2.29,
+      "edgePct": 2.55,
       "outcomes": [
         {
           "label": "Canada",
           "side": "home",
-          "modelProbability": 0.5004,
+          "modelProbability": 0.4972,
           "marketProbability": 0.5222,
           "americanOdds": -120
         },
         {
           "label": "Draw",
           "side": "draw",
-          "modelProbability": 0.2686,
+          "modelProbability": 0.2692,
           "marketProbability": 0.2697,
           "americanOdds": 255
         },
         {
           "label": "Bosnia and Herzegovina",
           "side": "away",
-          "modelProbability": 0.231,
+          "modelProbability": 0.2336,
           "marketProbability": 0.2081,
           "americanOdds": 360
         }
       ],
       "confidence": "Low",
-      "projectionStatus": "public_projection_no_edge",
+      "projectionStatus": "parlay_eligible",
       "public": true,
-      "parlayEligible": false,
+      "parlayEligible": true,
       "bankBuilderEligible": false,
-      "statusReason": "edge +2.3% below the 3.0% suggested-card threshold \u2192 projection only",
+      "statusReason": "moderate underdog edge clears",
       "settlementSupport": "automated",
       "riskTier": "Longshot",
       "factors": [
         "FIFA strength: Canada #30 (1559.48) vs Bosnia and Herzegovina #64 (1387.22)",
-        "Opponent-adjusted form: Canada att 0.979 / Bosnia and Herzegovina att 1.693",
-        "Ensemble weights \u2014 market 0.657, strength 0.25, form 0.093 (opponent coverage 62%)"
+        "Opponent-adjusted form: Canada att 1.09 / Bosnia and Herzegovina att 1.637",
+        "Ensemble weights \u2014 market 0.643, strength 0.25, form 0.106 (opponent coverage 71%)"
       ],
       "caveats": [
         "90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
         "Early-tournament sample; confidence capped Low",
-        "edge +2.3% below the 3.0% suggested-card threshold \u2192 projection only"
+        "moderate underdog edge clears"
       ],
       "notes": [
         "90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
-        "edge +2.3% below the 3.0% suggested-card threshold \u2192 projection only"
+        "moderate underdog edge clears"
       ]
     },
     {
@@ -101,41 +101,41 @@
       "awayLogo": "https://media.api-sports.io/football/teams/1113.png",
       "regulationOnly": true,
       "sampleSizeWarning": false,
-      "opponentStrengthCoverage": 0.62,
+      "opponentStrengthCoverage": 0.71,
       "provider": "api_football",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-ensemble-v2",
       "id": "wc_2026-06-12_canada_bosniaandherzegovina_dc",
       "market": "double_chance",
-      "pick": "away_or_draw",
-      "pickLabel": "Bosnia and Herzegovina or Draw",
+      "pick": "home_or_away",
+      "pickLabel": "Canada or Bosnia and Herzegovina",
       "line": null,
-      "americanOdds": -105,
+      "americanOdds": 180,
       "bookmaker": "fanduel",
-      "modelProbability": 0.4996,
-      "marketProbability": 0.4819,
-      "edgePct": 1.77,
+      "modelProbability": 0.7308,
+      "marketProbability": 0.3371,
+      "edgePct": 39.38,
       "outcomes": [
         {
           "label": "Canada or Draw",
           "side": "home_or_draw",
-          "modelProbability": 0.769,
-          "marketProbability": 0.7961,
-          "americanOdds": -550
+          "modelProbability": 0.7664,
+          "marketProbability": 0.8989,
+          "americanOdds": -2000
         },
         {
           "label": "Bosnia and Herzegovina or Draw",
           "side": "away_or_draw",
-          "modelProbability": 0.4996,
-          "marketProbability": 0.4819,
-          "americanOdds": -105
+          "modelProbability": 0.5028,
+          "marketProbability": 0.764,
+          "americanOdds": -425
         },
         {
           "label": "Canada or Bosnia and Herzegovina",
           "side": "home_or_away",
-          "modelProbability": 0.7314,
-          "marketProbability": 0.722,
-          "americanOdds": -330
+          "modelProbability": 0.7308,
+          "marketProbability": 0.3371,
+          "americanOdds": 180
         }
       ],
       "confidence": "Low",
@@ -145,11 +145,11 @@
       "bankBuilderEligible": false,
       "settlementSupport": "automated",
       "statusReason": "double-chance edge clears",
-      "riskTier": "Medium",
+      "riskTier": "High",
       "factors": [
-        "Model Bosnia and Herzegovina or Draw 50% vs market 48%",
+        "Model Canada or Bosnia and Herzegovina 73% vs market 34%",
         "Double chance derived from the ensemble Home/Draw/Away \u2014 real DC odds",
-        "Ensemble weights \u2014 market 0.657, strength 0.25, form 0.093 (opponent coverage 62%)"
+        "Ensemble weights \u2014 market 0.643, strength 0.25, form 0.106 (opponent coverage 71%)"
       ],
       "caveats": [
         "90-minute regulation only (Draw is a real outcome; no extra time/penalties)",
@@ -171,7 +171,7 @@
       "awayLogo": "https://media.api-sports.io/football/teams/1113.png",
       "regulationOnly": true,
       "sampleSizeWarning": false,
-      "opponentStrengthCoverage": 0.62,
+      "opponentStrengthCoverage": 0.71,
       "provider": "api_football",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-ensemble-v2",
@@ -182,21 +182,21 @@
       "line": 2.5,
       "americanOdds": 125,
       "bookmaker": "draftkings",
-      "modelProbability": 0.4324,
+      "modelProbability": 0.4308,
       "marketProbability": 0.4289,
-      "edgePct": 0.35,
+      "edgePct": 0.19,
       "outcomes": [
         {
           "label": "Over 2.5",
           "side": "over",
-          "modelProbability": 0.4324,
+          "modelProbability": 0.4308,
           "marketProbability": 0.4289,
           "americanOdds": 125
         },
         {
           "label": "Under 2.5",
           "side": "under",
-          "modelProbability": 0.5676,
+          "modelProbability": 0.5692,
           "marketProbability": 0.5711,
           "americanOdds": -145
         }
@@ -206,20 +206,20 @@
       "public": true,
       "parlayEligible": false,
       "bankBuilderEligible": false,
-      "statusReason": "edge +0.4% below the 2.5% suggested-card threshold \u2192 projection only",
+      "statusReason": "edge +0.2% below the 2.5% suggested-card threshold \u2192 projection only",
       "settlementSupport": "automated",
       "riskTier": "High",
       "factors": [
         "Market total 2.5 \u2014 model 43% Over vs market 43%",
-        "Ensemble weights \u2014 market 0.657, strength 0.25, form 0.093 (opponent coverage 62%)"
+        "Ensemble weights \u2014 market 0.643, strength 0.25, form 0.106 (opponent coverage 71%)"
       ],
       "caveats": [
         "90-minute regulation goals only",
-        "edge +0.4% below the 2.5% suggested-card threshold \u2192 projection only"
+        "edge +0.2% below the 2.5% suggested-card threshold \u2192 projection only"
       ],
       "notes": [
         "90-minute regulation goals only",
-        "edge +0.4% below the 2.5% suggested-card threshold \u2192 projection only"
+        "edge +0.2% below the 2.5% suggested-card threshold \u2192 projection only"
       ]
     },
     {
@@ -233,34 +233,34 @@
       "awayLogo": "https://media.api-sports.io/football/teams/1113.png",
       "regulationOnly": true,
       "sampleSizeWarning": false,
-      "opponentStrengthCoverage": 0.62,
+      "opponentStrengthCoverage": 0.71,
       "provider": "api_football",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-ensemble-v2",
       "id": "wc_2026-06-12_canada_bosniaandherzegovina_corners",
       "market": "match_total_corners",
       "pick": "under",
-      "pickLabel": "Under 8.5 corners",
-      "line": 8.5,
-      "americanOdds": -104,
-      "bookmaker": "fanduel",
-      "modelProbability": 0.5094,
-      "marketProbability": 0.4759,
-      "edgePct": 3.35,
+      "pickLabel": "Under 13.5 corners",
+      "line": 13.5,
+      "americanOdds": -110,
+      "bookmaker": "draftkings",
+      "modelProbability": 0.6435,
+      "marketProbability": 0.4899,
+      "edgePct": 15.36,
       "outcomes": [
         {
-          "label": "Over 8.5",
+          "label": "Over 13.5",
           "side": "over",
-          "modelProbability": 0.4906,
-          "marketProbability": 0.5241,
-          "americanOdds": -128
+          "modelProbability": 0.3565,
+          "marketProbability": 0.5101,
+          "americanOdds": -120
         },
         {
-          "label": "Under 8.5",
+          "label": "Under 13.5",
           "side": "under",
-          "modelProbability": 0.5094,
-          "marketProbability": 0.4759,
-          "americanOdds": -104
+          "modelProbability": 0.6435,
+          "marketProbability": 0.4899,
+          "americanOdds": -110
         }
       ],
       "confidence": "Low",
@@ -275,7 +275,7 @@
       "factors": [
         "Recent corners: Canada 5.9/2.4 for/against (last 10)",
         "Recent corners: Bosnia and Herzegovina 4.7/3.3 for/against (last 10)",
-        "Model expected 8.1 corners vs market line 8.5 (10-match corner sample)"
+        "Model expected 8.1 corners vs market line 13.5 (10-match corner sample)"
       ],
       "caveats": [
         "90-minute regulation corners only",
@@ -380,28 +380,28 @@
       "americanOdds": -290,
       "bookmaker": "fanduel",
       "modelProbability": 0.7334,
-      "marketProbability": 0.6978,
-      "edgePct": 3.56,
+      "marketProbability": 0.6951,
+      "edgePct": 3.83,
       "outcomes": [
         {
           "label": "United States or Draw",
           "side": "home_or_draw",
           "modelProbability": 0.7435,
-          "marketProbability": 0.7469,
+          "marketProbability": 0.744,
           "americanOdds": -390
         },
         {
           "label": "Paraguay or Draw",
           "side": "away_or_draw",
           "modelProbability": 0.5231,
-          "marketProbability": 0.5554,
-          "americanOdds": -145
+          "marketProbability": 0.5609,
+          "americanOdds": -150
         },
         {
           "label": "United States or Paraguay",
           "side": "home_or_away",
           "modelProbability": 0.7334,
-          "marketProbability": 0.6978,
+          "marketProbability": 0.6951,
           "americanOdds": -290
         }
       ],
@@ -509,25 +509,25 @@
       "pick": null,
       "pickLabel": null,
       "line": 8.5,
-      "americanOdds": -118,
+      "americanOdds": -112,
       "bookmaker": "fanduel",
-      "modelProbability": 0.5125,
-      "marketProbability": 0.5061,
-      "edgePct": 0.64,
+      "modelProbability": 0.5046,
+      "marketProbability": 0.4939,
+      "edgePct": 1.07,
       "outcomes": [
         {
           "label": "Over 8.5",
           "side": "over",
-          "modelProbability": 0.5125,
-          "marketProbability": 0.5061,
-          "americanOdds": -118
+          "modelProbability": 0.5046,
+          "marketProbability": 0.4939,
+          "americanOdds": -112
         },
         {
           "label": "Under 8.5",
           "side": "under",
-          "modelProbability": 0.4875,
-          "marketProbability": 0.4939,
-          "americanOdds": -112
+          "modelProbability": 0.4954,
+          "marketProbability": 0.5061,
+          "americanOdds": -118
         }
       ],
       "confidence": "Low",
@@ -536,7 +536,7 @@
       "public": true,
       "parlayEligible": false,
       "bankBuilderEligible": false,
-      "statusReason": "edge +0.6% below the 2.5% suggested-card threshold \u2192 projection only",
+      "statusReason": "edge +1.1% below the 2.5% suggested-card threshold \u2192 projection only",
       "settlementSupport": "automated",
       "riskTier": "Medium",
       "factors": [
@@ -546,11 +546,11 @@
       ],
       "caveats": [
         "90-minute regulation corners only",
-        "edge +0.6% below the 2.5% suggested-card threshold \u2192 projection only"
+        "edge +1.1% below the 2.5% suggested-card threshold \u2192 projection only"
       ],
       "notes": [
         "90-minute regulation corners only",
-        "edge +0.6% below the 2.5% suggested-card threshold \u2192 projection only"
+        "edge +1.1% below the 2.5% suggested-card threshold \u2192 projection only"
       ]
     }
   ]
