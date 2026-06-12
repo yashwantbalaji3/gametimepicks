@@ -134,9 +134,27 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
       {/* Leg pool */}
       <div className="lg:col-span-2 flex flex-col gap-3">
         <div className="flex flex-col gap-2">
-          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>
-            1 · Choose a sport or game &nbsp;→&nbsp; 2 · Add eligible legs
-          </span>
+          {/* Progress rail: Sport → Game → Legs → Stake (casino rebuild). */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5" aria-label="Build steps">
+            {[
+              { label: "1 Sport", done: sport !== "All" },
+              { label: "2 Game", done: !!gameFilter },
+              { label: "3 Legs", done: selected.length > 0 },
+              { label: "4 Stake", done: false },
+            ].map((st, i, arr) => (
+              <span key={st.label} className="flex items-center gap-1.5 shrink-0">
+                <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]"
+                  style={{
+                    color: st.done ? "var(--vault-success)" : "var(--vault-text-mute)",
+                    border: `1px solid ${st.done ? "rgba(110,231,168,0.45)" : "var(--vault-rule)"}`,
+                    background: st.done ? "rgba(110,231,168,0.08)" : "transparent",
+                  }}>
+                  {st.done ? "✓ " : ""}{st.label}
+                </span>
+                {i < arr.length - 1 ? <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>→</span> : null}
+              </span>
+            ))}
+          </div>
           {gameFilter ? (
             <button type="button" onClick={() => setGameFilter(null)}
               className="self-start inline-flex items-center gap-2 rounded-full px-3 py-1"

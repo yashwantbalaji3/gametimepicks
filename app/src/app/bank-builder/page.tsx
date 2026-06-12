@@ -101,7 +101,7 @@ export default function BankBuilderPage() {
                 Step {h.step} · {formatLadderUsdPrecise(h.bankrollAfter)} <span style={{ color: "#6EE7A8" }}>✓</span>
               </span>
             ))}
-            <span className="gtp-active-glow rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", background: "rgba(240,199,94,0.10)" }}>
+            <span className="gtp-heat-pulse rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)" }}>
               Step {activeStep.step} · next decision pending
             </span>
           </div>
@@ -109,7 +109,7 @@ export default function BankBuilderPage() {
           <div className="flex items-center gap-2.5">
             <span className="font-mono shrink-0 text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>$100</span>
             <div className="gtp-meter-track h-2.5 flex-1" role="img" aria-label={`Paper bankroll ${formatLadderUsdPrecise(currentBankroll)} of the $10,000 crown`}>
-              <div className="gtp-meter-fill" style={{ width: `${Math.min(100, Math.max(2, (currentBankroll / 10000) * 100))}%` }} />
+              <div className="gtp-meter-fill gtp-meter-fill--lava" style={{ width: `${Math.min(100, Math.max(2, (currentBankroll / 10000) * 100))}%` }} />
               <div aria-hidden className="gtp-meter-shimmer" />
             </div>
             <span className="font-mono shrink-0 text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>$10,000</span>
