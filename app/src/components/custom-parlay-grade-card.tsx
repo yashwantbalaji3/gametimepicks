@@ -172,7 +172,7 @@ export default function CustomParlayGradeCard({ legs, context }: Props) {
           color: "var(--vault-text-faint)",
           border: "1px solid var(--vault-rule)",
           background: "transparent",
-          fontSize: 9,
+          fontSize: 10,
           cursor: "pointer",
         }}
       >
@@ -199,7 +199,7 @@ export default function CustomParlayGradeCard({ legs, context }: Props) {
             <div key={label} className="flex flex-col gap-0.5">
               <dt
                 className="font-mono uppercase tracking-[0.12em]"
-                style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
               >
                 {label}
               </dt>

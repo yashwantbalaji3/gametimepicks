@@ -113,7 +113,7 @@ export default function IplLandingPage() {
                 style={{
                   padding: "12px 14px",
                   border: "1px solid var(--vault-border)",
-                  background: "rgba(7, 11, 26, 0.55)",
+                  background: "rgba(26, 16, 11, 0.55)",
                 }}
               >
                 <div className="flex flex-col gap-0.5 min-w-0">
@@ -149,7 +149,7 @@ export default function IplLandingPage() {
                     className="font-mono uppercase tracking-[0.14em]"
                     style={{
                       color: "var(--vault-text-faint)",
-                      fontSize: 9,
+                      fontSize: 10,
                     }}
                   >
                     schedule only

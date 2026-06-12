@@ -99,7 +99,7 @@ export default function SettledGameDetail({
     <details
       className="group rounded-[6px]"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
       open={defaultOpen}

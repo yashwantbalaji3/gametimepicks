@@ -67,7 +67,7 @@ export default function Nav() {
     <header
       className="sticky top-0 z-30 backdrop-blur-xl"
       style={{
-        background: "rgba(7, 11, 26, 0.86)",
+        background: "rgba(26, 16, 11, 0.86)",
         borderBottom: "1px solid var(--vault-border)",
       }}
     >

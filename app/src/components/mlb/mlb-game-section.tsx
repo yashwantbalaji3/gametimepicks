@@ -96,7 +96,7 @@ export default function MlbGameSection({
                 className="font-mono uppercase tracking-[0.12em]"
                 style={{
                   color: "var(--vault-text-faint)",
-                  fontSize: 9,
+                  fontSize: 10,
                   border: "1px solid var(--vault-border)",
                   borderRadius: 2,
                   padding: "1px 5px",
@@ -111,7 +111,7 @@ export default function MlbGameSection({
                   className="font-mono uppercase tracking-[0.12em]"
                   style={{
                     color: settled ? "var(--vault-success)" : "var(--vault-warn)",
-                    fontSize: 9,
+                    fontSize: 10,
                     border: `1px solid ${
                       settled ? "rgba(74, 222, 128, 0.30)" : "rgba(212, 175, 55, 0.30)"
                     }`,
@@ -130,7 +130,7 @@ export default function MlbGameSection({
                   className="font-mono uppercase tracking-[0.12em]"
                   style={{
                     color: "var(--vault-gold-bright)",
-                    fontSize: 9,
+                    fontSize: 10,
                     border: "1px solid rgba(212, 175, 55, 0.30)",
                     background: "rgba(212, 175, 55, 0.10)",
                     borderRadius: 2,
@@ -201,7 +201,7 @@ export default function MlbGameSection({
         >
           <summary
             className="cursor-pointer list-none flex items-center justify-between gap-3 px-3.5 py-2.5"
-            style={{ background: "rgba(7, 11, 26, 0.45)" }}
+            style={{ background: "rgba(26, 16, 11, 0.45)" }}
           >
             <span
               className="font-mono uppercase tracking-[0.14em]"
@@ -247,7 +247,7 @@ export default function MlbGameSection({
                 paddingLeft: 12,
                 paddingRight: 12,
                 border: "1px solid var(--vault-border)",
-                background: "rgba(7, 11, 26, 0.5)",
+                background: "rgba(26, 16, 11, 0.5)",
                 minWidth: 0,
                 overflow: "hidden",
               }}
@@ -336,7 +336,7 @@ function PropsPendingNote() {
     <div
       className="mt-5 rounded-[6px] px-4 py-5 text-[13px]"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
         color: "var(--vault-text-mute)",
       }}
@@ -359,7 +359,7 @@ function FinalNoLeansNote({ settled }: { settled?: boolean }) {
     <div
       className="mt-5 rounded-[6px] px-4 py-4 text-[13px]"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: `1px solid ${
           settled ? "rgba(74, 222, 128, 0.25)" : "rgba(212, 175, 55, 0.25)"
         }`,
@@ -402,7 +402,7 @@ function FiltersHidAllNote() {
     <div
       className="mt-5 rounded-[6px] px-4 py-4 text-[12px]"
       style={{
-        background: "rgba(7, 11, 26, 0.45)",
+        background: "rgba(26, 16, 11, 0.45)",
         border: "1px dashed var(--vault-border)",
         color: "var(--vault-text-faint)",
       }}

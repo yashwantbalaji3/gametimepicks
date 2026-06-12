@@ -69,9 +69,9 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
           {filtered.map((g) => {
             const id = getSportIdentity(g.sport);
             return (
-              <article key={g.id} className="gtp-card-hover rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderLeft: `3px solid ${id.accentVar}` }}>
+              <article key={g.id} className="gtp-card-hover rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", borderLeft: `3px solid ${id.accentVar}` }}>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="flex items-center gap-1.5 font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full" style={{ color: id.accentVar, border: `1px solid ${id.accentVar}`, fontSize: 9 }}>
+                  <span className="flex items-center gap-1.5 font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full" style={{ color: id.accentVar, border: `1px solid ${id.accentVar}`, fontSize: 10 }}>
                     <span aria-hidden role="img" style={{ fontSize: 10 }}>{id.icon}</span>
                     {g.sportLabel}
                   </span>
@@ -81,7 +81,7 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
                   {g.homeCode || g.awayCode || g.homeLogo || g.awayLogo ? (
                     <span className="inline-flex items-center gap-1 shrink-0" aria-hidden>
                       <TeamMark logoUrl={g.homeLogo} flagCode={g.homeCode} size="md" />
-                      <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>v</span>
+                      <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>v</span>
                       <TeamMark logoUrl={g.awayLogo} flagCode={g.awayCode} size="md" />
                     </span>
                   ) : null}
@@ -107,7 +107,7 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
           })}
         </div>
       ) : (
-        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No games for this filter</p>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Check back closer to game time — schedules post as the day fills in.</p>
         </div>

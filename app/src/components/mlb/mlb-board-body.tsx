@@ -224,7 +224,7 @@ export default function MlbBoardBody({ date }: { date: string }) {
               <div
                 className="rounded-[6px] px-4 py-4 text-[13px]"
                 style={{
-                  background: "rgba(7, 11, 26, 0.5)",
+                  background: "rgba(26, 16, 11, 0.5)",
                   border: "1px solid var(--vault-border)",
                   color: "var(--vault-text-mute)",
                 }}
@@ -282,7 +282,7 @@ export default function MlbBoardBody({ date }: { date: string }) {
                     style={{
                       padding: "12px 14px",
                       border: "1px solid var(--vault-border)",
-                      background: "rgba(7, 11, 26, 0.45)",
+                      background: "rgba(26, 16, 11, 0.45)",
                     }}
                   >
                     <div
@@ -411,7 +411,7 @@ function OffDayPanel() {
       <div
         className="rounded-[6px] px-5 py-6 text-[13px] leading-relaxed"
         style={{
-          background: "rgba(7, 11, 26, 0.55)",
+          background: "rgba(26, 16, 11, 0.55)",
           border: "1px solid var(--vault-border)",
           color: "var(--vault-text-mute)",
         }}

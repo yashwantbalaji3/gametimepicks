@@ -302,7 +302,7 @@ export default function BoardPage() {
             }}
           >
             <span
-              className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-[9px] font-semibold"
+              className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-[10px] font-semibold"
               style={{
                 background: "var(--vault-gold-dim)",
                 color: "var(--vault-gold)",
@@ -353,7 +353,7 @@ export default function BoardPage() {
               </div>
             </div>
             <div
-              className="mt-2 font-mono text-[9px] leading-[1.55]"
+              className="mt-2 font-mono text-[10px] leading-[1.55]"
               style={{ color: "var(--vault-text-faint)" }}
             >
               Educational only — not betting advice.

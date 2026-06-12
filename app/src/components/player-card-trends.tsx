@@ -128,7 +128,7 @@ export default function PlayerCardTrends({ card }: Props) {
                     {Number.isInteger(last) ? last : last!.toFixed(1)}
                   </div>
                   <div
-                    className="mt-0.5 font-mono text-[9px] tracking-wider uppercase"
+                    className="mt-0.5 font-mono text-[10px] tracking-wider uppercase"
                     style={{ color: "var(--vault-text-faint)" }}
                   >
                     {refLine !== undefined ? `line ${refLine}` : "latest"}

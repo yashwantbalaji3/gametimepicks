@@ -620,7 +620,7 @@ export default function ParlayBuilderClient({
           className="rounded-[6px] overflow-hidden gtp-crt-scanlines"
           style={{
             background:
-              "linear-gradient(180deg, rgba(7,11,26,0.78) 0%, rgba(7,11,26,0.45) 100%)",
+              "linear-gradient(180deg, rgba(26, 16, 11,0.78) 0%, rgba(26, 16, 11,0.45) 100%)",
             border: "1px solid var(--vault-border)",
           }}
         >
@@ -645,7 +645,7 @@ export default function ParlayBuilderClient({
             </span>
             <span
               className="font-mono uppercase tracking-[0.14em] hidden sm:inline"
-              style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+              style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
             >
               educational candidates · not betting advice
             </span>
@@ -1198,7 +1198,7 @@ function DemoPreviewState({
       </div>
       <div
         className="mt-3 font-mono uppercase tracking-[0.14em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         preview only · chips activate when a real slate loads
       </div>

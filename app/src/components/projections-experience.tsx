@@ -111,7 +111,7 @@ export default function ProjectionsExperience({
       <section
         className="rounded-[8px] px-5 py-5"
         style={{
-          background: "rgba(7,11,26,0.55)",
+          background: "rgba(26, 16, 11,0.55)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -239,7 +239,7 @@ function SportNav({
             aria-pressed={active}
             className="inline-flex items-center gap-2 px-3 py-2 rounded-full"
             style={{
-              background: active ? "var(--vault-gold-bright)" : "rgba(7,11,26,0.55)",
+              background: active ? "var(--vault-gold-bright)" : "rgba(26, 16, 11,0.55)",
               border: active
                 ? "1px solid var(--vault-gold-bright)"
                 : "1px solid var(--vault-border)",
@@ -291,7 +291,7 @@ function GameCardGroups({
       <section
         className="rounded-[8px] p-5"
         style={{
-          background: "rgba(7,11,26,0.55)",
+          background: "rgba(26, 16, 11,0.55)",
           border: "1px dashed var(--vault-border)",
         }}
       >
@@ -469,7 +469,7 @@ function SlateModeNote({
     <aside
       className="rounded-[8px] px-3.5 py-2.5 text-[12px] leading-snug"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-border)",
         color: "var(--vault-text-mute)",
       }}
@@ -594,7 +594,7 @@ function MatchupCard({
       <div className="flex items-center justify-between gap-2 mb-2">
         <span
           className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: sportAccent, fontSize: 9 }}
+          style={{ color: sportAccent, fontSize: 10 }}
         >
           {game.sport.toUpperCase()}
         </span>
@@ -685,13 +685,13 @@ function MarketChip({ label, value }: { label: string; value: string }) {
     <span
       className="inline-flex items-baseline gap-1.5 px-2 py-1 rounded-[5px]"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
       <span
         className="font-mono uppercase tracking-[0.16em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         {label}
       </span>
@@ -745,14 +745,14 @@ function GameDetailView({
         className="rounded-[10px] px-4 py-4 sm:px-5 sm:py-5"
         style={{
           background:
-            "linear-gradient(180deg, rgba(20,24,35,0.92) 0%, rgba(7,11,26,0.62) 100%)",
+            "linear-gradient(180deg, rgba(20,24,35,0.92) 0%, rgba(26, 16, 11,0.62) 100%)",
           border: "1px solid var(--vault-border)",
         }}
       >
         <div className="flex items-center justify-between gap-3 mb-2">
           <span
             className="font-mono uppercase tracking-[0.18em]"
-            style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}
+            style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
           >
             {game.sport.toUpperCase()}
             {game.venue ? ` · ${game.venue}` : ""}
@@ -813,7 +813,7 @@ function GameDetailView({
               <div className="mt-3 flex flex-col gap-1.5">
                 <span
                   className="font-mono uppercase tracking-[0.16em]"
-                  style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                  style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
                 >
                   Market outlook · implied by sportsbook prices — not a model pick
                 </span>
@@ -940,14 +940,14 @@ function BigMarketCell({
     <div
       className="flex flex-col gap-0.5 rounded-[6px] px-2.5 py-1.5"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-border)",
         minWidth: 92,
       }}
     >
       <span
         className="font-mono uppercase tracking-[0.16em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         {label}
       </span>
@@ -1070,7 +1070,7 @@ function PlayerAccordionList({
       <div
         className="rounded-[8px] px-4 py-4 text-[13px]"
         style={{
-          background: "rgba(7,11,26,0.55)",
+          background: "rgba(26, 16, 11,0.55)",
           border: "1px solid var(--vault-border)",
           color: "var(--vault-text-mute)",
         }}
@@ -1201,7 +1201,7 @@ function PlayerAccordion({
               className="font-mono uppercase tracking-[0.12em] shrink-0 px-2 py-1 rounded-[3px]"
               style={{
                 color: confColor,
-                fontSize: 9,
+                fontSize: 10,
                 border: `1px solid ${confColor}`,
               }}
               title={confReason || undefined}
@@ -1254,14 +1254,14 @@ function PlayerMarketRow({ group }: { group: ProjectionsMarketGroup }) {
     <div
       className="gtp-proj-row grid grid-cols-[1fr_1fr_1fr_72px] gap-2 items-baseline px-2 py-1.5 rounded-[5px]"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
       <div className="flex flex-col gap-0.5 min-w-0">
         <span
           className="font-mono uppercase tracking-[0.14em] truncate flex items-center gap-1.5"
-          style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
           <span className="truncate">{group.marketLabel}</span>
           {showBookChip && (
@@ -1277,7 +1277,7 @@ function PlayerMarketRow({ group }: { group: ProjectionsMarketGroup }) {
                 color: "var(--vault-text-mute)",
                 background: "rgba(0,0,0,0.30)",
                 border: "1px solid var(--vault-rule)",
-                fontSize: 8,
+                fontSize: 10,
                 lineHeight: 1.2,
               }}
             >
@@ -1310,7 +1310,7 @@ function PlayerMarketRow({ group }: { group: ProjectionsMarketGroup }) {
       <div className="flex flex-col gap-0.5 min-w-0 items-end">
         <span
           className="font-mono uppercase tracking-[0.14em]"
-          style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
           {showBookChip ? "Best odds" : "Odds"}
         </span>
@@ -1325,7 +1325,7 @@ function PlayerMarketRow({ group }: { group: ProjectionsMarketGroup }) {
             className="font-mono truncate"
             style={{
               color: "var(--vault-text-faint)",
-              fontSize: 9,
+              fontSize: 10,
               lineHeight: 1.2,
             }}
             title={`Best price at ${group.bestBookmaker}`}
@@ -1378,7 +1378,7 @@ function BookComparisonRow({
     >
       <span
         className="font-mono uppercase tracking-[0.14em] shrink-0"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         Books
       </span>
@@ -1450,7 +1450,7 @@ function ValueCell({
     <div className="flex flex-col gap-0.5 min-w-0">
       <span
         className="font-mono uppercase tracking-[0.14em] truncate"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         {label}
       </span>

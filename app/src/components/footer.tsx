@@ -18,7 +18,7 @@ export default function Footer() {
       style={{
         borderTop: "1px solid var(--vault-border)",
         background:
-          "linear-gradient(180deg, rgba(7, 11, 26, 0) 0%, rgba(14, 21, 48, 0.55) 100%)",
+          "linear-gradient(180deg, rgba(26, 16, 11, 0) 0%, rgba(14, 21, 48, 0.55) 100%)",
       }}
     >
       {/* PR #114: replaced the running-dots "Vegas marquee" with a

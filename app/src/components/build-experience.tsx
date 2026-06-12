@@ -83,7 +83,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
   const bankEligible = selected.length >= 2 && selected.every((l) => l.bankBuilderEligible);
 
   const betslipCard = (
-    <div className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>3 · Your card &amp; paper stake</span>
         <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{selected.length} leg{selected.length === 1 ? "" : "s"}</span>
@@ -125,7 +125,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
           ) : null}
         </>
       )}
-      <span style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>Paper only — not betting advice.</span>
+      <span style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Paper only — not betting advice.</span>
     </div>
   );
 
@@ -183,17 +183,17 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
           {/* Search is secondary (v4): pills are the primary control. */}
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team or player…"
             className="rounded-[8px] px-3 py-2"
-            style={{ background: "rgba(7,11,26,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
+            style={{ background: "rgba(26, 16, 11,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
 
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             {filtered.length} eligible leg{filtered.length === 1 ? "" : "s"}
           </span>
           {(sport !== "All" || risk !== "All" || market !== "All" || q || gameFilter || selected.length > 0) ? (
             <button type="button" onClick={() => { setSport("All"); setRisk("All"); setMarket("All"); setQ(""); setGameFilter(null); setSelected([]); }}
-              className="vault-press font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>
+              className="vault-press font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>
               Start over ✕
             </button>
           ) : null}
@@ -215,14 +215,14 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
                 ) : null}
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{l.label}</span>
-                  <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                  <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                     {l.sportLabel} · {l.sublabel}{l.prelineup ? " · lineup pending" : ""}
                   </span>
                 </div>
                 <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>
                 <button type="button" onClick={() => (on ? remove(l.id) : add(l))}
                   className="rounded-full shrink-0 flex items-center justify-center"
-                  style={{ width: 24, height: 24, background: on ? "var(--vault-gold-bright)" : "transparent", border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, color: on ? "#0b0f1f" : "var(--vault-text-mute)", fontSize: 15, fontWeight: 700, lineHeight: 1 }}
+                  style={{ width: 24, height: 24, background: on ? "var(--vault-gold-bright)" : "transparent", border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, color: on ? "#170f0a" : "var(--vault-text-mute)", fontSize: 15, fontWeight: 700, lineHeight: 1 }}
                   aria-label={on ? "Remove leg" : "Add leg"}>
                   {on ? "−" : "+"}
                 </button>
@@ -245,14 +245,14 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
         {!slipOpen && (
           <button type="button" onClick={() => setSlipOpen(true)}
             className="vault-press fixed left-3 right-3 z-40 flex items-center justify-between gap-2 rounded-full px-5 py-3 shadow-lg"
-            style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 64px)", background: "var(--vault-gold-bright)", color: "#0b0f1f", fontWeight: 700, border: "none" }}>
+            style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 64px)", background: "var(--vault-gold-bright)", color: "#170f0a", fontWeight: 700, border: "none" }}>
             <span style={{ fontSize: 14 }}>View card · {selected.length} leg{selected.length === 1 ? "" : "s"}</span>
             <span className="font-mono tabular" style={{ fontSize: 14 }}>{selected.length >= 1 ? formatAmerican(combinedAmerican) : "—"}</span>
           </button>
         )}
         {slipOpen && (
           <div className="fixed inset-0 z-50 flex flex-col justify-end" style={{ background: "rgba(0,0,0,0.6)" }} onClick={() => setSlipOpen(false)}>
-            <div className="rounded-t-[16px] max-h-[82vh] overflow-y-auto px-3 pb-6 pt-3" onClick={(e) => e.stopPropagation()} style={{ background: "var(--vault-bg, #0b0f1f)", borderTop: "1px solid var(--vault-border-strong)" }}>
+            <div className="rounded-t-[16px] max-h-[82vh] overflow-y-auto px-3 pb-6 pt-3" onClick={(e) => e.stopPropagation()} style={{ background: "var(--vault-bg, #170f0a)", borderTop: "1px solid var(--vault-border-strong)" }}>
               <div className="flex items-center justify-between gap-2 mb-2 px-1">
                 <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>3 · Your card &amp; paper stake</span>
                 <button type="button" onClick={() => setSlipOpen(false)} className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>Close ✕</button>

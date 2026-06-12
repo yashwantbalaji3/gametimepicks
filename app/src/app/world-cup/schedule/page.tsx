@@ -60,13 +60,13 @@ export default function WorldCupSchedulePage() {
               key={s}
               className="rounded-[5px] px-3 py-2"
               style={{
-                background: "rgba(7,11,26,0.55)",
+                background: "rgba(26, 16, 11,0.55)",
                 border: "1px solid var(--vault-border)",
               }}
             >
               <div
                 className="font-mono uppercase tracking-[0.14em]"
-                style={{ color: "var(--vault-gold)", fontSize: 9 }}
+                style={{ color: "var(--vault-gold)", fontSize: 10 }}
               >
                 {STAGE_LABEL[s]}
               </div>
@@ -78,7 +78,7 @@ export default function WorldCupSchedulePage() {
               </div>
               <div
                 className="font-mono"
-                style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
               >
                 matches
               </div>
@@ -162,7 +162,7 @@ function MatchCard({
     <article
       className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: isGroup
           ? "1px solid var(--vault-border)"
           : "1px solid rgba(240, 199, 94, 0.30)",
@@ -173,7 +173,7 @@ function MatchCard({
           className="font-mono uppercase tracking-[0.18em]"
           style={{
             color: isGroup ? "var(--vault-gold)" : "var(--vault-gold-bright)",
-            fontSize: 9,
+            fontSize: 10,
           }}
         >
           {isGroup
@@ -190,7 +190,7 @@ function MatchCard({
       <TeamRow code={homeCode} name={homeName} placeholder={!match.home} />
       <div
         className="font-mono uppercase tracking-[0.20em] text-center"
-        style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
       >
         vs
       </div>
@@ -207,7 +207,7 @@ function MatchCard({
         </span>
         <span
           className="font-mono uppercase tracking-[0.12em]"
-          style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
           Projection pending
         </span>

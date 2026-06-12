@@ -111,7 +111,7 @@ function DateNotFound({ date }: { date: string }) {
               style={{
                 padding: "10px 14px",
                 border: "1px solid var(--vault-border)",
-                background: "rgba(7, 11, 26, 0.45)",
+                background: "rgba(26, 16, 11, 0.45)",
                 color: "var(--vault-text-mute)",
                 textDecoration: "none",
                 fontSize: 12,

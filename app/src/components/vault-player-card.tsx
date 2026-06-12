@@ -780,14 +780,14 @@ function ScoreboardTile({
     <div
       className="rounded-[5px] px-2.5 py-2 flex flex-col items-start justify-center"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
         minHeight: 56,
       }}
     >
       <div
         className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: labelColor, fontSize: 9 }}
+        style={{ color: labelColor, fontSize: 10 }}
       >
         {label}
       </div>

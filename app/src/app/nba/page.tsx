@@ -127,7 +127,7 @@ export default function NbaLandingPage() {
               key={g.gameId}
               href={detailHref}
               className="vault-glow-hover flex items-center justify-between gap-3 rounded-[6px]"
-              style={{ padding: "12px 14px", border: "1px solid var(--vault-border)", background: "rgba(7, 11, 26, 0.55)", color: "inherit", textDecoration: "none" }}
+              style={{ padding: "12px 14px", border: "1px solid var(--vault-border)", background: "rgba(26, 16, 11, 0.55)", color: "inherit", textDecoration: "none" }}
               aria-label={`View props for ${g.awayTeamAbbr ?? "?"} at ${g.homeTeamAbbr ?? "?"}`}
             >
               <div className="flex flex-col gap-0.5 min-w-0">
@@ -235,7 +235,7 @@ export default function NbaLandingPage() {
   const resultsTab = (
     <div className="flex flex-col gap-4">
       <SectionHeader eyebrow="Results" title="NBA track record" sub="Settled model leans graded against the final box score. Full history on the Results page." />
-      <div className="flex items-center gap-3 flex-wrap rounded-[8px] px-4 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+      <div className="flex items-center gap-3 flex-wrap rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
         <StatusChip label={lifetime?.hitRate != null ? "Settled" : "Pending settlement"} />
         <span style={{ color: "var(--vault-text)", fontSize: 13 }}>
           {lifetime?.hitRate != null ? `${(lifetime.hitRate * 100).toFixed(1)}% on ${lifetime.decisive} settled decisions` : "Pending first settlement."}

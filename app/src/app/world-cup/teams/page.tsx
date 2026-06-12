@@ -104,7 +104,7 @@ function TeamCard({ team }: { team: WorldCupTeam }) {
       className="rounded-[8px] block vault-glow-hover"
       style={{
         background:
-          "linear-gradient(180deg, rgba(7,11,26,0.78) 0%, rgba(7,11,26,0.55) 100%)",
+          "linear-gradient(180deg, rgba(26, 16, 11,0.78) 0%, rgba(26, 16, 11,0.55) 100%)",
         border: team.isHost
           ? "1px solid rgba(240, 199, 94, 0.40)"
           : "1px solid var(--vault-border)",
@@ -127,7 +127,7 @@ function TeamCard({ team }: { team: WorldCupTeam }) {
             {team.isHost && (
               <span
                 className="font-mono uppercase tracking-[0.14em]"
-                style={{ color: "var(--vault-gold)", fontSize: 9 }}
+                style={{ color: "var(--vault-gold)", fontSize: 10 }}
               >
                 host
               </span>
@@ -142,7 +142,7 @@ function TeamCard({ team }: { team: WorldCupTeam }) {
         </div>
         <span
           className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}
+          style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
         >
           →
         </span>

@@ -149,7 +149,7 @@ function SummaryTile({
           color: starPower
             ? "var(--vault-gold-bright)"
             : "var(--vault-text-faint)",
-          fontSize: 9,
+          fontSize: 10,
         }}
       >
         {starPower ? <span aria-hidden>★</span> : null}

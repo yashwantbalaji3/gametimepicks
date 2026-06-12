@@ -132,7 +132,7 @@ export default function IplBoardBody({ date }: { date: string }) {
               <div
                 className="rounded-[6px] px-4 py-4 text-[12px]"
                 style={{
-                  background: "rgba(7, 11, 26, 0.5)",
+                  background: "rgba(26, 16, 11, 0.5)",
                   border: "1px solid var(--vault-border)",
                   color: "var(--vault-text-mute)",
                 }}
@@ -147,7 +147,7 @@ export default function IplBoardBody({ date }: { date: string }) {
               <div
                 className="rounded-[6px] px-4 py-4 text-[12px]"
                 style={{
-                  background: "rgba(7, 11, 26, 0.5)",
+                  background: "rgba(26, 16, 11, 0.5)",
                   border: "1px solid var(--vault-border)",
                   color: "var(--vault-text-mute)",
                 }}
@@ -163,7 +163,7 @@ export default function IplBoardBody({ date }: { date: string }) {
                     style={{
                       padding: "10px 14px",
                       border: "1px solid var(--vault-border)",
-                      background: "rgba(7, 11, 26, 0.45)",
+                      background: "rgba(26, 16, 11, 0.45)",
                     }}
                   >
                     <div className="flex flex-col gap-0.5 min-w-0">
@@ -196,7 +196,7 @@ export default function IplBoardBody({ date }: { date: string }) {
                       </span>
                       <span
                         className="font-mono uppercase tracking-[0.14em]"
-                        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
                       >
                         lines pending
                       </span>

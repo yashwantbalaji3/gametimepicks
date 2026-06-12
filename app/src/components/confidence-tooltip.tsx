@@ -34,7 +34,7 @@ export default function ConfidenceTooltip() {
           which makes group-focus-within work for keyboard users. */}
       <button
         type="button"
-        className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full font-mono text-[9px] font-semibold cursor-help focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0"
+        className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full font-mono text-[10px] font-semibold cursor-help focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0"
         style={{
           color: "var(--vault-gold)",
           background: "var(--vault-gold-dim)",
@@ -59,7 +59,7 @@ export default function ConfidenceTooltip() {
         }}
       >
         <span
-          className="block font-mono text-[9px] uppercase tracking-[0.18em] mb-2"
+          className="block font-mono text-[10px] uppercase tracking-[0.18em] mb-2"
           style={{ color: "var(--vault-gold)" }}
         >
           confidence tiers
@@ -92,7 +92,7 @@ export default function ConfidenceTooltip() {
         </span>
 
         <span
-          className="block mt-2 font-mono text-[9px] leading-[1.55]"
+          className="block mt-2 font-mono text-[10px] leading-[1.55]"
           style={{ color: "var(--vault-text-faint)" }}
         >
           Educational only — not betting advice.

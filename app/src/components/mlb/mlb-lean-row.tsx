@@ -127,8 +127,8 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
     padding: density === "scan" ? "8px 12px" : "14px 16px",
     border: `1px solid ${meta.rim}`,
     background: isInsufficient
-      ? "linear-gradient(180deg, rgba(14, 21, 48, 0.30) 0%, rgba(7, 11, 26, 0.38) 100%)"
-      : "linear-gradient(180deg, rgba(14, 21, 48, 0.55) 0%, rgba(7, 11, 26, 0.62) 100%)",
+      ? "linear-gradient(180deg, rgba(14, 21, 48, 0.30) 0%, rgba(26, 16, 11, 0.38) 100%)"
+      : "linear-gradient(180deg, rgba(14, 21, 48, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
     minWidth: 0,
     maxWidth: "100%",
     opacity: isInsufficient ? 0.78 : 1,
@@ -164,7 +164,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
             {lean.playerName}
           </span>
           <span
-            className="font-mono uppercase tracking-[0.12em] text-[9px] shrink-0 hidden md:inline"
+            className="font-mono uppercase tracking-[0.12em] text-[10px] shrink-0 hidden md:inline"
             style={{ color: "var(--vault-text-faint)" }}
           >
             {teamAbbr} vs {oppAbbr}
@@ -173,7 +173,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
             className="font-mono shrink-0 sm:hidden"
             style={{
               color: meta.fg,
-              fontSize: 9,
+              fontSize: 10,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
               background: meta.bg,
@@ -190,7 +190,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
               className="font-mono uppercase tracking-[0.12em] shrink-0 sm:hidden"
               style={{
                 color: "var(--vault-warn)",
-                fontSize: 8,
+                fontSize: 10,
                 padding: "1px 4px",
                 border: "1px solid rgba(212, 175, 55, 0.30)",
                 borderRadius: 2,
@@ -204,7 +204,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
         {/* Market + LINE / proj / gap / EDGE — always visible */}
         <div className="flex items-center gap-2 min-w-0">
           <span
-            className="font-mono uppercase tracking-[0.12em] text-[9px] shrink-0"
+            className="font-mono uppercase tracking-[0.12em] text-[10px] shrink-0"
             style={{ color: "var(--vault-text-faint)", minWidth: 60 }}
           >
             {mlbMarketLabel(lean.marketKey)}
@@ -272,7 +272,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
             className="font-mono shrink-0 hidden sm:inline-block"
             style={{
               color: meta.fg,
-              fontSize: 9,
+              fontSize: 10,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
               background: meta.bg,
@@ -289,7 +289,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
               className="font-mono uppercase tracking-[0.12em] shrink-0 hidden sm:inline-block"
               style={{
                 color: "var(--vault-warn)",
-                fontSize: 8,
+                fontSize: 10,
                 padding: "1px 4px",
                 border: "1px solid rgba(212, 175, 55, 0.30)",
                 borderRadius: 2,
@@ -337,7 +337,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                   className="font-mono uppercase tracking-[0.12em]"
                   style={{
                     color: "var(--vault-warn)",
-                    fontSize: 9,
+                    fontSize: 10,
                     background: "rgba(212, 175, 55, 0.10)",
                     borderRadius: 2,
                     padding: "1px 6px",
@@ -449,7 +449,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
               <span
                 className="font-mono uppercase tracking-[0.14em] shrink-0"
                 style={{
-                  fontSize: 9,
+                  fontSize: 10,
                   color: bulletToneColor(b.tone),
                   minWidth: 72,
                 }}
@@ -488,7 +488,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
           ) : (
             <span
               className="font-mono uppercase tracking-[0.14em]"
-              style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+              style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
             >
               no recent trend
             </span>
@@ -515,7 +515,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
  * earlier in PR #55 so both sports' projection cards read with the
  * same sportsbook rhythm:
  *
- *   - rgba(7, 11, 26, 0.55) neon-bordered surface
+ *   - rgba(26, 16, 11, 0.55) neon-bordered surface
  *   - minHeight 56 so the trio aligns at every breakpoint
  *   - mono uppercase eyebrow label
  *   - big tabular value at clamp(20px, 3vw, 26px)
@@ -568,13 +568,13 @@ function StatTile({
       style={{
         padding: "8px 10px",
         border: "1px solid var(--vault-border)",
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         minHeight: 56,
       }}
     >
       <span
         className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: labelColor, fontSize: 9 }}
+        style={{ color: labelColor, fontSize: 10 }}
       >
         {label}
       </span>

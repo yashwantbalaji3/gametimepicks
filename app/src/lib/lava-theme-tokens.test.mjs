@@ -12,22 +12,33 @@ import fs from "node:fs";
 const css = fs.readFileSync("src/app/globals.css", "utf8");
 const tw = fs.readFileSync("tailwind.config.ts", "utf8");
 
-test("base + panel surfaces are warm volcanic, not cool graphite", () => {
-  assert.ok(css.includes("--vault-bg: #0C0806;"), "vault base warmed to volcanic obsidian");
-  assert.ok(css.includes("--gtp-card:            #1C140E;"), "card surface warmed");
+test("canonical --lava-* design system exists with warm volcanic + ember values", () => {
+  assert.ok(css.includes("--lava-bg: #0C0806;"), "lava base is warm volcanic");
+  assert.ok(css.includes("--lava-card: #1C140E;"), "lava-glass card surface defined");
+  assert.ok(css.includes("--lava-border: rgba(255, 120, 60, 0.16);"), "lava ember border defined");
+  assert.ok(css.includes("--lava-text: #F8F4E9;"), "lava text is warm cream");
+});
+
+test("legacy --vault-* tokens reference the lava system (lava is the source of truth)", () => {
+  assert.ok(css.includes("--vault-bg: var(--lava-bg);"), "vault base wired to lava");
+  assert.ok(css.includes("--vault-border: var(--lava-border);"), "vault border wired to lava ember");
+  assert.ok(css.includes("--vault-text: var(--lava-text);"), "vault text wired to lava cream");
   assert.ok(!css.includes("--vault-bg: #0A0B10;"), "old cool graphite base removed");
 });
 
-test("universal borders/rules are ember (lava sitewide), gold kept only as crown", () => {
-  assert.ok(css.includes("--vault-border: rgba(255, 120, 60, 0.16);"), "card border is ember");
+test("universal section rule + shell border are ember (lava sitewide), gold kept as crown", () => {
   assert.ok(css.includes("--vault-rule: rgba(255, 120, 60, 0.10);"), "section rule is ember");
   assert.ok(css.includes("--gtp-shell-border:    rgba(255, 120, 60, 0.18);"), "shell border is ember");
-  // crown gold stays available for brand/Bank Builder accents
   assert.ok(css.includes("--vault-gold-bright: #F0C75E;"), "gold crown accent preserved");
 });
 
-test("text stays warm cream for readability (not reduced to chase visuals)", () => {
-  assert.ok(css.includes("--vault-text: #F8F4E9;"), "primary text warm cream");
+test("card surfaces are warm volcanic, not cool navy (no hardcoded rgba(7,11,26))", () => {
+  // The cool-navy card bg that made cards read graphite must be gone sitewide.
+  const comps = fs.readdirSync("src/components", { recursive: true })
+    .filter((f) => typeof f === "string" && f.endsWith(".tsx"))
+    .map((f) => fs.readFileSync(`src/components/${f}`, "utf8")).join("\n");
+  assert.ok(!/rgba\(7,\s*11,\s*26/.test(comps), "no cool-navy rgba(7,11,26) card backgrounds remain");
+  assert.ok(/rgba\(26, 16, 11/.test(comps), "cards use the warm volcanic surface");
 });
 
 test("premium geometric headline face is wired", () => {

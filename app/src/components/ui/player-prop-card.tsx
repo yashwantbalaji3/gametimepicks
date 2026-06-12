@@ -40,13 +40,13 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
               {p.pickLabel} · {pl.team}
               {p.bookmaker ? ` · ${p.bookmaker}` : ""}
             </span>
-            <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>mdl {pct(p.modelProbability)} · mkt {pct(p.marketProbability)}</span>
+            <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>mdl {pct(p.modelProbability)} · mkt {pct(p.marketProbability)}</span>
           </div>
         </div>
         {p.parlayEligible
           ? <StatusChip label="Card eligible" />
           : <StatusChip label={friendlyStatusLabel(p.lineupStatus)} />}
-        <span aria-hidden className="shrink-0 transition-transform group-open:rotate-180" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>▾</span>
+        <span aria-hidden className="shrink-0 transition-transform group-open:rotate-180" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>▾</span>
       </summary>
 
       {/* Details drawer — real evidence only, never fabricated. */}
@@ -63,15 +63,15 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
               {recent.map((g, i) => {
                 const hit = hitSide(g.value, p.line, p.pickLabel);
                 return (
-                  <div key={i} className="rounded-[6px] px-1.5 py-1.5 text-center" style={{ background: "rgba(7,11,26,0.5)", border: `1px solid ${hit == null ? "var(--vault-rule)" : hit ? "rgba(110,231,168,0.4)" : "rgba(240,138,138,0.35)"}` }}>
+                  <div key={i} className="rounded-[6px] px-1.5 py-1.5 text-center" style={{ background: "rgba(26, 16, 11,0.5)", border: `1px solid ${hit == null ? "var(--vault-rule)" : hit ? "rgba(110,231,168,0.4)" : "rgba(240,138,138,0.35)"}` }}>
                     <div className="font-display tabular" style={{ color: hit == null ? "var(--vault-text)" : hit ? "#6EE7A8" : "#F08A8A", fontSize: 14, fontWeight: 700 }}>{g.value}</div>
-                    <div className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{g.isHome ? "vs" : "@"}{g.opponent}</div>
-                    <div className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{(g.date ?? "").slice(5)}</div>
+                    <div className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.isHome ? "vs" : "@"}{g.opponent}</div>
+                    <div className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{(g.date ?? "").slice(5)}</div>
                   </div>
                 );
               })}
             </div>
-            <span className="font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
+            <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
               Green / red = landed on / against the picked side. Official box-score values.
             </span>
           </div>

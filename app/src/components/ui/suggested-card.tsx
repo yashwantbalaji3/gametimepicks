@@ -39,7 +39,7 @@ export default function SuggestedCard({
   return (
     <article
       className="gtp-card-hover rounded-[10px] px-4 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
         <RiskTierBadge tier={card.riskTier} prefix={card.sportLabels.join(" + ")} />
@@ -48,7 +48,7 @@ export default function SuggestedCard({
             {formatAmerican(card.combinedAmericanOdds)}
           </span>
         ) : (
-          <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>model</span>
+          <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>model</span>
         )}
       </div>
 
@@ -111,7 +111,7 @@ export default function SuggestedCard({
       {card.result && CARD_RESULT_CHIP[card.result] ? (
         // Settled card — the outcome is final, so no interactive paper-stake calculator.
         <div className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             Settled from official results · 90-minute regulation for soccer legs
           </span>
         </div>
@@ -119,7 +119,7 @@ export default function SuggestedCard({
         <StakePayoutInput combinedAmerican={card.combinedAmericanOdds} defaultStake={card.defaultStake} lockedStake={lockedStake} />
       ) : (
         <div className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             Model card · no market odds (no paper payout)
           </span>
         </div>

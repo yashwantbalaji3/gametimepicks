@@ -62,7 +62,7 @@ export default function WorldCupTeamDetailPage({ params }: PageProps) {
         className="rounded-[12px] px-5 py-6 sm:px-8 sm:py-8"
         style={{
           background:
-            "linear-gradient(180deg, rgba(7,11,26,0.85) 0%, rgba(7,11,26,0.50) 100%)",
+            "linear-gradient(180deg, rgba(26, 16, 11,0.85) 0%, rgba(26, 16, 11,0.50) 100%)",
           border: team.isHost
             ? "1px solid rgba(240, 199, 94, 0.45)"
             : "1px solid var(--vault-border)",
@@ -114,7 +114,7 @@ export default function WorldCupTeamDetailPage({ params }: PageProps) {
                 href={`/world-cup/team/${encodeURIComponent(code || name)}`}
                 className="rounded-[6px] px-3 py-3 flex items-center gap-2.5 vault-glow-hover"
                 style={{
-                  background: "rgba(7,11,26,0.55)",
+                  background: "rgba(26, 16, 11,0.55)",
                   border: "1px solid var(--vault-border)",
                   textDecoration: "none",
                 }}
@@ -154,7 +154,7 @@ export default function WorldCupTeamDetailPage({ params }: PageProps) {
       <section
         className="mt-10 rounded-[8px] px-4 py-5"
         style={{
-          background: "rgba(7,11,26,0.45)",
+          background: "rgba(26, 16, 11,0.45)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -230,14 +230,14 @@ function FixtureCard({
     <article
       className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
       <div className="flex items-center justify-between gap-2">
         <span
           className="font-mono uppercase tracking-[0.18em]"
-          style={{ color: "var(--vault-gold)", fontSize: 9 }}
+          style={{ color: "var(--vault-gold)", fontSize: 10 }}
         >
           Match {match.id} · {match.date.slice(5)}
         </span>
@@ -253,7 +253,7 @@ function FixtureCard({
         <div className="flex-1">
           <div
             className="font-mono uppercase tracking-[0.14em]"
-            style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+            style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
           >
             {isHome ? "Home fixture · vs" : "Away fixture · at"}
           </div>
@@ -277,7 +277,7 @@ function FixtureCard({
         </span>
         <span
           className="font-mono uppercase tracking-[0.12em]"
-          style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
           Projection pending
         </span>

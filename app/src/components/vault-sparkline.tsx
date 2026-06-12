@@ -64,7 +64,7 @@ export default function VaultSparkline({
           />
         </svg>
         <span
-          className="font-mono text-[9px] tracking-wider uppercase whitespace-nowrap"
+          className="font-mono text-[10px] tracking-wider uppercase whitespace-nowrap"
           style={{ color: "var(--vault-text-faint)" }}
         >
           no trend

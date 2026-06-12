@@ -155,7 +155,7 @@ export default function ProjectionsPage() {
           border: "1px solid var(--vault-border-strong)",
           background:
             "radial-gradient(120% 150% at 0% 0%, rgba(240,199,94,0.09) 0%, transparent 55%)," +
-            "linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(11,15,31,0.96) 60%, rgba(7,11,26,0.97) 100%)",
+            "linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(26, 16, 11,0.96) 60%, rgba(26, 16, 11,0.97) 100%)",
           boxShadow: "var(--vault-shadow-elevated)",
         }}
       >
@@ -173,7 +173,7 @@ export default function ProjectionsPage() {
             <span
               className="self-start font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full"
               style={{
-                fontSize: 9,
+                fontSize: 10,
                 color: "var(--vault-gold-bright)",
                 border: "1px solid var(--vault-border-strong)",
                 background: "var(--vault-gold-dim)",

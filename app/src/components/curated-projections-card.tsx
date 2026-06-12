@@ -144,7 +144,7 @@ function CuratedPickCard({ pick }: { pick: CuratedPick }) {
       <header className="pt-3 px-3 flex items-center justify-between gap-2">
         <span
           className="font-mono uppercase tracking-[0.16em] inline-flex items-center gap-1.5"
-          style={{ color: tagColor, fontSize: 9 }}
+          style={{ color: tagColor, fontSize: 10 }}
         >
           <span
             aria-hidden
@@ -155,7 +155,7 @@ function CuratedPickCard({ pick }: { pick: CuratedPick }) {
         </span>
         <span
           className="font-mono uppercase tracking-[0.14em]"
-          style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+          style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
         >
           {lean.sport.toUpperCase()}
         </span>
@@ -223,7 +223,7 @@ function FooterCell({
     <div className="flex flex-col gap-0.5 min-w-0">
       <span
         className="font-mono uppercase tracking-[0.14em] truncate"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         {label}
       </span>

@@ -12,7 +12,7 @@ export default function SportCard({ summary }: { summary: SportSummary }) {
     <Link
       href={summary.href}
       className="gtp-card-hover gtp-pressable rounded-[10px] px-4 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${accent}`, textDecoration: "none" }}
+      style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${accent}`, textDecoration: "none" }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="flex items-center gap-2 min-w-0">
@@ -27,7 +27,7 @@ export default function SportCard({ summary }: { summary: SportSummary }) {
           <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>{summary.label}</span>
         </span>
         <span className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full shrink-0"
-              style={{ color: summary.live ? "var(--vault-success)" : "var(--vault-text-faint)", border: `1px solid ${summary.live ? "var(--vault-success)" : "var(--vault-rule)"}`, fontSize: 9 }}>
+              style={{ color: summary.live ? "var(--vault-success)" : "var(--vault-text-faint)", border: `1px solid ${summary.live ? "var(--vault-success)" : "var(--vault-rule)"}`, fontSize: 10 }}>
           {summary.live ? "Live today" : "Off today"}
         </span>
       </div>

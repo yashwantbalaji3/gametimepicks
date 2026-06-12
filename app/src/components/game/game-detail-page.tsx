@@ -35,8 +35,8 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
   const overviewTab = (
     <div className="flex flex-col gap-6">
       {topProj ? (
-        <div className="rounded-[10px] px-4 py-4 flex flex-col gap-2" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
-          <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Model read · {topProj.marketLabel}</span>
+        <div className="rounded-[10px] px-4 py-4 flex flex-col gap-2" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+          <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Model read · {topProj.marketLabel}</span>
           <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>{topProj.pickLabel}</span>
           <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
             Model {topProj.modelProbability != null ? Math.round(topProj.modelProbability * 100) + "%" : "—"} · Market {topProj.marketProbability != null ? Math.round(topProj.marketProbability * 100) + "%" : "—"} · Edge {(topProj.edgePct ?? 0) >= 0 ? "+" : ""}{(topProj.edgePct ?? 0).toFixed(1)}%
@@ -70,7 +70,7 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
       {detail.playerProps.length > 0 ? (
         <PlayerPropsExplorer props={detail.playerProps} />
       ) : (
-        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No player props yet</p>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Player props are not available from the current books for this fixture yet. They appear once the books post them (soccer player props post near lineup time).</p>
         </div>
@@ -96,7 +96,7 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
       <SectionHeader eyebrow="Markets" title="What's available for this game" sub="We only show markets a real book is pricing. Pending/unavailable markets are labeled, never faked." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {detail.dataStatus.map((d) => (
-          <div key={d.label} className="flex items-center justify-between gap-2 rounded-[8px] px-3 py-2.5" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+          <div key={d.label} className="flex items-center justify-between gap-2 rounded-[8px] px-3 py-2.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
             <div className="flex flex-col min-w-0">
               <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{d.label}</span>
               {d.detail ? <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{d.detail}</span> : null}
@@ -123,7 +123,7 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
         <Link href="/games" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>← All games</Link>
       </div>
       {/* Hero / matchup */}
-      <section className="relative overflow-hidden rounded-[14px] px-5 py-6 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 150% at 0% 0%, rgba(240,199,94,0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(7,11,26,0.97) 100%)" }}>
+      <section className="relative overflow-hidden rounded-[14px] px-5 py-6 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 150% at 0% 0%, rgba(240,199,94,0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(26, 16, 11,0.97) 100%)" }}>
         <span className="flex items-center gap-2">
           <span
             className="gtp-sport-orb shrink-0"

@@ -406,7 +406,7 @@ function CallList({ title, rows }: { title: string; rows: CallRow[] }) {
                 </div>
               )}
               <div
-                className="font-mono text-[9px] uppercase tracking-wider mt-0.5"
+                className="font-mono text-[10px] uppercase tracking-wider mt-0.5"
                 style={{ color: "var(--vault-text-faint)" }}
               >
                 {r.tag === "miss" ? "|proj err|" : "edge"}

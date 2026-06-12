@@ -280,7 +280,7 @@ export default function AboutPage() {
       <section
         className="mt-10 rounded-[6px] px-4 py-4"
         style={{
-          background: "rgba(7,11,26,0.45)",
+          background: "rgba(26, 16, 11,0.45)",
           border: "1px solid var(--vault-border)",
         }}
       >

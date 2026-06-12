@@ -289,7 +289,7 @@ function SectionEmpty({
                 color: "var(--vault-text-mute)",
                 background: "transparent",
                 border: "1px solid var(--vault-rule)",
-                fontSize: 9.5,
+                fontSize: 10,
                 cursor: "pointer",
               }}
             >

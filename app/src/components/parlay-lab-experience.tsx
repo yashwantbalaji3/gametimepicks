@@ -176,7 +176,7 @@ export default function ParlayLabExperience({
       <section
         className="rounded-[8px] px-5 py-5"
         style={{
-          background: "rgba(7,11,26,0.55)",
+          background: "rgba(26, 16, 11,0.55)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -673,7 +673,7 @@ function ParlayMatchupCard({
       <div className="flex items-center justify-between gap-2 mb-2">
         <span
           className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}
+          style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
         >
           {game.sport.toUpperCase()}
         </span>
@@ -831,14 +831,14 @@ function GameSlipDetail({
         className="rounded-[10px] px-4 py-4 sm:px-5 sm:py-5"
         style={{
           background:
-            "linear-gradient(180deg, rgba(20,24,35,0.92) 0%, rgba(7,11,26,0.62) 100%)",
+            "linear-gradient(180deg, rgba(20,24,35,0.92) 0%, rgba(26, 16, 11,0.62) 100%)",
           border: "1px solid var(--vault-border)",
         }}
       >
         <div className="flex items-center justify-between gap-3 mb-2">
           <span
             className="font-mono uppercase tracking-[0.18em]"
-            style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}
+            style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
           >
             {game.sport.toUpperCase()}
             {game.venue ? ` · ${game.venue}` : ""}
@@ -1010,7 +1010,7 @@ function EmptyPreviewPanel() {
     <div
       className="rounded-[8px] px-4 py-4 text-[13px]"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-border)",
         color: "var(--vault-text-mute)",
       }}
@@ -1034,7 +1034,7 @@ function MlbPreviewPendingPanel() {
     <div
       className="rounded-[8px] px-4 py-4 text-[13px]"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-border)",
         color: "var(--vault-text-mute)",
       }}

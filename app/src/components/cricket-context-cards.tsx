@@ -31,7 +31,7 @@ export default function CricketContextCards({ context, totalsAvailable }: Props)
         className="text-[11px] leading-snug rounded-[4px] px-2 py-1.5"
         style={{
           color: "var(--vault-text-faint)",
-          background: "rgba(7,11,26,0.45)",
+          background: "rgba(26, 16, 11,0.45)",
           border: "1px dashed var(--vault-border)",
         }}
       >
@@ -93,7 +93,7 @@ function TotalsHonestyCard({
     <article
       className="rounded-[6px] px-3 py-2.5 flex flex-col gap-1.5"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -125,7 +125,7 @@ function TeamFormGrid({ forms }: { forms: CricketTeamForm[] }) {
     <article
       className="rounded-[6px] px-3 py-3 flex flex-col gap-2"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -182,7 +182,7 @@ function TeamFormCard({ form }: { form: CricketTeamForm }) {
                   : "rgba(240,138,138,0.18)",
               color: m.result === "W" ? "var(--vault-success)" : "var(--vault-danger)",
               fontWeight: 600,
-              fontSize: 9,
+              fontSize: 10,
             }}
             title={`${m.result} vs ${m.opponent ?? "?"} (${m.date})`}
           >
@@ -222,7 +222,7 @@ function HeadToHead({ context }: { context: CricketContext }) {
     <article
       className="rounded-[6px] px-3 py-2.5 flex flex-col gap-1.5"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -266,7 +266,7 @@ function KeyPlayers({ players }: { players: CricketPlayerForm[] }) {
     <article
       className="rounded-[6px] px-3 py-3 flex flex-col gap-2"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -332,7 +332,7 @@ function RoleChip({ role }: { role: string }) {
       style={{
         color: "var(--vault-text-faint)",
         border: "1px solid var(--vault-rule)",
-        fontSize: 9,
+        fontSize: 10,
       }}
     >
       {role}
@@ -346,7 +346,7 @@ function VenueTrendsCard({ trends }: { trends: CricketVenueTrends | null }) {
     <article
       className="rounded-[6px] px-3 py-2.5 flex flex-col gap-1.5"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -376,7 +376,7 @@ function VenueTrendsCard({ trends }: { trends: CricketVenueTrends | null }) {
           className="text-[10.5px] leading-snug rounded-[3px] px-2 py-1"
           style={{
             color: "var(--vault-text-faint)",
-            background: "rgba(7,11,26,0.45)",
+            background: "rgba(26, 16, 11,0.45)",
             border: "1px dashed var(--vault-border)",
           }}
         >
@@ -401,7 +401,7 @@ function MatchupNotes({ notes }: { notes: CricketContext["matchupNotes"] }) {
     <article
       className="rounded-[6px] px-3 py-2.5 flex flex-col gap-1.5"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -411,7 +411,7 @@ function MatchupNotes({ notes }: { notes: CricketContext["matchupNotes"] }) {
           <li key={i} className="flex flex-col gap-0.5">
             <span
               className="font-mono uppercase tracking-[0.12em]"
-              style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+              style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
             >
               {n.label}
               {n.manual ? " · curated" : " · auto"}
@@ -434,11 +434,11 @@ function SourcesFooter({ context }: { context: CricketContext }) {
   return (
     <footer
       className="rounded-[4px] px-2.5 py-1.5 flex flex-col gap-0.5"
-      style={{ background: "rgba(7,11,26,0.35)" }}
+      style={{ background: "rgba(26, 16, 11,0.35)" }}
     >
       <span
         className="font-mono uppercase tracking-[0.12em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         Sources
       </span>

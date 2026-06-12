@@ -165,7 +165,7 @@ function NoteCard({ note }: { note: AuditNote }) {
     <article
       className="rounded-[6px] px-4 py-4 sm:px-5 sm:py-5 flex flex-col gap-2"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -176,7 +176,7 @@ function NoteCard({ note }: { note: AuditNote }) {
             color: weightStyle.fg,
             background: weightStyle.bg,
             border: `1px solid ${weightStyle.border}`,
-            fontSize: 9,
+            fontSize: 10,
             letterSpacing: "0.14em",
           }}
         >
@@ -264,7 +264,7 @@ function BucketTable({
     <div
       className="rounded-[6px] px-4 py-4"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >

@@ -293,7 +293,7 @@ function Stat({
       <div
         className="font-mono"
         style={{
-          fontSize: 9,
+          fontSize: 10,
           letterSpacing: "0.16em",
           textTransform: "uppercase",
           color: "var(--vault-text-faint)",

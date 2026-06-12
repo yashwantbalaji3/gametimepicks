@@ -87,14 +87,14 @@ export default function PreviousHits({ hits, recordLabel }: { hits: PublicBuilde
 
               <div className="flex flex-wrap items-center gap-1.5">
                 {summary ? (
-                  <span className="rounded px-1.5 py-0.5 text-[10px] text-zinc-400" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7,11,26,0.4)" }}>
+                  <span className="rounded px-1.5 py-0.5 text-[10px] text-zinc-400" style={{ border: "1px solid var(--vault-rule)", background: "rgba(26, 16, 11,0.4)" }}>
                     {summary}
                   </span>
                 ) : (
                   <span className="text-[10.5px] italic text-zinc-500">card details unavailable</span>
                 )}
                 {e.officialResultConfirmed && (
-                  <span className="rounded px-1.5 py-0.5 text-[10px] text-zinc-500" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7,11,26,0.4)" }}>
+                  <span className="rounded px-1.5 py-0.5 text-[10px] text-zinc-500" style={{ border: "1px solid var(--vault-rule)", background: "rgba(26, 16, 11,0.4)" }}>
                     official result confirmed
                   </span>
                 )}

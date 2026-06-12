@@ -64,7 +64,7 @@ export default function BankBuilderPage() {
       {/* SECTION 1 — hero + status */}
       <section
         className="gtp-fade-up relative overflow-hidden rounded-2xl px-5 py-6 sm:px-7"
-        style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(240,199,94,0.08), rgba(7,11,26,0.25))" }}
+        style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(240,199,94,0.08), rgba(26, 16, 11,0.25))" }}
       >
         <div aria-hidden className="gtp-field-grid absolute inset-0" style={{ opacity: 0.5 }} />
         <div
@@ -96,7 +96,7 @@ export default function BankBuilderPage() {
               {hits.length} wins cleared · {recordLabel}
             </span>
             {hits.map((h) => (
-              <span key={h.step} className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(7,11,26,0.45)" }}>
+              <span key={h.step} className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(26, 16, 11,0.45)" }}>
                 <span aria-hidden>{getSportIdentity(h.sport).icon}</span>
                 Step {h.step} · {formatLadderUsdPrecise(h.bankrollAfter)} <span style={{ color: "#6EE7A8" }}>✓</span>
               </span>
@@ -146,7 +146,7 @@ export default function BankBuilderPage() {
                 className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-4 py-2.5 text-[12.5px]"
                 style={{
                   border: isActive ? "1px solid rgba(240,199,94,0.40)" : "1px solid var(--vault-rule)",
-                  background: isActive ? "rgba(240,199,94,0.06)" : "rgba(7,11,26,0.40)",
+                  background: isActive ? "rgba(240,199,94,0.06)" : "rgba(26, 16, 11,0.40)",
                 }}
               >
                 <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{day}</span>

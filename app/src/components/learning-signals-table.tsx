@@ -129,7 +129,7 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="hidden sm:flex flex-col gap-0.5 items-start min-w-0">
       <span
         className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         {label}
       </span>

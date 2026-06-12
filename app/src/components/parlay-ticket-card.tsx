@@ -399,7 +399,7 @@ export default function ParlayTicketCard({
             <label
               htmlFor={`${stakeId}-stake`}
               className="font-mono uppercase tracking-[0.16em]"
-              style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+              style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
             >
               Stake (USD)
             </label>
@@ -439,7 +439,7 @@ export default function ParlayTicketCard({
           <div className="flex flex-col gap-1 text-right">
             <span
               className="font-mono uppercase tracking-[0.16em]"
-              style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+              style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
             >
               Projected payout
             </span>

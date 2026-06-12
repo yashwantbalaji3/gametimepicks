@@ -47,17 +47,17 @@ function PlayerChip({ p }: { p: WcPlayerProjection }) {
           </span>
         </div>
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+          <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             {lineLabel} · {p.player.team}{p.player.position ? ` · ${p.player.position.slice(0, 3)}` : ""}
           </span>
-          <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+          <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             mdl {pct(p.modelProbability)} · mkt {pct(p.marketProbability)}
           </span>
         </div>
       </div>
       {p.parlayEligible ? (
         <span className="font-mono uppercase tracking-[0.08em] shrink-0 px-1.5 py-0.5 rounded-[3px]"
-              style={{ color: "var(--vault-success)", border: "1px solid var(--vault-success)", fontSize: 8 }}>
+              style={{ color: "var(--vault-success)", border: "1px solid var(--vault-success)", fontSize: 10 }}>
           Lean
         </span>
       ) : null}
@@ -98,7 +98,7 @@ export default function WcPlayerProps({ projections }: { projections: WcPlayerPr
             .slice(0, PER_MARKET);
           return (
             <div key={m} className="flex flex-col gap-2">
-              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                 {playerMarketLabel(m)}
               </span>
               {rows.map((p) => (

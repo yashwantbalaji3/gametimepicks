@@ -18,12 +18,12 @@ export default function WcParlayCard({ card }: { card: Card }) {
   return (
     <article
       className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
         <span
           className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[4px] shrink-0"
-          style={{ color: accent, border: `1px solid ${accent}`, fontSize: 9 }}
+          style={{ color: accent, border: `1px solid ${accent}`, fontSize: 10 }}
         >
           {card.riskTier} · {card.legCount} legs
         </span>
@@ -53,10 +53,10 @@ export default function WcParlayCard({ card }: { card: Card }) {
               </span>
             </div>
             <div className="flex items-center justify-between gap-2 min-w-0">
-              <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+              <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                 {l.match}
               </span>
-              <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+              <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                 model {Math.round(l.modelProbability * 100)}% · +{l.edgePct.toFixed(1)}%
               </span>
             </div>
@@ -69,7 +69,7 @@ export default function WcParlayCard({ card }: { card: Card }) {
         className="flex items-center justify-between gap-2 pt-2"
         style={{ borderTop: "1px solid var(--vault-rule)" }}
       >
-        <span className="font-mono uppercase tracking-[0.10em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+        <span className="font-mono uppercase tracking-[0.10em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
           Paper ${card.defaultStake} →
         </span>
         <span className="font-display tabular" style={{ color: accent, fontSize: 15, fontWeight: 700 }}>
@@ -88,7 +88,7 @@ export default function WcParlayCard({ card }: { card: Card }) {
           ))}
         </ul>
       )}
-      <p style={{ color: "var(--vault-text-faint)", fontSize: 9.5, lineHeight: 1.4 }}>
+      <p style={{ color: "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.4 }}>
         {card.correlationNotes.join(" · ")}. 90-minute regulation only. Educational / paper — not betting advice.
       </p>
     </article>

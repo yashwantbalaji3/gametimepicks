@@ -93,12 +93,12 @@ export default function BoardDateRail({
                 : e.status === "linesPending"
                   ? {
                       border: "rgba(245, 195, 95, 0.28)",
-                      bgIdle: "rgba(7, 11, 26, 0.55)",
+                      bgIdle: "rgba(26, 16, 11, 0.55)",
                       labelColor: "var(--vault-text)",
                     }
                   : {
                       border: "var(--vault-border)",
-                      bgIdle: "rgba(7, 11, 26, 0.55)",
+                      bgIdle: "rgba(26, 16, 11, 0.55)",
                       labelColor: "var(--vault-text)",
                     };
           return (

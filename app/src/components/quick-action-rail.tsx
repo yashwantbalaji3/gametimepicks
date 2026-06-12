@@ -88,7 +88,7 @@ export default function QuickActionRail({
           >
             <span
               className="font-mono uppercase tracking-[0.18em]"
-              style={{ color: "var(--vault-gold)", fontSize: 9 }}
+              style={{ color: "var(--vault-gold)", fontSize: 10 }}
             >
               {c.eyebrow}
             </span>
@@ -113,7 +113,7 @@ export default function QuickActionRail({
               {c.caption ? (
                 <span
                   className="font-mono uppercase tracking-[0.14em]"
-                  style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+                  style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
                 >
                   {c.caption}
                 </span>

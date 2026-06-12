@@ -104,7 +104,7 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search player…"
           className="ml-1 rounded-full px-3 py-1.5 min-w-[140px]"
-          style={{ background: "rgba(7,11,26,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 12 }}
+          style={{ background: "rgba(26, 16, 11,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 12 }}
         />
       </div>
 
@@ -126,7 +126,7 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
             ))}
           </div>
         ) : (
-          <div className="rounded-[10px] px-4 py-6 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+          <div className="rounded-[10px] px-4 py-6 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
             <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>No players match this filter</p>
             <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>Clear the team filter or search to see everyone.</p>
           </div>
@@ -136,7 +136,7 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
           {filtered.map((p) => <PlayerPropCard key={p.id} p={p} />)}
         </div>
       ) : (
-        <div className="rounded-[10px] px-4 py-6 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-4 py-6 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>No props match this filter</p>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>Try another market or clear the search.</p>
         </div>

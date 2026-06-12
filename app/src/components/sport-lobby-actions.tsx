@@ -101,7 +101,7 @@ export default function SportLobbyActions({
                 />
                 <span
                   className="font-mono uppercase tracking-[0.16em]"
-                  style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}
+                  style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
                 >
                   {t.label}
                 </span>

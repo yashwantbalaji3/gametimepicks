@@ -128,8 +128,8 @@ function OddsStatusPill({
       style={{
         color: "var(--vault-text-mute)",
         border: "1px solid var(--vault-rule)",
-        background: "rgba(7,11,26,0.55)",
-        fontSize: 9,
+        background: "rgba(26, 16, 11,0.55)",
+        fontSize: 10,
       }}
     >
       {label}
@@ -201,8 +201,8 @@ function CricketMatchCard({
             style={{
               color: "var(--vault-gold-bright)",
               border: "1px solid var(--vault-border-strong)",
-              background: "rgba(7,11,26,0.55)",
-              fontSize: 9,
+              background: "rgba(26, 16, 11,0.55)",
+              fontSize: 10,
             }}
           >
             {match.stage}
@@ -220,7 +220,7 @@ function CricketMatchCard({
           className="text-[11px] leading-snug rounded-[4px] px-2 py-1.5"
           style={{
             color: "var(--vault-text-mute)",
-            background: "rgba(7,11,26,0.45)",
+            background: "rgba(26, 16, 11,0.45)",
             border: "1px dashed var(--vault-border)",
           }}
         >
@@ -349,7 +349,7 @@ function MarketShell({
     <div
       className="rounded-[6px] px-3 py-2.5 flex flex-col gap-2"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -365,7 +365,7 @@ function MarketShell({
           style={{
             color: confColor,
             border: `1px solid ${confColor}`,
-            fontSize: 9,
+            fontSize: 10,
           }}
         >
           {confidence === "insufficient" ? "no data" : confidence}
@@ -414,7 +414,7 @@ function SideStat({
         className="font-mono uppercase tracking-[0.12em]"
         style={{
           color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
-          fontSize: 9,
+          fontSize: 10,
         }}
       >
         {side}

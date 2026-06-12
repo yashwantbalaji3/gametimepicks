@@ -121,7 +121,7 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
       <div
         className="relative w-full sm:max-w-md sm:rounded-[10px] rounded-t-[14px] overflow-hidden flex flex-col"
         style={{
-          background: "rgba(7,11,26,0.97)",
+          background: "rgba(26, 16, 11,0.97)",
           border: "1px solid var(--vault-border)",
           maxHeight: "90dvh",
         }}
@@ -131,7 +131,7 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
           className="flex items-center justify-between gap-3 px-4 py-3 shrink-0"
           style={{
             borderBottom: "1px solid var(--vault-rule)",
-            background: "rgba(7,11,26,0.97)",
+            background: "rgba(26, 16, 11,0.97)",
           }}
         >
           <div className="flex items-center gap-3 min-w-0">
@@ -511,7 +511,7 @@ function RecentList({
                       : cleared === false
                         ? "var(--vault-warn)"
                         : "var(--vault-text-faint)",
-                  fontSize: 9,
+                  fontSize: 10,
                   minWidth: 36,
                   textAlign: "right",
                 }}
@@ -624,7 +624,7 @@ function EnrichedRecentList({
                       : cleared === false
                         ? "var(--vault-warn)"
                         : "var(--vault-text-faint)",
-                  fontSize: 9,
+                  fontSize: 10,
                   minWidth: 40,
                 }}
               >

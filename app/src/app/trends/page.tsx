@@ -53,7 +53,7 @@ export default function TrendsRetiredPage() {
           className="inline-flex items-center gap-2 px-5 py-3 rounded-[3px] font-medium text-[14px] tracking-tight transition-colors"
           style={{
             background: "var(--vault-gold)",
-            color: "#06070A",
+            color: "#0A0705",
           }}
         >
           Go to Model Board

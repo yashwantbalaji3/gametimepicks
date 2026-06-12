@@ -72,7 +72,7 @@ export default function TeamLogo({
         width: px,
         height: px,
         borderRadius: 10,
-        background: "rgba(7, 11, 26, 0.45)",
+        background: "rgba(26, 16, 11, 0.45)",
         border: highlight
           ? "1.5px solid rgba(240, 199, 94, 0.65)"
           : "1px solid var(--vault-border)",

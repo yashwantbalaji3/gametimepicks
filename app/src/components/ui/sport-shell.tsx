@@ -40,7 +40,7 @@ export default function SportShell({ tabs }: { tabs: ShellTab[] }) {
       <nav
         aria-label="Sport sections"
         className="sticky top-0 z-20 -mx-4 sm:-mx-8 px-4 sm:px-8 py-2 mb-5 overflow-x-auto"
-        style={{ background: "rgba(7,11,26,0.92)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--vault-border)" }}
+        style={{ background: "rgba(26, 16, 11,0.92)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--vault-border)" }}
       >
         <div className="flex items-center gap-1.5 min-w-max" role="tablist">
           {tabs.map((t) => {
@@ -64,7 +64,7 @@ export default function SportShell({ tabs }: { tabs: ShellTab[] }) {
                 {t.badge != null && t.badge !== "" ? (
                   <span
                     className="font-mono rounded-full px-1.5"
-                    style={{ background: on ? "var(--vault-gold-bright)" : "var(--vault-rule)", color: on ? "#0b0f1f" : "var(--vault-text-faint)", fontSize: 10 }}
+                    style={{ background: on ? "var(--vault-gold-bright)" : "var(--vault-rule)", color: on ? "#170f0a" : "var(--vault-text-faint)", fontSize: 10 }}
                   >
                     {t.badge}
                   </span>

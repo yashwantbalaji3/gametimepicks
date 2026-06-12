@@ -34,7 +34,7 @@ export default function CricketPlayerProjections({ projections }: Props) {
     <details
       className="rounded-[6px] flex flex-col"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -56,7 +56,7 @@ export default function CricketPlayerProjections({ projections }: Props) {
         </span>
         <span
           className="font-mono uppercase tracking-[0.12em]"
-          style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
           Tap to open
         </span>
@@ -89,7 +89,7 @@ function StatusBadge({
         style={{
           color: "var(--vault-text-faint)",
           border: "1px solid var(--vault-rule)",
-          fontSize: 9,
+          fontSize: 10,
         }}
       >
         Unavailable
@@ -106,7 +106,7 @@ function StatusBadge({
       style={{
         color: "var(--vault-gold-bright)",
         border: "1px solid var(--vault-border-strong)",
-        fontSize: 9,
+        fontSize: 10,
       }}
     >
       {label}
@@ -120,7 +120,7 @@ function UnavailableState() {
       className="text-[11px] leading-snug rounded-[4px] px-2 py-1.5"
       style={{
         color: "var(--vault-text-faint)",
-        background: "rgba(7,11,26,0.45)",
+        background: "rgba(26, 16, 11,0.45)",
         border: "1px dashed var(--vault-border)",
       }}
     >
@@ -162,7 +162,7 @@ function PreTossNote() {
       className="text-[11px] leading-snug rounded-[4px] px-2 py-1.5"
       style={{
         color: "var(--vault-text-mute)",
-        background: "rgba(7,11,26,0.45)",
+        background: "rgba(26, 16, 11,0.45)",
         border: "1px dashed var(--vault-border)",
       }}
     >
@@ -207,7 +207,7 @@ function TotalsContext({
       ) : null}
       <span
         className="font-mono uppercase tracking-[0.12em]"
-        style={{ color: "var(--vault-warn)", fontSize: 9 }}
+        style={{ color: "var(--vault-warn)", fontSize: 10 }}
       >
         {t.label}
       </span>
@@ -259,7 +259,7 @@ function PlayerCard({ player }: { player: CricketPlayerProjection }) {
     <li
       className="rounded-[3px] px-2 py-1.5 flex flex-col gap-1"
       style={{
-        background: "rgba(7,11,26,0.45)",
+        background: "rgba(26, 16, 11,0.45)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -301,7 +301,7 @@ function PlayerCard({ player }: { player: CricketPlayerProjection }) {
             style={{
               color: "var(--vault-text-faint)",
               border: "1px solid var(--vault-rule)",
-              fontSize: 8,
+              fontSize: 10,
             }}
           >
             Curated
@@ -394,7 +394,7 @@ function RoleChip({ role }: { role: string }) {
       style={{
         color: "var(--vault-text-faint)",
         border: "1px solid var(--vault-rule)",
-        fontSize: 8,
+        fontSize: 10,
       }}
     >
       {label}
@@ -420,7 +420,7 @@ function LikelyXiChip({ status }: { status: string }) {
       style={{
         color: tone.color,
         border: `1px solid ${tone.border}`,
-        fontSize: 8,
+        fontSize: 10,
       }}
     >
       {status === "likely" ? "Likely XI" : "Squad · XI not final"}
@@ -438,7 +438,7 @@ function SourcesFooter({
     <footer className="flex flex-col gap-0.5 pt-1.5">
       <span
         className="font-mono uppercase tracking-[0.12em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         Sources
       </span>

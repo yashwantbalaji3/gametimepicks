@@ -130,7 +130,7 @@ export default function EmptyResultsCard({ latestScoredDate }: Props) {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[4px] font-medium text-[13px] tracking-tight transition-colors"
           style={{
             background: "var(--vault-gold)",
-            color: "#06070A",
+            color: "#0A0705",
             boxShadow:
               "0 0 0 1px rgba(212, 175, 55, 0.45), 0 10px 24px -12px rgba(240, 199, 94, 0.35)",
           }}

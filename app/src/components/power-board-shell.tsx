@@ -172,7 +172,7 @@ export default function PowerBoardShell({
               style={{
                 padding: "10px 14px",
                 border: `1px solid ${c}`,
-                background: "rgba(7, 11, 26, 0.55)",
+                background: "rgba(26, 16, 11, 0.55)",
                 color: c,
                 textDecoration: "none",
                 fontSize: 11,

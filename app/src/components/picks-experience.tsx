@@ -95,7 +95,7 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
         ].map((l) => (
           <button key={l.label} type="button" onClick={l.act}
             className="gtp-pressable gtp-card-hover rounded-[10px] px-3 py-3 text-left"
-            style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${l.label === "Bank Builder eligible" ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)"}` }}>
+            style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${l.label === "Bank Builder eligible" ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)"}` }}>
             <span className="flex items-baseline justify-between gap-1">
               <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{l.label}</span>
               {l.n > 0 ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{l.n}</span> : null}
@@ -134,20 +134,20 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
         <summary className="cursor-pointer px-3 py-2 text-[12px] font-semibold" style={{ color: "var(--vault-text-mute)" }}>
           Card counts by sport × risk
         </summary>
-      <div className="rounded-[10px] overflow-x-auto" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+      <div className="rounded-[10px] overflow-x-auto" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
         <table className="w-full min-w-[440px]" style={{ borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th className="text-left px-3 py-2 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9, fontWeight: 600 }}>Suggested cards</th>
+              <th className="text-left px-3 py-2 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10, fontWeight: 600 }}>Suggested cards</th>
               {MATRIX_COLS.map((col) => (
                 <th key={col} className="px-2 py-2">
                   <button type="button" onClick={() => { setSport("all"); setRisk(col); setBankOnly(false); }}
-                    className="font-mono uppercase tracking-[0.08em] w-full" style={{ color: risk === col && sport === "all" ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 9.5, fontWeight: 600 }}>
+                    className="font-mono uppercase tracking-[0.08em] w-full" style={{ color: risk === col && sport === "all" ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 10, fontWeight: 600 }}>
                     {col}
                   </button>
                 </th>
               ))}
-              <th className="px-2 py-2 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>All</th>
+              <th className="px-2 py-2 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>All</th>
             </tr>
           </thead>
           <tbody>
@@ -197,7 +197,7 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
           ))}
         </div>
       ) : (
-        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No cards for this filter</p>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
             {bankOnly

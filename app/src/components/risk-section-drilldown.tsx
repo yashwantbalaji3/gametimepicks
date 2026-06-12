@@ -227,7 +227,7 @@ function SlipRow({ slip, date }: { slip: DrilldownSlip; date: string | undefined
             style={{
               color: "var(--vault-warn)",
               border: "1px solid var(--vault-warn)",
-              fontSize: 9,
+              fontSize: 10,
               lineHeight: 1.3,
             }}
           >
@@ -266,7 +266,7 @@ function LegLine({ leg, date }: { leg: DrilldownLeg; date: string | undefined })
         className="font-mono uppercase tracking-[0.12em]"
         style={{
           color: legResultTone,
-          fontSize: 9,
+          fontSize: 10,
           minWidth: 36,
         }}
       >

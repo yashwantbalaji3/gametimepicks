@@ -12,7 +12,7 @@ export default function DisclaimerBanner() {
       className="relative z-20"
       style={{
         background:
-          "linear-gradient(180deg, rgba(14, 21, 48, 0.92), rgba(7, 11, 26, 0.92))",
+          "linear-gradient(180deg, rgba(14, 21, 48, 0.92), rgba(26, 16, 11, 0.92))",
         borderBottom: "1px solid var(--vault-border)",
       }}
     >

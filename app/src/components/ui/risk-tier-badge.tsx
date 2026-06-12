@@ -10,7 +10,7 @@ export default function RiskTierBadge({ tier, prefix }: { tier: string; prefix?:
   return (
     <span
       className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full shrink-0"
-      style={{ color: tone, border: `1px solid ${tone}`, fontSize: 9 }}
+      style={{ color: tone, border: `1px solid ${tone}`, fontSize: 10 }}
     >
       {prefix ? `${prefix} · ` : ""}{tier}
     </span>

@@ -319,7 +319,7 @@ function AtAGlanceCard({
         className="rounded-[6px] px-5 py-5 sm:px-6 sm:py-6"
         style={{
           background:
-            "linear-gradient(180deg, rgba(14,21,48,0.55) 0%, rgba(7,11,26,0.55) 100%)",
+            "linear-gradient(180deg, rgba(14,21,48,0.55) 0%, rgba(26, 16, 11,0.55) 100%)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -542,7 +542,7 @@ function BigCallsCard({
     <div
       className="rounded-[6px] px-4 py-4 sm:px-5 sm:py-5"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -566,7 +566,7 @@ function BigCallsCard({
             >
               <span
                 className="font-mono uppercase tracking-[0.14em] shrink-0"
-                style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
               >
                 {r.sport}
               </span>
@@ -649,7 +649,7 @@ function SportScoreCard({
     <div
       className="rounded-[6px] px-5 py-5"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >

@@ -149,7 +149,7 @@ function PendingStat({
       <div className="flex flex-col gap-0.5 items-end shrink-0">
         <span
           className="font-mono uppercase tracking-[0.14em]"
-          style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
           Pending
         </span>
@@ -173,7 +173,7 @@ function PendingStat({
     <div className="flex flex-col gap-0.5 items-end shrink-0">
       <span
         className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         Pending
       </span>
@@ -211,7 +211,7 @@ function Stat({
     <div className="flex flex-col gap-0.5 items-end shrink-0">
       <span
         className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         {label}
       </span>

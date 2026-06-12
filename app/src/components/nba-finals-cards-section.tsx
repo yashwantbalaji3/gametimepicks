@@ -104,7 +104,7 @@ function FinalsCardView({ card, accent }: { card: FinalsCard; accent: string }) 
   return (
     <div
       className="rounded-[10px] p-3.5 flex flex-col gap-3"
-      style={{ background: "rgba(7,11,26,0.6)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
         <span
@@ -158,7 +158,7 @@ function FinalsCardView({ card, accent }: { card: FinalsCard; accent: string }) 
 
       <NbaFinalsStakeRow decimal={card.combinedDecimal} />
       {card.volatileLegCount > 0 ? (
-        <span className="font-mono self-end" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+        <span className="font-mono self-end" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
           Higher-variance leg
         </span>
       ) : null}

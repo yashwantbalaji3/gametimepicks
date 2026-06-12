@@ -118,7 +118,7 @@ export default function HomepageSportsRail() {
           <article
             className="rounded-[12px] px-5 py-5 col-span-full"
             style={{
-              background: "rgba(7,11,26,0.55)",
+              background: "rgba(26, 16, 11,0.55)",
               border: "1px solid var(--vault-border)",
             }}
           >
@@ -169,7 +169,7 @@ export default function HomepageSportsRail() {
           href="/world-cup"
           className="mt-4 vault-glow-hover rounded-[10px] px-4 py-3 flex items-center gap-3"
           style={{
-            background: "rgba(7, 11, 26, 0.45)",
+            background: "rgba(26, 16, 11, 0.45)",
             border: "1px solid var(--vault-border)",
             textDecoration: "none",
           }}
@@ -309,7 +309,7 @@ function PendingTile({
       href={href}
       className="vault-glow-hover rounded-[8px] px-4 py-3 flex items-center gap-3"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
         textDecoration: "none",
       }}

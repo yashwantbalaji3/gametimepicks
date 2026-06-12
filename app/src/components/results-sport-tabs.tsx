@@ -72,7 +72,7 @@ export default function ResultsSportTabs({
     <div
       className="mt-6 inline-flex flex-wrap items-stretch gap-1 p-1 rounded-[4px]"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
       aria-label="Model audit sport tabs"

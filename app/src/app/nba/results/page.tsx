@@ -299,7 +299,7 @@ export default function NbaResultsPage() {
           <details
             className="group"
             style={{
-              background: "rgba(7,11,26,0.40)",
+              background: "rgba(26, 16, 11,0.40)",
               border: "1px dashed var(--vault-border)",
               borderRadius: 8,
               padding: "10px 14px",
