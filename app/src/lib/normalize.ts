@@ -51,6 +51,10 @@ export interface PublicProjection {
   status: string;
   lineupStatus?: string;
   caveats?: string[];
+  /** Real recent game log from the artifact (never fabricated; absent = no log). */
+  recentGames?: Array<{ date: string; opponent: string; isHome?: boolean; value: number }>;
+  /** The model's projected value for the stat, when the artifact carries it. */
+  projectionValue?: number | null;
 }
 
 export interface PublicSuggestedCard {
@@ -193,6 +197,8 @@ type MlbLean = {
   opponentAbbr?: string; awayTeamAbbr?: string; homeTeamAbbr?: string; marketKey?: string; marketLabel?: string;
   line?: number | null; lean?: string; confidence?: string; date?: string; gamePk?: number | string;
   playerId?: number | string | null;
+  projection?: number | null;
+  recentGames?: Array<{ date: string; opponent: string; isHome?: boolean; value: number }>;
   edgePct?: number | null; edgePctOver?: number | null; edgePctUnder?: number | null;
   modelProbOver?: number | null; modelProbUnder?: number | null; impliedOver?: number | null; impliedUnder?: number | null;
   oddsOver?: number | null; oddsUnder?: number | null;
@@ -222,6 +228,8 @@ export function normalizeMlbLeans(board: MlbBoardLike | null): PublicProjection[
         // Official MLB Static CDN headshot from the lean's real playerId.
         photo: mlbHeadshotUrl(l.playerId),
       },
+      recentGames: Array.isArray(l.recentGames) ? l.recentGames.slice(-5) : undefined,
+      projectionValue: l.projection,
       pickLabel: `${l.lean ?? ""} ${l.line ?? ""}`.trim(),
       line: l.line ?? null,
       americanOdds: over ? l.oddsOver ?? null : l.oddsUnder ?? null,

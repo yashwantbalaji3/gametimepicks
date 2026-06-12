@@ -14,6 +14,8 @@ import BankBuilderTower from "@/components/bank-builder-tower";
 import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
 import PreviousHits from "@/components/bank-builder/previous-hits";
 import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
+import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
+import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
 import { getSportIdentity } from "@/lib/sport-identity";
 import {
   BANK_BUILDER_BASE,
@@ -51,7 +53,10 @@ export default function BankBuilderPage() {
   // floor = the rung's ladder goal). The loader returns null for stale slates and after a
   // step settles, so a settled card can never re-render as pending — it lives in Previous
   // hits instead.
-  const officialStep3 = pubSummary ? loadOfficialStepCandidate(currentBankroll, activeStep.goal) : null;
+  // A PUBLISHED candidate artifact (may mix sports) takes precedence over the
+  // World-Cup-derived generator; both are pending-only and freshness/step gated.
+  const publishedCandidate = loadOfficialPublishedCandidate();
+  const officialStep3 = publishedCandidate ? null : pubSummary ? loadOfficialStepCandidate(currentBankroll, activeStep.goal) : null;
   const hits = (pubLedger?.entries ?? []).filter((e) => e.result === "win");
 
   return (
@@ -117,7 +122,7 @@ export default function BankBuilderPage() {
       <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
         <BoardStatTile label="Paper bankroll" value={formatLadderUsdPrecise(currentBankroll)} sub={`Step ${activeStep.step} / 5 · current run`} accent="var(--risk-low)" />
         <BoardStatTile label="Today's goal" value={formatLadderUsd(activeStep.goal)} sub={`from ${formatLadderUsd(activeStep.start)} · pending`} accent="var(--sport-soccer)" />
-        <BoardStatTile label="Today's card" value={officialStep3 ? "Pending" : "—"} sub={officialStep3 ? `World Cup · Step ${activeStep.step}` : "none cleared yet"} accent="var(--risk-longshot)" />
+        <BoardStatTile label="Today's card" value={publishedCandidate || officialStep3 ? "Pending" : "—"} sub={publishedCandidate ? `WC + MLB · Step ${activeStep.step}` : officialStep3 ? `World Cup · Step ${activeStep.step}` : "none cleared yet"} accent="var(--risk-longshot)" />
         <BoardStatTile label="Record" value={recordLabel} sub="settled ladder steps" accent="var(--vault-gold-bright)" />
       </div>
 
@@ -165,7 +170,9 @@ export default function BankBuilderPage() {
       </section>
 
       {/* SECTION 3 — today's official card */}
-      {officialStep3 ? (
+      {publishedCandidate ? (
+        <OfficialCandidateCard candidate={publishedCandidate} />
+      ) : officialStep3 ? (
         <OfficialStep3CandidateCard candidate={officialStep3} stepNumber={activeStep.step} />
       ) : (
         <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 px-5 py-4" aria-label="Today's card">

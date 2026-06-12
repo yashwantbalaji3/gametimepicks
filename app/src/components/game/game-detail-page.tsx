@@ -13,7 +13,7 @@ import { teamByName } from "@/lib/data-world-cup";
 import SectionHeader from "@/components/section-header";
 import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
-import PlayerPropCard from "@/components/ui/player-prop-card";
+import PlayerPropsExplorer from "@/components/ui/player-props-explorer";
 import StatusChip from "@/components/ui/status-chip";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -67,17 +67,7 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
     <div className="flex flex-col gap-6">
       <SectionHeader eyebrow={`Player props · ${detail.playerProps.length}`} title="Player props for this game" sub="From the current books, grouped by market. Pre-lineup props are labeled until the starting lineup confirms." />
       {detail.playerProps.length > 0 ? (
-        [...propsByMarket.entries()].map(([market, list]) => (
-          <section key={market}>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{market}</span>
-              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{list.length}</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {list.slice(0, 18).map((p) => <PlayerPropCard key={p.id} p={p} />)}
-            </div>
-          </section>
-        ))
+        <PlayerPropsExplorer props={detail.playerProps} />
       ) : (
         <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No player props yet</p>

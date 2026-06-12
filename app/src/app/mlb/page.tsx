@@ -38,6 +38,7 @@ import UpcomingSlateStrip, { type UpcomingSlateDay } from "@/components/upcoming
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
+import PlayerPropsExplorer from "@/components/ui/player-props-explorer";
 import StatusChip from "@/components/ui/status-chip";
 
 export const metadata = {
@@ -184,17 +185,9 @@ export default function MlbLandingPage() {
       <SectionHeader eyebrow={`Player props · ${batterLeans.length} batter views`} title="Batter player props" sub={`Hits, total bases, and hits+runs+RBIs projected from recent + season game logs vs the line. Showing the top ${PROPS_PER_MARKET} by edge per market — open the full board for all ${summary.leans} projections.`} />
       {batterLeans.length > 0 ? (
         <>
-          {[...batterByMarket.entries()].map(([market, list]) => (
-            <section key={market} aria-label={market}>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{market}</span>
-                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{list.length}</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {[...list].sort(byEdge).slice(0, PROPS_PER_MARKET).map((p) => <ProjectionCard key={p.id} p={p} />)}
-              </div>
-            </section>
-          ))}
+          {/* Same guided explorer as fixture pages: top picks default, market tabs,
+              team filter, player search, expandable last-5 drawer per row. */}
+          <PlayerPropsExplorer props={batterLeans} />
           {boardCta}
         </>
       ) : (
@@ -252,8 +245,9 @@ export default function MlbLandingPage() {
   );
 
   const tabs: ShellTab[] = [
-    { key: "overview", label: "Overview", content: overviewTab },
+    // Games-first (June-12 sprint): users land on today's games, then drill in.
     { key: "games", label: "Games", badge: gameCount || null, content: gamesTab },
+    { key: "overview", label: "Overview", content: overviewTab },
     { key: "projections", label: "Projections", badge: pitcherLeans.length || null, content: projectionsTab },
     { key: "player-props", label: "Player Props", badge: batterLeans.length || null, content: playerPropsTab },
     { key: "cards", label: "Suggested Cards", badge: mlbCards.length || null, content: cardsTab },

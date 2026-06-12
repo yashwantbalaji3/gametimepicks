@@ -267,8 +267,9 @@ export default function NbaLandingPage() {
   );
 
   const tabs: ShellTab[] = [
-    { key: "overview", label: "Overview", content: overviewTab },
+    // Games-first (June-12 sprint).
     { key: "games", label: "Games", badge: games.length || null, content: gamesTab },
+    { key: "overview", label: "Overview", content: overviewTab },
     { key: "projections", label: "Projections", badge: usableLeans || null, content: projectionsTab },
     { key: "player-props", label: "Player Props", badge: usableLeans || null, content: playerPropsTab },
     { key: "cards", label: "Suggested Cards", badge: nbaCards.length || null, content: cardsTab },
