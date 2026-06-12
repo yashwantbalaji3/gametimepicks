@@ -5,6 +5,7 @@
  * so it contributes no buildable legs. Pure adapters over the normalized contracts.
  */
 import type { SportKey, RiskTier } from "@/lib/normalize";
+import { mlbHeadshotUrl, nbaHeadshotUrl } from "@/lib/player-headshots";
 import { normalizeWcProjections, normalizeWcPlayerProps } from "@/lib/normalize";
 import type { WcProjections, WcPlayerProjections } from "@/lib/world-cup/projections";
 
@@ -65,7 +66,7 @@ export function buildWcLegs(projections: WcProjections | null, players: WcPlayer
 }
 
 type OptLeg = {
-  sport?: string; gameId?: string | null; playerName?: string; displayName?: string;
+  sport?: string; gameId?: string | null; playerName?: string; displayName?: string; playerId?: number | string | null;
   marketLabel?: string | null; market?: string; side?: string; line?: number | null; oddsForSide?: number | null;
 };
 type OptSlip = { legs?: OptLeg[] };
@@ -87,6 +88,8 @@ export function buildOptimizerLegs(slips: OptSlip[] | null | undefined): BuildLe
       seen.set(key, {
         id: key.replace(/[^a-z0-9]+/gi, "_"), sport, sportLabel: SPORT_LABEL[sport],
         gameId: l.gameId ?? null, label: `${who} · ${mkt} ${sideLine}`.trim(), sublabel: SPORT_LABEL[sport],
+        // Official league-CDN headshot from the artifact's real playerId (see player-headshots.ts).
+        photo: sport === "mlb" ? mlbHeadshotUrl(l.playerId) : sport === "nba" ? nbaHeadshotUrl(l.playerId) : null,
         market: l.market ?? mkt, marketLabel: mkt, riskTier: tierFromOdds(odds),
         americanOdds: odds, prelineup: false, regulationOnly: false,
         bankBuilderEligible: tierFromOdds(odds) === "Low",

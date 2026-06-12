@@ -54,9 +54,18 @@ def match_player(sb_name: str, squad: list[dict]) -> dict | None:
                 best = (s, overlap)
     if best and best[1] >= 2:
         return {**best[0], "matchConfidence": "medium", "matchReason": "token subset overlap"}
-    # 4) last token + first initial
-    for s in squad:
-        st = _toks(s["name"])
-        if st and _toks(sb_name) and st[-1] == _toks(sb_name)[-1] and st[0][:1] == _toks(sb_name)[0][:1]:
-            return {**s, "matchConfidence": "low", "matchReason": "surname + first initial"}
+    # 4) last token + first initial. When the surname is UNIQUE within the squad the
+    #    pairing is high-precision (handles API-Football's abbreviated "M. Almirón"
+    #    style) → medium confidence; an ambiguous surname stays low and is dropped
+    #    by the caller rather than guessed.
+    sb_toks = _toks(sb_name)
+    if sb_toks:
+        surname_hits = [s for s in squad if _toks(s["name"]) and _toks(s["name"])[-1] == sb_toks[-1]]
+        for s in surname_hits:
+            st = _toks(s["name"])
+            if st[0][:1] == sb_toks[0][:1]:
+                unique = len(surname_hits) == 1
+                return {**s,
+                        "matchConfidence": "medium" if unique else "low",
+                        "matchReason": "unique surname + first initial" if unique else "surname + first initial (ambiguous)"}
     return None

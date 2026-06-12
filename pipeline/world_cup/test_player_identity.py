@@ -24,3 +24,26 @@ class TestPlayerIdentity(unittest.TestCase):
 
     def test_norm_join(self):
         self.assertEqual(norm_join("Raúl Jiménez"), "rauljimenez")
+
+
+class TestSurnameInitialUpgrade(unittest.TestCase):
+    """June-12 fix: unique surname + first initial is high-precision (API-Football
+    abbreviates first names, e.g. 'M. Almirón') → medium confidence; an ambiguous
+    surname stays low so the caller drops it rather than guessing."""
+
+    def test_unique_surname_first_initial_is_medium(self):
+        from pipeline.world_cup.player_identity import match_player
+        squad = [{"id": 1, "name": "M. Almirón"}, {"id": 2, "name": "J. Enciso"}]
+        m = match_player("Miguel Almiron", squad)
+        self.assertIsNotNone(m)
+        self.assertEqual(m["id"], 1)
+        self.assertEqual(m["matchConfidence"], "medium")
+
+    def test_ambiguous_surname_stays_low(self):
+        from pipeline.world_cup.player_identity import match_player
+        squad = [{"id": 1, "name": "J. Gonzalez"}, {"id": 2, "name": "J. Gonzalez Jr"}]
+        # Two squad members share the bare surname token only when last tokens equal —
+        # craft a true ambiguity: same surname, same initial.
+        squad = [{"id": 1, "name": "Jose Martinez"}, {"id": 2, "name": "Juan Martinez"}]
+        m = match_player("J. Martinez", squad)
+        self.assertTrue(m is None or m["matchConfidence"] == "low")

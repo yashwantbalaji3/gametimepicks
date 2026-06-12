@@ -125,6 +125,12 @@ export default function SuggestedCard({
         </div>
       )}
 
+      {card.whyThisCard && card.whyThisCard.length > 0 ? (
+        <p className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
+          {card.whyThisCard[0]}
+        </p>
+      ) : null}
+
       {card.caveats && card.caveats.length > 0 ? (
         <details>
           <summary className="font-mono uppercase tracking-[0.12em] cursor-pointer" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>

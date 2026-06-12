@@ -53,7 +53,9 @@ def _recent_player_stats(p: ApiFootballProvider, team_id: int) -> dict:
                 mins = ((st.get("games") or {}).get("minutes")) or 0
                 if pid is None or not mins:
                     continue
-                a = agg.setdefault(pid, {"apps": 0, "minutes": 0, "shots": 0, "sot": 0, "goals": 0, "assists": 0})
+                a = agg.setdefault(pid, {"apps": 0, "minutes": 0, "shots": 0, "sot": 0, "goals": 0, "assists": 0,
+                                          "name": (row.get("player") or {}).get("name"),
+                                          "photo": (row.get("player") or {}).get("photo")})
                 a["apps"] += 1; a["minutes"] += mins
                 a["shots"] += ((st.get("shots") or {}).get("total")) or 0
                 a["sot"] += ((st.get("shots") or {}).get("on")) or 0
@@ -112,6 +114,19 @@ def main(argv=None) -> int:
         squads = {home_t["id"]: _squad(p, home_t["id"]), away_t["id"]: _squad(p, away_t["id"])}
         stats = {home_t["id"]: _recent_player_stats(p, home_t["id"]),
                  away_t["id"]: _recent_player_stats(p, away_t["id"])}
+        # Squad fallback (2026-06-12): API-Football /players/squads is often EMPTY for
+        # national teams (June-12 run: Canada/USA/Paraguay all empty → 86 of 88 priced
+        # players unmatched). The recent-fixture player stats we already fetched carry
+        # every appearing player's real id/name/photo — derive the identity squad from
+        # them at ZERO extra calls. Real API-Sports identities only; nothing invented.
+        for tid in list(squads.keys()):
+            if not squads[tid]:
+                squads[tid] = [
+                    {"id": pid, "name": a.get("name"),
+                     "photo": a.get("photo") or f"https://media.api-sports.io/football/players/{pid}.png",
+                     "position": None}
+                    for pid, a in stats.get(tid, {}).items() if a.get("name")
+                ]
         team_name = {home_t["id"]: home_t["name"], away_t["id"]: away_t["name"]}
         team_logo = {home_t["id"]: home_t.get("logo"), away_t["id"]: away_t.get("logo")}
 
