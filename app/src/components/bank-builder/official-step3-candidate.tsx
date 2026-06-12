@@ -67,7 +67,7 @@ export default function OfficialStep3CandidateCard({ candidate }: { candidate: O
             · Two legs from different matches — no same-game correlation. Both legs are model-supported and market-supported favorites.
           </li>
           <li className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-            · Combined model probability is {Math.round(c.combinedModelProbability * 100)}% — a two-leg parlay is closer to a coin flip than either single leg. This does not guarantee the outcome.
+            · Combined model probability is {Math.round(c.combinedModelProbability * 100)}% — a two-leg parlay is closer to a coin flip than either single leg. Outcomes are uncertain.
           </li>
           <li className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
             · Paper-only Bank Builder review. 90-minute regulation only (Draw is a real outcome). The ladder bankroll only changes after the matches settle from official results.
