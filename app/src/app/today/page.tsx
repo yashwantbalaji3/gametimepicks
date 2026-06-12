@@ -13,7 +13,7 @@ import {
   loadWorldCupPlayerProjections,
 } from "@/lib/world-cup/projections";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
-import { loadBankBuilderSummary } from "@/lib/data-bank-builder";
+import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
 import { normalizeWcCards, loadDailyMixedCards, type SportSummary } from "@/lib/normalize";
 import { loadWorldCupFlexLeg, loadOfficialStep3Candidate } from "@/lib/world-cup-flex";
@@ -50,7 +50,8 @@ export default function TodayPage() {
   const wcProj = loadWorldCupProjections();
   const wcPlayers = loadWorldCupPlayerProjections();
   const mlb = getMlbBoardForDate(today);
-  const bank = loadBankBuilderSummary();
+  // Public ladder summary ($728.76) — the source of truth, not the internal audit summary.
+  const bank = loadPublicBankBuilderSummary();
 
   const wcLive = wcGames > 0 || !!wcProj;
   const mlbLive = (mlb.summary.scheduledGames ?? 0) > 0;
