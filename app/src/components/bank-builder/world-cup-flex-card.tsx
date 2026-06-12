@@ -73,7 +73,7 @@ export default function WorldCupFlexCard({ leg, exampleStake }: { leg: WorldCupF
         {/* Caveats */}
         <ul className="flex flex-col gap-1">
           <li className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-            · This does not meet the Step-3 {usd(2000)} ladder target, so the official Bank Builder remains pending.
+            · This does not meet the Step-3 {usd(1400)} ladder floor, so the official Bank Builder remains pending.
           </li>
           <li className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
             · Paper-only tracking. Not betting advice. 90-minute regulation only (Draw is a real outcome).

@@ -54,3 +54,19 @@ test("official Step-3 candidate uses team markets only (no player props / no MLB
   const teamMarkets = new Set(["double_chance", "moneyline_90", "match_total_goals", "match_total_corners"]);
   for (const l of c.legs) assert.ok(teamMarkets.has(l.market), `non-team market ${l.market}`);
 });
+
+test("official Step-3 legs carry mini-fixture flag data + regulation flag", () => {
+  const c = loadOfficialStep3Candidate(728.76);
+  if (!c) return;
+  for (const l of c.legs) {
+    // Match teams come straight from the projection rows.
+    assert.equal(typeof l.homeTeam, "string");
+    assert.equal(typeof l.awayTeam, "string");
+    assert.ok(l.homeTeam.length > 0 && l.awayTeam.length > 0, "leg carries both match teams");
+    // ISO codes resolve from teams.json for real WC sides (≤3 chars), or are
+    // an empty string we degrade to a monogram — never fabricated.
+    assert.ok(l.homeCode.length <= 3 && l.awayCode.length <= 3, "flag codes are ISO-ish or empty");
+    // moneyline_90 + double_chance are 90-minute regulation markets.
+    assert.equal(l.regulationOnly, l.market === "moneyline_90" || l.market === "double_chance");
+  }
+});

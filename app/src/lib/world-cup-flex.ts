@@ -6,6 +6,7 @@
  * This never touches the Bank Builder bankroll, ledger, step, or nextPick.
  */
 import { loadWorldCupProjections } from "@/lib/world-cup/projections";
+import { teamByName } from "@/lib/data-world-cup";
 import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
 
 export interface WorldCupFlexLeg {
@@ -71,6 +72,11 @@ export interface OfficialStep3Leg {
   label: string; gameLabel: string; matchId: number | string; market: string; marketLabel: string;
   americanOdds: number; modelProbability: number; marketProbability: number; edgePct: number;
   bookmaker?: string | null; riskTier?: string;
+  /** Match teams + their ISO flag codes (from teams.json) for a mini-fixture
+   *  flag matchup. Empty string when the country isn't in the WC team set. */
+  homeTeam: string; awayTeam: string; homeCode: string; awayCode: string;
+  /** True for 90-minute regulation markets (moneyline_90, double_chance). */
+  regulationOnly: boolean;
 }
 export interface OfficialStep3Candidate {
   legs: OfficialStep3Leg[];
@@ -102,11 +108,15 @@ export function loadOfficialStep3Candidate(stake = 728.76): OfficialStep3Candida
     for (const o of m.outcomes ?? []) {
       const mdl = o.modelProbability ?? 0, mkt = o.marketProbability ?? 0, odds = o.americanOdds;
       if (odds == null || mdl < 0.55 || odds > 200 || odds < -2000) continue; // model-favored, sane price
+      const homeTeam = m.homeTeam ?? "", awayTeam = m.awayTeam ?? "";
       legs.push({
-        label: o.label ?? "", gameLabel: `${m.homeTeam ?? ""} vs ${m.awayTeam ?? ""}`.trim(),
+        label: o.label ?? "", gameLabel: `${homeTeam} vs ${awayTeam}`.trim(),
         matchId: m.matchId, market: m.market, marketLabel: TEAM_MARKET_LABEL[m.market] ?? m.market,
         americanOdds: odds, modelProbability: mdl, marketProbability: mkt,
         edgePct: Math.round((mdl - mkt) * 1000) / 10, bookmaker: m.bookmaker ?? null, riskTier: m.riskTier,
+        homeTeam, awayTeam,
+        homeCode: teamByName(homeTeam)?.code ?? "", awayCode: teamByName(awayTeam)?.code ?? "",
+        regulationOnly: m.market === "moneyline_90" || m.market === "double_chance",
       });
     }
   }

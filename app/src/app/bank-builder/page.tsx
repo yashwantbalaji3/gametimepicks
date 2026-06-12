@@ -12,7 +12,9 @@ import PageHero from "@/components/page-hero";
 import BoardStatTile from "@/components/board-stat-tile";
 import BankBuilderTower from "@/components/bank-builder-tower";
 import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
+import PreviousHits from "@/components/bank-builder/previous-hits";
 import { loadOfficialStep3Candidate } from "@/lib/world-cup-flex";
+import { getSportIdentity } from "@/lib/sport-identity";
 import {
   BANK_BUILDER_BASE,
   BANK_BUILDER_LADDER,
@@ -25,6 +27,8 @@ import {
   loadPublicBankBuilderLedger,
 } from "@/lib/data-bank-builder";
 
+const BANK = getSportIdentity("bank_builder");
+
 const META_TITLE = "Bank Builder · GameTime Picks";
 const META_DESCRIPTION =
   "An educational $100 → $10,000 paper-bankroll ladder — one card per step. The current run, today's official card, and previous hits. Paper-only; we do not take real money.";
@@ -35,14 +39,6 @@ export const metadata = {
   openGraph: { title: META_TITLE, description: META_DESCRIPTION, type: "website", url: "/bank-builder/" },
   twitter: { card: "summary_large_image", title: META_TITLE, description: META_DESCRIPTION },
 };
-
-function fmtDate(d: string): string {
-  try {
-    return new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  } catch {
-    return d;
-  }
-}
 
 export default function BankBuilderPage() {
   const pubSummary = loadPublicBankBuilderSummary();
@@ -57,17 +53,38 @@ export default function BankBuilderPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
       {/* SECTION 1 — hero + status */}
-      <PageHero
-        eyebrow="Educational paper-trading · simulated bankroll"
-        title="Bank Builder"
-        subMaxWidth={560}
-        sub="A paper ladder tracking the current run — five steps from $100 toward $10,000, one card per step. Paper-only; we do not take real money."
-      />
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <BoardStatTile label="Paper bankroll" value={formatLadderUsdPrecise(currentBankroll)} sub="current run" accent="var(--risk-low)" />
-        <BoardStatTile label="Step" value={`${activeStep.step} / 5`} sub={`Today · ${formatLadderUsd(activeStep.start)} → ${formatLadderUsd(activeStep.goal)}`} accent="var(--sport-mlb)" />
-        <BoardStatTile label="Public record" value={recordLabel} sub="settled ladder steps" accent="var(--vault-gold-bright)" />
+      <section
+        className="gtp-fade-up relative overflow-hidden rounded-2xl px-5 py-6 sm:px-7"
+        style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(240,199,94,0.08), rgba(7,11,26,0.25))" }}
+      >
+        <div aria-hidden className="gtp-field-grid absolute inset-0" style={{ opacity: 0.5 }} />
+        <div
+          aria-hidden
+          className="absolute right-0 top-0 h-40 w-40 translate-x-10 -translate-y-12 rounded-full"
+          style={{ background: BANK.gradient, filter: "blur(6px)" }}
+        />
+        <div className="relative flex items-start gap-3.5">
+          <span
+            className="gtp-sport-orb shrink-0"
+            style={{ width: 46, height: 46, fontSize: 25, marginTop: 2, ["--orb-grad" as string]: BANK.gradient }}
+            role="img"
+            aria-label={BANK.ballLabel}
+          >
+            {BANK.icon}
+          </span>
+          <PageHero
+            eyebrow="Paper ladder · current run"
+            title="Bank Builder"
+            subMaxWidth={560}
+            sub="A paper ladder tracking the current run — five steps from $100 toward $10,000, one card per step. Paper-only; we do not take real money."
+          />
+        </div>
+      </section>
+      <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <BoardStatTile label="Paper bankroll" value={formatLadderUsdPrecise(currentBankroll)} sub={`Step ${activeStep.step} / 5 · current run`} accent="var(--risk-low)" />
+        <BoardStatTile label="Today's goal" value={formatLadderUsd(activeStep.goal)} sub={`from ${formatLadderUsd(activeStep.start)} · pending`} accent="var(--sport-soccer)" />
         <BoardStatTile label="Today's card" value={officialStep3 ? "Pending" : "—"} sub={officialStep3 ? "World Cup · Step 3" : "none cleared yet"} accent="var(--risk-longshot)" />
+        <BoardStatTile label="Record" value={recordLabel} sub="settled ladder steps" accent="var(--vault-gold-bright)" />
       </div>
 
       {/* SECTION 2 — the ladder + the day-by-day run plan */}
@@ -124,24 +141,7 @@ export default function BankBuilderPage() {
       )}
 
       {/* SECTION 4 — previous hits */}
-      {hits.length > 0 && (
-        <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5" aria-label="Previous hits">
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">Previous hits</h2>
-            <span className="text-[12px] text-zinc-400">Record <strong className="text-emerald-300">{recordLabel}</strong> · settled from official results</span>
-          </div>
-          <ol className="flex flex-col gap-2">
-            {hits.map((e) => (
-              <li key={e.step} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] px-4 py-2.5 text-[12.5px]">
-                <span className="font-semibold text-zinc-200">Step {e.step}</span>
-                <span className="rounded px-1.5 py-0.5 text-[11px] font-bold tracking-[0.08em] bg-emerald-500/15 text-emerald-300">WIN</span>
-                <span className="tabular-nums text-zinc-300">{formatLadderUsdPrecise(e.bankrollBefore)} → {formatLadderUsdPrecise(e.bankrollAfter)}</span>
-                <span className="ml-auto truncate text-[11.5px] text-zinc-500">{fmtDate(e.date)} · {e.sport}{e.event ? ` · ${e.event}` : ""}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+      <PreviousHits hits={hits} recordLabel={recordLabel} />
 
       {/* SECTION 5 — tiny footer */}
       <p className="mt-6 text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
