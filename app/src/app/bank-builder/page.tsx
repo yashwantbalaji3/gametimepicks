@@ -263,8 +263,8 @@ export default function BankBuilderPage() {
                 {formatLadderUsdPrecise(currentBankroll)} → target {formatLadderUsd(activeStep.goal)}
               </span>
               <span className="ml-auto text-[11.5px] text-zinc-500">
-                Next Builder Slip stakes {formatLadderUsdPrecise(pubLedger.nextStakeUnits)} ·{" "}
-                {pubLedger.nextPickStatus === "pending" ? "pending today's slate" : pubLedger.nextPickStatus}
+                Step-{activeStep.step} candidate stakes {formatLadderUsdPrecise(pubLedger.nextStakeUnits)} ·{" "}
+                {pubLedger.nextPickStatus === "pending" ? "pending — no card cleared today's gates" : pubLedger.nextPickStatus}
               </span>
             </li>
           </ol>
@@ -363,12 +363,37 @@ export default function BankBuilderPage() {
       {/* ---- Eligibility chips + transparent criteria (PR 4) --------- */}
       <EligibilityPanel />
 
-      {/* ---- Ladder + today's tracked Builder Pick ------------------- */}
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-5">
+      {/* ---- The ladder (current run, Step 3) — the page's primary focus -- */}
+      <div className="mt-6">
         <BankBuilderTower
           activeStepNumber={activeStep.step}
           currentBankroll={currentBankroll}
         />
+      </div>
+
+      {/* Featured NBA Finals same-game card — settled from the official box
+          score, shown separately from the tracked ladder (honest accounting). */}
+      <BankBuilderFeaturedCard card={featuredCard} />
+
+      {/* ---- SEPARATE $100 educational builder — visually + verbally split
+          from the $728.76 ladder so users never confuse the two. Its ~+100
+          target is for the $100 base step, NOT the current Step-3 candidate. */}
+      <section
+        className="mt-8 rounded-2xl border border-dashed p-1"
+        style={{ borderColor: "rgba(148,163,184,0.35)", background: "rgba(15,23,42,0.30)" }}
+        aria-label="Separate $100 educational builder"
+      >
+        <div className="px-4 pt-3 pb-1">
+          <h2 className="text-[12px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--vault-text-mute)" }}>
+            Separate $100 educational builder
+          </h2>
+          <p className="mt-1 text-[12px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
+            A standalone teaching tool that picks the day&apos;s best slip near {formatAmerican(BUILDER_PLUS100_TARGET)} from
+            the published pool — a $100 paper stake aiming for ~$200. It is{" "}
+            <strong style={{ color: "var(--vault-text-mute)" }}>not</strong> the {formatLadderUsdPrecise(currentBankroll)}{" "}
+            Step-{activeStep.step} ladder candidate above, and never changes the ladder bankroll.
+          </p>
+        </div>
         <TodaysBuilderPick
           pick={builderPick}
           diagnosis={diagnosis}
@@ -377,11 +402,7 @@ export default function BankBuilderPage() {
           poolDate={poolDate}
           poolIsFallback={poolIsFallback}
         />
-      </div>
-
-      {/* Featured NBA Finals same-game card — settled from the official box
-          score, shown separately from the tracked ladder (honest accounting). */}
-      <BankBuilderFeaturedCard card={featuredCard} />
+      </section>
 
       {/* ---- Screenshot-friendly share card -------------------------- */}
       <BankBuilderShareCard
