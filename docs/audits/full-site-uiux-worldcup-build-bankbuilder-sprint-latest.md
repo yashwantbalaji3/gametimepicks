@@ -41,3 +41,5 @@ tests.
 815 tests pass (incl. 3 new Step-4 integrity tests) · tsc + build clean · copy audit
 clean · stale sweep clean · production verified post-deploy (card + explorer + drawers +
 games-first live).
+
+Deploy nudge: 17:25Z.
