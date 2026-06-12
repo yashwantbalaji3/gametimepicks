@@ -49,7 +49,7 @@ export default function PicksPage() {
       <SectionHeader
         eyebrow={`Suggested cards · ${new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })} · ${cards.length} live`}
         title="Picks"
-        sub="Pick a sport and a risk level — every card is a real-odds paper parlay with a stake calculator."
+        sub="Browse paper cards by goal. Odds, returns, and results are tracked for research — educational, paper-only."
       />
       <PicksExperience cards={cards} />
     </div>

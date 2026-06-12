@@ -4497,6 +4497,32 @@ body {
 }
 .gtp-heat-pulse { animation: gtp-heat-pulse 2.8s ease-in-out infinite; }
 
+/* Lava primary CTA — the global "action" treatment (casino final rebuild): magma
+   gradient with dark, high-contrast text. Use for the single primary action on a
+   surface; secondary actions stay ghost/outline. */
+.gtp-cta-lava {
+  background: var(--gtp-bank-lava);
+  color: #1A0E06;
+  border: none;
+  box-shadow: 0 1px 0 rgba(255,177,60,0.4), 0 6px 18px -6px rgba(255,106,42,0.55);
+}
+.gtp-cta-lava:hover { filter: brightness(1.06); }
+
+/* Ember active chip — warm active state for filters (vs the cool gold-dim). */
+.gtp-chip-heat {
+  background: var(--gtp-bank-heat-dim);
+  border-color: var(--gtp-bank-heat) !important;
+  color: var(--gtp-bank-heat) !important;
+}
+
+/* Live-slate ember dot. */
+.gtp-ember-dot {
+  width: 7px; height: 7px; border-radius: 9999px;
+  background: var(--gtp-bank-heat);
+  box-shadow: 0 0 8px var(--gtp-bank-heat);
+  animation: gtp-heat-pulse 2.8s ease-in-out infinite;
+}
+
 /* Bank Builder flagship: $100 → $10,000 progress meter. The fill is a real
    percentage of the crown (linear); shimmer is decorative and motion-gated. */
 .gtp-meter-track {
@@ -4531,4 +4557,6 @@ body {
   .gtp-meter-fill { transition: none; }
   .gtp-meter-shimmer { animation: none; opacity: 0; }
   .gtp-heat-pulse { animation: none; }
+  .gtp-cta-lava:hover { filter: none; }
+  .gtp-ember-dot { animation: none; }
 }

@@ -9,6 +9,7 @@ import { formatAmerican } from "@/lib/odds-math";
 import { getSportIdentity } from "@/lib/sport-identity";
 import { mlbHeadshotUrl } from "@/lib/player-headshots";
 import FlagBadge from "@/components/flag-badge";
+import PlayerAvatar from "@/components/ui/player-avatar";
 import type { OfficialCandidate, OfficialCandidateLeg } from "@/lib/bank-builder-official-candidate";
 
 function usd(n: number): string {
@@ -26,13 +27,7 @@ function LegVisual({ leg }: { leg: OfficialCandidateLeg }) {
     );
   }
   if (leg.sport === "mlb" && leg.playerId != null) {
-    const url = mlbHeadshotUrl(leg.playerId);
-    if (url) {
-      return (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt={leg.playerName ?? ""} width={26} height={26} loading="lazy" className="rounded-full shrink-0" style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }} />
-      );
-    }
+    return <PlayerAvatar name={leg.playerName ?? "Player"} photo={mlbHeadshotUrl(leg.playerId)} size={26} />;
   }
   const id = getSportIdentity(leg.sport);
   return (
