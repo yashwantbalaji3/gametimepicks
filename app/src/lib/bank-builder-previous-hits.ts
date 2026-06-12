@@ -12,14 +12,17 @@
  * Pure: no fs, no fetches. Importable from a server or client component.
  */
 
-/** A single settled leg as carried by the public ledger. */
+/** A single settled leg as carried by the public ledger. Player-prop legs carry
+ *  `player`; team-market legs (e.g. a World Cup moneyline) carry `selection`. */
 export interface PreviousHitLeg {
-  player: string;
+  player?: string;
+  selection?: string;
   market: string;
   side?: string;
   line?: number | null;
   result?: string;
   finalStat?: number | null;
+  finalScore?: string;
 }
 
 /** Minimal shape of a previous-hit entry needed for a summary. */

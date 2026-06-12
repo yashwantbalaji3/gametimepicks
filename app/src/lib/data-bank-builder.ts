@@ -94,7 +94,13 @@ export interface PublicBuilderEntry {
   bankrollBefore: number; bankrollAfter: number; stakeUnits: number; payoutUnits: number;
   profitUnits: number; combinedAmerican?: number; settlementSource?: string;
   officialResultConfirmed?: boolean; sameGame?: boolean; correlationNote?: string;
-  legs: Array<{ player: string; market: string; side: string; line: number | null; oddsForSide?: number | null; result?: string; finalStat?: number | null }>;
+  /** Player-prop legs carry `player` (+ line/finalStat); team-market legs (e.g. the World Cup
+   *  step) carry `selection` (+ finalScore). Both carry market/side/result. */
+  legs: Array<{
+    player?: string; selection?: string; market: string; side: string; line?: number | null;
+    oddsForSide?: number | null; bookmaker?: string | null; result?: string;
+    finalStat?: number | null; finalScore?: string;
+  }>;
 }
 export interface PublicBuilderLedger {
   ladder: string; base: number; goal: number; migratedAt: string; migrationDoc: string;

@@ -13,6 +13,20 @@ function initials(name: string): string {
   return name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 }
 
+/** Card-level settled chip styling. Pending/unknown renders nothing extra. */
+const CARD_RESULT_CHIP: Record<string, { label: string; color: string; bg: string }> = {
+  won: { label: "WON", color: "#6EE7A8", bg: "rgba(110,231,168,0.14)" },
+  lost: { label: "LOST", color: "#F08A8A", bg: "rgba(240,138,138,0.12)" },
+  push: { label: "PUSH", color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.06)" },
+};
+
+/** Per-leg settled glyphs (official grading only — never model opinion). */
+const LEG_RESULT_GLYPH: Record<string, { glyph: string; color: string }> = {
+  win: { glyph: "✓", color: "#6EE7A8" },
+  loss: { glyph: "✗", color: "#F08A8A" },
+  push: { glyph: "–", color: "var(--vault-text-mute)" },
+};
+
 export default function SuggestedCard({
   card,
   lockedStake,
@@ -36,9 +50,19 @@ export default function SuggestedCard({
         )}
       </div>
 
-      <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>
-        {card.title}
-      </span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>
+          {card.title}
+        </span>
+        {card.result && CARD_RESULT_CHIP[card.result] ? (
+          <span
+            className="shrink-0 rounded px-2 py-0.5 font-mono text-[10px] font-bold tracking-[0.1em]"
+            style={{ color: CARD_RESULT_CHIP[card.result].color, background: CARD_RESULT_CHIP[card.result].bg }}
+          >
+            {CARD_RESULT_CHIP[card.result].label}
+          </span>
+        ) : null}
+      </div>
 
       <div className="flex flex-col gap-1.5">
         {card.legs.map((l, i) => (
@@ -60,11 +84,27 @@ export default function SuggestedCard({
             {l.americanOdds !== 0 ? (
               <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>
             ) : null}
+            {l.result && LEG_RESULT_GLYPH[l.result] ? (
+              <span
+                aria-label={`leg ${l.result}`}
+                className="font-mono shrink-0 font-bold"
+                style={{ color: LEG_RESULT_GLYPH[l.result].color, fontSize: 12 }}
+              >
+                {LEG_RESULT_GLYPH[l.result].glyph}
+              </span>
+            ) : null}
           </div>
         ))}
       </div>
 
-      {card.combinedAmericanOdds !== 0 ? (
+      {card.result && CARD_RESULT_CHIP[card.result] ? (
+        // Settled card — the outcome is final, so no interactive paper-stake calculator.
+        <div className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+            Settled from official results · 90-minute regulation for soccer legs
+          </span>
+        </div>
+      ) : card.combinedAmericanOdds !== 0 ? (
         <StakePayoutInput combinedAmerican={card.combinedAmericanOdds} defaultStake={card.defaultStake} lockedStake={lockedStake} />
       ) : (
         <div className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>

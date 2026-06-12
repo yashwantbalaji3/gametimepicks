@@ -21,12 +21,12 @@ test("flex leg, when present, is a Low-risk model-favorite — and NOT an exclud
   assert.equal(typeof leg.americanOdds, "number");
 });
 
-test("Flex Card must NOT touch the official Bank Builder (bankroll $728.76, Step 3, pending, no nextPick)", () => {
+test("Flex Card must NOT touch the official Bank Builder (settled: $1,423.64, Step 4, no nextPick)", () => {
   const p = path.join(process.cwd(), "public", "data", "bank-builder", "public-summary-latest.json");
   const s = JSON.parse(fs.readFileSync(p, "utf8"));
-  assert.equal(s.currentBankrollUnits, 728.76);
-  assert.equal(s.currentProgressionStep, 3);
-  // Official ladder candidate stays pending — no published nextPick.
+  assert.equal(s.currentBankrollUnits, 1423.64);
+  assert.equal(s.currentProgressionStep, 4);
+  // No published nextPick — the Step-4 card has not been selected yet.
   assert.ok(s.nextPick == null || s.nextPick === undefined, "nextPick must be absent (pending)");
 });
 
