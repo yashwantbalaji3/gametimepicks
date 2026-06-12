@@ -107,6 +107,11 @@
   --sport-nhl: #93C5FD;       /* ice blue — rink */
   --sport-ipl: #FBBF24;       /* amber — cricket */
   --sport-bank: #F0C75E;      /* gold — Bank Builder vault */
+  /* Bank Builder heat system (casino rebuild, 2026-06-12): the flagship run
+     gets magma energy — heat for chips/pulses, lava for progress fills. */
+  --gtp-bank-heat: #FF7A3C;
+  --gtp-bank-heat-dim: rgba(255, 122, 60, 0.14);
+  --gtp-bank-lava: linear-gradient(90deg, #B3261E 0%, #FF6A2A 45%, #FFB13C 80%, #F0C75E 100%);
 
   /* Phase 7B-7 — refinement tokens for spacing, dividers, focus */
   --vault-rule: rgba(212, 175, 55, 0.08);     /* internal section dividers */
@@ -705,8 +710,8 @@ table,
    impact; sits on body so every route inherits the richer base. */
 body {
   background-image:
-    radial-gradient(90% 60% at 15% -10%, rgba(240, 199, 94, 0.05) 0%, transparent 55%),
-    radial-gradient(80% 55% at 90% -5%, rgba(111, 230, 255, 0.035) 0%, transparent 50%);
+    radial-gradient(90% 60% at 15% -10%, rgba(255, 122, 60, 0.06) 0%, transparent 55%),
+    radial-gradient(80% 55% at 90% -5%, rgba(111, 230, 255, 0.05) 0%, transparent 50%);
   background-attachment: fixed;
 }
 
@@ -4480,6 +4485,18 @@ body {
   background-size: 28px 28px;
 }
 
+/* Lava variant of the progress meter fill — magma gradient + warm glow. */
+.gtp-meter-fill--lava {
+  background: var(--gtp-bank-lava);
+  box-shadow: 0 0 14px rgba(255, 122, 60, 0.55);
+}
+/* Heat pulse for the ACTIVE ladder rung / spotlight chip. */
+@keyframes gtp-heat-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255, 122, 60, 0.45), 0 0 12px -2px rgba(255, 122, 60, 0.35); }
+  50%      { box-shadow: 0 0 0 1px rgba(255, 122, 60, 0.7), 0 0 22px 0 rgba(255, 122, 60, 0.55); }
+}
+.gtp-heat-pulse { animation: gtp-heat-pulse 2.8s ease-in-out infinite; }
+
 /* Bank Builder flagship: $100 → $10,000 progress meter. The fill is a real
    percentage of the crown (linear); shimmer is decorative and motion-gated. */
 .gtp-meter-track {
@@ -4513,4 +4530,5 @@ body {
   .gtp-spark { animation: none; opacity: 0; }
   .gtp-meter-fill { transition: none; }
   .gtp-meter-shimmer { animation: none; opacity: 0; }
+  .gtp-heat-pulse { animation: none; }
 }

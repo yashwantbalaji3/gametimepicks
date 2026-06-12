@@ -172,20 +172,22 @@ export default function BankBuilderTower({
               >
                 <span
                   className={`font-mono shrink-0 relative inline-flex items-center justify-center rounded-full${
-                    isActive ? " gtp-active-glow" : ""
+                    isActive ? " gtp-heat-pulse" : ""
                   }`}
                   style={{
                     width: 26,
                     height: 26,
                     fontSize: 12,
+                    // Heat metaphor: the ACTIVE rung burns magma-hot (the climb's
+                    // leading edge); cleared rungs keep the settled emerald glow.
                     color: isActive
-                      ? "var(--vault-gold-bright)"
+                      ? "var(--gtp-bank-heat)"
                       : isCleared
                         ? "var(--vault-success)"
                         : "var(--vault-text-mute)",
                     border: `1px solid ${
                       isActive
-                        ? "var(--vault-gold-bright)"
+                        ? "var(--gtp-bank-heat)"
                         : isCleared
                           ? "var(--vault-success)"
                           : "var(--vault-rule)"

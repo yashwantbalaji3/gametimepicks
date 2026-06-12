@@ -82,6 +82,23 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Quick lanes — flashcard entry points (casino rebuild). */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {[
+          { label: "Recommended", sub: "lowest-risk first", act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
+          { label: "High return", sub: "bigger odds, bigger swings", act: () => { setSport("all"); setRisk("High"); setBankOnly(false); } },
+          { label: "World Cup", sub: "today's matches", act: () => { setSport("world_cup"); setRisk("All"); setBankOnly(false); } },
+          { label: "Mixed sport", sub: "cross-sport cards", act: () => { setSport("mixed"); setRisk("All"); setBankOnly(false); } },
+        ].map((l) => (
+          <button key={l.label} type="button" onClick={l.act}
+            className="gtp-pressable gtp-card-hover rounded-[10px] px-3 py-3 text-left"
+            style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)" }}>
+            <span className="block font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{l.label}</span>
+            <span className="block" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{l.sub}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
         {SPORTS.map((s) => (
           <Pill key={s.key} on={sport === s.key} onClick={() => setSport(s.key)}>
