@@ -16,7 +16,14 @@ export default function ProjectionCard({ p }: { p: PublicProjection }) {
         </span>
         <StatusChip label={p.parlayEligible ? "Card eligible" : "Projection view"} />
       </div>
-      <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{p.gameLabel}</span>
+      <div className="flex items-center gap-2 min-w-0">
+        {p.player?.photo ? (
+          // Real league-CDN headshot (see lib/player-headshots.ts) — never a faked image.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={p.player.photo} alt={p.player.name} width={30} height={30} loading="lazy" className="rounded-full shrink-0" style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }} />
+        ) : null}
+        <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{p.gameLabel}</span>
+      </div>
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
           {p.pickLabel} · {formatAmerican(p.americanOdds ?? null)}

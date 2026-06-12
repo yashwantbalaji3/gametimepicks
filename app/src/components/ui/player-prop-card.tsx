@@ -15,7 +15,7 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
          style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
       {pl.photo ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={pl.photo} alt="" width={34} height={34} className="rounded-full shrink-0" style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }} />
+        <img src={pl.photo} alt={pl.name} width={34} height={34} loading="lazy" className="rounded-full shrink-0" style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }} />
       ) : (
         <div className="rounded-full shrink-0 flex items-center justify-center"
              style={{ width: 34, height: 34, background: "rgba(240,199,94,0.12)", border: "1px solid var(--vault-rule)", color: "var(--vault-gold-bright)", fontSize: 11, fontWeight: 700 }}>
@@ -28,8 +28,9 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
           <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(p.americanOdds ?? null)}</span>
         </div>
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+          <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
             {p.pickLabel} · {pl.team}
+            {p.bookmaker ? ` · ${p.bookmaker}` : ""}
           </span>
           <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>mdl {pct(p.modelProbability)} · mkt {pct(p.marketProbability)}</span>
         </div>
