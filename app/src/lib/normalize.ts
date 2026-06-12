@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { WcParlays, WcProjections, WcPlayerProjections } from "@/lib/world-cup/projections";
 import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
+import { mlbHeadshotUrl } from "@/lib/player-headshots";
 
 /** Daily mixed-sport cards (built by pipeline.daily.build_mixed_sport_cards). The artifact already
  *  matches the PublicSuggestedCard contract; returns [] when none. */
@@ -191,6 +192,7 @@ type MlbLean = {
   id?: string; playerName?: string; playerRole?: string; playerTeamAbbr?: string; playerTeamName?: string;
   opponentAbbr?: string; awayTeamAbbr?: string; homeTeamAbbr?: string; marketKey?: string; marketLabel?: string;
   line?: number | null; lean?: string; confidence?: string; date?: string; gamePk?: number | string;
+  playerId?: number | string | null;
   edgePct?: number | null; edgePctOver?: number | null; edgePctUnder?: number | null;
   modelProbOver?: number | null; modelProbUnder?: number | null; impliedOver?: number | null; impliedUnder?: number | null;
   oddsOver?: number | null; oddsUnder?: number | null;
@@ -213,7 +215,13 @@ export function normalizeMlbLeans(board: MlbBoardLike | null): PublicProjection[
       market: l.marketKey ?? "",
       marketLabel: l.marketLabel ?? l.marketKey ?? "",
       participantType: "player",
-      player: { name: l.playerName ?? "Player", team: l.playerTeamAbbr ?? l.playerTeamName, position: l.playerRole ?? null },
+      player: {
+        name: l.playerName ?? "Player",
+        team: l.playerTeamAbbr ?? l.playerTeamName,
+        position: l.playerRole ?? null,
+        // Official MLB Static CDN headshot from the lean's real playerId.
+        photo: mlbHeadshotUrl(l.playerId),
+      },
       pickLabel: `${l.lean ?? ""} ${l.line ?? ""}`.trim(),
       line: l.line ?? null,
       americanOdds: over ? l.oddsOver ?? null : l.oddsUnder ?? null,
