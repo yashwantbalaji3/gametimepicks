@@ -167,7 +167,7 @@ export default function TodayPage() {
             key={a.href}
             href={a.href}
             className="vault-glow-hover vault-press rounded-[10px] px-3 py-3.5 flex flex-col gap-0.5"
-            style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", textDecoration: "none" }}
+            style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", textDecoration: "none" }}
           >
             <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>{a.label}</span>
             <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{a.sub}</span>

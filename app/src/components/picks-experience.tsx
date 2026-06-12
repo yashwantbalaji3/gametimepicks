@@ -83,17 +83,23 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
   return (
     <div className="flex flex-col gap-4">
       {/* Quick lanes — flashcard entry points (casino rebuild). */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
         {[
-          { label: "Recommended", sub: "lowest-risk first", act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
-          { label: "High return", sub: "bigger odds, bigger swings", act: () => { setSport("all"); setRisk("High"); setBankOnly(false); } },
-          { label: "World Cup", sub: "today's matches", act: () => { setSport("world_cup"); setRisk("All"); setBankOnly(false); } },
-          { label: "Mixed sport", sub: "cross-sport cards", act: () => { setSport("mixed"); setRisk("All"); setBankOnly(false); } },
+          { label: "Recommended", sub: "lowest-risk model picks first", n: cards.filter((c) => c.riskTier === "Low").length, act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
+          { label: "Lower risk", sub: "shorter odds, steadier", n: cards.filter((c) => c.riskTier === "Low").length, act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
+          { label: "Higher return", sub: "bigger odds, bigger swings", n: cards.filter((c) => c.riskTier === "High" || c.riskTier === "Longshot").length, act: () => { setSport("all"); setRisk("High"); setBankOnly(false); } },
+          { label: "World Cup", sub: "today's matches", n: counts["world_cup"] ?? 0, act: () => { setSport("world_cup"); setRisk("All"); setBankOnly(false); } },
+          { label: "MLB", sub: "tonight's slate", n: counts["mlb"] ?? 0, act: () => { setSport("mlb"); setRisk("All"); setBankOnly(false); } },
+          { label: "Mixed sport", sub: "cross-sport cards", n: counts["mixed"] ?? 0, act: () => { setSport("mixed"); setRisk("All"); setBankOnly(false); } },
+          { label: "Bank Builder eligible", sub: "clears the ladder gates", n: cards.filter((c) => c.bankBuilderEligible).length, act: () => { setSport("all"); setRisk("All"); setBankOnly(true); } },
         ].map((l) => (
           <button key={l.label} type="button" onClick={l.act}
             className="gtp-pressable gtp-card-hover rounded-[10px] px-3 py-3 text-left"
-            style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)" }}>
-            <span className="block font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{l.label}</span>
+            style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${l.label === "Bank Builder eligible" ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)"}` }}>
+            <span className="flex items-baseline justify-between gap-1">
+              <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{l.label}</span>
+              {l.n > 0 ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{l.n}</span> : null}
+            </span>
             <span className="block" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{l.sub}</span>
           </button>
         ))}

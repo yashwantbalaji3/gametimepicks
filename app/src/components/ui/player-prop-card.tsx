@@ -8,9 +8,9 @@ import type { PublicProjection } from "@/lib/normalize";
 import { formatAmerican } from "@/lib/odds-math";
 import { friendlyStatusLabel } from "@/lib/public-visibility";
 import StatusChip from "@/components/ui/status-chip";
+import PlayerAvatar from "@/components/ui/player-avatar";
 
 function pct(p?: number | null) { return p == null ? "—" : `${Math.round(p * 100)}%`; }
-function initials(n: string) { return n.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase(); }
 
 /** Did this game's value land on the picked side of the line? (Over/Under sides only.) */
 function hitSide(value: number, line: number | string | null | undefined, pickLabel: string): boolean | null {
@@ -29,15 +29,7 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
   return (
     <details className="rounded-[7px] min-w-0 group" style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
       <summary className="px-3 py-2.5 flex items-center gap-2.5 min-w-0 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-        {pl.photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={pl.photo} alt={pl.name} width={34} height={34} loading="lazy" className="rounded-full shrink-0" style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }} />
-        ) : (
-          <div className="rounded-full shrink-0 flex items-center justify-center"
-               style={{ width: 34, height: 34, background: "rgba(240,199,94,0.12)", border: "1px solid var(--vault-rule)", color: "var(--vault-gold-bright)", fontSize: 11, fontWeight: 700 }}>
-            {initials(pl.name)}
-          </div>
-        )}
+        <PlayerAvatar name={pl.name} photo={pl.photo} size={34} />
         <div className="flex flex-col min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{pl.name}</span>

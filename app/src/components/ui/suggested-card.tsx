@@ -9,6 +9,7 @@ import { formatAmerican } from "@/lib/odds-math";
 import StakePayoutInput from "@/components/ui/stake-payout-input";
 import RiskTierBadge from "@/components/ui/risk-tier-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
+import PlayerAvatar from "@/components/ui/player-avatar";
 
 function initials(name: string): string {
   return name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -73,8 +74,7 @@ export default function SuggestedCard({
             style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}
           >
             {l.photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={l.photo} alt="" width={26} height={26} className="rounded-full shrink-0" style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }} />
+              <PlayerAvatar name={l.label} photo={l.photo} size={26} />
             ) : card.cardType === "mixed_sport" ? (
               // Mixed-sport cards: identify each leg's sport at a glance.
               <span

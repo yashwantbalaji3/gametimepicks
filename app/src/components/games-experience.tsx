@@ -54,8 +54,8 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
           const n = key === "all" ? games.length : counts[key] ?? 0;
           return (
             <button key={key} type="button" onClick={() => setSport(key)}
-              className="gtp-pressable flex items-center gap-1.5 rounded-full px-3.5 py-1.5 transition-colors shrink-0"
-              style={{ background: on ? "var(--vault-gold-dim)" : "transparent", border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, color: on ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap" }}>
+              className={`gtp-pressable flex items-center gap-1.5 rounded-full px-3.5 py-1.5 transition-colors shrink-0${on ? " gtp-chip-heat" : ""}`}
+              style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap" }}>
               {id ? <span aria-hidden style={{ fontSize: 12 }}>{id.icon}</span> : null}
               {id ? id.label : "All"}
               {n > 0 ? <span className="font-mono" style={{ fontSize: 10, opacity: 0.8 }}>{n}</span> : null}
@@ -95,7 +95,7 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                  <Link href={g.detailHref ?? g.href} className="vault-press flex-1 text-center rounded-[6px] py-1.5 font-mono uppercase tracking-[0.1em]" style={{ background: "var(--vault-gold-dim)", border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", fontSize: 10.5, textDecoration: "none" }}>
+                  <Link href={g.detailHref ?? g.href} className="gtp-cta-lava vault-press flex-1 text-center rounded-[6px] py-1.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10.5, fontWeight: 700, textDecoration: "none" }}>
                     {g.detailHref ? "View game" : `View ${g.sportLabel}`}
                   </Link>
                   <Link href={g.buildHref} className="vault-press flex-1 text-center rounded-[6px] py-1.5 font-mono uppercase tracking-[0.1em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5, textDecoration: "none" }}>

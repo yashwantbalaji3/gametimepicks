@@ -148,7 +148,7 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
         </div>
         {detail.regulationNote ? <p className="mt-1 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{detail.regulationNote}</p> : null}
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Link href={detail.buildUrl} className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--vault-gold-bright)", color: "#0b0f1f", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Build from this game</Link>
+          <Link href={detail.buildUrl} className="gtp-cta-lava vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Build from this game</Link>
           <Link href={`/${detail.sport === "world_cup" ? "world-cup" : detail.sport}`} className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none" }}>View {detail.sportLabel}</Link>
           <Link href="/learn#projections" className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none" }}>Learn markets</Link>
         </div>
