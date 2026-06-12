@@ -46,10 +46,13 @@
      above. Deep navy panels + metallic gold accents + cream text,
      evoking a sports-finance / model-lab feel.
      ================================================================ */
-  --vault-bg: #070B1A;
-  --vault-panel: #0E1530;
-  --vault-panel-elevated: #161E3E;
-  --vault-panel-hover: #1B2349;
+  /* v4 rebrand: graphite near-black base (was flat navy #070B1A) — the navy +
+     gold-tint combination read muddy; graphite lets cream text + sport accents
+     carry the energy while gold stays a premium highlight. */
+  --vault-bg: #0A0B10;
+  --vault-panel: #13151D;
+  --vault-panel-elevated: #1B1E29;
+  --vault-panel-hover: #222633;
   --vault-border: rgba(212, 175, 55, 0.14);
   --vault-border-strong: rgba(212, 175, 55, 0.32);
   --vault-border-active: rgba(212, 175, 55, 0.65);
@@ -62,7 +65,7 @@
   /* Readability rebrand (2026-06-12): primary text nearer white; mute/faint
      brightened off the muddy dark-gold so metadata stays legible on navy
      (faint was #6E6447 ≈ 3.3:1 — now ≥ 4.6:1 on the card surfaces). */
-  --vault-text: #F7EFDC;
+  --vault-text: #F8F4E9;
   --vault-text-mute: #C9BC97;
   --vault-text-faint: #948A6E;
 
@@ -157,7 +160,7 @@
      ========================================================================== */
 
   /* Shell surfaces — dark premium */
-  --gtp-shell:           #0B0F1F;
+  --gtp-shell:           #0C0D13;
   --gtp-shell-elevated:  #131830;
   --gtp-shell-rail:      #0F1326;
   --gtp-shell-overlay:   rgba(11, 15, 31, 0.92);
@@ -167,9 +170,9 @@
   /* Default content surfaces — DARK (elevated charcoal cards on the
      deep navy shell). Overridden inside `.gtp-canvas` to light cream
      for any future page that opts into a light reading surface. */
-  --gtp-card:            #161E3E;
+  --gtp-card:            #191C26;
   --gtp-card-elevated:   #1B2349;
-  --gtp-card-sunken:     #0F1326;
+  --gtp-card-sunken:     #101218;
   --gtp-card-border:     rgba(212, 175, 55, 0.16);
   --gtp-card-border-strong: rgba(212, 175, 55, 0.32);
   --gtp-card-shadow:     0 1px 0 rgba(255, 255, 255, 0.03) inset,

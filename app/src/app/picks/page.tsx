@@ -43,16 +43,13 @@ export default function PicksPage() {
     ...normalizeOptimizerSlips(getSuggestedParlaysForDate(today)?.slips ?? null, { date: today }),
     ...normalizeUfcCards(loadUfc() as Parameters<typeof normalizeUfcCards>[0], today),
   ];
-  const byRisk = (["Low", "Medium", "High", "Longshot"] as const).map(
-    (r) => `${r} ${cards.filter((c) => c.riskTier === r).length}`,
-  );
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <SectionHeader
         eyebrow={`Suggested cards · ${new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })} · ${cards.length} live`}
         title="Picks"
-        sub={`Every suggested paper card across sports, by sport and risk (${byRisk.join(" · ")}). Filter, then enter any stake to see the projected paper return. Settled cards keep their WON/LOST chips.`}
+        sub="Pick a sport and a risk level — every card is a real-odds paper parlay with a stake calculator."
       />
       <PicksExperience cards={cards} />
     </div>

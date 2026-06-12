@@ -137,9 +137,6 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
           <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>
             1 · Choose a sport or game &nbsp;→&nbsp; 2 · Add eligible legs
           </span>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team or player…"
-            className="rounded-[8px] px-3 py-2"
-            style={{ background: "rgba(7,11,26,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
           {gameFilter ? (
             <button type="button" onClick={() => setGameFilter(null)}
               className="self-start inline-flex items-center gap-2 rounded-full px-3 py-1"
@@ -165,6 +162,11 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
             <Pill on={market === "All"} onClick={() => setMarket("All")}>All markets</Pill>
             {markets.slice(0, 8).map((m) => <Pill key={m} on={market === m} onClick={() => setMarket(m)}>{m}</Pill>)}
           </div>
+          {/* Search is secondary (v4): pills are the primary control. */}
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team or player…"
+            className="rounded-[8px] px-3 py-2"
+            style={{ background: "rgba(7,11,26,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
+
         </div>
 
         <div className="flex items-center justify-between gap-2">

@@ -32,6 +32,9 @@ export interface PublicGameDetail {
   date: string;
   homeTeam?: string;
   awayTeam?: string;
+  /** Real provider team-logo URLs (api-sports) when the artifact carries them. */
+  homeLogo?: string | null;
+  awayLogo?: string | null;
   venue?: string;
   regulationNote?: string;
   teamProjections: PublicProjection[];
@@ -75,6 +78,14 @@ export function cardBelongsToFixture(
 
 // ── World Cup ──
 function worldCupDetails(): PublicGameDetail[] {
+  // Raw projections carry the real api-sports team-logo URLs that the
+  // normalized shape drops — index them by matchId for the fixture hero.
+  const logoByMatch = new Map<string, { home: string | null; away: string | null }>();
+  for (const m of loadWorldCupProjections()?.matches ?? []) {
+    if (m.matchId != null && !logoByMatch.has(String(m.matchId))) {
+      logoByMatch.set(String(m.matchId), { home: m.homeLogo ?? null, away: m.awayLogo ?? null });
+    }
+  }
   const projections = normalizeWcProjections(loadWorldCupProjections());
   const players = normalizeWcPlayerProps(loadWorldCupPlayerProjections());
   const cards = normalizeWcCards(loadWorldCupParlays());
@@ -102,6 +113,8 @@ function worldCupDetails(): PublicGameDetail[] {
       date: head.date,
       homeTeam,
       awayTeam,
+      homeLogo: logoByMatch.get(matchId)?.home ?? null,
+      awayLogo: logoByMatch.get(matchId)?.away ?? null,
       regulationNote: "90-minute regulation only — a Draw is a real third outcome (no extra time / penalties).",
       teamProjections,
       playerProps,
