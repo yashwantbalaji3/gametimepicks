@@ -88,9 +88,14 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
             Recent-game log unavailable for this market — only the model/market read above is shown. Stats are never invented.
           </span>
         )}
-        {p.caveats && p.caveats.length > 0 ? (
-          <span className="text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>· {p.caveats[0]}</span>
-        ) : null}
+        {(() => {
+          // The page-level banner already explains lineup timing once — repeating the
+          // artifact's "pre-lineup" caveat on all 200+ cards was the noise users hated.
+          const caveat = (p.caveats ?? []).find((c) => !/pre-?lineup/i.test(c));
+          return caveat ? (
+            <span className="text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>· {caveat}</span>
+          ) : null;
+        })()}
       </div>
     </details>
   );

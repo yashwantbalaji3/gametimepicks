@@ -8,6 +8,7 @@
  * preserved. No fabricated projections; counts come from the active-slate board.
  */
 import Link from "next/link";
+import CompetitionBadge from "@/components/ui/competition-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
 
 import {
@@ -284,6 +285,7 @@ export default function NbaLandingPage() {
       </div>
 
       <SportOverviewHero
+        badge={<CompetitionBadge sport="nba" size="sm" />}
         icon={getSportIdentity("nba").icon}
         iconGradient={getSportIdentity("nba").gradient}
         iconLabel={getSportIdentity("nba").ballLabel}

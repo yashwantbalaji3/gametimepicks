@@ -8,6 +8,7 @@
  * data; lean/game counts come from the live board summary.
  */
 import Link from "next/link";
+import CompetitionBadge from "@/components/ui/competition-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
 
 import {
@@ -262,6 +263,7 @@ export default function MlbLandingPage() {
       </div>
 
       <SportOverviewHero
+        badge={<CompetitionBadge sport="mlb" size="sm" />}
         icon={getSportIdentity("mlb").icon}
         iconGradient={getSportIdentity("mlb").gradient}
         iconLabel={getSportIdentity("mlb").ballLabel}

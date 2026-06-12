@@ -8,6 +8,7 @@
  * density elsewhere. All data is real + fail-closed — no fabricated prices, lineups, or edges.
  */
 import Link from "next/link";
+import CompetitionBadge from "@/components/ui/competition-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
 
 import {
@@ -303,7 +304,7 @@ export default function WorldCupLandingPage() {
 
   const playerPropsTab = (
     <div className="flex flex-col gap-6">
-      <SectionHeader eyebrow={`Player props · ${wcPlayers.length} views · ${photoCount} photos`} title="Pre-lineup player projections" sub="Built from the sportsbook's listed players (the predicted-XI signal) matched to API-Football squad identities. Heavily market-anchored, clearly labeled pre-lineup — a “Card eligible” chip appears only when a starter is confirmed and the edge qualifies." />
+      <SectionHeader eyebrow={`Player props · ${wcPlayers.length} views · ${photoCount} photos`} title="Player projections" sub="Built from the sportsbook's listed players (the predicted-XI signal) matched to real API-Football identities. Market-anchored until lineups confirm — a “Card eligible” chip appears once a starter is confirmed and the edge qualifies." />
       {wcPlayers.length > 0 ? (
         [...playerByMarket.entries()]
           .sort((a, b) => PLAYER_MARKET_ORDER.indexOf(a[0]) - PLAYER_MARKET_ORDER.indexOf(b[0]))
@@ -487,7 +488,7 @@ export default function WorldCupLandingPage() {
       </section>
       <OverviewFooterDisclosure
         inputsLabel="What is wired today"
-        inputsBody={<>Official tournament schedule (104 matches), groups (12), qualified teams (48), venues by host city, a live 90-minute Market Outlook, a sourced FIFA-ranking strength layer, and — when gates pass — model projections, pre-lineup player props, and suggested paper cards.</>}
+        inputsBody={<>Official tournament schedule (104 matches), groups (12), qualified teams (48), venues by host city, a live 90-minute Market Outlook, a sourced FIFA-ranking strength layer, and — when gates pass — model projections, lineup-pending player props, and suggested paper cards.</>}
         framingBody={<>Every surface is real + fail-closed: independent projections, player props, and parlays publish only when real odds + stats gates pass. We refuse to invent rosters, results, or “model edge” before the model is live.</>}
       />
     </div>
@@ -512,6 +513,7 @@ export default function WorldCupLandingPage() {
       </div>
 
       <SportOverviewHero
+        badge={<CompetitionBadge sport="world_cup" size="sm" />}
         icon={getSportIdentity("world_cup").icon}
         iconGradient={getSportIdentity("world_cup").gradient}
         iconLabel={getSportIdentity("world_cup").ballLabel}

@@ -30,7 +30,7 @@ const TIERS: Array<{ tier: string; tone: string; note: string }> = [
 ];
 
 const SPORTS: Array<{ name: string; note: string }> = [
-  { name: "World Cup", note: "90-minute regulation only — a Draw is a real third outcome (no extra time/penalties). Double chance, total goals/corners, and pre-lineup player props (clearly labeled until lineups post)." },
+  { name: "World Cup", note: "90-minute regulation only — a Draw is a real third outcome (no extra time/penalties). Double chance, total goals/corners, and player props (labeled lineup-pending until lineups post)." },
   { name: "MLB", note: "Player-prop projections — pitcher strikeouts, batter hits / total bases — from game logs vs the line, plus optimizer suggested cards." },
   { name: "NBA", note: "Player-prop projections — points, rebounds, assists and more — for the active slate, with Finals context preserved." },
   { name: "UFC", note: "Moneyline only (V1). Win probabilities vs the market price. Suggested cards are model-probability only — no market odds, so no paper payout is shown. No method/distance/round props yet." },
@@ -162,7 +162,7 @@ export default function LearnPage() {
             ["World Cup", "Ensemble model (market prior + team strength + form), 90-minute regulation only — a draw is a real outcome. Bank Builder legs now require BOTH model and market support; the model-disfavored plus-money side lost on June 11 and is downweighted."],
             ["MLB", "Player props settled nightly against official box scores (8,800+ decisive leans). Hits Overs are the strongest settled market; total-bases and strikeout Overs under-delivered and are excluded from suggested cards, as are outsized model-vs-market edges."],
             ["NBA", "Player props settled against official box scores (3,100+ decisive). REB/PRA were the strongest recent markets — the settled Finals card hit both legs. Season-dependent."],
-            ["Bank Builder", "One card per ladder step, full-bankroll stake, official-source settlement, and seven hard gates (real odds, model + market support, low correlation, clear settlement rules, target-fit, no pre-lineup props). No card that clears = no card published."],
+            ["Bank Builder", "One card per ladder step, full-bankroll stake, official-source settlement, and seven hard gates (real odds, model + market support, low correlation, clear settlement rules, target-fit, no lineup-pending props). No card that clears = no card published."],
           ].map(([t, d]) => (
             <div key={t} className="rounded-[10px] px-4 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
               <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{t}</span>
@@ -183,7 +183,7 @@ export default function LearnPage() {
             ["American odds", "−150 = risk 150 to win 100; +130 = risk 100 to win 130."],
             ["Parlay", "Several picks combined into one card — all must hit; the odds multiply."],
             ["Leg", "A single pick inside a parlay card."],
-            ["Pre-lineup", "A player prop shown before the starting lineup is confirmed — clearly labeled."],
+            ["Lineup pending", "A player prop shown before the starting lineup is confirmed — labeled until lineups post."],
             ["Model-only", "A pick the model rates but the sportsbook doesn't price — shown without a paper payout (e.g. some UFC cards)."],
             ["Gated", "A projection the model has, but that hasn't cleared our bar to be a suggested card yet."],
           ].map(([term, def]) => (

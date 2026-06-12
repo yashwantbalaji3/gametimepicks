@@ -109,7 +109,7 @@ function worldCupDetails(): PublicGameDetail[] {
       buildUrl: `/build?sport=world_cup&game=${encodeURIComponent(matchId)}`,
       caveats: [
         "90-minute regulation only — Draw is a real outcome.",
-        ...(playerProps.some((p) => (p.lineupStatus ?? "").startsWith("pre")) ? ["Player props are pre-lineup until the starting XI is confirmed."] : []),
+        ...(playerProps.some((p) => (p.lineupStatus ?? "").startsWith("pre")) ? ["Player props stay projection-based until the starting XI is confirmed."] : []),
       ],
       dataStatus: [
         { label: "Moneyline / double chance", status: teamProjections.some((p) => p.market === "moneyline_90" || p.market === "double_chance") ? "live" : "pending" },

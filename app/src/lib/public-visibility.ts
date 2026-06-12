@@ -40,11 +40,14 @@ export function shouldShowMarketStatus(market: { status?: string } | null | unde
 }
 
 const FRIENDLY: Record<string, string> = {
-  waiting_on_lineups: "Waiting on lineups",
-  pre_lineup_unknown: "Waiting on player evidence",
-  pre_lineup_likely: "Pre-lineup",
-  pre_lineup_public_projection: "Pre-lineup",
-  pre_lineup_market_view: "Pre-lineup",
+  // June-12 polish: "Pre-lineup" shouted from every card and made the product feel
+  // unfinished. Same honest meaning, calmer product vocabulary; the page-level banner
+  // (props explorer) carries the shared context once.
+  waiting_on_lineups: "Lineups pending",
+  pre_lineup_unknown: "Player evidence pending",
+  pre_lineup_likely: "Projected starter",
+  pre_lineup_public_projection: "Lineup pending",
+  pre_lineup_market_view: "Lineup pending",
   confirmed_starter: "Confirmed starter",
   confirmed_sub: "Substitute",
   not_in_lineup: "Not in lineup",
