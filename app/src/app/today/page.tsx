@@ -16,8 +16,10 @@ import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { loadBankBuilderSummary } from "@/lib/data-bank-builder";
 import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
 import { normalizeWcCards, loadDailyMixedCards, type SportSummary } from "@/lib/normalize";
+import { loadWorldCupFlexLeg } from "@/lib/world-cup-flex";
 import SuggestedCard from "@/components/ui/suggested-card";
 import SportCard from "@/components/ui/sport-card";
+import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
 import SectionHeader from "@/components/section-header";
 
 export const metadata = {
@@ -54,6 +56,7 @@ export default function TodayPage() {
   const activeSports = (wcLive ? 1 : 0) + (mlbLive ? 1 : 0);
   const mixedCards = loadDailyMixedCards();
   const topCards = [...mixedCards, ...normalizeWcCards(wcCards)].slice(0, 4);
+  const flexLeg = loadWorldCupFlexLeg();
   const sportSummaries: SportSummary[] = [
     {
       sport: "world_cup", label: "World Cup", href: "/world-cup", accent: "var(--vault-gold-bright)", live: wcLive,
@@ -169,6 +172,13 @@ export default function TodayPage() {
           </Link>
         </section>
       )}
+
+      {/* World Cup Flex Card — separate spotlight leg, NOT the official ladder candidate */}
+      {flexLeg ? (
+        <section>
+          <WorldCupFlexCard leg={flexLeg} exampleStake={bank?.currentBankrollUnits ?? 728.76} />
+        </section>
+      ) : null}
     </div>
   );
 }

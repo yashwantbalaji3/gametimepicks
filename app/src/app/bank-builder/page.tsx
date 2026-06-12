@@ -47,6 +47,8 @@ import {
   type BuilderSlipSelection,
 } from "@/lib/parlay-suggested";
 import { filterOfficialSuggestedSlips } from "@/lib/sport-capabilities";
+import { loadWorldCupFlexLeg } from "@/lib/world-cup-flex";
+import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
 import { formatAmerican } from "@/lib/odds-math";
 import {
   legRecentFormLabel,
@@ -163,6 +165,9 @@ export default function BankBuilderPage() {
   // fully-unsettled slip priced closest to +100 (2-leg preferred), and
   // render an honest empty state when nothing prices into the band.
   const builderPick = selectPlus100BuilderSlip(pool);
+
+  // World Cup Flex Card — a separate spotlight leg (real data), NOT the ladder candidate.
+  const flexLeg = loadWorldCupFlexLeg();
   // PR 4: transparent eligibility diagnosis — when no card qualifies, show the
   // EXACT honest reason (no pending cards / none near +100 / etc.), never a
   // "nothing good enough to win" framing.
@@ -370,6 +375,10 @@ export default function BankBuilderPage() {
           currentBankroll={currentBankroll}
         />
       </div>
+
+      {/* ---- World Cup Flex Card — a SEPARATE spotlight leg, explicitly NOT the
+          official Step-3 ladder candidate. Real data, never mutates the ladder. */}
+      {flexLeg ? <WorldCupFlexCard leg={flexLeg} exampleStake={currentBankroll} /> : null}
 
       {/* Featured NBA Finals same-game card — settled from the official box
           score, shown separately from the tracked ladder (honest accounting). */}
