@@ -50,9 +50,9 @@ export default function PicksPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <SectionHeader
-        eyebrow={`Suggested cards · ${cards.length} live`}
+        eyebrow={`Suggested cards · ${new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })} · ${cards.length} live`}
         title="Picks"
-        sub={`Every suggested paper card across sports, by sport and risk (${byRisk.join(" · ")}). Filter, then enter any stake to see the projected paper return.`}
+        sub={`Every suggested paper card across sports, by sport and risk (${byRisk.join(" · ")}). Filter, then enter any stake to see the projected paper return. Settled cards keep their WON/LOST chips.`}
       />
       <PicksExperience cards={cards} />
     </div>

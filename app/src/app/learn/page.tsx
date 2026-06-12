@@ -61,6 +61,7 @@ export default function LearnPage() {
           { href: "#build", label: "Build" },
           { href: "#bank-builder", label: "Bank Builder" },
           { href: "#sports", label: "Sports" },
+          { href: "#methodology", label: "Methodology" },
           { href: "#glossary", label: "Glossary" },
         ].map((a) => (
           <a key={a.href} href={a.href} className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.08em]"
@@ -152,6 +153,24 @@ export default function LearnPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section id="methodology" className="scroll-mt-16 flex flex-col gap-3">
+        <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Methodology, briefly — updated from settled results (June 12)</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {[
+            ["World Cup", "Ensemble model (market prior + team strength + form), 90-minute regulation only — a draw is a real outcome. Bank Builder legs now require BOTH model and market support; the model-disfavored plus-money side lost on June 11 and is downweighted."],
+            ["MLB", "Player props settled nightly against official box scores (8,800+ decisive leans). Hits Overs are the strongest settled market; total-bases and strikeout Overs under-delivered and are excluded from suggested cards, as are outsized model-vs-market edges."],
+            ["NBA", "Player props settled against official box scores (3,100+ decisive). REB/PRA were the strongest recent markets — the settled Finals card hit both legs. Season-dependent."],
+            ["Bank Builder", "One card per ladder step, full-bankroll stake, official-source settlement, and seven hard gates (real odds, model + market support, low correlation, clear settlement rules, target-fit, no pre-lineup props). No card that clears = no card published."],
+          ].map(([t, d]) => (
+            <div key={t} className="rounded-[10px] px-4 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+              <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{t}</span>
+              <p className="mt-1 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{d}</p>
+            </div>
+          ))}
+        </div>
+        <Link href="/methodology" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>Full methodology →</Link>
       </section>
 
       <section id="glossary" className="scroll-mt-16 flex flex-col gap-3">

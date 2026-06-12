@@ -15,3 +15,22 @@ class TestMixedCards(unittest.TestCase):
         dec = _am_to_dec(-270) * _am_to_dec(101)
         self.assertAlmostEqual(dec, 2.754, places=2)
         self.assertEqual(_dec_to_am(dec), 175)
+
+
+class TestSettledGuardrails(unittest.TestCase):
+    """June-12 settled-data guardrails for suggested-card legs (see
+    docs/methodology/june12-model-learning-notes.md)."""
+
+    def test_overprojected_over_markets_excluded(self):
+        from pipeline.daily.build_mixed_sport_cards import leg_passes_settled_guardrails
+        self.assertFalse(leg_passes_settled_guardrails({"market": "batter_total_bases", "side": "Over", "edgePct": 5}))
+        self.assertFalse(leg_passes_settled_guardrails({"market": "pitcher_strikeouts", "side": "Over", "edgePct": 5}))
+        # Unders on those markets settled fine (54.5% / 51.1%) — still allowed.
+        self.assertTrue(leg_passes_settled_guardrails({"market": "batter_total_bases", "side": "Under", "edgePct": 5}))
+        self.assertTrue(leg_passes_settled_guardrails({"market": "pitcher_strikeouts", "side": "Under", "edgePct": 5}))
+
+    def test_outsized_edges_excluded(self):
+        from pipeline.daily.build_mixed_sport_cards import leg_passes_settled_guardrails
+        self.assertFalse(leg_passes_settled_guardrails({"market": "batter_hits", "side": "Over", "edgePct": 25.6}))
+        self.assertFalse(leg_passes_settled_guardrails({"market": "batter_hits", "side": "Over", "edgePct": -22}))
+        self.assertTrue(leg_passes_settled_guardrails({"market": "batter_hits", "side": "Over", "edgePct": 12.4}))

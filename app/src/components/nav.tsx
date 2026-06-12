@@ -32,11 +32,10 @@ const NAV_ITEMS: Array<{
   { href: "/games", label: "Games" },
   { href: "/picks", label: "Picks" },
   { href: "/build", label: "Build" },
-  { href: "/sports", label: "Sports" },
   { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
   { href: "/results", label: "Results" },
+  { href: "/sports", label: "Sports" },
   { href: "/learn", label: "Learn" },
-  { href: "/about", label: "About" },
 ];
 
 // Sport routes that should light up the "Sports" nav item.

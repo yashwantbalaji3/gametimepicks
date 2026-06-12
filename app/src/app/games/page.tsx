@@ -5,7 +5,7 @@
  * hub + the Build betslip. Public data only.
  */
 import { currentEtDate } from "@/lib/freshness";
-import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
+import { loadWorldCupSchedule, matchesOnDate, teamByName } from "@/lib/data-world-cup";
 import { loadWorldCupProjections } from "@/lib/world-cup/projections";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
@@ -50,11 +50,13 @@ export default function GamesPage() {
       id: `wc_${m.id}`,
       sport: "world_cup",
       sportLabel: "World Cup",
-      accent: "var(--vault-gold-bright)",
       matchup: `${m.home} vs ${m.away}`,
       timeLabel: `${m.kickoffLocal ?? ""}${m.venueCity ? " · " + m.venueCity : ""}`.trim(),
       statusLabel: "Today",
       projections: det?.teamProjections.length ?? 0,
+      props: det?.playerProps.length ?? 0,
+      homeCode: teamByName(m.home ?? "")?.code ?? "",
+      awayCode: teamByName(m.away ?? "")?.code ?? "",
       href: "/world-cup?tab=games",
       // Exact-fixture build link when the fixture resolved (real matchId); team-search fallback otherwise.
       buildHref: det?.buildUrl ?? `/build?sport=world_cup&q=${encodeURIComponent(m.home ?? "")}`,
@@ -78,7 +80,6 @@ export default function GamesPage() {
       id: `mlb_${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`,
       sport: "mlb",
       sportLabel: "MLB",
-      accent: "#3b82f6",
       matchup: `${g.awayTeamAbbr ?? "?"} @ ${g.homeTeamAbbr ?? "?"}`,
       timeLabel: `${formatTipoffEt(g.gameDate)}${g.venue ? " · " + g.venue : ""}`,
       statusLabel: mlbDate === today ? "Today" : mlbDate.slice(5),
@@ -101,7 +102,6 @@ export default function GamesPage() {
       id: `nba_${g.gameId}`,
       sport: "nba",
       sportLabel: "NBA",
-      accent: "#a855f7",
       matchup: `${g.awayTeamAbbr ?? "?"} @ ${g.homeTeamAbbr ?? "?"}`,
       timeLabel: nbaDate ? nbaDate.slice(5) : "",
       statusLabel: "Finals",
@@ -122,7 +122,6 @@ export default function GamesPage() {
         id: "ufc_event",
         sport: "ufc",
         sportLabel: "UFC",
-        accent: "#ef4444",
         matchup: proj.eventName ?? "Next UFC card",
         timeLabel: "Moneyline model",
         statusLabel: "Upcoming",

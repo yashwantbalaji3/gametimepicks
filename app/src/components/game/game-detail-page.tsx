@@ -7,6 +7,9 @@ import Link from "next/link";
 import type { PublicGameDetail } from "@/lib/game-detail";
 import type { PublicProjection } from "@/lib/normalize";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
+import FlagBadge from "@/components/flag-badge";
+import { getSportIdentity } from "@/lib/sport-identity";
+import { teamByName } from "@/lib/data-world-cup";
 import SectionHeader from "@/components/section-header";
 import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
@@ -18,6 +21,10 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function GameDetailPage({ detail }: { detail: PublicGameDetail }) {
+  const identity = getSportIdentity(detail.sport);
+  // Real ISO flag codes for soccer fixtures (teams.json); empty string → no flag row.
+  const homeCode = detail.sport === "world_cup" && detail.homeTeam ? teamByName(detail.homeTeam)?.code ?? "" : "";
+  const awayCode = detail.sport === "world_cup" && detail.awayTeam ? teamByName(detail.awayTeam)?.code ?? "" : "";
   const propsByMarket = new Map<string, PublicProjection[]>();
   for (const p of detail.playerProps) {
     propsByMarket.set(p.marketLabel, [...(propsByMarket.get(p.marketLabel) ?? []), p]);
@@ -126,8 +133,27 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
       </div>
       {/* Hero / matchup */}
       <section className="relative overflow-hidden rounded-[14px] px-5 py-6 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 150% at 0% 0%, rgba(240,199,94,0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(7,11,26,0.97) 100%)" }}>
-        <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.sportLabel} · {detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
-        <h1 className="font-display tracking-tight mt-1.5" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.5vw,32px)", fontWeight: 700, lineHeight: 1.05 }}>{detail.title}</h1>
+        <span className="flex items-center gap-2">
+          <span
+            className="gtp-sport-orb shrink-0"
+            style={{ width: 26, height: 26, fontSize: 14, ["--orb-grad" as string]: identity.gradient }}
+            role="img"
+            aria-label={identity.ballLabel}
+          >
+            {identity.icon}
+          </span>
+          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.sportLabel} · {detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
+        </span>
+        <div className="mt-1.5 flex items-center gap-3 min-w-0">
+          {homeCode || awayCode ? (
+            <span className="inline-flex items-center gap-1.5 shrink-0" aria-label={`${detail.homeTeam} versus ${detail.awayTeam}`}>
+              <FlagBadge code={homeCode || (detail.homeTeam ?? "").slice(0, 2)} fallback={(detail.homeTeam ?? "").slice(0, 2).toUpperCase()} size="lg" ariaLabel={detail.homeTeam} />
+              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>v</span>
+              <FlagBadge code={awayCode || (detail.awayTeam ?? "").slice(0, 2)} fallback={(detail.awayTeam ?? "").slice(0, 2).toUpperCase()} size="lg" ariaLabel={detail.awayTeam} />
+            </span>
+          ) : null}
+          <h1 className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.5vw,32px)", fontWeight: 700, lineHeight: 1.05 }}>{detail.title}</h1>
+        </div>
         {detail.regulationNote ? <p className="mt-1 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{detail.regulationNote}</p> : null}
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Link href={detail.buildUrl} className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--vault-gold-bright)", color: "#0b0f1f", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Build from this game</Link>

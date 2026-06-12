@@ -181,14 +181,14 @@ export default function WorldCupTeamDetailPage({ params }: PageProps) {
           {team.name}'s final 26-player squad publishes once the federation
           officially announces it (FIFA deadline June 1; FIFA-wide
           publication June 2). We refuse to print speculative or leaked
-          rosters — the squad card unlocks the day the official list drops.
+          rosters — the squad card opens the day the official list drops.
         </p>
         <p
           className="mt-2 text-[11.5px] leading-relaxed"
           style={{ color: "var(--vault-text-faint)" }}
         >
           Projections, edges, and parlay candidates are also pending — the
-          tournament model unlocks before kickoff. See the World Cup overview
+          tournament model opens before kickoff. See the World Cup overview
           for the planned model inputs.
         </p>
       </section>

@@ -53,7 +53,13 @@ interface Props {
   /** Optional bottom-of-hero honest framing line. */
   framing?: string;
   /** Sport accent color (used for eyebrow dot + tagline). */
-  accent?: "gold" | "nba" | "mlb" | "nhl" | "ipl";
+  accent?: "gold" | "nba" | "mlb" | "nhl" | "ipl" | "wc" | "ufc";
+  /** Optional sport-identity glyph rendered as an orb beside the headline. */
+  icon?: string;
+  /** Gradient for the icon orb (from sport-identity). */
+  iconGradient?: string;
+  /** Accessible name for the icon (from sport-identity ballLabel). */
+  iconLabel?: string;
 }
 
 const ACCENT: Record<NonNullable<Props["accent"]>, string> = {
@@ -62,6 +68,9 @@ const ACCENT: Record<NonNullable<Props["accent"]>, string> = {
   mlb: "rgba(140, 230, 175, 1)",
   nhl: "rgba(180, 215, 255, 1)",
   ipl: "rgba(255, 195, 130, 1)",
+  // Identity-system additions — the two hubs that previously fell back to gold.
+  wc: "rgba(52, 211, 153, 1)",
+  ufc: "rgba(248, 113, 113, 1)",
 };
 
 export default function SportOverviewHero({
@@ -76,6 +85,9 @@ export default function SportOverviewHero({
   ctas,
   framing,
   accent = "gold",
+  icon,
+  iconGradient,
+  iconLabel,
 }: Props) {
   const accentColor = ACCENT[accent];
   // Translate accent color into rgba glow values that the cinematic
@@ -135,7 +147,22 @@ export default function SportOverviewHero({
         </div>
 
         {/* Sport headline */}
-        <div className="flex items-baseline gap-3 flex-wrap gtp-cinematic-rise gtp-cinematic-rise-d1">
+        <div className="flex items-center gap-3 flex-wrap gtp-cinematic-rise gtp-cinematic-rise-d1">
+          {icon ? (
+            <span
+              className="gtp-sport-orb shrink-0"
+              style={{
+                width: 44,
+                height: 44,
+                fontSize: 24,
+                ...(iconGradient ? ({ ["--orb-grad"]: iconGradient } as React.CSSProperties) : {}),
+              }}
+              role="img"
+              aria-label={iconLabel ?? "sport"}
+            >
+              {icon}
+            </span>
+          ) : null}
           <h1
             className="font-display tracking-tight"
             style={{

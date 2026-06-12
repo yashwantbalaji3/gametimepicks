@@ -7,14 +7,15 @@
 import { useMemo, useState } from "react";
 import type { PublicSuggestedCard } from "@/lib/normalize";
 import SuggestedCard from "@/components/ui/suggested-card";
+import { getSportIdentity } from "@/lib/sport-identity";
 
 const SPORTS = [
-  { key: "all", label: "All" },
-  { key: "mixed", label: "Mixed" },
-  { key: "world_cup", label: "World Cup" },
-  { key: "mlb", label: "MLB" },
-  { key: "nba", label: "NBA" },
-  { key: "ufc", label: "UFC" },
+  { key: "all", label: "All", icon: "" },
+  { key: "mixed", label: "Mixed", icon: getSportIdentity("mixed").icon },
+  { key: "world_cup", label: "World Cup", icon: getSportIdentity("world_cup").icon },
+  { key: "mlb", label: "MLB", icon: getSportIdentity("mlb").icon },
+  { key: "nba", label: "NBA", icon: getSportIdentity("nba").icon },
+  { key: "ufc", label: "UFC", icon: getSportIdentity("ufc").icon },
 ] as const;
 const RISKS = ["All", "Low", "Medium", "High", "Longshot"] as const;
 
@@ -63,13 +64,13 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
   );
 
   // Summary matrix: rows (All/Mixed/World Cup/MLB/NBA/UFC) × cols (Low/Medium/High/Longshot).
-  const MATRIX_ROWS: Array<{ key: string; label: string }> = [
+  const MATRIX_ROWS: Array<{ key: string; label: string; icon?: string }> = [
     { key: "all", label: "All" },
-    { key: "mixed", label: "Mixed" },
-    { key: "world_cup", label: "World Cup" },
-    { key: "mlb", label: "MLB" },
-    { key: "nba", label: "NBA" },
-    { key: "ufc", label: "UFC" },
+    { key: "mixed", label: "Mixed", icon: getSportIdentity("mixed").icon },
+    { key: "world_cup", label: "World Cup", icon: getSportIdentity("world_cup").icon },
+    { key: "mlb", label: "MLB", icon: getSportIdentity("mlb").icon },
+    { key: "nba", label: "NBA", icon: getSportIdentity("nba").icon },
+    { key: "ufc", label: "UFC", icon: getSportIdentity("ufc").icon },
   ];
   const MATRIX_COLS = ["Low", "Medium", "High", "Longshot"];
   const matchRow = (c: PublicSuggestedCard, key: string) =>
@@ -106,6 +107,7 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
                   <td className="px-3 py-1.5">
                     <button type="button" onClick={() => { setSport(row.key); setRisk("All"); setBankOnly(false); }}
                       className="text-left" style={{ color: sport === row.key ? "var(--vault-gold-bright)" : "var(--vault-text)", fontSize: 12, fontWeight: 600 }}>
+                      {row.icon ? <span aria-hidden style={{ marginRight: 5, fontSize: 11 }}>{row.icon}</span> : null}
                       {row.label}
                     </button>
                   </td>
@@ -137,6 +139,7 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
         {SPORTS.map((s) => (
           <Pill key={s.key} on={sport === s.key} onClick={() => setSport(s.key)}>
+            {s.icon ? <span aria-hidden style={{ marginRight: 5, fontSize: 11 }}>{s.icon}</span> : null}
             {s.label}
             {s.key !== "all" && counts[s.key] ? (
               <span className="ml-1.5 font-mono" style={{ fontSize: 10, opacity: 0.8 }}>{counts[s.key]}</span>

@@ -7,6 +7,7 @@
  * FAIL-CLOSED: nothing publishes until the readiness gates pass. No fake odds/props; no banned copy.
  */
 import fs from "node:fs";
+import { getSportIdentity } from "@/lib/sport-identity";
 import path from "node:path";
 
 import {
@@ -172,7 +173,7 @@ export default function UfcPage() {
 
   const resultsTab = (
     <div className="flex flex-col gap-4">
-      <SectionHeader eyebrow="Results" title="UFC track record" sub="Moneyline picks graded against settled fights — wins and losses both shown. The validated badge unlocks after a leakage-safe backtest threshold." />
+      <SectionHeader eyebrow="Results" title="UFC track record" sub="Moneyline picks graded against settled fights — wins and losses both shown. The validated badge appears only after a no-leakage backtest threshold is met." />
       {ops ? (
         <div className="rounded-[8px] px-4 py-4 flex flex-col gap-2" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
           <div className="flex items-center justify-between gap-2">
@@ -226,6 +227,9 @@ export default function UfcPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <SportOverviewHero
+        icon={getSportIdentity("ufc").icon}
+        iconGradient={getSportIdentity("ufc").gradient}
+        iconLabel={getSportIdentity("ufc").ballLabel}
         eyebrow="UFC · moneyline V1"
         sport="UFC"
         tagline="moneyline projections · fight card · validation"
@@ -234,12 +238,12 @@ export default function UfcPage() {
         statusCaption={` · ${eventName}`}
         matchupLine={ops?.nextCard?.eventDate ? `Next · ${eventName} · ${fmtDate(ops.nextCard.eventDate)}` : `Next · ${eventName}`}
         stats={heroStats}
-        accent="gold"
+        accent="ufc"
         ctas={[
           { href: "/picks", label: "View picks", primary: true },
           { href: "/methodology", label: "How it works" },
         ]}
-        framing="UFC V1 publishes moneyline only — win probabilities from real schedule, sportsbook lines, and fighter stats, with a separate validated badge that unlocks after a leakage-safe backtest. Method, distance, and round props are not offered yet because the current odds feed is moneyline (h2h) only. Educational, paper-only."
+        framing="UFC V1 publishes moneyline only — win probabilities from real schedule, sportsbook lines, and fighter stats, with a separate validated badge that appears only after a no-leakage backtest. Method, distance, and round props are not offered yet because the current odds feed is moneyline (h2h) only. Educational, paper-only."
       />
 
       <div className="mt-6">

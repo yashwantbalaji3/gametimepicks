@@ -73,6 +73,7 @@ import {
 } from "@/lib/results-breakdown";
 import { buildLearningSignalRows } from "@/lib/learning-signals";
 import { buildRiskSectionDrilldown } from "@/lib/results-drilldown";
+import YesterdaySummary from "@/components/yesterday-summary";
 
 export const metadata = {
   title: "Suggested parlay results · GameTime Picks",
@@ -181,6 +182,14 @@ export default function ResultsPage() {
     // reads better for dense parlay data. Cards inherit
     // `--gtp-card-dark` for elevated charcoal.
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+      {/* Latest settled day at a glance — official outcomes only (Bank Builder,
+         World Cup finals + picks, suggested cards, MLB record). */}
+      <div className="mb-5">
+        <YesterdaySummary
+          date={new Date(new Date(`${currentEtDate()}T12:00:00Z`).getTime() - 86400000).toISOString().slice(0, 10)}
+        />
+      </div>
+
       {/* Plain-English "how to read this page" — collapsed by default so it
          orients new users without adding clutter. Copy only. */}
       <details className="mb-4 rounded-[8px] px-4 py-3" style={{ background: "var(--gtp-card)", border: "1px solid var(--vault-rule)" }}>

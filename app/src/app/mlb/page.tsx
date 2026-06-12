@@ -8,6 +8,7 @@
  * data; lean/game counts come from the live board summary.
  */
 import Link from "next/link";
+import { getSportIdentity } from "@/lib/sport-identity";
 
 import {
   activeMlbDate,
@@ -267,6 +268,9 @@ export default function MlbLandingPage() {
       </div>
 
       <SportOverviewHero
+        icon={getSportIdentity("mlb").icon}
+        iconGradient={getSportIdentity("mlb").gradient}
+        iconLabel={getSportIdentity("mlb").ballLabel}
         eyebrow="MLB · today's slate"
         sport="MLB"
         tagline="projections · track record · power board"

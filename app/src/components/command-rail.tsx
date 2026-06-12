@@ -12,96 +12,69 @@
  * active-route logic (including legacy sport/parlay/about routes) so the
  * highlighted item matches the top nav exactly. No data/logic changes.
  */
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import BrandMark from "./brand-mark";
 
-// PR `feat/home-rail-path-cards` (2026-06-01) — the rail now reads in
-// plain, action-oriented language organised around the five clear user
-// paths, and splits the former single "Parlay Lab" entry into its two
-// real modes via the hash deep-links shipped in PR #223. `parlayMode`
-// marks the two Parlay Lab hash entries so the active-highlight can tell
-// them apart (pathname alone can't — both live on /parlay-lab).
+// June-12 IA restructure — the rail is organised around user intent
+// ("what do I want to do?"), not internal implementation routes:
+//   Today   → the daily loop (Today / Games / Picks / Build)
+//   Bankroll→ the money story (Bank Builder / Results)
+//   Sports  → the four sport hubs
+//   Learn   → trust + education (How it works / Methodology / About)
+// Old labels ("Straight Bets", "Suggested Parlays", "Sports & Events")
+// are gone; those routes stay reachable and fold into these active states.
 type RailItem = {
   href: string;
   label: string;
   glyph: string;
   group?: string;
-  parlayMode?: "suggested" | "build";
 };
 
 const ITEMS: RailItem[] = [
-  { href: "/", label: "Home", glyph: "▤", group: "Overview" },
-  { href: "/projections", label: "Straight Bets", glyph: "◷", group: "Today's picks" },
-  { href: "/parlay-lab/#suggested", label: "Suggested Parlays", glyph: "⊞", parlayMode: "suggested" },
-  { href: "/parlay-lab/#build", label: "Build a Parlay", glyph: "✎", parlayMode: "build" },
-  { href: "/bank-builder", label: "Bank Builder", glyph: "▰" },
-  { href: "/results", label: "Results", glyph: "✓", group: "Track record" },
-  { href: "/events", label: "Sports & Events", glyph: "◇", group: "More" },
+  { href: "/today", label: "Today", glyph: "▤", group: "Today" },
+  { href: "/games", label: "Games", glyph: "◷" },
+  { href: "/picks", label: "Picks", glyph: "⊞" },
+  { href: "/build", label: "Build", glyph: "✎" },
+  { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Bankroll" },
+  { href: "/results", label: "Results", glyph: "✓" },
+  { href: "/world-cup", label: "World Cup", glyph: "⚽", group: "Sports" },
+  { href: "/mlb", label: "MLB", glyph: "⚾" },
+  { href: "/nba", label: "NBA", glyph: "🏀" },
+  { href: "/ufc", label: "UFC", glyph: "🥊" },
+  { href: "/learn", label: "How it works", glyph: "✦", group: "Learn" },
+  { href: "/methodology", label: "Methodology", glyph: "◳" },
   { href: "/about", label: "About", glyph: "ⓘ" },
 ];
 
-/** True for the Parlay Lab route and the legacy parlay entry points the
- *  production nav also treats as Parlay Lab. */
-function isParlayPath(pathname: string): boolean {
-  return (
-    pathname === "/parlay-lab" ||
-    pathname.startsWith("/parlay-lab/") ||
-    pathname.endsWith("/parlays") ||
-    pathname.includes("/parlays/") ||
-    pathname === "/results/parlays" ||
-    pathname.startsWith("/results/parlays/")
-  );
-}
-
-/** Current URL hash (normalized, no leading '#'). Re-reads on hashchange
- *  AND on pathname change, since a cross-route Link to `/parlay-lab/#build`
- *  changes the path (not just the hash) and so won't fire `hashchange`. */
-function useCurrentHash(): string {
-  const pathname = usePathname() || "/";
-  const [hash, setHash] = useState("");
-  useEffect(() => {
-    const read = () =>
-      setHash((window.location.hash || "").replace(/^#/, "").trim().toLowerCase());
-    read();
-    window.addEventListener("hashchange", read);
-    return () => window.removeEventListener("hashchange", read);
-  }, [pathname]);
-  return hash;
-}
-
 function useIsActive() {
   const pathname = usePathname() || "/";
-  const hash = useCurrentHash();
   // Mirrors components/nav.tsx isActive so the rail highlight matches the
   // top nav on every route, including legacy entry points.
   return (item: RailItem): boolean => {
-    const { href, parlayMode } = item;
-    if (parlayMode) {
-      if (!isParlayPath(pathname)) return false;
-      // "Build a Parlay" only lights up on #build; "Suggested Parlays" is
-      // the canonical Parlay Lab entry, so it owns every other hash
-      // (no hash, #suggested, #bankroll, or an unknown/legacy value).
-      return parlayMode === "build" ? hash === "build" : hash !== "build";
-    }
-    if (href === "/") return pathname === "/" || pathname === "";
-    if (href === "/projections") {
+    const { href } = item;
+    if (href === "/today") return pathname === "/today" || pathname === "/" || pathname === "";
+    if (href === "/games") {
+      // Games folds in the schedule/board legacy entry points.
       return (
-        pathname === "/projections" ||
-        pathname.startsWith("/projections/") ||
-        pathname === "/nba" || pathname.startsWith("/nba/") ||
+        pathname === "/games" || pathname.startsWith("/games/") ||
+        pathname === "/events" || pathname.startsWith("/events/") ||
         pathname === "/board" || pathname.startsWith("/board/") ||
-        pathname === "/mlb" || pathname.startsWith("/mlb/") ||
-        pathname === "/nhl" || pathname.startsWith("/nhl/") ||
-        pathname === "/ipl" || pathname.startsWith("/ipl/") ||
-        pathname === "/world-cup" || pathname.startsWith("/world-cup/")
+        pathname === "/projections" || pathname.startsWith("/projections/")
       );
     }
-    if (href === "/about") {
+    if (href === "/build") {
       return (
-        pathname === "/about" || pathname.startsWith("/about/") ||
-        pathname === "/methodology" || pathname.startsWith("/methodology/") ||
+        pathname === "/build" || pathname.startsWith("/build/") ||
+        pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/")
+      );
+    }
+    if (href === "/results") {
+      return pathname === "/results" || (pathname.startsWith("/results/") && !pathname.startsWith("/results/model-audit"));
+    }
+    if (href === "/learn") {
+      return (
+        pathname === "/learn" || pathname.startsWith("/learn/") ||
         pathname === "/responsible-use" || pathname.startsWith("/responsible-use/") ||
         pathname === "/results/model-audit" || pathname.startsWith("/results/model-audit/")
       );
@@ -112,25 +85,6 @@ function useIsActive() {
 
 export default function CommandRail() {
   const isActive = useIsActive();
-  const pathname = usePathname() || "/";
-
-  // When a Parlay Lab hash item is clicked while already ON Parlay Lab,
-  // a Next.js <Link> updates the URL via the history API, which does NOT
-  // fire `hashchange` — so the page's mode and this rail's highlight would
-  // go stale. Set `location.hash` directly in that case (fires hashchange,
-  // which both surfaces already listen for). Cross-route clicks fall
-  // through to Link's normal SPA navigation, where the destination reads
-  // the hash on mount.
-  const onParlayItemClick = (
-    item: RailItem,
-    e: React.MouseEvent<HTMLAnchorElement>,
-  ) => {
-    if (!item.parlayMode || !isParlayPath(pathname)) return;
-    e.preventDefault();
-    if (window.location.hash.replace(/^#/, "") !== item.parlayMode) {
-      window.location.hash = item.parlayMode;
-    }
-  };
 
   return (
     <aside
@@ -166,7 +120,6 @@ export default function CommandRail() {
               )}
               <Link
                 href={item.href}
-                onClick={(e) => onParlayItemClick(item, e)}
                 aria-current={active ? "page" : undefined}
                 className="group flex items-center gap-3 px-3 py-2 rounded-[6px] transition-colors"
                 style={{
