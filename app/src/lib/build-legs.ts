@@ -14,6 +14,8 @@ export interface BuildLeg {
   sport: SportKey;
   sportLabel: string;
   gameId: string | number | null;
+  /** Human matchup label for the game-selector chips (e.g. "USA vs Paraguay", "HOU @ KC"). */
+  gameLabel?: string;
   label: string;
   sublabel: string;
   market: string;
@@ -43,6 +45,7 @@ export function buildWcLegs(projections: WcProjections | null, players: WcPlayer
     if (!p.parlayEligible || p.americanOdds == null) continue;
     legs.push({
       id: p.id, sport: "world_cup", sportLabel: "World Cup", gameId: p.matchId ?? null,
+      gameLabel: p.gameLabel,
       label: p.pickLabel, sublabel: `${p.gameLabel} · ${p.marketLabel}`,
       market: p.market, marketLabel: p.marketLabel, riskTier: p.riskTier ?? "Medium",
       americanOdds: p.americanOdds, prelineup: false, regulationOnly: true,
@@ -55,6 +58,7 @@ export function buildWcLegs(projections: WcProjections | null, players: WcPlayer
     const prelineup = !(p.lineupStatus ?? "").startsWith("confirmed");
     legs.push({
       id: p.id, sport: "world_cup", sportLabel: "World Cup", gameId: p.matchId ?? null,
+      gameLabel: p.player.team,
       label: `${p.player.name} · ${p.pickLabel}`, sublabel: `${p.player.team} · ${p.marketLabel}`,
       market: p.market, marketLabel: p.marketLabel, riskTier: p.riskTier ?? "Medium",
       americanOdds: p.americanOdds, photo: p.player.photo, prelineup, regulationOnly: true,
@@ -67,6 +71,7 @@ export function buildWcLegs(projections: WcProjections | null, players: WcPlayer
 
 type OptLeg = {
   sport?: string; gameId?: string | null; playerName?: string; displayName?: string; playerId?: number | string | null;
+  team?: string | null; opponent?: string | null;
   marketLabel?: string | null; market?: string; side?: string; line?: number | null; oddsForSide?: number | null;
 };
 type OptSlip = { legs?: OptLeg[] };
@@ -87,7 +92,9 @@ export function buildOptimizerLegs(slips: OptSlip[] | null | undefined): BuildLe
       if (seen.has(key)) continue;
       seen.set(key, {
         id: key.replace(/[^a-z0-9]+/gi, "_"), sport, sportLabel: SPORT_LABEL[sport],
-        gameId: l.gameId ?? null, label: `${who} · ${mkt} ${sideLine}`.trim(), sublabel: SPORT_LABEL[sport],
+        gameId: l.gameId ?? null,
+        gameLabel: l.team && l.opponent ? `${l.team} vs ${l.opponent}` : undefined,
+        label: `${who} · ${mkt} ${sideLine}`.trim(), sublabel: SPORT_LABEL[sport],
         // Official league-CDN headshot from the artifact's real playerId (see player-headshots.ts).
         photo: sport === "mlb" ? mlbHeadshotUrl(l.playerId) : sport === "nba" ? nbaHeadshotUrl(l.playerId) : null,
         market: l.market ?? mkt, marketLabel: mkt, riskTier: tierFromOdds(odds),

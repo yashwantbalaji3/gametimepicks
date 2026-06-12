@@ -150,6 +150,15 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
             {SPORTS.map((s) => <Pill key={s} on={sport === s} onClick={() => setSport(s)}>{SPORT_ICON[s] ? <span aria-hidden style={{ marginRight: 5, fontSize: 11 }}>{SPORT_ICON[s]}</span> : null}{SPORT_LABEL[s]}</Pill>)}
           </div>
+          {/* Game selector — appears when a single sport is chosen (step 1 of the flow). */}
+          {sport !== "All" ? (
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+              <Pill on={!gameFilter} onClick={() => setGameFilter(null)}>All games</Pill>
+              {[...new Map(pool.filter((l) => l.sport === sport && l.gameId != null && l.gameLabel).map((l) => [String(l.gameId), l.gameLabel as string])).entries()].map(([gid, glabel]) => (
+                <Pill key={gid} on={gameFilter === gid} onClick={() => setGameFilter(gid)}>{glabel}</Pill>
+              ))}
+            </div>
+          ) : null}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
             {RISKS.map((r) => <Pill key={r} on={risk === r} onClick={() => setRisk(r)}>{r}</Pill>)}
             <span className="mx-1" style={{ color: "var(--vault-rule)" }}>|</span>

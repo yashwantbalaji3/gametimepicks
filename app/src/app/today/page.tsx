@@ -18,6 +18,8 @@ import { resolveLadderStep } from "@/lib/bank-builder-ladder";
 import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
 import { normalizeWcCards, loadDailyMixedCards, type SportSummary } from "@/lib/normalize";
 import { loadWorldCupFlexLeg, loadOfficialStepCandidate } from "@/lib/world-cup-flex";
+import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
+import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
 import SuggestedCard from "@/components/ui/suggested-card";
 import SportCard from "@/components/ui/sport-card";
 import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
@@ -70,9 +72,10 @@ export default function TodayPage() {
   // re-render as a pending card. The spotlight Flex Card only shows alongside a live slate
   // when no official card cleared.
   const activeRung = bank ? resolveLadderStep(bank.currentBankrollUnits) : null;
+  const publishedCandidate = loadOfficialPublishedCandidate();
   const officialStep3 =
-    bank && activeRung ? loadOfficialStepCandidate(bank.currentBankrollUnits, activeRung.goal) : null;
-  const flexLeg = officialStep3 ? null : loadWorldCupFlexLeg();
+    publishedCandidate ? null : bank && activeRung ? loadOfficialStepCandidate(bank.currentBankrollUnits, activeRung.goal) : null;
+  const flexLeg = publishedCandidate || officialStep3 ? null : loadWorldCupFlexLeg();
   const bankrollLabel = bank
     ? `$${bank.currentBankrollUnits.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     : null;
@@ -196,7 +199,12 @@ export default function TodayPage() {
       <YesterdaySummary date={yesterday} />
 
       {/* Official Step-3 World Cup candidate (pending) — or the separate Flex Card when none */}
-      {officialStep3 ? (
+      {publishedCandidate ? (
+        <section>
+          <SectionHeader eyebrow={`Bank Builder · Step ${publishedCandidate.step}`} title="Official Step 4 candidate" sub="Pending result — paper-only. The ladder bankroll only changes after official settlement." />
+          <OfficialCandidateCard candidate={publishedCandidate} />
+        </section>
+      ) : officialStep3 ? (
         <section>
           <SectionHeader eyebrow={`Bank Builder · Step ${activeRung?.step ?? "—"}`} title="Official World Cup candidate" sub="Pending result — paper-only. The ladder bankroll only changes after the matches settle." />
           <OfficialStep3CandidateCard candidate={officialStep3} stepNumber={activeRung?.step ?? 3} />
