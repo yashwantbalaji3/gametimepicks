@@ -1,0 +1,79 @@
+/**
+ * OfficialStep3Candidate — the official Bank Builder Step-3 World Cup candidate at the lowered
+ * $1,400–$1,500+ target. PENDING result: it is shown as the official candidate but the ladder
+ * bankroll/ledger are NOT mutated until the games settle. Real data only; clear paper-only caveats.
+ */
+import { formatAmerican } from "@/lib/odds-math";
+import type { OfficialStep3Candidate } from "@/lib/world-cup-flex";
+
+function usd(n: number): string {
+  return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+export default function OfficialStep3CandidateCard({ candidate }: { candidate: OfficialStep3Candidate }) {
+  const c = candidate;
+  return (
+    <section
+      className="mt-5 overflow-hidden rounded-2xl"
+      style={{ border: "1px solid rgba(240,199,94,0.45)", background: "rgba(240,199,94,0.05)" }}
+      aria-label="Official Bank Builder Step 3 candidate"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3" style={{ borderBottom: "1px solid rgba(240,199,94,0.30)", background: "rgba(240,199,94,0.09)" }}>
+        <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)" }}>
+          Official Step 3 candidate · World Cup
+        </h2>
+        <span className="rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]" style={{ background: "rgba(240,199,94,0.18)", color: "var(--vault-gold-bright)" }}>
+          Pending result
+        </span>
+      </div>
+
+      <div className="px-5 py-4 flex flex-col gap-3">
+        {/* Top-line economics */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {[
+            { label: "Paper stake", value: usd(c.stake) },
+            { label: "Combined odds", value: formatAmerican(c.combinedAmericanOdds) },
+            { label: "Projected return", value: usd(c.projectedReturn), accent: "var(--vault-success)" },
+            { label: "Projected profit", value: `+${usd(c.projectedProfit)}` },
+          ].map((s) => (
+            <div key={s.label} className="rounded-[8px] px-3 py-2" style={{ background: "rgba(7,11,26,0.45)", border: "1px solid var(--vault-rule)" }}>
+              <div className="font-display tabular" style={{ color: s.accent ?? "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{s.value}</div>
+              <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        <p className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+          Target this step: {usd(c.targetMin)}–{usd(c.targetPreferred)}+ · stake locked to {usd(c.stake)} · combined model probability {Math.round(c.combinedModelProbability * 100)}%
+        </p>
+
+        {/* Legs */}
+        <div className="flex flex-col gap-1.5">
+          {c.legs.map((l, i) => (
+            <div key={i} className="rounded-[8px] px-3.5 py-2.5" style={{ background: "rgba(7,11,26,0.45)", border: "1px solid var(--vault-rule)" }}>
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <span className="font-semibold truncate" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{l.label} · {l.marketLabel}</span>
+                <span className="font-mono tabular shrink-0" style={{ color: "var(--vault-text)", fontSize: 13 }}>{formatAmerican(l.americanOdds)}</span>
+              </div>
+              <div className="mt-0.5 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+                {l.gameLabel}{l.bookmaker ? ` · ${l.bookmaker}` : ""} · model {Math.round(l.modelProbability * 100)}% · market {Math.round(l.marketProbability * 100)}% · edge {l.edgePct >= 0 ? "+" : ""}{l.edgePct.toFixed(1)}%{l.riskTier ? ` · ${l.riskTier}` : ""}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Caveats — honest, paper-only */}
+        <ul className="flex flex-col gap-1">
+          <li className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
+            · Two legs from different matches — no same-game correlation. Both legs are model-supported and market-supported favorites.
+          </li>
+          <li className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
+            · Combined model probability is {Math.round(c.combinedModelProbability * 100)}% — a two-leg parlay is closer to a coin flip than either single leg. This does not guarantee the outcome.
+          </li>
+          <li className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
+            · Paper-only Bank Builder review. 90-minute regulation only (Draw is a real outcome). The ladder bankroll only changes after the matches settle from official results.
+          </li>
+        </ul>
+      </div>
+    </section>
+  );
+}

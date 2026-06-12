@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { loadWorldCupFlexLeg, flexReturn } from "./world-cup-flex.ts";
+import { loadWorldCupFlexLeg, flexReturn, loadOfficialStep3Candidate } from "./world-cup-flex.ts";
 
 test("flexReturn computes paper return + profit ($728.76 @ -270 ≈ $998.67 / +$269.91)", () => {
   const { ret, profit } = flexReturn(728.76, -270);
@@ -28,4 +28,29 @@ test("Flex Card must NOT touch the official Bank Builder (bankroll $728.76, Step
   assert.equal(s.currentProgressionStep, 3);
   // Official ladder candidate stays pending — no published nextPick.
   assert.ok(s.nextPick == null || s.nextPick === undefined, "nextPick must be absent (pending)");
+});
+
+test("official Step-3 candidate, when present: 2 WC legs, real odds, >= $1,400, no correlation, stake locked", () => {
+  const c = loadOfficialStep3Candidate(728.76);
+  if (!c) return; // decline (null) is a valid outcome
+  assert.equal(c.legs.length, 2);
+  assert.equal(c.stake, 728.76);
+  assert.ok(c.projectedReturn >= 1400, `return ${c.projectedReturn} must hit the $1,400 floor`);
+  assert.equal(c.targetMin, 1400);
+  // Both legs real, model-favored, and from DIFFERENT matches (no same-game correlation)
+  for (const l of c.legs) {
+    assert.equal(typeof l.americanOdds, "number");
+    assert.ok(l.modelProbability >= 0.55, `leg model ${l.modelProbability}`);
+  }
+  assert.notEqual(String(c.legs[0].matchId), String(c.legs[1].matchId));
+  // Combined model prob is the product (honest parlay math), profit = return - stake
+  assert.ok(Math.abs(c.combinedModelProbability - c.legs[0].modelProbability * c.legs[1].modelProbability) < 1e-9);
+  assert.ok(Math.abs(c.projectedProfit - (c.projectedReturn - c.stake)) < 0.02);
+});
+
+test("official Step-3 candidate uses team markets only (no player props / no MLB)", () => {
+  const c = loadOfficialStep3Candidate(728.76);
+  if (!c) return;
+  const teamMarkets = new Set(["double_chance", "moneyline_90", "match_total_goals", "match_total_corners"]);
+  for (const l of c.legs) assert.ok(teamMarkets.has(l.market), `non-team market ${l.market}`);
 });

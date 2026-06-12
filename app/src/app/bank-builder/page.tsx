@@ -47,8 +47,9 @@ import {
   type BuilderSlipSelection,
 } from "@/lib/parlay-suggested";
 import { filterOfficialSuggestedSlips } from "@/lib/sport-capabilities";
-import { loadWorldCupFlexLeg } from "@/lib/world-cup-flex";
+import { loadWorldCupFlexLeg, loadOfficialStep3Candidate } from "@/lib/world-cup-flex";
 import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
+import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
 import { formatAmerican } from "@/lib/odds-math";
 import {
   legRecentFormLabel,
@@ -166,8 +167,11 @@ export default function BankBuilderPage() {
   // render an honest empty state when nothing prices into the band.
   const builderPick = selectPlus100BuilderSlip(pool);
 
-  // World Cup Flex Card — a separate spotlight leg (real data), NOT the ladder candidate.
-  const flexLeg = loadWorldCupFlexLeg();
+  // Official Step-3 World Cup candidate (lowered $1,400–$1,500+ target). Pending — never settles
+  // the ledger here. When present it IS the official candidate, so the separate Flex Card (which
+  // spotlights one of its legs) is hidden to avoid a contradictory "separate vs official" state.
+  const officialStep3 = loadOfficialStep3Candidate(currentBankroll);
+  const flexLeg = officialStep3 ? null : loadWorldCupFlexLeg();
   // PR 4: transparent eligibility diagnosis — when no card qualifies, show the
   // EXACT honest reason (no pending cards / none near +100 / etc.), never a
   // "nothing good enough to win" framing.
@@ -269,7 +273,11 @@ export default function BankBuilderPage() {
               </span>
               <span className="ml-auto text-[11.5px] text-zinc-500">
                 Step-{activeStep.step} candidate stakes {formatLadderUsdPrecise(pubLedger.nextStakeUnits)} ·{" "}
-                {pubLedger.nextPickStatus === "pending" ? "pending — no card cleared today's gates" : pubLedger.nextPickStatus}
+                {officialStep3
+                  ? "official World Cup candidate selected · pending result (see below)"
+                  : pubLedger.nextPickStatus === "pending"
+                    ? "pending — no card cleared today's gates"
+                    : pubLedger.nextPickStatus}
               </span>
             </li>
           </ol>
@@ -376,8 +384,12 @@ export default function BankBuilderPage() {
         />
       </div>
 
-      {/* ---- World Cup Flex Card — a SEPARATE spotlight leg, explicitly NOT the
-          official Step-3 ladder candidate. Real data, never mutates the ladder. */}
+      {/* ---- Official Step-3 World Cup candidate (lowered $1,400–$1,500+ target).
+          Pending result — does NOT settle the ladder until the matches finish. */}
+      {officialStep3 ? <OfficialStep3CandidateCard candidate={officialStep3} /> : null}
+
+      {/* ---- World Cup Flex Card — a SEPARATE spotlight leg, only shown when there is
+          NO official candidate (otherwise its leg lives inside the official card above). */}
       {flexLeg ? <WorldCupFlexCard leg={flexLeg} exampleStake={currentBankroll} /> : null}
 
       {/* Featured NBA Finals same-game card — settled from the official box

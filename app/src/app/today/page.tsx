@@ -16,10 +16,11 @@ import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { loadBankBuilderSummary } from "@/lib/data-bank-builder";
 import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
 import { normalizeWcCards, loadDailyMixedCards, type SportSummary } from "@/lib/normalize";
-import { loadWorldCupFlexLeg } from "@/lib/world-cup-flex";
+import { loadWorldCupFlexLeg, loadOfficialStep3Candidate } from "@/lib/world-cup-flex";
 import SuggestedCard from "@/components/ui/suggested-card";
 import SportCard from "@/components/ui/sport-card";
 import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
+import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
 import SectionHeader from "@/components/section-header";
 
 export const metadata = {
@@ -56,7 +57,10 @@ export default function TodayPage() {
   const activeSports = (wcLive ? 1 : 0) + (mlbLive ? 1 : 0);
   const mixedCards = loadDailyMixedCards();
   const topCards = [...mixedCards, ...normalizeWcCards(wcCards)].slice(0, 4);
-  const flexLeg = loadWorldCupFlexLeg();
+  // Official Step-3 candidate stake is the public ladder bankroll ($728.76), not the internal
+  // summary figure — kept consistent with /bank-builder so the same card surfaces on both.
+  const officialStep3 = loadOfficialStep3Candidate(728.76);
+  const flexLeg = officialStep3 ? null : loadWorldCupFlexLeg();
   const sportSummaries: SportSummary[] = [
     {
       sport: "world_cup", label: "World Cup", href: "/world-cup", accent: "var(--vault-gold-bright)", live: wcLive,
@@ -173,8 +177,13 @@ export default function TodayPage() {
         </section>
       )}
 
-      {/* World Cup Flex Card — separate spotlight leg, NOT the official ladder candidate */}
-      {flexLeg ? (
+      {/* Official Step-3 World Cup candidate (pending) — or the separate Flex Card when none */}
+      {officialStep3 ? (
+        <section>
+          <SectionHeader eyebrow="Bank Builder · Step 3" title="Official World Cup candidate" sub="Pending result — paper-only. The ladder bankroll only changes after the matches settle." />
+          <OfficialStep3CandidateCard candidate={officialStep3} />
+        </section>
+      ) : flexLeg ? (
         <section>
           <WorldCupFlexCard leg={flexLeg} exampleStake={bank?.currentBankrollUnits ?? 728.76} />
         </section>
