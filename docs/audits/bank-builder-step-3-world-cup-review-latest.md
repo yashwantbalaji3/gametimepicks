@@ -50,3 +50,8 @@ No model-only or pending-market leg was considered.
 ## Outcome
 Decline. Bank Builder Step 3 stays **pending at $728.76**. A candidate publishes only when a
 genuinely high-confidence card that fits the Step-3 window clears — not before.
+
+## UI cleanup (2026-06-11)
+The /bank-builder page now prioritizes the $728.76 Step-3 ladder and moves the separate +100
+"$100 educational builder" into a clearly-labeled, visually-distinct section (PR #446). No
+bankroll/step/ledger/pending change.
