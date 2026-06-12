@@ -12,6 +12,7 @@ import {
   loadWorldCupMarketAvailability,
 } from "@/lib/world-cup/projections";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
+import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
 import {
   normalizeWcProjections,
@@ -139,7 +140,7 @@ function worldCupDetails(): PublicGameDetail[] {
 function boardDetails(
   sport: "mlb" | "nba",
   date: string,
-  games: Array<{ gamePk?: number | string | null; gameId?: string | null; awayTeamAbbr?: string | null; homeTeamAbbr?: string | null; venue?: string | null }>,
+  games: Array<{ gamePk?: number | string | null; gameId?: string | null; awayTeamAbbr?: string | null; homeTeamAbbr?: string | null; homeTeamId?: number | null; awayTeamId?: number | null; venue?: string | null }>,
   props: PublicProjection[],
   gameIdForBuild: (g: { gamePk?: number | string | null; gameId?: string | null }) => string | null,
 ): PublicGameDetail[] {
@@ -159,6 +160,8 @@ function boardDetails(
       date,
       homeTeam: home,
       awayTeam: away,
+      homeLogo: sport === "mlb" ? mlbTeamLogoUrl(g.homeTeamId) : null,
+      awayLogo: sport === "mlb" ? mlbTeamLogoUrl(g.awayTeamId) : null,
       venue: g.venue ?? undefined,
       teamProjections: [],
       playerProps,

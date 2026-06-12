@@ -23,3 +23,13 @@ export function nbaHeadshotUrl(playerId: number | string | null | undefined): st
   if (playerId == null || playerId === "") return null;
   return `https://cdn.nba.com/headshots/nba/latest/260x190/${playerId}.png`;
 }
+
+/**
+ * Official MLB team logo (mlbstatic CDN) from a real MLB Stats API team id.
+ * Same official-source family as the player headshots — never a scraped/fabricated
+ * mark. Callers keep a monogram fallback for rows without an id.
+ */
+export function mlbTeamLogoUrl(teamId: number | string | null | undefined): string | null {
+  if (teamId == null || teamId === "") return null;
+  return `https://www.mlbstatic.com/team-logos/${teamId}.svg`;
+}
