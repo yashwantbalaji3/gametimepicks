@@ -30,6 +30,7 @@ import {
 import {
   loadWorldCupProjections,
   loadWorldCupParlays,
+  loadWorldCupParlaysForDate,
   loadWorldCupSettlement,
   worldCupMethodologyReview,
   loadWorldCupTeamStrengthSummary,
@@ -356,7 +357,10 @@ export default function WorldCupLandingPage() {
     </div>
   );
 
-  const settledCards = (parlays?.cards ?? []).filter((c) => c.result && c.result !== "pending");
+  // Settled cards come from the SETTLED slate's dated parlays artifact (today's live
+  // parlays are unsettled by definition); falls back to the live artifact.
+  const settledParlays = settlement ? loadWorldCupParlaysForDate(settlement.date) ?? parlays : parlays;
+  const settledCards = (settledParlays?.cards ?? []).filter((c) => c.result && c.result !== "pending");
   const resultsTab = (
     <div className="flex flex-col gap-4">
       <SectionHeader eyebrow="Results" title="World Cup settlement" sub="Official 90-minute regulation grading. Soccer settles on the FT regulation score — Draw is a real outcome; extra time and penalties never count for these markets." />

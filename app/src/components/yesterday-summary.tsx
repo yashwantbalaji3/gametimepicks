@@ -13,8 +13,8 @@ import Link from "next/link";
 
 import { getSportIdentity } from "@/lib/sport-identity";
 import { loadPublicBankBuilderLedger } from "@/lib/data-bank-builder";
-import { loadWorldCupSettlement, loadWorldCupParlays } from "@/lib/world-cup/projections";
-import { loadDailyMixedCards } from "@/lib/normalize";
+import type { WcSettlement, WcParlays } from "@/lib/world-cup/projections";
+import type { PublicSuggestedCard } from "@/lib/normalize";
 
 function readJson<T>(rel: string): T | null {
   try {
@@ -56,9 +56,10 @@ export default function YesterdaySummary({ date }: { date: string }) {
     });
   }
 
-  // World Cup — official finals + graded picks for the date.
-  const wc = loadWorldCupSettlement();
-  if (wc && wc.date === date && wc.graded.length > 0) {
+  // World Cup — official finals + graded picks for the date (DATED artifact, so a new
+  // day's empty latest.json never erases settled history).
+  const wc = readJson<WcSettlement>(`world-cup/settlement/${date}.json`);
+  if (wc && wc.date === date && (wc.graded ?? []).length > 0) {
     const w = wc.graded.filter((g) => g.outcome === "win").length;
     const l = wc.graded.filter((g) => g.outcome === "loss").length;
     const finals = (wc.finals ?? []).map((f) => `${f.match.split(" vs ")[0]} ${f.regulationScore}`).join(" · ");
@@ -73,9 +74,13 @@ export default function YesterdaySummary({ date }: { date: string }) {
     });
   }
 
-  // Suggested cards (WC singles + mixed) settled on the date.
-  const wcCards = (loadWorldCupParlays()?.cards ?? []).filter((c) => c.result && c.result !== "pending");
-  const mixed = loadDailyMixedCards().filter((c) => c.date === date && c.result && c.result !== "pending");
+  // Suggested cards (WC singles + mixed) settled on the date — dated artifacts.
+  const wcCards = (readJson<WcParlays>(`world-cup/parlays/${date}.json`)?.cards ?? []).filter(
+    (c) => c.result && c.result !== "pending",
+  );
+  const mixed = (readJson<{ cards?: PublicSuggestedCard[] }>(`daily/cards/${date}.json`)?.cards ?? []).filter(
+    (c) => c.result && c.result !== "pending",
+  );
   const settledCards = [...wcCards, ...mixed];
   if (settledCards.length > 0) {
     const won = settledCards.filter((c) => c.result === "won").length;

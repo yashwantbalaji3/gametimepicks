@@ -186,10 +186,35 @@ export interface WcSettlement {
 }
 
 /** The World Cup settlement artifact (official 90-minute grading), or null before
- *  any match has settled. */
+ *  any match has settled. When `latest.json` is an empty shell for a not-yet-played
+ *  slate (the nightly settle run rewrites it each day), falls back to the newest
+ *  DATED artifact that actually carries grades — settled history never vanishes
+ *  from the UI just because a new day started. */
 export function loadWorldCupSettlement(): WcSettlement | null {
-  const s = read<WcSettlement>("settlement/latest.json");
-  return s && Array.isArray(s.graded) && s.graded.length > 0 ? s : null;
+  const latest = read<WcSettlement>("settlement/latest.json");
+  if (latest && Array.isArray(latest.graded) && latest.graded.length > 0) return latest;
+  try {
+    const dir = path.join(process.cwd(), "public", "data", "world-cup", "settlement");
+    const dated = fs
+      .readdirSync(dir)
+      .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+      .sort()
+      .reverse();
+    for (const f of dated) {
+      const s = read<WcSettlement>(`settlement/${f}`);
+      if (s && Array.isArray(s.graded) && s.graded.length > 0) return s;
+    }
+  } catch {
+    /* fall through */
+  }
+  return null;
+}
+
+/** The suggested-parlays artifact for a SPECIFIC date (e.g. the settled slate the
+ *  Results tab is showing), or null. */
+export function loadWorldCupParlaysForDate(date: string): WcParlays | null {
+  const p = read<WcParlays>(`parlays/${date}.json`);
+  return p && Array.isArray(p.cards) && p.cards.length > 0 ? p : null;
 }
 
 export interface WcPlayerProjection {
