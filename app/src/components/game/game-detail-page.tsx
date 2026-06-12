@@ -111,9 +111,9 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
 
   const tabs: ShellTab[] = [
     { key: "overview", label: "Overview", content: overviewTab },
-    { key: "projections", label: detail.sport === "world_cup" ? "Team Projections" : "Projections", badge: detail.teamProjections.length || null, content: projectionsTab },
-    { key: "player-props", label: "Player Props", badge: detail.playerProps.length || null, content: playerPropsTab },
-    { key: "cards", label: "Suggested Cards", badge: detail.suggestedCards.length || null, content: cardsTab },
+    { key: "projections", label: "Team & game props", badge: detail.teamProjections.length || null, content: projectionsTab },
+    { key: "player-props", label: "Player props", badge: detail.playerProps.length || null, content: playerPropsTab },
+    { key: "cards", label: "Suggested cards", badge: detail.suggestedCards.length || null, content: cardsTab },
     { key: "markets", label: "Markets", content: marketsTab },
   ];
 

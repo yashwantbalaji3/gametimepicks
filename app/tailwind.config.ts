@@ -40,6 +40,10 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-display)", "system-ui", "sans-serif"],
+        // `font-display` (used on headings, card titles, odds, and labels across
+        // the app) now resolves to the premium geometric headline face; body text
+        // without the class stays on Geist via `sans`.
+        display: ["var(--font-headline)", "var(--font-display)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       letterSpacing: {

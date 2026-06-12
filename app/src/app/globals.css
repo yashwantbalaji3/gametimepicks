@@ -7,10 +7,13 @@
    We use Geist (sharp, broadcast-feeling) for display and JetBrains Mono
    for stats. Geist's tabular numerals make stat rows align perfectly.
 ============================================================================ */
-@import url("https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
 
 :root {
   --font-display: "Geist", system-ui, sans-serif;
+  /* Headline face — Space Grotesk gives heros/section titles a premium
+     geometric character; body stays on Geist for long-form readability. */
+  --font-headline: "Space Grotesk", "Geist", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* Layout */
@@ -18,9 +21,9 @@
   --gutter: 24px;
 
   /* Core palette */
-  --bg: #06070A;
-  --surface: #0B0D12;
-  --surface-elevated: #13161D;
+  --bg: #0A0705;
+  --surface: #100B08;
+  --surface-elevated: #1A130D;
   --border: rgba(255, 255, 255, 0.06);
   --border-strong: rgba(255, 255, 255, 0.10);
 
@@ -49,13 +52,13 @@
   /* v4 rebrand: graphite near-black base (was flat navy #070B1A) — the navy +
      gold-tint combination read muddy; graphite lets cream text + sport accents
      carry the energy while gold stays a premium highlight. */
-  --vault-bg: #0A0B10;
-  --vault-panel: #13151D;
-  --vault-panel-elevated: #1B1E29;
-  --vault-panel-hover: #222633;
-  --vault-border: rgba(212, 175, 55, 0.14);
-  --vault-border-strong: rgba(212, 175, 55, 0.32);
-  --vault-border-active: rgba(212, 175, 55, 0.65);
+  --vault-bg: #0C0806;
+  --vault-panel: #17110D;
+  --vault-panel-elevated: #211812;
+  --vault-panel-hover: #2B201A;
+  --vault-border: rgba(255, 120, 60, 0.16);
+  --vault-border-strong: rgba(255, 120, 60, 0.34);
+  --vault-border-active: rgba(255, 120, 60, 0.72);
 
   --vault-gold: #D4AF37;
   --vault-gold-bright: #F0C75E;
@@ -114,7 +117,7 @@
   --gtp-bank-lava: linear-gradient(90deg, #B3261E 0%, #FF6A2A 45%, #FFB13C 80%, #F0C75E 100%);
 
   /* Phase 7B-7 — refinement tokens for spacing, dividers, focus */
-  --vault-rule: rgba(212, 175, 55, 0.08);     /* internal section dividers */
+  --vault-rule: rgba(255, 120, 60, 0.10);     /* internal section dividers */
   --vault-shadow-soft: 0 1px 0 rgba(212, 175, 55, 0.04);
   --vault-focus-ring: 0 0 0 1px var(--vault-gold), 0 0 0 4px rgba(212, 175, 55, 0.18);
 
@@ -165,21 +168,21 @@
      ========================================================================== */
 
   /* Shell surfaces — dark premium */
-  --gtp-shell:           #0C0D13;
-  --gtp-shell-elevated:  #131830;
-  --gtp-shell-rail:      #0F1326;
+  --gtp-shell:           #0D0907;
+  --gtp-shell-elevated:  #1B130E;
+  --gtp-shell-rail:      #120D0A;
   --gtp-shell-overlay:   rgba(11, 15, 31, 0.92);
-  --gtp-shell-border:    rgba(212, 175, 55, 0.18);
-  --gtp-shell-rule:      rgba(212, 175, 55, 0.10);
+  --gtp-shell-border:    rgba(255, 120, 60, 0.18);
+  --gtp-shell-rule:      rgba(255, 120, 60, 0.12);
 
   /* Default content surfaces — DARK (elevated charcoal cards on the
      deep navy shell). Overridden inside `.gtp-canvas` to light cream
      for any future page that opts into a light reading surface. */
-  --gtp-card:            #191C26;
-  --gtp-card-elevated:   #1B2349;
-  --gtp-card-sunken:     #101218;
-  --gtp-card-border:     rgba(212, 175, 55, 0.16);
-  --gtp-card-border-strong: rgba(212, 175, 55, 0.32);
+  --gtp-card:            #1C140E;
+  --gtp-card-elevated:   #241A12;
+  --gtp-card-sunken:     #130D0A;
+  --gtp-card-border:     rgba(255, 120, 60, 0.16);
+  --gtp-card-border-strong: rgba(255, 120, 60, 0.32);
   --gtp-card-shadow:     0 1px 0 rgba(255, 255, 255, 0.03) inset,
                          0 6px 18px -8px rgba(0, 0, 0, 0.5);
 
@@ -720,21 +723,21 @@ body {
    headings to step away from the broadcast 44/72 ramp toward a more
    restrained, modern editorial feel. Sentence-case, not all-caps. */
 .vault-display-h1 {
-  font-family: var(--font-display);
+  font-family: var(--font-headline);
   font-size: clamp(40px, 7vw, 76px);
   line-height: 0.97;
   letter-spacing: -0.035em;
   font-weight: 600;
 }
 .vault-display-h2 {
-  font-family: var(--font-display);
+  font-family: var(--font-headline);
   font-size: clamp(30px, 4.5vw, 48px);
   line-height: 1.02;
   letter-spacing: -0.03em;
   font-weight: 600;
 }
 .vault-display-h3 {
-  font-family: var(--font-display);
+  font-family: var(--font-headline);
   font-size: clamp(22px, 3vw, 32px);
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -745,7 +748,7 @@ body {
    for primary section titles. Sentence-case, slightly emphasized,
    pairs with vault-quiet-label kicker above. Keep .eyebrow for legacy. */
 .vault-section-heading {
-  font-family: var(--font-display);
+  font-family: var(--font-headline);
   font-size: 22px;
   line-height: 1.2;
   letter-spacing: -0.02em;
