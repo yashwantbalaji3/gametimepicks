@@ -319,7 +319,11 @@ export default function WorldCupLandingPage() {
             </section>
           ))
       ) : (
-        <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>Player props appear once the books post player-prop odds + the listed-player universe for today's matches.</p>
+        <div className="rounded-[10px] px-5 py-6 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+          <span aria-hidden style={{ fontSize: 26 }}>⚽</span>
+          <p className="mt-2" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>Books haven&apos;t posted player props yet</p>
+          <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>Player views appear once sportsbooks post player-prop odds + the listed-player universe for today&apos;s matches. Team markets are live now.</p>
+        </div>
       )}
     </div>
   );

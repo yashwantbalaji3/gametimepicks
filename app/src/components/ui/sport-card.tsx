@@ -35,7 +35,7 @@ export default function SportCard({ summary }: { summary: SportSummary }) {
         {summary.stats.map((s) => (
           <div key={s.label} className="flex flex-col">
             <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 700 }}>{s.value}</span>
-            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{s.label}</span>
+            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{s.label}</span>
           </div>
         ))}
       </div>

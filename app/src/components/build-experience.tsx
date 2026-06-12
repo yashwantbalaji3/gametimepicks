@@ -85,7 +85,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
   const betslipCard = (
     <div className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2">
-        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Your card</span>
+        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>3 · Your card &amp; paper stake</span>
         <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{selected.length} leg{selected.length === 1 ? "" : "s"}</span>
       </div>
       {selected.length === 0 ? (
@@ -134,6 +134,9 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
       {/* Leg pool */}
       <div className="lg:col-span-2 flex flex-col gap-3">
         <div className="flex flex-col gap-2">
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>
+            1 · Choose a sport or game &nbsp;→&nbsp; 2 · Add eligible legs
+          </span>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team or player…"
             className="rounded-[8px] px-3 py-2"
             style={{ background: "rgba(7,11,26,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
@@ -172,6 +175,11 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
             return (
               <div key={l.id} className="flex items-center gap-2.5 rounded-[7px] px-3 py-2 min-w-0"
                 style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
+                {!l.photo ? (
+                  <span className="gtp-sport-orb shrink-0" style={{ width: 22, height: 22, fontSize: 12, ["--orb-grad" as string]: getSportIdentity(l.sport).gradient }} role="img" aria-label={getSportIdentity(l.sport).label}>
+                    {getSportIdentity(l.sport).icon}
+                  </span>
+                ) : null}
                 {l.photo ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={l.photo} alt="" width={28} height={28} className="rounded-full shrink-0" style={{ objectFit: "cover" }} />
@@ -217,7 +225,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
           <div className="fixed inset-0 z-50 flex flex-col justify-end" style={{ background: "rgba(0,0,0,0.6)" }} onClick={() => setSlipOpen(false)}>
             <div className="rounded-t-[16px] max-h-[82vh] overflow-y-auto px-3 pb-6 pt-3" onClick={(e) => e.stopPropagation()} style={{ background: "var(--vault-bg, #0b0f1f)", borderTop: "1px solid var(--vault-border-strong)" }}>
               <div className="flex items-center justify-between gap-2 mb-2 px-1">
-                <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Your card</span>
+                <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>3 · Your card &amp; paper stake</span>
                 <button type="button" onClick={() => setSlipOpen(false)} className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>Close ✕</button>
               </div>
               {betslipCard}

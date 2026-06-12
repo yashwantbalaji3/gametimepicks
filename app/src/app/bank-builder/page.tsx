@@ -80,8 +80,38 @@ export default function BankBuilderPage() {
             eyebrow="Paper ladder · current run"
             title="Bank Builder"
             subMaxWidth={560}
-            sub="A paper ladder tracking the current run — five steps from $100 toward $10,000, one card per step. Paper-only; we do not take real money."
+            sub={`A ${recordLabel} paper run — ${hits.length} steps cleared from $100 toward the $10,000 crown, one card per step. Paper-only; we do not take real money.`}
           />
+        </div>
+
+        {/* Flagship run strip — every value is the real settled ledger. */}
+        <div className="relative mt-4 flex flex-col gap-2.5">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase tracking-[0.1em]" style={{ color: "#6EE7A8", background: "rgba(110,231,168,0.12)", border: "1px solid rgba(110,231,168,0.35)" }}>
+              {hits.length} wins cleared · {recordLabel}
+            </span>
+            {hits.map((h) => (
+              <span key={h.step} className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(7,11,26,0.45)" }}>
+                <span aria-hidden>{getSportIdentity(h.sport).icon}</span>
+                Step {h.step} · {formatLadderUsdPrecise(h.bankrollAfter)} <span style={{ color: "#6EE7A8" }}>✓</span>
+              </span>
+            ))}
+            <span className="gtp-active-glow rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", background: "rgba(240,199,94,0.10)" }}>
+              Step {activeStep.step} · next decision pending
+            </span>
+          </div>
+          {/* $100 → $10,000 progress meter (linear share of the crown). */}
+          <div className="flex items-center gap-2.5">
+            <span className="font-mono shrink-0 text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>$100</span>
+            <div className="gtp-meter-track h-2.5 flex-1" role="img" aria-label={`Paper bankroll ${formatLadderUsdPrecise(currentBankroll)} of the $10,000 crown`}>
+              <div className="gtp-meter-fill" style={{ width: `${Math.min(100, Math.max(2, (currentBankroll / 10000) * 100))}%` }} />
+              <div aria-hidden className="gtp-meter-shimmer" />
+            </div>
+            <span className="font-mono shrink-0 text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>$10,000</span>
+          </div>
+          <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>
+            {formatLadderUsdPrecise(currentBankroll)} — {Math.round((currentBankroll / 10000) * 100)}% of the crown
+          </span>
         </div>
       </section>
       <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
