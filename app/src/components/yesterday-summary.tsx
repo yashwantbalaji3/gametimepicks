@@ -135,7 +135,7 @@ export default function YesterdaySummary({ date }: { date: string }) {
               key={t.key}
               href={t.href}
               className="gtp-fade-up gtp-card-hover flex items-center gap-2.5 rounded-[10px] px-3.5 py-3"
-              style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none", animationDelay: `${i * 60}ms` }}
+              style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none", animationDelay: `${i * 60}ms` }}
             >
               <span
                 className="gtp-sport-orb shrink-0"
@@ -146,9 +146,9 @@ export default function YesterdaySummary({ date }: { date: string }) {
                 {id.icon}
               </span>
               <span className="flex flex-col min-w-0">
-                <span className="font-mono uppercase tracking-[0.08em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{t.title}</span>
+                <span className="font-mono uppercase tracking-[0.08em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{t.title}</span>
                 <span className="font-display tabular" style={{ color: toneColor, fontSize: 15, fontWeight: 700 }}>{t.value}</span>
-                <span className="font-mono truncate" style={{ color: "var(--vault-text-mute)", fontSize: 9.5 }}>{t.sub}</span>
+                <span className="font-mono truncate" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>{t.sub}</span>
               </span>
             </Link>
           );

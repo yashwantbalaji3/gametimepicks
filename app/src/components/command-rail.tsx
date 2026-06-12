@@ -92,7 +92,7 @@ export default function CommandRail() {
       className="gtp-command-rail hidden lg:flex fixed inset-y-0 left-0 z-30 flex-col"
       style={{
         width: "var(--gtp-rail-w, 232px)",
-        background: "rgba(7, 11, 26, 0.94)",
+        background: "rgba(26, 16, 11, 0.94)",
         borderRight: "1px solid var(--vault-border)",
         backdropFilter: "blur(12px)",
       }}
@@ -113,7 +113,7 @@ export default function CommandRail() {
               {item.group && (
                 <span
                   className="px-3 pt-4 pb-1 font-mono uppercase tracking-[0.18em]"
-                  style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}
+                  style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
                 >
                   {item.group}
                 </span>
@@ -142,7 +142,7 @@ export default function CommandRail() {
 
       <div
         className="px-5 py-4 font-mono"
-        style={{ borderTop: "1px solid var(--vault-rule)", color: "var(--vault-text-faint)", fontSize: 9.5 }}
+        style={{ borderTop: "1px solid var(--vault-rule)", color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         Educational analytics · paper only
       </div>

@@ -78,7 +78,7 @@ export default function BrandMark({
           <span
             className="font-mono tracking-[0.18em] uppercase"
             style={{
-              fontSize: 9,
+              fontSize: 10,
               color: "var(--vault-text-faint)",
               letterSpacing: "0.18em",
             }}
@@ -117,7 +117,7 @@ export default function BrandMark({
             <span
               className="ml-2 font-mono tracking-[0.18em] uppercase"
               style={{
-                fontSize: 9,
+                fontSize: 10,
                 color: "var(--vault-text-faint)",
                 letterSpacing: "0.18em",
               }}

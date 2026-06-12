@@ -63,7 +63,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
         aria-label="Top clean MLB leans"
         className="mt-2 rounded-[6px] px-4 py-4 text-[12px]"
         style={{
-          background: "rgba(7, 11, 26, 0.5)",
+          background: "rgba(26, 16, 11, 0.5)",
           border: "1px solid var(--vault-border)",
           color: "var(--vault-text-mute)",
         }}
@@ -123,7 +123,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
                     : "rgba(240, 199, 94, 0.25)"
                 }`,
                 background:
-                  "linear-gradient(180deg, rgba(14, 21, 48, 0.55) 0%, rgba(7, 11, 26, 0.62) 100%)",
+                  "linear-gradient(180deg, rgba(14, 21, 48, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
                 scrollMarginTop: 80,
               }}
               aria-label={`Jump to ${lean.playerName} ${mlbMarketLabel(lean.marketKey)} ${lean.lean} ${lean.line}`}
@@ -158,7 +158,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
                     color: isHigh
                       ? "var(--vault-success)"
                       : "var(--vault-gold-bright)",
-                    fontSize: 9,
+                    fontSize: 10,
                     letterSpacing: "0.14em",
                     textTransform: "uppercase",
                     background: isHigh
@@ -179,7 +179,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
               <div className="mt-2 flex items-center justify-between gap-2 text-[11px] font-mono">
                 <span style={{ color: "var(--vault-text-mute)" }}>
                   <span
-                    style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                    style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
                     className="uppercase tracking-[0.12em] mr-1"
                   >
                     {mlbMarketLabel(lean.marketKey)}

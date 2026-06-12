@@ -71,7 +71,7 @@ export default function BankBuilderShareCard({
         style={{
           maxWidth: 620,
           background:
-            "radial-gradient(120% 90% at 50% 0%, rgba(20,28,54,0.96), rgba(7,11,26,0.98))",
+            "radial-gradient(120% 90% at 50% 0%, rgba(20,28,54,0.96), rgba(26, 16, 11,0.98))",
           border: "1px solid var(--vault-gold-dim)",
           boxShadow: "0 0 40px rgba(0,0,0,0.45)",
         }}
@@ -96,7 +96,7 @@ export default function BankBuilderShareCard({
             <div className="flex flex-col items-end">
               <span
                 className="font-mono uppercase tracking-[0.14em]"
-                style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}
+                style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
               >
                 Paper bankroll
               </span>
@@ -116,7 +116,7 @@ export default function BankBuilderShareCard({
               style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.3)" }}
             >
               <div className="flex items-baseline justify-between gap-2">
-                <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                   Last slip · {lastSlip.dateLabel}
                 </span>
                 <span className="font-semibold tabular-nums" style={{ color: "#6ee7b7", fontSize: 14 }}>
@@ -235,7 +235,7 @@ export default function BankBuilderShareCard({
                   {isActive && (
                     <span
                       className="font-mono uppercase tracking-[0.1em]"
-                      style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}
+                      style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
                     >
                       ← here
                     </span>

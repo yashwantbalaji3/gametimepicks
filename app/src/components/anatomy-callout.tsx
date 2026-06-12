@@ -272,7 +272,7 @@ function Cell({
       <div
         className="font-mono"
         style={{
-          fontSize: 9,
+          fontSize: 10,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
           color: "var(--vault-text-faint)",

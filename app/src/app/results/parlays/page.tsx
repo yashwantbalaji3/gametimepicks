@@ -143,7 +143,7 @@ export default function ResultsParlaysPage() {
         <section
           className="mt-8 rounded-[6px] px-4 py-4"
           style={{
-            background: "rgba(7, 11, 26, 0.45)",
+            background: "rgba(26, 16, 11, 0.45)",
             border: "1px solid var(--vault-border)",
           }}
         >
@@ -207,7 +207,7 @@ export default function ResultsParlaysPage() {
         <section
           className="mt-10 rounded-[8px] px-5 py-5"
           style={{
-            background: "rgba(7,11,26,0.55)",
+            background: "rgba(26, 16, 11,0.55)",
             border: "1px solid var(--vault-border)",
           }}
         >
@@ -254,7 +254,7 @@ export default function ResultsParlaysPage() {
                 key={d.date}
                 className="rounded-[5px] px-3 py-2.5"
                 style={{
-                  background: "rgba(7,11,26,0.55)",
+                  background: "rgba(26, 16, 11,0.55)",
                   border: "1px solid var(--vault-border)",
                 }}
               >

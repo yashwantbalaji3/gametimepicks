@@ -63,9 +63,11 @@ export default function PlayerAvatar({
 }: Props) {
   const px = SIZE_PX[size];
   const fontPx =
-    size === "xs" ? 9 : size === "sm" ? 11 : size === "md" ? 14 : size === "xl" ? 24 : 18;
+    size === "xs" ? 10 : size === "sm" ? 11 : size === "md" ? 14 : size === "xl" ? 24 : 18;
+  // Team-abbreviation corner chip: a 2-char decorative overlay, not primary metadata.
+  // Floored at 9px (from 7/8) for legibility without overflowing the smallest avatars.
   const teamChipPx =
-    size === "xs" ? 7 : size === "sm" ? 8 : size === "md" ? 9 : size === "xl" ? 11 : 10;
+    size === "xs" ? 9 : size === "sm" ? 9 : size === "md" ? 10 : size === "xl" ? 11 : 10;
 
   // Start in the photo state when we have a playerId; otherwise jump
   // straight to fallback.

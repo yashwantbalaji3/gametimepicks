@@ -19,7 +19,7 @@ function Row({
   return (
     <div
       className="flex items-center justify-between gap-3 rounded-[6px] px-3 py-2.5"
-      style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex flex-col min-w-0">
         <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{label}</span>
@@ -29,7 +29,7 @@ function Row({
       </div>
       <span
         className="font-mono uppercase tracking-[0.08em] shrink-0 px-2 py-0.5 rounded-[4px] text-center"
-        style={{ color: chip.tone, border: `1px solid ${chip.tone}`, fontSize: 9 }}
+        style={{ color: chip.tone, border: `1px solid ${chip.tone}`, fontSize: 10 }}
       >
         {chip.label}
       </span>
@@ -60,7 +60,7 @@ export default function WcMarketMatrix({ availability }: { availability: WcMarke
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-2">
         <div className="flex flex-col gap-2">
-          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             Team / game markets
           </span>
           {team.map((m) => (
@@ -68,7 +68,7 @@ export default function WcMarketMatrix({ availability }: { availability: WcMarke
           ))}
         </div>
         <div className="flex flex-col gap-2">
-          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             Player markets
           </span>
           {player.map((m) => (

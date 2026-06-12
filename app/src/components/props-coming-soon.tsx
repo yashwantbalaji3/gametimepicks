@@ -147,7 +147,7 @@ export default function PropsComingSoon({ gameCount, gameLabels }: Props) {
             className="inline-flex items-center gap-2 px-5 py-3 rounded-[3px] font-medium text-[14px] tracking-tight transition-all vault-glow-hover"
             style={{
               background: "var(--vault-gold)",
-              color: "#06070A",
+              color: "#0A0705",
             }}
           >
             Notify me when leans land

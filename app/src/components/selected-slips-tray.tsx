@@ -259,7 +259,7 @@ function TrayRow({
           style={{
             color: "var(--vault-text-faint)",
             border: "1px solid var(--vault-rule)",
-            fontSize: 9,
+            fontSize: 10,
           }}
         >
           pending
@@ -531,7 +531,7 @@ function SummaryCell({
     <div className="flex items-baseline justify-between gap-2 min-w-0">
       <span
         className="font-mono uppercase tracking-[0.12em] truncate"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         {label}
       </span>

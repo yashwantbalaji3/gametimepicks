@@ -110,7 +110,7 @@ export default function MlbFilterConsole({
       aria-label="MLB filter console"
       className="mt-6 gtp-console-chrome rounded-[6px] p-3 sm:p-4"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >

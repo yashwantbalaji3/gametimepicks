@@ -157,9 +157,9 @@ export default function WorldCupLandingPage() {
             { label: "Player props", value: playerProjections?.projectionCount ?? 0 },
             { label: "Suggested cards", value: parlays?.cardCount ?? 0 },
           ].map((s) => (
-            <div key={s.label} className="rounded-[8px] px-3 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+            <div key={s.label} className="rounded-[8px] px-3 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
               <div className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 22, fontWeight: 700 }}>{s.value}</div>
-              <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{s.label}</div>
+              <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -178,11 +178,11 @@ export default function WorldCupLandingPage() {
           {teams.map((t) => (
             <Link key={t.code + t.name} href={`/world-cup/team/${encodeURIComponent(t.code)}`}
               className="rounded-[6px] flex flex-col items-center gap-1 py-3 vault-glow-hover"
-              style={{ background: "rgba(7,11,26,0.55)", border: t.isHost ? "1px solid rgba(240, 199, 94, 0.55)" : "1px solid var(--vault-border)", textDecoration: "none" }}
+              style={{ background: "rgba(26, 16, 11,0.55)", border: t.isHost ? "1px solid rgba(240, 199, 94, 0.55)" : "1px solid var(--vault-border)", textDecoration: "none" }}
               title={`${t.name} · Group ${t.group}${t.isHost ? " · Host" : ""}`}>
               <FlagBadge code={t.code} size="lg" ariaLabel={`${t.name} flag`} />
-              <span className="font-mono uppercase tracking-[0.10em]" style={{ color: t.isHost ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 9 }}>{t.name}</span>
-              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Group {t.group}</span>
+              <span className="font-mono uppercase tracking-[0.10em]" style={{ color: t.isHost ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 10 }}>{t.name}</span>
+              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Group {t.group}</span>
             </Link>
           ))}
         </div>
@@ -203,9 +203,9 @@ export default function WorldCupLandingPage() {
               const detailHref = det ? `/games/world-cup/${det.slug}` : null;
               const grp = (m.stage === "group" ? `Group ${m.group}` : m.stage) ?? "";
               return (
-                <article key={m.id} className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)", borderLeft: "3px solid var(--vault-gold-bright)" }}>
+                <article key={m.id} className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", borderLeft: "3px solid var(--vault-gold-bright)" }}>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full" style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", fontSize: 9 }}>World Cup</span>
+                    <span className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-full" style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", fontSize: 10 }}>World Cup</span>
                     <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{m.kickoffLocal}{grp ? " · " + grp : ""}</span>
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -256,16 +256,16 @@ export default function WorldCupLandingPage() {
             const homeTeam = teams.find((t) => t.name === m.home);
             const awayTeam = teams.find((t) => t.name === m.away);
             return (
-              <article key={m.id} className="rounded-[8px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+              <article key={m.id} className="rounded-[8px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono uppercase tracking-[0.18em]" style={{ color: "var(--vault-gold)", fontSize: 9 }}>Group {m.group} · match {m.id}</span>
+                  <span className="font-mono uppercase tracking-[0.18em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>Group {m.group} · match {m.id}</span>
                   <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{m.date.slice(5)} · {m.kickoffLocal}</span>
                 </div>
                 <div className="flex items-center gap-3"><FlagBadge code={homeTeam?.code ?? ""} size="md" /><span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15 }}>{m.home}</span><span className="font-mono ml-auto" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>vs</span></div>
                 <div className="flex items-center gap-3"><FlagBadge code={awayTeam?.code ?? ""} size="md" /><span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15 }}>{m.away}</span></div>
                 <div className="flex items-center justify-between gap-2 pt-2" style={{ borderTop: "1px solid var(--vault-rule)" }}>
                   <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>{m.venueCity}, {m.venueCountry}</span>
-                  <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Projection pending</span>
+                  <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Projection pending</span>
                 </div>
               </article>
             );
@@ -279,7 +279,7 @@ export default function WorldCupLandingPage() {
   const projectionsTab = (
     <div className="flex flex-col gap-5">
       {!projectionsLive && methodologyReview ? (
-        <div className="rounded-[8px] px-4 py-4 flex flex-col gap-2" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[8px] px-4 py-4 flex flex-col gap-2" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <div className="flex items-center gap-2">
             <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--vault-warn)", boxShadow: "0 0 6px rgba(212,175,55,0.55)" }} />
             <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-warn)", fontSize: 10 }}>Model projections under methodology review</span>
@@ -320,7 +320,7 @@ export default function WorldCupLandingPage() {
             </section>
           ))
       ) : (
-        <div className="rounded-[10px] px-5 py-6 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-5 py-6 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <span aria-hidden style={{ fontSize: 26 }}>⚽</span>
           <p className="mt-2" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>Books haven&apos;t posted player props yet</p>
           <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>Player views appear once sportsbooks post player-prop odds + the listed-player universe for today&apos;s matches. Team markets are live now.</p>
@@ -349,7 +349,7 @@ export default function WorldCupLandingPage() {
         <SectionHeader eyebrow="Data status" title="What's live vs gated" sub="We only show what real data supports. No fabricated prices, lineups, or edges." />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {dataStatus.map((d) => (
-            <div key={d.label} className="flex items-center justify-between gap-2 rounded-[6px] px-3 py-2.5" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+            <div key={d.label} className="flex items-center justify-between gap-2 rounded-[6px] px-3 py-2.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
               <div className="flex flex-col min-w-0">
                 <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{d.label}</span>
                 <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{d.note}</span>
@@ -374,12 +374,12 @@ export default function WorldCupLandingPage() {
           {/* Official finals */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {(settlement.finals ?? []).map((f) => (
-              <div key={String(f.matchId)} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+              <div key={String(f.matchId)} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
                 <div className="flex items-center justify-between gap-2">
                   <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>{f.match}</span>
                   <span className="font-display tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 16, fontWeight: 700 }}>{f.regulationScore}</span>
                 </div>
-                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                   Full time (90′ regulation){f.corners ? ` · corners ${f.corners.home}–${f.corners.away}` : ""}
                 </span>
               </div>
@@ -389,7 +389,7 @@ export default function WorldCupLandingPage() {
           {/* Graded published picks */}
           <div className="flex flex-col gap-1.5">
             {settlement.graded.map((g) => (
-              <div key={g.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[8px] px-4 py-2.5" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+              <div key={g.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[8px] px-4 py-2.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
                 <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{g.pick}</span>
                 <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.market.replace(/_/g, " ")} · final {g.regulationScore}</span>
                 <span
@@ -409,12 +409,12 @@ export default function WorldCupLandingPage() {
           {/* Settled suggested cards */}
           {settledCards.length > 0 && (
             <div>
-              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                 Suggested cards · {settledCards.filter((c) => c.result === "won").length} won / {settledCards.filter((c) => c.result === "lost").length} lost
               </span>
               <div className="mt-2 flex flex-col gap-1.5">
                 {settledCards.map((c) => (
-                  <div key={c.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[8px] px-4 py-2.5" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+                  <div key={c.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[8px] px-4 py-2.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
                     <span style={{ color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600 }}>{c.riskTier} card</span>
                     <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                       {c.legs.map((l) => l.pick).join(" + ")}
@@ -432,12 +432,12 @@ export default function WorldCupLandingPage() {
               </div>
             </div>
           )}
-          <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+          <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             Source: {settlement.settlementSource ?? "official final scores"} · settled {settlement.generatedAt}. Paper-only educational tracking.
           </p>
         </>
       ) : (
-        <div className="rounded-[8px] px-4 py-6 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[8px] px-4 py-6 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No settled World Cup cards yet</p>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Grading runs automatically once today's matches reach full time. Full cross-sport history lives on the Results page.</p>
           <div className="mt-3"><Link href="/results" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Open Results →</Link></div>
@@ -452,19 +452,19 @@ export default function WorldCupLandingPage() {
         <SectionHeader eyebrow="Methodology" title="How the World Cup model works" sub="An ensemble: de-vigged market prior + a sourced FIFA-ranking team-strength layer + opponent-adjusted recent national-team form. Poisson Home/Draw/Away + totals. 90-minute regulation only — Draw is a real third outcome, never mixed with advancement or extra-time markets." />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {(meta?.projectionStatus?.plannedInputs ?? []).map((input) => (
-            <div key={input} className="rounded-[6px] px-4 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
-              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 9 }}>model input</span>
+            <div key={input} className="rounded-[6px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>model input</span>
               <div className="mt-1 text-[13px] leading-relaxed" style={{ color: "var(--vault-text)" }}>{input}</div>
             </div>
           ))}
         </div>
         <div className="mt-4">
-          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Markets + risk tiers</span>
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Markets + risk tiers</span>
           <div className="mt-2 flex flex-wrap gap-2">
             {[["Moneyline (90-min, 3-way)", "Low/Med"], ["Double chance", "Low"], ["Total goals", "Med/High"], ["Total corners", "Low/Med"], ["Player shots", "Low/Med"], ["Shots on target", "Low/Med"], ["Player assists", "Medium"], ["Anytime goalscorer", "Med/High"]].map(([market, tier]) => (
-              <span key={market} className="inline-flex items-center gap-1.5 rounded-[6px] px-2.5 py-1" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-rule)" }}>
+              <span key={market} className="inline-flex items-center gap-1.5 rounded-[6px] px-2.5 py-1" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-rule)" }}>
                 <span style={{ color: "var(--vault-text)", fontSize: 12 }}>{market}</span>
-                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{tier}</span>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{tier}</span>
               </span>
             ))}
           </div>
@@ -473,7 +473,7 @@ export default function WorldCupLandingPage() {
           {meta?.projectionStatus?.notes} Full factor framework: <Link href="/methodology" style={{ color: "var(--vault-gold-bright)" }}>methodology</Link>.
         </p>
       </section>
-      <section className="rounded-[6px] px-4 py-4" style={{ background: "rgba(7,11,26,0.45)", border: "1px solid var(--vault-border)" }} aria-label="Squad status">
+      <section className="rounded-[6px] px-4 py-4" style={{ background: "rgba(26, 16, 11,0.45)", border: "1px solid var(--vault-border)" }} aria-label="Squad status">
         <div className="flex items-center gap-2 mb-2">
           <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--vault-warn)", boxShadow: "0 0 6px rgba(212, 175, 55, 0.55)" }} />
           <span className="font-mono uppercase tracking-[0.18em]" style={{ color: "var(--vault-warn)", fontSize: 10 }}>Squads / lineups</span>
@@ -481,7 +481,7 @@ export default function WorldCupLandingPage() {
         <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{meta?.squadStatus?.notes}</p>
       </section>
       <section className="text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }} aria-label="Sources">
-        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 9 }}>Sources</span>
+        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>Sources</span>
         <ul className="mt-1 space-y-0.5">
           {(meta?.sources ?? []).map((s) => (<li key={s.url}>· <span style={{ color: "var(--vault-text-mute)" }}>{s.label}</span></li>))}
         </ul>

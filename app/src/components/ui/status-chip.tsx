@@ -24,7 +24,7 @@ export default function StatusChip({ status, label }: { status?: string; label?:
   return (
     <span
       className="font-mono uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-[3px] shrink-0"
-      style={{ color: tone, border: `1px solid ${tone}`, fontSize: 8.5, whiteSpace: "nowrap" }}
+      style={{ color: tone, border: `1px solid ${tone}`, fontSize: 10, whiteSpace: "nowrap" }}
     >
       {text}
     </span>

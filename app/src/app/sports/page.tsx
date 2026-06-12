@@ -118,7 +118,7 @@ export default function SportsPage() {
           <SportCard key={s.sport} summary={s} />
         ))}
       </div>
-      <div className="rounded-[10px] px-4 py-4 flex items-center justify-between gap-3" style={{ background: "rgba(7,11,26,0.45)", border: "1px solid var(--vault-border)" }}>
+      <div className="rounded-[10px] px-4 py-4 flex items-center justify-between gap-3" style={{ background: "rgba(26, 16, 11,0.45)", border: "1px solid var(--vault-border)" }}>
         <div className="flex flex-col">
           <span style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>More leagues &amp; schedules</span>
           <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>NHL, IPL and WNBA schedule-only coverage (no projections yet).</span>

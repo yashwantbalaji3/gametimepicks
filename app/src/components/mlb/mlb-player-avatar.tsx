@@ -57,8 +57,9 @@ export default function MlbPlayerAvatar({
 }: Props) {
   const px = SIZE_PX[size];
   const fontPx =
-    size === "xs" ? 9 : size === "sm" ? 11 : size === "md" ? 14 : 18;
-  const teamChipPx = size === "xs" ? 7 : size === "sm" ? 8 : size === "md" ? 9 : 10;
+    size === "xs" ? 10 : size === "sm" ? 11 : size === "md" ? 14 : 18;
+  // Team-abbr corner chip (decorative 2-char overlay) floored at 9px for legibility.
+  const teamChipPx = size === "xs" ? 9 : size === "sm" ? 9 : size === "md" ? 10 : 10;
 
   const [errored, setErrored] = useState(false);
   const hasPhoto = !!playerId && playerId > 0;

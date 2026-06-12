@@ -28,7 +28,7 @@ export default function BankBuilderFeaturedCard({ card }: { card: FeaturedBuilde
       aria-label="Featured NBA Finals paper card"
       className="mt-6 rounded-[10px] p-4 sm:p-5 flex flex-col gap-3"
       style={{
-        background: "linear-gradient(180deg, rgba(20,24,35,0.92) 0%, rgba(7,11,26,0.62) 100%)",
+        background: "linear-gradient(180deg, rgba(20,24,35,0.92) 0%, rgba(26, 16, 11,0.62) 100%)",
         border: `1px solid ${hit ? "var(--vault-success)" : "var(--sport-nba, var(--vault-border))"}`,
       }}
     >
@@ -38,7 +38,7 @@ export default function BankBuilderFeaturedCard({ card }: { card: FeaturedBuilde
         </span>
         <span
           className="font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[4px]"
-          style={{ color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", fontSize: 9.5 }}
+          style={{ color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", fontSize: 10 }}
         >
           Paper · not part of the tracked ladder
         </span>

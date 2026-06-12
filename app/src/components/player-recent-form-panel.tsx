@@ -212,7 +212,7 @@ export default function PlayerRecentFormPanel({
             <span
               className="font-mono"
               style={{
-                fontSize: 9,
+                fontSize: 10,
                 color: "var(--vault-text-faint)",
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
@@ -318,7 +318,7 @@ export default function PlayerRecentFormPanel({
         <div
           className="font-mono mb-2"
           style={{
-            fontSize: 9,
+            fontSize: 10,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
             color: "var(--vault-text-faint)",
@@ -523,7 +523,7 @@ function Stat({
       <div
         className="font-mono"
         style={{
-          fontSize: 9,
+          fontSize: 10,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
           color: "var(--vault-text-faint)",

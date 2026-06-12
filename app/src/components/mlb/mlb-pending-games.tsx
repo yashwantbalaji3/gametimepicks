@@ -44,7 +44,7 @@ export default function MlbPendingGames({ games }: Props) {
               paddingLeft: 14,
               paddingRight: 14,
               border: "1px solid var(--vault-border)",
-              background: "rgba(7, 11, 26, 0.45)",
+              background: "rgba(26, 16, 11, 0.45)",
               minWidth: 0,
               overflow: "hidden",
               color: "inherit",
@@ -71,7 +71,7 @@ export default function MlbPendingGames({ games }: Props) {
             </div>
             <span
               className="font-mono uppercase tracking-[0.14em]"
-              style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+              style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
             >
               View props →
             </span>

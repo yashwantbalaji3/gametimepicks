@@ -288,7 +288,7 @@ function LaneSlipCard({
       {emphasis === "alternate" && altIndex != null && (
         <span
           className="font-mono uppercase tracking-[0.16em] px-1"
-          style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
           Alt {altIndex}
         </span>

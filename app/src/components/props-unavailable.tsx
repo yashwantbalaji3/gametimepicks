@@ -40,7 +40,7 @@ export default function PropsUnavailable({
     >
       <div className="flex items-start gap-3">
         <div
-          className="font-mono text-[9px] uppercase tracking-wider mt-1 shrink-0"
+          className="font-mono text-[10px] uppercase tracking-wider mt-1 shrink-0"
           style={{ color: borderColor }}
         >
           {accentLabel}

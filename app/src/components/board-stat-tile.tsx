@@ -36,7 +36,7 @@ export default function BoardStatTile({
   return (
     <div
       className="relative flex flex-col gap-1 rounded-[10px] px-3 py-2.5 sm:px-3.5 sm:py-3 min-w-0 overflow-hidden"
-      style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <span
         aria-hidden

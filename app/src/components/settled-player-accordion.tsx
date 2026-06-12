@@ -69,7 +69,7 @@ export default function SettledPlayerAccordion({
     <details
       className="group rounded-[6px]"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-border)",
       }}
       open={defaultOpen}
@@ -216,7 +216,7 @@ function Chip({
       aria-label={ariaLabel}
       className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-[3px]"
       style={{
-        background: "rgba(7,11,26,0.45)",
+        background: "rgba(26, 16, 11,0.45)",
         border: "1px solid var(--vault-rule)",
         color: tone,
         minWidth: 32,
@@ -272,7 +272,7 @@ function MarketGroup({
       <div className="flex items-center gap-2">
         <span
           className="font-mono uppercase tracking-[0.16em]"
-          style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+          style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
           {market}
         </span>
@@ -300,7 +300,7 @@ function PickRow({ group }: { group: SettledPickGroup }) {
     <div
       className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_auto_auto] gap-2 items-center px-2 py-1.5 rounded-[4px]"
       style={{
-        background: kind === "pending" ? "rgba(7,11,26,0.30)" : "rgba(7,11,26,0.55)",
+        background: kind === "pending" ? "rgba(26, 16, 11,0.30)" : "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-rule)",
         opacity: kind === "pending" ? 0.85 : 1,
       }}
@@ -313,7 +313,7 @@ function PickRow({ group }: { group: SettledPickGroup }) {
           height: 22,
           borderRadius: 4,
           color: meta.tone,
-          background: "rgba(7,11,26,0.45)",
+          background: "rgba(26, 16, 11,0.45)",
           border: `1px solid ${meta.tone}`,
           fontSize: 11,
           lineHeight: 1,

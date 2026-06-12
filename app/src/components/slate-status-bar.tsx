@@ -39,7 +39,7 @@ function Chip({
 }) {
   const style: React.CSSProperties = {
     border: `1px solid ${accent ? `color-mix(in srgb, ${accent} 45%, transparent)` : "var(--vault-rule)"}`,
-    background: "rgba(7,11,26,0.5)",
+    background: "rgba(26, 16, 11,0.5)",
     color: "var(--vault-text-mute)",
     fontSize: 12,
     textDecoration: "none",
@@ -68,7 +68,7 @@ export default function SlateStatusBar() {
   return (
     <div
       className="gtp-slate-status flex flex-wrap items-center gap-x-2 gap-y-1.5 px-4 sm:px-6 py-2"
-      style={{ background: "rgba(7, 11, 26, 0.6)", borderBottom: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(26, 16, 11, 0.6)", borderBottom: "1px solid var(--vault-border)" }}
     >
       <Chip href="/today">
         <span style={{ color: "var(--vault-text)" }}>Today</span>

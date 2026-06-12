@@ -48,7 +48,7 @@ export default function HomePathCards({ cards }: { cards: PathCard[] }) {
               {c.status && (
                 <span
                   className="font-mono uppercase tracking-[0.12em]"
-                  style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}
+                  style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
                 >
                   {c.status}
                 </span>

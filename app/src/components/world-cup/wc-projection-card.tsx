@@ -35,18 +35,18 @@ function MarketRow({ p }: { p: WcProjection }) {
       style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}
     >
       <div className="flex items-center justify-between gap-2 min-w-0">
-        <span className="font-mono uppercase tracking-[0.10em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+        <span className="font-mono uppercase tracking-[0.10em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
           {MARKET_LABEL[p.market] ?? p.market}
         </span>
         {p.parlayEligible && p.pickLabel ? (
           <span
             className="font-mono uppercase tracking-[0.08em] shrink-0 px-1.5 py-0.5 rounded-[3px]"
-            style={{ color: "var(--vault-success)", border: "1px solid var(--vault-success)", fontSize: 8.5 }}
+            style={{ color: "var(--vault-success)", border: "1px solid var(--vault-success)", fontSize: 10 }}
           >
             Lean · {p.pickLabel}
           </span>
         ) : (
-          <span className="font-mono uppercase tracking-[0.08em] shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+          <span className="font-mono uppercase tracking-[0.08em] shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             view · {p.edgePct >= 0 ? "+" : ""}{p.edgePct.toFixed(1)}% edge
           </span>
         )}
@@ -63,13 +63,13 @@ function MarketRow({ p }: { p: WcProjection }) {
                 border: `1px solid ${isTop ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
               }}
             >
-              <span className="font-mono uppercase truncate w-full text-center" style={{ color: "var(--vault-text-mute)", fontSize: 8.5, letterSpacing: "0.03em" }}>
+              <span className="font-mono uppercase truncate w-full text-center" style={{ color: "var(--vault-text-mute)", fontSize: 10, letterSpacing: "0.03em" }}>
                 {o.label}
               </span>
               <span className="font-display tabular" style={{ color: isTop ? "var(--vault-gold-bright)" : "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>
                 {pct(o.modelProbability)}
               </span>
-              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                 mkt {pct(o.marketProbability)} · {fmtAmerican(o.americanOdds)}
               </span>
             </div>
@@ -103,10 +103,10 @@ export default function WcProjectionCard({
   return (
     <article
       className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 9 }}>
+        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>
           {group ? `Group ${group}` : "World Cup"} · model
         </span>
         <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
@@ -136,7 +136,7 @@ export default function WcProjectionCard({
         ))}
       </div>
 
-      <p style={{ color: "var(--vault-text-faint)", fontSize: 9.5, lineHeight: 1.4 }}>
+      <p style={{ color: "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.4 }}>
         GameTime Picks model — ensemble of market + FIFA-ranking strength + opponent-adjusted form.
         Bold = model&apos;s most-likely outcome. {anyLean ? "A “Lean” marks a parlay-eligible edge. " : "No market cleared the suggested-card edge threshold today — these are probability views, not picks. "}
         90-minute regulation only (Draw is a real outcome; extra time/penalties not included). Educational / paper only.

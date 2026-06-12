@@ -90,10 +90,10 @@ export default function UfcPage() {
   const boutsBoard = (
     <div className="flex flex-col gap-2">
       {bouts.map((b, i) => (
-        <div key={b.eventId || i} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div key={b.eventId || i} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <div className="mb-1.5 flex items-center justify-between gap-2">
-            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{fmtDate(b.commenceTime)}</span>
-            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{b.bookmaker}</span>
+            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{fmtDate(b.commenceTime)}</span>
+            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{b.bookmaker}</span>
           </div>
           <div className="flex flex-col gap-1.5">
             {b.sides.map((s) => (
@@ -114,7 +114,7 @@ export default function UfcPage() {
   // ─────────────────────────── Tabs ───────────────────────────
   const overviewTab = (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center gap-3 flex-wrap rounded-[8px] px-4 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+      <div className="flex items-center gap-3 flex-wrap rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
         <StatusChip label={showV1Proj ? "Moneyline live" : "Pending"} />
         <span style={{ color: "var(--vault-text)", fontSize: 13 }}>
           {showV1Proj ? `V1 moneyline model is live for ${eventName} — real schedule, sportsbook lines, and fighter stats. Moneyline only; method/distance/round props aren't offered yet.` : "Projections publish once the data gates pass."}
@@ -176,7 +176,7 @@ export default function UfcPage() {
     <div className="flex flex-col gap-4">
       <SectionHeader eyebrow="Results" title="UFC track record" sub="Moneyline picks graded against settled fights — wins and losses both shown. The validated badge appears only after a no-leakage backtest threshold is met." />
       {ops ? (
-        <div className="rounded-[8px] px-4 py-4 flex flex-col gap-2" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[8px] px-4 py-4 flex flex-col gap-2" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <div className="flex items-center justify-between gap-2">
             <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Validation progress</span>
             <span className="font-mono tabular" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{ops.cleanGradedRows} / {ops.targetRowsForPublicMoneyline} clean graded fights</span>
@@ -199,7 +199,7 @@ export default function UfcPage() {
           {LAYERS.map((layer) => {
             const ready = Boolean(r[layer.key]);
             return (
-              <li key={layer.key} className="flex items-start gap-3 rounded-[8px] px-4 py-3" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+              <li key={layer.key} className="flex items-start gap-3 rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
                 <StatusChip label={ready ? "Live" : "Pending"} />
                 <span className="flex flex-col">
                   <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{layer.label}</span>

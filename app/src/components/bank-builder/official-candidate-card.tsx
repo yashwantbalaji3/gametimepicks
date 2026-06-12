@@ -21,7 +21,7 @@ function LegVisual({ leg }: { leg: OfficialCandidateLeg }) {
     return (
       <span className="inline-flex items-center gap-1.5 shrink-0" aria-label={`${leg.homeTeam} versus ${leg.awayTeam}`}>
         <FlagBadge code={leg.homeCode || (leg.homeTeam ?? "").slice(0, 2)} size="sm" ariaLabel={leg.homeTeam} />
-        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>v</span>
+        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>v</span>
         <FlagBadge code={leg.awayCode || (leg.awayTeam ?? "").slice(0, 2)} size="sm" ariaLabel={leg.awayTeam} />
       </span>
     );
@@ -80,7 +80,7 @@ export default function OfficialCandidateCard({ candidate }: { candidate: Offici
             { label: "Projected return", value: usd(c.projectedReturn), accent: "var(--vault-success)" },
             { label: "Projected profit", value: `+${usd(c.projectedProfit)}` },
           ].map((s) => (
-            <div key={s.label} className="rounded-[8px] px-3 py-2" style={{ background: "rgba(7,11,26,0.45)", border: "1px solid var(--vault-rule)" }}>
+            <div key={s.label} className="rounded-[8px] px-3 py-2" style={{ background: "rgba(26, 16, 11,0.45)", border: "1px solid var(--vault-rule)" }}>
               <div className="font-display tabular" style={{ color: s.accent ?? "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{s.value}</div>
               <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{s.label}</div>
             </div>
@@ -92,7 +92,7 @@ export default function OfficialCandidateCard({ candidate }: { candidate: Offici
 
         <div className="flex flex-col gap-1.5">
           {c.legs.map((l, i) => (
-            <div key={i} className="rounded-[8px] px-3.5 py-2.5" style={{ background: "rgba(7,11,26,0.45)", border: "1px solid var(--vault-rule)" }}>
+            <div key={i} className="rounded-[8px] px-3.5 py-2.5" style={{ background: "rgba(26, 16, 11,0.45)", border: "1px solid var(--vault-rule)" }}>
               <div className="flex items-center justify-between gap-2 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
                   <LegVisual leg={l} />
@@ -101,16 +101,16 @@ export default function OfficialCandidateCard({ candidate }: { candidate: Offici
                 <span className="font-mono tabular shrink-0" style={{ color: "var(--vault-text)", fontSize: 13 }}>{formatAmerican(l.americanOdds)}</span>
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em]" style={{ background: "rgba(240,199,94,0.10)", color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)" }}>
+                <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: "rgba(240,199,94,0.10)", color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)" }}>
                   {l.marketLabel}{l.side ? ` ${l.side} ${l.line ?? ""}` : ""}
                 </span>
                 {l.regulationOnly && (
-                  <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em]" style={{ background: "rgba(7,11,26,0.6)", color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>
+                  <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: "rgba(26, 16, 11,0.6)", color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>
                     90′ regulation
                   </span>
                 )}
                 {l.lineupBasis && (
-                  <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em]" style={{ background: "rgba(7,11,26,0.6)", color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>
+                  <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: "rgba(26, 16, 11,0.6)", color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>
                     {l.lineupBasis}
                   </span>
                 )}

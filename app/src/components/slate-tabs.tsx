@@ -92,7 +92,7 @@ export default function SlateTabs({ days, selected, onChange, buildTimeToday }: 
                 </span>
                 {badge && (
                   <span
-                    className="font-mono text-[9px] uppercase tracking-wider"
+                    className="font-mono text-[10px] uppercase tracking-wider"
                     style={{ color: badge.color }}
                   >
                     {badge.label}

@@ -86,7 +86,7 @@ export default function TonightMatchupCard({
       className="gtp-aurora-halo rounded-[12px] relative overflow-hidden"
       style={{
         background:
-          "linear-gradient(180deg, rgba(7,11,26,0.92) 0%, rgba(7,11,26,0.55) 100%)",
+          "linear-gradient(180deg, rgba(26, 16, 11,0.92) 0%, rgba(26, 16, 11,0.55) 100%)",
         border: "1px solid var(--vault-border)",
       }}
       aria-label={`${sportLabel}: ${awayTeam ?? "TBD"} at ${homeTeam ?? "TBD"} tonight`}
@@ -136,9 +136,9 @@ export default function TonightMatchupCard({
                     ? "rgba(74, 222, 128, 0.10)"
                     : status === "upcoming"
                       ? "var(--vault-warn-dim)"
-                      : "rgba(7,11,26,0.55)",
+                      : "rgba(26, 16, 11,0.55)",
                 color: statusColor,
-                fontSize: 9,
+                fontSize: 10,
                 border: `1px solid ${statusColor}`,
               }}
             >
@@ -246,7 +246,7 @@ export default function TonightMatchupCard({
                   className="font-mono uppercase tracking-[0.16em]"
                   style={{
                     color: "var(--vault-text-mute)",
-                    fontSize: 9,
+                    fontSize: 10,
                     marginTop: 2,
                   }}
                 >
@@ -271,7 +271,7 @@ export default function TonightMatchupCard({
                     className="font-mono uppercase tracking-[0.16em]"
                     style={{
                       color: "var(--vault-text-mute)",
-                      fontSize: 9,
+                      fontSize: 10,
                       marginTop: 2,
                     }}
                   >
@@ -295,13 +295,13 @@ function MarketChip({ label, value }: { label: string; value: string }) {
     <span
       className="inline-flex items-baseline gap-2 px-3 py-1.5 rounded-[5px]"
       style={{
-        background: "rgba(7,11,26,0.55)",
+        background: "rgba(26, 16, 11,0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
       <span
         className="font-mono uppercase tracking-[0.16em]"
-        style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
       >
         {label}
       </span>

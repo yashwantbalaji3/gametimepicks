@@ -200,7 +200,7 @@ function SummaryTile({
     <article
       className="rounded-[6px] px-5 py-4 flex flex-col gap-1"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -379,7 +379,7 @@ function CohortColumn({
     <article
       className="rounded-[6px] px-4 py-4 flex flex-col gap-3"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -453,7 +453,7 @@ function DispersionRow({ sport }: { sport: ModelAuditSport }) {
     <article
       className="mt-3 rounded-[6px] px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -470,7 +470,7 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="flex flex-col gap-0.5">
       <span
         className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
       >
         {label}
       </span>

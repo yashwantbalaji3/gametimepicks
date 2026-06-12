@@ -37,10 +37,10 @@ export default function WcMatchOutlookCard({
   return (
     <article
       className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 9 }}>
+        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>
           {group ? `Group ${group}` : "World Cup"}
         </span>
         <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
@@ -69,7 +69,7 @@ export default function WcMatchOutlookCard({
         <>
           {/* 90-minute 3-way — Draw clearly visible */}
           <div>
-            <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+            <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
               90-min result · market implied
             </span>
             <div className="mt-1.5 grid grid-cols-3 gap-2">
@@ -83,7 +83,7 @@ export default function WcMatchOutlookCard({
                   className="rounded-[6px] px-2 py-2 flex flex-col items-center gap-0.5"
                   style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}
                 >
-                  <span className="font-mono uppercase truncate w-full text-center" style={{ color: "var(--vault-text-mute)", fontSize: 9, letterSpacing: "0.04em" }}>
+                  <span className="font-mono uppercase truncate w-full text-center" style={{ color: "var(--vault-text-mute)", fontSize: 10, letterSpacing: "0.04em" }}>
                     {c.label}
                   </span>
                   <span className="font-display tabular" style={{ color: c.accent, fontSize: 18, fontWeight: 700 }}>
@@ -100,7 +100,7 @@ export default function WcMatchOutlookCard({
           {/* Totals */}
           {match.totals ? (
             <div className="flex items-center justify-between gap-2 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-              <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+              <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                 Total {match.totals.line}
               </span>
               <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
@@ -109,7 +109,7 @@ export default function WcMatchOutlookCard({
             </div>
           ) : null}
 
-          <p style={{ color: "var(--vault-text-faint)", fontSize: 9.5, lineHeight: 1.4 }}>
+          <p style={{ color: "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.4 }}>
             Market outlook — implied by current sportsbook prices ({match.result.bookmaker}), not a
             GameTime Picks model pick. 90-minute regulation market; extra time/penalties not included.
           </p>

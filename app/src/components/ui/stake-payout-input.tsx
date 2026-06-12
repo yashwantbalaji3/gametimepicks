@@ -37,7 +37,7 @@ export default function StakePayoutInput({
       style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
           Paper stake{lockedStake ? " · locked" : ""}
         </span>
         <span className="font-mono tabular" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
@@ -60,7 +60,7 @@ export default function StakePayoutInput({
               onChange={(e) => setRaw(e.target.value)}
               className="w-full rounded-[6px] px-2.5 py-1.5 font-display tabular"
               style={{
-                background: "rgba(7,11,26,0.7)",
+                background: "rgba(26, 16, 11,0.7)",
                 border: "1px solid var(--vault-rule)",
                 color: "var(--vault-text)",
                 fontSize: 16,
@@ -92,19 +92,19 @@ export default function StakePayoutInput({
 
       <div className="flex items-center justify-between gap-2 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
         <div className="flex flex-col">
-          <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>To return</span>
+          <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>To return</span>
           <span className="font-display tabular" style={{ color: "var(--vault-success)", fontSize: 16, fontWeight: 700 }}>
             {money(ret)}
           </span>
         </div>
         <div className="flex flex-col items-end">
-          <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Profit</span>
+          <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Profit</span>
           <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>
             +{money(profit)}
           </span>
         </div>
       </div>
-      <span style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Paper only — not betting advice.</span>
+      <span style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Paper only — not betting advice.</span>
     </div>
   );
 }

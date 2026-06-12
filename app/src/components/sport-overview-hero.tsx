@@ -213,7 +213,7 @@ export default function SportOverviewHero({
                   className="font-mono uppercase tracking-[0.16em]"
                   style={{
                     color: "var(--vault-text-mute)",
-                    fontSize: 9,
+                    fontSize: 10,
                   }}
                 >
                   {s.label}

@@ -60,7 +60,7 @@ export default function IplResultsPlaceholderPage() {
         <div
           className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
           style={{
-            background: "rgba(7, 11, 26, 0.55)",
+            background: "rgba(26, 16, 11, 0.55)",
             border: "1px solid var(--vault-border)",
             color: "var(--vault-text-mute)",
           }}
@@ -80,7 +80,7 @@ export default function IplResultsPlaceholderPage() {
         <div
           className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
           style={{
-            background: "rgba(7, 11, 26, 0.45)",
+            background: "rgba(26, 16, 11, 0.45)",
             border: "1px solid var(--vault-border)",
             color: "var(--vault-text-mute)",
           }}

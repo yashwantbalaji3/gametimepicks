@@ -49,7 +49,7 @@ export default function SettledPlayerList({
         style={{
           color: "var(--vault-text-mute)",
           border: "1px dashed var(--vault-border)",
-          background: "rgba(7,11,26,0.40)",
+          background: "rgba(26, 16, 11,0.40)",
         }}
       >
         {emptyCopy ??

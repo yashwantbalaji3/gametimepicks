@@ -117,7 +117,7 @@ export default function TeamGameProjectionCard({ projection }: Props) {
           <div className="ml-auto flex flex-col items-end gap-0.5">
             <span
               className="font-mono uppercase tracking-[0.14em]"
-              style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+              style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
             >
               {projection.date}
             </span>
@@ -201,7 +201,7 @@ export default function TeamGameProjectionCard({ projection }: Props) {
         <div className="ml-auto flex flex-col items-end gap-0.5">
           <span
             className="font-mono uppercase tracking-[0.14em]"
-            style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+            style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
           >
             {projection.date}
           </span>
@@ -222,7 +222,7 @@ export default function TeamGameProjectionCard({ projection }: Props) {
             className="font-mono uppercase tracking-[0.16em]"
             style={{
               color: "var(--vault-text-mute)",
-              fontSize: 9,
+              fontSize: 10,
             }}
           >
             Projected margin
@@ -246,7 +246,7 @@ export default function TeamGameProjectionCard({ projection }: Props) {
           </span>
           <span
             className="font-mono uppercase tracking-[0.14em]"
-            style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+            style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
           >
             {partial
               ? "data incomplete"
@@ -304,13 +304,13 @@ export default function TeamGameProjectionCard({ projection }: Props) {
         <div
           className="mt-3 rounded-[6px] px-3 py-2"
           style={{
-            background: "rgba(7, 11, 26, 0.45)",
+            background: "rgba(26, 16, 11, 0.45)",
             border: "1px solid var(--vault-border)",
           }}
         >
           <span
             className="font-mono uppercase tracking-[0.14em]"
-            style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+            style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
           >
             Model PTS sum vs market total
           </span>
@@ -389,7 +389,7 @@ function TeamSide({
     <div
       className="flex flex-col gap-1.5 rounded-[8px] px-3 py-3"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: favored && !partial
           ? "1px solid rgba(240, 199, 94, 0.40)"
           : "1px solid var(--vault-border)",
@@ -402,7 +402,7 @@ function TeamSide({
             className="font-mono uppercase tracking-[0.16em]"
             style={{
               color: "var(--vault-text-mute)",
-              fontSize: 9,
+              fontSize: 10,
             }}
           >
             {team.isHome === true
@@ -451,7 +451,7 @@ function TeamSide({
           className="font-mono uppercase tracking-[0.14em]"
           style={{
             color: "var(--vault-text-mute)",
-            fontSize: 9,
+            fontSize: 10,
           }}
         >
           proj pts
@@ -485,13 +485,13 @@ function MarketCell({
     <div
       className="rounded-[6px] px-3 py-2.5"
       style={{
-        background: "rgba(7, 11, 26, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
       <div
         className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
       >
         {label}
       </div>

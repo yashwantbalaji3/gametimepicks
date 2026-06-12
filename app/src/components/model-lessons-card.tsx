@@ -39,7 +39,7 @@ export default function ModelLessonsCard({
       <div
         className="rounded-[6px] px-5 py-5"
         style={{
-          background: "rgba(7, 11, 26, 0.55)",
+          background: "rgba(26, 16, 11, 0.55)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -72,13 +72,13 @@ export default function ModelLessonsCard({
                 key={i}
                 className="rounded-[4px] px-4 py-3"
                 style={{
-                  background: "rgba(7, 11, 26, 0.45)",
+                  background: "rgba(26, 16, 11, 0.45)",
                   border: "1px solid var(--vault-rule)",
                 }}
               >
                 <div
                   className="font-mono uppercase tracking-[0.14em] mb-1"
-                  style={{ color: eyebrowColor, fontSize: 9 }}
+                  style={{ color: eyebrowColor, fontSize: 10 }}
                 >
                   {l.eyebrow}
                 </div>

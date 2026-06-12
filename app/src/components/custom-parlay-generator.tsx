@@ -373,7 +373,7 @@ function GeneratedSlipCard({ slip }: { slip: GeneratedSlip }) {
             color: slip.containsRiskLeg
               ? "var(--vault-warn)"
               : "var(--vault-gold)",
-            fontSize: 9,
+            fontSize: 10,
           }}
         >
           Custom · {slip.risk.replace("_", " ")}
@@ -463,7 +463,7 @@ function LegRow({ leg }: { leg: OptimizerLeg }) {
           leg's price instead — a neutral, factual readout. */}
       <span
         className="font-mono shrink-0 text-right"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         {typeof leg.oddsForSide === "number" ? formatAmerican(leg.oddsForSide) : "—"}
       </span>
@@ -492,7 +492,7 @@ function Stat({
     <div className="flex flex-col items-start">
       <span
         className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+        style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
       >
         {label}
       </span>

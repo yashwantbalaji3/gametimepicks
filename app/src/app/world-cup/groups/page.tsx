@@ -53,7 +53,7 @@ export default function WorldCupGroupsPage() {
               className="rounded-[8px] overflow-hidden flex flex-col"
               style={{
                 background:
-                  "linear-gradient(180deg, rgba(7,11,26,0.85) 0%, rgba(7,11,26,0.55) 100%)",
+                  "linear-gradient(180deg, rgba(26, 16, 11,0.85) 0%, rgba(26, 16, 11,0.55) 100%)",
                 border: "1px solid var(--vault-border)",
               }}
             >
@@ -69,7 +69,7 @@ export default function WorldCupGroupsPage() {
                 </span>
                 <span
                   className="font-mono uppercase tracking-[0.14em]"
-                  style={{ color: "var(--vault-text-faint)", fontSize: 9 }}
+                  style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
                 >
                   {fixtures.length} fixtures
                 </span>
@@ -104,7 +104,7 @@ export default function WorldCupGroupsPage() {
                             className="ml-2 font-mono uppercase tracking-[0.12em]"
                             style={{
                               color: "var(--vault-gold)",
-                              fontSize: 9,
+                              fontSize: 10,
                             }}
                           >
                             host
@@ -127,7 +127,7 @@ export default function WorldCupGroupsPage() {
               >
                 <span
                   className="font-mono uppercase tracking-[0.14em]"
-                  style={{ color: "var(--vault-text-mute)", fontSize: 9 }}
+                  style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
                 >
                   Standings unlock at kickoff
                 </span>
@@ -136,7 +136,7 @@ export default function WorldCupGroupsPage() {
                   className="font-mono uppercase tracking-[0.14em]"
                   style={{
                     color: "var(--vault-gold-bright)",
-                    fontSize: 9,
+                    fontSize: 10,
                     textDecoration: "none",
                   }}
                 >
@@ -151,14 +151,14 @@ export default function WorldCupGroupsPage() {
       <section
         className="mt-10 rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
         style={{
-          background: "rgba(7,11,26,0.45)",
+          background: "rgba(26, 16, 11,0.45)",
           border: "1px solid var(--vault-border)",
           color: "var(--vault-text-mute)",
         }}
       >
         <span
           className="font-mono uppercase tracking-[0.14em]"
-          style={{ color: "var(--vault-gold)", fontSize: 9 }}
+          style={{ color: "var(--vault-gold)", fontSize: 10 }}
         >
           Advancement rules
         </span>

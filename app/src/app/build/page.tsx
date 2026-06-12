@@ -37,7 +37,7 @@ export default function BuildPage() {
       {pool.length > 0 ? (
         <BuildExperience pool={pool} />
       ) : (
-        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(7,11,26,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No eligible legs right now</p>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
             Legs appear here only when a real projection clears the suggested-card gates. Check back closer to game time.

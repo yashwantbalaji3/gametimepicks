@@ -141,7 +141,7 @@ function CoverageCard({ sport, extra }: { sport: SportCoverage; extra?: Coverage
         </span>
         <span
           className="font-mono uppercase tracking-[0.1em] px-2 py-0.5 rounded-[4px] shrink-0"
-          style={{ color: badge.tone, border: `1px solid ${badge.tone}`, fontSize: 9, lineHeight: 1.3 }}
+          style={{ color: badge.tone, border: `1px solid ${badge.tone}`, fontSize: 10, lineHeight: 1.3 }}
         >
           {badge.label}
         </span>
@@ -158,7 +158,7 @@ function CoverageCard({ sport, extra }: { sport: SportCoverage; extra?: Coverage
         >
           <span
             className="font-mono uppercase tracking-[0.14em]"
-            style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}
+            style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
           >
             Next
           </span>
@@ -173,7 +173,7 @@ function CoverageCard({ sport, extra }: { sport: SportCoverage; extra?: Coverage
       )}
 
       {source && (
-        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
           {source.name} · snapshot {source.retrievedAt.slice(0, 10)}
         </span>
       )}

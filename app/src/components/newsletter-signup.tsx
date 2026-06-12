@@ -170,7 +170,7 @@ function FullForm({ email, setEmail, busy, result, onSubmit, isUnconfigured }: F
           className="px-5 py-3 rounded-[3px] font-medium text-[14px] tracking-tight transition-colors disabled:opacity-50"
           style={{
             background: "var(--vault-gold)",
-            color: "#06070A",
+            color: "#0A0705",
           }}
         >
           {busy ? "Submitting…" : isUnconfigured ? "Notify me" : "Subscribe"}
@@ -226,7 +226,7 @@ function CompactForm({ email, setEmail, busy, result, onSubmit, isUnconfigured }
           className="px-4 py-2 rounded-[2px] font-mono text-[11px] uppercase tracking-[0.15em] transition-colors disabled:opacity-50"
           style={{
             background: "var(--vault-gold)",
-            color: "#06070A",
+            color: "#0A0705",
           }}
         >
           {busy ? "…" : isUnconfigured ? "Notify me" : "Subscribe"}
