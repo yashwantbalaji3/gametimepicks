@@ -1,9 +1,8 @@
 /**
- * Bank Builder Step 5 target structure: the final card MUST be Brazil (World Cup) + NBA
- * Finals Game 5, and publishes ONLY when both legs are real + model-recommended. With the
- * current data (World Cup blocked — no API-Football; NBA Game 5 all no-play), neither leg
- * is ready, so no card publishes and the page shows the honest per-leg blocker. Source-level
- * + data assertions guard against fabrication, an invented card, or an MLB-substitute leg.
+ * Bank Builder Step 5 target structure: the owner-authorized final card is the best real
+ * 2-leg card from tonight's slate — NBA Finals + MLB (cross-sport) OR two NBA Finals legs.
+ * World Cup / Brazil is NO LONGER a Step 5 dependency or blocker. The review panel (shown
+ * only when no candidate is published) reflects NBA + MLB readiness, never Brazil.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -15,28 +14,22 @@ const read = (rel) => JSON.parse(fs.readFileSync(path.join(dir, rel), "utf8"));
 const helper = fs.readFileSync("src/lib/bank-builder-step5-target.ts", "utf8");
 const page = fs.readFileSync("src/app/bank-builder/page.tsx", "utf8");
 
-test("target structure is Brazil (World Cup) + NBA Finals Game 5 — the only allowed Step 5", () => {
-  assert.ok(/brazil/i.test(helper) && /morocco/i.test(helper), "Brazil vs Morocco WC leg required");
-  assert.ok(helper.includes("NBA Finals Game 5"), "NBA Finals Game 5 leg required");
-  // No MLB substitute leg in the target structure.
-  assert.ok(!/mlb/i.test(helper), "no MLB leg in the Step 5 target structure");
+test("target structure is NBA Finals + MLB (or 2 NBA) — World Cup/Brazil is NOT a Step 5 dependency", () => {
+  assert.ok(helper.includes("NBA Finals Game 5"), "NBA Finals leg targeted");
+  assert.ok(/mlb/i.test(helper), "MLB leg is an authorized target (cross-sport)");
+  // The stale Brazil / World Cup / API-Football blocker is gone from the Step 5 target.
+  assert.ok(!/brazil/i.test(helper), "no Brazil leg/blocker in the Step 5 target");
+  assert.ok(!/world.?cup|api.?football/i.test(helper), "no World Cup / API-Football dependency");
 });
 
-test("card publishes ONLY when both legs are 'ready'; otherwise canPublish is false", () => {
-  assert.ok(helper.includes('legs.every((l) => l.state === "ready")'), "both legs must be ready to publish");
-  // A leg is ready only with a real recommendation (Over/Under), never No Play.
-  assert.ok(helper.includes('l.lean === "Over" || l.lean === "Under"'), "NBA leg ready needs a real recommendation");
-  // World Cup leg ready needs a real Brazil match in the projections (real odds+model).
-  assert.ok(helper.includes("loadWorldCupProjections"), "Brazil leg ready needs real WC projections");
+test("readiness is real (model-recommended Over/Under legs), never fabricated", () => {
+  assert.ok(helper.includes('l.lean === "Over" || l.lean === "Under"'), "ready needs a real recommendation");
+  assert.ok(helper.includes("nba.state === \"ready\""), "NBA Finals readiness gates the 2-leg build");
 });
 
-test("current data: World Cup (Brazil) blocked → Brazil+NBA card cannot publish", () => {
-  // Brazil leg is the binding blocker: no June-13 World Cup projections exist (no
-  // API-Football credential), so a Brazil leg has no real odds + model probability.
-  // The Brazil+NBA card cannot publish while either leg is unavailable — even if the
-  // NBA leg is now model-recommended (the server board refresh may supply NBA legs).
-  assert.equal(fs.existsSync(path.join(dir, "world-cup/projections/2026-06-13.json")), false,
-    "no real June-13 World Cup projections → Brazil leg blocked → no Brazil+NBA card");
+test("the page no longer shows Brazil / API-Football as a Step 5 blocker", () => {
+  assert.ok(!/Brazil vs Morocco/i.test(page), "no Brazil target on the Bank Builder page");
+  assert.ok(!/API-?Football credential/i.test(page), "no API-Football blocker on the page");
 });
 
 test("Step 5 is PENDING-only — a published candidate never mutates bankroll/record/ledger", () => {

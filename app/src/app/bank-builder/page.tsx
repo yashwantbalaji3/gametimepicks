@@ -72,9 +72,9 @@ export default function BankBuilderPage() {
   // the final rung we never run the data generator (no invented Step 5 parlay); the page
   // shows the "Step 5 review pending" panel instead.
   const isFinalStep = activeStep.step >= BANK_BUILDER_STEP_COUNT;
-  // The user's intended final rung is a specific cross-sport pair: Brazil-vs-Morocco (WC)
-  // + an NBA Finals Game 5 leg. We compute each leg's REAL readiness so the pending panel
-  // is transparent about what's blocked and the card publishes only when both are ready.
+  // The owner-authorized final rung is the best real 2-leg card from tonight's slate —
+  // NBA Finals + MLB (cross-sport) or two NBA Finals legs. We compute NBA/MLB readiness so
+  // the review panel (shown only when no official candidate is published) is honest.
   const step5Target = isFinalStep ? loadStep5TargetStatus() : null;
   const officialStep3 = publishedCandidate || isFinalStep ? null : pubSummary ? loadOfficialStepCandidate(currentBankroll, activeStep.goal) : null;
   const hits = (pubLedger?.entries ?? []).filter((e) => e.result === "win");
@@ -272,18 +272,16 @@ export default function BankBuilderPage() {
             Final step: {formatLadderUsd(activeStep.start)} → {formatLadderUsd(activeStep.goal)}
           </h2>
           <p className="relative mt-2 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}>
-            Target final card: <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{step5Target?.targetLabel ?? "a cross-sport 2-leg card"}</span>. It publishes only when both legs clear real model + market gates — no card is invented to fill the rung.
+            Target final card: <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{step5Target?.targetLabel ?? "the best real 2-leg card"}</span>. It publishes only when both legs clear real model + market gates — no card is invented to fill the rung.
           </p>
 
-          {/* Per-leg readiness — computed from real artifacts, never fabricated. */}
+          {/* Per-sport readiness — computed from real artifacts, never fabricated. */}
           {step5Target ? (
             <div className="relative mt-3 flex flex-col gap-2">
               {step5Target.legs.map((leg) => {
                 const tone = leg.state === "ready"
                   ? { c: "#6EE7A8", bg: "rgba(110,231,168,0.12)", b: "rgba(110,231,168,0.35)", label: "READY" }
-                  : leg.state === "blocked"
-                    ? { c: "#F08A8A", bg: "rgba(240,138,138,0.10)", b: "rgba(240,138,138,0.32)", label: "BLOCKED" }
-                    : { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(255,122,60,0.32)", label: "PENDING" };
+                  : { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(255,122,60,0.32)", label: "PENDING" };
                 return (
                   <div key={leg.label} className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(26, 16, 11, 0.45)", border: "1px solid var(--vault-rule)" }}>
                     <div className="flex items-center justify-between gap-2">
