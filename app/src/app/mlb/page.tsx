@@ -21,6 +21,8 @@ import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
 import { getGameOutlook } from "@/lib/data-game-outlook";
 import { formatTipoffEt } from "@/lib/format-mlb";
+import { mlbTeamLogoUrl } from "@/lib/player-headshots";
+import TeamMark from "@/components/ui/team-mark";
 import {
   normalizeMlbLeans,
   normalizeOptimizerSlips,
@@ -111,7 +113,11 @@ export default function MlbLandingPage() {
               style={{ padding: "12px 14px", border: "1px solid var(--vault-border)", background: "rgba(26, 16, 11, 0.55)", color: "inherit", textDecoration: "none" }}
               aria-label={`View props for ${g.awayTeamAbbr ?? "?"} at ${g.homeTeamAbbr ?? "?"}`}
             >
-              <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="inline-flex items-center gap-1 shrink-0" aria-hidden>
+                <TeamMark name={g.awayTeamAbbr} logoUrl={mlbTeamLogoUrl(g.awayTeamId)} size="md" />
+                <TeamMark name={g.homeTeamAbbr} logoUrl={mlbTeamLogoUrl(g.homeTeamId)} size="md" />
+              </span>
+              <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                 <span style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{g.awayTeamAbbr ?? "?"} @ {g.homeTeamAbbr ?? "?"}</span>
                 <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{g.venue ?? "MLB"}</span>
               </div>
