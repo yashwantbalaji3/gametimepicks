@@ -1,15 +1,15 @@
 {
   "appName": "GametimePicks",
   "version": "0.5.0",
-  "lastPipelineRun": "2026-06-12T16:29:54+00:00",
+  "lastPipelineRun": "2026-06-13T15:19:55+00:00",
   "isDemo": false,
-  "dataMode": "NoGames",
-  "nbaScheduleSource": "multi_source",
-  "nbaStatsSource": "multi_source",
-  "oddsSource": "unavailable",
+  "dataMode": "Live",
+  "nbaScheduleSource": "espn_scoreboard",
+  "nbaStatsSource": "espn_scoreboard",
+  "oddsSource": "the_odds_api",
   "activeProvider": {
-    "nba": "multi_source",
-    "odds": "unavailable"
+    "nba": "espn_scoreboard",
+    "odds": "the_odds_api"
   },
   "providerStatuses": [
     {
@@ -51,7 +51,7 @@
       "is_stub": false,
       "last_status": "ok",
       "last_error": null,
-      "last_run_at": "2026-06-12T16:29:54+00:00",
+      "last_run_at": "2026-06-13T15:17:23+00:00",
       "notes": "ESPN public scoreboard JSON. Free, no auth, no scraping. Used as a schedule-only fallback when nba_api fails or returns empty. Set ENABLE_ESPN_FALLBACK=false to disable."
     },
     {
@@ -145,7 +145,7 @@
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-06-12T16:29:54+00:00",
+  "lastSuccessfulFetch": "2026-06-13T15:19:55+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -174,18 +174,18 @@
     }
   ],
   "slateDays": 4,
-  "primaryDate": "2026-06-12",
+  "primaryDate": "2026-06-13",
   "newsSignalsConfigured": true,
   "newsSignalsActive": 0,
   "scheduleOverridesConfigured": true,
-  "todayDataMode": "NoGames",
+  "todayDataMode": "Live",
   "todayFailureReason": null,
   "todayManualOverrideUsed": false,
   "oddsApiKeyConfigured": true,
-  "todayOddsProviderStatus": "not_configured",
+  "todayOddsProviderStatus": "ok_with_props",
   "todayOddsFailureReason": null,
-  "todayOddsQuotaRemaining": null,
-  "todayParsedPropCount": 0,
+  "todayOddsQuotaRemaining": 18932,
+  "todayParsedPropCount": 196,
   "oddsBookmakersConfigured": [
     "draftkings",
     "fanduel"
