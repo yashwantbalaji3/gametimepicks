@@ -17,6 +17,8 @@ Strategy:
 from __future__ import annotations
 
 import json
+import os
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -27,6 +29,30 @@ from .base import (
     ProviderStatus, ProviderError, ProviderRequestFailed, ProviderUnavailable,
     now_iso,
 )
+
+
+# ---------------------------------------------------------------------------
+# Request throttle — stats.nba.com rate-limits aggressively. Firing game-log
+# requests for a full slate back-to-back gets the bulk run throttled, which
+# tripped the circuit breaker and left every player on "insufficient_data"
+# (no recommended legs). A minimum gap between live requests prevents that;
+# cached reads don't throttle. Configurable via NBA_API_THROTTLE_MS (default
+# 700ms — empirically sufficient: 18/18 slate players returned full logs).
+# Verified 2026-06-13 — see docs/audits/june13-140pm-brazil-nba-step5-*.
+# ---------------------------------------------------------------------------
+_NBA_THROTTLE_S = max(0.0, float(os.environ.get("NBA_API_THROTTLE_MS", "700")) / 1000.0)
+_NBA_MAX_RETRIES = max(0, int(os.environ.get("NBA_API_MAX_RETRIES", "3")))
+_last_request_at = 0.0
+
+
+def _throttle() -> None:
+    """Sleep just enough to keep a minimum gap since the previous live request."""
+    global _last_request_at
+    if _NBA_THROTTLE_S > 0:
+        wait = _NBA_THROTTLE_S - (time.monotonic() - _last_request_at)
+        if wait > 0:
+            time.sleep(wait)
+    _last_request_at = time.monotonic()
 
 
 # ---------------------------------------------------------------------------
@@ -422,16 +448,28 @@ class NbaApiProvider(NBADataProvider):
             # returns empty outside the postseason, so this is a no-op then.
             collected: list[GameLog] = []
             for season_type in ("Playoffs", "Regular Season"):
-                try:
-                    log = playergamelog.PlayerGameLog(
-                        player_id=player_id,
-                        season_type_all_star=season_type,
-                        timeout=C.HTTP_TIMEOUT_SECONDS,
-                    )
-                    df = log.player_game_log.get_data_frame()
-                except Exception:
-                    # A single season-type query failing (e.g. no playoff games
-                    # yet) must not lose the other; skip it honestly.
+                df = None
+                # Throttle + bounded retry/backoff: stats.nba.com throttles bulk
+                # runs; a brief gap + a couple of retries keeps the live fetch from
+                # failing the whole slate (and tripping the breaker). Never invents data.
+                for attempt in range(_NBA_MAX_RETRIES + 1):
+                    _throttle()
+                    try:
+                        log = playergamelog.PlayerGameLog(
+                            player_id=player_id,
+                            season_type_all_star=season_type,
+                            timeout=C.HTTP_TIMEOUT_SECONDS,
+                        )
+                        df = log.player_game_log.get_data_frame()
+                        break
+                    except Exception:
+                        # A single season-type query failing (e.g. no playoff games
+                        # yet, or a transient throttle) must not lose the other.
+                        if attempt < _NBA_MAX_RETRIES:
+                            time.sleep(_NBA_THROTTLE_S * (2 ** attempt))
+                            continue
+                        df = None
+                if df is None:
                     continue
                 collected.extend(_parse_player_gamelog_rows(df, player_id))
             # Most-recent N across both season types (ISO dates sort lexically).

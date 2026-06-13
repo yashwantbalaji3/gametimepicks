@@ -30,14 +30,13 @@ test("card publishes ONLY when both legs are 'ready'; otherwise canPublish is fa
   assert.ok(helper.includes("loadWorldCupProjections"), "Brazil leg ready needs real WC projections");
 });
 
-test("current data: World Cup blocked + NBA Game 5 all no-play → no card can publish", () => {
-  // World Cup June-13 projections artifact does not exist (no API-Football credential).
+test("current data: World Cup (Brazil) blocked → Brazil+NBA card cannot publish", () => {
+  // Brazil leg is the binding blocker: no June-13 World Cup projections exist (no
+  // API-Football credential), so a Brazil leg has no real odds + model probability.
+  // The Brazil+NBA card cannot publish while either leg is unavailable — even if the
+  // NBA leg is now model-recommended (the server board refresh may supply NBA legs).
   assert.equal(fs.existsSync(path.join(dir, "world-cup/projections/2026-06-13.json")), false,
-    "no real June-13 World Cup projections → Brazil leg blocked");
-  // NBA Game-5 board has zero recommended legs (all No Play / insufficient_data).
-  const nba = read("boards/2026-06-13.json");
-  const recommended = nba.leans.filter((l) => l.lean === "Over" || l.lean === "Under");
-  assert.equal(recommended.length, 0, "no recommended NBA Game-5 leg");
+    "no real June-13 World Cup projections → Brazil leg blocked → no Brazil+NBA card");
 });
 
 test("no invented Step 5 card; Bank Builder unchanged; pending panel is transparent", () => {
