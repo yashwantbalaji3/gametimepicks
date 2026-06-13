@@ -6,7 +6,7 @@
  * and showed a stale hardcoded $100 bank label. It is now a row of polished,
  * clickable chips in plain English:
  *
- *   Today · Jun 12   |   Pregame slate   |   Bank Builder $1,423.64 · Step 4 · 3–0   |   Settled Jun 11
+ *   Today · Jun 13   |   Pregame slate   |   Bank Builder $3,623.97 · Step 5 · 4–0   |   Settled Jun 12
  *
  * Every value is read from the SAME public loaders the rest of the app uses —
  * the Bank Builder chip shows the REAL current public bankroll/step/record

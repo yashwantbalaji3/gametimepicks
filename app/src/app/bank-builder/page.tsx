@@ -20,6 +20,7 @@ import { getSportIdentity } from "@/lib/sport-identity";
 import {
   BANK_BUILDER_BASE,
   BANK_BUILDER_LADDER,
+  BANK_BUILDER_STEP_COUNT,
   formatLadderUsd,
   formatLadderUsdPrecise,
   resolveLadderStep,
@@ -30,6 +31,15 @@ import {
 } from "@/lib/data-bank-builder";
 
 const BANK = getSportIdentity("bank_builder");
+
+/** Format a ledger ISO date (YYYY-MM-DD) as "Jun 12, 2026" in UTC (date-stable). */
+function fmtUtcDate(d: string): string {
+  try {
+    return new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+  } catch {
+    return d;
+  }
+}
 
 const META_TITLE = "Bank Builder · GameTime Picks";
 const META_DESCRIPTION =
@@ -56,8 +66,17 @@ export default function BankBuilderPage() {
   // A PUBLISHED candidate artifact (may mix sports) takes precedence over the
   // World-Cup-derived generator; both are pending-only and freshness/step gated.
   const publishedCandidate = loadOfficialPublishedCandidate();
-  const officialStep3 = publishedCandidate ? null : pubSummary ? loadOfficialStepCandidate(currentBankroll, activeStep.goal) : null;
+  // Final step (Step 5 · Road to $10K): the brief is explicit that the final card is NOT
+  // published yet — it only appears once the model+market gates clear a real slate. So on
+  // the final rung we never run the data generator (no invented Step 5 parlay); the page
+  // shows the "Step 5 review pending" panel instead.
+  const isFinalStep = activeStep.step >= BANK_BUILDER_STEP_COUNT;
+  const officialStep3 = publishedCandidate || isFinalStep ? null : pubSummary ? loadOfficialStepCandidate(currentBankroll, activeStep.goal) : null;
   const hits = (pubLedger?.entries ?? []).filter((e) => e.result === "win");
+  // The most recently cleared step (highest step number) — its real legs + final-result
+  // evidence power the celebratory "latest hit" card above the previous-hits grid.
+  const latestHit = hits.length ? hits.reduce((a, b) => (b.step > a.step ? b : a)) : null;
+  const onTheCrownRun = isFinalStep && rec.losses === 0 && hits.length === BANK_BUILDER_STEP_COUNT - 1;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
@@ -82,12 +101,23 @@ export default function BankBuilderPage() {
             {BANK.icon}
           </span>
           <PageHero
-            eyebrow="Paper ladder · current run"
+            eyebrow={onTheCrownRun ? "Final step · Road to $10,000" : "Paper ladder · current run"}
             title="Bank Builder"
             subMaxWidth={560}
             sub={`A ${recordLabel} paper run — ${hits.length} steps cleared from $100 toward the $10,000 crown, one card per step. Paper-only; we do not take real money.`}
           />
         </div>
+
+        {onTheCrownRun ? (
+          <div className="relative mt-4 flex flex-col gap-1">
+            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(26px, 5.2vw, 40px)", fontWeight: 700, lineHeight: 1.02 }}>
+              {recordLabel}. One step from $10K.
+            </span>
+            <span className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
+              The $100 paper ladder is now at {formatLadderUsdPrecise(currentBankroll)}. Final step: {formatLadderUsd(activeStep.start)} → {formatLadderUsd(activeStep.goal)}.
+            </span>
+          </div>
+        ) : null}
 
         {/* Flagship run strip — every value is the real settled ledger. */}
         <div className="relative mt-4 flex flex-col gap-2.5">
@@ -169,11 +199,84 @@ export default function BankBuilderPage() {
         </p>
       </section>
 
-      {/* SECTION 3 — today's official card */}
+      {/* SECTION 2.5 — the latest cleared step, with official result evidence */}
+      {latestHit ? (
+        <section
+          className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-5"
+          style={{ border: "1px solid rgba(110,231,168,0.35)", background: "linear-gradient(135deg, rgba(110,231,168,0.08), rgba(26, 16, 11,0.30))" }}
+          aria-label={`Step ${latestHit.step} hit`}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "#6EE7A8" }}>
+              Step {latestHit.step} hit · {fmtUtcDate(latestHit.date)}
+            </span>
+            <span className="rounded px-2 py-0.5 text-[11px] font-bold tracking-[0.08em]" style={{ color: "#6EE7A8", background: "rgba(110,231,168,0.15)" }}>WON</span>
+          </div>
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="font-display tabular tracking-tight" style={{ color: "var(--vault-text)", fontSize: 22, fontWeight: 700 }}>
+              {formatLadderUsdPrecise(latestHit.bankrollBefore)} <span style={{ color: "var(--vault-text-faint)" }}>→</span> {formatLadderUsdPrecise(latestHit.bankrollAfter)}
+            </span>
+            <span className="font-mono text-[12px]" style={{ color: "#6EE7A8" }}>+{formatLadderUsdPrecise(latestHit.profitUnits)}</span>
+            {typeof latestHit.combinedAmerican === "number" ? (
+              <span className="font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>{latestHit.combinedAmerican >= 0 ? "+" : ""}{latestHit.combinedAmerican}</span>
+            ) : null}
+          </div>
+          <ul className="mt-3 flex flex-col gap-1.5">
+            {latestHit.legs.map((l, i) => (
+              <li key={i} className="flex items-center gap-2.5 rounded-[8px] px-3 py-2" style={{ background: "rgba(26, 16, 11,0.45)", border: "1px solid var(--vault-rule)" }}>
+                <span aria-hidden style={{ color: "#6EE7A8", fontSize: 12 }}>✓</span>
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-[12.5px] font-semibold truncate" style={{ color: "var(--vault-text)" }}>
+                    {l.player ?? l.selection}{l.side && l.line != null ? ` · ${l.side} ${l.line}` : ""}
+                  </span>
+                  {/* Official final-result evidence — soccer final score / box-score stat. */}
+                  <span className="font-mono text-[10.5px] truncate" style={{ color: "var(--vault-text-faint)" }}>
+                    {l.finalScore
+                      ? `Final · ${l.finalScore}`
+                      : typeof l.finalStat === "number"
+                        ? `Official box score · ${l.finalStat} ${l.market.replace(/_/g, " ")}`
+                        : l.market.replace(/_/g, " ")}
+                    {l.bookmaker ? ` · ${l.bookmaker}` : ""}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {latestHit.officialResultConfirmed ? (
+            <p className="mt-2.5 font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>
+              Settled from official results · paper-only educational tracking
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
+      {/* SECTION 3 — today's official card / the final-step road to $10K */}
       {publishedCandidate ? (
         <OfficialCandidateCard candidate={publishedCandidate} />
       ) : officialStep3 ? (
         <OfficialStep3CandidateCard candidate={officialStep3} stepNumber={activeStep.step} />
+      ) : isFinalStep ? (
+        <section
+          className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-5"
+          style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(255,106,42,0.10), rgba(26, 16, 11,0.30))" }}
+          aria-label="Road to $10,000"
+        >
+          <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-10 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(8px)", opacity: 0.5 }} />
+          <span className="relative font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)" }}>Final step</span>
+          <h2 className="relative mt-1 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 3.4vw, 28px)", fontWeight: 700 }}>
+            Final step: {formatLadderUsd(activeStep.start)} → {formatLadderUsd(activeStep.goal)}
+          </h2>
+          <p className="relative mt-2 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 540 }}>
+            Step 5 review pending. The final card only publishes after the model and market gates clear a real slate — no card is invented to fill the rung.
+          </p>
+          <Link
+            href="/picks"
+            className="gtp-cta-lava vault-press relative mt-3 inline-flex rounded-full px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.12em]"
+            style={{ textDecoration: "none" }}
+          >
+            Review final step →
+          </Link>
+        </section>
       ) : (
         <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 px-5 py-4" aria-label="Today's card">
           <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">Today&apos;s card</h2>
