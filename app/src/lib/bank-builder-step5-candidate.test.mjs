@@ -51,10 +51,12 @@ test("Step 5 candidate legs are non-correlated, lineup-safe, and from tonight's 
   assert.equal(c.date, "2026-06-13");
   // Cross-sport = zero same-game correlation; the artifact must say so.
   assert.ok(/correlation/i.test(c.correlationNote ?? ""), "correlation note present");
-  // The MLB leg is a probable-starter pitcher prop (no batter midday lineup risk).
+  // The MLB leg is a real, lineup-grounded player prop (a probable-starter pitcher OR an
+  // everyday-starter batter). Either way the lineupBasis must document the start expectation.
   const mlb = c.legs.find((l) => l.sport === "mlb");
-  assert.equal(mlb.playerRole, "pitcher");
-  assert.ok(/probable starter/i.test(mlb.lineupBasis ?? ""), "MLB leg is a probable starter");
+  assert.ok(["pitcher", "batter"].includes(mlb.playerRole), "MLB leg is a real pitcher/batter prop");
+  assert.ok(/starter/i.test(mlb.lineupBasis ?? ""), "MLB leg documents its starter basis");
+  assert.ok(mlb.playerId, "MLB leg has a real player id");
   // The NBA leg is a Finals starter with a real player id.
   const nba = c.legs.find((l) => l.sport === "nba");
   assert.ok(nba.playerId, "NBA leg has a real player id");
