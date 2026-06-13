@@ -16,7 +16,7 @@ const read = (rel) => JSON.parse(fs.readFileSync(path.join(dir, rel), "utf8"));
 const candPath = path.join(dir, "bank-builder/official-step5-candidate.json");
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 
-test("Step 5 candidate (if published) is a real NBA+MLB cross-sport 2-leg, pending", () => {
+test("Step 5 candidate (if published) is a real 2-leg, pending — cross-sport NBA+MLB OR same-game 2-NBA", () => {
   if (!fs.existsSync(candPath)) return; // no card is a valid outcome
   const c = JSON.parse(fs.readFileSync(candPath, "utf8"));
   assert.equal(c.step, 5);
@@ -24,7 +24,10 @@ test("Step 5 candidate (if published) is a real NBA+MLB cross-sport 2-leg, pendi
   assert.equal(c.stake, 3623.97, "stake is the full current bankroll");
   assert.equal(c.legs.length, 2, "exactly 2 legs");
   const sports = c.legs.map((l) => l.sport).sort();
-  assert.deepEqual(sports, ["mlb", "nba"], "one NBA + one MLB leg (cross-sport, owner-authorized)");
+  // Two authorized structures: cross-sport (one NBA + one MLB) or a same-game 2-NBA stack.
+  const crossSport = JSON.stringify(sports) === JSON.stringify(["mlb", "nba"]);
+  const sameGameNba = JSON.stringify(sports) === JSON.stringify(["nba", "nba"]);
+  assert.ok(crossSport || sameGameNba, "NBA+MLB cross-sport, or two NBA Finals legs");
   // No World Cup leg / no stale-WC dependency.
   assert.ok(!c.legs.some((l) => l.sport === "world_cup"), "no World Cup leg");
 });
@@ -45,21 +48,33 @@ test("Step 5 candidate clears every gate: +176 / >=$10,000 / model>=0.55 / marke
   }
 });
 
-test("Step 5 candidate legs are non-correlated, lineup-safe, and from tonight's slate", () => {
+test("Step 5 candidate legs are correlation-reviewed, lineup-grounded, and from tonight's slate", () => {
   if (!fs.existsSync(candPath)) return;
   const c = JSON.parse(fs.readFileSync(candPath, "utf8"));
   assert.equal(c.date, "2026-06-13");
-  // Cross-sport = zero same-game correlation; the artifact must say so.
+  // Correlation must be explicitly reviewed either way (zero for cross-sport; documented
+  // same-game positive correlation for a 2-NBA stack).
   assert.ok(/correlation/i.test(c.correlationNote ?? ""), "correlation note present");
-  // The MLB leg is a real, lineup-grounded player prop (a probable-starter pitcher OR an
-  // everyday-starter batter). Either way the lineupBasis must document the start expectation.
-  const mlb = c.legs.find((l) => l.sport === "mlb");
-  assert.ok(["pitcher", "batter"].includes(mlb.playerRole), "MLB leg is a real pitcher/batter prop");
-  assert.ok(/starter/i.test(mlb.lineupBasis ?? ""), "MLB leg documents its starter basis");
-  assert.ok(mlb.playerId, "MLB leg has a real player id");
-  // The NBA leg is a Finals starter with a real player id.
-  const nba = c.legs.find((l) => l.sport === "nba");
-  assert.ok(nba.playerId, "NBA leg has a real player id");
+  const sports = c.legs.map((l) => l.sport).sort();
+  const sameGameNba = JSON.stringify(sports) === JSON.stringify(["nba", "nba"]);
+  if (sameGameNba) {
+    // Same-game 2-NBA: correlation must be acknowledged, and both legs are Finals players.
+    assert.ok(/same-game|same game/i.test(c.correlationNote ?? ""), "2-NBA stack documents same-game correlation");
+    assert.ok(c.correlationReviewed === true, "2-NBA stack is flagged correlation-reviewed");
+    for (const l of c.legs) {
+      assert.equal(l.sport, "nba");
+      assert.ok(l.playerId, `${l.label}: real NBA player id`);
+      assert.ok(/starter/i.test(l.lineupBasis ?? ""), `${l.label}: documents starter basis`);
+    }
+  } else {
+    // Cross-sport: the MLB leg is a probable-starter pitcher OR an everyday-starter batter.
+    const mlb = c.legs.find((l) => l.sport === "mlb");
+    assert.ok(["pitcher", "batter"].includes(mlb.playerRole), "MLB leg is a real pitcher/batter prop");
+    assert.ok(/starter/i.test(mlb.lineupBasis ?? ""), "MLB leg documents its starter basis");
+    assert.ok(mlb.playerId, "MLB leg has a real player id");
+    const nba = c.legs.find((l) => l.sport === "nba");
+    assert.ok(nba.playerId, "NBA leg has a real player id");
+  }
 });
 
 test("the owner-disfavored Wembanyama Rebounds Under leg is not in the published card", () => {
