@@ -29,6 +29,7 @@ import {
   loadPublicBankBuilderSummary,
   loadPublicBankBuilderLedger,
 } from "@/lib/data-bank-builder";
+import { loadStep5TargetStatus } from "@/lib/bank-builder-step5-target";
 
 const BANK = getSportIdentity("bank_builder");
 
@@ -71,6 +72,10 @@ export default function BankBuilderPage() {
   // the final rung we never run the data generator (no invented Step 5 parlay); the page
   // shows the "Step 5 review pending" panel instead.
   const isFinalStep = activeStep.step >= BANK_BUILDER_STEP_COUNT;
+  // The user's intended final rung is a specific cross-sport pair: Brazil-vs-Morocco (WC)
+  // + an NBA Finals Game 5 leg. We compute each leg's REAL readiness so the pending panel
+  // is transparent about what's blocked and the card publishes only when both are ready.
+  const step5Target = isFinalStep ? loadStep5TargetStatus() : null;
   const officialStep3 = publishedCandidate || isFinalStep ? null : pubSummary ? loadOfficialStepCandidate(currentBankroll, activeStep.goal) : null;
   const hits = (pubLedger?.entries ?? []).filter((e) => e.result === "win");
   // The most recently cleared step (highest step number) — its real legs + final-result
@@ -262,19 +267,45 @@ export default function BankBuilderPage() {
           aria-label="Road to $10,000"
         >
           <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-10 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(8px)", opacity: 0.5 }} />
-          <span className="relative font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)" }}>Final step</span>
+          <span className="relative font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)" }}>Final step · review pending</span>
           <h2 className="relative mt-1 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 3.4vw, 28px)", fontWeight: 700 }}>
             Final step: {formatLadderUsd(activeStep.start)} → {formatLadderUsd(activeStep.goal)}
           </h2>
-          <p className="relative mt-2 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 540 }}>
-            Step 5 review pending. The final card only publishes after the model and market gates clear a real slate — no card is invented to fill the rung.
+          <p className="relative mt-2 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}>
+            Target final card: <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{step5Target?.targetLabel ?? "a cross-sport 2-leg card"}</span>. It publishes only when both legs clear real model + market gates — no card is invented to fill the rung.
           </p>
+
+          {/* Per-leg readiness — computed from real artifacts, never fabricated. */}
+          {step5Target ? (
+            <div className="relative mt-3 flex flex-col gap-2">
+              {step5Target.legs.map((leg) => {
+                const tone = leg.state === "ready"
+                  ? { c: "#6EE7A8", bg: "rgba(110,231,168,0.12)", b: "rgba(110,231,168,0.35)", label: "READY" }
+                  : leg.state === "blocked"
+                    ? { c: "#F08A8A", bg: "rgba(240,138,138,0.10)", b: "rgba(240,138,138,0.32)", label: "BLOCKED" }
+                    : { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(255,122,60,0.32)", label: "PENDING" };
+                return (
+                  <div key={leg.label} className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(26, 16, 11, 0.45)", border: "1px solid var(--vault-rule)" }}>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[12.5px] font-semibold" style={{ color: "var(--vault-text)" }}>{leg.label}</span>
+                      <span className="shrink-0 rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold tracking-[0.1em]" style={{ color: tone.c, background: tone.bg, border: `1px solid ${tone.b}` }}>{tone.label}</span>
+                    </div>
+                    <p className="mt-1 text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>{leg.detail}</p>
+                  </div>
+                );
+              })}
+              <p className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
+                <span className="font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--gtp-bank-heat)" }}>Next:</span> {step5Target.nextAction}
+              </p>
+            </div>
+          ) : null}
+
           <Link
             href="/picks"
             className="gtp-cta-lava vault-press relative mt-3 inline-flex rounded-full px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.12em]"
             style={{ textDecoration: "none" }}
           >
-            Review final step →
+            Check final-step candidates →
           </Link>
         </section>
       ) : (
