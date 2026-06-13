@@ -1,24 +1,24 @@
 {
   "_disclaimer": "Confirmed-signal policy over the daily audit window — see docs/MODEL_LEARNING_LOOP.md. Demotion only; one bad slate cannot move the model.",
-  "generatedAt": "2026-06-12T11:13:16.507688+00:00",
+  "generatedAt": "2026-06-13T08:35:56.041851+00:00",
   "window": {
     "daysAvailable": 7,
     "daysRequired": 3,
     "windowDays": 7,
     "dates": [
+      "2026-06-12",
       "2026-06-11",
       "2026-06-10",
       "2026-06-09",
       "2026-06-08",
       "2026-06-07",
-      "2026-06-06",
-      "2026-06-05"
+      "2026-06-06"
     ]
   },
   "confirmed": true,
   "signals": {
     "mixedSportDownrank": {
-      "fires": 2,
+      "fires": 1,
       "daysRequired": 3,
       "confirmed": false,
       "strength": 0
@@ -36,12 +36,6 @@
         "confirmed": false,
         "weightMultiplier": 1.0
       },
-      "REB": {
-        "fires": 1,
-        "daysRequired": 3,
-        "confirmed": false,
-        "weightMultiplier": 1.0
-      },
       "batter_hits": {
         "fires": 1,
         "daysRequired": 3,
@@ -49,10 +43,10 @@
         "weightMultiplier": 1.0
       },
       "batter_hits_runs_rbis": {
-        "fires": 3,
+        "fires": 4,
         "daysRequired": 3,
         "confirmed": true,
-        "weightMultiplier": 0.85
+        "weightMultiplier": 0.8
       },
       "batter_total_bases": {
         "fires": 4,
@@ -68,10 +62,10 @@
       }
     },
     "dnpGuardStrengthen": {
-      "fires": 2,
+      "fires": 3,
       "daysRequired": 3,
-      "confirmed": false,
-      "strength": 0
+      "confirmed": true,
+      "strength": 1
     },
     "longshotKeepCollapsed": {
       "fires": 0,
