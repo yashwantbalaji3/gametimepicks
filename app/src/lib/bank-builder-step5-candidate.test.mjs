@@ -60,6 +60,20 @@ test("Step 5 candidate legs are non-correlated, lineup-safe, and from tonight's 
   assert.ok(nba.playerId, "NBA leg has a real player id");
 });
 
+test("the owner-disfavored Wembanyama Rebounds Under leg is not in the published card", () => {
+  if (!fs.existsSync(candPath)) return;
+  const c = JSON.parse(fs.readFileSync(candPath, "utf8"));
+  const hasWembyRebUnder = c.legs.some(
+    (l) => /wembanyama/i.test(l.playerName ?? "") && /rebound/i.test(l.marketLabel ?? "") && l.side === "Under",
+  );
+  assert.ok(!hasWembyRebUnder, "the replaced Wembanyama Rebounds Under leg must not remain");
+  // No banned copy may ride along in the artifact text.
+  const blob = JSON.stringify(c).toLowerCase();
+  for (const w of ["guarantee", "guaranteed", "risk-free", "can't miss", "cant miss", "sure thing", "free money", "safest"]) {
+    assert.ok(!blob.includes(w), `banned copy "${w}" must not appear`);
+  }
+});
+
 test("publishing the Step 5 candidate did NOT settle or mutate the ladder", () => {
   const s = read("bank-builder/public-summary-latest.json");
   assert.equal(s.currentBankrollUnits, 3623.97);
