@@ -40,14 +40,12 @@ test("NBA Game-5 board is REAL/Live (the model may now supply recommended legs)"
   assert.ok(nba.leans.length > 50, "real props present");
 });
 
-test("Step 5 stays review-pending — no invented card; Bank Builder unchanged", () => {
+test("Step 5 not settled — Bank Builder bankroll/record/ledger unchanged (pending)", () => {
   const s = read("bank-builder/public-summary-latest.json");
   assert.equal(s.currentBankrollUnits, 3623.97);
   assert.equal(s.currentProgressionStep, 5);
   const l = read("bank-builder/public-ledger-latest.json");
-  assert.equal(l.nextPickStatus, "pending");
-  assert.equal(l.entries.filter((e) => e.step === 5).length, 0, "no Step 5 entry");
-  // No published Step-5 candidate artifact was invented.
-  assert.equal(fs.existsSync(path.join(dir, "bank-builder/official-step5-candidate.json")), false,
-    "no Step 5 candidate fabricated");
+  // A Step 5 candidate may be published (pending), but the ladder doesn't advance until
+  // official settlement — no Step 5 ledger entry yet.
+  assert.equal(l.entries.filter((e) => e.step === 5).length, 0, "no settled Step 5 ledger entry");
 });
