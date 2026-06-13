@@ -39,15 +39,15 @@ test("current data: World Cup (Brazil) blocked → Brazil+NBA card cannot publis
     "no real June-13 World Cup projections → Brazil leg blocked → no Brazil+NBA card");
 });
 
-test("no invented Step 5 card; Bank Builder unchanged; pending panel is transparent", () => {
-  assert.equal(fs.existsSync(path.join(dir, "bank-builder/official-step5-candidate.json")), false,
-    "no fabricated Step 5 candidate");
+test("Step 5 is PENDING-only — a published candidate never mutates bankroll/record/ledger", () => {
+  // A gate-cleared Step 5 candidate may now exist (owner-authorized NBA+MLB), but it is
+  // PENDING — the ladder bankroll/record/ledger must not change until official settlement.
   const s = read("bank-builder/public-summary-latest.json");
   assert.equal(s.currentBankrollUnits, 3623.97);
   assert.equal(s.currentProgressionStep, 5);
+  assert.deepEqual(s.record, { wins: 4, losses: 0, pushes: 0 });
   const l = read("bank-builder/public-ledger-latest.json");
-  assert.equal(l.entries.filter((e) => e.step === 5).length, 0);
-  // The page renders the target structure + per-leg status (not a generic message).
+  assert.equal(l.entries.filter((e) => e.step === 5).length, 0, "no settled Step 5 ledger entry");
+  // The page still computes the per-leg target status (used when no candidate is published).
   assert.ok(page.includes("loadStep5TargetStatus"), "page computes real per-leg status");
-  assert.ok(page.includes("step5Target") && page.includes("leg.detail"), "page shows per-leg blocker detail");
 });

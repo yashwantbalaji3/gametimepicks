@@ -63,13 +63,18 @@ export interface OfficialCandidate {
   legs: OfficialCandidateLeg[];
 }
 
-/** The published official candidate for the CURRENT step + TODAY's slate, or null. */
+/** The published official candidate for the CURRENT step + TODAY's slate, or null.
+ *  Reads `official-step{currentStep}-candidate.json` so each rung's card is gated to its
+ *  own step — a settled/advanced step makes the prior card vanish automatically. */
 export function loadOfficialPublishedCandidate(): OfficialCandidate | null {
+  const summary = loadPublicBankBuilderSummary();
+  if (!summary) return null;
+  const step = summary.currentProgressionStep;
   let c: OfficialCandidate;
   try {
     c = JSON.parse(
       fs.readFileSync(
-        path.join(process.cwd(), "public", "data", "bank-builder", `official-step4-candidate.json`),
+        path.join(process.cwd(), "public", "data", "bank-builder", `official-step${step}-candidate.json`),
         "utf8",
       ),
     ) as OfficialCandidate;
@@ -78,8 +83,7 @@ export function loadOfficialPublishedCandidate(): OfficialCandidate | null {
   }
   if (!c || c.status !== "pending" || !Array.isArray(c.legs) || c.legs.length === 0) return null;
   if (c.date !== currentEtDate()) return null; // never resurface a played slate
-  const summary = loadPublicBankBuilderSummary();
-  if (!summary || summary.currentProgressionStep !== c.step) return null; // settled/advanced → gone
+  if (summary.currentProgressionStep !== c.step) return null; // settled/advanced → gone
   // Re-validate the ladder gates at read time (fail-closed on a weak/hand-edited artifact).
   for (const l of c.legs) {
     if (typeof l.americanOdds !== "number") return null;
