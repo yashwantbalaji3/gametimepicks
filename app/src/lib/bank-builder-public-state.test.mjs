@@ -14,28 +14,29 @@ test("formatLadderUsdPrecise shows cents only when present", () => {
   assert.equal(formatLadderUsdPrecise(100), "$100");
 });
 
-test("public summary reflects the settled $1,423.64 / Step 4 state (World Cup hit)", () => {
+test("public summary reflects the settled $3,623.97 / Step 5 state (Step 4 World Cup + MLB hit)", () => {
   const s = read("public-summary-latest.json");
   assert.equal(s.ladder, "100-to-10000");
-  assert.equal(s.currentBankrollUnits, 1423.64);
-  assert.equal(s.currentProgressionStep, 4);
-  assert.equal(s.currentStepStart, 1400);
-  assert.equal(s.currentStepGoal, 3500);
+  assert.equal(s.currentBankrollUnits, 3623.97);
+  assert.equal(s.currentProgressionStep, 5);
+  assert.equal(s.currentStepStart, 3500);
+  assert.equal(s.currentStepGoal, 10000);
   assert.equal(s.goalUnits, 10000);
-  assert.equal(s.nextTargetUnits, 3500);
-  assert.equal(s.record.wins, 3);
+  assert.equal(s.nextTargetUnits, 10000);
+  assert.equal(s.record.wins, 4);
   assert.equal(s.record.losses, 0);
-  assert.equal(s.lastSettledDate, "2026-06-11");
+  assert.equal(s.currentStreak, 4);
+  assert.equal(s.lastSettledDate, "2026-06-12");
   assert.equal(s.lastSettledResult, "win");
-  assert.equal(s.lastSettledLabel, "World Cup HIT");
-  // $1,423.64 resolves to Step 4 ($1,400–$3,500) under the public ladder.
-  assert.equal(resolveLadderStep(1423.64)?.step, 4);
+  assert.equal(s.lastSettledLabel, "Step 4 HIT — World Cup + MLB");
+  // $3,623.97 resolves to Step 5 ($3,500–$10,000), the final rung.
+  assert.equal(resolveLadderStep(3623.97)?.step, 5);
 });
 
-test("public ledger: Step 1 MLB, Step 2 NBA Finals, Step 3 World Cup — all official hits", () => {
+test("public ledger: Steps 1–4 all official hits (MLB, NBA, World Cup, Mixed WC+MLB)", () => {
   const l = read("public-ledger-latest.json");
-  assert.equal(l.entries.length, 3);
-  const [s1, s2, s3] = l.entries;
+  assert.equal(l.entries.length, 4);
+  const [s1, s2, s3, s4] = l.entries;
   assert.equal(s1.step, 1);
   assert.equal(s1.result, "win");
   assert.equal(s1.bankrollAfter, 211.85);
@@ -44,26 +45,33 @@ test("public ledger: Step 1 MLB, Step 2 NBA Finals, Step 3 World Cup — all off
   assert.equal(s2.result, "win");
   assert.equal(s2.bankrollAfter, 728.76);
   assert.equal(s2.officialResultConfirmed, true);
-  // Castle REB + Anunoby PRA legs, both won
   assert.ok(s2.legs.every((x) => x.result === "win"));
   assert.ok(s2.legs.some((x) => (x.player ?? "").includes("Anunoby")));
   // Step 3 — the World Cup card, settled from official 90-minute finals.
   assert.equal(s3.step, 3);
   assert.equal(s3.sport, "World Cup");
-  assert.equal(s3.date, "2026-06-11");
   assert.equal(s3.result, "win");
   assert.equal(s3.bankrollBefore, 728.76);
   assert.equal(s3.bankrollAfter, 1423.64);
   assert.equal(s3.profitUnits, 694.88);
-  assert.equal(s3.combinedAmerican, -105);
-  assert.equal(s3.officialResultConfirmed, true);
   assert.equal(s3.settlementSource, "espn_scoreboard");
-  assert.equal(s3.legs.length, 2);
-  assert.ok(s3.legs.every((x) => x.result === "win"));
   assert.ok(s3.legs.some((x) => x.selection === "Mexico" && x.finalScore === "Mexico 2-0 South Africa"));
-  assert.ok(s3.legs.some((x) => x.selection === "South Korea or Czechia" && x.finalScore === "South Korea 2-1 Czechia"));
-  assert.equal(l.nextStakeUnits, 1423.64);
-  assert.equal(l.nextTargetUnits, 3500);
+  // Step 4 — the mixed World Cup + MLB card, settled from official soccer final + MLB box score.
+  assert.equal(s4.step, 4);
+  assert.equal(s4.date, "2026-06-12");
+  assert.equal(s4.result, "win");
+  assert.equal(s4.bankrollBefore, 1423.64);
+  assert.equal(s4.bankrollAfter, 3623.97);
+  assert.equal(s4.profitUnits, 2200.33);
+  assert.equal(s4.combinedAmerican, 155);
+  assert.equal(s4.officialResultConfirmed, true);
+  assert.equal(s4.legs.length, 2);
+  assert.ok(s4.legs.every((x) => x.result === "win"));
+  // Official evidence: USA 4-1 Paraguay (double chance) + Avila 0 K (Under 3.5).
+  assert.ok(s4.legs.some((x) => x.selection === "United States or Paraguay" && x.finalScore === "United States 4-1 Paraguay"));
+  assert.ok(s4.legs.some((x) => x.player === "Luinder Avila" && x.side === "Under" && x.line === 3.5 && x.finalStat === 0));
+  assert.equal(l.nextStakeUnits, 3623.97);
+  assert.equal(l.nextTargetUnits, 10000);
 });
 
 test("settlement integrity: exact parlay math, ledger continuity, no duplicate steps", () => {

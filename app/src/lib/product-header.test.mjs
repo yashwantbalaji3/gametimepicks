@@ -30,9 +30,11 @@ test("lineup-status vocabulary: calm labels, no shouting PRE-LINEUP", async () =
   }
 });
 
-test("step-4 candidate review: current card retained — legs unchanged and pending", () => {
+test("step-4 candidate: settled WON, original legs + odds retained as historical evidence", () => {
   const c = JSON.parse(fs.readFileSync("public/data/bank-builder/official-step4-candidate.json", "utf8"));
-  assert.equal(c.status, "pending");
+  assert.equal(c.status, "won");
+  assert.equal(c.result, "win");
+  // Legs are never rewritten by settlement — the original card is preserved as evidence.
   assert.deepEqual(
     c.legs.map((l) => l.label).sort(),
     ["Luinder Avila Strikeouts Under 3.5", "United States or Paraguay"].sort(),

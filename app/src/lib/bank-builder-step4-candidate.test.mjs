@@ -15,7 +15,12 @@ const read = (f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
 test("step-4 candidate: exact parlay math on the full current bankroll", () => {
   const c = read("official-step4-candidate.json");
   assert.equal(c.step, 4);
-  assert.equal(c.status, "pending");
+  // Settled WON from official results (was pending; the gated pending-card view is off now).
+  assert.equal(c.status, "won");
+  assert.equal(c.result, "win");
+  assert.equal(c.officialResultConfirmed, true);
+  assert.equal(c.settledReturn, 3623.97);
+  assert.equal(c.settledProfit, 2200.33);
   assert.equal(c.stake, 1423.64); // full current bankroll, never partial
   const dec = c.legs.reduce(
     (acc, l) => acc * (l.americanOdds < 0 ? 1 + 100 / Math.abs(l.americanOdds) : 1 + l.americanOdds / 100),
@@ -51,12 +56,16 @@ test("step-4 candidate: every leg clears the ladder gates", () => {
   assert.ok(wcl && wcl.regulationOnly === true);
 });
 
-test("publishing the candidate did NOT mutate the ladder state", () => {
+test("settling Step 4 advanced the ladder to Step 5 (4-0), idempotently", () => {
   const s = read("public-summary-latest.json");
   const l = read("public-ledger-latest.json");
-  assert.equal(s.currentBankrollUnits, 1423.64);
-  assert.equal(s.currentProgressionStep, 4);
-  assert.deepEqual(s.record, { wins: 3, losses: 0, pushes: 0 });
-  assert.equal(l.entries.length, 3); // still exactly the three settled hits
+  assert.equal(s.currentBankrollUnits, 3623.97);
+  assert.equal(s.currentProgressionStep, 5);
+  assert.deepEqual(s.record, { wins: 4, losses: 0, pushes: 0 });
+  assert.equal(l.entries.length, 4); // the four settled hits — Step 4 added exactly once
+  assert.equal(l.entries.filter((e) => e.step === 4).length, 1, "Step 4 settled once (idempotent)");
+  // Step 5 is the pending final rung; no Step 5 card published yet.
   assert.equal(l.nextPickStatus, "pending");
+  assert.equal(l.nextStakeUnits, 3623.97);
+  assert.equal(l.nextTargetUnits, 10000);
 });
