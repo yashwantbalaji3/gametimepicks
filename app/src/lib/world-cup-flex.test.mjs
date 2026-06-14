@@ -21,13 +21,13 @@ test("flex leg, when present, is a Low-risk model-favorite — and NOT an exclud
   assert.equal(typeof leg.americanOdds, "number");
 });
 
-test("Flex Card must NOT touch the official Bank Builder (settled: $3,623.97, Step 5, no nextPick)", () => {
+test("Flex Card must NOT touch the official Bank Builder (settled: $10,376.17, Step 5, no nextPick)", () => {
   const p = path.join(process.cwd(), "public", "data", "bank-builder", "public-summary-latest.json");
   const s = JSON.parse(fs.readFileSync(p, "utf8"));
-  assert.equal(s.currentBankrollUnits, 3623.97);
+  assert.equal(s.currentBankrollUnits, 10376.17);
   assert.equal(s.currentProgressionStep, 5);
-  // No published nextPick — the Step-5 final card has not been selected yet.
-  assert.ok(s.nextPick == null || s.nextPick === undefined, "nextPick must be absent (pending)");
+  // No published nextPick — the Road to $10K is complete, there is no further card to stake.
+  assert.ok(s.nextPick == null || s.nextPick === undefined, "nextPick must be absent (run complete)");
 });
 
 test("official Step-3 candidate, when present: 2 WC legs, real odds, >= $1,400, no correlation, stake locked", () => {

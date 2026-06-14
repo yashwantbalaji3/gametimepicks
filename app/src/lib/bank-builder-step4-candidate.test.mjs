@@ -56,16 +56,17 @@ test("step-4 candidate: every leg clears the ladder gates", () => {
   assert.ok(wcl && wcl.regulationOnly === true);
 });
 
-test("settling Step 4 advanced the ladder to Step 5 (4-0), idempotently", () => {
+test("Step 4 settled exactly once; the ladder has since reached the $10K crown (5-0), idempotently", () => {
   const s = read("public-summary-latest.json");
   const l = read("public-ledger-latest.json");
-  assert.equal(s.currentBankrollUnits, 3623.97);
+  assert.equal(s.currentBankrollUnits, 10376.17);
   assert.equal(s.currentProgressionStep, 5);
-  assert.deepEqual(s.record, { wins: 4, losses: 0, pushes: 0 });
-  assert.equal(l.entries.length, 4); // the four settled hits — Step 4 added exactly once
+  assert.deepEqual(s.record, { wins: 5, losses: 0, pushes: 0 });
+  assert.equal(l.entries.length, 5); // the five settled hits — each step added exactly once
   assert.equal(l.entries.filter((e) => e.step === 4).length, 1, "Step 4 settled once (idempotent)");
-  // Step 5 is the pending final rung; no Step 5 card published yet.
-  assert.equal(l.nextPickStatus, "pending");
-  assert.equal(l.nextStakeUnits, 3623.97);
+  assert.equal(l.entries.filter((e) => e.step === 5).length, 1, "Step 5 settled once (idempotent)");
+  // Step 5 has hit and completed the run — no further card to stake.
+  assert.equal(l.nextPickStatus, "completed");
+  assert.equal(l.nextStakeUnits, null);
   assert.equal(l.nextTargetUnits, 10000);
 });

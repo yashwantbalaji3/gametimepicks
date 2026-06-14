@@ -1,5 +1,5 @@
 {
-  "_disclaimer": "Public paper bankroll — educational tracking only, not betting advice, not a guarantee.",
+  "_disclaimer": "Public paper bankroll \u2014 educational tracking only, not betting advice, not a guarantee.",
   "ladder": "100-to-10000",
   "base": 100,
   "goal": 10000,
@@ -53,7 +53,7 @@
       "settlementSource": "espn_summary_boxscore",
       "officialResultConfirmed": true,
       "sameGame": true,
-      "correlationNote": "Single-game card — every leg is from tonight's game, so the legs are more connected than a multi-game parlay.",
+      "correlationNote": "Single-game card \u2014 every leg is from tonight's game, so the legs are more connected than a multi-game parlay.",
       "legs": [
         {
           "player": "Stephon Castle",
@@ -79,7 +79,7 @@
       "step": 3,
       "date": "2026-06-11",
       "sport": "World Cup",
-      "event": "FIFA World Cup group stage — opening day",
+      "event": "FIFA World Cup group stage \u2014 opening day",
       "result": "win",
       "bankrollBefore": 728.76,
       "bankrollAfter": 1423.64,
@@ -116,7 +116,7 @@
       "step": 4,
       "date": "2026-06-12",
       "sport": "Mixed (World Cup + MLB)",
-      "event": "FIFA World Cup group stage + MLB — mixed-sport ladder card",
+      "event": "FIFA World Cup group stage + MLB \u2014 mixed-sport ladder card",
       "result": "win",
       "bankrollBefore": 1423.64,
       "bankrollAfter": 3623.97,
@@ -127,7 +127,7 @@
       "settlementSource": "espn_scoreboard + mlb_stats_api",
       "officialResultConfirmed": true,
       "sameGame": false,
-      "correlationNote": "Two legs from different sports/games — zero same-game correlation.",
+      "correlationNote": "Two legs from different sports/games \u2014 zero same-game correlation.",
       "legs": [
         {
           "selection": "United States or Paraguay",
@@ -150,10 +150,49 @@
           "finalStat": 0
         }
       ]
+    },
+    {
+      "step": 5,
+      "date": "2026-06-13",
+      "sport": "NBA",
+      "event": "NBA Finals Game 5 \u00b7 Knicks 94\u201390 Spurs",
+      "result": "win",
+      "bankrollBefore": 3623.97,
+      "bankrollAfter": 10376.17,
+      "stakeUnits": 3623.97,
+      "payoutUnits": 10376.17,
+      "profitUnits": 6752.2,
+      "combinedAmerican": 186,
+      "settlementSource": "espn",
+      "officialResultConfirmed": true,
+      "sameGame": true,
+      "correlationNote": "Same-game rebound stack \u2014 two Spurs starters' rebounds, positively correlated; both cleared.",
+      "legs": [
+        {
+          "player": "Devin Vassell",
+          "market": "REB",
+          "side": "Over",
+          "line": 4.5,
+          "oddsForSide": -143,
+          "bookmaker": "draftkings",
+          "result": "win",
+          "finalStat": 7
+        },
+        {
+          "player": "Stephon Castle",
+          "market": "REB",
+          "side": "Over",
+          "line": 4.5,
+          "oddsForSide": -146,
+          "bookmaker": "fanduel",
+          "result": "win",
+          "finalStat": 5
+        }
+      ]
     }
   ],
-  "nextPickStatus": "pending",
+  "nextPickStatus": "completed",
   "nextEligibleDate": null,
-  "nextStakeUnits": 3623.97,
+  "nextStakeUnits": null,
   "nextTargetUnits": 10000
 }

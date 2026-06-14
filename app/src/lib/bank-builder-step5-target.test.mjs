@@ -32,15 +32,16 @@ test("the page no longer shows Brazil / API-Football as a Step 5 blocker", () =>
   assert.ok(!/API-?Football credential/i.test(page), "no API-Football blocker on the page");
 });
 
-test("Step 5 is PENDING-only — a published candidate never mutates bankroll/record/ledger", () => {
-  // A gate-cleared Step 5 candidate may now exist (owner-authorized NBA+MLB), but it is
-  // PENDING — the ladder bankroll/record/ledger must not change until official settlement.
+test("Step 5 has officially settled — the ladder reflects the completed Road to $10K", () => {
+  // The gate-cleared Step 5 candidate (owner-authorized) has now officially settled as a WIN,
+  // so the ladder advanced exactly once to the $10K crown — no double-count, no fabrication.
   const s = read("bank-builder/public-summary-latest.json");
-  assert.equal(s.currentBankrollUnits, 3623.97);
+  assert.equal(s.currentBankrollUnits, 10376.17);
   assert.equal(s.currentProgressionStep, 5);
-  assert.deepEqual(s.record, { wins: 4, losses: 0, pushes: 0 });
+  assert.deepEqual(s.record, { wins: 5, losses: 0, pushes: 0 });
   const l = read("bank-builder/public-ledger-latest.json");
-  assert.equal(l.entries.filter((e) => e.step === 5).length, 0, "no settled Step 5 ledger entry");
+  assert.equal(l.entries.filter((e) => e.step === 5).length, 1, "exactly one settled Step 5 ledger entry");
+  assert.equal(l.entries.find((e) => e.step === 5).result, "win");
   // The page still computes the per-leg target status (used when no candidate is published).
   assert.ok(page.includes("loadStep5TargetStatus"), "page computes real per-leg status");
 });

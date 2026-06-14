@@ -24,9 +24,11 @@ const HISTORY_VISUALS: Record<string, HistoryLegVisual> = {
   // Step 1 — MLB
   "Shohei Ohtani": { kind: "player", sport: "mlb", playerId: 660271, team: "LAD" },
   "Corey Seager": { kind: "player", sport: "mlb", playerId: 608369, team: "TEX" },
-  // Step 2 — NBA Finals Game 4
+  // Step 2 — NBA Finals Game 4 · Step 5 — NBA Finals Game 5 (Castle hit in both)
   "Stephon Castle": { kind: "player", sport: "nba", playerId: 4845367, team: "SA" },
   "OG Anunoby": { kind: "player", sport: "nba", playerId: 3934719, team: "NY" },
+  // Step 5 — NBA Finals Game 5
+  "Devin Vassell": { kind: "player", sport: "nba", playerId: 4395630, team: "SA" },
   // Step 3 — World Cup
   "Mexico": { kind: "match", codes: ["MX"] },
   "South Korea or Czechia": { kind: "match", codes: ["KR", "CZ"] },

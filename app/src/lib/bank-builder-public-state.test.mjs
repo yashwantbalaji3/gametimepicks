@@ -14,29 +14,33 @@ test("formatLadderUsdPrecise shows cents only when present", () => {
   assert.equal(formatLadderUsdPrecise(100), "$100");
 });
 
-test("public summary reflects the settled $3,623.97 / Step 5 state (Step 4 World Cup + MLB hit)", () => {
+test("public summary reflects the settled $10,376.17 / Step 5 HIT state (Road to $10K complete)", () => {
   const s = read("public-summary-latest.json");
   assert.equal(s.ladder, "100-to-10000");
-  assert.equal(s.currentBankrollUnits, 3623.97);
+  assert.equal(s.currentBankrollUnits, 10376.17);
   assert.equal(s.currentProgressionStep, 5);
   assert.equal(s.currentStepStart, 3500);
   assert.equal(s.currentStepGoal, 10000);
   assert.equal(s.goalUnits, 10000);
   assert.equal(s.nextTargetUnits, 10000);
-  assert.equal(s.record.wins, 4);
+  assert.equal(s.record.wins, 5);
   assert.equal(s.record.losses, 0);
-  assert.equal(s.currentStreak, 4);
-  assert.equal(s.lastSettledDate, "2026-06-12");
+  assert.equal(s.currentStreak, 5);
+  assert.equal(s.lastSettledDate, "2026-06-13");
   assert.equal(s.lastSettledResult, "win");
-  assert.equal(s.lastSettledLabel, "Step 4 HIT — World Cup + MLB");
-  // $3,623.97 resolves to Step 5 ($3,500–$10,000), the final rung.
+  assert.equal(s.lastSettledLabel, "Step 5 HIT — NBA Finals Game 5 · Road to $10K complete");
+  assert.equal(s.runStatus, "completed");
+  assert.equal(s.finalBankrollUnits, 10376.17);
+  // The final $10,376.17 has crossed the $10,000 crown — the ladder is complete (resolves to null).
+  assert.equal(resolveLadderStep(10376.17), null);
+  // Step 5 ($3,500–$10,000) was the final rung that just hit.
   assert.equal(resolveLadderStep(3623.97)?.step, 5);
 });
 
-test("public ledger: Steps 1–4 all official hits (MLB, NBA, World Cup, Mixed WC+MLB)", () => {
+test("public ledger: Steps 1–5 all official hits (MLB, NBA, World Cup, Mixed WC+MLB, NBA)", () => {
   const l = read("public-ledger-latest.json");
-  assert.equal(l.entries.length, 4);
-  const [s1, s2, s3, s4] = l.entries;
+  assert.equal(l.entries.length, 5);
+  const [s1, s2, s3, s4, s5] = l.entries;
   assert.equal(s1.step, 1);
   assert.equal(s1.result, "win");
   assert.equal(s1.bankrollAfter, 211.85);
@@ -70,7 +74,27 @@ test("public ledger: Steps 1–4 all official hits (MLB, NBA, World Cup, Mixed W
   // Official evidence: USA 4-1 Paraguay (double chance) + Avila 0 K (Under 3.5).
   assert.ok(s4.legs.some((x) => x.selection === "United States or Paraguay" && x.finalScore === "United States 4-1 Paraguay"));
   assert.ok(s4.legs.some((x) => x.player === "Luinder Avila" && x.side === "Under" && x.line === 3.5 && x.finalStat === 0));
-  assert.equal(l.nextStakeUnits, 3623.97);
+  // Step 5 — the same-game NBA Finals Game 5 card that completed the Road to $10K.
+  assert.equal(s5.step, 5);
+  assert.equal(s5.date, "2026-06-13");
+  assert.equal(s5.sport, "NBA");
+  assert.equal(s5.event, "NBA Finals Game 5 · Knicks 94–90 Spurs");
+  assert.equal(s5.result, "win");
+  assert.equal(s5.bankrollBefore, 3623.97);
+  assert.equal(s5.bankrollAfter, 10376.17);
+  assert.equal(s5.profitUnits, 6752.2);
+  assert.equal(s5.combinedAmerican, 186);
+  assert.equal(s5.settlementSource, "espn");
+  assert.equal(s5.officialResultConfirmed, true);
+  assert.equal(s5.sameGame, true);
+  assert.equal(s5.legs.length, 2);
+  assert.ok(s5.legs.every((x) => x.result === "win"));
+  // Official evidence: Vassell 7 REB (Over 4.5) + Castle 5 REB (Over 4.5).
+  assert.ok(s5.legs.some((x) => x.player === "Devin Vassell" && x.side === "Over" && x.line === 4.5 && x.finalStat === 7));
+  assert.ok(s5.legs.some((x) => x.player === "Stephon Castle" && x.side === "Over" && x.line === 4.5 && x.finalStat === 5));
+  // Run complete — no next pick; the stake field is cleared.
+  assert.equal(l.nextPickStatus, "completed");
+  assert.equal(l.nextStakeUnits, null);
   assert.equal(l.nextTargetUnits, 10000);
 });
 
