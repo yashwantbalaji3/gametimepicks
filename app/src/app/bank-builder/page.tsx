@@ -77,6 +77,9 @@ export default function BankBuilderPage() {
   // the review panel (shown only when no official candidate is published) is honest.
   const step5Target = isFinalStep ? loadStep5TargetStatus() : null;
   const officialStep3 = publishedCandidate || isFinalStep ? null : pubSummary ? loadOfficialStepCandidate(currentBankroll, activeStep.goal) : null;
+  const candidateSports = publishedCandidate
+    ? Array.from(new Set(publishedCandidate.legs.map((l) => getSportIdentity(l.sport).label))).join(" + ")
+    : null;
   const hits = (pubLedger?.entries ?? []).filter((e) => e.result === "win");
   // The most recently cleared step (highest step number) — its real legs + final-result
   // evidence power the celebratory "latest hit" card above the previous-hits grid.
@@ -157,7 +160,7 @@ export default function BankBuilderPage() {
       <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
         <BoardStatTile label="Paper bankroll" value={formatLadderUsdPrecise(currentBankroll)} sub={`Step ${activeStep.step} / 5 · current run`} accent="var(--risk-low)" />
         <BoardStatTile label="Today's goal" value={formatLadderUsd(activeStep.goal)} sub={`from ${formatLadderUsd(activeStep.start)} · pending`} accent="var(--sport-soccer)" />
-        <BoardStatTile label="Today's card" value={publishedCandidate || officialStep3 ? "Pending" : "—"} sub={publishedCandidate ? `WC + MLB · Step ${activeStep.step}` : officialStep3 ? `World Cup · Step ${activeStep.step}` : "none cleared yet"} accent="var(--risk-longshot)" />
+        <BoardStatTile label="Today's card" value={publishedCandidate || officialStep3 ? "Pending" : "—"} sub={publishedCandidate ? `${candidateSports} · Step ${activeStep.step}` : officialStep3 ? `World Cup · Step ${activeStep.step}` : "none cleared yet"} accent="var(--risk-longshot)" />
         <BoardStatTile label="Record" value={recordLabel} sub="settled ladder steps" accent="var(--vault-gold-bright)" />
       </div>
 
@@ -166,10 +169,10 @@ export default function BankBuilderPage() {
         <BankBuilderTower activeStepNumber={activeStep.step} currentBankroll={currentBankroll} />
       </div>
 
-      <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5" aria-label="Run plan">
+      <section className="mt-5 rounded-2xl p-5" style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel)" }} aria-label="Run plan">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">Run plan</h2>
-          <span className="text-[11.5px] text-zinc-500">Bankroll today is {formatLadderUsdPrecise(currentBankroll)} — targets below are goals, not the current balance.</span>
+          <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--vault-text)" }}>Run plan</h2>
+          <span className="text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>Bankroll today is {formatLadderUsdPrecise(currentBankroll)} — targets below are goals, not the current balance.</span>
         </div>
         <ol className="flex flex-col gap-2">
           {BANK_BUILDER_LADDER.filter((s) => s.step >= activeStep.step).slice(0, 3).map((s, i) => {
@@ -199,7 +202,7 @@ export default function BankBuilderPage() {
             );
           })}
         </ol>
-        <p className="mt-3 text-[11.5px] leading-snug text-zinc-500">
+        <p className="mt-3 text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
           Later steps are planned only if today&apos;s step settles successfully. A loss resets the run to the {formatLadderUsd(BANK_BUILDER_LADDER[0].start)} base. Paper-only educational tracking.
         </p>
       </section>
@@ -307,9 +310,9 @@ export default function BankBuilderPage() {
           </Link>
         </section>
       ) : (
-        <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 px-5 py-4" aria-label="Today's card">
-          <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em] text-zinc-300">Today&apos;s card</h2>
-          <p className="mt-1.5 text-[13px] text-zinc-400">No official Bank Builder card has cleared today&apos;s gates yet. A card appears only when the slate supports one.</p>
+        <section className="mt-5 rounded-2xl px-5 py-4" style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel)" }} aria-label="Today's card">
+          <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--vault-text)" }}>Today&apos;s card</h2>
+          <p className="mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No official Bank Builder card has cleared today&apos;s gates yet. A card appears only when the slate supports one.</p>
         </section>
       )}
 
