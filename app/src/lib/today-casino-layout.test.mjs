@@ -13,10 +13,14 @@ test("the 'What's live today' counts hero is removed", () => {
   assert.ok(!src.includes("What&apos;s live today"), "old hero heading must be gone");
 });
 
-test("Bank Builder spotlight renders before suggested cards", () => {
-  const spotlight = src.indexOf("Bank Builder spotlight");
+test("UFC featured slate leads on a UFC day, with Bank Builder recap before suggested cards", () => {
+  const ufc = src.indexOf("featured slate · UFC");
+  const bank = src.indexOf("Bank Builder · {dateLabel}");
   const cards = src.indexOf("Suggested paper cards");
-  assert.ok(spotlight > 0 && cards > 0 && spotlight < cards, "spotlight must precede suggested cards");
+  assert.ok(ufc > 0, "UFC featured slate section present");
+  assert.ok(bank > 0 && cards > 0, "Bank Builder recap + suggested cards present");
+  assert.ok(ufc < bank, "UFC featured slate leads the Bank Builder recap on a UFC day");
+  assert.ok(bank < cards, "Bank Builder recap precedes suggested cards");
 });
 
 test("heat system tokens exist in the design system", () => {
