@@ -46,6 +46,23 @@ test("/today features UFC as a sport and as the lead slate", () => {
   assert.ok(todayPage.includes("featured slate · UFC"), "UFC featured-slate lead section present");
 });
 
+test("UFC page has a Markets tab that honestly scopes coverage to moneyline-only", () => {
+  assert.ok(ufcPage.includes('label: "Markets"'), "Markets tab present");
+  assert.ok(/moneyline \(h2h\) only/i.test(ufcPage), "expanded markets explained as feed-limited (h2h-only)");
+  // Total rounds / method / distance are listed as markets but only LIVE when real odds exist.
+  assert.ok(/Total rounds/i.test(ufcPage) && /Method of victory/i.test(ufcPage) && /Goes the distance/i.test(ufcPage),
+    "expanded markets are enumerated (shown unavailable, not hidden or faked)");
+  assert.ok(ufcPage.includes("propMarketsAvailable"), "expanded-market live state is gated on real availability flags");
+});
+
+test("/methodology includes an honest UFC section (sources, coverage, limitations)", () => {
+  const m = fs.readFileSync("src/app/methodology/page.tsx", "utf8");
+  assert.ok(/UFC — moneyline V1/.test(m), "UFC methodology section present");
+  assert.ok(/ESPN MMA/i.test(m) && /Odds API MMA/i.test(m), "UFC data sources documented");
+  assert.ok(/odds unavailable|not in the feed|unavailable/i.test(m), "expanded markets marked unavailable honestly");
+  assert.ok(/Validation in progress/i.test(m), "validation status documented");
+});
+
 test("no banned promotional copy in /ufc or /today", () => {
   for (const [name, src] of [["/ufc", ufcPage], ["/today", todayPage]]) {
     const blob = src.toLowerCase();
