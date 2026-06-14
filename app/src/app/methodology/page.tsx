@@ -177,6 +177,54 @@ export default function MethodologyPage() {
         </div>
       </section>
 
+      {/* UFC methodology — added for the UFC public-ready launch. Honest about
+          moneyline-only scope + validation status; no claim of fully-modeled props. */}
+      <section className="mt-12">
+        <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
+          UFC — moneyline V1
+        </h2>
+        <div className="vault-deluxe-card p-5 sm:p-6 space-y-5">
+          <p className="text-[14px] sm:text-[15px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+            UFC joins the product the same way MLB did — published only after the model is graded
+            against real settled fights. V1 is <span style={{ color: "var(--vault-text)" }}>moneyline-only</span> and
+            validation-stage: it carries real schedule, real sportsbook lines, and fighter stats, with a
+            separate validated badge that appears only after a no-leakage backtest threshold is met. Paper-only, educational analytics.
+          </p>
+          <div>
+            <div className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: "var(--vault-gold-bright)" }}>Data sources</div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <DataSourceCell label="Schedule" body="Real event cards + fighters from the free ESPN MMA scoreboard." />
+              <DataSourceCell label="Odds" body="Moneyline (h2h) lines from The Odds API MMA. Method / round / distance markets are not in the feed today." />
+              <DataSourceCell label="Fighter stats" body="Records, striking, takedowns, and finish rates from a UFCStats dataset." />
+            </div>
+          </div>
+          <div>
+            <div className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: "var(--vault-gold-bright)" }}>Market coverage</div>
+            <ul className="space-y-1.5 font-mono text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+              <li><span style={{ color: "var(--vault-success)" }}>Moneyline (h2h)</span> — live: model win probability vs the de-vigged market price, with edge.</li>
+              <li><span style={{ color: "var(--vault-text-faint)" }}>Total rounds · goes the distance · method of victory</span> — odds unavailable (the connected feed is moneyline-only); shown as unavailable, never modeled from nothing.</li>
+            </ul>
+          </div>
+          <div>
+            <div className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: "var(--vault-gold-bright)" }}>Model + edge</div>
+            <p className="text-[14px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              Win probability blends fighter record, finish/decision splits, and recent form, normalized against
+              the market-implied baseline (vig stripped two-sided). Edge = model probability − market probability.
+              The model is conservative: when it agrees with the market it reports &ldquo;no clear edge&rdquo; rather than manufacturing one.
+            </p>
+          </div>
+          <div>
+            <div className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: "var(--vault-gold-bright)" }}>Limitations</div>
+            <ul className="space-y-3.5 list-none">
+              <LimitationRow title="Validation in progress" body="No historical backtest threshold met yet — the validated badge is withheld until it is." />
+              <LimitationRow title="Small-sample sport" body="UFC has far fewer fights than an MLB/NBA season; estimates are noisier." />
+              <LimitationRow title="Late news risk" body="Weigh-in misses, short-notice replacements, and cancellations can change a card after odds post." />
+              <LimitationRow title="Props unavailable" body="Method / round / distance props stay off until a real prop-odds feed and a model for them exist." />
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section className="mt-12">
         <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
           Status states

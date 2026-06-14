@@ -32,6 +32,7 @@ type Readiness = {
   scheduleReady: boolean; oddsReady: boolean; fighterStatsReady: boolean; gradingReady: boolean;
   backtestReady: boolean; projectionsReady: boolean; parlayReady: boolean; publicLevel: string;
   blockers: string[]; publicMessage: string;
+  propMarketsAvailable?: { h2h?: boolean; method?: boolean; distance?: boolean; rounds?: boolean };
 };
 type OddsSide = { name: string; price: number; impliedProbability: number };
 type OddsBout = { eventId?: string; commenceTime?: string; fighters: string[]; bookmaker?: string; lastUpdate?: string; sides: OddsSide[] };
@@ -159,6 +160,36 @@ export default function UfcPage() {
     </div>
   );
 
+  const marketCoverage = [
+    {
+      key: "h2h", label: "Moneyline (h2h)", live: showV1Proj,
+      detail: showV1Proj
+        ? `${ufcProjections.length} model-reviewed win projections with real sportsbook odds and edge.`
+        : "Awaiting two-sided moneyline lines for the next card.",
+    },
+    { key: "rounds", label: "Total rounds (Over / Under)", live: Boolean(r.propMarketsAvailable?.rounds), detail: "Odds unavailable — the connected MMA feed is moneyline (h2h) only. No prop is shown until real odds + a model exist." },
+    { key: "distance", label: "Goes the distance / does not", live: Boolean(r.propMarketsAvailable?.distance), detail: "Odds unavailable — the connected MMA feed is moneyline (h2h) only. No prop is shown until real odds + a model exist." },
+    { key: "method", label: "Method of victory (KO/TKO · submission · decision)", live: Boolean(r.propMarketsAvailable?.method), detail: "Odds unavailable — the connected MMA feed is moneyline (h2h) only. No prop is shown until real odds + a model exist." },
+  ];
+  const marketsTab = (
+    <div className="flex flex-col gap-4">
+      <SectionHeader eyebrow={`Markets · ${marketCoverage.filter((m) => m.live).length} live`} title="UFC market coverage" sub="UFC V1 publishes only markets backed by real odds and a model. The connected MMA odds feed is moneyline (h2h) only today — total-rounds, goes-the-distance, and method-of-victory props are not offered yet. Nothing is fabricated to fill a market." />
+      <div className="flex flex-col gap-2">
+        {marketCoverage.map((m) => (
+          <div key={m.key} className="flex items-start gap-3 rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+            <span className="shrink-0 rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold tracking-[0.1em]" style={{ color: m.live ? "var(--vault-success)" : "var(--vault-text-faint)", background: m.live ? "rgba(110,231,168,0.14)" : "rgba(26, 16, 11,0.6)", border: `1px solid ${m.live ? "rgba(110,231,168,0.35)" : "var(--vault-rule)"}` }}>
+              {m.live ? "LIVE" : "UNAVAILABLE"}
+            </span>
+            <span className="flex flex-col">
+              <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{m.label}</span>
+              <span className="font-mono leading-snug" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{m.detail}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   const cardsTab = (
     <div className="flex flex-col gap-4">
       <SectionHeader eyebrow={`Suggested cards · ${ufcCards.length}`} title="UFC suggested moneyline parlays" sub="Conservative cards built only from moneyline legs — no props, no same-fight combinations. Model-probability only: no market odds, so no paper payout is shown. Educational / paper, not betting advice." />
@@ -220,6 +251,7 @@ export default function UfcPage() {
     { key: "overview", label: "Overview", content: overviewTab },
     { key: "fight-card", label: "Fight Card", badge: bouts.length || null, content: fightCardTab },
     { key: "projections", label: "Projections", badge: ufcProjections.length || null, content: projectionsTab },
+    { key: "markets", label: "Markets", badge: null, content: marketsTab },
     { key: "cards", label: "Suggested Cards", badge: ufcCards.length || null, content: cardsTab },
     { key: "results", label: "Results", badge: null, content: resultsTab },
     { key: "methodology", label: "Methodology", badge: null, content: methodologyTab },
