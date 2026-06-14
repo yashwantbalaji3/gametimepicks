@@ -5,6 +5,8 @@
  * existing homepage or sport pages.
  */
 import Link from "next/link";
+import fs from "node:fs";
+import path from "node:path";
 
 import { currentEtDate } from "@/lib/freshness";
 import {
@@ -58,8 +60,28 @@ export default function TodayPage() {
   const wcProj = loadWorldCupProjections();
   const wcPlayers = loadWorldCupPlayerProjections();
   const mlb = getMlbBoardForDate(today);
-  // Public ladder summary ($728.76) — the source of truth, not the internal audit summary.
+  // Public ladder summary — the source of truth, not the internal audit summary.
   const bank = loadPublicBankBuilderSummary();
+  // Bank Builder completed → bankroll cleared the $10,000 crown with a clean run.
+  const bankCompleted = bank ? resolveLadderStep(bank.currentBankrollUnits) === null && bank.record.losses === 0 : false;
+
+  // UFC — tonight's featured slate (real ESPN MMA card + V1 moneyline model). Read the same
+  // public artifacts /ufc reads; only treat as live when the model is ready with real projections.
+  type UfcSched = { eventName?: string; eventDate?: string; fightCount?: number; isRealCard?: boolean; venue?: string };
+  type UfcProj = { moneylineV1Ready?: boolean; moneylineValidated?: boolean; projections?: unknown[] };
+  type UfcParlays = { cards?: unknown[] };
+  const loadUfc = <T,>(name: string, fb: T): T => {
+    try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", name), "utf8")) as T; } catch { return fb; }
+  };
+  const ufcSched = loadUfc<UfcSched | null>("schedule-latest.json", null);
+  const ufcProj = loadUfc<UfcProj | null>("projections-latest.json", null);
+  const ufcParlays = loadUfc<UfcParlays | null>("suggested-parlays-latest.json", null);
+  const ufcProjCount = ufcProj?.projections?.length ?? 0;
+  const ufcCardCount = ufcParlays?.cards?.length ?? 0;
+  const ufcLive = Boolean(ufcSched?.isRealCard && ufcProj?.moneylineV1Ready && ufcProjCount > 0);
+  const ufcDateLabel = ufcSched?.eventDate
+    ? new Date(ufcSched.eventDate).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", timeZoneName: "short" })
+    : null;
 
   const wcLive = wcGames > 0 || !!wcProj;
   const mlbLive = (mlb.summary.scheduledGames ?? 0) > 0;
@@ -80,6 +102,15 @@ export default function TodayPage() {
     ? `$${bank.currentBankrollUnits.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     : null;
   const sportSummaries: SportSummary[] = [
+    {
+      sport: "ufc", label: "UFC", href: "/ufc", accent: "var(--gtp-bank-heat)", live: ufcLive,
+      stats: [
+        { label: "Fights", value: ufcSched?.fightCount ?? 0 },
+        { label: "Projections", value: ufcProjCount },
+        { label: "Cards", value: ufcCardCount },
+        { label: "Market", value: "ML" },
+      ],
+    },
     {
       sport: "world_cup", label: "World Cup", href: "/world-cup", accent: "var(--vault-gold-bright)", live: wcLive,
       stats: [
@@ -105,8 +136,46 @@ export default function TodayPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
-      {/* Bank Builder spotlight — the flagship run leads the page (casino rebuild:
-          the old "What's live today" counts hero carried no decision value). */}
+      {/* UFC — tonight's featured slate leads the page on a UFC day (real ESPN MMA card). */}
+      {ufcSched?.isRealCard ? (
+        <section
+          className="gtp-fade-up relative overflow-hidden rounded-[14px] px-5 py-5 sm:px-7 sm:py-6"
+          style={{
+            border: "1px solid var(--lava-border-strong)",
+            background:
+              "radial-gradient(120% 150% at 100% 0%, rgba(255,106,42,0.13) 0%, transparent 55%)," +
+              "linear-gradient(135deg, rgba(26,20,14,0.95) 0%, var(--vault-bg) 70%)",
+          }}
+        >
+          <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-40 w-40 translate-x-10 -translate-y-12 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(9px)", opacity: 0.42 }} />
+          <div className="relative flex flex-wrap items-center justify-between gap-2">
+            <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
+              Tonight&apos;s featured slate · UFC
+            </span>
+            <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: ufcLive ? "var(--vault-success)" : "var(--gtp-bank-heat)", background: ufcLive ? "rgba(110,231,168,0.14)" : "var(--gtp-bank-heat-dim)" }}>
+              {ufcLive ? "Moneyline V1 live" : "Fight card preview"}
+            </span>
+          </div>
+          <h1 className="relative mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.6vw,34px)", fontWeight: 700, lineHeight: 1.04 }}>
+            {ufcSched.eventName}
+          </h1>
+          <p className="relative mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}>
+            {ufcSched.fightCount ?? 0} fights{ufcSched.venue ? ` · ${ufcSched.venue}` : ""}{ufcDateLabel ? ` · ${ufcDateLabel}` : ""}.{" "}
+            {ufcLive ? `${ufcProjCount} model-reviewed moneyline projections + ${ufcCardCount} suggested paper cards.` : "Real fight card + sportsbook lines."}{" "}
+            Moneyline-only · model in validation · paper-only educational tracking.
+          </p>
+          <div className="relative mt-3 flex flex-wrap gap-2">
+            <Link href="/ufc" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
+              Open UFC fight card →
+            </Link>
+            <Link href="/picks" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
+              Suggested cards
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      {/* Bank Builder — the completed Road to $10K recap (was the flagship active run). */}
       <section
         className="gtp-fade-up relative overflow-hidden rounded-[14px] px-5 py-5 sm:px-7 sm:py-6"
         style={{
@@ -120,16 +189,20 @@ export default function TodayPage() {
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
             Bank Builder · {dateLabel}
           </span>
-          <span className="gtp-heat-pulse rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)" }}>
-            Step {bank?.currentProgressionStep ?? "—"} · {publishedCandidate ? "card pending" : "review pending"}
+          <span className="gtp-heat-pulse rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: bankCompleted ? "var(--vault-success)" : "var(--gtp-bank-heat)", background: bankCompleted ? "rgba(110,231,168,0.14)" : "var(--gtp-bank-heat-dim)" }}>
+            {bankCompleted ? "Road to $10K · completed" : `Step ${bank?.currentProgressionStep ?? "—"} · ${publishedCandidate ? "card pending" : "review pending"}`}
           </span>
         </div>
         <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(26px,5vw,38px)", fontWeight: 700, lineHeight: 1.05 }}>
-            {bankrollLabel ?? "$—"}
-          </h1>
+          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(26px,5vw,38px)", fontWeight: 700, lineHeight: 1.05 }}>
+            {bankCompleted ? `$100 → ${bankrollLabel}` : bankrollLabel ?? "$—"}
+          </h2>
           <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 13 }}>
-            {bank ? `${bank.record.wins}–${bank.record.losses} run · Step ${bank.currentProgressionStep} of 5 · next goal $3,500` : "paper ladder"}
+            {bank
+              ? bankCompleted
+                ? `${bank.record.wins}–${bank.record.losses} · Road to $10K completed · 5 rungs settled`
+                : `${bank.record.wins}–${bank.record.losses} run · Step ${bank.currentProgressionStep} of 5`
+              : "paper ladder"}
           </span>
         </div>
         {publishedCandidate ? (
@@ -150,7 +223,7 @@ export default function TodayPage() {
         </div>
         <div className="mt-3">
           <Link href="/bank-builder" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
-            Review today&apos;s card →
+            {bankCompleted ? "View the completed run →" : "Review today’s card →"}
           </Link>
         </div>
       </section>
@@ -208,7 +281,7 @@ export default function TodayPage() {
       {/* Official Step-3 World Cup candidate (pending) — or the separate Flex Card when none */}
       {publishedCandidate ? (
         <section>
-          <SectionHeader eyebrow={`Bank Builder · Step ${publishedCandidate.step}`} title="Official Step 4 candidate" sub="Pending result — the ladder bankroll only changes after official settlement." />
+          <SectionHeader eyebrow={`Bank Builder · Step ${publishedCandidate.step}`} title={`Official Step ${publishedCandidate.step} candidate`} sub="Pending result — the ladder bankroll only changes after official settlement." />
           <OfficialCandidateCard candidate={publishedCandidate} />
         </section>
       ) : officialStep3 ? (
