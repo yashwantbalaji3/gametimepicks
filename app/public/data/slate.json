@@ -1,33 +1,17 @@
 {
-  "generatedAt": "2026-06-13T15:19:55+00:00",
-  "primaryDate": "2026-06-13",
+  "generatedAt": "2026-06-14T15:26:56+00:00",
+  "primaryDate": "2026-06-14",
   "slateDays": 4,
   "days": [
     {
-      "date": "2026-06-13",
-      "dayLabel": "Today",
-      "isAvailable": true,
-      "gameCount": 1,
-      "leanCount": 196,
-      "highConfidenceCount": 0,
-      "propsAvailable": true,
-      "isPrimary": true,
-      "scheduleSource": "espn_scoreboard",
-      "oddsSource": "the_odds_api",
-      "isDemo": false,
-      "dataMode": "Live",
-      "failureReason": null,
-      "oddsProviderStatus": "ok_with_props"
-    },
-    {
       "date": "2026-06-14",
-      "dayLabel": "Tomorrow",
+      "dayLabel": "Today",
       "isAvailable": false,
       "gameCount": 0,
       "leanCount": 0,
       "highConfidenceCount": 0,
       "propsAvailable": false,
-      "isPrimary": false,
+      "isPrimary": true,
       "scheduleSource": "unavailable",
       "oddsSource": "unavailable",
       "isDemo": false,
@@ -37,7 +21,7 @@
     },
     {
       "date": "2026-06-15",
-      "dayLabel": "Mon Jun 15",
+      "dayLabel": "Tomorrow",
       "isAvailable": false,
       "gameCount": 0,
       "leanCount": 0,
@@ -54,22 +38,38 @@
     {
       "date": "2026-06-16",
       "dayLabel": "Tue Jun 16",
-      "isAvailable": true,
-      "gameCount": 1,
+      "isAvailable": false,
+      "gameCount": 0,
       "leanCount": 0,
       "highConfidenceCount": 0,
       "propsAvailable": false,
       "isPrimary": false,
-      "scheduleSource": "espn_scoreboard",
-      "oddsSource": "the_odds_api",
+      "scheduleSource": "unavailable",
+      "oddsSource": "unavailable",
       "isDemo": false,
-      "dataMode": "ScheduleLiveOddsUnavailable",
-      "failureReason": null,
-      "oddsProviderStatus": "ok_no_props"
+      "dataMode": "ScheduleUnavailable",
+      "failureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
+      "oddsProviderStatus": "not_configured"
+    },
+    {
+      "date": "2026-06-17",
+      "dayLabel": "Wed Jun 17",
+      "isAvailable": false,
+      "gameCount": 0,
+      "leanCount": 0,
+      "highConfidenceCount": 0,
+      "propsAvailable": false,
+      "isPrimary": false,
+      "scheduleSource": "unavailable",
+      "oddsSource": "unavailable",
+      "isDemo": false,
+      "dataMode": "ScheduleUnavailable",
+      "failureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
+      "oddsProviderStatus": "not_configured"
     }
   ],
   "newsSignalsActive": 0,
   "newsSignalsConfigured": true,
   "scheduleOverridesConfigured": true,
-  "dataMode": "Live"
+  "dataMode": "ScheduleUnavailable"
 }
