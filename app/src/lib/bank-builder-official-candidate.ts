@@ -53,11 +53,13 @@ export interface OfficialCandidate {
   status: string;
   cardType?: string;
   selectionNote?: string;
+  correlationNote?: string;
   stake: number;
   combinedAmericanOdds: number;
   projectedReturn: number;
   projectedProfit: number;
   combinedModelProbability: number;
+  combinedMarketProbability?: number;
   targetMin: number;
   targetPreferred: number;
   legs: OfficialCandidateLeg[];
