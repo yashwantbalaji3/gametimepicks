@@ -40,12 +40,13 @@ test("NBA Game-5 board is REAL/Live (the model may now supply recommended legs)"
   assert.ok(nba.leans.length > 50, "real props present");
 });
 
-test("Step 5 not settled — Bank Builder bankroll/record/ledger unchanged (pending)", () => {
+test("the paid generation didn't mutate the ladder — it shows the official $10,376.17 / Step 5 settled state", () => {
   const s = read("bank-builder/public-summary-latest.json");
-  assert.equal(s.currentBankrollUnits, 3623.97);
+  assert.equal(s.currentBankrollUnits, 10376.17);
   assert.equal(s.currentProgressionStep, 5);
   const l = read("bank-builder/public-ledger-latest.json");
-  // A Step 5 candidate may be published (pending), but the ladder doesn't advance until
-  // official settlement — no Step 5 ledger entry yet.
-  assert.equal(l.entries.filter((e) => e.step === 5).length, 0, "no settled Step 5 ledger entry");
+  // Step 5 has officially settled (the paid run didn't fabricate it) — exactly one Step-5
+  // ledger entry, the legitimate win that completed the Road to $10K.
+  assert.equal(l.entries.filter((e) => e.step === 5).length, 1, "one official Step 5 ledger entry");
+  assert.equal(l.entries.find((e) => e.step === 5).result, "win");
 });

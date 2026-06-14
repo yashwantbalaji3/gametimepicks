@@ -37,22 +37,24 @@ test("June 13 NBA board is REAL (not demo) and is NBA Finals Game 5", () => {
   assert.ok(Array.isArray(b.leans) && b.leans.length > 50, "real props present");
 });
 
-test("Bank Builder unchanged by the overnight run: $3,623.97 / 4-0 / Step 5", () => {
+test("Bank Builder not mutated by the overnight run; it reflects the official $10,376.17 / 5-0 / Step 5 state", () => {
   const s = read("bank-builder/public-summary-latest.json");
-  assert.equal(s.currentBankrollUnits, 3623.97);
+  assert.equal(s.currentBankrollUnits, 10376.17);
   assert.equal(s.currentProgressionStep, 5);
-  assert.deepEqual(s.record, { wins: 4, losses: 0, pushes: 0 });
+  assert.deepEqual(s.record, { wins: 5, losses: 0, pushes: 0 });
   const l = read("bank-builder/public-ledger-latest.json");
   assert.equal(l.entries.filter((e) => e.step === 4).length, 1, "Step 4 settled once");
 });
 
-test("Step 5 remains review-pending — no Step-5 card was invented", () => {
+test("Step 5 has officially settled — the completed card is real, not an overnight fabrication", () => {
   const l = read("bank-builder/public-ledger-latest.json");
-  assert.equal(l.nextPickStatus, "pending");
-  // No step-5 entry exists in the ledger (a settled/published Step 5 would appear here).
-  assert.equal(l.entries.filter((e) => e.step === 5).length, 0, "no Step 5 entry");
-  // The page shows the honest review-pending panel, not an invented card.
+  assert.equal(l.nextPickStatus, "completed");
+  // Exactly one official Step-5 entry exists in the ledger — settled as a win.
+  const s5 = l.entries.filter((e) => e.step === 5);
+  assert.equal(s5.length, 1, "one official Step 5 entry");
+  assert.equal(s5[0].result, "win");
+  // The page now renders the honest completed crown, not the review-pending panel.
   const page = fs.readFileSync("src/app/bank-builder/page.tsx", "utf8");
-  assert.ok(page.includes("Step 5 review pending"), "review-pending copy present");
-  assert.ok(page.includes("no card is invented to fill the rung"), "no-invented-card honesty");
+  assert.ok(page.includes("Road to $10K completed"), "completed crown copy present");
+  assert.ok(page.includes("no card is invented to fill the rung"), "no-invented-card honesty retained");
 });

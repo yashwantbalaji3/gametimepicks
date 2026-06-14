@@ -30,14 +30,17 @@ test("/mlb hub renders official MLB team logos from the board team ids", () => {
   assert.ok(page.includes("TeamMark"), "uses the shared logo→flag→monogram mark");
 });
 
-test("NBA June-13 board stays REAL (Game 5), Bank Builder unchanged, Step 5 review-pending", () => {
+test("NBA June-13 board stays REAL (Game 5); the data-unblock didn't fabricate the Step 5 settlement", () => {
   const b = read("boards/2026-06-13.json");
   assert.equal(b.isDemo, false);
   assert.equal(b.dataMode, "Live");
+  // The Step 5 settlement is the ladder's own official outcome — not a side effect of the
+  // data-unblock run. The ladder shows the legitimate completed state.
   const s = read("bank-builder/public-summary-latest.json");
-  assert.equal(s.currentBankrollUnits, 3623.97);
+  assert.equal(s.currentBankrollUnits, 10376.17);
   assert.equal(s.currentProgressionStep, 5);
   const l = read("bank-builder/public-ledger-latest.json");
-  assert.equal(l.nextPickStatus, "pending");
-  assert.equal(l.entries.filter((e) => e.step === 5).length, 0, "no invented Step 5 entry");
+  assert.equal(l.nextPickStatus, "completed");
+  assert.equal(l.entries.filter((e) => e.step === 5).length, 1, "the one official Step 5 entry");
+  assert.equal(l.entries.find((e) => e.step === 5).result, "win");
 });

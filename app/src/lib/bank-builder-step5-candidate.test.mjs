@@ -16,12 +16,12 @@ const read = (rel) => JSON.parse(fs.readFileSync(path.join(dir, rel), "utf8"));
 const candPath = path.join(dir, "bank-builder/official-step5-candidate.json");
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 
-test("Step 5 candidate (if published) is a real 2-leg, pending — cross-sport NBA+MLB OR same-game 2-NBA", () => {
+test("Step 5 candidate (if published) is a real 2-leg, settled — cross-sport NBA+MLB OR same-game 2-NBA", () => {
   if (!fs.existsSync(candPath)) return; // no card is a valid outcome
   const c = JSON.parse(fs.readFileSync(candPath, "utf8"));
   assert.equal(c.step, 5);
-  assert.equal(c.status, "pending", "pending — never settled at publish time");
-  assert.equal(c.stake, 3623.97, "stake is the full current bankroll");
+  assert.equal(c.status, "settled", "officially settled — the Road to $10K hit");
+  assert.equal(c.stake, 3623.97, "stake was the full bankroll going into Step 5");
   assert.equal(c.legs.length, 2, "exactly 2 legs");
   const sports = c.legs.map((l) => l.sport).sort();
   // Two authorized structures: cross-sport (one NBA + one MLB) or a same-game 2-NBA stack.
@@ -91,13 +91,16 @@ test("the owner-disfavored Wembanyama Rebounds Under leg is not in the published
   }
 });
 
-test("publishing the Step 5 candidate did NOT settle or mutate the ladder", () => {
+test("the settled Step 5 candidate matches the ladder's official Step-5 outcome", () => {
+  // The candidate is now officially settled (won) — the ladder advanced to the $10K crown
+  // off exactly this card; the summary/ledger reflect that single settlement, no double-count.
   const s = read("bank-builder/public-summary-latest.json");
-  assert.equal(s.currentBankrollUnits, 3623.97);
+  assert.equal(s.currentBankrollUnits, 10376.17);
   assert.equal(s.currentProgressionStep, 5);
-  assert.deepEqual(s.record, { wins: 4, losses: 0, pushes: 0 });
+  assert.deepEqual(s.record, { wins: 5, losses: 0, pushes: 0 });
   const l = read("bank-builder/public-ledger-latest.json");
-  assert.equal(l.entries.filter((e) => e.step === 5).length, 0, "no settled Step 5 entry");
+  assert.equal(l.entries.filter((e) => e.step === 5).length, 1, "exactly one settled Step 5 entry");
+  assert.equal(l.entries.find((e) => e.step === 5).result, "win");
 });
 
 test("the candidate loader reads the CURRENT step's file (step-generalized)", () => {

@@ -19,6 +19,7 @@ import OfficialCandidateCard from "@/components/bank-builder/official-candidate-
 import { getSportIdentity } from "@/lib/sport-identity";
 import {
   BANK_BUILDER_BASE,
+  BANK_BUILDER_GOAL,
   BANK_BUILDER_LADDER,
   BANK_BUILDER_STEP_COUNT,
   formatLadderUsd,
@@ -57,9 +58,13 @@ export default function BankBuilderPage() {
   const pubSummary = loadPublicBankBuilderSummary();
   const pubLedger = loadPublicBankBuilderLedger();
   const currentBankroll = pubSummary?.currentBankrollUnits ?? BANK_BUILDER_BASE;
-  const activeStep = resolveLadderStep(currentBankroll) ?? BANK_BUILDER_LADDER[0];
   const rec = pubSummary?.record ?? { wins: 0, losses: 0, pushes: 0 };
   const recordLabel = `${rec.wins}–${rec.losses}${rec.pushes ? `–${rec.pushes}` : ""}`;
+  // Crown reached: bankroll has cleared the $10,000 goal (resolveLadderStep → null) with a
+  // clean card — the ladder is COMPLETE. We pin the display rung to the final step (not the
+  // Step-1 fallback) so labels read $3,500 → $10,000.
+  const completed = resolveLadderStep(currentBankroll) === null && rec.losses === 0;
+  const activeStep = resolveLadderStep(currentBankroll) ?? BANK_BUILDER_LADDER[BANK_BUILDER_STEP_COUNT - 1];
   // The official candidate is loaded for the ACTIVE rung (stake = full current bankroll,
   // floor = the rung's ladder goal). The loader returns null for stale slates and after a
   // step settles, so a settled card can never re-render as pending — it lives in Previous
@@ -109,14 +114,28 @@ export default function BankBuilderPage() {
             {BANK.icon}
           </span>
           <PageHero
-            eyebrow={onTheCrownRun ? "Final step · Road to $10,000" : "Paper ladder · current run"}
+            eyebrow={completed ? "Bank Builder crown · Road to $10K completed" : onTheCrownRun ? "Final step · Road to $10,000" : "Paper ladder · current run"}
             title="Bank Builder"
             subMaxWidth={560}
-            sub={`A ${recordLabel} paper run — ${hits.length} steps cleared from $100 toward the $10,000 crown, one card per step. Paper-only; we do not take real money.`}
+            sub={completed
+              ? `Officially settled ${recordLabel} — the $100 paper ladder reached ${formatLadderUsdPrecise(currentBankroll)} across 5 rungs. Paper-only educational tracking.`
+              : `A ${recordLabel} paper run — ${hits.length} steps cleared from $100 toward the $10,000 crown, one card per step. Paper-only; we do not take real money.`}
           />
         </div>
 
-        {onTheCrownRun ? (
+        {completed ? (
+          <div className="relative mt-4 flex flex-col gap-1.5">
+            <span className="font-display tracking-tight" style={{ color: "var(--gtp-bank-heat)", fontSize: "clamp(27px, 5.6vw, 46px)", fontWeight: 800, lineHeight: 1.0 }}>
+              🏆 Road to $10K completed
+            </span>
+            <span className="font-display tabular tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.2vw, 32px)", fontWeight: 700, lineHeight: 1.04 }}>
+              $100 <span style={{ color: "var(--vault-text-faint)" }}>→</span> {formatLadderUsdPrecise(currentBankroll)} · {recordLabel}
+            </span>
+            <span className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
+              Five paper rungs cleared, each officially settled — the final rung hit on NBA Finals Game 5. Over 100× the $100 start. Paper-only educational tracking.
+            </span>
+          </div>
+        ) : onTheCrownRun ? (
           <div className="relative mt-4 flex flex-col gap-1">
             <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(26px, 5.2vw, 40px)", fontWeight: 700, lineHeight: 1.02 }}>
               {recordLabel}. One step from $10K.
@@ -140,7 +159,7 @@ export default function BankBuilderPage() {
               </span>
             ))}
             <span className="gtp-heat-pulse rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)" }}>
-              Step {activeStep.step} · next decision pending
+              {completed ? "Crown reached · 5 / 5 ✓" : `Step ${activeStep.step} · next decision pending`}
             </span>
           </div>
           {/* $100 → $10,000 progress meter (linear share of the crown). */}
@@ -158,10 +177,10 @@ export default function BankBuilderPage() {
         </div>
       </section>
       <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <BoardStatTile label="Paper bankroll" value={formatLadderUsdPrecise(currentBankroll)} sub={`Step ${activeStep.step} / 5 · current run`} accent="var(--risk-low)" />
-        <BoardStatTile label="Today's goal" value={formatLadderUsd(activeStep.goal)} sub={`from ${formatLadderUsd(activeStep.start)} · pending`} accent="var(--sport-soccer)" />
-        <BoardStatTile label="Today's card" value={publishedCandidate || officialStep3 ? "Pending" : "—"} sub={publishedCandidate ? `${candidateSports} · Step ${activeStep.step}` : officialStep3 ? `World Cup · Step ${activeStep.step}` : "none cleared yet"} accent="var(--risk-longshot)" />
-        <BoardStatTile label="Record" value={recordLabel} sub="settled ladder steps" accent="var(--vault-gold-bright)" />
+        <BoardStatTile label={completed ? "Final paper bankroll" : "Paper bankroll"} value={formatLadderUsdPrecise(currentBankroll)} sub={completed ? "from $100 · 5 / 5 cleared" : `Step ${activeStep.step} / 5 · current run`} accent="var(--risk-low)" />
+        <BoardStatTile label={completed ? "Crown" : "Today's goal"} value={formatLadderUsd(BANK_BUILDER_GOAL)} sub={completed ? "reached · officially settled" : `from ${formatLadderUsd(activeStep.start)} · pending`} accent="var(--sport-soccer)" />
+        <BoardStatTile label={completed ? "Final rung" : "Today's card"} value={completed ? "WON" : publishedCandidate || officialStep3 ? "Pending" : "—"} sub={completed ? "NBA Finals Game 5 · settled" : publishedCandidate ? `${candidateSports} · Step ${activeStep.step}` : officialStep3 ? `World Cup · Step ${activeStep.step}` : "none cleared yet"} accent={completed ? "var(--vault-success)" : "var(--risk-longshot)"} />
+        <BoardStatTile label="Record" value={recordLabel} sub={completed ? "5 rungs · officially settled" : "settled ladder steps"} accent="var(--vault-gold-bright)" />
       </div>
 
       {/* SECTION 2 — the ladder + the day-by-day run plan */}
@@ -207,8 +226,8 @@ export default function BankBuilderPage() {
         </p>
       </section>
 
-      {/* SECTION 2.5 — the latest cleared step, with official result evidence */}
-      {latestHit ? (
+      {/* SECTION 2.5 — the latest cleared step (hidden when completed; the crown card covers it) */}
+      {latestHit && !completed ? (
         <section
           className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-5"
           style={{ border: "1px solid rgba(110,231,168,0.35)", background: "linear-gradient(135deg, rgba(110,231,168,0.08), rgba(26, 16, 11,0.30))" }}
@@ -258,8 +277,42 @@ export default function BankBuilderPage() {
         </section>
       ) : null}
 
-      {/* SECTION 3 — today's official card / the final-step road to $10K */}
-      {publishedCandidate ? (
+      {/* SECTION 3 — completion crown / today's official card / the final-step road to $10K */}
+      {completed ? (
+        <section
+          className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-6"
+          style={{ border: "1px solid var(--lava-border-strong)", background: "linear-gradient(160deg, rgba(255,106,42,0.15), rgba(240,199,94,0.06) 55%, var(--lava-panel))", boxShadow: "var(--vault-shadow-elevated)" }}
+          aria-label="Road to $10K completed"
+        >
+          <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-44 w-44 translate-x-12 -translate-y-14 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(12px)", opacity: 0.5 }} />
+          <span className="relative font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)" }}>Bank Builder crown · officially settled</span>
+          <h2 className="relative mt-1 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(22px, 4.4vw, 34px)", fontWeight: 800, lineHeight: 1.02 }}>
+            🏆 Road to $10K completed
+          </h2>
+          <div className="relative mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[
+              { label: "Starting paper bankroll", value: formatLadderUsd(BANK_BUILDER_BASE) },
+              { label: "Final paper bankroll", value: formatLadderUsdPrecise(currentBankroll), accent: "var(--vault-success)" },
+              { label: "Growth", value: `${Math.floor(currentBankroll / BANK_BUILDER_BASE)}×` },
+              { label: "Rungs cleared", value: `${BANK_BUILDER_STEP_COUNT} / ${BANK_BUILDER_STEP_COUNT}` },
+            ].map((s) => (
+              <div key={s.label} className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(12,8,6,0.55)", border: "1px solid var(--vault-rule)" }}>
+                <div className="font-display tabular" style={{ color: s.accent ?? "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>{s.value}</div>
+                <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+          {latestHit && latestHit.step === BANK_BUILDER_STEP_COUNT ? (
+            <p className="relative mt-3 text-[12.5px] leading-snug" style={{ color: "var(--vault-text-mute)", maxWidth: 620 }}>
+              <span className="font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--gtp-bank-heat)" }}>Final rung hit:</span>{" "}
+              {latestHit.event} — {latestHit.legs.map((l) => `${l.player} ${l.finalStat} reb`).join(" · ")} (both Over 4.5). Officially settled from the NBA box score. Full leg detail with portraits below.
+            </p>
+          ) : null}
+          <p className="relative mt-2 font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>
+            {recordLabel} paper ladder · $100 → {formatLadderUsdPrecise(currentBankroll)} · paper-only educational tracking
+          </p>
+        </section>
+      ) : publishedCandidate ? (
         <OfficialCandidateCard candidate={publishedCandidate} />
       ) : officialStep3 ? (
         <OfficialStep3CandidateCard candidate={officialStep3} stepNumber={activeStep.step} />

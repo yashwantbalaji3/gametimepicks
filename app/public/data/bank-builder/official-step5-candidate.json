@@ -1,13 +1,13 @@
 {
-  "_disclaimer": "Official Bank Builder Step 5 candidate — PENDING result. Paper-only educational tracking, not betting advice. The ladder bankroll/ledger change only after official settlement.",
+  "_disclaimer": "Official Bank Builder Step 5 candidate \u2014 PENDING result. Paper-only educational tracking, not betting advice. The ladder bankroll/ledger change only after official settlement.",
   "step": 5,
   "date": "2026-06-13",
-  "status": "pending",
+  "status": "settled",
   "selectedAt": "2026-06-13T23:50:00Z",
   "cardType": "nba_same_game",
   "structure": "same_game_nba",
   "correlationReviewed": true,
-  "selectionNote": "Step 5 same-game NBA Finals Game 5 card: two model-reviewed Spurs starter rebounding overs. Devin Vassell Rebounds Over 4.5 (model 0.71, projection 6.1, edge 15.3%, High) plus Stephon Castle Rebounds Over 4.5 — the Spurs starter over with the strongest recent trend (over the line in 8 of his last 10 and 4 of his last 5 games; model 0.61, projection 5.3, edge 5.1%, High). The two legs are a deliberate same-game rebound stack: both are driven by the same factor (game pace and total rebounds available), so a higher-possession, miss-heavy game tends to clear both together. Both legs are model-AND-market supported, High confidence, and upcoming (8:30 PM ET tip).",
+  "selectionNote": "Step 5 same-game NBA Finals Game 5 card: two model-reviewed Spurs starter rebounding overs. Devin Vassell Rebounds Over 4.5 (model 0.71, projection 6.1, edge 15.3%, High) plus Stephon Castle Rebounds Over 4.5 \u2014 the Spurs starter over with the strongest recent trend (over the line in 8 of his last 10 and 4 of his last 5 games; model 0.61, projection 5.3, edge 5.1%, High). The two legs are a deliberate same-game rebound stack: both are driven by the same factor (game pace and total rebounds available), so a higher-possession, miss-heavy game tends to clear both together. Both legs are model-AND-market supported, High confidence, and upcoming (8:30 PM ET tip).",
   "stake": 3623.97,
   "combinedAmericanOdds": 186,
   "combinedDecimal": 2.8632,
@@ -17,7 +17,7 @@
   "combinedMarketProbability": 0.3493,
   "targetMin": 10000,
   "targetPreferred": 10000,
-  "correlationNote": "Two same-game NBA Finals rebounding overs (Vassell + Castle). They are positively correlated via shared game-rebound volume / pace — a higher-possession, miss-heavy game lifts both, so the realized combined hit rate is higher than the independent product (0.427); a slow, efficient game can take both under together. This positive same-game correlation is intentional — reviewed and accepted.",
+  "correlationNote": "Two same-game NBA Finals rebounding overs (Vassell + Castle). They are positively correlated via shared game-rebound volume / pace \u2014 a higher-possession, miss-heavy game lifts both, so the realized combined hit rate is higher than the independent product (0.427); a slow, efficient game can take both under together. This positive same-game correlation is intentional \u2014 reviewed and accepted.",
   "legs": [
     {
       "sport": "nba",
@@ -43,7 +43,9 @@
       "lineupBasis": "NBA Finals starter",
       "modelProjection": 6.12,
       "recentForm": "over the line in 6 of last 10, 4 of last 5",
-      "settlementRule": "Settles on the official NBA box-score total rebounds for the player."
+      "settlementRule": "Settles on the official NBA box-score total rebounds for the player.",
+      "result": "win",
+      "finalStat": 7
     },
     {
       "sport": "nba",
@@ -69,7 +71,13 @@
       "lineupBasis": "NBA Finals starter",
       "modelProjection": 5.31,
       "recentForm": "over the line in 8 of last 10, 4 of last 5",
-      "settlementRule": "Settles on the official NBA box-score total rebounds for the player."
+      "settlementRule": "Settles on the official NBA box-score total rebounds for the player.",
+      "result": "win",
+      "finalStat": 5
     }
-  ]
+  ],
+  "result": "won",
+  "settledAt": "2026-06-14T13:10:00Z",
+  "settlementSource": "espn",
+  "finalScore": "New York 94 - 90 San Antonio"
 }

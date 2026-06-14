@@ -52,20 +52,22 @@ test("Step 4 ledger entry encodes both official outcomes and is idempotent", () 
   assert.equal(mlb.result, gradeStrikeoutUnder(0, 3.5));
 });
 
-test("settlement outcome: $1,423.64 → $3,623.97, +$2,200.33, 4-0, Step 5 pending", () => {
+test("Step-4 settlement outcome: $1,423.64 → $3,623.97, +$2,200.33 (the Step-4 ledger entry)", () => {
   const s = read("public-summary-latest.json");
   const l = read("public-ledger-latest.json");
   const e = l.entries.find((x) => x.step === 4);
   // Exact parlay math: -290 × -112 on $1,423.64.
   const dec = (1 + 100 / 290) * (1 + 100 / 112);
   assert.equal(Math.round(1423.64 * dec * 100) / 100, 3623.97);
+  // The Step-4 entry's bankrollAfter is permanently $3,623.97 — Step 5 staked off it.
   assert.equal(e.bankrollAfter, 3623.97);
   assert.equal(e.profitUnits, 2200.33);
-  assert.equal(s.currentBankrollUnits, 3623.97);
-  assert.equal(s.record.wins, 4);
+  // The current ladder has since advanced through the Step-5 hit (Road to $10K complete).
+  assert.equal(s.currentBankrollUnits, 10376.17);
+  assert.equal(s.record.wins, 5);
   assert.equal(s.record.losses, 0);
   assert.equal(s.currentProgressionStep, 5);
-  assert.equal(l.nextPickStatus, "pending");
+  assert.equal(l.nextPickStatus, "completed");
 });
 
 test("the Bank Builder page renders the Road to $10K final step", () => {
