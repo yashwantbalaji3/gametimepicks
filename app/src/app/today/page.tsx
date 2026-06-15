@@ -22,6 +22,7 @@ import { normalizeWcCards, loadDailyMixedCards, type SportSummary } from "@/lib/
 import { loadWorldCupFlexLeg, loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
+import UfcExpandedFightCards from "@/components/ufc/expanded-fight-cards";
 import SuggestedCard from "@/components/ui/suggested-card";
 import SportCard from "@/components/ui/sport-card";
 import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
@@ -76,6 +77,8 @@ export default function TodayPage() {
   const ufcSched = loadUfc<UfcSched | null>("schedule-latest.json", null);
   const ufcProj = loadUfc<UfcProj | null>("projections-latest.json", null);
   const ufcParlays = loadUfc<UfcParlays | null>("suggested-parlays-latest.json", null);
+  const ufcExpanded = loadUfc<{ projections?: unknown[] } | null>("expanded-projections-latest.json", null);
+  const ufcFights = (ufcExpanded?.projections ?? []) as Parameters<typeof UfcExpandedFightCards>[0]["fights"];
   const ufcProjCount = ufcProj?.projections?.length ?? 0;
   const ufcCardCount = ufcParlays?.cards?.length ?? 0;
   const ufcLive = Boolean(ufcSched?.isRealCard && ufcProj?.moneylineV1Ready && ufcProjCount > 0);
@@ -172,6 +175,14 @@ export default function TodayPage() {
               Suggested cards
             </Link>
           </div>
+          {ufcFights.length ? (
+            <div className="relative mt-4">
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)" }}>Tap a fight — moneyline + model-only distance/rounds/method</span>
+              <div className="mt-2">
+                <UfcExpandedFightCards fights={ufcFights} />
+              </div>
+            </div>
+          ) : null}
         </section>
       ) : null}
 

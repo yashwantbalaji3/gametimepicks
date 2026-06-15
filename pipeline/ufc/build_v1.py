@@ -101,7 +101,7 @@ def build(now: datetime | None = None) -> tuple[dict, dict]:
     strong = [f for f in favs if f["modelProbability"] >= 0.65]
     cards = []
     if moneyline_v1_ready and len(strong) >= 2:
-        def _card(label, legs):
+        def _card(label, legs, rationale):
             seen, picked = set(), []
             for l in legs:
                 if l["boutId"] in seen:
@@ -113,11 +113,21 @@ def build(now: datetime | None = None) -> tuple[dict, dict]:
             return {"riskLabel": label,
                     "legs": [{"fighter": l["fighter"], "boutId": l["boutId"], "modelProbability": l["modelProbability"]} for l in picked],
                     "modelCombinedProbability": round(mp, 4),
-                    "rationale": "Strongest model favorites this card (moneyline only).",
+                    "rationale": rationale,
                     "disclaimer": DISCLAIMER, "warnings": []}
-        cards.append(_card("Conservative card", strong[:2]))
+        cards.append(_card("Conservative card", strong[:2], "Two strongest model favorites this card (moneyline only)."))
         if len(strong) >= 3:
-            cards.append(_card("Balanced card", strong[1:3]))
+            cards.append(_card("Balanced card", strong[1:3], "Strong model favorites, one step out from the safest pair (moneyline only)."))
+        # Higher-variance lanes — real odds-backed moneyline favorites only. The model
+        # mirrors the market on this card (no edge), so the risk comes from leg COUNT, not
+        # from underdog edge picks. Labeled high-variance; never an underdog edge claim.
+        mlfavs = [f for f in favs if f["modelProbability"] >= 0.5]
+        if len(mlfavs) >= 4:
+            cards.append(_card("High-risk card", mlfavs[:4],
+                               "Four model-favorite moneylines stacked — high variance (every leg must hit). No model edge; the risk is the leg count."))
+        if len(mlfavs) >= 5:
+            cards.append(_card("Longshot card", mlfavs[:5],
+                               "Five-leg moneyline stack — longshot variance for a larger paper payout. No model edge; all legs are real sportsbook moneylines."))
     parlays = {
         "generatedAt": ref.isoformat(timespec="seconds"),
         "version": "v1", "eventName": event_name,
