@@ -74,6 +74,8 @@ export default function TodayPage() {
   const loadUfc = <T,>(name: string, fb: T): T => {
     try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", name), "utf8")) as T; } catch { return fb; }
   };
+  const ufcSettlement = loadUfc<{ status?: string; moneyline?: { record?: string; accuracyPct?: number } } | null>("results-settled-latest.json", null);
+  const ufcSettled = ufcSettlement?.status === "final";
   const ufcSched = loadUfc<UfcSched | null>("schedule-latest.json", null);
   const ufcProj = loadUfc<UfcProj | null>("projections-latest.json", null);
   const ufcParlays = loadUfc<UfcParlays | null>("suggested-parlays-latest.json", null);
@@ -155,29 +157,29 @@ export default function TodayPage() {
           <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-40 w-40 translate-x-10 -translate-y-12 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(9px)", opacity: 0.42 }} />
           <div className="relative flex flex-wrap items-center justify-between gap-2">
             <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
-              Tonight&apos;s featured slate · UFC
+              {ufcSettled ? "UFC · officially settled" : "Tonight’s featured slate · UFC"}
             </span>
-            <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: ufcLive ? "var(--vault-success)" : "var(--gtp-bank-heat)", background: ufcLive ? "rgba(110,231,168,0.14)" : "var(--gtp-bank-heat-dim)" }}>
-              {ufcLive ? "Moneyline V1 live" : "Fight card preview"}
+            <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: ufcSettled || ufcLive ? "var(--vault-success)" : "var(--gtp-bank-heat)", background: ufcSettled || ufcLive ? "rgba(110,231,168,0.14)" : "var(--gtp-bank-heat-dim)" }}>
+              {ufcSettled ? "Settled · final" : ufcLive ? "Moneyline V1 live" : "Fight card preview"}
             </span>
           </div>
           <h1 className="relative mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.6vw,34px)", fontWeight: 700, lineHeight: 1.04 }}>
             {ufcSched.eventName}
           </h1>
           <p className="relative mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}>
-            {ufcSched.fightCount ?? 0} fights{ufcSched.venue ? ` · ${ufcSched.venue}` : ""}{ufcDateLabel ? ` · ${ufcDateLabel}` : ""}.{" "}
-            {ufcLive ? `${ufcProjCount} model-reviewed moneyline projections + ${ufcCardCount} suggested paper cards.` : "Real fight card + sportsbook lines."}{" "}
-            Moneyline-only · model in validation · paper-only educational tracking.
+            {ufcSettled
+              ? `Officially settled — moneyline model went ${ufcSettlement?.moneyline?.record ?? ""} (${ufcSettlement?.moneyline?.accuracyPct ?? 0}%). Full fight results + projection grades on the UFC page. Paper-only educational tracking.`
+              : `${ufcSched.fightCount ?? 0} fights${ufcSched.venue ? ` · ${ufcSched.venue}` : ""}${ufcDateLabel ? ` · ${ufcDateLabel}` : ""}. ${ufcLive ? `${ufcProjCount} model-reviewed moneyline projections + ${ufcCardCount} suggested paper cards.` : "Real fight card + sportsbook lines."} Moneyline-only · model in validation · paper-only educational tracking.`}
           </p>
           <div className="relative mt-3 flex flex-wrap gap-2">
             <Link href="/ufc" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
-              Open UFC fight card →
+              {ufcSettled ? "View UFC 250 results →" : "Open UFC fight card →"}
             </Link>
-            <Link href="/picks" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
-              Suggested cards
+            <Link href={ufcSettled ? "/results" : "/picks"} className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
+              {ufcSettled ? "Results" : "Suggested cards"}
             </Link>
           </div>
-          {ufcFights.length ? (
+          {ufcFights.length && !ufcSettled ? (
             <div className="relative mt-4">
               <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)" }}>Tap a fight — moneyline + model-only distance/rounds/method</span>
               <div className="mt-2">

@@ -1,0 +1,293 @@
+{
+  "event": "UFC Freedom 250: Topuria vs. Gaethje",
+  "eventId": "600058854",
+  "settledAt": "2026-06-15T13:55:00Z",
+  "status": "final",
+  "source": "ESPN MMA scoreboard (site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard, event 600058854, STATUS_FINAL)",
+  "sourceNote": "Winners + ending round/time + scheduled rounds are official from the ESPN MMA feed. Specific finish method (KO/TKO vs submission) is not exposed by the connected feed, so method grading is at the finish-vs-decision level only; KO-vs-submission is needs_review.",
+  "moneyline": {
+    "record": "6-1",
+    "wins": 6,
+    "losses": 1,
+    "accuracyPct": 86,
+    "calibration": {
+      "50-59%": {
+        "wins": 2,
+        "total": 2
+      },
+      "70-79%": {
+        "wins": 3,
+        "total": 3
+      },
+      "80%+": {
+        "wins": 1,
+        "total": 2
+      }
+    }
+  },
+  "expandedModelOnly": {
+    "goesDistance": {
+      "correct": 5,
+      "graded": 6
+    },
+    "finishVsDecision": {
+      "correct": 5,
+      "graded": 6
+    },
+    "note": "Model-only projections \u2014 graded for learning/calibration only, NO betting P&L (no real prop odds)."
+  },
+  "suggestedCards": {
+    "record": "0-4",
+    "cards": [
+      {
+        "riskLabel": "Conservative card",
+        "legCount": 2,
+        "result": "lost",
+        "legs": [
+          {
+            "fighter": "Mauricio Ruffy",
+            "result": "win"
+          },
+          {
+            "fighter": "Ilia Topuria",
+            "result": "loss"
+          }
+        ],
+        "bustedBy": [
+          "Ilia Topuria"
+        ]
+      },
+      {
+        "riskLabel": "Balanced card",
+        "legCount": 2,
+        "result": "lost",
+        "legs": [
+          {
+            "fighter": "Ilia Topuria",
+            "result": "loss"
+          },
+          {
+            "fighter": "Sean O'Malley",
+            "result": "win"
+          }
+        ],
+        "bustedBy": [
+          "Ilia Topuria"
+        ]
+      },
+      {
+        "riskLabel": "High-risk card",
+        "legCount": 4,
+        "result": "lost",
+        "legs": [
+          {
+            "fighter": "Mauricio Ruffy",
+            "result": "win"
+          },
+          {
+            "fighter": "Ilia Topuria",
+            "result": "loss"
+          },
+          {
+            "fighter": "Sean O'Malley",
+            "result": "win"
+          },
+          {
+            "fighter": "Josh Hokit",
+            "result": "win"
+          }
+        ],
+        "bustedBy": [
+          "Ilia Topuria"
+        ]
+      },
+      {
+        "riskLabel": "Longshot card",
+        "legCount": 5,
+        "result": "lost",
+        "legs": [
+          {
+            "fighter": "Mauricio Ruffy",
+            "result": "win"
+          },
+          {
+            "fighter": "Ilia Topuria",
+            "result": "loss"
+          },
+          {
+            "fighter": "Sean O'Malley",
+            "result": "win"
+          },
+          {
+            "fighter": "Josh Hokit",
+            "result": "win"
+          },
+          {
+            "fighter": "Bo Nickal",
+            "result": "win"
+          }
+        ],
+        "bustedBy": [
+          "Ilia Topuria"
+        ]
+      }
+    ]
+  },
+  "fights": [
+    {
+      "boutId": "2026-06-15:diego lopes|steve garcia jr.",
+      "fighters": [
+        "Diego Lopes",
+        "Steve Garcia Jr."
+      ],
+      "officialWinner": "Diego Lopes",
+      "endRound": 2,
+      "time": "2:42",
+      "scheduledRounds": 3,
+      "wentDistance": false,
+      "result": "finish",
+      "moneyline": {
+        "modelPick": "Diego Lopes",
+        "modelProbability": 0.593,
+        "oddsPrice": -162,
+        "result": "win"
+      },
+      "goesDistanceGrade": "hit",
+      "methodFinishDecisionGrade": "hit",
+      "expandedWithheld": false
+    },
+    {
+      "boutId": "2026-06-15:bo nickal|kyle daukaus",
+      "fighters": [
+        "Bo Nickal",
+        "Kyle Daukaus"
+      ],
+      "officialWinner": "Bo Nickal",
+      "endRound": 1,
+      "time": "4:34",
+      "scheduledRounds": 3,
+      "wentDistance": false,
+      "result": "finish",
+      "moneyline": {
+        "modelPick": "Bo Nickal",
+        "modelProbability": 0.7444,
+        "oddsPrice": -345,
+        "result": "win"
+      },
+      "goesDistanceGrade": "hit",
+      "methodFinishDecisionGrade": "hit",
+      "expandedWithheld": false
+    },
+    {
+      "boutId": "2026-06-15:mauricio ruffy|michael chandler",
+      "fighters": [
+        "Mauricio Ruffy",
+        "Michael Chandler"
+      ],
+      "officialWinner": "Mauricio Ruffy",
+      "endRound": 1,
+      "time": "4:29",
+      "scheduledRounds": 3,
+      "wentDistance": false,
+      "result": "finish",
+      "moneyline": {
+        "modelPick": "Mauricio Ruffy",
+        "modelProbability": 0.8405,
+        "oddsPrice": -700,
+        "result": "win"
+      },
+      "goesDistanceGrade": null,
+      "methodFinishDecisionGrade": null,
+      "expandedWithheld": true
+    },
+    {
+      "boutId": "2026-06-15:derrick lewis|josh hokit",
+      "fighters": [
+        "Derrick Lewis",
+        "Josh Hokit"
+      ],
+      "officialWinner": "Josh Hokit",
+      "endRound": 2,
+      "time": "4:09",
+      "scheduledRounds": 3,
+      "wentDistance": false,
+      "result": "finish",
+      "moneyline": {
+        "modelPick": "Josh Hokit",
+        "modelProbability": 0.7729,
+        "oddsPrice": 320,
+        "result": "win"
+      },
+      "goesDistanceGrade": "hit",
+      "methodFinishDecisionGrade": "hit",
+      "expandedWithheld": false
+    },
+    {
+      "boutId": "2026-06-15:aiemann zahabi|sean o'malley",
+      "fighters": [
+        "Sean O'Malley",
+        "Aiemann Zahabi"
+      ],
+      "officialWinner": "Sean O'Malley",
+      "endRound": 2,
+      "time": "4:02",
+      "scheduledRounds": 3,
+      "wentDistance": false,
+      "result": "finish",
+      "moneyline": {
+        "modelPick": "Sean O'Malley",
+        "modelProbability": 0.7821,
+        "oddsPrice": -440,
+        "result": "win"
+      },
+      "goesDistanceGrade": "miss",
+      "methodFinishDecisionGrade": "miss",
+      "expandedWithheld": false
+    },
+    {
+      "boutId": "2026-06-15:alex pereira|ciryl gane",
+      "fighters": [
+        "Alex Pereira",
+        "Ciryl Gane"
+      ],
+      "officialWinner": "Ciryl Gane",
+      "endRound": 2,
+      "time": "1:27",
+      "scheduledRounds": 5,
+      "wentDistance": false,
+      "result": "finish",
+      "moneyline": {
+        "modelPick": "Ciryl Gane",
+        "modelProbability": 0.5001,
+        "oddsPrice": -110,
+        "result": "win"
+      },
+      "goesDistanceGrade": "hit",
+      "methodFinishDecisionGrade": "hit",
+      "expandedWithheld": false
+    },
+    {
+      "boutId": "2026-06-15:ilia topuria|justin gaethje",
+      "fighters": [
+        "Ilia Topuria",
+        "Justin Gaethje"
+      ],
+      "officialWinner": "Justin Gaethje",
+      "endRound": 4,
+      "time": "5:00",
+      "scheduledRounds": 5,
+      "wentDistance": false,
+      "result": "finish",
+      "moneyline": {
+        "modelPick": "Ilia Topuria",
+        "modelProbability": 0.8043,
+        "oddsPrice": -520,
+        "result": "loss"
+      },
+      "goesDistanceGrade": "hit",
+      "methodFinishDecisionGrade": "hit",
+      "expandedWithheld": false
+    }
+  ],
+  "disclaimer": "Official settlement of the first UFC test slate. Paper-only educational tracking \u2014 moneyline graded vs official winners; expanded model-only props graded for calibration, never priced."
+}
