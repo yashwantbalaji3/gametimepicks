@@ -21,6 +21,11 @@ export interface WcProjection {
   kickoffUtc: string | null;
   homeLogo: string | null;
   awayLogo: string | null;
+  /** 2-letter ISO codes for national-team flags (odds-only path; no api-sports logos). */
+  homeCode?: string | null;
+  awayCode?: string | null;
+  /** Coarse data-quality tag — "limited" for the odds-only (no stat layer) path. */
+  dataQuality?: string;
   market: "moneyline_90" | "match_total_goals" | string;
   pick: string;
   pickLabel: string;

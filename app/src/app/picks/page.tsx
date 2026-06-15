@@ -23,7 +23,7 @@ import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-cand
 import { formatAmerican } from "@/lib/odds-math";
 
 export const metadata = {
-  title: "Picks · GameTime Picks",
+  title: "Parlay Lab · GameTime Picks",
   description:
     "Every suggested paper card in one place — World Cup, MLB and more, by sport and risk. Enter any stake to see the projected paper return. Educational, paper-only.",
 };
@@ -95,9 +95,9 @@ export default function PicksPage() {
         </Link>
       ) : null}
       <SectionHeader
-        eyebrow={`Suggested cards · ${new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })} · ${cards.length} live`}
-        title="Picks"
-        sub="Browse paper cards by goal. Odds, returns, and results are tracked for research — educational, paper-only."
+        eyebrow={`Parlay Lab · ${new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })} · ${cards.length} curated`}
+        title="Parlay Lab"
+        sub="The model's curated paper cards across every sport, by goal and risk. Odds, returns, and results are tracked for research — educational, paper-only."
       />
       <PicksExperience cards={cards} />
     </div>

@@ -181,13 +181,13 @@ export default function MethodologyPage() {
           <SportCard
             accent="var(--vault-text)"
             name="World Cup / Soccer"
-            stage="Poisson · credential-gated"
-            inputs="National-team recent form (goals for/against per 90) via API Football; de-vigged market. No xG today."
-            model="Poisson home/draw/away + totals, anchored to the market as a strong prior (opening-day weight capped). Underdog floor and minimum-edge gates."
-            markets="Odds-backed when credentialed: match winner / double chance / totals. Player props via Poisson on individual trend."
-            cards="Stale fixtures never shown as active; no card without a live price."
+            stage="odds-backed · limited data"
+            inputs="3-way moneyline (home/draw/away) odds from The Odds API (soccer_fifa_world_cup) + the fixture schedule. Rich team/player stats, lineups and xG need an API-Football credential (not configured)."
+            model="Two providers, two depths: The Odds API supplies odds → de-vigged market-implied projections (conservative, no edge claimed). With API-Football, a Poisson home/draw/away + totals model with team-strength runs on top."
+            markets="Odds-backed today: match winner (3-way). Totals / double chance when the market returns them. Player props / corners / cards stay off until the stat layer exists."
+            cards="Favorites only above a probability floor; stale fixtures never shown as active; no card without a live price; honest counts (no padding)."
             settlement="Official final score, regulation 90 only (no extra time / penalties)."
-            limits="Requires an API Football credential. When absent, soccer is shown as unavailable / cached — not faked."
+            limits="Limited data: odds-only (no stat/lineup layer), so confidence is capped. Add API_FOOTBALL_KEY to unlock stats, lineups and the Poisson model."
           />
           <SportCard
             accent="var(--vault-gold)"
@@ -263,7 +263,7 @@ export default function MethodologyPage() {
             <LimitationRow title="Lines move" body="Boards reflect odds at pipeline time. By the time you read them, prices have likely shifted." />
             <LimitationRow title="UFC props need a feed" body="Method / round / distance stay model-only until a real prop-odds feed and a graded model for them exist." />
             <LimitationRow title="MLB context inputs" body="Park factor, weather, bullpen fatigue, and handedness splits are on the roadmap, not yet modeled." />
-            <LimitationRow title="Soccer credentialing" body="World Cup / soccer requires an API Football credential to leave cached/unavailable state." />
+            <LimitationRow title="Soccer depth" body="World Cup odds (3-way moneyline) come from The Odds API today — limited data, no stat layer. An API-Football credential is needed for team/player stats, lineups, xG and the Poisson model." />
             <LimitationRow title="Richer feeds + automation" body="Fuller data feeds, a licensed fighter-image source, and detailed fight histories are planned." />
           </ul>
         </div>

@@ -30,7 +30,7 @@ const NAV_ITEMS: Array<{
   // routes and fold into Build/Sports active states). Brand mark links Home.
   { href: "/today", label: "Today" },
   { href: "/games", label: "Games" },
-  { href: "/picks", label: "Picks" },
+  { href: "/picks", label: "Parlay Lab" },
   { href: "/build", label: "Build" },
   { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
   { href: "/results", label: "Results" },
