@@ -1,89 +1,99 @@
 {
-  "generatedAt": "2026-06-15T18:12:49.898996+00:00",
+  "generatedAt": "2026-06-15T19:13:46.963991+00:00",
   "sport": "world_cup",
   "date": "2026-06-15",
-  "modelVersion": "wc-odds-only-v1",
+  "modelVersion": "wc-odds-only-v2",
   "provider": "odds_api",
   "oddsProvider": "odds_api",
   "strengthSource": "none",
   "dataQuality": "limited",
-  "disclaimer": "Paper-only, educational. Limited-data: odds-backed market-implied projections from The Odds API; no API-Football stat/lineup/xG layer.",
-  "methodology": "3-way de-vig of sportsbook moneyline (home/draw/away). No independent stat model, so confidence is capped and model edge is ~0.",
-  "matchCount": 4,
-  "projectionCount": 4,
-  "publicCount": 4,
-  "parlayEligibleCount": 2,
+  "disclaimer": "Paper-only, educational. Odds-backed market-implied World Cup projections from The Odds API; no API-Football stat/lineup/xG layer.",
+  "methodology": "Per market: de-vig the sportsbook price (3-way for moneyline/double chance). No independent stat model \u2014 confidence capped, model edge ~0 except where the double-chance book price differs from the 3-way no-vig sum.",
+  "matchCount": 3,
+  "projectionCount": 13,
+  "publicCount": 13,
+  "parlayEligibleCount": 11,
   "public": true,
   "opponentStrengthCoverage": 0,
+  "marketsCovered": {
+    "moneyline_90": 3,
+    "double_chance": 3,
+    "btts": 3,
+    "draw_no_bet": 3,
+    "match_total_goals": 1
+  },
   "statusCounts": {
-    "active": 4
+    "active": 13
   },
   "matches": [
     {
       "sport": "world_cup",
       "date": "2026-06-15",
-      "matchId": 13,
-      "homeTeam": "Spain",
-      "awayTeam": "Cape Verde",
-      "kickoffUtc": "2026-06-15T16:01:00Z",
-      "homeCode": "ES",
-      "awayCode": "CV",
+      "matchId": 14,
+      "homeTeam": "Belgium",
+      "awayTeam": "Egypt",
+      "kickoffUtc": "2026-06-15T19:00:00Z",
+      "homeCode": "BE",
+      "awayCode": "EG",
       "homeLogo": null,
       "awayLogo": null,
+      "group": "G",
+      "venue": "Seattle",
       "regulationOnly": true,
       "sampleSizeWarning": true,
       "opponentStrengthCoverage": 0,
       "provider": "odds_api",
       "oddsProvider": "odds_api",
-      "modelVersion": "wc-odds-only-v1",
+      "modelVersion": "wc-odds-only-v2",
       "dataQuality": "limited",
-      "id": "wc_2026-06-15_spain_capeverde_ml",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_14_ml",
       "market": "moneyline_90",
       "pick": "home",
-      "pickLabel": "Spain",
+      "pickLabel": "Belgium",
       "line": null,
-      "americanOdds": -140,
-      "bookmaker": "betmgm",
-      "modelProbability": 0.544,
-      "marketProbability": 0.544,
+      "americanOdds": -185,
+      "modelProbability": 0.6054,
+      "marketProbability": 0.6054,
       "edgePct": 0.0,
       "outcomes": [
         {
-          "label": "Spain",
+          "label": "Belgium",
           "side": "home",
-          "modelProbability": 0.544,
-          "marketProbability": 0.544,
-          "americanOdds": -140
+          "modelProbability": 0.6054,
+          "marketProbability": 0.6054,
+          "americanOdds": -185
         },
         {
           "label": "Draw",
           "side": "draw",
-          "modelProbability": 0.4239,
-          "marketProbability": 0.4239,
-          "americanOdds": 120
+          "modelProbability": 0.2391,
+          "marketProbability": 0.2391,
+          "americanOdds": 290
         },
         {
-          "label": "Cape Verde",
+          "label": "Egypt",
           "side": "away",
-          "modelProbability": 0.0322,
-          "marketProbability": 0.0322,
-          "americanOdds": 2800
+          "modelProbability": 0.1554,
+          "marketProbability": 0.1554,
+          "americanOdds": 500
         }
       ],
       "confidence": "Watchlist",
       "projectionStatus": "active",
       "public": true,
-      "parlayEligible": false,
+      "parlayEligible": true,
       "bankBuilderEligible": false,
       "statusReason": null,
       "settlementSupport": "regulation_90",
-      "riskTier": "Medium",
+      "riskTier": "Low",
       "factors": [],
       "caveats": [
-        "Odds-only: no API-Football stat/lineup layer. Market-implied (de-vigged 3-way), so model edge is ~0 \u2014 this is a market view, not a stat model."
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw is a real third outcome (90-min regulation)."
       ],
       "notes": [
-        "Limited-data World Cup projection from The Odds API (soccer_fifa_world_cup). Confidence capped \u2014 no team/player stat model."
+        "3-way moneyline de-vigged from the sportsbook price."
       ]
     },
     {
@@ -97,47 +107,49 @@
       "awayCode": "EG",
       "homeLogo": null,
       "awayLogo": null,
+      "group": "G",
+      "venue": "Seattle",
       "regulationOnly": true,
       "sampleSizeWarning": true,
       "opponentStrengthCoverage": 0,
       "provider": "odds_api",
       "oddsProvider": "odds_api",
-      "modelVersion": "wc-odds-only-v1",
+      "modelVersion": "wc-odds-only-v2",
       "dataQuality": "limited",
-      "id": "wc_2026-06-15_belgium_egypt_ml",
-      "market": "moneyline_90",
-      "pick": "home",
-      "pickLabel": "Belgium",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_14_dc",
+      "market": "double_chance",
+      "pick": "1X",
+      "pickLabel": "Belgium or Draw",
       "line": null,
-      "americanOdds": -185,
-      "bookmaker": "betmgm",
-      "modelProbability": 0.6084,
-      "marketProbability": 0.6084,
-      "edgePct": 0.0,
+      "americanOdds": -900,
+      "modelProbability": 0.8446,
+      "marketProbability": 0.85,
+      "edgePct": -0.54,
       "outcomes": [
         {
-          "label": "Belgium",
-          "side": "home",
-          "modelProbability": 0.6084,
-          "marketProbability": 0.6084,
-          "americanOdds": -185
+          "label": "Belgium or Draw",
+          "side": "1X",
+          "modelProbability": 0.8446,
+          "marketProbability": 0.85,
+          "americanOdds": -900
         },
         {
-          "label": "Draw",
-          "side": "draw",
-          "modelProbability": 0.2286,
-          "marketProbability": 0.2286,
-          "americanOdds": 310
+          "label": "Egypt or Draw",
+          "side": "X2",
+          "modelProbability": 0.3946,
+          "marketProbability": 0.3855,
+          "americanOdds": 145
         },
         {
-          "label": "Egypt",
-          "side": "away",
-          "modelProbability": 0.163,
-          "marketProbability": 0.163,
-          "americanOdds": 475
+          "label": "Belgium or Egypt",
+          "side": "12",
+          "modelProbability": 0.7609,
+          "marketProbability": 0.7645,
+          "americanOdds": -425
         }
       ],
-      "confidence": "Watchlist",
+      "confidence": "Lean",
       "projectionStatus": "active",
       "public": true,
       "parlayEligible": true,
@@ -147,10 +159,136 @@
       "riskTier": "Low",
       "factors": [],
       "caveats": [
-        "Odds-only: no API-Football stat/lineup layer. Market-implied (de-vigged 3-way), so model edge is ~0 \u2014 this is a market view, not a stat model."
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Double chance covers two of three outcomes \u2014 lower variance, shorter price."
       ],
       "notes": [
-        "Limited-data World Cup projection from The Odds API (soccer_fifa_world_cup). Confidence capped \u2014 no team/player stat model."
+        "Double chance from REAL book odds; model probability is the 3-way no-vig sum."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-15",
+      "matchId": 14,
+      "homeTeam": "Belgium",
+      "awayTeam": "Egypt",
+      "kickoffUtc": "2026-06-15T19:00:00Z",
+      "homeCode": "BE",
+      "awayCode": "EG",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "G",
+      "venue": "Seattle",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_14_btts",
+      "market": "btts",
+      "pick": "no",
+      "pickLabel": "Both teams to score: No",
+      "line": null,
+      "americanOdds": -125,
+      "modelProbability": 0.5147,
+      "marketProbability": 0.5147,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "BTTS Yes",
+          "side": "yes",
+          "modelProbability": 0.4853,
+          "marketProbability": 0.4853,
+          "americanOdds": -110
+        },
+        {
+          "label": "BTTS No",
+          "side": "no",
+          "modelProbability": 0.5147,
+          "marketProbability": 0.5147,
+          "americanOdds": -125
+        }
+      ],
+      "confidence": "Watchlist",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": false,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Medium",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model."
+      ],
+      "notes": [
+        "Both-teams-to-score, de-vigged."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-15",
+      "matchId": 14,
+      "homeTeam": "Belgium",
+      "awayTeam": "Egypt",
+      "kickoffUtc": "2026-06-15T19:00:00Z",
+      "homeCode": "BE",
+      "awayCode": "EG",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "G",
+      "venue": "Seattle",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_14_dnb",
+      "market": "draw_no_bet",
+      "pick": "home",
+      "pickLabel": "Belgium (draw no bet)",
+      "line": null,
+      "americanOdds": -650,
+      "modelProbability": 0.8184,
+      "marketProbability": 0.8184,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Belgium (DNB)",
+          "side": "home",
+          "modelProbability": 0.8184,
+          "marketProbability": 0.8184,
+          "americanOdds": -650
+        },
+        {
+          "label": "Egypt (DNB)",
+          "side": "away",
+          "modelProbability": 0.1816,
+          "marketProbability": 0.1816,
+          "americanOdds": 420
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw no bet voids on a draw (stake returned)."
+      ],
+      "notes": [
+        "Draw-no-bet, de-vigged (two-way)."
       ]
     },
     {
@@ -164,44 +302,46 @@
       "awayCode": "UY",
       "homeLogo": null,
       "awayLogo": null,
+      "group": "H",
+      "venue": "Miami Gardens",
       "regulationOnly": true,
       "sampleSizeWarning": true,
       "opponentStrengthCoverage": 0,
       "provider": "odds_api",
       "oddsProvider": "odds_api",
-      "modelVersion": "wc-odds-only-v1",
+      "modelVersion": "wc-odds-only-v2",
       "dataQuality": "limited",
-      "id": "wc_2026-06-15_saudiarabia_uruguay_ml",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_15_ml",
       "market": "moneyline_90",
       "pick": "away",
       "pickLabel": "Uruguay",
       "line": null,
-      "americanOdds": -235,
-      "bookmaker": "betmgm",
-      "modelProbability": 0.6609,
-      "marketProbability": 0.6609,
+      "americanOdds": -230,
+      "modelProbability": 0.6643,
+      "marketProbability": 0.6643,
       "edgePct": 0.0,
       "outcomes": [
         {
           "label": "Saudi Arabia",
           "side": "home",
-          "modelProbability": 0.1216,
-          "marketProbability": 0.1216,
-          "americanOdds": 675
+          "modelProbability": 0.1191,
+          "marketProbability": 0.1191,
+          "americanOdds": 700
         },
         {
           "label": "Draw",
           "side": "draw",
-          "modelProbability": 0.2176,
-          "marketProbability": 0.2176,
-          "americanOdds": 333
+          "modelProbability": 0.2166,
+          "marketProbability": 0.2166,
+          "americanOdds": 340
         },
         {
           "label": "Uruguay",
           "side": "away",
-          "modelProbability": 0.6609,
-          "marketProbability": 0.6609,
-          "americanOdds": -235
+          "modelProbability": 0.6643,
+          "marketProbability": 0.6643,
+          "americanOdds": -230
         }
       ],
       "confidence": "Lean",
@@ -214,10 +354,268 @@
       "riskTier": "Low",
       "factors": [],
       "caveats": [
-        "Odds-only: no API-Football stat/lineup layer. Market-implied (de-vigged 3-way), so model edge is ~0 \u2014 this is a market view, not a stat model."
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw is a real third outcome (90-min regulation)."
       ],
       "notes": [
-        "Limited-data World Cup projection from The Odds API (soccer_fifa_world_cup). Confidence capped \u2014 no team/player stat model."
+        "3-way moneyline de-vigged from the sportsbook price."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-15",
+      "matchId": 15,
+      "homeTeam": "Saudi Arabia",
+      "awayTeam": "Uruguay",
+      "kickoffUtc": "2026-06-15T22:00:00Z",
+      "homeCode": "SA",
+      "awayCode": "UY",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "H",
+      "venue": "Miami Gardens",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_15_tot",
+      "market": "match_total_goals",
+      "pick": "under",
+      "pickLabel": "Under 2.5",
+      "line": 2.5,
+      "americanOdds": -138,
+      "modelProbability": 0.5514,
+      "marketProbability": 0.5514,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Over 2.5",
+          "side": "over",
+          "modelProbability": 0.4486,
+          "marketProbability": 0.4486,
+          "americanOdds": 112
+        },
+        {
+          "label": "Under 2.5",
+          "side": "under",
+          "modelProbability": 0.5514,
+          "marketProbability": 0.5514,
+          "americanOdds": -138
+        }
+      ],
+      "confidence": "Watchlist",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Medium",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model."
+      ],
+      "notes": [
+        "Total goals at the 2.5 line, de-vigged."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-15",
+      "matchId": 15,
+      "homeTeam": "Saudi Arabia",
+      "awayTeam": "Uruguay",
+      "kickoffUtc": "2026-06-15T22:00:00Z",
+      "homeCode": "SA",
+      "awayCode": "UY",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "H",
+      "venue": "Miami Gardens",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_15_dc",
+      "market": "double_chance",
+      "pick": "X2",
+      "pickLabel": "Uruguay or Draw",
+      "line": null,
+      "americanOdds": -1250,
+      "modelProbability": 0.8809,
+      "marketProbability": 0.878,
+      "edgePct": 0.29,
+      "outcomes": [
+        {
+          "label": "Saudi Arabia or Draw",
+          "side": "1X",
+          "modelProbability": 0.3357,
+          "marketProbability": 0.3387,
+          "americanOdds": 180
+        },
+        {
+          "label": "Uruguay or Draw",
+          "side": "X2",
+          "modelProbability": 0.8809,
+          "marketProbability": 0.878,
+          "americanOdds": -1250
+        },
+        {
+          "label": "Saudi Arabia or Uruguay",
+          "side": "12",
+          "modelProbability": 0.7834,
+          "marketProbability": 0.7833,
+          "americanOdds": -475
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Double chance covers two of three outcomes \u2014 lower variance, shorter price."
+      ],
+      "notes": [
+        "Double chance from REAL book odds; model probability is the 3-way no-vig sum."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-15",
+      "matchId": 15,
+      "homeTeam": "Saudi Arabia",
+      "awayTeam": "Uruguay",
+      "kickoffUtc": "2026-06-15T22:00:00Z",
+      "homeCode": "SA",
+      "awayCode": "UY",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "H",
+      "venue": "Miami Gardens",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_15_btts",
+      "market": "btts",
+      "pick": "no",
+      "pickLabel": "Both teams to score: No",
+      "line": null,
+      "americanOdds": -180,
+      "modelProbability": 0.6067,
+      "marketProbability": 0.6067,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "BTTS Yes",
+          "side": "yes",
+          "modelProbability": 0.3933,
+          "marketProbability": 0.3933,
+          "americanOdds": 140
+        },
+        {
+          "label": "BTTS No",
+          "side": "no",
+          "modelProbability": 0.6067,
+          "marketProbability": 0.6067,
+          "americanOdds": -180
+        }
+      ],
+      "confidence": "Watchlist",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model."
+      ],
+      "notes": [
+        "Both-teams-to-score, de-vigged."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-15",
+      "matchId": 15,
+      "homeTeam": "Saudi Arabia",
+      "awayTeam": "Uruguay",
+      "kickoffUtc": "2026-06-15T22:00:00Z",
+      "homeCode": "SA",
+      "awayCode": "UY",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "H",
+      "venue": "Miami Gardens",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_15_dnb",
+      "market": "draw_no_bet",
+      "pick": "away",
+      "pickLabel": "Uruguay (draw no bet)",
+      "line": null,
+      "americanOdds": -950,
+      "modelProbability": 0.8527,
+      "marketProbability": 0.8527,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Saudi Arabia (DNB)",
+          "side": "home",
+          "modelProbability": 0.1473,
+          "marketProbability": 0.1473,
+          "americanOdds": 540
+        },
+        {
+          "label": "Uruguay (DNB)",
+          "side": "away",
+          "modelProbability": 0.8527,
+          "marketProbability": 0.8527,
+          "americanOdds": -950
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw no bet voids on a draw (stake returned)."
+      ],
+      "notes": [
+        "Draw-no-bet, de-vigged (two-way)."
       ]
     },
     {
@@ -231,43 +629,45 @@
       "awayCode": "NZ",
       "homeLogo": null,
       "awayLogo": null,
+      "group": "G",
+      "venue": "Inglewood",
       "regulationOnly": true,
       "sampleSizeWarning": true,
       "opponentStrengthCoverage": 0,
       "provider": "odds_api",
       "oddsProvider": "odds_api",
-      "modelVersion": "wc-odds-only-v1",
+      "modelVersion": "wc-odds-only-v2",
       "dataQuality": "limited",
-      "id": "wc_2026-06-15_iran_newzealand_ml",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_16_ml",
       "market": "moneyline_90",
       "pick": "home",
       "pickLabel": "Iran",
       "line": null,
       "americanOdds": -130,
-      "bookmaker": "betmgm",
-      "modelProbability": 0.5291,
-      "marketProbability": 0.5291,
+      "modelProbability": 0.5378,
+      "marketProbability": 0.5378,
       "edgePct": 0.0,
       "outcomes": [
         {
           "label": "Iran",
           "side": "home",
-          "modelProbability": 0.5291,
-          "marketProbability": 0.5291,
+          "modelProbability": 0.5378,
+          "marketProbability": 0.5378,
           "americanOdds": -130
         },
         {
           "label": "Draw",
           "side": "draw",
-          "modelProbability": 0.2837,
-          "marketProbability": 0.2837,
-          "americanOdds": 230
+          "modelProbability": 0.2719,
+          "marketProbability": 0.2719,
+          "americanOdds": 250
         },
         {
           "label": "New Zealand",
           "side": "away",
-          "modelProbability": 0.1872,
-          "marketProbability": 0.1872,
+          "modelProbability": 0.1903,
+          "marketProbability": 0.1903,
           "americanOdds": 400
         }
       ],
@@ -281,10 +681,206 @@
       "riskTier": "Medium",
       "factors": [],
       "caveats": [
-        "Odds-only: no API-Football stat/lineup layer. Market-implied (de-vigged 3-way), so model edge is ~0 \u2014 this is a market view, not a stat model."
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw is a real third outcome (90-min regulation)."
       ],
       "notes": [
-        "Limited-data World Cup projection from The Odds API (soccer_fifa_world_cup). Confidence capped \u2014 no team/player stat model."
+        "3-way moneyline de-vigged from the sportsbook price."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-15",
+      "matchId": 16,
+      "homeTeam": "Iran",
+      "awayTeam": "New Zealand",
+      "kickoffUtc": "2026-06-16T01:00:00Z",
+      "homeCode": "IR",
+      "awayCode": "NZ",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "G",
+      "venue": "Inglewood",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_16_dc",
+      "market": "double_chance",
+      "pick": "1X",
+      "pickLabel": "Iran or Draw",
+      "line": null,
+      "americanOdds": -600,
+      "modelProbability": 0.8097,
+      "marketProbability": 0.8023,
+      "edgePct": 0.74,
+      "outcomes": [
+        {
+          "label": "Iran or Draw",
+          "side": "1X",
+          "modelProbability": 0.8097,
+          "marketProbability": 0.8023,
+          "americanOdds": -600
+        },
+        {
+          "label": "New Zealand or Draw",
+          "side": "X2",
+          "modelProbability": 0.4622,
+          "marketProbability": 0.4794,
+          "americanOdds": -105
+        },
+        {
+          "label": "Iran or New Zealand",
+          "side": "12",
+          "modelProbability": 0.7281,
+          "marketProbability": 0.7183,
+          "americanOdds": -330
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Double chance covers two of three outcomes \u2014 lower variance, shorter price."
+      ],
+      "notes": [
+        "Double chance from REAL book odds; model probability is the 3-way no-vig sum."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-15",
+      "matchId": 16,
+      "homeTeam": "Iran",
+      "awayTeam": "New Zealand",
+      "kickoffUtc": "2026-06-16T01:00:00Z",
+      "homeCode": "IR",
+      "awayCode": "NZ",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "G",
+      "venue": "Inglewood",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_16_btts",
+      "market": "btts",
+      "pick": "no",
+      "pickLabel": "Both teams to score: No",
+      "line": null,
+      "americanOdds": -156,
+      "modelProbability": 0.575,
+      "marketProbability": 0.575,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "BTTS Yes",
+          "side": "yes",
+          "modelProbability": 0.425,
+          "marketProbability": 0.425,
+          "americanOdds": 122
+        },
+        {
+          "label": "BTTS No",
+          "side": "no",
+          "modelProbability": 0.575,
+          "marketProbability": 0.575,
+          "americanOdds": -156
+        }
+      ],
+      "confidence": "Watchlist",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model."
+      ],
+      "notes": [
+        "Both-teams-to-score, de-vigged."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-15",
+      "matchId": 16,
+      "homeTeam": "Iran",
+      "awayTeam": "New Zealand",
+      "kickoffUtc": "2026-06-16T01:00:00Z",
+      "homeCode": "IR",
+      "awayCode": "NZ",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "G",
+      "venue": "Inglewood",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-15_16_dnb",
+      "market": "draw_no_bet",
+      "pick": "home",
+      "pickLabel": "Iran (draw no bet)",
+      "line": null,
+      "americanOdds": -360,
+      "modelProbability": 0.738,
+      "marketProbability": 0.738,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Iran (DNB)",
+          "side": "home",
+          "modelProbability": 0.738,
+          "marketProbability": 0.738,
+          "americanOdds": -360
+        },
+        {
+          "label": "New Zealand (DNB)",
+          "side": "away",
+          "modelProbability": 0.262,
+          "marketProbability": 0.262,
+          "americanOdds": 260
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw no bet voids on a draw (stake returned)."
+      ],
+      "notes": [
+        "Draw-no-bet, de-vigged (two-way)."
       ]
     }
   ]

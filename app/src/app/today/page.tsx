@@ -110,25 +110,37 @@ export default function TodayPage() {
     getSuggestedParlaysForDate(today)?.slips ?? null,
     { sportFilter: "mlb", date: today },
   ).slice(0, 4);
-  // Today's Focus = World Cup fixtures (today-dated, odds-backed limited-data projections).
-  const wcFocus: WcFocusMatch[] = (wcProj?.matches ?? [])
-    .filter((m) => typeof m.americanOdds === "number" && !!m.pickLabel)
+  // Today's Focus = World Cup fixtures. The projections artifact now carries MANY
+  // markets per fixture (moneyline / double chance / totals / btts / dnb); the focus
+  // strip is keyed on the 3-way moneyline (one per fixture) and attaches a double-chance
+  // + total-goals line for the dropdown.
+  const wcAll = wcProj?.matches ?? [];
+  const wcByMatch = (mid: number | string, market: string) =>
+    wcAll.find((m) => m.matchId === mid && m.market === market);
+  const wcFocus: WcFocusMatch[] = wcAll
+    .filter((m) => m.market === "moneyline_90" && typeof m.americanOdds === "number" && !!m.pickLabel)
     .slice(0, 6)
-    .map((m) => ({
-      homeTeam: m.homeTeam,
-      awayTeam: m.awayTeam,
-      homeCode: m.homeCode ?? null,
-      awayCode: m.awayCode ?? null,
-      pickLabel: m.pickLabel,
-      americanOdds: m.americanOdds as number,
-      confidence: m.confidence ?? "limited",
-      outcomes: (m.outcomes ?? []).map((o) => ({
-        label: o.label,
-        side: o.side,
-        modelProbability: o.modelProbability,
-        americanOdds: o.americanOdds ?? 0,
-      })),
-    }));
+    .map((m) => {
+      const dc = wcByMatch(m.matchId, "double_chance");
+      const tot = wcByMatch(m.matchId, "match_total_goals");
+      return {
+        homeTeam: m.homeTeam,
+        awayTeam: m.awayTeam,
+        homeCode: m.homeCode ?? null,
+        awayCode: m.awayCode ?? null,
+        pickLabel: m.pickLabel,
+        americanOdds: m.americanOdds as number,
+        confidence: m.confidence ?? "limited",
+        outcomes: (m.outcomes ?? []).map((o) => ({
+          label: o.label,
+          side: o.side,
+          modelProbability: o.modelProbability,
+          americanOdds: o.americanOdds ?? 0,
+        })),
+        doubleChance: dc ? { pick: dc.pickLabel, odds: dc.americanOdds ?? 0, prob: dc.modelProbability } : null,
+        totalGoals: tot ? { pick: tot.pickLabel, odds: tot.americanOdds ?? 0, prob: tot.modelProbability } : null,
+      };
+    });
   // The official candidate is loaded for the ACTIVE rung (stake = full bankroll, floor =
   // the rung's ladder goal), matching /bank-builder. The loader's slate-freshness gate
   // returns null for stale (already-played) slates, so a settled step can never
@@ -419,6 +431,8 @@ type WcFocusMatch = {
   americanOdds: number;
   confidence: string;
   outcomes: Array<{ label: string; side: string; modelProbability: number; americanOdds: number }>;
+  doubleChance?: { pick: string; odds: number; prob: number } | null;
+  totalGoals?: { pick: string; odds: number; prob: number } | null;
 };
 
 function TodaysFocusWorldCup({
@@ -475,14 +489,27 @@ function TodaysFocusWorldCup({
                 </span>
               </summary>
               <div className="px-3.5 pb-3 flex flex-col gap-1">
+                <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>3-way (home · draw · away)</span>
                 {m.outcomes.map((o, j) => (
                   <div key={j} className="flex items-center justify-between font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
                     <span>{o.label}</span>
                     <span className="tabular">{Math.round(o.modelProbability * 100)}% · {o.americanOdds > 0 ? "+" : ""}{o.americanOdds}</span>
                   </div>
                 ))}
+                {m.doubleChance ? (
+                  <div className="mt-1 flex items-center justify-between font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+                    <span><span style={{ color: "var(--vault-text-faint)" }}>Double chance:</span> {m.doubleChance.pick}</span>
+                    <span className="tabular">{Math.round(m.doubleChance.prob * 100)}% · {m.doubleChance.odds > 0 ? "+" : ""}{m.doubleChance.odds}</span>
+                  </div>
+                ) : null}
+                {m.totalGoals ? (
+                  <div className="flex items-center justify-between font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+                    <span><span style={{ color: "var(--vault-text-faint)" }}>Total goals:</span> {m.totalGoals.pick}</span>
+                    <span className="tabular">{Math.round(m.totalGoals.prob * 100)}% · {m.totalGoals.odds > 0 ? "+" : ""}{m.totalGoals.odds}</span>
+                  </div>
+                ) : null}
                 <span className="mt-1 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                  market-implied · {m.confidence} · limited data
+                  odds-backed · {m.confidence} · limited data (player props need API-Football)
                 </span>
               </div>
             </details>

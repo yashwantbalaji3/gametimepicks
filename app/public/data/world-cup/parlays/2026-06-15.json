@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-06-15T18:12:49.899137+00:00",
+  "generatedAt": "2026-06-15T19:13:46.964139+00:00",
   "sport": "world_cup",
   "date": "2026-06-15",
   "disclaimer": "Paper-only, educational. Limited-data odds-backed cards (no stat layer).",
-  "cardCount": 1,
+  "cardCount": 2,
   "byRisk": {
     "Low": 1,
-    "Medium": 0,
+    "Medium": 1,
     "High": 0,
     "Longshot": 0
   },
@@ -20,12 +20,12 @@
         {
           "matchId": 15,
           "match": "Saudi Arabia vs Uruguay",
-          "market": "moneyline_90",
-          "pick": "Uruguay",
-          "americanOdds": -235,
-          "modelProbability": 0.6609,
-          "marketProbability": 0.6609,
-          "edgePct": 0.0,
+          "market": "double_chance",
+          "pick": "Uruguay or Draw",
+          "americanOdds": -1250,
+          "modelProbability": 0.8809,
+          "marketProbability": 0.878,
+          "edgePct": 0.29,
           "confidence": "Lean",
           "regulationOnly": true,
           "homeCode": "SA",
@@ -34,39 +34,105 @@
         {
           "matchId": 14,
           "match": "Belgium vs Egypt",
-          "market": "moneyline_90",
-          "pick": "Belgium",
-          "americanOdds": -185,
-          "modelProbability": 0.6084,
-          "marketProbability": 0.6084,
-          "edgePct": 0.0,
-          "confidence": "Watchlist",
+          "market": "double_chance",
+          "pick": "Belgium or Draw",
+          "americanOdds": -900,
+          "modelProbability": 0.8446,
+          "marketProbability": 0.85,
+          "edgePct": -0.54,
+          "confidence": "Lean",
           "regulationOnly": true,
           "homeCode": "BE",
           "awayCode": "EG"
         }
       ],
       "legCount": 2,
-      "combinedAmericanOdds": 120,
-      "combinedDecimal": 2.196,
+      "combinedAmericanOdds": -500,
+      "combinedDecimal": 1.2,
       "defaultStake": 10,
-      "projectedReturn": 21.96,
-      "estimatedHitProbability": 0.4021,
+      "projectedReturn": 12.0,
+      "estimatedHitProbability": 0.744,
       "regulationOnly": true,
-      "whyThisCard": "The two strongest market favorites today, different matches.",
+      "whyThisCard": "The two strongest odds-backed legs today (lower-variance markets preferred), different matches.",
       "correlationNotes": "Legs are different matches \u2014 no same-game correlation.",
       "dataCaveats": [
-        "Limited soccer data: odds-backed market-implied (de-vigged 3-way).",
-        "No API-Football stat/lineup layer \u2014 confidence is capped."
+        "Limited soccer data: odds-backed market-implied, no API-Football stat layer.",
+        "Confidence capped \u2014 no team/player stat model."
       ],
-      "combinedTotalEdgePct": 0.0,
+      "combinedTotalEdgePct": -0.25,
+      "single": false,
+      "dataQuality": "limited"
+    },
+    {
+      "id": "wc_2026-06-15_bal_001",
+      "sport": "world_cup",
+      "riskTier": "Medium",
+      "title": "World Cup balanced card",
+      "legs": [
+        {
+          "matchId": 15,
+          "match": "Saudi Arabia vs Uruguay",
+          "market": "double_chance",
+          "pick": "Uruguay or Draw",
+          "americanOdds": -1250,
+          "modelProbability": 0.8809,
+          "marketProbability": 0.878,
+          "edgePct": 0.29,
+          "confidence": "Lean",
+          "regulationOnly": true,
+          "homeCode": "SA",
+          "awayCode": "UY"
+        },
+        {
+          "matchId": 14,
+          "match": "Belgium vs Egypt",
+          "market": "double_chance",
+          "pick": "Belgium or Draw",
+          "americanOdds": -900,
+          "modelProbability": 0.8446,
+          "marketProbability": 0.85,
+          "edgePct": -0.54,
+          "confidence": "Lean",
+          "regulationOnly": true,
+          "homeCode": "BE",
+          "awayCode": "EG"
+        },
+        {
+          "matchId": 16,
+          "match": "Iran vs New Zealand",
+          "market": "double_chance",
+          "pick": "Iran or Draw",
+          "americanOdds": -600,
+          "modelProbability": 0.8097,
+          "marketProbability": 0.8023,
+          "edgePct": 0.74,
+          "confidence": "Lean",
+          "regulationOnly": true,
+          "homeCode": "IR",
+          "awayCode": "NZ"
+        }
+      ],
+      "legCount": 3,
+      "combinedAmericanOdds": -250,
+      "combinedDecimal": 1.4,
+      "defaultStake": 10,
+      "projectedReturn": 14.0,
+      "estimatedHitProbability": 0.6024,
+      "regulationOnly": true,
+      "whyThisCard": "Three odds-backed legs across different matches \u2014 higher combined odds, more variance.",
+      "correlationNotes": "Legs are different matches \u2014 no same-game correlation.",
+      "dataCaveats": [
+        "Limited soccer data: odds-backed market-implied, no API-Football stat layer.",
+        "Confidence capped \u2014 no team/player stat model."
+      ],
+      "combinedTotalEdgePct": 0.49,
       "single": false,
       "dataQuality": "limited"
     }
   ],
   "gateReasons": [
-    "Longshot tier omitted: no plus-money eligible WC leg today (favorites only)."
+    "Longshot tier omitted: no plus-money eligible WC leg today."
   ],
-  "sourceProjections": 2,
+  "sourceProjections": 3,
   "valueLegs": []
 }
