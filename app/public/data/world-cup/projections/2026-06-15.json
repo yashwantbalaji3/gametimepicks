@@ -5,10 +5,10 @@
   "modelVersion": "wc-odds-only-v2",
   "provider": "odds_api",
   "oddsProvider": "odds_api",
-  "strengthSource": "none",
-  "dataQuality": "limited",
+  "strengthSource": "api_football_recent_form",
+  "dataQuality": "B",
   "disclaimer": "Paper-only, educational. Odds-backed market-implied World Cup projections from The Odds API; no API-Football stat/lineup/xG layer.",
-  "methodology": "Per market: de-vig the sportsbook price (3-way for moneyline/double chance). No independent stat model \u2014 confidence capped, model edge ~0 except where the double-chance book price differs from the 3-way no-vig sum.",
+  "methodology": "Per market: de-vig the sportsbook price (3-way for moneyline/double chance). No independent stat model \u2014 confidence capped, model edge ~0 except where the double-chance book price differs from the 3-way no-vig sum. Recent form (last-5 across all competitions) and group attached from API-Football; prices remain from The Odds API.",
   "matchCount": 3,
   "projectionCount": 13,
   "publicCount": 13,
@@ -37,7 +37,7 @@
       "awayCode": "EG",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "G",
+      "group": "Group G",
       "venue": "Seattle",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -45,7 +45,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_14_ml",
       "market": "moneyline_90",
@@ -94,7 +94,98 @@
       ],
       "notes": [
         "3-way moneyline de-vigged from the sportsbook price."
-      ]
+      ],
+      "homeForm": {
+        "formString": "DWWDW",
+        "last5": [
+          {
+            "date": "2026-06-15",
+            "opponent": "Egypt",
+            "score": "1-1",
+            "result": "D",
+            "home": true,
+            "competition": "World Cup"
+          },
+          {
+            "date": "2026-06-06",
+            "opponent": "Tunisia",
+            "score": "5-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-02",
+            "opponent": "Croatia",
+            "score": "2-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-04-01",
+            "opponent": "Mexico",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-28",
+            "opponent": "USA",
+            "score": "5-2",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "DLWDW",
+        "last5": [
+          {
+            "date": "2026-06-15",
+            "opponent": "Belgium",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "World Cup"
+          },
+          {
+            "date": "2026-06-06",
+            "opponent": "Brazil",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-28",
+            "opponent": "Russia",
+            "score": "1-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Spain",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Saudi Arabia",
+            "score": "4-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -107,7 +198,7 @@
       "awayCode": "EG",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "G",
+      "group": "Group G",
       "venue": "Seattle",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -115,7 +206,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_14_dc",
       "market": "double_chance",
@@ -164,7 +255,98 @@
       ],
       "notes": [
         "Double chance from REAL book odds; model probability is the 3-way no-vig sum."
-      ]
+      ],
+      "homeForm": {
+        "formString": "DWWDW",
+        "last5": [
+          {
+            "date": "2026-06-15",
+            "opponent": "Egypt",
+            "score": "1-1",
+            "result": "D",
+            "home": true,
+            "competition": "World Cup"
+          },
+          {
+            "date": "2026-06-06",
+            "opponent": "Tunisia",
+            "score": "5-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-02",
+            "opponent": "Croatia",
+            "score": "2-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-04-01",
+            "opponent": "Mexico",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-28",
+            "opponent": "USA",
+            "score": "5-2",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "DLWDW",
+        "last5": [
+          {
+            "date": "2026-06-15",
+            "opponent": "Belgium",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "World Cup"
+          },
+          {
+            "date": "2026-06-06",
+            "opponent": "Brazil",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-28",
+            "opponent": "Russia",
+            "score": "1-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Spain",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Saudi Arabia",
+            "score": "4-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -177,7 +359,7 @@
       "awayCode": "EG",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "G",
+      "group": "Group G",
       "venue": "Seattle",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -185,7 +367,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_14_btts",
       "market": "btts",
@@ -226,7 +408,98 @@
       ],
       "notes": [
         "Both-teams-to-score, de-vigged."
-      ]
+      ],
+      "homeForm": {
+        "formString": "DWWDW",
+        "last5": [
+          {
+            "date": "2026-06-15",
+            "opponent": "Egypt",
+            "score": "1-1",
+            "result": "D",
+            "home": true,
+            "competition": "World Cup"
+          },
+          {
+            "date": "2026-06-06",
+            "opponent": "Tunisia",
+            "score": "5-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-02",
+            "opponent": "Croatia",
+            "score": "2-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-04-01",
+            "opponent": "Mexico",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-28",
+            "opponent": "USA",
+            "score": "5-2",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "DLWDW",
+        "last5": [
+          {
+            "date": "2026-06-15",
+            "opponent": "Belgium",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "World Cup"
+          },
+          {
+            "date": "2026-06-06",
+            "opponent": "Brazil",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-28",
+            "opponent": "Russia",
+            "score": "1-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Spain",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Saudi Arabia",
+            "score": "4-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -239,7 +512,7 @@
       "awayCode": "EG",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "G",
+      "group": "Group G",
       "venue": "Seattle",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -247,7 +520,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_14_dnb",
       "market": "draw_no_bet",
@@ -289,7 +562,98 @@
       ],
       "notes": [
         "Draw-no-bet, de-vigged (two-way)."
-      ]
+      ],
+      "homeForm": {
+        "formString": "DWWDW",
+        "last5": [
+          {
+            "date": "2026-06-15",
+            "opponent": "Egypt",
+            "score": "1-1",
+            "result": "D",
+            "home": true,
+            "competition": "World Cup"
+          },
+          {
+            "date": "2026-06-06",
+            "opponent": "Tunisia",
+            "score": "5-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-02",
+            "opponent": "Croatia",
+            "score": "2-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-04-01",
+            "opponent": "Mexico",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-28",
+            "opponent": "USA",
+            "score": "5-2",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "DLWDW",
+        "last5": [
+          {
+            "date": "2026-06-15",
+            "opponent": "Belgium",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "World Cup"
+          },
+          {
+            "date": "2026-06-06",
+            "opponent": "Brazil",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-28",
+            "opponent": "Russia",
+            "score": "1-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Spain",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Saudi Arabia",
+            "score": "4-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -302,7 +666,7 @@
       "awayCode": "UY",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "H",
+      "group": "Group Stage",
       "venue": "Miami Gardens",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -310,7 +674,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_15_ml",
       "market": "moneyline_90",
@@ -359,7 +723,98 @@
       ],
       "notes": [
         "3-way moneyline de-vigged from the sportsbook price."
-      ]
+      ],
+      "homeForm": {
+        "formString": "DWLLL",
+        "last5": [
+          {
+            "date": "2026-06-09",
+            "opponent": "Senegal",
+            "score": "0-0",
+            "result": "D",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-05",
+            "opponent": "Puerto Rico",
+            "score": "3-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-31",
+            "opponent": "Ecuador",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Serbia",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Egypt",
+            "score": "0-4",
+            "result": "L",
+            "home": true,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "DDLDW",
+        "last5": [
+          {
+            "date": "2026-03-31",
+            "opponent": "Algeria",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "England",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-11-19",
+            "opponent": "USA",
+            "score": "1-5",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-11-16",
+            "opponent": "Mexico",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-10-13",
+            "opponent": "Uzbekistan",
+            "score": "2-1",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -372,7 +827,7 @@
       "awayCode": "UY",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "H",
+      "group": "Group Stage",
       "venue": "Miami Gardens",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -380,7 +835,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_15_tot",
       "market": "match_total_goals",
@@ -421,7 +876,98 @@
       ],
       "notes": [
         "Total goals at the 2.5 line, de-vigged."
-      ]
+      ],
+      "homeForm": {
+        "formString": "DWLLL",
+        "last5": [
+          {
+            "date": "2026-06-09",
+            "opponent": "Senegal",
+            "score": "0-0",
+            "result": "D",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-05",
+            "opponent": "Puerto Rico",
+            "score": "3-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-31",
+            "opponent": "Ecuador",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Serbia",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Egypt",
+            "score": "0-4",
+            "result": "L",
+            "home": true,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "DDLDW",
+        "last5": [
+          {
+            "date": "2026-03-31",
+            "opponent": "Algeria",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "England",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-11-19",
+            "opponent": "USA",
+            "score": "1-5",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-11-16",
+            "opponent": "Mexico",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-10-13",
+            "opponent": "Uzbekistan",
+            "score": "2-1",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -434,7 +980,7 @@
       "awayCode": "UY",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "H",
+      "group": "Group Stage",
       "venue": "Miami Gardens",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -442,7 +988,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_15_dc",
       "market": "double_chance",
@@ -491,7 +1037,98 @@
       ],
       "notes": [
         "Double chance from REAL book odds; model probability is the 3-way no-vig sum."
-      ]
+      ],
+      "homeForm": {
+        "formString": "DWLLL",
+        "last5": [
+          {
+            "date": "2026-06-09",
+            "opponent": "Senegal",
+            "score": "0-0",
+            "result": "D",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-05",
+            "opponent": "Puerto Rico",
+            "score": "3-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-31",
+            "opponent": "Ecuador",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Serbia",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Egypt",
+            "score": "0-4",
+            "result": "L",
+            "home": true,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "DDLDW",
+        "last5": [
+          {
+            "date": "2026-03-31",
+            "opponent": "Algeria",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "England",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-11-19",
+            "opponent": "USA",
+            "score": "1-5",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-11-16",
+            "opponent": "Mexico",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-10-13",
+            "opponent": "Uzbekistan",
+            "score": "2-1",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -504,7 +1141,7 @@
       "awayCode": "UY",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "H",
+      "group": "Group Stage",
       "venue": "Miami Gardens",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -512,7 +1149,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_15_btts",
       "market": "btts",
@@ -553,7 +1190,98 @@
       ],
       "notes": [
         "Both-teams-to-score, de-vigged."
-      ]
+      ],
+      "homeForm": {
+        "formString": "DWLLL",
+        "last5": [
+          {
+            "date": "2026-06-09",
+            "opponent": "Senegal",
+            "score": "0-0",
+            "result": "D",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-05",
+            "opponent": "Puerto Rico",
+            "score": "3-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-31",
+            "opponent": "Ecuador",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Serbia",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Egypt",
+            "score": "0-4",
+            "result": "L",
+            "home": true,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "DDLDW",
+        "last5": [
+          {
+            "date": "2026-03-31",
+            "opponent": "Algeria",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "England",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-11-19",
+            "opponent": "USA",
+            "score": "1-5",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-11-16",
+            "opponent": "Mexico",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-10-13",
+            "opponent": "Uzbekistan",
+            "score": "2-1",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -566,7 +1294,7 @@
       "awayCode": "UY",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "H",
+      "group": "Group Stage",
       "venue": "Miami Gardens",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -574,7 +1302,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_15_dnb",
       "market": "draw_no_bet",
@@ -616,7 +1344,98 @@
       ],
       "notes": [
         "Draw-no-bet, de-vigged (two-way)."
-      ]
+      ],
+      "homeForm": {
+        "formString": "DWLLL",
+        "last5": [
+          {
+            "date": "2026-06-09",
+            "opponent": "Senegal",
+            "score": "0-0",
+            "result": "D",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-05",
+            "opponent": "Puerto Rico",
+            "score": "3-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-31",
+            "opponent": "Ecuador",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Serbia",
+            "score": "1-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Egypt",
+            "score": "0-4",
+            "result": "L",
+            "home": true,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "DDLDW",
+        "last5": [
+          {
+            "date": "2026-03-31",
+            "opponent": "Algeria",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "England",
+            "score": "1-1",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-11-19",
+            "opponent": "USA",
+            "score": "1-5",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-11-16",
+            "opponent": "Mexico",
+            "score": "0-0",
+            "result": "D",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2025-10-13",
+            "opponent": "Uzbekistan",
+            "score": "2-1",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -629,7 +1448,7 @@
       "awayCode": "NZ",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "G",
+      "group": "Group Stage",
       "venue": "Inglewood",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -637,7 +1456,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_16_ml",
       "market": "moneyline_90",
@@ -686,7 +1505,98 @@
       ],
       "notes": [
         "3-way moneyline de-vigged from the sportsbook price."
-      ]
+      ],
+      "homeForm": {
+        "formString": "-WWWL",
+        "last5": [
+          {
+            "date": "2026-06-11",
+            "opponent": "Grenada",
+            "score": "\u2014",
+            "result": "-",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-04",
+            "opponent": "Mali",
+            "score": "2-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-29",
+            "opponent": "Gambia",
+            "score": "3-1",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Costa Rica",
+            "score": "5-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Nigeria",
+            "score": "1-2",
+            "result": "L",
+            "home": true,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "LLWLL",
+        "last5": [
+          {
+            "date": "2026-06-06",
+            "opponent": "England",
+            "score": "0-1",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-03",
+            "opponent": "Haiti",
+            "score": "0-4",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-30",
+            "opponent": "Chile",
+            "score": "4-1",
+            "result": "W",
+            "home": true,
+            "competition": "FIFA Series"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Finland",
+            "score": "0-2",
+            "result": "L",
+            "home": true,
+            "competition": "FIFA Series"
+          },
+          {
+            "date": "2025-11-19",
+            "opponent": "Ecuador",
+            "score": "0-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -699,7 +1609,7 @@
       "awayCode": "NZ",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "G",
+      "group": "Group Stage",
       "venue": "Inglewood",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -707,7 +1617,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_16_dc",
       "market": "double_chance",
@@ -756,7 +1666,98 @@
       ],
       "notes": [
         "Double chance from REAL book odds; model probability is the 3-way no-vig sum."
-      ]
+      ],
+      "homeForm": {
+        "formString": "-WWWL",
+        "last5": [
+          {
+            "date": "2026-06-11",
+            "opponent": "Grenada",
+            "score": "\u2014",
+            "result": "-",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-04",
+            "opponent": "Mali",
+            "score": "2-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-29",
+            "opponent": "Gambia",
+            "score": "3-1",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Costa Rica",
+            "score": "5-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Nigeria",
+            "score": "1-2",
+            "result": "L",
+            "home": true,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "LLWLL",
+        "last5": [
+          {
+            "date": "2026-06-06",
+            "opponent": "England",
+            "score": "0-1",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-03",
+            "opponent": "Haiti",
+            "score": "0-4",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-30",
+            "opponent": "Chile",
+            "score": "4-1",
+            "result": "W",
+            "home": true,
+            "competition": "FIFA Series"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Finland",
+            "score": "0-2",
+            "result": "L",
+            "home": true,
+            "competition": "FIFA Series"
+          },
+          {
+            "date": "2025-11-19",
+            "opponent": "Ecuador",
+            "score": "0-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -769,7 +1770,7 @@
       "awayCode": "NZ",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "G",
+      "group": "Group Stage",
       "venue": "Inglewood",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -777,7 +1778,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_16_btts",
       "market": "btts",
@@ -818,7 +1819,98 @@
       ],
       "notes": [
         "Both-teams-to-score, de-vigged."
-      ]
+      ],
+      "homeForm": {
+        "formString": "-WWWL",
+        "last5": [
+          {
+            "date": "2026-06-11",
+            "opponent": "Grenada",
+            "score": "\u2014",
+            "result": "-",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-04",
+            "opponent": "Mali",
+            "score": "2-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-29",
+            "opponent": "Gambia",
+            "score": "3-1",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Costa Rica",
+            "score": "5-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Nigeria",
+            "score": "1-2",
+            "result": "L",
+            "home": true,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "LLWLL",
+        "last5": [
+          {
+            "date": "2026-06-06",
+            "opponent": "England",
+            "score": "0-1",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-03",
+            "opponent": "Haiti",
+            "score": "0-4",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-30",
+            "opponent": "Chile",
+            "score": "4-1",
+            "result": "W",
+            "home": true,
+            "competition": "FIFA Series"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Finland",
+            "score": "0-2",
+            "result": "L",
+            "home": true,
+            "competition": "FIFA Series"
+          },
+          {
+            "date": "2025-11-19",
+            "opponent": "Ecuador",
+            "score": "0-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     },
     {
       "sport": "world_cup",
@@ -831,7 +1923,7 @@
       "awayCode": "NZ",
       "homeLogo": null,
       "awayLogo": null,
-      "group": "G",
+      "group": "Group Stage",
       "venue": "Inglewood",
       "regulationOnly": true,
       "sampleSizeWarning": true,
@@ -839,7 +1931,7 @@
       "provider": "odds_api",
       "oddsProvider": "odds_api",
       "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "limited",
+      "dataQuality": "B",
       "bookmaker": "fanduel",
       "id": "wc_2026-06-15_16_dnb",
       "market": "draw_no_bet",
@@ -881,7 +1973,99 @@
       ],
       "notes": [
         "Draw-no-bet, de-vigged (two-way)."
-      ]
+      ],
+      "homeForm": {
+        "formString": "-WWWL",
+        "last5": [
+          {
+            "date": "2026-06-11",
+            "opponent": "Grenada",
+            "score": "\u2014",
+            "result": "-",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-04",
+            "opponent": "Mali",
+            "score": "2-0",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-05-29",
+            "opponent": "Gambia",
+            "score": "3-1",
+            "result": "W",
+            "home": true,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-31",
+            "opponent": "Costa Rica",
+            "score": "5-0",
+            "result": "W",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Nigeria",
+            "score": "1-2",
+            "result": "L",
+            "home": true,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "awayForm": {
+        "formString": "LLWLL",
+        "last5": [
+          {
+            "date": "2026-06-06",
+            "opponent": "England",
+            "score": "0-1",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-06-03",
+            "opponent": "Haiti",
+            "score": "0-4",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          },
+          {
+            "date": "2026-03-30",
+            "opponent": "Chile",
+            "score": "4-1",
+            "result": "W",
+            "home": true,
+            "competition": "FIFA Series"
+          },
+          {
+            "date": "2026-03-27",
+            "opponent": "Finland",
+            "score": "0-2",
+            "result": "L",
+            "home": true,
+            "competition": "FIFA Series"
+          },
+          {
+            "date": "2025-11-19",
+            "opponent": "Ecuador",
+            "score": "0-2",
+            "result": "L",
+            "home": false,
+            "competition": "Friendlies"
+          }
+        ]
+      },
+      "statLayer": "api_football_recent_form"
     }
-  ]
+  ],
+  "statProvider": "api_football"
 }

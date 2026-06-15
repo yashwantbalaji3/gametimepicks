@@ -96,3 +96,38 @@ Disclaimer states the odds exist but the stat layer needs API-Football.
 **Recommendation:** review on the preview; merge this WC market expansion. Next: add
 `API_FOOTBALL_KEY` to unlock player/team stats + lineups + the Poisson model, then surface
 goalscorer props + spreads/team totals.
+
+---
+
+## API-Football enrichment (credential added by owner — verified + wired)
+
+**Credential verified first (low-cost):** `GET /status` → Pro plan, active (ends 2026-07-11),
+0/7500 requests today. Key stored ONLY in the gitignored `.env` (never printed, never committed);
+the value never enters any tracked file or the git history.
+
+**Data-source split (as instructed):** prices from The Odds API; **fixtures, standings, group,
+lineups, recent form, settlement from API-Football.**
+
+**Recon findings:**
+- `/fixtures?league=1&season=2026&date=…` returns the real WC fixtures (Belgium, Spain, Saudi
+  Arabia, Sweden, …) with team ids + live status.
+- `/standings?league=1&season=2026` → real groups (Group G = Belgium/Egypt/Iran/New Zealand).
+- `/fixtures?team={id}&last=5` → **real recent form across all competitions** (Belgium D-W-W-D-W).
+  This is the correct recent-form source; `/teams/statistics?league=1` is thin this early
+  (played 0), so the full Poisson team-strength model is deferred until more group games settle.
+- `/fixtures/lineups` → posted for started matches, pending for upcoming (honest gate).
+
+**Shipped — `enrich_with_api_football.py`:** reads the odds-backed projections and attaches
+**real recent form (last-5) + group** to each, bumping `dataQuality` → `B` (odds + stat layer),
+`statProvider: api_football`. June 15: **13/13 projections enriched** (Belgium [DWWDW] vs Egypt
+[DLWDW], Group G; etc.). Fail-soft: a team that can't be matched keeps its odds-only projection.
+
+**UI:** the homepage World Cup focus dropdown now shows the 3-way (Draw real) + double chance +
+totals + **recent-form pills (W green / L crimson / D grey) per team + group**. Methodology WC
+card updated to the live two-provider reality. New test asserts real form rows (date/opponent/
+competition) + the dataQuality bump.
+
+**Deferred (next increment, now unblocked):** player-prop projections (Odds API goalscorer/shots
+odds + API-Football player recent form), lineup display when posted, settlement grading of
+finished WC matches, and the full Poisson model once WC-season stats thicken. Recent form +
+group + the verified credential are the foundation for all of these.

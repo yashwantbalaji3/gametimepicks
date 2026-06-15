@@ -13,9 +13,10 @@ const DIR = new URL("../../../public/data/world-cup/", import.meta.url);
 const proj = JSON.parse(fs.readFileSync(new URL("projections/latest.json", DIR), "utf8"));
 const players = JSON.parse(fs.readFileSync(new URL("player-projections/latest.json", DIR), "utf8"));
 
-test("projections artifact is odds-backed, limited-data, dated", () => {
+test("projections artifact is odds-backed, dated", () => {
   assert.equal(proj.provider, "odds_api");
-  assert.equal(proj.dataQuality, "limited");
+  // "limited" odds-only, or "B" once API-Football recent form is attached.
+  assert.ok(["limited", "B"].includes(proj.dataQuality), `dataQuality is limited|B (got ${proj.dataQuality})`);
   assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(proj.date), "has an ISO date");
   assert.ok(Array.isArray(proj.matches) && proj.matches.length > 0, "has market projections");
 });
@@ -25,7 +26,7 @@ test("every market projection is odds-backed (provider + bookmaker + a real pric
     assert.equal(m.provider, "odds_api", `${m.id} provider`);
     assert.ok(m.bookmaker, `${m.id} names the sportsbook`);
     assert.ok(typeof m.americanOdds === "number" && m.americanOdds !== 0, `${m.id} has a real price`);
-    assert.equal(m.dataQuality, "limited");
+    assert.ok(["limited", "B"].includes(m.dataQuality), `${m.id} dataQuality limited|B`);
   }
 });
 
@@ -61,6 +62,24 @@ test("player props are FAILED CLOSED — no stale data", () => {
   assert.ok(/API[-_ ]?Football/i.test(players.disclaimer ?? ""), "explains the API-Football gap");
   assert.equal(players.date, proj.date, "player-props artifact is current-dated (not stale June 12)");
   assert.deepEqual(players.matches, [], "no stale player rows");
+});
+
+test("API-Football enrichment: real recent form + group attached (when present)", () => {
+  // The enrich step is opt-in (needs API_FOOTBALL_KEY at generation time). When it ran,
+  // projections carry a real last-5 form string + group and bump to dataQuality B.
+  const enriched = proj.matches.filter((m) => m.homeForm || m.awayForm);
+  if (enriched.length === 0) return; // odds-only run (no key) — still valid
+  assert.equal(proj.statProvider, "api_football");
+  for (const m of enriched) {
+    for (const f of [m.homeForm, m.awayForm].filter(Boolean)) {
+      assert.ok(/^[WLD-]{1,5}$/.test(f.formString), `form string is W/L/D/- (got ${f.formString})`);
+      assert.ok(Array.isArray(f.last5) && f.last5.length > 0, "last5 has real rows");
+      for (const g of f.last5) {
+        assert.ok(g.date && g.opponent && g.competition, "each form row is real (date/opp/comp)");
+      }
+    }
+    assert.equal(m.dataQuality, "B", "enriched projection bumps to odds+stats quality");
+  }
 });
 
 test("no banned copy in WC projection caveats/notes", () => {

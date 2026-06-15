@@ -11,6 +11,19 @@ import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupStatsReadiness } from "./market-outlook";
 
+/** Real recent form (last-5 across all competitions) from API-Football. */
+export interface WcRecentForm {
+  formString: string; // e.g. "WWDLW", most recent first
+  last5: Array<{
+    date: string;
+    opponent: string;
+    score: string;
+    result: "W" | "L" | "D" | "-";
+    home: boolean;
+    competition: string;
+  }>;
+}
+
 export interface WcProjection {
   id: string;
   sport: "world_cup";
@@ -24,8 +37,15 @@ export interface WcProjection {
   /** 2-letter ISO codes for national-team flags (odds-only path; no api-sports logos). */
   homeCode?: string | null;
   awayCode?: string | null;
-  /** Coarse data-quality tag — "limited" for the odds-only (no stat layer) path. */
+  /** Coarse data-quality tag — "limited" odds-only; "B" once API-Football form is attached. */
   dataQuality?: string;
+  /** Tournament group (e.g. "Group G") from API-Football standings. */
+  group?: string | null;
+  /** Which stat layer enriched this projection (e.g. "api_football_recent_form"). */
+  statLayer?: string;
+  /** Real recent form (last-5 across all competitions) from API-Football. */
+  homeForm?: WcRecentForm | null;
+  awayForm?: WcRecentForm | null;
   market: "moneyline_90" | "match_total_goals" | string;
   pick: string;
   pickLabel: string;

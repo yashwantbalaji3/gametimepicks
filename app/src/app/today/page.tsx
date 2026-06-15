@@ -139,6 +139,9 @@ export default function TodayPage() {
         })),
         doubleChance: dc ? { pick: dc.pickLabel, odds: dc.americanOdds ?? 0, prob: dc.modelProbability } : null,
         totalGoals: tot ? { pick: tot.pickLabel, odds: tot.americanOdds ?? 0, prob: tot.modelProbability } : null,
+        group: m.group ?? null,
+        homeForm: m.homeForm?.formString ?? null,
+        awayForm: m.awayForm?.formString ?? null,
       };
     });
   // The official candidate is loaded for the ACTIVE rung (stake = full bankroll, floor =
@@ -433,7 +436,30 @@ type WcFocusMatch = {
   outcomes: Array<{ label: string; side: string; modelProbability: number; americanOdds: number }>;
   doubleChance?: { pick: string; odds: number; prob: number } | null;
   totalGoals?: { pick: string; odds: number; prob: number } | null;
+  group?: string | null;
+  homeForm?: string | null;
+  awayForm?: string | null;
 };
+
+/** Recent-form row — team name + last-5 W/D/L pills (W green · L crimson · D muted). */
+function FormRow({ team, form }: { team: string; form: string }) {
+  const color = (r: string) =>
+    r === "W" ? "var(--vault-success)" : r === "L" ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)";
+  return (
+    <div className="flex items-center justify-between gap-2" style={{ fontSize: 11 }}>
+      <span className="font-mono truncate" style={{ color: "var(--vault-text-mute)" }}>{team}</span>
+      <span className="flex gap-0.5 shrink-0">
+        {form.split("").map((r, i) => (
+          <span key={i} className="inline-flex items-center justify-center font-mono font-bold"
+            style={{ width: 13, height: 13, fontSize: 8.5, borderRadius: 3, color: "#120A07",
+              background: r === "D" ? "var(--vault-text-faint)" : color(r) }}>
+            {r}
+          </span>
+        ))}
+      </span>
+    </div>
+  );
+}
 
 function TodaysFocusWorldCup({
   matches,
@@ -468,7 +494,7 @@ function TodaysFocusWorldCup({
       </h1>
       <p className="relative mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 660 }}>
         {hasProj
-          ? "Market-implied projections from The Odds API (3-way moneyline, de-vigged). Limited data — no team/player stat layer yet. Paper-only, educational."
+          ? "Prices from The Odds API (3-way moneyline + double chance + totals, de-vigged); recent form & group from API-Football. Tap a match for the full read. Paper-only, educational."
           : games > 0
             ? "Today's fixtures are scheduled, but odds-backed projections are unavailable right now. Paper-only, educational."
             : "No World Cup matches on today's slate."}
@@ -508,8 +534,15 @@ function TodaysFocusWorldCup({
                     <span className="tabular">{Math.round(m.totalGoals.prob * 100)}% · {m.totalGoals.odds > 0 ? "+" : ""}{m.totalGoals.odds}</span>
                   </div>
                 ) : null}
+                {m.homeForm || m.awayForm ? (
+                  <div className="mt-1.5 flex flex-col gap-0.5">
+                    <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>recent form · last 5 (API-Football)</span>
+                    {m.homeForm ? <FormRow team={m.homeTeam} form={m.homeForm} /> : null}
+                    {m.awayForm ? <FormRow team={m.awayTeam} form={m.awayForm} /> : null}
+                  </div>
+                ) : null}
                 <span className="mt-1 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                  odds-backed · {m.confidence} · limited data (player props need API-Football)
+                  odds-backed · recent form live · {m.confidence}{m.group ? ` · ${m.group}` : ""} (player props next)
                 </span>
               </div>
             </details>
