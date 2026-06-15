@@ -117,7 +117,7 @@ def build(now: datetime | None = None) -> tuple[dict, dict]:
                     "disclaimer": DISCLAIMER, "warnings": []}
         cards.append(_card("Conservative card", strong[:2], "Two strongest model favorites this card (moneyline only)."))
         if len(strong) >= 3:
-            cards.append(_card("Balanced card", strong[1:3], "Strong model favorites, one step out from the safest pair (moneyline only)."))
+            cards.append(_card("Balanced card", strong[1:3], "Strong model favorites, one step out from the lowest-variance pair (moneyline only)."))
         # Higher-variance lanes — real odds-backed moneyline favorites only. The model
         # mirrors the market on this card (no edge), so the risk comes from leg COUNT, not
         # from underdog edge picks. Labeled high-variance; never an underdog edge claim.
