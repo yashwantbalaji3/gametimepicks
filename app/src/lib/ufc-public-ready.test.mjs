@@ -63,6 +63,47 @@ test("/methodology includes an honest UFC section (sources, coverage, limitation
   assert.ok(/Validation in progress/i.test(m), "validation status documented");
 });
 
+test("expanded projections are MODEL-ONLY and never parlay-eligible (no fabricated odds)", () => {
+  const e = read("expanded-projections-latest.json");
+  assert.equal(e.marketScope, "model_only_expanded");
+  assert.equal(e.parlayEligible, false, "the whole expanded set is not parlay-eligible");
+  assert.ok(Array.isArray(e.projections) && e.projections.length > 0, "expanded projections exist");
+  for (const f of e.projections) {
+    if (!f.method) { assert.ok(f.note, "limited-data fight has an honest note"); continue; }
+    // Expanded markets carry NO odds — must be model-only + not parlay eligible.
+    for (const mk of [f.goesDistance, f.totalRounds, f.method]) {
+      assert.equal(mk.marketState, "model-only", "expanded market is model-only");
+      assert.equal(mk.parlayEligible, false, "expanded market is not parlay eligible");
+    }
+    // Method probabilities are real fractions that sum to ~1.
+    const sum = f.method.koTkoProbability + f.method.submissionProbability + f.method.decisionProbability;
+    assert.ok(Math.abs(sum - 1) < 0.02, `method distribution sums to ~1 (got ${sum})`);
+    // The moneyline leg IS odds-backed (it has a real sportsbook price).
+    assert.equal(f.moneyline.marketState, "odds-backed");
+  }
+});
+
+test("UFC suggested cards span risk lanes and use only real moneyline legs (no model-only props)", () => {
+  const c = read("suggested-parlays-latest.json");
+  const labels = (c.cards ?? []).map((x) => x.riskLabel);
+  assert.ok(labels.some((l) => /high.?risk/i.test(l)), "a high-risk card exists");
+  assert.ok(labels.some((l) => /longshot/i.test(l)), "a longshot card exists");
+  for (const card of c.cards ?? []) {
+    for (const leg of card.legs ?? []) {
+      assert.ok(leg.fighter && leg.boutId, "card leg is a real moneyline pick (fighter + bout)");
+      // No expanded model-only market keys leak into priced cards.
+      assert.ok(!("goesDistance" in leg) && !("method" in leg) && !("totalRounds" in leg), "no model-only props in cards");
+    }
+  }
+  assert.equal(c.marketScope, "h2h_moneyline_only", "cards remain moneyline-only");
+});
+
+test("/ufc has an Expanded Projections tab fed by the model-only artifact", () => {
+  assert.ok(ufcPage.includes('label: "Expanded Projections"'), "Expanded Projections tab present");
+  assert.ok(ufcPage.includes("expanded-projections-latest.json"), "page reads the expanded artifact");
+  assert.ok(ufcPage.includes("UfcExpandedFightCards"), "renders the fight-by-fight component");
+});
+
 test("no banned promotional copy in /ufc or /today", () => {
   for (const [name, src] of [["/ufc", ufcPage], ["/today", todayPage]]) {
     const blob = src.toLowerCase();

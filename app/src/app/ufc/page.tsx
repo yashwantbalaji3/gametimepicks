@@ -21,6 +21,7 @@ import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
 import StatusChip from "@/components/ui/status-chip";
+import UfcExpandedFightCards from "@/components/ufc/expanded-fight-cards";
 
 export const metadata = {
   title: "UFC · GameTime Picks",
@@ -73,6 +74,8 @@ export default function UfcPage() {
   const ops = loadJSONUfc<OpsStatus | null>("ops-status-latest.json", null);
   const v1Proj = loadJSONUfc<V1Projections | null>("projections-latest.json", null);
   const v1Parlays = loadJSONUfc<V1Parlays | null>("suggested-parlays-latest.json", null);
+  const expanded = loadJSONUfc<{ projections?: unknown[] } | null>("expanded-projections-latest.json", null);
+  const expandedFights = (expanded?.projections ?? []) as Parameters<typeof UfcExpandedFightCards>[0]["fights"];
 
   const showV1Proj = Boolean(v1Proj?.moneylineV1Ready && v1Proj.projections?.length);
   const v1Validated = Boolean(v1Proj?.moneylineValidated);
@@ -160,32 +163,40 @@ export default function UfcPage() {
     </div>
   );
 
-  const marketCoverage = [
+  const expandedModelReady = expandedFights.some((f) => f.method);
+  const marketCoverage: { key: string; label: string; state: "odds-backed" | "model-only" | "unavailable"; detail: string }[] = [
     {
-      key: "h2h", label: "Moneyline (h2h)", live: showV1Proj,
+      key: "h2h", label: "Moneyline (h2h)", state: showV1Proj ? "odds-backed" : "unavailable",
       detail: showV1Proj
-        ? `${ufcProjections.length} model-reviewed win projections with real sportsbook odds and edge.`
+        ? `${ufcProjections.length} model-reviewed win projections with real sportsbook odds and edge — parlay eligible.`
         : "Awaiting two-sided moneyline lines for the next card.",
     },
-    { key: "rounds", label: "Total rounds (Over / Under)", live: Boolean(r.propMarketsAvailable?.rounds), detail: "Odds unavailable — the connected MMA feed is moneyline (h2h) only. No prop is shown until real odds + a model exist." },
-    { key: "distance", label: "Goes the distance / does not", live: Boolean(r.propMarketsAvailable?.distance), detail: "Odds unavailable — the connected MMA feed is moneyline (h2h) only. No prop is shown until real odds + a model exist." },
-    { key: "method", label: "Method of victory (KO/TKO · submission · decision)", live: Boolean(r.propMarketsAvailable?.method), detail: "Odds unavailable — the connected MMA feed is moneyline (h2h) only. No prop is shown until real odds + a model exist." },
+    { key: "rounds", label: "Total rounds (Over / Under)", state: r.propMarketsAvailable?.rounds ? "odds-backed" : expandedModelReady ? "model-only" : "unavailable", detail: "No sportsbook odds in the feed (moneyline-only). Shown as a model-only projection in the Expanded Projections tab — for insight, not parlay eligible." },
+    { key: "distance", label: "Goes the distance / does not", state: r.propMarketsAvailable?.distance ? "odds-backed" : expandedModelReady ? "model-only" : "unavailable", detail: "No sportsbook odds in the feed (moneyline-only). Shown as a model-only projection in the Expanded Projections tab — for insight, not parlay eligible." },
+    { key: "method", label: "Method of victory (KO/TKO · submission · decision)", state: r.propMarketsAvailable?.method ? "odds-backed" : expandedModelReady ? "model-only" : "unavailable", detail: "No sportsbook odds in the feed (moneyline-only). Shown as a model-only projection in the Expanded Projections tab — for insight, not parlay eligible." },
   ];
+  const stateStyle = (s: "odds-backed" | "model-only" | "unavailable") =>
+    s === "odds-backed" ? { c: "var(--vault-success)", bg: "rgba(110,231,168,0.14)", b: "rgba(110,231,168,0.35)", label: "ODDS-BACKED" }
+      : s === "model-only" ? { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(255,122,60,0.32)", label: "MODEL-ONLY" }
+        : { c: "var(--vault-text-faint)", bg: "rgba(26, 16, 11,0.6)", b: "var(--vault-rule)", label: "UNAVAILABLE" };
   const marketsTab = (
     <div className="flex flex-col gap-4">
-      <SectionHeader eyebrow={`Markets · ${marketCoverage.filter((m) => m.live).length} live`} title="UFC market coverage" sub="UFC V1 publishes only markets backed by real odds and a model. The connected MMA odds feed is moneyline (h2h) only today — total-rounds, goes-the-distance, and method-of-victory props are not offered yet. Nothing is fabricated to fill a market." />
+      <SectionHeader eyebrow={`Markets · ${marketCoverage.filter((m) => m.state === "odds-backed").length} odds-backed`} title="UFC market coverage" sub="Moneyline is odds-backed and parlay eligible. The connected MMA feed is moneyline (h2h) only, so total-rounds / goes-the-distance / method-of-victory have no sportsbook odds — they are shown as model-only projections (insight only, never priced into suggested cards). Nothing is fabricated." />
       <div className="flex flex-col gap-2">
-        {marketCoverage.map((m) => (
-          <div key={m.key} className="flex items-start gap-3 rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
-            <span className="shrink-0 rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold tracking-[0.1em]" style={{ color: m.live ? "var(--vault-success)" : "var(--vault-text-faint)", background: m.live ? "rgba(110,231,168,0.14)" : "rgba(26, 16, 11,0.6)", border: `1px solid ${m.live ? "rgba(110,231,168,0.35)" : "var(--vault-rule)"}` }}>
-              {m.live ? "LIVE" : "UNAVAILABLE"}
-            </span>
-            <span className="flex flex-col">
-              <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{m.label}</span>
-              <span className="font-mono leading-snug" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{m.detail}</span>
-            </span>
-          </div>
-        ))}
+        {marketCoverage.map((m) => {
+          const st = stateStyle(m.state);
+          return (
+            <div key={m.key} className="flex items-start gap-3 rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+              <span className="shrink-0 rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold tracking-[0.1em]" style={{ color: st.c, background: st.bg, border: `1px solid ${st.b}` }}>
+                {st.label}
+              </span>
+              <span className="flex flex-col">
+                <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{m.label}</span>
+                <span className="font-mono leading-snug" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{m.detail}</span>
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -247,10 +258,22 @@ export default function UfcPage() {
     </div>
   );
 
+  const expandedTab = (
+    <div className="flex flex-col gap-4">
+      <SectionHeader
+        eyebrow={`Expanded projections · ${expandedFights.length} fights`}
+        title="Fight-by-fight breakdown — model-only"
+        sub="Tap a fight for goes-the-distance, total-rounds, and method-of-victory projections derived from real fighter finish/method history. The moneyline leg is odds-backed; the expanded markets have no sportsbook odds in the feed, so they are model-only and NOT parlay eligible — shown for insight, never priced into cards."
+      />
+      <UfcExpandedFightCards fights={expandedFights} />
+    </div>
+  );
+
   const tabs: ShellTab[] = [
     { key: "overview", label: "Overview", content: overviewTab },
     { key: "fight-card", label: "Fight Card", badge: bouts.length || null, content: fightCardTab },
     { key: "projections", label: "Projections", badge: ufcProjections.length || null, content: projectionsTab },
+    { key: "expanded", label: "Expanded Projections", badge: expandedFights.length || null, content: expandedTab },
     { key: "markets", label: "Markets", badge: null, content: marketsTab },
     { key: "cards", label: "Suggested Cards", badge: ufcCards.length || null, content: cardsTab },
     { key: "results", label: "Results", badge: null, content: resultsTab },

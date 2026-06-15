@@ -202,7 +202,7 @@ export default function MethodologyPage() {
             <div className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: "var(--vault-gold-bright)" }}>Market coverage</div>
             <ul className="space-y-1.5 font-mono text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
               <li><span style={{ color: "var(--vault-success)" }}>Moneyline (h2h)</span> — live: model win probability vs the de-vigged market price, with edge.</li>
-              <li><span style={{ color: "var(--vault-text-faint)" }}>Total rounds · goes the distance · method of victory</span> — odds unavailable (the connected feed is moneyline-only); shown as unavailable, never modeled from nothing.</li>
+              <li><span style={{ color: "var(--gtp-bank-heat)" }}>Total rounds · goes the distance · method of victory</span> — no sportsbook odds in the feed (moneyline-only), so these are <span style={{ color: "var(--vault-text)" }}>model-only</span> projections derived from real fighter finish/method history. Shown in the Expanded Projections tab for insight — <span style={{ color: "var(--vault-text)" }}>not parlay eligible</span> and never priced into suggested cards.</li>
             </ul>
           </div>
           <div>

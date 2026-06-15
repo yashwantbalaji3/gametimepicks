@@ -410,7 +410,8 @@ export function normalizeUfcCards(
 ): PublicSuggestedCard[] {
   if (!ufc?.publicReady || !Array.isArray(ufc.cards)) return [];
   const tier = (label?: string): RiskTier =>
-    /conserv/i.test(label ?? "") ? "Low" : /balanc/i.test(label ?? "") ? "Medium" : /aggress/i.test(label ?? "") ? "High" : "Longshot";
+    /conserv/i.test(label ?? "") ? "Low" : /balanc/i.test(label ?? "") ? "Medium"
+      : /high.?risk|aggress/i.test(label ?? "") ? "High" : "Longshot";
   return ufc.cards.map((c, i) => ({
     id: `ufc_${date}_${i}`,
     date,
