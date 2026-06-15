@@ -831,7 +831,7 @@ function GameSlipDetail({
         className="rounded-[10px] px-4 py-4 sm:px-5 sm:py-5"
         style={{
           background:
-            "linear-gradient(180deg, rgba(20,24,35,0.92) 0%, rgba(26, 16, 11,0.62) 100%)",
+            "linear-gradient(180deg, rgba(26,16,11,0.92) 0%, rgba(26, 16, 11,0.62) 100%)",
           border: "1px solid var(--vault-border)",
         }}
       >

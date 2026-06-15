@@ -40,11 +40,16 @@ function loadUfc(): unknown {
 
 export default function PicksPage() {
   const today = currentEtDate();
+  // Only TODAY's slate is an active pick. Stale daily-mixed + World Cup artifacts (last
+  // generated on an earlier date) are date-gated out so /picks never leads with old cards.
+  // Order = tonight's focus first: UFC, then MLB, then any still-current WC/mixed.
+  const wcParlays = loadWorldCupParlays();
+  const freshWcParlays = wcParlays && wcParlays.date === today ? wcParlays : null;
   const cards: PublicSuggestedCard[] = [
-    ...loadDailyMixedCards(),
-    ...normalizeWcCards(loadWorldCupParlays()),
-    ...normalizeOptimizerSlips(getSuggestedParlaysForDate(today)?.slips ?? null, { date: today }),
     ...normalizeUfcCards(loadUfc() as Parameters<typeof normalizeUfcCards>[0], today),
+    ...normalizeOptimizerSlips(getSuggestedParlaysForDate(today)?.slips ?? null, { date: today }),
+    ...normalizeWcCards(freshWcParlays),
+    ...loadDailyMixedCards(today),
   ];
 
   // Bank Builder final step leads the Picks lobby when an official candidate is published.

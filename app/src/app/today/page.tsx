@@ -89,8 +89,10 @@ export default function TodayPage() {
   const wcLive = wcGames > 0 || !!wcProj;
   const mlbLive = (mlb.summary.scheduledGames ?? 0) > 0;
   const activeSports = (wcLive ? 1 : 0) + (mlbLive ? 1 : 0);
-  const mixedCards = loadDailyMixedCards();
-  const topCards = [...mixedCards, ...normalizeWcCards(wcCards)].slice(0, 4);
+  // Active "Top cards" are TODAY's only — stale daily-mixed / World Cup artifacts are gated out.
+  const mixedCards = loadDailyMixedCards(today);
+  const freshWcCards = wcCards && wcCards.date === today ? wcCards : null;
+  const topCards = [...mixedCards, ...normalizeWcCards(freshWcCards)].slice(0, 4);
   // The official candidate is loaded for the ACTIVE rung (stake = full bankroll, floor =
   // the rung's ladder goal), matching /bank-builder. The loader's slate-freshness gate
   // returns null for stale (already-played) slates, so a settled step can never
