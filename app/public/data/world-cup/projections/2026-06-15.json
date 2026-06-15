@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-15T19:13:46.963991+00:00",
+  "generatedAt": "2026-06-15T21:13:48.916582+00:00",
   "sport": "world_cup",
   "date": "2026-06-15",
   "modelVersion": "wc-odds-only-v2",
@@ -9,652 +9,23 @@
   "dataQuality": "B",
   "disclaimer": "Paper-only, educational. Odds-backed market-implied World Cup projections from The Odds API; no API-Football stat/lineup/xG layer.",
   "methodology": "Per market: de-vig the sportsbook price (3-way for moneyline/double chance). No independent stat model \u2014 confidence capped, model edge ~0 except where the double-chance book price differs from the 3-way no-vig sum. Recent form (last-5 across all competitions) and group attached from API-Football; prices remain from The Odds API.",
-  "matchCount": 3,
-  "projectionCount": 13,
-  "publicCount": 13,
-  "parlayEligibleCount": 11,
+  "matchCount": 2,
+  "projectionCount": 9,
+  "publicCount": 9,
+  "parlayEligibleCount": 7,
   "public": true,
   "opponentStrengthCoverage": 0,
   "marketsCovered": {
-    "moneyline_90": 3,
-    "double_chance": 3,
-    "btts": 3,
-    "draw_no_bet": 3,
-    "match_total_goals": 1
+    "moneyline_90": 2,
+    "match_total_goals": 1,
+    "double_chance": 2,
+    "btts": 2,
+    "draw_no_bet": 2
   },
   "statusCounts": {
-    "active": 13
+    "active": 9
   },
   "matches": [
-    {
-      "sport": "world_cup",
-      "date": "2026-06-15",
-      "matchId": 14,
-      "homeTeam": "Belgium",
-      "awayTeam": "Egypt",
-      "kickoffUtc": "2026-06-15T19:00:00Z",
-      "homeCode": "BE",
-      "awayCode": "EG",
-      "homeLogo": null,
-      "awayLogo": null,
-      "group": "Group G",
-      "venue": "Seattle",
-      "regulationOnly": true,
-      "sampleSizeWarning": true,
-      "opponentStrengthCoverage": 0,
-      "provider": "odds_api",
-      "oddsProvider": "odds_api",
-      "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "B",
-      "bookmaker": "fanduel",
-      "id": "wc_2026-06-15_14_ml",
-      "market": "moneyline_90",
-      "pick": "home",
-      "pickLabel": "Belgium",
-      "line": null,
-      "americanOdds": -185,
-      "modelProbability": 0.6054,
-      "marketProbability": 0.6054,
-      "edgePct": 0.0,
-      "outcomes": [
-        {
-          "label": "Belgium",
-          "side": "home",
-          "modelProbability": 0.6054,
-          "marketProbability": 0.6054,
-          "americanOdds": -185
-        },
-        {
-          "label": "Draw",
-          "side": "draw",
-          "modelProbability": 0.2391,
-          "marketProbability": 0.2391,
-          "americanOdds": 290
-        },
-        {
-          "label": "Egypt",
-          "side": "away",
-          "modelProbability": 0.1554,
-          "marketProbability": 0.1554,
-          "americanOdds": 500
-        }
-      ],
-      "confidence": "Watchlist",
-      "projectionStatus": "active",
-      "public": true,
-      "parlayEligible": true,
-      "bankBuilderEligible": false,
-      "statusReason": null,
-      "settlementSupport": "regulation_90",
-      "riskTier": "Low",
-      "factors": [],
-      "caveats": [
-        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
-        "Draw is a real third outcome (90-min regulation)."
-      ],
-      "notes": [
-        "3-way moneyline de-vigged from the sportsbook price."
-      ],
-      "homeForm": {
-        "formString": "DWWDW",
-        "last5": [
-          {
-            "date": "2026-06-15",
-            "opponent": "Egypt",
-            "score": "1-1",
-            "result": "D",
-            "home": true,
-            "competition": "World Cup"
-          },
-          {
-            "date": "2026-06-06",
-            "opponent": "Tunisia",
-            "score": "5-0",
-            "result": "W",
-            "home": true,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-06-02",
-            "opponent": "Croatia",
-            "score": "2-0",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-04-01",
-            "opponent": "Mexico",
-            "score": "1-1",
-            "result": "D",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-28",
-            "opponent": "USA",
-            "score": "5-2",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          }
-        ]
-      },
-      "awayForm": {
-        "formString": "DLWDW",
-        "last5": [
-          {
-            "date": "2026-06-15",
-            "opponent": "Belgium",
-            "score": "1-1",
-            "result": "D",
-            "home": false,
-            "competition": "World Cup"
-          },
-          {
-            "date": "2026-06-06",
-            "opponent": "Brazil",
-            "score": "1-2",
-            "result": "L",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-05-28",
-            "opponent": "Russia",
-            "score": "1-0",
-            "result": "W",
-            "home": true,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-31",
-            "opponent": "Spain",
-            "score": "0-0",
-            "result": "D",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-27",
-            "opponent": "Saudi Arabia",
-            "score": "4-0",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          }
-        ]
-      },
-      "statLayer": "api_football_recent_form"
-    },
-    {
-      "sport": "world_cup",
-      "date": "2026-06-15",
-      "matchId": 14,
-      "homeTeam": "Belgium",
-      "awayTeam": "Egypt",
-      "kickoffUtc": "2026-06-15T19:00:00Z",
-      "homeCode": "BE",
-      "awayCode": "EG",
-      "homeLogo": null,
-      "awayLogo": null,
-      "group": "Group G",
-      "venue": "Seattle",
-      "regulationOnly": true,
-      "sampleSizeWarning": true,
-      "opponentStrengthCoverage": 0,
-      "provider": "odds_api",
-      "oddsProvider": "odds_api",
-      "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "B",
-      "bookmaker": "fanduel",
-      "id": "wc_2026-06-15_14_dc",
-      "market": "double_chance",
-      "pick": "1X",
-      "pickLabel": "Belgium or Draw",
-      "line": null,
-      "americanOdds": -900,
-      "modelProbability": 0.8446,
-      "marketProbability": 0.85,
-      "edgePct": -0.54,
-      "outcomes": [
-        {
-          "label": "Belgium or Draw",
-          "side": "1X",
-          "modelProbability": 0.8446,
-          "marketProbability": 0.85,
-          "americanOdds": -900
-        },
-        {
-          "label": "Egypt or Draw",
-          "side": "X2",
-          "modelProbability": 0.3946,
-          "marketProbability": 0.3855,
-          "americanOdds": 145
-        },
-        {
-          "label": "Belgium or Egypt",
-          "side": "12",
-          "modelProbability": 0.7609,
-          "marketProbability": 0.7645,
-          "americanOdds": -425
-        }
-      ],
-      "confidence": "Lean",
-      "projectionStatus": "active",
-      "public": true,
-      "parlayEligible": true,
-      "bankBuilderEligible": false,
-      "statusReason": null,
-      "settlementSupport": "regulation_90",
-      "riskTier": "Low",
-      "factors": [],
-      "caveats": [
-        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
-        "Double chance covers two of three outcomes \u2014 lower variance, shorter price."
-      ],
-      "notes": [
-        "Double chance from REAL book odds; model probability is the 3-way no-vig sum."
-      ],
-      "homeForm": {
-        "formString": "DWWDW",
-        "last5": [
-          {
-            "date": "2026-06-15",
-            "opponent": "Egypt",
-            "score": "1-1",
-            "result": "D",
-            "home": true,
-            "competition": "World Cup"
-          },
-          {
-            "date": "2026-06-06",
-            "opponent": "Tunisia",
-            "score": "5-0",
-            "result": "W",
-            "home": true,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-06-02",
-            "opponent": "Croatia",
-            "score": "2-0",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-04-01",
-            "opponent": "Mexico",
-            "score": "1-1",
-            "result": "D",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-28",
-            "opponent": "USA",
-            "score": "5-2",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          }
-        ]
-      },
-      "awayForm": {
-        "formString": "DLWDW",
-        "last5": [
-          {
-            "date": "2026-06-15",
-            "opponent": "Belgium",
-            "score": "1-1",
-            "result": "D",
-            "home": false,
-            "competition": "World Cup"
-          },
-          {
-            "date": "2026-06-06",
-            "opponent": "Brazil",
-            "score": "1-2",
-            "result": "L",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-05-28",
-            "opponent": "Russia",
-            "score": "1-0",
-            "result": "W",
-            "home": true,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-31",
-            "opponent": "Spain",
-            "score": "0-0",
-            "result": "D",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-27",
-            "opponent": "Saudi Arabia",
-            "score": "4-0",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          }
-        ]
-      },
-      "statLayer": "api_football_recent_form"
-    },
-    {
-      "sport": "world_cup",
-      "date": "2026-06-15",
-      "matchId": 14,
-      "homeTeam": "Belgium",
-      "awayTeam": "Egypt",
-      "kickoffUtc": "2026-06-15T19:00:00Z",
-      "homeCode": "BE",
-      "awayCode": "EG",
-      "homeLogo": null,
-      "awayLogo": null,
-      "group": "Group G",
-      "venue": "Seattle",
-      "regulationOnly": true,
-      "sampleSizeWarning": true,
-      "opponentStrengthCoverage": 0,
-      "provider": "odds_api",
-      "oddsProvider": "odds_api",
-      "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "B",
-      "bookmaker": "fanduel",
-      "id": "wc_2026-06-15_14_btts",
-      "market": "btts",
-      "pick": "no",
-      "pickLabel": "Both teams to score: No",
-      "line": null,
-      "americanOdds": -125,
-      "modelProbability": 0.5147,
-      "marketProbability": 0.5147,
-      "edgePct": 0.0,
-      "outcomes": [
-        {
-          "label": "BTTS Yes",
-          "side": "yes",
-          "modelProbability": 0.4853,
-          "marketProbability": 0.4853,
-          "americanOdds": -110
-        },
-        {
-          "label": "BTTS No",
-          "side": "no",
-          "modelProbability": 0.5147,
-          "marketProbability": 0.5147,
-          "americanOdds": -125
-        }
-      ],
-      "confidence": "Watchlist",
-      "projectionStatus": "active",
-      "public": true,
-      "parlayEligible": false,
-      "bankBuilderEligible": false,
-      "statusReason": null,
-      "settlementSupport": "regulation_90",
-      "riskTier": "Medium",
-      "factors": [],
-      "caveats": [
-        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model."
-      ],
-      "notes": [
-        "Both-teams-to-score, de-vigged."
-      ],
-      "homeForm": {
-        "formString": "DWWDW",
-        "last5": [
-          {
-            "date": "2026-06-15",
-            "opponent": "Egypt",
-            "score": "1-1",
-            "result": "D",
-            "home": true,
-            "competition": "World Cup"
-          },
-          {
-            "date": "2026-06-06",
-            "opponent": "Tunisia",
-            "score": "5-0",
-            "result": "W",
-            "home": true,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-06-02",
-            "opponent": "Croatia",
-            "score": "2-0",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-04-01",
-            "opponent": "Mexico",
-            "score": "1-1",
-            "result": "D",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-28",
-            "opponent": "USA",
-            "score": "5-2",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          }
-        ]
-      },
-      "awayForm": {
-        "formString": "DLWDW",
-        "last5": [
-          {
-            "date": "2026-06-15",
-            "opponent": "Belgium",
-            "score": "1-1",
-            "result": "D",
-            "home": false,
-            "competition": "World Cup"
-          },
-          {
-            "date": "2026-06-06",
-            "opponent": "Brazil",
-            "score": "1-2",
-            "result": "L",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-05-28",
-            "opponent": "Russia",
-            "score": "1-0",
-            "result": "W",
-            "home": true,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-31",
-            "opponent": "Spain",
-            "score": "0-0",
-            "result": "D",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-27",
-            "opponent": "Saudi Arabia",
-            "score": "4-0",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          }
-        ]
-      },
-      "statLayer": "api_football_recent_form"
-    },
-    {
-      "sport": "world_cup",
-      "date": "2026-06-15",
-      "matchId": 14,
-      "homeTeam": "Belgium",
-      "awayTeam": "Egypt",
-      "kickoffUtc": "2026-06-15T19:00:00Z",
-      "homeCode": "BE",
-      "awayCode": "EG",
-      "homeLogo": null,
-      "awayLogo": null,
-      "group": "Group G",
-      "venue": "Seattle",
-      "regulationOnly": true,
-      "sampleSizeWarning": true,
-      "opponentStrengthCoverage": 0,
-      "provider": "odds_api",
-      "oddsProvider": "odds_api",
-      "modelVersion": "wc-odds-only-v2",
-      "dataQuality": "B",
-      "bookmaker": "fanduel",
-      "id": "wc_2026-06-15_14_dnb",
-      "market": "draw_no_bet",
-      "pick": "home",
-      "pickLabel": "Belgium (draw no bet)",
-      "line": null,
-      "americanOdds": -650,
-      "modelProbability": 0.8184,
-      "marketProbability": 0.8184,
-      "edgePct": 0.0,
-      "outcomes": [
-        {
-          "label": "Belgium (DNB)",
-          "side": "home",
-          "modelProbability": 0.8184,
-          "marketProbability": 0.8184,
-          "americanOdds": -650
-        },
-        {
-          "label": "Egypt (DNB)",
-          "side": "away",
-          "modelProbability": 0.1816,
-          "marketProbability": 0.1816,
-          "americanOdds": 420
-        }
-      ],
-      "confidence": "Lean",
-      "projectionStatus": "active",
-      "public": true,
-      "parlayEligible": true,
-      "bankBuilderEligible": false,
-      "statusReason": null,
-      "settlementSupport": "regulation_90",
-      "riskTier": "Low",
-      "factors": [],
-      "caveats": [
-        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
-        "Draw no bet voids on a draw (stake returned)."
-      ],
-      "notes": [
-        "Draw-no-bet, de-vigged (two-way)."
-      ],
-      "homeForm": {
-        "formString": "DWWDW",
-        "last5": [
-          {
-            "date": "2026-06-15",
-            "opponent": "Egypt",
-            "score": "1-1",
-            "result": "D",
-            "home": true,
-            "competition": "World Cup"
-          },
-          {
-            "date": "2026-06-06",
-            "opponent": "Tunisia",
-            "score": "5-0",
-            "result": "W",
-            "home": true,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-06-02",
-            "opponent": "Croatia",
-            "score": "2-0",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-04-01",
-            "opponent": "Mexico",
-            "score": "1-1",
-            "result": "D",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-28",
-            "opponent": "USA",
-            "score": "5-2",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          }
-        ]
-      },
-      "awayForm": {
-        "formString": "DLWDW",
-        "last5": [
-          {
-            "date": "2026-06-15",
-            "opponent": "Belgium",
-            "score": "1-1",
-            "result": "D",
-            "home": false,
-            "competition": "World Cup"
-          },
-          {
-            "date": "2026-06-06",
-            "opponent": "Brazil",
-            "score": "1-2",
-            "result": "L",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-05-28",
-            "opponent": "Russia",
-            "score": "1-0",
-            "result": "W",
-            "home": true,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-31",
-            "opponent": "Spain",
-            "score": "0-0",
-            "result": "D",
-            "home": false,
-            "competition": "Friendlies"
-          },
-          {
-            "date": "2026-03-27",
-            "opponent": "Saudi Arabia",
-            "score": "4-0",
-            "result": "W",
-            "home": false,
-            "competition": "Friendlies"
-          }
-        ]
-      },
-      "statLayer": "api_football_recent_form"
-    },
     {
       "sport": "world_cup",
       "date": "2026-06-15",
@@ -682,29 +53,29 @@
       "pickLabel": "Uruguay",
       "line": null,
       "americanOdds": -230,
-      "modelProbability": 0.6643,
-      "marketProbability": 0.6643,
+      "modelProbability": 0.659,
+      "marketProbability": 0.659,
       "edgePct": 0.0,
       "outcomes": [
         {
           "label": "Saudi Arabia",
           "side": "home",
-          "modelProbability": 0.1191,
-          "marketProbability": 0.1191,
-          "americanOdds": 700
+          "modelProbability": 0.1261,
+          "marketProbability": 0.1261,
+          "americanOdds": 650
         },
         {
           "label": "Draw",
           "side": "draw",
-          "modelProbability": 0.2166,
-          "marketProbability": 0.2166,
+          "modelProbability": 0.2149,
+          "marketProbability": 0.2149,
           "americanOdds": 340
         },
         {
           "label": "Uruguay",
           "side": "away",
-          "modelProbability": 0.6643,
-          "marketProbability": 0.6643,
+          "modelProbability": 0.659,
+          "marketProbability": 0.659,
           "americanOdds": -230
         }
       ],
@@ -842,30 +213,30 @@
       "pick": "under",
       "pickLabel": "Under 2.5",
       "line": 2.5,
-      "americanOdds": -138,
-      "modelProbability": 0.5514,
-      "marketProbability": 0.5514,
+      "americanOdds": -134,
+      "modelProbability": 0.546,
+      "marketProbability": 0.546,
       "edgePct": 0.0,
       "outcomes": [
         {
           "label": "Over 2.5",
           "side": "over",
-          "modelProbability": 0.4486,
-          "marketProbability": 0.4486,
-          "americanOdds": 112
+          "modelProbability": 0.454,
+          "marketProbability": 0.454,
+          "americanOdds": 110
         },
         {
           "label": "Under 2.5",
           "side": "under",
-          "modelProbability": 0.5514,
-          "marketProbability": 0.5514,
-          "americanOdds": -138
+          "modelProbability": 0.546,
+          "marketProbability": 0.546,
+          "americanOdds": -134
         }
       ],
       "confidence": "Watchlist",
       "projectionStatus": "active",
       "public": true,
-      "parlayEligible": true,
+      "parlayEligible": false,
       "bankBuilderEligible": false,
       "statusReason": null,
       "settlementSupport": "regulation_90",
@@ -995,30 +366,30 @@
       "pick": "X2",
       "pickLabel": "Uruguay or Draw",
       "line": null,
-      "americanOdds": -1250,
-      "modelProbability": 0.8809,
-      "marketProbability": 0.878,
-      "edgePct": 0.29,
+      "americanOdds": -1100,
+      "modelProbability": 0.8739,
+      "marketProbability": 0.8704,
+      "edgePct": 0.36,
       "outcomes": [
         {
           "label": "Saudi Arabia or Draw",
           "side": "1X",
-          "modelProbability": 0.3357,
-          "marketProbability": 0.3387,
-          "americanOdds": 180
+          "modelProbability": 0.341,
+          "marketProbability": 0.3453,
+          "americanOdds": 175
         },
         {
           "label": "Uruguay or Draw",
           "side": "X2",
-          "modelProbability": 0.8809,
-          "marketProbability": 0.878,
-          "americanOdds": -1250
+          "modelProbability": 0.8739,
+          "marketProbability": 0.8704,
+          "americanOdds": -1100
         },
         {
           "label": "Saudi Arabia or Uruguay",
           "side": "12",
-          "modelProbability": 0.7834,
-          "marketProbability": 0.7833,
+          "modelProbability": 0.7851,
+          "marketProbability": 0.7844,
           "americanOdds": -475
         }
       ],
@@ -1156,24 +527,24 @@
       "pick": "no",
       "pickLabel": "Both teams to score: No",
       "line": null,
-      "americanOdds": -180,
-      "modelProbability": 0.6067,
-      "marketProbability": 0.6067,
+      "americanOdds": -168,
+      "modelProbability": 0.5926,
+      "marketProbability": 0.5926,
       "edgePct": 0.0,
       "outcomes": [
         {
           "label": "BTTS Yes",
           "side": "yes",
-          "modelProbability": 0.3933,
-          "marketProbability": 0.3933,
-          "americanOdds": 140
+          "modelProbability": 0.4074,
+          "marketProbability": 0.4074,
+          "americanOdds": 132
         },
         {
           "label": "BTTS No",
           "side": "no",
-          "modelProbability": 0.6067,
-          "marketProbability": 0.6067,
-          "americanOdds": -180
+          "modelProbability": 0.5926,
+          "marketProbability": 0.5926,
+          "americanOdds": -168
         }
       ],
       "confidence": "Watchlist",
@@ -1309,24 +680,24 @@
       "pick": "away",
       "pickLabel": "Uruguay (draw no bet)",
       "line": null,
-      "americanOdds": -950,
-      "modelProbability": 0.8527,
-      "marketProbability": 0.8527,
+      "americanOdds": -900,
+      "modelProbability": 0.848,
+      "marketProbability": 0.848,
       "edgePct": 0.0,
       "outcomes": [
         {
           "label": "Saudi Arabia (DNB)",
           "side": "home",
-          "modelProbability": 0.1473,
-          "marketProbability": 0.1473,
-          "americanOdds": 540
+          "modelProbability": 0.152,
+          "marketProbability": 0.152,
+          "americanOdds": 520
         },
         {
           "label": "Uruguay (DNB)",
           "side": "away",
-          "modelProbability": 0.8527,
-          "marketProbability": 0.8527,
-          "americanOdds": -950
+          "modelProbability": 0.848,
+          "marketProbability": 0.848,
+          "americanOdds": -900
         }
       ],
       "confidence": "Lean",
@@ -1464,30 +835,30 @@
       "pickLabel": "Iran",
       "line": null,
       "americanOdds": -130,
-      "modelProbability": 0.5378,
-      "marketProbability": 0.5378,
+      "modelProbability": 0.5398,
+      "marketProbability": 0.5398,
       "edgePct": 0.0,
       "outcomes": [
         {
           "label": "Iran",
           "side": "home",
-          "modelProbability": 0.5378,
-          "marketProbability": 0.5378,
+          "modelProbability": 0.5398,
+          "marketProbability": 0.5398,
           "americanOdds": -130
         },
         {
           "label": "Draw",
           "side": "draw",
-          "modelProbability": 0.2719,
-          "marketProbability": 0.2719,
+          "modelProbability": 0.2729,
+          "marketProbability": 0.2729,
           "americanOdds": 250
         },
         {
           "label": "New Zealand",
           "side": "away",
-          "modelProbability": 0.1903,
-          "marketProbability": 0.1903,
-          "americanOdds": 400
+          "modelProbability": 0.1873,
+          "marketProbability": 0.1873,
+          "americanOdds": 410
         }
       ],
       "confidence": "Watchlist",
@@ -1625,30 +996,30 @@
       "pickLabel": "Iran or Draw",
       "line": null,
       "americanOdds": -600,
-      "modelProbability": 0.8097,
-      "marketProbability": 0.8023,
-      "edgePct": 0.74,
+      "modelProbability": 0.8127,
+      "marketProbability": 0.8049,
+      "edgePct": 0.78,
       "outcomes": [
         {
           "label": "Iran or Draw",
           "side": "1X",
-          "modelProbability": 0.8097,
-          "marketProbability": 0.8023,
+          "modelProbability": 0.8127,
+          "marketProbability": 0.8049,
           "americanOdds": -600
         },
         {
           "label": "New Zealand or Draw",
           "side": "X2",
-          "modelProbability": 0.4622,
-          "marketProbability": 0.4794,
-          "americanOdds": -105
+          "modelProbability": 0.4602,
+          "marketProbability": 0.4695,
+          "americanOdds": 100
         },
         {
           "label": "Iran or New Zealand",
           "side": "12",
-          "modelProbability": 0.7281,
-          "marketProbability": 0.7183,
-          "americanOdds": -330
+          "modelProbability": 0.7271,
+          "marketProbability": 0.7256,
+          "americanOdds": -340
         }
       ],
       "confidence": "Lean",
@@ -1785,24 +1156,24 @@
       "pick": "no",
       "pickLabel": "Both teams to score: No",
       "line": null,
-      "americanOdds": -156,
-      "modelProbability": 0.575,
-      "marketProbability": 0.575,
+      "americanOdds": -152,
+      "modelProbability": 0.5703,
+      "marketProbability": 0.5703,
       "edgePct": 0.0,
       "outcomes": [
         {
           "label": "BTTS Yes",
           "side": "yes",
-          "modelProbability": 0.425,
-          "marketProbability": 0.425,
-          "americanOdds": 122
+          "modelProbability": 0.4297,
+          "marketProbability": 0.4297,
+          "americanOdds": 120
         },
         {
           "label": "BTTS No",
           "side": "no",
-          "modelProbability": 0.575,
-          "marketProbability": 0.575,
-          "americanOdds": -156
+          "modelProbability": 0.5703,
+          "marketProbability": 0.5703,
+          "americanOdds": -152
         }
       ],
       "confidence": "Watchlist",
@@ -1938,24 +1309,24 @@
       "pick": "home",
       "pickLabel": "Iran (draw no bet)",
       "line": null,
-      "americanOdds": -360,
-      "modelProbability": 0.738,
-      "marketProbability": 0.738,
+      "americanOdds": -390,
+      "modelProbability": 0.7515,
+      "marketProbability": 0.7515,
       "edgePct": 0.0,
       "outcomes": [
         {
           "label": "Iran (DNB)",
           "side": "home",
-          "modelProbability": 0.738,
-          "marketProbability": 0.738,
-          "americanOdds": -360
+          "modelProbability": 0.7515,
+          "marketProbability": 0.7515,
+          "americanOdds": -390
         },
         {
           "label": "New Zealand (DNB)",
           "side": "away",
-          "modelProbability": 0.262,
-          "marketProbability": 0.262,
-          "americanOdds": 260
+          "modelProbability": 0.2485,
+          "marketProbability": 0.2485,
+          "americanOdds": 280
         }
       ],
       "confidence": "Lean",

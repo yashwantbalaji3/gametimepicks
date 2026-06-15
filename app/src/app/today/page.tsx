@@ -23,6 +23,8 @@ import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
 import FlagBadge from "@/components/flag-badge";
 import { loadWorldCupFlexLeg, loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
+import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
+import DualBankBuilderTeaser from "@/components/bank-builder/dual-bank-builder-teaser";
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
 import UfcExpandedFightCards from "@/components/ufc/expanded-fight-cards";
 import SuggestedCard from "@/components/ui/suggested-card";
@@ -110,6 +112,8 @@ export default function TodayPage() {
     getSuggestedParlaysForDate(today)?.slips ?? null,
     { sportFilter: "mlb", date: today },
   ).slice(0, 4);
+  // Dual Bank Builder — two live lanes launched today (null until launched → teaser).
+  const dualBank = loadDualBankBuilder();
   // Today's Focus = World Cup fixtures. The projections artifact now carries MANY
   // markets per fixture (moneyline / double chance / totals / btts / dnb); the focus
   // strip is keyed on the 3-way moneyline (one per fixture) and attaches a double-chance
@@ -194,6 +198,9 @@ export default function TodayPage() {
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       {/* ── Today's Focus: World Cup — leads the page for the next few weeks ── */}
       <TodaysFocusWorldCup matches={wcFocus} games={wcGames} dateLabel={dateLabel} />
+
+      {/* ── Dual Bank Builder — two live lanes launched today (after the WC focus) ── */}
+      {dualBank ? <DualBankBuilderTeaser data={dualBank} /> : null}
 
       {/* ── Today's MLB suggested parlays (after the World Cup focus) ── */}
       {mlbCards.length > 0 ? (
