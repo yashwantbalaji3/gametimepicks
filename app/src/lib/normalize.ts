@@ -10,12 +10,14 @@ import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
 import { mlbHeadshotUrl } from "@/lib/player-headshots";
 
 /** Daily mixed-sport cards (built by pipeline.daily.build_mixed_sport_cards). The artifact already
- *  matches the PublicSuggestedCard contract; returns [] when none. */
-export function loadDailyMixedCards(): PublicSuggestedCard[] {
+ *  matches the PublicSuggestedCard contract; returns [] when none. Pass `today` (ET date) to
+ *  fail-closed on a stale slate: a non-today card set is hidden rather than shown as active. */
+export function loadDailyMixedCards(today?: string): PublicSuggestedCard[] {
   try {
     const d = JSON.parse(
       fs.readFileSync(path.join(process.cwd(), "public", "data", "daily", "cards", "latest.json"), "utf8"),
-    ) as { cards?: PublicSuggestedCard[] };
+    ) as { date?: string; cards?: PublicSuggestedCard[] };
+    if (today && d.date && d.date !== today) return []; // stale (not today) → not an active pick
     return Array.isArray(d.cards) ? d.cards : [];
   } catch {
     return [];

@@ -173,7 +173,7 @@ function TimelineStep({
     <li
       className="relative px-3.5 py-3.5 rounded-[6px]"
       style={{
-        background: "rgba(20, 24, 38, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -212,7 +212,7 @@ function PreviewCell({ title, body }: { title: string; body: string }) {
     <div
       className="px-4 py-4 rounded-[6px]"
       style={{
-        background: "rgba(20, 24, 38, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >

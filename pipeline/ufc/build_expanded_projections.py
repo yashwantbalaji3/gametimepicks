@@ -71,6 +71,33 @@ def _confidence(dq: float, decisiveness: float) -> str:
     return "low"
 
 
+def _fighter_stats(f: dict | None) -> dict | None:
+    """Real per-fighter comparison stats from the DB (None when unmatched).
+    Detailed bout-by-bout history (opponent/method/date) is NOT in the source, so we
+    expose the last-5 W-L summary only — the UI labels detailed history unavailable."""
+    if not f:
+        return None
+    rec = f.get("record", {}) or {}
+    phys = f.get("physicals", {}) or {}
+    rates = f.get("rates", {}) or {}
+    fin = f.get("finishes", {}) or {}
+    rf = f.get("recentForm", {}) or {}
+    draws = rec.get("draws") or 0
+    return {
+        "record": f"{rec.get('wins', 0)}-{rec.get('losses', 0)}" + (f"-{draws}" if draws else ""),
+        "last5": rf.get("last5"),
+        "last5FightCount": rf.get("fightCount"),
+        "finishRate": fin.get("finishRate"),
+        "heightInches": phys.get("heightInches"),
+        "reachInches": phys.get("reachInches"),
+        "stance": phys.get("stance"),
+        "ageYears": phys.get("ageYears"),
+        "sigStrPerRound": rates.get("avgSigStrLandedPerRound"),
+        "takedownsPerRound": rates.get("avgTakedownsPerRound"),
+        "dataCompleteness": f.get("dataCompleteness"),
+    }
+
+
 def build(now: datetime | None = None) -> dict:
     ref = now or datetime.now(timezone.utc)
     proj = _load("projections-latest.json")
@@ -97,12 +124,20 @@ def build(now: datetime | None = None) -> dict:
         sharesA, winsA = (_method_shares(fa) if fa else (None, 0))
         sharesB, winsB = (_method_shares(fb) if fb else (None, 0))
 
+        # Real per-fighter comparison stats + the odds-backed moneyline leg — shown for EVERY
+        # fight (incl. limited-data bouts like Ruffy vs Chandler), so the card never disappears.
+        fstats = {a_name: _fighter_stats(fa), b_name: _fighter_stats(fb)}
+        ml = {"pick": a_name if pA >= 0.5 else b_name, "modelProbability": _round(max(pA, pB)),
+              "oddsPrice": p.get("oddsPrice"), "marketProbability": _round(p.get("marketImpliedProbability") or 0),
+              "edge": _round(p.get("edge") or 0), "marketState": "odds-backed"}
+
         if not sharesA or not sharesB:
             rows.append({
                 "boutId": bout_id, "fighters": [a_name, b_name],
                 "scheduledRounds": scheduled_rounds, "dataQuality": "low",
+                "moneyline": ml, "fighterStats": fstats,
                 "marketState": "model-only", "parlayEligible": False,
-                "note": "limited fighter finish-history data — expanded projection withheld",
+                "note": "Limited fighter finish-history from the connected source — method / distance / rounds projection withheld for this bout. Moneyline + records shown.",
             })
             continue
 
@@ -130,10 +165,8 @@ def build(now: datetime | None = None) -> dict:
         rows.append({
             "boutId": bout_id, "fighters": [a_name, b_name],
             "scheduledRounds": scheduled_rounds,
-            "moneyline": {"pick": a_name if pA >= 0.5 else b_name,
-                          "modelProbability": _round(max(pA, pB)), "oddsPrice": p.get("oddsPrice"),
-                          "marketProbability": _round(p.get("marketImpliedProbability") or 0),
-                          "edge": _round(p.get("edge") or 0), "marketState": "odds-backed"},
+            "moneyline": ml,
+            "fighterStats": fstats,
             "goesDistance": {"yesProbability": _round(p_dec), "noProbability": _round(finish_p),
                              "lean": "yes" if p_dec > 0.5 else "no", "confidence": conf,
                              "marketState": "model-only", "parlayEligible": False},

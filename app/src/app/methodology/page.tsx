@@ -375,7 +375,7 @@ function Formula({ children }: { children: ReactNode }) {
       className="relative my-4 rounded-[6px] px-4 py-3.5 font-mono text-[12px] sm:text-[13px] tabular leading-relaxed overflow-x-auto"
       style={{
         background:
-          "linear-gradient(180deg, rgba(20, 24, 38, 0.92), rgba(10, 14, 28, 0.92))",
+          "linear-gradient(180deg, rgba(26, 16, 11, 0.92), rgba(18, 12, 8, 0.92))",
         border: "1px solid var(--vault-border)",
         color: "var(--vault-text)",
         boxShadow: "0 4px 14px -10px rgba(0, 0, 0, 0.4)",
@@ -423,7 +423,7 @@ function DataSourceCell({ label, body }: { label: string; body: string }) {
     <div
       className="px-3.5 py-3 rounded-[6px]"
       style={{
-        background: "rgba(20, 24, 38, 0.55)",
+        background: "rgba(26, 16, 11, 0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >

@@ -13,11 +13,18 @@ import { useState } from "react";
 
 type MarketState = "odds-backed" | "model-only" | "unavailable";
 
+interface FStats {
+  record?: string; last5?: string; last5FightCount?: number; finishRate?: number | null;
+  heightInches?: number | null; reachInches?: number | null; stance?: string | null; ageYears?: number | null;
+  sigStrPerRound?: number | null; takedownsPerRound?: number | null; dataCompleteness?: number | null;
+}
+
 interface Fight {
   boutId?: string;
   fighters: string[];
   scheduledRounds?: number;
   note?: string;
+  fighterStats?: Record<string, FStats | null>;
   moneyline?: { pick: string; modelProbability: number; oddsPrice?: number; marketProbability?: number; edge?: number; marketState: MarketState };
   goesDistance?: { yesProbability: number; noProbability: number; lean: string; confidence: string; marketState: MarketState; parlayEligible: boolean };
   totalRounds?: { projectedRounds: number; referenceLine: number; lean: string; confidence: string; marketState: MarketState; parlayEligible: boolean };
@@ -44,6 +51,49 @@ function StateBadge({ state }: { state: MarketState }) {
     <span className="shrink-0 rounded-full px-2 py-0.5 font-mono text-[9px] font-bold tracking-[0.08em]" style={{ color: t.c, background: t.bg, border: `1px solid ${t.b}` }}>
       {t.label}
     </span>
+  );
+}
+
+function initials(name: string): string {
+  const p = name.trim().split(/\s+/).filter(Boolean);
+  return ((p[0]?.[0] ?? "") + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase() || "?";
+}
+
+/** No real fighter-image source is connected, so we render a polished initials disc —
+ *  never a fabricated or borrowed photo (per the integrity rules). */
+function FighterAvatar({ name, size = 28 }: { name: string; size?: number }) {
+  return (
+    <span
+      className="inline-flex shrink-0 items-center justify-center rounded-full"
+      style={{ width: size, height: size, background: "rgba(255,122,60,0.14)", border: "1px solid var(--lava-border-strong)", color: "var(--gtp-bank-heat)", fontSize: size * 0.36, fontWeight: 700 }}
+      role="img"
+      aria-label={name}
+    >
+      {initials(name)}
+    </span>
+  );
+}
+
+function CompareCol({ name, s }: { name: string; s?: FStats | null }) {
+  const lines: string[] = [];
+  if (s?.record) lines.push(`Record ${s.record}`);
+  if (s?.reachInches) lines.push(`${s.reachInches}" reach`);
+  if (s?.stance) lines.push(s.stance);
+  if (typeof s?.sigStrPerRound === "number") lines.push(`${s.sigStrPerRound} sig str/rd`);
+  if (typeof s?.takedownsPerRound === "number") lines.push(`${s.takedownsPerRound} TD/rd`);
+  return (
+    <div className="flex min-w-0 flex-1 flex-col items-center gap-1.5 text-center">
+      <FighterAvatar name={name} size={36} />
+      <span className="truncate text-[12px] font-semibold" style={{ color: "var(--vault-text)", maxWidth: "100%" }}>{name}</span>
+      <div className="flex flex-col gap-0.5">
+        {lines.length ? lines.map((l, i) => (
+          <span key={i} className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>{l}</span>
+        )) : <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>stats limited</span>}
+        <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-mute)" }}>
+          Last 5: {s?.last5 ?? "—"}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -74,6 +124,10 @@ function FightRow({ f }: { f: Fight }) {
         className="flex w-full items-center gap-3 px-4 py-3 text-left"
         aria-expanded={open}
       >
+        <span className="flex shrink-0 -space-x-1.5">
+          <FighterAvatar name={f.fighters[0]} />
+          <FighterAvatar name={f.fighters[1]} />
+        </span>
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="truncate font-semibold" style={{ color: "var(--vault-text)", fontSize: 14 }}>
             {f.fighters[0]} <span style={{ color: "var(--vault-text-faint)" }}>vs</span> {f.fighters[1]}
@@ -89,6 +143,22 @@ function FightRow({ f }: { f: Fight }) {
 
       {open ? (
         <div className="flex flex-col gap-2 px-4 pb-4">
+          {f.fighterStats ? (
+            <div className="rounded-[8px] px-3 py-3" style={{ background: "rgba(12,8,6,0.5)", border: "1px solid var(--vault-rule)" }}>
+              <div className="mb-2 flex items-center justify-between">
+                <span className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>Fighter comparison</span>
+                <span className="font-mono text-[9px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)" }}>real fighter data</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CompareCol name={f.fighters[0]} s={f.fighterStats[f.fighters[0]]} />
+                <span className="self-center font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>vs</span>
+                <CompareCol name={f.fighters[1]} s={f.fighterStats[f.fighters[1]]} />
+              </div>
+              <p className="mt-2 text-center font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
+                Records + last-5 W-L from the connected fighter database. Detailed bout-by-bout history (opponent/method/date) is unavailable from the connected source.
+              </p>
+            </div>
+          ) : null}
           {!hasExpanded ? (
             <p className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
               {f.note ?? "Expanded projections unavailable for this fight — limited fighter data. Moneyline only."}
