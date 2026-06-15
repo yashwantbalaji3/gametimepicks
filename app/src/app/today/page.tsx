@@ -57,9 +57,15 @@ export default function TodayPage() {
     .slice(0, 10);
   loadWorldCupSchedule(); // warm + ensure data dir
   const wcGames = matchesOnDate(today).length;
-  const wcCards = loadWorldCupParlays();
-  const wcProj = loadWorldCupProjections();
-  const wcPlayers = loadWorldCupPlayerProjections();
+  // Soccer is credential-gated (API_FOOTBALL_KEY). Without a fresh pull for
+  // `today` the projections / player props / cards are stale, so they must NOT
+  // surface as live analytics — fail closed (only data dated today counts).
+  const wcCardsRaw = loadWorldCupParlays();
+  const wcProjRaw = loadWorldCupProjections();
+  const wcPlayersRaw = loadWorldCupPlayerProjections();
+  const wcCards = wcCardsRaw && wcCardsRaw.date === today ? wcCardsRaw : null;
+  const wcProj = wcProjRaw && wcProjRaw.date === today ? wcProjRaw : null;
+  const wcPlayers = wcPlayersRaw && wcPlayersRaw.date === today ? wcPlayersRaw : null;
   const mlb = getMlbBoardForDate(today);
   // Public ladder summary — the source of truth, not the internal audit summary.
   const bank = loadPublicBankBuilderSummary();
@@ -88,12 +94,14 @@ export default function TodayPage() {
     ? new Date(ufcSched.eventDate).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", timeZoneName: "short" })
     : null;
 
-  const wcLive = wcGames > 0 || !!wcProj;
+  // "Live" soccer requires FRESH (today-dated) credentialed projections — a stale
+  // schedule alone does not make the sport live (fail closed without the API key).
+  const wcLive = !!wcProj;
   const mlbLive = (mlb.summary.scheduledGames ?? 0) > 0;
   const activeSports = (wcLive ? 1 : 0) + (mlbLive ? 1 : 0);
   // Active "Top cards" are TODAY's only — stale daily-mixed / World Cup artifacts are gated out.
   const mixedCards = loadDailyMixedCards(today);
-  const freshWcCards = wcCards && wcCards.date === today ? wcCards : null;
+  const freshWcCards = wcCards; // already gated to today-dated parlays above (else null)
   const topCards = [...mixedCards, ...normalizeWcCards(freshWcCards)].slice(0, 4);
   // The official candidate is loaded for the ACTIVE rung (stake = full bankroll, floor =
   // the rung's ladder goal), matching /bank-builder. The loader's slate-freshness gate
@@ -110,7 +118,7 @@ export default function TodayPage() {
     : null;
   const sportSummaries: SportSummary[] = [
     {
-      sport: "ufc", label: "UFC", href: "/ufc", accent: "var(--gtp-bank-heat)", live: ufcLive,
+      sport: "ufc", label: "UFC", href: "/ufc", accent: "var(--gtp-bank-heat)", live: ufcLive && !ufcSettled,
       stats: [
         { label: "Fights", value: ufcSched?.fightCount ?? 0 },
         { label: "Projections", value: ufcProjCount },

@@ -57,10 +57,12 @@ test("UFC page has a Markets tab that honestly scopes coverage to moneyline-only
 
 test("/methodology includes an honest UFC section (sources, coverage, limitations)", () => {
   const m = fs.readFileSync("src/app/methodology/page.tsx", "utf8");
-  assert.ok(/UFC — moneyline V1/.test(m), "UFC methodology section present");
+  // June 15 rebuild: the UFC section is now a sport card ("UFC / MMA",
+  // "moneyline V1 · validation-stage"). Same honest intents, new wording.
+  assert.ok(/UFC \/ MMA/.test(m) && /moneyline V1/.test(m), "UFC methodology section present");
   assert.ok(/ESPN MMA/i.test(m) && /Odds API MMA/i.test(m), "UFC data sources documented");
-  assert.ok(/odds unavailable|not in the feed|unavailable/i.test(m), "expanded markets marked unavailable honestly");
-  assert.ok(/Validation in progress/i.test(m), "validation status documented");
+  assert.ok(/odds unavailable|not in the feed|no feed odds|unavailable/i.test(m), "expanded markets marked unavailable honestly");
+  assert.ok(/validation-stage/i.test(m), "validation status documented");
 });
 
 test("expanded projections are MODEL-ONLY and never parlay-eligible (no fabricated odds)", () => {

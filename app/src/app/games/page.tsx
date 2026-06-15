@@ -119,10 +119,17 @@ export default function GamesPage() {
     });
   }
 
-  // UFC (one event row)
+  // UFC (one event row) — only when there is a real UPCOMING card. Once the
+  // event is officially settled it belongs in /results, not the games board, so
+  // a finished card (e.g. UFC 250) never lingers as "Upcoming".
   try {
+    let ufcDone = false;
+    try {
+      const s = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", "results-settled-latest.json"), "utf8"));
+      ufcDone = s?.status === "final";
+    } catch { /* no settlement file → treat as not settled */ }
     const proj = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", "projections-latest.json"), "utf8"));
-    if (proj?.moneylineV1Ready && Array.isArray(proj.projections) && proj.projections.length > 0) {
+    if (!ufcDone && proj?.moneylineV1Ready && Array.isArray(proj.projections) && proj.projections.length > 0) {
       rows.push({
         id: "ufc_event",
         sport: "ufc",

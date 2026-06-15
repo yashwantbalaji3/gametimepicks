@@ -3,332 +3,385 @@ import { getMeta } from "@/lib/data";
 import DataSourceBadge from "@/components/data-source-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
 
+/**
+ * /methodology — the full multi-sport product methodology hub (June 15 rebuild).
+ *
+ * Replaces the old NBA-centric page. Explains, honestly and scannably: the daily
+ * workflow, the universal math (American→implied, no-vig, model prob, edge,
+ * composite confidence, data quality, parlay odds, paper return), each sport's
+ * inputs/model/markets/card-rules/settlement/limits, the UFC first-slate learning
+ * (6–1 moneyline / 0–4 cards / concentration lesson), data-integrity rules, and
+ * the roadmap. Paper-only, educational; uses no outcome-promise language.
+ */
 export default function MethodologyPage() {
   const meta = getMeta();
 
   return (
-    <div className="mx-auto max-w-[840px] px-4 sm:px-6 py-10">
+    <div className="mx-auto max-w-[880px] px-4 sm:px-6 py-10">
       <SportOverviewHero
         eyebrow="Methodology · transparent by design"
-        sport="How it works"
-        tagline="inputs · model · audit"
+        sport="How GameTimePicks builds projections"
+        tagline="paper-only · odds-backed + model-only · official settlement"
         statusKind="neutral"
         statusLabel="Reference"
         accent="gold"
         ctas={[
-          {
-            href: "/results/model-audit",
-            label: "Audit deep-dive",
-            primary: true,
-          },
+          { href: "/results/model-audit", label: "Audit deep-dive", primary: true },
           { href: "/results", label: "Latest results" },
         ]}
-        framing="Transparency over performance. The model is intentionally explainable — no deep learning, no black boxes — so the reasoning behind every lean is auditable."
+        framing="Transparency over performance. The models are intentionally explainable — no deep learning, no black boxes — so the reasoning behind every projection is auditable. Every number here is paper-only and educational, never wagering advice."
       />
 
       <div className="mt-6 reveal reveal-d1">
         <DataSourceBadge meta={meta} />
       </div>
 
-      {/* Current data status — explicit about demo vs live */}
-      {meta.isDemo && (
-        <aside
-          className="surface px-4 py-3 mt-4 border-l-2 reveal reveal-d2"
-          style={{ borderLeftColor: "var(--vault-warn)" }}
-        >
-          <div className="flex items-start gap-3">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--vault-warn)] shrink-0 mt-0.5">
-              status
-            </span>
-            <p className="font-mono text-[12px] text-[var(--text-mute)] leading-relaxed">
-              Currently in demo mode. The pipeline architecture, model formulas,
-              and provider system below are real and runnable. The data flowing
-              through them is bundled sample data — not tonight&apos;s NBA slate
-              or live sportsbook odds.
-            </p>
-          </div>
-        </aside>
-      )}
-
-      {/* Flow diagram */}
-      <section className="mt-12 reveal reveal-d2">
-        <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
-          Flow
-        </h2>
-        <FlowDiagram />
+      {/* Honest top-line: what odds-backed vs model-only means + validation-stage */}
+      <section className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 reveal reveal-d2">
+        <ConceptCard
+          tone="success"
+          label="Odds-backed"
+          body="A real sportsbook price exists. The projection is compared to the de-vigged market and is eligible for suggested cards."
+        />
+        <ConceptCard
+          tone="heat"
+          label="Model-only"
+          body="No market price in the feed (e.g. UFC method/round props). Shown for insight, clearly labeled, and never priced into a parlay."
+        />
+        <ConceptCard
+          tone="muted"
+          label="Validation-stage"
+          body="A new sport stays validation-stage until the model is graded against real settled results with a no-leakage backtest."
+        />
       </section>
 
-      {/* Formulas */}
-      <section className="mt-12 space-y-6 text-[15px] text-[var(--text-mute)] leading-relaxed">
-        <Block title="01 · Projection">
-          <p>
-            For each player and market (PTS / REB / AST), the model produces a
-            projection by blending three rolling windows plus a home/away
-            adjustment:
-          </p>
-          <Formula>
-            projection = 0.45·last5 + 0.35·last10 + 0.20·season
-            <br />
-            &nbsp;&nbsp;+ 0.30 · ( split_avg − base )
-          </Formula>
-          <p className="mt-3 text-[13px] text-[var(--text-faint)]">
-            The split adjustment uses the player's home or away average
-            depending on tonight's matchup. Weights are deliberately simple
-            and tuned for explainability rather than peak fit.
-          </p>
-        </Block>
-
-        <Block title="02 · Implied probability">
-          <p>
-            Sportsbooks publish American odds with vig built in. We strip vig
-            using two-sided proportional de-vigging:
-          </p>
-          <Formula>
-            p_raw_over = 100 / (odds_over + 100)&nbsp;&nbsp;&nbsp;
-            (when odds &gt; 0)
-            <br />
-            p_raw_over = −odds / (−odds + 100)&nbsp;(when odds &lt; 0)
-            <br />
-            p_implied_over = p_raw_over / (p_raw_over + p_raw_under)
-          </Formula>
-        </Block>
-
-        <Block title="03 · Model probability">
-          <p>
-            We model the player's stat as a normal distribution centered at
-            the projection, with σ derived from recent dispersion:
-          </p>
-          <Formula>
-            P(over) = 1 − Φ ( (line − projection) / σ )
-          </Formula>
-          <p className="mt-3 text-[13px] text-[var(--text-faint)]">
-            Φ is the standard normal CDF. σ is the population standard
-            deviation of the player's last-N games on the same stat, with a
-            floor of 1.0 to prevent degenerate cases.
-          </p>
-        </Block>
-
-        <Block title="04 · Edge">
-          <Formula>
-            edge_pp = ( P_model − P_implied ) × 100
-          </Formula>
-          <p className="mt-3 text-[13px] text-[var(--text-faint)]">
-            Reported in percentage points. The lean (Over / Under) is whichever
-            side has positive edge.
-          </p>
-        </Block>
-
-        <Block title="05 · Confidence tiers">
-          <p>Tiers are assigned by edge magnitude AND data-quality sanity check.</p>
-          <ul className="mt-3 space-y-1.5 font-mono text-[13px]">
-            <li>
-              <span className="text-[var(--vault-gold-bright)]">High</span>
-              {" — "}edge ≥ 5pp <span className="text-[var(--text-faint)]">AND</span> ≥ 8 recent games of data
-            </li>
-            <li>
-              <span className="text-[var(--vault-warn)]">Medium</span>
-              {" — "}edge ≥ 2.5pp <span className="text-[var(--text-faint)]">AND</span> ≥ 5 recent games
-            </li>
-            <li>
-              <span className="text-[var(--text-faint)]">Low / No Play</span>
-              {" — "}anything below the medium threshold
-            </li>
-          </ul>
-        </Block>
-      </section>
-
-      {/* Data sources — Iteration 5: panelled deluxe card with each source
-          rendered as its own labeled cell instead of a bulleted list. */}
-      <section className="mt-12">
-        <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
-          Data sources
-        </h2>
-        <div className="vault-deluxe-card p-5 sm:p-6">
-          <p
-            className="text-[14px] sm:text-[15px] leading-relaxed"
-            style={{ color: "var(--vault-text-mute)" }}
-          >
-            GametimePicks runs on a multi-source provider system. Each external
-            service is accessed through a common adapter interface, so the
-            pipeline can fail over from one source to the next without breaking.
-          </p>
-          <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <DataSourceCell
-              label="NBA stats"
-              body="Scores, schedules, and box-score data from the league's official source."
-            />
-            <DataSourceCell
-              label="Sportsbook odds"
-              body="Compliant odds feed from a licensed data provider."
-            />
-            <DataSourceCell
-              label="Demo data"
-              body="Bundled sample slate, used only when explicitly labeled."
-            />
-          </div>
-          <p
-            className="mt-5 text-[13px] leading-relaxed"
-            style={{ color: "var(--vault-text-faint)" }}
-          >
-            The system never scrapes sportsbook websites or reverse-engineers
-            mobile apps. Provider credentials live in secured environment
-            configuration; nothing is exposed in the codebase.
-          </p>
-        </div>
-      </section>
-
-      {/* UFC methodology — added for the UFC public-ready launch. Honest about
-          moneyline-only scope + validation status; no claim of fully-modeled props. */}
-      <section className="mt-12">
-        <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
-          UFC — moneyline V1
-        </h2>
-        <div className="vault-deluxe-card p-5 sm:p-6 space-y-5">
-          <p className="text-[14px] sm:text-[15px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-            UFC joins the product the same way MLB did — published only after the model is graded
-            against real settled fights. V1 is <span style={{ color: "var(--vault-text)" }}>moneyline-only</span> and
-            validation-stage: it carries real schedule, real sportsbook lines, and fighter stats, with a
-            separate validated badge that appears only after a no-leakage backtest threshold is met. Paper-only, educational analytics.
-          </p>
-          <div>
-            <div className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: "var(--vault-gold-bright)" }}>Data sources</div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <DataSourceCell label="Schedule" body="Real event cards + fighters from the free ESPN MMA scoreboard." />
-              <DataSourceCell label="Odds" body="Moneyline (h2h) lines from The Odds API MMA. Method / round / distance markets are not in the feed today." />
-              <DataSourceCell label="Fighter stats" body="Records, striking, takedowns, and finish rates from a UFCStats dataset." />
-            </div>
-          </div>
-          <div>
-            <div className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: "var(--vault-gold-bright)" }}>Market coverage</div>
-            <ul className="space-y-1.5 font-mono text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-              <li><span style={{ color: "var(--vault-success)" }}>Moneyline (h2h)</span> — live: model win probability vs the de-vigged market price, with edge.</li>
-              <li><span style={{ color: "var(--gtp-bank-heat)" }}>Total rounds · goes the distance · method of victory</span> — no sportsbook odds in the feed (moneyline-only), so these are <span style={{ color: "var(--vault-text)" }}>model-only</span> projections derived from real fighter finish/method history. Shown in the Expanded Projections tab for insight — <span style={{ color: "var(--vault-text)" }}>not parlay eligible</span> and never priced into suggested cards.</li>
-            </ul>
-          </div>
-          <div>
-            <div className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: "var(--vault-gold-bright)" }}>Model + edge</div>
-            <p className="text-[14px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-              Win probability blends fighter record, finish/decision splits, and recent form, normalized against
-              the market-implied baseline (vig stripped two-sided). Edge = model probability − market probability.
-              The model is conservative: when it agrees with the market it reports &ldquo;no clear edge&rdquo; rather than manufacturing one.
-            </p>
-          </div>
-          <div>
-            <div className="font-mono text-[10px] tracking-[0.14em] uppercase mb-2" style={{ color: "var(--vault-gold-bright)" }}>Limitations</div>
-            <ul className="space-y-3.5 list-none">
-              <LimitationRow title="Validation in progress" body="No historical backtest threshold met yet — the validated badge is withheld until it is." />
-              <LimitationRow title="Small-sample sport" body="UFC has far fewer fights than an MLB/NBA season; estimates are noisier." />
-              <LimitationRow title="Late news risk" body="Weigh-in misses, short-notice replacements, and cancellations can change a card after odds post." />
-              <LimitationRow title="Props unavailable" body="Method / round / distance props stay off until a real prop-odds feed and a model for them exist." />
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-12">
-        <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
-          Status states
-        </h2>
-        <p className="text-[14px] text-[var(--text-mute)] leading-relaxed mb-4 max-w-[780px]">
-          Every page labels its current state honestly. The status strip at
-          the top of the board surfaces which one is active.
+      {/* SECTION 1 — Daily workflow */}
+      <Section title="The daily workflow">
+        <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
+          The same loop runs every day, per sport. Each step fails closed — if a
+          source is missing, the board says so rather than inventing a number.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <ModeCard
-            color="lime"
-            label="Model leans available"
-            description="Tonight's schedule is loaded and the model has finished scoring it. Player-prop cards include projections, edges, and confidence tiers."
+        <WorkflowDiagram />
+      </Section>
+
+      {/* SECTION 2 — Universal math */}
+      <Section title="Universal math">
+        <div className="space-y-5">
+          <Block title="01 · American odds → implied probability">
+            <Formula>
+              odds &gt; 0 :&nbsp; p = 100 / (odds + 100)
+              <br />
+              odds &lt; 0 :&nbsp; p = |odds| / (|odds| + 100)
+            </Formula>
+          </Block>
+
+          <Block title="02 · No-vig (two-sided) probability">
+            <p>
+              Sportsbook prices include vig. When both sides are known we strip
+              it proportionally so the two probabilities sum to 1 — the fair
+              market baseline a model edge is measured against.
+            </p>
+            <Formula>
+              p_novig_side = p_raw_side / (p_raw_side + p_raw_other)
+            </Formula>
+          </Block>
+
+          <Block title="03 · Model probability">
+            <p>
+              Continuous markets (NBA/MLB player stats) model the stat as a normal
+              distribution at the projection; soccer uses Poisson goal expectations;
+              UFC blends the market baseline with a small, capped fighter-stats
+              adjustment.
+            </p>
+            <Formula>P(over) = 1 − Φ ( (line − projection) / σ )</Formula>
+          </Block>
+
+          <Block title="04 · Edge">
+            <Formula>edge_pp = ( P_model − P_market_novig ) × 100</Formula>
+            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
+              In percentage points. The lean is the side with positive edge. A
+              large edge is one input, not a verdict — oversized edges often signal
+              overprojection and are capped, not celebrated.
+            </p>
+          </Block>
+
+          <Block title="05 · Composite confidence">
+            <p>
+              Confidence is <span style={{ color: "var(--vault-text)" }}>not</span> the
+              model probability. It blends edge, data completeness, sample size,
+              source freshness, and market agreement, then buckets the result.
+            </p>
+            <ul className="mt-3 space-y-1.5 font-mono text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+              <li><span style={{ color: "var(--vault-text-faint)" }}>watchlist</span> · model-only or thin/contrarian signal</li>
+              <li><span style={{ color: "var(--vault-text)" }}>lean → standard → strong</span> · rising composite score on odds-backed legs</li>
+              <li><span style={{ color: "var(--gtp-bank-heat)" }}>high-risk value · longshot</span> · positive-EV but low win probability</li>
+            </ul>
+          </Block>
+
+          <Block title="06 · Data-quality grade">
+            <ul className="space-y-1.5 font-mono text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+              <li><span style={{ color: "var(--vault-success)" }}>A</span> — current odds + full stats + confirmed event</li>
+              <li><span style={{ color: "var(--vault-text)" }}>B</span> — current odds + partial stats</li>
+              <li><span style={{ color: "var(--vault-text)" }}>C</span> — model-only / stale-limited but explainable</li>
+              <li><span style={{ color: "var(--gtp-bank-heat)" }}>D</span> — below the paid-card threshold</li>
+              <li><span style={{ color: "var(--vault-text-faint)" }}>unavailable</span> — cannot project; shown as needs-data</li>
+            </ul>
+          </Block>
+
+          <Block title="07 · Parlay odds + paper return">
+            <Formula>
+              decimal = Π ( per-leg decimal )
+              <br />
+              paper_return = stake × decimal&nbsp;&nbsp;(null if any leg lacks a price)
+            </Formula>
+            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
+              A combined price is never shown if any leg is missing odds — the slip
+              reads &ldquo;—&rdquo; rather than a fabricated payout.
+            </p>
+          </Block>
+        </div>
+      </Section>
+
+      {/* SECTION 3 — Sport methodology cards */}
+      <Section title="By sport">
+        <div className="space-y-4">
+          <SportCard
+            accent="var(--gtp-bank-heat)"
+            name="UFC / MMA"
+            stage="moneyline V1 · validation-stage"
+            inputs="Moneyline (h2h) odds from The Odds API MMA; fighter record, recent win rate, finish rate, sig-strikes & takedowns per round, reach, experience from a UFCStats dataset; per-bout data-quality."
+            model="Market-implied baseline + a small, capped fighter-stats adjustment, shrunk toward the market when data is thin. Public eligibility requires a no-leakage backtest and data-quality ≥ B."
+            markets="Odds-backed: moneyline. Model-only (no feed odds): goes-the-distance, total rounds, method — shown for insight, not parlay eligible."
+            cards="Concentration-aware: one favorite cannot anchor every card; longshots must carry a distinct thesis."
+            settlement="Official ESPN MMA finals (status final only); KO/sub method graded only when present in the feed, else needs-review."
+            limits="Small-sample sport; no prop-odds feed; no licensed fighter-image source (initials avatars)."
           />
-          <ModeCard
-            color="lime"
-            label="Model leans pending"
-            description="Tonight's schedule is loaded; projections will appear before tipoff once the model finishes scoring."
+          <SportCard
+            accent="var(--vault-success)"
+            name="MLB"
+            stage="player props + game markets"
+            inputs="Schedule + game logs (MLB Stats API); prop odds (DK/FD via The Odds API): batter hits / total bases, pitcher strikeouts."
+            model="Pitcher K: 0.55·last3 + 0.45·season, σ floored. Batter: 0.5·last10 + 0.5·season. P(over) via normal CDF. Conservative by design; oversized edges are flagged and capped."
+            markets="Odds-backed: batter hits, total bases, pitcher strikeouts. Others default to insufficient-data."
+            cards="Odds-backed legs only; lower-variance vs longshot lanes separated; same-game over-correlation flagged."
+            settlement="Official MLB Stats API boxscores."
+            limits="No park / weather / bullpen-fatigue / handedness-split inputs yet (roadmap)."
           />
-          <ModeCard
-            color="text-mute"
-            label="No games today"
-            description="Confirmed off-day. The next available slate is shown when ready."
+          <SportCard
+            accent="var(--vault-text)"
+            name="NBA"
+            stage="player props"
+            inputs="Player game logs (official source); prop odds; home/away splits; recent-form windows."
+            model="proj = 0.45·last5 + 0.35·last10 + 0.20·season + 0.30·(split − base); P(over) via normal CDF; anomaly guardrails cap implausible edges."
+            markets="Odds-backed: PTS / REB / AST player props."
+            cards="Confidence + edge thresholds per risk profile; max legs per game; anomaly exclusion on lower-variance lanes."
+            settlement="Official boxscore (manual override → league API → ESPN → stats-unavailable)."
+            limits="No minutes / rest / back-to-back adjustment yet. Off-season shows no-slate, never stale finals as active."
           />
-          <ModeCard
-            color="rose"
-            label="Schedule unavailable"
-            description="Tonight's schedule couldn't be confirmed yet. We retry automatically. This is not the same as an off-day."
+          <SportCard
+            accent="var(--vault-text)"
+            name="World Cup / Soccer"
+            stage="Poisson · credential-gated"
+            inputs="National-team recent form (goals for/against per 90) via API Football; de-vigged market. No xG today."
+            model="Poisson home/draw/away + totals, anchored to the market as a strong prior (opening-day weight capped). Underdog floor and minimum-edge gates."
+            markets="Odds-backed when credentialed: match winner / double chance / totals. Player props via Poisson on individual trend."
+            cards="Stale fixtures never shown as active; no card without a live price."
+            settlement="Official final score, regulation 90 only (no extra time / penalties)."
+            limits="Requires an API Football credential. When absent, soccer is shown as unavailable / cached — not faked."
           />
-          <ModeCard
-            color="amber"
-            label="Demo sample"
-            description="Explicitly labeled placeholder content used for screenshots or testing. The site never silently substitutes sample data for real data."
+          <SportCard
+            accent="var(--vault-gold)"
+            name="Bank Builder"
+            stage="paper ladder · run #1 completed"
+            inputs="Draws only from the official Suggested-parlay pool; selects on combined American price within a target window (not on edge/confidence)."
+            model="A fixed paper stake compounds up a ladder; each step rolls the prior bankroll forward only after the step settles officially."
+            markets="Whatever the eligible suggested slip contains (may mix sports)."
+            cards="One pending step at a time; honest diagnosis when no eligible slip exists."
+            settlement="Official results per leg; the bankroll changes only on settlement."
+            limits="Run #1 is complete ($100 → $10,376.17, 5–0). No active pending step — a new ladder is coming soon."
+          />
+          <SportCard
+            accent="var(--gtp-bank-heat)"
+            name="Suggested cards"
+            stage="conservative → longshot"
+            inputs="Eligible odds-backed legs from the day's boards across sports."
+            model="Greedy build per risk profile (confidence tiers, minimum edge, max legs, recent-form requirement), then a concentration score over the slip."
+            markets="Conservative / balanced / high-risk / longshot lanes; an optional mixed card only when data quality is strong enough."
+            cards="Active-date + odds-backed only; no settled events; no single anchor across every card; longshots must be a different thesis; honest 'not enough current odds-backed legs' state when thin."
+            settlement="Each leg settles on its official result; slip status is win/loss/push/pending/void."
+            limits="Concentration caps are being promoted from shadow to live under an operator-approved path (see UFC lesson)."
           />
         </div>
-      </section>
+      </Section>
 
-      {/* Limitations — Iteration 5: panelled card with each limitation as
-          a labeled bullet so the section reads as a deliberate
-          calibration sheet rather than a paragraph dump. */}
-      <section className="mt-12 mb-10">
-        <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-4">
-          Limitations
-        </h2>
+      {/* SECTION 4 — UFC first-slate learning */}
+      <Section title="UFC first-slate learning (UFC 250, settled)">
+        <div className="vault-deluxe-card casino-glow-card p-5 sm:p-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            <StatChip value="6–1" label="moneyline model" tone="success" />
+            <StatChip value="+320" label="Hokit underdog hit" tone="success" />
+            <StatChip value="−520" label="Topuria fav missed" tone="heat" />
+            <StatChip value="0–4" label="suggested cards" tone="heat" />
+          </div>
+          <p className="text-[14px] sm:text-[15px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+            The straight-pick signal was strong (six of seven moneylines, including
+            a +320 underdog). The suggested cards went 0–4 — and every card failed
+            for the <span style={{ color: "var(--vault-text)" }}>same reason</span>:
+            each one leaned on the same heavy favorite (Topuria, −520), who lost.
+            That is concentration risk, not a model-accuracy problem.
+          </p>
+          <div className="mt-4 rounded-[8px] px-4 py-3" style={{ background: "rgba(242,54,69,0.08)", border: "1px solid var(--vault-rule)" }}>
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] mb-1.5" style={{ color: "var(--gtp-bank-heat)" }}>
+              Card-builder V2 lesson
+            </div>
+            <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              No single leg may anchor every card; heavy-favorite exposure is
+              capped; each card now carries a concentration score; and a stress
+              test asks &ldquo;what if the top favorite loses?&rdquo; before
+              publishing. One slate does not prove a model — the validation-stage
+              label stays on.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* SECTION 5 — Data integrity */}
+      <Section title="Data integrity">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <ModeCard color="lime" label="Official settlement only" description="Results settle from official sources (league APIs / ESPN finals), never from screenshots, web snippets, or user reports." />
+          <ModeCard color="lime" label="Stale-date gating" description="Past slates never show as 'today'. Stale content moves to results/archive; it never sits in active picks." />
+          <ModeCard color="amber" label="Unavailable / needs-data" description="When a source or credential is missing, the page says so. It does not fabricate a formula output." />
+          <ModeCard color="rose" label="No fabrication" description="No invented odds, projections, results, fighter/player images, fight histories, player stats, or injuries. Missing images fall back to initials." />
+        </div>
+      </Section>
+
+      {/* SECTION 6 — Limitations + roadmap */}
+      <Section title="Limitations &amp; roadmap">
         <div className="vault-deluxe-card p-5 sm:p-6">
           <ul className="space-y-3.5 text-[14px] sm:text-[15px] leading-relaxed list-none">
-            <LimitationRow
-              title="No injury / minutes adjustment"
-              body="The model treats minutes as constant. A late-scratch starter substantially changes projection inputs but isn't reflected until the next pipeline run."
-            />
-            <LimitationRow
-              title="No back-to-back / rest adjustment"
-              body="Travel and fatigue impact production. Not currently modeled."
-            />
-            <LimitationRow
-              title="Lines move"
-              body="The board reflects odds at pipeline time. By the time you read it, lines have likely shifted."
-            />
-            <LimitationRow
-              title="No causal claims"
-              body="A model edge just means the projection differs from the line — it is one input, not a guarantee, and large edges often reflect overprojection. Selection leans on realized market reliability and recent form."
-            />
+            <LimitationRow title="Generation is operator-run" body="Slates are generated on demand, not yet fully automated; freshness reflects the last pipeline run." />
+            <LimitationRow title="Lines move" body="Boards reflect odds at pipeline time. By the time you read them, prices have likely shifted." />
+            <LimitationRow title="UFC props need a feed" body="Method / round / distance stay model-only until a real prop-odds feed and a graded model for them exist." />
+            <LimitationRow title="MLB context inputs" body="Park factor, weather, bullpen fatigue, and handedness splits are on the roadmap, not yet modeled." />
+            <LimitationRow title="Soccer credentialing" body="World Cup / soccer requires an API Football credential to leave cached/unavailable state." />
+            <LimitationRow title="Richer feeds + automation" body="Fuller data feeds, a licensed fighter-image source, and detailed fight histories are planned." />
           </ul>
         </div>
-      </section>
-
-      {/* News overrides — public-friendly explanation (Phase 14 rewrite) */}
-      <section className="mt-12 reveal">
-        <h2 className="font-display text-[24px] md:text-[28px] font-semibold tracking-tight mb-3">
-          Verified news signals
-        </h2>
-        <p className="text-[15px] text-[var(--text-mute)] leading-relaxed mb-4">
-          When verifiable news appears — official injury reports, team
-          announcements, or reporting from credentialed beat writers — we
-          manually log it with a source link and timestamp before it changes
-          the board. Each signal includes a directive that tells the model
-          what to do (e.g. drop a lean, flag risk on a player).
-        </p>
-        <p className="text-[15px] text-[var(--text-mute)] leading-relaxed mb-4">
-          On every refresh, the model checks the news log, filters out
-          expired entries, and attaches active signals to relevant leans.
-          Signals appear on prop cards with the source label, update type,
-          and a verification link so you can read the original report.
-        </p>
-        <p className="text-[15px] text-[var(--text-mute)] leading-relaxed mb-4">
-          What this does <span className="text-[var(--text)]">not</span> do:
-          we do not scrape Twitter/X, do not auto-ingest from any social
-          platform, and do not invent player statuses. If no signal exists
-          for a player, the UI says &ldquo;no active news signals&rdquo;
-          rather than asserting they are healthy.
-        </p>
-      </section>
+      </Section>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Section + concept helpers
+// ---------------------------------------------------------------------------
+function Section({ title, children }: { title: ReactNode; children: ReactNode }) {
+  return (
+    <section className="mt-12 reveal">
+      <h2 className="font-display text-[22px] md:text-[28px] font-semibold tracking-tight mb-4">
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+function ConceptCard({
+  tone,
+  label,
+  body,
+}: {
+  tone: "success" | "heat" | "muted";
+  label: string;
+  body: string;
+}) {
+  const color = {
+    success: "var(--vault-success)",
+    heat: "var(--gtp-bank-heat)",
+    muted: "var(--vault-text-faint)",
+  }[tone];
+  return (
+    <div className="vault-deluxe-card p-4">
+      <div className="font-mono text-[10px] tracking-[0.14em] uppercase mb-1.5" style={{ color }}>
+        {label}
+      </div>
+      <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+        {body}
+      </p>
+    </div>
+  );
+}
+
+function SportCard({
+  accent,
+  name,
+  stage,
+  inputs,
+  model,
+  markets,
+  cards,
+  settlement,
+  limits,
+}: {
+  accent: string;
+  name: string;
+  stage: string;
+  inputs: string;
+  model: string;
+  markets: string;
+  cards: string;
+  settlement: string;
+  limits: string;
+}) {
+  const rows: Array<[string, string]> = [
+    ["Inputs", inputs],
+    ["Model", model],
+    ["Markets", markets],
+    ["Card rules", cards],
+    ["Settlement", settlement],
+    ["Limitations", limits],
+  ];
+  return (
+    <div className="vault-deluxe-card p-5 sm:p-6">
+      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <h3 className="font-display text-[18px] sm:text-[20px] font-semibold tracking-tight" style={{ color: "var(--vault-text)" }}>
+          <span aria-hidden className="inline-block w-2 h-2 rounded-full mr-2 align-middle" style={{ background: accent, boxShadow: `0 0 6px ${accent}` }} />
+          {name}
+        </h3>
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] rounded px-2 py-0.5" style={{ color: accent, background: "rgba(242,54,69,0.08)", border: "1px solid var(--vault-rule)" }}>
+          {stage}
+        </span>
+      </div>
+      <dl className="space-y-2.5">
+        {rows.map(([k, v]) => (
+          <div key={k} className="grid grid-cols-[88px_1fr] gap-3 items-baseline">
+            <dt className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)" }}>
+              {k}
+            </dt>
+            <dd className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              {v}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+function StatChip({ value, label, tone }: { value: string; label: string; tone: "success" | "heat" }) {
+  const color = tone === "success" ? "var(--vault-success)" : "var(--gtp-bank-heat)";
+  return (
+    <div className="rounded-[8px] px-3 py-2.5 text-center" style={{ background: "rgba(26,16,11,0.45)", border: "1px solid var(--vault-rule)" }}>
+      <div className="font-display tabular font-bold" style={{ color, fontSize: 20 }}>{value}</div>
+      <div className="font-mono text-[9.5px] uppercase tracking-[0.08em] mt-0.5" style={{ color: "var(--vault-text-faint)" }}>{label}</div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Reused presentational helpers (V1 crimson surfaces)
 // ---------------------------------------------------------------------------
 function Block({ title, children }: { title: string; children: ReactNode }) {
-  // Iteration 2: numbered step card — pulls a leading "NN · " out of the
-  // title, renders it as a gold pill on the left, and frames the rest of
-  // the block in a deluxe card with the casino-glow rim. Falls back to a
-  // plain heading when the title doesn't start with "NN · ".
   const match = /^(\d+)\s*·\s*(.+)$/.exec(title);
   const numeral = match ? match[1] : null;
   const heading = match ? match[2] : title;
@@ -344,7 +397,7 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
           className="font-display font-semibold tracking-tight"
           style={{
             color: "var(--vault-text)",
-            fontSize: "clamp(17px, 2.2vw, 20px)",
+            fontSize: "clamp(16px, 2.2vw, 19px)",
             lineHeight: 1.2,
             marginTop: numeral ? 2 : 0,
           }}
@@ -360,22 +413,11 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 }
 
 function Formula({ children }: { children: ReactNode }) {
-  // Iteration 5: formulas read as deep glass panels with a faint gold
-  // top-rule so they look like derivations on an odds-board chalkboard,
-  // not flat `<code>` blocks.
-  //
-  // Mobile fix (May 17 review): the previous `overflow-hidden` clipped
-  // longer formula lines on narrow viewports because the inline math
-  // glyphs (·, −) sit wider than the available content column at 390px.
-  // Switch to `overflow-x-auto` so wide formulas scroll horizontally
-  // instead of being cut off, drop the font one notch on mobile, and
-  // honor the existing explicit <br /> line breaks.
   return (
     <div
-      className="relative my-4 rounded-[6px] px-4 py-3.5 font-mono text-[12px] sm:text-[13px] tabular leading-relaxed overflow-x-auto"
+      className="relative my-3 rounded-[6px] px-4 py-3.5 font-mono text-[12px] sm:text-[13px] tabular leading-relaxed overflow-x-auto"
       style={{
-        background:
-          "linear-gradient(180deg, rgba(26, 16, 11, 0.92), rgba(18, 12, 8, 0.92))",
+        background: "linear-gradient(180deg, rgba(26, 16, 11, 0.92), rgba(18, 12, 8, 0.92))",
         border: "1px solid var(--vault-border)",
         color: "var(--vault-text)",
         boxShadow: "0 4px 14px -10px rgba(0, 0, 0, 0.4)",
@@ -385,14 +427,9 @@ function Formula({ children }: { children: ReactNode }) {
       <span
         aria-hidden
         className="absolute top-0 left-[12%] right-[12%] h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(242, 54, 69, 0.45), transparent)",
-        }}
+        style={{ background: "linear-gradient(90deg, transparent, rgba(242, 54, 69, 0.45), transparent)" }}
       />
-      <div className="min-w-0 whitespace-nowrap sm:whitespace-normal">
-        {children}
-      </div>
+      <div className="min-w-0 whitespace-nowrap sm:whitespace-normal">{children}</div>
     </div>
   );
 }
@@ -403,43 +440,13 @@ function LimitationRow({ title, body }: { title: string; body: string }) {
       <span
         aria-hidden
         className="inline-block w-1.5 h-1.5 rounded-full shrink-0 mt-2"
-        style={{
-          background: "var(--vault-warn)",
-          boxShadow: "0 0 5px rgba(242, 54, 69, 0.45)",
-        }}
+        style={{ background: "var(--vault-warn)", boxShadow: "0 0 5px rgba(242, 54, 69, 0.45)" }}
       />
       <span>
-        <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>
-          {title}.
-        </span>{" "}
+        <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{title}.</span>{" "}
         <span style={{ color: "var(--vault-text-mute)" }}>{body}</span>
       </span>
     </li>
-  );
-}
-
-function DataSourceCell({ label, body }: { label: string; body: string }) {
-  return (
-    <div
-      className="px-3.5 py-3 rounded-[6px]"
-      style={{
-        background: "rgba(26, 16, 11, 0.55)",
-        border: "1px solid var(--vault-rule)",
-      }}
-    >
-      <div
-        className="font-mono text-[10px] tracking-[0.14em] uppercase"
-        style={{ color: "var(--vault-gold-bright)" }}
-      >
-        {label}
-      </div>
-      <p
-        className="mt-1.5 text-[12px] leading-relaxed"
-        style={{ color: "var(--vault-text-mute)" }}
-      >
-        {body}
-      </p>
-    </div>
   );
 }
 
@@ -458,8 +465,6 @@ function ModeCard({
     rose: "var(--rose)",
     "text-mute": "var(--text-mute)",
   }[color];
-  // Iteration 5: deluxe card surface + sentence-case label so the modes
-  // read as polished badges, not internal-tool stickers.
   return (
     <div className="vault-deluxe-card p-4">
       <div className="flex items-center gap-2 mb-2">
@@ -467,23 +472,14 @@ function ModeCard({
           className="inline-block w-2 h-2 rounded-full"
           style={{
             background: dotColor,
-            boxShadow:
-              color === "lime"
-                ? "0 0 6px rgba(242, 54, 69, 0.5)"
-                : "none",
+            boxShadow: color === "lime" ? "0 0 6px rgba(242, 54, 69, 0.5)" : "none",
           }}
         />
-        <span
-          className="font-display text-[14px] font-semibold tracking-tight"
-          style={{ color: "var(--vault-text)" }}
-        >
+        <span className="font-display text-[14px] font-semibold tracking-tight" style={{ color: "var(--vault-text)" }}>
           {label}
         </span>
       </div>
-      <p
-        className="text-[13px] leading-relaxed"
-        style={{ color: "var(--vault-text-mute)" }}
-      >
+      <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
         {description}
       </p>
     </div>
@@ -491,39 +487,30 @@ function ModeCard({
 }
 
 // ---------------------------------------------------------------------------
-// Flow diagram (pure SVG)
+// Daily workflow diagram (pure, horizontal-scroll on mobile)
 // ---------------------------------------------------------------------------
-function FlowDiagram() {
+function WorkflowDiagram() {
   const steps = [
-    { label: "NBA data", sub: "official source" },
-    { label: "Market line", sub: "The Odds API" },
-    { label: "Projection", sub: "weighted avg" },
-    { label: "Model probability", sub: "normal CDF" },
-    { label: "Edge", sub: "model − implied" },
-    { label: "Confidence", sub: "tiered" },
-    { label: "Tracked result", sub: "settled" },
+    { label: "Collect", sub: "schedule · odds · stats" },
+    { label: "Project", sub: "per-sport model" },
+    { label: "Compare", sub: "vs no-vig market" },
+    { label: "Build", sub: "risk-tiered cards" },
+    { label: "Publish", sub: "active-date only" },
+    { label: "Settle", sub: "official source" },
+    { label: "Learn", sub: "calibrate + audit" },
   ];
-
   return (
-    <div className="surface p-5">
+    <div className="surface p-5 rounded-[10px]">
       <div className="overflow-x-auto -mx-1">
         <div className="flex items-center gap-2 px-1 min-w-min">
           {steps.map((step, i) => (
             <div key={i} className="flex items-center gap-2 shrink-0">
-              <div
-                className="bg-[var(--surface-elevated)] border border-[var(--border-strong)] rounded-[3px] px-3 py-2.5 min-w-[120px] text-center"
-              >
-                <div className="font-display text-[13px] font-semibold tracking-tight">
-                  {step.label}
-                </div>
-                <div className="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)] mt-0.5">
-                  {step.sub}
-                </div>
+              <div className="bg-[var(--surface-elevated)] border border-[var(--border-strong)] rounded-[4px] px-3 py-2.5 min-w-[116px] text-center">
+                <div className="font-display text-[13px] font-semibold tracking-tight">{step.label}</div>
+                <div className="font-mono text-[9.5px] uppercase tracking-wider text-[var(--text-faint)] mt-0.5">{step.sub}</div>
               </div>
               {i < steps.length - 1 && (
-                <span className="text-[var(--text-faint)] font-mono text-[14px] shrink-0">
-                  →
-                </span>
+                <span className="text-[var(--gtp-bank-heat)] font-mono text-[14px] shrink-0">→</span>
               )}
             </div>
           ))}
