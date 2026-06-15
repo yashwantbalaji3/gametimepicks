@@ -13,6 +13,8 @@ import BoardStatTile from "@/components/board-stat-tile";
 import BankBuilderTower from "@/components/bank-builder-tower";
 import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
 import PreviousHits from "@/components/bank-builder/previous-hits";
+import DualBankBuilderTeaser from "@/components/bank-builder/dual-bank-builder-teaser";
+import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
 import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
@@ -182,6 +184,9 @@ export default function BankBuilderPage() {
         <BoardStatTile label={completed ? "Final rung" : "Today's card"} value={completed ? "WON" : publishedCandidate || officialStep3 ? "Pending" : "—"} sub={completed ? "NBA Finals Game 5 · settled" : publishedCandidate ? `${candidateSports} · Step ${activeStep.step}` : officialStep3 ? `World Cup · Step ${activeStep.step}` : "none cleared yet"} accent={completed ? "var(--vault-success)" : "var(--risk-longshot)"} />
         <BoardStatTile label="Record" value={recordLabel} sub={completed ? "5 rungs · officially settled" : "settled ladder steps"} accent="var(--vault-gold-bright)" />
       </div>
+
+      {/* Dual Bank Builder — live lanes when launched, else the "coming next" teaser. */}
+      {completed ? <DualBankBuilderTeaser data={loadDualBankBuilder()} /> : null}
 
       {/* SECTION 2 — the ladder + the day-by-day run plan */}
       <div className="mt-6">

@@ -181,13 +181,13 @@ export default function MethodologyPage() {
           <SportCard
             accent="var(--vault-text)"
             name="World Cup / Soccer"
-            stage="Poisson · credential-gated"
-            inputs="National-team recent form (goals for/against per 90) via API Football; de-vigged market. No xG today."
-            model="Poisson home/draw/away + totals, anchored to the market as a strong prior (opening-day weight capped). Underdog floor and minimum-edge gates."
-            markets="Odds-backed when credentialed: match winner / double chance / totals. Player props via Poisson on individual trend."
-            cards="Stale fixtures never shown as active; no card without a live price."
-            settlement="Official final score, regulation 90 only (no extra time / penalties)."
-            limits="Requires an API Football credential. When absent, soccer is shown as unavailable / cached — not faked."
+            stage="odds-backed + recent form"
+            inputs="PRICES from The Odds API (soccer_fifa_world_cup): 3-way moneyline, totals, double chance, BTTS, draw-no-bet. STATS from API-Football: recent form (last-5 across all competitions), group/standings, lineups, and settlement (final scores)."
+            model="Two providers: The Odds API supplies the odds → de-vigged market-implied probabilities (3-way for moneyline/double chance); API-Football attaches real recent form + group. A full Poisson team-strength model follows once enough WC matches are played (season stats are thin this early)."
+            markets="Odds-backed: match winner (3-way, Draw is a real outcome), totals, double chance (real book odds), BTTS, draw-no-bet. Player props (goalscorer/shots) — odds exist; recent-form integration is the next step."
+            cards="Favorites only above a probability floor; stale fixtures never shown as active; no card without a live price; honest counts (no padding)."
+            settlement="Official final score from API-Football, regulation 90 only (no extra time / penalties)."
+            limits="Recent form is live; per-team WC-season stats and the Poisson model are thin until more group games are played. Player-prop projections (odds + recent form) are the next increment."
           />
           <SportCard
             accent="var(--vault-gold)"
@@ -263,7 +263,7 @@ export default function MethodologyPage() {
             <LimitationRow title="Lines move" body="Boards reflect odds at pipeline time. By the time you read them, prices have likely shifted." />
             <LimitationRow title="UFC props need a feed" body="Method / round / distance stay model-only until a real prop-odds feed and a graded model for them exist." />
             <LimitationRow title="MLB context inputs" body="Park factor, weather, bullpen fatigue, and handedness splits are on the roadmap, not yet modeled." />
-            <LimitationRow title="Soccer credentialing" body="World Cup / soccer requires an API Football credential to leave cached/unavailable state." />
+            <LimitationRow title="Soccer depth" body="World Cup prices come from The Odds API and recent form + group + lineups + settlement from API-Football. Per-team WC-season stats and the Poisson model stay thin until more group games are played; player-prop projections (odds + recent form) are the next increment." />
             <LimitationRow title="Richer feeds + automation" body="Fuller data feeds, a licensed fighter-image source, and detailed fight histories are planned." />
           </ul>
         </div>

@@ -18,9 +18,13 @@ import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
 import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
-import { normalizeWcCards, loadDailyMixedCards, type SportSummary } from "@/lib/normalize";
+import { normalizeWcCards, normalizeOptimizerSlips, loadDailyMixedCards, type SportSummary } from "@/lib/normalize";
+import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
+import FlagBadge from "@/components/flag-badge";
 import { loadWorldCupFlexLeg, loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
+import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
+import DualBankBuilderTeaser from "@/components/bank-builder/dual-bank-builder-teaser";
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
 import UfcExpandedFightCards from "@/components/ufc/expanded-fight-cards";
 import SuggestedCard from "@/components/ui/suggested-card";
@@ -103,6 +107,47 @@ export default function TodayPage() {
   const mixedCards = loadDailyMixedCards(today);
   const freshWcCards = wcCards; // already gated to today-dated parlays above (else null)
   const topCards = [...mixedCards, ...normalizeWcCards(freshWcCards)].slice(0, 4);
+  // Homepage MLB suggested parlays — top curated odds-backed cards from today's snapshot.
+  const mlbCards = normalizeOptimizerSlips(
+    getSuggestedParlaysForDate(today)?.slips ?? null,
+    { sportFilter: "mlb", date: today },
+  ).slice(0, 4);
+  // Dual Bank Builder — two live lanes launched today (null until launched → teaser).
+  const dualBank = loadDualBankBuilder();
+  // Today's Focus = World Cup fixtures. The projections artifact now carries MANY
+  // markets per fixture (moneyline / double chance / totals / btts / dnb); the focus
+  // strip is keyed on the 3-way moneyline (one per fixture) and attaches a double-chance
+  // + total-goals line for the dropdown.
+  const wcAll = wcProj?.matches ?? [];
+  const wcByMatch = (mid: number | string, market: string) =>
+    wcAll.find((m) => m.matchId === mid && m.market === market);
+  const wcFocus: WcFocusMatch[] = wcAll
+    .filter((m) => m.market === "moneyline_90" && typeof m.americanOdds === "number" && !!m.pickLabel)
+    .slice(0, 6)
+    .map((m) => {
+      const dc = wcByMatch(m.matchId, "double_chance");
+      const tot = wcByMatch(m.matchId, "match_total_goals");
+      return {
+        homeTeam: m.homeTeam,
+        awayTeam: m.awayTeam,
+        homeCode: m.homeCode ?? null,
+        awayCode: m.awayCode ?? null,
+        pickLabel: m.pickLabel,
+        americanOdds: m.americanOdds as number,
+        confidence: m.confidence ?? "limited",
+        outcomes: (m.outcomes ?? []).map((o) => ({
+          label: o.label,
+          side: o.side,
+          modelProbability: o.modelProbability,
+          americanOdds: o.americanOdds ?? 0,
+        })),
+        doubleChance: dc ? { pick: dc.pickLabel, odds: dc.americanOdds ?? 0, prob: dc.modelProbability } : null,
+        totalGoals: tot ? { pick: tot.pickLabel, odds: tot.americanOdds ?? 0, prob: tot.modelProbability } : null,
+        group: m.group ?? null,
+        homeForm: m.homeForm?.formString ?? null,
+        awayForm: m.awayForm?.formString ?? null,
+      };
+    });
   // The official candidate is loaded for the ACTIVE rung (stake = full bankroll, floor =
   // the rung's ladder goal), matching /bank-builder. The loader's slate-freshness gate
   // returns null for stale (already-played) slates, so a settled step can never
@@ -151,8 +196,35 @@ export default function TodayPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
-      {/* UFC — tonight's featured slate leads the page on a UFC day (real ESPN MMA card). */}
-      {ufcSched?.isRealCard ? (
+      {/* ── Today's Focus: World Cup — leads the page for the next few weeks ── */}
+      <TodaysFocusWorldCup matches={wcFocus} games={wcGames} dateLabel={dateLabel} />
+
+      {/* ── Dual Bank Builder — two live lanes launched today (after the WC focus) ── */}
+      {dualBank ? <DualBankBuilderTeaser data={dualBank} /> : null}
+
+      {/* ── Today's MLB suggested parlays (after the World Cup focus) ── */}
+      {mlbCards.length > 0 ? (
+        <section>
+          <SectionHeader
+            eyebrow={`MLB · ${dateLabel}`}
+            title="Today's MLB suggested parlays"
+            sub="Curated odds-backed paper cards from tonight's slate — enter any stake for the projected return."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {mlbCards.map((c) => (
+              <SuggestedCard key={c.id} card={c} />
+            ))}
+          </div>
+          <div className="mt-3">
+            <Link href="/picks" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+              All suggested parlays →
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      {/* UFC — only LEADS on a live UFC day; once settled it moves to the results recap below. */}
+      {!ufcSettled && ufcSched?.isRealCard ? (
         <section
           className="gtp-fade-up relative overflow-hidden rounded-[14px] px-5 py-5 sm:px-7 sm:py-6"
           style={{
@@ -255,7 +327,7 @@ export default function TodayPage() {
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {[
           { href: "/games", label: "Games", sub: "Pick tonight's game" },
-          { href: "/picks", label: "Picks", sub: "Browse suggested cards" },
+          { href: "/picks", label: "Parlay Lab", sub: "Curated suggested cards" },
           { href: "/build", label: "Build", sub: "Make your own card" },
           { href: "/results", label: "Results", sub: "How the model did" },
         ].map((a) => (
@@ -298,6 +370,32 @@ export default function TodayPage() {
         </section>
       )}
 
+      {/* UFC settled recap — once final, it lives in the results zone, not leading the page. */}
+      {ufcSettled ? (
+        <section
+          className="gtp-fade-up relative overflow-hidden rounded-[12px] px-5 py-4"
+          style={{ border: "1px solid var(--vault-border)", background: "rgba(26, 16, 11,0.45)" }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
+              UFC · officially settled
+            </span>
+            <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.14)" }}>
+              Settled · final
+            </span>
+          </div>
+          <p className="mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}>
+            <span style={{ color: "var(--vault-text)" }}>{ufcSched?.eventName ?? "UFC Freedom 250"}</span> — moneyline model went{" "}
+            <span style={{ color: "var(--vault-success)" }}>{ufcSettlement?.moneyline?.record ?? "6-1"}</span> ({ufcSettlement?.moneyline?.accuracyPct ?? 86}%). Suggested cards 0–4 — a card-concentration lesson, not a model-signal one. Paper-only educational tracking.
+          </p>
+          <div className="mt-2.5">
+            <Link href="/results" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+              View UFC 250 results →
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
       {/* Yesterday's settled results — official outcomes only */}
       <YesterdaySummary date={yesterday} />
 
@@ -325,5 +423,147 @@ export default function TodayPage() {
         <Link href="/methodology" className="underline" style={{ color: "var(--vault-text-mute)" }}>Methodology</Link>
       </p>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Today's Focus: World Cup — the lead command-center section. Odds-backed,
+// limited-data (no API-Football stat layer). Flags by real ISO code; honest
+// data-state when projections are unavailable. <details> = deeper-projection
+// dropdown per fixture (3-way de-vig). No fabricated stats.
+// ---------------------------------------------------------------------------
+type WcFocusMatch = {
+  homeTeam: string;
+  awayTeam: string;
+  homeCode?: string | null;
+  awayCode?: string | null;
+  pickLabel: string;
+  americanOdds: number;
+  confidence: string;
+  outcomes: Array<{ label: string; side: string; modelProbability: number; americanOdds: number }>;
+  doubleChance?: { pick: string; odds: number; prob: number } | null;
+  totalGoals?: { pick: string; odds: number; prob: number } | null;
+  group?: string | null;
+  homeForm?: string | null;
+  awayForm?: string | null;
+};
+
+/** Recent-form row — team name + last-5 W/D/L pills (W green · L crimson · D muted). */
+function FormRow({ team, form }: { team: string; form: string }) {
+  const color = (r: string) =>
+    r === "W" ? "var(--vault-success)" : r === "L" ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)";
+  return (
+    <div className="flex items-center justify-between gap-2" style={{ fontSize: 11 }}>
+      <span className="font-mono truncate" style={{ color: "var(--vault-text-mute)" }}>{team}</span>
+      <span className="flex gap-0.5 shrink-0">
+        {form.split("").map((r, i) => (
+          <span key={i} className="inline-flex items-center justify-center font-mono font-bold"
+            style={{ width: 13, height: 13, fontSize: 8.5, borderRadius: 3, color: "#120A07",
+              background: r === "D" ? "var(--vault-text-faint)" : color(r) }}>
+            {r}
+          </span>
+        ))}
+      </span>
+    </div>
+  );
+}
+
+function TodaysFocusWorldCup({
+  matches,
+  games,
+}: {
+  matches: WcFocusMatch[];
+  games: number;
+  dateLabel: string;
+}) {
+  const hasProj = matches.length > 0;
+  return (
+    <section
+      className="gtp-fade-up relative overflow-hidden rounded-[14px] px-5 py-5 sm:px-7 sm:py-6"
+      style={{
+        border: "1px solid var(--lava-border-strong)",
+        background:
+          "radial-gradient(120% 150% at 0% 0%, rgba(225, 29, 42,0.13) 0%, transparent 55%)," +
+          "linear-gradient(135deg, rgba(26,20,14,0.95) 0%, var(--vault-bg) 70%)",
+      }}
+    >
+      <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-40 w-40 translate-x-10 -translate-y-12 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(9px)", opacity: 0.4 }} />
+      <div className="relative flex flex-wrap items-center justify-between gap-2">
+        <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
+          Today&apos;s focus · World Cup
+        </span>
+        <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: hasProj ? "var(--vault-success)" : "var(--vault-text-faint)", background: hasProj ? "rgba(110,231,168,0.14)" : "rgba(255,255,255,0.04)" }}>
+          {hasProj ? "Odds-backed · limited data" : games > 0 ? "Projections unavailable" : "No matches today"}
+        </span>
+      </div>
+      <h1 className="relative mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.6vw,34px)", fontWeight: 700, lineHeight: 1.04 }}>
+        {games > 0 ? `${games} World Cup ${games === 1 ? "match" : "matches"} today` : "World Cup"}
+      </h1>
+      <p className="relative mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 660 }}>
+        {hasProj
+          ? "Prices from The Odds API (3-way moneyline + double chance + totals, de-vigged); recent form & group from API-Football. Tap a match for the full read. Paper-only, educational."
+          : games > 0
+            ? "Today's fixtures are scheduled, but odds-backed projections are unavailable right now. Paper-only, educational."
+            : "No World Cup matches on today's slate."}
+      </p>
+      {hasProj ? (
+        <div className="relative mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {matches.map((m, i) => (
+            <details key={i} className="group rounded-[10px]" style={{ background: "rgba(12,8,6,0.55)", border: "1px solid var(--vault-rule)" }}>
+              <summary className="flex cursor-pointer items-center justify-between gap-2 px-3.5 py-3 list-none">
+                <span className="flex items-center gap-2 min-w-0">
+                  <FlagBadge code={m.homeCode || m.homeTeam.slice(0, 2)} size="sm" />
+                  <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>v</span>
+                  <FlagBadge code={m.awayCode || m.awayTeam.slice(0, 2)} size="sm" />
+                  <span className="truncate font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>{m.homeTeam} v {m.awayTeam}</span>
+                </span>
+                <span className="shrink-0 font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>
+                  {m.pickLabel} {m.americanOdds > 0 ? "+" : ""}{m.americanOdds}
+                </span>
+              </summary>
+              <div className="px-3.5 pb-3 flex flex-col gap-1">
+                <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>3-way (home · draw · away)</span>
+                {m.outcomes.map((o, j) => (
+                  <div key={j} className="flex items-center justify-between font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+                    <span>{o.label}</span>
+                    <span className="tabular">{Math.round(o.modelProbability * 100)}% · {o.americanOdds > 0 ? "+" : ""}{o.americanOdds}</span>
+                  </div>
+                ))}
+                {m.doubleChance ? (
+                  <div className="mt-1 flex items-center justify-between font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+                    <span><span style={{ color: "var(--vault-text-faint)" }}>Double chance:</span> {m.doubleChance.pick}</span>
+                    <span className="tabular">{Math.round(m.doubleChance.prob * 100)}% · {m.doubleChance.odds > 0 ? "+" : ""}{m.doubleChance.odds}</span>
+                  </div>
+                ) : null}
+                {m.totalGoals ? (
+                  <div className="flex items-center justify-between font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+                    <span><span style={{ color: "var(--vault-text-faint)" }}>Total goals:</span> {m.totalGoals.pick}</span>
+                    <span className="tabular">{Math.round(m.totalGoals.prob * 100)}% · {m.totalGoals.odds > 0 ? "+" : ""}{m.totalGoals.odds}</span>
+                  </div>
+                ) : null}
+                {m.homeForm || m.awayForm ? (
+                  <div className="mt-1.5 flex flex-col gap-0.5">
+                    <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>recent form · last 5 (API-Football)</span>
+                    {m.homeForm ? <FormRow team={m.homeTeam} form={m.homeForm} /> : null}
+                    {m.awayForm ? <FormRow team={m.awayTeam} form={m.awayForm} /> : null}
+                  </div>
+                ) : null}
+                <span className="mt-1 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                  odds-backed · recent form live · {m.confidence}{m.group ? ` · ${m.group}` : ""} (player props next)
+                </span>
+              </div>
+            </details>
+          ))}
+        </div>
+      ) : null}
+      <div className="relative mt-4 flex flex-wrap gap-2">
+        <Link href="/world-cup" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
+          View projections &amp; cards →
+        </Link>
+        <Link href="/games" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
+          All games
+        </Link>
+      </div>
+    </section>
   );
 }

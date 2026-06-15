@@ -19,13 +19,14 @@ test("MOBILE_NAV_ITEMS has 5 items in the product-spine order", () => {
   );
 });
 
-test("MOBILE_NAV_ITEMS labels are the product spine (Today/Picks/Build/Sports/Bank)", () => {
+test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank)", () => {
   const byHref = Object.fromEntries(
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
   assert.equal(byHref["/today"], "Today");
   assert.equal(byHref["/games"], "Games");
-  assert.equal(byHref["/picks"], "Picks");
+  // Picks tab renamed to Parlay Lab (route stays /picks for back-compat).
+  assert.equal(byHref["/picks"], "Parlay Lab");
   assert.equal(byHref["/build"], "Build");
   assert.equal(byHref["/bank-builder"], "Bank");
 });

@@ -1,0 +1,141 @@
+{
+  "generatedAt": "2026-06-15T22:47:14.387168+00:00",
+  "date": "2026-06-15",
+  "status": "pending",
+  "type": "dual_bank_builder",
+  "runStatus": "active",
+  "runNumber": 2,
+  "startDate": "2026-06-15",
+  "name": "Dual Bank Builder",
+  "step": 1,
+  "stakePerLane": 100,
+  "stepTarget": 200,
+  "disclaimer": "Paper-only, educational. Two parallel paper ladders launched June 15 from real, odds-backed, UPCOMING legs. The bankroll only changes after official settlement. The completed first run ($100 \u2192 $10,376.17) is unchanged.",
+  "lanes": [
+    {
+      "lane": "A",
+      "name": "Lane A",
+      "thesis": "Lower-variance / highest model-probability pair",
+      "riskTier": "Lower risk",
+      "stake": 100,
+      "combinedDecimal": 1.882,
+      "combinedAmericanOdds": -113,
+      "projectedReturn": 188.24,
+      "projectedProfit": 88.24,
+      "combinedModelProbability": 0.6271,
+      "status": "pending",
+      "legs": [
+        {
+          "sport": "world_cup",
+          "sportLabel": "World Cup",
+          "gameId": "16",
+          "gameLabel": "Iran vs New Zealand",
+          "market": "double_chance",
+          "marketLabel": "double_chance",
+          "pick": "Iran or Draw",
+          "homeCode": "IR",
+          "awayCode": "NZ",
+          "recentForm": "Iran -WWWL \u00b7 New Zealand LLWLL",
+          "group": "Group Stage",
+          "americanOdds": -600,
+          "decimal": 1.1666666666666667,
+          "modelProbability": 0.8127,
+          "confidence": "Lean",
+          "commenceTime": "2026-06-16T01:00:00Z",
+          "dataQuality": "B",
+          "edgePct": 0.78
+        },
+        {
+          "sport": "mlb",
+          "sportLabel": "MLB",
+          "gameId": "9c2784938a40031b48e75139185e2491",
+          "gameLabel": "COL @ CHC",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "pick": "Troy Johnston Over 0.5",
+          "playerName": "Troy Johnston",
+          "team": "COL",
+          "americanOdds": -163,
+          "decimal": 1.6134969325153374,
+          "modelProbability": 0.7716,
+          "confidence": "High",
+          "commenceTime": "2026-06-16T00:06:00Z",
+          "dataQuality": "A",
+          "edgePct": 15.18
+        }
+      ],
+      "whyThisLane": "The two highest model-probability eligible legs that combine near a +100 return, from different games \u2014 the steadier lane.",
+      "dataQuality": "B",
+      "startTimes": [
+        "2026-06-16T01:00:00Z",
+        "2026-06-16T00:06:00Z"
+      ],
+      "settlementSource": "official box score (MLB Stats API) / official final score (API-Football), regulation 90"
+    },
+    {
+      "lane": "B",
+      "name": "Lane B",
+      "thesis": "Differentiated / slightly higher return",
+      "riskTier": "Balanced",
+      "stake": 100,
+      "combinedDecimal": 2.151,
+      "combinedAmericanOdds": 115,
+      "projectedReturn": 215.11,
+      "projectedProfit": 115.11,
+      "combinedModelProbability": 0.6825,
+      "status": "pending",
+      "legs": [
+        {
+          "sport": "mlb",
+          "sportLabel": "MLB",
+          "gameId": "38a1ef501107d0410c8595f25612567d",
+          "gameLabel": "LAA @ AZ",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "pick": "Mike Trout Under 1.5",
+          "playerName": "Mike Trout",
+          "team": "LAA",
+          "americanOdds": -269,
+          "decimal": 1.3717472118959106,
+          "modelProbability": 0.8413,
+          "confidence": "High",
+          "commenceTime": "2026-06-16T01:41:00Z",
+          "dataQuality": "A",
+          "edgePct": 11.23
+        },
+        {
+          "sport": "mlb",
+          "sportLabel": "MLB",
+          "gameId": "6dc67dec6b0c9f4a591f05d0f5912d23",
+          "gameLabel": "SD @ STL",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "pick": "Samad Taylor Over 0.5",
+          "playerName": "Samad Taylor",
+          "team": "SD",
+          "americanOdds": -176,
+          "decimal": 1.5681818181818183,
+          "modelProbability": 0.8112,
+          "confidence": "High",
+          "commenceTime": "2026-06-15T23:46:00Z",
+          "dataQuality": "A",
+          "edgePct": 17.35
+        }
+      ],
+      "whyThisLane": "A separate two-leg pair (no shared game with Lane A) at a longer combined price \u2014 a differentiated, higher-variance thesis.",
+      "dataQuality": "A",
+      "startTimes": [
+        "2026-06-16T01:41:00Z",
+        "2026-06-15T23:46:00Z"
+      ],
+      "settlementSource": "official box score (MLB Stats API) / official final score (API-Football), regulation 90"
+    }
+  ],
+  "diagnostics": {
+    "eligibleLegs": 41,
+    "mlb": 39,
+    "world_cup": 2
+  },
+  "priceSource": "the_odds_api",
+  "statSource": "api_football"
+}
