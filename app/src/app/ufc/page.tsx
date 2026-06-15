@@ -22,6 +22,7 @@ import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
 import StatusChip from "@/components/ui/status-chip";
 import UfcExpandedFightCards from "@/components/ufc/expanded-fight-cards";
+import UfcEventResultsRecap, { type UfcSettlement } from "@/components/ufc/event-results-recap";
 
 export const metadata = {
   title: "UFC · GameTime Picks",
@@ -76,6 +77,7 @@ export default function UfcPage() {
   const v1Parlays = loadJSONUfc<V1Parlays | null>("suggested-parlays-latest.json", null);
   const expanded = loadJSONUfc<{ projections?: unknown[] } | null>("expanded-projections-latest.json", null);
   const expandedFights = (expanded?.projections ?? []) as Parameters<typeof UfcExpandedFightCards>[0]["fights"];
+  const settlement = loadJSONUfc<UfcSettlement | null>("results-settled-latest.json", null);
 
   const showV1Proj = Boolean(v1Proj?.moneylineV1Ready && v1Proj.projections?.length);
   const v1Validated = Boolean(v1Proj?.moneylineValidated);
@@ -217,7 +219,7 @@ export default function UfcPage() {
   const resultsTab = (
     <div className="flex flex-col gap-4">
       <SectionHeader eyebrow="Results" title="UFC track record" sub="Moneyline picks graded against settled fights — wins and losses both shown. The validated badge appears only after a no-leakage backtest threshold is met." />
-      {ops ? (
+      {settlement ? <UfcEventResultsRecap s={settlement} /> : ops ? (
         <div className="rounded-[8px] px-4 py-4 flex flex-col gap-2" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <div className="flex items-center justify-between gap-2">
             <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Validation progress</span>

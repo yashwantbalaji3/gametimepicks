@@ -38,6 +38,17 @@ function loadUfc(): unknown {
   }
 }
 
+/** True once the UFC event has been officially settled — its cards are then a result, not an
+ *  active pick, so /picks must stop showing them in the live slate. */
+function ufcSettled(): boolean {
+  try {
+    const s = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", "results-settled-latest.json"), "utf8"));
+    return s?.status === "final";
+  } catch {
+    return false;
+  }
+}
+
 export default function PicksPage() {
   const today = currentEtDate();
   // Only TODAY's slate is an active pick. Stale daily-mixed + World Cup artifacts (last
@@ -45,8 +56,10 @@ export default function PicksPage() {
   // Order = tonight's focus first: UFC, then MLB, then any still-current WC/mixed.
   const wcParlays = loadWorldCupParlays();
   const freshWcParlays = wcParlays && wcParlays.date === today ? wcParlays : null;
+  // Settled UFC cards are a result, not an active pick — gate them out of the live slate.
+  const ufcCardsForToday = ufcSettled() ? null : (loadUfc() as Parameters<typeof normalizeUfcCards>[0]);
   const cards: PublicSuggestedCard[] = [
-    ...normalizeUfcCards(loadUfc() as Parameters<typeof normalizeUfcCards>[0], today),
+    ...normalizeUfcCards(ufcCardsForToday, today),
     ...normalizeOptimizerSlips(getSuggestedParlaysForDate(today)?.slips ?? null, { date: today }),
     ...normalizeWcCards(freshWcParlays),
     ...loadDailyMixedCards(today),
