@@ -35,10 +35,10 @@ export default function OfficialStep3CandidateCard({ candidate, stepNumber = 3 }
   return (
     <section
       className="gtp-fade-up mt-5 overflow-hidden rounded-2xl"
-      style={{ border: "1px solid rgba(240,199,94,0.45)", background: "rgba(240,199,94,0.05)", boxShadow: "var(--vault-shadow-elevated)" }}
+      style={{ border: "1px solid rgba(242, 54, 69,0.45)", background: "rgba(242, 54, 69,0.05)", boxShadow: "var(--vault-shadow-elevated)" }}
       aria-label={`Official Bank Builder Step ${stepNumber} candidate`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5" style={{ borderBottom: "1px solid rgba(240,199,94,0.30)", background: "rgba(240,199,94,0.09)" }}>
+      <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5" style={{ borderBottom: "1px solid rgba(242, 54, 69,0.30)", background: "rgba(242, 54, 69,0.09)" }}>
         <div className="flex items-center gap-2.5 min-w-0">
           <span
             className="gtp-sport-orb shrink-0"
@@ -57,7 +57,7 @@ export default function OfficialStep3CandidateCard({ candidate, stepNumber = 3 }
             </span>
           </div>
         </div>
-        <span className="gtp-active-glow rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]" style={{ background: "rgba(240,199,94,0.18)", color: "var(--vault-gold-bright)" }}>
+        <span className="gtp-active-glow rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]" style={{ background: "rgba(242, 54, 69,0.18)", color: "var(--vault-gold-bright)" }}>
           Pending result
         </span>
       </div>
@@ -93,7 +93,7 @@ export default function OfficialStep3CandidateCard({ candidate, stepNumber = 3 }
                 <span className="font-mono tabular shrink-0" style={{ color: "var(--vault-text)", fontSize: 13 }}>{formatAmerican(l.americanOdds)}</span>
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: "rgba(240,199,94,0.10)", color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)" }}>
+                <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: "rgba(242, 54, 69,0.10)", color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)" }}>
                   {l.marketLabel}
                 </span>
                 {l.regulationOnly && (

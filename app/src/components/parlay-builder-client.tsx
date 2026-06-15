@@ -303,7 +303,7 @@ export default function ParlayBuilderClient({
             className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 8px rgba(240, 199, 94, 0.65)",
+              boxShadow: "0 0 8px rgba(242, 54, 69, 0.65)",
             }}
           />
           <span
@@ -343,7 +343,7 @@ export default function ParlayBuilderClient({
                 style={{
                   background: "var(--vault-warn-dim)",
                   color: "var(--vault-warn)",
-                  border: "1px solid rgba(240, 199, 94, 0.30)",
+                  border: "1px solid rgba(242, 54, 69, 0.30)",
                 }}
               >
                 Archived slate — these leans are historical, not current.
@@ -490,11 +490,11 @@ export default function ParlayBuilderClient({
                         }`}
                         style={{
                           background: isSelected
-                            ? "linear-gradient(180deg, rgba(240, 199, 94, 0.18) 0%, rgba(212, 175, 55, 0.06) 100%)"
+                            ? "linear-gradient(180deg, rgba(242, 54, 69, 0.18) 0%, rgba(242, 54, 69, 0.06) 100%)"
                             : "var(--vault-panel)",
                           border: `1px solid ${
                             isSelected
-                              ? "rgba(240, 199, 94, 0.55)"
+                              ? "rgba(242, 54, 69, 0.55)"
                               : isStar
                                 ? "var(--vault-border-strong)"
                                 : "var(--vault-border)"
@@ -503,7 +503,7 @@ export default function ParlayBuilderClient({
                             ? "var(--vault-gold-bright)"
                             : "var(--vault-text)",
                           boxShadow: isSelected
-                            ? "0 0 0 1px rgba(240, 199, 94, 0.30) inset, 0 0 12px rgba(240, 199, 94, 0.25)"
+                            ? "0 0 0 1px rgba(242, 54, 69, 0.30) inset, 0 0 12px rgba(242, 54, 69, 0.25)"
                             : "none",
                           fontWeight: isSelected ? 600 : 400,
                         }}
@@ -629,7 +629,7 @@ export default function ParlayBuilderClient({
             style={{
               borderBottom: "1px solid var(--vault-rule)",
               background:
-                "linear-gradient(180deg, rgba(240, 199, 94, 0.06) 0%, transparent 100%)",
+                "linear-gradient(180deg, rgba(242, 54, 69, 0.06) 0%, transparent 100%)",
             }}
           >
             <span className="font-mono uppercase tracking-[0.18em] inline-flex items-center gap-2" style={{ color: "var(--vault-gold)", fontSize: 10 }}>
@@ -638,7 +638,7 @@ export default function ParlayBuilderClient({
                 className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
                 style={{
                   background: "var(--vault-gold-bright)",
-                  boxShadow: "0 0 6px rgba(240, 199, 94, 0.55)",
+                  boxShadow: "0 0 6px rgba(242, 54, 69, 0.55)",
                 }}
               />
               Candidate slips · model output
@@ -829,7 +829,7 @@ function RiskProfileCard({
           background: "var(--vault-gold-bright)",
           opacity: active ? 0.9 : 0,
           boxShadow: active
-            ? "0 0 10px rgba(240, 199, 94, 0.55)"
+            ? "0 0 10px rgba(242, 54, 69, 0.55)"
             : "none",
         }}
       />
@@ -1024,7 +1024,7 @@ function CandidateCard({
                     className="inline-flex items-center px-2 py-0.5 rounded-[3px] text-[10px]"
                     style={{
                       background: "var(--vault-warn-dim)",
-                      border: "1px solid rgba(240, 199, 94, 0.30)",
+                      border: "1px solid rgba(242, 54, 69, 0.30)",
                       color: "var(--vault-warn)",
                     }}
                   >
@@ -1044,7 +1044,7 @@ function CandidateCard({
             className="inline-flex items-center gap-2 px-2.5 py-1 rounded-[3px] text-[11px]"
             style={{
               background: "var(--vault-warn-dim)",
-              border: "1px solid rgba(240, 199, 94, 0.30)",
+              border: "1px solid rgba(242, 54, 69, 0.30)",
               color: "var(--vault-warn)",
             }}
           >
@@ -1057,7 +1057,7 @@ function CandidateCard({
             className="inline-flex items-center gap-2 px-2.5 py-1 rounded-[3px] text-[11px]"
             style={{
               background: "var(--vault-warn-dim)",
-              border: "1px solid rgba(240, 199, 94, 0.30)",
+              border: "1px solid rgba(242, 54, 69, 0.30)",
               color: "var(--vault-warn)",
             }}
           >
@@ -1168,18 +1168,18 @@ function DemoPreviewState({
               }`}
               style={{
                 background: isSelected
-                  ? "linear-gradient(180deg, rgba(240, 199, 94, 0.18) 0%, rgba(212, 175, 55, 0.06) 100%)"
+                  ? "linear-gradient(180deg, rgba(242, 54, 69, 0.18) 0%, rgba(242, 54, 69, 0.06) 100%)"
                   : "var(--vault-panel)",
                 border: `1px solid ${
                   isSelected
-                    ? "rgba(240, 199, 94, 0.55)"
+                    ? "rgba(242, 54, 69, 0.55)"
                     : "var(--vault-border)"
                 }`,
                 color: isSelected
                   ? "var(--vault-gold-bright)"
                   : "var(--vault-text)",
                 boxShadow: isSelected
-                  ? "0 0 0 1px rgba(240, 199, 94, 0.30) inset, 0 0 12px rgba(240, 199, 94, 0.25)"
+                  ? "0 0 0 1px rgba(242, 54, 69, 0.30) inset, 0 0 12px rgba(242, 54, 69, 0.25)"
                   : "none",
                 fontWeight: isSelected ? 600 : 400,
                 opacity: isSelected ? 1 : 0.7,

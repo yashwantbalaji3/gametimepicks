@@ -54,9 +54,9 @@ const ACCENT_COLOR: Record<NonNullable<PowerBoardShellProps["accent"]>, string> 
 };
 
 const ACCENT_GLOW: Record<NonNullable<PowerBoardShellProps["accent"]>, string> = {
-  warn: "rgba(212, 175, 55, 0.50)",
+  warn: "rgba(242, 54, 69, 0.50)",
   danger: "rgba(244, 63, 94, 0.45)",
-  gold: "rgba(240, 199, 94, 0.55)",
+  gold: "rgba(242, 54, 69, 0.55)",
 };
 
 export default function PowerBoardShell({

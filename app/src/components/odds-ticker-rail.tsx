@@ -46,7 +46,7 @@ export default function OddsTickerRail({ cells, eyebrow }: Props) {
               className="inline-block w-1.5 h-1.5 rounded-full mr-2 gtp-neon-pulse"
               style={{
                 background: "var(--vault-gold-bright)",
-                boxShadow: "0 0 8px rgba(240, 199, 94, 0.6)",
+                boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
               }}
             />
             <span

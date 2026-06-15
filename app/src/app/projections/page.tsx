@@ -154,7 +154,7 @@ export default function ProjectionsPage() {
         style={{
           border: "1px solid var(--vault-border-strong)",
           background:
-            "radial-gradient(120% 150% at 0% 0%, rgba(240,199,94,0.09) 0%, transparent 55%)," +
+            "radial-gradient(120% 150% at 0% 0%, rgba(242, 54, 69,0.09) 0%, transparent 55%)," +
             "linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(26, 16, 11,0.96) 60%, rgba(26, 16, 11,0.97) 100%)",
           boxShadow: "var(--vault-shadow-elevated)",
         }}

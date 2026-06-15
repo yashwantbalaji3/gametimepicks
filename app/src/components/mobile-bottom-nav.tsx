@@ -140,10 +140,10 @@ export default function MobileBottomNav() {
                 style={{
                   minHeight: 48,
                   background: active
-                    ? "linear-gradient(180deg, rgba(240, 199, 94, 0.10) 0%, rgba(240, 199, 94, 0) 100%)"
+                    ? "linear-gradient(180deg, rgba(242, 54, 69, 0.10) 0%, rgba(242, 54, 69, 0) 100%)"
                     : "transparent",
                   border: active
-                    ? "1px solid rgba(240, 199, 94, 0.28)"
+                    ? "1px solid rgba(242, 54, 69, 0.28)"
                     : "1px solid transparent",
                 }}
               >

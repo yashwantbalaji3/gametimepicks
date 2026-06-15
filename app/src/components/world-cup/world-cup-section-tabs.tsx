@@ -38,10 +38,10 @@ export default function WorldCupSectionTabs() {
               style={{
                 color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
                 background: active
-                  ? "linear-gradient(180deg, rgba(240,199,94,0.14) 0%, rgba(240,199,94,0) 90%)"
+                  ? "linear-gradient(180deg, rgba(242, 54, 69,0.14) 0%, rgba(242, 54, 69,0) 90%)"
                   : "transparent",
                 border: active
-                  ? "1px solid rgba(240, 199, 94, 0.32)"
+                  ? "1px solid rgba(242, 54, 69, 0.32)"
                   : "1px solid transparent",
                 textDecoration: "none",
               }}

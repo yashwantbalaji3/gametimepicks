@@ -64,7 +64,7 @@ export default function WorldCupTeamDetailPage({ params }: PageProps) {
           background:
             "linear-gradient(180deg, rgba(26, 16, 11,0.85) 0%, rgba(26, 16, 11,0.50) 100%)",
           border: team.isHost
-            ? "1px solid rgba(240, 199, 94, 0.45)"
+            ? "1px solid rgba(242, 54, 69, 0.45)"
             : "1px solid var(--vault-border)",
         }}
       >
@@ -164,7 +164,7 @@ export default function WorldCupTeamDetailPage({ params }: PageProps) {
             className="inline-block w-1.5 h-1.5 rounded-full"
             style={{
               background: "var(--vault-warn)",
-              boxShadow: "0 0 6px rgba(212, 175, 55, 0.55)",
+              boxShadow: "0 0 6px rgba(242, 54, 69, 0.55)",
             }}
           />
           <span

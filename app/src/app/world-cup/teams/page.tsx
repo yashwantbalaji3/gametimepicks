@@ -106,7 +106,7 @@ function TeamCard({ team }: { team: WorldCupTeam }) {
         background:
           "linear-gradient(180deg, rgba(26, 16, 11,0.78) 0%, rgba(26, 16, 11,0.55) 100%)",
         border: team.isHost
-          ? "1px solid rgba(240, 199, 94, 0.40)"
+          ? "1px solid rgba(242, 54, 69, 0.40)"
           : "1px solid var(--vault-border)",
         textDecoration: "none",
       }}

@@ -117,7 +117,7 @@ export default function ResultsDatePage({ params }: PageProps) {
             className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 8px rgba(240, 199, 94, 0.6)",
+              boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
             }}
           />
           <span
@@ -134,7 +134,7 @@ export default function ResultsDatePage({ params }: PageProps) {
               color: "var(--vault-gold-bright)",
               fontSize: "clamp(48px, 10vw, 96px)",
               textShadow:
-                "0 0 24px rgba(240, 199, 94, 0.45), 0 0 8px rgba(212, 175, 55, 0.55)",
+                "0 0 24px rgba(242, 54, 69, 0.45), 0 0 8px rgba(242, 54, 69, 0.55)",
             }}
           >
             {totalHit !== null ? formatPercent(totalHit) : "—"}

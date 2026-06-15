@@ -78,10 +78,10 @@ function chipStyle(active: boolean) {
     fontSize: 11,
     color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
     background: active
-      ? "linear-gradient(180deg, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0) 90%)"
+      ? "linear-gradient(180deg, rgba(242, 54, 69, 0.12) 0%, rgba(242, 54, 69, 0) 90%)"
       : "transparent",
     border: active
-      ? "1px solid rgba(212, 175, 55, 0.35)"
+      ? "1px solid rgba(242, 54, 69, 0.35)"
       : "1px solid var(--vault-border)",
   };
 }

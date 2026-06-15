@@ -43,7 +43,7 @@ const fmtAmerican = (p?: number) => (typeof p === "number" ? (p > 0 ? `+${p}` : 
 function StateBadge({ state }: { state: MarketState }) {
   const map: Record<MarketState, { c: string; bg: string; b: string; label: string }> = {
     "odds-backed": { c: "var(--vault-success)", bg: "rgba(110,231,168,0.14)", b: "rgba(110,231,168,0.35)", label: "ODDS-BACKED" },
-    "model-only": { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(255,122,60,0.32)", label: "MODEL-ONLY · NOT PARLAY ELIGIBLE" },
+    "model-only": { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(242, 54, 69,0.32)", label: "MODEL-ONLY · NOT PARLAY ELIGIBLE" },
     unavailable: { c: "var(--vault-text-faint)", bg: "rgba(26,16,11,0.6)", b: "var(--vault-rule)", label: "UNAVAILABLE" },
   };
   const t = map[state];
@@ -65,7 +65,7 @@ function FighterAvatar({ name, size = 28 }: { name: string; size?: number }) {
   return (
     <span
       className="inline-flex shrink-0 items-center justify-center rounded-full"
-      style={{ width: size, height: size, background: "rgba(255,122,60,0.14)", border: "1px solid var(--lava-border-strong)", color: "var(--gtp-bank-heat)", fontSize: size * 0.36, fontWeight: 700 }}
+      style={{ width: size, height: size, background: "rgba(242, 54, 69,0.14)", border: "1px solid var(--lava-border-strong)", color: "var(--gtp-bank-heat)", fontSize: size * 0.36, fontWeight: 700 }}
       role="img"
       aria-label={name}
     >

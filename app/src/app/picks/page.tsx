@@ -74,7 +74,7 @@ export default function PicksPage() {
         <Link
           href="/bank-builder"
           className="gtp-card-hover relative block overflow-hidden rounded-2xl px-5 py-4"
-          style={{ border: "1px solid rgba(255,122,60,0.4)", background: "linear-gradient(135deg, rgba(255,106,42,0.12), rgba(26, 16, 11,0.4))", textDecoration: "none" }}
+          style={{ border: "1px solid rgba(242, 54, 69,0.4)", background: "linear-gradient(135deg, rgba(225, 29, 42,0.12), rgba(26, 16, 11,0.4))", textDecoration: "none" }}
         >
           <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-24 w-24 translate-x-6 -translate-y-8 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(8px)", opacity: 0.5 }} />
           <div className="relative flex flex-wrap items-center justify-between gap-2">

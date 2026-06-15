@@ -169,7 +169,7 @@ export default function BankBuilderShareCard({
                   width: `${fillPct}%`,
                   background:
                     "linear-gradient(90deg, var(--vault-gold-dim), var(--vault-gold-bright))",
-                  boxShadow: "0 0 12px rgba(240,199,94,0.5)",
+                  boxShadow: "0 0 12px rgba(242, 54, 69,0.5)",
                 }}
               />
             </div>

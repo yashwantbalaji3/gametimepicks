@@ -59,7 +59,7 @@ function MarketRow({ p }: { p: WcProjection }) {
               key={o.side}
               className="rounded-[5px] px-1.5 py-1.5 flex flex-col items-center gap-0.5"
               style={{
-                background: isTop ? "rgba(240,199,94,0.08)" : "rgba(0,0,0,0.25)",
+                background: isTop ? "rgba(242, 54, 69,0.08)" : "rgba(0,0,0,0.25)",
                 border: `1px solid ${isTop ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
               }}
             >

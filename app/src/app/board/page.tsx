@@ -576,7 +576,7 @@ export default function BoardPage() {
                   className="inline-flex items-center px-2 py-0.5 rounded-[3px] text-[10px]"
                   style={{
                     background: "var(--vault-warn-dim)",
-                    border: "1px solid rgba(240, 199, 94, 0.30)",
+                    border: "1px solid rgba(242, 54, 69, 0.30)",
                     color: "var(--vault-warn)",
                   }}
                 >

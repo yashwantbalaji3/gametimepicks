@@ -165,7 +165,7 @@ function MatchCard({
         background: "rgba(26, 16, 11,0.55)",
         border: isGroup
           ? "1px solid var(--vault-border)"
-          : "1px solid rgba(240, 199, 94, 0.30)",
+          : "1px solid rgba(242, 54, 69, 0.30)",
       }}
     >
       <div className="flex items-center justify-between gap-2">

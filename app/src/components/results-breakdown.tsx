@@ -144,7 +144,7 @@ export default function ResultsBreakdown({
           className="px-4 py-3 rounded-[3px] flex items-start gap-3"
           style={{
             background: "var(--vault-warn-dim)",
-            border: "1px solid rgba(240, 199, 94, 0.30)",
+            border: "1px solid rgba(242, 54, 69, 0.30)",
           }}
         >
           <span

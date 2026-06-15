@@ -387,7 +387,7 @@ function Formula({ children }: { children: ReactNode }) {
         className="absolute top-0 left-[12%] right-[12%] h-px"
         style={{
           background:
-            "linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.45), transparent)",
+            "linear-gradient(90deg, transparent, rgba(242, 54, 69, 0.45), transparent)",
         }}
       />
       <div className="min-w-0 whitespace-nowrap sm:whitespace-normal">
@@ -405,7 +405,7 @@ function LimitationRow({ title, body }: { title: string; body: string }) {
         className="inline-block w-1.5 h-1.5 rounded-full shrink-0 mt-2"
         style={{
           background: "var(--vault-warn)",
-          boxShadow: "0 0 5px rgba(240, 199, 94, 0.45)",
+          boxShadow: "0 0 5px rgba(242, 54, 69, 0.45)",
         }}
       />
       <span>
@@ -469,7 +469,7 @@ function ModeCard({
             background: dotColor,
             boxShadow:
               color === "lime"
-                ? "0 0 6px rgba(240, 199, 94, 0.5)"
+                ? "0 0 6px rgba(242, 54, 69, 0.5)"
                 : "none",
           }}
         />

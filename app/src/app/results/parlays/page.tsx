@@ -61,7 +61,7 @@ export default function ResultsParlaysPage() {
                 ? "var(--vault-gold-bright)"
                 : "var(--vault-text-faint)",
               boxShadow: hasGradedHistory
-                ? "0 0 8px rgba(240, 199, 94, 0.5)"
+                ? "0 0 8px rgba(242, 54, 69, 0.5)"
                 : "none",
             }}
           />
@@ -81,7 +81,7 @@ export default function ResultsParlaysPage() {
                 color: "var(--vault-gold-bright)",
                 fontSize: "clamp(48px, 10vw, 96px)",
                 textShadow:
-                  "0 0 24px rgba(240, 199, 94, 0.45), 0 0 8px rgba(212, 175, 55, 0.55)",
+                  "0 0 24px rgba(242, 54, 69, 0.45), 0 0 8px rgba(242, 54, 69, 0.55)",
               }}
             >
               {((lifetime!.hitRate as number) * 100).toFixed(1)}%
@@ -153,7 +153,7 @@ export default function ResultsParlaysPage() {
               className="inline-block w-1.5 h-1.5 rounded-full"
               style={{
                 background: "var(--vault-warn)",
-                boxShadow: "0 0 6px rgba(212, 175, 55, 0.55)",
+                boxShadow: "0 0 6px rgba(242, 54, 69, 0.55)",
               }}
             />
             <span

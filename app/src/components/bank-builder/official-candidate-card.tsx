@@ -53,8 +53,8 @@ export default function OfficialCandidateCard({ candidate }: { candidate: Offici
     <section
       className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl"
       style={{
-        border: isFinalStep ? "1px solid var(--lava-border-strong)" : "1px solid rgba(240,199,94,0.45)",
-        background: isFinalStep ? "linear-gradient(160deg, rgba(255,106,42,0.10), rgba(240,199,94,0.05) 55%, var(--lava-panel))" : "rgba(240,199,94,0.05)",
+        border: isFinalStep ? "1px solid var(--lava-border-strong)" : "1px solid rgba(242, 54, 69,0.45)",
+        background: isFinalStep ? "linear-gradient(160deg, rgba(225, 29, 42,0.10), rgba(242, 54, 69,0.05) 55%, var(--lava-panel))" : "rgba(242, 54, 69,0.05)",
         boxShadow: "var(--vault-shadow-elevated)",
       }}
       aria-label={`Official Bank Builder Step ${c.step} candidate`}
@@ -65,8 +65,8 @@ export default function OfficialCandidateCard({ candidate }: { candidate: Offici
       <div
         className="relative flex flex-wrap items-center justify-between gap-2 px-5 py-3.5"
         style={{
-          borderBottom: isFinalStep ? "1px solid var(--lava-border-strong)" : "1px solid rgba(240,199,94,0.30)",
-          background: isFinalStep ? "rgba(255,106,42,0.10)" : "rgba(240,199,94,0.09)",
+          borderBottom: isFinalStep ? "1px solid var(--lava-border-strong)" : "1px solid rgba(242, 54, 69,0.30)",
+          background: isFinalStep ? "rgba(225, 29, 42,0.10)" : "rgba(242, 54, 69,0.09)",
         }}
       >
         <div className="flex items-center gap-2.5 min-w-0">
@@ -89,7 +89,7 @@ export default function OfficialCandidateCard({ candidate }: { candidate: Offici
             </span>
           </div>
         </div>
-        <span className="gtp-active-glow rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]" style={{ background: isFinalStep ? "var(--gtp-bank-heat-dim)" : "rgba(240,199,94,0.18)", color: isFinalStep ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)" }}>
+        <span className="gtp-active-glow rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]" style={{ background: isFinalStep ? "var(--gtp-bank-heat-dim)" : "rgba(242, 54, 69,0.18)", color: isFinalStep ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)" }}>
           Pending result
         </span>
       </div>
@@ -122,7 +122,7 @@ export default function OfficialCandidateCard({ candidate }: { candidate: Offici
                   <span className="font-mono tabular shrink-0" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{formatAmerican(l.americanOdds)}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: "rgba(240,199,94,0.10)", color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)" }}>
+                  <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: "rgba(242, 54, 69,0.10)", color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)" }}>
                     {l.marketLabel}{l.side ? ` ${l.side} ${l.line ?? ""}` : ""}
                   </span>
                   {l.regulationOnly && (

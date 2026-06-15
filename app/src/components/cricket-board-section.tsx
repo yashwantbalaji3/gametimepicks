@@ -403,7 +403,7 @@ function SideStat({
       className="rounded-[4px] px-2 py-1.5 flex flex-col gap-0.5"
       style={{
         background: active
-          ? "rgba(212,175,55,0.10)"
+          ? "rgba(242, 54, 69,0.10)"
           : "transparent",
         border: active
           ? "1px solid var(--vault-border-strong)"

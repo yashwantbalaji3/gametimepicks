@@ -100,7 +100,7 @@ export default function SportOverviewHero({
       /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/,
     );
     if (m) return `rgba(${m[1]}, ${m[2]}, ${m[3]}, ${alpha})`;
-    return `rgba(240, 199, 94, ${alpha})`;
+    return `rgba(242, 54, 69, ${alpha})`;
   };
   const cssVars = {
     "--accent-glow": glowAlpha(0.18),

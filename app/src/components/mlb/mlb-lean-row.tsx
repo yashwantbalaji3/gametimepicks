@@ -48,15 +48,15 @@ function confidenceMeta(tier: MlbBoardLean["confidence"]): {
       return {
         label: "Medium",
         fg: "var(--vault-gold-bright)",
-        bg: "rgba(240, 199, 94, 0.10)",
-        rim: "rgba(240, 199, 94, 0.30)",
+        bg: "rgba(242, 54, 69, 0.10)",
+        rim: "rgba(242, 54, 69, 0.30)",
       };
     case "Low":
       return {
         label: "Low",
         fg: "var(--vault-warn)",
-        bg: "rgba(212, 175, 55, 0.06)",
-        rim: "rgba(212, 175, 55, 0.18)",
+        bg: "rgba(242, 54, 69, 0.06)",
+        rim: "rgba(242, 54, 69, 0.18)",
       };
     case "insufficient_data":
       return {
@@ -192,7 +192,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                 color: "var(--vault-warn)",
                 fontSize: 10,
                 padding: "1px 4px",
-                border: "1px solid rgba(212, 175, 55, 0.30)",
+                border: "1px solid rgba(242, 54, 69, 0.30)",
                 borderRadius: 2,
               }}
             >
@@ -291,7 +291,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                 color: "var(--vault-warn)",
                 fontSize: 10,
                 padding: "1px 4px",
-                border: "1px solid rgba(212, 175, 55, 0.30)",
+                border: "1px solid rgba(242, 54, 69, 0.30)",
                 borderRadius: 2,
               }}
             >
@@ -338,10 +338,10 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                   style={{
                     color: "var(--vault-warn)",
                     fontSize: 10,
-                    background: "rgba(212, 175, 55, 0.10)",
+                    background: "rgba(242, 54, 69, 0.10)",
                     borderRadius: 2,
                     padding: "1px 6px",
-                    border: "1px solid rgba(212, 175, 55, 0.30)",
+                    border: "1px solid rgba(242, 54, 69, 0.30)",
                   }}
                 >
                   R5 anomaly
@@ -560,7 +560,7 @@ function StatTile({
           : "var(--vault-text-faint)";
   const glow =
     accent === "gold" || (accent === "success" && !isDash)
-      ? "0 0 12px rgba(240, 199, 94, 0.30)"
+      ? "0 0 12px rgba(242, 54, 69, 0.30)"
       : "none";
   return (
     <div

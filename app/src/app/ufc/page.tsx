@@ -179,7 +179,7 @@ export default function UfcPage() {
   ];
   const stateStyle = (s: "odds-backed" | "model-only" | "unavailable") =>
     s === "odds-backed" ? { c: "var(--vault-success)", bg: "rgba(110,231,168,0.14)", b: "rgba(110,231,168,0.35)", label: "ODDS-BACKED" }
-      : s === "model-only" ? { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(255,122,60,0.32)", label: "MODEL-ONLY" }
+      : s === "model-only" ? { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(242, 54, 69,0.32)", label: "MODEL-ONLY" }
         : { c: "var(--vault-text-faint)", bg: "rgba(26, 16, 11,0.6)", b: "var(--vault-rule)", label: "UNAVAILABLE" };
   const marketsTab = (
     <div className="flex flex-col gap-4">
