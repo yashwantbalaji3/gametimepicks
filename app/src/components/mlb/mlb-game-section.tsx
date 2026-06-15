@@ -83,7 +83,7 @@ export default function MlbGameSection({
                 className="inline-block w-2 h-2 rounded-full"
                 style={{
                   background: "var(--vault-gold-bright)",
-                  boxShadow: "0 0 10px rgba(240, 199, 94, 0.65)",
+                  boxShadow: "0 0 10px rgba(242, 54, 69, 0.65)",
                 }}
               />
               <span
@@ -113,11 +113,11 @@ export default function MlbGameSection({
                     color: settled ? "var(--vault-success)" : "var(--vault-warn)",
                     fontSize: 10,
                     border: `1px solid ${
-                      settled ? "rgba(74, 222, 128, 0.30)" : "rgba(212, 175, 55, 0.30)"
+                      settled ? "rgba(74, 222, 128, 0.30)" : "rgba(242, 54, 69, 0.30)"
                     }`,
                     background: settled
                       ? "rgba(74, 222, 128, 0.10)"
-                      : "rgba(212, 175, 55, 0.10)",
+                      : "rgba(242, 54, 69, 0.10)",
                     borderRadius: 2,
                     padding: "1px 5px",
                   }}
@@ -131,8 +131,8 @@ export default function MlbGameSection({
                   style={{
                     color: "var(--vault-gold-bright)",
                     fontSize: 10,
-                    border: "1px solid rgba(212, 175, 55, 0.30)",
-                    background: "rgba(212, 175, 55, 0.10)",
+                    border: "1px solid rgba(242, 54, 69, 0.30)",
+                    background: "rgba(242, 54, 69, 0.10)",
                     borderRadius: 2,
                     padding: "1px 5px",
                   }}
@@ -361,7 +361,7 @@ function FinalNoLeansNote({ settled }: { settled?: boolean }) {
       style={{
         background: "rgba(26, 16, 11, 0.55)",
         border: `1px solid ${
-          settled ? "rgba(74, 222, 128, 0.25)" : "rgba(212, 175, 55, 0.25)"
+          settled ? "rgba(74, 222, 128, 0.25)" : "rgba(242, 54, 69, 0.25)"
         }`,
         color: "var(--vault-text-mute)",
       }}

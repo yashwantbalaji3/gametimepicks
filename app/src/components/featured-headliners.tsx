@@ -72,7 +72,7 @@ const CONF_TONE: Record<
   Medium: {
     fg: "var(--vault-warn)",
     bg: "var(--vault-warn-dim)",
-    border: "rgba(240, 199, 94, 0.30)",
+    border: "rgba(242, 54, 69, 0.30)",
     label: "Medium",
   },
   Low: {
@@ -220,7 +220,7 @@ export default function FeaturedHeadliners({
             className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 10px rgba(240, 199, 94, 0.7)",
+              boxShadow: "0 0 10px rgba(242, 54, 69, 0.7)",
             }}
           />
           <div>
@@ -416,7 +416,7 @@ function HeadlinerTile({ summary }: { summary: HeadlinerSummary }) {
               ? {
                   color: "var(--vault-warn)",
                   background: "var(--vault-warn-dim)",
-                  border: "1px solid rgba(240, 199, 94, 0.30)",
+                  border: "1px solid rgba(242, 54, 69, 0.30)",
                 }
               : {
                   color: "var(--vault-gold-bright)",

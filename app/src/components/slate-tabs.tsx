@@ -72,10 +72,10 @@ export default function SlateTabs({ days, selected, onChange, buildTimeToday }: 
                 // inner-glow so the selected date reads as "powered on",
                 // not just underlined.
                 background: isSelected
-                  ? "linear-gradient(180deg, rgba(212, 175, 55, 0.10) 0%, rgba(212, 175, 55, 0) 80%)"
+                  ? "linear-gradient(180deg, rgba(242, 54, 69, 0.10) 0%, rgba(242, 54, 69, 0) 80%)"
                   : "transparent",
                 boxShadow: isSelected
-                  ? "inset 0 1px 0 rgba(240, 199, 94, 0.25), 0 6px 18px -10px rgba(240, 199, 94, 0.35)"
+                  ? "inset 0 1px 0 rgba(242, 54, 69, 0.25), 0 6px 18px -10px rgba(242, 54, 69, 0.35)"
                   : "none",
               }}
             >

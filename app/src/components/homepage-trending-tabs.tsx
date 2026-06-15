@@ -167,7 +167,7 @@ export default function HomepageTrendingTabs(props: Props) {
                   style={{
                     background:
                       "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
-                    boxShadow: "0 0 8px rgba(240, 199, 94, 0.45)",
+                    boxShadow: "0 0 8px rgba(242, 54, 69, 0.45)",
                   }}
                 />
               )}
@@ -304,7 +304,7 @@ function LeanRow({ lean, flagged }: { lean: TrendingLean; flagged?: boolean }) {
       className="vault-deluxe-card casino-glow-card px-4 py-3.5"
       style={
         flagged
-          ? { borderColor: "rgba(240, 199, 94, 0.32)" }
+          ? { borderColor: "rgba(242, 54, 69, 0.32)" }
           : undefined
       }
     >
@@ -379,7 +379,7 @@ function LeanRow({ lean, flagged }: { lean: TrendingLean; flagged?: boolean }) {
             className="inline-flex items-center px-2 py-0.5 rounded-[3px] font-mono text-[10px] tracking-tight uppercase"
             style={{
               background: "var(--vault-warn-dim)",
-              border: "1px solid rgba(240, 199, 94, 0.30)",
+              border: "1px solid rgba(242, 54, 69, 0.30)",
               color: "var(--vault-warn)",
             }}
           >

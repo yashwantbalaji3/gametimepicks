@@ -372,7 +372,7 @@ export default function MlbBoardBody({ date }: { date: string }) {
                 className="inline-block w-2 h-2 rounded-full"
                 style={{
                   background: "var(--vault-warn)",
-                  boxShadow: "0 0 10px rgba(212, 175, 55, 0.55)",
+                  boxShadow: "0 0 10px rgba(242, 54, 69, 0.55)",
                 }}
               />
               <span

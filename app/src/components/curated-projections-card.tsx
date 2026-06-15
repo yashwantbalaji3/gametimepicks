@@ -60,7 +60,7 @@ export default function CuratedProjectionsCard({
           className="inline-block w-1.5 h-1.5 rounded-full"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 6px rgba(240, 199, 94, 0.45)",
+            boxShadow: "0 0 6px rgba(242, 54, 69, 0.45)",
           }}
         />
         <span

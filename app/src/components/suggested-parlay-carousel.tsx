@@ -321,7 +321,7 @@ function CarouselHeader({
           boxShadow:
             source === "graded"
               ? "0 0 6px rgba(74, 222, 128, 0.45)"
-              : "0 0 6px rgba(240, 199, 94, 0.45)",
+              : "0 0 6px rgba(242, 54, 69, 0.45)",
         }}
       />
       <span

@@ -74,10 +74,10 @@ export default function TeamLogo({
         borderRadius: 10,
         background: "rgba(26, 16, 11, 0.45)",
         border: highlight
-          ? "1.5px solid rgba(240, 199, 94, 0.65)"
+          ? "1.5px solid rgba(242, 54, 69, 0.65)"
           : "1px solid var(--vault-border)",
         boxShadow: highlight
-          ? "0 0 14px rgba(240, 199, 94, 0.30), inset 0 0 0 1px rgba(240, 199, 94, 0.15)"
+          ? "0 0 14px rgba(242, 54, 69, 0.30), inset 0 0 0 1px rgba(242, 54, 69, 0.15)"
           : "inset 0 0 0 1px rgba(255, 255, 255, 0.03)",
       }}
     >

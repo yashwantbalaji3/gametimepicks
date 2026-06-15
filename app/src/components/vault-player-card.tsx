@@ -58,7 +58,7 @@ const CONFIDENCE_PILL: Record<
   Medium: {
     fg: "var(--vault-warn)",
     bg: "var(--vault-warn-dim)",
-    border: "rgba(240, 199, 94, 0.30)",
+    border: "rgba(242, 54, 69, 0.30)",
     label: "Watch",
   },
   Low: {
@@ -577,7 +577,7 @@ function MarketRowView({ row }: { row: MarketRow }) {
               style={{
                 color: "var(--vault-warn)",
                 background: "var(--vault-warn-dim)",
-                border: "1px solid rgba(240, 199, 94, 0.30)",
+                border: "1px solid rgba(242, 54, 69, 0.30)",
               }}
             >
               {riskFlagLabel(flag)}
@@ -692,7 +692,7 @@ function ProjectionLineRow({
         : "var(--vault-text-mute)";
   const edgeGlow = !edgeIsFinite || suspicious || dampedEdge
     ? "none"
-    : "0 0 14px rgba(240, 199, 94, 0.30)";
+    : "0 0 14px rgba(242, 54, 69, 0.30)";
 
   return (
     <div>
@@ -798,7 +798,7 @@ function ScoreboardTile({
           fontSize: "clamp(20px, 3vw, 26px)",
           lineHeight: 1.05,
           textShadow: glow
-            ? "0 0 12px rgba(240, 199, 94, 0.35)"
+            ? "0 0 12px rgba(242, 54, 69, 0.35)"
             : "none",
         }}
       >
@@ -978,7 +978,7 @@ function EdgeTag({
         style={{
           color: "var(--vault-warn)",
           background: "var(--vault-warn-dim)",
-          border: "1px solid rgba(240, 199, 94, 0.30)",
+          border: "1px solid rgba(242, 54, 69, 0.30)",
         }}
         title="Edge above 25% — visually capped because the model flagged this as an anomaly."
       >

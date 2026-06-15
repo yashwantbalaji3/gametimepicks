@@ -115,7 +115,7 @@ export default function Nav() {
                       height: 4,
                       borderRadius: 999,
                       background: "var(--vault-gold-dim)",
-                      boxShadow: "0 0 6px rgba(212, 175, 55, 0.30)",
+                      boxShadow: "0 0 6px rgba(242, 54, 69, 0.30)",
                     }}
                   />
                 )}
@@ -128,14 +128,14 @@ export default function Nav() {
                       ? "var(--vault-gold-bright)"
                       : "var(--vault-text-mute)",
                     background: active
-                      ? "linear-gradient(180deg, rgba(240, 199, 94, 0.14) 0%, rgba(240, 199, 94, 0) 90%)"
+                      ? "linear-gradient(180deg, rgba(242, 54, 69, 0.14) 0%, rgba(242, 54, 69, 0) 90%)"
                       : "transparent",
                     border: active
-                      ? "1px solid rgba(240, 199, 94, 0.32)"
+                      ? "1px solid rgba(242, 54, 69, 0.32)"
                       : "1px solid transparent",
                     textShadow:
                       active && isSport
-                        ? "0 0 14px rgba(240, 199, 94, 0.48)"
+                        ? "0 0 14px rgba(242, 54, 69, 0.48)"
                         : "none",
                   }}
                 >
@@ -170,7 +170,7 @@ export default function Nav() {
                       height: 4,
                       borderRadius: 999,
                       background: "var(--vault-gold-dim)",
-                      boxShadow: "0 0 6px rgba(212, 175, 55, 0.30)",
+                      boxShadow: "0 0 6px rgba(242, 54, 69, 0.30)",
                     }}
                   />
                 )}
@@ -183,16 +183,16 @@ export default function Nav() {
                       ? "var(--vault-gold-bright)"
                       : "var(--vault-text-mute)",
                     background: active
-                      ? "linear-gradient(180deg, rgba(240, 199, 94, 0.14) 0%, rgba(240, 199, 94, 0) 90%)"
+                      ? "linear-gradient(180deg, rgba(242, 54, 69, 0.14) 0%, rgba(242, 54, 69, 0) 90%)"
                       : "transparent",
                     border: active
-                      ? "1px solid rgba(240, 199, 94, 0.32)"
+                      ? "1px solid rgba(242, 54, 69, 0.32)"
                       : "1px solid transparent",
                     textShadow: active && isSport
-                      ? "0 0 14px rgba(240, 199, 94, 0.48)"
+                      ? "0 0 14px rgba(242, 54, 69, 0.48)"
                       : "none",
                     boxShadow: active
-                      ? "0 0 16px rgba(240, 199, 94, 0.10)"
+                      ? "0 0 16px rgba(242, 54, 69, 0.10)"
                       : "none",
                   }}
                 >
@@ -204,7 +204,7 @@ export default function Nav() {
                       style={{
                         background:
                           "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
-                        boxShadow: "0 0 8px rgba(240, 199, 94, 0.55)",
+                        boxShadow: "0 0 8px rgba(242, 54, 69, 0.55)",
                       }}
                     />
                   )}

@@ -391,7 +391,7 @@ function TeamSide({
       style={{
         background: "rgba(26, 16, 11, 0.55)",
         border: favored && !partial
-          ? "1px solid rgba(240, 199, 94, 0.40)"
+          ? "1px solid rgba(242, 54, 69, 0.40)"
           : "1px solid var(--vault-border)",
       }}
     >
@@ -427,7 +427,7 @@ function TeamSide({
                 className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
                 style={{
                   background: "var(--vault-gold-bright)",
-                  boxShadow: "0 0 6px rgba(240, 199, 94, 0.6)",
+                  boxShadow: "0 0 6px rgba(242, 54, 69, 0.6)",
                 }}
               />
             )}

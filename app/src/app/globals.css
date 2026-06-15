@@ -54,23 +54,26 @@
      carry the energy while gold stays a premium highlight. */
   --vault-bg: var(--lava-bg);
   --vault-panel: var(--lava-panel);
-  --vault-panel-elevated: #211812;
-  --vault-panel-hover: #2B201A;
+  --vault-panel-elevated: #1C1C20;
+  --vault-panel-hover: #26262B;
   --vault-border: var(--lava-border);
   --vault-border-strong: var(--lava-border-strong);
-  --vault-border-active: rgba(255, 120, 60, 0.72);
+  --vault-border-active: rgba(242, 54, 69, 0.72);
 
+  /* V1 revamp: --vault-gold-bright is the site-wide ACCENT (eyebrows, links, headers, chips) —
+     now crimson so the whole app reads V1 fight-card. --vault-gold stays true gold for the
+     Bank Builder crown + focus ring only. */
   --vault-gold: #D4AF37;
-  --vault-gold-bright: #F0C75E;
-  --vault-gold-dim: rgba(212, 175, 55, 0.10);
-  --vault-gold-glow: rgba(212, 175, 55, 0.18);
+  --vault-gold-bright: #F23645;
+  --vault-gold-dim: rgba(242, 54, 69, 0.12);
+  --vault-gold-glow: rgba(242, 54, 69, 0.20);
 
   /* Readability rebrand (2026-06-12): primary text nearer white; mute/faint
      brightened off the muddy dark-gold so metadata stays legible on navy
      (faint was #6E6447 ≈ 3.3:1 — now ≥ 4.6:1 on the card surfaces). */
   --vault-text: var(--lava-text);
   --vault-text-mute: var(--lava-text-muted);
-  --vault-text-faint: #948A6E;
+  --vault-text-faint: #7E7E88;
 
   --vault-success: #6EE7A8;
   --vault-success-dim: rgba(110, 231, 168, 0.12);
@@ -112,9 +115,11 @@
   --sport-bank: #F0C75E;      /* gold — Bank Builder vault */
   /* Bank Builder heat system (casino rebuild, 2026-06-12): the flagship run
      gets magma energy — heat for chips/pulses, lava for progress fills. */
-  --gtp-bank-heat: #FF7A3C;
-  --gtp-bank-heat-dim: rgba(255, 122, 60, 0.14);
-  --gtp-bank-lava: linear-gradient(90deg, #B3261E 0%, #FF6A2A 45%, #FFB13C 80%, #F0C75E 100%);
+  /* V1 immersive revamp (crimson-black fight-card system): the primary "heat" accent is now
+     crimson; gold stays only for the Bank Builder crown via --vault-gold / --lava-gold. */
+  --gtp-bank-heat: #F23645;
+  --gtp-bank-heat-dim: rgba(242, 54, 69, 0.16);
+  --gtp-bank-lava: linear-gradient(90deg, #9B1B16 0%, #E11D2A 45%, #FF5A3C 80%, #F0C75E 100%);
 
   /* ================================================================
      Hot-lava casino design system — the canonical sitewide palette.
@@ -122,25 +127,25 @@
      site reads volcanic-obsidian + ember, never the old navy/graphite.
      Gold is reserved for crown/Bank-Builder/success moments only.
      ================================================================ */
-  --lava-bg: #0C0806;            /* warm volcanic near-black */
-  --lava-panel: #17110D;          /* obsidian panel */
-  --lava-card: #1C140E;           /* lava-glass card surface */
-  --lava-card-2: #241A12;         /* elevated card */
-  --lava-border: rgba(255, 120, 60, 0.16);
-  --lava-border-strong: rgba(255, 120, 60, 0.34);
-  --lava-heat: #FF7A3C;           /* lava orange */
-  --lava-ember: #FF6A2A;          /* ember */
-  --lava-magma: #B3261E;          /* magma red */
-  --lava-glow: radial-gradient(60% 100% at 50% 0%, rgba(255, 106, 42, 0.14) 0%, transparent 70%);
-  --lava-text: #F8F4E9;           /* warm cream */
-  --lava-text-muted: #C9BC97;
-  --lava-text-faint: #948A6E;
-  --lava-gold: #F0C75E;           /* crown accent only */
+  --lava-bg: #0A0A0B;            /* V1 neutral fight-night near-black */
+  --lava-panel: #141416;          /* dark panel */
+  --lava-card: #17171A;           /* card surface */
+  --lava-card-2: #1F1F23;         /* elevated card */
+  --lava-border: rgba(225, 29, 42, 0.20);
+  --lava-border-strong: rgba(225, 29, 42, 0.40);
+  --lava-heat: #F23645;           /* crimson accent */
+  --lava-ember: #E11D2A;          /* deep crimson */
+  --lava-magma: #9B1B16;          /* blood red */
+  --lava-glow: radial-gradient(60% 100% at 50% 0%, rgba(225, 29, 42, 0.16) 0%, transparent 70%);
+  --lava-text: #F5F5F7;           /* high-contrast white */
+  --lava-text-muted: #B6B6BE;
+  --lava-text-faint: #7E7E88;
+  --lava-gold: #F0C75E;           /* crown accent only (Bank Builder) */
   --lava-success: #6EE7A8;
   --lava-danger: #F08A8A;
 
   /* Phase 7B-7 — refinement tokens for spacing, dividers, focus */
-  --vault-rule: rgba(255, 120, 60, 0.10);     /* internal section dividers */
+  --vault-rule: rgba(225, 29, 42, 0.12);     /* internal section dividers */
   --vault-shadow-soft: 0 1px 0 rgba(212, 175, 55, 0.04);
   --vault-focus-ring: 0 0 0 1px var(--vault-gold), 0 0 0 4px rgba(212, 175, 55, 0.18);
 
@@ -195,16 +200,16 @@
   --gtp-shell-elevated:  #1B130E;
   --gtp-shell-rail:      #120D0A;
   --gtp-shell-overlay:   rgba(26, 16, 11, 0.92);
-  --gtp-shell-border:    rgba(255, 120, 60, 0.18);
+  --gtp-shell-border:    rgba(225, 29, 42, 0.20);
   --gtp-shell-rule:      rgba(255, 120, 60, 0.12);
 
   /* Default content surfaces — DARK (elevated charcoal cards on the
      deep navy shell). Overridden inside `.gtp-canvas` to light cream
      for any future page that opts into a light reading surface. */
-  --gtp-card:            #1C140E;
-  --gtp-card-elevated:   #241A12;
-  --gtp-card-sunken:     #130D0A;
-  --gtp-card-border:     rgba(255, 120, 60, 0.16);
+  --gtp-card:            #17171A;
+  --gtp-card-elevated:   #1F1F23;
+  --gtp-card-sunken:     #101012;
+  --gtp-card-border:     rgba(225, 29, 42, 0.18);
   --gtp-card-border-strong: rgba(255, 120, 60, 0.32);
   --gtp-card-shadow:     0 1px 0 rgba(255, 255, 255, 0.03) inset,
                          0 6px 18px -8px rgba(0, 0, 0, 0.5);
@@ -323,9 +328,9 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 100% 58% at 50% -8%, rgba(255, 106, 42, 0.13), transparent 60%),
-    radial-gradient(ellipse 85% 52% at 100% 104%, rgba(179, 38, 30, 0.10), transparent 64%),
-    radial-gradient(ellipse 65% 45% at 0% 100%, rgba(255, 122, 60, 0.06), transparent 68%);
+    radial-gradient(ellipse 100% 58% at 50% -8%, rgba(225, 29, 42, 0.15), transparent 60%),
+    radial-gradient(ellipse 85% 52% at 100% 104%, rgba(155, 27, 22, 0.12), transparent 64%),
+    radial-gradient(ellipse 65% 45% at 0% 100%, rgba(242, 54, 69, 0.07), transparent 68%);
   pointer-events: none;
   z-index: 0;
 }
@@ -336,7 +341,7 @@ body::after {
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(rgba(255, 122, 60, 0.045) 1px, transparent 1px);
+    radial-gradient(rgba(225, 29, 42, 0.05) 1px, transparent 1px);
   background-size: 22px 22px;
   pointer-events: none;
   z-index: 0;

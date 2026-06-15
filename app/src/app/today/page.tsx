@@ -150,7 +150,7 @@ export default function TodayPage() {
           style={{
             border: "1px solid var(--lava-border-strong)",
             background:
-              "radial-gradient(120% 150% at 100% 0%, rgba(255,106,42,0.13) 0%, transparent 55%)," +
+              "radial-gradient(120% 150% at 100% 0%, rgba(225, 29, 42,0.13) 0%, transparent 55%)," +
               "linear-gradient(135deg, rgba(26,20,14,0.95) 0%, var(--vault-bg) 70%)",
           }}
         >
@@ -194,9 +194,9 @@ export default function TodayPage() {
       <section
         className="gtp-fade-up relative overflow-hidden rounded-[14px] px-5 py-5 sm:px-7 sm:py-6"
         style={{
-          border: "1px solid rgba(255,122,60,0.35)",
+          border: "1px solid rgba(242, 54, 69,0.35)",
           background:
-            "radial-gradient(120% 150% at 0% 0%, rgba(255,122,60,0.10) 0%, transparent 55%)," +
+            "radial-gradient(120% 150% at 0% 0%, rgba(242, 54, 69,0.10) 0%, transparent 55%)," +
             "linear-gradient(135deg, rgba(26,20,14,0.95) 0%, var(--vault-bg) 70%)",
         }}
       >

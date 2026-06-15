@@ -96,7 +96,7 @@ export default function BankBuilderPage() {
       {/* SECTION 1 — hero + status */}
       <section
         className="gtp-fade-up relative overflow-hidden rounded-2xl px-5 py-6 sm:px-7"
-        style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(240,199,94,0.08), rgba(26, 16, 11,0.25))" }}
+        style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(242, 54, 69,0.08), rgba(26, 16, 11,0.25))" }}
       >
         <div aria-hidden className="gtp-field-grid absolute inset-0" style={{ opacity: 0.5 }} />
         <div
@@ -202,8 +202,8 @@ export default function BankBuilderPage() {
                 key={s.step}
                 className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-4 py-2.5 text-[12.5px]"
                 style={{
-                  border: isActive ? "1px solid rgba(240,199,94,0.40)" : "1px solid var(--vault-rule)",
-                  background: isActive ? "rgba(240,199,94,0.06)" : "rgba(26, 16, 11,0.40)",
+                  border: isActive ? "1px solid rgba(242, 54, 69,0.40)" : "1px solid var(--vault-rule)",
+                  background: isActive ? "rgba(242, 54, 69,0.06)" : "rgba(26, 16, 11,0.40)",
                 }}
               >
                 <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{day}</span>
@@ -281,7 +281,7 @@ export default function BankBuilderPage() {
       {completed ? (
         <section
           className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-6"
-          style={{ border: "1px solid var(--lava-border-strong)", background: "linear-gradient(160deg, rgba(255,106,42,0.15), rgba(240,199,94,0.06) 55%, var(--lava-panel))", boxShadow: "var(--vault-shadow-elevated)" }}
+          style={{ border: "1px solid var(--lava-border-strong)", background: "linear-gradient(160deg, rgba(225, 29, 42,0.15), rgba(242, 54, 69,0.06) 55%, var(--lava-panel))", boxShadow: "var(--vault-shadow-elevated)" }}
           aria-label="Road to $10K completed"
         >
           <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-44 w-44 translate-x-12 -translate-y-14 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(12px)", opacity: 0.5 }} />
@@ -319,7 +319,7 @@ export default function BankBuilderPage() {
       ) : isFinalStep ? (
         <section
           className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-5"
-          style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(255,106,42,0.10), rgba(26, 16, 11,0.30))" }}
+          style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(225, 29, 42,0.10), rgba(26, 16, 11,0.30))" }}
           aria-label="Road to $10,000"
         >
           <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-10 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(8px)", opacity: 0.5 }} />
@@ -337,7 +337,7 @@ export default function BankBuilderPage() {
               {step5Target.legs.map((leg) => {
                 const tone = leg.state === "ready"
                   ? { c: "#6EE7A8", bg: "rgba(110,231,168,0.12)", b: "rgba(110,231,168,0.35)", label: "READY" }
-                  : { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(255,122,60,0.32)", label: "PENDING" };
+                  : { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(242, 54, 69,0.32)", label: "PENDING" };
                 return (
                   <div key={leg.label} className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(26, 16, 11, 0.45)", border: "1px solid var(--vault-rule)" }}>
                     <div className="flex items-center justify-between gap-2">
@@ -376,7 +376,7 @@ export default function BankBuilderPage() {
       {completed ? (
         <section
           className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-6 text-center"
-          style={{ border: "1px solid var(--lava-border-strong)", background: "linear-gradient(160deg, rgba(255,106,42,0.13), rgba(240,199,94,0.05) 55%, var(--lava-panel))" }}
+          style={{ border: "1px solid var(--lava-border-strong)", background: "linear-gradient(160deg, rgba(225, 29, 42,0.13), rgba(242, 54, 69,0.05) 55%, var(--lava-panel))" }}
           aria-label="Next Bank Builder coming soon"
         >
           <div aria-hidden className="gtp-heat-pulse absolute left-1/2 top-0 h-40 w-40 -translate-x-1/2 -translate-y-16 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(14px)", opacity: 0.4 }} />

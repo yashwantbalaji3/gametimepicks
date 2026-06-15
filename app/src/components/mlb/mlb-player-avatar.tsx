@@ -90,7 +90,7 @@ export default function MlbPlayerAvatar({
         // A faint role-tinted ring so pitchers/batters are visually
         // distinguishable at a glance even without a badge.
         boxShadow: role
-          ? `inset 0 0 0 1px ${role === "pitcher" ? "rgba(212, 175, 55, 0.40)" : "rgba(111, 230, 255, 0.30)"}`
+          ? `inset 0 0 0 1px ${role === "pitcher" ? "rgba(242, 54, 69, 0.40)" : "rgba(111, 230, 255, 0.30)"}`
           : undefined,
       }}
       role="img"

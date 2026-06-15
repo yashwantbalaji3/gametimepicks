@@ -90,9 +90,9 @@ export default function SettledGameDetail({
 }: Props) {
   const accent = tone === "success" ? "var(--vault-success)" : "var(--vault-gold-bright)";
   const accentRim =
-    tone === "success" ? "rgba(74, 222, 128, 0.30)" : "rgba(212, 175, 55, 0.30)";
+    tone === "success" ? "rgba(74, 222, 128, 0.30)" : "rgba(242, 54, 69, 0.30)";
   const accentBg =
-    tone === "success" ? "rgba(74, 222, 128, 0.08)" : "rgba(212, 175, 55, 0.06)";
+    tone === "success" ? "rgba(74, 222, 128, 0.08)" : "rgba(242, 54, 69, 0.06)";
   const smallBucket = decisive < 5;
 
   return (

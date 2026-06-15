@@ -78,7 +78,7 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
   return (
     <div className="flex flex-col gap-3">
       {anyPreLineup ? (
-        <div className="flex items-center gap-2 rounded-[8px] px-3 py-2" style={{ background: "rgba(240,199,94,0.06)", border: "1px solid rgba(240,199,94,0.25)" }}>
+        <div className="flex items-center gap-2 rounded-[8px] px-3 py-2" style={{ background: "rgba(242, 54, 69,0.06)", border: "1px solid rgba(242, 54, 69,0.25)" }}>
           <span aria-hidden style={{ fontSize: 12 }}>ⓘ</span>
           <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
             Lineups usually confirm closer to kickoff — player props stay projection-based until then.

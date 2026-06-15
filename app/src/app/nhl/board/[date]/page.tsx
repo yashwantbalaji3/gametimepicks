@@ -69,8 +69,8 @@ function DateNotFound({ date }: { date: string }) {
             className="vault-glow-hover rounded-[3px]"
             style={{
               padding: "10px 14px",
-              border: "1px solid rgba(212, 175, 55, 0.30)",
-              background: "rgba(212, 175, 55, 0.06)",
+              border: "1px solid rgba(242, 54, 69, 0.30)",
+              background: "rgba(242, 54, 69, 0.06)",
               color: "var(--vault-gold-bright)",
               textDecoration: "none",
               fontSize: 12,

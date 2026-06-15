@@ -264,7 +264,7 @@ export default function SearchableSelect({
                     className="w-full text-left px-3 py-2 flex items-center gap-2.5"
                     style={{
                       background: isActive
-                        ? "rgba(240,199,94,0.10)"
+                        ? "rgba(242, 54, 69,0.10)"
                         : "transparent",
                       borderLeft: isSelected
                         ? "3px solid var(--vault-gold-bright)"

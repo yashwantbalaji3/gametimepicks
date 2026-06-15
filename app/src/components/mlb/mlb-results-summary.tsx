@@ -33,7 +33,7 @@ export default function MlbResultsSummary({ report }: Props) {
           className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 8px rgba(240, 199, 94, 0.6)",
+            boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
           }}
         />
         <span
@@ -50,7 +50,7 @@ export default function MlbResultsSummary({ report }: Props) {
             color: "var(--vault-gold-bright)",
             fontSize: "clamp(48px, 10vw, 96px)",
             textShadow:
-              "0 0 24px rgba(240, 199, 94, 0.45), 0 0 8px rgba(212, 175, 55, 0.55)",
+              "0 0 24px rgba(242, 54, 69, 0.45), 0 0 8px rgba(242, 54, 69, 0.55)",
           }}
         >
           {hit}
@@ -90,7 +90,7 @@ export default function MlbResultsSummary({ report }: Props) {
           className="mt-5 px-4 py-3 rounded-[3px] flex items-start gap-3"
           style={{
             background: "var(--vault-warn-dim)",
-            border: "1px solid rgba(240, 199, 94, 0.30)",
+            border: "1px solid rgba(242, 54, 69, 0.30)",
           }}
         >
           <span
@@ -116,7 +116,7 @@ export default function MlbResultsSummary({ report }: Props) {
           className="mt-3 px-4 py-3 rounded-[3px] flex items-start gap-3"
           style={{
             background: "var(--vault-warn-dim)",
-            border: "1px solid rgba(240, 199, 94, 0.30)",
+            border: "1px solid rgba(242, 54, 69, 0.30)",
           }}
         >
           <span

@@ -178,7 +178,7 @@ export default function WorldCupLandingPage() {
           {teams.map((t) => (
             <Link key={t.code + t.name} href={`/world-cup/team/${encodeURIComponent(t.code)}`}
               className="rounded-[6px] flex flex-col items-center gap-1 py-3 vault-glow-hover"
-              style={{ background: "rgba(26, 16, 11,0.55)", border: t.isHost ? "1px solid rgba(240, 199, 94, 0.55)" : "1px solid var(--vault-border)", textDecoration: "none" }}
+              style={{ background: "rgba(26, 16, 11,0.55)", border: t.isHost ? "1px solid rgba(242, 54, 69, 0.55)" : "1px solid var(--vault-border)", textDecoration: "none" }}
               title={`${t.name} · Group ${t.group}${t.isHost ? " · Host" : ""}`}>
               <FlagBadge code={t.code} size="lg" ariaLabel={`${t.name} flag`} />
               <span className="font-mono uppercase tracking-[0.10em]" style={{ color: t.isHost ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 10 }}>{t.name}</span>
@@ -281,7 +281,7 @@ export default function WorldCupLandingPage() {
       {!projectionsLive && methodologyReview ? (
         <div className="rounded-[8px] px-4 py-4 flex flex-col gap-2" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <div className="flex items-center gap-2">
-            <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--vault-warn)", boxShadow: "0 0 6px rgba(212,175,55,0.55)" }} />
+            <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--vault-warn)", boxShadow: "0 0 6px rgba(242, 54, 69,0.55)" }} />
             <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-warn)", fontSize: 10 }}>Model projections under methodology review</span>
           </div>
           <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
@@ -475,7 +475,7 @@ export default function WorldCupLandingPage() {
       </section>
       <section className="rounded-[6px] px-4 py-4" style={{ background: "rgba(26, 16, 11,0.45)", border: "1px solid var(--vault-border)" }} aria-label="Squad status">
         <div className="flex items-center gap-2 mb-2">
-          <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--vault-warn)", boxShadow: "0 0 6px rgba(212, 175, 55, 0.55)" }} />
+          <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--vault-warn)", boxShadow: "0 0 6px rgba(242, 54, 69, 0.55)" }} />
           <span className="font-mono uppercase tracking-[0.18em]" style={{ color: "var(--vault-warn)", fontSize: 10 }}>Squads / lineups</span>
         </div>
         <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{meta?.squadStatus?.notes}</p>

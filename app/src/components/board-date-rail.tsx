@@ -54,7 +54,7 @@ export default function BoardDateRail({
           className="inline-block w-1 h-1 rounded-full"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 4px rgba(240, 199, 94, 0.6)",
+            boxShadow: "0 0 4px rgba(242, 54, 69, 0.6)",
           }}
         />
         <span
@@ -80,8 +80,8 @@ export default function BoardDateRail({
           const tone =
             e.status === "settled"
               ? {
-                  border: "rgba(240, 199, 94, 0.40)",
-                  bgIdle: "rgba(240, 199, 94, 0.06)",
+                  border: "rgba(242, 54, 69, 0.40)",
+                  bgIdle: "rgba(242, 54, 69, 0.06)",
                   labelColor: "var(--vault-gold-bright)",
                 }
               : e.status === "live"
@@ -109,13 +109,13 @@ export default function BoardDateRail({
               className="shrink-0 flex flex-col gap-1.5 rounded-[8px] px-3.5 py-2.5 transition-all hover:-translate-y-0.5"
               style={{
                 background: isActive
-                  ? "linear-gradient(155deg, rgba(240, 199, 94, 0.18), rgba(240, 199, 94, 0.04))"
+                  ? "linear-gradient(155deg, rgba(242, 54, 69, 0.18), rgba(242, 54, 69, 0.04))"
                   : tone.bgIdle,
                 border: isActive
-                  ? "1px solid rgba(240, 199, 94, 0.55)"
+                  ? "1px solid rgba(242, 54, 69, 0.55)"
                   : `1px solid ${tone.border}`,
                 boxShadow: isActive
-                  ? "0 6px 18px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(240, 199, 94, 0.18)"
+                  ? "0 6px 18px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(242, 54, 69, 0.18)"
                   : "none",
                 minWidth: 138,
                 color: "inherit",

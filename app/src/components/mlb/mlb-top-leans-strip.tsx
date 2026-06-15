@@ -90,7 +90,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
             className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 8px rgba(240, 199, 94, 0.6)",
+              boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
             }}
           />
           <span
@@ -120,7 +120,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
                 border: `1px solid ${
                   isHigh
                     ? "rgba(74, 222, 128, 0.30)"
-                    : "rgba(240, 199, 94, 0.25)"
+                    : "rgba(242, 54, 69, 0.25)"
                 }`,
                 background:
                   "linear-gradient(180deg, rgba(14, 21, 48, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
@@ -163,13 +163,13 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
                     textTransform: "uppercase",
                     background: isHigh
                       ? "rgba(74, 222, 128, 0.10)"
-                      : "rgba(240, 199, 94, 0.10)",
+                      : "rgba(242, 54, 69, 0.10)",
                     borderRadius: 2,
                     padding: "2px 6px",
                     border: `1px solid ${
                       isHigh
                         ? "rgba(74, 222, 128, 0.30)"
-                        : "rgba(240, 199, 94, 0.30)"
+                        : "rgba(242, 54, 69, 0.30)"
                     }`,
                   }}
                 >

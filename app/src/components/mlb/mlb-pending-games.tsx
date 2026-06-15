@@ -22,7 +22,7 @@ export default function MlbPendingGames({ games }: Props) {
           className="inline-block w-1.5 h-1.5 rounded-full"
           style={{
             background: "var(--vault-warn)",
-            boxShadow: "0 0 8px rgba(212, 175, 55, 0.55)",
+            boxShadow: "0 0 8px rgba(242, 54, 69, 0.55)",
           }}
         />
         <span

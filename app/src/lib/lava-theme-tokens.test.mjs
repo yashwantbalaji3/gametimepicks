@@ -1,9 +1,9 @@
 /**
- * Hot-lava casino theme contract: the base surfaces must read WARM volcanic (not the
- * old cool graphite), the universal card borders/rules must be EMBER (not gold-tinted),
- * a premium geometric headline face must be wired, and readability (warm cream text)
- * preserved. Source-level assertions on globals.css + tailwind config, matching the
- * repo's component-test convention.
+ * V1 immersive crimson-black theme contract (revamp): the base surfaces read NEUTRAL
+ * near-black (not warm volcanic, not cool graphite), the universal card borders/rules are
+ * CRIMSON (not gold/ember), a premium geometric headline face is wired, and text is
+ * high-contrast. Gold survives ONLY on the dedicated crown token (--vault-gold).
+ * Source-level assertions on globals.css + tailwind config, matching the repo convention.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -12,11 +12,11 @@ import fs from "node:fs";
 const css = fs.readFileSync("src/app/globals.css", "utf8");
 const tw = fs.readFileSync("tailwind.config.ts", "utf8");
 
-test("canonical --lava-* design system exists with warm volcanic + ember values", () => {
-  assert.ok(css.includes("--lava-bg: #0C0806;"), "lava base is warm volcanic");
-  assert.ok(css.includes("--lava-card: #1C140E;"), "lava-glass card surface defined");
-  assert.ok(css.includes("--lava-border: rgba(255, 120, 60, 0.16);"), "lava ember border defined");
-  assert.ok(css.includes("--lava-text: #F8F4E9;"), "lava text is warm cream");
+test("canonical --lava-* design system is the V1 crimson-black palette", () => {
+  assert.ok(css.includes("--lava-bg: #0A0A0B;"), "base is V1 neutral near-black");
+  assert.ok(css.includes("--lava-card: #17171A;"), "card surface is V1 dark");
+  assert.ok(css.includes("--lava-border: rgba(225, 29, 42, 0.20);"), "border is crimson");
+  assert.ok(css.includes("--lava-text: #F5F5F7;"), "text is high-contrast white");
 });
 
 test("legacy --vault-* tokens reference the lava system (lava is the source of truth)", () => {
@@ -26,10 +26,11 @@ test("legacy --vault-* tokens reference the lava system (lava is the source of t
   assert.ok(!css.includes("--vault-bg: #0A0B10;"), "old cool graphite base removed");
 });
 
-test("universal section rule + shell border are ember (lava sitewide), gold kept as crown", () => {
-  assert.ok(css.includes("--vault-rule: rgba(255, 120, 60, 0.10);"), "section rule is ember");
-  assert.ok(css.includes("--gtp-shell-border:    rgba(255, 120, 60, 0.18);"), "shell border is ember");
-  assert.ok(css.includes("--vault-gold-bright: #F0C75E;"), "gold crown accent preserved");
+test("universal section rule + shell border are crimson (V1 sitewide), gold kept only as crown", () => {
+  assert.ok(css.includes("--vault-rule: rgba(225, 29, 42, 0.12);"), "section rule is crimson");
+  assert.ok(css.includes("--gtp-shell-border:    rgba(225, 29, 42, 0.20);"), "shell border is crimson");
+  assert.ok(css.includes("--vault-gold-bright: #F23645;"), "site accent flipped to V1 crimson");
+  assert.ok(css.includes("--vault-gold: #D4AF37;"), "true gold preserved for the Bank Builder crown");
 });
 
 test("card surfaces are warm volcanic, not cool navy (no hardcoded rgba(7,11,26))", () => {
