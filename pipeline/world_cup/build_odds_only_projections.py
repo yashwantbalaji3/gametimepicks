@@ -84,10 +84,13 @@ def http_json(url: str) -> tuple[object, str | None]:
 def upcoming_events(api_key: str, date: str) -> list[dict]:
     body, rem = http_json(f"{API_BASE}/sports/{SPORT_KEY}/events?apiKey={api_key}")
     print(f"[wc] events listed · credits remaining {rem}")
+    now = datetime.now(timezone.utc)
     out = []
     for e in body if isinstance(body, list) else []:
-        dt = datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00")).astimezone(ET)
-        if dt.strftime("%Y-%m-%d") == date:
+        kickoff = datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
+        # ET-date == slate date AND not yet kicked off (a started/finished match is never a
+        # pregame projection — /events can briefly still list a just-commenced game).
+        if kickoff.astimezone(ET).strftime("%Y-%m-%d") == date and kickoff > now:
             out.append(e)
     return out
 
@@ -431,11 +434,12 @@ def empty_player_props(date: str) -> dict:
     API-Football — so we mark unavailable rather than show odds with no stat context."""
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(), "sport": "world_cup", "date": date,
-        "disclaimer": "Player props unavailable. Anytime-goalscorer & shots odds are available via "
-                      "The Odds API, but the recent-form / lineup / stat layer requires API-Football "
-                      "(API_FOOTBALL_KEY) — not configured. No stale or fabricated props shown.",
+        "disclaimer": "Player props integration in progress. Anytime-goalscorer & shots odds are "
+                      "available via The Odds API and API-Football player data is now configured; "
+                      "the full player-match + per-player recent goal/shot form + hit-rate layer is "
+                      "the next increment. No stale or fabricated props are shown in the meantime.",
         "lineupsPosted": False, "projectionCount": 0, "publicCount": 0, "parlayEligibleCount": 0,
-        "status": "unavailable_needs_api_football",
+        "status": "integration_pending",
         "byMarket": {}, "matchedPlayers": 0, "unmatchedPlayers": 0, "matches": [],
     }
 

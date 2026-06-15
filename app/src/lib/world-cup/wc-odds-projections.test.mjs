@@ -56,10 +56,11 @@ test("double chance uses REAL book odds + model probs from the 3-way (not fabric
   }
 });
 
-test("player props are FAILED CLOSED — no stale data", () => {
-  assert.equal(players.projectionCount, 0, "no player props shown");
-  assert.ok(/unavailable/i.test(players.status ?? ""), "status marks unavailable");
-  assert.ok(/API[-_ ]?Football/i.test(players.disclaimer ?? ""), "explains the API-Football gap");
+test("player props are gated honestly — no stale or fabricated data", () => {
+  assert.equal(players.projectionCount, 0, "no player props shown yet");
+  // unavailable (no key) OR integration_pending (key present, full build is the next increment).
+  assert.ok(/unavailable|integration_pending/i.test(players.status ?? ""), "status is an honest gate");
+  assert.ok(/API[-_ ]?Football/i.test(players.disclaimer ?? ""), "explains the player-prop stat layer");
   assert.equal(players.date, proj.date, "player-props artifact is current-dated (not stale June 12)");
   assert.deepEqual(players.matches, [], "no stale player rows");
 });

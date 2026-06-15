@@ -48,6 +48,19 @@ test("lanes are differentiated (distinct thesis / risk tier or sport mix)", () =
   assert.ok(distinct, "lanes carry different theses / prices");
 });
 
+test("lanes use only safer MLB markets — no risky Over 1.5+ hits", () => {
+  for (const lane of dual.lanes) {
+    for (const leg of lane.legs) {
+      if (leg.sport !== "mlb") continue;
+      // batter_hits "Over" must be the 0.5 line (1+ hit), never Over 1.5/2.5.
+      const isHitsOver = leg.market === "batter_hits" && /\bOver\b/.test(leg.pick);
+      if (isHitsOver) {
+        assert.ok(/Over 0\.5\b/.test(leg.pick), `risky MLB Over-1.5+ hits leg leaked: ${leg.pick}`);
+      }
+    }
+  }
+});
+
 test("completed first Bank Builder run is preserved untouched", () => {
   assert.equal(firstRun.currentBankrollUnits, 10376.17);
   assert.equal(firstRun.record.wins, 5);

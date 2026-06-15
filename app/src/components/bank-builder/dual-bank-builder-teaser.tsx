@@ -39,6 +39,40 @@ function LegVisual({ leg }: { leg: DualLaneLeg }) {
   return <span className="shrink-0" style={{ fontSize: 14 }} aria-hidden>{id}</span>;
 }
 
+/** Compact 5-step ladder path: Step 1 (live, real $100→return) → … → $10K crown.
+ *  Future steps are unfabricated placeholders (no fake projected dollar amounts). */
+function StepLadder({ lane, accent }: { lane: DualLane; accent: string }) {
+  const steps = [
+    { n: 1, label: `$100→$${Math.round(lane.projectedReturn)}`, active: true },
+    { n: 2, label: "Step 2" },
+    { n: 3, label: "Step 3" },
+    { n: 4, label: "Step 4" },
+    { n: 5, label: "👑 $10K", crown: true },
+  ];
+  return (
+    <div className="mt-2.5 flex items-center gap-1 overflow-x-auto" aria-label="Ladder path: Step 1 of 5 toward the $10,000 crown">
+      {steps.map((s, i) => (
+        <span key={s.n} className="flex items-center gap-1 shrink-0">
+          <span
+            className="font-mono rounded px-1.5 py-1 whitespace-nowrap"
+            style={{
+              fontSize: 8.5, letterSpacing: "0.04em",
+              color: s.active ? "#120A07" : s.crown ? "var(--vault-gold)" : "var(--vault-text-faint)",
+              background: s.active ? accent : s.crown ? "rgba(212,175,55,0.12)" : "rgba(26,16,11,0.6)",
+              border: s.crown ? "1px solid rgba(212,175,55,0.4)" : "1px solid var(--vault-rule)",
+              fontWeight: s.active || s.crown ? 700 : 500,
+              boxShadow: s.active ? `0 0 8px ${accent}55` : "none",
+            }}
+          >
+            {s.active ? `① ${s.label}` : s.label}
+          </span>
+          {i < steps.length - 1 ? <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>→</span> : null}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function LaneCard({ lane }: { lane: DualLane }) {
   const { accent, glow } = LANE_ACCENT[lane.lane] ?? LANE_ACCENT.A;
   return (
@@ -73,6 +107,7 @@ function LaneCard({ lane }: { lane: DualLane }) {
           </div>
         ))}
       </div>
+      <StepLadder lane={lane} accent={accent} />
       <p className="relative mt-2 text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
         {lane.whyThisLane} Joint model probability {Math.round(lane.combinedModelProbability * 100)}% — a two-leg parlay is uncertain. Paper-only; settles on official results.
       </p>
