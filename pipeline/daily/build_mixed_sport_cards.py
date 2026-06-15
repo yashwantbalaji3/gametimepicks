@@ -40,11 +40,22 @@ def _tier(american: int) -> str:
     return "Longshot"
 
 
-def _wc_legs() -> list[dict]:
-    """Parlay-eligible World Cup legs (team markets only for mixed cards — never pre-lineup)."""
+def _wc_legs(date: str) -> list[dict]:
+    """Parlay-eligible World Cup legs (team markets only for mixed cards — never pre-lineup).
+
+    STALE-DATE GATE (June 15): only include matches whose own date == the run
+    date. The WC `latest.json` is whatever the last credentialed pull produced;
+    without a fresh API-Football pull for `date` it is stale, and stale soccer
+    must never feed an active card. A mismatched/absent file ⇒ no WC legs.
+    """
     out = []
     try:
-        for p in json.loads((WC / "projections" / "latest.json").read_text()).get("matches", []):
+        doc = json.loads((WC / "projections" / "latest.json").read_text())
+        if doc.get("date") != date:
+            return out  # stale WC projections — fail closed, no soccer legs today
+        for p in doc.get("matches", []):
+            if p.get("date") not in (None, date):
+                continue
             if p.get("parlayEligible") and p.get("americanOdds") is not None:
                 out.append({
                     "sport": "world_cup", "sportLabel": "World Cup", "gameId": p.get("matchId"),
@@ -110,7 +121,7 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
-    wc, opt = _wc_legs(), _opt_legs(args.date)
+    wc, opt = _wc_legs(args.date), _opt_legs(args.date)
     pools = {"world_cup": wc}
     for l in opt:
         pools.setdefault(l["sport"], []).append(l)
