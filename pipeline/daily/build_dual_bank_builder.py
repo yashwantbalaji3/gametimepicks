@@ -249,7 +249,28 @@ def build(date: str) -> dict:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Launch Dual Bank Builder lanes from today's eligible legs.")
     ap.add_argument("--date", required=True)
+    ap.add_argument(
+        "--force-v1-launch",
+        action="store_true",
+        help="Override the V2 eligibility gate (see docs/audits/"
+        "june16-bankbuilder-run2-step1-failure-audit.md). Required to launch a new run while "
+        "the Bank Builder V2 survival-score gate does not yet exist.",
+    )
     args = ap.parse_args(argv)
+
+    # LAUNCH GUARD — after Run #2 went 0/2 on volatile single-player props, do NOT auto-create a
+    # new ladder until the Bank Builder V2 eligibility gate (survival score: volatility / DNP /
+    # lineup-confirmation / odds-band) exists. Fail closed WITHOUT touching the existing artifact
+    # so the settled Run #2 results stay intact. An operator can still override explicitly.
+    v2_gate = ROOT / "pipeline" / "daily" / "bank_builder_v2_eligibility.py"
+    if not v2_gate.exists() and not args.force_v1_launch:
+        print("[dual-build] REFUSED — Bank Builder V2 eligibility gate not found "
+              f"({v2_gate.relative_to(ROOT)}).")
+        print("  Run #2 went 0/2 — see docs/audits/june16-bankbuilder-run2-step1-failure-audit.md.")
+        print("  Build the V2 survival-score gate first, or pass --force-v1-launch to override.")
+        print("  Existing dual-lanes artifact left UNTOUCHED.")
+        return 2
+
     out = build(args.date)
     BB.mkdir(parents=True, exist_ok=True)
     for name in (f"dual-lanes-{args.date}.json", "dual-lanes-latest.json"):

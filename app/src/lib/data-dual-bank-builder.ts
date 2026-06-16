@@ -39,6 +39,9 @@ export interface DualLaneLeg {
   homeForm?: { formString: string; last5: Array<{ date: string; opponent: string; score: string; result: string; competition: string }> } | null;
   awayForm?: { formString: string; last5: Array<{ date: string; opponent: string; score: string; result: string; competition: string }> } | null;
   outcomes?: Array<{ label: string; side: string; modelProbability: number; americanOdds: number | null }>;
+  // Settlement (set once the step is officially graded).
+  result?: "won" | "lost" | "void" | "pending" | "needs_review" | string;
+  final?: string;
 }
 
 export interface DualLane {
@@ -58,6 +61,10 @@ export interface DualLane {
   dataQuality: string;
   startTimes: Array<string | null>;
   settlementSource?: string;
+  // Settlement (set once the lane's step is officially graded).
+  return?: number;
+  profit?: number | null;
+  settledAt?: string;
 }
 
 export interface DualBankBuilder {
@@ -72,13 +79,22 @@ export interface DualBankBuilder {
   lanes: DualLane[];
   priceSource?: string;
   statSource?: string;
+  // Settlement summary (once closed).
+  runStatus?: string;
+  settledAt?: string;
+  lanesSurvived?: number;
+  overallResult?: string;
+  advancedToStep?: number | null;
 }
 
 export function loadDualBankBuilder(): DualBankBuilder | null {
   try {
     const p = path.join(process.cwd(), "public", "data", "bank-builder", "dual-lanes-latest.json");
     const d = JSON.parse(fs.readFileSync(p, "utf8")) as DualBankBuilder;
-    if (d.status === "pending" && Array.isArray(d.lanes) && d.lanes.length > 0) return d;
+    // Render while pending (live lanes) AND once settled/closed (results) — only the
+    // empty "not started" state falls through to the teaser.
+    const ok = d.status === "pending" || d.status === "settled" || d.status === "closed";
+    if (ok && Array.isArray(d.lanes) && d.lanes.length > 0) return d;
     return null;
   } catch {
     return null;

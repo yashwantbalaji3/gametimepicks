@@ -1,9 +1,9 @@
 {
   "generatedAt": "2026-06-15T22:47:14.387168+00:00",
   "date": "2026-06-15",
-  "status": "pending",
+  "status": "settled",
   "type": "dual_bank_builder",
-  "runStatus": "active",
+  "runStatus": "closed",
   "runNumber": 2,
   "startDate": "2026-06-15",
   "name": "Dual Bank Builder",
@@ -23,7 +23,7 @@
       "projectedReturn": 188.24,
       "projectedProfit": 88.24,
       "combinedModelProbability": 0.6271,
-      "status": "pending",
+      "status": "lost",
       "legs": [
         {
           "sport": "world_cup",
@@ -159,7 +159,9 @@
               "americanOdds": -340
             }
           ],
-          "modelPredict": "81% \u2014 Iran or Draw"
+          "modelPredict": "81% \u2014 Iran or Draw",
+          "result": "won",
+          "final": "Iran 2-2 New Zealand (FT)"
         },
         {
           "sport": "mlb",
@@ -226,7 +228,9 @@
               "tone": "default"
             }
           ],
-          "modelPredict": "77% to clear 0.5 hits"
+          "modelPredict": "77% to clear 0.5 hits",
+          "result": "lost",
+          "final": "Troy Johnston 0 hits (Over 0.5) \u2014 official box score gamePk 824666"
         }
       ],
       "whyThisLane": "The two highest model-probability eligible legs that combine near a +100 return, from different games \u2014 the steadier lane.",
@@ -235,7 +239,10 @@
         "2026-06-16T01:00:00Z",
         "2026-06-16T00:06:00Z"
       ],
-      "settlementSource": "official box score (MLB Stats API) / official final score (API-Football), regulation 90"
+      "settlementSource": "official box score (MLB Stats API) / official final score (API-Football), regulation 90",
+      "return": 0,
+      "profit": -100,
+      "settledAt": "2026-06-16T14:35:09.552075+00:00"
     },
     {
       "lane": "B",
@@ -248,7 +255,7 @@
       "projectedReturn": 215.11,
       "projectedProfit": 115.11,
       "combinedModelProbability": 0.6825,
-      "status": "pending",
+      "status": "lost",
       "legs": [
         {
           "sport": "mlb",
@@ -315,7 +322,9 @@
               "tone": "default"
             }
           ],
-          "modelPredict": "84% to stay under 1.5 hits"
+          "modelPredict": "84% to stay under 1.5 hits",
+          "result": "lost",
+          "final": "Mike Trout 2 hits (Under 1.5) \u2014 official box score gamePk 825071"
         },
         {
           "sport": "mlb",
@@ -382,7 +391,9 @@
               "tone": "default"
             }
           ],
-          "modelPredict": "81% to clear 0.5 hits"
+          "modelPredict": "81% to clear 0.5 hits",
+          "result": "void",
+          "final": "Samad Taylor DNP (no batting appearance)"
         }
       ],
       "whyThisLane": "A separate two-leg pair (no shared game with Lane A) at a longer combined price \u2014 a differentiated, higher-variance thesis.",
@@ -391,7 +402,10 @@
         "2026-06-16T01:41:00Z",
         "2026-06-15T23:46:00Z"
       ],
-      "settlementSource": "official box score (MLB Stats API) / official final score (API-Football), regulation 90"
+      "settlementSource": "official box score (MLB Stats API) / official final score (API-Football), regulation 90",
+      "return": 0,
+      "profit": -100,
+      "settledAt": "2026-06-16T14:35:10.796948+00:00"
     }
   ],
   "diagnostics": {
@@ -401,5 +415,9 @@
   },
   "priceSource": "the_odds_api",
   "statSource": "api_football",
-  "legsEnriched": 4
+  "legsEnriched": 4,
+  "settledAt": "2026-06-16T14:35:10.796971+00:00",
+  "lanesSurvived": 0,
+  "overallResult": "0/2 lanes survived",
+  "advancedToStep": null
 }
