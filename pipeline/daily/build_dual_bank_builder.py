@@ -59,8 +59,8 @@ def mlb_safe_market(market: str | None, side: str, line) -> bool:
     return False
 
 
-def mlb_legs(now: datetime) -> list[dict]:
-    p = DATA / "mlb" / "boards" / "2026-06-15.json"
+def mlb_legs(now: datetime, date: str = "2026-06-15") -> list[dict]:
+    p = DATA / "mlb" / "boards" / f"{date}.json"
     try:
         leans = json.loads(p.read_text()).get("leans", [])
     except Exception:
@@ -203,7 +203,7 @@ def make_lane(lane: str, name: str, thesis: str, legs: tuple[dict, dict], why: s
 
 def build(date: str) -> dict:
     now = now_utc()
-    pool = mlb_legs(now) + wc_legs(now)
+    pool = mlb_legs(now, date) + wc_legs(now)
     diag = {"eligibleLegs": len(pool), "mlb": len([l for l in pool if l["sport"] == "mlb"]),
             "world_cup": len([l for l in pool if l["sport"] == "world_cup"])}
     if len(pool) < 4:
@@ -258,17 +258,17 @@ def main(argv=None) -> int:
     )
     args = ap.parse_args(argv)
 
-    # LAUNCH GUARD — after Run #2 went 0/2 on volatile single-player props, do NOT auto-create a
-    # new ladder until the Bank Builder V2 eligibility gate (survival score: volatility / DNP /
-    # lineup-confirmation / odds-band) exists. Fail closed WITHOUT touching the existing artifact
-    # so the settled Run #2 results stay intact. An operator can still override explicitly.
-    v2_gate = ROOT / "pipeline" / "daily" / "bank_builder_v2_eligibility.py"
-    if not v2_gate.exists() and not args.force_v1_launch:
-        print("[dual-build] REFUSED — Bank Builder V2 eligibility gate not found "
-              f"({v2_gate.relative_to(ROOT)}).")
+    # LAUNCH GUARD — the V1 selector is SUPERSEDED by the Bank Builder V2 survival gate
+    # (pipeline.daily.bank_builder_v2_eligibility). V1 picks on model probability alone and does
+    # NOT apply the volatility / DNP-lineup / odds-band survival score that the Run #2 failure
+    # (0/2) showed is required. Refuse to launch through V1 (without touching the settled artifact)
+    # unless an operator explicitly overrides; the supported launch path is the V2 runner.
+    if not args.force_v1_launch:
+        print("[dual-build] REFUSED — the V1 selector is superseded by Bank Builder V2.")
+        print("  Use:  python -m pipeline.daily.bank_builder_v2_eligibility --date <date> --launch")
+        print("  V2 only launches when the slate offers enough independent, non-fragile legs.")
         print("  Run #2 went 0/2 — see docs/audits/june16-bankbuilder-run2-step1-failure-audit.md.")
-        print("  Build the V2 survival-score gate first, or pass --force-v1-launch to override.")
-        print("  Existing dual-lanes artifact left UNTOUCHED.")
+        print("  Pass --force-v1-launch to override. Existing dual-lanes artifact left UNTOUCHED.")
         return 2
 
     out = build(args.date)

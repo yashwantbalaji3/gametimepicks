@@ -18,13 +18,19 @@ import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
 import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
+import { gameSlug } from "@/lib/game-detail";
+import { normTeamName } from "@/lib/world-cup/market-outlook";
+import PlayerAvatar from "@/components/ui/player-avatar";
 import { normalizeWcCards, normalizeOptimizerSlips, loadDailyMixedCards, type SportSummary } from "@/lib/normalize";
 import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
 import FlagBadge from "@/components/flag-badge";
 import { loadWorldCupFlexLeg, loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
 import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
-import DualBankBuilderTeaser from "@/components/bank-builder/dual-bank-builder-teaser";
+import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
+import BankBuilderStatusRail from "@/components/bank-builder/bank-builder-status-rail";
+import TodaysParlays from "@/components/todays-parlays";
+// (DualBankBuilderTeaser now renders only on /bank-builder; Today uses the compact status rail.)
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
 import UfcExpandedFightCards from "@/components/ufc/expanded-fight-cards";
 import SuggestedCard from "@/components/ui/suggested-card";
@@ -73,8 +79,6 @@ export default function TodayPage() {
   const mlb = getMlbBoardForDate(today);
   // Public ladder summary — the source of truth, not the internal audit summary.
   const bank = loadPublicBankBuilderSummary();
-  // Bank Builder completed → bankroll cleared the $10,000 crown with a clean run.
-  const bankCompleted = bank ? resolveLadderStep(bank.currentBankrollUnits) === null && bank.record.losses === 0 : false;
 
   // UFC — tonight's featured slate (real ESPN MMA card + V1 moneyline model). Read the same
   // public artifacts /ufc reads; only treat as live when the model is ready with real projections.
@@ -112,8 +116,18 @@ export default function TodayPage() {
     getSuggestedParlaysForDate(today)?.slips ?? null,
     { sportFilter: "mlb", date: today },
   ).slice(0, 4);
-  // Dual Bank Builder — two live lanes launched today (null until launched → teaser).
+  // Combined, de-duped suggested-card pool for the filterable Today section (WC + mixed + MLB).
+  const todaysParlayPool = (() => {
+    const seen = new Set<string>();
+    const out = [] as typeof mlbCards;
+    for (const c of [...normalizeWcCards(freshWcCards), ...mixedCards, ...mlbCards]) {
+      if (c && !seen.has(c.id)) { seen.add(c.id); out.push(c); }
+    }
+    return out;
+  })();
+  // Dual Bank Builder — the latest dual run (settled Run #2) + the V2 survival-gate evaluation.
   const dualBank = loadDualBankBuilder();
+  const v2 = loadBankBuilderV2();
   // Today's Focus = World Cup fixtures. The projections artifact now carries MANY
   // markets per fixture (moneyline / double chance / totals / btts / dnb); the focus
   // strip is keyed on the 3-way moneyline (one per fixture) and attaches a double-chance
@@ -121,6 +135,24 @@ export default function TodayPage() {
   const wcAll = wcProj?.matches ?? [];
   const wcByMatch = (mid: number | string, market: string) =>
     wcAll.find((m) => m.matchId === mid && m.market === market);
+  // Top player prop per fixture — joins the player-props artifact by team (it keys on the Odds
+  // event id, not the schedule matchId). Anytime-goalscorer preferred, else highest model prob.
+  const wcProps = wcPlayers?.matches ?? [];
+  const topPropFor = (home: string, away: string): WcFocusMatch["topPlayerProp"] => {
+    const teams = new Set([normTeamName(home), normTeamName(away)]);
+    const cands = wcProps.filter((p) => p.player?.team && teams.has(normTeamName(p.player.team)));
+    if (!cands.length) return null;
+    cands.sort((a, b) => {
+      const ag = a.market === "player_goal_scorer_anytime" ? 1 : 0;
+      const bg = b.market === "player_goal_scorer_anytime" ? 1 : 0;
+      if (ag !== bg) return bg - ag;
+      return (b.modelProbability ?? 0) - (a.modelProbability ?? 0);
+    });
+    const p = cands[0];
+    const label = p.market === "player_goal_scorer_anytime" ? "Anytime goalscorer" : `${p.pick} ${p.line ?? ""}`.trim();
+    return { name: p.player.name, team: p.player.team, photo: p.player.photo ?? null,
+             label, odds: p.americanOdds ?? 0, prob: p.modelProbability ?? 0 };
+  };
   const wcFocus: WcFocusMatch[] = wcAll
     .filter((m) => m.market === "moneyline_90" && typeof m.americanOdds === "number" && !!m.pickLabel)
     .slice(0, 6)
@@ -132,6 +164,7 @@ export default function TodayPage() {
         awayTeam: m.awayTeam,
         homeCode: m.homeCode ?? null,
         awayCode: m.awayCode ?? null,
+        slug: gameSlug(m.homeTeam, m.awayTeam, today),
         pickLabel: m.pickLabel,
         americanOdds: m.americanOdds as number,
         confidence: m.confidence ?? "limited",
@@ -143,6 +176,7 @@ export default function TodayPage() {
         })),
         doubleChance: dc ? { pick: dc.pickLabel, odds: dc.americanOdds ?? 0, prob: dc.modelProbability } : null,
         totalGoals: tot ? { pick: tot.pickLabel, odds: tot.americanOdds ?? 0, prob: tot.modelProbability } : null,
+        topPlayerProp: topPropFor(m.homeTeam, m.awayTeam),
         group: m.group ?? null,
         homeForm: m.homeForm?.formString ?? null,
         awayForm: m.awayForm?.formString ?? null,
@@ -196,32 +230,40 @@ export default function TodayPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
-      {/* ── Today's Focus: World Cup — leads the page for the next few weeks ── */}
+      {/* 1 — Quick actions: the primary destinations, first (1-click reach to every key area) */}
+      <nav aria-label="Quick actions" className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+        {[
+          { href: "/games", label: "Games" },
+          { href: "/world-cup", label: "World Cup" },
+          { href: "/picks", label: "Parlay Lab" },
+          { href: "/build", label: "Build" },
+          { href: "/bank-builder", label: "Bank Builder" },
+          { href: "/results", label: "Results" },
+        ].map((a) => (
+          <Link
+            key={a.href}
+            href={a.href}
+            className="vault-glow-hover vault-press rounded-[10px] px-2.5 py-3 flex items-center justify-center text-center"
+            style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", textDecoration: "none" }}
+          >
+            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{a.label}</span>
+          </Link>
+        ))}
+      </nav>
+
+      {/* 2 — Today's Focus: World Cup */}
       <TodaysFocusWorldCup matches={wcFocus} games={wcGames} dateLabel={dateLabel} />
 
-      {/* ── Dual Bank Builder — two live lanes launched today (after the WC focus) ── */}
-      {dualBank ? <DualBankBuilderTeaser data={dualBank} /> : null}
+      {/* 3 — Bank Builder: compact run-timeline status (Run #1 completed · #2 closed · #3 V2 gate) */}
+      <BankBuilderStatusRail
+        run1Bankroll={bankrollLabel ?? undefined}
+        run1Record={bank ? `${bank.record.wins}–${bank.record.losses}` : undefined}
+        dual={dualBank}
+        v2={v2}
+      />
 
-      {/* ── Today's MLB suggested parlays (after the World Cup focus) ── */}
-      {mlbCards.length > 0 ? (
-        <section>
-          <SectionHeader
-            eyebrow={`MLB · ${dateLabel}`}
-            title="Today's MLB suggested parlays"
-            sub="Curated odds-backed paper cards from tonight's slate — enter any stake for the projected return."
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {mlbCards.map((c) => (
-              <SuggestedCard key={c.id} card={c} />
-            ))}
-          </div>
-          <div className="mt-3">
-            <Link href="/picks" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-              All suggested parlays →
-            </Link>
-          </div>
-        </section>
-      ) : null}
+      {/* 4 — Suggested parlays (filterable: sport + variance) */}
+      <TodaysParlays cards={todaysParlayPool} dateLabel={dateLabel} />
 
       {/* UFC — only LEADS on a live UFC day; once settled it moves to the results recap below. */}
       {!ufcSettled && ufcSched?.isRealCard ? (
@@ -269,79 +311,6 @@ export default function TodayPage() {
           ) : null}
         </section>
       ) : null}
-
-      {/* Bank Builder — the completed Road to $10K recap (was the flagship active run). */}
-      <section
-        className="gtp-fade-up relative overflow-hidden rounded-[14px] px-5 py-5 sm:px-7 sm:py-6"
-        style={{
-          border: "1px solid rgba(242, 54, 69,0.35)",
-          background:
-            "radial-gradient(120% 150% at 0% 0%, rgba(242, 54, 69,0.10) 0%, transparent 55%)," +
-            "linear-gradient(135deg, rgba(26,20,14,0.95) 0%, var(--vault-bg) 70%)",
-        }}
-      >
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
-            Bank Builder · {dateLabel}
-          </span>
-          <span className="gtp-heat-pulse rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: bankCompleted ? "var(--vault-success)" : "var(--gtp-bank-heat)", background: bankCompleted ? "rgba(110,231,168,0.14)" : "var(--gtp-bank-heat-dim)" }}>
-            {bankCompleted ? "Road to $10K · completed" : `Step ${bank?.currentProgressionStep ?? "—"} · ${publishedCandidate ? "card pending" : "review pending"}`}
-          </span>
-        </div>
-        <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(26px,5vw,38px)", fontWeight: 700, lineHeight: 1.05 }}>
-            {bankCompleted ? `$100 → ${bankrollLabel}` : bankrollLabel ?? "$—"}
-          </h2>
-          <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 13 }}>
-            {bank
-              ? bankCompleted
-                ? `${bank.record.wins}–${bank.record.losses} · Road to $10K completed · 5 rungs settled`
-                : `${bank.record.wins}–${bank.record.losses} run · Step ${bank.currentProgressionStep} of 5`
-              : "paper ladder"}
-          </span>
-        </div>
-        {publishedCandidate ? (
-          <p className="mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
-            Today&apos;s card: {publishedCandidate.legs.map((l) => l.label).join(" + ")} ·{" "}
-            <span style={{ color: "var(--vault-text)" }}>{publishedCandidate.combinedAmericanOdds > 0 ? "+" : ""}{publishedCandidate.combinedAmericanOdds}</span> · projected paper return{" "}
-            <span style={{ color: "var(--vault-success)" }}>${publishedCandidate.projectedReturn.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span> · pending
-          </p>
-        ) : null}
-        {/* $100 → $10,000 heat meter (real linear share of the crown). */}
-        <div className="mt-3 flex items-center gap-2.5">
-          <span className="font-mono shrink-0 text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>$100</span>
-          <div className="gtp-meter-track h-2.5 flex-1" role="img" aria-label={`Paper bankroll ${bankrollLabel ?? ""} of the $10,000 crown`}>
-            <div className="gtp-meter-fill gtp-meter-fill--lava" style={{ width: `${Math.min(100, Math.max(2, ((bank?.currentBankrollUnits ?? 100) / 10000) * 100))}%` }} />
-            <div aria-hidden className="gtp-meter-shimmer" />
-          </div>
-          <span className="font-mono shrink-0 text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>$10,000</span>
-        </div>
-        <div className="mt-3">
-          <Link href="/bank-builder" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
-            {bankCompleted ? "View the completed run →" : "Review today’s card →"}
-          </Link>
-        </div>
-      </section>
-
-      {/* Quick actions — the four primary destinations, above the fold on mobile */}
-      <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        {[
-          { href: "/games", label: "Games", sub: "Pick tonight's game" },
-          { href: "/picks", label: "Parlay Lab", sub: "Curated suggested cards" },
-          { href: "/build", label: "Build", sub: "Make your own card" },
-          { href: "/results", label: "Results", sub: "How the model did" },
-        ].map((a) => (
-          <Link
-            key={a.href}
-            href={a.href}
-            className="vault-glow-hover vault-press rounded-[10px] px-3 py-3.5 flex flex-col gap-0.5"
-            style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", textDecoration: "none" }}
-          >
-            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>{a.label}</span>
-            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{a.sub}</span>
-          </Link>
-        ))}
-      </section>
 
       {/* Sport cards */}
       <section>
@@ -437,12 +406,14 @@ type WcFocusMatch = {
   awayTeam: string;
   homeCode?: string | null;
   awayCode?: string | null;
+  slug: string;
   pickLabel: string;
   americanOdds: number;
   confidence: string;
   outcomes: Array<{ label: string; side: string; modelProbability: number; americanOdds: number }>;
   doubleChance?: { pick: string; odds: number; prob: number } | null;
   totalGoals?: { pick: string; odds: number; prob: number } | null;
+  topPlayerProp?: { name: string; team: string; photo: string | null; label: string; odds: number; prob: number } | null;
   group?: string | null;
   homeForm?: string | null;
   awayForm?: string | null;
@@ -541,6 +512,20 @@ function TodaysFocusWorldCup({
                     <span className="tabular">{Math.round(m.totalGoals.prob * 100)}% · {m.totalGoals.odds > 0 ? "+" : ""}{m.totalGoals.odds}</span>
                   </div>
                 ) : null}
+                {m.topPlayerProp ? (
+                  <div className="mt-1.5 flex items-center justify-between gap-2 rounded-[8px] px-2 py-1.5" style={{ background: "rgba(212,175,55,0.06)" }}>
+                    <span className="flex items-center gap-2 min-w-0">
+                      <PlayerAvatar name={m.topPlayerProp.name} photo={m.topPlayerProp.photo} size={26} />
+                      <span className="flex flex-col min-w-0">
+                        <span className="truncate font-semibold" style={{ color: "var(--vault-text)", fontSize: 11.5 }}>{m.topPlayerProp.name}</span>
+                        <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{m.topPlayerProp.label}</span>
+                      </span>
+                    </span>
+                    <span className="shrink-0 font-mono tabular" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
+                      {Math.round(m.topPlayerProp.prob * 100)}% · {m.topPlayerProp.odds > 0 ? "+" : ""}{m.topPlayerProp.odds}
+                    </span>
+                  </div>
+                ) : null}
                 {m.homeForm || m.awayForm ? (
                   <div className="mt-1.5 flex flex-col gap-0.5">
                     <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>recent form · last 5 (API-Football)</span>
@@ -548,9 +533,17 @@ function TodaysFocusWorldCup({
                     {m.awayForm ? <FormRow team={m.awayTeam} form={m.awayForm} /> : null}
                   </div>
                 ) : null}
-                <span className="mt-1 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                  odds-backed · recent form live · {m.confidence}{m.group ? ` · ${m.group}` : ""} · player props on World Cup
-                </span>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <Link href={`/games/world-cup/${m.slug}`} className="vault-press inline-flex rounded-full px-3 py-1 font-mono uppercase tracking-[0.1em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 9.5, fontWeight: 700, textDecoration: "none" }}>
+                    View game →
+                  </Link>
+                  <Link href={`/build?sport=world_cup`} className="vault-press inline-flex rounded-full px-3 py-1 font-mono uppercase tracking-[0.1em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 9.5, fontWeight: 700, textDecoration: "none" }}>
+                    Build
+                  </Link>
+                  <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+                    {m.confidence}{m.group ? ` · ${m.group}` : ""}
+                  </span>
+                </div>
               </div>
             </details>
           ))}

@@ -1,7 +1,8 @@
 /**
- * Locks the casino-rebuild /today ordering: the Bank Builder spotlight leads the
- * page (the old "What's live today" counts hero is gone) and appears BEFORE the
- * suggested-cards section. Source-level checks (suite runs pre-build).
+ * Locks the June-16 launch-polish /today ordering (owner restructure): quick-action buttons FIRST,
+ * then the World Cup focus, then the COMPACT Bank Builder status rail, then the filterable suggested
+ * parlays. The old tall "Bank Builder · {dateLabel}" recap is gone (compact rail replaces it).
+ * Source-level checks (suite runs pre-build).
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -13,14 +14,31 @@ test("the 'What's live today' counts hero is removed", () => {
   assert.ok(!src.includes("What&apos;s live today"), "old hero heading must be gone");
 });
 
-test("UFC featured slate leads on a UFC day, with Bank Builder recap before suggested cards", () => {
-  const ufc = src.indexOf("featured slate · UFC");
-  const bank = src.indexOf("Bank Builder · {dateLabel}");
-  const cards = src.indexOf("Suggested paper cards");
-  assert.ok(ufc > 0, "UFC featured slate section present");
-  assert.ok(bank > 0 && cards > 0, "Bank Builder recap + suggested cards present");
-  assert.ok(ufc < bank, "UFC featured slate leads the Bank Builder recap on a UFC day");
-  assert.ok(bank < cards, "Bank Builder recap precedes suggested cards");
+test("quick-action buttons lead the page (1-click reach to every key area)", () => {
+  const nav = src.indexOf('aria-label="Quick actions"');
+  const wc = src.indexOf("<TodaysFocusWorldCup");
+  assert.ok(nav > 0, "quick-action nav present");
+  assert.ok(wc > 0, "World Cup focus present");
+  assert.ok(nav < wc, "quick actions appear before the World Cup focus");
+  for (const dest of ["/games", "/world-cup", "/picks", "/build", "/bank-builder", "/results"]) {
+    assert.ok(src.includes(`href: "${dest}"`), `quick action links to ${dest}`);
+  }
+});
+
+test("compact Bank Builder status rail replaces the tall recap, before suggested parlays", () => {
+  const rail = src.indexOf("<BankBuilderStatusRail");
+  const parlays = src.indexOf("<TodaysParlays");
+  assert.ok(rail > 0, "compact Bank Builder status rail present");
+  assert.ok(parlays > 0, "filterable suggested parlays present");
+  assert.ok(rail < parlays, "Bank Builder status precedes suggested parlays");
+  // the old tall recap is gone
+  assert.ok(!src.includes("Bank Builder · {dateLabel}"), "old tall Bank Builder recap removed");
+});
+
+test("World Cup focus shows the order: World Cup leads the content sections", () => {
+  const wc = src.indexOf("<TodaysFocusWorldCup");
+  const rail = src.indexOf("<BankBuilderStatusRail");
+  assert.ok(wc < rail, "World Cup focus precedes the Bank Builder status");
 });
 
 test("heat system tokens exist in the design system", () => {
