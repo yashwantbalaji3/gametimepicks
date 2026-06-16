@@ -28,6 +28,22 @@ const LANE_ACCENT: Record<string, { accent: string; glow: string }> = {
   B: { accent: "var(--vault-gold)", glow: "rgba(212, 175, 55, 0.22)" },
 };
 
+function ResultChip({ result }: { result: string }) {
+  const map: Record<string, { label: string; color: string; bg: string }> = {
+    won: { label: "WON", color: "var(--vault-success)", bg: "rgba(110,231,168,0.16)" },
+    lost: { label: "LOST", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)" },
+    void: { label: "VOID", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.06)" },
+    needs_review: { label: "REVIEW", color: "var(--vault-warn)", bg: "rgba(255,255,255,0.06)" },
+  };
+  const m = map[result] ?? map.needs_review;
+  return (
+    <span className="shrink-0 rounded px-1.5 py-0.5 font-mono font-bold uppercase tracking-[0.08em]"
+      style={{ fontSize: 8.5, color: m.color, background: m.bg, border: "1px solid var(--vault-rule)" }}>
+      {m.label}
+    </span>
+  );
+}
+
 function LegVisual({ leg }: { leg: DualLaneLeg }) {
   if (leg.sport === "world_cup" && (leg.homeCode || leg.awayCode)) {
     return (
@@ -66,12 +82,18 @@ function LegRow({ leg }: { leg: DualLaneLeg }) {
             {leg.sportLabel} · {leg.gameLabel}{leg.marketLabel ? ` · ${leg.marketLabel}` : ""} · model {Math.round(leg.modelProbability * 100)}%
           </span>
         </span>
+        {leg.result && leg.result !== "pending" ? <ResultChip result={leg.result} /> : null}
         <span className="shrink-0 font-mono tabular flex items-center gap-1" style={{ color: "var(--vault-text)", fontSize: 12 }}>
           {formatAmerican(leg.americanOdds)}
           <span aria-hidden className="transition-transform group-open:rotate-90" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>›</span>
         </span>
       </summary>
       <div className="px-2.5 pb-2.5 flex flex-col gap-2" style={{ borderTop: "1px solid var(--vault-rule)" }}>
+        {leg.final ? (
+          <div className="mt-2 font-mono" style={{ fontSize: 10.5, color: "var(--vault-text)" }}>
+            <span style={{ color: leg.result === "won" ? "var(--vault-success)" : leg.result === "void" ? "var(--vault-text-faint)" : "var(--gtp-bank-heat)" }}>Official:</span> {leg.final}
+          </div>
+        ) : null}
         {leg.modelPredict ? (
           <div className="mt-2 font-mono" style={{ fontSize: 10.5, color: "var(--vault-text-mute)" }}>
             <span style={{ color: "var(--gtp-bank-heat)" }}>Model read:</span> {leg.modelPredict}
@@ -179,13 +201,17 @@ function StepLadder({ lane, accent }: { lane: DualLane; accent: string }) {
 
 function LaneCard({ lane }: { lane: DualLane }) {
   const { accent, glow } = LANE_ACCENT[lane.lane] ?? LANE_ACCENT.A;
+  const settled = lane.status === "lost" || lane.status === "won";
+  const won = lane.status === "won";
+  const statusColor = won ? "var(--vault-success)" : "var(--gtp-bank-heat)";
+  const shownReturn = settled ? (typeof lane.return === "number" ? lane.return : 0) : lane.projectedReturn;
   return (
-    <div className="relative overflow-hidden rounded-[12px] px-4 py-4" style={{ border: `1px solid ${glow}`, background: "rgba(12,8,6,0.55)" }}>
-      <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full" style={{ background: `radial-gradient(circle, ${glow}, transparent 70%)`, filter: "blur(8px)" }} />
+    <div className="relative overflow-hidden rounded-[12px] px-4 py-4" style={{ border: `1px solid ${settled && !won ? "var(--vault-rule)" : glow}`, background: "rgba(12,8,6,0.55)", opacity: settled && !won ? 0.92 : 1 }}>
+      <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full" style={{ background: `radial-gradient(circle, ${glow}, transparent 70%)`, filter: "blur(8px)", opacity: settled ? 0.4 : 1 }} />
       <div className="relative flex items-center justify-between gap-2">
         <span className="font-display font-bold tracking-tight" style={{ color: accent, fontSize: 16 }}>{lane.name}</span>
-        <span className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)" }}>
-          Step {/* step */}1 · pending
+        <span className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: statusColor, background: won ? "rgba(110,231,168,0.16)" : "var(--gtp-bank-heat-dim)" }}>
+          Step 1 · {settled ? lane.status : "pending"}
         </span>
       </div>
       <div className="relative mt-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
@@ -193,30 +219,40 @@ function LaneCard({ lane }: { lane: DualLane }) {
       </div>
       <div className="relative mt-2 flex items-baseline gap-2">
         <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 20, fontWeight: 700 }}>
-          {usd(lane.stake)} <span style={{ color: "var(--vault-text-faint)", fontWeight: 400 }}>→</span> {usd(Math.round(lane.projectedReturn))}
+          {usd(lane.stake)} <span style={{ color: "var(--vault-text-faint)", fontWeight: 400 }}>→</span> {usd(Math.round(shownReturn))}
         </span>
-        <span className="font-mono tabular" style={{ color: "var(--vault-success)", fontSize: 12 }}>{formatAmerican(lane.combinedAmericanOdds)}</span>
+        <span className="font-mono tabular" style={{ color: settled ? statusColor : "var(--vault-success)", fontSize: 12 }}>{settled ? lane.status.toUpperCase() : formatAmerican(lane.combinedAmericanOdds)}</span>
       </div>
       <div className="relative mt-2.5 flex flex-col gap-1.5">
         {lane.legs.map((l, i) => <LegRow key={i} leg={l} />)}
       </div>
       <span className="relative mt-1 block font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
-        tap a leg for the model read, recent form &amp; why
+        {settled ? "tap a leg for the official result, model read & why" : "tap a leg for the model read, recent form & why"}
       </span>
-      <StepLadder lane={lane} accent={accent} />
+      {settled ? (
+        <span className="relative mt-2 block font-mono uppercase tracking-[0.1em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 9 }}>
+          Step 1 closed · lane did not advance
+        </span>
+      ) : (
+        <StepLadder lane={lane} accent={accent} />
+      )}
       <p className="relative mt-2 text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-        {lane.whyThisLane} Joint model probability {Math.round(lane.combinedModelProbability * 100)}% — a two-leg parlay is uncertain. Paper-only; settles on official results.
+        {lane.whyThisLane} Joint model probability {Math.round(lane.combinedModelProbability * 100)}% — a two-leg parlay is uncertain. Paper-only; settled on official results.
       </p>
     </div>
   );
 }
 
 export default function DualBankBuilderTeaser({ data }: { data?: DualBankBuilder | null }) {
-  const live = data && data.status === "pending" && data.lanes.length > 0;
+  const live = !!data && data.status === "pending" && data.lanes.length > 0;
+  const settled = !!data && (data.status === "settled" || data.status === "closed") && data.lanes.length > 0;
+  const show = live || settled;
+  const survived = data?.lanesSurvived ?? 0;
+  const total = data?.lanes.length ?? 2;
   return (
     <section
       className="gtp-fade-up relative mt-6 overflow-hidden rounded-2xl px-5 py-6 sm:px-7"
-      aria-label={live ? "Dual Bank Builder — two live paper lanes" : "Coming next — Dual Bank Builder"}
+      aria-label={live ? "Dual Bank Builder — two live paper lanes" : settled ? "Dual Bank Builder — Step 1 closed, results" : "Coming next — Dual Bank Builder"}
       style={{
         border: "1px solid var(--lava-border-strong)",
         background:
@@ -229,10 +265,10 @@ export default function DualBankBuilderTeaser({ data }: { data?: DualBankBuilder
 
       <div className="relative flex flex-wrap items-center justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
-          {live ? "Dual Bank Builder · Step 1 live" : "Coming next"}
+          {live ? "Dual Bank Builder · Step 1 live" : settled ? "Dual Bank Builder · Step 1 closed" : "Coming next"}
         </span>
-        <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: live ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)", background: live ? "var(--gtp-bank-heat-dim)" : "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
-          {live ? "Two lanes · pending" : "Not started yet"}
+        <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: live ? "var(--gtp-bank-heat)" : settled ? "var(--vault-text-mute)" : "var(--vault-text-faint)", background: live ? "var(--gtp-bank-heat-dim)" : settled ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+          {live ? "Two lanes · pending" : settled ? `${survived}/${total} advanced · closed` : "Not started yet"}
         </span>
       </div>
 
@@ -242,10 +278,12 @@ export default function DualBankBuilderTeaser({ data }: { data?: DualBankBuilder
       <p className="relative mt-1.5 text-[13.5px]" style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}>
         {live
           ? `Two paper ladders launched today — completely different legs, separate theses, each ${usd(BASE)} chasing the ${usd(GOAL)} crown. Step 1 targets ~${usd(200)}. Paper-only, educational; the bankroll only moves after official settlement.`
-          : `Two paper ladders climbing the ${usd(GOAL)} crown at the same time — completely different legs each day, separate risk profiles, separate records. The lanes stay idle until the next run is officially started.`}
+          : settled
+            ? `Run #2 Step 1 has been officially settled — and ${survived === 0 ? "both lanes lost" : `${survived} of ${total} lanes advanced`}. We show the real outcome of every leg below, including the misses, exactly as the official box scores and match results landed. No lane advances; the run is closed. Tap any leg for the official result and what our model read.`
+            : `Two paper ladders climbing the ${usd(GOAL)} crown at the same time — completely different legs each day, separate risk profiles, separate records. The lanes stay idle until the next run is officially started.`}
       </p>
 
-      {live ? (
+      {show ? (
         <div className="relative mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {data!.lanes.map((lane) => <LaneCard key={lane.lane} lane={lane} />)}
         </div>
@@ -266,6 +304,27 @@ export default function DualBankBuilderTeaser({ data }: { data?: DualBankBuilder
           })}
         </div>
       )}
+
+      {settled ? (
+        <div className="relative mt-5 rounded-[10px] px-4 py-3.5" style={{ background: "rgba(225,29,42,0.06)", border: "1px solid var(--lava-border-strong)" }}>
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>What we learned</span>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+            Run #2 went {survived}/{total}. The legs cleared our model thresholds but still missed:
+            a low-line hitter went hitless, a star beat a low Under, and one prop voided when the
+            player was rested (DNP). The honest takeaway — a high model probability on a single
+            volatile player prop is not enough to anchor a ladder.
+          </p>
+          <ul className="mt-2 space-y-1 text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
+            <li>• Player-prop legs carry <strong style={{ color: "var(--vault-text-mute)" }}>DNP risk</strong> — no lineup confirmation, no leg.</li>
+            <li>• Low-variance team markets (double chance / DNB) held up better than single-hitter props.</li>
+            <li>• Two-leg parlays are still coin-flips at these odds; survival needs a stricter eligibility gate.</li>
+          </ul>
+          <p className="mt-2 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+            Next run is paused until the Bank Builder V2 eligibility model (volatility + DNP + lineup
+            gates) is in place. Full breakdown in the failure audit.
+          </p>
+        </div>
+      ) : null}
 
       <div className="relative mt-4 rounded-[8px] px-3.5 py-2.5" style={{ background: "rgba(212,175,55,0.06)", border: "1px solid var(--vault-rule)" }}>
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Run #1 · completed</span>

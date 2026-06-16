@@ -11,6 +11,7 @@ import {
   loadWorldCupParlays,
   loadWorldCupMarketAvailability,
 } from "@/lib/world-cup/projections";
+import { normTeamName } from "@/lib/world-cup/market-outlook";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
 import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
@@ -103,7 +104,15 @@ function worldCupDetails(): PublicGameDetail[] {
   for (const [matchId, teamProjections] of byMatch) {
     const head = teamProjections[0];
     const [homeTeam, awayTeam] = head.gameLabel.split(" vs ");
-    const playerProps = players.filter((p) => String(p.matchId) === matchId);
+    // Player props join on the shared matchId when available; the player-props artifact keys on the
+    // Odds API event id (not the schedule matchId), so fall back to matching each prop's team to one
+    // of the two fixture sides (alias-normalized) — unambiguous within a single matchday slate.
+    const fixtureTeams = new Set([homeTeam, awayTeam].map((t) => normTeamName(t ?? "")).filter(Boolean));
+    const playerProps = players.filter(
+      (p) =>
+        String(p.matchId) === matchId ||
+        fixtureTeams.has(normTeamName(p.player?.team ?? p.gameLabel ?? "")),
+    );
     const cardsForGame = cards.filter((c) => cardBelongsToFixture(c, head.gameLabel));
     const playerMarkets = new Set(playerProps.map((p) => p.marketLabel));
     out.push({
