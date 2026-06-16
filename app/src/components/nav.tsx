@@ -77,14 +77,14 @@ export default function Nav() {
           uses stacked rows because the brand mark needs the full
           width and the nav strip wraps. */}
 
-      {/* Mobile (< sm): row 1 = centered brand */}
-      <div className="sm:hidden px-4 pt-1.5 pb-1 flex items-center justify-center">
+      {/* Mobile (< sm): row 1 = centered brand, shown big */}
+      <div className="sm:hidden px-4 pt-2 pb-1.5 flex items-center justify-center">
         <Link
           href="/"
           aria-label="GameTimePicks home"
-          className="vault-glow-hover rounded-[4px] py-1 px-2 inline-flex items-center"
+          className="vault-glow-hover rounded-[6px] py-1 px-2 inline-flex items-center"
         >
-          <BrandMark variant="compact" />
+          <BrandMark variant="hero" />
         </Link>
       </div>
 
@@ -95,7 +95,7 @@ export default function Nav() {
           aria-label="GameTimePicks home"
           className="vault-glow-hover rounded-[4px] py-1 px-2 inline-flex items-center shrink-0"
         >
-          <BrandMark variant="compact" />
+          <BrandMark variant="lockup" />
         </Link>
         <nav
           aria-label="Primary (desktop)"
