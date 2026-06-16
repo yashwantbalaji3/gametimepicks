@@ -56,13 +56,22 @@ test("double chance uses REAL book odds + model probs from the 3-way (not fabric
   }
 });
 
-test("player props are gated honestly — no stale or fabricated data", () => {
-  assert.equal(players.projectionCount, 0, "no player props shown yet");
-  // unavailable (no key) OR integration_pending (key present, full build is the next increment).
-  assert.ok(/unavailable|integration_pending/i.test(players.status ?? ""), "status is an honest gate");
-  assert.ok(/API[-_ ]?Football/i.test(players.disclaimer ?? ""), "explains the player-prop stat layer");
+test("player props are honest — live odds-backed (not parlay-eligible) OR cleanly gated", () => {
   assert.equal(players.date, proj.date, "player-props artifact is current-dated (not stale June 12)");
-  assert.deepEqual(players.matches, [], "no stale player rows");
+  if ((players.projectionCount ?? 0) === 0) {
+    assert.ok(/unavailable|integration_pending/i.test(players.status ?? ""), "empty state is an honest gate");
+    assert.deepEqual(players.matches, [], "no stale player rows");
+    return;
+  }
+  // Live, odds-backed, limited-data props (anytime goalscorer / shots) — never parlay/Bank eligible.
+  assert.ok(/live_limited_data|live/i.test(players.status ?? ""), "live status");
+  assert.equal(players.parlayEligibleCount, 0, "player props are NOT parlay/Bank-Builder eligible");
+  for (const m of players.matches) {
+    assert.ok(m.player && m.player.name && m.player.team, "real player + team");
+    assert.ok(typeof m.americanOdds === "number" && m.americanOdds !== 0, "real odds-backed price");
+    assert.equal(m.parlayEligible, false, "not parlay eligible");
+    assert.equal(m.dataQuality, "limited", "labelled limited data");
+  }
 });
 
 test("API-Football enrichment: real recent form + group attached (when present)", () => {

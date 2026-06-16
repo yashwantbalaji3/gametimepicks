@@ -12,6 +12,8 @@
  */
 import { formatAmerican } from "@/lib/odds-math";
 import FlagBadge from "@/components/flag-badge";
+import PlayerAvatar from "@/components/player-avatar";
+import TeamLogo from "@/components/team-logo";
 import type { DualBankBuilder, DualLane, DualLaneLeg } from "@/lib/data-dual-bank-builder";
 
 const GOAL = 10000;
@@ -35,8 +37,110 @@ function LegVisual({ leg }: { leg: DualLaneLeg }) {
       </span>
     );
   }
+  if ((leg.sport === "mlb" || leg.sport === "nba") && leg.playerName) {
+    // Real player portrait (MLB Stats / NBA CDN) with initials fallback, + team logo.
+    return (
+      <span className="flex shrink-0 items-center gap-1.5">
+        <PlayerAvatar playerId={leg.playerId ?? null} playerName={leg.playerName} team={leg.team ?? undefined} sport={leg.sport} size="sm" />
+        {leg.team ? <TeamLogo team={leg.team} sport={leg.sport} size="sm" ariaLabel={`${leg.team} logo`} /> : null}
+      </span>
+    );
+  }
   const id = leg.sportLabel === "MLB" ? "⚾" : leg.sportLabel === "World Cup" ? "⚽" : "•";
   return <span className="shrink-0" style={{ fontSize: 14 }} aria-hidden>{id}</span>;
+}
+
+/** A clickable leg row — summary shows portrait/flags + prop + model prediction + odds;
+ *  expanding reveals recent-5 (MLB) or 3-way + both team forms (WC) + the "why" bullets. */
+function LegRow({ leg }: { leg: DualLaneLeg }) {
+  const hits = leg.recentGames ?? [];
+  const line = leg.line ?? 0;
+  const over = leg.side === "Over";
+  return (
+    <details className="group rounded-[8px]" style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-rule)" }}>
+      <summary className="flex cursor-pointer items-center gap-2 px-2.5 py-2 list-none">
+        <LegVisual leg={leg} />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate font-semibold" style={{ color: "var(--vault-text)", fontSize: 12 }}>{leg.pick}</span>
+          <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+            {leg.sportLabel} · {leg.gameLabel}{leg.marketLabel ? ` · ${leg.marketLabel}` : ""} · model {Math.round(leg.modelProbability * 100)}%
+          </span>
+        </span>
+        <span className="shrink-0 font-mono tabular flex items-center gap-1" style={{ color: "var(--vault-text)", fontSize: 12 }}>
+          {formatAmerican(leg.americanOdds)}
+          <span aria-hidden className="transition-transform group-open:rotate-90" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>›</span>
+        </span>
+      </summary>
+      <div className="px-2.5 pb-2.5 flex flex-col gap-2" style={{ borderTop: "1px solid var(--vault-rule)" }}>
+        {leg.modelPredict ? (
+          <div className="mt-2 font-mono" style={{ fontSize: 10.5, color: "var(--vault-text-mute)" }}>
+            <span style={{ color: "var(--gtp-bank-heat)" }}>Model read:</span> {leg.modelPredict}
+            {leg.opponent ? ` · vs ${leg.opponent}` : ""}
+          </div>
+        ) : null}
+
+        {/* MLB: recent 5 games vs the line (hit/miss pills) */}
+        {leg.sport !== "world_cup" && hits.length > 0 ? (
+          <div className="flex flex-col gap-1">
+            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>last 5 · {leg.marketLabel ?? "stat"} vs {line}</span>
+            <div className="flex flex-wrap gap-1">
+              {hits.map((g, i) => {
+                const win = over ? g.value > line : g.value < line;
+                return (
+                  <span key={i} className="font-mono rounded px-1.5 py-0.5" style={{ fontSize: 9, color: "#120A07", background: win ? "var(--vault-success)" : "var(--gtp-bank-heat)" }}
+                    title={`${g.date} ${g.isHome ? "vs" : "@"} ${g.opponent}: ${g.value}`}>
+                    {g.value}{win ? "✓" : "✗"}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        {/* WC: 3-way outcomes + both teams' recent form */}
+        {leg.sport === "world_cup" ? (
+          <div className="flex flex-col gap-1">
+            {(leg.outcomes ?? []).length > 0 ? (
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5 font-mono" style={{ fontSize: 10, color: "var(--vault-text-mute)" }}>
+                {(leg.outcomes ?? []).map((o, i) => (
+                  <span key={i}>{o.label} {Math.round(o.modelProbability * 100)}%</span>
+                ))}
+              </div>
+            ) : null}
+            {[["homeTeam", "homeForm"], ["awayTeam", "awayForm"]].map(([tk, fk]) => {
+              const team = leg[tk as "homeTeam" | "awayTeam"];
+              const form = leg[fk as "homeForm" | "awayForm"];
+              if (!team || !form) return null;
+              return (
+                <div key={tk} className="flex items-center justify-between font-mono" style={{ fontSize: 10, color: "var(--vault-text-mute)" }}>
+                  <span className="truncate">{team}</span>
+                  <span className="flex gap-0.5">
+                    {form.formString.split("").map((r, i) => (
+                      <span key={i} className="inline-flex items-center justify-center font-bold" style={{ width: 11, height: 11, fontSize: 7, borderRadius: 2, color: "#120A07", background: r === "W" ? "var(--vault-success)" : r === "L" ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)" }}>{r}</span>
+                    ))}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+
+        {/* Why: model reason bullets */}
+        {(leg.reasonBullets ?? []).length > 0 ? (
+          <ul className="flex flex-col gap-0.5">
+            {(leg.reasonBullets ?? []).map((b, i) => (
+              <li key={i} className="font-mono" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
+                · <span style={{ color: "var(--vault-text-mute)" }}>{b.label}:</span> {b.text}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+          settles on official results · {leg.dataQuality === "A" ? "data A" : "limited data"}
+        </span>
+      </div>
+    </details>
+  );
 }
 
 /** Compact 5-step ladder path: Step 1 (live, real $100→return) → … → $10K crown.
@@ -94,19 +198,11 @@ function LaneCard({ lane }: { lane: DualLane }) {
         <span className="font-mono tabular" style={{ color: "var(--vault-success)", fontSize: 12 }}>{formatAmerican(lane.combinedAmericanOdds)}</span>
       </div>
       <div className="relative mt-2.5 flex flex-col gap-1.5">
-        {lane.legs.map((l, i) => (
-          <div key={i} className="flex items-center gap-2 rounded-[8px] px-2.5 py-2" style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-rule)" }}>
-            <LegVisual leg={l} />
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate font-semibold" style={{ color: "var(--vault-text)", fontSize: 12 }}>{l.pick}</span>
-              <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                {l.sportLabel} · {l.gameLabel} · model {Math.round(l.modelProbability * 100)}%{l.recentForm ? ` · form ${l.recentForm}` : ""}
-              </span>
-            </span>
-            <span className="shrink-0 font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 12 }}>{formatAmerican(l.americanOdds)}</span>
-          </div>
-        ))}
+        {lane.legs.map((l, i) => <LegRow key={i} leg={l} />)}
       </div>
+      <span className="relative mt-1 block font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+        tap a leg for the model read, recent form &amp; why
+      </span>
       <StepLadder lane={lane} accent={accent} />
       <p className="relative mt-2 text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
         {lane.whyThisLane} Joint model probability {Math.round(lane.combinedModelProbability * 100)}% — a two-leg parlay is uncertain. Paper-only; settles on official results.

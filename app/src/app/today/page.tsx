@@ -549,7 +549,7 @@ function TodaysFocusWorldCup({
                   </div>
                 ) : null}
                 <span className="mt-1 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                  odds-backed · recent form live · {m.confidence}{m.group ? ` · ${m.group}` : ""} (player props next)
+                  odds-backed · recent form live · {m.confidence}{m.group ? ` · ${m.group}` : ""} · player props on World Cup
                 </span>
               </div>
             </details>

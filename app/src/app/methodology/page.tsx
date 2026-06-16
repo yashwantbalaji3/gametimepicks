@@ -184,7 +184,7 @@ export default function MethodologyPage() {
             stage="odds-backed + recent form"
             inputs="PRICES from The Odds API (soccer_fifa_world_cup): 3-way moneyline, totals, double chance, BTTS, draw-no-bet. STATS from API-Football: recent form (last-5 across all competitions), group/standings, lineups, and settlement (final scores)."
             model="Two providers: The Odds API supplies the odds → de-vigged market-implied probabilities (3-way for moneyline/double chance); API-Football attaches real recent form + group. A full Poisson team-strength model follows once enough WC matches are played (season stats are thin this early)."
-            markets="Odds-backed: match winner (3-way, Draw is a real outcome), totals, double chance (real book odds), BTTS, draw-no-bet. Player props (goalscorer/shots) — odds exist; recent-form integration is the next step."
+            markets="Odds-backed: match winner (3-way, Draw is a real outcome), totals, double chance (real book odds), BTTS, draw-no-bet. Player props (anytime goalscorer + shots on target) are live — odds-backed, market-implied, limited-data, not parlay/Bank-Builder eligible."
             cards="Favorites only above a probability floor; stale fixtures never shown as active; no card without a live price; honest counts (no padding)."
             settlement="Official final score from API-Football, regulation 90 only (no extra time / penalties)."
             limits="Recent form is live; per-team WC-season stats and the Poisson model are thin until more group games are played. Player-prop projections (odds + recent form) are the next increment."
@@ -263,7 +263,7 @@ export default function MethodologyPage() {
             <LimitationRow title="Lines move" body="Boards reflect odds at pipeline time. By the time you read them, prices have likely shifted." />
             <LimitationRow title="UFC props need a feed" body="Method / round / distance stay model-only until a real prop-odds feed and a graded model for them exist." />
             <LimitationRow title="MLB context inputs" body="Park factor, weather, bullpen fatigue, and handedness splits are on the roadmap, not yet modeled." />
-            <LimitationRow title="Soccer depth" body="World Cup prices come from The Odds API and recent form + group + lineups + settlement from API-Football. Per-team WC-season stats and the Poisson model stay thin until more group games are played; player-prop projections (odds + recent form) are the next increment." />
+            <LimitationRow title="Soccer depth" body="World Cup prices come from The Odds API; recent form, group, lineups, settlement, and player identity/photos from API-Football. Odds-backed player props (anytime goalscorer + shots on target) are live but market-implied only — labelled limited-data and not parlay/Bank-Builder eligible. Per-team WC-season stats and the Poisson model stay thin until more group games are played." />
             <LimitationRow title="Richer feeds + automation" body="Fuller data feeds, a licensed fighter-image source, and detailed fight histories are planned." />
           </ul>
         </div>
