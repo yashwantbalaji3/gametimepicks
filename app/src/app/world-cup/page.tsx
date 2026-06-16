@@ -95,6 +95,10 @@ export default function WorldCupLandingPage() {
   const parlays = loadWorldCupParlays();
   const settlement = loadWorldCupSettlement();
   const projectionsLive = !!projections && projections.matches.length > 0;
+  // Games actually IN FOCUS = odds-backed projection fixtures (not the raw schedule count, which
+  // includes fixtures the books haven't posted, e.g. an uncovered 4th match). Avoids a misleading
+  // "4 matches today" when only 3 have model content.
+  const inFocusGames = projections?.matchCount ?? 0;
   const parlaysLive = !!parlays && parlays.cards.length > 0;
   const methodologyReview = worldCupMethodologyReview();
   const statsNote = stats?.teamStatsReady
@@ -155,7 +159,7 @@ export default function WorldCupLandingPage() {
         <SectionHeader eyebrow="Today" title="At a glance" sub="What's live for the World Cup right now. Use the tabs above to dive into any section." />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {[
-            { label: "Today's games", value: todayMatches.length },
+            { label: "Games in focus", value: inFocusGames || todayMatches.length },
             { label: "Projection views", value: projections?.projectionCount ?? 0 },
             { label: "Player props", value: playerProjections?.projectionCount ?? 0 },
             { label: "Suggested cards", value: parlays?.cardCount ?? 0 },
@@ -197,7 +201,7 @@ export default function WorldCupLandingPage() {
     <div className="flex flex-col gap-8">
       {isLive && todayMatches.length > 0 ? (
         <section aria-label="Today's matches">
-          <SectionHeader eyebrow={`Today · ${todayMatches.length} match${todayMatches.length === 1 ? "" : "es"}`} title="Today's World Cup fixtures" sub="Tap a match for its projections, player props, and suggested cards — just like MLB and NBA." />
+          <SectionHeader eyebrow={inFocusGames > 0 && inFocusGames !== todayMatches.length ? `Today · ${inFocusGames} in focus · ${todayMatches.length} scheduled` : `Today · ${todayMatches.length} match${todayMatches.length === 1 ? "" : "es"}`} title="Today's World Cup fixtures" sub="Tap a match for its projections, player props, and suggested cards. Fixtures the books haven't posted show as odds pending." />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {todayMatches.map((m) => {
               const homeTeam = teams.find((t) => t.name === m.home);
@@ -528,7 +532,7 @@ export default function WorldCupLandingPage() {
         tagline={daysOut > 0 ? `kickoff in ${daysOut} day${daysOut === 1 ? "" : "s"}` : "tournament live"}
         statusKind={isLive ? "live" : "upcoming"}
         statusLabel={daysOut > 0 ? `${daysOut} days to kickoff` : "Tournament live"}
-        statusCaption={isLive ? ` · ${todayMatches.length} match${todayMatches.length === 1 ? "" : "es"} today` : " · schedule live"}
+        statusCaption={isLive ? ` · ${(inFocusGames || todayMatches.length)} game${(inFocusGames || todayMatches.length) === 1 ? "" : "s"} in focus` : " · schedule live"}
         matchupLine={
           isLive && nextMatch
             ? `Next · ${nextMatch.home} vs ${nextMatch.away} · ${nextMatch.kickoffLocal} (${nextMatch.venueCity})`

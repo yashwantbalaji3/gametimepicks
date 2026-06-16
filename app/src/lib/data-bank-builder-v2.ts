@@ -42,6 +42,7 @@ export interface V2Evaluation {
   watchlistThreshold: number;
   counts: { scored: number; eligible: number; watchlist: number; distinctEligibleGames: number };
   blockers: string[];
+  notes?: string[];
   eligibleLegs: V2Leg[];
   watchlistLegs: V2Leg[];
   strongestCandidates: V2Leg[];

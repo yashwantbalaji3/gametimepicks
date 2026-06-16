@@ -345,8 +345,10 @@ def evaluate_pool(legs: list[dict]) -> dict:
     if len(eligible) < min_eligible:
         reasons.append(f"only {len(eligible)} eligible legs (need ≥{min_eligible} for two lanes)")
     if len(distinct_games) < MIN_DISTINCT_GAMES:
-        reasons.append(f"eligible legs span only {len(distinct_games)} distinct games "
-                       f"(need ≥{MIN_DISTINCT_GAMES})")
+        reasons.append(f"the strongest non-fragile legs span only {len(distinct_games)} upcoming "
+                       f"games — two lanes would both depend on the same teams holding "
+                       f"(over-correlated); a differentiated dual run needs ≥{MIN_DISTINCT_GAMES} "
+                       f"independent games")
     if len(eligible) >= min_eligible and len(distinct_games) >= MIN_DISTINCT_GAMES:
         lanes = _two_lanes(eligible)
         if lanes:
@@ -393,13 +395,26 @@ def main(argv=None) -> int:
     by_key = {(str(l.get("gameId")), l.get("pick")): l for l in pool}
     res = evaluate_pool(pool)
 
+    # Explicitly surface owner-flagged markets (e.g. the Argentina moneyline) — show they were
+    # evaluated and whether they cleared the survival gate, so the decision is transparent.
+    notes: list[str] = []
+    for s in res["allScored"]:
+        pl = (s.get("pick") or "")
+        if s.get("market") == "moneyline_90" and "argentina" in pl.lower():
+            verdict = "clears" if s["eligible"] else "does NOT clear"
+            notes.append(f"Argentina moneyline ({s['americanOdds']:+d}, model "
+                         f"{(s.get('modelProbability') or 0)*100:.0f}%) {verdict} the survival gate — "
+                         f"score {s['survivalScore']:.0f}. The stronger, less-fragile Argentina legs are "
+                         f"Argentina or Draw + Argentina draw-no-bet (they cover a draw).")
+            break
+
     doc = {
         "generatedAt": now.isoformat(), "date": args.date, "model": "bank_builder_v2",
         "decision": res["decision"],
         "headline": ("Bank Builder V2 — qualifying lanes found" if res["decision"] == "launch"
                      else "Bank Builder V2 evaluating — no qualifying launch yet"),
         "eligibleThreshold": res["eligibleThreshold"], "watchlistThreshold": res["watchlistThreshold"],
-        "counts": res["counts"], "blockers": res["blockers"],
+        "counts": res["counts"], "blockers": res["blockers"], "notes": notes,
         "eligibleLegs": res["eligibleLegs"], "watchlistLegs": res["watchlistLegs"],
         "strongestCandidates": res["strongestCandidates"],
         "poolSize": len(pool),

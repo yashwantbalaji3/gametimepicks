@@ -87,6 +87,15 @@ export default function BankBuilderV2Panel({ v2 }: { v2: V2Evaluation }) {
         </div>
       ) : null}
 
+      {v2.notes && v2.notes.length ? (
+        <div className="relative mt-2.5 rounded-[8px] px-3.5 py-2.5" style={{ background: "rgba(212,175,55,0.05)", border: "1px solid var(--vault-rule)" }}>
+          <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Notable candidates evaluated</span>
+          <ul className="mt-1 space-y-0.5 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
+            {v2.notes.map((n, i) => <li key={i}>• {n}</li>)}
+          </ul>
+        </div>
+      ) : null}
+
       <div className="relative mt-3.5">
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
           {v2.eligibleLegs.length ? "Eligible legs" : "Strongest candidates"} · survival score

@@ -208,7 +208,7 @@ export default function TodayPage() {
     {
       sport: "world_cup", label: "World Cup", href: "/world-cup", accent: "var(--vault-gold-bright)", live: wcLive,
       stats: [
-        { label: "Games", value: wcGames },
+        { label: "Games", value: wcProj?.matchCount ?? wcFocus.length },
         { label: "Projections", value: wcProj?.projectionCount ?? 0 },
         { label: "Player props", value: wcPlayers?.projectionCount ?? 0 },
         { label: "Cards", value: wcCards?.cardCount ?? 0 },
@@ -448,6 +448,7 @@ function TodaysFocusWorldCup({
   dateLabel: string;
 }) {
   const hasProj = matches.length > 0;
+  const inFocus = matches.length; // games actually in focus (odds-backed projections), not the raw schedule count
   return (
     <section
       className="gtp-fade-up relative overflow-hidden rounded-[14px] px-5 py-5 sm:px-7 sm:py-6"
@@ -468,7 +469,9 @@ function TodaysFocusWorldCup({
         </span>
       </div>
       <h1 className="relative mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.6vw,34px)", fontWeight: 700, lineHeight: 1.04 }}>
-        {games > 0 ? `${games} World Cup ${games === 1 ? "match" : "matches"} today` : "World Cup"}
+        {hasProj
+          ? `${inFocus} World Cup ${inFocus === 1 ? "game" : "games"} in focus`
+          : games > 0 ? "World Cup" : "World Cup"}
       </h1>
       <p className="relative mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 660 }}>
         {hasProj
