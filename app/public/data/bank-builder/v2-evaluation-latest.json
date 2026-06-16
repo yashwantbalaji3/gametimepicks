@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T16:02:23.245746+00:00",
+  "generatedAt": "2026-06-16T19:00:16.669524+00:00",
   "date": "2026-06-16",
   "model": "bank_builder_v2",
   "decision": "evaluating",
@@ -7,13 +7,13 @@
   "eligibleThreshold": 80,
   "watchlistThreshold": 70,
   "counts": {
-    "scored": 91,
-    "eligible": 5,
-    "watchlist": 1,
-    "distinctEligibleGames": 3
+    "scored": 85,
+    "eligible": 4,
+    "watchlist": 0,
+    "distinctEligibleGames": 2
   },
   "blockers": [
-    "eligible legs span only 3 distinct games (need \u22654 for two non-correlated lanes)"
+    "eligible legs span only 2 distinct games (need \u22653)"
   ],
   "eligibleLegs": [
     {
@@ -85,40 +85,6 @@
       ]
     },
     {
-      "pick": "France or Draw",
-      "sport": "world_cup",
-      "gameId": "17",
-      "gameLabel": "France vs Senegal",
-      "market": "double_chance",
-      "marketLabel": "double chance",
-      "americanOdds": -1000,
-      "modelProbability": 0.8637,
-      "marketFamily": "team",
-      "survivalScore": 88.45,
-      "tier": "eligible",
-      "eligible": true,
-      "components": {
-        "baseModel": 30.45,
-        "marketType": 25.0,
-        "recentForm": 12.0,
-        "oddsBand": 10.0,
-        "dataQuality": 11.0
-      },
-      "penalties": {},
-      "hitRate": {
-        "available": true,
-        "hits": 4,
-        "of": 5,
-        "rate": 0.8
-      },
-      "rejectionReasons": [],
-      "whySelected": [
-        "low-variance team market (double chance)",
-        "model 86% to hold",
-        "recent form 4/5"
-      ]
-    },
-    {
       "pick": "Argentina (draw no bet)",
       "sport": "world_cup",
       "gameId": "19",
@@ -187,38 +153,7 @@
       ]
     }
   ],
-  "watchlistLegs": [
-    {
-      "pick": "France (draw no bet)",
-      "sport": "world_cup",
-      "gameId": "17",
-      "gameLabel": "France vs Senegal",
-      "market": "draw_no_bet",
-      "marketLabel": "draw-no-bet",
-      "americanOdds": -720,
-      "modelProbability": 0.8285,
-      "marketFamily": "team",
-      "survivalScore": 79.37,
-      "tier": "watchlist",
-      "eligible": false,
-      "components": {
-        "baseModel": 24.37,
-        "marketType": 22.0,
-        "recentForm": 12.0,
-        "oddsBand": 10.0,
-        "dataQuality": 11.0
-      },
-      "penalties": {},
-      "hitRate": {
-        "available": true,
-        "hits": 4,
-        "of": 5,
-        "rate": 0.8
-      },
-      "rejectionReasons": [],
-      "whySelected": []
-    }
-  ],
+  "watchlistLegs": [],
   "strongestCandidates": [
     {
       "pick": "Norway or Draw",
@@ -289,40 +224,6 @@
       ]
     },
     {
-      "pick": "France or Draw",
-      "sport": "world_cup",
-      "gameId": "17",
-      "gameLabel": "France vs Senegal",
-      "market": "double_chance",
-      "marketLabel": "double chance",
-      "americanOdds": -1000,
-      "modelProbability": 0.8637,
-      "marketFamily": "team",
-      "survivalScore": 88.45,
-      "tier": "eligible",
-      "eligible": true,
-      "components": {
-        "baseModel": 30.45,
-        "marketType": 25.0,
-        "recentForm": 12.0,
-        "oddsBand": 10.0,
-        "dataQuality": 11.0
-      },
-      "penalties": {},
-      "hitRate": {
-        "available": true,
-        "hits": 4,
-        "of": 5,
-        "rate": 0.8
-      },
-      "rejectionReasons": [],
-      "whySelected": [
-        "low-variance team market (double chance)",
-        "model 86% to hold",
-        "recent form 4/5"
-      ]
-    },
-    {
       "pick": "Argentina (draw no bet)",
       "sport": "world_cup",
       "gameId": "19",
@@ -391,36 +292,6 @@
       ]
     },
     {
-      "pick": "France (draw no bet)",
-      "sport": "world_cup",
-      "gameId": "17",
-      "gameLabel": "France vs Senegal",
-      "market": "draw_no_bet",
-      "marketLabel": "draw-no-bet",
-      "americanOdds": -720,
-      "modelProbability": 0.8285,
-      "marketFamily": "team",
-      "survivalScore": 79.37,
-      "tier": "watchlist",
-      "eligible": false,
-      "components": {
-        "baseModel": 24.37,
-        "marketType": 22.0,
-        "recentForm": 12.0,
-        "oddsBand": 10.0,
-        "dataQuality": 11.0
-      },
-      "penalties": {},
-      "hitRate": {
-        "available": true,
-        "hits": 4,
-        "of": 5,
-        "rate": 0.8
-      },
-      "rejectionReasons": [],
-      "whySelected": []
-    },
-    {
       "pick": "Norway",
       "sport": "world_cup",
       "gameId": "18",
@@ -479,9 +350,75 @@
       },
       "rejectionReasons": [],
       "whySelected": []
+    },
+    {
+      "pick": "Kodai Senga Under 5.5",
+      "sport": "mlb",
+      "gameId": "f6f0e79036206f0a0ae7e8137c0c3096",
+      "gameLabel": "NYM @ CIN",
+      "market": "pitcher_strikeouts",
+      "marketLabel": "Strikeouts",
+      "americanOdds": -166,
+      "modelProbability": 0.7677,
+      "marketFamily": "pitcher",
+      "survivalScore": 53.05,
+      "tier": "not_eligible",
+      "eligible": false,
+      "components": {
+        "baseModel": 22.05,
+        "marketType": 12.0,
+        "recentForm": 9.0,
+        "oddsBand": 9.0,
+        "dataQuality": 15.0
+      },
+      "penalties": {
+        "volatility": -8.0,
+        "dnpLineup": -6.0
+      },
+      "hitRate": {
+        "available": true,
+        "hits": 3,
+        "of": 5,
+        "rate": 0.6
+      },
+      "rejectionReasons": [],
+      "whySelected": []
+    },
+    {
+      "pick": "Edward Cabrera Under 5.5",
+      "sport": "mlb",
+      "gameId": "97d8a9970a14f21507c77048dcce6ae9",
+      "gameLabel": "COL @ CHC",
+      "market": "pitcher_strikeouts",
+      "marketLabel": "Strikeouts",
+      "americanOdds": -132,
+      "modelProbability": 0.7076,
+      "marketFamily": "pitcher",
+      "survivalScore": 45.79,
+      "tier": "not_eligible",
+      "eligible": false,
+      "components": {
+        "baseModel": 16.79,
+        "marketType": 12.0,
+        "recentForm": 9.0,
+        "oddsBand": 7.0,
+        "dataQuality": 15.0
+      },
+      "penalties": {
+        "volatility": -8.0,
+        "dnpLineup": -6.0
+      },
+      "hitRate": {
+        "available": true,
+        "hits": 3,
+        "of": 5,
+        "rate": 0.6
+      },
+      "rejectionReasons": [],
+      "whySelected": []
     }
   ],
-  "poolSize": 91,
+  "poolSize": 85,
   "disclaimer": "Paper-only, educational. Survival score is a Bank Builder eligibility gate, stricter than Parlay Lab \u2014 it rejects fragile single-player props, unconfirmed-lineup (DNP) risk, and longshots. No fabrication.",
   "priceSource": "the_odds_api",
   "statSource": "api_football"

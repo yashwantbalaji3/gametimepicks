@@ -26,15 +26,17 @@ from typing import Any
 ELIGIBLE_THRESHOLD = 80
 WATCHLIST_THRESHOLD = 70
 
-# A Dual run needs TWO *independent* lanes. Correlated lanes (sharing a game) defeat the point of
-# running two, so a launch requires enough eligible legs spread across enough distinct games to
-# build two game-disjoint lanes.
+# A Dual run needs TWO lanes, each two legs from DIFFERENT games (intra-lane non-correlation) and
+# each lane carrying at least one World Cup leg from today's slate. Lanes may share a game across
+# lanes (we PREFER game-disjoint and reward it), so a launch needs eligible legs across >=3 games.
 LANE_LEGS = 2
 LANES = 2
-MIN_DISTINCT_GAMES = LANE_LEGS * LANES  # 4 — two lanes, no shared game
-# Per-lane combined-decimal band: meaningful return without chasing longshots.
-LANE_DECIMAL_LO, LANE_DECIMAL_HI = 1.45, 2.60
+MIN_DISTINCT_GAMES = 3  # enough for two lanes when cross-lane game sharing is allowed
+# Per-lane combined-decimal band. Floor is survival-first (two short-priced favourites combine to a
+# modest but high-probability return); upper bound still rejects longshot stacking.
+LANE_DECIMAL_LO, LANE_DECIMAL_HI = 1.12, 2.60
 MIN_LANE_JOINT_PROB = 0.50
+REQUIRE_WORLD_CUP_LEG_PER_LANE = True
 
 DATA_QUALITY_POINTS = {"A": 15, "B": 11, "C": 6, "D": 0, "LIMITED": 0}
 
@@ -276,35 +278,54 @@ def _decimal(leg: dict) -> float:
     return 1 + (o / 100 if o > 0 else 100 / abs(o))
 
 
+def _valid_lane(a: dict, b: dict) -> bool:
+    """A lane = two eligible legs from DIFFERENT games, in the decimal band, above the joint-prob
+    floor, with at least one World Cup leg."""
+    if a["gameId"] == b["gameId"]:
+        return False
+    if not (LANE_DECIMAL_LO <= _decimal(a) * _decimal(b) <= LANE_DECIMAL_HI):
+        return False
+    if a["modelProbability"] * b["modelProbability"] < MIN_LANE_JOINT_PROB:
+        return False
+    if REQUIRE_WORLD_CUP_LEG_PER_LANE and not (a["sport"] == "world_cup" or b["sport"] == "world_cup"):
+        return False
+    return True
+
+
 def _two_lanes(eligible: list[dict]) -> list[dict] | None:
-    """Try to build two game-disjoint lanes (no shared game across the four legs), each lane two
-    legs from different games, within the decimal band and joint-prob floor. Returns lanes or None."""
+    """Build the best two lanes. Each lane is two eligible legs from different games with >=1 World
+    Cup leg; lanes share NO leg, PREFER no shared game (rewarded), and we maximise total survival.
+    Returns [laneA, laneB] (highest-survival lane first) or None."""
     by_score = sorted(eligible, key=lambda s: s["survivalScore"], reverse=True)
     n = len(by_score)
+    lanes = []
     for i in range(n):
         for j in range(i + 1, n):
-            la = (by_score[i], by_score[j])
-            games_a = {la[0]["gameId"], la[1]["gameId"]}
-            if len(games_a) < 2:
+            if _valid_lane(by_score[i], by_score[j]):
+                pair = (by_score[i], by_score[j])
+                lanes.append({
+                    "idx": (i, j),
+                    "legs": pair,
+                    "games": {pair[0]["gameId"], pair[1]["gameId"]},
+                    "survival": pair[0]["survivalScore"] + pair[1]["survivalScore"],
+                })
+    best = None
+    best_score = -1.0
+    for a in range(len(lanes)):
+        for b in range(len(lanes)):
+            if a == b:
                 continue
-            if not (LANE_DECIMAL_LO <= _decimal(la[0]) * _decimal(la[1]) <= LANE_DECIMAL_HI):
-                continue
-            if la[0]["modelProbability"] * la[1]["modelProbability"] < MIN_LANE_JOINT_PROB:
-                continue
-            for k in range(n):
-                for m in range(k + 1, n):
-                    if k in (i, j) or m in (i, j):
-                        continue
-                    lb = (by_score[k], by_score[m])
-                    games_b = {lb[0]["gameId"], lb[1]["gameId"]}
-                    if len(games_b) < 2 or (games_a & games_b):
-                        continue  # lanes must be game-disjoint (differentiated)
-                    if not (LANE_DECIMAL_LO <= _decimal(lb[0]) * _decimal(lb[1]) <= LANE_DECIMAL_HI):
-                        continue
-                    if lb[0]["modelProbability"] * lb[1]["modelProbability"] < MIN_LANE_JOINT_PROB:
-                        continue
-                    return [list(la), list(lb)]
-    return None
+            la, lb = lanes[a], lanes[b]
+            if set(la["idx"]) & set(lb["idx"]):
+                continue  # lanes must share no leg
+            disjoint_bonus = 25 if not (la["games"] & lb["games"]) else 0
+            score = la["survival"] + lb["survival"] + disjoint_bonus
+            if score > best_score:
+                best_score = score
+                # higher-survival lane is Lane A
+                first, second = (la, lb) if la["survival"] >= lb["survival"] else (lb, la)
+                best = [list(first["legs"]), list(second["legs"])]
+    return best
 
 
 def evaluate_pool(legs: list[dict]) -> dict:
@@ -319,19 +340,20 @@ def evaluate_pool(legs: list[dict]) -> dict:
     decision = "evaluating"
     reasons: list[str] = []
     lanes = None
+    min_eligible = LANE_LEGS * LANES  # 4 legs for two two-leg lanes
 
-    if len(eligible) < MIN_DISTINCT_GAMES:
-        reasons.append(f"only {len(eligible)} eligible legs (need ≥{MIN_DISTINCT_GAMES})")
+    if len(eligible) < min_eligible:
+        reasons.append(f"only {len(eligible)} eligible legs (need ≥{min_eligible} for two lanes)")
     if len(distinct_games) < MIN_DISTINCT_GAMES:
         reasons.append(f"eligible legs span only {len(distinct_games)} distinct games "
-                       f"(need ≥{MIN_DISTINCT_GAMES} for two non-correlated lanes)")
-    if len(eligible) >= MIN_DISTINCT_GAMES and len(distinct_games) >= MIN_DISTINCT_GAMES:
+                       f"(need ≥{MIN_DISTINCT_GAMES})")
+    if len(eligible) >= min_eligible and len(distinct_games) >= MIN_DISTINCT_GAMES:
         lanes = _two_lanes(eligible)
         if lanes:
             decision = "launch"
         else:
-            reasons.append("eligible legs could not form two differentiated lanes within the "
-                           "return band without sharing a game (would be correlated)")
+            reasons.append("eligible legs could not form two valid lanes (each two legs from "
+                           "different games, ≥1 World Cup leg, within the survival-first return band)")
 
     return {
         "decision": decision,
