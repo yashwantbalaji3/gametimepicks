@@ -12,8 +12,11 @@ June 16, 2026, ~10:00 AM ET. June 15 slate is finished. Production is the June 1
 - App/product code = **`0920a2d`** (PR #494). Both `a4b1e32` and `0920a2d` are on main ✓.
 - Working tree clean (only gitignored `.env` + `pipeline/cache` untracked).
 - Recent history shows automated cron commits (`auto: morning projections …`, `auto: Phase 10
-  daily refresh …`) — there is daily automation committing to main; **no June 16 auto-refresh
-  has landed yet.**
+  daily refresh …`, `auto: nightly settle 2026-06-16 06:24/08:26 ET`) — there is daily automation
+  committing to main. The **June 16 nightly-settle job graded the LEGACY June-15 artifacts**
+  (`mlb/results/settled_leans.jsonl`, `parlays/graded`, old `bank-builder/ledger`/`summary`), but
+  it **did NOT touch the new `dual-lanes` artifact** (still `pending`). All auto commits are
+  `[skip ci]`, so they **do not trigger a Vercel deploy** — prod is still the June 15 build.
 
 ## 3. Production route status — HEALTHY
 All routes **200** on **both** domains (`gametime-picks.vercel.app` and
@@ -70,6 +73,9 @@ All four events are **FINAL**; settlement can run now.
 - **Lane B = LOSS** (Mike Trout 2 hits lost; Samad Taylor DNP voids his leg but the parlay is
   already lost).
 - **Dual Bank Builder Run #2 Step 1 = 0/2 lanes.** Settlement is **ready to run** (full PR next).
+- **The nightly-settle automation does NOT cover the `dual-lanes` artifact** (it grades the legacy
+  MLB/optimizer/old-ledger only), so the dual lanes are still `pending` and require manual
+  settlement (or a new settle step) — see P0.1 / P1.3.
 - This validates the owner's concern + the "Bank Builder must be stricter" lesson. New
   data point: **player-prop DNP risk** (Samad Taylor) — a leg can void if a player is rested.
 
