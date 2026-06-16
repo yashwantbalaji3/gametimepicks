@@ -21,10 +21,13 @@ test("loadDailyMixedCards date-gates a stale slate (no stale cards as active pic
   assert.ok(/wcParlays\.date === today/.test(picks), "/picks gates World Cup cards to today");
 });
 
-test("Bank Builder crown teases the next ladder (Coming Soon), gated on completion", () => {
+test("Bank Builder shows the LIVE Dual Bank Builder (no stale Coming Soon teaser)", () => {
   const page = read("src/app/bank-builder/page.tsx");
-  assert.ok(/Next Bank Builder/i.test(page) && /Coming Soon/i.test(page), "next-ladder Coming Soon teaser present");
-  assert.ok(/completed \? \(/.test(page) || page.includes("{completed ?"), "teaser is gated on the completed crown");
+  // The next run is now LIVE (Dual Bank Builder), so the old "coming soon" teaser is gone.
+  assert.ok(!/Coming Soon/i.test(page), "stale 'Coming Soon' teaser removed");
+  assert.ok(/DualBankBuilderTeaser/.test(page) && /loadDualBankBuilder/.test(page),
+    "live Dual Bank Builder is rendered from its artifact");
+  assert.ok(/completed \?/.test(page), "Dual lanes render once the first run is the completed crown");
 });
 
 test("UFC expanded projections carry real fighter comparison stats for every fight", () => {

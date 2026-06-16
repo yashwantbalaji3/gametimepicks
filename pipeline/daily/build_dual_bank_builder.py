@@ -80,14 +80,23 @@ def mlb_legs(now: datetime) -> list[dict]:
             continue
         if prob < MIN_MODEL_PROB:
             continue
+        ml = l.get("marketLabel") or "prop"
+        line = l.get("line")
+        predict = (f"{prob*100:.0f}% to clear {line} {ml.lower()}" if side == "Over"
+                   else f"{prob*100:.0f}% to stay under {line} {ml.lower()}")
         out.append({
             "sport": "mlb", "sportLabel": "MLB",
             "gameId": str(l.get("gameId")),
             "gameLabel": f"{l.get('awayTeamAbbr')} @ {l.get('homeTeamAbbr')}",
-            "market": l.get("marketKey"), "marketLabel": l.get("marketLabel"),
-            "pick": f"{l.get('playerName')} {side} {l.get('line')}",
-            "playerName": l.get("playerName"), "team": l.get("playerTeamAbbr"),
+            "market": l.get("marketKey"), "marketLabel": ml,
+            "pick": f"{l.get('playerName')} {side} {line}",
+            "playerName": l.get("playerName"), "playerId": l.get("playerId"),
+            "team": l.get("playerTeamAbbr"), "opponent": l.get("opponentAbbr"),
+            "line": line, "side": side,
             "americanOdds": int(odds), "decimal": a2d(odds), "modelProbability": round(prob, 4),
+            "modelPredict": predict,
+            "recentGames": (l.get("recentGames") or [])[-5:],
+            "reasonBullets": l.get("reasonBullets") or [],
             "confidence": "High", "commenceTime": l.get("commenceTime"),
             "dataQuality": "A", "edgePct": l.get("edgePct"),
         })
@@ -115,14 +124,19 @@ def wc_legs(now: datetime) -> list[dict]:
             hf = (m.get("homeForm") or {}).get("formString")
             af = (m.get("awayForm") or {}).get("formString")
             form = f"{m['homeTeam']} {hf or '—'} · {m['awayTeam']} {af or '—'}"
+        market_noun = {"double_chance": "double chance", "draw_no_bet": "draw-no-bet",
+                       "moneyline_90": "match result"}.get(m.get("market"), m.get("market"))
         out.append({
             "sport": "world_cup", "sportLabel": "World Cup",
             "gameId": str(m.get("matchId")),
             "gameLabel": f"{m.get('homeTeam')} vs {m.get('awayTeam')}",
-            "market": m.get("market"), "marketLabel": m.get("market"),
+            "homeTeam": m.get("homeTeam"), "awayTeam": m.get("awayTeam"),
+            "market": m.get("market"), "marketLabel": market_noun,
             "pick": m.get("pickLabel"),
             "homeCode": m.get("homeCode"), "awayCode": m.get("awayCode"),
-            "recentForm": form, "group": m.get("group"),
+            "recentForm": form, "homeForm": m.get("homeForm"), "awayForm": m.get("awayForm"),
+            "outcomes": m.get("outcomes") or [], "group": m.get("group"),
+            "modelPredict": f"{prob*100:.0f}% — {m.get('pickLabel')}",
             "americanOdds": int(odds), "decimal": a2d(odds), "modelProbability": round(prob, 4),
             "confidence": m.get("confidence"), "commenceTime": m.get("kickoffUtc"),
             "dataQuality": m.get("dataQuality", "B"), "edgePct": m.get("edgePct"),

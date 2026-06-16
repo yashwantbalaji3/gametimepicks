@@ -377,26 +377,8 @@ export default function BankBuilderPage() {
       {/* SECTION 4 — previous hits */}
       <PreviousHits hits={hits} recordLabel={recordLabel} />
 
-      {/* SECTION 4.5 — next ladder teaser (only once the current run is the completed crown) */}
-      {completed ? (
-        <section
-          className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-6 text-center"
-          style={{ border: "1px solid var(--lava-border-strong)", background: "linear-gradient(160deg, rgba(225, 29, 42,0.13), rgba(242, 54, 69,0.05) 55%, var(--lava-panel))" }}
-          aria-label="Next Bank Builder coming soon"
-        >
-          <div aria-hidden className="gtp-heat-pulse absolute left-1/2 top-0 h-40 w-40 -translate-x-1/2 -translate-y-16 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(14px)", opacity: 0.4 }} />
-          <span className="relative font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)" }}>The next run</span>
-          <h2 className="relative mt-1.5 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(24px, 5vw, 38px)", fontWeight: 800, lineHeight: 1.02 }}>
-            🔥 Next Bank Builder — Coming Soon
-          </h2>
-          <p className="relative mx-auto mt-2.5 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 540 }}>
-            We just ran <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>$100 → {formatLadderUsdPrecise(currentBankroll)}</span> in 5 days — a {recordLabel} paper ladder, every rung settled from official results. The next $100 → $10,000 run is being lined up. Watch this page for the new ladder.
-          </p>
-          <span className="relative mt-3 inline-flex rounded-full px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-heat-dim)", color: "var(--gtp-bank-heat)", border: "1px solid var(--lava-border-strong)" }}>
-            New ladder · coming soon
-          </span>
-        </section>
-      ) : null}
+      {/* The "next run" is no longer a teaser — the Dual Bank Builder above is LIVE
+          (Run #2, Step 1). The old next-ladder teaser was removed to avoid contradicting it. */}
 
       {/* SECTION 5 — tiny footer */}
       <p className="mt-6 text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>

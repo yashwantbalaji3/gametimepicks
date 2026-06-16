@@ -26,6 +26,19 @@ export interface DualLaneLeg {
   group?: string | null;
   playerName?: string | null;
   team?: string | null;
+  // Rich leg context (for the clickable drawer + portraits/logos).
+  playerId?: number | null;
+  opponent?: string | null;
+  line?: number | null;
+  side?: string | null;
+  modelPredict?: string;
+  recentGames?: Array<{ date: string; opponent: string; isHome: boolean; value: number }>;
+  reasonBullets?: Array<{ label: string; text: string; tone?: string }>;
+  homeTeam?: string | null;
+  awayTeam?: string | null;
+  homeForm?: { formString: string; last5: Array<{ date: string; opponent: string; score: string; result: string; competition: string }> } | null;
+  awayForm?: { formString: string; last5: Array<{ date: string; opponent: string; score: string; result: string; competition: string }> } | null;
+  outcomes?: Array<{ label: string; side: string; modelProbability: number; americanOdds: number | null }>;
 }
 
 export interface DualLane {

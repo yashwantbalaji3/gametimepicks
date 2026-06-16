@@ -451,15 +451,18 @@ def main(argv=None) -> int:
     out = build(args.date)
     if out.get("error"):
         return 2
-    for sub in ("projections", "parlays", "player-projections"):
+    # NOTE: player-projections are owned by `build_player_props.py` (odds-backed props with
+    # API-Football identity). This generator no longer writes a placeholder there, so it
+    # never clobbers real props. If player props are unavailable, run build_player_props to
+    # write the honest empty/unavailable state.
+    for sub in ("projections", "parlays"):
         (DATA / sub).mkdir(parents=True, exist_ok=True)
-    for name, doc in (("projections", out["projections"]), ("parlays", out["parlays"]),
-                      ("player-projections", empty_player_props(args.date))):
+    for name, doc in (("projections", out["projections"]), ("parlays", out["parlays"])):
         (DATA / name / f"{args.date}.json").write_text(json.dumps(doc, indent=2) + "\n")
         (DATA / name / "latest.json").write_text(json.dumps(doc, indent=2) + "\n")
     p, c = out["projections"], out["parlays"]
     print(f"[wc] {args.date}: {p['matchCount']} fixtures, {p['projectionCount']} market projections "
-          f"{p['marketsCovered']}, {c['cardCount']} cards {c['byRisk']}; player props removed (unavailable)")
+          f"{p['marketsCovered']}, {c['cardCount']} cards {c['byRisk']} (player props via build_player_props)")
     return 0
 
 
