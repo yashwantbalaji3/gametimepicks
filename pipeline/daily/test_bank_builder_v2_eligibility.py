@@ -91,35 +91,56 @@ class TestSurvivalScore(unittest.TestCase):
 
 
 class TestEvaluatePool(unittest.TestCase):
-    def test_three_games_blocks_launch(self):
+    def test_two_games_blocks_launch(self):
+        # only two distinct upcoming games (e.g. one fixture already kicked off) → cannot form two
+        # differentiated lanes (each needs two legs from different games) → block.
         pool = [
-            wc_double_chance(game="g1", pick="France or Draw", team="France", prob=0.86, odds=-300),
-            wc_double_chance(game="g2", pick="Norway or Draw", team="Norway", prob=0.93, odds=-280),
-            wc_double_chance(game="g3", pick="Argentina or Draw", team="Argentina", prob=0.87, odds=-320),
-            mlb_hitter(),  # rejected
+            wc_double_chance(game="g2", pick="Norway or Draw", team="Norway", prob=0.93, odds=-200),
+            wc_double_chance(game="g2b", pick="Norway DNB", team="Norway", prob=0.91, odds=-220),
+            wc_double_chance(game="g3", pick="Argentina or Draw", team="Argentina", prob=0.92, odds=-200),
+            wc_double_chance(game="g3b", pick="Argentina DNB", team="Argentina", prob=0.84, odds=-210),
         ]
+        # collapse to two games
+        pool[1]["gameId"] = "g2"
+        pool[3]["gameId"] = "g3"
         res = evaluate_pool(pool)
         self.assertEqual(res["decision"], "evaluating")
-        self.assertLess(res["counts"]["distinctEligibleGames"], 4)
-        self.assertTrue(res["blockers"])
+        self.assertLess(res["counts"]["distinctEligibleGames"], 3)
         self.assertIsNone(res["lanes"])
 
-    def test_four_independent_games_can_launch(self):
-        # four eligible team-market legs across four distinct games, priced to land in the band
+    def test_four_eligible_three_games_launches_with_wc_legs(self):
+        # four eligible team legs across three games, priced into the band → launches; each lane has
+        # two legs from different games AND at least one World Cup leg, lanes share no leg.
         pool = [
-            wc_double_chance(game="g1", pick="France or Draw", team="France", prob=0.82, odds=-160),
-            wc_double_chance(game="g2", pick="Norway or Draw", team="Norway", prob=0.84, odds=-170),
-            wc_double_chance(game="g3", pick="Argentina or Draw", team="Argentina", prob=0.83, odds=-165),
-            wc_double_chance(game="g4", pick="Spain or Draw", team="Spain", prob=0.85, odds=-175),
+            wc_double_chance(game="g1", pick="France or Draw", team="France", prob=0.86, odds=-200),
+            wc_double_chance(game="g2", pick="Norway or Draw", team="Norway", prob=0.84, odds=-190),
+            wc_double_chance(game="g3", pick="Argentina or Draw", team="Argentina", prob=0.85, odds=-200),
+            wc_double_chance(game="g3b", pick="Argentina DNB", team="Argentina", prob=0.83, odds=-210),
+        ]
+        pool[3]["gameId"] = "g3"  # second Argentina leg shares g3
+        res = evaluate_pool(pool)
+        self.assertEqual(res["decision"], "launch")
+        self.assertEqual(len(res["lanes"]), 2)
+        for lane in res["lanes"]:
+            self.assertEqual(len({l["gameId"] for l in lane}), 2, "two different games per lane")
+            self.assertTrue(any(l["sport"] == "world_cup" for l in lane), "≥1 World Cup leg per lane")
+        # lanes share no leg
+        a = {l["pick"] for l in res["lanes"][0]}
+        b = {l["pick"] for l in res["lanes"][1]}
+        self.assertEqual(a & b, set())
+
+    def test_four_independent_games_prefers_disjoint(self):
+        pool = [
+            wc_double_chance(game="g1", pick="France or Draw", team="France", prob=0.82, odds=-200),
+            wc_double_chance(game="g2", pick="Norway or Draw", team="Norway", prob=0.84, odds=-190),
+            wc_double_chance(game="g3", pick="Argentina or Draw", team="Argentina", prob=0.83, odds=-200),
+            wc_double_chance(game="g4", pick="Spain or Draw", team="Spain", prob=0.85, odds=-195),
         ]
         res = evaluate_pool(pool)
         self.assertEqual(res["decision"], "launch")
-        self.assertIsNotNone(res["lanes"])
-        self.assertEqual(len(res["lanes"]), 2)
-        # lanes must be game-disjoint
         games_a = {l["gameId"] for l in res["lanes"][0]}
         games_b = {l["gameId"] for l in res["lanes"][1]}
-        self.assertEqual(games_a & games_b, set())
+        self.assertEqual(games_a & games_b, set(), "four games → game-disjoint lanes preferred")
 
     def test_run2_failure_legs_would_not_relaunch(self):
         # the actual Run #2 legs (hitter props, unconfirmed) must all be rejected

@@ -16,6 +16,7 @@ import PreviousHits from "@/components/bank-builder/previous-hits";
 import DualBankBuilderTeaser from "@/components/bank-builder/dual-bank-builder-teaser";
 import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
 import BankBuilderV2Panel from "@/components/bank-builder/bank-builder-v2-panel";
+import BankBuilderMeter from "@/components/bank-builder/bank-builder-meter";
 import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
 import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
@@ -186,6 +187,11 @@ export default function BankBuilderPage() {
         <BoardStatTile label={completed ? "Crown" : "Today's goal"} value={formatLadderUsd(BANK_BUILDER_GOAL)} sub={completed ? "reached · officially settled" : `from ${formatLadderUsd(activeStep.start)} · pending`} accent="var(--sport-soccer)" />
         <BoardStatTile label={completed ? "Final rung" : "Today's card"} value={completed ? "WON" : publishedCandidate || officialStep3 ? "Pending" : "—"} sub={completed ? "NBA Finals Game 5 · settled" : publishedCandidate ? `${candidateSports} · Step ${activeStep.step}` : officialStep3 ? `World Cup · Step ${activeStep.step}` : "none cleared yet"} accent={completed ? "var(--vault-success)" : "var(--risk-longshot)"} />
         <BoardStatTile label="Record" value={recordLabel} sub={completed ? "5 rungs · officially settled" : "settled ladder steps"} accent="var(--vault-gold-bright)" />
+      </div>
+
+      {/* Futuristic $100 → $10K meter — run timeline + ladder path + lane status. */}
+      <div className="mt-6">
+        <BankBuilderMeter run1Bankroll={currentBankroll} dual={loadDualBankBuilder()} v2={v2} />
       </div>
 
       {/* Bank Builder V2 — the survival-gate panel (Run #3 evaluating/launched + per-leg scores). */}

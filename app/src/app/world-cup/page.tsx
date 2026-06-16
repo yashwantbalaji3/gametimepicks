@@ -57,6 +57,8 @@ import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
 import PlayerPropCard from "@/components/ui/player-prop-card";
 import StatusChip from "@/components/ui/status-chip";
+import WorldCupCuratedPicks from "@/components/world-cup/curated-picks";
+import { loadWorldCupCuratedGames } from "@/lib/curated-picks";
 
 export const metadata = {
   title: "FIFA World Cup 2026 · GameTime Picks",
@@ -137,6 +139,7 @@ export default function WorldCupLandingPage() {
   const wcCards = normalizeWcCards(parlays);
   const wcProjections = normalizeWcProjections(projections);
   const wcPlayers = normalizeWcPlayerProps(playerProjections);
+  const curatedGames = loadWorldCupCuratedGames();
   const playerByMarket = new Map<string, PublicProjection[]>();
   for (const p of wcPlayers) {
     const arr = playerByMarket.get(p.marketLabel) ?? [];
@@ -303,29 +306,32 @@ export default function WorldCupLandingPage() {
   );
 
   const playerPropsTab = (
-    <div className="flex flex-col gap-6">
-      <SectionHeader eyebrow={`Player props · ${wcPlayers.length} views · ${photoCount} photos`} title="Player projections" sub="Built from the sportsbook's listed players (the predicted-XI signal) matched to real API-Football identities. Market-anchored until lineups confirm — a “Card eligible” chip appears once a starter is confirmed and the edge qualifies." />
+    <div className="flex flex-col gap-5">
+      <SectionHeader eyebrow={`Curated by game · ${curatedGames.length} fixtures`} title="Top model picks per game" sub="Model-ranked team and player picks for each fixture — not a raw prop list. Each pick shows model vs market, recent form/data quality, and why. Player props are limited-data (market-implied) and never Bank Builder eligible." />
+      <WorldCupCuratedPicks games={curatedGames} />
+
       {wcPlayers.length > 0 ? (
-        [...playerByMarket.entries()]
-          .sort((a, b) => PLAYER_MARKET_ORDER.indexOf(a[0]) - PLAYER_MARKET_ORDER.indexOf(b[0]))
-          .map(([market, list]) => (
-            <section key={market} aria-label={market}>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{market}</span>
-                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{list.length}</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {list.map((p) => <PlayerPropCard key={p.id} p={p} />)}
-              </div>
-            </section>
-          ))
-      ) : (
-        <div className="rounded-[10px] px-5 py-6 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
-          <span aria-hidden style={{ fontSize: 26 }}>⚽</span>
-          <p className="mt-2" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>Books haven&apos;t posted player props yet</p>
-          <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>Player views appear once sportsbooks post player-prop odds + the listed-player universe for today&apos;s matches. Team markets are live now.</p>
-        </div>
-      )}
+        <details className="rounded-[10px]" style={{ background: "rgba(12,8,6,0.4)", border: "1px solid var(--vault-rule)" }}>
+          <summary className="cursor-pointer list-none px-4 py-3 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+            All available props · market inventory ({wcPlayers.length} views · {photoCount} photos)
+          </summary>
+          <div className="px-4 pb-4 flex flex-col gap-5">
+            {[...playerByMarket.entries()]
+              .sort((a, b) => PLAYER_MARKET_ORDER.indexOf(a[0]) - PLAYER_MARKET_ORDER.indexOf(b[0]))
+              .map(([market, list]) => (
+                <section key={market} aria-label={market}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{market}</span>
+                    <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{list.length}</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {list.map((p) => <PlayerPropCard key={p.id} p={p} />)}
+                  </div>
+                </section>
+              ))}
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 
@@ -499,7 +505,7 @@ export default function WorldCupLandingPage() {
     { key: "games", label: "Games", badge: todayMatches.length || null, content: gamesTab },
     { key: "overview", label: "Overview", content: overviewTab },
     { key: "projections", label: "Projections", badge: wcProjections.length || null, content: projectionsTab },
-    { key: "player-props", label: "Player Props", badge: wcPlayers.length || null, content: playerPropsTab },
+    { key: "player-props", label: "Player Picks", badge: wcPlayers.length || null, content: playerPropsTab },
     { key: "cards", label: "Suggested Cards", badge: wcCards.length || null, content: cardsTab },
     { key: "markets", label: "Markets", badge: null, content: marketsTab },
     { key: "results", label: "Results", badge: null, content: resultsTab },
