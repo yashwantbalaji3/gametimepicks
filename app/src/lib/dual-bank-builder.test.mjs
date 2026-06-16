@@ -81,13 +81,30 @@ test("no banned copy in the dual-lane artifact", () => {
   assert.ok(!banned.test(JSON.stringify(dual)), "no outcome-promise copy in lanes");
 });
 
-test("a new Bank Builder run is guarded until the V2 eligibility gate exists", () => {
-  // The launcher must fail closed (no Run #3) until the V2 survival-score gate is built.
+test("the V1 selector is superseded by the V2 survival gate and refuses to launch", () => {
+  // V1 picked on model probability alone; it must defer to V2 (no Run #3 via V1).
   const src = fs.readFileSync(new URL("../../../pipeline/daily/build_dual_bank_builder.py", import.meta.url), "utf8");
-  assert.ok(/v2_gate/.test(src), "launcher checks for a V2 eligibility gate");
-  assert.ok(/REFUSED/.test(src), "launcher refuses to launch when the gate is missing");
+  assert.ok(/REFUSED/.test(src), "V1 launcher refuses to launch");
+  assert.ok(/superseded by Bank Builder V2/.test(src), "V1 points operators to V2");
   assert.ok(/force-v1-launch/.test(src), "an explicit operator override exists");
-  // The V2 gate module does not exist yet, so the guard is currently ACTIVE.
+  // The V2 survival gate now exists and is pure/importable.
   const v2 = new URL("../../../pipeline/daily/bank_builder_v2_eligibility.py", import.meta.url);
-  assert.ok(!fs.existsSync(v2), "V2 eligibility gate not built yet — launch guard remains active");
+  assert.ok(fs.existsSync(v2), "V2 eligibility gate module exists");
+});
+
+test("V2 evaluation gate exists and Run #3 only launches when it passes", () => {
+  const evalDoc = JSON.parse(fs.readFileSync(new URL("v2-evaluation-latest.json", DIR), "utf8"));
+  assert.ok(["launch", "evaluating"].includes(evalDoc.decision), "decision is launch|evaluating");
+  assert.ok(Array.isArray(evalDoc.eligibleLegs), "eligible legs listed");
+  assert.ok(typeof evalDoc.eligibleThreshold === "number", "threshold recorded");
+  // Every eligible leg actually cleared the threshold (no rigging).
+  for (const leg of evalDoc.eligibleLegs) {
+    assert.ok(leg.survivalScore >= evalDoc.eligibleThreshold, `${leg.pick} >= threshold`);
+    assert.equal(leg.rejectionReasons.length, 0, `${leg.pick} has no rejection reasons`);
+  }
+  // If we did NOT launch, the latest dual run must still be the closed Run #2 (not overwritten).
+  if (evalDoc.decision !== "launch") {
+    assert.ok(dual.runNumber === 2 || dual.status === "settled" || dual.status === "closed",
+      "no Run #3 written; Run #2 preserved");
+  }
 });

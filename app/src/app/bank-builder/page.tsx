@@ -15,6 +15,8 @@ import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3
 import PreviousHits from "@/components/bank-builder/previous-hits";
 import DualBankBuilderTeaser from "@/components/bank-builder/dual-bank-builder-teaser";
 import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
+import BankBuilderV2Panel from "@/components/bank-builder/bank-builder-v2-panel";
+import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
 import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
@@ -59,6 +61,7 @@ export const metadata = {
 export default function BankBuilderPage() {
   const pubSummary = loadPublicBankBuilderSummary();
   const pubLedger = loadPublicBankBuilderLedger();
+  const v2 = loadBankBuilderV2();
   const currentBankroll = pubSummary?.currentBankrollUnits ?? BANK_BUILDER_BASE;
   const rec = pubSummary?.record ?? { wins: 0, losses: 0, pushes: 0 };
   const recordLabel = `${rec.wins}–${rec.losses}${rec.pushes ? `–${rec.pushes}` : ""}`;
@@ -185,7 +188,10 @@ export default function BankBuilderPage() {
         <BoardStatTile label="Record" value={recordLabel} sub={completed ? "5 rungs · officially settled" : "settled ladder steps"} accent="var(--vault-gold-bright)" />
       </div>
 
-      {/* Dual Bank Builder — live lanes when launched, else the "coming next" teaser. */}
+      {/* Bank Builder V2 — the survival-gate panel (Run #3 evaluating/launched + per-leg scores). */}
+      {v2 ? <div className="mt-6"><BankBuilderV2Panel v2={v2} /></div> : null}
+
+      {/* Dual Bank Builder — the latest dual run (settled Run #2) detail + run history. */}
       {completed ? <DualBankBuilderTeaser data={loadDualBankBuilder()} /> : null}
 
       {/* SECTION 2 — the ladder + the day-by-day run plan */}
