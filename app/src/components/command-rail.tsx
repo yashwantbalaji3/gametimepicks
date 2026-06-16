@@ -100,9 +100,9 @@ export default function CommandRail() {
       <Link
         href="/"
         aria-label="GameTimePicks home"
-        className="px-5 py-5 inline-flex items-center vault-glow-hover rounded-[6px] mx-2 mt-2"
+        className="px-3 py-4 flex items-center justify-center vault-glow-hover rounded-[8px] mx-2 mt-3"
       >
-        <BrandMark variant="compact" />
+        <BrandMark variant="rail" />
       </Link>
 
       <nav className="flex-1 px-3 py-2 flex flex-col gap-0.5 overflow-y-auto">

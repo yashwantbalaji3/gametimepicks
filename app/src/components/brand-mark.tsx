@@ -27,10 +27,12 @@ interface Props {
    *   - "lockup"   — full logo lockup at the standard nav size (42px tall).
    *   - "compact"  — slightly smaller (30px). Footer / inline contexts.
    *   - "monogram" — vault-tile only. Always renders the CSS monogram.
-   *   - "hero"     — large centered header logo (64px tall). Used in the
+   *   - "hero"     — large centered header logo (72px tall). Used in the
    *                  primary site header where the brand sits center stage.
+   *   - "rail"     — big sidebar brand header (88px tall). The prominent
+   *                  top-of-site lockup in the desktop command rail.
    */
-  variant?: "lockup" | "compact" | "monogram" | "hero";
+  variant?: "lockup" | "compact" | "monogram" | "hero" | "rail";
   /** Adds a single-line ALL-CAPS marker after the wordmark — e.g. "PORTFOLIO". */
   marker?: string;
   /** When true, the monogram tile slowly breathes its gold glow.
@@ -52,17 +54,18 @@ export default function BrandMark({
   const isMonogramOnly = variant === "monogram";
   const isCompact = variant === "compact";
   const isHero = variant === "hero";
+  const isRail = variant === "rail";
 
-  // Image branch is only attempted for lockup / compact / hero. Monogram
-  // always uses the CSS tile.
+  // Image branch is only attempted for lockup / compact / hero / rail.
+  // Monogram always uses the CSS tile.
   const [imgErrored, setImgErrored] = useState(false);
   const showImage = !isMonogramOnly && !useFallback && !imgErrored;
 
   if (showImage) {
-    // Heights tuned per variant. Width derived from the 1659x948
-    // aspect ratio to avoid layout shift.
-    const height = isHero ? 72 : isCompact ? 30 : 42;
-    const width = Math.round((height * 1659) / 948);
+    // Heights tuned per variant. Width derived from the real 1672x941
+    // logo aspect ratio to avoid layout shift.
+    const height = isRail ? 88 : isHero ? 72 : isCompact ? 30 : 42;
+    const width = Math.round((height * 1672) / 941);
     return (
       <span className="gtp-brand-lockup inline-flex items-center gap-2 align-middle">
         <img
