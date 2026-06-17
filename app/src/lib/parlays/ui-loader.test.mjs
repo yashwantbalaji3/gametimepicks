@@ -60,6 +60,13 @@ test("the launched 06-17 run is soccer-per-lane from the engine namespace", () =
     // No shared leg across lanes.
     const aIds = new Set(bb.laneA.legs.map((l) => l.legId));
     assert.ok(bb.laneB.legs.every((l) => !aIds.has(l.legId)), "no shared legs");
+    // The exact Over/Under side is available on the MLB strikeout legs (clickable "why" data).
+    const allLegs = [...bb.laneA.legs, ...bb.laneB.legs];
+    const mlbLeg = allLegs.find((l) => l.sport === "MLB");
+    if (mlbLeg) {
+      assert.ok(mlbLeg.side === "over" || mlbLeg.side === "under", "MLB leg carries an exact side");
+      assert.ok(Array.isArray(mlbLeg.topPositiveFactors), "leg carries why-factors for the drawer");
+    }
   }
 });
 

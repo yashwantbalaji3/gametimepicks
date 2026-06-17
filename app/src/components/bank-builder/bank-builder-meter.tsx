@@ -46,10 +46,10 @@ function RunChip({ tag, title, tone }: { tag: string; title: string; tone: "gold
 }
 
 export default function BankBuilderMeter({
-  run1Bankroll, dual, v2,
-}: { run1Bankroll?: number; dual?: DualBankBuilder | null; v2?: V2Evaluation | null }) {
+  run1Bankroll, dual, v2, activeLaunched,
+}: { run1Bankroll?: number; dual?: DualBankBuilder | null; v2?: V2Evaluation | null; activeLaunched?: boolean }) {
   const run3Active = !!dual && dual.status === "pending" && (dual as { runNumber?: number }).runNumber === 3;
-  const launched = v2?.decision === "launch" || run3Active;
+  const launched = activeLaunched || v2?.decision === "launch" || run3Active;
   // Run #1 reached the crown, so every rung is lit (its historical path to $10K).
   const reachedValue = run1Bankroll ?? 10376.17;
 

@@ -35,6 +35,7 @@ export interface ParlayLegDisplay {
   sport: Sport;
   sportKey: SportKey;
   market: string;
+  side: string | null; // over/under/yes/no — the exact pick side
   participant: string;
   team: string | null;
   opponent: string | null;
@@ -55,6 +56,7 @@ export interface ParlayLegDisplay {
   staleFlags: string[];
   smallSampleFlags: string[];
   leakagePassed: boolean;
+  startTime: string | null;
   identity: LegIdentity;
 }
 export interface SuggestedParlayCard {
@@ -200,6 +202,7 @@ function legDisplay(leg: EligibleLeg, maps: IdentityMaps): ParlayLegDisplay {
     sport: leg.sport,
     sportKey: SPORT_KEY[leg.sport],
     market: leg.marketType,
+    side: leg.side,
     participant: leg.participantName,
     team: leg.teamName,
     opponent: leg.opponentName,
@@ -220,6 +223,7 @@ function legDisplay(leg: EligibleLeg, maps: IdentityMaps): ParlayLegDisplay {
     staleFlags: leg.staleDataFlags.map((f) => f.field),
     smallSampleFlags: leg.smallSampleFlags.map((f) => f.field),
     leakagePassed: leg.leakageValidationPassed,
+    startTime: leg.startTime,
     identity: legIdentity(leg, maps),
   };
 }
@@ -339,14 +343,17 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
     // never the protected files); else show the live soccer-preferred dry-run PREVIEW.
     const launched = readActiveLaunchedRun(root, date);
     const bb = launched?.run ?? selectDualBankBuilder(eligible, date, { mode: "dry_run", preferSoccerPerLane: true });
+    // Fallback display for a launched leg whose game already started (not in the live pool). The
+    // committed artifact carries the exact side + factors, so the "why" + Over/Under still render.
     const minimalLeg = (ll: any): ParlayLegDisplay => ({
-      legId: ll.legId, sport: ll.sport, sportKey: SPORT_KEY[ll.sport as Sport] ?? "mlb", market: ll.marketType,
-      participant: String(ll.label ?? ll.legId), team: null, opponent: null, line: null, odds: ll.odds ?? null,
+      legId: ll.legId, sport: ll.sport, sportKey: SPORT_KEY[ll.sport as Sport] ?? "mlb", market: "",
+      side: null, participant: String(ll.label ?? ll.legId), team: null, opponent: null, line: null, odds: ll.odds ?? null,
       modelProbability: ll.modelProbability ?? null, marketImpliedProbability: null, edge: null,
-      confidenceTier: "", riskScore: ll.riskScore ?? 0, riskTier: "", legQualityTier: ll.legQualityTier ?? "",
+      confidenceTier: ll.confidenceTier ?? "", riskScore: ll.riskScore ?? 0, riskTier: "", legQualityTier: ll.legQualityTier ?? "",
       legQualityScore: ll.legQualityScore ?? 0, survivalScore: ll.legQualityScore ?? null,
-      topPositiveFactors: [], topNegativeFactors: [], missingFlags: [], staleFlags: [], smallSampleFlags: [],
-      leakagePassed: true, identity: { kind: "team", playerId: null, teamAbbr: null, countryCode: null, photoUrl: null, avatarSport: "mlb" },
+      topPositiveFactors: (ll.topPositiveFactors ?? []).map((f: any) => f.label), topNegativeFactors: (ll.topNegativeFactors ?? []).map((f: any) => f.label),
+      missingFlags: [], staleFlags: [], smallSampleFlags: [],
+      leakagePassed: true, startTime: ll.startTime ?? null, identity: { kind: "team", playerId: null, teamAbbr: null, countryCode: null, photoUrl: null, avatarSport: "mlb" },
     });
     const toLane = (lane: DualBankBuilderResult["laneA"]) => lane ? {
       label: lane.label,

@@ -31,16 +31,17 @@ function RunChip({
 }
 
 export default function BankBuilderStatusRail({
-  run1Bankroll, run1Record, dual, v2,
+  run1Bankroll, run1Record, dual, v2, activeLaunched,
 }: {
   run1Bankroll?: string;
   run1Record?: string;
   dual?: DualBankBuilder | null;
   v2?: V2Evaluation | null;
+  activeLaunched?: boolean;
 }) {
   const run2Closed = !!dual && (dual.status === "settled" || dual.status === "closed");
   const run3Active = !!dual && dual.status === "pending" && (dual as { runNumber?: number }).runNumber === 3;
-  const launched = v2?.decision === "launch" || run3Active;
+  const launched = activeLaunched || v2?.decision === "launch" || run3Active;
   const topCand = v2?.strongestCandidates?.[0];
 
   return (

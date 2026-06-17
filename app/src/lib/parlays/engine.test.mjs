@@ -272,6 +272,14 @@ test("prefers one World Cup leg per lane when ≥2 soccer matches qualify", () =
   assert.equal(new Set(wcGames).size, 2);
 });
 
+test("sideLabel formats the exact pick side", async () => {
+  const { sideLabel } = await import("./dual-bank-builder.ts");
+  assert.equal(sideLabel("over"), "Over");
+  assert.equal(sideLabel("under"), "Under");
+  assert.equal(sideLabel("yes"), "Yes");
+  assert.equal(sideLabel(null), "");
+});
+
 test("survivalScore credits low-variance high-probability legs (survival != edge)", () => {
   const hi = mkLeg({ sport: "WORLD_CUP", eventId: "wc1", participant: "Fav or Draw", predictionTarget: "double_chance", line: null, eventStartTime: FUTURE, modelProbability: 0.94, riskScore: 0.04, dataQuality: "B", confidenceScore: "High" });
   const lo = mkLeg({ sport: "WORLD_CUP", eventId: "wc2", participant: "Coinflip or Draw", predictionTarget: "double_chance", line: null, eventStartTime: FUTURE, modelProbability: 0.55, riskScore: 0.04, dataQuality: "B", confidenceScore: "High" });

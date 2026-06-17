@@ -137,6 +137,13 @@ export type BankBuilderLaunchStatus = "launched" | "no_qualified_launch" | "dry_
 export interface BankBuilderLaneLeg extends ParlayLegView {
   legQualityScore: number;
   riskScore: number;
+  side: string | null;          // over/under/yes/no — the exact pick side
+  line: number | null;
+  startTime: string | null;
+  confidenceTier: ConfidenceTier;
+  dataQuality: PredictionOutput["dataQuality"];
+  topPositiveFactors: TopFactor[];
+  topNegativeFactors: TopFactor[];
 }
 
 export interface BankBuilderLane {
