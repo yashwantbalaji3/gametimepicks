@@ -334,6 +334,18 @@ def test_mixed_nba_mlb_slip_grades(s: Suite):
     s.eq(status, "loss", "mixed slip with one MLB loss → loss")
 
 
+def test_void_leg_drops_from_slip(s: Suite):
+    """A void leg (DNP / 0-AB hitter prop) is refunded and drops out — the slip is
+    decided by the remaining legs."""
+    print(f"\n  {BLUE}─── void leg drops from the parlay ───{RESET}")
+    s.eq(GP._grade_slip_status(["void", "win", "win"]), "win", "void + all wins → win")
+    s.eq(GP._grade_slip_status(["void", "loss", "win"]), "loss", "void + a loss → loss")
+    s.eq(GP._grade_slip_status(["void", "unresolved", "win"]), "pending", "void + unresolved → pending")
+    s.eq(GP._grade_slip_status(["void", "void"]), "push", "all legs void → push (full refund)")
+    s.eq(GP._grade_slip_status(["void", "push", "win"]), "push", "void + a push → push")
+    s.eq(GP._MLB_OUTCOME_TO_RESULT.get("Void"), "void", "Void outcome maps to void")
+
+
 def main():
     s = Suite()
     for t in (
@@ -342,6 +354,7 @@ def main():
         test_unresolved_leg_makes_slip_pending,
         test_push_with_no_loss_makes_slip_push,
         test_push_with_loss_still_lose,
+        test_void_leg_drops_from_slip,
         test_grade_snapshot_payload_end_to_end,
         test_no_snapshot_means_honest_noop,
         test_mlb_settled_lookup_normalization,

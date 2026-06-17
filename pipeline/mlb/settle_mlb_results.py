@@ -312,6 +312,36 @@ def settle(date_iso: str, *, board_path: Path | None = None) -> dict:
 
         actual = _stat_for_market(rec, market)
         if actual is None:
+            # The player is IN the final box score but has no qualifying batting line.
+            # 0-AB / no-PA RULE: a hitter prop VOIDS (DNP) when the batter recorded no
+            # plate appearance — appeared only defensively / as a pinch runner, or has an
+            # empty batting line. Never a win/loss. Pitcher props with no line stay
+            # unresolved (a role/data issue, not a clean DNP).
+            if market in ("batter_hits", "batter_total_bases", "batter_hits_runs_rbis"):
+                bat = (rec.get("stats", {}) or {}).get("batting") or {}
+                pa = bat.get("plateAppearances")
+                ab = bat.get("atBats")
+                no_pa = (pa is None or int(pa) == 0) and (ab is None or int(ab) == 0)
+                if no_pa:
+                    settled_rows.append({
+                        "id": lean.get("id"), "date": date_iso, "gamePk": gpk,
+                        "gameId": lean.get("gameId"), "playerId": lean.get("playerId"),
+                        "playerName": lean.get("playerName"),
+                        "playerTeamAbbr": lean.get("playerTeamAbbr"),
+                        "opponentAbbr": lean.get("opponentAbbr"),
+                        "playerRole": lean.get("playerRole"),
+                        "marketKey": market, "marketLabel": lean.get("marketLabel"),
+                        "line": float(line), "lean": side, "confidence": conf,
+                        "projection": float(proj) if proj is not None else None,
+                        "edgePct": lean.get("edgePct"),
+                        "modelProbOver": lean.get("modelProbOver"),
+                        "modelProbUnder": lean.get("modelProbUnder"),
+                        "actual": None, "outcome": "Void", "graded": True,
+                        "voidReason": "no plate appearance (DNP / 0-AB)",
+                        "matchMethod": method,
+                        "settledAt": datetime.now(timezone.utc).isoformat(),
+                    })
+                    continue
             actual_unavailable.append(
                 f"{lean.get('playerName')} ({market}) — actual stat unavailable (player didn't appear)"
             )
