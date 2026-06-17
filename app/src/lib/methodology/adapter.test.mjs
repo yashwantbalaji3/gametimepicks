@@ -205,8 +205,8 @@ test("runMethodology splits on leakage and emits full PredictionOutput rows", ()
   assert.ok(batter.output.missingDataFlags.some((f) => f.field === "confirmed_lineup"));
 });
 
-test("only MLB is wired today; supportedSports is explicit (no fabricated sports)", () => {
-  assert.deepEqual(supportedSports(), ["MLB"]);
+test("all four sports are wired; supportedSports is explicit", () => {
+  assert.deepEqual(supportedSports().sort(), ["MLB", "NBA", "UFC", "WORLD_CUP"]);
 });
 
 test("buildMlbSnapshot records prediction/event/feature times within the leakage rule", () => {
