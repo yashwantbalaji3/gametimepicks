@@ -279,7 +279,7 @@ export default function DualBankBuilderTeaser({ data }: { data?: DualBankBuilder
         {live
           ? `Two paper ladders launched today — completely different legs, separate theses, each ${usd(BASE)} chasing the ${usd(GOAL)} crown. Step 1 targets ~${usd(200)}. Paper-only, educational; the bankroll only moves after official settlement.`
           : settled
-            ? `Run #2 Step 1 has been officially settled — and ${survived === 0 ? "both lanes lost" : `${survived} of ${total} lanes advanced`}. We show the real outcome of every leg below, including the misses, exactly as the official box scores and match results landed. No lane advances; the run is closed. Tap any leg for the official result and what our model read.`
+            ? `The closed test ladder (Step 1) has been officially settled — and ${survived === 0 ? "both lanes lost" : `${survived} of ${total} lanes advanced`}. We show the real outcome of every leg below, including the misses, exactly as the official box scores and match results landed. No lane advances; the run is closed. Tap any leg for the official result and what our model read.`
             : `Two paper ladders climbing the ${usd(GOAL)} crown at the same time — completely different legs each day, separate risk profiles, separate records. The lanes stay idle until the next run is officially started.`}
       </p>
 
@@ -309,7 +309,7 @@ export default function DualBankBuilderTeaser({ data }: { data?: DualBankBuilder
         <div className="relative mt-5 rounded-[10px] px-4 py-3.5" style={{ background: "rgba(225,29,42,0.06)", border: "1px solid var(--lava-border-strong)" }}>
           <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>What we learned</span>
           <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-            Run #2 went {survived}/{total}. The legs cleared our model thresholds but still missed:
+            The closed test ladder went {survived}/{total}. The legs cleared our model thresholds but still missed:
             a low-line hitter went hitless, a star beat a low Under, and one prop voided when the
             player was rested (DNP). The honest takeaway — a high model probability on a single
             volatile player prop is not enough to anchor a ladder.
@@ -327,7 +327,7 @@ export default function DualBankBuilderTeaser({ data }: { data?: DualBankBuilder
       ) : null}
 
       <div className="relative mt-4 rounded-[8px] px-3.5 py-2.5" style={{ background: "rgba(212,175,55,0.06)", border: "1px solid var(--vault-rule)" }}>
-        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Run #1 · completed</span>
+        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Completed ladder</span>
         <span className="ml-2 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>$100 → $10,376.17 · 5–0 · the crown was reached</span>
       </div>
     </section>

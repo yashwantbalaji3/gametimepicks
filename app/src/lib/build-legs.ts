@@ -39,10 +39,22 @@ function tierFromOdds(o: number): RiskTier {
 }
 
 /** Parlay-eligible World Cup legs (team projections + pre-lineup player props). */
-export function buildWcLegs(projections: WcProjections | null, players: WcPlayerProjections | null): BuildLeg[] {
+export function buildWcLegs(projections: WcProjections | null, players: WcPlayerProjections | null, nowIso?: string): BuildLeg[] {
   const legs: BuildLeg[] = [];
+  // Only UPCOMING matches are eligible build candidates — exclude started/completed games so the
+  // Build page never lists a stale/in-progress fixture as an active leg.
+  const now = nowIso ?? new Date().toISOString();
+  const kickoffByMatch = new Map<string, string>();
+  for (const m of projections?.matches ?? []) {
+    if (m?.matchId != null && (m as any).kickoffUtc) kickoffByMatch.set(String(m.matchId), String((m as any).kickoffUtc));
+  }
+  const notStarted = (matchId: unknown): boolean => {
+    const k = kickoffByMatch.get(String(matchId ?? ""));
+    return !!k && k > now; // require a known future kickoff
+  };
   for (const p of normalizeWcProjections(projections)) {
     if (!p.parlayEligible || p.americanOdds == null) continue;
+    if (!notStarted(p.matchId)) continue;
     legs.push({
       id: p.id, sport: "world_cup", sportLabel: "World Cup", gameId: p.matchId ?? null,
       gameLabel: p.gameLabel,
@@ -53,8 +65,22 @@ export function buildWcLegs(projections: WcProjections | null, players: WcPlayer
       searchKey: `${p.pickLabel} ${p.gameLabel}`.toLowerCase(),
     });
   }
+  // Team-name → kickoff (player files key matches differently), to gate player props to upcoming games.
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
+  const kickoffByTeam = new Map<string, string>();
+  for (const m of projections?.matches ?? []) {
+    const k = (m as any).kickoffUtc;
+    if (!k) continue;
+    if ((m as any).homeTeam) kickoffByTeam.set(norm(String((m as any).homeTeam)), String(k));
+    if ((m as any).awayTeam) kickoffByTeam.set(norm(String((m as any).awayTeam)), String(k));
+  }
   for (const p of normalizeWcPlayerProps(players)) {
     if (!p.parlayEligible || p.americanOdds == null || !p.player) continue;
+    // Gate to upcoming only when we have kickoff data (real usage always passes team projections).
+    if (kickoffByTeam.size > 0) {
+      const teamKick = kickoffByTeam.get(norm(p.player.team ?? ""));
+      if (!teamKick || teamKick <= now) continue;
+    }
     const prelineup = !(p.lineupStatus ?? "").startsWith("confirmed");
     legs.push({
       id: p.id, sport: "world_cup", sportLabel: "World Cup", gameId: p.matchId ?? null,

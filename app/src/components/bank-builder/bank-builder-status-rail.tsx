@@ -63,10 +63,10 @@ export default function BankBuilderStatusRail({
       </div>
 
       <div className="relative mt-3 flex flex-col sm:flex-row gap-2.5">
-        <RunChip tag="Run #1 · completed" title={run1Bankroll ? `$100 → ${run1Bankroll}` : "$100 → $10,376.17"} sub={`${run1Record ?? "5–0"} · crown reached`} tone="gold" />
-        <RunChip tag="Run #2 · closed" title={run2Closed ? `${dual?.lanesSurvived ?? 0}/${dual?.lanes?.length ?? 2} advanced` : "closed"} sub="Step 1 · both lanes lost" tone="closed" />
+        <RunChip tag="Completed ladder" title={run1Bankroll ? `$100 → ${run1Bankroll}` : "$100 → $10,376.17"} sub={`${run1Record ?? "5–0"} · crown reached`} tone="gold" />
+        <RunChip tag="Closed test ladder" title={run2Closed ? `${dual?.lanesSurvived ?? 0}/${dual?.lanes?.length ?? 2} advanced` : "closed"} sub="Step 1 · both lanes lost" tone="closed" />
         <RunChip
-          tag={launched ? "Run #3 · active" : "Run #3 · V2 gate"}
+          tag={launched ? "Active dual ladder" : "Dual ladder · evaluating"}
           title={launched ? "Two lanes live" : "Evaluating"}
           sub={launched ? "survival-gated legs" : "no qualifying launch yet"}
           tone={launched ? "live" : "heat"}
@@ -78,7 +78,7 @@ export default function BankBuilderStatusRail({
           <span style={{ color: "var(--gtp-bank-heat)" }}>Bank Builder V2</span> is screening today's legs on a survival score
           (volatility, DNP/lineup, odds-band). {v2.counts.eligible} cleared the bar
           {topCand ? <> — strongest <span style={{ color: "var(--vault-text)" }}>{topCand.pick}</span> (survival {Math.round(topCand.survivalScore)})</> : null}, but
-          {" "}{v2.blockers[0] ?? "the slate can't form two independent lanes"} — so no new run launches. Run #2&apos;s misses are why the bar is this strict.
+          {" "}{v2.blockers[0] ?? "the slate can't form two independent lanes"} — so no new run launches. The closed test ladder's misses are why the bar is this strict.
         </p>
       ) : null}
     </section>
