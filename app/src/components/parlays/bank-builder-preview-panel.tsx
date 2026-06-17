@@ -44,7 +44,7 @@ function LaneLegRow({ leg }: { leg: ParlayLegDisplay }) {
   );
 }
 
-function LaneTracker({ lane, laneId }: { lane: NonNullable<DualBankBuilderPreview["laneA"]>; laneId: "A" | "B" }) {
+function LaneTracker({ lane, laneId, active }: { lane: NonNullable<DualBankBuilderPreview["laneA"]>; laneId: "A" | "B"; active?: boolean }) {
   const sports = Array.from(new Set(lane.legs.map((l) => l.sport)));
   const hasSoccer = lane.legs.some((l) => l.sport === "WORLD_CUP");
   const avgRisk = lane.legs.length ? lane.legs.reduce((s, l) => s + l.riskScore, 0) / lane.legs.length : 0;
@@ -72,7 +72,7 @@ function LaneTracker({ lane, laneId }: { lane: NonNullable<DualBankBuilderPrevie
         <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
           <div style={{ width: "0%", height: "100%", background: "var(--gtp-bank-heat)" }} />
         </div>
-        <div className="mt-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>0 / {lane.legs.length} settled · awaiting operator launch</div>
+        <div className="mt-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>0 / {lane.legs.length} settled · {active ? "live — awaiting results" : "awaiting operator launch"}</div>
       </div>
     </div>
   );
@@ -80,24 +80,26 @@ function LaneTracker({ lane, laneId }: { lane: NonNullable<DualBankBuilderPrevie
 
 export default function BankBuilderPreviewPanel({ preview }: { preview: DualBankBuilderPreview }) {
   const qualifies = preview.status !== "no_qualified_launch" && preview.laneA && preview.laneB;
+  const active = preview.status === "launched";
   return (
-    <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: active ? "1px solid var(--gtp-bank-heat)" : "1px solid var(--vault-border)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>Dual Bank Builder preview</h3>
-        <span className="rounded-full px-2.5 py-1 text-[11px] font-medium" style={{ background: "rgba(255,255,255,0.05)", color: "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>
-          Operator approval required
+        <h3 className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{active ? "Dual Bank Builder · ACTIVE" : "Dual Bank Builder preview"}</h3>
+        <span className="rounded-full px-2.5 py-1 text-[11px] font-medium" style={{ background: active ? "rgba(70,130,90,0.18)" : "rgba(255,255,255,0.05)", color: active ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>
+          {active ? "Live · paper" : "Operator approval required"}
         </span>
       </div>
       <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-faint)" }}>
-        Dry-run preview from the methodology engine — survival-first, pre-event, odds-backed, correlation-aware.
-        Not launched; nothing is published or active. Paper stakes only.
+        {active
+          ? "Launched dual run from the methodology engine — survival-first, one World Cup leg per lane. Paper stakes only; protected Run #1/#2/#3 history is untouched."
+          : "Dry-run preview from the methodology engine — survival-first, pre-event, odds-backed, correlation-aware. Not launched; nothing is published or active. Paper stakes only."}
       </p>
 
       {qualifies ? (
         <>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <LaneTracker lane={preview.laneA!} laneId="A" />
-            <LaneTracker lane={preview.laneB!} laneId="B" />
+            <LaneTracker lane={preview.laneA!} laneId="A" active={active} />
+            <LaneTracker lane={preview.laneB!} laneId="B" active={active} />
           </div>
 
           <details className="mt-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)" }}>
@@ -110,8 +112,12 @@ export default function BankBuilderPreviewPanel({ preview }: { preview: DualBank
           </details>
 
           <div className="mt-2 rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.03)", color: "var(--vault-text-mute)" }}>
-            Run id <span className="font-mono">{preview.runId ?? `dual-bank-builder-${preview.date}`}</span> — not launched.
-            Launch after approval via <span className="font-mono">project-and-launch-today.mjs --launch --write-bank-builder</span> (or the approved pipeline path).
+            {active ? (
+              <>Run <span className="font-mono">{preview.runId}</span> — ACTIVE (methodology-engine namespace; protected Run #1/#2/#3 untouched). Settles from official sources only.</>
+            ) : (
+              <>Run id <span className="font-mono">{preview.runId ?? `dual-bank-builder-${preview.date}`}</span> — not launched.
+              Launch after approval via <span className="font-mono">project-and-launch-today.mjs --launch --write-bank-builder</span> (or the approved pipeline path).</>
+            )}
           </div>
         </>
       ) : (

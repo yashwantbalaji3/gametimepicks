@@ -235,6 +235,7 @@ export default function TodayPage() {
   const engineSuggested = engineSlate.allSuggested.length;
   const bbPreview = engineSlate.bankBuilderPreview;
   const bbQualifies = bbPreview.status !== "no_qualified_launch" && !!bbPreview.laneA && !!bbPreview.laneB;
+  const bbActive = bbPreview.status === "launched";
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
@@ -280,7 +281,7 @@ export default function TodayPage() {
           </div>
           <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
             {engineSuggested} suggested parlay{engineSuggested === 1 ? "" : "s"} across {engineSportsLive.length} sport{engineSportsLive.length === 1 ? "" : "s"} ·{" "}
-            Bank Builder preview: <span style={{ color: bbQualifies ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{bbQualifies ? "qualifies (operator approval required)" : "no qualified launch"}</span>
+            Bank Builder: <span style={{ color: bbActive || bbQualifies ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{bbActive ? "ACTIVE dual run · soccer leg per lane (paper)" : bbQualifies ? "qualifies (operator approval required)" : "no qualified launch"}</span>
           </div>
         </Link>
       )}

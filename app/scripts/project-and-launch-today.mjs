@@ -111,8 +111,9 @@ function main() {
   const gameSpecificParlayCount = sameGame.reduce((s, g) => s + g.parlays.length, 0);
 
   // Dual Bank Builder — conditional. Default dry_run; --launch lets it reach "launched" IF gates pass.
+  // Prefers one World Cup leg per lane when ≥2 soccer matches qualify.
   const newRunId = `dual-bank-builder-${date}`;
-  const bb = selectDualBankBuilder(eligible, date, { mode: args.launch ? "launch" : "dry_run", newRunId });
+  const bb = selectDualBankBuilder(eligible, date, { mode: args.launch ? "launch" : "dry_run", newRunId, preferSoccerPerLane: true });
 
   // ── Report ──────────────────────────────────────────────────────────────────────────────────
   const withCandidates = extraction.bySport.filter((r) => r.totalCandidates > 0).map((r) => r.sport);
@@ -164,7 +165,11 @@ function main() {
     if (bb.status !== "launched") {
       console.log(`\n  --write-bank-builder skipped: status is ${bb.status} (launch gates not all passed).`);
     } else {
-      writeArtifact(`bank-builder-${bb.runId}.json`, { meta: { kind: "dual-bank-builder", published: false }, run: bb });
+      const payload = { meta: { kind: "dual-bank-builder", date, launchedNow: nowIso, published: true, protected: false }, run: bb };
+      writeArtifact(`bank-builder-${bb.runId}.json`, payload);
+      // Stable pointer the UI loader reads to render the ACTIVE run (engine namespace, NOT protected).
+      writeArtifact(`dual-bank-builder-active.json`, payload);
+      console.log(`\n  LAUNCHED active run ${bb.runId} (engine namespace; protected Bank Builder data untouched).`);
     }
   }
 

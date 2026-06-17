@@ -63,9 +63,11 @@ test("official Step-3 legs carry mini-fixture flag data + regulation flag", () =
     assert.equal(typeof l.homeTeam, "string");
     assert.equal(typeof l.awayTeam, "string");
     assert.ok(l.homeTeam.length > 0 && l.awayTeam.length > 0, "leg carries both match teams");
-    // ISO codes resolve from teams.json for real WC sides (≤3 chars), or are
-    // an empty string we degrade to a monogram — never fabricated.
-    assert.ok(l.homeCode.length <= 3 && l.awayCode.length <= 3, "flag codes are ISO-ish or empty");
+    // ISO codes resolve from teams.json for real WC sides: a ≤3-char ISO-ish code, or a known
+    // GB home-nation subdivision (GB-ENG/GB-SCT/GB-WLS/GB-NIR — these render real flags), or an
+    // empty string we degrade to a monogram — never fabricated.
+    const isoish = (c) => c.length <= 3 || /^GB-[A-Z]{3}$/.test(c);
+    assert.ok(isoish(l.homeCode) && isoish(l.awayCode), "flag codes are ISO-ish, a GB subdivision, or empty");
     // moneyline_90 + double_chance are 90-minute regulation markets.
     assert.equal(l.regulationOnly, l.market === "moneyline_90" || l.market === "double_chance");
   }

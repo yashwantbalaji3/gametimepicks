@@ -257,6 +257,27 @@ test("forms two game-disjoint lanes even when top survival is concentrated in fe
   assert.ok(fourGames.size >= 3, "selection spreads across ≥3 distinct games");
 });
 
+test("prefers one World Cup leg per lane when ≥2 soccer matches qualify", () => {
+  const wcA = mkLeg({ sport: "WORLD_CUP", eventId: "wc1", participant: "Colombia or Draw", predictionTarget: "double_chance", line: null, eventStartTime: FUTURE, modelProbability: 0.94, riskScore: 0.04, confidenceScore: "High", dataQuality: "B" });
+  const wcB = mkLeg({ sport: "WORLD_CUP", eventId: "wc2", participant: "Ghana or Draw", predictionTarget: "double_chance", line: null, eventStartTime: FUTURE, modelProbability: 0.82, riskScore: 0.04, confidenceScore: "High", dataQuality: "B" });
+  const mlb1 = mkLeg({ eventId: "g1", participant: "Ace", riskScore: 0.08, confidenceScore: "High", dataQuality: "A", edge: 8, modelProbability: 0.66 });
+  const mlb2 = mkLeg({ eventId: "g2", participant: "Bob", riskScore: 0.08, confidenceScore: "High", dataQuality: "A", edge: 8, modelProbability: 0.64 });
+  const pool = eligibleLegs([wcA, wcB, mlb1, mlb2]);
+  const r = selectDualBankBuilder(pool, "2026-06-17", { mode: "launch", newRunId: "wc-run", preferSoccerPerLane: true });
+  assert.equal(r.status, "launched");
+  assert.ok(r.laneA.legs.some((l) => l.sport === "WORLD_CUP"), "Lane A has a WC leg");
+  assert.ok(r.laneB.legs.some((l) => l.sport === "WORLD_CUP"), "Lane B has a WC leg");
+  // The two WC legs are from different matches.
+  const wcGames = [...r.laneA.legs, ...r.laneB.legs].filter((l) => l.sport === "WORLD_CUP").map((l) => l.eventId);
+  assert.equal(new Set(wcGames).size, 2);
+});
+
+test("survivalScore credits low-variance high-probability legs (survival != edge)", () => {
+  const hi = mkLeg({ sport: "WORLD_CUP", eventId: "wc1", participant: "Fav or Draw", predictionTarget: "double_chance", line: null, eventStartTime: FUTURE, modelProbability: 0.94, riskScore: 0.04, dataQuality: "B", confidenceScore: "High" });
+  const lo = mkLeg({ sport: "WORLD_CUP", eventId: "wc2", participant: "Coinflip or Draw", predictionTarget: "double_chance", line: null, eventStartTime: FUTURE, modelProbability: 0.55, riskScore: 0.04, dataQuality: "B", confidenceScore: "High" });
+  assert.ok(survivalScore(hi) > survivalScore(lo), "higher hit probability → higher survival");
+});
+
 test("survivalScore rejects unknown-scope legs hard", () => {
   const bad = mkLeg({ sport: "WORLD_CUP", predictionTarget: "weird_unmapped", eventStartTime: FUTURE });
   assert.ok(survivalScore(bad) <= 0 || bad.marketScope === "unknown");
