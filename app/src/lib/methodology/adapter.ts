@@ -99,6 +99,8 @@ export interface AdaptedPrediction {
   snapshot: PredictionSnapshotMetadata;
   leakage: LeakageValidationResult;
   rollingWindows: RollingWindowMeta[];
+  /** The chosen side/pick (Over/Under/Yes/No/home/draw/away/moneyline...) — for correlation. */
+  side?: string;
 }
 
 export interface MethodologyRunResult {
@@ -407,33 +409,374 @@ export function adaptMlbLean(
     leakageValidationPassed: leakage.passed,
   };
 
-  return { output, snapshot, leakage, rollingWindows };
+  return { output, snapshot, leakage, rollingWindows, side: s.side };
 }
 
-// ── Public: run the methodology over a whole board ───────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// Generic signal → confidence / risk / factor builders (shared by NBA / UFC / World Cup)
+// MLB keeps its own bespoke helpers above; these mirror the same formula for the other sports so all
+// four follow ONE methodology process. Pure.
+// ════════════════════════════════════════════════════════════════════════════════════════════════
 
-const EXTRACTORS: Partial<Record<Sport, (lean: any, board: BoardMeta, opts: MethodologyOptions) => AdaptedPrediction>> = {
+export type MarketScope =
+  | "90_minutes" | "includes_extra_time" | "advancement" | "full_game" | "full_fight" | "unknown";
+
+interface GenericSignals {
+  side: string;
+  modelProb: number | null;
+  marketImplied: number | null;
+  edge: number | null;
+  roleCertainty: number;        // 0..1
+  lineupCertainty: number;      // 0..1
+  samples: number | null;       // null = no recent-games count for this sport/market
+  dataQualityScore: number;     // 0..1 — used for sample score when samples is null
+  directionConsistency: number; // 0..1
+  staleMarket: boolean;
+  staleLineup: boolean;
+  missingCritical: boolean;
+  volatility: number;           // 0..1
+  fragile: boolean;
+  dnpRisk: boolean;
+  marketScope: MarketScope;
+  marketScopeUnknown: boolean;
+}
+
+function confidenceFromSignals(g: GenericSignals, opts: MethodologyOptions): ConfidenceComponents {
+  const dataFreshnessScore = clamp01(1 - (g.staleMarket ? 0.5 : 0) - (g.staleLineup ? 0.3 : 0));
+  const sampleSizeScore = g.samples == null ? clamp01(g.dataQualityScore) : sampleWeight(g.samples);
+  const marketAgreementScore =
+    opts.marketAware && g.edge != null ? clamp01(1 - Math.abs(g.edge) / 40) : 0;
+  // An unknown market scope (e.g. 90-min vs advancement ambiguity) is an honesty penalty.
+  const scopePenalty = g.marketScopeUnknown ? 0.2 : 0;
+  return {
+    dataFreshnessScore,
+    roleCertaintyScore: clamp01(g.roleCertainty),
+    sampleSizeScore,
+    modelAgreementScore: clamp01(g.directionConsistency),
+    marketAgreementScore,
+    lineupCertaintyScore: clamp01(g.lineupCertainty),
+    projectionVolatilityPenalty: clamp01(g.volatility + scopePenalty),
+    missingCriticalDataPenalty: g.missingCritical ? 0.6 : 0,
+  };
+}
+
+function riskFromSignals(g: GenericSignals): RiskInputs {
+  return {
+    roleUncertainty: clamp01(1 - g.roleCertainty),
+    staleData: g.staleMarket || g.staleLineup,
+    missingCriticalData: g.missingCritical,
+    smallSample: g.samples != null && smallSampleFlag(g.samples),
+    volatileMarket: g.volatility >= 0.5 || g.marketScopeUnknown,
+    fragilePropType: g.fragile,
+    dnpOrScratchRisk: g.dnpRisk,
+    overCorrelation: false,
+  };
+}
+
+function factorsFromSignals(g: GenericSignals): { pos: TopFactor[]; neg: TopFactor[] } {
+  const pos: TopFactor[] = [];
+  const neg: TopFactor[] = [];
+  if (g.edge != null && g.edge > 0) pos.push({ label: `+${g.edge.toFixed(1)}pp model edge vs no-vig market`, direction: "positive", weight: Math.min(1, g.edge / 20) });
+  if (g.roleCertainty >= 0.8) pos.push({ label: "confirmed role / participation", direction: "positive", weight: g.roleCertainty });
+  if (g.samples != null && g.samples >= 16) pos.push({ label: `${g.samples}-game sample`, direction: "positive", weight: sampleWeight(g.samples) });
+  if (g.dataQualityScore >= 0.9 && g.samples == null) pos.push({ label: "high model data quality", direction: "positive", weight: g.dataQualityScore });
+
+  if (g.samples != null && smallSampleFlag(g.samples)) neg.push({ label: `small sample (${g.samples})`, direction: "negative", weight: 1 - sampleWeight(g.samples) });
+  if (g.marketScopeUnknown) neg.push({ label: "market scope unknown (90-min vs advancement) — penalized", direction: "negative", weight: 0.7 });
+  if (g.dnpRisk) neg.push({ label: "participation not confirmed (DNP/scratch risk)", direction: "negative", weight: 0.6 });
+  if (g.fragile) neg.push({ label: "fragile single-participant market", direction: "negative", weight: 0.5 });
+  if (g.staleMarket || g.staleLineup) neg.push({ label: "a critical input is stale", direction: "negative", weight: 0.6 });
+  if (g.missingCritical) neg.push({ label: "a critical input is missing", direction: "negative", weight: 1 });
+
+  pos.sort((a, b) => (b.weight ?? 0) - (a.weight ?? 0));
+  neg.sort((a, b) => (b.weight ?? 0) - (a.weight ?? 0));
+  return { pos: pos.slice(0, 3), neg: neg.slice(0, 3) };
+}
+
+function genericFlags(
+  g: GenericSignals,
+  snapshot: PredictionSnapshotMetadata,
+  sport: Sport,
+  opts: MethodologyOptions,
+): { missing: MissingDataFlag[]; stale: StaleDataFlag[]; small: SmallSampleFlag[] } {
+  const missing: MissingDataFlag[] = [];
+  if (g.modelProb == null) missing.push({ field: "modelProbability", critical: true, reason: "no model projection" });
+  if (opts.marketAware && g.marketImplied == null) missing.push({ field: "marketOdds", critical: true, reason: "no market price for the chosen side" });
+  if (g.dnpRisk) missing.push({ field: "confirmed_lineup", critical: false, reason: "participant not confirmed pre-prediction" });
+  missing.push(...surfacedContextFlags(sport));
+
+  const stale: StaleDataFlag[] = [];
+  const sm = staleFlag("market", snapshot.marketSnapshotTime, FRESHNESS_THRESHOLDS.market, snapshot.predictionTime);
+  if (sm) stale.push(sm);
+  const sl = staleFlag("lineup", snapshot.lineupSnapshotTime, FRESHNESS_THRESHOLDS.lineup, snapshot.predictionTime);
+  if (sl) stale.push(sl);
+
+  const small: SmallSampleFlag[] = [];
+  if (g.samples != null && smallSampleFlag(g.samples)) small.push({ field: "recent_form", sampleSize: g.samples, bucket: sampleSizeBucket(g.samples) });
+  return { missing, stale, small };
+}
+
+function assemble(
+  sport: Sport,
+  base: {
+    eventId: string; predictionTarget: string; participant: string;
+    line: number | null; marketOdds: number | null; modelProjection: number | null;
+  },
+  g: GenericSignals,
+  snapshot: PredictionSnapshotMetadata,
+  rollingWindows: RollingWindowMeta[],
+  opts: MethodologyOptions,
+): AdaptedPrediction {
+  const leakage = validateLeakage(snapshot, rollingWindows);
+  const components = confidenceFromSignals(g, opts);
+  if (!leakage.passed) components.missingCriticalDataPenalty = Math.max(components.missingCriticalDataPenalty, 0.6);
+  const confidence = computeConfidence(components);
+
+  const riskInputs = riskFromSignals(g);
+  if (!leakage.passed) riskInputs.missingCriticalData = true;
+  const risk = computeRisk(riskInputs);
+
+  const { pos, neg } = factorsFromSignals(g);
+  const { missing, stale, small } = genericFlags(g, snapshot, sport, opts);
+  if (!leakage.passed) missing.unshift({ field: "leakage", critical: true, reason: "prediction failed leakage validation" });
+
+  const dataQuality: DataQualityGrade = dataQualityTier({
+    hasCurrentOdds: opts.marketAware && g.marketImplied != null,
+    hasFullStats: g.dataQualityScore >= 0.6 || (g.samples != null && g.samples >= 5),
+    eventConfirmed: g.modelProb != null,
+    freshness: clamp01(1 - (g.staleMarket ? 0.5 : 0) - (g.staleLineup ? 0.3 : 0)),
+    sampleSize: g.samples ?? (g.dataQualityScore >= 0.6 ? 5 : 0),
+  });
+
+  const output: PredictionOutput = {
+    eventId: base.eventId,
+    sport,
+    predictionTarget: base.predictionTarget,
+    participant: base.participant,
+    line: base.line,
+    marketOdds: opts.marketAware ? base.marketOdds : null,
+    marketImpliedProbability: opts.marketAware ? g.marketImplied : null,
+    modelProjection: base.modelProjection,
+    modelProbability: g.modelProb,
+    edge: opts.marketAware ? g.edge : null,
+    confidenceScore: confidence.category,
+    riskScore: risk.score,
+    dataQuality,
+    modelMode: opts.marketAware ? "market_aware_model" : "no_market_model",
+    topPositiveFactors: pos,
+    topNegativeFactors: neg,
+    missingDataFlags: missing,
+    staleDataFlags: stale,
+    smallSampleFlags: small,
+    leakageValidationPassed: leakage.passed,
+  };
+  return { output, snapshot, leakage, rollingWindows, side: g.side };
+}
+
+// ── NBA extractor (board lean shape; NBA boards are often empty in June) ────────────────────────
+export function adaptNbaLean(lean: any, board: BoardMeta, opts: MethodologyOptions = DEFAULT_OPTIONS): AdaptedPrediction {
+  const predictionTime = String(board.generatedAt ?? "");
+  const eventStartTime = String(lean.commenceTime ?? lean.tipoffUtc ?? lean.gameDate ?? "");
+  const side: string = (lean.lean ?? lean.pickType ?? "Over");
+  const modelProb = num(lean.modelProbability);
+  let marketImplied: number | null = null;
+  let edge: number | null = null;
+  if (opts.marketAware) {
+    const oddsForSide = side === "Under" ? num(lean.oddsUnder) : num(lean.oddsOver);
+    const oddsOther = side === "Under" ? num(lean.oddsOver) : num(lean.oddsUnder);
+    const nv = noVigTwoWay(oddsForSide, oddsOther);
+    marketImplied = nv != null ? clampProb(nv.side) : (num(lean.impliedProbability) ?? americanToImpliedRaw(oddsForSide));
+    if (marketImplied != null) marketImplied = clampProb(marketImplied);
+    edge = edgePoints(modelProb, marketImplied);
+  }
+  const samples = num(lean.gp_last_10) ?? (Array.isArray(lean.recent10) ? lean.recent10.length : null) ?? num(lean.samples);
+  const snapshot: PredictionSnapshotMetadata = {
+    eventId: String(lean.gameId ?? lean.id ?? ""),
+    sport: "NBA",
+    leagueOrCompetition: "NBA",
+    predictionTarget: String(lean.market ?? "prop"),
+    predictionTime,
+    eventStartTime,
+    dataCutoffTime: predictionTime,
+    featureSnapshotTime: predictionTime,
+    marketSnapshotTime: (lean.oddsOver != null || lean.oddsUnder != null) ? predictionTime : null,
+    lineupSnapshotTime: null,
+    injurySnapshotTime: null,
+    weatherSnapshotTime: null,
+  };
+  const g: GenericSignals = {
+    side,
+    modelProb,
+    marketImplied,
+    edge,
+    roleCertainty: 0.7,
+    lineupCertainty: 0.6,
+    samples: samples ?? null,
+    dataQualityScore: num(lean.sourceReliability) ?? 0.5,
+    directionConsistency: 0.5,
+    staleMarket: false,
+    staleLineup: false,
+    missingCritical: modelProb == null || (opts.marketAware && marketImplied == null),
+    volatility: Array.isArray(lean.riskFlags) && lean.riskFlags.length ? 0.4 : 0.2,
+    fragile: true,
+    dnpRisk: false,
+    marketScope: "full_game",
+    marketScopeUnknown: false,
+  };
+  return assemble("NBA", {
+    eventId: snapshot.eventId,
+    predictionTarget: String(lean.market ?? "prop"),
+    participant: String(lean.playerName ?? ""),
+    line: num(lean.line),
+    marketOdds: side === "Under" ? num(lean.oddsUnder) : num(lean.oddsOver),
+    modelProjection: num(lean.modelProjection ?? lean.projection),
+  }, g, snapshot, [], opts);
+}
+// (NBA side flows through `assemble` via g.side)
+
+// ── UFC extractor (moneyline only; props provider not connected → not_available) ────────────────
+export function adaptUfcBout(rec: any, meta: BoardMeta & { eventStartTime?: string }, opts: MethodologyOptions = DEFAULT_OPTIONS): AdaptedPrediction {
+  const predictionTime = String(meta.generatedAt ?? "");
+  const eventStartTime = String(rec.commenceTime ?? meta.eventStartTime ?? "");
+  const modelProb = num(rec.modelProbability);
+  const marketImplied = opts.marketAware ? num(rec.marketImpliedProbability) : null;
+  const edge = opts.marketAware ? edgePoints(modelProb, marketImplied) : null;
+  const dq = num(rec.dataQuality);
+  const snapshot: PredictionSnapshotMetadata = {
+    eventId: String(rec.boutId ?? ""),
+    sport: "UFC",
+    leagueOrCompetition: "UFC",
+    predictionTarget: "moneyline",
+    predictionTime,
+    eventStartTime,
+    dataCutoffTime: predictionTime,
+    featureSnapshotTime: predictionTime,
+    marketSnapshotTime: rec.oddsPrice != null ? predictionTime : null,
+    lineupSnapshotTime: predictionTime, // fighters are confirmed on the card
+    injurySnapshotTime: null,
+    weatherSnapshotTime: null,
+  };
+  const g: GenericSignals = {
+    side: "moneyline",
+    modelProb,
+    marketImplied,
+    edge,
+    roleCertainty: 0.85,
+    lineupCertainty: 0.85,
+    samples: null,
+    dataQualityScore: dq != null ? clamp01(dq) : 0.5,
+    directionConsistency: 0.5,
+    staleMarket: false,
+    staleLineup: false,
+    missingCritical: modelProb == null || (opts.marketAware && marketImplied == null),
+    volatility: 0.3,
+    fragile: false,
+    dnpRisk: false,
+    marketScope: "full_fight",
+    marketScopeUnknown: false,
+  };
+  return assemble("UFC", {
+    eventId: snapshot.eventId,
+    predictionTarget: "moneyline",
+    participant: String(rec.fighter ?? ""),
+    line: null,
+    marketOdds: num(rec.oddsPrice),
+    modelProjection: modelProb,
+  }, g, snapshot, [], opts);
+}
+
+// ── World Cup extractor (team + player markets; 90-min ONLY in current data) ────────────────────
+export function adaptWorldCupRecord(rec: any, meta: BoardMeta, opts: MethodologyOptions = DEFAULT_OPTIONS): AdaptedPrediction {
+  const predictionTime = String(meta.generatedAt ?? "");
+  const eventStartTime = String(rec.kickoffUtc ?? rec.startTime ?? "");
+  const market = String(rec.market ?? "");
+  const isPlayer = /^player_/.test(market) || (rec.player && typeof rec.player === "object");
+  const modelProb = num(rec.modelProbability);
+  const marketImplied = opts.marketAware ? num(rec.marketProbability) : null;
+  const edge = opts.marketAware ? edgePoints(modelProb, marketImplied) : null;
+
+  // Market scope: current WC data is 90-minute regulation only; advancement markets do not exist.
+  // Map honestly from regulationOnly / settlementSupport; unknown only if neither is present.
+  const settlement = String(rec.settlementSupport ?? "");
+  const adv = /advancement|to_qualify|to_win_outright|reach_|winner/i.test(market);
+  let marketScope: MarketScope;
+  let marketScopeUnknown = false;
+  if (adv) marketScope = "advancement";
+  else if (rec.regulationOnly === true || settlement === "regulation_90") marketScope = "90_minutes";
+  else { marketScope = "unknown"; marketScopeUnknown = true; }
+
+  const lineupStatus = String(rec.lineupStatus ?? "");
+  const lineupConfirmed = lineupStatus === "confirmed" || lineupStatus === "posted";
+  const sampleWarn = rec.sampleSizeWarning === true;
+  const dqStr = String(rec.dataQuality ?? "");
+  const dqScore = dqStr === "A" ? 1 : dqStr === "B" ? 0.75 : dqStr === "C" ? 0.5 : dqStr === "limited" ? 0.3 : 0.5;
+
+  const snapshot: PredictionSnapshotMetadata = {
+    eventId: String(rec.matchId ?? ""),
+    sport: "WORLD_CUP",
+    leagueOrCompetition: "FIFA World Cup 2026",
+    predictionTarget: market || "match_market",
+    predictionTime,
+    eventStartTime,
+    dataCutoffTime: predictionTime,
+    featureSnapshotTime: predictionTime,
+    marketSnapshotTime: rec.americanOdds != null ? predictionTime : null,
+    lineupSnapshotTime: isPlayer ? (lineupConfirmed ? predictionTime : null) : predictionTime,
+    injurySnapshotTime: null,
+    weatherSnapshotTime: null,
+  };
+  const g: GenericSignals = {
+    side: String(rec.pick ?? rec.side ?? ""),
+    modelProb,
+    marketImplied,
+    edge,
+    roleCertainty: isPlayer ? (lineupConfirmed ? 0.7 : 0.4) : 0.85,
+    lineupCertainty: isPlayer ? (lineupConfirmed ? 0.8 : 0.3) : 0.85,
+    samples: null,
+    dataQualityScore: sampleWarn ? Math.min(dqScore, 0.4) : dqScore,
+    directionConsistency: 0.5,
+    staleMarket: false,
+    staleLineup: false,
+    missingCritical: modelProb == null || (opts.marketAware && marketImplied == null),
+    volatility: sampleWarn ? 0.4 : 0.2,
+    fragile: isPlayer,
+    dnpRisk: isPlayer && !lineupConfirmed,
+    marketScope,
+    marketScopeUnknown,
+  };
+  const participant = isPlayer
+    ? String(rec.player?.name ?? rec.playerName ?? "")
+    : String(rec.pickLabel ?? rec.pick ?? `${rec.homeTeam ?? ""} v ${rec.awayTeam ?? ""}`);
+  return assemble("WORLD_CUP", {
+    eventId: snapshot.eventId,
+    predictionTarget: market || "match_market",
+    participant,
+    line: num(rec.line),
+    marketOdds: num(rec.americanOdds),
+    modelProjection: modelProb,
+  }, g, snapshot, [], opts);
+}
+
+// ── Public: run the methodology over a leans-based board (MLB / NBA) ─────────────────────────────
+
+const LEAN_EXTRACTORS: Partial<Record<Sport, (lean: any, board: BoardMeta, opts: MethodologyOptions) => AdaptedPrediction>> = {
   MLB: adaptMlbLean,
-  // NBA / WORLD_CUP extractors are the next wiring step. NBA boards are empty in-season June; the
-  // World Cup uses a separate data shape. Left unimplemented rather than fabricated.
+  NBA: adaptNbaLean,
 };
 
+/** All sports whose extractor is wired (produce valid PredictionOutput when source data exists). */
 export function supportedSports(): Sport[] {
-  return Object.keys(EXTRACTORS) as Sport[];
+  return ["MLB", "NBA", "UFC", "WORLD_CUP"];
 }
 
-/**
- * Map every lean on a board into a methodology PredictionOutput, splitting on the leakage gate.
- * Read-only: `board` is the Python-generated JSON; nothing is written or published here.
- */
 export function runMethodology(
   board: { leans?: unknown[] } & BoardMeta,
   sport: Sport,
   opts: MethodologyOptions = DEFAULT_OPTIONS,
 ): MethodologyRunResult {
-  const extractor = EXTRACTORS[sport];
+  const extractor = LEAN_EXTRACTORS[sport];
   if (!extractor) {
-    throw new Error(`No methodology extractor wired for sport "${sport}" yet (supported: ${supportedSports().join(", ")}).`);
+    throw new Error(`runMethodology is for leans-based boards (MLB/NBA); use extractPredictionsBySport for "${sport}".`);
   }
   const leans = Array.isArray(board.leans) ? board.leans : [];
   const accepted: AdaptedPrediction[] = [];
@@ -450,4 +793,119 @@ export function runMethodology(
     accepted,
     rejectedByLeakage,
   };
+}
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// Cross-sport extraction aggregator — ONE process for every sport.
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+
+export type ExtractorStatus = "wired" | "wired_no_candidates" | "source_missing";
+
+export interface SportExtractionResult {
+  sport: Sport;
+  date: string | null;
+  sourcePath: string | null;
+  extractorStatus: ExtractorStatus;
+  totalCandidates: number;
+  predictions: AdaptedPrediction[];
+  leakagePassed: number;
+  leakageRejected: number;
+  noBetCount: number;
+  eligibleCandidateCount: number;     // passed leakage AND not No Bet
+  missingCriticalDataCount: number;
+  staleCriticalDataCount: number;
+  notes: string[];
+}
+
+/** PredictionOutput[] view (contract alias) for a result's predictions. */
+export function predictionOutputsOf(r: SportExtractionResult): PredictionOutput[] {
+  return r.predictions.map((p) => p.output);
+}
+
+function summarize(
+  sport: Sport,
+  date: string | null,
+  sourcePath: string | null,
+  predictions: AdaptedPrediction[],
+  notes: string[],
+): SportExtractionResult {
+  const leakagePassed = predictions.filter((p) => p.leakage.passed).length;
+  const noBetCount = predictions.filter((p) => p.output.confidenceScore === "No Bet").length;
+  const eligibleCandidateCount = predictions.filter((p) => p.leakage.passed && p.output.confidenceScore !== "No Bet").length;
+  const missingCriticalDataCount = predictions.filter((p) => p.output.missingDataFlags.some((f) => f.critical)).length;
+  const staleCriticalDataCount = predictions.filter((p) => p.output.staleDataFlags.length > 0).length;
+  let extractorStatus: ExtractorStatus = "wired";
+  if (predictions.length === 0) extractorStatus = sourcePath ? "wired_no_candidates" : "source_missing";
+  return {
+    sport, date, sourcePath, extractorStatus,
+    totalCandidates: predictions.length,
+    predictions,
+    leakagePassed,
+    leakageRejected: predictions.length - leakagePassed,
+    noBetCount,
+    eligibleCandidateCount,
+    missingCriticalDataCount,
+    staleCriticalDataCount,
+    notes,
+  };
+}
+
+export function extractMlbPredictions(board: any, sourcePath: string | null, opts: MethodologyOptions = DEFAULT_OPTIONS): SportExtractionResult {
+  const leans = Array.isArray(board?.leans) ? board.leans : [];
+  const preds = leans.map((l: any) => adaptMlbLean(l, board, opts));
+  return summarize("MLB", String(board?.generatedFor ?? board?.date ?? "") || null, sourcePath, preds, []);
+}
+
+export function extractNbaPredictions(board: any, sourcePath: string | null, opts: MethodologyOptions = DEFAULT_OPTIONS): SportExtractionResult {
+  const leans = Array.isArray(board?.leans) ? board.leans : [];
+  const preds = leans.map((l: any) => adaptNbaLean(l, board, opts));
+  const notes = preds.length === 0 ? ["No populated NBA board/candidates for this date"] : [];
+  return summarize("NBA", String(board?.generatedFor ?? board?.date ?? "") || null, sourcePath, preds, notes);
+}
+
+export function extractUfcPredictions(source: any, sourcePath: string | null, opts: MethodologyOptions = DEFAULT_OPTIONS): SportExtractionResult {
+  const recs = Array.isArray(source?.projections) ? source.projections : [];
+  const meta: BoardMeta & { eventStartTime?: string } = {
+    generatedAt: source?.generatedAt,
+    eventStartTime: source?.eventDate,
+    date: source?.eventDate,
+  };
+  const preds = recs.map((r: any) => adaptUfcBout(r, meta, opts));
+  const notes: string[] = [];
+  if (preds.length === 0) notes.push("No UFC projections found for this date");
+  if (source?.marketScope && source.marketScope !== "h2h_moneyline_only") notes.push(`UFC market scope: ${source.marketScope}`);
+  notes.push("UFC method/round/distance props not_available (no prop-odds provider connected)");
+  return summarize("UFC", String(source?.eventDate ?? "").slice(0, 10) || null, sourcePath, preds, notes);
+}
+
+export function extractWorldCupPredictions(teamSource: any, playerSource: any, sourcePath: string | null, opts: MethodologyOptions = DEFAULT_OPTIONS): SportExtractionResult {
+  const teamRecs: any[] = Array.isArray(teamSource?.public) ? teamSource.public : (Array.isArray(teamSource?.projections) ? teamSource.projections : []);
+  const playerRecs: any[] = Array.isArray(playerSource?.public)
+    ? playerSource.public
+    : (Array.isArray(playerSource?.matches) ? playerSource.matches.flatMap((m: any) => Array.isArray(m?.projections) ? m.projections : []) : []);
+  const teamMeta: BoardMeta = { generatedAt: teamSource?.generatedAt, date: teamSource?.date };
+  const playerMeta: BoardMeta = { generatedAt: playerSource?.generatedAt ?? teamSource?.generatedAt, date: playerSource?.date };
+  const preds = [
+    ...teamRecs.map((r) => adaptWorldCupRecord(r, teamMeta, opts)),
+    ...playerRecs.map((r) => adaptWorldCupRecord(r, playerMeta, opts)),
+  ];
+  const notes = ["World Cup markets are 90-minute regulation only in current data; advancement markets are not available (never fabricated)."];
+  if (preds.length === 0) notes.unshift("No World Cup odds/projections for this date (schedule-only)");
+  return summarize("WORLD_CUP", String(teamSource?.date ?? playerSource?.date ?? "") || null, sourcePath, preds, notes);
+}
+
+/** Dispatch: extract for one sport from its already-loaded source data. Pure (no fs). */
+export function extractPredictionsBySport(
+  sport: Sport,
+  source: { mlb?: any; nba?: any; ufc?: any; worldCupTeam?: any; worldCupPlayer?: any; sourcePath?: string | null },
+  opts: MethodologyOptions = DEFAULT_OPTIONS,
+): SportExtractionResult {
+  const sp = source.sourcePath ?? null;
+  switch (sport) {
+    case "MLB": return extractMlbPredictions(source.mlb, source.mlb ? sp : null, opts);
+    case "NBA": return extractNbaPredictions(source.nba, source.nba ? sp : null, opts);
+    case "UFC": return extractUfcPredictions(source.ufc, source.ufc ? sp : null, opts);
+    case "WORLD_CUP": return extractWorldCupPredictions(source.worldCupTeam, source.worldCupPlayer, (source.worldCupTeam || source.worldCupPlayer) ? sp : null, opts);
+    default: throw new Error(`Unknown sport: ${sport}`);
+  }
 }
