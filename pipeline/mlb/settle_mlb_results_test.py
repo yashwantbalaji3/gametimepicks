@@ -88,6 +88,26 @@ def test_batter_did_not_appear_is_unavailable():
     _ok("batter no-AB unavailable")
 
 
+def test_zero_ab_void_rule():
+    """0-AB / no-PA hitter prop → stat is None (settler emits Void, never a loss);
+    a batter who actually batted grades normally from the box score."""
+    print("\n─── 0-AB / no-PA void rule ───")
+    # no plate appearance (DNP / defensive sub / pinch runner) → None → VOID upstream
+    no_pa = {"stats": {"batting": {"atBats": 0, "plateAppearances": 0, "hits": 0}}}
+    empty = {"stats": {"batting": {}}}
+    for market in ("batter_hits", "batter_total_bases", "batter_hits_runs_rbis"):
+        assert _stat_for_market(no_pa, market) is None, f"{market} no-PA → None (void)"
+        assert _stat_for_market(empty, market) is None, f"{market} empty line → None (void)"
+    _ok("no-PA / empty batting line → None (settler voids it)")
+    # a batter who actually batted grades normally
+    played_0 = {"stats": {"batting": {"atBats": 4, "plateAppearances": 4, "hits": 0}}}
+    played_1 = {"stats": {"batting": {"atBats": 4, "plateAppearances": 4, "hits": 1}}}
+    played_2 = {"stats": {"batting": {"atBats": 4, "plateAppearances": 4, "hits": 2}}}
+    assert_eq(_grade("Over", 0.5, _stat_for_market(played_0, "batter_hits")), "Loss", "AB>0 H=0 Over 0.5 → loss")
+    assert_eq(_grade("Under", 1.5, _stat_for_market(played_1, "batter_hits")), "Win", "AB>0 H=1 Under 1.5 → win")
+    assert_eq(_grade("Under", 1.5, _stat_for_market(played_2, "batter_hits")), "Loss", "AB>0 H=2 Under 1.5 → loss")
+
+
 def test_pitcher_did_not_pitch_is_unavailable():
     print("\n─── pitcher did not pitch → actual unavailable ───")
     rec = {
@@ -241,6 +261,7 @@ def main() -> int:
     test_total_bases_computation_from_components()
     test_total_bases_uses_api_field_when_present()
     test_batter_did_not_appear_is_unavailable()
+    test_zero_ab_void_rule()
     test_pitcher_did_not_pitch_is_unavailable()
     test_pitcher_with_innings_returns_k()
     test_find_player_prefers_id()

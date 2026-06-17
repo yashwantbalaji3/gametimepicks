@@ -54,9 +54,11 @@ _MLB_OUTCOME_TO_RESULT = {
     "Win": "win",
     "Loss": "loss",
     "Push": "push",
+    "Void": "void",
     "win": "win",
     "loss": "loss",
     "push": "push",
+    "void": "void",
 }
 
 
@@ -166,10 +168,15 @@ def _grade_slip_status(leg_results: list[str]) -> str:
         return "loss"
     if any(r == "unresolved" for r in leg_results):
         return "pending"
-    if any(r == "push" for r in leg_results):
+    # A "void" leg (DNP / 0-AB hitter prop) is refunded and DROPS out of the parlay —
+    # the slip is decided by the remaining legs (so [void, win, win] → win).
+    decisive = [r for r in leg_results if r != "void"]
+    if any(r == "push" for r in decisive):
         # Any push with no losses + no unresolved → push the whole slip
         return "push"
-    if all(r == "win" for r in leg_results):
+    if not decisive:
+        return "push"  # every leg voided → the whole slip is a refund
+    if all(r == "win" for r in decisive):
         return "win"
     return "pending"
 
