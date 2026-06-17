@@ -9,6 +9,7 @@ export * from "./data-quality";
 export * from "./confidence";
 export * from "./risk";
 export * from "./sport-feature-groups";
+export * from "./adapter";
 export { MLB_REGISTRY } from "./mlb";
 export { NBA_REGISTRY } from "./nba";
 export { UFC_REGISTRY } from "./ufc";

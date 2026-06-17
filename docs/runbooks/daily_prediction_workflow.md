@@ -28,3 +28,8 @@ _Order matters. Settlement first; leakage validation before any projection is pu
 
 Honesty gates throughout: surface missing/stale/small-sample flags; never fabricate a feed —
 stub `planned`/`not_available`.
+
+**Dry-run preview (no publish):** to run the methodology framework over a generated board and inspect
+the candidate `PredictionOutput`s (leakage pass/fail, confidence, risk, feature attribution) without
+publishing a slate or touching Bank Builder, see `methodology_dryrun_workflow.md`
+(`npx tsx app/scripts/methodology-dryrun.mjs --date <YYYY-MM-DD>`).
