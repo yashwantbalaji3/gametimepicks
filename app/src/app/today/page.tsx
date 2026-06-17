@@ -39,6 +39,7 @@ import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
 import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
 import SectionHeader from "@/components/section-header";
 import YesterdaySummary from "@/components/yesterday-summary";
+import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 
 export const metadata = {
   title: "Today · GameTime Picks",
@@ -229,6 +230,12 @@ export default function TodayPage() {
     weekday: "long", month: "long", day: "numeric",
   });
 
+  const engineSlate = loadTodaySlate();
+  const engineSportsLive = engineSlate.sports.filter((s) => s.eligibleCount > 0);
+  const engineSuggested = engineSlate.allSuggested.length;
+  const bbPreview = engineSlate.bankBuilderPreview;
+  const bbQualifies = bbPreview.status !== "no_qualified_launch" && !!bbPreview.laneA && !!bbPreview.laneB;
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       {/* 1 — Quick actions: the primary destinations, first (1-click reach to every key area) */}
@@ -251,6 +258,32 @@ export default function TodayPage() {
           </Link>
         ))}
       </nav>
+
+      {/* 1.5 — Methodology engine summary → /parlays (suggested parlays + Bank Builder preview) */}
+      {engineSlate.available && (
+        <Link
+          href="/parlays"
+          className="vault-glow-hover vault-press rounded-[14px] px-5 py-4 flex flex-col gap-3"
+          style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", textDecoration: "none" }}
+        >
+          <div className="flex items-center justify-between">
+            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Methodology engine · today</span>
+            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>View parlays →</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {engineSlate.sports.map((s) => (
+              <span key={s.sport} className="rounded-full px-2.5 py-1 font-mono text-[11px]"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-border)", color: s.eligibleCount > 0 ? "var(--vault-text)" : "var(--vault-text-faint)" }}>
+                {s.sport === "WORLD_CUP" ? "WC" : s.sport}: {s.eligibleCount > 0 ? `${s.eligibleCount} legs` : "no qualified"}
+              </span>
+            ))}
+          </div>
+          <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+            {engineSuggested} suggested parlay{engineSuggested === 1 ? "" : "s"} across {engineSportsLive.length} sport{engineSportsLive.length === 1 ? "" : "s"} ·{" "}
+            Bank Builder preview: <span style={{ color: bbQualifies ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{bbQualifies ? "qualifies (operator approval required)" : "no qualified launch"}</span>
+          </div>
+        </Link>
+      )}
 
       {/* 2 — Today's Focus: World Cup */}
       <TodaysFocusWorldCup matches={wcFocus} games={wcGames} dateLabel={dateLabel} />
