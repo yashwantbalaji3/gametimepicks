@@ -77,12 +77,27 @@ export function survivalScore(l: EligibleLeg): number {
 
 const SURVIVAL_ELIGIBLE = 70;
 
+/** Capitalize the pick side for display (over → Over, under → Under, yes/no → Yes/No). */
+export function sideLabel(side: string | null): string {
+  if (!side) return "";
+  const s = side.toLowerCase();
+  if (s === "over") return "Over";
+  if (s === "under") return "Under";
+  if (s === "yes") return "Yes";
+  if (s === "no") return "No";
+  return "";
+}
+
 function laneLeg(l: EligibleLeg): BankBuilderLaneLeg {
-  const label = l.line != null ? `${l.participantName} ${l.marketType} ${l.line}` : `${l.participantName} ${l.marketType}`;
+  const sl = sideLabel(l.side);
+  // Exact pick label, e.g. "JR Ritchie Strikeouts Over 3.5" (side is included for O/U markets).
+  const label = `${l.participantName} ${l.marketType}${sl ? ` ${sl}` : ""}${l.line != null ? ` ${l.line}` : ""}`.replace(/\s+/g, " ").trim();
   return {
     legId: l.legId, sport: l.sport, eventId: l.eventId, label, marketType: l.marketType,
     odds: l.odds, modelProbability: l.modelProbability, legQualityTier: l.legQualityTier,
     legQualityScore: l.legQualityScore, riskScore: l.riskScore,
+    side: l.side, line: l.line, startTime: l.startTime, confidenceTier: l.confidenceTier,
+    dataQuality: l.dataQualityGrade, topPositiveFactors: l.topPositiveFactors, topNegativeFactors: l.topNegativeFactors,
   };
 }
 

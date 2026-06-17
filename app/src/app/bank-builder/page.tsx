@@ -192,15 +192,24 @@ export default function BankBuilderPage() {
       </div>
 
       {/* PRIMARY — today's active dual ladder (or operator-gated preview), shown first. */}
-      <div className="mt-6"><BankBuilderPreviewPanel preview={loadTodaySlate().bankBuilderPreview} /></div>
+      {(() => {
+        const bbPreview = loadTodaySlate().bankBuilderPreview;
+        const activeLaunched = bbPreview.status === "launched";
+        return (
+          <>
+            <div className="mt-6"><BankBuilderPreviewPanel preview={bbPreview} /></div>
 
-      {/* Futuristic $100 → $10K meter — ladder path + lane status. */}
-      <div className="mt-6">
-        <BankBuilderMeter run1Bankroll={currentBankroll} dual={loadDualBankBuilder()} v2={v2} />
-      </div>
+            {/* Futuristic $100 → $10K meter — ladder path + lane status. */}
+            <div className="mt-6">
+              <BankBuilderMeter run1Bankroll={currentBankroll} dual={loadDualBankBuilder()} v2={v2} activeLaunched={activeLaunched} />
+            </div>
 
-      {/* Survival-gate panel (active dual ladder / V2 evaluation + per-leg scores). */}
-      {v2 ? <div className="mt-6"><BankBuilderV2Panel v2={v2} /></div> : null}
+            {/* V2 survival-gate evaluation panel — hidden once an active dual ladder is launched
+                (no "no qualifying launch yet" box when today's ladder is live). */}
+            {v2 && !activeLaunched ? <div className="mt-6"><BankBuilderV2Panel v2={v2} /></div> : null}
+          </>
+        );
+      })()}
 
       {/* Archived closed test ladder — demoted + collapsed (real outcome preserved, not promoted). */}
       {completed ? (

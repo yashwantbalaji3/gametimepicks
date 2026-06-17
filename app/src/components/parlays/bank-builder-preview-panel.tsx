@@ -23,23 +23,82 @@ function projectedReturn(o: number | null): string {
   return d == null ? "—" : `$${(STAKE * d).toFixed(2)}`;
 }
 
-function LaneLegRow({ leg }: { leg: ParlayLegDisplay }) {
+function sideText(side: string | null): string {
+  if (!side) return "";
+  const s = side.toLowerCase();
+  return s === "over" ? "Over" : s === "under" ? "Under" : s === "yes" ? "Yes" : s === "no" ? "No" : "";
+}
+
+function startLabel(iso: string | null): string {
+  if (!iso) return "";
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return "";
+  return new Date(t).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC" }) + " UTC";
+}
+
+function legAvatar(leg: ParlayLegDisplay) {
   const id = leg.identity;
-  const avatar = id.kind === "player" && id.playerId != null
-    ? <PlayerAvatar playerId={id.playerId} playerName={leg.participant} team={id.teamAbbr ?? undefined} sport={id.avatarSport} size="xs" flat />
-    : leg.sport === "WORLD_CUP" && id.countryCode
-      ? <FlagBadge code={id.countryCode} size="sm" ariaLabel={leg.participant} />
-      : id.teamAbbr && (leg.sportKey === "mlb" || leg.sportKey === "nba")
-        ? <TeamLogo team={id.teamAbbr} sport={leg.sportKey} size="sm" />
-        : <PlayerAvatar playerName={leg.participant} size="xs" flat />;
+  if (id.kind === "player" && id.playerId != null) return <PlayerAvatar playerId={id.playerId} playerName={leg.participant} team={id.teamAbbr ?? undefined} sport={id.avatarSport} size="xs" flat />;
+  if (leg.sport === "WORLD_CUP" && id.countryCode) return <FlagBadge code={id.countryCode} size="sm" ariaLabel={leg.participant} />;
+  if (id.teamAbbr && (leg.sportKey === "mlb" || leg.sportKey === "nba")) return <TeamLogo team={id.teamAbbr} sport={leg.sportKey} size="sm" />;
+  return <PlayerAvatar playerName={leg.participant} size="xs" flat />;
+}
+
+/** A clickable leg: shows the EXACT side (Over/Under), and expands to "why this pick". */
+function LaneLegRow({ leg, active }: { leg: ParlayLegDisplay; active?: boolean }) {
+  const sl = sideText(leg.side);
+  // The exact pick (market + Over/Under + line) is on its own line so it is never truncated away.
+  const pick = `${leg.market}${sl ? ` ${sl}` : ""}${leg.line != null ? ` ${leg.line}` : ""}`.trim();
   return (
-    <div className="flex items-center gap-2 py-1.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
-      <span className="shrink-0">{avatar}</span>
-      <span className="min-w-0 flex-1 truncate text-[12.5px]" style={{ color: "var(--vault-text)" }}>
-        {leg.participant} · {leg.market}{leg.line != null ? ` ${leg.line}` : ""}
-      </span>
-      <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>pending · preview</span>
-      <span className="font-mono text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{american(leg.odds)}</span>
+    <details className="py-1.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
+      <summary className="flex items-center gap-2 cursor-pointer" style={{ listStyle: "none" }}>
+        <span className="shrink-0">{legAvatar(leg)}</span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[12.5px] font-medium" style={{ color: "var(--vault-text)" }}>{leg.participant}</span>
+          {pick && <span className="block truncate text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{pick}</span>}
+        </span>
+        <span className="shrink-0 text-right">
+          <span className="block font-mono text-[12px]" style={{ color: "var(--vault-text)" }}>{american(leg.odds)}</span>
+          <span className="block font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>{active ? "pending · live ▾" : "pending ▾"}</span>
+        </span>
+      </summary>
+      <div className="mt-2 space-y-1.5 pl-8 text-[11.5px]">
+        <div className="flex flex-wrap gap-1.5 font-mono text-[10.5px]">
+          {leg.confidenceTier && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>conf {leg.confidenceTier}</span>}
+          {leg.survivalScore != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>survival {leg.survivalScore}</span>}
+          <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>risk {leg.riskScore.toFixed(2)}</span>
+          <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{leg.legQualityTier}</span>
+          {leg.modelProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>model {Math.round(leg.modelProbability * 100)}%</span>}
+        </div>
+        {leg.topPositiveFactors.slice(0, 2).map((f, i) => <div key={`p${i}`} style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--vault-success)" }}>Why:</span> {f}</div>)}
+        {leg.topNegativeFactors.slice(0, 2).map((f, i) => <div key={`n${i}`} style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--gtp-bank-heat)" }}>Risk:</span> {f}</div>)}
+        {leg.startTime && <div style={{ color: "var(--vault-text-faint)" }}>Kickoff/first pitch: {startLabel(leg.startTime)} · settles from official sources only.</div>}
+      </div>
+    </details>
+  );
+}
+
+const LADDER_STEPS = [1, 2, 3, 4, 5];
+
+/** Per-lane $100 → $10K ladder: Step 1 active, Steps 2–5 coming soon. */
+function LaneLadder({ projected }: { projected: string }) {
+  return (
+    <div className="mt-2.5">
+      <div className="flex items-center gap-1">
+        {LADDER_STEPS.map((s, i) => (
+          <div key={s} className="flex items-center gap-1">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full font-mono text-[9.5px]"
+              style={{ background: s === 1 ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.05)", color: s === 1 ? "#170f0a" : "var(--vault-text-faint)", border: "1px solid var(--vault-border)" }}>
+              {s}
+            </span>
+            {i < LADDER_STEPS.length - 1 && <span aria-hidden style={{ width: 10, height: 1, background: "var(--vault-border)" }} />}
+          </div>
+        ))}
+        <span className="ml-1 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>→ $10K</span>
+      </div>
+      <div className="mt-1 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+        Step 1 active · $100 → {projected} · pending official settlement · Steps 2–5 coming soon
+      </div>
     </div>
   );
 }
@@ -61,12 +120,13 @@ function LaneTracker({ lane, laneId, active }: { lane: NonNullable<DualBankBuild
         {hasSoccer && <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(70,130,90,0.18)", color: "var(--vault-success)" }}>⚽ soccer leg</span>}
       </div>
       <div className="mt-1.5">
-        {lane.legs.map((l) => <LaneLegRow key={l.legId} leg={l} />)}
+        {lane.legs.map((l) => <LaneLegRow key={l.legId} leg={l} active={active} />)}
       </div>
       <div className="mt-2 flex items-center justify-between text-[12px]" style={{ borderTop: "1px solid var(--vault-border)", paddingTop: 8 }}>
         <span style={{ color: "var(--vault-text-mute)" }}>combined <span className="font-mono" style={{ color: "var(--vault-text)" }}>{american(lane.combinedOdds)}</span></span>
         <span style={{ color: "var(--vault-text-mute)" }}>→ {projectedReturn(lane.combinedOdds)} from ${STAKE}</span>
       </div>
+      <LaneLadder projected={projectedReturn(lane.combinedOdds)} />
       {/* progress meter — preview: 0 legs settled, awaiting operator launch */}
       <div className="mt-2">
         <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>

@@ -295,6 +295,7 @@ export default function TodayPage() {
         run1Record={bank ? `${bank.record.wins}–${bank.record.losses}` : undefined}
         dual={dualBank}
         v2={v2}
+        activeLaunched={bbPreview.status === "launched"}
       />
 
       {/* 4 — Suggested parlays (filterable: sport + variance) */}

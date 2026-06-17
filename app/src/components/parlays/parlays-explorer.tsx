@@ -64,7 +64,7 @@ function LegRow({ leg }: { leg: ParlayLegDisplay }) {
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <span className="text-[13.5px] font-medium truncate" style={{ color: "var(--vault-text)" }}>{leg.participant}</span>
-          <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>{leg.market}{leg.line != null ? ` ${leg.line}` : ""}</span>
+          <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>{leg.market}{leg.side ? ` ${leg.side[0].toUpperCase()}${leg.side.slice(1)}` : ""}{leg.line != null ? ` ${leg.line}` : ""}</span>
           <span className="font-mono text-[12.5px]" style={{ color: "var(--vault-text)" }}>{americanStr(leg.odds)}</span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
