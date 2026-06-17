@@ -66,6 +66,9 @@ export interface CuratedGame {
   awayLogo?: string | null;
   group?: string | null;
   startTime: string | null;
+  /** "upcoming" = kickoff still ahead (pregame picks are active); "started" = kickoff has passed
+   *  (the pregame picks are shown for reference only, never as active/Bank Builder eligible). */
+  status: "upcoming" | "started";
   topTeamPicks: CuratedPick[];
   topPlayerPicks: CuratedPick[];
   playerPickNote?: string;
@@ -213,9 +216,10 @@ function curatePlayerPick(p: WcPlayerProjection): CuratedPick {
  * Returns [] when projections are gated/unavailable. The raw prop inventory is never the
  * primary surface — callers render these curated picks first.
  */
-export function loadWorldCupCuratedGames(opts?: { teamLimit?: number; playerLimit?: number }): CuratedGame[] {
+export function loadWorldCupCuratedGames(opts?: { teamLimit?: number; playerLimit?: number; nowMs?: number }): CuratedGame[] {
   const teamLimit = opts?.teamLimit ?? 4;
   const playerLimit = opts?.playerLimit ?? 6;
+  const nowMs = opts?.nowMs ?? Date.now();
   const proj = loadWorldCupProjections();
   const players = loadWorldCupPlayerProjections();
   if (!proj?.matches?.length) return [];
@@ -231,10 +235,12 @@ export function loadWorldCupCuratedGames(opts?: { teamLimit?: number; playerLimi
   const games: CuratedGame[] = [];
   for (const [gameId, rows] of byGame) {
     const head = rows[0];
+    const started = !!head.kickoffUtc && new Date(head.kickoffUtc).getTime() <= nowMs;
     const teamSet = new Set([normTeamName(head.homeTeam), normTeamName(head.awayTeam)]);
     const teamPicks = rows
       .map(curateTeamPick)
       .filter((x): x is CuratedPick => !!x)
+      .map((p) => (started ? { ...p, eligibility: { ...p.eligibility, bankBuilder: false } } : p))
       .sort((a, b) => b.curatedScore - a.curatedScore)
       .slice(0, teamLimit);
 
@@ -255,13 +261,17 @@ export function loadWorldCupCuratedGames(opts?: { teamLimit?: number; playerLimi
       awayLogo: head.awayLogo,
       group: head.group,
       startTime: head.kickoffUtc,
+      status: started ? "started" : "upcoming",
       topTeamPicks: teamPicks,
       topPlayerPicks: playerPicks,
       playerPickNote: matchedPlayers.length === 0 ? "Limited qualified player picks for this fixture." : undefined,
       totalProps: matchedPlayers.length,
     });
   }
-  // Sort games by kickoff (upcoming first).
-  games.sort((a, b) => (a.startTime ?? "").localeCompare(b.startTime ?? ""));
+  // Upcoming games first, then by kickoff.
+  games.sort((a, b) => {
+    if (a.status !== b.status) return a.status === "upcoming" ? -1 : 1;
+    return (a.startTime ?? "").localeCompare(b.startTime ?? "");
+  });
   return games;
 }
