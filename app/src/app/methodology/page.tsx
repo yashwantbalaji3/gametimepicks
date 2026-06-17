@@ -142,6 +142,67 @@ export default function MethodologyPage() {
         </div>
       </Section>
 
+      {/* SECTION 2.5 — Prediction framework v1 */}
+      <Section title="Prediction framework (v1)">
+        <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
+          A leakage-aware, opportunity-first framework across MLB, NBA, UFC, and the World Cup. Every
+          feature must be available before the event starts; projections never look more certain than
+          the data supports.
+        </p>
+        <div className="space-y-5">
+          <Block title="Feature hierarchy — opportunity first">
+            <p>The same priority order applies to every sport:</p>
+            <Formula>
+              Availability → Opportunity → Role → Matchup → Efficiency → Context → Market → Uncertainty → Validation
+            </Formula>
+            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
+              Opportunity first, role second, matchup third, efficiency fourth, context fifth. Market
+              is optional but powerful. Head-to-head history is last and heavily downweighted by sample size.
+            </p>
+          </Block>
+
+          <Block title="Prediction-time rule (no leakage)">
+            <Formula>feature_timestamp ≤ prediction_time &lt; event_start_time</Formula>
+            <p className="mt-2">
+              Features use only information available before the event. We never use final scores, box
+              scores, an unconfirmed lineup/XI, fight results, rolling averages that include the target
+              event, or closing odds captured after the prediction. Each prediction stores its feature,
+              market, lineup, injury, and weather snapshot times and is validated against this rule.
+            </p>
+          </Block>
+
+          <Block title="Confidence ≠ probability · risk score">
+            <p>
+              Probability is how likely a pick hits. <span style={{ color: "var(--vault-text)" }}>Confidence</span> is
+              how much we trust the projection — driven by data freshness, role certainty, sample size,
+              and model/market agreement (a missing critical input forces No&nbsp;Bet). A separate
+              <span style={{ color: "var(--vault-text)" }}> risk score</span> flags fragility: small sample,
+              stale data, DNP/scratch risk, volatile market, fragile single-player props, and over-correlation.
+            </p>
+          </Block>
+
+          <Block title="Missing / stale / sample-size honesty">
+            <p>
+              If a feed is missing, stale, small-sample, or not yet built, we expose it — a flag, a lower
+              confidence, a higher risk — rather than a quiet default. Historical and matchup features carry
+              a sample-size bucket (0 · 1–5 · 6–15 · 16–30 · 31+) and are downweighted accordingly. Each
+              defined feature also carries an implementation status (implemented · partial · planned · not&nbsp;available).
+            </p>
+          </Block>
+
+          <Block title="Bank Builder V2 — survival over outcome">
+            <p>
+              Bank Builder uses a stricter <span style={{ color: "var(--vault-text)" }}>survival score</span> than
+              Parlay Lab: only lower-variance, high-data-quality, confirmed-role legs across independent games.
+              It can decline a winning-looking pick — e.g. a moneyline favorite is more fragile than the same
+              team&apos;s double-chance or draw-no-bet, which cover the draw. Survival is judged before kickoff,
+              not by the result. Suspended/postponed games are no-action (void) for the original slate, and a
+              hitter prop with no plate appearance voids (DNP) — never a loss.
+            </p>
+          </Block>
+        </div>
+      </Section>
+
       {/* SECTION 3 — Sport methodology cards */}
       <Section title="By sport">
         <div className="space-y-4">
