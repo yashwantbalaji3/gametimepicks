@@ -238,6 +238,25 @@ test("dual Bank Builder rejects conflicting/correlated legs from the same game",
   assert.equal(r.status, "no_qualified_launch");
 });
 
+test("forms two game-disjoint lanes even when top survival is concentrated in few games", () => {
+  // 6 strong legs but heavy in g0/g1; g2/g3 also present → diversified selection must still split.
+  const pool = eligibleLegs([
+    mkLeg({ eventId: "g0", participant: "A0", riskScore: 0.05, confidenceScore: "High", dataQuality: "A", edge: 9 }),
+    mkLeg({ eventId: "g0", participant: "B0", riskScore: 0.05, confidenceScore: "High", dataQuality: "A", edge: 9 }),
+    mkLeg({ eventId: "g1", participant: "A1", riskScore: 0.06, confidenceScore: "High", dataQuality: "A", edge: 8 }),
+    mkLeg({ eventId: "g1", participant: "B1", riskScore: 0.06, confidenceScore: "High", dataQuality: "A", edge: 8 }),
+    mkLeg({ eventId: "g2", participant: "A2", riskScore: 0.1, confidenceScore: "High", dataQuality: "A", edge: 7 }),
+    mkLeg({ eventId: "g3", participant: "A3", riskScore: 0.1, confidenceScore: "High", dataQuality: "A", edge: 7 }),
+  ]);
+  const r = selectDualBankBuilder(pool, "2026-06-17", { mode: "launch", newRunId: "run-z" });
+  assert.equal(r.status, "launched");
+  // Each lane internally game-disjoint, and the two lanes don't both hinge on the same single game.
+  assert.notEqual(r.laneA.legs[0].eventId, r.laneA.legs[1].eventId);
+  assert.notEqual(r.laneB.legs[0].eventId, r.laneB.legs[1].eventId);
+  const fourGames = new Set([...r.laneA.legs, ...r.laneB.legs].map((l) => l.eventId));
+  assert.ok(fourGames.size >= 3, "selection spreads across ≥3 distinct games");
+});
+
 test("survivalScore rejects unknown-scope legs hard", () => {
   const bad = mkLeg({ sport: "WORLD_CUP", predictionTarget: "weird_unmapped", eventStartTime: FUTURE });
   assert.ok(survivalScore(bad) <= 0 || bad.marketScope === "unknown");

@@ -85,18 +85,41 @@ export function selectDualBankBuilder(eligible: EligibleLeg[], date: string, opt
 
   const distinctGames = new Set(pool.map((l) => l.eventId)).size;
 
-  // ── Greedy best-four with pairwise non-correlation ──────────────────────────────────────────
+  // ── Game-diversified best-four selection ─────────────────────────────────────────────────────
+  // Pass 1: take the highest-survival leg from each distinct game (pairwise non-correlated). This
+  // guarantees two game-disjoint lanes can be formed whenever ≥ 4 qualified games exist — the
+  // overwhelmingly common case — and prevents both lanes depending on the same match.
   const selected: EligibleLeg[] = [];
+  const usedGames = new Set<string>();
   for (const cand of pool) {
     if (selected.length >= 4) break;
-    if (selected.every((s) => pairOk(s, cand))) selected.push(cand);
+    if (usedGames.has(cand.eventId)) continue;
+    if (selected.every((s) => pairOk(s, cand))) { selected.push(cand); usedGames.add(cand.eventId); }
   }
+  // Pass 2: only if too few distinct games, allow a 2nd non-correlated leg from a used game.
+  if (selected.length < 4) {
+    for (const cand of pool) {
+      if (selected.length >= 4) break;
+      if (selected.includes(cand)) continue;
+      if (selected.every((s) => pairOk(s, cand))) selected.push(cand);
+    }
+  }
+
+  // Split into two lanes, each internally game-disjoint: strongest available pair → Lane A, rest → B.
+  const bySurv = [...selected].sort((a, b) => survivalScore(b) - survivalScore(a));
+  const laneAlegs: EligibleLeg[] = bySurv.length ? [bySurv[0]] : [];
+  for (let i = 1; i < bySurv.length && laneAlegs.length < 2; i++) {
+    if (bySurv[i].eventId !== laneAlegs[0].eventId) laneAlegs.push(bySurv[i]);
+  }
+  const usedIds = new Set(laneAlegs.map((l) => l.legId));
+  const laneBlegs = bySurv.filter((l) => !usedIds.has(l.legId)).slice(0, 2);
+  const laneBdisjoint = laneBlegs.length === 2 && laneBlegs[0].eventId !== laneBlegs[1].eventId;
 
   const gates: DualBankBuilderResult["launchGateSummary"] = [
     { gate: "≥4 qualified non-correlated legs", passed: selected.length >= 4, detail: `${selected.length} selected (survival ≥ ${SURVIVAL_ELIGIBLE})` },
     { gate: "≥2 distinct games", passed: distinctGames >= 2, detail: `${distinctGames} distinct games in qualified pool` },
     { gate: "no stale/unknown-scope legs", passed: selected.every((l) => l.staleDataFlags.length === 0 && l.marketScope !== "unknown"), detail: "checked per leg" },
-    { gate: "two game-disjoint lanes possible", passed: new Set(selected.map((l) => l.eventId)).size >= 2, detail: "lanes must not share all games" },
+    { gate: "two game-disjoint 2-leg lanes", passed: laneAlegs.length === 2 && laneBlegs.length === 2 && laneAlegs[0].eventId !== laneAlegs[1].eventId && laneBdisjoint, detail: `laneA games ${laneAlegs.map((l) => l.eventId).join(",")} · laneB games ${laneBlegs.map((l) => l.eventId).join(",")}` },
   ];
   const allPassed = gates.every((g) => g.passed);
 
@@ -113,31 +136,6 @@ export function selectDualBankBuilder(eligible: EligibleLeg[], date: string, opt
       createdAt: null,
       published: false,
     };
-  }
-
-  // Lane A: the two highest-survival, lowest-risk, game-disjoint legs.
-  const byLane = [...selected].sort((a, b) => survivalScore(b) - survivalScore(a));
-  const laneAlegs = [byLane[0]];
-  for (let i = 1; i < byLane.length && laneAlegs.length < 2; i++) {
-    if (byLane[i].eventId !== laneAlegs[0].eventId && pairOk(laneAlegs[0], byLane[i])) laneAlegs.push(byLane[i]);
-  }
-  const used = new Set(laneAlegs.map((l) => l.legId));
-  // Lane B: the next two, diversified from Lane A's games where possible.
-  const remaining = byLane.filter((l) => !used.has(l.legId));
-  const laneBlegs: EligibleLeg[] = [];
-  const laneAgames = new Set(laneAlegs.map((l) => l.eventId));
-  for (const l of remaining) {
-    if (laneBlegs.length >= 2) break;
-    if (laneBlegs.every((x) => pairOk(x, l)) && (laneBlegs.length === 0 ? !laneAgames.has(l.eventId) || remaining.length <= 2 : l.eventId !== laneBlegs[0].eventId)) {
-      laneBlegs.push(l);
-    }
-  }
-  // Fallback fill if diversification left Lane B short.
-  if (laneBlegs.length < 2) {
-    for (const l of remaining) {
-      if (laneBlegs.length >= 2) break;
-      if (!laneBlegs.includes(l) && laneBlegs.every((x) => pairOk(x, l) && x.eventId !== l.eventId)) laneBlegs.push(l);
-    }
   }
 
   if (laneAlegs.length < 2 || laneBlegs.length < 2) {
