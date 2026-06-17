@@ -129,6 +129,22 @@ function latestSlateDate(root: string): string | null {
   } catch { return null; }
 }
 
+/**
+ * Read an operator-launched dual run from the engine's NON-protected namespace
+ * (public/data/methodology/launch/). Returns the run only if it matches the slate date. This never
+ * touches the protected public/data/bank-builder/* files.
+ */
+function readActiveLaunchedRun(root: string, date: string): { run: DualBankBuilderResult } | null {
+  try {
+    const p = path.join(root, "methodology", "launch", "dual-bank-builder-active.json");
+    if (!fs.existsSync(p)) return null;
+    const doc = JSON.parse(fs.readFileSync(p, "utf8"));
+    const run = doc?.run;
+    if (run && run.date === date && run.status === "launched") return { run };
+    return null;
+  } catch { return null; }
+}
+
 // ── Identity enrichment from the raw board (never fabricated) ───────────────────────────────────
 interface IdentityMaps {
   mlbByKey: Map<string, { playerId: number | null; teamAbbr: string | null }>;
@@ -319,11 +335,22 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
     }));
     for (const s of sports) s.gameSpecificCount = gameSpecific.filter((g) => g.sport === s.sport).length;
 
-    // Dual Bank Builder PREVIEW — always dry-run in the UI (operator-gated, never launched).
-    const bb = selectDualBankBuilder(eligible, date, { mode: "dry_run" });
+    // Dual Bank Builder: prefer the LAUNCHED run if an operator launched one (engine namespace,
+    // never the protected files); else show the live soccer-preferred dry-run PREVIEW.
+    const launched = readActiveLaunchedRun(root, date);
+    const bb = launched?.run ?? selectDualBankBuilder(eligible, date, { mode: "dry_run", preferSoccerPerLane: true });
+    const minimalLeg = (ll: any): ParlayLegDisplay => ({
+      legId: ll.legId, sport: ll.sport, sportKey: SPORT_KEY[ll.sport as Sport] ?? "mlb", market: ll.marketType,
+      participant: String(ll.label ?? ll.legId), team: null, opponent: null, line: null, odds: ll.odds ?? null,
+      modelProbability: ll.modelProbability ?? null, marketImpliedProbability: null, edge: null,
+      confidenceTier: "", riskScore: ll.riskScore ?? 0, riskTier: "", legQualityTier: ll.legQualityTier ?? "",
+      legQualityScore: ll.legQualityScore ?? 0, survivalScore: ll.legQualityScore ?? null,
+      topPositiveFactors: [], topNegativeFactors: [], missingFlags: [], staleFlags: [], smallSampleFlags: [],
+      leakagePassed: true, identity: { kind: "team", playerId: null, teamAbbr: null, countryCode: null, photoUrl: null, avatarSport: "mlb" },
+    });
     const toLane = (lane: DualBankBuilderResult["laneA"]) => lane ? {
       label: lane.label,
-      legs: lane.legs.map((ll) => legByIdLookup.get(ll.legId)).filter(Boolean) as ParlayLegDisplay[],
+      legs: lane.legs.map((ll) => legByIdLookup.get(ll.legId) ?? minimalLeg(ll)),
       survivalScore: lane.laneSurvivalScore,
       combinedOdds: lane.combinedOdds,
     } : null;
@@ -333,7 +360,7 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
       date,
       laneA: toLane(bb.laneA),
       laneB: toLane(bb.laneB),
-      selectedFour: bb.selectedFourLegs.map((ll) => legByIdLookup.get(ll.legId)).filter(Boolean) as ParlayLegDisplay[],
+      selectedFour: bb.selectedFourLegs.map((ll) => legByIdLookup.get(ll.legId) ?? minimalLeg(ll)),
       launchGateSummary: bb.launchGateSummary,
       noLaunchReasons: bb.noLaunchReasons,
     };

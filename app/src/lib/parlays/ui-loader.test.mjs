@@ -41,10 +41,26 @@ test("no fabricated cards for sports with no eligible candidates", () => {
   }
 });
 
-test("Bank Builder preview is never active/launched from the UI loader", () => {
-  const v = loadTodaySlate("2026-06-17", "2026-06-17T18:45:45Z");
+test("a date with no launched artifact shows an operator-gated preview (not active)", () => {
+  // 1999 has no slate and no launched run → never active, never a launched run id.
+  const v = loadTodaySlate("1999-01-01", "1999-01-01T12:00:00Z");
   assert.notEqual(v.bankBuilderPreview.status, "launched");
-  assert.equal(v.bankBuilderPreview.runId, null, "UI preview never carries a launched run id");
+  assert.equal(v.bankBuilderPreview.runId, null);
+});
+
+test("the launched 06-17 run is soccer-per-lane from the engine namespace", () => {
+  const v = loadTodaySlate("2026-06-17", "2026-06-17T21:30:00Z");
+  const bb = v.bankBuilderPreview;
+  if (bb.status === "launched") {
+    // Active run carries a run id and one World Cup leg in EACH lane.
+    assert.ok(bb.runId, "launched run has a run id");
+    assert.ok(bb.laneA && bb.laneB, "both lanes present");
+    assert.ok(bb.laneA.legs.some((l) => l.sport === "WORLD_CUP"), "Lane A has a World Cup leg");
+    assert.ok(bb.laneB.legs.some((l) => l.sport === "WORLD_CUP"), "Lane B has a World Cup leg");
+    // No shared leg across lanes.
+    const aIds = new Set(bb.laneA.legs.map((l) => l.legId));
+    assert.ok(bb.laneB.legs.every((l) => !aIds.has(l.legId)), "no shared legs");
+  }
 });
 
 test("identity never invents a photo URL for sports without one", () => {
