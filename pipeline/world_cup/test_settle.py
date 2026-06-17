@@ -7,10 +7,36 @@ from pipeline.world_cup.settle import (
     grade_moneyline,
     grade_total,
     grade_double_chance,
+    grade_draw_no_bet,
+    grade_btts,
     grade_pick,
     load_official_scores,
     _regulation_goals,
 )
+
+
+class TestNewGraders(unittest.TestCase):
+    def test_double_chance_1x2_codes(self):
+        # France 3-1: 1X (home or draw) wins, X2 (away or draw) loses
+        self.assertEqual(grade_double_chance("1X", 3, 1), "win")
+        self.assertEqual(grade_double_chance("X2", 3, 1), "loss")
+        # Iraq 1-4 Norway: X2 (away or draw) wins
+        self.assertEqual(grade_double_chance("X2", 1, 4), "win")
+
+    def test_draw_no_bet(self):
+        self.assertEqual(grade_draw_no_bet("home", 3, 1), "win")
+        self.assertEqual(grade_draw_no_bet("away", 1, 4), "win")
+        self.assertEqual(grade_draw_no_bet("home", 1, 4), "loss")
+        self.assertEqual(grade_draw_no_bet("home", 1, 1), "push")  # draw refunds
+
+    def test_btts(self):
+        self.assertEqual(grade_btts("no", 3, 0), "win")   # Argentina 3-0 — only one side scored
+        self.assertEqual(grade_btts("no", 1, 4), "loss")  # Iraq 1-4 — both scored
+        self.assertEqual(grade_btts("yes", 1, 4), "win")
+
+    def test_grade_pick_dispatches_new_markets(self):
+        self.assertEqual(grade_pick({"market": "draw_no_bet", "pick": "home"}, 3, 1), "win")
+        self.assertEqual(grade_pick({"market": "btts", "pick": "no"}, 3, 0), "win")
 
 
 class TestSettle(unittest.TestCase):

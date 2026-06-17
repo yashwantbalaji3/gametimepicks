@@ -32,6 +32,10 @@ DOUBLE_CHANCE_COVERS = {
     "home_or_draw": ("home", "draw"),
     "away_or_draw": ("away", "draw"),
     "home_or_away": ("home", "away"),
+    # standard 1X2 double-chance codes (the form the projection artifact uses)
+    "1X": ("home", "draw"),
+    "X2": ("away", "draw"),
+    "12": ("home", "away"),
 }
 
 
@@ -72,6 +76,31 @@ def grade_total(pick: str, line: float, home_goals: int, away_goals: int) -> str
     return "win" if not over else "loss"
 
 
+DNB_SIDE = {"home": "home", "1": "home", "away": "away", "2": "away"}
+
+
+def grade_draw_no_bet(pick: str, home_goals: int, away_goals: int) -> str:
+    """Grade a 90-minute draw-no-bet. A draw VOIDS the bet (stake refunded → push)."""
+    side = DNB_SIDE.get(str(pick).lower())
+    if side is None:
+        return "ungradeable"
+    result = _regulation_result(home_goals, away_goals)
+    if result == "draw":
+        return "push"  # draw no bet → refund
+    return "win" if result == side else "loss"
+
+
+def grade_btts(pick: str, home_goals: int, away_goals: int) -> str:
+    """Grade both-teams-to-score (yes/no) from regulation goals."""
+    both = home_goals > 0 and away_goals > 0
+    p = str(pick).lower()
+    if p not in ("yes", "no"):
+        return "ungradeable"
+    if p == "yes":
+        return "win" if both else "loss"
+    return "win" if not both else "loss"
+
+
 def grade_pick(pick: dict, home_goals: int, away_goals: int) -> str | None:
     """Dispatch a projection pick to its market grader. None = unsupported market."""
     market = pick.get("market")
@@ -81,6 +110,10 @@ def grade_pick(pick: dict, home_goals: int, away_goals: int) -> str | None:
         return grade_double_chance(pick["pick"], home_goals, away_goals)
     if market == "match_total_goals":
         return grade_total(pick["pick"], pick["line"], home_goals, away_goals)
+    if market == "draw_no_bet":
+        return grade_draw_no_bet(pick["pick"], home_goals, away_goals)
+    if market == "btts":
+        return grade_btts(pick["pick"], home_goals, away_goals)
     return None
 
 
