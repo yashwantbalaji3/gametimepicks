@@ -4,13 +4,15 @@ import { buildWcLegs, buildOptimizerLegs } from "./build-legs.ts";
 
 test("buildWcLegs only includes parlay-eligible legs, regulation-only", () => {
   const proj = { matches: [
-    { id: "e1", date: "2026-06-11", matchId: 1, homeTeam: "A", awayTeam: "B", market: "double_chance",
+    { id: "e1", date: "2026-06-11", matchId: 1, homeTeam: "A", awayTeam: "B", kickoffUtc: "2026-06-11T19:00:00Z", market: "double_chance",
       pickLabel: "A or Draw", americanOdds: 190, public: true, parlayEligible: true, riskTier: "Medium", projectionStatus: "parlay_eligible", confidence: "Low" },
-    { id: "v1", date: "2026-06-11", matchId: 1, homeTeam: "A", awayTeam: "B", market: "moneyline_90",
+    { id: "v1", date: "2026-06-11", matchId: 1, homeTeam: "A", awayTeam: "B", kickoffUtc: "2026-06-11T19:00:00Z", market: "moneyline_90",
       pickLabel: "Draw", americanOdds: 300, public: true, parlayEligible: false, riskTier: "Low", projectionStatus: "public_projection_no_edge", confidence: "Low" },
   ] };
-  const legs = buildWcLegs(proj, null);
+  const legs = buildWcLegs(proj, null, "2026-06-11T12:00:00Z"); // before kickoff → upcoming
   assert.equal(legs.length, 1);            // only the eligible one
+  // A started game is excluded.
+  assert.equal(buildWcLegs(proj, null, "2026-06-11T20:00:00Z").length, 0);
   assert.equal(legs[0].sport, "world_cup");
   assert.equal(legs[0].regulationOnly, true);
 });

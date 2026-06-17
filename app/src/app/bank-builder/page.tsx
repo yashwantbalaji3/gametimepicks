@@ -191,19 +191,26 @@ export default function BankBuilderPage() {
         <BoardStatTile label="Record" value={recordLabel} sub={completed ? "5 rungs · officially settled" : "settled ladder steps"} accent="var(--vault-gold-bright)" />
       </div>
 
-      {/* Futuristic $100 → $10K meter — run timeline + ladder path + lane status. */}
+      {/* PRIMARY — today's active dual ladder (or operator-gated preview), shown first. */}
+      <div className="mt-6"><BankBuilderPreviewPanel preview={loadTodaySlate().bankBuilderPreview} /></div>
+
+      {/* Futuristic $100 → $10K meter — ladder path + lane status. */}
       <div className="mt-6">
         <BankBuilderMeter run1Bankroll={currentBankroll} dual={loadDualBankBuilder()} v2={v2} />
       </div>
 
-      {/* Bank Builder V2 — the survival-gate panel (Run #3 evaluating/launched + per-leg scores). */}
+      {/* Survival-gate panel (active dual ladder / V2 evaluation + per-leg scores). */}
       {v2 ? <div className="mt-6"><BankBuilderV2Panel v2={v2} /></div> : null}
 
-      {/* Dual Bank Builder — the latest dual run (settled Run #2) detail + run history. */}
-      {completed ? <DualBankBuilderTeaser data={loadDualBankBuilder()} /> : null}
-
-      {/* Methodology-engine dual lane PREVIEW — operator-gated, never launched/active here. */}
-      <div className="mt-6"><BankBuilderPreviewPanel preview={loadTodaySlate().bankBuilderPreview} /></div>
+      {/* Archived closed test ladder — demoted + collapsed (real outcome preserved, not promoted). */}
+      {completed ? (
+        <details className="mt-6 rounded-2xl" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
+          <summary className="cursor-pointer px-4 py-3 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
+            Archived closed test ladder — the earlier dual-lane test (both lanes lost). Tap to view the real settled legs.
+          </summary>
+          <div className="px-1 pb-2"><DualBankBuilderTeaser data={loadDualBankBuilder()} /></div>
+        </details>
+      ) : null}
 
       {/* SECTION 2 — the ladder + the day-by-day run plan */}
       <div className="mt-6">

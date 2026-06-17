@@ -70,7 +70,7 @@ export default function BankBuilderMeter({
         <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>Bank Builder · road to $10K</span>
         <span className="rounded-full px-2.5 py-1 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
           style={{ color: launched ? "var(--vault-success)" : "var(--gtp-bank-heat)", background: launched ? "rgba(110,231,168,0.14)" : "var(--gtp-bank-heat-dim)", border: "1px solid var(--vault-rule)" }}>
-          {launched ? "Run #3 · active" : "Run #3 · V2 evaluating"}
+          {launched ? "Active dual ladder" : "Dual ladder · evaluating"}
         </span>
       </div>
 
@@ -86,9 +86,9 @@ export default function BankBuilderMeter({
 
       {/* Three-run timeline */}
       <div className="relative mt-4 flex flex-col sm:flex-row gap-2">
-        <RunChip tag="Run #1 · completed" title="$100 → $10,376.17 · 5–0" tone="gold" />
-        <RunChip tag="Run #2 · closed" title={`${dual?.lanesSurvived ?? 0}/${dual?.lanes?.length ?? 2} advanced · Step 1`} tone="closed" />
-        <RunChip tag={launched ? "Run #3 · active" : "Run #3 · V2 gate"} title={launched ? "Two lanes live" : "Evaluating — no qualifying launch yet"} tone={launched ? "live" : "heat"} />
+        <RunChip tag="Completed ladder" title="$100 → $10,376.17 · 5–0" tone="gold" />
+        <RunChip tag="Closed test ladder" title={`${dual?.lanesSurvived ?? 0}/${dual?.lanes?.length ?? 2} advanced · Step 1`} tone="closed" />
+        <RunChip tag={launched ? "Active dual ladder" : "Dual ladder · evaluating"} title={launched ? "Two lanes live" : "Evaluating — no qualifying launch yet"} tone={launched ? "live" : "heat"} />
       </div>
 
       {/* Lane status when a run is live */}

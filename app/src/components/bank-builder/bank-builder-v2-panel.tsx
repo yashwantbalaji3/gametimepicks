@@ -65,7 +65,7 @@ export default function BankBuilderV2Panel({ v2 }: { v2: V2Evaluation }) {
         </span>
         <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]"
           style={{ color: launched ? "var(--vault-success)" : "var(--gtp-bank-heat)", background: launched ? "rgba(110,231,168,0.14)" : "var(--gtp-bank-heat-dim)", border: "1px solid var(--vault-rule)" }}>
-          {launched ? "Run #3 · launched" : "Run #3 · evaluating"}
+          {launched ? "Active dual ladder" : "Dual ladder · evaluating"}
         </span>
       </div>
 

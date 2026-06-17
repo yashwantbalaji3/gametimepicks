@@ -266,7 +266,7 @@ export default function MethodologyPage() {
             markets="Whatever the eligible suggested slip contains (may mix sports)."
             cards="One pending step at a time; honest diagnosis when no eligible slip exists."
             settlement="Official results per leg; the bankroll changes only on settlement."
-            limits="Run #1 is complete ($100 → $10,376.17, 5–0). No active pending step — a new ladder is coming soon."
+            limits="The completed ladder reached ($100 → $10,376.17, 5–0). No active pending step — a new ladder is coming soon."
           />
           <SportCard
             accent="var(--gtp-bank-heat)"

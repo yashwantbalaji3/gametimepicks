@@ -91,7 +91,7 @@ export default function BankBuilderPreviewPanel({ preview }: { preview: DualBank
       </div>
       <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-faint)" }}>
         {active
-          ? "Launched dual run from the methodology engine — survival-first, one World Cup leg per lane. Paper stakes only; protected Run #1/#2/#3 history is untouched."
+          ? "Launched dual run from the methodology engine — survival-first, one World Cup leg per lane. Paper stakes only; protected completed-ladder history is untouched."
           : "Dry-run preview from the methodology engine — survival-first, pre-event, odds-backed, correlation-aware. Not launched; nothing is published or active. Paper stakes only."}
       </p>
 
@@ -113,7 +113,7 @@ export default function BankBuilderPreviewPanel({ preview }: { preview: DualBank
 
           <div className="mt-2 rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.03)", color: "var(--vault-text-mute)" }}>
             {active ? (
-              <>Run <span className="font-mono">{preview.runId}</span> — ACTIVE (methodology-engine namespace; protected Run #1/#2/#3 untouched). Settles from official sources only.</>
+              <>Run <span className="font-mono">{preview.runId}</span> — ACTIVE (methodology-engine namespace; protected completed-ladder history untouched). Settles from official sources only.</>
             ) : (
               <>Run id <span className="font-mono">{preview.runId ?? `dual-bank-builder-${preview.date}`}</span> — not launched.
               Launch after approval via <span className="font-mono">project-and-launch-today.mjs --launch --write-bank-builder</span> (or the approved pipeline path).</>
