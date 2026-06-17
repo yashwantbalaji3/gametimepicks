@@ -58,9 +58,14 @@ export function loadSourceForSport(sport: Sport, date: string, dataRoot: string)
       return { sport, sourcePath: nba ? p : null, nba: hasLeans ? nba : (nba ?? undefined) };
     }
     case "UFC": {
-      // UFC publishes "latest" artifacts for the most recent event (no per-date board).
+      // UFC publishes "latest" artifacts for the most recent event (no per-date board). Only treat
+      // it as today's source when the event date matches the requested date — otherwise a past
+      // event would leak into every date.
       const projPath = path.join(dataRoot, "ufc", "projections-latest.json");
-      const proj = readJson(projPath);
+      const projRaw = readJson(projPath);
+      const eventDay = String(projRaw?.eventDate ?? "").slice(0, 10);
+      if (!projRaw || eventDay !== date) return { sport, sourcePath: null, ufc: undefined };
+      const proj = projRaw;
       const odds = readJson(path.join(dataRoot, "ufc", "odds-latest.json"));
       if (proj && Array.isArray(odds?.bouts)) {
         // Attach per-bout commence time (fighter-name match) so leakage/start gates are honest.

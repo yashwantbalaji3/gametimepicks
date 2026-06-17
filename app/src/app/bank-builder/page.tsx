@@ -21,6 +21,8 @@ import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
 import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
+import BankBuilderPreviewPanel from "@/components/parlays/bank-builder-preview-panel";
+import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 import { getSportIdentity } from "@/lib/sport-identity";
 import {
   BANK_BUILDER_BASE,
@@ -199,6 +201,9 @@ export default function BankBuilderPage() {
 
       {/* Dual Bank Builder — the latest dual run (settled Run #2) detail + run history. */}
       {completed ? <DualBankBuilderTeaser data={loadDualBankBuilder()} /> : null}
+
+      {/* Methodology-engine dual lane PREVIEW — operator-gated, never launched/active here. */}
+      <div className="mt-6"><BankBuilderPreviewPanel preview={loadTodaySlate().bankBuilderPreview} /></div>
 
       {/* SECTION 2 — the ladder + the day-by-day run plan */}
       <div className="mt-6">

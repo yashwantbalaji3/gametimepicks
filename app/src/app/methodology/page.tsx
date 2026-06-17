@@ -149,6 +149,13 @@ export default function MethodologyPage() {
           feature must be available before the event starts; projections never look more certain than
           the data supports.
         </p>
+        <p className="text-[13px] leading-relaxed mb-4" style={{ color: "var(--vault-text-faint)" }}>
+          The engine is live: it extracts each sport into the same pipeline (leakage validation →
+          confidence → risk → eligibility), then builds suggested parlays by sport and risk level on{" "}
+          <a href="/parlays" className="underline" style={{ color: "var(--vault-text)" }}>the Parlays page</a>.
+          Sports with no qualified candidates say so honestly. The dual Bank Builder is shown as a
+          dry-run preview only — a new ladder is launched solely by an operator, never automatically.
+        </p>
         <div className="space-y-5">
           <Block title="Feature hierarchy — opportunity first">
             <p>The same priority order applies to every sport:</p>
