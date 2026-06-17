@@ -239,11 +239,16 @@ const NO_QUALIFIED_MESSAGES: Record<ExtractorStatus, (sport: Sport) => string> =
 
 const _cache = new Map<string, TodaySlateView>();
 
-/** Build the full slate view at build time. Memoized per date. Server-only. */
-export function loadTodaySlate(explicitDate?: string): TodaySlateView {
+/**
+ * Build the full slate view at build time. Memoized. Server-only.
+ * `nowIsoOverride` fixes the "now" used by the not-started gate (tests pass a fixed time); the live
+ * site uses the real current moment so games already started are excluded — never shown as bettable.
+ */
+export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): TodaySlateView {
   const root = dataRoot();
   const date = explicitDate ?? latestSlateDate(root) ?? "";
-  const cacheKey = `${root}|${date}`;
+  const nowIso = nowIsoOverride ?? new Date().toISOString();
+  const cacheKey = `${root}|${date}|${nowIsoOverride ?? "live"}`;
   const cached = _cache.get(cacheKey);
   if (cached) return cached;
 
@@ -264,10 +269,8 @@ export function loadTodaySlate(explicitDate?: string): TodaySlateView {
     }
     const maps = buildIdentityMaps(rawBySport);
 
-    // nowIso = latest board prediction time (deterministic; same as the projection command).
-    const predTimes = results.flatMap((r) => r.predictions.map((p) => p.snapshot.predictionTime)).filter(Boolean).sort();
-    const nowIso = predTimes[predTimes.length - 1] ?? `${date}T12:00:00Z`;
-
+    // The not-started gate uses the REAL current moment (or a test override): games already underway
+    // are excluded so the live preview never lists a started/in-progress game as bettable.
     const allLegsBySport = results.map((r) => buildLegsForSport(r, nowIso, true));
     const allLegs = allLegsBySport.flat();
     const eligible = eligibleLegs(allLegs);

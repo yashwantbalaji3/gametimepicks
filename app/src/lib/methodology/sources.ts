@@ -91,17 +91,16 @@ export function loadSourceForSport(sport: Sport, date: string, dataRoot: string)
       const playerRaw = readJson(playerPath);
       const teamRecs = teamRaw ? normalizeWcRecords(teamRaw) : [];
       const teamSource = teamRaw ? { ...teamRaw, public: teamRecs } : undefined;
-      // Player files often omit per-record kickoff; join it by matchId from the team file so player
-      // props are judged on merit (lineup/DNP) rather than rejected for a missing event-start time.
-      const kickoffByMatch = new Map<string, string>();
-      for (const r of teamRecs) {
-        if (r?.matchId != null && r?.kickoffUtc) kickoffByMatch.set(String(r.matchId), String(r.kickoffUtc));
-      }
+      // Player files key matches by hash/fixture while team records use numeric ids, so a bare
+      // matchId join fails. Build a STABLE join across matchId, normalized team name, and the
+      // "Home vs Away" fixture string, so player props inherit a real kickoff (event_start_time) and
+      // country code — making them leakage-validatable instead of dropped for missing timing.
+      const wcKickoff = buildWcKickoffIndex(teamRecs);
       const playerRecs = playerRaw
-        ? normalizeWcRecords(playerRaw).map((r: any) => ({
-            ...r,
-            kickoffUtc: r.kickoffUtc ?? kickoffByMatch.get(String(r.matchId)) ?? null,
-          }))
+        ? normalizeWcRecords(playerRaw).map((r: any) => {
+            const joined = resolveWcPlayerKickoff(r, wcKickoff);
+            return { ...r, kickoffUtc: r.kickoffUtc ?? joined.kickoffUtc, homeCode: r.homeCode ?? joined.code };
+          })
         : [];
       const playerSource = playerRaw ? { ...playerRaw, public: playerRecs } : undefined;
       return {
@@ -114,6 +113,46 @@ export function loadSourceForSport(sport: Sport, date: string, dataRoot: string)
     default:
       return { sport, sourcePath: null };
   }
+}
+
+const normTeam = (s: unknown): string => String(s ?? "").toLowerCase().replace(/[^a-z]/g, "");
+
+export interface WcKickoffIndex {
+  byMatchId: Map<string, { kickoffUtc: string; code: string | null }>;
+  byTeam: Map<string, { kickoffUtc: string; code: string | null }>;
+  byFixture: Map<string, { kickoffUtc: string; code: string | null }>;
+}
+
+/** Build a multi-key kickoff index from team projection records (matchId / team name / fixture). */
+export function buildWcKickoffIndex(teamRecs: any[]): WcKickoffIndex {
+  const byMatchId = new Map<string, { kickoffUtc: string; code: string | null }>();
+  const byTeam = new Map<string, { kickoffUtc: string; code: string | null }>();
+  const byFixture = new Map<string, { kickoffUtc: string; code: string | null }>();
+  for (const r of teamRecs) {
+    const k = r?.kickoffUtc;
+    if (!k) continue;
+    if (r.matchId != null) byMatchId.set(String(r.matchId), { kickoffUtc: k, code: r.homeCode ?? null });
+    if (r.homeTeam) byTeam.set(normTeam(r.homeTeam), { kickoffUtc: k, code: r.homeCode ?? null });
+    if (r.awayTeam) byTeam.set(normTeam(r.awayTeam), { kickoffUtc: k, code: r.awayCode ?? null });
+    if (r.homeTeam && r.awayTeam) byFixture.set(`${normTeam(r.homeTeam)}|${normTeam(r.awayTeam)}`, { kickoffUtc: k, code: r.homeCode ?? null });
+  }
+  return { byMatchId, byTeam, byFixture };
+}
+
+/** Resolve a player record's kickoff + code from the index (matchId → team → fixture). */
+export function resolveWcPlayerKickoff(rec: any, idx: WcKickoffIndex): { kickoffUtc: string | null; code: string | null } {
+  if (rec.matchId != null && idx.byMatchId.has(String(rec.matchId))) return idx.byMatchId.get(String(rec.matchId))!;
+  const team = normTeam(rec.player?.team ?? rec.team);
+  if (team && idx.byTeam.has(team)) return idx.byTeam.get(team)!;
+  const fx = String(rec.fixture ?? "").toLowerCase();
+  const m = fx.match(/(.+?)\s+(?:vs|v|–|-)\s+(.+)/);
+  if (m) {
+    const key = `${normTeam(m[1])}|${normTeam(m[2])}`;
+    if (idx.byFixture.has(key)) return idx.byFixture.get(key)!;
+    const rev = `${normTeam(m[2])}|${normTeam(m[1])}`;
+    if (idx.byFixture.has(rev)) return idx.byFixture.get(rev)!;
+  }
+  return { kickoffUtc: null, code: null };
 }
 
 /**
