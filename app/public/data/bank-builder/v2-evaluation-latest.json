@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T20:17:42.152070+00:00",
+  "generatedAt": "2026-06-17T00:27:40.554405+00:00",
   "date": "2026-06-16",
   "model": "bank_builder_v2",
   "decision": "evaluating",
@@ -7,53 +7,20 @@
   "eligibleThreshold": 80,
   "watchlistThreshold": 70,
   "counts": {
-    "scored": 85,
-    "eligible": 4,
+    "scored": 22,
+    "eligible": 2,
     "watchlist": 0,
-    "distinctEligibleGames": 2
+    "distinctEligibleGames": 1
   },
   "blockers": [
-    "the strongest non-fragile legs span only 2 upcoming games \u2014 two lanes would both depend on the same teams holding (over-correlated); a differentiated dual run needs \u22653 independent games"
+    "only 2 eligible legs (need \u22654 for two lanes)",
+    "the strongest non-fragile legs span only 1 upcoming games \u2014 two lanes would both depend on the same teams holding (over-correlated); a differentiated dual run needs \u22653 independent games"
   ],
   "notes": [
     "Argentina moneyline (-240, model 66%) does NOT clear the survival gate \u2014 score 59. The stronger, less-fragile Argentina legs are Argentina or Draw + Argentina draw-no-bet (they cover a draw)."
   ],
   "eligibleLegs": [
     {
-      "pick": "Norway or Draw",
-      "sport": "world_cup",
-      "gameId": "18",
-      "gameLabel": "Iraq vs Norway",
-      "market": "double_chance",
-      "marketLabel": "double chance",
-      "americanOdds": -2500,
-      "modelProbability": 0.9325,
-      "marketFamily": "team",
-      "survivalScore": 93.0,
-      "tier": "eligible",
-      "eligible": true,
-      "components": {
-        "baseModel": 35,
-        "marketType": 25.0,
-        "recentForm": 12.0,
-        "oddsBand": 10.0,
-        "dataQuality": 11.0
-      },
-      "penalties": {},
-      "hitRate": {
-        "available": true,
-        "hits": 4,
-        "of": 5,
-        "rate": 0.8
-      },
-      "rejectionReasons": [],
-      "whySelected": [
-        "low-variance team market (double chance)",
-        "model 93% to hold",
-        "recent form 4/5"
-      ]
-    },
-    {
       "pick": "Argentina or Draw",
       "sport": "world_cup",
       "gameId": "19",
@@ -119,80 +86,12 @@
         "low-variance team market (draw-no-bet)",
         "model 84% to hold",
         "recent form 4/4"
-      ]
-    },
-    {
-      "pick": "Norway (draw no bet)",
-      "sport": "world_cup",
-      "gameId": "18",
-      "gameLabel": "Iraq vs Norway",
-      "market": "draw_no_bet",
-      "marketLabel": "draw-no-bet",
-      "americanOdds": -3000,
-      "modelProbability": 0.9141,
-      "marketFamily": "team",
-      "survivalScore": 80.86,
-      "tier": "eligible",
-      "eligible": true,
-      "components": {
-        "baseModel": 31.86,
-        "marketType": 22.0,
-        "recentForm": 6.0,
-        "oddsBand": 10.0,
-        "dataQuality": 11.0
-      },
-      "penalties": {},
-      "hitRate": {
-        "available": true,
-        "hits": 2,
-        "of": 5,
-        "rate": 0.4
-      },
-      "rejectionReasons": [],
-      "whySelected": [
-        "low-variance team market (draw-no-bet)",
-        "model 91% to hold",
-        "recent form 2/5"
       ]
     }
   ],
   "watchlistLegs": [],
   "strongestCandidates": [
     {
-      "pick": "Norway or Draw",
-      "sport": "world_cup",
-      "gameId": "18",
-      "gameLabel": "Iraq vs Norway",
-      "market": "double_chance",
-      "marketLabel": "double chance",
-      "americanOdds": -2500,
-      "modelProbability": 0.9325,
-      "marketFamily": "team",
-      "survivalScore": 93.0,
-      "tier": "eligible",
-      "eligible": true,
-      "components": {
-        "baseModel": 35,
-        "marketType": 25.0,
-        "recentForm": 12.0,
-        "oddsBand": 10.0,
-        "dataQuality": 11.0
-      },
-      "penalties": {},
-      "hitRate": {
-        "available": true,
-        "hits": 4,
-        "of": 5,
-        "rate": 0.8
-      },
-      "rejectionReasons": [],
-      "whySelected": [
-        "low-variance team market (double chance)",
-        "model 93% to hold",
-        "recent form 4/5"
-      ]
-    },
-    {
       "pick": "Argentina or Draw",
       "sport": "world_cup",
       "gameId": "19",
@@ -259,70 +158,6 @@
         "model 84% to hold",
         "recent form 4/4"
       ]
-    },
-    {
-      "pick": "Norway (draw no bet)",
-      "sport": "world_cup",
-      "gameId": "18",
-      "gameLabel": "Iraq vs Norway",
-      "market": "draw_no_bet",
-      "marketLabel": "draw-no-bet",
-      "americanOdds": -3000,
-      "modelProbability": 0.9141,
-      "marketFamily": "team",
-      "survivalScore": 80.86,
-      "tier": "eligible",
-      "eligible": true,
-      "components": {
-        "baseModel": 31.86,
-        "marketType": 22.0,
-        "recentForm": 6.0,
-        "oddsBand": 10.0,
-        "dataQuality": 11.0
-      },
-      "penalties": {},
-      "hitRate": {
-        "available": true,
-        "hits": 2,
-        "of": 5,
-        "rate": 0.4
-      },
-      "rejectionReasons": [],
-      "whySelected": [
-        "low-variance team market (draw-no-bet)",
-        "model 91% to hold",
-        "recent form 2/5"
-      ]
-    },
-    {
-      "pick": "Norway",
-      "sport": "world_cup",
-      "gameId": "18",
-      "gameLabel": "Iraq vs Norway",
-      "market": "moneyline_90",
-      "marketLabel": "match result",
-      "americanOdds": -500,
-      "modelProbability": 0.7872,
-      "marketFamily": "team",
-      "survivalScore": 61.76,
-      "tier": "not_eligible",
-      "eligible": false,
-      "components": {
-        "baseModel": 20.76,
-        "marketType": 14.0,
-        "recentForm": 6.0,
-        "oddsBand": 10.0,
-        "dataQuality": 11.0
-      },
-      "penalties": {},
-      "hitRate": {
-        "available": true,
-        "hits": 2,
-        "of": 5,
-        "rate": 0.4
-      },
-      "rejectionReasons": [],
-      "whySelected": []
     },
     {
       "pick": "Argentina",
@@ -355,73 +190,182 @@
       "whySelected": []
     },
     {
-      "pick": "Kodai Senga Under 5.5",
+      "pick": "Cole Young Over 0.5",
       "sport": "mlb",
-      "gameId": "f6f0e79036206f0a0ae7e8137c0c3096",
-      "gameLabel": "NYM @ CIN",
-      "market": "pitcher_strikeouts",
-      "marketLabel": "Strikeouts",
-      "americanOdds": -166,
-      "modelProbability": 0.7677,
-      "marketFamily": "pitcher",
-      "survivalScore": 53.05,
+      "gameId": "cb86c66f7562172318c2e8f571b8fea9",
+      "gameLabel": "BAL @ SEA",
+      "market": "batter_hits",
+      "marketLabel": "Hits",
+      "americanOdds": -162,
+      "modelProbability": 0.7847,
+      "marketFamily": "hitter",
+      "survivalScore": 25.54,
       "tier": "not_eligible",
       "eligible": false,
       "components": {
-        "baseModel": 22.05,
-        "marketType": 12.0,
-        "recentForm": 9.0,
+        "baseModel": 23.54,
+        "marketType": 11.0,
+        "recentForm": 15.0,
         "oddsBand": 9.0,
         "dataQuality": 15.0
       },
       "penalties": {
-        "volatility": -8.0,
-        "dnpLineup": -6.0
+        "volatility": -18.0,
+        "dnpLineup": -30.0
       },
       "hitRate": {
         "available": true,
-        "hits": 3,
+        "hits": 5,
         "of": 5,
-        "rate": 0.6
+        "rate": 1.0
       },
-      "rejectionReasons": [],
+      "rejectionReasons": [
+        "player prop without a confirmed lineup (DNP / rest risk)"
+      ],
       "whySelected": []
     },
     {
-      "pick": "Edward Cabrera Under 5.5",
+      "pick": "Zack Gelof Over 0.5",
       "sport": "mlb",
-      "gameId": "97d8a9970a14f21507c77048dcce6ae9",
-      "gameLabel": "COL @ CHC",
-      "market": "pitcher_strikeouts",
-      "marketLabel": "Strikeouts",
-      "americanOdds": -132,
-      "modelProbability": 0.7076,
-      "marketFamily": "pitcher",
-      "survivalScore": 45.79,
+      "gameId": "c20c72e3d1d902b5d151e9b6e7f76995",
+      "gameLabel": "PIT @ ATH",
+      "market": "batter_hits",
+      "marketLabel": "Hits",
+      "americanOdds": -213,
+      "modelProbability": 0.7778,
+      "marketFamily": "hitter",
+      "survivalScore": 24.93,
       "tier": "not_eligible",
       "eligible": false,
       "components": {
-        "baseModel": 16.79,
-        "marketType": 12.0,
-        "recentForm": 9.0,
-        "oddsBand": 7.0,
+        "baseModel": 22.93,
+        "marketType": 11.0,
+        "recentForm": 15.0,
+        "oddsBand": 9.0,
         "dataQuality": 15.0
       },
       "penalties": {
-        "volatility": -8.0,
-        "dnpLineup": -6.0
+        "volatility": -18.0,
+        "dnpLineup": -30.0
       },
       "hitRate": {
         "available": true,
-        "hits": 3,
+        "hits": 5,
         "of": 5,
-        "rate": 0.6
+        "rate": 1.0
       },
-      "rejectionReasons": [],
+      "rejectionReasons": [
+        "player prop without a confirmed lineup (DNP / rest risk)"
+      ],
+      "whySelected": []
+    },
+    {
+      "pick": "Jo Adell Over 0.5",
+      "sport": "mlb",
+      "gameId": "bf1da9404ddeda8aaf631bfc0426ef34",
+      "gameLabel": "LAA @ AZ",
+      "market": "batter_hits",
+      "marketLabel": "Hits",
+      "americanOdds": -248,
+      "modelProbability": 0.7928,
+      "marketFamily": "hitter",
+      "survivalScore": 23.24,
+      "tier": "not_eligible",
+      "eligible": false,
+      "components": {
+        "baseModel": 24.24,
+        "marketType": 11.0,
+        "recentForm": 12.0,
+        "oddsBand": 9.0,
+        "dataQuality": 15.0
+      },
+      "penalties": {
+        "volatility": -18.0,
+        "dnpLineup": -30.0
+      },
+      "hitRate": {
+        "available": true,
+        "hits": 4,
+        "of": 5,
+        "rate": 0.8
+      },
+      "rejectionReasons": [
+        "player prop without a confirmed lineup (DNP / rest risk)"
+      ],
+      "whySelected": []
+    },
+    {
+      "pick": "Henry Bolte Over 0.5",
+      "sport": "mlb",
+      "gameId": "c20c72e3d1d902b5d151e9b6e7f76995",
+      "gameLabel": "PIT @ ATH",
+      "market": "batter_hits",
+      "marketLabel": "Hits",
+      "americanOdds": -192,
+      "modelProbability": 0.757,
+      "marketFamily": "hitter",
+      "survivalScore": 23.11,
+      "tier": "not_eligible",
+      "eligible": false,
+      "components": {
+        "baseModel": 21.11,
+        "marketType": 11.0,
+        "recentForm": 15.0,
+        "oddsBand": 9.0,
+        "dataQuality": 15.0
+      },
+      "penalties": {
+        "volatility": -18.0,
+        "dnpLineup": -30.0
+      },
+      "hitRate": {
+        "available": true,
+        "hits": 5,
+        "of": 5,
+        "rate": 1.0
+      },
+      "rejectionReasons": [
+        "player prop without a confirmed lineup (DNP / rest risk)"
+      ],
+      "whySelected": []
+    },
+    {
+      "pick": "Pete Alonso Over 0.5",
+      "sport": "mlb",
+      "gameId": "cb86c66f7562172318c2e8f571b8fea9",
+      "gameLabel": "BAL @ SEA",
+      "market": "batter_hits",
+      "marketLabel": "Hits",
+      "americanOdds": -215,
+      "modelProbability": 0.7335,
+      "marketFamily": "hitter",
+      "survivalScore": 21.06,
+      "tier": "not_eligible",
+      "eligible": false,
+      "components": {
+        "baseModel": 19.06,
+        "marketType": 11.0,
+        "recentForm": 15.0,
+        "oddsBand": 9.0,
+        "dataQuality": 15.0
+      },
+      "penalties": {
+        "volatility": -18.0,
+        "dnpLineup": -30.0
+      },
+      "hitRate": {
+        "available": true,
+        "hits": 5,
+        "of": 5,
+        "rate": 1.0
+      },
+      "rejectionReasons": [
+        "player prop without a confirmed lineup (DNP / rest risk)"
+      ],
       "whySelected": []
     }
   ],
-  "poolSize": 85,
+  "poolSize": 22,
   "disclaimer": "Paper-only, educational. Survival score is a Bank Builder eligibility gate, stricter than Parlay Lab \u2014 it rejects fragile single-player props, unconfirmed-lineup (DNP) risk, and longshots. No fabrication.",
   "priceSource": "the_odds_api",
   "statSource": "api_football"

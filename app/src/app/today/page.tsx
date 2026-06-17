@@ -165,6 +165,7 @@ export default function TodayPage() {
         homeCode: m.homeCode ?? null,
         awayCode: m.awayCode ?? null,
         slug: gameSlug(m.homeTeam, m.awayTeam, today),
+        started: m.kickoffUtc ? new Date(m.kickoffUtc).getTime() <= Date.now() : false,
         pickLabel: m.pickLabel,
         americanOdds: m.americanOdds as number,
         confidence: m.confidence ?? "limited",
@@ -407,6 +408,7 @@ type WcFocusMatch = {
   homeCode?: string | null;
   awayCode?: string | null;
   slug: string;
+  started: boolean;
   pickLabel: string;
   americanOdds: number;
   confidence: string;
@@ -449,6 +451,7 @@ function TodaysFocusWorldCup({
 }) {
   const hasProj = matches.length > 0;
   const inFocus = matches.length; // games actually in focus (odds-backed projections), not the raw schedule count
+  const upcoming = matches.filter((m) => !m.started).length; // still pregame (kickoff ahead)
   return (
     <section
       className="gtp-fade-up relative overflow-hidden rounded-[14px] px-5 py-5 sm:px-7 sm:py-6"
@@ -470,8 +473,10 @@ function TodaysFocusWorldCup({
       </div>
       <h1 className="relative mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.6vw,34px)", fontWeight: 700, lineHeight: 1.04 }}>
         {hasProj
-          ? `${inFocus} World Cup ${inFocus === 1 ? "game" : "games"} in focus`
-          : games > 0 ? "World Cup" : "World Cup"}
+          ? (upcoming > 0 && upcoming < inFocus
+              ? `${upcoming} upcoming · ${inFocus} World Cup games in focus`
+              : `${inFocus} World Cup ${inFocus === 1 ? "game" : "games"} in focus`)
+          : "World Cup"}
       </h1>
       <p className="relative mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 660 }}>
         {hasProj
@@ -491,8 +496,13 @@ function TodaysFocusWorldCup({
                   <FlagBadge code={m.awayCode || m.awayTeam.slice(0, 2)} size="sm" />
                   <span className="truncate font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>{m.homeTeam} v {m.awayTeam}</span>
                 </span>
-                <span className="shrink-0 font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>
-                  {m.pickLabel} {m.americanOdds > 0 ? "+" : ""}{m.americanOdds}
+                <span className="flex shrink-0 items-center gap-1.5">
+                  {m.started ? (
+                    <span className="rounded-full px-1.5 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 7.5, color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)" }}>started</span>
+                  ) : null}
+                  <span className="font-mono tabular" style={{ color: m.started ? "var(--vault-text-faint)" : "var(--vault-text)", fontSize: 12.5 }}>
+                    {m.pickLabel} {m.americanOdds > 0 ? "+" : ""}{m.americanOdds}
+                  </span>
                 </span>
               </summary>
               <div className="px-3.5 pb-3 flex flex-col gap-1">

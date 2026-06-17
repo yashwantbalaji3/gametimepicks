@@ -92,7 +92,14 @@ function GameCard({ g }: { g: CuratedGame }) {
           {g.awayCode ? <FlagBadge code={g.awayCode} size="sm" /> : null}
           <span className="truncate font-display font-bold tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15 }}>{g.homeTeam} v {g.awayTeam}</span>
         </span>
-        {g.group ? <span className="shrink-0 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{g.group}</span> : null}
+        <span className="flex items-center gap-2 shrink-0">
+          {g.status === "started" ? (
+            <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>started · for reference</span>
+          ) : (
+            <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-success)", background: "rgba(110,231,168,0.12)" }}>upcoming</span>
+          )}
+          {g.group ? <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{g.group}</span> : null}
+        </span>
       </div>
 
       <div className="mt-3">
