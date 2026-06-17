@@ -243,8 +243,24 @@ GRADABLE_MARKETS = {
 }
 
 
-def settle(date_iso: str, *, board_path: Path | None = None) -> dict:
-    """Run settlement for `date_iso`. Returns the comparison-report dict."""
+def _is_suspended(status: dict) -> bool:
+    """True when a game is officially suspended/postponed (and not Final) — a
+    rain/weather suspension or a postponement that the schedule has not closed out."""
+    if status.get("abstractState") == "Final":
+        return False
+    ds = (status.get("detailedState") or "").lower()
+    return "suspend" in ds or "postpon" in ds
+
+
+def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: bool = False) -> dict:
+    """Run settlement for `date_iso`. Returns the comparison-report dict.
+
+    `void_suspended` applies the suspended/rescheduled-game NO-ACTION rule: when an
+    operator elects to close the date's slate, every leg tied to an officially
+    suspended/postponed (non-Final) game settles as VOID (outcome "Postponed") for the
+    ORIGINAL date — never a win/loss/pending. No fabricated stats; the resumed game can
+    be regenerated/settled later as its own slate.
+    """
     bpath = board_path or (
         C.APP_PUBLIC_DATA / "mlb" / "boards" / f"{date_iso}.json"
     )
@@ -256,7 +272,9 @@ def settle(date_iso: str, *, board_path: Path | None = None) -> dict:
 
     status_map = schedule_game_status_map(date_iso)
     final_pks = {pk for pk, s in status_map.items() if s["abstractState"] == "Final"}
-    print(f"[settle] schedule audited — {len(final_pks)} final games")
+    suspended_pks = {pk for pk, s in status_map.items() if _is_suspended(s)} if void_suspended else set()
+    print(f"[settle] schedule audited — {len(final_pks)} final games"
+          + (f", {len(suspended_pks)} suspended→no-action" if void_suspended else ""))
 
     # Fetch boxscores once per final game (idempotent + cache-friendly to caller)
     boxes: dict[int, dict] = {}
@@ -275,6 +293,31 @@ def settle(date_iso: str, *, board_path: Path | None = None) -> dict:
         market = lean.get("marketKey")
         gpk = lean.get("gamePk")
         if market not in GRADABLE_MARKETS:
+            continue
+        if void_suspended and gpk in suspended_pks:
+            # Suspended/rescheduled NO-ACTION rule: close the original-date paper slate.
+            # The leg voids (refunded) — never graded from the eventual resumed-game stats.
+            side = lean.get("lean")
+            if side in (None, "Pass", "No Play"):
+                continue
+            settled_rows.append({
+                "id": lean.get("id"), "date": date_iso, "gamePk": gpk,
+                "gameId": lean.get("gameId"), "playerId": lean.get("playerId"),
+                "playerName": lean.get("playerName"),
+                "playerTeamAbbr": lean.get("playerTeamAbbr"),
+                "opponentAbbr": lean.get("opponentAbbr"),
+                "playerRole": lean.get("playerRole"),
+                "marketKey": market, "marketLabel": lean.get("marketLabel"),
+                "line": float(lean["line"]) if lean.get("line") is not None else None,
+                "lean": side, "confidence": lean.get("confidence"),
+                "projection": float(lean["projection"]) if lean.get("projection") is not None else None,
+                "edgePct": lean.get("edgePct"),
+                "modelProbOver": lean.get("modelProbOver"),
+                "modelProbUnder": lean.get("modelProbUnder"),
+                "actual": None, "outcome": "Void", "graded": True,
+                "voidReason": "officially suspended/rescheduled — no action for the original slate",
+                "settledAt": datetime.now(timezone.utc).isoformat(),
+            })
             continue
         if gpk not in final_pks:
             # Game not Final — leave pending
@@ -528,9 +571,15 @@ def main(argv: list[str] | None = None) -> int:
         "--board",
         help="optional path override for the published board JSON",
     )
+    parser.add_argument(
+        "--void-suspended",
+        action="store_true",
+        help="apply the suspended/rescheduled NO-ACTION rule — void every leg tied to an "
+        "officially suspended/postponed (non-Final) game for this date (closes the slate)",
+    )
     args = parser.parse_args(argv)
     board_path = Path(args.board) if args.board else None
-    settle(args.date, board_path=board_path)
+    settle(args.date, board_path=board_path, void_suspended=args.void_suspended)
     return 0
 
 
