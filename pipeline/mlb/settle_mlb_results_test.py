@@ -14,8 +14,19 @@ from .settle_mlb_results import (
     _grade,
     _find_player_in_box,
     _stat_for_market,
+    _is_suspended,
     GRADABLE_MARKETS,
 )
+
+
+def test_suspended_game_detection():
+    print("\n─── suspended / rescheduled no-action detection ───")
+    assert _is_suspended({"abstractState": "Live", "detailedState": "Suspended: Rain"}), "suspended → True"
+    assert _is_suspended({"abstractState": "Preview", "detailedState": "Postponed"}), "postponed → True"
+    assert not _is_suspended({"abstractState": "Final", "detailedState": "Final"}), "final → False (graded normally)"
+    assert not _is_suspended({"abstractState": "Final", "detailedState": "Suspended: Rain"}), "final overrides suspended"
+    assert not _is_suspended({"abstractState": "Live", "detailedState": "In Progress"}), "live in-progress → not no-action"
+    _ok("suspended/postponed non-final detected; final games never voided")
 
 
 def _ok(msg: str) -> None:
@@ -262,6 +273,7 @@ def main() -> int:
     test_total_bases_uses_api_field_when_present()
     test_batter_did_not_appear_is_unavailable()
     test_zero_ab_void_rule()
+    test_suspended_game_detection()
     test_pitcher_did_not_pitch_is_unavailable()
     test_pitcher_with_innings_returns_k()
     test_find_player_prefers_id()
