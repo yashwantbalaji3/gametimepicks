@@ -57,30 +57,69 @@ function qualityTone(tier: string): "good" | "text" | "warn" | "mute" {
   return tier === "elite" ? "good" : tier === "strong" ? "text" : tier === "thin" ? "warn" : "mute";
 }
 
-function LegRow({ leg }: { leg: ParlayLegDisplay }) {
+/** Real last-5 prop grid (official MLB game logs) — green hit / red miss vs the exact line. */
+function Last5Mini({ leg }: { leg: ParlayLegDisplay }) {
+  const l5 = leg.last5;
+  if (!l5) return null;
+  if (l5.unavailable) return <div className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>Last 5: data unavailable</div>;
+  const games = l5.games ?? [];
   return (
-    <div className="flex items-start gap-2.5 py-2" style={{ borderTop: "1px solid var(--vault-border)" }}>
-      <div className="shrink-0 pt-0.5"><LegIdentity leg={leg} /></div>
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-[13.5px] font-medium truncate" style={{ color: "var(--vault-text)" }}>{leg.participant}</span>
-          <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>{leg.market}{leg.side ? ` ${leg.side[0].toUpperCase()}${leg.side.slice(1)}` : ""}{leg.line != null ? ` ${leg.line}` : ""}</span>
-          <span className="font-mono text-[12.5px]" style={{ color: "var(--vault-text)" }}>{americanStr(leg.odds)}</span>
-        </div>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5">
-          <Chip label={leg.confidenceTier} tone={leg.confidenceTier === "High" ? "good" : leg.confidenceTier === "No Bet" ? "warn" : "mute"} />
-          <Chip label={`${leg.legQualityTier} ${leg.legQualityScore}`} tone={qualityTone(leg.legQualityTier)} />
-          {leg.edge != null && <Chip label={`${leg.edge >= 0 ? "+" : ""}${leg.edge.toFixed(1)}pp`} tone={leg.edge > 0 ? "good" : "mute"} />}
-          {leg.modelProbability != null && <Chip label={`model ${pctStr(leg.modelProbability)}`} />}
-        </div>
-        {(leg.topPositiveFactors[0] || leg.topNegativeFactors[0]) && (
-          <div className="mt-1 space-y-0.5 text-[11.5px]">
-            {leg.topPositiveFactors[0] && <div style={{ color: "var(--vault-text-faint)" }}>+ {leg.topPositiveFactors[0]}</div>}
-            {leg.topNegativeFactors[0] && <div style={{ color: "var(--vault-text-faint)" }}>− {leg.topNegativeFactors[0]}</div>}
-          </div>
-        )}
+    <div className="rounded-lg px-2 py-1.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)" }}>
+      <div className="flex items-center justify-between font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+        <span>Last 5 · {l5.stat === "strikeouts" ? "K" : "H+R+RBI"} vs {leg.side ? `${leg.side[0].toUpperCase()}${leg.side.slice(1)}` : ""} {l5.line}</span>
+        {l5.hitRate && <span style={{ color: l5.hitRate.pct >= 60 ? "var(--vault-success)" : "var(--vault-text-mute)" }}>{l5.hitRate.hits}/{l5.hitRate.total} · {l5.hitRate.pct}%</span>}
+      </div>
+      <div className="mt-1 flex flex-wrap gap-1">
+        {games.map((g, i) => (
+          <span key={i} title={`${g.date} vs ${g.opp}: ${g.value}`} className="flex h-6 min-w-[26px] items-center justify-center rounded font-mono text-[11px]"
+            style={{ background: g.hit ? "rgba(70,130,90,0.22)" : "rgba(225,29,42,0.15)", color: g.hit ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>{g.value}</span>
+        ))}
       </div>
     </div>
+  );
+}
+
+/** A clickable leg: identity + exact market/side/line + odds, expands to model/last-5/settlement detail. */
+function LegRow({ leg }: { leg: ParlayLegDisplay }) {
+  const settlesNote = leg.sport === "WORLD_CUP"
+    ? "Settles on the 90-minute regulation result (official). Limited-data: market-implied."
+    : "Settles from the official box score. No plate appearance / did-not-pitch → void (no action).";
+  return (
+    <details className="py-2" style={{ borderTop: "1px solid var(--vault-border)" }}>
+      <summary className="flex items-start gap-2.5 cursor-pointer" style={{ listStyle: "none" }}>
+        <div className="shrink-0 pt-0.5"><LegIdentity leg={leg} /></div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-[13.5px] font-medium truncate" style={{ color: "var(--vault-text)" }}>{leg.participant}</span>
+            <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>{leg.market}{leg.side ? ` ${leg.side[0].toUpperCase()}${leg.side.slice(1)}` : ""}{leg.line != null ? ` ${leg.line}` : ""}</span>
+            <span className="font-mono text-[12.5px]" style={{ color: "var(--vault-text)" }}>{americanStr(leg.odds)}</span>
+            <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>▾</span>
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            <Chip label={leg.confidenceTier} tone={leg.confidenceTier === "High" ? "good" : leg.confidenceTier === "No Bet" ? "warn" : "mute"} />
+            <Chip label={`${leg.legQualityTier} ${leg.legQualityScore}`} tone={qualityTone(leg.legQualityTier)} />
+            {leg.edge != null && <Chip label={`${leg.edge >= 0 ? "+" : ""}${leg.edge.toFixed(1)}pp`} tone={leg.edge > 0 ? "good" : "mute"} />}
+            {leg.modelProbability != null && <Chip label={`model ${pctStr(leg.modelProbability)}`} />}
+          </div>
+        </div>
+      </summary>
+      <div className="mt-2 space-y-1.5 pl-8 text-[11.5px]">
+        <div className="flex flex-wrap gap-1.5 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+          {leg.modelProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)" }}>model {pctStr(leg.modelProbability)}</span>}
+          {leg.marketImpliedProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)" }}>implied {pctStr(leg.marketImpliedProbability)}</span>}
+          {leg.edge != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: leg.edge > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{leg.edge >= 0 ? "+" : ""}{leg.edge.toFixed(1)}pp edge</span>}
+          {leg.survivalScore != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)" }}>survival {leg.survivalScore}</span>}
+          <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)" }}>risk {leg.riskScore.toFixed(2)}</span>
+        </div>
+        {leg.last5 && <Last5Mini leg={leg} />}
+        {leg.topPositiveFactors[0] && <div style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--vault-success)" }}>Why:</span> {leg.topPositiveFactors[0]}</div>}
+        {leg.topNegativeFactors[0] && <div style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--gtp-bank-heat)" }}>Risk:</span> {leg.topNegativeFactors[0]}</div>}
+        {(leg.missingFlags.length > 0 || leg.staleFlags.length > 0) && (
+          <div style={{ color: "var(--vault-text-faint)" }}>flags: {[...leg.missingFlags.map((f) => `missing ${f}`), ...leg.staleFlags.map((f) => `stale ${f}`)].join(" · ")}</div>
+        )}
+        <div style={{ color: "var(--vault-text-faint)" }}>{settlesNote}</div>
+      </div>
+    </details>
   );
 }
 
