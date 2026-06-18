@@ -29,7 +29,7 @@ import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-cand
 import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
 import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
 import BankBuilderStatusRail from "@/components/bank-builder/bank-builder-status-rail";
-import TodaysParlays from "@/components/todays-parlays";
+import ParlaysExplorer from "@/components/parlays/parlays-explorer";
 // (DualBankBuilderTeaser now renders only on /bank-builder; Today uses the compact status rail.)
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
 import UfcExpandedFightCards from "@/components/ufc/expanded-fight-cards";
@@ -118,14 +118,6 @@ export default function TodayPage() {
     { sportFilter: "mlb", date: today },
   ).slice(0, 4);
   // Combined, de-duped suggested-card pool for the filterable Today section (WC + mixed + MLB).
-  const todaysParlayPool = (() => {
-    const seen = new Set<string>();
-    const out = [] as typeof mlbCards;
-    for (const c of [...normalizeWcCards(freshWcCards), ...mixedCards, ...mlbCards]) {
-      if (c && !seen.has(c.id)) { seen.add(c.id); out.push(c); }
-    }
-    return out;
-  })();
   // Dual Bank Builder — the latest dual run (settled Run #2) + the V2 survival-gate evaluation.
   const dualBank = loadDualBankBuilder();
   const v2 = loadBankBuilderV2();
@@ -308,8 +300,12 @@ export default function TodayPage() {
         lanesTotal={2}
       />
 
-      {/* 4 — Suggested parlays (filterable: sport + variance) */}
-      <TodaysParlays cards={todaysParlayPool} dateLabel={dateLabel} />
+      {/* 4 — Suggested parlays — canonical methodology engine (World Cup + Mixed + MLB, by risk,
+            with per-leg model + last-5 drawers). Same data as /parlays and /picks. */}
+      <section className="gtp-fade-up">
+        <SectionHeader eyebrow={`Suggested parlays · ${dateLabel}`} title="Today's suggested cards" sub="Engine-built across World Cup, MLB and Mixed — by risk, leakage-validated, pre-event. Tap any leg for model + last-5 detail. Paper-only." />
+        <div className="mt-3"><ParlaysExplorer slate={engineSlate} /></div>
+      </section>
 
       {/* UFC — only LEADS on a live UFC day; once settled it moves to the results recap below. */}
       {!ufcSettled && ufcSched?.isRealCard ? (
@@ -385,31 +381,7 @@ export default function TodayPage() {
         </section>
       )}
 
-      {/* UFC settled recap — once final, it lives in the results zone, not leading the page. */}
-      {ufcSettled ? (
-        <section
-          className="gtp-fade-up relative overflow-hidden rounded-[12px] px-5 py-4"
-          style={{ border: "1px solid var(--vault-border)", background: "rgba(26, 16, 11,0.45)" }}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
-              UFC · officially settled
-            </span>
-            <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.14)" }}>
-              Settled · final
-            </span>
-          </div>
-          <p className="mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}>
-            <span style={{ color: "var(--vault-text)" }}>{ufcSched?.eventName ?? "UFC Freedom 250"}</span> — moneyline model went{" "}
-            <span style={{ color: "var(--vault-success)" }}>{ufcSettlement?.moneyline?.record ?? "6-1"}</span> ({ufcSettlement?.moneyline?.accuracyPct ?? 86}%). Suggested cards 0–4 — a card-concentration lesson, not a model-signal one. Paper-only educational tracking.
-          </p>
-          <div className="mt-2.5">
-            <Link href="/results" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-              View UFC 250 results →
-            </Link>
-          </div>
-        </section>
-      ) : null}
+      {/* Settled UFC (06-15) is history — it lives in /results, never as an active Today card. */}
 
       {/* Yesterday's settled results — official outcomes only */}
       <YesterdaySummary date={yesterday} />

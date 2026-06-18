@@ -180,6 +180,22 @@ test("MLB Bank Builder legs carry REAL last-5 prop history (official game logs, 
   }
 });
 
+test("canonical engine slate (Today/Picks/Parlays source): WC + Mixed cards present, no active UFC cards", () => {
+  const v = loadTodaySlate("2026-06-18", "2026-06-18T17:00:00Z");
+  // World Cup cards exist (the slate's headline sport).
+  const wc = v.suggestedBySportRisk["WORLD_CUP"] ?? {};
+  const wcTotal = Object.values(wc).reduce((n, c) => n + (c?.length ?? 0), 0);
+  assert.ok(wcTotal > 0, "engine surfaces World Cup suggested cards");
+  // Mixed cards exist.
+  const mixedTotal = Object.values(v.mixedByRisk).reduce((n, c) => n + (c?.length ?? 0), 0);
+  assert.ok(mixedTotal > 0, "engine surfaces Mixed cards");
+  // No fabricated active UFC cards (off-season / settled → 0 eligible → 0 cards).
+  const ufc = v.suggestedBySportRisk["UFC"] ?? {};
+  const ufcTotal = Object.values(ufc).reduce((n, c) => n + (c?.length ?? 0), 0);
+  assert.equal(ufcTotal, 0, "no active UFC suggested cards");
+  assert.ok(!v.allSuggested.some((c) => c.sport === "UFC"), "no UFC card in the combined feed");
+});
+
 test("identity never invents a photo URL for sports without one", () => {
   const v = loadTodaySlate("2026-06-17", "2026-06-17T18:45:45Z");
   for (const c of v.allSuggested) {

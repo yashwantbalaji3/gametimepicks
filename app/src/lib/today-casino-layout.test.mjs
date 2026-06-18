@@ -27,9 +27,11 @@ test("quick-action buttons lead the page (1-click reach to every key area)", () 
 
 test("compact Bank Builder status rail replaces the tall recap, before suggested parlays", () => {
   const rail = src.indexOf("<BankBuilderStatusRail");
-  const parlays = src.indexOf("<TodaysParlays");
+  // Suggested parlays now render through the canonical methodology engine (ParlaysExplorer) —
+  // the same component /parlays and /picks use (World Cup + Mixed + by-risk with leg drawers).
+  const parlays = src.indexOf("<ParlaysExplorer");
   assert.ok(rail > 0, "compact Bank Builder status rail present");
-  assert.ok(parlays > 0, "filterable suggested parlays present");
+  assert.ok(parlays > 0, "engine-backed suggested parlays present");
   assert.ok(rail < parlays, "Bank Builder status precedes suggested parlays");
   // the old tall recap is gone
   assert.ok(!src.includes("Bank Builder · {dateLabel}"), "old tall Bank Builder recap removed");

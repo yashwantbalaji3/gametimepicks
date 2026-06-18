@@ -17,6 +17,8 @@ import {
   type PublicSuggestedCard,
 } from "@/lib/normalize";
 import PicksExperience from "@/components/picks-experience";
+import ParlaysExplorer from "@/components/parlays/parlays-explorer";
+import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 import SectionHeader from "@/components/section-header";
 import Link from "next/link";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
@@ -51,6 +53,7 @@ function ufcSettled(): boolean {
 
 export default function PicksPage() {
   const today = currentEtDate();
+  const engineSlate = loadTodaySlate(); // canonical methodology-engine cards (WC + Mixed + by-risk)
   // Only TODAY's slate is an active pick. Stale daily-mixed + World Cup artifacts (last
   // generated on an earlier date) are date-gated out so /picks never leads with old cards.
   // Order = tonight's focus first: UFC, then MLB, then any still-current WC/mixed.
@@ -94,25 +97,23 @@ export default function PicksPage() {
           </div>
         </Link>
       ) : null}
-      <Link
-        href="/parlays"
-        className="gtp-card-hover relative block overflow-hidden rounded-2xl px-5 py-4"
-        style={{ border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", background: "rgba(26,16,11,0.5)", textDecoration: "none" }}
-      >
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Methodology engine parlays</span>
-          <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>Open engine view →</span>
-        </div>
-        <div className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          World Cup, MLB, and <span style={{ color: "var(--vault-text)" }}>Mixed</span> suggested parlays by risk (low · medium · high · longshot), plus same-game cards and the eligible-leg marketplace — leakage-validated, pre-event.
-        </div>
-      </Link>
       <SectionHeader
-        eyebrow={`Parlay Lab · ${new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })} · ${cards.length} curated`}
+        eyebrow={`Parlay Lab · ${new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })}`}
         title="Parlay Lab"
-        sub="The model's curated paper cards across every sport, by goal and risk. Odds, returns, and results are tracked for research — educational, paper-only."
+        sub="Methodology-engine suggested parlays across World Cup, MLB and Mixed — by risk, with same-game cards and the eligible-leg marketplace. Tap any leg for model + last-5 detail. Educational, paper-only."
       />
-      <PicksExperience cards={cards} />
+      {/* Canonical engine card surface — same data as /parlays (World Cup + Mixed + by-risk + same-game). */}
+      <ParlaysExplorer slate={engineSlate} />
+
+      {/* Legacy curated cards kept as a secondary, collapsed reference (optimizer + native WC). */}
+      {cards.length > 0 ? (
+        <details className="rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
+          <summary className="cursor-pointer px-4 py-3 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
+            Legacy curated cards ({cards.length}) — the older optimizer/native set. Tap to view.
+          </summary>
+          <div className="px-1 pb-2"><PicksExperience cards={cards} /></div>
+        </details>
+      ) : null}
     </div>
   );
 }
