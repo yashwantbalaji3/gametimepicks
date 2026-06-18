@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { loadTodaySlate } from "./parlays/ui-loader.ts";
 
 const r = (p) => fs.readFileSync(p, "utf8");
 
@@ -49,4 +50,23 @@ test("daily-summary embeds each day's events for the expandable dropdown; totals
   }
   // Running bankroll reconciles to the portfolio's current bankroll.
   assert.equal(d.days[d.days.length - 1].closing, p.currentBankroll, "daily closing == portfolio current bankroll");
+});
+
+test("Lane A same-step relaunch was blocked (Bell in-play): public stays queued $100, Lane B unchanged, ledger logs the block", () => {
+  const v = loadTodaySlate("2026-06-18", "2026-06-18T19:31:00Z");
+  const bb = v.bankBuilderPreview;
+  // Lane A NOT relaunched — stopped + queued $100 restart (no retroactive card edit).
+  assert.equal(bb.laneA.laneStatus, "stopped");
+  assert.equal(bb.laneA.publicVisible, false);
+  assert.equal(bb.laneA.restart?.status, "queued");
+  // Lane B untouched (still active with its Step 2 legs).
+  assert.equal(bb.laneB.laneStatus, "active");
+  const b2 = bb.laneB.steps.find((s) => s.step === 2);
+  assert.ok(b2.legs.some((l) => /Switzerland/.test(l.participant)) && b2.legs.some((l) => /Goldschmidt/.test(l.participant)), "Lane B legs unchanged");
+  // Mr. Dub logs the blocked relaunch (private), with no bankroll impact.
+  const led = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
+  const blocked = led.events.find((e) => e.type === "lane_relaunch_blocked");
+  assert.ok(blocked, "relaunch-blocked event recorded");
+  assert.equal(blocked.publicBankBuilderVisible, false, "block is private to Mr. Dub");
+  assert.equal(blocked.paperProfit, 0, "no bankroll double-count");
 });

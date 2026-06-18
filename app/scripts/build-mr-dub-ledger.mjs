@@ -103,6 +103,18 @@ function main() {
         });
       }
     }
+    // Owner-requested same-step relaunch audit (keep the partner, swap only the failed soccer leg):
+    // recorded here when the lane evaluated it but the kept partner had already started (timing block).
+    if (lane.relaunchAudit) {
+      laneEvents.push({
+        eventId: `mrdub-2026-06-18-${laneName}-relaunch-blocked`,
+        timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder", type: "lane_relaunch_blocked",
+        laneId: laneName, step: 2, paperStake: 0, paperReturn: 0, paperProfit: 0,
+        status: "audit", publicBankBuilderVisible: false,
+        legs: lane.relaunchAudit.legs ?? [],
+        notes: lane.relaunchAudit.note,
+      });
+    }
     if (lane.restart) {
       laneEvents.push({
         eventId: `mrdub-2026-06-18-${laneName}-restart-${lane.restart.status}`,
