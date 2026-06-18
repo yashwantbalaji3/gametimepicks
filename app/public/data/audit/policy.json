@@ -1,42 +1,36 @@
 {
   "_disclaimer": "Confirmed-signal policy over the daily audit window — see docs/MODEL_LEARNING_LOOP.md. Demotion only; one bad slate cannot move the model.",
-  "generatedAt": "2026-06-17T12:05:01.555817+00:00",
+  "generatedAt": "2026-06-18T09:51:08.910927+00:00",
   "window": {
     "daysAvailable": 7,
     "daysRequired": 3,
     "windowDays": 7,
     "dates": [
+      "2026-06-17",
       "2026-06-16",
       "2026-06-15",
       "2026-06-14",
       "2026-06-13",
       "2026-06-12",
-      "2026-06-11",
-      "2026-06-10"
+      "2026-06-11"
     ]
   },
   "confirmed": true,
   "signals": {
     "mixedSportDownrank": {
-      "fires": 1,
+      "fires": 0,
       "daysRequired": 3,
       "confirmed": false,
       "strength": 0
     },
     "sameGameNbaCap": {
-      "fires": 2,
+      "fires": 1,
       "daysRequired": 3,
       "confirmed": false,
       "strength": 0
     },
     "marketDemotions": {
       "AST": {
-        "fires": 1,
-        "daysRequired": 3,
-        "confirmed": false,
-        "weightMultiplier": 1.0
-      },
-      "PTS": {
         "fires": 1,
         "daysRequired": 3,
         "confirmed": false,
@@ -56,10 +50,10 @@
       }
     },
     "dnpGuardStrengthen": {
-      "fires": 3,
+      "fires": 2,
       "daysRequired": 3,
-      "confirmed": true,
-      "strength": 1
+      "confirmed": false,
+      "strength": 0
     },
     "longshotKeepCollapsed": {
       "fires": 0,
