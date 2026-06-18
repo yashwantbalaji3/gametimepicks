@@ -16,7 +16,6 @@ import PreviousHits from "@/components/bank-builder/previous-hits";
 import DualBankBuilderTeaser from "@/components/bank-builder/dual-bank-builder-teaser";
 import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
 import BankBuilderV2Panel from "@/components/bank-builder/bank-builder-v2-panel";
-import BankBuilderMeter from "@/components/bank-builder/bank-builder-meter";
 import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
 import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
@@ -138,7 +137,7 @@ export default function BankBuilderPage() {
             {BANK.icon}
           </span>
           <PageHero
-            eyebrow={completed ? "Bank Builder crown · Road to $10K completed" : onTheCrownRun ? "Final step · Road to $10,000" : "Paper ladder · current run"}
+            eyebrow={completed ? "Completed paper ladder · proof" : onTheCrownRun ? "Final step · Road to $10,000" : "Paper ladder · current run"}
             title="Bank Builder"
             subMaxWidth={560}
             sub={completed
@@ -207,10 +206,8 @@ export default function BankBuilderPage() {
         <BoardStatTile label="Record" value={recordLabel} sub={completed ? "5 rungs · officially settled" : "settled ladder steps"} accent="var(--vault-gold-bright)" />
       </div>
 
-      {/* Futuristic $100 → $10K meter — ladder path + lane status (secondary, below the live ladder). */}
-      <div className="mt-6">
-        <BankBuilderMeter run1Bankroll={currentBankroll} dual={loadDualBankBuilder()} v2={v2} activeLaunched={bbActiveLaunched} />
-      </div>
+      {/* (Removed the standalone $100→$10K meter — it duplicated the completed-crown hero above and
+          the active dual ladder's own per-lane meters. One crown statement, one active ladder.) */}
 
       {/* When no dual ladder is launched, still show the engine's dry-run / no-qualified preview. */}
       {!bbActiveLaunched ? <div className="mt-6"><BankBuilderPreviewPanel preview={bbPreview} /></div> : null}
@@ -323,42 +320,9 @@ export default function BankBuilderPage() {
         </section>
       ) : null}
 
-      {/* SECTION 3 — completion crown / today's official card / the final-step road to $10K */}
-      {completed ? (
-        <section
-          className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-6"
-          style={{ border: "1px solid var(--lava-border-strong)", background: "linear-gradient(160deg, rgba(225, 29, 42,0.15), rgba(242, 54, 69,0.06) 55%, var(--lava-panel))", boxShadow: "var(--vault-shadow-elevated)" }}
-          aria-label="Road to $10K completed"
-        >
-          <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-44 w-44 translate-x-12 -translate-y-14 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(12px)", opacity: 0.5 }} />
-          <span className="relative font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)" }}>Bank Builder crown · officially settled</span>
-          <h2 className="relative mt-1 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(22px, 4.4vw, 34px)", fontWeight: 800, lineHeight: 1.02 }}>
-            🏆 Road to $10K completed
-          </h2>
-          <div className="relative mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {[
-              { label: "Starting paper bankroll", value: formatLadderUsd(BANK_BUILDER_BASE) },
-              { label: "Final paper bankroll", value: formatLadderUsdPrecise(currentBankroll), accent: "var(--vault-success)" },
-              { label: "Growth", value: `${Math.floor(currentBankroll / BANK_BUILDER_BASE)}×` },
-              { label: "Rungs cleared", value: `${BANK_BUILDER_STEP_COUNT} / ${BANK_BUILDER_STEP_COUNT}` },
-            ].map((s) => (
-              <div key={s.label} className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(12,8,6,0.55)", border: "1px solid var(--vault-rule)" }}>
-                <div className="font-display tabular" style={{ color: s.accent ?? "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>{s.value}</div>
-                <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-          {latestHit && latestHit.step === BANK_BUILDER_STEP_COUNT ? (
-            <p className="relative mt-3 text-[12.5px] leading-snug" style={{ color: "var(--vault-text-mute)", maxWidth: 620 }}>
-              <span className="font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--gtp-bank-heat)" }}>Final rung hit:</span>{" "}
-              {latestHit.event} — {latestHit.legs.map((l) => `${l.player} ${l.finalStat} reb`).join(" · ")} (both Over 4.5). Officially settled from the NBA box score. Full leg detail with portraits below.
-            </p>
-          ) : null}
-          <p className="relative mt-2 font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>
-            {recordLabel} paper ladder · $100 → {formatLadderUsdPrecise(currentBankroll)} · paper-only educational tracking
-          </p>
-        </section>
-      ) : publishedCandidate ? (
+      {/* SECTION 3 — today's official card / the final-step road to $10K.
+          (The completed-crown celebration is shown ONCE, in the hero above — not repeated here.) */}
+      {completed ? null : publishedCandidate ? (
         <OfficialCandidateCard candidate={publishedCandidate} />
       ) : officialStep3 ? (
         <OfficialStep3CandidateCard candidate={officialStep3} stepNumber={activeStep.step} />

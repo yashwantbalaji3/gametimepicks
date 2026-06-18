@@ -154,6 +154,32 @@ test("Step 2 was re-optimized for payout: combined odds are plus-money and beat 
   }
 });
 
+test("Lane B Step 2 soccer leg is a clean team market (BTTS No was replaced)", () => {
+  const v = loadTodaySlate("2026-06-18", "2026-06-18T16:15:00Z");
+  const laneB = v.bankBuilderPreview.laneB;
+  const step2 = laneB.steps.find((s) => s.step === 2);
+  const soccer = step2.legs.find((l) => l.sport === "WORLD_CUP");
+  assert.ok(soccer, "Lane B keeps one World Cup leg");
+  assert.ok(!/both teams to score/i.test(soccer.participant + " " + soccer.market), "the BTTS No leg was replaced");
+  assert.ok(["moneyline_90", "draw_no_bet", "double_chance"].includes(soccer.market), `soccer leg is a team market (got ${soccer.market})`);
+});
+
+test("MLB Bank Builder legs carry REAL last-5 prop history (official game logs, never fabricated)", () => {
+  const v = loadTodaySlate("2026-06-18", "2026-06-18T16:15:00Z");
+  const bb = v.bankBuilderPreview;
+  const mlbLegs = [bb.laneA, bb.laneB].flatMap((l) => l.steps.flatMap((s) => s.legs)).filter((l) => l.sport === "MLB");
+  assert.ok(mlbLegs.length >= 2, "there are MLB legs to check");
+  for (const leg of mlbLegs) {
+    assert.ok(leg.last5, `${leg.participant} has a last5 block`);
+    if (!leg.last5.unavailable) {
+      assert.ok(Array.isArray(leg.last5.games) && leg.last5.games.length > 0, "last5 has game-by-game values");
+      assert.ok(leg.last5.games.every((g) => typeof g.value === "number" && typeof g.hit === "boolean"), "each game has a numeric value + hit/miss");
+      assert.ok(leg.last5.hitRate && leg.last5.hitRate.total === leg.last5.games.length, "hit rate matches the games shown");
+      assert.equal(leg.last5.source, "mlb_stats_api", "sourced from official MLB game logs");
+    }
+  }
+});
+
 test("identity never invents a photo URL for sports without one", () => {
   const v = loadTodaySlate("2026-06-17", "2026-06-17T18:45:45Z");
   for (const c of v.allSuggested) {
