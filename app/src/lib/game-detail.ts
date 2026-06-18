@@ -32,6 +32,8 @@ export interface PublicGameDetail {
   sportLabel: string;
   title: string;
   date: string;
+  /** Provider event/match id (World Cup: Odds API event id) — used to map engine game-specific cards. */
+  matchId?: string;
   homeTeam?: string;
   awayTeam?: string;
   /** Real provider team-logo URLs (api-sports) when the artifact carries them. */
@@ -121,6 +123,7 @@ function worldCupDetails(): PublicGameDetail[] {
       sportLabel: "World Cup",
       title: head.gameLabel,
       date: head.date,
+      matchId,
       homeTeam,
       awayTeam,
       homeLogo: logoByMatch.get(matchId)?.home ?? null,

@@ -16,12 +16,17 @@ import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
 import PlayerPropsExplorer from "@/components/ui/player-props-explorer";
 import StatusChip from "@/components/ui/status-chip";
+import { ParlayCard } from "@/components/parlays/parlays-explorer";
+import type { GameSpecificCards } from "@/lib/world-cup/game-specific-cards";
+
+const RISK_LABEL: Record<string, string> = { low: "Lower variance", medium: "Balanced", high: "Higher return", longshot: "Longshot" };
+const RISK_ORDER = ["low", "medium", "high", "longshot"] as const;
 
 const STATUS_LABEL: Record<string, string> = {
   live: "Live", pending: "Pending", unavailable: "Market unavailable", model_only: "Model only",
 };
 
-export default function GameDetailPage({ detail }: { detail: PublicGameDetail }) {
+export default function GameDetailPage({ detail, engineCards }: { detail: PublicGameDetail; engineCards?: GameSpecificCards | null }) {
   const identity = getSportIdentity(detail.sport);
   // Real ISO flag codes for soccer fixtures (teams.json); empty string → no flag row.
   const homeCode = detail.sport === "world_cup" && detail.homeTeam ? teamByName(detail.homeTeam)?.code ?? "" : "";
@@ -78,16 +83,40 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
     </div>
   );
 
+  const engineTotal = engineCards?.total ?? 0;
   const cardsTab = (
-    <div className="flex flex-col gap-3">
-      <SectionHeader eyebrow={`Suggested cards · ${detail.suggestedCards.length}`} title="Suggested cards for this game" sub="Cards built from this fixture's positive-edge projections. Enter any stake for the projected paper return." />
+    <div className="flex flex-col gap-4">
+      {/* Engine same-game suggested parlays for THIS fixture, by risk (matches /parlays card design). */}
+      <div className="flex flex-col gap-3">
+        <SectionHeader eyebrow={`Suggested parlays · ${engineTotal}`} title="Suggested parlays for this game" sub="Methodology-engine same-game cards mapped to this fixture, by risk. Tap any leg for model + market detail. Paper-only." />
+        {engineTotal > 0 ? (
+          RISK_ORDER.map((lvl) => {
+            const cards = engineCards?.byRisk[lvl] ?? [];
+            if (cards.length === 0) return null;
+            return (
+              <div key={lvl} className="flex flex-col gap-2.5">
+                <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} · {cards.length}</div>
+                {cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)}
+              </div>
+            );
+          })
+        ) : (
+          <div className="rounded-xl px-4 py-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+            <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No game-specific cards passed the gate for this match{detail.homeTeam ? ` (${detail.homeTeam} vs ${detail.awayTeam})` : ""}. Build your own from this game&apos;s eligible legs below, or browse all of today&apos;s cards on <Link href="/parlays" style={{ color: "var(--vault-gold-bright)" }}>Parlays</Link>.</p>
+            <Link href={detail.buildUrl} className="mt-2 inline-flex font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Build from this game →</Link>
+          </div>
+        )}
+      </div>
+
+      {/* Native fixture cards (kept as a secondary set when present). */}
       {detail.suggestedCards.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {detail.suggestedCards.map((c) => <SuggestedCard key={c.id} card={c} />)}
+        <div className="flex flex-col gap-3">
+          <SectionHeader eyebrow={`Also · ${detail.suggestedCards.length}`} title="Fixture cards" sub="Cards built from this fixture's positive-edge projections." />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {detail.suggestedCards.map((c) => <SuggestedCard key={c.id} card={c} />)}
+          </div>
         </div>
-      ) : (
-        <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No suggested cards for this game yet — browse all of today&apos;s cards on <Link href="/picks" style={{ color: "var(--vault-gold-bright)" }}>Picks</Link>, or build your own below.</p>
-      )}
+      ) : null}
     </div>
   );
 
@@ -113,7 +142,7 @@ export default function GameDetailPage({ detail }: { detail: PublicGameDetail })
     { key: "overview", label: "Overview", content: overviewTab },
     { key: "projections", label: "Team & game props", badge: detail.teamProjections.length || null, content: projectionsTab },
     { key: "player-props", label: "Player props", badge: detail.playerProps.length || null, content: playerPropsTab },
-    { key: "cards", label: "Suggested cards", badge: detail.suggestedCards.length || null, content: cardsTab },
+    { key: "cards", label: "Suggested parlays", badge: (engineTotal + detail.suggestedCards.length) || null, content: cardsTab },
     { key: "markets", label: "Markets", content: marketsTab },
   ];
 
