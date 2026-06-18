@@ -30,6 +30,13 @@ export interface LegIdentity {
   photoUrl: string | null;
   avatarSport: "mlb" | "nba";
 }
+export interface Last5Game { date: string; opp: string; value: number; hit: boolean; }
+export interface Last5 {
+  stat?: string; line?: number; side?: string;
+  games?: Last5Game[];
+  hitRate?: { hits: number; total: number; pct: number };
+  unavailable?: boolean; reason?: string; source?: string;
+}
 export interface ParlayLegDisplay {
   legId: string;
   sport: Sport;
@@ -59,6 +66,7 @@ export interface ParlayLegDisplay {
   startTime: string | null;
   settlementResult: string | null;   // won | lost | void | pending | needs_review | null (unsettled)
   settlementOfficial: string | null; // official stat/score line, e.g. "4 K (5.0 IP)"
+  last5: Last5 | null;               // real last-5 prop history (MLB legs in committed artifacts)
   identity: LegIdentity;
 }
 export interface SuggestedParlayCard {
@@ -257,6 +265,7 @@ function legDisplay(leg: EligibleLeg, maps: IdentityMaps): ParlayLegDisplay {
     startTime: leg.startTime,
     settlementResult: null,
     settlementOfficial: null,
+    last5: null,
     identity: legIdentity(leg, maps),
   };
 }
@@ -404,14 +413,16 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
         missingFlags: [], staleFlags: [], smallSampleFlags: [],
         leakagePassed: true, startTime: ll.startTime ?? null,
         settlementResult: ll.settlement?.result ?? null, settlementOfficial: ll.settlement?.official ?? null,
+        last5: ll.last5 ?? null,
         identity: ident,
       };
     };
     // When the run is settled, prefer the artifact leg (carries the official result) over the live leg.
     const settledLegByIdLookup = (ll: any): ParlayLegDisplay => {
       const live = legByIdLookup.get(ll.legId);
-      if (live && ll.settlement) return { ...live, settlementResult: ll.settlement.result ?? null, settlementOfficial: ll.settlement.official ?? null };
-      return live ?? minimalLeg(ll);
+      // Always prefer the committed artifact's settlement + last-5 (live pool legs lack them).
+      if (live) return { ...live, settlementResult: ll.settlement?.result ?? null, settlementOfficial: ll.settlement?.official ?? null, last5: ll.last5 ?? null };
+      return minimalLeg(ll);
     };
     const toStep = (s: any): LaneStepDisplay => ({
       step: s.step,

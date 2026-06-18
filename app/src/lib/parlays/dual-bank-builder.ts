@@ -88,7 +88,7 @@ export function sideLabel(side: string | null): string {
   return "";
 }
 
-function laneLeg(l: EligibleLeg): BankBuilderLaneLeg {
+export function laneLeg(l: EligibleLeg): BankBuilderLaneLeg {
   const sl = sideLabel(l.side);
   // Exact pick label, e.g. "JR Ritchie Strikeouts Over 3.5" (side is included for O/U markets).
   const label = `${l.participantName} ${l.marketType}${sl ? ` ${sl}` : ""}${l.line != null ? ` ${l.line}` : ""}`.replace(/\s+/g, " ").trim();

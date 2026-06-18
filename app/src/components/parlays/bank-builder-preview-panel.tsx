@@ -8,7 +8,7 @@
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import FlagBadge from "@/components/flag-badge";
-import type { DualBankBuilderPreview, LaneDisplay, LaneStepDisplay, ParlayLegDisplay } from "@/lib/parlays/ui-loader";
+import type { DualBankBuilderPreview, LaneDisplay, LaneStepDisplay, ParlayLegDisplay, Last5 } from "@/lib/parlays/ui-loader";
 
 const CROWN_TARGET = 10000;
 
@@ -44,6 +44,33 @@ function legAvatar(leg: ParlayLegDisplay) {
   return <PlayerAvatar playerName={leg.participant} size="xs" flat />;
 }
 
+/** Real last-5 prop history (official MLB game logs). Renders the per-game value vs the line + hit rate. */
+function Last5Grid({ last5, side, line }: { last5: Last5; side: string | null; line: number | null }) {
+  const sl = sideText(side);
+  if (last5.unavailable) {
+    return <div className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>Last 5: data unavailable{last5.reason ? ` — ${last5.reason}` : ""}</div>;
+  }
+  const games = last5.games ?? [];
+  const hr = last5.hitRate;
+  return (
+    <div className="rounded-lg px-2 py-1.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)" }}>
+      <div className="flex items-center justify-between font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+        <span>Last 5 · {last5.stat === "strikeouts" ? "K" : "H+R+RBI"} vs {sl} {line}</span>
+        {hr && <span style={{ color: hr.pct >= 60 ? "var(--vault-success)" : "var(--vault-text-mute)" }}>{hr.hits}/{hr.total} hit · {hr.pct}%</span>}
+      </div>
+      <div className="mt-1 flex flex-wrap gap-1">
+        {games.map((g, i) => (
+          <span key={i} title={`${g.date} vs ${g.opp}: ${g.value}`} className="flex h-6 min-w-[26px] items-center justify-center rounded font-mono text-[11px]"
+            style={{ background: g.hit ? "rgba(70,130,90,0.22)" : "rgba(225,29,42,0.15)", color: g.hit ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>
+            {g.value}
+          </span>
+        ))}
+      </div>
+      <div className="mt-0.5 font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>official MLB game logs · most recent first</div>
+    </div>
+  );
+}
+
 /** A clickable leg: shows the EXACT side (Over/Under) + line, settlement, and a "why this pick" drawer. */
 function LaneLegRow({ leg, pending }: { leg: ParlayLegDisplay; pending?: boolean }) {
   const sl = sideText(leg.side);
@@ -70,15 +97,30 @@ function LaneLegRow({ leg, pending }: { leg: ParlayLegDisplay; pending?: boolean
           {leg.confidenceTier && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>conf {leg.confidenceTier}</span>}
           {leg.survivalScore != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>survival {leg.survivalScore}</span>}
           <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>risk {leg.riskScore.toFixed(2)}</span>
-          <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{leg.legQualityTier}</span>
+          <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{leg.legQualityTier} {leg.legQualityScore}</span>
           {leg.modelProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>model {Math.round(leg.modelProbability * 100)}%</span>}
+          {leg.marketImpliedProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>implied {Math.round(leg.marketImpliedProbability * 100)}%</span>}
+          {leg.edge != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: leg.edge > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{leg.edge >= 0 ? "+" : ""}{leg.edge.toFixed(1)}pp edge</span>}
+          {leg.confidenceTier && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>DQ {leg.confidenceTier === "High" ? "A/B" : "B"}</span>}
         </div>
+
+        {/* Real last-5 prop history (MLB legs) — official MLB Stats API game logs, never fabricated. */}
+        {leg.last5 && <Last5Grid last5={leg.last5} side={leg.side} line={leg.line} />}
+
         {leg.settlementResult && leg.settlementOfficial && (
           <div style={{ color: "var(--vault-text)" }}><span className="uppercase font-mono text-[10px]" style={{ color: resultColor(leg.settlementResult) }}>{leg.settlementResult}</span> · official: {leg.settlementOfficial}</div>
         )}
         {leg.topPositiveFactors.slice(0, 2).map((f, i) => <div key={`p${i}`} style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--vault-success)" }}>Why:</span> {f}</div>)}
         {leg.topNegativeFactors.slice(0, 2).map((f, i) => <div key={`n${i}`} style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--gtp-bank-heat)" }}>Risk:</span> {f}</div>)}
+        {(leg.missingFlags.length > 0 || leg.staleFlags.length > 0) && (
+          <div style={{ color: "var(--vault-text-faint)" }}>flags: {[...leg.missingFlags.map((f) => `missing ${f}`), ...leg.staleFlags.map((f) => `stale ${f}`)].join(" · ")}</div>
+        )}
         {leg.startTime && <div style={{ color: "var(--vault-text-faint)" }}>Kickoff/first pitch: {startLabel(leg.startTime)} · settles from official sources only.</div>}
+        <div style={{ color: "var(--vault-text-faint)" }}>
+          {leg.sport === "WORLD_CUP"
+            ? "Soccer settles on the 90-minute regulation result (official). Limited-data: market-implied, no independent model."
+            : "Settles from the official box score. No plate appearance / did-not-pitch → void (no action)."}
+        </div>
       </div>
     </details>
   );
