@@ -118,6 +118,9 @@ export interface LaneDisplay {
   currentStep: number;          // 1-based; 0 when single-step (no ladder)
   target: number | null;
   steps: LaneStepDisplay[];     // full ladder; empty when single-step
+  laneStatus: string | null;    // active | advanced | stopped | restarted | completed_success
+  publicVisible: boolean;       // false → hidden from the public Bank Builder (e.g. stopped lanes)
+  restart: { status: string; stake: number; step: number; note: string } | null;
 }
 export interface DualBankBuilderPreview {
   status: DualBankBuilderResult["status"];
@@ -448,6 +451,9 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
       currentStep: lane.currentStep ?? 0,
       target: lane.target ?? null,
       steps: Array.isArray(lane.steps) ? lane.steps.map(toStep) : [],
+      laneStatus: lane.laneStatus ?? null,
+      publicVisible: lane.publicVisible !== false,
+      restart: lane.restart ? { status: lane.restart.status, stake: lane.restart.stake ?? 100, step: lane.restart.step ?? 1, note: lane.restart.note ?? "" } : null,
     } : null;
     const bankBuilderPreview: DualBankBuilderPreview = {
       status: bb.status,

@@ -41,7 +41,9 @@ export function generateSameGameParlays(gameLegs: EligibleLeg[], date: string, l
 
   const parlays = valid.map((legs, i) => {
     const p = assembleParlay(legs, { date, riskLevel: level, parlayType: "same_game", index: i });
-    return p;
+    // Same-game cards across different fixtures share (date,risk,type,index,sport); scope the id by
+    // gameId so it is globally unique (deterministic) — prevents cross-fixture collisions / React-key dupes.
+    return { ...p, parlayId: `${p.parlayId}:${gameId}` };
   });
 
   return {

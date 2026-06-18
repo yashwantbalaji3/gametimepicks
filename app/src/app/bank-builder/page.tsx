@@ -113,6 +113,12 @@ export default function BankBuilderPage() {
             <span className="font-mono uppercase tracking-[0.12em] text-[10.5px]" style={{ color: "var(--gtp-bank-heat)" }}>Two lanes · $100 → $10K each · paper</span>
           </div>
           <BankBuilderPreviewPanel preview={bbPreview} />
+          <Link href="/mr-dub" className="gtp-card-hover mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl px-4 py-3" style={{ border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", background: "rgba(212,175,55,0.06)", textDecoration: "none" }}>
+            <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>
+              <span style={{ fontWeight: 700 }}>Full paper ledger on Mr. Dub</span> — every win, loss, void, stopped lane &amp; restart. Bank Builder shows active paths &amp; successful ladders; Mr. Dub tracks it all.
+            </span>
+            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>Open Mr. Dub →</span>
+          </Link>
         </section>
       ) : null}
 

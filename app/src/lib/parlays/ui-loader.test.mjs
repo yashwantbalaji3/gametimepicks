@@ -105,7 +105,8 @@ test("the active 06-18 ladder: Step 1 cleared WON, Step 2 live, soccer per lane,
       assert.equal(leg.settlementResult, "won");
       assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "Step 1 leg has an official line");
     }
-    assert.equal(step2.status, "pending", "Step 2 is live/pending");
+    // Step 2 is either still live (pending) or officially settled (the dual-lane lifecycle); never fabricated.
+    assert.ok(["pending", "settled"].includes(step2.status), "Step 2 is pending or settled");
     assert.ok(step2.legs.length === 2, "Step 2 has two legs");
     assert.ok(step2.legs.some((l) => l.sport === "WORLD_CUP"), "Step 2 has a World Cup leg in this lane");
     assert.ok(typeof step2.stake === "number" && step2.stake > 0, "Step 2 stakes the cleared Step 1 payout");
@@ -146,9 +147,9 @@ test("Step 2 was re-optimized for payout: combined odds are plus-money and beat 
   assert.equal(bb.isLadder, true);
   for (const lane of [bb.laneA, bb.laneB]) {
     const step2 = lane.steps.find((s) => s.step === 2);
-    assert.equal(step2.status, "pending");
+    // Step 2 was built payout-optimized (plus-money combined, ≥2.25x); the property holds whether the
+    // step is still pending or has since settled in the dual-lane lifecycle.
     assert.ok(step2.combinedOdds != null && step2.combinedOdds > 0, "Step 2 combined odds are plus-money (payout-optimized)");
-    // payout is meaningfully larger than the conservative ~1.75x version
     assert.ok((step2.payout ?? 0) / (step2.stake ?? 1) >= 2.25, "Step 2 clears the 2.25x payout floor");
     assert.ok(step2.legs.some((l) => l.sport === "WORLD_CUP"), "Step 2 keeps a World Cup leg per lane");
   }
