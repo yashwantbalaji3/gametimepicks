@@ -37,7 +37,13 @@ AF_BASE = "https://v3.football.api-sports.io"
 SPORT_KEY = "soccer_fifa_world_cup"
 LEAGUE = int(os.environ.get("WC_API_FOOTBALL_LEAGUE", "1"))
 SEASON = int(os.environ.get("WC_API_FOOTBALL_SEASON", "2026"))
+# Core markets the WC books reliably post. OPTIONAL_MARKETS are requested too and auto-appear in the
+# output IF (and only if) a book actually posts them for the fixture — absent → nothing emitted, never
+# fabricated. The request falls back to core markets if the combined request is rejected, so adding an
+# optional market can never break the working two. The frontend renders whatever markets show up.
 MARKETS = ["player_goal_scorer_anytime", "player_shots_on_target"]
+OPTIONAL_MARKETS = ["player_assists", "player_shots"]
+ALL_MARKETS = MARKETS + OPTIONAL_MARKETS
 MAX_PER_MARKET_PER_TEAM = 6
 
 
@@ -142,15 +148,22 @@ def build(date: str) -> dict:
                     squads_cache[tid] = af_squad(tid, akey)
                 except Exception:
                     squads_cache[tid] = {}
-        q = urllib.parse.urlencode({"regions": "us", "markets": ",".join(MARKETS),
-                                    "oddsFormat": "american", "apiKey": okey})
-        odds = http(f"{ODDS_BASE}/sports/{SPORT_KEY}/events/{ev['id']}/odds?{q}")
+        def _fetch(markets: list[str]) -> object:
+            q = urllib.parse.urlencode({"regions": "us", "markets": ",".join(markets),
+                                        "oddsFormat": "american", "apiKey": okey})
+            return http(f"{ODDS_BASE}/sports/{SPORT_KEY}/events/{ev['id']}/odds?{q}")
+        # Request core + optional markets; if the combined request is rejected (e.g. a book/sport doesn't
+        # support an optional market), fall back to the core two so the working markets always publish.
+        try:
+            odds = _fetch(ALL_MARKETS)
+        except Exception:
+            odds = _fetch(MARKETS)
         books = odds.get("bookmakers", []) if isinstance(odds, dict) else []
         # best (longest) price per (market, player) across books = most representative offer
         best: dict[tuple, dict] = {}
         for b in books:
             for m in b.get("markets", []):
-                if m["key"] not in MARKETS:
+                if m["key"] not in ALL_MARKETS:
                     continue
                 for o in m.get("outcomes", []):
                     player = o.get("description")
@@ -159,8 +172,8 @@ def build(date: str) -> dict:
                     key = (m["key"], player, o.get("name"), o.get("point"))
                     if key not in best or abs(o["price"]) < abs(best[key]["price"]):
                         best[key] = {"price": o["price"], "name": o.get("name"), "point": o.get("point"), "book": b["key"]}
-        # group by market, take top by implied prob per team
-        for mkt in MARKETS:
+        # group by market, take top by implied prob per team (only markets that actually returned rows)
+        for mkt in ALL_MARKETS:
             rows = [(k, v) for k, v in best.items() if k[0] == mkt]
             # implied prob, sorted desc
             scored = sorted(((k, v, a2imp(v["price"])) for k, v in rows), key=lambda x: x[2], reverse=True)

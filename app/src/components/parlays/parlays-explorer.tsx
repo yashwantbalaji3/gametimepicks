@@ -176,6 +176,51 @@ function Accordion({ title, subtitle, children, defaultOpen = false }: { title: 
   );
 }
 
+/** Readable card-coverage grid: every sport (+ Mixed) × every risk level, with counts. Makes it
+ *  obvious which risk levels actually have cards today vs which are empty — no guessing from tabs. */
+function CoverageMatrix({ slate }: { slate: TodaySlateView }) {
+  const rows: { key: string; label: string; counts: Partial<Record<RiskLevel, number>>; total: number }[] = [];
+  for (const s of slate.sports) {
+    const counts = s.suggestedByRisk ?? {};
+    const total = RISK_ORDER.reduce((n, l) => n + (counts[l] ?? 0), 0);
+    if (total > 0 || s.eligibleCount > 0) rows.push({ key: s.sport, label: SPORT_LABEL[s.sport] ?? s.sport, counts, total });
+  }
+  const mixedCounts = Object.fromEntries(RISK_ORDER.map((l) => [l, slate.mixedByRisk[l]?.length ?? 0])) as Partial<Record<RiskLevel, number>>;
+  const mixedTotal = RISK_ORDER.reduce((n, l) => n + (mixedCounts[l] ?? 0), 0);
+  if (mixedTotal > 0) rows.push({ key: "MIXED", label: "Mixed", counts: mixedCounts, total: mixedTotal });
+  if (rows.length === 0) return null;
+  const cell = (key: string, n: number) => (
+    <td key={key} className="px-2 py-1.5 text-center font-mono tabular" style={{ color: n > 0 ? "var(--vault-text)" : "var(--vault-text-faint)", fontSize: 12, opacity: n > 0 ? 1 : 0.55 }}>{n}</td>
+  );
+  return (
+    <Accordion title="Card coverage by sport × risk" subtitle="counts of model-built cards today" defaultOpen>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse" style={{ minWidth: 360 }}>
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--vault-border)" }}>
+              <th className="px-2 py-1.5 text-left font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Sport</th>
+              {RISK_ORDER.map((l) => (
+                <th key={l} className="px-2 py-1.5 text-center font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{RISK_LABEL[l]}</th>
+              ))}
+              <th className="px-2 py-1.5 text-center font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>All</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.key} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                <td className="px-2 py-1.5 text-left" style={{ color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600 }}>{r.label}</td>
+                {RISK_ORDER.map((l) => cell(l, r.counts[l] ?? 0))}
+                <td className="px-2 py-1.5 text-center font-mono tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 12, fontWeight: 700 }}>{r.total}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-[11px]" style={{ color: "var(--vault-text-faint)" }}>0 means no card in that risk tier passed today&apos;s model gates — other tiers may still have cards. Paper-only.</p>
+    </Accordion>
+  );
+}
+
 export default function ParlaysExplorer({ slate }: { slate: TodaySlateView }) {
   const sportsWithLegs = slate.sports.filter((s) => s.eligibleCount > 0);
   const mixedTotal = RISK_ORDER.reduce((n, lvl) => n + (slate.mixedByRisk[lvl]?.length ?? 0), 0);
@@ -193,6 +238,8 @@ export default function ParlaysExplorer({ slate }: { slate: TodaySlateView }) {
 
   return (
     <div className="space-y-4">
+      {/* Coverage at a glance: which sport × risk tiers actually have cards today. */}
+      <CoverageMatrix slate={slate} />
       {/* sport selector (+ Mixed when cross-sport cards exist) */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }}>
         {slate.sports.map((s) => (
@@ -262,7 +309,7 @@ export default function ParlaysExplorer({ slate }: { slate: TodaySlateView }) {
                     <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} risk · {cards.length}</div>
                     {cards.length > 0
                       ? cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)
-                      : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>No qualified {RISK_LABEL[lvl].toLowerCase()}-risk card from today&apos;s {SPORT_LABEL[sport] ?? sport} legs.</div>}
+                      : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>No {RISK_LABEL[lvl].toLowerCase()} {SPORT_LABEL[sport] ?? sport} card passed today&apos;s model gates — other tiers above may still have cards.</div>}
                   </div>
                 );
               })}

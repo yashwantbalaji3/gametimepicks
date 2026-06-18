@@ -79,19 +79,31 @@ export default function UfcPage() {
   const expandedFights = (expanded?.projections ?? []) as Parameters<typeof UfcExpandedFightCards>[0]["fights"];
   const settlement = loadJSONUfc<UfcSettlement | null>("results-settled-latest.json", null);
 
+  // STALE GATE: once the latest event is officially settled (status "final"), the fight card / projections
+  // are last event's — not an active slate. We stop showing them as active and point to Results until the
+  // next card's odds + projections publish. Same signal the active-sports loaders use on /today + /games.
+  const ufcSettled = settlement?.status === "final";
+
   const showV1Proj = Boolean(v1Proj?.moneylineV1Ready && v1Proj.projections?.length);
   const v1Validated = Boolean(v1Proj?.moneylineValidated);
   const ufcProjections = normalizeUfcProjections(v1Proj);
   const ufcCards = normalizeUfcCards(v1Parlays as Parameters<typeof normalizeUfcCards>[0], "");
   const eventName = v1Proj?.eventName ?? ops?.nextCard?.eventName ?? "Next card";
+  const settledEventName = settlement?.event ?? eventName;
   const bouts = odds.oddsReady ? odds.bouts : [];
   const pct = ops ? Math.min(100, Math.round((ops.cleanGradedRows / Math.max(1, ops.targetRowsForPublicMoneyline)) * 100)) : 0;
 
-  const heroStats = [
-    { label: "Next card", value: eventName.length > 22 ? eventName.slice(0, 22) + "…" : eventName, sub: ops?.nextCard?.eventDate ? fmtDate(ops.nextCard.eventDate) : undefined },
-    { label: "Moneyline projections", value: String(ufcProjections.length), sub: showV1Proj ? "real odds" : "pending" },
-    { label: "Suggested cards", value: String(ufcCards.length), sub: "model-only" },
-  ];
+  const heroStats = ufcSettled
+    ? [
+        { label: "Latest event", value: settledEventName.length > 20 ? settledEventName.slice(0, 20) + "…" : settledEventName, sub: "settled" },
+        { label: "Status", value: "Settled", sub: "see Results" },
+        { label: "Next card", value: "Loading soon", sub: undefined },
+      ]
+    : [
+        { label: "Next card", value: eventName.length > 22 ? eventName.slice(0, 22) + "…" : eventName, sub: ops?.nextCard?.eventDate ? fmtDate(ops.nextCard.eventDate) : undefined },
+        { label: "Moneyline projections", value: String(ufcProjections.length), sub: showV1Proj ? "real odds" : "pending" },
+        { label: "Suggested cards", value: String(ufcCards.length), sub: "model-only" },
+      ];
 
   const boutsBoard = (
     <div className="flex flex-col gap-2">
@@ -271,16 +283,43 @@ export default function UfcPage() {
     </div>
   );
 
-  const tabs: ShellTab[] = [
-    { key: "overview", label: "Overview", content: overviewTab },
-    { key: "fight-card", label: "Fight Card", badge: bouts.length || null, content: fightCardTab },
-    { key: "projections", label: "Projections", badge: ufcProjections.length || null, content: projectionsTab },
-    { key: "expanded", label: "Expanded Projections", badge: expandedFights.length || null, content: expandedTab },
-    { key: "markets", label: "Markets", badge: null, content: marketsTab },
-    { key: "cards", label: "Suggested Cards", badge: ufcCards.length || null, content: cardsTab },
-    { key: "results", label: "Results", badge: null, content: resultsTab },
-    { key: "methodology", label: "Methodology", badge: null, content: methodologyTab },
-  ];
+  // When the latest event is settled, the active fight-card / projections tabs are stale — replace the
+  // Overview with a "next slate loading soon" panel and surface only Results + Methodology alongside it.
+  const nextSlateTab = (
+    <div className="flex flex-col gap-4">
+      <div className="rounded-[12px] px-5 py-6 flex flex-col gap-2" style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border-strong)" }}>
+        <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>UFC · next slate loading soon</span>
+        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 700 }}>The previous event has settled</span>
+        <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+          {settledEventName} is officially settled — its graded card is in Results. The next UFC card&apos;s
+          moneyline projections publish here once the schedule, sportsbook lines, and fighter stats refresh.
+          We don&apos;t show last event&apos;s card as if it were active.
+        </p>
+        <div className="mt-1 flex flex-wrap gap-2">
+          <a href="/ufc?tab=results" className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--vault-gold-dim)", border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", fontSize: 11, textDecoration: "none" }}>See settled results →</a>
+          <a href="/results" className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none" }}>All results</a>
+        </div>
+      </div>
+      {settlement ? <UfcEventResultsRecap s={settlement} /> : null}
+    </div>
+  );
+
+  const tabs: ShellTab[] = ufcSettled
+    ? [
+        { key: "overview", label: "Overview", content: nextSlateTab },
+        { key: "results", label: "Results", badge: null, content: resultsTab },
+        { key: "methodology", label: "Methodology", badge: null, content: methodologyTab },
+      ]
+    : [
+        { key: "overview", label: "Overview", content: overviewTab },
+        { key: "fight-card", label: "Fight Card", badge: bouts.length || null, content: fightCardTab },
+        { key: "projections", label: "Projections", badge: ufcProjections.length || null, content: projectionsTab },
+        { key: "expanded", label: "Expanded Projections", badge: expandedFights.length || null, content: expandedTab },
+        { key: "markets", label: "Markets", badge: null, content: marketsTab },
+        { key: "cards", label: "Suggested Cards", badge: ufcCards.length || null, content: cardsTab },
+        { key: "results", label: "Results", badge: null, content: resultsTab },
+        { key: "methodology", label: "Methodology", badge: null, content: methodologyTab },
+      ];
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -292,10 +331,10 @@ export default function UfcPage() {
         eyebrow="UFC · moneyline V1"
         sport="UFC"
         tagline="moneyline projections · fight card · validation"
-        statusKind={showV1Proj ? "live" : "upcoming"}
-        statusLabel={showV1Proj ? "Moneyline live" : "Building coverage"}
-        statusCaption={` · ${eventName}`}
-        matchupLine={ops?.nextCard?.eventDate ? `Next · ${eventName} · ${fmtDate(ops.nextCard.eventDate)}` : `Next · ${eventName}`}
+        statusKind={ufcSettled ? "upcoming" : showV1Proj ? "live" : "upcoming"}
+        statusLabel={ufcSettled ? "Next slate loading soon" : showV1Proj ? "Moneyline live" : "Building coverage"}
+        statusCaption={ufcSettled ? " · previous event settled" : ` · ${eventName}`}
+        matchupLine={ufcSettled ? `Previous event settled · ${settledEventName} → see Results` : ops?.nextCard?.eventDate ? `Next · ${eventName} · ${fmtDate(ops.nextCard.eventDate)}` : `Next · ${eventName}`}
         stats={heroStats}
         accent="ufc"
         ctas={[
