@@ -132,3 +132,86 @@ export function buildOptimizerLegs(slips: OptSlip[] | null | undefined): BuildLe
   }
   return [...seen.values()];
 }
+
+/**
+ * Canonical engine Build legs — adapts the methodology engine's eligible-leg pool (the SAME source
+ * /today, /picks and /parlays use) into BuildLegs. Engine legs are already gated: not-started,
+ * leakage-safe, odds-backed, current slate (no stale/started games). Covers MLB pitcher/hitter props,
+ * World Cup team markets, and World Cup player props. Pure adapter — never fabricates.
+ */
+export function buildEngineLegs(eligible: import("@/lib/parlays/ui-loader").ParlayLegDisplay[]): BuildLeg[] {
+  const out: BuildLeg[] = [];
+  const seen = new Set<string>();
+  // Strongest-survival first so the (capped) Build list leads with the most robust legs.
+  const sorted = [...eligible].filter((l) => l.odds != null).sort((a, b) => (b.survivalScore ?? 0) - (a.survivalScore ?? 0));
+  for (const l of sorted) {
+    if (seen.has(l.legId)) continue;
+    seen.add(l.legId);
+    const sport = l.sportKey as SportKey;
+    const eventId = l.legId.split(":")[1] ?? null; // engine legId = SPORT:eventId:market:participant:side
+    const side = l.side ? `${l.side[0].toUpperCase()}${l.side.slice(1)}` : "";
+    const lineStr = l.line != null ? ` ${l.line}` : "";
+    const photo = sport === "world_cup"
+      ? (l.identity.photoUrl ?? null)
+      : sport === "mlb" ? mlbHeadshotUrl(l.identity.playerId)
+      : sport === "nba" ? nbaHeadshotUrl(l.identity.playerId) : null;
+    out.push({
+      id: l.legId,
+      sport,
+      sportLabel: SPORT_LABEL[sport],
+      gameId: eventId,
+      gameLabel: l.team && l.opponent ? `${l.team} vs ${l.opponent}` : (l.team ?? undefined),
+      label: `${l.participant} · ${l.market}${side ? ` ${side}` : ""}${lineStr}`.trim(),
+      sublabel: `${SPORT_LABEL[sport]} · ${l.market}`,
+      market: l.market,
+      marketLabel: l.market,
+      riskTier: tierFromOdds(l.odds as number),
+      americanOdds: l.odds as number,
+      photo,
+      prelineup: sport === "world_cup" && l.identity.kind === "player",
+      regulationOnly: sport === "world_cup",
+      // Bank-Builder eligibility mirrors the survival floor (team markets only; player props never).
+      bankBuilderEligible: (l.survivalScore ?? 0) >= 80 && l.identity.kind !== "player",
+      searchKey: `${l.participant} ${l.team ?? ""} ${l.market} ${side} ${l.line ?? ""}`.toLowerCase(),
+    });
+  }
+  // Cap to keep the DOM snappy — all WC + the strongest MLB legs (already survival-sorted).
+  return out.slice(0, 180);
+}
+
+/**
+ * World Cup PLAYER-PROP Build legs (anytime goalscorer / shots on target). These are limited-data /
+ * market-implied (lineup not posted) so the engine never auto-suggests them — but they ARE
+ * fixture-joined, odds-backed, and gated here to not-started games (by team kickoff), so a user may
+ * still build with them. Always flagged prelineup (limited-data) and never Bank-Builder eligible.
+ */
+export function buildWcPlayerLegs(projections: WcProjections | null, players: WcPlayerProjections | null, nowIso?: string): BuildLeg[] {
+  const now = nowIso ?? new Date().toISOString();
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
+  const kickoffByTeam = new Map<string, string>();
+  for (const m of projections?.matches ?? []) {
+    const k = (m as any).kickoffUtc;
+    if (!k) continue;
+    if ((m as any).homeTeam) kickoffByTeam.set(norm(String((m as any).homeTeam)), String(k));
+    if ((m as any).awayTeam) kickoffByTeam.set(norm(String((m as any).awayTeam)), String(k));
+  }
+  const legs: BuildLeg[] = [];
+  for (const p of normalizeWcPlayerProps(players)) {
+    if (p.americanOdds == null || !p.player) continue;
+    // Pre-event only: require a known future kickoff for the player's team.
+    if (kickoffByTeam.size > 0) {
+      const teamKick = kickoffByTeam.get(norm(p.player.team ?? ""));
+      if (!teamKick || teamKick <= now) continue;
+    }
+    legs.push({
+      id: p.id, sport: "world_cup", sportLabel: "World Cup", gameId: p.matchId ?? null,
+      gameLabel: p.player.team,
+      label: `${p.player.name} · ${p.pickLabel}`, sublabel: `${p.player.team} · ${p.marketLabel} · limited-data`,
+      market: p.market, marketLabel: p.marketLabel, riskTier: p.riskTier ?? "High",
+      americanOdds: p.americanOdds, photo: p.player.photo ?? null, prelineup: true, regulationOnly: true,
+      bankBuilderEligible: false,
+      searchKey: `${p.player.name} ${p.player.team} ${p.marketLabel}`.toLowerCase(),
+    });
+  }
+  return legs;
+}

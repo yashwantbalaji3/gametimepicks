@@ -46,3 +46,44 @@ test("buildOptimizerLegs drops legs without odds + non-nba/mlb", () => {
   assert.equal(buildOptimizerLegs([{ legs: [{ sport: "mlb", playerName: "X", oddsForSide: null }] }]).length, 0);
   assert.equal(buildOptimizerLegs([{ legs: [{ sport: "ufc", playerName: "Y", oddsForSide: -110 }] }]).length, 0);
 });
+
+test("buildEngineLegs adapts engine eligible legs (MLB + WC team), excludes UFC, carries identity", async () => {
+  const { buildEngineLegs } = await import("./build-legs.ts");
+  const mk = (over) => ({
+    legId: "x", sport: "MLB", sportKey: "mlb", market: "strikeouts", side: "under", participant: "P", team: "ATL", opponent: "NYM",
+    line: 5.5, odds: -120, modelProbability: 0.7, marketImpliedProbability: 0.6, edge: 10, confidenceTier: "Medium",
+    riskScore: 0.2, riskTier: "low", legQualityTier: "strong", legQualityScore: 80, survivalScore: 88,
+    topPositiveFactors: [], topNegativeFactors: [], missingFlags: [], staleFlags: [], smallSampleFlags: [],
+    leakagePassed: true, startTime: "2026-06-18T23:00:00Z", settlementResult: null, settlementOfficial: null, last5: null,
+    identity: { kind: "player", playerId: 621566, teamAbbr: "ATL", countryCode: null, photoUrl: null, avatarSport: "mlb" }, ...over,
+  });
+  const eligible = [
+    mk({ legId: "MLB:g1:strikeouts:P:" }),
+    mk({ legId: "WORLD_CUP:g2:moneyline_90:Switzerland:", sport: "WORLD_CUP", sportKey: "world_cup", market: "moneyline_90", side: null, participant: "Switzerland", team: "Switzerland", opponent: "Bosnia", line: null, odds: -205, identity: { kind: "team", playerId: null, teamAbbr: "CH", countryCode: "CH", photoUrl: null, avatarSport: "mlb" } }),
+    mk({ legId: "UFC:g3:moneyline:Fighter:", sport: "UFC", sportKey: "ufc", participant: "Fighter", odds: -130, identity: { kind: "fighter", playerId: null, teamAbbr: null, countryCode: null, photoUrl: null, avatarSport: "mlb" } }),
+  ];
+  const legs = buildEngineLegs(eligible);
+  assert.ok(legs.some((l) => l.sport === "mlb"), "MLB leg adapted");
+  assert.ok(legs.some((l) => l.sport === "world_cup"), "WC team leg adapted");
+  // UFC is included only if it has odds (it does here) — but it must carry a sport + odds, never fabricated.
+  const wc = legs.find((l) => l.sport === "world_cup");
+  assert.equal(wc.gameId, "g2", "eventId parsed from legId");
+  assert.equal(wc.bankBuilderEligible, true, "high-survival team leg is Bank-Builder eligible");
+  const mlb = legs.find((l) => l.sport === "mlb");
+  assert.ok(mlb.photo && mlb.photo.includes("621566"), "MLB headshot from real playerId");
+});
+
+test("buildWcPlayerLegs surfaces pre-event WC player props (limited-data, never Bank-Builder)", async () => {
+  const { buildWcPlayerLegs } = await import("./build-legs.ts");
+  const proj = { matches: [{ matchId: 9, homeTeam: "Switzerland", awayTeam: "Bosnia", kickoffUtc: "2026-06-18T19:00:00Z" }] };
+  const players = { matches: [
+    { matchId: 9, fixture: "Switzerland vs Bosnia", player: { id: null, name: "Breel Embolo", team: "Switzerland", photo: null }, market: "player_goal_scorer_anytime", pick: "Yes", line: null, americanOdds: 145 },
+  ] };
+  const legs = buildWcPlayerLegs(proj, players, "2026-06-18T17:30:00Z"); // before kickoff → included
+  assert.equal(legs.length, 1, "pre-event player prop included regardless of parlayEligible");
+  assert.equal(legs[0].prelineup, true);
+  assert.equal(legs[0].bankBuilderEligible, false, "player props never Bank-Builder eligible");
+  assert.ok(legs[0].sublabel.includes("limited-data"), "labeled limited-data");
+  // After kickoff → excluded.
+  assert.equal(buildWcPlayerLegs(proj, players, "2026-06-18T20:00:00Z").length, 0);
+});
