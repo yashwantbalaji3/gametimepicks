@@ -31,7 +31,7 @@ function RunChip({
 }
 
 export default function BankBuilderStatusRail({
-  run1Bankroll, run1Record, dual, v2, activeLaunched, activeSettled, lanesWon, lanesTotal,
+  run1Bankroll, run1Record, dual, v2, activeLaunched, activeSettled, activeLadderStep, lanesWon, lanesTotal,
 }: {
   run1Bankroll?: string;
   run1Record?: string;
@@ -39,12 +39,14 @@ export default function BankBuilderStatusRail({
   v2?: V2Evaluation | null;
   activeLaunched?: boolean;
   activeSettled?: boolean;
+  activeLadderStep?: number;
   lanesWon?: number;
   lanesTotal?: number;
 }) {
   const run2Closed = !!dual && (dual.status === "settled" || dual.status === "closed");
   const run3Active = !!dual && dual.status === "pending" && (dual as { runNumber?: number }).runNumber === 3;
   const launched = activeLaunched || v2?.decision === "launch" || run3Active;
+  const isLadder = (activeLadderStep ?? 0) >= 2;
   const topCand = v2?.strongestCandidates?.[0];
   const wonN = lanesWon ?? 0;
   const totalN = lanesTotal ?? 2;
@@ -72,10 +74,10 @@ export default function BankBuilderStatusRail({
         <RunChip tag="Completed ladder" title={run1Bankroll ? `$100 → ${run1Bankroll}` : "$100 → $10,376.17"} sub={`${run1Record ?? "5–0"} · crown reached`} tone="gold" />
         <RunChip tag="Closed test ladder" title={run2Closed ? `${dual?.lanesSurvived ?? 0}/${dual?.lanes?.length ?? 2} advanced` : "closed"} sub="Step 1 · both lanes lost" tone="closed" />
         <RunChip
-          tag={activeSettled ? "Active dual ladder · settled" : launched ? "Active dual ladder" : "Dual ladder · evaluating"}
-          title={activeSettled ? `${wonN}/${totalN} lanes won` : launched ? "Two lanes live" : "Evaluating"}
-          sub={activeSettled ? "official sources · advanced" : launched ? "survival-gated legs" : "no qualifying launch yet"}
-          tone={activeSettled ? "live" : launched ? "live" : "heat"}
+          tag={isLadder ? `Active dual ladder · Step ${activeLadderStep}` : activeSettled ? "Active dual ladder · settled" : launched ? "Active dual ladder" : "Dual ladder · evaluating"}
+          title={isLadder ? `Step ${activeLadderStep} live` : activeSettled ? `${wonN}/${totalN} lanes won` : launched ? "Two lanes live" : "Evaluating"}
+          sub={isLadder ? `${wonN}/${totalN} lanes cleared Step 1` : activeSettled ? "official sources · advanced" : launched ? "survival-gated legs" : "no qualifying launch yet"}
+          tone={isLadder ? "live" : activeSettled ? "live" : launched ? "live" : "heat"}
         />
       </div>
 

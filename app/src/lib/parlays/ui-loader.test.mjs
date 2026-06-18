@@ -87,6 +87,42 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
+test("the active 06-18 ladder: Step 1 cleared WON, Step 2 live, soccer per lane, Steps 3-5 coming soon", () => {
+  const v = loadTodaySlate("2026-06-18", "2026-06-18T14:49:58Z");
+  const bb = v.bankBuilderPreview;
+  assert.equal(bb.status, "launched", "active ladder is launched");
+  assert.equal(bb.isLadder, true, "preview is a multi-step ladder");
+  assert.equal(bb.currentStep, 2, "current step is Step 2");
+  assert.ok(bb.laneA && bb.laneB, "both lanes present");
+  for (const lane of [bb.laneA, bb.laneB]) {
+    assert.equal(lane.steps.length, 5, "five-step ladder");
+    const step1 = lane.steps[0];
+    const step2 = lane.steps[1];
+    assert.equal(step1.status, "settled");
+    assert.equal(step1.result, "won", "Step 1 cleared WON");
+    // Step 1 legs carry the official settled result + line (preserved, never refabricated).
+    for (const leg of step1.legs) {
+      assert.equal(leg.settlementResult, "won");
+      assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "Step 1 leg has an official line");
+    }
+    assert.equal(step2.status, "pending", "Step 2 is live/pending");
+    assert.ok(step2.legs.length === 2, "Step 2 has two legs");
+    assert.ok(step2.legs.some((l) => l.sport === "WORLD_CUP"), "Step 2 has a World Cup leg in this lane");
+    assert.ok(typeof step2.stake === "number" && step2.stake > 0, "Step 2 stakes the cleared Step 1 payout");
+    // Steps 3–5 are coming soon (no fabricated legs).
+    for (let i = 2; i < 5; i++) {
+      assert.equal(lane.steps[i].status, "coming_soon");
+      assert.equal(lane.steps[i].legs.length, 0, "no fabricated legs for future steps");
+    }
+  }
+  // No leg shared across the two lanes' Step 2.
+  const aIds = new Set(bb.laneA.steps[1].legs.map((l) => l.legId));
+  assert.ok(bb.laneB.steps[1].legs.every((l) => !aIds.has(l.legId)), "no shared Step 2 legs");
+  // MLB Step 2 legs carry the exact Over/Under side for the "why" drawer.
+  const mlb = [...bb.laneA.steps[1].legs, ...bb.laneB.steps[1].legs].find((l) => l.sport === "MLB");
+  if (mlb) assert.ok(mlb.side === "over" || mlb.side === "under", "MLB Step 2 leg carries an exact side");
+});
+
 test("identity never invents a photo URL for sports without one", () => {
   const v = loadTodaySlate("2026-06-17", "2026-06-17T18:45:45Z");
   for (const c of v.allSuggested) {

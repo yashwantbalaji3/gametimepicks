@@ -86,12 +86,39 @@ export interface GameSpecificParlayGroup {
   parlays: SuggestedParlayCard[];
 }
 export type EligibleLegDisplay = ParlayLegDisplay;
+export interface LaneStepDisplay {
+  step: number;
+  status: "settled" | "pending" | "evaluating" | "coming_soon";
+  result: string | null;        // won | lost | null
+  slateDate: string | null;
+  combinedOdds: number | null;
+  survivalScore: number | null;
+  stake: number | null;
+  payout: number | null;        // realized (settled) or projected (pending)
+  projected: boolean;           // true when payout is a projection (pending step)
+  target: number | null;        // crown target ($) for coming-soon steps
+  legs: ParlayLegDisplay[];
+  blockers: string[];           // for an "evaluating" step
+}
+export interface LaneDisplay {
+  label: string;
+  legs: ParlayLegDisplay[];     // current-step legs (back-compat)
+  survivalScore: number;
+  combinedOdds: number | null;
+  result: string | null;
+  advanced: boolean;
+  currentStep: number;          // 1-based; 0 when single-step (no ladder)
+  target: number | null;
+  steps: LaneStepDisplay[];     // full ladder; empty when single-step
+}
 export interface DualBankBuilderPreview {
   status: DualBankBuilderResult["status"];
   runId: string | null;
   date: string;
-  laneA: { label: string; legs: ParlayLegDisplay[]; survivalScore: number; combinedOdds: number | null; result: string | null; advanced: boolean } | null;
-  laneB: { label: string; legs: ParlayLegDisplay[]; survivalScore: number; combinedOdds: number | null; result: string | null; advanced: boolean } | null;
+  isLadder: boolean;
+  currentStep: number;
+  laneA: LaneDisplay | null;
+  laneB: LaneDisplay | null;
   selectedFour: ParlayLegDisplay[];
   launchGateSummary: DualBankBuilderResult["launchGateSummary"];
   noLaunchReasons: string[];
@@ -280,7 +307,7 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
   const empty: TodaySlateView = {
     date, available: false, sports: [], suggestedBySportRisk: {}, allSuggested: [],
     gameSpecific: [], eligibleLegs: [],
-    bankBuilderPreview: { status: "no_qualified_launch", runId: null, date, laneA: null, laneB: null, selectedFour: [], launchGateSummary: [], noLaunchReasons: ["No slate available."] },
+    bankBuilderPreview: { status: "no_qualified_launch", runId: null, date, isLadder: false, currentStep: 0, laneA: null, laneB: null, selectedFour: [], launchGateSummary: [], noLaunchReasons: ["No slate available."] },
   };
   if (!date) { _cache.set(cacheKey, empty); return empty; }
 
@@ -348,38 +375,64 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
     // never the protected files); else show the live soccer-preferred dry-run PREVIEW.
     const launched = readActiveLaunchedRun(root, date);
     const bb = launched?.run ?? selectDualBankBuilder(eligible, date, { mode: "dry_run", preferSoccerPerLane: true });
-    // Fallback display for a launched leg whose game already started (not in the live pool). The
-    // committed artifact carries the exact side + factors, so the "why" + Over/Under still render.
-    const minimalLeg = (ll: any): ParlayLegDisplay => ({
-      legId: ll.legId, sport: ll.sport, sportKey: SPORT_KEY[ll.sport as Sport] ?? "mlb", market: "",
-      side: null, participant: String(ll.label ?? ll.legId), team: null, opponent: null, line: null, odds: ll.odds ?? null,
-      modelProbability: ll.modelProbability ?? null, marketImpliedProbability: null, edge: null,
-      confidenceTier: ll.confidenceTier ?? "", riskScore: ll.riskScore ?? 0, riskTier: "", legQualityTier: ll.legQualityTier ?? "",
-      legQualityScore: ll.legQualityScore ?? 0, survivalScore: ll.legQualityScore ?? null,
-      topPositiveFactors: (ll.topPositiveFactors ?? []).map((f: any) => f.label), topNegativeFactors: (ll.topNegativeFactors ?? []).map((f: any) => f.label),
-      missingFlags: [], staleFlags: [], smallSampleFlags: [],
-      leakagePassed: true, startTime: ll.startTime ?? null,
-      settlementResult: ll.settlement?.result ?? null, settlementOfficial: ll.settlement?.official ?? null,
-      identity: { kind: "team", playerId: null, teamAbbr: null, countryCode: null, photoUrl: null, avatarSport: "mlb" },
-    });
+    // Fallback display for a committed ladder leg not in the live pool (game already started, or a
+    // prior-step settled leg). The committed artifact carries the exact side/line/market + factors, so
+    // the Over/Under line, the "why", identity, and the official result all still render.
+    const minimalLeg = (ll: any): ParlayLegDisplay => {
+      const label = String(ll.label ?? ll.legId ?? "");
+      const participant = ll.participantName ?? (label.replace(/\s+(double_chance|Strikeouts|Hits.*|Total.*|Moneyline).*$/i, "").trim() || label);
+      const ident = maps ? legIdentity({ sport: ll.sport, eventId: String(ll.eventId ?? ""), participantName: participant, marketType: ll.marketType ?? "" } as EligibleLeg, maps)
+        : { kind: "team", playerId: null, teamAbbr: null, countryCode: null, photoUrl: null, avatarSport: "mlb" } as LegIdentity;
+      return {
+        legId: ll.legId, sport: ll.sport, sportKey: SPORT_KEY[ll.sport as Sport] ?? "mlb", market: ll.marketType ?? "",
+        side: ll.side ?? null, participant, team: null, opponent: null, line: ll.line ?? null, odds: ll.odds ?? null,
+        modelProbability: ll.modelProbability ?? null, marketImpliedProbability: null, edge: null,
+        confidenceTier: ll.confidenceTier ?? "", riskScore: ll.riskScore ?? 0, riskTier: "", legQualityTier: ll.legQualityTier ?? "",
+        legQualityScore: ll.legQualityScore ?? 0, survivalScore: ll.legQualityScore ?? null,
+        topPositiveFactors: (ll.topPositiveFactors ?? []).map((f: any) => f.label), topNegativeFactors: (ll.topNegativeFactors ?? []).map((f: any) => f.label),
+        missingFlags: [], staleFlags: [], smallSampleFlags: [],
+        leakagePassed: true, startTime: ll.startTime ?? null,
+        settlementResult: ll.settlement?.result ?? null, settlementOfficial: ll.settlement?.official ?? null,
+        identity: ident,
+      };
+    };
     // When the run is settled, prefer the artifact leg (carries the official result) over the live leg.
     const settledLegByIdLookup = (ll: any): ParlayLegDisplay => {
       const live = legByIdLookup.get(ll.legId);
       if (live && ll.settlement) return { ...live, settlementResult: ll.settlement.result ?? null, settlementOfficial: ll.settlement.official ?? null };
       return live ?? minimalLeg(ll);
     };
-    const toLane = (lane: any) => lane ? {
+    const toStep = (s: any): LaneStepDisplay => ({
+      step: s.step,
+      status: s.status,
+      result: s.result ?? null,
+      slateDate: s.slateDate ?? null,
+      combinedOdds: s.combinedOdds ?? null,
+      survivalScore: s.laneSurvivalScore ?? null,
+      stake: s.stake ?? null,
+      payout: s.payout ?? s.projectedPayout ?? null,
+      projected: s.status === "pending",
+      target: s.target ?? null,
+      legs: (s.legs ?? []).map((ll: any) => settledLegByIdLookup(ll)),
+      blockers: s.blockers ?? [],
+    });
+    const toLane = (lane: any): LaneDisplay | null => lane ? {
       label: lane.label,
-      legs: lane.legs.map((ll: any) => settledLegByIdLookup(ll)),
+      legs: (lane.legs ?? []).map((ll: any) => settledLegByIdLookup(ll)),
       survivalScore: lane.laneSurvivalScore,
       combinedOdds: lane.combinedOdds,
       result: lane.result ?? null,
       advanced: lane.advanced ?? false,
+      currentStep: lane.currentStep ?? 0,
+      target: lane.target ?? null,
+      steps: Array.isArray(lane.steps) ? lane.steps.map(toStep) : [],
     } : null;
     const bankBuilderPreview: DualBankBuilderPreview = {
       status: bb.status,
       runId: bb.runId,
       date,
+      isLadder: Boolean((bb as any).currentStep && (bb.laneA as any)?.steps?.length),
+      currentStep: (bb as any).currentStep ?? 0,
       laneA: toLane(bb.laneA),
       laneB: toLane(bb.laneB),
       selectedFour: bb.selectedFourLegs.map((ll) => legByIdLookup.get(ll.legId) ?? minimalLeg(ll)),

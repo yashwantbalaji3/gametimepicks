@@ -1,127 +1,36 @@
 {
   "meta": {
     "kind": "dual-bank-builder",
-    "date": "2026-06-17",
+    "date": "2026-06-18",
     "launchedNow": "2026-06-17T21:00:00Z",
     "published": true,
     "protected": false,
-    "settledAt": "2026-06-18T04:37:24.783366+00:00"
+    "settledAt": "2026-06-18T04:37:24.783366+00:00",
+    "step2BuiltAt": "2026-06-18T14:49:58.665972+00:00",
+    "ladder": true
   },
   "run": {
     "runId": "dual-bank-builder-2026-06-17",
-    "date": "2026-06-17",
-    "status": "settled",
+    "date": "2026-06-18",
+    "status": "launched",
     "laneA": {
       "laneId": "A",
       "label": "Lane A: lower-volatility survival lane",
       "legs": [
         {
-          "legId": "WORLD_CUP:24:double_chance:Colombia or Draw:",
+          "legId": "WORLD_CUP:27:double_chance:Canada or Draw:",
           "sport": "WORLD_CUP",
-          "eventId": "24",
-          "label": "Colombia or Draw double_chance",
+          "eventId": "27",
+          "label": "Canada or Draw double_chance",
           "marketType": "double_chance",
-          "odds": -1500,
-          "modelProbability": 0.9047,
-          "legQualityTier": "strong",
-          "legQualityScore": 68,
-          "riskScore": 0.037500000000000006,
-          "side": null,
-          "line": null,
-          "startTime": "2026-06-18T02:00:00Z",
-          "confidenceTier": "Medium",
-          "dataQuality": "B",
-          "topPositiveFactors": [
-            {
-              "label": "confirmed role / participation",
-              "direction": "positive",
-              "weight": 0.85
-            },
-            {
-              "label": "+1.0pp model edge vs no-vig market",
-              "direction": "positive",
-              "weight": 0.050999999999999934
-            }
-          ],
-          "topNegativeFactors": [],
-          "settlement": {
-            "result": "won",
-            "official": "Uzbekistan 1\u20133 Colombia FT",
-            "source": "espn_fifa_world"
-          }
-        },
-        {
-          "legId": "MLB:a834545628bda1d53eb52e89728b336f:Strikeouts:JR Ritchie:3.5",
-          "sport": "MLB",
-          "eventId": "a834545628bda1d53eb52e89728b336f",
-          "label": "JR Ritchie Strikeouts Over 3.5",
-          "marketType": "Strikeouts",
-          "odds": -138,
-          "modelProbability": 0.698,
-          "legQualityTier": "elite",
-          "legQualityScore": 95,
-          "riskScore": 0.1575,
-          "side": "over",
-          "line": 3.5,
-          "startTime": "2026-06-17T23:15:00Z",
-          "confidenceTier": "High",
-          "dataQuality": "A",
-          "topPositiveFactors": [
-            {
-              "label": "recent form supports the over (83% of games)",
-              "direction": "positive",
-              "weight": 0.8333333333333334
-            },
-            {
-              "label": "+15.1pp model edge vs no-vig market",
-              "direction": "positive",
-              "weight": 0.7564939814109395
-            },
-            {
-              "label": "confirmed probable starter (role known)",
-              "direction": "positive",
-              "weight": 0.5
-            }
-          ],
-          "topNegativeFactors": [
-            {
-              "label": "small sample (6 games)",
-              "direction": "negative",
-              "weight": 0.55
-            }
-          ],
-          "settlement": {
-            "result": "won",
-            "official": "4 K (5.0 IP)",
-            "source": "mlb_stats_api"
-          }
-        }
-      ],
-      "combinedOdds": -119,
-      "laneSurvivalScore": 93,
-      "estimatedHitProbability": 0.6314806,
-      "result": "won",
-      "advanced": true,
-      "settledLegs": 2
-    },
-    "laneB": {
-      "laneId": "B",
-      "label": "Lane B: diversified alternate exposure lane",
-      "legs": [
-        {
-          "legId": "WORLD_CUP:23:double_chance:Ghana or Draw:",
-          "sport": "WORLD_CUP",
-          "eventId": "23",
-          "label": "Ghana or Draw double_chance",
-          "marketType": "double_chance",
-          "odds": -300,
-          "modelProbability": 0.7054,
+          "odds": -5000,
+          "modelProbability": 0.9206,
           "legQualityTier": "strong",
           "legQualityScore": 66,
           "riskScore": 0.037500000000000006,
           "side": null,
           "line": null,
-          "startTime": "2026-06-17T23:00:00Z",
+          "startTime": "2026-06-18T22:00:00Z",
           "confidenceTier": "Medium",
           "dataQuality": "B",
           "topPositiveFactors": [
@@ -133,42 +42,37 @@
             {
               "label": "+0.1pp model edge vs no-vig market",
               "direction": "positive",
-              "weight": 0.005999999999999894
+              "weight": 0.006999999999999784
             }
           ],
-          "topNegativeFactors": [],
-          "settlement": {
-            "result": "won",
-            "official": "Ghana 1\u20130 Panama FT",
-            "source": "espn_fifa_world"
-          }
+          "topNegativeFactors": []
         },
         {
-          "legId": "MLB:3c667b5e84c7e18c7697c0f83852679a:Strikeouts:Javier Assad:4.5",
+          "legId": "MLB:872e319f5c105d18457014bc855cdc85:Strikeouts:Shane Drohan:5.5",
           "sport": "MLB",
-          "eventId": "3c667b5e84c7e18c7697c0f83852679a",
-          "label": "Javier Assad Strikeouts Under 4.5",
+          "eventId": "872e319f5c105d18457014bc855cdc85",
+          "label": "Shane Drohan Strikeouts Under 5.5",
           "marketType": "Strikeouts",
-          "odds": -159,
-          "modelProbability": 0.8063,
+          "odds": -136,
+          "modelProbability": 0.7374,
           "legQualityTier": "elite",
-          "legQualityScore": 83,
+          "legQualityScore": 95,
           "riskScore": 0.1575,
           "side": "under",
-          "line": 4.5,
-          "startTime": "2026-06-18T00:06:00Z",
-          "confidenceTier": "Medium",
+          "line": 5.5,
+          "startTime": "2026-06-18T18:11:00Z",
+          "confidenceTier": "High",
           "dataQuality": "A",
           "topPositiveFactors": [
             {
-              "label": "+22.6pp model edge vs no-vig market",
+              "label": "+19.5pp model edge vs no-vig market",
               "direction": "positive",
-              "weight": 1
+              "weight": 0.9731128332300065
             },
             {
-              "label": "recent form supports the under (80% of games)",
+              "label": "recent form supports the under (93% of games)",
               "direction": "positive",
-              "weight": 0.8
+              "weight": 0.9285714285714286
             },
             {
               "label": "confirmed probable starter (role known)",
@@ -178,111 +82,510 @@
           ],
           "topNegativeFactors": [
             {
-              "label": "small sample (10 games)",
+              "label": "small sample (14 games)",
               "direction": "negative",
               "weight": 0.55
             }
-          ],
-          "settlement": {
-            "result": "won",
-            "official": "1 K (5.2 IP)",
-            "source": "mlb_stats_api"
-          }
+          ]
         }
       ],
-      "combinedOdds": 117,
-      "laneSurvivalScore": 84,
-      "estimatedHitProbability": 0.56876402,
-      "result": "won",
-      "advanced": true,
-      "settledLegs": 2
+      "combinedOdds": -130,
+      "laneSurvivalScore": 93,
+      "estimatedHitProbability": 0.67885044,
+      "result": null,
+      "advanced": false,
+      "settledLegs": 0,
+      "steps": [
+        {
+          "step": 1,
+          "status": "settled",
+          "result": "won",
+          "slateDate": "2026-06-17",
+          "combinedOdds": -119,
+          "laneSurvivalScore": 93,
+          "stake": 100,
+          "payout": 184.03,
+          "legs": [
+            {
+              "legId": "WORLD_CUP:24:double_chance:Colombia or Draw:",
+              "sport": "WORLD_CUP",
+              "eventId": "24",
+              "label": "Colombia or Draw double_chance",
+              "marketType": "double_chance",
+              "odds": -1500,
+              "modelProbability": 0.9047,
+              "legQualityTier": "strong",
+              "legQualityScore": 68,
+              "riskScore": 0.037500000000000006,
+              "side": null,
+              "line": null,
+              "startTime": "2026-06-18T02:00:00Z",
+              "confidenceTier": "Medium",
+              "dataQuality": "B",
+              "topPositiveFactors": [
+                {
+                  "label": "confirmed role / participation",
+                  "direction": "positive",
+                  "weight": 0.85
+                },
+                {
+                  "label": "+1.0pp model edge vs no-vig market",
+                  "direction": "positive",
+                  "weight": 0.050999999999999934
+                }
+              ],
+              "topNegativeFactors": [],
+              "settlement": {
+                "result": "won",
+                "official": "Uzbekistan 1–3 Colombia FT",
+                "source": "espn_fifa_world"
+              }
+            },
+            {
+              "legId": "MLB:a834545628bda1d53eb52e89728b336f:Strikeouts:JR Ritchie:3.5",
+              "sport": "MLB",
+              "eventId": "a834545628bda1d53eb52e89728b336f",
+              "label": "JR Ritchie Strikeouts Over 3.5",
+              "marketType": "Strikeouts",
+              "odds": -138,
+              "modelProbability": 0.698,
+              "legQualityTier": "elite",
+              "legQualityScore": 95,
+              "riskScore": 0.1575,
+              "side": "over",
+              "line": 3.5,
+              "startTime": "2026-06-17T23:15:00Z",
+              "confidenceTier": "High",
+              "dataQuality": "A",
+              "topPositiveFactors": [
+                {
+                  "label": "recent form supports the over (83% of games)",
+                  "direction": "positive",
+                  "weight": 0.8333333333333334
+                },
+                {
+                  "label": "+15.1pp model edge vs no-vig market",
+                  "direction": "positive",
+                  "weight": 0.7564939814109395
+                },
+                {
+                  "label": "confirmed probable starter (role known)",
+                  "direction": "positive",
+                  "weight": 0.5
+                }
+              ],
+              "topNegativeFactors": [
+                {
+                  "label": "small sample (6 games)",
+                  "direction": "negative",
+                  "weight": 0.55
+                }
+              ],
+              "settlement": {
+                "result": "won",
+                "official": "4 K (5.0 IP)",
+                "source": "mlb_stats_api"
+              }
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "status": "pending",
+          "result": null,
+          "slateDate": "2026-06-18",
+          "combinedOdds": -130,
+          "laneSurvivalScore": 93,
+          "estimatedHitProbability": 0.67885044,
+          "stake": 184.03,
+          "projectedPayout": 325.59,
+          "legs": [
+            {
+              "legId": "WORLD_CUP:27:double_chance:Canada or Draw:",
+              "sport": "WORLD_CUP",
+              "eventId": "27",
+              "label": "Canada or Draw double_chance",
+              "marketType": "double_chance",
+              "odds": -5000,
+              "modelProbability": 0.9206,
+              "legQualityTier": "strong",
+              "legQualityScore": 66,
+              "riskScore": 0.037500000000000006,
+              "side": null,
+              "line": null,
+              "startTime": "2026-06-18T22:00:00Z",
+              "confidenceTier": "Medium",
+              "dataQuality": "B",
+              "topPositiveFactors": [
+                {
+                  "label": "confirmed role / participation",
+                  "direction": "positive",
+                  "weight": 0.85
+                },
+                {
+                  "label": "+0.1pp model edge vs no-vig market",
+                  "direction": "positive",
+                  "weight": 0.006999999999999784
+                }
+              ],
+              "topNegativeFactors": []
+            },
+            {
+              "legId": "MLB:872e319f5c105d18457014bc855cdc85:Strikeouts:Shane Drohan:5.5",
+              "sport": "MLB",
+              "eventId": "872e319f5c105d18457014bc855cdc85",
+              "label": "Shane Drohan Strikeouts Under 5.5",
+              "marketType": "Strikeouts",
+              "odds": -136,
+              "modelProbability": 0.7374,
+              "legQualityTier": "elite",
+              "legQualityScore": 95,
+              "riskScore": 0.1575,
+              "side": "under",
+              "line": 5.5,
+              "startTime": "2026-06-18T18:11:00Z",
+              "confidenceTier": "High",
+              "dataQuality": "A",
+              "topPositiveFactors": [
+                {
+                  "label": "+19.5pp model edge vs no-vig market",
+                  "direction": "positive",
+                  "weight": 0.9731128332300065
+                },
+                {
+                  "label": "recent form supports the under (93% of games)",
+                  "direction": "positive",
+                  "weight": 0.9285714285714286
+                },
+                {
+                  "label": "confirmed probable starter (role known)",
+                  "direction": "positive",
+                  "weight": 0.5
+                }
+              ],
+              "topNegativeFactors": [
+                {
+                  "label": "small sample (14 games)",
+                  "direction": "negative",
+                  "weight": 0.55
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "status": "coming_soon",
+          "target": 10000
+        },
+        {
+          "step": 4,
+          "status": "coming_soon",
+          "target": 10000
+        },
+        {
+          "step": 5,
+          "status": "coming_soon",
+          "target": 10000
+        }
+      ],
+      "currentStep": 2,
+      "target": 10000
+    },
+    "laneB": {
+      "laneId": "B",
+      "label": "Lane B: diversified alternate exposure lane",
+      "legs": [
+        {
+          "legId": "WORLD_CUP:289bc2e9f5adad8ae4d9a75a7c5461ad:double_chance:Switzerland or Draw:",
+          "sport": "WORLD_CUP",
+          "eventId": "289bc2e9f5adad8ae4d9a75a7c5461ad",
+          "label": "Switzerland or Draw double_chance",
+          "marketType": "double_chance",
+          "odds": -1115,
+          "modelProbability": 0.8643,
+          "legQualityTier": "strong",
+          "legQualityScore": 67,
+          "riskScore": 0.037500000000000006,
+          "side": null,
+          "line": null,
+          "startTime": "2026-06-18T19:00:00Z",
+          "confidenceTier": "Medium",
+          "dataQuality": "B",
+          "topPositiveFactors": [
+            {
+              "label": "confirmed role / participation",
+              "direction": "positive",
+              "weight": 0.85
+            },
+            {
+              "label": "+0.3pp model edge vs no-vig market",
+              "direction": "positive",
+              "weight": 0.012999999999999678
+            }
+          ],
+          "topNegativeFactors": []
+        },
+        {
+          "legId": "MLB:e92122c8f905eb41a57faabf21daf468:Hits + Runs + RBIs:Ha-Seong Kim:1.5",
+          "sport": "MLB",
+          "eventId": "e92122c8f905eb41a57faabf21daf468",
+          "label": "Ha-Seong Kim Hits + Runs + RBIs Under 1.5",
+          "marketType": "Hits + Runs + RBIs",
+          "odds": -164,
+          "modelProbability": 0.7784,
+          "legQualityTier": "elite",
+          "legQualityScore": 81,
+          "riskScore": 0.35,
+          "side": "under",
+          "line": 1.5,
+          "startTime": "2026-06-18T23:16:00Z",
+          "confidenceTier": "Medium",
+          "dataQuality": "A",
+          "topPositiveFactors": [
+            {
+              "label": "+19.8pp model edge vs no-vig market",
+              "direction": "positive",
+              "weight": 0.9881697262275295
+            },
+            {
+              "label": "recent form supports the under (78% of games)",
+              "direction": "positive",
+              "weight": 0.7777777777777778
+            },
+            {
+              "label": "18-game sample",
+              "direction": "positive",
+              "weight": 0.75
+            }
+          ],
+          "topNegativeFactors": [
+            {
+              "label": "batter lineup not confirmed (DNP risk)",
+              "direction": "negative",
+              "weight": 0.6
+            }
+          ]
+        }
+      ],
+      "combinedOdds": -133,
+      "laneSurvivalScore": 88,
+      "estimatedHitProbability": 0.67277112,
+      "result": null,
+      "advanced": false,
+      "settledLegs": 0,
+      "steps": [
+        {
+          "step": 1,
+          "status": "settled",
+          "result": "won",
+          "slateDate": "2026-06-17",
+          "combinedOdds": 117,
+          "laneSurvivalScore": 84,
+          "stake": 100,
+          "payout": 217,
+          "legs": [
+            {
+              "legId": "WORLD_CUP:23:double_chance:Ghana or Draw:",
+              "sport": "WORLD_CUP",
+              "eventId": "23",
+              "label": "Ghana or Draw double_chance",
+              "marketType": "double_chance",
+              "odds": -300,
+              "modelProbability": 0.7054,
+              "legQualityTier": "strong",
+              "legQualityScore": 66,
+              "riskScore": 0.037500000000000006,
+              "side": null,
+              "line": null,
+              "startTime": "2026-06-17T23:00:00Z",
+              "confidenceTier": "Medium",
+              "dataQuality": "B",
+              "topPositiveFactors": [
+                {
+                  "label": "confirmed role / participation",
+                  "direction": "positive",
+                  "weight": 0.85
+                },
+                {
+                  "label": "+0.1pp model edge vs no-vig market",
+                  "direction": "positive",
+                  "weight": 0.005999999999999894
+                }
+              ],
+              "topNegativeFactors": [],
+              "settlement": {
+                "result": "won",
+                "official": "Ghana 1–0 Panama FT",
+                "source": "espn_fifa_world"
+              }
+            },
+            {
+              "legId": "MLB:3c667b5e84c7e18c7697c0f83852679a:Strikeouts:Javier Assad:4.5",
+              "sport": "MLB",
+              "eventId": "3c667b5e84c7e18c7697c0f83852679a",
+              "label": "Javier Assad Strikeouts Under 4.5",
+              "marketType": "Strikeouts",
+              "odds": -159,
+              "modelProbability": 0.8063,
+              "legQualityTier": "elite",
+              "legQualityScore": 83,
+              "riskScore": 0.1575,
+              "side": "under",
+              "line": 4.5,
+              "startTime": "2026-06-18T00:06:00Z",
+              "confidenceTier": "Medium",
+              "dataQuality": "A",
+              "topPositiveFactors": [
+                {
+                  "label": "+22.6pp model edge vs no-vig market",
+                  "direction": "positive",
+                  "weight": 1
+                },
+                {
+                  "label": "recent form supports the under (80% of games)",
+                  "direction": "positive",
+                  "weight": 0.8
+                },
+                {
+                  "label": "confirmed probable starter (role known)",
+                  "direction": "positive",
+                  "weight": 0.5
+                }
+              ],
+              "topNegativeFactors": [
+                {
+                  "label": "small sample (10 games)",
+                  "direction": "negative",
+                  "weight": 0.55
+                }
+              ],
+              "settlement": {
+                "result": "won",
+                "official": "1 K (5.2 IP)",
+                "source": "mlb_stats_api"
+              }
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "status": "pending",
+          "result": null,
+          "slateDate": "2026-06-18",
+          "combinedOdds": -133,
+          "laneSurvivalScore": 88,
+          "estimatedHitProbability": 0.67277112,
+          "stake": 217,
+          "projectedPayout": 380.16,
+          "legs": [
+            {
+              "legId": "WORLD_CUP:289bc2e9f5adad8ae4d9a75a7c5461ad:double_chance:Switzerland or Draw:",
+              "sport": "WORLD_CUP",
+              "eventId": "289bc2e9f5adad8ae4d9a75a7c5461ad",
+              "label": "Switzerland or Draw double_chance",
+              "marketType": "double_chance",
+              "odds": -1115,
+              "modelProbability": 0.8643,
+              "legQualityTier": "strong",
+              "legQualityScore": 67,
+              "riskScore": 0.037500000000000006,
+              "side": null,
+              "line": null,
+              "startTime": "2026-06-18T19:00:00Z",
+              "confidenceTier": "Medium",
+              "dataQuality": "B",
+              "topPositiveFactors": [
+                {
+                  "label": "confirmed role / participation",
+                  "direction": "positive",
+                  "weight": 0.85
+                },
+                {
+                  "label": "+0.3pp model edge vs no-vig market",
+                  "direction": "positive",
+                  "weight": 0.012999999999999678
+                }
+              ],
+              "topNegativeFactors": []
+            },
+            {
+              "legId": "MLB:e92122c8f905eb41a57faabf21daf468:Hits + Runs + RBIs:Ha-Seong Kim:1.5",
+              "sport": "MLB",
+              "eventId": "e92122c8f905eb41a57faabf21daf468",
+              "label": "Ha-Seong Kim Hits + Runs + RBIs Under 1.5",
+              "marketType": "Hits + Runs + RBIs",
+              "odds": -164,
+              "modelProbability": 0.7784,
+              "legQualityTier": "elite",
+              "legQualityScore": 81,
+              "riskScore": 0.35,
+              "side": "under",
+              "line": 1.5,
+              "startTime": "2026-06-18T23:16:00Z",
+              "confidenceTier": "Medium",
+              "dataQuality": "A",
+              "topPositiveFactors": [
+                {
+                  "label": "+19.8pp model edge vs no-vig market",
+                  "direction": "positive",
+                  "weight": 0.9881697262275295
+                },
+                {
+                  "label": "recent form supports the under (78% of games)",
+                  "direction": "positive",
+                  "weight": 0.7777777777777778
+                },
+                {
+                  "label": "18-game sample",
+                  "direction": "positive",
+                  "weight": 0.75
+                }
+              ],
+              "topNegativeFactors": [
+                {
+                  "label": "batter lineup not confirmed (DNP risk)",
+                  "direction": "negative",
+                  "weight": 0.6
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "status": "coming_soon",
+          "target": 10000
+        },
+        {
+          "step": 4,
+          "status": "coming_soon",
+          "target": 10000
+        },
+        {
+          "step": 5,
+          "status": "coming_soon",
+          "target": 10000
+        }
+      ],
+      "currentStep": 2,
+      "target": 10000
     },
     "selectedFourLegs": [
       {
-        "legId": "WORLD_CUP:24:double_chance:Colombia or Draw:",
+        "legId": "WORLD_CUP:27:double_chance:Canada or Draw:",
         "sport": "WORLD_CUP",
-        "eventId": "24",
-        "label": "Colombia or Draw double_chance",
+        "eventId": "27",
+        "label": "Canada or Draw double_chance",
         "marketType": "double_chance",
-        "odds": -1500,
-        "modelProbability": 0.9047,
-        "legQualityTier": "strong",
-        "legQualityScore": 68,
-        "riskScore": 0.037500000000000006,
-        "side": null,
-        "line": null,
-        "startTime": "2026-06-18T02:00:00Z",
-        "confidenceTier": "Medium",
-        "dataQuality": "B",
-        "topPositiveFactors": [
-          {
-            "label": "confirmed role / participation",
-            "direction": "positive",
-            "weight": 0.85
-          },
-          {
-            "label": "+1.0pp model edge vs no-vig market",
-            "direction": "positive",
-            "weight": 0.050999999999999934
-          }
-        ],
-        "topNegativeFactors": []
-      },
-      {
-        "legId": "MLB:a834545628bda1d53eb52e89728b336f:Strikeouts:JR Ritchie:3.5",
-        "sport": "MLB",
-        "eventId": "a834545628bda1d53eb52e89728b336f",
-        "label": "JR Ritchie Strikeouts Over 3.5",
-        "marketType": "Strikeouts",
-        "odds": -138,
-        "modelProbability": 0.698,
-        "legQualityTier": "elite",
-        "legQualityScore": 95,
-        "riskScore": 0.1575,
-        "side": "over",
-        "line": 3.5,
-        "startTime": "2026-06-17T23:15:00Z",
-        "confidenceTier": "High",
-        "dataQuality": "A",
-        "topPositiveFactors": [
-          {
-            "label": "recent form supports the over (83% of games)",
-            "direction": "positive",
-            "weight": 0.8333333333333334
-          },
-          {
-            "label": "+15.1pp model edge vs no-vig market",
-            "direction": "positive",
-            "weight": 0.7564939814109395
-          },
-          {
-            "label": "confirmed probable starter (role known)",
-            "direction": "positive",
-            "weight": 0.5
-          }
-        ],
-        "topNegativeFactors": [
-          {
-            "label": "small sample (6 games)",
-            "direction": "negative",
-            "weight": 0.55
-          }
-        ]
-      },
-      {
-        "legId": "WORLD_CUP:23:double_chance:Ghana or Draw:",
-        "sport": "WORLD_CUP",
-        "eventId": "23",
-        "label": "Ghana or Draw double_chance",
-        "marketType": "double_chance",
-        "odds": -300,
-        "modelProbability": 0.7054,
+        "odds": -5000,
+        "modelProbability": 0.9206,
         "legQualityTier": "strong",
         "legQualityScore": 66,
         "riskScore": 0.037500000000000006,
         "side": null,
         "line": null,
-        "startTime": "2026-06-17T23:00:00Z",
+        "startTime": "2026-06-18T22:00:00Z",
         "confidenceTier": "Medium",
         "dataQuality": "B",
         "topPositiveFactors": [
@@ -294,37 +597,37 @@
           {
             "label": "+0.1pp model edge vs no-vig market",
             "direction": "positive",
-            "weight": 0.005999999999999894
+            "weight": 0.006999999999999784
           }
         ],
         "topNegativeFactors": []
       },
       {
-        "legId": "MLB:3c667b5e84c7e18c7697c0f83852679a:Strikeouts:Javier Assad:4.5",
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Strikeouts:Shane Drohan:5.5",
         "sport": "MLB",
-        "eventId": "3c667b5e84c7e18c7697c0f83852679a",
-        "label": "Javier Assad Strikeouts Under 4.5",
+        "eventId": "872e319f5c105d18457014bc855cdc85",
+        "label": "Shane Drohan Strikeouts Under 5.5",
         "marketType": "Strikeouts",
-        "odds": -159,
-        "modelProbability": 0.8063,
+        "odds": -136,
+        "modelProbability": 0.7374,
         "legQualityTier": "elite",
-        "legQualityScore": 83,
+        "legQualityScore": 95,
         "riskScore": 0.1575,
         "side": "under",
-        "line": 4.5,
-        "startTime": "2026-06-18T00:06:00Z",
-        "confidenceTier": "Medium",
+        "line": 5.5,
+        "startTime": "2026-06-18T18:11:00Z",
+        "confidenceTier": "High",
         "dataQuality": "A",
         "topPositiveFactors": [
           {
-            "label": "+22.6pp model edge vs no-vig market",
+            "label": "+19.5pp model edge vs no-vig market",
             "direction": "positive",
-            "weight": 1
+            "weight": 0.9731128332300065
           },
           {
-            "label": "recent form supports the under (80% of games)",
+            "label": "recent form supports the under (93% of games)",
             "direction": "positive",
-            "weight": 0.8
+            "weight": 0.9285714285714286
           },
           {
             "label": "confirmed probable starter (role known)",
@@ -334,225 +637,296 @@
         ],
         "topNegativeFactors": [
           {
-            "label": "small sample (10 games)",
+            "label": "small sample (14 games)",
             "direction": "negative",
             "weight": 0.55
+          }
+        ]
+      },
+      {
+        "legId": "WORLD_CUP:289bc2e9f5adad8ae4d9a75a7c5461ad:double_chance:Switzerland or Draw:",
+        "sport": "WORLD_CUP",
+        "eventId": "289bc2e9f5adad8ae4d9a75a7c5461ad",
+        "label": "Switzerland or Draw double_chance",
+        "marketType": "double_chance",
+        "odds": -1115,
+        "modelProbability": 0.8643,
+        "legQualityTier": "strong",
+        "legQualityScore": 67,
+        "riskScore": 0.037500000000000006,
+        "side": null,
+        "line": null,
+        "startTime": "2026-06-18T19:00:00Z",
+        "confidenceTier": "Medium",
+        "dataQuality": "B",
+        "topPositiveFactors": [
+          {
+            "label": "confirmed role / participation",
+            "direction": "positive",
+            "weight": 0.85
+          },
+          {
+            "label": "+0.3pp model edge vs no-vig market",
+            "direction": "positive",
+            "weight": 0.012999999999999678
+          }
+        ],
+        "topNegativeFactors": []
+      },
+      {
+        "legId": "MLB:e92122c8f905eb41a57faabf21daf468:Hits + Runs + RBIs:Ha-Seong Kim:1.5",
+        "sport": "MLB",
+        "eventId": "e92122c8f905eb41a57faabf21daf468",
+        "label": "Ha-Seong Kim Hits + Runs + RBIs Under 1.5",
+        "marketType": "Hits + Runs + RBIs",
+        "odds": -164,
+        "modelProbability": 0.7784,
+        "legQualityTier": "elite",
+        "legQualityScore": 81,
+        "riskScore": 0.35,
+        "side": "under",
+        "line": 1.5,
+        "startTime": "2026-06-18T23:16:00Z",
+        "confidenceTier": "Medium",
+        "dataQuality": "A",
+        "topPositiveFactors": [
+          {
+            "label": "+19.8pp model edge vs no-vig market",
+            "direction": "positive",
+            "weight": 0.9881697262275295
+          },
+          {
+            "label": "recent form supports the under (78% of games)",
+            "direction": "positive",
+            "weight": 0.7777777777777778
+          },
+          {
+            "label": "18-game sample",
+            "direction": "positive",
+            "weight": 0.75
+          }
+        ],
+        "topNegativeFactors": [
+          {
+            "label": "batter lineup not confirmed (DNP risk)",
+            "direction": "negative",
+            "weight": 0.6
           }
         ]
       }
     ],
     "rejectedCandidates": [
       {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Strikeouts:Jake Bennett:3.5",
-        "reason": "survival 69 < 70"
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Strikeouts:Trey Yesavage:4.5",
+        "reason": "survival 65 < 70"
       },
       {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Alejandro Kirk:1.5",
-        "reason": "survival 47 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Ernie Clement:1.5",
-        "reason": "survival 54 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Wilyer Abreu:1.5",
-        "reason": "survival 61 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Ceddanne Rafaela:1.5",
-        "reason": "survival 48 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Jarren Duran:0.5",
-        "reason": "survival 46 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Willson Contreras:0.5",
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Vladimir Guerrero Jr.:1.5",
         "reason": "survival 68 < 70"
       },
       {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Mickey Gasper:0.5",
-        "reason": "survival 54 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Isiah Kiner-Falefa:0.5",
-        "reason": "survival 53 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Kazuma Okamoto:0.5",
-        "reason": "survival 62 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Nathan Lukes:0.5",
-        "reason": "survival 65 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Caleb Durbin:0.5",
-        "reason": "survival 58 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Marcelo Mayer:0.5",
-        "reason": "survival 46 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Myles Straw:0.5",
-        "reason": "survival 48 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits:Davis Schneider:0.5",
-        "reason": "survival 49 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Wilyer Abreu:1.5",
-        "reason": "survival 63 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Alejandro Kirk:1.5",
-        "reason": "survival 34 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:George Springer:1.5",
-        "reason": "survival 60 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Vladimir Guerrero Jr.:1.5",
-        "reason": "survival 61 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Jarren Duran:1.5",
-        "reason": "survival 61 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Mickey Gasper:1.5",
-        "reason": "survival 67 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Isiah Kiner-Falefa:1.5",
-        "reason": "survival 61 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Caleb Durbin:1.5",
-        "reason": "survival 61 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Nathan Lukes:1.5",
-        "reason": "survival 63 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Marcelo Mayer:1.5",
-        "reason": "survival 62 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Myles Straw:1.5",
-        "reason": "survival 52 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Hits + Runs + RBIs:Davis Schneider:0.5",
-        "reason": "survival 61 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Total Bases:Wilyer Abreu:1.5",
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Ceddanne Rafaela:1.5",
         "reason": "survival 47 < 70"
       },
       {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Total Bases:Jarren Duran:1.5",
-        "reason": "survival 54 < 70"
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Ernie Clement:1.5",
+        "reason": "survival 45 < 70"
       },
       {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Total Bases:Vladimir Guerrero Jr.:1.5",
-        "reason": "survival 63 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Total Bases:George Springer:1.5",
-        "reason": "survival 56 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Total Bases:Alejandro Kirk:1.5",
-        "reason": "survival 30 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Total Bases:Ernie Clement:1.5",
-        "reason": "survival 69 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Total Bases:Kazuma Okamoto:1.5",
-        "reason": "survival 67 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Total Bases:Mickey Gasper:1.5",
-        "reason": "survival 65 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Total Bases:Nathan Lukes:1.5",
-        "reason": "survival 54 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Total Bases:Isiah Kiner-Falefa:1.5",
-        "reason": "survival 65 < 70"
-      },
-      {
-        "legId": "MLB:1b3b5ac473b471165355ca855853dbb2:Strikeouts:Jake Bennett:2.5",
-        "reason": "survival 57 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Strikeouts:Anthony Kay:4.5",
-        "reason": "survival 65 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Paul Goldschmidt:1.5",
-        "reason": "survival 59 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Amed Rosario:0.5",
-        "reason": "survival 63 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Jasson Dom\u00ednguez:0.5",
-        "reason": "survival 26 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Cody Bellinger:0.5",
-        "reason": "survival 69 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Ben Rice:0.5",
-        "reason": "survival 64 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Anthony Volpe:0.5",
-        "reason": "survival 58 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Randal Grichuk:0.5",
-        "reason": "survival 54 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Braden Montgomery:0.5",
-        "reason": "survival 41 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Jazz Chisholm Jr.:0.5",
-        "reason": "survival 51 < 70"
-      },
-      {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Edgar Quero:0.5",
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Isiah Kiner-Falefa:0.5",
         "reason": "survival 48 < 70"
       },
       {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Colson Montgomery:0.5",
-        "reason": "survival 56 < 70"
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Willson Contreras:0.5",
+        "reason": "survival 68 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Caleb Durbin:0.5",
+        "reason": "survival 61 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Wilyer Abreu:0.5",
+        "reason": "survival 66 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Mickey Gasper:0.5",
+        "reason": "survival 57 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Nathan Lukes:0.5",
+        "reason": "survival 68 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Jarren Duran:0.5",
+        "reason": "survival 60 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Kazuma Okamoto:0.5",
+        "reason": "survival 61 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Brandon Valenzuela:0.5",
+        "reason": "survival 64 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Connor Wong:0.5",
+        "reason": "survival 68 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits:Andruw Monasterio:0.5",
+        "reason": "survival 49 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits + Runs + RBIs:Vladimir Guerrero Jr.:1.5",
+        "reason": "survival 57 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits + Runs + RBIs:George Springer:1.5",
+        "reason": "survival 52 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits + Runs + RBIs:Isiah Kiner-Falefa:1.5",
+        "reason": "survival 60 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits + Runs + RBIs:Caleb Durbin:1.5",
+        "reason": "survival 62 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits + Runs + RBIs:Jarren Duran:1.5",
+        "reason": "survival 69 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits + Runs + RBIs:Nathan Lukes:1.5",
+        "reason": "survival 63 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Hits + Runs + RBIs:Andruw Monasterio:0.5",
+        "reason": "survival 52 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Total Bases:Vladimir Guerrero Jr.:1.5",
+        "reason": "survival 61 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Total Bases:George Springer:1.5",
+        "reason": "survival 53 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Total Bases:Wilyer Abreu:1.5",
+        "reason": "survival 62 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Total Bases:Jarren Duran:1.5",
+        "reason": "survival 62 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Total Bases:Caleb Durbin:1.5",
+        "reason": "survival 46 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Total Bases:Mickey Gasper:1.5",
+        "reason": "survival 66 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Total Bases:Nathan Lukes:1.5",
+        "reason": "survival 55 < 70"
+      },
+      {
+        "legId": "MLB:10b797abe19952451af8a428ab530deb:Total Bases:Isiah Kiner-Falefa:1.5",
+        "reason": "survival 64 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Jackson Chourio:1.5",
+        "reason": "survival 68 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Andrew Vaughn:0.5",
+        "reason": "survival 67 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Brayan Rocchio:0.5",
+        "reason": "survival 55 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Travis Bazzana:0.5",
+        "reason": "survival 46 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Steven Kwan:0.5",
+        "reason": "survival 46 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Brice Turang:0.5",
+        "reason": "survival 67 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Kyle Manzardo:0.5",
+        "reason": "survival 50 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:David Fry:0.5",
+        "reason": "survival 58 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Rhys Hoskins:0.5",
+        "reason": "survival 53 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Joey Ortiz:0.5",
+        "reason": "survival 59 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Blake Perkins:0.5",
+        "reason": "survival 65 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Stuart Fairchild:0.5",
+        "reason": "survival 34 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:Gabriel Arias:0.5",
+        "reason": "survival 46 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits:David Hamilton:0.5",
+        "reason": "survival 65 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits + Runs + RBIs:Travis Bazzana:1.5",
+        "reason": "survival 60 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits + Runs + RBIs:Brayan Rocchio:1.5",
+        "reason": "survival 60 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits + Runs + RBIs:Steven Kwan:1.5",
+        "reason": "survival 52 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits + Runs + RBIs:Rhys Hoskins:1.5",
+        "reason": "survival 52 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits + Runs + RBIs:Kyle Manzardo:1.5",
+        "reason": "survival 59 < 70"
+      },
+      {
+        "legId": "MLB:872e319f5c105d18457014bc855cdc85:Hits + Runs + RBIs:Blake Perkins:0.5",
+        "reason": "survival 62 < 70"
       }
     ],
     "launchGateSummary": [
       {
-        "gate": "\u22654 qualified non-correlated legs",
+        "gate": "≥4 qualified non-correlated legs",
         "passed": true,
-        "detail": "4 selected (survival \u2265 70)"
+        "detail": "4 selected (survival ≥ 70)"
       },
       {
-        "gate": "\u22652 distinct games",
+        "gate": "≥2 distinct games",
         "passed": true,
-        "detail": "9 distinct games in qualified pool"
+        "detail": "13 distinct games in qualified pool"
       },
       {
         "gate": "no stale/unknown-scope legs",
@@ -562,7 +936,7 @@
       {
         "gate": "two game-disjoint 2-leg lanes",
         "passed": true,
-        "detail": "laneA games 24,a834545628bda1d53eb52e89728b336f \u00b7 laneB games 23,3c667b5e84c7e18c7697c0f83852679a"
+        "detail": "laneA games 27,872e319f5c105d18457014bc855cdc85 · laneB games 289bc2e9f5adad8ae4d9a75a7c5461ad,e92122c8f905eb41a57faabf21daf468"
       },
       {
         "gate": "one soccer leg per lane (preferred)",
@@ -579,7 +953,8 @@
     "modelVersion": "parlay-engine-v1",
     "createdAt": null,
     "published": false,
-    "settlement": {
+    "currentStep": 2,
+    "step1Settlement": {
       "settledAt": "2026-06-18T04:37:24.783366+00:00",
       "sources": [
         "mlb_stats_api",
