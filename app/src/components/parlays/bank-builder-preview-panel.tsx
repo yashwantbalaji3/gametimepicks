@@ -288,22 +288,25 @@ export default function BankBuilderPreviewPanel({ preview }: { preview: DualBank
   const isLadder = preview.isLadder && (preview.laneA?.steps.length ?? 0) > 0;
   const live = preview.status === "launched";
   const active = live || preview.status === "settled";
-  const lanesCleared = [preview.laneA, preview.laneB].filter(Boolean).filter((l) => l!.steps.some((s) => s.status === "settled" && s.result === "won")).length;
-  const lanesTotal = [preview.laneA, preview.laneB].filter(Boolean).length;
+  // Lanes can ride DIFFERENT steps (e.g. one relaunched to a fresh Step 1 while the other is on Step 2).
+  const laneALive = preview.laneA?.steps.find((s) => s.status === "pending" || s.status === "evaluating");
+  const laneBLive = preview.laneB?.steps.find((s) => s.status === "pending" || s.status === "evaluating");
+  const liveSteps = [...new Set([laneALive?.step, laneBLive?.step].filter((n): n is number => typeof n === "number"))].sort((a, b) => a - b);
+  const liveLabel = liveSteps.length === 0 ? "ACTIVE" : liveSteps.length === 1 ? `Step ${liveSteps[0]} live` : `Steps ${liveSteps.join(" & ")} live`;
 
   return (
     <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: active ? "1px solid var(--gtp-bank-heat)" : "1px solid var(--vault-border)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>
-          {isLadder ? `Dual Bank Builder · Step ${preview.currentStep} live` : live ? "Dual Bank Builder · ACTIVE" : "Dual Bank Builder preview"}
+          {isLadder ? `Dual Bank Builder · ${liveLabel}` : live ? "Dual Bank Builder · ACTIVE" : "Dual Bank Builder preview"}
         </h3>
         <span className="rounded-full px-2.5 py-1 text-[11px] font-medium" style={{ background: active ? "rgba(70,130,90,0.18)" : "rgba(255,255,255,0.05)", color: active ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>
-          {isLadder ? `${lanesCleared}/${lanesTotal} lanes cleared Step 1 · paper` : live ? "Live · paper" : "Operator approval required"}
+          {isLadder ? "Live · paper" : live ? "Live · paper" : "Operator approval required"}
         </span>
       </div>
       <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-faint)" }}>
         {isLadder
-          ? `Both lanes cleared Step 1 from official sources. Step ${preview.currentStep} is now live — two fresh survival-first legs per lane, one World Cup leg each, riding the bank toward $${CROWN_TARGET.toLocaleString()}. Paper stakes only; protected completed-ladder history untouched.`
+          ? `Each lane runs its own survival-first card — one World Cup leg + one MLB leg — riding the bank toward $${CROWN_TARGET.toLocaleString()}.${laneALive && laneBLive ? ` Lane A on Step ${laneALive.step}, Lane B on Step ${laneBLive.step}.` : ""} Paper stakes only; protected completed-ladder history untouched.`
           : live
           ? "Launched dual run from the methodology engine — survival-first, one World Cup leg per lane. Paper stakes only; protected completed-ladder history untouched."
           : "Dry-run preview from the methodology engine — survival-first, pre-event, odds-backed, correlation-aware. Not launched; nothing is published or active. Paper stakes only."}
