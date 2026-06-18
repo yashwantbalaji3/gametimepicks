@@ -123,3 +123,50 @@ export function generateDailyParlays(eligible: EligibleLeg[], date: string): Dai
 
   return { date, parlays, notes };
 }
+
+/**
+ * MIXED-sport suggested parlays: each card spans ≥2 sports with at least one World Cup leg, from
+ * distinct games, pairwise non-correlated. Built per risk level from the SAME gated eligible pool —
+ * never fabricated, never forced (a level with no valid cross-sport combo simply returns none).
+ */
+export function generateMixedParlays(eligible: EligibleLeg[], date: string): DailyParlayResult {
+  const parlays: SuggestedParlay[] = [];
+  const notes: GenerationNote[] = [];
+
+  for (const level of RISK_LEVEL_ORDER) {
+    const spec = RISK_LEVELS[level];
+    const pool = legsForLevel(eligible, level);
+    const soccer = pool.filter((l) => l.sport === "WORLD_CUP").sort((a, b) => b.legQualityScore - a.legQualityScore);
+    const nonSoccer = pool.filter((l) => l.sport !== "WORLD_CUP").sort((a, b) => b.legQualityScore - a.legQualityScore);
+    const cards: EligibleLeg[][] = [];
+    const usedKeys = new Set<string>();
+
+    // Greedy: one soccer anchor + (minLegs-1) non-soccer legs, all distinct games, non-correlated.
+    for (const anchor of soccer) {
+      if (cards.length >= MAX_CARDS_PER_LEVEL) break;
+      const legs = [anchor];
+      const games = new Set([anchor.eventId]);
+      for (const cand of nonSoccer) {
+        if (legs.length >= spec.minLegs) break;
+        if (games.has(cand.eventId)) continue;
+        if (!legs.every((l) => meanCorrelation([l, cand]) < spec.maxMeanCorrelation)) continue;
+        legs.push(cand);
+        games.add(cand.eventId);
+      }
+      if (legs.length < spec.minLegs) continue;
+      if (meanCorrelation(legs) >= spec.maxMeanCorrelation) continue;
+      const key = legs.map((l) => l.legId).sort().join("|");
+      if (usedKeys.has(key)) continue;
+      usedKeys.add(key);
+      cards.push(legs);
+    }
+
+    cards.forEach((legs, i) => parlays.push(assembleParlay(legs, { date, riskLevel: level, parlayType: "cross_game", index: i })));
+    notes.push({
+      riskLevel: level, generated: cards.length, requested: MIN_CARDS_TARGET,
+      reason: cards.length > 0 ? null : "no cross-sport combo with a World Cup leg cleared this risk band from distinct, non-correlated games",
+    });
+  }
+
+  return { date, parlays, notes };
+}

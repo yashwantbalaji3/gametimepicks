@@ -135,6 +135,11 @@ function StepBlock({ step }: { step: LaneStepDisplay }) {
           combined {american(step.combinedOdds)}{step.survivalScore != null ? ` · survival ${step.survivalScore}` : ""}{step.slateDate ? ` · ${step.slateDate}` : ""}
         </div>
       )}
+      {pending && step.stake != null && (
+        <div className="mt-1 rounded px-2 py-1 font-mono text-[10px]" style={{ background: "rgba(212,175,55,0.07)", color: "var(--vault-gold-bright)" }}>
+          Target rung ≈ $200 → $700 · this lane {money(step.stake)} → {money(step.payout)} (payout-optimized)
+        </div>
+      )}
       {step.legs.length > 0 && <div className="mt-1">{step.legs.map((l) => <LaneLegRow key={`${step.step}:${l.legId}`} leg={l} pending={pending} />)}</div>}
       {evaluating && (
         <ul className="mt-1.5 space-y-1 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>

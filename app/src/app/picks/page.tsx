@@ -94,6 +94,19 @@ export default function PicksPage() {
           </div>
         </Link>
       ) : null}
+      <Link
+        href="/parlays"
+        className="gtp-card-hover relative block overflow-hidden rounded-2xl px-5 py-4"
+        style={{ border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", background: "rgba(26,16,11,0.5)", textDecoration: "none" }}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Methodology engine parlays</span>
+          <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>Open engine view →</span>
+        </div>
+        <div className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+          World Cup, MLB, and <span style={{ color: "var(--vault-text)" }}>Mixed</span> suggested parlays by risk (low · medium · high · longshot), plus same-game cards and the eligible-leg marketplace — leakage-validated, pre-event.
+        </div>
+      </Link>
       <SectionHeader
         eyebrow={`Parlay Lab · ${new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })} · ${cards.length} curated`}
         title="Parlay Lab"

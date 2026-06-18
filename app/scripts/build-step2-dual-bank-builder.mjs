@@ -21,7 +21,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { extractPredictionsForDate, resolveSports } from "../src/lib/methodology/sources.ts";
 import { buildLegPool, eligibleLegs } from "../src/lib/parlays/eligible-leg.ts";
-import { selectDualBankBuilder } from "../src/lib/parlays/dual-bank-builder.ts";
+import { selectDualBankBuilder, selectTargetFitDualBankBuilder } from "../src/lib/parlays/dual-bank-builder.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const APP_ROOT = path.resolve(__dirname, "..");
@@ -31,12 +31,14 @@ const LADDER_TARGET = 10000; // crown target per lane (paper)
 const TOTAL_STEPS = 5;
 
 function parseArgs(argv) {
-  const a = { date: null, now: null, dryRun: false };
+  const a = { date: null, now: null, dryRun: false, targetFit: false, target: 3.3 };
   for (let i = 0; i < argv.length; i++) {
     const t = argv[i];
     if (t === "--date") a.date = argv[++i] ?? null;
     else if (t === "--now") a.now = argv[++i] ?? null;
     else if (t === "--dry-run") a.dryRun = true;
+    else if (t === "--target-fit") a.targetFit = true;
+    else if (t === "--target") a.target = Number(argv[++i] ?? 3.3);
   }
   return a;
 }
@@ -59,14 +61,31 @@ function main() {
   const date = args.date;
   if (!date) { console.error("  --date YYYY-MM-DD is required"); process.exit(2); }
 
-  // 1) Existing settled Step 1 (preserve verbatim — never recompute).
+  // 1) Existing settled Step 1 (preserve verbatim — never recompute). Handles BOTH the pre-ladder
+  //    settled artifact (lane.result === "won") and an existing ladder (lane.steps[0] settled WON,
+  //    re-optimizing Step 2 in place).
   if (!fs.existsSync(ACTIVE)) { console.error(`  active artifact missing: ${ACTIVE}`); process.exit(2); }
   const prior = JSON.parse(fs.readFileSync(ACTIVE, "utf8"));
   const priorRun = prior.run;
-  if (priorRun.laneA?.result !== "won" || priorRun.laneB?.result !== "won") {
+  const step1Of = (lane) => {
+    if (Array.isArray(lane?.steps) && lane.steps.length) {
+      const s1 = lane.steps.find((s) => s.step === 1);
+      if (s1) return s1; // ladder: already-shaped settled Step 1
+    }
+    // pre-ladder settled artifact: synthesize a Step-1 object from the lane fields
+    return {
+      step: 1, status: "settled", result: lane?.result ?? null, slateDate: priorRun.date,
+      combinedOdds: lane?.combinedOdds, laneSurvivalScore: lane?.laneSurvivalScore,
+      stake: step1Stake(), payout: laneStep1Payout(lane?.combinedOdds), legs: lane?.legs ?? [],
+    };
+  };
+  const step1A = step1Of(priorRun.laneA);
+  const step1B = step1Of(priorRun.laneB);
+  if (step1A.result !== "won" || step1B.result !== "won") {
     console.error("  Step 1 is not WON on both lanes — refusing to build Step 2 (a lane must clear Step 1 first).");
     process.exit(2);
   }
+  const step1ByLane = { laneA: step1A, laneB: step1B };
 
   // 2) Fresh, gated Step 2 selection from today's slate (same engine as Step 1).
   const sports = resolveSports("all");
@@ -75,9 +94,11 @@ function main() {
   const nowIso = args.now ?? predTimes[predTimes.length - 1] ?? `${date}T12:00:00Z`;
   const pool = buildLegPool(extraction.bySport, nowIso, true);
   const eligible = eligibleLegs(pool);
-  const bb = selectDualBankBuilder(eligible, date, { mode: "launch", newRunId: priorRun.runId, preferSoccerPerLane: true });
+  const bb = args.targetFit
+    ? selectTargetFitDualBankBuilder(eligible, date, { mode: "launch", newRunId: priorRun.runId, targetDecimal: args.target })
+    : selectDualBankBuilder(eligible, date, { mode: "launch", newRunId: priorRun.runId, preferSoccerPerLane: true });
 
-  console.log(`\n  STEP 2 selection for ${date} (now=${nowIso})`);
+  console.log(`\n  STEP 2 selection for ${date} (now=${nowIso})${args.targetFit ? ` [target-fit ~${args.target}×]` : ""}`);
   console.log(`  engine status: ${bb.status}`);
 
   if (bb.status !== "launched" || !bb.laneA || !bb.laneB) {
@@ -85,7 +106,7 @@ function main() {
     for (const r of bb.noLaunchReasons ?? []) console.log(`    - ${r}`);
     // Mark Step 2 evaluating (do not fabricate legs).
     if (!args.dryRun) {
-      for (const lk of ["laneA", "laneB"]) attachEvaluatingStep2(priorRun[lk], date, bb.noLaunchReasons ?? []);
+      for (const lk of ["laneA", "laneB"]) attachEvaluatingStep2(priorRun[lk], step1ByLane[lk], date, bb.noLaunchReasons ?? []);
       prior.run.status = "launched"; prior.run.date = date; prior.meta.date = date;
       prior.meta.step2EvaluatedAt = nowIso;
       fs.writeFileSync(ACTIVE, JSON.stringify(prior, null, 2) + "\n");
@@ -94,28 +115,17 @@ function main() {
     return;
   }
 
-  // 3) Map engine lanes → existing lanes by SURVIVAL identity (laneA = survival-first lane).
+  // 3) Map engine lanes → existing lanes (laneA / laneB), preserving each lane's settled Step 1.
   const engineLane = { laneA: bb.laneA, laneB: bb.laneB };
   for (const lk of ["laneA", "laneB"]) {
     const lane = priorRun[lk];
     const eng = engineLane[lk];
-    const step1Payout = laneStep1Payout(lane.combinedOdds);
+    const step1 = step1ByLane[lk];          // preserved verbatim (settled, WON) — from ladder or synthesized
+    const step1Payout = step1.payout ?? laneStep1Payout(step1.combinedOdds);
     const step2Dec = americanToDecimal(eng.combinedOdds) ?? 1;
     const step2Stake = step1Payout;
     const step2Payout = Math.round(step2Stake * step2Dec * 100) / 100;
 
-    // Step 1 — preserved verbatim (settled, WON).
-    const step1 = {
-      step: 1,
-      status: "settled",
-      result: lane.result,                  // "won"
-      slateDate: priorRun.date,             // 2026-06-17
-      combinedOdds: lane.combinedOdds,
-      laneSurvivalScore: lane.laneSurvivalScore,
-      stake: step1Stake(),
-      payout: step1Payout,
-      legs: lane.legs,                      // carry settlement{} verbatim
-    };
     // Step 2 — today's gated legs (pending).
     const step2 = {
       step: 2,
@@ -168,10 +178,8 @@ function main() {
   console.log(`\n  Wrote Step-2 ladder → ${path.relative(APP_ROOT, ACTIVE)} (engine namespace; protected history untouched).`);
 }
 
-function attachEvaluatingStep2(lane, date, reasons) {
+function attachEvaluatingStep2(lane, step1, date, reasons) {
   if (!lane) return;
-  const step1Payout = laneStep1Payout(lane.combinedOdds);
-  const step1 = { step: 1, status: "settled", result: lane.result, combinedOdds: lane.combinedOdds, laneSurvivalScore: lane.laneSurvivalScore, stake: step1Stake(), payout: step1Payout, legs: lane.legs };
   const step2 = { step: 2, status: "evaluating", result: null, slateDate: date, blockers: reasons, legs: [] };
   const comingSoon = [];
   for (let s = 3; s <= TOTAL_STEPS; s++) comingSoon.push({ step: s, status: "coming_soon", target: LADDER_TARGET });
