@@ -4,13 +4,9 @@
  * betslip, and see combined odds + paper payout + correlation/pre-lineup/regulation/Bank-Builder
  * warnings. Public-data only; nothing here is betting advice.
  */
-import { currentEtDate } from "@/lib/freshness";
-import {
-  loadWorldCupProjections,
-  loadWorldCupPlayerProjections,
-} from "@/lib/world-cup/projections";
-import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
-import { buildWcLegs, buildOptimizerLegs, type BuildLeg } from "@/lib/build-legs";
+import { buildEngineLegs, buildWcPlayerLegs, type BuildLeg } from "@/lib/build-legs";
+import { loadTodaySlate } from "@/lib/parlays/ui-loader";
+import { loadWorldCupProjections, loadWorldCupPlayerProjections } from "@/lib/world-cup/projections";
 import BuildExperience from "@/components/build-experience";
 import SectionHeader from "@/components/section-header";
 
@@ -21,11 +17,15 @@ export const metadata = {
 };
 
 export default function BuildPage() {
-  const today = currentEtDate();
-  const pool: BuildLeg[] = [
-    ...buildWcLegs(loadWorldCupProjections(), loadWorldCupPlayerProjections()),
-    ...buildOptimizerLegs(getSuggestedParlaysForDate(today)?.slips ?? null),
-  ];
+  // Canonical methodology engine — the SAME gated, not-started, leakage-safe eligible-leg pool that
+  // /today, /picks and /parlays use (World Cup team markets + MLB pitcher/hitter props). No stale source.
+  const enginePool = buildEngineLegs(loadTodaySlate().eligibleLegs);
+  // World Cup PLAYER props (anytime goalscorer / shots on target): the engine leakage-rejects them for
+  // lack of a per-record kickoff, but they ARE fixture-joined + odds-backed + pre-event (gated by team
+  // kickoff here) and limited-data/market-implied — so they're surfaced from the WC artifact instead.
+  const wcPlayerLegs = buildWcPlayerLegs(loadWorldCupProjections(), loadWorldCupPlayerProjections());
+  const seen = new Set(enginePool.map((l) => l.id));
+  const pool: BuildLeg[] = [...enginePool, ...wcPlayerLegs.filter((l) => !seen.has(l.id))];
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
