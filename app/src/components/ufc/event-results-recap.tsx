@@ -14,7 +14,7 @@ type Fight = {
 };
 type CardRes = { riskLabel: string; legCount: number; result: "won" | "lost"; legs: { fighter: string; result: string }[]; bustedBy: string[] };
 export type UfcSettlement = {
-  event: string; settledAt: string; source: string; sourceNote?: string;
+  event: string; settledAt: string; source: string; sourceNote?: string; status?: string; eventId?: string;
   moneyline: { record: string; accuracyPct: number; calibration: Record<string, { wins: number; total: number }> };
   expandedModelOnly: { goesDistance: { correct: number; graded: number }; finishVsDecision: { correct: number; graded: number } };
   suggestedCards: { record: string; cards: CardRes[] };

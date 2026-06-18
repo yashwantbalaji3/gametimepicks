@@ -13,6 +13,7 @@ import { useMemo, useState } from "react";
 import type { PublicProjection } from "@/lib/normalize";
 import PlayerPropCard from "@/components/ui/player-prop-card";
 import PlayerPropGroup, { groupByPlayer } from "@/components/ui/player-prop-group";
+import { worldCupPlayerModelPicks } from "@/lib/world-cup/player-model-picks";
 
 const TOP_N = 12;
 
@@ -62,12 +63,14 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
 
   const filtered = useMemo(() => {
     if (market === "top") {
-      // The recommended view: strongest model-vs-market edges across markets.
-      return [...scoped].sort((a, b) => (b.edgePct ?? -99) - (a.edgePct ?? -99)).slice(0, TOP_N);
+      // Model-ranked picks: edge first, then market-implied likelihood (so limited-data props with
+      // edge 0 still order by how likely the pick is). One side per player+market — recommended only.
+      return worldCupPlayerModelPicks(scoped, TOP_N);
     }
+    // Within a market: edge first, then market-implied likelihood (not arbitrary when edge is 0).
     return scoped
       .filter((p) => p.marketLabel === market)
-      .sort((a, b) => (b.edgePct ?? -99) - (a.edgePct ?? -99));
+      .sort((a, b) => ((b.edgePct ?? 0) - (a.edgePct ?? 0)) || ((b.marketProbability ?? 0) - (a.marketProbability ?? 0)));
   }, [scoped, market]);
 
   // "By player" view: every market each player has, collapsed into one card per player.
@@ -110,7 +113,7 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
 
       {market === "top" ? (
         <span className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>
-          Top {filtered.length} model edges across all markets — tap a row for the evidence. Use the market tabs for everything else.
+          Top {filtered.length} model-ranked picks across all markets — recommended side only. Tap a row for the evidence; use the market tabs for the full board.
         </span>
       ) : market === "byplayer" ? (
         <span className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>
