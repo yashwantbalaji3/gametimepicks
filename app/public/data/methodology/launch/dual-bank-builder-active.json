@@ -4,12 +4,13 @@
     "date": "2026-06-17",
     "launchedNow": "2026-06-17T21:00:00Z",
     "published": true,
-    "protected": false
+    "protected": false,
+    "settledAt": "2026-06-18T04:37:24.783366+00:00"
   },
   "run": {
     "runId": "dual-bank-builder-2026-06-17",
     "date": "2026-06-17",
-    "status": "launched",
+    "status": "settled",
     "laneA": {
       "laneId": "A",
       "label": "Lane A: lower-volatility survival lane",
@@ -42,7 +43,12 @@
               "weight": 0.050999999999999934
             }
           ],
-          "topNegativeFactors": []
+          "topNegativeFactors": [],
+          "settlement": {
+            "result": "won",
+            "official": "Uzbekistan 1\u20133 Colombia FT",
+            "source": "espn_fifa_world"
+          }
         },
         {
           "legId": "MLB:a834545628bda1d53eb52e89728b336f:Strikeouts:JR Ritchie:3.5",
@@ -83,12 +89,20 @@
               "direction": "negative",
               "weight": 0.55
             }
-          ]
+          ],
+          "settlement": {
+            "result": "won",
+            "official": "4 K (5.0 IP)",
+            "source": "mlb_stats_api"
+          }
         }
       ],
       "combinedOdds": -119,
       "laneSurvivalScore": 93,
-      "estimatedHitProbability": 0.6314806
+      "estimatedHitProbability": 0.6314806,
+      "result": "won",
+      "advanced": true,
+      "settledLegs": 2
     },
     "laneB": {
       "laneId": "B",
@@ -122,7 +136,12 @@
               "weight": 0.005999999999999894
             }
           ],
-          "topNegativeFactors": []
+          "topNegativeFactors": [],
+          "settlement": {
+            "result": "won",
+            "official": "Ghana 1\u20130 Panama FT",
+            "source": "espn_fifa_world"
+          }
         },
         {
           "legId": "MLB:3c667b5e84c7e18c7697c0f83852679a:Strikeouts:Javier Assad:4.5",
@@ -163,12 +182,20 @@
               "direction": "negative",
               "weight": 0.55
             }
-          ]
+          ],
+          "settlement": {
+            "result": "won",
+            "official": "1 K (5.2 IP)",
+            "source": "mlb_stats_api"
+          }
         }
       ],
       "combinedOdds": 117,
       "laneSurvivalScore": 84,
-      "estimatedHitProbability": 0.56876402
+      "estimatedHitProbability": 0.56876402,
+      "result": "won",
+      "advanced": true,
+      "settledLegs": 2
     },
     "selectedFourLegs": [
       {
@@ -480,7 +507,7 @@
         "reason": "survival 63 < 70"
       },
       {
-        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Jasson Domínguez:0.5",
+        "legId": "MLB:9cfb18a4e0091ae6c9ccb03c48deb277:Hits:Jasson Dom\u00ednguez:0.5",
         "reason": "survival 26 < 70"
       },
       {
@@ -518,12 +545,12 @@
     ],
     "launchGateSummary": [
       {
-        "gate": "≥4 qualified non-correlated legs",
+        "gate": "\u22654 qualified non-correlated legs",
         "passed": true,
-        "detail": "4 selected (survival ≥ 70)"
+        "detail": "4 selected (survival \u2265 70)"
       },
       {
-        "gate": "≥2 distinct games",
+        "gate": "\u22652 distinct games",
         "passed": true,
         "detail": "9 distinct games in qualified pool"
       },
@@ -535,7 +562,7 @@
       {
         "gate": "two game-disjoint 2-leg lanes",
         "passed": true,
-        "detail": "laneA games 24,a834545628bda1d53eb52e89728b336f · laneB games 23,3c667b5e84c7e18c7697c0f83852679a"
+        "detail": "laneA games 24,a834545628bda1d53eb52e89728b336f \u00b7 laneB games 23,3c667b5e84c7e18c7697c0f83852679a"
       },
       {
         "gate": "one soccer leg per lane (preferred)",
@@ -551,6 +578,22 @@
     "noLaunchReasons": [],
     "modelVersion": "parlay-engine-v1",
     "createdAt": null,
-    "published": false
+    "published": false,
+    "settlement": {
+      "settledAt": "2026-06-18T04:37:24.783366+00:00",
+      "sources": [
+        "mlb_stats_api",
+        "espn_fifa_world"
+      ],
+      "laneA": {
+        "result": "won",
+        "advanced": true
+      },
+      "laneB": {
+        "result": "won",
+        "advanced": true
+      },
+      "note": "Official sources only. 90-minute WC result (not advancement). DNP/no-PA voids. Protected ladder history untouched."
+    }
   }
 }

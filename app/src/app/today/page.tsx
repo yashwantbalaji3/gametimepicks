@@ -236,6 +236,8 @@ export default function TodayPage() {
   const bbPreview = engineSlate.bankBuilderPreview;
   const bbQualifies = bbPreview.status !== "no_qualified_launch" && !!bbPreview.laneA && !!bbPreview.laneB;
   const bbActive = bbPreview.status === "launched";
+  const bbSettled = bbPreview.status === "settled";
+  const bbLanesWon = [bbPreview.laneA, bbPreview.laneB].filter((l) => l?.result === "won").length;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
@@ -281,7 +283,7 @@ export default function TodayPage() {
           </div>
           <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
             {engineSuggested} suggested parlay{engineSuggested === 1 ? "" : "s"} across {engineSportsLive.length} sport{engineSportsLive.length === 1 ? "" : "s"} ·{" "}
-            Bank Builder: <span style={{ color: bbActive || bbQualifies ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{bbActive ? "ACTIVE dual run · soccer leg per lane (paper)" : bbQualifies ? "qualifies (operator approval required)" : "no qualified launch"}</span>
+            Bank Builder: <span style={{ color: bbSettled || bbActive || bbQualifies ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{bbSettled ? `SETTLED · ${bbLanesWon}/2 lanes won (paper)` : bbActive ? "ACTIVE dual run · soccer leg per lane (paper)" : bbQualifies ? "qualifies (operator approval required)" : "no qualified launch"}</span>
           </div>
         </Link>
       )}
@@ -295,7 +297,10 @@ export default function TodayPage() {
         run1Record={bank ? `${bank.record.wins}–${bank.record.losses}` : undefined}
         dual={dualBank}
         v2={v2}
-        activeLaunched={bbPreview.status === "launched"}
+        activeLaunched={bbPreview.status === "launched" || bbPreview.status === "settled"}
+        activeSettled={bbSettled}
+        lanesWon={bbLanesWon}
+        lanesTotal={2}
       />
 
       {/* 4 — Suggested parlays (filterable: sport + variance) */}

@@ -70,6 +70,23 @@ test("the launched 06-17 run is soccer-per-lane from the engine namespace", () =
   }
 });
 
+test("a settled run surfaces official lane + leg results", () => {
+  const v = loadTodaySlate("2026-06-17", "2026-06-18T05:00:00Z");
+  const bb = v.bankBuilderPreview;
+  if (bb.status === "settled") {
+    // Lanes carry an official result + advance flag.
+    assert.ok(bb.laneA.result && bb.laneB.result, "both lanes carry a settlement result");
+    for (const lane of [bb.laneA, bb.laneB]) {
+      assert.equal(typeof lane.advanced, "boolean");
+      // Every leg has an official result + an official stat/score line (never fabricated).
+      for (const leg of lane.legs) {
+        assert.ok(["won", "lost", "void", "pending", "needs_review"].includes(leg.settlementResult), `leg result is a real status: ${leg.settlementResult}`);
+        assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "leg carries an official source line");
+      }
+    }
+  }
+});
+
 test("identity never invents a photo URL for sports without one", () => {
   const v = loadTodaySlate("2026-06-17", "2026-06-17T18:45:45Z");
   for (const c of v.allSuggested) {
