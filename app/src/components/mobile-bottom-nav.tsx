@@ -88,6 +88,16 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <path d="M5 11v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-5" />
         </svg>
       );
+    case "mrdub":
+      // Lab flask — Mr. Dub's paper portfolio (scientist/ledger identity).
+      return (
+        <svg {...props}>
+          <path d="M9 3h6" />
+          <path d="M10 3v5l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3" />
+          <circle cx="10.5" cy="16" r="1" />
+          <circle cx="13.5" cy="18" r="1" />
+        </svg>
+      );
     case "results":
       // Check-in-circle — settled results.
       return (

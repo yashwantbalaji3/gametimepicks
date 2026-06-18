@@ -63,37 +63,43 @@ function main() {
   for (const lk of ["laneA", "laneB"]) {
     const lane = active[lk]; if (!lane) continue;
     const laneName = lk === "laneA" ? "lane-a" : "lane-b";
+    const laneStake = round2(lane.steps?.[0]?.stake ?? 100); // a dual lane is a single $100 paper experiment
     for (const s of lane.steps ?? []) {
+      const legs = (s.legs ?? []).map((l) => ({ market: l.marketType, selection: l.label, result: l.settlement?.result ?? "settled", officialResult: l.settlement?.official ?? null, source: l.settlement?.source ?? "official" }));
       if (s.status === "settled") {
         const won = s.result === "won";
         won ? wins++ : losses++;
-        const profit = won ? round2((s.payout ?? s.projectedPayout ?? 0) - (s.stake ?? 0)) : round2(-(s.stake ?? 0));
-        if (!won) dualRealized -= round2(s.stake ?? 0); // a stopped step loses its staked paper
+        // Ladder accounting: a WON intermediate step ROLLS (unrealized, profit 0). A LOST step closes
+        // the lane and realizes minus the lane's original $100 stake (not the rolled position).
+        const realized = won ? 0 : -laneStake;
+        if (!won) dualRealized = round2(dualRealized + realized);
         laneEvents.push({
           eventId: `mrdub-2026-06-18-${laneName}-step${s.step}-${won ? "won" : "stopped"}`,
           timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder",
           type: won ? "lane_step_won" : "lane_stopped",
           laneId: laneName, step: s.step, date: s.slateDate ?? null,
           paperStake: round2(s.stake ?? 0), paperReturn: won ? round2(s.payout ?? 0) : 0,
-          paperProfit: profit, status: "settled", result: s.result,
+          paperProfit: realized, rolled: won, status: "settled", result: s.result,
           combinedOdds: s.combinedOdds ?? null,
           officialResultConfirmed: true,
           publicBankBuilderVisible: won, // stopped steps are hidden from the public Bank Builder
-          legs: (s.legs ?? []).map((l) => ({ market: l.marketType, selection: l.label, result: l.settlement?.result ?? "settled", officialResult: l.settlement?.official ?? null, source: l.settlement?.source ?? "official" })),
-          notes: won ? `Lane ${lk.slice(-1)} Step ${s.step} cleared (official).` : (lane.stopReason ?? "Step settled a loss — lane stopped; hidden from public Bank Builder, tracked here."),
+          legs,
+          notes: won
+            ? `Lane ${lk.slice(-1)} Step ${s.step} cleared (official) — $${s.stake} rolls to $${s.payout} for the next step.`
+            : (lane.stopReason ?? `Lane ${lk.slice(-1)} Step ${s.step} settled a loss — lane closed, original $${laneStake} paper stake lost. Hidden from public Bank Builder, tracked here.`),
         });
       } else if (s.status === "pending") {
         pending++;
-        openExposure += round2(s.stake ?? 0);
+        openExposure = round2(openExposure + laneStake); // at-risk = the lane's original $100 paper stake
         laneEvents.push({
           eventId: `mrdub-2026-06-18-${laneName}-step${s.step}-pending`,
           timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder", type: "lane_step_open",
           laneId: laneName, step: s.step, date: s.slateDate ?? null,
           paperStake: round2(s.stake ?? 0), paperReturn: 0, paperProfit: 0,
           projectedReturn: round2(s.projectedPayout ?? 0), status: "open",
-          combinedOdds: s.combinedOdds ?? null, publicBankBuilderVisible: true,
-          legs: (s.legs ?? []).map((l) => ({ market: l.marketType, selection: l.label, result: "pending", source: "official" })),
-          notes: `Lane ${lk.slice(-1)} Step ${s.step} open — paper stake $${s.stake} riding, projected $${s.projectedPayout}. Settles from official sources.`,
+          combinedOdds: s.combinedOdds ?? null, publicBankBuilderVisible: true, legs,
+          sportExposure: (s.legs ?? []).map((l) => l.sport),
+          notes: `Lane ${lk.slice(-1)} Step ${s.step} open — $${s.stake} paper position riding, projected $${s.projectedPayout}. Original $${laneStake} at risk. Settles from official sources.`,
         });
       }
     }
@@ -125,11 +131,13 @@ function main() {
     generatedAt: NOW,
   };
 
-  // Daily summary: opening/closing bankroll + staked/returned/P&L per day, in date order.
+  // Daily summary: opening/closing bankroll + staked/returned/realized P&L per day, with the day's
+  // exact events EMBEDDED for the expandable dropdown. Realized P&L only (rolled wins contribute $0),
+  // so the running bankroll reconciles to the portfolio's current bankroll.
   const byDay = new Map();
   for (const e of events) {
     const d = e.date ?? e.timestamp.slice(0, 10);
-    const day = byDay.get(d) ?? { date: d, staked: 0, returned: 0, pl: 0, wins: 0, losses: 0, voids: 0, pending: 0 };
+    const day = byDay.get(d) ?? { date: d, staked: 0, returned: 0, pl: 0, wins: 0, losses: 0, voids: 0, pending: 0, events: [] };
     day.staked = round2(day.staked + (e.paperStake ?? 0));
     day.returned = round2(day.returned + (e.paperReturn ?? 0));
     day.pl = round2(day.pl + (e.paperProfit ?? 0));
@@ -137,12 +145,32 @@ function main() {
     else if (e.result === "lost") day.losses++;
     else if (e.result === "void") day.voids++;
     else if (e.status === "open") day.pending++;
+    day.events.push(e);
     byDay.set(d, day);
   }
   const days = [...byDay.values()].sort((a, b) => a.date.localeCompare(b.date));
-  let running = round2(crown.base ?? 100);
-  for (const day of days) { day.opening = running; running = round2(running + day.pl); day.closing = running; }
+  let running = round2(crown.base ?? 100), hwm = running, maxDrawdown = 0;
+  for (const day of days) {
+    day.opening = running;
+    running = round2(running + day.pl);
+    day.closing = running;
+    hwm = Math.max(hwm, running);
+    maxDrawdown = Math.max(maxDrawdown, round2(hwm - running));
+  }
   const daily = { portfolioId: "mr-dub-paper", paperOnly: true, generatedAt: NOW, days };
+
+  // Exposure + bankroll intelligence (paper-only). Open exposure broken down by sport from open legs.
+  const openLegs = laneEvents.filter((e) => e.status === "open").flatMap((e) => (e.sportExposure ?? []));
+  const bySport = {};
+  for (const sp of openLegs) { const k = sp === "WORLD_CUP" ? "World Cup" : sp; bySport[k] = round2((bySport[k] ?? 0) + round2(openExposure / Math.max(1, openLegs.length))); }
+  portfolio.intelligence = {
+    highWaterMark: round2(hwm),
+    maxDrawdown: round2(maxDrawdown),
+    winRate: round2(wins / Math.max(1, wins + losses)),
+    exposureBySport: bySport,
+    largestOpenCard: round2(openExposure),
+    note: "Paper exposure, bankroll health and drawdown — educational tracking, not financial advice. Some breakdowns populate as more cards settle.",
+  };
 
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, "ledger.json"), JSON.stringify({ portfolioId: "mr-dub-paper", paperOnly: true, generatedAt: NOW, events }, null, 2) + "\n");

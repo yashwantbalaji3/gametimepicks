@@ -8,6 +8,7 @@
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import FlagBadge from "@/components/flag-badge";
+import MoneyPath from "@/components/ui/money-path";
 import type { DualBankBuilderPreview, LaneDisplay, LaneStepDisplay, ParlayLegDisplay, Last5 } from "@/lib/parlays/ui-loader";
 
 const CROWN_TARGET = 10000;
@@ -166,20 +167,16 @@ function StepBlock({ step }: { step: LaneStepDisplay }) {
           Step {step.step}
           <span className="ml-2 rounded px-1.5 py-0.5 text-[9.5px]" style={{ background: "rgba(255,255,255,0.05)", color: accent }}>{tag}</span>
         </span>
-        {(step.stake != null) && (
-          <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>
-            {money(step.stake)} → {money(step.payout)}{step.projected ? " (proj.)" : ""}
-          </span>
-        )}
       </div>
-      {step.combinedOdds != null && (
-        <div className="mt-0.5 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
-          combined {american(step.combinedOdds)}{step.survivalScore != null ? ` · survival ${step.survivalScore}` : ""}{step.slateDate ? ` · ${step.slateDate}` : ""}
+      {/* Large, readable stake → return (MoneyPath). */}
+      {step.stake != null && (settled || pending) && (
+        <div className="mt-1.5">
+          <MoneyPath stake={step.stake} ret={step.payout} kind={settled ? (won ? "settled" : "lost") : "projected"} step={step.step} />
         </div>
       )}
-      {pending && step.stake != null && (
-        <div className="mt-1 rounded px-2 py-1 font-mono text-[10px]" style={{ background: "rgba(212,175,55,0.07)", color: "var(--vault-gold-bright)" }}>
-          Target rung ≈ $200 → $700 · this lane {money(step.stake)} → {money(step.payout)} (payout-optimized)
+      {step.combinedOdds != null && (
+        <div className="mt-1 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+          combined {american(step.combinedOdds)}{step.survivalScore != null ? ` · survival ${step.survivalScore}` : ""}{step.slateDate ? ` · ${step.slateDate}` : ""}
         </div>
       )}
       {step.legs.length > 0 && <div className="mt-1">{step.legs.map((l) => <LaneLegRow key={`${step.step}:${l.legId}`} leg={l} pending={pending} />)}</div>}
@@ -240,24 +237,23 @@ function LaneLadder({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B" }) 
   );
 }
 
-/** A stopped lane is HIDDEN on the public page — we show a clean "fresh $100 restart" card instead
- *  (failure detail lives only on Mr. Dub's ledger). Never the word "failed" on this marketing surface. */
+/** A new $100 path — clean, natural marketing copy (the lifecycle context lives on Mr. Dub's ledger).
+ *  Shows the exact starting amount + step via the readable MoneyPath. */
 function RestartLaneCard({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B" }) {
   const queued = lane.restart?.status === "queued";
+  const stake = lane.restart?.stake ?? 100;
   return (
     <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(20,14,8,0.6), rgba(20,10,8,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)" }}>
       <div className="flex items-center justify-between">
         <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
-          Lane {laneId} · fresh restart
-          <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] uppercase" style={{ background: "rgba(212,175,55,0.12)", color: "var(--vault-gold-bright)" }}>{queued ? "$100 queued" : "restarting"}</span>
+          Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}
+          <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] uppercase" style={{ background: "rgba(212,175,55,0.12)", color: "var(--vault-gold-bright)" }}>Step 1</span>
         </span>
-        <span className="font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>Step 1 · → $10K</span>
+        <span className="font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>target $100 → $10K</span>
       </div>
-      <div className="mt-2 rounded-lg px-2.5 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.02)", color: "var(--vault-text-mute)" }}>
-        A fresh <span style={{ color: "var(--vault-text)" }}>$100</span> Lane {laneId} {queued ? "restarts on the next qualified pre-event card" : "is restarting"}. Dual lanes are independent — when one path stops, a new $100 path begins while the other lane continues.
-      </div>
-      <div className="mt-2 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
-        Full paper history (every win, loss, void, stop &amp; restart) is tracked on Mr. Dub.
+      <div className="mt-2"><MoneyPath stake={stake} ret={200} kind="starting" step={1} /></div>
+      <div className="mt-2 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+        {queued ? "Next qualified card · waiting for the next pre-event card" : "Active path"} — this path starts at ${stake} while Lane {laneId === "A" ? "B" : "A"} continues. Full paper history on Mr. Dub.
       </div>
     </div>
   );

@@ -24,10 +24,11 @@ export interface GameSpecificCards {
 /** Engine same-game cards that belong to this World Cup fixture, bucketed by risk. */
 export function getGameSpecificCardsForGame(
   fixture: { matchId?: string; homeTeam?: string; awayTeam?: string },
+  nowIso?: string,
 ): GameSpecificCards {
   const teams = [norm(fixture.homeTeam), norm(fixture.awayTeam)].filter(Boolean);
   const matchId = fixture.matchId != null ? String(fixture.matchId) : null;
-  const slate = loadTodaySlate();
+  const slate = loadTodaySlate(undefined, nowIso);
 
   const cards: SuggestedParlayCard[] = [];
   const seen = new Set<string>();

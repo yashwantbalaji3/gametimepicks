@@ -187,7 +187,8 @@
       "date": "2026-06-17",
       "paperStake": 100,
       "paperReturn": 184.03,
-      "paperProfit": 84.03,
+      "paperProfit": 0,
+      "rolled": true,
       "status": "settled",
       "result": "won",
       "combinedOdds": -119,
@@ -209,7 +210,7 @@
           "source": "mlb_stats_api"
         }
       ],
-      "notes": "Lane A Step 1 cleared (official)."
+      "notes": "Lane A Step 1 cleared (official) — $100 rolls to $184.03 for the next step."
     },
     {
       "eventId": "mrdub-2026-06-18-lane-a-step2-stopped",
@@ -222,7 +223,8 @@
       "date": "2026-06-18",
       "paperStake": 184.03,
       "paperReturn": 0,
-      "paperProfit": -184.03,
+      "paperProfit": -100,
+      "rolled": false,
       "status": "settled",
       "result": "lost",
       "combinedOdds": 244,
@@ -272,7 +274,8 @@
       "date": "2026-06-17",
       "paperStake": 100,
       "paperReturn": 217,
-      "paperProfit": 117,
+      "paperProfit": 0,
+      "rolled": true,
       "status": "settled",
       "result": "won",
       "combinedOdds": 117,
@@ -294,7 +297,7 @@
           "source": "mlb_stats_api"
         }
       ],
-      "notes": "Lane B Step 1 cleared (official)."
+      "notes": "Lane B Step 1 cleared (official) — $100 rolls to $217 for the next step."
     },
     {
       "eventId": "mrdub-2026-06-18-lane-b-step2-pending",
@@ -317,16 +320,22 @@
           "market": "moneyline_90",
           "selection": "Switzerland moneyline_90",
           "result": "pending",
-          "source": "official"
+          "officialResult": "Switzerland 0–0 Bosnia-Herzegovina (not final)",
+          "source": "espn_fifa_world"
         },
         {
           "market": "Hits + Runs + RBIs",
           "selection": "Paul Goldschmidt Hits + Runs + RBIs Over 1.5",
           "result": "pending",
-          "source": "official"
+          "officialResult": "game not final",
+          "source": "mlb_stats_api"
         }
       ],
-      "notes": "Lane B Step 2 open — paper stake $217 riding, projected $575.08. Settles from official sources."
+      "sportExposure": [
+        "WORLD_CUP",
+        "MLB"
+      ],
+      "notes": "Lane B Step 2 open — $217 paper position riding, projected $575.08. Original $100 at risk. Settles from official sources."
     }
   ]
 }
