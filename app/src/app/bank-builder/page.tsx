@@ -99,9 +99,25 @@ export default function BankBuilderPage() {
   const latestHit = hits.length ? hits.reduce((a, b) => (b.step > a.step ? b : a)) : null;
   const onTheCrownRun = isFinalStep && rec.losses === 0 && hits.length === BANK_BUILDER_STEP_COUNT - 1;
 
+  const bbPreview = loadTodaySlate().bankBuilderPreview;
+  const bbActiveLaunched = bbPreview.status === "launched" || bbPreview.status === "settled";
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
-      {/* SECTION 1 — hero + status */}
+      {/* PRIMARY — Today's Dual Bank Builder: the live two-lane ladder leads the page. */}
+      {bbActiveLaunched ? (
+        <section className="gtp-fade-up mb-6" aria-label="Today's Dual Bank Builder">
+          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+            <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.4vw, 30px)", fontWeight: 800 }}>
+              Today&rsquo;s Dual Bank Builder
+            </h1>
+            <span className="font-mono uppercase tracking-[0.12em] text-[10.5px]" style={{ color: "var(--gtp-bank-heat)" }}>Two lanes · $100 → $10K each · paper</span>
+          </div>
+          <BankBuilderPreviewPanel preview={bbPreview} />
+        </section>
+      ) : null}
+
+      {/* SECTION 1 — hero + completed-ladder proof (secondary credibility, below today's ladder) */}
       <section
         className="gtp-fade-up relative overflow-hidden rounded-2xl px-5 py-6 sm:px-7"
         style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(242, 54, 69,0.08), rgba(26, 16, 11,0.25))" }}
@@ -191,25 +207,17 @@ export default function BankBuilderPage() {
         <BoardStatTile label="Record" value={recordLabel} sub={completed ? "5 rungs · officially settled" : "settled ladder steps"} accent="var(--vault-gold-bright)" />
       </div>
 
-      {/* PRIMARY — today's active dual ladder (or operator-gated preview), shown first. */}
-      {(() => {
-        const bbPreview = loadTodaySlate().bankBuilderPreview;
-        const activeLaunched = bbPreview.status === "launched" || bbPreview.status === "settled";
-        return (
-          <>
-            <div className="mt-6"><BankBuilderPreviewPanel preview={bbPreview} /></div>
+      {/* Futuristic $100 → $10K meter — ladder path + lane status (secondary, below the live ladder). */}
+      <div className="mt-6">
+        <BankBuilderMeter run1Bankroll={currentBankroll} dual={loadDualBankBuilder()} v2={v2} activeLaunched={bbActiveLaunched} />
+      </div>
 
-            {/* Futuristic $100 → $10K meter — ladder path + lane status. */}
-            <div className="mt-6">
-              <BankBuilderMeter run1Bankroll={currentBankroll} dual={loadDualBankBuilder()} v2={v2} activeLaunched={activeLaunched} />
-            </div>
+      {/* When no dual ladder is launched, still show the engine's dry-run / no-qualified preview. */}
+      {!bbActiveLaunched ? <div className="mt-6"><BankBuilderPreviewPanel preview={bbPreview} /></div> : null}
 
-            {/* V2 survival-gate evaluation panel — hidden once an active dual ladder is launched
-                (no "no qualifying launch yet" box when today's ladder is live). */}
-            {v2 && !activeLaunched ? <div className="mt-6"><BankBuilderV2Panel v2={v2} /></div> : null}
-          </>
-        );
-      })()}
+      {/* V2 survival-gate evaluation panel — hidden once an active dual ladder is launched
+          (no "no qualifying launch yet" box when today's ladder is live). */}
+      {v2 && !bbActiveLaunched ? <div className="mt-6"><BankBuilderV2Panel v2={v2} /></div> : null}
 
       {/* Archived closed test ladder — demoted + collapsed (real outcome preserved, not promoted). */}
       {completed ? (

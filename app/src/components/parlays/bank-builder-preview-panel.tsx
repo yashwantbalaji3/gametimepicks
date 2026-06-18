@@ -1,41 +1,34 @@
 /**
- * Dual Bank Builder PREVIEW — operator approval required. Renders SEPARATE Lane A / Lane B trackers
- * (stake, leg statuses, combined odds, projected return, survival + risk, sport mix, soccer marker,
- * progress meter, "why this lane"). PREVIEW ONLY: never marks a run active, never writes protected
- * Bank Builder data, never launches. Plain (server-renderable) component.
+ * Dual Bank Builder panel — renders the active LADDER as two SEPARATE lane ladders (Lane A survival /
+ * Lane B diversified). Each lane shows Step 1 (cleared, official results), Step 2 (active, today's
+ * fresh legs as cards with a "why" drawer), and Steps 3–5 (coming soon → $10K). Falls back to a
+ * single-step tracker for the dry-run preview (no ladder yet). Plain server-renderable component.
+ * PREVIEW/DISPLAY ONLY: never launches, never writes protected Bank Builder data, never fabricates.
  */
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import FlagBadge from "@/components/flag-badge";
-import type { DualBankBuilderPreview, ParlayLegDisplay } from "@/lib/parlays/ui-loader";
+import type { DualBankBuilderPreview, LaneDisplay, LaneStepDisplay, ParlayLegDisplay } from "@/lib/parlays/ui-loader";
 
-const STAKE = 100;
+const CROWN_TARGET = 10000;
 
 function american(o: number | null): string {
   return o == null ? "—" : o > 0 ? `+${o}` : `${o}`;
 }
-function decimalOf(o: number | null): number | null {
-  if (o == null) return null;
-  return o > 0 ? 1 + o / 100 : 1 + 100 / Math.abs(o);
+function money(n: number | null): string {
+  return n == null ? "—" : `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
-function projectedReturn(o: number | null): string {
-  const d = decimalOf(o);
-  return d == null ? "—" : `$${(STAKE * d).toFixed(2)}`;
-}
-
 function resultColor(r: string | null): string {
   const v = (r ?? "").toLowerCase();
   if (v === "won") return "var(--vault-success)";
   if (v === "lost") return "var(--gtp-bank-heat)";
   return "var(--vault-text-faint)"; // void / pending / needs_review
 }
-
 function sideText(side: string | null): string {
   if (!side) return "";
   const s = side.toLowerCase();
   return s === "over" ? "Over" : s === "under" ? "Under" : s === "yes" ? "Yes" : s === "no" ? "No" : "";
 }
-
 function startLabel(iso: string | null): string {
   if (!iso) return "";
   const t = Date.parse(iso);
@@ -51,10 +44,9 @@ function legAvatar(leg: ParlayLegDisplay) {
   return <PlayerAvatar playerName={leg.participant} size="xs" flat />;
 }
 
-/** A clickable leg: shows the EXACT side (Over/Under), and expands to "why this pick". */
-function LaneLegRow({ leg, active }: { leg: ParlayLegDisplay; active?: boolean }) {
+/** A clickable leg: shows the EXACT side (Over/Under) + line, settlement, and a "why this pick" drawer. */
+function LaneLegRow({ leg, pending }: { leg: ParlayLegDisplay; pending?: boolean }) {
   const sl = sideText(leg.side);
-  // The exact pick (market + Over/Under + line) is on its own line so it is never truncated away.
   const pick = `${leg.market}${sl ? ` ${sl}` : ""}${leg.line != null ? ` ${leg.line}` : ""}`.trim();
   return (
     <details className="py-1.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
@@ -69,7 +61,7 @@ function LaneLegRow({ leg, active }: { leg: ParlayLegDisplay; active?: boolean }
           {leg.settlementResult ? (
             <span className="block font-mono text-[9.5px] uppercase" style={{ color: resultColor(leg.settlementResult) }}>{leg.settlementResult} ▾</span>
           ) : (
-            <span className="block font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>{active ? "pending · live ▾" : "pending ▾"}</span>
+            <span className="block font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>{pending ? "pending ▾" : "preview ▾"}</span>
           )}
         </span>
       </summary>
@@ -92,72 +84,134 @@ function LaneLegRow({ leg, active }: { leg: ParlayLegDisplay; active?: boolean }
   );
 }
 
-const LADDER_STEPS = [1, 2, 3, 4, 5];
-
-/** Per-lane $100 → $10K ladder: Step 1 active/cleared, Steps 2–5 coming soon. */
-function LaneLadder({ projected, won }: { projected: string; won?: boolean }) {
+/** Step pips: 1 ✓/✗ (settled), current ● (active), rest ○ (coming soon) → $10K. */
+function StepPips({ steps, currentStep }: { steps: LaneStepDisplay[]; currentStep: number }) {
   return (
-    <div className="mt-2.5">
-      <div className="flex items-center gap-1">
-        {LADDER_STEPS.map((s, i) => (
-          <div key={s} className="flex items-center gap-1">
+    <div className="flex items-center gap-1">
+      {steps.map((s, i) => {
+        const isSettled = s.status === "settled";
+        const won = s.result === "won";
+        const isCurrent = s.step === currentStep && !isSettled;
+        const bg = isSettled ? (won ? "var(--vault-success)" : "var(--gtp-bank-heat)")
+          : isCurrent ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.05)";
+        const fg = isSettled || isCurrent ? "#170f0a" : "var(--vault-text-faint)";
+        return (
+          <div key={s.step} className="flex items-center gap-1">
             <span className="flex h-5 w-5 items-center justify-center rounded-full font-mono text-[9.5px]"
-              style={{ background: s === 1 ? (won ? "var(--vault-success)" : "var(--gtp-bank-heat)") : "rgba(255,255,255,0.05)", color: s === 1 ? "#170f0a" : "var(--vault-text-faint)", border: "1px solid var(--vault-border)" }}>
-              {s === 1 && won ? "✓" : s}
+              style={{ background: bg, color: fg, border: "1px solid var(--vault-border)" }}>
+              {isSettled ? (won ? "✓" : "✗") : s.step}
             </span>
-            {i < LADDER_STEPS.length - 1 && <span aria-hidden style={{ width: 10, height: 1, background: "var(--vault-border)" }} />}
+            {i < steps.length - 1 && <span aria-hidden style={{ width: 10, height: 1, background: "var(--vault-border)" }} />}
           </div>
-        ))}
-        <span className="ml-1 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>→ $10K</span>
+        );
+      })}
+      <span className="ml-1 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>→ $10K</span>
+    </div>
+  );
+}
+
+function StepBlock({ step }: { step: LaneStepDisplay }) {
+  const settled = step.status === "settled";
+  const pending = step.status === "pending";
+  const evaluating = step.status === "evaluating";
+  const won = step.result === "won";
+  const accent = settled ? (won ? "var(--vault-success)" : "var(--gtp-bank-heat)") : pending ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)";
+  const tag = settled ? (won ? "cleared · WON" : `${step.result}`) : pending ? "active · pending official settlement" : evaluating ? "evaluating" : "coming soon";
+  return (
+    <div className="mt-2 rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.025)", border: "1px solid var(--vault-border)", borderLeft: `2px solid ${accent}` }}>
+      <div className="flex items-center justify-between">
+        <span className="font-mono text-[11px] uppercase tracking-wide" style={{ color: "var(--vault-text)" }}>
+          Step {step.step}
+          <span className="ml-2 rounded px-1.5 py-0.5 text-[9.5px]" style={{ background: "rgba(255,255,255,0.05)", color: accent }}>{tag}</span>
+        </span>
+        {(step.stake != null) && (
+          <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>
+            {money(step.stake)} → {money(step.payout)}{step.projected ? " (proj.)" : ""}
+          </span>
+        )}
       </div>
-      <div className="mt-1 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
-        {won
-          ? `Step 1 cleared · $100 → ${projected} · advancing to Step 2 (coming soon)`
-          : `Step 1 active · $100 → ${projected} · pending official settlement · Steps 2–5 coming soon`}
+      {step.combinedOdds != null && (
+        <div className="mt-0.5 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+          combined {american(step.combinedOdds)}{step.survivalScore != null ? ` · survival ${step.survivalScore}` : ""}{step.slateDate ? ` · ${step.slateDate}` : ""}
+        </div>
+      )}
+      {step.legs.length > 0 && <div className="mt-1">{step.legs.map((l) => <LaneLegRow key={`${step.step}:${l.legId}`} leg={l} pending={pending} />)}</div>}
+      {evaluating && (
+        <ul className="mt-1.5 space-y-1 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>
+          {(step.blockers.length ? step.blockers : ["No qualifying legs for this step yet."]).map((b, i) => <li key={i}>· {b}</li>)}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** A full lane ladder: header + step pips + per-step blocks + coming-soon summary + progress meter. */
+function LaneLadder({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B" }) {
+  const steps = lane.steps;
+  const detailed = steps.filter((s) => s.status === "settled" || s.status === "pending" || s.status === "evaluating");
+  const comingSoon = steps.filter((s) => s.status === "coming_soon");
+  const clearedCount = steps.filter((s) => s.status === "settled" && s.result === "won").length;
+  const totalSteps = steps.length || 5;
+  const hasSoccer = lane.legs.some((l) => l.sport === "WORLD_CUP");
+  const pct = Math.round((clearedCount / totalSteps) * 100);
+  const currentStep = steps.find((s) => s.status === "pending" || s.status === "evaluating");
+  return (
+    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(58,18,12,0.5), rgba(20,10,8,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
+      <div className="flex items-center justify-between">
+        <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
+          Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}
+          <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] uppercase" style={{ background: "rgba(225,29,42,0.15)", color: "var(--gtp-bank-heat)" }}>Step {lane.currentStep} live</span>
+        </span>
+        <span className="font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>survival {lane.survivalScore}</span>
+      </div>
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
+        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(70,130,90,0.18)", color: "var(--vault-success)" }}>Step 1 cleared</span>
+        {hasSoccer && <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(70,130,90,0.18)", color: "var(--vault-success)" }}>⚽ soccer leg</span>}
+        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>target ${CROWN_TARGET.toLocaleString()}</span>
+      </div>
+
+      <div className="mt-2.5"><StepPips steps={steps} currentStep={lane.currentStep} /></div>
+
+      {detailed.map((s) => <StepBlock key={s.step} step={s} />)}
+
+      {comingSoon.length > 0 && (
+        <div className="mt-2 rounded-lg px-2.5 py-2 font-mono text-[10.5px]" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>
+          Step{comingSoon.length > 1 ? "s" : ""} {comingSoon.map((s) => s.step).join("–")} · coming soon · ride the bank toward ${CROWN_TARGET.toLocaleString()}
+        </div>
+      )}
+
+      {/* progress meter */}
+      <div className="mt-2.5">
+        <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <div style={{ width: `${pct}%`, height: "100%", background: "var(--vault-success)" }} />
+        </div>
+        <div className="mt-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+          {clearedCount} / {totalSteps} steps cleared · {currentStep ? `Step ${currentStep.step} ${currentStep.status === "pending" ? "live — awaiting official results" : "evaluating"}` : "ladder advancing"} · official sources only
+        </div>
       </div>
     </div>
   );
 }
 
-function LaneTracker({ lane, laneId, active }: { lane: NonNullable<DualBankBuilderPreview["laneA"]>; laneId: "A" | "B"; active?: boolean }) {
-  const sports = Array.from(new Set(lane.legs.map((l) => l.sport)));
+// ── Single-step fallback (dry-run preview, no ladder) ─────────────────────────────────────────────
+function SingleStepLane({ lane, laneId, live }: { lane: LaneDisplay; laneId: "A" | "B"; live?: boolean }) {
   const hasSoccer = lane.legs.some((l) => l.sport === "WORLD_CUP");
-  const avgRisk = lane.legs.length ? lane.legs.reduce((s, l) => s + l.riskScore, 0) / lane.legs.length : 0;
-  const settled = !!lane.result && lane.result !== "pending";
-  const won = lane.result === "won";
+  const dec = lane.combinedOdds == null ? null : lane.combinedOdds > 0 ? 1 + lane.combinedOdds / 100 : 1 + 100 / Math.abs(lane.combinedOdds);
+  const projected = dec == null ? "—" : money(100 * dec);
   return (
-    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(58,18,12,0.5), rgba(20,10,8,0.5))", border: "1px solid var(--vault-border)", borderTop: `2px solid ${settled ? (won ? "var(--vault-success)" : "var(--gtp-bank-heat)") : "var(--gtp-bank-heat)"}` }}>
+    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(58,18,12,0.5), rgba(20,10,8,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
-          Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}
-          {settled && <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] uppercase" style={{ background: won ? "rgba(70,130,90,0.18)" : "rgba(225,29,42,0.15)", color: won ? "var(--vault-success)" : "var(--gtp-bank-heat)" }}>{won ? "Won · advanced" : lane.result}</span>}
-        </span>
+        <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}</span>
         <span className="font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>survival {lane.survivalScore}</span>
       </div>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
-        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>stake ${STAKE}</span>
-        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>risk {avgRisk.toFixed(2)}</span>
-        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{sports.map((s) => (s === "WORLD_CUP" ? "WC" : s)).join("+")}</span>
+        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>stake $100</span>
         {hasSoccer && <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(70,130,90,0.18)", color: "var(--vault-success)" }}>⚽ soccer leg</span>}
       </div>
-      <div className="mt-1.5">
-        {lane.legs.map((l) => <LaneLegRow key={l.legId} leg={l} active={active} />)}
-      </div>
+      <div className="mt-1.5">{lane.legs.map((l) => <LaneLegRow key={l.legId} leg={l} pending={live} />)}</div>
       <div className="mt-2 flex items-center justify-between text-[12px]" style={{ borderTop: "1px solid var(--vault-border)", paddingTop: 8 }}>
         <span style={{ color: "var(--vault-text-mute)" }}>combined <span className="font-mono" style={{ color: "var(--vault-text)" }}>{american(lane.combinedOdds)}</span></span>
-        <span style={{ color: "var(--vault-text-mute)" }}>→ {projectedReturn(lane.combinedOdds)} from ${STAKE}</span>
-      </div>
-      <LaneLadder projected={projectedReturn(lane.combinedOdds)} won={won} />
-      {/* progress meter */}
-      <div className="mt-2">
-        <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
-          <div style={{ width: settled ? "20%" : "0%", height: "100%", background: won ? "var(--vault-success)" : "var(--gtp-bank-heat)" }} />
-        </div>
-        <div className="mt-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
-          {settled
-            ? `${lane.legs.length} / ${lane.legs.length} settled · ${won ? "Step 1 WON — advancing" : lane.result} · official sources`
-            : `0 / ${lane.legs.length} settled · ${active ? "live — awaiting results" : "awaiting operator launch"}`}
-        </div>
+        <span style={{ color: "var(--vault-text-mute)" }}>→ {projected} from $100</span>
       </div>
     </div>
   );
@@ -165,49 +219,61 @@ function LaneTracker({ lane, laneId, active }: { lane: NonNullable<DualBankBuild
 
 export default function BankBuilderPreviewPanel({ preview }: { preview: DualBankBuilderPreview }) {
   const qualifies = preview.status !== "no_qualified_launch" && preview.laneA && preview.laneB;
-  const settled = preview.status === "settled";
+  const isLadder = preview.isLadder && (preview.laneA?.steps.length ?? 0) > 0;
   const live = preview.status === "launched";
-  const active = live || settled; // primary/highlighted state
-  const lanesWon = [preview.laneA, preview.laneB].filter(Boolean).filter((l) => l!.result === "won").length;
+  const active = live || preview.status === "settled";
+  const lanesCleared = [preview.laneA, preview.laneB].filter(Boolean).filter((l) => l!.steps.some((s) => s.status === "settled" && s.result === "won")).length;
   const lanesTotal = [preview.laneA, preview.laneB].filter(Boolean).length;
+
   return (
     <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: active ? "1px solid var(--gtp-bank-heat)" : "1px solid var(--vault-border)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{settled ? "Dual Bank Builder · SETTLED" : live ? "Dual Bank Builder · ACTIVE" : "Dual Bank Builder preview"}</h3>
+        <h3 className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>
+          {isLadder ? `Dual Bank Builder · Step ${preview.currentStep} live` : live ? "Dual Bank Builder · ACTIVE" : "Dual Bank Builder preview"}
+        </h3>
         <span className="rounded-full px-2.5 py-1 text-[11px] font-medium" style={{ background: active ? "rgba(70,130,90,0.18)" : "rgba(255,255,255,0.05)", color: active ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>
-          {settled ? `${lanesWon}/${lanesTotal} lanes won · paper` : live ? "Live · paper" : "Operator approval required"}
+          {isLadder ? `${lanesCleared}/${lanesTotal} lanes cleared Step 1 · paper` : live ? "Live · paper" : "Operator approval required"}
         </span>
       </div>
       <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-faint)" }}>
-        {settled
-          ? `Settled from official sources — ${lanesWon} of ${lanesTotal} lanes won and advanced; each lane moves to Step 2 (coming soon). Paper stakes only; protected completed-ladder history is untouched.`
+        {isLadder
+          ? `Both lanes cleared Step 1 from official sources. Step ${preview.currentStep} is now live — two fresh survival-first legs per lane, one World Cup leg each, riding the bank toward $${CROWN_TARGET.toLocaleString()}. Paper stakes only; protected completed-ladder history untouched.`
           : live
-          ? "Launched dual run from the methodology engine — survival-first, one World Cup leg per lane. Paper stakes only; protected completed-ladder history is untouched."
+          ? "Launched dual run from the methodology engine — survival-first, one World Cup leg per lane. Paper stakes only; protected completed-ladder history untouched."
           : "Dry-run preview from the methodology engine — survival-first, pre-event, odds-backed, correlation-aware. Not launched; nothing is published or active. Paper stakes only."}
       </p>
 
       {qualifies ? (
         <>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <LaneTracker lane={preview.laneA!} laneId="A" active={live} />
-            <LaneTracker lane={preview.laneB!} laneId="B" active={live} />
+            {isLadder ? (
+              <>
+                <LaneLadder lane={preview.laneA!} laneId="A" />
+                <LaneLadder lane={preview.laneB!} laneId="B" />
+              </>
+            ) : (
+              <>
+                <SingleStepLane lane={preview.laneA!} laneId="A" live={live} />
+                <SingleStepLane lane={preview.laneB!} laneId="B" live={live} />
+              </>
+            )}
           </div>
 
           <details className="mt-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)" }}>
             <summary className="cursor-pointer px-3 py-2 text-[12.5px]" style={{ color: "var(--vault-text)" }}>Why these lanes</summary>
             <div className="px-3 pb-3 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-              The four highest-survival, lowest-fragility legs across four distinct games, pairwise
+              Each step takes the highest-survival, lowest-fragility legs across distinct games, pairwise
               non-correlated. Lane A takes the strongest survival pair; Lane B diversifies exposure to
-              different games. Each leg is pre-event, odds-backed, and passed leakage validation.
+              different games. Every leg is pre-event, odds-backed, and passed leakage validation. A lane
+              only advances when its current step settles WON from official sources.
             </div>
           </details>
 
           <div className="mt-2 rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.03)", color: "var(--vault-text-mute)" }}>
             {active ? (
-              <>Run <span className="font-mono">{preview.runId}</span> — ACTIVE (methodology-engine namespace; protected completed-ladder history untouched). Settles from official sources only.</>
+              <>Active dual ladder — methodology-engine namespace; protected completed-ladder history untouched. Settles from official sources only.</>
             ) : (
-              <>Run id <span className="font-mono">{preview.runId ?? `dual-bank-builder-${preview.date}`}</span> — not launched.
-              Launch after approval via <span className="font-mono">project-and-launch-today.mjs --launch --write-bank-builder</span> (or the approved pipeline path).</>
+              <>Dry-run preview — not launched. Launches only after approval when the gates pass.</>
             )}
           </div>
         </>
