@@ -240,6 +240,29 @@ function LaneLadder({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B" }) 
   );
 }
 
+/** A stopped lane is HIDDEN on the public page — we show a clean "fresh $100 restart" card instead
+ *  (failure detail lives only on Mr. Dub's ledger). Never the word "failed" on this marketing surface. */
+function RestartLaneCard({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B" }) {
+  const queued = lane.restart?.status === "queued";
+  return (
+    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(20,14,8,0.6), rgba(20,10,8,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)" }}>
+      <div className="flex items-center justify-between">
+        <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
+          Lane {laneId} · fresh restart
+          <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] uppercase" style={{ background: "rgba(212,175,55,0.12)", color: "var(--vault-gold-bright)" }}>{queued ? "$100 queued" : "restarting"}</span>
+        </span>
+        <span className="font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>Step 1 · → $10K</span>
+      </div>
+      <div className="mt-2 rounded-lg px-2.5 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.02)", color: "var(--vault-text-mute)" }}>
+        A fresh <span style={{ color: "var(--vault-text)" }}>$100</span> Lane {laneId} {queued ? "restarts on the next qualified pre-event card" : "is restarting"}. Dual lanes are independent — when one path stops, a new $100 path begins while the other lane continues.
+      </div>
+      <div className="mt-2 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+        Full paper history (every win, loss, void, stop &amp; restart) is tracked on Mr. Dub.
+      </div>
+    </div>
+  );
+}
+
 // ── Single-step fallback (dry-run preview, no ladder) ─────────────────────────────────────────────
 function SingleStepLane({ lane, laneId, live }: { lane: LaneDisplay; laneId: "A" | "B"; live?: boolean }) {
   const hasSoccer = lane.legs.some((l) => l.sport === "WORLD_CUP");
@@ -295,8 +318,8 @@ export default function BankBuilderPreviewPanel({ preview }: { preview: DualBank
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {isLadder ? (
               <>
-                <LaneLadder lane={preview.laneA!} laneId="A" />
-                <LaneLadder lane={preview.laneB!} laneId="B" />
+                {preview.laneA!.publicVisible ? <LaneLadder lane={preview.laneA!} laneId="A" /> : <RestartLaneCard lane={preview.laneA!} laneId="A" />}
+                {preview.laneB!.publicVisible ? <LaneLadder lane={preview.laneB!} laneId="B" /> : <RestartLaneCard lane={preview.laneB!} laneId="B" />}
               </>
             ) : (
               <>

@@ -13,7 +13,8 @@
     "laneAMlbReplacedAt": "2026-06-18T16:39:04Z",
     "laneAMlbReplacedFrom": "Matt Olson Hits + Runs + RBIs Over 1.5",
     "laneBMlbReplacedAt": "2026-06-18T16:39:04Z",
-    "laneBMlbReplacedFrom": "Pete Alonso Hits + Runs + RBIs Over 1.5"
+    "laneBMlbReplacedFrom": "Pete Alonso Hits + Runs + RBIs Over 1.5",
+    "step2SettledAt": "2026-06-18T18:28:40.847290+00:00"
   },
   "run": {
     "runId": "dual-bank-builder-2026-06-17",
@@ -230,8 +231,8 @@
         },
         {
           "step": 2,
-          "status": "pending",
-          "result": null,
+          "status": "settled",
+          "result": "lost",
           "slateDate": "2026-06-18",
           "combinedOdds": 244,
           "laneSurvivalScore": 77,
@@ -262,7 +263,12 @@
                   "weight": 0.85
                 }
               ],
-              "topNegativeFactors": []
+              "topNegativeFactors": [],
+              "settlement": {
+                "result": "lost",
+                "official": "Czechia 1\u20131 South Africa FT \u2014 draw/loss; moneyline loses",
+                "source": "espn_fifa_world"
+              }
             },
             {
               "legId": "MLB:bb47b41c0a375d2df45331898a1e7ec1:Hits + Runs + RBIs:Josh Bell:1.5",
@@ -341,6 +347,12 @@
                   "pct": 80
                 },
                 "source": "mlb_stats_api"
+              },
+              "settlement": {
+                "result": "pending",
+                "official": "game not final",
+                "source": "mlb_stats_api",
+                "started": true
               }
             }
           ]
@@ -362,7 +374,18 @@
         }
       ],
       "currentStep": 2,
-      "target": 10000
+      "target": 10000,
+      "laneStatus": "stopped",
+      "publicVisible": false,
+      "stopReason": "Soccer leg settled a loss; the partner leg had already started, so no pre-start replacement was possible.",
+      "restart": {
+        "status": "queued",
+        "stake": 100.0,
+        "step": 1,
+        "target": 10000,
+        "startedFrom": "2026-06-18T18:30:00Z",
+        "note": "Lane A stopped at Step 2 (Czech ML lost on a 1-1 draw; partner leg already started, no pre-start replacement). A fresh $100 Lane A restarts at Step 1 on the next qualified pre-event card."
+      }
     },
     "laneB": {
       "laneId": "B",
@@ -607,7 +630,12 @@
                   "weight": 0.85
                 }
               ],
-              "topNegativeFactors": []
+              "topNegativeFactors": [],
+              "settlement": {
+                "result": "pending",
+                "official": "Switzerland 0\u20130 Bosnia-Herzegovina (not final)",
+                "source": "espn_fifa_world"
+              }
             },
             {
               "legId": "MLB:adfa73cc70f5a62d6d0bb903eaa0f24b:Hits + Runs + RBIs:Paul Goldschmidt:1.5",
@@ -686,6 +714,12 @@
                   "pct": 100
                 },
                 "source": "mlb_stats_api"
+              },
+              "settlement": {
+                "result": "pending",
+                "official": "game not final",
+                "source": "mlb_stats_api",
+                "started": false
               }
             }
           ]
@@ -707,7 +741,9 @@
         }
       ],
       "currentStep": 2,
-      "target": 10000
+      "target": 10000,
+      "laneStatus": "active",
+      "publicVisible": true
     },
     "selectedFourLegs": [
       {
@@ -1067,6 +1103,19 @@
     "createdAt": null,
     "published": false,
     "currentStep": 2,
-    "step1Settlement": null
+    "step1Settlement": null,
+    "step2SettlementAt": "2026-06-18T18:28:40.847290+00:00",
+    "lifecycle": {
+      "laneA": {
+        "status": "stopped",
+        "public": false,
+        "restart": "queued"
+      },
+      "laneB": {
+        "status": "active",
+        "public": true
+      },
+      "note": "Stopped lanes are hidden from the public Bank Builder and tracked on Mr. Dub."
+    }
   }
 }
