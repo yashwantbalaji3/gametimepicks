@@ -123,6 +123,37 @@ test("the active 06-18 ladder: Step 1 cleared WON, Step 2 live, soccer per lane,
   if (mlb) assert.ok(mlb.side === "over" || mlb.side === "under", "MLB Step 2 leg carries an exact side");
 });
 
+test("mixed-sport parlays: each card spans a World Cup leg + another sport, by risk", () => {
+  const v = loadTodaySlate("2026-06-18", "2026-06-18T15:55:00Z");
+  const mixedTotal = Object.values(v.mixedByRisk).reduce((n, cards) => n + (cards?.length ?? 0), 0);
+  assert.ok(mixedTotal > 0, "mixed cards are generated when WC + MLB legs exist");
+  for (const cards of Object.values(v.mixedByRisk)) {
+    for (const c of cards ?? []) {
+      assert.equal(c.sport, "MIXED", "card sport is MIXED");
+      const sports = new Set(c.legs.map((l) => l.sport));
+      assert.ok(sports.size >= 2, "card spans >= 2 sports");
+      assert.ok(c.legs.some((l) => l.sport === "WORLD_CUP"), "card includes a World Cup leg");
+      // distinct games (no same-game correlation in a cross-sport card)
+      const games = c.legs.map((l) => l.legId.split(":")[1]);
+      assert.equal(new Set(games).size, games.length, "legs from distinct games");
+    }
+  }
+});
+
+test("Step 2 was re-optimized for payout: combined odds are plus-money and beat the conservative version", () => {
+  const v = loadTodaySlate("2026-06-18", "2026-06-18T15:55:00Z");
+  const bb = v.bankBuilderPreview;
+  assert.equal(bb.isLadder, true);
+  for (const lane of [bb.laneA, bb.laneB]) {
+    const step2 = lane.steps.find((s) => s.step === 2);
+    assert.equal(step2.status, "pending");
+    assert.ok(step2.combinedOdds != null && step2.combinedOdds > 0, "Step 2 combined odds are plus-money (payout-optimized)");
+    // payout is meaningfully larger than the conservative ~1.75x version
+    assert.ok((step2.payout ?? 0) / (step2.stake ?? 1) >= 2.25, "Step 2 clears the 2.25x payout floor");
+    assert.ok(step2.legs.some((l) => l.sport === "WORLD_CUP"), "Step 2 keeps a World Cup leg per lane");
+  }
+});
+
 test("identity never invents a photo URL for sports without one", () => {
   const v = loadTodaySlate("2026-06-17", "2026-06-17T18:45:45Z");
   for (const c of v.allSuggested) {

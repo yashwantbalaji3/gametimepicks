@@ -14,7 +14,7 @@ import type { ExtractorStatus } from "../methodology/adapter";
 import { loadSourceForSport, ALL_SPORTS } from "../methodology/sources";
 import { extractPredictionsBySport, type SportExtractionResult } from "../methodology/adapter";
 import { buildLegsForSport, eligibleLegs } from "./eligible-leg";
-import { generateDailyParlays } from "./daily-parlays";
+import { generateDailyParlays, generateMixedParlays } from "./daily-parlays";
 import { generateAllSameGameParlays } from "./same-game";
 import { selectDualBankBuilder, survivalScore } from "./dual-bank-builder";
 import { RISK_LEVEL_ORDER } from "./risk-levels";
@@ -139,6 +139,7 @@ export interface TodaySlateView {
   available: boolean;
   sports: SportSlateStatus[];
   suggestedBySportRisk: Record<string, Partial<Record<RiskLevel, SuggestedParlayCard[]>>>;
+  mixedByRisk: Partial<Record<RiskLevel, SuggestedParlayCard[]>>;
   allSuggested: SuggestedParlayCard[];
   gameSpecific: GameSpecificParlayGroup[];
   eligibleLegs: EligibleLegDisplay[];
@@ -305,7 +306,7 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
   if (cached) return cached;
 
   const empty: TodaySlateView = {
-    date, available: false, sports: [], suggestedBySportRisk: {}, allSuggested: [],
+    date, available: false, sports: [], suggestedBySportRisk: {}, mixedByRisk: {}, allSuggested: [],
     gameSpecific: [], eligibleLegs: [],
     bankBuilderPreview: { status: "no_qualified_launch", runId: null, date, isLadder: false, currentStep: 0, laneA: null, laneB: null, selectedFour: [], launchGateSummary: [], noLaunchReasons: ["No slate available."] },
   };
@@ -359,6 +360,16 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
         gameSpecificCount: 0,
         noQualified: eligibleCount === 0 ? { sport: r.sport, status: r.extractorStatus, message: NO_QUALIFIED_MESSAGES[r.extractorStatus]?.(r.sport) || `No eligible ${r.sport} candidates today.` } : null,
       });
+    }
+
+    // Mixed-sport suggested parlays (≥1 World Cup leg + a non-soccer leg, by risk).
+    const mixedByRisk: Partial<Record<RiskLevel, SuggestedParlayCard[]>> = {};
+    {
+      const { parlays: mixed } = generateMixedParlays(eligible, date);
+      for (const lvl of RISK_LEVEL_ORDER) {
+        const cards = mixed.filter((p) => p.riskLevel === lvl).map((p) => cardDisplay(p, legByIdLookup));
+        if (cards.length) { mixedByRisk[lvl] = cards; allSuggested.push(...cards); }
+      }
     }
 
     // Game-specific parlays (across eligible legs).
@@ -445,6 +456,7 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
       available: results.some((r) => r.sourcePath != null || r.totalCandidates > 0),
       sports,
       suggestedBySportRisk,
+      mixedByRisk,
       allSuggested,
       gameSpecific,
       eligibleLegs: eligible.map((l) => legByIdLookup.get(l.legId)).filter(Boolean) as EligibleLegDisplay[],

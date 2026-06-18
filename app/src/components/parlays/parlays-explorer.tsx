@@ -139,18 +139,22 @@ function Accordion({ title, subtitle, children, defaultOpen = false }: { title: 
 
 export default function ParlaysExplorer({ slate }: { slate: TodaySlateView }) {
   const sportsWithLegs = slate.sports.filter((s) => s.eligibleCount > 0);
-  const firstSport = (sportsWithLegs[0] ?? slate.sports[0])?.sport ?? "MLB";
+  const mixedTotal = RISK_ORDER.reduce((n, lvl) => n + (slate.mixedByRisk[lvl]?.length ?? 0), 0);
+  // Default to World Cup when it has cards (the slate's headline sport), else the first sport with legs.
+  const wcHasCards = (sportsWithLegs.find((s) => s.sport === "WORLD_CUP")?.eligibleCount ?? 0) > 0;
+  const firstSport = wcHasCards ? "WORLD_CUP" : (sportsWithLegs[0] ?? slate.sports[0])?.sport ?? "MLB";
   const [sport, setSport] = useState<string>(firstSport);
   const [view, setView] = useState<"suggested" | "game" | "legs">("suggested");
 
+  const isMixed = sport === "MIXED";
   const active = slate.sports.find((s) => s.sport === sport);
-  const byRisk = slate.suggestedBySportRisk[sport] ?? {};
+  const byRisk = isMixed ? slate.mixedByRisk : (slate.suggestedBySportRisk[sport] ?? {});
   const gameGroups = slate.gameSpecific.filter((g) => g.sport === sport);
   const sportLegs = slate.eligibleLegs.filter((l) => l.sport === sport);
 
   return (
     <div className="space-y-4">
-      {/* sport selector */}
+      {/* sport selector (+ Mixed when cross-sport cards exist) */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }}>
         {slate.sports.map((s) => (
           <button key={s.sport} onClick={() => setSport(s.sport)}
@@ -163,9 +167,40 @@ export default function ParlaysExplorer({ slate }: { slate: TodaySlateView }) {
             {SPORT_LABEL[s.sport] ?? s.sport}{s.eligibleCount > 0 ? ` · ${s.eligibleCount}` : ""}
           </button>
         ))}
+        {mixedTotal > 0 && (
+          <button onClick={() => setSport("MIXED")}
+            className="shrink-0 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
+            style={{
+              background: isMixed ? "var(--vault-gold-bright, #d9a441)" : "rgba(255,255,255,0.04)",
+              color: isMixed ? "#170f0a" : "var(--vault-text-mute)",
+              border: "1px solid var(--vault-border)",
+            }}>
+            Mixed · {mixedTotal}
+          </button>
+        )}
       </div>
 
-      {!active || active.eligibleCount === 0 ? (
+      {isMixed ? (
+        <div className="space-y-4">
+          <p className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+            Cross-sport cards — each blends a World Cup leg with a leg from another game, from distinct, non-correlated games.
+          </p>
+          {RISK_ORDER.every((lvl) => (byRisk[lvl]?.length ?? 0) === 0) ? (
+            <div className="rounded-xl p-4 text-center" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+              <div className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No qualified cross-sport cards right now.</div>
+            </div>
+          ) : RISK_ORDER.map((lvl) => {
+            const cards = byRisk[lvl] ?? [];
+            if (cards.length === 0) return null;
+            return (
+              <div key={lvl} className="space-y-2.5">
+                <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} risk · {cards.length}</div>
+                {cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)}
+              </div>
+            );
+          })}
+        </div>
+      ) : !active || active.eligibleCount === 0 ? (
         active ? <NoQualified status={active} /> : null
       ) : (
         <>
@@ -183,11 +218,12 @@ export default function ParlaysExplorer({ slate }: { slate: TodaySlateView }) {
             <div className="space-y-4">
               {RISK_ORDER.map((lvl) => {
                 const cards = byRisk[lvl] ?? [];
-                if (cards.length === 0) return null;
                 return (
                   <div key={lvl} className="space-y-2.5">
                     <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} risk · {cards.length}</div>
-                    {cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)}
+                    {cards.length > 0
+                      ? cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)
+                      : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>No qualified {RISK_LABEL[lvl].toLowerCase()}-risk card from today&apos;s {SPORT_LABEL[sport] ?? sport} legs.</div>}
                   </div>
                 );
               })}

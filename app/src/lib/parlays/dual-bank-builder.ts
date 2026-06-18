@@ -117,22 +117,23 @@ function buildLane(id: "A" | "B", legs: EligibleLeg[], label: string): BankBuild
   };
 }
 
-export function selectDualBankBuilder(eligible: EligibleLeg[], date: string, opts: BankBuilderOptions): DualBankBuilderResult {
-  const rejected: Array<{ legId: string; reason: string }> = [];
-  const noLaunchReasons: string[] = [];
+/** American → decimal multiplier. */
+function decimalOf(odds: number | null | undefined): number {
+  if (odds == null) return 1;
+  return odds >= 0 ? 1 + odds / 100 : 1 + 100 / -odds;
+}
 
-  // Qualified pool: survival ≥ threshold, non-fragile-ish, fresh, valid scope.
+/** The qualified, exposure-deduped pool used by both selectors (survival ≥ floor, fresh, valid scope). */
+function qualifiedPool(eligible: EligibleLeg[], rejected: Array<{ legId: string; reason: string }>, survivalFloor = SURVIVAL_ELIGIBLE): EligibleLeg[] {
   const qualified = eligible
     .filter((l) => {
       const sv = survivalScore(l);
       if (l.marketScope === "unknown") { rejected.push({ legId: l.legId, reason: "unknown market scope" }); return false; }
       if (l.staleDataFlags.length) { rejected.push({ legId: l.legId, reason: "stale critical data" }); return false; }
-      if (sv < SURVIVAL_ELIGIBLE) { rejected.push({ legId: l.legId, reason: `survival ${sv} < ${SURVIVAL_ELIGIBLE}` }); return false; }
+      if (sv < survivalFloor) { rejected.push({ legId: l.legId, reason: `survival ${sv} < ${survivalFloor}` }); return false; }
       return true;
     })
     .sort((a, b) => survivalScore(b) - survivalScore(a));
-
-  // De-duplicate exposure: one leg per (game, participant) — strongest survival wins.
   const seenExposure = new Set<string>();
   const pool: EligibleLeg[] = [];
   for (const l of qualified) {
@@ -141,6 +142,102 @@ export function selectDualBankBuilder(eligible: EligibleLeg[], date: string, opt
     seenExposure.add(key);
     pool.push(l);
   }
+  return pool;
+}
+
+export interface TargetFitOptions extends BankBuilderOptions {
+  /** Combined-decimal target per lane (e.g. 3.3 ≈ +230). */
+  targetDecimal?: number;
+  /** Hard floor on combined decimal — a lane must beat this or it is not built (default 2.25). */
+  minDecimal?: number;
+  /** Upper bound on combined decimal — keeps "data-supported, not a moonshot" (default 4.2). */
+  maxDecimal?: number;
+}
+
+/**
+ * TARGET-FIT dual Bank Builder: builds two lanes (each one World Cup leg + one non-soccer leg, from
+ * four distinct games, pairwise non-correlated) whose COMBINED odds land near a payout target instead
+ * of maximizing survival. Used to size a ladder step (e.g. ~$200 → ~$700) from genuinely qualified,
+ * pre-event, odds-backed legs. Still gated: returns no_qualified_launch if it can't form two lanes
+ * inside [minDecimal, maxDecimal]. Never fabricates and never forces a moonshot — bounded by maxDecimal.
+ */
+export function selectTargetFitDualBankBuilder(eligible: EligibleLeg[], date: string, opts: TargetFitOptions): DualBankBuilderResult {
+  const rejected: Array<{ legId: string; reason: string }> = [];
+  const noLaunchReasons: string[] = [];
+  const target = opts.targetDecimal ?? 3.3;
+  const minDec = opts.minDecimal ?? 2.25;
+  const maxDec = opts.maxDecimal ?? 4.2;
+
+  // Wider survival floor than the survival selector (we want moderate favorites, not only heavy ones),
+  // but still data-supported: WC team markets ≥ 65, others ≥ 80.
+  const pool = qualifiedPool(eligible, rejected, 60);
+  const soccer = pool.filter((l) => isSoccer(l) && survivalScore(l) >= 65 && l.marketType !== "double_chance");
+  const other = pool.filter((l) => !isSoccer(l) && survivalScore(l) >= 80);
+
+  // All (soccer, non-soccer) pairs whose combined decimal is in band, pairwise non-correlated.
+  type Pair = { wc: EligibleLeg; mlb: EligibleLeg; dec: number; surv: number; score: number };
+  const pairs: Pair[] = [];
+  for (const wc of soccer) {
+    for (const mlb of other) {
+      if (!pairOk(wc, mlb)) continue;
+      const dec = decimalOf(wc.odds) * decimalOf(mlb.odds);
+      if (dec < minDec || dec > maxDec) continue;
+      const surv = Math.round((survivalScore(wc) + survivalScore(mlb)) / 2);
+      // Score: closeness to the target payout dominates; survival breaks ties.
+      const score = -Math.abs(dec - target) * 100 + surv;
+      pairs.push({ wc, mlb, dec, surv, score });
+    }
+  }
+  pairs.sort((a, b) => b.score - a.score);
+
+  const laneApair = pairs[0] ?? null;
+  // Lane B: best pair from a DIFFERENT WC match AND different MLB game, sharing no leg with Lane A.
+  const laneBpair = laneApair
+    ? pairs.find((p) =>
+        p.wc.eventId !== laneApair.wc.eventId &&
+        p.mlb.eventId !== laneApair.mlb.eventId &&
+        p.wc.legId !== laneApair.wc.legId && p.mlb.legId !== laneApair.mlb.legId)
+    : null;
+
+  const gates: DualBankBuilderResult["launchGateSummary"] = [
+    { gate: "≥2 qualified soccer matches + non-soccer legs", passed: soccer.length >= 2 && other.length >= 2, detail: `${soccer.length} soccer, ${other.length} non-soccer (survival-gated)` },
+    { gate: `two lanes in payout band [${minDec}, ${maxDec}]×`, passed: !!laneApair && !!laneBpair, detail: laneApair && laneBpair ? `A ${laneApair.dec.toFixed(2)}× · B ${laneBpair.dec.toFixed(2)}×` : "could not fit two lanes in band" },
+    { gate: "four distinct games", passed: !!(laneApair && laneBpair), detail: laneApair && laneBpair ? `${[laneApair.wc.eventId, laneApair.mlb.eventId, laneBpair.wc.eventId, laneBpair.mlb.eventId].join(",")}` : "n/a" },
+    { gate: "one soccer leg per lane (preferred)", passed: !!(laneApair && laneBpair), detail: "WC leg in both lanes by construction" },
+  ];
+  const ok = !!laneApair && !!laneBpair;
+  if (!ok) {
+    for (const g of gates) if (!g.passed) noLaunchReasons.push(`${g.gate} — ${g.detail}`);
+    return {
+      runId: null, date, status: "no_qualified_launch", laneA: null, laneB: null,
+      selectedFourLegs: (laneApair ? [laneApair.wc, laneApair.mlb] : []).map(laneLeg),
+      rejectedCandidates: rejected.slice(0, 50), launchGateSummary: gates, noLaunchReasons,
+      modelVersion: MODEL_VERSION, createdAt: null, published: false,
+    };
+  }
+
+  const laneAlegs = [laneApair!.wc, laneApair!.mlb];
+  const laneBlegs = [laneBpair!.wc, laneBpair!.mlb];
+  const status: BankBuilderLaunchStatus = opts.mode === "launch" ? "launched" : "dry_run_only";
+  return {
+    runId: status === "launched" ? (opts.newRunId ?? null) : null,
+    date, status,
+    laneA: buildLane("A", laneAlegs, "Lane A: target-fit payout lane (one World Cup leg)"),
+    laneB: buildLane("B", laneBlegs, "Lane B: target-fit payout lane (one World Cup leg)"),
+    selectedFourLegs: [...laneAlegs, ...laneBlegs].map(laneLeg),
+    rejectedCandidates: rejected.slice(0, 50),
+    launchGateSummary: gates,
+    noLaunchReasons: [],
+    modelVersion: MODEL_VERSION, createdAt: null, published: false,
+  };
+}
+
+export function selectDualBankBuilder(eligible: EligibleLeg[], date: string, opts: BankBuilderOptions): DualBankBuilderResult {
+  const rejected: Array<{ legId: string; reason: string }> = [];
+  const noLaunchReasons: string[] = [];
+
+  // Qualified pool: survival ≥ threshold, non-fragile-ish, fresh, valid scope.
+  const pool = qualifiedPool(eligible, rejected);
 
   const distinctGames = new Set(pool.map((l) => l.eventId)).size;
 
