@@ -159,7 +159,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
             <button type="button" onClick={() => setGameFilter(null)}
               className="self-start inline-flex items-center gap-2 rounded-full px-3 py-1"
               style={{ background: "var(--vault-gold-dim)", border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", fontSize: 11.5, fontWeight: 600 }}>
-              Showing one game&apos;s legs <span style={{ opacity: 0.85 }}>· clear ✕</span>
+              Building from {pool.find((l) => String(l.gameId) === gameFilter)?.gameLabel ?? "this game"} <span style={{ opacity: 0.85 }}>· clear ✕</span>
             </button>
           ) : null}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
