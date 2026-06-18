@@ -379,6 +379,37 @@
           "notes": "Soccer leg settled a loss; the partner leg had already started, so no pre-start replacement was possible."
         },
         {
+          "eventId": "mrdub-2026-06-18-lane-a-relaunch-blocked",
+          "timestamp": "2026-06-18T18:40:00Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_relaunch_blocked",
+          "laneId": "lane-a",
+          "step": 2,
+          "paperStake": 0,
+          "paperReturn": 0,
+          "paperProfit": 0,
+          "status": "audit",
+          "publicBankBuilderVisible": false,
+          "legs": [
+            {
+              "market": "moneyline",
+              "selection": "Czech Republic ML",
+              "result": "lost",
+              "officialResult": "Czechia 1-1 South Africa FT",
+              "source": "espn_fifa_world"
+            },
+            {
+              "market": "Hits + Runs + RBIs",
+              "selection": "Josh Bell Over 1.5",
+              "result": "in_play",
+              "officialResult": "Twins@Rangers Live/In Progress (first pitch 18:35Z)",
+              "source": "mlb_stats_api"
+            }
+          ],
+          "notes": "Owner-requested same-step Lane A relaunch (keep Josh Bell, swap the failed Czech ML) was BLOCKED: the kept partner leg (Josh Bell, Twins@Rangers, first pitch 18:35Z) was already Live/In-Progress at evaluation (19:31Z), so the card cannot be retroactively relaunched. Czech ML lost officially (Czechia 1-1 South Africa FT). Fallback: the clean queued $100 Lane A path stands; Lane B unchanged."
+        },
+        {
           "eventId": "mrdub-2026-06-18-lane-a-restart-queued",
           "timestamp": "2026-06-18T18:40:00Z",
           "portfolio": "mr-dub-paper",
