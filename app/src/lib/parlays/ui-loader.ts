@@ -57,6 +57,8 @@ export interface ParlayLegDisplay {
   smallSampleFlags: string[];
   leakagePassed: boolean;
   startTime: string | null;
+  settlementResult: string | null;   // won | lost | void | pending | needs_review | null (unsettled)
+  settlementOfficial: string | null; // official stat/score line, e.g. "4 K (5.0 IP)"
   identity: LegIdentity;
 }
 export interface SuggestedParlayCard {
@@ -88,8 +90,8 @@ export interface DualBankBuilderPreview {
   status: DualBankBuilderResult["status"];
   runId: string | null;
   date: string;
-  laneA: { label: string; legs: ParlayLegDisplay[]; survivalScore: number; combinedOdds: number | null } | null;
-  laneB: { label: string; legs: ParlayLegDisplay[]; survivalScore: number; combinedOdds: number | null } | null;
+  laneA: { label: string; legs: ParlayLegDisplay[]; survivalScore: number; combinedOdds: number | null; result: string | null; advanced: boolean } | null;
+  laneB: { label: string; legs: ParlayLegDisplay[]; survivalScore: number; combinedOdds: number | null; result: string | null; advanced: boolean } | null;
   selectedFour: ParlayLegDisplay[];
   launchGateSummary: DualBankBuilderResult["launchGateSummary"];
   noLaunchReasons: string[];
@@ -142,7 +144,8 @@ function readActiveLaunchedRun(root: string, date: string): { run: DualBankBuild
     if (!fs.existsSync(p)) return null;
     const doc = JSON.parse(fs.readFileSync(p, "utf8"));
     const run = doc?.run;
-    if (run && run.date === date && run.status === "launched") return { run };
+    // Show the run while it is launched (live) OR settled (official results in).
+    if (run && run.date === date && (run.status === "launched" || run.status === "settled")) return { run };
     return null;
   } catch { return null; }
 }
@@ -224,6 +227,8 @@ function legDisplay(leg: EligibleLeg, maps: IdentityMaps): ParlayLegDisplay {
     smallSampleFlags: leg.smallSampleFlags.map((f) => f.field),
     leakagePassed: leg.leakageValidationPassed,
     startTime: leg.startTime,
+    settlementResult: null,
+    settlementOfficial: null,
     identity: legIdentity(leg, maps),
   };
 }
@@ -353,13 +358,23 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
       legQualityScore: ll.legQualityScore ?? 0, survivalScore: ll.legQualityScore ?? null,
       topPositiveFactors: (ll.topPositiveFactors ?? []).map((f: any) => f.label), topNegativeFactors: (ll.topNegativeFactors ?? []).map((f: any) => f.label),
       missingFlags: [], staleFlags: [], smallSampleFlags: [],
-      leakagePassed: true, startTime: ll.startTime ?? null, identity: { kind: "team", playerId: null, teamAbbr: null, countryCode: null, photoUrl: null, avatarSport: "mlb" },
+      leakagePassed: true, startTime: ll.startTime ?? null,
+      settlementResult: ll.settlement?.result ?? null, settlementOfficial: ll.settlement?.official ?? null,
+      identity: { kind: "team", playerId: null, teamAbbr: null, countryCode: null, photoUrl: null, avatarSport: "mlb" },
     });
-    const toLane = (lane: DualBankBuilderResult["laneA"]) => lane ? {
+    // When the run is settled, prefer the artifact leg (carries the official result) over the live leg.
+    const settledLegByIdLookup = (ll: any): ParlayLegDisplay => {
+      const live = legByIdLookup.get(ll.legId);
+      if (live && ll.settlement) return { ...live, settlementResult: ll.settlement.result ?? null, settlementOfficial: ll.settlement.official ?? null };
+      return live ?? minimalLeg(ll);
+    };
+    const toLane = (lane: any) => lane ? {
       label: lane.label,
-      legs: lane.legs.map((ll) => legByIdLookup.get(ll.legId) ?? minimalLeg(ll)),
+      legs: lane.legs.map((ll: any) => settledLegByIdLookup(ll)),
       survivalScore: lane.laneSurvivalScore,
       combinedOdds: lane.combinedOdds,
+      result: lane.result ?? null,
+      advanced: lane.advanced ?? false,
     } : null;
     const bankBuilderPreview: DualBankBuilderPreview = {
       status: bb.status,

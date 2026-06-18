@@ -23,6 +23,13 @@ function projectedReturn(o: number | null): string {
   return d == null ? "—" : `$${(STAKE * d).toFixed(2)}`;
 }
 
+function resultColor(r: string | null): string {
+  const v = (r ?? "").toLowerCase();
+  if (v === "won") return "var(--vault-success)";
+  if (v === "lost") return "var(--gtp-bank-heat)";
+  return "var(--vault-text-faint)"; // void / pending / needs_review
+}
+
 function sideText(side: string | null): string {
   if (!side) return "";
   const s = side.toLowerCase();
@@ -59,7 +66,11 @@ function LaneLegRow({ leg, active }: { leg: ParlayLegDisplay; active?: boolean }
         </span>
         <span className="shrink-0 text-right">
           <span className="block font-mono text-[12px]" style={{ color: "var(--vault-text)" }}>{american(leg.odds)}</span>
-          <span className="block font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>{active ? "pending · live ▾" : "pending ▾"}</span>
+          {leg.settlementResult ? (
+            <span className="block font-mono text-[9.5px] uppercase" style={{ color: resultColor(leg.settlementResult) }}>{leg.settlementResult} ▾</span>
+          ) : (
+            <span className="block font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>{active ? "pending · live ▾" : "pending ▾"}</span>
+          )}
         </span>
       </summary>
       <div className="mt-2 space-y-1.5 pl-8 text-[11.5px]">
@@ -70,6 +81,9 @@ function LaneLegRow({ leg, active }: { leg: ParlayLegDisplay; active?: boolean }
           <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{leg.legQualityTier}</span>
           {leg.modelProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>model {Math.round(leg.modelProbability * 100)}%</span>}
         </div>
+        {leg.settlementResult && leg.settlementOfficial && (
+          <div style={{ color: "var(--vault-text)" }}><span className="uppercase font-mono text-[10px]" style={{ color: resultColor(leg.settlementResult) }}>{leg.settlementResult}</span> · official: {leg.settlementOfficial}</div>
+        )}
         {leg.topPositiveFactors.slice(0, 2).map((f, i) => <div key={`p${i}`} style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--vault-success)" }}>Why:</span> {f}</div>)}
         {leg.topNegativeFactors.slice(0, 2).map((f, i) => <div key={`n${i}`} style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--gtp-bank-heat)" }}>Risk:</span> {f}</div>)}
         {leg.startTime && <div style={{ color: "var(--vault-text-faint)" }}>Kickoff/first pitch: {startLabel(leg.startTime)} · settles from official sources only.</div>}
@@ -80,16 +94,16 @@ function LaneLegRow({ leg, active }: { leg: ParlayLegDisplay; active?: boolean }
 
 const LADDER_STEPS = [1, 2, 3, 4, 5];
 
-/** Per-lane $100 → $10K ladder: Step 1 active, Steps 2–5 coming soon. */
-function LaneLadder({ projected }: { projected: string }) {
+/** Per-lane $100 → $10K ladder: Step 1 active/cleared, Steps 2–5 coming soon. */
+function LaneLadder({ projected, won }: { projected: string; won?: boolean }) {
   return (
     <div className="mt-2.5">
       <div className="flex items-center gap-1">
         {LADDER_STEPS.map((s, i) => (
           <div key={s} className="flex items-center gap-1">
             <span className="flex h-5 w-5 items-center justify-center rounded-full font-mono text-[9.5px]"
-              style={{ background: s === 1 ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.05)", color: s === 1 ? "#170f0a" : "var(--vault-text-faint)", border: "1px solid var(--vault-border)" }}>
-              {s}
+              style={{ background: s === 1 ? (won ? "var(--vault-success)" : "var(--gtp-bank-heat)") : "rgba(255,255,255,0.05)", color: s === 1 ? "#170f0a" : "var(--vault-text-faint)", border: "1px solid var(--vault-border)" }}>
+              {s === 1 && won ? "✓" : s}
             </span>
             {i < LADDER_STEPS.length - 1 && <span aria-hidden style={{ width: 10, height: 1, background: "var(--vault-border)" }} />}
           </div>
@@ -97,7 +111,9 @@ function LaneLadder({ projected }: { projected: string }) {
         <span className="ml-1 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>→ $10K</span>
       </div>
       <div className="mt-1 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
-        Step 1 active · $100 → {projected} · pending official settlement · Steps 2–5 coming soon
+        {won
+          ? `Step 1 cleared · $100 → ${projected} · advancing to Step 2 (coming soon)`
+          : `Step 1 active · $100 → ${projected} · pending official settlement · Steps 2–5 coming soon`}
       </div>
     </div>
   );
@@ -107,10 +123,15 @@ function LaneTracker({ lane, laneId, active }: { lane: NonNullable<DualBankBuild
   const sports = Array.from(new Set(lane.legs.map((l) => l.sport)));
   const hasSoccer = lane.legs.some((l) => l.sport === "WORLD_CUP");
   const avgRisk = lane.legs.length ? lane.legs.reduce((s, l) => s + l.riskScore, 0) / lane.legs.length : 0;
+  const settled = !!lane.result && lane.result !== "pending";
+  const won = lane.result === "won";
   return (
-    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(58,18,12,0.5), rgba(20,10,8,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
+    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(58,18,12,0.5), rgba(20,10,8,0.5))", border: "1px solid var(--vault-border)", borderTop: `2px solid ${settled ? (won ? "var(--vault-success)" : "var(--gtp-bank-heat)") : "var(--gtp-bank-heat)"}` }}>
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}</span>
+        <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
+          Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}
+          {settled && <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] uppercase" style={{ background: won ? "rgba(70,130,90,0.18)" : "rgba(225,29,42,0.15)", color: won ? "var(--vault-success)" : "var(--gtp-bank-heat)" }}>{won ? "Won · advanced" : lane.result}</span>}
+        </span>
         <span className="font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>survival {lane.survivalScore}</span>
       </div>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -126,13 +147,17 @@ function LaneTracker({ lane, laneId, active }: { lane: NonNullable<DualBankBuild
         <span style={{ color: "var(--vault-text-mute)" }}>combined <span className="font-mono" style={{ color: "var(--vault-text)" }}>{american(lane.combinedOdds)}</span></span>
         <span style={{ color: "var(--vault-text-mute)" }}>→ {projectedReturn(lane.combinedOdds)} from ${STAKE}</span>
       </div>
-      <LaneLadder projected={projectedReturn(lane.combinedOdds)} />
-      {/* progress meter — preview: 0 legs settled, awaiting operator launch */}
+      <LaneLadder projected={projectedReturn(lane.combinedOdds)} won={won} />
+      {/* progress meter */}
       <div className="mt-2">
         <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
-          <div style={{ width: "0%", height: "100%", background: "var(--gtp-bank-heat)" }} />
+          <div style={{ width: settled ? "20%" : "0%", height: "100%", background: won ? "var(--vault-success)" : "var(--gtp-bank-heat)" }} />
         </div>
-        <div className="mt-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>0 / {lane.legs.length} settled · {active ? "live — awaiting results" : "awaiting operator launch"}</div>
+        <div className="mt-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+          {settled
+            ? `${lane.legs.length} / ${lane.legs.length} settled · ${won ? "Step 1 WON — advancing" : lane.result} · official sources`
+            : `0 / ${lane.legs.length} settled · ${active ? "live — awaiting results" : "awaiting operator launch"}`}
+        </div>
       </div>
     </div>
   );
@@ -140,17 +165,23 @@ function LaneTracker({ lane, laneId, active }: { lane: NonNullable<DualBankBuild
 
 export default function BankBuilderPreviewPanel({ preview }: { preview: DualBankBuilderPreview }) {
   const qualifies = preview.status !== "no_qualified_launch" && preview.laneA && preview.laneB;
-  const active = preview.status === "launched";
+  const settled = preview.status === "settled";
+  const live = preview.status === "launched";
+  const active = live || settled; // primary/highlighted state
+  const lanesWon = [preview.laneA, preview.laneB].filter(Boolean).filter((l) => l!.result === "won").length;
+  const lanesTotal = [preview.laneA, preview.laneB].filter(Boolean).length;
   return (
     <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: active ? "1px solid var(--gtp-bank-heat)" : "1px solid var(--vault-border)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{active ? "Dual Bank Builder · ACTIVE" : "Dual Bank Builder preview"}</h3>
+        <h3 className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{settled ? "Dual Bank Builder · SETTLED" : live ? "Dual Bank Builder · ACTIVE" : "Dual Bank Builder preview"}</h3>
         <span className="rounded-full px-2.5 py-1 text-[11px] font-medium" style={{ background: active ? "rgba(70,130,90,0.18)" : "rgba(255,255,255,0.05)", color: active ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>
-          {active ? "Live · paper" : "Operator approval required"}
+          {settled ? `${lanesWon}/${lanesTotal} lanes won · paper` : live ? "Live · paper" : "Operator approval required"}
         </span>
       </div>
       <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-faint)" }}>
-        {active
+        {settled
+          ? `Settled from official sources — ${lanesWon} of ${lanesTotal} lanes won and advanced; each lane moves to Step 2 (coming soon). Paper stakes only; protected completed-ladder history is untouched.`
+          : live
           ? "Launched dual run from the methodology engine — survival-first, one World Cup leg per lane. Paper stakes only; protected completed-ladder history is untouched."
           : "Dry-run preview from the methodology engine — survival-first, pre-event, odds-backed, correlation-aware. Not launched; nothing is published or active. Paper stakes only."}
       </p>
@@ -158,8 +189,8 @@ export default function BankBuilderPreviewPanel({ preview }: { preview: DualBank
       {qualifies ? (
         <>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <LaneTracker lane={preview.laneA!} laneId="A" active={active} />
-            <LaneTracker lane={preview.laneB!} laneId="B" active={active} />
+            <LaneTracker lane={preview.laneA!} laneId="A" active={live} />
+            <LaneTracker lane={preview.laneB!} laneId="B" active={live} />
           </div>
 
           <details className="mt-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)" }}>

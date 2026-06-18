@@ -132,7 +132,7 @@ export interface GenerationNote {
 }
 
 // ── Dual Bank Builder ──────────────────────────────────────────────────────────────────────────
-export type BankBuilderLaunchStatus = "launched" | "no_qualified_launch" | "dry_run_only";
+export type BankBuilderLaunchStatus = "launched" | "no_qualified_launch" | "dry_run_only" | "settled";
 
 export interface BankBuilderLaneLeg extends ParlayLegView {
   legQualityScore: number;

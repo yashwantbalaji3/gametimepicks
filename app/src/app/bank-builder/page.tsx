@@ -194,7 +194,7 @@ export default function BankBuilderPage() {
       {/* PRIMARY — today's active dual ladder (or operator-gated preview), shown first. */}
       {(() => {
         const bbPreview = loadTodaySlate().bankBuilderPreview;
-        const activeLaunched = bbPreview.status === "launched";
+        const activeLaunched = bbPreview.status === "launched" || bbPreview.status === "settled";
         return (
           <>
             <div className="mt-6"><BankBuilderPreviewPanel preview={bbPreview} /></div>
