@@ -21,6 +21,10 @@ const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
 const ACTIVE = path.join(DATA, "methodology", "launch", "dual-bank-builder-active.json");
 const TEAM_MARKETS = ["moneyline_90", "draw_no_bet", "double_chance"];
+// Officially postponed/abandoned games whose legs are still in the (earlier-built) eligible pool but must
+// never be offered. Verified against the official source at run time (no stale legs). 2026-06-18: SF @ ATL
+// postponed (rain, rescheduled Aug 31) per MLB Stats API.
+const EXCLUDED_EVENTS = new Set(["e92122c8f905eb41a57faabf21daf468"]);
 const decOf = (o) => (o == null ? 1 : o >= 0 ? 1 + o / 100 : 1 + 100 / -o);
 const amer = (dec) => (dec >= 2 ? Math.round((dec - 1) * 100) : Math.round(-100 / (dec - 1)));
 
@@ -66,14 +70,17 @@ function main() {
       continue;
     }
     const mlbDec = decOf(mlb.odds);
-    const cands = wcTeam
+    const soccerDec = decOf(soccer.odds);
+    const laneId = lk === "laneA" ? "lane-a" : "lane-b";
+    // (a) Soccer swaps — keep the MLB partner, replace the soccer leg with another not-started WC team leg.
+    const soccerCands = wcTeam
       .filter((l) => l.eventId !== soccer.eventId && !usedEvents.has(String(l.eventId)) && l.startTime && Date.parse(l.startTime) > nowMs)
       .map((l) => {
         const ll = laneLeg(l);
         const dec = decOf(ll.odds) * mlbDec;
         return {
-          candidateId: `replacement-${lk === "laneA" ? "lane-a" : "lane-b"}-step${step.step}-${ll.legId.replace(/[^a-z0-9]+/gi, "-").slice(0, 24)}`,
-          replaceLegId: soccer.legId, keepLegId: mlb.legId, newLeg: ll,
+          candidateId: `replacement-${laneId}-step${step.step}-soccer-${ll.legId.replace(/[^a-z0-9]+/gi, "-").slice(0, 24)}`,
+          forLeg: "soccer", replaceLegId: soccer.legId, keepLegId: mlb.legId, newLeg: ll,
           combinedOdds: amer(dec), projectedReturn: Math.round(step.stake * dec * 100) / 100,
           survival: Math.round((survivalScore(l) + (mlb.legQualityScore ?? 80)) / 2),
           reason: "Pre-event replacement candidate if the soccer leg fails before the partner starts.",
@@ -82,6 +89,28 @@ function main() {
       })
       .sort((a, b) => b.survival - a.survival)
       .slice(0, 3);
+    // (b) MLB swaps — keep the soccer leg, replace the MLB leg with another not-started MLB leg from a
+    // DIFFERENT game (avoids same-game correlation and any in-use lane game), keeping the card near target.
+    const mlbCands = elig
+      .filter((l) => l.sport !== "WORLD_CUP" && l.odds != null && l.eventId !== mlb.eventId && !usedEvents.has(String(l.eventId))
+        && !EXCLUDED_EVENTS.has(String(l.eventId)) && l.startTime && Date.parse(l.startTime) > nowMs && survivalScore(l) >= 70)
+      .map((l) => {
+        const ll = laneLeg(l);
+        const dec = decOf(ll.odds) * soccerDec;
+        const validUntil = Math.min(Date.parse(soccer.startTime), Date.parse(ll.startTime));
+        return {
+          candidateId: `replacement-${laneId}-step${step.step}-mlb-${ll.legId.replace(/[^a-z0-9]+/gi, "-").slice(0, 24)}`,
+          forLeg: "mlb", replaceLegId: mlb.legId, keepLegId: soccer.legId, newLeg: ll,
+          combinedOdds: amer(dec), projectedReturn: Math.round(step.stake * dec * 100) / 100,
+          survival: Math.round((survivalScore(l) + (soccer.legQualityScore ?? 70)) / 2),
+          reason: "Pre-event replacement candidate if the MLB leg fails/scratches before the soccer leg starts.",
+          validUntil: new Date(validUntil).toISOString(), status: "candidate",
+        };
+      })
+      .filter((c) => c.projectedReturn >= 175 && c.projectedReturn <= 250)
+      .sort((a, b) => b.survival - a.survival)
+      .slice(0, 3);
+    const cands = [...soccerCands, ...mlbCands];
     lane.replacementCandidates = cands;
     total += cands.length;
     if (cands.length === 0 && lane.laneStatus === "stopped") {

@@ -64,6 +64,45 @@ function main() {
     const lane = active[lk]; if (!lane) continue;
     const laneName = lk === "laneA" ? "lane-a" : "lane-b";
     const laneStake = round2(lane.steps?.[0]?.stake ?? 100); // a dual lane is a single $100 paper experiment
+
+    // Prior (stopped) lane history — when a lane is relaunched fresh, its old settled steps move to
+    // priorLane so the public lane shows the new card while Mr. Dub still records the old won/lost rungs.
+    if (lane.priorLane?.steps?.length) {
+      const priorStake = round2(lane.priorLane.steps[0]?.stake ?? 100);
+      for (const s of lane.priorLane.steps) {
+        const legs = (s.legs ?? []).map((l) => ({ market: l.marketType, selection: l.label, result: l.settlement?.result ?? "settled", officialResult: l.settlement?.official ?? null, source: l.settlement?.source ?? "official" }));
+        const won = s.result === "won";
+        won ? wins++ : losses++;
+        if (!won) dualRealized = round2(dualRealized - priorStake);
+        laneEvents.push({
+          eventId: `mrdub-2026-06-18-${laneName}-prior-step${s.step}-${won ? "won" : "stopped"}`,
+          timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder",
+          type: won ? "lane_step_won" : "lane_stopped",
+          laneId: laneName, step: s.step, date: s.slateDate ?? null,
+          paperStake: round2(s.stake ?? 0), paperReturn: won ? round2(s.payout ?? 0) : 0,
+          paperProfit: won ? 0 : -priorStake, rolled: won, status: "settled", result: s.result,
+          combinedOdds: s.combinedOdds ?? null, officialResultConfirmed: true,
+          publicBankBuilderVisible: false, // prior stopped lane is hidden from the public Bank Builder
+          legs,
+          notes: won
+            ? `Prior Lane ${lk.slice(-1)} Step ${s.step} cleared (official) before the lane was stopped and relaunched fresh.`
+            : (lane.priorLane.stopReason ?? `Prior Lane ${lk.slice(-1)} Step ${s.step} settled a loss — original $${priorStake} paper stake lost; lane later relaunched fresh.`),
+        });
+      }
+    }
+    // Owner-requested same-step relaunch audit (keep partner, swap only the failed soccer leg): recorded
+    // here when the lane evaluated it but the kept partner had already started (timing block).
+    if (lane.relaunchAudit) {
+      laneEvents.push({
+        eventId: `mrdub-2026-06-18-${laneName}-relaunch-blocked`,
+        timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder", type: "lane_relaunch_blocked",
+        laneId: laneName, step: 2, paperStake: 0, paperReturn: 0, paperProfit: 0,
+        status: "audit", publicBankBuilderVisible: false,
+        legs: lane.relaunchAudit.legs ?? [],
+        notes: lane.relaunchAudit.note,
+      });
+    }
+
     for (const s of lane.steps ?? []) {
       const legs = (s.legs ?? []).map((l) => ({ market: l.marketType, selection: l.label, result: l.settlement?.result ?? "settled", officialResult: l.settlement?.official ?? null, source: l.settlement?.source ?? "official" }));
       if (s.status === "settled") {
@@ -99,21 +138,12 @@ function main() {
           projectedReturn: round2(s.projectedPayout ?? 0), status: "open",
           combinedOdds: s.combinedOdds ?? null, publicBankBuilderVisible: true, legs,
           sportExposure: (s.legs ?? []).map((l) => l.sport),
-          notes: `Lane ${lk.slice(-1)} Step ${s.step} open — $${s.stake} paper position riding, projected $${s.projectedPayout}. Original $${laneStake} at risk. Settles from official sources.`,
+          relaunch: s.step === 1 && lane.relaunch ? true : undefined,
+          notes: s.step === 1 && lane.relaunch
+            ? `Fresh Lane ${lk.slice(-1)} relaunch — Step ${s.step} open. New $${s.stake} paper position on two brand-new pre-event legs, projected $${s.projectedPayout}. Original $${laneStake} at risk. Settles from official sources.`
+            : `Lane ${lk.slice(-1)} Step ${s.step} open — $${s.stake} paper position riding, projected $${s.projectedPayout}. Original $${laneStake} at risk. Settles from official sources.`,
         });
       }
-    }
-    // Owner-requested same-step relaunch audit (keep the partner, swap only the failed soccer leg):
-    // recorded here when the lane evaluated it but the kept partner had already started (timing block).
-    if (lane.relaunchAudit) {
-      laneEvents.push({
-        eventId: `mrdub-2026-06-18-${laneName}-relaunch-blocked`,
-        timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder", type: "lane_relaunch_blocked",
-        laneId: laneName, step: 2, paperStake: 0, paperReturn: 0, paperProfit: 0,
-        status: "audit", publicBankBuilderVisible: false,
-        legs: lane.relaunchAudit.legs ?? [],
-        notes: lane.relaunchAudit.note,
-      });
     }
     if (lane.restart) {
       laneEvents.push({

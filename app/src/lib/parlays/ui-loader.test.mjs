@@ -87,41 +87,53 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("the active 06-18 ladder: Step 1 cleared WON, Step 2 live, soccer per lane, Steps 3-5 coming soon", () => {
-  const v = loadTodaySlate("2026-06-18", "2026-06-18T14:49:58Z");
+test("the active 06-18 ladder: Lane A relaunched fresh on Step 1, Lane B on Step 2, soccer + MLB per lane", () => {
+  const v = loadTodaySlate("2026-06-18", "2026-06-18T20:40:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.status, "launched", "active ladder is launched");
   assert.equal(bb.isLadder, true, "preview is a multi-step ladder");
-  assert.equal(bb.currentStep, 2, "current step is Step 2");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
   for (const lane of [bb.laneA, bb.laneB]) {
     assert.equal(lane.steps.length, 5, "five-step ladder");
-    const step1 = lane.steps[0];
-    const step2 = lane.steps[1];
-    assert.equal(step1.status, "settled");
-    assert.equal(step1.result, "won", "Step 1 cleared WON");
-    // Step 1 legs carry the official settled result + line (preserved, never refabricated).
-    for (const leg of step1.legs) {
-      assert.equal(leg.settlementResult, "won");
-      assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "Step 1 leg has an official line");
-    }
-    // Step 2 is either still live (pending) or officially settled (the dual-lane lifecycle); never fabricated.
-    assert.ok(["pending", "settled"].includes(step2.status), "Step 2 is pending or settled");
-    assert.ok(step2.legs.length === 2, "Step 2 has two legs");
-    assert.ok(step2.legs.some((l) => l.sport === "WORLD_CUP"), "Step 2 has a World Cup leg in this lane");
-    assert.ok(typeof step2.stake === "number" && step2.stake > 0, "Step 2 stakes the cleared Step 1 payout");
-    // Steps 3–5 are coming soon (no fabricated legs).
-    for (let i = 2; i < 5; i++) {
-      assert.equal(lane.steps[i].status, "coming_soon");
-      assert.equal(lane.steps[i].legs.length, 0, "no fabricated legs for future steps");
-    }
+    assert.equal(lane.publicVisible, true, "active lane shown publicly");
   }
-  // No leg shared across the two lanes' Step 2.
-  const aIds = new Set(bb.laneA.steps[1].legs.map((l) => l.legId));
-  assert.ok(bb.laneB.steps[1].legs.every((l) => !aIds.has(l.legId)), "no shared Step 2 legs");
-  // MLB Step 2 legs carry the exact Over/Under side for the "why" drawer.
-  const mlb = [...bb.laneA.steps[1].legs, ...bb.laneB.steps[1].legs].find((l) => l.sport === "MLB");
-  if (mlb) assert.ok(mlb.side === "over" || mlb.side === "under", "MLB Step 2 leg carries an exact side");
+
+  // Lane A: a FRESH active Step 1 (the prior stopped lane was relaunched, not retroactively edited).
+  const a1 = bb.laneA.steps[0];
+  assert.equal(a1.status, "pending", "Lane A fresh Step 1 is live");
+  assert.equal(a1.stake, 100, "fresh lane starts from $100");
+  assert.ok(a1.payout >= 190 && a1.payout <= 225, "fresh Step 1 targets ~$200");
+  assert.equal(a1.legs.length, 2, "two fresh legs");
+  assert.ok(a1.legs.some((l) => l.sport === "WORLD_CUP") && a1.legs.some((l) => l.sport === "MLB"), "one World Cup + one MLB");
+  assert.ok(a1.legs.every((l) => !/Czech/i.test(l.participant ?? "") && !/Josh Bell/i.test(l.participant ?? "")), "no Czech, no Josh Bell");
+  for (let i = 1; i < 5; i++) {
+    assert.equal(bb.laneA.steps[i].status, "coming_soon");
+    assert.equal(bb.laneA.steps[i].legs.length, 0, "no fabricated legs for future steps");
+  }
+
+  // Lane B: Step 1 cleared WON, Step 2 live (unchanged), Steps 3-5 coming soon.
+  const b1 = bb.laneB.steps[0], b2 = bb.laneB.steps[1];
+  assert.equal(b1.status, "settled");
+  assert.equal(b1.result, "won", "Lane B Step 1 cleared WON");
+  for (const leg of b1.legs) {
+    assert.equal(leg.settlementResult, "won");
+    assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "Step 1 leg has an official line");
+  }
+  assert.ok(["pending", "settled"].includes(b2.status), "Lane B Step 2 is pending or settled");
+  assert.equal(b2.legs.length, 2, "Step 2 has two legs");
+  assert.ok(b2.legs.some((l) => l.sport === "WORLD_CUP") && b2.legs.some((l) => l.sport === "MLB"), "soccer + MLB");
+  assert.ok(typeof b2.stake === "number" && b2.stake > 0, "Step 2 stakes the cleared Step 1 payout");
+  for (let i = 2; i < 5; i++) {
+    assert.equal(bb.laneB.steps[i].status, "coming_soon");
+    assert.equal(bb.laneB.steps[i].legs.length, 0, "no fabricated legs for future steps");
+  }
+
+  // No leg shared between Lane A's fresh Step 1 and Lane B's live Step 2.
+  const aIds = new Set(a1.legs.map((l) => l.legId));
+  assert.ok(b2.legs.every((l) => !aIds.has(l.legId)), "no shared legs across lanes");
+  // MLB legs carry the exact Over/Under side for the "why" drawer.
+  const mlb = [...a1.legs, ...b2.legs].find((l) => l.sport === "MLB");
+  if (mlb) assert.ok(mlb.side === "over" || mlb.side === "under", "MLB leg carries an exact side");
 });
 
 test("mixed-sport parlays: each card spans a World Cup leg + another sport, by risk", () => {
@@ -141,18 +153,17 @@ test("mixed-sport parlays: each card spans a World Cup leg + another sport, by r
   }
 });
 
-test("Step 2 was re-optimized for payout: combined odds are plus-money and beat the conservative version", () => {
+test("Lane B Step 2 was re-optimized for payout: combined odds are plus-money and beat the conservative version", () => {
   const v = loadTodaySlate("2026-06-18", "2026-06-18T15:55:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.isLadder, true);
-  for (const lane of [bb.laneA, bb.laneB]) {
-    const step2 = lane.steps.find((s) => s.step === 2);
-    // Step 2 was built payout-optimized (plus-money combined, ≥2.25x); the property holds whether the
-    // step is still pending or has since settled in the dual-lane lifecycle.
-    assert.ok(step2.combinedOdds != null && step2.combinedOdds > 0, "Step 2 combined odds are plus-money (payout-optimized)");
-    assert.ok((step2.payout ?? 0) / (step2.stake ?? 1) >= 2.25, "Step 2 clears the 2.25x payout floor");
-    assert.ok(step2.legs.some((l) => l.sport === "WORLD_CUP"), "Step 2 keeps a World Cup leg per lane");
-  }
+  // Lane A has relaunched to a fresh Step 1; Lane B carries the payout-optimized live Step 2.
+  const step2 = bb.laneB.steps.find((s) => s.step === 2);
+  // Step 2 was built payout-optimized (plus-money combined, ≥2.25x); the property holds whether the
+  // step is still pending or has since settled in the dual-lane lifecycle.
+  assert.ok(step2.combinedOdds != null && step2.combinedOdds > 0, "Step 2 combined odds are plus-money (payout-optimized)");
+  assert.ok((step2.payout ?? 0) / (step2.stake ?? 1) >= 2.25, "Step 2 clears the 2.25x payout floor");
+  assert.ok(step2.legs.some((l) => l.sport === "WORLD_CUP"), "Step 2 keeps a World Cup leg per lane");
 });
 
 test("Lane B Step 2 soccer leg is a clean team market (BTTS No was replaced)", () => {
