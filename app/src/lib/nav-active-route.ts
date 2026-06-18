@@ -16,6 +16,7 @@ export type MobileNavBucket =
   | "picks"
   | "lab"
   | "bank"
+  | "mrdub"
   | "results"
   | "sports";
 
@@ -47,6 +48,7 @@ export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "picks", href: "/picks", label: "Parlay Lab" },
   { bucket: "lab", href: "/build", label: "Build" },
   { bucket: "bank", href: "/bank-builder", label: "Bank" },
+  { bucket: "mrdub", href: "/mr-dub", label: "Mr. Dub" },
 ] as const;
 
 /**
@@ -90,6 +92,7 @@ export function resolveMobileNavBucket(
   // Build folds in the legacy /parlay-lab alias.
   if (p === "/build" || p.startsWith("/build/") || p === "/parlay-lab" || p.startsWith("/parlay-lab/")) return "lab";
   if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
+  if (p === "/mr-dub" || p.startsWith("/mr-dub/")) return "mrdub";
   // The unified Games board + the Sports directory + every sport hub/board + schedule-only
   // leagues all resolve to the Games bucket (Games is the cross-sport entry on mobile).
   if (

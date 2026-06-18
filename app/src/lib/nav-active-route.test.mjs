@@ -11,11 +11,11 @@ import {
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
 
-test("MOBILE_NAV_ITEMS has 5 items in the product-spine order", () => {
-  assert.equal(MOBILE_NAV_ITEMS.length, 5);
+test("MOBILE_NAV_ITEMS has 6 items in the product-spine order (Mr. Dub added as a first-class tab)", () => {
+  assert.equal(MOBILE_NAV_ITEMS.length, 6);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "games", "picks", "lab", "bank"],
+    ["home", "games", "picks", "lab", "bank", "mrdub"],
   );
 });
 

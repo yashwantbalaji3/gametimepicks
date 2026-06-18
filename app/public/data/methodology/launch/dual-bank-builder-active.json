@@ -134,7 +134,7 @@
               "topNegativeFactors": [],
               "settlement": {
                 "result": "won",
-                "official": "Uzbekistan 1\u20133 Colombia FT",
+                "official": "Uzbekistan 1–3 Colombia FT",
                 "source": "espn_fifa_world"
               }
             },
@@ -266,7 +266,7 @@
               "topNegativeFactors": [],
               "settlement": {
                 "result": "lost",
-                "official": "Czechia 1\u20131 South Africa FT \u2014 draw/loss; moneyline loses",
+                "official": "Czechia 1–1 South Africa FT — draw/loss; moneyline loses",
                 "source": "espn_fifa_world"
               }
             },
@@ -380,12 +380,13 @@
       "stopReason": "Soccer leg settled a loss; the partner leg had already started, so no pre-start replacement was possible.",
       "restart": {
         "status": "queued",
-        "stake": 100.0,
+        "stake": 100,
         "step": 1,
         "target": 10000,
         "startedFrom": "2026-06-18T18:30:00Z",
         "note": "Lane A stopped at Step 2 (Czech ML lost on a 1-1 draw; partner leg already started, no pre-start replacement). A fresh $100 Lane A restarts at Step 1 on the next qualified pre-event card."
-      }
+      },
+      "replacementCandidates": []
     },
     "laneB": {
       "laneId": "B",
@@ -501,7 +502,7 @@
               "topNegativeFactors": [],
               "settlement": {
                 "result": "won",
-                "official": "Ghana 1\u20130 Panama FT",
+                "official": "Ghana 1–0 Panama FT",
                 "source": "espn_fifa_world"
               }
             },
@@ -633,7 +634,7 @@
               "topNegativeFactors": [],
               "settlement": {
                 "result": "pending",
-                "official": "Switzerland 0\u20130 Bosnia-Herzegovina (not final)",
+                "official": "Switzerland 0–0 Bosnia-Herzegovina (not final)",
                 "source": "espn_fifa_world"
               }
             },
@@ -743,7 +744,8 @@
       "currentStep": 2,
       "target": 10000,
       "laneStatus": "active",
-      "publicVisible": true
+      "publicVisible": true,
+      "replacementCandidates": []
     },
     "selectedFourLegs": [
       {
@@ -1078,14 +1080,14 @@
     ],
     "launchGateSummary": [
       {
-        "gate": "\u22652 qualified soccer matches + non-soccer legs",
+        "gate": "≥2 qualified soccer matches + non-soccer legs",
         "passed": true,
         "detail": "16 soccer, 51 non-soccer (survival-gated)"
       },
       {
-        "gate": "two lanes in payout band [2.25, 4.2]\u00d7",
+        "gate": "two lanes in payout band [2.25, 4.2]×",
         "passed": true,
-        "detail": "A 3.31\u00d7 \u00b7 B 3.31\u00d7"
+        "detail": "A 3.31× · B 3.31×"
       },
       {
         "gate": "four distinct games",
@@ -1116,6 +1118,7 @@
         "public": true
       },
       "note": "Stopped lanes are hidden from the public Bank Builder and tracked on Mr. Dub."
-    }
+    },
+    "replacementCandidatesAt": "2026-06-18T19:14:33Z"
   }
 }
