@@ -29,14 +29,15 @@ test("Mr. Dub character graphic exists + is accessible", () => {
   assert.match(r("src/app/mr-dub/page.tsx"), /MrDubAvatar/, "Mr. Dub page renders the avatar");
 });
 
-test("Mr. Dub page section order: standings → dual bank builder → daily ledger → full ledger → exposure", () => {
+test("Mr. Dub page section order: hero → dual bank builder → active/awaiting → daily ledger → exposure → full ledger", () => {
   const p = r("src/app/mr-dub/page.tsx");
-  const standings = p.indexOf("Current standings");
+  const hero = p.indexOf("Paper Portfolio Scientist");
   const dual = p.indexOf("Mr. Dub's two lanes");
+  const active = p.indexOf("Active and awaiting cards");
   const dailyIdx = p.indexOf("Bankroll timeline");
+  const exposure = p.indexOf("Exposure and bankroll health");
   const full = p.indexOf("Every paper event");
-  const exposure = p.indexOf("Bankroll intelligence");
-  assert.ok(standings < dual && dual < dailyIdx && dailyIdx < full && full < exposure, "sections in the required order");
+  assert.ok(hero < dual && dual < active && active < dailyIdx && dailyIdx < exposure && exposure < full, "sections in the required order");
   assert.match(p, /<details/, "daily ledger rows are expandable");
 });
 

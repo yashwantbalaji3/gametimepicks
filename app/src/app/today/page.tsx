@@ -29,6 +29,7 @@ import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-cand
 import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
 import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
 import BankBuilderStatusRail from "@/components/bank-builder/bank-builder-status-rail";
+import MrDubTodayCard from "@/components/mr-dub/mr-dub-today-card";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
 // (DualBankBuilderTeaser now renders only on /bank-builder; Today uses the compact status rail.)
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
@@ -299,6 +300,9 @@ export default function TodayPage() {
         lanesWon={bbLanesCleared}
         lanesTotal={2}
       />
+
+      {/* 3.5 — Mr. Dub paper portfolio at a glance (current bankroll, latest P/L, exposure, record). */}
+      <div className="mt-3"><MrDubTodayCard /></div>
 
       {/* 4 — Suggested parlays — canonical methodology engine (World Cup + Mixed + MLB, by risk,
             with per-leg model + last-5 drawers). Same data as /parlays and /picks. */}
