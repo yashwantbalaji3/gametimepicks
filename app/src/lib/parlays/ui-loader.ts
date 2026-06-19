@@ -19,6 +19,7 @@ import { generateAllSameGameParlays } from "./same-game";
 import { selectDualBankBuilder, survivalScore } from "./dual-bank-builder";
 import { RISK_LEVEL_ORDER } from "./risk-levels";
 import { INDIVIDUAL_LEG_ODDS_GUARDS, getRiskBucketForCombinedOdds } from "./risk-odds-bands";
+import { wcTeamCodeFromName } from "@/lib/data-world-cup";
 import type { EligibleLeg, RiskLevel, SuggestedParlay, DualBankBuilderResult } from "./types";
 
 // ── Display types (safe to import from client components — interfaces are erased) ────────────────
@@ -258,7 +259,10 @@ function legIdentity(leg: EligibleLeg, maps: IdentityMaps): LegIdentity {
   const player = maps.wcPlayerByName.get(leg.participantName);
   if (player) return { ...base, kind: "player", playerId: player.playerId, photoUrl: player.photoUrl, countryCode: player.countryCode };
   const match = maps.wcByMatch.get(leg.eventId);
-  return { ...base, kind: "team", countryCode: match?.homeCode ?? null, teamAbbr: match?.homeCode ?? null };
+  // Prefer the projection's home code; fall back to resolving the participant/selection label
+  // ("USA", "Turkey or Draw") to an ISO code so the flag renders even when home codes are missing.
+  const code = match?.homeCode ?? wcTeamCodeFromName(leg.participantName);
+  return { ...base, kind: "team", countryCode: code, teamAbbr: code };
 }
 
 function legDisplay(leg: EligibleLeg, maps: IdentityMaps): ParlayLegDisplay {
@@ -472,7 +476,7 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
         : { kind: "team", playerId: null, teamAbbr: null, countryCode: null, photoUrl: null, avatarSport: "mlb" } as LegIdentity;
       return {
         legId: ll.legId, sport: ll.sport, sportKey: SPORT_KEY[ll.sport as Sport] ?? "mlb", market: ll.marketType ?? "",
-        side: ll.side ?? null, participant, team: null, opponent: null, line: ll.line ?? null, odds: ll.odds ?? null,
+        side: ll.side ?? null, participant, team: ll.teamLabel ?? null, opponent: ll.opponentName ?? null, line: ll.line ?? null, odds: ll.odds ?? null,
         modelProbability: ll.modelProbability ?? null, marketImpliedProbability: null, edge: null,
         confidenceTier: ll.confidenceTier ?? "", riskScore: ll.riskScore ?? 0, riskTier: "", legQualityTier: ll.legQualityTier ?? "",
         legQualityScore: ll.legQualityScore ?? 0, survivalScore: ll.legQualityScore ?? null,
@@ -487,8 +491,8 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
     // When the run is settled, prefer the artifact leg (carries the official result) over the live leg.
     const settledLegByIdLookup = (ll: any): ParlayLegDisplay => {
       const live = legByIdLookup.get(ll.legId);
-      // Always prefer the committed artifact's settlement + last-5 (live pool legs lack them).
-      if (live) return { ...live, settlementResult: ll.settlement?.result ?? null, settlementOfficial: ll.settlement?.official ?? null, last5: ll.last5 ?? null };
+      // Always prefer the committed artifact's settlement + last-5 + opponent (live pool legs lack them).
+      if (live) return { ...live, settlementResult: ll.settlement?.result ?? null, settlementOfficial: ll.settlement?.official ?? null, last5: ll.last5 ?? null, opponent: ll.opponentName ?? live.opponent ?? null, team: ll.teamLabel ?? live.team ?? null };
       return minimalLeg(ll);
     };
     const toStep = (s: any): LaneStepDisplay => ({

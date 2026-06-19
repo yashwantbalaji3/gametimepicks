@@ -5,7 +5,7 @@ import { loadTodaySlate } from "../parlays/ui-loader.ts";
 
 const bb = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z").bankBuilderPreview;
 
-test("Lane A public ladder: Step 1 cleared (won card), Step 2 ACTIVE (USA + Griffin Jax), 3-5 upcoming, no lost step", () => {
+test("Lane A public ladder: Step 1 cleared (won card), Step 2 ACTIVE (USA + Nick Gonzales), 3-5 upcoming, no lost step", () => {
   const v = buildPublicDualLadder(bb.laneA, "lane-a");
   assert.ok(v, "lane A view present");
   assert.equal(v.currentStatus, "active"); // Step 2 card now placed → active
@@ -27,7 +27,7 @@ test("Lane A public ladder: Step 1 cleared (won card), Step 2 ACTIVE (USA + Grif
   assert.ok(s2.card, "active Step 2 carries its placed card");
   assert.equal(s2.actualStake, 197.88, "Step 2 rides the rolled $197.88");
   assert.ok(s2.actualReturn >= 600 && s2.actualReturn <= 750, "projected ~$617.63 in target band");
-  assert.ok(s2.card.legs.some((l) => /USA|United States/.test(l.participant)) && s2.card.legs.some((l) => /Jax/.test(l.participant)), "USA + Griffin Jax in the active Step 2 card");
+  assert.ok(s2.card.legs.some((l) => /USA|United States/.test(l.participant)) && s2.card.legs.some((l) => /Gonzales/.test(l.participant)), "USA + Nick Gonzales in the active Step 2 card (Jax replaced)");
   for (let i = 2; i < 5; i++) assert.equal(v.steps[i].status, "upcoming");
   // No step exposes a lost result.
   assert.ok(v.steps.every((s) => s.result !== "lost"), "no lost step surfaced");

@@ -171,6 +171,34 @@ export function teamByName(name: string): WorldCupTeam | null {
   return loadWorldCupTeams().find((t) => t.name === name) ?? null;
 }
 
+/** Common short-name / market-label aliases → canonical teams.json name. */
+const WC_TEAM_ALIASES: Record<string, string> = {
+  usa: "United States", "united states": "United States", us: "United States",
+  turkey: "Türkiye", turkiye: "Türkiye", türkiye: "Türkiye",
+  "south korea": "South Korea", korea: "South Korea",
+  ivorycoast: "Côte d'Ivoire", "ivory coast": "Côte d'Ivoire",
+};
+
+/**
+ * Resolve a World Cup team's ISO code from a participant/selection label, tolerant of market suffixes
+ * ("Turkey or Draw", "Türkiye (draw no bet)") and short-name aliases ("USA" → United States). Returns
+ * null when the label carries no team (e.g. "Under 2.5") so the UI renders no flag rather than a guess.
+ */
+export function wcTeamCodeFromName(label: string | null | undefined): string | null {
+  if (!label) return null;
+  // Strip trailing market words so "Turkey or Draw" / "Türkiye (draw no bet)" reduce to the team.
+  const team = label
+    .replace(/\(draw no bet\)/ig, "")
+    .replace(/\b(or draw|draw no bet|double chance|moneyline.*|draw)\b/ig, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!team) return null;
+  const norm = team.toLowerCase();
+  const canonical = WC_TEAM_ALIASES[norm] ?? team;
+  const byExact = loadWorldCupTeams().find((t) => t.name === canonical || t.name.toLowerCase() === norm);
+  return byExact?.code ?? null;
+}
+
 export function teamByCode(code: string): WorldCupTeam | null {
   return loadWorldCupTeams().find((t) => t.code === code) ?? null;
 }

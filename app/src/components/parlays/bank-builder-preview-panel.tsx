@@ -73,9 +73,26 @@ function Last5Grid({ last5, side, line }: { last5: Last5; side: string | null; l
 }
 
 /** A clickable leg: shows the EXACT side (Over/Under) + line, settlement, and a "why this pick" drawer. */
+/** Compact "Jun 19, 7:00 PM UTC" → "19:00 UTC" matchup time. */
+function shortStart(iso: string | null): string {
+  if (!iso) return "";
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return "";
+  return new Date(t).toLocaleString("en-US", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" }) + " UTC";
+}
+
+/** Human market labels — keeps Double Chance and Draw No Bet distinct (never conflated). */
+const MARKET_LABEL: Record<string, string> = {
+  moneyline_90: "Moneyline (90′)", draw_no_bet: "Draw No Bet", double_chance: "Double Chance",
+  match_total_goals: "Total Goals", btts: "Both Teams To Score",
+};
+const marketLabel = (m: string) => MARKET_LABEL[m] ?? m;
+
 export function LaneLegRow({ leg, pending }: { leg: ParlayLegDisplay; pending?: boolean }) {
   const sl = sideText(leg.side);
-  const pick = `${leg.market}${sl ? ` ${sl}` : ""}${leg.line != null ? ` ${leg.line}` : ""}`.trim();
+  const pick = `${marketLabel(leg.market)}${sl ? ` ${sl}` : ""}${leg.line != null ? ` ${leg.line}` : ""}`.trim();
+  // Matchup line: opponent + start time so every active/cleared leg shows who and when.
+  const matchup = [leg.opponent ? `vs ${leg.opponent}` : null, shortStart(leg.startTime)].filter(Boolean).join(" · ");
   return (
     <details className="py-1.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <summary className="flex items-center gap-2 cursor-pointer" style={{ listStyle: "none" }}>
@@ -83,6 +100,7 @@ export function LaneLegRow({ leg, pending }: { leg: ParlayLegDisplay; pending?: 
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[12.5px] font-medium" style={{ color: "var(--vault-text)" }}>{leg.participant}</span>
           {pick && <span className="block truncate text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{pick}</span>}
+          {matchup && <span className="block truncate font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>{matchup}</span>}
         </span>
         <span className="shrink-0 text-right">
           <span className="block font-mono text-[12px]" style={{ color: "var(--vault-text)" }}>{american(leg.odds)}</span>
