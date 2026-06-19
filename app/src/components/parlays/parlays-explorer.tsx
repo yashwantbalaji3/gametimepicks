@@ -5,6 +5,7 @@
  * states. Reads engine display data (props) — never fabricates a card.
  */
 import { useState } from "react";
+import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import FlagBadge from "@/components/flag-badge";
@@ -14,6 +15,7 @@ import type {
 import type { RiskLevel } from "@/lib/parlays/types";
 import { RISK_LABELS } from "@/lib/parlays/risk-taxonomy";
 import { buildCardFactoryDiagnostics } from "@/lib/parlays/card-factory-diagnostics";
+import type { CoverageMatrix as CoverageMatrixData, CoverageCell } from "@/lib/parlays/coverage-matrix";
 
 const RISK_LABEL: Record<RiskLevel, string> = RISK_LABELS;
 const RISK_ORDER: RiskLevel[] = ["low", "medium", "high", "longshot"];
@@ -182,53 +184,71 @@ function Accordion({ title, subtitle, children, defaultOpen = false }: { title: 
 
 /** Readable card-coverage grid: every sport (+ Mixed) × every risk level, with counts. Makes it
  *  obvious which risk levels actually have cards today vs which are empty — no guessing from tabs. */
-function CoverageMatrix({ slate }: { slate: TodaySlateView }) {
-  const rows: { key: string; label: string; counts: Partial<Record<RiskLevel, number>>; total: number }[] = [];
-  // Always show the core scopes (World Cup, MLB) + Mixed so the matrix is visible even with no slate —
-  // a row of zeros + the diagnostics below is far clearer than hiding the grid entirely.
-  const CORE = ["WORLD_CUP", "MLB"];
-  for (const s of slate.sports) {
-    const counts = s.suggestedByRisk ?? {};
-    const total = RISK_ORDER.reduce((n, l) => n + (counts[l] ?? 0), 0);
-    if (total > 0 || s.eligibleCount > 0 || CORE.includes(s.sport)) rows.push({ key: s.sport, label: SPORT_LABEL[s.sport] ?? s.sport, counts, total });
-  }
-  const mixedCounts = Object.fromEntries(RISK_ORDER.map((l) => [l, slate.mixedByRisk[l]?.length ?? 0])) as Partial<Record<RiskLevel, number>>;
-  const mixedTotal = RISK_ORDER.reduce((n, l) => n + (mixedCounts[l] ?? 0), 0);
-  rows.push({ key: "MIXED", label: "Mixed", counts: mixedCounts, total: mixedTotal });
-  if (rows.length === 0) return null;
-  const cell = (key: string, n: number) => (
-    <td key={key} className="px-2 py-1.5 text-center font-mono tabular" style={{ color: n > 0 ? "var(--vault-text)" : "var(--vault-text-faint)", fontSize: 12, opacity: n > 0 ? 1 : 0.55 }}>{n}</td>
+const STATUS_DOT: Record<"filled" | "underfilled" | "empty", string> = {
+  filled: "#6EE7A8", underfilled: "var(--vault-gold-bright)", empty: "var(--vault-text-faint)",
+};
+
+function CoverageMatrix({ data }: { data?: CoverageMatrixData }) {
+  if (!data || data.rows.length === 0) return null;
+  const RB = ["low", "medium", "high", "longshot"] as const;
+  const cell = (c: CoverageCell | undefined) => (
+    <td key={c?.risk} className="px-2 py-1.5 text-center font-mono tabular" style={{ fontSize: 12 }}
+      title={c && c.count === 0 ? c.message : undefined}>
+      <span style={{ color: c && c.count > 0 ? "var(--vault-text)" : "var(--vault-text-faint)", opacity: c && c.count > 0 ? 1 : 0.55 }}>{c?.count ?? 0}</span>
+      {c && c.count === 0 && c.status === "empty" ? <sup style={{ color: "var(--vault-text-faint)", fontSize: 8 }}> ⓘ</sup> : null}
+    </td>
   );
+  // Empty-bucket reasons grouped for the diagnostics drawer.
+  const emptyReasons = data.rows.flatMap((r) => r.cells.filter((c) => c.count === 0 && c.scope !== "moonshot" && c.scope !== "bank_builder").map((c) => `${r.displayName} · ${c.label}: ${c.message}`));
   return (
-    <Accordion title="Card coverage by sport × risk" subtitle="counts of model-built cards today" defaultOpen>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse" style={{ minWidth: 360 }}>
+    <Accordion title="Suggested parlay coverage" subtitle={`${data.grandTotal} model-built cards today, by scope × risk`} defaultOpen>
+      <div className="overflow-x-auto -mx-1 px-1">
+        <table className="w-full border-collapse" style={{ minWidth: 420 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--vault-border)" }}>
-              <th className="px-2 py-1.5 text-left font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Sport</th>
-              {RISK_ORDER.map((l) => (
-                <th key={l} className="px-2 py-1.5 text-center font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{RISK_LABEL[l]}</th>
+              <th className="sticky left-0 px-2 py-1.5 text-left font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10, background: "var(--lava-panel, #14100c)" }}>Scope</th>
+              {(["Low Risk", "Medium Risk", "High Risk", "Longshot"]).map((l) => (
+                <th key={l} className="px-2 py-1.5 text-center font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{l}</th>
               ))}
-              <th className="px-2 py-1.5 text-center font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>All</th>
+              <th className="px-2 py-1.5 text-center font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>Total</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.key} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                <td className="px-2 py-1.5 text-left" style={{ color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600 }}>{r.label}</td>
-                {RISK_ORDER.map((l) => cell(l, r.counts[l] ?? 0))}
+            {data.rows.map((r) => (
+              <tr key={r.scope} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                <td className="sticky left-0 px-2 py-1.5 text-left" style={{ fontSize: 12.5, fontWeight: 600, background: "var(--lava-panel, #14100c)" }}>
+                  <Link href={r.href} style={{ color: "var(--vault-text)", textDecoration: "none" }}>{r.displayName}</Link>
+                </td>
+                {RB.map((rb) => cell(r.cells.find((c) => c.risk === rb)))}
                 <td className="px-2 py-1.5 text-center font-mono tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 12, fontWeight: 700 }}>{r.total}</td>
               </tr>
             ))}
+            <tr style={{ borderTop: "2px solid var(--vault-border)" }}>
+              <td className="sticky left-0 px-2 py-1.5 text-left font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-mute)", fontSize: 10, background: "var(--lava-panel, #14100c)" }}>Total</td>
+              {RB.map((rb) => <td key={rb} className="px-2 py-1.5 text-center font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 12, fontWeight: 700 }}>{data.riskTotals[rb]}</td>)}
+              <td className="px-2 py-1.5 text-center font-mono tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 13, fontWeight: 800 }}>{data.grandTotal}</td>
+            </tr>
           </tbody>
         </table>
       </div>
-      <p className="text-[11px]" style={{ color: "var(--vault-text-faint)" }}>0 means no card in that risk tier passed today&apos;s model gates — other tiers may still have cards. Paper-only.</p>
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-mono" style={{ color: "var(--vault-text-faint)" }}>
+        {(["filled", "underfilled", "empty"] as const).map((s) => <span key={s} className="inline-flex items-center gap-1"><span style={{ width: 7, height: 7, borderRadius: 99, background: STATUS_DOT[s], display: "inline-block" }} />{s}</span>)}
+        <span>· Moonshot &amp; Core Bank Builder counted in their own rows only (no double-count).</span>
+      </div>
+      {emptyReasons.length ? (
+        <details className="mt-2">
+          <summary className="cursor-pointer font-mono text-[10.5px]" style={{ color: "var(--vault-gold-bright)", listStyle: "none" }}>Why are some buckets empty? · {emptyReasons.length} ▾</summary>
+          <ul className="mt-1 flex flex-col gap-0.5">
+            {data.diagnosticsSummary.map((s, i) => <li key={`s${i}`} className="text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{s}</li>)}
+            {emptyReasons.slice(0, 12).map((m, i) => <li key={`e${i}`} className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>· {m}</li>)}
+          </ul>
+        </details>
+      ) : null}
     </Accordion>
   );
 }
 
-export default function ParlaysExplorer({ slate }: { slate: TodaySlateView }) {
+export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlateView; coverage?: CoverageMatrixData }) {
   const sportsWithLegs = slate.sports.filter((s) => s.eligibleCount > 0);
   const mixedTotal = RISK_ORDER.reduce((n, lvl) => n + (slate.mixedByRisk[lvl]?.length ?? 0), 0);
   // Default to World Cup when it has cards (the slate's headline sport), else the first sport with legs.
@@ -254,7 +274,7 @@ export default function ParlaysExplorer({ slate }: { slate: TodaySlateView }) {
   return (
     <div className="space-y-4">
       {/* Coverage at a glance: which sport × risk tiers actually have cards today. */}
-      <CoverageMatrix slate={slate} />
+      <CoverageMatrix data={coverage} />
       {/* Honest "why empty" diagnostics drawer — public-friendly reasons, never a vague empty state. */}
       {emptyCells.length ? (
         <details className="rounded-xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>

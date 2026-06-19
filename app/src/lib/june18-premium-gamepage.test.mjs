@@ -60,7 +60,7 @@ test("Picks coverage: slate exposes per-sport suggestedByRisk for every risk tie
   assert.ok(v.mixedByRisk && typeof v.mixedByRisk === "object", "mixedByRisk present");
   // The explorer renders a coverage matrix from this data.
   const exp = read("src/components/parlays/parlays-explorer.tsx");
-  assert.match(exp, /Card coverage by sport × risk/, "coverage matrix rendered");
+  assert.match(exp, /Suggested parlay coverage/, "coverage matrix rendered");
   assert.match(exp, /Why are some buckets empty/, "diagnostics drawer for empty buckets");
   assert.match(exp, /emptyReason\(lvl\)/, "scoped per-risk empty state uses the real diagnostic reason");
 });

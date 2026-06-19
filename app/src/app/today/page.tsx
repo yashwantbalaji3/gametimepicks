@@ -41,6 +41,8 @@ import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3
 import SectionHeader from "@/components/section-header";
 import YesterdaySummary from "@/components/yesterday-summary";
 import { loadTodaySlate } from "@/lib/parlays/ui-loader";
+import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
+import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 
 export const metadata = {
   title: "Today · GameTime Picks",
@@ -308,7 +310,7 @@ export default function TodayPage() {
             with per-leg model + last-5 drawers). Same data as /parlays and /picks. */}
       <section className="gtp-fade-up">
         <SectionHeader eyebrow={`Suggested parlays · ${dateLabel}`} title="Today's suggested cards" sub="Engine-built across World Cup, MLB and Mixed — by risk, leakage-validated, pre-event. Tap any leg for model + last-5 detail. Paper-only." />
-        <div className="mt-3"><ParlaysExplorer slate={engineSlate} /></div>
+        <div className="mt-3"><ParlaysExplorer slate={engineSlate} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} /></div>
       </section>
 
       {/* UFC — only LEADS on a live UFC day; once settled it moves to the results recap below. */}
