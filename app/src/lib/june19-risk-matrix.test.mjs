@@ -19,7 +19,7 @@ test("Parlay Lab + WC game page render the canonical risk labels (no old bucket 
 
 test("Parlay Lab shows a coverage matrix, a diagnostics drawer, and scoped empty reasons", () => {
   const explorer = src("src/components/parlays/parlays-explorer.tsx");
-  assert.match(explorer, /Card coverage by sport × risk/, "coverage matrix");
+  assert.match(explorer, /Suggested parlay coverage/, "coverage matrix");
   assert.match(explorer, /Why are some buckets empty/, "diagnostics drawer");
   assert.match(explorer, /buildCardFactoryDiagnostics/, "uses the card-factory diagnostics");
   assert.match(explorer, /emptyReason/, "scoped per-risk empty reason");

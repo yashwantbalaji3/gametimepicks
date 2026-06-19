@@ -6,6 +6,8 @@
  */
 import Link from "next/link";
 import { loadTodaySlate } from "@/lib/parlays/ui-loader";
+import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
+import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
 import BankBuilderPreviewPanel from "@/components/parlays/bank-builder-preview-panel";
 
@@ -51,7 +53,7 @@ export default function ParlaysPage() {
             ))}
           </div>
 
-          <ParlaysExplorer slate={slate} />
+          <ParlaysExplorer slate={slate} coverage={buildCoverageMatrix(slate, loadMoonshotLane(), new Date().toISOString())} />
 
           <div className="mt-6">
             <BankBuilderPreviewPanel preview={slate.bankBuilderPreview} />

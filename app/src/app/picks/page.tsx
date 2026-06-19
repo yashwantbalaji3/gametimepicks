@@ -19,6 +19,8 @@ import {
 import PicksExperience from "@/components/picks-experience";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
 import { loadTodaySlate } from "@/lib/parlays/ui-loader";
+import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
+import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import SectionHeader from "@/components/section-header";
 import Link from "next/link";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
@@ -103,7 +105,7 @@ export default function PicksPage() {
         sub="Methodology-engine suggested parlays across World Cup, MLB and Mixed — by risk, with same-game cards and the eligible-leg marketplace. Tap any leg for model + last-5 detail. Educational, paper-only."
       />
       {/* Canonical engine card surface — same data as /parlays (World Cup + Mixed + by-risk + same-game). */}
-      <ParlaysExplorer slate={engineSlate} />
+      <ParlaysExplorer slate={engineSlate} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} />
 
       {/* Legacy curated cards kept as a secondary, collapsed reference (optimizer + native WC). */}
       {cards.length > 0 ? (
