@@ -86,10 +86,19 @@ function Last5Mini({ leg }: { leg: ParlayLegDisplay }) {
 }
 
 /** A clickable leg: identity + exact market/side/line + odds, expands to model/last-5/settlement detail. */
+function shortStartUtc(iso: string | null): string {
+  if (!iso) return "";
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return "";
+  return new Date(t).toLocaleString("en-US", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" }) + " UTC";
+}
+
 function LegRow({ leg }: { leg: ParlayLegDisplay }) {
   const settlesNote = leg.sport === "WORLD_CUP"
     ? "Settles on the 90-minute regulation result (official). Limited-data: market-implied."
     : "Settles from the official box score. No plate appearance / did-not-pitch → void (no action).";
+  // Matchup line: opponent + kickoff so every leg (esp. World Cup player props) shows who + when.
+  const matchup = [leg.opponent ? `vs ${leg.opponent}` : null, shortStartUtc(leg.startTime)].filter(Boolean).join(" · ");
   return (
     <details className="py-2" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <summary className="flex items-start gap-2.5 cursor-pointer" style={{ listStyle: "none" }}>
@@ -101,6 +110,7 @@ function LegRow({ leg }: { leg: ParlayLegDisplay }) {
             <span className="font-mono text-[12.5px]" style={{ color: "var(--vault-text)" }}>{americanStr(leg.odds)}</span>
             <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>▾</span>
           </div>
+          {matchup && <div className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>{matchup}</div>}
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <Chip label={leg.confidenceTier} tone={leg.confidenceTier === "High" ? "good" : leg.confidenceTier === "No Bet" ? "warn" : "mute"} />
             <Chip label={`${leg.legQualityTier} ${leg.legQualityScore}`} tone={qualityTone(leg.legQualityTier)} />
@@ -146,12 +156,22 @@ export function ParlayCard({ card }: { card: SuggestedParlayCard }) {
       <div className="mt-1.5">
         {card.legs.map((l) => <LegRow key={l.legId} leg={l} />)}
       </div>
-      {(card.whyThisParlay[0] || card.whyItCouldFail[0]) && (
-        <div className="mt-2 space-y-1 text-[12px]" style={{ borderTop: "1px solid var(--vault-border)", paddingTop: 8 }}>
-          {card.whyThisParlay[0] && <div style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--vault-success)" }}>Why:</span> {card.whyThisParlay[0]}</div>}
-          {card.whyItCouldFail[0] && <div style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--gtp-bank-heat)" }}>Risk:</span> {card.whyItCouldFail[0]}</div>}
-        </div>
-      )}
+      {(() => {
+        const hasPlayerProp = card.legs.some((l) => /Goalscorer|Shots on Target|Assists|Shots/.test(l.market) && l.sport === "WORLD_CUP");
+        const correlated = card.parlayType === "same_game" || (card.correlationScore != null && card.correlationScore >= 0.35);
+        const anything = card.whyThisParlay[0] || card.whyItCouldFail[0] || card.correlationSummary || hasPlayerProp;
+        if (!anything) return null;
+        return (
+          <div className="mt-2 space-y-1 text-[12px]" style={{ borderTop: "1px solid var(--vault-border)", paddingTop: 8 }}>
+            {card.whyThisParlay[0] && <div style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--vault-success)" }}>Why:</span> {card.whyThisParlay[0]}</div>}
+            {card.whyItCouldFail[0] && <div style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--gtp-bank-heat)" }}>Risk:</span> {card.whyItCouldFail[0]}</div>}
+            {(correlated || card.correlationSummary) && (
+              <div style={{ color: "var(--vault-text-faint)" }}><span className="font-mono text-[10px] uppercase">correlation:</span> {card.correlationSummary || (card.parlayType === "same_game" ? "Same-game stack — outcomes are intentionally correlated (high-volatility). Disclosed, not hidden." : "low cross-game correlation")}</div>
+            )}
+            {hasPlayerProp && <div style={{ color: "var(--vault-text-faint)" }}>Includes limited-data / market-implied player props (lineups not yet posted). Settles from official sources.</div>}
+          </div>
+        );
+      })()}
     </div>
   );
 }

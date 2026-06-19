@@ -4,7 +4,7 @@
  */
 import { notFound } from "next/navigation";
 import { getGameDetail, gameDetailParams } from "@/lib/game-detail";
-import { getGameSpecificCardsForGame } from "@/lib/world-cup/game-specific-cards";
+import { getGameSpecificCardsForGame, getWorldCupMultiGameCardsForGame } from "@/lib/world-cup/game-specific-cards";
 import GameDetailPage from "@/components/game/game-detail-page";
 
 export const dynamicParams = false;
@@ -27,8 +27,9 @@ export default function GameDetailRoute({ params }: { params: { sport: string; g
   const detail = getGameDetail(params.sport, params.gameId);
   if (!detail) notFound();
   // Engine game-specific suggested cards mapped to this fixture (World Cup only for now).
-  const engineCards = detail.sport === "world_cup"
-    ? getGameSpecificCardsForGame({ matchId: detail.matchId, homeTeam: detail.homeTeam, awayTeam: detail.awayTeam })
-    : null;
-  return <GameDetailPage detail={detail} engineCards={engineCards} />;
+  const fixture = { matchId: detail.matchId, homeTeam: detail.homeTeam, awayTeam: detail.awayTeam };
+  const engineCards = detail.sport === "world_cup" ? getGameSpecificCardsForGame(fixture) : null;
+  // World Cup multi-game cards that include this fixture ("this game in multi-game cards").
+  const multiGameCards = detail.sport === "world_cup" ? getWorldCupMultiGameCardsForGame(fixture) : null;
+  return <GameDetailPage detail={detail} engineCards={engineCards} multiGameCards={multiGameCards} />;
 }
