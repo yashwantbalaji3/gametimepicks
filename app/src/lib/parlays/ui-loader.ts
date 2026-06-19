@@ -189,8 +189,11 @@ function readActiveLaunchedRun(root: string, date: string): { run: DualBankBuild
     if (!fs.existsSync(p)) return null;
     const doc = JSON.parse(fs.readFileSync(p, "utf8"));
     const run = doc?.run;
-    // Show the run while it is launched (live) OR settled (official results in).
-    if (run && run.date === date && (run.status === "launched" || run.status === "settled")) return { run };
+    // The dual Bank Builder is a PERSISTENT multi-day ladder: a lane stays active/advanced/awaiting or
+    // queued across days until its next card is placed. So surface a launched/settled active run for the
+    // current slate or any LATER date (date >= the run's launch date) — not just an exact match — while
+    // still staying empty for dates before it existed. Never touches the protected files.
+    if (run && (run.status === "launched" || run.status === "settled") && String(date) >= String(run.date)) return { run };
     return null;
   } catch { return null; }
 }
