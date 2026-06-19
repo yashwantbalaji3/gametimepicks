@@ -20,6 +20,7 @@ import { selectDualBankBuilder, survivalScore } from "./dual-bank-builder";
 import { RISK_LEVEL_ORDER } from "./risk-levels";
 import { INDIVIDUAL_LEG_ODDS_GUARDS, getRiskBucketForCombinedOdds } from "./risk-odds-bands";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
+import { loadWorldCupPlayerPropLegs } from "./world-cup-player-prop-legs";
 import type { EligibleLeg, RiskLevel, SuggestedParlay, DualBankBuilderResult } from "./types";
 
 // ── Display types (safe to import from client components — interfaces are erased) ────────────────
@@ -389,7 +390,10 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
     // The not-started gate uses the REAL current moment (or a test override): games already underway
     // are excluded so the live preview never lists a started/in-progress game as bettable.
     const allLegsBySport = results.map((r) => buildLegsForSport(r, nowIso, true));
-    const allLegs = allLegsBySport.flat();
+    // World Cup player-prop UPSIDE pool (real posted markets, joined to team games, pre-event + guarded,
+    // limited-data). Adding it lets the balanced same-game + multi-game generators build Moonshot-style
+    // High Risk + Longshot World Cup cards (team anchors + attacking props) — never team-only.
+    const allLegs = [...allLegsBySport.flat(), ...loadWorldCupPlayerPropLegs(root, nowIso, date)];
     // Individual-leg price guard: drop extreme-favorite filler (shorter than -500, e.g. -1000/-7000 —
     // barely moves a parlay's payout) and extreme underdogs (above +1200) so no card pads with them.
     const oddsBandDiagnostics: OddsBandDiagnostics = { legsDroppedTooShort: 0, legsDroppedTooLong: 0, cardsRebucketed: 0, cardsDroppedOutOfBucket: 0 };

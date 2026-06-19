@@ -5,7 +5,13 @@
 import type { EligibleLeg, SuggestedParlay, RiskLevel } from "./types";
 import { buildCombinations, cardIsValid } from "./combination-optimizer";
 import { assembleParlay } from "./daily-parlays";
-import { RISK_LEVELS } from "./risk-levels";
+import { RISK_LEVELS, RISK_LEVEL_ORDER } from "./risk-levels";
+import { combinedAmerican } from "./odds-math";
+import { getRiskBucketForCombinedOdds } from "./risk-odds-bands";
+
+/** Same-game leg-count spread → bigger stacks (team anchor + attacking props) reach High / Longshot. */
+const SAME_GAME_SPREAD = [2, 3, 4, 5];
+const SAME_GAME_BUCKET_CAP = 2; // per game, per risk bucket — keeps each game's drawer readable
 
 export interface SameGameResult {
   gameId: string;
@@ -18,33 +24,44 @@ export interface SameGameResult {
  * Same-game parlays for one event. Allows same-game positive correlation (so `maxMeanCorrelation`
  * is relaxed), but `cardIsValid` still blocks conflicting / strong-negative / unknown-scope pairs.
  */
-export function generateSameGameParlays(gameLegs: EligibleLeg[], date: string, level: RiskLevel = "medium"): SameGameResult {
+export function generateSameGameParlays(gameLegs: EligibleLeg[], date: string, _level: RiskLevel = "medium"): SameGameResult {
   const eligible = gameLegs.filter((l) => l.eligible);
   const gameId = gameLegs[0]?.eventId ?? "";
   const sport = gameLegs[0]?.sport ?? "MLB";
-  const spec = RISK_LEVELS[level];
 
   if (eligible.length < 2) {
     return { gameId, sport, parlays: [], note: `not enough eligible legs in this game (have ${eligible.length}, need 2)` };
   }
 
-  // Same-game tolerates positive correlation up to a high bound (justified), but never conflicts.
-  const combos = buildCombinations(eligible, {
-    legCount: Math.min(spec.maxLegs, Math.max(2, Math.min(3, eligible.length))),
-    maxCards: 3,
-    distinctGames: false,
-    sameGameOnly: true,
-    maxMeanCorrelation: 0.9,
-  });
-  // Defensive: drop any card that somehow contains a conflicting pair.
-  const valid = combos.filter((c) => cardIsValid(c, 0.9).ok);
+  // Balanced same-game inventory: build a deduplicated spread of stacks (2→5 legs), bucket each by its
+  // COMBINED odds, and cap per bucket. Bigger stacks (team anchor + attacking props) reach High / Longshot
+  // — same-game positive correlation is allowed (justified, disclosed), but conflicts are still blocked.
+  const byBucket: Record<RiskLevel, EligibleLeg[][]> = { low: [], medium: [], high: [], longshot: [] };
+  const seen = new Set<string>();
+  for (const legCount of SAME_GAME_SPREAD) {
+    if (legCount > eligible.length) break;
+    const combos = buildCombinations(eligible, { legCount, maxCards: 12, distinctGames: false, sameGameOnly: true, maxMeanCorrelation: 0.9 });
+    for (const legs of combos) {
+      if (!cardIsValid(legs, 0.9).ok) continue;
+      const key = legs.map((l) => l.legId).sort().join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const combined = combinedAmerican(legs.map((l) => l.odds));
+      if (combined == null) continue;
+      const bucket = getRiskBucketForCombinedOdds(combined);
+      if (!bucket) continue;
+      if (byBucket[bucket].length < SAME_GAME_BUCKET_CAP) byBucket[bucket].push(legs);
+    }
+  }
 
-  const parlays = valid.map((legs, i) => {
-    const p = assembleParlay(legs, { date, riskLevel: level, parlayType: "same_game", index: i });
-    // Same-game cards across different fixtures share (date,risk,type,index,sport); scope the id by
-    // gameId so it is globally unique (deterministic) — prevents cross-fixture collisions / React-key dupes.
-    return { ...p, parlayId: `${p.parlayId}:${gameId}` };
-  });
+  const parlays: SuggestedParlay[] = [];
+  for (const level of RISK_LEVEL_ORDER) {
+    byBucket[level].forEach((legs, i) => {
+      const p = assembleParlay(legs, { date, riskLevel: level, parlayType: "same_game", index: i });
+      // Scope the id by gameId so it is globally unique (prevents cross-fixture collisions / React-key dupes).
+      parlays.push({ ...p, parlayId: `${p.parlayId}:${gameId}` });
+    });
+  }
 
   return {
     gameId,
