@@ -17,7 +17,11 @@
     "step2SettledAt": "2026-06-18T18:28:40.847290+00:00",
     "laneBRestartPlacedAt": "2026-06-19T16:59:38Z",
     "june19PaidRunPlacedAt": "2026-06-19T16:59:38Z",
-    "replacementCandidatesAt": "2026-06-19T17:00:12Z"
+    "replacementCandidatesAt": "2026-06-19T17:00:12Z",
+    "qualityReplacementAt": "2026-06-19T18:20:20Z",
+    "laneAJaxReplacedWith": "Nick Gonzales HRR Under 2.5",
+    "laneBTurkeyMarketCorrectedTo": "double_chance (Turkey or Draw)",
+    "laneBOzunaReplacedWith": "Rhys Hoskins HRR Under 1.5 (Ozuna shared Gonzales's PIT@COL game)"
   },
   "run": {
     "runId": "dual-bank-builder-2026-06-17",
@@ -57,97 +61,107 @@
             "official": "not started (start 19:00 UTC)",
             "source": "espn_fifa_world",
             "started": false
-          }
+          },
+          "opponentName": "Australia",
+          "teamLabel": "United States"
         },
         {
-          "legId": "MLB:bdebd82757453b3cdc93ee168dadf2bb:Strikeouts:Griffin Jax:4.5",
+          "legId": "MLB:07f4bbde58b19584048fd125a63efb85:Hits + Runs + RBIs:Nick Gonzales:2.5",
           "sport": "MLB",
-          "eventId": "bdebd82757453b3cdc93ee168dadf2bb",
-          "label": "Griffin Jax Strikeouts under 4.5",
-          "participantName": "Griffin Jax",
-          "marketType": "Strikeouts",
-          "odds": -106,
-          "modelProbability": 0.7126,
+          "eventId": "07f4bbde58b19584048fd125a63efb85",
+          "label": "Nick Gonzales Hits + Runs + RBIs under 2.5",
+          "participantName": "Nick Gonzales",
+          "marketType": "Hits + Runs + RBIs",
+          "odds": -112,
+          "modelProbability": 0.6716,
           "legQualityTier": "elite",
-          "legQualityScore": 100,
-          "riskScore": 0.0375,
+          "legQualityScore": 81,
+          "riskScore": 0.35,
           "side": "under",
-          "line": 4.5,
-          "startTime": "2026-06-19T23:11:00Z",
-          "confidenceTier": "High",
+          "line": 2.5,
+          "startTime": "2026-06-20T00:41:00Z",
+          "confidenceTier": "Medium",
           "dataQuality": "A",
           "topPositiveFactors": [
             {
-              "label": "+22.8pp model edge vs no-vig market",
+              "label": "69-game sample",
               "direction": "positive",
               "weight": 1
             },
             {
-              "label": "recent form supports the under (85% of games)",
+              "label": "+17.8pp model edge vs no-vig market",
               "direction": "positive",
-              "weight": 0.85
+              "weight": 0.8883447159734583
             },
             {
-              "label": "20-game sample",
+              "label": "recent form supports the under (61% of games)",
               "direction": "positive",
-              "weight": 0.75
+              "weight": 0.6086956521739131
             }
           ],
-          "topNegativeFactors": [],
+          "topNegativeFactors": [
+            {
+              "label": "batter lineup not confirmed (DNP risk)",
+              "direction": "negative",
+              "weight": 0.6
+            }
+          ],
           "settlement": {
             "result": "pending",
-            "official": "not started (start 23:11 UTC)",
+            "official": "not started (start 00:41 UTC)",
             "source": "mlb_statsapi",
             "started": false
           },
           "last5": {
-            "stat": "strikeouts",
-            "line": 4.5,
+            "stat": "hits",
+            "line": 2.5,
             "side": "under",
             "games": [
               {
-                "date": "2026-05-19",
-                "opp": "BAL",
-                "value": 6,
-                "hit": false
-              },
-              {
-                "date": "2026-05-26",
-                "opp": "BAL",
-                "value": 3,
-                "hit": true
-              },
-              {
-                "date": "2026-06-01",
-                "opp": "DET",
-                "value": 5,
-                "hit": false
-              },
-              {
-                "date": "2026-06-07",
-                "opp": "MIA",
-                "value": 4,
-                "hit": true
-              },
-              {
                 "date": "2026-06-13",
-                "opp": "LAA",
-                "value": 5,
-                "hit": false
+                "opp": "MIA",
+                "value": 0,
+                "hit": true
+              },
+              {
+                "date": "2026-06-14",
+                "opp": "MIA",
+                "value": 2,
+                "hit": true
+              },
+              {
+                "date": "2026-06-15",
+                "opp": "ATH",
+                "value": 0,
+                "hit": true
+              },
+              {
+                "date": "2026-06-16",
+                "opp": "ATH",
+                "value": 0,
+                "hit": true
+              },
+              {
+                "date": "2026-06-17",
+                "opp": "ATH",
+                "value": 2,
+                "hit": true
               }
             ],
             "hitRate": {
-              "hits": 2,
+              "hits": 5,
               "total": 5,
-              "pct": 0.4
+              "pct": 1
             },
             "source": "mlb_stats_api"
-          }
+          },
+          "opponentName": "Colorado Rockies",
+          "teamLabel": "Pittsburgh Pirates"
         }
       ],
-      "combinedOdds": 212,
-      "laneSurvivalScore": 87,
-      "estimatedHitProbability": 0.4246,
+      "combinedOdds": 204,
+      "laneSurvivalScore": 80,
+      "estimatedHitProbability": 0.4002,
       "result": null,
       "advanced": false,
       "settledLegs": 0,
@@ -308,7 +322,7 @@
           "result": null,
           "stake": 197.88,
           "payout": null,
-          "combinedOdds": 212,
+          "combinedOdds": 204,
           "legs": [
             {
               "legId": "WORLD_CUP:065b3573e875f8d23803357f73e5b99e:moneyline_90:USA:",
@@ -340,98 +354,108 @@
                 "official": "not started (start 19:00 UTC)",
                 "source": "espn_fifa_world",
                 "started": false
-              }
+              },
+              "opponentName": "Australia",
+              "teamLabel": "United States"
             },
             {
-              "legId": "MLB:bdebd82757453b3cdc93ee168dadf2bb:Strikeouts:Griffin Jax:4.5",
+              "legId": "MLB:07f4bbde58b19584048fd125a63efb85:Hits + Runs + RBIs:Nick Gonzales:2.5",
               "sport": "MLB",
-              "eventId": "bdebd82757453b3cdc93ee168dadf2bb",
-              "label": "Griffin Jax Strikeouts under 4.5",
-              "participantName": "Griffin Jax",
-              "marketType": "Strikeouts",
-              "odds": -106,
-              "modelProbability": 0.7126,
+              "eventId": "07f4bbde58b19584048fd125a63efb85",
+              "label": "Nick Gonzales Hits + Runs + RBIs under 2.5",
+              "participantName": "Nick Gonzales",
+              "marketType": "Hits + Runs + RBIs",
+              "odds": -112,
+              "modelProbability": 0.6716,
               "legQualityTier": "elite",
-              "legQualityScore": 100,
-              "riskScore": 0.0375,
+              "legQualityScore": 81,
+              "riskScore": 0.35,
               "side": "under",
-              "line": 4.5,
-              "startTime": "2026-06-19T23:11:00Z",
-              "confidenceTier": "High",
+              "line": 2.5,
+              "startTime": "2026-06-20T00:41:00Z",
+              "confidenceTier": "Medium",
               "dataQuality": "A",
               "topPositiveFactors": [
                 {
-                  "label": "+22.8pp model edge vs no-vig market",
+                  "label": "69-game sample",
                   "direction": "positive",
                   "weight": 1
                 },
                 {
-                  "label": "recent form supports the under (85% of games)",
+                  "label": "+17.8pp model edge vs no-vig market",
                   "direction": "positive",
-                  "weight": 0.85
+                  "weight": 0.8883447159734583
                 },
                 {
-                  "label": "20-game sample",
+                  "label": "recent form supports the under (61% of games)",
                   "direction": "positive",
-                  "weight": 0.75
+                  "weight": 0.6086956521739131
                 }
               ],
-              "topNegativeFactors": [],
+              "topNegativeFactors": [
+                {
+                  "label": "batter lineup not confirmed (DNP risk)",
+                  "direction": "negative",
+                  "weight": 0.6
+                }
+              ],
               "settlement": {
                 "result": "pending",
-                "official": "not started (start 23:11 UTC)",
+                "official": "not started (start 00:41 UTC)",
                 "source": "mlb_statsapi",
                 "started": false
               },
               "last5": {
-                "stat": "strikeouts",
-                "line": 4.5,
+                "stat": "hits",
+                "line": 2.5,
                 "side": "under",
                 "games": [
                   {
-                    "date": "2026-05-19",
-                    "opp": "BAL",
-                    "value": 6,
-                    "hit": false
-                  },
-                  {
-                    "date": "2026-05-26",
-                    "opp": "BAL",
-                    "value": 3,
-                    "hit": true
-                  },
-                  {
-                    "date": "2026-06-01",
-                    "opp": "DET",
-                    "value": 5,
-                    "hit": false
-                  },
-                  {
-                    "date": "2026-06-07",
-                    "opp": "MIA",
-                    "value": 4,
-                    "hit": true
-                  },
-                  {
                     "date": "2026-06-13",
-                    "opp": "LAA",
-                    "value": 5,
-                    "hit": false
+                    "opp": "MIA",
+                    "value": 0,
+                    "hit": true
+                  },
+                  {
+                    "date": "2026-06-14",
+                    "opp": "MIA",
+                    "value": 2,
+                    "hit": true
+                  },
+                  {
+                    "date": "2026-06-15",
+                    "opp": "ATH",
+                    "value": 0,
+                    "hit": true
+                  },
+                  {
+                    "date": "2026-06-16",
+                    "opp": "ATH",
+                    "value": 0,
+                    "hit": true
+                  },
+                  {
+                    "date": "2026-06-17",
+                    "opp": "ATH",
+                    "value": 2,
+                    "hit": true
                   }
                 ],
                 "hitRate": {
-                  "hits": 2,
+                  "hits": 5,
                   "total": 5,
-                  "pct": 0.4
+                  "pct": 1
                 },
                 "source": "mlb_stats_api"
-              }
+              },
+              "opponentName": "Colorado Rockies",
+              "teamLabel": "Pittsburgh Pirates"
             }
           ],
           "slateDate": "2026-06-19",
-          "laneSurvivalScore": 87,
-          "estimatedHitProbability": 0.4246,
-          "projectedPayout": 617.63,
+          "laneSurvivalScore": 80,
+          "estimatedHitProbability": 0.4002,
+          "projectedPayout": 601.56,
           "freshCard": true
         },
         {
@@ -806,18 +830,18 @@
       "label": "Lane B: diversified alternate exposure lane",
       "legs": [
         {
-          "legId": "WORLD_CUP:f955d4b3395ce6e3b5ac1031ca52ca4e:draw_no_bet:Turkey (draw no bet):",
+          "legId": "WORLD_CUP:f955d4b3395ce6e3b5ac1031ca52ca4e:double_chance:Turkey or Draw:",
           "sport": "WORLD_CUP",
           "eventId": "f955d4b3395ce6e3b5ac1031ca52ca4e",
-          "label": "Turkey (draw no bet) draw_no_bet no",
-          "participantName": "Turkey (draw no bet)",
-          "marketType": "draw_no_bet",
-          "odds": -230,
-          "modelProbability": 0.6399,
+          "label": "Turkey or Draw double_chance",
+          "participantName": "Turkey or Draw",
+          "marketType": "double_chance",
+          "odds": -400,
+          "modelProbability": 0.7503,
           "legQualityTier": "strong",
           "legQualityScore": 66,
           "riskScore": 0.037500000000000006,
-          "side": "no",
+          "side": null,
           "line": null,
           "startTime": "2026-06-20T03:00:00Z",
           "confidenceTier": "Medium",
@@ -827,6 +851,11 @@
               "label": "confirmed role / participation",
               "direction": "positive",
               "weight": 0.85
+            },
+            {
+              "label": "+0.1pp model edge vs no-vig market",
+              "direction": "positive",
+              "weight": 0.0050000000000000044
             }
           ],
           "topNegativeFactors": [],
@@ -835,40 +864,42 @@
             "official": "not started (start 03:00 UTC)",
             "source": "espn_fifa_world",
             "started": false
-          }
+          },
+          "opponentName": "Paraguay",
+          "teamLabel": "Türkiye"
         },
         {
-          "legId": "MLB:a8bc26eb19d767d6433749f35c2224ee:Hits:Zack Gelof:0.5",
+          "legId": "MLB:d06fe764bea53051487b94fc022806d1:Hits + Runs + RBIs:Rhys Hoskins:1.5",
           "sport": "MLB",
-          "eventId": "a8bc26eb19d767d6433749f35c2224ee",
-          "label": "Zack Gelof Hits over 0.5",
-          "participantName": "Zack Gelof",
-          "marketType": "Hits",
-          "odds": -241,
-          "modelProbability": 0.8175,
+          "eventId": "d06fe764bea53051487b94fc022806d1",
+          "label": "Rhys Hoskins Hits + Runs + RBIs under 1.5",
+          "participantName": "Rhys Hoskins",
+          "marketType": "Hits + Runs + RBIs",
+          "odds": -146,
+          "modelProbability": 0.6554,
           "legQualityTier": "strong",
-          "legQualityScore": 77,
-          "riskScore": 0.53,
-          "side": "over",
-          "line": 0.5,
-          "startTime": "2026-06-20T01:41:00Z",
+          "legQualityScore": 74,
+          "riskScore": 0.35,
+          "side": "under",
+          "line": 1.5,
+          "startTime": "2026-06-20T00:11:00Z",
           "confidenceTier": "Medium",
           "dataQuality": "A",
           "topPositiveFactors": [
             {
-              "label": "55-game sample",
+              "label": "59-game sample",
               "direction": "positive",
               "weight": 1
             },
             {
-              "label": "+15.5pp model edge vs no-vig market",
+              "label": "recent form supports the under (69% of games)",
               "direction": "positive",
-              "weight": 0.7739824229955095
+              "weight": 0.6949152542372882
             },
             {
-              "label": "recent form supports the over (76% of games)",
+              "label": "+10.1pp model edge vs no-vig market",
               "direction": "positive",
-              "weight": 0.7636363636363637
+              "weight": 0.5028414766558087
             }
           ],
           "topNegativeFactors": [
@@ -880,43 +911,43 @@
           ],
           "settlement": {
             "result": "pending",
-            "official": "not started (start 01:41 UTC)",
+            "official": "not started (start 00:11 UTC)",
             "source": "mlb_statsapi",
             "started": false
           },
           "last5": {
-            "stat": "hits",
-            "line": 0.5,
-            "side": "over",
+            "stat": "hrr",
+            "line": 1.5,
+            "side": "under",
             "games": [
               {
-                "date": "2026-06-14",
-                "opp": "COL",
-                "value": 2,
+                "date": "2026-06-12",
+                "opp": "DET",
+                "value": 1,
                 "hit": true
               },
               {
-                "date": "2026-06-15",
-                "opp": "PIT",
-                "value": 1,
+                "date": "2026-06-13",
+                "opp": "DET",
+                "value": 0,
                 "hit": true
               },
               {
                 "date": "2026-06-16",
-                "opp": "PIT",
-                "value": 3,
+                "opp": "MIL",
+                "value": 1,
                 "hit": true
               },
               {
                 "date": "2026-06-17",
-                "opp": "PIT",
-                "value": 1,
+                "opp": "MIL",
+                "value": 0,
                 "hit": true
               },
               {
                 "date": "2026-06-18",
-                "opp": "LAA",
-                "value": 1,
+                "opp": "MIL",
+                "value": 0,
                 "hit": true
               }
             ],
@@ -926,12 +957,14 @@
               "pct": 1
             },
             "source": "mlb_stats_api"
-          }
+          },
+          "opponentName": "Houston Astros",
+          "teamLabel": "Cleveland Guardians"
         }
       ],
-      "combinedOdds": 103,
-      "laneSurvivalScore": 78,
-      "estimatedHitProbability": 0.5231,
+      "combinedOdds": 111,
+      "laneSurvivalScore": 77,
+      "estimatedHitProbability": 0.4917,
       "result": null,
       "advanced": false,
       "settledLegs": 0,
@@ -941,26 +974,26 @@
           "status": "pending",
           "result": null,
           "slateDate": "2026-06-19",
-          "combinedOdds": 103,
-          "laneSurvivalScore": 78,
-          "estimatedHitProbability": 0.5231,
+          "combinedOdds": 111,
+          "laneSurvivalScore": 77,
+          "estimatedHitProbability": 0.4917,
           "stake": 100,
-          "projectedPayout": 203.01,
+          "projectedPayout": 210.62,
           "freshCard": true,
           "legs": [
             {
-              "legId": "WORLD_CUP:f955d4b3395ce6e3b5ac1031ca52ca4e:draw_no_bet:Turkey (draw no bet):",
+              "legId": "WORLD_CUP:f955d4b3395ce6e3b5ac1031ca52ca4e:double_chance:Turkey or Draw:",
               "sport": "WORLD_CUP",
               "eventId": "f955d4b3395ce6e3b5ac1031ca52ca4e",
-              "label": "Turkey (draw no bet) draw_no_bet no",
-              "participantName": "Turkey (draw no bet)",
-              "marketType": "draw_no_bet",
-              "odds": -230,
-              "modelProbability": 0.6399,
+              "label": "Turkey or Draw double_chance",
+              "participantName": "Turkey or Draw",
+              "marketType": "double_chance",
+              "odds": -400,
+              "modelProbability": 0.7503,
               "legQualityTier": "strong",
               "legQualityScore": 66,
               "riskScore": 0.037500000000000006,
-              "side": "no",
+              "side": null,
               "line": null,
               "startTime": "2026-06-20T03:00:00Z",
               "confidenceTier": "Medium",
@@ -970,6 +1003,11 @@
                   "label": "confirmed role / participation",
                   "direction": "positive",
                   "weight": 0.85
+                },
+                {
+                  "label": "+0.1pp model edge vs no-vig market",
+                  "direction": "positive",
+                  "weight": 0.0050000000000000044
                 }
               ],
               "topNegativeFactors": [],
@@ -978,40 +1016,42 @@
                 "official": "not started (start 03:00 UTC)",
                 "source": "espn_fifa_world",
                 "started": false
-              }
+              },
+              "opponentName": "Paraguay",
+              "teamLabel": "Türkiye"
             },
             {
-              "legId": "MLB:a8bc26eb19d767d6433749f35c2224ee:Hits:Zack Gelof:0.5",
+              "legId": "MLB:d06fe764bea53051487b94fc022806d1:Hits + Runs + RBIs:Rhys Hoskins:1.5",
               "sport": "MLB",
-              "eventId": "a8bc26eb19d767d6433749f35c2224ee",
-              "label": "Zack Gelof Hits over 0.5",
-              "participantName": "Zack Gelof",
-              "marketType": "Hits",
-              "odds": -241,
-              "modelProbability": 0.8175,
+              "eventId": "d06fe764bea53051487b94fc022806d1",
+              "label": "Rhys Hoskins Hits + Runs + RBIs under 1.5",
+              "participantName": "Rhys Hoskins",
+              "marketType": "Hits + Runs + RBIs",
+              "odds": -146,
+              "modelProbability": 0.6554,
               "legQualityTier": "strong",
-              "legQualityScore": 77,
-              "riskScore": 0.53,
-              "side": "over",
-              "line": 0.5,
-              "startTime": "2026-06-20T01:41:00Z",
+              "legQualityScore": 74,
+              "riskScore": 0.35,
+              "side": "under",
+              "line": 1.5,
+              "startTime": "2026-06-20T00:11:00Z",
               "confidenceTier": "Medium",
               "dataQuality": "A",
               "topPositiveFactors": [
                 {
-                  "label": "55-game sample",
+                  "label": "59-game sample",
                   "direction": "positive",
                   "weight": 1
                 },
                 {
-                  "label": "+15.5pp model edge vs no-vig market",
+                  "label": "recent form supports the under (69% of games)",
                   "direction": "positive",
-                  "weight": 0.7739824229955095
+                  "weight": 0.6949152542372882
                 },
                 {
-                  "label": "recent form supports the over (76% of games)",
+                  "label": "+10.1pp model edge vs no-vig market",
                   "direction": "positive",
-                  "weight": 0.7636363636363637
+                  "weight": 0.5028414766558087
                 }
               ],
               "topNegativeFactors": [
@@ -1023,43 +1063,43 @@
               ],
               "settlement": {
                 "result": "pending",
-                "official": "not started (start 01:41 UTC)",
+                "official": "not started (start 00:11 UTC)",
                 "source": "mlb_statsapi",
                 "started": false
               },
               "last5": {
-                "stat": "hits",
-                "line": 0.5,
-                "side": "over",
+                "stat": "hrr",
+                "line": 1.5,
+                "side": "under",
                 "games": [
                   {
-                    "date": "2026-06-14",
-                    "opp": "COL",
-                    "value": 2,
+                    "date": "2026-06-12",
+                    "opp": "DET",
+                    "value": 1,
                     "hit": true
                   },
                   {
-                    "date": "2026-06-15",
-                    "opp": "PIT",
-                    "value": 1,
+                    "date": "2026-06-13",
+                    "opp": "DET",
+                    "value": 0,
                     "hit": true
                   },
                   {
                     "date": "2026-06-16",
-                    "opp": "PIT",
-                    "value": 3,
+                    "opp": "MIL",
+                    "value": 1,
                     "hit": true
                   },
                   {
                     "date": "2026-06-17",
-                    "opp": "PIT",
-                    "value": 1,
+                    "opp": "MIL",
+                    "value": 0,
                     "hit": true
                   },
                   {
                     "date": "2026-06-18",
-                    "opp": "LAA",
-                    "value": 1,
+                    "opp": "MIL",
+                    "value": 0,
                     "hit": true
                   }
                 ],
@@ -1069,7 +1109,9 @@
                   "pct": 1
                 },
                 "source": "mlb_stats_api"
-              }
+              },
+              "opponentName": "Houston Astros",
+              "teamLabel": "Cleveland Guardians"
             }
           ]
         },
@@ -1788,13 +1830,13 @@
         "status": "advanced",
         "public": true,
         "awaiting": false,
-        "note": "Step 2 placed (USA ML + Griffin Jax U4.5 K), riding $197.88 → ~$617.63."
+        "note": "Step 2 quality fix: replaced Griffin Jax U4.5 K (2/5) with Nick Gonzales HRR U2.5 (5/5). USA ML + Gonzales = +204, riding $197.88 -> ~$601.56."
       },
       "laneB": {
         "status": "active",
         "public": true,
         "restart": "placed",
-        "note": "Restarted at Step 1 ($100 → ~$203.01) on Turkey DNB + Gelof Hits O0.5."
+        "note": "Step 1: Turkey or Draw (Double Chance) + Rhys Hoskins HRR U1.5 (5/5) = +111, riding $100 -> ~$210.62. Ozuna swapped out (shared Lane A's PIT@COL game)."
       },
       "note": "June 19 paid run: Lane A Step 2 placed, Lane B restarted Step 1. Both pre-event, diversified, engine-survival-gated. Mr. Dub carries full truth; protected crown untouched."
     },

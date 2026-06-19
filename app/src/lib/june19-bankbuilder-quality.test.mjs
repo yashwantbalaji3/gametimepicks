@@ -1,0 +1,84 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { loadTodaySlate } from "./parlays/ui-loader.ts";
+import { wcTeamCodeFromName } from "./data-world-cup.ts";
+
+const run = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8")).run;
+const portfolio = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
+const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
+const bb = loadTodaySlate("2026-06-19", "2026-06-19T17:45:00Z").bankBuilderPreview;
+const activeLegs = (lane) => (lane.steps.find((s) => s.status === "pending")?.legs ?? []);
+
+test("Griffin Jax (2/5) was replaced — no weak pitcher-strikeout-under leg remains in active Bank Builder", () => {
+  const allActive = [...activeLegs(bb.laneA), ...activeLegs(bb.laneB)];
+  assert.ok(!allActive.some((l) => /Griffin Jax/.test(l.participant)), "Jax removed from active lanes");
+  // No pitcher strikeout prop in the active cards (the replacement is a position-player prop).
+  assert.ok(!allActive.some((l) => /Strikeouts/i.test(l.market)), "no pitcher-K leg in active Bank Builder cards");
+});
+
+test("Lane A: USA ML kept + Nick Gonzales replacement with 5/5 last-5, card in $600-750 target", () => {
+  const legs = activeLegs(bb.laneA);
+  assert.ok(legs.some((l) => /USA|United States/.test(l.participant)), "USA moneyline kept");
+  const gonz = legs.find((l) => /Gonzales/.test(l.participant));
+  assert.ok(gonz, "Nick Gonzales is the replacement");
+  assert.ok(gonz.last5 && gonz.last5.hitRate.hits >= 4, `Gonzales last-5 ≥ 4/5 (got ${gonz.last5?.hitRate.hits})`);
+  const step2 = bb.laneA.steps.find((s) => s.step === 2);
+  assert.ok(step2.payout >= 600 && step2.payout <= 750, `Lane A projected ~$601.56 in target (got ${step2.payout})`);
+});
+
+test("Turkey or Draw (Double Chance) and Draw No Bet are distinct markets — never conflated", () => {
+  // The corrected Lane B leg is the Double Chance market, not DNB.
+  const turkey = activeLegs(bb.laneB).find((l) => /Turkey/.test(l.participant));
+  assert.ok(turkey, "Lane B keeps a Turkey leg");
+  assert.equal(turkey.market, "double_chance", "Lane B uses the Double Chance market");
+  assert.match(turkey.participant, /Turkey or Draw/, "label reads 'Turkey or Draw' (Double Chance)");
+  assert.ok(!/draw no bet|draw_no_bet/i.test(turkey.participant), "Double Chance is not labeled Draw No Bet");
+  // The UI prettifier keeps the two market labels separate.
+  const panel = fs.readFileSync("src/components/parlays/bank-builder-preview-panel.tsx", "utf8");
+  assert.match(panel, /draw_no_bet: "Draw No Bet"/, "DNB label distinct");
+  assert.match(panel, /double_chance: "Double Chance"/, "Double Chance label distinct");
+});
+
+test("World Cup team codes resolve for the flag badge — USA → US, Turkey → TR (incl. market suffixes)", () => {
+  assert.equal(wcTeamCodeFromName("USA"), "US");
+  assert.equal(wcTeamCodeFromName("Turkey"), "TR");
+  assert.equal(wcTeamCodeFromName("Turkey or Draw"), "TR", "strips the 'or Draw' suffix");
+  assert.equal(wcTeamCodeFromName("Türkiye (draw no bet)"), "TR", "strips the DNB suffix");
+  assert.equal(wcTeamCodeFromName("Under 2.5"), null, "no team in a totals label → no flag");
+  // Live: USA + Turkey legs carry a country code so FlagBadge renders.
+  const usa = activeLegs(bb.laneA).find((l) => /USA/.test(l.participant));
+  const turkey = activeLegs(bb.laneB).find((l) => /Turkey/.test(l.participant));
+  assert.equal(usa.identity.countryCode, "US", "USA flag code present");
+  assert.equal(turkey.identity.countryCode, "TR", "Turkey flag code present");
+});
+
+test("active Bank Builder leg rows expose opponent + start time; MLB legs carry last-5", () => {
+  for (const lane of [bb.laneA, bb.laneB]) {
+    for (const l of activeLegs(lane)) {
+      assert.ok(l.opponent && l.opponent.length, `${l.participant} shows an opponent`);
+      assert.ok(l.startTime && l.startTime.length, `${l.participant} shows a start time`);
+      if (l.sport === "MLB") assert.ok(l.last5 && l.last5.games.length > 0 && l.last5.source === "mlb_stats_api", `${l.participant} carries official last-5`);
+    }
+  }
+  // LaneLegRow renders the matchup line + flag avatar.
+  const panel = fs.readFileSync("src/components/parlays/bank-builder-preview-panel.tsx", "utf8");
+  assert.match(panel, /vs \$\{leg\.opponent\}/, "row renders 'vs {opponent}'");
+  assert.match(panel, /shortStart\(leg\.startTime\)/, "row renders the start time");
+  assert.match(panel, /FlagBadge code=\{id\.countryCode\}/, "WC legs render a flag badge");
+});
+
+test("four distinct games across both lanes (no shared/correlated game)", () => {
+  const games = [...activeLegs(bb.laneA), ...activeLegs(bb.laneB)].map((l) => l.legId.split(":")[1]);
+  assert.equal(new Set(games).size, games.length, "all four legs are from distinct games");
+});
+
+test("Mr. Dub: active cards match the corrected Bank Builder, exposure $297.88, replacement events logged", () => {
+  assert.equal(portfolio.openExposure, 297.88, "stake unchanged → exposure unchanged");
+  const a = portfolio.activeCards.find((c) => c.laneId === "lane-a");
+  const b = portfolio.activeCards.find((c) => c.laneId === "lane-b");
+  assert.ok(a.legs.some((l) => /Gonzales/.test(l)) && a.legs.some((l) => /USA/.test(l)), "Lane A card = USA + Gonzales");
+  assert.ok(b.legs.some((l) => /Hoskins/.test(l)) && b.legs.some((l) => /Turkey or Draw/.test(l)), "Lane B card = Turkey or Draw + Hoskins");
+  assert.ok(ledger.events.some((e) => e.type === "leg_replaced_pre_event" && e.laneId === "lane-a"), "Jax pre-event replacement logged");
+  assert.ok(ledger.events.some((e) => e.type === "market_corrected_pre_event" && e.laneId === "lane-b"), "Turkey market correction logged");
+});
