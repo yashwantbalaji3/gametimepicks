@@ -1,14 +1,14 @@
 {
   "appName": "GametimePicks",
   "version": "0.5.0",
-  "lastPipelineRun": "2026-06-18T16:48:05+00:00",
+  "lastPipelineRun": "2026-06-19T14:35:32+00:00",
   "isDemo": false,
-  "dataMode": "ScheduleUnavailable",
-  "nbaScheduleSource": "unavailable",
-  "nbaStatsSource": "unavailable",
+  "dataMode": "NoGames",
+  "nbaScheduleSource": "multi_source",
+  "nbaStatsSource": "multi_source",
   "oddsSource": "unavailable",
   "activeProvider": {
-    "nba": "unavailable",
+    "nba": "multi_source",
     "odds": "unavailable"
   },
   "providerStatuses": [
@@ -32,7 +32,7 @@
       "tier": 1,
       "enabled": false,
       "requires_api_key": true,
-      "api_key_configured": true,
+      "api_key_configured": false,
       "is_demo": false,
       "is_stub": false,
       "last_status": "not_configured",
@@ -145,7 +145,7 @@
     "opticodds": "disabled",
     "sportsdata": "disabled"
   },
-  "lastSuccessfulFetch": "2026-06-18T16:48:05+00:00",
+  "lastSuccessfulFetch": "2026-06-19T14:35:32+00:00",
   "dataSources": [
     {
       "name": "demo data",
@@ -174,12 +174,12 @@
     }
   ],
   "slateDays": 4,
-  "primaryDate": "2026-06-18",
+  "primaryDate": "2026-06-19",
   "newsSignalsConfigured": true,
   "newsSignalsActive": 0,
   "scheduleOverridesConfigured": true,
-  "todayDataMode": "ScheduleUnavailable",
-  "todayFailureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
+  "todayDataMode": "NoGames",
+  "todayFailureReason": null,
   "todayManualOverrideUsed": false,
   "oddsApiKeyConfigured": true,
   "todayOddsProviderStatus": "not_configured",
