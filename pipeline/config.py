@@ -113,7 +113,23 @@ SLATE_DAYS = _parse_int("SLATE_DAYS", 4, minimum=1, maximum=7)
 # API keys
 # ---------------------------------------------------------------------------
 # Empty string means "not configured" — providers check `bool(C.ODDS_API_KEY)`.
-ODDS_API_KEY = (os.getenv("ODDS_API_KEY") or "").strip()
+# Canonical var is ODDS_API_KEY. THE_ODDS_API_KEY is accepted only as a fallback (with a one-line
+# warning, suffix-only — never the value) so a legacy env name still works without two keys diverging.
+def _resolve_odds_api_key() -> str:
+    canonical = (os.getenv("ODDS_API_KEY") or "").strip()
+    if canonical:
+        return canonical
+    fallback = (os.getenv("THE_ODDS_API_KEY") or "").strip()
+    if fallback:
+        print(
+            f"[config] WARNING: ODDS_API_KEY is unset; falling back to THE_ODDS_API_KEY "
+            f"(****{fallback[-4:]}). Rename it to ODDS_API_KEY (the canonical var) to silence this."
+        )
+        return fallback
+    return ""
+
+
+ODDS_API_KEY = _resolve_odds_api_key()
 BALLDONTLIE_API_KEY = (os.getenv("BALLDONTLIE_API_KEY") or "").strip() or None
 OPTICODDS_API_KEY = (os.getenv("OPTICODDS_API_KEY") or "").strip() or None
 SPORTSDATA_API_KEY = (os.getenv("SPORTSDATA_API_KEY") or "").strip() or None

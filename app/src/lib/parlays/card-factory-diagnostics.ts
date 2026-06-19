@@ -5,12 +5,14 @@
  * so the matrix can't drift from what the explorer actually shows. No fabrication — when there is no
  * current slate, that is exactly what it says.
  */
-import type { TodaySlateView, SportSlateStatus } from "@/lib/parlays/ui-loader";
+import type { TodaySlateView, SportSlateStatus, OddsBandDiagnostics } from "@/lib/parlays/ui-loader";
 import { RISK_BUCKETS, type RiskBucket, type CardScope, CARD_GENERATION_TARGETS } from "@/lib/parlays/risk-taxonomy";
 
 export type RejectReason =
   | "no_current_slate" | "no_eligible_legs" | "gates_not_cleared" | "correlation_or_payout_band"
-  | "sport_disabled_or_stale" | "no_current_slate_for_scope";
+  | "sport_disabled_or_stale" | "no_current_slate_for_scope"
+  // odds-band guards (risk-odds-bands.ts): why an individual leg or whole card was filtered out
+  | "leg_too_short_price" | "leg_too_long_price" | "combined_odds_out_of_bucket";
 
 export interface DiagnosticCell {
   scope: CardScope;
@@ -27,6 +29,8 @@ export interface CardFactoryDiagnostics {
   date: string;
   slatePresent: boolean;
   matrix: Record<CardScope, Record<RiskBucket, DiagnosticCell>>;
+  /** How many legs/cards the combined-odds bands + leg-price guards removed (never silently dropped). */
+  oddsBandGuards: OddsBandDiagnostics;
   summary: string;
 }
 
@@ -98,11 +102,15 @@ export function buildCardFactoryDiagnostics(slate: TodaySlateView, generatedAt: 
     mixed: mk("mixed", mixed, mixedAttempted, (wcEligible === 0 ? wc : mlb)),
   };
 
+  const oddsBandGuards: OddsBandDiagnostics = slate.oddsBandDiagnostics ?? { legsDroppedTooShort: 0, legsDroppedTooLong: 0, cardsRebucketed: 0, cardsDroppedOutOfBucket: 0 };
   const slatePresent = wcEligible > 0 || mlbEligible > 0;
   const totalPassed = Object.values(matrix).reduce((s, scope) => s + Object.values(scope).reduce((a, c) => a + c.passed, 0), 0);
+  const guardNote = (oddsBandGuards.legsDroppedTooShort || oddsBandGuards.legsDroppedTooLong || oddsBandGuards.cardsRebucketed || oddsBandGuards.cardsDroppedOutOfBucket)
+    ? ` Odds-band guards: ${oddsBandGuards.legsDroppedTooShort} leg(s) too short (<-500), ${oddsBandGuards.legsDroppedTooLong} too long (>+1200) dropped; ${oddsBandGuards.cardsRebucketed} card(s) re-homed to the band their combined odds fit; ${oddsBandGuards.cardsDroppedOutOfBucket} dropped as out-of-band.`
+    : "";
   const summary = slatePresent
-    ? `${totalPassed} cards passed across all scopes for ${date}. Empty buckets list their gate / data reason below.`
+    ? `${totalPassed} cards passed across all scopes for ${date}. Empty buckets list their gate / data reason below.${guardNote}`
     : `No current slate for ${date} — World Cup projections and the MLB board have not been generated yet, so every bucket is empty for a real reason (not a gate failure).`;
 
-  return { generatedAt, date, slatePresent, matrix, summary };
+  return { generatedAt, date, slatePresent, matrix, oddsBandGuards, summary };
 }
