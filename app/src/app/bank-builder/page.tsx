@@ -21,6 +21,7 @@ import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
 import BankBuilderPreviewPanel from "@/components/parlays/bank-builder-preview-panel";
+import DualLadderBoard from "@/components/bank-builder/dual-ladder-board";
 import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 import { getSportIdentity } from "@/lib/sport-identity";
 import {
@@ -106,13 +107,7 @@ export default function BankBuilderPage() {
       {/* PRIMARY — Today's Dual Bank Builder: the live two-lane ladder leads the page. */}
       {bbActiveLaunched ? (
         <section className="gtp-fade-up mb-6" aria-label="Today's Dual Bank Builder">
-          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-            <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.4vw, 30px)", fontWeight: 800 }}>
-              Today&rsquo;s Dual Bank Builder
-            </h1>
-            <span className="font-mono uppercase tracking-[0.12em] text-[10.5px]" style={{ color: "var(--gtp-bank-heat)" }}>Two lanes · $100 → $10K each · paper</span>
-          </div>
-          <BankBuilderPreviewPanel preview={bbPreview} />
+          <DualLadderBoard preview={bbPreview} />
           <Link href="/mr-dub" className="gtp-card-hover mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl px-4 py-3" style={{ border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", background: "rgba(212,175,55,0.06)", textDecoration: "none" }}>
             <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>
               <span style={{ fontWeight: 700 }}>Full paper ledger on Mr. Dub</span> — every win, loss, void, stopped lane &amp; restart. Bank Builder shows active paths &amp; successful ladders; Mr. Dub tracks it all.

@@ -73,7 +73,7 @@ function Last5Grid({ last5, side, line }: { last5: Last5; side: string | null; l
 }
 
 /** A clickable leg: shows the EXACT side (Over/Under) + line, settlement, and a "why this pick" drawer. */
-function LaneLegRow({ leg, pending }: { leg: ParlayLegDisplay; pending?: boolean }) {
+export function LaneLegRow({ leg, pending }: { leg: ParlayLegDisplay; pending?: boolean }) {
   const sl = sideText(leg.side);
   const pick = `${leg.market}${sl ? ` ${sl}` : ""}${leg.line != null ? ` ${leg.line}` : ""}`.trim();
   return (
