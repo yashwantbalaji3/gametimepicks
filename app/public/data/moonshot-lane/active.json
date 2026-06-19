@@ -1,0 +1,174 @@
+{
+  "id": "moonshot-lane-c-2026-06-19",
+  "name": "Moonshot Lane",
+  "subtitle": "World Cup longshot paper challenge",
+  "paperOnly": true,
+  "publicVisible": true,
+  "status": "active",
+  "sportScope": "world_cup",
+  "startingStake": 25,
+  "targetReturn": 3000,
+  "currentStake": 25,
+  "currentStep": 1,
+  "generatedAt": "2026-06-19T18:45:00Z",
+  "ladder": [
+    {
+      "step": 1,
+      "stake": 25,
+      "targetReturn": 200,
+      "requiredMultiple": 8,
+      "targetOddsBand": "+600..+900",
+      "status": "active",
+      "card": {
+        "cardId": "moonshot-2026-06-19-step1-main",
+        "scope": "world_cup",
+        "risk": "longshot",
+        "stake": 25,
+        "combinedOdds": 808,
+        "projectedReturn": 227.01,
+        "legs": [
+          {
+            "legId": "moonshot:wc:wc_2026-06-19_30_ml",
+            "kind": "team",
+            "sport": "WORLD_CUP",
+            "fixture": "Scotland vs Morocco",
+            "participant": "Morocco",
+            "opponent": "Scotland",
+            "countryCode": "MA",
+            "market": "moneyline_90",
+            "marketLabel": "Moneyline (90′)",
+            "side": null,
+            "line": null,
+            "odds": -162,
+            "modelProbability": 0.5875,
+            "startTime": "2026-06-19T22:00:00Z",
+            "dataQuality": "B",
+            "confidence": "Lean",
+            "settlement": {
+              "result": "pending",
+              "source": "espn_fifa_world",
+              "official": "90-minute regulation result",
+              "started": false
+            },
+            "why": "Morocco are the model favourite (59%) at home-neutral vs Scotland — the lower-variance team anchor of the card."
+          },
+          {
+            "legId": "moonshot:wc:ef0f74a991d3e35798ae5af77667bce1:vinicius-gs",
+            "kind": "player",
+            "sport": "WORLD_CUP",
+            "fixture": "Brazil vs Haiti",
+            "participant": "Vinícius Júnior",
+            "team": "Brazil",
+            "opponent": "Haiti",
+            "countryCode": "BR",
+            "playerId": 762,
+            "photoUrl": "https://media.api-sports.io/football/players/762.png",
+            "market": "player_goal_scorer_anytime",
+            "marketLabel": "Anytime Goalscorer",
+            "side": "Yes",
+            "line": null,
+            "odds": -120,
+            "modelProbability": 0.5455,
+            "startTime": "2026-06-20T00:30:00Z",
+            "dataQuality": "limited",
+            "confidence": "Lower confidence",
+            "settlement": {
+              "result": "pending",
+              "source": "espn_fifa_world",
+              "official": "goal in regulation",
+              "started": false
+            },
+            "why": "Vinícius Júnior is favoured (55%) to score for Brazil vs Haiti — the highest-probability attacking upside in the card."
+          },
+          {
+            "legId": "moonshot:wc:4cd769aa7bae0ad9762bd69b80ef2903:saibari-gs",
+            "kind": "player",
+            "sport": "WORLD_CUP",
+            "fixture": "Scotland vs Morocco",
+            "participant": "Ismael Saibari",
+            "team": "Morocco",
+            "opponent": "Scotland",
+            "countryCode": "MA",
+            "playerId": 161897,
+            "photoUrl": "https://media.api-sports.io/football/players/161897.png",
+            "market": "player_goal_scorer_anytime",
+            "marketLabel": "Anytime Goalscorer",
+            "side": "Yes",
+            "line": null,
+            "odds": 145,
+            "modelProbability": 0.4082,
+            "startTime": "2026-06-19T22:00:00Z",
+            "dataQuality": "limited",
+            "confidence": "Lower confidence",
+            "settlement": {
+              "result": "pending",
+              "source": "espn_fifa_world",
+              "official": "goal in regulation",
+              "started": false
+            },
+            "why": "Plus-money Morocco attacker (+145) — the higher-variance upside leg, intentionally stacked with Morocco ML (same game)."
+          },
+          {
+            "legId": "moonshot:wc:wc_2026-06-19_f955d4b3395ce6e3b5ac1031ca52ca4e_dc",
+            "kind": "team",
+            "sport": "WORLD_CUP",
+            "fixture": "Turkey vs Paraguay",
+            "participant": "Turkey or Draw",
+            "opponent": "Paraguay",
+            "countryCode": "TR",
+            "market": "double_chance",
+            "marketLabel": "Double Chance",
+            "side": null,
+            "line": null,
+            "odds": -400,
+            "modelProbability": 0.7503,
+            "startTime": "2026-06-20T03:00:00Z",
+            "dataQuality": "B",
+            "confidence": "Lean",
+            "settlement": {
+              "result": "pending",
+              "source": "espn_fifa_world",
+              "official": "90-minute regulation result (win or draw)",
+              "started": false
+            },
+            "why": "Double Chance (Turkey win OR draw, 75%) — the second team anchor; lower-variance ballast for the card."
+          }
+        ],
+        "correlationProfile": "multi_game_with_intentional_stack",
+        "distinctGames": 3,
+        "jointModelProbability": 0.0982,
+        "whyThisCard": [
+          "World Cup-forward, three distinct games (Morocco, Brazil, Turkey) — a high-volatility paper longshot.",
+          "Two lower-variance team anchors (Morocco ML, Turkey or Draw) carry the card; two attacking goalscorer legs (Vinícius Júnior, Ismael Saibari) supply the upside.",
+          "Intentional same-game stack: Morocco ML + Ismael Saibari to score (Morocco win + a Morocco attacker scores). Correlation is disclosed, not hidden."
+        ],
+        "whyItCanFail": [
+          "Four legs must ALL hit — joint model probability ≈ 10%. Higher variance by design.",
+          "Player goalscorer props are limited-data / market-implied (lineups not yet posted) — lower confidence.",
+          "A Morocco draw or loss kills both Morocco legs at once (the intentional correlation cuts both ways)."
+        ],
+        "dataQuality": "mixed",
+        "eligible": true
+      }
+    },
+    {
+      "step": 2,
+      "stake": 200,
+      "targetReturn": 1000,
+      "requiredMultiple": 5,
+      "targetOddsBand": "+350..+550",
+      "status": "upcoming",
+      "card": null
+    },
+    {
+      "step": 3,
+      "stake": 1000,
+      "targetReturn": 3000,
+      "requiredMultiple": 3,
+      "targetOddsBand": "+180..+300",
+      "status": "upcoming",
+      "card": null
+    }
+  ],
+  "disclaimer": "High-volatility paper challenge. Separate from the core Dual Bank Builder. Paper-only — no wagers are placed."
+}
