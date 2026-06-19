@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -241,8 +242,9 @@ def run(
     markets: list[str] | None = None,
     regions: list[str] | None = None,
     bookmakers: list[str] | None = None,
-    min_credits_remaining: int = 350,
+    min_credits_remaining: int = 2000,
     max_credits_per_run: int = 75,
+    allow_below_floor: bool = False,
 ) -> dict:
     """Run the full pipeline. Returns a summary dict."""
     markets = markets or mlb_odds.DEFAULT_MARKETS
@@ -297,7 +299,27 @@ def run(
 
     events, headers = mlb_odds.list_events_for_date(date)
     summary["creditsBefore"] = headers.get("x-requests-remaining")
-    print(f"[odds] events on {date}: {len(events)} · remaining: {summary['creditsBefore']}")
+    # Plan detection (suffix only — never log the key). total quota = used + remaining; a ~500 total is
+    # the FREE tier, a 20K total is paid. Paid pipeline runs fail closed on the free key unless overridden.
+    key = C.ODDS_API_KEY or ""
+    summary["keySuffix"] = key[-4:] if key else None
+    try:
+        used = int(headers.get("x-requests-used") or 0)
+        rem0 = int(summary["creditsBefore"]) if summary["creditsBefore"] else 0
+        total_quota = used + rem0
+    except (TypeError, ValueError):
+        total_quota = 0
+    is_free_plan = 0 < total_quota <= 600
+    summary["plan"] = "free" if is_free_plan else ("paid" if total_quota > 600 else "unknown")
+    summary["allowBelowFloor"] = allow_below_floor
+    print(f"[odds] key ****{summary['keySuffix']} · plan={summary['plan']} · remaining={summary['creditsBefore']} · floor={min_credits_remaining} · events={len(events)}")
+    if is_free_plan and not allow_below_floor:
+        summary["warnings"].append(
+            f"FREE-tier key (****{summary['keySuffix']}, total quota {total_quota}) — paid MLB odds fetch blocked. "
+            f"Set the paid ODDS_API_KEY (or ODDS_API_ALLOW_BELOW_FLOOR=true to override)."
+        )
+        _write_pending_board(date, games, summary, reason="free_key_blocked")
+        return summary
 
     if not events:
         summary["warnings"].append("Odds API returned 0 MLB events for date")
@@ -337,9 +359,10 @@ def run(
         )
         _write_pending_board(date, games, summary, reason="cost_cap")
         return summary
-    if after < min_credits_remaining:
+    if after < min_credits_remaining and not allow_below_floor:
         summary["warnings"].append(
-            f"projected remaining {after} < floor {min_credits_remaining}; skipping paid fetch"
+            f"projected remaining {after} < floor {min_credits_remaining}; skipping paid fetch "
+            f"(set ODDS_API_ALLOW_BELOW_FLOOR=true or raise the paid quota to override)"
         )
         _write_pending_board(date, games, summary, reason="floor_guard")
         return summary
@@ -630,8 +653,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--min-credits-remaining",
         type=int,
-        default=350,
-        help="Refuse to run if projected remaining < this",
+        # Default 2000 — a conservative floor for the paid 20K plan. The free key is refused earlier by
+        # the plan-aware check regardless of this floor, so 2000 never over-blocks a free-key run.
+        default=int(os.environ.get("ODDS_API_MIN_CREDITS_REMAINING", "2000")),
+        help="Refuse to run if projected remaining < this (env: ODDS_API_MIN_CREDITS_REMAINING, default 2000 for the paid plan)",
+    )
+    parser.add_argument(
+        "--allow-below-floor",
+        action="store_true",
+        default=os.environ.get("ODDS_API_ALLOW_BELOW_FLOOR", "").lower() in ("1", "true", "yes"),
+        help="Explicitly allow a paid fetch even below the floor / on the free key (env: ODDS_API_ALLOW_BELOW_FLOOR)",
     )
     parser.add_argument(
         "--max-credits-per-run",
@@ -651,6 +682,7 @@ def main(argv: list[str] | None = None) -> int:
         markets=markets,
         min_credits_remaining=args.min_credits_remaining,
         max_credits_per_run=args.max_credits_per_run,
+        allow_below_floor=args.allow_below_floor,
     )
     print("\n=== summary ===")
     print(json.dumps(summary, indent=2, default=str))

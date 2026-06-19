@@ -18,6 +18,7 @@ import { generateDailyParlays, generateMixedParlays } from "./daily-parlays";
 import { generateAllSameGameParlays } from "./same-game";
 import { selectDualBankBuilder, survivalScore } from "./dual-bank-builder";
 import { RISK_LEVEL_ORDER } from "./risk-levels";
+import { INDIVIDUAL_LEG_ODDS_GUARDS, getRiskBucketForCombinedOdds } from "./risk-odds-bands";
 import type { EligibleLeg, RiskLevel, SuggestedParlay, DualBankBuilderResult } from "./types";
 
 // ── Display types (safe to import from client components — interfaces are erased) ────────────────
@@ -145,6 +146,18 @@ export interface SportSlateStatus {
   gameSpecificCount: number;
   noQualified: NoQualifiedReason | null;
 }
+/**
+ * Tally of cards/legs filtered out by the combined-odds bands + individual-leg price guards
+ * (`risk-odds-bands.ts`). Surfaced so the Parlay Lab + the operator report can show exactly how many
+ * extreme-favorite/underdog legs and out-of-band cards the bands removed — not silently dropped.
+ */
+export interface OddsBandDiagnostics {
+  legsDroppedTooShort: number; // individual legs shorter than -500 (leg_too_short_price)
+  legsDroppedTooLong: number; // individual legs longer than +1200, non-longshot (leg_too_long_price)
+  cardsRebucketed: number; // cards re-homed to the band their combined odds actually fit
+  cardsDroppedOutOfBucket: number; // cards whose combined odds priced shorter than -200 (combined_odds_out_of_bucket)
+}
+
 export interface TodaySlateView {
   date: string;
   available: boolean;
@@ -155,6 +168,7 @@ export interface TodaySlateView {
   gameSpecific: GameSpecificParlayGroup[];
   eligibleLegs: EligibleLegDisplay[];
   bankBuilderPreview: DualBankBuilderPreview;
+  oddsBandDiagnostics: OddsBandDiagnostics;
 }
 
 const SPORT_KEY: Record<Sport, SportKey> = { MLB: "mlb", NBA: "nba", UFC: "ufc", WORLD_CUP: "world_cup" };
@@ -305,6 +319,30 @@ function cardDisplay(p: SuggestedParlay, legByIdLookup: Map<string, ParlayLegDis
   };
 }
 
+/**
+ * Re-assign every generated card to the risk bucket its COMBINED odds actually fit, and drop cards
+ * priced shorter than the Low floor (-200). The generator buckets a card by its leg mix; this is the
+ * final authority on display — a card can never surface in a bucket whose payout band it doesn't fit.
+ * `moved` counts cards re-homed to a different band; `droppedShort` counts `combined_odds_out_of_bucket`
+ * drops (combined shorter than -200).
+ */
+function rebucketByCombinedOdds(cards: SuggestedParlayCard[]): {
+  buckets: Record<RiskLevel, SuggestedParlayCard[]>;
+  moved: number;
+  droppedShort: number;
+} {
+  const buckets: Record<RiskLevel, SuggestedParlayCard[]> = { low: [], medium: [], high: [], longshot: [] };
+  let moved = 0;
+  let droppedShort = 0;
+  for (const c of cards) {
+    const bucket = c.combinedOdds == null ? c.riskLevel : getRiskBucketForCombinedOdds(c.combinedOdds);
+    if (!bucket) { droppedShort++; continue; } // combined shorter than -200 → too short; drop (out-of-bucket)
+    if (bucket === c.riskLevel) buckets[bucket].push(c);
+    else { moved++; buckets[bucket].push({ ...c, riskLevel: bucket }); }
+  }
+  return { buckets, moved, droppedShort };
+}
+
 const NO_QUALIFIED_MESSAGES: Record<ExtractorStatus, (sport: Sport) => string> = {
   wired_no_candidates: (s) => s === "NBA" ? "No eligible NBA board today (off-season or no slate)." : `No eligible ${s} candidates for today.`,
   source_missing: (s) => s === "WORLD_CUP" ? "No odds-backed World Cup projections for today (schedule only)." : `No ${s} source data for today.`,
@@ -330,6 +368,7 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
     date, available: false, sports: [], suggestedBySportRisk: {}, mixedByRisk: {}, allSuggested: [],
     gameSpecific: [], eligibleLegs: [],
     bankBuilderPreview: { status: "no_qualified_launch", runId: null, date, isLadder: false, currentStep: 0, laneA: null, laneB: null, selectedFour: [], launchGateSummary: [], noLaunchReasons: ["No slate available."] },
+    oddsBandDiagnostics: { legsDroppedTooShort: 0, legsDroppedTooLong: 0, cardsRebucketed: 0, cardsDroppedOutOfBucket: 0 },
   };
   if (!date) { _cache.set(cacheKey, empty); return empty; }
 
@@ -347,7 +386,16 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
     // are excluded so the live preview never lists a started/in-progress game as bettable.
     const allLegsBySport = results.map((r) => buildLegsForSport(r, nowIso, true));
     const allLegs = allLegsBySport.flat();
-    const eligible = eligibleLegs(allLegs);
+    // Individual-leg price guard: drop extreme-favorite filler (shorter than -500, e.g. -1000/-7000 —
+    // barely moves a parlay's payout) and extreme underdogs (above +1200) so no card pads with them.
+    const oddsBandDiagnostics: OddsBandDiagnostics = { legsDroppedTooShort: 0, legsDroppedTooLong: 0, cardsRebucketed: 0, cardsDroppedOutOfBucket: 0 };
+    const eligible = eligibleLegs(allLegs).filter((l) => {
+      const o = (l as { odds?: number | null }).odds;
+      if (o == null) return true;
+      if (o < INDIVIDUAL_LEG_ODDS_GUARDS.minFavoriteAmerican) { oddsBandDiagnostics.legsDroppedTooShort++; return false; }
+      if (o > INDIVIDUAL_LEG_ODDS_GUARDS.maxUnderdogAmerican) { oddsBandDiagnostics.legsDroppedTooLong++; return false; }
+      return true;
+    });
 
     const legByIdLookup = new Map<string, ParlayLegDisplay>();
     for (const l of allLegs) legByIdLookup.set(l.legId, legDisplay(l, maps));
@@ -362,11 +410,15 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
       const byRiskCount = { low: 0, medium: 0, high: 0, longshot: 0 } as Record<RiskLevel, number>;
       if (sportLegs.length > 0) {
         const { parlays } = generateDailyParlays(sportLegs, date);
+        // Re-bucket every card by its COMBINED odds so each sits in the band it actually fits
+        // (Low -200..+100 / Medium ..+300 / High ..+600 / Longshot >+600); drop cards shorter than -200.
+        const { buckets, moved, droppedShort } = rebucketByCombinedOdds(parlays.map((p) => cardDisplay(p, legByIdLookup)));
+        oddsBandDiagnostics.cardsRebucketed += moved;
+        oddsBandDiagnostics.cardsDroppedOutOfBucket += droppedShort;
         for (const lvl of RISK_LEVEL_ORDER) {
-          const cards = parlays.filter((p) => p.riskLevel === lvl).map((p) => cardDisplay(p, legByIdLookup));
-          byRisk[lvl] = cards;
-          byRiskCount[lvl] = cards.length;
-          allSuggested.push(...cards);
+          byRisk[lvl] = buckets[lvl];
+          byRiskCount[lvl] = buckets[lvl].length;
+          allSuggested.push(...buckets[lvl]);
         }
       }
       suggestedBySportRisk[r.sport] = byRisk;
@@ -387,8 +439,11 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
     const mixedByRisk: Partial<Record<RiskLevel, SuggestedParlayCard[]>> = {};
     {
       const { parlays: mixed } = generateMixedParlays(eligible, date);
+      const { buckets, moved, droppedShort } = rebucketByCombinedOdds(mixed.map((p) => cardDisplay(p, legByIdLookup)));
+      oddsBandDiagnostics.cardsRebucketed += moved;
+      oddsBandDiagnostics.cardsDroppedOutOfBucket += droppedShort;
       for (const lvl of RISK_LEVEL_ORDER) {
-        const cards = mixed.filter((p) => p.riskLevel === lvl).map((p) => cardDisplay(p, legByIdLookup));
+        const cards = buckets[lvl];
         if (cards.length) { mixedByRisk[lvl] = cards; allSuggested.push(...cards); }
       }
     }
@@ -487,6 +542,7 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
       gameSpecific,
       eligibleLegs: eligible.map((l) => legByIdLookup.get(l.legId)).filter(Boolean) as EligibleLegDisplay[],
       bankBuilderPreview,
+      oddsBandDiagnostics,
     };
     _cache.set(cacheKey, view);
     return view;
