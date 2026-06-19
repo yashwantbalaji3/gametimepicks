@@ -7,18 +7,20 @@ const A = run.laneA, B = run.laneB;
 const step1 = A.steps.find((s) => s.step === 1);
 const dec = (o) => (o >= 0 ? 1 + o / 100 : 1 + 100 / -o);
 
-test("fresh Lane A Step 1: two brand-new pre-event legs (one World Cup, one MLB), launched from $100", () => {
-  assert.equal(A.laneStatus, "active");
+test("Lane A Step 1 (Mexico DNB + Soto) was launched from $100 and settled WON → lane advanced", () => {
+  assert.equal(A.laneStatus, "advanced", "Lane A advanced after Step 1 won");
   assert.equal(A.publicVisible, true);
-  assert.equal(step1.status, "pending");
-  assert.equal(step1.stake, 100, "starts from $100");
+  assert.equal(step1.status, "settled");
+  assert.equal(step1.result, "won");
+  assert.equal(step1.stake, 100, "started from $100");
   assert.equal(step1.legs.length, 2);
   const wc = step1.legs.find((l) => l.sport === "WORLD_CUP");
   const mlb = step1.legs.find((l) => l.sport === "MLB");
   assert.ok(wc && mlb, "exactly one World Cup + one MLB leg");
-  // Both legs are pre-event relative to the launch moment (no started/live/completed games).
+  assert.ok(wc.settlement?.result === "won" && mlb.settlement?.result === "won", "both legs graded won from official sources");
+  // Both legs were pre-event relative to the launch moment (no started/live games at launch).
   const launchedMs = Date.parse(A.relaunch.launchedAt);
-  for (const l of step1.legs) assert.ok(Date.parse(l.startTime) > launchedMs, `${l.label} is pre-event at launch`);
+  for (const l of step1.legs) assert.ok(Date.parse(l.startTime) > launchedMs, `${l.label} was pre-event at launch`);
 });
 
 test("fresh Lane A Step 1: targets ~$200 with near-+100 combined odds, no longshot / no ultra-short", () => {
@@ -50,8 +52,10 @@ test("prior stopped Lane A history is preserved (old won + lost steps) for Mr. D
   assert.ok(!/Czech/i.test(publicLabels) && !/Josh Bell/i.test(publicLabels), "no failed legs on the public lane");
 });
 
-test("internal replacement candidates: MLB swaps generated, none from started/postponed or in-use games", () => {
+test("internal replacement candidates: cleared once the legs settled (no stale swaps), none from in-use/postponed games while live", () => {
   const cands = A.replacementCandidates ?? [];
+  // Post-settlement the fresh legs are graded, so swap candidates are cleared (moot) — never stale.
+  assert.equal(cands.length, 0, "candidates cleared after Step 1 settled");
   const laneBEvents = new Set((B.steps ?? []).flatMap((s) => (s.legs ?? []).map((l) => String(l.eventId))));
   const ownEvents = new Set(step1.legs.map((l) => String(l.eventId)));
   for (const c of cands) {

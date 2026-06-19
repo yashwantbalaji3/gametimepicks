@@ -145,11 +145,22 @@ function main() {
         });
       }
     }
+    // Lane cleared its open step and is riding toward the next rung — no card placed yet (awaiting the
+    // next pre-event slate). Informational, $0 P/L, no open exposure; the rolled win is already recorded.
+    if (lane.laneStatus === "advanced") {
+      laneEvents.push({
+        eventId: `mrdub-2026-06-18-${laneName}-advanced`,
+        timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder", type: "lane_advanced",
+        laneId: laneName, step: lane.currentStep ?? null, date: "2026-06-18", paperStake: 0, paperReturn: 0, paperProfit: 0,
+        status: "advanced", publicBankBuilderVisible: true,
+        notes: lane.awaitingNote ?? `Lane ${lk.slice(-1)} advanced — awaiting next qualified card.`,
+      });
+    }
     if (lane.restart) {
       laneEvents.push({
         eventId: `mrdub-2026-06-18-${laneName}-restart-${lane.restart.status}`,
         timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder", type: "lane_restarted",
-        laneId: laneName, step: 1, paperStake: round2(lane.restart.stake ?? 100), paperReturn: 0, paperProfit: 0,
+        laneId: laneName, step: 1, date: "2026-06-18", paperStake: round2(lane.restart.stake ?? 100), paperReturn: 0, paperProfit: 0,
         status: lane.restart.status, publicBankBuilderVisible: true,
         notes: lane.restart.note ?? "Fresh $100 lane restart.",
       });
