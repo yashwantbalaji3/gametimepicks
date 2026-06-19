@@ -3,6 +3,7 @@
  * that officially settled (won / lost / void), leg by leg, with the official source. Transparency
  * surface: losses are shown here even though the public Bank Builder page hides stopped lanes.
  */
+import Link from "next/link";
 import type { BankBuilderResultStep } from "@/lib/bank-builder-results";
 import MoneyPath from "@/components/ui/money-path";
 
@@ -25,9 +26,12 @@ export default function BankBuilderResults({ steps }: { steps: BankBuilderResult
         <h2 className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>Bank Builder — settled steps</h2>
         <span className="font-mono text-[10.5px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>official settlement · paper-only</span>
       </div>
-      <p className="mb-3 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-        Each lane step graded from the official box score / 90-minute regulation result. Full lane history lives on Mr. Dub.
+      <p className="mb-2 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+        Each lane step graded from the official box score / 90-minute regulation result. Every step here moves Mr. Dub&rsquo;s paper bankroll and daily P/L.
       </p>
+      <Link href="/mr-dub" className="mb-3 inline-flex font-mono uppercase tracking-[0.1em] text-[10.5px]" style={{ color: "var(--vault-gold-bright)" }}>
+        View in Mr. Dub ledger — bankroll, daily P/L &amp; exposure impact →
+      </Link>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {steps.map((s) => {
           const color = RESULT_COLOR[s.result] ?? "var(--vault-text-faint)";

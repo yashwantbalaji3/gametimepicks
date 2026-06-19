@@ -168,6 +168,25 @@ function main() {
   }
   events.push(...laneEvents);
 
+  // Per-event accounting note — makes each daily-ledger card self-explanatory (no extra lookups).
+  for (const e of events) {
+    e.accountingNote = e.rolled
+      ? "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
+      : e.type === "lane_stopped"
+        ? "Realized — original $100 paper stake lost; lane stopped."
+        : e.type === "lane_advanced"
+          ? "Step cleared and rolled; awaiting the next qualified card (no card placed)."
+          : e.type === "lane_restarted"
+            ? "Fresh $100 path queued for the next qualified card (not yet placed)."
+            : e.status === "open"
+              ? "Open paper position — pending official settlement."
+              : e.type === "ladder_step_won"
+                ? "Completed-ladder rung — realized (the crown ladder cashed out)."
+                : e.type === "lane_relaunch_blocked"
+                  ? "Audit only — no paper stake, no bankroll impact."
+                  : "Settled.";
+  }
+
   const settledProfit = round2((crownFinal - (crown.base ?? 100)) + dualRealized);
   const portfolio = {
     portfolioId: "mr-dub-paper", displayName: "Mr. Dub", paperOnly: true,
@@ -212,17 +231,103 @@ function main() {
   }
   const daily = { portfolioId: "mr-dub-paper", paperOnly: true, generatedAt: NOW, days };
 
-  // Exposure + bankroll intelligence (paper-only). Open exposure broken down by sport from open legs.
-  const openLegs = laneEvents.filter((e) => e.status === "open").flatMap((e) => (e.sportExposure ?? []));
-  const bySport = {};
-  for (const sp of openLegs) { const k = sp === "WORLD_CUP" ? "World Cup" : sp; bySport[k] = round2((bySport[k] ?? 0) + round2(openExposure / Math.max(1, openLegs.length))); }
+  // ── Portfolio intelligence (paper-only) ──
+  const round4 = (n) => Math.round(n * 10000) / 10000;
+  // Accounting rule: a won INTERMEDIATE Bank Builder step ROLLS into the next step (paperProfit $0 —
+  // unrealized until the ladder completes or stops); a lost step REALIZES minus the lane's original
+  // $100. The completed crown is realized (it cashed out). So bankroll = crown final + realized losses.
+  const drawdown = round2(hwm - portfolio.currentBankroll);
+  const drawdownPct = hwm > 0 ? round4(drawdown / hwm) : 0;
+  const exposurePct = portfolio.currentBankroll > 0 ? round4(openExposure / portfolio.currentBankroll) : 0;
+
+  // Exposure breakdown — only currently OPEN paper cards count (awaiting/queued are NOT exposure).
+  const openCards = laneEvents.filter((e) => e.status === "open");
+  const sportMap = {}, marketMap = {}, ppMap = {}, laneMap = {};
+  for (const e of openCards) {
+    const stake = round2(e.paperStake ?? 0);
+    laneMap[e.laneId] = round2((laneMap[e.laneId] ?? 0) + stake);
+    const legs = e.legs ?? [];
+    const per = stake / Math.max(1, legs.length);
+    for (const l of legs) {
+      const sport = l.source === "espn_fifa_world" || /world/i.test(l.market ?? "") ? "World Cup" : (l.sport ?? "MLB");
+      const sk = sport === "WORLD_CUP" ? "World Cup" : sport;
+      sportMap[sk] = round2((sportMap[sk] ?? 0) + per);
+      const mk = l.market ?? "market";
+      marketMap[mk] = round2((marketMap[mk] ?? 0) + per);
+      const pp = l.selection ?? l.participant ?? "—";
+      ppMap[pp] = round2((ppMap[pp] ?? 0) + per);
+    }
+  }
+  const toArr = (m) => Object.entries(m).map(([key, amount]) => ({ key, amount })).sort((a, b) => b.amount - a.amount);
+  const exposure = {
+    bySport: toArr(sportMap), byMarket: toArr(marketMap), byTeamOrPlayer: toArr(ppMap),
+    byLane: toArr(laneMap),
+    byStatus: [
+      { key: "open", amount: round2(openExposure) },
+      { key: "awaiting_next_card", amount: 0 },
+    ].filter((x) => x.amount > 0),
+  };
+
+  // Awaiting (advanced lane riding toward its next card) + queued restarts — informational, NOT exposure.
+  const awaitingCards = [
+    ...laneEvents.filter((e) => e.type === "lane_advanced").map((e) => ({ laneId: e.laneId, step: e.step, kind: "awaiting_next_card", note: e.notes })),
+    ...laneEvents.filter((e) => e.type === "lane_restarted" && e.status === "queued").map((e) => ({ laneId: e.laneId, step: 1, kind: "queued_restart", stake: round2(e.paperStake ?? 100), note: e.notes })),
+  ];
+  const completedCards = (crown.entries?.length)
+    ? [{ name: "Road to $10K", result: `${(crown.entries ?? []).filter((x) => x.result === "win").length}–0`, start: round2(crown.base ?? 100), final: crownFinal, official: true }]
+    : [];
+
+  // Streaks + averages (realized settled events in chronological order).
+  const settledEvents = events.filter((e) => e.result === "won" || e.result === "win" || e.result === "lost");
+  let cw = 0, cl = 0, longestWin = 0, longestLoss = 0;
+  for (const e of settledEvents) {
+    const w = e.result === "won" || e.result === "win";
+    if (w) { cw++; cl = 0; } else { cl++; cw = 0; }
+    longestWin = Math.max(longestWin, cw); longestLoss = Math.max(longestLoss, cl);
+  }
+  const stakes = settledEvents.map((e) => e.paperStake).filter((n) => n > 0);
+  const avgStake = stakes.length ? round2(stakes.reduce((a, b) => a + b, 0) / stakes.length) : 0;
+  const wonReturns = settledEvents.filter((e) => e.result === "won" || e.result === "win").map((e) => e.paperReturn).filter((n) => n > 0);
+  const avgSettledReturn = wonReturns.length ? round2(wonReturns.reduce((a, b) => a + b, 0) / wonReturns.length) : 0;
+  const grossWin = round2(settledEvents.filter((e) => (e.paperProfit ?? 0) > 0).reduce((s, e) => s + e.paperProfit, 0));
+  const grossLoss = round2(Math.abs(settledEvents.filter((e) => (e.paperProfit ?? 0) < 0).reduce((s, e) => s + e.paperProfit, 0)));
+  const profitFactor = grossLoss > 0 ? round2(grossWin / grossLoss) : null;
+
+  // Bankroll health (0–100; higher = less paper at risk / less concentrated). Never "safe".
+  let bankrollHealth;
+  if (openExposure === 0) {
+    bankrollHealth = { score: 100, label: "No open exposure", reasons: ["No active paper cards right now — nothing is at risk.", awaitingCards.length ? `${awaitingCards.length} lane(s) awaiting the next qualified card.` : ""].filter(Boolean) };
+  } else {
+    let score = 100 - Math.min(45, Math.max(0, exposurePct - 0.02) * 1500);
+    const totalExp = exposure.bySport.reduce((s, x) => s + x.amount, 0) || 1;
+    const topShare = exposure.bySport.length ? exposure.bySport[0].amount / totalExp : 0;
+    if (topShare > 0.6) score -= 20;
+    score = Math.max(0, Math.round(score));
+    const label = exposurePct < 0.05 ? "Balanced" : exposurePct < 0.15 ? "Elevated exposure" : "Concentrated exposure";
+    const reasons = [`Open exposure is ${(exposurePct * 100).toFixed(1)}% of bankroll.`];
+    if (topShare > 0.6 && exposure.bySport[0]) reasons.push(`Most exposure is concentrated in ${exposure.bySport[0].key}.`);
+    bankrollHealth = { score, label, reasons };
+  }
+
+  // Top-level portfolio metrics (premium dashboard contract).
+  portfolio.highWaterMark = round2(hwm);
+  portfolio.drawdown = drawdown;
+  portfolio.drawdownPct = drawdownPct;
+  portfolio.openExposurePct = exposurePct;
+  portfolio.roiMultiple = portfolio.roi;
+  portfolio.exposure = exposure;
+  portfolio.awaitingCards = awaitingCards;
+  portfolio.completedCards = completedCards;
+  portfolio.bankrollHealth = bankrollHealth;
   portfolio.intelligence = {
     highWaterMark: round2(hwm),
     maxDrawdown: round2(maxDrawdown),
+    drawdown, drawdownPct,
     winRate: round2(wins / Math.max(1, wins + losses)),
-    exposureBySport: bySport,
-    largestOpenCard: round2(openExposure),
-    note: "Paper exposure, bankroll health and drawdown — educational tracking, not financial advice. Some breakdowns populate as more cards settle.",
+    exposureBySport: Object.fromEntries(exposure.bySport.map((x) => [x.key, x.amount])),
+    largestOpenCard: round2(openCards.length ? Math.max(...openCards.map((e) => e.paperStake ?? 0)) : 0),
+    avgStake, avgSettledReturn, profitFactor, longestWinStreak: longestWin, longestLossStreak: longestLoss,
+    note: "Paper exposure, bankroll health and drawdown — educational tracking, not financial advice.",
   };
 
   fs.mkdirSync(OUT, { recursive: true });
