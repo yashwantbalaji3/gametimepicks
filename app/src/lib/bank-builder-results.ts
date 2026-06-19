@@ -36,14 +36,19 @@ export function getBankBuilderSettledSteps(): BankBuilderResultStep[] {
     for (const [lk, id] of [["laneA", "A"], ["laneB", "B"]] as const) {
       const lane = run[lk];
       if (!lane) continue;
-      for (const s of lane.steps ?? []) {
+      // Include a restarted lane's PRIOR settled steps — a fresh restart must never erase the
+      // transparency record of the step that stopped it (e.g. Lane B's June 18 loss).
+      const allSteps = [...(lane.steps ?? []), ...(lane.priorLane?.steps ?? [])];
+      for (const s of allSteps) {
         if (s.status !== "settled" || !s.settledAt) continue; // only steps settled in a settlement pass
         out.push({
           laneId: id,
           laneLabel: id === "A" ? "Lane A" : "Lane B",
           step: s.step,
           result: s.result ?? "settled",
-          laneOutcome: lane.laneStatus ?? "active",
+          // A settled step's outcome is intrinsic to that step (lost → stopped, won → advanced) — not the
+          // lane's CURRENT status, which may have moved on (e.g. a restarted lane reads "active" now).
+          laneOutcome: s.result === "lost" ? "stopped" : s.result === "won" ? "advanced" : (lane.laneStatus ?? "active"),
           stake: s.stake ?? null,
           payout: s.payout ?? s.projectedPayout ?? null,
           settledAt: s.settledAt ?? null,

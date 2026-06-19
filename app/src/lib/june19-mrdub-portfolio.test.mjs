@@ -13,29 +13,35 @@ test("portfolio math: bankroll, HWM, drawdown, ROI, record (no double-count of r
   assert.equal(portfolio.highWaterMark, 10376.17);
   assert.equal(portfolio.drawdown, 200);
   assert.ok(Math.abs(portfolio.drawdownPct - 0.0193) < 0.001, "drawdown ≈ 1.93% of HWM");
-  assert.equal(portfolio.openExposure, 0);
+  // June 19 paid run placed both lanes: open exposure = Lane A Step 2 $197.88 + Lane B Step 1 $100.
+  assert.equal(portfolio.openExposure, 297.88);
   assert.equal(portfolio.roiMultiple, 100.76);
-  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 0 });
-  // Reconciliation: sum of every event's realized paperProfit === settledProfit (rolled wins are $0).
+  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 2 });
+  // Reconciliation: realized paperProfit still === settledProfit (the two new placements are pending, $0 realized).
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
-  assert.equal(sum, portfolio.settledProfit, "no double-counting — rolled wins contribute $0");
+  assert.equal(sum, portfolio.settledProfit, "no double-counting — pending placements contribute $0 realized");
+  // Bankroll is unchanged by placement (only settlement moves it).
+  assert.equal(portfolio.currentBankroll, 10176.17, "placement never moves the bankroll");
 });
 
-test("bankroll health: no open exposure → score 100, honest label + reasons", () => {
-  assert.equal(portfolio.bankrollHealth.label, "No open exposure");
-  assert.equal(portfolio.bankrollHealth.score, 100);
+test("bankroll health: two lanes live → honest low-exposure label + reasons", () => {
+  assert.equal(portfolio.bankrollHealth.label, "Low exposure · 2 lanes live");
+  assert.ok(portfolio.bankrollHealth.score >= 90 && portfolio.bankrollHealth.score < 100, "healthy but not zero-exposure");
   assert.ok(portfolio.bankrollHealth.reasons.length >= 1);
   assert.ok(!/\bsafe\b/i.test(JSON.stringify(portfolio.bankrollHealth)), "never calls anything safe");
 });
 
-test("exposure breakdown sums to open exposure; awaiting/completed cards present", () => {
+test("exposure breakdown sums to open exposure; active/completed cards present", () => {
   const e = portfolio.exposure;
   const sportSum = (e.bySport ?? []).reduce((s, x) => s + x.amount, 0);
   assert.equal(Math.round(sportSum * 100) / 100, portfolio.openExposure, "bySport sums to open exposure");
-  // Awaiting = Lane A (awaiting next card) + Lane B (queued restart) — NOT counted as exposure.
-  assert.equal((portfolio.awaitingCards ?? []).length, 2);
-  assert.ok(portfolio.awaitingCards.some((a) => a.kind === "awaiting_next_card" && a.laneId === "lane-a"));
-  assert.ok(portfolio.awaitingCards.some((a) => a.kind === "queued_restart" && a.laneId === "lane-b"));
+  const laneSum = (e.byLane ?? []).reduce((s, x) => s + x.amount, 0);
+  assert.equal(Math.round(laneSum * 100) / 100, portfolio.openExposure, "byLane sums to open exposure");
+  // Both lanes now active (no awaiting cards); the active cards carry their stakes.
+  assert.equal((portfolio.awaitingCards ?? []).length, 0);
+  assert.equal((portfolio.activeCards ?? []).length, 2);
+  assert.ok(portfolio.activeCards.some((a) => a.laneId === "lane-a" && a.step === 2 && a.stake === 197.88));
+  assert.ok(portfolio.activeCards.some((a) => a.laneId === "lane-b" && a.step === 1 && a.stake === 100));
   assert.ok((portfolio.completedCards ?? []).some((c) => c.name === "Road to $10K" && c.final === 10376.17));
 });
 

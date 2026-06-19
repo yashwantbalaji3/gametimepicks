@@ -64,14 +64,27 @@ test("no card anywhere sits out of its combined-odds band, and no card pads with
   assert.ok(v.oddsBandDiagnostics && typeof v.oddsBandDiagnostics.legsDroppedTooShort === "number", "odds-band diagnostics surfaced");
 });
 
-test("MLB + Mixed buckets are empty with a real reason (MLB board unavailable), not fabricated", () => {
+test("MLB + Mixed buckets are now odds-backed (paid key), every card fits its band, none fabricated", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T15:00:00Z");
   const diag = buildCardFactoryDiagnostics(v, "2026-06-19T15:00:00Z");
   assert.equal(diag.slatePresent, true);
-  for (const scope of ["mlb", "mixed"]) for (const b of ["low", "medium", "high", "longshot"]) {
-    const c = diag.matrix[scope][b];
-    assert.equal(c.passed, 0, `${scope}.${b} empty`);
-    assert.ok(Object.keys(c.rejected).length >= 1 && c.message, `${scope}.${b} has a real reason + message`);
+  // With the paid Odds API key the MLB board carries real odds → MLB + Mixed cards now generate.
+  const mlb = v.suggestedBySportRisk["MLB"] ?? {};
+  const mixed = v.mixedByRisk ?? {};
+  const mlbTotal = ["low", "medium", "high", "longshot"].reduce((s, b) => s + (mlb[b]?.length ?? 0), 0);
+  const mixedTotal = ["low", "medium", "high", "longshot"].reduce((s, b) => s + (mixed[b]?.length ?? 0), 0);
+  assert.ok(mlbTotal > 0, "MLB cards present (odds-backed board)");
+  assert.ok(mixedTotal > 0, "Mixed WC+MLB cards present");
+  // Every MLB/Mixed card sits in its combined-odds band, with no leg shorter than -500.
+  for (const byRisk of [mlb, mixed]) for (const b of ["low", "medium", "high", "longshot"]) {
+    for (const card of byRisk[b] ?? []) {
+      assert.equal(getRiskBucketForCombinedOdds(card.combinedOdds), b, `${card.parlayId} (combined ${card.combinedOdds}) must fit ${b}`);
+      for (const leg of card.legs) if (leg.odds != null) assert.ok(leg.odds >= INDIVIDUAL_LEG_ODDS_GUARDS.minFavoriteAmerican, `leg ${leg.odds} ≥ -500`);
+    }
+  }
+  // Every Mixed card mixes a World Cup leg with a non-soccer leg (no single-sport mixed).
+  for (const b of ["low", "medium", "high", "longshot"]) for (const card of mixed[b] ?? []) {
+    assert.ok(card.legs.some((l) => l.sport === "WORLD_CUP") && card.legs.some((l) => l.sport !== "WORLD_CUP"), `mixed ${card.parlayId} spans WC + non-soccer`);
   }
 });
 

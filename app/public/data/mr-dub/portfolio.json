@@ -7,14 +7,14 @@
   "startingBankroll": 100,
   "crownBankroll": 10376.17,
   "currentBankroll": 10176.17,
-  "openExposure": 0,
+  "openExposure": 297.88,
   "settledProfit": 10076.17,
   "roi": 100.76,
   "record": {
     "wins": 8,
     "losses": 2,
     "voids": 0,
-    "pending": 0
+    "pending": 2
   },
   "completedLadders": [
     {
@@ -27,42 +27,107 @@
   ],
   "activeCards": [
     {
+      "laneId": "lane-a",
+      "type": "lane_advanced",
+      "step": 2,
+      "stake": 197.88,
+      "projectedReturn": 617.63,
+      "combinedAmerican": 212,
+      "status": "pending",
+      "legs": [
+        "USA moneyline_90",
+        "Griffin Jax Strikeouts U4.5"
+      ],
+      "note": "Step 1 WON $100→$197.88; Step 2 riding toward ~$617.63."
+    },
+    {
       "laneId": "lane-b",
       "type": "lane_restarted",
       "step": 1,
       "stake": 100,
-      "projectedReturn": null,
-      "status": "queued"
+      "projectedReturn": 203.01,
+      "combinedAmerican": 103,
+      "status": "pending",
+      "legs": [
+        "Turkey draw_no_bet",
+        "Zack Gelof Hits O0.5"
+      ],
+      "note": "Fresh $100 restart after Step 2 loss; riding toward ~$203.01."
     }
   ],
-  "generatedAt": "2026-06-19T03:48:00Z",
+  "generatedAt": "2026-06-19T17:01:44Z",
   "highWaterMark": 10376.17,
   "drawdown": 200,
   "drawdownPct": 0.0193,
-  "openExposurePct": 0,
+  "openExposurePct": 0.0293,
   "roiMultiple": 100.76,
   "exposure": {
-    "bySport": [],
-    "byMarket": [],
-    "byTeamOrPlayer": [],
-    "byLane": [],
-    "byStatus": []
+    "bySport": [
+      {
+        "key": "WORLD_CUP",
+        "amount": 148.94,
+        "cards": 2
+      },
+      {
+        "key": "MLB",
+        "amount": 148.94,
+        "cards": 2
+      }
+    ],
+    "byMarket": [
+      {
+        "key": "moneyline_90",
+        "amount": 98.94
+      },
+      {
+        "key": "Strikeouts",
+        "amount": 98.94
+      },
+      {
+        "key": "draw_no_bet",
+        "amount": 50
+      },
+      {
+        "key": "Hits",
+        "amount": 50
+      }
+    ],
+    "byTeamOrPlayer": [
+      {
+        "key": "USA",
+        "amount": 98.94
+      },
+      {
+        "key": "Griffin Jax",
+        "amount": 98.94
+      },
+      {
+        "key": "Turkey",
+        "amount": 50
+      },
+      {
+        "key": "Zack Gelof",
+        "amount": 50
+      }
+    ],
+    "byLane": [
+      {
+        "key": "Lane A",
+        "amount": 197.88
+      },
+      {
+        "key": "Lane B",
+        "amount": 100
+      }
+    ],
+    "byStatus": [
+      {
+        "key": "pending",
+        "amount": 297.88
+      }
+    ]
   },
-  "awaitingCards": [
-    {
-      "laneId": "lane-a",
-      "step": 2,
-      "kind": "awaiting_next_card",
-      "note": "Step 1 cleared WON ($100 → $197.88). Awaiting the next qualified pre-event card (one World Cup + one MLB leg) for Step 2."
-    },
-    {
-      "laneId": "lane-b",
-      "step": 1,
-      "kind": "queued_restart",
-      "stake": 100,
-      "note": "Lane B stopped at Step 2 (Goldschmidt H+R+RBI 1 ≤ 1.5). A fresh $100 Lane B restarts at Step 1 on the next qualified pre-event card."
-    }
-  ],
+  "awaitingCards": [],
   "completedCards": [
     {
       "name": "Road to $10K",
@@ -73,11 +138,12 @@
     }
   ],
   "bankrollHealth": {
-    "score": 100,
-    "label": "No open exposure",
+    "score": 96,
+    "label": "Low exposure · 2 lanes live",
     "reasons": [
-      "No active paper cards right now — nothing is at risk.",
-      "2 lane(s) awaiting the next qualified card."
+      "2 paper lanes live — $297.88 (2.9% of bankroll) at risk.",
+      "Lane A Step 2 riding $197.88 → ~$617.63 (USA ML + Griffin Jax U4.5 K).",
+      "Lane B Step 1 riding $100 → ~$203.01 (Turkey DNB + Zack Gelof Hits O0.5)."
     ]
   },
   "intelligence": {
@@ -87,8 +153,8 @@
     "drawdownPct": 0.0193,
     "winRate": 0.8,
     "exposureBySport": {},
-    "largestOpenCard": 0,
-    "avgStake": 678.93,
+    "largestOpenCard": 197.88,
+    "avgStake": 148.94,
     "avgSettledReturn": 2120.41,
     "profitFactor": 51.38,
     "longestWinStreak": 6,
