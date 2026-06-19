@@ -19,7 +19,7 @@ test("compact Bank Builder status rail shows the Run #1/#2/#3 timeline", () => {
 test("Today suggested parlays are filterable by sport + variance", () => {
   const src = read("src/components/todays-parlays.tsx");
   for (const k of ["world_cup", "mlb", "mixed"]) assert.ok(src.includes(`"${k}"`), `sport filter ${k}`);
-  for (const v of ["Lower variance", "Balanced", "Higher return"]) assert.ok(src.includes(v), `variance ${v}`);
+  for (const v of ["Low Risk", "Medium Risk", "High Risk"]) assert.ok(src.includes(v), `canonical risk label ${v}`);
   assert.ok(src.includes("useState"), "client-side filtering");
 });
 

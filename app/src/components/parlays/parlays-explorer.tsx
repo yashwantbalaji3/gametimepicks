@@ -12,9 +12,13 @@ import type {
   TodaySlateView, SuggestedParlayCard, ParlayLegDisplay, SportSlateStatus,
 } from "@/lib/parlays/ui-loader";
 import type { RiskLevel } from "@/lib/parlays/types";
+import { RISK_LABELS } from "@/lib/parlays/risk-taxonomy";
+import { buildCardFactoryDiagnostics } from "@/lib/parlays/card-factory-diagnostics";
 
-const RISK_LABEL: Record<RiskLevel, string> = { low: "Low", medium: "Medium", high: "High", longshot: "Longshot" };
+const RISK_LABEL: Record<RiskLevel, string> = RISK_LABELS;
 const RISK_ORDER: RiskLevel[] = ["low", "medium", "high", "longshot"];
+// Map a sport tab to its diagnostics scope.
+const SCOPE_FOR: Record<string, "world_cup_multi_game" | "mlb" | "mixed"> = { WORLD_CUP: "world_cup_multi_game", MLB: "mlb", MIXED: "mixed" };
 const SPORT_LABEL: Record<string, string> = { MLB: "MLB", NBA: "NBA", UFC: "UFC", WORLD_CUP: "World Cup" };
 
 function americanStr(o: number | null): string {
@@ -180,14 +184,17 @@ function Accordion({ title, subtitle, children, defaultOpen = false }: { title: 
  *  obvious which risk levels actually have cards today vs which are empty — no guessing from tabs. */
 function CoverageMatrix({ slate }: { slate: TodaySlateView }) {
   const rows: { key: string; label: string; counts: Partial<Record<RiskLevel, number>>; total: number }[] = [];
+  // Always show the core scopes (World Cup, MLB) + Mixed so the matrix is visible even with no slate —
+  // a row of zeros + the diagnostics below is far clearer than hiding the grid entirely.
+  const CORE = ["WORLD_CUP", "MLB"];
   for (const s of slate.sports) {
     const counts = s.suggestedByRisk ?? {};
     const total = RISK_ORDER.reduce((n, l) => n + (counts[l] ?? 0), 0);
-    if (total > 0 || s.eligibleCount > 0) rows.push({ key: s.sport, label: SPORT_LABEL[s.sport] ?? s.sport, counts, total });
+    if (total > 0 || s.eligibleCount > 0 || CORE.includes(s.sport)) rows.push({ key: s.sport, label: SPORT_LABEL[s.sport] ?? s.sport, counts, total });
   }
   const mixedCounts = Object.fromEntries(RISK_ORDER.map((l) => [l, slate.mixedByRisk[l]?.length ?? 0])) as Partial<Record<RiskLevel, number>>;
   const mixedTotal = RISK_ORDER.reduce((n, l) => n + (mixedCounts[l] ?? 0), 0);
-  if (mixedTotal > 0) rows.push({ key: "MIXED", label: "Mixed", counts: mixedCounts, total: mixedTotal });
+  rows.push({ key: "MIXED", label: "Mixed", counts: mixedCounts, total: mixedTotal });
   if (rows.length === 0) return null;
   const cell = (key: string, n: number) => (
     <td key={key} className="px-2 py-1.5 text-center font-mono tabular" style={{ color: n > 0 ? "var(--vault-text)" : "var(--vault-text-faint)", fontSize: 12, opacity: n > 0 ? 1 : 0.55 }}>{n}</td>
@@ -236,10 +243,34 @@ export default function ParlaysExplorer({ slate }: { slate: TodaySlateView }) {
   const gameGroups = slate.gameSpecific.filter((g) => g.sport === sport);
   const sportLegs = slate.eligibleLegs.filter((l) => l.sport === sport);
 
+  // Honest diagnostics — every empty bucket gets a real reason, never a vague empty state.
+  const diag = buildCardFactoryDiagnostics(slate, slate.date);
+  const emptyReason = (lvl: RiskLevel): string => {
+    const scope = SCOPE_FOR[sport];
+    return (scope && diag.matrix[scope]?.[lvl]?.message) || `No ${RISK_LABEL[lvl]} ${SPORT_LABEL[sport] ?? sport} card passed today's model gates.`;
+  };
+  const emptyCells = Object.values(diag.matrix).flatMap((s) => Object.values(s)).filter((c) => c.passed === 0);
+
   return (
     <div className="space-y-4">
       {/* Coverage at a glance: which sport × risk tiers actually have cards today. */}
       <CoverageMatrix slate={slate} />
+      {/* Honest "why empty" diagnostics drawer — public-friendly reasons, never a vague empty state. */}
+      {emptyCells.length ? (
+        <details className="rounded-xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+          <summary className="cursor-pointer px-3.5 py-2.5 text-[12.5px]" style={{ color: "var(--vault-text-mute)", listStyle: "none" }}>
+            Why are some buckets empty? · {emptyCells.length} ▾
+          </summary>
+          <div className="px-3.5 pb-3 pt-0.5">
+            <p className="mb-1.5 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>{diag.summary}</p>
+            <ul className="flex flex-col gap-0.5">
+              {emptyCells.slice(0, 16).map((c) => (
+                <li key={`${c.scope}-${c.bucket}`} className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>· {c.message}</li>
+              ))}
+            </ul>
+          </div>
+        </details>
+      ) : null}
       {/* sport selector (+ Mixed when cross-sport cards exist) */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }}>
         {slate.sports.map((s) => (
@@ -309,7 +340,7 @@ export default function ParlaysExplorer({ slate }: { slate: TodaySlateView }) {
                     <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} risk · {cards.length}</div>
                     {cards.length > 0
                       ? cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)
-                      : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>No {RISK_LABEL[lvl].toLowerCase()} {SPORT_LABEL[sport] ?? sport} card passed today&apos;s model gates — other tiers above may still have cards.</div>}
+                      : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>{emptyReason(lvl)}</div>}
                   </div>
                 );
               })}

@@ -21,9 +21,9 @@ const SPORTS: Array<{ key: SportKey; label: string }> = [
 ];
 const VARIANCE: Array<{ key: Variance; label: string }> = [
   { key: "all", label: "All" },
-  { key: "low", label: "Lower variance" },
-  { key: "balanced", label: "Balanced" },
-  { key: "higher", label: "Higher return" },
+  { key: "low", label: "Low Risk" },
+  { key: "balanced", label: "Medium Risk" },
+  { key: "higher", label: "High Risk" },
 ];
 
 function isMixed(c: PublicSuggestedCard): boolean {
