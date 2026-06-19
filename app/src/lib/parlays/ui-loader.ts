@@ -165,11 +165,17 @@ function dataRoot(): string {
 
 /** Latest date that has a populated MLB board (the active sport); else null. */
 function latestSlateDate(root: string): string | null {
-  const dir = path.join(root, "mlb", "boards");
-  try {
-    const dates = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10)).sort();
-    return dates.length ? dates[dates.length - 1] : null;
-  } catch { return null; }
+  // The current slate is the latest date with EITHER an MLB board OR World Cup projections — a WC-only
+  // day (MLB off/unavailable but live World Cup games) must still surface as today's slate.
+  const dirs = [path.join(root, "mlb", "boards"), path.join(root, "world-cup", "projections")];
+  const dates: string[] = [];
+  for (const dir of dirs) {
+    try {
+      for (const f of fs.readdirSync(dir)) if (/^\d{4}-\d{2}-\d{2}\.json$/.test(f)) dates.push(f.slice(0, 10));
+    } catch { /* dir absent → skip */ }
+  }
+  dates.sort();
+  return dates.length ? dates[dates.length - 1] : null;
 }
 
 /**

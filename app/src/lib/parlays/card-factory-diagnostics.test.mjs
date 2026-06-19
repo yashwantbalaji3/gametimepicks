@@ -23,16 +23,19 @@ test("every scope × risk cell has a message and a non-vague reason when empty",
   }
 });
 
-test("no June 19 slate → slatePresent false, every bucket reason = no_current_slate (not a gate failure)", () => {
-  const slate = loadTodaySlate("2026-06-19", "2026-06-19T05:30:00Z");
-  const diag = buildCardFactoryDiagnostics(slate, "2026-06-19T05:30:00Z");
-  assert.equal(diag.slatePresent, false);
-  assert.match(diag.summary, /No current slate/);
-  // Every empty cell attributes to the missing slate, not a gate miss.
-  for (const scope of SCOPES) for (const b of RISK_BUCKETS) {
+test("June 19 slate present: World Cup buckets pass, MLB/Mixed empty with honest eligibility reasons", () => {
+  const slate = loadTodaySlate("2026-06-19", "2026-06-19T15:00:00Z");
+  const diag = buildCardFactoryDiagnostics(slate, "2026-06-19T15:00:00Z");
+  assert.equal(diag.slatePresent, true, "the generated June 19 World Cup slate is present");
+  // World Cup multi-game has passed cards across the buckets (real odds-backed legs).
+  const wcMulti = diag.matrix.world_cup_multi_game;
+  assert.ok(RISK_BUCKETS.some((b) => wcMulti[b].passed > 0), "World Cup multi-game cards passed");
+  // MLB + Mixed are empty (no MLB board this run) — with a REAL reason, never a vague empty.
+  for (const scope of ["mlb", "mixed"]) for (const b of RISK_BUCKETS) {
     const c = diag.matrix[scope][b];
-    assert.equal(c.passed, 0);
-    assert.ok(c.rejected.no_current_slate || c.rejected.no_eligible_legs, `${scope}.${b} → slate/eligibility reason`);
+    assert.equal(c.passed, 0, `${scope}.${b} empty (no MLB board)`);
+    assert.ok(Object.keys(c.rejected).length >= 1, `${scope}.${b} has a real reason`);
+    assert.ok(!/no qualified parlays/i.test(c.message), "no vague empty copy");
   }
 });
 
