@@ -221,7 +221,7 @@ interface IdentityMaps {
   wcPlayerByName: Map<string, { photoUrl: string | null; playerId: number | null; countryCode: string | null }>;
 }
 
-function buildIdentityMaps(rawBySport: Partial<Record<Sport, any>>): IdentityMaps {
+function buildIdentityMaps(rawBySport: Partial<Record<Sport, any>>, root?: string, date?: string): IdentityMaps {
   const mlbByKey = new Map<string, { playerId: number | null; teamAbbr: string | null }>();
   const mlb = rawBySport.MLB;
   for (const l of mlb?.leans ?? []) {
@@ -239,6 +239,24 @@ function buildIdentityMaps(rawBySport: Partial<Record<Sport, any>>): IdentityMap
         countryCode: r.homeCode ?? r.awayCode ?? null,
       });
     }
+  }
+  // Player-prop feed: real API-Football headshots + the player's OWN team flag code, so the upside-pool
+  // legs (`world-cup-player-prop-legs`) render a photo + flag instead of falling back to a monogram.
+  if (root) {
+    try {
+      const pp = JSON.parse(fs.readFileSync(path.join(root, "world-cup", "player-projections", "latest.json"), "utf8"));
+      if (!date || !pp.date || pp.date === date) {
+        for (const r of pp.matches ?? []) {
+          const name = String(r?.player?.name ?? "");
+          if (!name || wcPlayerByName.has(name)) continue; // don't overwrite a team-projection entry
+          wcPlayerByName.set(name, {
+            photoUrl: typeof r.player.photo === "string" ? r.player.photo : null,
+            playerId: typeof r.player.id === "number" ? r.player.id : null,
+            countryCode: wcTeamCodeFromName(r.player.team),
+          });
+        }
+      }
+    } catch { /* no player-projections → team-projection photos only */ }
   }
   return { mlbByKey, wcByMatch, wcPlayerByName };
 }
@@ -385,7 +403,7 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
       rawBySport[sport] = loaded.mlb ?? loaded.nba ?? loaded.ufc ?? loaded.worldCupTeam ?? loaded.worldCupPlayer;
       results.push(extractPredictionsBySport(sport, loaded));
     }
-    const maps = buildIdentityMaps(rawBySport);
+    const maps = buildIdentityMaps(rawBySport, root, date);
 
     // The not-started gate uses the REAL current moment (or a test override): games already underway
     // are excluded so the live preview never lists a started/in-progress game as bettable.

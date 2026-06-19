@@ -57,3 +57,33 @@ export function getGameSpecificCardsForGame(
   }
   return { byRisk, cards, total: cards.length };
 }
+
+/**
+ * World Cup MULTI-GAME suggested cards that INCLUDE this fixture (≥1 of the card's legs is from this
+ * game). Lets a game page show "this game in multi-game cards", grouped by risk. Never leaks a card
+ * that doesn't involve the game; never fabricated.
+ */
+export function getWorldCupMultiGameCardsForGame(
+  fixture: { matchId?: string; homeTeam?: string; awayTeam?: string },
+  nowIso?: string,
+): GameSpecificCards {
+  const teams = [norm(fixture.homeTeam), norm(fixture.awayTeam)].filter(Boolean);
+  const matchId = fixture.matchId != null ? String(fixture.matchId) : null;
+  const slate = loadTodaySlate(undefined, nowIso);
+  const wc = slate.suggestedBySportRisk["WORLD_CUP"] ?? {};
+
+  const involvesGame = (card: SuggestedParlayCard) => card.legs.some((l) => {
+    const ev = l.legId.split(":")[1];
+    const p = norm(l.participant);
+    return (matchId != null && ev === matchId) || teams.some((t) => p.includes(t));
+  });
+
+  const byRisk: Partial<Record<RiskLevel, SuggestedParlayCard[]>> = {};
+  const cards: SuggestedParlayCard[] = [];
+  for (const lvl of RISK_ORDER) {
+    const lvlCards = (wc[lvl] ?? []).filter(involvesGame);
+    if (lvlCards.length) byRisk[lvl] = lvlCards;
+    cards.push(...lvlCards);
+  }
+  return { byRisk, cards, total: cards.length };
+}

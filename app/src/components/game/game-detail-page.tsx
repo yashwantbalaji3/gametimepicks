@@ -57,7 +57,7 @@ function EmptyTile({ eyebrow, note }: { eyebrow: string; note: string }) {
   );
 }
 
-export default function GameDetailPage({ detail, engineCards }: { detail: PublicGameDetail; engineCards?: GameSpecificCards | null }) {
+export default function GameDetailPage({ detail, engineCards, multiGameCards }: { detail: PublicGameDetail; engineCards?: GameSpecificCards | null; multiGameCards?: GameSpecificCards | null }) {
   const identity = getSportIdentity(detail.sport);
   const homeCode = detail.sport === "world_cup" && detail.homeTeam ? teamByName(detail.homeTeam)?.code ?? "" : "";
   const awayCode = detail.sport === "world_cup" && detail.awayTeam ? teamByName(detail.awayTeam)?.code ?? "" : "";
@@ -136,6 +136,22 @@ export default function GameDetailPage({ detail, engineCards }: { detail: Public
           <Link href={detail.buildUrl} className="mt-2 inline-flex font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Build from this game →</Link>
         </div>
       )}
+      {multiGameCards && multiGameCards.total > 0 ? (
+        <div className="flex flex-col gap-2.5">
+          <SectionHeader eyebrow={`Across the slate · ${multiGameCards.total}`} title="This game in multi-game cards" sub="Today's World Cup multi-game cards that include this match, by risk. Full set on Parlay Lab." />
+          {RISK_ORDER.map((lvl) => {
+            const cards = multiGameCards!.byRisk[lvl] ?? [];
+            if (cards.length === 0) return null;
+            return (
+              <div key={`mg-${lvl}`} className="flex flex-col gap-2.5">
+                <div className="text-[12px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} · {cards.length}</div>
+                {cards.map((c) => <ParlayCard key={`mg-${c.parlayId}`} card={c} />)}
+              </div>
+            );
+          })}
+          <Link href="/parlays?sport=world_cup" className="inline-flex font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>All World Cup multi-game cards →</Link>
+        </div>
+      ) : null}
       {detail.suggestedCards.length > 0 ? (
         <div className="flex flex-col gap-3">
           <SectionHeader eyebrow={`Also · ${detail.suggestedCards.length}`} title="Fixture cards" sub="Cards built from this fixture's positive-edge projections." />
