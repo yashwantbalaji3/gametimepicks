@@ -173,7 +173,8 @@ test("not enough legs → fewer/zero parlays with an explanation", () => {
   const { parlays, notes } = generateDailyParlays(eligibleLegs(pool), "2026-06-17");
   assert.equal(parlays.length, 0);
   assert.ok(notes.every((n) => n.generated === 0));
-  assert.ok(notes.some((n) => /not enough qualified legs/.test(n.reason ?? "")));
+  // A single leg can form no multi-leg cross-game card → the notes explain why (distinct-games / band).
+  assert.ok(notes.some((n) => /not_enough_distinct_games|no_two_leg_combo|no combo/.test(n.reason ?? "")));
 });
 
 test("leg-count rules per risk level are respected", () => {

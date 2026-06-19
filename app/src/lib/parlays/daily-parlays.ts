@@ -9,6 +9,17 @@ import { RISK_LEVELS, RISK_LEVEL_ORDER, legsForLevel } from "./risk-levels";
 import { buildCombinations } from "./combination-optimizer";
 import { combinedAmerican, combinedDecimal, combinedHitProbability } from "./odds-math";
 import { meanCorrelation } from "./correlation";
+import { getRiskBucketForCombinedOdds } from "./risk-odds-bands";
+
+/**
+ * Leg counts we try when building a BALANCED card inventory. More legs ⇒ higher combined odds, so a
+ * spread of 2→6 lets the combined-odds bucketer fill High (+300..+600) and Longshot (>+600) instead of
+ * clustering every card in Medium. Each bucket is capped so no single tier floods the board.
+ */
+const LEG_COUNT_SPREAD = [2, 3, 4, 5, 6];
+const BALANCED_QUALITY = ["elite", "strong", "playable"] as const;
+/** Cap of suggested cards per risk bucket (the matrix shows this capped count, not raw inventory). */
+const PER_BUCKET_CAP = 5;
 
 const CONF_ORDER: ConfidenceTier[] = ["No Bet", "Low", "Medium", "High"];
 const RISK_ORDER: RiskTier[] = ["low", "elevated", "high"];
@@ -93,31 +104,40 @@ const MIN_CARDS_TARGET = 3;
 export function generateDailyParlays(eligible: EligibleLeg[], date: string): DailyParlayResult {
   const parlays: SuggestedParlay[] = [];
   const notes: GenerationNote[] = [];
+  // Balanced inventory: build a deduplicated spread of cross-game cards across leg counts 2→6, then
+  // bucket each by its COMBINED odds. More legs reach the High/Longshot bands that 2-leg combos can't —
+  // never forced: a band with no real card simply stays empty with a reason.
+  const pool = eligible.filter((l) => l.eligible && BALANCED_QUALITY.includes(l.legQualityTier as typeof BALANCED_QUALITY[number]));
+  const byBucket: Record<RiskLevel, EligibleLeg[][]> = { low: [], medium: [], high: [], longshot: [] };
+  const attempted: Record<RiskLevel, number> = { low: 0, medium: 0, high: 0, longshot: 0 };
+  const seen = new Set<string>();
+  const distinctGames = new Set(pool.map((l) => l.eventId)).size;
+
+  for (const legCount of LEG_COUNT_SPREAD) {
+    if (legCount > distinctGames) break; // cross-game cards need a distinct game per leg
+    const combos = buildCombinations(pool, { legCount, maxCards: 24, distinctGames: true, maxMeanCorrelation: 0.6 });
+    for (const legs of combos) {
+      const key = legs.map((l) => l.legId).sort().join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const combined = combinedAmerican(legs.map((l) => l.odds));
+      if (combined == null) continue;
+      const bucket = getRiskBucketForCombinedOdds(combined);
+      if (!bucket) continue; // combined shorter than -200 → too short to be a sensible parlay
+      attempted[bucket]++;
+      if (byBucket[bucket].length < PER_BUCKET_CAP) byBucket[bucket].push(legs);
+    }
+  }
 
   for (const level of RISK_LEVEL_ORDER) {
-    const spec = RISK_LEVELS[level];
-    const pool = legsForLevel(eligible, level);
-    const distinctGames = new Set(pool.map((l) => l.eventId)).size;
-
-    if (pool.length < spec.minLegs || distinctGames < spec.minLegs) {
-      notes.push({
-        riskLevel: level, generated: 0, requested: MIN_CARDS_TARGET,
-        reason: `not enough qualified legs across distinct games (have ${pool.length} legs / ${distinctGames} games, need ${spec.minLegs})`,
-      });
-      continue;
-    }
-
-    const combos = buildCombinations(pool, {
-      legCount: spec.minLegs,
-      maxCards: MAX_CARDS_PER_LEVEL,
-      distinctGames: true,
-      maxMeanCorrelation: spec.maxMeanCorrelation,
-    });
-
-    combos.forEach((legs, i) => parlays.push(assembleParlay(legs, { date, riskLevel: level, parlayType: "cross_game", index: i })));
+    byBucket[level].forEach((legs, i) => parlays.push(assembleParlay(legs, { date, riskLevel: level, parlayType: "cross_game", index: i })));
     notes.push({
-      riskLevel: level, generated: combos.length, requested: MIN_CARDS_TARGET,
-      reason: combos.length >= MIN_CARDS_TARGET ? null : `only ${combos.length} non-correlated card(s) could be formed from the qualified pool`,
+      riskLevel: level, generated: byBucket[level].length, requested: PER_BUCKET_CAP,
+      reason: byBucket[level].length > 0 ? null
+        : attempted[level] > 0 ? "every candidate in this band was a duplicate or over-cap"
+        : level === "low" ? "no_two_leg_combo_in_low_risk_band: no 2+-leg combo priced into -200..+100 after the -500 leg guard"
+        : distinctGames < 2 ? "not_enough_distinct_games: fewer than two pre-event games available"
+        : "no combo priced into this band from the qualified pool",
     });
   }
 
@@ -133,38 +153,49 @@ export function generateMixedParlays(eligible: EligibleLeg[], date: string): Dai
   const parlays: SuggestedParlay[] = [];
   const notes: GenerationNote[] = [];
 
-  for (const level of RISK_LEVEL_ORDER) {
-    const spec = RISK_LEVELS[level];
-    const pool = legsForLevel(eligible, level);
-    const soccer = pool.filter((l) => l.sport === "WORLD_CUP").sort((a, b) => b.legQualityScore - a.legQualityScore);
-    const nonSoccer = pool.filter((l) => l.sport !== "WORLD_CUP").sort((a, b) => b.legQualityScore - a.legQualityScore);
-    const cards: EligibleLeg[][] = [];
-    const usedKeys = new Set<string>();
+  const pool = eligible.filter((l) => l.eligible && BALANCED_QUALITY.includes(l.legQualityTier as typeof BALANCED_QUALITY[number]));
+  const soccer = pool.filter((l) => l.sport === "WORLD_CUP").sort((a, b) => b.legQualityScore - a.legQualityScore);
+  const nonSoccer = pool.filter((l) => l.sport !== "WORLD_CUP").sort((a, b) => b.legQualityScore - a.legQualityScore);
+  const byBucket: Record<RiskLevel, EligibleLeg[][]> = { low: [], medium: [], high: [], longshot: [] };
+  const attempted: Record<RiskLevel, number> = { low: 0, medium: 0, high: 0, longshot: 0 };
+  const seen = new Set<string>();
 
-    // Greedy: one soccer anchor + (minLegs-1) non-soccer legs, all distinct games, non-correlated.
+  // Balanced cross-sport inventory: each card = ≥1 World Cup anchor + (legCount-1) non-soccer legs from
+  // distinct games, non-correlated. Spread leg counts 2→6 so the combined-odds bucketer fills every band.
+  for (const legCount of LEG_COUNT_SPREAD) {
     for (const anchor of soccer) {
-      if (cards.length >= MAX_CARDS_PER_LEVEL) break;
       const legs = [anchor];
       const games = new Set([anchor.eventId]);
       for (const cand of nonSoccer) {
-        if (legs.length >= spec.minLegs) break;
+        if (legs.length >= legCount) break;
         if (games.has(cand.eventId)) continue;
-        if (!legs.every((l) => meanCorrelation([l, cand]) < spec.maxMeanCorrelation)) continue;
+        if (!legs.every((l) => meanCorrelation([l, cand]) < 0.6)) continue;
         legs.push(cand);
         games.add(cand.eventId);
       }
-      if (legs.length < spec.minLegs) continue;
-      if (meanCorrelation(legs) >= spec.maxMeanCorrelation) continue;
+      if (legs.length < legCount || legs.length < 2) continue;
+      if (!legs.some((l) => l.sport !== "WORLD_CUP")) continue; // must span ≥2 sports
       const key = legs.map((l) => l.legId).sort().join("|");
-      if (usedKeys.has(key)) continue;
-      usedKeys.add(key);
-      cards.push(legs);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const combined = combinedAmerican(legs.map((l) => l.odds));
+      if (combined == null) continue;
+      const bucket = getRiskBucketForCombinedOdds(combined);
+      if (!bucket) continue;
+      attempted[bucket]++;
+      if (byBucket[bucket].length < PER_BUCKET_CAP) byBucket[bucket].push(legs);
     }
+  }
 
-    cards.forEach((legs, i) => parlays.push(assembleParlay(legs, { date, riskLevel: level, parlayType: "cross_game", index: i })));
+  for (const level of RISK_LEVEL_ORDER) {
+    byBucket[level].forEach((legs, i) => parlays.push(assembleParlay(legs, { date, riskLevel: level, parlayType: "cross_game", index: i })));
     notes.push({
-      riskLevel: level, generated: cards.length, requested: MIN_CARDS_TARGET,
-      reason: cards.length > 0 ? null : "no cross-sport combo with a World Cup leg cleared this risk band from distinct, non-correlated games",
+      riskLevel: level, generated: byBucket[level].length, requested: PER_BUCKET_CAP,
+      reason: byBucket[level].length > 0 ? null
+        : attempted[level] > 0 ? "every cross-sport candidate in this band was a duplicate or over-cap"
+        : level === "low" ? "no_two_leg_combo_in_low_risk_band: no cross-sport 2-leg combo priced into -200..+100"
+        : (soccer.length === 0 || nonSoccer.length === 0) ? "missing one sport's eligible legs for a cross-sport card"
+        : "no cross-sport combo priced into this band from distinct, non-correlated games",
     });
   }
 
