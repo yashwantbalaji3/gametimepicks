@@ -199,6 +199,31 @@ export default function MrDubPage() {
         )}
       </section>
 
+      {/* 4b — Moonshot Lane: a SEPARATE high-volatility paper challenge, broken out from the core. */}
+      {portfolio.moonshot ? (
+        <section>
+          <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="A separate World Cup longshot paper challenge — tracked apart from the core Dual Bank Builder. Higher variance by design." />
+          <div className="mt-2 rounded-xl px-4 py-3" style={{ border: "1px solid #8b7bf0", background: "linear-gradient(135deg, rgba(139,123,240,0.08), rgba(26,16,11,0.3))" }}>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[12.5px]" style={{ color: "var(--vault-text)" }}>
+                🌙 Moonshot exposure <span className="font-mono" style={{ color: "#8b7bf0" }}>{usd(portfolio.moonshot.exposure)}</span>
+                <span style={{ color: "var(--vault-text-faint)" }}> · separate from the {usd(portfolio.openExposure)} core lanes (total {usd(portfolio.totalOpenExposure ?? portfolio.openExposure + portfolio.moonshot.exposure)})</span>
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: "#8b7bf0" }}>{portfolio.moonshot.record?.pending ?? 0} open · high-volatility</span>
+            </div>
+            {portfolio.moonshot.activeCard ? (
+              <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
+                Step {portfolio.moonshot.currentStep} · {usd(portfolio.moonshot.activeCard.stake)} → {usd(portfolio.moonshot.activeCard.projectedReturn)} ({portfolio.moonshot.activeCard.combinedAmerican > 0 ? "+" : ""}{portfolio.moonshot.activeCard.combinedAmerican}):{" "}
+                <span style={{ color: "var(--vault-text-faint)" }}>{(portfolio.moonshot.activeCard.legs ?? []).join(" · ")}</span>
+              </div>
+            ) : (
+              <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>Moonshot Lane awaiting a qualified card.</div>
+            )}
+            <div className="mt-1.5 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Does not affect the core Lane A/B record. Paper-only · settles from official sources.</div>
+          </div>
+        </section>
+      ) : null}
+
       {/* 5 — Daily ledger (expandable to exact cards) */}
       <section>
         <SectionHeader eyebrow={`Daily ledger · ${days.length} days`} title="Bankroll timeline" sub="Tap a day to see the exact cards placed and each card's paper P/L." />
