@@ -24,7 +24,8 @@ import { ParlayCard } from "@/components/parlays/parlays-explorer";
 import type { GameSpecificCards } from "@/lib/world-cup/game-specific-cards";
 import { worldCupPlayerModelPicks, isLimitedDataProps } from "@/lib/world-cup/player-model-picks";
 
-const RISK_LABEL: Record<string, string> = { low: "Lower variance", medium: "Balanced", high: "Higher return", longshot: "Longshot" };
+import { RISK_LABELS } from "@/lib/parlays/risk-taxonomy";
+const RISK_LABEL: Record<string, string> = RISK_LABELS;
 const RISK_ORDER = ["low", "medium", "high", "longshot"] as const;
 const STATUS_LABEL: Record<string, string> = { live: "Live", pending: "Pending", unavailable: "Market unavailable", model_only: "Model only" };
 const MODEL_PICKS_N = 8;

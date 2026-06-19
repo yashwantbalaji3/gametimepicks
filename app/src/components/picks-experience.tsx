@@ -86,8 +86,8 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
         {[
           { label: "Recommended", sub: "lowest-risk model picks first", n: cards.filter((c) => c.riskTier === "Low").length, act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
-          { label: "Lower risk", sub: "shorter odds, steadier", n: cards.filter((c) => c.riskTier === "Low").length, act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
-          { label: "Higher return", sub: "bigger odds, bigger swings", n: cards.filter((c) => c.riskTier === "High" || c.riskTier === "Longshot").length, act: () => { setSport("all"); setRisk("High"); setBankOnly(false); } },
+          { label: "Low Risk", sub: "shorter odds, steadier", n: cards.filter((c) => c.riskTier === "Low").length, act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
+          { label: "High Risk", sub: "bigger odds, bigger swings", n: cards.filter((c) => c.riskTier === "High" || c.riskTier === "Longshot").length, act: () => { setSport("all"); setRisk("High"); setBankOnly(false); } },
           { label: "World Cup", sub: "today's matches", n: counts["world_cup"] ?? 0, act: () => { setSport("world_cup"); setRisk("All"); setBankOnly(false); } },
           { label: "MLB", sub: "tonight's slate", n: counts["mlb"] ?? 0, act: () => { setSport("mlb"); setRisk("All"); setBankOnly(false); } },
           { label: "Mixed sport", sub: "cross-sport cards", n: counts["mixed"] ?? 0, act: () => { setSport("mixed"); setRisk("All"); setBankOnly(false); } },
