@@ -43,6 +43,8 @@ import YesterdaySummary from "@/components/yesterday-summary";
 import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
+import WorldCupSpecialsBox from "@/components/world-cup/world-cup-specials-box";
+import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
 
 export const metadata = {
   title: "Today · GameTime Picks",
@@ -225,6 +227,11 @@ export default function TodayPage() {
     weekday: "long", month: "long", day: "numeric",
   });
 
+  // World Cup Specials — homepage-only feature box (5 Moonshot-style WC-only paper longshots). Read
+  // the committed snapshot; fail closed when it is for a stale slate (never surface yesterday's cards).
+  const wcSpecialsRaw = loadWorldCupSpecials();
+  const wcSpecials = wcSpecialsRaw && wcSpecialsRaw.date === today ? wcSpecialsRaw : null;
+
   const engineSlate = loadTodaySlate();
   const engineSportsLive = engineSlate.sports.filter((s) => s.eligibleCount > 0);
   const engineSuggested = engineSlate.allSuggested.length;
@@ -289,6 +296,10 @@ export default function TodayPage() {
 
       {/* 2 — Today's Focus: World Cup */}
       <TodaysFocusWorldCup matches={wcFocus} games={wcGames} dateLabel={dateLabel} />
+
+      {/* 2.5 — World Cup Specials: homepage-only box of 5 Moonshot-style WC-only paper longshots
+            (separate from the Moonshot Lane AND the Dual Bank Builder). Only when today-dated. */}
+      {wcSpecials && <WorldCupSpecialsBox data={wcSpecials} />}
 
       {/* 3 — Bank Builder: compact run-timeline status (Run #1 completed · #2 closed · #3 V2 gate) */}
       <BankBuilderStatusRail
