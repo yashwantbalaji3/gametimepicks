@@ -14,6 +14,7 @@ import { activeMoonshotCard } from "@/lib/moonshot/moonshot-lane";
 import { buildCardFactoryDiagnostics } from "@/lib/parlays/card-factory-diagnostics";
 import { getRiskBucketForCombinedOdds } from "@/lib/parlays/risk-odds-bands";
 import { RISK_BUCKETS, RISK_LABELS, type RiskBucket } from "@/lib/parlays/risk-taxonomy";
+import { RISK_BUCKET_TARGETS } from "@/lib/parlays/risk-bucket-targets";
 
 export type ScopeKey =
   | "world_cup_single_game" | "world_cup_multi_game" | "mlb" | "mixed" | "moonshot" | "bank_builder";
@@ -36,6 +37,12 @@ export interface CoverageRow {
   cells: CoverageCell[];
   total: number;
 }
+export interface BalancedGeneration {
+  targets: Record<ScopeKey, Record<RiskBucket, number>>;
+  filledByScopeRisk: Record<string, number>; // "scope.risk" → count
+  underfilledReasons: Record<string, string>; // "scope.risk" → reason for empty/under-target buckets
+  capPerBucket: number;
+}
 export interface CoverageMatrix {
   generatedAt: string;
   date: string;
@@ -43,6 +50,7 @@ export interface CoverageMatrix {
   riskTotals: Record<RiskBucket, number>;
   grandTotal: number;
   diagnosticsSummary: string[];
+  balancedGeneration: BalancedGeneration;
 }
 
 const SCOPE_META: Record<ScopeKey, { name: string; href: string }> = {
@@ -92,7 +100,20 @@ export function buildCoverageMatrix(slate: TodaySlateView, moonshot: MoonshotLan
     `Moonshot + Core Bank Builder are counted in their own rows only — never inside the generic WC/MLB/Mixed suggestions, so no card is double-counted.`,
   ].filter(Boolean);
 
-  return { generatedAt, date: slate.date, rows, riskTotals, grandTotal, diagnosticsSummary };
+  // Balanced-generation report: target vs filled per scope×risk, with a reason for every under-target bucket.
+  const filledByScopeRisk: Record<string, number> = {};
+  const underfilledReasons: Record<string, string> = {};
+  for (const row of rows) {
+    for (const c of row.cells) {
+      const k = `${c.scope}.${c.risk}`;
+      filledByScopeRisk[k] = c.count;
+      const target = RISK_BUCKET_TARGETS[c.scope][c.risk];
+      if (c.count < target) underfilledReasons[k] = c.count === 0 ? c.message : `${c.count}/${target} — capped or limited eligible cards`;
+    }
+  }
+  const balancedGeneration: BalancedGeneration = { targets: RISK_BUCKET_TARGETS, filledByScopeRisk, underfilledReasons, capPerBucket: 5 };
+
+  return { generatedAt, date: slate.date, rows, riskTotals, grandTotal, diagnosticsSummary, balancedGeneration };
 }
 
 function activeRow(scope: ScopeKey, byRisk: Record<RiskBucket, number>, note: string): CoverageRow {
