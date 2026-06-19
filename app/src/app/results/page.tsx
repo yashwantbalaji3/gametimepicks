@@ -74,6 +74,8 @@ import {
 import { buildLearningSignalRows } from "@/lib/learning-signals";
 import { buildRiskSectionDrilldown } from "@/lib/results-drilldown";
 import YesterdaySummary from "@/components/yesterday-summary";
+import BankBuilderResults from "@/components/bank-builder-results";
+import { getBankBuilderSettledSteps } from "@/lib/bank-builder-results";
 
 export const metadata = {
   title: "Suggested parlay results · GameTime Picks",
@@ -452,6 +454,10 @@ export default function ResultsPage() {
           <DailyAuditBanner audit={latestAudit} policy={auditPolicy} />
         </div>
       )}
+
+      {/* Bank Builder settled steps (official) — transparency surface; losses shown even though the
+          public Bank Builder page hides stopped lanes. */}
+      <BankBuilderResults steps={getBankBuilderSettledSteps()} />
 
       <div className="mt-8 flex flex-col gap-6">
         {dateSections.length === 0 ? (

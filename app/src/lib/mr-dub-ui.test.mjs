@@ -52,29 +52,26 @@ test("daily-summary embeds each day's events for the expandable dropdown; totals
   assert.equal(d.days[d.days.length - 1].closing, p.currentBankroll, "daily closing == portfolio current bankroll");
 });
 
-test("Lane A relaunched fresh ($100→~$200, Mexico DNB + Soto): public active Step 1, Lane B unchanged, ledger opens the card", () => {
-  const v = loadTodaySlate("2026-06-18", "2026-06-18T20:40:00Z");
+test("settled: Lane A advanced (Step 1 WON), Lane B stopped+hidden, Mr. Dub carries full truth", () => {
+  const v = loadTodaySlate("2026-06-18", "2026-06-19T03:48:00Z");
   const bb = v.bankBuilderPreview;
-  // Lane A is a fresh active $100 Step 1 (two brand-new pre-event legs).
-  assert.equal(bb.laneA.laneStatus, "active");
+  // Lane A cleared Step 1 (Mexico DNB + Soto) and advanced; public.
+  assert.equal(bb.laneA.laneStatus, "advanced");
   assert.equal(bb.laneA.publicVisible, true);
   const a1 = bb.laneA.steps.find((s) => s.step === 1);
-  assert.equal(a1.status, "pending");
-  assert.equal(a1.stake, 100);
-  assert.ok(a1.payout >= 190 && a1.payout <= 225, "fresh Step 1 targets ~$200");
+  assert.equal(a1.status, "settled");
+  assert.equal(a1.result, "won");
   assert.ok(a1.legs.some((l) => l.sport === "WORLD_CUP") && a1.legs.some((l) => l.sport === "MLB"), "one World Cup + one MLB");
-  assert.ok(a1.legs.every((l) => !/Czech/i.test(l.participant ?? "") && !/Josh Bell/i.test(l.participant ?? "")), "no Czech, no Josh Bell");
-  // No overlap with Lane B legs.
+  assert.ok(a1.legs.every((l) => l.settlementResult === "won"), "both Lane A legs won (official)");
+  // Lane B stopped (Goldschmidt HRR 1 lost) → hidden publicly, queued restart.
+  assert.equal(bb.laneB.laneStatus, "stopped");
+  assert.equal(bb.laneB.publicVisible, false);
+  assert.ok(bb.laneB.restart && bb.laneB.restart.status === "queued", "Lane B fresh $100 restart queued");
   const b2 = bb.laneB.steps.find((s) => s.step === 2);
-  const bIds = new Set(b2.legs.map((l) => l.legId));
-  assert.ok(a1.legs.every((l) => !bIds.has(l.legId)), "no Lane B overlap");
-  // Lane B untouched (still active with its Step 2 legs).
-  assert.equal(bb.laneB.laneStatus, "active");
-  assert.ok(b2.legs.some((l) => /Switzerland/.test(l.participant)) && b2.legs.some((l) => /Goldschmidt/.test(l.participant)), "Lane B legs unchanged");
-  // Mr. Dub still records the prior blocked same-step relaunch (private, $0), then opens the fresh card.
+  assert.equal(b2.result, "lost");
+  // Mr. Dub: Lane A advance logged + Lane B stop logged; no bankroll double-count.
   const led = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
-  const blocked = led.events.find((e) => e.type === "lane_relaunch_blocked");
-  assert.ok(blocked && blocked.publicBankBuilderVisible === false && blocked.paperProfit === 0, "blocked relaunch stays private, no bankroll impact");
-  const fresh = led.events.find((e) => e.type === "lane_step_open" && e.relaunch === true && e.laneId === "lane-a");
-  assert.ok(fresh && fresh.paperStake === 100 && fresh.paperProfit === 0, "fresh Lane A open card adds exposure, no realized P/L");
+  assert.ok(led.events.some((e) => e.type === "lane_advanced" && e.laneId === "lane-a" && e.paperProfit === 0), "Lane A advance ($0) logged");
+  const bStop = led.events.find((e) => e.type === "lane_stopped" && e.laneId === "lane-b");
+  assert.ok(bStop && bStop.paperProfit === -100, "Lane B stop realizes -$100");
 });

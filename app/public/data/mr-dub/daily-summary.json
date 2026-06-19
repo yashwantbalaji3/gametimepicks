@@ -1,7 +1,7 @@
 {
   "portfolioId": "mr-dub-paper",
   "paperOnly": true,
-  "generatedAt": "2026-06-18T20:12:00Z",
+  "generatedAt": "2026-06-19T03:48:00Z",
   "days": [
     {
       "date": "2026-06-09",
@@ -258,7 +258,7 @@
       "events": [
         {
           "eventId": "mrdub-2026-06-18-lane-a-prior-step1-won",
-          "timestamp": "2026-06-18T20:12:00Z",
+          "timestamp": "2026-06-19T03:48:00Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_step_won",
@@ -294,7 +294,7 @@
         },
         {
           "eventId": "mrdub-2026-06-18-lane-b-step1-won",
-          "timestamp": "2026-06-18T20:12:00Z",
+          "timestamp": "2026-06-19T03:48:00Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_step_won",
@@ -334,17 +334,17 @@
     },
     {
       "date": "2026-06-18",
-      "staked": 501.03,
-      "returned": 0,
-      "pl": -100,
-      "wins": 0,
-      "losses": 1,
+      "staked": 601.03,
+      "returned": 197.88,
+      "pl": -200,
+      "wins": 1,
+      "losses": 2,
       "voids": 0,
-      "pending": 2,
+      "pending": 0,
       "events": [
         {
           "eventId": "mrdub-2026-06-18-lane-a-prior-step2-stopped",
-          "timestamp": "2026-06-18T20:12:00Z",
+          "timestamp": "2026-06-19T03:48:00Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_stopped",
@@ -379,8 +379,126 @@
           "notes": "Soccer leg settled a loss; the partner leg had already started, so no pre-start replacement was possible."
         },
         {
+          "eventId": "mrdub-2026-06-18-lane-a-step1-won",
+          "timestamp": "2026-06-19T03:48:00Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_step_won",
+          "laneId": "lane-a",
+          "step": 1,
+          "date": "2026-06-18",
+          "paperStake": 100,
+          "paperReturn": 197.88,
+          "paperProfit": 0,
+          "rolled": true,
+          "status": "settled",
+          "result": "won",
+          "combinedOdds": -102,
+          "officialResultConfirmed": true,
+          "publicBankBuilderVisible": true,
+          "legs": [
+            {
+              "market": "draw_no_bet",
+              "selection": "Mexico draw_no_bet",
+              "result": "won",
+              "officialResult": "Mexico 1-0 South Korea (90' regulation; Romo 50')",
+              "source": "espn_fifa_world"
+            },
+            {
+              "market": "Hits",
+              "selection": "Juan Soto Hits Over 0.5",
+              "result": "won",
+              "officialResult": "Juan Soto 2-for-4, 2 H (NYM @ PHI Final, gamePk 823448)",
+              "source": "mlb_stats_api"
+            }
+          ],
+          "notes": "Lane A Step 1 cleared (official) — $100 rolls to $197.88 for the next step."
+        },
+        {
+          "eventId": "mrdub-2026-06-18-lane-a-advanced",
+          "timestamp": "2026-06-19T03:48:00Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_advanced",
+          "laneId": "lane-a",
+          "step": 2,
+          "date": "2026-06-18",
+          "paperStake": 0,
+          "paperReturn": 0,
+          "paperProfit": 0,
+          "status": "advanced",
+          "publicBankBuilderVisible": true,
+          "notes": "Step 1 cleared WON ($100 → $197.88). Awaiting the next qualified pre-event card (one World Cup + one MLB leg) for Step 2."
+        },
+        {
+          "eventId": "mrdub-2026-06-18-lane-b-step2-stopped",
+          "timestamp": "2026-06-19T03:48:00Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_stopped",
+          "laneId": "lane-b",
+          "step": 2,
+          "date": "2026-06-18",
+          "paperStake": 217,
+          "paperReturn": 0,
+          "paperProfit": -100,
+          "rolled": false,
+          "status": "settled",
+          "result": "lost",
+          "combinedOdds": 165,
+          "officialResultConfirmed": true,
+          "publicBankBuilderVisible": false,
+          "legs": [
+            {
+              "market": "moneyline_90",
+              "selection": "Switzerland moneyline_90",
+              "result": "won",
+              "officialResult": "Switzerland 4-1 Bosnia & Herzegovina (90' regulation)",
+              "source": "espn_fifa_world"
+            },
+            {
+              "market": "Hits + Runs + RBIs",
+              "selection": "Paul Goldschmidt Hits + Runs + RBIs Over 1.5",
+              "result": "lost",
+              "officialResult": "Paul Goldschmidt AB 4, H 1, R 0, RBI 0 → H+R+RBI = 1 (CWS @ NYY Final, gamePk 823533)",
+              "source": "mlb_stats_api"
+            }
+          ],
+          "notes": "Step 2 settled a loss — Goldschmidt H+R+RBI finished at 1 (≤1.5); Switzerland ML won but the parlay needs both legs. Lane stopped; a fresh $100 restarts at Step 1."
+        },
+        {
+          "eventId": "mrdub-2026-06-18-lane-b-restart-queued",
+          "timestamp": "2026-06-19T03:48:00Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_restarted",
+          "laneId": "lane-b",
+          "step": 1,
+          "date": "2026-06-18",
+          "paperStake": 100,
+          "paperReturn": 0,
+          "paperProfit": 0,
+          "status": "queued",
+          "publicBankBuilderVisible": true,
+          "notes": "Lane B stopped at Step 2 (Goldschmidt H+R+RBI 1 ≤ 1.5). A fresh $100 Lane B restarts at Step 1 on the next qualified pre-event card."
+        }
+      ],
+      "opening": 10376.17,
+      "closing": 10176.17
+    },
+    {
+      "date": "2026-06-19",
+      "staked": 0,
+      "returned": 0,
+      "pl": 0,
+      "wins": 0,
+      "losses": 0,
+      "voids": 0,
+      "pending": 0,
+      "events": [
+        {
           "eventId": "mrdub-2026-06-18-lane-a-relaunch-blocked",
-          "timestamp": "2026-06-18T20:12:00Z",
+          "timestamp": "2026-06-19T03:48:00Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_relaunch_blocked",
@@ -408,87 +526,10 @@
             }
           ],
           "notes": "Owner-requested same-step Lane A relaunch (keep Josh Bell, swap the failed Czech ML) was BLOCKED: the kept partner leg (Josh Bell, Twins@Rangers, first pitch 18:35Z) was already Live/In-Progress at evaluation (19:31Z), so the card cannot be retroactively relaunched. Czech ML lost officially (Czechia 1-1 South Africa FT). Fallback: the clean queued $100 Lane A path stands; Lane B unchanged."
-        },
-        {
-          "eventId": "mrdub-2026-06-18-lane-a-step1-pending",
-          "timestamp": "2026-06-18T20:12:00Z",
-          "portfolio": "mr-dub-paper",
-          "category": "bank_builder",
-          "type": "lane_step_open",
-          "laneId": "lane-a",
-          "step": 1,
-          "date": "2026-06-18",
-          "paperStake": 100,
-          "paperReturn": 0,
-          "paperProfit": 0,
-          "projectedReturn": 197.88,
-          "status": "open",
-          "combinedOdds": -102,
-          "publicBankBuilderVisible": true,
-          "legs": [
-            {
-              "market": "draw_no_bet",
-              "selection": "Mexico draw_no_bet",
-              "result": "pending",
-              "officialResult": "not started (kickoff 01:00 UTC Jun 19)",
-              "source": "espn_fifa_world"
-            },
-            {
-              "market": "Hits",
-              "selection": "Juan Soto Hits Over 0.5",
-              "result": "pending",
-              "officialResult": "game not final",
-              "source": "mlb_stats_api"
-            }
-          ],
-          "sportExposure": [
-            "WORLD_CUP",
-            "MLB"
-          ],
-          "relaunch": true,
-          "notes": "Fresh Lane A relaunch — Step 1 open. New $100 paper position on two brand-new pre-event legs, projected $197.88. Original $100 at risk. Settles from official sources."
-        },
-        {
-          "eventId": "mrdub-2026-06-18-lane-b-step2-pending",
-          "timestamp": "2026-06-18T20:12:00Z",
-          "portfolio": "mr-dub-paper",
-          "category": "bank_builder",
-          "type": "lane_step_open",
-          "laneId": "lane-b",
-          "step": 2,
-          "date": "2026-06-18",
-          "paperStake": 217,
-          "paperReturn": 0,
-          "paperProfit": 0,
-          "projectedReturn": 575.08,
-          "status": "open",
-          "combinedOdds": 165,
-          "publicBankBuilderVisible": true,
-          "legs": [
-            {
-              "market": "moneyline_90",
-              "selection": "Switzerland moneyline_90",
-              "result": "pending",
-              "officialResult": "Switzerland 0–0 Bosnia-Herzegovina (not final)",
-              "source": "espn_fifa_world"
-            },
-            {
-              "market": "Hits + Runs + RBIs",
-              "selection": "Paul Goldschmidt Hits + Runs + RBIs Over 1.5",
-              "result": "pending",
-              "officialResult": "game not final",
-              "source": "mlb_stats_api"
-            }
-          ],
-          "sportExposure": [
-            "WORLD_CUP",
-            "MLB"
-          ],
-          "notes": "Lane B Step 2 open — $217 paper position riding, projected $575.08. Original $100 at risk. Settles from official sources."
         }
       ],
-      "opening": 10376.17,
-      "closing": 10276.17
+      "opening": 10176.17,
+      "closing": 10176.17
     }
   ]
 }
