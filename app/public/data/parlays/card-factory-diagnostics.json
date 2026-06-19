@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T15:53:21Z",
+  "generatedAt": "2026-06-19T16:36:23Z",
   "date": "2026-06-19",
   "slatePresent": true,
   "matrix": {
@@ -99,50 +99,44 @@
       "low": {
         "scope": "mlb",
         "bucket": "low",
-        "attempted": 0,
+        "attempted": 582,
         "passed": 0,
         "target": 4,
         "status": "empty",
         "rejected": {
-          "no_eligible_legs": 1
+          "gates_not_cleared": 582
         },
-        "message": "No MLB Low Risk cards — No eligible MLB candidates for today.."
+        "message": "No MLB Low Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates)."
       },
       "medium": {
         "scope": "mlb",
         "bucket": "medium",
-        "attempted": 0,
-        "passed": 0,
+        "attempted": 582,
+        "passed": 8,
         "target": 5,
-        "status": "empty",
-        "rejected": {
-          "no_eligible_legs": 1
-        },
-        "message": "No MLB Medium Risk cards — No eligible MLB candidates for today.."
+        "status": "ok",
+        "rejected": {},
+        "message": "8 MLB Medium Risk cards passed (target 5)."
       },
       "high": {
         "scope": "mlb",
         "bucket": "high",
-        "attempted": 0,
-        "passed": 0,
+        "attempted": 582,
+        "passed": 5,
         "target": 4,
-        "status": "empty",
-        "rejected": {
-          "no_eligible_legs": 1
-        },
-        "message": "No MLB High Risk cards — No eligible MLB candidates for today.."
+        "status": "ok",
+        "rejected": {},
+        "message": "5 MLB High Risk cards passed (target 4)."
       },
       "longshot": {
         "scope": "mlb",
         "bucket": "longshot",
-        "attempted": 0,
-        "passed": 0,
+        "attempted": 582,
+        "passed": 7,
         "target": 2,
-        "status": "empty",
-        "rejected": {
-          "no_eligible_legs": 1
-        },
-        "message": "No MLB Longshot cards — No eligible MLB candidates for today.."
+        "status": "ok",
+        "rejected": {},
+        "message": "7 MLB Longshot cards passed (target 2)."
       }
     },
     "mixed": {
@@ -162,45 +156,39 @@
         "scope": "mixed",
         "bucket": "medium",
         "attempted": 171,
-        "passed": 0,
+        "passed": 10,
         "target": 5,
-        "status": "empty",
-        "rejected": {
-          "gates_not_cleared": 171
-        },
-        "message": "No Mixed-sport Medium Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates)."
+        "status": "ok",
+        "rejected": {},
+        "message": "10 Mixed-sport Medium Risk cards passed (target 5)."
       },
       "high": {
         "scope": "mixed",
         "bucket": "high",
         "attempted": 171,
-        "passed": 0,
+        "passed": 4,
         "target": 4,
-        "status": "empty",
-        "rejected": {
-          "gates_not_cleared": 171
-        },
-        "message": "No Mixed-sport High Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates)."
+        "status": "ok",
+        "rejected": {},
+        "message": "4 Mixed-sport High Risk cards passed (target 4)."
       },
       "longshot": {
         "scope": "mixed",
         "bucket": "longshot",
         "attempted": 171,
-        "passed": 0,
+        "passed": 6,
         "target": 2,
-        "status": "empty",
-        "rejected": {
-          "gates_not_cleared": 171
-        },
-        "message": "No Mixed-sport Longshot card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates)."
+        "status": "ok",
+        "rejected": {},
+        "message": "6 Mixed-sport Longshot cards passed (target 2)."
       }
     }
   },
   "oddsBandGuards": {
     "legsDroppedTooShort": 39,
     "legsDroppedTooLong": 1,
-    "cardsRebucketed": 6,
+    "cardsRebucketed": 20,
     "cardsDroppedOutOfBucket": 0
   },
-  "summary": "34 cards passed across all scopes for 2026-06-19. Empty buckets list their gate / data reason below. Odds-band guards: 39 leg(s) too short (<-500), 1 too long (>+1200) dropped; 6 card(s) re-homed to the band their combined odds fit; 0 dropped as out-of-band."
+  "summary": "74 cards passed across all scopes for 2026-06-19. Empty buckets list their gate / data reason below. Odds-band guards: 39 leg(s) too short (<-500), 1 too long (>+1200) dropped; 20 card(s) re-homed to the band their combined odds fit; 0 dropped as out-of-band."
 }

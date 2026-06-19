@@ -87,42 +87,43 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("the active 06-18 ladder after settlement: Lane A advanced (Step 1 WON), Lane B stopped (Step 2 lost)", () => {
-  const v = loadTodaySlate("2026-06-18", "2026-06-19T03:48:00Z");
+test("the June 19 placed ladder: Lane A Step 2 active (USA + Jax), Lane B Step 1 restart active (Turkey + Gelof)", () => {
+  const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.status, "launched", "active ladder is launched");
   assert.equal(bb.isLadder, true, "preview is a multi-step ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
   assert.equal(bb.laneA.steps.length, 5, "five-step ladder");
 
-  // Lane A: Step 1 (Mexico DNB + Soto) cleared WON → advanced, public, awaiting next card.
+  // Lane A: Step 1 (Mexico DNB + Soto) cleared WON; Step 2 now ACTIVE with the placed USA + Jax card.
   assert.equal(bb.laneA.laneStatus, "advanced");
   assert.equal(bb.laneA.publicVisible, true);
   const a1 = bb.laneA.steps[0];
   assert.equal(a1.status, "settled");
   assert.equal(a1.result, "won", "Lane A Step 1 cleared WON");
   assert.equal(a1.stake, 100, "started from $100");
-  assert.equal(a1.legs.length, 2);
-  assert.ok(a1.legs.some((l) => l.sport === "WORLD_CUP") && a1.legs.some((l) => l.sport === "MLB"), "one World Cup + one MLB");
   for (const leg of a1.legs) {
     assert.equal(leg.settlementResult, "won", "both Lane A legs graded won");
     assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "official line present");
   }
-  for (let i = 1; i < 5; i++) {
-    assert.equal(bb.laneA.steps[i].status, "coming_soon", "Step 2+ awaiting next card — no fabricated legs");
+  const a2 = bb.laneA.steps[1];
+  assert.equal(a2.status, "pending", "Step 2 active card placed");
+  assert.equal(a2.legs.length, 2);
+  assert.ok(a2.legs.some((l) => l.sport === "WORLD_CUP") && a2.legs.some((l) => l.sport === "MLB"), "Step 2 = one World Cup + one MLB");
+  assert.ok((a2.payout ?? 0) >= 600 && (a2.payout ?? 0) <= 750, "Step 2 projected ~$617.63");
+  for (let i = 2; i < 5; i++) {
+    assert.equal(bb.laneA.steps[i].status, "coming_soon", "Step 3+ awaiting — no fabricated legs");
     assert.equal(bb.laneA.steps[i].legs.length, 0);
   }
 
-  // Lane B: Step 2 lost → stopped + hidden from public Bank Builder; fresh $100 restart queued.
-  assert.equal(bb.laneB.laneStatus, "stopped");
-  assert.equal(bb.laneB.publicVisible, false);
-  assert.ok(bb.laneB.restart && bb.laneB.restart.status === "queued", "Lane B restart queued");
-  const b2 = bb.laneB.steps[1];
-  assert.equal(b2.status, "settled");
-  assert.equal(b2.result, "lost", "Lane B Step 2 lost (Goldschmidt HRR 1)");
-  // The soccer leg won even though the lane lost (parlay needs both) — recorded honestly for Mr. Dub.
-  assert.ok(b2.legs.some((l) => l.sport === "WORLD_CUP" && l.settlementResult === "won"), "Switzerland ML won");
-  assert.ok(b2.legs.some((l) => l.sport === "MLB" && l.settlementResult === "lost"), "Goldschmidt HRR lost");
+  // Lane B: restarted at a fresh Step 1 ACTIVE card; the lost Step 2 is hidden (lives in priorLane).
+  assert.equal(bb.laneB.publicVisible, true);
+  const b1 = bb.laneB.steps[0];
+  assert.equal(b1.status, "pending", "Lane B Step 1 restart active");
+  assert.equal(b1.stake, 100, "fresh $100 restart");
+  assert.ok(b1.legs.some((l) => l.sport === "WORLD_CUP") && b1.legs.some((l) => l.sport === "MLB"), "restart = one World Cup + one MLB");
+  const liveB = JSON.stringify(bb.laneB.steps);
+  assert.ok(!/Goldschmidt|Switzerland/.test(liveB), "stopped Step-2 legs never surface in the live lane");
 });
 
 test("mixed-sport parlays: each card spans a World Cup leg + another sport, by risk", () => {
@@ -142,31 +143,29 @@ test("mixed-sport parlays: each card spans a World Cup leg + another sport, by r
   }
 });
 
-test("Lane B Step 2 was re-optimized for payout: combined odds are plus-money and beat the conservative version", () => {
-  const v = loadTodaySlate("2026-06-18", "2026-06-18T15:55:00Z");
+test("Lane B Step 1 restart is plus-money and clears its $200 ladder rung", () => {
+  const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.isLadder, true);
-  // Lane A has relaunched to a fresh Step 1; Lane B carries the payout-optimized live Step 2.
-  const step2 = bb.laneB.steps.find((s) => s.step === 2);
-  // Step 2 was built payout-optimized (plus-money combined, ≥2.25x); the property holds whether the
-  // step is still pending or has since settled in the dual-lane lifecycle.
-  assert.ok(step2.combinedOdds != null && step2.combinedOdds > 0, "Step 2 combined odds are plus-money (payout-optimized)");
-  assert.ok((step2.payout ?? 0) / (step2.stake ?? 1) >= 2.25, "Step 2 clears the 2.25x payout floor");
-  assert.ok(step2.legs.some((l) => l.sport === "WORLD_CUP"), "Step 2 keeps a World Cup leg per lane");
+  // Lane B restarted at Step 1; the placed card is plus-money and rides $100 toward the $200 rung (≥2.0x).
+  const step1 = bb.laneB.steps.find((s) => s.step === 1);
+  assert.ok(step1.combinedOdds != null && step1.combinedOdds > 0, "Step 1 combined odds are plus-money");
+  assert.ok((step1.payout ?? 0) / (step1.stake ?? 1) >= 2.0, "Step 1 clears the $200 rung (≥2.0x)");
+  assert.ok(step1.legs.some((l) => l.sport === "WORLD_CUP"), "Step 1 keeps a World Cup leg per lane");
 });
 
-test("Lane B Step 2 soccer leg is a clean team market (BTTS No was replaced)", () => {
-  const v = loadTodaySlate("2026-06-18", "2026-06-18T16:15:00Z");
+test("Lane B Step 1 restart soccer leg is a clean team market (draw-no-bet)", () => {
+  const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const laneB = v.bankBuilderPreview.laneB;
-  const step2 = laneB.steps.find((s) => s.step === 2);
-  const soccer = step2.legs.find((l) => l.sport === "WORLD_CUP");
+  const step1 = laneB.steps.find((s) => s.step === 1);
+  const soccer = step1.legs.find((l) => l.sport === "WORLD_CUP");
   assert.ok(soccer, "Lane B keeps one World Cup leg");
-  assert.ok(!/both teams to score/i.test(soccer.participant + " " + soccer.market), "the BTTS No leg was replaced");
+  assert.ok(!/both teams to score/i.test(soccer.participant + " " + soccer.market), "no BTTS leg in Bank Builder");
   assert.ok(["moneyline_90", "draw_no_bet", "double_chance"].includes(soccer.market), `soccer leg is a team market (got ${soccer.market})`);
 });
 
 test("MLB Bank Builder legs carry REAL last-5 prop history (official game logs, never fabricated)", () => {
-  const v = loadTodaySlate("2026-06-18", "2026-06-18T16:15:00Z");
+  const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   const mlbLegs = [bb.laneA, bb.laneB].flatMap((l) => l.steps.flatMap((s) => s.legs)).filter((l) => l.sport === "MLB");
   assert.ok(mlbLegs.length >= 2, "there are MLB legs to check");

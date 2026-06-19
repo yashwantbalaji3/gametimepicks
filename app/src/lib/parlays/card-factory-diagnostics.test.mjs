@@ -23,20 +23,24 @@ test("every scope × risk cell has a message and a non-vague reason when empty",
   }
 });
 
-test("June 19 slate present: World Cup buckets pass, MLB/Mixed empty with honest eligibility reasons", () => {
+test("June 19 slate present: World Cup + MLB + Mixed all pass (paid odds), empty buckets stay honest", () => {
   const slate = loadTodaySlate("2026-06-19", "2026-06-19T15:00:00Z");
   const diag = buildCardFactoryDiagnostics(slate, "2026-06-19T15:00:00Z");
-  assert.equal(diag.slatePresent, true, "the generated June 19 World Cup slate is present");
-  // World Cup multi-game has passed cards across the buckets (real odds-backed legs).
-  const wcMulti = diag.matrix.world_cup_multi_game;
-  assert.ok(RISK_BUCKETS.some((b) => wcMulti[b].passed > 0), "World Cup multi-game cards passed");
-  // MLB + Mixed are empty (no MLB board this run) — with a REAL reason, never a vague empty.
-  for (const scope of ["mlb", "mixed"]) for (const b of RISK_BUCKETS) {
-    const c = diag.matrix[scope][b];
-    assert.equal(c.passed, 0, `${scope}.${b} empty (no MLB board)`);
-    assert.ok(Object.keys(c.rejected).length >= 1, `${scope}.${b} has a real reason`);
-    assert.ok(!/no qualified parlays/i.test(c.message), "no vague empty copy");
+  assert.equal(diag.slatePresent, true, "the generated June 19 slate is present");
+  // World Cup multi-game + MLB + Mixed all have passed cards (real odds-backed legs, paid Odds API key).
+  for (const scope of ["world_cup_multi_game", "mlb", "mixed"]) {
+    assert.ok(RISK_BUCKETS.some((b) => diag.matrix[scope][b].passed > 0), `${scope} cards passed`);
   }
+  // Any bucket that is still empty carries a REAL reason, never a vague empty.
+  for (const scope of Object.keys(diag.matrix)) for (const b of RISK_BUCKETS) {
+    const c = diag.matrix[scope][b];
+    if (c.passed === 0) {
+      assert.ok(Object.keys(c.rejected).length >= 1, `${scope}.${b} empty bucket has a real reason`);
+      assert.ok(!/no qualified parlays/i.test(c.message), "no vague empty copy");
+    }
+  }
+  // The odds-band guard tally is surfaced.
+  assert.ok(diag.oddsBandGuards && typeof diag.oddsBandGuards.cardsRebucketed === "number", "odds-band guard tally present");
 });
 
 test("when a slate exists (June 18), the matrix reports passed counts + targets per bucket", () => {
