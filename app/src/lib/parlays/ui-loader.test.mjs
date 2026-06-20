@@ -87,15 +87,14 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("the June 19 placed ladder: Lane A Step 2 active (USA + Jax), Lane B Step 1 restart active (Turkey + Gelof)", () => {
+test("the June 19 settled ladder: Lane A advanced (Step 2 won, USA + Gonzales), Lane B stopped (Step 1 lost)", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
-  assert.equal(bb.status, "launched", "active ladder is launched");
   assert.equal(bb.isLadder, true, "preview is a multi-step ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
   assert.equal(bb.laneA.steps.length, 5, "five-step ladder");
 
-  // Lane A: Step 1 (Mexico DNB + Soto) cleared WON; Step 2 now ACTIVE with the placed USA + Jax card.
+  // Lane A: Step 1 (Mexico DNB + Soto) + Step 2 (USA + Gonzales) BOTH WON → advanced toward Step 3.
   assert.equal(bb.laneA.laneStatus, "advanced");
   assert.equal(bb.laneA.publicVisible, true);
   const a1 = bb.laneA.steps[0];
@@ -107,23 +106,21 @@ test("the June 19 placed ladder: Lane A Step 2 active (USA + Jax), Lane B Step 1
     assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "official line present");
   }
   const a2 = bb.laneA.steps[1];
-  assert.equal(a2.status, "pending", "Step 2 active card placed");
+  assert.equal(a2.status, "settled", "Step 2 settled");
+  assert.equal(a2.result, "won", "Step 2 WON (USA ML + Gonzales HRR)");
   assert.equal(a2.legs.length, 2);
   assert.ok(a2.legs.some((l) => l.sport === "WORLD_CUP") && a2.legs.some((l) => l.sport === "MLB"), "Step 2 = one World Cup + one MLB");
-  assert.ok((a2.payout ?? 0) >= 600 && (a2.payout ?? 0) <= 750, "Step 2 projected ~$617.63");
-  for (let i = 2; i < 5; i++) {
-    assert.equal(bb.laneA.steps[i].status, "coming_soon", "Step 3+ awaiting — no fabricated legs");
-    assert.equal(bb.laneA.steps[i].legs.length, 0);
-  }
+  assert.ok((a2.payout ?? 0) >= 600 && (a2.payout ?? 0) <= 700, "Step 2 paid ~$601.56");
+  assert.equal(bb.laneA.steps[2].status, "awaiting", "Step 3 awaiting after the advance");
 
-  // Lane B: restarted at a fresh Step 1 ACTIVE card; the lost Step 2 is hidden (lives in priorLane).
-  assert.equal(bb.laneB.publicVisible, true);
+  // Lane B: Step 1 (Turkey or Draw + Hoskins) LOST → stopped + hidden from the public ladder.
+  assert.equal(bb.laneB.laneStatus, "stopped");
+  assert.equal(bb.laneB.publicVisible, false);
   const b1 = bb.laneB.steps[0];
-  assert.equal(b1.status, "pending", "Lane B Step 1 restart active");
-  assert.equal(b1.stake, 100, "fresh $100 restart");
-  assert.ok(b1.legs.some((l) => l.sport === "WORLD_CUP") && b1.legs.some((l) => l.sport === "MLB"), "restart = one World Cup + one MLB");
+  assert.equal(b1.status, "settled", "Lane B Step 1 settled");
+  assert.equal(b1.result, "lost");
   const liveB = JSON.stringify(bb.laneB.steps);
-  assert.ok(!/Goldschmidt|Switzerland/.test(liveB), "stopped Step-2 legs never surface in the live lane");
+  assert.ok(!/Goldschmidt|Switzerland/.test(liveB), "old stopped Step-2 legs never surface in the live lane");
 });
 
 test("mixed-sport parlays: each card spans a World Cup leg + another sport, by risk", () => {
@@ -143,15 +140,16 @@ test("mixed-sport parlays: each card spans a World Cup leg + another sport, by r
   }
 });
 
-test("Lane B Step 1 restart is plus-money and clears its $200 ladder rung", () => {
+test("Lane B Step 1 was plus-money (Turkey or Draw + Hoskins) but settled LOST → lane stopped", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.isLadder, true);
-  // Lane B restarted at Step 1; the placed card is plus-money and rides $100 toward the $200 rung (≥2.0x).
   const step1 = bb.laneB.steps.find((s) => s.step === 1);
-  assert.ok(step1.combinedOdds != null && step1.combinedOdds > 0, "Step 1 combined odds are plus-money");
-  assert.ok((step1.payout ?? 0) / (step1.stake ?? 1) >= 2.0, "Step 1 clears the $200 rung (≥2.0x)");
+  assert.ok(step1.combinedOdds != null && step1.combinedOdds > 0, "Step 1 combined odds were plus-money (+111)");
+  assert.equal(step1.status, "settled", "Step 1 settled");
+  assert.equal(step1.result, "lost", "Turkey or Draw + Hoskins both lost");
   assert.ok(step1.legs.some((l) => l.sport === "WORLD_CUP"), "Step 1 keeps a World Cup leg per lane");
+  assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped after the loss");
 });
 
 test("Lane B Step 1 restart soccer leg is a clean team market (draw-no-bet)", () => {

@@ -6,15 +6,15 @@
   "startingDate": "2026-06-09",
   "startingBankroll": 100,
   "crownBankroll": 10376.17,
-  "currentBankroll": 10176.17,
-  "openExposure": 297.88,
-  "settledProfit": 10076.17,
-  "roi": 100.76,
+  "currentBankroll": 9776.17,
+  "openExposure": 0,
+  "settledProfit": 9676.17,
+  "roi": 96.76,
   "record": {
-    "wins": 8,
-    "losses": 2,
+    "wins": 9,
+    "losses": 6,
     "voids": 0,
-    "pending": 2
+    "pending": 0
   },
   "completedLadders": [
     {
@@ -25,105 +25,28 @@
       "official": true
     }
   ],
-  "activeCards": [
+  "activeCards": [],
+  "generatedAt": "2026-06-20T05:16:39Z",
+  "highWaterMark": 10376.17,
+  "drawdown": 600,
+  "drawdownPct": 0.0578,
+  "openExposurePct": 0,
+  "roiMultiple": 96.76,
+  "exposure": {
+    "bySport": [],
+    "byMarket": [],
+    "byTeamOrPlayer": [],
+    "byLane": [],
+    "byStatus": []
+  },
+  "awaitingCards": [
     {
       "laneId": "lane-a",
-      "type": "lane_advanced",
-      "step": 2,
-      "stake": 197.88,
-      "projectedReturn": 601.56,
-      "combinedAmerican": 204,
-      "status": "pending",
-      "legs": [
-        "USA moneyline_90",
-        "Nick Gonzales Hits + Runs + RBIs U2.5"
-      ],
-      "note": "Step 2 quality fix: Jax (2/5) replaced with Nick Gonzales HRR U2.5 (5/5). Riding $197.88 -> ~$601.56."
-    },
-    {
-      "laneId": "lane-b",
-      "type": "lane_restarted",
-      "step": 1,
-      "stake": 100,
-      "projectedReturn": 210.62,
-      "combinedAmerican": 111,
-      "status": "pending",
-      "legs": [
-        "Turkey or Draw double_chance",
-        "Rhys Hoskins Hits + Runs + RBIs U1.5"
-      ],
-      "note": "Step 1: Turkey or Draw (Double Chance) + Rhys Hoskins HRR U1.5 (5/5, CLE@HOU). Ozuna swapped (shared Lane A's game)."
+      "step": 3,
+      "kind": "awaiting_next_card",
+      "note": "Step 2 won ($197.88 → $601.56); awaiting a pre-event Step 3 card at $601.56."
     }
   ],
-  "generatedAt": "2026-06-19T18:45:00Z",
-  "highWaterMark": 10376.17,
-  "drawdown": 200,
-  "drawdownPct": 0.0193,
-  "openExposurePct": 0.0293,
-  "roiMultiple": 100.76,
-  "exposure": {
-    "bySport": [
-      {
-        "key": "WORLD_CUP",
-        "amount": 148.94,
-        "cards": 2
-      },
-      {
-        "key": "MLB",
-        "amount": 148.94,
-        "cards": 2
-      }
-    ],
-    "byMarket": [
-      {
-        "key": "moneyline_90",
-        "amount": 98.94
-      },
-      {
-        "key": "Hits + Runs + RBIs",
-        "amount": 148.94
-      },
-      {
-        "key": "double_chance",
-        "amount": 50
-      }
-    ],
-    "byTeamOrPlayer": [
-      {
-        "key": "USA",
-        "amount": 98.94
-      },
-      {
-        "key": "Nick Gonzales",
-        "amount": 98.94
-      },
-      {
-        "key": "Turkey",
-        "amount": 50
-      },
-      {
-        "key": "Rhys Hoskins",
-        "amount": 50
-      }
-    ],
-    "byLane": [
-      {
-        "key": "Lane A",
-        "amount": 197.88
-      },
-      {
-        "key": "Lane B",
-        "amount": 100
-      }
-    ],
-    "byStatus": [
-      {
-        "key": "pending",
-        "amount": 297.88
-      }
-    ]
-  },
-  "awaitingCards": [],
   "completedCards": [
     {
       "name": "Road to $10K",
@@ -134,57 +57,73 @@
     }
   ],
   "bankrollHealth": {
-    "score": 96,
-    "label": "Low exposure · 2 lanes live",
+    "score": 100,
+    "label": "No open exposure",
     "reasons": [
-      "2 paper lanes live — $297.88 (2.9% of bankroll) at risk.",
-      "Lane A Step 2: USA ML + Nick Gonzales HRR U2.5 (5/5) — riding $197.88 -> ~$601.56.",
-      "Lane B Step 1: Turkey or Draw (Double Chance) + Rhys Hoskins HRR U1.5 (5/5) — riding $100 -> ~$210.62."
+      "No active paper cards right now — nothing is at risk.",
+      "1 lane(s) awaiting the next qualified card."
     ]
   },
   "intelligence": {
     "highWaterMark": 10376.17,
-    "maxDrawdown": 200,
-    "drawdown": 200,
-    "drawdownPct": 0.0193,
-    "winRate": 0.8,
+    "maxDrawdown": 600,
+    "drawdown": 600,
+    "drawdownPct": 0.0578,
+    "winRate": 0.6,
     "exposureBySport": {},
-    "largestOpenCard": 197.88,
-    "avgStake": 148.94,
-    "avgSettledReturn": 2120.41,
-    "profitFactor": 51.38,
+    "largestOpenCard": 0,
+    "avgStake": 590.59,
+    "avgSettledReturn": 1951.65,
+    "profitFactor": 34.25,
     "longestWinStreak": 6,
-    "longestLossStreak": 1,
+    "longestLossStreak": 2,
     "note": "Paper exposure, bankroll health and drawdown — educational tracking, not financial advice."
   },
   "moonshot": {
     "lane": "Moonshot Lane",
     "paperOnly": true,
     "separateFromCore": true,
-    "exposure": 25,
+    "exposure": 0,
     "currentStep": 1,
     "targetReturn": 3000,
+    "status": "stopped",
     "record": {
       "wins": 0,
-      "losses": 0,
+      "losses": 1,
       "voids": 0,
-      "pending": 1
+      "pending": 0
     },
-    "activeCard": {
+    "card": {
       "cardId": "moonshot-2026-06-19-step1-main",
       "stake": 25,
       "projectedReturn": 227.01,
       "combinedAmerican": 808,
       "risk": "longshot",
-      "highVolatility": true,
+      "result": "lost",
       "legs": [
-        "Morocco Moneyline (90′)",
-        "Vinícius Júnior Anytime Goalscorer",
-        "Ismael Saibari Anytime Goalscorer",
-        "Turkey or Draw Double Chance"
+        {
+          "selection": "Morocco Moneyline (90′)",
+          "result": "won",
+          "official": "Scotland 0–1 Morocco FT"
+        },
+        {
+          "selection": "Vinícius Júnior Anytime Goalscorer",
+          "result": "won",
+          "official": "scored (official goal, Brazil v Haiti)"
+        },
+        {
+          "selection": "Ismael Saibari Anytime Goalscorer",
+          "result": "won",
+          "official": "scored (official goal, Scotland v Morocco)"
+        },
+        {
+          "selection": "Turkey or Draw Double Chance",
+          "result": "lost",
+          "official": "Türkiye 0–1 Paraguay FT"
+        }
       ]
     },
-    "note": "High-volatility World Cup paper challenge — separate from the core Dual Bank Builder. Does not affect the Lane A/B record."
+    "note": "Step 1 settled a loss — Morocco: WON; Vinícius Júnior: WON; Ismael Saibari: WON; Turkey or Draw: LOST"
   },
-  "totalOpenExposure": 322.88
+  "totalOpenExposure": 0
 }

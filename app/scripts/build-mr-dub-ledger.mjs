@@ -17,8 +17,36 @@ const DATA = path.join(APP, "public", "data");
 const OUT = path.join(DATA, "mr-dub");
 const CROWN = path.join(DATA, "bank-builder", "public-ledger-latest.json");      // PROTECTED — read only
 const ACTIVE = path.join(DATA, "methodology", "launch", "dual-bank-builder-active.json");
+const MOON = path.join(DATA, "moonshot-lane", "active.json");                    // separate high-volatility lane
 const NOW = process.argv.includes("--now") ? process.argv[process.argv.indexOf("--now") + 1] : "2026-06-18T18:40:00Z";
 const round2 = (n) => Math.round(n * 100) / 100;
+
+/** Summarise the separate Moonshot lane from its own artifact (settled result + open exposure). */
+function moonshotSummary() {
+  let lane;
+  try { lane = JSON.parse(fs.readFileSync(MOON, "utf8")); } catch { return null; }
+  if (!lane || lane.publicVisible === false) return null;
+  const step = lane.ladder?.find((s) => s.step === lane.currentStep) ?? lane.ladder?.[0];
+  const card = step?.card;
+  const legResults = (card?.legs ?? []).map((l) => l.settlement?.result ?? "pending");
+  const won = card?.result === "won" || (legResults.length > 0 && legResults.every((r) => r === "won"));
+  const lost = card?.result === "lost" || legResults.some((r) => r === "lost");
+  const settled = lane.status === "stopped" || lane.status === "completed" || won || lost;
+  const exposure = step?.status === "active" && !settled ? round2(card?.stake ?? 0) : 0;
+  return {
+    lane: lane.name, paperOnly: true, separateFromCore: true,
+    exposure, currentStep: lane.currentStep, targetReturn: lane.targetReturn,
+    status: lane.status,
+    record: { wins: won ? 1 : 0, losses: lost ? 1 : 0, voids: 0, pending: settled ? 0 : 1 },
+    card: card ? {
+      cardId: card.cardId, stake: card.stake, projectedReturn: card.projectedReturn,
+      combinedAmerican: card.combinedOdds, risk: card.risk,
+      result: card.result ?? (settled ? (won ? "won" : "lost") : "pending"),
+      legs: (card.legs ?? []).map((l) => ({ selection: `${l.participant} ${l.marketLabel}`, result: l.settlement?.result ?? "pending", official: l.settlement?.official ?? null })),
+    } : null,
+    note: lane.stopNote ?? (settled ? "Settled — separate from the core ladder." : "Open paper position — separate from the core ladder."),
+  };
+}
 
 function main() {
   const crown = JSON.parse(fs.readFileSync(CROWN, "utf8"));
@@ -329,6 +357,13 @@ function main() {
     avgStake, avgSettledReturn, profitFactor, longestWinStreak: longestWin, longestLossStreak: longestLoss,
     note: "Paper exposure, bankroll health and drawdown — educational tracking, not financial advice.",
   };
+
+  // ── Moonshot Lane — the SEPARATE high-volatility paper challenge (own artifact). Tracked here so
+  //    Mr. Dub shows it, but kept distinct from the core bankroll/exposure. After settlement it shows
+  //    the official result; while open it adds its stake to totalOpenExposure only. ──
+  const moonshot = moonshotSummary();
+  portfolio.moonshot = moonshot;
+  portfolio.totalOpenExposure = round2(openExposure + (moonshot?.exposure ?? 0));
 
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, "ledger.json"), JSON.stringify({ portfolioId: "mr-dub-paper", paperOnly: true, generatedAt: NOW, events }, null, 2) + "\n");

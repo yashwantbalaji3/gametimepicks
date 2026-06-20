@@ -1,15 +1,14 @@
 /**
- * World Cup Specials — homepage feature box of 5 Moonshot-style, World-Cup-ONLY paper parlays.
- * Visually distinct (gold/lava "trophy" treatment) from the Moonshot Lane (moon/indigo) and the
- * Dual Bank Builder, so the three are never confused. Renders each card's exact legs (player photos
- * / team flags / opponent / kickoff), the $10 projected return, combined odds, the team/player mix,
- * and a drawer with why-this-card / correlation-disclosure / why-it-can-fail / settlement / data
- * quality. Higher-variance by design — never framed as lower-risk. Paper-only. Server-rendered;
- * the expand drawers use native <details> (no client JS, static-export compatible).
+ * INTERNAL PREVIEW — June 20 World Cup Specials box, with the player ROLE-QUALITY gate surfaced.
+ * Renders the role-screened cards: every player leg shows its role tier badge (key attacker /
+ * projected starter) + role evidence in the drawer, plus a per-card role-quality summary. Gold/lava
+ * "trophy" styling like production, but clearly framed as an internal review build. Server-rendered;
+ * native <details> drawers. NOT linked from production surfaces.
  */
 import Link from "next/link";
 import FlagBadge from "@/components/flag-badge";
-import type { SpecialLeg, WorldCupSpecialCard, WorldCupSpecialsResult } from "@/lib/world-cup/world-cup-specials";
+import type { SpecialLeg, WorldCupSpecialCard } from "@/lib/world-cup/world-cup-specials";
+import type { June20SpecialsPreview } from "@/lib/world-cup/world-cup-specials-preview";
 
 const GOLD = "var(--vault-gold, #D4AF37)";
 const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
@@ -20,6 +19,22 @@ const shortStart = (iso: string | null) => {
   if (Number.isNaN(t)) return "";
   return new Date(t).toLocaleString("en-US", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" }) + " UTC";
 };
+
+const ROLE_LABEL: Record<string, string> = {
+  confirmed_starter: "Confirmed starter",
+  key_attacker: "Key attacker",
+  projected_starter: "Projected starter",
+};
+
+function RoleBadge({ tier }: { tier?: string }) {
+  if (!tier || !ROLE_LABEL[tier]) return null;
+  return (
+    <span className="rounded-full px-1.5 py-0.5 font-mono text-[8.5px] font-bold uppercase tracking-[0.06em]"
+      style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.12)", border: "1px solid rgba(110,231,168,0.4)" }}>
+      {ROLE_LABEL[tier]}
+    </span>
+  );
+}
 
 function LegAvatar({ leg }: { leg: SpecialLeg }) {
   if (leg.kind === "player" && leg.photoUrl) {
@@ -37,7 +52,6 @@ function LegAvatar({ leg }: { leg: SpecialLeg }) {
     );
   }
   if (leg.countryCode) return <span className="shrink-0"><FlagBadge code={leg.countryCode} size="sm" ariaLabel={leg.participant} /></span>;
-  // Match-level market (Total Goals / Both Teams To Score) — no single team → a neutral match chip.
   return (
     <span className="inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] text-[11px]"
       style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-label="Match market">⚽</span>
@@ -46,7 +60,6 @@ function LegAvatar({ leg }: { leg: SpecialLeg }) {
 
 function LegRow({ leg }: { leg: SpecialLeg }) {
   const pick = `${leg.marketLabel}${leg.kind === "player" && leg.side && leg.side !== "Yes" ? ` ${leg.side}` : ""}${leg.line != null ? ` ${leg.line}` : ""}`.trim();
-  // Player / single-team legs show "vs {opponent}"; match-level legs show the fixture.
   const where = leg.opponent ? `vs ${leg.opponent}` : leg.fixture;
   const matchup = [where, shortStart(leg.startTime)].filter(Boolean).join(" · ");
   return (
@@ -55,12 +68,7 @@ function LegRow({ leg }: { leg: SpecialLeg }) {
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5">
           <span className="truncate text-[12.5px] font-medium" style={{ color: "var(--vault-text)" }}>{leg.participant}</span>
-          {leg.kind === "player" && (leg.roleTier === "key_attacker" || leg.roleTier === "confirmed_starter") && (
-            <span className="shrink-0 rounded-full px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-[0.05em]" style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.12)", border: "1px solid rgba(110,231,168,0.4)" }}>Key attacker</span>
-          )}
-          {leg.kind === "player" && leg.roleTier === "projected_starter" && (
-            <span className="shrink-0 rounded-full px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-[0.05em]" style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.1)", border: "1px solid rgba(110,231,168,0.3)" }}>Projected starter</span>
-          )}
+          {leg.kind === "player" && <RoleBadge tier={leg.roleTier} />}
         </span>
         <span className="block truncate text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{pick}</span>
         {matchup && <span className="block truncate font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>{matchup}</span>}
@@ -74,6 +82,7 @@ function LegRow({ leg }: { leg: SpecialLeg }) {
 }
 
 function SpecialCard({ card, index }: { card: WorldCupSpecialCard; index: number }) {
+  const playerLegs = card.legs.filter((l) => l.kind === "player");
   return (
     <div className="overflow-hidden rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
@@ -96,18 +105,28 @@ function SpecialCard({ card, index }: { card: WorldCupSpecialCard; index: number
       <div className="mt-1.5">{card.legs.map((l) => <LegRow key={l.legId} leg={l} />)}</div>
       <details className="mt-2">
         <summary className="cursor-pointer font-mono text-[10.5px]" style={{ color: GOLD, listStyle: "none" }}>
-          Why this card · correlation · how it fails ▾
+          Why this card · role evidence · correlation · how it fails ▾
         </summary>
         <div className="mt-1.5 space-y-1 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
           {card.whyThisCard.map((w, i) => <div key={`w${i}`}><span style={{ color: "var(--vault-success)" }}>Why:</span> {w}</div>)}
+          {playerLegs.length > 0 && (
+            <div>
+              <span className="font-mono text-[10px] uppercase" style={{ color: "var(--vault-success)" }}>role evidence:</span>
+              <ul className="mt-0.5 list-disc space-y-0.5 pl-4">
+                {playerLegs.map((l) => (
+                  <li key={l.legId}>
+                    <span style={{ color: "var(--vault-text)" }}>{l.participant}</span> — {ROLE_LABEL[l.roleTier ?? ""] ?? l.roleTier}: {(l.roleEvidence ?? []).join(" · ")}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div>
             <span className="font-mono text-[10px] uppercase" style={{ color: GOLD }}>correlation:</span>{" "}
             {card.correlationProfile.replace(/_/g, " ")} — correlation-disclosed, not hidden.
           </div>
           {card.whyItCanFail.map((w, i) => <div key={`f${i}`}><span style={{ color: "var(--gtp-bank-heat)" }}>Risk:</span> {w}</div>)}
-          <div style={{ color: "var(--vault-text-faint)" }}>
-            Data quality: {card.dataQuality}. Player props are limited-data / market-implied (lineups not yet posted).
-          </div>
+          <div style={{ color: "var(--vault-text-faint)" }}>Data quality: {card.dataQuality}. Player roles are projected (lineups pending) — limited-data / market-implied.</div>
           <div style={{ color: "var(--vault-text-faint)" }}>Official settlement: {card.settlementNotes.join(" · ")}.</div>
         </div>
       </details>
@@ -115,10 +134,10 @@ function SpecialCard({ card, index }: { card: WorldCupSpecialCard; index: number
   );
 }
 
-export default function WorldCupSpecialsBox({ data }: { data: WorldCupSpecialsResult | null }) {
+export default function WorldCupSpecialsPreviewBox({ data }: { data: June20SpecialsPreview | null }) {
   const cards = data?.cards ?? [];
   return (
-    <section className="gtp-fade-up" aria-label="World Cup Specials">
+    <section className="gtp-fade-up" aria-label="World Cup Specials (June 20 preview)">
       <div className="overflow-hidden rounded-2xl p-4 sm:p-5"
         style={{ border: `1px solid ${GOLD}`, background: "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(225,29,42,0.06) 55%, rgba(26,16,11,0.30))" }}>
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
@@ -136,8 +155,8 @@ export default function WorldCupSpecialsBox({ data }: { data: WorldCupSpecialsRe
           </div>
         </div>
         <p className="mb-3 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
-          A separate, World-Cup-only set of high-volatility paper longshots — <strong style={{ color: "var(--vault-text-mute)" }}>not</strong> the Moonshot Lane and{" "}
-          <strong style={{ color: "var(--vault-text-mute)" }}>not</strong> the Dual Bank Builder. Model-ranked · combined {american(data?.config.minCombinedOdds ?? 700)}..{american(data?.config.maxCombinedOdds ?? 3000)} ·
+          <strong style={{ color: "var(--vault-text-mute)" }}>Internal June 20 preview — review before publishing.</strong> Every player prop is screened to a
+          projected-starter / key-attacker role — bench &amp; rotation-risk props are excluded. Combined {american(data?.config.minCombinedOdds ?? 700)}..{american(data?.config.maxCombinedOdds ?? 3000)} ·
           per-leg {american(data?.config.minLegOdds ?? -250)}..{american(data?.config.maxLegOdds ?? 200)}. Higher variance by design.
         </p>
 
@@ -147,12 +166,9 @@ export default function WorldCupSpecialsBox({ data }: { data: WorldCupSpecialsRe
           </div>
         ) : (
           <div className="rounded-xl px-3.5 py-4 text-[12px]" style={{ border: "1px dashed var(--vault-rule)", color: "var(--vault-text-mute)" }}>
-            <p className="font-semibold" style={{ color: "var(--vault-text)" }}>No World Cup Specials available yet.</p>
+            <p className="font-semibold" style={{ color: "var(--vault-text)" }}>No role-screened World Cup Specials available yet.</p>
             <ul className="mt-1.5 list-disc space-y-0.5 pl-4" style={{ color: "var(--vault-text-faint)" }}>
-              {(data?.diagnostics.notes ?? ["World Cup markets are not currently available."]).map((n, i) => <li key={i}>{n}</li>)}
-              {data && (
-                <li>Eligible pool: {data.diagnostics.eligibleTeamLegs} team + {data.diagnostics.eligiblePlayerLegs} player legs across {data.diagnostics.preEventGames} pre-event game{data.diagnostics.preEventGames === 1 ? "" : "s"}.</li>
-              )}
+              {(data?.notes ?? ["June 20 preview data is not available."]).map((n, i) => <li key={i}>{n}</li>)}
             </ul>
           </div>
         )}
