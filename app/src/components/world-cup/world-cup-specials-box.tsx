@@ -53,7 +53,15 @@ function LegRow({ leg }: { leg: SpecialLeg }) {
     <div className="flex items-center gap-2 py-1.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <LegAvatar leg={leg} />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[12.5px] font-medium" style={{ color: "var(--vault-text)" }}>{leg.participant}</span>
+        <span className="flex items-center gap-1.5">
+          <span className="truncate text-[12.5px] font-medium" style={{ color: "var(--vault-text)" }}>{leg.participant}</span>
+          {leg.kind === "player" && (leg.roleTier === "key_attacker" || leg.roleTier === "confirmed_starter") && (
+            <span className="shrink-0 rounded-full px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-[0.05em]" style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.12)", border: "1px solid rgba(110,231,168,0.4)" }}>Key attacker</span>
+          )}
+          {leg.kind === "player" && leg.roleTier === "projected_starter" && (
+            <span className="shrink-0 rounded-full px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-[0.05em]" style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.1)", border: "1px solid rgba(110,231,168,0.3)" }}>Projected starter</span>
+          )}
+        </span>
         <span className="block truncate text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{pick}</span>
         {matchup && <span className="block truncate font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>{matchup}</span>}
       </span>
@@ -80,6 +88,11 @@ function SpecialCard({ card, index }: { card: WorldCupSpecialCard; index: number
         <span>· {card.teamPropCount} team / {card.playerPropCount} player</span>
         <span>· model {Math.round(card.jointModelProbability * 100)}% all-hit</span>
       </div>
+      {card.roleQualitySummary && (
+        <div className="mt-1 rounded-md px-2 py-1 text-[10.5px]" style={{ background: "rgba(110,231,168,0.06)", color: "var(--vault-text-mute)" }}>
+          <span className="font-mono uppercase tracking-[0.06em]" style={{ color: "var(--vault-success)", fontSize: 9 }}>role-screened</span> · {card.roleQualitySummary}
+        </div>
+      )}
       <div className="mt-1.5">{card.legs.map((l) => <LegRow key={l.legId} leg={l} />)}</div>
       <details className="mt-2">
         <summary className="cursor-pointer font-mono text-[10.5px]" style={{ color: GOLD, listStyle: "none" }}>
@@ -112,11 +125,11 @@ export default function WorldCupSpecialsBox({ data }: { data: WorldCupSpecialsRe
           <div>
             <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>🏆 World Cup Specials</h2>
             <p className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-              Moonshot-style World Cup parlays built from real team and player prop markets.
+              Moonshot-style World Cup parlays built from role-screened player props and team anchors.
             </p>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {["High-volatility", "Paper-only", "Odds-backed"].map((b) => (
+            {["High-volatility", "Paper-only", "Role-screened", "Odds-backed"].map((b) => (
               <span key={b} className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]"
                 style={{ color: GOLD, background: "rgba(212,175,55,0.12)", border: `1px solid ${GOLD}` }}>{b}</span>
             ))}
