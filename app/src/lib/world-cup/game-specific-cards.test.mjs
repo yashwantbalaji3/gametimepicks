@@ -4,9 +4,9 @@ import { getGameDetail } from "../game-detail.ts";
 import { getGameSpecificCardsForGame } from "./game-specific-cards.ts";
 
 test("engine game-specific cards map to the correct WC fixture (current slate), bucketed by risk", () => {
-  const d = getGameDetail("world-cup", "usa-vs-australia-2026-06-19");
+  const d = getGameDetail("world-cup", "germany-vs-ivory-coast-2026-06-20");
   assert.ok(d, "fixture resolves");
-  const g = getGameSpecificCardsForGame({ matchId: d.matchId, homeTeam: d.homeTeam, awayTeam: d.awayTeam }, "2026-06-19T15:00:00Z");
+  const g = getGameSpecificCardsForGame({ matchId: d.matchId, homeTeam: d.homeTeam, awayTeam: d.awayTeam }, "2026-06-20T12:00:00Z");
   assert.ok(g.total > 0, "at least one engine card mapped to the fixture");
   // every mapped card is bucketed and carries legs.
   for (const c of g.cards) {
@@ -15,12 +15,12 @@ test("engine game-specific cards map to the correct WC fixture (current slate), 
   }
 });
 
-test("cards never leak across fixtures (USA-Australia cards != Scotland-Morocco cards)", () => {
-  const usa = getGameDetail("world-cup", "usa-vs-australia-2026-06-19");
-  const sco = getGameDetail("world-cup", "scotland-vs-morocco-2026-06-19");
-  const usaCards = new Set(getGameSpecificCardsForGame({ matchId: usa.matchId, homeTeam: usa.homeTeam, awayTeam: usa.awayTeam }, "2026-06-19T15:00:00Z").cards.map((c) => c.parlayId));
-  const scoCards = getGameSpecificCardsForGame({ matchId: sco.matchId, homeTeam: sco.homeTeam, awayTeam: sco.awayTeam }, "2026-06-19T15:00:00Z").cards.map((c) => c.parlayId);
-  assert.ok(scoCards.every((id) => !usaCards.has(id)), "no shared card id across the two fixtures");
+test("cards never leak across fixtures (Netherlands-Sweden cards != Germany-Ivory Coast cards)", () => {
+  const ned = getGameDetail("world-cup", "netherlands-vs-sweden-2026-06-20");
+  const ger = getGameDetail("world-cup", "germany-vs-ivory-coast-2026-06-20");
+  const nedCards = new Set(getGameSpecificCardsForGame({ matchId: ned.matchId, homeTeam: ned.homeTeam, awayTeam: ned.awayTeam }, "2026-06-20T12:00:00Z").cards.map((c) => c.parlayId));
+  const gerCards = getGameSpecificCardsForGame({ matchId: ger.matchId, homeTeam: ger.homeTeam, awayTeam: ger.awayTeam }, "2026-06-20T12:00:00Z").cards.map((c) => c.parlayId);
+  assert.ok(gerCards.every((id) => !nedCards.has(id)), "no shared card id across the two fixtures");
 });
 
 test("a fixture with no engine cards (started game) yields an honest empty result", () => {

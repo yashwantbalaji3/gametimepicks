@@ -4,8 +4,8 @@ import fs from "node:fs";
 import { loadTodaySlate } from "./parlays/ui-loader.ts";
 import { getWorldCupMultiGameCardsForGame, getGameSpecificCardsForGame } from "./world-cup/game-specific-cards.ts";
 
-const NOW = "2026-06-19T21:40:00Z";
-const slate = loadTodaySlate("2026-06-19", NOW);
+const NOW = "2026-06-20T12:00:00Z";
+const slate = loadTodaySlate("2026-06-20", NOW);
 
 test("World Cup player-prop legs carry a real headshot OR a flag fallback, plus team flag + opponent + kickoff", () => {
   const wc = slate.suggestedBySportRisk["WORLD_CUP"] ?? {};
@@ -34,9 +34,9 @@ test("leg row renders the matchup line; card drawer discloses correlation + limi
 
 test("WC game pages show 'This game in multi-game cards', filtered to cards that include the game", () => {
   const fixtures = [
-    { matchId: "30", homeTeam: "Scotland", awayTeam: "Morocco" },
-    { matchId: "31", homeTeam: "Brazil", awayTeam: "Haiti" },
-    { matchId: "f955d4b3395ce6e3b5ac1031ca52ca4e", homeTeam: "Turkey", awayTeam: "Paraguay" },
+    { matchId: "33", homeTeam: "Netherlands", awayTeam: "Sweden" },
+    { matchId: "34", homeTeam: "Germany", awayTeam: "Ivory Coast" },
+    { matchId: "35", homeTeam: "Ecuador", awayTeam: "Curaçao" },
   ];
   for (const f of fixtures) {
     const r = getWorldCupMultiGameCardsForGame(f, NOW);
