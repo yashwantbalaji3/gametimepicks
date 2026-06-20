@@ -85,11 +85,31 @@ function prominence(a: Agg): number {
   return base + posBonus + scorerBonus;
 }
 
+/** True if the player's (or their last name's) normalized name is in the confirmed starting XI set. */
+function inStartingXI(a: Agg, xi: ReadonlySet<string>): boolean {
+  const n = norm(a.name);
+  if (xi.has(n)) return true;
+  const last = a.name.trim().split(/\s+/).slice(-1)[0];
+  const ln = norm(last);
+  for (const x of xi) if (x === n || x.endsWith(ln) || n.endsWith(x)) return true;
+  return false;
+}
+
 /**
- * Classify every player in the prop feed into a role tier. `lineupsPosted` (from the feed) decides
- * whether the top tier may be `confirmed_starter`; when false (pre-event) it stays `projected_starter`.
+ * Classify every player in the prop feed into a role tier.
+ * - `lineupsPosted` (from the feed) lets the top tier read `confirmed_starter` rather than projected.
+ * - `confirmedStarters` (optional, normalized names from the official starting XI) is the HONEST
+ *   lineup-aware upgrade: an attacking player IN the XI becomes `confirmed_starter`; one with posted
+ *   props but NOT in the XI is `bench_risk` (excluded — they are benched). When omitted, roles stay
+ *   projected/market-implied exactly as before (no fabricated confirmations).
  */
-export function classifyPlayerRoles(rows: PropRowLike[], lineupsPosted = false): Map<string, PlayerRoleQuality> {
+export function classifyPlayerRoles(
+  rows: PropRowLike[],
+  lineupsPosted = false,
+  confirmedStarters?: ReadonlySet<string>,
+): Map<string, PlayerRoleQuality> {
+  const haveXI = !!confirmedStarters && confirmedStarters.size > 0;
+  const lineupsKnown = lineupsPosted || haveXI;
   // 1) aggregate per player
   const aggByKey = new Map<string, Agg>();
   for (const r of rows) {
@@ -154,24 +174,31 @@ export function classifyPlayerRoles(rows: PropRowLike[], lineupsPosted = false):
     } else {
       const r = rankByKey.get(key) ?? { rank: 99, total: 0 };
       ev.push(`team attacking-prominence rank ${r.rank + 1}/${r.total}`);
-      if (score < MIN_PROMINENCE) {
+      // Confirmed starting XI is the strongest, honest signal — it overrides market prominence.
+      const inXI = haveXI ? inStartingXI(a, confirmedStarters!) : null;
+      if (inXI === false) {
+        roleTier = "bench_risk";
+        reason = "bench_role_risk: posted prop but NOT in the confirmed starting XI — benched";
+      } else if (inXI === true) {
+        roleTier = "confirmed_starter";
+      } else if (score < MIN_PROMINENCE) {
         roleTier = "regular_rotation";
         reason = `low_usage_player: prominence ${score.toFixed(2)} below ${MIN_PROMINENCE} — deep-squad / rotation risk`;
       } else if (r.rank >= MAX_ELIGIBLE_PER_TEAM) {
         roleTier = "regular_rotation";
         reason = `low_usage_player: outside the top ${MAX_ELIGIBLE_PER_TEAM} attacking options for ${a.team}`;
       } else if (r.rank <= 1 && a.position === "Attacker" && a.hasGoalscorer) {
-        roleTier = lineupsPosted ? "confirmed_starter" : "key_attacker";
+        roleTier = lineupsKnown ? "confirmed_starter" : "key_attacker";
       } else {
-        roleTier = lineupsPosted ? "confirmed_starter" : "projected_starter";
+        roleTier = lineupsKnown ? "confirmed_starter" : "projected_starter";
       }
-      if (!ROLE_ELIGIBLE_TIERS.has(roleTier)) {
-        // reason already set above
-      } else {
-        ev.push(lineupsPosted ? "lineups posted → confirmed role" : "lineups not posted → projected role (market-implied)");
-        reason = roleTier === "key_attacker"
-          ? "top attacking option priced as a scoring threat (projected starter / key attacker)"
-          : "projected starter / key attacker by market prominence + position";
+      if (ROLE_ELIGIBLE_TIERS.has(roleTier)) {
+        ev.push(inXI === true ? "in the confirmed starting XI" : lineupsKnown ? "lineups posted → confirmed role" : "lineups not posted → projected role (market-implied)");
+        reason = roleTier === "confirmed_starter"
+          ? (inXI === true ? "named in the official starting XI" : "confirmed starter by posted lineups + prominence")
+          : roleTier === "key_attacker"
+            ? "top attacking option priced as a scoring threat (projected starter / key attacker)"
+            : "projected starter / key attacker by market prominence + position";
       }
     }
 
@@ -184,7 +211,7 @@ export function classifyPlayerRoles(rows: PropRowLike[], lineupsPosted = false):
       eligibleForSpecials: ROLE_ELIGIBLE_TIERS.has(roleTier),
       reason,
       evidence: ev,
-      lineupsPosted,
+      lineupsPosted: lineupsKnown,
     });
   }
   return out;
