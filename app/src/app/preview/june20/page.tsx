@@ -7,14 +7,26 @@
  * June 19 active Bank Builder / Moonshot / Mr. Dub state is unchanged and intentionally still pending —
  * this preview does not settle anything.
  */
+import fs from "node:fs";
+import path from "node:path";
 import Link from "next/link";
 import WorldCupSpecialsPreviewBox from "@/components/world-cup/world-cup-specials-preview-box";
 import { loadJune20SpecialsPreview } from "@/lib/world-cup/world-cup-specials-preview";
 
 export const metadata = {
-  title: "Internal Preview · June 20 World Cup Specials",
+  title: "Internal Preview · June 20 full site",
   robots: { index: false, follow: false },
 };
+
+/** Count the June 20 preview WC suggested cards by risk (engine artifact under the preview namespace). */
+function previewParlays(): { count: number; byRisk: Record<string, number> } {
+  try {
+    const d = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "previews", "june20", "parlays.json"), "utf8"));
+    return { count: d.cardCount ?? 0, byRisk: d.byRisk ?? {} };
+  } catch {
+    return { count: 0, byRisk: {} };
+  }
+}
 
 const american = (o: number) => (o > 0 ? `+${o}` : `${o}`);
 const kickoff = (iso: string | null) => {
@@ -24,9 +36,23 @@ const kickoff = (iso: string | null) => {
   return new Date(t).toLocaleString("en-US", { weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" }) + " UTC";
 };
 
+function StatusCard({ title, accent, lines, badge }: { title: string; accent: string; lines: React.ReactNode[]; badge: string }) {
+  return (
+    <div className="rounded-[12px] px-3.5 py-3" style={{ border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.5)" }}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{title}</span>
+        <span className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em]" style={{ color: accent, background: "rgba(255,255,255,0.05)", border: `1px solid ${accent}` }}>{badge}</span>
+      </div>
+      <div className="mt-1.5 flex flex-col gap-0.5 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{lines.map((l, i) => <div key={i}>{l}</div>)}</div>
+    </div>
+  );
+}
+
 export default function June20PreviewPage() {
   const data = loadJune20SpecialsPreview();
   const d = data?.diagnostics;
+  const par = previewParlays();
+  const HEAT = "var(--gtp-bank-heat)"; const OK = "var(--vault-success)"; const MOON = "#8b7bf0"; const GOLD = "var(--vault-gold, #D4AF37)";
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
@@ -74,6 +100,66 @@ export default function June20PreviewPage() {
 
       {/* The role-screened World Cup Specials */}
       <WorldCupSpecialsPreviewBox data={data} />
+
+      {/* June 20 coverage summary */}
+      <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.4)" }}>
+        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>June 20 suggested-card coverage</span>
+        <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px]">
+          {[
+            ["WC Specials", data?.cards.length ?? 0],
+            ["WC suggested cards", par.count],
+            ["WC games", data?.games.length ?? 0],
+            ["role-screened legs", d?.acceptedPlayerLegs ?? 0],
+          ].map(([label, val]) => (
+            <div key={String(label)} className="rounded-md px-2 py-1.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-rule)" }}>
+              <span className="block" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{String(val)}</span>
+              <span className="block uppercase tracking-[0.05em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{label}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+          World Cup is the launch priority. Mixed-sport / MLB cards are generated at launch time from real June 20 odds (paid pull) — not fabricated here.
+        </p>
+      </section>
+
+      {/* Bank Builder + Moonshot + Mr. Dub — current pending state (settlement gates the live launch) */}
+      <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.4)" }}>
+        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>Ladders &amp; exposure · June 19 settlement pending</span>
+        <p className="mt-1.5 text-[11.5px] font-semibold" style={{ color: HEAT }}>
+          June 19 Bank Builder + Moonshot settlement is pending official finals. June 20 recommendations are preview-only until grading completes — nothing is advanced or stopped here.
+        </p>
+        <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <StatusCard title="Core Bank Builder · Lane A (Step 2)" accent={HEAT} badge="pending"
+            lines={["USA ML + Nick Gonzales HRR U2.5", "$197.88 → $601.56 (+204) · open exposure", "Outcome written only after official grading."]} />
+          <StatusCard title="Core Bank Builder · Lane B (Step 1)" accent={HEAT} badge="pending"
+            lines={["Turkey or Draw + Rhys Hoskins HRR U1.5", "$100 → $210.62 (+111) · open exposure", "Outcome written only after official grading."]} />
+          <StatusCard title="Moonshot Lane · Step 1" accent={MOON} badge="pending"
+            lines={["Morocco ML + Vinícius GS + Saibari GS + Turkey or Draw", "$25 → $227.01 (+808) · high-volatility", "Step 2 candidate appears only if Step 1 officially clears — no candidate exposure counted."]} />
+          <StatusCard title="Mr. Dub exposure" accent={GOLD} badge="pending"
+            lines={["Core open exposure $297.88 · total $322.88", "Bankroll/exposure update after official settlement.", "No fake P/L — values change only on official grading."]} />
+        </div>
+        <p className="mt-2 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+          June 20 Bank Builder placements (if any) are <strong style={{ color: "var(--vault-text-mute)" }}>candidate after settlement</strong> only — not active, no exposure counted, until June 19 is officially settled.
+        </p>
+      </section>
+
+      {/* Launch checklist */}
+      <section className="rounded-[14px] px-4 py-3.5" style={{ border: `1px solid ${GOLD}`, background: "rgba(212,175,55,0.06)" }}>
+        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: GOLD, fontSize: 10 }}>Tonight&apos;s launch checklist</span>
+        <ul className="mt-2 space-y-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+          {[
+            ["✅", "June 20 World Cup projections + role-screened Specials generated (preview)"],
+            ["✅", "Internal preview verified, unmerged"],
+            ["⏳", "June 19 games officially final (Turkey vs Paraguay still finishing)"],
+            ["⏳", "Settle Core Lane A / Lane B + Moonshot from official sources"],
+            ["⏳", "Update Bank Builder + Moonshot + Mr. Dub + Results"],
+            ["⏳", "Promote June 20 data to production (homepage / world-cup / picks / parlays)"],
+            ["⏳", "Tests + build + audits pass, then merge + deploy + verify both domains"],
+          ].map(([icon, txt], i) => (
+            <li key={i} className="flex gap-2"><span>{icon}</span><span>{txt}</span></li>
+          ))}
+        </ul>
+      </section>
 
       {/* Diagnostics */}
       {d && (

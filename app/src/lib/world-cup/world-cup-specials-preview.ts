@@ -229,10 +229,23 @@ export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string
     date: cfg.date, generatedAt: opts.nowIso, excludeSignatures: [], excludedStartedGames: [],
   });
   diag.excludedOutOfCombinedOddsRange = base.diagnostics.rejectedOutOfCombinedOddsRange;
-  diag.cardsGenerated = base.cards.length;
+
+  // Production-quality role-mix gate (Phase 3): a card must carry at least one KEY attacker OR at
+  // least two PROJECTED starters, and at most 6 legs. Defensive — every leg fed in is already
+  // role-eligible, so this only ever drops a card that somehow slipped the mix bar.
+  const passesMix = (c: WorldCupSpecialCard) => {
+    const ps = c.legs.filter((l) => l.kind === "player");
+    const key = ps.filter((l) => l.roleTier === "key_attacker" || l.roleTier === "confirmed_starter").length;
+    const proj = ps.filter((l) => l.roleTier === "projected_starter").length;
+    return c.legs.length <= cfg.maxLegsPerCard && (key >= 1 || proj >= 2);
+  };
+  const accepted = base.cards.filter(passesMix);
+  const droppedForMix = base.cards.length - accepted.length;
+  if (droppedForMix > 0) diag.roleQualityNotes.push(`${droppedForMix} card(s) dropped for failing the role-mix bar (need ≥1 key attacker or ≥2 projected starters).`);
+  diag.cardsGenerated = accepted.length;
 
   // Enrich each card with a role-quality summary + a role line in "why this card".
-  const cards = base.cards.map((c) => enrichCard(c, lineupsPosted));
+  const cards = accepted.map((c) => enrichCard(c, lineupsPosted));
   if (cards.length < cfg.count) {
     notes.push(`Generated ${cards.length} of ${cfg.count} role-screened cards from ${games.length} pre-event games (role gate is intentionally strict — bench/rotation props are excluded, not forced in).`);
   }
