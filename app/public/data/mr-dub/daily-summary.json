@@ -1,7 +1,7 @@
 {
   "portfolioId": "mr-dub-paper",
   "paperOnly": true,
-  "generatedAt": "2026-06-19T17:01:44Z",
+  "generatedAt": "2026-06-20T05:16:39Z",
   "days": [
     {
       "date": "2026-06-09",
@@ -263,7 +263,7 @@
       "events": [
         {
           "eventId": "mrdub-2026-06-18-lane-a-prior-step1-won",
-          "timestamp": "2026-06-19T03:48:00Z",
+          "timestamp": "2026-06-20T05:16:39Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_step_won",
@@ -299,8 +299,8 @@
           "accountingNote": "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
         },
         {
-          "eventId": "mrdub-2026-06-18-lane-b-step1-won",
-          "timestamp": "2026-06-19T03:48:00Z",
+          "eventId": "mrdub-2026-06-18-lane-b-prior-step1-won",
+          "timestamp": "2026-06-20T05:16:39Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_step_won",
@@ -315,7 +315,7 @@
           "result": "won",
           "combinedOdds": 117,
           "officialResultConfirmed": true,
-          "publicBankBuilderVisible": true,
+          "publicBankBuilderVisible": false,
           "legs": [
             {
               "market": "double_chance",
@@ -332,7 +332,7 @@
               "source": "mlb_stats_api"
             }
           ],
-          "notes": "Lane B Step 1 cleared (official) — $100 rolls to $217 for the next step.",
+          "notes": "Prior Lane B Step 1 cleared (official) before the lane was stopped and relaunched fresh.",
           "accountingNote": "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
         }
       ],
@@ -351,7 +351,7 @@
       "events": [
         {
           "eventId": "mrdub-2026-06-18-lane-a-prior-step2-stopped",
-          "timestamp": "2026-06-19T03:48:00Z",
+          "timestamp": "2026-06-20T05:16:39Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_stopped",
@@ -388,7 +388,7 @@
         },
         {
           "eventId": "mrdub-2026-06-18-lane-a-step1-won",
-          "timestamp": "2026-06-19T03:48:00Z",
+          "timestamp": "2026-06-20T05:16:39Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_step_won",
@@ -425,24 +425,24 @@
         },
         {
           "eventId": "mrdub-2026-06-18-lane-a-advanced",
-          "timestamp": "2026-06-19T03:48:00Z",
+          "timestamp": "2026-06-20T05:16:39Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_advanced",
           "laneId": "lane-a",
-          "step": 2,
+          "step": 3,
           "date": "2026-06-18",
           "paperStake": 0,
           "paperReturn": 0,
           "paperProfit": 0,
           "status": "advanced",
           "publicBankBuilderVisible": true,
-          "notes": "Step 1 cleared WON ($100 → $197.88). Awaiting the next qualified pre-event card (one World Cup + one MLB leg) for Step 2.",
+          "notes": "Step 2 won ($197.88 → $601.56); awaiting a pre-event Step 3 card at $601.56.",
           "accountingNote": "Step cleared and rolled; awaiting the next qualified card (no card placed)."
         },
         {
-          "eventId": "mrdub-2026-06-18-lane-b-step2-stopped",
-          "timestamp": "2026-06-19T03:48:00Z",
+          "eventId": "mrdub-2026-06-18-lane-b-prior-step2-stopped",
+          "timestamp": "2026-06-20T05:16:39Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_stopped",
@@ -474,12 +474,12 @@
               "source": "mlb_stats_api"
             }
           ],
-          "notes": "Step 2 settled a loss — Goldschmidt H+R+RBI finished at 1 (≤1.5); Switzerland ML won but the parlay needs both legs. Lane stopped; a fresh $100 restarts at Step 1.",
+          "notes": "Prior Lane B Step 2 settled a loss — original $100 paper stake lost; lane later relaunched fresh.",
           "accountingNote": "Realized — original $100 paper stake lost; lane stopped."
         },
         {
-          "eventId": "mrdub-2026-06-18-lane-b-restart-queued",
-          "timestamp": "2026-06-19T03:48:00Z",
+          "eventId": "mrdub-2026-06-18-lane-b-restart-active",
+          "timestamp": "2026-06-20T05:16:39Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_restarted",
@@ -489,9 +489,9 @@
           "paperStake": 100,
           "paperReturn": 0,
           "paperProfit": 0,
-          "status": "queued",
+          "status": "active",
           "publicBankBuilderVisible": true,
-          "notes": "Lane B stopped at Step 2 (Goldschmidt H+R+RBI 1 ≤ 1.5). A fresh $100 Lane B restarts at Step 1 on the next qualified pre-event card.",
+          "notes": "Fresh $100 Lane B Step 1 placed on a pre-event card (Turkey draw-no-bet + Zack Gelof Hits Over 0.5). No overlap with Lane A; no reused stopped legs.",
           "accountingNote": "Fresh $100 path queued for the next qualified card (not yet placed)."
         }
       ],
@@ -501,16 +501,104 @@
     {
       "date": "2026-06-19",
       "staked": 297.88,
+      "returned": 601.56,
+      "pl": -100,
+      "wins": 1,
+      "losses": 1,
+      "voids": 0,
+      "pending": 0,
+      "events": [
+        {
+          "eventId": "mrdub-2026-06-18-lane-a-step2-won",
+          "timestamp": "2026-06-20T05:16:39Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_step_won",
+          "laneId": "lane-a",
+          "step": 2,
+          "date": "2026-06-19",
+          "paperStake": 197.88,
+          "paperReturn": 601.56,
+          "paperProfit": 0,
+          "rolled": true,
+          "status": "settled",
+          "result": "won",
+          "combinedOdds": 204,
+          "officialResultConfirmed": true,
+          "publicBankBuilderVisible": true,
+          "legs": [
+            {
+              "market": "moneyline_90",
+              "selection": "USA moneyline_90",
+              "result": "won",
+              "officialResult": "United States 2–0 Australia FT",
+              "source": "espn_fifa_world"
+            },
+            {
+              "market": "Hits + Runs + RBIs",
+              "selection": "Nick Gonzales Hits + Runs + RBIs under 2.5",
+              "result": "won",
+              "officialResult": "2 H+R+RBI",
+              "source": "mlb_stats_api"
+            }
+          ],
+          "notes": "Lane A Step 2 cleared (official) — $197.88 rolls to $601.56 for the next step.",
+          "accountingNote": "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
+        },
+        {
+          "eventId": "mrdub-2026-06-18-lane-b-step1-stopped",
+          "timestamp": "2026-06-20T05:16:39Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_stopped",
+          "laneId": "lane-b",
+          "step": 1,
+          "date": "2026-06-19",
+          "paperStake": 100,
+          "paperReturn": 0,
+          "paperProfit": -100,
+          "rolled": false,
+          "status": "settled",
+          "result": "lost",
+          "combinedOdds": 111,
+          "officialResultConfirmed": true,
+          "publicBankBuilderVisible": false,
+          "legs": [
+            {
+              "market": "double_chance",
+              "selection": "Turkey or Draw double_chance",
+              "result": "lost",
+              "officialResult": "Türkiye 0–1 Paraguay FT",
+              "source": "espn_fifa_world"
+            },
+            {
+              "market": "Hits + Runs + RBIs",
+              "selection": "Rhys Hoskins Hits + Runs + RBIs under 1.5",
+              "result": "lost",
+              "officialResult": "4 H+R+RBI",
+              "source": "mlb_stats_api"
+            }
+          ],
+          "notes": "Step settled a loss — Turkey or Draw double_chance: LOST (Türkiye 0–1 Paraguay FT); Rhys Hoskins Hits + Runs + RBIs under 1.5: LOST (4 H+R+RBI)",
+          "accountingNote": "Realized — original $100 paper stake lost; lane stopped."
+        }
+      ],
+      "opening": 10176.17,
+      "closing": 10076.17
+    },
+    {
+      "date": "2026-06-20",
+      "staked": 0,
       "returned": 0,
-      "pl": 0,
+      "pl": -300,
       "wins": 0,
       "losses": 0,
       "voids": 0,
-      "pending": 2,
+      "pending": 0,
       "events": [
         {
           "eventId": "mrdub-2026-06-18-lane-a-relaunch-blocked",
-          "timestamp": "2026-06-19T03:48:00Z",
+          "timestamp": "2026-06-20T05:16:39Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_relaunch_blocked",
@@ -541,28 +629,71 @@
           "accountingNote": "Audit only — no paper stake, no bankroll impact."
         },
         {
-          "eventId": "mrdub-laneA-step2-placed-2026-06-19",
-          "timestamp": "2026-06-19T17:01:44Z",
-          "type": "ladder_step_placed",
-          "laneId": "lane-a",
-          "step": 2,
-          "paperStake": 197.88,
-          "projectedReturn": 617.63,
-          "status": "pending"
+          "eventId": "mrdub-2026-06-18-lane-b-prior-step3-stopped",
+          "timestamp": "2026-06-20T05:16:39Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_stopped",
+          "laneId": "lane-b",
+          "step": 3,
+          "date": null,
+          "paperStake": 0,
+          "paperReturn": 0,
+          "paperProfit": -100,
+          "rolled": false,
+          "status": "settled",
+          "combinedOdds": null,
+          "officialResultConfirmed": true,
+          "publicBankBuilderVisible": false,
+          "legs": [],
+          "notes": "Prior Lane B Step 3 settled a loss — original $100 paper stake lost; lane later relaunched fresh.",
+          "accountingNote": "Realized — original $100 paper stake lost; lane stopped."
         },
         {
-          "eventId": "mrdub-laneB-step1-restart-2026-06-19",
-          "timestamp": "2026-06-19T17:01:44Z",
-          "type": "ladder_step_placed",
+          "eventId": "mrdub-2026-06-18-lane-b-prior-step4-stopped",
+          "timestamp": "2026-06-20T05:16:39Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_stopped",
           "laneId": "lane-b",
-          "step": 1,
-          "paperStake": 100,
-          "projectedReturn": 203.01,
-          "status": "pending"
+          "step": 4,
+          "date": null,
+          "paperStake": 0,
+          "paperReturn": 0,
+          "paperProfit": -100,
+          "rolled": false,
+          "status": "settled",
+          "combinedOdds": null,
+          "officialResultConfirmed": true,
+          "publicBankBuilderVisible": false,
+          "legs": [],
+          "notes": "Prior Lane B Step 4 settled a loss — original $100 paper stake lost; lane later relaunched fresh.",
+          "accountingNote": "Realized — original $100 paper stake lost; lane stopped."
+        },
+        {
+          "eventId": "mrdub-2026-06-18-lane-b-prior-step5-stopped",
+          "timestamp": "2026-06-20T05:16:39Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_stopped",
+          "laneId": "lane-b",
+          "step": 5,
+          "date": null,
+          "paperStake": 0,
+          "paperReturn": 0,
+          "paperProfit": -100,
+          "rolled": false,
+          "status": "settled",
+          "combinedOdds": null,
+          "officialResultConfirmed": true,
+          "publicBankBuilderVisible": false,
+          "legs": [],
+          "notes": "Prior Lane B Step 5 settled a loss — original $100 paper stake lost; lane later relaunched fresh.",
+          "accountingNote": "Realized — original $100 paper stake lost; lane stopped."
         }
       ],
-      "opening": 10176.17,
-      "closing": 10176.17
+      "opening": 10076.17,
+      "closing": 9776.17
     }
   ]
 }
