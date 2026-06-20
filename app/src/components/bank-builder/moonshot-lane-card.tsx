@@ -112,6 +112,12 @@ export default function MoonshotLaneCard({ lane }: { lane: MoonshotLane | null }
         <p className="mb-3 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
           A separate, aggressive paper path — <strong style={{ color: "var(--vault-text-mute)" }}>not</strong> part of the core Dual Bank Builder. Higher variance by design. Paper-only · tracked in Mr. Dub.
         </p>
+        {lane.status === "stopped" && lane.restartCandidate && (
+          <div className="mb-3 rounded-xl px-3 py-2.5" style={{ border: `1px solid ${MOON}`, background: "rgba(139,123,240,0.07)" }}>
+            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.06em]" style={{ color: MOON }}>{lane.restartCandidate.headline}</span>
+            <p className="mt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{lane.restartCandidate.reason}</p>
+          </div>
+        )}
         <div className="flex flex-col gap-2">{lane.ladder.map((s) => <StepRow key={s.step} step={s} />)}</div>
         <Link href="/mr-dub" className="mt-3 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: MOON }}>
           Track the Moonshot lane on Mr. Dub →

@@ -19,9 +19,12 @@ test("step rows show the canonical $start → $goal money target via a vertical 
   assert.match(board, /actual .*usd2\(step\.actualStake\).*usd2\(step\.actualReturn\)/s, "shows actual money for cleared/active steps (e.g. $100.00 → $197.88)");
 });
 
-test("each step is an expandable <details> drawer; awaiting/queued show an honest body, no fabricated legs", () => {
+test("each step is an expandable <details> drawer; awaiting/queued show an honest candidate or reason (no fabricated legs)", () => {
   assert.match(board, /<details/, "native details drawer");
-  assert.match(board, /will appear here/, "awaiting/queued honest empty body");
+  // The awaiting/queued body shows the next-step candidate (legs OR an honest reason), not a vague row.
+  assert.match(board, /step\.candidate/, "awaiting/queued render the next-step candidate / reason");
+  assert.match(board, /Unlocks once the prior step|starts this path/, "far-future rungs carry an honest unlock note");
+  assert.match(board, /cand\.reason/, "candidate body shows the exact reason");
   assert.match(board, /LaneLegRow/, "card legs reuse the shared leg row (no duplicated leg logic)");
   assert.match(board, /MoneyPath/, "card drawer shows stake → return via MoneyPath");
 });

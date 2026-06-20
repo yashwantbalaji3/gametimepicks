@@ -47,9 +47,24 @@ function RailNode({ status, step }: { status: PublicStepStatus; step: number }) 
 function CardDrawer({ step }: { step: PublicLadderStep }) {
   const c = step.card;
   if (!c) {
+    const cand = step.candidate;
+    if (cand) {
+      const hasLegs = cand.legs.length > 0;
+      return (
+        <div className="px-3 pb-3 pt-1">
+          <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px]">
+            <span className="rounded px-1.5 py-0.5 font-bold uppercase tracking-[0.06em]" style={{ background: "rgba(217,164,65,0.14)", color: "var(--vault-gold-bright)", border: "1px solid rgba(217,164,65,0.4)" }}>{cand.headline}</span>
+            {cand.combinedOdds != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>combined {cand.combinedOdds >= 0 ? "+" : ""}{cand.combinedOdds}</span>}
+            {cand.stake != null && cand.projectedReturn != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{usd(cand.stake)} → {usd(cand.projectedReturn)}</span>}
+          </div>
+          {hasLegs && <div className="mt-2">{cand.legs.map((l) => <LaneLegRow key={`cand:${step.step}:${l.legId}`} leg={l} pending />)}</div>}
+          <p className="mt-2 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{cand.reason}</p>
+        </div>
+      );
+    }
     return (
       <div className="px-3 pb-3 pt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-        <p>{step.status === "queued" ? "The next qualified card starts this path at " + usd(step.actualStake ?? 100) + "." : "The next qualified card will appear here."}</p>
+        <p>{step.status === "queued" ? "The next qualified card starts this path at " + usd(step.actualStake ?? 100) + "." : "Unlocks once the prior step clears — its qualified card is selected then."}</p>
         <p className="mt-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>Paper-only — generated from current pre-event model gates. No card is shown until the slate supports one.</p>
       </div>
     );
@@ -74,8 +89,11 @@ function LadderStepRow({ step }: { step: PublicLadderStep }) {
   const m = STATUS_META[step.status];
   const cleared = step.status === "cleared";
   const active = step.status === "active";
+  // Open the drawer by default for the next actionable step (active card or an awaiting/queued
+  // candidate) so the demo shows the card/candidate without a click.
+  const openByDefault = active || ((step.status === "awaiting" || step.status === "queued") && step.candidate != null);
   return (
-    <details className="group relative">
+    <details className="group relative" open={openByDefault}>
       <summary className="flex cursor-pointer items-center gap-3 py-2.5" style={{ listStyle: "none" }}>
         <RailNode status={step.status} step={step.step} />
         <span className="min-w-0 flex-1">

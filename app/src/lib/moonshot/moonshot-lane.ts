@@ -74,6 +74,9 @@ export interface MoonshotLane {
   generatedAt: string;
   ladder: MoonshotStep[];
   disclaimer: string;
+  // When stopped, the public restart candidate / reason (so the lane never reads as a dead "stopped"
+  // row): either an explicit card or an honest reason why no high-volatility card qualifies yet.
+  restartCandidate?: { headline: string; reason: string; stake: number | null } | null;
 }
 
 const MOONSHOT_PATH = ["moonshot-lane", "active.json"];

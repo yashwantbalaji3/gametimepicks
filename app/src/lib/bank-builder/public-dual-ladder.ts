@@ -20,6 +20,7 @@ export interface PublicLadderStep {
   actualReturn: number | null;  // settled or projected return when the step has a card
   result: string | null;        // "won" for a cleared step
   card: LaneStepDisplay | null; // the public card (legs) for this step — never a lost step
+  candidate: LaneDisplay["nextCandidate"]; // next-step candidate / reason when no card placed (awaiting/queued)
 }
 
 export interface PublicDualLadderView {
@@ -47,6 +48,7 @@ export function buildPublicDualLadder(lane: LaneDisplay | null, laneId: "lane-a"
       step: s.step, startTarget: s.start, goalTarget: s.goal, multiplier: s.multiplier,
       status: s.step === 1 ? "queued" : "upcoming",
       actualStake: s.step === 1 ? stake : null, actualReturn: null, result: null, card: null,
+      candidate: s.step === 1 ? lane.nextCandidate ?? null : null,
     }));
     return {
       laneId, label,
@@ -77,12 +79,12 @@ export function buildPublicDualLadder(lane: LaneDisplay | null, laneId: "lane-a"
         status = "active"; card = real; actualStake = real.stake; actualReturn = real.payout;
       } else if (real.status === "evaluating") {
         status = "active"; card = real; actualStake = real.stake; actualReturn = real.payout;
-      } else if ((real.status === "coming_soon") && rung.step === currentStep) {
+      } else if ((real.status === "coming_soon" || (real.status as string) === "awaiting") && rung.step === currentStep) {
         status = "awaiting"; // the next rung this lane is riding toward, no card placed yet
       }
       // a settled LOST step is intentionally left as "upcoming" with no card — never surfaced.
     }
-    return { step: rung.step, startTarget: rung.start, goalTarget: rung.goal, multiplier: rung.multiplier, status, actualStake, actualReturn, result, card };
+    return { step: rung.step, startTarget: rung.start, goalTarget: rung.goal, multiplier: rung.multiplier, status, actualStake, actualReturn, result, card, candidate: status === "awaiting" ? lane.nextCandidate ?? null : null };
   });
 
   const advanced = lane.laneStatus === "advanced" || steps.some((s) => s.status === "awaiting");
