@@ -124,6 +124,17 @@ export interface LaneDisplay {
   laneStatus: string | null;    // active | advanced | stopped | restarted | completed_success
   publicVisible: boolean;       // false → hidden from the public Bank Builder (e.g. stopped lanes)
   restart: { status: string; stake: number; step: number; note: string } | null;
+  // The next-step candidate shown publicly when no card is placed yet: either an explicit card
+  // (legs populated) "awaiting approval", or an honest reason (legs empty) why no card qualifies.
+  nextCandidate: {
+    status: string;             // "awaiting_approval" | "pending"
+    headline: string;           // e.g. "Step 3 candidate · awaiting approval"
+    reason: string;             // honest, specific reason (never vague filler)
+    stake: number | null;
+    combinedOdds: number | null;
+    projectedReturn: number | null;
+    legs: ParlayLegDisplay[];
+  } | null;
 }
 export interface DualBankBuilderPreview {
   status: DualBankBuilderResult["status"];
@@ -549,6 +560,15 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): 
       laneStatus: lane.laneStatus ?? null,
       publicVisible: lane.publicVisible !== false,
       restart: lane.restart ? { status: lane.restart.status, stake: lane.restart.stake ?? 100, step: lane.restart.step ?? 1, note: lane.restart.note ?? "" } : null,
+      nextCandidate: lane.nextCandidate ? {
+        status: lane.nextCandidate.status ?? "pending",
+        headline: lane.nextCandidate.headline ?? "Candidate awaiting approval",
+        reason: lane.nextCandidate.reason ?? "",
+        stake: lane.nextCandidate.stake ?? null,
+        combinedOdds: lane.nextCandidate.combinedOdds ?? null,
+        projectedReturn: lane.nextCandidate.projectedReturn ?? null,
+        legs: Array.isArray(lane.nextCandidate.legs) ? lane.nextCandidate.legs.map((ll: any) => settledLegByIdLookup(ll)) : [],
+      } : null,
     } : null;
     const bankBuilderPreview: DualBankBuilderPreview = {
       status: bb.status,
