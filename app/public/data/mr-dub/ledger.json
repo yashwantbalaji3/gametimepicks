@@ -1,7 +1,7 @@
 {
   "portfolioId": "mr-dub-paper",
   "paperOnly": true,
-  "generatedAt": "2026-06-20T05:16:39Z",
+  "generatedAt": "2026-06-18T18:40:00Z",
   "events": [
     {
       "eventId": "mrdub-crown-step1",
@@ -182,114 +182,8 @@
       "accountingNote": "Completed-ladder rung — realized (the crown ladder cashed out)."
     },
     {
-      "eventId": "mrdub-2026-06-18-lane-a-prior-step1-won",
-      "timestamp": "2026-06-20T05:16:39Z",
-      "portfolio": "mr-dub-paper",
-      "category": "bank_builder",
-      "type": "lane_step_won",
-      "laneId": "lane-a",
-      "step": 1,
-      "date": "2026-06-17",
-      "paperStake": 100,
-      "paperReturn": 184.03,
-      "paperProfit": 0,
-      "rolled": true,
-      "status": "settled",
-      "result": "won",
-      "combinedOdds": -119,
-      "officialResultConfirmed": true,
-      "publicBankBuilderVisible": false,
-      "legs": [
-        {
-          "market": "double_chance",
-          "selection": "Colombia or Draw double_chance",
-          "result": "won",
-          "officialResult": "Uzbekistan 1–3 Colombia FT",
-          "source": "espn_fifa_world"
-        },
-        {
-          "market": "Strikeouts",
-          "selection": "JR Ritchie Strikeouts Over 3.5",
-          "result": "won",
-          "officialResult": "4 K (5.0 IP)",
-          "source": "mlb_stats_api"
-        }
-      ],
-      "notes": "Prior Lane A Step 1 cleared (official) before the lane was stopped and relaunched fresh.",
-      "accountingNote": "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
-    },
-    {
-      "eventId": "mrdub-2026-06-18-lane-a-prior-step2-stopped",
-      "timestamp": "2026-06-20T05:16:39Z",
-      "portfolio": "mr-dub-paper",
-      "category": "bank_builder",
-      "type": "lane_stopped",
-      "laneId": "lane-a",
-      "step": 2,
-      "date": "2026-06-18",
-      "paperStake": 184.03,
-      "paperReturn": 0,
-      "paperProfit": -100,
-      "rolled": false,
-      "status": "settled",
-      "result": "lost",
-      "combinedOdds": 244,
-      "officialResultConfirmed": true,
-      "publicBankBuilderVisible": false,
-      "legs": [
-        {
-          "market": "moneyline_90",
-          "selection": "Czech Republic moneyline_90",
-          "result": "lost",
-          "officialResult": "Czechia 1–1 South Africa FT — draw/loss; moneyline loses",
-          "source": "espn_fifa_world"
-        },
-        {
-          "market": "Hits + Runs + RBIs",
-          "selection": "Josh Bell Hits + Runs + RBIs Over 1.5",
-          "result": "pending",
-          "officialResult": "game not final",
-          "source": "mlb_stats_api"
-        }
-      ],
-      "notes": "Soccer leg settled a loss; the partner leg had already started, so no pre-start replacement was possible.",
-      "accountingNote": "Realized — original $100 paper stake lost; lane stopped."
-    },
-    {
-      "eventId": "mrdub-2026-06-18-lane-a-relaunch-blocked",
-      "timestamp": "2026-06-20T05:16:39Z",
-      "portfolio": "mr-dub-paper",
-      "category": "bank_builder",
-      "type": "lane_relaunch_blocked",
-      "laneId": "lane-a",
-      "step": 2,
-      "paperStake": 0,
-      "paperReturn": 0,
-      "paperProfit": 0,
-      "status": "audit",
-      "publicBankBuilderVisible": false,
-      "legs": [
-        {
-          "market": "moneyline",
-          "selection": "Czech Republic ML",
-          "result": "lost",
-          "officialResult": "Czechia 1-1 South Africa FT",
-          "source": "espn_fifa_world"
-        },
-        {
-          "market": "Hits + Runs + RBIs",
-          "selection": "Josh Bell Over 1.5",
-          "result": "in_play",
-          "officialResult": "Twins@Rangers Live/In Progress (first pitch 18:35Z)",
-          "source": "mlb_stats_api"
-        }
-      ],
-      "notes": "Owner-requested same-step Lane A relaunch (keep Josh Bell, swap the failed Czech ML) was BLOCKED: the kept partner leg (Josh Bell, Twins@Rangers, first pitch 18:35Z) was already Live/In-Progress at evaluation (19:31Z), so the card cannot be retroactively relaunched. Czech ML lost officially (Czechia 1-1 South Africa FT). Fallback: the clean queued $100 Lane A path stands; Lane B unchanged.",
-      "accountingNote": "Audit only — no paper stake, no bankroll impact."
-    },
-    {
       "eventId": "mrdub-2026-06-18-lane-a-step1-won",
-      "timestamp": "2026-06-20T05:16:39Z",
+      "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
       "type": "lane_step_won",
@@ -307,6 +201,7 @@
       "publicBankBuilderVisible": true,
       "legs": [
         {
+          "sport": "WORLD_CUP",
           "market": "draw_no_bet",
           "selection": "Mexico draw_no_bet",
           "result": "won",
@@ -314,6 +209,7 @@
           "source": "espn_fifa_world"
         },
         {
+          "sport": "MLB",
           "market": "Hits",
           "selection": "Juan Soto Hits Over 0.5",
           "result": "won",
@@ -326,7 +222,7 @@
     },
     {
       "eventId": "mrdub-2026-06-18-lane-a-step2-won",
-      "timestamp": "2026-06-20T05:16:39Z",
+      "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
       "type": "lane_step_won",
@@ -344,6 +240,7 @@
       "publicBankBuilderVisible": true,
       "legs": [
         {
+          "sport": "WORLD_CUP",
           "market": "moneyline_90",
           "selection": "USA moneyline_90",
           "result": "won",
@@ -351,6 +248,7 @@
           "source": "espn_fifa_world"
         },
         {
+          "sport": "MLB",
           "market": "Hits + Runs + RBIs",
           "selection": "Nick Gonzales Hits + Runs + RBIs under 2.5",
           "result": "won",
@@ -362,25 +260,50 @@
       "accountingNote": "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
     },
     {
-      "eventId": "mrdub-2026-06-18-lane-a-advanced",
-      "timestamp": "2026-06-20T05:16:39Z",
+      "eventId": "mrdub-2026-06-18-lane-a-step3-pending",
+      "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
-      "type": "lane_advanced",
+      "type": "lane_step_open",
       "laneId": "lane-a",
       "step": 3,
-      "date": "2026-06-18",
-      "paperStake": 0,
+      "date": "2026-06-21",
+      "paperStake": 601.56,
       "paperReturn": 0,
       "paperProfit": 0,
-      "status": "advanced",
+      "atRiskStake": 100,
+      "projectedReturn": 1406.43,
+      "status": "open",
+      "combinedOdds": 134,
       "publicBankBuilderVisible": true,
-      "notes": "Step 2 won ($197.88 → $601.56); awaiting a pre-event Step 3 card at $601.56.",
-      "accountingNote": "Step cleared and rolled; awaiting the next qualified card (no card placed)."
+      "legs": [
+        {
+          "sport": "WORLD_CUP",
+          "market": "moneyline_90",
+          "selection": "Japan moneyline_90",
+          "result": "settled",
+          "officialResult": null,
+          "source": "official"
+        },
+        {
+          "sport": "WORLD_CUP",
+          "market": "moneyline_90",
+          "selection": "Egypt moneyline_90",
+          "result": "settled",
+          "officialResult": null,
+          "source": "official"
+        }
+      ],
+      "sportExposure": [
+        "WORLD_CUP",
+        "WORLD_CUP"
+      ],
+      "notes": "Lane A Step 3 open — $601.56 paper position riding, projected $1406.43. Original $100 at risk. Settles from official sources.",
+      "accountingNote": "Open paper position — pending official settlement."
     },
     {
       "eventId": "mrdub-2026-06-18-lane-b-prior-step1-won",
-      "timestamp": "2026-06-20T05:16:39Z",
+      "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
       "type": "lane_step_won",
@@ -398,6 +321,7 @@
       "publicBankBuilderVisible": false,
       "legs": [
         {
+          "sport": "WORLD_CUP",
           "market": "double_chance",
           "selection": "Ghana or Draw double_chance",
           "result": "won",
@@ -405,6 +329,7 @@
           "source": "espn_fifa_world"
         },
         {
+          "sport": "MLB",
           "market": "Strikeouts",
           "selection": "Javier Assad Strikeouts Under 4.5",
           "result": "won",
@@ -417,7 +342,7 @@
     },
     {
       "eventId": "mrdub-2026-06-18-lane-b-prior-step2-stopped",
-      "timestamp": "2026-06-20T05:16:39Z",
+      "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
       "type": "lane_stopped",
@@ -435,6 +360,7 @@
       "publicBankBuilderVisible": false,
       "legs": [
         {
+          "sport": "WORLD_CUP",
           "market": "moneyline_90",
           "selection": "Switzerland moneyline_90",
           "result": "won",
@@ -442,6 +368,7 @@
           "source": "espn_fifa_world"
         },
         {
+          "sport": "MLB",
           "market": "Hits + Runs + RBIs",
           "selection": "Paul Goldschmidt Hits + Runs + RBIs Over 1.5",
           "result": "lost",
@@ -454,7 +381,7 @@
     },
     {
       "eventId": "mrdub-2026-06-18-lane-b-prior-step3-stopped",
-      "timestamp": "2026-06-20T05:16:39Z",
+      "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
       "type": "lane_stopped",
@@ -475,7 +402,7 @@
     },
     {
       "eventId": "mrdub-2026-06-18-lane-b-prior-step4-stopped",
-      "timestamp": "2026-06-20T05:16:39Z",
+      "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
       "type": "lane_stopped",
@@ -496,7 +423,7 @@
     },
     {
       "eventId": "mrdub-2026-06-18-lane-b-prior-step5-stopped",
-      "timestamp": "2026-06-20T05:16:39Z",
+      "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
       "type": "lane_stopped",
@@ -517,7 +444,7 @@
     },
     {
       "eventId": "mrdub-2026-06-18-lane-b-step1-stopped",
-      "timestamp": "2026-06-20T05:16:39Z",
+      "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
       "type": "lane_stopped",
@@ -535,6 +462,7 @@
       "publicBankBuilderVisible": false,
       "legs": [
         {
+          "sport": "WORLD_CUP",
           "market": "double_chance",
           "selection": "Turkey or Draw double_chance",
           "result": "lost",
@@ -542,6 +470,7 @@
           "source": "espn_fifa_world"
         },
         {
+          "sport": "MLB",
           "market": "Hits + Runs + RBIs",
           "selection": "Rhys Hoskins Hits + Runs + RBIs under 1.5",
           "result": "lost",
@@ -554,7 +483,7 @@
     },
     {
       "eventId": "mrdub-2026-06-18-lane-b-restart-active",
-      "timestamp": "2026-06-20T05:16:39Z",
+      "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
       "type": "lane_restarted",

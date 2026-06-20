@@ -98,7 +98,7 @@ function main() {
     if (lane.priorLane?.steps?.length) {
       const priorStake = round2(lane.priorLane.steps[0]?.stake ?? 100);
       for (const s of lane.priorLane.steps) {
-        const legs = (s.legs ?? []).map((l) => ({ market: l.marketType, selection: l.label, result: l.settlement?.result ?? "settled", officialResult: l.settlement?.official ?? null, source: l.settlement?.source ?? "official" }));
+        const legs = (s.legs ?? []).map((l) => ({ sport: l.sport, market: l.marketType, selection: l.label, result: l.settlement?.result ?? "settled", officialResult: l.settlement?.official ?? null, source: l.settlement?.source ?? "official" }));
         const won = s.result === "won";
         won ? wins++ : losses++;
         if (!won) dualRealized = round2(dualRealized - priorStake);
@@ -132,7 +132,7 @@ function main() {
     }
 
     for (const s of lane.steps ?? []) {
-      const legs = (s.legs ?? []).map((l) => ({ market: l.marketType, selection: l.label, result: l.settlement?.result ?? "settled", officialResult: l.settlement?.official ?? null, source: l.settlement?.source ?? "official" }));
+      const legs = (s.legs ?? []).map((l) => ({ sport: l.sport, market: l.marketType, selection: l.label, result: l.settlement?.result ?? "settled", officialResult: l.settlement?.official ?? null, source: l.settlement?.source ?? "official" }));
       if (s.status === "settled") {
         const won = s.result === "won";
         won ? wins++ : losses++;
@@ -163,6 +163,7 @@ function main() {
           timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder", type: "lane_step_open",
           laneId: laneName, step: s.step, date: s.slateDate ?? null,
           paperStake: round2(s.stake ?? 0), paperReturn: 0, paperProfit: 0,
+          atRiskStake: round2(laneStake), // exposure = the lane's $100 seed at risk (not the rolled card stake)
           projectedReturn: round2(s.projectedPayout ?? 0), status: "open",
           combinedOdds: s.combinedOdds ?? null, publicBankBuilderVisible: true, legs,
           sportExposure: (s.legs ?? []).map((l) => l.sport),
@@ -272,7 +273,7 @@ function main() {
   const openCards = laneEvents.filter((e) => e.status === "open");
   const sportMap = {}, marketMap = {}, ppMap = {}, laneMap = {};
   for (const e of openCards) {
-    const stake = round2(e.paperStake ?? 0);
+    const stake = round2(e.atRiskStake ?? e.paperStake ?? 0); // at-risk seed, so the breakdown sums to openExposure
     laneMap[e.laneId] = round2((laneMap[e.laneId] ?? 0) + stake);
     const legs = e.legs ?? [];
     const per = stake / Math.max(1, legs.length);
