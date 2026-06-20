@@ -150,10 +150,10 @@ export default function WorldCupSpecialsBox({ data }: { data: WorldCupSpecialsRe
           </div>
         ) : (
           <div className="rounded-xl px-3.5 py-4 text-[12px]" style={{ border: "1px dashed var(--vault-rule)", color: "var(--vault-text-mute)" }}>
-            <p className="font-semibold" style={{ color: "var(--vault-text)" }}>No World Cup Specials available yet.</p>
+            <p className="font-semibold" style={{ color: "var(--vault-text)" }}>No eligible World Cup Specials for the current slate.</p>
             <ul className="mt-1.5 list-disc space-y-0.5 pl-4" style={{ color: "var(--vault-text-faint)" }}>
-              {(data?.diagnostics.notes ?? ["World Cup markets are not currently available."]).map((n, i) => <li key={i}>{n}</li>)}
-              {data && (
+              <li>World Cup Specials need at least two pre-event games — they post once the next multi-game slate&apos;s odds and player props are available.</li>
+              {data && Number(data.diagnostics.preEventGames) > 0 && (
                 <li>Eligible pool: {data.diagnostics.eligibleTeamLegs} team + {data.diagnostics.eligiblePlayerLegs} player legs across {data.diagnostics.preEventGames} pre-event game{data.diagnostics.preEventGames === 1 ? "" : "s"}.</li>
               )}
             </ul>

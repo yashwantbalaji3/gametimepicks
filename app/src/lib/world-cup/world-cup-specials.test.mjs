@@ -186,7 +186,9 @@ test("committed snapshot exists, is today-dated, and holds <=5 valid WC-only car
   const snap = loadWorldCupSpecials();
   assert.ok(snap, "snapshot loads");
   assert.equal(snap.date, DATE, "snapshot is today-dated");
-  assert.ok(snap.cards.length <= 5 && snap.cards.length > 0, "1..5 cards");
+  // 0..5 cards: once every game on the slate has kicked off there are no eligible pre-event Specials,
+  // and the box shows a "between slates" message — that is a valid honest state, not a failure.
+  assert.ok(snap.cards.length <= 5, "<=5 cards");
   for (const c of snap.cards) {
     assert.ok(combinedOddsInRange(c.combinedOdds), `${c.id} combined in band`);
     for (const l of c.legs) {
@@ -209,7 +211,7 @@ test("homepage box renders title, badges, $10 projection, mix counts, and the di
   assert.match(src, /team \/ \{card\.playerPropCount\} player/, "shows team/player mix");
   assert.match(src, /correlation:/, "discloses correlation");
   assert.match(src, /Why this card/, "why this card drawer label");
-  assert.match(src, /No World Cup Specials available yet/, "honest empty state");
+  assert.match(src, /No eligible World Cup Specials/, "honest empty state");
 });
 
 test("homepage box stacks vertically and adds no horizontal overflow", () => {
