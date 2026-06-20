@@ -101,6 +101,31 @@ test("regrader: empty XI set falls back to projected behavior (no fabricated con
   assert.equal(confirmed, 0, "empty XI ⇒ no confirmed starters (treated as lineups-not-posted)");
 });
 
+test("regrader: PARTIAL slate — only posted teams confirm/bench; un-posted teams stay projected", () => {
+  // NED/SWE lineups posted; Germany/Ivory Coast NOT posted. The XI set carries only NED/SWE names.
+  const xi = new Set(["gakpo", "gyokeres", "isak", "malen", "brobbey", "vandijk"]);
+  const postedTeams = new Set(["netherlands", "sweden"]);
+  const roles = classifyPlayerRoles(PP.matches, false, xi, postedTeams);
+  const byName = new Map([...roles.values()].map((r) => [r.playerName, r]));
+  // Netherlands player IN the posted XI → confirmed_starter (accent-robust last-name match).
+  assert.equal(byName.get("Cody Gakpo")?.roleTier, "confirmed_starter", "Gakpo in posted XI → confirmed");
+  // A team whose lineups are NOT posted must keep eligible attackers projected/key — never XI-benched.
+  const gerEligible = [...roles.values()].some((r) => r.teamName === "Germany" && (r.roleTier === "projected_starter" || r.roleTier === "key_attacker"));
+  assert.ok(gerEligible, "Germany (lineups not posted) still has projected/key attackers");
+  for (const r of roles.values()) {
+    if ((r.teamName === "Germany" || r.teamName === "Ivory Coast") && r.roleTier === "bench_risk") {
+      assert.match(r.reason, /goalkeeper/, `${r.playerName}: un-posted team can only be bench_risk as a GK, never XI-benched`);
+    }
+  }
+});
+
+test("regrader: accent-insensitive XI matching (Gyökeres ⇄ Gyokeres)", () => {
+  // XI carries the un-accented form; the prop feed may carry either — both must match.
+  const roles = classifyPlayerRoles(PP.matches, false, new Set(["gyokeres"]), new Set(["sweden"]));
+  const gy = [...roles.values()].find((r) => /Gy.?k.?res/i.test(r.playerName));
+  if (gy) assert.equal(gy.roleTier, "confirmed_starter", "Gyökeres matched accent-insensitively → confirmed");
+});
+
 // ── Preview generator ──────────────────────────────────────────────────────────────────────────
 test("generator: produces role-screened June 20 cards (date + scope)", () => {
   assert.ok(result.cards.length > 0 && result.cards.length <= cfg.count, `1..${cfg.count} cards`);
@@ -210,6 +235,23 @@ test("UI: production homepage renders the role-screened specials (June 20 snapsh
   // Production specials snapshot is the June 20 role-screened build (launched).
   const prod = JSON.parse(fs.readFileSync("public/data/world-cup/world-cup-specials.json", "utf8"));
   assert.equal(prod.date, "2026-06-20", "production specials snapshot is June 20");
+});
+
+test("UI: production specials box surfaces a distinct Confirmed starter badge (lineups posted)", () => {
+  const box = fs.readFileSync("src/components/world-cup/world-cup-specials-box.tsx", "utf8");
+  assert.match(box, /roleTier === "confirmed_starter"/, "box has an explicit confirmed_starter branch");
+  assert.match(box, />Confirmed starter</, "box renders a 'Confirmed starter' badge");
+  // confirmed_starter must NOT be collapsed back into the Key attacker badge.
+  assert.ok(!/roleTier === "key_attacker" \|\| leg\.roleTier === "confirmed_starter"/.test(box), "confirmed_starter is not lumped under Key attacker");
+});
+
+test("snapshot: production specials carry confirmed starters with honest per-leg + per-card labels", () => {
+  const prod = JSON.parse(fs.readFileSync("public/data/world-cup/world-cup-specials.json", "utf8"));
+  const confirmed = prod.cards.flatMap((c) => c.legs).filter((l) => l.roleTier === "confirmed_starter");
+  assert.ok(confirmed.length > 0, "lineups posted → at least one confirmed starter in the live cards");
+  for (const l of confirmed) assert.match(l.lineupNote, /confirmed starter/i, "confirmed leg note matches its role (never 'lineups not posted')");
+  // A confirmed starter must belong to a team whose lineups actually posted (NED/SWE today).
+  for (const l of confirmed) assert.ok(["Netherlands", "Sweden"].includes(l.team), `${l.participant} confirmed only for a posted-lineup team`);
 });
 
 // ── Protection ─────────────────────────────────────────────────────────────────────────────────

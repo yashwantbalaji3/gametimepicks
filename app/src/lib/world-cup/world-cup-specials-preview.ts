@@ -114,7 +114,7 @@ function teamForPick(market: string, pickLabel: string, home: string, away: stri
 }
 
 /** Build the role-screened June 20 Specials preview from the isolated `previews/june20/` data. */
-export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string; confirmedStarters?: ReadonlySet<string> }): June20SpecialsPreview {
+export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string; confirmedStarters?: ReadonlySet<string>; postedTeams?: ReadonlySet<string> }): June20SpecialsPreview {
   const root = opts.root ?? path.join(process.cwd(), "public", "data");
   const cfg = JUNE20_SPECIALS_CONFIG;
   const team = readPreview(root, "projections.json");
@@ -164,9 +164,11 @@ export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string
   diag.eligibleTeamLegs = teamLegs.length;
 
   // ── Player roles (the gate) ────────────────────────────────────────────────────────────────────
-  // When the official starting XI is supplied (lineups posted), roles upgrade to confirmed_starter and
-  // out-of-XI players are benched; otherwise roles stay projected/market-implied.
-  const roleMap = classifyPlayerRoles(pp.matches ?? [], lineupsPosted || !!opts.confirmedStarters?.size, opts.confirmedStarters);
+  // When the official starting XI is supplied, roles upgrade to confirmed_starter for in-XI players and
+  // bench out-of-XI players — but ONLY for teams whose lineups posted (postedTeams). Teams without a
+  // posted XI stay projected/market-implied. Pass the raw pp-level lineupsPosted; per-team scoping does
+  // the rest (so a partial slate never wrongly confirms or benches an un-posted team's players).
+  const roleMap = classifyPlayerRoles(pp.matches ?? [], lineupsPosted, opts.confirmedStarters, opts.postedTeams);
   const eligibleRows: RoleRow[] = [], excludedRows: RoleRow[] = [];
   const seenRole = new Set<string>();
   for (const q of roleMap.values()) {
@@ -216,14 +218,20 @@ export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string
       startTime, dataQuality: "limited", confidence: String(r.confidence ?? "Lower confidence"),
       settlement: mk.settlement, limitedData: true,
       roleTier: role.roleTier, roleEvidence: role.evidence,
-      lineupNote: lineupsPosted ? "lineups posted — confirmed role" : "lineups not posted — projected role (market-implied)",
+      // Per-leg note follows THIS player's lineup state (set per-team), not a global flag — so a
+      // confirmed starter never reads "lineups not posted" on a partial slate.
+      lineupNote: role.roleTier === "confirmed_starter"
+        ? "lineups posted — confirmed starter (in the official XI)"
+        : "lineups not posted — projected role (market-implied)",
     });
   }
   diag.acceptedPlayerLegs = playerLegs.length;
   diag.roleQualityNotes = [
     `${eligibleRows.length} players passed the role gate (projected starters / key attackers); ${excludedRows.length} excluded.`,
     `Excluded player legs: ${diag.excludedRotationRisk} rotation/defender, ${diag.excludedBenchRisk} goalkeeper, ${diag.excludedUnknownRole} unknown role.`,
-    lineupsPosted ? "Lineups posted — roles confirmed." : "Lineups not posted — roles are projected from market prominence + position (limited-data).",
+    (opts.postedTeams?.size ?? 0) > 0
+      ? `Lineups posted for ${opts.postedTeams!.size} team(s) — those players are confirmed starters (or benched if out of the XI); teams without posted lineups stay projected (limited-data).`
+      : lineupsPosted ? "Lineups posted — roles confirmed." : "Lineups not posted — roles are projected from market prominence + position (limited-data).",
   ];
 
   // ── Reuse the shared engine for odds discipline + spread + ranking ──────────────────────────────
@@ -260,9 +268,17 @@ export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string
 
 function enrichCard(card: WorldCupSpecialCard, lineupsPosted: boolean): WorldCupSpecialCard {
   const players = card.legs.filter((l) => l.kind === "player");
+  const confN = players.filter((l) => l.roleTier === "confirmed_starter").length;
   const keyN = players.filter((l) => l.roleTier === "key_attacker" || l.roleTier === "confirmed_starter").length;
   const projN = players.filter((l) => l.roleTier === "projected_starter").length;
-  const roleQualitySummary = `${players.length} player prop${players.length === 1 ? "" : "s"} — all role-screened: ${keyN} key attacker${keyN === 1 ? "" : "s"}, ${projN} projected starter${projN === 1 ? "" : "s"}${lineupsPosted ? "" : " (lineups pending — projected roles)"}.`;
+  // Suffix reflects THIS card's legs (per-team lineup state), not a single global flag: all-confirmed,
+  // a confirmed/projected mix, or fully pending.
+  const pendingN = players.length - confN;
+  const suffix = players.length === 0 ? ""
+    : pendingN === 0 ? ` (${confN} confirmed starter${confN === 1 ? "" : "s"} — lineups posted)`
+    : confN > 0 ? ` (${confN} confirmed, ${pendingN} lineup${pendingN === 1 ? "" : "s"} pending)`
+    : " (lineups pending — projected roles)";
+  const roleQualitySummary = `${players.length} player prop${players.length === 1 ? "" : "s"} — all role-screened: ${keyN} key attacker${keyN === 1 ? "" : "s"}, ${projN} projected starter${projN === 1 ? "" : "s"}${suffix}.`;
   return {
     ...card,
     roleQualitySummary,

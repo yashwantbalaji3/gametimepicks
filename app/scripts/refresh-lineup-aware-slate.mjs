@@ -35,32 +35,43 @@ const preview = mode === "preview_only";
 const writeJson = (p, obj) => { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(obj, null, 2) + "\n"); };
 const cp = (from, to) => { if (fs.existsSync(from)) { fs.mkdirSync(path.dirname(to), { recursive: true }); fs.copyFileSync(from, to); } };
 
-/** Fetch the confirmed starting XI (normalized names) for posted WC games — empty when none/no key. */
+/**
+ * Fetch the confirmed starting XI for upcoming WC games whose lineups are posted. Returns the set of
+ * normalized player names AND the set of normalized team names that have a posted XI — so the regrader
+ * can confirm/bench ONLY players on teams whose lineups are up, and leave the rest projected. Empty
+ * sets when no key / nothing posted.
+ */
 async function fetchConfirmedXI() {
   const key = (process.env.API_FOOTBALL_KEY ?? "").trim();
-  if (!key) return new Set();
+  if (!key) return { names: new Set(), teams: new Set() };
   const af = async (p) => (await fetch(`https://v3.football.api-sports.io/${p}`, { headers: { "x-apisports-key": key } })).json();
-  const xi = new Set();
+  const names = new Set(), teams = new Set();
   try {
     const fx = await af(`fixtures?league=${AF_LEAGUE}&season=${AF_SEASON}&date=${date}`);
     for (const f of fx.response ?? []) {
       if (f.fixture?.status?.short !== "NS") continue; // only upcoming games
       const lu = await af(`fixtures/lineups?fixture=${f.fixture.id}`);
-      for (const t of lu.response ?? []) for (const s of t.startXI ?? []) if (s.player?.name) xi.add(norm(s.player.name));
+      const resp = lu.response ?? [];
+      const total = resp.reduce((n, t) => n + (t.startXI?.length ?? 0), 0);
+      if (total < 22) continue; // this game's XI is not fully posted yet — leave it projected
+      for (const t of resp) {
+        if (t.team?.name) teams.add(norm(t.team.name));
+        for (const s of t.startXI ?? []) if (s.player?.name) names.add(norm(s.player.name));
+      }
     }
   } catch { /* keep whatever we have */ }
-  return xi;
+  return { names, teams };
 }
 
 async function main() {
-  const confirmedStarters = await fetchConfirmedXI();
+  const { names: confirmedStarters, teams: postedTeams } = await fetchConfirmedXI();
 
   // The Specials builder reads previews/june20/* — sync it from the freshly-pulled production WC data.
   for (const [kind, file] of [["projections", "projections.json"], ["player-projections", "player-projections.json"], ["parlays", "parlays.json"]]) {
     cp(path.join(DATA, "world-cup", kind, `${date}.json`), path.join(DATA, "previews", "june20", file));
   }
 
-  const specials = buildJune20SpecialsPreview({ nowIso, confirmedStarters });
+  const specials = buildJune20SpecialsPreview({ nowIso, confirmedStarters, postedTeams });
   const slate = loadTodaySlate(date, nowIso);
   const coverage = buildCoverageMatrix(slate, loadMoonshotLane(), nowIso);
 
@@ -76,6 +87,7 @@ async function main() {
   const summary = {
     date, mode, nowIso, preview,
     lineupsPosted: specials.lineupsPosted, confirmedStartersCount: confirmedStarters.size,
+    postedTeams: [...postedTeams],
     specialsCards: specials.cards.length,
     roleCounts: {
       confirmed: specials.cards.flatMap((c) => c.legs).filter((l) => l.roleTier === "confirmed_starter").length,
