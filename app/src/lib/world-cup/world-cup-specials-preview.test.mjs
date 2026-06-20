@@ -178,8 +178,8 @@ test("PROTECTION: active Bank Builder / Moonshot / Mr. Dub / June 19 WC artifact
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 808, "Moonshot active card unchanged");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
-  assert.equal(p.openExposure, 297.88, "core exposure unchanged");
-  assert.equal(p.totalOpenExposure, 322.88, "total exposure unchanged");
+  assert.equal(p.openExposure, 0, "core exposure settled to $0 (June 19 cards officially settled)");
+  assert.equal(p.totalOpenExposure, 0, "total exposure $0 after settlement");
   // June 19 production WC projections still dated June 19 (pull did not clobber latest.json).
   const wc = JSON.parse(fs.readFileSync("public/data/world-cup/projections/latest.json", "utf8"));
   assert.equal(wc.date, "2026-06-19", "production WC projections still June 19");

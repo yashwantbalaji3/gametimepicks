@@ -22,8 +22,8 @@ test("Moonshot lane loads, is a SEPARATE paper challenge (not Lane A/B), 3-step 
 });
 
 test("Moonshot Step 1 card: longshot odds in the +600..+900 band, every leg real + pre-event, no leg < -500", () => {
-  const card = activeMoonshotCard(lane);
-  assert.ok(card, "active Step 1 card present");
+  const card = lane.ladder[0].card; // Step 1 card (now officially settled)
+  assert.ok(card, "Step 1 card present");
   assert.equal(card.risk, "longshot");
   assert.equal(card.scope, "world_cup");
   assert.ok(card.combinedOdds >= 600 && card.combinedOdds <= 900, `combined ${card.combinedOdds} in +600..+900`);
@@ -42,12 +42,13 @@ test("Moonshot Step 1 card: longshot odds in the +600..+900 band, every leg real
   // World Cup-forward + multi-game.
   assert.ok(card.legs.every((l) => l.sport === "WORLD_CUP"), "World Cup-only");
   assert.ok(card.distinctGames >= 3, "multi-game (≥3 distinct games)");
-  // All legs pre-event at build time (no started game).
-  assert.ok(moonshotAllPreEvent(card, "2026-06-19T18:45:00Z"), "all legs pre-event");
+  // Built pre-event; now officially settled (Step 1 LOST — Turkey or Draw).
+  assert.equal(card.result, "lost", "Step 1 settled lost");
+  assert.equal(lane.status, "stopped", "lane stopped after the Step 1 loss");
 });
 
 test("Moonshot correlation is disclosed, and it is never called lower-risk", () => {
-  const card = activeMoonshotCard(lane);
+  const card = lane.ladder[0].card; // Step 1 card (now officially settled)
   assert.match(card.correlationProfile, /stack|multi_game/, "correlation profile present");
   assert.ok(card.whyThisCard.some((w) => /correlation|stack|intentional/i.test(w)), "correlation disclosed in 'why this card'");
   assert.ok(card.whyItCanFail.length >= 1, "explains how it can fail");
@@ -58,16 +59,14 @@ test("Moonshot correlation is disclosed, and it is never called lower-risk", () 
 
 test("Mr. Dub: Moonshot exposure is broken out separately and does NOT change the Lane A/B record", () => {
   assert.ok(portfolio.moonshot, "moonshot section present");
-  assert.equal(portfolio.moonshot.exposure, moonshotOpenExposure(lane), "moonshot exposure matches the active stake");
+  assert.equal(portfolio.moonshot.exposure, moonshotOpenExposure(lane), "moonshot exposure matches the lane (settled → $0)");
+  assert.equal(portfolio.moonshot.exposure, 0, "Moonshot settled (Step 1 lost) → $0 exposure");
   assert.equal(portfolio.moonshot.separateFromCore, true);
-  // Core Lane A/B record + exposure are untouched by Moonshot.
-  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 2 }, "core record unchanged");
-  assert.equal(portfolio.openExposure, 297.88, "core open exposure unchanged");
-  assert.equal(portfolio.totalOpenExposure, 322.88, "total = core 297.88 + moonshot 25, broken out");
-  // Dedicated moonshot ledger event, separate category.
-  const ev = ledger.events.find((e) => e.type === "moonshot_card_placed");
-  assert.ok(ev && ev.category === "moonshot" && ev.highVolatility === true, "moonshot_card_placed event logged");
-  assert.equal(ev.paperProfit, 0, "no fabricated P/L on placement");
+  assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "Moonshot 0-1 after the Step 1 loss");
+  // Core Lane A/B record + exposure reflect settlement, and Moonshot stays separate from the core record.
+  assert.deepEqual(portfolio.record, { wins: 9, losses: 6, voids: 0, pending: 0 }, "core record after settlement");
+  assert.equal(portfolio.openExposure, 0, "core open exposure settled to $0");
+  assert.equal(portfolio.totalOpenExposure, 0, "total exposure $0 (core + moonshot both settled)");
 });
 
 test("Bank Builder + Mr. Dub pages render the Moonshot lane as a separate high-volatility section", () => {

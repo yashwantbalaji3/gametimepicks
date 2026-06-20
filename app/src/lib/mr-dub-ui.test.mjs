@@ -53,10 +53,10 @@ test("daily-summary embeds each day's events for the expandable dropdown; totals
   assert.equal(d.days[d.days.length - 1].closing, p.currentBankroll, "daily closing == portfolio current bankroll");
 });
 
-test("June 19 placed: Lane A Step 2 active, Lane B Step 1 restart active, Mr. Dub carries full history", () => {
+test("June 19 settled: Lane A advanced (Step 2 won), Lane B stopped (Step 1 lost), Mr. Dub carries full history", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
-  // Lane A cleared Step 1 (Mexico DNB + Soto) and advanced; Step 2 now active with a placed card.
+  // Lane A Step 1 + Step 2 both WON → advanced toward Step 3.
   assert.equal(bb.laneA.laneStatus, "advanced");
   assert.equal(bb.laneA.publicVisible, true);
   const a1 = bb.laneA.steps.find((s) => s.step === 1);
@@ -64,11 +64,12 @@ test("June 19 placed: Lane A Step 2 active, Lane B Step 1 restart active, Mr. Du
   assert.equal(a1.result, "won");
   assert.ok(a1.legs.some((l) => l.sport === "WORLD_CUP") && a1.legs.some((l) => l.sport === "MLB"), "one World Cup + one MLB");
   assert.ok(a1.legs.every((l) => l.settlementResult === "won"), "both Lane A legs won (official)");
-  assert.equal(bb.laneA.steps.find((s) => s.step === 2).status, "pending", "Lane A Step 2 active card");
-  // Lane B restarted at a fresh Step 1 (active); the lost Step 2 never surfaces in the live lane.
-  assert.equal(bb.laneB.publicVisible, true);
-  assert.equal(bb.laneB.steps.find((s) => s.step === 1).status, "pending", "Lane B Step 1 restart active");
-  assert.ok(!/Goldschmidt|Switzerland/.test(JSON.stringify(bb.laneB.steps)), "stopped Step-2 legs hidden");
+  assert.equal(bb.laneA.steps.find((s) => s.step === 2).status, "settled", "Lane A Step 2 settled won");
+  // Lane B Step 1 LOST → stopped + hidden; the old stopped Step 2 never surfaces in the live lane.
+  assert.equal(bb.laneB.laneStatus, "stopped");
+  assert.equal(bb.laneB.publicVisible, false);
+  assert.equal(bb.laneB.steps.find((s) => s.step === 1).status, "settled", "Lane B Step 1 settled lost");
+  assert.ok(!/Goldschmidt|Switzerland/.test(JSON.stringify(bb.laneB.steps)), "old stopped Step-2 legs hidden");
   // Mr. Dub ledger still carries the FULL history: Lane A advance + Lane B stop (no bankroll double-count).
   const led = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
   assert.ok(led.events.some((e) => e.type === "lane_advanced" && e.laneId === "lane-a" && e.paperProfit === 0), "Lane A advance ($0) logged");

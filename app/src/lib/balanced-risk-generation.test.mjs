@@ -75,6 +75,6 @@ test("active cards untouched: Lane A/B, Moonshot, and Mr. Dub exposure unchanged
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 808, "Moonshot Step 1 still +808");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
-  assert.equal(p.openExposure, 297.88, "core exposure unchanged");
-  assert.equal(p.moonshot.exposure, 25, "moonshot exposure unchanged");
+  assert.equal(p.openExposure, 0, "core exposure settled to $0 (June 19 cards officially settled)");
+  assert.equal(p.moonshot.exposure, 0, "moonshot settled (Step 1 lost) → $0 exposure");
 });
