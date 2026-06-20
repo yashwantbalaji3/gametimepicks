@@ -163,12 +163,12 @@ test("UI: preview box shows $10 → return, role badge, role-evidence drawer", (
   assert.match(box, /Role-screened/, "role-screened badge");
 });
 
-test("UI: production homepage was NOT changed (no preview import in today/page)", () => {
+test("UI: production homepage renders the role-screened specials (June 20 snapshot, no preview-route wiring)", () => {
   const today = fs.readFileSync("src/app/today/page.tsx", "utf8");
-  assert.ok(!/preview\/june20|specials-preview|June20|june20/.test(today), "today page has no June 20 preview wiring");
-  // The production specials box + June 19 snapshot are untouched.
+  assert.ok(!/preview\/june20/.test(today), "today page does not wire the internal /preview/june20 route");
+  // Production specials snapshot is the June 20 role-screened build (launched).
   const prod = JSON.parse(fs.readFileSync("public/data/world-cup/world-cup-specials.json", "utf8"));
-  assert.equal(prod.date, "2026-06-19", "production specials snapshot still June 19");
+  assert.equal(prod.date, "2026-06-20", "production specials snapshot is June 20");
 });
 
 // ── Protection ─────────────────────────────────────────────────────────────────────────────────
@@ -180,7 +180,7 @@ test("PROTECTION: active Bank Builder / Moonshot / Mr. Dub / June 19 WC artifact
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
   assert.equal(p.openExposure, 0, "core exposure settled to $0 (June 19 cards officially settled)");
   assert.equal(p.totalOpenExposure, 0, "total exposure $0 after settlement");
-  // June 19 production WC projections still dated June 19 (pull did not clobber latest.json).
+  // Production WC projections are the live June 20 slate.
   const wc = JSON.parse(fs.readFileSync("public/data/world-cup/projections/latest.json", "utf8"));
-  assert.equal(wc.date, "2026-06-19", "production WC projections still June 19");
+  assert.equal(wc.date, "2026-06-20", "production WC projections are June 20");
 });

@@ -244,7 +244,12 @@ function buildIdentityMaps(rawBySport: Partial<Record<Sport, any>>, root?: strin
   // legs (`world-cup-player-prop-legs`) render a photo + flag instead of falling back to a monogram.
   if (root) {
     try {
-      const pp = JSON.parse(fs.readFileSync(path.join(root, "world-cup", "player-projections", "latest.json"), "utf8"));
+      // Date-specific props file (so a past slate reads its own players even after latest.json rolls);
+      // fall back to latest when no dated file exists.
+      const ppDir = path.join(root, "world-cup", "player-projections");
+      const ppDated = date ? path.join(ppDir, `${date}.json`) : "";
+      const ppFile = ppDated && fs.existsSync(ppDated) ? ppDated : path.join(ppDir, "latest.json");
+      const pp = JSON.parse(fs.readFileSync(ppFile, "utf8"));
       if (!date || !pp.date || pp.date === date) {
         for (const r of pp.matches ?? []) {
           const name = String(r?.player?.name ?? "");

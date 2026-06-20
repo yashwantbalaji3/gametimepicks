@@ -26,10 +26,14 @@ const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 interface TeamMatch { eventId: string; kickoffUtc: string | null; home: string; away: string }
 
 /** fixture string → the TEAM-projection eventId + kickoff (player props key on a different id). */
-function teamMatchByFixture(root: string): Map<string, TeamMatch> {
+function teamMatchByFixture(root: string, date: string): Map<string, TeamMatch> {
   const out = new Map<string, TeamMatch>();
   try {
-    const team = JSON.parse(fs.readFileSync(path.join(root, "world-cup", "projections", "latest.json"), "utf8"));
+    // Date-specific team projections so the fixture join matches the same slate as the player props.
+    const dir = path.join(root, "world-cup", "projections");
+    const dated = date ? path.join(dir, `${date}.json`) : "";
+    const file = dated && fs.existsSync(dated) ? dated : path.join(dir, "latest.json");
+    const team = JSON.parse(fs.readFileSync(file, "utf8"));
     for (const r of team.matches ?? []) {
       const fixture = `${r.homeTeam} vs ${r.awayTeam}`;
       if (!out.has(fixture)) out.set(fixture, { eventId: String(r.matchId), kickoffUtc: r.kickoffUtc ?? null, home: r.homeTeam, away: r.awayTeam });
@@ -43,12 +47,17 @@ function teamMatchByFixture(root: string): Map<string, TeamMatch> {
  * leg guards, and joinable to a team match. Returns `[]` when the artifact is missing.
  */
 export function loadWorldCupPlayerPropLegs(root: string, nowIso: string, date: string): EligibleLeg[] {
+  // Read the DATE-SPECIFIC props file so a past slate (e.g. June 19) reads its own data even after
+  // `latest.json` rolls forward; fall back to latest when no dated file exists (e.g. fresh pull).
   let pp: { matches?: unknown[]; date?: string };
   try {
-    pp = JSON.parse(fs.readFileSync(path.join(root, "world-cup", "player-projections", "latest.json"), "utf8"));
+    const dir = path.join(root, "world-cup", "player-projections");
+    const dated = date ? path.join(dir, `${date}.json`) : "";
+    const file = dated && fs.existsSync(dated) ? dated : path.join(dir, "latest.json");
+    pp = JSON.parse(fs.readFileSync(file, "utf8"));
   } catch { return []; }
   if (!date || (pp.date && pp.date !== date)) return []; // only the current slate's props — never a stale day
-  const teamByFixture = teamMatchByFixture(root);
+  const teamByFixture = teamMatchByFixture(root, date);
   const legs: EligibleLeg[] = [];
 
   for (const raw of (pp.matches ?? []) as Array<Record<string, any>>) {
