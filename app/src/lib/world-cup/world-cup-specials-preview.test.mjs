@@ -60,6 +60,47 @@ test("role gate: lineup-pending is labelled (no fake confirmed starters pre-even
   for (const r of roles.values()) assert.equal(r.lineupsPosted, false);
 });
 
+// ── Lineup-aware regrader (official starting XI supplied) ────────────────────────────────────────
+test("regrader: an attacker IN the confirmed starting XI is promoted to confirmed_starter", () => {
+  // Normalized last-name match (mirrors inStartingXI): "gakpo" is in the posted XI.
+  const xi = new Set(["gakpo", "gyokeres", "havertz"]);
+  const roles = classifyPlayerRoles(PP.matches, false, xi);
+  const byName = new Map([...roles.values()].map((r) => [r.playerName, r]));
+  const gakpo = byName.get("Cody Gakpo");
+  assert.ok(gakpo, "Gakpo present");
+  assert.equal(gakpo.roleTier, "confirmed_starter", "in-XI attacker is confirmed");
+  assert.ok(gakpo.eligibleForSpecials, "confirmed starter is eligible");
+  assert.equal(gakpo.lineupsPosted, true, "lineupsKnown reflects the supplied XI");
+  assert.match(gakpo.reason, /official starting XI/, "reason cites the official XI");
+});
+
+test("regrader: an attacker with posted props but NOT in the XI is benched (excluded)", () => {
+  // A tiny XI that deliberately excludes Gakpo → he must drop to bench_risk.
+  const xi = new Set(["someoneelse", "anotherplayer"]);
+  const roles = classifyPlayerRoles(PP.matches, false, xi);
+  const gakpo = [...roles.values()].find((r) => r.playerName === "Cody Gakpo");
+  assert.ok(gakpo, "Gakpo present");
+  assert.equal(gakpo.roleTier, "bench_risk", "out-of-XI attacker is benched");
+  assert.equal(gakpo.eligibleForSpecials, false, "benched player excluded from Specials");
+  assert.match(gakpo.reason, /NOT in the confirmed starting XI/, "reason explains the bench exclusion");
+});
+
+test("regrader: unknown-role (unmatched) player stays excluded even with an XI supplied", () => {
+  const xi = new Set(["gakpo", "gyokeres"]);
+  const roles = classifyPlayerRoles(PP.matches, false, xi);
+  for (const r of roles.values()) if (!r.position) {
+    assert.equal(r.eligibleForSpecials, false, `${r.playerName} unknown stays excluded`);
+    assert.equal(r.roleTier, "unknown");
+  }
+});
+
+test("regrader: empty XI set falls back to projected behavior (no fabricated confirmations)", () => {
+  const roles = classifyPlayerRoles(PP.matches, false, new Set());
+  let confirmed = 0;
+  for (const r of roles.values()) if (r.roleTier === "confirmed_starter") confirmed++;
+  assert.equal(confirmed, 0, "empty XI ⇒ no confirmed starters (treated as lineups-not-posted)");
+});
+
 // ── Preview generator ──────────────────────────────────────────────────────────────────────────
 test("generator: produces role-screened June 20 cards (date + scope)", () => {
   assert.ok(result.cards.length > 0 && result.cards.length <= cfg.count, `1..${cfg.count} cards`);

@@ -114,7 +114,7 @@ function teamForPick(market: string, pickLabel: string, home: string, away: stri
 }
 
 /** Build the role-screened June 20 Specials preview from the isolated `previews/june20/` data. */
-export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string }): June20SpecialsPreview {
+export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string; confirmedStarters?: ReadonlySet<string> }): June20SpecialsPreview {
   const root = opts.root ?? path.join(process.cwd(), "public", "data");
   const cfg = JUNE20_SPECIALS_CONFIG;
   const team = readPreview(root, "projections.json");
@@ -164,7 +164,9 @@ export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string
   diag.eligibleTeamLegs = teamLegs.length;
 
   // ── Player roles (the gate) ────────────────────────────────────────────────────────────────────
-  const roleMap = classifyPlayerRoles(pp.matches ?? [], lineupsPosted);
+  // When the official starting XI is supplied (lineups posted), roles upgrade to confirmed_starter and
+  // out-of-XI players are benched; otherwise roles stay projected/market-implied.
+  const roleMap = classifyPlayerRoles(pp.matches ?? [], lineupsPosted || !!opts.confirmedStarters?.size, opts.confirmedStarters);
   const eligibleRows: RoleRow[] = [], excludedRows: RoleRow[] = [];
   const seenRole = new Set<string>();
   for (const q of roleMap.values()) {

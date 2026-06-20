@@ -1,0 +1,112 @@
+name: World Cup lineup-aware refresh
+
+# Runs a frequent watcher during the June 20 World Cup window. For each game it computes the
+# lineup-refresh window (kickoff −60′ … −15′; preferred target −45′) and checks API-Football for the
+# posted starting XI. When a game is inside its window the watcher signals a refresh; the refresh job
+# regenerates the role-screened World Cup Specials + coverage.
+#
+# DORMANT BY DEFAULT (preview-isolated):
+#   • mode defaults to `preview_only` → the refresh writes ONLY to the preview namespace, never to
+#     production latest artifacts.
+#   • AUTO_PLACE_BANK_BUILDER / AUTO_PLACE_MOONSHOT default false → bankroll is never auto-placed.
+#   • Requires repo secrets ODDS_API_KEY + API_FOOTBALL_KEY. Without them the watcher still runs and
+#     reports lineup state honestly; no card is fabricated.
+# An operator must (1) add the two repo secrets and (2) dispatch with mode=auto_public_board (or flip
+# the schedule's MODE) to let it write production. Until then it is a read-only watcher.
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Slate date (YYYY-MM-DD, ET). Blank = today (UTC date)."
+        required: false
+        default: ""
+      mode:
+        description: "preview_only (default, preview-isolated) | auto_public_board (writes production specials)"
+        required: false
+        default: "preview_only"
+        type: choice
+        options: [preview_only, auto_public_board]
+      auto_place_bank_builder:
+        description: "Auto-place Bank Builder (default false — candidate-only)"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      auto_place_moonshot:
+        description: "Auto-place Moonshot (default false — candidate-only)"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+  schedule:
+    # Every 15 min across the June 20 ET World Cup window (UTC). June 20 13:00Z→23:59Z covers the
+    # daytime/evening kickoffs; June 21 00:00Z→04:00Z covers the late (00:00Z) game. Cron is UTC.
+    - cron: "*/15 13-23 20 6 *"
+    - cron: "*/15 0-4 21 6 *"
+
+# The scheduled run is preview-only by default. To let the schedule write production, an operator sets
+# the repo/environment variable MODE=auto_public_board (read below). Default stays preview_only.
+env:
+  MODE: ${{ vars.MODE || 'preview_only' }}
+  AUTO_PLACE_BANK_BUILDER: ${{ vars.AUTO_PLACE_BANK_BUILDER || 'false' }}
+  AUTO_PLACE_MOONSHOT: ${{ vars.AUTO_PLACE_MOONSHOT || 'false' }}
+  ODDS_API_MIN_CREDITS_REMAINING: "2000"
+  ODDS_API_ALLOW_BELOW_FLOOR: "false"
+
+jobs:
+  watch-and-refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve inputs
+        id: cfg
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          [ -z "$DATE" ] && DATE="$(date -u +%F)"
+          MODE="${{ github.event.inputs.mode || env.MODE }}"
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "Resolved date=$DATE mode=$MODE"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.4.0"
+
+      - name: Install deps
+        working-directory: app
+        run: npm ci
+
+      - name: Watch lineups
+        id: watch
+        env:
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: node scripts/watch-worldcup-lineups.mjs --date "${{ steps.cfg.outputs.date }}" --mode "${{ steps.cfg.outputs.mode }}"
+
+      - name: Lineup-aware refresh (only when a game is in its window)
+        if: steps.watch.outputs.refresh_needed == 'true'
+        working-directory: app
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          THE_ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: |
+          echo "Games in window: ${{ steps.watch.outputs.games_to_refresh }}"
+          echo "Lineups posted (any/all): ${{ steps.watch.outputs.lineups_posted_any }} / ${{ steps.watch.outputs.lineups_posted_all }}"
+          npx tsx scripts/refresh-lineup-aware-slate.mjs --date "${{ steps.cfg.outputs.date }}" --mode "${{ steps.cfg.outputs.mode }}"
+
+      - name: Commit refreshed artifacts
+        if: steps.watch.outputs.refresh_needed == 'true'
+        run: |
+          git config user.name "gtp-lineup-bot"
+          git config user.email "noreply@github.com"
+          git add app/public/data/automation app/public/data/previews app/public/data/world-cup app/public/data/parlays 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No artifact changes to commit."
+          else
+            git commit -m "chore(automation): lineup-aware refresh ${{ steps.cfg.outputs.date }} (${{ steps.cfg.outputs.mode }})"
+            git push
+          fi
