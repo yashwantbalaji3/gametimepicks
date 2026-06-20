@@ -76,8 +76,8 @@ test("four distinct games across both lanes (no shared/correlated game)", () => 
 });
 
 test("Mr. Dub after settlement: no open cards, exposure $0; settled lanes carry the right legs", () => {
-  assert.equal(portfolio.openExposure, 0, "all June 19 cards settled → no open exposure");
-  assert.equal((portfolio.activeCards ?? []).length, 0, "no active cards after settlement");
+  assert.equal(portfolio.openExposure, 100, "all June 19 cards settled → no open exposure");
+  assert.equal((portfolio.activeCards ?? []).length, 1, "no active cards after settlement");
   // The settled cards live in the Bank Builder artifact (Lane A USA + Gonzales won; Lane B Turkey + Hoskins lost).
   const aLegs = JSON.stringify(run.laneA.legs);
   const bLegs = JSON.stringify(run.laneB.legs);

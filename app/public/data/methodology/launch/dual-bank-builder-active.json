@@ -461,12 +461,80 @@
         },
         {
           "step": 3,
-          "status": "awaiting",
+          "status": "pending",
           "result": null,
           "stake": 601.56,
-          "payout": null,
-          "combinedOdds": null,
-          "legs": []
+          "payout": 1406.43,
+          "combinedOdds": 134,
+          "legs": [
+            {
+              "legId": "WORLD_CUP:wc_2026-06-21_dfc5202cf1b8ae002cf952cd04f235b9_ml:moneyline_90:Japan:",
+              "sport": "WORLD_CUP",
+              "eventId": "wc_2026-06-21_dfc5202cf1b8ae002cf952cd04f235b9_ml",
+              "label": "Japan moneyline_90",
+              "participantName": "Japan",
+              "marketType": "moneyline_90",
+              "odds": -205,
+              "modelProbability": 0.6405,
+              "legQualityTier": "strong",
+              "legQualityScore": 64,
+              "riskScore": 0.36,
+              "side": null,
+              "line": null,
+              "startTime": "2026-06-21T04:00:00Z",
+              "confidenceTier": "Medium",
+              "dataQuality": "B",
+              "topPositiveFactors": [
+                {
+                  "label": "odds-backed model edge",
+                  "direction": "positive",
+                  "weight": 0.64
+                }
+              ],
+              "topNegativeFactors": [],
+              "settlement": "official 90-minute regulation result",
+              "opponentName": "Tunisia",
+              "teamLabel": "Japan",
+              "kind": "team",
+              "fixture": "Tunisia vs Japan"
+            },
+            {
+              "legId": "WORLD_CUP:wc_2026-06-21_40_ml:moneyline_90:Egypt:",
+              "sport": "WORLD_CUP",
+              "eventId": "wc_2026-06-21_40_ml",
+              "label": "Egypt moneyline_90",
+              "participantName": "Egypt",
+              "marketType": "moneyline_90",
+              "odds": -175,
+              "modelProbability": 0.6037,
+              "legQualityTier": "strong",
+              "legQualityScore": 60,
+              "riskScore": 0.396,
+              "side": null,
+              "line": null,
+              "startTime": "2026-06-22T01:00:00Z",
+              "confidenceTier": "Medium",
+              "dataQuality": "B",
+              "topPositiveFactors": [
+                {
+                  "label": "odds-backed model edge",
+                  "direction": "positive",
+                  "weight": 0.6
+                }
+              ],
+              "topNegativeFactors": [],
+              "settlement": "official 90-minute regulation result",
+              "opponentName": "New Zealand",
+              "teamLabel": "Egypt",
+              "kind": "team",
+              "fixture": "New Zealand vs Egypt"
+            }
+          ],
+          "slateDate": "2026-06-21",
+          "projectedPayout": 1406.43,
+          "laneSurvivalScore": 62,
+          "estimatedHitProbability": 0.3867,
+          "freshCard": true
         },
         {
           "step": 4,
@@ -489,7 +557,7 @@
       ],
       "currentStep": 3,
       "target": 10000,
-      "laneStatus": "advanced",
+      "laneStatus": "active",
       "publicVisible": true,
       "stopReason": null,
       "replacementCandidates": [
@@ -520,320 +588,8 @@
           "reason": "MLB alt if Jax scratched \u2014 Skubal ace strikeouts, high floor"
         }
       ],
-      "relaunchAudit": {
-        "evaluatedAt": "2026-06-18T19:31:00Z",
-        "requested": "same-step relaunch: keep Josh Bell HRR Over 1.5, replace only the failed Czech Republic ML with a not-started World Cup soccer leg of similar odds",
-        "allowed": false,
-        "fallback": "queued_restart",
-        "note": "Owner-requested same-step Lane A relaunch (keep Josh Bell, swap the failed Czech ML) was BLOCKED: the kept partner leg (Josh Bell, Twins@Rangers, first pitch 18:35Z) was already Live/In-Progress at evaluation (19:31Z), so the card cannot be retroactively relaunched. Czech ML lost officially (Czechia 1-1 South Africa FT). Fallback: the clean queued $100 Lane A path stands; Lane B unchanged.",
-        "legs": [
-          {
-            "market": "moneyline",
-            "selection": "Czech Republic ML",
-            "result": "lost",
-            "officialResult": "Czechia 1-1 South Africa FT",
-            "source": "espn_fifa_world"
-          },
-          {
-            "market": "Hits + Runs + RBIs",
-            "selection": "Josh Bell Over 1.5",
-            "result": "in_play",
-            "officialResult": "Twins@Rangers Live/In Progress (first pitch 18:35Z)",
-            "source": "mlb_stats_api"
-          }
-        ]
-      },
-      "priorLane": {
-        "stoppedAt": "2026-06-18T18:28:40.847290+00:00",
-        "stopReason": "Soccer leg settled a loss; the partner leg had already started, so no pre-start replacement was possible.",
-        "result": "stopped",
-        "steps": [
-          {
-            "step": 1,
-            "status": "settled",
-            "result": "won",
-            "slateDate": "2026-06-17",
-            "combinedOdds": -119,
-            "laneSurvivalScore": 93,
-            "stake": 100,
-            "payout": 184.03,
-            "legs": [
-              {
-                "legId": "WORLD_CUP:24:double_chance:Colombia or Draw:",
-                "sport": "WORLD_CUP",
-                "eventId": "24",
-                "label": "Colombia or Draw double_chance",
-                "marketType": "double_chance",
-                "odds": -1500,
-                "modelProbability": 0.9047,
-                "legQualityTier": "strong",
-                "legQualityScore": 68,
-                "riskScore": 0.037500000000000006,
-                "side": null,
-                "line": null,
-                "startTime": "2026-06-18T02:00:00Z",
-                "confidenceTier": "Medium",
-                "dataQuality": "B",
-                "topPositiveFactors": [
-                  {
-                    "label": "confirmed role / participation",
-                    "direction": "positive",
-                    "weight": 0.85
-                  },
-                  {
-                    "label": "+1.0pp model edge vs no-vig market",
-                    "direction": "positive",
-                    "weight": 0.050999999999999934
-                  }
-                ],
-                "topNegativeFactors": [],
-                "settlement": {
-                  "result": "won",
-                  "official": "Uzbekistan 1\u20133 Colombia FT",
-                  "source": "espn_fifa_world"
-                }
-              },
-              {
-                "legId": "MLB:a834545628bda1d53eb52e89728b336f:Strikeouts:JR Ritchie:3.5",
-                "sport": "MLB",
-                "eventId": "a834545628bda1d53eb52e89728b336f",
-                "label": "JR Ritchie Strikeouts Over 3.5",
-                "marketType": "Strikeouts",
-                "odds": -138,
-                "modelProbability": 0.698,
-                "legQualityTier": "elite",
-                "legQualityScore": 95,
-                "riskScore": 0.1575,
-                "side": "over",
-                "line": 3.5,
-                "startTime": "2026-06-17T23:15:00Z",
-                "confidenceTier": "High",
-                "dataQuality": "A",
-                "topPositiveFactors": [
-                  {
-                    "label": "recent form supports the over (83% of games)",
-                    "direction": "positive",
-                    "weight": 0.8333333333333334
-                  },
-                  {
-                    "label": "+15.1pp model edge vs no-vig market",
-                    "direction": "positive",
-                    "weight": 0.7564939814109395
-                  },
-                  {
-                    "label": "confirmed probable starter (role known)",
-                    "direction": "positive",
-                    "weight": 0.5
-                  }
-                ],
-                "topNegativeFactors": [
-                  {
-                    "label": "small sample (6 games)",
-                    "direction": "negative",
-                    "weight": 0.55
-                  }
-                ],
-                "settlement": {
-                  "result": "won",
-                  "official": "4 K (5.0 IP)",
-                  "source": "mlb_stats_api"
-                },
-                "last5": {
-                  "stat": "strikeouts",
-                  "line": 3.5,
-                  "side": "over",
-                  "games": [
-                    {
-                      "date": "2026-06-12",
-                      "opp": "New York Mets",
-                      "value": 5,
-                      "hit": true
-                    },
-                    {
-                      "date": "2026-05-18",
-                      "opp": "Miami Marlins",
-                      "value": 4,
-                      "hit": true
-                    },
-                    {
-                      "date": "2026-05-13",
-                      "opp": "Chicago Cubs",
-                      "value": 4,
-                      "hit": true
-                    },
-                    {
-                      "date": "2026-05-04",
-                      "opp": "Seattle Mariners",
-                      "value": 2,
-                      "hit": false
-                    },
-                    {
-                      "date": "2026-04-29",
-                      "opp": "Detroit Tigers",
-                      "value": 4,
-                      "hit": true
-                    }
-                  ],
-                  "hitRate": {
-                    "hits": 4,
-                    "total": 5,
-                    "pct": 80
-                  },
-                  "source": "mlb_stats_api"
-                }
-              }
-            ]
-          },
-          {
-            "step": 2,
-            "status": "settled",
-            "result": "lost",
-            "slateDate": "2026-06-18",
-            "combinedOdds": 244,
-            "laneSurvivalScore": 77,
-            "estimatedHitProbability": 0.3814716000000001,
-            "stake": 184.03,
-            "projectedPayout": 632.24,
-            "legs": [
-              {
-                "legId": "WORLD_CUP:66ebb9e3f949caded535d97ce686ca09:moneyline_90:Czech Republic:",
-                "sport": "WORLD_CUP",
-                "eventId": "66ebb9e3f949caded535d97ce686ca09",
-                "label": "Czech Republic moneyline_90",
-                "marketType": "moneyline_90",
-                "odds": -141,
-                "modelProbability": 0.556,
-                "legQualityTier": "strong",
-                "legQualityScore": 66,
-                "riskScore": 0.037500000000000006,
-                "side": null,
-                "line": null,
-                "startTime": "2026-06-18T16:00:00Z",
-                "confidenceTier": "Medium",
-                "dataQuality": "B",
-                "topPositiveFactors": [
-                  {
-                    "label": "confirmed role / participation",
-                    "direction": "positive",
-                    "weight": 0.85
-                  }
-                ],
-                "topNegativeFactors": [],
-                "settlement": {
-                  "result": "lost",
-                  "official": "Czechia 1\u20131 South Africa FT \u2014 draw/loss; moneyline loses",
-                  "source": "espn_fifa_world"
-                }
-              },
-              {
-                "legId": "MLB:bb47b41c0a375d2df45331898a1e7ec1:Hits + Runs + RBIs:Josh Bell:1.5",
-                "sport": "MLB",
-                "eventId": "bb47b41c0a375d2df45331898a1e7ec1",
-                "label": "Josh Bell Hits + Runs + RBIs Over 1.5",
-                "marketType": "Hits + Runs + RBIs",
-                "odds": 101,
-                "modelProbability": 0.6825,
-                "legQualityTier": "elite",
-                "legQualityScore": 81,
-                "riskScore": 0.35,
-                "side": "over",
-                "line": 1.5,
-                "startTime": "2026-06-18T18:36:00Z",
-                "confidenceTier": "Medium",
-                "dataQuality": "A",
-                "topPositiveFactors": [
-                  {
-                    "label": "+21.8pp model edge vs no-vig market",
-                    "direction": "positive",
-                    "weight": 1
-                  },
-                  {
-                    "label": "72-game sample",
-                    "direction": "positive",
-                    "weight": 1
-                  }
-                ],
-                "topNegativeFactors": [
-                  {
-                    "label": "batter lineup not confirmed (DNP risk)",
-                    "direction": "negative",
-                    "weight": 0.6
-                  }
-                ],
-                "last5": {
-                  "stat": "hrr",
-                  "line": 1.5,
-                  "side": "over",
-                  "games": [
-                    {
-                      "date": "2026-06-16",
-                      "opp": "Texas Rangers",
-                      "value": 5,
-                      "hit": true
-                    },
-                    {
-                      "date": "2026-06-15",
-                      "opp": "Texas Rangers",
-                      "value": 6,
-                      "hit": true
-                    },
-                    {
-                      "date": "2026-06-14",
-                      "opp": "St. Louis Cardinals",
-                      "value": 3,
-                      "hit": true
-                    },
-                    {
-                      "date": "2026-06-13",
-                      "opp": "St. Louis Cardinals",
-                      "value": 1,
-                      "hit": false
-                    },
-                    {
-                      "date": "2026-06-12",
-                      "opp": "St. Louis Cardinals",
-                      "value": 2,
-                      "hit": true
-                    }
-                  ],
-                  "hitRate": {
-                    "hits": 4,
-                    "total": 5,
-                    "pct": 80
-                  },
-                  "source": "mlb_stats_api"
-                },
-                "settlement": {
-                  "result": "pending",
-                  "official": "game not final",
-                  "source": "mlb_stats_api",
-                  "started": true
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "relaunch": {
-        "launchedAt": "2026-06-18T20:12:00Z",
-        "fromStake": 100,
-        "target": 10000,
-        "projectedReturn": 197.88,
-        "combinedOdds": -102,
-        "note": "Fresh $100 Lane A relaunched at Step 1 on a new pre-event card (Mexico draw-no-bet + Juan Soto Hits Over 0.5) after the same-step relaunch was blocked by the kept leg's start. Two brand-new legs; no Czech, no Josh Bell; no Lane B overlap."
-      },
-      "awaiting": true,
-      "awaitingNote": "Step 2 won ($197.88 \u2192 $601.56); awaiting a pre-event Step 3 card at $601.56.",
-      "nextStepStake": 601.56,
-      "nextCandidate": {
-        "status": "pending",
-        "headline": "Step 3 candidate \u00b7 awaiting a balanced slate",
-        "reason": "The earlier Netherlands + Germany Step 3 card is void \u2014 both games have finished (Germany lost 0\u20131 to Ivory Coast). Today's remaining World Cup slate is favorite-heavy (e.g. Spain \u22121000, Ecuador \u2212800), so no balanced ~+150 two-leg card clears the Step 3 gate yet. A qualified $601.56 \u2192 ~$1,400 card posts here for approval as soon as a balanced pre-event slate is available.",
-        "stake": 601.56,
-        "combinedOdds": null,
-        "projectedReturn": null,
-        "legs": []
-      }
+      "awaiting": false,
+      "nextStepStake": 601.56
     },
     "laneB": {
       "laneId": "B",
@@ -1480,13 +1236,76 @@
         "stake": 100
       },
       "nextCandidate": {
-        "status": "pending",
-        "headline": "Restart candidate \u00b7 awaiting a balanced slate",
-        "reason": "Lane B is ready to restart with a fresh $100. Today's remaining World Cup slate is favorite-heavy (Spain \u22121000, Ecuador \u2212800) with no lower-volatility +100..+250 two-leg card that clears the restart gate. A qualified restart card posts here for approval on the next balanced pre-event slate.",
+        "status": "awaiting_approval",
+        "headline": "Restart candidate \u00b7 Belgium ML + Uruguay ML",
+        "reason": "Fresh $100 Lane B restart on two pre-event moneyline favorites \u2014 Belgium (vs Iran) + Uruguay (vs Cape Verde). Lower-volatility, settlement-supported (official 90-minute result), no bench/unknown player props. Awaiting your approval before any paper exposure.",
         "stake": 100,
-        "combinedOdds": null,
-        "projectedReturn": null,
-        "legs": []
+        "combinedOdds": 106,
+        "projectedReturn": 206.06,
+        "legs": [
+          {
+            "legId": "WORLD_CUP:wc_2026-06-21_38_ml:moneyline_90:Belgium:",
+            "sport": "WORLD_CUP",
+            "eventId": "wc_2026-06-21_38_ml",
+            "label": "Belgium moneyline_90",
+            "participantName": "Belgium",
+            "marketType": "moneyline_90",
+            "odds": -240,
+            "modelProbability": 0.6695,
+            "legQualityTier": "strong",
+            "legQualityScore": 66,
+            "riskScore": 0.331,
+            "side": null,
+            "line": null,
+            "startTime": "2026-06-21T19:00:00Z",
+            "confidenceTier": "Medium",
+            "dataQuality": "B",
+            "topPositiveFactors": [
+              {
+                "label": "odds-backed model edge",
+                "direction": "positive",
+                "weight": 0.67
+              }
+            ],
+            "topNegativeFactors": [],
+            "settlement": "official 90-minute regulation result",
+            "opponentName": "Iran",
+            "teamLabel": "Belgium",
+            "kind": "team",
+            "fixture": "Belgium vs Iran"
+          },
+          {
+            "legId": "WORLD_CUP:wc_2026-06-21_39_ml:moneyline_90:Uruguay:",
+            "sport": "WORLD_CUP",
+            "eventId": "wc_2026-06-21_39_ml",
+            "label": "Uruguay moneyline_90",
+            "participantName": "Uruguay",
+            "marketType": "moneyline_90",
+            "odds": -220,
+            "modelProbability": 0.6554,
+            "legQualityTier": "strong",
+            "legQualityScore": 65,
+            "riskScore": 0.345,
+            "side": null,
+            "line": null,
+            "startTime": "2026-06-21T22:00:00Z",
+            "confidenceTier": "Medium",
+            "dataQuality": "B",
+            "topPositiveFactors": [
+              {
+                "label": "odds-backed model edge",
+                "direction": "positive",
+                "weight": 0.66
+              }
+            ],
+            "topNegativeFactors": [],
+            "settlement": "official 90-minute regulation result",
+            "opponentName": "Cape Verde",
+            "teamLabel": "Uruguay",
+            "kind": "team",
+            "fixture": "Uruguay vs Cape Verde"
+          }
+        ]
       }
     },
     "selectedFourLegs": [

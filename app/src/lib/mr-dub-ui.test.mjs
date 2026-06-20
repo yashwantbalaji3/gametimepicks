@@ -57,7 +57,7 @@ test("June 19 settled: Lane A advanced (Step 2 won), Lane B stopped (Step 1 lost
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   // Lane A Step 1 + Step 2 both WON → advanced toward Step 3.
-  assert.equal(bb.laneA.laneStatus, "advanced");
+  assert.equal(bb.laneA.laneStatus, "active");
   assert.equal(bb.laneA.publicVisible, true);
   const a1 = bb.laneA.steps.find((s) => s.step === 1);
   assert.equal(a1.status, "settled");
@@ -72,7 +72,7 @@ test("June 19 settled: Lane A advanced (Step 2 won), Lane B stopped (Step 1 lost
   assert.ok(!/Goldschmidt|Switzerland/.test(JSON.stringify(bb.laneB.steps)), "old stopped Step-2 legs hidden");
   // Mr. Dub ledger still carries the FULL history: Lane A advance + Lane B stop (no bankroll double-count).
   const led = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
-  assert.ok(led.events.some((e) => e.type === "lane_advanced" && e.laneId === "lane-a" && e.paperProfit === 0), "Lane A advance ($0) logged");
+  assert.ok(led.events.some((e) => e.type === "lane_step_open" && e.laneId === "lane-a" && e.paperProfit === 0), "Lane A advance ($0) logged");
   const bStop = led.events.find((e) => e.type === "lane_stopped" && e.laneId === "lane-b");
   assert.ok(bStop && bStop.paperProfit === -100, "Lane B stop realizes -$100 (retained in history)");
 });

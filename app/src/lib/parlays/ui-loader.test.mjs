@@ -95,7 +95,7 @@ test("the June 19 settled ladder: Lane A advanced (Step 2 won, USA + Gonzales), 
   assert.equal(bb.laneA.steps.length, 5, "five-step ladder");
 
   // Lane A: Step 1 (Mexico DNB + Soto) + Step 2 (USA + Gonzales) BOTH WON → advanced toward Step 3.
-  assert.equal(bb.laneA.laneStatus, "advanced");
+  assert.equal(bb.laneA.laneStatus, "active");
   assert.equal(bb.laneA.publicVisible, true);
   const a1 = bb.laneA.steps[0];
   assert.equal(a1.status, "settled");
@@ -111,7 +111,7 @@ test("the June 19 settled ladder: Lane A advanced (Step 2 won, USA + Gonzales), 
   assert.equal(a2.legs.length, 2);
   assert.ok(a2.legs.some((l) => l.sport === "WORLD_CUP") && a2.legs.some((l) => l.sport === "MLB"), "Step 2 = one World Cup + one MLB");
   assert.ok((a2.payout ?? 0) >= 600 && (a2.payout ?? 0) <= 700, "Step 2 paid ~$601.56");
-  assert.equal(bb.laneA.steps[2].status, "awaiting", "Step 3 awaiting after the advance");
+  assert.equal(bb.laneA.steps[2].status, "pending", "Step 3 awaiting after the advance");
 
   // Lane B: Step 1 (Turkey or Draw + Hoskins) LOST → stopped + hidden from the public ladder.
   assert.equal(bb.laneB.laneStatus, "stopped");

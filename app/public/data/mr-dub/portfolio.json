@@ -6,15 +6,15 @@
   "startingDate": "2026-06-09",
   "startingBankroll": 100,
   "crownBankroll": 10376.17,
-  "currentBankroll": 9776.17,
-  "openExposure": 0,
-  "settledProfit": 9676.17,
-  "roi": 96.76,
+  "currentBankroll": 9876.17,
+  "openExposure": 100,
+  "settledProfit": 9776.17,
+  "roi": 97.76,
   "record": {
-    "wins": 9,
-    "losses": 6,
+    "wins": 8,
+    "losses": 5,
     "voids": 0,
-    "pending": 0
+    "pending": 1
   },
   "completedLadders": [
     {
@@ -25,28 +25,59 @@
       "official": true
     }
   ],
-  "activeCards": [],
-  "generatedAt": "2026-06-20T05:16:39Z",
-  "highWaterMark": 10376.17,
-  "drawdown": 600,
-  "drawdownPct": 0.0578,
-  "openExposurePct": 0,
-  "roiMultiple": 96.76,
-  "exposure": {
-    "bySport": [],
-    "byMarket": [],
-    "byTeamOrPlayer": [],
-    "byLane": [],
-    "byStatus": []
-  },
-  "awaitingCards": [
+  "activeCards": [
     {
       "laneId": "lane-a",
+      "type": "lane_step_open",
       "step": 3,
-      "kind": "awaiting_next_card",
-      "note": "Step 2 won ($197.88 → $601.56); awaiting a pre-event Step 3 card at $601.56."
+      "stake": 601.56,
+      "projectedReturn": 1406.43,
+      "status": "open"
     }
   ],
+  "generatedAt": "2026-06-18T18:40:00Z",
+  "highWaterMark": 10376.17,
+  "drawdown": 500,
+  "drawdownPct": 0.0482,
+  "openExposurePct": 0.0101,
+  "roiMultiple": 97.76,
+  "exposure": {
+    "bySport": [
+      {
+        "key": "World Cup",
+        "amount": 100
+      }
+    ],
+    "byMarket": [
+      {
+        "key": "moneyline_90",
+        "amount": 100
+      }
+    ],
+    "byTeamOrPlayer": [
+      {
+        "key": "Japan moneyline_90",
+        "amount": 50
+      },
+      {
+        "key": "Egypt moneyline_90",
+        "amount": 50
+      }
+    ],
+    "byLane": [
+      {
+        "key": "lane-a",
+        "amount": 100
+      }
+    ],
+    "byStatus": [
+      {
+        "key": "open",
+        "amount": 100
+      }
+    ]
+  },
+  "awaitingCards": [],
   "completedCards": [
     {
       "name": "Road to $10K",
@@ -57,25 +88,27 @@
     }
   ],
   "bankrollHealth": {
-    "score": 100,
-    "label": "No open exposure",
+    "score": 80,
+    "label": "Balanced",
     "reasons": [
-      "No active paper cards right now — nothing is at risk.",
-      "1 lane(s) awaiting the next qualified card."
+      "Open exposure is 1.0% of bankroll.",
+      "Most exposure is concentrated in World Cup."
     ]
   },
   "intelligence": {
     "highWaterMark": 10376.17,
-    "maxDrawdown": 600,
-    "drawdown": 600,
-    "drawdownPct": 0.0578,
-    "winRate": 0.6,
-    "exposureBySport": {},
-    "largestOpenCard": 0,
-    "avgStake": 590.59,
-    "avgSettledReturn": 1951.65,
-    "profitFactor": 34.25,
-    "longestWinStreak": 6,
+    "maxDrawdown": 500,
+    "drawdown": 500,
+    "drawdownPct": 0.0482,
+    "winRate": 0.62,
+    "exposureBySport": {
+      "World Cup": 100
+    },
+    "largestOpenCard": 601.56,
+    "avgStake": 680.31,
+    "avgSettledReturn": 2172.6,
+    "profitFactor": 51.38,
+    "longestWinStreak": 8,
     "longestLossStreak": 2,
     "note": "Paper exposure, bankroll health and drawdown — educational tracking, not financial advice."
   },
@@ -125,5 +158,5 @@
     },
     "note": "Step 1 settled a loss — Morocco: WON; Vinícius Júnior: WON; Ismael Saibari: WON; Turkey or Draw: LOST"
   },
-  "totalOpenExposure": 0
+  "totalOpenExposure": 100
 }
