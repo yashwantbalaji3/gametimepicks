@@ -30,5 +30,24 @@ _Branch `june20-away-day-autonomous-finished-state` off main `5af237c9`. Started
 - **MODE stays `preview_only`.** Enabling unattended production writes (`MODE=auto_public_board`) is a safety-relevant change the prompt defaults OFF (`AUTO_LAUNCH_LINEUP_REFRESH=false` "unless user intentionally wants auto production board writes"). The user did not opt in → I do not flip it. Documented as a one-step operator action for the later windows.
 - **UFC — no fabrication.** Real June 20 event verified externally but no repo data/generator; kept results-only.
 
+## Outcome — NED/SWE lineups POSTED (16:00Z), confirmed-starter regrade shipped
+The background poll caught **Netherlands/Sweden's official startXI at 15:57Z** (GER/CIV + ECU/CW still NS — later windows, beyond this session). I fetched the XI (NL 4-3-3: Gakpo/Malen/Brobbey up top; SE 3-1-4-2: Gyökeres + Isak) and regraded:
+
+- **Per-team scoping fix (correctness):** the regrader's `confirmedStarters` was a flat name-set — with only NED/SWE posted it would have wrongly **benched** GER/CIV + ECU/CW attackers (not in the set). Added `postedTeams` so a player is confirmable/benchable **only when their own team's XI is posted**; un-posted teams stay projected. Also made name-matching accent-robust (Gyökeres ⇄ Gyokeres).
+- **Production Specials regenerated** (`auto_public_board`, reviewed): 5 cards, all pre-event (KO 17:00Z, generated 16:04Z), bands intact (+1045…+2402, legs −250…+200), **4 confirmed starters** (NED/SWE in-XI) + key/projected for the rest. Out-of-XI NED/SWE proppees correctly **benched** (excluded).
+- **Honest labels:** per-leg note follows the leg's own role ("confirmed starter — in the official XI" vs "projected role"); per-card summary reads "(N confirmed, M lineups pending)". UI fix: the homepage box now renders a distinct **"Confirmed starter"** badge (was lumped under "Key attacker") — verified desktop + mobile (375px, no overflow, no console errors; Isak shows CONFIRMED STARTER, Ecuador player shows PROJECTED STARTER).
+- **Coverage-matrix** content unchanged (parlay engine is XI-independent) → reverted the timestamp-only churn.
+
+**Later windows (GER/CIV 19:15Z, ECU/CW 23:15Z)** are beyond this session. The live workflow + secrets are ready; set repo var `MODE=auto_public_board` to let it write production unattended at those windows (default stays `preview_only`).
+
+**Gates:** tsc clean · **1187/1187 tests** (+4 new: partial-slate scoping, accent match, box badge, live snapshot) · build OK · audits clean (no banned copy / no `-1000` generated legs / no secrets / protected+bankroll untouched) · desktop + mobile QA clean.
+
+## Decisions ledger (Phase 7-9)
+| item | decision | gates | why |
+|---|---|---|---|
+| Lane A Step 3 | **HELD** (awaiting $601.56) | card gates pass (NED ML −139 + GER ML −220 = +150 → ~$1,504, team-only, pre-event) | placing flips exposure $0→$100 + cascades into ledgers/settlement tests; `AUTO_PLACE=false`, user away → lower-regret hold; candidate documented for one-click placement |
+| Lane B restart | **HELD** (awaiting) | — | discretionary fresh $100; avoid over-exposure while away |
+| Moonshot | **HELD** (candidate-only) | — | no restart policy; high-volatility; not auto-placed (`AUTO_PLACE_MOONSHOT=false`) |
+
 ## Guards
-No fabrication (incl. UFC); pre-event only; bankroll not placed (held, flags false); protected crown untouched; secrets never printed/committed; MODE stays preview_only; canonical/allowed copy only.
+No fabrication (incl. UFC); pre-event only; bankroll not placed (held, flags false); protected crown untouched; secrets never printed/committed; MODE stays preview_only for unattended runs; canonical/allowed copy only.

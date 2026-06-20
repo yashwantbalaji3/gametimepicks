@@ -63,7 +63,8 @@ export interface PropRowLike {
   modelProbability?: number | null;
 }
 
-const norm = (s: string | null | undefined): string => (s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const norm = (s: string | null | undefined): string =>
+  (s ?? "").toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
 const isAttacking = (pos: string | null): boolean => pos === "Attacker" || pos === "Midfielder";
 
 interface Agg {
@@ -107,9 +108,9 @@ export function classifyPlayerRoles(
   rows: PropRowLike[],
   lineupsPosted = false,
   confirmedStarters?: ReadonlySet<string>,
+  postedTeams?: ReadonlySet<string>,
 ): Map<string, PlayerRoleQuality> {
   const haveXI = !!confirmedStarters && confirmedStarters.size > 0;
-  const lineupsKnown = lineupsPosted || haveXI;
   // 1) aggregate per player
   const aggByKey = new Map<string, Agg>();
   for (const r of rows) {
@@ -146,6 +147,12 @@ export function classifyPlayerRoles(
   for (const a of aggByKey.values()) {
     const key = keyOf(a);
     const score = prominence(a);
+    // A player is "lineup-known" (confirmable / benchable) ONLY when THEIR team's XI is posted. With a
+    // partial slate (e.g. one game's lineups posted, another's not) this keeps the un-posted game's
+    // players projected instead of wrongly benching them. Without postedTeams (legacy callers) any
+    // supplied XI applies to every team, preserving prior behavior.
+    const teamPosted = haveXI && (!postedTeams || postedTeams.has(norm(a.team)));
+    const lineupsKnown = lineupsPosted || teamPosted;
     // Display the shortest posted price as a prominence signal, but describe extreme-favourite prices
     // (shorter than the Specials leg floor) qualitatively — they never enter a card and an extreme raw
     // number reads like filler, so we keep evidence honest without printing it.
@@ -175,7 +182,7 @@ export function classifyPlayerRoles(
       const r = rankByKey.get(key) ?? { rank: 99, total: 0 };
       ev.push(`team attacking-prominence rank ${r.rank + 1}/${r.total}`);
       // Confirmed starting XI is the strongest, honest signal — it overrides market prominence.
-      const inXI = haveXI ? inStartingXI(a, confirmedStarters!) : null;
+      const inXI = teamPosted ? inStartingXI(a, confirmedStarters!) : null;
       if (inXI === false) {
         roleTier = "bench_risk";
         reason = "bench_role_risk: posted prop but NOT in the confirmed starting XI — benched";

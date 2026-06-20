@@ -55,7 +55,10 @@ function LegRow({ leg }: { leg: SpecialLeg }) {
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5">
           <span className="truncate text-[12.5px] font-medium" style={{ color: "var(--vault-text)" }}>{leg.participant}</span>
-          {leg.kind === "player" && (leg.roleTier === "key_attacker" || leg.roleTier === "confirmed_starter") && (
+          {leg.kind === "player" && leg.roleTier === "confirmed_starter" && (
+            <span className="shrink-0 rounded-full px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-[0.05em]" style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.2)", border: "1px solid rgba(110,231,168,0.6)" }}>Confirmed starter</span>
+          )}
+          {leg.kind === "player" && leg.roleTier === "key_attacker" && (
             <span className="shrink-0 rounded-full px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-[0.05em]" style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.12)", border: "1px solid rgba(110,231,168,0.4)" }}>Key attacker</span>
           )}
           {leg.kind === "player" && leg.roleTier === "projected_starter" && (
