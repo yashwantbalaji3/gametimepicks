@@ -1,0 +1,949 @@
+{
+  "generatedAt": "2026-06-20T04:13:57.824019+00:00",
+  "sport": "world_cup",
+  "date": "2026-06-20",
+  "modelVersion": "wc-odds-only-v2",
+  "provider": "odds_api",
+  "oddsProvider": "odds_api",
+  "strengthSource": "none",
+  "dataQuality": "limited",
+  "disclaimer": "Paper-only, educational. Odds-backed market-implied World Cup projections from The Odds API; no API-Football stat/lineup/xG layer.",
+  "methodology": "Per market: de-vig the sportsbook price (3-way for moneyline/double chance). No independent stat model \u2014 confidence capped, model edge ~0 except where the double-chance book price differs from the 3-way no-vig sum.",
+  "matchCount": 3,
+  "projectionCount": 14,
+  "publicCount": 14,
+  "parlayEligibleCount": 14,
+  "public": true,
+  "opponentStrengthCoverage": 0,
+  "marketsCovered": {
+    "moneyline_90": 3,
+    "match_total_goals": 2,
+    "double_chance": 3,
+    "btts": 3,
+    "draw_no_bet": 3
+  },
+  "statusCounts": {
+    "active": 14
+  },
+  "matches": [
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 33,
+      "homeTeam": "Netherlands",
+      "awayTeam": "Sweden",
+      "kickoffUtc": "2026-06-20T17:00:00Z",
+      "homeCode": "NL",
+      "awayCode": "SE",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "F",
+      "venue": "Houston",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "betrivers",
+      "id": "wc_2026-06-20_33_ml",
+      "market": "moneyline_90",
+      "pick": "home",
+      "pickLabel": "Netherlands",
+      "line": null,
+      "americanOdds": -139,
+      "modelProbability": 0.5535,
+      "marketProbability": 0.5535,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Netherlands",
+          "side": "home",
+          "modelProbability": 0.5535,
+          "marketProbability": 0.5535,
+          "americanOdds": -139
+        },
+        {
+          "label": "Draw",
+          "side": "draw",
+          "modelProbability": 0.244,
+          "marketProbability": 0.244,
+          "americanOdds": 290
+        },
+        {
+          "label": "Sweden",
+          "side": "away",
+          "modelProbability": 0.2025,
+          "marketProbability": 0.2025,
+          "americanOdds": 370
+        }
+      ],
+      "confidence": "Watchlist",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Medium",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw is a real third outcome (90-min regulation)."
+      ],
+      "notes": [
+        "3-way moneyline de-vigged from the sportsbook price."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 33,
+      "homeTeam": "Netherlands",
+      "awayTeam": "Sweden",
+      "kickoffUtc": "2026-06-20T17:00:00Z",
+      "homeCode": "NL",
+      "awayCode": "SE",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "F",
+      "venue": "Houston",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "betrivers",
+      "id": "wc_2026-06-20_33_tot",
+      "market": "match_total_goals",
+      "pick": "over",
+      "pickLabel": "Over 2.5",
+      "line": 2.5,
+      "americanOdds": -165,
+      "modelProbability": 0.5867,
+      "marketProbability": 0.5867,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Over 2.5",
+          "side": "over",
+          "modelProbability": 0.5867,
+          "marketProbability": 0.5867,
+          "americanOdds": -165
+        },
+        {
+          "label": "Under 2.5",
+          "side": "under",
+          "modelProbability": 0.4133,
+          "marketProbability": 0.4133,
+          "americanOdds": 128
+        }
+      ],
+      "confidence": "Watchlist",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model."
+      ],
+      "notes": [
+        "Total goals at the 2.5 line, de-vigged."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 33,
+      "homeTeam": "Netherlands",
+      "awayTeam": "Sweden",
+      "kickoffUtc": "2026-06-20T17:00:00Z",
+      "homeCode": "NL",
+      "awayCode": "SE",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "F",
+      "venue": "Houston",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "betrivers",
+      "id": "wc_2026-06-20_33_dc",
+      "market": "double_chance",
+      "pick": "1X",
+      "pickLabel": "Netherlands or Draw",
+      "line": null,
+      "americanOdds": -560,
+      "modelProbability": 0.7975,
+      "marketProbability": 0.7958,
+      "edgePct": 0.17,
+      "outcomes": [
+        {
+          "label": "Netherlands or Draw",
+          "side": "1X",
+          "modelProbability": 0.7975,
+          "marketProbability": 0.7958,
+          "americanOdds": -560
+        },
+        {
+          "label": "Sweden or Draw",
+          "side": "X2",
+          "modelProbability": 0.4465,
+          "marketProbability": 0.4466,
+          "americanOdds": 110
+        },
+        {
+          "label": "Netherlands or Sweden",
+          "side": "12",
+          "modelProbability": 0.756,
+          "marketProbability": 0.7576,
+          "americanOdds": -420
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Double chance covers two of three outcomes \u2014 lower variance, shorter price."
+      ],
+      "notes": [
+        "Double chance from REAL book odds; model probability is the 3-way no-vig sum."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 33,
+      "homeTeam": "Netherlands",
+      "awayTeam": "Sweden",
+      "kickoffUtc": "2026-06-20T17:00:00Z",
+      "homeCode": "NL",
+      "awayCode": "SE",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "F",
+      "venue": "Houston",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "betrivers",
+      "id": "wc_2026-06-20_33_btts",
+      "market": "btts",
+      "pick": "yes",
+      "pickLabel": "Both teams to score: Yes",
+      "line": null,
+      "americanOdds": -175,
+      "modelProbability": 0.5866,
+      "marketProbability": 0.5866,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "BTTS Yes",
+          "side": "yes",
+          "modelProbability": 0.5866,
+          "marketProbability": 0.5866,
+          "americanOdds": -175
+        },
+        {
+          "label": "BTTS No",
+          "side": "no",
+          "modelProbability": 0.4134,
+          "marketProbability": 0.4134,
+          "americanOdds": 123
+        }
+      ],
+      "confidence": "Watchlist",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model."
+      ],
+      "notes": [
+        "Both-teams-to-score, de-vigged."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 33,
+      "homeTeam": "Netherlands",
+      "awayTeam": "Sweden",
+      "kickoffUtc": "2026-06-20T17:00:00Z",
+      "homeCode": "NL",
+      "awayCode": "SE",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "F",
+      "venue": "Houston",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "betrivers",
+      "id": "wc_2026-06-20_33_dnb",
+      "market": "draw_no_bet",
+      "pick": "home",
+      "pickLabel": "Netherlands (draw no bet)",
+      "line": null,
+      "americanOdds": -360,
+      "modelProbability": 0.7209,
+      "marketProbability": 0.7209,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Netherlands (DNB)",
+          "side": "home",
+          "modelProbability": 0.7209,
+          "marketProbability": 0.7209,
+          "americanOdds": -360
+        },
+        {
+          "label": "Sweden (DNB)",
+          "side": "away",
+          "modelProbability": 0.2791,
+          "marketProbability": 0.2791,
+          "americanOdds": 230
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw no bet voids on a draw (stake returned)."
+      ],
+      "notes": [
+        "Draw-no-bet, de-vigged (two-way)."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 34,
+      "homeTeam": "Germany",
+      "awayTeam": "Ivory Coast",
+      "kickoffUtc": "2026-06-20T20:00:00Z",
+      "homeCode": "DE",
+      "awayCode": "CI",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "E",
+      "venue": "Toronto",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "betrivers",
+      "id": "wc_2026-06-20_34_ml",
+      "market": "moneyline_90",
+      "pick": "home",
+      "pickLabel": "Germany",
+      "line": null,
+      "americanOdds": -220,
+      "modelProbability": 0.6522,
+      "marketProbability": 0.6522,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Germany",
+          "side": "home",
+          "modelProbability": 0.6522,
+          "marketProbability": 0.6522,
+          "americanOdds": -220
+        },
+        {
+          "label": "Draw",
+          "side": "draw",
+          "modelProbability": 0.2018,
+          "marketProbability": 0.2018,
+          "americanOdds": 370
+        },
+        {
+          "label": "Ivory Coast",
+          "side": "away",
+          "modelProbability": 0.1459,
+          "marketProbability": 0.1459,
+          "americanOdds": 550
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw is a real third outcome (90-min regulation)."
+      ],
+      "notes": [
+        "3-way moneyline de-vigged from the sportsbook price."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 34,
+      "homeTeam": "Germany",
+      "awayTeam": "Ivory Coast",
+      "kickoffUtc": "2026-06-20T20:00:00Z",
+      "homeCode": "DE",
+      "awayCode": "CI",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "E",
+      "venue": "Toronto",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "betrivers",
+      "id": "wc_2026-06-20_34_tot",
+      "market": "match_total_goals",
+      "pick": "under",
+      "pickLabel": "Under 3.5",
+      "line": 3.5,
+      "americanOdds": -182,
+      "modelProbability": 0.6077,
+      "marketProbability": 0.6077,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Over 3.5",
+          "side": "over",
+          "modelProbability": 0.3923,
+          "marketProbability": 0.3923,
+          "americanOdds": 140
+        },
+        {
+          "label": "Under 3.5",
+          "side": "under",
+          "modelProbability": 0.6077,
+          "marketProbability": 0.6077,
+          "americanOdds": -182
+        }
+      ],
+      "confidence": "Watchlist",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model."
+      ],
+      "notes": [
+        "Total goals at the 3.5 line, de-vigged."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 34,
+      "homeTeam": "Germany",
+      "awayTeam": "Ivory Coast",
+      "kickoffUtc": "2026-06-20T20:00:00Z",
+      "homeCode": "DE",
+      "awayCode": "CI",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "E",
+      "venue": "Toronto",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "betrivers",
+      "id": "wc_2026-06-20_34_dc",
+      "market": "double_chance",
+      "pick": "1X",
+      "pickLabel": "Germany or Draw",
+      "line": null,
+      "americanOdds": -1000,
+      "modelProbability": 0.8541,
+      "marketProbability": 0.8544,
+      "edgePct": -0.04,
+      "outcomes": [
+        {
+          "label": "Germany or Draw",
+          "side": "1X",
+          "modelProbability": 0.8541,
+          "marketProbability": 0.8544,
+          "americanOdds": -1000
+        },
+        {
+          "label": "Ivory Coast or Draw",
+          "side": "X2",
+          "modelProbability": 0.3478,
+          "marketProbability": 0.3481,
+          "americanOdds": 170
+        },
+        {
+          "label": "Germany or Ivory Coast",
+          "side": "12",
+          "modelProbability": 0.7982,
+          "marketProbability": 0.7975,
+          "americanOdds": -560
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Double chance covers two of three outcomes \u2014 lower variance, shorter price."
+      ],
+      "notes": [
+        "Double chance from REAL book odds; model probability is the 3-way no-vig sum."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 34,
+      "homeTeam": "Germany",
+      "awayTeam": "Ivory Coast",
+      "kickoffUtc": "2026-06-20T20:00:00Z",
+      "homeCode": "DE",
+      "awayCode": "CI",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "E",
+      "venue": "Toronto",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "betrivers",
+      "id": "wc_2026-06-20_34_btts",
+      "market": "btts",
+      "pick": "yes",
+      "pickLabel": "Both teams to score: Yes",
+      "line": null,
+      "americanOdds": -150,
+      "modelProbability": 0.554,
+      "marketProbability": 0.554,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "BTTS Yes",
+          "side": "yes",
+          "modelProbability": 0.554,
+          "marketProbability": 0.554,
+          "americanOdds": -150
+        },
+        {
+          "label": "BTTS No",
+          "side": "no",
+          "modelProbability": 0.446,
+          "marketProbability": 0.446,
+          "americanOdds": 107
+        }
+      ],
+      "confidence": "Watchlist",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model."
+      ],
+      "notes": [
+        "Both-teams-to-score, de-vigged."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 34,
+      "homeTeam": "Germany",
+      "awayTeam": "Ivory Coast",
+      "kickoffUtc": "2026-06-20T20:00:00Z",
+      "homeCode": "DE",
+      "awayCode": "CI",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "E",
+      "venue": "Toronto",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "betrivers",
+      "id": "wc_2026-06-20_34_dnb",
+      "market": "draw_no_bet",
+      "pick": "home",
+      "pickLabel": "Germany (draw no bet)",
+      "line": null,
+      "americanOdds": -670,
+      "modelProbability": 0.7966,
+      "marketProbability": 0.7966,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Germany (DNB)",
+          "side": "home",
+          "modelProbability": 0.7966,
+          "marketProbability": 0.7966,
+          "americanOdds": -670
+        },
+        {
+          "label": "Ivory Coast (DNB)",
+          "side": "away",
+          "modelProbability": 0.2034,
+          "marketProbability": 0.2034,
+          "americanOdds": 350
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw no bet voids on a draw (stake returned)."
+      ],
+      "notes": [
+        "Draw-no-bet, de-vigged (two-way)."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 35,
+      "homeTeam": "Ecuador",
+      "awayTeam": "Cura\u00e7ao",
+      "kickoffUtc": "2026-06-21T00:00:00Z",
+      "homeCode": "EC",
+      "awayCode": "CW",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "E",
+      "venue": "Kansas City",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-20_35_ml",
+      "market": "moneyline_90",
+      "pick": "home",
+      "pickLabel": "Ecuador",
+      "line": null,
+      "americanOdds": -800,
+      "modelProbability": 0.8485,
+      "marketProbability": 0.8485,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Ecuador",
+          "side": "home",
+          "modelProbability": 0.8485,
+          "marketProbability": 0.8485,
+          "americanOdds": -800
+        },
+        {
+          "label": "Draw",
+          "side": "draw",
+          "modelProbability": 0.1061,
+          "marketProbability": 0.1061,
+          "americanOdds": 800
+        },
+        {
+          "label": "Cura\u00e7ao",
+          "side": "away",
+          "modelProbability": 0.0455,
+          "marketProbability": 0.0455,
+          "americanOdds": 2000
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw is a real third outcome (90-min regulation)."
+      ],
+      "notes": [
+        "3-way moneyline de-vigged from the sportsbook price."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 35,
+      "homeTeam": "Ecuador",
+      "awayTeam": "Cura\u00e7ao",
+      "kickoffUtc": "2026-06-21T00:00:00Z",
+      "homeCode": "EC",
+      "awayCode": "CW",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "E",
+      "venue": "Kansas City",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-20_35_dc",
+      "market": "double_chance",
+      "pick": "1X",
+      "pickLabel": "Ecuador or Draw",
+      "line": null,
+      "americanOdds": -5000,
+      "modelProbability": 0.9545,
+      "marketProbability": 0.9459,
+      "edgePct": 0.87,
+      "outcomes": [
+        {
+          "label": "Ecuador or Draw",
+          "side": "1X",
+          "modelProbability": 0.9545,
+          "marketProbability": 0.9459,
+          "americanOdds": -5000
+        },
+        {
+          "label": "Cura\u00e7ao or Draw",
+          "side": "X2",
+          "modelProbability": 0.1515,
+          "marketProbability": 0.1608,
+          "americanOdds": 500
+        },
+        {
+          "label": "Ecuador or Cura\u00e7ao",
+          "side": "12",
+          "modelProbability": 0.8939,
+          "marketProbability": 0.8933,
+          "americanOdds": -1250
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Double chance covers two of three outcomes \u2014 lower variance, shorter price."
+      ],
+      "notes": [
+        "Double chance from REAL book odds; model probability is the 3-way no-vig sum."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 35,
+      "homeTeam": "Ecuador",
+      "awayTeam": "Cura\u00e7ao",
+      "kickoffUtc": "2026-06-21T00:00:00Z",
+      "homeCode": "EC",
+      "awayCode": "CW",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "E",
+      "venue": "Kansas City",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-20_35_btts",
+      "market": "btts",
+      "pick": "no",
+      "pickLabel": "Both teams to score: No",
+      "line": null,
+      "americanOdds": -240,
+      "modelProbability": 0.6672,
+      "marketProbability": 0.6672,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "BTTS Yes",
+          "side": "yes",
+          "modelProbability": 0.3328,
+          "marketProbability": 0.3328,
+          "americanOdds": 184
+        },
+        {
+          "label": "BTTS No",
+          "side": "no",
+          "modelProbability": 0.6672,
+          "marketProbability": 0.6672,
+          "americanOdds": -240
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model."
+      ],
+      "notes": [
+        "Both-teams-to-score, de-vigged."
+      ]
+    },
+    {
+      "sport": "world_cup",
+      "date": "2026-06-20",
+      "matchId": 35,
+      "homeTeam": "Ecuador",
+      "awayTeam": "Cura\u00e7ao",
+      "kickoffUtc": "2026-06-21T00:00:00Z",
+      "homeCode": "EC",
+      "awayCode": "CW",
+      "homeLogo": null,
+      "awayLogo": null,
+      "group": "E",
+      "venue": "Kansas City",
+      "regulationOnly": true,
+      "sampleSizeWarning": true,
+      "opponentStrengthCoverage": 0,
+      "provider": "odds_api",
+      "oddsProvider": "odds_api",
+      "modelVersion": "wc-odds-only-v2",
+      "dataQuality": "limited",
+      "bookmaker": "fanduel",
+      "id": "wc_2026-06-20_35_dnb",
+      "market": "draw_no_bet",
+      "pick": "home",
+      "pickLabel": "Ecuador (draw no bet)",
+      "line": null,
+      "americanOdds": -6000,
+      "modelProbability": 0.9365,
+      "marketProbability": 0.9365,
+      "edgePct": 0.0,
+      "outcomes": [
+        {
+          "label": "Ecuador (DNB)",
+          "side": "home",
+          "modelProbability": 0.9365,
+          "marketProbability": 0.9365,
+          "americanOdds": -6000
+        },
+        {
+          "label": "Cura\u00e7ao (DNB)",
+          "side": "away",
+          "modelProbability": 0.0635,
+          "marketProbability": 0.0635,
+          "americanOdds": 1400
+        }
+      ],
+      "confidence": "Lean",
+      "projectionStatus": "active",
+      "public": true,
+      "parlayEligible": true,
+      "bankBuilderEligible": false,
+      "statusReason": null,
+      "settlementSupport": "regulation_90",
+      "riskTier": "Low",
+      "factors": [],
+      "caveats": [
+        "Odds-only: no API-Football stat/lineup layer. Market-implied \u2014 confidence capped; not a stat model.",
+        "Draw no bet voids on a draw (stake returned)."
+      ],
+      "notes": [
+        "Draw-no-bet, de-vigged (two-way)."
+      ]
+    }
+  ]
+}

@@ -75,6 +75,11 @@ export interface SpecialLeg {
   confidence: string;
   settlement: string;           // official settlement rule
   limitedData: boolean;         // player props pre-lineups
+  // Optional role-quality fields — populated by the role-screened (preview) builder; absent on the
+  // original production specials so this stays backward-compatible.
+  roleTier?: string;
+  roleEvidence?: string[];
+  lineupNote?: string;
 }
 
 export interface WorldCupSpecialCard {
@@ -97,6 +102,7 @@ export interface WorldCupSpecialCard {
   whyItCanFail: string[];
   settlementNotes: string[];
   diagnostics: string[];
+  roleQualitySummary?: string; // optional — set by the role-screened (preview) builder
 }
 
 export interface SpecialsDiagnostics {
