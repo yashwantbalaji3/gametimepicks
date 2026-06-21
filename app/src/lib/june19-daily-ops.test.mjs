@@ -6,13 +6,13 @@ import { buildCardFactoryDiagnostics } from "./parlays/card-factory-diagnostics.
 import { getRiskBucketForCombinedOdds, INDIVIDUAL_LEG_ODDS_GUARDS } from "./parlays/risk-odds-bands.ts";
 import { getGameDetail } from "./game-detail.ts";
 
-test("current slate auto-detects the latest World Cup slate (now June 20)", () => {
-  const v = loadTodaySlate(undefined, "2026-06-20T12:00:00Z");
-  assert.equal(v.date, "2026-06-20", "latestSlateDate picks up the latest World Cup slate");
+test("current slate auto-detects the latest World Cup slate (now June 21)", () => {
+  const v = loadTodaySlate(undefined, "2026-06-21T12:00:00Z");
+  assert.equal(v.date, "2026-06-21", "latestSlateDate picks up the latest World Cup slate");
 });
 
 test("current World Cup slate is real + odds-backed, every card sits in its combined-odds band", () => {
-  const v = loadTodaySlate("2026-06-20", "2026-06-20T12:00:00Z");
+  const v = loadTodaySlate("2026-06-21", "2026-06-21T12:00:00Z");
   const wc = v.sports.find((s) => s.sport === "WORLD_CUP");
   assert.ok(wc && wc.eligibleCount > 0, "World Cup has eligible legs");
   const byRisk = v.suggestedBySportRisk["WORLD_CUP"] ?? {};
@@ -32,12 +32,12 @@ test("current World Cup slate is real + odds-backed, every card sits in its comb
   }
   // projections artifact is odds-backed + dated to the current slate
   const proj = JSON.parse(fs.readFileSync("public/data/world-cup/projections/latest.json", "utf8"));
-  assert.equal(proj.date, "2026-06-20");
+  assert.equal(proj.date, "2026-06-21");
   assert.equal(proj.provider, "odds_api");
   assert.ok(proj.matches.every((m) => m.bookmaker && typeof m.americanOdds === "number"), "every market is odds-backed");
   // player props expanded to real posted markets (goalscorer + SoT + assists + total shots)
   const pp = JSON.parse(fs.readFileSync("public/data/world-cup/player-projections/latest.json", "utf8"));
-  assert.equal(pp.date, "2026-06-20");
+  assert.equal(pp.date, "2026-06-21");
   assert.ok(Object.keys(pp.byMarket ?? {}).length >= 2, "multiple real player markets posted");
 });
 
@@ -89,7 +89,7 @@ test("MLB + Mixed buckets are now odds-backed (paid key), every card fits its ba
 });
 
 test("each current World Cup game resolves + carries game-specific cards (no cross-fixture leak)", () => {
-  for (const slug of ["netherlands-vs-sweden-2026-06-20", "germany-vs-ivory-coast-2026-06-20"]) {
+  for (const slug of ["spain-vs-saudi-arabia-2026-06-21", "belgium-vs-iran-2026-06-21"]) {
     const d = getGameDetail("world-cup", slug);
     assert.ok(d, `${slug} resolves`);
     assert.ok(Array.isArray(d.teamProjections), `${slug} has projections`);

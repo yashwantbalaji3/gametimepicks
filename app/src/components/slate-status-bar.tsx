@@ -15,7 +15,6 @@
  */
 import Link from "next/link";
 
-import { getLatestOptimizerSnapshot } from "@/lib/data-parlays";
 import { getOptimizerGradedDates } from "@/lib/parlay-results";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
@@ -63,10 +62,12 @@ export default function SlateStatusBar() {
   const realToday = currentEtDate();
   const today = slateDate ?? realToday;
   const slateIsCurrent = today === realToday;
-  const activeDate = getLatestOptimizerSnapshot()?.date ?? null;
   const gradedDates = getOptimizerGradedDates();
   const latestSettled = gradedDates.length ? [...gradedDates].sort().slice(-1)[0] : null;
-  const activeIsSettled = !!activeDate && !!latestSettled && activeDate <= latestSettled;
+  // The current slate is "settled" only when it is on or before the latest officially-graded slate.
+  // A freshly-pulled pregame slate (its date is after the last settled date) reads "Pregame slate" —
+  // not "settled" — even if the optimizer's last snapshot is an older graded day.
+  const activeIsSettled = !!latestSettled && !!slateDate && slateDate <= latestSettled;
   const bank = loadPublicBankBuilderSummary();
   const bankLabel = bank
     ? `$${bank.currentBankrollUnits.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`

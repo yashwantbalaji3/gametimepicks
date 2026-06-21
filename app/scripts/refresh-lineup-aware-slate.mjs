@@ -66,12 +66,16 @@ async function fetchConfirmedXI() {
 async function main() {
   const { names: confirmedStarters, teams: postedTeams } = await fetchConfirmedXI();
 
-  // The Specials builder reads previews/june20/* — sync it from the freshly-pulled production WC data.
-  for (const [kind, file] of [["projections", "projections.json"], ["player-projections", "player-projections.json"], ["parlays", "parlays.json"]]) {
-    cp(path.join(DATA, "world-cup", kind, `${date}.json`), path.join(DATA, "previews", "june20", file));
+  // The Specials builder is date-parameterized: for any date other than the June 20 demo it reads the
+  // live per-date pull (world-cup/projections/<date>.json + player-projections/<date>.json) directly.
+  // Only the legacy June 20 demo still syncs its isolated previews/june20/ snapshot.
+  if (date === "2026-06-20") {
+    for (const [kind, file] of [["projections", "projections.json"], ["player-projections", "player-projections.json"], ["parlays", "parlays.json"]]) {
+      cp(path.join(DATA, "world-cup", kind, `${date}.json`), path.join(DATA, "previews", "june20", file));
+    }
   }
 
-  const specials = buildJune20SpecialsPreview({ nowIso, confirmedStarters, postedTeams });
+  const specials = buildJune20SpecialsPreview({ date, nowIso, confirmedStarters, postedTeams });
   const slate = loadTodaySlate(date, nowIso);
   const coverage = buildCoverageMatrix(slate, loadMoonshotLane(), nowIso);
 
