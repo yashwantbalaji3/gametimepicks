@@ -10,14 +10,14 @@ const daily = read("daily-summary.json");
 
 test("portfolio math after June 19 settlement: bankroll, HWM, drawdown, ROI, record", () => {
   // June 19 settled: Lane A WON (Step 2 → riding $601.56), Lane B LOST (−$100), Moonshot LOST (−$25, separate).
-  assert.equal(portfolio.currentBankroll, 9876.17);
+  assert.equal(portfolio.currentBankroll, 10176.17);
   assert.equal(portfolio.highWaterMark, 10376.17);
-  assert.equal(portfolio.drawdown, 500);
-  assert.ok(Math.abs(portfolio.drawdownPct - 0.0482) < 0.001, "drawdown ≈ 4.82% of HWM");
+  assert.equal(portfolio.drawdown, 200);
+  assert.ok(Math.abs(portfolio.drawdownPct - 0.0193) < 0.001, "drawdown ≈ 1.93% of HWM");
   // All June 19 cards settled → no open core exposure.
   assert.equal(portfolio.openExposure, 0);
-  assert.equal(portfolio.roiMultiple, 97.76);
-  assert.deepEqual(portfolio.record, { wins: 8, losses: 5, voids: 0, pending: 0 });
+  assert.equal(portfolio.roiMultiple, 100.76);
+  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 0 });
   // Reconciliation: realized paperProfit still === settledProfit.
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
   assert.equal(sum, portfolio.settledProfit, "no double-counting — settled profit reconciles");

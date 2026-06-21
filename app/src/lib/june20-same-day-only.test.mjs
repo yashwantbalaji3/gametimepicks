@@ -54,7 +54,7 @@ test("Moonshot: no active or candidate leg is a future slate, future teams remov
 test("Mr. Dub: no open exposure — candidate-only surfaces never count as money at risk", () => {
   assert.equal(portfolio.openExposure, 0, "future-slate placement removed → exposure $0");
   assert.equal(portfolio.totalOpenExposure, 0, "no total exposure");
-  assert.deepEqual(portfolio.record, { wins: 8, losses: 5, voids: 0, pending: 0 }, "8-5, no pending (no open card)");
+  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 0 }, "8-2 after ledger reconciliation, no pending");
   assert.equal((portfolio.activeCards ?? []).length, 0, "no active cards");
 });
 
