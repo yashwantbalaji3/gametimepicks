@@ -461,80 +461,15 @@
         },
         {
           "step": 3,
-          "status": "pending",
+          "status": "awaiting",
           "result": null,
-          "stake": 601.56,
-          "payout": 1406.43,
-          "combinedOdds": 134,
-          "legs": [
-            {
-              "legId": "WORLD_CUP:wc_2026-06-21_dfc5202cf1b8ae002cf952cd04f235b9_ml:moneyline_90:Japan:",
-              "sport": "WORLD_CUP",
-              "eventId": "wc_2026-06-21_dfc5202cf1b8ae002cf952cd04f235b9_ml",
-              "label": "Japan moneyline_90",
-              "participantName": "Japan",
-              "marketType": "moneyline_90",
-              "odds": -205,
-              "modelProbability": 0.6405,
-              "legQualityTier": "strong",
-              "legQualityScore": 64,
-              "riskScore": 0.36,
-              "side": null,
-              "line": null,
-              "startTime": "2026-06-21T04:00:00Z",
-              "confidenceTier": "Medium",
-              "dataQuality": "B",
-              "topPositiveFactors": [
-                {
-                  "label": "odds-backed model edge",
-                  "direction": "positive",
-                  "weight": 0.64
-                }
-              ],
-              "topNegativeFactors": [],
-              "settlement": "official 90-minute regulation result",
-              "opponentName": "Tunisia",
-              "teamLabel": "Japan",
-              "kind": "team",
-              "fixture": "Tunisia vs Japan"
-            },
-            {
-              "legId": "WORLD_CUP:wc_2026-06-21_40_ml:moneyline_90:Egypt:",
-              "sport": "WORLD_CUP",
-              "eventId": "wc_2026-06-21_40_ml",
-              "label": "Egypt moneyline_90",
-              "participantName": "Egypt",
-              "marketType": "moneyline_90",
-              "odds": -175,
-              "modelProbability": 0.6037,
-              "legQualityTier": "strong",
-              "legQualityScore": 60,
-              "riskScore": 0.396,
-              "side": null,
-              "line": null,
-              "startTime": "2026-06-22T01:00:00Z",
-              "confidenceTier": "Medium",
-              "dataQuality": "B",
-              "topPositiveFactors": [
-                {
-                  "label": "odds-backed model edge",
-                  "direction": "positive",
-                  "weight": 0.6
-                }
-              ],
-              "topNegativeFactors": [],
-              "settlement": "official 90-minute regulation result",
-              "opponentName": "New Zealand",
-              "teamLabel": "Egypt",
-              "kind": "team",
-              "fixture": "New Zealand vs Egypt"
-            }
-          ],
-          "slateDate": "2026-06-21",
-          "projectedPayout": 1406.43,
-          "laneSurvivalScore": 62,
-          "estimatedHitProbability": 0.3867,
-          "freshCard": true
+          "stake": null,
+          "payout": null,
+          "combinedOdds": null,
+          "legs": [],
+          "slateDate": null,
+          "projectedPayout": null,
+          "freshCard": false
         },
         {
           "step": 4,
@@ -557,7 +492,7 @@
       ],
       "currentStep": 3,
       "target": 10000,
-      "laneStatus": "active",
+      "laneStatus": "advanced",
       "publicVisible": true,
       "stopReason": null,
       "replacementCandidates": [
@@ -588,8 +523,18 @@
           "reason": "MLB alt if Jax scratched \u2014 Skubal ace strikeouts, high floor"
         }
       ],
-      "awaiting": false,
-      "nextStepStake": 601.56
+      "awaiting": true,
+      "nextStepStake": 601.56,
+      "awaitingNote": "Step 2 won ($197.88 \u2192 $601.56). Step 3 awaiting a clean June 20 card \u2014 the earlier candidate used future-slate games and was removed. $601.56 rides (not counted as exposure).",
+      "nextCandidate": {
+        "status": "pending",
+        "headline": "Step 3 \u00b7 awaiting a clean June 20 card",
+        "reason": "Future-slate candidate removed (it used next-slate games). Today's remaining June 20 World Cup slate has no qualified Step 3 card \u2014 the prior games are final and the last game (Ecuador/Cura\u00e7ao) is at kickoff, so no pre-event 2-leg card qualifies. $601.56 rides, awaiting a clean June 20 card. Next-slate games are hidden from today's board.",
+        "stake": 601.56,
+        "combinedOdds": null,
+        "projectedReturn": null,
+        "legs": []
+      }
     },
     "laneB": {
       "laneId": "B",
@@ -1236,76 +1181,13 @@
         "stake": 100
       },
       "nextCandidate": {
-        "status": "awaiting_approval",
-        "headline": "Restart candidate \u00b7 Belgium ML + Uruguay ML",
-        "reason": "Fresh $100 Lane B restart on two pre-event moneyline favorites \u2014 Belgium (vs Iran) + Uruguay (vs Cape Verde). Lower-volatility, settlement-supported (official 90-minute result), no bench/unknown player props. Awaiting your approval before any paper exposure.",
+        "status": "pending",
+        "headline": "Restart \u00b7 awaiting a clean June 20 card",
+        "reason": "No clean June 20 restart candidate available \u2014 the future-slate candidate was removed. Next-slate candidates are hidden from today's board.",
         "stake": 100,
-        "combinedOdds": 106,
-        "projectedReturn": 206.06,
-        "legs": [
-          {
-            "legId": "WORLD_CUP:wc_2026-06-21_38_ml:moneyline_90:Belgium:",
-            "sport": "WORLD_CUP",
-            "eventId": "wc_2026-06-21_38_ml",
-            "label": "Belgium moneyline_90",
-            "participantName": "Belgium",
-            "marketType": "moneyline_90",
-            "odds": -240,
-            "modelProbability": 0.6695,
-            "legQualityTier": "strong",
-            "legQualityScore": 66,
-            "riskScore": 0.331,
-            "side": null,
-            "line": null,
-            "startTime": "2026-06-21T19:00:00Z",
-            "confidenceTier": "Medium",
-            "dataQuality": "B",
-            "topPositiveFactors": [
-              {
-                "label": "odds-backed model edge",
-                "direction": "positive",
-                "weight": 0.67
-              }
-            ],
-            "topNegativeFactors": [],
-            "settlement": "official 90-minute regulation result",
-            "opponentName": "Iran",
-            "teamLabel": "Belgium",
-            "kind": "team",
-            "fixture": "Belgium vs Iran"
-          },
-          {
-            "legId": "WORLD_CUP:wc_2026-06-21_39_ml:moneyline_90:Uruguay:",
-            "sport": "WORLD_CUP",
-            "eventId": "wc_2026-06-21_39_ml",
-            "label": "Uruguay moneyline_90",
-            "participantName": "Uruguay",
-            "marketType": "moneyline_90",
-            "odds": -220,
-            "modelProbability": 0.6554,
-            "legQualityTier": "strong",
-            "legQualityScore": 65,
-            "riskScore": 0.345,
-            "side": null,
-            "line": null,
-            "startTime": "2026-06-21T22:00:00Z",
-            "confidenceTier": "Medium",
-            "dataQuality": "B",
-            "topPositiveFactors": [
-              {
-                "label": "odds-backed model edge",
-                "direction": "positive",
-                "weight": 0.66
-              }
-            ],
-            "topNegativeFactors": [],
-            "settlement": "official 90-minute regulation result",
-            "opponentName": "Cape Verde",
-            "teamLabel": "Uruguay",
-            "kind": "team",
-            "fixture": "Uruguay vs Cape Verde"
-          }
-        ]
+        "combinedOdds": null,
+        "projectedReturn": null,
+        "legs": []
       }
     },
     "selectedFourLegs": [

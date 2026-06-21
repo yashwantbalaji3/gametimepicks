@@ -8,7 +8,7 @@ const step1 = A.steps.find((s) => s.step === 1);
 const dec = (o) => (o >= 0 ? 1 + o / 100 : 1 + 100 / -o);
 
 test("Lane A Step 1 (Mexico DNB + Soto) was launched from $100 and settled WON → lane advanced", () => {
-  assert.equal(A.laneStatus, "active", "Lane A advanced after Step 1 won");
+  assert.equal(A.laneStatus, "advanced", "Lane A advanced after Step 1 won");
   assert.equal(A.publicVisible, true);
   assert.equal(step1.status, "settled");
   assert.equal(step1.result, "won");
@@ -44,7 +44,7 @@ test("fresh Lane A excludes the failed Czech leg, the old Josh Bell leg, and all
 
 test("Lane A is a single clean run — the old failed pre-history was removed (no contradictory stopped+advanced)", () => {
   // The stale priorLane / relaunch (an earlier run that lost Step 2) was dropped so the Mr. Dub ledger
-  // reads as one coherent timeline: Step 1 won → Step 2 won → Step 3 placed. No failed pre-history.
+  // reads as one coherent timeline: Step 1 won → Step 2 won → Step 3 awaiting. No failed pre-history.
   assert.ok(!A.priorLane, "no priorLane — the earlier failed run was removed");
   assert.ok(!A.relaunch && !A.relaunchAudit, "no relaunch artifacts left on Lane A");
   const publicLabels = A.steps.flatMap((s) => (s.legs ?? []).map((l) => l.label)).join(" ");

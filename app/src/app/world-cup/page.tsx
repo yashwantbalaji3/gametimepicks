@@ -20,6 +20,7 @@ import {
   daysUntilOpener,
 } from "@/lib/data-world-cup";
 import { currentEtDate } from "@/lib/freshness";
+import { currentSlateDate } from "@/lib/parlays/ui-loader";
 
 import {
   loadWorldCupMarketOutlook,
@@ -75,7 +76,7 @@ export default function WorldCupLandingPage() {
   const schedule = loadWorldCupSchedule();
   const daysOut = daysUntilOpener();
   const isLive = daysOut <= 0;
-  const today = currentEtDate();
+  const today = currentSlateDate() ?? currentEtDate();
   const todayMatches = matchesOnDate(today);
   const nextMatch =
     todayMatches[0] ??

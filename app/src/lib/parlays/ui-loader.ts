@@ -190,6 +190,18 @@ function dataRoot(): string {
   return path.join(process.cwd(), "public", "data");
 }
 
+/**
+ * The date of the slate the product is currently presenting — the latest date with a generated
+ * MLB board OR World Cup projections. This is the public "current slate" pointer used for display
+ * (e.g. the global status-bar chip), distinct from `currentEtDate()` (the real wall clock). When an
+ * overnight job has generated today's slate they coincide; when the latest slate is behind the wall
+ * clock (no fresh slate generated yet), this returns that latest slate so the header shows the real
+ * slate date rather than a bare wall-clock date with no matching data. Returns null if no slate exists.
+ */
+export function currentSlateDate(): string | null {
+  return latestSlateDate(dataRoot());
+}
+
 /** Latest date that has a populated MLB board (the active sport); else null. */
 function latestSlateDate(root: string): string | null {
   // The current slate is the latest date with EITHER an MLB board OR World Cup projections — a WC-only

@@ -300,18 +300,20 @@
           "topReasons": [
             "active_card_tracked_separately"
           ],
-          "message": "Active card tracked separately — not promoted as a generic suggestion (no double-count)."
+          "message": "Active card tracked separately \u2014 not promoted as a generic suggestion (no double-count)."
         },
         {
           "scope": "bank_builder",
           "risk": "medium",
           "label": "Medium Risk",
-          "count": 1,
+          "count": 0,
           "target": 0,
           "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "1 active card in this bucket."
+          "status": "empty",
+          "topReasons": [
+            "awaiting_clean_june20_card"
+          ],
+          "message": "Lane A advanced (Steps 1+2 won) \u2014 Step 3 awaiting a clean June 20 card. No active card placed (future-slate candidate removed)."
         },
         {
           "scope": "bank_builder",
@@ -324,7 +326,7 @@
           "topReasons": [
             "active_card_tracked_separately"
           ],
-          "message": "Active card tracked separately — not promoted as a generic suggestion (no double-count)."
+          "message": "Active card tracked separately \u2014 not promoted as a generic suggestion (no double-count)."
         },
         {
           "scope": "bank_builder",
@@ -337,23 +339,23 @@
           "topReasons": [
             "active_card_tracked_separately"
           ],
-          "message": "Active card tracked separately — not promoted as a generic suggestion (no double-count)."
+          "message": "Active card tracked separately \u2014 not promoted as a generic suggestion (no double-count)."
         }
       ],
-      "total": 1
+      "total": 0
     }
   ],
   "riskTotals": {
     "low": 0,
-    "medium": 15,
+    "medium": 14,
     "high": 14,
     "longshot": 14
   },
-  "grandTotal": 43,
+  "grandTotal": 42,
   "diagnosticsSummary": [
     "42 cards passed across all scopes for 2026-06-20. Empty buckets list their gate / data reason below. Odds-band guards: 10 leg(s) too short (<-500), 6 too long (>+1200) dropped; 0 card(s) re-homed to the band their combined odds fit; 0 dropped as out-of-band.",
     "No Low Risk card anywhere: a 2+-leg parlay rarely prices into -200..+100 after removing extreme-favorite filler (< -500). Honest empty, not a gate failure.",
-    "Moonshot + Core Bank Builder are counted in their own rows only — never inside the generic WC/MLB/Mixed suggestions, so no card is double-counted."
+    "Moonshot + Core Bank Builder are counted in their own rows only \u2014 never inside the generic WC/MLB/Mixed suggestions, so no card is double-counted."
   ],
   "balancedGeneration": {
     "targets": {
@@ -429,7 +431,7 @@
       "mlb.low": "No MLB Low Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates).",
       "mixed.low": "No Mixed-sport Low Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates).",
       "moonshot.longshot": "Moonshot Lane awaiting a qualified card.",
-      "bank_builder.medium": "1/2 — capped or limited eligible cards"
+      "bank_builder.medium": "1/2 \u2014 capped or limited eligible cards"
     },
     "capPerBucket": 5
   }
