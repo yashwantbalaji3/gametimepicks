@@ -98,6 +98,10 @@ function main() {
     if (lane.priorLane?.steps?.length) {
       const priorStake = round2(lane.priorLane.steps[0]?.stake ?? 100);
       for (const s of lane.priorLane.steps) {
+        // Only SETTLED rungs are real history — `coming_soon` placeholder steps (Steps 3-5 on a
+        // stopped lane) carry no result and must NOT be counted as losses (that double-counted the
+        // lane's single $100 stake N times and dragged the bankroll below the true value).
+        if (s.status !== "settled") continue;
         const legs = (s.legs ?? []).map((l) => ({ sport: l.sport, market: l.marketType, selection: l.label, result: l.settlement?.result ?? "settled", officialResult: l.settlement?.official ?? null, source: l.settlement?.source ?? "official" }));
         const won = s.result === "won";
         won ? wins++ : losses++;

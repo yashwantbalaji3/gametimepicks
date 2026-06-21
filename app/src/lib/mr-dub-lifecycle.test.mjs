@@ -26,13 +26,13 @@ test("dual-lane lifecycle after June 19 settlement: Lane A advanced (Step 2 won)
   assert.equal(b.steps.find((s) => s.step === 1).result, "lost");
 });
 
-test("Mr. Dub ledger after June 19 settlement: bankroll $9,876.17, exposure $0, record 8-5-0-0", () => {
+test("Mr. Dub ledger after reconciliation: bankroll $10,176.17, exposure $0, record 8-2-0-0", () => {
   const p = read("portfolio.json");
   assert.equal(p.paperOnly, true);
   assert.equal(p.crownBankroll, 10376.17, "original completed ladder imported");
-  assert.equal(p.currentBankroll, 9876.17, "settlement moved the bankroll (Lane B + Moonshot losses realized)");
+  assert.equal(p.currentBankroll, 10176.17, "crown $10,376.17 less two real Lane B lost seeds ($200) — above $10k");
   assert.equal(p.openExposure, 0, "no open cards (future-slate Step 3 candidate removed) → exposure $0");
-  assert.deepEqual(p.record, { wins: 8, losses: 5, voids: 0, pending: 0 }, "8-5, no pending (no open card)");
+  assert.deepEqual(p.record, { wins: 8, losses: 2, voids: 0, pending: 0 }, "8-2, no pending (phantom Lane B stops removed)");
   const led = read("ledger.json");
   assert.ok(led.events.some((e) => e.type === "lane_advanced" && e.laneId === "lane-a"), "Lane A advance logged");
   assert.ok(led.events.some((e) => e.type === "lane_stopped" && e.laneId === "lane-b"), "Lane B stop logged");
