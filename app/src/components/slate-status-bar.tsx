@@ -18,6 +18,7 @@ import Link from "next/link";
 import { getLatestOptimizerSnapshot } from "@/lib/data-parlays";
 import { getOptimizerGradedDates } from "@/lib/parlay-results";
 import { currentEtDate } from "@/lib/freshness";
+import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 
 function fmtShort(iso: string | null): string {
@@ -55,7 +56,13 @@ function Chip({
 }
 
 export default function SlateStatusBar() {
-  const today = currentEtDate();
+  // The chip reflects the slate the product is presenting (the latest generated slate), not the bare
+  // wall clock — when no fresh slate has been generated for the real calendar date yet, show the
+  // latest available slate's date labeled "Latest slate" rather than asserting a "Today" with no data.
+  const slateDate = currentSlateDate();
+  const realToday = currentEtDate();
+  const today = slateDate ?? realToday;
+  const slateIsCurrent = today === realToday;
   const activeDate = getLatestOptimizerSnapshot()?.date ?? null;
   const gradedDates = getOptimizerGradedDates();
   const latestSettled = gradedDates.length ? [...gradedDates].sort().slice(-1)[0] : null;
@@ -71,7 +78,7 @@ export default function SlateStatusBar() {
       style={{ background: "rgba(26, 16, 11, 0.6)", borderBottom: "1px solid var(--vault-border)" }}
     >
       <Chip href="/today">
-        <span style={{ color: "var(--vault-text)" }}>Today</span>
+        <span style={{ color: "var(--vault-text)" }}>{slateIsCurrent ? "Today" : "Latest slate"}</span>
         <span>· {fmtShort(today)}</span>
       </Chip>
       <Chip accent="var(--vault-gold-bright)">

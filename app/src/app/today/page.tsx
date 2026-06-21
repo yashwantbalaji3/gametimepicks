@@ -40,7 +40,7 @@ import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
 import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
 import SectionHeader from "@/components/section-header";
 import YesterdaySummary from "@/components/yesterday-summary";
-import { loadTodaySlate } from "@/lib/parlays/ui-loader";
+import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import WorldCupSpecialsBox from "@/components/world-cup/world-cup-specials-box";
@@ -66,7 +66,10 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 }
 
 export default function TodayPage() {
-  const today = currentEtDate();
+  // Frame the page on the slate the product is presenting (the latest generated slate). When an
+  // overnight job has produced today's slate this equals the wall clock; when it hasn't, we show the
+  // latest available slate (e.g. June 20) coherently rather than a wall-clock "today" with no data.
+  const today = currentSlateDate() ?? currentEtDate();
   // Yesterday (ET) — drives the settled-results strip; UTC-noon math avoids off-by-one.
   const yesterday = new Date(new Date(`${today}T12:00:00Z`).getTime() - 86400000)
     .toISOString()

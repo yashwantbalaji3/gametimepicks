@@ -18,7 +18,7 @@ import {
 } from "@/lib/normalize";
 import PicksExperience from "@/components/picks-experience";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
-import { loadTodaySlate } from "@/lib/parlays/ui-loader";
+import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import SectionHeader from "@/components/section-header";
@@ -54,7 +54,8 @@ function ufcSettled(): boolean {
 }
 
 export default function PicksPage() {
-  const today = currentEtDate();
+  // Frame on the latest generated slate (equals the wall clock once an overnight slate exists).
+  const today = currentSlateDate() ?? currentEtDate();
   const engineSlate = loadTodaySlate(); // canonical methodology-engine cards (WC + Mixed + by-risk)
   // Only TODAY's slate is an active pick. Stale daily-mixed + World Cup artifacts (last
   // generated on an earlier date) are date-gated out so /picks never leads with old cards.
