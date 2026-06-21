@@ -73,7 +73,7 @@ export interface June20SpecialsPreview {
   generatedAt: string;
   lineupsPosted: boolean;
   preview: true;
-  config: typeof JUNE20_SPECIALS_CONFIG;
+  config: Omit<typeof JUNE20_SPECIALS_CONFIG, "date"> & { date: string };
   games: Array<{ fixture: string; kickoffUtc: string | null }>;
   cards: WorldCupSpecialCard[];
   diagnostics: June20RoleDiagnostics;
@@ -96,6 +96,20 @@ function readPreview(root: string, file: string): any | null {
   catch { return null; }
 }
 
+/**
+ * Date-parameterized slate read (daily-repeatable). The legacy June 20 demo reads its isolated
+ * `previews/june20/` snapshot (keeps existing tests stable); every other date reads the live
+ * per-date pull at `world-cup/projections/<date>.json` + `world-cup/player-projections/<date>.json`
+ * (identical schema), so the Specials engine works for any slate the pipeline has pulled.
+ */
+function readSlateDoc(root: string, date: string, kind: "projections" | "player-projections"): any | null {
+  if (date === JUNE20_SPECIALS_CONFIG.date) {
+    return readPreview(root, kind === "projections" ? "projections.json" : "player-projections.json");
+  }
+  try { return JSON.parse(fs.readFileSync(path.join(root, "world-cup", kind, `${date}.json`), "utf8")); }
+  catch { return null; }
+}
+
 function fixtureIndex(teamDoc: any): Map<string, FixtureMeta> {
   const out = new Map<string, FixtureMeta>();
   for (const r of teamDoc?.matches ?? []) {
@@ -114,11 +128,12 @@ function teamForPick(market: string, pickLabel: string, home: string, away: stri
 }
 
 /** Build the role-screened June 20 Specials preview from the isolated `previews/june20/` data. */
-export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string; confirmedStarters?: ReadonlySet<string>; postedTeams?: ReadonlySet<string> }): June20SpecialsPreview {
+export function buildJune20SpecialsPreview(opts: { root?: string; date?: string; nowIso: string; confirmedStarters?: ReadonlySet<string>; postedTeams?: ReadonlySet<string> }): June20SpecialsPreview {
   const root = opts.root ?? path.join(process.cwd(), "public", "data");
-  const cfg = JUNE20_SPECIALS_CONFIG;
-  const team = readPreview(root, "projections.json");
-  const pp = readPreview(root, "player-projections.json");
+  const date = opts.date ?? JUNE20_SPECIALS_CONFIG.date;
+  const cfg = { ...JUNE20_SPECIALS_CONFIG, date };
+  const team = readSlateDoc(root, date, "projections");
+  const pp = readSlateDoc(root, date, "player-projections");
   const lineupsPosted = pp?.lineupsPosted === true;
   const fixtures = fixtureIndex(team);
   const games = Array.from(fixtures.values()).map((f) => ({ fixture: `${f.home} vs ${f.away}`, kickoffUtc: f.kickoffUtc }));
@@ -131,7 +146,7 @@ export function buildJune20SpecialsPreview(opts: { root?: string; nowIso: string
   const notes: string[] = [];
 
   if (!team || !pp) {
-    notes.push("June 20 preview data not found — run the June 20 pull into previews/june20/.");
+    notes.push(`${date} World Cup slate data not found — run the odds + player-props pull for this date.`);
     return { date: cfg.date, generatedAt: opts.nowIso, lineupsPosted, preview: true, config: cfg, games, cards: [], diagnostics: diag, roleBreakdown: { eligible: [], excluded: [] }, notes };
   }
 

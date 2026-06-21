@@ -13,10 +13,10 @@ import {
 } from "./world-cup-specials.ts";
 import { combinedAmerican } from "../parlays/odds-math.ts";
 
-const DATE = "2026-06-20";
-// The slate has rolled to June 20. At 12:00Z all three June 20 games (NED/SWE 17:00Z, GER/CIV 20:00Z,
-// ECU/CUR 00:00Z+1) are pre-event.
-const NOW = "2026-06-20T12:00:00Z";
+const DATE = "2026-06-21";
+// The slate has rolled to June 21. At 08:00Z all four odds-backed June 21 games (Spain 16:00Z,
+// Belgium 19:00Z, Uruguay 22:00Z, NZ/Egypt 01:00Z+1) are pre-event.
+const NOW = "2026-06-21T08:00:00Z";
 const cfg = WORLD_CUP_SPECIALS_CONFIG;
 const result = buildWorldCupSpecials({ nowIso: NOW, date: DATE });
 
@@ -81,8 +81,8 @@ test("every card has >= 2 team props, >= 2 player props, and >= 2 distinct games
 test("no started games — every leg kickoff is in the future relative to NOW", () => {
   for (const c of result.cards)
     for (const l of c.legs) assert.ok(l.startTime && l.startTime > NOW, `${l.participant} is pre-event`);
-  // At 12:00Z on June 20 every June 20 game is still pre-event, so none are excluded as started.
-  assert.deepEqual(result.diagnostics.excludedStartedGames, [], "no June 20 game has kicked off yet");
+  // At 08:00Z on June 21 every odds-backed June 21 game is still pre-event, so none are excluded as started.
+  assert.deepEqual(result.diagnostics.excludedStartedGames, [], "no June 21 game has kicked off yet");
 });
 
 test("no fabricated markets — only the real posted team + player market labels appear", () => {
@@ -134,7 +134,7 @@ test("diagnostics report the real eligible-pool sizes + rejection counts", () =>
   const players = loadSpecialsPlayerLegs(process.cwd() + "/public/data", NOW, DATE);
   assert.equal(result.diagnostics.eligibleTeamLegs, team.length);
   assert.equal(result.diagnostics.eligiblePlayerLegs, players.length);
-  assert.equal(result.diagnostics.preEventGames, 3, "three pre-event June 20 games");
+  assert.equal(result.diagnostics.preEventGames, 4, "four pre-event June 21 games");
   assert.ok(result.diagnostics.rejectedOutOfLegOddsRange > 0, "extreme-priced legs were rejected");
   // Every loaded leg respects the strict band + pre-event rule.
   for (const l of [...team, ...players]) {
