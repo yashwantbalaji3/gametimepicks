@@ -60,6 +60,7 @@ import PlayerPropCard from "@/components/ui/player-prop-card";
 import StatusChip from "@/components/ui/status-chip";
 import WorldCupCuratedPicks from "@/components/world-cup/curated-picks";
 import { loadWorldCupCuratedGames } from "@/lib/curated-picks";
+import EgyptNzSameGame, { loadNzEgyptMarkets } from "@/components/world-cup/egypt-nz-same-game";
 
 export const metadata = {
   title: "FIFA World Cup 2026 · GameTime Picks",
@@ -145,6 +146,8 @@ export default function WorldCupLandingPage() {
   const wcProjections = normalizeWcProjections(projections);
   const wcPlayers = normalizeWcPlayerProps(playerProjections);
   const curatedGames = loadWorldCupCuratedGames();
+  // Egypt vs New Zealand — same-game ideas built from the real matchId-40 markets (kickoff-gated).
+  const nzEgyptMarkets = loadNzEgyptMarkets(today);
   const playerByMarket = new Map<string, PublicProjection[]>();
   for (const p of wcPlayers) {
     const arr = playerByMarket.get(p.marketLabel) ?? [];
@@ -350,6 +353,7 @@ export default function WorldCupLandingPage() {
       ) : (
         <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>Suggested cards are built only from parlay-eligible projections. When none clear the threshold, the probability views (Projections tab) are still shown — we don't turn a sub-threshold edge into a card.</p>
       )}
+      {nzEgyptMarkets ? <EgyptNzSameGame data={nzEgyptMarkets} /> : null}
     </div>
   );
 

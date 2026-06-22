@@ -19,6 +19,34 @@ import { getOptimizerGradedDates } from "@/lib/parlay-results";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
+import { loadWorldCupProjections } from "@/lib/world-cup/projections";
+
+/**
+ * Slate progress relative to build time, from the current slate's World Cup kickoffs:
+ *   "settled"     — kept for the graded-slate case (handled by the caller)
+ *   "in_progress" — most/all of the slate's games have kicked off
+ *   "pregame"     — no game has started yet
+ * Returns null when there is no usable kickoff data so the caller can fall back to its prior behavior.
+ */
+function slateProgressFromKickoffs(slateDate: string | null, nowMs: number): "in_progress" | "pregame" | null {
+  if (!slateDate) return null;
+  const proj = loadWorldCupProjections();
+  if (!proj || proj.date !== slateDate) return null;
+  // Dedupe to one kickoff per match (the projections artifact has many market rows per match).
+  const kickoffByMatch = new Map<number, number>();
+  for (const m of proj.matches ?? []) {
+    if (!m.kickoffUtc) continue;
+    const t = Date.parse(m.kickoffUtc);
+    if (Number.isNaN(t)) continue;
+    if (!kickoffByMatch.has(m.matchId)) kickoffByMatch.set(m.matchId, t);
+  }
+  const kickoffs = [...kickoffByMatch.values()];
+  if (kickoffs.length === 0) return null;
+  const started = kickoffs.filter((t) => t <= nowMs).length;
+  if (started === 0) return "pregame";
+  // "most" started → in progress (covers the late-evening case where only the last game is pre-kickoff).
+  return started * 2 >= kickoffs.length ? "in_progress" : "pregame";
+}
 
 function fmtShort(iso: string | null): string {
   if (!iso) return "—";
@@ -68,6 +96,14 @@ export default function SlateStatusBar() {
   // A freshly-pulled pregame slate (its date is after the last settled date) reads "Pregame slate" —
   // not "settled" — even if the optimizer's last snapshot is an older graded day.
   const activeIsSettled = !!latestSettled && !!slateDate && slateDate <= latestSettled;
+  // Honest mid-slate label: when the slate is NOT graded yet but its games have largely kicked off
+  // (relative to build time), it must NOT read "Pregame slate" — show "Slate in progress" instead.
+  // Falls back to the prior pregame/settled behavior when no kickoff data is available.
+  const progress = activeIsSettled ? null : slateProgressFromKickoffs(slateDate, Date.now());
+  const slateInProgress = progress === "in_progress";
+  const slateLabel = activeIsSettled ? "Slate settled" : slateInProgress ? "Slate in progress" : "Pregame slate";
+  const slateDotColor = activeIsSettled ? "var(--vault-success)" : slateInProgress ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)";
+  const slateTextColor = slateDotColor;
   const bank = loadPublicBankBuilderSummary();
   const bankLabel = bank
     ? `$${bank.currentBankrollUnits.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -82,11 +118,9 @@ export default function SlateStatusBar() {
         <span style={{ color: "var(--vault-text)" }}>{slateIsCurrent ? "Today" : "Latest slate"}</span>
         <span>· {fmtShort(today)}</span>
       </Chip>
-      <Chip accent="var(--vault-gold-bright)">
-        <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: activeIsSettled ? "var(--vault-success)" : "var(--vault-gold-bright)" }} />
-        <span style={{ color: activeIsSettled ? "var(--vault-success)" : "var(--vault-gold-bright)" }}>
-          {activeIsSettled ? "Slate settled" : "Pregame slate"}
-        </span>
+      <Chip accent={slateInProgress ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)"}>
+        <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: slateDotColor }} />
+        <span style={{ color: slateTextColor }}>{slateLabel}</span>
       </Chip>
       {bank && bankLabel ? (
         <Chip href="/bank-builder" accent="var(--vault-gold-bright)">
