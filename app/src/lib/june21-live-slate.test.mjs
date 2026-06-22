@@ -16,7 +16,7 @@ test("June 21 World Cup projections are live + odds-backed", () => {
 
 test("June 21 World Cup Specials are date-parameterized to June 21 and role-screened (no bench/unknown)", () => {
   const sp = read("public/data/world-cup/world-cup-specials.json");
-  assert.equal(sp.date, "2026-06-21", "Specials generator emitted the June 21 slate (not the hardcoded June 20 demo)");
+  assert.equal(sp.date, "2026-06-22", "Specials generator emitted the current slate (not the hardcoded June 20 demo)");
   assert.ok(sp.cards.length >= 1 && sp.cards.length <= 5, "1..5 Specials");
   for (const c of sp.cards) {
     assert.ok(c.combinedOdds > 700 && c.combinedOdds < 3000, `${c.id} combined ${c.combinedOdds} in band`);
@@ -33,7 +33,7 @@ test("June 21 World Cup Specials are date-parameterized to June 21 and role-scre
 
 test("June 21 coverage matrix reconciles (rows + risk totals sum to grand total)", () => {
   const m = read("public/data/parlays/coverage-matrix.json");
-  assert.equal(m.date, "2026-06-21");
+  assert.equal(m.date, "2026-06-22");
   const rowSum = m.rows.reduce((n, r) => n + r.total, 0);
   const riskSum = Object.values(m.riskTotals).reduce((n, v) => n + v, 0);
   assert.equal(rowSum, m.grandTotal, "rows sum to grand total");
@@ -41,13 +41,13 @@ test("June 21 coverage matrix reconciles (rows + risk totals sum to grand total)
   assert.ok(m.grandTotal > 0, "live slate produced cards");
 });
 
-test("Bank Builder / Moonshot resumed ACTIVE cross-slate — real exposure; corrected bankroll + crown intact", () => {
+test("Bank Builder ACTIVE cross-slate + Moonshot settled — real exposure; corrected bankroll + crown intact", () => {
   const p = read("public/data/mr-dub/portfolio.json");
   assert.equal(p.currentBankroll, 10176.17, "reconciled bankroll preserved (pending cards don't realize)");
   assert.equal(p.openExposure, 200, "Lane A + Lane B core seeds placed as active cross-slate cards");
-  assert.equal(p.totalOpenExposure, 225, "core $200 + moonshot $25");
+  assert.equal(p.totalOpenExposure, 200, "core $200; moonshot settled LOST → 0 open");
   assert.equal(p.crownBankroll, 10376.17, "protected crown untouched");
-  assert.equal(p.moonshot.status, "active", "Moonshot resumed active");
+  assert.equal(p.moonshot.status, "stopped", "Moonshot settled LOST → stopped");
   const dual = read("public/data/methodology/launch/dual-bank-builder-active.json").run;
   assert.equal(dual.laneA.laneStatus, "active");
   assert.equal((dual.laneA.steps.find((s) => s.step === 3) || {}).status, "pending", "Lane A Step 3 placed (pending) cross-slate card");

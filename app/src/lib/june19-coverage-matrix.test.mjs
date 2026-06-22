@@ -45,11 +45,11 @@ test("Low Risk is honestly empty everywhere (not a gate failure) and the summary
   assert.ok(m.diagnosticsSummary.some((s) => /Low Risk/i.test(s) && /-200|filler|honest/i.test(s)), "summary explains the Low Risk empty");
 });
 
-test("Moonshot row after cross-slate resume: one active longshot card counted", () => {
+test("Moonshot row after the Step 1 cross-slate card settled LOST: no active card counted", () => {
   const moon = m.rows.find((r) => r.scope === "moonshot");
-  assert.equal(moon.total, 1, "Moonshot active (fresh +1152 restart) → one active card");
-  assert.equal(moon.cells.find((c) => c.risk === "longshot").count, 1, "active Moonshot card in the Longshot bucket");
-  for (const rb of ["low", "medium", "high"]) assert.equal(moon.cells.find((c) => c.risk === rb).count, 0, `Moonshot ${rb} = 0`);
+  // The +1152 Step 1 restart card settled LOST (NZ/Egypt BTTS No missed) → lane stopped, nothing live to count.
+  assert.equal(moon.total, 0, "Moonshot settled LOST (stopped) → no active card");
+  for (const rb of ["low", "medium", "high", "longshot"]) assert.equal(moon.cells.find((c) => c.risk === rb).count, 0, `Moonshot ${rb} = 0 (lane stopped)`);
 });
 
 test("Core Bank Builder row after cross-slate resume: both active lanes (Lane A + Lane B) count in Medium", () => {

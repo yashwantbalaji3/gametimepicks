@@ -46,19 +46,23 @@ test("Bank Builder: candidate surfaces resolved into placed cards (no leftover c
   }
 });
 
-test("Moonshot: active card is placed (no leftover candidate); restartCandidate cleared", () => {
-  // The Moonshot lane resumed ACTIVE with a placed Step 1 card; the restart candidate is cleared.
-  assert.equal(moon.restartCandidate, null, "moonshot restartCandidate cleared (card placed)");
-  const activeCard = (moon.ladder ?? []).find((s) => s.status === "active")?.card;
-  assert.ok(activeCard, "Moonshot has an active placed card");
-  for (const l of activeCard.legs ?? []) {
-    assert.ok(!isStale(l.startTime), `moonshot active leg ${l.participant} is a stale past-date leg (${l.startTime})`);
+test("Moonshot: Step 1 card settled LOST (lane stopped, no active card); restartCandidate cleared", () => {
+  // The Moonshot Step 1 cross-slate restart card settled LOST (NZ/Egypt BTTS No missed) → lane is stopped.
+  assert.equal(moon.restartCandidate, null, "moonshot restartCandidate cleared");
+  assert.equal(moon.status, "stopped", "moonshot lane stopped (settled LOST)");
+  assert.equal((moon.ladder ?? []).find((s) => s.status === "active"), undefined, "no active Moonshot card (lane settled)");
+  const settled = (moon.ladder ?? []).find((s) => s.status === "stopped")?.card;
+  assert.ok(settled, "Moonshot Step 1 settled card present");
+  assert.equal(settled.result, "lost", "Step 1 restart card settled LOST");
+  // No settled-card leg is a stale PAST-slate leg: the only June-21 leg is the now-final NZ/Egypt settlement trigger.
+  for (const l of settled.legs ?? []) {
+    assert.ok(!isStale(l.startTime), `moonshot settled leg ${l.participant} is a stale past-date leg (${l.startTime})`);
   }
 });
 
-test("Mr. Dub: cross-slate active cards carry real exposure ($200 core + $25 moonshot)", () => {
+test("Mr. Dub: cross-slate active cards carry real exposure ($200 core; moonshot settled → 0)", () => {
   assert.equal(portfolio.openExposure, 200, "Lane A + Lane B placed seeds → $200 open exposure");
-  assert.equal(portfolio.totalOpenExposure, 225, "core $200 + moonshot $25");
+  assert.equal(portfolio.totalOpenExposure, 200, "core $200; moonshot settled LOST → 0 open");
   assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 2 }, "8-2 with 2 pending (Lane A Step 3 + Lane B Step 1)");
   assert.equal((portfolio.activeCards ?? []).length, 2, "two active cards");
 });

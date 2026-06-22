@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-21T12:11:21.712Z",
-  "date": "2026-06-21",
+  "generatedAt": "2026-06-22T17:20:37.822Z",
+  "date": "2026-06-22",
   "rows": [
     {
       "scope": "world_cup_single_game",
@@ -11,48 +11,48 @@
           "scope": "world_cup_single_game",
           "risk": "low",
           "label": "Low Risk",
-          "count": 5,
+          "count": 1,
           "target": 2,
           "min": 0,
-          "status": "filled",
+          "status": "underfilled",
           "topReasons": [],
-          "message": "5 World Cup single-game Low Risk cards passed (target 2)."
+          "message": "1 World Cup single-game Low Risk card passed (target 2)."
         },
         {
           "scope": "world_cup_single_game",
           "risk": "medium",
           "label": "Medium Risk",
-          "count": 13,
+          "count": 10,
           "target": 3,
           "min": 0,
           "status": "filled",
           "topReasons": [],
-          "message": "13 World Cup single-game Medium Risk cards passed (target 3)."
+          "message": "10 World Cup single-game Medium Risk cards passed (target 3)."
         },
         {
           "scope": "world_cup_single_game",
           "risk": "high",
           "label": "High Risk",
-          "count": 16,
+          "count": 12,
           "target": 2,
           "min": 0,
           "status": "filled",
           "topReasons": [],
-          "message": "16 World Cup single-game High Risk cards passed (target 2)."
+          "message": "12 World Cup single-game High Risk cards passed (target 2)."
         },
         {
           "scope": "world_cup_single_game",
           "risk": "longshot",
           "label": "Longshot",
-          "count": 16,
+          "count": 12,
           "target": 1,
           "min": 0,
           "status": "filled",
           "topReasons": [],
-          "message": "16 World Cup single-game Longshot cards passed (target 1)."
+          "message": "12 World Cup single-game Longshot cards passed (target 1)."
         }
       ],
-      "total": 50
+      "total": 35
     },
     {
       "scope": "world_cup_multi_game",
@@ -63,12 +63,14 @@
           "scope": "world_cup_multi_game",
           "risk": "low",
           "label": "Low Risk",
-          "count": 5,
+          "count": 0,
           "target": 4,
           "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "5 World Cup multi-game Low Risk cards passed (target 4)."
+          "status": "empty",
+          "topReasons": [
+            "gates_not_cleared"
+          ],
+          "message": "No World Cup multi-game Low Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates)."
         },
         {
           "scope": "world_cup_multi_game",
@@ -104,7 +106,7 @@
           "message": "5 World Cup multi-game Longshot cards passed (target 2)."
         }
       ],
-      "total": 20
+      "total": 15
     },
     {
       "scope": "mlb",
@@ -230,7 +232,7 @@
           "topReasons": [
             "active_card_tracked_separately"
           ],
-          "message": "Moonshot Lane awaiting a qualified card."
+          "message": "Active high-volatility Moonshot card (separate lane)."
         },
         {
           "scope": "moonshot",
@@ -243,7 +245,7 @@
           "topReasons": [
             "active_card_tracked_separately"
           ],
-          "message": "Moonshot Lane awaiting a qualified card."
+          "message": "Active high-volatility Moonshot card (separate lane)."
         },
         {
           "scope": "moonshot",
@@ -256,23 +258,21 @@
           "topReasons": [
             "active_card_tracked_separately"
           ],
-          "message": "Moonshot Lane awaiting a qualified card."
+          "message": "Active high-volatility Moonshot card (separate lane)."
         },
         {
           "scope": "moonshot",
           "risk": "longshot",
           "label": "Longshot",
-          "count": 0,
+          "count": 1,
           "target": 0,
           "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "active_card_tracked_separately"
-          ],
-          "message": "Moonshot Lane awaiting a qualified card."
+          "status": "filled",
+          "topReasons": [],
+          "message": "1 active card in this bucket."
         }
       ],
-      "total": 0
+      "total": 1
     },
     {
       "scope": "bank_builder",
@@ -296,12 +296,12 @@
           "scope": "bank_builder",
           "risk": "medium",
           "label": "Medium Risk",
-          "count": 1,
+          "count": 2,
           "target": 0,
           "min": 0,
           "status": "filled",
           "topReasons": [],
-          "message": "1 active card in this bucket."
+          "message": "2 active cards in this bucket."
         },
         {
           "scope": "bank_builder",
@@ -330,18 +330,18 @@
           "message": "Active card tracked separately — not promoted as a generic suggestion (no double-count)."
         }
       ],
-      "total": 1
+      "total": 2
     }
   ],
   "riskTotals": {
-    "low": 10,
-    "medium": 29,
-    "high": 31,
-    "longshot": 31
+    "low": 1,
+    "medium": 27,
+    "high": 27,
+    "longshot": 28
   },
-  "grandTotal": 101,
+  "grandTotal": 83,
   "diagnosticsSummary": [
-    "100 cards passed across all scopes for 2026-06-21. Empty buckets list their gate / data reason below. Odds-band guards: 38 leg(s) too short (<-500), 7 too long (>+1200) dropped; 0 card(s) re-homed to the band their combined odds fit; 0 dropped as out-of-band.",
+    "80 cards passed across all scopes for 2026-06-22. Empty buckets list their gate / data reason below. Odds-band guards: 32 leg(s) too short (<-500), 6 too long (>+1200) dropped; 0 card(s) re-homed to the band their combined odds fit; 0 dropped as out-of-band.",
     "Moonshot + Core Bank Builder are counted in their own rows only — never inside the generic WC/MLB/Mixed suggestions, so no card is double-counted."
   ],
   "balancedGeneration": {
@@ -384,11 +384,11 @@
       }
     },
     "filledByScopeRisk": {
-      "world_cup_single_game.low": 5,
-      "world_cup_single_game.medium": 13,
-      "world_cup_single_game.high": 16,
-      "world_cup_single_game.longshot": 16,
-      "world_cup_multi_game.low": 5,
+      "world_cup_single_game.low": 1,
+      "world_cup_single_game.medium": 10,
+      "world_cup_single_game.high": 12,
+      "world_cup_single_game.longshot": 12,
+      "world_cup_multi_game.low": 0,
       "world_cup_multi_game.medium": 5,
       "world_cup_multi_game.high": 5,
       "world_cup_multi_game.longshot": 5,
@@ -403,17 +403,16 @@
       "moonshot.low": 0,
       "moonshot.medium": 0,
       "moonshot.high": 0,
-      "moonshot.longshot": 0,
+      "moonshot.longshot": 1,
       "bank_builder.low": 0,
-      "bank_builder.medium": 1,
+      "bank_builder.medium": 2,
       "bank_builder.high": 0,
       "bank_builder.longshot": 0
     },
     "underfilledReasons": {
+      "world_cup_multi_game.low": "No World Cup multi-game Low Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates).",
       "mlb.low": "No MLB Low Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates).",
-      "mixed.low": "No Mixed-sport Low Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates).",
-      "moonshot.longshot": "Moonshot Lane awaiting a qualified card.",
-      "bank_builder.medium": "1/2 — capped or limited eligible cards"
+      "mixed.low": "No Mixed-sport Low Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates)."
     },
     "capPerBucket": 5
   }

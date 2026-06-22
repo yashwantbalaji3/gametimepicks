@@ -41,6 +41,9 @@ interface EnrichedLeg {
   odds?: number | null;
   provider?: string;
   settlementSource?: string;
+  settlementStatus?: string; // "hit" | "miss" | "pending" (leg-level official outcome)
+  settlementResult?: string; // "won" | "lost" | "void"
+  settlementOfficial?: string; // e.g. "New Zealand 1-3 Egypt (FT, ESPN/FIFA)"
   rationale?: string;
   riskNote?: string;
   currentGameStatus?: string;
@@ -67,6 +70,9 @@ function loadActiveEnrichment(): Record<string, StepMeta> {
         for (const l of (s.legs as Array<Record<string, unknown>>) ?? []) {
           const legId = String(l.legId ?? "");
           if (!legId) continue;
+          // settlement may be a plain source-description string (unsettled) or an object with the
+          // official leg outcome (settled). Only read result/official from the object form.
+          const settlement = (l.settlement && typeof l.settlement === "object") ? (l.settlement as Record<string, unknown>) : undefined;
           legs[legId] = {
             legId,
             displaySelection: l.displaySelection as string | undefined,
@@ -82,6 +88,9 @@ function loadActiveEnrichment(): Record<string, StepMeta> {
             odds: (l.odds as number | null | undefined) ?? null,
             provider: l.provider as string | undefined,
             settlementSource: l.settlementSource as string | undefined,
+            settlementStatus: l.settlementStatus as string | undefined,
+            settlementResult: settlement?.result as string | undefined,
+            settlementOfficial: settlement?.official as string | undefined,
             rationale: l.rationale as string | undefined,
             riskNote: l.riskNote as string | undefined,
             currentGameStatus: l.currentGameStatus as string | undefined,
@@ -117,6 +126,11 @@ function ActiveSlipLegRow({ leg }: { leg: EnrichedLeg }) {
   const selection = leg.displaySelection || composed || pick || market;
   const koDate = shortEventDate(leg.eventDate);
   const kickoff = [leg.kickoffEt, koDate].filter(Boolean).join(" · ");
+  // Leg-level official outcome: settled HIT/MISS (with the official score), else pending.
+  const status = (leg.settlementStatus ?? "").toLowerCase();
+  const isHit = status === "hit" || leg.settlementResult === "won";
+  const isMiss = status === "miss" || leg.settlementResult === "lost";
+  const settled = isHit || isMiss;
   return (
     <div className="flex items-start gap-2 py-2" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <span className="mt-0.5 flex shrink-0 items-center gap-0.5">
@@ -130,6 +144,9 @@ function ActiveSlipLegRow({ leg }: { leg: EnrichedLeg }) {
         {leg.matchup && <span className="block truncate text-[11px] font-semibold" style={{ color: "var(--vault-text)" }}>{leg.matchup}</span>}
         <span className="block text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{selection}</span>
         {kickoff && <span className="block font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Kickoff {kickoff}</span>}
+        {settled && leg.settlementOfficial && (
+          <span className="block font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Official: {leg.settlementOfficial}</span>
+        )}
         {leg.settlementSource && (
           <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)" }}>
             settlement-supported · {leg.settlementSource}
@@ -138,6 +155,17 @@ function ActiveSlipLegRow({ leg }: { leg: EnrichedLeg }) {
       </span>
       <span className="shrink-0 text-right">
         <span className="block font-mono text-[12.5px]" style={{ color: "var(--vault-text)" }}>{american(leg.odds)}</span>
+        {settled ? (
+          <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.05em]"
+            style={{ color: isHit ? "#6EE7A8" : "var(--gtp-bank-heat)", background: isHit ? "rgba(110,231,168,0.12)" : "var(--gtp-bank-heat-dim)" }}>
+            {isHit ? "Hit ✓" : "Miss ✗"}
+          </span>
+        ) : (
+          <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]"
+            style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)" }}>
+            Pending ◷
+          </span>
+        )}
       </span>
     </div>
   );

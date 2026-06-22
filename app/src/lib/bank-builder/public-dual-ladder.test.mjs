@@ -72,10 +72,10 @@ test("DEMO: active steps surface a placed card with real legs — never a blank 
   assert.ok(bActive.card && bActive.card.legs.length >= 2, "active restart carries a placed card with real legs");
 });
 
-test("DEMO: placed (pending) lane cards count real exposure (Lane A core $100 + Lane B core $100 = $200; +$25 moonshot = $225)", () => {
+test("DEMO: placed (pending) lane cards count real exposure (Lane A core $100 + Lane B core $100 = $200; moonshot settled → 0)", () => {
   const mr = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
   assert.equal(mr.openExposure, 200, "Lane A + Lane B core seeds are open exposure");
-  assert.equal(mr.totalOpenExposure, 225, "core $200 + moonshot $25");
+  assert.equal(mr.totalOpenExposure, 200, "core $200; moonshot settled LOST → 0 open");
   // Lane A Step 3 + Lane B Step 1 are PLACED (pending) cards — they carry real exposure.
   const bbRaw = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8")).run;
   const laneAStep3 = bbRaw.laneA.steps.find((s) => s.step === 3);
