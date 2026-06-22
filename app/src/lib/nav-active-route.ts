@@ -88,9 +88,15 @@ export function resolveMobileNavBucket(
     : pathname;
   // Today owns the root/home as the default landing experience.
   if (p === "" || p === "/" || p === "/today" || p.startsWith("/today/")) return "home";
-  if (p === "/picks" || p.startsWith("/picks/")) return "picks";
-  // Build folds in the legacy /parlay-lab alias.
-  if (p === "/build" || p.startsWith("/build/") || p === "/parlay-lab" || p.startsWith("/parlay-lab/")) return "lab";
+  // The canonical Parlay Lab is /picks; /parlays + /parlay-lab are legacy aliases that redirect there,
+  // so all three highlight the Parlay Lab (picks) bucket.
+  if (
+    p === "/picks" || p.startsWith("/picks/") ||
+    p === "/parlays" || p.startsWith("/parlays/") ||
+    p === "/parlay-lab" || p.startsWith("/parlay-lab/")
+  ) return "picks";
+  // Build is the custom paper-card builder (distinct from the Parlay Lab lobby).
+  if (p === "/build" || p.startsWith("/build/")) return "lab";
   if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
   if (p === "/mr-dub" || p.startsWith("/mr-dub/")) return "mrdub";
   // The unified Games board + the Sports directory + every sport hub/board + schedule-only

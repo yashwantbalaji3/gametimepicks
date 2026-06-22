@@ -76,7 +76,7 @@ export default function BankBuilderStatusRail({
         <RunChip
           tag={isLadder ? `Active dual ladder · Step ${activeLadderStep}` : activeSettled ? "Active dual ladder · settled" : launched ? "Active dual ladder" : "Dual ladder · evaluating"}
           title={isLadder ? `Step ${activeLadderStep} live` : activeSettled ? `${wonN}/${totalN} lanes won` : launched ? "Two lanes live" : "Evaluating"}
-          sub={isLadder ? `${wonN}/${totalN} lanes cleared Step 1` : activeSettled ? "official sources · advanced" : launched ? "survival-gated legs" : "no qualifying launch yet"}
+          sub={isLadder ? `${wonN} of ${totalN} lanes advanced` : activeSettled ? "official sources · advanced" : launched ? "two paper lanes active" : "no qualifying launch yet"}
           tone={isLadder ? "live" : activeSettled ? "live" : launched ? "live" : "heat"}
         />
       </div>

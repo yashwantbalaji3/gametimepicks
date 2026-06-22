@@ -43,17 +43,19 @@ test("home (Today): '/', '/today' resolve to home", () => {
   assert.equal(resolveMobileNavBucket(""), null); // empty is treated as null input
 });
 
-test("picks: /picks and descendants", () => {
+test("picks (Parlay Lab): /picks + legacy /parlays + /parlay-lab aliases all highlight Parlay Lab", () => {
   assert.equal(resolveMobileNavBucket("/picks"), "picks");
   assert.equal(resolveMobileNavBucket("/picks/"), "picks");
   assert.equal(resolveMobileNavBucket("/picks/low"), "picks");
+  // /parlays + /parlay-lab redirect to the canonical Parlay Lab → same bucket.
+  assert.equal(resolveMobileNavBucket("/parlays"), "picks");
+  assert.equal(resolveMobileNavBucket("/parlay-lab"), "picks");
+  assert.equal(resolveMobileNavBucket("/parlay-lab/builder"), "picks");
 });
 
-test("lab (Build): /build + legacy /parlay-lab alias", () => {
+test("lab (Build): /build only (the custom paper-card builder)", () => {
   assert.equal(resolveMobileNavBucket("/build"), "lab");
   assert.equal(resolveMobileNavBucket("/build/"), "lab");
-  assert.equal(resolveMobileNavBucket("/parlay-lab"), "lab");
-  assert.equal(resolveMobileNavBucket("/parlay-lab/builder"), "lab");
 });
 
 test("results no longer has a bottom-nav slot (lives in top nav)", () => {

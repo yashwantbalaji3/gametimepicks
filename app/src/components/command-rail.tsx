@@ -64,11 +64,16 @@ function useIsActive() {
         pathname === "/projections" || pathname.startsWith("/projections/")
       );
     }
-    if (href === "/build") {
+    if (href === "/picks") {
+      // The canonical Parlay Lab; /parlays + /parlay-lab redirect here, so they highlight it too.
       return (
-        pathname === "/build" || pathname.startsWith("/build/") ||
+        pathname === "/picks" || pathname.startsWith("/picks/") ||
+        pathname === "/parlays" || pathname.startsWith("/parlays/") ||
         pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/")
       );
+    }
+    if (href === "/build") {
+      return pathname === "/build" || pathname.startsWith("/build/");
     }
     if (href === "/results") {
       return pathname === "/results" || (pathname.startsWith("/results/") && !pathname.startsWith("/results/model-audit"));

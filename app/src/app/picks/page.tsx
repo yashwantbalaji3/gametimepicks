@@ -21,7 +21,7 @@ import ParlaysExplorer from "@/components/parlays/parlays-explorer";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
-import SectionHeader from "@/components/section-header";
+import PicksSurfaceHeader from "@/components/picks-surface-header";
 import Link from "next/link";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
 import { formatAmerican } from "@/lib/odds-math";
@@ -100,10 +100,15 @@ export default function PicksPage() {
           </div>
         </Link>
       ) : null}
-      <SectionHeader
-        eyebrow={`Parlay Lab · ${new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })}`}
+      <PicksSurfaceHeader
+        eyebrow="Parlay Lab"
         title="Parlay Lab"
-        sub="Methodology-engine suggested parlays across World Cup, MLB and Mixed — by risk, with same-game cards and the eligible-leg marketplace. Tap any leg for model + last-5 detail. Educational, paper-only."
+        slateDate={today}
+        status={engineSlate.available ? "pregame" : "data_pending"}
+        counts={{ suggestedCards: engineSlate.allSuggested.length, games: engineSlate.gameSpecific.length }}
+        primaryAction={{ label: "Build your own", href: "/build" }}
+        secondaryAction={{ label: "How it works", href: "/methodology" }}
+        note="Model-ranked suggested parlays across World Cup, MLB and Mixed — by risk, with same-game cards and the eligible-leg marketplace. Tap any leg for model + last-5 detail."
       />
       {/* Canonical engine card surface — same data as /parlays (World Cup + Mixed + by-risk + same-game). */}
       <ParlaysExplorer slate={engineSlate} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} />

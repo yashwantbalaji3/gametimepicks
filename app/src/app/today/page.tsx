@@ -243,8 +243,6 @@ export default function TodayPage() {
   const engineSportsLive = engineSlate.sports.filter((s) => s.eligibleCount > 0);
   const engineSuggested = engineSlate.allSuggested.length;
   const bbPreview = engineSlate.bankBuilderPreview;
-  const bbQualifies = bbPreview.status !== "no_qualified_launch" && !!bbPreview.laneA && !!bbPreview.laneB;
-  const bbActive = bbPreview.status === "launched";
   const bbSettled = bbPreview.status === "settled";
   const bbLadder = bbPreview.isLadder;
   const bbStep = bbPreview.currentStep;
@@ -276,28 +274,29 @@ export default function TodayPage() {
         ))}
       </nav>
 
-      {/* 1.5 — Methodology engine summary → /parlays (suggested parlays + Bank Builder preview) */}
+      {/* 1.5 — Model picks ready: user-facing summary of today's model-ranked cards → Parlay Lab.
+            (Internal "methodology engine / STEP n LIVE / lanes cleared" language moved off the
+            dashboard; Bank Builder status lives in its own rail below and on /methodology.) */}
       {engineSlate.available && (
         <Link
-          href="/parlays"
+          href="/picks"
           className="vault-glow-hover vault-press rounded-[14px] px-5 py-4 flex flex-col gap-3"
           style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", textDecoration: "none" }}
         >
           <div className="flex items-center justify-between">
-            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Methodology engine · today</span>
-            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>View parlays →</span>
+            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Today&apos;s model picks</span>
+            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Open Parlay Lab →</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {engineSlate.sports.map((s) => (
               <span key={s.sport} className="rounded-full px-2.5 py-1 font-mono text-[11px]"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-border)", color: s.eligibleCount > 0 ? "var(--vault-text)" : "var(--vault-text-faint)" }}>
-                {s.sport === "WORLD_CUP" ? "WC" : s.sport}: {s.eligibleCount > 0 ? `${s.eligibleCount} legs` : "no qualified"}
+                {s.sport === "WORLD_CUP" ? "World Cup" : s.sport}{s.eligibleCount > 0 ? ` · ${s.eligibleCount} legs` : " · none today"}
               </span>
             ))}
           </div>
           <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-            {engineSuggested} suggested parlay{engineSuggested === 1 ? "" : "s"} across {engineSportsLive.length} sport{engineSportsLive.length === 1 ? "" : "s"} ·{" "}
-            Bank Builder: <span style={{ color: bbSettled || bbActive || bbQualifies ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{bbLadder ? `STEP ${bbStep} LIVE · ${bbLanesCleared}/2 lanes cleared Step 1 (paper)` : bbSettled ? `SETTLED · ${bbLanesCleared}/2 lanes won (paper)` : bbActive ? "ACTIVE dual run · soccer leg per lane (paper)" : bbQualifies ? "qualifies (operator approval required)" : "no qualified launch"}</span>
+            {engineSuggested} model-ranked parlay{engineSuggested === 1 ? "" : "s"} across {engineSportsLive.length} sport{engineSportsLive.length === 1 ? "" : "s"} — tap to open the Parlay Lab. Paper-only.
           </div>
         </Link>
       )}
