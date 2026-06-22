@@ -461,15 +461,89 @@
         },
         {
           "step": 3,
-          "status": "awaiting",
+          "status": "pending",
           "result": null,
-          "stake": null,
-          "payout": null,
-          "combinedOdds": null,
-          "legs": [],
-          "slateDate": null,
-          "projectedPayout": null,
-          "freshCard": false
+          "slateDate": "2026-06-21",
+          "combinedOdds": 143,
+          "laneSurvivalScore": 60,
+          "estimatedHitProbability": 0.37,
+          "stake": 601.56,
+          "projectedPayout": 1464.71,
+          "freshCard": true,
+          "legs": [
+            {
+              "legId": "WORLD_CUP:40:moneyline_90:Egypt:",
+              "sport": "WORLD_CUP",
+              "eventId": "40",
+              "label": "Egypt moneyline_90",
+              "participantName": "Egypt",
+              "marketType": "moneyline_90",
+              "odds": -175,
+              "modelProbability": 0.6037,
+              "legQualityTier": "broader",
+              "legQualityScore": 60,
+              "riskScore": 0.4,
+              "side": null,
+              "line": null,
+              "startTime": "2026-06-22T01:00:00Z",
+              "slateDate": "2026-06-21",
+              "confidenceTier": "Medium",
+              "dataQuality": "B",
+              "topPositiveFactors": [
+                {
+                  "label": "odds-backed model edge",
+                  "direction": "positive",
+                  "weight": 0.6
+                }
+              ],
+              "topNegativeFactors": [
+                {
+                  "label": "approved broader criteria \u2014 higher-volatility, cross-slate",
+                  "direction": "negative",
+                  "weight": 0.5
+                }
+              ],
+              "settlement": "official 90-minute regulation result (ESPN/FIFA)"
+            },
+            {
+              "legId": "WORLD_CUP:44:moneyline_90:Algeria:",
+              "sport": "WORLD_CUP",
+              "eventId": "44",
+              "label": "Algeria moneyline_90",
+              "participantName": "Algeria",
+              "marketType": "moneyline_90",
+              "odds": -182,
+              "modelProbability": 0.61,
+              "legQualityTier": "broader",
+              "legQualityScore": 60,
+              "riskScore": 0.39,
+              "side": null,
+              "line": null,
+              "startTime": "2026-06-23T03:00:00Z",
+              "slateDate": "2026-06-22",
+              "confidenceTier": "Medium",
+              "dataQuality": "B",
+              "topPositiveFactors": [
+                {
+                  "label": "odds-backed model edge",
+                  "direction": "positive",
+                  "weight": 0.61
+                }
+              ],
+              "topNegativeFactors": [
+                {
+                  "label": "approved broader criteria \u2014 higher-volatility, cross-slate",
+                  "direction": "negative",
+                  "weight": 0.5
+                }
+              ],
+              "settlement": "official 90-minute regulation result (ESPN/FIFA)"
+            }
+          ],
+          "crossSlate": true,
+          "slateLabel": "Cross-slate \u00b7 June 21 + June 22",
+          "broaderNote": "Approved broader criteria \u00b7 higher-volatility paper card \u00b7 settlement-supported",
+          "payout": 1464.71
         },
         {
           "step": 4,
@@ -492,7 +566,7 @@
       ],
       "currentStep": 3,
       "target": 10000,
-      "laneStatus": "advanced",
+      "laneStatus": "active",
       "publicVisible": true,
       "stopReason": null,
       "replacementCandidates": [
@@ -523,18 +597,9 @@
           "reason": "MLB alt if Jax scratched \u2014 Skubal ace strikeouts, high floor"
         }
       ],
-      "awaiting": true,
+      "awaiting": false,
       "nextStepStake": 601.56,
-      "awaitingNote": "Step 2 won ($197.88 \u2192 $601.56). Step 3 awaiting a qualified June 21 card. The June 21 World Cup slate is favorite-heavy (Spain \u22121000, Belgium \u2212240, Uruguay \u2212220, Egypt \u2212175), so no 2-leg card clears the Bank Builder value + odds gates for a Step 3. $601.56 rides \u2014 not counted as exposure.",
-      "nextCandidate": {
-        "status": "pending",
-        "headline": "Step 3 \u00b7 awaiting a qualified June 21 card",
-        "reason": "Step 3 awaiting a qualified June 21 card. The June 21 World Cup slate is favorite-heavy (Spain \u22121000, Belgium \u2212240, Uruguay \u2212220, Egypt \u2212175) \u2014 no 2-leg card clears the Bank Builder value + odds gates, so the lane holds rather than place a low-edge favorite card. Live June 21 model-ranked cards are on Parlay Lab and World Cup Specials. $601.56 rides \u2014 not counted as exposure.",
-        "stake": 601.56,
-        "combinedOdds": null,
-        "projectedReturn": null,
-        "legs": []
-      }
+      "awaitingNote": "Step 2 won ($197.88 \u2192 $601.56). Step 3 ACTIVE (cross-slate, approved broader criteria): Egypt ML (June 21) + Algeria ML (June 22), $601.56 \u2192 $1464.71 projected. Pending official settlement across June 21 + June 22."
     },
     "laneB": {
       "laneId": "B",
@@ -682,176 +747,130 @@
       "steps": [
         {
           "step": 1,
-          "status": "settled",
-          "result": "lost",
-          "slateDate": "2026-06-19",
-          "combinedOdds": 111,
-          "laneSurvivalScore": 77,
-          "estimatedHitProbability": 0.4917,
+          "status": "pending",
+          "result": null,
+          "slateDate": "2026-06-22",
+          "combinedOdds": 177,
+          "laneSurvivalScore": 60,
+          "estimatedHitProbability": 0.33,
           "stake": 100,
-          "projectedPayout": 210.62,
+          "projectedPayout": 277.11,
           "freshCard": true,
           "legs": [
             {
-              "legId": "WORLD_CUP:f955d4b3395ce6e3b5ac1031ca52ca4e:double_chance:Turkey or Draw:",
+              "legId": "WORLD_CUP:41:moneyline_90:Argentina:",
               "sport": "WORLD_CUP",
-              "eventId": "f955d4b3395ce6e3b5ac1031ca52ca4e",
-              "label": "Turkey or Draw double_chance",
-              "participantName": "Turkey or Draw",
-              "marketType": "double_chance",
-              "odds": -400,
-              "modelProbability": 0.7503,
-              "legQualityTier": "strong",
-              "legQualityScore": 66,
-              "riskScore": 0.037500000000000006,
+              "eventId": "41",
+              "label": "Argentina moneyline_90",
+              "participantName": "Argentina",
+              "marketType": "moneyline_90",
+              "odds": -210,
+              "modelProbability": 0.64,
+              "legQualityTier": "broader",
+              "legQualityScore": 60,
+              "riskScore": 0.36,
               "side": null,
               "line": null,
-              "startTime": "2026-06-20T03:00:00Z",
+              "startTime": "2026-06-22T17:00:00Z",
+              "slateDate": "2026-06-22",
               "confidenceTier": "Medium",
               "dataQuality": "B",
               "topPositiveFactors": [
                 {
-                  "label": "confirmed role / participation",
+                  "label": "odds-backed model edge",
                   "direction": "positive",
-                  "weight": 0.85
-                },
-                {
-                  "label": "+0.1pp model edge vs no-vig market",
-                  "direction": "positive",
-                  "weight": 0.0050000000000000044
-                }
-              ],
-              "topNegativeFactors": [],
-              "settlement": {
-                "result": "lost",
-                "official": "T\u00fcrkiye 0\u20131 Paraguay FT",
-                "source": "espn_fifa_world",
-                "started": true
-              },
-              "opponentName": "Paraguay",
-              "teamLabel": "T\u00fcrkiye"
-            },
-            {
-              "legId": "MLB:d06fe764bea53051487b94fc022806d1:Hits + Runs + RBIs:Rhys Hoskins:1.5",
-              "sport": "MLB",
-              "eventId": "d06fe764bea53051487b94fc022806d1",
-              "label": "Rhys Hoskins Hits + Runs + RBIs under 1.5",
-              "participantName": "Rhys Hoskins",
-              "marketType": "Hits + Runs + RBIs",
-              "odds": -146,
-              "modelProbability": 0.6554,
-              "legQualityTier": "strong",
-              "legQualityScore": 74,
-              "riskScore": 0.35,
-              "side": "under",
-              "line": 1.5,
-              "startTime": "2026-06-20T00:11:00Z",
-              "confidenceTier": "Medium",
-              "dataQuality": "A",
-              "topPositiveFactors": [
-                {
-                  "label": "59-game sample",
-                  "direction": "positive",
-                  "weight": 1
-                },
-                {
-                  "label": "recent form supports the under (69% of games)",
-                  "direction": "positive",
-                  "weight": 0.6949152542372882
-                },
-                {
-                  "label": "+10.1pp model edge vs no-vig market",
-                  "direction": "positive",
-                  "weight": 0.5028414766558087
+                  "weight": 0.64
                 }
               ],
               "topNegativeFactors": [
                 {
-                  "label": "batter lineup not confirmed (DNP risk)",
+                  "label": "approved broader criteria \u2014 higher-volatility, cross-slate",
                   "direction": "negative",
-                  "weight": 0.6
+                  "weight": 0.5
                 }
               ],
-              "settlement": {
-                "result": "lost",
-                "official": "4 H+R+RBI",
-                "source": "mlb_stats_api",
-                "started": true
-              },
-              "last5": {
-                "stat": "hrr",
-                "line": 1.5,
-                "side": "under",
-                "games": [
-                  {
-                    "date": "2026-06-12",
-                    "opp": "DET",
-                    "value": 1,
-                    "hit": true
-                  },
-                  {
-                    "date": "2026-06-13",
-                    "opp": "DET",
-                    "value": 0,
-                    "hit": true
-                  },
-                  {
-                    "date": "2026-06-16",
-                    "opp": "MIL",
-                    "value": 1,
-                    "hit": true
-                  },
-                  {
-                    "date": "2026-06-17",
-                    "opp": "MIL",
-                    "value": 0,
-                    "hit": true
-                  },
-                  {
-                    "date": "2026-06-18",
-                    "opp": "MIL",
-                    "value": 0,
-                    "hit": true
-                  }
-                ],
-                "hitRate": {
-                  "hits": 5,
-                  "total": 5,
-                  "pct": 1
-                },
-                "source": "mlb_stats_api"
-              },
-              "opponentName": "Houston Astros",
-              "teamLabel": "Cleveland Guardians"
+              "settlement": "official 90-minute regulation result (ESPN/FIFA)"
+            },
+            {
+              "legId": "WORLD_CUP:42:match_total_goals:Under 3.5:",
+              "sport": "WORLD_CUP",
+              "eventId": "42",
+              "label": "France vs Iraq Under 3.5",
+              "participantName": "Under 3.5",
+              "marketType": "match_total_goals",
+              "odds": -114,
+              "modelProbability": 0.51,
+              "legQualityTier": "broader",
+              "legQualityScore": 60,
+              "riskScore": 0.49,
+              "side": "under",
+              "line": 3.5,
+              "startTime": "2026-06-22T21:00:00Z",
+              "slateDate": "2026-06-22",
+              "confidenceTier": "Medium",
+              "dataQuality": "B",
+              "topPositiveFactors": [
+                {
+                  "label": "odds-backed model edge",
+                  "direction": "positive",
+                  "weight": 0.51
+                }
+              ],
+              "topNegativeFactors": [
+                {
+                  "label": "approved broader criteria \u2014 higher-volatility, cross-slate",
+                  "direction": "negative",
+                  "weight": 0.5
+                }
+              ],
+              "settlement": "official 90-minute combined goals (ESPN/FIFA)"
             }
           ],
-          "payout": 0
+          "slateLabel": "June 22 (next slate)",
+          "broaderNote": "Approved broader criteria \u00b7 higher-volatility paper card \u00b7 settlement-supported",
+          "payout": 277.11
         },
         {
           "step": 2,
           "status": "coming_soon",
+          "result": null,
+          "slateDate": null,
+          "stake": null,
+          "payout": null,
           "legs": []
         },
         {
           "step": 3,
           "status": "coming_soon",
+          "result": null,
+          "slateDate": null,
+          "stake": null,
+          "payout": null,
           "legs": []
         },
         {
           "step": 4,
           "status": "coming_soon",
+          "result": null,
+          "slateDate": null,
+          "stake": null,
+          "payout": null,
           "legs": []
         },
         {
           "step": 5,
           "status": "coming_soon",
+          "result": null,
+          "slateDate": null,
+          "stake": null,
+          "payout": null,
           "legs": []
         }
       ],
       "currentStep": 1,
       "target": 10000,
-      "laneStatus": "stopped",
-      "publicVisible": false,
+      "laneStatus": "active",
+      "publicVisible": true,
       "replacementCandidates": [
         {
           "legId": "MLB:7ef2ffad2e845a48d3df860e1a91b43d:Strikeouts:Rhett Lowder:4.5",
@@ -885,9 +904,8 @@
         "status": "active",
         "stake": 100,
         "step": 1,
-        "startedFrom": "2026-06-19T03:48:00Z",
-        "placedAt": "2026-06-19T16:59:38Z",
-        "note": "Fresh $100 Lane B Step 1 placed on a pre-event card (Turkey draw-no-bet + Zack Gelof Hits Over 0.5). No overlap with Lane A; no reused stopped legs."
+        "placedAt": "2026-06-21T23:30:00Z",
+        "note": "Fresh $100 Lane B restart (June 22, approved broader criteria): Argentina ML + France/Iraq Under 3.5."
       },
       "priorLane": {
         "stoppedAt": "Step 2 settled a loss \u2014 Goldschmidt H+R+RBI finished at 1 (\u22641.5); Switzerland ML won but the parlay needs both legs. Lane stopped; a fresh $100 restarts at Step 1.",
@@ -1159,19 +1177,151 @@
             "settledAt": "2026-06-19T03:48:00Z"
           },
           {
-            "step": 3,
-            "status": "coming_soon",
-            "target": 10000
-          },
-          {
-            "step": 4,
-            "status": "coming_soon",
-            "target": 10000
-          },
-          {
-            "step": 5,
-            "status": "coming_soon",
-            "target": 10000
+            "step": 1,
+            "status": "settled",
+            "result": "lost",
+            "slateDate": "2026-06-19",
+            "combinedOdds": 111,
+            "laneSurvivalScore": 77,
+            "estimatedHitProbability": 0.4917,
+            "stake": 100,
+            "projectedPayout": 210.62,
+            "freshCard": true,
+            "legs": [
+              {
+                "legId": "WORLD_CUP:f955d4b3395ce6e3b5ac1031ca52ca4e:double_chance:Turkey or Draw:",
+                "sport": "WORLD_CUP",
+                "eventId": "f955d4b3395ce6e3b5ac1031ca52ca4e",
+                "label": "Turkey or Draw double_chance",
+                "participantName": "Turkey or Draw",
+                "marketType": "double_chance",
+                "odds": -400,
+                "modelProbability": 0.7503,
+                "legQualityTier": "strong",
+                "legQualityScore": 66,
+                "riskScore": 0.037500000000000006,
+                "side": null,
+                "line": null,
+                "startTime": "2026-06-20T03:00:00Z",
+                "confidenceTier": "Medium",
+                "dataQuality": "B",
+                "topPositiveFactors": [
+                  {
+                    "label": "confirmed role / participation",
+                    "direction": "positive",
+                    "weight": 0.85
+                  },
+                  {
+                    "label": "+0.1pp model edge vs no-vig market",
+                    "direction": "positive",
+                    "weight": 0.0050000000000000044
+                  }
+                ],
+                "topNegativeFactors": [],
+                "settlement": {
+                  "result": "lost",
+                  "official": "T\u00fcrkiye 0\u20131 Paraguay FT",
+                  "source": "espn_fifa_world",
+                  "started": true
+                },
+                "opponentName": "Paraguay",
+                "teamLabel": "T\u00fcrkiye"
+              },
+              {
+                "legId": "MLB:d06fe764bea53051487b94fc022806d1:Hits + Runs + RBIs:Rhys Hoskins:1.5",
+                "sport": "MLB",
+                "eventId": "d06fe764bea53051487b94fc022806d1",
+                "label": "Rhys Hoskins Hits + Runs + RBIs under 1.5",
+                "participantName": "Rhys Hoskins",
+                "marketType": "Hits + Runs + RBIs",
+                "odds": -146,
+                "modelProbability": 0.6554,
+                "legQualityTier": "strong",
+                "legQualityScore": 74,
+                "riskScore": 0.35,
+                "side": "under",
+                "line": 1.5,
+                "startTime": "2026-06-20T00:11:00Z",
+                "confidenceTier": "Medium",
+                "dataQuality": "A",
+                "topPositiveFactors": [
+                  {
+                    "label": "59-game sample",
+                    "direction": "positive",
+                    "weight": 1
+                  },
+                  {
+                    "label": "recent form supports the under (69% of games)",
+                    "direction": "positive",
+                    "weight": 0.6949152542372882
+                  },
+                  {
+                    "label": "+10.1pp model edge vs no-vig market",
+                    "direction": "positive",
+                    "weight": 0.5028414766558087
+                  }
+                ],
+                "topNegativeFactors": [
+                  {
+                    "label": "batter lineup not confirmed (DNP risk)",
+                    "direction": "negative",
+                    "weight": 0.6
+                  }
+                ],
+                "settlement": {
+                  "result": "lost",
+                  "official": "4 H+R+RBI",
+                  "source": "mlb_stats_api",
+                  "started": true
+                },
+                "last5": {
+                  "stat": "hrr",
+                  "line": 1.5,
+                  "side": "under",
+                  "games": [
+                    {
+                      "date": "2026-06-12",
+                      "opp": "DET",
+                      "value": 1,
+                      "hit": true
+                    },
+                    {
+                      "date": "2026-06-13",
+                      "opp": "DET",
+                      "value": 0,
+                      "hit": true
+                    },
+                    {
+                      "date": "2026-06-16",
+                      "opp": "MIL",
+                      "value": 1,
+                      "hit": true
+                    },
+                    {
+                      "date": "2026-06-17",
+                      "opp": "MIL",
+                      "value": 0,
+                      "hit": true
+                    },
+                    {
+                      "date": "2026-06-18",
+                      "opp": "MIL",
+                      "value": 0,
+                      "hit": true
+                    }
+                  ],
+                  "hitRate": {
+                    "hits": 5,
+                    "total": 5,
+                    "pct": 1
+                  },
+                  "source": "mlb_stats_api"
+                },
+                "opponentName": "Houston Astros",
+                "teamLabel": "Cleveland Guardians"
+              }
+            ],
+            "payout": 0
           }
         ],
         "restartedAt": "2026-06-19T16:59:38Z"
@@ -1179,15 +1329,6 @@
       "restartCandidate": {
         "note": "Fresh $100 restart is a candidate after the June 20 slate \u2014 not placed here.",
         "stake": 100
-      },
-      "nextCandidate": {
-        "status": "pending",
-        "headline": "Restart \u00b7 awaiting a qualified June 21 card",
-        "reason": "Stopped \u2014 awaiting a clean June 21 restart. The June 21 World Cup slate is favorite-heavy, so no fresh $100 Step 1 card clears the value + odds gates yet. No card placed, no exposure. Live June 21 cards are on Parlay Lab and World Cup Specials.",
-        "stake": 100,
-        "combinedOdds": null,
-        "projectedReturn": null,
-        "legs": []
       }
     },
     "selectedFourLegs": [

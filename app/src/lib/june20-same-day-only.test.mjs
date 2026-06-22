@@ -2,60 +2,65 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-// Emergency June 20 same-day-only invariant: no PUBLIC active/candidate surface may carry a
-// future-slate (June 21+) leg. Settled historical legs (June 19) are fine — they are results,
-// not today's picks. The slate date is June 20 ET, so a 00:00Z June 21 kickoff (= 8pm ET June 20,
-// e.g. Ecuador/Curaçao) still counts as June 20; a 04:00Z+ June 21 kickoff is a future slate.
+// Cross-slate active-placement invariant (supersedes the emergency June 20 same-day-only rule):
+// under the approved broader criteria, PLACED/ACTIVE legs legitimately span the June 21 + June 22
+// slates. The remaining guard is that no PLACED/ACTIVE leg is TRULY STALE — i.e. no active leg has
+// an ET kickoff date BEFORE the June 21 slate (settled historical June 19 legs live only in settled
+// steps, never in an open card). The protected crown ladder stays untouched.
 const read = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
-const SLATE = "2026-06-20";
+const SLATE = "2026-06-21";
 // ET = UTC-4 (EDT). Map a kickoff instant to its ET calendar date.
 const etDate = (iso) => new Date(Date.parse(iso) - 4 * 3600 * 1000).toISOString().slice(0, 10);
-const isFuture = (iso) => iso && etDate(iso) > SLATE;
-const FUTURE_TEAMS = /Japan|Egypt|Belgium|Uruguay|Spain|Saudi|Iran|Cape Verde|New Zealand|Tunisia/i;
+const isStale = (iso) => iso && etDate(iso) < SLATE; // before the June 21 slate → stale past-date leg
 
 const bb = read("public/data/methodology/launch/dual-bank-builder-active.json").run;
 const moon = read("public/data/moonshot-lane/active.json");
 const portfolio = read("public/data/mr-dub/portfolio.json");
 
-test("Bank Builder: no PLACED/ACTIVE step leg is a future slate (June 21+)", () => {
+test("Bank Builder: PLACED/ACTIVE step legs are cross-slate (June 21+) and none is a stale past-date leg", () => {
+  let openLegCount = 0;
   for (const [id, lane] of [["lane-a", bb.laneA], ["lane-b", bb.laneB]]) {
     for (const s of lane.steps ?? []) {
       if (s.status === "pending" || s.status === "active") {
         for (const l of s.legs ?? []) {
-          assert.ok(!isFuture(l.startTime), `${id} step ${s.step} open leg ${l.participantName} is future-slate (${l.startTime})`);
+          openLegCount++;
+          assert.ok(!isStale(l.startTime), `${id} step ${s.step} open leg ${l.participantName} is a stale past-date leg (${l.startTime})`);
         }
       }
     }
   }
+  // The cross-slate resume placed active cards in both lanes — there ARE open legs now.
+  assert.ok(openLegCount >= 2, "active cross-slate cards carry open legs in both lanes");
 });
 
-test("Bank Builder: no candidate leg is a future slate, and the known future teams are gone", () => {
+test("Bank Builder: candidate surfaces resolved into placed cards (no leftover candidate-only legs)", () => {
+  // Under the cross-slate resume the lanes carry PLACED cards, not nextCandidate-only surfaces.
   for (const [id, lane] of [["lane-a", bb.laneA], ["lane-b", bb.laneB]]) {
     const c = lane.nextCandidate;
     if (!c) continue;
+    // If a candidate still exists it must carry an honest reason and no stale past-date leg.
     for (const l of c.legs ?? []) {
-      assert.ok(!isFuture(l.startTime), `${id} candidate leg ${l.participantName} is future-slate (${l.startTime})`);
-      assert.ok(!FUTURE_TEAMS.test(l.participantName ?? ""), `${id} candidate still carries a future-slate team: ${l.participantName}`);
+      assert.ok(!isStale(l.startTime), `${id} candidate leg ${l.participantName} is a stale past-date leg (${l.startTime})`);
     }
-    // A removed candidate must still explain itself (no blank "Upcoming").
     assert.ok(typeof c.reason === "string" && c.reason.length > 20, `${id} candidate carries an honest reason`);
   }
 });
 
-test("Moonshot: no active or candidate leg is a future slate, future teams removed", () => {
-  const c = moon.restartCandidate;
-  for (const l of (c?.legs ?? [])) {
-    assert.ok(!isFuture(l.startTime), `moonshot candidate leg ${l.participantName} is future-slate (${l.startTime})`);
-    assert.ok(!FUTURE_TEAMS.test(l.participantName ?? ""), `moonshot candidate still carries a future-slate team: ${l.participantName}`);
+test("Moonshot: active card is placed (no leftover candidate); restartCandidate cleared", () => {
+  // The Moonshot lane resumed ACTIVE with a placed Step 1 card; the restart candidate is cleared.
+  assert.equal(moon.restartCandidate, null, "moonshot restartCandidate cleared (card placed)");
+  const activeCard = (moon.ladder ?? []).find((s) => s.status === "active")?.card;
+  assert.ok(activeCard, "Moonshot has an active placed card");
+  for (const l of activeCard.legs ?? []) {
+    assert.ok(!isStale(l.startTime), `moonshot active leg ${l.participant} is a stale past-date leg (${l.startTime})`);
   }
-  if (c) assert.ok(typeof c.reason === "string" && c.reason.length > 20, "moonshot candidate carries an honest reason");
 });
 
-test("Mr. Dub: no open exposure — candidate-only surfaces never count as money at risk", () => {
-  assert.equal(portfolio.openExposure, 0, "future-slate placement removed → exposure $0");
-  assert.equal(portfolio.totalOpenExposure, 0, "no total exposure");
-  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 0 }, "8-2 after ledger reconciliation, no pending");
-  assert.equal((portfolio.activeCards ?? []).length, 0, "no active cards");
+test("Mr. Dub: cross-slate active cards carry real exposure ($200 core + $25 moonshot)", () => {
+  assert.equal(portfolio.openExposure, 200, "Lane A + Lane B placed seeds → $200 open exposure");
+  assert.equal(portfolio.totalOpenExposure, 225, "core $200 + moonshot $25");
+  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 2 }, "8-2 with 2 pending (Lane A Step 3 + Lane B Step 1)");
+  assert.equal((portfolio.activeCards ?? []).length, 2, "two active cards");
 });
 
 test("PROTECTED: the completed crown ladder ($10,376.17) is untouched", () => {

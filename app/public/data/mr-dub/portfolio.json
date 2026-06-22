@@ -7,14 +7,14 @@
   "startingBankroll": 100,
   "crownBankroll": 10376.17,
   "currentBankroll": 10176.17,
-  "openExposure": 0,
+  "openExposure": 200,
   "settledProfit": 10076.17,
   "roi": 100.76,
   "record": {
     "wins": 8,
     "losses": 2,
     "voids": 0,
-    "pending": 0
+    "pending": 2
   },
   "completedLadders": [
     {
@@ -25,28 +25,83 @@
       "official": true
     }
   ],
-  "activeCards": [],
+  "activeCards": [
+    {
+      "laneId": "lane-a",
+      "type": "lane_step_open",
+      "step": 3,
+      "stake": 601.56,
+      "projectedReturn": 1464.71,
+      "status": "open"
+    },
+    {
+      "laneId": "lane-b",
+      "type": "lane_step_open",
+      "step": 1,
+      "stake": 100,
+      "projectedReturn": 277.11,
+      "status": "open"
+    }
+  ],
   "generatedAt": "2026-06-18T18:40:00Z",
   "highWaterMark": 10376.17,
   "drawdown": 200,
   "drawdownPct": 0.0193,
-  "openExposurePct": 0,
+  "openExposurePct": 0.0197,
   "roiMultiple": 100.76,
   "exposure": {
-    "bySport": [],
-    "byMarket": [],
-    "byTeamOrPlayer": [],
-    "byLane": [],
-    "byStatus": []
+    "bySport": [
+      {
+        "key": "World Cup",
+        "amount": 200
+      }
+    ],
+    "byMarket": [
+      {
+        "key": "moneyline_90",
+        "amount": 150
+      },
+      {
+        "key": "match_total_goals",
+        "amount": 50
+      }
+    ],
+    "byTeamOrPlayer": [
+      {
+        "key": "Egypt moneyline_90",
+        "amount": 50
+      },
+      {
+        "key": "Algeria moneyline_90",
+        "amount": 50
+      },
+      {
+        "key": "Argentina moneyline_90",
+        "amount": 50
+      },
+      {
+        "key": "France vs Iraq Under 3.5",
+        "amount": 50
+      }
+    ],
+    "byLane": [
+      {
+        "key": "lane-a",
+        "amount": 100
+      },
+      {
+        "key": "lane-b",
+        "amount": 100
+      }
+    ],
+    "byStatus": [
+      {
+        "key": "open",
+        "amount": 200
+      }
+    ]
   },
-  "awaitingCards": [
-    {
-      "laneId": "lane-a",
-      "step": 3,
-      "kind": "awaiting_next_card",
-      "note": "Step 2 won ($197.88 → $601.56). Step 3 awaiting a qualified June 21 card. The June 21 World Cup slate is favorite-heavy (Spain −1000, Belgium −240, Uruguay −220, Egypt −175), so no 2-leg card clears the Bank Builder value + odds gates for a Step 3. $601.56 rides — not counted as exposure."
-    }
-  ],
+  "awaitingCards": [],
   "completedCards": [
     {
       "name": "Road to $10K",
@@ -57,11 +112,11 @@
     }
   ],
   "bankrollHealth": {
-    "score": 100,
-    "label": "No open exposure",
+    "score": 80,
+    "label": "Balanced",
     "reasons": [
-      "No active paper cards right now — nothing is at risk.",
-      "1 lane(s) awaiting the next qualified card."
+      "Open exposure is 2.0% of bankroll.",
+      "Most exposure is concentrated in World Cup."
     ]
   },
   "intelligence": {
@@ -70,8 +125,10 @@
     "drawdown": 200,
     "drawdownPct": 0.0193,
     "winRate": 0.8,
-    "exposureBySport": {},
-    "largestOpenCard": 0,
+    "exposureBySport": {
+      "World Cup": 200
+    },
+    "largestOpenCard": 601.56,
     "avgStake": 680.31,
     "avgSettledReturn": 2172.6,
     "profitFactor": 51.38,
@@ -83,47 +140,47 @@
     "lane": "Moonshot Lane",
     "paperOnly": true,
     "separateFromCore": true,
-    "exposure": 0,
+    "exposure": 25,
     "currentStep": 1,
     "targetReturn": 3000,
-    "status": "stopped",
+    "status": "active",
     "record": {
       "wins": 0,
-      "losses": 1,
+      "losses": 0,
       "voids": 0,
-      "pending": 0
+      "pending": 1
     },
     "card": {
-      "cardId": "moonshot-2026-06-19-step1-main",
+      "cardId": "moonshot-2026-06-21-cross-slate-restart",
       "stake": 25,
-      "projectedReturn": 227.01,
-      "combinedAmerican": 808,
+      "projectedReturn": 312.99,
+      "combinedAmerican": 1152,
       "risk": "longshot",
-      "result": "lost",
+      "result": "pending",
       "legs": [
         {
-          "selection": "Morocco Moneyline (90′)",
-          "result": "won",
-          "official": "Scotland 0–1 Morocco FT"
+          "selection": "Both teams to score: No Both Teams To Score",
+          "result": "pending",
+          "official": null
         },
         {
-          "selection": "Vinícius Júnior Anytime Goalscorer",
-          "result": "won",
-          "official": "scored (official goal, Brazil v Haiti)"
+          "selection": "Norway Moneyline (90′)",
+          "result": "pending",
+          "official": null
         },
         {
-          "selection": "Ismael Saibari Anytime Goalscorer",
-          "result": "won",
-          "official": "scored (official goal, Scotland v Morocco)"
+          "selection": "Over 2.5 Total Goals",
+          "result": "pending",
+          "official": null
         },
         {
-          "selection": "Turkey or Draw Double Chance",
-          "result": "lost",
-          "official": "Türkiye 0–1 Paraguay FT"
+          "selection": "Under 2.5 Total Goals",
+          "result": "pending",
+          "official": null
         }
       ]
     },
-    "note": "Step 1 settled a loss — Morocco: WON; Vinícius Júnior: WON; Ismael Saibari: WON; Turkey or Draw: LOST"
+    "note": "Open paper position — separate from the core ladder."
   },
-  "totalOpenExposure": 0
+  "totalOpenExposure": 225
 }

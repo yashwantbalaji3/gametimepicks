@@ -143,35 +143,40 @@ test("diagnostics report the real eligible-pool sizes + rejection counts", () =>
   }
 });
 
-test("an exact duplicate of the active Moonshot card would be excluded", () => {
-  // Synthesize the Moonshot active card as a candidate, plus a clean distinct card, and confirm the
-  // generator drops the duplicate via the exclude-signature path.
-  const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
-  const legs = moon.ladder[0].card.legs;
+test("an exact duplicate of an excluded active card would be excluded", () => {
+  // The active Moonshot card is now an all-team cross-slate longshot, which the WC Specials generator
+  // (which mandates >= 2 team AND >= 2 player legs) can never assemble. To exercise the exclude-signature
+  // dedupe path faithfully, synthesize a card with the VALID WC-Special shape (2 team + 2 player across
+  // 2 games), seed its signature into excludeSignatures, and confirm the only assemblable card is dropped.
   const sigOf = (ls) => ls
     .map((l) => `${(l.fixture ?? "").toLowerCase().replace(/[^a-z0-9]/g, "")}|${(l.marketLabel ?? "").toLowerCase().replace(/[^a-z0-9]/g, "")}|${(l.participant ?? "").toLowerCase().replace(/[^a-z0-9]/g, "")}|${(l.side ?? "").toLowerCase().replace(/[^a-z0-9]/g, "")}|${l.line ?? ""}`)
     .sort().join("||");
-  const moonSig = sigOf(legs);
-  // Build SpecialLeg copies of the Moonshot legs so the generated combo's signature equals moonSig.
-  const fakeTeam = legs.filter((l) => l.kind === "team").map((l, i) => ({
-    legId: `m-team-${i}`, kind: "team", sport: "WORLD_CUP", fixture: l.fixture, eventId: `g${i}`,
-    participant: l.participant, team: l.team ?? null, opponent: l.opponent, countryCode: l.countryCode,
-    playerId: null, photoUrl: null, market: l.market, marketLabel: l.marketLabel, side: l.side ?? null,
-    line: l.line ?? null, odds: -120, modelProbability: 0.5, startTime: "2099-01-01T00:00:00Z",
-    dataQuality: "B", confidence: "Lean", settlement: "x", limitedData: false,
-  }));
-  const fakePlayer = legs.filter((l) => l.kind === "player").map((l, i) => ({
-    legId: `m-player-${i}`, kind: "player", sport: "WORLD_CUP", fixture: l.fixture, eventId: `g${10 + i}`,
-    participant: l.participant, team: l.team ?? null, opponent: l.opponent, countryCode: l.countryCode,
-    playerId: l.playerId ?? null, photoUrl: l.photoUrl ?? null, market: l.market, marketLabel: l.marketLabel,
-    side: l.side ?? null, line: l.line ?? null, odds: 130, modelProbability: 0.45,
-    startTime: "2099-01-01T00:00:00Z", dataQuality: "limited", confidence: "Lower confidence", settlement: "x", limitedData: true,
-  }));
+  const fakeTeam = [
+    { legId: "m-team-0", kind: "team", sport: "WORLD_CUP", fixture: "Brazil vs Haiti", eventId: "g0",
+      participant: "Brazil", team: "Brazil", opponent: "Haiti", countryCode: "BR", playerId: null, photoUrl: null,
+      market: "moneyline_90", marketLabel: "Moneyline (90′)", side: null, line: null, odds: -120, modelProbability: 0.5,
+      startTime: "2099-01-01T00:00:00Z", dataQuality: "B", confidence: "Lean", settlement: "x", limitedData: false },
+    { legId: "m-team-1", kind: "team", sport: "WORLD_CUP", fixture: "Norway vs Senegal", eventId: "g1",
+      participant: "Over 2.5", team: null, opponent: "Senegal", countryCode: null, playerId: null, photoUrl: null,
+      market: "match_total_goals", marketLabel: "Total Goals", side: "over", line: 2.5, odds: -110, modelProbability: 0.52,
+      startTime: "2099-01-01T00:00:00Z", dataQuality: "B", confidence: "Lean", settlement: "x", limitedData: false },
+  ];
+  const fakePlayer = [
+    { legId: "m-player-0", kind: "player", sport: "WORLD_CUP", fixture: "Brazil vs Haiti", eventId: "g0",
+      participant: "Vinícius Júnior", team: "Brazil", opponent: "Haiti", countryCode: "BR", playerId: 762, photoUrl: null,
+      market: "player_goal_scorer_anytime", marketLabel: "Anytime Goalscorer", side: "Yes", line: null, odds: 130, modelProbability: 0.45,
+      startTime: "2099-01-01T00:00:00Z", dataQuality: "limited", confidence: "Lower confidence", settlement: "x", limitedData: true },
+    { legId: "m-player-1", kind: "player", sport: "WORLD_CUP", fixture: "Norway vs Senegal", eventId: "g1",
+      participant: "Erling Haaland", team: "Norway", opponent: "Senegal", countryCode: "NO", playerId: 1100, photoUrl: null,
+      market: "player_goal_scorer_anytime", marketLabel: "Anytime Goalscorer", side: "Yes", line: null, odds: 140, modelProbability: 0.43,
+      startTime: "2099-01-01T00:00:00Z", dataQuality: "limited", confidence: "Lower confidence", settlement: "x", limitedData: true },
+  ];
+  const dupeSig = sigOf([...fakeTeam, ...fakePlayer]);
   const r = generateWorldCupSpecials(fakeTeam, fakePlayer, {
-    date: DATE, generatedAt: NOW, excludeSignatures: [moonSig],
+    date: DATE, generatedAt: NOW, excludeSignatures: [dupeSig],
   });
-  // The only assemblable card is the Moonshot duplicate → it is excluded → no cards survive.
-  assert.equal(r.cards.length, 0, "the exact Moonshot duplicate is excluded");
+  // The only assemblable card matches the excluded signature → it is dropped → no cards survive.
+  assert.equal(r.cards.length, 0, "the exact excluded duplicate is excluded");
   assert.ok(r.diagnostics.rejectedDuplicates >= 1, "duplicate rejection counted");
 });
 
@@ -229,11 +234,12 @@ test("the homepage page wires the box below Today's Focus and gates it to today"
 });
 
 test("PROTECTION: active Bank Builder / Moonshot / Mr. Dub artifacts are unchanged by this feature", () => {
+  // This feature must NOT mutate the bank-builder artifacts. Pinned to the current active cross-slate state.
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
-  assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "Lane A/B unchanged");
+  assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "Lane A/B top-level legs unchanged");
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
-  assert.equal(moon.ladder[0].card.combinedOdds, 808, "Moonshot active card unchanged");
+  assert.equal(moon.ladder[0].card.combinedOdds, 1152, "Moonshot active card is +1152");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
-  assert.equal(p.openExposure, 0, "core exposure settled to $0 (June 19 cards officially settled)");
-  assert.equal(p.totalOpenExposure, 0, "total exposure $0 after settlement");
+  assert.equal(p.openExposure, 200, "core open exposure (Lane A + Lane B placed seeds)");
+  assert.equal(p.totalOpenExposure, 225, "total open exposure $225 (core $200 + moonshot $25)");
 });

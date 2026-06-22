@@ -14,17 +14,19 @@ import fs from "node:fs";
 //   Lane A Steps 1+2 won (riding)       = +0 realized, +2 wins
 //   Lane B run 1: S1 won, S2 lost       = +1 win, -$100
 //   Lane B restart: S1 lost             = -$100
-//   => bankroll $10,176.17, record 8-2, exposure $0, drawdown $200.
+//   => bankroll $10,176.17, record 8-2, drawdown $200 (realized).
+//   Cross-slate resume (June 21/22): Lane A Step 3 + Lane B Step 1 placed as PENDING active cards
+//   => +$200 open exposure, record gains 2 pending; pending cards add no realized P/L.
 const portfolio = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
 const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
 
 test("bankroll reconciles to crown less two real Lane B lost seeds — above $10,000", () => {
   assert.equal(portfolio.crownBankroll, 10376.17, "protected crown immutable");
-  assert.equal(portfolio.currentBankroll, 10176.17, "crown - $200 (two real Lane B stops)");
+  assert.equal(portfolio.currentBankroll, 10176.17, "crown - $200 (two real Lane B stops); pending cards don't realize");
   assert.ok(portfolio.currentBankroll > 10000, "portfolio is above $10,000");
   assert.equal(portfolio.drawdown, 200, "drawdown = two lost $100 seeds");
-  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 0 }, "8-2 source of truth");
-  assert.equal(portfolio.openExposure, 0, "no open exposure (June 20 gap day, no card placed)");
+  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 2 }, "8-2 with 2 pending (Lane A Step 3 + Lane B Step 1 open)");
+  assert.equal(portfolio.openExposure, 200, "Lane A + Lane B core seeds placed as active cross-slate cards");
 });
 
 test("no phantom stops — exactly two lane_stopped events, both with real dates", () => {
@@ -43,5 +45,8 @@ test("June 20 is a gap day — no June 20 card counted as a win/loss or exposure
     (e) => e.date === "2026-06-20" && (e.type === "lane_step_won" || e.type === "lane_stopped"),
   );
   assert.equal(jun20Settled.length, 0, "no June 20 Bank Builder win/loss in the ledger (gap day)");
-  assert.equal(portfolio.openExposure, 0, "no June 20 placement counts as exposure");
+  // June 20 placed nothing; the $200 open exposure comes from the June 21/22 cross-slate resume, not June 20.
+  const jun20Open = ledger.events.filter((e) => e.date === "2026-06-20" && e.type === "lane_step_open");
+  assert.equal(jun20Open.length, 0, "no June 20 card placement (gap day)");
+  assert.equal(portfolio.openExposure, 200, "open exposure is the June 21/22 cross-slate placements, not June 20");
 });
