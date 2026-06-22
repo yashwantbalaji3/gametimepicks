@@ -6,6 +6,8 @@
  *
  * Server component; reads no data itself (the host passes the lane + record + exposure).
  */
+import Link from "next/link";
+
 import TicketCard from "@/components/tickets/ticket-card";
 import LegRow, { type TicketLeg } from "@/components/tickets/leg-row";
 import StatusPill, { type TicketStatus } from "@/components/tickets/status-pill";
@@ -43,12 +45,17 @@ function cardStatusPill(result?: string): TicketStatus {
 }
 
 export default function MoonshotLaneTracker({
-  lane, record, exposure,
+  lane, record, exposure, mode = "full", maxCards, showHistory = true,
 }: {
   lane: MoonshotLane;
   record?: { wins: number; losses: number; voids: number; pending: number };
   exposure?: number;
+  /** "full" = standalone /moonshot page; "compact" = embedded preview (e.g. Mr. Dub) with a CTA. */
+  mode?: "full" | "compact";
+  maxCards?: number;
+  showHistory?: boolean;
 }) {
+  const compact = mode === "compact";
   const currentStep = lane.ladder.find((s) => s.step === lane.currentStep) ?? lane.ladder[0];
   const currentCard = currentStep?.card ?? null;
   const rec = record ?? { wins: 0, losses: 0, voids: 0, pending: 0 };
@@ -56,9 +63,10 @@ export default function MoonshotLaneTracker({
   const recordStr = `${rec.wins}–${rec.losses}${rec.voids ? `–${rec.voids}` : ""}`;
 
   // Daily history: KNOWN runs only (current lane card + the recorded prior run). Never fabricated.
-  const runs: Array<{ key: string; label: string; card: MoonshotCard; note?: string }> = [];
-  if (currentCard) runs.push({ key: "current", label: `Step ${lane.currentStep} · ${currentCard.slateLabel ?? "cross-slate restart"}`, card: currentCard, note: lane.stopNote });
-  if (lane.priorRun?.card) runs.push({ key: "prior", label: "Prior run · June 19", card: lane.priorRun.card, note: lane.priorRun.note });
+  const allRuns: Array<{ key: string; label: string; card: MoonshotCard; note?: string }> = [];
+  if (currentCard) allRuns.push({ key: "current", label: `Step ${lane.currentStep} · ${currentCard.slateLabel ?? "cross-slate restart"}`, card: currentCard, note: lane.stopNote });
+  if (lane.priorRun?.card && showHistory) allRuns.push({ key: "prior", label: "Prior run · June 19", card: lane.priorRun.card, note: lane.priorRun.note });
+  const runs = allRuns.slice(0, maxCards ?? (compact ? 1 : allRuns.length));
 
   const summary: Array<[string, string]> = [
     ["Record", recordStr],
@@ -122,9 +130,15 @@ export default function MoonshotLaneTracker({
         </p>
       </div>
 
-      <p className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
-        Daily tracker shows known Moonshot runs only — earlier history before June 19 is not backfilled (no fabricated cards). Settlement-supported by official sources.
-      </p>
+      {compact ? (
+        <Link href="/moonshot" className="inline-flex items-center gap-1 self-start rounded-full px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ border: "1px solid color-mix(in srgb, #8b7bf0 45%, transparent)", color: "#b9a8ff", textDecoration: "none" }}>
+          Open the full Moonshot daily tracker →
+        </Link>
+      ) : (
+        <p className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+          Daily tracker shows known Moonshot runs only — earlier history before June 19 is not backfilled (no fabricated cards). Settlement-supported by official sources.
+        </p>
+      )}
     </section>
   );
 }

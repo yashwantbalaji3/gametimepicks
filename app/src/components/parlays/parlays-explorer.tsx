@@ -9,6 +9,7 @@ import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import FlagBadge from "@/components/flag-badge";
+import OddsPill from "@/components/tickets/odds-pill";
 import type {
   TodaySlateView, SuggestedParlayCard, ParlayLegDisplay, SportSlateStatus,
 } from "@/lib/parlays/ui-loader";
@@ -145,8 +146,8 @@ export function ParlayCard({ card }: { card: SuggestedParlayCard }) {
           {card.parlayType === "same_game" && <Chip label="same game" />}
         </div>
         <div className="text-right">
-          {/* Sportsbook-style price: the combined odds are the headline of the ticket. */}
-          <span className="inline-block rounded-[8px] px-2.5 py-1 font-mono font-bold tabular" style={{ fontSize: 17, color: "var(--vault-gold-bright)", background: "var(--vault-gold-dim)", border: "1px solid color-mix(in srgb, var(--vault-gold-bright) 45%, transparent)" }}>{americanStr(card.combinedOdds)}</span>
+          {/* Sportsbook-style price (shared OddsPill primitive): the combined odds headline the ticket. */}
+          <OddsPill odds={card.combinedOdds} tone="gold" size="lg" />
           <div className="mt-1 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>model {pctStr(card.estimatedHitProbability)} · {card.legs.length} legs</div>
         </div>
       </div>

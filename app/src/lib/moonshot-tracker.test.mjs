@@ -55,7 +55,7 @@ test("Moonshot is reachable: command rail + top nav include it; mobile maps it t
 test("Today + Bank Builder + Mr. Dub link to the Moonshot tracker", () => {
   assert.match(read("src/components/bank-builder/bank-builder-status-rail.tsx"), /href="\/moonshot"/, "today's BB rail links to the tracker");
   assert.match(read("src/components/bank-builder/moonshot-lane-card.tsx"), /href="\/moonshot"/, "bank-builder moonshot card links to the tracker");
-  assert.match(read("src/app/mr-dub/page.tsx"), /href="\/moonshot"/, "Mr. Dub links to the tracker");
+  assert.match(read("src/app/mr-dub/page.tsx"), /MoonshotLaneTracker/, "Mr. Dub renders the inline Moonshot tracker");
 });
 
 test("protected crown is untouched (still $10,376.17, 5-0)", () => {

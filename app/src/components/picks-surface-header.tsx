@@ -67,21 +67,22 @@ export default function PicksSurfaceHeader({
   const slateLabel = fmtSlate(slateDate);
   const chips = counts ? COUNT_LABELS.filter(([k]) => typeof counts[k] === "number") : [];
 
+  // Shares the sport-hub hero's cinematic backdrop (gtp-cinematic-bg-accent + halo + neon rule) so
+  // /picks, /build and /moonshot read as the same product family as /world-cup, /mlb, /nba, /ufc.
+  const accentColor = "var(--gtp-bank-heat)";
   return (
     <section
-      className="gtp-fade-up relative overflow-hidden rounded-2xl px-5 py-5 sm:px-6"
+      className="gtp-fade-up relative overflow-hidden rounded-[14px] gtp-cinematic-bg-accent gtp-neon-rule"
       aria-label={`${title} header`}
-      style={{
-        borderTop: "2px solid var(--gtp-bank-heat)",
-        border: "1px solid var(--vault-border)",
-        background:
-          "radial-gradient(120% 140% at 0% 0%, rgba(225,29,42,0.10) 0%, transparent 55%)," +
-          "linear-gradient(135deg, rgba(26,20,14,0.92) 0%, rgba(26,16,11,0.55) 72%)",
-      }}
+      style={{ padding: "22px 20px 24px", ["--accent-glow"]: "rgba(242,54,69,0.18)", ["--accent-glow-secondary"]: "rgba(242,54,69,0.10)" } as React.CSSProperties}
     >
+      <div aria-hidden className="gtp-hero-halo" style={{ background: "radial-gradient(circle at 92% 0%, rgba(242,54,69,0.26), transparent 45%)" }} />
       <div className="relative flex flex-wrap items-center justify-between gap-2">
-        <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
-          {eyebrow ?? "Parlay Lab"}{slateLabel ? ` · ${slateLabel}` : ""}
+        <span className="flex items-center gap-2">
+          <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse" style={{ background: accentColor, boxShadow: `0 0 10px ${accentColor}` }} />
+          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: accentColor, fontSize: 10 }}>
+            {eyebrow ?? "Parlay Lab"}{slateLabel ? ` · ${slateLabel}` : ""}
+          </span>
         </span>
         <span
           className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.08em]"
