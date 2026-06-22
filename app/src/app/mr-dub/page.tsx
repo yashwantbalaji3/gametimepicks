@@ -11,6 +11,8 @@ import SectionHeader from "@/components/section-header";
 import MrDubAvatar from "@/components/mr-dub/mr-dub-avatar";
 import MoneyPath from "@/components/ui/money-path";
 import DualLadderBoard from "@/components/bank-builder/dual-ladder-board";
+import MoonshotLaneTracker from "@/components/moonshot/moonshot-lane-tracker";
+import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 
 export const metadata = {
@@ -102,6 +104,7 @@ export default function MrDubPage() {
   const portfolio = read("portfolio.json");
   const ledger = read("ledger.json");
   const daily = read("daily-summary.json");
+  const moonshotLane = loadMoonshotLane();
   if (!portfolio) {
     return <main className="mx-auto w-full max-w-3xl px-4 py-10"><p style={{ color: "var(--vault-text-mute)" }}>Mr. Dub portfolio is being generated.</p></main>;
   }
@@ -203,44 +206,16 @@ export default function MrDubPage() {
       {portfolio.moonshot ? (
         <section>
           <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="A separate World Cup longshot paper challenge — tracked apart from the core Dual Bank Builder. Higher variance by design." />
-          <div className="mt-2 rounded-xl px-4 py-3" style={{ border: "1px solid #8b7bf0", background: "linear-gradient(135deg, rgba(139,123,240,0.08), rgba(26,16,11,0.3))" }}>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[12.5px]" style={{ color: "var(--vault-text)" }}>
-                🌙 Moonshot exposure <span className="font-mono" style={{ color: "#8b7bf0" }}>{usd(portfolio.moonshot.exposure)}</span>
-                <span style={{ color: "var(--vault-text-faint)" }}> · separate from the {usd(portfolio.openExposure)} core lanes (total {usd(portfolio.totalOpenExposure ?? portfolio.openExposure + portfolio.moonshot.exposure)})</span>
-              </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: "#8b7bf0" }}>{portfolio.moonshot.record?.pending ?? 0} open · high-volatility</span>
-            </div>
-            {(() => {
-              // Active step card lives under `activeCard`; a settled (stopped) lane keeps the graded card under `card`.
-              const active = portfolio.moonshot.activeCard;
-              const settledCard = portfolio.moonshot.card;
-              const stopped = portfolio.moonshot.status === "stopped";
-              if (active) {
-                return (
-                  <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
-                    Step {portfolio.moonshot.currentStep} · {usd(active.stake)} → {usd(active.projectedReturn)} ({active.combinedAmerican > 0 ? "+" : ""}{active.combinedAmerican}):{" "}
-                    <span style={{ color: "var(--vault-text-faint)" }}>{(active.legs ?? []).join(" · ")}</span>
-                  </div>
-                );
-              }
-              if (stopped && settledCard) {
-                const rec = portfolio.moonshot.record ?? {};
-                return (
-                  <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.05em]" style={{ color: "var(--gtp-bank-heat)" }}>Settled · lost</span>{" "}
-                    Step {portfolio.moonshot.currentStep} restart card · {usd(settledCard.stake)} → {usd(settledCard.projectedReturn)} ({settledCard.combinedAmerican > 0 ? "+" : ""}{settledCard.combinedAmerican}). Record {rec.wins ?? 0}–{rec.losses ?? 0}.
-                    {portfolio.moonshot.note ? <span className="block mt-0.5" style={{ color: "var(--vault-text-faint)" }}>{portfolio.moonshot.note}</span> : null}
-                  </div>
-                );
-              }
-              return <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>Moonshot Lane awaiting a qualified card.</div>;
-            })()}
-            <div className="mt-1.5 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Does not affect the core Lane A/B record. Paper-only · settles from official sources.</div>
-            <Link href="/moonshot" className="mt-2 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "#b9a8ff" }}>
+          <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
+            🌙 Moonshot exposure <span className="font-mono" style={{ color: "#8b7bf0" }}>{usd(portfolio.moonshot.exposure)}</span> · separate from the {usd(portfolio.openExposure)} core lanes (total {usd(portfolio.totalOpenExposure ?? portfolio.openExposure + portfolio.moonshot.exposure)}). Does not affect the core Lane A/B record. Paper-only · settles from official sources.
+          </p>
+          {moonshotLane ? (
+            <MoonshotLaneTracker lane={moonshotLane} record={portfolio.moonshot.record} exposure={portfolio.moonshot.exposure} mode="compact" />
+          ) : (
+            <Link href="/moonshot" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "#b9a8ff" }}>
               Open the Moonshot Lane daily tracker →
             </Link>
-          </div>
+          )}
         </section>
       ) : null}
 
