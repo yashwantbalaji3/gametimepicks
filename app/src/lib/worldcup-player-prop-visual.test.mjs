@@ -4,8 +4,8 @@ import fs from "node:fs";
 import { loadTodaySlate } from "./parlays/ui-loader.ts";
 import { getWorldCupMultiGameCardsForGame, getGameSpecificCardsForGame } from "./world-cup/game-specific-cards.ts";
 
-const NOW = "2026-06-21T08:00:00Z";
-const slate = loadTodaySlate("2026-06-21", NOW);
+const NOW = "2026-06-22T12:00:00Z";
+const slate = loadTodaySlate("2026-06-22", NOW);
 
 test("World Cup player-prop legs carry a real headshot OR a flag fallback, plus team flag + opponent + kickoff", () => {
   const wc = slate.suggestedBySportRisk["WORLD_CUP"] ?? {};
@@ -34,9 +34,8 @@ test("leg row renders the matchup line; card drawer discloses correlation + limi
 
 test("WC game pages show 'This game in multi-game cards', filtered to cards that include the game", () => {
   const fixtures = [
-    { matchId: "38", homeTeam: "Belgium", awayTeam: "Iran" },
-    { matchId: "39", homeTeam: "Uruguay", awayTeam: "Cape Verde" },
-    { matchId: "40", homeTeam: "New Zealand", awayTeam: "Egypt" },
+    { matchId: "42", homeTeam: "France", awayTeam: "Iraq" },
+    { matchId: "43", homeTeam: "Norway", awayTeam: "Senegal" },
   ];
   for (const f of fixtures) {
     const r = getWorldCupMultiGameCardsForGame(f, NOW);
@@ -65,10 +64,10 @@ test("active cards untouched: Lane A/B, Moonshot, Mr. Dub exposure unchanged (di
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
   assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "Lane A/B unchanged");
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
-  assert.equal(moon.ladder[0].card.combinedOdds, 1152, "Moonshot active card is +1152");
+  assert.equal(moon.ladder[0].card.combinedOdds, 1152, "Moonshot Step 1 card is +1152");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
   assert.equal(p.openExposure, 200, "core open exposure (Lane A + Lane B placed seeds)");
-  assert.equal(p.totalOpenExposure, 225, "total open exposure $225 (core $200 + moonshot $25)");
+  assert.equal(p.totalOpenExposure, 200, "total open exposure $200 (core $200; moonshot settled → 0)");
 });
 
 test("MLB leg rows are unaffected — still resolve a team logo, no World Cup flag", () => {

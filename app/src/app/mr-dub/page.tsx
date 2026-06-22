@@ -211,14 +211,31 @@ export default function MrDubPage() {
               </span>
               <span className="font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: "#8b7bf0" }}>{portfolio.moonshot.record?.pending ?? 0} open · high-volatility</span>
             </div>
-            {portfolio.moonshot.activeCard ? (
-              <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
-                Step {portfolio.moonshot.currentStep} · {usd(portfolio.moonshot.activeCard.stake)} → {usd(portfolio.moonshot.activeCard.projectedReturn)} ({portfolio.moonshot.activeCard.combinedAmerican > 0 ? "+" : ""}{portfolio.moonshot.activeCard.combinedAmerican}):{" "}
-                <span style={{ color: "var(--vault-text-faint)" }}>{(portfolio.moonshot.activeCard.legs ?? []).join(" · ")}</span>
-              </div>
-            ) : (
-              <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>Moonshot Lane awaiting a qualified card.</div>
-            )}
+            {(() => {
+              // Active step card lives under `activeCard`; a settled (stopped) lane keeps the graded card under `card`.
+              const active = portfolio.moonshot.activeCard;
+              const settledCard = portfolio.moonshot.card;
+              const stopped = portfolio.moonshot.status === "stopped";
+              if (active) {
+                return (
+                  <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
+                    Step {portfolio.moonshot.currentStep} · {usd(active.stake)} → {usd(active.projectedReturn)} ({active.combinedAmerican > 0 ? "+" : ""}{active.combinedAmerican}):{" "}
+                    <span style={{ color: "var(--vault-text-faint)" }}>{(active.legs ?? []).join(" · ")}</span>
+                  </div>
+                );
+              }
+              if (stopped && settledCard) {
+                const rec = portfolio.moonshot.record ?? {};
+                return (
+                  <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.05em]" style={{ color: "var(--gtp-bank-heat)" }}>Settled · lost</span>{" "}
+                    Step {portfolio.moonshot.currentStep} restart card · {usd(settledCard.stake)} → {usd(settledCard.projectedReturn)} ({settledCard.combinedAmerican > 0 ? "+" : ""}{settledCard.combinedAmerican}). Record {rec.wins ?? 0}–{rec.losses ?? 0}.
+                    {portfolio.moonshot.note ? <span className="block mt-0.5" style={{ color: "var(--vault-text-faint)" }}>{portfolio.moonshot.note}</span> : null}
+                  </div>
+                );
+              }
+              return <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>Moonshot Lane awaiting a qualified card.</div>;
+            })()}
             <div className="mt-1.5 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Does not affect the core Lane A/B record. Paper-only · settles from official sources.</div>
           </div>
         </section>
