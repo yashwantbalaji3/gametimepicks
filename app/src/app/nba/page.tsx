@@ -175,7 +175,9 @@ export default function NbaLandingPage() {
         <SectionHeader eyebrow={activeDate ? `${dayLabelFor(activeDate, today)} slate` : "Active slate"} title={activeDate ? formatDateLong(activeDate) : "No NBA games"} />
         {slateTiles}
       </section>
-      <GameOutlookSection outlook={getGameOutlook("nba")} />
+      {/* Market outlook only when the slate actually has games — otherwise an empty offseason slate
+          would render a stale prior-date game as if it were today's. Honest empty state instead. */}
+      {games.length > 0 ? <GameOutlookSection outlook={getGameOutlook("nba")} /> : null}
     </div>
   );
 

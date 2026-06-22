@@ -254,8 +254,9 @@ export default function TodayPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
-      {/* 1 — Quick actions: the primary destinations, first (1-click reach to every key area) */}
-      <nav aria-label="Quick actions" className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+      {/* 1 — Quick actions (mobile only): 1-click reach to key areas. On desktop the CommandRail
+            left rail already covers these, so the row is hidden (lg:hidden) to avoid duplication. */}
+      <nav aria-label="Quick actions" className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 lg:hidden">
         {[
           { href: "/games", label: "Games" },
           { href: "/world-cup", label: "World Cup" },
