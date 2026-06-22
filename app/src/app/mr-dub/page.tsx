@@ -237,6 +237,9 @@ export default function MrDubPage() {
               return <div className="mt-1.5 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>Moonshot Lane awaiting a qualified card.</div>;
             })()}
             <div className="mt-1.5 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Does not affect the core Lane A/B record. Paper-only · settles from official sources.</div>
+            <Link href="/moonshot" className="mt-2 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "#b9a8ff" }}>
+              Open the Moonshot Lane daily tracker →
+            </Link>
           </div>
         </section>
       ) : null}

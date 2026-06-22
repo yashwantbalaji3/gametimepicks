@@ -149,8 +149,8 @@ export default function MoonshotLaneCard({ lane }: { lane: MoonshotLane | null }
           </div>
         )}
         <div className="flex flex-col gap-2">{lane.ladder.map((s) => <StepRow key={s.step} step={s} />)}</div>
-        <Link href="/mr-dub" className="mt-3 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: MOON }}>
-          Track the Moonshot lane on Mr. Dub →
+        <Link href="/moonshot" className="mt-3 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: MOON }}>
+          Open the Moonshot Lane daily tracker →
         </Link>
       </div>
     </section>

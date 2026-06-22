@@ -65,9 +65,14 @@ export default function BankBuilderStatusRail({
         <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
           Bank Builder · paper ladder
         </span>
-        <Link href="/bank-builder" className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 10, fontWeight: 700, textDecoration: "none" }}>
-          Open Bank Builder →
-        </Link>
+        <span className="flex items-center gap-1.5">
+          <Link href="/moonshot" className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid color-mix(in srgb, #8b7bf0 45%, transparent)", color: "#b9a8ff", fontSize: 10, fontWeight: 700, textDecoration: "none" }}>
+            🌙 Moonshot →
+          </Link>
+          <Link href="/bank-builder" className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 10, fontWeight: 700, textDecoration: "none" }}>
+            Open Bank Builder →
+          </Link>
+        </span>
       </div>
 
       <div className="relative mt-3 flex flex-col sm:flex-row gap-2.5">
@@ -83,9 +88,9 @@ export default function BankBuilderStatusRail({
 
       {!launched && v2 ? (
         <p className="relative mt-3 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)", maxWidth: 720 }}>
-          <span style={{ color: "var(--gtp-bank-heat)" }}>Bank Builder V2</span> is screening today's legs on a survival score
-          (volatility, DNP/lineup, odds-band). {v2.counts.eligible} cleared the bar
-          {topCand ? <> — strongest <span style={{ color: "var(--vault-text)" }}>{topCand.pick}</span> (survival {Math.round(topCand.survivalScore)})</> : null}, but
+          <span style={{ color: "var(--gtp-bank-heat)" }}>Bank Builder V2</span> is screening today&apos;s legs against a strict survival gate.
+          {" "}{v2.counts.eligible} cleared the bar
+          {topCand ? <> — strongest is <span style={{ color: "var(--vault-text)" }}>{topCand.pick}</span></> : null}, but
           {" "}{v2.blockers[0] ?? "the slate can't form two independent lanes"} — so no new run launches. The closed test ladder's misses are why the bar is this strict.
         </p>
       ) : null}

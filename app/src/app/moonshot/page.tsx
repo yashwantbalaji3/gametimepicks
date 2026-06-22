@@ -1,0 +1,59 @@
+/**
+ * /moonshot — the dedicated Moonshot Lane daily tracker. A separate, higher-volatility $25 → $3,000
+ * paper challenge with its own day-by-day journey, record (kept apart from the core Bank Builder),
+ * hit/miss/pending legs, exposure, and restart state. Server component; reads committed artifacts.
+ */
+import fs from "node:fs";
+import path from "node:path";
+import Link from "next/link";
+
+import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
+import MoonshotLaneTracker from "@/components/moonshot/moonshot-lane-tracker";
+import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
+
+export const metadata = {
+  title: "Moonshot Lane · GameTime Picks",
+  description:
+    "The Moonshot Lane daily tracker — a separate, higher-volatility $25 → $3,000 paper challenge with day-by-day cards, hit/miss/pending legs, and official settlement. Educational, paper-only.",
+};
+
+function loadMoonshotPortfolio(): { record?: { wins: number; losses: number; voids: number; pending: number }; exposure?: number } {
+  try {
+    const j = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "portfolio.json"), "utf8")) as {
+      moonshot?: { record?: { wins: number; losses: number; voids: number; pending: number }; exposure?: number };
+    };
+    return { record: j.moonshot?.record, exposure: j.moonshot?.exposure };
+  } catch {
+    return {};
+  }
+}
+
+export default function MoonshotPage() {
+  const lane = loadMoonshotLane();
+  const { record, exposure } = loadMoonshotPortfolio();
+  const status: PicksSurfaceStatus = lane?.status === "stopped" ? "settled" : lane?.status === "active" ? "live" : "data_pending";
+
+  return (
+    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
+      <PicksSurfaceHeader
+        eyebrow="Moonshot Lane"
+        title="Moonshot Lane"
+        status={status}
+        counts={record ? { settled: record.wins + record.losses + record.voids, pending: record.pending } : undefined}
+        primaryAction={{ label: "Open Bank Builder", href: "/bank-builder" }}
+        secondaryAction={{ label: "Mr. Dub", href: "/mr-dub" }}
+        note="A separate, higher-volatility $25 → $3,000 paper challenge — tracked day-by-day, with its own record kept apart from the core Dual Bank Builder. Paper-only, settlement-supported."
+      />
+      {lane ? (
+        <MoonshotLaneTracker lane={lane} record={record} exposure={exposure} />
+      ) : (
+        <div className="rounded-xl px-4 py-8 text-center" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+          <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>Moonshot Lane data pending</p>
+          <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
+            The tracker appears once a lane artifact is published. <Link href="/bank-builder" style={{ color: "var(--vault-gold-bright)" }}>Open Bank Builder</Link>.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
