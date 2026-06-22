@@ -71,8 +71,8 @@ test("active cards untouched: Lane A/B, Moonshot, Mr. Dub unchanged by the playe
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
   assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "Lane A/B legs unchanged");
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
-  assert.equal(moon.ladder[0].card.combinedOdds, 808, "Moonshot Step 1 unchanged");
+  assert.equal(moon.ladder[0].card.combinedOdds, 1152, "Moonshot Step 1 active card is +1152");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
-  assert.equal(p.openExposure, 0, "core exposure settled to $0 (June 19 cards officially settled)");
-  assert.equal(p.totalOpenExposure, 0, "total exposure $0 after settlement");
+  assert.equal(p.openExposure, 200, "core open exposure (Lane A + Lane B placed seeds)");
+  assert.equal(p.totalOpenExposure, 225, "total open exposure $225 (core $200 + moonshot $25)");
 });

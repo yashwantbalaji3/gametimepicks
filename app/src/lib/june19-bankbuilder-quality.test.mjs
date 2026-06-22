@@ -75,13 +75,13 @@ test("four distinct games across both lanes (no shared/correlated game)", () => 
   assert.equal(new Set(games).size, games.length, "all four legs are from distinct games");
 });
 
-test("Mr. Dub after settlement: no open cards, exposure $0; settled lanes carry the right legs", () => {
-  assert.equal(portfolio.openExposure, 0, "all June 19 cards settled → no open exposure");
-  assert.equal((portfolio.activeCards ?? []).length, 0, "no active cards after settlement");
-  // The settled cards live in the Bank Builder artifact (Lane A USA + Gonzales won; Lane B Turkey + Hoskins lost).
+test("Mr. Dub after cross-slate resume: two active cards, exposure $200; settled lanes carry the right top-level legs", () => {
+  assert.equal(portfolio.openExposure, 200, "Lane A Step 3 + Lane B Step 1 placed (pending) → $200 open exposure");
+  assert.equal((portfolio.activeCards ?? []).length, 2, "two active cards after the cross-slate resume");
+  // The settled June 19 cards still live in the Bank Builder artifact top-level legs (unchanged).
   const aLegs = JSON.stringify(run.laneA.legs);
   const bLegs = JSON.stringify(run.laneB.legs);
-  assert.ok(/Gonzales/.test(aLegs) && /USA/.test(aLegs), "Lane A = USA + Gonzales");
-  assert.ok(/Hoskins/.test(bLegs) && /Turkey or Draw/.test(bLegs), "Lane B = Turkey or Draw + Hoskins");
+  assert.ok(/Gonzales/.test(aLegs) && /USA/.test(aLegs), "Lane A top-level legs = USA + Gonzales");
+  assert.ok(/Hoskins/.test(bLegs) && /Turkey or Draw/.test(bLegs), "Lane B top-level legs = Turkey or Draw + Hoskins");
   assert.ok(ledger.events.some((e) => /lane-a/.test(e.laneId ?? "")), "Lane A events present in the ledger");
 });

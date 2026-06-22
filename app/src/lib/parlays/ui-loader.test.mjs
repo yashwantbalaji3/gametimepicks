@@ -87,15 +87,15 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("the June 19 settled ladder: Lane A advanced (Step 2 won, USA + Gonzales), Lane B stopped (Step 1 lost)", () => {
+test("the June 19 settled + cross-slate resumed ladder: Lane A active (Steps 1+2 won, USA + Gonzales, Step 3 placed), Lane B active (Step 1 restart placed)", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.isLadder, true, "preview is a multi-step ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
   assert.equal(bb.laneA.steps.length, 5, "five-step ladder");
 
-  // Lane A: Step 1 (Mexico DNB + Soto) + Step 2 (USA + Gonzales) BOTH WON → advanced toward Step 3.
-  assert.equal(bb.laneA.laneStatus, "advanced");
+  // Lane A: Step 1 (Mexico DNB + Soto) + Step 2 (USA + Gonzales) BOTH WON; Step 3 placed as an active card.
+  assert.equal(bb.laneA.laneStatus, "active");
   assert.equal(bb.laneA.publicVisible, true);
   const a1 = bb.laneA.steps[0];
   assert.equal(a1.status, "settled");
@@ -111,16 +111,15 @@ test("the June 19 settled ladder: Lane A advanced (Step 2 won, USA + Gonzales), 
   assert.equal(a2.legs.length, 2);
   assert.ok(a2.legs.some((l) => l.sport === "WORLD_CUP") && a2.legs.some((l) => l.sport === "MLB"), "Step 2 = one World Cup + one MLB");
   assert.ok((a2.payout ?? 0) >= 600 && (a2.payout ?? 0) <= 700, "Step 2 paid ~$601.56");
-  assert.equal(bb.laneA.steps[2].status, "awaiting", "Step 3 awaiting after the advance");
+  assert.equal(bb.laneA.steps[2].status, "pending", "Step 3 placed (pending) cross-slate card");
 
-  // Lane B: Step 1 (Turkey or Draw + Hoskins) LOST → stopped + hidden from the public ladder.
-  assert.equal(bb.laneB.laneStatus, "stopped");
-  assert.equal(bb.laneB.publicVisible, false);
+  // Lane B: resumed ACTIVE with a fresh $100 Step 1 restart (pending), shown publicly.
+  assert.equal(bb.laneB.laneStatus, "active");
+  assert.equal(bb.laneB.publicVisible, true);
   const b1 = bb.laneB.steps[0];
-  assert.equal(b1.status, "settled", "Lane B Step 1 settled");
-  assert.equal(b1.result, "lost");
+  assert.equal(b1.status, "pending", "Lane B Step 1 is a placed (pending) restart card");
   const liveB = JSON.stringify(bb.laneB.steps);
-  assert.ok(!/Goldschmidt|Switzerland/.test(liveB), "old stopped Step-2 legs never surface in the live lane");
+  assert.ok(!/Goldschmidt|Switzerland|Hoskins|Turkey/.test(liveB), "old stopped/lost legs never surface in the live lane");
 });
 
 test("mixed-sport parlays: each card spans a World Cup leg + another sport, by risk", () => {
@@ -140,16 +139,16 @@ test("mixed-sport parlays: each card spans a World Cup leg + another sport, by r
   }
 });
 
-test("Lane B Step 1 was plus-money (Turkey or Draw + Hoskins) but settled LOST → lane stopped", () => {
+test("Lane B Step 1 restart is plus-money (Argentina ML + France/Iraq Under 3.5), placed as a pending card → lane active", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.isLadder, true);
   const step1 = bb.laneB.steps.find((s) => s.step === 1);
-  assert.ok(step1.combinedOdds != null && step1.combinedOdds > 0, "Step 1 combined odds were plus-money (+111)");
-  assert.equal(step1.status, "settled", "Step 1 settled");
-  assert.equal(step1.result, "lost", "Turkey or Draw + Hoskins both lost");
+  assert.ok(step1.combinedOdds != null && step1.combinedOdds > 0, "Step 1 combined odds are plus-money (+177)");
+  assert.equal(step1.status, "pending", "Step 1 restart card is pending (placed, not yet settled)");
+  assert.equal(step1.result, null, "pending restart has no settled result");
   assert.ok(step1.legs.some((l) => l.sport === "WORLD_CUP"), "Step 1 keeps a World Cup leg per lane");
-  assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped after the loss");
+  assert.equal(bb.laneB.laneStatus, "active", "Lane B active after the restart");
 });
 
 test("Lane B Step 1 restart soccer leg is a clean team market (draw-no-bet)", () => {

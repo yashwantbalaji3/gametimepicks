@@ -41,13 +41,15 @@ test("June 21 coverage matrix reconciles (rows + risk totals sum to grand total)
   assert.ok(m.grandTotal > 0, "live slate produced cards");
 });
 
-test("Bank Builder / Moonshot carry no exposure — candidate/awaiting only; corrected bankroll intact", () => {
+test("Bank Builder / Moonshot resumed ACTIVE cross-slate — real exposure; corrected bankroll + crown intact", () => {
   const p = read("public/data/mr-dub/portfolio.json");
-  assert.equal(p.currentBankroll, 10176.17, "reconciled bankroll preserved");
-  assert.equal(p.openExposure, 0, "no auto-placed exposure");
+  assert.equal(p.currentBankroll, 10176.17, "reconciled bankroll preserved (pending cards don't realize)");
+  assert.equal(p.openExposure, 200, "Lane A + Lane B core seeds placed as active cross-slate cards");
+  assert.equal(p.totalOpenExposure, 225, "core $200 + moonshot $25");
   assert.equal(p.crownBankroll, 10376.17, "protected crown untouched");
+  assert.equal(p.moonshot.status, "active", "Moonshot resumed active");
   const dual = read("public/data/methodology/launch/dual-bank-builder-active.json").run;
-  assert.equal(dual.laneA.laneStatus, "advanced");
-  assert.equal((dual.laneA.steps.find((s) => s.step === 3) || {}).status, "awaiting", "Lane A Step 3 awaiting (favorite-heavy slate)");
-  assert.equal(dual.laneB.laneStatus, "stopped");
+  assert.equal(dual.laneA.laneStatus, "active");
+  assert.equal((dual.laneA.steps.find((s) => s.step === 3) || {}).status, "pending", "Lane A Step 3 placed (pending) cross-slate card");
+  assert.equal(dual.laneB.laneStatus, "active");
 });

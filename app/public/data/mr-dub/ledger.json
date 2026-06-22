@@ -260,21 +260,46 @@
       "accountingNote": "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
     },
     {
-      "eventId": "mrdub-2026-06-18-lane-a-advanced",
+      "eventId": "mrdub-2026-06-18-lane-a-step3-pending",
       "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
-      "type": "lane_advanced",
+      "type": "lane_step_open",
       "laneId": "lane-a",
       "step": 3,
-      "date": "2026-06-18",
-      "paperStake": 0,
+      "date": "2026-06-21",
+      "paperStake": 601.56,
       "paperReturn": 0,
       "paperProfit": 0,
-      "status": "advanced",
+      "atRiskStake": 100,
+      "projectedReturn": 1464.71,
+      "status": "open",
+      "combinedOdds": 143,
       "publicBankBuilderVisible": true,
-      "notes": "Step 2 won ($197.88 → $601.56). Step 3 awaiting a qualified June 21 card. The June 21 World Cup slate is favorite-heavy (Spain −1000, Belgium −240, Uruguay −220, Egypt −175), so no 2-leg card clears the Bank Builder value + odds gates for a Step 3. $601.56 rides — not counted as exposure.",
-      "accountingNote": "Step cleared and rolled; awaiting the next qualified card (no card placed)."
+      "legs": [
+        {
+          "sport": "WORLD_CUP",
+          "market": "moneyline_90",
+          "selection": "Egypt moneyline_90",
+          "result": "settled",
+          "officialResult": null,
+          "source": "official"
+        },
+        {
+          "sport": "WORLD_CUP",
+          "market": "moneyline_90",
+          "selection": "Algeria moneyline_90",
+          "result": "settled",
+          "officialResult": null,
+          "source": "official"
+        }
+      ],
+      "sportExposure": [
+        "WORLD_CUP",
+        "WORLD_CUP"
+      ],
+      "notes": "Lane A Step 3 open — $601.56 paper position riding, projected $1464.71. Original $100 at risk. Settles from official sources.",
+      "accountingNote": "Open paper position — pending official settlement."
     },
     {
       "eventId": "mrdub-2026-06-18-lane-b-prior-step1-won",
@@ -355,7 +380,7 @@
       "accountingNote": "Realized — original $100 paper stake lost; lane stopped."
     },
     {
-      "eventId": "mrdub-2026-06-18-lane-b-step1-stopped",
+      "eventId": "mrdub-2026-06-18-lane-b-prior-step1-stopped",
       "timestamp": "2026-06-18T18:40:00Z",
       "portfolio": "mr-dub-paper",
       "category": "bank_builder",
@@ -390,8 +415,50 @@
           "source": "mlb_stats_api"
         }
       ],
-      "notes": "Step settled a loss — Turkey or Draw double_chance: LOST (Türkiye 0–1 Paraguay FT); Rhys Hoskins Hits + Runs + RBIs under 1.5: LOST (4 H+R+RBI)",
+      "notes": "Prior Lane B Step 1 settled a loss — original $100 paper stake lost; lane later relaunched fresh.",
       "accountingNote": "Realized — original $100 paper stake lost; lane stopped."
+    },
+    {
+      "eventId": "mrdub-2026-06-18-lane-b-step1-pending",
+      "timestamp": "2026-06-18T18:40:00Z",
+      "portfolio": "mr-dub-paper",
+      "category": "bank_builder",
+      "type": "lane_step_open",
+      "laneId": "lane-b",
+      "step": 1,
+      "date": "2026-06-22",
+      "paperStake": 100,
+      "paperReturn": 0,
+      "paperProfit": 0,
+      "atRiskStake": 100,
+      "projectedReturn": 277.11,
+      "status": "open",
+      "combinedOdds": 177,
+      "publicBankBuilderVisible": true,
+      "legs": [
+        {
+          "sport": "WORLD_CUP",
+          "market": "moneyline_90",
+          "selection": "Argentina moneyline_90",
+          "result": "settled",
+          "officialResult": null,
+          "source": "official"
+        },
+        {
+          "sport": "WORLD_CUP",
+          "market": "match_total_goals",
+          "selection": "France vs Iraq Under 3.5",
+          "result": "settled",
+          "officialResult": null,
+          "source": "official"
+        }
+      ],
+      "sportExposure": [
+        "WORLD_CUP",
+        "WORLD_CUP"
+      ],
+      "notes": "Lane B Step 1 open — $100 paper position riding, projected $277.11. Original $100 at risk. Settles from official sources.",
+      "accountingNote": "Open paper position — pending official settlement."
     },
     {
       "eventId": "mrdub-2026-06-18-lane-b-restart-active",
@@ -407,7 +474,7 @@
       "paperProfit": 0,
       "status": "active",
       "publicBankBuilderVisible": true,
-      "notes": "Fresh $100 Lane B Step 1 placed on a pre-event card (Turkey draw-no-bet + Zack Gelof Hits Over 0.5). No overlap with Lane A; no reused stopped legs.",
+      "notes": "Fresh $100 Lane B restart (June 22, approved broader criteria): Argentina ML + France/Iraq Under 3.5.",
       "accountingNote": "Fresh $100 path queued for the next qualified card (not yet placed)."
     }
   ]
