@@ -34,7 +34,7 @@ type RailItem = {
 const ITEMS: RailItem[] = [
   { href: "/today", label: "Today", glyph: "▤", group: "Today" },
   { href: "/games", label: "Games", glyph: "◷" },
-  { href: "/picks", label: "Picks", glyph: "⊞" },
+  { href: "/picks", label: "Parlay Lab", glyph: "⊞" },
   { href: "/build", label: "Build", glyph: "✎" },
   { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Bankroll" },
   { href: "/mr-dub", label: "Mr. Dub", glyph: "⚗" },
@@ -113,28 +113,30 @@ export default function CommandRail() {
             <span key={item.href} className="flex flex-col">
               {item.group && (
                 <span
-                  className="px-3 pt-4 pb-1 font-mono uppercase tracking-[0.18em]"
+                  className="flex items-center gap-2 px-3 pt-4 pb-1 font-mono uppercase tracking-[0.18em]"
                   style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
                 >
+                  <span aria-hidden style={{ width: 5, height: 5, borderRadius: 999, background: "var(--gtp-bank-heat)", opacity: 0.7 }} />
                   {item.group}
                 </span>
               )}
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className="group flex items-center gap-3 px-3 py-2 rounded-[6px] transition-colors"
+                className="group flex items-center gap-3 px-3 py-2 rounded-[7px] transition-all"
                 style={{
                   color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
                   background: active ? "var(--vault-gold-dim)" : "transparent",
                   borderLeft: active
                     ? "2px solid var(--vault-gold-bright)"
                     : "2px solid transparent",
+                  boxShadow: active ? "inset 0 0 0 1px var(--vault-border), 0 0 14px var(--vault-gold-glow)" : "none",
                 }}
               >
                 <span aria-hidden style={{ width: 18, textAlign: "center", fontSize: 13 }}>
                   {item.glyph}
                 </span>
-                <span className="text-[13px] font-medium tracking-tight">{item.label}</span>
+                <span className={`text-[13px] tracking-tight ${active ? "font-semibold" : "font-medium"}`}>{item.label}</span>
               </Link>
             </span>
           );

@@ -13,6 +13,8 @@
  * (never the $100 ladder base), and the responsible-use disclosure stays, in
  * sentence case. Server component; chips wrap cleanly on mobile.
  */
+import fs from "node:fs";
+import path from "node:path";
 import Link from "next/link";
 
 import { getOptimizerGradedDates } from "@/lib/parlay-results";
@@ -20,6 +22,30 @@ import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { loadWorldCupProjections } from "@/lib/world-cup/projections";
+
+/**
+ * Active paper bankroll (Mr. Dub portfolio) — the LIVE figure, distinct from the completed crown
+ * ladder. Read straight from the committed artifact (server component, build-time). Fail-closed.
+ */
+function loadActiveBankroll(): { active: number; crown: number; wins: number; losses: number } | null {
+  try {
+    const p = path.join(process.cwd(), "public", "data", "mr-dub", "portfolio.json");
+    const j = JSON.parse(fs.readFileSync(p, "utf8")) as {
+      currentBankroll?: number; crownBankroll?: number; record?: { wins?: number; losses?: number };
+    };
+    if (typeof j.currentBankroll !== "number") return null;
+    return {
+      active: j.currentBankroll,
+      crown: typeof j.crownBankroll === "number" ? j.crownBankroll : j.currentBankroll,
+      wins: j.record?.wins ?? 0,
+      losses: j.record?.losses ?? 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 /**
  * Slate progress relative to build time, from the current slate's World Cup kickoffs:
@@ -105,9 +131,11 @@ export default function SlateStatusBar() {
   const slateDotColor = activeIsSettled ? "var(--vault-success)" : slateInProgress ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)";
   const slateTextColor = slateDotColor;
   const bank = loadPublicBankBuilderSummary();
-  const bankLabel = bank
-    ? `$${bank.currentBankrollUnits.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-    : null;
+  // Active = the live Mr. Dub paper bankroll; Crown = the completed $100→$10K proof ladder. These are
+  // two different numbers and were previously shown as one ambiguous chip — surface both, clearly labeled.
+  const portfolio = loadActiveBankroll();
+  const crownAmount = portfolio?.crown ?? (bank ? bank.currentBankrollUnits : null);
+  const crownRecord = bank ? `${bank.record.wins}–${bank.record.losses}` : null;
 
   return (
     <div
@@ -122,11 +150,20 @@ export default function SlateStatusBar() {
         <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: slateDotColor }} />
         <span style={{ color: slateTextColor }}>{slateLabel}</span>
       </Chip>
-      {bank && bankLabel ? (
-        <Chip href="/bank-builder" accent="var(--vault-gold-bright)">
+      {portfolio ? (
+        <Chip href="/mr-dub" accent="var(--gtp-bank-heat)">
           <span aria-hidden>🏦</span>
-          <span style={{ color: "var(--vault-gold-bright)", fontWeight: 600 }}>{bankLabel}</span>
-          <span>· Step {bank.currentProgressionStep} · {bank.record.wins}–{bank.record.losses}</span>
+          <span style={{ color: "var(--vault-text-faint)" }}>Active</span>
+          <span style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>{usd(portfolio.active)}</span>
+          <span>· {portfolio.wins}–{portfolio.losses}</span>
+        </Chip>
+      ) : null}
+      {crownAmount != null ? (
+        <Chip href="/bank-builder" accent="var(--vault-gold)">
+          <span aria-hidden>👑</span>
+          <span style={{ color: "var(--vault-text-faint)" }}>Crown</span>
+          <span style={{ color: "var(--vault-gold)", fontWeight: 600 }}>{usd(crownAmount)}</span>
+          {crownRecord ? <span>· {crownRecord}</span> : null}
         </Chip>
       ) : null}
       <Chip href="/results" accent="var(--vault-success)">
