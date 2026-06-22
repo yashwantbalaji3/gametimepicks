@@ -80,6 +80,11 @@ export interface SpecialLeg {
   roleTier?: string;
   roleEvidence?: string[];
   lineupNote?: string;
+  // Optional settlement fields — populated once the slate is officially settled. Backward-compatible
+  // (absent on pre-event cards). settlementStatus: per-leg hit/miss/pending; settlementReason: the
+  // muted subtext shown under the leg (e.g. "Belgium 0-0 Iran", "Fabian Ruiz: 0", "not started").
+  settlementStatus?: "hit" | "miss" | "pending";
+  settlementReason?: string;
 }
 
 export interface WorldCupSpecialCard {
@@ -103,6 +108,11 @@ export interface WorldCupSpecialCard {
   settlementNotes: string[];
   diagnostics: string[];
   roleQualitySummary?: string; // optional — set by the role-screened (preview) builder
+  // Optional card-level settlement state — populated once the slate is officially settled.
+  // "won" | "lost" | "pending". Backward-compatible (absent on pre-event cards).
+  cardStatus?: "won" | "lost" | "pending";
+  settledAt?: string | null;
+  settlementSource?: string | null;
 }
 
 export interface SpecialsDiagnostics {
@@ -125,6 +135,9 @@ export interface WorldCupSpecialsResult {
   config: WorldCupSpecialsConfig;
   cards: WorldCupSpecialCard[];
   diagnostics: SpecialsDiagnostics;
+  // Optional slate-level settlement metadata — present once the slate is officially settled.
+  settledAt?: string | null;
+  settlementSource?: string | null;
 }
 
 // ── Market maps (posted markets only — never invent one) ─────────────────────────────────────────

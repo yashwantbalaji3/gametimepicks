@@ -45,6 +45,7 @@ import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import WorldCupSpecialsBox from "@/components/world-cup/world-cup-specials-box";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
+import EgyptNzSameGame, { loadNzEgyptMarkets } from "@/components/world-cup/egypt-nz-same-game";
 
 export const metadata = {
   title: "Today · GameTime Picks",
@@ -234,6 +235,9 @@ export default function TodayPage() {
   // the committed snapshot; fail closed when it is for a stale slate (never surface yesterday's cards).
   const wcSpecialsRaw = loadWorldCupSpecials();
   const wcSpecials = wcSpecialsRaw && wcSpecialsRaw.date === today ? wcSpecialsRaw : null;
+  // Egypt vs New Zealand — same-game ideas from the real matchId-40 markets (kickoff-gated, archived
+  // after kickoff). Only for the today-dated slate so a stale projections file is never surfaced.
+  const nzEgyptMarkets = loadNzEgyptMarkets(today);
 
   const engineSlate = loadTodaySlate();
   const engineSportsLive = engineSlate.sports.filter((s) => s.eligibleCount > 0);
@@ -303,6 +307,9 @@ export default function TodayPage() {
       {/* 2.5 — World Cup Specials: homepage-only box of 5 Moonshot-style WC-only paper longshots
             (separate from the Moonshot Lane AND the Dual Bank Builder). Only when today-dated. */}
       {wcSpecials && <WorldCupSpecialsBox data={wcSpecials} />}
+
+      {/* 2.6 — Egypt vs New Zealand same-game ideas (real markets only, no fabricated SGP price). */}
+      {nzEgyptMarkets ? <EgyptNzSameGame data={nzEgyptMarkets} /> : null}
 
       {/* 3 — Bank Builder: compact run-timeline status (Run #1 completed · #2 closed · #3 V2 gate) */}
       <BankBuilderStatusRail

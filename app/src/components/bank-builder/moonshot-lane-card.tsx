@@ -8,6 +8,17 @@ import Link from "next/link";
 import FlagBadge from "@/components/flag-badge";
 import type { MoonshotLane, MoonshotLeg, MoonshotStep } from "@/lib/moonshot/moonshot-lane";
 
+// Enriched, betting-slip-style fields the committed Moonshot artifact carries on each leg / card but
+// the shared MoonshotLeg/MoonshotCard types don't expose. The loader casts the raw JSON, so these
+// are present at runtime; we read them through these optional extensions (all guarded).
+type EnrichedMoonLeg = MoonshotLeg & {
+  displaySelection?: string;
+  kickoffEt?: string;
+  eventDate?: string;
+  settlementSource?: string;
+};
+type EnrichedMoonCard = { crossSlate?: boolean; slateLabel?: string };
+
 const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
 const american = (o: number) => (o > 0 ? `+${o}` : `${o}`);
 const shortStart = (iso: string | null) => {
@@ -15,6 +26,12 @@ const shortStart = (iso: string | null) => {
   const t = Date.parse(iso);
   if (Number.isNaN(t)) return "";
   return new Date(t).toLocaleString("en-US", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" }) + " UTC";
+};
+/** "Jun 22" from an ISO date (YYYY-MM-DD), UTC-noon math to avoid an off-by-one. */
+const shortEventDate = (iso: string | null | undefined) => {
+  if (!iso) return "";
+  const d = new Date(`${iso}T12:00:00Z`);
+  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 };
 
 const MOON = "var(--moonshot-accent, #8b7bf0)";
@@ -39,14 +56,21 @@ function LegAvatar({ leg }: { leg: MoonshotLeg }) {
 }
 
 function MoonLegRow({ leg }: { leg: MoonshotLeg }) {
+  const e = leg as EnrichedMoonLeg;
   const pick = `${leg.marketLabel}${leg.side ? ` ${leg.side}` : ""}${leg.line != null ? ` ${leg.line}` : ""}`.trim();
-  const matchup = [leg.opponent ? `vs ${leg.opponent}` : null, shortStart(leg.startTime)].filter(Boolean).join(" · ");
+  // Selection: prefer displaySelection (carries "{matchup} — {market}: {pick}"); else compose the
+  // matchup (fixture) + the pick so a leg never reads as a bare market with no game.
+  const selection = e.displaySelection || pick;
+  // Matchup line: prefer the explicit fixture; kickoff prefers ET (+ event date) over the raw UTC time.
+  const koDate = shortEventDate(e.eventDate);
+  const kickoff = e.kickoffEt ? [e.kickoffEt, koDate].filter(Boolean).join(" · ") : shortStart(leg.startTime);
+  const matchup = [leg.fixture || (leg.opponent ? `vs ${leg.opponent}` : null), kickoff ? `Kickoff ${kickoff}` : null].filter(Boolean).join(" · ");
   return (
     <div className="flex items-center gap-2 py-1.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <span className="shrink-0"><LegAvatar leg={leg} /></span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[12.5px] font-medium" style={{ color: "var(--vault-text)" }}>{leg.participant}</span>
-        <span className="block truncate text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{pick}</span>
+        <span className="block truncate text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{selection}</span>
         {matchup && <span className="block truncate font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>{matchup}</span>}
       </span>
       <span className="shrink-0 text-right">
@@ -77,6 +101,12 @@ function StepRow({ step }: { step: MoonshotStep }) {
             <span className="font-mono text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{usd(step.card.stake)} → {usd(step.card.projectedReturn)}</span>
             <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>· {step.card.distinctGames} games · model {Math.round(step.card.jointModelProbability * 100)}% all-hit</span>
           </div>
+          {((step.card as EnrichedMoonCard).crossSlate || (step.card as EnrichedMoonCard).slateLabel) && (
+            <div className="mb-1.5 flex flex-wrap gap-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em]">
+              {(step.card as EnrichedMoonCard).crossSlate ? <span className="rounded px-1.5 py-0.5" style={{ color: MOON, background: "rgba(139,123,240,0.14)", border: `1px solid ${MOON}` }}>Cross-slate</span> : null}
+              {(step.card as EnrichedMoonCard).slateLabel ? <span className="rounded px-1.5 py-0.5 normal-case" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)", letterSpacing: 0 }}>{(step.card as EnrichedMoonCard).slateLabel}</span> : null}
+            </div>
+          )}
           <div>{step.card.legs.map((l) => <MoonLegRow key={l.legId} leg={l} />)}</div>
           <details className="mt-2"><summary className="cursor-pointer font-mono text-[10.5px]" style={{ color: MOON, listStyle: "none" }}>Why this card · correlation · how it fails ▾</summary>
             <div className="mt-1.5 space-y-1 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
