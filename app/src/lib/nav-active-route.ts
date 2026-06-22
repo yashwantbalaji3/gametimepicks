@@ -97,7 +97,8 @@ export function resolveMobileNavBucket(
   ) return "picks";
   // Build is the custom paper-card builder (distinct from the Parlay Lab lobby).
   if (p === "/build" || p.startsWith("/build/")) return "lab";
-  if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
+  // Moonshot is a Bankroll surface (its own lane); it highlights the Bank bucket on mobile.
+  if (p === "/bank-builder" || p.startsWith("/bank-builder/") || p === "/moonshot" || p.startsWith("/moonshot/")) return "bank";
   if (p === "/mr-dub" || p.startsWith("/mr-dub/")) return "mrdub";
   // The unified Games board + the Sports directory + every sport hub/board + schedule-only
   // leagues all resolve to the Games bucket (Games is the cross-sport entry on mobile).

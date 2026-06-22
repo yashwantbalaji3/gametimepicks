@@ -30,6 +30,10 @@ export interface MoonshotLeg {
   confidence: string;
   settlement: { result: string; source: string; official: string; started: boolean };
   why?: string;
+  // Display/settlement enrichment (present on settled-era artifacts; optional for back-compat).
+  displaySelection?: string;
+  kickoffEt?: string;
+  settlementStatus?: string; // "hit" | "miss" | "pending"
 }
 
 export interface MoonshotCard {
@@ -47,6 +51,16 @@ export interface MoonshotCard {
   whyItCanFail: string[];
   dataQuality: string;
   eligible: boolean;
+  result?: string; // "won" | "lost" | "void" when the card has settled
+  slateLabel?: string;
+  crossSlate?: boolean;
+}
+
+/** A prior, completed Moonshot run kept as day-by-day history (separate from the current lane). */
+export interface MoonshotPriorRun {
+  card: MoonshotCard | null;
+  result: string;
+  note: string;
 }
 
 export interface MoonshotStep {
@@ -77,6 +91,10 @@ export interface MoonshotLane {
   // When stopped, the public restart candidate / reason (so the lane never reads as a dead "stopped"
   // row): either an explicit card or an honest reason why no high-volatility card qualifies yet.
   restartCandidate?: { headline: string; reason: string; stake: number | null } | null;
+  // Settled-state extras (present once the lane has stopped/settled; optional for back-compat).
+  stopNote?: string;
+  settledAt?: string;
+  priorRun?: MoonshotPriorRun | null;
 }
 
 const MOONSHOT_PATH = ["moonshot-lane", "active.json"];

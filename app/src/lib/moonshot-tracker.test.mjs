@@ -1,0 +1,65 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { loadMoonshotLane } from "./moonshot/moonshot-lane.ts";
+import { resolveMobileNavBucket } from "./nav-active-route.ts";
+
+const read = (p) => fs.readFileSync(p, "utf8");
+
+test("shared ticket primitives exist under components/tickets/", () => {
+  for (const f of ["odds-pill", "status-pill", "risk-pill", "settlement-badge", "team-identity", "leg-row", "ticket-card"]) {
+    assert.ok(fs.existsSync(`src/components/tickets/${f}.tsx`), `tickets/${f}.tsx present`);
+  }
+});
+
+test("/moonshot route renders the dedicated daily tracker (separate lane, paper-only)", () => {
+  const page = read("src/app/moonshot/page.tsx");
+  assert.match(page, /MoonshotLaneTracker/, "renders the tracker");
+  assert.match(page, /PicksSurfaceHeader/, "uses the shared pick-surface header");
+  assert.match(page, /loadMoonshotLane/, "loads the moonshot lane");
+  assert.match(page, /portfolio\.json|moonshot/i, "reads the moonshot record/exposure from the portfolio");
+});
+
+test("Moonshot tracker shows the stopped/LOST state with hit/miss/pending legs, separate from core", () => {
+  const tracker = read("src/components/moonshot/moonshot-lane-tracker.tsx");
+  assert.match(tracker, /not<\/strong>\s*part of the core Dual Bank Builder|never blends into the core/, "states it is separate from the core record");
+  assert.match(tracker, /LegRow/, "renders leg rows");
+  assert.match(tracker, /TicketCard/, "uses the shared ticket card");
+  assert.match(tracker, /priorRun/, "renders known prior-run history");
+  assert.match(tracker, /not backfilled|known Moonshot runs only/, "honest about un-backfilled history (no fabrication)");
+});
+
+test("Moonshot lane artifact is stopped/LOST and its record is separate (0-1, not in core)", () => {
+  const lane = loadMoonshotLane();
+  assert.ok(lane, "moonshot lane present");
+  assert.equal(lane.status, "stopped", "lane stopped (settled LOST)");
+  assert.equal(lane.ladder[0].card?.result, "lost", "Step 1 card settled LOST");
+  // The Egypt BTTS-No leg is the settled MISS; the others are pending (dead-parlay).
+  const miss = (lane.ladder[0].card?.legs ?? []).filter((l) => (l.settlement?.result) === "lost").length;
+  assert.ok(miss >= 1, "at least one settled MISS leg");
+  // Portfolio keeps the moonshot record SEPARATE from the core record.
+  const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
+  assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot 0-1, separate");
+  assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure 0 (settled)");
+  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 2 }, "core record unchanged (moonshot not blended in)");
+});
+
+test("Moonshot is reachable: command rail + top nav include it; mobile maps it to the Bank bucket", () => {
+  const rail = read("src/components/command-rail.tsx");
+  const nav = read("src/components/nav.tsx");
+  assert.match(rail, /href: "\/moonshot"/, "command rail has a Moonshot entry");
+  assert.match(nav, /href: "\/moonshot"/, "top nav has a Moonshot entry");
+  assert.equal(resolveMobileNavBucket("/moonshot"), "bank", "mobile highlights Bank for /moonshot");
+});
+
+test("Today + Bank Builder + Mr. Dub link to the Moonshot tracker", () => {
+  assert.match(read("src/components/bank-builder/bank-builder-status-rail.tsx"), /href="\/moonshot"/, "today's BB rail links to the tracker");
+  assert.match(read("src/components/bank-builder/moonshot-lane-card.tsx"), /href="\/moonshot"/, "bank-builder moonshot card links to the tracker");
+  assert.match(read("src/app/mr-dub/page.tsx"), /href="\/moonshot"/, "Mr. Dub links to the tracker");
+});
+
+test("protected crown is untouched (still $10,376.17, 5-0)", () => {
+  const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
+  assert.equal(portfolio.crownBankroll, 10376.17, "crown bankroll immutable");
+  assert.equal(portfolio.currentBankroll, 10176.17, "active bankroll unchanged");
+});
