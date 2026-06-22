@@ -76,7 +76,11 @@ test("Parlay Lab UI renders the full matrix (totals footer, Moonshot + Bank Buil
   assert.match(src, /grandTotal/, "renders grand total");
   assert.match(src, /overflow-x-auto/, "mobile horizontal scroll wrapper");
   assert.match(src, /Why are some buckets empty/, "empty-reason drawer");
-  // Built on the server (node:fs) and passed in — never imported into the client bundle.
-  const page = fs.readFileSync("src/app/parlays/page.tsx", "utf8");
-  assert.match(page, /buildCoverageMatrix\(slate, loadMoonshotLane\(\)/, "matrix built server-side in /parlays");
+  // Built on the server (node:fs) and passed in — never imported into the client bundle. The canonical
+  // suggested-parlay surface is now the Parlay Lab at /picks (/parlays + /parlay-lab redirect to it).
+  const page = fs.readFileSync("src/app/picks/page.tsx", "utf8");
+  assert.match(page, /buildCoverageMatrix\(\w+, loadMoonshotLane\(\)/, "matrix built server-side in the canonical Parlay Lab (/picks)");
+  // The legacy /parlays route is a thin redirect to the canonical lobby — not a competing page.
+  const legacy = fs.readFileSync("src/app/parlays/page.tsx", "utf8");
+  assert.match(legacy, /redirect\(["']\/picks["']\)/, "/parlays redirects to the canonical /picks");
 });

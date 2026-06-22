@@ -49,9 +49,15 @@ export default function Nav() {
   const isActive = (href: string) => {
     // Today owns the root/home as the default landing experience.
     if (href === "/today") return pathname === "/today" || pathname === "/" || pathname === "";
-    // Build folds in the legacy /parlay-lab route (now an alias destination).
+    // Parlay Lab is the canonical /picks; /parlays + /parlay-lab redirect there, so they highlight it.
+    if (href === "/picks") {
+      return pathname === "/picks" || pathname.startsWith("/picks/") ||
+        pathname === "/parlays" || pathname.startsWith("/parlays/") ||
+        pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/");
+    }
+    // Build = the custom paper-card builder only.
     if (href === "/build") {
-      return pathname === "/build" || pathname.startsWith("/build/") || pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/") || pathname.endsWith("/parlays") || pathname.includes("/parlays/");
+      return pathname === "/build" || pathname.startsWith("/build/");
     }
     // Sports lights up on the directory + every sport hub/board route.
     if (href === "/sports") return SPORT_RE.test(pathname);

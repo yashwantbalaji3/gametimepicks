@@ -8,7 +8,7 @@ import { buildEngineLegs, buildWcPlayerLegs, type BuildLeg } from "@/lib/build-l
 import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 import { loadWorldCupProjections, loadWorldCupPlayerProjections } from "@/lib/world-cup/projections";
 import BuildExperience from "@/components/build-experience";
-import SectionHeader from "@/components/section-header";
+import PicksSurfaceHeader from "@/components/picks-surface-header";
 
 export const metadata = {
   title: "Build · GameTime Picks",
@@ -29,10 +29,14 @@ export default function BuildPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
-      <SectionHeader
-        eyebrow={`Build a card · ${pool.length} eligible legs`}
+      <PicksSurfaceHeader
+        eyebrow="Build a card"
         title="Build"
-        sub="Add parlay-eligible legs across sports to a paper card, then enter any stake to see the projected paper return. Only legs that cleared our card gates appear here — never research-only views."
+        status={pool.length > 0 ? "pregame" : "data_pending"}
+        counts={{ eligibleLegs: pool.length }}
+        primaryAction={{ label: "Browse Parlay Lab", href: "/picks" }}
+        secondaryAction={{ label: "How it works", href: "/methodology" }}
+        note="Add parlay-eligible legs across sports to a paper card, then enter any stake to see the projected paper return. Only legs that cleared our card gates appear here — never research-only views."
       />
       {pool.length > 0 ? (
         <BuildExperience pool={pool} />

@@ -59,10 +59,6 @@ function Chip({ label, tone = "mute" }: { label: string; tone?: "mute" | "good" 
   );
 }
 
-function qualityTone(tier: string): "good" | "text" | "warn" | "mute" {
-  return tier === "elite" ? "good" : tier === "strong" ? "text" : tier === "thin" ? "warn" : "mute";
-}
-
 /** Real last-5 prop grid (official MLB game logs) — green hit / red miss vs the exact line. */
 function Last5Mini({ leg }: { leg: ParlayLegDisplay }) {
   const l5 = leg.last5;
@@ -111,11 +107,11 @@ function LegRow({ leg }: { leg: ParlayLegDisplay }) {
             <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>▾</span>
           </div>
           {matchup && <div className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>{matchup}</div>}
+          {/* Summary chips trimmed to the two most meaningful (confidence + edge); model%, implied%,
+              quality and survival live in the expanded detail below to cut badge clutter. */}
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <Chip label={leg.confidenceTier} tone={leg.confidenceTier === "High" ? "good" : leg.confidenceTier === "No Bet" ? "warn" : "mute"} />
-            <Chip label={`${leg.legQualityTier} ${leg.legQualityScore}`} tone={qualityTone(leg.legQualityTier)} />
             {leg.edge != null && <Chip label={`${leg.edge >= 0 ? "+" : ""}${leg.edge.toFixed(1)}pp`} tone={leg.edge > 0 ? "good" : "mute"} />}
-            {leg.modelProbability != null && <Chip label={`model ${pctStr(leg.modelProbability)}`} />}
           </div>
         </div>
       </summary>
@@ -141,7 +137,7 @@ function LegRow({ leg }: { leg: ParlayLegDisplay }) {
 
 export function ParlayCard({ card }: { card: SuggestedParlayCard }) {
   return (
-    <div className="rounded-xl p-3.5" style={{ background: "var(--vault-surface, rgba(255,255,255,0.02))", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-xl p-4" style={{ background: "var(--vault-surface, rgba(255,255,255,0.02))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Chip label={RISK_LABEL[card.riskLevel]} tone="text" />
@@ -149,11 +145,12 @@ export function ParlayCard({ card }: { card: SuggestedParlayCard }) {
           {card.parlayType === "same_game" && <Chip label="same game" />}
         </div>
         <div className="text-right">
-          <div className="font-mono text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{americanStr(card.combinedOdds)}</div>
-          <div className="text-[11px]" style={{ color: "var(--vault-text-faint)" }}>model {pctStr(card.estimatedHitProbability)} · {card.legs.length} legs</div>
+          {/* Sportsbook-style price: the combined odds are the headline of the ticket. */}
+          <span className="inline-block rounded-[8px] px-2.5 py-1 font-mono font-bold tabular" style={{ fontSize: 17, color: "var(--vault-gold-bright)", background: "var(--vault-gold-dim)", border: "1px solid color-mix(in srgb, var(--vault-gold-bright) 45%, transparent)" }}>{americanStr(card.combinedOdds)}</span>
+          <div className="mt-1 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>model {pctStr(card.estimatedHitProbability)} · {card.legs.length} legs</div>
         </div>
       </div>
-      <div className="mt-1.5">
+      <div className="mt-2">
         {card.legs.map((l) => <LegRow key={l.legId} leg={l} />)}
       </div>
       {(() => {
