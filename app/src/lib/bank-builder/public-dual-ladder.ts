@@ -87,19 +87,30 @@ export function buildPublicDualLadder(lane: LaneDisplay | null, laneId: "lane-a"
     return { step: rung.step, startTarget: rung.start, goalTarget: rung.goal, multiplier: rung.multiplier, status, actualStake, actualReturn, result, card, candidate: status === "awaiting" ? lane.nextCandidate ?? null : null };
   });
 
-  const advanced = lane.laneStatus === "advanced" || steps.some((s) => s.status === "awaiting");
   const hasActiveCard = steps.some((s) => s.status === "active");
-  const currentStatus: PublicLaneStatus = advanced && !hasActiveCard ? "advanced" : "active";
+  const clearedCount = steps.filter((s) => s.status === "cleared").length;
+  let awaiting = steps.find((s) => s.status === "awaiting");
+  // When a lane has cleared its current rung but `currentStep` didn't advance past it (the next card
+  // hasn't been generated yet), surface the NEXT rung as "awaiting next qualified card" — so a fully
+  // cleared lane invites its next card instead of looking stale/done. No card is placed; no exposure.
+  if (!awaiting && !hasActiveCard && clearedCount > 0) {
+    const lastCleared = Math.max(0, ...steps.filter((s) => s.status === "cleared").map((s) => s.step));
+    const next = steps.find((s) => s.step > lastCleared && s.status === "upcoming");
+    if (next) { next.status = "awaiting"; next.candidate = lane.nextCandidate ?? null; awaiting = next; }
+  }
+
+  const advanced = lane.laneStatus === "advanced" || !!awaiting;
+  const currentStatus: PublicLaneStatus = hasActiveCard
+    ? "active"
+    : awaiting ? "awaiting_next_card" : advanced ? "advanced" : "active";
   // Next stake = the rolled balance from the last cleared step (advanced) or the active step's stake.
   const activeStep = steps.find((s) => s.status === "active");
   const currentStake = activeStep?.actualStake ?? (clearedPayout || lane.restart?.stake || 100);
 
-  const clearedCount = steps.filter((s) => s.status === "cleared").length;
-  const awaiting = steps.find((s) => s.status === "awaiting");
   const headline = activeStep
     ? `Step ${activeStep.step} active · ${usd(activeStep.actualStake ?? 0)} riding`
     : awaiting
-      ? `Step ${clearedCount} cleared · Step ${awaiting.step} awaiting next card`
+      ? `${clearedCount} step${clearedCount === 1 ? "" : "s"} cleared · Step ${awaiting.step} awaiting next qualified card`
       : `${clearedCount} step${clearedCount === 1 ? "" : "s"} cleared`;
 
   return { laneId, label, headline, currentStatus, currentStep, currentStake, steps };

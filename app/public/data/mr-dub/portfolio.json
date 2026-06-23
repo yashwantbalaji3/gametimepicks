@@ -7,14 +7,14 @@
   "startingBankroll": 100,
   "crownBankroll": 10376.17,
   "currentBankroll": 10176.17,
-  "openExposure": 100,
+  "openExposure": 0,
   "settledProfit": 10076.17,
   "roi": 100.76,
   "record": {
-    "wins": 9,
+    "wins": 10,
     "losses": 2,
     "voids": 0,
-    "pending": 1
+    "pending": 0
   },
   "completedLadders": [
     {
@@ -25,59 +25,27 @@
       "official": true
     }
   ],
-  "activeCards": [
-    {
-      "laneId": "lane-a",
-      "type": "lane_step_open",
-      "step": 3,
-      "stake": 601.56,
-      "projectedReturn": 1464.71,
-      "status": "open"
-    }
-  ],
+  "activeCards": [],
   "generatedAt": "2026-06-18T18:40:00Z",
   "highWaterMark": 10376.17,
   "drawdown": 200,
   "drawdownPct": 0.0193,
-  "openExposurePct": 0.0098,
+  "openExposurePct": 0,
   "roiMultiple": 100.76,
   "exposure": {
-    "bySport": [
-      {
-        "key": "World Cup",
-        "amount": 100
-      }
-    ],
-    "byMarket": [
-      {
-        "key": "moneyline_90",
-        "amount": 100
-      }
-    ],
-    "byTeamOrPlayer": [
-      {
-        "key": "Egypt moneyline_90",
-        "amount": 50
-      },
-      {
-        "key": "Algeria moneyline_90",
-        "amount": 50
-      }
-    ],
-    "byLane": [
-      {
-        "key": "lane-a",
-        "amount": 100
-      }
-    ],
-    "byStatus": [
-      {
-        "key": "open",
-        "amount": 100
-      }
-    ]
+    "bySport": [],
+    "byMarket": [],
+    "byTeamOrPlayer": [],
+    "byLane": [],
+    "byStatus": []
   },
   "awaitingCards": [
+    {
+      "laneId": "lane-a",
+      "step": 3,
+      "kind": "awaiting_next_card",
+      "note": "Lane A Step 3 cleared (official) — $601.56 rolls to $1464.71, awaiting the next qualified card."
+    },
     {
       "laneId": "lane-b",
       "step": 1,
@@ -95,11 +63,11 @@
     }
   ],
   "bankrollHealth": {
-    "score": 80,
-    "label": "Balanced",
+    "score": 100,
+    "label": "No open exposure",
     "reasons": [
-      "Open exposure is 1.0% of bankroll.",
-      "Most exposure is concentrated in World Cup."
+      "No active paper cards right now — nothing is at risk.",
+      "2 lane(s) awaiting the next qualified card."
     ]
   },
   "intelligence": {
@@ -107,15 +75,13 @@
     "maxDrawdown": 200,
     "drawdown": 200,
     "drawdownPct": 0.0193,
-    "winRate": 0.82,
-    "exposureBySport": {
-      "World Cup": 100
-    },
-    "largestOpenCard": 601.56,
-    "avgStake": 627.55,
-    "avgSettledReturn": 1961.99,
+    "winRate": 0.83,
+    "exposureBySport": {},
+    "largestOpenCard": 0,
+    "avgStake": 625.39,
+    "avgSettledReturn": 1912.27,
     "profitFactor": 51.38,
-    "longestWinStreak": 8,
+    "longestWinStreak": 9,
     "longestLossStreak": 2,
     "note": "Paper exposure, bankroll health and drawdown — educational tracking, not financial advice."
   },
@@ -165,5 +131,5 @@
     },
     "note": "Settled LOST — NZ/Egypt BTTS No missed (both teams scored). A parlay with a lost leg cannot win; the remaining June 22 legs are moot. Paper-only, separate from the core ladder."
   },
-  "totalOpenExposure": 100
+  "totalOpenExposure": 0
 }

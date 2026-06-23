@@ -75,10 +75,10 @@ test("four distinct games across both lanes (no shared/correlated game)", () => 
   assert.equal(new Set(games).size, games.length, "all four legs are from distinct games");
 });
 
-test("Mr. Dub after Lane B settlement: one active card + one awaiting, exposure $100; settled lanes carry the right top-level legs", () => {
-  assert.equal(portfolio.openExposure, 100, "Lane A Step 3 placed (pending) → $100 open; Lane B Step 1 settled WON released its seed");
-  assert.equal((portfolio.activeCards ?? []).length, 1, "one active card (Lane A Step 3) after Lane B settled");
-  assert.equal((portfolio.awaitingCards ?? []).length, 1, "Lane B cleared WON → awaiting the next qualified card");
+test("Mr. Dub after both lanes settled WON: no active card, both lanes awaiting, exposure $0; settled lanes carry the right top-level legs", () => {
+  assert.equal(portfolio.openExposure, 0, "Lane A Step 3 settled WON + Lane B Step 1 settled WON → both seeds released, $0 open");
+  assert.equal((portfolio.activeCards ?? []).length, 0, "no active card — both lanes settled WON");
+  assert.equal((portfolio.awaitingCards ?? []).length, 2, "Lane A + Lane B both cleared WON → each awaiting the next qualified card");
   // The settled June 19 cards still live in the Bank Builder artifact top-level legs (unchanged).
   const aLegs = JSON.stringify(run.laneA.legs);
   const bLegs = JSON.stringify(run.laneB.legs);

@@ -17,8 +17,9 @@ const bb = read("public/data/methodology/launch/dual-bank-builder-active.json").
 const moon = read("public/data/moonshot-lane/active.json");
 const portfolio = read("public/data/mr-dub/portfolio.json");
 
-test("Bank Builder: PLACED/ACTIVE step legs are cross-slate (June 21+) and none is a stale past-date leg", () => {
+test("Bank Builder: both lanes settled WON → no open (placed/active) step legs remain, and no surfaced leg is stale", () => {
   let openLegCount = 0;
+  let settledLegCount = 0;
   for (const [id, lane] of [["lane-a", bb.laneA], ["lane-b", bb.laneB]]) {
     for (const s of lane.steps ?? []) {
       if (s.status === "pending" || s.status === "active") {
@@ -27,10 +28,16 @@ test("Bank Builder: PLACED/ACTIVE step legs are cross-slate (June 21+) and none 
           assert.ok(!isStale(l.startTime), `${id} step ${s.step} open leg ${l.participantName} is a stale past-date leg (${l.startTime})`);
         }
       }
+      if (s.status === "settled" && s.result === "won") {
+        // Settled WON steps are historical and legitimately span the June 18-22 cleared cards.
+        for (const _l of s.legs ?? []) settledLegCount++;
+      }
     }
   }
-  // The cross-slate resume placed active cards in both lanes — there ARE open legs now.
-  assert.ok(openLegCount >= 2, "active cross-slate cards carry open legs in both lanes");
+  // Both lanes settled WON — no card is placed/active anymore, so there are NO open legs.
+  assert.equal(openLegCount, 0, "no open legs — both lanes settled WON, awaiting the next qualified card");
+  // The cross-slate settled legs (June 21 + June 22) are present and none is stale.
+  assert.ok(settledLegCount >= 2, "cross-slate settled WON cards carry their graded legs in both lanes");
 });
 
 test("Bank Builder: candidate surfaces resolved into placed cards (no leftover candidate-only legs)", () => {
@@ -60,11 +67,11 @@ test("Moonshot: Step 1 card settled LOST (lane stopped, no active card); restart
   }
 });
 
-test("Mr. Dub: cross-slate active cards carry real exposure ($100 core after Lane B settled WON; moonshot settled → 0)", () => {
-  assert.equal(portfolio.openExposure, 100, "Lane A Step 3 placed seed → $100 open; Lane B settled WON released its seed");
-  assert.equal(portfolio.totalOpenExposure, 100, "core $100; moonshot settled LOST → 0 open");
-  assert.deepEqual(portfolio.record, { wins: 9, losses: 2, voids: 0, pending: 1 }, "9-2 with 1 pending (Lane B Step 1 WON; Lane A Step 3 open)");
-  assert.equal((portfolio.activeCards ?? []).length, 1, "one active card (Lane A Step 3)");
+test("Mr. Dub: both lanes settled WON → no open exposure ($0 core after Lane A + Lane B settled WON; moonshot settled → 0)", () => {
+  assert.equal(portfolio.openExposure, 0, "Lane A Step 3 settled WON + Lane B settled WON → both seeds released, $0 open");
+  assert.equal(portfolio.totalOpenExposure, 0, "core $0; moonshot settled LOST → 0 open");
+  assert.deepEqual(portfolio.record, { wins: 10, losses: 2, voids: 0, pending: 0 }, "10-2-0-0 (Lane A Step 3 WON; Lane B Step 1 WON)");
+  assert.equal((portfolio.activeCards ?? []).length, 0, "no active cards — both lanes awaiting the next qualified card");
 });
 
 test("PROTECTED: the completed crown ladder ($10,376.17) is untouched", () => {
