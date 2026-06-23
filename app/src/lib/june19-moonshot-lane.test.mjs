@@ -74,12 +74,16 @@ test("Mr. Dub: Moonshot exposure is broken out separately and does NOT change th
   assert.equal(portfolio.totalOpenExposure, 0, "total exposure $0 (core $0; moonshot settled → 0)");
 });
 
-test("Bank Builder + Mr. Dub pages render the Moonshot lane as a separate high-volatility section", () => {
+test("Moonshot is its OWN product page (/moonshot) + Mr. Dub section — no longer surfaced under Bank Builder", () => {
   const bb = fs.readFileSync("src/app/bank-builder/page.tsx", "utf8");
-  assert.match(bb, /MoonshotLaneCard/, "bank-builder renders the Moonshot card");
-  assert.match(bb, /loadMoonshotLane/, "bank-builder loads the moonshot lane");
+  // Moonshot is now a separate feature at /moonshot; Bank Builder must NOT re-surface it.
+  assert.ok(!/MoonshotLaneCard/.test(bb), "bank-builder no longer renders the Moonshot card");
+  assert.ok(!/loadMoonshotLane/.test(bb), "bank-builder no longer loads the moonshot lane");
   // Lane A/B board is still rendered + unaffected.
   assert.match(bb, /DualLadderBoard/, "Dual Bank Builder board still present");
+  // The dedicated /moonshot page owns the high-volatility tracker.
+  const moon = fs.readFileSync("src/app/moonshot/page.tsx", "utf8");
+  assert.match(moon, /Moonshot/, "/moonshot page renders the Moonshot product");
   const card = fs.readFileSync("src/components/bank-builder/moonshot-lane-card.tsx", "utf8");
   assert.match(card, /High-volatility/, "high-volatility label");
   assert.match(card, /not<\/strong>\)? part of the core Dual Bank Builder|not<\/strong> part of the core/i, "states it is separate from the core");

@@ -22,9 +22,7 @@ import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-cand
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
 import BankBuilderPreviewPanel from "@/components/parlays/bank-builder-preview-panel";
 import DualLadderBoard from "@/components/bank-builder/dual-ladder-board";
-import MoonshotLaneCard from "@/components/bank-builder/moonshot-lane-card";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
-import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import path from "node:path";
@@ -105,7 +103,6 @@ export default function BankBuilderPage() {
   const onTheCrownRun = isFinalStep && rec.losses === 0 && hits.length === BANK_BUILDER_STEP_COUNT - 1;
 
   const bbPreview = loadTodaySlate().bankBuilderPreview;
-  const moonshot = loadMoonshotLane();
   const bbActiveLaunched = bbPreview.status === "launched" || bbPreview.status === "settled";
 
   // Today's daily portfolio — read only for the live exposure summary that leads the single dual ladder.
@@ -133,8 +130,8 @@ export default function BankBuilderPage() {
         </section>
       ) : null}
 
-      {/* MOONSHOT LANE — separate high-volatility World-Cup-forward paper challenge (NOT Lane A/B). */}
-      <MoonshotLaneCard lane={moonshot} />
+      {/* Moonshot is now its OWN product at /moonshot (mirrors Bank Builder). It is no longer surfaced
+          here — Bank Builder stays focused on the core Dual Bank Builder ladder + crown proof. */}
 
       {/* SECTION 1 — hero + completed-ladder proof. When the crown is COMPLETED it is historical proof,
           so it is collapsed by default (the ACTIVE daily ladder above is the primary workflow). An

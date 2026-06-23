@@ -110,7 +110,7 @@ const TOTAL_STEPS: Record<DailyPortfolioCard["product"], number> = { "bank-build
  *  Bank Builder ladder's leg row). Both primitives degrade gracefully, so an unknown name never breaks
  *  the row — it falls back to initials (portrait) or a ⚽ chip (flag). */
 function LegAvatar({ leg }: { leg: DailyPortfolioLeg }) {
-  if (leg.player) return <PlayerAvatar name={leg.player} size={18} />;
+  if (leg.player) return <PlayerAvatar name={leg.player} photo={leg.photoUrl ?? null} size={18} />;
   const [home, away] = (leg.matchup ?? "").split(/\s+vs\s+/i).map((s) => s.trim());
   const selCode = wcTeamCodeFromName(leg.selection);
   if (selCode) return <FlagBadge code={selCode} size="sm" ariaLabel={leg.selection} />;
