@@ -60,6 +60,50 @@ test("correlation: the badge is rendered on /bank-builder", () => {
   assert.match(page, /CrossLaneCorrelationBadge/, "bank-builder renders the correlation badge");
 });
 
+// ── Correlation V2: A–F grade + game-script diversification ─────────────────────────────────────────
+test("V2: balanced independent lanes grade A", () => {
+  const a = [{ matchup: "Panama vs Croatia", market: "Match Result", selection: "Croatia", player: null }];
+  const b = [{ matchup: "England vs Ghana", market: "Match Total", selection: "Over 2.5", player: null }];
+  const c = scoreCrossLaneCorrelation(a, b);
+  assert.equal(c.grade, "A");
+  assert.equal(c.diversification.styleConcentrated, false);
+});
+
+test("V2: outcome-independent but style-concentrated lanes are downgraded to B", () => {
+  const a = [
+    { matchup: "Panama vs Croatia", market: "Total Goals", selection: "Under 2.5", player: null },
+    { matchup: "France vs Iraq", market: "Total Goals", selection: "Under 3.5", player: null },
+  ];
+  const b = [
+    { matchup: "Portugal vs Uzbekistan", market: "Both Teams To Score", selection: "Both teams to score: No", player: null },
+    { matchup: "England vs Ghana", market: "Both Teams To Score", selection: "Both teams to score: No", player: null },
+  ];
+  const c = scoreCrossLaneCorrelation(a, b);
+  assert.equal(c.independent, true, "still outcome-independent (no shared game/player/team)");
+  assert.equal(c.score, 0, "independent games → 0 outcome correlation");
+  assert.equal(c.diversification.styleConcentrated, true, "all low-scoring → concentrated");
+  assert.equal(c.grade, "B", "concentration downgrades A→B");
+});
+
+test("V2: a shared game grades C or worse and is not independent", () => {
+  const a = [{ matchup: "Panama vs Croatia", market: "Match Result", selection: "Croatia", player: null }];
+  const b = [{ matchup: "Panama vs Croatia", market: "Total Goals", selection: "Over 2.5", player: null }];
+  const c = scoreCrossLaneCorrelation(a, b);
+  assert.equal(c.independent, false);
+  assert.ok(["C", "D", "F"].includes(c.grade), `shared game grades ${c.grade} (C/D/F)`);
+  assert.ok(c.dependencies.length >= 1, "reports same-game outcome dependence");
+});
+
+test("V2: the LIVE Bank Builder lanes are outcome-independent and graded A or B", () => {
+  const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
+  const lane = (L) => (dp.lanes.find((x) => x.product === "bank-builder" && x.lane === L)?.legs ?? [])
+    .map((l) => ({ matchup: l.matchup, market: l.market ?? l.marketLabel, selection: l.selection, player: l.player ?? null }));
+  const c = scoreCrossLaneCorrelation(lane("A"), lane("B"));
+  assert.equal(c.independent, true);
+  assert.equal(c.score, 0);
+  assert.ok(["A", "B"].includes(c.grade), "independent lanes grade A or B");
+});
+
 // ── World Cup Specials ledger ─────────────────────────────────────────────────────────────────────
 test("specials ledger: constants + shape ($20 × 5 = $100/day)", () => {
   assert.equal(SPECIALS_STAKE_PER_CARD, 20);

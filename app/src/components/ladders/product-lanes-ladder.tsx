@@ -129,11 +129,27 @@ function LegAvatar({ leg }: { leg: DailyPortfolioLeg }) {
   );
 }
 
+/** Per-card volatility (0–100): longer combined odds and a higher share of player-prop legs are more
+ *  volatile; a card of short team/game markets is lower-volatility. Honest, derived from the card. */
+function volatilityScore(card: DailyPortfolioCard): { score: number; band: "Lower" | "Medium" | "Higher" } {
+  const dec = card.combinedOdds > 0 ? 1 + card.combinedOdds / 100 : 1 + 100 / Math.abs(card.combinedOdds || 100);
+  const oddsVol = Math.min(70, Math.max(0, (Math.log2(Math.max(1.01, dec)) / Math.log2(31)) * 70)); // ~+3000 → 70
+  const propLegs = card.legs.filter((l) => l.player).length;
+  const propVol = card.legs.length ? (propLegs / card.legs.length) * 30 : 0;
+  const score = Math.round(Math.min(100, oddsVol + propVol));
+  return { score, band: score < 33 ? "Lower" : score < 66 ? "Medium" : "Higher" };
+}
+
+const VOL_COLOR: Record<"Lower" | "Medium" | "Higher", string> = {
+  Lower: "var(--vault-success)", Medium: "#e7b15a", Higher: "var(--gtp-bank-heat)",
+};
+
 function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; accent: Accent; accentColor: string }) {
   const tone = accent === "violet" ? "violet" : "gold";
   const active = card.status === "active";
   const totalSteps = TOTAL_STEPS[card.product] ?? 3;
   const currentStep = Math.min(Math.max(1, card.step), totalSteps);
+  const vol = volatilityScore(card);
   return (
     <div
       className="rounded-[12px] overflow-hidden flex flex-col min-w-0"
@@ -142,7 +158,14 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
       {/* Header */}
       <div className="px-3.5 py-3 flex flex-col gap-2.5" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>Lane {card.lane}</span>
+          <span className="flex items-center gap-2 min-w-0">
+            <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>Lane {card.lane}</span>
+            {card.legs.length ? (
+              <span className="shrink-0 rounded-full px-1.5 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 8, color: VOL_COLOR[vol.band], background: "rgba(255,255,255,0.05)", border: `1px solid color-mix(in srgb, ${VOL_COLOR[vol.band]} 35%, transparent)` }} title={`Volatility score ${vol.score}/100`}>
+                {vol.band} vol · {vol.score}
+              </span>
+            ) : null}
+          </span>
           <StatusPill status={card.status} />
         </div>
         {/* Step rail — the shared ladder visual, driven by this lane's real progress */}

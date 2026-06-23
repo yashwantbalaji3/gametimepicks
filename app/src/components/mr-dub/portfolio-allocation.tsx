@@ -41,6 +41,14 @@ function ProductRow({ p, totalExposure }: { p: ProductAllocation; totalExposure:
   const t = STATUS_TONE[p.status];
   const shareOfExposure = totalExposure > 0 ? p.openExposure / totalExposure : 0;
   const rec = `${p.record.wins}-${p.record.losses}${p.record.pushes ? `-${p.record.pushes}` : ""}`;
+  const americ = (n: number) => `${n > 0 ? "+" : ""}${n}`;
+  // Analytics chips: record, win rate, avg odds, legs — only those with real data are shown.
+  const analytics = [
+    p.record.wins + p.record.losses + p.record.pushes > 0 ? `${rec} record` : null,
+    p.winRate != null ? `${Math.round(p.winRate * 100)}% win rate` : null,
+    p.avgOdds != null ? `avg ${americ(p.avgOdds)}` : null,
+    p.legCount > 0 ? `${p.legCount} legs` : null,
+  ].filter(Boolean) as string[];
   return (
     <Link
       href={p.href}
@@ -49,7 +57,7 @@ function ProductRow({ p, totalExposure }: { p: ProductAllocation; totalExposure:
     >
       <div className="flex items-center justify-between gap-2 min-w-0">
         <span className="flex items-center gap-2 min-w-0">
-          <span aria-hidden className="inline-block rounded-full shrink-0" style={{ width: 8, height: 8, background: p.accent }} />
+          <span aria-hidden className="inline-flex items-center justify-center rounded-[5px] shrink-0 font-mono tabular" style={{ width: 16, height: 16, fontSize: 9, fontWeight: 700, color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>#{p.rank}</span>
           <span className="font-semibold break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{p.label}</span>
         </span>
         <span className="shrink-0 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, color: t.color, background: t.bg, border: `1px solid color-mix(in srgb, ${t.color} 35%, transparent)` }}>
@@ -66,10 +74,15 @@ function ProductRow({ p, totalExposure }: { p: ProductAllocation; totalExposure:
           <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8 }}>of allocation</span>
         </span>
         <span className="flex flex-col">
-          <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 800 }}>{p.roi != null ? `${(p.roi * 100).toFixed(1)}%` : rec}</span>
-          <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8 }}>{p.roi != null ? "ROI" : "record"}</span>
+          <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 800 }}>{p.roi != null ? `${(p.roi * 100).toFixed(1)}%` : p.winRate != null ? `${Math.round(p.winRate * 100)}%` : rec}</span>
+          <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8 }}>{p.roi != null ? "ROI" : p.winRate != null ? "win rate" : "record"}</span>
         </span>
       </div>
+      {analytics.length ? (
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono tabular" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+          {analytics.map((a, i) => <span key={i}>{i > 0 ? "· " : ""}{a}</span>)}
+        </span>
+      ) : null}
       <span className="font-mono leading-snug" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
         {money(p.dailyAllocation)}/day allocation · {p.note}
       </span>
