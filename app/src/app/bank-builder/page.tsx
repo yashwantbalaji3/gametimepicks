@@ -22,6 +22,7 @@ import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-cand
 import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
 import BankBuilderPreviewPanel from "@/components/parlays/bank-builder-preview-panel";
 import DualLadderBoard from "@/components/bank-builder/dual-ladder-board";
+import CrossLaneCorrelationBadge from "@/components/bank-builder/cross-lane-correlation-badge";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
@@ -109,6 +110,11 @@ export default function BankBuilderPage() {
   const today = currentSlateDate() ?? currentEtDate();
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  // Cross-lane correlation check — Lane A vs Lane B legs must share no game/player/team to advance
+  // independently. Derived from the activated daily portfolio's Bank Builder legs.
+  const bbLaneLegs = (lane: "A" | "B") =>
+    (dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === lane)?.legs ?? [])
+      .map((l) => ({ matchup: l.matchup, market: l.marketLabel, selection: l.selection, player: l.player ?? null }));
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
@@ -121,6 +127,7 @@ export default function BankBuilderPage() {
             Active bankroll {money(dailyPortfolio.activeBankroll)} · Bank Builder open exposure {money(dailyPortfolio.exposure.core)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (separate)
           </p>
           <DualLadderBoard preview={bbPreview} />
+          <div className="mt-3"><CrossLaneCorrelationBadge laneA={bbLaneLegs("A")} laneB={bbLaneLegs("B")} /></div>
           <Link href="/mr-dub" className="gtp-card-hover mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl px-4 py-3" style={{ border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", background: "rgba(212,175,55,0.06)", textDecoration: "none" }}>
             <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>
               <span style={{ fontWeight: 700 }}>Full paper ledger on Mr. Dub</span> — every win, loss, void, stopped lane &amp; restart. Bank Builder shows active paths &amp; successful ladders; Mr. Dub tracks it all.
