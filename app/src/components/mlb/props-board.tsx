@@ -90,28 +90,28 @@ export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
         </span>
       </div>
 
-      {/* Desktop table */}
-      <div className="hidden lg:block overflow-x-auto rounded-[12px]" style={{ border: "1px solid var(--vault-rule)" }}>
-        <table className="w-full" style={{ borderCollapse: "collapse", fontSize: 12 }}>
+      {/* Desktop table — sticky header, striped rows, pill badges. */}
+      <div className="hidden lg:block overflow-auto rounded-[12px]" style={{ border: "1px solid var(--vault-rule)", maxHeight: 560 }}>
+        <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: 12 }}>
           <thead>
-            <tr style={{ background: "rgba(255,255,255,0.02)" }}>
+            <tr>
               {["Player", "Market", "Line", "Odds", "Market %", "Edge", "Conf", "Provider", "Game"].map((h) => (
-                <th key={h} className="px-3 py-2 text-left font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{h}</th>
+                <th key={h} className="px-3 py-2 text-left font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9, position: "sticky", top: 0, zIndex: 1, background: "#1a100b", borderBottom: "1px solid var(--vault-rule)" }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map((p, i) => (
-              <tr key={`${p.player}:${p.market}:${i}`} style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                <td className="px-3 py-2"><span className="flex items-center gap-2 min-w-0"><PlayerAvatar name={p.player} size={20} /><span className="break-words" style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.player}</span></span></td>
-                <td className="px-3 py-2" style={{ color: "var(--vault-text-mute)" }}>{p.marketLabel}</td>
-                <td className="px-3 py-2 font-mono tabular" style={{ color: "var(--vault-text-mute)" }}>{p.point != null ? p.point : "—"}</td>
-                <td className="px-3 py-2 font-mono tabular" style={{ color: "var(--vault-text)" }}>{american(p.americanOdds)}</td>
-                <td className="px-3 py-2 font-mono tabular" style={{ color: "var(--gtp-bank-heat)" }}>{impliedPct(p.americanOdds)}%</td>
-                <td className="px-3 py-2 font-mono" style={{ color: "var(--vault-text-faint)" }}>—</td>
-                <td className="px-3 py-2 font-mono" style={{ color: "var(--vault-text-faint)" }}>—</td>
-                <td className="px-3 py-2 font-mono" style={{ color: "var(--vault-text-faint)" }}>{p.provider ?? "—"}</td>
-                <td className="px-3 py-2 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{p.matchup}</td>
+              <tr key={`${p.player}:${p.market}:${i}`} style={{ background: i % 2 ? "rgba(255,255,255,0.018)" : "transparent" }}>
+                <td className="px-3 py-1.5"><span className="flex items-center gap-2 min-w-0"><PlayerAvatar name={p.player} size={20} /><span className="break-words" style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.player}</span></span></td>
+                <td className="px-3 py-1.5" style={{ color: "var(--vault-text-mute)" }}>{p.marketLabel}</td>
+                <td className="px-3 py-1.5 font-mono tabular" style={{ color: "var(--vault-text-mute)" }}>{p.point != null ? p.point : "—"}</td>
+                <td className="px-3 py-1.5"><span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--vault-text)", background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-rule)" }}>{american(p.americanOdds)}</span></td>
+                <td className="px-3 py-1.5"><span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)" }}>{impliedPct(p.americanOdds)}%</span></td>
+                <td className="px-3 py-1.5 font-mono" style={{ color: "var(--vault-text-faint)" }}>—</td>
+                <td className="px-3 py-1.5 font-mono" style={{ color: "var(--vault-text-faint)" }}>—</td>
+                <td className="px-3 py-1.5 font-mono" style={{ color: "var(--vault-text-faint)" }}>{p.provider ?? "—"}</td>
+                <td className="px-3 py-1.5 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{p.matchup}</td>
               </tr>
             ))}
           </tbody>
