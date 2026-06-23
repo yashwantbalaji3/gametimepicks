@@ -21,7 +21,8 @@ export interface DailyPortfolioCard {
   product: "bank-builder" | "moonshot";
   productLabel: string;
   lane: "A" | "B";
-  status: "candidate" | "active" | "pending" | "won" | "lost" | "void";
+  step: number;
+  status: "candidate" | "active" | "pending" | "won" | "lost" | "void" | "awaiting";
   stake: number;
   combinedOdds: number;
   potentialReturn: number;
@@ -49,7 +50,7 @@ const PRODUCT_LABEL: Record<string, string> = { "bank-builder": "Bank Builder", 
 
 function toCard(l: LaneCandidate): DailyPortfolioCard {
   return {
-    id: l.id, product: l.product, productLabel: PRODUCT_LABEL[l.product] ?? l.product, lane: l.lane,
+    id: l.id, product: l.product, productLabel: PRODUCT_LABEL[l.product] ?? l.product, lane: l.lane, step: 1,
     status: l.status, stake: l.stake, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
     legs: l.legs.map((p) => ({ selection: p.selection, marketLabel: p.marketLabel, matchup: p.matchup, odds: p.odds })),
@@ -57,8 +58,36 @@ function toCard(l: LaneCandidate): DailyPortfolioCard {
   };
 }
 
-/** Build the derived daily portfolio for a slate. Never mutates money state. */
+/** Map a persisted (activated) portfolio into the read-side view. Returns null when absent / wrong date. */
+function fromPersisted(root: string, date: string): DailyPortfolio | null {
+  let p: any;
+  try { p = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "daily-portfolio.json"), "utf8")); } catch { return null; }
+  if (!p || p.date !== date || !Array.isArray(p.lanes)) return null;
+  const cards: DailyPortfolioCard[] = p.lanes.map((l: any) => ({
+    id: l.id, product: l.product, productLabel: l.productLabel, lane: l.lane, step: l.step ?? 1,
+    status: l.status, stake: l.stake, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
+    legCount: l.legCount, targetLegs: l.targetLegs,
+    legs: (l.legs ?? []).map((g: any) => ({ selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds })),
+    correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null,
+  }));
+  const anyActive = cards.some((c) => c.status === "active");
+  return {
+    date, startingBankroll: p.activeBankroll, activeBankroll: p.activeBankroll, crownBankroll: p.crownBankroll,
+    openExposure: p.openExposure, availableBankroll: p.availableBankroll, potentialReturn: p.potentialReturn,
+    exposure: { core: p.products?.bankBuilder?.exposure ?? 0, moonshot: p.products?.moonshot?.exposure ?? 0, total: p.openExposure },
+    cards, anyActive,
+    note: p.note ?? (anyActive
+      ? "Active daily paper portfolio — open exposure is at risk; active bankroll and crown are unchanged until official settlement."
+      : "Daily paper portfolio candidates — no exposure placed; active bankroll and crown unchanged."),
+  };
+}
+
+/** Build the daily portfolio for a slate. Prefers the persisted (activated) state when present for the
+ *  date; otherwise derives candidate lanes from the model pool. Never mutates money state. */
 export function buildDailyPortfolio(root: string, nowIso: string, date: string): DailyPortfolio {
+  const persisted = fromPersisted(root, date);
+  if (persisted) return persisted;
+
   let activeBankroll = 10176.17, crownBankroll = 10376.17;
   try {
     const p = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8"));

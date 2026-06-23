@@ -10,6 +10,10 @@ import Link from "next/link";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import MoonshotLaneTracker from "@/components/moonshot/moonshot-lane-tracker";
 import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
+import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
+import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
+import { currentEtDate } from "@/lib/freshness";
+import { currentSlateDate } from "@/lib/parlays/ui-loader";
 
 export const metadata = {
   title: "Moonshot Lane · GameTime Picks",
@@ -28,10 +32,17 @@ function loadMoonshotPortfolio(): { record?: { wins: number; losses: number; voi
   }
 }
 
+const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
 export default function MoonshotPage() {
   const lane = loadMoonshotLane();
   const { record, exposure } = loadMoonshotPortfolio();
   const status: PicksSurfaceStatus = lane?.status === "stopped" ? "settled" : lane?.status === "active" ? "live" : "data_pending";
+
+  // Today's daily portfolio — the activated Moonshot A/B lanes render as the lead ladder.
+  const today = currentSlateDate() ?? currentEtDate();
+  const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  const moonshotLanes = dailyPortfolio.cards.filter((c) => c.product === "moonshot");
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
@@ -44,16 +55,31 @@ export default function MoonshotPage() {
         secondaryAction={{ label: "Mr. Dub", href: "/mr-dub" }}
         note="A separate, higher-volatility $25 → $3,000 paper challenge — tracked day-by-day, with its own record kept apart from the core Dual Bank Builder. Paper-only, settlement-supported."
       />
-      {lane ? (
-        <MoonshotLaneTracker lane={lane} record={record} exposure={exposure} />
-      ) : (
-        <div className="rounded-xl px-4 py-8 text-center" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
-          <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>Moonshot Lane data pending</p>
-          <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
-            The tracker appears once a lane artifact is published. <Link href="/bank-builder" style={{ color: "var(--vault-gold-bright)" }}>Open Bank Builder</Link>.
+
+      {/* Today's Moonshot ladder — Lane A/B with a step rail, driven by the daily portfolio. */}
+      {moonshotLanes.length ? (
+        <section className="flex flex-col gap-3 overflow-x-hidden">
+          <ProductLanesLadder productLabel="Moonshot" product="moonshot" accent="violet" lanes={moonshotLanes} />
+          <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
+            Moonshot exposure {money(dailyPortfolio.exposure.moonshot)} · active bankroll {money(dailyPortfolio.activeBankroll)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (historical)
           </p>
-        </div>
-      )}
+        </section>
+      ) : null}
+
+      {/* History — the day-by-day lane tracker (stopped / restart state) below the live ladder. */}
+      <div className="flex flex-col gap-3">
+        <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>History</h2>
+        {lane ? (
+          <MoonshotLaneTracker lane={lane} record={record} exposure={exposure} />
+        ) : (
+          <div className="rounded-xl px-4 py-8 text-center" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+            <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>Moonshot Lane data pending</p>
+            <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
+              The tracker appears once a lane artifact is published. <Link href="/bank-builder" style={{ color: "var(--vault-gold-bright)" }}>Open Bank Builder</Link>.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

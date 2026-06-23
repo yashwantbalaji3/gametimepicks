@@ -336,12 +336,22 @@ export default function TodayPage() {
           <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Open Mr. Dub →</span>
         </div>
         <div className="flex flex-wrap gap-x-5 gap-y-1.5 font-mono" style={{ fontSize: 11.5 }}>
-          <span style={{ color: "var(--vault-text-mute)" }}>{dailyPortfolio.cards.length} candidate lanes <span style={{ color: "var(--vault-text-faint)" }}>(Bank Builder A/B · Moonshot A/B)</span></span>
-          <span style={{ color: "var(--vault-text-mute)" }}>open exposure <span style={{ color: "var(--vault-text)" }}>${dailyPortfolio.openExposure.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
+          {dailyPortfolio.anyActive ? (
+            <span style={{ color: "var(--vault-text-mute)" }}>
+              {dailyPortfolio.cards.filter((c) => c.status === "active").length} active lanes <span style={{ color: "var(--vault-text-faint)" }}>(Bank Builder A/B · Moonshot A/B)</span>
+            </span>
+          ) : (
+            <span style={{ color: "var(--vault-text-mute)" }}>{dailyPortfolio.cards.length} candidate lanes <span style={{ color: "var(--vault-text-faint)" }}>(Bank Builder A/B · Moonshot A/B)</span></span>
+          )}
+          <span style={{ color: "var(--vault-text-mute)" }}>open exposure <span style={{ color: dailyPortfolio.anyActive ? "var(--vault-success)" : "var(--vault-text)" }}>${dailyPortfolio.openExposure.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
           <span style={{ color: "var(--vault-text-mute)" }}>available <span style={{ color: "var(--vault-text)" }}>${dailyPortfolio.availableBankroll.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
           <span style={{ color: "var(--vault-text-faint)" }}>crown ${dailyPortfolio.crownBankroll.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (historical)</span>
         </div>
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>Candidate lanes place no exposure until activated — active bankroll and crown unchanged. Paper-only.</span>
+        <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+          {dailyPortfolio.anyActive
+            ? "Active paper lanes — open exposure at risk; active bankroll and crown unchanged until settlement. Paper-only."
+            : "Candidate lanes place no exposure until activated — active bankroll and crown unchanged. Paper-only."}
+        </span>
       </Link>
 
       {/* 1.5 — Model picks ready: user-facing summary of today's model-ranked cards → Parlay Lab.
