@@ -11,15 +11,15 @@ import {
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
 
-test("MOBILE_NAV_ITEMS has 6 items in the product-spine order (Mr. Dub added as a first-class tab)", () => {
-  assert.equal(MOBILE_NAV_ITEMS.length, 6);
+test("MOBILE_NAV_ITEMS has 7 items in the product-spine order (Moonshot promoted to its own first-class tab)", () => {
+  assert.equal(MOBILE_NAV_ITEMS.length, 7);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "games", "picks", "lab", "bank", "mrdub"],
+    ["home", "games", "picks", "lab", "bank", "moonshot", "mrdub"],
   );
 });
 
-test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank)", () => {
+test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank/Moonshot)", () => {
   const byHref = Object.fromEntries(
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
@@ -29,12 +29,19 @@ test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank
   assert.equal(byHref["/picks"], "Parlay Lab");
   assert.equal(byHref["/build"], "Build");
   assert.equal(byHref["/bank-builder"], "Bank");
+  assert.equal(byHref["/moonshot"], "Moonshot");
 });
 
-test("bank: /bank-builder and descendants resolve to bank", () => {
+test("bank: /bank-builder and descendants resolve to bank (Moonshot is its own bucket now)", () => {
   assert.equal(resolveMobileNavBucket("/bank-builder"), "bank");
   assert.equal(resolveMobileNavBucket("/bank-builder/"), "bank");
   assert.equal(resolveMobileNavBucket("/bank-builder/ledger"), "bank");
+});
+
+test("moonshot: /moonshot and descendants resolve to their own moonshot bucket", () => {
+  assert.equal(resolveMobileNavBucket("/moonshot"), "moonshot");
+  assert.equal(resolveMobileNavBucket("/moonshot/"), "moonshot");
+  assert.equal(resolveMobileNavBucket("/moonshot/ladder"), "moonshot");
 });
 
 test("home (Today): '/', '/today' resolve to home", () => {

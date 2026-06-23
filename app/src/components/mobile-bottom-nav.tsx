@@ -88,6 +88,13 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <path d="M5 11v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-5" />
         </svg>
       );
+    case "moonshot":
+      // Crescent moon — the high-volatility Moonshot ladder (mirrors the 🌙 rail glyph).
+      return (
+        <svg {...props}>
+          <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />
+        </svg>
+      );
     case "mrdub":
       // Lab flask — Mr. Dub's paper portfolio (scientist/ledger identity).
       return (
@@ -137,11 +144,17 @@ export default function MobileBottomNav() {
         WebkitBackdropFilter: "blur(14px)",
       }}
     >
-      <ul className="flex items-stretch justify-around list-none px-1 py-1">
+      <ul
+        className="flex items-stretch gap-0.5 list-none px-1 py-1 overflow-x-auto"
+        // 7 buckets exceed one 360px row, so the bar scrolls horizontally: the
+        // spine through Moonshot is visible and Mr. Dub scrolls in at the edge.
+        // grow+shrink-0 lets the row fill wider screens yet scroll on narrow ones.
+        style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+      >
         {MOBILE_NAV_ITEMS.map((item) => {
           const active = item.bucket === activeBucket;
           return (
-            <li key={item.bucket} className="flex-1 max-w-[110px]">
+            <li key={item.bucket} className="grow shrink-0 basis-[58px]">
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}

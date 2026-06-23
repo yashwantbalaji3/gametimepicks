@@ -395,10 +395,13 @@ function CardDrawer({ step, stepMeta, dailyStep }: { step: PublicLadderStep; ste
 }
 
 function LadderStepRow({ step, stepMeta, dailyStep }: { step: PublicLadderStep; stepMeta?: StepMeta; dailyStep?: DailyBbStep }) {
-  const m = STATUS_META[step.status];
   const cleared = step.status === "cleared";
   const active = step.status === "active";
   const hasDailyCard = !!dailyStep && dailyStep.legs.length > 0;
+  // When the current rung carries today's posted card, it is ACTIVE — not "awaiting next card".
+  const m = hasDailyCard && step.status === "awaiting"
+    ? { label: "Active · today's card", color: STATUS_META.active.color, bg: STATUS_META.active.bg, border: STATUS_META.active.border }
+    : STATUS_META[step.status];
   // Open the drawer by default for the next actionable step: the active card, an awaiting/queued
   // candidate, or the current rung that carries today's daily card. Prior cleared steps + future
   // prior + future steps stay closed so only the live step leads.
@@ -433,16 +436,24 @@ function LadderStepRow({ step, stepMeta, dailyStep }: { step: PublicLadderStep; 
 }
 
 function LaneLadderCard({ view, enrichment, daily }: { view: PublicDualLadderView; enrichment: Record<string, StepMeta>; daily: Record<string, DailyBbStep> }) {
-  const accent = view.currentStatus === "queued_restart" || view.currentStatus === "awaiting_next_card" ? "var(--vault-gold-bright)" : view.currentStatus === "advanced" ? "#6EE7A8" : "var(--gtp-bank-heat)";
+  // When the current rung carries today's posted card, the lane is ACTIVE — not "awaiting next card".
+  const laneHasDailyCard = view.steps.some((s) => (daily[`${view.laneId}:${s.step}`]?.legs.length ?? 0) > 0);
+  const accent = laneHasDailyCard ? "var(--gtp-bank-heat)"
+    : view.currentStatus === "queued_restart" || view.currentStatus === "awaiting_next_card" ? "var(--vault-gold-bright)"
+    : view.currentStatus === "advanced" ? "#6EE7A8" : "var(--gtp-bank-heat)";
+  const chipLabel = laneHasDailyCard ? "Active"
+    : view.currentStatus === "advanced" ? "Advanced" : view.currentStatus === "awaiting_next_card" ? "Awaiting next card"
+    : view.currentStatus === "queued_restart" ? "Starting path" : view.currentStatus === "active" ? "Active" : view.currentStatus;
+  const headline = laneHasDailyCard ? view.headline.replace(/awaiting next qualified card/i, "active · today's card") : view.headline;
   return (
     <div className="flex flex-col rounded-2xl p-4" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
       <div className="mb-1 flex items-center justify-between gap-2">
         <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{view.label}</h3>
         <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: accent, background: "rgba(255,255,255,0.05)", border: `1px solid ${accent}` }}>
-          {view.currentStatus === "advanced" ? "Advanced" : view.currentStatus === "awaiting_next_card" ? "Awaiting next card" : view.currentStatus === "queued_restart" ? "Starting path" : view.currentStatus === "active" ? "Active" : view.currentStatus}
+          {chipLabel}
         </span>
       </div>
-      <p className="mb-3 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{view.headline}</p>
+      <p className="mb-3 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{headline}</p>
 
       {/* Vertical rail behind the step nodes (the rail node sits at left ~14px). */}
       <div className="relative">

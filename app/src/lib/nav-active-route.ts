@@ -16,6 +16,7 @@ export type MobileNavBucket =
   | "picks"
   | "lab"
   | "bank"
+  | "moonshot"
   | "mrdub"
   | "results"
   | "sports";
@@ -31,16 +32,17 @@ export interface MobileNavItem {
  * preserved by the consumer (the component renders these in order).
  *
  * Honesty / scope notes:
- *   - 5 items max — 5 is the upper bound for comfortable 360px thumb
- *     targets; anything beyond that crowds the labels.
- *   - Bank Builder is a flagship journey, so it earns a bottom-nav slot
- *     (the user reaches the paper-bankroll ladder one-handed). "Sports"
- *     (/events, schedule-only leagues) was the least core of the five, so
- *     it moves to the scrollable top nav to make room.
+ *   - The two paper-bankroll ladders — Bank Builder AND Moonshot — both earn
+ *     a bottom-nav slot: they are the flagship money journeys and the user
+ *     reaches each one-handed. Moonshot is a first-class product, not a
+ *     sub-tab of Bank, so it carries its own bucket (was folded into "bank").
+ *   - 7 items exceeds a single 360px row, so the bar is horizontally
+ *     scrollable (see MobileBottomNav): the spine through Moonshot is visible
+ *     without scrolling and Mr. Dub scrolls in at the trailing edge.
  *   - Labels MATCH the mobile top nav where the destination is the same:
- *     "Projections" (/projections), "Results" (/results). "Parlays" and
- *     "Bank" are abbreviated for thumb-width. The bucket ids are
- *     route-resolution keys; only the visible labels are user-facing.
+ *     "Parlay Lab" (/picks), "Moonshot" (/moonshot). "Bank" is abbreviated for
+ *     thumb-width. The bucket ids are route-resolution keys; only the visible
+ *     labels are user-facing.
  */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "home", href: "/today", label: "Today" },
@@ -48,6 +50,7 @@ export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "picks", href: "/picks", label: "Parlay Lab" },
   { bucket: "lab", href: "/build", label: "Build" },
   { bucket: "bank", href: "/bank-builder", label: "Bank" },
+  { bucket: "moonshot", href: "/moonshot", label: "Moonshot" },
   { bucket: "mrdub", href: "/mr-dub", label: "Mr. Dub" },
 ] as const;
 
@@ -97,8 +100,9 @@ export function resolveMobileNavBucket(
   ) return "picks";
   // Build is the custom paper-card builder (distinct from the Parlay Lab lobby).
   if (p === "/build" || p.startsWith("/build/")) return "lab";
-  // Moonshot is a Bankroll surface (its own lane); it highlights the Bank bucket on mobile.
-  if (p === "/bank-builder" || p.startsWith("/bank-builder/") || p === "/moonshot" || p.startsWith("/moonshot/")) return "bank";
+  // Bank Builder and Moonshot are sibling paper-bankroll ladders, each with its own bottom-nav slot.
+  if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
+  if (p === "/moonshot" || p.startsWith("/moonshot/")) return "moonshot";
   if (p === "/mr-dub" || p.startsWith("/mr-dub/")) return "mrdub";
   // The unified Games board + the Sports directory + every sport hub/board + schedule-only
   // leagues all resolve to the Games bucket (Games is the cross-sport entry on mobile).

@@ -44,12 +44,13 @@ test("Moonshot lane artifact is stopped/LOST and its record is separate (0-1, no
   assert.deepEqual(portfolio.record, { wins: 10, losses: 2, voids: 0, pending: 0 }, "core record (Lane A + Lane B settled WON) — moonshot not blended in");
 });
 
-test("Moonshot is reachable: command rail + top nav include it; mobile maps it to the Bank bucket", () => {
+test("Moonshot is reachable: command rail + top nav include it; mobile has its own Moonshot bucket", () => {
   const rail = read("src/components/command-rail.tsx");
   const nav = read("src/components/nav.tsx");
   assert.match(rail, /href: "\/moonshot"/, "command rail has a Moonshot entry");
   assert.match(nav, /href: "\/moonshot"/, "top nav has a Moonshot entry");
-  assert.equal(resolveMobileNavBucket("/moonshot"), "bank", "mobile highlights Bank for /moonshot");
+  // Moonshot is a first-class product → its own bottom-nav slot (was folded into Bank).
+  assert.equal(resolveMobileNavBucket("/moonshot"), "moonshot", "mobile highlights the dedicated Moonshot bucket");
 });
 
 test("Today + Bank Builder + Mr. Dub link to the Moonshot tracker", () => {
