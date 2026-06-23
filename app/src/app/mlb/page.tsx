@@ -30,7 +30,10 @@ import {
 } from "@/lib/normalize";
 import { detailHrefForTeams } from "@/lib/game-detail";
 
+import path from "node:path";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
+import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
+import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import GameOutlookSection from "@/components/game-outlook-card";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
@@ -60,6 +63,8 @@ function byEdge(a: PublicProjection, b: PublicProjection) {
 export default function MlbLandingPage() {
   const date = activeMlbDate() ?? DEFAULT_DATE;
   const board = getMlbBoardForDate(date);
+  // Homer Nukes board for the flagship section (data-gated; honest empty until MLB props post).
+  const homerBoard = loadHomerNukes(path.join(process.cwd(), "public", "data"), date);
   const schedule = getMlbScheduleForDate(date);
   const mlbLifetime = getMlbLifetimeSummary();
 
@@ -287,6 +292,11 @@ export default function MlbLandingPage() {
         ]}
         framing="Pitcher strikeouts and batter hits / total bases projected from MLB Stats API game logs and compared to the bookmaker line. Home runs live on a separate Power Board because they're higher-variance."
       />
+
+      {/* MLB flagship sections — Homer Nukes / Props Board / Premium Plays / Game Explorer (data-gated). */}
+      <div className="mt-6">
+        <MlbFlagshipSections homer={homerBoard} />
+      </div>
 
       <div className="mt-6">
         <SportShell tabs={tabs} />

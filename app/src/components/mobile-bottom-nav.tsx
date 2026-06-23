@@ -103,6 +103,13 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <path d="M7 5.5c2.5 2 3.5 11 1.5 13.2M17 5.5c-2.5 2-3.5 11-1.5 13.2" />
         </svg>
       );
+    case "diamond":
+      // Diamond — the MLB Diamond Specials parlays.
+      return (
+        <svg {...props}>
+          <path d="M12 3 21 12 12 21 3 12Z" />
+        </svg>
+      );
     case "mrdub":
       // Lab flask — Mr. Dub's paper portfolio (scientist/ledger identity).
       return (

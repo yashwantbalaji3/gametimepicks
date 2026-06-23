@@ -40,6 +40,7 @@ const ITEMS: RailItem[] = [
   { href: "/moonshot", label: "Moonshot", glyph: "🌙" },
   { href: "/world-cup-specials", label: "WC Specials", glyph: "🏆" },
   { href: "/homer-nukes", label: "Homer Nukes", glyph: "💣" },
+  { href: "/diamond-specials", label: "Diamond Specials", glyph: "💎" },
   { href: "/mr-dub", label: "Mr. Dub", glyph: "⚗" },
   { href: "/results", label: "Results", glyph: "✓" },
   { href: "/world-cup", label: "World Cup", glyph: "⚽", group: "Sports" },
