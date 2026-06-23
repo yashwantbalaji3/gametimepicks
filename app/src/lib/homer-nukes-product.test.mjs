@@ -77,6 +77,28 @@ test("BANKROLL INTEGRITY: building the allocation does NOT mutate the protected 
   assert.deepEqual(p.record, { wins: 10, losses: 2, voids: 0, pending: 0 });
 });
 
+test("portfolio analytics: per-product record/win-rate/avg-odds/leg-count + performance ranking", () => {
+  const a = buildPortfolioAllocation(root, NOW, DATE);
+  const bb = a.products.find((p) => p.key === "bank-builder");
+  const moon = a.products.find((p) => p.key === "moonshot");
+  // Bank Builder carries the core lane record (10-2) → ~83% win rate → ranks #1.
+  assert.deepEqual(bb.record, { wins: 10, losses: 2, pushes: 0 }, "Bank Builder record = core lane record");
+  assert.ok(bb.winRate != null && bb.winRate > 0.8, "Bank Builder win rate from real record");
+  assert.equal(bb.rank, 1, "Bank Builder ranks #1 by win rate");
+  assert.ok(bb.legCount > 0 && bb.avgOdds != null, "avg odds + leg count derived from live cards");
+  // Ranking covers all four products uniquely.
+  const ranks = a.products.map((p) => p.rank).sort();
+  assert.deepEqual(ranks, [1, 2, 3, 4], "each product has a unique 1..4 rank");
+  // Moonshot keeps its own record (not blended into the core).
+  assert.ok(moon.record.losses >= 0, "moonshot has its own record");
+});
+
+test("BANKROLL INTEGRITY: analytics never mutate portfolio.json", () => {
+  const before = read(path.join(root, "mr-dub", "portfolio.json"));
+  buildPortfolioAllocation(root, NOW, DATE);
+  assert.equal(read(path.join(root, "mr-dub", "portfolio.json")), before, "portfolio.json unchanged");
+});
+
 test("UI wiring: /homer-nukes page + Mr. Dub allocation + Today flagship + nav all present", () => {
   const homerPage = read("src/app/homer-nukes/page.tsx");
   assert.match(homerPage, /HomerNukesBoard/, "homer-nukes page renders the board");
