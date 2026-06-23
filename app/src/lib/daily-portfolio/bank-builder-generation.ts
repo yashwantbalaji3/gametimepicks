@@ -61,32 +61,50 @@ export interface GeneratedLane {
   shortfallNote: string | null;
 }
 
-/**
- * Pick the lowest-volatility 2-leg, max-1-per-game card whose combined price reaches `targetMultiplier`.
- * Among combos that reach the target, choose the highest total model confidence, tie-broken by the
- * smallest overshoot. If none reaches the target, choose the highest combined price (closest from below)
- * and flag `fitsTarget=false`.
- */
-export function selectSafestTargetFitCard(pool: ModelPick[], rung: LaneRung, exclude: Set<string>): GeneratedLane {
-  const legs = pool.filter((p) => !exclude.has(p.id) && p.odds >= -500 && p.odds <= 400);
-  const combos: { a: ModelPick; b: ModelPick; d: number; conf: number }[] = [];
+const isTeamMarket = (p: ModelPick) => p.category === "team" || p.category === "total_btts";
+
+interface Combo { a: ModelPick; b: ModelPick; d: number; conf: number }
+const buildCombos = (legs: ModelPick[]): Combo[] => {
+  const out: Combo[] = [];
   for (let i = 0; i < legs.length; i++) for (let j = i + 1; j < legs.length; j++) {
     if (legs[i].gameId === legs[j].gameId) continue; // max 1 leg per game
-    const d = dec(legs[i].odds) * dec(legs[j].odds);
-    combos.push({ a: legs[i], b: legs[j], d, conf: legs[i].modelProbability + legs[j].modelProbability });
+    out.push({ a: legs[i], b: legs[j], d: dec(legs[i].odds) * dec(legs[j].odds), conf: legs[i].modelProbability + legs[j].modelProbability });
   }
+  return out;
+};
+
+/**
+ * Pick the lowest-volatility 2-leg, max-1-per-game card whose combined price reaches `targetMultiplier`.
+ * Bank Builder PREFERS team/game markets (moneyline / double-chance / DNB / totals / BTTS) over fragile
+ * player props: it first tries to reach the rung target with a TEAM-ONLY card; player props are used
+ * only when no team/game-market card reaches the target. Within a tier, choose the highest total model
+ * confidence, tie-broken by the smallest overshoot. If nothing reaches the target, choose the highest
+ * combined price (closest from below) and flag `fitsTarget=false`.
+ */
+export function selectSafestTargetFitCard(pool: ModelPick[], rung: LaneRung, exclude: Set<string>): GeneratedLane {
+  const inWindow = pool.filter((p) => !exclude.has(p.id) && p.odds >= -500 && p.odds <= 400);
+  const teamLegs = inWindow.filter(isTeamMarket);
   const target = rung.targetMultiplier;
-  const reach = combos.filter((c) => c.d >= target);
-  let chosen: { a: ModelPick; b: ModelPick; d: number; conf: number } | null = null;
+  let chosen: Combo | null = null;
   let fitsTarget = false;
-  if (reach.length) {
-    // highest-confidence combo reaching the target, then smallest overshoot
-    reach.sort((x, y) => (y.conf - x.conf) || (x.d - y.d));
-    chosen = reach[0]; fitsTarget = true;
-  } else if (combos.length) {
-    // none reaches it: closest from below (highest combined), then highest confidence
-    combos.sort((x, y) => (y.d - x.d) || (y.conf - x.conf));
-    chosen = combos[0]; fitsTarget = false;
+  let teamOnly = false;
+
+  // Tier 1 — team/game markets only, reaching the target (lowest fragility).
+  const teamReach = buildCombos(teamLegs).filter((c) => c.d >= target);
+  if (teamReach.length) {
+    teamReach.sort((x, y) => (y.conf - x.conf) || (x.d - y.d));
+    chosen = teamReach[0]; fitsTarget = true; teamOnly = true;
+  } else {
+    // Tier 2 — allow player props (no team-only card reaches the target).
+    const allCombos = buildCombos(inWindow);
+    const reach = allCombos.filter((c) => c.d >= target);
+    if (reach.length) {
+      reach.sort((x, y) => (y.conf - x.conf) || (x.d - y.d));
+      chosen = reach[0]; fitsTarget = true;
+    } else if (allCombos.length) {
+      allCombos.sort((x, y) => (y.d - x.d) || (y.conf - x.conf));
+      chosen = allCombos[0]; fitsTarget = false;
+    }
   }
   const picked = chosen ? [chosen.a, chosen.b] : [];
   const combinedDecimal = picked.reduce((p, l) => p * dec(l.odds), 1);
@@ -100,7 +118,9 @@ export function selectSafestTargetFitCard(pool: ModelPick[], rung: LaneRung, exc
     potentialReturn: round2(rung.rolledStake * combinedDecimal), fitsTarget,
     legs: picked, correlationNote: sameGame ? `${picked[0].matchup} contributes both legs — correlation checked (different markets); max 1 leg/game preferred.` : null,
     whyThisCard: [
-      `Lower-volatility: the 2 highest-confidence model-qualified legs that reach Step ${rung.nextStep} (avg confidence ${avgConf}%), max 1 leg/game.`,
+      teamOnly
+        ? `Lower-volatility: 2 team/game markets (moneyline / double-chance / DNB / totals / BTTS) preferred over fragile props — avg confidence ${avgConf}%, max 1 leg/game.`
+        : `Lower-volatility: the 2 highest-confidence model-qualified legs that reach Step ${rung.nextStep} (avg confidence ${avgConf}%); no team/game-market card reached the target, so a model-qualified prop is included.`,
       fitsTarget
         ? `Combined ${combinedOdds > 0 ? "+" : ""}${combinedOdds} rides $${rung.rolledStake.toLocaleString("en-US")} toward the $${rung.targetReturn.toLocaleString("en-US")} rung goal.`
         : `No 2-leg model-qualified combo reaches the $${rung.targetReturn.toLocaleString("en-US")} goal — strongest available shown as a candidate.`,

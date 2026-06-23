@@ -194,10 +194,17 @@ const PLAYER_MARKET_FOR_COL: Partial<Record<TableColumnKey, string>> = {
   assists: "player_assists",
   shots: "player_shots",
 };
-export interface ModelPicksTableRow { gameId: string; matchup: string; kickoffUtc: string | null; kickoffEt: string; cells: Record<TableColumnKey, ModelPick | null> }
+export interface ModelPicksTableRow {
+  gameId: string; matchup: string; kickoffUtc: string | null; kickoffEt: string;
+  cells: Record<TableColumnKey, ModelPick | null>;       // top pick per column (back-compat)
+  cellsMulti: Record<TableColumnKey, ModelPick[]>;       // up to 3 model-qualified picks per column
+}
 export interface ModelPicksTable { columns: ModelPicksTableColumn[]; rows: ModelPicksTableRow[]; pickCount: number }
 
-/** Group the pool into a per-game table: the top model-qualified pick per (game × column), else null. */
+/** Max model-qualified picks surfaced per (game × market) column in the table. */
+export const MAX_PICKS_PER_MARKET = 3;
+
+/** Group the pool into a per-game table: the top model-qualified pick + up to 3 per (game × column). */
 export function buildModelPicksTable(pool: ModelPick[]): ModelPicksTable {
   const byGame = new Map<string, ModelPick[]>();
   for (const p of pool) { const a = byGame.get(p.gameId) ?? []; a.push(p); byGame.set(p.gameId, a); }
@@ -211,18 +218,23 @@ export function buildModelPicksTable(pool: ModelPick[]): ModelPicksTable {
     const ps = byGame.get(gid)!;
     const first = ps[0];
     const cells = Object.fromEntries(MODEL_PICKS_TABLE_COLUMNS.map((c) => [c.key, null])) as Record<TableColumnKey, ModelPick | null>;
-    const bestBy = (pred: (p: ModelPick) => boolean, rank: (p: ModelPick) => number) =>
-      ps.filter(pred).sort((x, y) => rank(y) - rank(x))[0] ?? null;
-    cells.team = bestBy((p) => p.category === "team", (p) => p.hitRateScore);
-    cells.total_btts = bestBy((p) => p.category === "total_btts", (p) => p.hitRateScore);
+    const cellsMulti = Object.fromEntries(MODEL_PICKS_TABLE_COLUMNS.map((c) => [c.key, [] as ModelPick[]])) as Record<TableColumnKey, ModelPick[]>;
+    const topN = (pred: (p: ModelPick) => boolean, rank: (p: ModelPick) => number) =>
+      ps.filter(pred).sort((x, y) => rank(y) - rank(x)).slice(0, MAX_PICKS_PER_MARKET);
+    const fill = (key: TableColumnKey, pred: (p: ModelPick) => boolean, rank: (p: ModelPick) => number) => {
+      const list = topN(pred, rank);
+      cellsMulti[key] = list; cells[key] = list[0] ?? null;
+    };
+    fill("team", (p) => p.category === "team", (p) => p.hitRateScore);
+    fill("total_btts", (p) => p.category === "total_btts", (p) => p.hitRateScore);
     for (const col of ["anytime_goalscorer", "shots_on_target", "assists", "shots"] as TableColumnKey[]) {
       const mkt = PLAYER_MARKET_FOR_COL[col];
-      cells[col] = bestBy((p) => p.category === "player" && p.marketKey === mkt, (p) => p.modelProbability);
+      fill(col, (p) => p.category === "player" && p.marketKey === mkt, (p) => p.modelProbability);
     }
     // cards: not a posted market → always "No model-qualified pick".
-    cells.best_addable = bestBy((p) => p.odds <= 250, (p) => p.hitRateScore); // lower-volatility, highest hit rate
+    fill("best_addable", (p) => p.odds <= 250, (p) => p.hitRateScore); // lower-volatility, highest hit rate
     for (const c of MODEL_PICKS_TABLE_COLUMNS) if (cells[c.key]) pickCount += 1;
-    rows.push({ gameId: gid, matchup: first.matchup, kickoffUtc: first.kickoffUtc, kickoffEt: first.kickoffEt, cells });
+    rows.push({ gameId: gid, matchup: first.matchup, kickoffUtc: first.kickoffUtc, kickoffEt: first.kickoffEt, cells, cellsMulti });
   }
   return { columns: MODEL_PICKS_TABLE_COLUMNS, rows, pickCount };
 }

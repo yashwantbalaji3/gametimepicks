@@ -16,7 +16,7 @@ test("game page leads with a model spotlight, then suggested parlays, then model
   const order = ["cards", "player-props", "projections", "markets"].map((k) => src.indexOf(`key: "${k}"`));
   assert.ok(order.every((i, idx) => idx === 0 || i > order[idx - 1]), "tab order: cards → player-props → projections → markets");
   // Player props default to model picks; full inventory is a secondary collapsed section.
-  assert.match(src, /Top model player props/, "model picks default heading");
+  assert.match(src, /Model picks by market/, "model picks default heading (per-market layout)");
   assert.match(src, /View full prop inventory/, "full inventory is secondary/collapsed");
   assert.match(src, /worldCupPlayerModelPicks/, "uses the model-pick selector");
 });
