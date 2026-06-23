@@ -1,19 +1,19 @@
 /**
- * Homer Nukes — the daily MLB home-run product. Surfaces the TOP 5 model-qualified home-run picks
- * across the whole MLB slate, ranked by model edge. A $100/day paper allocation ($20 per pick),
- * tracked separately inside Mr. Dub (mirrors Bank Builder / Moonshot / World Cup Specials).
+ * Homer Nukes — the daily MLB home-run product. ONE DAILY 5-LEG HOME-RUN PARLAY: the top 5 anytime-HR
+ * candidates of the slate, combined into a single $20 paper parlay (not five separate bets), tracked
+ * inside Mr. Dub alongside Bank Builder / Moonshot / WC Specials.
  *
- * HONEST BY CONSTRUCTION: it reads ONLY real posted MLB home-run prop markets. When the Odds API has
- * not posted MLB home-run props for the date (common before first pitch / off-slate), it returns an
- * empty, data-gated result — never a fabricated pick or price. Pure read-side; no money mutation.
+ * HONEST BY CONSTRUCTION: reads ONLY real posted MLB home-run prop markets. When the Odds API has not
+ * posted HR props for the date, it returns an empty, data-gated result — never a fabricated leg or
+ * price. Pure read-side; no money mutation.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { computeHomerScore, homerInputsFromRow } from "./homer-score";
 
-export const HOMER_NUKES_PICK_COUNT = 5;
-export const HOMER_NUKES_STAKE_PER_PICK = 20;
-export const HOMER_NUKES_DAILY_ALLOCATION = HOMER_NUKES_PICK_COUNT * HOMER_NUKES_STAKE_PER_PICK; // $100/day
+export const HOMER_NUKES_PICK_COUNT = 5;          // legs in the daily parlay
+export const HOMER_NUKES_STAKE = 20;              // flat $20/day parlay stake
+export const HOMER_NUKES_DAILY_ALLOCATION = HOMER_NUKES_STAKE; // $20/day (one parlay)
 
 export interface HomerNukePick {
   id: string;
@@ -37,18 +37,29 @@ export interface HomerNukePick {
   homerConfidence: "high" | "medium" | "low" | null;
 }
 
+export interface HomerNukesParlay {
+  legs: HomerNukePick[];      // the 5 home-run legs
+  combinedOdds: number;       // American odds of the parlay
+  combinedDecimal: number;
+  stake: number;              // $20
+  projectedReturn: number;    // stake × combined decimal
+  impliedProbability: number; // chance ALL legs hit (product of leg implied probs)
+  providers: string[];        // distinct sportsbooks across the legs
+}
+
 export interface HomerNukesResult {
   date: string;
   available: boolean;        // true only when real HR props are posted for the date
-  picks: HomerNukePick[];    // up to HOMER_NUKES_PICK_COUNT, ranked by edge
+  parlay: HomerNukesParlay | null;
   evaluated: number;         // how many HR props were evaluated
-  stakePerPick: number;
-  dailyAllocation: number;
+  stake: number;             // the flat parlay stake ($20)
+  confidence: "low" | "medium" | "high";
   note: string;
 }
 
 const ET_FMT = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" });
 const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
+const decToAmerican = (d: number) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 const impliedProb = (a: number) => 1 / dec(a);
 const kickoffEtLabel = (iso: string | null): string | null => { if (!iso) return null; try { return `${ET_FMT.format(new Date(iso))} ET`; } catch { return null; } };
 
@@ -65,8 +76,7 @@ const MODEL_FLOOR = 0.08; // at least an 8% model HR probability to make the boa
  */
 export function loadHomerNukes(root: string, date: string): HomerNukesResult {
   const empty = (note: string): HomerNukesResult => ({
-    date, available: false, picks: [], evaluated: 0,
-    stakePerPick: HOMER_NUKES_STAKE_PER_PICK, dailyAllocation: HOMER_NUKES_DAILY_ALLOCATION, note,
+    date, available: false, parlay: null, evaluated: 0, stake: HOMER_NUKES_STAKE, confidence: "low", note,
   });
 
   let raw: { date?: string; props?: Array<Record<string, any>>; markets?: Array<Record<string, any>> } | null = null;
@@ -117,22 +127,35 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
   if (candidates.length === 0) return empty("No model-qualified home-run picks cleared the board for this slate yet.");
 
   // Rank by Homer Score when modeling inputs are present, else by the likeliest HR (probability desc);
-  // max one pick per game so the top 5 spreads across the slate.
+  // max one pick per game so the 5 legs spread across the slate.
   candidates.sort((a, b) => (b.homerScore ?? -1) - (a.homerScore ?? -1) || b.modelProbability - a.modelProbability);
   const seenGames = new Set<string>();
-  const picks: HomerNukePick[] = [];
+  const legs: HomerNukePick[] = [];
   for (const c of candidates) {
-    if (picks.length >= HOMER_NUKES_PICK_COUNT) break;
+    if (legs.length >= HOMER_NUKES_PICK_COUNT) break;
     if (c.gameId && seenGames.has(c.gameId)) continue;
     if (c.gameId) seenGames.add(c.gameId);
-    picks.push(c);
+    legs.push(c);
   }
-  const modeled = picks.some((p) => p.homerScore != null);
+  if (legs.length < HOMER_NUKES_PICK_COUNT) return empty(`Only ${legs.length} anytime-HR legs cleared the board — a full 5-leg Homer Nukes parlay needs ${HOMER_NUKES_PICK_COUNT}. Awaiting a fuller slate.`);
+
+  // Combine the 5 legs into ONE parlay.
+  const combinedDecimal = legs.reduce((d, l) => d * dec(l.odds), 1);
+  const impliedProbability = legs.reduce((p, l) => p * impliedProb(l.odds), 1);
+  const providers = [...new Set(legs.map((l) => l.provider).filter(Boolean) as string[])];
+  const parlay: HomerNukesParlay = {
+    legs, combinedOdds: decToAmerican(combinedDecimal), combinedDecimal: Number(combinedDecimal.toFixed(4)),
+    stake: HOMER_NUKES_STAKE, projectedReturn: Number((HOMER_NUKES_STAKE * combinedDecimal).toFixed(2)),
+    impliedProbability: Number(impliedProbability.toFixed(4)), providers,
+  };
+  // Confidence: more real signal (modeled legs / tighter implied prob) → higher. Without model inputs it
+  // reflects the parlay's market-implied hit probability honestly.
+  const modeled = legs.some((l) => l.homerScore != null);
+  const confidence: HomerNukesResult["confidence"] = impliedProbability >= 0.02 ? "high" : impliedProbability >= 0.008 ? "medium" : "low";
   return {
-    date, available: true, picks, evaluated,
-    stakePerPick: HOMER_NUKES_STAKE_PER_PICK, dailyAllocation: HOMER_NUKES_DAILY_ALLOCATION,
+    date, available: true, parlay, evaluated, stake: HOMER_NUKES_STAKE, confidence,
     note: modeled
-      ? `Top ${picks.length} home-run picks across the slate, ranked by Homer Score. $${HOMER_NUKES_STAKE_PER_PICK} per pick · paper-only.`
-      : `Top ${picks.length} anytime-HR candidates by de-vigged market probability (Homer Score model inputs pending). $${HOMER_NUKES_STAKE_PER_PICK} per pick · paper-only.`,
+      ? `Today's 5-leg home-run parlay, legs ranked by Homer Score. Flat $${HOMER_NUKES_STAKE} stake · paper-only.`
+      : `Today's 5-leg home-run parlay — legs are the likeliest anytime-HR by de-vigged market probability (Homer Score model inputs pending). Flat $${HOMER_NUKES_STAKE} stake · paper-only.`,
   };
 }

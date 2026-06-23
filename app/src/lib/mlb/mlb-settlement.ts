@@ -1,5 +1,5 @@
 /**
- * MLB settlement engine — the PURE grader that settles Homer Nukes picks and Diamond Specials cards
+ * MLB settlement engine — the PURE grader that settles Homer Nukes picks and MLB parlay cards
  * from OFFICIAL box scores (MLB Stats API). No I/O and NO money mutation: it returns graded results +
  * aggregate stats; a separate, explicitly operator-run step writes histories, and only an additional
  * gated step ever touches the protected bankroll/exposure (this module never does).
@@ -58,13 +58,14 @@ const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const round2 = (n: number) => Number(n.toFixed(2));
 
 export interface SettledCard { id: string; category: string; result: "won" | "lost" | "push"; pnl: number; legResults: LegResult[] }
-export interface DiamondSettlement { cards: SettledCard[]; record: { wins: number; losses: number; pushes: number }; pnl: number; staked: number; roi: number | null }
+export interface ParlaySettlement { cards: SettledCard[]; record: { wins: number; losses: number; pushes: number }; pnl: number; staked: number; roi: number | null }
 
 /**
- * Settle Diamond Specials cards. A card WINS only if every non-void leg hits (void legs are dropped,
- * shortening the parlay); all legs void → push. Stake $20/card; P/L from the surviving combined odds.
+ * Settle MLB parlay cards (e.g. the daily Homer Nukes 5-leg parlay). A card WINS only if every non-void
+ * leg hits (void legs are dropped, shortening the parlay); all legs void → push. P/L from the surviving
+ * combined odds at the card's stake.
  */
-export function settleDiamondSpecials(cards: Array<{ id: string; category: string; stake?: number; legs: Array<{ player: string; market: string; selection: string; point?: number | null; odds: number }> }>, lines: BoxScoreLine[]): DiamondSettlement {
+export function settleParlayCards(cards: Array<{ id: string; category: string; stake?: number; legs: Array<{ player: string; market: string; selection: string; point?: number | null; odds: number }> }>, lines: BoxScoreLine[]): ParlaySettlement {
   const out: SettledCard[] = [];
   let wins = 0, losses = 0, pushes = 0, pnl = 0, staked = 0;
   for (const c of cards) {

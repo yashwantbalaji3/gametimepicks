@@ -47,8 +47,6 @@ import WorldCupSpecialsBox from "@/components/world-cup/world-cup-specials-box";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import HomerNukesBoard from "@/components/mlb/homer-nukes-board";
 import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
-import DiamondSpecialsBoard from "@/components/mlb/diamond-specials-board";
-import { loadDiamondSpecials } from "@/lib/mlb/diamond-specials";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
 import EgyptNzSameGame, { loadNzEgyptMarkets } from "@/components/world-cup/egypt-nz-same-game";
 import { loadModelQualifiedProps } from "@/lib/world-cup/model-qualified-props";
@@ -270,10 +268,8 @@ export default function TodayPage() {
   // lane cards (Lane A/B step rail + the current rung's legs, with team logos + player portraits).
   const bankBuilderLadder = dailyPortfolio.cards.filter((c) => c.product === "bank-builder");
   const moonshotLadder = dailyPortfolio.cards.filter((c) => c.product === "moonshot");
-  // Homer Nukes — the daily MLB home-run board (data-gated; honest empty until MLB props post).
+  // Homer Nukes — the daily MLB home-run parlay (data-gated; honest empty until MLB props post).
   const homerNukes = loadHomerNukes(path.join(process.cwd(), "public", "data"), today);
-  // Diamond Specials — 5 daily MLB parlays (data-gated; honest empty until the MLB board posts).
-  const diamondSpecials = loadDiamondSpecials(path.join(process.cwd(), "public", "data"), today);
   // The "what's live" strip is a STATUS board for the surfaces NOT in the flagship highlight above.
   // Bank Builder, Moonshot and World Cup Specials ARE the highlight (rendered as full ladders/parlays
   // right above), so they are intentionally omitted here — no destination is duplicated as a status card.
@@ -287,25 +283,24 @@ export default function TodayPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
-      {/* 1 — THE FLAGSHIP HIGHLIGHT: the five core paper products — Bank Builder, Moonshot, World Cup
-            Specials, Homer Nukes, Diamond Specials — in order. They are the homepage's lead section. The
-            quick-jump flashcards link only to these five (every other destination lives in the top/side
-            nav, so no duplication), then the full ladders/boards render below in the same order. */}
+      {/* 1 — THE FLAGSHIP HIGHLIGHT: the four core paper products — Bank Builder, Moonshot, World Cup
+            Specials, Homer Nukes — in order. They are the homepage's lead section. The quick-jump
+            flashcards link only to these four (every other destination lives in the top/side nav, so no
+            duplication), then the full ladders/boards render below in the same order. */}
       <section aria-label="Flagship products" className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>Today&apos;s flagship products</h2>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Bank Builder · Moonshot · World Cup Specials · Homer Nukes · Diamond Specials — paper-only</span>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Bank Builder · Moonshot · World Cup Specials · Homer Nukes — paper-only</span>
         </div>
 
-        {/* Quick-jump flashcards — ONLY the five flagship products (the top/side nav covers everything
+        {/* Quick-jump flashcards — ONLY the four flagship products (the top/side nav covers everything
             else: Results, Methodology, Games, etc.), so nothing is duplicated. */}
-        <nav aria-label="Flagship quick links" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+        <nav aria-label="Flagship quick links" className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           {[
             { href: "/bank-builder", label: "Bank Builder", sub: "Dual ladder" },
             { href: "/moonshot", label: "Moonshot", sub: "Longshot ladder" },
             { href: "/world-cup-specials", label: "WC Specials", sub: "Suggested parlays" },
-            { href: "/homer-nukes", label: "Homer Nukes", sub: "MLB home runs" },
-            { href: "/diamond-specials", label: "Diamond Specials", sub: "MLB parlays" },
+            { href: "/homer-nukes", label: "Homer Nukes", sub: "MLB HR parlay" },
           ].map((a) => (
             <Link
               key={a.href}
@@ -342,24 +337,14 @@ export default function TodayPage() {
         {/* PRIORITY #3: World Cup exclusive parlays. Gated to today; fails closed on a stale slate. */}
         {wcSpecials && <WorldCupSpecialsBox data={wcSpecials} />}
 
-        {/* PRIORITY #4: Homer Nukes — the daily MLB home-run board ($20/pick · $100/day). Data-gated:
+        {/* PRIORITY #4: Homer Nukes — the daily MLB 5-leg home-run parlay (flat $20). Data-gated:
             honest empty state until real MLB home-run props are posted. */}
         <div aria-label="Homer Nukes" className="flex flex-col gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <span aria-hidden className="inline-block rounded-full shrink-0" style={{ width: 8, height: 8, background: "var(--gtp-bank-heat)", boxShadow: "0 0 8px color-mix(in srgb, var(--gtp-bank-heat) 60%, transparent)" }} />
-            <h3 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>Homer Nukes <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>· MLB home runs</span></h3>
+            <h3 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>Homer Nukes <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>· MLB home-run parlay</span></h3>
           </div>
           <HomerNukesBoard board={homerNukes} />
-        </div>
-
-        {/* PRIORITY #5: Diamond Specials — 5 daily MLB parlays ($20 each · $100/day). Data-gated:
-            honest empty state with the five category slots until the MLB board posts. */}
-        <div aria-label="Diamond Specials" className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <span aria-hidden className="inline-block rounded-full shrink-0" style={{ width: 8, height: 8, background: "#5ec8e5", boxShadow: "0 0 8px color-mix(in srgb, #5ec8e5 60%, transparent)" }} />
-            <h3 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>Diamond Specials <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>· MLB parlays</span></h3>
-          </div>
-          <DiamondSpecialsBoard board={diamondSpecials} />
         </div>
       </section>
 

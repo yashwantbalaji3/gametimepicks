@@ -18,7 +18,6 @@ export type MobileNavBucket =
   | "bank"
   | "moonshot"
   | "homer"
-  | "diamond"
   | "mrdub"
   | "results"
   | "sports";
@@ -54,7 +53,6 @@ export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "bank", href: "/bank-builder", label: "Bank" },
   { bucket: "moonshot", href: "/moonshot", label: "Moonshot" },
   { bucket: "homer", href: "/homer-nukes", label: "Homer Nukes" },
-  { bucket: "diamond", href: "/diamond-specials", label: "Diamond" },
   { bucket: "mrdub", href: "/mr-dub", label: "Mr. Dub" },
 ] as const;
 
@@ -108,7 +106,6 @@ export function resolveMobileNavBucket(
   if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
   if (p === "/moonshot" || p.startsWith("/moonshot/")) return "moonshot";
   if (p === "/homer-nukes" || p.startsWith("/homer-nukes/")) return "homer";
-  if (p === "/diamond-specials" || p.startsWith("/diamond-specials/")) return "diamond";
   if (p === "/mr-dub" || p.startsWith("/mr-dub/")) return "mrdub";
   // The unified Games board + the Sports directory + every sport hub/board + schedule-only
   // leagues all resolve to the Games bucket (Games is the cross-sport entry on mobile).

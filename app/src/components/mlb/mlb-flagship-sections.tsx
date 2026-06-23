@@ -1,8 +1,8 @@
 /**
  * MlbFlagshipSections — the MLB landing's information architecture, surfaced at the top of /mlb so a
  * user immediately sees the four sections: A) Homer Nukes (top-5 HR), B) MLB Props Board, C) Premium
- * Plays (top edges), D) Game Explorer. Homer Nukes + Diamond Specials are the flagship products and
- * link to their own pages; the Props Board + Premium Plays are data-gated and honestly explain that
+ * Plays (top edges), D) Game Explorer. Homer Nukes is the flagship MLB product and links to its own
+ * page; the Props Board + Premium Plays are data-gated and honestly explain that
  * they post once real MLB markets are live. Server component; never fabricates picks.
  */
 import Link from "next/link";
