@@ -29,6 +29,8 @@ const RISK_LABEL: Record<string, string> = RISK_LABELS;
 const RISK_ORDER = ["low", "medium", "high", "longshot"] as const;
 const STATUS_LABEL: Record<string, string> = { live: "Live", pending: "Pending", unavailable: "Market unavailable", model_only: "Model only" };
 const MODEL_PICKS_N = 8;
+/** Max model-qualified picks surfaced per player market in the by-market view. */
+const MAX_PER_MARKET = 3;
 
 const american = (o?: number | null) => (o == null ? "—" : o > 0 ? `+${o}` : `${o}`);
 const pct = (n?: number | null) => (n == null ? "—" : `${Math.round(n * 100)}%`);
@@ -57,6 +59,39 @@ function EmptyTile({ eyebrow, note }: { eyebrow: string; note: string }) {
   );
 }
 
+/** One model-qualified player pick, rendered compactly with a full (wrapping) player name. */
+function MarketPickRow({ p }: { p: PublicProjection }) {
+  const name = p.player?.name ?? "—";
+  return (
+    <div className="flex items-center gap-2.5 rounded-[8px] px-3 py-2.5 min-w-0" style={{ background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-rule)" }}>
+      <PlayerAvatar name={name} photo={p.player?.photo} size={30} />
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="font-display tracking-tight break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{name}</span>
+        <span className="font-mono break-words leading-tight" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+          {p.pickLabel}{p.line != null ? ` ${p.line}` : ""} · market {pct(p.marketProbability)}{p.bookmaker ? ` · ${p.bookmaker}` : ""}
+        </span>
+      </div>
+      <span className="font-mono shrink-0" style={{ color: "var(--vault-gold-bright)", fontSize: 12 }}>{american(p.americanOdds)}</span>
+    </div>
+  );
+}
+
+/** A labelled market section showing up to MAX_PER_MARKET model-qualified picks (or an honest empty state). */
+function MarketSection({ label, picks }: { label: string; picks: PublicProjection[] }) {
+  return (
+    <div className="flex flex-col gap-2 min-w-0">
+      <div className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>{label}</div>
+      {picks.length > 0 ? (
+        <div className="flex flex-col gap-1.5">
+          {picks.map((p) => <MarketPickRow key={p.id} p={p} />)}
+        </div>
+      ) : (
+        <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>No model-qualified pick</span>
+      )}
+    </div>
+  );
+}
+
 export default function GameDetailPage({ detail, engineCards, multiGameCards }: { detail: PublicGameDetail; engineCards?: GameSpecificCards | null; multiGameCards?: GameSpecificCards | null }) {
   const identity = getSportIdentity(detail.sport);
   const homeCode = detail.sport === "world_cup" && detail.homeTeam ? teamByName(detail.homeTeam)?.code ?? "" : "";
@@ -71,6 +106,21 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards }: 
   );
   const modelPicks = worldCupPlayerModelPicks(qualifiedPlayerProps, MODEL_PICKS_N);
   const topPlayer = modelPicks[0] ?? null;
+  // Same model-picks-by-market pattern as the slate table, scoped to this fixture: group the
+  // model-qualified props by market and surface up to MAX_PER_MARKET ranked picks per market.
+  // Empty markets render an honest "No model-qualified pick" rather than raw inventory.
+  const marketGroups = (() => {
+    const byMarket = new Map<string, PublicProjection[]>();
+    for (const p of qualifiedPlayerProps) {
+      const a = byMarket.get(p.marketLabel) ?? [];
+      a.push(p);
+      byMarket.set(p.marketLabel, a);
+    }
+    return [...byMarket.entries()]
+      .map(([label, props]) => ({ label, picks: worldCupPlayerModelPicks(props, MAX_PER_MARKET) }))
+      .filter((g) => g.picks.length > 0)
+      .sort((a, b) => a.label.localeCompare(b.label));
+  })();
   const limitedData = isLimitedDataProps(detail.playerProps);
   const allCards = engineCards?.cards ?? [];
   const bestLowCard = (engineCards?.byRisk.low ?? [])[0] ?? (engineCards?.byRisk.medium ?? [])[0] ?? null;
@@ -172,15 +222,15 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards }: 
   const playerPropsTab = (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3">
-        <SectionHeader eyebrow={`Model player props · ${modelPicks.length}`} title="Top model player props" sub="The recommended side per player, model-ranked. One pick per market — not the full both-sides inventory." />
+        <SectionHeader eyebrow={`Model player props · ${modelPicks.length}`} title="Model picks by market" sub="Up to 3 model-qualified picks per market — recommended side only, never the full both-sides inventory." />
         {marketLabels.length > 0 ? (
           <p className="text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
             Markets posted for this fixture: {marketLabels.join(" · ")}. {limitedData ? "Limited-data — market-implied prices, no independent model edge yet. " : ""}Additional player markets (assists, shots, cards, …) appear here automatically when the books post odds — never shown without real prices.
           </p>
         ) : null}
-        {modelPicks.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {modelPicks.map((p) => <PlayerPropCard key={p.id} p={p} />)}
+        {marketGroups.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-5">
+            {marketGroups.map((g) => <MarketSection key={g.label} label={g.label} picks={g.picks} />)}
           </div>
         ) : (
           <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
@@ -265,11 +315,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards }: 
           <h1 className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.5vw,32px)", fontWeight: 700, lineHeight: 1.05 }}>{detail.title}</h1>
         </div>
         {detail.regulationNote ? <p className="mt-1 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{detail.regulationNote}</p> : null}
-        {/* Hero quick reads */}
+        {/* Hero quick reads — the two strongest picks only; full reads (incl. cards) are in the spotlight below. */}
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           {topProj ? <span className="rounded-full px-2.5 py-1 font-mono" style={{ background: "rgba(242,54,69,0.12)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5 }}>Top pick · {topProj.pickLabel} {american(topProj.americanOdds)}</span> : null}
           {topPlayer ? <span className="rounded-full px-2.5 py-1 font-mono" style={{ background: "rgba(217,164,65,0.12)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5 }}>Top prop · {topPlayer.player?.name} {american(topPlayer.americanOdds)}</span> : null}
-          {bestReturnCard ? <span className="rounded-full px-2.5 py-1 font-mono" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5 }}>Best card · {american(bestReturnCard.combinedOdds)} ({bestReturnCard.legs.length} legs)</span> : null}
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Link href={detail.buildUrl} className="gtp-cta-lava vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Build from this game</Link>
