@@ -61,6 +61,9 @@ import StatusChip from "@/components/ui/status-chip";
 import WorldCupCuratedPicks from "@/components/world-cup/curated-picks";
 import { loadWorldCupCuratedGames } from "@/lib/curated-picks";
 import EgyptNzSameGame, { loadNzEgyptMarkets } from "@/components/world-cup/egypt-nz-same-game";
+import ModelPlayerPropsMatrix from "@/components/world-cup/model-player-props-matrix";
+import { loadModelQualifiedProps } from "@/lib/world-cup/model-qualified-props";
+import path from "node:path";
 
 export const metadata = {
   title: "FIFA World Cup 2026 · GameTime Picks",
@@ -155,6 +158,8 @@ export default function WorldCupLandingPage() {
     playerByMarket.set(p.marketLabel, arr);
   }
   const photoCount = wcPlayers.filter((p) => p.player?.photo).length;
+  // Model-only player-prop matrix (game × market) — top model-qualified pick per cell, raw inventory hidden.
+  const modelProps = loadModelQualifiedProps(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
 
   // ─────────────────────────── Tab content ───────────────────────────
   const overviewTab = (
@@ -314,14 +319,21 @@ export default function WorldCupLandingPage() {
   );
 
   const playerPropsTab = (
-    <div className="flex flex-col gap-5">
-      <SectionHeader eyebrow={`Curated by game · ${curatedGames.length} fixtures`} title="Top model picks per game" sub="Model-ranked team and player picks for each fixture — not a raw prop list. Each pick shows model vs market, recent form/data quality, and why. Player props are limited-data (market-implied) and never Bank Builder eligible." />
-      <WorldCupCuratedPicks games={curatedGames} />
+    <div className="flex flex-col gap-6">
+      <section aria-label="Model player prop picks">
+        <SectionHeader eyebrow="Model picks only" title="Model Player Prop Picks" sub="Only props that pass the model filter are shown — grouped by game and market. Each cell is the top model-qualified pick (odds-backed, pre-event, role-quality screened); where nothing qualifies it reads “No model-qualified pick.” Sportsbook inventory is not a recommendation. Player props are limited-data (market-implied) and never Bank Builder eligible." />
+        <ModelPlayerPropsMatrix data={modelProps} />
+      </section>
+
+      <section aria-label="Curated picks by game">
+        <SectionHeader eyebrow={`Curated by game · ${curatedGames.length} fixtures`} title="Top model picks per game" sub="Model-ranked team + player picks for each fixture — the team-market companion to the prop matrix above. Each pick shows model vs market, recent form/data quality, and why." />
+        <WorldCupCuratedPicks games={curatedGames} />
+      </section>
 
       {wcPlayers.length > 0 ? (
         <details className="rounded-[10px]" style={{ background: "rgba(12,8,6,0.4)", border: "1px solid var(--vault-rule)" }}>
           <summary className="cursor-pointer list-none px-4 py-3 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-            All available props · market inventory ({wcPlayers.length} views · {photoCount} photos)
+            Available sportsbook markets — not model recommendations ({wcPlayers.length} views · {photoCount} photos)
           </summary>
           <div className="px-4 pb-4 flex flex-col gap-5">
             {[...playerByMarket.entries()]
@@ -514,7 +526,7 @@ export default function WorldCupLandingPage() {
     { key: "games", label: "Games", badge: todayMatches.length || null, content: gamesTab },
     { key: "overview", label: "Overview", content: overviewTab },
     { key: "projections", label: "Projections", badge: wcProjections.length || null, content: projectionsTab },
-    { key: "player-props", label: "Player Picks", badge: wcPlayers.length || null, content: playerPropsTab },
+    { key: "player-props", label: "Player Picks", badge: modelProps.qualifiedCount || null, content: playerPropsTab },
     { key: "cards", label: "Suggested Cards", badge: wcCards.length || null, content: cardsTab },
     { key: "markets", label: "Markets", badge: null, content: marketsTab },
     { key: "results", label: "Results", badge: null, content: resultsTab },

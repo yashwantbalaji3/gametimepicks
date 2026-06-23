@@ -36,7 +36,7 @@ export default function BuildPage() {
         counts={{ eligibleLegs: pool.length }}
         primaryAction={{ label: "Browse Parlay Lab", href: "/picks" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
-        note="Add parlay-eligible legs across sports to a paper card, then enter any stake to see the projected paper return. Only legs that cleared our card gates appear here — never research-only views."
+        note="Add model-qualified legs across sports to a paper card, then enter any stake to see the projected paper return. The pool defaults to model-qualified legs only (odds-backed, pre-event, role-quality screened) — raw sportsbook inventory and research-only views are intentionally excluded."
       />
       {pool.length > 0 ? (
         <BuildExperience pool={pool} />

@@ -8,6 +8,8 @@ import type { SportKey, RiskTier } from "@/lib/normalize";
 import { mlbHeadshotUrl, nbaHeadshotUrl } from "@/lib/player-headshots";
 import { normalizeWcProjections, normalizeWcPlayerProps } from "@/lib/normalize";
 import type { WcProjections, WcPlayerProjections } from "@/lib/world-cup/projections";
+import { classifyPlayerRoles, roleKeyForRow } from "@/lib/world-cup/player-role-quality";
+import { modelQualifies } from "@/lib/world-cup/model-qualified-props";
 
 export interface BuildLeg {
   id: string;
@@ -195,6 +197,13 @@ export function buildWcPlayerLegs(projections: WcProjections | null, players: Wc
     if ((m as any).homeTeam) kickoffByTeam.set(norm(String((m as any).homeTeam)), String(k));
     if ((m as any).awayTeam) kickoffByTeam.set(norm(String((m as any).awayTeam)), String(k));
   }
+  // Model-qualified gate: the build pool defaults to model-qualified legs, NOT raw sportsbook inventory.
+  // Role-quality is classified over the whole slate (per-team ranking needs all rows at once).
+  const rawRows = (players?.matches ?? []) as Array<Record<string, any>>;
+  const roleByKey = classifyPlayerRoles(
+    rawRows.map((r) => ({ player: r.player ?? {}, market: r.market, americanOdds: r.americanOdds, modelProbability: r.modelProbability })),
+    Boolean((players as any)?.lineupsPosted),
+  );
   const legs: BuildLeg[] = [];
   for (const p of normalizeWcPlayerProps(players)) {
     if (p.americanOdds == null || !p.player) continue;
@@ -203,6 +212,13 @@ export function buildWcPlayerLegs(projections: WcProjections | null, players: Wc
       const teamKick = kickoffByTeam.get(norm(p.player.team ?? ""));
       if (!teamKick || teamKick <= now) continue;
     }
+    // Only model-qualified props enter the build pool (settlement-supported market, odds window, provider,
+    // probability floor, role-quality eligible). Raw inventory is intentionally excluded.
+    const role = roleByKey.get(roleKeyForRow({ player: { id: typeof p.player.id === "number" ? p.player.id : null, name: p.player.name, team: p.player.team } }));
+    if (!modelQualifies(
+      { market: p.market, americanOdds: p.americanOdds, bookmaker: p.bookmaker, modelProbability: p.modelProbability, marketProbability: p.marketProbability },
+      Boolean(role?.eligibleForSpecials),
+    )) continue;
     legs.push({
       id: p.id, sport: "world_cup", sportLabel: "World Cup", gameId: p.matchId ?? null,
       gameLabel: p.player.team,

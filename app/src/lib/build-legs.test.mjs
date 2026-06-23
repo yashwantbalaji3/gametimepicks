@@ -76,14 +76,28 @@ test("buildEngineLegs adapts engine eligible legs (MLB + WC team), excludes UFC,
 test("buildWcPlayerLegs surfaces pre-event WC player props (limited-data, never Bank-Builder)", async () => {
   const { buildWcPlayerLegs } = await import("./build-legs.ts");
   const proj = { matches: [{ matchId: 9, homeTeam: "Switzerland", awayTeam: "Bosnia", kickoffUtc: "2026-06-18T19:00:00Z" }] };
+  // A model-qualified prop: real attacker (position), odds-backed with a provider, above the goalscorer floor.
   const players = { matches: [
-    { matchId: 9, fixture: "Switzerland vs Bosnia", player: { id: null, name: "Breel Embolo", team: "Switzerland", photo: null }, market: "player_goal_scorer_anytime", pick: "Yes", line: null, americanOdds: 145 },
+    { matchId: 9, fixture: "Switzerland vs Bosnia", player: { id: 100, name: "Breel Embolo", team: "Switzerland", position: "Attacker", photo: null }, market: "player_goal_scorer_anytime", pick: "Yes", line: null, americanOdds: 145, bookmaker: "draftkings", modelProbability: 0.5 },
   ] };
   const legs = buildWcPlayerLegs(proj, players, "2026-06-18T17:30:00Z"); // before kickoff → included
-  assert.equal(legs.length, 1, "pre-event player prop included regardless of parlayEligible");
+  assert.equal(legs.length, 1, "pre-event model-qualified player prop included");
   assert.equal(legs[0].prelineup, true);
   assert.equal(legs[0].bankBuilderEligible, false, "player props never Bank-Builder eligible");
   assert.ok(legs[0].sublabel.includes("limited-data"), "labeled limited-data");
   // After kickoff → excluded.
   assert.equal(buildWcPlayerLegs(proj, players, "2026-06-18T20:00:00Z").length, 0);
+});
+
+test("buildWcPlayerLegs pool is MODEL-QUALIFIED: raw inventory (no provider / no role) is excluded", async () => {
+  const { buildWcPlayerLegs } = await import("./build-legs.ts");
+  const proj = { matches: [{ matchId: 9, homeTeam: "Switzerland", awayTeam: "Bosnia", kickoffUtc: "2026-06-18T19:00:00Z" }] };
+  const NOW = "2026-06-18T17:30:00Z";
+  const base = { matchId: 9, fixture: "Switzerland vs Bosnia", market: "player_goal_scorer_anytime", pick: "Yes", line: null, americanOdds: 145, bookmaker: "draftkings", modelProbability: 0.5 };
+  // Goalkeeper on an attacking prop → role-ineligible → excluded.
+  const gk = buildWcPlayerLegs(proj, { matches: [{ ...base, player: { id: 1, name: "Keeper One", team: "Switzerland", position: "Goalkeeper" } }] }, NOW);
+  assert.equal(gk.length, 0, "goalkeeper attacking prop excluded (raw inventory, not a model pick)");
+  // No provider → not odds-backed for our purposes → excluded.
+  const noProv = buildWcPlayerLegs(proj, { matches: [{ ...base, bookmaker: null, player: { id: 2, name: "Striker Two", team: "Switzerland", position: "Attacker" } }] }, NOW);
+  assert.equal(noProv.length, 0, "no-provider prop excluded");
 });

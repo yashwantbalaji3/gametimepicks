@@ -46,6 +46,7 @@ import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import WorldCupSpecialsBox from "@/components/world-cup/world-cup-specials-box";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
 import EgyptNzSameGame, { loadNzEgyptMarkets } from "@/components/world-cup/egypt-nz-same-game";
+import { loadModelQualifiedProps } from "@/lib/world-cup/model-qualified-props";
 
 export const metadata = {
   title: "Today · GameTime Picks",
@@ -250,6 +251,19 @@ export default function TodayPage() {
   const bbLanesCleared = [bbPreview.laneA, bbPreview.laneB].filter(Boolean)
     .filter((l) => l!.steps.length ? l!.steps.some((s) => s.status === "settled" && s.result === "won") : l!.result === "won").length;
 
+  // ── June 23 readiness summary (compact module strip) ─────────────────────────
+  const modelProps = loadModelQualifiedProps(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  const moonshotLane = loadMoonshotLane();
+  const moonshotCandidates = (moonshotLane?.candidates ?? []).length;
+  const readinessModules: { label: string; value: string; sub: string; href: string }[] = [
+    { label: "Bank Builder", value: bbLanesCleared > 0 ? `Lane B WON` : "Pending", sub: "Lane A awaiting official final", href: "/bank-builder" },
+    { label: "World Cup", value: `${wcFocus.length} games`, sub: `${wcProj?.projectionCount ?? 0} model projections`, href: "/world-cup" },
+    { label: "Model Player Props", value: `${modelProps.qualifiedCount} picks`, sub: `${modelProps.evaluatedCount} markets evaluated`, href: "/world-cup?tab=player-props" },
+    { label: "Parlay Lab", value: `${engineSuggested} cards`, sub: "model-qualified legs", href: "/picks" },
+    { label: "Moonshot", value: moonshotCandidates > 0 ? `${moonshotCandidates} ready` : "—", sub: "candidates · $0 exposure", href: "/moonshot" },
+    { label: "World Cup Specials", value: `${wcSpecials?.cards.length ?? 0} candidates`, sub: "$0 exposure", href: "/world-cup-specials" },
+  ];
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       {/* 1 — Quick actions (mobile only): 1-click reach to key areas. On desktop the CommandRail
@@ -273,6 +287,29 @@ export default function TodayPage() {
           </Link>
         ))}
       </nav>
+
+      {/* 1.25 — June 23 readiness strip: one glance at every live surface (Bank Builder, World Cup,
+            model player props, Parlay Lab, Moonshot, Specials), each a tap-through. Paper-only. */}
+      <section aria-label={`${dateLabel} readiness`}>
+        <div className="flex items-baseline justify-between mb-2.5">
+          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{dateLabel} — what&apos;s live</h2>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>paper-only</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          {readinessModules.map((m) => (
+            <Link
+              key={m.label}
+              href={m.href}
+              className="vault-glow-hover vault-press rounded-[12px] px-3 py-3 flex flex-col gap-1"
+              style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
+            >
+              <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{m.label}</span>
+              <span className="font-display tracking-tight" style={{ color: "var(--vault-gold-bright)", fontSize: 15, fontWeight: 700 }}>{m.value}</span>
+              <span style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>{m.sub}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* 1.5 — Model picks ready: user-facing summary of today's model-ranked cards → Parlay Lab.
             (Internal "methodology engine / STEP n LIVE / lanes cleared" language moved off the
