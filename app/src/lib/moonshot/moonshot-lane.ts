@@ -63,6 +63,41 @@ export interface MoonshotPriorRun {
   note: string;
 }
 
+/** A pre-event candidate leg (real odds only). */
+export interface MoonshotCandidateLeg {
+  fixture: string;
+  participant: string;
+  market: string;
+  marketLabel: string;
+  odds: number;
+  countryCode?: string | null;
+  kickoffEt?: string;
+  bookmaker?: string;
+  provider?: string;
+  displaySelection?: string;
+  settlement?: { source: string; official: string };
+}
+
+/** A Moonshot candidate card — evaluated pre-event from real odds, NOT placed (no exposure). The
+ *  combined price is an ordinary independent-game parlay (two different games); never a fabricated SGP. */
+export interface MoonshotCandidate {
+  cardId: string;
+  label: string;
+  subtitle?: string;
+  status: "candidate";
+  scope: string;
+  risk: string;
+  stake: number;
+  combinedOdds: number;
+  projectedReturn: number;
+  distinctGames: number;
+  crossSlate?: boolean;
+  generatedAt?: string;
+  activated?: boolean;
+  note?: string;
+  legs: MoonshotCandidateLeg[];
+}
+
 export interface MoonshotStep {
   step: number;
   stake: number;
@@ -95,6 +130,9 @@ export interface MoonshotLane {
   stopNote?: string;
   settledAt?: string;
   priorRun?: MoonshotPriorRun | null;
+  // Multi-lane v2 (backward compatible): pre-event candidate cards evaluated from real odds, not placed.
+  candidates?: MoonshotCandidate[];
+  candidatesNote?: string;
 }
 
 const MOONSHOT_PATH = ["moonshot-lane", "active.json"];

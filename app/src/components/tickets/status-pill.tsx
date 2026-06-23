@@ -4,7 +4,7 @@
  */
 export type TicketStatus =
   | "active" | "pending" | "settled" | "hit" | "miss" | "void"
-  | "archived" | "data_pending" | "stopped" | "won" | "lost";
+  | "archived" | "data_pending" | "stopped" | "won" | "lost" | "candidate";
 
 const META: Record<TicketStatus, { label: string; color: string; bg: string }> = {
   active: { label: "Active", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)" },
@@ -18,6 +18,7 @@ const META: Record<TicketStatus, { label: string; color: string; bg: string }> =
   archived: { label: "Archived", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.04)" },
   data_pending: { label: "Data pending", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.04)" },
   stopped: { label: "Stopped", color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.05)" },
+  candidate: { label: "Candidate", color: "#b9a8ff", bg: "rgba(139,123,240,0.14)" },
 };
 
 export default function StatusPill({
