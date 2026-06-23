@@ -1,9 +1,11 @@
 /**
  * LegRow — one betting-slip-style leg, shared across ticket surfaces. Shows the matchup, selection,
  * market/line, kickoff ET, odds, and the official HIT/MISS/PENDING status (+ official evidence).
- * Flags only from real country codes (FlagBadge); never a fabricated logo/portrait.
+ * Player legs render a real headshot/portrait (PlayerAvatar, photo when present else initials);
+ * team legs render real country flags (FlagBadge). Never a fabricated logo/portrait.
  */
 import FlagBadge from "@/components/flag-badge";
+import PlayerAvatar from "@/components/ui/player-avatar";
 import OddsPill from "./odds-pill";
 import StatusPill, { type TicketStatus } from "./status-pill";
 import type { LegResult } from "./settlement-badge";
@@ -17,6 +19,9 @@ export interface TicketLeg {
   flagAway?: string | null;
   homeTeam?: string | null;
   awayTeam?: string | null;
+  /** Player name for a player-prop leg → renders a portrait (with photoUrl when available). */
+  player?: string | null;
+  photoUrl?: string | null;
   kickoffEt?: string | null;
   odds?: number | null;
   result?: LegResult;
@@ -32,12 +37,21 @@ export default function LegRow({ leg }: { leg: TicketLeg }) {
   return (
     <div className="flex items-start gap-2.5 py-2.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <span className="mt-0.5 flex shrink-0 items-center gap-0.5">
-        {leg.flagHome ? <FlagBadge code={leg.flagHome} size="sm" ariaLabel={leg.homeTeam ?? ""} /> : null}
-        {leg.flagAway ? <FlagBadge code={leg.flagAway} size="sm" ariaLabel={leg.awayTeam ?? ""} /> : null}
-        {!hasFlag ? (
+        {leg.player ? (
+          // Player-prop leg: real portrait + the player's country flag when known.
+          <>
+            <PlayerAvatar name={leg.player} photo={leg.photoUrl ?? null} size={18} />
+            {leg.flagHome ? <FlagBadge code={leg.flagHome} size="sm" ariaLabel={leg.homeTeam ?? ""} /> : null}
+          </>
+        ) : hasFlag ? (
+          <>
+            {leg.flagHome ? <FlagBadge code={leg.flagHome} size="sm" ariaLabel={leg.homeTeam ?? ""} /> : null}
+            {leg.flagAway ? <FlagBadge code={leg.flagAway} size="sm" ariaLabel={leg.awayTeam ?? ""} /> : null}
+          </>
+        ) : (
           <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]"
             style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
-        ) : null}
+        )}
       </span>
       <span className="min-w-0 flex-1">
         {leg.matchup ? <span className="block truncate text-[11px] font-semibold" style={{ color: "var(--vault-text)" }}>{leg.matchup}</span> : null}

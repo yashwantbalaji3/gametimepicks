@@ -15,8 +15,24 @@
  * Pure presentational; all selection logic lives in the loader (buildModelPicksTable).
  */
 import PlayerAvatar from "@/components/ui/player-avatar";
+import FlagBadge from "@/components/flag-badge";
 import OddsPill from "@/components/tickets/odds-pill";
+import { wcTeamCodeFromName } from "@/lib/data-world-cup";
 import type { ModelPick, ModelPicksTable } from "@/lib/world-cup/model-qualified-picks";
+
+/** Home/away country flags for a "Home vs Away" matchup string (FlagBadge degrades gracefully). */
+function MatchupFlags({ matchup }: { matchup: string }) {
+  const [home, away] = (matchup ?? "").split(/\s+vs\s+/i).map((s) => s.trim());
+  const homeCode = wcTeamCodeFromName(home);
+  const awayCode = wcTeamCodeFromName(away);
+  if (!homeCode && !awayCode) return null;
+  return (
+    <span className="flex shrink-0 items-center gap-0.5">
+      {homeCode ? <FlagBadge code={homeCode} size="sm" ariaLabel={home ?? ""} /> : null}
+      {awayCode ? <FlagBadge code={awayCode} size="sm" ariaLabel={away ?? ""} /> : null}
+    </span>
+  );
+}
 
 function VolBadge({ pick }: { pick: ModelPick }) {
   const lower = pick.volatility === "lower";
@@ -45,6 +61,8 @@ function EmptyCell() {
 
 /** The TOP pick — player/selection on their own lines, names wrap (never truncated). */
 function PickBody({ pick }: { pick: ModelPick }) {
+  // Team/game markets carry no player portrait — show the team's country flag when resolvable.
+  const teamCode = pick.player ? null : wcTeamCodeFromName(pick.team ?? pick.selection);
   return (
     <div className="flex flex-col gap-1">
       {pick.player ? (
@@ -59,7 +77,10 @@ function PickBody({ pick }: { pick: ModelPick }) {
         </div>
       ) : null}
       <div className="flex items-start justify-between gap-2">
-        <span className="break-words leading-tight" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pick.selection}</span>
+        <span className="flex items-start gap-1.5 min-w-0">
+          {teamCode ? <span className="mt-0.5 shrink-0"><FlagBadge code={teamCode} size="sm" ariaLabel={pick.team ?? pick.selection} /></span> : null}
+          <span className="break-words leading-tight" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pick.selection}</span>
+        </span>
         <OddsPill odds={pick.odds} size="sm" tone="gold" className="shrink-0" />
       </div>
       <div className="flex items-center gap-2 flex-wrap">
@@ -162,7 +183,10 @@ export default function ModelPicksTable({ table }: { table: ModelPicksTable }) {
               style={{ gridTemplateColumns: gridTemplate, borderTop: "1px solid var(--vault-rule)", background: ri % 2 ? "rgba(255,255,255,0.012)" : "transparent" }}
             >
               <div className="px-3 py-3 flex flex-col gap-0.5">
-                <span className="font-semibold break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{row.matchup}</span>
+                <span className="flex items-start gap-1.5 min-w-0">
+                  <MatchupFlags matchup={row.matchup} />
+                  <span className="font-semibold break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{row.matchup}</span>
+                </span>
                 <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{row.kickoffEt}</span>
               </div>
               {cols.map((c) => (
@@ -180,7 +204,10 @@ export default function ModelPicksTable({ table }: { table: ModelPicksTable }) {
         {table.rows.map((row) => (
           <div key={row.gameId} className="rounded-[12px] overflow-hidden" style={{ border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.4)" }}>
             <div className="px-3 py-2.5 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
-              <span className="font-semibold break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 13 }}>{row.matchup}</span>
+              <span className="flex items-center gap-1.5 min-w-0">
+                <MatchupFlags matchup={row.matchup} />
+                <span className="font-semibold break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 13 }}>{row.matchup}</span>
+              </span>
               <span className="font-mono uppercase tracking-[0.08em] shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{row.kickoffEt}</span>
             </div>
             <div className="grid" style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
