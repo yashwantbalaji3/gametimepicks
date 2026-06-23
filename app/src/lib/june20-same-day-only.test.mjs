@@ -60,11 +60,11 @@ test("Moonshot: Step 1 card settled LOST (lane stopped, no active card); restart
   }
 });
 
-test("Mr. Dub: cross-slate active cards carry real exposure ($200 core; moonshot settled → 0)", () => {
-  assert.equal(portfolio.openExposure, 200, "Lane A + Lane B placed seeds → $200 open exposure");
-  assert.equal(portfolio.totalOpenExposure, 200, "core $200; moonshot settled LOST → 0 open");
-  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 2 }, "8-2 with 2 pending (Lane A Step 3 + Lane B Step 1)");
-  assert.equal((portfolio.activeCards ?? []).length, 2, "two active cards");
+test("Mr. Dub: cross-slate active cards carry real exposure ($100 core after Lane B settled WON; moonshot settled → 0)", () => {
+  assert.equal(portfolio.openExposure, 100, "Lane A Step 3 placed seed → $100 open; Lane B settled WON released its seed");
+  assert.equal(portfolio.totalOpenExposure, 100, "core $100; moonshot settled LOST → 0 open");
+  assert.deepEqual(portfolio.record, { wins: 9, losses: 2, voids: 0, pending: 1 }, "9-2 with 1 pending (Lane B Step 1 WON; Lane A Step 3 open)");
+  assert.equal((portfolio.activeCards ?? []).length, 1, "one active card (Lane A Step 3)");
 });
 
 test("PROTECTED: the completed crown ladder ($10,376.17) is untouched", () => {

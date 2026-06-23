@@ -41,16 +41,18 @@ test("Lane A public ladder after settlement: Step 1 + Step 2 cleared (won), Step
   assert.ok(v.steps.every((s) => s.result !== "lost"), "no lost step surfaced (Lane A never lost)");
 });
 
-test("Lane B public ladder after restart: Step 1 ACTIVE (fresh cross-slate restart card), no lost legs surfaced", () => {
+test("Lane B public ladder after restart: Step 1 SETTLED WON (cross-slate restart cleared), no lost legs surfaced", () => {
   const v = buildPublicDualLadder(bb.laneB, "lane-b");
   assert.ok(v, "lane B view present");
-  // Lane B was resumed ACTIVE with a fresh $100 Step 1 restart card (approved broader criteria).
-  assert.equal(v.currentStatus, "active");
-  assert.equal(v.steps[0].status, "active");
+  // Lane B Step 1 restart (approved broader criteria) settled WON (official) → the lane advanced.
+  assert.equal(v.currentStatus, "advanced");
+  assert.equal(v.steps[0].status, "cleared");
+  assert.equal(v.steps[0].result, "won", "Lane B Step 1 cleared WON");
   assert.equal(v.steps[0].actualStake, 100, "fresh $100 Lane B restart");
-  assert.ok(v.steps[0].card, "Step 1 carries its placed restart card");
-  // Restart legs: Argentina ML + France/Iraq Under 3.5 (June 22).
-  assert.ok(v.steps[0].card.legs.some((l) => /Argentina/.test(l.participant)) && v.steps[0].card.legs.some((l) => /Under 3\.5/.test(l.participant)), "Argentina + France/Iraq Under 3.5 in the active Step 1 restart card");
+  assert.ok(v.steps[0].actualReturn >= 270 && v.steps[0].actualReturn <= 280, "actual return ~$277.11");
+  assert.ok(v.steps[0].card, "Step 1 carries its settled restart card");
+  // Restart legs: Argentina ML + France/Iraq Under 3.5 (June 22), both graded hit (official).
+  assert.ok(v.steps[0].card.legs.some((l) => /Argentina/.test(l.participant)) && v.steps[0].card.legs.some((l) => /Under 3\.5/.test(l.participant)), "Argentina + France/Iraq Under 3.5 in the cleared Step 1 restart card");
   for (let i = 1; i < 5; i++) assert.equal(v.steps[i].status, "upcoming");
   // The prior stopped legs (Goldschmidt/Switzerland) and the prior lost Turkey/Hoskins step are NOT surfaced publicly.
   const allLegs = JSON.stringify(v.steps.map((s) => s.card));
@@ -60,28 +62,30 @@ test("Lane B public ladder after restart: Step 1 ACTIVE (fresh cross-slate resta
 });
 
 test("DEMO: active steps surface a placed card with real legs — never a blank actionable row", () => {
-  // Both lanes were resumed ACTIVE with placed cross-slate cards — the actionable row is a real card.
+  // Lane A carries a placed active cross-slate card; Lane B's Step 1 restart settled WON (cleared) — both
+  // surface a real card with real legs, never a blank actionable row.
   const a = buildPublicDualLadder(bb.laneA, "lane-a");
   const aActive = a.steps.find((s) => s.status === "active");
   assert.ok(aActive, "Lane A has an active step");
   assert.ok(aActive.card && aActive.card.legs.length >= 2, "active step carries a placed card with real legs (not a blank row)");
   assert.ok(aActive.actualStake && aActive.actualReturn, "active step carries real stake + projected return");
   const b = buildPublicDualLadder(bb.laneB, "lane-b");
-  const bActive = b.steps.find((s) => s.status === "active");
-  assert.ok(bActive, "Lane B active restart step present");
-  assert.ok(bActive.card && bActive.card.legs.length >= 2, "active restart carries a placed card with real legs");
+  const bCleared = b.steps.find((s) => s.status === "cleared");
+  assert.ok(bCleared, "Lane B cleared (settled WON) restart step present");
+  assert.ok(bCleared.card && bCleared.card.legs.length >= 2, "cleared restart carries a placed card with real legs");
 });
 
-test("DEMO: placed (pending) lane cards count real exposure (Lane A core $100 + Lane B core $100 = $200; moonshot settled → 0)", () => {
+test("DEMO: placed (pending) lane cards count real exposure (Lane A core $100 open; Lane B settled WON → released; total $100; moonshot settled → 0)", () => {
   const mr = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
-  assert.equal(mr.openExposure, 200, "Lane A + Lane B core seeds are open exposure");
-  assert.equal(mr.totalOpenExposure, 200, "core $200; moonshot settled LOST → 0 open");
-  // Lane A Step 3 + Lane B Step 1 are PLACED (pending) cards — they carry real exposure.
+  assert.equal(mr.openExposure, 100, "Lane A core seed is open exposure; Lane B settled WON released its seed");
+  assert.equal(mr.totalOpenExposure, 100, "core $100; moonshot settled LOST → 0 open");
+  // Lane A Step 3 is a PLACED (pending) card and carries real exposure; Lane B Step 1 settled WON (no open exposure).
   const bbRaw = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8")).run;
   const laneAStep3 = bbRaw.laneA.steps.find((s) => s.step === 3);
   const laneBStep1 = bbRaw.laneB.steps.find((s) => s.step === 1);
   assert.equal(laneAStep3.status, "pending", "Lane A Step 3 is a placed (pending) card");
-  assert.equal(laneBStep1.status, "pending", "Lane B Step 1 is a placed (pending) restart card");
+  assert.equal(laneBStep1.status, "settled", "Lane B Step 1 restart card settled (WON)");
+  assert.equal(laneBStep1.result, "won", "Lane B Step 1 restart settled WON (Argentina ML + France/Iraq Under 3.5, official)");
 });
 
 test("queued restart maps a stopped lane to a clean starting path (publicVisible false ignored steps)", () => {

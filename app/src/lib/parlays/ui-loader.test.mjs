@@ -87,7 +87,7 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("the June 19 settled + cross-slate resumed ladder: Lane A active (Steps 1+2 won, USA + Gonzales, Step 3 placed), Lane B active (Step 1 restart placed)", () => {
+test("the June 19 settled + cross-slate resumed ladder: Lane A active (Steps 1+2 won, USA + Gonzales, Step 3 placed), Lane B advanced (Step 1 restart WON)", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.isLadder, true, "preview is a multi-step ladder");
@@ -113,11 +113,16 @@ test("the June 19 settled + cross-slate resumed ladder: Lane A active (Steps 1+2
   assert.ok((a2.payout ?? 0) >= 600 && (a2.payout ?? 0) <= 700, "Step 2 paid ~$601.56");
   assert.equal(bb.laneA.steps[2].status, "pending", "Step 3 placed (pending) cross-slate card");
 
-  // Lane B: resumed ACTIVE with a fresh $100 Step 1 restart (pending), shown publicly.
-  assert.equal(bb.laneB.laneStatus, "active");
+  // Lane B: the $100 Step 1 restart settled WON (official) → the lane advanced, shown publicly.
+  assert.equal(bb.laneB.laneStatus, "advanced");
   assert.equal(bb.laneB.publicVisible, true);
   const b1 = bb.laneB.steps[0];
-  assert.equal(b1.status, "pending", "Lane B Step 1 is a placed (pending) restart card");
+  assert.equal(b1.status, "settled", "Lane B Step 1 restart card settled");
+  assert.equal(b1.result, "won", "Lane B Step 1 restart cleared WON");
+  for (const leg of b1.legs) {
+    assert.equal(leg.settlementResult, "won", "both Lane B restart legs graded won (Argentina ML + France/Iraq Under 3.5)");
+    assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "official line present");
+  }
   const liveB = JSON.stringify(bb.laneB.steps);
   assert.ok(!/Goldschmidt|Switzerland|Hoskins|Turkey/.test(liveB), "old stopped/lost legs never surface in the live lane");
 });
@@ -139,16 +144,16 @@ test("mixed-sport parlays: each card spans a World Cup leg + another sport, by r
   }
 });
 
-test("Lane B Step 1 restart is plus-money (Argentina ML + France/Iraq Under 3.5), placed as a pending card → lane active", () => {
+test("Lane B Step 1 restart is plus-money (Argentina ML + France/Iraq Under 3.5), settled WON → lane advanced", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.isLadder, true);
   const step1 = bb.laneB.steps.find((s) => s.step === 1);
   assert.ok(step1.combinedOdds != null && step1.combinedOdds > 0, "Step 1 combined odds are plus-money (+177)");
-  assert.equal(step1.status, "pending", "Step 1 restart card is pending (placed, not yet settled)");
-  assert.equal(step1.result, null, "pending restart has no settled result");
+  assert.equal(step1.status, "settled", "Step 1 restart card settled (official)");
+  assert.equal(step1.result, "won", "Step 1 restart settled WON (Argentina ML + France/Iraq Under 3.5, official)");
   assert.ok(step1.legs.some((l) => l.sport === "WORLD_CUP"), "Step 1 keeps a World Cup leg per lane");
-  assert.equal(bb.laneB.laneStatus, "active", "Lane B active after the restart");
+  assert.equal(bb.laneB.laneStatus, "advanced", "Lane B advanced after the restart cleared WON");
 });
 
 test("Lane B Step 1 restart soccer leg is a clean team market (draw-no-bet)", () => {

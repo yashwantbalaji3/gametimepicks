@@ -7,14 +7,14 @@
   "startingBankroll": 100,
   "crownBankroll": 10376.17,
   "currentBankroll": 10176.17,
-  "openExposure": 200,
+  "openExposure": 100,
   "settledProfit": 10076.17,
   "roi": 100.76,
   "record": {
-    "wins": 8,
+    "wins": 9,
     "losses": 2,
     "voids": 0,
-    "pending": 2
+    "pending": 1
   },
   "completedLadders": [
     {
@@ -33,37 +33,25 @@
       "stake": 601.56,
       "projectedReturn": 1464.71,
       "status": "open"
-    },
-    {
-      "laneId": "lane-b",
-      "type": "lane_step_open",
-      "step": 1,
-      "stake": 100,
-      "projectedReturn": 277.11,
-      "status": "open"
     }
   ],
   "generatedAt": "2026-06-18T18:40:00Z",
   "highWaterMark": 10376.17,
   "drawdown": 200,
   "drawdownPct": 0.0193,
-  "openExposurePct": 0.0197,
+  "openExposurePct": 0.0098,
   "roiMultiple": 100.76,
   "exposure": {
     "bySport": [
       {
         "key": "World Cup",
-        "amount": 200
+        "amount": 100
       }
     ],
     "byMarket": [
       {
         "key": "moneyline_90",
-        "amount": 150
-      },
-      {
-        "key": "match_total_goals",
-        "amount": 50
+        "amount": 100
       }
     ],
     "byTeamOrPlayer": [
@@ -74,34 +62,29 @@
       {
         "key": "Algeria moneyline_90",
         "amount": 50
-      },
-      {
-        "key": "Argentina moneyline_90",
-        "amount": 50
-      },
-      {
-        "key": "France vs Iraq Under 3.5",
-        "amount": 50
       }
     ],
     "byLane": [
       {
         "key": "lane-a",
         "amount": 100
-      },
-      {
-        "key": "lane-b",
-        "amount": 100
       }
     ],
     "byStatus": [
       {
         "key": "open",
-        "amount": 200
+        "amount": 100
       }
     ]
   },
-  "awaitingCards": [],
+  "awaitingCards": [
+    {
+      "laneId": "lane-b",
+      "step": 1,
+      "kind": "awaiting_next_card",
+      "note": "Lane B Step 1 cleared (official) — $100 rolls to $277.11, awaiting the next qualified card."
+    }
+  ],
   "completedCards": [
     {
       "name": "Road to $10K",
@@ -115,7 +98,7 @@
     "score": 80,
     "label": "Balanced",
     "reasons": [
-      "Open exposure is 2.0% of bankroll.",
+      "Open exposure is 1.0% of bankroll.",
       "Most exposure is concentrated in World Cup."
     ]
   },
@@ -124,13 +107,13 @@
     "maxDrawdown": 200,
     "drawdown": 200,
     "drawdownPct": 0.0193,
-    "winRate": 0.8,
+    "winRate": 0.82,
     "exposureBySport": {
-      "World Cup": 200
+      "World Cup": 100
     },
     "largestOpenCard": 601.56,
-    "avgStake": 680.31,
-    "avgSettledReturn": 2172.6,
+    "avgStake": 627.55,
+    "avgSettledReturn": 1961.99,
     "profitFactor": 51.38,
     "longestWinStreak": 8,
     "longestLossStreak": 2,
@@ -182,5 +165,5 @@
     },
     "note": "Settled LOST — NZ/Egypt BTTS No missed (both teams scored). A parlay with a lost leg cannot win; the remaining June 22 legs are moot. Paper-only, separate from the core ladder."
   },
-  "totalOpenExposure": 200
+  "totalOpenExposure": 100
 }

@@ -791,8 +791,8 @@
       "steps": [
         {
           "step": 1,
-          "status": "pending",
-          "result": null,
+          "status": "settled",
+          "result": "won",
           "slateDate": "2026-06-22",
           "combinedOdds": 177,
           "laneSurvivalScore": 60,
@@ -833,7 +833,11 @@
                   "weight": 0.5
                 }
               ],
-              "settlement": "official 90-minute regulation result (ESPN/FIFA)",
+              "settlement": {
+                "result": "won",
+                "official": "Argentina 2-0 Austria (FT, API-Football)",
+                "source": "api_football"
+              },
               "matchup": "Argentina vs Austria",
               "homeTeam": "Argentina",
               "awayTeam": "Austria",
@@ -848,10 +852,11 @@
               "eventDate": "2026-06-22",
               "provider": "The Odds API",
               "settlementSource": "API-Football (official 90-minute result)",
-              "currentGameStatus": "scheduled",
+              "currentGameStatus": "final",
               "displaySelection": "Argentina vs Austria \u2014 Moneyline (90\u2032): Argentina",
               "riskNote": "Approved broader criteria \u00b7 higher-volatility paper card",
-              "rationale": "Odds-backed model pick in Argentina vs Austria; settlement-supported (official 90-minute result)."
+              "rationale": "Odds-backed model pick in Argentina vs Austria; settlement-supported (official 90-minute result).",
+              "settlementStatus": "hit"
             },
             {
               "legId": "WORLD_CUP:42:match_total_goals:Under 3.5:",
@@ -885,7 +890,11 @@
                   "weight": 0.5
                 }
               ],
-              "settlement": "official 90-minute combined goals (ESPN/FIFA)",
+              "settlement": {
+                "result": "won",
+                "official": "France 3-0 Iraq (FT, API-Football)",
+                "source": "api_football"
+              },
               "matchup": "France vs Iraq",
               "homeTeam": "France",
               "awayTeam": "Iraq",
@@ -900,15 +909,17 @@
               "eventDate": "2026-06-22",
               "provider": "The Odds API",
               "settlementSource": "API-Football (official 90-minute result)",
-              "currentGameStatus": "scheduled",
+              "currentGameStatus": "final",
               "displaySelection": "France vs Iraq \u2014 Total Goals: Under 3.5",
               "riskNote": "Approved broader criteria \u00b7 higher-volatility paper card",
-              "rationale": "Odds-backed model pick in France vs Iraq; settlement-supported (official 90-minute result)."
+              "rationale": "Odds-backed model pick in France vs Iraq; settlement-supported (official 90-minute result).",
+              "settlementStatus": "hit"
             }
           ],
           "slateLabel": "June 22 (next slate)",
           "broaderNote": "Approved broader criteria \u00b7 higher-volatility paper card \u00b7 settlement-supported",
-          "payout": 277.11
+          "payout": 277.11,
+          "settledAt": "2026-06-23T02:53:43.709698+00:00"
         },
         {
           "step": 2,
@@ -949,7 +960,7 @@
       ],
       "currentStep": 1,
       "target": 10000,
-      "laneStatus": "active",
+      "laneStatus": "advanced",
       "publicVisible": true,
       "replacementCandidates": [
         {
@@ -1409,7 +1420,8 @@
       "restartCandidate": {
         "note": "Fresh $100 restart is a candidate after the June 20 slate \u2014 not placed here.",
         "stake": 100
-      }
+      },
+      "awaitingNote": "Lane B Step 1 cleared (official) \u2014 $100 rolls to $277.11, awaiting the next qualified card."
     },
     "selectedFourLegs": [
       {
@@ -1783,6 +1795,10 @@
       "note": "Stopped lanes are hidden from the public Bank Builder and tracked on Mr. Dub. Settled from official sources."
     },
     "replacementCandidatesAt": "2026-06-18T20:12:00Z",
-    "settlementPassAt": "2026-06-20T05:12:32Z"
+    "settlementPassAt": "2026-06-20T05:12:32Z",
+    "settlement": {
+      "steppedSettledAt": "2026-06-23T02:53:43.709698+00:00",
+      "steppedSource": "api_football"
+    }
   }
 }

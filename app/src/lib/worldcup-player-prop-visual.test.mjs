@@ -68,8 +68,8 @@ test("active cards untouched: Lane A/B, Moonshot, Mr. Dub exposure unchanged (di
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 1152, "Moonshot Step 1 card is +1152");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
-  assert.equal(p.openExposure, 200, "core open exposure (Lane A + Lane B placed seeds)");
-  assert.equal(p.totalOpenExposure, 200, "total open exposure $200 (core $200; moonshot settled → 0)");
+  assert.equal(p.openExposure, 100, "core open exposure (Lane A Step 3 seed; Lane B settled WON released)");
+  assert.equal(p.totalOpenExposure, 100, "total open exposure $100 (core $100; moonshot settled → 0)");
 });
 
 test("MLB leg rows are unaffected — still resolve a team logo, no World Cup flag", () => {

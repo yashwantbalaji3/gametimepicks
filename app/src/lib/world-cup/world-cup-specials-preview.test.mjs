@@ -266,8 +266,8 @@ test("PROTECTION: active Bank Builder / Moonshot / Mr. Dub / June 19 WC artifact
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 1152, "Moonshot Step 1 card is +1152");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
-  assert.equal(p.openExposure, 200, "core open exposure (Lane A + Lane B placed seeds)");
-  assert.equal(p.totalOpenExposure, 200, "total open exposure $200 (core $200; moonshot settled → 0)");
+  assert.equal(p.openExposure, 100, "core open exposure (Lane A Step 3 seed; Lane B settled WON released)");
+  assert.equal(p.totalOpenExposure, 100, "total open exposure $100 (core $100; moonshot settled → 0)");
   // Production WC projections are the live June 23 slate.
   const wc = JSON.parse(fs.readFileSync("public/data/world-cup/projections/latest.json", "utf8"));
   assert.equal(wc.date, "2026-06-23", "production WC projections are June 23");
