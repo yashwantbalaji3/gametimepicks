@@ -12,11 +12,11 @@ test("World Cup Specials tracker derives candidate/pending/settled from the slat
   const result = loadWorldCupSpecials();
   assert.ok(result && result.cards.length > 0, "specials loaded");
   // Before any kickoff → all candidates (pre-event).
-  const pre = deriveSpecialsTracker(result, "2026-06-22T10:00:00Z");
+  const pre = deriveSpecialsTracker(result, "2026-06-23T10:00:00Z");
   assert.equal(pre.summary.candidateCount, result.cards.length, "all pre-event = candidates before kickoff");
   assert.equal(pre.summary.pendingCount, 0, "none pending before kickoff");
   // After all kickoffs but ungraded → all pending (games started, not settled).
-  const mid = deriveSpecialsTracker(result, "2026-06-23T06:00:00Z");
+  const mid = deriveSpecialsTracker(result, "2026-06-24T06:00:00Z");
   assert.equal(mid.summary.pendingCount + mid.summary.settledCount, result.cards.length, "started cards are pending or settled, not candidates");
   // Specials never place exposure.
   assert.equal(pre.summary.exposure, 0, "specials exposure always 0 (suggested cards, not placed)");
@@ -52,11 +52,11 @@ test("Moonshot activation rule: candidate cannot activate after kickoff (no late
   const lane = loadMoonshotLane();
   const cand = (lane.candidates ?? [])[0];
   assert.ok(cand, "a moonshot candidate exists");
-  // Earliest leg is Norway/Senegal at 2026-06-23T00:00:00Z (8 PM ET).
+  // Earliest leg is England/Ghana at 2026-06-23T20:00:00Z (4 PM ET).
   // Comfortably before kickoff → ready.
-  assert.equal(candidateReadiness(cand, "2026-06-22T20:00:00Z").state, "ready", "ready well before kickoff");
+  assert.equal(candidateReadiness(cand, "2026-06-23T18:00:00Z").state, "ready", "ready well before kickoff");
   // Within the cutoff window → not activated.
-  assert.equal(candidateReadiness(cand, "2026-06-22T23:50:00Z").state, "kickoff_too_close", `within ${ACTIVATION_CUTOFF_MIN}m → blocked`);
+  assert.equal(candidateReadiness(cand, "2026-06-23T19:45:00Z").state, "kickoff_too_close", `within ${ACTIVATION_CUTOFF_MIN}m → blocked`);
   // After a game has kicked off → expired (review only, never placed late).
-  assert.equal(candidateReadiness(cand, "2026-06-23T00:30:00Z").state, "expired", "expired after kickoff");
+  assert.equal(candidateReadiness(cand, "2026-06-23T20:30:00Z").state, "expired", "expired after kickoff");
 });

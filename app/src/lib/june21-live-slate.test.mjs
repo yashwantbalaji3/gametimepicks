@@ -16,7 +16,7 @@ test("June 21 World Cup projections are live + odds-backed", () => {
 
 test("June 21 World Cup Specials are date-parameterized to June 21 and role-screened (no bench/unknown)", () => {
   const sp = read("public/data/world-cup/world-cup-specials.json");
-  assert.equal(sp.date, "2026-06-22", "Specials generator emitted the current slate (not the hardcoded June 20 demo)");
+  assert.equal(sp.date, "2026-06-23", "Specials generator emitted the current slate (not the hardcoded June 20 demo)");
   assert.ok(sp.cards.length >= 1 && sp.cards.length <= 5, "1..5 Specials");
   for (const c of sp.cards) {
     assert.ok(c.combinedOdds > 700 && c.combinedOdds < 3000, `${c.id} combined ${c.combinedOdds} in band`);
@@ -33,7 +33,7 @@ test("June 21 World Cup Specials are date-parameterized to June 21 and role-scre
 
 test("June 21 coverage matrix reconciles (rows + risk totals sum to grand total)", () => {
   const m = read("public/data/parlays/coverage-matrix.json");
-  assert.equal(m.date, "2026-06-22");
+  assert.equal(m.date, "2026-06-23");
   const rowSum = m.rows.reduce((n, r) => n + r.total, 0);
   const riskSum = Object.values(m.riskTotals).reduce((n, v) => n + v, 0);
   assert.equal(rowSum, m.grandTotal, "rows sum to grand total");

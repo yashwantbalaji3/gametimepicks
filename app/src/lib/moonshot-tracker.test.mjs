@@ -62,7 +62,7 @@ test("Moonshot candidates: real odds, honest independent combined price, pre-eve
   const lane = loadMoonshotLane();
   assert.ok(Array.isArray(lane.candidates) && lane.candidates.length >= 1, "candidates present");
   const dec = (a) => (a >= 0 ? 1 + a / 100 : 1 + 100 / -a);
-  const ELIGIBLE = ["Norway vs Senegal", "Jordan vs Algeria"]; // both officially NS at generation
+  const ELIGIBLE = ["England vs Ghana", "Colombia vs DR Congo", "Panama vs Croatia"]; // all officially NS at generation
   for (const c of lane.candidates) {
     assert.equal(c.status, "candidate", "status is candidate (not active/placed)");
     assert.equal(c.activated, false, "not activated → no exposure placed");

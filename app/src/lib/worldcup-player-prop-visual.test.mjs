@@ -6,6 +6,8 @@ import { getWorldCupMultiGameCardsForGame, getGameSpecificCardsForGame } from ".
 
 const NOW = "2026-06-22T12:00:00Z";
 const slate = loadTodaySlate("2026-06-22", NOW);
+// The current World Cup slate has rolled to June 23 (multi-game cards target the live fixtures).
+const WC_NOW = "2026-06-23T12:00:00Z";
 
 test("World Cup player-prop legs carry a real headshot OR a flag fallback, plus team flag + opponent + kickoff", () => {
   const wc = slate.suggestedBySportRisk["WORLD_CUP"] ?? {};
@@ -34,11 +36,11 @@ test("leg row renders the matchup line; card drawer discloses correlation + limi
 
 test("WC game pages show 'This game in multi-game cards', filtered to cards that include the game", () => {
   const fixtures = [
-    { matchId: "42", homeTeam: "France", awayTeam: "Iraq" },
-    { matchId: "43", homeTeam: "Norway", awayTeam: "Senegal" },
+    { matchId: "46", homeTeam: "England", awayTeam: "Ghana" },
+    { matchId: "47", homeTeam: "Panama", awayTeam: "Croatia" },
   ];
   for (const f of fixtures) {
-    const r = getWorldCupMultiGameCardsForGame(f, NOW);
+    const r = getWorldCupMultiGameCardsForGame(f, WC_NOW);
     assert.ok(r.total > 0, `${f.homeTeam} vs ${f.awayTeam} has multi-game cards`);
     // Every returned card actually includes a leg from this game (no leak).
     const teams = [f.homeTeam.toLowerCase(), f.awayTeam.toLowerCase()];
