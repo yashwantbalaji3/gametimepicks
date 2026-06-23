@@ -63,6 +63,8 @@ import { loadWorldCupCuratedGames } from "@/lib/curated-picks";
 import EgyptNzSameGame, { loadNzEgyptMarkets } from "@/components/world-cup/egypt-nz-same-game";
 import ModelPlayerPropsMatrix from "@/components/world-cup/model-player-props-matrix";
 import { loadModelQualifiedProps } from "@/lib/world-cup/model-qualified-props";
+import ModelPicksTable from "@/components/world-cup/model-picks-table";
+import { loadWorldCupModelPicks, buildModelPicksTable } from "@/lib/world-cup/model-qualified-picks";
 import path from "node:path";
 
 export const metadata = {
@@ -160,8 +162,19 @@ export default function WorldCupLandingPage() {
   const photoCount = wcPlayers.filter((p) => p.player?.photo).length;
   // Model-only player-prop matrix (game × market) — top model-qualified pick per cell, raw inventory hidden.
   const modelProps = loadModelQualifiedProps(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  // Unified World Cup Model Picks table (game × market across team + player markets) — top pick per cell.
+  const modelPicksTable = buildModelPicksTable(loadWorldCupModelPicks(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today));
 
   // ─────────────────────────── Tab content ───────────────────────────
+  const modelPicksTab = (
+    <div className="flex flex-col gap-6">
+      <section aria-label="World Cup model picks">
+        <SectionHeader eyebrow="Model picks only" title="World Cup Model Picks" sub="The single model-pick board — top model-qualified pick per game and market (team markets, total/BTTS, and player props). Every pick is odds-backed, pre-event, and clears the model filter. Raw sportsbook inventory is not shown here." />
+        <ModelPicksTable table={modelPicksTable} />
+      </section>
+    </div>
+  );
+
   const overviewTab = (
     <div className="flex flex-col gap-8">
       <section>
@@ -522,7 +535,8 @@ export default function WorldCupLandingPage() {
   );
 
   const tabs: ShellTab[] = [
-    // Games-first (June-12 sprint).
+    // Model Picks lead tab — the single model-pick board.
+    { key: "model-picks", label: "Model Picks", badge: modelPicksTable.pickCount || null, content: modelPicksTab },
     { key: "games", label: "Games", badge: todayMatches.length || null, content: gamesTab },
     { key: "overview", label: "Overview", content: overviewTab },
     { key: "projections", label: "Projections", badge: wcProjections.length || null, content: projectionsTab },

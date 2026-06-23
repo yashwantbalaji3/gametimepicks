@@ -13,7 +13,10 @@ import MoneyPath from "@/components/ui/money-path";
 import DualLadderBoard from "@/components/bank-builder/dual-ladder-board";
 import MoonshotLaneTracker from "@/components/moonshot/moonshot-lane-tracker";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
-import { loadTodaySlate } from "@/lib/parlays/ui-loader";
+import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
+import { currentEtDate } from "@/lib/freshness";
+import DailyPortfolioSection from "@/components/mr-dub/daily-portfolio-section";
+import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 
 export const metadata = {
   title: "Mr. Dub · Paper Portfolio · GameTime Picks",
@@ -117,9 +120,15 @@ export default function MrDubPage() {
   const latestDay = days.length ? days[days.length - 1] : null;
   const stoppedEvents = events.filter((e: any) => e.type === "lane_stopped");
   const preview = loadTodaySlate().bankBuilderPreview;
+  // Today's derived daily portfolio — four model-built CANDIDATE lanes ($0 placed until activated).
+  const today = currentSlateDate() ?? currentEtDate();
+  const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
+      {/* 0 — Today's paper portfolio (lead): four model-built CANDIDATE lanes, $0 placed. */}
+      <DailyPortfolioSection portfolio={dailyPortfolio} />
+
       {/* 1 — Hero / current standings */}
       <section className="rounded-2xl px-5 py-5" style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(26,16,11,0.4))" }}>
         <div className="flex items-center gap-3.5">
