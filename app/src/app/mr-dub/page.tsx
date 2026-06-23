@@ -17,6 +17,8 @@ import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import DailyPortfolioSection from "@/components/mr-dub/daily-portfolio-section";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
+import PortfolioAllocationSection from "@/components/mr-dub/portfolio-allocation";
+import { buildPortfolioAllocation } from "@/lib/mr-dub/product-allocation";
 
 export const metadata = {
   title: "Mr. Dub · Paper Portfolio · GameTime Picks",
@@ -123,10 +125,15 @@ export default function MrDubPage() {
   // Today's derived daily portfolio — four model-built CANDIDATE lanes ($0 placed until activated).
   const today = currentSlateDate() ?? currentEtDate();
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  // Top-level portfolio allocation across all four products (Bank Builder · Moonshot · WC Specials · Homer Nukes).
+  const allocation = buildPortfolioAllocation(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
-      {/* 0 — Today's paper portfolio (lead): four model-built CANDIDATE lanes, $0 placed. */}
+      {/* 0 — Portfolio allocation (lead): how the single bankroll is allocated across all four products. */}
+      <PortfolioAllocationSection allocation={allocation} />
+
+      {/* 0.5 — Today's paper portfolio: the Bank Builder + Moonshot lanes detail ($0 placed until activated). */}
       <DailyPortfolioSection portfolio={dailyPortfolio} />
 
       {/* 1 — Hero / current standings */}

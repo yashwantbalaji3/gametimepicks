@@ -95,6 +95,14 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />
         </svg>
       );
+    case "homer":
+      // Baseball — the MLB Homer Nukes home-run board.
+      return (
+        <svg {...props}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M7 5.5c2.5 2 3.5 11 1.5 13.2M17 5.5c-2.5 2-3.5 11-1.5 13.2" />
+        </svg>
+      );
     case "mrdub":
       // Lab flask — Mr. Dub's paper portfolio (scientist/ledger identity).
       return (

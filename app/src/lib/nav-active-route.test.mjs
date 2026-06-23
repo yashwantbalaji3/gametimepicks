@@ -11,15 +11,15 @@ import {
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
 
-test("MOBILE_NAV_ITEMS has 7 items in the product-spine order (Moonshot promoted to its own first-class tab)", () => {
-  assert.equal(MOBILE_NAV_ITEMS.length, 7);
+test("MOBILE_NAV_ITEMS has 8 items in the product-spine order (Homer Nukes added as a first-class product tab)", () => {
+  assert.equal(MOBILE_NAV_ITEMS.length, 8);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "games", "picks", "lab", "bank", "moonshot", "mrdub"],
+    ["home", "games", "picks", "lab", "bank", "moonshot", "homer", "mrdub"],
   );
 });
 
-test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank/Moonshot)", () => {
+test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank/Moonshot/Homer Nukes)", () => {
   const byHref = Object.fromEntries(
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
@@ -30,9 +30,10 @@ test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank
   assert.equal(byHref["/build"], "Build");
   assert.equal(byHref["/bank-builder"], "Bank");
   assert.equal(byHref["/moonshot"], "Moonshot");
+  assert.equal(byHref["/homer-nukes"], "Homer Nukes");
 });
 
-test("bank: /bank-builder and descendants resolve to bank (Moonshot is its own bucket now)", () => {
+test("bank: /bank-builder and descendants resolve to bank (Moonshot/Homer are their own buckets now)", () => {
   assert.equal(resolveMobileNavBucket("/bank-builder"), "bank");
   assert.equal(resolveMobileNavBucket("/bank-builder/"), "bank");
   assert.equal(resolveMobileNavBucket("/bank-builder/ledger"), "bank");
@@ -42,6 +43,12 @@ test("moonshot: /moonshot and descendants resolve to their own moonshot bucket",
   assert.equal(resolveMobileNavBucket("/moonshot"), "moonshot");
   assert.equal(resolveMobileNavBucket("/moonshot/"), "moonshot");
   assert.equal(resolveMobileNavBucket("/moonshot/ladder"), "moonshot");
+});
+
+test("homer: /homer-nukes and descendants resolve to their own homer bucket", () => {
+  assert.equal(resolveMobileNavBucket("/homer-nukes"), "homer");
+  assert.equal(resolveMobileNavBucket("/homer-nukes/"), "homer");
+  assert.equal(resolveMobileNavBucket("/homer-nukes/board"), "homer");
 });
 
 test("home (Today): '/', '/today' resolve to home", () => {

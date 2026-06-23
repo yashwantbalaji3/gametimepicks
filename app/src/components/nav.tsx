@@ -34,6 +34,7 @@ const NAV_ITEMS: Array<{
   { href: "/build", label: "Build" },
   { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
   { href: "/moonshot", label: "Moonshot" },
+  { href: "/homer-nukes", label: "Homer Nukes" },
   { href: "/mr-dub", label: "Mr. Dub" },
   { href: "/results", label: "Results" },
   { href: "/sports", label: "Sports" },
