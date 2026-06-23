@@ -83,10 +83,14 @@ function PickBody({ pick }: { pick: ModelPick }) {
         </span>
         <OddsPill odds={pick.odds} size="sm" tone="gold" className="shrink-0" />
       </div>
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-x-2 gap-y-0.5 flex-wrap">
         <span className="font-mono tabular" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-          {Math.round(pick.modelProbability * 100)}% model-implied
+          {Math.round(pick.modelProbability * 100)}% model
         </span>
+        <span className="font-mono tabular" style={{ color: pick.edge >= 0 ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 9.5 }}>
+          edge {pick.edge >= 0 ? "+" : ""}{(pick.edge * 100).toFixed(1)}%
+        </span>
+        {pick.provider ? <span className="font-mono tabular" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{pick.provider}</span> : null}
         <VolBadge pick={pick} />
       </div>
     </div>

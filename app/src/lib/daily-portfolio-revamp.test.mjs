@@ -120,10 +120,13 @@ test("/world-cup leads with a Model Picks tab; /mr-dub shows the daily portfolio
   assert.match(md, /buildDailyPortfolio/, "mr-dub builds the daily portfolio");
 });
 
-test("World Cup Specials reclassified as Suggested World Cup Parlays (merged, not a separate product)", () => {
+test("World Cup Specials is a PERMANENT tracked product with a durable ledger ($20×5/day, archived)", () => {
   const page = read("src/app/world-cup-specials/page.tsx");
-  assert.match(page, /Today's Suggested World Cup Parlays|Today&apos;s Suggested World Cup Parlays/, "page retitled to suggested parlays");
-  assert.match(page, /not (a )?separate product|no longer a separate tracker/i, "states it's merged, not separate");
+  assert.match(page, /Today's Suggested World Cup Parlays|Today&apos;s Suggested World Cup Parlays/, "page keeps the suggested-parlays title");
+  // Reframed from "merged, not a separate product" → a permanent paper product with its own ledger.
+  assert.match(page, /permanent paper product/i, "positions it as a permanent product");
+  assert.match(page, /SpecialsLedgerSection/, "renders the durable ledger (record/ROI/P&L/win-rate)");
+  assert.match(page, /buildSpecialsLedger/, "builds the ledger from archived history");
   const today = read("src/app/today/page.tsx");
   assert.match(today, /Today's paper portfolio|Today&apos;s paper portfolio/, "today shows the daily portfolio");
 });

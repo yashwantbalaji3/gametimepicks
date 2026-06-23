@@ -7,9 +7,12 @@ import Link from "next/link";
 
 import { loadWorldCupSpecials, loadWorldCupSpecialsHistory, specialsPastSlates } from "@/lib/world-cup/world-cup-specials";
 import { deriveSpecialsTracker } from "@/lib/world-cup/specials-tracker";
+import { buildSpecialsLedger } from "@/lib/world-cup/specials-ledger";
 import WorldCupSpecialsTracker from "@/components/specials/world-cup-specials-tracker";
 import SpecialsHistorySection from "@/components/specials/specials-history-section";
+import SpecialsLedgerSection from "@/components/world-cup/specials-ledger-section";
 import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
+import path from "node:path";
 
 export const metadata = {
   title: "World Cup Specials Tracker · GameTime Picks",
@@ -22,6 +25,7 @@ export default function WorldCupSpecialsPage() {
   const result = loadWorldCupSpecials();
   const t = deriveSpecialsTracker(result, nowIso);
   const pastSlates = specialsPastSlates(loadWorldCupSpecialsHistory(), t.date ?? "");
+  const ledger = buildSpecialsLedger(path.join(process.cwd(), "public", "data"), t.date ?? result?.date ?? "");
   const status: PicksSurfaceStatus = t.summary.settledCount > 0 && t.summary.pendingCount === 0 && t.summary.candidateCount === 0
     ? "settled"
     : t.summary.pendingCount > 0
@@ -38,15 +42,14 @@ export default function WorldCupSpecialsPage() {
         slateDate={t.date ?? undefined}
         status={status}
         counts={{ suggestedCards: result?.cards?.length ?? 0, pending: t.summary.pendingCount, settled: t.summary.settledCount }}
-        primaryAction={{ label: "World Cup model picks", href: "/world-cup?tab=model-picks" }}
-        secondaryAction={{ label: "View Results", href: "/results" }}
-        note="Model-ranked paper-only suggested World Cup parlays built from eligible model picks — now part of the World Cup experience, not a separate product. No exposure is placed unless explicitly activated as Bank Builder or Moonshot. Separate from the protected crown."
+        primaryAction={{ label: "Mr. Dub portfolio", href: "/mr-dub" }}
+        secondaryAction={{ label: "World Cup model picks", href: "/world-cup?tab=model-picks" }}
+        note="A permanent paper product: 5 model-ranked World Cup parlays a day at $20 each ($100/day), drawn from the single Mr. Dub bankroll and archived forever. Records, ROI and P&L settle from official results. Separate from the protected crown."
       />
-      <div className="rounded-[10px] px-4 py-3" style={{ background: "rgba(217,164,65,0.06)", border: "1px solid var(--vault-rule)" }}>
-        <p className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-          “World Cup Specials” are now <strong style={{ color: "var(--vault-text)" }}>Today's Suggested World Cup Parlays</strong> — model-ranked paper cards surfaced on the <Link href="/world-cup?tab=model-picks" style={{ color: "var(--vault-gold-bright)" }}>World Cup hub</Link> and <Link href="/picks" style={{ color: "var(--vault-gold-bright)" }}>Parlay Lab</Link>, no longer a separate tracker. This page keeps the running history.
-        </p>
-      </div>
+
+      {/* The durable ledger — record / ROI / P&L / win-rate / open exposure / slates archived. */}
+      <SpecialsLedgerSection ledger={ledger} />
+
       {result ? (
         <WorldCupSpecialsTracker result={result} nowIso={nowIso} mode="full" />
       ) : (
