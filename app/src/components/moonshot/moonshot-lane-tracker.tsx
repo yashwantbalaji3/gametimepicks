@@ -13,6 +13,7 @@ import LegRow, { type TicketLeg } from "@/components/tickets/leg-row";
 import StatusPill, { type TicketStatus } from "@/components/tickets/status-pill";
 import { normalizeLegResult } from "@/components/tickets/settlement-badge";
 import type { MoonshotLane, MoonshotCard, MoonshotCandidateLeg } from "@/lib/moonshot/moonshot-lane";
+import { candidateReadiness } from "@/lib/moonshot/activation-rules";
 
 const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -58,7 +59,7 @@ function cardStatusPill(result?: string): TicketStatus {
 }
 
 export default function MoonshotLaneTracker({
-  lane, record, exposure, mode = "full", maxCards, showHistory = true,
+  lane, record, exposure, mode = "full", maxCards, showHistory = true, nowIso,
 }: {
   lane: MoonshotLane;
   record?: { wins: number; losses: number; voids: number; pending: number };
@@ -67,8 +68,10 @@ export default function MoonshotLaneTracker({
   mode?: "full" | "compact";
   maxCards?: number;
   showHistory?: boolean;
+  nowIso?: string;
 }) {
   const compact = mode === "compact";
+  const now = nowIso ?? new Date().toISOString();
   const currentStep = lane.ladder.find((s) => s.step === lane.currentStep) ?? lane.ladder[0];
   const currentCard = currentStep?.card ?? null;
   const rec = record ?? { wins: 0, losses: 0, voids: 0, pending: 0 };
@@ -141,12 +144,21 @@ export default function MoonshotLaneTracker({
             <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>evaluated pre-event · not activated · $0 exposure</span>
           </div>
           {lane.candidatesNote && !compact ? <p className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{lane.candidatesNote}</p> : null}
-          {(compact ? lane.candidates.slice(0, 1) : lane.candidates).map((c) => (
-            <TicketCard key={c.cardId} accent="violet" title={c.label} subtitle={c.subtitle} sport="World Cup" risk={c.risk} status="candidate" odds={c.combinedOdds} oddsTone="violet" stake={c.stake} projectedReturn={c.projectedReturn}
-              footer={!compact && c.note ? <span className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{c.note}</span> : undefined}>
-              {c.legs.map((l, i) => <LegRow key={i} leg={candidateLegToTicket(l)} />)}
-            </TicketCard>
-          ))}
+          {(compact ? lane.candidates.slice(0, 1) : lane.candidates).map((c) => {
+            const readiness = candidateReadiness(c, now);
+            const readinessColor = readiness.state === "ready" ? "var(--vault-success)" : readiness.state === "expired" ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)";
+            return (
+              <TicketCard key={c.cardId} accent="violet" title={c.label} subtitle={c.subtitle} sport="World Cup" risk={c.risk} status="candidate" odds={c.combinedOdds} oddsTone="violet" stake={c.stake} projectedReturn={c.projectedReturn}
+                footer={
+                  <span className="flex flex-col gap-1 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
+                    <span className="font-mono uppercase tracking-[0.06em]" style={{ color: readinessColor, fontSize: 10, fontWeight: 700 }}>{readiness.reason}</span>
+                    {!compact && c.note ? <span>{c.note}</span> : null}
+                  </span>
+                }>
+                {c.legs.map((l, i) => <LegRow key={i} leg={candidateLegToTicket(l)} />)}
+              </TicketCard>
+            );
+          })}
         </div>
       ) : null}
 

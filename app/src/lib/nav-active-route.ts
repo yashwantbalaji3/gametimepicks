@@ -107,6 +107,7 @@ export function resolveMobileNavBucket(
     p === "/sports" || p.startsWith("/sports/") ||
     p === "/events" || p.startsWith("/events/") ||
     p === "/world-cup" || p.startsWith("/world-cup/") ||
+    p === "/world-cup-specials" || p.startsWith("/world-cup-specials/") ||
     p === "/mlb" || p.startsWith("/mlb/") ||
     p === "/nba" || p.startsWith("/nba/") ||
     p === "/ufc" || p.startsWith("/ufc/") ||

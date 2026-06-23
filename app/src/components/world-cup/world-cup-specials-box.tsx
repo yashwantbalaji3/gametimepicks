@@ -214,6 +214,10 @@ export default function WorldCupSpecialsBox({ data }: { data: WorldCupSpecialsRe
           <strong style={{ color: "var(--vault-text-mute)" }}>not</strong> the Dual Bank Builder. {allSettled ? "Graded from official sources · " : "Model-ranked · "}combined {american(data?.config.minCombinedOdds ?? 700)}..{american(data?.config.maxCombinedOdds ?? 3000)} ·
           per-leg {american(data?.config.minLegOdds ?? -250)}..{american(data?.config.maxLegOdds ?? 200)}. Higher variance by design.
         </p>
+        <Link href="/world-cup-specials" className="mb-3 inline-flex items-center gap-1 rounded-full px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]"
+          style={{ border: `1px solid ${GOLD}`, color: GOLD, textDecoration: "none" }}>
+          Open the World Cup Specials tracker →
+        </Link>
 
         {cards.length > 0 ? (
           <div className="flex flex-col gap-2.5">

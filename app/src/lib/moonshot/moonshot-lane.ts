@@ -72,6 +72,7 @@ export interface MoonshotCandidateLeg {
   odds: number;
   countryCode?: string | null;
   kickoffEt?: string;
+  startTimeUtc?: string;
   bookmaker?: string;
   provider?: string;
   displaySelection?: string;
