@@ -41,7 +41,7 @@ const NAV_ITEMS: Array<{
 ];
 
 // Sport routes that should light up the "Sports" nav item.
-const SPORT_RE = /^\/(sports|world-cup|mlb|nba|ufc|nhl|ipl|board|projections|trends|events)(\/|$)/;
+const SPORT_RE = /^\/(sports|world-cup-specials|world-cup|mlb|nba|ufc|nhl|ipl|board|projections|trends|events)(\/|$)/;
 const SPORT_HREFS = new Set(["/sports"]);
 
 export default function Nav() {
