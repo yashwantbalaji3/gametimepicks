@@ -104,7 +104,9 @@ test("Bank Builder + Moonshot both render the shared ladder; Moonshot has a step
   assert.match(ladder, /Step/i, "ladder renders steps");
   const moon = read("src/app/moonshot/page.tsx");
   const bank = read("src/app/bank-builder/page.tsx");
-  assert.match(moon, /ProductLanesLadder/, "moonshot uses the shared ladder");
-  assert.match(bank, /ProductLanesLadder/, "bank-builder uses the shared ladder");
+  assert.match(moon, /ProductLanesLadder/, "moonshot uses the shared step-rail ladder");
+  // Bank Builder consolidated to a SINGLE ladder section ("Today's Dual Bank Builder" = DualLadderBoard)
+  // with the current step's daily legs injected into its open step drawer.
+  assert.match(bank, /DualLadderBoard/, "bank-builder uses the single Dual Bank Builder ladder");
   assert.match(moon, /buildDailyPortfolio/, "moonshot reads the daily portfolio");
 });

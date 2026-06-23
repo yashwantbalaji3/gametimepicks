@@ -23,7 +23,6 @@ import OfficialCandidateCard from "@/components/bank-builder/official-candidate-
 import BankBuilderPreviewPanel from "@/components/parlays/bank-builder-preview-panel";
 import DualLadderBoard from "@/components/bank-builder/dual-ladder-board";
 import MoonshotLaneCard from "@/components/bank-builder/moonshot-lane-card";
-import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
@@ -109,29 +108,21 @@ export default function BankBuilderPage() {
   const moonshot = loadMoonshotLane();
   const bbActiveLaunched = bbPreview.status === "launched" || bbPreview.status === "settled";
 
-  // Today's daily portfolio — the activated Bank Builder A/B lanes render as a ladder near the top.
+  // Today's daily portfolio — read only for the live exposure summary that leads the single dual ladder.
   const today = currentSlateDate() ?? currentEtDate();
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
-  const bankBuilderLanes = dailyPortfolio.cards.filter((c) => c.product === "bank-builder");
   const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
-      {/* TODAY'S LADDER — the ACTIVE daily Bank Builder Lane A/B is the primary content. It LEADS with
-          the live exposure summary, then the step-rail lane cards. The completed crown proof is moved
-          below into a collapsed disclosure (historical only). */}
-      {bankBuilderLanes.length ? (
-        <section className="gtp-fade-up mb-6 flex flex-col gap-3 overflow-x-hidden" aria-label="Today's Bank Builder ladder">
-          <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>
-            Active bankroll {money(dailyPortfolio.activeBankroll)} · Bank Builder open exposure {money(dailyPortfolio.exposure.core)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (separate)
-          </p>
-          <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" accent="gold" lanes={bankBuilderLanes} />
-        </section>
-      ) : null}
-
-      {/* PRIMARY — Today's Dual Bank Builder: the live two-lane ladder leads the page. */}
+      {/* PRIMARY — Today's Dual Bank Builder: the SINGLE live two-lane ladder leads the page. It LEADS
+          with the live exposure summary, then the dual-lane step rail (current step open by default).
+          The completed crown proof is moved below into a collapsed disclosure (historical only). */}
       {bbActiveLaunched ? (
         <section className="gtp-fade-up mb-6" aria-label="Today's Dual Bank Builder">
+          <p className="mb-3 font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>
+            Active bankroll {money(dailyPortfolio.activeBankroll)} · Bank Builder open exposure {money(dailyPortfolio.exposure.core)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (separate)
+          </p>
           <DualLadderBoard preview={bbPreview} />
           <Link href="/mr-dub" className="gtp-card-hover mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl px-4 py-3" style={{ border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", background: "rgba(212,175,55,0.06)", textDecoration: "none" }}>
             <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>

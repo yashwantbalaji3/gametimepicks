@@ -69,9 +69,11 @@ test("Bank Builder page: completed crown proof is collapsed + relabeled (not ACT
   const page = read("src/app/bank-builder/page.tsx");
   assert.match(page, /Completed crown proof · CROWN REACHED · historical/, "crown proof collapsed + relabeled");
   assert.match(page, /open=\{!completed\}/, "crown proof collapsed by default when completed");
-  const ladderIdx = page.indexOf("ProductLanesLadder");
+  // Bank Builder consolidated to the single "Today's Dual Bank Builder" ladder (DualLadderBoard);
+  // the completed crown proof renders AFTER it.
+  const ladderIdx = page.indexOf("DualLadderBoard");
   const proofIdx = page.indexOf("Completed crown proof");
-  assert.ok(ladderIdx > 0 && proofIdx > ladderIdx, "active daily ladder renders before the completed crown proof");
+  assert.ok(ladderIdx > 0 && proofIdx > ladderIdx, "active dual ladder renders before the completed crown proof");
 });
 
 test("Bank Builder + Moonshot share the dynamic step rail (cleared/current/future)", () => {
