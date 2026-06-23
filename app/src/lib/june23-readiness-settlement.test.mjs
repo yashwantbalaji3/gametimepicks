@@ -74,11 +74,18 @@ test("Moonshot stays READY (not activated): 2 candidates, $0 exposure, record se
   assert.equal(p.moonshot.exposure, 0, "moonshot exposure $0 (kept ready, not activated)");
 });
 
-test("/today readiness reflects both lanes WON + $0 exposure + MLB module", () => {
+test("/today readiness is a STATUS board for non-flagship surfaces (MLB module present; flagship products omitted to avoid duplication)", () => {
   const today = read("src/app/today/page.tsx");
-  assert.match(today, /Both lanes WON/, "shows both lanes WON when cleared");
-  assert.match(today, /awaiting next card · \$0 exposure/, "shows $0 exposure / awaiting next card");
   assert.match(today, /label: "MLB"/, "today readiness has an MLB module");
+  assert.match(today, /what&apos;s live/, "readiness strip heading present");
+  // The 3 flagship products are the highlight section above (full ladders/parlays) — they must NOT
+  // be duplicated as readiness status cards.
+  const stripStart = today.indexOf("readinessModules:");
+  const stripEnd = today.indexOf("];", stripStart);
+  const strip = today.slice(stripStart, stripEnd);
+  for (const flagship of ['label: "Bank Builder"', 'label: "Moonshot"', 'label: "Suggested Parlays"']) {
+    assert.ok(!strip.includes(flagship), `${flagship} is not duplicated in the readiness strip`);
+  }
 });
 
 test("MLB June 23 board not faked: no 2026-06-23 board file written", () => {

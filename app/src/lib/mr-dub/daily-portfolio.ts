@@ -15,7 +15,37 @@ import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupModelPicks, buildDailyLaneCandidates, type LaneCandidate } from "../world-cup/model-qualified-picks";
 
-export interface DailyPortfolioLeg { selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null }
+export interface DailyPortfolioLeg { selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null; photoUrl?: string | null }
+
+/** Normalize a player name for joining (accent-strip + lowercase + alphanumerics only). */
+const normPlayerName = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
+
+/** Map player name → real API-Football headshot from the WC player-projections feed (the same feed the
+ *  WC Specials box uses). Read-only; returns an empty map on any miss so legs fall back to initials. */
+function loadWcPlayerPhotos(root: string, date: string): Map<string, string> {
+  const m = new Map<string, string>();
+  try {
+    const pp = JSON.parse(fs.readFileSync(path.join(root, "world-cup", "player-projections", "latest.json"), "utf8")) as { date?: string; matches?: Array<Record<string, any>> };
+    if (pp.date && pp.date !== date) return m;
+    for (const r of pp.matches ?? []) {
+      const name = r.player?.name; const photo = r.player?.photo;
+      if (typeof name === "string" && typeof photo === "string" && photo) m.set(normPlayerName(name), photo);
+    }
+  } catch { /* no feed → initials fallback */ }
+  return m;
+}
+
+/** Attach a real headshot to each player leg by joining its name to the WC photo feed. Display-only. */
+function enrichLegPhotos(cards: DailyPortfolioCard[], root: string, date: string): void {
+  const photos = loadWcPlayerPhotos(root, date);
+  if (photos.size === 0) return;
+  for (const c of cards) for (const leg of c.legs) {
+    if (leg.player && !leg.photoUrl) {
+      const photo = photos.get(normPlayerName(leg.player));
+      if (photo) leg.photoUrl = photo;
+    }
+  }
+}
 export interface DailyPortfolioCard {
   id: string;
   product: "bank-builder" | "moonshot";
@@ -72,6 +102,7 @@ function fromPersisted(root: string, date: string): DailyPortfolio | null {
     legs: (l.legs ?? []).map((g: any) => ({ selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null })),
     correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null,
   }));
+  enrichLegPhotos(cards, root, date);
   const anyActive = cards.some((c) => c.status === "active");
   return {
     date, startingBankroll: p.activeBankroll, activeBankroll: p.activeBankroll, crownBankroll: p.crownBankroll,
@@ -100,6 +131,7 @@ export function buildDailyPortfolio(root: string, nowIso: string, date: string):
   const pool = loadWorldCupModelPicks(root, nowIso, date);
   const lanes = buildDailyLaneCandidates(pool, date);
   const cards = [lanes.bankBuilderA, lanes.bankBuilderB, lanes.moonshotA, lanes.moonshotB].map(toCard);
+  enrichLegPhotos(cards, root, date);
 
   // Exposure counts ACTIVE stakes only; candidates carry $0 placed exposure.
   const coreExposure = cards.filter((c) => c.product === "bank-builder" && c.status === "active").reduce((s, c) => s + c.stake, 0);

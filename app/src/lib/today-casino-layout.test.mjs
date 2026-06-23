@@ -1,8 +1,9 @@
 /**
- * Locks the /today ordering (owner restructure): quick-action buttons FIRST, then the three flagship
- * surfaces in order — Bank Builder ladders, Moonshot ladders, World Cup exclusive parlays — then the
- * World Cup focus, the COMPACT Bank Builder status rail, and the filterable suggested parlays. The old
- * tall "Bank Builder · {dateLabel}" recap is gone (compact rail replaces it).
+ * Locks the /today ordering (owner restructure): the FLAGSHIP HIGHLIGHT leads — three flashcards that
+ * link ONLY to Bank Builder / Moonshot / World Cup Specials (everything else lives in the nav bars), then
+ * the three flagship ladders/parlays in that same order — followed by the World Cup focus, the COMPACT
+ * Bank Builder status rail, and the filterable suggested parlays. The old tall "Bank Builder · {dateLabel}"
+ * recap is gone (compact rail replaces it).
  * Source-level checks (suite runs pre-build).
  */
 import { test } from "node:test";
@@ -15,14 +16,20 @@ test("the 'What's live today' counts hero is removed", () => {
   assert.ok(!src.includes("What&apos;s live today"), "old hero heading must be gone");
 });
 
-test("quick-action buttons lead the page (1-click reach to every key area)", () => {
-  const nav = src.indexOf('aria-label="Quick actions"');
+test("flagship quick-link flashcards lead the page and link ONLY to the three flagship products", () => {
+  const nav = src.indexOf('aria-label="Flagship quick links"');
   const wc = src.indexOf("<TodaysFocusWorldCup");
-  assert.ok(nav > 0, "quick-action nav present");
+  assert.ok(nav > 0, "flagship quick-link flashcards present");
   assert.ok(wc > 0, "World Cup focus present");
-  assert.ok(nav < wc, "quick actions appear before the World Cup focus");
-  for (const dest of ["/games", "/world-cup", "/picks", "/build", "/bank-builder", "/results"]) {
-    assert.ok(src.includes(`href: "${dest}"`), `quick action links to ${dest}`);
+  assert.ok(nav < wc, "flashcards appear before the World Cup focus");
+  // The flashcards link to exactly the three flagship products (everything else lives in the nav bars).
+  for (const dest of ["/bank-builder", "/moonshot", "/world-cup-specials"]) {
+    assert.ok(src.includes(`href: "${dest}"`), `flashcard links to ${dest}`);
+  }
+  // The de-duped generic destinations are no longer flashcards (they live in the top/side nav).
+  const flashcardBlock = src.slice(nav, src.indexOf("PRIORITY #1"));
+  for (const gone of ["/games", "/picks", "/build", "/results"]) {
+    assert.ok(!flashcardBlock.includes(`href: "${gone}"`), `${gone} is not a flagship flashcard`);
   }
 });
 

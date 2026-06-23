@@ -21,7 +21,7 @@ const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFrac
  *  Bank Builder / Moonshot ladder leg rows). Both primitives degrade gracefully — an unknown name
  *  falls back to initials (portrait) or a ⚽ chip (flag). */
 function LegAvatar({ leg }: { leg: DailyPortfolioLeg }) {
-  if (leg.player) return <PlayerAvatar name={leg.player} size={18} />;
+  if (leg.player) return <PlayerAvatar name={leg.player} photo={leg.photoUrl ?? null} size={18} />;
   const [home, away] = (leg.matchup ?? "").split(/\s+vs\s+/i).map((s) => s.trim());
   const selCode = wcTeamCodeFromName(leg.selection);
   if (selCode) return <FlagBadge code={selCode} size="sm" ariaLabel={leg.selection} />;

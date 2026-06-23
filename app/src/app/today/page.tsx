@@ -256,93 +256,82 @@ export default function TodayPage() {
   // ── June 23 readiness summary (compact module strip) ─────────────────────────
   const modelProps = loadModelQualifiedProps(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
-  const moonshotLane = loadMoonshotLane();
-  const moonshotCandidates = (moonshotLane?.candidates ?? []).length;
-  // Authoritative core money state (ledger-built) for the readiness strip.
-  let coreExposure = 0; let coreWins = bbLanesCleared; let coreLosses = 0;
+  // Authoritative core money state (ledger-built) for the Mr. Dub readiness module.
+  let coreWins = bbLanesCleared; let coreLosses = 0;
   try {
     const pf = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "portfolio.json"), "utf8"));
-    coreExposure = pf.openExposure ?? 0; coreWins = pf.record?.wins ?? coreWins; coreLosses = pf.record?.losses ?? 0;
+    coreWins = pf.record?.wins ?? coreWins; coreLosses = pf.record?.losses ?? 0;
   } catch { /* fail closed → derived defaults */ }
-  const bothLanesCleared = bbLanesCleared >= 2;
-  // Bank Builder + Moonshot chips read the ACTIVE daily portfolio first (so they never read "awaiting"
-  // while lanes are active); fall back to the legacy cleared-lane state when nothing is active.
-  const bbActive = dailyPortfolio.cards.filter((c) => c.product === "bank-builder" && c.status === "active");
-  const moonActive = dailyPortfolio.cards.filter((c) => c.product === "moonshot" && c.status === "active");
   // The two flagship ladders that LEAD the page (owner restructure): the Bank Builder and Moonshot
   // lane cards (Lane A/B step rail + the current rung's legs, with team logos + player portraits).
   const bankBuilderLadder = dailyPortfolio.cards.filter((c) => c.product === "bank-builder");
   const moonshotLadder = dailyPortfolio.cards.filter((c) => c.product === "moonshot");
-  const bbValue = bbActive.length ? `${bbActive.length} active lanes` : bothLanesCleared ? "Both lanes WON" : bbLanesCleared === 1 ? "Lane B WON" : "Pending";
-  const bbSub = bbActive.length
-    ? `${bbActive.map((c) => `Step ${c.step}`).join(" · ")} · $${dailyPortfolio.exposure.core} open exposure`
-    : coreExposure > 0 ? `Lane A pending · $${coreExposure} exposure` : `awaiting next card · $0 exposure`;
-  const moonValue = moonActive.length ? `${moonActive.length} active lanes` : moonshotCandidates > 0 ? `${moonshotCandidates} ready` : "—";
-  const moonSub = moonActive.length ? `Step 1 · $${dailyPortfolio.exposure.moonshot} open exposure` : "candidates · $0 exposure";
+  // The "what's live" strip is a STATUS board for the surfaces NOT in the flagship highlight above.
+  // Bank Builder, Moonshot and World Cup Specials ARE the highlight (rendered as full ladders/parlays
+  // right above), so they are intentionally omitted here — no destination is duplicated as a status card.
   const readinessModules: { label: string; value: string; sub: string; href: string }[] = [
-    { label: "Bank Builder", value: bbValue, sub: bbSub, href: "/bank-builder" },
     { label: "Mr. Dub", value: `${coreWins}-${coreLosses}`, sub: "official settlement record", href: "/results" },
     { label: "World Cup", value: `${wcFocus.length} games`, sub: "model picks table", href: "/world-cup?tab=model-picks" },
     { label: "Model Player Props", value: `${modelProps.qualifiedCount} picks`, sub: `${modelProps.evaluatedCount} markets evaluated`, href: "/world-cup?tab=player-props" },
     { label: "Parlay Lab", value: `${engineSuggested} cards`, sub: "model-qualified legs", href: "/picks" },
     { label: "MLB", value: mlbLive ? `${mlb.summary.scheduledGames} games` : "No board", sub: mlbLive ? "board live" : "odds not posted yet", href: "/mlb" },
-    { label: "Moonshot", value: moonValue, sub: moonSub, href: "/moonshot" },
-    { label: "Suggested Parlays", value: `${wcSpecials?.cards.length ?? 0} cards`, sub: "World Cup · $0 exposure", href: "/world-cup-specials" },
   ];
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
-      {/* 1 — Quick actions (mobile only): 1-click reach to key areas. On desktop the CommandRail
-            left rail already covers these, so the row is hidden (lg:hidden) to avoid duplication.
-            Leads with the flagship money products (Bank Builder · Moonshot · WC Specials) to mirror
-            the page order, then the daily-loop surfaces. */}
-      <nav aria-label="Quick actions" className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 lg:hidden">
-        {[
-          { href: "/bank-builder", label: "Bank Builder" },
-          { href: "/moonshot", label: "Moonshot" },
-          { href: "/world-cup-specials", label: "WC Specials" },
-          { href: "/world-cup", label: "World Cup" },
-          { href: "/picks", label: "Parlay Lab" },
-          { href: "/build", label: "Build" },
-          { href: "/games", label: "Games" },
-          { href: "/mr-dub", label: "Mr. Dub" },
-          { href: "/results", label: "Results" },
-        ].map((a) => (
-          <Link
-            key={a.href}
-            href={a.href}
-            className="vault-glow-hover vault-press rounded-[10px] px-2.5 py-3 flex items-center justify-center text-center"
-            style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", textDecoration: "none" }}
-          >
-            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{a.label}</span>
-          </Link>
-        ))}
-      </nav>
+      {/* 1 — THE FLAGSHIP HIGHLIGHT: the three core paper products — Bank Builder, Moonshot, World Cup
+            Specials — in order. They are the homepage's lead section. The quick-jump flashcards link only
+            to these three (every other destination lives in the top/side nav, so no duplication), then the
+            full ladders/parlays render below in the same order. */}
+      <section aria-label="Flagship products" className="flex flex-col gap-5">
+        <div className="flex flex-col gap-1">
+          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>Today&apos;s flagship lanes</h2>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Bank Builder · Moonshot · World Cup Specials — paper-only</span>
+        </div>
 
-      {/* 1.1 — PRIORITY #1: Bank Builder ladders. The two lane cards (step rail + the current rung's
-            legs, with team logos + player portraits) lead the page per the owner restructure. */}
-      {bankBuilderLadder.length > 0 && (
-        <section aria-label="Bank Builder ladders" className="flex flex-col gap-2">
-          <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" lanes={bankBuilderLadder} accent="gold" />
-          <Link href="/bank-builder" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-            Open the full Bank Builder ladder →
-          </Link>
-        </section>
-      )}
+        {/* Quick-jump flashcards — ONLY the three flagship products (the top/side nav covers everything
+            else: Results, Methodology, Games, etc.), so nothing is duplicated. */}
+        <nav aria-label="Flagship quick links" className="grid grid-cols-3 gap-2.5">
+          {[
+            { href: "/bank-builder", label: "Bank Builder", sub: "Dual ladder" },
+            { href: "/moonshot", label: "Moonshot", sub: "Longshot ladder" },
+            { href: "/world-cup-specials", label: "WC Specials", sub: "Suggested parlays" },
+          ].map((a) => (
+            <Link
+              key={a.href}
+              href={a.href}
+              className="vault-glow-hover vault-press rounded-[12px] px-3 py-3.5 flex flex-col items-center justify-center text-center gap-0.5"
+              style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", textDecoration: "none" }}
+            >
+              <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{a.label}</span>
+              <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{a.sub}</span>
+            </Link>
+          ))}
+        </nav>
 
-      {/* 1.2 — PRIORITY #2: Moonshot ladders. Same shared ladder shape, higher-volatility lane. */}
-      {moonshotLadder.length > 0 && (
-        <section aria-label="Moonshot ladders" className="flex flex-col gap-2">
-          <ProductLanesLadder productLabel="Moonshot" product="moonshot" lanes={moonshotLadder} accent="violet" />
-          <Link href="/moonshot" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-            Open the full Moonshot ladder →
-          </Link>
-        </section>
-      )}
+        {/* PRIORITY #1: Bank Builder ladders (step rail + current rung legs, team logos + player portraits). */}
+        {bankBuilderLadder.length > 0 && (
+          <div aria-label="Bank Builder ladders" className="flex flex-col gap-2">
+            <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" lanes={bankBuilderLadder} accent="gold" />
+            <Link href="/bank-builder" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+              Open the full Bank Builder ladder →
+            </Link>
+          </div>
+        )}
 
-      {/* 1.3 — PRIORITY #3: World Cup exclusive parlays (the Suggested World Cup Parlays box). Gated to
-            today; fails closed on a stale slate. Moved up from below Today's Focus per the restructure. */}
-      {wcSpecials && <WorldCupSpecialsBox data={wcSpecials} />}
+        {/* PRIORITY #2: Moonshot ladders — same shared ladder shape, higher-volatility lane. */}
+        {moonshotLadder.length > 0 && (
+          <div aria-label="Moonshot ladders" className="flex flex-col gap-2">
+            <ProductLanesLadder productLabel="Moonshot" product="moonshot" lanes={moonshotLadder} accent="violet" />
+            <Link href="/moonshot" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+              Open the full Moonshot ladder →
+            </Link>
+          </div>
+        )}
+
+        {/* PRIORITY #3: World Cup exclusive parlays. Gated to today; fails closed on a stale slate. */}
+        {wcSpecials && <WorldCupSpecialsBox data={wcSpecials} />}
+      </section>
 
       {/* 1.4 — June 23 readiness strip: one glance at every live surface (Bank Builder, World Cup,
             model player props, Parlay Lab, Moonshot, Specials), each a tap-through. Paper-only. */}
