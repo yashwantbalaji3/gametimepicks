@@ -11,18 +11,18 @@ import {
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
 
-test("MOBILE_NAV_ITEMS has 9 items in the product-spine order (Homer Nukes + Diamond Specials are first-class product tabs)", () => {
-  assert.equal(MOBILE_NAV_ITEMS.length, 9);
+test("MOBILE_NAV_ITEMS has 8 items in the product-spine order (Homer Nukes is the MLB product tab; Diamond Specials removed)", () => {
+  assert.equal(MOBILE_NAV_ITEMS.length, 8);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "games", "picks", "lab", "bank", "moonshot", "homer", "diamond", "mrdub"],
+    ["home", "games", "picks", "lab", "bank", "moonshot", "homer", "mrdub"],
   );
+  assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/diamond-specials"), "no Diamond Specials nav item");
 });
 
-test("homer + diamond resolve to their own buckets", () => {
+test("homer resolves to its own bucket; diamond-specials no longer maps anywhere", () => {
   assert.equal(resolveMobileNavBucket("/homer-nukes"), "homer");
-  assert.equal(resolveMobileNavBucket("/diamond-specials"), "diamond");
-  assert.equal(resolveMobileNavBucket("/diamond-specials/"), "diamond");
+  assert.equal(resolveMobileNavBucket("/diamond-specials"), null, "removed route → no bucket");
 });
 
 test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank/Moonshot/Homer Nukes)", () => {

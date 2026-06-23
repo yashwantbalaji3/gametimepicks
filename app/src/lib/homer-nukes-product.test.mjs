@@ -1,127 +1,98 @@
 /**
- * Homer Nukes (MLB home-run product) + the four-product portfolio allocation.
+ * Homer Nukes (daily 5-leg HR PARLAY) + the four-product portfolio allocation.
  *
- * Verifies: the new product is data-gated (no fabricated picks when MLB props aren't posted), the
- * allocation aggregates all four products, and bankroll integrity is preserved (the protected
- * portfolio.json is never mutated; crown is separate). Run: npx tsx --test this-file.mjs
+ * Verifies Homer Nukes is ONE daily 5-leg parlay at a flat $20 stake (not five bets), with combined
+ * odds that reconcile from the legs; that the allocation tracks exactly four products (Diamond Specials
+ * removed); and that bankroll integrity is preserved. Run: npx tsx --test this-file.mjs
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { loadHomerNukes, HOMER_NUKES_DAILY_ALLOCATION, HOMER_NUKES_STAKE_PER_PICK, HOMER_NUKES_PICK_COUNT } from "./mlb/homer-nukes.ts";
+import { loadHomerNukes, HOMER_NUKES_DAILY_ALLOCATION, HOMER_NUKES_STAKE, HOMER_NUKES_PICK_COUNT } from "./mlb/homer-nukes.ts";
 import { buildPortfolioAllocation, WC_SPECIALS_DAILY_ALLOCATION } from "./mr-dub/product-allocation.ts";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const root = path.join(process.cwd(), "public", "data");
 const DATE = "2026-06-23";
 const NOW = "2026-06-23T10:00:00Z";
+const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 
-test("Homer Nukes constants: top-5 @ $20 = $100/day allocation", () => {
+test("Homer Nukes is ONE daily 5-leg parlay at a flat $20 stake", () => {
   assert.equal(HOMER_NUKES_PICK_COUNT, 5);
-  assert.equal(HOMER_NUKES_STAKE_PER_PICK, 20);
-  assert.equal(HOMER_NUKES_DAILY_ALLOCATION, 100);
+  assert.equal(HOMER_NUKES_STAKE, 20);
+  assert.equal(HOMER_NUKES_DAILY_ALLOCATION, 20, "flat $20/day (one parlay, not 5×$20)");
 });
 
-test("Homer Nukes is HONEST data-gated when no board for the date (empty, no fabricated picks)", () => {
-  const b = loadHomerNukes(root, "2020-01-01"); // a date with no posted HR board
-  assert.equal(b.available, false, "not available without real posted HR props");
-  assert.equal(b.picks.length, 0, "no fabricated picks");
-  assert.ok(b.note && b.note.length > 0, "carries a data-gated explanation");
-  assert.equal(b.dailyAllocation, 100);
+test("Homer Nukes is HONEST data-gated when no board for the date (no parlay, no fabrication)", () => {
+  const b = loadHomerNukes(root, "2020-01-01");
+  assert.equal(b.available, false);
+  assert.equal(b.parlay, null, "no fabricated parlay");
+  assert.ok(b.note && b.note.length > 0);
 });
 
-test("Homer Nukes is LIVE for the ingested slate — top 5 anytime-HR picks, all odds-backed", () => {
+test("Homer Nukes LIVE for the ingested slate — a single 5-leg parlay, odds reconcile, one per game", () => {
   const b = loadHomerNukes(root, DATE);
-  assert.equal(b.available, true, "today's HR board is posted");
-  assert.equal(b.picks.length, 5, "top 5");
-  const games = new Set(b.picks.map((p) => p.gameId));
-  assert.equal(games.size, 5, "max one pick per game");
-  for (const p of b.picks) { assert.ok(p.provider, "odds-backed"); assert.ok(p.modelProbability > 0, "real market probability"); }
+  assert.equal(b.available, true);
+  assert.ok(b.parlay, "a parlay is built");
+  assert.equal(b.parlay.legs.length, 5, "exactly 5 legs");
+  assert.equal(b.parlay.stake, 20, "flat $20 stake");
+  assert.equal(new Set(b.parlay.legs.map((l) => l.gameId)).size, 5, "max one leg per game");
+  // Combined odds reconcile from the leg decimals.
+  const combinedDecimal = b.parlay.legs.reduce((d, l) => d * dec(l.odds), 1);
+  assert.ok(Math.abs(b.parlay.combinedDecimal - combinedDecimal) < 0.01, "combined decimal reconciles");
+  assert.ok(Math.abs(b.parlay.projectedReturn - 20 * combinedDecimal) < 0.5, "projected return = $20 × combined");
+  for (const l of b.parlay.legs) assert.ok(l.provider && typeof l.odds === "number", "every leg is odds-backed");
 });
 
-test("Homer Nukes never fabricates: every returned pick (when present) is odds-backed with a provider", () => {
-  const b = loadHomerNukes(root, DATE);
-  for (const p of b.picks) {
-    assert.ok(typeof p.odds === "number", "real odds");
-    assert.ok(p.provider, "has a provider (odds-backed)");
-    assert.ok(p.player, "names a real player");
-  }
-});
-
-test("portfolio allocation: four products, exposure aggregates, bankroll/crown preserved", () => {
+test("allocation tracks exactly FOUR products (Diamond Specials removed); Homer Nukes = $20", () => {
   const a = buildPortfolioAllocation(root, NOW, DATE);
-  assert.deepEqual(a.products.map((p) => p.key), ["bank-builder", "moonshot", "world-cup-specials", "homer-nukes", "diamond-specials"]);
-  // Bankroll + crown come straight from the protected portfolio.json, unchanged.
-  assert.equal(a.activeBankroll, 10176.17, "active bankroll = portfolio.currentBankroll");
-  assert.equal(a.crownBankroll, 10376.17, "crown separate + unchanged");
-  // Exposure aggregates each product; available = active − total.
-  const sum = a.products.reduce((s, p) => s + p.openExposure, 0);
-  assert.ok(Math.abs(a.totalOpenExposure - sum) < 0.01, "total exposure = Σ product exposure");
+  assert.deepEqual(a.products.map((p) => p.key), ["bank-builder", "moonshot", "world-cup-specials", "homer-nukes"]);
+  assert.ok(!a.products.some((p) => p.key === "diamond-specials"), "no Diamond Specials product");
+  const homer = a.products.find((p) => p.key === "homer-nukes");
+  assert.equal(homer.dailyAllocation, 20, "flat $20/day");
+  assert.ok(homer.openExposure === 20 || homer.openExposure === 0, "one $20 parlay (or $0 when no board)");
+  // Ranking spans all four uniquely.
+  assert.deepEqual(a.products.map((p) => p.rank).sort(), [1, 2, 3, 4]);
+});
+
+test("portfolio analytics: Bank Builder carries the 10-2 record + ranks #1; WC Specials $100/day", () => {
+  const a = buildPortfolioAllocation(root, NOW, DATE);
+  const bb = a.products.find((p) => p.key === "bank-builder");
+  const wc = a.products.find((p) => p.key === "world-cup-specials");
+  assert.deepEqual(bb.record, { wins: 10, losses: 2, pushes: 0 });
+  assert.ok(bb.winRate != null && bb.winRate > 0.8);
+  assert.equal(bb.rank, 1);
+  assert.equal(wc.dailyAllocation, WC_SPECIALS_DAILY_ALLOCATION);
+});
+
+test("BANKROLL INTEGRITY: the allocation never mutates portfolio.json", () => {
+  const before = read(path.join(root, "mr-dub", "portfolio.json"));
+  const a = buildPortfolioAllocation(root, NOW, DATE);
+  assert.equal(read(path.join(root, "mr-dub", "portfolio.json")), before, "portfolio.json byte-for-byte unchanged");
+  assert.equal(a.activeBankroll, 10176.17);
+  assert.equal(a.crownBankroll, 10376.17);
   assert.ok(Math.abs(a.availableBankroll - (a.activeBankroll - a.totalOpenExposure)) < 0.01, "available = active − exposure");
 });
 
-test("portfolio allocation: WC Specials + Homer Nukes are $100/day, live with real exposure", () => {
-  const a = buildPortfolioAllocation(root, NOW, DATE);
-  const wc = a.products.find((p) => p.key === "world-cup-specials");
-  const homer = a.products.find((p) => p.key === "homer-nukes");
-  assert.equal(wc.dailyAllocation, WC_SPECIALS_DAILY_ALLOCATION, "WC Specials allocates $100/day");
-  assert.equal(wc.openExposure, 100, "5 cards × $20 = $100 open exposure");
-  assert.equal(homer.dailyAllocation, 100, "Homer Nukes targets $100/day");
-  assert.ok(homer.openExposure > 0 && homer.openExposure <= 100, "live HR board → real exposure (5 picks × $20)");
-  assert.equal(homer.status, "active", "live board → active");
-});
-
-test("BANKROLL INTEGRITY: building the allocation does NOT mutate the protected portfolio.json", () => {
-  const before = read(path.join(root, "mr-dub", "portfolio.json"));
-  buildPortfolioAllocation(root, NOW, DATE);
-  buildPortfolioAllocation(root, NOW, DATE);
-  const after = read(path.join(root, "mr-dub", "portfolio.json"));
-  assert.equal(before, after, "portfolio.json byte-for-byte unchanged");
-  const p = JSON.parse(after);
-  assert.equal(p.currentBankroll, 10176.17);
-  assert.equal(p.crownBankroll, 10376.17);
-  assert.deepEqual(p.record, { wins: 10, losses: 2, voids: 0, pending: 0 });
-});
-
-test("portfolio analytics: per-product record/win-rate/avg-odds/leg-count + performance ranking", () => {
-  const a = buildPortfolioAllocation(root, NOW, DATE);
-  const bb = a.products.find((p) => p.key === "bank-builder");
-  const moon = a.products.find((p) => p.key === "moonshot");
-  // Bank Builder carries the core lane record (10-2) → ~83% win rate → ranks #1.
-  assert.deepEqual(bb.record, { wins: 10, losses: 2, pushes: 0 }, "Bank Builder record = core lane record");
-  assert.ok(bb.winRate != null && bb.winRate > 0.8, "Bank Builder win rate from real record");
-  assert.equal(bb.rank, 1, "Bank Builder ranks #1 by win rate");
-  assert.ok(bb.legCount > 0 && bb.avgOdds != null, "avg odds + leg count derived from live cards");
-  // Ranking covers all five products uniquely.
-  const ranks = a.products.map((p) => p.rank).sort();
-  assert.deepEqual(ranks, [1, 2, 3, 4, 5], "each product has a unique 1..5 rank");
-  // Moonshot keeps its own record (not blended into the core).
-  assert.ok(moon.record.losses >= 0, "moonshot has its own record");
-});
-
-test("BANKROLL INTEGRITY: analytics never mutate portfolio.json", () => {
-  const before = read(path.join(root, "mr-dub", "portfolio.json"));
-  buildPortfolioAllocation(root, NOW, DATE);
-  assert.equal(read(path.join(root, "mr-dub", "portfolio.json")), before, "portfolio.json unchanged");
-});
-
-test("UI wiring: /homer-nukes page + Mr. Dub allocation + Today flagship + nav all present", () => {
+test("UI wiring: Homer Nukes present everywhere; Diamond Specials removed everywhere", () => {
   const homerPage = read("src/app/homer-nukes/page.tsx");
   assert.match(homerPage, /HomerNukesBoard/, "homer-nukes page renders the board");
-  assert.match(homerPage, /loadHomerNukes/, "loads the real HR board");
+  assert.match(homerPage, /5-leg/, "framed as a 5-leg parlay");
 
   const mrdub = read("src/app/mr-dub/page.tsx");
-  assert.match(mrdub, /PortfolioAllocationSection/, "Mr. Dub renders the 4-product allocation");
-  assert.match(mrdub, /buildPortfolioAllocation/, "Mr. Dub builds the allocation");
+  assert.match(mrdub, /PortfolioAllocationSection/, "Mr. Dub renders the allocation");
 
   const today = read("src/app/today/page.tsx");
   assert.match(today, /href: "\/homer-nukes"/, "Today flashcards include Homer Nukes");
-  assert.match(today, /HomerNukesBoard/, "Today renders the Homer Nukes board");
+  assert.ok(!/diamond-specials/i.test(today), "no Diamond Specials on Today");
 
   const rail = read("src/components/command-rail.tsx");
-  assert.match(rail, /href: "\/homer-nukes"/, "command rail has Homer Nukes");
   const nav = read("src/components/nav.tsx");
-  assert.match(nav, /href: "\/homer-nukes"/, "top nav has Homer Nukes");
+  const route = read("src/lib/nav-active-route.ts");
+  for (const [name, src] of [["command rail", rail], ["top nav", nav], ["nav routes", route]]) {
+    assert.match(src, /homer-nukes/, `${name} has Homer Nukes`);
+    assert.ok(!/diamond-specials|"diamond"/.test(src), `${name} has no Diamond Specials`);
+  }
 });

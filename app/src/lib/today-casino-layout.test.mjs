@@ -22,10 +22,11 @@ test("flagship quick-link flashcards lead the page and link ONLY to the three fl
   assert.ok(nav > 0, "flagship quick-link flashcards present");
   assert.ok(wc > 0, "World Cup focus present");
   assert.ok(nav < wc, "flashcards appear before the World Cup focus");
-  // The flashcards link to exactly the five flagship products (everything else lives in the nav bars).
-  for (const dest of ["/bank-builder", "/moonshot", "/world-cup-specials", "/homer-nukes", "/diamond-specials"]) {
+  // The flashcards link to exactly the four flagship products (Diamond Specials removed).
+  for (const dest of ["/bank-builder", "/moonshot", "/world-cup-specials", "/homer-nukes"]) {
     assert.ok(src.includes(`href: "${dest}"`), `flashcard links to ${dest}`);
   }
+  assert.ok(!src.includes('href: "/diamond-specials"'), "no Diamond Specials flashcard");
   // The de-duped generic destinations are no longer flashcards (they live in the top/side nav).
   const flashcardBlock = src.slice(nav, src.indexOf("PRIORITY #1"));
   for (const gone of ["/games", "/picks", "/build", "/results"]) {
