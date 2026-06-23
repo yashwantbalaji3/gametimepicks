@@ -33,15 +33,20 @@ export default function WorldCupSpecialsPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <PicksSurfaceHeader
-        eyebrow="World Cup Specials"
-        title="World Cup Specials Tracker"
+        eyebrow="Suggested World Cup parlays"
+        title="Today's Suggested World Cup Parlays"
         slateDate={t.date ?? undefined}
         status={status}
         counts={{ suggestedCards: result?.cards?.length ?? 0, pending: t.summary.pendingCount, settled: t.summary.settledCount }}
-        primaryAction={{ label: "World Cup hub", href: "/world-cup" }}
+        primaryAction={{ label: "World Cup model picks", href: "/world-cup?tab=model-picks" }}
         secondaryAction={{ label: "View Results", href: "/results" }}
-        note="Daily model-ranked suggested longshot cards with official settlement and a separate result history — no exposure is placed. Separate from Bank Builder, Moonshot, and the protected crown."
+        note="Model-ranked paper-only suggested World Cup parlays built from eligible model picks — now part of the World Cup experience, not a separate product. No exposure is placed unless explicitly activated as Bank Builder or Moonshot. Separate from the protected crown."
       />
+      <div className="rounded-[10px] px-4 py-3" style={{ background: "rgba(217,164,65,0.06)", border: "1px solid var(--vault-rule)" }}>
+        <p className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+          “World Cup Specials” are now <strong style={{ color: "var(--vault-text)" }}>Today's Suggested World Cup Parlays</strong> — model-ranked paper cards surfaced on the <Link href="/world-cup?tab=model-picks" style={{ color: "var(--vault-gold-bright)" }}>World Cup hub</Link> and <Link href="/picks" style={{ color: "var(--vault-gold-bright)" }}>Parlay Lab</Link>, no longer a separate tracker. This page keeps the running history.
+        </p>
+      </div>
       {result ? (
         <WorldCupSpecialsTracker result={result} nowIso={nowIso} mode="full" />
       ) : (

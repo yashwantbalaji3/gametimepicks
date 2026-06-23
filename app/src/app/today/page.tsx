@@ -47,6 +47,7 @@ import WorldCupSpecialsBox from "@/components/world-cup/world-cup-specials-box";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
 import EgyptNzSameGame, { loadNzEgyptMarkets } from "@/components/world-cup/egypt-nz-same-game";
 import { loadModelQualifiedProps } from "@/lib/world-cup/model-qualified-props";
+import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 
 export const metadata = {
   title: "Today · GameTime Picks",
@@ -253,6 +254,7 @@ export default function TodayPage() {
 
   // ── June 23 readiness summary (compact module strip) ─────────────────────────
   const modelProps = loadModelQualifiedProps(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   const moonshotLane = loadMoonshotLane();
   const moonshotCandidates = (moonshotLane?.candidates ?? []).length;
   // Authoritative core money state (ledger-built) for the readiness strip.
@@ -267,12 +269,12 @@ export default function TodayPage() {
   const readinessModules: { label: string; value: string; sub: string; href: string }[] = [
     { label: "Bank Builder", value: bbValue, sub: bbSub, href: "/bank-builder" },
     { label: "Mr. Dub", value: `${coreWins}-${coreLosses}`, sub: "official settlement record", href: "/results" },
-    { label: "World Cup", value: `${wcFocus.length} games`, sub: `${wcProj?.projectionCount ?? 0} model projections`, href: "/world-cup" },
+    { label: "World Cup", value: `${wcFocus.length} games`, sub: "model picks table", href: "/world-cup?tab=model-picks" },
     { label: "Model Player Props", value: `${modelProps.qualifiedCount} picks`, sub: `${modelProps.evaluatedCount} markets evaluated`, href: "/world-cup?tab=player-props" },
     { label: "Parlay Lab", value: `${engineSuggested} cards`, sub: "model-qualified legs", href: "/picks" },
     { label: "MLB", value: mlbLive ? `${mlb.summary.scheduledGames} games` : "No board", sub: mlbLive ? "board live" : "odds not posted yet", href: "/mlb" },
     { label: "Moonshot", value: moonshotCandidates > 0 ? `${moonshotCandidates} ready` : "—", sub: "candidates · $0 exposure", href: "/moonshot" },
-    { label: "World Cup Specials", value: `${wcSpecials?.cards.length ?? 0} candidates`, sub: "$0 exposure", href: "/world-cup-specials" },
+    { label: "Suggested Parlays", value: `${wcSpecials?.cards.length ?? 0} cards`, sub: "World Cup · $0 exposure", href: "/world-cup-specials" },
   ];
 
   return (
@@ -321,6 +323,26 @@ export default function TodayPage() {
           ))}
         </div>
       </section>
+
+      {/* 1.3 — Today's paper portfolio: Mr. Dub's 4 candidate lanes (Bank Builder A/B + Moonshot A/B).
+            Derived, candidate-only (no exposure placed). Crown shown separately on /mr-dub. */}
+      <Link
+        href="/mr-dub"
+        className="vault-glow-hover vault-press rounded-[14px] px-5 py-4 flex flex-col gap-2.5"
+        style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", textDecoration: "none" }}
+      >
+        <div className="flex items-center justify-between">
+          <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Today&apos;s paper portfolio</span>
+          <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Open Mr. Dub →</span>
+        </div>
+        <div className="flex flex-wrap gap-x-5 gap-y-1.5 font-mono" style={{ fontSize: 11.5 }}>
+          <span style={{ color: "var(--vault-text-mute)" }}>{dailyPortfolio.cards.length} candidate lanes <span style={{ color: "var(--vault-text-faint)" }}>(Bank Builder A/B · Moonshot A/B)</span></span>
+          <span style={{ color: "var(--vault-text-mute)" }}>open exposure <span style={{ color: "var(--vault-text)" }}>${dailyPortfolio.openExposure.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
+          <span style={{ color: "var(--vault-text-mute)" }}>available <span style={{ color: "var(--vault-text)" }}>${dailyPortfolio.availableBankroll.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
+          <span style={{ color: "var(--vault-text-faint)" }}>crown ${dailyPortfolio.crownBankroll.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (historical)</span>
+        </div>
+        <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>Candidate lanes place no exposure until activated — active bankroll and crown unchanged. Paper-only.</span>
+      </Link>
 
       {/* 1.5 — Model picks ready: user-facing summary of today's model-ranked cards → Parlay Lab.
             (Internal "methodology engine / STEP n LIVE / lanes cleared" language moved off the
