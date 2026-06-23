@@ -34,6 +34,9 @@ import path from "node:path";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
 import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
+import { loadMlbPropsBoard } from "@/lib/mlb/mlb-props";
+import { currentSlateDate } from "@/lib/parlays/ui-loader";
+import { currentEtDate } from "@/lib/freshness";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import GameOutlookSection from "@/components/game-outlook-card";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
@@ -63,8 +66,11 @@ function byEdge(a: PublicProjection, b: PublicProjection) {
 export default function MlbLandingPage() {
   const date = activeMlbDate() ?? DEFAULT_DATE;
   const board = getMlbBoardForDate(date);
-  // Homer Nukes board for the flagship section (data-gated; honest empty until MLB props post).
-  const homerBoard = loadHomerNukes(path.join(process.cwd(), "public", "data"), date);
+  // Homer Nukes + props board for the flagship sections. These read the freshly-ingested daily MLB
+  // artifacts keyed on the current slate date (independent of the legacy board's activeMlbDate).
+  const flagshipDate = currentSlateDate() ?? currentEtDate();
+  const homerBoard = loadHomerNukes(path.join(process.cwd(), "public", "data"), flagshipDate);
+  const mlbProps = loadMlbPropsBoard(path.join(process.cwd(), "public", "data"), flagshipDate);
   const schedule = getMlbScheduleForDate(date);
   const mlbLifetime = getMlbLifetimeSummary();
 
@@ -295,7 +301,7 @@ export default function MlbLandingPage() {
 
       {/* MLB flagship sections — Homer Nukes / Props Board / Premium Plays / Game Explorer (data-gated). */}
       <div className="mt-6">
-        <MlbFlagshipSections homer={homerBoard} />
+        <MlbFlagshipSections homer={homerBoard} props={mlbProps} />
       </div>
 
       <div className="mt-6">

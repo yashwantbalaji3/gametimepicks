@@ -48,13 +48,23 @@ test("Homer Score: confidence reflects how many input groups carry real data", (
 });
 
 // ── Diamond Specials product ──────────────────────────────────────────────────────────────────────
-test("Diamond Specials: HONEST data-gated when MLB board absent (5 category slots, no fabricated cards)", () => {
-  const d = loadDiamondSpecials(root, DATE);
+test("Diamond Specials: HONEST data-gated when no board for the date (5 category slots, no fabricated cards)", () => {
+  const d = loadDiamondSpecials(root, "2020-01-01"); // a date with no posted board
   assert.equal(d.available, false, "no MLB board → not available");
   assert.equal(d.cards.length, 0, "no fabricated parlays");
   assert.deepEqual(d.categories, DIAMOND_CATEGORIES, "the five categories are still surfaced");
   assert.equal(d.dailyAllocation, 100, "$20 × 5 = $100/day");
   assert.match(d.note, /not been posted yet/i);
+});
+
+test("Diamond Specials: LIVE for the ingested slate — real cards, every leg odds-backed (no fabrication)", () => {
+  const d = loadDiamondSpecials(root, DATE);
+  assert.equal(d.available, true, "today's MLB board is posted");
+  assert.ok(d.cards.length >= 1 && d.cards.length <= 5, "up to 5 cards");
+  for (const c of d.cards) {
+    assert.ok(c.legs.length >= 1, `${c.category} has legs`);
+    for (const l of c.legs) { assert.ok(typeof l.odds === "number" && l.odds !== 0, "real odds"); assert.ok(l.player || l.team, "names a player/team"); }
+  }
 });
 
 test("Diamond Specials ledger: empty + honest when no history (record 0-0, ROI null)", () => {
@@ -68,25 +78,25 @@ test("Diamond Specials ledger: empty + honest when no history (record 0-0, ROI n
 });
 
 // ── 5-product allocation + bankroll integrity ───────────────────────────────────────────────────
-test("allocation now tracks FIVE products incl Diamond Specials; Homer + Diamond data-gated", () => {
+test("allocation tracks FIVE products incl Diamond Specials; live MLB products carry $20×5 exposure", () => {
   const a = buildPortfolioAllocation(root, NOW, DATE);
   assert.deepEqual(a.products.map((p) => p.key), ["bank-builder", "moonshot", "world-cup-specials", "homer-nukes", "diamond-specials"]);
   const diamond = a.products.find((p) => p.key === "diamond-specials");
   assert.equal(diamond.dailyAllocation, DIAMOND_SPECIALS_DAILY_ALLOCATION);
-  assert.equal(diamond.openExposure, 0, "no MLB board → $0 exposure");
-  assert.equal(diamond.status, "no-board");
+  assert.ok(diamond.openExposure > 0 && diamond.openExposure <= 100, "live board → real exposure (≤ $100)");
+  assert.equal(diamond.status, "active");
   // Ranking still spans all products uniquely.
   assert.deepEqual(a.products.map((p) => p.rank).sort(), [1, 2, 3, 4, 5]);
 });
 
-test("BANKROLL INTEGRITY: adding Diamond Specials never mutates portfolio.json or core exposure", () => {
+test("BANKROLL INTEGRITY: live MLB products never mutate portfolio.json (derived exposure only)", () => {
   const before = read(path.join(root, "mr-dub", "portfolio.json"));
   const a = buildPortfolioAllocation(root, NOW, DATE);
   assert.equal(read(path.join(root, "mr-dub", "portfolio.json")), before, "portfolio.json byte-for-byte unchanged");
-  assert.equal(a.activeBankroll, 10176.17);
-  assert.equal(a.crownBankroll, 10376.17);
-  // Diamond adds $0 today, so total open exposure is unchanged from the four-product total ($350).
-  assert.equal(a.totalOpenExposure, 350, "Diamond Specials add $0 while data-gated");
+  assert.equal(a.activeBankroll, 10176.17, "active bankroll from portfolio.json, unchanged");
+  assert.equal(a.crownBankroll, 10376.17, "crown unchanged");
+  // Exposure is a DERIVED daily allocation; with the MLB board live it includes Homer + Diamond.
+  assert.ok(Math.abs(a.availableBankroll - (a.activeBankroll - a.totalOpenExposure)) < 0.01, "available = active − derived exposure");
 });
 
 // ── UI wiring ───────────────────────────────────────────────────────────────────────────────────

@@ -24,13 +24,21 @@ test("Homer Nukes constants: top-5 @ $20 = $100/day allocation", () => {
   assert.equal(HOMER_NUKES_DAILY_ALLOCATION, 100);
 });
 
-test("Homer Nukes is HONEST data-gated: no posted MLB home-run board → empty, no fabricated picks", () => {
-  const b = loadHomerNukes(root, DATE);
-  // No MLB home-run props are posted for the slate → available=false, zero picks, a clear note.
+test("Homer Nukes is HONEST data-gated when no board for the date (empty, no fabricated picks)", () => {
+  const b = loadHomerNukes(root, "2020-01-01"); // a date with no posted HR board
   assert.equal(b.available, false, "not available without real posted HR props");
   assert.equal(b.picks.length, 0, "no fabricated picks");
   assert.ok(b.note && b.note.length > 0, "carries a data-gated explanation");
   assert.equal(b.dailyAllocation, 100);
+});
+
+test("Homer Nukes is LIVE for the ingested slate — top 5 anytime-HR picks, all odds-backed", () => {
+  const b = loadHomerNukes(root, DATE);
+  assert.equal(b.available, true, "today's HR board is posted");
+  assert.equal(b.picks.length, 5, "top 5");
+  const games = new Set(b.picks.map((p) => p.gameId));
+  assert.equal(games.size, 5, "max one pick per game");
+  for (const p of b.picks) { assert.ok(p.provider, "odds-backed"); assert.ok(p.modelProbability > 0, "real market probability"); }
 });
 
 test("Homer Nukes never fabricates: every returned pick (when present) is odds-backed with a provider", () => {
@@ -54,15 +62,15 @@ test("portfolio allocation: four products, exposure aggregates, bankroll/crown p
   assert.ok(Math.abs(a.availableBankroll - (a.activeBankroll - a.totalOpenExposure)) < 0.01, "available = active − exposure");
 });
 
-test("portfolio allocation: WC Specials = $100/day, Homer Nukes = $0 until board posts", () => {
+test("portfolio allocation: WC Specials + Homer Nukes are $100/day, live with real exposure", () => {
   const a = buildPortfolioAllocation(root, NOW, DATE);
   const wc = a.products.find((p) => p.key === "world-cup-specials");
   const homer = a.products.find((p) => p.key === "homer-nukes");
   assert.equal(wc.dailyAllocation, WC_SPECIALS_DAILY_ALLOCATION, "WC Specials allocates $100/day");
   assert.equal(wc.openExposure, 100, "5 cards × $20 = $100 open exposure");
   assert.equal(homer.dailyAllocation, 100, "Homer Nukes targets $100/day");
-  assert.equal(homer.openExposure, 0, "no exposure placed without a posted board");
-  assert.equal(homer.status, "no-board", "honest data-gated status");
+  assert.ok(homer.openExposure > 0 && homer.openExposure <= 100, "live HR board → real exposure (5 picks × $20)");
+  assert.equal(homer.status, "active", "live board → active");
 });
 
 test("BANKROLL INTEGRITY: building the allocation does NOT mutate the protected portfolio.json", () => {
