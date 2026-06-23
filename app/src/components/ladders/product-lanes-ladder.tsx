@@ -3,9 +3,11 @@
  *
  * Both products present identically: a product header (label + one-line descriptor), then two lane
  * cards (Lane A / Lane B) side-by-side on desktop and stacked on mobile. Each lane card carries a
- * three-step STEP RAIL — Step 1 is the current rung (highlighted + accent glow, showing today's card),
- * Steps 2-3 are muted ("awaits Step N settlement"). The current card body shows stake → potential
- * return, the combined odds pill, the per-leg list, and any correlation / shortfall notes.
+ * STEP RAIL that reflects this lane's real progress — rungs below the current step read CLEARED (✓),
+ * the current step reads "Current card" (accent glow), and rungs above await the prior step's
+ * settlement. Bank Builder ladders span 5 steps, Moonshot spans 3. The current card body shows
+ * stake → potential return (and the rung goal when set), the combined odds pill, the per-leg list,
+ * and any correlation / shortfall notes.
  *
  * This makes Moonshot mirror Bank Builder visually: one rail, one shape, two accents. Honest by
  * construction — active lanes read "$X at risk · open exposure"; candidates read "$0 placed · not
@@ -42,51 +44,70 @@ function StatusPill({ status }: { status: DailyPortfolioCard["status"] }) {
   );
 }
 
-/** The 3-rung ladder rail. Step 1 = current (accent glow), Steps 2-3 = muted "awaits settlement". */
-function StepRail({ accentColor }: { accentColor: string }) {
-  const steps = [
-    { n: 1, label: "Current card", active: true },
-    { n: 2, label: "awaits Step 1 settlement", active: false },
-    { n: 3, label: "awaits Step 2 settlement", active: false },
-  ];
+type RungState = "cleared" | "current" | "future";
+
+/**
+ * The ladder rail for one lane. Renders rungs 1..totalSteps reflecting this lane's real progress:
+ *   rung <  currentStep → CLEARED  (✓, success green)
+ *   rung === currentStep → CURRENT (accent glow, "Current card")
+ *   rung >  currentStep → FUTURE   (muted, "awaits Step N−1 settlement")
+ * Compact circles + a single shared caption keep the row tight (no horizontal page scroll at 375px,
+ * even at 5 rungs). The per-rung label is shown only for the current rung; future/cleared rungs use a
+ * short shared caption below the row so five rungs never overflow.
+ */
+function StepRail({ currentStep, totalSteps, accentColor }: { currentStep: number; totalSteps: number; accentColor: string }) {
+  const rungs = Array.from({ length: totalSteps }, (_, i) => {
+    const n = i + 1;
+    const state: RungState = n < currentStep ? "cleared" : n === currentStep ? "current" : "future";
+    return { n, state };
+  });
+  const success = "var(--vault-success)";
   return (
-    <div className="flex items-stretch gap-0 min-w-0" aria-label="Ladder steps">
-      {steps.map((s, i) => (
-        <div key={s.n} className="flex items-center min-w-0" style={{ flex: i === steps.length - 1 ? "0 1 auto" : "1 1 0" }}>
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span
-              className="inline-flex shrink-0 items-center justify-center rounded-full font-mono font-bold tabular"
-              style={{
-                width: 20,
-                height: 20,
-                fontSize: 10,
-                color: s.active ? "#120A07" : "var(--vault-text-faint)",
-                background: s.active ? accentColor : "rgba(255,255,255,0.04)",
-                border: `1px solid ${s.active ? accentColor : "var(--vault-rule)"}`,
-                boxShadow: s.active ? `0 0 10px color-mix(in srgb, ${accentColor} 55%, transparent)` : "none",
-              }}
-            >
-              {s.n}
-            </span>
-            <span
-              className="font-mono uppercase tracking-[0.08em] truncate"
-              style={{ fontSize: 7.5, color: s.active ? accentColor : "var(--vault-text-faint)" }}
-            >
-              {s.label}
-            </span>
-          </div>
-          {i < steps.length - 1 ? (
-            <span aria-hidden className="mx-1.5 h-px flex-1 min-w-[10px]" style={{ background: "var(--vault-rule)" }} />
-          ) : null}
-        </div>
-      ))}
+    <div className="flex flex-col gap-1 min-w-0" aria-label={`Ladder · step ${currentStep} of ${totalSteps}`}>
+      <div className="flex items-center min-w-0">
+        {rungs.map((r, i) => {
+          const isCleared = r.state === "cleared";
+          const isCurrent = r.state === "current";
+          const dotColor = isCleared ? success : isCurrent ? accentColor : "var(--vault-rule)";
+          return (
+            <div key={r.n} className="flex items-center min-w-0" style={{ flex: i === rungs.length - 1 ? "0 0 auto" : "1 1 0" }}>
+              <span
+                className="inline-flex shrink-0 items-center justify-center rounded-full font-mono font-bold tabular"
+                style={{
+                  width: 18,
+                  height: 18,
+                  fontSize: 9.5,
+                  color: isCleared ? success : isCurrent ? "#120A07" : "var(--vault-text-faint)",
+                  background: isCleared ? "color-mix(in srgb, var(--vault-success) 16%, transparent)" : isCurrent ? accentColor : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${isCleared ? "color-mix(in srgb, var(--vault-success) 45%, transparent)" : dotColor}`,
+                  boxShadow: isCurrent ? `0 0 9px color-mix(in srgb, ${accentColor} 55%, transparent)` : "none",
+                }}
+              >
+                {isCleared ? "✓" : r.n}
+              </span>
+              {i < rungs.length - 1 ? (
+                <span aria-hidden className="mx-1 h-px flex-1 min-w-[6px]" style={{ background: r.n < currentStep ? success : "var(--vault-rule)", opacity: r.n < currentStep ? 0.6 : 1 }} />
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+      <span className="font-mono uppercase tracking-[0.08em] truncate" style={{ fontSize: 8, color: accentColor }}>
+        Step {currentStep} of {totalSteps} · Current card
+        {currentStep < totalSteps ? <span style={{ color: "var(--vault-text-faint)" }}> · Step {currentStep + 1} awaits Step {currentStep} settlement</span> : null}
+      </span>
     </div>
   );
 }
 
+/** Bank Builder ladders span 5 rungs; Moonshot spans 3. */
+const TOTAL_STEPS: Record<DailyPortfolioCard["product"], number> = { "bank-builder": 5, moonshot: 3 };
+
 function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; accent: Accent; accentColor: string }) {
   const tone = accent === "violet" ? "violet" : "gold";
   const active = card.status === "active";
+  const totalSteps = TOTAL_STEPS[card.product] ?? 3;
+  const currentStep = Math.min(Math.max(1, card.step), totalSteps);
   return (
     <div
       className="rounded-[12px] overflow-hidden flex flex-col min-w-0"
@@ -98,8 +119,8 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
           <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>Lane {card.lane}</span>
           <StatusPill status={card.status} />
         </div>
-        {/* Step rail — the shared ladder visual */}
-        <StepRail accentColor={accentColor} />
+        {/* Step rail — the shared ladder visual, driven by this lane's real progress */}
+        <StepRail currentStep={currentStep} totalSteps={totalSteps} accentColor={accentColor} />
       </div>
 
       {/* Current card body */}
@@ -110,6 +131,11 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
           </span>
           <OddsPill odds={card.combinedOdds} size="sm" tone={tone} />
         </div>
+        {card.targetReturn != null ? (
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: accentColor, fontSize: 8.5 }}>
+            → Step {currentStep} goal {money(card.targetReturn)}
+          </span>
+        ) : null}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: active ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 8.5 }}>
             {active ? `${money(card.stake)} at risk · open exposure` : "$0 placed · not activated"}
