@@ -9,6 +9,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { computeHomerScore, homerInputsFromRow } from "./homer-score";
 
 export const HOMER_NUKES_PICK_COUNT = 5;
 export const HOMER_NUKES_STAKE_PER_PICK = 20;
@@ -32,6 +33,8 @@ export interface HomerNukePick {
   provider: string | null;
   startTimeUtc: string | null;
   kickoffEt: string | null;
+  homerScore: number | null;        // 0..100 Homer Score (null when no modeling inputs present)
+  homerConfidence: "high" | "medium" | "low" | null;
 }
 
 export interface HomerNukesResult {
@@ -91,6 +94,9 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
     const player = String(r.player?.name ?? r.player ?? r.participant ?? "");
     if (!player) continue;
     const edge = modelProbability - impliedProb(odds);
+    // Homer Score from the real batter/pitcher/park inputs when the row carries them (else null).
+    const inputs = homerInputsFromRow(r);
+    const scored = inputs ? computeHomerScore(inputs) : null;
     candidates.push({
       id: String(r.id ?? `hr:${r.gameId ?? ""}:${player}`),
       player, playerId: r.player?.id ?? r.playerId ?? null,
@@ -99,12 +105,13 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
       opponent: r.opponent ?? null, matchup: String(r.matchup ?? r.fixture ?? ""),
       gameId: String(r.gameId ?? ""), market: marketKey, marketLabel: String(r.marketLabel ?? "To hit a home run"),
       odds, modelProbability, edge, provider, startTimeUtc: start, kickoffEt: kickoffEtLabel(start),
+      homerScore: scored ? scored.score : null, homerConfidence: scored ? scored.confidence : null,
     });
   }
   if (candidates.length === 0) return empty("No model-qualified home-run picks cleared the board for this slate yet.");
 
-  // Top 5 by model edge; max one pick per game so the board isn't all one stack.
-  candidates.sort((a, b) => b.edge - a.edge);
+  // Rank by the Homer Score when modeling inputs are present, else by model edge; max one pick per game.
+  candidates.sort((a, b) => (b.homerScore ?? -1) - (a.homerScore ?? -1) || b.edge - a.edge);
   const seenGames = new Set<string>();
   const picks: HomerNukePick[] = [];
   for (const c of candidates) {

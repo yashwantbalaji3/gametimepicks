@@ -11,12 +11,18 @@ import {
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
 
-test("MOBILE_NAV_ITEMS has 8 items in the product-spine order (Homer Nukes added as a first-class product tab)", () => {
-  assert.equal(MOBILE_NAV_ITEMS.length, 8);
+test("MOBILE_NAV_ITEMS has 9 items in the product-spine order (Homer Nukes + Diamond Specials are first-class product tabs)", () => {
+  assert.equal(MOBILE_NAV_ITEMS.length, 9);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "games", "picks", "lab", "bank", "moonshot", "homer", "mrdub"],
+    ["home", "games", "picks", "lab", "bank", "moonshot", "homer", "diamond", "mrdub"],
   );
+});
+
+test("homer + diamond resolve to their own buckets", () => {
+  assert.equal(resolveMobileNavBucket("/homer-nukes"), "homer");
+  assert.equal(resolveMobileNavBucket("/diamond-specials"), "diamond");
+  assert.equal(resolveMobileNavBucket("/diamond-specials/"), "diamond");
 });
 
 test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank/Moonshot/Homer Nukes)", () => {

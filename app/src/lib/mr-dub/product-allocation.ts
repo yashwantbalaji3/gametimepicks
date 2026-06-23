@@ -18,12 +18,14 @@ import { buildDailyPortfolio } from "./daily-portfolio";
 import { buildSpecialsLedger } from "../world-cup/specials-ledger";
 import { loadWorldCupSpecials } from "../world-cup/world-cup-specials";
 import { loadHomerNukes, HOMER_NUKES_STAKE_PER_PICK, HOMER_NUKES_DAILY_ALLOCATION, HOMER_NUKES_PICK_COUNT } from "../mlb/homer-nukes";
+import { loadDiamondSpecials, DIAMOND_SPECIALS_DAILY_ALLOCATION } from "../mlb/diamond-specials";
+import { buildDiamondLedger } from "../mlb/diamond-specials-ledger";
 
 export const WC_SPECIALS_STAKE_PER_CARD = 20;
 export const WC_SPECIALS_CARDS_PER_DAY = 5;
 export const WC_SPECIALS_DAILY_ALLOCATION = WC_SPECIALS_STAKE_PER_CARD * WC_SPECIALS_CARDS_PER_DAY; // $100/day
 
-export type ProductKey = "bank-builder" | "moonshot" | "world-cup-specials" | "homer-nukes";
+export type ProductKey = "bank-builder" | "moonshot" | "world-cup-specials" | "homer-nukes" | "diamond-specials";
 export type ProductStatus = "active" | "candidate" | "pending" | "no-board";
 
 export interface ProductAllocation {
@@ -117,6 +119,12 @@ export function buildPortfolioAllocation(root: string, nowIso: string, date: str
   const homerPicks = homer.available ? Math.min(HOMER_NUKES_PICK_COUNT, homer.picks.length) : 0;
   const homerExposure = round2(homerPicks * HOMER_NUKES_STAKE_PER_PICK);
 
+  // 5 — Diamond Specials (MLB): 5 parlays/day × $20 = $100/day. Data-gated until the MLB board posts.
+  const diamond = loadDiamondSpecials(root, date);
+  const diamondLedger = buildDiamondLedger(root, date);
+  const diamondCards = diamond.available ? diamond.cards.length : 0;
+  const diamondExposure = round2(diamondCards * 20);
+
   const pct = (x: number) => (activeBankroll > 0 ? round2(x / activeBankroll) : 0);
   const specialsRecord: Rec = { ...specialsLedger.record };
   const homerRecord: Rec = { wins: 0, losses: 0, pushes: 0 };
@@ -156,6 +164,16 @@ export function buildPortfolioAllocation(root: string, nowIso: string, date: str
       note: homer.available
         ? `Top ${homerPicks} MLB home-run picks today · $${HOMER_NUKES_STAKE_PER_PICK} each.`
         : "MLB home-run board not posted yet — $0 placed until the Odds API posts today's props.",
+    },
+    {
+      key: "diamond-specials", label: "Diamond Specials", href: "/diamond-specials", accent: "#5ec8e5",
+      dailyAllocation: DIAMOND_SPECIALS_DAILY_ALLOCATION, openExposure: diamondExposure, pctOfBankroll: pct(diamondExposure),
+      record: { ...diamondLedger.record }, realizedPnl: diamondLedger.pnl, roi: diamondLedger.roi, winRate: diamondLedger.winRate,
+      avgOdds: diamond.available ? avgOddsOf(diamond.cards) : null, legCount: diamondCards,
+      status: diamond.available ? "active" : "no-board", statusLabel: STATUS_LABEL[diamond.available ? "active" : "no-board"],
+      note: diamond.available
+        ? `${diamondCards} MLB Diamond Specials today · $20 each.`
+        : "MLB board not posted yet — Diamond Specials ($100/day, 5 parlays) light up once MLB markets post.",
     },
   ];
 

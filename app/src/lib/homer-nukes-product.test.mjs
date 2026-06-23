@@ -44,7 +44,7 @@ test("Homer Nukes never fabricates: every returned pick (when present) is odds-b
 
 test("portfolio allocation: four products, exposure aggregates, bankroll/crown preserved", () => {
   const a = buildPortfolioAllocation(root, NOW, DATE);
-  assert.deepEqual(a.products.map((p) => p.key), ["bank-builder", "moonshot", "world-cup-specials", "homer-nukes"]);
+  assert.deepEqual(a.products.map((p) => p.key), ["bank-builder", "moonshot", "world-cup-specials", "homer-nukes", "diamond-specials"]);
   // Bankroll + crown come straight from the protected portfolio.json, unchanged.
   assert.equal(a.activeBankroll, 10176.17, "active bankroll = portfolio.currentBankroll");
   assert.equal(a.crownBankroll, 10376.17, "crown separate + unchanged");
@@ -86,9 +86,9 @@ test("portfolio analytics: per-product record/win-rate/avg-odds/leg-count + perf
   assert.ok(bb.winRate != null && bb.winRate > 0.8, "Bank Builder win rate from real record");
   assert.equal(bb.rank, 1, "Bank Builder ranks #1 by win rate");
   assert.ok(bb.legCount > 0 && bb.avgOdds != null, "avg odds + leg count derived from live cards");
-  // Ranking covers all four products uniquely.
+  // Ranking covers all five products uniquely.
   const ranks = a.products.map((p) => p.rank).sort();
-  assert.deepEqual(ranks, [1, 2, 3, 4], "each product has a unique 1..4 rank");
+  assert.deepEqual(ranks, [1, 2, 3, 4, 5], "each product has a unique 1..5 rank");
   // Moonshot keeps its own record (not blended into the core).
   assert.ok(moon.record.losses >= 0, "moonshot has its own record");
 });
