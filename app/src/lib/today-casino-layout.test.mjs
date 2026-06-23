@@ -1,7 +1,8 @@
 /**
- * Locks the June-16 launch-polish /today ordering (owner restructure): quick-action buttons FIRST,
- * then the World Cup focus, then the COMPACT Bank Builder status rail, then the filterable suggested
- * parlays. The old tall "Bank Builder · {dateLabel}" recap is gone (compact rail replaces it).
+ * Locks the /today ordering (owner restructure): quick-action buttons FIRST, then the three flagship
+ * surfaces in order — Bank Builder ladders, Moonshot ladders, World Cup exclusive parlays — then the
+ * World Cup focus, the COMPACT Bank Builder status rail, and the filterable suggested parlays. The old
+ * tall "Bank Builder · {dateLabel}" recap is gone (compact rail replaces it).
  * Source-level checks (suite runs pre-build).
  */
 import { test } from "node:test";
@@ -37,10 +38,19 @@ test("compact Bank Builder status rail replaces the tall recap, before suggested
   assert.ok(!src.includes("Bank Builder · {dateLabel}"), "old tall Bank Builder recap removed");
 });
 
-test("World Cup focus shows the order: World Cup leads the content sections", () => {
+test("the three flagship ladders lead the content: Bank Builder → Moonshot → WC exclusive parlays → World Cup focus → Bank Builder status", () => {
+  const bb = src.indexOf('aria-label="Bank Builder ladders"');
+  const moon = src.indexOf('aria-label="Moonshot ladders"');
+  const wcParlays = src.indexOf("<WorldCupSpecialsBox");
   const wc = src.indexOf("<TodaysFocusWorldCup");
   const rail = src.indexOf("<BankBuilderStatusRail");
-  assert.ok(wc < rail, "World Cup focus precedes the Bank Builder status");
+  assert.ok(bb > 0 && moon > 0, "both flagship ladder sections present");
+  assert.ok(bb < moon, "Bank Builder ladders lead Moonshot ladders");
+  assert.ok(moon < wcParlays, "Moonshot ladders precede the WC exclusive parlays");
+  assert.ok(wcParlays < wc, "WC exclusive parlays precede the World Cup focus");
+  assert.ok(wc < rail, "World Cup focus precedes the Bank Builder status rail");
+  // The two flagship ladders reuse the shared ProductLanesLadder surface.
+  assert.ok(src.includes("<ProductLanesLadder"), "renders the shared product ladder for the lead sections");
 });
 
 test("heat system tokens exist in the design system", () => {

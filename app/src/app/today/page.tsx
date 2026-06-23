@@ -44,6 +44,7 @@ import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import WorldCupSpecialsBox from "@/components/world-cup/world-cup-specials-box";
+import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
 import EgyptNzSameGame, { loadNzEgyptMarkets } from "@/components/world-cup/egypt-nz-same-game";
 import { loadModelQualifiedProps } from "@/lib/world-cup/model-qualified-props";
@@ -268,6 +269,10 @@ export default function TodayPage() {
   // while lanes are active); fall back to the legacy cleared-lane state when nothing is active.
   const bbActive = dailyPortfolio.cards.filter((c) => c.product === "bank-builder" && c.status === "active");
   const moonActive = dailyPortfolio.cards.filter((c) => c.product === "moonshot" && c.status === "active");
+  // The two flagship ladders that LEAD the page (owner restructure): the Bank Builder and Moonshot
+  // lane cards (Lane A/B step rail + the current rung's legs, with team logos + player portraits).
+  const bankBuilderLadder = dailyPortfolio.cards.filter((c) => c.product === "bank-builder");
+  const moonshotLadder = dailyPortfolio.cards.filter((c) => c.product === "moonshot");
   const bbValue = bbActive.length ? `${bbActive.length} active lanes` : bothLanesCleared ? "Both lanes WON" : bbLanesCleared === 1 ? "Lane B WON" : "Pending";
   const bbSub = bbActive.length
     ? `${bbActive.map((c) => `Step ${c.step}`).join(" · ")} · $${dailyPortfolio.exposure.core} open exposure`
@@ -288,14 +293,19 @@ export default function TodayPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       {/* 1 — Quick actions (mobile only): 1-click reach to key areas. On desktop the CommandRail
-            left rail already covers these, so the row is hidden (lg:hidden) to avoid duplication. */}
+            left rail already covers these, so the row is hidden (lg:hidden) to avoid duplication.
+            Leads with the flagship money products (Bank Builder · Moonshot · WC Specials) to mirror
+            the page order, then the daily-loop surfaces. */}
       <nav aria-label="Quick actions" className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 lg:hidden">
         {[
-          { href: "/games", label: "Games" },
+          { href: "/bank-builder", label: "Bank Builder" },
+          { href: "/moonshot", label: "Moonshot" },
+          { href: "/world-cup-specials", label: "WC Specials" },
           { href: "/world-cup", label: "World Cup" },
           { href: "/picks", label: "Parlay Lab" },
           { href: "/build", label: "Build" },
-          { href: "/bank-builder", label: "Bank Builder" },
+          { href: "/games", label: "Games" },
+          { href: "/mr-dub", label: "Mr. Dub" },
           { href: "/results", label: "Results" },
         ].map((a) => (
           <Link
@@ -309,7 +319,32 @@ export default function TodayPage() {
         ))}
       </nav>
 
-      {/* 1.25 — June 23 readiness strip: one glance at every live surface (Bank Builder, World Cup,
+      {/* 1.1 — PRIORITY #1: Bank Builder ladders. The two lane cards (step rail + the current rung's
+            legs, with team logos + player portraits) lead the page per the owner restructure. */}
+      {bankBuilderLadder.length > 0 && (
+        <section aria-label="Bank Builder ladders" className="flex flex-col gap-2">
+          <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" lanes={bankBuilderLadder} accent="gold" />
+          <Link href="/bank-builder" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+            Open the full Bank Builder ladder →
+          </Link>
+        </section>
+      )}
+
+      {/* 1.2 — PRIORITY #2: Moonshot ladders. Same shared ladder shape, higher-volatility lane. */}
+      {moonshotLadder.length > 0 && (
+        <section aria-label="Moonshot ladders" className="flex flex-col gap-2">
+          <ProductLanesLadder productLabel="Moonshot" product="moonshot" lanes={moonshotLadder} accent="violet" />
+          <Link href="/moonshot" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+            Open the full Moonshot ladder →
+          </Link>
+        </section>
+      )}
+
+      {/* 1.3 — PRIORITY #3: World Cup exclusive parlays (the Suggested World Cup Parlays box). Gated to
+            today; fails closed on a stale slate. Moved up from below Today's Focus per the restructure. */}
+      {wcSpecials && <WorldCupSpecialsBox data={wcSpecials} />}
+
+      {/* 1.4 — June 23 readiness strip: one glance at every live surface (Bank Builder, World Cup,
             model player props, Parlay Lab, Moonshot, Specials), each a tap-through. Paper-only. */}
       <section aria-label={`${dateLabel} readiness`}>
         <div className="flex items-baseline justify-between mb-2.5">
@@ -332,7 +367,7 @@ export default function TodayPage() {
         </div>
       </section>
 
-      {/* 1.3 — Today's paper portfolio: Mr. Dub's 4 candidate lanes (Bank Builder A/B + Moonshot A/B).
+      {/* 1.5 — Today's paper portfolio: Mr. Dub's 4 candidate lanes (Bank Builder A/B + Moonshot A/B).
             Derived, candidate-only (no exposure placed). Crown shown separately on /mr-dub. */}
       <Link
         href="/mr-dub"
@@ -362,7 +397,7 @@ export default function TodayPage() {
         </span>
       </Link>
 
-      {/* 1.5 — Model picks ready: user-facing summary of today's model-ranked cards → Parlay Lab.
+      {/* 1.6 — Model picks ready: user-facing summary of today's model-ranked cards → Parlay Lab.
             (Internal "methodology engine / STEP n LIVE / lanes cleared" language moved off the
             dashboard; Bank Builder status lives in its own rail below and on /methodology.) */}
       {engineSlate.available && (
@@ -391,10 +426,6 @@ export default function TodayPage() {
 
       {/* 2 — Today's Focus: World Cup */}
       <TodaysFocusWorldCup matches={wcFocus} games={wcGames} dateLabel={dateLabel} />
-
-      {/* 2.5 — World Cup Specials: homepage-only box of 5 Moonshot-style WC-only paper longshots
-            (separate from the Moonshot Lane AND the Dual Bank Builder). Only when today-dated. */}
-      {wcSpecials && <WorldCupSpecialsBox data={wcSpecials} />}
 
       {/* 2.6 — Egypt vs New Zealand same-game ideas (real markets only, no fabricated SGP price). */}
       {nzEgyptMarkets ? <EgyptNzSameGame data={nzEgyptMarkets} /> : null}

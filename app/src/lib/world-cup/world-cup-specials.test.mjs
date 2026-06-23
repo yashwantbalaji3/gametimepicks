@@ -226,7 +226,7 @@ test("homepage box stacks vertically and adds no horizontal overflow", () => {
   assert.ok(!/overflow-x-auto|w-\[\d{4}/.test(src), "no wide fixed widths / horizontal scrollers");
 });
 
-test("the homepage page wires the box below Today's Focus and gates it to today", () => {
+test("the homepage wires the box as a lead 'WC exclusive parlays' section and gates it to today", () => {
   const page = fs.readFileSync("src/app/today/page.tsx", "utf8");
   assert.match(page, /WorldCupSpecialsBox/, "imports + renders the box");
   assert.match(page, /loadWorldCupSpecials/, "loads the snapshot");

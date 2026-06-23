@@ -15,7 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupModelPicks, buildDailyLaneCandidates, type LaneCandidate } from "../world-cup/model-qualified-picks";
 
-export interface DailyPortfolioLeg { selection: string; marketLabel: string; matchup: string; odds: number }
+export interface DailyPortfolioLeg { selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null }
 export interface DailyPortfolioCard {
   id: string;
   product: "bank-builder" | "moonshot";
@@ -55,7 +55,7 @@ function toCard(l: LaneCandidate): DailyPortfolioCard {
     id: l.id, product: l.product, productLabel: PRODUCT_LABEL[l.product] ?? l.product, lane: l.lane, step: 1, clearedSteps: 0,
     status: l.status, stake: l.stake, targetReturn: null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
-    legs: l.legs.map((p) => ({ selection: p.selection, marketLabel: p.marketLabel, matchup: p.matchup, odds: p.odds })),
+    legs: l.legs.map((p) => ({ selection: p.selection, marketLabel: p.marketLabel, matchup: p.matchup, odds: p.odds, player: p.player ?? null })),
     correlationNote: l.correlationNote, shortfallNote: l.shortfallNote,
   };
 }
@@ -69,7 +69,7 @@ function fromPersisted(root: string, date: string): DailyPortfolio | null {
     id: l.id, product: l.product, productLabel: l.productLabel, lane: l.lane, step: l.step ?? 1, clearedSteps: l.clearedSteps ?? 0,
     status: l.status, stake: l.stake, targetReturn: l.targetReturn ?? null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
-    legs: (l.legs ?? []).map((g: any) => ({ selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds })),
+    legs: (l.legs ?? []).map((g: any) => ({ selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null })),
     correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null,
   }));
   const anyActive = cards.some((c) => c.status === "active");
