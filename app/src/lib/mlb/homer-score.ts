@@ -43,6 +43,19 @@ export interface HomerScoreResult {
   confidence: "high" | "medium" | "low"; // how much real signal fed the score
 }
 
+/** The advanced inputs the full Homer Score model consumes. Until a Statcast/weather feed is wired,
+ *  these report as "pending" and the score falls back to the de-vigged market probability (Partial Model). */
+export const HOMER_SCORE_INPUTS = [
+  "Barrel %", "Hard-Hit %", "xSLG", "HR/FB", "Pitcher HR/9", "Weather", "Park factor",
+] as const;
+
+/** Which advanced inputs are currently LIVE. No Statcast/weather feed is wired yet, so the model runs in
+ *  Partial Model mode (market-probability ranking). Returns the live-input count for honest UI labeling. */
+export function homerModelInputStatus(): { total: number; live: number; partial: boolean; pending: readonly string[] } {
+  const live = 0; // ← becomes > 0 when the Statcast / park / weather loaders are wired
+  return { total: HOMER_SCORE_INPUTS.length, live, partial: live < HOMER_SCORE_INPUTS.length, pending: HOMER_SCORE_INPUTS };
+}
+
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
 /** Map a value to 0..1 across [lo, hi] (lo→0, hi→1), clamped. */
 const norm = (v: number | undefined, lo: number, hi: number, neutral: number): number =>

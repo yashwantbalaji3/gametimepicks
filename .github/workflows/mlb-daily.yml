@@ -1,0 +1,106 @@
+name: MLB daily board + Homer Nukes
+
+# The daily MLB pipeline: ingest the real slate + prop odds from The Odds API, enrich each prop with a
+# real player headshot + team (free MLB Stats API), and commit the read-only daily artifacts the app
+# reads. The Homer Nukes 5-leg parlay is DERIVED at render time from the home-run-props artifact
+# (lib/mlb/homer-nukes.ts), so there is no separate "generation" step to fabricate — posting the board
+# IS posting Homer Nukes. Settlement is a separate, explicitly operator-run grading step
+# (lib/mlb/mlb-settlement.ts, graded from OFFICIAL box scores); it is intentionally NOT auto-run here.
+#
+# DORMANT BY DEFAULT (fail-closed, never writes money):
+#   • mode defaults to `dry_run` → the ingest fetches + reports and writes NOTHING.
+#   • This pipeline only ever writes app/public/data/mlb/** (read-only market artifacts). It NEVER
+#     touches bankroll / crown / exposure / portfolio.json / results / settlement history — the commit
+#     step is scoped to the mlb data dir only.
+#   • Requires repo secret ODDS_API_KEY (paid plan with MLB player-prop coverage). Without it the ingest
+#     script honest-no-ops (reports the blocker, exits 0, writes nothing) — no board is fabricated.
+# An operator must (1) add the ODDS_API_KEY repo secret and (2) dispatch with mode=write_board (or set
+# the repo variable MLB_MODE=write_board) to let the schedule post a production board. Until then this is
+# a read-only fetch-and-report watcher.
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Slate date (YYYY-MM-DD, ET). Blank = today (UTC date)."
+        required: false
+        default: ""
+      mode:
+        description: "dry_run (default — fetch + report, write nothing) | write_board (writes + commits the MLB board)"
+        required: false
+        default: "dry_run"
+        type: choice
+        options: [dry_run, write_board]
+  schedule:
+    # 15:10 UTC ≈ 11:10am ET — after lineups firm up for the day but before first pitch on most slates.
+    # The scheduled run is dry_run unless an operator sets the repo variable MLB_MODE=write_board.
+    - cron: "10 15 * * *"
+
+env:
+  MLB_MODE: ${{ vars.MLB_MODE || 'dry_run' }}
+  # Credit floor: skip the paid odds fetch if the Odds API balance is at or below this (protects the key
+  # budget). The ingest script probes x-requests-remaining and fails closed below the floor.
+  ODDS_API_MIN_CREDITS_REMAINING: "2000"
+
+jobs:
+  ingest-and-enrich:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve inputs
+        id: cfg
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          [ -z "$DATE" ] && DATE="$(date -u +%F)"
+          MODE="${{ github.event.inputs.mode || env.MLB_MODE }}"
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "Resolved date=$DATE mode=$MODE"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.4.0"
+
+      - name: Install deps
+        working-directory: app
+        run: npm ci
+
+      - name: Ingest MLB slate + prop odds (Odds API)
+        id: ingest
+        working-directory: app
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          if [ "${{ steps.cfg.outputs.mode }}" = "write_board" ]; then
+            echo "Mode=write_board → fetching and writing the MLB board."
+            npx tsx scripts/ingest-mlb-slate.mjs --date "${{ steps.cfg.outputs.date }}"
+          else
+            echo "Mode=dry_run → fetching and reporting only, writing nothing."
+            npx tsx scripts/ingest-mlb-slate.mjs --date "${{ steps.cfg.outputs.date }}" --dry-run
+          fi
+
+      - name: Enrich props with real headshots + team (free MLB Stats API)
+        if: steps.cfg.outputs.mode == 'write_board'
+        working-directory: app
+        run: |
+          # No Odds-API credits — statsapi.mlb.com is free. Adds photoUrl / playerId / team / teamAbbr to
+          # each ingested prop. Matches by normalized name; unmatched props simply keep no headshot.
+          npx tsx scripts/enrich-mlb-headshots.mjs --date "${{ steps.cfg.outputs.date }}"
+
+      - name: Commit MLB artifacts (mlb data dir ONLY — never money files)
+        if: steps.cfg.outputs.mode == 'write_board'
+        run: |
+          git config user.name "gtp-mlb-bot"
+          git config user.email "noreply@github.com"
+          # Scoped add: only the read-only MLB market artifacts. portfolio.json / crown / results are NOT
+          # in this path and are never staged here.
+          git add app/public/data/mlb 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No MLB artifact changes to commit."
+          else
+            git commit -m "chore(mlb): daily board + Homer Nukes ${{ steps.cfg.outputs.date }}"
+            git push
+          fi
