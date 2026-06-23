@@ -229,12 +229,12 @@ test("UI: preview box shows $10 → return, role badge, role-evidence drawer", (
   assert.match(box, /Role-screened/, "role-screened badge");
 });
 
-test("UI: production homepage renders the role-screened specials (June 22 snapshot, no preview-route wiring)", () => {
+test("UI: production homepage renders the role-screened specials (June 23 snapshot, no preview-route wiring)", () => {
   const today = fs.readFileSync("src/app/today/page.tsx", "utf8");
   assert.ok(!/preview\/june20/.test(today), "today page does not wire the internal /preview/june20 route");
-  // Production specials snapshot is the latest role-screened live build (June 22).
+  // Production specials snapshot is the latest role-screened live build (June 23).
   const prod = JSON.parse(fs.readFileSync("public/data/world-cup/world-cup-specials.json", "utf8"));
-  assert.equal(prod.date, "2026-06-22", "production specials snapshot is June 22");
+  assert.equal(prod.date, "2026-06-23", "production specials snapshot is June 23");
 });
 
 test("UI: production specials box surfaces a distinct Confirmed starter badge (lineups posted)", () => {
@@ -247,7 +247,7 @@ test("UI: production specials box surfaces a distinct Confirmed starter badge (l
 
 test("snapshot: production specials are valid + honestly labeled (confirmed starters when cards exist; valid empty when slate over)", () => {
   const prod = JSON.parse(fs.readFileSync("public/data/world-cup/world-cup-specials.json", "utf8"));
-  assert.equal(prod.date, "2026-06-22", "production specials are the June 22 slate");
+  assert.equal(prod.date, "2026-06-23", "production specials are the June 23 slate");
   const confirmed = prod.cards.flatMap((c) => c.legs).filter((l) => l.roleTier === "confirmed_starter");
   // When confirmed-starter legs are present they must be honestly labeled + belong to a posted-lineup team.
   for (const l of confirmed) {
@@ -268,7 +268,7 @@ test("PROTECTION: active Bank Builder / Moonshot / Mr. Dub / June 19 WC artifact
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
   assert.equal(p.openExposure, 200, "core open exposure (Lane A + Lane B placed seeds)");
   assert.equal(p.totalOpenExposure, 200, "total open exposure $200 (core $200; moonshot settled → 0)");
-  // Production WC projections are the live June 22 slate.
+  // Production WC projections are the live June 23 slate.
   const wc = JSON.parse(fs.readFileSync("public/data/world-cup/projections/latest.json", "utf8"));
-  assert.equal(wc.date, "2026-06-22", "production WC projections are June 22");
+  assert.equal(wc.date, "2026-06-23", "production WC projections are June 23");
 });
