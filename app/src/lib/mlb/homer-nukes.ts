@@ -82,6 +82,9 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
   for (const r of rows) {
     const marketKey = String(r.market ?? r.marketKey ?? "").toLowerCase();
     if (!HR_MARKET_KEYS.has(marketKey)) continue;
+    // Homer Nukes is the ANYTIME home run (the "Over 0.5" line) — skip the 1.5/2.5 multi-HR lines.
+    const point = typeof r.point === "number" ? r.point : null;
+    if (point != null && point > 0.5) continue;
     evaluated++;
     const odds = typeof r.americanOdds === "number" ? r.americanOdds : typeof r.odds === "number" ? r.odds : null;
     if (odds == null || odds < ODDS_MIN || odds > ODDS_MAX) continue;
@@ -89,11 +92,14 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
     if (!provider) continue;
     const start = (r.startTimeUtc ?? r.commenceTime ?? null) as string | null;
     if (start && start <= new Date(0).toISOString()) { /* ignore obviously-bad */ }
-    const modelProbability = typeof r.modelProbability === "number" ? r.modelProbability : 0;
+    // With a proprietary model the row carries modelProbability; until the Statcast inputs are wired we
+    // fall back to the de-vigged MARKET-implied probability (honest — no fabricated edge is claimed).
+    const hasModel = typeof r.modelProbability === "number";
+    const modelProbability = hasModel ? r.modelProbability : impliedProb(odds);
     if (modelProbability < MODEL_FLOOR) continue;
     const player = String(r.player?.name ?? r.player ?? r.participant ?? "");
     if (!player) continue;
-    const edge = modelProbability - impliedProb(odds);
+    const edge = hasModel ? modelProbability - impliedProb(odds) : 0; // no edge claimed without a model
     // Homer Score from the real batter/pitcher/park inputs when the row carries them (else null).
     const inputs = homerInputsFromRow(r);
     const scored = inputs ? computeHomerScore(inputs) : null;
@@ -110,8 +116,9 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
   }
   if (candidates.length === 0) return empty("No model-qualified home-run picks cleared the board for this slate yet.");
 
-  // Rank by the Homer Score when modeling inputs are present, else by model edge; max one pick per game.
-  candidates.sort((a, b) => (b.homerScore ?? -1) - (a.homerScore ?? -1) || b.edge - a.edge);
+  // Rank by Homer Score when modeling inputs are present, else by the likeliest HR (probability desc);
+  // max one pick per game so the top 5 spreads across the slate.
+  candidates.sort((a, b) => (b.homerScore ?? -1) - (a.homerScore ?? -1) || b.modelProbability - a.modelProbability);
   const seenGames = new Set<string>();
   const picks: HomerNukePick[] = [];
   for (const c of candidates) {
@@ -120,9 +127,12 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
     if (c.gameId) seenGames.add(c.gameId);
     picks.push(c);
   }
+  const modeled = picks.some((p) => p.homerScore != null);
   return {
     date, available: true, picks, evaluated,
     stakePerPick: HOMER_NUKES_STAKE_PER_PICK, dailyAllocation: HOMER_NUKES_DAILY_ALLOCATION,
-    note: `Top ${picks.length} model-qualified home-run picks across the slate, ranked by edge. $${HOMER_NUKES_STAKE_PER_PICK} per pick · paper-only.`,
+    note: modeled
+      ? `Top ${picks.length} home-run picks across the slate, ranked by Homer Score. $${HOMER_NUKES_STAKE_PER_PICK} per pick · paper-only.`
+      : `Top ${picks.length} anytime-HR candidates by de-vigged market probability (Homer Score model inputs pending). $${HOMER_NUKES_STAKE_PER_PICK} per pick · paper-only.`,
   };
 }

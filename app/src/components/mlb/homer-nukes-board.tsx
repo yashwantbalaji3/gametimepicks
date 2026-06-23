@@ -54,8 +54,19 @@ export default function HomerNukesBoard({ board }: { board: HomerNukesResult }) 
               </span>
               <span className="block font-mono text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{p.marketLabel}{p.matchup ? ` · ${p.matchup}` : ""}</span>
               <span className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                <span>model {pct(p.modelProbability)}</span>
-                <span style={{ color: p.edge >= 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>edge {signed(p.edge)}</span>
+                {p.homerScore != null ? (
+                  <>
+                    <span style={{ color: "var(--gtp-bank-heat)" }}>Homer Score {p.homerScore}</span>
+                    <span>model {pct(p.modelProbability)}</span>
+                    <span style={{ color: p.edge >= 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>edge {signed(p.edge)}</span>
+                    {p.homerConfidence ? <span>{p.homerConfidence} conf</span> : null}
+                  </>
+                ) : (
+                  <>
+                    <span style={{ color: "var(--gtp-bank-heat)" }}>{pct(p.modelProbability)} market</span>
+                    <span>Homer Score pending</span>
+                  </>
+                )}
                 {p.provider ? <span>{p.provider}</span> : null}
                 {p.kickoffEt ? <span>{p.kickoffEt}</span> : null}
               </span>

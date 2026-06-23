@@ -7,7 +7,12 @@
  */
 import Link from "next/link";
 import HomerNukesBoard from "@/components/mlb/homer-nukes-board";
+import MlbPropsBoard, { type BoardProp } from "@/components/mlb/props-board";
+import PlayerAvatar from "@/components/ui/player-avatar";
 import type { HomerNukesResult } from "@/lib/mlb/homer-nukes";
+
+const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
+const impliedPct = (a: number) => Math.round((1 / dec(a)) * 100);
 
 function SectionCard({ tag, title, sub, children }: { tag: string; title: string; sub: string; children: React.ReactNode }) {
   return (
@@ -33,7 +38,31 @@ function GatedSlot({ label, note }: { label: string; note: string }) {
 
 const GATE_NOTE = "Today's MLB board has not been posted yet — waiting on the sportsbooks. This section fills in automatically the moment real MLB markets post; no fabricated picks in the meantime.";
 
-export default function MlbFlagshipSections({ homer }: { homer: HomerNukesResult }) {
+function PremiumPlays({ props }: { props: BoardProp[] }) {
+  // Top 10 by market-implied probability across the slate (max 2 per player), one clean list.
+  const seen = new Map<string, number>();
+  const ranked = [...props].sort((a, b) => impliedPct(b.americanOdds) - impliedPct(a.americanOdds));
+  const top: BoardProp[] = [];
+  for (const p of ranked) {
+    const n = seen.get(p.player) ?? 0; if (n >= 2) continue; seen.set(p.player, n + 1);
+    top.push(p); if (top.length >= 10) break;
+  }
+  return (
+    <ol className="flex flex-col gap-1.5 list-none">
+      {top.map((p, i) => (
+        <li key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2 flex items-center gap-2.5 min-w-0" style={{ background: "rgba(12,8,6,0.45)", border: "1px solid var(--vault-rule)" }}>
+          <span className="font-display tabular shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 12, fontWeight: 800, width: 14 }}>{i + 1}</span>
+          <PlayerAvatar name={p.player} size={20} />
+          <span className="min-w-0 flex-1"><span className="block break-words font-semibold leading-tight" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{p.player}</span><span className="block font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{p.marketLabel}{p.point != null ? ` ${p.point}` : ""} · {p.matchup}</span></span>
+          <span className="shrink-0 text-right"><span className="block font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 12 }}>{p.americanOdds > 0 ? "+" : ""}{p.americanOdds}</span><span className="block font-mono" style={{ color: "var(--gtp-bank-heat)", fontSize: 9.5 }}>{impliedPct(p.americanOdds)}% mkt</span></span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+export default function MlbFlagshipSections({ homer, props }: { homer: HomerNukesResult; props: BoardProp[] }) {
+  const live = props.length > 0;
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
@@ -42,24 +71,24 @@ export default function MlbFlagshipSections({ homer }: { homer: HomerNukesResult
       </div>
 
       {/* A — Homer Nukes (flagship). */}
-      <SectionCard tag="Section A · Flagship" title="Today's Top 5 Homer Nukes" sub="The five highest-rated home-run plays of the day, by Homer Score.">
+      <SectionCard tag="Section A · Flagship" title="Today's Top 5 Homer Nukes" sub="The five highest-rated home-run plays of the day.">
         <HomerNukesBoard board={homer} />
         <Link href="/homer-nukes" className="self-start font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>Open Homer Nukes →</Link>
       </SectionCard>
 
-      {/* B — Props Board (data-gated). */}
-      <SectionCard tag="Section B" title="MLB Props Board" sub="Sortable, filterable grid — Hits · Bases · Runs · Pitchers · HR, with model %, fair odds, edge and provider.">
-        <GatedSlot label="Props board posts when MLB markets are live" note={GATE_NOTE} />
+      {/* B — Props Board (real, filterable). */}
+      <SectionCard tag="Section B" title="MLB Props Board" sub="Filter by market · game · player search; sort by market % or odds. HR · Hits · Bases · Runs · Pitchers.">
+        {live ? <MlbPropsBoard props={props} /> : <GatedSlot label="Props board posts when MLB markets are live" note={GATE_NOTE} />}
       </SectionCard>
 
-      {/* C — Premium Plays (data-gated). */}
-      <SectionCard tag="Section C" title="Premium Plays — top 10 edges" sub="Only the highest-edge MLB plays of the day, with provider + confidence.">
-        <GatedSlot label="Premium edges post when MLB markets are live" note={GATE_NOTE} />
+      {/* C — Premium Plays (real top-10). */}
+      <SectionCard tag="Section C" title="Premium Plays — top 10 market %" sub="The slate's likeliest plays by de-vigged market probability (model edge online when the model layer is wired).">
+        {live ? <PremiumPlays props={props} /> : <GatedSlot label="Premium plays post when MLB markets are live" note={GATE_NOTE} />}
       </SectionCard>
 
       {/* D — Game Explorer (links into the existing board below). */}
       <SectionCard tag="Section D" title="Game Explorer" sub="Every MLB game — game picks, player props, pitcher props, team props.">
-        <GatedSlot label="The slate's games appear in the board below once posted" note="Browse the full game-by-game board in the tabs below. It populates when the MLB schedule + markets are posted for the day." />
+        <GatedSlot label={live ? "Browse the full game-by-game board in the tabs below" : "The slate's games appear once posted"} note={live ? "The per-game board, projections and suggested cards are in the tabs below." : "Browse the full game-by-game board in the tabs below once the MLB schedule + markets post."} />
       </SectionCard>
     </div>
   );

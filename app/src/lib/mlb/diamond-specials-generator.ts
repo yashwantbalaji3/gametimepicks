@@ -35,6 +35,8 @@ export interface GeneratedCard {
 export interface DiamondSpecialsSnapshot { date: string; generatedAt: string; cards: GeneratedCard[] }
 
 export const STAKE = 20;
+export const LONGSHOT_MIN_ODDS = 120;   // per-leg band for the Longshot card
+export const LONGSHOT_MAX_ODDS = 500;
 const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d: number) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 const round2 = (n: number) => Number(n.toFixed(2));
@@ -92,8 +94,10 @@ export function generateDiamondSpecials(props: Prop[], date: string, generatedAt
     const card = makeCard(date, category, pickLegs(pool, 2, "strength"));
     if (card) cards.push(card);
   }
-  // Longshot — 3 highest-priced legs across every group, max one per game.
-  const longshot = makeCard(date, "Longshot Special", pickLegs(props, 3, "longshot"));
+  // Longshot — 3 highest-priced legs within a SANE band (+120..+500), max one per game, so the combined
+  // is a believable longshot, not an absurd 3×-home-run moonshot at +800,000,000.
+  const longshotPool = props.filter((p) => p.americanOdds >= LONGSHOT_MIN_ODDS && p.americanOdds <= LONGSHOT_MAX_ODDS);
+  const longshot = makeCard(date, "Longshot Special", pickLegs(longshotPool, 3, "longshot"));
   if (longshot) cards.push(longshot);
 
   return { date, generatedAt, cards };
