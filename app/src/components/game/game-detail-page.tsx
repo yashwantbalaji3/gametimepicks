@@ -64,7 +64,12 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards }: 
 
   // ── Model spotlight inputs (real data only) ──
   const topProj = [...detail.teamProjections].sort((a, b) => Math.abs(b.edgePct ?? 0) - Math.abs(a.edgePct ?? 0))[0] ?? null;
-  const modelPicks = worldCupPlayerModelPicks(detail.playerProps, MODEL_PICKS_N);
+  // The spotlight "top player model pick" must be model-qualified (addable window) — never a raw heavy
+  // favourite like -5000. Filter to odds-backed props within -500..+400 with a provider before ranking.
+  const qualifiedPlayerProps = detail.playerProps.filter(
+    (p) => typeof p.americanOdds === "number" && p.americanOdds >= -500 && p.americanOdds <= 400 && !!p.bookmaker,
+  );
+  const modelPicks = worldCupPlayerModelPicks(qualifiedPlayerProps, MODEL_PICKS_N);
   const topPlayer = modelPicks[0] ?? null;
   const limitedData = isLimitedDataProps(detail.playerProps);
   const allCards = engineCards?.cards ?? [];
@@ -94,7 +99,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards }: 
               <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{topPlayer.pickLabel}{topPlayer.line != null ? ` ${topPlayer.line}` : ""} · {american(topPlayer.americanOdds)} · market {pct(topPlayer.marketProbability)}{limitedData ? " · limited-data" : ""}</span>
             </div>
           </div>
-        ) : <EmptyTile eyebrow="Top player model pick" note="No odds-backed player props posted for this fixture yet." />}
+        ) : <EmptyTile eyebrow="Top player model pick" note="No model-qualified pick for this fixture (raw sportsbook inventory is not shown as a recommendation)." />}
 
         {bestLowCard ? (
           <SpotlightTile eyebrow={`Best lower-variance card · ${RISK_LABEL[bestLowCard.riskLevel] ?? bestLowCard.riskLevel}`} title={`${bestLowCard.legs.length} legs · ${american(bestLowCard.combinedOdds)}`}

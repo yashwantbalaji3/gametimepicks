@@ -22,8 +22,10 @@ export interface DailyPortfolioCard {
   productLabel: string;
   lane: "A" | "B";
   step: number;
+  clearedSteps: number;
   status: "candidate" | "active" | "pending" | "won" | "lost" | "void" | "awaiting";
   stake: number;
+  targetReturn: number | null;
   combinedOdds: number;
   potentialReturn: number;
   legCount: number;
@@ -50,8 +52,8 @@ const PRODUCT_LABEL: Record<string, string> = { "bank-builder": "Bank Builder", 
 
 function toCard(l: LaneCandidate): DailyPortfolioCard {
   return {
-    id: l.id, product: l.product, productLabel: PRODUCT_LABEL[l.product] ?? l.product, lane: l.lane, step: 1,
-    status: l.status, stake: l.stake, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
+    id: l.id, product: l.product, productLabel: PRODUCT_LABEL[l.product] ?? l.product, lane: l.lane, step: 1, clearedSteps: 0,
+    status: l.status, stake: l.stake, targetReturn: null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
     legs: l.legs.map((p) => ({ selection: p.selection, marketLabel: p.marketLabel, matchup: p.matchup, odds: p.odds })),
     correlationNote: l.correlationNote, shortfallNote: l.shortfallNote,
@@ -64,8 +66,8 @@ function fromPersisted(root: string, date: string): DailyPortfolio | null {
   try { p = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "daily-portfolio.json"), "utf8")); } catch { return null; }
   if (!p || p.date !== date || !Array.isArray(p.lanes)) return null;
   const cards: DailyPortfolioCard[] = p.lanes.map((l: any) => ({
-    id: l.id, product: l.product, productLabel: l.productLabel, lane: l.lane, step: l.step ?? 1,
-    status: l.status, stake: l.stake, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
+    id: l.id, product: l.product, productLabel: l.productLabel, lane: l.lane, step: l.step ?? 1, clearedSteps: l.clearedSteps ?? 0,
+    status: l.status, stake: l.stake, targetReturn: l.targetReturn ?? null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
     legs: (l.legs ?? []).map((g: any) => ({ selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds })),
     correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null,

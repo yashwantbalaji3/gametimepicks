@@ -117,13 +117,15 @@ export default function BankBuilderPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
-      {/* TODAY'S LADDER — Bank Builder Lane A/B with a step rail, driven by the daily portfolio. */}
+      {/* TODAY'S LADDER — the ACTIVE daily Bank Builder Lane A/B is the primary content. It LEADS with
+          the live exposure summary, then the step-rail lane cards. The completed crown proof is moved
+          below into a collapsed disclosure (historical only). */}
       {bankBuilderLanes.length ? (
         <section className="gtp-fade-up mb-6 flex flex-col gap-3 overflow-x-hidden" aria-label="Today's Bank Builder ladder">
-          <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" accent="gold" lanes={bankBuilderLanes} />
-          <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
-            Bank Builder exposure {money(dailyPortfolio.exposure.core)} · active bankroll {money(dailyPortfolio.activeBankroll)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (historical)
+          <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>
+            Active bankroll {money(dailyPortfolio.activeBankroll)} · Bank Builder open exposure {money(dailyPortfolio.exposure.core)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (separate)
           </p>
+          <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" accent="gold" lanes={bankBuilderLanes} />
         </section>
       ) : null}
 
@@ -143,7 +145,13 @@ export default function BankBuilderPage() {
       {/* MOONSHOT LANE — separate high-volatility World-Cup-forward paper challenge (NOT Lane A/B). */}
       <MoonshotLaneCard lane={moonshot} />
 
-      {/* SECTION 1 — hero + completed-ladder proof (secondary credibility, below today's ladder) */}
+      {/* SECTION 1 — hero + completed-ladder proof. When the crown is COMPLETED it is historical proof,
+          so it is collapsed by default (the ACTIVE daily ladder above is the primary workflow). An
+          active/in-progress run stays open. */}
+      <details open={!completed} className="gtp-fade-up mt-2 rounded-2xl" style={{ border: completed ? "1px solid var(--vault-border)" : "none" }}>
+        <summary className="cursor-pointer list-none px-4 py-3 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+          {completed ? "Completed crown proof · CROWN REACHED · historical (tap to view)" : "Current run proof"}
+        </summary>
       <section
         className="gtp-fade-up relative overflow-hidden rounded-2xl px-5 py-6 sm:px-7"
         style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(242, 54, 69,0.08), rgba(26, 16, 11,0.25))" }}
@@ -232,6 +240,7 @@ export default function BankBuilderPage() {
         <BoardStatTile label={completed ? "Final rung" : "Today's card"} value={completed ? "WON" : publishedCandidate || officialStep3 ? "Pending" : "—"} sub={completed ? "NBA Finals Game 5 · settled" : publishedCandidate ? `${candidateSports} · Step ${activeStep.step}` : officialStep3 ? `World Cup · Step ${activeStep.step}` : "none cleared yet"} accent={completed ? "var(--vault-success)" : "var(--risk-longshot)"} />
         <BoardStatTile label="Record" value={recordLabel} sub={completed ? "5 rungs · officially settled" : "settled ladder steps"} accent="var(--vault-gold-bright)" />
       </div>
+      </details>
 
       {/* (Removed the standalone $100→$10K meter — it duplicated the completed-crown hero above and
           the active dual ladder's own per-lane meters. One crown statement, one active ladder.) */}

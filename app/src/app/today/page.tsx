@@ -264,8 +264,16 @@ export default function TodayPage() {
     coreExposure = pf.openExposure ?? 0; coreWins = pf.record?.wins ?? coreWins; coreLosses = pf.record?.losses ?? 0;
   } catch { /* fail closed → derived defaults */ }
   const bothLanesCleared = bbLanesCleared >= 2;
-  const bbValue = bothLanesCleared ? "Both lanes WON" : bbLanesCleared === 1 ? "Lane B WON" : "Pending";
-  const bbSub = coreExposure > 0 ? `Lane A pending · $${coreExposure} exposure` : `awaiting next card · $0 exposure`;
+  // Bank Builder + Moonshot chips read the ACTIVE daily portfolio first (so they never read "awaiting"
+  // while lanes are active); fall back to the legacy cleared-lane state when nothing is active.
+  const bbActive = dailyPortfolio.cards.filter((c) => c.product === "bank-builder" && c.status === "active");
+  const moonActive = dailyPortfolio.cards.filter((c) => c.product === "moonshot" && c.status === "active");
+  const bbValue = bbActive.length ? `${bbActive.length} active lanes` : bothLanesCleared ? "Both lanes WON" : bbLanesCleared === 1 ? "Lane B WON" : "Pending";
+  const bbSub = bbActive.length
+    ? `${bbActive.map((c) => `Step ${c.step}`).join(" · ")} · $${dailyPortfolio.exposure.core} open exposure`
+    : coreExposure > 0 ? `Lane A pending · $${coreExposure} exposure` : `awaiting next card · $0 exposure`;
+  const moonValue = moonActive.length ? `${moonActive.length} active lanes` : moonshotCandidates > 0 ? `${moonshotCandidates} ready` : "—";
+  const moonSub = moonActive.length ? `Step 1 · $${dailyPortfolio.exposure.moonshot} open exposure` : "candidates · $0 exposure";
   const readinessModules: { label: string; value: string; sub: string; href: string }[] = [
     { label: "Bank Builder", value: bbValue, sub: bbSub, href: "/bank-builder" },
     { label: "Mr. Dub", value: `${coreWins}-${coreLosses}`, sub: "official settlement record", href: "/results" },
@@ -273,7 +281,7 @@ export default function TodayPage() {
     { label: "Model Player Props", value: `${modelProps.qualifiedCount} picks`, sub: `${modelProps.evaluatedCount} markets evaluated`, href: "/world-cup?tab=player-props" },
     { label: "Parlay Lab", value: `${engineSuggested} cards`, sub: "model-qualified legs", href: "/picks" },
     { label: "MLB", value: mlbLive ? `${mlb.summary.scheduledGames} games` : "No board", sub: mlbLive ? "board live" : "odds not posted yet", href: "/mlb" },
-    { label: "Moonshot", value: moonshotCandidates > 0 ? `${moonshotCandidates} ready` : "—", sub: "candidates · $0 exposure", href: "/moonshot" },
+    { label: "Moonshot", value: moonValue, sub: moonSub, href: "/moonshot" },
     { label: "Suggested Parlays", value: `${wcSpecials?.cards.length ?? 0} cards`, sub: "World Cup · $0 exposure", href: "/world-cup-specials" },
   ];
 
