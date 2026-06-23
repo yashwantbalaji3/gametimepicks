@@ -12,11 +12,14 @@ import path from "node:path";
 import Link from "next/link";
 import MoneyPath from "@/components/ui/money-path";
 import FlagBadge from "@/components/flag-badge";
+import PlayerAvatar from "@/components/ui/player-avatar";
 import { LaneLegRow } from "@/components/parlays/bank-builder-preview-panel";
 import { buildPublicDualLadder, type PublicDualLadderView, type PublicLadderStep, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import type { DualBankBuilderPreview } from "@/lib/parlays/ui-loader";
+import { wcTeamCodeFromName } from "@/lib/data-world-cup";
 
 const usd = (n: number) => `$${n.toLocaleString("en-US")}`;
+const usd2 = (n: number | null | undefined) => (n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
 const american = (o: number | null | undefined) => (o == null ? "—" : o > 0 ? `+${o}` : `${o}`);
 
 // ── Active-leg enrichment ────────────────────────────────────────────────────────────────────────
@@ -106,6 +109,113 @@ function loadActiveEnrichment(): Record<string, StepMeta> {
     }
   } catch { /* fail-closed: no enrichment */ }
   return out;
+}
+
+// ── Today's daily Bank Builder legs (current active step) ──────────────────────────────────────────
+// The current rung of each lane (Lane A Step 4, Lane B Step 2) is "awaiting" in the public ladder view
+// model (the committed active artifact marks it coming_soon), so its drawer would otherwise read "awaiting
+// next card" with no legs. The day's joint cross-lane selections live in the read-only daily-portfolio
+// artifact; we read them here (server-only, fail-closed) and render them inside that current-step drawer,
+// open by default. No money field is mutated and no protected artifact is written.
+interface DailyBbLeg {
+  selection: string;
+  market: string;
+  matchup: string;
+  odds: number | null;
+  player: string | null;
+  provider?: string;
+  modelConfidence?: number | null;
+  kickoffEt?: string;
+}
+interface DailyBbStep {
+  step: number;
+  stake: number | null;
+  combinedOdds: number | null;
+  potentialReturn: number | null;
+  targetReturn: number | null;
+  correlationNote: string | null;
+  legs: DailyBbLeg[];
+}
+// keyed by `${laneId}:${step}` (e.g. "lane-a:4") → the day's card for that lane's current rung.
+function loadDailyBankBuilderLegs(): Record<string, DailyBbStep> {
+  const out: Record<string, DailyBbStep> = {};
+  try {
+    const p = path.join(process.cwd(), "public", "data", "mr-dub", "daily-portfolio.json");
+    const raw = JSON.parse(fs.readFileSync(p, "utf8")) as { lanes?: Array<Record<string, unknown>> };
+    for (const lane of raw.lanes ?? []) {
+      if (lane.product !== "bank-builder") continue;
+      const laneLetter = String(lane.lane ?? "").toUpperCase();
+      const laneId = laneLetter === "A" ? "lane-a" : laneLetter === "B" ? "lane-b" : null;
+      const step = Number(lane.step);
+      if (!laneId || !Number.isFinite(step)) continue;
+      const legs: DailyBbLeg[] = ((lane.legs as Array<Record<string, unknown>>) ?? []).map((l) => ({
+        selection: String(l.selection ?? ""),
+        market: String(l.market ?? ""),
+        matchup: String(l.matchup ?? ""),
+        odds: (l.odds as number | null | undefined) ?? null,
+        player: (l.player as string | null | undefined) ?? null,
+        provider: l.provider as string | undefined,
+        modelConfidence: (l.modelConfidence as number | null | undefined) ?? null,
+        kickoffEt: l.kickoffEt as string | undefined,
+      }));
+      out[`${laneId}:${step}`] = {
+        step,
+        stake: (lane.stake as number | null | undefined) ?? null,
+        combinedOdds: (lane.combinedOdds as number | null | undefined) ?? null,
+        potentialReturn: (lane.potentialReturn as number | null | undefined) ?? null,
+        targetReturn: (lane.targetReturn as number | null | undefined) ?? null,
+        correlationNote: (lane.correlationNote as string | null | undefined) ?? null,
+        legs,
+      };
+    }
+  } catch { /* fail-closed: no daily legs → fall back to the awaiting body */ }
+  return out;
+}
+
+/** A current-card leg row from the day's daily portfolio: flag (team) or portrait (player prop),
+ *  matchup · market · selection, kickoff, model confidence, and odds. Used inside the OPEN current step. */
+function DailyBbLegRow({ leg }: { leg: DailyBbLeg }) {
+  const isPlayer = !!leg.player;
+  // Derive a team flag from the matchup ("Panama vs Croatia"). For team markets the selection often names
+  // the team; otherwise show both fixture flags. wcTeamCodeFromName returns null for non-team labels.
+  const [home, away] = leg.matchup.split(/\s+vs\s+/i).map((s) => s.trim());
+  const selCode = wcTeamCodeFromName(leg.selection);
+  const homeCode = wcTeamCodeFromName(home);
+  const awayCode = wcTeamCodeFromName(away);
+  const conf = typeof leg.modelConfidence === "number" ? `${Math.round(leg.modelConfidence * 100)}%` : null;
+  return (
+    <div className="flex items-start gap-2 py-2" style={{ borderTop: "1px solid var(--vault-border)" }}>
+      <span className="mt-0.5 flex shrink-0 items-center gap-0.5">
+        {isPlayer ? (
+          <PlayerAvatar name={leg.player as string} size={18} />
+        ) : selCode ? (
+          <FlagBadge code={selCode} size="sm" ariaLabel={leg.selection} />
+        ) : homeCode || awayCode ? (
+          <>
+            {homeCode ? <FlagBadge code={homeCode} size="sm" ariaLabel={home ?? ""} /> : null}
+            {awayCode ? <FlagBadge code={awayCode} size="sm" ariaLabel={away ?? ""} /> : null}
+          </>
+        ) : (
+          <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        {leg.matchup && <span className="block truncate text-[11px] font-semibold" style={{ color: "var(--vault-text)" }}>{leg.matchup}</span>}
+        <span className="block text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+          {[leg.market, leg.selection].filter(Boolean).join(" · ")}
+        </span>
+        <span className="block font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+          {[leg.kickoffEt ? `Kickoff ${leg.kickoffEt}` : "", conf ? `model ${conf}` : "", leg.provider ?? ""].filter(Boolean).join(" · ")}
+        </span>
+      </span>
+      <span className="shrink-0 text-right">
+        <span className="block font-mono text-[12.5px]" style={{ color: "var(--vault-text)" }}>{american(leg.odds)}</span>
+        <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)" }}>
+          Pending ◷
+        </span>
+      </span>
+    </div>
+  );
 }
 
 /** "Jun 22" from an ISO date (YYYY-MM-DD), UTC-noon math to avoid an off-by-one. */
@@ -200,9 +310,29 @@ function RailNode({ status, step }: { status: PublicStepStatus; step: number }) 
   );
 }
 
-function CardDrawer({ step, stepMeta }: { step: PublicLadderStep; stepMeta?: StepMeta }) {
+function CardDrawer({ step, stepMeta, dailyStep }: { step: PublicLadderStep; stepMeta?: StepMeta; dailyStep?: DailyBbStep }) {
   const c = step.card;
   if (!c) {
+    // The current rung (awaiting/active) of a live lane carries the day's joint card in the daily
+    // portfolio artifact even when the public ladder has no placed card yet — render those legs here.
+    if (dailyStep && dailyStep.legs.length > 0) {
+      const target = dailyStep.targetReturn;
+      return (
+        <div className="px-3 pb-3 pt-1">
+          <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px]">
+            <span className="rounded px-1.5 py-0.5 font-bold uppercase tracking-[0.06em]" style={{ background: "rgba(217,164,65,0.14)", color: "var(--vault-gold-bright)", border: "1px solid rgba(217,164,65,0.4)" }}>Today&rsquo;s card</span>
+            {dailyStep.combinedOdds != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>combined {dailyStep.combinedOdds >= 0 ? "+" : ""}{dailyStep.combinedOdds}</span>}
+            {dailyStep.stake != null && target != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{usd2(dailyStep.stake)} → {usd(target)}</span>}
+            {dailyStep.potentialReturn != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-gold-bright)" }}>potential {usd2(dailyStep.potentialReturn)}</span>}
+          </div>
+          <div className="mt-2">{dailyStep.legs.map((l, i) => <DailyBbLegRow key={`daily:${step.step}:${i}`} leg={l} />)}</div>
+          {dailyStep.correlationNote ? (
+            <p className="mt-2 text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{dailyStep.correlationNote}</p>
+          ) : null}
+          <p className="mt-1.5 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Paper-only — pre-event model gates · pending official settlement.</p>
+        </div>
+      );
+    }
     const cand = step.candidate;
     if (cand) {
       const hasLegs = cand.legs.length > 0;
@@ -264,13 +394,15 @@ function CardDrawer({ step, stepMeta }: { step: PublicLadderStep; stepMeta?: Ste
   );
 }
 
-function LadderStepRow({ step, stepMeta }: { step: PublicLadderStep; stepMeta?: StepMeta }) {
+function LadderStepRow({ step, stepMeta, dailyStep }: { step: PublicLadderStep; stepMeta?: StepMeta; dailyStep?: DailyBbStep }) {
   const m = STATUS_META[step.status];
   const cleared = step.status === "cleared";
   const active = step.status === "active";
-  // Open the drawer by default for the next actionable step (active card or an awaiting/queued
-  // candidate) so the demo shows the card/candidate without a click.
-  const openByDefault = active || ((step.status === "awaiting" || step.status === "queued") && step.candidate != null);
+  const hasDailyCard = !!dailyStep && dailyStep.legs.length > 0;
+  // Open the drawer by default for the next actionable step: the active card, an awaiting/queued
+  // candidate, or the current rung that carries today's daily card. Prior cleared steps + future
+  // prior + future steps stay closed so only the live step leads.
+  const openByDefault = active || ((step.status === "awaiting" || step.status === "queued") && (step.candidate != null || hasDailyCard));
   return (
     <details className="group relative" open={openByDefault}>
       <summary className="flex cursor-pointer items-center gap-3 py-2.5" style={{ listStyle: "none" }}>
@@ -294,17 +426,13 @@ function LadderStepRow({ step, stepMeta }: { step: PublicLadderStep; stepMeta?: 
         <span aria-hidden className="shrink-0 font-mono text-[11px] transition-transform group-open:rotate-90" style={{ color: "var(--vault-text-faint)" }}>›</span>
       </summary>
       <div className="ml-10 mb-1 rounded-[10px]" style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-rule)" }}>
-        <CardDrawer step={step} stepMeta={stepMeta} />
+        <CardDrawer step={step} stepMeta={stepMeta} dailyStep={dailyStep} />
       </div>
     </details>
   );
 }
 
-function usd2(n: number | null): string {
-  return n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function LaneLadderCard({ view, enrichment }: { view: PublicDualLadderView; enrichment: Record<string, StepMeta> }) {
+function LaneLadderCard({ view, enrichment, daily }: { view: PublicDualLadderView; enrichment: Record<string, StepMeta>; daily: Record<string, DailyBbStep> }) {
   const accent = view.currentStatus === "queued_restart" || view.currentStatus === "awaiting_next_card" ? "var(--vault-gold-bright)" : view.currentStatus === "advanced" ? "#6EE7A8" : "var(--gtp-bank-heat)";
   return (
     <div className="flex flex-col rounded-2xl p-4" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
@@ -320,7 +448,7 @@ function LaneLadderCard({ view, enrichment }: { view: PublicDualLadderView; enri
       <div className="relative">
         <span aria-hidden className="absolute top-3 bottom-3" style={{ left: 13.5, width: 2, background: "linear-gradient(180deg, #6EE7A8 0%, var(--vault-gold-bright) 45%, var(--vault-rule) 100%)", opacity: 0.5, borderRadius: 2 }} />
         <div className="flex flex-col divide-y" style={{ borderColor: "var(--vault-rule)" }}>
-          {view.steps.map((s) => <LadderStepRow key={s.step} step={s} stepMeta={enrichment[`${view.laneId}:${s.step}`]} />)}
+          {view.steps.map((s) => <LadderStepRow key={s.step} step={s} stepMeta={enrichment[`${view.laneId}:${s.step}`]} dailyStep={daily[`${view.laneId}:${s.step}`]} />)}
         </div>
       </div>
 
@@ -337,6 +465,8 @@ export default function DualLadderBoard({ preview }: { preview: DualBankBuilderP
   if (!a && !b) return null;
   // Enriched betting-slip metadata for the live (cross-slate) active legs — read once, joined per step.
   const enrichment = loadActiveEnrichment();
+  // Today's daily Bank Builder legs (the current rung's joint card) — joined per step into the open drawer.
+  const daily = loadDailyBankBuilderLegs();
   return (
     <section className="overflow-x-hidden" aria-label="Dual Bank Builder ladders">
       <div className="mb-3">
@@ -344,8 +474,8 @@ export default function DualLadderBoard({ preview }: { preview: DualBankBuilderP
         <p className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>Two independent paper paths toward $10K — tap any step for the exact card.</p>
       </div>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        {a ? <LaneLadderCard view={a} enrichment={enrichment} /> : null}
-        {b ? <LaneLadderCard view={b} enrichment={enrichment} /> : null}
+        {a ? <LaneLadderCard view={a} enrichment={enrichment} daily={daily} /> : null}
+        {b ? <LaneLadderCard view={b} enrichment={enrichment} daily={daily} /> : null}
       </div>
     </section>
   );

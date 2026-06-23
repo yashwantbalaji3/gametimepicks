@@ -16,6 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupModelPicks, buildDailyLaneCandidates, type LaneCandidate, type ModelPick } from "../world-cup/model-qualified-picks";
 import { readLaneRungs, selectSafestTargetFitCard, SEED_EXPOSURE, type GeneratedLane } from "./bank-builder-generation";
+import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
 
 /** Activation cutoff — a lane cannot be newly activated if any leg kicks off within this many minutes. */
 export const ACTIVATION_CUTOFF_MIN = 30;
@@ -151,16 +152,28 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   const nowMs = Date.parse(nowIso);
   const lanes: PortfolioLane[] = [];
 
-  // ── Bank Builder: the safest 2-leg card that fits each lane's NEXT rung (Lane A Step 4, Lane B Step 2). ──
+  // ── Bank Builder: pick Lane A + Lane B TOGETHER so they share no game (cross-lane independence),
+  //    each fitting its next rung (Lane A Step 4, Lane B Step 2), team/game markets preferred. ──
   const rungs = readLaneRungs(root);
   const usedBB = new Set<string>();
-  for (const rung of [rungs.laneA, rungs.laneB]) {
-    if (!rung) continue;
-    const g = selectSafestTargetFitCard(pool, rung, usedBB);
-    g.legs.forEach((l) => usedBB.add(l.id));
-    const elig = bbEligibility(g, nowMs);
-    const status: PortfolioLane["status"] = g.legs.length < 2 ? "awaiting" : (activate && elig.eligible ? "active" : "candidate");
-    lanes.push(toBBLane(g, status, elig));
+  if (rungs.laneA && rungs.laneB) {
+    const { laneA, laneB } = selectCrossLaneBankBuilder(pool, rungs.laneA, rungs.laneB);
+    for (const g of [laneA, laneB]) {
+      g.legs.forEach((l) => usedBB.add(l.id));
+      const elig = bbEligibility(g, nowMs);
+      const status: PortfolioLane["status"] = g.legs.length < 2 ? "awaiting" : (activate && elig.eligible ? "active" : "candidate");
+      lanes.push(toBBLane(g, status, elig));
+    }
+  } else {
+    // Only one lane has a next rung — fall back to the single-lane target-fit selector.
+    for (const rung of [rungs.laneA, rungs.laneB]) {
+      if (!rung) continue;
+      const g = selectSafestTargetFitCard(pool, rung, usedBB);
+      g.legs.forEach((l) => usedBB.add(l.id));
+      const elig = bbEligibility(g, nowMs);
+      const status: PortfolioLane["status"] = g.legs.length < 2 ? "awaiting" : (activate && elig.eligible ? "active" : "candidate");
+      lanes.push(toBBLane(g, status, elig));
+    }
   }
 
   // ── Moonshot: 5 higher-upside legs per lane, from the pool MINUS the Bank Builder legs (distinct lanes). ──
