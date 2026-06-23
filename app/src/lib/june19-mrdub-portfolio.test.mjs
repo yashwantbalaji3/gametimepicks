@@ -9,17 +9,17 @@ const ledger = read("ledger.json");
 const daily = read("daily-summary.json");
 
 test("portfolio math after June 19 settlement + cross-slate resume: bankroll, HWM, drawdown, ROI, record", () => {
-  // June 19 settled: Lane A WON (Step 2 → riding $601.56), Lane B LOST, Moonshot LOST (separate).
-  // June 21/22 resume: Lane A Step 3 + Lane B Step 1 placed as ACTIVE cross-slate cards (pending).
-  assert.equal(portfolio.currentBankroll, 10176.17); // pending cards don't realize
+  // June 19 settled: Lane A WON (Step 2 → riding $601.56), prior Lane B LOST, Moonshot LOST (separate).
+  // June 22: Lane B Step 1 restart settled WON ($0 realized — rolled). Lane A Step 3 still placed (pending).
+  assert.equal(portfolio.currentBankroll, 10176.17); // a won step rolls; pending cards don't realize
   assert.equal(portfolio.highWaterMark, 10376.17);
   assert.equal(portfolio.drawdown, 200);
   assert.ok(Math.abs(portfolio.drawdownPct - 0.0193) < 0.001, "drawdown ≈ 1.93% of HWM");
-  // Lane A core $100 + Lane B core $100 are now open (pending) exposure.
-  assert.equal(portfolio.openExposure, 200);
+  // Lane A core $100 is open (pending) exposure; Lane B settled WON released its seed.
+  assert.equal(portfolio.openExposure, 100);
   assert.equal(portfolio.roiMultiple, 100.76);
-  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 2 });
-  // Reconciliation: realized paperProfit still === settledProfit (pending cards add no realized P/L).
+  assert.deepEqual(portfolio.record, { wins: 9, losses: 2, voids: 0, pending: 1 });
+  // Reconciliation: realized paperProfit still === settledProfit (rolled wins + pending cards add no realized P/L).
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
   assert.equal(sum, portfolio.settledProfit, "no double-counting — settled profit reconciles");
 });
@@ -31,15 +31,15 @@ test("bankroll health after cross-slate resume: open exposure → Balanced", () 
   assert.ok(!/\bsafe\b/i.test(JSON.stringify(portfolio.bankrollHealth)), "never calls anything safe");
 });
 
-test("exposure breakdown is $200 after resume; Lane A + Lane B active cards; completed crown present", () => {
+test("exposure breakdown is $100 after Lane B settled; Lane A active card + Lane B awaiting; completed crown present", () => {
   const e = portfolio.exposure;
   const sportSum = (e.bySport ?? []).reduce((s, x) => s + x.amount, 0);
-  assert.equal(Math.round(sportSum * 100) / 100, portfolio.openExposure, "bySport sums to open exposure ($200)");
+  assert.equal(Math.round(sportSum * 100) / 100, portfolio.openExposure, "bySport sums to open exposure ($100)");
   const laneSum = (e.byLane ?? []).reduce((s, x) => s + x.amount, 0);
-  assert.equal(Math.round(laneSum * 100) / 100, portfolio.openExposure, "byLane sums to open exposure ($200)");
-  // Lane A Step 3 + Lane B Step 1 are placed (pending) → 2 active cards; nothing awaiting.
-  assert.equal((portfolio.awaitingCards ?? []).length, 0);
-  assert.equal((portfolio.activeCards ?? []).length, 2);
+  assert.equal(Math.round(laneSum * 100) / 100, portfolio.openExposure, "byLane sums to open exposure ($100)");
+  // Lane A Step 3 is placed (pending) → 1 active card; Lane B settled WON → awaiting the next qualified card.
+  assert.equal((portfolio.awaitingCards ?? []).length, 1);
+  assert.equal((portfolio.activeCards ?? []).length, 1);
   assert.ok((portfolio.completedCards ?? []).some((c) => c.name === "Road to $10K" && c.final === 10376.17));
 });
 

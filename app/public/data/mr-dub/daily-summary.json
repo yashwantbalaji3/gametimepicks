@@ -393,6 +393,23 @@
           "accountingNote": "Realized — original $100 paper stake lost; lane stopped."
         },
         {
+          "eventId": "mrdub-2026-06-18-lane-b-advanced",
+          "timestamp": "2026-06-18T18:40:00Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_advanced",
+          "laneId": "lane-b",
+          "step": 1,
+          "date": "2026-06-18",
+          "paperStake": 0,
+          "paperReturn": 0,
+          "paperProfit": 0,
+          "status": "advanced",
+          "publicBankBuilderVisible": true,
+          "notes": "Lane B Step 1 cleared (official) — $100 rolls to $277.11, awaiting the next qualified card.",
+          "accountingNote": "Step cleared and rolled; awaiting the next qualified card (no card placed)."
+        },
+        {
           "eventId": "mrdub-2026-06-18-lane-b-restart-active",
           "timestamp": "2026-06-18T18:40:00Z",
           "portfolio": "mr-dub-paper",
@@ -564,54 +581,51 @@
     {
       "date": "2026-06-22",
       "staked": 100,
-      "returned": 0,
+      "returned": 277.11,
       "pl": 0,
-      "wins": 0,
+      "wins": 1,
       "losses": 0,
       "voids": 0,
-      "pending": 1,
+      "pending": 0,
       "events": [
         {
-          "eventId": "mrdub-2026-06-18-lane-b-step1-pending",
+          "eventId": "mrdub-2026-06-18-lane-b-step1-won",
           "timestamp": "2026-06-18T18:40:00Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
-          "type": "lane_step_open",
+          "type": "lane_step_won",
           "laneId": "lane-b",
           "step": 1,
           "date": "2026-06-22",
           "paperStake": 100,
-          "paperReturn": 0,
+          "paperReturn": 277.11,
           "paperProfit": 0,
-          "atRiskStake": 100,
-          "projectedReturn": 277.11,
-          "status": "open",
+          "rolled": true,
+          "status": "settled",
+          "result": "won",
           "combinedOdds": 177,
+          "officialResultConfirmed": true,
           "publicBankBuilderVisible": true,
           "legs": [
             {
               "sport": "WORLD_CUP",
               "market": "moneyline_90",
               "selection": "Argentina moneyline_90",
-              "result": "settled",
-              "officialResult": null,
-              "source": "official"
+              "result": "won",
+              "officialResult": "Argentina 2-0 Austria (FT, API-Football)",
+              "source": "api_football"
             },
             {
               "sport": "WORLD_CUP",
               "market": "match_total_goals",
               "selection": "France vs Iraq Under 3.5",
-              "result": "settled",
-              "officialResult": null,
-              "source": "official"
+              "result": "won",
+              "officialResult": "France 3-0 Iraq (FT, API-Football)",
+              "source": "api_football"
             }
           ],
-          "sportExposure": [
-            "WORLD_CUP",
-            "WORLD_CUP"
-          ],
-          "notes": "Lane B Step 1 open — $100 paper position riding, projected $277.11. Original $100 at risk. Settles from official sources.",
-          "accountingNote": "Open paper position — pending official settlement."
+          "notes": "Lane B Step 1 cleared (official) — $100 rolls to $277.11 for the next step.",
+          "accountingNote": "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
         }
       ],
       "opening": 10176.17,

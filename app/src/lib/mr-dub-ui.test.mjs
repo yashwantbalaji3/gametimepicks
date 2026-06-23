@@ -53,7 +53,7 @@ test("daily-summary embeds each day's events for the expandable dropdown; totals
   assert.equal(d.days[d.days.length - 1].closing, p.currentBankroll, "daily closing == portfolio current bankroll");
 });
 
-test("June 19 settled + cross-slate resume: Lane A active (Step 3 placed), Lane B active (Step 1 restart), Mr. Dub carries full history", () => {
+test("June 19 settled + cross-slate resume: Lane A active (Step 3 placed), Lane B advanced (Step 1 restart WON), Mr. Dub carries full history", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   // Lane A Step 1 + Step 2 both WON; Step 3 placed as an active cross-slate card.
@@ -66,10 +66,12 @@ test("June 19 settled + cross-slate resume: Lane A active (Step 3 placed), Lane 
   assert.ok(a1.legs.every((l) => l.settlementResult === "won"), "both Lane A legs won (official)");
   assert.equal(bb.laneA.steps.find((s) => s.step === 2).status, "settled", "Lane A Step 2 settled won");
   assert.equal(bb.laneA.steps.find((s) => s.step === 3).status, "pending", "Lane A Step 3 placed (pending)");
-  // Lane B resumed ACTIVE with a fresh $100 Step 1 restart, shown publicly; prior lost legs never surface in the live lane.
-  assert.equal(bb.laneB.laneStatus, "active");
+  // Lane B's $100 Step 1 restart settled WON (official) → the lane advanced, shown publicly; prior lost legs never surface in the live lane.
+  assert.equal(bb.laneB.laneStatus, "advanced");
   assert.equal(bb.laneB.publicVisible, true);
-  assert.equal(bb.laneB.steps.find((s) => s.step === 1).status, "pending", "Lane B Step 1 is a placed (pending) restart card");
+  const b1 = bb.laneB.steps.find((s) => s.step === 1);
+  assert.equal(b1.status, "settled", "Lane B Step 1 restart card settled");
+  assert.equal(b1.result, "won", "Lane B Step 1 restart cleared WON (Argentina ML + France/Iraq Under 3.5)");
   assert.ok(!/Goldschmidt|Switzerland|Hoskins|Turkey/.test(JSON.stringify(bb.laneB.steps)), "old stopped/lost legs hidden from the live lane steps");
   // Mr. Dub ledger still carries the FULL history: Lane A step wins + open card; Lane B stop + restart (no bankroll double-count).
   const led = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));

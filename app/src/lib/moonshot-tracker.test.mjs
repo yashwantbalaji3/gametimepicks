@@ -41,7 +41,7 @@ test("Moonshot lane artifact is stopped/LOST and its record is separate (0-1, no
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot 0-1, separate");
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure 0 (settled)");
-  assert.deepEqual(portfolio.record, { wins: 8, losses: 2, voids: 0, pending: 2 }, "core record unchanged (moonshot not blended in)");
+  assert.deepEqual(portfolio.record, { wins: 9, losses: 2, voids: 0, pending: 1 }, "core record (Lane B Step 1 WON) — moonshot not blended in");
 });
 
 test("Moonshot is reachable: command rail + top nav include it; mobile maps it to the Bank bucket", () => {
@@ -87,7 +87,7 @@ test("Moonshot candidates: real odds, honest independent combined price, pre-eve
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure still 0 (candidates not placed)");
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record unchanged (0-1)");
-  assert.equal(portfolio.totalOpenExposure, 200, "total exposure unchanged ($200 core; moonshot $0)");
+  assert.equal(portfolio.totalOpenExposure, 100, "total exposure unchanged by candidates ($100 core; moonshot $0)");
   // The tracker renders the candidates section.
   const tracker = read("src/components/moonshot/moonshot-lane-tracker.tsx");
   assert.match(tracker, /Moonshot Candidates/, "tracker renders a candidates section");
