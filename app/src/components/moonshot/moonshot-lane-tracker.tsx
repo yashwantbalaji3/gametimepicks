@@ -24,6 +24,8 @@ function cardToLegs(card: MoonshotCard): TicketLeg[] {
     matchup: l.fixture,
     flagHome: l.countryCode ?? undefined,
     homeTeam: l.team ?? undefined,
+    player: l.kind === "player" ? l.participant : undefined,
+    photoUrl: l.photoUrl ?? undefined,
     kickoffEt: l.kickoffEt,
     odds: l.odds,
     result: normalizeLegResult(l.settlement?.result, l.settlementStatus),

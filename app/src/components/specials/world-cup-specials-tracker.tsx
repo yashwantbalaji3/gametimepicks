@@ -35,6 +35,8 @@ function legToTicket(l: SpecialLeg): TicketLeg {
     line: l.line ?? undefined,
     matchup: l.fixture,
     flagHome: l.countryCode ?? undefined,
+    player: l.kind === "player" ? l.participant : undefined,
+    photoUrl: l.photoUrl ?? undefined,
     kickoffEt: kickoffEt(l.startTime),
     odds: l.odds,
     result: normalizeLegResult(undefined, l.settlementStatus),

@@ -10,9 +10,35 @@
  * Desktop: a 2×2 grid of lane cards. Mobile: a single column — no horizontal overflow at 375px.
  */
 import OddsPill from "@/components/tickets/odds-pill";
-import type { DailyPortfolio, DailyPortfolioCard } from "@/lib/mr-dub/daily-portfolio";
+import FlagBadge from "@/components/flag-badge";
+import PlayerAvatar from "@/components/ui/player-avatar";
+import { wcTeamCodeFromName } from "@/lib/data-world-cup";
+import type { DailyPortfolio, DailyPortfolioCard, DailyPortfolioLeg } from "@/lib/mr-dub/daily-portfolio";
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+/** Per-leg avatar: a player portrait for prop legs, a team flag for team/game markets (mirrors the
+ *  Bank Builder / Moonshot ladder leg rows). Both primitives degrade gracefully — an unknown name
+ *  falls back to initials (portrait) or a ⚽ chip (flag). */
+function LegAvatar({ leg }: { leg: DailyPortfolioLeg }) {
+  if (leg.player) return <PlayerAvatar name={leg.player} size={18} />;
+  const [home, away] = (leg.matchup ?? "").split(/\s+vs\s+/i).map((s) => s.trim());
+  const selCode = wcTeamCodeFromName(leg.selection);
+  if (selCode) return <FlagBadge code={selCode} size="sm" ariaLabel={leg.selection} />;
+  const homeCode = wcTeamCodeFromName(home);
+  const awayCode = wcTeamCodeFromName(away);
+  if (homeCode || awayCode) {
+    return (
+      <>
+        {homeCode ? <FlagBadge code={homeCode} size="sm" ariaLabel={home ?? ""} /> : null}
+        {awayCode ? <FlagBadge code={awayCode} size="sm" ariaLabel={away ?? ""} /> : null}
+      </>
+    );
+  }
+  return (
+    <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
+  );
+}
 
 function StatChip({ label, value, accent, faint }: { label: string; value: string; accent?: string; faint?: boolean }) {
   return (
@@ -78,12 +104,17 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
       <div className="flex flex-col flex-1">
         {card.legs.length ? (
           card.legs.map((leg, i) => (
-            <div key={i} className="px-3.5 py-2 flex flex-col gap-0.5 min-w-0" style={{ borderTop: i ? "1px solid var(--vault-rule)" : "none" }}>
-              <div className="flex items-center justify-between gap-2 min-w-0">
-                <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 11.5, fontWeight: 600 }}>{leg.selection}</span>
-                <OddsPill odds={leg.odds} size="sm" tone={moonshot ? "violet" : "gold"} />
+            <div key={i} className="px-3.5 py-2 flex items-start gap-2 min-w-0" style={{ borderTop: i ? "1px solid var(--vault-rule)" : "none" }}>
+              <span className="mt-0.5 flex shrink-0 items-center gap-0.5">
+                <LegAvatar leg={leg} />
+              </span>
+              <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2 min-w-0">
+                  <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 11.5, fontWeight: 600 }}>{leg.selection}</span>
+                  <OddsPill odds={leg.odds} size="sm" tone={moonshot ? "violet" : "gold"} />
+                </div>
+                <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{leg.matchup} · {leg.marketLabel}</span>
               </div>
-              <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{leg.matchup} · {leg.marketLabel}</span>
             </div>
           ))
         ) : (
