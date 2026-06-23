@@ -145,7 +145,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards }: 
             <PlayerAvatar name={topPlayer.player?.name ?? "—"} photo={topPlayer.player?.photo} size={40} />
             <div className="flex min-w-0 flex-col gap-0.5">
               <span className="font-mono uppercase tracking-[0.13em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Top player model pick · {topPlayer.marketLabel}</span>
-              <span className="font-display truncate" style={{ color: "var(--vault-text)", fontSize: 15.5, fontWeight: 700 }}>{topPlayer.player?.name}</span>
+              <span className="font-display break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 15.5, fontWeight: 700 }}>{topPlayer.player?.name}</span>
               <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{topPlayer.pickLabel}{topPlayer.line != null ? ` ${topPlayer.line}` : ""} · {american(topPlayer.americanOdds)} · market {pct(topPlayer.marketProbability)}{limitedData ? " · limited-data" : ""}</span>
             </div>
           </div>

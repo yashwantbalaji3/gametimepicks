@@ -51,10 +51,10 @@ function PickBody({ pick }: { pick: ModelQualifiedPick }) {
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2 min-w-0">
         <PlayerAvatar name={pick.player} size={20} />
-        <span className="truncate font-semibold" style={{ color: "var(--vault-text)", fontSize: 12 }}>{pick.player}</span>
+        <span className="break-words font-semibold leading-tight" style={{ color: "var(--vault-text)", fontSize: 12 }}>{pick.player}</span>
       </div>
-      <div className="flex items-center justify-between gap-2">
-        <span className="truncate" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pick.selection}</span>
+      <div className="flex items-start justify-between gap-2">
+        <span className="break-words leading-tight" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pick.selection}</span>
         <OddsPill odds={pick.odds} size="sm" tone="gold" />
       </div>
       <div className="flex items-center gap-2 flex-wrap">
