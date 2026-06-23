@@ -58,6 +58,41 @@ test("Today + Bank Builder + Mr. Dub link to the Moonshot tracker", () => {
   assert.match(read("src/app/mr-dub/page.tsx"), /MoonshotLaneTracker/, "Mr. Dub renders the inline Moonshot tracker");
 });
 
+test("Moonshot candidates: real odds, honest independent combined price, pre-event games only, not placed", () => {
+  const lane = loadMoonshotLane();
+  assert.ok(Array.isArray(lane.candidates) && lane.candidates.length >= 1, "candidates present");
+  const dec = (a) => (a >= 0 ? 1 + a / 100 : 1 + 100 / -a);
+  const ELIGIBLE = ["Norway vs Senegal", "Jordan vs Algeria"]; // both officially NS at generation
+  for (const c of lane.candidates) {
+    assert.equal(c.status, "candidate", "status is candidate (not active/placed)");
+    assert.equal(c.activated, false, "not activated → no exposure placed");
+    assert.equal(c.stake, 25, "$25 paper stake");
+    assert.ok(c.legs.length >= 2, "at least two legs");
+    // No fabricated SGP: every leg is from a DIFFERENT fixture (independent games).
+    const fixtures = c.legs.map((l) => l.fixture);
+    assert.equal(new Set(fixtures).size, fixtures.length, "each leg from a distinct game (independent → no SGP)");
+    for (const l of c.legs) {
+      assert.ok(ELIGIBLE.includes(l.fixture), `${l.fixture} is a pre-event eligible game`);
+      assert.equal(typeof l.odds, "number", `${l.participant} carries real odds`);
+      assert.ok(l.kickoffEt && l.marketLabel && l.settlement?.source, `${l.participant} has kickoff/market/settlement source`);
+    }
+    // Combined odds reconcile with the product of the real leg odds (proves no fabricated combined price).
+    const product = c.legs.reduce((p, l) => p * dec(l.odds), 1);
+    const reconstructed = product >= 2 ? Math.round((product - 1) * 100) : -Math.round(100 / (product - 1));
+    assert.ok(Math.abs(reconstructed - c.combinedOdds) <= 2, `${c.cardId} combined odds reconcile with legs`);
+    assert.ok(c.combinedOdds >= 600, `${c.cardId} is a longshot (>= +600)`);
+    assert.ok(Math.abs(c.projectedReturn - 25 * product) < 0.5, "projected return = stake × combined decimal");
+  }
+  // Candidates do NOT place exposure or change the record.
+  const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
+  assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure still 0 (candidates not placed)");
+  assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record unchanged (0-1)");
+  assert.equal(portfolio.totalOpenExposure, 200, "total exposure unchanged ($200 core; moonshot $0)");
+  // The tracker renders the candidates section.
+  const tracker = read("src/components/moonshot/moonshot-lane-tracker.tsx");
+  assert.match(tracker, /Moonshot Candidates/, "tracker renders a candidates section");
+});
+
 test("protected crown is untouched (still $10,376.17, 5-0)", () => {
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(portfolio.crownBankroll, 10376.17, "crown bankroll immutable");

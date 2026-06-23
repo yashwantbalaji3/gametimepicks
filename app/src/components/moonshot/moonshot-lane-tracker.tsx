@@ -12,7 +12,7 @@ import TicketCard from "@/components/tickets/ticket-card";
 import LegRow, { type TicketLeg } from "@/components/tickets/leg-row";
 import StatusPill, { type TicketStatus } from "@/components/tickets/status-pill";
 import { normalizeLegResult } from "@/components/tickets/settlement-badge";
-import type { MoonshotLane, MoonshotCard } from "@/lib/moonshot/moonshot-lane";
+import type { MoonshotLane, MoonshotCard, MoonshotCandidateLeg } from "@/lib/moonshot/moonshot-lane";
 
 const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -28,6 +28,19 @@ function cardToLegs(card: MoonshotCard): TicketLeg[] {
     result: normalizeLegResult(l.settlement?.result, l.settlementStatus),
     official: l.settlement?.official ?? undefined,
   }));
+}
+
+function candidateLegToTicket(l: MoonshotCandidateLeg): TicketLeg {
+  return {
+    selection: l.participant,
+    market: l.marketLabel,
+    matchup: l.fixture,
+    flagHome: l.countryCode ?? undefined,
+    kickoffEt: l.kickoffEt,
+    odds: l.odds,
+    result: "pending",
+    source: l.settlement?.source,
+  };
 }
 
 function laneStatusPill(status: MoonshotLane["status"]): TicketStatus {
@@ -120,6 +133,22 @@ export default function MoonshotLaneTracker({
           </div>
         )}
       </div>
+
+      {lane.candidates && lane.candidates.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "#b9a8ff", fontSize: 11 }}>Moonshot Candidates · {lane.candidates.length}</span>
+            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>evaluated pre-event · not activated · $0 exposure</span>
+          </div>
+          {lane.candidatesNote && !compact ? <p className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{lane.candidatesNote}</p> : null}
+          {(compact ? lane.candidates.slice(0, 1) : lane.candidates).map((c) => (
+            <TicketCard key={c.cardId} accent="violet" title={c.label} subtitle={c.subtitle} sport="World Cup" risk={c.risk} status="candidate" odds={c.combinedOdds} oddsTone="violet" stake={c.stake} projectedReturn={c.projectedReturn}
+              footer={!compact && c.note ? <span className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{c.note}</span> : undefined}>
+              {c.legs.map((l, i) => <LegRow key={i} leg={candidateLegToTicket(l)} />)}
+            </TicketCard>
+          ))}
+        </div>
+      ) : null}
 
       <div className="rounded-xl px-4 py-3" style={{ border: "1px dashed var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Next</span>
