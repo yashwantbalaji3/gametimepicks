@@ -9,15 +9,18 @@ import fs from "node:fs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 
-test("World Cup Player Picks tab shows curated-by-game FIRST, raw inventory secondary", () => {
+test("World Cup Player Picks tab leads with the model matrix, then curated, raw inventory last", () => {
   const page = read("src/app/world-cup/page.tsx");
+  assert.ok(page.includes("ModelPlayerPropsMatrix"), "renders the model-only props matrix");
   assert.ok(page.includes("WorldCupCuratedPicks"), "renders the curated component");
   assert.ok(page.includes("loadWorldCupCuratedGames"), "loads curated games");
+  const matrix = page.indexOf("<ModelPlayerPropsMatrix");
   const curated = page.indexOf("<WorldCupCuratedPicks");
-  const inventory = page.indexOf("market inventory");
-  assert.ok(curated > 0 && inventory > 0, "both present");
+  const inventory = page.indexOf("Available sportsbook markets — not model recommendations");
+  assert.ok(matrix > 0 && curated > 0 && inventory > 0, "matrix, curated, and inventory all present");
+  assert.ok(matrix < curated, "model matrix renders before curated picks");
   assert.ok(curated < inventory, "curated picks render before the raw market inventory");
-  assert.ok(page.includes('label: "Player Picks"'), "tab renamed to Player Picks");
+  assert.ok(page.includes('label: "Player Picks"'), "tab named Player Picks");
 });
 
 test("curated layer groups by game with top team + player picks and eligibility", () => {

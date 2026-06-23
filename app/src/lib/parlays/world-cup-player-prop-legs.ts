@@ -12,6 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { EligibleLeg } from "./types";
 import { INDIVIDUAL_LEG_ODDS_GUARDS } from "./risk-odds-bands";
+import { classifyPlayerRoles, roleKeyForRow } from "../world-cup/player-role-quality";
 
 /** Posted markets → display label + settlement rule. Anything not in this map is NOT mapped (no fakes). */
 const MARKET_MAP: Record<string, { label: string; settlement: string }> = {
@@ -60,13 +61,23 @@ export function loadWorldCupPlayerPropLegs(root: string, nowIso: string, date: s
   const teamByFixture = teamMatchByFixture(root, date);
   const legs: EligibleLeg[] = [];
 
-  for (const raw of (pp.matches ?? []) as Array<Record<string, any>>) {
+  // Role-quality gate: a suggested card never uses a benched / goalkeeper / defender-on-attacking-prop /
+  // deep-squad player prop. Classify roles across the whole slate (per-team ranking needs all rows).
+  const allRows = (pp.matches ?? []) as Array<Record<string, any>>;
+  const roleByKey = classifyPlayerRoles(
+    allRows.map((r) => ({ player: r.player ?? {}, market: r.market, americanOdds: r.americanOdds, modelProbability: r.modelProbability })),
+    Boolean((pp as any).lineupsPosted),
+  );
+
+  for (const raw of allRows) {
     const market = MARKET_MAP[raw.market];
     if (!market) continue; // only the four real posted markets — never invent one
     if (raw.projectionStatus && raw.projectionStatus !== "active") continue;
     const odds = typeof raw.americanOdds === "number" ? raw.americanOdds : null;
     if (odds == null) continue; // no odds → not odds-backed → skip
     if (odds < INDIVIDUAL_LEG_ODDS_GUARDS.minFavoriteAmerican || odds > INDIVIDUAL_LEG_ODDS_GUARDS.maxUnderdogAmerican) continue;
+    const role = roleByKey.get(roleKeyForRow({ player: raw.player ?? {} }));
+    if (!role || !role.eligibleForSpecials) continue; // role-quality gate — model-qualified players only
     const tm = teamByFixture.get(String(raw.fixture));
     if (!tm) continue; // can't join to a team match → can't settle / group by game
     const startTime = tm.kickoffUtc;
