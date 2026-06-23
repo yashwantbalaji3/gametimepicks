@@ -5,9 +5,10 @@
  */
 import Link from "next/link";
 
-import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
+import { loadWorldCupSpecials, loadWorldCupSpecialsHistory, specialsPastSlates } from "@/lib/world-cup/world-cup-specials";
 import { deriveSpecialsTracker } from "@/lib/world-cup/specials-tracker";
 import WorldCupSpecialsTracker from "@/components/specials/world-cup-specials-tracker";
+import SpecialsHistorySection from "@/components/specials/specials-history-section";
 import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
 
 export const metadata = {
@@ -20,6 +21,7 @@ export default function WorldCupSpecialsPage() {
   const nowIso = new Date().toISOString();
   const result = loadWorldCupSpecials();
   const t = deriveSpecialsTracker(result, nowIso);
+  const pastSlates = specialsPastSlates(loadWorldCupSpecialsHistory(), t.date ?? "");
   const status: PicksSurfaceStatus = t.summary.settledCount > 0 && t.summary.pendingCount === 0 && t.summary.candidateCount === 0
     ? "settled"
     : t.summary.pendingCount > 0
@@ -50,6 +52,7 @@ export default function WorldCupSpecialsPage() {
           </p>
         </div>
       )}
+      <SpecialsHistorySection days={pastSlates} />
     </div>
   );
 }

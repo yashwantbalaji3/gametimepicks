@@ -87,15 +87,15 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("the June 19 settled + cross-slate resumed ladder: Lane A active (Steps 1+2 won, USA + Gonzales, Step 3 placed), Lane B advanced (Step 1 restart WON)", () => {
+test("the June 19 settled + cross-slate resumed ladder: Lane A advanced (Steps 1+2+3 won, USA + Gonzales, Egypt + Algeria), Lane B advanced (Step 1 restart WON)", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.isLadder, true, "preview is a multi-step ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
   assert.equal(bb.laneA.steps.length, 5, "five-step ladder");
 
-  // Lane A: Step 1 (Mexico DNB + Soto) + Step 2 (USA + Gonzales) BOTH WON; Step 3 placed as an active card.
-  assert.equal(bb.laneA.laneStatus, "active");
+  // Lane A: Step 1 (Mexico DNB + Soto) + Step 2 (USA + Gonzales) + Step 3 (Egypt + Algeria) ALL WON → advanced.
+  assert.equal(bb.laneA.laneStatus, "advanced");
   assert.equal(bb.laneA.publicVisible, true);
   const a1 = bb.laneA.steps[0];
   assert.equal(a1.status, "settled");
@@ -111,7 +111,10 @@ test("the June 19 settled + cross-slate resumed ladder: Lane A active (Steps 1+2
   assert.equal(a2.legs.length, 2);
   assert.ok(a2.legs.some((l) => l.sport === "WORLD_CUP") && a2.legs.some((l) => l.sport === "MLB"), "Step 2 = one World Cup + one MLB");
   assert.ok((a2.payout ?? 0) >= 600 && (a2.payout ?? 0) <= 700, "Step 2 paid ~$601.56");
-  assert.equal(bb.laneA.steps[2].status, "pending", "Step 3 placed (pending) cross-slate card");
+  const a3 = bb.laneA.steps[2];
+  assert.equal(a3.status, "settled", "Step 3 settled (WON) cross-slate card");
+  assert.equal(a3.result, "won", "Step 3 settled WON (Egypt ML + Algeria ML, official)");
+  assert.ok((a3.payout ?? 0) >= 1400 && (a3.payout ?? 0) <= 1500, "Step 3 paid ~$1,464.71");
 
   // Lane B: the $100 Step 1 restart settled WON (official) → the lane advanced, shown publicly.
   assert.equal(bb.laneB.laneStatus, "advanced");

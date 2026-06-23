@@ -647,3 +647,35 @@ export function specialsAllPreEvent(result: WorldCupSpecialsResult | null, nowIs
   if (!result || !result.cards.length) return false;
   return result.cards.every((c) => c.legs.every((l) => !!l.startTime && l.startTime > nowIso));
 }
+
+// ── World Cup Specials HISTORY (durable, append-only across days) ─────────────────────────────────
+// The daily snapshot file is overwritten each slate; the history file (built by
+// app/scripts/archive-world-cup-specials.mjs) persists a compact record of each day so the tracker can
+// show past slates. Honest: archived as-recorded, never backfilled with fabricated outcomes.
+export interface SpecialsHistoryLeg { selection: string; settlementStatus: string; fixture: string | null }
+export interface SpecialsHistoryCard {
+  id: string | null; title: string; combinedOdds: number | null; projectedReturn: number | null;
+  result: string | null; legCount: number; legs: SpecialsHistoryLeg[];
+}
+export interface SpecialsHistoryDay { date: string; generatedAt: string | null; cardCount: number; cards: SpecialsHistoryCard[] }
+export interface SpecialsHistory { version: string; updatedAt?: string | null; days: SpecialsHistoryDay[] }
+
+const HISTORY_PATH = ["world-cup", "world-cup-specials-history.json"];
+
+/** Load the durable Specials history (newest day first). Returns an empty history when absent. */
+export function loadWorldCupSpecialsHistory(rootOverride?: string): SpecialsHistory {
+  try {
+    const root = rootOverride ?? path.join(process.cwd(), "public", "data");
+    const h = JSON.parse(fs.readFileSync(path.join(root, ...HISTORY_PATH), "utf8")) as SpecialsHistory;
+    if (!Array.isArray(h.days)) return { version: "world-cup-specials-history-v1", days: [] };
+    h.days.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+    return h;
+  } catch {
+    return { version: "world-cup-specials-history-v1", days: [] };
+  }
+}
+
+/** Past slates only (excludes the current/most-recent day so the tracker doesn't double-show today). */
+export function specialsPastSlates(history: SpecialsHistory, currentDate: string): SpecialsHistoryDay[] {
+  return (history.days ?? []).filter((d) => d.date !== currentDate);
+}

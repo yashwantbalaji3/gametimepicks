@@ -461,8 +461,8 @@
         },
         {
           "step": 3,
-          "status": "pending",
-          "result": null,
+          "status": "settled",
+          "result": "won",
           "slateDate": "2026-06-21",
           "combinedOdds": 143,
           "laneSurvivalScore": 60,
@@ -505,9 +505,8 @@
               ],
               "settlement": {
                 "result": "won",
-                "official": "New Zealand 1-3 Egypt (FT, ESPN/FIFA)",
-                "source": "API-Football",
-                "started": true
+                "official": "New Zealand 1-3 Egypt (FT, API-Football)",
+                "source": "api_football"
               },
               "matchup": "New Zealand vs Egypt",
               "homeTeam": "New Zealand",
@@ -562,7 +561,11 @@
                   "weight": 0.5
                 }
               ],
-              "settlement": "official 90-minute regulation result (ESPN/FIFA)",
+              "settlement": {
+                "result": "won",
+                "official": "Jordan 1-2 Algeria (FT, API-Football)",
+                "source": "api_football"
+              },
               "matchup": "Jordan vs Algeria",
               "homeTeam": "Jordan",
               "awayTeam": "Algeria",
@@ -577,17 +580,19 @@
               "eventDate": "2026-06-22",
               "provider": "The Odds API",
               "settlementSource": "API-Football (official 90-minute result)",
-              "currentGameStatus": "scheduled",
+              "currentGameStatus": "final",
               "displaySelection": "Jordan vs Algeria \u2014 Moneyline (90\u2032): Algeria",
               "riskNote": "Approved broader criteria \u00b7 higher-volatility paper card",
-              "rationale": "Odds-backed model pick in Jordan vs Algeria; settlement-supported (official 90-minute result)."
+              "rationale": "Odds-backed model pick in Jordan vs Algeria; settlement-supported (official 90-minute result).",
+              "settlementStatus": "hit"
             }
           ],
           "crossSlate": true,
           "slateLabel": "Cross-slate \u00b7 June 21 + June 22",
           "broaderNote": "Approved broader criteria \u00b7 higher-volatility paper card \u00b7 settlement-supported",
           "payout": 1464.71,
-          "legSettlementNote": "Egypt ML HIT (final). Algeria ML pending (Jordan/Algeria, June 22) \u2014 card pending until both legs settle."
+          "legSettlementNote": "Egypt ML HIT (final). Algeria ML pending (Jordan/Algeria, June 22) \u2014 card pending until both legs settle.",
+          "settledAt": "2026-06-23T06:06:59.838970+00:00"
         },
         {
           "step": 4,
@@ -610,7 +615,7 @@
       ],
       "currentStep": 3,
       "target": 10000,
-      "laneStatus": "active",
+      "laneStatus": "advanced",
       "publicVisible": true,
       "stopReason": null,
       "replacementCandidates": [
@@ -643,7 +648,7 @@
       ],
       "awaiting": false,
       "nextStepStake": 601.56,
-      "awaitingNote": "Step 2 won ($197.88 \u2192 $601.56). Step 3 ACTIVE (cross-slate, approved broader criteria): Egypt ML (June 21) + Algeria ML (June 22), $601.56 \u2192 $1464.71 projected. Pending official settlement across June 21 + June 22."
+      "awaitingNote": "Lane A Step 3 cleared (official) \u2014 $601.56 rolls to $1464.71, awaiting the next qualified card."
     },
     "laneB": {
       "laneId": "B",
@@ -1797,7 +1802,7 @@
     "replacementCandidatesAt": "2026-06-18T20:12:00Z",
     "settlementPassAt": "2026-06-20T05:12:32Z",
     "settlement": {
-      "steppedSettledAt": "2026-06-23T02:53:43.709698+00:00",
+      "steppedSettledAt": "2026-06-23T06:06:59.838970+00:00",
       "steppedSource": "api_football"
     }
   }

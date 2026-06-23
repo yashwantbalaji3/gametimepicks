@@ -305,13 +305,13 @@ function usd2(n: number | null): string {
 }
 
 function LaneLadderCard({ view, enrichment }: { view: PublicDualLadderView; enrichment: Record<string, StepMeta> }) {
-  const accent = view.currentStatus === "queued_restart" ? "var(--vault-gold-bright)" : view.currentStatus === "advanced" ? "#6EE7A8" : "var(--gtp-bank-heat)";
+  const accent = view.currentStatus === "queued_restart" || view.currentStatus === "awaiting_next_card" ? "var(--vault-gold-bright)" : view.currentStatus === "advanced" ? "#6EE7A8" : "var(--gtp-bank-heat)";
   return (
     <div className="flex flex-col rounded-2xl p-4" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
       <div className="mb-1 flex items-center justify-between gap-2">
         <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{view.label}</h3>
         <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: accent, background: "rgba(255,255,255,0.05)", border: `1px solid ${accent}` }}>
-          {view.currentStatus === "advanced" ? "Advanced" : view.currentStatus === "queued_restart" ? "Starting path" : view.currentStatus === "active" ? "Active" : view.currentStatus}
+          {view.currentStatus === "advanced" ? "Advanced" : view.currentStatus === "awaiting_next_card" ? "Awaiting next card" : view.currentStatus === "queued_restart" ? "Starting path" : view.currentStatus === "active" ? "Active" : view.currentStatus}
         </span>
       </div>
       <p className="mb-3 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{view.headline}</p>

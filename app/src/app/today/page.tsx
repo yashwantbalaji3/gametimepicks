@@ -255,11 +255,22 @@ export default function TodayPage() {
   const modelProps = loadModelQualifiedProps(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   const moonshotLane = loadMoonshotLane();
   const moonshotCandidates = (moonshotLane?.candidates ?? []).length;
+  // Authoritative core money state (ledger-built) for the readiness strip.
+  let coreExposure = 0; let coreWins = bbLanesCleared; let coreLosses = 0;
+  try {
+    const pf = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "portfolio.json"), "utf8"));
+    coreExposure = pf.openExposure ?? 0; coreWins = pf.record?.wins ?? coreWins; coreLosses = pf.record?.losses ?? 0;
+  } catch { /* fail closed → derived defaults */ }
+  const bothLanesCleared = bbLanesCleared >= 2;
+  const bbValue = bothLanesCleared ? "Both lanes WON" : bbLanesCleared === 1 ? "Lane B WON" : "Pending";
+  const bbSub = coreExposure > 0 ? `Lane A pending · $${coreExposure} exposure` : `awaiting next card · $0 exposure`;
   const readinessModules: { label: string; value: string; sub: string; href: string }[] = [
-    { label: "Bank Builder", value: bbLanesCleared > 0 ? `Lane B WON` : "Pending", sub: "Lane A awaiting official final", href: "/bank-builder" },
+    { label: "Bank Builder", value: bbValue, sub: bbSub, href: "/bank-builder" },
+    { label: "Mr. Dub", value: `${coreWins}-${coreLosses}`, sub: "official settlement record", href: "/results" },
     { label: "World Cup", value: `${wcFocus.length} games`, sub: `${wcProj?.projectionCount ?? 0} model projections`, href: "/world-cup" },
     { label: "Model Player Props", value: `${modelProps.qualifiedCount} picks`, sub: `${modelProps.evaluatedCount} markets evaluated`, href: "/world-cup?tab=player-props" },
     { label: "Parlay Lab", value: `${engineSuggested} cards`, sub: "model-qualified legs", href: "/picks" },
+    { label: "MLB", value: mlbLive ? `${mlb.summary.scheduledGames} games` : "No board", sub: mlbLive ? "board live" : "odds not posted yet", href: "/mlb" },
     { label: "Moonshot", value: moonshotCandidates > 0 ? `${moonshotCandidates} ready` : "—", sub: "candidates · $0 exposure", href: "/moonshot" },
     { label: "World Cup Specials", value: `${wcSpecials?.cards.length ?? 0} candidates`, sub: "$0 exposure", href: "/world-cup-specials" },
   ];
@@ -295,7 +306,7 @@ export default function TodayPage() {
           <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{dateLabel} — what&apos;s live</h2>
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>paper-only</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
           {readinessModules.map((m) => (
             <Link
               key={m.label}

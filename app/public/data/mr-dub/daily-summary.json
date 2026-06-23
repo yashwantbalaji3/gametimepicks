@@ -354,6 +354,23 @@
           "accountingNote": "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
         },
         {
+          "eventId": "mrdub-2026-06-18-lane-a-advanced",
+          "timestamp": "2026-06-18T18:40:00Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "lane_advanced",
+          "laneId": "lane-a",
+          "step": 3,
+          "date": "2026-06-18",
+          "paperStake": 0,
+          "paperReturn": 0,
+          "paperProfit": 0,
+          "status": "advanced",
+          "publicBankBuilderVisible": true,
+          "notes": "Lane A Step 3 cleared (official) — $601.56 rolls to $1464.71, awaiting the next qualified card.",
+          "accountingNote": "Step cleared and rolled; awaiting the next qualified card (no card placed)."
+        },
+        {
           "eventId": "mrdub-2026-06-18-lane-b-prior-step2-stopped",
           "timestamp": "2026-06-18T18:40:00Z",
           "portfolio": "mr-dub-paper",
@@ -525,29 +542,30 @@
     {
       "date": "2026-06-21",
       "staked": 601.56,
-      "returned": 0,
+      "returned": 1464.71,
       "pl": 0,
-      "wins": 0,
+      "wins": 1,
       "losses": 0,
       "voids": 0,
-      "pending": 1,
+      "pending": 0,
       "events": [
         {
-          "eventId": "mrdub-2026-06-18-lane-a-step3-pending",
+          "eventId": "mrdub-2026-06-18-lane-a-step3-won",
           "timestamp": "2026-06-18T18:40:00Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
-          "type": "lane_step_open",
+          "type": "lane_step_won",
           "laneId": "lane-a",
           "step": 3,
           "date": "2026-06-21",
           "paperStake": 601.56,
-          "paperReturn": 0,
+          "paperReturn": 1464.71,
           "paperProfit": 0,
-          "atRiskStake": 100,
-          "projectedReturn": 1464.71,
-          "status": "open",
+          "rolled": true,
+          "status": "settled",
+          "result": "won",
           "combinedOdds": 143,
+          "officialResultConfirmed": true,
           "publicBankBuilderVisible": true,
           "legs": [
             {
@@ -555,24 +573,20 @@
               "market": "moneyline_90",
               "selection": "Egypt moneyline_90",
               "result": "won",
-              "officialResult": "New Zealand 1-3 Egypt (FT, ESPN/FIFA)",
-              "source": "API-Football"
+              "officialResult": "New Zealand 1-3 Egypt (FT, API-Football)",
+              "source": "api_football"
             },
             {
               "sport": "WORLD_CUP",
               "market": "moneyline_90",
               "selection": "Algeria moneyline_90",
-              "result": "settled",
-              "officialResult": null,
-              "source": "official"
+              "result": "won",
+              "officialResult": "Jordan 1-2 Algeria (FT, API-Football)",
+              "source": "api_football"
             }
           ],
-          "sportExposure": [
-            "WORLD_CUP",
-            "WORLD_CUP"
-          ],
-          "notes": "Lane A Step 3 open — $601.56 paper position riding, projected $1464.71. Original $100 at risk. Settles from official sources.",
-          "accountingNote": "Open paper position — pending official settlement."
+          "notes": "Lane A Step 3 cleared (official) — $601.56 rolls to $1464.71 for the next step.",
+          "accountingNote": "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
         }
       ],
       "opening": 10176.17,
