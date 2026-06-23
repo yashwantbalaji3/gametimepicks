@@ -30,12 +30,15 @@ function StatChip({ label, value, accent, faint }: { label: string; value: strin
 }
 
 function StatusPill({ status }: { status: DailyPortfolioCard["status"] }) {
+  // Active lanes (exposure placed) read green; candidates gold; everything else muted.
+  const active = status === "active";
   const candidate = status === "candidate";
-  const color = candidate ? "var(--vault-gold-bright)" : "var(--vault-text-mute)";
+  const color = active ? "var(--vault-success)" : candidate ? "var(--vault-gold-bright)" : "var(--vault-text-mute)";
+  const bg = active ? "rgba(110,231,168,0.12)" : candidate ? "rgba(217,164,65,0.12)" : "rgba(255,255,255,0.05)";
   return (
     <span
       className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]"
-      style={{ fontSize: 8.5, color, background: candidate ? "rgba(217,164,65,0.12)" : "rgba(255,255,255,0.05)", border: `1px solid color-mix(in srgb, ${color} 35%, transparent)` }}
+      style={{ fontSize: 8.5, color, background: bg, border: `1px solid color-mix(in srgb, ${color} 35%, transparent)` }}
     >
       {status}
     </span>
@@ -60,7 +63,12 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
           <OddsPill odds={card.combinedOdds} size="sm" tone={moonshot ? "violet" : "gold"} />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>$0 placed · not activated</span>
+          <span
+            className="font-mono uppercase tracking-[0.1em]"
+            style={{ color: card.status === "active" ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 8.5 }}
+          >
+            {card.status === "active" ? `${money(card.stake)} at risk · open exposure` : "$0 placed · not activated"}
+          </span>
           {card.legCount < card.targetLegs ? (
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "#e7b15a", fontSize: 8.5 }}>{card.legCount}/{card.targetLegs} legs</span>
           ) : null}

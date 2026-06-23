@@ -23,8 +23,12 @@ import OfficialCandidateCard from "@/components/bank-builder/official-candidate-
 import BankBuilderPreviewPanel from "@/components/parlays/bank-builder-preview-panel";
 import DualLadderBoard from "@/components/bank-builder/dual-ladder-board";
 import MoonshotLaneCard from "@/components/bank-builder/moonshot-lane-card";
+import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
+import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
-import { loadTodaySlate } from "@/lib/parlays/ui-loader";
+import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
+import { currentEtDate } from "@/lib/freshness";
+import path from "node:path";
 import { getSportIdentity } from "@/lib/sport-identity";
 import {
   BANK_BUILDER_BASE,
@@ -105,8 +109,24 @@ export default function BankBuilderPage() {
   const moonshot = loadMoonshotLane();
   const bbActiveLaunched = bbPreview.status === "launched" || bbPreview.status === "settled";
 
+  // Today's daily portfolio — the activated Bank Builder A/B lanes render as a ladder near the top.
+  const today = currentSlateDate() ?? currentEtDate();
+  const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  const bankBuilderLanes = dailyPortfolio.cards.filter((c) => c.product === "bank-builder");
+  const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+      {/* TODAY'S LADDER — Bank Builder Lane A/B with a step rail, driven by the daily portfolio. */}
+      {bankBuilderLanes.length ? (
+        <section className="gtp-fade-up mb-6 flex flex-col gap-3 overflow-x-hidden" aria-label="Today's Bank Builder ladder">
+          <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" accent="gold" lanes={bankBuilderLanes} />
+          <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
+            Bank Builder exposure {money(dailyPortfolio.exposure.core)} · active bankroll {money(dailyPortfolio.activeBankroll)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (historical)
+          </p>
+        </section>
+      ) : null}
+
       {/* PRIMARY — Today's Dual Bank Builder: the live two-lane ladder leads the page. */}
       {bbActiveLaunched ? (
         <section className="gtp-fade-up mb-6" aria-label="Today's Dual Bank Builder">

@@ -75,16 +75,17 @@ test("no leg is duplicated across the four lanes (each model leg used once)", ()
   assert.equal(new Set(all).size, all.length, "no leg reused across lanes");
 });
 
-test("daily portfolio: 4 candidate lanes, $0 placed exposure, available = active bankroll, crown separate", () => {
+test("daily portfolio: 4 lanes (now ACTIVATED), $250 exposure, available = active − exposure, crown separate", () => {
   const dp = buildDailyPortfolio(root, NOW, DATE);
   assert.equal(dp.cards.length, 4, "Bank Builder A/B + Moonshot A/B");
   assert.deepEqual(dp.cards.map((c) => `${c.product}:${c.lane}`).sort(), ["bank-builder:A", "bank-builder:B", "moonshot:A", "moonshot:B"]);
-  for (const c of dp.cards) assert.equal(c.status, "candidate", `${c.id} is a candidate (not activated)`);
-  assert.equal(dp.openExposure, 0, "no exposure placed (candidates)");
-  assert.equal(dp.exposure.core, 0, "core exposure $0");
-  assert.equal(dp.exposure.moonshot, 0, "moonshot exposure $0");
-  assert.equal(dp.activeBankroll, 10176.17, "active bankroll = portfolio.currentBankroll (unchanged)");
-  assert.equal(dp.availableBankroll, dp.activeBankroll, "available = active when nothing placed");
+  // The daily portfolio is now activated (see bank-builder-moonshot-activation.test.mjs); lanes are active, $250 placed.
+  for (const c of dp.cards) assert.equal(c.status, "active", `${c.id} is active (placed)`);
+  assert.equal(dp.openExposure, 250, "open exposure $250 (BB $200 + Moonshot $50)");
+  assert.equal(dp.exposure.core, 200, "core exposure $200");
+  assert.equal(dp.exposure.moonshot, 50, "moonshot exposure $50");
+  assert.equal(dp.activeBankroll, 10176.17, "active bankroll = portfolio.currentBankroll (unchanged at activation)");
+  assert.equal(dp.availableBankroll, 9926.17, "available = active − exposure");
   assert.equal(dp.crownBankroll, 10376.17, "crown reported separately, unchanged");
 });
 
