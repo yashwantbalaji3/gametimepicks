@@ -229,12 +229,12 @@ test("UI: preview box shows $10 → return, role badge, role-evidence drawer", (
   assert.match(box, /Role-screened/, "role-screened badge");
 });
 
-test("UI: production homepage renders the role-screened specials (June 23 snapshot, no preview-route wiring)", () => {
+test("UI: production homepage renders the role-screened specials (June 24 snapshot, no preview-route wiring)", () => {
   const today = fs.readFileSync("src/app/today/page.tsx", "utf8");
   assert.ok(!/preview\/june20/.test(today), "today page does not wire the internal /preview/june20 route");
-  // Production specials snapshot is the latest role-screened live build (June 23).
+  // Production specials snapshot is the latest live build (June 24).
   const prod = JSON.parse(fs.readFileSync("public/data/world-cup/world-cup-specials.json", "utf8"));
-  assert.equal(prod.date, "2026-06-23", "production specials snapshot is June 23");
+  assert.equal(prod.date, "2026-06-24", "production specials snapshot is June 24");
 });
 
 test("UI: production specials box surfaces a distinct Confirmed starter badge (lineups posted)", () => {
@@ -245,14 +245,28 @@ test("UI: production specials box surfaces a distinct Confirmed starter badge (l
   assert.ok(!/roleTier === "key_attacker" \|\| leg\.roleTier === "confirmed_starter"/.test(box), "confirmed_starter is not lumped under Key attacker");
 });
 
-test("snapshot: production specials are valid + honestly labeled (confirmed starters when cards exist; valid empty when slate over)", () => {
+test("snapshot: production specials are valid + honestly labeled (confirmed starters when cards exist; team-model fallback when no player props; valid empty when slate over)", () => {
   const prod = JSON.parse(fs.readFileSync("public/data/world-cup/world-cup-specials.json", "utf8"));
-  assert.equal(prod.date, "2026-06-23", "production specials are the June 23 slate");
+  assert.equal(prod.date, "2026-06-24", "production specials are the June 24 slate");
   const confirmed = prod.cards.flatMap((c) => c.legs).filter((l) => l.roleTier === "confirmed_starter");
   // When confirmed-starter legs are present they must be honestly labeled + belong to a posted-lineup team.
   for (const l of confirmed) {
     assert.match(l.lineupNote, /confirmed starter/i, "confirmed leg note matches its role (never 'lineups not posted')");
     assert.ok(["Netherlands", "Sweden"].includes(l.team), `${l.participant} confirmed only for a posted-lineup team`);
+  }
+  // Team-model fallback: when The Odds API exposes no soccer player props the build falls back to
+  // TEAM-MODEL cards. That state must be labeled honestly in diagnostics (the box shows a fallback
+  // badge), and the cards must be team-only (0 player props) — never fabricated player legs.
+  if (prod.diagnostics?.fallbackMode === "team_models") {
+    assert.equal(prod.diagnostics.playerPropsUnavailable, true, "fallback honestly flags player props unavailable");
+    assert.ok(
+      prod.diagnostics.notes.some((n) => /player_props_unavailable/.test(n)),
+      "fallback carries an honest diagnostic note",
+    );
+    for (const c of prod.cards) {
+      assert.equal(c.legs.filter((l) => l.kind === "player").length, 0, `${c.id} is team-only in the team-model fallback`);
+      assert.ok(c.legs.filter((l) => l.kind === "team").length >= 4, `${c.id} has 4+ team props in fallback`);
+    }
   }
   // End-of-slate (every game started → 0 eligible cards) is a valid honest state, not a failure: the box
   // shows a "between slates" message. Specials need >=2 pre-event games.

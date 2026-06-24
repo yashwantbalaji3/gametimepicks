@@ -40,7 +40,19 @@ export const WORLD_CUP_SPECIALS_CONFIG = {
   scope: "world_cup",
 } as const;
 
-export type WorldCupSpecialsConfig = typeof WORLD_CUP_SPECIALS_CONFIG;
+export interface WorldCupSpecialsConfig {
+  count: number;
+  stakePreview: number;
+  minCombinedOdds: number;
+  maxCombinedOdds: number;
+  minLegOdds: number;
+  maxLegOdds: number;
+  minTeamPropsPerCard: number;
+  minPlayerPropsPerCard: number;
+  minGamesPerCard: number;
+  maxCardsShown: number;
+  scope: string;
+}
 
 /** A leg's per-leg odds qualifies when STRICTLY inside the band: rejects -250/-251/+200/+201. */
 export function legOddsInRange(odds: number | null | undefined, cfg: WorldCupSpecialsConfig = WORLD_CUP_SPECIALS_CONFIG): boolean {
@@ -127,6 +139,8 @@ export interface SpecialsDiagnostics {
   activeMoonshotCardExcluded: boolean;
   activeBankBuilderCardExcluded: boolean;
   notes: string[];
+  playerPropsUnavailable?: boolean;   // true → built from team models (no soccer player-prop data)
+  fallbackMode?: "team_models" | null; // which leg source was used when player props were absent
 }
 
 export interface WorldCupSpecialsResult {
@@ -447,10 +461,25 @@ export function generateWorldCupSpecials(
     return { date: opts.date, generatedAt: opts.generatedAt, config: cfg, cards: [], diagnostics };
   }
 
+  // FALLBACK HIERARCHY: player props → team props. When fewer than the required player props are available
+  // (e.g. The Odds API exposes no soccer player-prop markets), DO NOT block the product — build the cards
+  // from TEAM models instead (relax the player requirement to 0 and require the full card be team legs).
+  const playerPropsAvailable = cfg.minPlayerPropsPerCard > 0 && playerLegs.length >= cfg.minPlayerPropsPerCard;
+  const effCfg: WorldCupSpecialsConfig = playerPropsAvailable
+    ? cfg
+    : { ...cfg, minPlayerPropsPerCard: 0, minTeamPropsPerCard: Math.max(cfg.minTeamPropsPerCard, 4) };
+  if (!playerPropsAvailable) {
+    diagnostics.playerPropsUnavailable = true;
+    diagnostics.fallbackMode = "team_models";
+    diagnostics.notes.push("player_props_unavailable: built from team models (moneyline / double-chance / totals / BTTS) — no soccer player-prop data this slate.");
+  } else {
+    diagnostics.fallbackMode = null;
+  }
+
   // Curate the player pool (span the odds spectrum per game) to bound the enumeration, then enumerate.
   const curated = curatePlayers(playerLegs, 7);
   const pool = [...teamLegs, ...curated];
-  const candidates = enumerate(pool, [4, 5, 6], cfg);
+  const candidates = enumerate(pool, [4, 5, 6], effCfg);
 
   // Drop exact duplicates of the active Moonshot / Bank Builder cards.
   const kept = candidates.filter((c) => {

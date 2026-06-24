@@ -97,6 +97,12 @@ export default function WorldCupSpecialsTracker({
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>🏆 World Cup Specials · daily tracker</span>
           <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>no exposure · suggested cards</span>
         </div>
+        {result?.diagnostics?.playerPropsUnavailable ? (
+          <div className="mt-2 inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono uppercase tracking-[0.08em]"
+            style={{ fontSize: 9.5, color: "var(--vault-gold)", background: "rgba(212,175,55,0.10)", border: "1px solid color-mix(in srgb, var(--vault-gold) 35%, transparent)" }}>
+            ⚑ Player props unavailable — using team models
+          </div>
+        ) : null}
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {summaryTiles.map(([k, v]) => (
             <div key={k} className="rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
