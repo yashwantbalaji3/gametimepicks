@@ -124,10 +124,18 @@ test("live ladder: Lane A sits on the FINAL rung — its next win COMPLETES (ope
   assert.equal(classifyLaneTransition(laneB.clearedSteps, "won"), "advance", "Lane B (Step 3) still advances");
 });
 
-test("active-run protection: the live daily portfolio never reports exposure on a settled rung (settled steps are immutable history)", () => {
+test("active-run protection: settled rungs are immutable history — exposure only ever sits on a lane's NEXT (unsettled) rung, never on a settled one", () => {
+  const p = read("mr-dub/portfolio.json");
+  // The CANONICAL dual-ladder never carries exposure on a settled rung (settled steps released their seeds).
+  assert.equal(p.openExposure, 0, "no canonical exposure carried from settled rungs");
+  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 });
+  // The daily portfolio MAY place a new card on the lane's current (unsettled) rung — legitimate forward
+  // exposure. Verify no active BB lane card sits on an already-settled rung.
   const dp = read("mr-dub/daily-portfolio.json");
-  // Post-settlement, BB lanes are awaiting their next card; no settled rung leaks back as open exposure.
-  const bbActive = (dp.lanes ?? []).filter((l) => l.product === "bank-builder" && l.status === "active");
-  assert.equal(bbActive.length, 0, "no BB lane is active on an already-settled rung");
-  assert.equal(dp.openExposure, 0, "no open exposure carried from settled rungs");
+  const run = read("methodology/launch/dual-bank-builder-active.json").run;
+  for (const l of (dp.lanes ?? []).filter((x) => x.product === "bank-builder" && x.status === "active")) {
+    const laneKey = l.lane === "A" ? "laneA" : "laneB";
+    const settled = new Set((run[laneKey].steps ?? []).filter((s) => s.status === "settled").map((s) => s.step));
+    assert.ok(!settled.has(l.step), `active BB Lane ${l.lane} card is on rung ${l.step}, which is NOT a settled rung`);
+  }
 });
