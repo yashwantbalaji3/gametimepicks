@@ -90,6 +90,18 @@ jobs:
           # each ingested prop. Matches by normalized name; unmatched props simply keep no headshot.
           npx tsx scripts/enrich-mlb-headshots.mjs --date "${{ steps.cfg.outputs.date }}"
 
+      - name: Generate MLB MODEL board (engine input for Bank Builder / parlays)
+        if: steps.cfg.outputs.mode == 'write_board'
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          # The flagship ingest above writes raw MARKET props (Homer Nukes / props board). The Bank Builder
+          # + parlay engine instead reads the MODEL board mlb/boards/<date>.json (leans with edges/
+          # projections). Without this step that board goes stale and the engine returns NO_QUALIFIED_LAUNCH
+          # (root cause, docs/audits/no-qualified-launch-root-cause.md). Run the canonical generator so the
+          # engine always has a fresh model board. Real model output only — never fabricated.
+          python3 -m pipeline.mlb.generate_mlb_board --date "${{ steps.cfg.outputs.date }}"
+
       - name: Commit MLB artifacts (mlb data dir ONLY — never money files)
         if: steps.cfg.outputs.mode == 'write_board'
         run: |
