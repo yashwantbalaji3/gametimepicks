@@ -6,6 +6,23 @@ import fs from "node:fs";
 import path from "node:path";
 import type { BoardProp } from "@/components/mlb/props-board";
 
+/**
+ * Latest MLB board date that actually has ingested props AND is on/before `today` (ET). Lets the MLB
+ * flagship surface the freshest real slate (e.g. June 24) instead of a stale WC-biased slate date, while
+ * never jumping to a pre-generated future slate. Returns null when no board exists.
+ */
+export function latestMlbBoardDate(root: string, today: string): string | null {
+  try {
+    const dir = path.join(root, "mlb", "home-run-props");
+    const dates = fs.readdirSync(dir)
+      .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+      .map((f) => f.replace(/\.json$/, ""))
+      .filter((d) => d <= today)
+      .sort();
+    return dates.length ? dates[dates.length - 1] : null;
+  } catch { return null; }
+}
+
 export function loadMlbPropsBoard(root: string, date: string): BoardProp[] {
   let raw: { date?: string; props?: Array<Record<string, any>> } | null = null;
   for (const rel of [["mlb", "player-props", `${date}.json`], ["mlb", "player-props", "latest.json"]]) {

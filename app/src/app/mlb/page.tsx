@@ -35,7 +35,7 @@ import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
 import DeferUntilVisible from "@/components/defer-until-visible";
 import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
-import { loadMlbPropsBoard } from "@/lib/mlb/mlb-props";
+import { loadMlbPropsBoard, latestMlbBoardDate } from "@/lib/mlb/mlb-props";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
@@ -69,7 +69,10 @@ export default function MlbLandingPage() {
   const board = getMlbBoardForDate(date);
   // Homer Nukes + props board for the flagship sections. These read the freshly-ingested daily MLB
   // artifacts keyed on the current slate date (independent of the legacy board's activeMlbDate).
-  const flagshipDate = currentSlateDate() ?? currentEtDate();
+  // Prefer the freshest ingested MLB board (≤ today) so a new slate surfaces; fall back to the global
+  // slate date / ET date when no MLB board exists.
+  const flagshipDate = latestMlbBoardDate(path.join(process.cwd(), "public", "data"), currentEtDate())
+    ?? currentSlateDate() ?? currentEtDate();
   const homerBoard = loadHomerNukes(path.join(process.cwd(), "public", "data"), flagshipDate);
   const mlbProps = loadMlbPropsBoard(path.join(process.cwd(), "public", "data"), flagshipDate);
   // Game Explorer reads the schedule for the SAME flagship date so its gameIds join the props' gameIds.
