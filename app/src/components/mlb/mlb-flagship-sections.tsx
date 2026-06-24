@@ -1,17 +1,20 @@
 /**
  * MlbFlagshipSections — the MLB landing IA, surfaced at the top of /mlb in sportsbook order:
- *   1) Featured Plays   — the slate's likeliest plays by de-vigged market probability
+ *   1) Featured Plays    — the slate's likeliest plays by de-vigged market probability
  *   2) Homer Nukes Parlay — the daily 5-leg home-run parlay (flagship)
  *   3) Best Player Props  — the full filterable batter props board
- *   4) Pitcher Props      — the top pitcher props (K / outs / ER)
- *   5) Games              — every MLB game on the slate
+ *   4) Pitcher Props      — the full filterable pitcher props board (K / outs / ER)
+ *   5) Game Explorer      — every MLB game as a collapsible card
  *
- * Honest: market-implied % only (model %/edge come online when the model layer is wired). All data is the
- * real ingested slate; an empty slate shows data-gated states. Server component; never fabricates picks.
+ * A sticky quick-jump nav (MlbQuickJump) scroll-spies the five anchored sections. Honest: market-implied
+ * % only (model %/edge come online when the model layer is wired). All data is the real ingested slate;
+ * an empty slate shows data-gated states. Server component; never fabricates picks.
  */
 import Link from "next/link";
 import HomerNukesBoard from "@/components/mlb/homer-nukes-board";
 import MlbPropsBoard, { type BoardProp } from "@/components/mlb/props-board";
+import GameExplorer, { type ExplorerGame } from "@/components/mlb/game-explorer";
+import MlbQuickJump from "@/components/mlb/mlb-quick-jump";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import type { HomerNukesResult } from "@/lib/mlb/homer-nukes";
@@ -19,9 +22,9 @@ import type { HomerNukesResult } from "@/lib/mlb/homer-nukes";
 const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const impliedPct = (a: number) => Math.round((1 / dec(a)) * 100);
 
-function SectionCard({ tag, title, sub, children }: { tag: string; title: string; sub: string; children: React.ReactNode }) {
+function SectionCard({ id, tag, title, sub, children }: { id: string; tag: string; title: string; sub: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[14px] p-4 flex flex-col gap-2.5" style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-border)" }}>
+    <section id={id} className="rounded-[14px] p-4 flex flex-col gap-2.5 scroll-mt-[60px]" style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-border)" }}>
       <div className="flex flex-col gap-0.5">
         <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 9 }}>{tag}</span>
         <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{title}</h3>
@@ -68,24 +71,7 @@ function TopList({ props, n }: { props: BoardProp[]; n: number }) {
   );
 }
 
-/** The slate's games (distinct matchups) with their prop count. */
-function GamesList({ props }: { props: BoardProp[] }) {
-  const byGame = new Map<string, { matchup: string; count: number }>();
-  for (const p of props) { const g = byGame.get(p.matchup) ?? { matchup: p.matchup, count: 0 }; g.count++; byGame.set(p.matchup, g); }
-  const games = [...byGame.values()].sort((a, b) => a.matchup.localeCompare(b.matchup));
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-      {games.map((g) => (
-        <div key={g.matchup} className="rounded-[10px] px-3 py-2 flex items-center justify-between gap-2" style={{ background: "rgba(12,8,6,0.45)", border: "1px solid var(--vault-rule)" }}>
-          <span className="font-semibold break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 12 }}>{g.matchup}</span>
-          <span className="font-mono uppercase tracking-[0.06em] shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{g.count} props</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export default function MlbFlagshipSections({ homer, props }: { homer: HomerNukesResult; props: BoardProp[] }) {
+export default function MlbFlagshipSections({ homer, props, games }: { homer: HomerNukesResult; props: BoardProp[]; games: ExplorerGame[] }) {
   const live = props.length > 0;
   const batter = props.filter((p) => p.group !== "pitchers");
   const pitchers = props.filter((p) => p.group === "pitchers");
@@ -96,25 +82,27 @@ export default function MlbFlagshipSections({ homer, props }: { homer: HomerNuke
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Featured · Homer Nukes · Player props · Pitcher props · Games — paper-only</span>
       </div>
 
-      <SectionCard tag="1 · Featured plays" title="Today's featured MLB plays" sub="The slate's likeliest plays by de-vigged market probability.">
+      <MlbQuickJump />
+
+      <SectionCard id="mlb-featured" tag="1 · Featured plays" title="Today's featured MLB plays" sub="The slate's likeliest plays by de-vigged market probability.">
         {live ? <TopList props={props} n={6} /> : <GatedSlot label="Featured plays post when MLB markets are live" />}
       </SectionCard>
 
-      <SectionCard tag="2 · Flagship" title="Homer Nukes — daily 5-leg HR parlay" sub="One $20 paper parlay: the five likeliest home-run bats on the slate.">
+      <SectionCard id="mlb-homer-nukes" tag="2 · Flagship" title="Homer Nukes — daily 5-leg HR parlay" sub="One $20 paper parlay: the five likeliest home-run bats on the slate.">
         <HomerNukesBoard board={homer} />
         <Link href="/homer-nukes" className="self-start font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>Open Homer Nukes →</Link>
       </SectionCard>
 
-      <SectionCard tag="3 · Player props" title="Best player props" sub="Filter by market · game · player search; sort by market % or odds. HR · Hits · Bases · Runs.">
+      <SectionCard id="mlb-player-props" tag="3 · Player props" title="Best player props" sub="Quick filters by market · game · odds · confidence; sort by probability, price, confidence, team or game.">
         {batter.length ? <MlbPropsBoard props={batter} /> : <GatedSlot label="Player props post when MLB markets are live" />}
       </SectionCard>
 
-      <SectionCard tag="4 · Pitcher props" title="Pitcher props" sub="Strikeouts · Outs recorded · Earned runs — likeliest by market probability.">
-        {pitchers.length ? <TopList props={pitchers} n={8} /> : <GatedSlot label="Pitcher props post when MLB markets are live" />}
+      <SectionCard id="mlb-pitcher-props" tag="4 · Pitcher props" title="Pitcher props" sub="Strikeouts · Outs recorded · Earned runs — the same filterable board, pitcher markets.">
+        {pitchers.length ? <MlbPropsBoard props={pitchers} /> : <GatedSlot label="Pitcher props post when MLB markets are live" />}
       </SectionCard>
 
-      <SectionCard tag="5 · Games" title="Today's MLB games" sub="Every game on the slate — full per-game board in the tabs below.">
-        {live ? <GamesList props={props} /> : <GatedSlot label="The slate's games appear once posted" />}
+      <SectionCard id="mlb-game-explorer" tag="5 · Games" title="Game Explorer" sub="Every game on the slate — tap a card for first pitch, featured props & pitchers on the board.">
+        {games.length ? <GameExplorer games={games} props={props} /> : <GatedSlot label="The slate's games appear once posted" />}
       </SectionCard>
     </div>
   );

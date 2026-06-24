@@ -1,13 +1,9 @@
-/**
- * MlbPropsBoard — the filterable/sortable/searchable MLB player-props board. Desktop = table, mobile =
- * cards. Honest: it shows the de-vigged MARKET-implied probability (no fabricated model %/edge until the
- * model layer is wired — those columns read "—" with a footnote). All data is the real ingested slate.
- */
 "use client";
 
 import { useMemo, useState } from "react";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
+import { tierFromProb, homerTierFromProb, tierMeta, type ConfTier } from "@/lib/mlb/confidence";
 
 export interface BoardProp {
   player: string;
@@ -22,85 +18,101 @@ export interface BoardProp {
   gameId: string;
   photoUrl?: string | null;
   teamAbbr?: string | null;
+  opponentAbbr?: string | null;
+  homeAway?: "home" | "away" | null;
 }
 
 const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const impliedPct = (a: number) => Math.round((1 / dec(a)) * 100);
 const american = (a: number) => `${a > 0 ? "+" : ""}${a}`;
-/** Confidence from market-implied probability (no model yet): chalkier = higher confidence. */
-const confOf = (a: number): "low" | "medium" | "high" => { const p = 1 / dec(a); return p >= 0.55 ? "high" : p >= 0.35 ? "medium" : "low"; };
-const CONF_PILL = {
-  high: { fg: "var(--vault-success)", bg: "color-mix(in srgb, var(--vault-success) 14%, transparent)" },
-  medium: { fg: "#e7b15a", bg: "rgba(231,177,90,0.13)" },
-  low: { fg: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.05)" },
-} as const;
+/** Market-aware 4-tier confidence: HR markets sit on a lower probability band than batter favorites. */
+const tierForProp = (p: BoardProp): ConfTier => {
+  const prob = 1 / dec(p.americanOdds);
+  return p.market === "batter_home_runs" ? homerTierFromProb(prob) : tierFromProb(prob);
+};
+const TIER_RANK: Record<ConfTier, number> = { elite: 3, strong: 2, playable: 1, avoid: 0 };
 
-const GROUPS: Array<{ key: string; label: string }> = [
+/** Market quick-filters (real Odds API market keys). Only those present in the data render. */
+const MARKETS: Array<{ key: string; label: string }> = [
   { key: "all", label: "All" },
-  { key: "hr", label: "HR" },
-  { key: "hits", label: "Hits" },
-  { key: "bases", label: "Bases" },
-  { key: "runs", label: "Runs/RBI" },
-  { key: "pitchers", label: "Pitchers" },
+  { key: "batter_home_runs", label: "HR" },
+  { key: "batter_hits", label: "Hits" },
+  { key: "batter_total_bases", label: "Bases" },
+  { key: "batter_rbis", label: "RBI" },
+  { key: "batter_runs_scored", label: "Runs" },
+  { key: "pitcher_strikeouts", label: "Strikeouts" },
+  { key: "pitcher_outs", label: "Outs" },
+  { key: "pitcher_earned_runs", label: "Earned Runs" },
 ];
 const SORTS: Array<{ key: string; label: string }> = [
-  { key: "implied", label: "Highest market %" },
+  { key: "prob", label: "Highest probability" },
+  { key: "price", label: "Best price" },
   { key: "confidence", label: "Highest confidence" },
-  { key: "oddsDesc", label: "Highest odds" },
-  { key: "oddsAsc", label: "Lowest odds" },
-  { key: "player", label: "Player A–Z" },
+  { key: "team", label: "Team" },
+  { key: "game", label: "Game" },
 ];
-const ODDS_RANGES: Array<{ key: string; label: string; test: (a: number) => boolean }> = [
-  { key: "all", label: "Any odds", test: () => true },
-  { key: "fav", label: "Favorites (≤ −110)", test: (a) => a <= -110 },
-  { key: "even", label: "−110 to +200", test: (a) => a > -110 && a <= 200 },
-  { key: "plus", label: "+200 to +600", test: (a) => a > 200 && a <= 600 },
-  { key: "long", label: "Longshots (> +600)", test: (a) => a > 600 },
+const ODDS_RANGES: Array<{ key: string; label: string; short: string; test: (a: number) => boolean }> = [
+  { key: "all", label: "Any odds", short: "Any odds", test: () => true },
+  { key: "fav", label: "Favorites (≤ −110)", short: "Favorites", test: (a) => a <= -110 },
+  { key: "even", label: "−110 to +200", short: "−110…+200", test: (a) => a > -110 && a <= 200 },
+  { key: "plus", label: "+200 to +600", short: "+200…+600", test: (a) => a > 200 && a <= 600 },
+  { key: "long", label: "Longshots (> +600)", short: "Longshots", test: (a) => a > 600 },
 ];
-const CONFS = [
-  { key: "all", label: "Any" }, { key: "high", label: "High" }, { key: "medium", label: "Medium" }, { key: "low", label: "Low" },
+const CONFS: Array<{ key: string; label: string }> = [
+  { key: "all", label: "Any confidence" }, { key: "elite", label: "Elite" }, { key: "strong", label: "Strong" }, { key: "playable", label: "Playable" }, { key: "avoid", label: "Avoid" },
 ];
 
+const selStyle = { background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)", color: "var(--vault-text)" } as const;
+
 export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
-  const [group, setGroup] = useState("all");
+  const [market, setMarket] = useState("all");
   const [game, setGame] = useState("all");
-  const [sort, setSort] = useState("implied");
+  const [sort, setSort] = useState("prob");
   const [oddsRange, setOddsRange] = useState("all");
   const [conf, setConf] = useState("all");
   const [q, setQ] = useState("");
 
   const games = useMemo(() => Array.from(new Set(props.map((p) => p.matchup))).sort(), [props]);
+  const presentMarkets = useMemo(() => new Set(props.map((p) => p.market)), [props]);
+  const visibleMarkets = useMemo(() => MARKETS.filter((m) => m.key === "all" || presentMarkets.has(m.key)), [presentMarkets]);
   const oddsTest = ODDS_RANGES.find((r) => r.key === oddsRange)?.test ?? (() => true);
 
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
     let r = props.filter((p) =>
-      (group === "all" || p.group === group) &&
+      (market === "all" || p.market === market) &&
       (game === "all" || p.matchup === game) &&
       (oddsRange === "all" || oddsTest(p.americanOdds)) &&
-      (conf === "all" || confOf(p.americanOdds) === conf) &&
+      (conf === "all" || tierForProp(p) === conf) &&
       (!needle || p.player.toLowerCase().includes(needle) || p.matchup.toLowerCase().includes(needle) || (p.teamAbbr ?? "").toLowerCase().includes(needle)));
     r = [...r].sort((a, b) =>
-      sort === "oddsDesc" ? b.americanOdds - a.americanOdds :
-      sort === "oddsAsc" ? a.americanOdds - b.americanOdds :
-      sort === "player" ? a.player.localeCompare(b.player) :
-      impliedPct(b.americanOdds) - impliedPct(a.americanOdds)); // implied + confidence both rank by prob
-    return r.slice(0, 150); // cap the rendered rows; filters narrow further
-  }, [props, group, game, sort, oddsRange, conf, oddsTest, q]);
+      sort === "price" ? b.americanOdds - a.americanOdds :
+      sort === "team" ? (a.teamAbbr ?? "zzz").localeCompare(b.teamAbbr ?? "zzz") || impliedPct(b.americanOdds) - impliedPct(a.americanOdds) :
+      sort === "game" ? a.matchup.localeCompare(b.matchup) || impliedPct(b.americanOdds) - impliedPct(a.americanOdds) :
+      sort === "confidence" ? (TIER_RANK[tierForProp(b)] - TIER_RANK[tierForProp(a)]) || impliedPct(b.americanOdds) - impliedPct(a.americanOdds) :
+      impliedPct(b.americanOdds) - impliedPct(a.americanOdds)); // prob (default)
+    return r.slice(0, 150);
+  }, [props, market, game, sort, oddsRange, conf, oddsTest, q]);
 
-  const selStyle = { background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)", color: "var(--vault-text)" } as const;
-  const reset = () => { setGroup("all"); setGame("all"); setSort("implied"); setOddsRange("all"); setConf("all"); setQ(""); };
-  const activeFilters = (group !== "all" ? 1 : 0) + (game !== "all" ? 1 : 0) + (oddsRange !== "all" ? 1 : 0) + (conf !== "all" ? 1 : 0) + (q.trim() ? 1 : 0);
+  // Active filter chips (removable). Each has a label and a clear fn.
+  const chips: Array<{ key: string; label: string; clear: () => void }> = [];
+  if (market !== "all") chips.push({ key: "market", label: MARKETS.find((m) => m.key === market)?.label ?? market, clear: () => setMarket("all") });
+  if (game !== "all") chips.push({ key: "game", label: game, clear: () => setGame("all") });
+  if (oddsRange !== "all") chips.push({ key: "odds", label: ODDS_RANGES.find((r) => r.key === oddsRange)?.short ?? oddsRange, clear: () => setOddsRange("all") });
+  if (conf !== "all") chips.push({ key: "conf", label: CONFS.find((c) => c.key === conf)?.label ?? conf, clear: () => setConf("all") });
+  if (q.trim()) chips.push({ key: "q", label: `"${q.trim()}"`, clear: () => setQ("") });
+  const reset = () => { setMarket("all"); setGame("all"); setSort("prob"); setOddsRange("all"); setConf("all"); setQ(""); };
 
   return (
     <div className="flex flex-col gap-3">
       {/* Controls — sticky so filters stay reachable while scrolling the board. */}
       <div className="flex flex-col gap-2 rounded-[12px] px-2.5 py-2.5" style={{ position: "sticky", top: 4, zIndex: 5, background: "rgba(18,11,8,0.96)", backdropFilter: "blur(6px)", border: "1px solid var(--vault-rule)" }}>
+        {/* Quick filter chips (market) */}
         <div className="flex flex-wrap gap-1.5">
-          {GROUPS.map((g) => (
-            <button key={g.key} onClick={() => setGroup(g.key)} className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.08em]"
-              style={{ fontSize: 9.5, cursor: "pointer", color: group === g.key ? "#120A07" : "var(--vault-text-mute)", background: group === g.key ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
-              {g.label}
+          {visibleMarkets.map((m) => (
+            <button key={m.key} onClick={() => setMarket(m.key)} className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.08em]"
+              style={{ fontSize: 9.5, cursor: "pointer", color: market === m.key ? "#120A07" : "var(--vault-text-mute)", background: market === m.key ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+              {m.label}
             </button>
           ))}
         </div>
@@ -115,18 +127,26 @@ export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
             {ODDS_RANGES.map((r) => <option key={r.key} value={r.key}>{r.label}</option>)}
           </select>
           <select value={conf} onChange={(e) => setConf(e.target.value)} aria-label="Filter by confidence" className="rounded-[8px] px-2 py-1.5 text-[11.5px]" style={selStyle}>
-            {CONFS.map((c) => <option key={c.key} value={c.key}>{c.key === "all" ? "Any confidence" : `${c.label} confidence`}</option>)}
+            {CONFS.map((c) => <option key={c.key} value={c.key}>{c.key === "all" ? c.label : `${c.label} confidence`}</option>)}
           </select>
           <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort" className="rounded-[8px] px-2 py-1.5 text-[11.5px]" style={selStyle}>
-            {SORTS.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
+            {SORTS.map((s) => <option key={s.key} value={s.key}>Sort: {s.label}</option>)}
           </select>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        {/* Active filter chips + count */}
+        <div className="flex flex-wrap items-center gap-1.5">
           <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-            {rows.length} shown · market-implied % from real odds · confidence from de-vigged prob · paper-only
+            {rows.length} shown
+            {chips.length ? <span style={{ color: "var(--gtp-bank-heat)" }}> · {chips.length} filter{chips.length > 1 ? "s" : ""}</span> : null}
           </span>
-          {activeFilters ? <button onClick={reset} className="rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, cursor: "pointer", color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>Clear {activeFilters} filter{activeFilters > 1 ? "s" : ""}</button> : null}
+          {chips.map((c) => (
+            <button key={c.key} onClick={c.clear} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono" style={{ fontSize: 9, cursor: "pointer", color: "var(--vault-text)", background: "rgba(225,29,42,0.12)", border: "1px solid color-mix(in srgb, var(--gtp-bank-heat) 35%, transparent)" }}>
+              {c.label}<span aria-hidden style={{ color: "var(--vault-text-faint)" }}>✕</span>
+            </button>
+          ))}
+          {chips.length ? <button onClick={reset} className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, cursor: "pointer", color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>Clear all</button> : null}
         </div>
+        <span className="font-mono uppercase tracking-[0.07em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>market-implied % from real odds · confidence is a market read (model edge pending) · paper-only</span>
       </div>
 
       {/* Desktop table — sticky header, striped rows, pill badges. */}
@@ -134,24 +154,28 @@ export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
         <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: 12 }}>
           <thead>
             <tr>
-              {["Player", "Market", "Line", "Odds", "Market %", "Edge", "Conf", "Provider", "Game"].map((h) => (
+              {["Player", "Market", "Line", "Odds", "Market %", "Confidence", "Book", "Game"].map((h) => (
                 <th key={h} className="px-3 py-2 text-left font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9, position: "sticky", top: 0, zIndex: 1, background: "#1a100b", borderBottom: "1px solid var(--vault-rule)" }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map((p, i) => {
-              const c = confOf(p.americanOdds);
+              const m = tierMeta(tierForProp(p));
               return (
               <tr key={`${p.player}:${p.market}:${i}`} style={{ background: i % 2 ? "rgba(255,255,255,0.018)" : "transparent" }}>
-                <td className="px-3 py-1.5"><span className="flex items-center gap-2 min-w-0"><span className="relative shrink-0"><PlayerAvatar name={p.player} photo={p.photoUrl} size={22} />{p.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={p.teamAbbr} sport="mlb" size="sm" /></span> : null}</span><span className="break-words" style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.player}</span></span></td>
+                <td className="px-3 py-1.5">
+                  <span className="flex items-center gap-2 min-w-0">
+                    <span className="relative shrink-0"><PlayerAvatar name={p.player} photo={p.photoUrl} size={22} />{p.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={p.teamAbbr} sport="mlb" size="sm" /></span> : null}</span>
+                    <span className="min-w-0"><span className="break-words" style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.player}</span>{p.opponentAbbr ? <span className="flex items-center gap-1" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{p.homeAway === "home" ? "vs" : "@"}<TeamLogo team={p.opponentAbbr} sport="mlb" size="sm" /></span> : null}</span>
+                  </span>
+                </td>
                 <td className="px-3 py-1.5" style={{ color: "var(--vault-text-mute)" }}>{p.marketLabel}</td>
                 <td className="px-3 py-1.5 font-mono tabular" style={{ color: "var(--vault-text-mute)" }}>{p.point != null ? p.point : "—"}</td>
                 <td className="px-3 py-1.5"><span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--vault-text)", background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-rule)" }}>{american(p.americanOdds)}</span></td>
                 <td className="px-3 py-1.5"><span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)" }}>{impliedPct(p.americanOdds)}%</span></td>
-                <td className="px-3 py-1.5 font-mono" style={{ color: "var(--vault-text-faint)" }}>—</td>
-                <td className="px-3 py-1.5"><span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9, color: CONF_PILL[c].fg, background: CONF_PILL[c].bg }}>{c}</span></td>
-                <td className="px-3 py-1.5 font-mono" style={{ color: "var(--vault-text-faint)" }}>{p.provider ?? "—"}</td>
+                <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1 rounded-[5px] px-1.5 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9, color: m.fg, background: m.bg }}><span aria-hidden style={{ width: 5, height: 5, borderRadius: 999, background: m.fg }} />{m.label}</span></td>
+                <td className="px-3 py-1.5"><span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{p.provider ?? "—"}</span></td>
                 <td className="px-3 py-1.5 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{p.matchup}</td>
               </tr>
             );})}
@@ -159,17 +183,25 @@ export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
         </table>
       </div>
 
-      {/* Mobile cards */}
+      {/* Mobile cards — native feel: headshot + team/opp logos, badges row. */}
       <div className="lg:hidden flex flex-col gap-2">
         {rows.map((p, i) => {
-          const c = confOf(p.americanOdds);
+          const m = tierMeta(tierForProp(p));
           return (
-          <div key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2.5 flex items-start gap-2 min-w-0" style={{ background: "rgba(12,8,6,0.45)", border: "1px solid var(--vault-rule)" }}>
-            <span className="mt-0.5 relative shrink-0"><PlayerAvatar name={p.player} photo={p.photoUrl} size={26} />{p.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={p.teamAbbr} sport="mlb" size="sm" /></span> : null}</span>
+          <div key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2.5 flex items-start gap-2.5 min-w-0" style={{ background: "rgba(12,8,6,0.45)", border: "1px solid var(--vault-rule)" }}>
+            <span className="mt-0.5 relative shrink-0"><PlayerAvatar name={p.player} photo={p.photoUrl} size={28} />{p.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={p.teamAbbr} sport="mlb" size="sm" /></span> : null}</span>
             <span className="min-w-0 flex-1">
-              <span className="flex items-center justify-between gap-2"><span className="break-words font-semibold leading-tight" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{p.player}</span><span className="font-mono tabular shrink-0" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{american(p.americanOdds)}</span></span>
-              <span className="block font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>{p.marketLabel}{p.point != null ? ` ${p.point}` : ""} · <span style={{ color: "var(--gtp-bank-heat)" }}>{impliedPct(p.americanOdds)}% mkt</span> · <span style={{ color: CONF_PILL[c].fg }}>{c}</span></span>
-              <span className="block font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{p.matchup}{p.provider ? ` · ${p.provider}` : ""}</span>
+              <span className="flex items-center justify-between gap-2">
+                <span className="flex items-center gap-1.5 min-w-0"><span className="break-words font-semibold leading-tight" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{p.player}</span>{p.opponentAbbr ? <span className="inline-flex items-center gap-0.5 shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{p.homeAway === "home" ? "vs" : "@"}<TeamLogo team={p.opponentAbbr} sport="mlb" size="sm" /></span> : null}</span>
+                <span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular shrink-0" style={{ color: "var(--vault-text)", fontSize: 12, background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-rule)" }}>{american(p.americanOdds)}</span>
+              </span>
+              <span className="block font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>{p.marketLabel}{p.point != null ? ` ${p.point}` : ""}</span>
+              <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                <span className="inline-block rounded-[4px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)", fontSize: 9.5 }}>{impliedPct(p.americanOdds)}% mkt</span>
+                <span className="inline-flex items-center gap-1 rounded-[4px] px-1.5 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 8.5, color: m.fg, background: m.bg }}><span aria-hidden style={{ width: 4, height: 4, borderRadius: 999, background: m.fg }} />{m.label}</span>
+                {p.provider ? <span className="inline-block rounded-[4px] px-1.5 py-0.5 font-mono" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)", fontSize: 8.5 }}>{p.provider}</span> : null}
+              </span>
+              <span className="mt-0.5 block font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{p.matchup}</span>
             </span>
           </div>
         );})}

@@ -27,8 +27,25 @@ async function getJson(url) { const r = await fetch(url); if (!r.ok) throw new E
 async function main() {
   log(`enriching slate ${DATE}`);
   const teams = await getJson(`https://statsapi.mlb.com/api/v1/teams?sportId=1`);
-  const teamAbbr = new Map();
-  for (const t of teams.teams ?? []) teamAbbr.set(t.id, t.abbreviation);
+  const teamAbbr = new Map();        // id → abbreviation
+  const abbrByName = new Map();      // normalized full team name → abbreviation (for opponent resolution)
+  for (const t of teams.teams ?? []) {
+    teamAbbr.set(t.id, t.abbreviation);
+    if (t.name) abbrByName.set(norm(t.name), t.abbreviation);
+  }
+
+  // Resolve home/away + opponent abbr from the real matchup string ("Away Team @ Home Team") and the
+  // batter's own teamAbbr. Pure parse of real data — never fabricated; returns nulls if a side can't be
+  // mapped (e.g. an unexpected matchup format), so the UI simply omits the opponent logo.
+  const resolveOpponent = (matchup, ownAbbr) => {
+    const m = String(matchup ?? "").split(/\s+@\s+/);
+    if (m.length !== 2 || !ownAbbr) return { opponentAbbr: null, homeAway: null };
+    const awayAbbr = abbrByName.get(norm(m[0])) ?? null;
+    const homeAbbr = abbrByName.get(norm(m[1])) ?? null;
+    if (ownAbbr === awayAbbr) return { opponentAbbr: homeAbbr, homeAway: "away" };
+    if (ownAbbr === homeAbbr) return { opponentAbbr: awayAbbr, homeAway: "home" };
+    return { opponentAbbr: null, homeAway: null };
+  };
 
   const players = await getJson(`https://statsapi.mlb.com/api/v1/sports/1/players?season=${SEASON}`);
   const byName = new Map();
@@ -46,13 +63,16 @@ async function main() {
     const fp = path.join(DATA, file, `${DATE}.json`);
     let doc;
     try { doc = JSON.parse(fs.readFileSync(fp, "utf8")); } catch { log(`skip ${file} (not present)`); continue; }
-    let matched = 0;
+    let matched = 0, oppResolved = 0;
     for (const prop of doc.props ?? []) {
       const hit = byName.get(norm(prop.player));
       if (hit) { prop.playerId = hit.id; prop.photoUrl = hit.photoUrl; prop.team = hit.team; prop.teamAbbr = hit.teamAbbr; matched++; }
+      const opp = resolveOpponent(prop.matchup, prop.teamAbbr);
+      prop.opponentAbbr = opp.opponentAbbr; prop.homeAway = opp.homeAway;
+      if (opp.opponentAbbr) oppResolved++;
     }
     fs.writeFileSync(fp, JSON.stringify(doc, null, 2));
-    log(`${file}: matched ${matched}/${doc.props?.length ?? 0} props → wrote headshots/team`);
+    log(`${file}: matched ${matched}/${doc.props?.length ?? 0} props → headshots/team; opponent resolved ${oppResolved}/${doc.props?.length ?? 0}`);
   }
   log("done.");
 }
