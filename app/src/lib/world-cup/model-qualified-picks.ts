@@ -23,6 +23,7 @@ export type Volatility = "lower" | "higher";
 
 export interface ModelPick {
   id: string;
+  sport?: string;          // "WORLD_CUP" (default when absent) | "MLB" — set for cross-sport Bank Builder cards
   gameId: string;
   matchup: string;
   kickoffUtc: string | null;
