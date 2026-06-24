@@ -45,16 +45,18 @@ test("config: combined odds band accepts +701..+2999, rejects the edges and outs
 });
 
 // ── Generator output ─────────────────────────────────────────────────────────────────────────────
-test("produces at most 5 World Cup Specials; gated to 0 when no player props are available", () => {
+test("produces at most 5 World Cup Specials; falls back to team models when no player props are available", () => {
   assert.ok(result.cards.length <= cfg.maxCardsShown, "never more than 5");
-  // June 24: team markets exist, but The Odds API offers NO soccer player-prop markets, so no Special
-  // can satisfy the ≥2-player-props rule → 0 cards. This is the honest fail-closed state, not a bug,
-  // and the generator must say so in its diagnostics rather than fabricate cards.
-  assert.equal(result.cards.length, 0, "0 cards — player props unavailable for the current slate");
+  // June 24: team markets exist, but The Odds API offers NO soccer player-prop markets. Rather than
+  // produce 0, the generator falls back to TEAM-MODEL cards (moneyline / double-chance / totals / BTTS).
+  // This is the honest fallback state, flagged in diagnostics, not a fabrication of player props.
+  assert.ok(result.cards.length > 0 && result.cards.length <= cfg.maxCardsShown, "1..5 team-model fallback cards");
   assert.equal(result.diagnostics.eligiblePlayerLegs, 0, "no eligible player legs in the pool");
+  assert.equal(result.diagnostics.playerPropsUnavailable, true, "diagnostics flag player props unavailable");
+  assert.equal(result.diagnostics.fallbackMode, "team_models", "diagnostics flag the team-model fallback");
   assert.ok(
-    result.diagnostics.notes.some((n) => /not_enough_valid_specials/.test(n)),
-    "honest diagnostic explains why 0 specials were produced",
+    result.diagnostics.notes.some((n) => /player_props_unavailable/.test(n)),
+    "honest diagnostic explains the team-model fallback",
   );
 });
 
@@ -76,13 +78,22 @@ test("every leg's odds is > -250 and < +200", () => {
     for (const l of c.legs) assert.ok(legOddsInRange(l.odds), `${l.participant} ${l.odds} in leg band`);
 });
 
-test("every card has >= 2 team props, >= 2 player props, and >= 2 distinct games", () => {
+test("every card has the required team/player mix and >= 2 distinct games (mode-aware)", () => {
+  // In normal mode each card needs >= 2 team + >= 2 player props. In the team-model fallback
+  // (player props unavailable for the slate) cards are TEAM-ONLY: 0 player props but >= 4 team props.
+  // The >= 2-distinct-games requirement holds in BOTH modes — no fabrication, WC-only.
+  const fallback = result.diagnostics.fallbackMode === "team_models";
   for (const c of result.cards) {
     const team = c.legs.filter((l) => l.kind === "team").length;
     const player = c.legs.filter((l) => l.kind === "player").length;
     const games = new Set(c.legs.map((l) => l.eventId)).size;
-    assert.ok(team >= cfg.minTeamPropsPerCard, `${c.id} has ${team} team props`);
-    assert.ok(player >= cfg.minPlayerPropsPerCard, `${c.id} has ${player} player props`);
+    if (fallback) {
+      assert.equal(player, 0, `${c.id} is team-only in the team-model fallback`);
+      assert.ok(team >= 4, `${c.id} has ${team} team props (>= 4 in fallback)`);
+    } else {
+      assert.ok(team >= cfg.minTeamPropsPerCard, `${c.id} has ${team} team props`);
+      assert.ok(player >= cfg.minPlayerPropsPerCard, `${c.id} has ${player} player props`);
+    }
     assert.ok(games >= cfg.minGamesPerCard, `${c.id} spans ${games} games`);
     assert.equal(c.teamPropCount, team);
     assert.equal(c.playerPropCount, player);
@@ -214,22 +225,31 @@ test("generator returns 0 with an honest diagnostic when fewer than 2 pre-event 
 test("committed snapshot exists, is dated, and holds <=5 valid WC-only cards", () => {
   const snap = loadWorldCupSpecials();
   assert.ok(snap, "snapshot loads");
-  // The committed specials snapshot is the last role-screened live build that had player props
-  // (June 23). The current June 24 slate has no player props, so no new snapshot can be produced —
-  // the homepage gates this box to `today` (see the wiring test below), so a stale-dated snapshot is
-  // never shown. We assert the snapshot is well-formed + ISO-dated rather than pinned to the live DATE.
+  // The committed specials snapshot is the live build for the current slate (June 24). When the slate
+  // has no player props the build falls back to TEAM-MODEL cards, flagged in diagnostics. We assert the
+  // snapshot is well-formed + ISO-dated rather than pinned to a single live DATE.
   assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(snap.date), "snapshot carries an ISO slate date");
   // 0..5 cards: once every game on the slate has kicked off there are no eligible pre-event Specials,
   // and the box shows a "between slates" message — that is a valid honest state, not a failure.
   assert.ok(snap.cards.length <= 5, "<=5 cards");
+  // Mode-aware: in the team-model fallback every card is team-only (0 player props, >= 4 team props);
+  // otherwise each card carries the normal >= 2 team + >= 2 player mix.
+  const fallback = snap.diagnostics?.fallbackMode === "team_models";
   for (const c of snap.cards) {
     assert.ok(combinedOddsInRange(c.combinedOdds), `${c.id} combined in band`);
     for (const l of c.legs) {
       assert.equal(l.sport, "WORLD_CUP");
       assert.ok(legOddsInRange(l.odds), `${l.participant} ${l.odds} in leg band`);
     }
-    assert.ok(c.legs.filter((l) => l.kind === "team").length >= 2, "2+ team props");
-    assert.ok(c.legs.filter((l) => l.kind === "player").length >= 2, "2+ player props");
+    const team = c.legs.filter((l) => l.kind === "team").length;
+    const player = c.legs.filter((l) => l.kind === "player").length;
+    if (fallback) {
+      assert.equal(player, 0, `${c.id} is team-only in the team-model fallback`);
+      assert.ok(team >= 4, `${c.id} has 4+ team props in fallback`);
+    } else {
+      assert.ok(team >= 2, "2+ team props");
+      assert.ok(player >= 2, "2+ player props");
+    }
   }
 });
 

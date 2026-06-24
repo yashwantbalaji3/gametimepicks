@@ -11,12 +11,13 @@ const read = (p) => fs.readFileSync(p, "utf8");
 test("World Cup Specials tracker derives candidate/pending/settled from the slate (no exposure)", () => {
   const result = loadWorldCupSpecials();
   assert.ok(result && result.cards.length > 0, "specials loaded");
-  // Before any kickoff → all candidates (pre-event).
-  const pre = deriveSpecialsTracker(result, "2026-06-23T10:00:00Z");
+  // Before any kickoff → all candidates (pre-event). The June 24 slate's earliest kickoff is 19:00Z.
+  const pre = deriveSpecialsTracker(result, "2026-06-24T10:00:00Z");
   assert.equal(pre.summary.candidateCount, result.cards.length, "all pre-event = candidates before kickoff");
   assert.equal(pre.summary.pendingCount, 0, "none pending before kickoff");
-  // After all kickoffs but ungraded → all pending (games started, not settled).
-  const mid = deriveSpecialsTracker(result, "2026-06-24T06:00:00Z");
+  // After all kickoffs but ungraded → all pending (games started, not settled). The latest June 24
+  // leg kicks off 2026-06-25T01:00Z, so 02:00Z is after every game has started.
+  const mid = deriveSpecialsTracker(result, "2026-06-25T02:00:00Z");
   assert.equal(mid.summary.pendingCount + mid.summary.settledCount, result.cards.length, "started cards are pending or settled, not candidates");
   // Specials never place exposure.
   assert.equal(pre.summary.exposure, 0, "specials exposure always 0 (suggested cards, not placed)");
