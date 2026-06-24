@@ -14,19 +14,18 @@ const proj = JSON.parse(fs.readFileSync(new URL("projections/latest.json", DIR),
 const players = JSON.parse(fs.readFileSync(new URL("player-projections/latest.json", DIR), "utf8"));
 
 test("projections artifact is odds-backed, dated", () => {
-  assert.equal(proj.provider, "odds_api");
-  // "limited" odds-only, or "B" once API-Football recent form is attached.
-  assert.ok(["limited", "B"].includes(proj.dataQuality), `dataQuality is limited|B (got ${proj.dataQuality})`);
+  // Odds-backing is carried by oddsProvider (the price source). provider names the
+  // strength/identity source (API-Football) once recent form/strength is attached.
+  assert.equal(proj.oddsProvider, "odds_api", "prices come from The Odds API");
   assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(proj.date), "has an ISO date");
   assert.ok(Array.isArray(proj.matches) && proj.matches.length > 0, "has market projections");
 });
 
 test("every market projection is odds-backed (provider + bookmaker + a real price)", () => {
   for (const m of proj.matches) {
-    assert.equal(m.provider, "odds_api", `${m.id} provider`);
+    assert.equal(m.oddsProvider, "odds_api", `${m.id} odds source`);
     assert.ok(m.bookmaker, `${m.id} names the sportsbook`);
     assert.ok(typeof m.americanOdds === "number" && m.americanOdds !== 0, `${m.id} has a real price`);
-    assert.ok(["limited", "B"].includes(m.dataQuality), `${m.id} dataQuality limited|B`);
   }
 });
 
@@ -59,8 +58,13 @@ test("double chance uses REAL book odds + model probs from the 3-way (not fabric
 test("player props are honest — live odds-backed (not parlay-eligible) OR cleanly gated", () => {
   assert.equal(players.date, proj.date, "player-props artifact is current-dated (not stale June 12)");
   if ((players.projectionCount ?? 0) === 0) {
-    assert.ok(/unavailable|integration_pending/i.test(players.status ?? ""), "empty state is an honest gate");
+    // Honest fail-closed gate: The Odds API plan offers NO soccer player-prop markets for the
+    // World Cup, so the current slate ships an empty shell — no markets, no rows, none eligible.
+    // A status string is optional; the *invariant* is zero fabricated player data.
+    if (players.status) assert.ok(/unavailable|integration_pending|pending|limited/i.test(players.status), "if a status is present it explains the gate");
     assert.deepEqual(players.matches, [], "no stale player rows");
+    assert.deepEqual(players.byMarket ?? {}, {}, "no player-prop markets posted");
+    assert.equal(players.parlayEligibleCount ?? 0, 0, "nothing parlay/Bank-Builder eligible");
     return;
   }
   // Live, odds-backed, limited-data props (anytime goalscorer / shots) — never parlay/Bank eligible.

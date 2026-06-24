@@ -1,20 +1,20 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-06-24",
-  "generatedAt": "2026-06-24T17:01:51.007Z",
+  "generatedAt": "2026-06-24T17:43:54.464Z",
   "activeBankroll": 10176.17,
   "crownBankroll": 10376.17,
-  "openExposure": 0,
-  "availableBankroll": 10176.17,
-  "potentialReturn": 0,
+  "openExposure": 200,
+  "availableBankroll": 9976.17,
+  "potentialReturn": 14468.16,
   "products": {
     "bankBuilder": {
-      "exposure": 0,
+      "exposure": 200,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 0
+        "pending": 2
       }
     },
     "moonshot": {
@@ -35,26 +35,51 @@
       "lane": "A",
       "step": 5,
       "clearedSteps": 4,
-      "status": "awaiting",
+      "status": "active",
       "stake": 3502.57,
       "exposure": 100,
       "targetReturn": 10000,
-      "fitsTarget": false,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 3502.57,
-      "legCount": 0,
+      "fitsTarget": true,
+      "combinedOdds": 241,
+      "combinedDecimal": 3.4123,
+      "potentialReturn": 11951.86,
+      "legCount": 2,
       "targetLegs": 2,
-      "legs": [],
+      "legs": [
+        {
+          "id": "team:1539009:match_total_goals:null",
+          "matchup": "Bosnia and Herzegovina vs Qatar",
+          "market": "Total Goals",
+          "selection": "Total Goals",
+          "player": null,
+          "odds": -110,
+          "provider": "draftkings",
+          "modelConfidence": 0.5158,
+          "kickoffEt": "3:00 PM ET",
+          "risk": "Lower-volatility"
+        },
+        {
+          "id": "team:1489406:match_total_goals:null",
+          "matchup": "Scotland vs Brazil",
+          "market": "Total Goals",
+          "selection": "Total Goals",
+          "player": null,
+          "odds": -127,
+          "provider": "draftkings",
+          "modelConfidence": 0.5276,
+          "kickoffEt": "6:00 PM ET",
+          "risk": "Lower-volatility"
+        }
+      ],
       "correlationNote": "Correlation checked: no shared game with the other lane (Lane B uses different fixtures) — the two lanes can advance independently.",
-      "shortfallNote": "Fewer than 2 model-qualified legs available — awaiting a full card.",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Lower-volatility: 2 model-qualified legs (avg confidence 0%); no team-only card reached the target so a model-qualified prop is included.",
-        "No 2-leg combo reaches the $10,000 goal — strongest available shown."
+        "Lower-volatility: 2 team/game markets (avg confidence 52%), one per game, picked jointly with the other lane to avoid shared-game correlation.",
+        "Combined +241 rides $3,502.57 toward the $10,000 rung goal."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "fewer than 2 model-qualified legs — awaiting a full card"
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
       }
     },
     {
@@ -64,26 +89,51 @@
       "lane": "B",
       "step": 3,
       "clearedSteps": 2,
-      "status": "awaiting",
+      "status": "active",
       "stake": 702.45,
       "exposure": 100,
       "targetReturn": 1400,
-      "fitsTarget": false,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 702.45,
-      "legCount": 0,
+      "fitsTarget": true,
+      "combinedOdds": 258,
+      "combinedDecimal": 3.5822,
+      "potentialReturn": 2516.3,
+      "legCount": 2,
       "targetLegs": 2,
-      "legs": [],
+      "legs": [
+        {
+          "id": "team:1489405:match_total_goals:under",
+          "matchup": "Morocco vs Haiti",
+          "market": "Total Goals",
+          "selection": "Under 3.0",
+          "player": null,
+          "odds": -101,
+          "provider": "draftkings",
+          "modelConfidence": 0.502,
+          "kickoffEt": "6:00 PM ET",
+          "risk": "Lower-volatility"
+        },
+        {
+          "id": "team:1489407:match_total_goals:null",
+          "matchup": "South Africa vs South Korea",
+          "market": "Total Goals",
+          "selection": "Total Goals",
+          "player": null,
+          "odds": -125,
+          "provider": "draftkings",
+          "modelConfidence": 0.5392,
+          "kickoffEt": "9:00 PM ET",
+          "risk": "Lower-volatility"
+        }
+      ],
       "correlationNote": "Correlation checked: no shared game with the other lane (Lane A uses different fixtures) — the two lanes can advance independently.",
-      "shortfallNote": "Fewer than 2 model-qualified legs available — awaiting a full card.",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Lower-volatility: 2 model-qualified legs (avg confidence 0%); no team-only card reached the target so a model-qualified prop is included.",
-        "No 2-leg combo reaches the $1,400 goal — strongest available shown."
+        "Lower-volatility: 2 team/game markets (avg confidence 52%), one per game, picked jointly with the other lane to avoid shared-game correlation.",
+        "Combined +258 rides $702.45 toward the $1,400 rung goal."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "fewer than 2 model-qualified legs — awaiting a full card"
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
       }
     },
     {
@@ -146,8 +196,8 @@
     }
   ],
   "settlement": {
-    "status": "none",
+    "status": "pending",
     "realizedPnl": 0
   },
-  "note": "Daily paper portfolio candidates — no exposure placed; active bankroll and crown unchanged."
+  "note": "Active daily paper portfolio — open exposure is at risk; active bankroll and crown are unchanged until official settlement."
 }

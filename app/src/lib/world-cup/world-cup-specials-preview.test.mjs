@@ -268,7 +268,9 @@ test("PROTECTION: active Bank Builder / Moonshot / Mr. Dub / June 19 WC artifact
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
   assert.equal(p.openExposure, 0, "core open exposure $0 (Lane A + Lane B settled WON — both seeds released)");
   assert.equal(p.totalOpenExposure, 0, "total open exposure $0 (core $0; moonshot settled → 0)");
-  // Production WC projections are the live June 23 slate.
+  // Production WC projections are the live current slate (rolled to June 24 once real June 24 data
+  // was generated). The market projections stay odds-backed via The Odds API.
   const wc = JSON.parse(fs.readFileSync("public/data/world-cup/projections/latest.json", "utf8"));
-  assert.equal(wc.date, "2026-06-23", "production WC projections are June 23");
+  assert.equal(wc.date, "2026-06-24", "production WC projections are the current June 24 slate");
+  assert.equal(wc.oddsProvider, "odds_api", "prices remain odds-backed");
 });

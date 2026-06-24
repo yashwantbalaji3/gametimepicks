@@ -70,10 +70,14 @@ test("DualLadderBoard injects the current step's daily legs into an open drawer 
 
 test("exposure/bankroll/crown unchanged by the cross-lane upgrade", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
-  // June 24 (post June-23 settlement): both lanes advanced + awaiting their next qualified card → $0 open exposure.
-  assert.equal(dp.openExposure, 0); assert.equal(dp.availableBankroll, 10176.17);
+  // The daily-portfolio view never touches CANONICAL money and stays internally consistent regardless of
+  // whether the day's lanes are active (cards placed) or awaiting — assert the invariants, not a fixed value.
   assert.equal(dp.activeBankroll, 10176.17); assert.equal(dp.crownBankroll, 10376.17);
+  const sumExposure = (dp.lanes ?? []).filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
+  assert.equal(dp.openExposure, sumExposure, "open exposure = Σ active-lane seed exposures, nothing else");
+  assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(p.currentBankroll, 10176.17); assert.equal(p.crownBankroll, 10376.17);
+  assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view)");
   assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 });
 });

@@ -41,15 +41,17 @@ test("Lane A Step 4 + Lane B Step 2: safest 2-leg cards that reach the rung targ
   assert.equal(new Set([...a.legs, ...b.legs].map((l) => l.id)).size, 4, "Lane A + Lane B legs are distinct");
 });
 
-test("persisted daily portfolio (June 24, post-settlement): Lane A awaiting Step 5, Lane B awaiting Step 3, $0 open exposure (no qualified card yet)", () => {
+test("persisted daily portfolio (June 24, post-settlement): Lane A on Step 5, Lane B on Step 3; BB exposure = $100 seed × active BB lanes", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const a = bb.find((l) => l.lane === "A"), b = bb.find((l) => l.lane === "B");
-  assert.equal(a.step, 5); assert.equal(a.clearedSteps, 4); assert.equal(a.status, "awaiting");
-  assert.equal(b.step, 3); assert.equal(b.clearedSteps, 2); assert.equal(b.status, "awaiting");
-  assert.equal(dp.products.bankBuilder.exposure, 0, "BB exposure $0 (both lanes awaiting their next qualified card)");
-  assert.equal(dp.openExposure, 0); assert.equal(dp.availableBankroll, 10176.17);
+  // Rung positions are stable post-settlement; whether a lane is active vs awaiting depends on the live slate.
+  assert.equal(a.step, 5); assert.equal(a.clearedSteps, 4);
+  assert.equal(b.step, 3); assert.equal(b.clearedSteps, 2);
+  const activeBB = bb.filter((l) => l.status === "active");
+  assert.equal(dp.products.bankBuilder.exposure, 100 * activeBB.length, "BB exposure = $100 seed × active BB lanes (never the rolled balance)");
   assert.equal(dp.activeBankroll, 10176.17); assert.equal(dp.crownBankroll, 10376.17);
+  assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
 });
 
 test("BB exposure is the $100 seed, not the rolled balance (active bankroll unchanged)", () => {

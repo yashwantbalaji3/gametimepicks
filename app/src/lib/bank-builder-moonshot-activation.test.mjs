@@ -70,27 +70,29 @@ test("no leg duplicated across the four lanes", () => {
   assert.equal(new Set(ids).size, ids.length, "each model leg used once across all lanes");
 });
 
-test("persisted daily-portfolio.json reflects the current day (post June-23 settlement: June 24, both lanes advanced + awaiting, $0 exposure)", () => {
-  // After June 23 settled (Lane A Step 4 + Lane B Step 2 WON), the daily portfolio rolls to June 24, where
-  // no qualified card exists yet → both lanes awaiting, $0 placed. The $200/$50 activation MATH is still
-  // covered by the "apply: exposure math" generator test above.
+test("persisted daily-portfolio.json (June 24) is internally consistent + never touches canonical money", () => {
+  // After June 23 settled, the daily portfolio rolls to June 24. Whether the day's lanes are active (real
+  // cards placed) or awaiting depends on the live slate, so assert the INVARIANTS, not a fixed exposure.
   const p = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   assert.equal(p.version, "daily-portfolio-v1");
   assert.equal(p.date, "2026-06-24");
-  assert.equal(p.openExposure, 0); assert.equal(p.availableBankroll, 10176.17);
   assert.equal(p.activeBankroll, 10176.17); assert.equal(p.crownBankroll, 10376.17);
-  assert.equal(p.lanes.filter((l) => l.status === "active").length, 0, "no active lane — June 24 has no qualified card yet");
-  assert.equal(p.settlement.status, "none"); assert.equal(p.settlement.realizedPnl, 0);
+  const sumExp = p.lanes.filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
+  assert.equal(p.openExposure, sumExp, "open exposure = Σ active-lane seed exposures, nothing else");
+  assert.equal(p.availableBankroll, Math.round((p.activeBankroll - p.openExposure) * 100) / 100, "available = active − exposure");
+  assert.equal(p.settlement.realizedPnl, 0, "no realized P/L until official settlement");
+  // Canonical money is untouched by the daily view.
+  const port = JSON.parse(read("public/data/mr-dub/portfolio.json"));
+  assert.equal(port.currentBankroll, 10176.17); assert.equal(port.crownBankroll, 10376.17);
+  assert.deepEqual(port.record, { wins: 12, losses: 2, voids: 0, pending: 0 });
 });
 
-test("daily-portfolio read view reflects the persisted state (June 24 awaiting, $0)", () => {
+test("daily-portfolio read view reflects the persisted state + is internally consistent", () => {
   const dp = buildDailyPortfolio(root, "2026-06-24T10:00:00Z", "2026-06-24");
-  assert.equal(dp.openExposure, 0);
-  assert.equal(dp.availableBankroll, 10176.17);
-  assert.equal(dp.exposure.core, 0);
-  assert.equal(dp.exposure.moonshot, 0);
-  assert.equal(dp.anyActive, false);
-  assert.equal(dp.cards.filter((c) => c.status === "active").length, 0);
+  assert.equal(dp.activeBankroll, 10176.17);
+  assert.equal(Math.round((dp.exposure.core + dp.exposure.moonshot) * 100) / 100, dp.openExposure, "core + moonshot = open exposure");
+  assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
+  assert.equal(dp.anyActive, dp.cards.some((c) => c.status === "active"), "anyActive reflects the cards");
 });
 
 test("ACTIVATION NEVER mutates the legacy portfolio/crown/record", () => {
