@@ -78,19 +78,24 @@ const makeCombo = (legs: ModelPick[]): SafeCombo => ({
   tier: cardTier(legs),
 });
 
-/** Enumerate distinct-game combos of 2 (and, if asked, 3) legs. 3-leg is bounded to the top legs by
- *  model probability to keep it O(bounded^3) — only used when no 2-leg combo reaches a high rung target. */
+const wcCount = (c: SafeCombo) => c.legs.filter((l) => legSport(l) === "WORLD_CUP").length;
+const distinctGames = (legs: ModelPick[]) => new Set(legs.map((l) => l.gameId)).size === legs.length;
+
+/** Enumerate distinct-game combos of 2..maxLegs legs over a bounded pool (top legs by model probability),
+ *  so soccer-first 3- and 4-leg cards are reachable while the enumeration stays O(bounded^k). */
 function buildSafeCombos(legs: ModelPick[], maxLegs: number): SafeCombo[] {
   const out: SafeCombo[] = [];
-  for (let i = 0; i < legs.length; i++) for (let j = i + 1; j < legs.length; j++) {
-    if (legs[i].gameId === legs[j].gameId) continue; // max 1 leg per game
-    out.push(makeCombo([legs[i], legs[j]]));
-  }
-  if (maxLegs >= 3) {
-    const top = [...legs].sort((a, b) => b.modelProbability - a.modelProbability).slice(0, 28);
-    for (let i = 0; i < top.length; i++) for (let j = i + 1; j < top.length; j++) for (let k = j + 1; k < top.length; k++) {
-      if (new Set([top[i].gameId, top[j].gameId, top[k].gameId]).size < 3) continue;
+  const top = [...legs].sort((a, b) => b.modelProbability - a.modelProbability).slice(0, 30);
+  for (let i = 0; i < top.length; i++) for (let j = i + 1; j < top.length; j++) {
+    if (top[i].gameId === top[j].gameId) continue; // max 1 leg per game
+    out.push(makeCombo([top[i], top[j]]));
+    if (maxLegs >= 3) for (let k = j + 1; k < top.length; k++) {
+      if (!distinctGames([top[i], top[j], top[k]])) continue;
       out.push(makeCombo([top[i], top[j], top[k]]));
+      if (maxLegs >= 4) for (let l = k + 1; l < top.length; l++) {
+        if (!distinctGames([top[i], top[j], top[k], top[l]])) continue;
+        out.push(makeCombo([top[i], top[j], top[k], top[l]]));
+      }
     }
   }
   return out;
@@ -105,23 +110,35 @@ function buildSafeCombos(legs: ModelPick[], maxLegs: number): SafeCombo[] {
  * keeps lanes independent (no shared game across Lane A / Lane B). Max 1 leg/game. No leg shorter than -500.
  */
 export function selectSafestTargetFitCard(pool: ModelPick[], rung: LaneRung, exclude: Set<string>, excludeGames?: Set<string>): GeneratedLane {
-  const inWindow = pool.filter((p) =>
+  const eligible = pool.filter((p) =>
     !exclude.has(p.id) && (!excludeGames || !excludeGames.has(p.gameId)) &&
-    p.odds >= -500 && p.odds <= 400 && p.modelProbability > 0);
+    p.odds >= -650 && p.odds <= 400 && p.modelProbability > 0);
+  // SOCCER-FIRST: keep every World Cup leg; cap MLB to the top legs by hit rate (fill-only) so the
+  // enumeration stays bounded and the selector leans on soccer.
+  const wc = eligible.filter((p) => legSport(p) === "WORLD_CUP");
+  const mlb = eligible.filter((p) => legSport(p) === "MLB").sort((a, b) => b.modelProbability - a.modelProbability).slice(0, 24);
+  const inWindow = [...wc, ...mlb];
   const target = rung.targetMultiplier;
 
-  let reach = buildSafeCombos(inWindow, 2).filter((c) => c.d >= target);
-  if (!reach.length) reach = buildSafeCombos(inWindow, 3).filter((c) => c.d >= target);
+  // Build up to 4-leg cards, keep those that reach the rung target.
+  const reach = buildSafeCombos(inWindow, 4).filter((c) => c.d >= target);
 
   let chosen: SafeCombo | null = null;
   let fitsTarget = false;
   if (reach.length) {
-    // Probability-fit: maximize P(all legs land); prefer the safest tier; then smallest overshoot; fewer legs.
-    reach.sort((x, y) => (y.prob - x.prob) || (x.tier - y.tier) || (x.d - y.d) || (x.legs.length - y.legs.length));
-    chosen = reach[0]; fitsTarget = true;
+    // Soccer-first preference: require >=1 World Cup leg, prefer >=2 non-correlated WC legs; within the
+    // best WC bucket maximize combined hit probability (safest), then more WC legs, safest tier, fewer legs.
+    const wc2 = reach.filter((c) => wcCount(c) >= 2);
+    const wc1 = reach.filter((c) => wcCount(c) >= 1);
+    const bucket = wc2.length ? wc2 : (wc1.length ? wc1 : reach);
+    bucket.sort((x, y) => (y.prob - x.prob) || (wcCount(y) - wcCount(x)) || (x.tier - y.tier) || (x.legs.length - y.legs.length) || (x.d - y.d));
+    chosen = bucket[0]; fitsTarget = true;
   } else {
-    const all = buildSafeCombos(inWindow, 2);
-    if (all.length) { all.sort((x, y) => (y.d - x.d) || (y.prob - x.prob)); chosen = all[0]; }
+    // Nothing reaches the target — surface the closest card, still preferring soccer legs.
+    const all = buildSafeCombos(inWindow, 4);
+    const wcAll = all.filter((c) => wcCount(c) >= 1);
+    const bucket = wcAll.length ? wcAll : all;
+    if (bucket.length) { bucket.sort((x, y) => (y.d - x.d) || (y.prob - x.prob)); chosen = bucket[0]; }
   }
 
   const picked = chosen ? chosen.legs : [];

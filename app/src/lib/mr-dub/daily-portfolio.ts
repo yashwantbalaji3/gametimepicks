@@ -15,7 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupModelPicks, buildDailyLaneCandidates, type LaneCandidate } from "../world-cup/model-qualified-picks";
 
-export interface DailyPortfolioLeg { selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null; photoUrl?: string | null }
+export interface DailyPortfolioLeg { selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null; photoUrl?: string | null; teamLogo?: string | null }
 
 /** Normalize a player name for joining (accent-strip + lowercase + alphanumerics only). */
 const normPlayerName = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
@@ -99,7 +99,7 @@ function fromPersisted(root: string, date: string): DailyPortfolio | null {
     id: l.id, product: l.product, productLabel: l.productLabel, lane: l.lane, step: l.step ?? 1, clearedSteps: l.clearedSteps ?? 0,
     status: l.status, stake: l.stake, targetReturn: l.targetReturn ?? null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
-    legs: (l.legs ?? []).map((g: any) => ({ selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null })),
+    legs: (l.legs ?? []).map((g: any) => ({ selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null, photoUrl: g.photoUrl ?? null, teamLogo: g.teamLogo ?? null })),
     correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null,
   }));
   enrichLegPhotos(cards, root, date);
