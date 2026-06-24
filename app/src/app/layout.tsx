@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import Nav from "@/components/nav";
 import Footer from "@/components/footer";
 import DisclaimerBanner from "@/components/disclaimer-banner";
@@ -64,6 +65,7 @@ export default function RootLayout({
         </div>
         {/* Mobile bottom nav — fixed bottom, hidden at md+. */}
         <MobileBottomNav />
+        <Analytics />
       </body>
     </html>
   );
