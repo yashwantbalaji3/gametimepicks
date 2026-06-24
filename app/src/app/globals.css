@@ -269,6 +269,22 @@
   border-radius: 2px;
 }
 
+/* Global keyboard-focus fallback — every interactive control shows the vault
+   focus ring on KEYBOARD focus (focus-visible only; pointer focus stays clean),
+   including surfaces outside the .vault-board scope: the MLB flagship sections,
+   quick-jump nav, game-explorer expanders, and props-board filters/chips. This is
+   the site-wide a11y baseline; component-specific :focus-visible rules still win. */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--vault-focus-ring);
+  border-radius: 4px;
+}
+
 /* Slider thumb focus — accent-color handles the fill, but the thumb itself
    gets a small gold halo on keyboard focus. */
 .vault-board input[type="range"]:focus-visible {

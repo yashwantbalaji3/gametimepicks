@@ -155,7 +155,7 @@ export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
           <thead>
             <tr>
               {["Player", "Market", "Line", "Odds", "Market %", "Confidence", "Book", "Game"].map((h) => (
-                <th key={h} className="px-3 py-2 text-left font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9, position: "sticky", top: 0, zIndex: 1, background: "#1a100b", borderBottom: "1px solid var(--vault-rule)" }}>{h}</th>
+                <th key={h} scope="col" className="px-3 py-2 text-left font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)", fontSize: 9.5, position: "sticky", top: 0, zIndex: 1, background: "#1a100b", borderBottom: "1px solid var(--vault-rule)" }}>{h}</th>
               ))}
             </tr>
           </thead>

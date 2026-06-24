@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import BrandMark from "./brand-mark";
 import SportsbookLightRail from "./sportsbook-light-rail";
+import { MOBILE_NAV_ITEMS } from "@/lib/nav-active-route";
 
 /**
  * Primary site header.
@@ -44,6 +45,12 @@ const NAV_ITEMS: Array<{
 // Sport routes that should light up the "Sports" nav item.
 const SPORT_RE = /^\/(sports|world-cup-specials|world-cup|mlb|nba|ufc|nhl|ipl|board|projections|trends|events)(\/|$)/;
 const SPORT_HREFS = new Set(["/sports"]);
+
+// The mobile bottom nav already carries the 8 core product routes. To keep the mobile TOP strip
+// COMPLEMENTARY (not a duplicate of the bottom bar), it shows only the items the bottom nav lacks —
+// Results · Sports · Learn. Desktop still renders the full NAV_ITEMS spine.
+const BOTTOM_NAV_HREFS = new Set(MOBILE_NAV_ITEMS.map((i) => i.href));
+const MOBILE_TOP_ITEMS = NAV_ITEMS.filter((i) => !BOTTOM_NAV_HREFS.has(i.href));
 
 export default function Nav() {
   const pathname = usePathname() || "/";
@@ -108,7 +115,7 @@ export default function Nav() {
         </Link>
         <nav
           aria-label="Primary (desktop)"
-          className="flex-1 flex items-center justify-center gap-0 min-w-0"
+          className="flex-1 flex items-center justify-start lg:justify-center gap-0 min-w-0 overflow-x-auto"
         >
           {NAV_ITEMS.map((item, idx) => {
             const active = isActive(item.href);
@@ -164,8 +171,8 @@ export default function Nav() {
         className="sm:hidden overflow-x-auto"
         style={{ borderTop: "1px solid var(--vault-rule)" }}
       >
-        <div className="mx-auto px-3 py-1 flex items-center justify-start gap-0 min-w-max">
-          {NAV_ITEMS.map((item, idx) => {
+        <div className="mx-auto px-3 py-1 flex items-center justify-start gap-1 min-w-max">
+          {MOBILE_TOP_ITEMS.map((item, idx) => {
             const active = isActive(item.href);
             const isSport = SPORT_HREFS.has(item.href);
             return (

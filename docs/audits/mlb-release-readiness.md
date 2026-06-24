@@ -195,3 +195,90 @@ _— end Part 1; Part 2 appended after implementation —_
 
 ## Verdict
 The MLB flagship experience (Homer Nukes, 5-section IA with sticky quick-jump, overhauled props board, Game Explorer) is **public-ready and overflow-clean on its own surfaces** at all tested widths, with real data only and honest placeholders for every unavailable input. The remaining items are external data dependencies or pre-existing global/structural debt, each documented above.
+
+---
+
+# Part 3 — Public Release Hardening Sprint (2026-06-23)
+
+Baseline re-verified before changes: bankroll **$10,176.17** · crown **$10,376.17** · record **10-2-0-0** ·
+exposure **0** (HEAD `41050ae8`); `tsc` clean · **1314/1314** tests · build clean. No money files touched.
+
+## P1 · Global navigation cleanup → `docs/audits/navigation-cleanup-2026-06-23.md`
+- Unified the `/learn` label ("How it works" → **"Learn"**) so all three surfaces match.
+- Made the mobile top strip **complementary** to the bottom nav: it now shows only Results · Sports ·
+  Learn (the 3 routes the bottom bar lacks) instead of duplicating 8 core products. Verified live at 390px.
+- Confirmed: no duplicate tabs within a surface, no dead routes, consistent `aria-current` active state.
+- Before/after route matrix in the dedicated doc.
+
+## P2 · 768px horizontal overflow → FIXED (root cause)
+- Offender pinpointed: the **desktop top-nav row** (`nav.tsx`) — `flex justify-center min-w-0` with **no
+  overflow clip** — let its 11 whitespace-nowrap links (~849px) push the page to 834px in the 640–1024
+  band. (The `min-w-max` strip that also exceeded the viewport was already inside an `overflow-x:auto`
+  parent and was NOT the page culprit.)
+- Fix: `justify-start lg:justify-center … overflow-x-auto` on that nav — it scrolls internally instead of
+  overflowing the page, and still centers at lg+.
+- Verified zero horizontal scroll at **375 / 390 / 430 / 768 / 1024 / 1440** (320 clamps to 375 in preview).
+  Global fix — homepage and every route benefit.
+
+## P3 · Homer Score inputs → `docs/audits/homer-score-data-availability.md`
+- Per-input source audit. **0/7** advanced inputs have a real wired source today (Statcast barrel/xSLG/
+  hard-hit have no free stable API; pitcher HR/9 needs probable starters not in the feed; park factor needs
+  a sourced table; weather needs an API key; recent form needs a game-log pipeline).
+- Outcome: keep **Partial Model** ranking by de-vigged market probability — no fabricated/neutral composite
+  is shown as a score. Documented the exact path to "live" per input.
+
+## P4 · MLB page performance → measured + lazy-loaded
+- Measured: `/mlb` static HTML **2729 KB**; First Load JS **106 KB**; props artifact ~1 MB → loader caps to
+  ~300 props (all needed for filters). Root cause of HTML weight: the legacy `SportShell` renders **all 7
+  tab panels** eagerly (intentional global SEO decision) — ~592 projection rows dominate.
+- Fix (page-scoped, safe): wrapped the below-the-fold `SportShell` on `/mlb` in **`DeferUntilVisible`** — it
+  renders a placeholder and mounts the heavy shell only when the reader scrolls near it.
+- Result: static HTML **2729 → 2485 KB (−244 KB, ~9%)** + deferred hydration of the largest subtree;
+  flagship sections stay instant; filters unaffected. Verified: shell defers (0 tabpanels) then mounts 7 on
+  scroll. The dominant remaining payload is the legacy shell's RSC data — consolidating that two-layer IA
+  is the documented structural follow-up (out of scope for a hardening pass; global SEO tradeoff).
+
+## P5 · Design system consistency → satisfied via shared primitives
+- Confidence is one shared primitive (`lib/mlb/confidence.ts`, 4-tier Elite/Strong/Playable/Avoid) used by
+  the Homer board AND props board — identical labels/colors. Odds render as a unified bordered pill across
+  Homer legs + props rows; market-% and confidence badges share the pill shape + `font-mono uppercase`
+  treatment; MLB section cards use `rounded-[14px]`, inner cards `rounded-[10px]/[12px]`.
+- Cross-PRODUCT radius drift (non-MLB `projection-card` 8px vs `suggested-card` 10px) is left untouched to
+  honor "do not break other products" — documented as a global design-token follow-up.
+
+## P6 · History + settlement UX → honest scaffold (no simulated history)
+- The Homer board carries a 7-day / 30-day grid (Record · Win % · ROI · Units) that reads **"—" with
+  "Awaiting settled history — no ROI shown until then."** Because **no settled Homer Nukes history exists
+  yet** (the grader `lib/mlb/mlb-settlement.ts` is ready; an operator settlement run has not populated
+  history), there is genuinely no real data to show. The scaffold is honest and ready to populate from real
+  settlement output — no values are simulated.
+
+## P7 · Accessibility pass
+- **Site-wide keyboard focus ring**: added a global `:focus-visible` rule (`globals.css`) using the existing
+  `--vault-focus-ring`, covering every `button/a/select/input/[role=button]/[tabindex]` — previously only
+  `.vault-board`-scoped, so the MLB flagship/quick-jump/game-explorer/props controls had no visible focus.
+- **Props table semantics + contrast**: added `scope="col"` to every `<th>` and bumped the header colour
+  from `--vault-text-faint` to `--vault-text-mute` (better AA contrast).
+- **Game Explorer**: added an `aria-label` ("Expand/Collapse {matchup} details") to the icon expander.
+- Already-correct (from audit): `PlayerAvatar`/`TeamLogo` carry real `alt`/`aria-label`; quick-jump uses
+  `aria-current`; decorative dots/emoji are `aria-hidden`; filters/selects are labelled.
+
+## Mobile QA (this sprint)
+375 / 390 / 430 / 768 / 1024 / 1440 → **zero horizontal scroll** on `/mlb` and homepage. Mobile nav
+verified complementary (top: Results/Sports/Learn · bottom: 8 core products).
+
+## Deployment checklist
+- [x] `tsc --noEmit` clean
+- [x] `1314/1314` tests pass
+- [x] `npm run build` clean (214 routes) — run with the dev server **stopped** (concurrent build corrupts
+      the dev `.next` cache; that was the only "500" seen and it was infra, not code)
+- [x] Bankroll/crown/record/exposure byte-identical vs HEAD; no money files staged
+- [x] Responsive QA 320→1440 overflow-clean
+- [ ] Merge + verify `gametime-picks.vercel.app`
+
+## Remaining blockers (genuine external-data / structural, documented)
+1. **Statcast + weather feed + probable starters** → Homer Score stays Partial Model (P3).
+2. **Operator settlement run** → Homer Nukes history populates (P6).
+3. **Two-layer MLB IA consolidation** → the real fix for the residual `/mlb` HTML payload (P4).
+4. **Global design-token unification** across non-MLB cards (P5).
+5. **`ODDS_API_KEY` repo secret** → activates the daily MLB workflow.

@@ -46,7 +46,7 @@ const ITEMS: RailItem[] = [
   { href: "/mlb", label: "MLB", glyph: "⚾" },
   { href: "/nba", label: "NBA", glyph: "🏀" },
   { href: "/ufc", label: "UFC", glyph: "🥊" },
-  { href: "/learn", label: "How it works", glyph: "✦", group: "Learn" },
+  { href: "/learn", label: "Learn", glyph: "✦", group: "Learn" },
   { href: "/methodology", label: "Methodology", glyph: "◳" },
   { href: "/about", label: "About", glyph: "ⓘ" },
 ];
