@@ -48,6 +48,8 @@ export interface PortfolioLane {
   shortfallNote: string | null;
   whyThisCard: string[];
   activationEligibility: ActivationEligibility;
+  locked?: boolean;           // approved-card lock honored (legs pinned)
+  approvedAt?: string;
 }
 export interface PersistedDailyPortfolio {
   version: "daily-portfolio-v1";
@@ -142,6 +144,50 @@ function readMoney(root: string): { activeBankroll: number; crownBankroll: numbe
 }
 
 const round2 = (n: number) => Number(n.toFixed(2));
+const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
+const decToAmerican = (d: number) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
+const legKey = (id: string) => { const p = String(id).split(":"); return p.length >= 3 ? `${p[1]}:${p[2]}` : String(id); };
+
+/** Approved-card lock: once a Bank Builder lane's card is approved for a date, it is pinned in
+ *  mr-dub/bank-builder-locks.json so a later refresh can't silently swap its legs. */
+export interface CardLock { date: string; lanes: Record<string, { approvedAt: string; reason?: string; legs: PortfolioLaneLeg[] }> }
+function loadCardLock(root: string, date: string): CardLock["lanes"] | null {
+  try {
+    const lock = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "bank-builder-locks.json"), "utf8")) as CardLock;
+    return lock?.date === date ? (lock.lanes ?? null) : null;
+  } catch { return null; }
+}
+/**
+ * Honor the approved-card lock. For each locked Bank Builder lane, if EVERY locked leg's game+market is
+ * still available in the live pool (odds posted, market present, game not pulled), the locked card is
+ * preserved verbatim and re-priced from its own legs; the lane is flagged `locked`. If any locked leg is
+ * gone (odds unavailable / game canceled / market removed) the lock is stale and the lane is left as the
+ * freshly-generated card with a note — the only automatic replacement path. Never touches seed exposure.
+ */
+function applyCardLocks(lanes: PortfolioLane[], lock: CardLock["lanes"] | null, pool: ModelPick[]): void {
+  if (!lock) return;
+  const available = new Set(pool.map((p) => legKey(p.id)));
+  for (const lane of lanes) {
+    if (lane.product !== "bank-builder") continue;
+    const entry = lock[lane.lane];
+    if (!entry?.legs?.length) continue;
+    const missing = entry.legs.filter((l) => !available.has(legKey(l.id)));
+    if (missing.length) {
+      lane.shortfallNote = `Locked card released: ${missing.map((m) => m.selection).join(", ")} odds unavailable — regenerated. (approved ${entry.approvedAt})`;
+      continue; // stale lock → keep regenerated card
+    }
+    const combinedDecimal = entry.legs.reduce((d, l) => d * dec(l.odds), 1);
+    lane.legs = entry.legs;
+    lane.legCount = entry.legs.length;
+    lane.combinedOdds = decToAmerican(combinedDecimal);
+    lane.combinedDecimal = Number(combinedDecimal.toFixed(4));
+    lane.potentialReturn = round2(lane.stake * combinedDecimal);
+    lane.fitsTarget = lane.potentialReturn >= (lane.targetReturn ?? 0);
+    (lane as PortfolioLane & { locked?: boolean; approvedAt?: string }).locked = true;
+    (lane as PortfolioLane & { locked?: boolean; approvedAt?: string }).approvedAt = entry.approvedAt;
+    lane.whyThisCard = [`🔒 Approved card locked${entry.reason ? ` (${entry.reason})` : ""} on ${entry.approvedAt} — refreshes won't swap these legs unless an odds/market becomes unavailable.`, ...(lane.whyThisCard ?? [])].slice(0, 3);
+  }
+}
 
 /**
  * Build the activated daily portfolio object. `activate=false` leaves every lane a candidate (plan/
@@ -185,6 +231,10 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
       lanes.push(toBBLane(g, status, elig));
     }
   }
+
+  // ── Approved-card lock: pin any approved Bank Builder lane so this refresh can't swap its legs. ──
+  applyCardLocks(lanes, loadCardLock(root, date), bbPool);
+  for (const lane of lanes) if (lane.product === "bank-builder" && (lane as PortfolioLane & { locked?: boolean }).locked) lane.legs.forEach((l) => usedBB.add(l.id));
 
   // ── Moonshot: 5 higher-upside legs per lane, from the pool MINUS the Bank Builder legs (distinct lanes). ──
   const poolForMoon = pool.filter((p) => !usedBB.has(p.id));

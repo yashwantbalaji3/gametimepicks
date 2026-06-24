@@ -49,13 +49,17 @@ test("cross-lane selector: both lanes reach their rung target (probability-fit) 
   for (const l of b.legs) assert.ok(!aGames.has(l.gameId), `Lane B leg ${l.selection} is in a different game from Lane A`);
 });
 
-test("persisted daily portfolio: Bank Builder lanes are cross-lane independent (no shared game)", () => {
-  const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
-  const bb = dp.lanes.filter((l) => l.product === "bank-builder");
-  const gamesA = new Set((bb.find((l) => l.lane === "A")?.legs ?? []).map((l) => l.matchup));
-  const gamesB = new Set((bb.find((l) => l.lane === "B")?.legs ?? []).map((l) => l.matchup));
-  const overlap = [...gamesA].filter((g) => gamesB.has(g));
-  assert.equal(overlap.length, 0, "persisted lanes share no game");
+test("Bank Builder cross-lane SELECTOR keeps lanes independent (no shared game); an approved lock may override", () => {
+  // The cross-lane selector's guarantee is independence. The LIVE persisted lanes can share a game ONLY
+  // when an operator-approved card lock pins a correlated card (e.g. June 24 Lane A Brazil Over 2.5 +
+  // Lane B Brazil ML) — that is a deliberate manual override, not the selector's doing.
+  const D = "2026-06-24", N = "2026-06-24T08:00:00Z";
+  const pool = [...loadWorldCupTeamLegs(root, N, D), ...loadMlbModelPicks(root, N, D)];
+  const rungs = readLaneRungs(root);
+  const { laneA, laneB } = selectCrossLaneBankBuilder(pool, rungs.laneA, rungs.laneB);
+  const gamesA = new Set(laneA.legs.map((l) => l.gameId));
+  const overlap = laneB.legs.filter((l) => gamesA.has(l.gameId));
+  assert.equal(overlap.length, 0, "selector lanes share no game");
 });
 
 test("Bank Builder page is a SINGLE ladder (DualLadderBoard), not the duplicate ProductLanesLadder section", () => {
