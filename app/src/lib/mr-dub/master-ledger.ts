@@ -30,10 +30,12 @@ export interface ProductLedgerEntry {
   bets: number;
   stake: number;
   profit: number;
+  pnl: number;       // alias of profit — the product's paper P&L
   roi: number;       // %
   winRate: number;   // %
   units: number;
-  exposure: number;  // current open paper exposure (0 when stale)
+  exposure: number;     // current open paper exposure (0 when stale)
+  openExposure: number; // alias of exposure
   freshness: Freshness;
   stale: boolean;
   lastSettledDate: string | null;
@@ -49,10 +51,13 @@ export interface MasterLedger {
     wins: number;
     losses: number;
     stake: number;
-    profit: number;     // overall P&L
-    roi: number;        // overall ROI %
-    winRate: number;    // overall win rate %
-    exposure: number;   // overall open exposure (stale products excluded)
+    profit: number;         // overall P&L
+    lifetimeProfit: number; // cumulative all-time realized P&L (== profit; every paper card is settled
+                            //   from official results, so there is no open/unrealized component)
+    roi: number;            // overall ROI %
+    winRate: number;        // overall win rate %
+    exposure: number;       // overall open exposure (stale products excluded)
+    openExposure: number;   // alias of exposure — Mr. Dub's authoritative "open exposure" metric
   };
 }
 
@@ -92,8 +97,9 @@ export function buildMasterLedger(root: string, nowIso: string, date: string): M
     return {
       productId: id, label,
       record: { wins: c.wins, losses: c.losses, pushes: c.pushes, voids: c.voids },
-      bets: c.bets, stake: c.stake, profit: c.profit, roi: c.roi, winRate: c.winRate, units: c.units,
+      bets: c.bets, stake: c.stake, profit: c.profit, pnl: c.profit, roi: c.roi, winRate: c.winRate, units: c.units,
       exposure: freshness === "fresh" ? round2(exposure) : 0, // STALE products contribute NO exposure
+      openExposure: freshness === "fresh" ? round2(exposure) : 0,
       freshness, stale: freshness !== "fresh",
       lastSettledDate: dates.length ? dates[dates.length - 1] : null,
       history: results,
@@ -118,6 +124,8 @@ export function buildMasterLedger(root: string, nowIso: string, date: string): M
     products,
     aggregate: {
       ...agg,
+      lifetimeProfit: agg.profit, // cumulative all-time realized P&L (all paper cards settle officially)
+      openExposure: agg.exposure,
       roi: agg.stake > 0 ? round2((agg.profit / agg.stake) * 100) : 0,
       winRate: agg.wins + agg.losses > 0 ? round2((agg.wins / (agg.wins + agg.losses)) * 100) : 0,
     },

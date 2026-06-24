@@ -26,13 +26,14 @@ export default function MasterLedgerSection({ ledger }: { ledger: MasterLedger }
       <SectionHeader
         eyebrow="Authoritative · all products"
         title="Mr. Dub master ledger"
-        sub="Every product's settled paper track record in one place — record, ROI, P&L and open exposure. Stale products (no current-slate card) are flagged and contribute no exposure. Paper-only; separate from the Bank Builder seed-model bankroll."
+        sub="Every product's settled paper track record in one place — record, ROI, P&L, open exposure and lifetime profit. Stale products (no current-slate card) are flagged and contribute no exposure. Paper-only; separate from the Bank Builder seed-model bankroll."
       />
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-3">
         <Tile label="Overall record" value={`${a.wins}–${a.losses}`} />
         <Tile label="Overall ROI" value={pct(a.roi)} accent={plColor(a.profit)} />
         <Tile label="Overall P&L" value={usd(a.profit)} accent={plColor(a.profit)} />
-        <Tile label="Open exposure" value={usd(a.exposure)} />
+        <Tile label="Open exposure" value={usd(a.openExposure ?? a.exposure)} />
+        <Tile label="Lifetime profit" value={usd(a.lifetimeProfit ?? a.profit)} accent={plColor(a.lifetimeProfit ?? a.profit)} />
       </div>
       <div className="mt-3 overflow-x-auto rounded-xl" style={{ border: "1px solid var(--vault-border)" }}>
         <table className="w-full text-left" style={{ borderCollapse: "collapse", minWidth: 520 }}>

@@ -61,6 +61,18 @@ test("aggregate: totals = sum across products; overall ROI = aggProfit/aggStake"
   if (L.aggregate.stake > 0) assert.equal(L.aggregate.roi, round2((L.aggregate.profit / L.aggregate.stake) * 100));
 });
 
+// ---------- AUTHORITATIVE METRICS (PART 7): Record / ROI / P&L / Open Exposure / Lifetime Profit ----------
+test("Mr. Dub surfaces all five authoritative metrics, and aliases reconcile", () => {
+  // Lifetime profit == cumulative realized P&L (every paper card settles officially → no unrealized leg).
+  assert.equal(L.aggregate.lifetimeProfit, L.aggregate.profit, "lifetimeProfit = cumulative P&L");
+  assert.equal(L.aggregate.openExposure, L.aggregate.exposure, "openExposure alias = exposure");
+  for (const p of L.products) {
+    assert.equal(p.pnl, p.profit, `${p.productId} pnl alias = profit`);
+    assert.equal(p.openExposure, p.exposure, `${p.productId} openExposure alias = exposure`);
+    assert.ok(p.record && typeof p.roi === "number", `${p.productId} carries record + ROI`);
+  }
+});
+
 // ---------- STALENESS GATING (stale products contribute no exposure) ----------
 test("staleness gating: a STALE product contributes $0 open exposure", () => {
   for (const p of L.products) {
