@@ -1,0 +1,61 @@
+/**
+ * Shared soccer-settlement product collection — extracts every pending soccer product for a slate from the
+ * committed artifacts (Mr. Dub daily-portfolio lanes + World Cup Specials + WC parlay cards) and normalizes
+ * each leg into the engine's GradeableLeg shape. Pure read; no fetching, no fabrication, no writes. Used by
+ * both the read-only runner and the (gated) persist step so they grade identical inputs.
+ */
+import fs from "node:fs";
+import path from "node:path";
+
+const normT = (s) => (s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
+
+/** Parse a daily-portfolio lane leg id: "player:48:player_shots_on_target:Jhon Cordoba" / "team:47:moneyline_90:away". */
+export function parseLaneLeg(l) {
+  const parts = String(l.id ?? "").split(":");
+  const kind = parts[0], matchId = Number(parts[1]), market = parts[2] ?? "", tail = parts.slice(3).join(":");
+  const sel = String(l.selection ?? "");
+  let side = null;
+  if (kind === "team") {
+    if (market === "moneyline_90") side = tail;
+    else if (market === "match_total_goals") side = /under/i.test(sel) ? "under" : "over";
+    else if (market === "btts") side = /\bno\b|:\s*no/i.test(sel) ? "no" : "yes";
+  } else if (market === "player_assists" || market === "player_shots_on_target") side = "over";
+  const pt = sel.match(/(\d+(?:\.\d+)?)/);
+  return { id: String(l.id ?? ""), matchId, market, selection: sel, side, player: l.player ?? (kind === "player" ? tail : null),
+    point: pt ? Number(pt[1]) : null, oddsAmerican: Number(l.odds ?? 0), matchup: l.matchup ?? null };
+}
+
+/** Parse a WC Specials / parlay leg (schema: kind/eventId/market/participant/side/line/odds). */
+export function parseSpecialLeg(l) {
+  const market = String(l.market ?? ""), fixture = String(l.fixture ?? "");
+  const [home] = fixture.split(/\s+vs\s+/i);
+  let side = null, player = null;
+  if (l.kind === "team") {
+    if (market === "moneyline_90") side = normT(l.participant) === normT(home) ? "home" : "away";
+    else if (market === "match_total_goals") side = /under/i.test(String(l.side ?? l.participant)) ? "under" : "over";
+    else if (market === "btts") side = /no/i.test(String(l.side ?? l.participant)) ? "no" : "yes";
+  } else {
+    player = l.participant ?? l.player ?? null;
+    if (market === "player_assists" || market === "player_shots_on_target") side = "over";
+  }
+  return { id: l.legId ?? l.id ?? "", matchId: Number(l.eventId), market,
+    selection: `${l.participant ?? ""}${l.side ? " " + l.side : ""}`.trim(), side, player,
+    point: typeof l.line === "number" ? l.line : null, oddsAmerican: Number(l.odds ?? 0), matchup: fixture };
+}
+
+export function collectForDate(dataDir, date) {
+  const read = (rel) => { try { return JSON.parse(fs.readFileSync(path.join(dataDir, ...rel.split("/")), "utf8")); } catch { return null; } };
+  const cards = [];
+  const dp = read(`mr-dub/daily-portfolio.json`);
+  if (dp && dp.date === date) {
+    for (const lane of dp.lanes ?? []) {
+      const product = lane.product || (lane.stake >= 100 ? "bank-builder" : "moonshot");
+      cards.push({ product, label: `${lane.lane === "A" ? "Lane A" : "Lane B"} (stake $${lane.stake})`, stake: Number(lane.stake ?? 0), legs: (lane.legs ?? []).map(parseLaneLeg) });
+    }
+  }
+  const sp = read(`world-cup/world-cup-specials.json`);
+  if (sp && sp.date === date) for (const c of sp.cards ?? []) cards.push({ product: "wc-specials", label: c.title ?? "WC Special", stake: Number(c.stakePreview ?? c.stake ?? 0), legs: (c.legs ?? []).map(parseSpecialLeg) });
+  const pl = read(`world-cup/parlays/${date}.json`);
+  if (pl) for (const c of pl.cards ?? []) cards.push({ product: "wc-parlay", label: c.title ?? c.name ?? "WC Parlay", stake: Number(c.stakePreview ?? c.stake ?? 0), legs: (c.legs ?? []).map(parseSpecialLeg) });
+  return cards;
+}
