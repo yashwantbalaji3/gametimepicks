@@ -17,6 +17,7 @@ import { buildLegsForSport, eligibleLegs } from "./eligible-leg";
 import { generateDailyParlays, generateMixedParlays } from "./daily-parlays";
 import { generateAllSameGameParlays } from "./same-game";
 import { selectDualBankBuilder, survivalScore } from "./dual-bank-builder";
+import { currentEtDate } from "../freshness";
 import { RISK_LEVEL_ORDER } from "./risk-levels";
 import { INDIVIDUAL_LEG_ODDS_GUARDS, getRiskBucketForCombinedOdds } from "./risk-odds-bands";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
@@ -202,10 +203,15 @@ export function currentSlateDate(): string | null {
   return latestSlateDate(dataRoot());
 }
 
-/** Latest date that has a populated MLB board (the active sport); else null. */
-function latestSlateDate(root: string): string | null {
-  // The current slate is the latest date with EITHER an MLB board OR World Cup projections — a WC-only
-  // day (MLB off/unavailable but live World Cup games) must still surface as today's slate.
+/**
+ * Latest date with a populated MLB board OR World Cup projections, **capped at the wall-clock date**
+ * (`capEtDate`, defaults to today ET). The cap stops a pre-generated FUTURE slate (e.g. a June 24 MLB
+ * model board produced the night before) from surfacing as "today's slate" while it is still June 23 —
+ * which would also break the World Cup current-slate (WC's latest slate can legitimately lag MLB by a day).
+ * If every slate is in the future, falls back to the overall latest so the site is never empty.
+ */
+function latestSlateDate(root: string, capEtDate?: string): string | null {
+  const cap = capEtDate ?? currentEtDate();
   const dirs = [path.join(root, "mlb", "boards"), path.join(root, "world-cup", "projections")];
   const dates: string[] = [];
   for (const dir of dirs) {
@@ -213,8 +219,10 @@ function latestSlateDate(root: string): string | null {
       for (const f of fs.readdirSync(dir)) if (/^\d{4}-\d{2}-\d{2}\.json$/.test(f)) dates.push(f.slice(0, 10));
     } catch { /* dir absent → skip */ }
   }
+  if (!dates.length) return null;
   dates.sort();
-  return dates.length ? dates[dates.length - 1] : null;
+  const onOrBefore = dates.filter((d) => d <= cap);
+  return onOrBefore.length ? onOrBefore[onOrBefore.length - 1] : dates[dates.length - 1];
 }
 
 /**
@@ -409,8 +417,9 @@ const _cache = new Map<string, TodaySlateView>();
  */
 export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): TodaySlateView {
   const root = dataRoot();
-  const date = explicitDate ?? latestSlateDate(root) ?? "";
   const nowIso = nowIsoOverride ?? new Date().toISOString();
+  // Cap the auto-resolved slate at the wall clock (ET) so a pre-generated future slate never surfaces.
+  const date = explicitDate ?? latestSlateDate(root, currentEtDate(new Date(nowIso))) ?? "";
   const cacheKey = `${root}|${date}|${nowIsoOverride ?? "live"}`;
   const cached = _cache.get(cacheKey);
   if (cached) return cached;
