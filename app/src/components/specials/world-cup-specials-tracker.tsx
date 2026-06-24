@@ -34,7 +34,9 @@ function legToTicket(l: SpecialLeg): TicketLeg {
     market: l.marketLabel,
     line: l.line ?? undefined,
     matchup: l.fixture,
-    flagHome: l.countryCode ?? undefined,
+    // Team-referenced legs (moneyline) show that team's flag; match-level totals show both fixture flags.
+    flagHome: (l.countryCode ?? l.flagHome) ?? undefined,
+    flagAway: l.team ? undefined : (l.flagAway ?? undefined),
     player: l.kind === "player" ? l.participant : undefined,
     photoUrl: l.photoUrl ?? undefined,
     kickoffEt: kickoffEt(l.startTime),

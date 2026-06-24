@@ -74,6 +74,9 @@ export interface SpecialLeg {
   team: string | null;          // the team this leg belongs to (null for match-level totals/BTTS)
   opponent: string | null;
   countryCode: string | null;   // flag, when the leg references a single team
+  flagHome?: string | null;     // fixture home/away flags (shown for match-level totals)
+  flagAway?: string | null;
+  teamLogo?: string | null;     // team/flag logo URL when present
   playerId: number | null;
   photoUrl: string | null;      // real API-Football headshot when present, else null
   market: string;               // raw market key
@@ -214,16 +217,34 @@ export function loadSpecialsTeamLegs(root: string, nowIso: string, date: string)
     const startTime: string | null = r.kickoffUtc ?? null;
     if (!startTime || startTime <= nowIso) continue; // pre-event only
     const fixture = `${r.homeTeam} vs ${r.awayTeam}`;
-    const refTeam = teamForPick(r.market, String(r.pickLabel ?? ""), r.homeTeam, r.awayTeam);
+    const flagHome = wcTeamCodeFromName(r.homeTeam);
+    const flagAway = wcTeamCodeFromName(r.awayTeam);
+    // Clean, honest display labels (americanOdds is the HOME moneyline; the total side comes from the
+    // posted pick or the model-favored side). Never fabricated — derived from the projection's own fields.
+    let participant: string;
+    let refTeam: string | null = null;
+    let side: string | null = null;
+    let countryCode: string | null = null;
+    let teamLogo: string | null = null;
+    if (r.market === "moneyline_90" || r.market === "draw_no_bet") {
+      refTeam = r.homeTeam;                       // the side the posted price refers to
+      participant = `${r.homeTeam} to win`;
+      countryCode = flagHome; teamLogo = r.homeLogo ?? null;
+    } else if (r.market === "match_total_goals") {
+      side = r.pickLabel ? String(r.pickLabel) : `${(typeof r.modelProbability === "number" ? r.modelProbability : 0) >= 0.5 ? "Over" : "Under"} ${r.line}`;
+      participant = side; teamLogo = r.homeLogo ?? null;
+    } else { // btts + other team markets
+      participant = String(r.pickLabel ?? mk.label); side = String(r.pickLabel ?? "");
+      teamLogo = r.homeLogo ?? null;
+    }
     const opponent = refTeam ? (refTeam === r.homeTeam ? r.awayTeam : r.homeTeam) : null;
     legs.push({
       legId: `wc-special:team:${r.matchId}:${r.market}`,
       kind: "team", sport: "WORLD_CUP", fixture, eventId: String(r.matchId),
-      participant: String(r.pickLabel ?? r.market), team: refTeam, opponent,
-      countryCode: refTeam ? wcTeamCodeFromName(refTeam) : null,
+      participant, team: refTeam, opponent,
+      countryCode, flagHome, flagAway, teamLogo,
       playerId: null, photoUrl: null,
-      market: r.market, marketLabel: mk.label,
-      side: r.market === "match_total_goals" || r.market === "btts" ? String(r.pickLabel ?? "") : null,
+      market: r.market, marketLabel: mk.label, side,
       line: typeof r.line === "number" ? r.line : null,
       odds: odds as number, modelProbability: typeof r.modelProbability === "number" ? r.modelProbability : 0,
       startTime, dataQuality: "B", confidence: String(r.confidence ?? "Lean"),
