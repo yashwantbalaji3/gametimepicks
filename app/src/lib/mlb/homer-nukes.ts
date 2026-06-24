@@ -23,6 +23,8 @@ export interface HomerNukePick {
   team: string;
   teamAbbr: string | null;
   opponent: string | null;
+  opponentAbbr: string | null;   // resolved from the matchup + teams map (enrichment); null if unmapped
+  homeAway: "home" | "away" | null;
   matchup: string;
   gameId: string;
   market: string;        // "to hit a home run" (anytime HR)
@@ -52,6 +54,7 @@ export interface HomerNukesResult {
   available: boolean;        // true only when real HR props are posted for the date
   parlay: HomerNukesParlay | null;
   evaluated: number;         // how many HR props were evaluated
+  slateGames: number;        // distinct games carrying anytime-HR markets (real slate size)
   stake: number;             // the flat parlay stake ($20)
   confidence: "low" | "medium" | "high";
   note: string;
@@ -76,7 +79,7 @@ const MODEL_FLOOR = 0.08; // at least an 8% model HR probability to make the boa
  */
 export function loadHomerNukes(root: string, date: string): HomerNukesResult {
   const empty = (note: string): HomerNukesResult => ({
-    date, available: false, parlay: null, evaluated: 0, stake: HOMER_NUKES_STAKE, confidence: "low", note,
+    date, available: false, parlay: null, evaluated: 0, slateGames: 0, stake: HOMER_NUKES_STAKE, confidence: "low", note,
   });
 
   let raw: { date?: string; props?: Array<Record<string, any>>; markets?: Array<Record<string, any>> } | null = null;
@@ -88,6 +91,7 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
 
   const rows = (raw.props ?? raw.markets ?? []) as Array<Record<string, any>>;
   const candidates: HomerNukePick[] = [];
+  const slateGameIds = new Set<string>(); // distinct games carrying anytime-HR markets (real slate size)
   let evaluated = 0;
   for (const r of rows) {
     const marketKey = String(r.market ?? r.marketKey ?? "").toLowerCase();
@@ -96,6 +100,7 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
     const point = typeof r.point === "number" ? r.point : null;
     if (point != null && point > 0.5) continue;
     evaluated++;
+    if (r.gameId) slateGameIds.add(String(r.gameId));
     const odds = typeof r.americanOdds === "number" ? r.americanOdds : typeof r.odds === "number" ? r.odds : null;
     if (odds == null || odds < ODDS_MIN || odds > ODDS_MAX) continue;
     const provider = (r.provider ?? r.bookmaker ?? null) as string | null;
@@ -118,7 +123,8 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
       player, playerId: r.player?.id ?? r.playerId ?? null,
       photoUrl: (typeof r.player?.photo === "string" ? r.player.photo : r.photoUrl) ?? null,
       team: String(r.team ?? r.player?.team ?? ""), teamAbbr: r.teamAbbr ?? null,
-      opponent: r.opponent ?? null, matchup: String(r.matchup ?? r.fixture ?? ""),
+      opponent: r.opponent ?? null, opponentAbbr: r.opponentAbbr ?? null, homeAway: r.homeAway ?? null,
+      matchup: String(r.matchup ?? r.fixture ?? ""),
       gameId: String(r.gameId ?? ""), market: marketKey, marketLabel: String(r.marketLabel ?? "To hit a home run"),
       odds, modelProbability, edge, provider, startTimeUtc: start, kickoffEt: kickoffEtLabel(start),
       homerScore: scored ? scored.score : null, homerConfidence: scored ? scored.confidence : null,
@@ -153,7 +159,7 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
   const modeled = legs.some((l) => l.homerScore != null);
   const confidence: HomerNukesResult["confidence"] = impliedProbability >= 0.02 ? "high" : impliedProbability >= 0.008 ? "medium" : "low";
   return {
-    date, available: true, parlay, evaluated, stake: HOMER_NUKES_STAKE, confidence,
+    date, available: true, parlay, evaluated, slateGames: slateGameIds.size, stake: HOMER_NUKES_STAKE, confidence,
     note: modeled
       ? `Today's 5-leg home-run parlay, legs ranked by Homer Score. Flat $${HOMER_NUKES_STAKE} stake · paper-only.`
       : `Today's 5-leg home-run parlay — legs are the likeliest anytime-HR by de-vigged market probability (Homer Score model inputs pending). Flat $${HOMER_NUKES_STAKE} stake · paper-only.`,

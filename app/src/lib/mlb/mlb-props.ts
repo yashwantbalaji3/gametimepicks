@@ -18,6 +18,7 @@ export function loadMlbPropsBoard(root: string, date: string): BoardProp[] {
     americanOdds: Number(p.americanOdds ?? p.odds ?? 0), provider: p.provider ?? null,
     matchup: String(p.matchup ?? ""), gameId: String(p.gameId ?? ""),
     photoUrl: p.photoUrl ?? null, teamAbbr: p.teamAbbr ?? null,
+    opponentAbbr: p.opponentAbbr ?? null, homeAway: p.homeAway ?? null,
   })).filter((p) => p.player && Number.isFinite(p.americanOdds) && p.americanOdds !== 0);
 
   // Cap the board payload: top N per market group by market-implied probability, so the page stays

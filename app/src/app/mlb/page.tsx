@@ -71,6 +71,10 @@ export default function MlbLandingPage() {
   const flagshipDate = currentSlateDate() ?? currentEtDate();
   const homerBoard = loadHomerNukes(path.join(process.cwd(), "public", "data"), flagshipDate);
   const mlbProps = loadMlbPropsBoard(path.join(process.cwd(), "public", "data"), flagshipDate);
+  // Game Explorer reads the schedule for the SAME flagship date so its gameIds join the props' gameIds.
+  const flagshipGames = (getMlbScheduleForDate(flagshipDate).games ?? []).map((g: any) => ({
+    gameId: String(g.gameId ?? ""), matchup: String(g.matchup ?? ""), home: String(g.home ?? ""), away: String(g.away ?? ""), commenceTime: g.commenceTime ?? null,
+  }));
   const schedule = getMlbScheduleForDate(date);
   const mlbLifetime = getMlbLifetimeSummary();
 
@@ -301,7 +305,7 @@ export default function MlbLandingPage() {
 
       {/* MLB flagship sections — Homer Nukes / Props Board / Premium Plays / Game Explorer (data-gated). */}
       <div className="mt-6">
-        <MlbFlagshipSections homer={homerBoard} props={mlbProps} />
+        <MlbFlagshipSections homer={homerBoard} props={mlbProps} games={flagshipGames} />
       </div>
 
       <div className="mt-6">
