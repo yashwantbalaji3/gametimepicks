@@ -18,7 +18,7 @@ import fs from "node:fs";
 //   => bankroll $10,176.17, record 9-2, drawdown $200 (two realized prior Lane B losses).
 //   June 22 settlement: Lane B Step 1 restart WON (rolled, $0 realized).
 //   June 23 settlement: Lane A Step 3 WON (Jordan 1-2 Algeria FT, official) → rolled, $0 realized.
-//   => $0 open exposure (both lanes settled WON, awaiting next card), record 10-2-0-0; won/rolled steps add no realized P/L.
+//   => $0 open exposure (both lanes settled WON, awaiting next card), record 12-2-0-0; won/rolled steps add no realized P/L.
 const portfolio = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
 const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
 
@@ -27,7 +27,7 @@ test("bankroll reconciles to crown less two real Lane B lost seeds — above $10
   assert.equal(portfolio.currentBankroll, 10176.17, "crown - $200 (two real Lane B stops); pending cards don't realize");
   assert.ok(portfolio.currentBankroll > 10000, "portfolio is above $10,000");
   assert.equal(portfolio.drawdown, 200, "drawdown = two lost $100 seeds");
-  assert.deepEqual(portfolio.record, { wins: 10, losses: 2, voids: 0, pending: 0 }, "10-2-0-0 (Lane A Step 3 WON; Lane B Step 1 WON)");
+  assert.deepEqual(portfolio.record, { wins: 12, losses: 2, voids: 0, pending: 0 }, "12-2-0-0 (Lane A Step 4 WON; Lane B Step 2 WON)");
   assert.equal(portfolio.openExposure, 0, "Lane A Step 3 settled WON + Lane B settled WON → both seeds released");
 });
 

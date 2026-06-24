@@ -41,7 +41,7 @@ test("Moonshot lane artifact is stopped/LOST and its record is separate (0-1, no
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot 0-1, separate");
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure 0 (settled)");
-  assert.deepEqual(portfolio.record, { wins: 10, losses: 2, voids: 0, pending: 0 }, "core record (Lane A + Lane B settled WON) — moonshot not blended in");
+  assert.deepEqual(portfolio.record, { wins: 12, losses: 2, voids: 0, pending: 0 }, "core record (Lane A + Lane B settled WON) — moonshot not blended in");
 });
 
 test("Moonshot is reachable: command rail + top nav include it; mobile has its own Moonshot bucket", () => {

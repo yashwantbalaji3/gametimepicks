@@ -74,9 +74,10 @@ test("game detail shows model picks by market (per-market, up to 3) — not raw 
 
 test("exposure/bankroll/crown unchanged by the upgrade (only daily-portfolio.json data changed)", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
-  assert.equal(dp.openExposure, 250); assert.equal(dp.availableBankroll, 9926.17);
+  // June 24 (post June-23 settlement): both lanes advanced + awaiting their next qualified card → $0 open exposure.
+  assert.equal(dp.openExposure, 0); assert.equal(dp.availableBankroll, 10176.17);
   assert.equal(dp.activeBankroll, 10176.17); assert.equal(dp.crownBankroll, 10376.17);
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(p.currentBankroll, 10176.17); assert.equal(p.crownBankroll, 10376.17);
-  assert.deepEqual(p.record, { wins: 10, losses: 2, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 });
 });

@@ -28,7 +28,12 @@ test("cross-lane selector: Lane A and Lane B share NO game (independent lanes)",
 
 test("cross-lane selector: both lanes reach their rung target with team/game markets, reconcile", () => {
   const pool = loadWorldCupModelPicks(root, NOW, DATE);
-  const { laneA, laneB } = readLaneRungs(root);
+  // Pin the rungs to the Step 4 / Step 2 scenario this selector test was written for, so it stays a
+  // deterministic check of TEAM-market cross-lane selection at a reachable target — independent of the
+  // live ladder (now advanced past June 23 to Step 5 / Step 3, whose harder $10k target can pull in a
+  // player prop). The advanced-rung path is exercised separately in bank-builder-next-steps.
+  const laneA = { lane: "A", nextStep: 4, clearedSteps: 3, rolledStake: 1464.71, targetReturn: 3500, targetMultiplier: 3500 / 1464.71 };
+  const laneB = { lane: "B", nextStep: 2, clearedSteps: 1, rolledStake: 277.11, targetReturn: 700, targetMultiplier: 700 / 277.11 };
   const { laneA: a, laneB: b } = selectCrossLaneBankBuilder(pool, laneA, laneB);
   for (const [g, rung] of [[a, laneA], [b, laneB]]) {
     assert.ok(g.fitsTarget, `lane reaches the Step ${rung.nextStep} target`);
@@ -65,9 +70,10 @@ test("DualLadderBoard injects the current step's daily legs into an open drawer 
 
 test("exposure/bankroll/crown unchanged by the cross-lane upgrade", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
-  assert.equal(dp.openExposure, 250); assert.equal(dp.availableBankroll, 9926.17);
+  // June 24 (post June-23 settlement): both lanes advanced + awaiting their next qualified card → $0 open exposure.
+  assert.equal(dp.openExposure, 0); assert.equal(dp.availableBankroll, 10176.17);
   assert.equal(dp.activeBankroll, 10176.17); assert.equal(dp.crownBankroll, 10376.17);
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(p.currentBankroll, 10176.17); assert.equal(p.crownBankroll, 10376.17);
-  assert.deepEqual(p.record, { wins: 10, losses: 2, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 });
 });

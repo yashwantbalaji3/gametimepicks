@@ -29,13 +29,13 @@ test("dual-lane lifecycle after June 19 settlement + cross-slate resume: Lane A 
   assert.equal(b1.result, "won", "Lane B Step 1 restart cleared WON (Argentina ML + France/Iraq Under 3.5)");
 });
 
-test("Mr. Dub ledger after reconciliation + both lanes settled WON: bankroll $10,176.17, exposure $0, record 10-2-0-0", () => {
+test("Mr. Dub ledger after reconciliation + both lanes settled WON: bankroll $10,176.17, exposure $0, record 12-2-0-0", () => {
   const p = read("portfolio.json");
   assert.equal(p.paperOnly, true);
   assert.equal(p.crownBankroll, 10376.17, "original completed ladder imported");
   assert.equal(p.currentBankroll, 10176.17, "crown $10,376.17 less two real Lane B lost seeds ($200) — above $10k");
   assert.equal(p.openExposure, 0, "Lane A Step 3 settled WON + Lane B settled WON → both seeds released, $0 open");
-  assert.deepEqual(p.record, { wins: 10, losses: 2, voids: 0, pending: 0 }, "10-2-0-0 (Lane A Step 3 WON; Lane B Step 1 WON)");
+  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 }, "12-2-0-0 (Lane A Step 4 WON; Lane B Step 2 WON)");
   const led = read("ledger.json");
   // Lane A advance is logged as three cleared step wins (Step 3 now settled WON, no open card).
   assert.ok(led.events.filter((e) => e.type === "lane_step_won" && e.laneId === "lane-a").length >= 3, "Lane A three step wins logged");
