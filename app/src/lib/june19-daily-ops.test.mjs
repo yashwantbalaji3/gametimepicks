@@ -101,3 +101,13 @@ test("UFC stays results-only (no current UFC slate) on June 19", () => {
   const ufc = v.sports.find((s) => s.sport === "UFC");
   assert.ok(!ufc || ufc.eligibleCount === 0, "no active UFC slate");
 });
+
+test("future slate is capped at the wall clock: June 24 MLB board does NOT surface on June 23", () => {
+  // With mlb/boards/2026-06-24.json committed, the auto-resolved slate must stay June 23 when "now" is
+  // June 23 (a pre-generated future board must not jump the global slate / break the World Cup slate).
+  const june23 = loadTodaySlate(undefined, "2026-06-23T12:00:00Z");
+  assert.equal(june23.date, "2026-06-23", "future June 24 board capped — slate stays June 23 on June 23");
+  // On June 24 the same board correctly surfaces.
+  const june24 = loadTodaySlate(undefined, "2026-06-24T16:00:00Z");
+  assert.equal(june24.date, "2026-06-24", "June 24 board surfaces once the wall clock reaches June 24");
+});
