@@ -60,8 +60,10 @@ export interface MasterLedger {
 function exposureAndArtifactDate(root: string, id: string, dp: any): { artifactDate: string | null; exposure: number } {
   if (id === "bank-builder") return { artifactDate: dp?.date ?? null, exposure: dp?.products?.bankBuilder?.exposure ?? 0 };
   if (id === "moonshot") {
-    const m = readJson(path.join(root, "moonshot-lane", "active.json"));
-    return { artifactDate: m?.generatedAt ?? m?.date ?? null, exposure: dp?.products?.moonshot?.exposure ?? 0 };
+    // Open Moonshot exposure is today's ACTIVE daily lanes (the live portfolio), not the frozen standalone
+    // run artifact — so an activated lane's $25 stake reaches Mr. Dub. Keyed off dp.date like Bank Builder;
+    // settled history still comes from product-ledger/moonshot.json.
+    return { artifactDate: dp?.date ?? null, exposure: dp?.products?.moonshot?.exposure ?? 0 };
   }
   if (id === "wc-specials") {
     const s = readJson(path.join(root, "world-cup", "world-cup-specials.json"));

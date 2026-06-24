@@ -11,6 +11,7 @@ const DATE = "2026-06-23";
 const NOW = "2026-06-23T10:00:00Z"; // before every June-23 kickoff, outside the 30m cutoff
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
+const round2 = (n) => Math.round(n * 100) / 100;
 
 test("plan (dry-run): four lanes, all eligible, $0 exposure (no placement)", () => {
   const plan = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, /*activate*/ false);
@@ -20,41 +21,41 @@ test("plan (dry-run): four lanes, all eligible, $0 exposure (no placement)", () 
   for (const l of plan.lanes) assert.notEqual(l.status, "active", "no lane active in dry-run");
 });
 
-test("apply: exposure math — BB $200 + Moonshot $50 = $250, available = active − exposure, active bankroll + crown UNCHANGED", () => {
+test("apply: exposure math — BB $200 active; Moonshot adaptive (awaits a thin slate); money UNCHANGED", () => {
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, /*activate*/ true);
   assert.equal(dp.activeBankroll, 10176.17, "active bankroll unchanged at activation");
   assert.equal(dp.crownBankroll, 10376.17, "crown untouched");
   assert.equal(dp.products.bankBuilder.exposure, 200, "Bank Builder exposure $200 (2 lanes × $100)");
-  assert.equal(dp.products.moonshot.exposure, 50, "Moonshot exposure $50 (2 lanes × $25)");
-  assert.equal(dp.openExposure, 250, "total open exposure $250");
-  assert.equal(dp.availableBankroll, 9926.17, "available = active − exposure");
+  // Moonshot is a longshot lane (≥3 distinct-game legs, +700 floor). The June-23 slate has too few distinct
+  // longshot games after Bank Builder → both lanes AWAIT. Exposure is whatever the active moonshot lanes
+  // total ($0 here, $25/lane when a slate qualifies) and always within the cap. No legs are forced.
+  const activeMoon = dp.lanes.filter((l) => l.product === "moonshot" && l.status === "active");
+  assert.equal(dp.products.moonshot.exposure, round2(activeMoon.length * 25), "moonshot exposure = $25 × active lanes");
   assert.ok(dp.products.moonshot.exposure <= MOONSHOT_MAX_EXPOSURE, "moonshot exposure within cap");
-  assert.equal(dp.lanes.filter((l) => l.status === "active").length, 4, "all 4 lanes active");
+  assert.equal(dp.openExposure, round2(dp.products.bankBuilder.exposure + dp.products.moonshot.exposure), "open = BB + moonshot");
+  assert.equal(dp.availableBankroll, round2(dp.activeBankroll - dp.openExposure), "available = active − exposure");
 });
 
-test("apply: Bank Builder lanes = 2 legs each, Moonshot lanes = 5 legs each; combined odds reconcile", () => {
+test("apply: Bank Builder lanes = 2 legs each; Moonshot lanes ≤ 5 legs, ≥1 leg/game; combined odds reconcile", () => {
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const moon = dp.lanes.filter((l) => l.product === "moonshot");
   assert.equal(bb.length, 2); assert.equal(moon.length, 2);
   for (const l of bb) assert.equal(l.legCount, 2, "Bank Builder lane = 2 legs");
-  for (const l of moon) assert.equal(l.legCount, 5, "Moonshot lane = 5 legs");
+  for (const l of moon) assert.ok(l.legCount <= 5, "Moonshot lane ≤ 5 legs (up to 5, valid at 3)");
   for (const l of dp.lanes) {
+    if (!l.legs.length) continue;
     const d = l.legs.reduce((p, g) => p * dec(g.odds), 1);
     assert.ok(Math.abs(decToAmerican(d) - l.combinedOdds) <= 3, `${l.id} combined odds reconcile from legs`);
     assert.ok(Math.abs(l.potentialReturn - l.stake * d) < 0.5, `${l.id} potential return = stake × combined decimal`);
   }
 });
 
-test("apply: max 1 leg per game for Bank Builder; Moonshot 2nd-leg-per-game carries a correlation note", () => {
+test("apply: max 1 leg per game within EVERY lane (Bank Builder AND Moonshot — independent legs, no SGP)", () => {
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
-  for (const l of dp.lanes.filter((x) => x.product === "bank-builder")) {
+  for (const l of dp.lanes) {
     const games = l.legs.map((g) => g.matchup);
-    assert.equal(new Set(games).size, games.length, "Bank Builder: max 1 leg per game");
-  }
-  for (const l of dp.lanes.filter((x) => x.product === "moonshot")) {
-    const games = l.legs.map((g) => g.matchup);
-    if (new Set(games).size < games.length) assert.ok(l.correlationNote, "Moonshot same-game leg has a correlation note");
+    assert.equal(new Set(games).size, games.length, `${l.product} ${l.lane}: max 1 leg per game (no fabricated SGP)`);
   }
 });
 

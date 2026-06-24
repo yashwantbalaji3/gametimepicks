@@ -66,6 +66,11 @@ export interface LaneCandidate {
 
 const POOL_ODDS_MAX = 2000;        // Moonshot can ride longer; Bank Builder ranking keeps it short
 const BANK_BUILDER_MAX_ODDS = 400; // a high-hit-rate addable leg, never a longshot
+/** Moonshot is a longshot lane: it tries for up to 5 legs but a lane is valid with as few as 3 (thin
+ *  slates can't always field two full 5-leg lanes), provided the combined price clears the longshot floor. */
+export const MOONSHOT_TARGET_LEGS = 5;
+export const MOONSHOT_MIN_LEGS = 3;
+export const MOONSHOT_MIN_COMBINED_ODDS = 700; // +700 — a genuine longshot, not a glorified Bank Builder card
 const TEAM_MARKETS: Record<string, string> = {
   moneyline_90: "Match Result",
   double_chance: "Double Chance",
@@ -162,6 +167,26 @@ function selectLegs(sorted: ModelPick[], want: number, used: Set<string>, allowS
     }
   }
   return { legs, secondGame };
+}
+
+/** Split the sorted longshot pool into two INDEPENDENT lanes (disjoint games, max 1 leg/game), alternating
+ *  best-leg-first so both lanes reach the minimum before either tops out at MOONSHOT_TARGET_LEGS. */
+function splitMoonshotLanes(sorted: ModelPick[], used: Set<string>): { laneA: ModelPick[]; laneB: ModelPick[] } {
+  const laneA: ModelPick[] = [];
+  const laneB: ModelPick[] = [];
+  const games = new Set<string>();
+  let turn = 0;
+  for (const p of sorted) {
+    if (used.has(p.id) || games.has(p.gameId)) continue;
+    if (laneA.length >= MOONSHOT_TARGET_LEGS && laneB.length >= MOONSHOT_TARGET_LEGS) break;
+    let lane = turn % 2 === 0 ? laneA : laneB;
+    if (lane.length >= MOONSHOT_TARGET_LEGS) lane = lane === laneA ? laneB : laneA; // skip a full lane
+    lane.push(p);
+    games.add(p.gameId);
+    used.add(p.id);
+    turn += 1;
+  }
+  return { laneA, laneB };
 }
 
 function makeLane(product: "bank-builder" | "moonshot", lane: "A" | "B", legs: ModelPick[], targetLegs: number, stake: number, secondGame: string | null, date: string): LaneCandidate {
@@ -263,12 +288,13 @@ export function buildDailyLaneCandidates(pool: ModelPick[], date: string, opts?:
   const bankBuilderA = makeLane("bank-builder", "A", a.legs, 2, bankStake, a.secondGame, date);
   const bankBuilderB = makeLane("bank-builder", "B", b.legs, 2, bankStake, b.secondGame, date);
 
-  // Moonshot: highest upside (longer decimal odds) among the remaining model-qualified legs.
+  // Moonshot: two INDEPENDENT longshot lanes from disjoint games. Fill both toward MOONSHOT_TARGET_LEGS (5)
+  // but split fairly (alternating, max 1 leg/game) so a medium slate yields two 3-leg lanes rather than one
+  // 5-leg lane starving the other. A lane is valid at MOONSHOT_MIN_LEGS (3) and must clear the +700 floor.
   const moonPool = pool.filter((p) => !used.has(p.id)).sort((x, y) => y.upsideScore - x.upsideScore || y.modelProbability - x.modelProbability);
-  const ma = selectLegs(moonPool, 5, used, true);
-  const mb = selectLegs(pool.filter((p) => !used.has(p.id)).sort((x, y) => y.upsideScore - x.upsideScore), 5, used, true);
-  const moonshotA = makeLane("moonshot", "A", ma.legs, 5, moonshotStake, ma.secondGame, date);
-  const moonshotB = makeLane("moonshot", "B", mb.legs, 5, moonshotStake, mb.secondGame, date);
+  const split = splitMoonshotLanes(moonPool, used);
+  const moonshotA = makeLane("moonshot", "A", split.laneA, MOONSHOT_MIN_LEGS, moonshotStake, null, date);
+  const moonshotB = makeLane("moonshot", "B", split.laneB, MOONSHOT_MIN_LEGS, moonshotStake, null, date);
 
   return { bankBuilderA, bankBuilderB, moonshotA, moonshotB };
 }
