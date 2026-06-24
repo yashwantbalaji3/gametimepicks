@@ -14,7 +14,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { loadWorldCupModelPicks, buildDailyLaneCandidates, type LaneCandidate, type ModelPick } from "../world-cup/model-qualified-picks";
+import { loadWorldCupModelPicks, buildDailyLaneCandidates, MOONSHOT_MIN_COMBINED_ODDS, type LaneCandidate, type ModelPick } from "../world-cup/model-qualified-picks";
 import { readLaneRungs, selectSafestTargetFitCard, SEED_EXPOSURE, type GeneratedLane } from "./bank-builder-generation";
 import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
 import { loadMlbModelPicks } from "./mlb-model-picks";
@@ -71,8 +71,11 @@ export interface PersistedDailyPortfolio {
 
 const PRODUCT_LABEL: Record<string, string> = { "bank-builder": "Bank Builder", moonshot: "Moonshot" };
 
-function laneEligibility(lane: LaneCandidate, nowMs: number): ActivationEligibility {
+export function laneEligibility(lane: LaneCandidate, nowMs: number): ActivationEligibility {
   if (lane.legCount < lane.targetLegs) return { eligible: false, reason: `only ${lane.legCount}/${lane.targetLegs} model-qualified legs — awaiting a full lane` };
+  // Moonshot must clear the longshot floor — a thin 3-leg lane of short favorites is not a moonshot.
+  if (lane.product === "moonshot" && lane.combinedOdds < MOONSHOT_MIN_COMBINED_ODDS)
+    return { eligible: false, reason: `combined +${lane.combinedOdds} is below the +${MOONSHOT_MIN_COMBINED_ODDS} longshot floor — awaiting a longer card` };
   for (const l of lane.legs) {
     const ms = l.kickoffUtc ? Date.parse(l.kickoffUtc) : NaN;
     if (!Number.isFinite(ms)) return { eligible: false, reason: `${l.matchup} has no machine kickoff` };
@@ -85,7 +88,7 @@ function laneEligibility(lane: LaneCandidate, nowMs: number): ActivationEligibil
 function whyThisCard(lane: LaneCandidate): string[] {
   const why: string[] = [];
   if (lane.product === "bank-builder") why.push("Lower-volatility: the 2 highest model-confidence legs, max 1 per game.");
-  else why.push("Higher-upside: 5 model-qualified legs for a longer combined price.");
+  else why.push(`Higher-upside: ${lane.legCount} model-qualified longshot legs (up to 5, min 3) for a longer combined price.`);
   const avg = lane.legs.length ? Math.round((lane.legs.reduce((s, l) => s + l.modelProbability, 0) / lane.legs.length) * 100) : 0;
   why.push(`Avg model confidence ${avg}% across ${lane.legCount} legs · combined ${lane.combinedOdds > 0 ? "+" : ""}${lane.combinedOdds}.`);
   if (lane.correlationNote) why.push(lane.correlationNote);
@@ -150,28 +153,54 @@ const legKey = (id: string) => { const p = String(id).split(":"); return p.lengt
 
 /** Approved-card lock: once a Bank Builder lane's card is approved for a date, it is pinned in
  *  mr-dub/bank-builder-locks.json so a later refresh can't silently swap its legs. */
-export interface CardLock { date: string; lanes: Record<string, { approvedAt: string; reason?: string; legs: PortfolioLaneLeg[] }> }
-function loadCardLock(root: string, date: string): CardLock["lanes"] | null {
+export interface CardLockEntry { approvedAt: string; reason?: string; legs: PortfolioLaneLeg[] }
+export interface CardLock {
+  date: string;
+  note?: string;
+  /** Legacy / Bank Builder lane locks (top-level `lanes` == Bank Builder for backward compatibility). */
+  lanes?: Record<string, CardLockEntry>;
+  bankBuilder?: Record<string, CardLockEntry>;
+  /** Moonshot lane locks — an operator-approved longshot card pins + activates the same way. */
+  moonshot?: Record<string, CardLockEntry>;
+}
+function loadCardLock(root: string, date: string): CardLock | null {
   try {
     const lock = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "bank-builder-locks.json"), "utf8")) as CardLock;
-    return lock?.date === date ? (lock.lanes ?? null) : null;
+    return lock?.date === date ? lock : null;
   } catch { return null; }
 }
+/** Resolve the locked lanes for a product (legacy top-level `lanes` counts as Bank Builder). */
+export function locksFor(lock: CardLock | null, product: PortfolioLane["product"]): Record<string, CardLockEntry> | null {
+  if (!lock) return null;
+  if (product === "bank-builder") return lock.bankBuilder ?? lock.lanes ?? null;
+  if (product === "moonshot") return lock.moonshot ?? null;
+  return null;
+}
 /**
- * Honor the approved-card lock. For each locked Bank Builder lane, if EVERY locked leg's game+market is
- * still available in the live pool (odds posted, market present, game not pulled), the locked card is
- * preserved verbatim and re-priced from its own legs; the lane is flagged `locked`. If any locked leg is
- * gone (odds unavailable / game canceled / market removed) the lock is stale and the lane is left as the
- * freshly-generated card with a note — the only automatic replacement path. Never touches seed exposure.
+ * Honor the approved-card lock for a product's lanes. For each locked lane, if EVERY locked leg's
+ * game+market is still available in the live pool (odds posted, market present, game not pulled), the
+ * locked card is preserved verbatim and re-priced from its own legs; the lane is flagged `locked`. If any
+ * locked leg is gone (odds unavailable / game canceled / market removed) the lock is stale and the lane is
+ * left as the freshly-generated card with a note — the only automatic replacement path.
+ *
+ * An approved card is intended to be PLACED: when `activate` is set and every locked leg is still pre-event
+ * (outside the activation cutoff), the lane is forced ACTIVE so its paper exposure posts even if auto-
+ * generation would have left it awaiting (e.g. a thin Moonshot slate). Never touches canonical money.
  */
-function applyCardLocks(lanes: PortfolioLane[], lock: CardLock["lanes"] | null, pool: ModelPick[]): void {
-  if (!lock) return;
-  const available = new Set(pool.map((p) => legKey(p.id)));
+export function applyCardLocks(
+  lanes: PortfolioLane[],
+  entries: Record<string, CardLockEntry> | null,
+  pool: ModelPick[],
+  product: PortfolioLane["product"],
+  opts: { activate: boolean; nowMs: number },
+): void {
+  if (!entries) return;
+  const byKey = new Map(pool.map((p) => [legKey(p.id), p]));
   for (const lane of lanes) {
-    if (lane.product !== "bank-builder") continue;
-    const entry = lock[lane.lane];
+    if (lane.product !== product) continue;
+    const entry = entries[lane.lane];
     if (!entry?.legs?.length) continue;
-    const missing = entry.legs.filter((l) => !available.has(legKey(l.id)));
+    const missing = entry.legs.filter((l) => !byKey.has(legKey(l.id)));
     if (missing.length) {
       lane.shortfallNote = `Locked card released: ${missing.map((m) => m.selection).join(", ")} odds unavailable — regenerated. (approved ${entry.approvedAt})`;
       continue; // stale lock → keep regenerated card
@@ -186,6 +215,17 @@ function applyCardLocks(lanes: PortfolioLane[], lock: CardLock["lanes"] | null, 
     (lane as PortfolioLane & { locked?: boolean; approvedAt?: string }).locked = true;
     (lane as PortfolioLane & { locked?: boolean; approvedAt?: string }).approvedAt = entry.approvedAt;
     lane.whyThisCard = [`🔒 Approved card locked${entry.reason ? ` (${entry.reason})` : ""} on ${entry.approvedAt} — refreshes won't swap these legs unless an odds/market becomes unavailable.`, ...(lane.whyThisCard ?? [])].slice(0, 3);
+    if (opts.activate && lane.status !== "active") {
+      const allPreEvent = entry.legs.every((l) => {
+        const ms = Date.parse(byKey.get(legKey(l.id))?.kickoffUtc ?? "");
+        return Number.isFinite(ms) && ms - opts.nowMs >= ACTIVATION_CUTOFF_MIN * 60000;
+      });
+      if (allPreEvent) {
+        lane.status = "active";
+        lane.shortfallNote = null;
+        lane.activationEligibility = { eligible: true, reason: "approved card locked — paper exposure placed" };
+      }
+    }
   }
 }
 
@@ -233,10 +273,12 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   }
 
   // ── Approved-card lock: pin any approved Bank Builder lane so this refresh can't swap its legs. ──
-  applyCardLocks(lanes, loadCardLock(root, date), bbPool);
+  const cardLock = loadCardLock(root, date);
+  applyCardLocks(lanes, locksFor(cardLock, "bank-builder"), bbPool, "bank-builder", { activate, nowMs });
   for (const lane of lanes) if (lane.product === "bank-builder" && (lane as PortfolioLane & { locked?: boolean }).locked) lane.legs.forEach((l) => usedBB.add(l.id));
 
-  // ── Moonshot: 5 higher-upside legs per lane, from the pool MINUS the Bank Builder legs (distinct lanes). ──
+  // ── Moonshot: up to 5 higher-upside longshot legs per lane (min 3, ≥+700 floor), from the pool MINUS
+  //    the Bank Builder legs (distinct lanes). A thin slate leaves lanes AWAITING — never forced. ──
   const poolForMoon = pool.filter((p) => !usedBB.has(p.id));
   const cands = buildDailyLaneCandidates(poolForMoon, date);
   let moonshotExposure = 0;
@@ -249,6 +291,8 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
     }
     lanes.push(toPortfolioLane(c, status, elig));
   }
+  // Honor an operator-approved Moonshot card lock (same principle as Bank Builder): pin + place it.
+  applyCardLocks(lanes, locksFor(cardLock, "moonshot"), poolForMoon, "moonshot", { activate, nowMs });
 
   const active = lanes.filter((l) => l.status === "active");
   const coreExposure = round2(active.filter((l) => l.product === "bank-builder").reduce((s, l) => s + l.exposure, 0));
