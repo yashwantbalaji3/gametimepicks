@@ -75,17 +75,18 @@ test("no leg is duplicated across the four lanes (each model leg used once)", ()
   assert.equal(new Set(all).size, all.length, "no leg reused across lanes");
 });
 
-test("daily portfolio: 4 lanes (now ACTIVATED), $250 exposure, available = active − exposure, crown separate", () => {
+test("daily portfolio: 4 candidate lanes, $0 exposure (post June-23 settlement — no qualified card placed), crown separate", () => {
   const dp = buildDailyPortfolio(root, NOW, DATE);
   assert.equal(dp.cards.length, 4, "Bank Builder A/B + Moonshot A/B");
   assert.deepEqual(dp.cards.map((c) => `${c.product}:${c.lane}`).sort(), ["bank-builder:A", "bank-builder:B", "moonshot:A", "moonshot:B"]);
-  // The daily portfolio is now activated (see bank-builder-moonshot-activation.test.mjs); lanes are active, $250 placed.
-  for (const c of dp.cards) assert.equal(c.status, "active", `${c.id} is active (placed)`);
-  assert.equal(dp.openExposure, 250, "open exposure $250 (BB $200 + Moonshot $50)");
-  assert.equal(dp.exposure.core, 200, "core exposure $200");
-  assert.equal(dp.exposure.moonshot, 50, "moonshot exposure $50");
-  assert.equal(dp.activeBankroll, 10176.17, "active bankroll = portfolio.currentBankroll (unchanged at activation)");
-  assert.equal(dp.availableBankroll, 9926.17, "available = active − exposure");
+  // June 23's lanes settled WON and the ladder advanced; for a day with no qualified card the lanes are
+  // candidates with $0 placed (the $250-activated math is exercised in bank-builder-moonshot-activation).
+  for (const c of dp.cards) assert.notEqual(c.status, "active", `${c.id} not active (no qualified card placed)`);
+  assert.equal(dp.openExposure, 0, "open exposure $0 (no active lanes)");
+  assert.equal(dp.exposure.core, 0, "core exposure $0");
+  assert.equal(dp.exposure.moonshot, 0, "moonshot exposure $0");
+  assert.equal(dp.activeBankroll, 10176.17, "active bankroll = portfolio.currentBankroll (unchanged)");
+  assert.equal(dp.availableBankroll, 10176.17, "available = active − exposure ($0)");
   assert.equal(dp.crownBankroll, 10376.17, "crown reported separately, unchanged");
 });
 
@@ -95,7 +96,7 @@ test("daily portfolio NEVER mutates money state: portfolio.json bankroll/crown/e
   assert.equal(p.currentBankroll, 10176.17, "active bankroll unchanged");
   assert.equal(p.crownBankroll, 10376.17, "crown untouched");
   assert.equal(p.openExposure, 0, "core exposure $0");
-  assert.deepEqual(p.record, { wins: 10, losses: 2, voids: 0, pending: 0 }, "record 10-2-0-0");
+  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 }, "record 10-2-0-0");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate");
 });
 

@@ -123,7 +123,7 @@ test("settlement state intact: Lane A + Lane B WON, bankroll + crown unchanged, 
   assert.equal(p.currentBankroll, 10176.17, "active bankroll unchanged");
   assert.equal(p.crownBankroll, 10376.17, "crown untouched");
   assert.equal(p.openExposure, 0, "core exposure $0 (Lane A + Lane B settled WON)");
-  assert.deepEqual(p.record, { wins: 10, losses: 2, voids: 0, pending: 0 }, "core record 10-2-0-0");
+  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 }, "core record 12-2-0-0");
   assert.equal(p.moonshot.exposure, 0, "moonshot exposure separate ($0)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");
 });

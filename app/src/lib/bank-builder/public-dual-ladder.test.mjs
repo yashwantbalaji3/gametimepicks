@@ -6,7 +6,7 @@ import { loadTodaySlate } from "../parlays/ui-loader.ts";
 
 const bb = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z").bankBuilderPreview;
 
-test("Lane A public ladder after settlement: Steps 1 + 2 + 3 cleared (won), Step 3 settled WON (Egypt + Algeria official), lane awaiting next card, no lost step", () => {
+test("Lane A public ladder after settlement: Steps 1 + 2 + 3 + 4 cleared (won), Step 4 settled WON (Croatia + COL/DRC official), lane awaiting next card, no lost step", () => {
   const v = buildPublicDualLadder(bb.laneA, "lane-a");
   assert.ok(v, "lane A view present");
   // Step 3 (Egypt + Algeria) settled WON (official) → all real steps cleared, lane awaiting the next qualified card.
@@ -38,11 +38,19 @@ test("Lane A public ladder after settlement: Steps 1 + 2 + 3 cleared (won), Step
   assert.equal(s3.actualStake, 601.56, "Step 3 rode the rolled $601.56");
   assert.ok(s3.actualReturn >= 1400 && s3.actualReturn <= 1500, "actual return ~$1,464.71");
   assert.ok(s3.card.legs.some((l) => /Egypt/.test(l.participant)) && s3.card.legs.some((l) => /Algeria/.test(l.participant)), "Egypt + Algeria in the cleared Step 3 card");
-  // No active step — all 3 real steps cleared; Step 4 awaits the next qualified card, Step 5 upcoming.
+  // Step 4 now settled WON (official, June 23) — cleared, riding the rolled $1,464.71 → ~$3,502.57.
+  // Legs are Croatia ML + Colombia/DR Congo Under 2.5, both graded hit (official, API-Football).
+  const s4 = v.steps[3];
+  assert.equal(s4.status, "cleared", "Step 4 settled WON → cleared");
+  assert.equal(s4.result, "won");
+  assert.ok(s4.card, "Step 4 carries its settled card");
+  assert.equal(s4.actualStake, 1464.71, "Step 4 rode the rolled $1,464.71");
+  assert.ok(s4.actualReturn >= 3500 && s4.actualReturn <= 3510, "actual return ~$3,502.57");
+  assert.ok(s4.card.legs.some((l) => /Croatia/.test(l.participant)) && s4.card.legs.some((l) => /Under 2\.5/.test(l.participant)), "Croatia + COL/DRC Under 2.5 in the cleared Step 4 card");
+  // No active step — all 4 real steps cleared; Step 5 awaits the next qualified card.
   assert.ok(v.steps.every((s) => s.status !== "active"), "no active step — lane awaiting next card");
-  assert.equal(v.steps.filter((s) => s.status === "cleared").length, 3, "three steps cleared");
-  assert.equal(v.steps[3].status, "awaiting", "Step 4 awaits the next qualified card");
-  assert.equal(v.steps[4].status, "upcoming");
+  assert.equal(v.steps.filter((s) => s.status === "cleared").length, 4, "four steps cleared");
+  assert.equal(v.steps[4].status, "awaiting", "Step 5 awaits the next qualified card");
   assert.ok(v.steps.every((s) => s.result !== "lost"), "no lost step surfaced (Lane A never lost)");
 });
 
@@ -58,8 +66,16 @@ test("Lane B public ladder after restart: Step 1 SETTLED WON (cross-slate restar
   assert.ok(v.steps[0].card, "Step 1 carries its settled restart card");
   // Restart legs: Argentina ML + France/Iraq Under 3.5 (June 22), both graded hit (official).
   assert.ok(v.steps[0].card.legs.some((l) => /Argentina/.test(l.participant)) && v.steps[0].card.legs.some((l) => /Under 3\.5/.test(l.participant)), "Argentina + France/Iraq Under 3.5 in the cleared Step 1 restart card");
-  assert.equal(v.steps[1].status, "awaiting", "Step 2 awaits the next qualified card");
-  for (let i = 2; i < 5; i++) assert.equal(v.steps[i].status, "upcoming");
+  // Step 2 now settled WON (official, June 23) — cleared, riding the rolled $277.11 → ~$702.45.
+  // Legs are Portugal/Uzbekistan BTTS-No + England/Ghana BTTS-No, both graded hit (official, API-Football).
+  const s2 = v.steps[1];
+  assert.equal(s2.status, "cleared", "Step 2 settled WON → cleared");
+  assert.equal(s2.result, "won");
+  assert.equal(s2.actualStake, 277.11, "Step 2 rode the rolled $277.11");
+  assert.ok(s2.actualReturn >= 700 && s2.actualReturn <= 705, "actual return ~$702.45");
+  assert.ok(s2.card.legs.filter((l) => /Both teams to score: No/.test(l.participant)).length === 2, "two BTTS-No legs in the cleared Step 2 card");
+  assert.equal(v.steps[2].status, "awaiting", "Step 3 awaits the next qualified card");
+  for (let i = 3; i < 5; i++) assert.equal(v.steps[i].status, "upcoming");
   // The prior stopped legs (Goldschmidt/Switzerland) and the prior lost Turkey/Hoskins step are NOT surfaced publicly.
   const allLegs = JSON.stringify(v.steps.map((s) => s.card));
   assert.ok(!/Goldschmidt/.test(allLegs) && !/Switzerland/.test(allLegs), "no stopped-lane legs in the public view model");

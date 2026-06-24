@@ -8,23 +8,25 @@ import { loadMoonshotLane } from "./moonshot/moonshot-lane.ts";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 
-test("Lane A settled WON: core record 10-2-0-0, exposure $0, bankroll + crown unchanged", () => {
+test("Lane A settled WON: core record 12-2-0-0, exposure $0, bankroll + crown unchanged", () => {
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.deepEqual(p.record, { wins: 10, losses: 2, voids: 0, pending: 0 }, "record 10-2-0-0 after Lane A WON");
+  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 }, "record 12-2-0-0 after Lane A WON");
   assert.equal(p.openExposure, 0, "core exposure released to $0 (both lanes settled WON)");
   assert.equal(p.totalOpenExposure, 0, "total exposure $0");
   assert.equal(p.currentBankroll, 10176.17, "bankroll unchanged (won step rolls)");
   assert.equal(p.crownBankroll, 10376.17, "crown untouched");
 });
 
-test("Lane A artifact: all 3 steps settled WON (Egypt + Algeria), lane advanced", () => {
+test("Lane A artifact: all 4 steps settled WON (Egypt + Algeria + Croatia), lane advanced", () => {
   const d = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json"));
   const a = d.run.laneA;
   assert.equal(a.laneStatus, "advanced", "Lane A advanced");
   const settledWon = a.steps.filter((s) => s.status === "settled" && s.result === "won").length;
-  assert.equal(settledWon, 3, "all 3 Lane A steps settled WON");
+  assert.equal(settledWon, 4, "all 4 Lane A steps settled WON (Step 4 = June 23 Croatia + COL/DRC)");
   const algeria = a.steps.flatMap((s) => s.legs ?? []).find((l) => /Algeria/.test(l.matchup ?? ""));
   assert.ok(algeria && algeria.settlementStatus === "hit", "Algeria leg graded HIT from official final");
+  const croatia = a.steps.flatMap((s) => s.legs ?? []).find((l) => /Croatia/.test(l.matchup ?? ""));
+  assert.ok(croatia && croatia.settlementStatus === "hit", "Croatia leg graded HIT from official June 23 final");
 });
 
 test("both lanes show 'awaiting next qualified card' once cleared (no stale pending, no exposure)", () => {

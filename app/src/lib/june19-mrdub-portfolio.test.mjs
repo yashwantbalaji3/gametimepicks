@@ -19,7 +19,7 @@ test("portfolio math after June 19 settlement + cross-slate resume: bankroll, HW
   // Both lanes settled WON → both seeds released; no open exposure.
   assert.equal(portfolio.openExposure, 0);
   assert.equal(portfolio.roiMultiple, 100.76);
-  assert.deepEqual(portfolio.record, { wins: 10, losses: 2, voids: 0, pending: 0 });
+  assert.deepEqual(portfolio.record, { wins: 12, losses: 2, voids: 0, pending: 0 });
   // Reconciliation: realized paperProfit still === settledProfit (rolled wins add no realized P/L).
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
   assert.equal(sum, portfolio.settledProfit, "no double-counting — settled profit reconciles");

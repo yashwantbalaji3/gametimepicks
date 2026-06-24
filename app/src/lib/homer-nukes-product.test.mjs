@@ -61,7 +61,7 @@ test("portfolio analytics: Bank Builder carries the 10-2 record + ranks #1; WC S
   const a = buildPortfolioAllocation(root, NOW, DATE);
   const bb = a.products.find((p) => p.key === "bank-builder");
   const wc = a.products.find((p) => p.key === "world-cup-specials");
-  assert.deepEqual(bb.record, { wins: 10, losses: 2, pushes: 0 });
+  assert.deepEqual(bb.record, { wins: 12, losses: 2, pushes: 0 });
   assert.ok(bb.winRate != null && bb.winRate > 0.8);
   assert.equal(bb.rank, 1);
   assert.equal(wc.dailyAllocation, WC_SPECIALS_DAILY_ALLOCATION);

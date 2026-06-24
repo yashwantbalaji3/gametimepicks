@@ -13,13 +13,13 @@ const NOW = "2026-06-23T10:00:00Z";
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 
-test("rung math from the active ladder artifact: Lane A → Step 4 ($1,464.71 → $3,500), Lane B → Step 2 ($277.11 → $700)", () => {
+test("rung math from the active ladder artifact (post June-23 settlement): Lane A → Step 5 ($3,502.57 → $10,000), Lane B → Step 3 ($702.45 → $1,400)", () => {
   const { laneA, laneB } = readLaneRungs(root);
   assert.ok(laneA && laneB, "both rungs resolved");
-  assert.equal(laneA.nextStep, 4); assert.equal(laneA.clearedSteps, 3);
-  assert.equal(laneA.rolledStake, 1464.71); assert.equal(laneA.targetReturn, 3500);
-  assert.equal(laneB.nextStep, 2); assert.equal(laneB.clearedSteps, 1);
-  assert.equal(laneB.rolledStake, 277.11); assert.equal(laneB.targetReturn, 700);
+  assert.equal(laneA.nextStep, 5); assert.equal(laneA.clearedSteps, 4);
+  assert.equal(laneA.rolledStake, 3502.57); assert.equal(laneA.targetReturn, 10000);
+  assert.equal(laneB.nextStep, 3); assert.equal(laneB.clearedSteps, 2);
+  assert.equal(laneB.rolledStake, 702.45); assert.equal(laneB.targetReturn, 1400);
 });
 
 test("Lane A Step 4 + Lane B Step 2: safest 2-leg cards that reach the rung target, max 1/game, reconcile", () => {
@@ -41,14 +41,14 @@ test("Lane A Step 4 + Lane B Step 2: safest 2-leg cards that reach the rung targ
   assert.equal(new Set([...a.legs, ...b.legs].map((l) => l.id)).size, 4, "Lane A + Lane B legs are distinct");
 });
 
-test("persisted daily portfolio: Lane A active Step 4, Lane B active Step 2, BB exposure $200, available $9,926.17", () => {
+test("persisted daily portfolio (June 24, post-settlement): Lane A awaiting Step 5, Lane B awaiting Step 3, $0 open exposure (no qualified card yet)", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const a = bb.find((l) => l.lane === "A"), b = bb.find((l) => l.lane === "B");
-  assert.equal(a.step, 4); assert.equal(a.clearedSteps, 3); assert.equal(a.status, "active"); assert.equal(a.exposure, 100);
-  assert.equal(b.step, 2); assert.equal(b.clearedSteps, 1); assert.equal(b.status, "active"); assert.equal(b.exposure, 100);
-  assert.equal(dp.products.bankBuilder.exposure, 200, "BB exposure $200 (2 × $100 seed, not the rolled balance)");
-  assert.equal(dp.openExposure, 250); assert.equal(dp.availableBankroll, 9926.17);
+  assert.equal(a.step, 5); assert.equal(a.clearedSteps, 4); assert.equal(a.status, "awaiting");
+  assert.equal(b.step, 3); assert.equal(b.clearedSteps, 2); assert.equal(b.status, "awaiting");
+  assert.equal(dp.products.bankBuilder.exposure, 0, "BB exposure $0 (both lanes awaiting their next qualified card)");
+  assert.equal(dp.openExposure, 0); assert.equal(dp.availableBankroll, 10176.17);
   assert.equal(dp.activeBankroll, 10176.17); assert.equal(dp.crownBankroll, 10376.17);
 });
 
