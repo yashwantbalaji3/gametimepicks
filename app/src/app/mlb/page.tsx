@@ -33,6 +33,7 @@ import { detailHrefForTeams } from "@/lib/game-detail";
 import path from "node:path";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
+import DeferUntilVisible from "@/components/defer-until-visible";
 import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
 import { loadMlbPropsBoard } from "@/lib/mlb/mlb-props";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
@@ -308,8 +309,12 @@ export default function MlbLandingPage() {
         <MlbFlagshipSections homer={homerBoard} props={mlbProps} games={flagshipGames} />
       </div>
 
+      {/* Legacy sport shell (Overview / Projections / Player Props / Results …) is heavy and below the
+          fold — defer its render until the reader scrolls toward it so the flagship sections stay fast. */}
       <div className="mt-6">
-        <SportShell tabs={tabs} />
+        <DeferUntilVisible minHeight={520} label="Loading full MLB board…">
+          <SportShell tabs={tabs} />
+        </DeferUntilVisible>
       </div>
     </div>
   );

@@ -58,7 +58,7 @@ function GameCard({ m }: { m: GameModel }) {
   const t = firstPitch(m.game.commenceTime);
   return (
     <div className="rounded-[12px] overflow-hidden" style={{ background: "rgba(12,8,6,0.5)", border: "1px solid var(--vault-rule)" }}>
-      <button onClick={() => setOpen((v) => !v)} aria-expanded={open} className="w-full px-3.5 py-3 flex items-center gap-3 text-left" style={{ cursor: "pointer" }}>
+      <button onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-label={`${open ? "Collapse" : "Expand"} ${m.game.matchup} details`} className="w-full px-3.5 py-3 flex items-center gap-3 text-left" style={{ cursor: "pointer" }}>
         <span className="flex items-center gap-1.5 shrink-0">
           {m.awayAbbr ? <TeamLogo team={m.awayAbbr} sport="mlb" size="md" /> : null}
           <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>@</span>
