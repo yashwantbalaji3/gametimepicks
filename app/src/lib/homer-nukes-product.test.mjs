@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { loadHomerNukes, HOMER_NUKES_DAILY_ALLOCATION, HOMER_NUKES_STAKE, HOMER_NUKES_PICK_COUNT } from "./mlb/homer-nukes.ts";
+import { loadHomerNukes, HOMER_NUKES_DAILY_ALLOCATION, HOMER_NUKES_STAKE, HOMER_NUKES_PICK_COUNT, HOMER_NUKES_LANE_STAKE, HOMER_NUKES_LEGS_PER_LANE, HOMER_NUKES_LANE_COUNT } from "./mlb/homer-nukes.ts";
 import { buildPortfolioAllocation, WC_SPECIALS_DAILY_ALLOCATION } from "./mr-dub/product-allocation.ts";
 
 const read = (p) => fs.readFileSync(p, "utf8");
@@ -19,10 +19,13 @@ const DATE = "2026-06-23";
 const NOW = "2026-06-23T10:00:00Z";
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 
-test("Homer Nukes is ONE daily 5-leg parlay at a flat $20 stake", () => {
-  assert.equal(HOMER_NUKES_PICK_COUNT, 5);
-  assert.equal(HOMER_NUKES_STAKE, 20);
-  assert.equal(HOMER_NUKES_DAILY_ALLOCATION, 20, "flat $20/day (one parlay, not 5×$20)");
+test("Homer Nukes V2: two $10 lanes × 3 legs each ($20/day total)", () => {
+  assert.equal(HOMER_NUKES_LEGS_PER_LANE, 3);
+  assert.equal(HOMER_NUKES_LANE_COUNT, 2);
+  assert.equal(HOMER_NUKES_LANE_STAKE, 10);
+  assert.equal(HOMER_NUKES_PICK_COUNT, 6, "6 total legs (2 lanes × 3)");
+  assert.equal(HOMER_NUKES_STAKE, 20, "$20/day total (2 lanes × $10)");
+  assert.equal(HOMER_NUKES_DAILY_ALLOCATION, 20);
 });
 
 test("Homer Nukes is HONEST data-gated when no board for the date (no parlay, no fabrication)", () => {
@@ -32,18 +35,23 @@ test("Homer Nukes is HONEST data-gated when no board for the date (no parlay, no
   assert.ok(b.note && b.note.length > 0);
 });
 
-test("Homer Nukes LIVE for the ingested slate — a single 5-leg parlay, odds reconcile, one per game", () => {
+test("Homer Nukes LIVE for the ingested slate — up to two $10/3-leg lanes, unique legs, odds reconcile, one per game", () => {
   const b = loadHomerNukes(root, DATE);
   assert.equal(b.available, true);
-  assert.ok(b.parlay, "a parlay is built");
-  assert.equal(b.parlay.legs.length, 5, "exactly 5 legs");
-  assert.equal(b.parlay.stake, 20, "flat $20 stake");
-  assert.equal(new Set(b.parlay.legs.map((l) => l.gameId)).size, 5, "max one leg per game");
-  // Combined odds reconcile from the leg decimals.
-  const combinedDecimal = b.parlay.legs.reduce((d, l) => d * dec(l.odds), 1);
-  assert.ok(Math.abs(b.parlay.combinedDecimal - combinedDecimal) < 0.01, "combined decimal reconciles");
-  assert.ok(Math.abs(b.parlay.projectedReturn - 20 * combinedDecimal) < 0.5, "projected return = $20 × combined");
-  for (const l of b.parlay.legs) assert.ok(l.provider && typeof l.odds === "number", "every leg is odds-backed");
+  assert.ok(b.lanes.length >= 1 && b.lanes.length <= HOMER_NUKES_LANE_COUNT, "1-2 lanes");
+  assert.ok(b.parlay, "Lane A surfaced as parlay (backward-compat)");
+  const allLegIds = new Set();
+  for (const lane of b.lanes) {
+    assert.equal(lane.legs.length, HOMER_NUKES_LEGS_PER_LANE, "3 legs per lane");
+    assert.equal(lane.stake, HOMER_NUKES_LANE_STAKE, "$10 per lane");
+    assert.equal(new Set(lane.legs.map((l) => l.gameId)).size, lane.legs.length, "max one leg per game within a lane");
+    const combinedDecimal = lane.legs.reduce((d, l) => d * dec(l.odds), 1);
+    assert.ok(Math.abs(lane.combinedDecimal - combinedDecimal) < 0.01, "combined decimal reconciles");
+    assert.ok(Math.abs(lane.projectedReturn - HOMER_NUKES_LANE_STAKE * combinedDecimal) < 0.5, "projected return = $10 × combined");
+    for (const l of lane.legs) { assert.ok(l.provider && typeof l.odds === "number", "every leg is odds-backed"); allLegIds.add(l.id); }
+  }
+  const totalLegs = b.lanes.reduce((n, l) => n + l.legs.length, 0);
+  assert.equal(allLegIds.size, totalLegs, "no leg duplicated across lanes");
 });
 
 test("allocation tracks exactly FOUR products (Diamond Specials removed); Homer Nukes = $20", () => {

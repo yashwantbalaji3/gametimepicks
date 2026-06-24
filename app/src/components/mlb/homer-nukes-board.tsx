@@ -16,7 +16,8 @@ import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import { homerModelInputStatus } from "@/lib/mlb/homer-score";
 import { homerTierFromProb, tierMeta } from "@/lib/mlb/confidence";
-import type { HomerNukesResult, HomerNukePick } from "@/lib/mlb/homer-nukes";
+import type { HomerNukesResult, HomerNukePick, HomerNukesParlay } from "@/lib/mlb/homer-nukes";
+import { HOMER_NUKES_LANE_STAKE } from "@/lib/mlb/homer-nukes";
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const american = (a: number) => `${a > 0 ? "+" : ""}${a}`;
@@ -56,58 +57,16 @@ function TierChip({ prob }: { prob: number }) {
   );
 }
 
-export default function HomerNukesBoard({ board }: { board: HomerNukesResult }) {
-  if (!board.available || !board.parlay) {
-    return (
-      <div className="rounded-[14px] px-5 py-10 text-center" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
-        <div aria-hidden style={{ fontSize: 34 }}>💣⚾</div>
-        <p className="mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>Today&rsquo;s Homer Nukes parlay isn&rsquo;t posted yet</p>
-        <p className="mx-auto mt-1.5 max-w-md text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{board.note}</p>
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-          <Link href="/mlb" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>MLB board</Link>
-          <Link href="/mr-dub" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Mr. Dub portfolio →</Link>
-        </div>
-      </div>
-    );
-  }
-
-  const p = board.parlay;
-  const model = homerModelInputStatus();
+/** One Homer Nukes lane: $10 / 3-leg HR parlay with per-leg portraits + team logos. */
+function LaneBlock({ lane }: { lane: HomerNukesParlay }) {
   return (
-    <div className="rounded-[14px] overflow-hidden flex flex-col" style={{ background: "rgba(12,8,6,0.5)", border: "1px solid var(--lava-border-strong)", borderLeft: "3px solid var(--gtp-bank-heat)" }}>
-      {/* Hero */}
-      <div className="px-4 py-3.5 flex flex-col gap-3" style={{ borderBottom: "1px solid var(--vault-rule)", background: "radial-gradient(120% 140% at 100% 0%, rgba(225,29,42,0.12) 0%, transparent 55%)" }}>
-        <div className="flex items-start justify-between gap-2 flex-wrap">
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>$20 Daily Homer Parlay</span>
-            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-              {fmtDate(board.date)} · {board.slateGames}-game slate · {p.legs.length} legs
-            </span>
-          </div>
-          <ConfidenceMeter level={board.confidence} />
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <HeroStat label="Stake" value={money(p.stake)} accent="var(--vault-gold-bright)" />
-          <HeroStat label="Combined odds" value={american(p.combinedOdds)} accent="var(--gtp-bank-heat)" />
-          <HeroStat label="Potential return" value={money(p.projectedReturn)} accent="var(--vault-success)" />
-          <HeroStat label="Implied win %" value={pct1(p.impliedProbability)} />
-        </div>
-        {p.providers.length ? <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Sportsbook sources: {p.providers.join(" · ")}</span> : null}
+    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.4)" }}>
+      <div className="px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap" style={{ borderBottom: "1px solid var(--vault-rule)", background: "radial-gradient(120% 140% at 100% 0%, rgba(225,29,42,0.10) 0%, transparent 55%)" }}>
+        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 800 }}>Lane {lane.lane} · {money(lane.stake)} · {lane.legs.length} legs</span>
+        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{american(lane.combinedOdds)} · <span style={{ color: "var(--vault-success)" }}>{money(lane.projectedReturn)}</span> · {pct1(lane.impliedProbability)} all-hit</span>
       </div>
-
-      {/* Homer Score model status — honest Partial Model until Statcast inputs are wired. */}
-      <div className="px-4 py-2 flex flex-wrap items-center gap-x-2 gap-y-1" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
-        <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, color: "#e7b15a", background: "rgba(231,177,90,0.12)", border: "1px solid color-mix(in srgb, #e7b15a 35%, transparent)" }}>
-          Homer Score · Partial Model
-        </span>
-        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-          ranking by de-vigged market probability · {model.live}/{model.total} advanced inputs live ({model.pending.join(" · ")} — pending Statcast)
-        </span>
-      </div>
-
-      {/* The 5 ranked legs */}
       <ol className="flex flex-col list-none">
-        {p.legs.map((l, i) => {
+        {lane.legs.map((l, i) => {
           const conn = l.homeAway === "home" ? "vs" : l.homeAway === "away" ? "@" : "·";
           return (
             <li key={l.id} className="px-4 py-2.5 flex items-center gap-3 min-w-0" style={{ borderTop: i ? "1px solid var(--vault-rule)" : "none" }}>
@@ -122,7 +81,7 @@ export default function HomerNukesBoard({ board }: { board: HomerNukesResult }) 
                   {l.opponentAbbr ? <span className="inline-flex items-center gap-1 shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{conn}<TeamLogo team={l.opponentAbbr} sport="mlb" size="sm" /></span> : null}
                 </span>
                 <span className="block font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>To hit a HR · {l.matchup}</span>
-                <span className="block truncate" style={{ color: "var(--vault-text-mute)", fontSize: 9.5 }}>Shortest HR price in this game · {Math.round(l.modelProbability * 100)}% implied</span>
+                <span className="block truncate" style={{ color: "var(--vault-text-mute)", fontSize: 9.5 }}>{Math.round(l.modelProbability * 100)}% implied to homer</span>
               </span>
               <span className="shrink-0 text-right flex flex-col items-end gap-1">
                 <span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 12.5, background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-rule)" }}>{american(l.odds)}</span>
@@ -132,12 +91,65 @@ export default function HomerNukesBoard({ board }: { board: HomerNukesResult }) 
           );
         })}
       </ol>
+      <div className="px-4 py-2 flex items-center justify-between gap-2 flex-wrap" style={{ borderTop: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
+        <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{money(lane.stake)} <span style={{ color: "var(--vault-text-faint)" }}>→</span> <span style={{ color: "var(--vault-success)" }}>{money(lane.projectedReturn)}</span></span>
+        <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>all {lane.legs.length} must homer · paper-only</span>
+      </div>
+    </div>
+  );
+}
+
+export default function HomerNukesBoard({ board }: { board: HomerNukesResult }) {
+  if (!board.available || !board.lanes.length) {
+    return (
+      <div className="rounded-[14px] px-5 py-10 text-center" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div aria-hidden style={{ fontSize: 34 }}>💣⚾</div>
+        <p className="mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>Today&rsquo;s Homer Nukes parlay isn&rsquo;t posted yet</p>
+        <p className="mx-auto mt-1.5 max-w-md text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{board.note}</p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          <Link href="/mlb" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>MLB board</Link>
+          <Link href="/mr-dub" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Mr. Dub portfolio →</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const model = homerModelInputStatus();
+  return (
+    <div className="rounded-[14px] overflow-hidden flex flex-col" style={{ background: "rgba(12,8,6,0.5)", border: "1px solid var(--lava-border-strong)", borderLeft: "3px solid var(--gtp-bank-heat)" }}>
+      {/* Hero */}
+      <div className="px-4 py-3.5 flex flex-col gap-3" style={{ borderBottom: "1px solid var(--vault-rule)", background: "radial-gradient(120% 140% at 100% 0%, rgba(225,29,42,0.12) 0%, transparent 55%)" }}>
+        <div className="flex items-start justify-between gap-2 flex-wrap">
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>Daily Homer Nukes · two ${HOMER_NUKES_LANE_STAKE} lanes</span>
+            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+              {fmtDate(board.date)} · {board.slateGames}-game slate · {board.lanes.length} lanes × {board.lanes[0]?.legs.length ?? 3} legs · {money(board.stake)} total
+            </span>
+          </div>
+          <ConfidenceMeter level={board.confidence} />
+        </div>
+      </div>
+
+      {/* Homer Score model status — honest Partial Model until Statcast inputs are wired. */}
+      <div className="px-4 py-2 flex flex-wrap items-center gap-x-2 gap-y-1" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+        <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, color: "#e7b15a", background: "rgba(231,177,90,0.12)", border: "1px solid color-mix(in srgb, #e7b15a 35%, transparent)" }}>
+          Homer Score · Partial Model
+        </span>
+        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+          ranking by de-vigged market probability · {model.live}/{model.total} advanced inputs live ({model.pending.join(" · ")} — pending Statcast)
+        </span>
+      </div>
+
+      {/* The two independent lanes */}
+      <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {board.lanes.map((lane) => <LaneBlock key={lane.lane ?? lane.combinedOdds} lane={lane} />)}
+      </div>
 
       {/* WHY — honest until Statcast model rationale is wired. */}
       <div className="px-4 py-2.5" style={{ borderTop: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.012)" }}>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Why these legs</span>
         <p className="mt-0.5 text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
-          The five shortest-priced anytime-HR bats on the slate (one per game), ranked by de-vigged market probability.
+          The highest-hit-rate anytime-HR bats on the slate (one per game), split into two independent ${HOMER_NUKES_LANE_STAKE} lanes ranked by de-vigged market probability.
           Model rationale (barrel rate vs HR-prone pitcher, park &amp; weather) is <span style={{ color: "#e7b15a" }}>pending advanced Statcast integration</span>.
         </p>
       </div>
@@ -145,9 +157,9 @@ export default function HomerNukesBoard({ board }: { board: HomerNukesResult }) 
       {/* Combined footer */}
       <div className="px-4 py-3 flex items-center justify-between gap-2 flex-wrap" style={{ borderTop: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
         <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
-          {money(p.stake)} <span style={{ color: "var(--vault-text-faint)" }}>→</span> <span style={{ color: "var(--vault-success)" }}>{money(p.projectedReturn)}</span> · {american(p.combinedOdds)}
+          {money(board.stake)} <span style={{ color: "var(--vault-text-faint)" }}>total across {board.lanes.length} lanes</span>
         </span>
-        <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>all 5 must homer · paper-only</span>
+        <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>each lane: all legs must homer · paper-only</span>
       </div>
 
       {/* Historical performance — honest scaffold; only real settled data ever fills it. */}
