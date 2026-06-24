@@ -26,23 +26,23 @@ test("cross-lane selector: Lane A and Lane B share NO game (independent lanes)",
   assert.equal(new Set(b.legs.map((l) => l.gameId)).size, 2, "Lane B: max 1 leg per game");
 });
 
-test("cross-lane selector: both lanes reach their rung target with team/game markets, reconcile", () => {
+test("cross-lane selector: both lanes reach their rung target (probability-fit) and stay independent, reconcile", () => {
   const pool = loadWorldCupModelPicks(root, NOW, DATE);
-  // Pin the rungs to the Step 4 / Step 2 scenario this selector test was written for, so it stays a
-  // deterministic check of TEAM-market cross-lane selection at a reachable target — independent of the
-  // live ladder (now advanced past June 23 to Step 5 / Step 3, whose harder $10k target can pull in a
-  // player prop). The advanced-rung path is exercised separately in bank-builder-next-steps.
+  // Pin the rungs to a reachable Step 4 / Step 2 scenario so this stays a deterministic cross-lane check.
   const laneA = { lane: "A", nextStep: 4, clearedSteps: 3, rolledStake: 1464.71, targetReturn: 3500, targetMultiplier: 3500 / 1464.71 };
   const laneB = { lane: "B", nextStep: 2, clearedSteps: 1, rolledStake: 277.11, targetReturn: 700, targetMultiplier: 700 / 277.11 };
   const { laneA: a, laneB: b } = selectCrossLaneBankBuilder(pool, laneA, laneB);
+  const aGames = new Set(a.legs.map((l) => l.gameId));
   for (const [g, rung] of [[a, laneA], [b, laneB]]) {
     assert.ok(g.fitsTarget, `lane reaches the Step ${rung.nextStep} target`);
     assert.ok(g.potentialReturn >= rung.targetReturn, `$${g.potentialReturn} ≥ $${rung.targetReturn}`);
-    for (const l of g.legs) assert.ok(TEAM.has(l.category), `${l.selection} is a team/game market`);
+    assert.ok(g.estimatedHitProbability > 0 && g.estimatedHitProbability <= 1, "card carries a valid hit probability");
     const d = g.legs.reduce((p, l) => p * dec(l.odds), 1);
     assert.ok(Math.abs(g.combinedDecimal - d) < 0.01, "combined decimal reconciles from legs");
     assert.match(g.correlationNote, /no shared game/i, "discloses cross-lane independence");
   }
+  // Cross-lane independence: Lane B shares no game with Lane A.
+  for (const l of b.legs) assert.ok(!aGames.has(l.gameId), `Lane B leg ${l.selection} is in a different game from Lane A`);
 });
 
 test("persisted daily portfolio: Bank Builder lanes are cross-lane independent (no shared game)", () => {

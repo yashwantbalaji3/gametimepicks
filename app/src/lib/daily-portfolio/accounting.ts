@@ -17,6 +17,7 @@ import path from "node:path";
 import { loadWorldCupModelPicks, buildDailyLaneCandidates, type LaneCandidate, type ModelPick } from "../world-cup/model-qualified-picks";
 import { readLaneRungs, selectSafestTargetFitCard, SEED_EXPOSURE, type GeneratedLane } from "./bank-builder-generation";
 import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
+import { loadMlbModelPicks } from "./mlb-model-picks";
 
 /** Activation cutoff — a lane cannot be newly activated if any leg kicks off within this many minutes. */
 export const ACTIVATION_CUTOFF_MIN = 30;
@@ -149,6 +150,10 @@ const round2 = (n: number) => Number(n.toFixed(2));
 export function buildPersistedDailyPortfolio(root: string, nowIso: string, date: string, generatedAt: string | null, activate: boolean): PersistedDailyPortfolio {
   const { activeBankroll, crownBankroll } = readMoney(root);
   const pool = loadWorldCupModelPicks(root, nowIso, date);
+  // Bank Builder draws from a CROSS-SPORT pool (World Cup + MLB model board) so the safest-card selector
+  // can reach a rung target with the safest available markets (e.g. an MLB batter-to-record-a-hit). Moonshot
+  // stays World-Cup-only (it is the WC longshot lane).
+  const bbPool = [...pool, ...loadMlbModelPicks(root, nowIso, date)];
   const nowMs = Date.parse(nowIso);
   const lanes: PortfolioLane[] = [];
 
@@ -157,7 +162,7 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   const rungs = readLaneRungs(root);
   const usedBB = new Set<string>();
   if (rungs.laneA && rungs.laneB) {
-    const { laneA, laneB } = selectCrossLaneBankBuilder(pool, rungs.laneA, rungs.laneB);
+    const { laneA, laneB } = selectCrossLaneBankBuilder(bbPool, rungs.laneA, rungs.laneB);
     for (const g of [laneA, laneB]) {
       g.legs.forEach((l) => usedBB.add(l.id));
       const elig = bbEligibility(g, nowMs);

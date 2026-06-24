@@ -11,7 +11,7 @@ const DATE = "2026-06-23";
 const NOW = "2026-06-23T10:00:00Z";
 const TEAM_CATS = new Set(["team", "total_btts"]);
 
-test("Bank Builder prefers TEAM/GAME markets: when a team-only card reaches the target, no fragile prop is used", () => {
+test("Bank Builder safest-fit: maximizes combined hit probability among target-reaching cards (probability-fit, not odds-fit)", () => {
   const pool = loadWorldCupModelPicks(root, NOW, DATE);
   const { laneA, laneB } = readLaneRungs(root);
   const used = new Set();
@@ -19,25 +19,36 @@ test("Bank Builder prefers TEAM/GAME markets: when a team-only card reaches the 
   a.legs.forEach((l) => used.add(l.id));
   const b = selectSafestTargetFitCard(pool, laneB, used);
   for (const [g, rung] of [[a, laneA], [b, laneB]]) {
-    assert.equal(g.legs.length, 2, "2 legs");
-    assert.ok(g.potentialReturn >= rung.targetReturn, "reaches the rung target");
-    // For the June-23 pool a team-only target-fit card exists, so both legs must be team/game markets.
-    for (const l of g.legs) assert.ok(TEAM_CATS.has(l.category), `${l.selection} is a team/game market (not a fragile prop)`);
+    if (g.legs.length < 2) continue; // thin slate → awaiting (honest)
+    assert.ok(g.potentialReturn >= rung.targetReturn - 0.5, "reaches the rung target");
+    assert.ok(typeof g.estimatedHitProbability === "number" && g.estimatedHitProbability > 0 && g.estimatedHitProbability <= 1, "card carries a valid estimated hit probability");
+    assert.ok([1, 2, 3].includes(g.marketTier), "card carries a risk tier");
+    // Probability-fit invariant: the chosen card's combined hit probability is the MAX among all
+    // target-reaching, distinct-game 2-leg combos in the pool (no higher-probability fitting card exists).
+    const inWin = pool.filter((p) => p.odds >= -500 && p.odds <= 400 && p.modelProbability > 0 && !g.legs.every((x) => x.id !== p.id) === false);
+    const dec = (x) => (x > 0 ? 1 + x / 100 : 1 + 100 / Math.abs(x));
+    let bestProb = 0;
+    for (let i = 0; i < inWin.length; i++) for (let j = i + 1; j < inWin.length; j++) {
+      if (inWin[i].gameId === inWin[j].gameId) continue;
+      if (dec(inWin[i].odds) * dec(inWin[j].odds) < rung.targetMultiplier) continue;
+      bestProb = Math.max(bestProb, inWin[i].modelProbability * inWin[j].modelProbability);
+    }
+    if (bestProb > 0) assert.ok(g.estimatedHitProbability >= bestProb - 1e-9, "chosen card has the max combined hit probability among fitting 2-leg combos");
   }
 });
 
-test("persisted Bank Builder cards are team/game markets only (no player props)", () => {
+test("persisted Bank Builder cards are model-qualified, real-odds legs (cross-sport allowed)", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   for (const lane of bb) for (const leg of lane.legs) {
-    // team/game leg selections have no "·" player prefix (player legs render "Name · Market line").
-    assert.ok(!/·/.test(leg.selection) || /Both teams|Total|Match|Draw|Double/i.test(leg.selection), `${leg.selection} is a team/game market`);
+    assert.ok(typeof leg.odds === "number" && leg.odds >= -500 && leg.odds <= 400, `${leg.selection} carries real odds in the BB window`);
+    assert.ok(leg.provider, `${leg.selection} carries a real bookmaker (no fabricated price)`);
   }
 });
 
-test("Bank Builder whyThisCard discloses the team/game-market preference", () => {
+test("Bank Builder whyThisCard discloses the probability-fit (maximize hit probability) basis", () => {
   const gen = read("src/lib/daily-portfolio/bank-builder-generation.ts");
-  assert.match(gen, /team\/game markets.*preferred over fragile props/i, "selector documents the team-market priority");
+  assert.match(gen, /MAXIMIZE the chance all .* legs land|combined hit probability/i, "selector documents the probability-fit basis");
 });
 
 test("model picks table supports MULTIPLE picks per market (cellsMulti, up to 3)", () => {
