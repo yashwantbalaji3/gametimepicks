@@ -1,0 +1,86 @@
+{
+  "date": "2026-06-24",
+  "apply": false,
+  "generatedAt": "2026-06-24T08:00:00Z",
+  "settled": [
+    {
+      "date": "2026-06-23",
+      "status": "official_bundle_present",
+      "note": "run settle-daily-portfolio.mjs --apply to apply the seed-model settlement"
+    }
+  ],
+  "generated": [
+    {
+      "product": "bank-builder",
+      "activeLanes": 0,
+      "awaiting": 2
+    },
+    {
+      "product": "moonshot",
+      "activeLanes": 0,
+      "awaiting": 2
+    },
+    {
+      "product": "wc-specials",
+      "cards": 5,
+      "fallback": "team_models"
+    },
+    {
+      "product": "homer-nukes",
+      "available": true,
+      "note": "derived at render from MLB HR props"
+    }
+  ],
+  "exposure": 0,
+  "warnings": [
+    "wc-specials: player props unavailable — using team models"
+  ],
+  "consistency": {
+    "canonicalMoneyFrozen": true,
+    "exposureMatchesActiveSeeds": true,
+    "availableEqualsActiveMinusExposure": true,
+    "noStaleProductCarriesExposure": true
+  },
+  "masterLedger": {
+    "aggregate": {
+      "bets": 9,
+      "wins": 2,
+      "losses": 7,
+      "stake": 1841.82,
+      "profit": 2363.2,
+      "exposure": 200,
+      "roi": 128.31,
+      "winRate": 22.22
+    },
+    "products": [
+      {
+        "id": "bank-builder",
+        "record": "2-0",
+        "roi": 141.42,
+        "exposure": 200,
+        "stale": false
+      },
+      {
+        "id": "moonshot",
+        "record": "0-2",
+        "roi": -100,
+        "exposure": 0,
+        "stale": true
+      },
+      {
+        "id": "wc-specials",
+        "record": "0-5",
+        "roi": -100,
+        "exposure": 0,
+        "stale": false
+      },
+      {
+        "id": "homer-nukes",
+        "record": "0-0",
+        "roi": 0,
+        "exposure": 0,
+        "stale": true
+      }
+    ]
+  }
+}
