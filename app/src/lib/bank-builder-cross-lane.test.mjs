@@ -5,6 +5,8 @@ import path from "node:path";
 import { readLaneRungs } from "./daily-portfolio/bank-builder-generation.ts";
 import { selectCrossLaneBankBuilder } from "./daily-portfolio/bank-builder-correlation-review.ts";
 import { loadWorldCupModelPicks } from "./world-cup/model-qualified-picks.ts";
+import { loadWorldCupTeamLegs } from "./daily-portfolio/wc-team-legs.ts";
+import { loadMlbModelPicks } from "./daily-portfolio/mlb-model-picks.ts";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const root = path.join(process.cwd(), "public", "data");
@@ -27,10 +29,12 @@ test("cross-lane selector: Lane A and Lane B share NO game (independent lanes)",
 });
 
 test("cross-lane selector: both lanes reach their rung target (probability-fit) and stay independent, reconcile", () => {
-  const pool = loadWorldCupModelPicks(root, NOW, DATE);
-  // Pin the rungs to a reachable Step 4 / Step 2 scenario so this stays a deterministic cross-lane check.
-  const laneA = { lane: "A", nextStep: 4, clearedSteps: 3, rolledStake: 1464.71, targetReturn: 3500, targetMultiplier: 3500 / 1464.71 };
-  const laneB = { lane: "B", nextStep: 2, clearedSteps: 1, rolledStake: 277.11, targetReturn: 700, targetMultiplier: 700 / 277.11 };
+  // Live cross-sport pool (soccer-first WC team legs + MLB fill) — the actual Bank Builder pool, which has
+  // enough independent games for both lanes to reach their targets without sharing a game.
+  const D = "2026-06-24", N = "2026-06-24T08:00:00Z";
+  const pool = [...loadWorldCupTeamLegs(root, N, D), ...loadMlbModelPicks(root, N, D)];
+  const laneA = { lane: "A", nextStep: 5, clearedSteps: 4, rolledStake: 3502.57, targetReturn: 10000, targetMultiplier: 10000 / 3502.57 };
+  const laneB = { lane: "B", nextStep: 3, clearedSteps: 2, rolledStake: 702.45, targetReturn: 1400, targetMultiplier: 1400 / 702.45 };
   const { laneA: a, laneB: b } = selectCrossLaneBankBuilder(pool, laneA, laneB);
   const aGames = new Set(a.legs.map((l) => l.gameId));
   for (const [g, rung] of [[a, laneA], [b, laneB]]) {

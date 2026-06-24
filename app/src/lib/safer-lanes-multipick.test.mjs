@@ -41,7 +41,7 @@ test("persisted Bank Builder cards are model-qualified, real-odds legs (cross-sp
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   for (const lane of bb) for (const leg of lane.legs) {
-    assert.ok(typeof leg.odds === "number" && leg.odds >= -500 && leg.odds <= 400, `${leg.selection} carries real odds in the BB window`);
+    assert.ok(typeof leg.odds === "number" && leg.odds >= -650 && leg.odds <= 400, `${leg.selection} carries real odds in the BB window`);
     assert.ok(leg.provider, `${leg.selection} carries a real bookmaker (no fabricated price)`);
   }
 });

@@ -18,13 +18,14 @@ import { loadWorldCupModelPicks, buildDailyLaneCandidates, type LaneCandidate, t
 import { readLaneRungs, selectSafestTargetFitCard, SEED_EXPOSURE, type GeneratedLane } from "./bank-builder-generation";
 import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
 import { loadMlbModelPicks } from "./mlb-model-picks";
+import { loadWorldCupTeamLegs } from "./wc-team-legs";
 
 /** Activation cutoff — a lane cannot be newly activated if any leg kicks off within this many minutes. */
 export const ACTIVATION_CUTOFF_MIN = 30;
 export const MOONSHOT_MAX_EXPOSURE = 50;
 
 export interface ActivationEligibility { eligible: boolean; reason: string }
-export interface PortfolioLaneLeg { id: string; matchup: string; market: string; selection: string; player: string | null; odds: number; provider: string | null; modelConfidence: number; kickoffEt: string; risk: string }
+export interface PortfolioLaneLeg { id: string; matchup: string; market: string; selection: string; player: string | null; odds: number; provider: string | null; modelConfidence: number; kickoffEt: string; risk: string; photoUrl?: string | null; teamLogo?: string | null }
 export interface PortfolioLane {
   id: string;
   product: "bank-builder" | "moonshot";
@@ -89,7 +90,7 @@ function whyThisCard(lane: LaneCandidate): string[] {
   return why;
 }
 
-const toLeg = (p: ModelPick): PortfolioLaneLeg => ({ id: p.id, matchup: p.matchup, market: p.marketLabel, selection: p.selection, player: p.player, odds: p.odds, provider: p.provider, modelConfidence: p.modelProbability, kickoffEt: p.kickoffEt, risk: p.risk });
+const toLeg = (p: ModelPick): PortfolioLaneLeg => ({ id: p.id, matchup: p.matchup, market: p.marketLabel, selection: p.selection, player: p.player, odds: p.odds, provider: p.provider, modelConfidence: p.modelProbability, kickoffEt: p.kickoffEt, risk: p.risk, photoUrl: p.playerPortrait ?? null, teamLogo: p.teamLogo ?? null });
 
 function toPortfolioLane(lane: LaneCandidate, status: PortfolioLane["status"], eligibility: ActivationEligibility): PortfolioLane {
   return {
@@ -150,10 +151,14 @@ const round2 = (n: number) => Number(n.toFixed(2));
 export function buildPersistedDailyPortfolio(root: string, nowIso: string, date: string, generatedAt: string | null, activate: boolean): PersistedDailyPortfolio {
   const { activeBankroll, crownBankroll } = readMoney(root);
   const pool = loadWorldCupModelPicks(root, nowIso, date);
-  // Bank Builder draws from a CROSS-SPORT pool (World Cup + MLB model board) so the safest-card selector
-  // can reach a rung target with the safest available markets (e.g. an MLB batter-to-record-a-hit). Moonshot
-  // stays World-Cup-only (it is the WC longshot lane).
-  const bbPool = [...pool, ...loadMlbModelPicks(root, nowIso, date)];
+  // Bank Builder draws from a SOCCER-FIRST cross-sport pool: the broad World Cup team-leg pool (real
+  // de-vigged moneyline favorites + totals for every game, e.g. Brazil moneyline) is PREFERRED; the model
+  // pool fills any game/market the outlook didn't cover; the MLB board is the last fill. The selector leans
+  // on the World Cup legs. Moonshot stays World-Cup-only (the WC longshot lane).
+  const wcTeam = loadWorldCupTeamLegs(root, nowIso, date);
+  const seenWc = new Set(wcTeam.map((p) => `${p.gameId}:${p.marketKey}`));
+  const wcFill = pool.filter((p) => !seenWc.has(`${p.gameId}:${p.marketKey}`));
+  const bbPool = [...wcTeam, ...wcFill, ...loadMlbModelPicks(root, nowIso, date)];
   const nowMs = Date.parse(nowIso);
   const lanes: PortfolioLane[] = [];
 

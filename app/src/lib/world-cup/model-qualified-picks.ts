@@ -43,6 +43,9 @@ export interface ModelPick {
   dataQuality: string;
   hitRateScore: number;    // higher = more likely (Bank Builder ranking)
   upsideScore: number;     // higher = more upside (Moonshot ranking)
+  teamLogo?: string | null;       // team/flag logo URL (team & total markets) for the card display
+  playerId?: number | null;       // MLB player id (player props) → headshot
+  playerPortrait?: string | null; // player headshot URL (player props)
 }
 
 export interface LaneCandidate {

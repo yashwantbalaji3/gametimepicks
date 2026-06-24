@@ -105,6 +105,9 @@ export function loadMlbModelPicks(root: string, nowIso: string, date: string): M
       dataQuality: typeof l.samples === "number" && l.samples >= 40 ? "A" : "B",
       hitRateScore: Math.round(modelProbability * 100),
       upsideScore: Math.round((dec(odds) - 1) * 25),
+      playerId: typeof l.playerId === "number" ? l.playerId : null,
+      playerPortrait: typeof l.playerId === "number" ? `https://midfield.mlbstatic.com/v1/people/${l.playerId}/spots/120` : null,
+      teamLogo: null,
     });
   }
   return out;

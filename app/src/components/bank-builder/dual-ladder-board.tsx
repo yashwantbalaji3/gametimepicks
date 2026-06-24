@@ -126,6 +126,7 @@ interface DailyBbLeg {
   provider?: string;
   modelConfidence?: number | null;
   kickoffEt?: string;
+  photoUrl?: string | null;
 }
 interface DailyBbStep {
   step: number;
@@ -157,6 +158,7 @@ function loadDailyBankBuilderLegs(): Record<string, DailyBbStep> {
         provider: l.provider as string | undefined,
         modelConfidence: (l.modelConfidence as number | null | undefined) ?? null,
         kickoffEt: l.kickoffEt as string | undefined,
+        photoUrl: (l.photoUrl as string | null | undefined) ?? null,
       }));
       out[`${laneId}:${step}`] = {
         step,
@@ -187,7 +189,7 @@ function DailyBbLegRow({ leg }: { leg: DailyBbLeg }) {
     <div className="flex items-start gap-2 py-2" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <span className="mt-0.5 flex shrink-0 items-center gap-0.5">
         {isPlayer ? (
-          <PlayerAvatar name={leg.player as string} size={18} />
+          <PlayerAvatar name={leg.player as string} photo={leg.photoUrl ?? null} size={18} />
         ) : selCode ? (
           <FlagBadge code={selCode} size="sm" ariaLabel={leg.selection} />
         ) : homeCode || awayCode ? (
