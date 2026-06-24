@@ -86,3 +86,26 @@ test("findPlayerLine: matches abbreviated API names by surname+initial, scoped t
   assert.equal(findPlayerLine(o, "Jhon Cordoba", 48)?.shotsOnTarget, 0); // match-scoped (not the 99 one)
   assert.equal(findPlayerLine(o, "Unknown Name", 47), null);
 });
+
+test("data quality: real API name variants resolve to the right player (settlement accuracy)", () => {
+  // API-Football abbreviates first names + uses accents; the leg names are full/unaccented. These are the
+  // exact collisions the settlement must get right (Perišić, Córdoba, Ronaldo, Kane, Fernandes).
+  const o = { date: "x", source: "test", matches: [], players: [
+    { player: "Cristiano Ronaldo", matchId: 45, goals: 2 },
+    { player: "B. Fernandes", matchId: 45, assists: 1 },
+    { player: "H. Kane", matchId: 46, goals: 0 },
+    { player: "M. Rashford", matchId: 46, goals: 0, assists: 0 },
+    { player: "I. Perišić", matchId: 47, assists: 0 },
+    { player: "Jhon Córdoba", matchId: 48, shotsOnTarget: 0 },
+    { player: "Jordan Córdoba", matchId: 48, shotsOnTarget: 1 }, // SAME surname + SAME initial, SAME match
+  ]};
+  assert.equal(findPlayerLine(o, "Cristiano Ronaldo", 45)?.goals, 2);    // exact
+  assert.equal(findPlayerLine(o, "Bruno Fernandes", 45)?.assists, 1);    // B. ↔ Bruno
+  assert.equal(findPlayerLine(o, "Harry Kane", 46)?.goals, 0);           // H. ↔ Harry
+  assert.equal(findPlayerLine(o, "Marcus Rashford", 46)?.assists, 0);    // M. ↔ Marcus
+  assert.equal(findPlayerLine(o, "Ivan Perisic", 47)?.assists, 0);       // accent + abbrev
+  // Full name exact-matches the accented entry even with another Córdoba present:
+  assert.equal(findPlayerLine(o, "Jhon Cordoba", 48)?.shotsOnTarget, 0);
+  // Abbreviated name matching BOTH (same surname + initial) → ambiguous → null (never grade wrong one):
+  assert.equal(findPlayerLine(o, "J. Cordoba", 48), null);
+});
