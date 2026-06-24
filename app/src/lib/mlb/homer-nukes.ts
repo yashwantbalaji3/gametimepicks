@@ -11,9 +11,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { computeHomerScore, homerInputsFromRow } from "./homer-score";
 
-export const HOMER_NUKES_PICK_COUNT = 5;          // legs in the daily parlay
-export const HOMER_NUKES_STAKE = 20;              // flat $20/day parlay stake
-export const HOMER_NUKES_DAILY_ALLOCATION = HOMER_NUKES_STAKE; // $20/day (one parlay)
+export const HOMER_NUKES_LEGS_PER_LANE = 3;       // V2: 3 unique legs per lane
+export const HOMER_NUKES_LANE_COUNT = 2;          // V2: two independent lanes (A + B)
+export const HOMER_NUKES_LANE_STAKE = 10;         // V2: $10 per lane
+export const HOMER_NUKES_PICK_COUNT = HOMER_NUKES_LEGS_PER_LANE * HOMER_NUKES_LANE_COUNT; // 6 total HR legs
+export const HOMER_NUKES_STAKE = HOMER_NUKES_LANE_STAKE * HOMER_NUKES_LANE_COUNT;         // $20/day total (2 × $10)
+export const HOMER_NUKES_DAILY_ALLOCATION = HOMER_NUKES_STAKE; // $20/day across both lanes
 
 export interface HomerNukePick {
   id: string;
@@ -40,10 +43,11 @@ export interface HomerNukePick {
 }
 
 export interface HomerNukesParlay {
-  legs: HomerNukePick[];      // the 5 home-run legs
+  lane?: "A" | "B";           // V2 lane label
+  legs: HomerNukePick[];      // the home-run legs (3 per lane in V2)
   combinedOdds: number;       // American odds of the parlay
   combinedDecimal: number;
-  stake: number;              // $20
+  stake: number;              // $10 per lane in V2
   projectedReturn: number;    // stake × combined decimal
   impliedProbability: number; // chance ALL legs hit (product of leg implied probs)
   providers: string[];        // distinct sportsbooks across the legs
@@ -52,10 +56,11 @@ export interface HomerNukesParlay {
 export interface HomerNukesResult {
   date: string;
   available: boolean;        // true only when real HR props are posted for the date
-  parlay: HomerNukesParlay | null;
+  parlay: HomerNukesParlay | null;  // backward-compat: Lane A
+  lanes: HomerNukesParlay[];        // V2: up to two independent $10 / 3-leg lanes (A + B)
   evaluated: number;         // how many HR props were evaluated
   slateGames: number;        // distinct games carrying anytime-HR markets (real slate size)
-  stake: number;             // the flat parlay stake ($20)
+  stake: number;             // total daily stake across lanes ($20 = 2 × $10)
   confidence: "low" | "medium" | "high";
   note: string;
 }
@@ -79,7 +84,7 @@ const MODEL_FLOOR = 0.08; // at least an 8% model HR probability to make the boa
  */
 export function loadHomerNukes(root: string, date: string): HomerNukesResult {
   const empty = (note: string): HomerNukesResult => ({
-    date, available: false, parlay: null, evaluated: 0, slateGames: 0, stake: HOMER_NUKES_STAKE, confidence: "low", note,
+    date, available: false, parlay: null, lanes: [], evaluated: 0, slateGames: 0, stake: HOMER_NUKES_STAKE, confidence: "low", note,
   });
 
   let raw: { date?: string; props?: Array<Record<string, any>>; markets?: Array<Record<string, any>> } | null = null;
@@ -143,25 +148,30 @@ export function loadHomerNukes(root: string, date: string): HomerNukesResult {
     if (c.gameId) seenGames.add(c.gameId);
     legs.push(c);
   }
-  if (legs.length < HOMER_NUKES_PICK_COUNT) return empty(`Only ${legs.length} anytime-HR legs cleared the board — a full 5-leg Homer Nukes parlay needs ${HOMER_NUKES_PICK_COUNT}. Awaiting a fuller slate.`);
+  if (legs.length < HOMER_NUKES_LEGS_PER_LANE) return empty(`Only ${legs.length} anytime-HR legs cleared the board — a Homer Nukes lane needs ${HOMER_NUKES_LEGS_PER_LANE}. Awaiting a fuller slate.`);
 
-  // Combine the 5 legs into ONE parlay.
-  const combinedDecimal = legs.reduce((d, l) => d * dec(l.odds), 1);
-  const impliedProbability = legs.reduce((p, l) => p * impliedProb(l.odds), 1);
-  const providers = [...new Set(legs.map((l) => l.provider).filter(Boolean) as string[])];
-  const parlay: HomerNukesParlay = {
-    legs, combinedOdds: decToAmerican(combinedDecimal), combinedDecimal: Number(combinedDecimal.toFixed(4)),
-    stake: HOMER_NUKES_STAKE, projectedReturn: Number((HOMER_NUKES_STAKE * combinedDecimal).toFixed(2)),
-    impliedProbability: Number(impliedProbability.toFixed(4)), providers,
+  // V2: split the highest-hit-rate legs into up to two independent $10 / 3-leg lanes (A + B).
+  const buildLane = (laneLegs: HomerNukePick[], lane: "A" | "B"): HomerNukesParlay => {
+    const combinedDecimal = laneLegs.reduce((d, l) => d * dec(l.odds), 1);
+    const impliedProbability = laneLegs.reduce((p, l) => p * impliedProb(l.odds), 1);
+    return {
+      lane, legs: laneLegs, combinedOdds: decToAmerican(combinedDecimal), combinedDecimal: Number(combinedDecimal.toFixed(4)),
+      stake: HOMER_NUKES_LANE_STAKE, projectedReturn: Number((HOMER_NUKES_LANE_STAKE * combinedDecimal).toFixed(2)),
+      impliedProbability: Number(impliedProbability.toFixed(4)),
+      providers: [...new Set(laneLegs.map((l) => l.provider).filter(Boolean) as string[])],
+    };
   };
-  // Confidence: more real signal (modeled legs / tighter implied prob) → higher. Without model inputs it
-  // reflects the parlay's market-implied hit probability honestly.
+  const lanes: HomerNukesParlay[] = [];
+  for (let i = 0; i + HOMER_NUKES_LEGS_PER_LANE <= legs.length && lanes.length < HOMER_NUKES_LANE_COUNT; i += HOMER_NUKES_LEGS_PER_LANE) {
+    lanes.push(buildLane(legs.slice(i, i + HOMER_NUKES_LEGS_PER_LANE), lanes.length === 0 ? "A" : "B"));
+  }
+  const parlay = lanes[0] ?? null; // backward-compat: Lane A
+  const bestImplied = Math.max(...lanes.map((l) => l.impliedProbability));
   const modeled = legs.some((l) => l.homerScore != null);
-  const confidence: HomerNukesResult["confidence"] = impliedProbability >= 0.02 ? "high" : impliedProbability >= 0.008 ? "medium" : "low";
+  const confidence: HomerNukesResult["confidence"] = bestImplied >= 0.05 ? "high" : bestImplied >= 0.02 ? "medium" : "low";
   return {
-    date, available: true, parlay, evaluated, slateGames: slateGameIds.size, stake: HOMER_NUKES_STAKE, confidence,
-    note: modeled
-      ? `Today's 5-leg home-run parlay, legs ranked by Homer Score. Flat $${HOMER_NUKES_STAKE} stake · paper-only.`
-      : `Today's 5-leg home-run parlay — legs are the likeliest anytime-HR by de-vigged market probability (Homer Score model inputs pending). Flat $${HOMER_NUKES_STAKE} stake · paper-only.`,
+    date, available: true, parlay, lanes, evaluated, slateGames: slateGameIds.size,
+    stake: HOMER_NUKES_LANE_STAKE * lanes.length, confidence,
+    note: `${lanes.length} independent Homer Nukes lane${lanes.length === 1 ? "" : "s"} — $${HOMER_NUKES_LANE_STAKE}/lane, ${HOMER_NUKES_LEGS_PER_LANE} legs each, ranked by ${modeled ? "Homer Score" : "de-vigged HR hit rate"}. Paper-only.`,
   };
 }

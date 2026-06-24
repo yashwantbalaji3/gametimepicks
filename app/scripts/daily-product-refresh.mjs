@@ -20,6 +20,7 @@ import { fileURLToPath } from "node:url";
 import { buildPersistedDailyPortfolio } from "../src/lib/daily-portfolio/accounting.ts";
 import { buildWorldCupSpecials } from "../src/lib/world-cup/world-cup-specials.ts";
 import { buildMasterLedger } from "../src/lib/mr-dub/master-ledger.ts";
+import { loadHomerNukes } from "../src/lib/mlb/homer-nukes.ts";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
@@ -58,9 +59,16 @@ const specials = buildWorldCupSpecials({ root: DATA, nowIso, date });
 report.generated.push({ product: "wc-specials", cards: specials.cards.length, fallback: specials.diagnostics.fallbackMode ?? null });
 if (specials.diagnostics.playerPropsUnavailable) report.warnings.push("wc-specials: player props unavailable — using team models");
 
-// 4. Homer Nukes (derived at render from the home-run-props artifact; reported, not regenerated here).
-const homer = readJson(path.join(DATA, "mlb", "home-run-props", `${date}.json`)) ?? readJson(path.join(DATA, "mlb", "homer-nukes-active.json"));
-report.generated.push({ product: "homer-nukes", available: !!homer, note: homer ? "derived at render from MLB HR props" : "no MLB HR props for date" });
+// 4. Homer Nukes V2 — two $10 / 3-leg lanes derived from the HR props. Persist the active lanes so the
+//    master ledger tracks the product (date + $20 exposure).
+const homer = loadHomerNukes(DATA, date);
+report.generated.push({ product: "homer-nukes", lanes: homer.lanes.length, stake: homer.stake, available: homer.available });
+if (apply && homer.available) {
+  fs.writeFileSync(path.join(DATA, "mlb", "homer-nukes-active.json"), JSON.stringify({
+    date, generatedAt: nowIso, stake: homer.stake, exposure: homer.stake, confidence: homer.confidence,
+    lanes: homer.lanes.map((l) => ({ lane: l.lane, stake: l.stake, combinedOdds: l.combinedOdds, projectedReturn: l.projectedReturn, impliedProbability: l.impliedProbability, legs: l.legs.map((g) => ({ player: g.player, playerId: g.playerId, photoUrl: g.photoUrl, team: g.teamAbbr, matchup: g.matchup, odds: g.odds, modelProbability: g.modelProbability })) })),
+  }, null, 2) + "\n");
+}
 
 // 5. Rebuild master ledger.
 const ledger = buildMasterLedger(DATA, nowIso, date);
