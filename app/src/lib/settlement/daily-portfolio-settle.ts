@@ -7,7 +7,26 @@
  * by exactly the lost SEEDS (won steps roll — they change the record + ladder rung, never the bankroll).
  */
 
+import { BANK_BUILDER_STEP_COUNT } from "../bank-builder-ladder";
+
 export type LaneResult = "won" | "lost" | "void" | "push" | "pending";
+
+/**
+ * Lane state transition for a settled rung, given how many rungs the lane had ALREADY cleared:
+ *   - "advance"  — a won step on a non-final rung → roll to the next rung (bankroll unchanged, record +1)
+ *   - "complete" — a won step that clears the FINAL rung → the ladder is finished. Banking the completed
+ *                  value is an OPERATOR-DEFINED step (dual-lane completion banking is not yet a tested
+ *                  money model), so the apply path records the completion + flags it rather than silently
+ *                  treating $10k as a normal "roll" (which would understate the bankroll).
+ *   - "stop"     — a lost step → the lane stops, drops its $100 seed (bankroll −$100)
+ *   - "hold"     — void/push (seed returned) or pending (not final) → no rung change
+ */
+export type LaneTransition = "advance" | "complete" | "stop" | "hold";
+export function classifyLaneTransition(clearedBefore: number, result: LaneResult, stepCount = BANK_BUILDER_STEP_COUNT): LaneTransition {
+  if (result === "won") return clearedBefore + 1 >= stepCount ? "complete" : "advance";
+  if (result === "lost") return "stop";
+  return "hold"; // void / push / pending
+}
 
 export interface OfficialFinal {
   matchId?: number;

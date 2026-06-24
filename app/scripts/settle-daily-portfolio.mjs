@@ -26,7 +26,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { gradeLaneCard, seedModelOutcome } from "../src/lib/settlement/daily-portfolio-settle.ts";
+import { gradeLaneCard, seedModelOutcome, classifyLaneTransition } from "../src/lib/settlement/daily-portfolio-settle.ts";
 
 const args = process.argv.slice(2);
 const has = (f) => args.includes(f);
@@ -94,6 +94,7 @@ const before = { bankroll: round2(portfolio.currentBankroll), crown: round2(port
 const ladderRun = ladderDoc.run ?? ladderDoc;
 const laneKeyFor = (letter) => (letter === "A" ? "laneA" : "laneB");
 const awaiting = portfolio.awaitingCards ?? [];
+const completions = [];
 let wonCount = 0, lostCount = 0;
 
 for (const p of plans) {
@@ -119,11 +120,24 @@ for (const p of plans) {
     lane.nextStepStake = p.payout;
     if (lane.laneStatus !== "stopped") lane.laneStatus = "advanced";
     wonCount++;
-    // awaitingCards: this lane now cleared `stepNo`, rolling to the next card's stake.
+    // Classify the transition: a win on the FINAL rung COMPLETES the ladder. Dual-lane completion banking
+    // is not yet a tested money model, so we record the completion + flag it for the operator rather than
+    // silently rolling ~$10k (which would understate the bankroll). The win still counts in the record.
+    const clearedBefore = (lane.steps ?? []).filter((s) => s.status === "settled" && s.result === "won" && s.step !== stepNo).length;
+    const transition = classifyLaneTransition(clearedBefore, "won");
     const a = awaiting.find((c) => c.laneId === `lane-${letter.toLowerCase()}`);
-    const note = `Lane ${letter} Step ${stepNo} cleared (official) — $${fmt(p.laneCard.stake)} rolls to $${fmt(p.payout)}, awaiting the next qualified card.`;
-    if (a) { a.step = stepNo; a.kind = "awaiting_next_card"; a.note = note; }
-    else awaiting.push({ laneId: `lane-${letter.toLowerCase()}`, step: stepNo, kind: "awaiting_next_card", note });
+    if (transition === "complete") {
+      lane.laneStatus = "completed";
+      const note = `Lane ${letter} COMPLETED the ladder at Step ${stepNo} (official) — final value $${fmt(p.payout)}. Completion banking is OPERATOR-GATED (dual-lane banking is not an auto-applied money model).`;
+      if (a) { a.step = stepNo; a.kind = "ladder_completed"; a.note = note; }
+      else awaiting.push({ laneId: `lane-${letter.toLowerCase()}`, step: stepNo, kind: "ladder_completed", note });
+      completions.push({ laneId: `lane-${letter.toLowerCase()}`, lane: letter, step: stepNo, finalValue: p.payout, slateDate: date });
+      console.log(`     ⚑ Lane ${letter} COMPLETED the ladder ($${fmt(p.payout)}) — banking is operator-gated, bankroll NOT auto-moved.`);
+    } else {
+      const note = `Lane ${letter} Step ${stepNo} cleared (official) — $${fmt(p.laneCard.stake)} rolls to $${fmt(p.payout)}, awaiting the next qualified card.`;
+      if (a) { a.step = stepNo; a.kind = "awaiting_next_card"; a.note = note; }
+      else awaiting.push({ laneId: `lane-${letter.toLowerCase()}`, step: stepNo, kind: "awaiting_next_card", note });
+    }
   } else if (p.status === "lost") {
     lane.steps[idx] = {
       step: stepNo, status: "settled", result: "lost", slateDate: date,
@@ -149,6 +163,11 @@ portfolio.currentBankroll = outcome.bankroll; // ONLY lost seeds move the bankro
 portfolio.openExposure = 0;
 if (typeof portfolio.totalOpenExposure === "number") portfolio.totalOpenExposure = 0;
 portfolio.awaitingCards = awaiting;
+// Lane completions are recorded as a pending-operator flag — NEVER auto-banked into bankroll/crown.
+if (completions.length) {
+  portfolio.pendingLaneCompletions = [...(portfolio.pendingLaneCompletions ?? []), ...completions];
+  console.error(`\n[settle] ⚑ ${completions.length} lane(s) COMPLETED the ladder — completion banking is operator-gated and was NOT applied to bankroll/crown. Flagged in portfolio.pendingLaneCompletions.`);
+}
 
 // ---- HARD GUARDS (defence-in-depth on top of the lib invariants) ----
 if (portfolio.crownBankroll !== before.crown) fail(`ABORT: crown changed ${before.crown} → ${portfolio.crownBankroll} (crown is immutable)`);
