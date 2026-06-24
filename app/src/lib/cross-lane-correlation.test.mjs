@@ -12,6 +12,20 @@ import path from "node:path";
 
 import { scoreCrossLaneCorrelation } from "./daily-portfolio/cross-lane-correlation.ts";
 import { buildSpecialsLedger, SPECIALS_STAKE_PER_CARD, SPECIALS_DAILY_ALLOCATION } from "./world-cup/specials-ledger.ts";
+import { readLaneRungs } from "./daily-portfolio/bank-builder-generation.ts";
+import { selectCrossLaneBankBuilder } from "./daily-portfolio/bank-builder-correlation-review.ts";
+import { loadWorldCupTeamLegs } from "./daily-portfolio/wc-team-legs.ts";
+import { loadMlbModelPicks } from "./daily-portfolio/mlb-model-picks.ts";
+
+/** The cross-lane SELECTOR output (the independence guarantee), independent of any operator card lock. */
+function selectorLanes(rootDir) {
+  const D = "2026-06-24", N = "2026-06-24T08:00:00Z";
+  const pool = [...loadWorldCupTeamLegs(rootDir, N, D), ...loadMlbModelPicks(rootDir, N, D)];
+  const rungs = readLaneRungs(rootDir);
+  const { laneA, laneB } = selectCrossLaneBankBuilder(pool, rungs.laneA, rungs.laneB);
+  const map = (legs) => legs.map((l) => ({ matchup: l.matchup, market: l.marketLabel, selection: l.selection, player: l.player ?? null }));
+  return { A: map(laneA.legs), B: map(laneB.legs) };
+}
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const root = path.join(process.cwd(), "public", "data");
@@ -46,12 +60,12 @@ test("correlation: a shared PLAYER is caught", () => {
   assert.equal(c.overlaps.samePlayer.length, 1);
 });
 
-test("correlation: the LIVE Bank Builder lanes are independent (no shared game/player/team)", () => {
-  const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
-  const lane = (L) => (dp.lanes.find((x) => x.product === "bank-builder" && x.lane === L)?.legs ?? [])
-    .map((l) => ({ matchup: l.matchup, market: l.market ?? l.marketLabel, selection: l.selection, player: l.player ?? null }));
-  const c = scoreCrossLaneCorrelation(lane("A"), lane("B"));
-  assert.equal(c.independent, true, "live lanes share no game/player/team");
+test("correlation: the cross-lane SELECTOR output is independent (no shared game/player/team)", () => {
+  // Independence is the SELECTOR's guarantee. The live persisted lanes can be correlated only via an
+  // operator-approved card lock (manual override) — exercised on June 24 (Lane A Brazil Over + Lane B Brazil ML).
+  const { A, B } = selectorLanes(path.join(process.cwd(), "public", "data"));
+  const c = scoreCrossLaneCorrelation(A, B);
+  assert.equal(c.independent, true, "selector lanes share no game/player/team");
   assert.equal(c.score, 0);
 });
 
@@ -94,11 +108,9 @@ test("V2: a shared game grades C or worse and is not independent", () => {
   assert.ok(c.dependencies.length >= 1, "reports same-game outcome dependence");
 });
 
-test("V2: the LIVE Bank Builder lanes are outcome-independent and graded A or B", () => {
-  const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
-  const lane = (L) => (dp.lanes.find((x) => x.product === "bank-builder" && x.lane === L)?.legs ?? [])
-    .map((l) => ({ matchup: l.matchup, market: l.market ?? l.marketLabel, selection: l.selection, player: l.player ?? null }));
-  const c = scoreCrossLaneCorrelation(lane("A"), lane("B"));
+test("V2: the cross-lane SELECTOR output is outcome-independent and graded A or B", () => {
+  const { A, B } = selectorLanes(path.join(process.cwd(), "public", "data"));
+  const c = scoreCrossLaneCorrelation(A, B);
   assert.equal(c.independent, true);
   assert.equal(c.score, 0);
   assert.ok(["A", "B"].includes(c.grade), "independent lanes grade A or B");
