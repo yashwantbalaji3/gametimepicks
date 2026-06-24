@@ -19,6 +19,8 @@ import DailyPortfolioSection from "@/components/mr-dub/daily-portfolio-section";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import PortfolioAllocationSection from "@/components/mr-dub/portfolio-allocation";
 import { buildPortfolioAllocation } from "@/lib/mr-dub/product-allocation";
+import MasterLedgerSection from "@/components/mr-dub/master-ledger-section";
+import { buildMasterLedger } from "@/lib/mr-dub/master-ledger";
 
 export const metadata = {
   title: "Mr. Dub · Paper Portfolio · GameTime Picks",
@@ -127,11 +129,16 @@ export default function MrDubPage() {
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   // Top-level portfolio allocation across all four products (Bank Builder · Moonshot · WC Specials · Homer Nukes).
   const allocation = buildPortfolioAllocation(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  // Authoritative master ledger — every product's settled paper track record + overall totals.
+  const masterLedger = buildMasterLedger(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
       {/* 0 — Portfolio allocation (lead): how the single bankroll is allocated across all four products. */}
       <PortfolioAllocationSection allocation={allocation} />
+
+      {/* 0.25 — Master ledger: authoritative cross-product paper track record (record/ROI/P&L/exposure). */}
+      <MasterLedgerSection ledger={masterLedger} />
 
       {/* 0.5 — Today's paper portfolio: the Bank Builder + Moonshot lanes detail ($0 placed until activated). */}
       <DailyPortfolioSection portfolio={dailyPortfolio} />
