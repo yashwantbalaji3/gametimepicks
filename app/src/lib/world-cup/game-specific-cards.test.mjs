@@ -1,29 +1,47 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { getGameDetail } from "../game-detail.ts";
+import fs from "node:fs";
+import { buildAllGameDetails } from "../game-detail.ts";
 import { getGameSpecificCardsForGame } from "./game-specific-cards.ts";
 
+// DATE-AGNOSTIC: read the current World Cup slate date from the live artifact, then drive the engine
+// off whatever fixtures that slate actually carries — no hardcoded "2026-06-24" or named fixtures.
+const SLATE_DATE = JSON.parse(
+  fs.readFileSync(new URL("../../../public/data/world-cup/world-cup-specials.json", import.meta.url), "utf8"),
+).date;
+// Pre-event NOON-of-slate-day NOW: every WC kickoff is in the afternoon/evening, so 12:00Z is before
+// any game on the slate has started regardless of which day the slate rolled to.
+const NOW = `${SLATE_DATE}T12:00:00Z`;
+
+// The current slate's WC fixtures (order/date-independent), resolved from the canonical game-detail set.
+const currentFixtures = buildAllGameDetails().filter((d) => d.sport === "world_cup" && d.slug.endsWith(SLATE_DATE));
+
+// Fixtures that the engine actually mapped same-game cards onto for THIS slate — discovered dynamically
+// so the leak check stays a real (non-vacuous) comparison across whatever the live slate produced.
+const fixturesWithCards = currentFixtures
+  .map((d) => ({ fixture: d, cards: getGameSpecificCardsForGame({ matchId: d.matchId, homeTeam: d.homeTeam, awayTeam: d.awayTeam }, NOW) }))
+  .filter((x) => x.cards.total > 0);
+
 test("engine game-specific cards map to the correct WC fixture (current slate), bucketed by risk", () => {
-  // Current slate is June 24. Scotland vs Brazil is pre-event at 12:00Z (kickoff 22:00Z).
-  const d = getGameDetail("world-cup", "scotland-vs-brazil-2026-06-24");
-  assert.ok(d, "fixture resolves");
-  const g = getGameSpecificCardsForGame({ matchId: d.matchId, homeTeam: d.homeTeam, awayTeam: d.awayTeam }, "2026-06-24T12:00:00Z");
-  assert.ok(g.total > 0, "at least one engine card mapped to the fixture");
-  // every mapped card is bucketed and carries legs.
-  for (const c of g.cards) {
-    assert.ok(["low", "medium", "high", "longshot"].includes(c.riskLevel), "card has a risk level");
-    assert.ok(c.legs.length >= 2, "same-game card has >= 2 legs");
+  assert.ok(currentFixtures.length > 0, "the current slate resolves WC fixtures");
+  assert.ok(fixturesWithCards.length > 0, "at least one current-slate fixture has engine cards");
+  // every mapped card is bucketed and carries legs, for every fixture that produced cards.
+  for (const { cards } of fixturesWithCards) {
+    for (const c of cards.cards) {
+      assert.ok(["low", "medium", "high", "longshot"].includes(c.riskLevel), "card has a risk level");
+      assert.ok(c.legs.length >= 2, "same-game card has >= 2 legs");
+    }
   }
 });
 
-test("cards never leak across fixtures (Scotland-Brazil cards != Switzerland-Canada cards)", () => {
-  const sco = getGameDetail("world-cup", "scotland-vs-brazil-2026-06-24");
-  const sui = getGameDetail("world-cup", "switzerland-vs-canada-2026-06-24");
-  const scoCards = new Set(getGameSpecificCardsForGame({ matchId: sco.matchId, homeTeam: sco.homeTeam, awayTeam: sco.awayTeam }, "2026-06-24T12:00:00Z").cards.map((c) => c.parlayId));
-  const suiCards = getGameSpecificCardsForGame({ matchId: sui.matchId, homeTeam: sui.homeTeam, awayTeam: sui.awayTeam }, "2026-06-24T12:00:00Z").cards.map((c) => c.parlayId);
-  // Both fixtures produce cards, so this is a real (non-vacuous) cross-fixture leak check.
-  assert.ok(scoCards.size > 0 && suiCards.length > 0, "both fixtures produce cards");
-  assert.ok(suiCards.every((id) => !scoCards.has(id)), "no shared card id across the two fixtures");
+test("cards never leak across fixtures (distinct current-slate fixtures share no card id)", () => {
+  // Pick two DISTINCT fixtures from the CURRENT slate that both produced cards — dynamic, not named.
+  assert.ok(fixturesWithCards.length >= 2, "the current slate has >= 2 fixtures producing cards (real, non-vacuous check)");
+  const [a, b] = fixturesWithCards;
+  const aCards = new Set(a.cards.cards.map((c) => c.parlayId));
+  const bCards = b.cards.cards.map((c) => c.parlayId);
+  assert.ok(aCards.size > 0 && bCards.length > 0, "both fixtures produce cards");
+  assert.ok(bCards.every((id) => !aCards.has(id)), "no shared card id across the two fixtures");
 });
 
 test("a fixture with no engine cards (started game) yields an honest empty result", () => {

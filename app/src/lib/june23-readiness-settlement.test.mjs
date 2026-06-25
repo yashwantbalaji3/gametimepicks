@@ -36,8 +36,8 @@ test("post-June-24 lanes are settled: Lane A completed (ladder cleared), Lane B 
   // Lane A completed the 5-rung $10k ladder → no active card, headline reports the cleared run.
   const aView = buildPublicDualLadder(bb.laneA ?? null, "lane-a");
   assert.ok(aView, "lane-a view built");
-  assert.equal(aView.currentStatus, "active", "lane-a ladder cleared (completed)");
-  assert.ok(/cleared/.test(aView.headline), "lane-a headline reports the cleared run");
+  assert.equal(aView.currentStatus, "completed", "lane-a ladder cleared → celebrated completed state");
+  assert.ok(/\$10K REACHED|ladder COMPLETE/i.test(aView.headline), "lane-a headline celebrates the completion");
   assert.ok(!aView.steps.some((s) => s.status === "active"), "lane-a has no active card (no open exposure)");
   // Lane B stopped on the June 24 Step 3 loss → restart queued from Step 1, no active card.
   const bView = buildPublicDualLadder(bb.laneB ?? null, "lane-b");

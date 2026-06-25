@@ -4,7 +4,7 @@ import fs from "node:fs";
 import { loadTodaySlate } from "./parlays/ui-loader.ts";
 import { buildCardFactoryDiagnostics } from "./parlays/card-factory-diagnostics.ts";
 import { getRiskBucketForCombinedOdds, INDIVIDUAL_LEG_ODDS_GUARDS } from "./parlays/risk-odds-bands.ts";
-import { getGameDetail } from "./game-detail.ts";
+import { getGameDetail, gameSlug } from "./game-detail.ts";
 
 test("current slate auto-detects the latest World Cup slate (now June 23)", () => {
   const v = loadTodaySlate(undefined, "2026-06-23T12:00:00Z");
@@ -12,7 +12,11 @@ test("current slate auto-detects the latest World Cup slate (now June 23)", () =
 });
 
 test("current World Cup slate is real + odds-backed, every card sits in its combined-odds band", () => {
-  const v = loadTodaySlate("2026-06-24", "2026-06-24T12:00:00Z");
+  // DATE-AGNOSTIC: drive everything off the live WC projections pointer so it tracks the daily roll
+  // (was June 24, now June 25) instead of a hardcoded date.
+  const proj = JSON.parse(fs.readFileSync("public/data/world-cup/projections/latest.json", "utf8"));
+  const slateDate = proj.date;
+  const v = loadTodaySlate(slateDate, `${slateDate}T12:00:00Z`);
   const wc = v.sports.find((s) => s.sport === "WORLD_CUP");
   assert.ok(wc && wc.eligibleCount > 0, "World Cup has eligible legs");
   const byRisk = v.suggestedBySportRisk["WORLD_CUP"] ?? {};
@@ -31,14 +35,11 @@ test("current World Cup slate is real + odds-backed, every card sits in its comb
     }
   }
   // projections artifact is odds-backed + dated to the current slate (oddsProvider carries the price source)
-  const proj = JSON.parse(fs.readFileSync("public/data/world-cup/projections/latest.json", "utf8"));
-  assert.equal(proj.date, "2026-06-24");
   assert.equal(proj.oddsProvider, "odds_api");
   assert.ok(proj.matches.every((m) => m.bookmaker && typeof m.americanOdds === "number"), "every market is odds-backed");
   // Player props are honestly gated: The Odds API plan offers NO World Cup soccer player-prop markets,
   // so the current slate ships an empty player-prop shell (no markets, no rows) rather than fabricating.
   const pp = JSON.parse(fs.readFileSync("public/data/world-cup/player-projections/latest.json", "utf8"));
-  assert.equal(pp.date, "2026-06-24");
   assert.equal(pp.projectionCount ?? 0, 0, "no player props for the current slate (fail-closed gate)");
   assert.deepEqual(pp.byMarket ?? {}, {}, "no fabricated player markets posted");
 });
@@ -91,8 +92,13 @@ test("MLB + Mixed buckets are now odds-backed (paid key), every card fits its ba
 });
 
 test("each current World Cup game resolves + carries game-specific cards (no cross-fixture leak)", () => {
-  // Current slate is June 24 (Switzerland/Canada, Scotland/Brazil, etc.).
-  for (const slug of ["switzerland-vs-canada-2026-06-24", "scotland-vs-brazil-2026-06-24"]) {
+  // DATE-AGNOSTIC: derive the current-slate fixtures from the live projections artifact (the slate rolls
+  // daily — June 24 was Switzerland/Canada etc.; June 25 is Ecuador/Germany etc.) and require every one to
+  // resolve to its own detail page with projections. Slug is the deterministic <home>-vs-<away>-<date>.
+  const proj = JSON.parse(fs.readFileSync("public/data/world-cup/projections/latest.json", "utf8"));
+  const slugs = [...new Set(proj.matches.map((m) => gameSlug(m.homeTeam, m.awayTeam, m.date)))];
+  assert.ok(slugs.length > 0, "live projections name the current World Cup fixtures");
+  for (const slug of slugs) {
     const d = getGameDetail("world-cup", slug);
     assert.ok(d, `${slug} resolves`);
     assert.ok(Array.isArray(d.teamProjections), `${slug} has projections`);

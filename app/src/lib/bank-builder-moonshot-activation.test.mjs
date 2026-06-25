@@ -13,26 +13,23 @@ const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 const round2 = (n) => Math.round(n * 100) / 100;
 
-test("plan (dry-run): three lanes (Lane A completed the ladder), all eligible, $0 exposure (no placement)", () => {
+test("plan (dry-run): both BB lanes terminal (Lane A completed, Lane B stopped) → Moonshot lanes only, $0 exposure", () => {
   const plan = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, /*activate*/ false);
-  // After the official settlement, Lane A COMPLETED the $10k ladder (pending operator banking), so only
-  // Bank Builder Lane B remains as a BB lane alongside Moonshot A/B → 3 lanes.
-  assert.equal(plan.lanes.length, 3, "Bank Builder B + Moonshot A/B (Lane A completed the ladder)");
-  assert.equal(plan.lanes.filter((l) => l.product === "bank-builder").length, 1, "only Lane B remains for Bank Builder");
+  // After June-24: Lane A COMPLETED the $10k ladder (operator banking pending) and Lane B STOPPED (lost
+  // Step 3 — restart operator-gated). Neither auto-generates a card, so only Moonshot A/B remain.
+  assert.equal(plan.lanes.filter((l) => l.product === "bank-builder").length, 0, "no forward Bank Builder lane (both terminal)");
+  assert.equal(plan.lanes.length, 2, "Moonshot A/B only");
   assert.equal(plan.openExposure, 0, "dry-run places no exposure");
   assert.equal(plan.availableBankroll, plan.activeBankroll, "available = active when nothing placed");
   for (const l of plan.lanes) assert.notEqual(l.status, "active", "no lane active in dry-run");
 });
 
-test("apply: exposure math — BB $100 active (Lane B only); Moonshot adaptive (awaits a thin slate); money UNCHANGED", () => {
+test("apply: exposure math — both BB lanes terminal → $0 BB; Moonshot adaptive; money UNCHANGED", () => {
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, /*activate*/ true);
   assert.equal(dp.activeBankroll, 10076.17, "active bankroll unchanged at activation");
   assert.equal(dp.crownBankroll, 10376.17, "crown untouched");
-  // Lane A completed the $10k ladder (operator-gated), so only Lane B carries a fresh $100 seed.
-  assert.equal(dp.products.bankBuilder.exposure, 100, "Bank Builder exposure $100 (Lane B only × $100 seed)");
-  // Moonshot is a longshot lane (≥3 distinct-game legs, +700 floor). The June-23 slate has too few distinct
-  // longshot games after Bank Builder → both lanes AWAIT. Exposure is whatever the active moonshot lanes
-  // total ($0 here, $25/lane when a slate qualifies) and always within the cap. No legs are forced.
+  // Lane A completed + Lane B stopped (operator-gated restart) → no auto BB card → $0 BB exposure.
+  assert.equal(dp.products.bankBuilder.exposure, 0, "Bank Builder exposure $0 (both lanes terminal)");
   const activeMoon = dp.lanes.filter((l) => l.product === "moonshot" && l.status === "active");
   assert.equal(dp.products.moonshot.exposure, round2(activeMoon.length * 25), "moonshot exposure = $25 × active lanes");
   assert.ok(dp.products.moonshot.exposure <= MOONSHOT_MAX_EXPOSURE, "moonshot exposure within cap");
@@ -40,13 +37,12 @@ test("apply: exposure math — BB $100 active (Lane B only); Moonshot adaptive (
   assert.equal(dp.availableBankroll, round2(dp.activeBankroll - dp.openExposure), "available = active − exposure");
 });
 
-test("apply: Bank Builder lane (Lane B) = 2 legs; Moonshot lanes ≤ 5 legs, ≥1 leg/game; combined odds reconcile", () => {
+test("apply: no forward BB lane (both terminal); Moonshot lanes ≤ 5 legs, ≥1 leg/game; combined odds reconcile", () => {
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const moon = dp.lanes.filter((l) => l.product === "moonshot");
-  // Lane A completed the ladder → only Lane B remains for Bank Builder.
-  assert.equal(bb.length, 1); assert.equal(moon.length, 2);
-  for (const l of bb) assert.equal(l.legCount, 2, "Bank Builder lane = 2 legs");
+  assert.equal(bb.length, 0, "no forward Bank Builder lane (Lane A completed, Lane B stopped)");
+  assert.equal(moon.length, 2, "Moonshot A/B present");
   for (const l of moon) assert.ok(l.legCount <= 5, "Moonshot lane ≤ 5 legs (up to 5, valid at 3)");
   for (const l of dp.lanes) {
     if (!l.legs.length) continue;
@@ -81,7 +77,7 @@ test("persisted daily-portfolio.json (June 24) is internally consistent + never 
   // cards placed) or awaiting depends on the live slate, so assert the INVARIANTS, not a fixed exposure.
   const p = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   assert.equal(p.version, "daily-portfolio-v1");
-  assert.equal(p.date, "2026-06-24");
+  assert.match(p.date, /^\d{4}-\d{2}-\d{2}$/, "date is the current slate (rolls daily — date-agnostic)");
   assert.equal(p.activeBankroll, 10076.17); assert.equal(p.crownBankroll, 10376.17);
   const sumExp = p.lanes.filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
   assert.equal(p.openExposure, sumExp, "open exposure = Σ active-lane seed exposures, nothing else");
@@ -95,7 +91,8 @@ test("persisted daily-portfolio.json (June 24) is internally consistent + never 
 });
 
 test("daily-portfolio read view reflects the persisted state + is internally consistent", () => {
-  const dp = buildDailyPortfolio(root, "2026-06-24T10:00:00Z", "2026-06-24");
+  const liveDate = JSON.parse(read("public/data/mr-dub/daily-portfolio.json")).date; // current slate (date-agnostic)
+  const dp = buildDailyPortfolio(root, `${liveDate}T10:00:00Z`, liveDate);
   assert.equal(dp.activeBankroll, 10076.17);
   assert.equal(Math.round((dp.exposure.core + dp.exposure.moonshot) * 100) / 100, dp.openExposure, "core + moonshot = open exposure");
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");

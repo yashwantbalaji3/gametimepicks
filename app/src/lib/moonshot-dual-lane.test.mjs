@@ -145,10 +145,13 @@ test("live June-24 portfolio: both Moonshot lanes display + await (thin WC slate
 
 // ── Master ledger: Moonshot tracked as an independent product, exposure off the LIVE portfolio ────
 test("master ledger tracks Moonshot (record/ROI/P&L) with exposure keyed off the live daily portfolio", () => {
-  const ml = buildMasterLedger(root, `${DATE}T08:00:00Z`, DATE);
+  // Date-agnostic: build the ledger for the CURRENT slate (read from the live daily-portfolio) so the
+  // freshness check tracks the live slate as it rolls day to day.
+  const liveDate = JSON.parse(read(path.join(root, "mr-dub", "daily-portfolio.json"))).date;
+  const ml = buildMasterLedger(root, `${liveDate}T08:00:00Z`, liveDate);
   const m = ml.products.find((p) => p.productId === "moonshot");
   assert.ok(m, "Moonshot is a tracked product in Mr. Dub");
-  assert.equal(m.exposure, 0, "no open exposure today (lanes awaiting)");
+  assert.equal(m.exposure, 0, "no open Moonshot exposure (lanes awaiting/candidate, below the +700 floor)");
   assert.equal(m.freshness, "fresh", "freshness follows the live slate, not the frozen run artifact");
   // Record / ROI / P&L derive from the settled product ledger (real history only).
   assert.equal(m.roi, m.stake > 0 ? Number(((m.profit / m.stake) * 100).toFixed(2)) : 0, "ROI reconciles");

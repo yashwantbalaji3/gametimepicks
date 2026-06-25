@@ -13,58 +13,50 @@ const NOW = "2026-06-23T10:00:00Z";
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 
-test("rung math from the active ladder artifact (post June-24 settlement): Lane A COMPLETED the $10k ladder (no rung), Lane B → Step 3 ($702.45 → $1,400)", () => {
+test("rung math (post June-24): Lane A COMPLETED the ladder + Lane B STOPPED → both terminal, no auto-rung", () => {
   const { laneA, laneB } = readLaneRungs(root);
-  // POST JUNE-24: Lane A cleared all 5 rungs (Step 5 won → $10,089.23) so it has no next rung; Lane B
-  // stopped at Step 3 (cleared 2) and is the only lane with a forward rung.
+  // POST JUNE-24: Lane A cleared all 5 rungs (Step 5 won → $10,089.23) → terminal. Lane B LOST Step 3 and
+  // stopped; a stopped lane does NOT auto-place exposure on its settled rung — its restart is OPERATOR-GATED
+  // (exactly like Lane A's completion banking). So neither lane yields an auto-generated next rung.
   assert.equal(laneA, null, "Lane A has no next rung — the $10k ladder is COMPLETE");
-  assert.ok(laneB, "Lane B rung resolved");
-  assert.equal(laneB.nextStep, 3); assert.equal(laneB.clearedSteps, 2);
-  assert.equal(laneB.rolledStake, 702.45); assert.equal(laneB.targetReturn, 1400);
+  assert.equal(laneB, null, "Lane B stopped (lost Step 3) — restart is operator-gated, no auto-rung");
 });
 
-test("Lane B Step 3: safest 2-leg card that reaches the rung target, max 1/game, reconcile (Lane A is COMPLETED — no forward card)", () => {
-  // POST JUNE-24: Lane A completed the ladder (readLaneRungs.laneA is null), so the only forward lane the
-  // safest-card selector serves is Lane B (Step 3, $702.45 → $1,400). Same safest-card invariants apply.
+test("safest target-fit selector still serves a forward rung + holds its invariants (synthetic rung)", () => {
+  // Both LIVE lanes are terminal (Lane A completed, Lane B stopped), so the selector has no live lane to
+  // serve right now. Verify the selector's invariants against a synthetic forward rung so coverage holds.
   const pool = loadWorldCupModelPicks(root, NOW, DATE);
-  const { laneA, laneB } = readLaneRungs(root);
-  assert.equal(laneA, null, "Lane A is COMPLETED — no forward card to select");
-  const b = selectSafestTargetFitCard(pool, laneB, new Set());
+  const rung = { lane: "B", nextStep: 3, clearedSteps: 2, rolledStake: 702.45, targetReturn: 1400, targetMultiplier: 1400 / 702.45 };
+  const b = selectSafestTargetFitCard(pool, rung, new Set());
   assert.equal(b.legs.length, 2, "exactly 2 legs");
   assert.equal(new Set(b.legs.map((l) => l.gameId)).size, b.legs.length, "max 1 leg per game (or correlation noted)");
   for (const l of b.legs) assert.ok(l.odds >= -500 && l.odds <= 400, `${l.selection} within window`);
   const d = b.legs.reduce((p, l) => p * dec(l.odds), 1);
   assert.ok(Math.abs(decToAmerican(d) - b.combinedOdds) <= 2, "combined odds reconcile");
-  assert.ok(b.potentialReturn >= laneB.targetReturn, `Step ${laneB.nextStep} reaches the rung target ($${b.potentialReturn} ≥ $${laneB.targetReturn})`);
+  assert.ok(b.potentialReturn >= rung.targetReturn, `reaches the rung target ($${b.potentialReturn} ≥ $${rung.targetReturn})`);
   assert.equal(b.fitsTarget, true, "card fits the rung target");
 });
 
-test("persisted daily portfolio (June 24, post-settlement): Lane A COMPLETED (absent), Lane B on Step 3; BB exposure = $100 seed × active BB lanes ($0, June-24 lanes settled)", () => {
+test("persisted daily portfolio (post June-24): both BB lanes terminal → no BB card, $0 BB exposure, money frozen", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
-  const a = bb.find((l) => l.lane === "A"), b = bb.find((l) => l.lane === "B");
-  // POST JUNE-24: Lane A completed the ladder and no longer appears as a forward BB lane; Lane B holds its
-  // Step-3 rung but is AWAITING (June-24 cards already settled), so no BB seed is at risk in the daily view.
-  assert.equal(a, undefined, "completed Lane A is no longer a forward BB lane");
-  assert.ok(b, "Lane B still present"); assert.equal(b.step, 3); assert.equal(b.clearedSteps, 2);
-  const activeBB = bb.filter((l) => l.status === "active");
-  assert.equal(activeBB.length, 0, "no BB lane is active — June-24 cards are settled");
-  assert.equal(dp.products.bankBuilder.exposure, 100 * activeBB.length, "BB exposure = $100 seed × active BB lanes (= $0 post-settlement, never the rolled balance)");
-  assert.equal(dp.products.bankBuilder.exposure, 0, "BB exposure is $0 since June-24 lanes settled");
+  // POST JUNE-24: Lane A completed + Lane B stopped (operator-gated restart) → no forward BB lane is
+  // auto-generated, so no BB seed is at risk in the daily view.
+  assert.equal(bb.length, 0, "no forward BB lane — Lane A completed, Lane B stopped (operator-gated)");
+  assert.equal(dp.products.bankBuilder.exposure, 0, "BB exposure is $0 — no active BB card");
   assert.equal(dp.activeBankroll, 10076.17); assert.equal(dp.crownBankroll, 10376.17);
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
 });
 
-test("BB exposure is the $100 seed, not the rolled balance (active bankroll unchanged)", () => {
-  // POST JUNE-24: Lane A completed, so the live forward BB lane is Lane B (Step 3) — it RIDES the rolled
-  // $702.45 balance but the at-risk exposure is still the $100 seed.
+test("BB seed-model invariant: a terminal lane places NO exposure; generation never touches canonical money", () => {
+  // Both lanes are terminal post-June-24, so a fresh build places no BB exposure and leaves the canonical
+  // bankroll/crown untouched (only an official settlement moves them).
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
-  const a = dp.lanes.find((l) => l.product === "bank-builder" && l.lane === "A");
-  assert.equal(a, undefined, "completed Lane A no longer rides a forward card");
-  const b = dp.lanes.find((l) => l.product === "bank-builder" && l.lane === "B");
-  assert.ok(b.stake > 700, "card displays the rolled balance riding (Lane B ~$702.45)");
-  assert.equal(b.exposure, 100, "but the at-risk exposure is the $100 seed");
-  assert.equal(dp.activeBankroll, 10076.17, "active bankroll unchanged at activation");
+  const bb = dp.lanes.filter((l) => l.product === "bank-builder");
+  assert.equal(bb.length, 0, "no forward BB lane (both terminal)");
+  assert.equal(dp.products.bankBuilder.exposure, 0, "no BB seed at risk");
+  assert.equal(dp.activeBankroll, 10076.17, "active bankroll unchanged by generation");
+  assert.equal(dp.crownBankroll, 10376.17, "crown unchanged by generation");
 });
 
 test("started-game guard still holds for next-step cards (0 exposure after kickoff)", () => {

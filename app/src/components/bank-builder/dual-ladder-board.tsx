@@ -440,10 +440,12 @@ function LadderStepRow({ step, stepMeta, dailyStep }: { step: PublicLadderStep; 
 function LaneLadderCard({ view, enrichment, daily }: { view: PublicDualLadderView; enrichment: Record<string, StepMeta>; daily: Record<string, DailyBbStep> }) {
   // When the current rung carries today's posted card, the lane is ACTIVE — not "awaiting next card".
   const laneHasDailyCard = view.steps.some((s) => (daily[`${view.laneId}:${s.step}`]?.legs.length ?? 0) > 0);
-  const accent = laneHasDailyCard ? "var(--gtp-bank-heat)"
+  const accent = view.currentStatus === "completed" ? "var(--vault-gold-bright)"
+    : laneHasDailyCard ? "var(--gtp-bank-heat)"
     : view.currentStatus === "queued_restart" || view.currentStatus === "awaiting_next_card" ? "var(--vault-gold-bright)"
     : view.currentStatus === "advanced" ? "#6EE7A8" : "var(--gtp-bank-heat)";
-  const chipLabel = laneHasDailyCard ? "Active"
+  const chipLabel = view.currentStatus === "completed" ? "🏆 $10K Reached"
+    : laneHasDailyCard ? "Active"
     : view.currentStatus === "advanced" ? "Advanced" : view.currentStatus === "awaiting_next_card" ? "Awaiting next card"
     : view.currentStatus === "queued_restart" ? "Starting path" : view.currentStatus === "active" ? "Active" : view.currentStatus;
   const headline = laneHasDailyCard ? view.headline.replace(/awaiting next qualified card/i, "active · today's card") : view.headline;

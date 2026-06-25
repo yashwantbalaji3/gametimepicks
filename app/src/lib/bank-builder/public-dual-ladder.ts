@@ -99,19 +99,27 @@ export function buildPublicDualLadder(lane: LaneDisplay | null, laneId: "lane-a"
     if (next) { next.status = "awaiting"; next.candidate = lane.nextCandidate ?? null; awaiting = next; }
   }
 
+  // A lane that cleared EVERY rung has COMPLETED the $10k ladder — the product's goal. Surface it as a
+  // celebrated terminal state (banking is operator-gated), never the generic "active" fall-through.
+  const isCompleted = lane.laneStatus === "completed" || (steps.length > 0 && clearedCount === steps.length);
+  const finalStep = steps.filter((s) => s.status === "cleared").sort((a, b) => b.step - a.step)[0];
+  const finalValue = finalStep?.actualReturn ?? finalStep?.actualStake ?? clearedPayout ?? 0;
   const advanced = lane.laneStatus === "advanced" || !!awaiting;
-  const currentStatus: PublicLaneStatus = hasActiveCard
-    ? "active"
+  const currentStatus: PublicLaneStatus = isCompleted
+    ? "completed"
+    : hasActiveCard ? "active"
     : awaiting ? "awaiting_next_card" : advanced ? "advanced" : "active";
   // Next stake = the rolled balance from the last cleared step (advanced) or the active step's stake.
   const activeStep = steps.find((s) => s.status === "active");
   const currentStake = activeStep?.actualStake ?? (clearedPayout || lane.restart?.stake || 100);
 
-  const headline = activeStep
-    ? `Step ${activeStep.step} active · ${usd(activeStep.actualStake ?? 0)} riding`
-    : awaiting
-      ? `${clearedCount} step${clearedCount === 1 ? "" : "s"} cleared · Step ${awaiting.step} awaiting next qualified card`
-      : `${clearedCount} step${clearedCount === 1 ? "" : "s"} cleared`;
+  const headline = isCompleted
+    ? `🏆 $10K REACHED — ladder COMPLETE (final ${usd(finalValue)}). Banking the completed run is operator-gated.`
+    : activeStep
+      ? `Step ${activeStep.step} active · ${usd(activeStep.actualStake ?? 0)} riding`
+      : awaiting
+        ? `${clearedCount} step${clearedCount === 1 ? "" : "s"} cleared · Step ${awaiting.step} awaiting next qualified card`
+        : `${clearedCount} step${clearedCount === 1 ? "" : "s"} cleared`;
 
   return { laneId, label, headline, currentStatus, currentStep, currentStake, steps };
 }

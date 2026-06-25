@@ -134,6 +134,30 @@ jobs:
       - name: Run nightly settlement orchestrator
         run: bash scripts/automation_settle.sh
 
+      # ---- World Cup / Mr. Dub settlement (PR `automate-soccer-settlement`) ----
+      # Composes fetch → grade → seed-model → reconcile. Official-final gated, idempotent, partial-safe,
+      # and a NO-OP when API_FOOTBALL_KEY is absent or no game is FT yet — so it is safe to schedule and
+      # safe to rerun. Non-fatal: a fetch hiccup never fails the nightly run.
+      - name: Set up Node (World Cup settlement)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install app dependencies
+        run: cd app && (npm ci --silent || npm install --silent)
+      - name: World Cup / Mr. Dub settlement
+        env:
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          WC_API_FOOTBALL_LEAGUE: "1"
+          WC_API_FOOTBALL_SEASON: "2026"
+        run: |
+          DATE_ARG=""; [ -n "${SETTLE_DATE}" ] && DATE_ARG="--date ${SETTLE_DATE}"
+          if [ "${DRY_RUN_SETTLE}" = "1" ]; then
+            bash scripts/settle_soccer_day.sh $DATE_ARG
+          else
+            bash scripts/settle_soccer_day.sh $DATE_ARG --apply
+          fi
+        continue-on-error: true
+
       # ---- Daily learning loop (PR `update-learning-after-settlement`) ----
       # Runs ONLY here, AFTER settlement+grading — never in generation. Reads
       # settled outcomes only (no same-day leakage) and rewrites the conservative

@@ -12,14 +12,18 @@ import {
   loadWorldCupSpecials,
 } from "./world-cup-specials.ts";
 import { combinedAmerican } from "../parlays/odds-math.ts";
+import { buildAllGameDetails } from "../game-detail.ts";
 
-const DATE = "2026-06-24";
-// The slate has rolled to June 24. At 12:00Z all six odds-backed June 24 games (Switzerland/Canada 19:00Z,
-// Bosnia/Qatar 19:00Z, Scotland/Brazil 22:00Z, Morocco/Haiti 22:00Z, Czechia/Mexico 01:00Z+1,
-// South Africa/South Korea 01:00Z+1) are pre-event. Team markets are odds-backed, but The Odds API plan
-// offers NO World Cup soccer player-prop markets → 0 player legs → 0 buildable Specials (honest fail-closed:
-// a Special requires ≥2 player props per card, which cannot be assembled with 0 player props).
-const NOW = "2026-06-24T12:00:00Z";
+// DATE-AGNOSTIC: read the live slate date from the committed snapshot, then build against THAT slate.
+// At noon-of-slate-day every WC kickoff (afternoon/evening, some crossing midnight UTC) is still pre-event,
+// so NOW excludes nothing as started. Team markets are odds-backed, but The Odds API plan offers NO World
+// Cup soccer player-prop markets → 0 player legs → the generator honestly falls back to TEAM-MODEL cards
+// (moneyline / double-chance / totals / BTTS), flagged in diagnostics — never fabricated player props.
+const DATE = loadWorldCupSpecials().date;
+const NOW = `${DATE}T12:00:00Z`;
+// The current slate's distinct WC fixture count, derived from the canonical game-detail set (slug carries
+// the slate date). Pre-event games at noon-of-slate-day should equal this.
+const SLATE_GAME_COUNT = buildAllGameDetails().filter((d) => d.sport === "world_cup" && d.slug.endsWith(DATE)).length;
 const cfg = WORLD_CUP_SPECIALS_CONFIG;
 const result = buildWorldCupSpecials({ nowIso: NOW, date: DATE });
 
@@ -103,8 +107,8 @@ test("every card has the required team/player mix and >= 2 distinct games (mode-
 test("no started games — every leg kickoff is in the future relative to NOW", () => {
   for (const c of result.cards)
     for (const l of c.legs) assert.ok(l.startTime && l.startTime > NOW, `${l.participant} is pre-event`);
-  // At 12:00Z on June 23 every odds-backed June 23 game is still pre-event, so none are excluded as started.
-  assert.deepEqual(result.diagnostics.excludedStartedGames, [], "no June 23 game has kicked off yet");
+  // At noon-of-slate-day every game on the current slate is still pre-event, so none is excluded as started.
+  assert.deepEqual(result.diagnostics.excludedStartedGames, [], "no game on the current slate has kicked off yet");
 });
 
 test("no fabricated markets — only the real posted team + player market labels appear", () => {
@@ -169,7 +173,9 @@ test("diagnostics report the real eligible-pool sizes + rejection counts", () =>
   assert.equal(result.diagnostics.eligibleTeamLegs, team.length);
   assert.equal(result.diagnostics.eligiblePlayerLegs, players.length);
   assert.equal(result.diagnostics.eligiblePlayerLegs, 0, "no player legs — The Odds API offers no WC player-prop markets");
-  assert.equal(result.diagnostics.preEventGames, 6, "six pre-event June 24 games");
+  // At noon-of-slate-day every fixture on the current slate is pre-event — derived count, not pinned to 6.
+  assert.ok(SLATE_GAME_COUNT >= 2, "current slate has >= 2 fixtures (Specials need 2+ distinct games)");
+  assert.equal(result.diagnostics.preEventGames, SLATE_GAME_COUNT, "every current-slate fixture is pre-event at noon-of-slate-day");
   assert.ok(result.diagnostics.rejectedOutOfLegOddsRange > 0, "extreme-priced legs were rejected");
   // Every loaded leg respects the strict band + pre-event rule.
   for (const l of [...team, ...players]) {
