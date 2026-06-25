@@ -74,6 +74,27 @@ async function main() {
     fs.writeFileSync(fp, JSON.stringify(doc, null, 2));
     log(`${file}: matched ${matched}/${doc.props?.length ?? 0} props → headshots/team; opponent resolved ${oppResolved}/${doc.props?.length ?? 0}`);
   }
+
+  // Homer Nukes active card — same real-headshot/team join, but the legs live under lanes[].legs[].
+  // Reuses the exact same statsapi maps; never touches odds/projections/bankroll. Idempotent.
+  const hnFp = path.join(DATA, "homer-nukes-active.json");
+  try {
+    const hn = JSON.parse(fs.readFileSync(hnFp, "utf8"));
+    let legs = 0, hit = 0, opp = 0;
+    for (const lane of hn.lanes ?? []) {
+      for (const leg of lane.legs ?? []) {
+        legs++;
+        const m = byName.get(norm(leg.player));
+        if (m) { leg.playerId = m.id; leg.photoUrl = m.photoUrl; leg.team = m.team; leg.teamAbbr = m.teamAbbr; hit++; }
+        const o = resolveOpponent(leg.matchup, leg.teamAbbr);
+        leg.opponentAbbr = o.opponentAbbr; leg.homeAway = o.homeAway;
+        if (o.opponentAbbr) opp++;
+      }
+    }
+    fs.writeFileSync(hnFp, JSON.stringify(hn, null, 2));
+    log(`homer-nukes-active: matched ${hit}/${legs} legs → headshots/team; opponent resolved ${opp}/${legs}`);
+  } catch { log("skip homer-nukes-active (not present)"); }
+
   log("done.");
 }
 main().catch((e) => { console.error("[enrich-mlb] FAILED:", e.message); process.exit(1); });

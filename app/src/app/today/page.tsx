@@ -301,7 +301,7 @@ export default function TodayPage() {
         <nav aria-label="Flagship quick links" className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           {[
             { href: "/bank-builder", label: "Bank Builder", sub: "Dual ladder" },
-            { href: "/moonshot", label: "Moonshot", sub: "Longshot ladder" },
+            { href: "/moonshot", label: "Moonshot", sub: "Daily longshots" },
             { href: "/world-cup-specials", label: "WC Specials", sub: "Suggested parlays" },
             { href: "/homer-nukes", label: "Homer Nukes", sub: "MLB HR parlay" },
           ].map((a) => (
@@ -327,12 +327,12 @@ export default function TodayPage() {
           </div>
         )}
 
-        {/* PRIORITY #2: Moonshot ladders — same shared ladder shape, higher-volatility lane. */}
+        {/* PRIORITY #2: Moonshot — independent daily longshot cards (NOT a ladder), higher-volatility. */}
         {moonshotLadder.length > 0 && (
-          <div aria-label="Moonshot ladders" className="flex flex-col gap-2">
+          <div aria-label="Moonshot cards" className="flex flex-col gap-2">
             <ProductLanesLadder productLabel="Moonshot" product="moonshot" lanes={moonshotLadder} accent="violet" />
             <Link href="/moonshot" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-              Open the full Moonshot ladder →
+              Open the full Moonshot board →
             </Link>
           </div>
         )}
