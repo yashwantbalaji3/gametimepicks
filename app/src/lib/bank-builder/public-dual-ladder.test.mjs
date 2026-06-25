@@ -10,9 +10,10 @@ test("Lane A public ladder after June-24 settlement: all 5 steps cleared (won) �
   const v = buildPublicDualLadder(bb.laneA, "lane-a");
   assert.ok(v, "lane A view present");
   // Lane A's Step 5 (Morocco ML + Bosnia ML + Scotland/Brazil Over 2.5) settled WON (official) → every real
-  // step is cleared and the $10k ladder is complete. With all five rungs cleared there is no further rung to
-  // await, so the view's currentStatus lands on "active" (a fully-cleared, completed ladder).
-  assert.equal(v.currentStatus, "active");
+  // step is cleared and the $10k ladder is COMPLETE. A fully-cleared ladder is surfaced as the celebrated
+  // terminal "completed" state (banking is operator-gated), not the generic "active" fall-through.
+  assert.equal(v.currentStatus, "completed");
+  assert.match(v.headline, /\$10K REACHED|ladder COMPLETE/i, "headline celebrates the completion");
   assert.equal(v.steps.length, 5, "five-step ladder");
   // Ladder targets are the canonical $100→$200 ... $3,500→$10,000.
   assert.deepEqual(v.steps.map((s) => [s.startTarget, s.goalTarget]),
@@ -95,7 +96,7 @@ test("DEMO: Lane A cleared steps surface settled cards with real legs (never bla
   // rows). Lane B is STOPPED → a clean queued Step-1 path with no cards (its lost history never surfaces),
   // so it never shows a blank actionable row either.
   const a = buildPublicDualLadder(bb.laneA, "lane-a");
-  assert.equal(a.currentStatus, "active", "Lane A ladder completed (all five rungs cleared)");
+  assert.equal(a.currentStatus, "completed", "Lane A ladder completed (all five rungs cleared)");
   assert.equal(a.steps.filter((s) => s.status === "cleared").length, 5, "Lane A has five cleared steps");
   for (const aCleared of a.steps.filter((s) => s.status === "cleared")) {
     assert.ok(aCleared.card && aCleared.card.legs.length >= 2, "cleared step carries a settled card with real legs (not a blank row)");
