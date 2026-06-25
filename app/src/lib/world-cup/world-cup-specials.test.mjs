@@ -288,9 +288,10 @@ test("the homepage wires the box as a lead 'WC exclusive parlays' section and ga
 });
 
 test("PROTECTION: active Bank Builder / Moonshot / Mr. Dub artifacts are unchanged by this feature", () => {
-  // This feature must NOT mutate the bank-builder artifacts. Pinned to the current active cross-slate state.
-  const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
-  assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "Lane A/B top-level legs unchanged");
+  // This feature must NOT mutate the bank-builder artifacts. The banked dual run (Gonzales/Hoskins legs)
+  // is archived after banking Ladder #2; the live artifact is a fresh cycle-2. Pinned to the banked archive.
+  const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json", "utf8"));
+  assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "banked Lane A/B top-level legs unchanged");
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 1152, "Moonshot Step 1 card is +1152");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));

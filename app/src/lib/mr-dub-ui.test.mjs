@@ -53,35 +53,37 @@ test("daily-summary embeds each day's events for the expandable dropdown; totals
   assert.equal(d.days[d.days.length - 1].closing, p.currentBankroll, "daily closing == portfolio current bankroll");
 });
 
-test("June 24 settled: Lane A COMPLETED the ladder (Step 5 settled WON), Lane B stopped (Step 3 settled LOST), Mr. Dub carries full history", () => {
-  const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
-  const bb = v.bankBuilderPreview;
-  // Lane A Steps 1-5 all WON; Step 5 settled WON → the $10K ladder is completed (operator-gated banking).
-  assert.equal(bb.laneA.laneStatus, "completed");
+test("2nd ladder BANKED: Lane A's completed ladder is archived, the live lanes are a fresh cycle-2, Mr. Dub carries full history", () => {
+  // Banking moved Lane A's completed $100→$10k ladder out of the live view-model and into the archived cycle-1
+  // artifact. The live view-model is now a fresh cycle-2 (shown publicly, not a completed ladder).
+  const bb = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z").bankBuilderPreview;
   assert.equal(bb.laneA.publicVisible, true);
-  const a1 = bb.laneA.steps.find((s) => s.step === 1);
+  assert.notEqual(bb.laneA.laneStatus, "completed", "live Lane A is a fresh cycle, not a banked completed ladder");
+  // The banked Lane A ladder history is preserved in the archived cycle-1 artifact (5 settled WON rungs).
+  const run = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json", "utf8")).run;
+  assert.equal(run.laneA.laneStatus, "completed", "banked Lane A completed the ladder");
+  const a1 = run.laneA.steps.find((s) => s.step === 1);
   assert.equal(a1.status, "settled");
   assert.equal(a1.result, "won");
   assert.ok(a1.legs.some((l) => l.sport === "WORLD_CUP") && a1.legs.some((l) => l.sport === "MLB"), "one World Cup + one MLB");
-  assert.ok(a1.legs.every((l) => l.settlementResult === "won"), "both Lane A legs won (official)");
-  assert.equal(bb.laneA.steps.find((s) => s.step === 2).status, "settled", "Lane A Step 2 settled won");
-  const a5 = bb.laneA.steps.find((s) => s.step === 5);
+  assert.ok(a1.legs.every((l) => l.settlement?.result === "won"), "both Lane A legs won (official)");
+  assert.equal(run.laneA.steps.find((s) => s.step === 2).status, "settled", "Lane A Step 2 settled won");
+  const a5 = run.laneA.steps.find((s) => s.step === 5);
   assert.equal(a5.status, "settled", "Lane A Step 5 settled WON");
   assert.equal(a5.result, "won", "Lane A Step 5 settled WON → ladder completed ($10089.23, official)");
-  // Lane B Steps 1 + 2 WON, then Step 3 settled LOST (Brazil ML won; Switzerland/Canada Under 2.5 lost) → the lane stopped, shown publicly with its honest history.
-  assert.equal(bb.laneB.laneStatus, "stopped");
-  assert.equal(bb.laneB.publicVisible, true);
-  const b1 = bb.laneB.steps.find((s) => s.step === 1);
+  // Banked Lane B: Steps 1 + 2 WON, then Step 3 settled LOST → the lane stopped, preserved with its honest history.
+  assert.equal(run.laneB.laneStatus, "stopped");
+  const b1 = run.laneB.steps.find((s) => s.step === 1);
   assert.equal(b1.status, "settled", "Lane B Step 1 card settled");
-  assert.equal(b1.result, "won", "Lane B Step 1 cleared WON (Argentina ML + France/Iraq Under 3.5)");
-  const b3 = bb.laneB.steps.find((s) => s.step === 3);
+  assert.equal(b1.result, "won", "Lane B Step 1 cleared WON");
+  const b3 = run.laneB.steps.find((s) => s.step === 3);
   assert.equal(b3.status, "settled", "Lane B Step 3 settled LOST");
   assert.equal(b3.result, "lost", "Lane B Step 3 settled LOST → lane stopped");
-  // Mr. Dub ledger still carries the FULL history: Lane A five step wins + completion; Lane B stop (no bankroll double-count).
+  // Mr. Dub ledger carries the FULL history: crown ladder five step wins + the banked 2nd ladder + dual-lane losses (no double-count).
   const led = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
-  assert.ok(led.events.filter((e) => e.type === "lane_step_won" && e.laneId === "lane-a" && e.paperProfit === 0).length >= 5, "Lane A five step wins ($0 realized — rolled) logged");
-  assert.ok(led.events.some((e) => e.type === "lane_step_won" && e.laneId === "lane-a" && e.step === 5), "Lane A Step 5 WON card logged");
-  assert.ok(led.events.some((e) => e.type === "ladder_completed" && e.laneId === "lane-a"), "Lane A ladder completion logged");
-  const bStop = led.events.find((e) => e.type === "lane_stopped" && e.laneId === "lane-b" && e.date === "2026-06-24");
-  assert.ok(bStop && bStop.paperProfit === -100, "Lane B Step 3 stop realizes -$100 (retained in history)");
+  assert.ok(led.events.filter((e) => e.type === "ladder_step_won" && e.laneId === "crown-ladder").length >= 5, "crown ladder five step wins logged");
+  const banked = led.events.find((e) => e.type === "ladder_banked" && e.laneId === "lane-a");
+  assert.ok(banked && banked.paperProfit === 10089.23, "Lane A ladder banked +$10,089.23 (official, $100→$10,089.23)");
+  const losses = led.events.find((e) => e.type === "dual_lane_losses");
+  assert.ok(losses && losses.paperProfit === -300, "dual-lane losses realize -$300 once (retained in history, no double-count)");
 });

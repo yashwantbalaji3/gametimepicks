@@ -8,18 +8,21 @@ const portfolio = read("portfolio.json");
 const ledger = read("ledger.json");
 const daily = read("daily-summary.json");
 
-test("portfolio math after June 24 settlement: bankroll, HWM, drawdown, ROI, record", () => {
-  // June 24 settled: Lane A WON Step 5 → COMPLETED the $10K ladder ($10089.23, operator-gated banking, not auto-applied);
-  // Lane B LOST Step 3 (Brazil ML won; Switzerland/Canada Under 2.5 lost) → realizes -$100. Moonshot unchanged (separate).
-  assert.equal(portfolio.currentBankroll, 10076.17); // Lane A win rolls (nothing realized until banked); Lane B Step 3 loss realizes -$100
-  assert.equal(portfolio.highWaterMark, 10376.17);
-  assert.equal(portfolio.drawdown, 300);
-  assert.ok(Math.abs(portfolio.drawdownPct - 0.0289) < 0.001, "drawdown ≈ 2.89% of HWM");
-  // Lane A completed (pending operator banking) + Lane B settled LOST → no open seeds, no open exposure.
+test("portfolio math after the 2nd ladder is BANKED: crown, bankroll, HWM, drawdown, ROI, record", () => {
+  // Cumulative-crown banking: Lane A completed its $100→$10k ladder ($10,089.23, official) and was BANKED into
+  // the crown. Crown = Σ two completed-ladder finals ($10,376.17 + $10,089.23 = $20,465.40). Active bankroll =
+  // crown − $300 realized dual-lane losses. The live dual lanes are now a fresh cycle-2. Moonshot unchanged.
+  assert.equal(portfolio.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");
+  assert.equal(portfolio.currentBankroll, 20165.4, "active bankroll = crown − $300 dual-lane losses");
+  assert.equal(portfolio.highWaterMark, 20465.4);
+  assert.equal(portfolio.drawdown, 300, "drawdown unchanged — $300 of stopped-lane seeds");
+  assert.ok(Math.abs(portfolio.drawdownPct - 0.0147) < 0.001, "drawdown ≈ 1.47% of HWM");
+  // Both prior cycles fully settled; the fresh cycle-2 lanes have no settled exposure yet → no open exposure.
   assert.equal(portfolio.openExposure, 0);
-  assert.equal(portfolio.roiMultiple, 99.76);
+  assert.equal(portfolio.roiMultiple, 200.65);
+  // Banking is not a bet → the win/loss record is UNCHANGED at 13-3-0-0.
   assert.deepEqual(portfolio.record, { wins: 13, losses: 3, voids: 0, pending: 0 });
-  // Reconciliation: realized paperProfit still === settledProfit (rolled wins add no realized P/L).
+  // Reconciliation: realized paperProfit (banked ladder + dual-lane losses) === settledProfit (no double-counting).
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
   assert.equal(sum, portfolio.settledProfit, "no double-counting — settled profit reconciles");
 });
@@ -31,33 +34,37 @@ test("bankroll health after June 24 settlement (Lane A completed, Lane B lost): 
   assert.ok(!/\bsafe\b/i.test(JSON.stringify(portfolio.bankrollHealth)), "never calls anything safe");
 });
 
-test("exposure breakdown is $0 after June 24 settlement (Lane A completed, Lane B lost); completed crown present", () => {
+test("exposure breakdown is $0 after the 2nd ladder is banked; banked crown present", () => {
   const e = portfolio.exposure;
   const sportSum = (e.bySport ?? []).reduce((s, x) => s + x.amount, 0);
   assert.equal(Math.round(sportSum * 100) / 100, portfolio.openExposure, "bySport sums to open exposure ($0)");
   const laneSum = (e.byLane ?? []).reduce((s, x) => s + x.amount, 0);
   assert.equal(Math.round(laneSum * 100) / 100, portfolio.openExposure, "byLane sums to open exposure ($0)");
-  // Lane A completed the ladder (awaiting operator banking) + Lane B settled LOST → no active card.
-  assert.equal((portfolio.awaitingCards ?? []).length, 1);
+  // The completed Lane A ladder is now BANKED (not pending) → no awaiting card; fresh cycle-2 has no active card yet.
+  assert.equal((portfolio.awaitingCards ?? []).length, 0);
   assert.equal((portfolio.activeCards ?? []).length, 0);
-  assert.ok((portfolio.completedCards ?? []).some((c) => c.name === "Road to $10K" && c.final === 10376.17));
+  // The banked crown is surfaced as a completed card at the cumulative total ($20,465.40).
+  assert.ok((portfolio.completedCards ?? []).some((c) => c.name === "Road to $10K" && c.final === 20465.4));
 });
 
-test("daily summary: June 18 shows Lane A WON + Lane B LOST with exact legs, P/L reconciles", () => {
-  const d = daily.days.find((x) => x.date === "2026-06-18");
-  assert.ok(d, "June 18 day present");
-  assert.ok(d.events.length, "day embeds its exact events");
-  const flat = JSON.stringify(d.events);
-  assert.ok(/Mexico/.test(flat) && /Soto/.test(flat), "Lane A legs present");
-  assert.ok(/Switzerland/.test(flat) && /Goldschmidt/.test(flat), "Lane B legs present");
-  assert.ok(d.events.some((e) => e.type === "lane_step_won" && e.laneId === "lane-a"), "Lane A step won");
-  assert.ok(d.events.some((e) => e.type === "lane_stopped" && e.laneId === "lane-b" && e.paperProfit === -100), "Lane B lost -$100");
-  // P/L reconciles + last-day closing equals current bankroll.
-  const sum = Math.round(d.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
-  assert.equal(sum, d.pl, "day P/L equals the sum of its events");
+test("daily summary: the 2nd ladder is BANKED (+$10,089.23) then dual-lane losses realized (−$300), P/L reconciles", () => {
+  // The rebuilt daily ledger records the banking of the 2nd ladder and the realized dual-lane losses.
+  const banked = daily.days.find((x) => x.date === "2026-06-24");
+  assert.ok(banked, "ladder-banked day present");
+  assert.ok(banked.events.length, "day embeds its exact events");
+  assert.ok(banked.events.some((e) => e.type === "ladder_banked" && e.paperProfit === 10089.23), "Lane A ladder banked +$10,089.23");
+  assert.equal(banked.closing, 20465.4, "closing after banking = cumulative crown $20,465.40");
+  const losses = daily.days.find((x) => x.date === "2026-06-25");
+  assert.ok(losses, "dual-lane-losses day present");
+  assert.ok(losses.events.some((e) => e.type === "dual_lane_losses" && e.paperProfit === -300), "dual-lane losses realize −$300");
+  // P/L reconciles for each banking day + last-day closing equals current bankroll.
+  for (const d of [banked, losses]) {
+    const sum = Math.round(d.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
+    assert.equal(sum, d.pl, `day ${d.date} P/L equals the sum of its events`);
+  }
   assert.equal(daily.days[daily.days.length - 1].closing, portfolio.currentBankroll, "closing reconciles to bankroll");
   // Each event carries a self-explanatory accounting note.
-  assert.ok(d.events.every((e) => typeof e.accountingNote === "string" && e.accountingNote.length), "events carry an accounting note");
+  for (const d of [banked, losses]) assert.ok(d.events.every((e) => typeof e.accountingNote === "string" && e.accountingNote.length), "events carry an accounting note");
 });
 
 test("Mr. Dub page: hero (scientist badge + CTAs) → dual ladder → active/awaiting → daily → exposure → full ledger", () => {

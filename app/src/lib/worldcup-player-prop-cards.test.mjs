@@ -68,8 +68,10 @@ test("no leg shorter than -500 anywhere in the WC suggested cards", () => {
 });
 
 test("active cards untouched: Lane A/B, Moonshot, Mr. Dub unchanged by the player-prop pool", () => {
-  const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
-  assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "Lane A/B legs unchanged");
+  // The banked dual run (Lane A's June-19 Gonzales / Lane B's Hoskins legs) now lives in the archive after
+  // banking Ladder #2; the live artifact is a fresh cycle-2. The player-prop pool must not touch either.
+  const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json", "utf8"));
+  assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "banked Lane A/B legs unchanged");
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 1152, "Moonshot Step 1 active card is +1152");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));

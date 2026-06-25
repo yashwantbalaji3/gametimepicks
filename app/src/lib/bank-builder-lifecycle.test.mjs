@@ -108,31 +108,42 @@ test("live ladder: record is consistent with the crown ladder + dual-lane settle
   const p = read("mr-dub/portfolio.json");
   const run = read("methodology/launch/dual-bank-builder-active.json").run;
   const activeDualWon = ["laneA", "laneB"].reduce((n, k) => n + (run[k].steps ?? []).filter((s) => s.status === "settled" && s.result === "won").length, 0);
-  assert.deepEqual(p.record, REC(13, 3), "canonical record 13-3 (post June-24)");
+  assert.deepEqual(p.record, REC(13, 3), "canonical record 13-3 (UNCHANGED — banking a ladder is not a bet)");
   // wins beyond the 5-0 crown ladder are dual-lane step wins; the CURRENT active run's settled rungs are a
-  // subset (Lane B restarted after a prior lost run, so some dual-lane wins predate this artifact).
+  // subset of that history. POST-BANKING + FRESH CYCLE-2: the prior dual run banked (Lane A → Ladder #2) and a
+  // fresh cycle started with NO settled rungs yet — so all dual-lane wins now live in the banked archive, and
+  // the live artifact shows 0 settled-won rungs while the record subset invariant still holds.
   const dualPortion = p.record.wins - 5;
   assert.ok(dualPortion >= activeDualWon, `dual-lane wins (${dualPortion}) ≥ current active-run settled rungs (${activeDualWon})`);
-  assert.ok(activeDualWon === 7, "post June-24 run shows 7 settled-won rungs (Lane A 1-5 completed + Lane B 1-2)");
+  assert.ok(activeDualWon === 0, "fresh cycle-2 run shows 0 settled-won rungs (both lanes back to Step 1; banked wins are in the archive)");
 });
 
-test("live ladder: Lane A COMPLETED the final rung — its Step 5 win was a COMPLETION (operator-gated banking, not a silent roll)", () => {
-  // POST JUNE-24: Lane A cleared all 5 rungs, so readLaneRungs(root).laneA is null (ladder complete). The
-  // COMPLETION transition rule still holds (clearing the final rung → complete), and the live artifact shows
-  // Lane A completed with the completion held PENDING (operator-gated) rather than auto-banked into the crown.
+test("post-banking: Lane A's completed final rung was operator-gated BANKED (Ladder #2), then a fresh cycle-2 Step-1 started", () => {
+  // POST-BANKING + FRESH CYCLE-2: the operator BANKED Lane A's completed $100→$10k ladder (final $10,089.23 →
+  // Ladder #2) and started a fresh dual cycle. The LIVE artifact's Lane A is now a fresh active Step-1, so
+  // readLaneRungs(root).laneA is a Step-1 rung again. The COMPLETION transition rule itself is unchanged.
   const { laneA, laneB } = readLaneRungs(root);
-  assert.equal(laneA, null, "Lane A rung is null — the ladder is COMPLETE (no further rung to ride)");
+  assert.ok(laneA, "Lane A has a fresh rung again (cycle 2 Step 1)");
+  assert.equal(laneA.nextStep, 1, "Lane A is back on Step 1 (fresh cycle)");
+  assert.equal(laneA.clearedSteps, 0, "fresh cycle cleared 0 rungs");
   // The completion transition: clearing the final rung (the 5th, index STEP_COUNT-1) is a COMPLETE, not a roll.
   assert.equal(classifyLaneTransition(BANK_BUILDER_STEP_COUNT - 1, "won"), "complete", "clearing the final rung is a COMPLETION");
   const run = read("methodology/launch/dual-bank-builder-active.json").run;
-  assert.equal(run.laneA.laneStatus, "completed", "Lane A artifact shows completed");
-  assert.equal(run.laneA.currentStep, BANK_BUILDER_STEP_COUNT, "Lane A completed on the final rung (Step 5)");
-  // Operator-gated banking: the completion is flagged pending and the crown bankroll is untouched.
+  assert.equal(run.laneA.laneStatus, "active", "live Lane A is a fresh active cycle-2 lane");
+  assert.equal(run.laneA.currentStep, 1, "live Lane A sits on a fresh Step 1");
+  // The completed Lane A ladder now lives in the BANKED archive (not the live artifact, not a pending flag).
+  const banked = read("mr-dub/banked-ladders.json");
+  const ladder2 = (banked.ladders ?? []).find((b) => b.ladder === 2);
+  assert.ok(ladder2, "Lane A's completed ladder is banked as Ladder #2");
+  assert.equal(ladder2.final, 10089.23, "banked Ladder #2 carries the $10,089.23 official final");
+  assert.equal(ladder2.official, true, "banked from an official settlement");
+  // Operator-gated banking COMPLETED: the pending flag is gone and crown = Σ both banked-ladder finals.
   const p = read("mr-dub/portfolio.json");
-  assert.ok((p.pendingLaneCompletions ?? []).some((c) => c.lane === "A" && c.step === BANK_BUILDER_STEP_COUNT), "Lane A completion is held PENDING (operator-gated, not auto-banked)");
-  assert.equal(p.crownBankroll, 10376.17, "crown unchanged — completion was not silently rolled into the bankroll");
-  // Lane B (cleared 2 rungs before it stopped) would still ADVANCE on a non-final win — the rule is intact.
-  assert.equal(classifyLaneTransition(2, "won"), "advance", "a non-final cleared count (Lane B Step 3) still advances on a win");
+  assert.ok(!(p.pendingLaneCompletions ?? []).some((c) => c.lane === "A"), "Lane A completion is no longer PENDING — it was banked");
+  assert.equal(p.crownBankroll, 20465.4, "crown = Σ two completed-ladder finals (10,376.17 + 10,089.23), not a silent roll");
+  assert.equal(banked.crownTotal, 20465.4, "banked archive crownTotal reconciles with the portfolio crown");
+  // Lane B (a fresh Step-1 with 0 cleared) would still ADVANCE on a non-final win — the rule is intact.
+  assert.equal(classifyLaneTransition(0, "won"), "advance", "a non-final cleared count still advances on a win");
 });
 
 test("active-run protection: settled rungs are immutable history — exposure only ever sits on a lane's NEXT (unsettled) rung, never on a settled one", () => {

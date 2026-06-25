@@ -1,10 +1,14 @@
 /**
  * Approved-card lock for Bank Builder — once a lane is approved, a refresh must NOT silently swap its legs.
- * POST JUNE-24: the June-24 approved cards have been officially SETTLED, so the lock is now CONSUMED — the
- * lock file is status "settled" with empty lanes (it no longer pins Morocco/Bosnia/Brazil). These tests
- * verify the consumed/settled state: the lock no longer pins any card, the settled June-24 cards landed
- * WON (Lane A) / LOST (Lane B) in the ladder artifact, and canonical money is frozen at the post-settlement
- * truth (13-3, bankroll 10076.17, crown 10376.17 immutable). The money-integrity guard is preserved.
+ * POST JUNE-24: the June-24 approved cards were officially SETTLED, so the lock is CONSUMED — the lock file is
+ * status "settled" with empty lanes (it no longer pins Morocco/Bosnia/Brazil). POST-BANKING + FRESH CYCLE-2:
+ * the operator then BANKED Lane A's completed $100→$10k ladder (Ladder #2, final $10,089.23) and started a
+ * FRESH June-25 dual cycle. The settled June-24 run is archived in dual-bank-builder-2026-06-24-completed.json;
+ * the LIVE dual-bank-builder-active.json now holds two FRESH active Step-1 lanes. These tests verify: the lock
+ * stays consumed (no re-pin), the settled June-24 cards landed WON (Lane A) / LOST (Lane B) in the ARCHIVE, the
+ * completion was operator-gated BANKED (not pending, not a silent roll), and canonical money is the post-banking
+ * truth (13-3 UNCHANGED, bankroll 20165.40, cumulative crown 20465.40 = Σ two banked finals). The money-integrity
+ * guard is preserved.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -16,6 +20,7 @@ const root = path.join(process.cwd(), "public", "data");
 const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
 
 const DATE = "2026-06-24";
+const ARCHIVE = "methodology/launch/dual-bank-builder-2026-06-24-completed.json";
 const dp = buildPersistedDailyPortfolio(root, `${DATE}T08:00:00Z`, DATE, `${DATE}T08:00:00Z`, true);
 const bb = dp.lanes.filter((l) => l.product === "bank-builder");
 const laneA = bb.find((l) => l.lane === "A");
@@ -38,59 +43,71 @@ test("the consumed lock no longer pins the June-24 approved legs (Morocco/Bosnia
   assert.ok(!/Brazil/i.test(serialized), "Brazil leg no longer pinned (card settled)");
 });
 
-test("Lane A's June-24 approved card SETTLED WON (Morocco + Bosnia + Scotland/Brazil Over 2.5 → $10,089.23, COMPLETED the ladder)", () => {
-  const run = read("methodology/launch/dual-bank-builder-active.json").run;
-  assert.equal(run.laneA.laneStatus, "completed", "Lane A completed the $10k ladder");
-  assert.equal(run.laneA.currentStep, 5, "Lane A finished on the final rung");
+test("Lane A's June-24 approved card SETTLED WON (Morocco + Bosnia + Scotland/Brazil Over 2.5 → $10,089.23, COMPLETED the ladder) — now in the ARCHIVE", () => {
+  // POST-BANKING: the completed June-24 run was archived (the live artifact restarted to a fresh cycle), so the
+  // settled-WON Lane A history now lives in dual-bank-builder-2026-06-24-completed.json — never erased.
+  const run = read(ARCHIVE).run;
+  assert.equal(run.laneA.laneStatus, "completed", "archived Lane A completed the $10k ladder");
+  assert.equal(run.laneA.currentStep, 5, "archived Lane A finished on the final rung");
   const step5 = (run.laneA.steps ?? []).find((s) => s.step === 5);
-  assert.ok(step5, "Lane A Step 5 present");
+  assert.ok(step5, "Lane A Step 5 present in the archive");
   assert.equal(step5.status, "settled");
   assert.equal(step5.result, "won", "Lane A Step 5 WON");
   assert.equal(step5.payout, 10089.23, "Lane A final value $10,089.23");
+  const serialized = JSON.stringify(step5.legs ?? []);
+  assert.ok(/Morocco/i.test(serialized) && /Bosnia/i.test(serialized) && /Brazil/i.test(serialized), "Step 5 legs are Morocco + Bosnia + Scotland/Brazil Over 2.5");
 });
 
-test("Lane B's June-24 approved card SETTLED LOST (Brazil ML won, Switzerland/Canada Under 2.5 lost → lane stopped, $0 payout)", () => {
-  const run = read("methodology/launch/dual-bank-builder-active.json").run;
-  assert.equal(run.laneB.laneStatus, "stopped", "Lane B stopped on the loss");
-  assert.equal(run.laneB.currentStep, 3, "Lane B stopped on Step 3");
+test("Lane B's June-24 approved card SETTLED LOST (Brazil ML won, Switzerland/Canada Under 2.5 lost → lane stopped, $0 payout) — now in the ARCHIVE", () => {
+  const run = read(ARCHIVE).run;
+  assert.equal(run.laneB.laneStatus, "stopped", "archived Lane B stopped on the loss");
+  assert.equal(run.laneB.currentStep, 3, "archived Lane B stopped on Step 3");
   const step3 = (run.laneB.steps ?? []).find((s) => s.step === 3);
-  assert.ok(step3, "Lane B Step 3 present");
+  assert.ok(step3, "Lane B Step 3 present in the archive");
   assert.equal(step3.status, "settled");
   assert.equal(step3.result, "lost", "Lane B Step 3 LOST");
   assert.equal(step3.payout, 0, "Lane B lost card pays $0");
 });
 
-test("Lane A's completion is operator-gated (PENDING_LADDER_COMPLETION), never an auto-bank", () => {
+test("Lane A's completion was operator-gated then BANKED (Ladder #2) — never an auto-bank, never a silent roll", () => {
   const p = read("mr-dub/portfolio.json");
-  const pending = (p.pendingLaneCompletions ?? []).find((c) => c.lane === "A");
-  assert.ok(pending, "Lane A completion is flagged pending (operator-gated)");
-  assert.equal(pending.step, 5);
-  assert.equal(pending.finalValue, 10089.23, "pending completion carries the $10,089.23 final value");
-  assert.equal(pending.slateDate, DATE);
-  // The completion did NOT silently roll into the crown bankroll.
-  assert.equal(p.crownBankroll, 10376.17, "crown unchanged — completion banking is operator-gated, not auto-applied");
+  // POST-BANKING: the completion is no longer held PENDING — the operator banked it, so pendingLaneCompletions
+  // was removed and the completed ladder appears as a banked entry. Operator-gating is still proven: it took an
+  // explicit banking step (recorded in banked-ladders.json + completedLadders), never an auto-roll.
+  assert.ok(!(p.pendingLaneCompletions ?? []).some((c) => c.lane === "A"), "Lane A completion is no longer pending — it was banked");
+  const banked = read("mr-dub/banked-ladders.json");
+  const ladder2 = (banked.ladders ?? []).find((b) => b.ladder === 2);
+  assert.ok(ladder2, "Lane A's completed ladder is banked as Ladder #2");
+  assert.equal(ladder2.final, 10089.23, "banked Ladder #2 carries the $10,089.23 final value");
+  assert.equal(ladder2.official, true, "banked from an official settlement");
+  const completed2 = (p.completedLadders ?? []).find((c) => c.ladder === 2);
+  assert.ok(completed2 && completed2.final === 10089.23, "portfolio records Ladder #2 as a completed $100→$10k ladder");
+  // The completion rolled into the CUMULATIVE crown only via the banking step: crown = Σ both finals.
+  assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked-ladder finals (10,376.17 + 10,089.23)");
 });
 
-test("the consumed lock NEVER mutates canonical money (bankroll/crown/record frozen at post-settlement truth)", () => {
+test("the consumed lock NEVER mutates canonical money (bankroll/crown/record are the post-banking truth)", () => {
   const p = read("mr-dub/portfolio.json");
-  assert.equal(p.currentBankroll, 10076.17);
-  assert.equal(p.crownBankroll, 10376.17);
+  assert.equal(p.currentBankroll, 20165.4);
+  assert.equal(p.crownBankroll, 20465.4);
   assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 });
-  assert.equal(dp.activeBankroll, 10076.17);
-  assert.equal(dp.crownBankroll, 10376.17);
+  assert.equal(dp.activeBankroll, 20165.4);
+  assert.equal(dp.crownBankroll, 20465.4);
 });
 
-test("STABILITY: with the lock consumed, a refresh does NOT re-pin a settled lane (no resurrected Lane A card)", () => {
-  // Lane A completed, so it must not reappear as a live BB card after the lock is consumed.
-  assert.equal(laneA, undefined, "completed Lane A is not regenerated as a live card");
+test("STABILITY: the consumed lock does NOT re-pin settled cards; the fresh cycle-2 lanes are clean Step-1 cards", () => {
+  // The lock is consumed (status settled, empty lanes), so a refresh must not resurrect the SETTLED June-24
+  // cards. POST-BANKING the live lanes restarted to a fresh Step-1, so the daily view legitimately serves two
+  // fresh active Step-1 cards — but they must NOT carry the settled June-24 legs (no re-pin from a consumed lock).
+  const lock = read("mr-dub/bank-builder-locks.json");
+  assert.equal(lock.status, "settled");
+  assert.deepEqual(lock.lanes, {}, "consumed lock pins nothing");
+  assert.ok(laneA && laneB, "both fresh cycle-2 lanes are served as forward Step-1 cards");
+  assert.equal(laneA.step, 1); assert.equal(laneB.step, 1);
+  // Refreshing does not silently swap the served legs (stable across two builds at different clocks).
   const again = buildPersistedDailyPortfolio(root, `${DATE}T20:00:00Z`, DATE, `${DATE}T20:00:00Z`, true);
   const a2 = again.lanes.find((l) => l.product === "bank-builder" && l.lane === "A");
-  assert.equal(a2, undefined, "Lane A stays absent across refreshes — settled card not resurrected");
-  // Lane B (which stopped) is the only forward BB lane the daily view may regenerate.
   const b2 = again.lanes.find((l) => l.product === "bank-builder" && l.lane === "B");
-  assert.deepEqual(
-    (b2?.legs ?? []).map((l) => l.id).sort(),
-    (laneB?.legs ?? []).map((l) => l.id).sort(),
-    "Lane B legs unchanged across refreshes (no silent swap)"
-  );
+  assert.deepEqual((a2?.legs ?? []).map((l) => l.id).sort(), (laneA?.legs ?? []).map((l) => l.id).sort(), "Lane A legs unchanged across refreshes (no silent swap)");
+  assert.deepEqual((b2?.legs ?? []).map((l) => l.id).sort(), (laneB?.legs ?? []).map((l) => l.id).sort(), "Lane B legs unchanged across refreshes (no silent swap)");
 });

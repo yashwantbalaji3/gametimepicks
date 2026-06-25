@@ -79,8 +79,8 @@ test("BANKROLL INTEGRITY: the allocation never mutates portfolio.json", () => {
   const before = read(path.join(root, "mr-dub", "portfolio.json"));
   const a = buildPortfolioAllocation(root, NOW, DATE);
   assert.equal(read(path.join(root, "mr-dub", "portfolio.json")), before, "portfolio.json byte-for-byte unchanged");
-  assert.equal(a.activeBankroll, 10076.17);
-  assert.equal(a.crownBankroll, 10376.17);
+  assert.equal(a.activeBankroll, 20165.40);
+  assert.equal(a.crownBankroll, 20465.40);
   assert.ok(Math.abs(a.availableBankroll - (a.activeBankroll - a.totalOpenExposure)) < 0.01, "available = active − exposure");
 });
 

@@ -37,10 +37,17 @@ test("MONEY: the daily portfolio NEVER reports a bankroll/crown different from c
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
 });
 
-test("MONEY: record is well-formed and crown reflects a completed ladder, not a guess", () => {
+test("MONEY: record is well-formed and crown reflects completed ladders, not a guess", () => {
   const p = read("mr-dub/portfolio.json");
   for (const k of ["wins", "losses", "voids", "pending"]) assert.ok(Number.isInteger(p.record[k]) && p.record[k] >= 0, `record.${k} is a non-negative integer`);
-  assert.ok((p.completedLadders ?? []).some((l) => l.official && l.final === p.crownBankroll), "crown equals an OFFICIAL completed-ladder final (not an invented number)");
+  // CUMULATIVE-CROWN model: after BANKING a 2nd completed $100→$10k ladder, the crown is the SUM of every
+  // OFFICIAL completed-ladder final — not any single one. This still proves the crown is built only from
+  // official completed ladders (no invented number): Σ of official finals must reconcile to the crown to
+  // the penny, and there must be at least one official ladder backing it.
+  const officialFinals = (p.completedLadders ?? []).filter((l) => l.official).map((l) => l.final);
+  assert.ok(officialFinals.length >= 1, "crown is backed by at least one OFFICIAL completed ladder");
+  const sumOfficial = Math.round(officialFinals.reduce((s, f) => s + f, 0) * 100) / 100;
+  assert.equal(sumOfficial, Math.round(p.crownBankroll * 100) / 100, "crown = Σ of OFFICIAL completed-ladder finals (not an invented number)");
 });
 
 // ---------- DATA INTEGRITY (no fabrication) ----------

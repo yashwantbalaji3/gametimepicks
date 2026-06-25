@@ -70,12 +70,21 @@ test("balancedGeneration diagnostics: targets + filled + a reason for every unde
 });
 
 test("active cards untouched: Lane A/B, Moonshot, and Mr. Dub exposure unchanged by generation", () => {
-  // Generation must NOT mutate the bank-builder artifacts. Pinned to the current active cross-slate state.
+  // Generation must NOT mutate the bank-builder artifacts. POST-BANKING + FRESH CYCLE-2: the prior run banked
+  // (Lane A → Ladder #2) and a fresh dual cycle started, so the live artifact's lanes are BOTH a fresh Step-1
+  // (laneStatus "active", currentStep 1, NO settled steps/legs yet). Generation must leave that fresh cycle intact.
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
-  assert.ok(/USA/.test(JSON.stringify(dual.run.laneA.legs)) && /Gonzales/.test(JSON.stringify(dual.run.laneA.legs)), "Lane A still USA + Gonzales");
+  for (const key of ["laneA", "laneB"]) {
+    assert.equal(dual.run[key].laneStatus, "active", `${key} is a fresh active cycle-2 lane`);
+    assert.equal(dual.run[key].currentStep, 1, `${key} sits on a fresh Step 1`);
+    assert.deepEqual(dual.run[key].steps ?? [], [], `${key} has no settled steps (fresh cycle)`);
+    assert.deepEqual(dual.run[key].legs ?? [], [], `${key} has no pinned legs (fresh cycle)`);
+  }
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 1152, "Moonshot Step 1 card is +1152");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
-  assert.equal(p.openExposure, 0, "core open exposure $0 (Lane A Step 3 settled WON; Lane B settled WON → both released)");
+  // CANONICAL money is the post-banking truth and is NOT moved by generation: crown = Σ two banked ladder finals.
+  assert.equal(p.openExposure, 0, "core canonical open exposure $0 (settled rungs released; banked ladders carry no exposure)");
+  assert.equal(p.crownBankroll, 20465.4, "crown = Σ two completed-ladder finals, untouched by generation");
   assert.equal(p.moonshot.exposure, 0, "moonshot settled LOST → $0 exposure");
 });

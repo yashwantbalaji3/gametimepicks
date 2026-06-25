@@ -2,7 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const run = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8")).run;
+// The June-18 fresh Lane A run COMPLETED the $10k ladder (Step 5 WON June 24) and was BANKED; it now
+// lives in the archive. The live active.json is a fresh Step-1 cycle-2. These assertions are about the
+// HISTORICAL fresh-lane-a construction (clean run, Mexico DNB + Soto Step 1, replacement candidates), so
+// read them from the archived completed run.
+const run = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json", "utf8")).run;
 const A = run.laneA, B = run.laneB;
 const step1 = A.steps.find((s) => s.step === 1);
 const dec = (o) => (o >= 0 ? 1 + o / 100 : 1 + 100 / -o);

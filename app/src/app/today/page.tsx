@@ -29,6 +29,7 @@ import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-cand
 import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
 import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
 import BankBuilderStatusRail from "@/components/bank-builder/bank-builder-status-rail";
+import AchievementBanner from "@/components/achievement-banner";
 import MrDubTodayCard from "@/components/mr-dub/mr-dub-today-card";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
 // (DualBankBuilderTeaser now renders only on /bank-builder; Today uses the compact status rail.)
@@ -283,6 +284,8 @@ export default function TodayPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
+      {/* 0 — Track-record social proof (2× $100→$10K completed). Factual, read from the canonical ledger. */}
+      <AchievementBanner />
       {/* 1 — THE FLAGSHIP HIGHLIGHT: the four core paper products — Bank Builder, Moonshot, World Cup
             Specials, Homer Nukes — in order. They are the homepage's lead section. The quick-jump
             flashcards link only to these four (every other destination lives in the top/side nav, so no

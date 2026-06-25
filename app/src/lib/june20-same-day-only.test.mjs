@@ -14,12 +14,15 @@ const etDate = (iso) => new Date(Date.parse(iso) - 4 * 3600 * 1000).toISOString(
 const isStale = (iso) => iso && etDate(iso) < SLATE; // before the June 21 slate → stale past-date leg
 
 const bb = read("public/data/methodology/launch/dual-bank-builder-active.json").run;
+// The completed/stopped dual-lane run (June 24) is now BANKED + archived. Its settled WON cards
+// (the cross-slate June 18-24 legs) live here; the live artifact is a fresh Step-1 cycle-2.
+const archive = read("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json").run;
 const moon = read("public/data/moonshot-lane/active.json");
 const portfolio = read("public/data/mr-dub/portfolio.json");
 
-test("Bank Builder: both lanes settled WON → no open (placed/active) step legs remain, and no surfaced leg is stale", () => {
+test("Bank Builder: completed run BANKED → live lanes are a fresh cycle-2 with no open legs, and the archived settled legs are not stale", () => {
+  // Live (fresh cycle-2): both lanes are active Step 1 with no placed card → zero open legs.
   let openLegCount = 0;
-  let settledLegCount = 0;
   for (const [id, lane] of [["lane-a", bb.laneA], ["lane-b", bb.laneB]]) {
     for (const s of lane.steps ?? []) {
       if (s.status === "pending" || s.status === "active") {
@@ -28,16 +31,20 @@ test("Bank Builder: both lanes settled WON → no open (placed/active) step legs
           assert.ok(!isStale(l.startTime), `${id} step ${s.step} open leg ${l.participantName} is a stale past-date leg (${l.startTime})`);
         }
       }
+    }
+  }
+  // Fresh cycle-2 has no placed card on either lane, so there are NO open legs.
+  assert.equal(openLegCount, 0, "no open legs — fresh Step-1 cycle-2, awaiting the next qualified card");
+  // The cross-slate settled WON legs (the now-banked June 18-24 run) live in the archive and span ≥2 cleared cards.
+  let settledLegCount = 0;
+  for (const lane of [archive.laneA, archive.laneB]) {
+    for (const s of lane.steps ?? []) {
       if (s.status === "settled" && s.result === "won") {
-        // Settled WON steps are historical and legitimately span the June 18-22 cleared cards.
         for (const _l of s.legs ?? []) settledLegCount++;
       }
     }
   }
-  // Both lanes settled WON — no card is placed/active anymore, so there are NO open legs.
-  assert.equal(openLegCount, 0, "no open legs — both lanes settled WON, awaiting the next qualified card");
-  // The cross-slate settled legs (June 21 + June 22) are present and none is stale.
-  assert.ok(settledLegCount >= 2, "cross-slate settled WON cards carry their graded legs in both lanes");
+  assert.ok(settledLegCount >= 2, "archived cross-slate settled WON cards carry their graded legs in both lanes");
 });
 
 test("Bank Builder: candidate surfaces resolved into placed cards (no leftover candidate-only legs)", () => {
@@ -74,8 +81,8 @@ test("Mr. Dub: both lanes settled WON → no open exposure ($0 core after Lane A
   assert.equal((portfolio.activeCards ?? []).length, 0, "no active cards — both lanes awaiting the next qualified card");
 });
 
-test("PROTECTED: the completed crown ladder ($10,376.17) is untouched", () => {
-  assert.equal(portfolio.crownBankroll, 10376.17, "crown bankroll immutable");
+test("PROTECTED: the cumulative crown ($20,465.40 = two banked $100→$10k ladders) is untouched", () => {
+  assert.equal(portfolio.crownBankroll, 20465.4, "crown bankroll immutable (Σ completed-ladder finals: $10,376.17 + $10,089.23)");
   // The protected 5-step crown ladder artifact is still present.
   const crown = read("public/data/bank-builder/dual-lanes-latest.json");
   assert.ok(crown, "completed crown ladder artifact present");
