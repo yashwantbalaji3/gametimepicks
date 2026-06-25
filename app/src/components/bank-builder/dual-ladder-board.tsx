@@ -459,6 +459,34 @@ function LaneLadderCard({ view, enrichment, daily }: { view: PublicDualLadderVie
       </div>
       <p className="mb-3 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{headline}</p>
 
+      {/* Prominent money row for the current rung — Invest / To win / Profit / Goal — so the stakes are
+          immediately obvious (Phase 8). Shown for a live/active rung; hidden for a completed ladder. */}
+      {(() => {
+        if (view.currentStatus === "completed") return null;
+        const cur = view.steps.find((s) => s.step === view.currentStep);
+        const d = daily[`${view.laneId}:${view.currentStep}`];
+        const invest = d?.stake ?? view.currentStake ?? cur?.actualStake ?? null;
+        const toWin = d?.potentialReturn ?? cur?.actualReturn ?? null;
+        const goal = cur?.goalTarget ?? null;
+        if (invest == null || toWin == null) return null;
+        const tiles: Array<[string, string, string]> = [
+          ["Invest", usd2(invest), "var(--vault-text)"],
+          ["To win", usd2(toWin), "var(--vault-gold-bright)"],
+          ["Profit", `+${usd2(Math.max(0, toWin - invest))}`, "var(--vault-success)"],
+          ["Goal", goal != null ? usd(goal) : "—", "var(--vault-text-mute)"],
+        ];
+        return (
+          <div className="mb-3 grid grid-cols-4 gap-1.5">
+            {tiles.map(([k, v, c]) => (
+              <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+                <div className="font-mono tabular font-bold leading-tight" style={{ color: c, fontSize: 14 }}>{v}</div>
+                <div className="mt-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{k}</div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+
       {/* Vertical rail behind the step nodes (the rail node sits at left ~14px). */}
       <div className="relative">
         <span aria-hidden className="absolute top-3 bottom-3" style={{ left: 13.5, width: 2, background: "linear-gradient(180deg, #6EE7A8 0%, var(--vault-gold-bright) 45%, var(--vault-rule) 100%)", opacity: 0.5, borderRadius: 2 }} />
