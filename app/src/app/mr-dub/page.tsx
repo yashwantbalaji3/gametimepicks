@@ -20,6 +20,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import PortfolioAllocationSection from "@/components/mr-dub/portfolio-allocation";
 import { buildPortfolioAllocation } from "@/lib/mr-dub/product-allocation";
 import MasterLedgerSection from "@/components/mr-dub/master-ledger-section";
+import AchievementBanner from "@/components/achievement-banner";
 import { buildMasterLedger } from "@/lib/mr-dub/master-ledger";
 
 export const metadata = {
@@ -134,7 +135,9 @@ export default function MrDubPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
-      {/* 0 — Portfolio allocation (lead): how the single bankroll is allocated across all four products. */}
+      {/* 0 — Track-record social proof: 2× $100→$10K completed (factual, from the canonical ledger). */}
+      <AchievementBanner />
+      {/* 0.1 — Portfolio allocation (lead): how the single bankroll is allocated across all four products. */}
       <PortfolioAllocationSection allocation={allocation} />
 
       {/* 0.25 — Master ledger: authoritative cross-product paper track record (record/ROI/P&L/exposure). */}
