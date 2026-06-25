@@ -11,13 +11,22 @@ const read = (p) => fs.readFileSync(p, "utf8");
 test("World Cup Specials tracker derives candidate/pending/settled from the slate (no exposure)", () => {
   const result = loadWorldCupSpecials();
   assert.ok(result && result.cards.length > 0, "specials loaded");
-  // Before any kickoff → all candidates (pre-event). The June 24 slate's earliest kickoff is 19:00Z.
-  const pre = deriveSpecialsTracker(result, "2026-06-24T10:00:00Z");
+  // DATE-AGNOSTIC: derive the kickoff window from the loaded cards' leg start times rather than pinning
+  // to a specific slate date. A card is a candidate until one of its legs has kicked off; once every
+  // card has a started leg it is pending/settled. So:
+  //   • pre  = one minute BEFORE the earliest leg across all cards → all candidates
+  //   • post = one minute AFTER the latest leg across all cards   → none still a candidate
+  const starts = result.cards.flatMap((c) => c.legs.map((l) => Date.parse(l.startTime))).filter(Number.isFinite);
+  assert.ok(starts.length > 0, "cards carry real leg kickoff times");
+  const preIso = new Date(Math.min(...starts) - 60_000).toISOString();
+  const postIso = new Date(Math.max(...starts) + 60_000).toISOString();
+  // Before any kickoff → all candidates (pre-event).
+  const pre = deriveSpecialsTracker(result, preIso);
   assert.equal(pre.summary.candidateCount, result.cards.length, "all pre-event = candidates before kickoff");
   assert.equal(pre.summary.pendingCount, 0, "none pending before kickoff");
-  // After all kickoffs but ungraded → all pending (games started, not settled). The latest June 24
-  // leg kicks off 2026-06-25T01:00Z, so 02:00Z is after every game has started.
-  const mid = deriveSpecialsTracker(result, "2026-06-25T02:00:00Z");
+  // After every game has started but ungraded → all pending/settled, none a candidate.
+  const mid = deriveSpecialsTracker(result, postIso);
+  assert.equal(mid.summary.candidateCount, 0, "no started card is still a candidate");
   assert.equal(mid.summary.pendingCount + mid.summary.settledCount, result.cards.length, "started cards are pending or settled, not candidates");
   // Specials never place exposure.
   assert.equal(pre.summary.exposure, 0, "specials exposure always 0 (suggested cards, not placed)");

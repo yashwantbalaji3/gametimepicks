@@ -33,6 +33,10 @@ export function readLaneRungs(root: string): { laneA: LaneRung | null; laneB: La
   const build = (laneKey: "laneA" | "laneB", lane: "A" | "B"): LaneRung | null => {
     const l = run?.[laneKey];
     if (!l) return null;
+    // A COMPLETED ladder is terminal (operator banking decision pending) and a STOPPED lane (lost its rung)
+    // does NOT auto-place exposure on a settled rung — its restart is operator-gated, exactly like completion
+    // banking. Either way there is no eligible NEXT rung to auto-generate a card for.
+    if (l.laneStatus === "completed" || l.laneStatus === "stopped") return null;
     const settled = (l.steps ?? []).filter((s: any) => s.status === "settled" && s.result === "won").sort((a: any, b: any) => a.step - b.step);
     const cleared = settled.length;
     const nextStep = cleared + 1;
