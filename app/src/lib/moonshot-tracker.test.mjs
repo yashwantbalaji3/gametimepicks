@@ -94,8 +94,10 @@ test("Moonshot candidates: real odds, honest independent combined price, pre-eve
   assert.match(tracker, /Moonshot Candidates/, "tracker renders a candidates section");
 });
 
-test("protected crown is untouched (still $10,376.17, 5-0)", () => {
+test("protected crown is the cumulative banked total ($20,465.40 = two completed $100→$10k ladders), 13-3", () => {
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(portfolio.crownBankroll, 10376.17, "crown bankroll immutable");
-  assert.equal(portfolio.currentBankroll, 10076.17, "active bankroll reflects June 24 settlement (Lane A win rolls; Lane B Step 3 -$100)");
+  // Cumulative-crown: crown = Σ official completed-ladder finals ($10,376.17 + $10,089.23). Banking the 2nd
+  // ladder grows the crown but never rewrites it downward — the crown is immutable per completed ladder.
+  assert.equal(portfolio.crownBankroll, 20465.4, "crown bankroll = Σ two banked ladder finals (immutable, append-only)");
+  assert.equal(portfolio.currentBankroll, 20165.4, "active bankroll = crown − $300 dual-lane losses");
 });

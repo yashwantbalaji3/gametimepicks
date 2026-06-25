@@ -5,7 +5,11 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { loadTodaySlate } from "./ui-loader.ts";
+
+const launchDir = path.join(process.cwd(), "public", "data", "methodology", "launch");
 
 test("missing/unknown date yields an honest empty state (no crash, no fabrication)", () => {
   const v = loadTodaySlate("1999-01-01");
@@ -87,53 +91,46 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("the June 19 settled + cross-slate resumed ladder: Lane A completed (Steps 1-5 won, USA + Gonzales, Egypt + Algeria), Lane B stopped (Step 1 restart WON, Step 3 lost)", () => {
+test("fresh cycle-2 launch: after BANKING the 2nd $100→$10k ladder, the LIVE preview is a freshly launched dual-lane run (both lanes active at Step 1, no settled steps, no stale-leg leak)", () => {
+  // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and restarted. The live
+  // dual-bank-builder-active.json is now the FRESH cycle: launched, both lanes active at Step 1 with no
+  // settled steps yet. The old June-19→24 completed/stopped narrative moved to the archive (asserted
+  // separately below) — it must NOT bleed into the live preview.
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
-  assert.equal(bb.isLadder, true, "preview is a multi-step ladder");
+  assert.equal(bb.status, "launched", "fresh cycle is a launched run");
+  assert.equal(bb.isLadder, false, "no settled steps yet → not yet a multi-step ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
-  assert.equal(bb.laneA.steps.length, 5, "five-step ladder");
-
-  // Lane A: Step 1 (Mexico DNB + Soto) + Step 2 (USA + Gonzales) + Step 3 (Egypt + Algeria) ALL WON. The
-  // live artifact has since cleared Steps 4+5 (June 24, official) → the lane COMPLETED the $10k ladder.
-  assert.equal(bb.laneA.laneStatus, "completed");
-  assert.equal(bb.laneA.publicVisible, true);
-  const a1 = bb.laneA.steps[0];
-  assert.equal(a1.status, "settled");
-  assert.equal(a1.result, "won", "Lane A Step 1 cleared WON");
-  assert.equal(a1.stake, 100, "started from $100");
-  for (const leg of a1.legs) {
-    assert.equal(leg.settlementResult, "won", "both Lane A legs graded won");
-    assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "official line present");
+  // Fresh lanes are active at Step 1 with nothing settled — the loader never fabricates prior wins.
+  for (const [name, lane] of [["A", bb.laneA], ["B", bb.laneB]]) {
+    assert.equal(lane.laneStatus, "active", `Lane ${name} restarted active`);
+    assert.equal(lane.publicVisible, true, `Lane ${name} is publicly visible`);
+    assert.equal(lane.currentStep, 1, `Lane ${name} is back at Step 1`);
+    assert.equal((lane.steps ?? []).length, 0, `Lane ${name} has no settled steps in the fresh cycle`);
   }
-  const a2 = bb.laneA.steps[1];
-  assert.equal(a2.status, "settled", "Step 2 settled");
-  assert.equal(a2.result, "won", "Step 2 WON (USA ML + Gonzales HRR)");
-  assert.equal(a2.legs.length, 2);
-  assert.ok(a2.legs.some((l) => l.sport === "WORLD_CUP") && a2.legs.some((l) => l.sport === "MLB"), "Step 2 = one World Cup + one MLB");
-  assert.ok((a2.payout ?? 0) >= 600 && (a2.payout ?? 0) <= 700, "Step 2 paid ~$601.56");
-  const a3 = bb.laneA.steps[2];
-  assert.equal(a3.status, "settled", "Step 3 settled (WON) cross-slate card");
-  assert.equal(a3.result, "won", "Step 3 settled WON (Egypt ML + Algeria ML, official)");
-  assert.ok((a3.payout ?? 0) >= 1400 && (a3.payout ?? 0) <= 1500, "Step 3 paid ~$1,464.71");
+  // No stale legs from either prior ladder may surface in the live, just-launched preview.
+  const live = JSON.stringify(bb);
+  assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey|Gonzales|Algeria|Egypt/.test(live), "no prior-ladder legs leak into the fresh cycle preview");
+});
 
-  // Lane B: the $100 Step 1 restart settled WON (official) — Steps 1+2 cleared, shown publicly. The live
-  // artifact has since settled Step 3 a LOSS (June 24, Switzerland/Canada Under 2.5) → the lane STOPPED.
-  assert.equal(bb.laneB.laneStatus, "stopped");
-  assert.equal(bb.laneB.publicVisible, true);
-  const b1 = bb.laneB.steps[0];
-  assert.equal(b1.status, "settled", "Lane B Step 1 restart card settled");
-  assert.equal(b1.result, "won", "Lane B Step 1 restart cleared WON");
-  for (const leg of b1.legs) {
-    assert.equal(leg.settlementResult, "won", "both Lane B restart legs graded won (Argentina ML + France/Iraq Under 3.5)");
-    assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "official line present");
-  }
-  const liveB = JSON.stringify(bb.laneB.steps);
-  // The stale prior-lane legs (Goldschmidt, the Switzerland/Bosnia ML, Hoskins, Turkey) must never bleed
-  // into the live lane. "Bosnia" pins the prior Switzerland leg (Switzerland 4-1 Bosnia) — the live lane's
-  // own June-24 Step 3 is a DIFFERENT Switzerland game (Switzerland/Canada), so we match the opponent, not
-  // the team name, to keep protecting against leaks without false-flagging the lane's real settled history.
-  assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey/.test(liveB), "old stopped/lost legs never surface in the live lane");
+test("ARCHIVE money-integrity: the BANKED 2nd ladder ($10,089.23 final) is preserved official — Lane A completed 5/5 won, Lane B stopped on a Step-3 loss", () => {
+  // The crown is the SUM of two official completed-ladder finals; the 2nd ($10,089.23) is anchored here.
+  // This guard proves the banked ladder is real and official — Lane A cleared all five rungs from $100 to
+  // a >$10k Step-5 payout, Lane B genuinely STOPPED on a settled loss (no fabricated completion).
+  const run = JSON.parse(fs.readFileSync(path.join(launchDir, "dual-bank-builder-2026-06-24-completed.json"), "utf8")).run;
+  const A = run.laneA, B = run.laneB;
+  assert.equal(A.laneStatus, "completed", "archived Lane A completed the ladder");
+  assert.equal(A.steps.length, 5, "five-step ladder");
+  for (const s of A.steps) { assert.equal(s.status, "settled"); assert.equal(s.result, "won", "every Lane A step officially WON"); }
+  assert.equal(A.steps[0].stake, 100, "started from $100");
+  const a5 = A.steps[4];
+  assert.equal(a5.payout, 10089.23, "Lane A Step-5 payout = the banked Ladder #2 final ($10,089.23)");
+  assert.ok(a5.payout > 10000, "ladder cleared the $10k target");
+  // Lane B stopped on a real settled loss — no fabricated completion, no payout on the losing rung.
+  assert.equal(B.laneStatus, "stopped", "archived Lane B stopped");
+  const bLost = B.steps.find((s) => s.status === "settled" && s.result === "lost");
+  assert.ok(bLost, "Lane B has a real settled loss");
+  assert.equal(bLost.payout, 0, "the losing rung paid $0 (no fabricated win)");
 });
 
 test("mixed-sport parlays: each card spans a World Cup leg + another sport, by risk", () => {
@@ -153,36 +150,34 @@ test("mixed-sport parlays: each card spans a World Cup leg + another sport, by r
   }
 });
 
-test("Lane B Step 1 restart is plus-money (Argentina ML + France/Iraq Under 3.5), settled WON → lane later stopped on Step 3", () => {
-  const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
-  const bb = v.bankBuilderPreview;
-  assert.equal(bb.isLadder, true);
-  const step1 = bb.laneB.steps.find((s) => s.step === 1);
+test("ARCHIVE: the banked ladder's Lane B Step-1 restart was plus-money (+177), settled WON, World-Cup-backed", () => {
+  // Migrated to the archive: the fresh live cycle has no settled steps. The banked Lane B restart card is
+  // preserved official — plus-money combined price, settled WON, with a World Cup leg per lane.
+  const run = JSON.parse(fs.readFileSync(path.join(launchDir, "dual-bank-builder-2026-06-24-completed.json"), "utf8")).run;
+  const step1 = run.laneB.steps.find((s) => s.step === 1);
   assert.ok(step1.combinedOdds != null && step1.combinedOdds > 0, "Step 1 combined odds are plus-money (+177)");
   assert.equal(step1.status, "settled", "Step 1 restart card settled (official)");
-  assert.equal(step1.result, "won", "Step 1 restart settled WON (Argentina ML + France/Iraq Under 3.5, official)");
+  assert.equal(step1.result, "won", "Step 1 restart settled WON (Argentina ML + Under 3.5, official)");
   assert.ok(step1.legs.some((l) => l.sport === "WORLD_CUP"), "Step 1 keeps a World Cup leg per lane");
-  // The restart cleared Steps 1+2 WON; the live artifact later settled Step 3 a loss (June 24) → stopped.
-  assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped after Step 3 settled a loss (post-June-24)");
+  // The lane genuinely stopped later on a settled Step-3 loss (no fabricated completion).
+  assert.equal(run.laneB.laneStatus, "stopped", "Lane B stopped after Step 3 settled a loss");
 });
 
-test("Lane B Step 1 restart soccer leg is a clean team market (draw-no-bet)", () => {
-  const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
-  const laneB = v.bankBuilderPreview.laneB;
-  const step1 = laneB.steps.find((s) => s.step === 1);
+test("ARCHIVE: the banked Lane B Step-1 soccer leg is a clean team market (no BTTS in Bank Builder)", () => {
+  const run = JSON.parse(fs.readFileSync(path.join(launchDir, "dual-bank-builder-2026-06-24-completed.json"), "utf8")).run;
+  const step1 = run.laneB.steps.find((s) => s.step === 1);
   const soccer = step1.legs.find((l) => l.sport === "WORLD_CUP");
   assert.ok(soccer, "Lane B keeps one World Cup leg");
-  assert.ok(!/both teams to score/i.test(soccer.participant + " " + soccer.market), "no BTTS leg in Bank Builder");
-  assert.ok(["moneyline_90", "draw_no_bet", "double_chance"].includes(soccer.market), `soccer leg is a team market (got ${soccer.market})`);
+  assert.ok(!/both teams to score/i.test((soccer.participantName ?? "") + " " + (soccer.marketType ?? "")), "no BTTS leg in Bank Builder");
+  assert.ok(["moneyline_90", "draw_no_bet", "double_chance", "match_total_goals"].includes(soccer.marketType), `soccer leg is a clean team/total market (got ${soccer.marketType})`);
 });
 
-test("MLB Bank Builder legs carry REAL last-5 prop history (official game logs, never fabricated)", () => {
-  const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
-  const bb = v.bankBuilderPreview;
-  const mlbLegs = [bb.laneA, bb.laneB].flatMap((l) => l.steps.flatMap((s) => s.legs)).filter((l) => l.sport === "MLB");
+test("ARCHIVE: banked-ladder MLB Bank Builder legs carry REAL last-5 prop history (official game logs, never fabricated)", () => {
+  const run = JSON.parse(fs.readFileSync(path.join(launchDir, "dual-bank-builder-2026-06-24-completed.json"), "utf8")).run;
+  const mlbLegs = [run.laneA, run.laneB].flatMap((l) => l.steps.flatMap((s) => s.legs ?? [])).filter((l) => l.sport === "MLB");
   assert.ok(mlbLegs.length >= 2, "there are MLB legs to check");
   for (const leg of mlbLegs) {
-    assert.ok(leg.last5, `${leg.participant} has a last5 block`);
+    assert.ok(leg.last5, `${leg.participantName} has a last5 block`);
     if (!leg.last5.unavailable) {
       assert.ok(Array.isArray(leg.last5.games) && leg.last5.games.length > 0, "last5 has game-by-game values");
       assert.ok(leg.last5.games.every((g) => typeof g.value === "number" && typeof g.hit === "boolean"), "each game has a numeric value + hit/miss");

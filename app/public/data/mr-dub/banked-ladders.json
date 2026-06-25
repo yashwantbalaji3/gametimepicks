@@ -1,0 +1,46 @@
+{
+  "note": "Officially BANKED completed $100→$10k ladders + the realized-history base. CROWN = Σ(official completed-ladder finals). This is the permanent, replayable source of truth for crown / record / dual-lane losses, DECOUPLED from the live (current-cycle) dual-bank-builder ladder — so starting a fresh cycle never erases banked history or creates phantom profit. Append-only. Every number is traceable to an official settlement.",
+  "bankedAt": "2026-06-25T16:00:00Z",
+  "bankingModel": "cumulative-crown",
+  "crownTotal": 20465.40,
+  "historicalDualLaneLosses": -300,
+  "historicalRecord": { "wins": 13, "losses": 3, "voids": 0, "pending": 0 },
+  "lifetimeProfit": 20065.40,
+  "ladders": [
+    {
+      "ladder": 1,
+      "lane": "crown",
+      "label": "Road to $10K — original crown ladder",
+      "start": 100,
+      "final": 10376.17,
+      "completedDate": "2026-06-13",
+      "official": true,
+      "source": "bank-builder/public-ledger-latest.json",
+      "steps": [
+        { "step": 1, "result": "won", "before": 100, "after": 211.85, "date": "2026-06-09" },
+        { "step": 2, "result": "won", "before": 211.85, "after": 728.76, "date": "2026-06-10" },
+        { "step": 3, "result": "won", "before": 728.76, "after": 1423.64, "date": "2026-06-11" },
+        { "step": 4, "result": "won", "before": 1423.64, "after": 3623.97, "date": "2026-06-12" },
+        { "step": 5, "result": "won", "before": 3623.97, "after": 10376.17, "date": "2026-06-13" }
+      ]
+    },
+    {
+      "ladder": 2,
+      "lane": "A",
+      "label": "Dual Bank Builder Lane A — second $100→$10k",
+      "start": 100,
+      "final": 10089.23,
+      "completedDate": "2026-06-24",
+      "bankedAt": "2026-06-25T16:00:00Z",
+      "official": true,
+      "settlementSource": "API-Football v3 /fixtures (FT regulation)",
+      "steps": [
+        { "step": 1, "result": "won", "before": 100, "after": 197.88, "date": "2026-06-18", "legs": ["Mexico draw no bet", "Juan Soto Hits Over 0.5"] },
+        { "step": 2, "result": "won", "before": 197.88, "after": 601.56, "date": "2026-06-19", "legs": ["USA moneyline", "Nick Gonzales Hits+Runs+RBIs Under 2.5"] },
+        { "step": 3, "result": "won", "before": 601.56, "after": 1464.71, "date": "2026-06-21", "legs": ["Egypt moneyline", "Algeria moneyline"] },
+        { "step": 4, "result": "won", "before": 1464.71, "after": 3502.57, "date": "2026-06-23", "legs": ["Croatia moneyline", "Under 2.5 total goals"] },
+        { "step": 5, "result": "won", "before": 3502.57, "after": 10089.23, "date": "2026-06-24", "legs": ["Morocco moneyline", "Bosnia & Herzegovina moneyline", "Scotland/Brazil Over 2.5"] }
+      ]
+    }
+  ]
+}

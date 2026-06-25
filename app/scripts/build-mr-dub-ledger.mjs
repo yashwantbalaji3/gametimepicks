@@ -79,14 +79,50 @@ function main() {
       notes: `Completed-ladder rung ${e.step} — official, $${e.bankrollBefore} → $${e.bankrollAfter}.`,
     });
   }
-  const crownFinal = crown.entries?.length ? round2(crown.entries[crown.entries.length - 1].bankrollAfter) : 10376.17;
+  // BANKED realized-history base (cumulative-crown model). When banked-ladders.json exists it is the
+  // authoritative source of CROWN (= Σ official completed-ladder finals), the preserved dual-lane losses,
+  // and the record — DECOUPLED from the live ladder, so a fresh cycle never erases banked history or
+  // double-counts. The live ladder below then layers ONLY the CURRENT cycle's activity on top.
+  let banked = null;
+  try { banked = JSON.parse(fs.readFileSync(path.join(DATA, "mr-dub", "banked-ladders.json"), "utf8")); } catch {}
+  const crownFinal = banked
+    ? round2(banked.crownTotal)
+    : (crown.entries?.length ? round2(crown.entries[crown.entries.length - 1].bankrollAfter) : 10376.17);
+
+  // 1b) Banked dual-lane ladders (#2+) + the dual-lane phase's realized losses, as dated ledger events so
+  // the daily summary + drawdown reconcile to the banked bankroll. A banked ladder realizes its FULL final
+  // (cumulative-crown: its $100 seed is embedded in the crown sum, not separate capital). The losses are
+  // dated to the banking day so the running bankroll peaks at the crown (drawdown = crown − bankroll).
+  if (banked) {
+    for (const l of (banked.ladders ?? []).filter((x) => x.lane !== "crown")) {
+      events.push({
+        eventId: `mrdub-ladder${l.ladder}-banked`, timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder",
+        type: "ladder_banked", laneId: `lane-${String(l.lane).toLowerCase()}`, step: (l.steps ?? []).length || null,
+        date: l.completedDate ?? NOW.slice(0, 10), paperStake: round2(l.start ?? 100), paperReturn: round2(l.final ?? 0),
+        paperProfit: round2(l.final ?? 0), status: "settled", result: "won", officialResultConfirmed: true,
+        settlementSource: l.settlementSource ?? "official", publicBankBuilderVisible: true, legs: [],
+        notes: `Ladder #${l.ladder} BANKED — Lane ${l.lane} completed $${l.start}→$${l.final} (official). Crown = Σ completed-ladder finals.`,
+      });
+    }
+    if (banked.historicalDualLaneLosses) {
+      events.push({
+        eventId: "mrdub-dual-lane-realized-losses", timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder",
+        type: "dual_lane_losses", laneId: "lane-b", date: NOW.slice(0, 10), paperStake: 0, paperReturn: 0,
+        paperProfit: round2(banked.historicalDualLaneLosses), status: "settled", result: "lost", officialResultConfirmed: true,
+        publicBankBuilderVisible: false, legs: [],
+        notes: `Dual-lane phase realized losses — ${Math.round(Math.abs(banked.historicalDualLaneLosses) / 100)} stopped-lane $100 seeds (preserved; not part of any completed ladder).`,
+      });
+    }
+  }
 
   // 2) Dual-lane paper activity from the active artifact (each lane is a fresh $100 paper ladder).
   const laneEvents = [];
-  let dualRealized = 0;       // realized paper P&L of the dual-lane experiments
+  let dualRealized = banked ? round2(banked.historicalDualLaneLosses ?? 0) : 0; // realized dual-lane P&L base
   let openExposure = 0;
-  let wins = (crown.entries ?? []).filter((e) => e.result === "win").length;
-  let losses = 0, voids = 0, pending = 0;
+  let wins = banked ? (banked.historicalRecord?.wins ?? 0) : (crown.entries ?? []).filter((e) => e.result === "win").length;
+  let losses = banked ? (banked.historicalRecord?.losses ?? 0) : 0;
+  let voids = banked ? (banked.historicalRecord?.voids ?? 0) : 0;
+  let pending = 0;
 
   for (const lk of ["laneA", "laneB"]) {
     const lane = active[lk]; if (!lane) continue;
@@ -245,7 +281,9 @@ function main() {
     settledProfit,
     roi: round2(settledProfit / (crown.base ?? 100)),
     record: { wins, losses, voids, pending },
-    completedLadders: [{ name: "Road to $10K", result: "5–0", start: round2(crown.base ?? 100), final: crownFinal, official: true }],
+    completedLadders: banked
+      ? banked.ladders.map((l) => ({ name: l.label, ladder: l.ladder, result: `${(l.steps ?? []).filter((s) => s.result === "won").length}–0`, start: l.start, final: l.final, completedDate: l.completedDate, official: !!l.official }))
+      : [{ name: "Road to $10K", result: "5–0", start: round2(crown.base ?? 100), final: crownFinal, official: true }],
     activeCards: laneEvents.filter((e) => e.status === "open" || e.status === "queued").map((e) => ({ laneId: e.laneId, type: e.type, step: e.step, stake: e.paperStake, projectedReturn: e.projectedReturn ?? null, status: e.status })),
     generatedAt: NOW,
   };

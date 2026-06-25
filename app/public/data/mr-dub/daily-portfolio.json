@@ -1,20 +1,20 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-06-25",
-  "generatedAt": "2026-06-25T08:00:00Z",
-  "activeBankroll": 10076.17,
-  "crownBankroll": 10376.17,
-  "openExposure": 0,
-  "availableBankroll": 10076.17,
-  "potentialReturn": 0,
+  "generatedAt": "2026-06-25T16:00:00Z",
+  "activeBankroll": 20165.4,
+  "crownBankroll": 20465.4,
+  "openExposure": 200,
+  "availableBankroll": 19965.4,
+  "potentialReturn": 405.25,
   "products": {
     "bankBuilder": {
-      "exposure": 0,
+      "exposure": 200,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 0
+        "pending": 2
       }
     },
     "moonshot": {
@@ -28,6 +28,122 @@
     }
   },
   "lanes": [
+    {
+      "id": "bank-builder-lane-a-step-1",
+      "product": "bank-builder",
+      "productLabel": "Bank Builder",
+      "lane": "A",
+      "step": 1,
+      "clearedSteps": 0,
+      "status": "active",
+      "stake": 100,
+      "exposure": 100,
+      "targetReturn": 200,
+      "fitsTarget": true,
+      "combinedOdds": 101,
+      "combinedDecimal": 2.0108,
+      "potentialReturn": 201.08,
+      "legCount": 2,
+      "targetLegs": 2,
+      "legs": [
+        {
+          "id": "team:57:double_chance:1X",
+          "matchup": "Japan vs Sweden",
+          "market": "Double Chance",
+          "selection": "Japan or Draw",
+          "player": null,
+          "odds": -450,
+          "provider": "fanduel",
+          "modelConfidence": 0.7786,
+          "kickoffEt": "7:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "WORLD_CUP:0ec28b84ec399bd4dffbe8d1bc72b3c4:match_total_goals:over2.5",
+          "matchup": "Ecuador vs Germany",
+          "market": "Total Goals",
+          "selection": "Over 2.5",
+          "player": null,
+          "odds": -155,
+          "provider": "betonlineag",
+          "modelConfidence": 0.5892,
+          "kickoffEt": "4:00 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": "Correlation checked: no shared game with Lane B — the two lanes can advance independently.",
+      "shortfallNote": null,
+      "whyThisCard": [
+        "Safest-fit (World Cup): chosen to MAXIMIZE the chance all 2 legs land — estimated 46% combined hit probability at Tier 3 (higher variance), not the longest-odds card.",
+        "Combined +101 rides $100 toward the $200 rung goal (avg leg confidence 68%)."
+      ],
+      "activationEligibility": {
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
+      }
+    },
+    {
+      "id": "bank-builder-lane-b-step-1",
+      "product": "bank-builder",
+      "productLabel": "Bank Builder",
+      "lane": "B",
+      "step": 1,
+      "clearedSteps": 0,
+      "status": "active",
+      "stake": 100,
+      "exposure": 100,
+      "targetReturn": 200,
+      "fitsTarget": true,
+      "combinedOdds": 104,
+      "combinedDecimal": 2.0417,
+      "potentialReturn": 204.17,
+      "legCount": 2,
+      "targetLegs": 2,
+      "legs": [
+        {
+          "id": "team:60:double_chance:1X",
+          "matchup": "Paraguay vs Australia",
+          "market": "Double Chance",
+          "selection": "Paraguay or Draw",
+          "player": null,
+          "odds": -480,
+          "provider": "betrivers",
+          "modelConfidence": 0.776,
+          "kickoffEt": "10:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "WORLD_CUP:a5a0b544a984ab16e564264f3e859b43:match_total_goals:over3",
+          "matchup": "Curaçao vs Ivory Coast",
+          "market": "Total Goals",
+          "selection": "Over 3",
+          "player": null,
+          "odds": -145,
+          "provider": "betonlineag",
+          "modelConfidence": 0.5744,
+          "kickoffEt": "4:00 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": "Correlation checked: no shared game with Lane A — the two lanes can advance independently.",
+      "shortfallNote": null,
+      "whyThisCard": [
+        "Safest-fit (World Cup): chosen to MAXIMIZE the chance all 2 legs land — estimated 45% combined hit probability at Tier 3 (higher variance), not the longest-odds card.",
+        "Combined +104 rides $100 toward the $200 rung goal (avg leg confidence 68%)."
+      ],
+      "activationEligibility": {
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
+      }
+    },
     {
       "id": "moonshot-lane-a-2026-06-25",
       "product": "moonshot",
@@ -174,8 +290,8 @@
     }
   ],
   "settlement": {
-    "status": "none",
+    "status": "pending",
     "realizedPnl": 0
   },
-  "note": "Daily paper portfolio candidates — no exposure placed; active bankroll and crown unchanged."
+  "note": "Active daily paper portfolio — open exposure is at risk; active bankroll and crown are unchanged until official settlement."
 }

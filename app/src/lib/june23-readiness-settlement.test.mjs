@@ -2,23 +2,23 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { buildPublicDualLadder } from "./bank-builder/public-dual-ladder.ts";
-import { loadTodaySlate } from "./parlays/ui-loader.ts";
 import { loadWorldCupSpecialsHistory, specialsPastSlates } from "./world-cup/world-cup-specials.ts";
 import { loadMoonshotLane } from "./moonshot/moonshot-lane.ts";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 
-test("June 24 settled: core record 13-3-0-0, exposure $0, bankroll = crown − three lost seeds, crown unchanged", () => {
+test("June 24 banked: core record 13-3-0-0, exposure $0, cumulative bankroll = crown − three lost seeds, crown reflects two banked ladders", () => {
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "record 13-3-0-0 (Lane A Step 5 WON; Lane B Step 3 LOST June 24)");
   assert.equal(p.openExposure, 0, "core exposure released to $0 (Lane A completed, Lane B stopped)");
   assert.equal(p.totalOpenExposure, 0, "total exposure $0");
-  assert.equal(p.currentBankroll, 10076.17, "bankroll = crown − $300 (three real Lane B lost seeds); won steps roll");
-  assert.equal(p.crownBankroll, 10376.17, "crown untouched");
+  assert.equal(p.currentBankroll, 20165.4, "bankroll = crown − $300 (three real Lane B lost seeds); won steps roll");
+  assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals ($10,376.17 + $10,089.23)");
 });
 
-test("Lane A artifact: all 5 steps settled WON (Egypt + Algeria + Croatia + Morocco/Bosnia/Brazil), lane completed", () => {
-  const d = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json"));
+test("Archived June-24 run: all 5 Lane A steps settled WON (Egypt + Algeria + Croatia + Morocco/Bosnia/Brazil), lane completed", () => {
+  // The completed June-24 dual-lane run is BANKED + archived (the live artifact is a fresh cycle-2).
+  const d = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json"));
   const a = d.run.laneA;
   assert.equal(a.laneStatus, "completed", "Lane A completed (Step 5 settled WON June 24, ladder finished)");
   const settledWon = a.steps.filter((s) => s.status === "settled" && s.result === "won").length;
@@ -31,16 +31,18 @@ test("Lane A artifact: all 5 steps settled WON (Egypt + Algeria + Croatia + Moro
   assert.ok(brazil && brazil.settlementStatus === "hit", "Scotland/Brazil Over leg graded HIT from official June 24 final");
 });
 
-test("post-June-24 lanes are settled: Lane A completed (ladder cleared), Lane B stopped → restart queued (no active card, no exposure)", () => {
-  const bb = loadTodaySlate().bankBuilderPreview;
+test("archived June-24 lanes are settled: Lane A completed (ladder cleared), Lane B stopped → restart queued (no active card, no exposure)", () => {
+  // Asserts the BANKED June-24 run (archived). The live artifact is a fresh cycle-2; the completed/stopped
+  // lanes that the public ladder view celebrates live in the archive.
+  const archive = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json")).run;
   // Lane A completed the 5-rung $10k ladder → no active card, headline reports the cleared run.
-  const aView = buildPublicDualLadder(bb.laneA ?? null, "lane-a");
+  const aView = buildPublicDualLadder(archive.laneA ?? null, "lane-a");
   assert.ok(aView, "lane-a view built");
   assert.equal(aView.currentStatus, "completed", "lane-a ladder cleared → celebrated completed state");
   assert.ok(/\$10K REACHED|ladder COMPLETE/i.test(aView.headline), "lane-a headline celebrates the completion");
   assert.ok(!aView.steps.some((s) => s.status === "active"), "lane-a has no active card (no open exposure)");
   // Lane B stopped on the June 24 Step 3 loss → restart queued from Step 1, no active card.
-  const bView = buildPublicDualLadder(bb.laneB ?? null, "lane-b");
+  const bView = buildPublicDualLadder(archive.laneB ?? null, "lane-b");
   assert.ok(bView, "lane-b view built");
   assert.equal(bView.currentStatus, "queued_restart", "lane-b stopped → restart queued");
   assert.ok(/Step 1 next qualified card/.test(bView.headline), "lane-b headline queues the Step 1 restart");

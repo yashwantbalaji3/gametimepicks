@@ -2,53 +2,53 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-// June 21 source-of-truth ledger reconciliation guard.
+// Source-of-truth ledger reconciliation guard (post cumulative-crown).
 //
-// Bug fixed: the Mr. Dub ledger builder iterated `priorLane.steps` without a settled guard, so a
-// stopped lane's `coming_soon` placeholder rungs (Steps 3-5, no slateDate) were each counted as a
-// -$100 loss. That triple-counted Lane B's single lost seed and dragged the bankroll from its true
-// $10,176.17 down to $9,876.17 with a fake 8-5 record. The fix only counts SETTLED rungs.
+// Money-integrity invariant: the three real Lane B lost $100 seeds from the dual-lane phase are
+// preserved as realized losses and never inflated by phantom placeholder rungs. After the operator
+// BANKED the second completed $100→$10k ladder (Lane A, $10,089.23, June 24), the realized losses
+// are recorded as a single `dual_lane_losses` settlement event (paperProfit -$300).
 //
-// Source of truth:
-//   crown (protected, 5-0)              = $10,376.17
-//   Lane A Steps 1+2 won (riding)       = +0 realized, +2 wins
-//   Lane B run 1: S1 won, S2 lost       = +1 win, -$100
-//   Lane B run 2 (prior): S1 lost       = -$100
-//   Lane B restart: S1 won (rolled)     = +0 realized, +1 win
-//   => bankroll $10,176.17, record 9-2, drawdown $200 (two realized prior Lane B losses).
-//   June 22 settlement: Lane B Step 1 restart WON (rolled, $0 realized).
-//   June 23 settlement: Lane A Step 3 WON (Jordan 1-2 Algeria FT, official) → rolled, $0 realized.
-//   => $0 open exposure (both lanes settled WON, awaiting next card), record 12-2-0-0; won/rolled steps add no realized P/L.
+// Source of truth (cumulative crown = Σ completed-ladder finals):
+//   Ladder #1 crown (protected, 5-0)    = $10,376.17
+//   Ladder #2 Lane A BANKED (5-0)       = $10,089.23
+//   => crown $20,465.40.
+//   Three real dual-lane Lane B lost $100 seeds (preserved, not part of any completed ladder) = -$300.
+//   => currentBankroll $20,165.40, drawdown $300, record 13-3-0-0; $0 open exposure (fresh cycle-2).
 const portfolio = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
 const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
 
-test("bankroll reconciles to crown less three real Lane B lost seeds — above $10,000", () => {
-  assert.equal(portfolio.crownBankroll, 10376.17, "protected crown immutable");
-  assert.equal(portfolio.currentBankroll, 10076.17, "crown - $300 (three real Lane B stops); pending cards don't realize");
-  assert.ok(portfolio.currentBankroll > 10000, "portfolio is above $10,000");
+test("bankroll reconciles to crown less three real Lane B lost seeds — above $20,000", () => {
+  assert.equal(portfolio.crownBankroll, 20465.4, "protected cumulative crown immutable (Σ two banked $100→$10k finals)");
+  assert.equal(portfolio.currentBankroll, 20165.4, "crown - $300 (three real Lane B stops); pending cards don't realize");
+  assert.ok(portfolio.currentBankroll > 20000, "portfolio is above $20,000");
   assert.equal(portfolio.drawdown, 300, "drawdown = three lost $100 seeds");
   assert.deepEqual(portfolio.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "13-3-0-0 (Lane A Step 5 WON June 24; Lane B Step 3 LOST June 24)");
   assert.equal(portfolio.openExposure, 0, "Lane A completed (Step 5 WON) + Lane B stopped (Step 3 LOST) → both seeds released");
 });
 
-test("no phantom stops — exactly three lane_stopped events, all with real dates", () => {
-  const stops = ledger.events.filter((e) => e.type === "lane_stopped");
-  assert.equal(stops.length, 3, "exactly three real Lane B stops (no coming_soon placeholders counted)");
-  for (const s of stops) {
-    assert.ok(s.date && /^\d{4}-\d{2}-\d{2}$/.test(s.date), `stop has a real settlement date (got ${s.date})`);
-    assert.equal(s.paperProfit, -100, "each stop realizes exactly one $100 seed");
+test("no phantom stops — realized Lane B losses are exactly -$300, recorded with a real date", () => {
+  // The realized dual-lane losses are preserved as a single settled event (no coming_soon placeholders counted).
+  const lossEvents = ledger.events.filter((e) => e.type === "dual_lane_losses");
+  assert.equal(lossEvents.length, 1, "exactly one realized dual-lane-losses settlement event");
+  const totalRealizedLoss = lossEvents.reduce((n, e) => n + e.paperProfit, 0);
+  assert.equal(totalRealizedLoss, -300, "three real Lane B stops realize exactly -$300 (no triple-counted placeholders)");
+  for (const e of lossEvents) {
+    assert.ok(e.date && /^\d{4}-\d{2}-\d{2}$/.test(e.date), `realized loss has a real settlement date (got ${e.date})`);
+    assert.equal(e.status, "settled", "realized loss is a settled (official) event");
+    assert.equal(e.officialResultConfirmed, true, "realized loss confirmed from official sources");
   }
-  // The phantom signature was a lane_stopped with a null date — must never reappear.
-  assert.ok(!ledger.events.some((e) => e.type === "lane_stopped" && !e.date), "no null-date stop events");
+  // The phantom signature was a stop event with a null date — must never reappear.
+  assert.ok(!ledger.events.some((e) => /loss|stop/i.test(e.type ?? "") && !e.date), "no null-date loss/stop events");
 });
 
 test("June 20 is a gap day — no June 20 card counted as a win/loss or exposure", () => {
   const jun20Settled = ledger.events.filter(
-    (e) => e.date === "2026-06-20" && (e.type === "lane_step_won" || e.type === "lane_stopped"),
+    (e) => e.date === "2026-06-20" && /won|loss|stop|banked/i.test(e.type ?? ""),
   );
   assert.equal(jun20Settled.length, 0, "no June 20 Bank Builder win/loss in the ledger (gap day)");
-  // June 20 placed nothing; the cross-slate resume's cards were June 21/22, never June 20.
-  const jun20Open = ledger.events.filter((e) => e.date === "2026-06-20" && e.type === "lane_step_open");
+  // June 20 placed nothing; the dual-lane cards were June 18-24, never June 20.
+  const jun20Open = ledger.events.filter((e) => e.date === "2026-06-20" && /open|placed/i.test(e.type ?? ""));
   assert.equal(jun20Open.length, 0, "no June 20 card placement (gap day)");
-  assert.equal(portfolio.openExposure, 0, "no open exposure — both cross-slate cards settled WON, and June 20 placed nothing");
+  assert.equal(portfolio.openExposure, 0, "no open exposure — both lanes settled, and June 20 placed nothing");
 });

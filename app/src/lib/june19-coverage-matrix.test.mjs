@@ -52,11 +52,14 @@ test("Moonshot row after the Step 1 cross-slate card settled LOST: no active car
   for (const rb of ["low", "medium", "high", "longshot"]) assert.equal(moon.cells.find((c) => c.risk === rb).count, 0, `Moonshot ${rb} = 0 (lane stopped)`);
 });
 
-test("Core Bank Builder row after cross-slate resume: both active lanes (Lane A + Lane B) count in Medium", () => {
+test("Core Bank Builder row after the completed run was BANKED: fresh cycle-2 has no active card, and its own row is never double-counted into generic suggestions", () => {
   const bb = m.rows.find((r) => r.scope === "bank_builder");
-  // Lane A (Step 3 active) + Lane B (Step 1 restart active) — both placed cross-slate cards count.
-  assert.equal(bb.total, 2, "two live Bank Builder lanes (Lane A + Lane B)");
-  assert.equal(bb.cells.find((c) => c.risk === "medium").count, 2, "both lanes in the Medium bucket");
+  // The June-24 dual-lane run was BANKED + archived; the live lanes are a fresh Step-1 cycle-2 with no
+  // placed card, so the Bank Builder row is honestly empty (no fabricated active card).
+  assert.equal(bb.total, 0, "no live Bank Builder card — fresh cycle-2, awaiting the next qualified card");
+  for (const rb of ["low", "medium", "high", "longshot"]) assert.equal(bb.cells.find((c) => c.risk === rb).count, 0, `Bank Builder ${rb} = 0 (no active card)`);
+  // Every empty Bank Builder cell still discloses the exclusion policy (its own row, never promoted as a generic suggestion).
+  for (const c of bb.cells) assert.match(c.message, /tracked separately|double-count|not promoted/i, `${c.risk} cell discloses the no-double-count exclusion policy`);
   // Active Bank Builder legs are not promoted as generic Mixed/MLB suggestions.
   assert.ok(m.diagnosticsSummary.some((s) => /own row|double-count|separately/i.test(s)), "exclusion policy disclosed");
 });

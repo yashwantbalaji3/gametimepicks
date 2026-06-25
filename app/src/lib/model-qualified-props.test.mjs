@@ -113,26 +113,31 @@ test("/today shows the June 23 readiness strip incl. Model Player Props", () => 
   assert.match(today, /loadModelQualifiedProps/, "today reads model-qualified prop counts");
 });
 
-test("post-June-24 settlement: Lane A COMPLETED the $10k ladder (won), Lane B STOPPED (lost), bankroll + crown reconcile, lanes separate", () => {
-  const dual = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json"));
-  // Lane B Step 3 settled LOST (Switzerland 2-1 Canada = 3 goals → Under 2.5 lost) → lane stopped.
-  assert.equal(dual.run.laneB.laneStatus, "stopped", "Lane B stopped (Step 3 settled LOST on Under 2.5)");
-  const laneBStep3 = dual.run.laneB.steps.find((s) => s.step === 3);
+test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live lanes are a fresh cycle-2, bankroll + crown reconcile, lanes separate", () => {
+  // The completed cycle-1 dual run was archived when Lane A's $100→$10k ladder was BANKED. Its final state is
+  // preserved there: Lane A completed (Step 5 WON → $10,089.23), Lane B stopped (Step 3 LOST on Under 2.5).
+  const banked = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json"));
+  assert.equal(banked.run.laneB.laneStatus, "stopped", "banked Lane B stopped (Step 3 settled LOST on Under 2.5)");
+  const laneBStep3 = banked.run.laneB.steps.find((s) => s.step === 3);
   assert.equal(laneBStep3.status, "settled", "Lane B Step 3 settled");
   assert.equal(laneBStep3.result, "lost", "Lane B Step 3 settled LOST");
-  // Lane A Step 5 (final rung) settled WON → ladder completed at $10,089.23.
-  assert.equal(dual.run.laneA.laneStatus, "completed", "Lane A completed the ladder (Step 5 settled WON)");
-  const laneAPending = dual.run.laneA.steps.some((s) => s.status === "pending");
-  assert.ok(!laneAPending, "Lane A has no pending step — every step settled WON");
-  const laneAStep5 = dual.run.laneA.steps.find((s) => s.step === 5);
+  assert.equal(banked.run.laneA.laneStatus, "completed", "banked Lane A completed the ladder (Step 5 settled WON)");
+  const laneAPending = banked.run.laneA.steps.some((s) => s.status === "pending");
+  assert.ok(!laneAPending, "banked Lane A has no pending step — every step settled WON");
+  const laneAStep5 = banked.run.laneA.steps.find((s) => s.step === 5);
   assert.equal(laneAStep5.status, "settled", "Lane A Step 5 settled");
   assert.equal(laneAStep5.result, "won", "Lane A Step 5 settled WON");
   assert.ok(Math.abs(laneAStep5.payout - 10089.23) < 0.5, "Lane A Step 5 reached $10,089.23");
+  // The LIVE dual artifact is a fresh cycle-2 (banking does not leave a completed ladder sitting in the live run).
+  const live = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json"));
+  assert.equal(live.run.laneA.cycle, 2, "live Lane A is cycle 2 (fresh $100 start after banking)");
+  assert.equal(live.run.laneA.laneStatus, "active", "live Lane A is a fresh active cycle, not a completed ladder");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(p.currentBankroll, 10076.17, "active bankroll = 10076.17 (Lane B lost $100 seed; Lane A win rolls, banking operator-gated)");
-  assert.equal(p.crownBankroll, 10376.17, "crown untouched");
-  assert.equal(p.openExposure, 0, "core exposure $0 (Lane A + Lane B both settled)");
-  assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "core record 13-3-0-0");
+  // Cumulative-crown: crown = Σ two banked finals; active bankroll = crown − $300 dual-lane losses.
+  assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");
+  assert.equal(p.currentBankroll, 20165.4, "active bankroll = crown − $300 dual-lane losses");
+  assert.equal(p.openExposure, 0, "core exposure $0 (both prior cycles settled; fresh cycle-2 not yet placed)");
+  assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "core record 13-3-0-0 (banking is not a bet)");
   assert.equal(p.moonshot.exposure, 0, "moonshot exposure separate ($0)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");
 });

@@ -14,14 +14,17 @@ const TEAM_CATS = new Set(["team", "total_btts"]);
 test("Bank Builder safest-fit: maximizes combined hit probability among target-reaching cards (probability-fit, not odds-fit)", () => {
   const pool = loadWorldCupModelPicks(root, NOW, DATE);
   const { laneA, laneB } = readLaneRungs(root);
-  // Post-June-24 settlement: Lane A COMPLETED the ladder (no next rung → null) and Lane B STOPPED on a
-  // Step-3 loss. readLaneRungs returns a rung only for a lane that still has an open step; a completed/
-  // stopped lane has no card to generate. The probability-fit invariant is asserted for every lane that
-  // STILL has an open rung — never weakened, just scoped to lanes that can field a fresh card.
+  // Fresh June-25 cycle: the operator BANKED the 2nd completed $100→$10k ladder and restarted, so both
+  // lanes are open Step-1 rungs again ($100 → $200 target). readLaneRungs returns a rung for every lane
+  // that has an open step; the lanes are generated SEQUENTIALLY against a shared `used` set, so Lane B's
+  // pool excludes the legs Lane A already claimed. The probability-fit invariant is asserted for every
+  // lane that fields a fresh card — never weakened, just re-pointed at the new live cycle.
   const used = new Set();
   const rungs = [["A", laneA], ["B", laneB]].filter(([, rung]) => rung != null);
   assert.ok(rungs.length >= 0, "lane rungs read without crashing (completed/stopped lanes return no rung)");
   for (const [, rung] of rungs) {
+    // Snapshot the eligible pool the selector saw for THIS lane (post-exclusion) before it consumes legs.
+    const eligibleNow = pool.filter((p) => p.odds >= -650 && p.odds <= 400 && p.modelProbability > 0 && !used.has(p.id));
     const g = selectSafestTargetFitCard(pool, rung, used);
     g.legs.forEach((l) => used.add(l.id));
     if (g.legs.length < 2) continue; // thin slate → awaiting (honest)
@@ -29,8 +32,9 @@ test("Bank Builder safest-fit: maximizes combined hit probability among target-r
     assert.ok(typeof g.estimatedHitProbability === "number" && g.estimatedHitProbability > 0 && g.estimatedHitProbability <= 1, "card carries a valid estimated hit probability");
     assert.ok([1, 2, 3].includes(g.marketTier), "card carries a risk tier");
     // Probability-fit invariant: the chosen card's combined hit probability is the MAX among all
-    // target-reaching, distinct-game 2-leg combos in the pool (no higher-probability fitting card exists).
-    const inWin = pool.filter((p) => p.odds >= -500 && p.odds <= 400 && p.modelProbability > 0 && !g.legs.every((x) => x.id !== p.id) === false);
+    // target-reaching, distinct-game 2-leg combos in the pool the selector actually saw (same odds window
+    // -650..400, same already-used exclusions). No higher-probability fitting card exists.
+    const inWin = eligibleNow;
     const dec = (x) => (x > 0 ? 1 + x / 100 : 1 + 100 / Math.abs(x));
     let bestProb = 0;
     for (let i = 0; i < inWin.length; i++) for (let j = i + 1; j < inWin.length; j++) {
@@ -38,7 +42,9 @@ test("Bank Builder safest-fit: maximizes combined hit probability among target-r
       if (dec(inWin[i].odds) * dec(inWin[j].odds) < rung.targetMultiplier) continue;
       bestProb = Math.max(bestProb, inWin[i].modelProbability * inWin[j].modelProbability);
     }
-    if (bestProb > 0) assert.ok(g.estimatedHitProbability >= bestProb - 1e-9, "chosen card has the max combined hit probability among fitting 2-leg combos");
+    // Tolerance absorbs only the selector's documented 4-decimal rounding of estimatedHitProbability
+    // (Number(hitProb.toFixed(4))) — the invariant (chosen = max-probability fitting combo) is unweakened.
+    if (bestProb > 0) assert.ok(g.estimatedHitProbability >= bestProb - 5e-5, "chosen card has the max combined hit probability among fitting 2-leg combos");
   }
 });
 
@@ -92,12 +98,12 @@ test("exposure/bankroll/crown unchanged by the upgrade (only daily-portfolio.jso
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   // The daily-portfolio view never touches CANONICAL money and stays internally consistent regardless of
   // whether the day's lanes are active (cards placed) or awaiting — assert the invariants, not a fixed value.
-  assert.equal(dp.activeBankroll, 10076.17); assert.equal(dp.crownBankroll, 10376.17);
+  assert.equal(dp.activeBankroll, 20165.40); assert.equal(dp.crownBankroll, 20465.40);
   const sumExposure = (dp.lanes ?? []).filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
   assert.equal(dp.openExposure, sumExposure, "open exposure = Σ active-lane seed exposures, nothing else");
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(p.currentBankroll, 10076.17); assert.equal(p.crownBankroll, 10376.17);
-  assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view)");
+  assert.equal(p.currentBankroll, 20165.40); assert.equal(p.crownBankroll, 20465.40);
+  assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view's fresh active lanes)");
   assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 });
 });

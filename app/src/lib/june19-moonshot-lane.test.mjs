@@ -93,10 +93,15 @@ test("Moonshot is its OWN product page (/moonshot) + Mr. Dub section — no long
   assert.match(mrdub, /portfolio\.moonshot/, "Mr. Dub reads the separate moonshot data");
 });
 
-test("protected Bank Builder history + Lane A/B active artifact are untouched by Moonshot", () => {
-  // The Moonshot lane is its own file; the dual artifact still has the corrected USA+Gonzales / Turkey+Hoskins legs.
+test("protected Bank Builder history + banked Lane A ladder are untouched by Moonshot", () => {
+  // The Moonshot lane is its own file. Lane A completed its $100→$10k ladder and was BANKED — that history
+  // is now archived to the completed cycle-1 dual artifact (still has the USA+Gonzales legs), while the live
+  // dual artifact is a fresh cycle-2. Neither is contaminated by the Moonshot lane.
+  const banked = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json", "utf8"));
+  const aLegs = JSON.stringify(banked.run.laneA);
+  assert.ok(/USA/.test(aLegs) && /Gonzales/.test(aLegs), "banked Lane A still USA + Gonzales (history preserved, not rewritten)");
+  assert.ok(!/moonshot/i.test(JSON.stringify(banked)), "no moonshot contamination in the banked Lane A ladder");
+  // The live cycle-2 artifact is a fresh dual-lane cycle, also moonshot-free.
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
-  const aLegs = JSON.stringify(dual.run.laneA.legs);
-  assert.ok(/USA/.test(aLegs) && /Gonzales/.test(aLegs), "Lane A still USA + Gonzales (unchanged)");
-  assert.ok(!/moonshot/i.test(JSON.stringify(dual)), "no moonshot contamination in the dual artifact");
+  assert.ok(!/moonshot/i.test(JSON.stringify(dual)), "no moonshot contamination in the live cycle-2 dual artifact");
 });

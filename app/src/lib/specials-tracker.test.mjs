@@ -39,7 +39,7 @@ test("World Cup Specials are SEPARATE from core / moonshot / crown (no blending)
   assert.deepEqual(portfolio.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "core record reflects only the BB settlement, not specials (Lane A won, Lane B lost)");
   assert.equal(portfolio.openExposure, 0, "core exposure unchanged by specials ($0 — both lanes settled)");
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record unchanged");
-  assert.equal(portfolio.crownBankroll, 10376.17, "crown untouched");
+  assert.equal(portfolio.crownBankroll, 20465.40, "crown untouched");
 });
 
 test("/world-cup-specials route renders the tracker via shared primitives", () => {

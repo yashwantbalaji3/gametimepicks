@@ -53,14 +53,15 @@ test("June 21 coverage matrix reconciles (rows + risk totals sum to grand total)
   assert.ok(m.grandTotal > 0, "live slate produced cards");
 });
 
-test("Bank Builder Lane A completed + Lane B stopped + Moonshot settled — no open exposure; corrected bankroll + crown intact", () => {
+test("Bank Builder June-24 run BANKED (Lane A completed, Lane B stopped) → archived; cumulative bankroll + crown intact, Moonshot settled", () => {
   const p = read("public/data/mr-dub/portfolio.json");
-  assert.equal(p.currentBankroll, 10076.17, "reconciled bankroll preserved (Lane B Step 3 LOST June 24 realized one more seed)");
+  assert.equal(p.currentBankroll, 20165.4, "cumulative bankroll after banking Ladder #2 (crown − $300 three real Lane B stops)");
   assert.equal(p.openExposure, 0, "Lane A completed (Step 5 WON) + Lane B stopped (Step 3 LOST) → both seeds released");
   assert.equal(p.totalOpenExposure, 0, "core $0; moonshot settled LOST → 0 open");
-  assert.equal(p.crownBankroll, 10376.17, "protected crown untouched");
+  assert.equal(p.crownBankroll, 20465.4, "protected crown untouched (two banked $100→$10k ladders)");
   assert.equal(p.moonshot.status, "stopped", "Moonshot settled LOST → stopped");
-  const dual = read("public/data/methodology/launch/dual-bank-builder-active.json").run;
+  // The completed/stopped June-24 dual-lane run is BANKED + archived (the live artifact is a fresh cycle-2).
+  const dual = read("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json").run;
   assert.equal(dual.laneA.laneStatus, "completed", "Lane A Step 5 settled WON June 24 → ladder completed");
   assert.equal((dual.laneA.steps.find((s) => s.step === 3) || {}).status, "settled", "Lane A Step 3 settled (WON) cross-slate card");
   assert.equal((dual.laneA.steps.find((s) => s.step === 3) || {}).result, "won", "Lane A Step 3 settled WON (Egypt + Algeria, official)");
