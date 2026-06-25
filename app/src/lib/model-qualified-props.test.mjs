@@ -128,15 +128,16 @@ test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live
   assert.equal(laneAStep5.status, "settled", "Lane A Step 5 settled");
   assert.equal(laneAStep5.result, "won", "Lane A Step 5 settled WON");
   assert.ok(Math.abs(laneAStep5.payout - 10089.23) < 0.5, "Lane A Step 5 reached $10,089.23");
-  // The LIVE dual artifact is a fresh cycle-2 (banking does not leave a completed ladder sitting in the live run).
+  // The LIVE dual artifact is a fresh cycle-3 (banking does not leave a completed ladder sitting in the live run);
+  // cycle 3 = the push for a third $100→$10K ladder after #1 (crown) and #2 (Lane A) were banked.
   const live = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json"));
-  assert.equal(live.run.laneA.cycle, 2, "live Lane A is cycle 2 (fresh $100 start after banking)");
+  assert.equal(live.run.laneA.cycle, 3, "live Lane A is cycle 3 (fresh $100 start after banking the 2nd ladder)");
   assert.equal(live.run.laneA.laneStatus, "active", "live Lane A is a fresh active cycle, not a completed ladder");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   // Cumulative-crown: crown = Σ two banked finals; active bankroll = crown − $300 dual-lane losses.
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");
   assert.equal(p.currentBankroll, 20165.4, "active bankroll = crown − $300 dual-lane losses");
-  assert.equal(p.openExposure, 0, "core exposure $0 (both prior cycles settled; fresh cycle-2 not yet placed)");
+  assert.equal(p.openExposure, 0, "core exposure $0 (both prior cycles settled; fresh cycle-3 not yet placed)");
   assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "core record 13-3-0-0 (banking is not a bet)");
   assert.equal(p.moonshot.exposure, 0, "moonshot exposure separate ($0)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");

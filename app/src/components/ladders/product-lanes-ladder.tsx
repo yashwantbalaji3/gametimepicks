@@ -2,17 +2,18 @@
  * ProductLanesLadder — the shared, product-agnostic LADDER surface for Bank Builder and Moonshot.
  *
  * Both products present identically: a product header (label + one-line descriptor), then two lane
- * cards (Lane A / Lane B) side-by-side on desktop and stacked on mobile. Each lane card carries a
- * STEP RAIL that reflects this lane's real progress — rungs below the current step read CLEARED (✓),
- * the current step reads "Current card" (accent glow), and rungs above await the prior step's
- * settlement. Bank Builder ladders span 5 steps, Moonshot spans 3. The current card body shows
- * stake → potential return (and the rung goal when set), the combined odds pill, the per-leg list,
- * and any correlation / shortfall notes.
+ * cards (Lane A / Lane B) side-by-side on desktop and stacked on mobile.
  *
- * This makes Moonshot mirror Bank Builder visually: one rail, one shape, two accents. Honest by
- * construction — active lanes read "$X at risk · open exposure"; candidates read "$0 placed · not
- * activated". Pure presentational; all derivation lives in lib/mr-dub/daily-portfolio. Server
- * component (no client state). No horizontal overflow at 375px.
+ * Bank Builder IS a ladder: each lane card carries a STEP RAIL reflecting real progress — rungs below
+ * the current step read CLEARED (✓), the current step reads "Current card" (accent glow), and rungs
+ * above await the prior step's settlement (5 steps). Moonshot is NOT a ladder — it publishes
+ * independent daily longshot cards with no step/target/progress, so its cards show a flat
+ * "independent longshot card · max upside" descriptor instead of a rail or step goal.
+ *
+ * Both share one shape and two accents (gold / violet). Honest by construction — active lanes read
+ * "$X at risk · open exposure"; candidates read "$0 placed · not activated". Pure presentational; all
+ * derivation lives in lib/mr-dub/daily-portfolio. Server component (no client state). No horizontal
+ * overflow at 375px.
  */
 import OddsPill from "@/components/tickets/odds-pill";
 import FlagBadge from "@/components/flag-badge";
@@ -147,6 +148,7 @@ const VOL_COLOR: Record<"Lower" | "Medium" | "Higher", string> = {
 function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; accent: Accent; accentColor: string }) {
   const tone = accent === "violet" ? "violet" : "gold";
   const active = card.status === "active";
+  const isMoonshot = card.product === "moonshot";
   const totalSteps = TOTAL_STEPS[card.product] ?? 3;
   const currentStep = Math.min(Math.max(1, card.step), totalSteps);
   const vol = volatilityScore(card);
@@ -168,8 +170,15 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
           </span>
           <StatusPill status={card.status} />
         </div>
-        {/* Step rail — the shared ladder visual, driven by this lane's real progress */}
-        <StepRail currentStep={currentStep} totalSteps={totalSteps} accentColor={accentColor} />
+        {/* Bank Builder is a ladder (step rail). Moonshot is NOT a ladder — independent daily longshot
+            cards with no step/target/progress — so it shows a flat descriptor, never a rail. */}
+        {isMoonshot ? (
+          <span className="font-mono uppercase tracking-[0.08em] truncate" style={{ fontSize: 8, color: accentColor }}>
+            Independent longshot card · {card.legCount} legs · maximum upside
+          </span>
+        ) : (
+          <StepRail currentStep={currentStep} totalSteps={totalSteps} accentColor={accentColor} />
+        )}
       </div>
 
       {/* Current card body */}
@@ -180,7 +189,7 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
           </span>
           <OddsPill odds={card.combinedOdds} size="sm" tone={tone} />
         </div>
-        {card.targetReturn != null ? (
+        {!isMoonshot && card.targetReturn != null ? (
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: accentColor, fontSize: 8.5 }}>
             → Step {currentStep} goal {money(card.targetReturn)}
           </span>

@@ -228,10 +228,10 @@ export default function MrDubPage() {
         )}
       </section>
 
-      {/* 4b — Moonshot Lane: a SEPARATE high-volatility paper challenge, broken out from the core. */}
+      {/* 4b — Moonshot: a SEPARATE high-volatility paper product (independent daily longshot cards). */}
       {portfolio.moonshot ? (
         <section>
-          <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="A separate World Cup longshot paper challenge — tracked apart from the core Dual Bank Builder. Higher variance by design." />
+          <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot" sub="Independent daily World Cup longshot cards — tracked apart from the core Dual Bank Builder. Higher variance by design, not a ladder." />
           <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
             🌙 Moonshot exposure <span className="font-mono" style={{ color: "#8b7bf0" }}>{usd(portfolio.moonshot.exposure)}</span> · separate from the {usd(portfolio.openExposure)} core lanes (total {usd(portfolio.totalOpenExposure ?? portfolio.openExposure + portfolio.moonshot.exposure)}). Does not affect the core Lane A/B record. Paper-only · settles from official sources.
           </p>

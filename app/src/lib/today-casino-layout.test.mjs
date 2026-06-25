@@ -46,15 +46,16 @@ test("compact Bank Builder status rail replaces the tall recap, before suggested
   assert.ok(!src.includes("Bank Builder · {dateLabel}"), "old tall Bank Builder recap removed");
 });
 
-test("the three flagship ladders lead the content: Bank Builder → Moonshot → WC exclusive parlays → World Cup focus → Bank Builder status", () => {
+test("the three flagship products lead the content: Bank Builder → Moonshot → WC exclusive parlays → World Cup focus → Bank Builder status", () => {
   const bb = src.indexOf('aria-label="Bank Builder ladders"');
-  const moon = src.indexOf('aria-label="Moonshot ladders"');
+  // Moonshot is NOT a ladder — its lead section is labelled "Moonshot cards" (independent daily longshots).
+  const moon = src.indexOf('aria-label="Moonshot cards"');
   const wcParlays = src.indexOf("<WorldCupSpecialsBox");
   const wc = src.indexOf("<TodaysFocusWorldCup");
   const rail = src.indexOf("<BankBuilderStatusRail");
-  assert.ok(bb > 0 && moon > 0, "both flagship ladder sections present");
-  assert.ok(bb < moon, "Bank Builder ladders lead Moonshot ladders");
-  assert.ok(moon < wcParlays, "Moonshot ladders precede the WC exclusive parlays");
+  assert.ok(bb > 0 && moon > 0, "both flagship lead sections present (Bank Builder ladders + Moonshot cards)");
+  assert.ok(bb < moon, "Bank Builder ladders lead the Moonshot cards");
+  assert.ok(moon < wcParlays, "Moonshot cards precede the WC exclusive parlays");
   assert.ok(wcParlays < wc, "WC exclusive parlays precede the World Cup focus");
   assert.ok(wc < rail, "World Cup focus precedes the Bank Builder status rail");
   // The two flagship ladders reuse the shared ProductLanesLadder surface.

@@ -1,7 +1,8 @@
 /**
- * /moonshot — the dedicated Moonshot Lane daily tracker. A separate, higher-volatility $25 → $3,000
- * paper challenge with its own day-by-day journey, record (kept apart from the core Bank Builder),
- * hit/miss/pending legs, exposure, and restart state. Server component; reads committed artifacts.
+ * /moonshot — the dedicated Moonshot board. A separate, higher-volatility paper product that publishes
+ * two independent daily longshot cards (NOT a ladder, no step/target/progression), with its own
+ * record / ROI / profit kept apart from the core Bank Builder, hit/miss/pending legs, and exposure.
+ * Server component; reads committed artifacts.
  */
 import fs from "node:fs";
 import path from "node:path";
