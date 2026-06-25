@@ -86,11 +86,12 @@ export default function MoonshotLaneTracker({
   if (lane.priorRun?.card && showHistory) allRuns.push({ key: "prior", label: "Prior run · June 19", card: lane.priorRun.card, note: lane.priorRun.note });
   const runs = allRuns.slice(0, maxCards ?? (compact ? 1 : allRuns.length));
 
+  // Moonshot is NOT a ladder — it publishes independent high-upside cards. Track its own record + exposure
+  // (no step/target progression).
   const summary: Array<[string, string]> = [
     ["Record", recordStr],
     ["Exposure", usd(exp)],
-    ["Step", `${lane.currentStep} of ${lane.ladder.length}`],
-    ["Target", usd(lane.targetReturn)],
+    ["Style", "High-upside longshots"],
   ];
 
   return (
@@ -109,7 +110,7 @@ export default function MoonshotLaneTracker({
           ))}
         </div>
         <p className="mt-2 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          A separate, higher-volatility paper lane — <strong style={{ color: "var(--vault-text)" }}>not</strong> part of the core Dual Bank Builder, and its record never blends into the core. $25 → $3,000 ladder · paper-only.
+          A separate, higher-volatility product — <strong style={{ color: "var(--vault-text)" }}>not</strong> part of the core Dual Bank Builder, and its record never blends into the core. Two independent high-upside cards daily · paper-only.
         </p>
       </div>
 
