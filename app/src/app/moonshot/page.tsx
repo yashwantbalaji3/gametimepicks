@@ -16,9 +16,9 @@ import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 
 export const metadata = {
-  title: "Moonshot Lane · GameTime Picks",
+  title: "Moonshot · GameTime Picks",
   description:
-    "The Moonshot Lane daily tracker — a separate, higher-volatility $25 → $3,000 paper challenge with day-by-day cards, hit/miss/pending legs, and official settlement. Educational, paper-only.",
+    "Moonshot — two independent, high-upside longshot cards published daily, tracked on their own record / ROI / profit, fully separate from the Bank Builder. Educational, paper-only, official settlement.",
 };
 
 function loadMoonshotPortfolio(): { record?: { wins: number; losses: number; voids: number; pending: number }; exposure?: number } {
@@ -53,10 +53,10 @@ export default function MoonshotPage() {
         counts={record ? { settled: record.wins + record.losses + record.voids, pending: record.pending } : undefined}
         primaryAction={{ label: "Open Bank Builder", href: "/bank-builder" }}
         secondaryAction={{ label: "Mr. Dub", href: "/mr-dub" }}
-        note="A separate, higher-volatility $25 → $3,000 paper challenge — tracked day-by-day, with its own record kept apart from the core Dual Bank Builder. Paper-only, settlement-supported."
+        note="Two independent, high-upside longshot cards published daily — maximum upside, not a ladder. Tracked on their own record / ROI / profit, fully separate from the Bank Builder. Paper-only, settlement-supported."
       />
 
-      {/* Today's Moonshot ladder — Lane A/B with a step rail, driven by the daily portfolio. */}
+      {/* Today's two independent Moonshot cards (A/B), driven by the daily portfolio. Not a ladder. */}
       {moonshotLanes.length ? (
         <section className="flex flex-col gap-3 overflow-x-hidden">
           <ProductLanesLadder productLabel="Moonshot" product="moonshot" accent="violet" lanes={moonshotLanes} />

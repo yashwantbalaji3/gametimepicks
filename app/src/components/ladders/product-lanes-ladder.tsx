@@ -24,7 +24,7 @@ const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFrac
 
 const DESCRIPTOR: Record<DailyPortfolioCard["product"], string> = {
   "bank-builder": "Lower-volatility · 2 legs per lane · ladder toward higher rungs",
-  moonshot: "Higher-upside · 5 legs per lane · ladder toward $3,000",
+  moonshot: "Higher-upside · independent longshot cards · maximum upside (not a ladder)",
 };
 
 type Accent = "gold" | "violet";
