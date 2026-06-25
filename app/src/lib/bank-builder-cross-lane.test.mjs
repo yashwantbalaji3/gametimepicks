@@ -16,8 +16,12 @@ const TEAM = new Set(["team", "total_btts"]);
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 
 test("cross-lane selector: Lane A and Lane B share NO game (independent lanes)", () => {
+  // POST JUNE-24: the live ladder's Lane A COMPLETED, so readLaneRungs(root).laneA is null — the SELECTOR
+  // contract (lanes share no game) is independent of the live ladder state, so exercise it with two valid
+  // forward rungs rather than the settled artifact.
   const pool = loadWorldCupModelPicks(root, NOW, DATE);
-  const { laneA, laneB } = readLaneRungs(root);
+  const laneA = { lane: "A", nextStep: 3, clearedSteps: 2, rolledStake: 702.45, targetReturn: 1400, targetMultiplier: 1400 / 702.45 };
+  const laneB = { lane: "B", nextStep: 3, clearedSteps: 2, rolledStake: 702.45, targetReturn: 1400, targetMultiplier: 1400 / 702.45 };
   const { laneA: a, laneB: b } = selectCrossLaneBankBuilder(pool, laneA, laneB);
   const gamesA = new Set(a.legs.map((l) => l.gameId));
   const gamesB = new Set(b.legs.map((l) => l.gameId));
@@ -50,13 +54,15 @@ test("cross-lane selector: both lanes reach their rung target (probability-fit) 
 });
 
 test("Bank Builder cross-lane SELECTOR keeps lanes independent (no shared game); an approved lock may override", () => {
-  // The cross-lane selector's guarantee is independence. The LIVE persisted lanes can share a game ONLY
-  // when an operator-approved card lock pins a correlated card (e.g. June 24 Lane A Brazil Over 2.5 +
-  // Lane B Brazil ML) — that is a deliberate manual override, not the selector's doing.
+  // The cross-lane selector's guarantee is independence. The June-24 approved-card lock that could pin a
+  // correlated card (Lane A Brazil Over 2.5 + Lane B Brazil ML) is now CONSUMED/settled, but the SELECTOR's
+  // independence contract holds regardless. POST JUNE-24 the live Lane A completed (readLaneRungs.laneA is
+  // null), so exercise the selector with two valid forward rungs to assert the independence guarantee.
   const D = "2026-06-24", N = "2026-06-24T08:00:00Z";
   const pool = [...loadWorldCupTeamLegs(root, N, D), ...loadMlbModelPicks(root, N, D)];
-  const rungs = readLaneRungs(root);
-  const { laneA, laneB } = selectCrossLaneBankBuilder(pool, rungs.laneA, rungs.laneB);
+  const rungA = { lane: "A", nextStep: 3, clearedSteps: 2, rolledStake: 702.45, targetReturn: 1400, targetMultiplier: 1400 / 702.45 };
+  const rungB = { lane: "B", nextStep: 3, clearedSteps: 2, rolledStake: 702.45, targetReturn: 1400, targetMultiplier: 1400 / 702.45 };
+  const { laneA, laneB } = selectCrossLaneBankBuilder(pool, rungA, rungB);
   const gamesA = new Set(laneA.legs.map((l) => l.gameId));
   const overlap = laneB.legs.filter((l) => gamesA.has(l.gameId));
   assert.equal(overlap.length, 0, "selector lanes share no game");
@@ -80,12 +86,13 @@ test("exposure/bankroll/crown unchanged by the cross-lane upgrade", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   // The daily-portfolio view never touches CANONICAL money and stays internally consistent regardless of
   // whether the day's lanes are active (cards placed) or awaiting — assert the invariants, not a fixed value.
-  assert.equal(dp.activeBankroll, 10176.17); assert.equal(dp.crownBankroll, 10376.17);
+  // POST JUNE-24: active bankroll dropped one $100 lost seed (Lane B) → 10076.17; crown is immutable.
+  assert.equal(dp.activeBankroll, 10076.17); assert.equal(dp.crownBankroll, 10376.17);
   const sumExposure = (dp.lanes ?? []).filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
   assert.equal(dp.openExposure, sumExposure, "open exposure = Σ active-lane seed exposures, nothing else");
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(p.currentBankroll, 10176.17); assert.equal(p.crownBankroll, 10376.17);
+  assert.equal(p.currentBankroll, 10076.17); assert.equal(p.crownBankroll, 10376.17);
   assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view)");
-  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 });
 });

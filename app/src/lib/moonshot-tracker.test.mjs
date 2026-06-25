@@ -41,7 +41,7 @@ test("Moonshot lane artifact is stopped/LOST and its record is separate (0-1, no
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot 0-1, separate");
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure 0 (settled)");
-  assert.deepEqual(portfolio.record, { wins: 12, losses: 2, voids: 0, pending: 0 }, "core record (Lane A + Lane B settled WON) — moonshot not blended in");
+  assert.deepEqual(portfolio.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "core record (Lane A completed WON; Lane B Step 3 LOST) — moonshot not blended in");
 });
 
 test("Moonshot is reachable: command rail + top nav include it; mobile has its own Moonshot bucket", () => {
@@ -88,7 +88,7 @@ test("Moonshot candidates: real odds, honest independent combined price, pre-eve
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure still 0 (candidates not placed)");
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record unchanged (0-1)");
-  assert.equal(portfolio.totalOpenExposure, 0, "total exposure unchanged by candidates ($0 core — both lanes settled WON; moonshot $0)");
+  assert.equal(portfolio.totalOpenExposure, 0, "total exposure unchanged by candidates ($0 core — Lane A completed, Lane B lost; moonshot $0)");
   // The tracker renders the candidates section.
   const tracker = read("src/components/moonshot/moonshot-lane-tracker.tsx");
   assert.match(tracker, /Moonshot Candidates/, "tracker renders a candidates section");
@@ -97,5 +97,5 @@ test("Moonshot candidates: real odds, honest independent combined price, pre-eve
 test("protected crown is untouched (still $10,376.17, 5-0)", () => {
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(portfolio.crownBankroll, 10376.17, "crown bankroll immutable");
-  assert.equal(portfolio.currentBankroll, 10176.17, "active bankroll unchanged");
+  assert.equal(portfolio.currentBankroll, 10076.17, "active bankroll reflects June 24 settlement (Lane A win rolls; Lane B Step 3 -$100)");
 });

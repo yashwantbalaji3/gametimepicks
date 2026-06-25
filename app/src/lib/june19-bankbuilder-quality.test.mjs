@@ -75,10 +75,13 @@ test("four distinct games across both lanes (no shared/correlated game)", () => 
   assert.equal(new Set(games).size, games.length, "all four legs are from distinct games");
 });
 
-test("Mr. Dub after both lanes settled WON: no active card, both lanes awaiting, exposure $0; settled lanes carry the right top-level legs", () => {
-  assert.equal(portfolio.openExposure, 0, "Lane A Step 3 settled WON + Lane B Step 1 settled WON → both seeds released, $0 open");
-  assert.equal((portfolio.activeCards ?? []).length, 0, "no active card — both lanes settled WON");
-  assert.equal((portfolio.awaitingCards ?? []).length, 2, "Lane A + Lane B both cleared WON → each awaiting the next qualified card");
+test("Mr. Dub after the June-24 settlement: no active card, Lane A COMPLETED + Lane B STOPPED, exposure $0; settled lanes carry the right top-level legs", () => {
+  assert.equal(portfolio.openExposure, 0, "June-24 settled (Lane A WON Step 5 → ladder complete; Lane B LOST Step 3 seed) → no open exposure");
+  assert.equal((portfolio.activeCards ?? []).length, 0, "no active card — the June-24 cards are settled");
+  // After June 24, Lane A COMPLETED the $10k ladder (one ladder_completed entry, operator-gated banking) and
+  // Lane B STOPPED (lost — not awaiting). So exactly ONE awaiting/flag entry remains, not two.
+  assert.equal((portfolio.awaitingCards ?? []).length, 1, "Lane A ladder_completed only; Lane B stopped (lost) is not awaiting");
+  assert.equal((portfolio.awaitingCards ?? [])[0]?.kind, "ladder_completed", "the remaining entry is Lane A's operator-gated ladder completion");
   // The settled June 19 cards still live in the Bank Builder artifact top-level legs (unchanged).
   const aLegs = JSON.stringify(run.laneA.legs);
   const bLegs = JSON.stringify(run.laneB.legs);

@@ -22,18 +22,18 @@ import fs from "node:fs";
 const portfolio = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
 const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
 
-test("bankroll reconciles to crown less two real Lane B lost seeds — above $10,000", () => {
+test("bankroll reconciles to crown less three real Lane B lost seeds — above $10,000", () => {
   assert.equal(portfolio.crownBankroll, 10376.17, "protected crown immutable");
-  assert.equal(portfolio.currentBankroll, 10176.17, "crown - $200 (two real Lane B stops); pending cards don't realize");
+  assert.equal(portfolio.currentBankroll, 10076.17, "crown - $300 (three real Lane B stops); pending cards don't realize");
   assert.ok(portfolio.currentBankroll > 10000, "portfolio is above $10,000");
-  assert.equal(portfolio.drawdown, 200, "drawdown = two lost $100 seeds");
-  assert.deepEqual(portfolio.record, { wins: 12, losses: 2, voids: 0, pending: 0 }, "12-2-0-0 (Lane A Step 4 WON; Lane B Step 2 WON)");
-  assert.equal(portfolio.openExposure, 0, "Lane A Step 3 settled WON + Lane B settled WON → both seeds released");
+  assert.equal(portfolio.drawdown, 300, "drawdown = three lost $100 seeds");
+  assert.deepEqual(portfolio.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "13-3-0-0 (Lane A Step 5 WON June 24; Lane B Step 3 LOST June 24)");
+  assert.equal(portfolio.openExposure, 0, "Lane A completed (Step 5 WON) + Lane B stopped (Step 3 LOST) → both seeds released");
 });
 
-test("no phantom stops — exactly two lane_stopped events, both with real dates", () => {
+test("no phantom stops — exactly three lane_stopped events, all with real dates", () => {
   const stops = ledger.events.filter((e) => e.type === "lane_stopped");
-  assert.equal(stops.length, 2, "exactly two real Lane B stops (no coming_soon placeholders counted)");
+  assert.equal(stops.length, 3, "exactly three real Lane B stops (no coming_soon placeholders counted)");
   for (const s of stops) {
     assert.ok(s.date && /^\d{4}-\d{2}-\d{2}$/.test(s.date), `stop has a real settlement date (got ${s.date})`);
     assert.equal(s.paperProfit, -100, "each stop realizes exactly one $100 seed");

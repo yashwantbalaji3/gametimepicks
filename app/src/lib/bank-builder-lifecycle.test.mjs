@@ -108,27 +108,38 @@ test("live ladder: record is consistent with the crown ladder + dual-lane settle
   const p = read("mr-dub/portfolio.json");
   const run = read("methodology/launch/dual-bank-builder-active.json").run;
   const activeDualWon = ["laneA", "laneB"].reduce((n, k) => n + (run[k].steps ?? []).filter((s) => s.status === "settled" && s.result === "won").length, 0);
-  assert.deepEqual(p.record, REC(12, 2), "canonical record 12-2");
+  assert.deepEqual(p.record, REC(13, 3), "canonical record 13-3 (post June-24)");
   // wins beyond the 5-0 crown ladder are dual-lane step wins; the CURRENT active run's settled rungs are a
   // subset (Lane B restarted after a prior lost run, so some dual-lane wins predate this artifact).
   const dualPortion = p.record.wins - 5;
   assert.ok(dualPortion >= activeDualWon, `dual-lane wins (${dualPortion}) ≥ current active-run settled rungs (${activeDualWon})`);
-  assert.ok(activeDualWon === 6, "current active run shows 6 settled-won rungs (Lane A 1-4 + Lane B 1-2)");
+  assert.ok(activeDualWon === 7, "post June-24 run shows 7 settled-won rungs (Lane A 1-5 completed + Lane B 1-2)");
 });
 
-test("live ladder: Lane A sits on the FINAL rung — its next win COMPLETES (operator-gated banking, not a silent roll)", () => {
+test("live ladder: Lane A COMPLETED the final rung — its Step 5 win was a COMPLETION (operator-gated banking, not a silent roll)", () => {
+  // POST JUNE-24: Lane A cleared all 5 rungs, so readLaneRungs(root).laneA is null (ladder complete). The
+  // COMPLETION transition rule still holds (clearing the final rung → complete), and the live artifact shows
+  // Lane A completed with the completion held PENDING (operator-gated) rather than auto-banked into the crown.
   const { laneA, laneB } = readLaneRungs(root);
-  assert.ok(laneA, "Lane A rung resolves");
-  assert.equal(laneA.nextStep, BANK_BUILDER_STEP_COUNT, "Lane A next rung is the final rung (Step 5)");
-  assert.equal(classifyLaneTransition(laneA.clearedSteps, "won"), "complete", "a Lane A Step 5 win is a COMPLETION");
-  assert.equal(classifyLaneTransition(laneB.clearedSteps, "won"), "advance", "Lane B (Step 3) still advances");
+  assert.equal(laneA, null, "Lane A rung is null — the ladder is COMPLETE (no further rung to ride)");
+  // The completion transition: clearing the final rung (the 5th, index STEP_COUNT-1) is a COMPLETE, not a roll.
+  assert.equal(classifyLaneTransition(BANK_BUILDER_STEP_COUNT - 1, "won"), "complete", "clearing the final rung is a COMPLETION");
+  const run = read("methodology/launch/dual-bank-builder-active.json").run;
+  assert.equal(run.laneA.laneStatus, "completed", "Lane A artifact shows completed");
+  assert.equal(run.laneA.currentStep, BANK_BUILDER_STEP_COUNT, "Lane A completed on the final rung (Step 5)");
+  // Operator-gated banking: the completion is flagged pending and the crown bankroll is untouched.
+  const p = read("mr-dub/portfolio.json");
+  assert.ok((p.pendingLaneCompletions ?? []).some((c) => c.lane === "A" && c.step === BANK_BUILDER_STEP_COUNT), "Lane A completion is held PENDING (operator-gated, not auto-banked)");
+  assert.equal(p.crownBankroll, 10376.17, "crown unchanged — completion was not silently rolled into the bankroll");
+  // Lane B (cleared 2 rungs before it stopped) would still ADVANCE on a non-final win — the rule is intact.
+  assert.equal(classifyLaneTransition(2, "won"), "advance", "a non-final cleared count (Lane B Step 3) still advances on a win");
 });
 
 test("active-run protection: settled rungs are immutable history — exposure only ever sits on a lane's NEXT (unsettled) rung, never on a settled one", () => {
   const p = read("mr-dub/portfolio.json");
   // The CANONICAL dual-ladder never carries exposure on a settled rung (settled steps released their seeds).
   assert.equal(p.openExposure, 0, "no canonical exposure carried from settled rungs");
-  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 });
   // The daily portfolio MAY place a new card on the lane's current (unsettled) rung — legitimate forward
   // exposure. Verify no active BB lane card sits on an already-settled rung.
   const dp = read("mr-dub/daily-portfolio.json");

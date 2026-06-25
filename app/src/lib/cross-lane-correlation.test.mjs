@@ -17,12 +17,20 @@ import { selectCrossLaneBankBuilder } from "./daily-portfolio/bank-builder-corre
 import { loadWorldCupTeamLegs } from "./daily-portfolio/wc-team-legs.ts";
 import { loadMlbModelPicks } from "./daily-portfolio/mlb-model-picks.ts";
 
-/** The cross-lane SELECTOR output (the independence guarantee), independent of any operator card lock. */
+/** A clean Step-1 rung for any lane whose live ladder has completed (e.g. Lane A finished its $10k ladder
+ *  on June 24). The cross-lane selector needs a non-null rung per lane; a completed lane restarts at $100. */
+const freshRung = (lane) => ({ lane, nextStep: 1, clearedSteps: 0, rolledStake: 100, targetReturn: 200, targetMultiplier: 2 });
+
+/** The cross-lane SELECTOR output (the independence guarantee), independent of any operator card lock.
+ *  After June 24, Lane A COMPLETED the ladder so its live rung is null; we feed the selector a fresh Step-1
+ *  rung for any completed lane so it still produces a real card and we can assert the independence guarantee. */
 function selectorLanes(rootDir) {
   const D = "2026-06-24", N = "2026-06-24T08:00:00Z";
   const pool = [...loadWorldCupTeamLegs(rootDir, N, D), ...loadMlbModelPicks(rootDir, N, D)];
   const rungs = readLaneRungs(rootDir);
-  const { laneA, laneB } = selectCrossLaneBankBuilder(pool, rungs.laneA, rungs.laneB);
+  const rungA = rungs.laneA ?? freshRung("A");
+  const rungB = rungs.laneB ?? freshRung("B");
+  const { laneA, laneB } = selectCrossLaneBankBuilder(pool, rungA, rungB);
   const map = (legs) => legs.map((l) => ({ matchup: l.matchup, market: l.marketLabel, selection: l.selection, player: l.player ?? null }));
   return { A: map(laneA.legs), B: map(laneB.legs) };
 }
@@ -62,7 +70,9 @@ test("correlation: a shared PLAYER is caught", () => {
 
 test("correlation: the cross-lane SELECTOR output is independent (no shared game/player/team)", () => {
   // Independence is the SELECTOR's guarantee. The live persisted lanes can be correlated only via an
-  // operator-approved card lock (manual override) — exercised on June 24 (Lane A Brazil Over + Lane B Brazil ML).
+  // operator-approved card lock (manual override) — the June-24 lock (Lane A Brazil Over + Lane B Brazil ML)
+  // has since SETTLED and been consumed, so it no longer pins those legs. The selector itself still produces
+  // fully independent lanes from the live pool, which is what this test guards.
   const { A, B } = selectorLanes(path.join(process.cwd(), "public", "data"));
   const c = scoreCrossLaneCorrelation(A, B);
   assert.equal(c.independent, true, "selector lanes share no game/player/team");

@@ -113,20 +113,26 @@ test("/today shows the June 23 readiness strip incl. Model Player Props", () => 
   assert.match(today, /loadModelQualifiedProps/, "today reads model-qualified prop counts");
 });
 
-test("settlement state intact: Lane A + Lane B WON, bankroll + crown unchanged, lanes separate", () => {
+test("post-June-24 settlement: Lane A COMPLETED the $10k ladder (won), Lane B STOPPED (lost), bankroll + crown reconcile, lanes separate", () => {
   const dual = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json"));
-  assert.equal(dual.run.laneB.laneStatus, "advanced", "Lane B advanced (Step 1 WON)");
-  assert.equal(dual.run.laneA.laneStatus, "advanced", "Lane A advanced (Step 3 settled WON, Algeria final)");
+  // Lane B Step 3 settled LOST (Switzerland 2-1 Canada = 3 goals → Under 2.5 lost) → lane stopped.
+  assert.equal(dual.run.laneB.laneStatus, "stopped", "Lane B stopped (Step 3 settled LOST on Under 2.5)");
+  const laneBStep3 = dual.run.laneB.steps.find((s) => s.step === 3);
+  assert.equal(laneBStep3.status, "settled", "Lane B Step 3 settled");
+  assert.equal(laneBStep3.result, "lost", "Lane B Step 3 settled LOST");
+  // Lane A Step 5 (final rung) settled WON → ladder completed at $10,089.23.
+  assert.equal(dual.run.laneA.laneStatus, "completed", "Lane A completed the ladder (Step 5 settled WON)");
   const laneAPending = dual.run.laneA.steps.some((s) => s.status === "pending");
-  assert.ok(!laneAPending, "Lane A has no pending step — Step 3 settled WON (Algeria final)");
-  const laneAStep3 = dual.run.laneA.steps.find((s) => s.step === 3);
-  assert.equal(laneAStep3.status, "settled", "Lane A Step 3 settled");
-  assert.equal(laneAStep3.result, "won", "Lane A Step 3 settled WON");
+  assert.ok(!laneAPending, "Lane A has no pending step — every step settled WON");
+  const laneAStep5 = dual.run.laneA.steps.find((s) => s.step === 5);
+  assert.equal(laneAStep5.status, "settled", "Lane A Step 5 settled");
+  assert.equal(laneAStep5.result, "won", "Lane A Step 5 settled WON");
+  assert.ok(Math.abs(laneAStep5.payout - 10089.23) < 0.5, "Lane A Step 5 reached $10,089.23");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(p.currentBankroll, 10176.17, "active bankroll unchanged");
+  assert.equal(p.currentBankroll, 10076.17, "active bankroll = 10076.17 (Lane B lost $100 seed; Lane A win rolls, banking operator-gated)");
   assert.equal(p.crownBankroll, 10376.17, "crown untouched");
-  assert.equal(p.openExposure, 0, "core exposure $0 (Lane A + Lane B settled WON)");
-  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 }, "core record 12-2-0-0");
+  assert.equal(p.openExposure, 0, "core exposure $0 (Lane A + Lane B both settled)");
+  assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "core record 13-3-0-0");
   assert.equal(p.moonshot.exposure, 0, "moonshot exposure separate ($0)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");
 });

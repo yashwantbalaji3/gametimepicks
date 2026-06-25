@@ -87,15 +87,16 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("the June 19 settled + cross-slate resumed ladder: Lane A advanced (Steps 1+2+3 won, USA + Gonzales, Egypt + Algeria), Lane B advanced (Step 1 restart WON)", () => {
+test("the June 19 settled + cross-slate resumed ladder: Lane A completed (Steps 1-5 won, USA + Gonzales, Egypt + Algeria), Lane B stopped (Step 1 restart WON, Step 3 lost)", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.isLadder, true, "preview is a multi-step ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
   assert.equal(bb.laneA.steps.length, 5, "five-step ladder");
 
-  // Lane A: Step 1 (Mexico DNB + Soto) + Step 2 (USA + Gonzales) + Step 3 (Egypt + Algeria) ALL WON → advanced.
-  assert.equal(bb.laneA.laneStatus, "advanced");
+  // Lane A: Step 1 (Mexico DNB + Soto) + Step 2 (USA + Gonzales) + Step 3 (Egypt + Algeria) ALL WON. The
+  // live artifact has since cleared Steps 4+5 (June 24, official) → the lane COMPLETED the $10k ladder.
+  assert.equal(bb.laneA.laneStatus, "completed");
   assert.equal(bb.laneA.publicVisible, true);
   const a1 = bb.laneA.steps[0];
   assert.equal(a1.status, "settled");
@@ -116,8 +117,9 @@ test("the June 19 settled + cross-slate resumed ladder: Lane A advanced (Steps 1
   assert.equal(a3.result, "won", "Step 3 settled WON (Egypt ML + Algeria ML, official)");
   assert.ok((a3.payout ?? 0) >= 1400 && (a3.payout ?? 0) <= 1500, "Step 3 paid ~$1,464.71");
 
-  // Lane B: the $100 Step 1 restart settled WON (official) → the lane advanced, shown publicly.
-  assert.equal(bb.laneB.laneStatus, "advanced");
+  // Lane B: the $100 Step 1 restart settled WON (official) — Steps 1+2 cleared, shown publicly. The live
+  // artifact has since settled Step 3 a LOSS (June 24, Switzerland/Canada Under 2.5) → the lane STOPPED.
+  assert.equal(bb.laneB.laneStatus, "stopped");
   assert.equal(bb.laneB.publicVisible, true);
   const b1 = bb.laneB.steps[0];
   assert.equal(b1.status, "settled", "Lane B Step 1 restart card settled");
@@ -127,7 +129,11 @@ test("the June 19 settled + cross-slate resumed ladder: Lane A advanced (Steps 1
     assert.ok(leg.settlementOfficial && leg.settlementOfficial.length > 0, "official line present");
   }
   const liveB = JSON.stringify(bb.laneB.steps);
-  assert.ok(!/Goldschmidt|Switzerland|Hoskins|Turkey/.test(liveB), "old stopped/lost legs never surface in the live lane");
+  // The stale prior-lane legs (Goldschmidt, the Switzerland/Bosnia ML, Hoskins, Turkey) must never bleed
+  // into the live lane. "Bosnia" pins the prior Switzerland leg (Switzerland 4-1 Bosnia) — the live lane's
+  // own June-24 Step 3 is a DIFFERENT Switzerland game (Switzerland/Canada), so we match the opponent, not
+  // the team name, to keep protecting against leaks without false-flagging the lane's real settled history.
+  assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey/.test(liveB), "old stopped/lost legs never surface in the live lane");
 });
 
 test("mixed-sport parlays: each card spans a World Cup leg + another sport, by risk", () => {
@@ -147,7 +153,7 @@ test("mixed-sport parlays: each card spans a World Cup leg + another sport, by r
   }
 });
 
-test("Lane B Step 1 restart is plus-money (Argentina ML + France/Iraq Under 3.5), settled WON → lane advanced", () => {
+test("Lane B Step 1 restart is plus-money (Argentina ML + France/Iraq Under 3.5), settled WON → lane later stopped on Step 3", () => {
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.isLadder, true);
@@ -156,7 +162,8 @@ test("Lane B Step 1 restart is plus-money (Argentina ML + France/Iraq Under 3.5)
   assert.equal(step1.status, "settled", "Step 1 restart card settled (official)");
   assert.equal(step1.result, "won", "Step 1 restart settled WON (Argentina ML + France/Iraq Under 3.5, official)");
   assert.ok(step1.legs.some((l) => l.sport === "WORLD_CUP"), "Step 1 keeps a World Cup leg per lane");
-  assert.equal(bb.laneB.laneStatus, "advanced", "Lane B advanced after the restart cleared WON");
+  // The restart cleared Steps 1+2 WON; the live artifact later settled Step 3 a loss (June 24) → stopped.
+  assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped after Step 3 settled a loss (post-June-24)");
 });
 
 test("Lane B Step 1 restart soccer leg is a clean team market (draw-no-bet)", () => {

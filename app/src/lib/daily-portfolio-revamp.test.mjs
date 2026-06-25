@@ -75,28 +75,30 @@ test("no leg is duplicated across the four lanes (each model leg used once)", ()
   assert.equal(new Set(all).size, all.length, "no leg reused across lanes");
 });
 
-test("daily portfolio: 4 candidate lanes, $0 exposure (post June-23 settlement — no qualified card placed), crown separate", () => {
+test("daily portfolio: 4 candidate lanes, $0 exposure (post-settlement — no qualified card placed), crown separate", () => {
   const dp = buildDailyPortfolio(root, NOW, DATE);
   assert.equal(dp.cards.length, 4, "Bank Builder A/B + Moonshot A/B");
   assert.deepEqual(dp.cards.map((c) => `${c.product}:${c.lane}`).sort(), ["bank-builder:A", "bank-builder:B", "moonshot:A", "moonshot:B"]);
-  // June 23's lanes settled WON and the ladder advanced; for a day with no qualified card the lanes are
-  // candidates with $0 placed (the $250-activated math is exercised in bank-builder-moonshot-activation).
+  // June-23's lanes settled and the ladder advanced; for a day with no qualified card the lanes are
+  // candidates with $0 placed (the activation math is exercised in bank-builder-moonshot-activation).
   for (const c of dp.cards) assert.notEqual(c.status, "active", `${c.id} not active (no qualified card placed)`);
   assert.equal(dp.openExposure, 0, "open exposure $0 (no active lanes)");
   assert.equal(dp.exposure.core, 0, "core exposure $0");
   assert.equal(dp.exposure.moonshot, 0, "moonshot exposure $0");
-  assert.equal(dp.activeBankroll, 10176.17, "active bankroll = portfolio.currentBankroll (unchanged)");
-  assert.equal(dp.availableBankroll, 10176.17, "available = active − exposure ($0)");
+  assert.equal(dp.activeBankroll, 10076.17, "active bankroll = portfolio.currentBankroll (post June-24 settlement)");
+  assert.equal(dp.availableBankroll, 10076.17, "available = active − exposure ($0)");
   assert.equal(dp.crownBankroll, 10376.17, "crown reported separately, unchanged");
 });
 
 test("daily portfolio NEVER mutates money state: portfolio.json bankroll/crown/exposure/record intact", () => {
   buildDailyPortfolio(root, NOW, DATE); // read-only
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(p.currentBankroll, 10176.17, "active bankroll unchanged");
+  // Canonical money reflects the June-24 official settlement only (12-2-0-0 → 13-3-0-0; 10176.17 → 10076.17).
+  // The read-only daily portfolio must never mutate it.
+  assert.equal(p.currentBankroll, 10076.17, "active bankroll = June-24 settled value");
   assert.equal(p.crownBankroll, 10376.17, "crown untouched");
   assert.equal(p.openExposure, 0, "core exposure $0");
-  assert.deepEqual(p.record, { wins: 12, losses: 2, voids: 0, pending: 0 }, "record 10-2-0-0");
+  assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "record 13-3-0-0");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate");
 });
 

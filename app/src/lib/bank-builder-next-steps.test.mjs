@@ -13,53 +13,58 @@ const NOW = "2026-06-23T10:00:00Z";
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 
-test("rung math from the active ladder artifact (post June-23 settlement): Lane A → Step 5 ($3,502.57 → $10,000), Lane B → Step 3 ($702.45 → $1,400)", () => {
+test("rung math from the active ladder artifact (post June-24 settlement): Lane A COMPLETED the $10k ladder (no rung), Lane B → Step 3 ($702.45 → $1,400)", () => {
   const { laneA, laneB } = readLaneRungs(root);
-  assert.ok(laneA && laneB, "both rungs resolved");
-  assert.equal(laneA.nextStep, 5); assert.equal(laneA.clearedSteps, 4);
-  assert.equal(laneA.rolledStake, 3502.57); assert.equal(laneA.targetReturn, 10000);
+  // POST JUNE-24: Lane A cleared all 5 rungs (Step 5 won → $10,089.23) so it has no next rung; Lane B
+  // stopped at Step 3 (cleared 2) and is the only lane with a forward rung.
+  assert.equal(laneA, null, "Lane A has no next rung — the $10k ladder is COMPLETE");
+  assert.ok(laneB, "Lane B rung resolved");
   assert.equal(laneB.nextStep, 3); assert.equal(laneB.clearedSteps, 2);
   assert.equal(laneB.rolledStake, 702.45); assert.equal(laneB.targetReturn, 1400);
 });
 
-test("Lane A Step 4 + Lane B Step 2: safest 2-leg cards that reach the rung target, max 1/game, reconcile", () => {
+test("Lane B Step 3: safest 2-leg card that reaches the rung target, max 1/game, reconcile (Lane A is COMPLETED — no forward card)", () => {
+  // POST JUNE-24: Lane A completed the ladder (readLaneRungs.laneA is null), so the only forward lane the
+  // safest-card selector serves is Lane B (Step 3, $702.45 → $1,400). Same safest-card invariants apply.
   const pool = loadWorldCupModelPicks(root, NOW, DATE);
   const { laneA, laneB } = readLaneRungs(root);
-  const used = new Set();
-  const a = selectSafestTargetFitCard(pool, laneA, used);
-  a.legs.forEach((l) => used.add(l.id));
-  const b = selectSafestTargetFitCard(pool, laneB, used);
-  for (const [g, rung] of [[a, laneA], [b, laneB]]) {
-    assert.equal(g.legs.length, 2, "exactly 2 legs");
-    assert.equal(new Set(g.legs.map((l) => l.gameId)).size, g.legs.length, "max 1 leg per game (or correlation noted)");
-    for (const l of g.legs) assert.ok(l.odds >= -500 && l.odds <= 400, `${l.selection} within window`);
-    const d = g.legs.reduce((p, l) => p * dec(l.odds), 1);
-    assert.ok(Math.abs(decToAmerican(d) - g.combinedOdds) <= 2, "combined odds reconcile");
-    assert.ok(g.potentialReturn >= rung.targetReturn, `Step ${rung.nextStep} reaches the rung target ($${g.potentialReturn} ≥ $${rung.targetReturn})`);
-    assert.equal(g.fitsTarget, true, "card fits the rung target");
-  }
-  assert.equal(new Set([...a.legs, ...b.legs].map((l) => l.id)).size, 4, "Lane A + Lane B legs are distinct");
+  assert.equal(laneA, null, "Lane A is COMPLETED — no forward card to select");
+  const b = selectSafestTargetFitCard(pool, laneB, new Set());
+  assert.equal(b.legs.length, 2, "exactly 2 legs");
+  assert.equal(new Set(b.legs.map((l) => l.gameId)).size, b.legs.length, "max 1 leg per game (or correlation noted)");
+  for (const l of b.legs) assert.ok(l.odds >= -500 && l.odds <= 400, `${l.selection} within window`);
+  const d = b.legs.reduce((p, l) => p * dec(l.odds), 1);
+  assert.ok(Math.abs(decToAmerican(d) - b.combinedOdds) <= 2, "combined odds reconcile");
+  assert.ok(b.potentialReturn >= laneB.targetReturn, `Step ${laneB.nextStep} reaches the rung target ($${b.potentialReturn} ≥ $${laneB.targetReturn})`);
+  assert.equal(b.fitsTarget, true, "card fits the rung target");
 });
 
-test("persisted daily portfolio (June 24, post-settlement): Lane A on Step 5, Lane B on Step 3; BB exposure = $100 seed × active BB lanes", () => {
+test("persisted daily portfolio (June 24, post-settlement): Lane A COMPLETED (absent), Lane B on Step 3; BB exposure = $100 seed × active BB lanes ($0, June-24 lanes settled)", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const a = bb.find((l) => l.lane === "A"), b = bb.find((l) => l.lane === "B");
-  // Rung positions are stable post-settlement; whether a lane is active vs awaiting depends on the live slate.
-  assert.equal(a.step, 5); assert.equal(a.clearedSteps, 4);
-  assert.equal(b.step, 3); assert.equal(b.clearedSteps, 2);
+  // POST JUNE-24: Lane A completed the ladder and no longer appears as a forward BB lane; Lane B holds its
+  // Step-3 rung but is AWAITING (June-24 cards already settled), so no BB seed is at risk in the daily view.
+  assert.equal(a, undefined, "completed Lane A is no longer a forward BB lane");
+  assert.ok(b, "Lane B still present"); assert.equal(b.step, 3); assert.equal(b.clearedSteps, 2);
   const activeBB = bb.filter((l) => l.status === "active");
-  assert.equal(dp.products.bankBuilder.exposure, 100 * activeBB.length, "BB exposure = $100 seed × active BB lanes (never the rolled balance)");
-  assert.equal(dp.activeBankroll, 10176.17); assert.equal(dp.crownBankroll, 10376.17);
+  assert.equal(activeBB.length, 0, "no BB lane is active — June-24 cards are settled");
+  assert.equal(dp.products.bankBuilder.exposure, 100 * activeBB.length, "BB exposure = $100 seed × active BB lanes (= $0 post-settlement, never the rolled balance)");
+  assert.equal(dp.products.bankBuilder.exposure, 0, "BB exposure is $0 since June-24 lanes settled");
+  assert.equal(dp.activeBankroll, 10076.17); assert.equal(dp.crownBankroll, 10376.17);
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
 });
 
 test("BB exposure is the $100 seed, not the rolled balance (active bankroll unchanged)", () => {
+  // POST JUNE-24: Lane A completed, so the live forward BB lane is Lane B (Step 3) — it RIDES the rolled
+  // $702.45 balance but the at-risk exposure is still the $100 seed.
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
   const a = dp.lanes.find((l) => l.product === "bank-builder" && l.lane === "A");
-  assert.ok(a.stake > 1000, "card displays the rolled balance riding (Lane A ~$1,464.71)");
-  assert.equal(a.exposure, 100, "but the at-risk exposure is the $100 seed");
-  assert.equal(dp.activeBankroll, 10176.17, "active bankroll unchanged at activation");
+  assert.equal(a, undefined, "completed Lane A no longer rides a forward card");
+  const b = dp.lanes.find((l) => l.product === "bank-builder" && l.lane === "B");
+  assert.ok(b.stake > 700, "card displays the rolled balance riding (Lane B ~$702.45)");
+  assert.equal(b.exposure, 100, "but the at-risk exposure is the $100 seed");
+  assert.equal(dp.activeBankroll, 10076.17, "active bankroll unchanged at activation");
 });
 
 test("started-game guard still holds for next-step cards (0 exposure after kickoff)", () => {

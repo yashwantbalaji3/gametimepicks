@@ -1,140 +1,123 @@
 # June 24, 2026 — Bank Builder Settlement
 
-**Status: `PENDING_OFFICIAL_RESULTS` — settlement BLOCKED. No bankroll/crown/record/ledger was mutated.**
+**Status: `SETTLED` (official). Lane A WON · Lane B LOST.** Graded only from official FT results through the
+tested engine; canonical money moved only by the seed model (one lost $100 seed).
 
-> Money integrity invariant held: canonical values are unchanged because **no leg has been officially
-> graded**. The tested settlement path refuses to run without an official-results bundle ("no fake
-> settlement"), and none exists for June 24. Results were **not assumed, not modeled, not web-scraped.**
+> _An earlier pass reported `PENDING_OFFICIAL_RESULTS` because it only looked for a pre-built settlement
+> bundle. Root cause + fix are in §3. The official FT results were then supplied by the operator (the site's
+> authoritative API-Football v3 source), graded by the tested engine, and applied._
 
 ---
 
-## Step 1 — Canonical state (recorded before any action)
+## 1. Official FT results (operator-provided · API-Football v3 /fixtures — the site's authoritative WC source)
 
-| Field | Value |
+| Match | Score (FT, 90′) |
 |---|---|
-| Active bankroll | **$10,176.17** |
-| Crown bankroll | **$10,376.17** |
-| Bank Builder record | **12-2-0** (W-L-V) |
-| Canonical open exposure | **$0** (seed-model; daily-view exposure is separate) |
-| Settled profit | $10,076.17 |
-| Moonshot | stopped · 0-1 · $0 exposure (separate, not part of this settlement) |
+| Morocco vs Haiti | **Morocco 4-2 Haiti** |
+| Bosnia & Herzegovina vs Qatar | **Bosnia & Herzegovina 3-1 Qatar** |
+| Scotland vs Brazil | **Brazil 3-0 Scotland** (Scotland 0-3 Brazil) |
+| Switzerland vs Canada | **Switzerland 2-1 Canada** |
 
-Daily-view (the at-risk seed for today's active lanes): BB open exposure **$200** (2 lanes × $100 seed),
-Moonshot $0 (both lanes awaiting). Master ledger: BB 2-0 / +$2,463.20, aggregate 2-7 / +$2,363.20 / $220.
+Persisted to `world-cup/settlement/official-scores-2026-06-24.json` + graded bundle `…/2026-06-24.json`.
 
----
+## 2. Locked cards audited (the approved pre-kickoff cards, not regenerated/replacement)
 
-## Step 2 — Active locked June-24 cards (the approved, pre-kickoff cards — NOT regenerated/replacement)
+**Lane A — Step 5 (final rung), stake $3,502.57:** Morocco ML (-550) · Bosnia & Herzegovina ML (-275) ·
+Scotland/Brazil **Over 2.5** (-127).
+**Lane B — Step 3, stake $702.45:** Brazil ML (-320) · Switzerland/Canada **Under 2.5** (-144).
 
-Source: `app/public/data/mr-dub/bank-builder-locks.json` (🔒 approved-card lock), reflected in
-`daily-portfolio.json`.
+## 3. Settlement-path trace + why it had stopped (Task 1 / Task 8)
 
-### Lane A — Step 5 (final rung) · rolled stake **$3,502.57** → target **$10,089.23** (goal $10,000)
-| Leg | Match | Market | Line | Odds |
-|---|---|---|---|---|
-| Morocco to win | Morocco vs Haiti | Moneyline (90′) | — | -550 |
-| Bosnia & Herzegovina to win | Bosnia & Herzegovina vs Qatar | Moneyline (90′) | — | -275 |
-| Over 2.5 Goals | Scotland vs Brazil | Match Total Goals | 2.5 | -127 |
+- **Source of WC scores:** the app grades soccer from `world-cup/settlement/<date>.json` `.finals`, built from
+  **API-Football v3 /fixtures (FT)** via `persist-soccer-settlement.mjs` → graded by the shared engine
+  `src/lib/settlement/soccer-markets.ts` (`settleCard`/`gradeLeg`). `settle-daily-portfolio.mjs` then applies
+  the seed model. `schedule.json` is an ESPN fixture list with **no scores**; the only results-bearing files
+  are the dated settlement bundles.
+- **Why the first attempt stopped:** the June-24 bundle did not exist and `API_FOOTBALL_KEY` was unset — so
+  there was no on-disk official source. Correct refusal ("no fake settlement"), but it didn't trace the build
+  pipeline.
+- **Deeper blocker found + fixed:** the locked June-24 BB legs use the WC-team-pool id format
+  `WORLD_CUP:<hash>:market:Team`, but the collector parsed `matchId = Number(parts[1])` (→ `NaN`) and left
+  moneyline `side` unresolved for the `WORLD_CUP` kind — so even with scores, BB legs could not bind to a
+  match. June-23 only settled because its legs used the numeric `team:<id>:…` format. **Fix:** `parseLaneLeg`
+  now binds by matchup **name** when no numeric id is present and resolves moneyline home/away by team
+  (kind-agnostic). Also: the collector now skips non-active lanes (awaiting Moonshot can't phantom-settle),
+  and a dead `seedLost` reference that crashed any **lost**-lane apply was removed. All covered by tests.
 
-### Lane B — Step 3 · rolled stake **$702.45** → target **$1,562.22** (goal $1,400)
-| Leg | Match | Market | Line | Odds |
-|---|---|---|---|---|
-| Brazil to win | Scotland vs Brazil | Moneyline (90′) | — | -320 |
-| Under 2.5 Goals | Switzerland vs Canada | Match Total Goals | 2.5 | -144 |
+## 4. Grading (every leg from the official score — Task 3/4)
 
----
-
-## Step 3 — Official results: UNAVAILABLE
-
-The tested path grades only from `public/data/world-cup/settlement/2026-06-24.json`, built from **API-Football
-official FT (regulation 90′) results**. Verification:
-
-- `public/data/world-cup/settlement/2026-06-24.json` → **does not exist** (latest bundle is `2026-06-23.json`).
-- `settle-daily-portfolio.mjs --date 2026-06-24` (dry-run) → *"no official results bundle … settlement is
-  gated on official finals (no fake settlement)."*
-- `API_FOOTBALL_KEY` → **not set**; no `.env.local`. The fetch path is dormant (operator secret not configured).
-
-Kickoffs (19:00Z / 22:00Z June 24) are past as of generation (≈01:24Z June 25), so the matches are presumably
-final — but **no authoritative box score is reachable**, so grading cannot proceed.
-
-### Matches that need official FT scores (the four driving Bank Builder)
-| matchId | Match | Drives |
-|---|---|---|
-| 1489405 | Morocco vs Haiti | Lane A — Morocco ML |
-| 1539009 | Bosnia & Herzegovina vs Qatar | Lane A — Bosnia ML |
-| 1489406 | Scotland vs Brazil | Lane A — Over 2.5 · Lane B — Brazil ML |
-| 1489408 | Switzerland vs Canada | Lane B — Under 2.5 |
-
-(Operator-fill template emitted by `settle-soccer-slate.mjs --date 2026-06-24`; write the FT scores into
-`public/data/world-cup/settlement/2026-06-24.json` with `source` = API-Football/ESPN operator-verified.)
-
----
-
-## Step 4 — Grading
-
-| Lane | Leg | Final result | W/L |
+### Lane A → **WON** (all 3 legs)
+| Leg | Market | Official | Result |
 |---|---|---|---|
-| A | Morocco to win | **undetermined — no official source** | — |
-| A | Bosnia & Herzegovina to win | **undetermined** | — |
-| A | Over 2.5 (Scotland/Brazil) | **undetermined** | — |
-| B | Brazil to win | **undetermined** | — |
-| B | Under 2.5 (Switzerland/Canada) | **undetermined** | — |
+| Morocco to win | Moneyline 90′ | Morocco 4-2 Haiti → home win | **won** |
+| Bosnia & Herzegovina to win | Moneyline 90′ | Bosnia 3-1 Qatar → home win | **won** |
+| Over 2.5 | Total Goals (Scotland/Brazil) | 0+3 = **3 goals** > 2.5 | **won** |
 
-**Lane A = UNDETERMINED.  Lane B = UNDETERMINED.** No result is asserted.
+### Lane B → **LOST**
+| Leg | Market | Official | Result |
+|---|---|---|---|
+| Brazil to win | Moneyline 90′ | Scotland 0-3 Brazil → away win | won |
+| Under 2.5 | Total Goals (Switzerland/Canada) | 2+1 = **3 goals** ≥ 2.5 | **lost** |
 
----
+> A parlay with one lost leg cannot win → **Lane B LOST** (Brazil ML won, but Under 2.5 missed).
 
-## Step 5 — Settlement-integrity review (current values + expected impact per outcome)
+## 5. Payout progression (approved ladder logic)
 
-**Current (frozen):** bankroll $10,176.17 · crown $10,376.17 · record 12-2-0 · daily seed exposure $200.
-
-Seed model: a WON lane **rolls** (bankroll/crown UNCHANGED, the rolled balance is the display/target, the
-$100 seed is the only at-risk cash); a LOST lane drops its **$100 seed** (crown never changes).
-
-| Outcome | Lane A | Lane B | Bankroll | Crown | Record |
+| Lane | Step | Stake (rolled) | Combined | Result | Outcome |
 |---|---|---|---|---|---|
-| Both WON | rolls → COMPLETES ladder ($10,089) | rolls → Step 4 ($1,562) | $10,176.17 (unchanged) | $10,376.17 | 14-2 |
-| A WON / B LOST | COMPLETES ladder | −$100 seed, stopped | $10,076.17 | $10,376.17 | 13-3 |
-| A LOST / B WON | −$100 seed, stopped | rolls → Step 4 | $10,076.17 | $10,376.17 | 13-3 |
-| Both LOST | −$100 seed, stopped | −$100 seed, stopped | $9,976.17 | $10,376.17 | 12-4 |
+| A | 5 (final) | $3,502.57 | +188 (×2.880) | WON | rolls → **$10,089.23** → **COMPLETES the $10k ladder** |
+| B | 3 | $702.45 | +122 | LOST | stops → **−$100 seed** |
 
-These are scenario projections for review only — **not predictions and not applied.**
+- **Lane A reached the final rung** ($10,000 goal cleared at $10,089.23). Completion banking is
+  **OPERATOR-GATED** — NOT auto-applied. Flagged: `portfolio.pendingLaneCompletions = [{lane: "A", step: 5,
+  finalValue: 10089.23}]` → **`PENDING_LADDER_COMPLETION`**.
+- **Seed model:** a won step rolls (bankroll/crown unchanged); a lost step drops its **$100 seed**. Net
+  bankroll move = **−$100** (Lane B only).
 
----
+## 6. Reconciliation
 
-## Step 6 — Apply: NOT executed
+| Metric | Before | After |
+|---|---|---|
+| Canonical bankroll | $10,176.17 | **$10,076.17** (−$100 Lane B seed) |
+| Crown bankroll | $10,376.17 | **$10,376.17** (immutable — never written) |
+| Bank Builder record (seed-model, canonical) | 12-2-0 | **13-3-0** |
+| Canonical open exposure | $0 | **$0** |
 
-Grading is incomplete (no official results), so the apply path was **not run**. Per the script's hard guard,
-`--apply` would itself refuse without the official bundle.
+**Mr. Dub master ledger** (product rolled-stake track record, separate layer):
 
-## Step 7 — Completion detection
+| Product | Record | ROI | P&L | Open exp |
+|---|---|---|---|---|
+| Bank Builder | 3-1 | +140.37% | **+$8,347.41** | $0 |
+| Moonshot | 0-2 | −100% | −$50 | $0 |
+| World Cup Specials | 0-5 | −100% | −$50 | $0 |
+| Homer Nukes | 0-0 | — | $0 | $20 |
+| **Aggregate** | **3-8** | **+136.39%** | **+$8,247.41** (lifetime) | **$20** |
 
-Lane A sits on **Step 5, the final rung** (start $3,500 → goal $10,000). **If** Lane A is officially graded
-WON, it completes the ladder — and per the tested path, **completion banking is OPERATOR-GATED**: it is NOT
-auto-applied to bankroll/crown; the lane is flagged in `portfolio.pendingLaneCompletions` as
-**`PENDING_LADDER_COMPLETION`** and a completion report is produced. No tested auto-banking money model
-exists. (Currently moot — Lane A is undetermined.)
+Daily portfolio regenerated post-settlement → **$0 open exposure, no stale active cards**. WC Specials +
+Moonshot ledgers untouched (out of scope; their other-game results were not provided — those cards remain
+pending, none fabricated). The consumed June-24 approved-card lock was retired (marked settled, lanes
+emptied) so a refresh cannot re-pin settled cards.
 
-## Step 8 — Ledger updates: NONE
+## 7. Completion status
 
-No settled result → Bank Builder ledger, product-performance ledger, master ledger, and daily portfolio are
-**unchanged**. Existing reconciliation still holds (BB 2-0 / +$2,463.20; aggregate 2-7 / +$2,363.20 / $220).
+**`PENDING_LADDER_COMPLETION` (Lane A).** Lane A finished the 5-rung ladder at **$10,089.23 ≥ $10,000 goal**.
+No tested dual-lane completion-banking money model exists, so the bankroll was **not** auto-credited the
+completed value — it is flagged for an explicit operator banking decision. The win is recorded in the
+record (13-3) and the ladder (`laneStatus: completed`); the crown is untouched.
 
----
+## 8. Verification
 
-## Step 10 — Verification
+- Grading: tested engine (`settleCard`/`gradeLeg`) from official FT only — no inference, no web snippets.
+- Money guards: crown immutable (enforced); won-only would forbid a bankroll change; lib/loop W/L agree.
+- Tests / tsc / build: recorded with the shipping PR.
+- No stale active cards; canonical money integrity preserved (only the lost $100 seed moved).
 
-- Canonical money integrity: bankroll $10,176.17 / crown $10,376.17 / 12-2-0 — **unchanged** (dry-runs write nothing).
-- No stale active cards: today's locked Lane A/B remain the active June-24 cards; nothing was dropped or swapped.
-- Test / tsc / build gates: see the run recorded with this settlement.
-
----
-
-## Recommended next action
-
-1. Provide official FT results — either:
-   - set `API_FOOTBALL_KEY` and run the fetch, **or**
-   - write operator-verified FT scores into `public/data/world-cup/settlement/2026-06-24.json` (4 matches above).
-2. Re-run `npx tsx app/scripts/settle-daily-portfolio.mjs --date 2026-06-24` (dry-run) to grade + review.
-3. Only then `--apply` to advance the seed-model ladder. If Lane A grades WON, expect `PENDING_LADDER_COMPLETION`
-   (operator decision required for completion banking).
+## Final answer
+1. **Lane A = WON** (Morocco ML, Bosnia ML, Scotland/Brazil Over 2.5 — all won).
+2. **Lane B = LOST** (Brazil ML won; Switzerland/Canada Under 2.5 lost — 3 goals).
+3. **New bankroll = $10,076.17** (−$100 Lane B seed).
+4. **New crown bankroll = $10,376.17** (unchanged).
+5. **Updated BB record = 13-3-0** (Mr. Dub product layer: BB 3-1; aggregate 3-8, +$8,247.41 lifetime).
+6. **$10k ladder = ACHIEVED** by Lane A ($10,089.23, final rung cleared).
+7. **Completion banking = NOT triggered** — operator-gated; flagged `PENDING_LADDER_COMPLETION` for an
+   explicit operator decision.

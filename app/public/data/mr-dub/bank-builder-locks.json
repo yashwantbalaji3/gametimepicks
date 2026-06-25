@@ -1,23 +1,8 @@
 {
   "date": "2026-06-24",
-  "note": "Approved-card lock. Once a Bank Builder lane is approved its legs are pinned; a refresh may only replace a leg whose odds/market become unavailable, or via manual override (edit/remove the lane entry here). Lane A reverted to the operator-approved card (Morocco + Bosnia + Scotland/Brazil Over 2.5). Lane A + Lane B both reference the Scotland/Brazil fixture (Over 2.5 / Brazil ML) — a correlation the operator explicitly accepted.",
-  "lanes": {
-    "A": {
-      "approvedAt": "2026-06-24T13:00:00Z",
-      "reason": "operator-approved",
-      "legs": [
-        { "id": "WORLD_CUP:d1279ce7f33136a33e99ad442fc855e8:moneyline_90:Morocco", "matchup": "Morocco vs Haiti", "market": "Moneyline (90′)", "selection": "Morocco to win", "player": null, "odds": -550, "provider": "draftkings", "modelConfidence": 0.8149, "kickoffEt": "6:00 PM ET", "risk": "Lower-volatility", "photoUrl": null, "teamLogo": "https://media.api-sports.io/football/teams/31.png" },
-        { "id": "WORLD_CUP:512ac18beb5aa936a59f7ea3e497ada2:moneyline_90:Bosnia & Herzegovina", "matchup": "Bosnia & Herzegovina vs Qatar", "market": "Moneyline (90′)", "selection": "Bosnia & Herzegovina to win", "player": null, "odds": -275, "provider": "draftkings", "modelConfidence": 0.705, "kickoffEt": "3:00 PM ET", "risk": "Lower-volatility", "photoUrl": null, "teamLogo": "https://media.api-sports.io/football/teams/1113.png" },
-        { "id": "WORLD_CUP:885ba95805db310a7bcc3fb1a7a6dd28:match_total_goals:over2.5", "matchup": "Scotland vs Brazil", "market": "Total Goals", "selection": "Over 2.5", "player": null, "odds": -127, "provider": "betrivers", "modelConfidence": 0.5244, "kickoffEt": "6:00 PM ET", "risk": "Higher-volatility", "photoUrl": null, "teamLogo": "https://media.api-sports.io/football/teams/1108.png" }
-      ]
-    },
-    "B": {
-      "approvedAt": "2026-06-24T13:00:00Z",
-      "reason": "preserve current Lane B",
-      "legs": [
-        { "id": "WORLD_CUP:885ba95805db310a7bcc3fb1a7a6dd28:moneyline_90:Brazil", "matchup": "Scotland vs Brazil", "market": "Moneyline (90′)", "selection": "Brazil to win", "player": null, "odds": -320, "provider": "draftkings", "modelConfidence": 0.73, "kickoffEt": "6:00 PM ET", "risk": "Lower-volatility", "photoUrl": null, "teamLogo": "https://media.api-sports.io/football/teams/6.png" },
-        { "id": "WORLD_CUP:c9ef5822ee64fd5275f7c73251bb56c7:match_total_goals:under2.5", "matchup": "Switzerland vs Canada", "market": "Total Goals", "selection": "Under 2.5", "player": null, "odds": -144, "provider": "betonlineag", "modelConfidence": 0.5726, "kickoffEt": "3:00 PM ET", "risk": "Higher-volatility", "photoUrl": null, "teamLogo": "https://media.api-sports.io/football/teams/15.png" }
-      ]
-    }
-  }
+  "status": "settled",
+  "note": "June-24 approved cards have been officially SETTLED (see docs/settlements/june-24-bank-builder-settlement.md and world-cup/settlement/2026-06-24.json). Lane A WON (Morocco + Bosnia + Scotland/Brazil Over 2.5 → $10,089.23, COMPLETED the $10k ladder — completion banking is operator-gated). Lane B LOST (Brazil ML won, Switzerland/Canada Under 2.5 lost). The lock is now consumed; lanes are intentionally empty so a refresh does not re-pin settled cards. The next slate's approved cards will repopulate this file.",
+  "lanes": {},
+  "bankBuilder": {},
+  "moonshot": {}
 }
