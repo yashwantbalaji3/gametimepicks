@@ -189,6 +189,20 @@ function main() {
         notes: lane.awaitingNote ?? `Lane ${lk.slice(-1)} advanced — awaiting next qualified card.`,
       });
     }
+    // A lane that cleared the FINAL rung COMPLETES the ladder. Completion banking is OPERATOR-GATED (not an
+    // auto-applied money model), so we surface it as a pending completion — never silently realize ~$10k.
+    if (lane.laneStatus === "completed") {
+      const finalStep = (lane.steps ?? []).filter((s) => s.status === "settled" && s.result === "won").slice(-1)[0];
+      const finalValue = round2(finalStep?.payout ?? lane.nextStepStake ?? 0);
+      laneEvents.push({
+        eventId: `mrdub-${laneName}-ladder-completed`,
+        timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder", type: "ladder_completed",
+        laneId: laneName, step: lane.currentStep ?? finalStep?.step ?? null, date: finalStep?.slateDate ?? null,
+        paperStake: 0, paperReturn: 0, paperProfit: 0, status: "completed", publicBankBuilderVisible: true,
+        finalValue,
+        notes: `Lane ${lk.slice(-1)} COMPLETED the ladder at Step ${lane.currentStep ?? finalStep?.step} (official) — final value $${finalValue}. Completion banking is OPERATOR-GATED (dual-lane banking is not an auto-applied money model).`,
+      });
+    }
     if (lane.restart) {
       laneEvents.push({
         eventId: `mrdub-2026-06-18-${laneName}-restart-${lane.restart.status}`,
@@ -303,6 +317,7 @@ function main() {
 
   // Awaiting (advanced lane riding toward its next card) + queued restarts — informational, NOT exposure.
   const awaitingCards = [
+    ...laneEvents.filter((e) => e.type === "ladder_completed").map((e) => ({ laneId: e.laneId, step: e.step, kind: "ladder_completed", note: e.notes })),
     ...laneEvents.filter((e) => e.type === "lane_advanced").map((e) => ({ laneId: e.laneId, step: e.step, kind: "awaiting_next_card", note: e.notes })),
     ...laneEvents.filter((e) => e.type === "lane_restarted" && e.status === "queued").map((e) => ({ laneId: e.laneId, step: 1, kind: "queued_restart", stake: round2(e.paperStake ?? 100), note: e.notes })),
   ];
@@ -369,6 +384,12 @@ function main() {
   const moonshot = moonshotSummary();
   portfolio.moonshot = moonshot;
   portfolio.totalOpenExposure = round2(openExposure + (moonshot?.exposure ?? 0));
+
+  // Operator-gated ladder completions — surfaced as a flag, NEVER auto-banked into bankroll/crown.
+  const pendingLaneCompletions = laneEvents
+    .filter((e) => e.type === "ladder_completed")
+    .map((e) => ({ laneId: e.laneId, lane: e.laneId.slice(-1).toUpperCase(), step: e.step, finalValue: e.finalValue, slateDate: e.date }));
+  if (pendingLaneCompletions.length) portfolio.pendingLaneCompletions = pendingLaneCompletions;
 
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, "ledger.json"), JSON.stringify({ portfolioId: "mr-dub-paper", paperOnly: true, generatedAt: NOW, events }, null, 2) + "\n");

@@ -8,7 +8,7 @@ const step1 = A.steps.find((s) => s.step === 1);
 const dec = (o) => (o >= 0 ? 1 + o / 100 : 1 + 100 / -o);
 
 test("Lane A Step 1 (Mexico DNB + Soto) was launched from $100 and settled WON → lane advanced (Steps 1-3 cleared)", () => {
-  assert.equal(A.laneStatus, "advanced", "Lane A advanced — Steps 1+2+3 won (Step 3 settled WON, Egypt + Algeria)");
+  assert.equal(A.laneStatus, "completed", "Lane A completed — Steps 1-5 all won (Step 5 settled WON June 24, ladder finished)");
   assert.equal(A.publicVisible, true);
   assert.equal(step1.status, "settled");
   assert.equal(step1.result, "won");

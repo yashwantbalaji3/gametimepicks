@@ -147,7 +147,7 @@ for (const p of plans) {
     };
     lane.currentStep = stepNo;
     lane.laneStatus = "stopped";
-    lostCount++; seedLost += 100; // the SEED is the at-risk amount, not the rolled balance
+    lostCount++; // the lost $100 SEED (the at-risk amount, not the rolled balance) is applied by seedModelOutcome below
   } else if (p.status === "void" || p.status === "push") {
     console.log(`  Lane ${letter} Step ${stepNo} VOID — seed returned, no record change, lane stays awaiting.`);
   }

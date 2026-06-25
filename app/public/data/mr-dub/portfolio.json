@@ -6,13 +6,13 @@
   "startingDate": "2026-06-09",
   "startingBankroll": 100,
   "crownBankroll": 10376.17,
-  "currentBankroll": 10176.17,
+  "currentBankroll": 10076.17,
   "openExposure": 0,
-  "settledProfit": 10076.17,
-  "roi": 100.76,
+  "settledProfit": 9976.17,
+  "roi": 99.76,
   "record": {
-    "wins": 12,
-    "losses": 2,
+    "wins": 13,
+    "losses": 3,
     "voids": 0,
     "pending": 0
   },
@@ -26,12 +26,12 @@
     }
   ],
   "activeCards": [],
-  "generatedAt": "2026-06-18T18:40:00Z",
+  "generatedAt": "2026-06-25T01:30:00Z",
   "highWaterMark": 10376.17,
-  "drawdown": 200,
-  "drawdownPct": 0.0193,
+  "drawdown": 300,
+  "drawdownPct": 0.0289,
   "openExposurePct": 0,
-  "roiMultiple": 100.76,
+  "roiMultiple": 99.76,
   "exposure": {
     "bySport": [],
     "byMarket": [],
@@ -42,15 +42,9 @@
   "awaitingCards": [
     {
       "laneId": "lane-a",
-      "step": 4,
-      "kind": "awaiting_next_card",
-      "note": "Lane A Step 4 cleared (official) — $1,464.71 rolls to $3,502.57, awaiting the next qualified card."
-    },
-    {
-      "laneId": "lane-b",
-      "step": 2,
-      "kind": "awaiting_next_card",
-      "note": "Lane B Step 2 cleared (official) — $277.11 rolls to $702.45, awaiting the next qualified card."
+      "step": 5,
+      "kind": "ladder_completed",
+      "note": "Lane A COMPLETED the ladder at Step 5 (official) — final value $10089.23. Completion banking is OPERATOR-GATED (dual-lane banking is not an auto-applied money model)."
     }
   ],
   "completedCards": [
@@ -67,21 +61,21 @@
     "label": "No open exposure",
     "reasons": [
       "No active paper cards right now — nothing is at risk.",
-      "2 lane(s) awaiting the next qualified card."
+      "1 lane(s) awaiting the next qualified card."
     ]
   },
   "intelligence": {
     "highWaterMark": 10376.17,
-    "maxDrawdown": 200,
-    "drawdown": 200,
-    "drawdownPct": 0.0193,
-    "winRate": 0.83,
+    "maxDrawdown": 300,
+    "drawdown": 300,
+    "drawdownPct": 0.0289,
+    "winRate": 0.81,
     "exposureBySport": {},
     "largestOpenCard": 0,
-    "avgStake": 625.39,
-    "avgSettledReturn": 1912.27,
-    "profitFactor": 51.38,
-    "longestWinStreak": 9,
+    "avgStake": 840.72,
+    "avgSettledReturn": 2570.53,
+    "profitFactor": 34.25,
+    "longestWinStreak": 11,
     "longestLossStreak": 2,
     "note": "Paper exposure, bankroll health and drawdown — educational tracking, not financial advice."
   },
@@ -131,5 +125,14 @@
     },
     "note": "Settled LOST — NZ/Egypt BTTS No missed (both teams scored). A parlay with a lost leg cannot win; the remaining June 22 legs are moot. Paper-only, separate from the core ladder."
   },
-  "totalOpenExposure": 0
+  "totalOpenExposure": 0,
+  "pendingLaneCompletions": [
+    {
+      "laneId": "lane-a",
+      "lane": "A",
+      "step": 5,
+      "finalValue": 10089.23,
+      "slateDate": "2026-06-24"
+    }
+  ]
 }

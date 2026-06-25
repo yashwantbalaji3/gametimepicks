@@ -8,38 +8,37 @@ const portfolio = read("portfolio.json");
 const ledger = read("ledger.json");
 const daily = read("daily-summary.json");
 
-test("portfolio math after June 19 settlement + cross-slate resume: bankroll, HWM, drawdown, ROI, record", () => {
-  // June 19 settled: Lane A WON (Step 2 → riding $601.56), prior Lane B LOST, Moonshot LOST (separate).
-  // June 22: Lane B Step 1 restart settled WON ($0 realized — rolled).
-  // June 23: Lane A Step 3 settled WON ($0 realized — rolled). Both lanes awaiting the next card.
-  assert.equal(portfolio.currentBankroll, 10176.17); // a won step rolls; nothing realized
+test("portfolio math after June 24 settlement: bankroll, HWM, drawdown, ROI, record", () => {
+  // June 24 settled: Lane A WON Step 5 → COMPLETED the $10K ladder ($10089.23, operator-gated banking, not auto-applied);
+  // Lane B LOST Step 3 (Brazil ML won; Switzerland/Canada Under 2.5 lost) → realizes -$100. Moonshot unchanged (separate).
+  assert.equal(portfolio.currentBankroll, 10076.17); // Lane A win rolls (nothing realized until banked); Lane B Step 3 loss realizes -$100
   assert.equal(portfolio.highWaterMark, 10376.17);
-  assert.equal(portfolio.drawdown, 200);
-  assert.ok(Math.abs(portfolio.drawdownPct - 0.0193) < 0.001, "drawdown ≈ 1.93% of HWM");
-  // Both lanes settled WON → both seeds released; no open exposure.
+  assert.equal(portfolio.drawdown, 300);
+  assert.ok(Math.abs(portfolio.drawdownPct - 0.0289) < 0.001, "drawdown ≈ 2.89% of HWM");
+  // Lane A completed (pending operator banking) + Lane B settled LOST → no open seeds, no open exposure.
   assert.equal(portfolio.openExposure, 0);
-  assert.equal(portfolio.roiMultiple, 100.76);
-  assert.deepEqual(portfolio.record, { wins: 12, losses: 2, voids: 0, pending: 0 });
+  assert.equal(portfolio.roiMultiple, 99.76);
+  assert.deepEqual(portfolio.record, { wins: 13, losses: 3, voids: 0, pending: 0 });
   // Reconciliation: realized paperProfit still === settledProfit (rolled wins add no realized P/L).
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
   assert.equal(sum, portfolio.settledProfit, "no double-counting — settled profit reconciles");
 });
 
-test("bankroll health after both lanes settled WON: no open exposure", () => {
+test("bankroll health after June 24 settlement (Lane A completed, Lane B lost): no open exposure", () => {
   assert.equal(portfolio.bankrollHealth.label, "No open exposure");
-  assert.equal(portfolio.bankrollHealth.score, 100, "nothing at risk — both lanes awaiting next card");
+  assert.equal(portfolio.bankrollHealth.score, 100, "nothing at risk — no active cards");
   assert.ok(portfolio.bankrollHealth.reasons.length >= 1);
   assert.ok(!/\bsafe\b/i.test(JSON.stringify(portfolio.bankrollHealth)), "never calls anything safe");
 });
 
-test("exposure breakdown is $0 after both lanes settled WON; both lanes awaiting; completed crown present", () => {
+test("exposure breakdown is $0 after June 24 settlement (Lane A completed, Lane B lost); completed crown present", () => {
   const e = portfolio.exposure;
   const sportSum = (e.bySport ?? []).reduce((s, x) => s + x.amount, 0);
   assert.equal(Math.round(sportSum * 100) / 100, portfolio.openExposure, "bySport sums to open exposure ($0)");
   const laneSum = (e.byLane ?? []).reduce((s, x) => s + x.amount, 0);
   assert.equal(Math.round(laneSum * 100) / 100, portfolio.openExposure, "byLane sums to open exposure ($0)");
-  // Both lanes settled WON → no active card; each lane awaits the next qualified card.
-  assert.equal((portfolio.awaitingCards ?? []).length, 2);
+  // Lane A completed the ladder (awaiting operator banking) + Lane B settled LOST → no active card.
+  assert.equal((portfolio.awaitingCards ?? []).length, 1);
   assert.equal((portfolio.activeCards ?? []).length, 0);
   assert.ok((portfolio.completedCards ?? []).some((c) => c.name === "Road to $10K" && c.final === 10376.17));
 });

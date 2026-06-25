@@ -6,11 +6,13 @@ import { loadTodaySlate } from "../parlays/ui-loader.ts";
 
 const bb = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z").bankBuilderPreview;
 
-test("Lane A public ladder after settlement: Steps 1 + 2 + 3 + 4 cleared (won), Step 4 settled WON (Croatia + COL/DRC official), lane awaiting next card, no lost step", () => {
+test("Lane A public ladder after June-24 settlement: all 5 steps cleared (won) → ladder COMPLETED at Step 5 (Morocco + Bosnia + Brazil Over 2.5 official, $10,089.23), no lost step", () => {
   const v = buildPublicDualLadder(bb.laneA, "lane-a");
   assert.ok(v, "lane A view present");
-  // Step 3 (Egypt + Algeria) settled WON (official) → all real steps cleared, lane awaiting the next qualified card.
-  assert.equal(v.currentStatus, "awaiting_next_card");
+  // Lane A's Step 5 (Morocco ML + Bosnia ML + Scotland/Brazil Over 2.5) settled WON (official) → every real
+  // step is cleared and the $10k ladder is complete. With all five rungs cleared there is no further rung to
+  // await, so the view's currentStatus lands on "active" (a fully-cleared, completed ladder).
+  assert.equal(v.currentStatus, "active");
   assert.equal(v.steps.length, 5, "five-step ladder");
   // Ladder targets are the canonical $100→$200 ... $3,500→$10,000.
   assert.deepEqual(v.steps.map((s) => [s.startTarget, s.goalTarget]),
@@ -21,7 +23,7 @@ test("Lane A public ladder after settlement: Steps 1 + 2 + 3 + 4 cleared (won), 
   assert.equal(s1.actualStake, 100);
   assert.ok(s1.actualReturn >= 190 && s1.actualReturn <= 200, "actual return ~$197.88");
   assert.ok(s1.card.legs.some((l) => /Mexico/.test(l.participant)) && s1.card.legs.some((l) => /Soto/.test(l.participant)), "Mexico + Soto in the cleared drawer");
-  // Step 2 now CLEARED WON with the USA + Nick Gonzales card.
+  // Step 2 CLEARED WON with the USA + Nick Gonzales card.
   const s2 = v.steps[1];
   assert.equal(s2.status, "cleared");
   assert.equal(s2.result, "won");
@@ -29,7 +31,7 @@ test("Lane A public ladder after settlement: Steps 1 + 2 + 3 + 4 cleared (won), 
   assert.equal(s2.actualStake, 197.88, "Step 2 rode the rolled $197.88");
   assert.ok(s2.actualReturn >= 600 && s2.actualReturn <= 700, "actual return ~$601.56");
   assert.ok(s2.card.legs.some((l) => /USA|United States/.test(l.participant)) && s2.card.legs.some((l) => /Gonzales/.test(l.participant)), "USA + Nick Gonzales in the cleared Step 2 card");
-  // Step 3 now settled WON (official) — cleared, riding the rolled $601.56 → ~$1,464.71.
+  // Step 3 settled WON (official) — cleared, riding the rolled $601.56 → ~$1,464.71.
   // Legs are Egypt ML (June 21) + Algeria ML (June 22), both graded hit (official, API-Football).
   const s3 = v.steps[2];
   assert.equal(s3.status, "cleared", "Step 3 settled WON → cleared");
@@ -38,7 +40,7 @@ test("Lane A public ladder after settlement: Steps 1 + 2 + 3 + 4 cleared (won), 
   assert.equal(s3.actualStake, 601.56, "Step 3 rode the rolled $601.56");
   assert.ok(s3.actualReturn >= 1400 && s3.actualReturn <= 1500, "actual return ~$1,464.71");
   assert.ok(s3.card.legs.some((l) => /Egypt/.test(l.participant)) && s3.card.legs.some((l) => /Algeria/.test(l.participant)), "Egypt + Algeria in the cleared Step 3 card");
-  // Step 4 now settled WON (official, June 23) — cleared, riding the rolled $1,464.71 → ~$3,502.57.
+  // Step 4 settled WON (official, June 23) — cleared, riding the rolled $1,464.71 → ~$3,502.57.
   // Legs are Croatia ML + Colombia/DR Congo Under 2.5, both graded hit (official, API-Football).
   const s4 = v.steps[3];
   assert.equal(s4.status, "cleared", "Step 4 settled WON → cleared");
@@ -47,71 +49,78 @@ test("Lane A public ladder after settlement: Steps 1 + 2 + 3 + 4 cleared (won), 
   assert.equal(s4.actualStake, 1464.71, "Step 4 rode the rolled $1,464.71");
   assert.ok(s4.actualReturn >= 3500 && s4.actualReturn <= 3510, "actual return ~$3,502.57");
   assert.ok(s4.card.legs.some((l) => /Croatia/.test(l.participant)) && s4.card.legs.some((l) => /Under 2\.5/.test(l.participant)), "Croatia + COL/DRC Under 2.5 in the cleared Step 4 card");
-  // No active step — all 4 real steps cleared; Step 5 awaits the next qualified card.
-  assert.ok(v.steps.every((s) => s.status !== "active"), "no active step — lane awaiting next card");
-  assert.equal(v.steps.filter((s) => s.status === "cleared").length, 4, "four steps cleared");
-  assert.equal(v.steps[4].status, "awaiting", "Step 5 awaits the next qualified card");
+  // Step 5 settled WON (official, June 24) — cleared, riding the rolled $3,502.57 → ~$10,089.23.
+  // Legs are Morocco ML + Bosnia ML + Scotland/Brazil Over 2.5, all graded hit (official, API-Football).
+  const s5 = v.steps[4];
+  assert.equal(s5.status, "cleared", "Step 5 settled WON → cleared (ladder completed)");
+  assert.equal(s5.result, "won");
+  assert.ok(s5.card, "Step 5 carries its settled card");
+  assert.equal(s5.actualStake, 3502.57, "Step 5 rode the rolled $3,502.57");
+  assert.ok(s5.actualReturn >= 10080 && s5.actualReturn <= 10095, "actual return ~$10,089.23");
+  assert.ok(
+    s5.card.legs.some((l) => /Morocco/.test(l.participant)) &&
+    s5.card.legs.some((l) => /Bosnia/.test(l.participant)) &&
+    s5.card.legs.some((l) => /Over 2\.5/.test(l.participant)),
+    "Morocco + Bosnia + Brazil Over 2.5 in the cleared Step 5 card");
+  // All five real steps cleared → ladder complete; no active/awaiting rung remains.
+  assert.equal(v.steps.filter((s) => s.status === "cleared").length, 5, "all five steps cleared (ladder completed)");
+  assert.ok(v.steps.every((s) => s.status !== "awaiting"), "no rung awaiting — every rung is cleared");
   assert.ok(v.steps.every((s) => s.result !== "lost"), "no lost step surfaced (Lane A never lost)");
 });
 
-test("Lane B public ladder after restart: Step 1 SETTLED WON (cross-slate restart cleared), no lost legs surfaced", () => {
+test("Lane B public ladder after June-24 settlement: lane STOPPED (Step 3 lost) → clean queued Step-1 restart path, no lost legs surfaced", () => {
   const v = buildPublicDualLadder(bb.laneB, "lane-b");
   assert.ok(v, "lane B view present");
-  // Lane B Step 1 restart (approved broader criteria) settled WON (official) → cleared, awaiting next card.
-  assert.equal(v.currentStatus, "awaiting_next_card");
-  assert.equal(v.steps[0].status, "cleared");
-  assert.equal(v.steps[0].result, "won", "Lane B Step 1 cleared WON");
+  // Lane B's Step 3 (Brazil ML + Switzerland/Canada Under 2.5) settled LOST (official — 3 goals, Under missed),
+  // so the lane is STOPPED. A stopped lane is presented publicly as a clean queued Step-1 starting path — its
+  // real (won AND lost) steps are NOT read into the public view; only Mr. Dub / priorLane carry that history.
+  assert.equal(v.currentStatus, "queued_restart");
+  assert.equal(v.steps.length, 5, "five-step ladder");
+  assert.equal(v.steps[0].status, "queued", "Step 1 is the clean queued restart");
+  assert.equal(v.steps[0].result, null, "queued restart has no settled result");
   assert.equal(v.steps[0].actualStake, 100, "fresh $100 Lane B restart");
-  assert.ok(v.steps[0].actualReturn >= 270 && v.steps[0].actualReturn <= 280, "actual return ~$277.11");
-  assert.ok(v.steps[0].card, "Step 1 carries its settled restart card");
-  // Restart legs: Argentina ML + France/Iraq Under 3.5 (June 22), both graded hit (official).
-  assert.ok(v.steps[0].card.legs.some((l) => /Argentina/.test(l.participant)) && v.steps[0].card.legs.some((l) => /Under 3\.5/.test(l.participant)), "Argentina + France/Iraq Under 3.5 in the cleared Step 1 restart card");
-  // Step 2 now settled WON (official, June 23) — cleared, riding the rolled $277.11 → ~$702.45.
-  // Legs are Portugal/Uzbekistan BTTS-No + England/Ghana BTTS-No, both graded hit (official, API-Football).
-  const s2 = v.steps[1];
-  assert.equal(s2.status, "cleared", "Step 2 settled WON → cleared");
-  assert.equal(s2.result, "won");
-  assert.equal(s2.actualStake, 277.11, "Step 2 rode the rolled $277.11");
-  assert.ok(s2.actualReturn >= 700 && s2.actualReturn <= 705, "actual return ~$702.45");
-  assert.ok(s2.card.legs.filter((l) => /Both teams to score: No/.test(l.participant)).length === 2, "two BTTS-No legs in the cleared Step 2 card");
-  assert.equal(v.steps[2].status, "awaiting", "Step 3 awaits the next qualified card");
-  for (let i = 3; i < 5; i++) assert.equal(v.steps[i].status, "upcoming");
-  // The prior stopped legs (Goldschmidt/Switzerland) and the prior lost Turkey/Hoskins step are NOT surfaced publicly.
-  const allLegs = JSON.stringify(v.steps.map((s) => s.card));
-  assert.ok(!/Goldschmidt/.test(allLegs) && !/Switzerland/.test(allLegs), "no stopped-lane legs in the public view model");
-  assert.ok(!/Hoskins/.test(allLegs) && !/Turkey/.test(allLegs), "the prior lost Turkey/Hoskins step is not surfaced publicly");
+  assert.equal(v.steps[0].actualReturn, null, "no return on a not-yet-placed restart card");
+  for (let i = 0; i < 5; i++) assert.equal(v.steps[i].card, null, `Step ${i + 1} carries no card from a stopped lane`);
+  for (let i = 1; i < 5; i++) assert.equal(v.steps[i].status, "upcoming", `Step ${i + 1} upcoming`);
+  // NONE of the stopped lane's real legs — won OR lost — surface publicly. The lost Step 3 (Brazil ML +
+  // Switzerland/Canada Under 2.5) and the prior history (Goldschmidt/Turkey/Hoskins) never reach the view.
+  const dump = JSON.stringify(v);
+  assert.ok(!/Brazil/.test(dump) && !/Switzerland/.test(dump) && !/Canada/.test(dump), "no stopped-lane legs (incl. the lost Step 3) in the public view model");
+  assert.ok(!/Goldschmidt/.test(dump) && !/Turkey/.test(dump) && !/Hoskins/.test(dump), "no prior stopped/lost history surfaced publicly");
   assert.ok(v.steps.every((s) => s.result !== "lost"), "no lost step surfaced (clean restart path)");
 });
 
-test("DEMO: cleared steps surface a settled card with real legs — never a blank actionable row; both lanes await the next card", () => {
-  // Lane A Step 3 settled WON (cleared); Lane B's Step 1 restart settled WON (cleared) — both surface a
-  // real card with real legs, and neither has a blank active row (both await the next qualified card).
+test("DEMO: Lane A cleared steps surface settled cards with real legs (never blank); stopped Lane B surfaces a clean queued path (never a blank actionable row)", () => {
+  // Lane A completed the ladder — every cleared step surfaces a real settled card with real legs (no blank
+  // rows). Lane B is STOPPED → a clean queued Step-1 path with no cards (its lost history never surfaces),
+  // so it never shows a blank actionable row either.
   const a = buildPublicDualLadder(bb.laneA, "lane-a");
-  assert.equal(a.currentStatus, "awaiting_next_card", "Lane A awaiting next card (no active step)");
-  assert.ok(!a.steps.some((s) => s.status === "active"), "Lane A has no active step — all real steps cleared");
-  const aCleared = a.steps.find((s) => s.status === "cleared");
-  assert.ok(aCleared, "Lane A has a cleared step");
-  assert.ok(aCleared.card && aCleared.card.legs.length >= 2, "cleared step carries a settled card with real legs (not a blank row)");
-  assert.ok(aCleared.actualStake && aCleared.actualReturn, "cleared step carries real stake + settled return");
+  assert.equal(a.currentStatus, "active", "Lane A ladder completed (all five rungs cleared)");
+  assert.equal(a.steps.filter((s) => s.status === "cleared").length, 5, "Lane A has five cleared steps");
+  for (const aCleared of a.steps.filter((s) => s.status === "cleared")) {
+    assert.ok(aCleared.card && aCleared.card.legs.length >= 2, "cleared step carries a settled card with real legs (not a blank row)");
+    assert.ok(aCleared.actualStake && aCleared.actualReturn, "cleared step carries real stake + settled return");
+  }
   const b = buildPublicDualLadder(bb.laneB, "lane-b");
-  assert.equal(b.currentStatus, "awaiting_next_card", "Lane B awaiting next card (no active step)");
-  const bCleared = b.steps.find((s) => s.status === "cleared");
-  assert.ok(bCleared, "Lane B cleared (settled WON) restart step present");
-  assert.ok(bCleared.card && bCleared.card.legs.length >= 2, "cleared restart carries a settled card with real legs");
+  assert.equal(b.currentStatus, "queued_restart", "Lane B stopped → clean queued restart path");
+  assert.equal(b.steps[0].status, "queued", "Lane B Step 1 is the queued restart (a defined starting row, not a blank actionable one)");
+  assert.equal(b.steps[0].actualStake, 100, "queued restart carries its $100 starting stake");
+  assert.ok(b.steps.every((s) => s.card === null), "no settled cards on a stopped lane (lost history never surfaces)");
 });
 
-test("DEMO: both lanes settled WON → no open exposure (Lane A Step 3 cleared, Lane B Step 1 cleared; total $0; moonshot settled → 0)", () => {
+test("DEMO: June-24 settlement closed both lanes → no open exposure (Lane A COMPLETED at Step 5, Lane B STOPPED at Step 3 lost; total $0; moonshot settled → 0)", () => {
   const mr = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
-  assert.equal(mr.openExposure, 0, "Lane A Step 3 settled WON released its seed; Lane B settled WON released its seed");
+  assert.equal(mr.openExposure, 0, "both lanes' June-24 cards settled → seeds released (Lane A completed, Lane B stopped)");
   assert.equal(mr.totalOpenExposure, 0, "core $0; moonshot settled LOST → 0 open");
-  // Lane A Step 3 settled WON (Egypt + Algeria, official); Lane B Step 1 settled WON — no open exposure on either.
+  // Lane A completed the ladder — Step 5 (Morocco + Bosnia + Brazil Over 2.5) settled WON (official, $10,089.23).
+  // Lane B's Step 3 (Brazil ML + Switzerland/Canada Under 2.5) settled LOST (official) → lane stopped.
   const bbRaw = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8")).run;
-  const laneAStep3 = bbRaw.laneA.steps.find((s) => s.step === 3);
-  const laneBStep1 = bbRaw.laneB.steps.find((s) => s.step === 1);
-  assert.equal(laneAStep3.status, "settled", "Lane A Step 3 card settled (WON)");
-  assert.equal(laneAStep3.result, "won", "Lane A Step 3 settled WON (Egypt ML + Algeria ML, official)");
-  assert.equal(laneBStep1.status, "settled", "Lane B Step 1 restart card settled (WON)");
-  assert.equal(laneBStep1.result, "won", "Lane B Step 1 restart settled WON (Argentina ML + France/Iraq Under 3.5, official)");
+  const laneAStep5 = bbRaw.laneA.steps.find((s) => s.step === 5);
+  const laneBStep3 = bbRaw.laneB.steps.find((s) => s.step === 3);
+  assert.equal(laneAStep5.status, "settled", "Lane A Step 5 card settled");
+  assert.equal(laneAStep5.result, "won", "Lane A Step 5 settled WON (Morocco ML + Bosnia ML + Brazil Over 2.5, official) → ladder completed");
+  assert.equal(laneBStep3.status, "settled", "Lane B Step 3 card settled");
+  assert.equal(laneBStep3.result, "lost", "Lane B Step 3 settled LOST (Brazil ML + Switzerland/Canada Under 2.5 — 3 goals, official) → lane stopped");
 });
 
 test("queued restart maps a stopped lane to a clean starting path (publicVisible false ignored steps)", () => {

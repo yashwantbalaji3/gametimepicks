@@ -9,17 +9,25 @@ import path from "node:path";
 
 const normT = (s) => (s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
 
-/** Parse a daily-portfolio lane leg id: "player:48:player_shots_on_target:Jhon Cordoba" / "team:47:moneyline_90:away". */
+/** Parse a daily-portfolio lane leg id. Supports both id formats:
+ *   • numeric  "team:47:moneyline_90:away"                       — matchId 47, side "away"
+ *   • WC-pool  "WORLD_CUP:<hash>:moneyline_90:Brazil"            — no numeric id; bind by matchup NAME and
+ *                                                                  resolve moneyline side home/away by team.
+ *  Side is resolved by MARKET (kind-agnostic), so the WC-team-pool "WORLD_CUP" kind grades correctly. */
 export function parseLaneLeg(l) {
   const parts = String(l.id ?? "").split(":");
-  const kind = parts[0], matchId = Number(parts[1]), market = parts[2] ?? "", tail = parts.slice(3).join(":");
+  const kind = parts[0], market = parts[2] ?? "", tail = parts.slice(3).join(":");
   const sel = String(l.selection ?? "");
+  const numericId = Number(parts[1]);
+  const matchId = Number.isFinite(numericId) ? numericId : (l.matchup ?? null); // hash id ⇒ bind by name
+  const home = String(l.matchup ?? "").split(/\s+vs\s+/i)[0];
   let side = null;
-  if (kind === "team") {
-    if (market === "moneyline_90") side = tail;
-    else if (market === "match_total_goals") side = /under/i.test(sel) ? "under" : "over";
-    else if (market === "btts") side = /\bno\b|:\s*no/i.test(sel) ? "no" : "yes";
-  } else if (market === "player_assists" || market === "player_shots_on_target") side = "over";
+  if (market === "moneyline_90") {
+    if (tail === "home" || tail === "away") side = tail;                 // numeric-id format
+    else { const team = tail || sel.replace(/\s+to win.*/i, ""); side = normT(team) === normT(home) ? "home" : "away"; }
+  } else if (market === "match_total_goals") side = /under/i.test(sel) ? "under" : "over";
+  else if (market === "btts") side = /\bno\b|:\s*no/i.test(sel) ? "no" : "yes";
+  else if (market === "player_assists" || market === "player_shots_on_target") side = "over";
   const pt = sel.match(/(\d+(?:\.\d+)?)/);
   return { id: String(l.id ?? ""), matchId, market, selection: sel, side, player: l.player ?? (kind === "player" ? tail : null),
     point: pt ? Number(pt[1]) : null, oddsAmerican: Number(l.odds ?? 0), matchup: l.matchup ?? null };
@@ -49,6 +57,7 @@ export function collectForDate(dataDir, date) {
   const dp = read(`mr-dub/daily-portfolio.json`);
   if (dp && dp.date === date) {
     for (const lane of dp.lanes ?? []) {
+      if (lane.status && lane.status !== "active") continue; // only PLACED lanes settle — awaiting/candidate carry no exposure
       const product = lane.product || (lane.stake >= 100 ? "bank-builder" : "moonshot");
       cards.push({ product, label: `${lane.lane === "A" ? "Lane A" : "Lane B"} (stake $${lane.stake})`, stake: Number(lane.stake ?? 0), legs: (lane.legs ?? []).map(parseLaneLeg) });
     }

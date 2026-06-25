@@ -41,16 +41,16 @@ test("June 21 coverage matrix reconciles (rows + risk totals sum to grand total)
   assert.ok(m.grandTotal > 0, "live slate produced cards");
 });
 
-test("Bank Builder Lane A + Lane B settled WON + Moonshot settled — no open exposure; corrected bankroll + crown intact", () => {
+test("Bank Builder Lane A completed + Lane B stopped + Moonshot settled — no open exposure; corrected bankroll + crown intact", () => {
   const p = read("public/data/mr-dub/portfolio.json");
-  assert.equal(p.currentBankroll, 10176.17, "reconciled bankroll preserved (a won step rolls; nothing realized)");
-  assert.equal(p.openExposure, 0, "Lane A Step 3 settled WON + Lane B settled WON → both seeds released");
+  assert.equal(p.currentBankroll, 10076.17, "reconciled bankroll preserved (Lane B Step 3 LOST June 24 realized one more seed)");
+  assert.equal(p.openExposure, 0, "Lane A completed (Step 5 WON) + Lane B stopped (Step 3 LOST) → both seeds released");
   assert.equal(p.totalOpenExposure, 0, "core $0; moonshot settled LOST → 0 open");
   assert.equal(p.crownBankroll, 10376.17, "protected crown untouched");
   assert.equal(p.moonshot.status, "stopped", "Moonshot settled LOST → stopped");
   const dual = read("public/data/methodology/launch/dual-bank-builder-active.json").run;
-  assert.equal(dual.laneA.laneStatus, "advanced", "Lane A Step 3 settled WON → lane advanced");
+  assert.equal(dual.laneA.laneStatus, "completed", "Lane A Step 5 settled WON June 24 → ladder completed");
   assert.equal((dual.laneA.steps.find((s) => s.step === 3) || {}).status, "settled", "Lane A Step 3 settled (WON) cross-slate card");
   assert.equal((dual.laneA.steps.find((s) => s.step === 3) || {}).result, "won", "Lane A Step 3 settled WON (Egypt + Algeria, official)");
-  assert.equal(dual.laneB.laneStatus, "advanced", "Lane B Step 1 restart settled WON → lane advanced");
+  assert.equal(dual.laneB.laneStatus, "stopped", "Lane B Step 3 settled LOST June 24 → lane stopped");
 });
