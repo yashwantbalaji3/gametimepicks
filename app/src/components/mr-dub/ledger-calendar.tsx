@@ -84,7 +84,18 @@ function EventRow({ e }: { e: LedgerEvent }) {
       </div>
       {e.legs?.length ? (
         <div className="mt-1 flex flex-col gap-0.5 text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          {e.legs.map((l: any, i: number) => <span key={i} className="truncate">· {l.selection}{l.officialResult ? ` (${l.officialResult})` : ""}</span>)}
+          {e.legs.map((l: any, i: number) => {
+            const lr = l.result === "won" || l.result === "win" ? "✓" : l.result === "lost" || l.result === "loss" ? "✕" : "·";
+            const lc = l.result === "won" || l.result === "win" ? win : l.result === "lost" || l.result === "loss" ? loss : faint;
+            const exact = l.finalStat != null ? `final ${l.finalStat}` : l.finalScore ? String(l.finalScore) : l.officialResult ? String(l.officialResult) : null;
+            return (
+              <span key={i} className="flex items-baseline gap-1 min-w-0">
+                <span style={{ color: lc }}>{lr}</span>
+                <span className="truncate" style={{ color: "var(--vault-text-mute)" }}>{l.selection ?? "leg"}</span>
+                {exact ? <span className="shrink-0 font-mono text-[9px]" style={{ color: faint }}>({exact})</span> : null}
+              </span>
+            );
+          })}
         </div>
       ) : null}
     </div>

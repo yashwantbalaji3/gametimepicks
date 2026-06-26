@@ -17,6 +17,7 @@ import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import DailyPortfolioSection from "@/components/mr-dub/daily-portfolio-section";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
+import { computeOpenExposure } from "@/lib/mr-dub/open-exposure";
 import PortfolioAllocationSection from "@/components/mr-dub/portfolio-allocation";
 import { buildPortfolioAllocation } from "@/lib/mr-dub/product-allocation";
 import MasterLedgerSection from "@/components/mr-dub/master-ledger-section";
@@ -90,26 +91,6 @@ function EventCard({ e }: { e: any }) {
   );
 }
 
-function ExposureBars({ title, rows, total }: { title: string; rows: { key: string; amount: number }[]; total: number }) {
-  if (!rows?.length) return null;
-  return (
-    <div>
-      <div className="mb-1 font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>{title}</div>
-      <div className="flex flex-col gap-1">
-        {rows.map((r) => (
-          <div key={r.key} className="flex items-center gap-2">
-            <span className="w-28 shrink-0 truncate text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{r.key}</span>
-            <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: "var(--vault-rule)" }}>
-              <div className="h-full rounded-full" style={{ width: `${Math.min(100, (r.amount / Math.max(1, total)) * 100)}%`, background: "var(--gtp-bank-heat)" }} />
-            </div>
-            <span className="w-16 shrink-0 text-right font-mono text-[11px]" style={{ color: "var(--vault-text)" }}>{usd(r.amount)}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function MrDubPage() {
   const portfolio = read("portfolio.json");
   const ledger = read("ledger.json");
@@ -121,7 +102,6 @@ export default function MrDubPage() {
   const events = (ledger?.events ?? []);
   const rec = portfolio.record ?? {};
   const intel = portfolio.intelligence ?? {};
-  const exp = portfolio.exposure ?? {};
   const health = portfolio.bankrollHealth ?? { score: 100, label: "No open exposure", reasons: [] };
   const days = daily?.days ?? [];
   const latestDay = days.length ? days[days.length - 1] : null;
@@ -136,6 +116,9 @@ export default function MrDubPage() {
   const masterLedger = buildMasterLedger(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   // Ledger calendar model — a presentation-only transform of the canonical daily-summary days.
   const ledgerCal = buildLedgerCalendar(days, portfolio.startingBankroll ?? 100);
+  // Cross-product OPEN EXPOSURE — the real money on today's pending cards across all four products
+  // (Bank Builder + Moonshot + WC Specials + Homer Nukes). The ONE figure, shown here + master ledger.
+  const openExp = computeOpenExposure(path.join(process.cwd(), "public", "data"), today);
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
@@ -176,10 +159,21 @@ export default function MrDubPage() {
         </div>
         <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2">
           <Tile label="Record" value={`${rec.wins ?? 0}–${rec.losses ?? 0}`} sub={`${rec.voids ?? 0} void · ${rec.pending ?? 0} pending`} accent="var(--vault-success)" />
-          <Tile label="Open exposure" value={usd(portfolio.openExposure)} sub={`${rec.pending ?? 0} open · ${(portfolio.awaitingCards ?? []).length} awaiting`} />
+          <Tile label="Open exposure" value={usd(openExp.total)} sub={`across ${openExp.byProduct.filter((p) => p.amount > 0).length} of 4 products`} accent={openExp.total > 0 ? "var(--gtp-bank-heat)" : undefined} />
           <Tile label="High-water mark" value={usd(portfolio.highWaterMark)} sub="peak bankroll" accent="var(--vault-gold-bright)" />
           <Tile label="Bankroll health" value={String(health.score)} sub={health.label} accent="var(--vault-success)" />
         </div>
+        {/* Open-exposure breakdown — exactly where today's money is at risk, per product (no more "$0"). */}
+        {openExp.total > 0 ? (
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-3.5 py-2.5" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
+            <span className="font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Today&rsquo;s exposure</span>
+            {openExp.byProduct.map((p) => (
+              <span key={p.productId} className="font-mono text-[11px]" style={{ color: p.amount > 0 ? "var(--vault-text-mute)" : "var(--vault-text-faint)" }}>
+                <span aria-hidden>{p.glyph}</span> {p.label.replace(" Nukes", "").replace(" Specials", "")} <span style={{ color: p.amount > 0 ? "var(--vault-text)" : "var(--vault-text-faint)" }}>{usd(p.amount)}</span>
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div className="mt-3 flex flex-wrap gap-2">
           {CTAS.map((c) => (
             <Link key={c.href} href={c.href} className="vault-press rounded-full px-3.5 py-1.5 font-mono uppercase tracking-[0.1em] text-[10.5px]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", textDecoration: "none" }}>{c.label} →</Link>
@@ -197,7 +191,7 @@ export default function MrDubPage() {
           <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 text-[12px]">
             <span style={{ color: "var(--vault-text-mute)" }}>Net P/L <span className="font-mono" style={{ color: plColor(latestDay.pl) }}>{latestDay.pl >= 0 ? "+" : ""}{usd(latestDay.pl)}</span></span>
             <span style={{ color: "var(--vault-text-mute)" }}>Settled <span style={{ color: "var(--vault-text)" }}>{latestDay.wins}W · {latestDay.losses}L · {latestDay.voids}V</span></span>
-            <span style={{ color: "var(--vault-text-mute)" }}>Active exposure <span className="font-mono" style={{ color: "var(--vault-text)" }}>{usd(portfolio.openExposure)}</span></span>
+            <span style={{ color: "var(--vault-text-mute)" }}>Open exposure <span className="font-mono" style={{ color: "var(--vault-text)" }}>{usd(openExp.total)}</span></span>
             <span style={{ color: "var(--vault-text-mute)" }}>Awaiting <span style={{ color: "var(--vault-text)" }}>{(portfolio.awaitingCards ?? []).length} card(s)</span></span>
           </div>
         </section>
@@ -289,16 +283,27 @@ export default function MrDubPage() {
             </ul>
           ) : null}
         </div>
-        {(exp.bySport?.length || exp.byMarket?.length || exp.byLane?.length) ? (
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <ExposureBars title="By sport" rows={exp.bySport} total={portfolio.openExposure} />
-            <ExposureBars title="By market" rows={exp.byMarket} total={portfolio.openExposure} />
-            <ExposureBars title="By team / player" rows={exp.byTeamOrPlayer} total={portfolio.openExposure} />
-            <ExposureBars title="By lane" rows={exp.byLane} total={portfolio.openExposure} />
+        {/* Open exposure by product — exactly where today's money is at risk across the four products. */}
+        <div className="mt-3 rounded-xl px-4 py-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono uppercase tracking-[0.12em] text-[10px]" style={{ color: "var(--gtp-bank-heat)" }}>Open exposure by product</span>
+            <span className="font-mono text-[13px] font-bold" style={{ color: openExp.total > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)" }}>{usd(openExp.total)}</span>
           </div>
-        ) : (
-          <p className="mt-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>No open exposure to break down right now — the exposure dashboard populates when a paper card is placed.</p>
-        )}
+          <div className="mt-2 flex flex-col gap-1.5">
+            {openExp.byProduct.map((p) => (
+              <div key={p.productId} className="flex items-center justify-between gap-2">
+                <span className="text-[12px] min-w-0 truncate" style={{ color: p.amount > 0 ? "var(--vault-text)" : "var(--vault-text-faint)" }}>
+                  <span aria-hidden className="mr-1">{p.glyph}</span>{p.label}
+                  <span className="ml-1.5 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>· {p.note}</span>
+                </span>
+                <span className="font-mono tabular text-[12px] shrink-0" style={{ color: p.amount > 0 ? "var(--vault-text)" : "var(--vault-text-faint)" }}>{usd(p.amount)}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+            Paper stake riding on today&rsquo;s pending cards. Separate from the {usd(portfolio.currentBankroll)} realized bankroll — it returns to the bankroll (win/loss) only when each card settles officially.
+          </p>
+        </div>
       </section>
 
       {/* 7 — Full ledger */}

@@ -12,6 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { computeProductPerformance, type SettledResult } from "../products/performance";
 import { freshnessFor, type Freshness } from "../products/staleness";
+import { computeOpenExposure } from "./open-exposure";
 
 const round2 = (n: number) => Number(n.toFixed(2));
 const readJson = (p: string): any => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
@@ -169,6 +170,13 @@ export function buildMasterLedger(root: string, nowIso: string, date: string): M
       history: results,
     };
   });
+
+  // Open exposure = the ONE cross-product figure (money at risk on today's pending cards across all four
+  // products). Overrides each product's exposure so the master ledger, the Mr. Dub hero, and the per-product
+  // pages all agree — fixes the old "$0 open exposure" while the BB page showed $200, Homer $20, WC $50.
+  const oe = computeOpenExposure(root, date);
+  const expById = new Map<string, number>(oe.byProduct.map((p) => [p.productId, round2(p.amount)]));
+  for (const p of products) { p.exposure = expById.get(p.productId) ?? 0; p.openExposure = p.exposure; }
 
   const agg = products.reduce(
     (a, p) => ({

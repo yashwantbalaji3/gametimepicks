@@ -13,6 +13,7 @@ import path from "node:path";
 import { buildMasterLedger } from "../src/lib/mr-dub/master-ledger.ts";
 import { buildLedgerCalendar } from "../src/lib/mr-dub/ledger-calendar.ts";
 import { readCanonicalMoney } from "../src/lib/daily-portfolio/accounting.ts";
+import { computeOpenExposure } from "../src/lib/mr-dub/open-exposure.ts";
 
 const DATA = path.join(process.cwd(), "public", "data");
 const read = (rel) => JSON.parse(fs.readFileSync(path.join(DATA, rel), "utf8"));
@@ -71,7 +72,8 @@ note("Achievement banner", "Paper profit", portfolio.settledProfit, "canonical s
 note("Master ledger", "Bank Builder realized", bbEntry?.profit, "canonical settledProfit", "master-ledger ← portfolio.json");
 note("Master ledger", "Side-lane net", master.aggregate.sideLaneNet, "Σ flat (payout−stake)", "product-ledger/{moonshot,wc,homer}.json");
 note("Master ledger", "All-products net / lifetime", master.aggregate.lifetimeProfit, "BB realized + side net", "master-ledger");
-note("Master ledger", "Open exposure", master.aggregate.openExposure, "canonical placed exposure", "portfolio.json.openExposure");
+note("Master ledger / hero", "Open exposure (total)", master.aggregate.openExposure, "Σ today's pending card stakes across 4 products", "open-exposure helper");
+for (const p of computeOpenExposure(DATA, "2026-06-26").byProduct) note("Open exposure breakdown", p.label, p.amount, p.note, "product active artifact");
 note("Calendar stats", "Current bankroll", cal.stats.currentBankroll, "last day closing", "daily-summary.json");
 note("Calendar stats", "High-water", cal.stats.highWaterMark, "max day closing", "daily-summary.json");
 note("Calendar stats", "ROI multiple", cal.stats.roiMultiple, "totalPl / $100", "daily-summary.json");
@@ -93,7 +95,12 @@ check("master BB profit == settledProfit", bbEntry?.profit, portfolio.settledPro
 check("master BB record W == canonical", bbEntry?.record.wins, portfolio.record.wins, "master-ledger vs portfolio");
 check("master BB record L == canonical", bbEntry?.record.losses, portfolio.record.losses, "master-ledger vs portfolio");
 check("master lifetime == BB + side net", r2(bbEntry?.profit + sideNet), master.aggregate.lifetimeProfit, "master-ledger");
-check("master open exposure == canonical", portfolio.openExposure, master.aggregate.openExposure, "master-ledger vs portfolio");
+// Open exposure is a CROSS-PRODUCT figure (money on today's pending cards across all 4 products) — NOT
+// portfolio.openExposure (the BB ledger-open subset). It must reconcile to the shared helper + its breakdown.
+const oe = computeOpenExposure(DATA, "2026-06-26");
+const oeBreakdownSum = r2(oe.byProduct.reduce((s, p) => s + p.amount, 0));
+check("open-exposure breakdown sums to total", oeBreakdownSum, oe.total, "open-exposure helper");
+check("master open exposure == cross-product total", oe.total, master.aggregate.openExposure, "master-ledger vs open-exposure helper");
 check("calendar bankroll == portfolio", cal.stats.currentBankroll, portfolio.currentBankroll, "calendar vs portfolio");
 check("calendar HWM == portfolio crown", cal.stats.highWaterMark, portfolio.crownBankroll, "calendar vs portfolio");
 check("calendar ROI == portfolio ROI", cal.stats.roiMultiple, portfolio.roiMultiple, "calendar vs portfolio");

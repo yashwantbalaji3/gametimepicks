@@ -21,6 +21,29 @@ const MOON = path.join(DATA, "moonshot-lane", "active.json");                   
 const NOW = process.argv.includes("--now") ? process.argv[process.argv.indexOf("--now") + 1] : "2026-06-18T18:40:00Z";
 const round2 = (n) => Math.round(n * 100) / 100;
 
+/** Human-readable market labels for crown-ladder player props (the protected ledger uses raw market keys). */
+const MARKET_LABELS = {
+  batter_hits: "Hits", batter_total_bases: "Total Bases", batter_home_runs: "Home Runs", batter_rbis: "RBIs",
+  batter_runs_scored: "Runs", batter_hits_runs_rbis: "H+R+RBI", pitcher_strikeouts: "Strikeouts",
+  REB: "Rebounds", PTS: "Points", AST: "Assists", PRA: "Pts+Reb+Ast", PR: "Pts+Reb", PA: "Pts+Ast", RA: "Reb+Ast",
+  moneyline_90: "Moneyline", double_chance: "Double Chance", draw_no_bet: "Draw No Bet", totals: "Total",
+};
+/**
+ * Build a human-readable `selection` for a leg from whatever the source provided. Crown-ladder player-prop
+ * legs carry {player, market, side, line} with NO label/selection — without this they rendered BLANK in the
+ * calendar drawer ("the legs we chose aren't shown"). Team legs already carry `selection`/`label`.
+ */
+function legSelection(l) {
+  if (l.label || l.selection) return { selection: l.label ?? l.selection, side: l.side ?? null, line: l.line ?? null };
+  const market = MARKET_LABELS[l.market] ?? l.marketType ?? l.market ?? "";
+  if (l.player) {
+    const parts = [l.player, market, l.side, l.line != null ? l.line : null].filter((x) => x != null && x !== "");
+    return { selection: parts.join(" ").trim(), side: l.side ?? null, line: l.line ?? null };
+  }
+  if (l.side) return { selection: String(l.side), side: l.side, line: l.line ?? null };
+  return { selection: market || "leg", side: l.side ?? null, line: l.line ?? null };
+}
+
 /** Summarise the separate Moonshot lane from its own artifact (settled result + open exposure). */
 function moonshotSummary() {
   let lane;
@@ -75,7 +98,7 @@ function main() {
       officialResultConfirmed: !!e.officialResultConfirmed,
       settlementSource: e.settlementSource,
       publicBankBuilderVisible: true,
-      legs: (e.legs ?? []).map((l) => ({ market: l.market ?? l.marketType, selection: l.label ?? l.selection, result: l.result ?? "win", source: e.settlementSource })),
+      legs: (e.legs ?? []).map((l) => ({ ...legSelection(l), market: l.market ?? l.marketType, result: l.result ?? "win", finalStat: l.finalStat ?? null, finalScore: l.finalScore ?? null, source: e.settlementSource })),
       notes: `Completed-ladder rung ${e.step} — official, $${e.bankrollBefore} → $${e.bankrollAfter}.`,
     });
   }
