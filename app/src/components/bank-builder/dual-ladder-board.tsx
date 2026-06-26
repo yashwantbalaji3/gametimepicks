@@ -463,16 +463,29 @@ function LaneLadderCard({ view, enrichment, daily }: { view: PublicDualLadderVie
           immediately obvious (Phase 8). Shown for a live/active rung; hidden for a completed ladder. */}
       {(() => {
         if (view.currentStatus === "completed") return null;
-        const cur = view.steps.find((s) => s.step === view.currentStep);
-        const d = daily[`${view.laneId}:${view.currentStep}`];
+        // Key the money row off the ACTIVE rung (the one carrying today's card), not view.currentStep —
+        // which can still point at the last cleared step, making the row show the wrong goal and a
+        // misleading "To win == Invest · +$0.00". Fall back to awaiting/queued, then currentStep.
+        const cur =
+          view.steps.find((s) => s.status === "active") ??
+          view.steps.find((s) => s.status === "awaiting" || s.status === "queued") ??
+          view.steps.find((s) => s.step === view.currentStep);
+        const d = cur ? daily[`${view.laneId}:${cur.step}`] : undefined;
         const invest = d?.stake ?? view.currentStake ?? cur?.actualStake ?? null;
-        const toWin = d?.potentialReturn ?? cur?.actualReturn ?? null;
+        // "To win" must be the active rung's genuine projected return. Only fall back to a step's
+        // actualReturn when that step is actually SETTLED — an active rung with no priced line shows "—"
+        // rather than borrowing a prior figure (which produced a misleading "To win == Invest · +$0.00").
+        const curCleared = cur?.status === "cleared";
+        const projected = d?.potentialReturn ?? (curCleared ? cur?.actualReturn : null) ?? null;
+        // A ladder rung always targets a multiple > 1×; a projection at or below the stake is a missing
+        // line, not a real even-money rung — treat it as unknown.
+        const toWin = projected != null && invest != null && projected > invest ? projected : null;
         const goal = cur?.goalTarget ?? null;
-        if (invest == null || toWin == null) return null;
+        if (invest == null) return null;
         const tiles: Array<[string, string, string]> = [
           ["Invest", usd2(invest), "var(--vault-text)"],
-          ["To win", usd2(toWin), "var(--vault-gold-bright)"],
-          ["Profit", `+${usd2(Math.max(0, toWin - invest))}`, "var(--vault-success)"],
+          ["To win", toWin != null ? usd2(toWin) : "—", "var(--vault-gold-bright)"],
+          ["Profit", toWin != null ? `+${usd2(toWin - invest)}` : "—", "var(--vault-success)"],
           ["Goal", goal != null ? usd(goal) : "—", "var(--vault-text-mute)"],
         ];
         return (
