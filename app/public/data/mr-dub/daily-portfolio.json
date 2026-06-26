@@ -2,19 +2,20 @@
   "version": "daily-portfolio-v1",
   "date": "2026-06-25",
   "generatedAt": "2026-06-25T16:00:00Z",
-  "activeBankroll": 20165.4,
+  "activeBankroll": 20065.4,
   "crownBankroll": 20465.4,
-  "openExposure": 200,
-  "availableBankroll": 19965.4,
-  "potentialReturn": 405.25,
+  "openExposure": 0,
+  "availableBankroll": 20065.4,
+  "potentialReturn": 0,
+  "settledNote": "June-25 slate SETTLED (official, API-Football): Lane A WON ($100→$201.08, advanced), Lane B LOST (-$100, stopped). Active bankroll reconciles to the settled portfolio.json. Cards below are the graded June-25 wagers; the next slate replaces this artifact.",
   "products": {
     "bankBuilder": {
-      "exposure": 200,
+      "exposure": 0,
       "record": {
-        "wins": 0,
-        "losses": 0,
+        "wins": 1,
+        "losses": 1,
         "voids": 0,
-        "pending": 2
+        "pending": 0
       }
     },
     "moonshot": {
@@ -35,9 +36,9 @@
       "lane": "A",
       "step": 1,
       "clearedSteps": 0,
-      "status": "active",
+      "status": "won",
       "stake": 100,
-      "exposure": 100,
+      "exposure": 0,
       "targetReturn": 200,
       "fitsTarget": true,
       "combinedOdds": 101,
@@ -84,7 +85,8 @@
       "activationEligibility": {
         "eligible": true,
         "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
-      }
+      },
+      "result": "won"
     },
     {
       "id": "bank-builder-lane-b-step-1",
@@ -93,9 +95,9 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "active",
+      "status": "lost",
       "stake": 100,
-      "exposure": 100,
+      "exposure": 0,
       "targetReturn": 200,
       "fitsTarget": true,
       "combinedOdds": 104,
@@ -142,7 +144,8 @@
       "activationEligibility": {
         "eligible": true,
         "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
-      }
+      },
+      "result": "lost"
     },
     {
       "id": "moonshot-lane-a-2026-06-25",

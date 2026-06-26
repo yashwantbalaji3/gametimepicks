@@ -37,14 +37,14 @@ test("banked dual-lane history: Lane A COMPLETED the $10K ladder (Step 5 settled
   assert.notEqual(bb.laneA.laneStatus, "completed", "live Lane A is a fresh cycle, not a banked completed ladder");
 });
 
-test("Mr. Dub ledger after the 2nd ladder is BANKED: crown $20,465.40, bankroll $20,165.40, exposure $0, record 13-3-0-0", () => {
+test("Mr. Dub ledger after the 2nd ladder is BANKED: crown $20,465.40, bankroll $20,065.40, exposure $0, record 14-4-0-0", () => {
   const p = read("portfolio.json");
   assert.equal(p.paperOnly, true);
-  // Cumulative-crown: crown = Σ two banked $100→$10k finals; bankroll = crown − $300 dual-lane losses.
+  // Cumulative-crown: crown = Σ two banked $100→$10k finals; bankroll = crown − $400 dual-lane losses.
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked completed-ladder finals — immutable, append-only");
-  assert.equal(p.currentBankroll, 20165.4, "crown $20,465.40 less $300 realized dual-lane losses");
+  assert.equal(p.currentBankroll, 20065.4, "crown $20,465.40 less $400 realized dual-lane losses");
   assert.equal(p.openExposure, 0, "both prior cycles settled + fresh cycle-2 not yet placed → $0 open");
-  assert.deepEqual(p.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "13-3-0-0 UNCHANGED (banking is not a bet)");
+  assert.deepEqual(p.record, { wins: 14, losses: 4, voids: 0, pending: 0 }, "14-4-0-0 after June-25 (Lane A WON, Lane B LOST)");
   const led = read("ledger.json");
   // The crown ladder (original $100→$10,376.17) is logged as five cleared step wins.
   assert.ok(led.events.filter((e) => e.type === "ladder_step_won" && e.laneId === "crown-ladder").length >= 5, "crown ladder five step wins logged");

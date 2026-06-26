@@ -20,10 +20,10 @@ const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf
 
 test("bankroll reconciles to crown less three real Lane B lost seeds — above $20,000", () => {
   assert.equal(portfolio.crownBankroll, 20465.4, "protected cumulative crown immutable (Σ two banked $100→$10k finals)");
-  assert.equal(portfolio.currentBankroll, 20165.4, "crown - $300 (three real Lane B stops); pending cards don't realize");
+  assert.equal(portfolio.currentBankroll, 20065.4, "crown - $400 (four real Lane B stops); pending cards don't realize");
   assert.ok(portfolio.currentBankroll > 20000, "portfolio is above $20,000");
-  assert.equal(portfolio.drawdown, 300, "drawdown = three lost $100 seeds");
-  assert.deepEqual(portfolio.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "13-3-0-0 (Lane A Step 5 WON June 24; Lane B Step 3 LOST June 24)");
+  assert.equal(portfolio.drawdown, 400, "drawdown = four lost $100 seeds");
+  assert.deepEqual(portfolio.record, { wins: 14, losses: 4, voids: 0, pending: 0 }, "14-4-0-0 (Lane A Step 1 WON June 25; Lane B Step 1 LOST June 25)");
   assert.equal(portfolio.openExposure, 0, "Lane A completed (Step 5 WON) + Lane B stopped (Step 3 LOST) → both seeds released");
 });
 

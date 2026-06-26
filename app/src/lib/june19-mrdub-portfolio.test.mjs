@@ -13,15 +13,15 @@ test("portfolio math after the 2nd ladder is BANKED: crown, bankroll, HWM, drawd
   // the crown. Crown = Σ two completed-ladder finals ($10,376.17 + $10,089.23 = $20,465.40). Active bankroll =
   // crown − $300 realized dual-lane losses. The live dual lanes are now a fresh cycle-2. Moonshot unchanged.
   assert.equal(portfolio.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");
-  assert.equal(portfolio.currentBankroll, 20165.4, "active bankroll = crown − $300 dual-lane losses");
+  assert.equal(portfolio.currentBankroll, 20065.4, "active bankroll = crown − $400 dual-lane losses");
   assert.equal(portfolio.highWaterMark, 20465.4);
-  assert.equal(portfolio.drawdown, 300, "drawdown unchanged — $300 of stopped-lane seeds");
-  assert.ok(Math.abs(portfolio.drawdownPct - 0.0147) < 0.001, "drawdown ≈ 1.47% of HWM");
+  assert.equal(portfolio.drawdown, 400, "drawdown — $400 of stopped-lane seeds (3 prior + June-25 Lane B)");
+  assert.ok(Math.abs(portfolio.drawdownPct - 0.0195) < 0.001, "drawdown ≈ 1.95% of HWM");
   // Both prior cycles fully settled; the fresh cycle-2 lanes have no settled exposure yet → no open exposure.
   assert.equal(portfolio.openExposure, 0);
-  assert.equal(portfolio.roiMultiple, 200.65);
-  // Banking is not a bet → the win/loss record is UNCHANGED at 13-3-0-0.
-  assert.deepEqual(portfolio.record, { wins: 13, losses: 3, voids: 0, pending: 0 });
+  assert.equal(portfolio.roiMultiple, 199.65);
+  // June-25 settlement: Lane A WON (advanced), Lane B LOST → record advances to 14-4-0-0.
+  assert.deepEqual(portfolio.record, { wins: 14, losses: 4, voids: 0, pending: 0 });
   // Reconciliation: realized paperProfit (banked ladder + dual-lane losses) === settledProfit (no double-counting).
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
   assert.equal(sum, portfolio.settledProfit, "no double-counting — settled profit reconciles");
@@ -40,8 +40,8 @@ test("exposure breakdown is $0 after the 2nd ladder is banked; banked crown pres
   assert.equal(Math.round(sportSum * 100) / 100, portfolio.openExposure, "bySport sums to open exposure ($0)");
   const laneSum = (e.byLane ?? []).reduce((s, x) => s + x.amount, 0);
   assert.equal(Math.round(laneSum * 100) / 100, portfolio.openExposure, "byLane sums to open exposure ($0)");
-  // The completed Lane A ladder is now BANKED (not pending) → no awaiting card; fresh cycle-2 has no active card yet.
-  assert.equal((portfolio.awaitingCards ?? []).length, 0);
+  // June-25: Lane A advanced (Step-1 WON) → one awaiting next-card; no active card placed yet.
+  assert.equal((portfolio.awaitingCards ?? []).length, 1);
   assert.equal((portfolio.activeCards ?? []).length, 0);
   // The banked crown is surfaced as a completed card at the cumulative total ($20,465.40).
   assert.ok((portfolio.completedCards ?? []).some((c) => c.name === "Road to $10K" && c.final === 20465.4));

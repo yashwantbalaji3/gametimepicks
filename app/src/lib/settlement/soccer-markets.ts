@@ -70,6 +70,42 @@ export function gradeBothTeamsToScore(side: "yes" | "no", homeGoals: number, awa
   return side === "yes" ? (both ? "won" : "lost") : (both ? "lost" : "won");
 }
 
+/**
+ * Double chance (90'): the selection covers TWO of the three outcomes, parsed from the human text:
+ *   "<Team> or Draw" / "Draw or <Team>"  → that team wins OR draw (1X if home, X2 if away)
+ *   "<Team1> or <Team2>"                 → either team wins, i.e. NOT a draw (12)
+ * `homeName`/`awayName` come from the official "Home vs Away" string so we can resolve which side the
+ * selection covers. Never voids on a result — DC always settles win/lost at FT.
+ */
+export function gradeDoubleChance(selection: string, homeName: string, awayName: string, homeGoals: number, awayGoals: number): LegResult {
+  const parts = String(selection).split(/\bor\b/i).map((p) => norm(p)).filter(Boolean);
+  const home = norm(homeName), away = norm(awayName);
+  const covered = (team: string) => !!team && parts.some((p) => p === team || p.includes(team) || team.includes(p));
+  const coversDraw = parts.some((p) => p.includes("draw"));
+  const coversHome = covered(home);
+  const coversAway = covered(away);
+  if (homeGoals === awayGoals) return coversDraw ? "won" : "lost";
+  if (homeGoals > awayGoals) return coversHome ? "won" : "lost";
+  return coversAway ? "won" : "lost";
+}
+
+/**
+ * Draw no bet (90'): a draw is a PUSH (void → stake refunded, leg drops from the parlay). Otherwise the
+ * picked team must win. The picked team is parsed from the selection text (the "draw no bet" suffix is
+ * stripped) against the official home/away names. Returns "pending" only if the team can't be resolved.
+ */
+export function gradeDrawNoBet(selection: string, homeName: string, awayName: string, homeGoals: number, awayGoals: number): LegResult | "pending" {
+  if (homeGoals === awayGoals) return "void"; // push
+  const sel = norm(String(selection).replace(/draw\s*no\s*bet/ig, ""));
+  const home = norm(homeName), away = norm(awayName);
+  const pickedHome = !!home && (sel.includes(home) || home.includes(sel));
+  const pickedAway = !!away && (sel.includes(away) || away.includes(sel));
+  const homeWon = homeGoals > awayGoals;
+  if (pickedHome && !pickedAway) return homeWon ? "won" : "lost";
+  if (pickedAway && !pickedHome) return homeWon ? "lost" : "won";
+  return "pending"; // could not confidently resolve the picked team
+}
+
 /** Anytime goalscorer: won when the player's official goals ≥ 1; void when the player did not feature. */
 export function gradeAnytimeGoalscorer(line: OfficialPlayerLine | null): LegResult {
   if (!line || typeof line.goals !== "number") return "void"; // DNP / no official line
@@ -118,12 +154,22 @@ export interface GradedLeg {
  */
 export function gradeLeg(leg: GradeableLeg, official: OfficialResults): GradedLeg {
   const m = findMatch(official, leg.matchId);
-  const teamMarket = leg.market === "moneyline_90" || leg.market === "match_total_goals" || leg.market === "btts";
+  const teamMarket = leg.market === "moneyline_90" || leg.market === "match_total_goals" || leg.market === "btts"
+    || leg.market === "double_chance" || leg.market === "draw_no_bet";
 
   if (teamMarket) {
     if (!m) return { leg, result: "pending", reason: `no official match for id ${leg.matchId}` };
     if (m.status !== "FT") return { leg, result: "pending", reason: `match ${m.match} not Full Time (${m.status})` };
     const score = `${m.homeGoals}-${m.awayGoals}`;
+    const [homeName, awayName] = String(m.match).split(/\s+vs\s+/i);
+    if (leg.market === "double_chance") {
+      const r = gradeDoubleChance(leg.selection, homeName ?? "", awayName ?? "", m.homeGoals, m.awayGoals);
+      return { leg, result: r, reason: `${m.match} ${score} · ${leg.selection} → ${r}` };
+    }
+    if (leg.market === "draw_no_bet") {
+      const r = gradeDrawNoBet(leg.selection, homeName ?? "", awayName ?? "", m.homeGoals, m.awayGoals);
+      return { leg, result: r, reason: `${m.match} ${score} · ${leg.selection} → ${r}` };
+    }
     if (leg.market === "moneyline_90") {
       const pickedIsHome = leg.side === "home";
       const r = gradeSoccerMoneyline(pickedIsHome, m.homeGoals, m.awayGoals);

@@ -41,7 +41,7 @@ test("Moonshot lane artifact is stopped/LOST and its record is separate (0-1, no
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot 0-1, separate");
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure 0 (settled)");
-  assert.deepEqual(portfolio.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "core record (Lane A completed WON; Lane B Step 3 LOST) — moonshot not blended in");
+  assert.deepEqual(portfolio.record, { wins: 14, losses: 4, voids: 0, pending: 0 }, "core record (Lane A completed WON; Lane B Step 3 LOST) — moonshot not blended in");
 });
 
 test("Moonshot is reachable: command rail + top nav include it; mobile has its own Moonshot bucket", () => {
@@ -99,5 +99,5 @@ test("protected crown is the cumulative banked total ($20,465.40 = two completed
   // Cumulative-crown: crown = Σ official completed-ladder finals ($10,376.17 + $10,089.23). Banking the 2nd
   // ladder grows the crown but never rewrites it downward — the crown is immutable per completed ladder.
   assert.equal(portfolio.crownBankroll, 20465.4, "crown bankroll = Σ two banked ladder finals (immutable, append-only)");
-  assert.equal(portfolio.currentBankroll, 20165.4, "active bankroll = crown − $300 dual-lane losses");
+  assert.equal(portfolio.currentBankroll, 20065.4, "active bankroll = crown − $400 dual-lane losses");
 });
