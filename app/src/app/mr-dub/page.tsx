@@ -141,16 +141,10 @@ export default function MrDubPage() {
     <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
       {/* 0 — Track-record social proof: 2× $100→$10K completed (factual, from the canonical ledger). */}
       <AchievementBanner />
-      {/* 0.1 — Portfolio allocation (lead): how the single bankroll is allocated across all four products. */}
-      <PortfolioAllocationSection allocation={allocation} />
 
-      {/* 0.25 — Master ledger: authoritative cross-product paper track record (record/ROI/P&L/exposure). */}
-      <MasterLedgerSection ledger={masterLedger} />
-
-      {/* 0.5 — Today's paper portfolio: the Bank Builder + Moonshot lanes detail ($0 placed until activated). */}
-      <DailyPortfolioSection portfolio={dailyPortfolio} />
-
-      {/* 1 — Hero / current standings */}
+      {/* 1 — Hero / current standings — the page LEADS with the money story (one story, not a wall of
+            dashboards). The broader cross-product views (allocation, master ledger, today's plan) follow
+            below, after the Bank Builder journey itself. */}
       <section className="rounded-2xl px-5 py-5" style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(26,16,11,0.4))" }}>
         <div className="flex items-center gap-3.5">
           <MrDubAvatar size={64} />
@@ -314,6 +308,15 @@ export default function MrDubPage() {
           {events.slice().reverse().map((e: any) => <EventCard key={e.eventId} e={e} />)}
         </div>
       </section>
+
+      {/* 8 — Broader four-product platform (supporting detail, below the Bank Builder story): how the one
+            bankroll is allocated, the cross-product master ledger, and today's full candidate plan. */}
+      <div className="mt-2 flex flex-col gap-6 border-t pt-6" style={{ borderColor: "var(--vault-rule)" }}>
+        <p className="-mb-2 font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "var(--vault-text-faint)" }}>The wider platform · all four products</p>
+        <MasterLedgerSection ledger={masterLedger} />
+        <PortfolioAllocationSection allocation={allocation} />
+        <DailyPortfolioSection portfolio={dailyPortfolio} />
+      </div>
 
       <p className="text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
         Paper-only educational tracking. No wagers are placed. Mr. Dub is not a sportsbook and this is not financial advice.
