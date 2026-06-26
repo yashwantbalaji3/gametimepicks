@@ -150,12 +150,17 @@ export function readCanonicalMoney(root: string): { activeBankroll: number; crow
     if (typeof p.currentBankroll === "number" && typeof p.crownBankroll === "number") {
       return { activeBankroll: p.currentBankroll, crownBankroll: p.crownBankroll };
     }
-  } catch { /* fall through to the realized-history base */ }
-  // Derive from the banked realized-history base (decoupled cumulative-crown source of truth).
+  } catch { /* fall through to the per-event ledger */ }
+  // Derive the CURRENT figures from the per-event ledger (Σ realized paperProfit + the original seed) and
+  // the banked crown (Σ official completed-ladder finals). We MUST use the ledger — which INCLUDES the live
+  // cycle's realized losses — NOT `crownTotal + historicalDualLaneLosses`, which is the pre-cycle BASE and
+  // understates the bankroll (it omits the active cycle: would read $20,165.40 vs the real $20,065.40).
   const banked = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "banked-ladders.json"), "utf8"));
-  const crownBankroll = round2(banked.crownTotal);
-  const activeBankroll = round2(banked.crownTotal + (banked.historicalDualLaneLosses ?? 0));
-  return { activeBankroll, crownBankroll };
+  const ledger = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "ledger.json"), "utf8"));
+  const seed = Number(banked.ladders?.[0]?.start ?? 100) || 100;
+  const sumProfit = round2((ledger.events ?? []).reduce((s: number, e: any) => s + (Number(e.paperProfit) || 0), 0));
+  const crownBankroll = round2((banked.ladders ?? []).reduce((s: number, l: any) => s + (Number(l.final) || 0), 0) || banked.crownTotal);
+  return { activeBankroll: round2(seed + sumProfit), crownBankroll };
 }
 
 const round2 = (n: number) => Number(n.toFixed(2));

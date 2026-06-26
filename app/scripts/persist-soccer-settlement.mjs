@@ -69,6 +69,11 @@ async function main() {
 
   // 3) Per-product durable ledgers (append, dedupe by date+card).
   for (const [productId, results] of Object.entries(byProduct)) {
+    // Bank Builder's canonical realized history is the cumulative-crown ledger (banked-ladders.json →
+    // build-mr-dub-ledger → portfolio.json / ledger.json). It is a COMPOUNDING bankroll and does NOT use a
+    // flat product-ledger — maintaining one created a second, incomplete source of truth that drifted from
+    // the hero (the $8,228-vs-$19,965 bug). Skip it: only the flat-stake side lanes use product-ledger.
+    if (productId === "bank-builder") continue;
     const rel = `product-ledger/${productId}.json`;
     const existing = read(rel) ?? { productId, results: [] };
     const seen = new Set((existing.results ?? []).map((r) => `${r.date}|${r.card}`));
