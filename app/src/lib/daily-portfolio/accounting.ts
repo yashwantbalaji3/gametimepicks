@@ -136,13 +136,25 @@ function bbEligibility(g: GeneratedLane, nowMs: number): ActivationEligibility {
   return { eligible: true, reason: "all legs pre-event, outside the cutoff, and the card reaches the rung target" };
 }
 
+/**
+ * The SINGLE source of money truth for the daily view: `mr-dub/portfolio.json` (the cumulative-crown
+ * canonical, set only by official settlement + reconciliation). If that's unreadable we DERIVE the same
+ * numbers from the realized-history base `mr-dub/banked-ladders.json` (crown = Σ official finals; bankroll
+ * = crown + historicalDualLaneLosses). We NEVER fall back to a hardcoded constant — a stale literal here
+ * once made the regenerator silently write a single-ladder $10,176.17 over the real $20,065.40. If neither
+ * canonical file is readable, we THROW (fail loudly) rather than fabricate a bankroll.
+ */
 function readMoney(root: string): { activeBankroll: number; crownBankroll: number } {
-  let activeBankroll = 10176.17, crownBankroll = 10376.17;
   try {
     const p = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8"));
-    if (typeof p.currentBankroll === "number") activeBankroll = p.currentBankroll;
-    if (typeof p.crownBankroll === "number") crownBankroll = p.crownBankroll;
-  } catch { /* defaults */ }
+    if (typeof p.currentBankroll === "number" && typeof p.crownBankroll === "number") {
+      return { activeBankroll: p.currentBankroll, crownBankroll: p.crownBankroll };
+    }
+  } catch { /* fall through to the realized-history base */ }
+  // Derive from the banked realized-history base (decoupled cumulative-crown source of truth).
+  const banked = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "banked-ladders.json"), "utf8"));
+  const crownBankroll = round2(banked.crownTotal);
+  const activeBankroll = round2(banked.crownTotal + (banked.historicalDualLaneLosses ?? 0));
   return { activeBankroll, crownBankroll };
 }
 

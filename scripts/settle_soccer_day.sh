@@ -74,11 +74,19 @@ else
 fi
 
 # ── 4) Reconcile derived ledgers (pure rebuild from the artifacts). ─────────────────────────────────
-step "4/4  Reconcile Mr. Dub ledger"
+step "4/5  Reconcile Mr. Dub ledger"
 if [ "$APPLY" = 1 ]; then
   npx tsx scripts/build-mr-dub-ledger.mjs --now "${DATE}T18:00:00Z"
   ok "settlement applied + reconciled for $DATE"
 else
   info "dry-run — ledger not rebuilt (no --apply)"
+fi
+
+# ── 5) Money-integrity GATE — fail loudly on any corrupted bankroll (never publish on bad money). ───
+step "5/5  Money-integrity gate"
+if [ "$APPLY" = 1 ]; then
+  npx tsx app/scripts/verify-money-integrity.mjs || { err "MONEY-INTEGRITY GATE FAILED — settlement produced an inconsistent bankroll. Investigate before publishing."; exit 1; }
+else
+  info "dry-run — money gate runs on --apply"
 fi
 echo ""; ok "soccer settlement pipeline complete · $DATE · FT=$FT_COUNT · $([ "$APPLY" = 1 ] && echo APPLIED || echo DRY-RUN)"
