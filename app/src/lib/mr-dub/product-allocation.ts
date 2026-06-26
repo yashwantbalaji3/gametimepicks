@@ -15,6 +15,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { buildDailyPortfolio } from "./daily-portfolio";
+import { readCanonicalMoney } from "../daily-portfolio/accounting";
 import { buildSpecialsLedger } from "../world-cup/specials-ledger";
 import { loadWorldCupSpecials } from "../world-cup/world-cup-specials";
 import { loadHomerNukes, HOMER_NUKES_STAKE, HOMER_NUKES_DAILY_ALLOCATION } from "../mlb/homer-nukes";
@@ -69,16 +70,17 @@ const winRateOf = (r: Rec): number | null => (r.wins + r.losses > 0 ? Number((r.
 /** Read the protected bankroll + crown + per-product records (never written). The core portfolio.json
  *  record is the Bank Builder lane record; Moonshot keeps its own record under `moonshot`. */
 function loadCore(root: string): { activeBankroll: number; crownBankroll: number; bankBuilderRecord: Rec; moonshotRecord: Rec } {
-  let activeBankroll = 10176.17, crownBankroll = 10376.17;
+  // Money: SINGLE canonical reader (portfolio.json → banked-ladders.json → THROW; no stale constant; Rule 2).
+  const { activeBankroll, crownBankroll } = readCanonicalMoney(root);
+  // Records come from the same canonical portfolio.json (an empty record, not a money value, is a safe
+  // default if the records sub-object is absent — money is never defaulted).
   let bankBuilderRecord: Rec = { wins: 0, losses: 0, pushes: 0 };
   let moonshotRecord: Rec = { wins: 0, losses: 0, pushes: 0 };
   try {
     const p = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8"));
-    if (typeof p.currentBankroll === "number") activeBankroll = p.currentBankroll;
-    if (typeof p.crownBankroll === "number") crownBankroll = p.crownBankroll;
     if (p.record) bankBuilderRecord = toRec(p.record);
     if (p.moonshot?.record) moonshotRecord = toRec(p.moonshot.record);
-  } catch { /* fail closed → defaults */ }
+  } catch { /* records default to empty; canonical money already resolved above */ }
   return { activeBankroll, crownBankroll, bankBuilderRecord, moonshotRecord };
 }
 

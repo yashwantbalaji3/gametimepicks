@@ -4,6 +4,26 @@ The autonomous daily cycle, the order it must run in, and the one thing currentl
 hands-off operation. Money integrity is the hard invariant: **no bankroll movement without an official
 settled result.**
 
+## One command: `scripts/roll_to_next_day.sh` (the orchestrator)
+
+The full chain is now a single, settle-first, money-gate-guarded, idempotent orchestrator (PHASE 2):
+
+```
+bash scripts/roll_to_next_day.sh --to <YYYY-MM-DD>                  # dry-run (plan only, default)
+bash scripts/roll_to_next_day.sh --to <YYYY-MM-DD> --apply          # settle prior day + generate (no deploy)
+bash scripts/roll_to_next_day.sh --to <YYYY-MM-DD> --apply --deploy # full autonomous roll + push + verify
+OFFICIAL=/tmp/official.json  bash scripts/roll_to_next_day.sh --to <D> --apply   # operator results bundle
+```
+
+It runs: money-gate → settle PRIOR day (`settle_soccer_day.sh`, official-gated) → **settle-first HALT
+guard** (refuses to generate if a prior-day Bank Builder lane is still ACTIVE/unsettled) → fetch WC odds +
+build projections → promote `latest.json` → activate Bank Builder next rung + Moonshot → refresh WC
+Specials → ingest+enrich Homer Nukes → capture benchmark → **money-gate** → tests → build →
+[push+verify production]. Dry-run writes nothing and never deploys. The money-integrity gate aborts the
+roll at any hinge if the bankroll doesn't reconcile; tests/build failures block the deploy. Invariants
+pinned in `app/src/lib/roll-forward-orchestrator.test.mjs`. **Do NOT `--apply` mid-slate — it will refuse
+to roll over the live, unsettled day (settle-first).**
+
 ## The daily chain (settle-first, by design)
 
 ```

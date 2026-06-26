@@ -144,7 +144,7 @@ function bbEligibility(g: GeneratedLane, nowMs: number): ActivationEligibility {
  * once made the regenerator silently write a single-ladder $10,176.17 over the real $20,065.40. If neither
  * canonical file is readable, we THROW (fail loudly) rather than fabricate a bankroll.
  */
-function readMoney(root: string): { activeBankroll: number; crownBankroll: number } {
+export function readCanonicalMoney(root: string): { activeBankroll: number; crownBankroll: number } {
   try {
     const p = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8"));
     if (typeof p.currentBankroll === "number" && typeof p.crownBankroll === "number") {
@@ -247,7 +247,7 @@ export function applyCardLocks(
  * exposure is capped at MOONSHOT_MAX_EXPOSURE. NEVER changes active bankroll or crown.
  */
 export function buildPersistedDailyPortfolio(root: string, nowIso: string, date: string, generatedAt: string | null, activate: boolean): PersistedDailyPortfolio {
-  const { activeBankroll, crownBankroll } = readMoney(root);
+  const { activeBankroll, crownBankroll } = readCanonicalMoney(root);
   const pool = loadWorldCupModelPicks(root, nowIso, date);
   // Bank Builder draws from a SOCCER-FIRST cross-sport pool: the broad World Cup team-leg pool (real
   // de-vigged moneyline favorites + totals for every game, e.g. Brazil moneyline) is PREFERRED; the model
