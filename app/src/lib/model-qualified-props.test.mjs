@@ -136,15 +136,18 @@ test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live
   const liveAStep1 = live.run.laneA.steps.find((s) => s.step === 1);
   assert.equal(liveAStep1.status, "settled", "live Lane A Step 1 settled");
   assert.equal(liveAStep1.result, "won", "live Lane A Step 1 settled WON (June 25)");
-  assert.equal(live.run.laneB.laneStatus, "stopped", "live Lane B stopped — Step 1 settled LOST June 25");
-  const liveBStep1 = live.run.laneB.steps.find((s) => s.step === 1);
-  assert.equal(liveBStep1.status, "settled", "live Lane B Step 1 settled");
-  assert.equal(liveBStep1.result, "lost", "live Lane B Step 1 settled LOST (June 25)");
+  // Lane B's Step 1 settled LOST June-25; per operator direction Lane B was RESTARTED June-26 — laneStatus is
+  // now "active" with EMPTY steps[] (fresh Step-1 card), and priorLane preserves the June-25 LOST step.
+  assert.equal(live.run.laneB.laneStatus, "active", "live Lane B active — restarted June 26 after June-25 LOST");
+  assert.equal((live.run.laneB.steps ?? []).length, 0, "live Lane B steps empty (fresh restart)");
+  const priorBStep1 = live.run.laneB.priorLane.steps.find((s) => s.step === 1);
+  assert.equal(priorBStep1.status, "settled", "live Lane B priorLane Step 1 settled");
+  assert.equal(priorBStep1.result, "lost", "live Lane B priorLane Step 1 settled LOST (June 25)");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   // Cumulative-crown: crown = Σ two banked finals; active bankroll = crown − $400 dual-lane losses.
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");
   assert.equal(p.currentBankroll, 20065.4, "active bankroll = crown − $400 dual-lane losses");
-  assert.equal(p.openExposure, 0, "core exposure $0 (Lane A advanced + Lane B stopped after June 25 settlement)");
+  assert.equal(p.openExposure, 0, "canonical portfolio.json open exposure $0 (settled rungs released; live Step cards tracked in daily-portfolio, not portfolio.json)");
   assert.deepEqual(p.record, { wins: 14, losses: 4, voids: 0, pending: 0 }, "core record 14-4-0-0 (banking is not a bet)");
   assert.equal(p.moonshot.exposure, 0, "moonshot exposure separate ($0)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");

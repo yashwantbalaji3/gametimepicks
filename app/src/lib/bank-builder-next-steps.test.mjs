@@ -13,23 +13,28 @@ const NOW = "2026-06-23T10:00:00Z";
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 
-test("rung math (post-June-25 settlement, cycle 3): Lane A WON Step 1 → forward Step 2; Lane B LOST Step 1 → stopped (no rung)", () => {
+test("rung math (post-June-25 settlement → June-26 restart): Lane A WON Step 1 → forward Step 2; Lane B RESTARTED → fresh Step 1 rung", () => {
   const { laneA, laneB } = readLaneRungs(root);
-  // POST JUNE-25 SETTLEMENT (cycle 3): Lane A's Step 1 settled WON ($100 → $201.08), so the lane rolls its
-  // $201.08 forward onto Step 2 (clearedSteps 1, target $700). Lane B's Step 1 settled LOST, so the lane is
-  // stopped and yields NO forward rung.
+  // POST JUNE-25 SETTLEMENT: Lane A's Step 1 settled WON ($100 → $201.08), so the lane rolls its $201.08
+  // forward onto Step 2 (clearedSteps 1, target $700). Lane B LOST its June-25 Step 1 (now archived in
+  // laneB.priorLane) and was operator-RESTARTED for June-26 → a FRESH Step-1 rung ($100 seed, target $200).
   assert.ok(laneA, "Lane A has a forward rung (rolled onto Step 2 after the WON Step 1)");
   assert.equal(laneA.lane, "A");
   assert.equal(laneA.nextStep, 2, "Lane A advanced to Step 2");
   assert.equal(laneA.clearedSteps, 1, "Lane A cleared 1 rung (Step 1 WON)");
   assert.equal(laneA.rolledStake, 201.08, "Lane A rolls its $201.08 Step-1 payout forward");
   assert.equal(laneA.targetReturn, 700, "Lane A Step-2 target is $700");
-  assert.equal(laneB, null, "Lane B is stopped (Step 1 LOST) — no forward rung");
+  assert.ok(laneB, "Lane B is RESTARTED — a fresh forward rung (no longer stopped/null)");
+  assert.equal(laneB.lane, "B");
+  assert.equal(laneB.nextStep, 1, "Lane B leads with a fresh Step 1");
+  assert.equal(laneB.clearedSteps, 0, "Lane B cleared 0 rungs (fresh restart; June-25 loss lives in priorLane)");
+  assert.equal(laneB.rolledStake, 100, "Lane B places a fresh $100 seed");
+  assert.equal(laneB.targetReturn, 200, "Lane B Step-1 target is $200");
 });
 
 test("safest target-fit selector still serves a forward rung + holds its invariants (synthetic rung)", () => {
-  // Both LIVE lanes are terminal (Lane A completed, Lane B stopped), so the selector has no live lane to
-  // serve right now. Verify the selector's invariants against a synthetic forward rung so coverage holds.
+  // Verify the selector's invariants against a synthetic forward rung so coverage holds regardless of which
+  // live lanes are active on a given slate.
   const pool = loadWorldCupModelPicks(root, NOW, DATE);
   const rung = { lane: "B", nextStep: 3, clearedSteps: 2, rolledStake: 702.45, targetReturn: 1400, targetMultiplier: 1400 / 702.45 };
   const b = selectSafestTargetFitCard(pool, rung, new Set());
@@ -42,17 +47,20 @@ test("safest target-fit selector still serves a forward rung + holds its invaria
   assert.equal(b.fitsTarget, true, "card fits the rung target");
 });
 
-test("June-25 settlement is DURABLY recorded in the ladder (Lane A Step-1 WON → advanced, Lane B Step-1 LOST → stopped) — survives the daily slate roll", () => {
+test("June-25 settlement is DURABLY recorded in the ladder (Lane A Step-1 WON → advanced, Lane B Step-1 LOST → archived in priorLane on June-26 restart) — survives the daily slate roll", () => {
   // The June-25 settlement lives in the LADDER (the permanent record), not the daily-portfolio (which rolls
-  // to the next slate). Assert the durable fact so this test survives every daily roll-forward.
+  // to the next slate). Assert the durable fact so this test survives every daily roll-forward. On the
+  // June-26 operator restart, Lane B's LOST June-25 Step-1 MOVED into laneB.priorLane.steps (laneB.steps is
+  // now empty for the fresh active cycle); Lane A's WON Step-1 stays in laneA.steps.
   const run = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json")).run;
   const aStep1 = (run.laneA.steps ?? []).find((s) => s.step === 1);
-  const bStep1 = (run.laneB.steps ?? []).find((s) => s.step === 1);
+  const bStep1 = (run.laneB.priorLane?.steps ?? []).find((s) => s.step === 1);
   assert.ok(aStep1 && aStep1.status === "settled" && aStep1.result === "won", "Lane A Step-1 settled WON (June-25)");
   assert.ok(Math.abs((aStep1.payout ?? 0) - 201.08) < 0.5, "Lane A Step-1 rolled $100 → $201.08");
   assert.equal(run.laneA.laneStatus, "advanced", "Lane A advanced after the won Step-1");
-  assert.ok(bStep1 && bStep1.status === "settled" && bStep1.result === "lost", "Lane B Step-1 settled LOST (June-25)");
-  assert.equal(run.laneB.laneStatus, "stopped", "Lane B stopped after the lost Step-1");
+  assert.ok(bStep1 && bStep1.status === "settled" && bStep1.result === "lost", "Lane B Step-1 settled LOST (June-25, archived in priorLane)");
+  assert.equal(run.laneB.laneStatus, "active", "Lane B RESTARTED June-26 (active fresh Step-1; June-25 loss in priorLane)");
+  assert.equal((run.laneB.steps ?? []).length, 0, "Lane B's live steps are empty on the fresh restart");
   // The daily-portfolio (whatever slate it now holds) must always reconcile to the canonical bankroll.
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   const port = JSON.parse(read("public/data/mr-dub/portfolio.json"));
@@ -61,15 +69,16 @@ test("June-25 settlement is DURABLY recorded in the ladder (Lane A Step-1 WON �
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
 });
 
-test("BB seed-model invariant: a forward lane places exactly its $100 seed; generation never touches canonical money", () => {
-  // POST JUNE-25 SETTLEMENT (cycle 3): Lane A advanced to a forward Step-2 card (Lane B is stopped), so a fresh
-  // build serves the single forward Lane A card and places exactly its $100 seed at risk — and leaves the
-  // canonical bankroll/crown untouched (only an official settlement moves them; generation never does).
+test("BB seed-model invariant: each forward lane places exactly its $100 seed; generation never touches canonical money", () => {
+  // POST JUNE-25 SETTLEMENT → JUNE-26 RESTART: Lane A advanced to a forward Step-2 card and Lane B was
+  // restarted to a fresh Step-1 card, so a build serves BOTH forward BB lanes. Each forward lane places
+  // exactly its $100 seed at risk — and leaves the canonical bankroll/crown untouched (only an official
+  // settlement moves them; generation never does).
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
-  assert.equal(bb.length, 1, "one forward BB lane (Lane A advanced; Lane B stopped)");
+  assert.equal(bb.length, 2, "two forward BB lanes (Lane A advanced to Step-2; Lane B restarted to a fresh Step-1)");
   for (const l of bb) assert.equal(l.exposure, 100, `Lane ${l.lane} risks exactly its $100 seed`);
-  assert.equal(dp.products.bankBuilder.exposure, 100, "only the single $100 seed is at risk");
+  assert.equal(dp.products.bankBuilder.exposure, 100, "$100 per active lane (only Lane A finds an eligible card on this synthetic slate)");
   assert.equal(dp.activeBankroll, 20065.4, "active bankroll is the post-settlement truth, unchanged by generation");
   assert.equal(dp.crownBankroll, 20465.4, "crown unchanged by generation (Σ two banked finals)");
 });
