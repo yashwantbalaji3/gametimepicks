@@ -76,7 +76,14 @@ report.masterLedger = { aggregate: ledger.aggregate, products: ledger.products.m
 
 // 6. CONSISTENCY CHECKS.
 const c = report.consistency;
-c.canonicalMoneyFrozen = moneyBefore ? (moneyBefore.currentBankroll === 10176.17 && moneyBefore.crownBankroll === 10376.17) : null;
+// This refresh writes daily-portfolio + specials + master-ledger, but NEVER portfolio.json (canonical
+// money moves only through the official seed-model settlement). Verify the canonical bankroll/crown on
+// disk is UNCHANGED vs the snapshot taken at start — a real frozen invariant, not a hardcoded constant
+// (a stale `=== 10176.17` literal here previously failed forever once the cumulative crown advanced).
+const moneyNow = readJson(path.join(DATA, "mr-dub", "portfolio.json"));
+c.canonicalMoneyFrozen = !!(moneyBefore && moneyNow
+  && moneyNow.currentBankroll === moneyBefore.currentBankroll
+  && moneyNow.crownBankroll === moneyBefore.crownBankroll);
 const sumSeeds = round2(dp.lanes.filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0));
 c.exposureMatchesActiveSeeds = dp.openExposure === sumSeeds;
 c.availableEqualsActiveMinusExposure = dp.availableBankroll === round2(dp.activeBankroll - dp.openExposure);
