@@ -70,15 +70,19 @@ test("balancedGeneration diagnostics: targets + filled + a reason for every unde
 });
 
 test("active cards untouched: Lane A/B, Moonshot, and Mr. Dub exposure unchanged by generation", () => {
-  // Generation must NOT mutate the bank-builder artifacts. POST-BANKING + FRESH CYCLE-2: the prior run banked
-  // (Lane A → Ladder #2) and a fresh dual cycle started, so the live artifact's lanes are BOTH a fresh Step-1
-  // (laneStatus "active", currentStep 1, NO settled steps/legs yet). Generation must leave that fresh cycle intact.
+  // Generation must NOT mutate the bank-builder artifacts. POST-JUNE-25 SETTLEMENT (cycle 3): Lane A's Step 1
+  // settled WON and Lane B's Step 1 settled LOST, so the live artifact records ONE settled step per lane
+  // (Lane A laneStatus "advanced", Lane B "stopped"), both still on currentStep 1, with NO top-level pinned
+  // legs (settled legs live inside steps[0]). Generation must leave that settled cycle intact.
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
-  for (const key of ["laneA", "laneB"]) {
-    assert.equal(dual.run[key].laneStatus, "active", `${key} is a fresh active cycle-2 lane`);
-    assert.equal(dual.run[key].currentStep, 1, `${key} sits on a fresh Step 1`);
-    assert.deepEqual(dual.run[key].steps ?? [], [], `${key} has no settled steps (fresh cycle)`);
-    assert.deepEqual(dual.run[key].legs ?? [], [], `${key} has no pinned legs (fresh cycle)`);
+  assert.equal(dual.run.laneA.laneStatus, "advanced", "laneA advanced (Step 1 settled WON, June-25)");
+  assert.equal(dual.run.laneB.laneStatus, "stopped", "laneB stopped (Step 1 settled LOST, June-25)");
+  for (const [key, result] of [["laneA", "won"], ["laneB", "lost"]]) {
+    assert.equal(dual.run[key].currentStep, 1, `${key} sits on Step 1`);
+    assert.equal((dual.run[key].steps ?? []).length, 1, `${key} has one settled step (June-25)`);
+    assert.equal(dual.run[key].steps[0].status, "settled", `${key} Step 1 is settled`);
+    assert.equal(dual.run[key].steps[0].result, result, `${key} Step 1 result ${result}`);
+    assert.deepEqual(dual.run[key].legs ?? [], [], `${key} has no top-level pinned legs (settled legs live in steps[0])`);
   }
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 1152, "Moonshot Step 1 card is +1152");

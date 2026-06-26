@@ -6,7 +6,40 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   gradeMatchTotalGoals, gradeBothTeamsToScore, gradeAnytimeGoalscorer, gradeLeg, settleCard,
+  gradeDoubleChance, gradeDrawNoBet,
 } from "./soccer-markets.ts";
+
+test("double chance — '<team> or Draw' wins on that team's win OR a draw", () => {
+  assert.equal(gradeDoubleChance("Japan or Draw", "Japan", "Sweden", 1, 1), "won");  // draw
+  assert.equal(gradeDoubleChance("Japan or Draw", "Japan", "Sweden", 2, 0), "won");  // home win
+  assert.equal(gradeDoubleChance("Japan or Draw", "Japan", "Sweden", 0, 2), "lost"); // away win
+  assert.equal(gradeDoubleChance("Sweden or Draw", "Japan", "Sweden", 0, 1), "won"); // away team DC
+  assert.equal(gradeDoubleChance("Sweden or Draw", "Japan", "Sweden", 1, 0), "lost");
+});
+
+test("double chance — '<team1> or <team2>' (12) wins on either win, loses on a draw", () => {
+  assert.equal(gradeDoubleChance("Turkey or USA", "Turkey", "USA", 2, 1), "won");
+  assert.equal(gradeDoubleChance("Turkey or USA", "Turkey", "USA", 0, 3), "won");
+  assert.equal(gradeDoubleChance("Turkey or USA", "Turkey", "USA", 1, 1), "lost"); // draw not covered
+});
+
+test("draw no bet — draw is a push (void); else picked team must win", () => {
+  assert.equal(gradeDrawNoBet("Mexico (draw no bet)", "Mexico", "Canada", 1, 1), "void");
+  assert.equal(gradeDrawNoBet("Mexico (draw no bet)", "Mexico", "Canada", 2, 0), "won");
+  assert.equal(gradeDrawNoBet("Mexico (draw no bet)", "Mexico", "Canada", 0, 1), "lost");
+  assert.equal(gradeDrawNoBet("Canada (draw no bet)", "Mexico", "Canada", 0, 1), "won");
+});
+
+test("gradeLeg dispatches double_chance against the bundle (June-25 BB anchors → both won)", () => {
+  const official = { date: "2026-06-25", source: "test", players: [], matches: [
+    { matchId: 57, match: "Japan vs Sweden", homeGoals: 1, awayGoals: 1, status: "FT" },
+    { matchId: 60, match: "Paraguay vs Australia", homeGoals: 0, awayGoals: 0, status: "FT" },
+  ] };
+  const a = gradeLeg({ id: "a", matchId: 57, market: "double_chance", selection: "Japan or Draw", oddsAmerican: -450 }, official);
+  const b = gradeLeg({ id: "b", matchId: 60, market: "double_chance", selection: "Paraguay or Draw", oddsAmerican: -480 }, official);
+  assert.equal(a.result, "won", "Japan or Draw on a 1-1 draw → won");
+  assert.equal(b.result, "won", "Paraguay or Draw on a 0-0 draw → won");
+});
 
 test("match total goals over/under and push", () => {
   assert.equal(gradeMatchTotalGoals("over", 2, 1, 2.5), "won");   // 3 > 2.5

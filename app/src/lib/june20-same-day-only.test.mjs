@@ -77,7 +77,7 @@ test("Moonshot: Step 1 card settled LOST (lane stopped, no active card); restart
 test("Mr. Dub: both lanes settled WON → no open exposure ($0 core after Lane A + Lane B settled WON; moonshot settled → 0)", () => {
   assert.equal(portfolio.openExposure, 0, "Lane A Step 3 settled WON + Lane B settled WON → both seeds released, $0 open");
   assert.equal(portfolio.totalOpenExposure, 0, "core $0; moonshot settled LOST → 0 open");
-  assert.deepEqual(portfolio.record, { wins: 13, losses: 3, voids: 0, pending: 0 }, "13-3-0-0 (Lane A Step 5 WON June 24; Lane B Step 3 LOST June 24)");
+  assert.deepEqual(portfolio.record, { wins: 14, losses: 4, voids: 0, pending: 0 }, "14-4-0-0 (Lane A Step 1 WON June 25; Lane B Step 1 LOST June 25)");
   assert.equal((portfolio.activeCards ?? []).length, 0, "no active cards — both lanes awaiting the next qualified card");
 });
 

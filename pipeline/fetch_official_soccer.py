@@ -18,14 +18,25 @@ KEY = os.environ.get("API_FOOTBALL_KEY", "").strip()
 LEAGUE = int(os.environ.get("WC_API_FOOTBALL_LEAGUE", "1"))
 SEASON = int(os.environ.get("WC_API_FOOTBALL_SEASON", "2026"))
 
-# Map the slate's internal match ids (used in product leg ids) → the two team names, so the official
-# bundle keys on the SAME matchId the product legs reference (45-48 for the June 23 slate).
-SLATE_MATCHES = {
-    45: ("Portugal", "Uzbekistan"),
-    46: ("England", "Ghana"),
-    47: ("Panama", "Croatia"),
-    48: ("Colombia", "DR Congo"),
-}
+# The slate's matches are DERIVED from that day's projections (matchId → home/away), never hardcoded —
+# so the official bundle keys on the SAME matchIds the product legs reference, for ANY date. (Previously
+# this was a frozen dict for the June-23 slate, which made every later date resolve to NOT_FOUND.)
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def load_slate_matches(date):
+    """Return {matchId: (homeTeam, awayTeam)} for the date, from the built WC projections."""
+    path = os.path.join(REPO_ROOT, "app", "public", "data", "world-cup", "projections", f"{date}.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            proj = json.load(f)
+    except FileNotFoundError:
+        return {}
+    out = {}
+    for p in proj.get("matches", []):
+        mid = p.get("matchId")
+        if mid is not None and mid not in out:
+            out[mid] = (p.get("homeTeam"), p.get("awayTeam"))
+    return out
 
 def get(path):
     req = urllib.request.Request(f"{AF}{path}", headers={"x-apisports-key": KEY})
@@ -59,22 +70,37 @@ def main():
     for date in (args.date, next_date):
         fixtures += get(f"/fixtures?date={date}&league={LEAGUE}&season={SEASON}").get("response", [])
 
+    slate = load_slate_matches(args.date)
+    if not slate:
+        print(json.dumps({"error": f"no projections to derive the slate for {args.date}", "matches": [], "players": []}))
+        sys.exit(0)
+
     matches, players = [], []
-    for mid, (home, away) in SLATE_MATCHES.items():
-        # find the fixture by loose team match (handles 'DR Congo' vs 'Congo DR', abbreviations)
-        fx = None
+    for mid, (home, away) in slate.items():
+        name_id = f"{home} vs {away}"
+        # find the fixture by loose team match in EITHER orientation (handles 'DR Congo' vs 'Congo DR')
+        fx, flipped = None, False
         for cand in fixtures:
             t = cand.get("teams", {})
-            if team_matches(home, t.get("home", {}).get("name")) and team_matches(away, t.get("away", {}).get("name")):
-                fx = cand; break
+            ah, aa = t.get("home", {}).get("name"), t.get("away", {}).get("name")
+            if team_matches(home, ah) and team_matches(away, aa):
+                fx, flipped = cand, False; break
+            if team_matches(home, aa) and team_matches(away, ah):
+                fx, flipped = cand, True; break
         if not fx:
-            matches.append({"matchId": mid, "match": f"{home} vs {away}", "homeGoals": None, "awayGoals": None, "status": "NOT_FOUND"})
+            # emit NOT_FOUND under both keyings so a missing game is explicit, never silently dropped
+            for key in (mid, name_id):
+                matches.append({"matchId": key, "match": name_id, "homeGoals": None, "awayGoals": None, "status": "NOT_FOUND"})
             continue
-        g = fx.get("goals", {}); st = fx.get("fixture", {}).get("status", {})
-        fid = fx.get("fixture", {}).get("id")
-        matches.append({"matchId": mid, "match": f"{home} vs {away}", "homeGoals": g.get("home"),
-                        "awayGoals": g.get("away"), "status": st.get("short"), "apiFootballFixtureId": fid})
-        # player box scores for this fixture (goals/assists/shots-on-target)
+        g = fx.get("goals", {}); st = fx.get("fixture", {}).get("status", {}); fid = fx.get("fixture", {}).get("id")
+        # orient goals to the SLATE's home/away (so totals + DC grade against the right side)
+        gh, ga = (g.get("away"), g.get("home")) if flipped else (g.get("home"), g.get("away"))
+        row = {"match": name_id, "homeGoals": gh, "awayGoals": ga, "status": st.get("short"), "apiFootballFixtureId": fid}
+        # Emit under BOTH the numeric projection matchId AND the "Home vs Away" name — product legs
+        # reference one or the other (DC/ML legs use the numeric id; raw-pool totals use the name).
+        matches.append({"matchId": mid, **row})
+        matches.append({"matchId": name_id, **row})
+        # player box scores (goals/assists/shots-on-target), keyed under both ids too
         try:
             pdata = get(f"/fixtures/players?fixture={fid}").get("response", [])
         except Exception:
@@ -83,13 +109,11 @@ def main():
             for p in team.get("players", []):
                 info = p.get("player", {}); stats = (p.get("statistics") or [{}])[0]
                 goals = stats.get("goals", {}); shots = stats.get("shots", {})
-                players.append({
-                    "player": info.get("name"), "matchId": mid,
-                    "goals": goals.get("total") or 0,
-                    "assists": goals.get("assists") or 0,
-                    "shotsOnTarget": shots.get("on") or 0,
-                    "minutes": (stats.get("games") or {}).get("minutes"),
-                })
+                base = {"player": info.get("name"), "goals": goals.get("total") or 0,
+                        "assists": goals.get("assists") or 0, "shotsOnTarget": shots.get("on") or 0,
+                        "minutes": (stats.get("games") or {}).get("minutes")}
+                players.append({**base, "matchId": mid})
+                players.append({**base, "matchId": name_id})
 
     bundle = {
         "generatedAt": f"{args.date}T00:00:00Z", "date": args.date,

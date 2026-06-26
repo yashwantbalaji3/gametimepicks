@@ -91,26 +91,29 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("fresh cycle-2 launch: after BANKING the 2nd $100→$10k ladder, the LIVE preview is a freshly launched dual-lane run (both lanes active at Step 1, no settled steps, no stale-leg leak)", () => {
-  // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and restarted. The live
-  // dual-bank-builder-active.json is now the FRESH cycle: launched, both lanes active at Step 1 with no
-  // settled steps yet. The old June-19→24 completed/stopped narrative moved to the archive (asserted
-  // separately below) — it must NOT bleed into the live preview.
+test("cycle-3 live run after June-25 settlement: LIVE preview is launched with Lane A advanced (Step-1 WON) and Lane B stopped (Step-1 LOST), no stale-leg leak", () => {
+  // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and restarted into cycle 3.
+  // June-25 then SETTLED the new cycle's Step 1: Lane A WON (advanced, next stake $201.08) and Lane B LOST
+  // (stopped). The old June-19→24 completed/stopped narrative moved to the archive (asserted separately
+  // below) — it must NOT bleed into the live preview.
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
-  assert.equal(bb.status, "launched", "fresh cycle is a launched run");
-  assert.equal(bb.isLadder, false, "no settled steps yet → not yet a multi-step ladder");
+  assert.equal(bb.status, "launched", "cycle-3 is a launched run");
+  assert.equal(bb.isLadder, true, "Step-1 is settled → it is now a stepping ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
-  // Fresh lanes are active at Step 1 with nothing settled — the loader never fabricates prior wins.
+  assert.equal(bb.currentStep, 1, "settlement landed on Step 1");
+  // Lane A advanced on a settled Step-1 WON; Lane B stopped on a settled Step-1 LOST. The loader never fabricates.
+  const expected = { A: { laneStatus: "advanced", result: "won" }, B: { laneStatus: "stopped", result: "lost" } };
   for (const [name, lane] of [["A", bb.laneA], ["B", bb.laneB]]) {
-    assert.equal(lane.laneStatus, "active", `Lane ${name} restarted active`);
+    assert.equal(lane.laneStatus, expected[name].laneStatus, `Lane ${name} ${expected[name].laneStatus}`);
     assert.equal(lane.publicVisible, true, `Lane ${name} is publicly visible`);
-    assert.equal(lane.currentStep, 1, `Lane ${name} is back at Step 1`);
-    assert.equal((lane.steps ?? []).length, 0, `Lane ${name} has no settled steps in the fresh cycle`);
+    assert.equal(lane.currentStep, 1, `Lane ${name} settled at Step 1`);
+    assert.equal((lane.steps ?? []).length, 1, `Lane ${name} carries its one settled Step-1 card`);
+    assert.equal(lane.steps[0].result, expected[name].result, `Lane ${name} Step-1 settled ${expected[name].result.toUpperCase()}`);
   }
-  // No stale legs from either prior ladder may surface in the live, just-launched preview.
+  // No stale legs from either prior ladder may surface in the live cycle-3 preview.
   const live = JSON.stringify(bb);
-  assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey|Gonzales|Algeria|Egypt/.test(live), "no prior-ladder legs leak into the fresh cycle preview");
+  assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey|Gonzales|Algeria|Egypt/.test(live), "no prior-ladder legs leak into the cycle-3 preview");
 });
 
 test("ARCHIVE money-integrity: the BANKED 2nd ladder ($10,089.23 final) is preserved official — Lane A completed 5/5 won, Lane B stopped on a Step-3 loss", () => {
