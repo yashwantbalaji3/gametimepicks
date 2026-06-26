@@ -18,7 +18,9 @@ export default function AchievementBanner() {
   const completed = (p.completedLadders ?? []).filter((l: any) => l.official);
   if (completed.length < 1) return null;
   const rec = p.record ?? { wins: 0, losses: 0 };
-  const profit = banked?.lifetimeProfit ?? p.settledProfit ?? 0;
+  // Realized paper profit — the ONE canonical figure (bankroll − starting capital). NOT
+  // banked.lifetimeProfit, which historically held the bankroll itself (off by the $100 seed).
+  const profit = p.settledProfit ?? ((p.currentBankroll ?? 100) - (p.startingBankroll ?? 100));
 
   return (
     <section
