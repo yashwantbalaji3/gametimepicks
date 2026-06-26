@@ -22,6 +22,8 @@ import { buildPortfolioAllocation } from "@/lib/mr-dub/product-allocation";
 import MasterLedgerSection from "@/components/mr-dub/master-ledger-section";
 import AchievementBanner from "@/components/achievement-banner";
 import { buildMasterLedger } from "@/lib/mr-dub/master-ledger";
+import LedgerCalendar from "@/components/mr-dub/ledger-calendar";
+import { buildLedgerCalendar } from "@/lib/mr-dub/ledger-calendar";
 
 export const metadata = {
   title: "Mr. Dub · Paper Portfolio · GameTime Picks",
@@ -132,6 +134,8 @@ export default function MrDubPage() {
   const allocation = buildPortfolioAllocation(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   // Authoritative master ledger — every product's settled paper track record + overall totals.
   const masterLedger = buildMasterLedger(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  // Ledger calendar model — a presentation-only transform of the canonical daily-summary days.
+  const ledgerCal = buildLedgerCalendar(days, portfolio.startingBankroll ?? 100);
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
@@ -245,22 +249,12 @@ export default function MrDubPage() {
         </section>
       ) : null}
 
-      {/* 5 — Daily ledger (expandable to exact cards) */}
+      {/* 5 — Daily ledger as a CALENDAR: P/L cells + product dots + running bankroll; tap a day for the
+            exact tickets. Presentation-only (buildLedgerCalendar reads the canonical daily-summary). */}
       <section>
-        <SectionHeader eyebrow={`Daily ledger · ${days.length} days`} title="Bankroll timeline" sub="Tap a day to see the exact cards placed and each card's paper P/L." />
-        <div className="mt-2 flex flex-col gap-1.5">
-          {days.slice().reverse().map((d: any) => (
-            <details key={d.date} className="rounded-xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
-              <summary className="flex flex-wrap items-center justify-between gap-2 cursor-pointer px-3.5 py-2.5" style={{ listStyle: "none" }}>
-                <span className="text-[12.5px]" style={{ color: "var(--vault-text)" }}>{d.date} · {usd(d.opening)} → {usd(d.closing)}</span>
-                <span className="font-mono text-[11.5px]" style={{ color: plColor(d.pl) }}>{d.pl >= 0 ? "+" : ""}{usd(d.pl)} · {d.wins}W/{d.losses}L/{d.voids}V{d.pending ? `/${d.pending}P` : ""} ▾</span>
-              </summary>
-              <div className="flex flex-col gap-1.5 px-2.5 pb-2.5">
-                <div className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>staked {usd(d.staked)} · returned {usd(d.returned)} · net {usd(d.pl)} · closing {usd(d.closing)}</div>
-                {(d.events ?? []).map((e: any) => <EventCard key={e.eventId} e={e} />)}
-              </div>
-            </details>
-          ))}
+        <SectionHeader eyebrow={`Ledger calendar · ${days.length} settled days`} title="Bankroll calendar" sub="Each day's paper P/L at a glance — green up, red down. Tap a day for every ticket, its result, and the bankroll movement." />
+        <div className="mt-2">
+          <LedgerCalendar months={ledgerCal.months} stats={ledgerCal.stats} />
         </div>
       </section>
 
