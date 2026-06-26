@@ -20,7 +20,10 @@ const val = (f, d) => { const i = args.indexOf(f); return i >= 0 && args[i + 1] 
 const date = val("--date", new Date().toISOString().slice(0, 10));
 const apply = has("--apply");
 const nowIso = new Date().toISOString();
-const root = path.join(process.cwd(), "app", "public", "data");
+// cwd-robust: this script must run from app/ (for the @/ alias) but may also be invoked from the repo
+// root. Resolve public/data either way so readMoney always finds the canonical portfolio.json (a wrong
+// root previously made it silently fall back to a stale single-ladder bankroll).
+const root = path.join(process.cwd(), process.cwd().endsWith("app") ? "" : "app", "public", "data");
 const OUT = path.join(root, "mr-dub", "daily-portfolio.json");
 
 const dp = buildPersistedDailyPortfolio(root, nowIso, date, nowIso, apply);
