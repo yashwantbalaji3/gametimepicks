@@ -84,7 +84,7 @@ test("Mr. Dub page: hero (scientist badge + CTAs) → dual ladder → active/awa
   // CTAs to Bank Builder / Results / Picks / Build.
   for (const href of ["/bank-builder", "/results", "/picks", "/build"]) assert.ok(p.includes(`"${href}"`), `CTA ${href}`);
   // Section order: hero → today → dual ladder → active/awaiting → daily → exposure → full ledger.
-  const order = ["Paper Portfolio Scientist", "Latest day", "Mr. Dub's two lanes", "Active and awaiting", "Bankroll timeline", "Exposure and bankroll health", "Every paper event"].map((s) => p.indexOf(s));
+  const order = ["Paper Portfolio Scientist", "Latest day", "Mr. Dub's two lanes", "Active and awaiting", "Bankroll calendar", "Exposure and bankroll health", "Every paper event"].map((s) => p.indexOf(s));
   assert.ok(order.every((i, idx) => idx === 0 || i > order[idx - 1]), "sections in the required order");
 });
 
