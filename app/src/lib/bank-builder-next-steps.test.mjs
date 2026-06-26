@@ -42,26 +42,22 @@ test("safest target-fit selector still serves a forward rung + holds its invaria
   assert.equal(b.fitsTarget, true, "card fits the rung target");
 });
 
-test("persisted daily portfolio (post June-25 settlement): the two June-25 BB Step-1 cards are SETTLED (Lane A won, Lane B lost), $0 open exposure, money is the settled truth", () => {
+test("June-25 settlement is DURABLY recorded in the ladder (Lane A Step-1 WON → advanced, Lane B Step-1 LOST → stopped) — survives the daily slate roll", () => {
+  // The June-25 settlement lives in the LADDER (the permanent record), not the daily-portfolio (which rolls
+  // to the next slate). Assert the durable fact so this test survives every daily roll-forward.
+  const run = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json")).run;
+  const aStep1 = (run.laneA.steps ?? []).find((s) => s.step === 1);
+  const bStep1 = (run.laneB.steps ?? []).find((s) => s.step === 1);
+  assert.ok(aStep1 && aStep1.status === "settled" && aStep1.result === "won", "Lane A Step-1 settled WON (June-25)");
+  assert.ok(Math.abs((aStep1.payout ?? 0) - 201.08) < 0.5, "Lane A Step-1 rolled $100 → $201.08");
+  assert.equal(run.laneA.laneStatus, "advanced", "Lane A advanced after the won Step-1");
+  assert.ok(bStep1 && bStep1.status === "settled" && bStep1.result === "lost", "Lane B Step-1 settled LOST (June-25)");
+  assert.equal(run.laneB.laneStatus, "stopped", "Lane B stopped after the lost Step-1");
+  // The daily-portfolio (whatever slate it now holds) must always reconcile to the canonical bankroll.
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
-  const bb = dp.lanes.filter((l) => l.product === "bank-builder");
-  // POST JUNE-25 SETTLEMENT (cycle 3): the day's two BB Step-1 cards have been officially graded — Lane A WON
-  // ($100→$201.08, advanced), Lane B LOST (-$100, stopped). Nothing is at risk, so daily BB exposure is $0.
-  assert.equal(bb.length, 2, "the day's two graded BB cards (Lane A + Lane B)");
-  const laneA = bb.find((l) => l.lane === "A"), laneB = bb.find((l) => l.lane === "B");
-  assert.equal(laneA.status, "won", "Lane A Step-1 settled WON");
-  assert.equal(laneB.status, "lost", "Lane B Step-1 settled LOST");
-  for (const l of bb) {
-    assert.equal(l.step, 1, `Lane ${l.lane} graded Step 1`);
-    assert.equal(l.stake, 100, `Lane ${l.lane} rode a $100 seed`);
-    assert.equal(l.exposure, 0, `Lane ${l.lane} is settled — $0 at risk`);
-    assert.equal(l.legCount, 2, `Lane ${l.lane} Step-1 card has 2 legs`);
-  }
-  assert.equal(dp.products.bankBuilder.exposure, 0, "BB exposure is $0 — both Step-1 cards settled");
-  assert.equal(dp.openExposure, 0, "daily open exposure $0 (June-25 slate fully settled)");
-  // Canonical money is the post-settlement truth: crown = Σ two banked finals (20465.40); active bankroll =
-  // crown − $400 realized dual-lane losses = 20065.40. The daily view reconciles to it.
-  assert.equal(dp.activeBankroll, 20065.4); assert.equal(dp.crownBankroll, 20465.4);
+  const port = JSON.parse(read("public/data/mr-dub/portfolio.json"));
+  assert.equal(dp.activeBankroll, port.currentBankroll, "daily view reconciles to canonical bankroll");
+  assert.equal(dp.crownBankroll, port.crownBankroll, "daily view reconciles to canonical crown");
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
 });
 

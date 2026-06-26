@@ -1,10 +1,10 @@
 {
-  "date": "2026-06-24",
-  "apply": true,
-  "generatedAt": "2026-06-24T08:00:00Z",
+  "date": "2026-06-26",
+  "apply": false,
+  "generatedAt": "2026-06-26T08:00:00Z",
   "settled": [
     {
-      "date": "2026-06-23",
+      "date": "2026-06-25",
       "status": "official_bundle_present",
       "note": "run settle-daily-portfolio.mjs --apply to apply the seed-model settlement"
     }
@@ -12,8 +12,8 @@
   "generated": [
     {
       "product": "bank-builder",
-      "activeLanes": 2,
-      "awaiting": 0
+      "activeLanes": 0,
+      "awaiting": 2
     },
     {
       "product": "moonshot",
@@ -32,7 +32,7 @@
       "available": true
     }
   ],
-  "exposure": 200,
+  "exposure": 0,
   "warnings": [
     "wc-specials: player props unavailable — using team models"
   ],
@@ -44,21 +44,23 @@
   },
   "masterLedger": {
     "aggregate": {
-      "bets": 9,
-      "wins": 2,
-      "losses": 7,
-      "stake": 1841.82,
-      "profit": 2363.2,
-      "exposure": 220,
-      "roi": 128.31,
-      "winRate": 22.22
+      "bets": 15,
+      "wins": 4,
+      "losses": 11,
+      "stake": 6266.84,
+      "profit": 8228.49,
+      "exposure": 120,
+      "lifetimeProfit": 8228.49,
+      "openExposure": 120,
+      "roi": 131.3,
+      "winRate": 26.67
     },
     "products": [
       {
         "id": "bank-builder",
-        "record": "2-0",
-        "roi": 141.42,
-        "exposure": 200,
+        "record": "4-2",
+        "roi": 135.82,
+        "exposure": 100,
         "stale": false
       },
       {
@@ -66,11 +68,11 @@
         "record": "0-2",
         "roi": -100,
         "exposure": 0,
-        "stale": true
+        "stale": false
       },
       {
         "id": "wc-specials",
-        "record": "0-5",
+        "record": "0-7",
         "roi": -100,
         "exposure": 0,
         "stale": false
