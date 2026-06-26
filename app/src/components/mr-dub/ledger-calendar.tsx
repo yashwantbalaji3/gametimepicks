@@ -13,6 +13,13 @@ import { PRODUCT_META, type CalMonth, type CalStats, type CalCell, type LedgerDa
 const usd = (n: number | null | undefined) => n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const usd0 = (n: number | null | undefined) => n == null ? "—" : `$${Math.round(Number(n)).toLocaleString("en-US")}`;
 const signed = (n: number) => `${n >= 0 ? "+" : "−"}${usd0(Math.abs(n))}`;
+// Compact glance-format for the tiny calendar cells (full precision lives in the day drawer).
+const compact = (n: number | null | undefined) => {
+  if (n == null) return "—";
+  const a = Math.abs(Number(n));
+  return a >= 1000 ? `$${(a / 1000).toFixed(a >= 10000 ? 0 : 1)}k` : `$${Math.round(a)}`;
+};
+const signedC = (n: number) => `${n >= 0 ? "+" : "−"}${compact(Math.abs(n))}`;
 const WD = ["S", "M", "T", "W", "T", "F", "S"];
 const win = "var(--vault-success)", loss = "var(--gtp-bank-heat)", faint = "var(--vault-text-faint)";
 const resultColor = (r: CalCell["result"]) => r === "win" ? win : r === "loss" ? loss : r === "flat" ? "var(--vault-text-mute)" : faint;
@@ -43,10 +50,10 @@ function DayCell({ cell, onPick }: { cell: CalCell; onPick: (d: LedgerDay) => vo
       <span className="font-mono tabular" style={{ color: d ? "var(--vault-text-mute)" : faint, fontSize: 9.5 }}>{cell.dayNum}</span>
       {d ? (
         <>
-          <span className="font-display tabular leading-none mt-0.5" style={{ color: resultColor(r), fontSize: 12.5, fontWeight: 800 }}>{signed(d.pl)}</span>
-          <span className="mt-auto flex items-center justify-between gap-1">
+          <span className="font-display tabular tracking-tight leading-none mt-0.5 whitespace-nowrap" style={{ color: resultColor(r), fontSize: 12, fontWeight: 800 }}>{signedC(d.pl)}</span>
+          <span className="mt-auto flex items-center justify-between gap-0.5">
             <span className="flex gap-0.5">{cell.products.slice(0, 3).map((p) => <span key={p} aria-hidden style={{ fontSize: 8.5 }}>{PRODUCT_META[p]?.glyph ?? "•"}</span>)}</span>
-            <span className="font-mono tabular" style={{ color: faint, fontSize: 8 }}>{usd0(d.closing)}</span>
+            <span className="font-mono tabular shrink-0" style={{ color: faint, fontSize: 8 }}>{compact(d.closing)}</span>
           </span>
         </>
       ) : null}

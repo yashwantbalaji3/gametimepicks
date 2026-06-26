@@ -82,8 +82,9 @@ test("2nd ladder BANKED: Lane A's completed ladder is archived, the live lanes a
   // Mr. Dub ledger carries the FULL history: crown ladder five step wins + the banked 2nd ladder + dual-lane losses (no double-count).
   const led = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
   assert.ok(led.events.filter((e) => e.type === "ladder_step_won" && e.laneId === "crown-ladder").length >= 5, "crown ladder five step wins logged");
-  const banked = led.events.find((e) => e.type === "ladder_banked" && e.laneId === "lane-a");
-  assert.ok(banked && banked.paperProfit === 10089.23, "Lane A ladder banked +$10,089.23 (official, $100→$10,089.23)");
+  const ladder2 = led.events.filter((e) => e.type === "ladder_step_won" && e.laneId === "lane-a");
+  assert.ok(ladder2.length >= 5, "2nd ladder logged as its day-by-day step wins (complete journey)");
+  assert.equal(Math.round(ladder2.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100, 10089.23, "Lane A ladder steps sum to the banked final $10,089.23");
   const losses = led.events.find((e) => e.type === "dual_lane_losses");
   assert.ok(losses && losses.paperProfit === -300, "dual-lane losses realize -$300 once (retained in history, no double-count)");
 });

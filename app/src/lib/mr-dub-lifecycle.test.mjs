@@ -48,10 +48,12 @@ test("Mr. Dub ledger after the 2nd ladder is BANKED: crown $20,465.40, bankroll 
   const led = read("ledger.json");
   // The crown ladder (original $100→$10,376.17) is logged as five cleared step wins.
   assert.ok(led.events.filter((e) => e.type === "ladder_step_won" && e.laneId === "crown-ladder").length >= 5, "crown ladder five step wins logged");
-  // Banking the 2nd ladder is logged as a single ladder_banked event realizing the official $10,089.23 final.
-  const banked = led.events.find((e) => e.type === "ladder_banked" && e.laneId === "lane-a");
-  assert.ok(banked && banked.paperProfit === 10089.23, "Lane A ladder banked +$10,089.23 (official)");
-  assert.equal(banked.officialResultConfirmed, true, "banked ladder is official, not fabricated");
+  // The 2nd ladder is logged as its real day-by-day step wins (complete journey), summing to the official
+  // $10,089.23 banked final — no lump.
+  const ladder2 = led.events.filter((e) => e.type === "ladder_step_won" && e.laneId === "lane-a");
+  assert.ok(ladder2.length >= 5, "Lane A 2nd ladder logged as ≥5 step wins (complete journey, not a lump)");
+  assert.equal(Math.round(ladder2.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100, 10089.23, "Lane A steps sum to the official banked final $10,089.23");
+  assert.ok(ladder2.every((e) => e.officialResultConfirmed === true), "banked ladder steps are official, not fabricated");
   // The stopped dual-lane seeds are realized once as a -$300 dual_lane_losses event (not double-counted).
   const losses = led.events.find((e) => e.type === "dual_lane_losses");
   assert.ok(losses && losses.paperProfit === -300, "dual-lane losses realize -$300 once (no double-count)");

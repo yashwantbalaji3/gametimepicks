@@ -164,12 +164,26 @@ export default function MrDubPage() {
         <p className="mt-2 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
           Paper-only bankroll tracking for GameTimePicks model cards — Mr. Dub tracks every paper card, every official result, and every bankroll move. No wagers are placed. Not financial advice.
         </p>
-        <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-          <Tile label="Paper bankroll" value={usd(portfolio.currentBankroll)} accent="var(--vault-gold-bright)" sub={`from ${usd(portfolio.startingBankroll)}`} />
-          <Tile label="Settled P/L" value={usd(portfolio.settledProfit)} accent={plColor(portfolio.settledProfit)} sub={`ROI ${portfolio.roiMultiple ?? portfolio.roi}×`} />
-          <Tile label="Open exposure" value={usd(portfolio.openExposure)} sub={`${rec.pending ?? 0} open · ${(portfolio.awaitingCards ?? []).length} awaiting`} />
+        {/* The money path — start → bankroll → realized profit → ROI, in one glance (no mental math). */}
+        <div className="mt-3 rounded-xl px-4 py-3.5" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.025)" }}>
+          <div className="font-mono uppercase tracking-[0.12em] text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>The money path · paper · official results only</div>
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            <span className="font-display tabular" style={{ fontSize: 17, fontWeight: 700, color: "var(--vault-text-mute)" }}>{usd(portfolio.startingBankroll)}</span>
+            <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 15 }}>→</span>
+            <span className="font-display tabular tracking-tight" style={{ fontSize: 27, fontWeight: 800, color: "var(--vault-text)", lineHeight: 1 }}>{usd(portfolio.currentBankroll)}</span>
+            <span className="font-display tabular" style={{ fontSize: 17, fontWeight: 800, color: plColor(portfolio.settledProfit) }}>{(portfolio.settledProfit ?? 0) >= 0 ? "+" : ""}{usd(portfolio.settledProfit)}</span>
+            <span className="font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>realized · {portfolio.roiMultiple ?? portfolio.roi}× ROI</span>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+            <span>Starting <span style={{ color: "var(--vault-text-mute)" }}>{usd(portfolio.startingBankroll)}</span></span>
+            <span>High-water <span style={{ color: "var(--vault-text-mute)" }}>{usd(portfolio.highWaterMark)}</span></span>
+            <span>Drawdown <span style={{ color: (portfolio.drawdown ?? 0) > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-mute)" }}>{usd(portfolio.drawdown)} · {((portfolio.drawdownPct ?? 0) * 100).toFixed(2)}%</span></span>
+          </div>
+        </div>
+        <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2">
           <Tile label="Record" value={`${rec.wins ?? 0}–${rec.losses ?? 0}`} sub={`${rec.voids ?? 0} void · ${rec.pending ?? 0} pending`} accent="var(--vault-success)" />
-          <Tile label="Drawdown" value={usd(portfolio.drawdown)} sub={`${((portfolio.drawdownPct ?? 0) * 100).toFixed(2)}% from HWM`} accent={(portfolio.drawdown ?? 0) > 0 ? "var(--gtp-bank-heat)" : undefined} />
+          <Tile label="Open exposure" value={usd(portfolio.openExposure)} sub={`${rec.pending ?? 0} open · ${(portfolio.awaitingCards ?? []).length} awaiting`} />
+          <Tile label="High-water mark" value={usd(portfolio.highWaterMark)} sub="peak bankroll" accent="var(--vault-gold-bright)" />
           <Tile label="Bankroll health" value={String(health.score)} sub={health.label} accent="var(--vault-success)" />
         </div>
         <div className="mt-3 flex flex-wrap gap-2">

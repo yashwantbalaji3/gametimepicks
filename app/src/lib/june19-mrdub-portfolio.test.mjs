@@ -47,29 +47,30 @@ test("exposure breakdown is $0 after the 2nd ladder is banked; banked crown pres
   assert.ok((portfolio.completedCards ?? []).some((c) => c.name === "Road to $10K" && c.final === 20465.4));
 });
 
-test("daily summary: the 2nd ladder is BANKED (+$10,089.23), then dual-lane losses realized across June-25/26, P/L reconciles", () => {
-  // The rebuilt daily ledger records the banking of the 2nd ladder and the realized dual-lane losses.
+test("daily summary: the 2nd ladder climbs day-by-day (Σ +$10,089.23) to the crown, then the dual-lane drawdown realizes; P/L reconciles", () => {
+  // COMPLETE JOURNEY: the 2nd ladder is shown as its real day-by-day climb (June 18→24), summing to the
+  // banked final $10,089.23 — not a single lump. The crown ($20,465.40) is the high-water peak on June-24.
+  const ladder2Days = daily.days.filter((x) => ["2026-06-18", "2026-06-19", "2026-06-21", "2026-06-23", "2026-06-24"].includes(x.date));
+  const ladder2Climb = Math.round(ladder2Days.flatMap((d) => d.events).filter((e) => e.type === "ladder_step_won" && e.laneId === "lane-a").reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
+  assert.equal(ladder2Climb, 10089.23, "Lane A 2nd ladder climbs to the banked final $10,089.23 across its step-days");
   const banked = daily.days.find((x) => x.date === "2026-06-24");
-  assert.ok(banked, "ladder-banked day present");
-  assert.ok(banked.events.length, "day embeds its exact events");
-  assert.ok(banked.events.some((e) => e.type === "ladder_banked" && e.paperProfit === 10089.23), "Lane A ladder banked +$10,089.23");
-  assert.equal(banked.closing, 20465.4, "closing after banking = cumulative crown $20,465.40");
-  // June-25 settlement: Lane A Step-1 WON (rolled forward, $0 realized) and Lane B Step-1 LOST (−$100 stake).
+  assert.equal(banked.closing, 20465.4, "June-24 closing = cumulative crown $20,465.40 (the high-water peak)");
+  assert.ok(banked.events.some((e) => e.type === "ladder_step_won"), "June-24 carries the final banked step");
+  // June-25: Lane A Step-1 WON (rolled, $0) + Lane B Step-1 LOST (−$100) + the dual-lane phase drawdown (−$300)
+  // realized just after the crown peak → total −$400, closing back to the canonical bankroll.
   const june25 = daily.days.find((x) => x.date === "2026-06-25");
-  assert.ok(june25, "June-25 settlement day present");
+  assert.ok(june25, "June-25 day present");
   assert.ok(june25.events.some((e) => e.type === "lane_stopped" && e.paperProfit === -100), "June-25 Lane B stop realizes −$100");
-  // The cumulative −$300 dual-lane-loss accounting lands on June-26.
-  const losses = daily.days.find((x) => x.date === "2026-06-26");
-  assert.ok(losses, "dual-lane-losses day present");
-  assert.ok(losses.events.some((e) => e.type === "dual_lane_losses" && e.paperProfit === -300), "dual-lane losses realize −$300");
+  assert.ok(june25.events.some((e) => e.type === "dual_lane_losses" && e.paperProfit === -300), "dual-lane drawdown realizes −$300 after the crown peak");
+  assert.equal(june25.closing, 20065.4, "June-25 closing = canonical bankroll $20,065.40");
   // P/L reconciles for each tracked day + last-day closing equals current bankroll.
-  for (const d of [banked, june25, losses]) {
+  for (const d of [banked, june25]) {
     const sum = Math.round(d.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
     assert.equal(sum, d.pl, `day ${d.date} P/L equals the sum of its events`);
   }
   assert.equal(daily.days[daily.days.length - 1].closing, portfolio.currentBankroll, "closing reconciles to bankroll");
-  // Each event carries a self-explanatory accounting note.
-  for (const d of [banked, june25, losses]) assert.ok(d.events.every((e) => typeof e.accountingNote === "string" && e.accountingNote.length), "events carry an accounting note");
+  // Each event carries a self-explanatory note (accounting trail).
+  for (const d of [banked, june25]) assert.ok(d.events.every((e) => (typeof e.accountingNote === "string" && e.accountingNote.length) || (typeof e.notes === "string" && e.notes.length)), "events carry an explanatory note");
 });
 
 test("Mr. Dub page: hero (scientist badge + CTAs) → dual ladder → active/awaiting → daily → exposure → full ledger", () => {

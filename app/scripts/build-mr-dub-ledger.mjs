@@ -93,21 +93,51 @@ function main() {
   // the daily summary + drawdown reconcile to the banked bankroll. A banked ladder realizes its FULL final
   // (cumulative-crown: its $100 seed is embedded in the crown sum, not separate capital). The losses are
   // dated to the banking day so the running bankroll peaks at the crown (drawdown = crown − bankroll).
+  let lastBankedDate = NOW.slice(0, 10);
   if (banked) {
     for (const l of (banked.ladders ?? []).filter((x) => x.lane !== "crown")) {
-      events.push({
-        eventId: `mrdub-ladder${l.ladder}-banked`, timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder",
-        type: "ladder_banked", laneId: `lane-${String(l.lane).toLowerCase()}`, step: (l.steps ?? []).length || null,
-        date: l.completedDate ?? NOW.slice(0, 10), paperStake: round2(l.start ?? 100), paperReturn: round2(l.final ?? 0),
-        paperProfit: round2(l.final ?? 0), status: "settled", result: "won", officialResultConfirmed: true,
-        settlementSource: l.settlementSource ?? "official", publicBankBuilderVisible: true, legs: [],
-        notes: `Ladder #${l.ladder} BANKED — Lane ${l.lane} completed $${l.start}→$${l.final} (official). Crown = Σ completed-ladder finals.`,
-      });
+      lastBankedDate = l.completedDate ?? lastBankedDate;
+      const steps = l.steps ?? [];
+      if (steps.length) {
+        // COMPLETE JOURNEY: emit the banked ladder's real day-by-day climb (one event per step on its own
+        // date), instead of a single lump on the banking day. Cumulative-crown convention: the $100 seed is
+        // embedded in the crown, so step 1's P/L runs from $0 → its `after`; later steps are after−before.
+        // The per-day P/L therefore sums EXACTLY to the banked final (no money change, just a truthful trail).
+        let prevAfter = 0;
+        for (const s of steps) {
+          const after = round2(s.after ?? 0);
+          const profit = round2(after - prevAfter);
+          events.push({
+            eventId: `mrdub-ladder${l.ladder}-step${s.step}`, timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder",
+            type: "ladder_step_won", laneId: `lane-${String(l.lane).toLowerCase()}`, step: s.step,
+            date: s.date ?? l.completedDate, paperStake: round2(s.before ?? 0), paperReturn: after,
+            paperProfit: profit, rolled: s.step < steps.length, status: "settled", result: "won", officialResultConfirmed: true,
+            settlementSource: l.settlementSource ?? "official", publicBankBuilderVisible: true,
+            legs: (s.legs ?? []).map((lg) => (typeof lg === "string" ? { selection: lg } : lg)),
+            notes: `Ladder #${l.ladder} (Lane ${l.lane}) Step ${s.step} — $${round2(s.before ?? 0)}→$${after} (official)${s.step === steps.length ? ` · BANKED into the crown` : ""}.`,
+          });
+          prevAfter = after;
+        }
+      } else {
+        events.push({
+          eventId: `mrdub-ladder${l.ladder}-banked`, timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder",
+          type: "ladder_banked", laneId: `lane-${String(l.lane).toLowerCase()}`, step: null,
+          date: l.completedDate ?? NOW.slice(0, 10), paperStake: round2(l.start ?? 100), paperReturn: round2(l.final ?? 0),
+          paperProfit: round2(l.final ?? 0), status: "settled", result: "won", officialResultConfirmed: true,
+          settlementSource: l.settlementSource ?? "official", publicBankBuilderVisible: true, legs: [],
+          notes: `Ladder #${l.ladder} BANKED — Lane ${l.lane} completed $${l.start}→$${l.final} (official). Crown = Σ completed-ladder finals.`,
+        });
+      }
     }
     if (banked.historicalDualLaneLosses) {
+      // Date the dual-lane drawdown to the day AFTER the crown is banked — so the running bankroll first
+      // PEAKS at the crown (= high-water mark) on the banking day, then gives back the dual-lane losses the
+      // next day. This keeps HWM = crown and drawdown = crown − bankroll (the canonical invariant), and
+      // keeps the losses off the current (pending) slate.
+      const dayAfter = (() => { const d = new Date(`${lastBankedDate}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + 1); return d.toISOString().slice(0, 10); })();
       events.push({
         eventId: "mrdub-dual-lane-realized-losses", timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder",
-        type: "dual_lane_losses", laneId: "lane-b", date: NOW.slice(0, 10), paperStake: 0, paperReturn: 0,
+        type: "dual_lane_losses", laneId: "lane-b", date: dayAfter, paperStake: 0, paperReturn: 0,
         paperProfit: round2(banked.historicalDualLaneLosses), status: "settled", result: "lost", officialResultConfirmed: true,
         publicBankBuilderVisible: false, legs: [],
         notes: `Dual-lane phase realized losses — ${Math.round(Math.abs(banked.historicalDualLaneLosses) / 100)} stopped-lane $100 seeds (preserved; not part of any completed ladder).`,
