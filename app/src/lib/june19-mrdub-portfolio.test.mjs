@@ -47,24 +47,29 @@ test("exposure breakdown is $0 after the 2nd ladder is banked; banked crown pres
   assert.ok((portfolio.completedCards ?? []).some((c) => c.name === "Road to $10K" && c.final === 20465.4));
 });
 
-test("daily summary: the 2nd ladder is BANKED (+$10,089.23) then dual-lane losses realized (−$300), P/L reconciles", () => {
+test("daily summary: the 2nd ladder is BANKED (+$10,089.23), then dual-lane losses realized across June-25/26, P/L reconciles", () => {
   // The rebuilt daily ledger records the banking of the 2nd ladder and the realized dual-lane losses.
   const banked = daily.days.find((x) => x.date === "2026-06-24");
   assert.ok(banked, "ladder-banked day present");
   assert.ok(banked.events.length, "day embeds its exact events");
   assert.ok(banked.events.some((e) => e.type === "ladder_banked" && e.paperProfit === 10089.23), "Lane A ladder banked +$10,089.23");
   assert.equal(banked.closing, 20465.4, "closing after banking = cumulative crown $20,465.40");
-  const losses = daily.days.find((x) => x.date === "2026-06-25");
+  // June-25 settlement: Lane A Step-1 WON (rolled forward, $0 realized) and Lane B Step-1 LOST (−$100 stake).
+  const june25 = daily.days.find((x) => x.date === "2026-06-25");
+  assert.ok(june25, "June-25 settlement day present");
+  assert.ok(june25.events.some((e) => e.type === "lane_stopped" && e.paperProfit === -100), "June-25 Lane B stop realizes −$100");
+  // The cumulative −$300 dual-lane-loss accounting lands on June-26.
+  const losses = daily.days.find((x) => x.date === "2026-06-26");
   assert.ok(losses, "dual-lane-losses day present");
   assert.ok(losses.events.some((e) => e.type === "dual_lane_losses" && e.paperProfit === -300), "dual-lane losses realize −$300");
-  // P/L reconciles for each banking day + last-day closing equals current bankroll.
-  for (const d of [banked, losses]) {
+  // P/L reconciles for each tracked day + last-day closing equals current bankroll.
+  for (const d of [banked, june25, losses]) {
     const sum = Math.round(d.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
     assert.equal(sum, d.pl, `day ${d.date} P/L equals the sum of its events`);
   }
   assert.equal(daily.days[daily.days.length - 1].closing, portfolio.currentBankroll, "closing reconciles to bankroll");
   // Each event carries a self-explanatory accounting note.
-  for (const d of [banked, losses]) assert.ok(d.events.every((e) => typeof e.accountingNote === "string" && e.accountingNote.length), "events carry an accounting note");
+  for (const d of [banked, june25, losses]) assert.ok(d.events.every((e) => typeof e.accountingNote === "string" && e.accountingNote.length), "events carry an accounting note");
 });
 
 test("Mr. Dub page: hero (scientist badge + CTAs) → dual ladder → active/awaiting → daily → exposure → full ledger", () => {

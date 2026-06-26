@@ -1,66 +1,63 @@
-# Bank Builder Survival Audit — June 26, 2026 (Cycle 3, Lane A Step 2)
+# Bank Builder Survival Audit — June 26, 2026 (Cycle 3) · MAX-2-LEG policy
 
-**Mandate:** maximize the probability of completing the $100→$10,000 ladder. NOT EV, payout, or
-excitement — survival only. Lane A won June-25 Step 1 ($100→$201.08) and now climbs Step 2; Lane B is
-stopped (lost June-25, restart operator-gated). Re-evaluated from scratch on the June-26 markets.
+**Mandate:** maximize ladder-survival probability toward $10K. NOT payout/EV/excitement. **New policy:
+MAX 2 LEGS** per parlay; a 3rd leg only if 2 legs cannot reach the rung. This audit re-evaluated both
+lanes from scratch on June-26 markets and **complies with MAX-2-LEG on both lanes.**
 
-**Verdict: the generated Lane A Step-2 card is on the survival frontier — KEPT, no leg replacement.**
+## Lane A — Step 2 ($201.08 → $700 rung, required 3.481×)
 
-## Rung target
-Step 2 rolls $201.08 toward the $700 rung → required combined multiplier **3.481×** (= 700 / 201.08).
+**FINAL (KEPT after re-optimization): 2-leg card — Senegal/Iraq Over 3 (0.511) + Cape Verde/Saudi BTTS
+Yes (0.506) → +251 (3.51×) → $705.77. Joint survival 25.9%.** Both legs odds-backed (betonlineag /
+fanduel), settleable, weakest leg 0.51 (no underdog).
 
-## Candidate universe (verifiable June-26 model feed)
-6 World Cup games; markets the model can evaluate: **moneyline · double chance · draw no bet · BTTS**.
-**No totals offered on June 26** — so (per "never fabricate unsupported markets") totals are out of the
-universe. De-vigged probabilities (`wc-odds-only-v2`):
+This **supersedes** the prior-pass 3-leg card (Egypt-DC + France + Senegal BTTS-No, 24.4%). Why the
+2-leg is better AND rule-compliant:
 
-| Game | Safe anchors (P) | Payout legs (P) |
-|---|---|---|
-| New Zealand vs Belgium | Belgium DC 0.937 · Belgium DNB 0.919 · Belgium ML 0.811 | BTTS No 0.547 |
-| Senegal vs Iraq | Senegal DC 0.921 · Senegal DNB 0.903 · Senegal ML 0.775 | BTTS No 0.551 |
-| Uruguay vs Spain | Spain DC 0.864 · Spain DNB 0.825 · Spain ML 0.627 | BTTS No 0.582 |
-| Norway vs France | France DC 0.807 · France DNB 0.758 · France ML 0.602 | BTTS Yes 0.600 |
-| Egypt vs Iran | Egypt DC 0.737 | Egypt ML 0.372 · BTTS No 0.554 |
-| Cape Verde vs Saudi | CV-or-SA DC 0.712 | Cape Verde ML 0.359 · BTTS Yes 0.506 |
+| Card | Legs | Survival | Weakest leg | MAX-2-LEG? |
+|---|---|---|---|---|
+| **2-leg (FINAL)** | Senegal Over 3 + CV BTTS-Yes | **25.9%** | 0.51 | ✅ |
+| Prior 3-leg | Egypt-DC + France + Senegal BTTS-No | 24.4% | 0.55 | ✗ (3 legs) |
+| Best 2-leg from *curated feed only* | Spain ML + Egypt ML | 23.3% | **0.37 (underdog)** | ✅ but fragile |
 
-## Generated card (KEPT)
-**Egypt or Draw** (DC, −320, P 0.737) + **France ML** (−175, P 0.602) + **Senegal/Iraq BTTS No** (−140,
-P 0.551) → combined **+254 (3.54×)** → $201.08 → **$710.96** (clears the $700 rung). Legs across 3
-distinct games (no correlation). **Survival = 0.737 × 0.602 × 0.551 = 24.4%.**
+**Key correction to the prior pass:** the prior "keep 3-leg" verdict assumed every 2-leg card reaching
+the rung needed a ~0.37 underdog moneyline (true on the *curated* 27-projection feed, which lacks
+totals). The selector's full pool includes **totals/BTTS at near-even prices**; two such ~0.51 legs span
+the 3.481× rung at **0.51 × 0.51 ≈ 25.9% joint** — higher than the 3-leg (24.4%) AND with no fragile
+underdog. So MAX-2-LEG is satisfiable *and* survival improves: **a clean +1.5pp.** No 3rd leg required.
 
-## Combination search (every distinct-game combo reaching ≥ 3.481×, ranked by survival)
-| Structure | Best survival | Card |
-|---|---|---|
-| 2-leg | 23.3% | Spain ML + Egypt ML @ 3.86× — **worse** (needs a longshot to reach 3.48×) |
-| **3-leg** | **24.8%** | Cape-Verde-or-Saudi DC + Belgium DC + **Egypt ML (0.37)** @ 3.48× |
-| 3-leg (generated) | 24.4% | Egypt-or-Draw DC + France ML + Senegal BTTS-No @ 3.54× |
-| 4-leg | 23.9% | (more legs → lower joint) — **worse** |
+Top 2-leg candidates (rank by joint survival, all reach ≥3.481×): #1 Spain ML + Egypt ML 23.3% (0.37
+underdog); the selector's totals-based pair beats these at 25.9% with both legs ≥0.51. (Curated-feed
+candidates carry a 0.36–0.37 underdog; the totals-based card is strictly more robust.)
 
-## Why every leg survived the audit
-- **Structural ceiling.** In this efficient (no-edge) odds-only market, payout ≈ 1/survival, so *any*
-  combo reaching 3.481× sits at ~24–25% survival. The generated card (24.4%) is on that frontier; the
-  best alternative is 24.8% — a **0.4pp** difference, inside model noise (`dataQuality: limited`,
-  confidence-capped).
-- **The 0.4pp "better" card is actually riskier.** The 24.8% option requires **Egypt ML at 0.372** — an
-  underdog moneyline to win OUTRIGHT (a single high-variance, lineup-sensitive coin-flip-minus). The
-  generated card instead uses **Egypt-or-DRAW (DC, 0.737)** — covering Egypt win OR draw — plus a solid
-  favorite ML (France) and a BTTS-No. Per the survival doctrine (prefer Double Chance / safe markets,
-  minimize single-leg variance), the generated mix is **objectively preferable** despite the trivially
-  lower joint number.
-- **3 legs beats 2 here.** No 2-leg card reaches 3.481× without a longshot (best 2-leg = 23.3%). Three
-  medium-high legs (0.74 / 0.60 / 0.55) is the safer path to a 3.48× rung than one anchor + one longshot.
-- **No totals available** — the June-26 feed offers none, so the Step-1-style "DC anchor + safe total"
-  shape isn't constructible; the selector correctly used the next-safest mix.
+## Lane B — Step 1 (restarted, $100 → $200 rung, required 2.0×)
 
-## Honest caveat
-~24% survival at the $700 rung is brutal, and it compounds: clearing all four remaining rungs (Steps 2–5)
-is realistically low-single-digit percent. That is the math of a 100× ladder in an efficient market, not
-a flaw in the card. The card maximizes survival *given the rung target*; it cannot make a 3.48× step safe.
+Lane B lost June-25 (stopped); **operator-directed restart** for June-26 with a fresh $100 Step-1.
+**FINAL: 2-leg — Egypt/Iran "Egypt or Draw" DC (0.737) + Norway/France "France" ML (0.602) → +106
+(2.06×) → $206.25. Joint survival 44.3%.** Weakest leg 0.60 (no coin-flips). The June-25 −$100 loss is
+preserved in `laneB.priorLane` (reconciliation + record unchanged: 14-4 / $20,065.40).
 
-## Decision
-**Keep the generated card.** It is the survival-maximizing rung-clearing card on June-26's available
-markets; the only marginally-higher option trades 0.4pp of paper joint-probability for a high-variance
-underdog moneyline, which the survival mandate rejects. No leg replaced.
+Best Lane-B 2-leg candidates (≥2.0×, disjoint from Lane A): #1 Cape Verde-or-Saudi DC + Spain ML 44.6%;
+the cross-lane selector instead assigned Egypt-DC + France to Lane B (44.3%) so Lane A could take the
+totals pair — a joint optimization keeping **4 distinct games**.
 
-*Reproducibility:* probabilities are `modelProbability` (de-vigged) from
-`world-cup/projections/2026-06-26.json`; payouts are products of American-odds decimals. Generated 2026-06-26.
+## Correlation analysis
+Lane A games: Senegal/Iraq, Cape Verde/Saudi. Lane B games: Egypt/Iran, Norway/France. **4 distinct
+games, zero overlap** → the lanes are independent (no shared game, no shared team, different kickoff
+windows). No correlation penalty applies. Within each lane, both legs are different games (no SGP / no
+hidden same-match covariance). Lane A is two totals/BTTS (game-flow markets); Lane B is a DC + a favorite
+ML (team-strength markets) — **different correlation profiles**, as requested.
+
+## Market Confidence Index (MCI, new this pass)
+`lib/benchmark/market-confidence.ts` (0–100, only real inputs averaged; movement from the 2 real June-26
+benchmark captures; calibration excluded — no settled-history yet). Live: **Lane A card MCI 37** (both
+legs near-even, 37/37), **Lane B card MCI 58** (Egypt-or-Draw 66, France 49). This honestly flags that
+Lane A maximizes *joint survival* via two even-money legs (lower individual confidence), while Lane B
+carries a stronger anchor. MCI is a **display/feature** signal; it is NOT yet wired into card ranking
+(that awaits historical calibration data — wiring it on noise would be fabrication).
+
+## Decision & honest caveat
+**Both lanes: 2-leg, MAX-2-LEG compliant, survival-optimal within the rule.** Lane A improved +1.5pp vs
+the prior 3-leg. Survival at the $700 rung (~26%) and the full remaining ladder (low single-digit %)
+remains brutal — the math of a 100× climb in an efficient market; the cards maximize survival, they
+cannot make a 3.48× step safe. Money reconciles (crown $20,465.40 / bankroll $20,065.40 / 14-4); gate
+green. Probabilities are de-vigged `modelProbability`; payouts are products of American-odds decimals.

@@ -91,26 +91,30 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("cycle-3 live run after June-25 settlement: LIVE preview is launched with Lane A advanced (Step-1 WON) and Lane B stopped (Step-1 LOST), no stale-leg leak", () => {
+test("cycle-3 live run (June-26): LIVE preview is launched with Lane A advanced (Step-1 WON) and Lane B a restarted active Step-1, no stale-leg leak", () => {
   // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and restarted into cycle 3.
-  // June-25 then SETTLED the new cycle's Step 1: Lane A WON (advanced, next stake $201.08) and Lane B LOST
-  // (stopped). The old June-19→24 completed/stopped narrative moved to the archive (asserted separately
-  // below) — it must NOT bleed into the live preview.
+  // June-25 SETTLED the new cycle's Step 1: Lane A WON (advanced, next stake $201.08) and Lane B LOST.
+  // June-26: per operator direction Lane B was RESTARTED — the loader now serves it as a FRESH active Step-1
+  // (laneStatus "active", empty steps); the June-25 loss is preserved in the artifact's laneB.priorLane and is
+  // NOT surfaced in the preview. The old June-19→24 completed/stopped narrative moved to the archive (asserted
+  // separately below) — it must NOT bleed into the live preview.
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.status, "launched", "cycle-3 is a launched run");
   assert.equal(bb.isLadder, true, "Step-1 is settled → it is now a stepping ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
-  assert.equal(bb.currentStep, 1, "settlement landed on Step 1");
-  // Lane A advanced on a settled Step-1 WON; Lane B stopped on a settled Step-1 LOST. The loader never fabricates.
-  const expected = { A: { laneStatus: "advanced", result: "won" }, B: { laneStatus: "stopped", result: "lost" } };
-  for (const [name, lane] of [["A", bb.laneA], ["B", bb.laneB]]) {
-    assert.equal(lane.laneStatus, expected[name].laneStatus, `Lane ${name} ${expected[name].laneStatus}`);
-    assert.equal(lane.publicVisible, true, `Lane ${name} is publicly visible`);
-    assert.equal(lane.currentStep, 1, `Lane ${name} settled at Step 1`);
-    assert.equal((lane.steps ?? []).length, 1, `Lane ${name} carries its one settled Step-1 card`);
-    assert.equal(lane.steps[0].result, expected[name].result, `Lane ${name} Step-1 settled ${expected[name].result.toUpperCase()}`);
-  }
+  assert.equal(bb.currentStep, 1, "live run sits on Step 1");
+  // Lane A advanced on a settled Step-1 WON (one settled card). The loader never fabricates.
+  assert.equal(bb.laneA.laneStatus, "advanced", "Lane A advanced");
+  assert.equal(bb.laneA.publicVisible, true, "Lane A is publicly visible");
+  assert.equal(bb.laneA.currentStep, 1, "Lane A settled at Step 1");
+  assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries its one settled Step-1 card");
+  assert.equal(bb.laneA.steps[0].result, "won", "Lane A Step-1 settled WON");
+  // Lane B is a restarted active Step-1: laneStatus "active", visible, empty steps (fresh card).
+  assert.equal(bb.laneB.laneStatus, "active", "Lane B active (restarted June-26 after June-25 LOST)");
+  assert.equal(bb.laneB.publicVisible, true, "Lane B is publicly visible");
+  assert.equal(bb.laneB.currentStep, 1, "Lane B is back on Step 1");
+  assert.equal((bb.laneB.steps ?? []).length, 0, "Lane B carries no settled step (fresh restart)");
   // No stale legs from either prior ladder may surface in the live cycle-3 preview.
   const live = JSON.stringify(bb);
   assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey|Gonzales|Algeria|Egypt/.test(live), "no prior-ladder legs leak into the cycle-3 preview");

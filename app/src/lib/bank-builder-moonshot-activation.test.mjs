@@ -13,12 +13,13 @@ const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 const round2 = (n) => Math.round(n * 100) / 100;
 
-test("plan (dry-run): one advancing BB lane (Lane A → Step 2) + two Moonshot lanes → 3 lanes, $0 exposure (dry-run places nothing)", () => {
+test("plan (dry-run): Lane A → Step 2 + Lane B restarted Step 1 + two Moonshot lanes → 4 lanes, $0 exposure (dry-run places nothing)", () => {
   const plan = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, /*activate*/ false);
-  // Post June-25 settlement: Lane A WON its Step-1 and ADVANCED (now on Step 2, stake $201.08), while Lane B
-  // LOST its Step-1 and STOPPED. Only Lane A surfaces a Bank Builder lane; the day is BB A + Moonshot A/B = 3 lanes.
-  assert.equal(plan.lanes.filter((l) => l.product === "bank-builder").length, 1, "one advancing Bank Builder lane (Lane A on Step 2; Lane B stopped)");
-  assert.equal(plan.lanes.length, 3, "BB A + Moonshot A/B");
+  // Post June-25 settlement → June-26 restart: Lane A WON its Step-1 and ADVANCED (now on Step 2, stake
+  // $201.08), and Lane B (which LOST its June-25 Step-1, now archived in priorLane) was operator-RESTARTED
+  // to a fresh Step-1. BOTH lanes surface a Bank Builder lane; the day is BB A + BB B + Moonshot A/B = 4 lanes.
+  assert.equal(plan.lanes.filter((l) => l.product === "bank-builder").length, 2, "two Bank Builder lanes (Lane A Step-2 + Lane B restarted Step-1)");
+  assert.equal(plan.lanes.length, 4, "BB A + BB B + Moonshot A/B");
   assert.equal(plan.openExposure, 0, "dry-run places no exposure");
   assert.equal(plan.availableBankroll, plan.activeBankroll, "available = active when nothing placed");
   for (const l of plan.lanes) assert.notEqual(l.status, "active", "no lane active in dry-run");
@@ -38,11 +39,11 @@ test("apply: exposure math — Lane A advancing BB lane activates ($100 seed); M
   assert.equal(dp.availableBankroll, round2(dp.activeBankroll - dp.openExposure), "available = active − exposure");
 });
 
-test("apply: one advancing BB lane (Lane A Step-2); Moonshot lanes ≤ 5 legs, ≥1 leg/game; combined odds reconcile", () => {
+test("apply: two BB lanes (Lane A Step-2 + Lane B restarted Step-1); Moonshot lanes ≤ 5 legs, ≥1 leg/game; combined odds reconcile", () => {
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const moon = dp.lanes.filter((l) => l.product === "moonshot");
-  assert.equal(bb.length, 1, "one advancing Bank Builder lane (Lane A on Step 2; Lane B stopped post June-25)");
+  assert.equal(bb.length, 2, "two Bank Builder lanes (Lane A Step-2 + Lane B restarted Step-1 post June-26)");
   for (const l of bb) assert.ok(l.legCount <= 4, "Bank Builder lane ≤ 4 legs (rung card)");
   assert.equal(moon.length, 2, "Moonshot A/B present");
   for (const l of moon) assert.ok(l.legCount <= 5, "Moonshot lane ≤ 5 legs (up to 5, valid at 3)");

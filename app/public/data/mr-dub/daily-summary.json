@@ -1,7 +1,7 @@
 {
   "portfolioId": "mr-dub-paper",
   "paperOnly": true,
-  "generatedAt": "2026-06-25T18:00:00Z",
+  "generatedAt": "2026-06-26T15:00:00Z",
   "days": [
     {
       "date": "2026-06-09",
@@ -263,7 +263,7 @@
       "events": [
         {
           "eventId": "mrdub-2026-06-18-lane-a-advanced",
-          "timestamp": "2026-06-25T18:00:00Z",
+          "timestamp": "2026-06-26T15:00:00Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_advanced",
@@ -294,7 +294,7 @@
       "events": [
         {
           "eventId": "mrdub-ladder2-banked",
-          "timestamp": "2026-06-25T18:00:00Z",
+          "timestamp": "2026-06-26T15:00:00Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "ladder_banked",
@@ -321,34 +321,15 @@
       "date": "2026-06-25",
       "staked": 200,
       "returned": 201.08,
-      "pl": -400,
+      "pl": -100,
       "wins": 1,
-      "losses": 2,
+      "losses": 1,
       "voids": 0,
       "pending": 0,
       "events": [
         {
-          "eventId": "mrdub-dual-lane-realized-losses",
-          "timestamp": "2026-06-25T18:00:00Z",
-          "portfolio": "mr-dub-paper",
-          "category": "bank_builder",
-          "type": "dual_lane_losses",
-          "laneId": "lane-b",
-          "date": "2026-06-25",
-          "paperStake": 0,
-          "paperReturn": 0,
-          "paperProfit": -300,
-          "status": "settled",
-          "result": "lost",
-          "officialResultConfirmed": true,
-          "publicBankBuilderVisible": false,
-          "legs": [],
-          "notes": "Dual-lane phase realized losses — 3 stopped-lane $100 seeds (preserved; not part of any completed ladder).",
-          "accountingNote": "Settled."
-        },
-        {
           "eventId": "mrdub-2026-06-18-lane-a-step1-won",
-          "timestamp": "2026-06-25T18:00:00Z",
+          "timestamp": "2026-06-26T15:00:00Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_step_won",
@@ -386,8 +367,8 @@
           "accountingNote": "Rolled into the next Bank Builder step (unrealized until the ladder completes or stops)."
         },
         {
-          "eventId": "mrdub-2026-06-18-lane-b-step1-stopped",
-          "timestamp": "2026-06-25T18:00:00Z",
+          "eventId": "mrdub-2026-06-18-lane-b-prior-step1-stopped",
+          "timestamp": "2026-06-26T15:00:00Z",
           "portfolio": "mr-dub-paper",
           "category": "bank_builder",
           "type": "lane_stopped",
@@ -421,11 +402,44 @@
               "source": "api_football"
             }
           ],
-          "notes": "Lane B Step 1 settled a loss — lane closed, original $100 paper stake lost. Hidden from public Bank Builder, tracked here.",
+          "notes": "Lane B Step-1 LOST June-25 (Over 3 missed, Curaçao 0-2 Ivory Coast). Original $100 seed lost; lane relaunched fresh June-26.",
           "accountingNote": "Realized — original $100 paper stake lost; lane stopped."
         }
       ],
       "opening": 20465.4,
+      "closing": 20365.4
+    },
+    {
+      "date": "2026-06-26",
+      "staked": 0,
+      "returned": 0,
+      "pl": -300,
+      "wins": 0,
+      "losses": 1,
+      "voids": 0,
+      "pending": 0,
+      "events": [
+        {
+          "eventId": "mrdub-dual-lane-realized-losses",
+          "timestamp": "2026-06-26T15:00:00Z",
+          "portfolio": "mr-dub-paper",
+          "category": "bank_builder",
+          "type": "dual_lane_losses",
+          "laneId": "lane-b",
+          "date": "2026-06-26",
+          "paperStake": 0,
+          "paperReturn": 0,
+          "paperProfit": -300,
+          "status": "settled",
+          "result": "lost",
+          "officialResultConfirmed": true,
+          "publicBankBuilderVisible": false,
+          "legs": [],
+          "notes": "Dual-lane phase realized losses — 3 stopped-lane $100 seeds (preserved; not part of any completed ladder).",
+          "accountingNote": "Settled."
+        }
+      ],
+      "opening": 20365.4,
       "closing": 20065.4
     }
   ]

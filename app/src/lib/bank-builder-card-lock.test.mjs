@@ -97,15 +97,17 @@ test("the consumed lock NEVER mutates canonical money (bankroll/crown/record are
 
 test("STABILITY: the consumed lock does NOT re-pin settled cards; the live cycle serves the forward card stably", () => {
   // The lock is consumed (status settled, empty lanes), so a refresh must not resurrect the SETTLED June-24
-  // cards. POST JUNE-25 SETTLEMENT the live cycle advanced: Lane A's Step 1 settled WON so the daily view now
-  // serves Lane A's forward Step-2 card, and Lane B's Step 1 settled LOST so Lane B is stopped (not served).
-  // The served card must NOT carry the consumed June-24 card's legs (no re-pin from a consumed lock).
+  // cards. JUNE-26 LIVE STATE: the live cycle advanced — Lane A's Step 1 settled WON so the daily view now
+  // serves Lane A's forward Step-2 card. Lane B's Step 1 settled LOST June-25 but was RESTARTED June-26
+  // (operator-directed), so Lane B is served again as a FRESH active Step-1 card (the June-25 loss is preserved
+  // in the live artifact's laneB.priorLane). The served cards must NOT carry the consumed June-24 legs.
   const lock = read("mr-dub/bank-builder-locks.json");
   assert.equal(lock.status, "settled");
   assert.deepEqual(lock.lanes, {}, "consumed lock pins nothing");
   assert.ok(laneA, "Lane A is served as a forward card");
-  assert.ok(!laneB, "Lane B stopped (Step 1 settled LOST) — not served");
+  assert.ok(laneB, "Lane B served again as a fresh Step-1 card (restarted June-26)");
   assert.equal(laneA.step, 2, "Lane A advanced to its forward Step-2 card after the WON Step 1");
+  assert.equal(laneB.step, 1, "Lane B is back on a fresh Step-1 card after the June-25 loss + restart");
   // The consumed June-24 card's legs (Morocco/Bosnia/Brazil, from the archive) must NOT be re-pinned onto the
   // served forward card — compare leg IDs, which are disjoint from the live forward card's IDs.
   const archivedStep5 = (read(ARCHIVE).run.laneA.steps ?? []).find((s) => s.step === 5);
