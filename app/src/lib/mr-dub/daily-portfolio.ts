@@ -14,6 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupModelPicks, buildDailyLaneCandidates, type LaneCandidate } from "../world-cup/model-qualified-picks";
+import { readCanonicalMoney } from "../daily-portfolio/accounting";
 
 export interface DailyPortfolioLeg { selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null; photoUrl?: string | null; teamLogo?: string | null }
 
@@ -121,12 +122,9 @@ export function buildDailyPortfolio(root: string, nowIso: string, date: string):
   const persisted = fromPersisted(root, date);
   if (persisted) return persisted;
 
-  let activeBankroll = 10176.17, crownBankroll = 10376.17;
-  try {
-    const p = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8"));
-    if (typeof p.currentBankroll === "number") activeBankroll = p.currentBankroll;
-    if (typeof p.crownBankroll === "number") crownBankroll = p.crownBankroll;
-  } catch { /* fail closed → defaults */ }
+  // SINGLE source of truth — canonical portfolio.json, else derived from banked-ladders.json, else THROW
+  // (no stale hardcoded fallback; Rule 2). Shared with accounting.ts so money is read exactly one way.
+  const { activeBankroll, crownBankroll } = readCanonicalMoney(root);
 
   const pool = loadWorldCupModelPicks(root, nowIso, date);
   const lanes = buildDailyLaneCandidates(pool, date);
