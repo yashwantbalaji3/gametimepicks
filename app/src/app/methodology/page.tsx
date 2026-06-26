@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import path from "node:path";
 import { getMeta } from "@/lib/data";
+import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import DataSourceBadge from "@/components/data-source-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
 
@@ -15,6 +17,9 @@ import SportOverviewHero from "@/components/sport-overview-hero";
  */
 export default function MethodologyPage() {
   const meta = getMeta();
+  // Completed-ladder figures come from the ONE canonical source (banked-ladders.json), never hardcoded.
+  const crown = crownLadderSummary(path.join(process.cwd(), "public", "data"));
+  const crownReached = crown ? `${crown.pathLabel}, ${crown.recordLabel}` : "the $100 → $10K crown";
 
   return (
     <div className="mx-auto max-w-[880px] px-4 sm:px-6 py-10">
@@ -266,7 +271,7 @@ export default function MethodologyPage() {
             markets="Whatever the eligible suggested slip contains (may mix sports)."
             cards="One pending step at a time; honest diagnosis when no eligible slip exists."
             settlement="Official results per leg; the bankroll changes only on settlement."
-            limits="The completed ladder reached ($100 → $10,376.17, 5–0). No active pending step — a new ladder is coming soon."
+            limits={`The completed ladder reached (${crownReached}). No active pending step — a new ladder is coming soon.`}
           />
           <SportCard
             accent="var(--gtp-bank-heat)"

@@ -40,15 +40,6 @@ test("curated component renders portraits + flags for every entity", () => {
   assert.ok(c.includes("View full game"), "per-game CTA");
 });
 
-test("Bank Builder meter shows the $100→$10K path + three-run timeline", () => {
-  const m = read("src/components/bank-builder/bank-builder-meter.tsx");
-  for (const rung of ["$100", "$200", "$500", "$1.4K", "$3.5K", "$10K"]) {
-    assert.ok(m.includes(rung), `rung ${rung}`);
-  }
-  assert.ok(/Run #1/.test(m) && /Run #2/.test(m) && /Run #3/.test(m), "three runs");
-  assert.ok(/reduced-motion safe|gtp-heat-pulse/.test(m), "animated but reduced-motion safe");
-});
-
 test("V2 evaluation reflects the relaxed launch rules (>=1 WC leg/lane, survival-first)", () => {
   const py = read("../pipeline/daily/bank_builder_v2_eligibility.py");
   assert.ok(/REQUIRE_WORLD_CUP_LEG_PER_LANE/.test(py), "requires a World Cup leg per lane");

@@ -28,6 +28,7 @@ import { loadWorldCupFlexLeg, loadOfficialStepCandidate } from "@/lib/world-cup-
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
 import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
 import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
+import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import BankBuilderStatusRail from "@/components/bank-builder/bank-builder-status-rail";
 import AchievementBanner from "@/components/achievement-banner";
 import MrDubTodayCard from "@/components/mr-dub/mr-dub-today-card";
@@ -201,9 +202,11 @@ export default function TodayPage() {
   const officialStep3 =
     publishedCandidate ? null : bank && activeRung ? loadOfficialStepCandidate(bank.currentBankrollUnits, activeRung.goal) : null;
   const flexLeg = publishedCandidate || officialStep3 ? null : loadWorldCupFlexLeg();
+  // Crown ladder summary — the ONE source for the completed $100 → $10K figures (no hardcoded literals).
+  const crown = crownLadderSummary(path.join(process.cwd(), "public", "data"));
   const bankrollLabel = bank
     ? `$${bank.currentBankrollUnits.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-    : null;
+    : (crown?.finalLabel ?? null);
   const sportSummaries: SportSummary[] = [
     {
       sport: "ufc", label: "UFC", href: "/ufc", accent: "var(--gtp-bank-heat)", live: ufcLive && !ufcSettled,
@@ -440,7 +443,7 @@ export default function TodayPage() {
       {/* 3 — Bank Builder: compact run-timeline status (Run #1 completed · #2 closed · #3 V2 gate) */}
       <BankBuilderStatusRail
         run1Bankroll={bankrollLabel ?? undefined}
-        run1Record={bank ? `${bank.record.wins}–${bank.record.losses}` : undefined}
+        run1Record={bank ? `${bank.record.wins}–${bank.record.losses}` : (crown?.recordLabel ?? undefined)}
         dual={dualBank}
         v2={v2}
         activeLaunched={bbPreview.status === "launched" || bbPreview.status === "settled"}
