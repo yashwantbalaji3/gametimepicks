@@ -30,11 +30,14 @@ export default function MasterLedgerSection({ ledger }: { ledger: MasterLedger }
       />
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-3">
         <Tile label="Overall record" value={`${a.wins}–${a.losses}`} />
-        <Tile label="Overall ROI" value={pct(a.roi)} accent={plColor(a.profit)} />
-        <Tile label="Overall P&L" value={usd(a.profit)} accent={plColor(a.profit)} />
+        <Tile label="Bank Builder realized" value={usd(a.bankBuilderProfit ?? a.profit)} accent="var(--vault-gold-bright)" />
+        <Tile label="Side-lane net" value={usd(a.sideLaneNet ?? 0)} accent={plColor(a.sideLaneNet ?? 0)} />
+        <Tile label="All-products net" value={usd(a.lifetimeProfit ?? a.profit)} accent={plColor(a.lifetimeProfit ?? a.profit)} />
         <Tile label="Open exposure" value={usd(a.openExposure ?? a.exposure)} />
-        <Tile label="Lifetime profit" value={usd(a.lifetimeProfit ?? a.profit)} accent={plColor(a.lifetimeProfit ?? a.profit)} />
       </div>
+      <p className="mt-1.5 px-0.5 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+        Bank Builder realized {usd(a.bankBuilderProfit ?? a.profit)} (the canonical $100→bankroll growth) {(a.sideLaneNet ?? 0) >= 0 ? "+" : "−"} side lanes {usd(Math.abs(a.sideLaneNet ?? 0))} = {usd(a.lifetimeProfit ?? a.profit)} net across all paper products.
+      </p>
       <div className="mt-3 overflow-x-auto rounded-xl" style={{ border: "1px solid var(--vault-border)" }}>
         <table className="w-full text-left" style={{ borderCollapse: "collapse", minWidth: 520 }}>
           <thead>
@@ -49,7 +52,7 @@ export default function MasterLedgerSection({ ledger }: { ledger: MasterLedger }
               <tr key={p.productId} style={{ borderBottom: "1px solid var(--vault-border)" }}>
                 <td className="px-3 py-2 font-display" style={{ fontWeight: 700, color: "var(--vault-text)", fontSize: 13 }}>{p.label}</td>
                 <td className="px-3 py-2 font-mono" style={{ fontSize: 12.5 }}>{p.record.wins}–{p.record.losses}{p.record.voids ? ` (${p.record.voids}V)` : ""}</td>
-                <td className="px-3 py-2 font-mono" style={{ fontSize: 12.5, color: plColor(p.profit) }}>{p.bets ? pct(p.roi) : "—"}</td>
+                <td className="px-3 py-2 font-mono" style={{ fontSize: 12.5, color: plColor(p.profit) }}>{p.canonical && p.roiMultiple != null ? `${p.roiMultiple}×` : p.bets ? pct(p.roi) : "—"}</td>
                 <td className="px-3 py-2 font-mono" style={{ fontSize: 12.5, color: plColor(p.profit) }}>{p.bets ? usd(p.profit) : "—"}</td>
                 <td className="px-3 py-2 font-mono" style={{ fontSize: 12.5 }}>{usd(p.exposure)}</td>
                 <td className="px-3 py-2">
@@ -66,8 +69,9 @@ export default function MasterLedgerSection({ ledger }: { ledger: MasterLedger }
         </table>
       </div>
       <p className="mt-2 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>
-        Each product's P&L is its own paper track record (rolled-stake). The canonical Bank Builder bankroll
-        &amp; crown follow the seed model and are shown separately above — they are never derived from this view.
+        Bank Builder is the canonical compounding bankroll ($100 → today) — the SAME figure shown in the hero
+        above, sourced from the one ledger. The side lanes (Moonshot, WC Specials, Homer Nukes) are independent
+        flat-stake paper experiments. Every row traces to an official settlement.
       </p>
     </section>
   );

@@ -5,6 +5,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
+import fs from "node:fs";
 import { buildMasterLedger } from "./master-ledger.ts";
 import { freshnessFor, isStale, slateDateOf } from "../products/staleness.ts";
 
@@ -37,8 +38,11 @@ test("ROI math: each product's roi = profit/stake×100, winRate = wins/(wins+los
 });
 
 // ---------- HISTORY INTEGRITY (record derives from history; no fabricated rows) ----------
-test("history integrity: each product's record + bets + profit derive from its settled history", () => {
+test("history integrity: each FLAT-STAKE product's record + bets + profit derive from its settled history", () => {
   for (const p of L.products) {
+    // Bank Builder is the canonical compounding bankroll (asserted separately) — it does NOT fit the flat
+    // Σ(payout − stake) per-bet model (rolled stakes telescope, single $100 deposited).
+    if (p.canonical) { for (const r of p.history) assert.match(r.date, /^\d{4}-\d{2}-\d{2}$/, "BB history is ISO-dated"); continue; }
     const counted = p.history.filter((r) => r.outcome !== "void");
     assert.equal(p.bets, counted.length, `${p.productId} bets = non-void settled rows`);
     assert.equal(p.record.wins, p.history.filter((r) => r.outcome === "won").length, `${p.productId} wins from history`);
@@ -47,6 +51,20 @@ test("history integrity: each product's record + bets + profit derive from its s
     assert.equal(p.profit, profit, `${p.productId} profit = Σ(payout − stake)`);
     for (const r of p.history) assert.match(r.date, /^\d{4}-\d{2}-\d{2}$/, "history row is ISO-dated (real settled result)");
   }
+});
+
+// ---------- CANONICAL RECONCILIATION (Bank Builder == the ONE money truth) ----------
+test("Bank Builder master-ledger entry reconciles EXACTLY to the canonical portfolio (no $8,228 drift)", () => {
+  const pf = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8"));
+  const bb = L.products.find((p) => p.productId === "bank-builder");
+  assert.ok(bb && bb.canonical, "Bank Builder is the canonical compounding product");
+  assert.equal(bb.profit, round2(pf.settledProfit), "BB profit == canonical settledProfit");
+  assert.equal(bb.record.wins, pf.record.wins, "BB wins == canonical record");
+  assert.equal(bb.record.losses, pf.record.losses, "BB losses == canonical record");
+  assert.equal(bb.roiMultiple, round2(pf.roiMultiple), "BB ROI multiple == canonical");
+  // The headline lifetime/aggregate profit must reconcile: BB realized + side-lane net.
+  assert.equal(L.aggregate.bankBuilderProfit, round2(pf.settledProfit), "aggregate.bankBuilderProfit == settledProfit");
+  assert.equal(round2(L.aggregate.bankBuilderProfit + L.aggregate.sideLaneNet), L.aggregate.lifetimeProfit, "lifetime = BB + side lanes");
 });
 
 // ---------- AGGREGATE (sums reconcile) ----------
