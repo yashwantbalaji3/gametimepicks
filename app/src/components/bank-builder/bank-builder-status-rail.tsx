@@ -76,7 +76,7 @@ export default function BankBuilderStatusRail({
       </div>
 
       <div className="relative mt-3 flex flex-col sm:flex-row gap-2.5">
-        <RunChip tag="Completed ladder" title={run1Bankroll ? `$100 → ${run1Bankroll}` : "$100 → $10,376.17"} sub={`${run1Record ?? "5–0"} · crown reached`} tone="gold" />
+        <RunChip tag="Completed ladder" title={run1Bankroll ? `$100 → ${run1Bankroll}` : "Completed $100 → $10K"} sub={`${run1Record ?? "crown reached"}`} tone="gold" />
         <RunChip tag="Closed test ladder" title={run2Closed ? `${dual?.lanesSurvived ?? 0}/${dual?.lanes?.length ?? 2} advanced` : "closed"} sub="Step 1 · both lanes lost" tone="closed" />
         <RunChip
           tag={isLadder ? `Active dual ladder · Step ${activeLadderStep}` : activeSettled ? "Active dual ladder · settled" : launched ? "Active dual ladder" : "Dual ladder · evaluating"}

@@ -49,7 +49,15 @@ test("V2 evaluation loader contract matches the artifact", () => {
   }
 });
 
-test("Run #1 completed bankroll is still surfaced (never mutated)", () => {
+test("completed crown bankroll is surfaced from the ONE canonical source (not a hardcoded literal)", async () => {
+  // The status rail must NOT hardcode the crown figure — it renders the run1Bankroll prop, and the canonical
+  // value comes from crownLadderSummary(banked-ladders.json). This is the anti-hardcode invariant.
   const rail = read("src/components/bank-builder/bank-builder-status-rail.tsx");
-  assert.ok(rail.includes("10,376.17"), "Run #1 crown bankroll shown as the safe default");
+  assert.ok(!rail.includes("10,376.17"), "status rail no longer hardcodes the crown bankroll");
+  assert.ok(/run1Bankroll/.test(rail), "status rail renders the run1Bankroll prop (canonical-sourced)");
+  const { crownLadderSummary } = await import("./bank-builder/crown-summary.ts");
+  const path = await import("node:path");
+  const crown = crownLadderSummary(path.join(process.cwd(), "public", "data"));
+  assert.equal(crown.final, 10376.17, "canonical crown final derives from banked-ladders");
+  assert.equal(crown.recordLabel, "5–0", "canonical crown record derives from banked-ladders steps");
 });

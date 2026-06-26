@@ -49,11 +49,18 @@ test("includes the UFC 250 first-slate learning + concentration lesson", () => {
   assert.ok(/\+320/.test(src), "the +320 underdog price");
 });
 
-test("preserves the Bank Builder completed result honestly", () => {
-  assert.ok(src.includes("10,376.17"), "bankroll $10,376.17");
-  assert.ok(src.includes("5–0") || src.includes("5-0"), "5–0 record");
+test("preserves the Bank Builder completed result honestly — from the ONE canonical source", async () => {
+  // The page must NOT hardcode the crown figure; it interpolates crownLadderSummary(banked-ladders.json).
+  assert.ok(!src.includes("10,376.17"), "no hardcoded crown literal in the page source");
+  assert.ok(/crownLadderSummary|crownReached/.test(src), "derives the completed result from the canonical crown summary");
   assert.ok(/completed/i.test(src), "run completed");
   assert.ok(/coming soon/i.test(src), "new ladder coming soon, no active pending step");
+  // The canonical source still yields the real figures (proves the interpolation is correct).
+  const { crownLadderSummary } = await import("../../lib/bank-builder/crown-summary.ts");
+  const path = await import("node:path");
+  const crown = crownLadderSummary(path.join(process.cwd(), "public", "data"));
+  assert.equal(crown.finalLabel, "$10,376.17", "canonical crown final");
+  assert.equal(crown.recordLabel, "5–0", "canonical crown record");
 });
 
 test("explains parlay concentration risk", () => {

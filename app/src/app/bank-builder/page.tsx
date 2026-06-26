@@ -15,6 +15,7 @@ import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3
 import PreviousHits from "@/components/bank-builder/previous-hits";
 import DualBankBuilderTeaser from "@/components/bank-builder/dual-bank-builder-teaser";
 import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
+import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import BankBuilderV2Panel from "@/components/bank-builder/bank-builder-v2-panel";
 import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
 import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
@@ -253,7 +254,7 @@ export default function BankBuilderPage() {
           <summary className="cursor-pointer px-4 py-3 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
             Archived closed test ladder — the earlier dual-lane test (both lanes lost). Tap to view the real settled legs.
           </summary>
-          <div className="px-1 pb-2"><DualBankBuilderTeaser data={loadDualBankBuilder()} /></div>
+          <div className="px-1 pb-2"><DualBankBuilderTeaser data={loadDualBankBuilder()} crown={crownLadderSummary(path.join(process.cwd(), "public", "data"))} /></div>
         </details>
       ) : null}
 

@@ -15,6 +15,7 @@ import FlagBadge from "@/components/flag-badge";
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import type { DualBankBuilder, DualLane, DualLaneLeg } from "@/lib/data-dual-bank-builder";
+import type { CrownSummary } from "@/lib/bank-builder/crown-summary";
 
 const GOAL = 10000;
 const BASE = 100;
@@ -243,7 +244,7 @@ function LaneCard({ lane }: { lane: DualLane }) {
   );
 }
 
-export default function DualBankBuilderTeaser({ data }: { data?: DualBankBuilder | null }) {
+export default function DualBankBuilderTeaser({ data, crown }: { data?: DualBankBuilder | null; crown?: CrownSummary | null }) {
   const live = !!data && data.status === "pending" && data.lanes.length > 0;
   const settled = !!data && (data.status === "settled" || data.status === "closed") && data.lanes.length > 0;
   const show = live || settled;
@@ -328,7 +329,7 @@ export default function DualBankBuilderTeaser({ data }: { data?: DualBankBuilder
 
       <div className="relative mt-4 rounded-[8px] px-3.5 py-2.5" style={{ background: "rgba(212,175,55,0.06)", border: "1px solid var(--vault-rule)" }}>
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Completed ladder</span>
-        <span className="ml-2 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>$100 → $10,376.17 · 5–0 · the crown was reached</span>
+        <span className="ml-2 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{crown ? `${crown.pathLabel} · ${crown.recordLabel} · ` : ""}the crown was reached</span>
       </div>
     </section>
   );

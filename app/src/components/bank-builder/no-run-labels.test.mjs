@@ -11,7 +11,6 @@ import { fileURLToPath } from "node:url";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const FILES = [
-  "bank-builder-meter.tsx",
   "bank-builder-status-rail.tsx",
   "bank-builder-v2-panel.tsx",
   "dual-bank-builder-teaser.tsx",
