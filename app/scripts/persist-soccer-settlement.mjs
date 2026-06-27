@@ -18,7 +18,9 @@ import path from "node:path";
 
 const args = process.argv.slice(2);
 const getArg = (k, d) => { const i = args.indexOf(`--${k}`); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
-const DATE = getArg("date", "2026-06-23");
+// Default to TODAY (ET) — never a hardcoded past date, so a bare invocation can never settle the wrong day
+// (the live path always passes --date; this is a defensive fallback).
+const DATE = getArg("date", new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" }));
 const OFFICIAL = getArg("official", null);
 const ROOT = path.join(process.cwd(), process.cwd().endsWith("app") ? "" : "app");
 const DATA = path.join(ROOT, "public", "data");

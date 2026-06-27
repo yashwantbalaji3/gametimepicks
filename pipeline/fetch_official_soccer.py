@@ -58,7 +58,7 @@ def team_matches(slate_name, api_name):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--date", default="2026-06-23")
+    ap.add_argument("--date", default=datetime.date.today().isoformat())  # default TODAY, never a stale past date
     args = ap.parse_args()
     if not KEY:
         print(json.dumps({"error": "API_FOOTBALL_KEY not set"})); sys.exit(1)
