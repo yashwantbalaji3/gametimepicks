@@ -81,8 +81,26 @@ except Exception:
     print(0); sys.exit(0)              # no daily portfolio yet → nothing live to settle
 if dp.get("date")!=prev:
     print(0); sys.exit(0)              # the live slate isn't the prior day → already rolled / nothing pending
-pend=sum(1 for l in dp.get("lanes",[]) if l.get("product")=="bank-builder" and l.get("status")=="active")
-print(pend)
+active=sum(1 for l in dp.get("lanes",[]) if l.get("product")=="bank-builder" and l.get("status")=="active")
+if active==0:
+    print(0); sys.exit(0)
+# The daily-portfolio still shows PREV-dated "active" BB lanes — but settle-daily-portfolio NEVER rewrites
+# the daily-portfolio status (it regenerates it for the NEXT day), so "active" here is STALE once settlement
+# has run. The authoritative signal is the LADDER: if it carries a settled step dated PREV, settlement
+# completed → the daily card is just not-yet-regenerated → SAFE to roll. If the ladder has NO settled PREV
+# step, settlement honest-skipped (no key / no FT games) and the wager is genuinely live → HALT.
+# (Fixes the audit bug where the guard halted the autonomous roll after EVERY successful settlement.)
+try:
+    L=json.load(open("app/public/data/methodology/launch/dual-bank-builder-active.json"))
+    run=L.get("run", L)
+    settled_prev=any(
+        s.get("status")=="settled" and s.get("slateDate")==prev
+        for lane in (run.get("laneA"), run.get("laneB")) if lane
+        for s in lane.get("steps", [])
+    )
+except Exception:
+    settled_prev=False
+print(0 if settled_prev else active)
 PYEOF
 )
 if [ "${PENDING:-0}" -gt 0 ]; then

@@ -102,6 +102,15 @@ test("official-results fetch uses real date math at month boundaries (audit P1-6
   assert.ok(!/\{dd\+1:02d\}/.test(s), "no naive dd+1 rollover");
 });
 
+test("settle-first guard keys off the LADDER (settled slateDate), not stale daily-portfolio status", () => {
+  // Settlement never rewrites the daily-portfolio status, so the guard must confirm settlement via the
+  // ladder's settled step dated PREV — otherwise it would HALT the autonomous roll after every settlement.
+  const roll = readRepo("scripts/roll_to_next_day.sh");
+  assert.match(roll, /dual-bank-builder-active\.json/, "guard reads the ladder");
+  assert.match(roll, /settled_prev/, "guard distinguishes settled vs honest-skip");
+  assert.match(roll, /slateDate.*==.*prev|s\.get\("slateDate"\)==prev/, "matches the PREV-dated settled step");
+});
+
 test("settlement auto-heals a missing ladder step slot (guarded to the expected step)", () => {
   // A known desync: the daily card-build flow can create the daily-portfolio card without adding the open
   // ladder slot, so settlement found no slot and hard-failed. It now auto-creates an open slot for the
