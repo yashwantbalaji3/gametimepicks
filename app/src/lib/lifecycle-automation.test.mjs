@@ -102,6 +102,13 @@ test("official-results fetch uses real date math at month boundaries (audit P1-6
   assert.ok(!/\{dd\+1:02d\}/.test(s), "no naive dd+1 rollover");
 });
 
+test("health-check validates daily-portfolio integrity (active-lane-has-legs, slate freshness, bankroll drift)", () => {
+  const s = readApp("scripts/health-check.mjs");
+  assert.match(s, /active-no-legs/, "an active wager with zero legs is a CRITICAL");
+  assert.match(s, /daily-portfolio:stale-date/, "a not-today slate (missed roll) is flagged");
+  assert.match(s, /daily-portfolio:bankroll-drift/, "daily activeBankroll must match canonical");
+});
+
 test("settle-first guard keys off the LADDER (settled slateDate), not stale daily-portfolio status", () => {
   // Settlement never rewrites the daily-portfolio status, so the guard must confirm settlement via the
   // ladder's settled step dated PREV — otherwise it would HALT the autonomous roll after every settlement.

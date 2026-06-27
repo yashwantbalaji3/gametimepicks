@@ -114,6 +114,23 @@ for (const [label, rels] of [
   if (found) P(`product artifact: ${label}`); else W("product-artifact", `${label} artifact absent (no live card today) — acceptable, surfaced as $0 exposure`);
 }
 
+// ── 7. DAILY-PORTFOLIO INTEGRITY — an "active" wager must have legs; the slate should be current ──────
+// (audit P1-2: a stale-but-parseable artifact or an active lane with zero legs previously passed all gates.)
+const dp = readJson("mr-dub/daily-portfolio.json");
+if (dp) {
+  const activeLanes = (dp.lanes ?? []).filter((l) => l.status === "active");
+  const emptyActive = activeLanes.filter((l) => !((l.legs ?? []).length));
+  if (emptyActive.length) C("daily-portfolio:active-no-legs", `${emptyActive.length} ACTIVE lane(s) with ZERO legs (a live wager with no selections is corrupt): ${emptyActive.map((l) => `${l.product}${l.lane ?? ""}`).join(", ")}`);
+  else if (activeLanes.length) P(`daily-portfolio: ${activeLanes.length} active lane(s), all carry legs`);
+  // The live slate should be today's. A stale date means a roll was missed → the site would render the
+  // prior slate as "live" (warn unless --strict; the page, not the gate, is the last line of defence).
+  if (ymd && dp.date && dp.date !== ymd) (STRICT_FRESH ? C : W)("daily-portfolio:stale-date", `daily-portfolio.date ${dp.date} ≠ today ${ymd} — a daily roll may have been missed (prior slate would show as live)`);
+  else if (dp.date) P(`daily-portfolio: slate dated ${dp.date}`);
+  // The daily view's activeBankroll must equal canonical (the exact drift that the prior session's settle hit).
+  if (portfolio && typeof dp.activeBankroll === "number" && !near(dp.activeBankroll, portfolio.currentBankroll))
+    C("daily-portfolio:bankroll-drift", `daily activeBankroll ${dp.activeBankroll} ≠ canonical bankroll ${portfolio.currentBankroll} (regenerate the daily portfolio)`);
+}
+
 // ── REPORT (PHASE 8 logging) ─────────────────────────────────────────────────────────────────────
 const stamp = new Date().toISOString?.() ?? "now"; // (CI provides real time; local resume-safe builds tolerate this)
 console.log(`\n=== GameTimePicks HEALTH CHECK · ${stamp} ===`);
