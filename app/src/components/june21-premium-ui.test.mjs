@@ -107,8 +107,8 @@ test("Egypt/NZ same-game: section exists with the explicit no-combined-pricing n
   assertNoBanned("egypt-nz same-game", SAMEGAME);
 });
 
-test("Egypt/NZ same-game: wired into /world-cup and /today", () => {
-  for (const [label, page] of [["world-cup", WC_PAGE], ["today", TODAY_PAGE]]) {
+test("Egypt/NZ same-game: wired into /world-cup (v1 homepage no longer carries game detail)", () => {
+  for (const [label, page] of [["world-cup", WC_PAGE]]) {
     assert.match(page, /import EgyptNzSameGame, \{ loadNzEgyptMarkets \} from "@\/components\/world-cup\/egypt-nz-same-game"/, `${label} imports the section + loader`);
     assert.match(page, /loadNzEgyptMarkets\(today\)/, `${label} loads the matchId-40 markets for the current slate`);
     assert.match(page, /<EgyptNzSameGame data=\{nzEgyptMarkets\}/, `${label} renders the section`);

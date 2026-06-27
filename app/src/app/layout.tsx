@@ -5,7 +5,6 @@ import Footer from "@/components/footer";
 import DisclaimerBanner from "@/components/disclaimer-banner";
 import MobileBottomNav from "@/components/mobile-bottom-nav";
 import CommandRail from "@/components/command-rail";
-import SlateStatusBar from "@/components/slate-status-bar";
 // PR `feature/results-ux-restructure` (2026-05-29) — removed the
 // `DesktopSportsRail` import. The rail duplicated the top nav
 // (Home / Parlay Lab / Results) for desktop users and surfaced
@@ -57,7 +56,6 @@ export default function RootLayout({
             <Nav />
           </div>
           <main className="relative z-10 pb-[88px] md:pb-0">
-            <SlateStatusBar />
             {children}
           </main>
           <Footer />

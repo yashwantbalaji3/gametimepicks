@@ -89,13 +89,13 @@ test("Mr. Dub page: hero (scientist badge + CTAs) → dual ladder → active/awa
   assert.ok(order.every((i, idx) => idx === 0 || i > order[idx - 1]), "sections in the required order");
 });
 
-test("integrations: Results links to Mr. Dub; Today/homepage renders the Mr. Dub card", () => {
+test("integrations: Results links to Mr. Dub; homepage links to the Track Record", () => {
   const results = src("src/components/bank-builder-results.tsx");
   assert.match(results, /\/mr-dub/, "Results BB section links to Mr. Dub");
   assert.match(results, /View in Mr\. Dub ledger/, "explicit Mr. Dub ledger link");
-  const card = src("src/components/mr-dub/mr-dub-today-card.tsx");
-  assert.match(card, /currentBankroll/, "card shows current bankroll");
-  assert.match(card, /\/mr-dub/, "card CTA to Mr. Dub");
+  // v1: the homepage no longer embeds the Mr. Dub card — it links to the Track Record (/mr-dub) from the
+  // hero CTA, keeping the front door focused on the five-section story.
   const today = src("src/app/today/page.tsx");
-  assert.match(today, /<MrDubTodayCard \/>/, "Today/homepage renders the Mr. Dub card");
+  assert.match(today, /href="\/mr-dub"/, "homepage links to the Track Record (Mr. Dub)");
+  assert.match(today, /See the track record/, "hero CTA points to the track record");
 });

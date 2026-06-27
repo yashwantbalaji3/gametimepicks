@@ -262,309 +262,108 @@ export default function TodayPage() {
   // ── June 23 readiness summary (compact module strip) ─────────────────────────
   const modelProps = loadModelQualifiedProps(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
-  // Authoritative core money state (ledger-built) for the Mr. Dub readiness module.
+  // Authoritative core money state (ledger-built) for the homepage hero + readiness module.
   let coreWins = bbLanesCleared; let coreLosses = 0;
+  let homeMoney: { bankroll: number; profit: number; roiMultiple: number; crown: number; start: number } | null = null;
   try {
     const pf = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "portfolio.json"), "utf8"));
     coreWins = pf.record?.wins ?? coreWins; coreLosses = pf.record?.losses ?? 0;
-  } catch { /* fail closed → derived defaults */ }
+    if (typeof pf.currentBankroll === "number") {
+      homeMoney = {
+        bankroll: pf.currentBankroll,
+        profit: pf.settledProfit ?? pf.currentBankroll - (pf.startingBankroll ?? 100),
+        roiMultiple: pf.roiMultiple ?? pf.roi ?? 0,
+        crown: pf.crownBankroll ?? pf.currentBankroll,
+        start: pf.startingBankroll ?? 100,
+      };
+    }
+  } catch { /* fail closed → derived defaults; hero hides if money can't be read */ }
+  const usd = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   // The two flagship ladders that LEAD the page (owner restructure): the Bank Builder and Moonshot
   // lane cards (Lane A/B step rail + the current rung's legs, with team logos + player portraits).
   const bankBuilderLadder = dailyPortfolio.cards.filter((c) => c.product === "bank-builder");
   const moonshotLadder = dailyPortfolio.cards.filter((c) => c.product === "moonshot");
   // Homer Nukes — the daily MLB home-run parlay (data-gated; honest empty until MLB props post).
   const homerNukes = loadHomerNukes(path.join(process.cwd(), "public", "data"), today);
-  // The "what's live" strip is a STATUS board for the surfaces NOT in the flagship highlight above.
-  // Bank Builder, Moonshot and World Cup Specials ARE the highlight (rendered as full ladders/parlays
-  // right above), so they are intentionally omitted here — no destination is duplicated as a status card.
-  const readinessModules: { label: string; value: string; sub: string; href: string }[] = [
-    { label: "Mr. Dub", value: `${coreWins}-${coreLosses}`, sub: "official settlement record", href: "/results" },
-    { label: "World Cup", value: `${wcFocus.length} games`, sub: "model picks table", href: "/world-cup?tab=model-picks" },
-    { label: "Model Player Props", value: `${modelProps.qualifiedCount} picks`, sub: `${modelProps.evaluatedCount} markets evaluated`, href: "/world-cup?tab=player-props" },
-    { label: "Parlay Lab", value: `${engineSuggested} cards`, sub: "model-qualified legs", href: "/picks" },
-    { label: "MLB", value: mlbLive ? `${mlb.summary.scheduledGames} games` : "No board", sub: mlbLive ? "board live" : "odds not posted yet", href: "/mlb" },
-  ];
 
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
-      {/* 0 — Track-record social proof (2× $100→$10K completed). Factual, read from the canonical ledger. */}
-      <AchievementBanner />
-      {/* 1 — THE FLAGSHIP HIGHLIGHT: the four core paper products — Bank Builder, Moonshot, World Cup
-            Specials, Homer Nukes — in order. They are the homepage's lead section. The quick-jump
-            flashcards link only to these four (every other destination lives in the top/side nav, so no
-            duplication), then the full ladders/boards render below in the same order. */}
-      <section aria-label="Flagship products" className="flex flex-col gap-5">
-        <div className="flex flex-col gap-1">
-          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>Today&apos;s flagship products</h2>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Bank Builder · Moonshot · World Cup Specials · Homer Nukes — paper-only</span>
-        </div>
-
-        {/* Quick-jump flashcards — ONLY the four flagship products (the top/side nav covers everything
-            else: Results, Methodology, Games, etc.), so nothing is duplicated. */}
-        <nav aria-label="Flagship quick links" className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {[
-            { href: "/bank-builder", label: "Bank Builder", sub: "Dual ladder" },
-            { href: "/moonshot", label: "Moonshot", sub: "Daily longshots" },
-            { href: "/world-cup-specials", label: "WC Specials", sub: "Suggested parlays" },
-            { href: "/homer-nukes", label: "Homer Nukes", sub: "MLB HR parlay" },
-          ].map((a) => (
-            <Link
-              key={a.href}
-              href={a.href}
-              className="vault-glow-hover vault-press rounded-[12px] px-3 py-3.5 flex flex-col items-center justify-center text-center gap-0.5"
-              style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", textDecoration: "none" }}
-            >
-              <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{a.label}</span>
-              <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{a.sub}</span>
-            </Link>
-          ))}
-        </nav>
-
-        {/* PRIORITY #1: Bank Builder ladders (step rail + current rung legs, team logos + player portraits). */}
-        {bankBuilderLadder.length > 0 && (
-          <div aria-label="Bank Builder ladders" className="flex flex-col gap-2">
-            <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" lanes={bankBuilderLadder} accent="gold" />
-            <Link href="/bank-builder" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-              Open the full Bank Builder ladder →
-            </Link>
-          </div>
-        )}
-
-        {/* PRIORITY #2: Moonshot — independent daily longshot cards (NOT a ladder), higher-volatility. */}
-        {moonshotLadder.length > 0 && (
-          <div aria-label="Moonshot cards" className="flex flex-col gap-2">
-            <ProductLanesLadder productLabel="Moonshot" product="moonshot" lanes={moonshotLadder} accent="violet" />
-            <Link href="/moonshot" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-              Open the full Moonshot board →
-            </Link>
-          </div>
-        )}
-
-        {/* PRIORITY #3: World Cup exclusive parlays. Gated to today; fails closed on a stale slate. */}
-        {wcSpecials && <WorldCupSpecialsBox data={wcSpecials} />}
-
-        {/* PRIORITY #4: Homer Nukes — the daily MLB 5-leg home-run parlay (flat $20). Data-gated:
-            honest empty state until real MLB home-run props are posted. */}
-        <div aria-label="Homer Nukes" className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <span aria-hidden className="inline-block rounded-full shrink-0" style={{ width: 8, height: 8, background: "var(--gtp-bank-heat)", boxShadow: "0 0 8px color-mix(in srgb, var(--gtp-bank-heat) 60%, transparent)" }} />
-            <h3 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>Homer Nukes <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>· MLB home-run parlay</span></h3>
-          </div>
-          <HomerNukesBoard board={homerNukes} />
-        </div>
-      </section>
-
-      {/* 1.4 — June 23 readiness strip: one glance at every live surface (Bank Builder, World Cup,
-            model player props, Parlay Lab, Moonshot, Specials), each a tap-through. Paper-only. */}
-      <section aria-label={`${dateLabel} readiness`}>
-        <div className="flex items-baseline justify-between mb-2.5">
-          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{dateLabel} — what&apos;s live</h2>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>paper-only</span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-          {readinessModules.map((m) => (
-            <Link
-              key={m.label}
-              href={m.href}
-              className="vault-glow-hover vault-press rounded-[12px] px-3 py-3 flex flex-col gap-1"
-              style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
-            >
-              <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{m.label}</span>
-              <span className="font-display tracking-tight" style={{ color: "var(--vault-gold-bright)", fontSize: 15, fontWeight: 700 }}>{m.value}</span>
-              <span style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>{m.sub}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* 1.5 — Today's paper portfolio: Mr. Dub's 4 candidate lanes (Bank Builder A/B + Moonshot A/B).
-            Derived, candidate-only (no exposure placed). Crown shown separately on /mr-dub. */}
-      <Link
-        href="/mr-dub"
-        className="vault-glow-hover vault-press rounded-[14px] px-5 py-4 flex flex-col gap-2.5"
-        style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", textDecoration: "none" }}
-      >
-        <div className="flex items-center justify-between">
-          <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Today&apos;s paper portfolio</span>
-          <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Open Mr. Dub →</span>
-        </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-1.5 font-mono" style={{ fontSize: 11.5 }}>
-          {dailyPortfolio.anyActive ? (
-            <span style={{ color: "var(--vault-text-mute)" }}>
-              {dailyPortfolio.cards.filter((c) => c.status === "active").length} active lanes <span style={{ color: "var(--vault-text-faint)" }}>(Bank Builder A/B · Moonshot A/B)</span>
-            </span>
-          ) : (
-            <span style={{ color: "var(--vault-text-mute)" }}>{dailyPortfolio.cards.length} candidate lanes <span style={{ color: "var(--vault-text-faint)" }}>(Bank Builder A/B · Moonshot A/B)</span></span>
-          )}
-          <span style={{ color: "var(--vault-text-mute)" }}>open exposure <span style={{ color: dailyPortfolio.anyActive ? "var(--vault-success)" : "var(--vault-text)" }}>${dailyPortfolio.openExposure.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
-          <span style={{ color: "var(--vault-text-mute)" }}>available <span style={{ color: "var(--vault-text)" }}>${dailyPortfolio.availableBankroll.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
-          <span style={{ color: "var(--vault-text-faint)" }}>crown ${dailyPortfolio.crownBankroll.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (historical)</span>
-        </div>
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
-          {dailyPortfolio.anyActive
-            ? "Active paper lanes — open exposure at risk; active bankroll and crown unchanged until settlement. Paper-only."
-            : "Candidate lanes place no exposure until activated — active bankroll and crown unchanged. Paper-only."}
+    <div className="vault-page-shell mx-auto w-full max-w-3xl px-4 sm:px-6 py-8 sm:py-10 overflow-x-hidden flex flex-col gap-7">
+      {/* 1 — IDENTITY + PROOF: what this is, the headline number, the honest paper promise. */}
+      <section className="rounded-2xl px-5 py-6 sm:px-7 sm:py-8" style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(26,16,11,0.5))" }}>
+        <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.10)", border: "1px solid rgba(110,231,168,0.30)", fontSize: 9.5 }}>
+          ● Paper-only · no real money · free
         </span>
-      </Link>
-
-      {/* 1.6 — Model picks ready: user-facing summary of today's model-ranked cards → Parlay Lab.
-            (Internal "methodology engine / STEP n LIVE / lanes cleared" language moved off the
-            dashboard; Bank Builder status lives in its own rail below and on /methodology.) */}
-      {engineSlate.available && (
-        <Link
-          href="/picks"
-          className="vault-glow-hover vault-press rounded-[14px] px-5 py-4 flex flex-col gap-3"
-          style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)", textDecoration: "none" }}
-        >
-          <div className="flex items-center justify-between">
-            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Today&apos;s model picks</span>
-            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Open Parlay Lab →</span>
+        <h1 className="mt-3 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(24px,5vw,34px)", fontWeight: 800, lineHeight: 1.05 }}>
+          A sports model that shows its work.
+        </h1>
+        <p className="mt-2 text-[13.5px]" style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}>
+          Every pick is graded by official results and every dollar is traceable. Follow the model&rsquo;s public paper run from $100 — and judge it for yourself.
+        </p>
+        {homeMoney ? (
+          <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            <span className="font-display tabular" style={{ fontSize: 18, fontWeight: 700, color: "var(--vault-text-mute)" }}>{usd(homeMoney.start)}</span>
+            <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 16 }}>→</span>
+            <span className="font-display tabular tracking-tight" style={{ fontSize: 30, fontWeight: 800, color: "var(--vault-text)", lineHeight: 1 }}>{usd(homeMoney.bankroll)}</span>
+            <span className="font-display tabular" style={{ fontSize: 17, fontWeight: 800, color: "var(--vault-success)" }}>+{usd(homeMoney.profit)}</span>
+            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>paper · {homeMoney.roiMultiple}× · official results</span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {engineSlate.sports.map((s) => (
-              <span key={s.sport} className="rounded-full px-2.5 py-1 font-mono text-[11px]"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-border)", color: s.eligibleCount > 0 ? "var(--vault-text)" : "var(--vault-text-faint)" }}>
-                {s.sport === "WORLD_CUP" ? "World Cup" : s.sport}{s.eligibleCount > 0 ? ` · ${s.eligibleCount} legs` : " · none today"}
-              </span>
-            ))}
-          </div>
-          <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-            {engineSuggested} model-ranked parlay{engineSuggested === 1 ? "" : "s"} across {engineSportsLive.length} sport{engineSportsLive.length === 1 ? "" : "s"} — tap to open the Parlay Lab. Paper-only.
-          </div>
-        </Link>
-      )}
-
-      {/* 2 — Today's Focus: World Cup */}
-      <TodaysFocusWorldCup matches={wcFocus} games={wcGames} dateLabel={dateLabel} />
-
-      {/* 2.6 — Egypt vs New Zealand same-game ideas (real markets only, no fabricated SGP price). */}
-      {nzEgyptMarkets ? <EgyptNzSameGame data={nzEgyptMarkets} /> : null}
-
-      {/* 3 — Bank Builder: compact run-timeline status (Run #1 completed · #2 closed · #3 V2 gate) */}
-      <BankBuilderStatusRail
-        run1Bankroll={bankrollLabel ?? undefined}
-        run1Record={bank ? `${bank.record.wins}–${bank.record.losses}` : (crown?.recordLabel ?? undefined)}
-        dual={dualBank}
-        v2={v2}
-        activeLaunched={bbPreview.status === "launched" || bbPreview.status === "settled"}
-        activeSettled={bbSettled}
-        activeLadderStep={bbLadder ? bbStep : undefined}
-        lanesWon={bbLanesCleared}
-        lanesTotal={2}
-      />
-
-      {/* 3.5 — Mr. Dub paper portfolio at a glance (current bankroll, latest P/L, exposure, record). */}
-      <div className="mt-3"><MrDubTodayCard /></div>
-
-      {/* 4 — Suggested parlays — canonical methodology engine (World Cup + Mixed + MLB, by risk,
-            with per-leg model + last-5 drawers). Same data as /parlays and /picks. */}
-      <section className="gtp-fade-up">
-        <SectionHeader eyebrow={`Suggested parlays · ${dateLabel}`} title="Today's suggested cards" sub="Engine-built across World Cup, MLB and Mixed — by risk, leakage-validated, pre-event. Tap any leg for model + last-5 detail. Paper-only." />
-        <div className="mt-3"><ParlaysExplorer slate={engineSlate} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} /></div>
-      </section>
-
-      {/* UFC — only LEADS on a live UFC day; once settled it moves to the results recap below. */}
-      {!ufcSettled && ufcSched?.isRealCard ? (
-        <section
-          className="gtp-fade-up relative overflow-hidden rounded-[14px] px-5 py-5 sm:px-7 sm:py-6"
-          style={{
-            border: "1px solid var(--lava-border-strong)",
-            background:
-              "radial-gradient(120% 150% at 100% 0%, rgba(225, 29, 42,0.13) 0%, transparent 55%)," +
-              "linear-gradient(135deg, rgba(26,20,14,0.95) 0%, var(--vault-bg) 70%)",
-          }}
-        >
-          <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-40 w-40 translate-x-10 -translate-y-12 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(9px)", opacity: 0.42 }} />
-          <div className="relative flex flex-wrap items-center justify-between gap-2">
-            <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
-              {ufcSettled ? "UFC · officially settled" : "Tonight’s featured slate · UFC"}
-            </span>
-            <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: ufcSettled || ufcLive ? "var(--vault-success)" : "var(--gtp-bank-heat)", background: ufcSettled || ufcLive ? "rgba(110,231,168,0.14)" : "var(--gtp-bank-heat-dim)" }}>
-              {ufcSettled ? "Settled · final" : ufcLive ? "Moneyline V1 live" : "Fight card preview"}
-            </span>
-          </div>
-          <h1 className="relative mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.6vw,34px)", fontWeight: 700, lineHeight: 1.04 }}>
-            {ufcSched.eventName}
-          </h1>
-          <p className="relative mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}>
-            {ufcSettled
-              ? `Officially settled — moneyline model went ${ufcSettlement?.moneyline?.record ?? ""} (${ufcSettlement?.moneyline?.accuracyPct ?? 0}%). Full fight results + projection grades on the UFC page. Paper-only educational tracking.`
-              : `${ufcSched.fightCount ?? 0} fights${ufcSched.venue ? ` · ${ufcSched.venue}` : ""}${ufcDateLabel ? ` · ${ufcDateLabel}` : ""}. ${ufcLive ? `${ufcProjCount} model-reviewed moneyline projections + ${ufcCardCount} suggested paper cards.` : "Real fight card + sportsbook lines."} Moneyline-only · model in validation · paper-only educational tracking.`}
-          </p>
-          <div className="relative mt-3 flex flex-wrap gap-2">
-            <Link href="/ufc" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
-              {ufcSettled ? "View UFC 250 results →" : "Open UFC fight card →"}
-            </Link>
-            <Link href={ufcSettled ? "/results" : "/picks"} className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
-              {ufcSettled ? "Results" : "Suggested cards"}
-            </Link>
-          </div>
-          {ufcFights.length && !ufcSettled ? (
-            <div className="relative mt-4">
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)" }}>Tap a fight — moneyline + model-only distance/rounds/method</span>
-              <div className="mt-2">
-                <UfcExpandedFightCards fights={ufcFights} />
-              </div>
-            </div>
-          ) : null}
-        </section>
-      ) : null}
-
-      {/* Sport cards */}
-      <section>
-        <SectionHeader eyebrow="Active sports" title="Jump into a sport" sub="Counts are today's live data. Tap a card to open the full sport board." />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {sportSummaries.map((s) => (
-            <SportCard key={s.sport} summary={s} />
-          ))}
+        ) : null}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link href="/mr-dub" className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.1em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>See the track record →</Link>
+          <Link href="/picks" className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.1em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Today&rsquo;s picks →</Link>
         </div>
       </section>
 
-      {/* Top cards with interactive stake */}
-      {topCards.length > 0 && (
-        <section>
-          <SectionHeader eyebrow={`Top cards · ${mixedCards.length} mixed-sport`} title="Suggested paper cards" sub="Mixed-sport + single-sport cards — enter any stake to see the projected paper return." />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {topCards.map((c) => (
-              <SuggestedCard key={c.id} card={c} />
-            ))}
+      {/* 2 — RECEIPTS: proof before pitch (2x $100→$10K completed, graded from official results). */}
+      <AchievementBanner />
+
+      {/* 3 — TODAY'S HEADLINE PLAY: the flagship Bank Builder live ladder card. */}
+      {bankBuilderLadder.length > 0 ? (
+        <section className="flex flex-col gap-2">
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>Today&rsquo;s headline play</h2>
+            <Link href="/bank-builder" className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>Open Bank Builder →</Link>
           </div>
-          <div className="mt-3">
-            <Link href="/picks" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-              All suggested cards →
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {/* Settled UFC (06-15) is history — it lives in /results, never as an active Today card. */}
-
-      {/* Yesterday's settled results — official outcomes only */}
-      <YesterdaySummary date={yesterday} />
-
-      {/* Official Step-3 World Cup candidate (pending) — or the separate Flex Card when none */}
-      {publishedCandidate ? (
-        <section>
-          <SectionHeader eyebrow={`Bank Builder · Step ${publishedCandidate.step}`} title={`Official Step ${publishedCandidate.step} candidate`} sub="Pending result — the ladder bankroll only changes after official settlement." />
-          <OfficialCandidateCard candidate={publishedCandidate} />
-        </section>
-      ) : officialStep3 ? (
-        <section>
-          <SectionHeader eyebrow={`Bank Builder · Step ${activeRung?.step ?? "—"}`} title="Official World Cup candidate" sub="Pending result — paper-only. The ladder bankroll only changes after the matches settle." />
-          <OfficialStep3CandidateCard candidate={officialStep3} stepNumber={activeRung?.step ?? 3} />
-        </section>
-      ) : flexLeg ? (
-        <section>
-          <WorldCupFlexCard leg={flexLeg} exampleStake={bank?.currentBankrollUnits ?? 728.76} />
+          <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" lanes={bankBuilderLadder} accent="gold" />
         </section>
       ) : null}
-      {/* Trust cue — how the model works */}
-      <p className="text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
-        Every number is a real model or market value — settled from official results.{" "}
-        <Link href="/learn" className="underline" style={{ color: "var(--vault-text-mute)" }}>How it works</Link>
-        {" · "}
-        <Link href="/methodology" className="underline" style={{ color: "var(--vault-text-mute)" }}>Methodology</Link>
-      </p>
+
+      {/* 4 — THE FOUR LANES (compact; Bank Builder is the hero, the rest are secondary lanes). */}
+      <section className="flex flex-col gap-2">
+        <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>The paper lanes</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {[
+            { href: "/bank-builder", label: "Bank Builder", sub: "The flagship — watch $100 climb to $10K, live.", lead: true },
+            { href: "/moonshot", label: "Moonshot", sub: "Daily high-volatility longshots.", lead: false },
+            { href: "/world-cup-specials", label: "World Cup Specials", sub: "A box of paper World Cup longshots.", lead: false },
+            { href: "/homer-nukes", label: "Homer Nukes", sub: "MLB home-run parlays.", lead: false },
+          ].map((a) => (
+            <Link key={a.href} href={a.href} className="vault-glow-hover vault-press rounded-[12px] px-4 py-3.5 flex flex-col gap-0.5" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", borderLeft: a.lead ? "2px solid var(--gtp-bank-heat)" : "1px solid var(--vault-border)", textDecoration: "none" }}>
+              <span className="font-display tracking-tight" style={{ color: a.lead ? "var(--vault-gold-bright)" : "var(--vault-text)", fontSize: 14.5, fontWeight: 700 }}>{a.label}{a.lead ? " ★" : ""}</span>
+              <span style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>{a.sub}</span>
+            </Link>
+          ))}
+        </div>
+        <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>All four are paper-only. Today&rsquo;s open exposure {usd(dailyPortfolio.openExposure)}.</span>
+      </section>
+
+      {/* 5 — WHY TRUST: resolve "what is the catch?" before the visitor leaves. */}
+      <section className="rounded-2xl px-5 py-5" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
+        <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>Why you can trust this</h2>
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[
+            { t: "Official results", d: "Every leg is graded from the official box score — never a guess." },
+            { t: "Paper-only", d: "No real money is ever placed. It is an educational model, not a sportsbook." },
+            { t: "Open ledger", d: "Every pick, result and dollar is on the public Track Record — auditable." },
+          ].map((c) => (
+            <div key={c.t} className="rounded-xl px-3.5 py-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+              <div className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>{c.t}</div>
+              <div className="mt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{c.d}</div>
+            </div>
+          ))}
+        </div>
+        <Link href="/methodology" className="mt-3 inline-flex font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>How it works →</Link>
+      </section>
     </div>
   );
 }

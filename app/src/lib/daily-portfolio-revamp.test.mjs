@@ -131,6 +131,7 @@ test("World Cup Specials is a PERMANENT tracked product with a durable ledger ($
   assert.match(page, /permanent paper product/i, "positions it as a permanent product");
   assert.match(page, /SpecialsLedgerSection/, "renders the durable ledger (record/ROI/P&L/win-rate)");
   assert.match(page, /buildSpecialsLedger/, "builds the ledger from archived history");
+  // v1: WC Specials is a secondary lane reachable from the homepage's four-lane grid (not an embedded panel).
   const today = read("src/app/today/page.tsx");
-  assert.match(today, /Today's paper portfolio|Today&apos;s paper portfolio/, "today shows the daily portfolio");
+  assert.match(today, /href: "\/world-cup-specials"/, "homepage links to the WC Specials lane");
 });

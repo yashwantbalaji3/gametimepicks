@@ -41,9 +41,11 @@ test("UFC page is fail-closed and scoped to moneyline-only (no fabricated prop m
   assert.ok(/method|distance|round/i.test(ufcPage), "unsupported prop markets are explained, not faked");
 });
 
-test("/today features UFC as a sport and as the lead slate", () => {
-  assert.ok(todayPage.includes('href: "/ufc"'), "UFC is in the active-sports grid");
-  assert.ok(todayPage.includes("featured slate · UFC"), "UFC featured-slate lead section present");
+test("v1: UFC lives on its own page, not as a homepage lead slate (homepage is the model story)", () => {
+  // The v1 homepage is the five-section model story; sport-specific slates (incl. UFC) are NOT homepage
+  // lead sections anymore — they live on their own pages and fold into Today's Picks in the nav.
+  assert.ok(!todayPage.includes("featured slate · UFC"), "UFC is no longer a homepage lead section");
+  assert.ok(ufcPage.length > 0, "the dedicated /ufc page remains the home for UFC");
 });
 
 test("UFC page has a Markets tab that honestly scopes coverage to moneyline-only", () => {
