@@ -13,9 +13,12 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { checkMoneyIntegrity } from "../src/lib/money-integrity.ts";
 
-const ROOT = path.join(process.cwd(), "public", "data");
+// Resolve the data dir relative to THIS script (app/scripts/ → app/public/data), so the deploy gate works
+// whether invoked from the repo root (the lifecycle: `npx tsx app/scripts/...`) or from app/ — never cwd-dependent.
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "public", "data");
 const argv = process.argv.slice(2);
 const MAX_STALE_DAYS = (() => { const i = argv.indexOf("--max-staleness-days"); return i >= 0 ? Number(argv[i + 1]) : 3; })();
 const STRICT_FRESH = argv.includes("--strict-fresh"); // promote staleness warnings to critical
@@ -78,6 +81,18 @@ if (ledger) {
   if (badDate.length) C("hygiene:bad-date", `${badDate.length} event(s) with non-ISO date`); else P("hygiene: event dates ISO");
   const nan = evs.filter((e) => e.paperProfit != null && !Number.isFinite(Number(e.paperProfit)));
   if (nan.length) C("hygiene:nan-profit", `${nan.length} event(s) with non-finite paperProfit`); else P("hygiene: paperProfit finite");
+}
+
+// ── 4b. ARTIFACT DRIFT — the on-disk master-ledger.json must agree with canonical. The /mr-dub page and the
+//        gates RECOMPUTE via buildMasterLedger(), so a stale artifact never reaches users — but a drifted one
+//        means the lifecycle's ledger-rebuild step was skipped (this is how the deprecated $8,247 figure rotted
+//        in the committed JSON). Warn (not critical) + tell the operator to rerun the rebuild.
+const mlArtifact = readJson("mr-dub/master-ledger.json");
+if (mlArtifact && portfolio) {
+  const bb = (mlArtifact.products ?? []).find((p) => /bank builder/i.test(p.label));
+  if (bb && !near(bb.profit, portfolio.settledProfit))
+    W("artifact-drift:master-ledger", `master-ledger.json BB profit ${bb.profit} ≠ canonical settledProfit ${portfolio.settledProfit} — stale artifact; rerun build-master-ledger.mjs (the daily lifecycle does this in step 9)`);
+  else if (bb) P("artifact: master-ledger.json matches canonical");
 }
 
 // ── 5. FRESHNESS — generatedAt + latest settled day not staler than tolerance (warn unless --strict) ─

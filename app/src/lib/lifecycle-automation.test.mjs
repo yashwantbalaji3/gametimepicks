@@ -66,3 +66,24 @@ test("overlapping product orchestrators are retired to dispatch-only (no duplica
   assert.ok(!hasCron(".github/workflows/mlb-daily.yml"), "mlb-daily cron retired (dispatch-only)");
   assert.ok(!hasCron(".github/workflows/lineup-aware-refresh.yml"), "lineup-aware cron retired (dispatch-only)");
 });
+
+test("there is exactly ONE product orchestrator (the dead parallel daily-product-refresh is removed)", () => {
+  assert.ok(!fs.existsSync(path.join(process.cwd(), "scripts/daily-product-refresh.mjs")),
+    "the superseded parallel product orchestrator must not exist");
+  // the lifecycle keeps the Mr. Dub master-ledger artifact fresh after settle + generate.
+  assert.match(readRepo("scripts/roll_to_next_day.sh"), /build-master-ledger\.mjs/, "roll rebuilds the master ledger");
+});
+
+test("the money gates resolve their data dir cwd-agnostically (work from the lifecycle's repo-root call)", () => {
+  // Regression lock: the gate() runs `npx tsx app/scripts/...` from the REPO ROOT, so a bare
+  // process.cwd()/public/data (app-only) silently aborts the whole roll. Both must derive from import.meta.url.
+  for (const s of ["scripts/forensic-money-audit.mjs", "scripts/health-check.mjs"]) {
+    const src = readApp(s);
+    assert.match(src, /fileURLToPath\(import\.meta\.url\)/, `${s} resolves data dir from its own file location`);
+    assert.ok(!/path\.join\(process\.cwd\(\),\s*"public",\s*"data"\)/.test(src), `${s} must not hardcode cwd/public/data`);
+  }
+});
+
+test("health-check guards against a stale master-ledger artifact (the $8,247 rot)", () => {
+  assert.match(readApp("scripts/health-check.mjs"), /artifact-drift:master-ledger/, "warns when the on-disk ledger drifts from canonical");
+});

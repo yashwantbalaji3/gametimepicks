@@ -105,7 +105,10 @@ if [ "$APPLY" = 1 ]; then
   ( cd app && npx tsx scripts/enrich-mlb-headshots.mjs --date "$TO" ) || warn "MLB enrich non-zero"
 else info "dry-run — MLB not fetched"; fi
 
-step "9/11  Capture pre-kickoff benchmark snapshot ($TO)"
+step "9/11  Rebuild Mr. Dub master ledger + capture benchmark ($TO)"
+# Read-only over each product's settled ledger — refreshes the cross-product track record the /mr-dub page
+# renders so it reflects today's settlement + freshly-generated cards. NEVER mutates bankroll/crown/record.
+npx tsx app/scripts/build-master-ledger.mjs --date "$TO" || warn "master-ledger rebuild non-zero"
 ( cd app && npx tsx scripts/capture-market-benchmark.mjs --date "$TO" ) || warn "benchmark capture non-zero"
 
 step "10/11  Money-integrity GATE + tests + build"

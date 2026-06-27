@@ -10,12 +10,15 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildMasterLedger } from "../src/lib/mr-dub/master-ledger.ts";
 import { buildLedgerCalendar } from "../src/lib/mr-dub/ledger-calendar.ts";
 import { readCanonicalMoney } from "../src/lib/daily-portfolio/accounting.ts";
 import { computeOpenExposure } from "../src/lib/mr-dub/open-exposure.ts";
 
-const DATA = path.join(process.cwd(), "public", "data");
+// Resolve the data dir relative to THIS script (app/scripts/ → app/public/data), so the gate works whether
+// invoked from the repo root (the lifecycle: `npx tsx app/scripts/...`) or from app/ — never cwd-dependent.
+const DATA = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "public", "data");
 const read = (rel) => JSON.parse(fs.readFileSync(path.join(DATA, rel), "utf8"));
 const r2 = (n) => Math.round(Number(n) * 100) / 100;
 const near = (a, b, eps = 0.01) => Math.abs(Number(a) - Number(b)) <= eps;
