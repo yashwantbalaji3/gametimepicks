@@ -49,3 +49,20 @@ test("the lifecycle gate runs all three money guards (integrity + forensic + hea
   assert.match(roll, /forensic-money-audit\.mjs/, "forensic audit in the gate");
   assert.match(roll, /health-check\.mjs/, "health check in the gate");
 });
+
+test("daily-lifecycle.yml is the ONE scheduled canonical lifecycle, deploy opt-in", () => {
+  const wf = readRepo(".github/workflows/daily-lifecycle.yml");
+  assert.match(wf, /schedule:/, "has a schedule");
+  assert.match(wf, /cron:\s*"30 8 \* \* \*"/, "runs after the nightly-settle window");
+  assert.match(wf, /roll_to_next_day\.sh/, "invokes the canonical lifecycle script");
+  assert.match(wf, /ENABLE_AUTONOMOUS_DEPLOY/, "auto-deploy is opt-in via a repo variable (irreversible action gated)");
+  // honest-skip: credentials are wired but their absence must not be a hard requirement here.
+  assert.match(wf, /ODDS_API_KEY/, "passes the odds key through (honest-skip when unset)");
+});
+
+test("overlapping product orchestrators are retired to dispatch-only (no duplicate crons)", () => {
+  const hasCron = (rel) => /^\s*-\s*cron:/m.test(readRepo(rel));
+  // mlb ingest is now step 8 of the canonical lifecycle; lineup-aware's window cron expired.
+  assert.ok(!hasCron(".github/workflows/mlb-daily.yml"), "mlb-daily cron retired (dispatch-only)");
+  assert.ok(!hasCron(".github/workflows/lineup-aware-refresh.yml"), "lineup-aware cron retired (dispatch-only)");
+});

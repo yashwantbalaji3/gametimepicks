@@ -31,10 +31,11 @@ on:
         default: "dry_run"
         type: choice
         options: [dry_run, write_board]
-  schedule:
-    # 15:10 UTC ≈ 11:10am ET — after lineups firm up for the day but before first pitch on most slates.
-    # The scheduled run is dry_run unless an operator sets the repo variable MLB_MODE=write_board.
-    - cron: "10 15 * * *"
+  # SCHEDULE RETIRED — the daily MLB slate ingest + headshot enrich is now step 8 of the ONE canonical
+  # lifecycle (daily-lifecycle.yml → roll_to_next_day.sh), so a second 15:10 UTC cron here would be an
+  # overlapping orchestrator (the exact thing the autonomous-ops audit removed). This workflow stays
+  # available on demand (workflow_dispatch) for MLB-only repair / a one-off board post; re-add a cron only
+  # if you intentionally want an MLB board posted independently of the canonical lifecycle.
 
 env:
   MLB_MODE: ${{ vars.MLB_MODE || 'dry_run' }}

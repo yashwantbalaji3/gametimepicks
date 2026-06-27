@@ -1,0 +1,169 @@
+# ----------------------------------------------------------------------------
+# daily-lifecycle.yml  —  THE ONE canonical autonomous daily lifecycle.
+#
+# This is the single scheduled entry point that owns the World-Cup + flagship-
+# products day. It invokes scripts/roll_to_next_day.sh, which performs the full
+# chain, SETTLE-FIRST, money-gated at every hinge:
+#
+#   verify money → settle the PRIOR day (official, free) → reconcile/HEALTH GATE
+#     → [HALT if a prior-day lane is still live] → fetch WC odds + projections
+#     → promote slate → activate Bank Builder + Moonshot → refresh WC Specials
+#     → ingest Homer Nukes (MLB) → benchmark → MONEY+HEALTH GATE → tests → build
+#     → [deploy] → PRODUCTION SMOKE → run report
+#
+# WHY THIS IS SAFE TO SCHEDULE (the autonomy invariants):
+#   • NEVER fabricates — odds come from the live feed, results from the official
+#     settlement engine. A stage with no credentials HONEST-SKIPS (warns, exits
+#     0, writes nothing); it never fails the run and never invents data.
+#   • SETTLE-FIRST — the prior day must be officially settled (or have nothing
+#     live) before the next day is generated; a still-pending live lane HALTS the
+#     roll rather than abandoning a wager.
+#   • MONEY+HEALTH GATED — verify-money-integrity + forensic-money-audit +
+#     health-check run before AND after the roll; a non-zero gate ABORTS and (with
+#     deploy) never publishes a corrupted bankroll.
+#   • DEPLOY IS OPT-IN — pushing to main + the Vercel rebuild is the one
+#     irreversible production action. On a schedule it happens ONLY when the
+#     owner sets repository variable ENABLE_AUTONOMOUS_DEPLOY=true. Until then the
+#     scheduled run settles + regenerates + gates + reports, but does not publish.
+#   • DEPLOY SUCCEEDS ONLY IF SMOKE PASSES — after the push the roll polls the
+#     live site for the five canonical pages + zero money drift; a failed smoke
+#     fails the run loudly.
+#
+# This SUPERSEDES the ad-hoc World-Cup/product orchestrators as the scheduled
+# path (mlb-daily's MLB ingest is now step 8 here; lineup-aware-refresh's expired
+# cron was retired). Those remain available on demand (workflow_dispatch).
+# The NBA-era results/board crons (nightly-settle, morning-projections, auto-
+# refresh, daily-refresh) are a SEPARATE settlement engine for legacy boards and
+# are intentionally left untouched here; their retirement belongs to the v1
+# deprecated-page removal (P0.5), not this automation change.
+#
+# DORMANT UNTIL MERGED + ACTIVATED: GitHub only runs `schedule:` triggers from
+# the default branch. While this lives on a feature branch it never fires on its
+# own; merging to main + adding the secrets below activates it. See the run
+# ACTIVATION CHECKLIST in the session report.
+# ----------------------------------------------------------------------------
+
+name: daily-lifecycle
+
+on:
+  schedule:
+    # 08:30 UTC = 4:30 AM EDT / 3:30 AM EST. Deliberately AFTER nightly-settle's
+    # 07:30 UTC repair pass so the two never push to main at the same time and
+    # the prior day's NBA/MLB grading is already in before the WC roll begins.
+    - cron: "30 8 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Slate date to roll TO (YYYY-MM-DD, ET). Blank = today in ET."
+        type: string
+        required: false
+        default: ""
+      apply:
+        description: "Apply (settle + generate). false = dry-run plan only."
+        type: choice
+        options: ["true", "false"]
+        default: "true"
+      deploy:
+        description: "Deploy (push to main + Vercel + smoke). Irreversible — leave false unless you mean it."
+        type: choice
+        options: ["false", "true"]
+        default: "false"
+
+# Never let two lifecycle runs overlap (they both push to main).
+concurrency:
+  group: daily-lifecycle
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  lifecycle:
+    name: roll forward · settle → generate → gate → (deploy) → smoke → report
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      TZ: "America/New_York"
+      # --- credentials (HONEST-SKIP when unset; never fabricated) ---
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+      # --- credit / mode guards (defaults stay defensive) ---
+      ODDS_DRY_RUN: ${{ vars.ODDS_DRY_RUN || 'false' }}
+      MAX_PER_RUN: ${{ vars.MAX_PER_RUN || '75' }}
+      MIN_REMAINING: ${{ vars.MIN_REMAINING || '300' }}
+
+    steps:
+      - name: Checkout (full history so the roll can push to main)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Resolve run mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            APPLY="true"
+            # Auto-deploy on a schedule is opt-in via a repo variable (the one irreversible action).
+            DEPLOY="${{ vars.ENABLE_AUTONOMOUS_DEPLOY == 'true' && 'true' || 'false' }}"
+          else
+            APPLY="${{ github.event.inputs.apply }}"
+            DEPLOY="${{ github.event.inputs.deploy }}"
+          fi
+          DATE="${{ github.event.inputs.date }}"
+          [ -n "$DATE" ] || DATE="$(TZ=America/New_York date '+%Y-%m-%d')"
+          echo "apply=$APPLY"  >> "$GITHUB_OUTPUT"
+          echo "deploy=$DEPLOY" >> "$GITHUB_OUTPUT"
+          echo "date=$DATE"    >> "$GITHUB_OUTPUT"
+          echo "════════════════════════════════════════════════════════"
+          echo "  daily-lifecycle"
+          echo "  ET now:    $(TZ=America/New_York date '+%Y-%m-%d %H:%M %Z')"
+          echo "  Trigger:   ${{ github.event_name }}"
+          echo "  Roll TO:   $DATE   apply=$APPLY  deploy=$DEPLOY"
+          echo "  ODDS_API_KEY set: $([ -n "$ODDS_API_KEY" ] && echo yes || echo 'no → live odds stages honest-skip')"
+          echo "════════════════════════════════════════════════════════"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install pipeline deps
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f pipeline/requirements.txt ]; then pip install -r pipeline/requirements.txt; else pip install requests; fi
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install app deps
+        run: cd app && (npm ci --silent || npm install --silent)
+
+      - name: Git identity (for the roll's settle/deploy commit)
+        run: |
+          git config user.name  "gtp-lifecycle[bot]"
+          git config user.email "gtp-lifecycle@users.noreply.github.com"
+
+      - name: Run the canonical daily lifecycle
+        run: |
+          FLAGS="--to ${{ steps.mode.outputs.date }}"
+          [ "${{ steps.mode.outputs.apply }}"  = "true" ] && FLAGS="$FLAGS --apply"
+          [ "${{ steps.mode.outputs.deploy }}" = "true" ] && FLAGS="$FLAGS --deploy"
+          echo "▶ bash scripts/roll_to_next_day.sh $FLAGS"
+          bash scripts/roll_to_next_day.sh $FLAGS
+
+      - name: Upload run report (observability artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-report-${{ steps.mode.outputs.date }}
+          path: app/public/data/ops/run-reports/
+          if-no-files-found: ignore
+          retention-days: 30
