@@ -86,15 +86,15 @@ test("exposure/bankroll/crown unchanged by the cross-lane upgrade", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   // The daily-portfolio view never touches CANONICAL money and stays internally consistent regardless of
   // whether the day's lanes are active (cards placed) or awaiting — assert the invariants, not a fixed value.
-  // POST JUNE-25 SETTLEMENT (cycle 3): crown = 20465.40 (Σ two banked finals); active bankroll = crown −
-  // $400 dual-lane losses (3 prior + June-25 Lane B) = 20065.40. The June-25 lanes are now SETTLED
-  // (Lane A won, Lane B lost), so daily open exposure is $0 (nothing at risk).
-  assert.equal(dp.activeBankroll, 20065.4); assert.equal(dp.crownBankroll, 20465.4);
+  // POST JUNE-26 SETTLEMENT (cycle 3): crown = 20465.40 (Σ two banked finals); active bankroll = crown −
+  // $500 dual-lane losses (3 prior + June-25 Lane B + June-26 Lane A Step-2) = 19965.40. The daily view holds
+  // the next slate (June-27) where Lane B's forward Step-2 card is active, so open exposure = its $100 seed.
+  assert.equal(dp.activeBankroll, 19965.4); assert.equal(dp.crownBankroll, 20465.4);
   const sumExposure = (dp.lanes ?? []).filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
   assert.equal(dp.openExposure, sumExposure, "open exposure = Σ active-lane seed exposures, nothing else");
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(p.currentBankroll, 20065.4); assert.equal(p.crownBankroll, 20465.4);
+  assert.equal(p.currentBankroll, 19965.4); assert.equal(p.crownBankroll, 20465.4);
   assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view)");
-  assert.deepEqual(p.record, { wins: 14, losses: 4, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 15, losses: 5, voids: 0, pending: 0 });
 });

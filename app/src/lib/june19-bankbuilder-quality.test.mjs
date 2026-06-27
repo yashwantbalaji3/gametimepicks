@@ -83,10 +83,11 @@ test("Mr. Dub after the June-24 BANKING: no active card, Lane A ladder BANKED (L
   assert.equal((portfolio.activeCards ?? []).length, 0, "no active card — the June-24 cards are settled and banked");
   // After June 24, Lane A COMPLETED the $10k ladder and the operator BANKED it (pendingLaneCompletions removed),
   // so it is a realized completedLadders entry — no operator-gated completion flag remains.
-  // After the June-25 settlement Lane A advanced (Step 1 WON) and is awaiting its next qualified card.
+  // After the June-26 settlement Lane A STOPPED (Step 2 LOST) while Lane B advanced (Step 1 WON) and is awaiting
+  // its next qualified card.
   const awaiting = portfolio.awaitingCards ?? [];
   assert.ok(awaiting.every((c) => c.kind === "awaiting_next_card"), "no operator-gated completion left — only awaiting-next-card markers");
-  assert.ok(awaiting.some((c) => c.laneId === "lane-a"), "Lane A advanced (Step 1 WON June 25) → awaiting next qualified card");
+  assert.ok(awaiting.some((c) => c.laneId === "lane-b"), "Lane B advanced (Step 1 WON June 26) → awaiting next qualified card");
   const banked = (portfolio.completedLadders ?? []).find((l) => l.completedDate === "2026-06-24");
   assert.ok(banked, "Ladder #2 recorded in completedLadders");
   assert.equal(banked.final, 10089.23, "Lane A banked $100→$10,089.23 (official)");

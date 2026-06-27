@@ -91,33 +91,37 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("cycle-3 live run (June-26): LIVE preview is launched with Lane A advanced (Step-1 WON) and Lane B a restarted active Step-1, no stale-leg leak", () => {
+test("cycle-3 live run (June-26 settled): LIVE preview is launched with Lane A STOPPED (Step-2 LOST) and Lane B ADVANCED (Step-1 WON), no stale-leg leak", () => {
   // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and restarted into cycle 3.
-  // June-25 SETTLED the new cycle's Step 1: Lane A WON (advanced, next stake $201.08) and Lane B LOST.
-  // June-26: per operator direction Lane B was RESTARTED — the loader now serves it as a FRESH active Step-1
-  // (laneStatus "active", empty steps); the June-25 loss is preserved in the artifact's laneB.priorLane and is
-  // NOT surfaced in the preview. The old June-19→24 completed/stopped narrative moved to the archive (asserted
-  // separately below) — it must NOT bleed into the live preview.
+  // June-26 officially SETTLED the new cycle: Lane A Step-2 LOST (Cape Verde 0-0 Saudi BTTS-Yes missed) → the
+  // lane STOPPED after its won Step-1; Lane B Step-1 WON (Egypt or Draw + France ML, official) → ADVANCED to
+  // its next rung (stake $206.25). Both lanes stay publicly visible as their settled cycle-3 cards. The old
+  // June-19→24 completed/stopped narrative moved to the archive (asserted separately below) — it must NOT
+  // bleed into the live preview.
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.status, "launched", "cycle-3 is a launched run");
-  assert.equal(bb.isLadder, true, "Step-1 is settled → it is now a stepping ladder");
+  assert.equal(bb.isLadder, true, "steps are settled → it is now a stepping ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
-  assert.equal(bb.currentStep, 1, "live run sits on Step 1");
-  // Lane A advanced on a settled Step-1 WON (one settled card). The loader never fabricates.
-  assert.equal(bb.laneA.laneStatus, "advanced", "Lane A advanced");
+  assert.equal(bb.currentStep, 1, "live run's lead step pointer sits on Step 1 (Lane B's open rung)");
+  // Lane A stopped after a settled Step-2 LOSS (won Step-1, lost Step-2). The loader never fabricates.
+  assert.equal(bb.laneA.laneStatus, "stopped", "Lane A stopped (Step-2 settled LOST June-26)");
   assert.equal(bb.laneA.publicVisible, true, "Lane A is publicly visible");
-  assert.equal(bb.laneA.currentStep, 1, "Lane A settled at Step 1");
-  assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries its one settled Step-1 card");
+  assert.equal(bb.laneA.currentStep, 2, "Lane A settled out at Step 2");
+  assert.equal((bb.laneA.steps ?? []).length, 2, "Lane A carries its two settled cards (Step-1 WON, Step-2 LOST)");
   assert.equal(bb.laneA.steps[0].result, "won", "Lane A Step-1 settled WON");
-  // Lane B is a restarted active Step-1: laneStatus "active", visible, empty steps (fresh card).
-  assert.equal(bb.laneB.laneStatus, "active", "Lane B active (restarted June-26 after June-25 LOST)");
+  assert.equal(bb.laneA.steps[1].result, "lost", "Lane A Step-2 settled LOST → lane stopped");
+  // Lane B advanced on a settled Step-1 WON (one settled card).
+  assert.equal(bb.laneB.laneStatus, "advanced", "Lane B advanced (Step-1 settled WON June-26)");
   assert.equal(bb.laneB.publicVisible, true, "Lane B is publicly visible");
-  assert.equal(bb.laneB.currentStep, 1, "Lane B is back on Step 1");
-  assert.equal((bb.laneB.steps ?? []).length, 0, "Lane B carries no settled step (fresh restart)");
-  // No stale legs from either prior ladder may surface in the live cycle-3 preview.
+  assert.equal(bb.laneB.currentStep, 1, "Lane B settled at Step 1, awaiting its next rung");
+  assert.equal((bb.laneB.steps ?? []).length, 1, "Lane B carries its one settled Step-1 card");
+  assert.equal(bb.laneB.steps[0].result, "won", "Lane B Step-1 settled WON");
+  // No stale legs from EITHER prior ladder (the banked June-19→24 cycle or Lane B's June-25 priorLane loss)
+  // may surface in the live cycle-3 preview. Egypt/France are the legit settled cycle-3 Lane B legs and are
+  // EXPECTED here — the guard tokens below are drawn only from the archived/prior-cycle legs.
   const live = JSON.stringify(bb);
-  assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey|Gonzales|Algeria|Egypt/.test(live), "no prior-ladder legs leak into the cycle-3 preview");
+  assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey|Gonzales|Algeria|Paraguay|Australia|Curaçao|Ivory Coast/.test(live), "no prior-ladder / priorLane legs leak into the cycle-3 preview");
 });
 
 test("ARCHIVE money-integrity: the BANKED 2nd ladder ($10,089.23 final) is preserved official — Lane A completed 5/5 won, Lane B stopped on a Step-3 loss", () => {
