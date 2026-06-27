@@ -88,3 +88,27 @@ The documented way out of the P0-1 halt is `OFFICIAL=/tmp/bundle.json` (`settle_
 A cancelled or extra-time/penalty WC knockout game on a Bank Builder lane (**P0-1**) → lane pends forever → settle-first guard HALTs the lifecycle every day → no products, no deploy → the flagship pages keep rendering the frozen prior slate as a live "active" wager (**P0-5**) → and because there is no alerting or monitoring (**P0-2**), nobody finds out until a user does.
 
 **Recommended fix order:** P0-1 (void/override path for non-final games) → P0-2 (alert + heartbeat) → P0-3/P0-4 (rebase-retry push, longer smoke + a rollback/revert path) → P0-5 (staleness banner / wall-clock gate) → the P1 set.
+
+---
+
+## Resolution status — 2026-06-27
+
+**Fixed + committed (branch `automation-health-gate`):**
+- **P0-2** — ops-notify + check-heartbeat (dead-man's-switch) built + wired into roll + settle; failure-trap emits a heartbeat/report even on a hard die. ✓
+- **P0-3** — roll push is fetch+rebase+retry (3×). ✓
+- **P0-4** — smoke window extended to ~8 min (cold-build tolerant). ✓
+- **The settle-first guard bug** (found during the June-26 settlement; was halting the autonomous roll after every settlement) — now keys off the ladder's settled `slateDate`, not stale daily-portfolio status. Proven across 3 scenarios. ✓
+- **P0-5 (detection half)** — health-check now flags a not-today slate (missed roll) + an active lane with zero legs + daily activeBankroll drift. The deploy gate catches staleness; the UI banner remains the open half. ✓ (detection)
+- **P1-1** — forensic gate derives the audit date from the live slate (was hardcoded `2026-06-26`). ✓
+- **P1-2** — gate now validates daily-portfolio integrity (active-lane-has-legs, slate freshness, bankroll drift). ✓
+- **P1-3** — failure run-report via EXIT trap. ✓
+- **P1-6** — month-end date rollover fixed (real `datetime` math). ✓
+- **P1-10** — recovery runbook (`docs/RECOVERY_RUNBOOK.md`) + `known-good-*` git tags. ✓
+- **P2-1** — scoped `git add app/public/data` (not `-A`). ✓
+
+**Open — needs owner-involved, money-rules-sensitive work (NOT safe to automate unattended):**
+- **P0-1 (settlement of non-FT games)** — knockout games finish `AET`/`PEN`; cancelled games never reach `FT`. Naively accepting `AET`/`PEN` is UNSAFE because `fetch_official_soccer.py:96` emits `fx.get("goals")` = the **extra-time-inclusive** score, while match-result/totals/BTTS settle on the **90-minute regulation** score (`score.fulltime`). A correct fix must (1) emit `score.fulltime` for AET/PEN, (2) confirm the per-market settlement rule (90′ vs incl-ET), and (3) be tested against real AET fixtures. Cancelled/abandoned games need a `void` mapping (return stake, re-price the parlay). The silent-freeze risk is now mitigated (a refused settlement emits a failure heartbeat), so this no longer freezes *invisibly* — but it still requires a human to settle a knockout/cancelled game until the rules are encoded.
+- **P0-5 (UI half)** — a user-visible "stale slate" banner on the flagship pages (the gate-level detection is done; the UI banner is deferred under the UI-frozen rule).
+- **P1-5 / P1-9** — cross-workflow main-push contention is mitigated by rebase-retry but lacks a global mutex; legacy NBA crons (`auto-refresh`, `daily-refresh`) still push to main ungated.
+- **P1-7 / P1-8 / P1-11** — lock TTL, partial-generation surfacing, OFFICIAL-bundle validation.
+- **P2-2/3/4/5** — minor.
