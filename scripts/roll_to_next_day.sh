@@ -45,6 +45,7 @@ esac; done
 PREV=$(python3 -c "import datetime as d; print((d.date.fromisoformat('$TO')-d.timedelta(days=1)).isoformat())")
 PY="$([ -d pipeline/.venv ] && echo pipeline/.venv/bin/python || echo python3)"
 MODE=$([ "$APPLY" = 1 ] && echo APPLY || echo DRY-RUN)
+START_LIFECYCLE=$(date +%s)
 gate(){ npx tsx app/scripts/verify-money-integrity.mjs || die "MONEY-INTEGRITY GATE FAILED — aborting the roll (never proceed on a corrupted bankroll)."; npx tsx app/scripts/forensic-money-audit.mjs >/dev/null || die "FORENSIC MONEY AUDIT FAILED — a displayed value no longer reconciles to the canonical \$100→bankroll journey."; npx tsx app/scripts/health-check.mjs --today "$(TZ=America/New_York date +%F)" >/dev/null || die "HEALTH CHECK FAILED — canonical data is missing/stale/duplicated/non-reconciling. Never publish."; }
 
 step "0/11  Roll forward · settle $PREV → generate $TO · $MODE$([ "$DEPLOY" = 1 ] && echo ' +DEPLOY')"
@@ -115,18 +116,30 @@ ok "money reconciles after the roll"
 ( cd app && rm -rf .next && npm run build ) >/tmp/roll_build.log 2>&1 \
   && ok "production build clean" || { tail -5 /tmp/roll_build.log; die "build failed — not deploying"; }
 
-step "11/11  Deploy + verify production"
+step "11/11  Deploy + production smoke test"
+SMOKE="skipped"
 if [ "$APPLY" = 1 ] && [ "$DEPLOY" = 1 ]; then
   gate  # final guard immediately before publishing
   git add -A && git commit -q -m "Daily roll-forward $TO (settled $PREV) — automated" || warn "nothing to commit"
   git push origin HEAD:main || die "push failed"
   ok "pushed to main (Vercel auto-deploys)"
-  sleep 80
-  for p in "" today bank-builder moonshot world-cup-specials homer-nukes mr-dub results; do
-    code=$(curl -sL -o /dev/null -w "%{http_code}" "https://gametime-picks.vercel.app/$p" 2>/dev/null)
-    [ "$code" = "200" ] && info "/$p 200" || warn "/$p $code"
+  info "waiting for Vercel deploy to propagate…"
+  # Poll the production smoke up to 4× (deploy + drift check). Deploy succeeds ONLY if smoke passes.
+  SMOKE="fail"
+  for try in 1 2 3 4; do
+    sleep 45
+    if ( cd app && node scripts/smoke-test-production.mjs ) >/tmp/roll_smoke.log 2>&1; then SMOKE="pass"; break; fi
+    warn "smoke attempt $try not green yet (deploy may still be building)…"
   done
-  ok "production verified"
+  [ "$SMOKE" = "pass" ] && ok "production smoke passed — deploy verified live" || { tail -12 /tmp/roll_smoke.log; die "PRODUCTION SMOKE FAILED — live site does not match canonical data (drift/down). Investigate."; }
 else info "dry-run / no --deploy — not publishing"; fi
+
+# ── Run report (observability) — one JSON artifact per run, stored historically. ──────────────────
+REPORT_DIR="app/public/data/ops/run-reports"; mkdir -p "$REPORT_DIR"
+DURATION=$(( $(date +%s) - START_LIFECYCLE ))
+( cd app && node scripts/write-run-report.mjs \
+    --to "$TO" --prev "$PREV" --mode "$MODE" --deploy "$([ "$DEPLOY" = 1 ] && echo yes || echo no)" \
+    --smoke "$SMOKE" --duration "$DURATION" --pending "${PENDING:-0}" ) \
+  && ok "run report written" || warn "run report could not be written (non-fatal)"
 
 echo ""; ok "roll complete · settle $PREV → generate $TO · $MODE$([ "$DEPLOY" = 1 ] && echo ' DEPLOYED')"

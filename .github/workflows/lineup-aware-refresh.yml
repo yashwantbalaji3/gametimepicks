@@ -39,11 +39,10 @@ on:
         default: "false"
         type: choice
         options: ["false", "true"]
-  schedule:
-    # Every 15 min across the June 20 ET World Cup window (UTC). June 20 13:00Z→23:59Z covers the
-    # daytime/evening kickoffs; June 21 00:00Z→04:00Z covers the late (00:00Z) game. Cron is UTC.
-    - cron: "*/15 13-23 20 6 *"
-    - cron: "*/15 0-4 21 6 *"
+  # NOTE: the old schedule was hardcoded to the June 20–21 2026 World Cup window (`*/15 ... 20 6 *` /
+  # `... 21 6 *`) — a one-off that has since EXPIRED and would never fire again (dead cron, removed in the
+  # autonomous-ops audit). Re-enable with a date-agnostic schedule (and the API_FOOTBALL_KEY secret) when a
+  # recurring lineup-watch window is needed; until then this runs on demand only (workflow_dispatch).
 
 # The scheduled run is preview-only by default. To let the schedule write production, an operator sets
 # the repo/environment variable MODE=auto_public_board (read below). Default stays preview_only.
