@@ -11,7 +11,7 @@ Pipe the output to a temp file and grade it with scripts/settle-soccer-slate.mjs
 
 Source: API-Football v3 /fixtures (FT regulation) + /fixtures/players (player stats).
 """
-import argparse, json, os, sys, urllib.request
+import argparse, datetime, json, os, sys, urllib.request
 
 AF = "https://v3.football.api-sports.io"
 KEY = os.environ.get("API_FOOTBALL_KEY", "").strip()
@@ -63,9 +63,10 @@ def main():
     if not KEY:
         print(json.dumps({"error": "API_FOOTBALL_KEY not set"})); sys.exit(1)
 
-    # Late ET kickoffs roll into the next UTC day, so pull this date AND the next.
+    # Late ET kickoffs roll into the next UTC day, so pull this date AND the next. Use real date math so
+    # month/year boundaries carry correctly (audit P1-6: `dd+1` produced e.g. 2026-06-31 on the 30th).
     y, m, dd = map(int, args.date.split("-"))
-    next_date = f"{y:04d}-{m:02d}-{dd+1:02d}"
+    next_date = (datetime.date(y, m, dd) + datetime.timedelta(days=1)).isoformat()
     fixtures = []
     for date in (args.date, next_date):
         fixtures += get(f"/fixtures?date={date}&league={LEAGUE}&season={SEASON}").get("response", [])

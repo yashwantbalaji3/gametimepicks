@@ -23,6 +23,15 @@ const read = (rel) => JSON.parse(fs.readFileSync(path.join(DATA, rel), "utf8"));
 const r2 = (n) => Math.round(Number(n) * 100) / 100;
 const near = (a, b, eps = 0.01) => Math.abs(Number(a) - Number(b)) <= eps;
 
+// The master-ledger + open-exposure checks are "as of" a date. Default to the CURRENT slate (the
+// daily-portfolio's date), overridable with --date, so the gate reconciles TODAY's exposure rather than a
+// frozen historical day (audit P1-1: this was hardcoded to 2026-06-26 and silently went stale after a roll).
+const argv = process.argv.slice(2);
+const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
+let DATE = arg("--date", "");
+if (!/^\d{4}-\d{2}-\d{2}$/.test(DATE)) { try { DATE = read("mr-dub/daily-portfolio.json").date; } catch { /* fall through */ } }
+if (!/^\d{4}-\d{2}-\d{2}$/.test(DATE || "")) { try { DATE = new Date().toISOString().slice(0, 10); } catch { DATE = "1970-01-01"; } }
+
 const portfolio = read("mr-dub/portfolio.json");
 const banked = read("mr-dub/banked-ladders.json");
 const daily = read("mr-dub/daily-summary.json");
@@ -54,7 +63,7 @@ const firstOpening = days[0]?.opening, lastClosing = days[days.length - 1]?.clos
 const crownFromLadders = r2((banked.ladders ?? []).reduce((s, l) => s + (Number(l.final) || 0), 0));
 
 // ── 4. MASTER LEDGER (the computed cross-product view the page renders) ─────────────────────────
-const master = buildMasterLedger(DATA, "2026-06-26T18:00:00Z", "2026-06-26");
+const master = buildMasterLedger(DATA, `${DATE}T18:00:00Z`, DATE);
 const bbEntry = master.products.find((p) => p.productId === "bank-builder");
 const sideNet = r2(master.products.filter((p) => !p.canonical).reduce((s, p) => s + p.profit, 0));
 
@@ -76,7 +85,7 @@ note("Master ledger", "Bank Builder realized", bbEntry?.profit, "canonical settl
 note("Master ledger", "Side-lane net", master.aggregate.sideLaneNet, "Σ flat (payout−stake)", "product-ledger/{moonshot,wc,homer}.json");
 note("Master ledger", "All-products net / lifetime", master.aggregate.lifetimeProfit, "BB realized + side net", "master-ledger");
 note("Master ledger / hero", "Open exposure (total)", master.aggregate.openExposure, "Σ today's pending card stakes across 4 products", "open-exposure helper");
-for (const p of computeOpenExposure(DATA, "2026-06-26").byProduct) note("Open exposure breakdown", p.label, p.amount, p.note, "product active artifact");
+for (const p of computeOpenExposure(DATA, DATE).byProduct) note("Open exposure breakdown", p.label, p.amount, p.note, "product active artifact");
 note("Calendar stats", "Current bankroll", cal.stats.currentBankroll, "last day closing", "daily-summary.json");
 note("Calendar stats", "High-water", cal.stats.highWaterMark, "max day closing", "daily-summary.json");
 note("Calendar stats", "ROI multiple", cal.stats.roiMultiple, "totalPl / $100", "daily-summary.json");
@@ -100,7 +109,7 @@ check("master BB record L == canonical", bbEntry?.record.losses, portfolio.recor
 check("master lifetime == BB + side net", r2(bbEntry?.profit + sideNet), master.aggregate.lifetimeProfit, "master-ledger");
 // Open exposure is a CROSS-PRODUCT figure (money on today's pending cards across all 4 products) — NOT
 // portfolio.openExposure (the BB ledger-open subset). It must reconcile to the shared helper + its breakdown.
-const oe = computeOpenExposure(DATA, "2026-06-26");
+const oe = computeOpenExposure(DATA, DATE);
 const oeBreakdownSum = r2(oe.byProduct.reduce((s, p) => s + p.amount, 0));
 check("open-exposure breakdown sums to total", oeBreakdownSum, oe.total, "open-exposure helper");
 check("master open exposure == cross-product total", oe.total, master.aggregate.openExposure, "master-ledger vs open-exposure helper");

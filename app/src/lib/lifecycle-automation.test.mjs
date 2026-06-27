@@ -88,6 +88,20 @@ test("health-check guards against a stale master-ledger artifact (the $8,247 rot
   assert.match(readApp("scripts/health-check.mjs"), /artifact-drift:master-ledger/, "warns when the on-disk ledger drifts from canonical");
 });
 
+test("forensic audit reconciles the CURRENT slate date, not a frozen literal (audit P1-1)", () => {
+  const s = readApp("scripts/forensic-money-audit.mjs");
+  assert.match(s, /buildMasterLedger\(DATA, `\$\{DATE\}/, "master-ledger uses the derived DATE");
+  assert.match(s, /computeOpenExposure\(DATA, DATE\)/, "open-exposure uses the derived DATE");
+  // the only allowed 2026-06-26 is the explanatory comment — never a live buildMasterLedger/exposure arg.
+  assert.ok(!/computeOpenExposure\(DATA, "2026-06-26"\)|buildMasterLedger\(DATA, "2026-06-26/.test(s), "no hardcoded 2026-06-26 in the live checks");
+});
+
+test("official-results fetch uses real date math at month boundaries (audit P1-6)", () => {
+  const s = readRepo("pipeline/fetch_official_soccer.py");
+  assert.match(s, /datetime\.date\(y, m, dd\) \+ datetime\.timedelta\(days=1\)/, "carries month/year correctly");
+  assert.ok(!/\{dd\+1:02d\}/.test(s), "no naive dd+1 rollover");
+});
+
 test("settlement auto-heals a missing ladder step slot (guarded to the expected step)", () => {
   // A known desync: the daily card-build flow can create the daily-portfolio card without adding the open
   // ladder slot, so settlement found no slot and hard-failed. It now auto-creates an open slot for the
