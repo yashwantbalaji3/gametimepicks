@@ -141,8 +141,8 @@ function bbEligibility(g: GeneratedLane, nowMs: number): ActivationEligibility {
  * canonical, set only by official settlement + reconciliation). If that's unreadable we DERIVE the same
  * numbers from the realized-history base `mr-dub/banked-ladders.json` (crown = Σ official finals; bankroll
  * = crown + historicalDualLaneLosses). We NEVER fall back to a hardcoded constant — a stale literal here
- * once made the regenerator silently write a single-ladder $10,176.17 over the real $20,065.40. If neither
- * canonical file is readable, we THROW (fail loudly) rather than fabricate a bankroll.
+ * once made the regenerator silently write a single-ladder total over the real cumulative-crown bankroll.
+ * If neither canonical file is readable, we THROW (fail loudly) rather than fabricate a bankroll.
  */
 export function readCanonicalMoney(root: string): { activeBankroll: number; crownBankroll: number } {
   try {
@@ -154,7 +154,7 @@ export function readCanonicalMoney(root: string): { activeBankroll: number; crow
   // Derive the CURRENT figures from the per-event ledger (Σ realized paperProfit + the original seed) and
   // the banked crown (Σ official completed-ladder finals). We MUST use the ledger — which INCLUDES the live
   // cycle's realized losses — NOT `crownTotal + historicalDualLaneLosses`, which is the pre-cycle BASE and
-  // understates the bankroll (it omits the active cycle: would read $20,165.40 vs the real $20,065.40).
+  // understates the bankroll (it omits the active cycle's realized losses, reading high by that amount).
   const banked = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "banked-ladders.json"), "utf8"));
   const ledger = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "ledger.json"), "utf8"));
   const seed = Number(banked.ladders?.[0]?.start ?? 100) || 100;
