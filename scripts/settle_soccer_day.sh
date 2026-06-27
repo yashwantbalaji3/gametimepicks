@@ -39,6 +39,11 @@ esac; done
 [ -n "$DATE" ] || DATE=$(TZ=America/New_York date -v-1d '+%Y-%m-%d' 2>/dev/null || TZ=America/New_York date -d 'yesterday' '+%Y-%m-%d')
 PY="$([ -d pipeline/.venv ] && echo pipeline/.venv/bin/python || echo python3)"
 BUNDLE="app/public/data/world-cup/settlement/${DATE}.official-input.json"
+# tsx resolves the `@/…` path alias from the tsconfig it discovers at its CWD. We invoke app/scripts/*.mjs
+# from the REPO ROOT (where there is no `@/` mapping), so the settlement grading graph (soccer-markets.ts →
+# leg-settlement.ts, etc.) fails to resolve `@/lib/...`. Pin tsx to app/tsconfig.json so the alias resolves
+# regardless of cwd. (.git guard above guarantees PWD = repo root.)
+export TSX_TSCONFIG_PATH="$PWD/app/tsconfig.json"
 
 step "0/4  Soccer settlement · $DATE · $([ "$APPLY" = 1 ] && echo APPLY || echo DRY-RUN)"
 
@@ -76,7 +81,7 @@ fi
 # ── 4) Reconcile derived ledgers (pure rebuild from the artifacts). ─────────────────────────────────
 step "4/5  Reconcile Mr. Dub ledger"
 if [ "$APPLY" = 1 ]; then
-  npx tsx scripts/build-mr-dub-ledger.mjs --now "${DATE}T18:00:00Z"
+  npx tsx app/scripts/build-mr-dub-ledger.mjs --now "${DATE}T18:00:00Z"
   ok "settlement applied + reconciled for $DATE"
 else
   info "dry-run — ledger not rebuilt (no --apply)"

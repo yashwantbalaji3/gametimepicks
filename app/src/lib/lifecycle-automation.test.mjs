@@ -87,3 +87,14 @@ test("the money gates resolve their data dir cwd-agnostically (work from the lif
 test("health-check guards against a stale master-ledger artifact (the $8,247 rot)", () => {
   assert.match(readApp("scripts/health-check.mjs"), /artifact-drift:master-ledger/, "warns when the on-disk ledger drifts from canonical");
 });
+
+test("settle + lifecycle pin tsx to app/tsconfig.json so the @/ alias resolves from the repo root", () => {
+  // Regression lock: app/scripts/*.mjs are invoked from the repo root; the settlement + product graphs import
+  // `@/lib/...`, which tsx only resolves via app/tsconfig.json. Without the pin the roll aborted at grading.
+  for (const sh of ["scripts/settle_soccer_day.sh", "scripts/roll_to_next_day.sh"]) {
+    assert.match(readRepo(sh), /TSX_TSCONFIG_PATH=.*app\/tsconfig\.json/, `${sh} pins tsx to app/tsconfig.json`);
+  }
+  // and the ledger-rebuild path must be app/scripts/… (a bare scripts/… does not exist at the repo root).
+  assert.ok(!/npx tsx scripts\/build-mr-dub-ledger\.mjs/.test(readRepo("scripts/settle_soccer_day.sh")),
+    "build-mr-dub-ledger is invoked as app/scripts/… not scripts/…");
+});
