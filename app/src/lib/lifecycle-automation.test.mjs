@@ -88,6 +88,21 @@ test("health-check guards against a stale master-ledger artifact (the $8,247 rot
   assert.match(readApp("scripts/health-check.mjs"), /artifact-drift:master-ledger/, "warns when the on-disk ledger drifts from canonical");
 });
 
+test("ops-notify writes a heartbeat, never throws on webhook failure, always exits 0", () => {
+  const s = readApp("scripts/ops-notify.mjs");
+  assert.match(s, /heartbeat\.json/, "writes the dead-man's-switch heartbeat");
+  assert.match(s, /OPS_WEBHOOK_URL/, "optional webhook (honest-skip when unset)");
+  assert.match(s, /catch\s*\(/, "webhook failure is caught — notification never breaks the lifecycle");
+  assert.match(s, /process\.exit\(0\)/, "always exits 0");
+});
+
+test("check-heartbeat is the dead-man's-switch — fails on stale or missing heartbeat", () => {
+  const s = readApp("scripts/check-heartbeat.mjs");
+  assert.match(s, /HEARTBEAT MISSING/, "fails if no run ever recorded a heartbeat");
+  assert.match(s, /max-hours|maxHours/, "fails when the last run is older than tolerance");
+  assert.match(s, /process\.exit\(1\)/, "non-zero on unhealthy so a monitor/cron can alert");
+});
+
 test("settle + lifecycle pin tsx to app/tsconfig.json so the @/ alias resolves from the repo root", () => {
   // Regression lock: app/scripts/*.mjs are invoked from the repo root; the settlement + product graphs import
   // `@/lib/...`, which tsx only resolves via app/tsconfig.json. Without the pin the roll aborted at grading.
