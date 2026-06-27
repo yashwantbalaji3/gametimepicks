@@ -53,8 +53,10 @@ test("/world-cup-specials route renders the tracker via shared primitives", () =
   assert.match(tracker, /Settled review/, "settled cards are review-only, not playable");
 });
 
-test("Specials tracker reachable from rail + Specials box CTA (today / world-cup)", () => {
-  assert.match(read("src/components/command-rail.tsx"), /href: "\/world-cup-specials"/, "rail has a WC Specials entry");
+test("Specials tracker reachable via Today's Picks + the Specials box CTA (v1: secondary lane)", async () => {
+  // v1: WC Specials is a SECONDARY lane — reachable through Today's Picks, not a primary nav slot.
+  const { resolveMobileNavBucket } = await import("./nav-active-route.ts");
+  assert.equal(resolveMobileNavBucket("/world-cup-specials"), "picks", "WC Specials folds into Today's Picks");
   assert.match(read("src/components/world-cup/world-cup-specials-box.tsx"), /href="\/world-cup-specials"/, "specials box (today + world-cup) links to the tracker");
 });
 

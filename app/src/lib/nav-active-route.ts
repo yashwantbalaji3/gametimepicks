@@ -1,130 +1,65 @@
 /**
- * Active-route resolver for the mobile bottom nav.
+ * Active-route resolver for the primary navigation.
  *
- * The bottom nav has 4 buckets (Home / Picks / Lab / Results) but the
- * app has many more routes. This helper maps a pathname to the
- * correct bucket so the highlighted item matches what the user is
- * actually looking at.
+ * v1 architecture: the app has exactly FIVE primary destinations. Every other
+ * route folds into the one of these five it belongs to, so the highlighted nav
+ * item always matches what the user is looking at.
  *
- * Lives separate from the component so it can be unit tested without
- * a React tree.
+ *   Home          /today        the front door (identity + proof + headline)
+ *   Bank Builder  /bank-builder the flagship live $100→$10K ladder
+ *   Today's Picks /picks        everything the model is playing today + build
+ *   Track Record  /mr-dub       the $100→$20K journey, calendar, full ledger
+ *   How It Works  /methodology  methodology · paper-only · trust
+ *
+ * Lives separate from the component so it can be unit tested without a React tree.
  */
 
-export type MobileNavBucket =
-  | "home"
-  | "games"
-  | "picks"
-  | "lab"
-  | "bank"
-  | "moonshot"
-  | "homer"
-  | "mrdub"
-  | "results"
-  | "sports";
+export type MobileNavBucket = "home" | "bank" | "picks" | "record" | "how";
 
 export interface MobileNavItem {
   bucket: MobileNavBucket;
   href: string;
-  label: string;
+  label: string;   // full label — desktop rail + top nav
+  short: string;    // compact label — mobile bottom bar (fits 5 across at 320px)
 }
 
-/**
- * Canonical list rendered by the mobile bottom nav. Order is
- * preserved by the consumer (the component renders these in order).
- *
- * Honesty / scope notes:
- *   - The two paper-bankroll ladders — Bank Builder AND Moonshot — both earn
- *     a bottom-nav slot: they are the flagship money journeys and the user
- *     reaches each one-handed. Moonshot is a first-class product, not a
- *     sub-tab of Bank, so it carries its own bucket (was folded into "bank").
- *   - 7 items exceeds a single 360px row, so the bar is horizontally
- *     scrollable (see MobileBottomNav): the spine through Moonshot is visible
- *     without scrolling and Mr. Dub scrolls in at the trailing edge.
- *   - Labels MATCH the mobile top nav where the destination is the same:
- *     "Parlay Lab" (/picks), "Moonshot" (/moonshot). "Bank" is abbreviated for
- *     thumb-width. The bucket ids are route-resolution keys; only the visible
- *     labels are user-facing.
- */
+/** The five primary destinations, in order. Rendered on the desktop rail + mobile bottom nav. */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
-  { bucket: "home", href: "/today", label: "Today" },
-  { bucket: "games", href: "/games", label: "Games" },
-  { bucket: "picks", href: "/picks", label: "Parlay Lab" },
-  { bucket: "lab", href: "/build", label: "Build" },
-  { bucket: "bank", href: "/bank-builder", label: "Bank" },
-  { bucket: "moonshot", href: "/moonshot", label: "Moonshot" },
-  { bucket: "homer", href: "/homer-nukes", label: "Homer Nukes" },
-  { bucket: "mrdub", href: "/mr-dub", label: "Mr. Dub" },
+  { bucket: "home", href: "/today", label: "Home", short: "Home" },
+  { bucket: "bank", href: "/bank-builder", label: "Bank Builder", short: "Bank" },
+  { bucket: "picks", href: "/picks", label: "Today's Picks", short: "Picks" },
+  { bucket: "record", href: "/mr-dub", label: "Track Record", short: "Record" },
+  { bucket: "how", href: "/methodology", label: "How It Works", short: "How" },
 ] as const;
 
 /**
- * Returns the bottom-nav bucket that should be highlighted for the
- * given pathname. Returns null when the pathname doesn't map to any
- * bucket — caller renders no highlight in that case (e.g. /about).
- *
- * Mapping rules (intentionally explicit, not regex-driven):
- *   - "/"                          → home
- *   - "/projections"               → picks
- *   - "/projections/anything"      → picks
- *   - "/parlay-lab"                → lab
- *   - "/parlay-lab/anything"       → lab
- *   - "/results"                   → results
- *   - "/results/nba"               → results
- *   - "/results/mlb"               → results
- *   - "/results/date/2026-05-27"   → results
- *   - any /results/* descendant    → results
- *   - "/nba/*"                     → picks (sport boards are picks-adjacent)
- *   - "/mlb/*"                     → picks
- *   - "/nhl/*"                     → picks
- *   - "/about"                     → null (lives only in top nav)
- *   - "/responsible-use"           → null
- *   - "/trends"                    → null
- *   - "/world-cup/*"               → null (deferred sport)
- *
- * Anything not listed → null. Defensive: avoid mismatched
- * highlighting that would mislead the user about where they are.
+ * Returns the primary-nav bucket to highlight for a pathname, or null when the
+ * route maps to nothing (render no highlight). Every secondary route folds into
+ * the destination it belongs to:
+ *   - the daily-play surfaces (Parlay Lab, Build), the game/board context, and
+ *     the secondary lanes (Moonshot / WC Specials / Homer Nukes) → Today's Picks
+ *   - all results / settled history → Track Record
+ *   - methodology / about / learn / responsible-use → How It Works
  */
 export function resolveMobileNavBucket(
   pathname: string | null | undefined,
 ): MobileNavBucket | null {
   if (!pathname || typeof pathname !== "string") return null;
-  // Strip trailing slash for consistent matching.
-  const p = pathname.length > 1 && pathname.endsWith("/")
-    ? pathname.slice(0, -1)
-    : pathname;
-  // Today owns the root/home as the default landing experience.
-  if (p === "" || p === "/" || p === "/today" || p.startsWith("/today/")) return "home";
-  // The canonical Parlay Lab is /picks; /parlays + /parlay-lab are legacy aliases that redirect there,
-  // so all three highlight the Parlay Lab (picks) bucket.
-  if (
-    p === "/picks" || p.startsWith("/picks/") ||
-    p === "/parlays" || p.startsWith("/parlays/") ||
-    p === "/parlay-lab" || p.startsWith("/parlay-lab/")
-  ) return "picks";
-  // Build is the custom paper-card builder (distinct from the Parlay Lab lobby).
-  if (p === "/build" || p.startsWith("/build/")) return "lab";
-  // Bank Builder, Moonshot and Homer Nukes are sibling paper products, each with its own bottom-nav slot.
-  if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
-  if (p === "/moonshot" || p.startsWith("/moonshot/")) return "moonshot";
-  if (p === "/homer-nukes" || p.startsWith("/homer-nukes/")) return "homer";
-  if (p === "/mr-dub" || p.startsWith("/mr-dub/")) return "mrdub";
-  // The unified Games board + the Sports directory + every sport hub/board + schedule-only
-  // leagues all resolve to the Games bucket (Games is the cross-sport entry on mobile).
-  if (
-    p === "/games" || p.startsWith("/games/") ||
-    p === "/sports" || p.startsWith("/sports/") ||
-    p === "/events" || p.startsWith("/events/") ||
-    p === "/world-cup" || p.startsWith("/world-cup/") ||
-    p === "/world-cup-specials" || p.startsWith("/world-cup-specials/") ||
-    p === "/mlb" || p.startsWith("/mlb/") ||
-    p === "/nba" || p.startsWith("/nba/") ||
-    p === "/ufc" || p.startsWith("/ufc/") ||
-    p === "/nhl" || p.startsWith("/nhl/") ||
-    p === "/ipl" || p.startsWith("/ipl/") ||
-    p === "/projections" || p.startsWith("/projections/") ||
-    p === "/board" || p.startsWith("/board/")
-  ) return "games";
-  // Everything else (/results, /about, /methodology, /responsible-use, /trends)
-  // returns null so the bottom nav shows nothing highlighted — those live in
-  // the top nav / drawer. Better silent than misleading.
+  const p = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const is = (...bases: string[]) => bases.some((b) => p === b || p.startsWith(`${b}/`));
+
+  if (p === "" || p === "/" || is("/today")) return "home";
+  if (is("/bank-builder")) return "bank";
+  // Track Record owns the full settled history (the cross-product results live here in v1).
+  if (is("/mr-dub", "/results")) return "record";
+  // How It Works is the trust / education hub.
+  if (is("/methodology", "/about", "/learn", "/responsible-use")) return "how";
+  // Today's Picks is the model's daily output + the build tool + game context + secondary lanes.
+  if (is(
+    "/picks", "/parlays", "/parlay-lab", "/build",
+    "/games", "/sports", "/events", "/board", "/projections", "/trends",
+    "/world-cup", "/world-cup-specials", "/mlb", "/nba", "/nhl", "/ipl", "/ufc",
+    "/moonshot", "/homer-nukes",
+  )) return "picks";
   return null;
 }

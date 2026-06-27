@@ -84,7 +84,7 @@ test("BANKROLL INTEGRITY: the allocation never mutates portfolio.json", () => {
   assert.ok(Math.abs(a.availableBankroll - (a.activeBankroll - a.totalOpenExposure)) < 0.01, "available = active − exposure");
 });
 
-test("UI wiring: Homer Nukes present everywhere; Diamond Specials removed everywhere", () => {
+test("UI wiring: Homer Nukes present everywhere; Diamond Specials removed everywhere", async () => {
   const homerPage = read("src/app/homer-nukes/page.tsx");
   assert.match(homerPage, /HomerNukesBoard/, "homer-nukes page renders the board");
   assert.match(homerPage, /5-leg/, "framed as a 5-leg parlay");
@@ -93,14 +93,12 @@ test("UI wiring: Homer Nukes present everywhere; Diamond Specials removed everyw
   assert.match(mrdub, /PortfolioAllocationSection/, "Mr. Dub renders the allocation");
 
   const today = read("src/app/today/page.tsx");
-  assert.match(today, /href: "\/homer-nukes"/, "Today flashcards include Homer Nukes");
   assert.ok(!/diamond-specials/i.test(today), "no Diamond Specials on Today");
 
-  const rail = read("src/components/command-rail.tsx");
-  const nav = read("src/components/nav.tsx");
-  const route = read("src/lib/nav-active-route.ts");
-  for (const [name, src] of [["command rail", rail], ["top nav", nav], ["nav routes", route]]) {
-    assert.match(src, /homer-nukes/, `${name} has Homer Nukes`);
+  // v1: Homer Nukes is a SECONDARY lane — reachable via Today's Picks, not a primary nav slot.
+  const { resolveMobileNavBucket } = await import("./nav-active-route.ts");
+  assert.equal(resolveMobileNavBucket("/homer-nukes"), "picks", "Homer Nukes folds into Today's Picks");
+  for (const [name, src] of [["command rail", read("src/components/command-rail.tsx")], ["top nav", read("src/components/nav.tsx")], ["nav routes", read("src/lib/nav-active-route.ts")]]) {
     assert.ok(!/diamond-specials|"diamond"/.test(src), `${name} has no Diamond Specials`);
   }
 });

@@ -2,15 +2,17 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { loadTodaySlate } from "./parlays/ui-loader.ts";
+import { MOBILE_NAV_ITEMS, resolveMobileNavBucket } from "./nav-active-route.ts";
 
 const r = (p) => fs.readFileSync(p, "utf8");
 
-test("Mr. Dub is a first-class nav item (desktop nav + sidebar + mobile bottom nav)", () => {
-  assert.match(r("src/components/nav.tsx"), /href:\s*"\/mr-dub"/, "desktop nav has Mr. Dub");
-  assert.match(r("src/components/command-rail.tsx"), /href:\s*"\/mr-dub"/, "sidebar has Mr. Dub");
-  const navRoute = r("src/lib/nav-active-route.ts");
-  assert.match(navRoute, /href:\s*"\/mr-dub"/, "mobile bottom nav has Mr. Dub");
-  assert.ok(navRoute.includes('"/mr-dub"') && navRoute.includes('"mrdub"'), "mobile route maps /mr-dub → mrdub bucket");
+test("Mr. Dub is a first-class nav item — the 'Track Record' destination (v1 five-page spine)", () => {
+  // v1: /mr-dub is one of the five primary destinations, labelled "Track Record". The nav components
+  // render the shared spine (MOBILE_NAV_ITEMS), so the destination is asserted at the source of truth.
+  const record = MOBILE_NAV_ITEMS.find((i) => i.href === "/mr-dub");
+  assert.ok(record, "/mr-dub is a primary nav destination");
+  assert.equal(record.label, "Track Record", "labelled Track Record");
+  assert.equal(resolveMobileNavBucket("/mr-dub"), "record", "routes highlight the Track Record bucket");
 });
 
 test("Bank Builder public copy is natural — no awkward lifecycle terms on the marketing surface", () => {

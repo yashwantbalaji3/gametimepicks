@@ -44,39 +44,11 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
   };
   switch (bucket) {
     case "home":
+      // House — the front door.
       return (
         <svg {...props}>
           <path d="M3 11.5 12 4l9 7.5" />
           <path d="M5 10v10h14V10" />
-        </svg>
-      );
-    case "games":
-      // Grid of game cards — the unified cross-sport games board.
-      return (
-        <svg {...props}>
-          <rect x="3" y="3" width="7" height="7" rx="1.5" />
-          <rect x="14" y="3" width="7" height="7" rx="1.5" />
-          <rect x="3" y="14" width="7" height="7" rx="1.5" />
-          <rect x="14" y="14" width="7" height="7" rx="1.5" />
-        </svg>
-      );
-    case "picks":
-      // Chart/bars motif — projections live here.
-      return (
-        <svg {...props}>
-          <path d="M4 20V8" />
-          <path d="M10 20V4" />
-          <path d="M16 20v-9" />
-          <path d="M22 20H2" />
-        </svg>
-      );
-    case "lab":
-      // Beaker — parlay lab.
-      return (
-        <svg {...props}>
-          <path d="M9 3h6" />
-          <path d="M10 3v6L4.5 18.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3" />
-          <path d="M7.5 14h9" />
         </svg>
       );
     case "bank":
@@ -88,47 +60,30 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <path d="M5 11v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-5" />
         </svg>
       );
-    case "moonshot":
-      // Crescent moon — the high-volatility Moonshot ladder (mirrors the 🌙 rail glyph).
+    case "picks":
+      // Chart/bars — today's model picks.
       return (
         <svg {...props}>
-          <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />
+          <path d="M4 20V8" />
+          <path d="M10 20V4" />
+          <path d="M16 20v-9" />
+          <path d="M22 20H2" />
         </svg>
       );
-    case "homer":
-      // Baseball — the MLB Homer Nukes home-run board.
-      return (
-        <svg {...props}>
-          <circle cx="12" cy="12" r="9" />
-          <path d="M7 5.5c2.5 2 3.5 11 1.5 13.2M17 5.5c-2.5 2-3.5 11-1.5 13.2" />
-        </svg>
-      );
-    case "mrdub":
-      // Lab flask — Mr. Dub's paper portfolio (scientist/ledger identity).
-      return (
-        <svg {...props}>
-          <path d="M9 3h6" />
-          <path d="M10 3v5l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3" />
-          <circle cx="10.5" cy="16" r="1" />
-          <circle cx="13.5" cy="18" r="1" />
-        </svg>
-      );
-    case "results":
-      // Check-in-circle — settled results.
+    case "record":
+      // Check-in-circle — the public, settled track record.
       return (
         <svg {...props}>
           <circle cx="12" cy="12" r="9" />
           <path d="m8.5 12.5 2.5 2.5 4.5-5" />
         </svg>
       );
-    case "sports":
-      // Calendar — the Sports & Events schedules hub.
+    case "how":
+      // Open book — how it works / methodology.
       return (
         <svg {...props}>
-          <rect x="3" y="4.5" width="18" height="16" rx="2" />
-          <path d="M3 9h18" />
-          <path d="M8 2.5v4" />
-          <path d="M16 2.5v4" />
+          <path d="M12 6c-2-1.3-4.5-1.5-7-1v12c2.5-.5 5-.3 7 1 2-1.3 4.5-1.5 7-1V5c-2.5-.5-5-.3-7 1Z" />
+          <path d="M12 6v13" />
         </svg>
       );
   }
@@ -153,16 +108,14 @@ export default function MobileBottomNav() {
       }}
     >
       <ul
-        className="flex items-stretch gap-0.5 list-none px-1 py-1 overflow-x-auto"
-        // 7 buckets exceed one 360px row, so the bar scrolls horizontally: the
-        // spine through Moonshot is visible and Mr. Dub scrolls in at the edge.
-        // grow+shrink-0 lets the row fill wider screens yet scroll on narrow ones.
-        style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+        className="flex items-stretch gap-0.5 list-none px-1 py-1"
+        // Exactly 5 destinations — they fit one row evenly even at 320px (no scroll).
+        style={{ scrollbarWidth: "none" }}
       >
         {MOBILE_NAV_ITEMS.map((item) => {
           const active = item.bucket === activeBucket;
           return (
-            <li key={item.bucket} className="grow shrink-0 basis-[58px]">
+            <li key={item.bucket} className="flex-1 min-w-0">
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
@@ -180,14 +133,14 @@ export default function MobileBottomNav() {
               >
                 <NavGlyph bucket={item.bucket} active={active} />
                 <span
-                  className="font-mono uppercase tracking-[0.08em] whitespace-nowrap"
+                  className="font-mono uppercase tracking-[0.06em] whitespace-nowrap"
                   style={{
                     color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
                     fontSize: 10,
                     lineHeight: 1,
                   }}
                 >
-                  {item.label}
+                  {item.short}
                 </span>
               </Link>
             </li>
