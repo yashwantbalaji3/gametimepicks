@@ -88,6 +88,16 @@ test("health-check guards against a stale master-ledger artifact (the $8,247 rot
   assert.match(readApp("scripts/health-check.mjs"), /artifact-drift:master-ledger/, "warns when the on-disk ledger drifts from canonical");
 });
 
+test("settlement auto-heals a missing ladder step slot (guarded to the expected step)", () => {
+  // A known desync: the daily card-build flow can create the daily-portfolio card without adding the open
+  // ladder slot, so settlement found no slot and hard-failed. It now auto-creates an open slot for the
+  // EXPECTED step (currentStep or currentStep+1) and overwrites it with the official result.
+  const s = readApp("scripts/settle-daily-portfolio.mjs");
+  assert.match(s, /auto-heal/i, "auto-heals a missing slot rather than aborting settlement");
+  assert.match(s, /currentStep|cur \+ 1|cur\+1/, "guarded to the expected next step so a wrong step still fails loudly");
+  assert.match(s, /lane\.steps\.push/, "creates an open slot");
+});
+
 test("ops-notify writes a heartbeat, never throws on webhook failure, always exits 0", () => {
   const s = readApp("scripts/ops-notify.mjs");
   assert.match(s, /heartbeat\.json/, "writes the dead-man's-switch heartbeat");

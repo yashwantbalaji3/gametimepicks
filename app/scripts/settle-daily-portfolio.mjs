@@ -102,8 +102,23 @@ for (const p of plans) {
   const lane = ladderRun[laneKeyFor(letter)];
   if (!lane) fail(`active ladder has no lane ${letter}`);
   const stepNo = p.laneCard.step;
-  const idx = (lane.steps ?? []).findIndex((s) => s.step === stepNo);
-  if (idx < 0) fail(`active ladder Lane ${letter} has no Step ${stepNo} slot`);
+  if (!Array.isArray(lane.steps)) lane.steps = [];
+  let idx = lane.steps.findIndex((s) => s.step === stepNo);
+  if (idx < 0) {
+    // AUTO-HEAL a known desync: the daily card-build/launch flow can create the daily-portfolio card
+    // (the wager that was placed) without adding the matching OPEN slot to the active ladder, so the slot
+    // is missing at settlement time. Settlement fully overwrites the slot from the plan below, so an open
+    // placeholder is enough to record the OFFICIAL result. Guarded to the EXPECTED step (currentStep — a
+    // restart/fresh step — or currentStep+1 — an advance) so a genuinely wrong step number still fails loudly.
+    const cur = Number(lane.currentStep ?? 0);
+    if (stepNo === cur || stepNo === cur + 1) {
+      lane.steps.push({ step: stepNo, status: "active" });
+      idx = lane.steps.length - 1;
+      console.log(`  (auto-heal) Lane ${letter} had no open Step ${stepNo} slot — created one to record the official result (card was in the daily portfolio; ladder slot was missing).`);
+    } else {
+      fail(`active ladder Lane ${letter} has no Step ${stepNo} slot, and ${stepNo} is not the expected next step (currentStep ${cur}). Refusing to settle an unexpected step.`);
+    }
+  }
   const existing = lane.steps[idx];
   if (existing.status === "settled") { console.log(`  (idempotent) Lane ${letter} Step ${stepNo} already settled — skipped.`); continue; }
 
