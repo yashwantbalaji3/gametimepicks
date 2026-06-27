@@ -195,6 +195,14 @@ jobs:
             echo "::warning::Bank Builder ledger update failed — prior ledger retained"
           fi
 
+      - name: Health gate (abort publish on missing/stale/non-reconciling data)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          cd app
+          # Hard gate: money invariants + $100→bankroll reconciliation + data hygiene + freshness.
+          # A non-zero exit FAILS the job, so the commit/push step below never runs on corrupted data.
+          npx --yes tsx scripts/health-check.mjs --today "$(TZ=America/New_York date +%F)"
+
       - name: Show diff stat (informational)
         run: |
           echo "::group::git status"

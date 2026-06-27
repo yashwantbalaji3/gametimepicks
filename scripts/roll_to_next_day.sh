@@ -45,7 +45,7 @@ esac; done
 PREV=$(python3 -c "import datetime as d; print((d.date.fromisoformat('$TO')-d.timedelta(days=1)).isoformat())")
 PY="$([ -d pipeline/.venv ] && echo pipeline/.venv/bin/python || echo python3)"
 MODE=$([ "$APPLY" = 1 ] && echo APPLY || echo DRY-RUN)
-gate(){ npx tsx app/scripts/verify-money-integrity.mjs || die "MONEY-INTEGRITY GATE FAILED — aborting the roll (never proceed on a corrupted bankroll)."; npx tsx app/scripts/forensic-money-audit.mjs >/dev/null || die "FORENSIC MONEY AUDIT FAILED — a displayed value no longer reconciles to the canonical \$100→bankroll journey."; }
+gate(){ npx tsx app/scripts/verify-money-integrity.mjs || die "MONEY-INTEGRITY GATE FAILED — aborting the roll (never proceed on a corrupted bankroll)."; npx tsx app/scripts/forensic-money-audit.mjs >/dev/null || die "FORENSIC MONEY AUDIT FAILED — a displayed value no longer reconciles to the canonical \$100→bankroll journey."; npx tsx app/scripts/health-check.mjs --today "$(TZ=America/New_York date +%F)" >/dev/null || die "HEALTH CHECK FAILED — canonical data is missing/stale/duplicated/non-reconciling. Never publish."; }
 
 step "0/11  Roll forward · settle $PREV → generate $TO · $MODE$([ "$DEPLOY" = 1 ] && echo ' +DEPLOY')"
 set -a; [ -f .env ] && . ./.env; set +a

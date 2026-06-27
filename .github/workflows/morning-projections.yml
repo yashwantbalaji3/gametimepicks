@@ -186,6 +186,19 @@ jobs:
           ENABLE_BALLDONTLIE_FALLBACK: ${{ vars.ENABLE_BALLDONTLIE_FALLBACK || 'false' }}
         run: bash scripts/automation_projections.sh
 
+      - name: Set up Node (health gate)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Health gate (projections must not corrupt the bankroll; abort publish if unhealthy)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          cd app
+          npm ci --no-audit --no-fund --silent || npm install --no-audit --no-fund --silent
+          npx --yes tsx scripts/health-check.mjs --today "$(TZ=America/New_York date +%F)"
+
       - name: Show diff stat (informational)
         run: |
           echo "::group::git status"

@@ -87,6 +87,7 @@ step "5/5  Money-integrity gate"
 if [ "$APPLY" = 1 ]; then
   npx tsx app/scripts/verify-money-integrity.mjs || { err "MONEY-INTEGRITY GATE FAILED — settlement produced an inconsistent bankroll. Investigate before publishing."; exit 1; }
   npx tsx app/scripts/forensic-money-audit.mjs >/dev/null || { err "FORENSIC MONEY AUDIT FAILED — a displayed value no longer reconciles to the canonical \$100→bankroll journey."; exit 1; }
+  npx tsx app/scripts/health-check.mjs --today "$(TZ=America/New_York date +%F)" >/dev/null || { err "HEALTH CHECK FAILED — canonical data missing/stale/duplicated/non-reconciling. Aborting before publish."; exit 1; }
 else
   info "dry-run — money gate runs on --apply"
 fi
