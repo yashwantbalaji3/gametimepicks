@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
 import SectionHeader from "@/components/section-header";
+import TrackRecordTabs from "@/components/mr-dub/track-record-tabs";
 import MrDubAvatar from "@/components/mr-dub/mr-dub-avatar";
 import MoneyPath from "@/components/ui/money-path";
 import DualLadderBoard from "@/components/bank-builder/dual-ladder-board";
@@ -197,6 +198,11 @@ export default function MrDubPage() {
         </section>
       ) : null}
 
+      {/* TABS: Story (calendar · exposure · lanes — the narrative) vs Full ledger (events · master ledger
+          · allocation — the deep tables). The money-path hero above stays always-visible. */}
+      <TrackRecordTabs
+        story={(
+          <>
       {/* 3 — Mr. Dub's Dual Bank Builder (visual ladders) + stopped-lane transparency */}
       <section>
         <SectionHeader eyebrow="Paper Dual Bank Builder" title="Mr. Dub's two lanes" sub="The same visual ladders as the public Bank Builder — plus a transparent history of stopped lanes the public page keeps clean." />
@@ -305,7 +311,10 @@ export default function MrDubPage() {
           </p>
         </div>
       </section>
-
+          </>
+        )}
+        ledger={(
+          <>
       {/* 7 — Full ledger */}
       <section>
         <SectionHeader eyebrow={`Full ledger · ${events.length} events`} title="Every paper event" sub="Newest first — wins, losses, voids, stopped lanes, advances, restarts, and open cards with official settlement references." />
@@ -322,6 +331,9 @@ export default function MrDubPage() {
         <PortfolioAllocationSection allocation={allocation} />
         <DailyPortfolioSection portfolio={dailyPortfolio} />
       </div>
+          </>
+        )}
+      />
 
       <p className="text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
         Paper-only educational tracking. No wagers are placed. Mr. Dub is not a sportsbook and this is not financial advice.
