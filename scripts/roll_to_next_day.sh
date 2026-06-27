@@ -52,6 +52,16 @@ START_LIFECYCLE=$(date +%s)
 export TSX_TSCONFIG_PATH="$PWD/app/tsconfig.json"
 gate(){ npx tsx app/scripts/verify-money-integrity.mjs || die "MONEY-INTEGRITY GATE FAILED — aborting the roll (never proceed on a corrupted bankroll)."; npx tsx app/scripts/forensic-money-audit.mjs >/dev/null || die "FORENSIC MONEY AUDIT FAILED — a displayed value no longer reconciles to the canonical \$100→bankroll journey."; npx tsx app/scripts/health-check.mjs --today "$(TZ=America/New_York date +%F)" >/dev/null || die "HEALTH CHECK FAILED — canonical data is missing/stale/duplicated/non-reconciling. Never publish."; }
 
+# OBSERVABILITY on ANY failure (audit P1-3): the success-path run report at the end is never reached on a
+# die, so a hard failure would otherwise leave NO report + NO heartbeat. This trap emits a failure heartbeat
+# + run report on a non-zero exit so an unattended failure is visible (and the dead-man's-switch flips).
+SMOKE="skipped"
+on_exit(){ rc=$?; if [ "$rc" != 0 ]; then
+  ( cd app && node scripts/ops-notify.mjs --status fail --phase "roll $TO" --message "lifecycle aborted (exit $rc) — see CI log" ) >/dev/null 2>&1 || true
+  ( cd app && node scripts/write-run-report.mjs --to "$TO" --prev "$PREV" --mode "$MODE" --deploy no --smoke "${SMOKE:-aborted}" --duration "$(( $(date +%s) - START_LIFECYCLE ))" --pending "${PENDING:-0}" ) >/dev/null 2>&1 || true
+fi; }
+trap on_exit EXIT
+
 step "0/11  Roll forward · settle $PREV → generate $TO · $MODE$([ "$DEPLOY" = 1 ] && echo ' +DEPLOY')"
 set -a; [ -f .env ] && . ./.env; set +a
 
@@ -127,18 +137,28 @@ step "11/11  Deploy + production smoke test"
 SMOKE="skipped"
 if [ "$APPLY" = 1 ] && [ "$DEPLOY" = 1 ]; then
   gate  # final guard immediately before publishing
-  git add -A && git commit -q -m "Daily roll-forward $TO (settled $PREV) — automated" || warn "nothing to commit"
-  git push origin HEAD:main || die "push failed"
-  ok "pushed to main (Vercel auto-deploys)"
-  info "waiting for Vercel deploy to propagate…"
-  # Poll the production smoke up to 4× (deploy + drift check). Deploy succeeds ONLY if smoke passes.
-  SMOKE="fail"
-  for try in 1 2 3 4; do
-    sleep 45
-    if ( cd app && node scripts/smoke-test-production.mjs ) >/tmp/roll_smoke.log 2>&1; then SMOKE="pass"; break; fi
-    warn "smoke attempt $try not green yet (deploy may still be building)…"
+  # SCOPED add (not -A, audit P2-1): only the generated data/ops artifacts — never stray/code files.
+  git add app/public/data >/dev/null 2>&1
+  git commit -q -m "Daily roll-forward $TO (settled $PREV) — automated" || warn "nothing to commit"
+  # REBASE-RETRY the push (audit P0-3): other crons also push to main, so a non-fast-forward under
+  # contention is expected — fetch+rebase+retry rather than dying + silently losing the day's work.
+  pushed=0
+  for attempt in 1 2 3; do
+    if git push origin HEAD:main 2>/tmp/roll_push.log; then pushed=1; break; fi
+    warn "push attempt $attempt rejected (concurrent push?) — fetch + rebase + retry…"
+    git fetch origin main >/dev/null 2>&1 && git rebase origin/main >/dev/null 2>&1 || git rebase --abort >/dev/null 2>&1 || true
   done
-  [ "$SMOKE" = "pass" ] && ok "production smoke passed — deploy verified live" || { tail -12 /tmp/roll_smoke.log; die "PRODUCTION SMOKE FAILED — live site does not match canonical data (drift/down). Investigate."; }
+  [ "$pushed" = 1 ] && ok "pushed to main (Vercel auto-deploys)" || die "push FAILED after 3 rebase-retries — $(tail -1 /tmp/roll_push.log 2>/dev/null)"
+  info "waiting for Vercel deploy to propagate…"
+  # Poll the production smoke (deploy + no-drift check). Deploy succeeds ONLY if smoke passes. A COLD Vercel
+  # build can exceed 3 min (audit P0-4 false-fail), so poll up to ~8 min before declaring failure.
+  SMOKE="fail"
+  for try in $(seq 1 10); do
+    sleep 48
+    if ( cd app && node scripts/smoke-test-production.mjs ) >/tmp/roll_smoke.log 2>&1; then SMOKE="pass"; break; fi
+    warn "smoke attempt $try/10 not green yet (deploy may still be building)…"
+  done
+  [ "$SMOKE" = "pass" ] && ok "production smoke passed — deploy verified live" || { tail -12 /tmp/roll_smoke.log; die "PRODUCTION SMOKE FAILED after ~8 min — live site does not match canonical data (drift/down/build-failed). Investigate; consider rolling back the last commit."; }
 else info "dry-run / no --deploy — not publishing"; fi
 
 # ── Run report (observability) — one JSON artifact per run, stored historically. ──────────────────
@@ -148,5 +168,10 @@ DURATION=$(( $(date +%s) - START_LIFECYCLE ))
     --to "$TO" --prev "$PREV" --mode "$MODE" --deploy "$([ "$DEPLOY" = 1 ] && echo yes || echo no)" \
     --smoke "$SMOKE" --duration "$DURATION" --pending "${PENDING:-0}" ) \
   && ok "run report written" || warn "run report could not be written (non-fatal)"
+
+# Heartbeat + (optional) external notification — success path (audit P0-2). The dead-man's-switch flips
+# only when a run completes here; a die path is covered by the on_exit trap above.
+( cd app && node scripts/ops-notify.mjs --status pass --phase "roll $TO" \
+    --message "settled $PREV → generated $TO · smoke $SMOKE · ${DURATION}s" ) >/dev/null 2>&1 || true
 
 echo ""; ok "roll complete · settle $PREV → generate $TO · $MODE$([ "$DEPLOY" = 1 ] && echo ' DEPLOYED')"

@@ -113,6 +113,21 @@ test("check-heartbeat is the dead-man's-switch — fails on stale or missing hea
   assert.match(s, /process\.exit\(1\)/, "non-zero on unhealthy so a monitor/cron can alert");
 });
 
+test("the lifecycle is observable + resilient: notify wired, failure-trap, rebase-retry, scoped add", () => {
+  const roll = readRepo("scripts/roll_to_next_day.sh");
+  const settle = readRepo("scripts/settle_soccer_day.sh");
+  // observability: both the roll and the standalone settle emit a heartbeat/notify (P0-2).
+  assert.match(roll, /ops-notify\.mjs/, "roll emits a heartbeat/notify");
+  assert.match(settle, /ops-notify\.mjs/, "settle emits a heartbeat/notify");
+  // a hard failure still produces a report + heartbeat (P1-3) via an EXIT trap.
+  assert.match(roll, /trap on_exit EXIT/, "failure trap emits a report/heartbeat even on die");
+  // the push survives concurrent main writes (P0-3) and never blanket-stages stray files (P2-1).
+  assert.match(roll, /rebase origin\/main/, "rebase-retry on push contention");
+  assert.ok(!/git add -A/.test(roll), "scoped git add (not -A)");
+  // the smoke window tolerates a cold Vercel build (P0-4): more than the old 4×45s.
+  assert.match(roll, /seq 1 10/, "smoke polls ~8 min, not ~3 min");
+});
+
 test("settle + lifecycle pin tsx to app/tsconfig.json so the @/ alias resolves from the repo root", () => {
   // Regression lock: app/scripts/*.mjs are invoked from the repo root; the settlement + product graphs import
   // `@/lib/...`, which tsx only resolves via app/tsconfig.json. Without the pin the roll aborted at grading.

@@ -93,6 +93,8 @@ if [ "$APPLY" = 1 ]; then
   npx tsx app/scripts/verify-money-integrity.mjs || { err "MONEY-INTEGRITY GATE FAILED — settlement produced an inconsistent bankroll. Investigate before publishing."; exit 1; }
   npx tsx app/scripts/forensic-money-audit.mjs >/dev/null || { err "FORENSIC MONEY AUDIT FAILED — a displayed value no longer reconciles to the canonical \$100→bankroll journey."; exit 1; }
   npx tsx app/scripts/health-check.mjs --today "$(TZ=America/New_York date +%F)" >/dev/null || { err "HEALTH CHECK FAILED — canonical data missing/stale/duplicated/non-reconciling. Aborting before publish."; exit 1; }
+  # Heartbeat + (optional) external notification on a clean applied settlement (audit P0-2).
+  ( cd app && node scripts/ops-notify.mjs --status pass --phase "settle $DATE" --message "$FT_COUNT FT match(es) settled, money gate green" ) >/dev/null 2>&1 || true
 else
   info "dry-run — money gate runs on --apply"
 fi
