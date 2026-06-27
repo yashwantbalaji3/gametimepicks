@@ -50,7 +50,23 @@ step "0/4  Soccer settlement · $DATE · $([ "$APPLY" = 1 ] && echo APPLY || ech
 # ── 1) Official results (operator bundle, else live fetch). API-unavailable → NO-OP. ───────────────
 step "1/4  Official FT results"
 if [ -n "${OFFICIAL:-}" ] && [ -f "${OFFICIAL:-}" ]; then
-  cp "$OFFICIAL" "$BUNDLE"; ok "using operator-supplied bundle: $OFFICIAL"
+  # VALIDATE the operator bundle before trusting it as official truth (audit P1-11): it must be valid JSON
+  # with a non-empty matches[] array carrying status fields. Refuse garbage rather than settle against it —
+  # this is the one path where a hand-supplied file moves paper money, so it must be structurally sound.
+  $PY - "$OFFICIAL" <<'PYEOF' || die "OFFICIAL bundle failed validation — refusing to settle against a malformed/empty results file. Fix the bundle and re-run."
+import json, sys
+try:
+    d = json.load(open(sys.argv[1]))
+except Exception as e:
+    print(f"  not valid JSON: {e}"); sys.exit(1)
+ms = d.get("matches")
+if not isinstance(ms, list) or not ms:
+    print("  no non-empty matches[] array"); sys.exit(1)
+if not any(isinstance(m, dict) and m.get("status") for m in ms):
+    print("  no match carries a status field"); sys.exit(1)
+sys.exit(0)
+PYEOF
+  cp "$OFFICIAL" "$BUNDLE"; ok "using operator-supplied bundle: $OFFICIAL ($($PY -c "import json,sys;print(len(json.load(open('$OFFICIAL')).get('matches',[])))") matches, validated)"
 elif [ -n "${API_FOOTBALL_KEY:-}" ]; then
   if $PY pipeline/fetch_official_soccer.py --date "$DATE" > "$BUNDLE" 2>/tmp/gtp_fetch_soccer.err && ! grep -q '"error"' "$BUNDLE"; then
     ok "fetched official FT results from API-Football"

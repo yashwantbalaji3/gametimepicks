@@ -109,6 +109,14 @@ test("health-check validates daily-portfolio integrity (active-lane-has-legs, sl
   assert.match(s, /daily-portfolio:bankroll-drift/, "daily activeBankroll must match canonical");
 });
 
+test("settle validates the OFFICIAL operator bundle before trusting it (audit P1-11)", () => {
+  // The OFFICIAL= bundle is the one path where a hand-supplied file moves paper money — it must be
+  // structurally sound (valid JSON + non-empty matches[] with status) or settlement refuses.
+  const s = readRepo("scripts/settle_soccer_day.sh");
+  assert.match(s, /OFFICIAL bundle failed validation/, "refuses a malformed/empty bundle");
+  assert.match(s, /matches.*array|non-empty matches/i, "requires a non-empty matches[] array");
+});
+
 test("settle-first guard keys off the LADDER (settled slateDate), not stale daily-portfolio status", () => {
   // Settlement never rewrites the daily-portfolio status, so the guard must confirm settlement via the
   // ladder's settled step dated PREV — otherwise it would HALT the autonomous roll after every settlement.
