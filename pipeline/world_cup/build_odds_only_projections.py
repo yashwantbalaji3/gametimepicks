@@ -81,18 +81,82 @@ def http_json(url: str) -> tuple[object, str | None]:
         return json.loads(r.read().decode()), r.headers.get("x-requests-remaining")
 
 
-def upcoming_events(api_key: str, date: str) -> list[dict]:
+# --- Slate window ---------------------------------------------------------------
+# A betting "slate" is a CURATED WINDOW of upcoming fixtures, not a calendar day. On a thin day
+# (a single knockout match, say), one match can't carry diversified Bank Builder lanes, a Moonshot,
+# or a 5-leg Specials card — so the slate naturally widens to the next fixtures until it holds enough
+# games to build quality products. The window is labelled by its START date (the requested slate
+# date); every match keeps its TRUE kickoff (kickoffUtc) and ET match-date (matchDate), so the site
+# always shows real dates/times. Honest: no fabricated fixtures — every game is a real upcoming
+# event the books are pricing.
+QUALITY_MIN_MATCHES = 2   # below this many upcoming matches on the slate, expand forward
+MAX_WINDOW_DAYS = 3       # never look further than slate-start + this many ET days
+KNOCKOUT_STAGES = {"r32", "r16", "qf", "sf", "final", "round_of_32", "round_of_16",
+                   "quarter", "quarterfinal", "semifinal", "third_place"}
+
+
+def stage_by_date() -> dict[str, str]:
+    """Map ET date -> tournament stage from the schedule (knockout detection, date-keyed so it works
+    even when a knockout fixture's teams are still bracket placeholders)."""
+    try:
+        sched = json.loads((DATA / "schedule.json").read_text()).get("matches", [])
+    except Exception:
+        return {}
+    out: dict[str, str] = {}
+    for m in sched:
+        d, st = m.get("date"), m.get("stage")
+        if d and st and d not in out:
+            out[d] = st
+    return out
+
+
+def list_upcoming(api_key: str) -> tuple[list[tuple[str, datetime, dict]], str | None]:
+    """All not-yet-kicked-off World Cup events as (ET-date, kickoff_dt, event), kickoff-ordered.
+    /events is metadata only (no odds) — cheap; we fetch priced odds later only for the chosen window."""
     body, rem = http_json(f"{API_BASE}/sports/{SPORT_KEY}/events?apiKey={api_key}")
     print(f"[wc] events listed · credits remaining {rem}")
     now = datetime.now(timezone.utc)
-    out = []
+    out: list[tuple[str, datetime, dict]] = []
     for e in body if isinstance(body, list) else []:
         kickoff = datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
-        # ET-date == slate date AND not yet kicked off (a started/finished match is never a
-        # pregame projection — /events can briefly still list a just-commenced game).
-        if kickoff.astimezone(ET).strftime("%Y-%m-%d") == date and kickoff > now:
-            out.append(e)
-    return out
+        if kickoff > now:  # a started/finished match is never a pregame projection
+            out.append((kickoff.astimezone(ET).strftime("%Y-%m-%d"), kickoff, e))
+    out.sort(key=lambda x: x[1])
+    return out, rem
+
+
+def choose_window(upcoming: list[tuple[str, datetime, dict]], start_date: str,
+                  min_matches: int, max_days: int, force_single: bool) -> tuple[list[str], dict]:
+    """Pick the ET dates that make up this slate. Always anchored at start_date; expands forward
+    one ET date at a time until it holds >= min_matches games or hits the max_days look-ahead cap."""
+    dates_in_order: list[str] = []
+    for d, _, _ in upcoming:
+        if d >= start_date and d not in dates_in_order:
+            dates_in_order.append(d)
+    chosen: list[str] = []
+    count = 0
+    for d in dates_in_order:
+        chosen.append(d)
+        count += sum(1 for dd, _, _ in upcoming if dd == d)
+        if force_single:
+            break
+        if count >= min_matches:
+            break
+        if len(chosen) >= max_days:
+            break
+    if not chosen:                       # no upcoming events on/after start_date
+        chosen = [start_date]
+    expanded = len(chosen) > 1 or (chosen and chosen[0] != start_date)
+    window = {
+        "start": start_date, "end": chosen[-1], "days": chosen,
+        "expanded": bool(expanded), "minMatches": min_matches, "maxDays": max_days,
+        "matchCount": count,
+        "note": (f"Combined slate window {start_date} → {chosen[-1]} ({count} upcoming fixtures): a "
+                 f"single-day slate was too thin for quality products, so the window widened to the "
+                 f"next knockout fixtures." if expanded else
+                 f"Single-day slate {start_date} ({count} fixtures) — wide enough on its own."),
+    }
+    return chosen, window
 
 
 def event_odds(api_key: str, eid: str) -> dict:
@@ -146,18 +210,30 @@ LIMITED_CAVEAT = ("Odds-only: no API-Football stat/lineup layer. Market-implied 
                   "capped; not a stat model.")
 
 
-def build(date: str) -> dict:
+def build(date: str, min_matches: int = QUALITY_MIN_MATCHES,
+          max_days: int = MAX_WINDOW_DAYS, force_single: bool = False) -> dict:
     api_key = os.environ.get("ODDS_API_KEY", "").strip()
     if not api_key:
         print("[wc] STOP ODDS_API_KEY not set")
         return {"error": "no_odds_key"}
     codes = team_codes()
-    sched = schedule_ids(date)
-    events = upcoming_events(api_key, date)
+    stages = stage_by_date()
+    upcoming, _ = list_upcoming(api_key)
+    chosen_dates, window = choose_window(upcoming, date, min_matches, max_days, force_single)
+    print(f"[wc] slate window {window['start']} → {window['end']} · days {chosen_dates} · "
+          f"{window['matchCount']} fixtures{' (EXPANDED — thin start day)' if window['expanded'] else ''}")
+    # Schedule joins for every ET date in the window (keyed by lowercased team pair).
+    sched: dict[tuple[str, str], dict] = {}
+    for d in chosen_dates:
+        sched.update(schedule_ids(d))
+    chosen_set = set(chosen_dates)
+    # Only the windowed events, kickoff-ordered. Priced odds fetched (and cached) per event below —
+    # so we spend credits ONLY on the games in this slate window, never the whole tournament.
+    window_events = [(etd, e) for (etd, _ko, e) in upcoming if etd in chosen_set]
     matches: list[dict] = []
     market_summary: dict[str, int] = {}
 
-    for ev in events:
+    for etd, ev in window_events:
         home, away = ev.get("home_team"), ev.get("away_team")
         books = event_odds(api_key, ev["id"]).get("bookmakers", [])
         book = pick_anchor_book(books)
@@ -167,11 +243,16 @@ def build(date: str) -> dict:
         fx = sched.get((home.strip().lower(), away.strip().lower()), {})
         mid = fx.get("id", ev["id"])
         hc, ac = codes.get(home), codes.get(away)
+        stage = fx.get("stage") or stages.get(etd)
+        is_ko = bool(stage and str(stage).lower() in KNOCKOUT_STAGES)
         base = {
-            "sport": "world_cup", "date": date, "matchId": mid,
+            # `date` is the SLATE START (window label) so every `date == slateDate` consumer matches;
+            # `matchDate`/`kickoffUtc` carry the TRUE ET date/time the UI displays.
+            "sport": "world_cup", "date": date, "matchDate": etd, "slateStart": date, "matchId": mid,
             "homeTeam": home, "awayTeam": away, "kickoffUtc": ev.get("commence_time"),
             "homeCode": hc, "awayCode": ac, "homeLogo": None, "awayLogo": None,
             "group": fx.get("group"), "venue": fx.get("venueCity"),
+            "stage": stage, "knockout": is_ko,
             "regulationOnly": True, "sampleSizeWarning": True, "opponentStrengthCoverage": 0,
             "provider": "odds_api", "oddsProvider": "odds_api", "modelVersion": MODEL_VERSION,
             "dataQuality": "limited", "bookmaker": bk,
@@ -333,24 +414,30 @@ def build(date: str) -> dict:
                 })
                 market_summary["draw_no_bet"] = market_summary.get("draw_no_bet", 0) + 1
 
-    return assemble(date, matches, market_summary, n_events=len(events))
+    return assemble(date, matches, market_summary, window=window)
 
 
-def assemble(date: str, matches: list[dict], market_summary: dict, n_events: int) -> dict:
+def assemble(date: str, matches: list[dict], market_summary: dict, window: dict | None = None) -> dict:
     now = datetime.now(timezone.utc).isoformat()
     elig = [m for m in matches if m.get("parlayEligible")]
+    n_matches = len({str(m["matchId"]) for m in matches})
+    ko = any(m.get("knockout") for m in matches)
     proj = {
         "generatedAt": now, "sport": "world_cup", "date": date,
+        "slateWindow": window,
         "modelVersion": MODEL_VERSION, "provider": "odds_api", "oddsProvider": "odds_api",
         "strengthSource": "none", "dataQuality": "limited",
         "disclaimer": "Paper-only, educational. Odds-backed market-implied World Cup projections "
-                      "from The Odds API; no API-Football stat/lineup/xG layer.",
+                      "from The Odds API; no API-Football stat/lineup/xG layer." +
+                      (" Knockout slate — lower-variance markets are preferred for survival lanes." if ko else ""),
         "methodology": "Per market: de-vig the sportsbook price (3-way for moneyline/double chance). "
                        "No independent stat model — confidence capped, model edge ~0 except where the "
-                       "double-chance book price differs from the 3-way no-vig sum.",
-        "matchCount": n_events, "projectionCount": len(matches),
+                       "double-chance book price differs from the 3-way no-vig sum. A slate is a window "
+                       "of upcoming fixtures (it widens past a thin day until it holds enough games for "
+                       "quality products); each game keeps its true kickoff.",
+        "matchCount": n_matches, "projectionCount": len(matches),
         "publicCount": len(matches), "parlayEligibleCount": len(elig),
-        "public": True, "opponentStrengthCoverage": 0,
+        "public": True, "opponentStrengthCoverage": 0, "knockout": ko,
         "marketsCovered": market_summary,
         "statusCounts": {"active": len(matches)}, "matches": matches,
     }
@@ -446,9 +533,15 @@ def empty_player_props(date: str) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Odds-backed World Cup projections + cards (limited data).")
-    ap.add_argument("--date", required=True, help="ET slate date YYYY-MM-DD")
+    ap.add_argument("--date", required=True, help="ET slate date YYYY-MM-DD (window start)")
+    ap.add_argument("--min-matches", type=int, default=QUALITY_MIN_MATCHES,
+                    help="expand the window forward until it holds at least this many upcoming matches")
+    ap.add_argument("--window-days", type=int, default=MAX_WINDOW_DAYS,
+                    help="never look beyond slate-start + this many ET days when expanding")
+    ap.add_argument("--no-expand", action="store_true", help="force a single-day slate (no expansion)")
     args = ap.parse_args(argv)
-    out = build(args.date)
+    out = build(args.date, min_matches=args.min_matches, max_days=args.window_days,
+                force_single=args.no_expand)
     if out.get("error"):
         return 2
     # NOTE: player-projections are owned by `build_player_props.py` (odds-backed props with

@@ -1,20 +1,138 @@
 {
-  "generatedAt": "2026-06-28T04:22:25.967543+00:00",
+  "generatedAt": "2026-06-28T05:14:50.571089+00:00",
   "sport": "world_cup",
   "date": "2026-06-28",
   "disclaimer": "Paper-only, educational. Limited-data odds-backed cards (no stat layer).",
-  "cardCount": 0,
+  "cardCount": 2,
   "byRisk": {
-    "Low": 0,
-    "Medium": 0,
+    "Low": 1,
+    "Medium": 1,
     "High": 0,
     "Longshot": 0
   },
-  "cards": [],
-  "gateReasons": [
-    "Longshot tier omitted: no plus-money eligible WC leg today.",
-    "Not enough odds-backed World Cup legs for a card today."
+  "cards": [
+    {
+      "id": "wc_2026-06-28_low_001",
+      "sport": "world_cup",
+      "riskTier": "Low",
+      "title": "World Cup lower-risk card",
+      "legs": [
+        {
+          "matchId": "4930db8e83436874d09e59bd0e29c1a5",
+          "match": "Germany vs Paraguay",
+          "market": "double_chance",
+          "pick": "Germany or Draw",
+          "americanOdds": -2500,
+          "modelProbability": 0.905,
+          "marketProbability": 0.9023,
+          "edgePct": 0.27,
+          "confidence": "Lean",
+          "regulationOnly": true,
+          "homeCode": "DE",
+          "awayCode": "PY"
+        },
+        {
+          "matchId": "def55b09ef3d6854e3c01e74b5c63415",
+          "match": "South Africa vs Canada",
+          "market": "double_chance",
+          "pick": "Canada or Draw",
+          "americanOdds": -770,
+          "modelProbability": 0.8304,
+          "marketProbability": 0.832,
+          "edgePct": -0.16,
+          "confidence": "Lean",
+          "regulationOnly": true,
+          "homeCode": "ZA",
+          "awayCode": "CA"
+        }
+      ],
+      "legCount": 2,
+      "combinedAmericanOdds": -571,
+      "combinedDecimal": 1.175,
+      "defaultStake": 10,
+      "projectedReturn": 11.75,
+      "estimatedHitProbability": 0.7515,
+      "regulationOnly": true,
+      "whyThisCard": "The two strongest odds-backed legs today (lower-variance markets preferred), different matches.",
+      "correlationNotes": "Legs are different matches \u2014 no same-game correlation.",
+      "dataCaveats": [
+        "Limited soccer data: odds-backed market-implied, no API-Football stat layer.",
+        "Confidence capped \u2014 no team/player stat model."
+      ],
+      "combinedTotalEdgePct": 0.11,
+      "single": false,
+      "dataQuality": "limited"
+    },
+    {
+      "id": "wc_2026-06-28_bal_001",
+      "sport": "world_cup",
+      "riskTier": "Medium",
+      "title": "World Cup balanced card",
+      "legs": [
+        {
+          "matchId": "4930db8e83436874d09e59bd0e29c1a5",
+          "match": "Germany vs Paraguay",
+          "market": "double_chance",
+          "pick": "Germany or Draw",
+          "americanOdds": -2500,
+          "modelProbability": 0.905,
+          "marketProbability": 0.9023,
+          "edgePct": 0.27,
+          "confidence": "Lean",
+          "regulationOnly": true,
+          "homeCode": "DE",
+          "awayCode": "PY"
+        },
+        {
+          "matchId": "def55b09ef3d6854e3c01e74b5c63415",
+          "match": "South Africa vs Canada",
+          "market": "double_chance",
+          "pick": "Canada or Draw",
+          "americanOdds": -770,
+          "modelProbability": 0.8304,
+          "marketProbability": 0.832,
+          "edgePct": -0.16,
+          "confidence": "Lean",
+          "regulationOnly": true,
+          "homeCode": "ZA",
+          "awayCode": "CA"
+        },
+        {
+          "matchId": "4f3d72fba877939d36a5315618184093",
+          "match": "Brazil vs Japan",
+          "market": "double_chance",
+          "pick": "Brazil or Draw",
+          "americanOdds": -625,
+          "modelProbability": 0.8099,
+          "marketProbability": 0.8087,
+          "edgePct": 0.12,
+          "confidence": "Lean",
+          "regulationOnly": true,
+          "homeCode": "BR",
+          "awayCode": "JP"
+        }
+      ],
+      "legCount": 3,
+      "combinedAmericanOdds": -275,
+      "combinedDecimal": 1.363,
+      "defaultStake": 10,
+      "projectedReturn": 13.63,
+      "estimatedHitProbability": 0.6086,
+      "regulationOnly": true,
+      "whyThisCard": "Three odds-backed legs across different matches \u2014 higher combined odds, more variance.",
+      "correlationNotes": "Legs are different matches \u2014 no same-game correlation.",
+      "dataCaveats": [
+        "Limited soccer data: odds-backed market-implied, no API-Football stat layer.",
+        "Confidence capped \u2014 no team/player stat model."
+      ],
+      "combinedTotalEdgePct": 0.23,
+      "single": false,
+      "dataQuality": "limited"
+    }
   ],
-  "sourceProjections": 1,
+  "gateReasons": [
+    "Longshot tier omitted: no plus-money eligible WC leg today."
+  ],
+  "sourceProjections": 4,
   "valueLegs": []
 }

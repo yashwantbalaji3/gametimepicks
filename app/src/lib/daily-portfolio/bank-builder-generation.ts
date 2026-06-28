@@ -113,7 +113,7 @@ function buildSafeCombos(legs: ModelPick[], maxLegs: number): SafeCombo[] {
  * legs. Tries 2-leg first; only escalates to 3-leg when no 2-leg combo reaches a high target. `excludeGames`
  * keeps lanes independent (no shared game across Lane A / Lane B). Max 1 leg/game. No leg shorter than -500.
  */
-export function selectSafestTargetFitCard(pool: ModelPick[], rung: LaneRung, exclude: Set<string>, excludeGames?: Set<string>): GeneratedLane {
+export function selectSafestTargetFitCard(pool: ModelPick[], rung: LaneRung, exclude: Set<string>, excludeGames?: Set<string>, maxLegs = 4): GeneratedLane {
   const eligible = pool.filter((p) =>
     !exclude.has(p.id) && (!excludeGames || !excludeGames.has(p.gameId)) &&
     p.odds >= -650 && p.odds <= 400 && p.modelProbability > 0);
@@ -124,8 +124,8 @@ export function selectSafestTargetFitCard(pool: ModelPick[], rung: LaneRung, exc
   const inWindow = [...wc, ...mlb];
   const target = rung.targetMultiplier;
 
-  // Build up to 4-leg cards, keep those that reach the rung target.
-  const reach = buildSafeCombos(inWindow, 4).filter((c) => c.d >= target);
+  // Build up to maxLegs-leg cards, keep those that reach the rung target.
+  const reach = buildSafeCombos(inWindow, maxLegs).filter((c) => c.d >= target);
 
   let chosen: SafeCombo | null = null;
   let fitsTarget = false;
@@ -139,7 +139,7 @@ export function selectSafestTargetFitCard(pool: ModelPick[], rung: LaneRung, exc
     chosen = bucket[0]; fitsTarget = true;
   } else {
     // Nothing reaches the target — surface the closest card, still preferring soccer legs.
-    const all = buildSafeCombos(inWindow, 4);
+    const all = buildSafeCombos(inWindow, maxLegs);
     const wcAll = all.filter((c) => wcCount(c) >= 1);
     const bucket = wcAll.length ? wcAll : all;
     if (bucket.length) { bucket.sort((x, y) => (y.d - x.d) || (y.prob - x.prob)); chosen = bucket[0]; }
@@ -177,5 +177,73 @@ export function selectSafestTargetFitCard(pool: ModelPick[], rung: LaneRung, exc
         : `No combo reaches the $${rung.targetReturn.toLocaleString("en-US")} goal — strongest available shown as a candidate.`,
     ],
     shortfallNote: picked.length < 2 ? "Fewer than 2 model-qualified legs available — awaiting a full card." : (!fitsTarget ? `Below the Step ${rung.nextStep} target — candidate only.` : null),
+  };
+}
+
+/** Lane B VALUE band: still clears the rung goal, but aims for a higher combined price (+200..+700) for a
+ *  bigger jump per win. Among band-fitting, distinct-game, soccer-first combos it picks the SURVIVABLE one
+ *  (max combined hit probability) — de-vigged market odds carry ~no edge, so the honest "maximize EV"
+ *  objective reduces to the safest card that still reaches the value band. */
+export const VALUE_BAND = { minOdds: 200, maxOdds: 700 } as const;
+
+export function selectValueTargetFitCard(
+  pool: ModelPick[], rung: LaneRung, exclude: Set<string>, excludeGames?: Set<string>,
+  band: { minOdds: number; maxOdds: number } = VALUE_BAND, maxLegs = 4,
+): GeneratedLane {
+  const eligible = pool.filter((p) =>
+    !exclude.has(p.id) && (!excludeGames || !excludeGames.has(p.gameId)) &&
+    p.odds >= -650 && p.odds <= 400 && p.modelProbability > 0);
+  const wc = eligible.filter((p) => legSport(p) === "WORLD_CUP");
+  const mlb = eligible.filter((p) => legSport(p) === "MLB").sort((a, b) => b.modelProbability - a.modelProbability).slice(0, 24);
+  const inWindow = [...wc, ...mlb];
+  const minDec = dec(band.minOdds);   // +200 -> 3.0
+  const maxDec = dec(band.maxOdds);   // +700 -> 8.0
+  const target = rung.targetMultiplier;
+
+  // Value band: reach the rung goal AND land within the +200..+700 price band.
+  const all = buildSafeCombos(inWindow, maxLegs);
+  const inBand = all.filter((c) => c.d >= target && c.d >= minDec && c.d <= maxDec);
+
+  let chosen: SafeCombo | null = null;
+  let fitsTarget = false;
+  let inValueBand = false;
+  if (inBand.length) {
+    const wc2 = inBand.filter((c) => wcCount(c) >= 2);
+    const wc1 = inBand.filter((c) => wcCount(c) >= 1);
+    const bucket = wc2.length ? wc2 : (wc1.length ? wc1 : inBand);
+    // survivability-first within the value band, then more WC legs, safest tier, fewer legs.
+    bucket.sort((x, y) => (y.prob - x.prob) || (wcCount(y) - wcCount(x)) || (x.tier - y.tier) || (x.legs.length - y.legs.length));
+    chosen = bucket[0]; fitsTarget = true; inValueBand = true;
+  } else {
+    // No band combo — fall back to the safest card that simply reaches the rung goal (Lane B still exists,
+    // just not in the value band; honest, no forced long-odds card).
+    return selectSafestTargetFitCard(pool, rung, exclude, excludeGames, maxLegs);
+  }
+
+  const picked = chosen.legs;
+  const combinedDecimal = picked.reduce((p, l) => p * dec(l.odds), 1);
+  const combinedOdds = decToAmerican(combinedDecimal);
+  const hitProb = picked.reduce((p, l) => p * l.modelProbability, 1);
+  const tier = cardTier(picked);
+  const avgConf = Math.round((picked.reduce((s, l) => s + l.modelProbability, 0) / picked.length) * 100);
+  const sports = new Set(picked.map(legSport));
+  const crossSport = sports.size > 1;
+  const sportLabel = crossSport ? "cross-sport (MLB + World Cup)" : (sports.has("MLB") ? "MLB" : "World Cup");
+  const sameGame = new Set(picked.map((l) => l.gameId)).size < picked.length;
+
+  return {
+    product: "bank-builder", lane: rung.lane, step: rung.nextStep, clearedSteps: rung.clearedSteps,
+    rolledStake: rung.rolledStake, seedExposure: SEED_EXPOSURE, targetReturn: rung.targetReturn,
+    combinedOdds, combinedDecimal: Number(combinedDecimal.toFixed(4)),
+    potentialReturn: round2(rung.rolledStake * combinedDecimal), fitsTarget,
+    legs: picked,
+    correlationNote: sameGame ? `Correlation checked: legs share a game (different markets).` : null,
+    estimatedHitProbability: Number(hitProb.toFixed(4)),
+    marketTier: tier, marketTierLabel: tierLabel(tier), confidenceScore: avgConf, crossSport,
+    whyThisCard: [
+      `Value lane (${sportLabel}): the most SURVIVABLE ${picked.length}-leg card inside the +${band.minOdds}..+${band.maxOdds} band — ~${Math.round(hitProb * 100)}% combined hit probability at ${tierLabel(tier)}, picked for a bigger jump per win without chasing the longest price.`,
+      `Combined +${combinedOdds} rides $${rung.rolledStake.toLocaleString("en-US")} → $${round2(rung.rolledStake * combinedDecimal).toLocaleString("en-US")} (clears the $${rung.targetReturn.toLocaleString("en-US")} rung goal; avg leg confidence ${avgConf}%).`,
+    ],
+    shortfallNote: inValueBand ? null : `Below the +${band.minOdds} value band — safest target-fit shown.`,
   };
 }

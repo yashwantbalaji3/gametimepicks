@@ -62,14 +62,29 @@ def http(url: str, headers: dict | None = None) -> object:
         return json.loads(r.read().decode())
 
 
-def upcoming_events(okey: str, date: str) -> list[dict]:
+def slate_window_days(date: str) -> list[str]:
+    """Follow the team-projection slate window (built first) so props cover EXACTLY the same games.
+    Falls back to the single date if no windowed projection exists."""
+    try:
+        proj = json.loads((DATA / "projections" / f"{date}.json").read_text())
+        days = (proj.get("slateWindow") or {}).get("days")
+        if days:
+            return list(days)
+    except Exception:
+        pass
+    return [date]
+
+
+def upcoming_events_in(okey: str, dates: set[str]) -> list[tuple[str, dict]]:
+    """Not-yet-kicked-off WC events whose ET date is in the slate window, as (ET-date, event)."""
     body = http(f"{ODDS_BASE}/sports/{SPORT_KEY}/events?apiKey={okey}")
     now = datetime.now(timezone.utc)
     out = []
     for e in body if isinstance(body, list) else []:
         k = datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
-        if k.astimezone(ET).strftime("%Y-%m-%d") == date and k > now:
-            out.append(e)
+        etd = k.astimezone(ET).strftime("%Y-%m-%d")
+        if etd in dates and k > now:
+            out.append((etd, e))
     return out
 
 
@@ -121,15 +136,19 @@ def build(date: str) -> dict:
     akey = os.environ.get("API_FOOTBALL_KEY", "").strip()
     if not okey or not akey:
         return {"error": "missing keys"}
-    events = upcoming_events(okey, date)
-    if not events:
-        return {"status": "no_upcoming_fixtures", "matches": []}
+    window = slate_window_days(date)
+    ev_pairs = upcoming_events_in(okey, set(window))
+    print(f"[wc-props] slate window {window[0]} → {window[-1]} · days {window} · {len(ev_pairs)} fixtures")
+    if not ev_pairs:
+        return {"status": "no_upcoming_fixtures", "date": date, "slateWindow": window, "matches": []}
 
-    # API-Football fixtures for the ET date + the next UTC date (late kickoffs roll over),
-    # to resolve team ids from team names.
+    # API-Football fixtures for every ET date in the window + the next UTC date after the last (late
+    # kickoffs roll over), to resolve team ids from team names.
     from datetime import timedelta
+    fix_dates = set(window)
+    fix_dates.add((datetime.fromisoformat(window[-1]) + timedelta(days=1)).strftime("%Y-%m-%d"))
     af_fix = []
-    for d in (date, (datetime.fromisoformat(date) + timedelta(days=1)).strftime("%Y-%m-%d")):
+    for d in sorted(fix_dates):
         q = urllib.parse.urlencode({"league": LEAGUE, "season": SEASON, "date": d})
         af_fix += http(f"{AF_BASE}/fixtures?{q}", {"x-apisports-key": akey}).get("response", [])
 
@@ -138,7 +157,7 @@ def build(date: str) -> dict:
     by_market: dict[str, int] = {}
     matched = unmatched = 0
 
-    for ev in events:
+    for etd, ev in ev_pairs:
         home, away = ev.get("home_team"), ev.get("away_team")
         hid, aid = team_id_for(home, af_fix), team_id_for(away, af_fix)
         team_by_id = {hid: home, aid: away}
@@ -197,7 +216,7 @@ def build(date: str) -> dict:
                     unmatched += 1
                 line = k[3]
                 matches.append({
-                    "matchId": ev["id"], "fixture": f"{home} vs {away}",
+                    "matchId": ev["id"], "matchDate": etd, "fixture": f"{home} vs {away}",
                     "player": {
                         "id": sq_match.get("id") if sq_match else None,
                         "name": player_name,
@@ -221,7 +240,7 @@ def build(date: str) -> dict:
 
     now = datetime.now(timezone.utc).isoformat()
     return {
-        "generatedAt": now, "sport": "world_cup", "date": date,
+        "generatedAt": now, "sport": "world_cup", "date": date, "slateWindow": window,
         "disclaimer": "Odds-backed World Cup player props (anytime goalscorer + shots on target) "
                       "from The Odds API, with player identity/photo from API-Football. Limited "
                       "data — market-implied only, NOT parlay or Bank Builder eligible. No fabrication.",
