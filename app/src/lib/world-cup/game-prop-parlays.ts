@@ -31,8 +31,32 @@ import {
   knockoutTierLabel,
   type KnockoutContext,
 } from "@/lib/world-cup/knockout-intelligence";
+import {
+  expectedGameScript,
+  correlationProfile,
+  confidenceLabel,
+  volatilityLabel,
+  type EditorialLeg,
+} from "@/lib/world-cup/wc-editorial";
 
 const RISK_ORDER: RiskLevel[] = ["low", "medium", "high", "longshot"];
+
+/**
+ * Editorial overlay carried on every game-prop card IN ADDITION to the base `SuggestedParlayCard`
+ * fields. The shared `ParlayCard` renderer never reads these; the game-detail page reads them off the
+ * card (via this extended shape) and surfaces the analyst-voice content — a `tierLabel` (Safe /
+ * Balanced / Aggressive), a `narrative` (why these legs belong together, woven with the expected game
+ * script), a `correlation` profile (score + direction + summary, NEVER "independent" for same-game team
+ * stacks), and `confidence` + `volatility` labels. All derived from the real legs/odds — nothing faked.
+ */
+export interface GamePropCardEditorial {
+  tierLabel: "Safe" | "Balanced" | "Aggressive";
+  narrative: string;
+  confidence: ReturnType<typeof confidenceLabel>;
+  volatility: ReturnType<typeof volatilityLabel>;
+  correlation: ReturnType<typeof correlationProfile>;
+}
+export type GamePropParlayCard = SuggestedParlayCard & { editorial: GamePropCardEditorial };
 
 /**
  * Individual-leg price guard, mirroring the slate engine + the game page's `qualifiedPlayerProps`:
@@ -196,9 +220,19 @@ function buildCard(args: {
   why: string[];
   whyFail: string[];
   correlationSummary: string;
-}): SuggestedParlayCard | null {
+  /** Analyst-voice editorial overlay surfaced on the game-detail card. */
+  tierLabel: GamePropCardEditorial["tierLabel"];
+  narrative: string;
+  /** EditorialLeg view of the same legs — drives the shared correlationProfile() (never independence
+   *  for a same-game team stack). For player slips this carries the same gameId on each leg so the
+   *  profile reads the honest same-match-but-different-players correlation. */
+  editorialLegs: EditorialLeg[];
+}): GamePropParlayCard | null {
   const combined = combinedAmerican(args.legs.map((l) => l.odds));
   if (!combined) return null; // never publish a card without a real, computed price
+  const correlation = correlationProfile(args.editorialLegs);
+  const confidence = confidenceLabel(args.modelProb ?? 0);
+  const volatility = volatilityLabel(combined.american);
   return {
     parlayId: args.id,
     sport: "WORLD_CUP",
@@ -210,16 +244,18 @@ function buildCard(args: {
     estimatedHitProbability: args.modelProb,
     payoutMultiple: combined.decimal,
     averageLegQuality: 0,
-    confidenceTier: "",
+    confidenceTier: confidence,
     riskTier: "",
-    correlationScore: args.parlayType === "same_game" ? 0.5 : 0,
+    // Real correlation score from the shared editorial brain (sharedLegCount / legs), not a hard-coded 0.5.
+    correlationScore: correlation.score,
     correlationSummary: args.correlationSummary,
     whyThisParlay: args.why,
     whyItCouldFail: args.whyFail,
+    editorial: { tierLabel: args.tierLabel, narrative: args.narrative, confidence, volatility, correlation },
   };
 }
 
-function toCards(cards: SuggestedParlayCard[]): GameSpecificCards {
+function toCards(cards: GamePropParlayCard[]): GameSpecificCards {
   const byRisk: Partial<Record<RiskLevel, SuggestedParlayCard[]>> = {};
   for (const lvl of RISK_ORDER) {
     const lvlCards = cards.filter((c) => c.riskLevel === lvl);
@@ -249,6 +285,37 @@ function playerFit(p: PublicProjection, ctx: KnockoutContext | undefined): numbe
   return attacking ? knockoutFitMultiplier({ marketKey: "match_total_goals", selection: "over", odds: odds(p) ?? 0 }, ctx) : 1;
 }
 
+/** A player prop → EditorialLeg (same gameId on every leg ⇒ correlationProfile reads a same-match
+ *  block, not independent legs — keeps the honest "different players, weakly correlated via flow"
+ *  framing rather than regressing it to a fabricated independence claim). */
+function playerEditorialLeg(p: PublicProjection, gameId: string): EditorialLeg {
+  return { gameId, marketKey: p.market, selection: p.pickLabel, player: p.player?.name ?? null, team: p.player?.team ?? null, odds: odds(p) ?? 0 };
+}
+
+/**
+ * Player-slip narrative: woven with the expected game script. We name the most likely script (favorite
+ * controls / open tie / even tie) and explain why a bundle of attacking player props rides ALONGSIDE it
+ * — distinct players, so it's a flow bet, not a same-outcome stack. Falls back to a market-voice line
+ * when there is no knockout context (group dynamics).
+ */
+function playerNarrative(detail: PublicGameDetail, ctx: KnockoutContext | undefined, count: number, tier: GamePropCardEditorial["tierLabel"]): string {
+  const reach =
+    tier === "Safe" ? "the steadiest, highest-probability attacking reads"
+      : tier === "Balanced" ? "two model favorites plus a longer mid-priced swing"
+        : "two steady anchors plus one plus-money upside leg";
+  if (!ctx) {
+    return `${reach.charAt(0).toUpperCase()}${reach.slice(1)} across ${count} distinct players in ${detail.homeTeam} vs ${detail.awayTeam}. Different players means the slip rides the game's overall attacking flow rather than a single outcome — weakly correlated, not a same-outcome stack.`;
+  }
+  const fav = ctx.favoriteTeam;
+  const scriptHook =
+    ctx.contenderTier === "strong-favorite" && fav
+      ? `${fav} are expected to control territory and create the better chances, so attacking props on the side carrying the play move with that script.`
+      : ctx.contenderTier === "even"
+        ? `This is a coin-flip tie likely to stay tight, so these are bets on the players most likely to find the game's limited high-value moments — not on a goal flood.`
+        : `The favorite carries the play while the underdog defends and counters, so the most likely scorers/shooters are the ones getting the cleaner looks.`;
+  return `${reach.charAt(0).toUpperCase()}${reach.slice(1)} across ${count} distinct players. ${scriptHook} Because the legs are different players, the slip rides the overall game flow rather than a single outcome — weakly correlated, never sold as independent.`;
+}
+
 function buildPlayerParlays(detail: PublicGameDetail, ctx: KnockoutContext | undefined): GameSpecificCards {
   // Quality pool: real odds-backed legs within the lower-variance price band, one entry per player keeps
   // distinct players easy. Scorer/assist are the "upside" markets; shots-on-target the steadier ones.
@@ -265,7 +332,7 @@ function buildPlayerParlays(detail: PublicGameDetail, ctx: KnockoutContext | und
     .sort((a, b) => b.score - a.score)
     .map((x) => x.p);
 
-  // A longer "upside" leg for the Longshot tier: a real plus-money ANYTIME-SCORER (the natural upside
+  // A longer "upside" leg for the Aggressive tier: a real plus-money ANYTIME-SCORER (the natural upside
   // market) priced for value, capped at +UPSIDE_MAX so it reaches without becoming a lottery ticket.
   // Falls back to a plus-money assist only if no scorer is in range. Ranked by model probability so
   // the chosen upside leg is the BEST value in range, not simply the longest price.
@@ -296,7 +363,12 @@ function buildPlayerParlays(detail: PublicGameDetail, ctx: KnockoutContext | und
     return out;
   };
 
-  const cards: SuggestedParlayCard[] = [];
+  const cards: GamePropParlayCard[] = [];
+  const gameId = String(detail.matchId ?? "");
+  // Player legs are different players within ONE match → weakly correlated via game flow, not a
+  // same-outcome stack and not truly independent. This disclosure is surfaced on every player card.
+  const PLAYER_SG_NOTE =
+    "Same-match legs on different players — weakly correlated via game flow (not a same-outcome stack, not fully independent). One quiet performance can break the slip on its own.";
 
   // SAFE — 2–3 highest-model-probability legs (lower combined odds). Need ≥2 quality legs.
   const safeLegs = pickDistinct(safePool, 3, new Set());
@@ -315,7 +387,10 @@ function buildPlayerParlays(detail: PublicGameDetail, ctx: KnockoutContext | und
             ...(ctxNote ? [ctxNote] : []),
           ],
           whyFail: ["Distinct players, but each is a single-player event — one quiet performance breaks the slip."],
-          correlationSummary: "Distinct players; treated as independent legs (no same-game correlation claimed).",
+          correlationSummary: PLAYER_SG_NOTE,
+          tierLabel: "Safe",
+          narrative: playerNarrative(detail, ctx, legs.length, "Safe"),
+          editorialLegs: legs.map((p) => playerEditorialLeg(p, gameId)),
         }),
       ),
     );
@@ -349,14 +424,17 @@ function buildPlayerParlays(detail: PublicGameDetail, ctx: KnockoutContext | und
               ...(ctxNote ? [ctxNote] : []),
             ],
             whyFail: ["The mid-priced leg is the swing — a longer-odds prop misses more often than the favorites."],
-            correlationSummary: "Same-match legs on different players — weakly correlated via game flow (not a same-outcome stack); priced as independent.",
+            correlationSummary: PLAYER_SG_NOTE,
+            tierLabel: "Balanced",
+            narrative: playerNarrative(detail, ctx, balancedLegs.length, "Balanced"),
+            editorialLegs: balancedLegs.map((p) => playerEditorialLeg(p, gameId)),
           }),
         ),
       );
     }
   }
 
-  // LONGSHOT — steady anchors + exactly ONE plus-money upside leg (a real scorer, not a lottery stack).
+  // AGGRESSIVE — steady anchors + exactly ONE plus-money upside leg (a real scorer, not a lottery stack).
   // Stacking several +800/+950 rare events would tank the hit rate to ~0 and balloon the price into a
   // fabricated-looking lottery ticket; one upside leg on two anchors reaches for payout honestly.
   {
@@ -368,14 +446,14 @@ function buildPlayerParlays(detail: PublicGameDetail, ctx: KnockoutContext | und
       new Set(),
     );
     const longLegs = [...base, ...upside];
-    // Only a real longshot if it reaches for upside (the plus-money leg) and has ≥3 distinct legs.
+    // Only a real aggressive slip if it reaches for upside (the plus-money leg) and has ≥3 distinct legs.
     if (longLegs.length >= 3 && upside.length === 1) {
       const upMkt = upside[0].market === "player_goal_scorer_anytime" ? "anytime-scorer" : "assist";
       cards.push(
         ...keep(
           buildCard({
-            id: `gpp-player-longshot-${detail.matchId}`,
-            riskLevel: "longshot",
+            id: `gpp-player-aggressive-${detail.matchId}`,
+            riskLevel: "high",
             parlayType: "cross_game",
             legs: longLegs.map(playerLeg),
             modelProb: combinedModelProbability(longLegs),
@@ -384,7 +462,10 @@ function buildPlayerParlays(detail: PublicGameDetail, ctx: KnockoutContext | und
               ...(ctxNote ? [ctxNote] : []),
             ],
             whyFail: [`High variance — the ${upMkt} upside leg misses more often than it hits; built for payout, not hit rate.`],
-            correlationSummary: "Same-match legs on different players — weakly correlated via game flow (not a same-outcome stack); priced as independent.",
+            correlationSummary: PLAYER_SG_NOTE,
+            tierLabel: "Aggressive",
+            narrative: playerNarrative(detail, ctx, longLegs.length, "Aggressive"),
+            editorialLegs: longLegs.map((p) => playerEditorialLeg(p, gameId)),
           }),
         ),
       );
@@ -458,32 +539,71 @@ function buildTeamParlays(detail: PublicGameDetail, ctx: KnockoutContext | undef
   const bttsYes = btts?.outcomes?.find((o) => o.side === "yes");
   const dnbFav = dnb?.outcomes?.find((o) => o.side === (ctx?.favorite === "away" ? "away" : "home"));
 
-  // ── Combo 1: Knockout-survival lean (lower variance) — favorite DC + Under 2.5 + BTTS No. ──
+  const toCand = (marketKey: string, o: Outcome): Cand => ({
+    marketKey, label: o.label, side: o.side, odds: o.americanOdds as number,
+    modelP: o.modelProbability, marketP: o.marketProbability, flagTeam: flagTeamFromLabel(o.label, ctx, home, away),
+  });
+  const totCand = (o: Outcome | undefined): Cand | null =>
+    o ? { marketKey: "match_total_goals", label: o.label, side: o.side, odds: o.americanOdds as number, modelP: o.modelProbability, marketP: o.marketProbability, flagTeam: null } : null;
+  const bttsCand = (o: Outcome | undefined): Cand | null =>
+    o ? { marketKey: "btts", label: o.label, side: o.side, odds: o.americanOdds as number, modelP: o.modelProbability, marketP: o.marketProbability, flagTeam: null } : null;
+
+  // ── SAFE: lowest-variance — favorite DC + Under 2.5 + BTTS No. ──
   // A cautious, lead-protecting tie: the favorite avoids defeat, few goals, a clean sheet somewhere.
   // Skip the DC anchor when it is shorter than -1000 (e.g. -2500): at that price it is near-certain
   // padding that barely moves the slip — Under + BTTS No still carry the cautious-tie thesis honestly.
-  const survivalLegs: Cand[] = [];
+  const safeTeamLegs: Cand[] = [];
   if (dcFav && typeof dcFav.americanOdds === "number" && dcFav.americanOdds >= -1000)
-    survivalLegs.push({ marketKey: "double_chance", label: dcFav.label, side: dcFav.side, odds: dcFav.americanOdds, modelP: dcFav.modelProbability, marketP: dcFav.marketProbability, flagTeam: flagTeamFromLabel(dcFav.label, ctx, home, away) });
-  if (underTot && (underTot.americanOdds as number) <= LONGSHOT_MAX_ODDS) survivalLegs.push({ marketKey: "match_total_goals", label: underTot.label, side: underTot.side, odds: underTot.americanOdds as number, modelP: underTot.modelProbability, marketP: underTot.marketProbability, flagTeam: null });
-  if (bttsNo) survivalLegs.push({ marketKey: "btts", label: bttsNo.label, side: bttsNo.side, odds: bttsNo.americanOdds as number, modelP: bttsNo.modelProbability, marketP: bttsNo.marketProbability, flagTeam: null });
+    safeTeamLegs.push(toCand("double_chance", dcFav));
+  const safeUnder = underTot && (underTot.americanOdds as number) <= LONGSHOT_MAX_ODDS ? totCand(underTot) : null;
+  if (safeUnder) safeTeamLegs.push(safeUnder);
+  const safeBttsNo = bttsCand(bttsNo);
+  if (safeBttsNo) safeTeamLegs.push(safeBttsNo);
 
-  // ── Combo 2: Aggressive lean (higher return) — favorite DNB + Over 2.5 (+ BTTS Yes). ──
-  const aggressiveLegs: Cand[] = [];
-  if (dnbFav) aggressiveLegs.push({ marketKey: "draw_no_bet", label: dnbFav.label, side: dnbFav.side, odds: dnbFav.americanOdds as number, modelP: dnbFav.modelProbability, marketP: dnbFav.marketProbability, flagTeam: flagTeamFromLabel(dnbFav.label, ctx, home, away) });
+  // ── BALANCED: favorite result + a totals lean. ──
+  // The favorite to actually win (DNB if posted, else ML) paired with the totals side that AGREES with
+  // the expected script: a low-event tie pairs the win with Under; an open one pairs it with Over. We
+  // read the script from the de-vig defensiveLean so the totals leg reinforces the result, not fights it.
+  const balancedTeamLegs: Cand[] = [];
+  const favResult: Cand | null = dnbFav
+    ? toCand("draw_no_bet", dnbFav)
+    : (ml?.outcomes?.find((o) => o.side === (ctx?.favorite === "away" ? "away" : "home")) && typeof ml?.outcomes?.find((o) => o.side === (ctx?.favorite === "away" ? "away" : "home"))?.americanOdds === "number"
+      ? toCand("moneyline_90", ml!.outcomes!.find((o) => o.side === (ctx?.favorite === "away" ? "away" : "home"))!)
+      : null);
+  if (favResult) balancedTeamLegs.push(favResult);
+  const cautiousScript = (ctx?.defensiveLean ?? 0.5) >= 0.5;
+  const balancedTotals = cautiousScript ? (safeUnder ?? totCand(overTot)) : (totCand(overTot) ?? safeUnder);
+  if (balancedTotals) balancedTeamLegs.push(balancedTotals);
+
+  // ── AGGRESSIVE: higher variance — favorite to win + Over 2.5 + BTTS Yes. ──
+  const aggressiveTeamLegs: Cand[] = [];
+  if (favResult) aggressiveTeamLegs.push(favResult);
   else if (ml) addOutcome("moneyline_90", ml.outcomes?.find((o) => o.side === (ctx?.favorite === "away" ? "away" : "home")));
-  if (overTot) aggressiveLegs.push({ marketKey: "match_total_goals", label: overTot.label, side: overTot.side, odds: overTot.americanOdds as number, modelP: overTot.modelProbability, marketP: overTot.marketProbability, flagTeam: null });
-  if (bttsYes) aggressiveLegs.push({ marketKey: "btts", label: bttsYes.label, side: bttsYes.side, odds: bttsYes.americanOdds as number, modelP: bttsYes.modelProbability, marketP: bttsYes.marketProbability, flagTeam: null });
-  // moneyline fallback may have landed in `cands` — fold it in.
-  for (const c of cands) if (c.marketKey === "moneyline_90") aggressiveLegs.unshift(c);
-
-  const SG_NOTE =
-    "Same-game stack — these team markets are CORRELATED by nature (they describe one match), so they are NOT independent. Disclosed, not hidden: a same-game combo wins or loses as a single correlated outcome.";
+  const aggOver = totCand(overTot);
+  if (aggOver) aggressiveTeamLegs.push(aggOver);
+  const aggBttsYes = bttsCand(bttsYes);
+  if (aggBttsYes) aggressiveTeamLegs.push(aggBttsYes);
+  // moneyline fallback may have landed in `cands` — fold it in as the result leg.
+  for (const c of cands) if (c.marketKey === "moneyline_90" && !aggressiveTeamLegs.some((l) => l.marketKey === "moneyline_90")) aggressiveTeamLegs.unshift(c);
 
   const fitScore = (legs: Cand[]) =>
     legs.reduce((s, l) => s + knockoutFitMultiplier({ marketKey: l.marketKey, selection: l.side, odds: l.odds }, ctx), 0) / Math.max(1, legs.length);
 
-  const makeTeamCard = (id: string, risk: RiskLevel, legs: Cand[], why: string[], whyFail: string[]): SuggestedParlayCard | null => {
+  // Same-game team markets describe ONE match → correlated by nature. correlationProfile (same gameId on
+  // every leg) returns the honest direction: positive when the legs share a script (DC+Under+BTTS-No, all
+  // low-event), negative when they're in tension (a win that needs goals + an Under that suppresses them).
+  const teamEditorialLegs = (legs: Cand[]): EditorialLeg[] =>
+    legs.map((l) => ({ gameId: String(detail.matchId ?? ""), marketKey: l.marketKey, selection: l.label, team: l.flagTeam, odds: l.odds }));
+
+  const makeTeamCard = (
+    id: string,
+    risk: RiskLevel,
+    legs: Cand[],
+    tier: GamePropCardEditorial["tierLabel"],
+    why: string[],
+    whyFail: string[],
+    narrative: string,
+  ): GamePropParlayCard | null => {
     if (legs.length < 2) return null; // skip combos with <2 sensible markets
     const displayLegs = legs.map((l) =>
       teamLeg({ marketLabel: TEAM_MARKET_LABEL[l.marketKey] ?? l.marketKey, pickLabel: l.label, side: l.side, odds: l.odds, modelProbability: l.modelP, marketProbability: l.marketP, flagTeam: l.flagTeam }),
@@ -491,6 +611,9 @@ function buildTeamParlays(detail: PublicGameDetail, ctx: KnockoutContext | undef
     // Same-game model probability: do NOT multiply correlated legs (would understate). Use the
     // weakest (most binding) leg's model probability as an honest, conservative single estimate.
     const weakest = Math.min(...legs.map((l) => l.modelP).filter((p) => p > 0));
+    const eLegs = teamEditorialLegs(legs);
+    // Correlation summary comes from the shared brain — NEVER "independent" for a same-game team stack.
+    const profile = correlationProfile(eLegs);
     return buildCard({
       id,
       riskLevel: risk,
@@ -499,34 +622,68 @@ function buildTeamParlays(detail: PublicGameDetail, ctx: KnockoutContext | undef
       modelProb: Number.isFinite(weakest) ? weakest : null,
       why,
       whyFail,
-      correlationSummary: SG_NOTE,
+      correlationSummary: `Same-game stack — these team markets describe ONE match, so they are correlated, not independent. ${profile.summary}`,
+      tierLabel: tier,
+      narrative,
+      editorialLegs: eLegs,
     });
   };
 
-  const built: Array<{ card: SuggestedParlayCard; fit: number }> = [];
-  const survival = makeTeamCard(
-    `gpp-team-survival-${detail.matchId}`,
+  const script = ctx ? expectedGameScript(ctx) : `${home} vs ${away}: group-stage dynamics — no knockout extra-time exposure on 90-minute markets.`;
+  const built: Array<{ card: GamePropParlayCard; fit: number }> = [];
+  // Skip a tier whose exact leg set duplicates one already built (e.g. Balanced collapsing into Safe
+  // when only a favorite + Under are posted) — honest "skip", never a duplicate card under two labels.
+  const seenSigs = new Set<string>();
+  const sigOf = (legs: Cand[]) => legs.map((l) => `${l.marketKey}:${l.side}`).sort().join("|");
+  const pushIfNovel = (card: GamePropParlayCard | null, legs: Cand[]) => {
+    if (!card) return;
+    const sig = sigOf(legs);
+    if (seenSigs.has(sig)) return;
+    seenSigs.add(sig);
+    built.push({ card, fit: fitScore(legs) });
+  };
+
+  const safeCard = makeTeamCard(
+    `gpp-team-safe-${detail.matchId}`,
     "low",
-    survivalLegs,
+    safeTeamLegs,
+    "Safe",
     [
-      `Knockout-survival lean (${tierLabel}): the favorite avoids defeat in a cautious, low-event tie.`,
+      `Lowest-variance lean (${tierLabel}): the favorite avoids defeat in a cautious, low-event tie.`,
       ...(ctx?.notes?.[0] ? [ctx.notes[0]] : []),
     ],
     ["A single early goal can flip Under 2.5 and BTTS No together — same-game legs fail as a correlated block."],
+    `${script} A favorite double chance plus Under 2.5 and BTTS No all describe that same cautious, lead-protecting script, so the legs reinforce one story rather than betting on separate things.`,
   );
-  if (survival) built.push({ card: survival, fit: fitScore(survivalLegs) });
+  pushIfNovel(safeCard, safeTeamLegs);
 
-  const aggressive = makeTeamCard(
-    `gpp-team-aggressive-${detail.matchId}`,
+  const balancedCard = makeTeamCard(
+    `gpp-team-balanced-${detail.matchId}`,
     "medium",
-    aggressiveLegs,
+    balancedTeamLegs,
+    "Balanced",
+    [
+      `Balanced lean (${tierLabel}): the favorite to win paired with the totals side that fits the expected script.`,
+      ...(ctx?.notes?.[0] ? [ctx.notes[0]] : []),
+    ],
+    [`The result and totals legs are correlated — if the favorite is held or the game flips open against the lean, both can miss together.`],
+    `${script} Backing the favorite to win and pairing it with the ${cautiousScript ? "Under" : "Over"} keeps the totals leg pointed the same way as the expected game flow — a moderate combo that still moves as one correlated bet.`,
+  );
+  pushIfNovel(balancedCard, balancedTeamLegs);
+
+  const aggressiveCard = makeTeamCard(
+    `gpp-team-aggressive-${detail.matchId}`,
+    "high",
+    aggressiveTeamLegs,
+    "Aggressive",
     [
       `Aggressive lean (${tierLabel}): the favorite wins an open game with goals at both ends.`,
       ...(ctx?.knockout ? ["Note: an open, high-scoring knockout tie is the less likely script — the market leans cautious."] : []),
     ],
     ["A cagey, lead-protecting knockout tie (the more likely script) sinks the Over and BTTS Yes together."],
+    `${script} This slip bets AGAINST that caution — the favorite to win plus Over 2.5 and BTTS Yes only land in an open, end-to-end game. The legs are positively correlated (all need goals), which is exactly why it's the higher-variance read.`,
   );
-  if (aggressive) built.push({ card: aggressive, fit: fitScore(aggressiveLegs) });
+  pushIfNovel(aggressiveCard, aggressiveTeamLegs);
 
   // Rank by knockout fit (higher = fits the tie's script better), then attach the limited-data caveat.
   built.sort((a, b) => b.fit - a.fit);
@@ -535,8 +692,8 @@ function buildTeamParlays(detail: PublicGameDetail, ctx: KnockoutContext | undef
   return toCards(cards);
 }
 
-/** Drop nulls from optional card builders without scattering `if (c)` everywhere. */
-function keep(card: SuggestedParlayCard | null): SuggestedParlayCard[] {
+/** Drop nulls from optional card builders without scattering `if (c)` everywhere (preserves card type). */
+function keep<T>(card: T | null): T[] {
   return card ? [card] : [];
 }
 

@@ -22,6 +22,7 @@ import PlayerAvatar from "@/components/ui/player-avatar";
 import StatusChip from "@/components/ui/status-chip";
 import { ParlayCard } from "@/components/parlays/parlays-explorer";
 import type { GameSpecificCards } from "@/lib/world-cup/game-specific-cards";
+import type { SuggestedParlayCard } from "@/lib/parlays/ui-loader";
 import { worldCupPlayerModelPicks, isLimitedDataProps } from "@/lib/world-cup/player-model-picks";
 
 import { RISK_LABELS } from "@/lib/parlays/risk-taxonomy";
@@ -89,6 +90,95 @@ function MarketSection({ label, picks }: { label: string; picks: PublicProjectio
         <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>No model-qualified pick</span>
       )}
     </div>
+  );
+}
+
+// ── Editorial overlay on game-prop parlay cards (player + team) ──────────────────────────────────
+/**
+ * The game-prop generator (`game-prop-parlays.ts`) attaches an analyst-voice `editorial` overlay to
+ * each card IN ADDITION to the base SuggestedParlayCard fields. The shared `SuggestedParlayCard` type
+ * (ui-loader, not editable here) doesn't declare it, so we read it through this narrow extension.
+ */
+interface GamePropEditorial {
+  tierLabel: "Safe" | "Balanced" | "Aggressive";
+  narrative: string;
+  confidence: "High" | "Solid" | "Lean" | "Speculative";
+  volatility: "Low" | "Medium" | "High" | "Extreme";
+  correlation: { score: number; direction: "independent" | "positive" | "negative" | "mixed"; summary: string };
+}
+type EditorialCard = SuggestedParlayCard & { editorial?: GamePropEditorial };
+
+const TIER_ORDER: GamePropEditorial["tierLabel"][] = ["Safe", "Balanced", "Aggressive"];
+const TIER_BLURB: Record<GamePropEditorial["tierLabel"], string> = {
+  Safe: "Lowest-variance — highest-probability legs, shortest combined price.",
+  Balanced: "Moderate payout and survival — a longer combined price for more upside.",
+  Aggressive: "Higher-variance — built for payout over hit rate; the legs need the bolder script.",
+};
+const CONF_TONE: Record<GamePropEditorial["confidence"], string> = {
+  High: "var(--vault-success)", Solid: "var(--vault-success)", Lean: "var(--vault-gold-bright)", Speculative: "var(--gtp-bank-heat)",
+};
+const VOL_TONE: Record<GamePropEditorial["volatility"], string> = {
+  Low: "var(--vault-success)", Medium: "var(--vault-gold-bright)", High: "var(--gtp-bank-heat)", Extreme: "var(--gtp-bank-heat)",
+};
+const CORR_TONE: Record<GamePropEditorial["correlation"]["direction"], string> = {
+  independent: "var(--vault-text-faint)", positive: "var(--vault-gold-bright)", negative: "var(--gtp-bank-heat)", mixed: "var(--vault-gold-bright)",
+};
+
+/** A small labelled chip used in the editorial strip (confidence / volatility). */
+function EditorialChip({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-[6px] px-2 py-0.5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-border)" }}>
+      <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{label}</span>
+      <span className="font-mono" style={{ color, fontSize: 11, fontWeight: 600 }}>{value}</span>
+    </span>
+  );
+}
+
+/**
+ * A game-prop parlay card with its editorial overlay: a header strip (confidence + volatility),
+ * the analyst narrative woven with the expected game script, the real correlation profile
+ * (score + direction + summary), then the existing ParlayCard (legs, odds, why/risk, correlation note).
+ */
+function EditorialParlayCard({ card }: { card: EditorialCard }) {
+  const ed = card.editorial;
+  if (!ed) return <ParlayCard card={card} />;
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5 rounded-t-xl px-3.5 pt-3 pb-2.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)", borderBottom: "none" }}>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <EditorialChip label="confidence" value={ed.confidence} color={CONF_TONE[ed.confidence]} />
+          <EditorialChip label="volatility" value={ed.volatility} color={VOL_TONE[ed.volatility]} />
+          <EditorialChip label="correlation" value={`${ed.correlation.direction} · ${ed.correlation.score.toFixed(2)}`} color={CORR_TONE[ed.correlation.direction]} />
+        </div>
+        <p className="text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{ed.narrative}</p>
+        <p className="text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8.5 }}>correlation read · </span>{ed.correlation.summary}
+        </p>
+      </div>
+      <div className="-mt-2"><ParlayCard card={card} /></div>
+    </div>
+  );
+}
+
+/** Render game-prop cards grouped by the Safe / Balanced / Aggressive tier label (not the raw risk
+ *  bucket). Each tier is emitted only when a real card backs it — empty tiers are skipped honestly. */
+function TieredEditorialCards({ cards }: { cards: EditorialCard[] }) {
+  return (
+    <>
+      {TIER_ORDER.map((tier) => {
+        const tierCards = cards.filter((c) => c.editorial?.tierLabel === tier);
+        if (tierCards.length === 0) return null;
+        return (
+          <div key={tier} className="flex flex-col gap-2.5">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{tier} · {tierCards.length}</span>
+              <span className="text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>{TIER_BLURB[tier]}</span>
+            </div>
+            {tierCards.map((c) => <EditorialParlayCard key={c.parlayId} card={c} />)}
+          </div>
+        );
+      })}
+    </>
   );
 }
 
@@ -218,22 +308,13 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     </div>
   );
 
-  // ── Tab: Player prop parlays (Safe / Balanced / Longshot — distinct players, real odds) ──
+  // ── Tab: Player prop parlays (Safe / Balanced / Aggressive — distinct players, real odds) ──
   const playerPropParlaysTotal = playerPropParlays?.total ?? 0;
   const playerPropParlaysTab = (
     <div className="flex flex-col gap-4">
-      <SectionHeader eyebrow={`Player prop parlays · ${playerPropParlaysTotal}`} title="Player prop parlays for this match" sub="Safe / Balanced / Longshot — built from this game's posted player props, distinct players per slip, combined odds computed from the real prices. Tap any leg for model + market detail." />
+      <SectionHeader eyebrow={`Player prop parlays · ${playerPropParlaysTotal}`} title="Player prop parlays for this match" sub="Safe / Balanced / Aggressive — built from this game's posted player props, distinct players per slip, combined odds computed from the real prices. Each card carries a confidence + volatility read and an honest correlation note. Tap any leg for model + market detail." />
       {playerPropParlaysTotal > 0 ? (
-        RISK_ORDER.map((lvl) => {
-          const cards = playerPropParlays?.byRisk[lvl] ?? [];
-          if (cards.length === 0) return null;
-          return (
-            <div key={`ppp-${lvl}`} className="flex flex-col gap-2.5">
-              <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} · {cards.length}</div>
-              {cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)}
-            </div>
-          );
-        })
+        <TieredEditorialCards cards={(playerPropParlays?.cards ?? []) as EditorialCard[]} />
       ) : (
         <div className="rounded-xl px-4 py-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
           <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>Not enough quality player props posted to build a parlay for this match yet — we never pad a slip with weak legs. Soccer player props post near lineup time; check back closer to kickoff.</p>
@@ -242,22 +323,13 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     </div>
   );
 
-  // ── Tab: Team prop parlays (same-game, correlated — disclosed) ──
+  // ── Tab: Team prop parlays (Safe / Balanced / Aggressive — same-game, correlated, disclosed) ──
   const teamPropParlaysTotal = teamPropParlays?.total ?? 0;
   const teamPropParlaysTab = (
     <div className="flex flex-col gap-4">
-      <SectionHeader eyebrow={`Team prop parlays · ${teamPropParlaysTotal}`} title="Team prop parlays for this match" sub="Same-game combos from this fixture's team markets, ranked by knockout fit. These legs are correlated by nature — disclosed on each card, never presented as independent." />
+      <SectionHeader eyebrow={`Team prop parlays · ${teamPropParlaysTotal}`} title="Team prop parlays for this match" sub="Safe / Balanced / Aggressive same-game combos from this fixture's team markets, built around the expected game script. These legs are correlated by nature — every card surfaces its correlation direction + score and never presents them as independent." />
       {teamPropParlaysTotal > 0 ? (
-        RISK_ORDER.map((lvl) => {
-          const cards = teamPropParlays?.byRisk[lvl] ?? [];
-          if (cards.length === 0) return null;
-          return (
-            <div key={`tpp-${lvl}`} className="flex flex-col gap-2.5">
-              <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} · {cards.length}</div>
-              {cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)}
-            </div>
-          );
-        })
+        <TieredEditorialCards cards={(teamPropParlays?.cards ?? []) as EditorialCard[]} />
       ) : (
         <div className="rounded-xl px-4 py-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
           <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>Not enough sensible team markets posted to build a same-game combo for this match yet. See the Team &amp; game props tab for the individual projections.</p>

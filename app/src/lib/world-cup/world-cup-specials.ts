@@ -31,6 +31,15 @@ import {
   type KnockoutContext,
 } from "@/lib/world-cup/knockout-intelligence";
 import {
+  confidenceLabel,
+  volatilityLabel,
+  correlationProfile as editorialCorrelationProfile,
+  expectedGameScript,
+  type Confidence,
+  type Volatility,
+  type EditorialLeg,
+} from "@/lib/world-cup/wc-editorial";
+import {
   classifyPlayerRoles,
   roleKeyForRow,
   ROLE_ELIGIBLE_TIERS,
@@ -137,6 +146,20 @@ export interface WorldCupSpecialCard {
   settlementNotes: string[];
   diagnostics: string[];
   roleQualitySummary?: string; // optional — set by the role-screened (preview) builder
+  // ── Editorial bundle ──────────────────────────────────────────────────────────────────────────
+  // Sportsbook-desk writeup, populated for THEMED cards (and best-effort for legacy fallback cards).
+  // All derived from the shared editorial brain (@/lib/world-cup/wc-editorial) + knockout-intelligence;
+  // never fabricated. Optional/backward-compatible — absent on pre-editorial snapshots.
+  subtitle?: string;               // one punchy line under the title
+  explanation?: string;            // 2–4 sentence analyst writeup of the THEME and why it exists this slate
+  confidence?: Confidence;         // confidenceLabel(jointModelProbability)
+  volatility?: Volatility;         // volatilityLabel(combinedOdds)
+  expectedGameScript?: string;     // stitched per-game expected scripts for the games this card touches
+  correlation?: {                  // honest correlation read (correlationProfile of the legs)
+    direction: "independent" | "positive" | "negative" | "mixed";
+    score: number;
+    summary: string;
+  };
   // Optional card-level settlement state — populated once the slate is officially settled.
   // "won" | "lost" | "pending". Backward-compatible (absent on pre-event cards).
   cardStatus?: "won" | "lost" | "pending";
@@ -768,12 +791,16 @@ function tryThemeCard(
     playerStrategy: "same-team" | "in-game";
     minPlayers?: number;
     preferMarkets?: string[];   // e.g. ["player_goal_scorer_anytime"] to lead a goal theme with scorers
+    requireMarkets?: string[];  // HARD filter — only these player markets are eligible (e.g. goalscorer-only trio)
     avoidPlayerIds?: Set<number>; // players already spent by other themes — diversifies the published set
     extraNotes?: string[];
   },
 ): ThemeOutcome | null {
   const minPlayers = opts.minPlayers ?? cfg.minPlayerPropsPerCard;
   const pref = opts.preferMarkets;
+  // When a theme HARD-requires certain player markets (e.g. a goalscorer-only trio), restrict the player
+  // pool up front so the card honestly contains only those markets — never a silent fallback to others.
+  if (opts.requireMarkets?.length) players = players.filter((p) => opts.requireMarkets!.includes(p.market));
   // De-dupe team picks + reject contradictory pairs.
   const teamLegs: SpecialLeg[] = [];
   for (const t of teamPicks) {
@@ -839,6 +866,22 @@ function cardKnockoutFit(combo: SpecialLeg[], ctxs: Map<string, KnockoutContext>
   if (!teamLegs.length) return 1;
   return teamLegs.reduce((s, l) => s + fitForTeamLeg(l, ctxs), 0) / teamLegs.length;
 }
+
+/** The full catalogue of honest themed Specials the engine attempts. A theme only PUBLISHES when the
+ *  slate's REAL in-band markets support it; the others are skipped + recorded in diagnostics (never forced,
+ *  never invented). Used for honest "built vs skipped" accounting in `buildWorldCupSpecials`. */
+export const WORLD_CUP_SPECIAL_THEMES = [
+  "Favorites Rolling",
+  "Heavy Favorite Builder",
+  "Tournament Favorite Builder",
+  "Goal Festival",
+  "Goalscorer Trio",
+  "Defensive Games",
+  "Underdog Ladder",
+  "Chaos Builder",
+  "Giant Killer",
+  "Bracket Survivor",
+] as const;
 
 /**
  * Build the themed card set. Pure + deterministic. Each theme produces 0..N quality cards; the union is
@@ -995,43 +1038,264 @@ export function buildThemedCards(
     pushBest(cands, 1);
   }
 
-  // Knockout Survival (favourite double-chance / draw-no-bet across ties) is deliberately NOT emitted on
-  // this slate: every clear-favourite DC/DNB price (Germany DC −2500, Canada DC −770, Brazil DC −625,
-  // Netherlands DC −455, Germany DNB −1430) sits SHORTER than the −250 per-leg floor, so an honest
-  // "favourite survival" card cannot be assembled in-band. Forcing underdog double-chance under a
-  // "survival" banner would misframe it — so the theme yields 0 cards rather than a misleading one.
+  // ── Heavy Favorite Builder — the board's CLEAREST sides stacked into one survival-priced ticket.
+  //    Sourced from in-band result legs on market-favourites; each leg uses the cleanest in-band side
+  //    (DC/DNB before steep moneylines) so no leg is a sub-floor favourite, backed by those favs' attackers.
+  {
+    // The favourite RESULT legs, shortest (clearest) price first — these are the "heavy" sides we can take in-band.
+    const heavies = favResultLegs
+      .filter((l) => { const c = ctxs.get(l.eventId); return c && (c.contenderTier === "strong-favorite" || c.contenderTier === "favorite"); })
+      .sort((a, b) => a.odds - b.odds); // clearest favourite first
+    const cands: (ThemeOutcome | null)[] = [];
+    for (let i = 0; i < heavies.length; i++)
+      for (let j = i + 1; j < heavies.length; j++) {
+        if (heavies[i].eventId === heavies[j].eventId) continue;
+        cands.push(tryThemeCard("Heavy Favorite Builder", [heavies[i], heavies[j]], playerLegs, ctxs, cfg, {
+          playerStrategy: "same-team", avoidPlayerIds: spentPlayers,
+          extraNotes: ["The board's clearest sides combined — individually short, together a longer survival-priced number. Each side is taken from its in-band outcome (DC/DNB over a steep moneyline), so no leg is a sub-floor favourite."],
+        }));
+      }
+    pushBest(cands, 1);
+  }
+
+  // ── Tournament Favorite Builder — the strongest CONTENDERS taken to ADVANCE (double-chance / draw-no-bet),
+  //    not merely win in 90'. This is the lowest-drama "these teams go through" expression — survives extra time.
+  {
+    const advance = resultLegs
+      .filter((l) => (l.market === "double_chance" || l.market === "draw_no_bet"))
+      .filter((l) => { const c = ctxs.get(l.eventId); return c && l.team && c.favoriteTeam === l.team && (c.contenderTier === "strong-favorite" || c.contenderTier === "favorite"); })
+      .sort((a, b) => b.modelProbability - a.modelProbability);
+    const cands: (ThemeOutcome | null)[] = [];
+    for (let i = 0; i < advance.length; i++)
+      for (let j = i + 1; j < advance.length; j++) {
+        if (advance[i].eventId === advance[j].eventId) continue;
+        cands.push(tryThemeCard("Tournament Favorite Builder", [advance[i], advance[j]], playerLegs, ctxs, cfg, {
+          playerStrategy: "same-team", avoidPlayerIds: spentPlayers,
+          extraNotes: ["Strongest contenders to ADVANCE — double-chance / draw-no-bet that survives extra time, where deep-run sides actually get eliminated. Lowest-drama way to back the favourites through."],
+        }));
+      }
+    pushBest(cands, 1);
+  }
+
+  // ── Goalscorer Trio — THREE anytime-goalscorer legs on likely (role-screened) scorers, plus the two
+  //    team anchors the discipline requires. A pure attacking longshot: only emitted if 3 in-band scorers
+  //    on eligible roles exist across the games in play (never padded with non-scorer markets).
+  {
+    const scorerPool = playerLegs.filter((p) => p.market === "player_goal_scorer_anytime");
+    const distinctScorerGames = new Set(scorerPool.map((p) => p.eventId)).size;
+    const cands: (ThemeOutcome | null)[] = [];
+    if (scorerPool.length >= 3 && distinctScorerGames >= cfg.minGamesPerCard) {
+      // Anchor on the two clearest favourite result legs from DISTINCT games that have scorers available,
+      // then require three goalscorer legs on top.
+      const anchorPool = favResultLegs.length >= 2 ? favResultLegs : resultLegs.sort((a, b) => b.modelProbability - a.modelProbability);
+      for (let i = 0; i < anchorPool.length; i++)
+        for (let j = i + 1; j < anchorPool.length; j++) {
+          if (anchorPool[i].eventId === anchorPool[j].eventId) continue;
+          cands.push(tryThemeCard("Goalscorer Trio", [anchorPool[i], anchorPool[j]], scorerPool, ctxs, cfg, {
+            playerStrategy: "in-game", minPlayers: 3,
+            requireMarkets: ["player_goal_scorer_anytime"],
+            avoidPlayerIds: spentPlayers,
+            extraNotes: ["Three likely scorers (role-screened — no bench / rotation / defenders) across the games in play, on top of two team anchors. Anytime-goalscorer is the highest-variance honest market we post — upside-first by design."],
+          }));
+        }
+    }
+    pushBest(cands, 1);
+  }
+
+  // ── Bracket Survivor — the LOWEST-variance survival ticket the slate allows: favourite double-chance /
+  //    draw-no-bet + the favourites' attackers, ranked SHORTEST combined price first (least likely to be
+  //    undone by a single swing). The honest "just get me through the round" card.
+  {
+    const survival = resultLegs
+      .filter((l) => (l.market === "double_chance" || l.market === "draw_no_bet") && l.team)
+      .filter((l) => { const c = ctxs.get(l.eventId); return c && c.favoriteTeam === l.team; })
+      .sort((a, b) => a.odds - b.odds); // shortest (safest) survival leg first
+    const cands: (ThemeOutcome | null)[] = [];
+    for (let i = 0; i < survival.length; i++)
+      for (let j = i + 1; j < survival.length; j++) {
+        if (survival[i].eventId === survival[j].eventId) continue;
+        cands.push(tryThemeCard("Bracket Survivor", [survival[i], survival[j]], playerLegs, ctxs, cfg, {
+          playerStrategy: "same-team", avoidPlayerIds: spentPlayers,
+          extraNotes: ["Lowest-variance survival across the slate — double-chance / draw-no-bet on the favourites (survives extra time) plus their attackers, the legs least likely to be undone by one swing."],
+        }));
+      }
+    pushBest(cands, 1);
+  }
+
+  // NOTE — a misleading "favourite straight-survival" card built from the steepest moneyline prices is NOT
+  // emitted: clear-favourite moneylines (Germany −305) and steep DC/DNB (Germany DC −2500, Brazil DC −625,
+  // Netherlands DC −455, Germany DNB −1430, South Africa→Canada DC −770) sit SHORTER than the −250 per-leg
+  // floor. Heavy Favorite Builder / Bracket Survivor only use the in-band favourite outcomes; the sub-floor
+  // ones are honestly skipped rather than forced under a "survival" banner.
 
   return out;
 }
 
+// ── Editorial bundle (sportsbook-desk voice) ─────────────────────────────────────────────────────
+/** Map a SpecialLeg onto the editorial brain's minimal leg shape. */
+function toEditorialLeg(l: SpecialLeg): EditorialLeg {
+  return {
+    gameId: l.eventId,
+    marketKey: l.market,
+    selection: l.side ?? l.participant,
+    team: l.team,
+    player: l.kind === "player" ? l.participant : null,
+    odds: l.odds,
+  };
+}
+
+/** Distinct games this card touches, in card order, as knockout contexts (skips any we can't resolve). */
+function cardContexts(legs: SpecialLeg[], ctxs: Map<string, KnockoutContext>): KnockoutContext[] {
+  const seen = new Set<string>();
+  const out: KnockoutContext[] = [];
+  for (const l of legs) {
+    if (seen.has(l.eventId)) continue;
+    seen.add(l.eventId);
+    const ctx = ctxs.get(l.eventId);
+    if (ctx) out.push(ctx);
+  }
+  return out;
+}
+
+/** Stitch the per-game expectedGameScript lines into one short combined script (de-duplicated, capped). */
+function combinedGameScript(legs: SpecialLeg[], ctxs: Map<string, KnockoutContext>): string {
+  const ctx = cardContexts(legs, ctxs);
+  if (!ctx.length) return "";
+  // One sentence per game (already analyst-voice); join with the connective the desk would use.
+  const scripts = ctx.slice(0, 4).map((c) => expectedGameScript(c).trim());
+  return Array.from(new Set(scripts)).join(" ");
+}
+
+/** A punchy one-line subtitle keyed off the theme + the card's actual game shape this slate. */
+function subtitleFor(theme: string, legs: SpecialLeg[], ctxs: Map<string, KnockoutContext>): string {
+  const ctx = cardContexts(legs, ctxs);
+  const teamLegs = legs.filter((l) => l.kind === "team");
+  const players = legs.filter((l) => l.kind === "player");
+  const scorers = players.filter((l) => l.market === "player_goal_scorer_anytime").length;
+  const games = ctx.length || new Set(legs.map((l) => l.eventId)).size;
+  const favNames = teamLegs.map((l) => l.team).filter((t): t is string => !!t);
+  const favList = Array.from(new Set(favNames)).slice(0, 3).join(" + ");
+  switch (theme) {
+    case "Favorites Rolling":
+      return `${games} knockout favorites the market expects to control their ties, backed by their own attackers.`;
+    case "Heavy Favorite Builder":
+      return `The clearest sides on the board${favList ? ` — ${favList}` : ""} stacked into one survival-priced ticket.`;
+    case "Tournament Favorite Builder":
+      return `The strongest contenders advancing — double-chance / draw-no-bet that survives extra time.`;
+    case "Goal Festival":
+      return `The most open games on the slate — Over 2.5 / BTTS-Yes paired with scorers in the same fixtures.`;
+    case "Goalscorer Trio":
+      return `${scorers || players.length} likely scorers across ${games} ties — a pure attacking longshot, role-screened.`;
+    case "Defensive Games":
+      return `Cautious knockout ties expected to stay tight — Under 2.5 / BTTS-No with the attacking upside on top.`;
+    case "Underdog Ladder":
+      return `Priced underdogs stacked for a longer combined number — every leg live, none a coin-flip favorite.`;
+    case "Chaos Builder":
+      return `A reasonably-priced upset welded to a value leg — variance by design, every leg market-supported.`;
+    case "Giant Killer":
+      return `Built around one defensible upset in an extra-time-live tie, with calmer support around it.`;
+    case "Bracket Survivor":
+      return `Lowest-variance survival across ${games} ties — the legs least likely to be undone by a single swing.`;
+    default:
+      return `${games} World Cup ties, model-ranked into one high-variance paper longshot.`;
+  }
+}
+
+/** The 2–4 sentence analyst writeup of WHY this theme exists on THIS slate (no fabricated stats). */
+function explanationFor(theme: string, legs: SpecialLeg[], ctxs: Map<string, KnockoutContext>, joint: number, combined: number): string {
+  const ctx = cardContexts(legs, ctxs);
+  const teamLegs = legs.filter((l) => l.kind === "team");
+  const players = legs.filter((l) => l.kind === "player");
+  const games = ctx.length || new Set(legs.map((l) => l.eventId)).size;
+  const jointPct = (joint * 100).toFixed(0);
+  const conf = confidenceLabel(joint);
+  const favTeams = Array.from(new Set(teamLegs.map((l) => l.team).filter((t): t is string => !!t)));
+  const strongFavs = ctx.filter((c) => c.contenderTier === "strong-favorite").map((c) => c.favoriteTeam).filter(Boolean);
+  const evenTies = ctx.filter((c) => c.contenderTier === "even").length;
+  const lead = {
+    "Favorites Rolling": `This card backs the sides the market already expects to control their knockout ties, then adds attackers ON those favorites so the result and the upside pull the same way. In single-leg elimination football a clear favorite manages the game and protects a lead, which is exactly the script these result legs are priced for.`,
+    "Heavy Favorite Builder": `The board's clearest sides${favTeams.length ? ` (${favTeams.slice(0, 3).join(", ")})` : ""} are combined into one ticket — individually short, together a survival-priced longshot. We stay in-band by sourcing each side from the cleaner double-chance / draw-no-bet outcome rather than the steepest moneyline, so no single leg is a sub-floor favorite.`,
+    "Tournament Favorite Builder": `The strongest contenders on the slate are taken to ADVANCE rather than simply win in 90' — double-chance and draw-no-bet legs that survive extra time, which is where deep-run sides actually get eliminated. It's the lowest-drama way to express "these teams go through."`,
+    "Goal Festival": `Built only on the games whose own markets lean open — an Over 2.5 or BTTS-Yes that the price actually supports — then stacked with scorers from those same fixtures. This is a deliberately correlated bet: if the games flow as the totals suggest, the legs hit as a bloc.`,
+    "Goalscorer Trio": `A pure attacking longshot — likely scorers across ${games} ties, every name role-screened so no bench, rotation or defensive player sneaks in. Anytime-goalscorer is the highest-variance honest market we post, so this is upside-first by construction, not a favorites play.`,
+    "Defensive Games": `These are the ties the market reads as cautious — Under 2.5 and BTTS-No that the prices back, typical of knockout football where a draw at 90' just means extra time. The attacking props ride on top as the card's only real upside; the team read is a low-event game.`,
+    "Underdog Ladder": `Priced underdogs are laddered for a longer combined number, with every leg kept genuinely live (double-chance / moneyline inside the band) rather than a flyer. None of these is a coin-flip favorite — the value is in the price, not the safety.`,
+    "Chaos Builder": `A reasonably-priced upset is welded to a value leg from another game — high variance by intent, but each leg is market-supported, not a dart. ${evenTies ? `With ${evenTies} even tie(s) on the slate, the upset side is defensible rather than wishful.` : `The upset side is the one the slate actually prices as live.`}`,
+    "Giant Killer": `The whole card is organized around ONE upset — a live underdog in an even, extra-time-live tie where the favorite's edge is thin — with the rest of the slip as calmer support. It's a single bold idea, disclosed as such, not a pile of longshots.`,
+    "Bracket Survivor": `The lowest-variance survival ticket the slate allows: the legs least likely to be undone by one swing, leaning on double-chance / draw-no-bet and the favorites' control rather than exact scorelines. ${strongFavs.length ? `${strongFavs.join(", ")} anchor${strongFavs.length === 1 ? "s" : ""} the survival case.` : ""}`,
+  }[theme] ?? `A World Cup-only, model-ranked longshot across ${games} ties.`;
+  const tail = `Joint model probability ≈ ${jointPct}% (${conf}) at a combined ${combined > 0 ? "+" : ""}${combined} — higher variance by design, ${players.length} player leg(s) limited-data / market-implied until lineups post.`;
+  return `${lead} ${tail}`;
+}
+
+/** Build the full editorial bundle for a card (subtitle / explanation / confidence / volatility /
+ *  expectedGameScript / correlation). Pure — derived from the shared editorial brain + knockout ctxs. */
+function buildEditorial(
+  theme: string,
+  legs: SpecialLeg[],
+  combined: number,
+  joint: number,
+  ctxs: Map<string, KnockoutContext>,
+): Pick<WorldCupSpecialCard, "subtitle" | "explanation" | "confidence" | "volatility" | "expectedGameScript" | "correlation"> {
+  const corr = editorialCorrelationProfile(legs.map(toEditorialLeg));
+  return {
+    subtitle: subtitleFor(theme, legs, ctxs),
+    explanation: explanationFor(theme, legs, ctxs, joint, combined),
+    confidence: confidenceLabel(joint),
+    volatility: volatilityLabel(combined),
+    expectedGameScript: combinedGameScript(legs, ctxs),
+    correlation: { direction: corr.direction, score: corr.score, summary: corr.summary },
+  };
+}
+
 /** Build a themed WorldCupSpecialCard from a ThemeOutcome (reuses the disclosure scaffold + adds theme). */
-function buildThemedCard(o: ThemeOutcome, index: number, opts: GenerateOptions, cfg: WorldCupSpecialsConfig): WorldCupSpecialCard {
+function buildThemedCard(
+  o: ThemeOutcome,
+  index: number,
+  opts: GenerateOptions,
+  cfg: WorldCupSpecialsConfig,
+  ctxs: Map<string, KnockoutContext>,
+): WorldCupSpecialCard {
   const base = buildCard(o.combo, o.combined, index, opts, cfg);
   const joint = base.jointModelProbability;
-  // Lead the "why" with the theme + its knockout-intelligence notes, then keep the structural lines.
+  const editorial = buildEditorial(o.theme, base.legs, base.combinedOdds, joint, ctxs);
+  // Lead the "why a sharp bettor places this" with the theme + its knockout-intelligence notes, then keep
+  // the structural lines + the honest editorial correlation read.
   const whyThisCard = [
-    `${o.theme}: ${themeBlurb(o.theme)}`,
+    `Why a sharp bettor places this — ${o.theme}: ${themeBlurb(o.theme)}`,
     ...o.notes,
     ...base.whyThisCard.slice(1),
+    editorial.correlation!.summary,
   ];
   return {
     ...base,
+    ...editorial,
     id: `wc-special-${opts.date}-${index + 1}`,
     theme: o.theme,
     title: `${o.theme} — ${base.title}`,
+    correlationProfile: editorial.correlation!.summary,
     whyThisCard,
-    diagnostics: [...base.diagnostics, `theme ${o.theme}`, `joint model prob ≈ ${(joint * 100).toFixed(1)}%`],
+    diagnostics: [
+      ...base.diagnostics,
+      `theme ${o.theme}`,
+      `joint model prob ≈ ${(joint * 100).toFixed(1)}%`,
+      `confidence ${editorial.confidence} · volatility ${editorial.volatility} · correlation ${editorial.correlation!.direction}`,
+    ],
   };
 }
 
 function themeBlurb(theme: string): string {
   switch (theme) {
     case "Favorites Rolling": return "expected favourites advancing, backed by attackers on those favourites — lower odds, higher joint probability.";
+    case "Heavy Favorite Builder": return "the board's clearest sides combined into one survival-priced ticket — each leg taken from its in-band outcome so none is a sub-floor favourite.";
+    case "Tournament Favorite Builder": return "the strongest contenders taken to ADVANCE via double-chance / draw-no-bet — the lowest-drama 'these teams go through' play.";
     case "Goal Festival": return "the most open games — Over 2.5 / BTTS-Yes plus goalscorers from those same fixtures.";
+    case "Goalscorer Trio": return "three role-screened likely scorers plus two team anchors — a pure attacking, upside-first longshot.";
     case "Defensive Games": return "cautious knockout ties — Under 2.5 + BTTS-No anchors with the attacking props as upside.";
     case "Underdog Ladder": return "value-heavy priced underdogs stacked for a longer combined price.";
     case "Chaos Builder": return "a reasonably-priced upset mixed with a value leg — higher variance, still market-supported.";
     case "Giant Killer": return "one carefully chosen upset in an even, extra-time-live tie, with calmer support around it.";
+    case "Bracket Survivor": return "the lowest-variance survival ticket the slate allows — favourites' double-chance / draw-no-bet, least likely to be undone by one swing.";
     default: return "a World Cup-only, model-ranked longshot card.";
   }
 }
@@ -1145,19 +1409,38 @@ export function buildWorldCupSpecials(opts: { root?: string; nowIso: string; dat
   const ctxs = buildKnockoutContexts((team.matches ?? []) as Array<Record<string, any>>);
   const themeOpts: GenerateOptions = { date: opts.date, generatedAt: opts.nowIso, config: cfg, excludeSignatures };
   const themed = buildThemedCards(themeTeamLegs, themePlayerLegs, ctxs, themeOpts);
+  // Honest theme accounting: which themes the slate could actually support at quality, and which were
+  // attempted but yielded nothing in-band (so a reader can see e.g. "Goal Festival skipped — cautious slate").
+  {
+    const built = new Set(themed.map((t) => t.theme));
+    const skipped = WORLD_CUP_SPECIAL_THEMES.filter((t) => !built.has(t));
+    if (skipped.length)
+      result.diagnostics.notes.push(`themed_specials: ${skipped.length} theme(s) not buildable in-band on this slate (skipped honestly): ${skipped.join(", ")}.`);
+  }
   const chosenThemed = selectThemed(themed, new Set(excludeSignatures), ctxs, cfg, result.diagnostics);
   const themedSpread = chosenThemed.length
     ? Math.max(...chosenThemed.map((c) => c.combined)) - Math.min(...chosenThemed.map((c) => c.combined))
     : 0;
   if (chosenThemed.length >= 2 && themedSpread >= 500) {
-    result.cards = chosenThemed.map((o, i) => buildThemedCard(o, i, themeOpts, cfg));
+    result.cards = chosenThemed.map((o, i) => buildThemedCard(o, i, themeOpts, cfg, ctxs));
     const perTheme = new Map<string, number>();
     for (const c of result.cards) perTheme.set(c.theme ?? "Specials", (perTheme.get(c.theme ?? "Specials") ?? 0) + 1);
     result.diagnostics.notes.push(
       `themed_specials: ${result.cards.length} curated cards — ${Array.from(perTheme.entries()).map(([t, n]) => `${t} ×${n}`).join(", ")}.`,
     );
   } else {
-    result.diagnostics.notes.push("themed_specials: slate did not support a quality, odds-spread themed set — kept the legacy odds-spread cards.");
+    // Even on the legacy fallback, surface the editorial bundle so every published card reads like the
+    // desk wrote it (no theme → the generic "Specials" voice). Derived from the same shared brain.
+    result.cards = result.cards.map((card) => {
+      const editorial = buildEditorial(card.theme ?? "Specials", card.legs, card.combinedOdds, card.jointModelProbability, ctxs);
+      return {
+        ...card,
+        ...editorial,
+        correlationProfile: editorial.correlation!.summary,
+        whyThisCard: [...card.whyThisCard, editorial.correlation!.summary],
+      };
+    });
+    result.diagnostics.notes.push("themed_specials: slate did not support a quality, odds-spread themed set — kept the legacy odds-spread cards (editorial bundle applied).");
   }
 
   // Surface the out-of-range / started rejection counts at the feed level for the snapshot diagnostics.

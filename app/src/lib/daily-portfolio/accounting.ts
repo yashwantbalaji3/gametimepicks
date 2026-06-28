@@ -19,6 +19,7 @@ import { readLaneRungs, selectSafestTargetFitCard, SEED_EXPOSURE, type Generated
 import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
 import { loadMlbModelPicks } from "./mlb-model-picks";
 import { loadWorldCupTeamLegs } from "./wc-team-legs";
+import { moonshotNarrative } from "../world-cup/wc-editorial";
 
 /** Activation cutoff — a lane cannot be newly activated if any leg kicks off within this many minutes. */
 export const ACTIVATION_CUTOFF_MIN = 30;
@@ -47,6 +48,7 @@ export interface PortfolioLane {
   correlationNote: string | null;
   shortfallNote: string | null;
   whyThisCard: string[];
+  narrative?: { title: string; story: string }; // Moonshot story (display-only; never affects money math)
   activationEligibility: ActivationEligibility;
   locked?: boolean;           // approved-card lock honored (legs pinned)
   approvedAt?: string;
@@ -106,6 +108,9 @@ function toPortfolioLane(lane: LaneCandidate, status: PortfolioLane["status"], e
     legs: lane.legs.map(toLeg),
     correlationNote: lane.correlationNote, shortfallNote: lane.shortfallNote,
     whyThisCard: whyThisCard(lane), activationEligibility: eligibility,
+    narrative: lane.product === "moonshot" && lane.legs.length
+      ? moonshotNarrative(lane.legs.map((p) => ({ gameId: p.gameId, marketKey: p.marketKey, selection: p.selection, team: p.team, player: p.player, odds: p.odds })))
+      : undefined,
   };
 }
 

@@ -15,6 +15,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupModelPicks, buildDailyLaneCandidates, type LaneCandidate } from "../world-cup/model-qualified-picks";
 import { readCanonicalMoney } from "../daily-portfolio/accounting";
+import { moonshotNarrative } from "../world-cup/wc-editorial";
+
+/** Moonshot story from a candidate lane's ModelPick legs (display-only; never affects money). */
+const moonNarr = (l: LaneCandidate) =>
+  l.product === "moonshot" && l.legs.length
+    ? moonshotNarrative(l.legs.map((p) => ({ gameId: p.gameId, marketKey: p.marketKey, selection: p.selection, team: p.team ?? null, player: p.player ?? null, odds: p.odds })))
+    : null;
 
 export interface DailyPortfolioLeg { selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null; photoUrl?: string | null; teamLogo?: string | null }
 
@@ -64,6 +71,7 @@ export interface DailyPortfolioCard {
   legs: DailyPortfolioLeg[];
   correlationNote: string | null;
   shortfallNote: string | null;
+  narrative?: { title: string; story: string } | null; // Moonshot story (display-only)
 }
 export interface DailyPortfolio {
   date: string;
@@ -87,7 +95,7 @@ function toCard(l: LaneCandidate): DailyPortfolioCard {
     status: l.status, stake: l.stake, targetReturn: null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
     legs: l.legs.map((p) => ({ selection: p.selection, marketLabel: p.marketLabel, matchup: p.matchup, odds: p.odds, player: p.player ?? null })),
-    correlationNote: l.correlationNote, shortfallNote: l.shortfallNote,
+    correlationNote: l.correlationNote, shortfallNote: l.shortfallNote, narrative: moonNarr(l),
   };
 }
 
@@ -101,7 +109,7 @@ function fromPersisted(root: string, date: string): DailyPortfolio | null {
     status: l.status, stake: l.stake, targetReturn: l.targetReturn ?? null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
     legs: (l.legs ?? []).map((g: any) => ({ selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null, photoUrl: g.photoUrl ?? null, teamLogo: g.teamLogo ?? null })),
-    correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null,
+    correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null, narrative: l.narrative ?? null,
   }));
   enrichLegPhotos(cards, root, date);
   const anyActive = cards.some((c) => c.status === "active");

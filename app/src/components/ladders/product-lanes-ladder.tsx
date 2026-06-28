@@ -204,6 +204,16 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
         </div>
       </div>
 
+      {/* Moonshot narrative — the story this longshot tells (display-only; derived from the legs) */}
+      {isMoonshot && card.narrative && card.legs.length ? (
+        <div className="px-3.5 py-2.5" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(124,77,255,0.06)" }}>
+          <div className="font-mono uppercase tracking-[0.08em]" style={{ color: accentColor, fontSize: 9.5, fontWeight: 700 }}>
+            🌙 {card.narrative.title}
+          </div>
+          <p className="mt-1 text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{card.narrative.story}</p>
+        </div>
+      ) : null}
+
       {/* Legs */}
       <div className="flex flex-col flex-1">
         {card.legs.length ? (

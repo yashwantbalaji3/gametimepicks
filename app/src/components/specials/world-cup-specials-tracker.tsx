@@ -79,13 +79,61 @@ function ThemeBadge({ theme }: { theme: string }) {
   );
 }
 
+/** Confidence / volatility / correlation chips — the editorial-desk read at a glance. Each carries a
+ *  faint tone so a reader scans "Speculative · Extreme · positive" without reading the prose. */
+function EditorialChip({ label, value, tone }: { label: string; value: string; tone: "neutral" | "warn" | "hot" }) {
+  const fg = tone === "hot" ? "var(--vault-gold)" : tone === "warn" ? "#e0a96d" : "var(--vault-text-mute)";
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]"
+      style={{ fontSize: 9, color: fg, background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}
+    >
+      <span style={{ color: "var(--vault-text-faint)" }}>{label}</span> {value}
+    </span>
+  );
+}
+
+const VOL_TONE: Record<string, "neutral" | "warn" | "hot"> = { Low: "neutral", Medium: "neutral", High: "warn", Extreme: "hot" };
+const CONF_TONE: Record<string, "neutral" | "warn" | "hot"> = { High: "hot", Solid: "hot", Lean: "warn", Speculative: "warn" };
+
+/** The editorial body shown under the title: subtitle, conf/vol/correlation chips, the analyst explanation,
+ *  and the stitched expected game script. Only renders the parts a card actually carries (backward-safe). */
+function EditorialBody({ card }: { card: WorldCupSpecialCard }) {
+  const hasChips = !!(card.confidence || card.volatility || card.correlation);
+  if (!card.subtitle && !card.explanation && !card.expectedGameScript && !hasChips) return null;
+  return (
+    <div className="flex flex-col gap-2">
+      {card.subtitle ? (
+        <p className="text-[12.5px]" style={{ color: "var(--vault-text)", fontWeight: 600, lineHeight: 1.4 }}>{card.subtitle}</p>
+      ) : null}
+      {hasChips ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {card.confidence ? <EditorialChip label="conf" value={card.confidence} tone={CONF_TONE[card.confidence] ?? "neutral"} /> : null}
+          {card.volatility ? <EditorialChip label="vol" value={card.volatility} tone={VOL_TONE[card.volatility] ?? "neutral"} /> : null}
+          {card.correlation ? <EditorialChip label="corr" value={card.correlation.direction} tone={card.correlation.direction === "independent" ? "neutral" : "warn"} /> : null}
+        </div>
+      ) : null}
+      {card.explanation ? (
+        <p className="text-[12px]" style={{ color: "var(--vault-text-mute)", lineHeight: 1.55 }}>{card.explanation}</p>
+      ) : null}
+      {card.expectedGameScript ? (
+        <div className="rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-rule)" }}>
+          <div className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 8.5, marginBottom: 3 }}>Expected game script</div>
+          <p className="text-[11.5px]" style={{ color: "var(--vault-text-mute)", lineHeight: 1.5 }}>{card.expectedGameScript}</p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function SpecialTicket({ card, status, idx }: { card: WorldCupSpecialCard; status: SpecialsCardStatus; idx: number }) {
   const settled = status === "won" || status === "lost" || status === "void";
+  // Prefer the editorial subtitle as the ticket subtitle; fall back to the first "why" line on legacy cards.
   return (
     <TicketCard
       accent="gold"
-      title={`${card.label} #${idx + 1}`}
-      subtitle={card.whyThisCard?.[0]}
+      title={card.theme ? `${card.theme} · ${card.label} #${idx + 1}` : `${card.label} #${idx + 1}`}
+      subtitle={card.subtitle ?? card.whyThisCard?.[0]}
       sport="World Cup"
       risk={card.risk}
       status={STATUS_TO_TICKET[status]}
@@ -95,8 +143,16 @@ function SpecialTicket({ card, status, idx }: { card: WorldCupSpecialCard; statu
       projectedReturn={card.projectedReturn}
       footer={settled
         ? <span className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>Settled review — graded leg-by-leg from the official 90-minute result. Not a pre-event pick.</span>
-        : (card.whyItCanFail?.[0] ? <span className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{card.whyItCanFail[0]}</span> : undefined)}
+        : (card.correlation?.summary ?? card.whyItCanFail?.[0]
+          ? <span className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{card.correlation?.summary ?? card.whyItCanFail?.[0]}</span>
+          : undefined)}
     >
+      {/* Editorial body sits above the legs so the card reads as desk analysis, not a bare odds list. */}
+      {!settled && (card.subtitle || card.explanation || card.expectedGameScript || card.confidence) ? (
+        <div className="mb-2.5 border-b pb-2.5" style={{ borderColor: "var(--vault-rule)" }}>
+          <EditorialBody card={card} />
+        </div>
+      ) : null}
       {(card.legs ?? []).map((l, j) => <LegRow key={l.legId ?? j} leg={legToTicket(l)} />)}
     </TicketCard>
   );
