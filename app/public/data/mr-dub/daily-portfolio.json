@@ -1,15 +1,15 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-06-27",
-  "generatedAt": "2026-06-27T05:13:48.949Z",
+  "generatedAt": "2026-06-28T00:07:15.564Z",
   "activeBankroll": 19965.4,
   "crownBankroll": 20465.4,
-  "openExposure": 100,
-  "availableBankroll": 19865.4,
-  "potentialReturn": 701.37,
+  "openExposure": 200,
+  "availableBankroll": 19765.4,
+  "potentialReturn": 1111.88,
   "products": {
     "bankBuilder": {
-      "exposure": 100,
+      "exposure": 200,
       "record": {
         "wins": 0,
         "losses": 0,
@@ -29,6 +29,66 @@
   },
   "lanes": [
     {
+      "id": "bank-builder-lane-a-step-1",
+      "product": "bank-builder",
+      "productLabel": "Bank Builder",
+      "lane": "A",
+      "step": 1,
+      "clearedSteps": 0,
+      "status": "active",
+      "stake": 100,
+      "exposure": 100,
+      "targetReturn": 700,
+      "fitsTarget": true,
+      "combinedOdds": -109,
+      "combinedDecimal": 1.9151,
+      "potentialReturn": 191.51,
+      "legCount": 2,
+      "targetLegs": 2,
+      "legs": [
+        {
+          "id": "team:72:moneyline_90:away",
+          "matchup": "Jordan vs Argentina",
+          "market": "Match Result",
+          "selection": "Argentina",
+          "player": null,
+          "odds": -700,
+          "provider": "betrivers",
+          "modelConfidence": 0.86,
+          "kickoffEt": "10:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "team:71:btts:no",
+          "matchup": "Algeria vs Austria",
+          "market": "Both Teams To Score",
+          "selection": "Both teams to score: No",
+          "player": null,
+          "odds": -148,
+          "provider": "fanduel",
+          "modelConfidence": 0.6,
+          "kickoffEt": "10:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": null,
+      "shortfallNote": null,
+      "whyThisCard": [
+        "Operator executive-override restart (June 27 late slate): fresh $100 Step-1 on the only two not-yet-started 10 PM ET games.",
+        "Conservative survival pick — Argentina to beat Jordan (heavy favorite) + no-both-score in Algeria/Austria; two uncorrelated games."
+      ],
+      "activationEligibility": {
+        "eligible": true,
+        "reason": "operator approved — both legs pre-event (10 PM ET kickoff)"
+      },
+      "locked": true,
+      "approvedAt": "2026-06-28T00:13:42.645Z"
+    },
+    {
       "id": "bank-builder-lane-b-step-2",
       "product": "bank-builder",
       "productLabel": "Bank Builder",
@@ -40,166 +100,22 @@
       "exposure": 100,
       "targetReturn": 700,
       "fitsTarget": true,
-      "combinedOdds": 240,
-      "combinedDecimal": 3.4006,
-      "potentialReturn": 701.37,
+      "combinedOdds": 346,
+      "combinedDecimal": 4.4624,
+      "potentialReturn": 920.37,
       "legCount": 2,
       "targetLegs": 2,
       "legs": [
         {
-          "id": "team:68:btts:no",
-          "matchup": "Croatia vs Ghana",
-          "market": "Both Teams To Score",
-          "selection": "Both teams to score: No",
-          "player": null,
-          "odds": -128,
-          "provider": "fanduel",
-          "modelConfidence": 0.5314,
-          "kickoffEt": "5:00 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        },
-        {
-          "id": "team:69:moneyline_90:away",
-          "matchup": "Colombia vs Portugal",
-          "market": "Match Result",
-          "selection": "Portugal",
-          "player": null,
-          "odds": -110,
-          "provider": "betrivers",
-          "modelConfidence": 0.5004,
-          "kickoffEt": "7:30 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        }
-      ],
-      "correlationNote": null,
-      "shortfallNote": null,
-      "whyThisCard": [
-        "Safest-fit (World Cup): chosen to MAXIMIZE the chance all 2 legs land — estimated 27% combined hit probability at Tier 2 (moderate), not the longest-odds card.",
-        "Combined +240 rides $206.25 toward the $700 rung goal (avg leg confidence 52%)."
-      ],
-      "activationEligibility": {
-        "eligible": true,
-        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
-      }
-    },
-    {
-      "id": "moonshot-lane-a-2026-06-27",
-      "product": "moonshot",
-      "productLabel": "Moonshot",
-      "lane": "A",
-      "step": 1,
-      "clearedSteps": 0,
-      "status": "candidate",
-      "stake": 25,
-      "exposure": 25,
-      "targetReturn": null,
-      "fitsTarget": true,
-      "combinedOdds": 542,
-      "combinedDecimal": 6.4181,
-      "potentialReturn": 160.45,
-      "legCount": 3,
-      "targetLegs": 3,
-      "legs": [
-        {
-          "id": "team:71:moneyline_90:draw",
+          "id": "team:71:moneyline_90:away",
           "matchup": "Algeria vs Austria",
           "market": "Match Result",
-          "selection": "Draw",
+          "selection": "Austria",
           "player": null,
-          "odds": 116,
+          "odds": 188,
           "provider": "betrivers",
           "modelConfidence": 0.4392,
           "kickoffEt": "10:00 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        },
-        {
-          "id": "team:70:match_total_goals:under",
-          "matchup": "DR Congo vs Uzbekistan",
-          "market": "Total Goals",
-          "selection": "Under 2.5",
-          "player": null,
-          "odds": -122,
-          "provider": "fanduel",
-          "modelConfidence": 0.5236,
-          "kickoffEt": "7:30 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        },
-        {
-          "id": "team:67:btts:no",
-          "matchup": "Panama vs England",
-          "market": "Both Teams To Score",
-          "selection": "Both teams to score: No",
-          "player": null,
-          "odds": -158,
-          "provider": "fanduel",
-          "modelConfidence": 0.5784,
-          "kickoffEt": "5:00 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        }
-      ],
-      "correlationNote": null,
-      "shortfallNote": null,
-      "whyThisCard": [
-        "Higher-upside: 3 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 51% across 3 legs · combined +542."
-      ],
-      "activationEligibility": {
-        "eligible": false,
-        "reason": "combined +542 is below the +700 longshot floor — awaiting a longer card"
-      }
-    },
-    {
-      "id": "moonshot-lane-b-2026-06-27",
-      "product": "moonshot",
-      "productLabel": "Moonshot",
-      "lane": "B",
-      "step": 1,
-      "clearedSteps": 0,
-      "status": "candidate",
-      "stake": 25,
-      "exposure": 25,
-      "targetReturn": null,
-      "fitsTarget": true,
-      "combinedOdds": 421,
-      "combinedDecimal": 5.2142,
-      "potentialReturn": 130.36,
-      "legCount": 3,
-      "targetLegs": 3,
-      "legs": [
-        {
-          "id": "team:69:match_total_goals:over",
-          "matchup": "Colombia vs Portugal",
-          "market": "Total Goals",
-          "selection": "Over 2.5",
-          "player": null,
-          "odds": -115,
-          "provider": "betrivers",
-          "modelConfidence": 0.502,
-          "kickoffEt": "7:30 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        },
-        {
-          "id": "team:68:moneyline_90:home",
-          "matchup": "Croatia vs Ghana",
-          "market": "Match Result",
-          "selection": "Croatia",
-          "player": null,
-          "odds": -125,
-          "provider": "fanduel",
-          "modelConfidence": 0.5257,
-          "kickoffEt": "5:00 PM ET",
           "risk": "Lower-volatility",
           "photoUrl": null,
           "teamLogo": null
@@ -219,15 +135,91 @@
           "teamLogo": null
         }
       ],
-      "correlationNote": null,
+      "correlationNote": "Correlation checked: no shared game with Lane A — the two lanes can advance independently.",
       "shortfallNote": null,
       "whyThisCard": [
-        "Higher-upside: 3 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 55% across 3 legs · combined +421."
+        "🔒 Approved card locked (late-slate manual continuation) on 2026-06-28T00:07:14.940Z — refreshes won't swap these legs unless an odds/market becomes unavailable.",
+        "Safest-fit (World Cup): chosen to MAXIMIZE the chance all 2 legs land — estimated 26% combined hit probability at Tier 3 (higher variance), not the longest-odds card.",
+        "Combined +243 rides $206.25 toward the $700 rung goal (avg leg confidence 51%)."
+      ],
+      "activationEligibility": {
+        "eligible": true,
+        "reason": "approved card locked — paper exposure placed"
+      },
+      "locked": true,
+      "approvedAt": "2026-06-28T00:07:14.940Z"
+    },
+    {
+      "id": "moonshot-lane-a-2026-06-27",
+      "product": "moonshot",
+      "productLabel": "Moonshot",
+      "lane": "A",
+      "step": 1,
+      "clearedSteps": 0,
+      "status": "awaiting",
+      "stake": 25,
+      "exposure": 25,
+      "targetReturn": null,
+      "fitsTarget": true,
+      "combinedOdds": 116,
+      "combinedDecimal": 2.16,
+      "potentialReturn": 54,
+      "legCount": 1,
+      "targetLegs": 3,
+      "legs": [
+        {
+          "id": "team:71:moneyline_90:draw",
+          "matchup": "Algeria vs Austria",
+          "market": "Match Result",
+          "selection": "Draw",
+          "player": null,
+          "odds": 116,
+          "provider": "betrivers",
+          "modelConfidence": 0.4392,
+          "kickoffEt": "10:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": null,
+      "shortfallNote": "Only 1 model-qualified leg(s) available (target 3) — no low-quality legs forced.",
+      "whyThisCard": [
+        "Higher-upside: 1 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 44% across 1 legs · combined +116."
       ],
       "activationEligibility": {
         "eligible": false,
-        "reason": "combined +421 is below the +700 longshot floor — awaiting a longer card"
+        "reason": "only 1/3 model-qualified legs — awaiting a full lane"
+      }
+    },
+    {
+      "id": "moonshot-lane-b-2026-06-27",
+      "product": "moonshot",
+      "productLabel": "Moonshot",
+      "lane": "B",
+      "step": 1,
+      "clearedSteps": 0,
+      "status": "awaiting",
+      "stake": 25,
+      "exposure": 25,
+      "targetReturn": null,
+      "fitsTarget": true,
+      "combinedOdds": 0,
+      "combinedDecimal": 1,
+      "potentialReturn": 25,
+      "legCount": 0,
+      "targetLegs": 3,
+      "legs": [],
+      "correlationNote": null,
+      "shortfallNote": "Only 0 model-qualified leg(s) available (target 3) — no low-quality legs forced.",
+      "whyThisCard": [
+        "Higher-upside: 0 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 0% across 0 legs · combined 0."
+      ],
+      "activationEligibility": {
+        "eligible": false,
+        "reason": "only 0/3 model-qualified legs — awaiting a full lane"
       }
     }
   ],

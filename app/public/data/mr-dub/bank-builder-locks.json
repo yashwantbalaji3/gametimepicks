@@ -1,8 +1,76 @@
 {
-  "date": "2026-06-24",
-  "status": "settled",
-  "note": "June-24 approved cards have been officially SETTLED (see docs/settlements/june-24-bank-builder-settlement.md and world-cup/settlement/2026-06-24.json). Lane A WON (Morocco + Bosnia + Scotland/Brazil Over 2.5 → $10,089.23, COMPLETED the $10k ladder — completion banking is operator-gated). Lane B LOST (Brazil ML won, Switzerland/Canada Under 2.5 lost). The lock is now consumed; lanes are intentionally empty so a refresh does not re-pin settled cards. The next slate's approved cards will repopulate this file.",
-  "lanes": {},
-  "bankBuilder": {},
+  "date": "2026-06-27",
+  "status": "approved",
+  "note": "Operator EXECUTIVE OVERRIDE (June 27 late slate): manually approved cards on the only two not-yet-started 10 PM ET games. Overrides the quality engine's refusal on the thin late slate. Proven-settleable markets only.",
+  "bankBuilder": {
+    "A": {
+      "legs": [
+        {
+          "id": "team:72:moneyline_90:away",
+          "matchup": "Jordan vs Argentina",
+          "market": "Match Result",
+          "selection": "Argentina",
+          "player": null,
+          "odds": -700,
+          "provider": "fanduel",
+          "modelConfidence": 0.8264,
+          "kickoffEt": "10:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "team:71:btts:no",
+          "matchup": "Algeria vs Austria",
+          "market": "Both Teams To Score",
+          "selection": "Both teams to score: No",
+          "player": null,
+          "odds": -148,
+          "provider": "betrivers",
+          "modelConfidence": 0.5502,
+          "kickoffEt": "10:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
+      "approvedAt": "2026-06-28T00:07:14.940Z",
+      "reason": "late-slate manual restart"
+    },
+    "B": {
+      "legs": [
+        {
+          "id": "team:71:moneyline_90:away",
+          "matchup": "Algeria vs Austria",
+          "market": "Match Result",
+          "selection": "Austria",
+          "player": null,
+          "odds": 188,
+          "provider": "betrivers",
+          "modelConfidence": 0.4392,
+          "kickoffEt": "10:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "team:72:btts:no",
+          "matchup": "Jordan vs Argentina",
+          "market": "Both Teams To Score",
+          "selection": "Both teams to score: No",
+          "player": null,
+          "odds": -182,
+          "provider": "fanduel",
+          "modelConfidence": 0.6077,
+          "kickoffEt": "10:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
+      "approvedAt": "2026-06-28T00:07:14.940Z",
+      "reason": "late-slate manual continuation"
+    }
+  },
   "moonshot": {}
 }
