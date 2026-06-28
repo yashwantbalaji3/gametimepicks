@@ -13,20 +13,21 @@ import fs from "node:fs";
 //   Ladder #1 crown (protected, 5-0)    = $10,376.17
 //   Ladder #2 Lane A BANKED (5-0)       = $10,089.23
 //   => crown $20,465.40.
-//   FIVE real lost $100 seeds (preserved, not part of any completed ladder) = -$500:
+//   SEVEN real lost $100 seeds (preserved, not part of any completed ladder) = -$700:
 //     - dual-lane phase: three Lane B seeds (-$300, the single `dual_lane_losses` event)
 //     - cycle-3: Lane B Step-1 LOST June 25 (-$100), Lane A Step-2 LOST June 26 (-$100)
-//   => currentBankroll $19,965.40, drawdown $500, record 15-5-0-0; $0 open exposure (fresh cycle-3).
+//     - restart cycles: Lane B Step-2 LOST June 27 (-$100), Lane A Step-1 LOST June 27 (-$100)
+//   => currentBankroll $19,765.40, drawdown $700, record 15-7-0-0; $200 open exposure (fresh cycle 5/4 step-1).
 const portfolio = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
 const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
 
-test("bankroll reconciles to crown less five real lost seeds — above $19,000", () => {
+test("bankroll reconciles to crown less seven real lost seeds — above $19,000", () => {
   assert.equal(portfolio.crownBankroll, 20465.4, "protected cumulative crown immutable (Σ two banked $100→$10k finals)");
-  assert.equal(portfolio.currentBankroll, 19965.4, "crown - $500 (five real lost seeds); pending cards don't realize");
+  assert.equal(portfolio.currentBankroll, 19765.4, "crown - $700 (seven real lost seeds); pending cards don't realize");
   assert.ok(portfolio.currentBankroll > 19000, "portfolio is above $19,000");
-  assert.equal(portfolio.drawdown, 500, "drawdown = five lost $100 seeds");
-  assert.deepEqual(portfolio.record, { wins: 15, losses: 5, voids: 0, pending: 0 }, "15-5-0-0 (Lane B Step 1 WON June 26; Lane A Step 2 LOST June 26)");
-  assert.equal(portfolio.openExposure, 0, "Lane A stopped (Step 2 LOST) + Lane B advanced (Step 1 WON) → settled rungs released, live Step card tracked in daily-portfolio");
+  assert.equal(portfolio.drawdown, 700, "drawdown = seven lost $100 seeds");
+  assert.deepEqual(portfolio.record, { wins: 15, losses: 7, voids: 0, pending: 0 }, "15-7-0-0 (June-27 Lane A Step-1 and Lane B Step-2 both LOST → restarted)");
+  assert.equal(portfolio.openExposure, 0, "canonical portfolio carries no open exposure; the live June-28 Step cards are tracked in daily-portfolio");
 });
 
 test("no phantom stops — realized Lane B losses are exactly -$300, recorded with a real date", () => {

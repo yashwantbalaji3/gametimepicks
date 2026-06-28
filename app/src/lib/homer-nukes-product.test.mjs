@@ -65,13 +65,13 @@ test("allocation tracks exactly FOUR products (Diamond Specials removed); Homer 
   assert.deepEqual(a.products.map((p) => p.rank).sort(), [1, 2, 3, 4]);
 });
 
-test("portfolio analytics: Bank Builder carries the 15-5 record + ranks #1; WC Specials $100/day", () => {
+test("portfolio analytics: Bank Builder carries the 15-7 record + ranks #1; WC Specials $100/day", () => {
   const a = buildPortfolioAllocation(root, NOW, DATE);
   const bb = a.products.find((p) => p.key === "bank-builder");
   const wc = a.products.find((p) => p.key === "world-cup-specials");
-  // June-26 settlement: Lane A Step-2 LOST, Lane B Step-1 WON → record advances to 15-5 (win rate 15/20 = 0.75).
-  assert.deepEqual(bb.record, { wins: 15, losses: 5, pushes: 0 });
-  assert.ok(bb.winRate != null && bb.winRate === 0.75);
+  // June-27 settlement: both lanes lost their Step → record advances to 15-7 (win rate 15/22 ≈ 0.68).
+  assert.deepEqual(bb.record, { wins: 15, losses: 7, pushes: 0 });
+  assert.ok(bb.winRate != null && bb.winRate === 0.68);
   assert.equal(bb.rank, 1);
   assert.equal(wc.dailyAllocation, WC_SPECIALS_DAILY_ALLOCATION);
 });
@@ -80,7 +80,7 @@ test("BANKROLL INTEGRITY: the allocation never mutates portfolio.json", () => {
   const before = read(path.join(root, "mr-dub", "portfolio.json"));
   const a = buildPortfolioAllocation(root, NOW, DATE);
   assert.equal(read(path.join(root, "mr-dub", "portfolio.json")), before, "portfolio.json byte-for-byte unchanged");
-  assert.equal(a.activeBankroll, 19965.40);
+  assert.equal(a.activeBankroll, 19765.40);
   assert.equal(a.crownBankroll, 20465.40);
   assert.ok(Math.abs(a.availableBankroll - (a.activeBankroll - a.totalOpenExposure)) < 0.01, "available = active − exposure");
 });

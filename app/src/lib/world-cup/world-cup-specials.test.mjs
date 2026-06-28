@@ -49,19 +49,17 @@ test("config: combined odds band accepts +701..+2999, rejects the edges and outs
 });
 
 // ── Generator output ─────────────────────────────────────────────────────────────────────────────
-test("produces at most 5 World Cup Specials; falls back to team models when no player props are available", () => {
+test("produces at most 5 World Cup Specials; uses real player props when the slate offers them", () => {
   assert.ok(result.cards.length <= cfg.maxCardsShown, "never more than 5");
-  // June 24: team markets exist, but The Odds API offers NO soccer player-prop markets. Rather than
-  // produce 0, the generator falls back to TEAM-MODEL cards (moneyline / double-chance / totals / BTTS).
-  // This is the honest fallback state, flagged in diagnostics, not a fabrication of player props.
-  assert.ok(result.cards.length > 0 && result.cards.length <= cfg.maxCardsShown, "1..5 team-model fallback cards");
-  assert.equal(result.diagnostics.eligiblePlayerLegs, 0, "no eligible player legs in the pool");
-  assert.equal(result.diagnostics.playerPropsUnavailable, true, "diagnostics flag player props unavailable");
-  assert.equal(result.diagnostics.fallbackMode, "team_models", "diagnostics flag the team-model fallback");
-  assert.ok(
-    result.diagnostics.notes.some((n) => /player_props_unavailable/.test(n)),
-    "honest diagnostic explains the team-model fallback",
-  );
+  // June 28: the slate offers both team markets and real soccer player-prop markets, so the generator builds
+  // normal-mode Specials (>= 2 team + >= 2 player legs per card) — never the team-model fallback.
+  assert.ok(result.cards.length > 0 && result.cards.length <= cfg.maxCardsShown, "1..5 player-prop Specials");
+  assert.ok(result.diagnostics.eligiblePlayerLegs > 0, "the slate has eligible player legs in the pool");
+  assert.notEqual(result.diagnostics.fallbackMode, "team_models", "not in the team-model fallback — real player props are available");
+  // Every card carries the normal player-prop mix (asserted in detail by the mix-aware test).
+  for (const c of result.cards) {
+    assert.ok(c.playerPropCount >= cfg.minPlayerPropsPerCard, `${c.id} carries real player props`);
+  }
 });
 
 test("every card is World Cup only — no MLB / UFC / mixed legs", () => {
@@ -172,7 +170,7 @@ test("diagnostics report the real eligible-pool sizes + rejection counts", () =>
   const players = loadSpecialsPlayerLegs(process.cwd() + "/public/data", NOW, DATE);
   assert.equal(result.diagnostics.eligibleTeamLegs, team.length);
   assert.equal(result.diagnostics.eligiblePlayerLegs, players.length);
-  assert.equal(result.diagnostics.eligiblePlayerLegs, 0, "no player legs — The Odds API offers no WC player-prop markets");
+  assert.ok(result.diagnostics.eligiblePlayerLegs > 0, "the slate has eligible WC player-prop legs");
   // At noon-of-slate-day every fixture on the current slate is pre-event — derived count, not pinned to 6.
   assert.ok(SLATE_GAME_COUNT >= 2, "current slate has >= 2 fixtures (Specials need 2+ distinct games)");
   assert.equal(result.diagnostics.preEventGames, SLATE_GAME_COUNT, "every current-slate fixture is pre-event at noon-of-slate-day");

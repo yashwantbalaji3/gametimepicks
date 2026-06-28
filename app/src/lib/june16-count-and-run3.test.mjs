@@ -29,10 +29,16 @@ test("the in-focus count matches the odds-backed projection matchCount (not the 
   const proj = JSON.parse(read("public/data/world-cup/projections/latest.json"));
   const sched = JSON.parse(read("public/data/world-cup/schedule.json"));
   const today = proj.date;
-  const scheduled = (sched.matches || []).filter((m) => String(m.date) === today).length;
-  // in focus = projection matchCount; on June 16 there are more scheduled fixtures than in-focus.
+  // The current slate is a COMBINED window (June 28 + the next day's early kickoffs). The projection rows are
+  // stamped with the slate date, but the underlying fixtures legitimately span that day and the next, so the
+  // in-focus count is bounded by the schedule across the combined window — never by the single slate date alone.
+  const next = new Date(`${today}T00:00:00Z`);
+  next.setUTCDate(next.getUTCDate() + 1);
+  const windowDates = new Set([today, next.toISOString().slice(0, 10)]);
+  const scheduled = (sched.matches || []).filter((m) => windowDates.has(String(m.date))).length;
+  // in focus = projection matchCount; the schedule must carry at least as many fixtures across the window.
   assert.ok(proj.matchCount >= 1, "at least one in-focus game");
-  assert.ok(proj.matchCount <= scheduled, "in-focus count never exceeds the scheduled count");
+  assert.ok(proj.matchCount <= scheduled, "in-focus count never exceeds the scheduled count across the slate window");
 });
 
 test("V2 evaluation transparently records the Argentina-moneyline verdict", () => {

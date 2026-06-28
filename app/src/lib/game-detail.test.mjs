@@ -23,8 +23,9 @@ test("buildAllGameDetails resolves real World Cup fixtures with team projections
   assert.ok(wc.length >= 1, "expected at least one World Cup fixture detail");
   const withProj = wc.find((d) => d.teamProjections.length > 0);
   assert.ok(withProj, "expected a WC fixture with team projections");
-  // Build URL deep-links to the exact fixture (real matchId), not a team search.
-  assert.match(withProj.buildUrl, /\/build\?sport=world_cup&game=\d+/);
+  // Build URL deep-links to the exact fixture (real event id — Odds API hex hash or numeric), not a team search.
+  assert.match(withProj.buildUrl, /\/build\?sport=world_cup&game=[a-z0-9]+/);
+  assert.doesNotMatch(withProj.buildUrl, /game=[^&]*(?:vs|%20| )/i, "deep-link uses an id, not a team-name search");
   // No fabricated player props — playerProps is an array (possibly empty, with a caveat).
   assert.ok(Array.isArray(withProj.playerProps));
   // Caveat present for soccer regulation.

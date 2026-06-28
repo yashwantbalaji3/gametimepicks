@@ -37,11 +37,11 @@ test("current World Cup slate is real + odds-backed, every card sits in its comb
   // projections artifact is odds-backed + dated to the current slate (oddsProvider carries the price source)
   assert.equal(proj.oddsProvider, "odds_api");
   assert.ok(proj.matches.every((m) => m.bookmaker && typeof m.americanOdds === "number"), "every market is odds-backed");
-  // Player props are honestly gated: The Odds API plan offers NO World Cup soccer player-prop markets,
-  // so the current slate ships an empty player-prop shell (no markets, no rows) rather than fabricating.
+  // Player props are real + odds-backed for the current slate: The Odds API offers WC soccer player-prop
+  // markets here, so the player-projections artifact ships real rows grouped by posted market (no fabrication).
   const pp = JSON.parse(fs.readFileSync("public/data/world-cup/player-projections/latest.json", "utf8"));
-  assert.equal(pp.projectionCount ?? 0, 0, "no player props for the current slate (fail-closed gate)");
-  assert.deepEqual(pp.byMarket ?? {}, {}, "no fabricated player markets posted");
+  assert.ok((pp.projectionCount ?? 0) > 0, "player props are available for the current slate");
+  assert.ok(Object.keys(pp.byMarket ?? {}).length > 0, "player projections are grouped by real posted markets");
 });
 
 test("no card anywhere sits out of its combined-odds band, and no card pads with a guarded leg", () => {

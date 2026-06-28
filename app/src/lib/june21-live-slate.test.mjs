@@ -26,10 +26,18 @@ test("World Cup Specials are date-parameterized to the live slate and role-scree
     assert.ok(c.combinedOdds > 700 && c.combinedOdds < 3000, `${c.id} combined ${c.combinedOdds} in band`);
     for (const l of c.legs) {
       if (l.odds != null) assert.ok(l.odds > -250 && l.odds < 200, `${l.participant} ${l.odds} in leg band`);
-      // No bench / unknown / rotation-risk player legs may appear in a Special.
+      // No bench / unknown / rotation-risk player legs may appear in a Special. The production specials
+      // artifact filters those out at generation (role-quality gate) and is documented to leave roleTier
+      // unset; only the role-screened preview builder stamps it. So: any roleTier that IS present must be
+      // eligible, and every player leg must carry the limited-data / confidence disclosure the production
+      // shape guarantees (never a silently-promoted bench leg).
       if (l.kind === "player") {
-        assert.ok(["confirmed_starter", "key_attacker", "projected_starter"].includes(l.roleTier),
-          `${l.participant} role ${l.roleTier} is screened (no bench/unknown)`);
+        if (l.roleTier != null) {
+          assert.ok(["confirmed_starter", "key_attacker", "projected_starter"].includes(l.roleTier),
+            `${l.participant} role ${l.roleTier} is screened (no bench/unknown)`);
+        }
+        assert.equal(l.dataQuality, "limited", `${l.participant} player prop is limited-data (pre-lineup, market-implied)`);
+        assert.ok(typeof l.confidence === "string" && l.confidence.length > 0, `${l.participant} carries a confidence disclosure`);
       }
     }
   }
@@ -55,7 +63,7 @@ test("June 21 coverage matrix reconciles (rows + risk totals sum to grand total)
 
 test("Bank Builder June-24 run BANKED (Lane A completed, Lane B stopped) → archived; cumulative bankroll + crown intact, Moonshot settled", () => {
   const p = read("public/data/mr-dub/portfolio.json");
-  assert.equal(p.currentBankroll, 19965.4, "cumulative bankroll after banking Ladder #2 (crown − $500 five real lost seeds)");
+  assert.equal(p.currentBankroll, 19765.4, "cumulative bankroll after banking Ladder #2 (crown − $700 seven real lost seeds)");
   assert.equal(p.openExposure, 0, "settled rungs released → $0 open in portfolio.json (live Step card tracked in daily-portfolio)");
   assert.equal(p.totalOpenExposure, 0, "core $0; moonshot settled LOST → 0 open");
   assert.equal(p.crownBankroll, 20465.4, "protected crown untouched (two banked $100→$10k ladders)");
