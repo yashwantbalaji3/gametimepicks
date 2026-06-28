@@ -68,11 +68,36 @@ test("a medium slate (6 longshot games) splits FAIRLY into two 3-leg lanes (not 
   assert.equal(b.legs.filter((l) => gamesA.has(l.gameId)).length, 0, "still disjoint games");
 });
 
-test("a thin slate (4 games) leaves BOTH lanes short of the 3-leg minimum → awaiting (never forced)", () => {
-  const pool = Array.from({ length: 4 }, (_, i) => mkPick(i + 1, 500));
+test("a thin slate (4 games, multi-market) fields TWO Moonshot lanes via different-market reuse — Lane B never shares a market with Lane A on the same game (no opposing pick)", () => {
+  // A real knockout window has multiple markets per game, so the second lane can reuse a game via a
+  // DIFFERENT market — two genuine longshot lanes instead of two starved lanes (the combined-slate ask).
+  const mkPick2 = (g, marketKey, odds) => ({
+    ...mkPick(g, odds),
+    id: `WORLD_CUP:game${g}:${marketKey}:sel`, marketKey, marketLabel: marketKey,
+    selection: `game${g} ${marketKey}`, upsideScore: odds,
+  });
+  // Both markets are longshot-priced (> +400) so Bank Builder leaves them for the Moonshot pool — as in a
+  // real knockout window where many markets per game survive past the two Bank Builder legs.
+  const pool = [];
+  for (let g = 1; g <= 4; g++) pool.push(mkPick2(g, "moneyline_90", 520), mkPick2(g, "match_total_goals", 610));
   const { moonshotA: a, moonshotB: b } = buildDailyLaneCandidates(pool, DATE);
-  assert.ok(a.legCount < MOONSHOT_MIN_LEGS && b.legCount < MOONSHOT_MIN_LEGS, "neither lane fills");
-  assert.ok(a.shortfallNote && b.shortfallNote, "both disclose the shortfall — no low-quality legs forced");
+  assert.ok(a.legCount >= MOONSHOT_MIN_LEGS, "Lane A fills from the thin window");
+  assert.ok(b.legCount >= MOONSHOT_MIN_LEGS, "Lane B ALSO fills (different-market reuse) — not left awaiting");
+  assert.ok(a.combinedOdds >= MOONSHOT_MIN_COMBINED_ODDS && b.combinedOdds >= MOONSHOT_MIN_COMBINED_ODDS, "both clear the +700 floor");
+  assert.equal(new Set(a.legs.map((l) => l.gameId)).size, a.legCount, "Lane A: max 1 leg/game");
+  assert.equal(new Set(b.legs.map((l) => l.gameId)).size, b.legCount, "Lane B: max 1 leg/game");
+  // No opposing pick: where the lanes share a game they must use DIFFERENT markets.
+  const aMarketByGame = new Map(a.legs.map((l) => [l.gameId, l.marketKey]));
+  for (const l of b.legs) {
+    if (aMarketByGame.has(l.gameId)) assert.notEqual(l.marketKey, aMarketByGame.get(l.gameId), `game ${l.gameId}: Lane B uses a different market than Lane A`);
+  }
+});
+
+test("a thin SINGLE-market slate (4 games, one market each) still never forces a second lane → Lane B awaits honestly", () => {
+  const pool = Array.from({ length: 4 }, (_, i) => mkPick(i + 1, 500)); // 1 market/game → no different-market reuse
+  const { moonshotA: a, moonshotB: b } = buildDailyLaneCandidates(pool, DATE);
+  assert.ok(a.legCount >= MOONSHOT_MIN_LEGS, "Lane A fills (4 distinct-game longshots)");
+  assert.ok(b.legCount < MOONSHOT_MIN_LEGS && b.shortfallNote, "Lane B awaits + discloses the shortfall — no low-quality legs forced");
 });
 
 // ── +700 longshot floor (a 3-leg lane of short legs is not a moonshot) ───────────────────────────
@@ -147,11 +172,12 @@ test("live June-24 portfolio: both Moonshot lanes display + await (thin WC slate
 test("master ledger tracks Moonshot (record/ROI/P&L) with exposure keyed off the live daily portfolio", () => {
   // Date-agnostic: build the ledger for the CURRENT slate (read from the live daily-portfolio) so the
   // freshness check tracks the live slate as it rolls day to day.
-  const liveDate = JSON.parse(read(path.join(root, "mr-dub", "daily-portfolio.json"))).date;
+  const liveDp = JSON.parse(read(path.join(root, "mr-dub", "daily-portfolio.json")));
+  const liveDate = liveDp.date;
   const ml = buildMasterLedger(root, `${liveDate}T08:00:00Z`, liveDate);
   const m = ml.products.find((p) => p.productId === "moonshot");
   assert.ok(m, "Moonshot is a tracked product in Mr. Dub");
-  assert.equal(m.exposure, 0, "no open Moonshot exposure (lanes awaiting/candidate, below the +700 floor)");
+  assert.equal(m.exposure, liveDp.products.moonshot.exposure, "Moonshot exposure mirrors the LIVE daily portfolio (combined-window slate fields real longshot lanes)");
   assert.equal(m.freshness, "fresh", "freshness follows the live slate, not the frozen run artifact");
   // Record / ROI / P&L derive from the settled product ledger (real history only).
   assert.equal(m.roi, m.stake > 0 ? Number(((m.profit / m.stake) * 100).toFixed(2)) : 0, "ROI reconciles");

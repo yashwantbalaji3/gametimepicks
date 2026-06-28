@@ -1,12 +1,12 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-06-28",
-  "generatedAt": "2026-06-28T05:13:20.847Z",
+  "generatedAt": "2026-06-28T13:12:39.152Z",
   "activeBankroll": 19765.4,
   "crownBankroll": 20465.4,
-  "openExposure": 200,
-  "availableBankroll": 19565.4,
-  "potentialReturn": 515.58,
+  "openExposure": 250,
+  "availableBankroll": 19515.4,
+  "potentialReturn": 1656.25,
   "products": {
     "bankBuilder": {
       "exposure": 200,
@@ -18,12 +18,12 @@
       }
     },
     "moonshot": {
-      "exposure": 0,
+      "exposure": 50,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 0
+        "pending": 2
       }
     }
   },
@@ -151,15 +151,15 @@
       "lane": "A",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 25,
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 566,
-      "combinedDecimal": 6.656,
-      "potentialReturn": 166.4,
-      "legCount": 2,
+      "combinedOdds": 3293,
+      "combinedDecimal": 33.9316,
+      "potentialReturn": 848.29,
+      "legCount": 4,
       "targetLegs": 3,
       "legs": [
         {
@@ -177,50 +177,6 @@
           "teamLogo": null
         },
         {
-          "id": "team:5a34afe2de99513ba48360b983cfe80c:moneyline_90:home",
-          "matchup": "Netherlands vs Morocco",
-          "market": "Match Result",
-          "selection": "Netherlands",
-          "player": null,
-          "odds": 108,
-          "provider": "betrivers",
-          "modelConfidence": 0.4544,
-          "kickoffEt": "9:00 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        }
-      ],
-      "correlationNote": null,
-      "shortfallNote": "Only 2 model-qualified leg(s) available (target 3) — no low-quality legs forced.",
-      "whyThisCard": [
-        "Higher-upside: 2 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 38% across 2 legs · combined +566."
-      ],
-      "activationEligibility": {
-        "eligible": false,
-        "reason": "only 2/3 model-qualified legs — awaiting a full lane"
-      }
-    },
-    {
-      "id": "moonshot-lane-b-2026-06-28",
-      "product": "moonshot",
-      "productLabel": "Moonshot",
-      "lane": "B",
-      "step": 1,
-      "clearedSteps": 0,
-      "status": "awaiting",
-      "stake": 25,
-      "exposure": 25,
-      "targetReturn": null,
-      "fitsTarget": true,
-      "combinedOdds": 410,
-      "combinedDecimal": 5.0979,
-      "potentialReturn": 127.45,
-      "legCount": 2,
-      "targetLegs": 3,
-      "legs": [
-        {
           "id": "player:4930db8e83436874d09e59bd0e29c1a5:player_assists:Florian Wirtz",
           "matchup": "Germany vs Paraguay",
           "market": "Assists",
@@ -230,6 +186,20 @@
           "provider": "fanduel",
           "modelConfidence": 0.3333,
           "kickoffEt": "4:30 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "team:5a34afe2de99513ba48360b983cfe80c:moneyline_90:home",
+          "matchup": "Netherlands vs Morocco",
+          "market": "Match Result",
+          "selection": "Netherlands",
+          "player": null,
+          "odds": 108,
+          "provider": "betrivers",
+          "modelConfidence": 0.4544,
+          "kickoffEt": "9:00 PM ET",
           "risk": "Lower-volatility",
           "photoUrl": null,
           "teamLogo": null
@@ -250,14 +220,100 @@
         }
       ],
       "correlationNote": null,
-      "shortfallNote": "Only 2 model-qualified leg(s) available (target 3) — no low-quality legs forced.",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Higher-upside: 2 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 45% across 2 legs · combined +410."
+        "Higher-upside: 4 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 41% across 4 legs · combined +3293."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "only 2/3 model-qualified legs — awaiting a full lane"
+        "eligible": true,
+        "reason": "all legs pre-event and outside the cutoff"
+      }
+    },
+    {
+      "id": "moonshot-lane-b-2026-06-28",
+      "product": "moonshot",
+      "productLabel": "Moonshot",
+      "lane": "B",
+      "step": 1,
+      "clearedSteps": 0,
+      "status": "active",
+      "stake": 25,
+      "exposure": 25,
+      "targetReturn": null,
+      "fitsTarget": true,
+      "combinedOdds": 1070,
+      "combinedDecimal": 11.6952,
+      "potentialReturn": 292.38,
+      "legCount": 4,
+      "targetLegs": 3,
+      "legs": [
+        {
+          "id": "player:4930db8e83436874d09e59bd0e29c1a5:player_goal_scorer_anytime:Deniz Undav",
+          "matchup": "Germany vs Paraguay",
+          "market": "Anytime Goalscorer",
+          "selection": "Deniz Undav · Anytime Goalscorer",
+          "player": "Deniz Undav",
+          "odds": 110,
+          "provider": "betmgm",
+          "modelConfidence": 0.4762,
+          "kickoffEt": "4:30 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "team:4f3d72fba877939d36a5315618184093:btts:no",
+          "matchup": "Brazil vs Japan",
+          "market": "Both Teams To Score",
+          "selection": "Both teams to score: No",
+          "player": null,
+          "odds": -121,
+          "provider": "betrivers",
+          "modelConfidence": 0.5058,
+          "kickoffEt": "1:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "team:5a34afe2de99513ba48360b983cfe80c:btts:no",
+          "matchup": "Netherlands vs Morocco",
+          "market": "Both Teams To Score",
+          "selection": "Both teams to score: No",
+          "player": null,
+          "odds": -122,
+          "provider": "betrivers",
+          "modelConfidence": 0.5078,
+          "kickoffEt": "9:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "team:def55b09ef3d6854e3c01e74b5c63415:btts:no",
+          "matchup": "South Africa vs Canada",
+          "market": "Both Teams To Score",
+          "selection": "Both teams to score: No",
+          "player": null,
+          "odds": -148,
+          "provider": "betrivers",
+          "modelConfidence": 0.5514,
+          "kickoffEt": "3:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": null,
+      "shortfallNote": null,
+      "whyThisCard": [
+        "Higher-upside: 4 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 51% across 4 legs · combined +1070."
+      ],
+      "activationEligibility": {
+        "eligible": true,
+        "reason": "all legs pre-event and outside the cutoff"
       }
     }
   ],

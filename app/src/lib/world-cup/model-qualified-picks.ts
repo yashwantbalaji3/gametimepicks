@@ -169,23 +169,61 @@ function selectLegs(sorted: ModelPick[], want: number, used: Set<string>, allowS
   return { legs, secondGame };
 }
 
-/** Split the sorted longshot pool into two INDEPENDENT lanes (disjoint games, max 1 leg/game), alternating
- *  best-leg-first so both lanes reach the minimum before either tops out at MOONSHOT_TARGET_LEGS. */
+/** Split the sorted longshot pool into two lanes. Lane A is the STRONGEST longshot (greedy best upside,
+ *  max 1 leg/game, up to MOONSHOT_TARGET_LEGS). Lane B is a SECOND independent longshot: it prefers games
+ *  Lane A did NOT use (fully independent), and only when a small slate (few games) forces it, reuses a
+ *  Lane-A game with a DIFFERENT market — never the same market, so the two lanes can never carry opposing
+ *  picks on one game. Max 1 leg/game within each lane. This lets a 4-game knockout window field two real
+ *  Moonshot lanes instead of two starved 2-leg lanes. */
 function splitMoonshotLanes(sorted: ModelPick[], used: Set<string>): { laneA: ModelPick[]; laneB: ModelPick[] } {
-  const laneA: ModelPick[] = [];
-  const laneB: ModelPick[] = [];
-  const games = new Set<string>();
-  let turn = 0;
-  for (const p of sorted) {
-    if (used.has(p.id) || games.has(p.gameId)) continue;
-    if (laneA.length >= MOONSHOT_TARGET_LEGS && laneB.length >= MOONSHOT_TARGET_LEGS) break;
-    let lane = turn % 2 === 0 ? laneA : laneB;
-    if (lane.length >= MOONSHOT_TARGET_LEGS) lane = lane === laneA ? laneB : laneA; // skip a full lane
-    lane.push(p);
-    games.add(p.gameId);
-    used.add(p.id);
-    turn += 1;
+  // Enough distinct games to field TWO fully-independent min-leg lanes? Then split FAIRLY (alternating,
+  // disjoint games) so neither lane hogs the slate — the group-stage / medium-slate behavior.
+  const freshGames = new Set(sorted.filter((p) => !used.has(p.id)).map((p) => p.gameId));
+  if (freshGames.size >= 2 * MOONSHOT_MIN_LEGS) {
+    const a: ModelPick[] = [];
+    const b: ModelPick[] = [];
+    const seen = new Set<string>();
+    let turn = 0;
+    for (const p of sorted) {
+      if (used.has(p.id) || seen.has(p.gameId)) continue;
+      if (a.length >= MOONSHOT_TARGET_LEGS && b.length >= MOONSHOT_TARGET_LEGS) break;
+      let lane = turn % 2 === 0 ? a : b;
+      if (lane.length >= MOONSHOT_TARGET_LEGS) lane = lane === a ? b : a;
+      lane.push(p); seen.add(p.gameId); used.add(p.id); turn += 1;
+    }
+    return { laneA: a, laneB: b };
   }
+  // THIN slate (a knockout window with few games): fill the strongest lane, then build a second lane that
+  // reuses games via DIFFERENT markets (never the same market → never an opposing pick), so the window
+  // still yields two real Moonshot longshots instead of two starved lanes.
+  // Lane A: greedy strongest-upside, distinct games.
+  const laneA: ModelPick[] = [];
+  const gamesA = new Set<string>();
+  for (const p of sorted) {
+    if (laneA.length >= MOONSHOT_TARGET_LEGS) break;
+    if (used.has(p.id) || gamesA.has(p.gameId)) continue;
+    laneA.push(p); gamesA.add(p.gameId); used.add(p.id);
+  }
+  // Markets Lane A used per game — Lane B may reuse a game only with a market NOT in this set.
+  const aMarketsByGame = new Map<string, Set<string>>();
+  for (const l of laneA) {
+    const s = aMarketsByGame.get(l.gameId) ?? new Set<string>();
+    s.add(l.marketKey); aMarketsByGame.set(l.gameId, s);
+  }
+  const laneB: ModelPick[] = [];
+  const gamesB = new Set<string>();
+  const fillB = (freshGamesOnly: boolean) => {
+    for (const p of sorted) {
+      if (laneB.length >= MOONSHOT_TARGET_LEGS) break;
+      if (used.has(p.id) || gamesB.has(p.gameId)) continue;
+      const reusesA = aMarketsByGame.has(p.gameId);
+      if (freshGamesOnly && reusesA) continue;                                   // pass 1: only games A didn't touch
+      if (reusesA && aMarketsByGame.get(p.gameId)!.has(p.marketKey)) continue;   // never A's same market (no opposing pick)
+      laneB.push(p); gamesB.add(p.gameId); used.add(p.id);
+    }
+  };
+  fillB(true);                                          // prefer fully independent games
+  if (laneB.length < MOONSHOT_MIN_LEGS) fillB(false);   // small slate → reuse A's games via different markets
   return { laneA, laneB };
 }
 

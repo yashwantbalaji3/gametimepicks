@@ -92,7 +92,7 @@ function MarketSection({ label, picks }: { label: string; picks: PublicProjectio
   );
 }
 
-export default function GameDetailPage({ detail, engineCards, multiGameCards }: { detail: PublicGameDetail; engineCards?: GameSpecificCards | null; multiGameCards?: GameSpecificCards | null }) {
+export default function GameDetailPage({ detail, engineCards, multiGameCards, playerPropParlays, teamPropParlays }: { detail: PublicGameDetail; engineCards?: GameSpecificCards | null; multiGameCards?: GameSpecificCards | null; playerPropParlays?: GameSpecificCards | null; teamPropParlays?: GameSpecificCards | null }) {
   const identity = getSportIdentity(detail.sport);
   const homeCode = detail.sport === "world_cup" && detail.homeTeam ? teamByName(detail.homeTeam)?.code ?? "" : "";
   const awayCode = detail.sport === "world_cup" && detail.awayTeam ? teamByName(detail.awayTeam)?.code ?? "" : "";
@@ -218,6 +218,54 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards }: 
     </div>
   );
 
+  // ── Tab: Player prop parlays (Safe / Balanced / Longshot — distinct players, real odds) ──
+  const playerPropParlaysTotal = playerPropParlays?.total ?? 0;
+  const playerPropParlaysTab = (
+    <div className="flex flex-col gap-4">
+      <SectionHeader eyebrow={`Player prop parlays · ${playerPropParlaysTotal}`} title="Player prop parlays for this match" sub="Safe / Balanced / Longshot — built from this game's posted player props, distinct players per slip, combined odds computed from the real prices. Tap any leg for model + market detail." />
+      {playerPropParlaysTotal > 0 ? (
+        RISK_ORDER.map((lvl) => {
+          const cards = playerPropParlays?.byRisk[lvl] ?? [];
+          if (cards.length === 0) return null;
+          return (
+            <div key={`ppp-${lvl}`} className="flex flex-col gap-2.5">
+              <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} · {cards.length}</div>
+              {cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)}
+            </div>
+          );
+        })
+      ) : (
+        <div className="rounded-xl px-4 py-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+          <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>Not enough quality player props posted to build a parlay for this match yet — we never pad a slip with weak legs. Soccer player props post near lineup time; check back closer to kickoff.</p>
+        </div>
+      )}
+    </div>
+  );
+
+  // ── Tab: Team prop parlays (same-game, correlated — disclosed) ──
+  const teamPropParlaysTotal = teamPropParlays?.total ?? 0;
+  const teamPropParlaysTab = (
+    <div className="flex flex-col gap-4">
+      <SectionHeader eyebrow={`Team prop parlays · ${teamPropParlaysTotal}`} title="Team prop parlays for this match" sub="Same-game combos from this fixture's team markets, ranked by knockout fit. These legs are correlated by nature — disclosed on each card, never presented as independent." />
+      {teamPropParlaysTotal > 0 ? (
+        RISK_ORDER.map((lvl) => {
+          const cards = teamPropParlays?.byRisk[lvl] ?? [];
+          if (cards.length === 0) return null;
+          return (
+            <div key={`tpp-${lvl}`} className="flex flex-col gap-2.5">
+              <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} · {cards.length}</div>
+              {cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)}
+            </div>
+          );
+        })
+      ) : (
+        <div className="rounded-xl px-4 py-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+          <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>Not enough sensible team markets posted to build a same-game combo for this match yet. See the Team &amp; game props tab for the individual projections.</p>
+        </div>
+      )}
+    </div>
+  );
+
   // ── Tab: Player props — model picks default, full inventory secondary ──
   const playerPropsTab = (
     <div className="flex flex-col gap-5">
@@ -287,6 +335,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards }: 
 
   const tabs: ShellTab[] = [
     { key: "cards", label: "Suggested parlays", badge: (engineTotal + detail.suggestedCards.length) || null, content: cardsTab },
+    ...(detail.sport === "world_cup" ? [
+      { key: "player-prop-parlays", label: "Player prop parlays", badge: playerPropParlaysTotal || null, content: playerPropParlaysTab },
+      { key: "team-prop-parlays", label: "Team prop parlays", badge: teamPropParlaysTotal || null, content: teamPropParlaysTab },
+    ] satisfies ShellTab[] : []),
     { key: "player-props", label: "Player props", badge: detail.playerProps.length || null, content: playerPropsTab },
     { key: "projections", label: "Team & game props", badge: detail.teamProjections.length || null, content: projectionsTab },
     { key: "markets", label: "Markets", content: marketsTab },

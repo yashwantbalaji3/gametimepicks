@@ -24,6 +24,17 @@ import fs from "node:fs";
 import path from "node:path";
 import { combinedAmerican, combinedDecimal, combinedHitProbability } from "@/lib/parlays/odds-math";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
+import {
+  buildKnockoutContexts,
+  knockoutFitMultiplier,
+  knockoutTierLabel,
+  type KnockoutContext,
+} from "@/lib/world-cup/knockout-intelligence";
+import {
+  classifyPlayerRoles,
+  roleKeyForRow,
+  ROLE_ELIGIBLE_TIERS,
+} from "@/lib/world-cup/player-role-quality";
 
 // ── Config ─────────────────────────────────────────────────────────────────────────────────────
 export const WORLD_CUP_SPECIALS_CONFIG = {
@@ -105,6 +116,9 @@ export interface SpecialLeg {
 export interface WorldCupSpecialCard {
   id: string;
   title: string;
+  /** Optional curated theme this card was built for (e.g. "Favorites Rolling", "Goal Festival").
+   *  Absent on the legacy/odds-spread generator output — cards without a theme render under "Specials". */
+  theme?: string;
   risk: "longshot";
   label: "World Cup Special";
   stakePreview: number;
@@ -613,6 +627,466 @@ function buildCard(
   };
 }
 
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// THEMED SPECIALS — curated, story-first cards built for a named theme (Favorites Rolling, Goal
+// Festival, Defensive Games, Chaos Builder, Underdog Ladder, Giant Killer), re-ranked by the SHARED
+// knockout-intelligence layer so every product agrees on what fits the knockout script. Quality over
+// quantity: a theme only emits cards when REAL in-band legs support it — never forced, never invented.
+//
+// All themed cards still satisfy the same hard discipline as the legacy generator: combined odds in
+// (+700, +3000), per-leg odds in (-250, +200), >= 2 team + >= 2 player legs across >= 2 distinct games,
+// the no-bench/role-quality gate on player legs, and no contradictory/duplicate legs in one card.
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+
+/** A per-outcome team leg (correct per-side price, sourced from the projection's `outcomes` array —
+ *  NOT the top-level home/pick price). Carries a stable `selectionKey` so themes can pick the right side. */
+interface TeamOutcomeLeg extends SpecialLeg {
+  selectionKey: string; // e.g. "moneyline_90:home", "double_chance:X2", "match_total_goals:over", "btts:no"
+}
+
+/** Build every in-band, pre-event team-OUTCOME leg from the team projections (one row → up to N legs,
+ *  one per priced outcome). This is the honest source for themed cards: each leg's odds + probability
+ *  come from that exact outcome, so a leg labelled "South Africa to win" carries South Africa's price. */
+function loadThemedTeamLegs(root: string, nowIso: string, date: string): TeamOutcomeLeg[] {
+  let team: { matches?: Array<Record<string, any>>; date?: string };
+  try {
+    team = JSON.parse(fs.readFileSync(path.join(root, "world-cup", "projections", "latest.json"), "utf8"));
+  } catch { return []; }
+  if (!date || (team.date && team.date !== date)) return [];
+  const legs: TeamOutcomeLeg[] = [];
+  for (const r of team.matches ?? []) {
+    const mk = TEAM_MARKET_LABEL[r.market];
+    if (!mk) continue;
+    const startTime: string | null = r.kickoffUtc ?? null;
+    if (!startTime || startTime <= nowIso) continue; // pre-event only
+    const home: string = r.homeTeam, away: string = r.awayTeam;
+    const fixture = `${home} vs ${away}`;
+    const flagHome = wcTeamCodeFromName(home);
+    const flagAway = wcTeamCodeFromName(away);
+    for (const o of (Array.isArray(r.outcomes) ? r.outcomes : [])) {
+      const odds = typeof o.americanOdds === "number" ? o.americanOdds : null;
+      if (!legOddsInRange(odds)) continue; // strict per-leg band — rejects extreme favourites/longshots
+      const sideRaw = String(o.side ?? "");
+      const sideLc = sideRaw.toLowerCase();
+      const label = String(o.label ?? mk.label);
+      // Resolve the team this outcome references (null for match-level totals/BTTS and "draw").
+      let refTeam: string | null = null;
+      if (r.market === "moneyline_90" || r.market === "draw_no_bet") {
+        if (sideLc === "home") refTeam = home; else if (sideLc === "away") refTeam = away;
+      } else if (r.market === "double_chance") {
+        if (sideLc === "1x") refTeam = home; else if (sideLc === "x2") refTeam = away; // "12" spans both → null
+      }
+      const participant =
+        r.market === "moneyline_90" ? (refTeam ? `${refTeam} to win` : label)
+        : r.market === "draw_no_bet" ? label
+        : r.market === "double_chance" ? label
+        : label; // totals / BTTS use the posted outcome label verbatim
+      const opponent = refTeam ? (refTeam === home ? away : home) : null;
+      const countryCode = refTeam ? wcTeamCodeFromName(refTeam) : null;
+      legs.push({
+        legId: `wc-special-theme:team:${r.matchId}:${r.market}:${sideRaw}`,
+        kind: "team", sport: "WORLD_CUP", fixture, eventId: String(r.matchId),
+        participant, team: refTeam, opponent,
+        countryCode, flagHome, flagAway, teamLogo: r.homeLogo ?? null,
+        playerId: null, photoUrl: null,
+        market: r.market, marketLabel: mk.label, side: r.market === "moneyline_90" ? null : sideRaw,
+        line: typeof r.line === "number" ? r.line : null,
+        odds: odds as number,
+        modelProbability: typeof o.modelProbability === "number" ? o.modelProbability : 0,
+        startTime, dataQuality: "B", confidence: String(r.confidence ?? "Lean"),
+        settlement: mk.settlement, limitedData: false,
+        selectionKey: `${r.market}:${sideLc}`,
+      });
+    }
+  }
+  return legs;
+}
+
+/** Role-gated player legs: the in-band, pre-event player legs that ALSO pass the no-bench/role-quality
+ *  gate (projected starter / key attacker / confirmed starter). Bench, rotation, defender-on-attacking,
+ *  goalkeeper and unknown-role players are excluded — same gate the role-screened preview uses. */
+function loadThemedPlayerLegs(root: string, nowIso: string, date: string): SpecialLeg[] {
+  const all = loadSpecialsPlayerLegs(root, nowIso, date);
+  let pp: { matches?: Array<Record<string, any>> };
+  try {
+    pp = JSON.parse(fs.readFileSync(path.join(root, "world-cup", "player-projections", "latest.json"), "utf8"));
+  } catch { return all; }
+  const roleMap = classifyPlayerRoles((pp.matches ?? []) as any[], false);
+  return all.filter((l) => {
+    const role = roleMap.get(roleKeyForRow({ player: { id: l.playerId ?? undefined, name: l.participant, team: l.team ?? undefined } }));
+    if (!role || !ROLE_ELIGIBLE_TIERS.has(role.roleTier)) return false;
+    l.roleTier = role.roleTier;
+    l.roleEvidence = role.evidence;
+    l.lineupNote = "lineups not posted — projected role (market-implied)";
+    return true;
+  });
+}
+
+const isOverishTeamLeg = (l: SpecialLeg) =>
+  (l.market === "match_total_goals" && /over/i.test(l.side ?? l.participant)) ||
+  (l.market === "btts" && /yes/i.test(l.participant));
+const isUnderTeamLeg = (l: SpecialLeg) => l.market === "match_total_goals" && /under/i.test(l.side ?? l.participant);
+const isBttsNoLeg = (l: SpecialLeg) => l.market === "btts" && /no/i.test(l.side ?? l.participant);
+const isResultLeg = (l: SpecialLeg) => TEAM_RESULT_MARKETS.has(l.market);
+
+/** The knockout-intelligence multiplier for a team leg (0.85..1.15 — fits vs. fights the knockout script). */
+function fitForTeamLeg(l: SpecialLeg, ctxs: Map<string, KnockoutContext>): number {
+  const selection = (l.side ?? l.participant ?? "").toLowerCase();
+  return knockoutFitMultiplier({ marketKey: l.market, selection, odds: l.odds }, ctxs.get(l.eventId));
+}
+
+/** Pick the best attacking player on a given team in a given game (highest model prob, in-band).
+ *  `preferMarkets` (e.g. goalscorer-first for goal themes) is tried before falling back to any market. */
+function bestAttackerOn(
+  players: SpecialLeg[], eventId: string, team: string | null, exclude: Set<string>, preferMarkets?: string[],
+): SpecialLeg | null {
+  const pool = players.filter((p) => p.eventId === eventId && (!team || p.team === team) && !exclude.has(p.legId) && p.playerId != null);
+  if (preferMarkets?.length) {
+    const preferred = pool.filter((p) => preferMarkets.includes(p.market)).sort((a, b) => b.modelProbability - a.modelProbability);
+    if (preferred[0]) return preferred[0];
+  }
+  return [...pool].sort((a, b) => b.modelProbability - a.modelProbability)[0] ?? null;
+}
+/** Pick the best attacking player in a game regardless of side (for festival/total stacks). */
+function bestAttackerInGame(players: SpecialLeg[], eventId: string, exclude: Set<string>, preferMarkets?: string[]): SpecialLeg | null {
+  return bestAttackerOn(players, eventId, null, exclude, preferMarkets);
+}
+
+/** Theme spec: which team legs anchor it + how to source the players + a narrative. */
+interface ThemeOutcome { combo: SpecialLeg[]; combined: number; theme: string; notes: string[] }
+
+/** Try to assemble ONE card for a theme from an ordered list of candidate team-leg picks + a player
+ *  sourcing strategy. Returns null when the slate can't support the theme at quality (combined out of
+ *  band, not enough in-band legs, etc.) — themes are never forced. */
+function tryThemeCard(
+  theme: string,
+  teamPicks: SpecialLeg[],
+  players: SpecialLeg[],
+  ctxs: Map<string, KnockoutContext>,
+  cfg: WorldCupSpecialsConfig,
+  opts: {
+    playerStrategy: "same-team" | "in-game";
+    minPlayers?: number;
+    preferMarkets?: string[];   // e.g. ["player_goal_scorer_anytime"] to lead a goal theme with scorers
+    avoidPlayerIds?: Set<number>; // players already spent by other themes — diversifies the published set
+    extraNotes?: string[];
+  },
+): ThemeOutcome | null {
+  const minPlayers = opts.minPlayers ?? cfg.minPlayerPropsPerCard;
+  const pref = opts.preferMarkets;
+  // De-dupe team picks + reject contradictory pairs.
+  const teamLegs: SpecialLeg[] = [];
+  for (const t of teamPicks) {
+    if (teamLegs.some((x) => x.legId === t.legId)) continue;
+    if (teamLegs.some((x) => legsConflict(x, t))) continue;
+    teamLegs.push(t);
+  }
+  if (teamLegs.length < cfg.minTeamPropsPerCard) return null;
+
+  const used = new Set<string>(teamLegs.map((l) => l.legId));
+  const playerLegs: SpecialLeg[] = [];
+  const gamesInPlay = Array.from(new Set(teamLegs.map((l) => l.eventId)));
+  const teamsInPlay = teamLegs.map((l) => l.team).filter((t): t is string => !!t);
+  // Prefer not to reuse a player another theme already spent (diversifies the final 5); relaxed below.
+  const avoidPool = (opts.avoidPlayerIds && opts.avoidPlayerIds.size)
+    ? players.filter((p) => p.playerId == null || !opts.avoidPlayerIds!.has(p.playerId))
+    : players;
+
+  const addFrom = (src: SpecialLeg[], p: SpecialLeg | null) => {
+    if (!p) return false;
+    if (used.has(p.legId)) return false;
+    if (playerLegs.some((x) => legsConflict(x, p))) return false;
+    if (teamLegs.some((x) => legsConflict(x, p))) return false;
+    playerLegs.push(p); used.add(p.legId); return true;
+  };
+  // Try the diversified pool first, then the full pool (so a theme is never blocked for lack of fresh names).
+  const pickOn = (ev: string, team: string | null) =>
+    addFrom(avoidPool, bestAttackerOn(avoidPool, ev, team, used, pref)) || addFrom(players, bestAttackerOn(players, ev, team, used, pref));
+  const pickInGame = (ev: string) =>
+    addFrom(avoidPool, bestAttackerInGame(avoidPool, ev, used, pref)) || addFrom(players, bestAttackerInGame(players, ev, used, pref));
+
+  if (opts.playerStrategy === "same-team") {
+    for (const team of teamsInPlay) pickOn(teamLegs.find((l) => l.team === team)!.eventId, team);
+  } else {
+    for (const ev of gamesInPlay) { pickInGame(ev); pickInGame(ev); }
+  }
+  // Top up players from any game already in the card until we hit the minimum.
+  if (playerLegs.length < minPlayers)
+    for (const ev of gamesInPlay) { if (playerLegs.length >= minPlayers) break; pickInGame(ev); }
+
+  if (playerLegs.length < minPlayers) return null;
+
+  const combo = [...teamLegs, ...playerLegs];
+  if (!cardValid(combo, { ...cfg, minPlayerPropsPerCard: minPlayers })) return null;
+  const combined = combinedAmerican(combo.map((l) => l.odds));
+  if (!combinedOddsInRange(combined, cfg)) return null;
+
+  // Bake the relevant knockout-context notes from every game the card touches.
+  const notes = new Set<string>(opts.extraNotes ?? []);
+  for (const ev of gamesInPlay) {
+    const ctx = ctxs.get(ev);
+    if (!ctx) continue;
+    notes.add(knockoutTierLabel(ctx));
+    for (const n of ctx.notes.slice(1)) notes.add(n); // skip the generic "Knockout (single-leg…)" preamble (shared once)
+  }
+  notes.add("Knockout (single-leg elimination): a draw at 90' goes to extra time — 90-minute markets price in cautious, lead-protecting football.");
+  return { combo, combined: combined as number, theme, notes: Array.from(notes) };
+}
+
+/** Mean knockout-fit across a card's team legs — used to rank competing cards for the same theme. */
+function cardKnockoutFit(combo: SpecialLeg[], ctxs: Map<string, KnockoutContext>): number {
+  const teamLegs = combo.filter((l) => l.kind === "team");
+  if (!teamLegs.length) return 1;
+  return teamLegs.reduce((s, l) => s + fitForTeamLeg(l, ctxs), 0) / teamLegs.length;
+}
+
+/**
+ * Build the themed card set. Pure + deterministic. Each theme produces 0..N quality cards; the union is
+ * de-duplicated and (theme-tagged) returned low → high combined odds. Themes that the slate can't support
+ * at quality simply yield nothing — we never force a weak combination or invent a market.
+ */
+export function buildThemedCards(
+  teamLegs: TeamOutcomeLeg[],
+  playerLegs: SpecialLeg[],
+  ctxs: Map<string, KnockoutContext>,
+  opts: GenerateOptions,
+): ThemeOutcome[] {
+  const cfg = opts.config ?? WORLD_CUP_SPECIALS_CONFIG;
+  const out: ThemeOutcome[] = [];
+  // Players already spent by accepted cards — later themes prefer fresh names so the published set is
+  // diverse (not the same three SOT favourites on every card).
+  const spentPlayers = new Set<number>();
+  const recordSpent = (o: ThemeOutcome) => {
+    for (const l of o.combo) if (l.kind === "player" && l.playerId != null) spentPlayers.add(l.playerId);
+  };
+  // Keep up to `max` distinct, low-overlap cards for a theme (best knockout-fit first, then shortest price).
+  const pushBest = (cands: (ThemeOutcome | null)[], max: number) => {
+    const ranked = cands.filter((c): c is ThemeOutcome => !!c)
+      .sort((a, b) => cardKnockoutFit(b.combo, ctxs) - cardKnockoutFit(a.combo, ctxs) || a.combined - b.combined);
+    const keptForTheme: ThemeOutcome[] = [];
+    const seen = new Set<string>();
+    for (const c of ranked) {
+      if (keptForTheme.length >= max) break;
+      const sig = cardSignature(c.combo);
+      if (seen.has(sig)) continue;
+      if (keptForTheme.some((k) => overlap(k.combo, c.combo) > 0.5)) continue; // diverse within a theme
+      if (out.some((o) => overlap(o.combo, c.combo) > 0.5)) continue;          // diverse across themes
+      seen.add(sig);
+      keptForTheme.push(c);
+      out.push(c);
+      recordSpent(c);
+    }
+  };
+
+  // Convenience selectors over the in-band team legs.
+  const resultLegs = teamLegs.filter(isResultLeg);
+  const favResultLegs = resultLegs
+    .filter((l) => l.team && ctxs.get(l.eventId)?.favoriteTeam === l.team)
+    .sort((a, b) => b.modelProbability - a.modelProbability);
+  const dogResultLegs = resultLegs
+    .filter((l) => !l.team || ctxs.get(l.eventId)?.favoriteTeam !== l.team)
+    .sort((a, b) => b.odds - a.odds); // longest price first = the genuine value/upside dog leg
+  const underLegs = teamLegs.filter(isUnderTeamLeg).sort((a, b) => b.modelProbability - a.modelProbability);
+  const bttsNoLegs = teamLegs.filter(isBttsNoLeg).sort((a, b) => b.modelProbability - a.modelProbability);
+  const overLegs = teamLegs.filter((l) => l.market === "match_total_goals" && /over/i.test(l.side ?? l.participant))
+    .sort((a, b) => b.modelProbability - a.modelProbability);
+  const bttsYesLegs = teamLegs.filter((l) => l.market === "btts" && /yes/i.test(l.participant))
+    .sort((a, b) => b.modelProbability - a.modelProbability);
+
+  // ── Favorites Rolling — clear/slight favourites advancing (result markets), backed by their attackers.
+  {
+    const favs = favResultLegs;
+    const cands: (ThemeOutcome | null)[] = [];
+    // pair the two strongest favourite result legs from DISTINCT games
+    for (let i = 0; i < favs.length; i++)
+      for (let j = i + 1; j < favs.length; j++) {
+        if (favs[i].eventId === favs[j].eventId) continue;
+        cands.push(tryThemeCard("Favorites Rolling", [favs[i], favs[j]], playerLegs, ctxs, cfg, {
+          playerStrategy: "same-team", avoidPlayerIds: spentPlayers,
+          extraNotes: ["Lower combined odds, higher joint probability — the favourites are expected to advance, and attackers ON those favourites carry the upside."],
+        }));
+      }
+    pushBest(cands, 2);
+  }
+
+  // ── Goal Festival — Over 2.5 + BTTS Yes in the most open games + goalscorers/shots from those games.
+  {
+    const opens = [...overLegs, ...bttsYesLegs];
+    const cands: (ThemeOutcome | null)[] = [];
+    // Prefer two open-game team legs from distinct games (an Over and a BTTS-Yes, or two Overs).
+    for (let i = 0; i < opens.length; i++)
+      for (let j = i + 1; j < opens.length; j++) {
+        if (opens[i].eventId === opens[j].eventId && opens[i].market === opens[j].market) continue;
+        cands.push(tryThemeCard("Goal Festival", [opens[i], opens[j]], playerLegs, ctxs, cfg, {
+          playerStrategy: "in-game", avoidPlayerIds: spentPlayers,
+          preferMarkets: ["player_goal_scorer_anytime"], // lead the goal theme with scorers when posted
+          extraNotes: ["Goals-and-attackers: Over 2.5 / BTTS-Yes anchors paired with goalscorers in the same games — a correlated, high-variance 'open game' bet."],
+        }));
+      }
+    pushBest(cands, 2);
+  }
+
+  // ── Defensive Games — Under 2.5 + BTTS No across cautious ties, plus a couple of shots props.
+  {
+    const lowEvent = [...underLegs, ...bttsNoLegs].sort((a, b) => b.modelProbability - a.modelProbability);
+    const cands: (ThemeOutcome | null)[] = [];
+    for (let i = 0; i < lowEvent.length; i++)
+      for (let j = i + 1; j < lowEvent.length; j++) {
+        if (lowEvent[i].eventId === lowEvent[j].eventId) continue; // distinct games (Under + BTTS-No in same game is fine but we want spread)
+        cands.push(tryThemeCard("Defensive Games", [lowEvent[i], lowEvent[j]], playerLegs, ctxs, cfg, {
+          playerStrategy: "in-game", avoidPlayerIds: spentPlayers,
+          extraNotes: ["Cautious knockout ties: Under 2.5 + BTTS-No anchors. The attacking props are the card's upside, but the team read is a low-event game."],
+        }));
+      }
+    pushBest(cands, 1);
+  }
+
+  // ── Underdog Ladder — value-heavy underdog double-chance / moneyline, with underdog attackers.
+  {
+    const dogs = dogResultLegs;
+    const cands: (ThemeOutcome | null)[] = [];
+    for (let i = 0; i < dogs.length; i++)
+      for (let j = i + 1; j < dogs.length; j++) {
+        if (dogs[i].eventId === dogs[j].eventId) continue;
+        cands.push(tryThemeCard("Underdog Ladder", [dogs[i], dogs[j]], playerLegs, ctxs, cfg, {
+          playerStrategy: "in-game", avoidPlayerIds: spentPlayers,
+          extraNotes: ["Value-heavy underdog ladder: priced underdogs (double-chance / moneyline) stacked for a longer combined price — every leg is live, none is a coin-flip favourite."],
+        }));
+      }
+    pushBest(cands, 1);
+  }
+
+  // ── Chaos Builder — one or two reasonably-priced upsets mixed with value (a dog leg + an open-game leg).
+  {
+    const dogs = dogResultLegs;
+    const value = [...overLegs, ...bttsYesLegs, ...favResultLegs];
+    const cands: (ThemeOutcome | null)[] = [];
+    for (const d of dogs)
+      for (const v of value) {
+        if (d.eventId === v.eventId) continue;
+        if (d.legId === v.legId) continue;
+        cands.push(tryThemeCard("Chaos Builder", [d, v], playerLegs, ctxs, cfg, {
+          playerStrategy: "in-game", avoidPlayerIds: spentPlayers,
+          extraNotes: ["A reasonably-priced upset paired with a value leg — chaos by design, but every leg is market-supported, not a flyer."],
+        }));
+      }
+    pushBest(cands, 1);
+  }
+
+  // ── Giant Killer — ONE carefully chosen upset framed as the card's anchor (only if a defensible one
+  //    exists: a live underdog in an EVEN tie with real extra-time risk). Supported by a second in-band
+  //    team leg + that underdog's attackers so the card meets the >=2 team / >=2 player discipline.
+  {
+    const defensible = dogResultLegs.filter((l) => {
+      const ctx = ctxs.get(l.eventId);
+      return ctx && (ctx.contenderTier === "underdog-live" || ctx.contenderTier === "even") && ctx.extraTimeRisk >= 0.2;
+    }).sort((a, b) => b.odds - a.odds); // the boldest defensible upset first
+    const cands: (ThemeOutcome | null)[] = [];
+    for (const killer of defensible) {
+      // a calmer second team leg from a DIFFERENT game (a favourite result or a low-event anchor) to support it
+      const supports = [...favResultLegs, ...underLegs, ...bttsNoLegs].filter((s) => s.eventId !== killer.eventId);
+      for (const s of supports) {
+        cands.push(tryThemeCard("Giant Killer", [killer, s], playerLegs, ctxs, cfg, {
+          playerStrategy: "in-game", avoidPlayerIds: spentPlayers,
+          extraNotes: [`The card is built around one upset — ${killer.participant} (${killer.marketLabel}) — in an even, extra-time-live tie; the rest of the card is the calmer support around it.`],
+        }));
+      }
+    }
+    pushBest(cands, 1);
+  }
+
+  // Knockout Survival (favourite double-chance / draw-no-bet across ties) is deliberately NOT emitted on
+  // this slate: every clear-favourite DC/DNB price (Germany DC −2500, Canada DC −770, Brazil DC −625,
+  // Netherlands DC −455, Germany DNB −1430) sits SHORTER than the −250 per-leg floor, so an honest
+  // "favourite survival" card cannot be assembled in-band. Forcing underdog double-chance under a
+  // "survival" banner would misframe it — so the theme yields 0 cards rather than a misleading one.
+
+  return out;
+}
+
+/** Build a themed WorldCupSpecialCard from a ThemeOutcome (reuses the disclosure scaffold + adds theme). */
+function buildThemedCard(o: ThemeOutcome, index: number, opts: GenerateOptions, cfg: WorldCupSpecialsConfig): WorldCupSpecialCard {
+  const base = buildCard(o.combo, o.combined, index, opts, cfg);
+  const joint = base.jointModelProbability;
+  // Lead the "why" with the theme + its knockout-intelligence notes, then keep the structural lines.
+  const whyThisCard = [
+    `${o.theme}: ${themeBlurb(o.theme)}`,
+    ...o.notes,
+    ...base.whyThisCard.slice(1),
+  ];
+  return {
+    ...base,
+    id: `wc-special-${opts.date}-${index + 1}`,
+    theme: o.theme,
+    title: `${o.theme} — ${base.title}`,
+    whyThisCard,
+    diagnostics: [...base.diagnostics, `theme ${o.theme}`, `joint model prob ≈ ${(joint * 100).toFixed(1)}%`],
+  };
+}
+
+function themeBlurb(theme: string): string {
+  switch (theme) {
+    case "Favorites Rolling": return "expected favourites advancing, backed by attackers on those favourites — lower odds, higher joint probability.";
+    case "Goal Festival": return "the most open games — Over 2.5 / BTTS-Yes plus goalscorers from those same fixtures.";
+    case "Defensive Games": return "cautious knockout ties — Under 2.5 + BTTS-No anchors with the attacking props as upside.";
+    case "Underdog Ladder": return "value-heavy priced underdogs stacked for a longer combined price.";
+    case "Chaos Builder": return "a reasonably-priced upset mixed with a value leg — higher variance, still market-supported.";
+    case "Giant Killer": return "one carefully chosen upset in an even, extra-time-live tie, with calmer support around it.";
+    default: return "a World Cup-only, model-ranked longshot card.";
+  }
+}
+
+/** Select the published themed set: maximise THEME COVERAGE first (one card per theme), drop the weakest
+ *  themes only when more than `maxCardsShown` exist, then backfill any spare slots with a 2nd card of the
+ *  strongest themes. "Strength" = how well the card's legs fit the knockout script (shared intelligence),
+ *  so a theme that fights the slate (e.g. a Goal Festival on a cautious-ties slate) is the first to drop. */
+function selectThemed(
+  themed: ThemeOutcome[], excluded: Set<string>, ctxs: Map<string, KnockoutContext>,
+  cfg: WorldCupSpecialsConfig, diagnostics: SpecialsDiagnostics,
+): ThemeOutcome[] {
+  // Drop exact duplicates of the active Moonshot / Bank Builder cards + within-set dupes.
+  const seen = new Set<string>();
+  const unique: ThemeOutcome[] = [];
+  for (const t of themed) {
+    const sig = cardSignature(t.combo);
+    if (excluded.has(sig)) { diagnostics.rejectedDuplicates++; diagnostics.activeMoonshotCardExcluded = true; continue; }
+    if (seen.has(sig)) continue;
+    seen.add(sig);
+    unique.push(t);
+  }
+  const strength = (t: ThemeOutcome) => cardKnockoutFit(t.combo, ctxs);
+  // Group by theme, keeping each theme's cards best-first.
+  const byTheme = new Map<string, ThemeOutcome[]>();
+  for (const t of unique) (byTheme.get(t.theme) ?? byTheme.set(t.theme, []).get(t.theme)!).push(t);
+  for (const list of byTheme.values()) list.sort((a, b) => strength(b) - strength(a) || a.combined - b.combined);
+  // Rank themes by their best card's fit — strongest themes kept first when over the cap.
+  const themesRanked = Array.from(byTheme.entries()).sort((a, b) => strength(b[1][0]) - strength(a[1][0]));
+
+  const chosen: ThemeOutcome[] = [];
+  const notTooClose = (cand: ThemeOutcome) => !chosen.some((c) => overlap(c.combo, cand.combo) > 0.5);
+  // Round 1: one card per theme, strongest themes first (so a dropped theme is the weakest-fitting one).
+  const droppedThemes: string[] = [];
+  for (const [theme, list] of themesRanked) {
+    if (chosen.length >= cfg.maxCardsShown) { droppedThemes.push(theme); continue; }
+    const pick = list.find(notTooClose);
+    if (pick) chosen.push(pick); else droppedThemes.push(theme);
+  }
+  // Round 2: backfill spare slots with a 2nd card of the strongest themes (still distinct).
+  if (chosen.length < cfg.maxCardsShown)
+    for (const [, list] of themesRanked) {
+      for (const t of list) {
+        if (chosen.length >= cfg.maxCardsShown) break;
+        if (chosen.includes(t) || !notTooClose(t)) continue;
+        chosen.push(t);
+      }
+      if (chosen.length >= cfg.maxCardsShown) break;
+    }
+  if (droppedThemes.length)
+    diagnostics.notes.push(`themed_specials: ${droppedThemes.length} theme(s) over the ${cfg.maxCardsShown}-card cap, weakest-fit dropped: ${droppedThemes.join(", ")}.`);
+  chosen.sort((a, b) => a.combined - b.combined);
+  return chosen.slice(0, cfg.maxCardsShown);
+}
+
 // ── Snapshot build + load ────────────────────────────────────────────────────────────────────────
 const SNAPSHOT_PATH = ["world-cup", "world-cup-specials.json"];
 
@@ -650,12 +1124,42 @@ export function buildWorldCupSpecials(opts: { root?: string; nowIso: string; dat
   for (const f of fixtures.values())
     if (f.kickoffUtc && f.kickoffUtc <= opts.nowIso) excludedStartedGames.push(`${f.home} vs ${f.away}`);
 
+  const excludeSignatures = activeCardSignatures(root);
   const result = generateWorldCupSpecials(teamLegs, playerLegs, {
     date: opts.date,
     generatedAt: opts.nowIso,
-    excludeSignatures: activeCardSignatures(root),
+    excludeSignatures,
     excludedStartedGames,
   });
+
+  // ── THEMED layer ────────────────────────────────────────────────────────────────────────────────
+  // Build the curated, theme-tagged cards from the OUTCOME-level team legs (correct per-side prices) +
+  // role-gated player legs, re-ranked by the shared knockout-intelligence layer. When the slate supports
+  // a quality, odds-spread themed set (>= 2 cards spanning >= 500 combined-odds), it REPLACES the legacy
+  // odds-spread cards. Otherwise we keep the legacy generator's output (honest fallback — never forced).
+  const cfg = result.config;
+  const themeTeamLegs = loadThemedTeamLegs(root, opts.nowIso, opts.date);
+  const themePlayerLegs = loadThemedPlayerLegs(root, opts.nowIso, opts.date);
+  let team: { matches?: Array<Record<string, any>> } = {};
+  try { team = JSON.parse(fs.readFileSync(path.join(root, "world-cup", "projections", "latest.json"), "utf8")); } catch { /* none */ }
+  const ctxs = buildKnockoutContexts((team.matches ?? []) as Array<Record<string, any>>);
+  const themeOpts: GenerateOptions = { date: opts.date, generatedAt: opts.nowIso, config: cfg, excludeSignatures };
+  const themed = buildThemedCards(themeTeamLegs, themePlayerLegs, ctxs, themeOpts);
+  const chosenThemed = selectThemed(themed, new Set(excludeSignatures), ctxs, cfg, result.diagnostics);
+  const themedSpread = chosenThemed.length
+    ? Math.max(...chosenThemed.map((c) => c.combined)) - Math.min(...chosenThemed.map((c) => c.combined))
+    : 0;
+  if (chosenThemed.length >= 2 && themedSpread >= 500) {
+    result.cards = chosenThemed.map((o, i) => buildThemedCard(o, i, themeOpts, cfg));
+    const perTheme = new Map<string, number>();
+    for (const c of result.cards) perTheme.set(c.theme ?? "Specials", (perTheme.get(c.theme ?? "Specials") ?? 0) + 1);
+    result.diagnostics.notes.push(
+      `themed_specials: ${result.cards.length} curated cards — ${Array.from(perTheme.entries()).map(([t, n]) => `${t} ×${n}`).join(", ")}.`,
+    );
+  } else {
+    result.diagnostics.notes.push("themed_specials: slate did not support a quality, odds-spread themed set — kept the legacy odds-spread cards.");
+  }
+
   // Surface the out-of-range / started rejection counts at the feed level for the snapshot diagnostics.
   result.diagnostics.rejectedOutOfLegOddsRange = countOutOfLegRange(root, opts.date);
   result.diagnostics.notes.unshift(

@@ -51,6 +51,34 @@ const STATUS_TO_TICKET: Record<SpecialsCardStatus, TicketStatus> = {
   candidate: "candidate", pending: "pending", won: "won", lost: "lost", void: "void",
 };
 
+const NO_THEME = "Specials"; // fallback group for cards built without a curated theme
+
+type TrackerRow = { card: WorldCupSpecialCard; status: SpecialsCardStatus };
+
+/** Group tracker rows by curated theme, preserving first-seen order; un-themed cards fall under "Specials". */
+function groupByTheme(rows: TrackerRow[]): Array<{ theme: string; rows: TrackerRow[] }> {
+  const order: string[] = [];
+  const byTheme = new Map<string, TrackerRow[]>();
+  for (const r of rows) {
+    const theme = r.card.theme || NO_THEME;
+    if (!byTheme.has(theme)) { byTheme.set(theme, []); order.push(theme); }
+    byTheme.get(theme)!.push(r);
+  }
+  return order.map((theme) => ({ theme, rows: byTheme.get(theme)! }));
+}
+
+/** A small gold pill carrying the card's curated theme (e.g. "Favorites Rolling"). */
+function ThemeBadge({ theme }: { theme: string }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]"
+      style={{ fontSize: 9, color: "var(--vault-gold)", background: "rgba(212,175,55,0.12)", border: "1px solid color-mix(in srgb, var(--vault-gold) 35%, transparent)" }}
+    >
+      ◆ {theme}
+    </span>
+  );
+}
+
 function SpecialTicket({ card, status, idx }: { card: WorldCupSpecialCard; status: SpecialsCardStatus; idx: number }) {
   const settled = status === "won" || status === "lost" || status === "void";
   return (
@@ -129,11 +157,24 @@ export default function WorldCupSpecialsTracker({
             { key: "candidates", title: "Pre-event candidates", rows: t.candidates },
             { key: "settled", title: "Settled review", rows: t.settled },
           ].filter((s) => s.rows.length > 0).map((s) => {
+            // In compact mode show only the single lead card; otherwise group the section's cards by theme.
             const shown = compact ? s.rows.slice(0, 1) : s.rows;
+            const groups = groupByTheme(shown);
             return (
-              <div key={s.key} className="flex flex-col gap-3">
+              <div key={s.key} className="flex flex-col gap-4">
                 <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{s.title} · {s.rows.length}</span>
-                {shown.map((r, i) => <SpecialTicket key={r.card.id ?? i} card={r.card} status={r.status} idx={i} />)}
+                {groups.map((g) => (
+                  <div key={g.theme} className="flex flex-col gap-3">
+                    {/* Theme sub-header: a small gold pill + the per-theme card count. */}
+                    <div className="flex items-center gap-2">
+                      <ThemeBadge theme={g.theme} />
+                      <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                        {g.rows.length} card{g.rows.length === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                    {g.rows.map((r, i) => <SpecialTicket key={r.card.id ?? `${g.theme}-${i}`} card={r.card} status={r.status} idx={i} />)}
+                  </div>
+                ))}
               </div>
             );
           })}
