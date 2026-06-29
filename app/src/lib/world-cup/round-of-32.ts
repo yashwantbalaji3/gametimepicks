@@ -12,6 +12,8 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
+import { confidenceLabel, volatilityLabel, type Confidence, type Volatility } from "@/lib/world-cup/wc-editorial";
 
 export type RoundOf32Status = "live_odds" | "started" | "odds_pending";
 export type RoundOf32Confidence = "Strong" | "Solid" | "Lean" | "Coin-flip";
@@ -174,4 +176,171 @@ export function formatAmericanOdds(odds: number | null | undefined): string {
 export function formatProbability(p: number | null | undefined): string {
   if (typeof p !== "number" || !Number.isFinite(p)) return "—";
   return `${Math.round(p * 100)}%`;
+}
+
+// ─────────────────────────── Team-market parlays for FUTURE games ───────────────────────────
+/**
+ * Same-game TEAM-MARKET parlays for a Round-of-32 board game (future fixtures that have no player
+ * props yet). These are built ONLY from the board's own `picks` — moneyline, total goals, BTTS,
+ * double chance, draw-no-bet — using each market's MODEL pick verbatim, so legs can never contradict
+ * one another (you cannot pair Over with Under or BTTS-Yes with BTTS-No because each market has a
+ * single model pick). Combined prices are COMPUTED from the real leg prices (decimal product →
+ * American), never fabricated. A tier that cannot field ≥2 distinct quality markets is emitted as
+ * `{ available: false }` — never padded.
+ *
+ * Same-game legs are correlated: the combined odds + payout are a MODEL ESTIMATE from multiplying
+ * individual prices, and a real book prices correlated same-game legs SHORTER. Every parlay carries
+ * that warning verbatim.
+ */
+export type BoardParlayTier = "Safe" | "Balanced" | "Aggressive";
+
+export interface BoardParlayLeg {
+  market: string;
+  pick: string;
+  americanOdds: number;
+}
+export interface BoardTeamParlay {
+  tier: BoardParlayTier;
+  available: true;
+  title: string;
+  legs: BoardParlayLeg[];
+  combinedOdds: number;
+  /** Profit on a $10 stake at the combined price, rounded to cents. */
+  payout: number;
+  confidence: Confidence;
+  volatility: Volatility;
+  correlationNote: string;
+  expectedGameScript: string;
+  whyTheseLegs: string;
+}
+export interface BoardTeamParlayUnavailable {
+  tier: BoardParlayTier;
+  available: false;
+  reason: string;
+}
+export type BoardTeamParlayResult = BoardTeamParlay | BoardTeamParlayUnavailable;
+
+/** Ultra-juiced floor: a leg priced <= this is near-certain filler that barely moves a slip. */
+const BOARD_JUICE_FLOOR = -700;
+
+const CORRELATION_NOTE =
+  "MODEL ESTIMATE from multiplying individual prices — a real book prices correlated same-game legs SHORTER.";
+
+/** Combined American odds + decimal from a set of leg prices. Null when any price is missing/zero. */
+function combinedBoardOdds(legs: BoardParlayLeg[]): { american: number; decimal: number } | null {
+  if (legs.length === 0) return null;
+  let decimal = 1;
+  for (const l of legs) {
+    if (typeof l.americanOdds !== "number" || !Number.isFinite(l.americanOdds) || l.americanOdds === 0) return null;
+    decimal *= americanToDecimal(l.americanOdds);
+  }
+  return { american: decimalToAmerican(decimal), decimal };
+}
+
+/** Joint model probability (independence-assumed) across a set of board picks — for the confidence label. */
+function jointProb(ps: Array<number | undefined | null>): number {
+  let p = 1;
+  for (const x of ps) {
+    if (typeof x !== "number" || x <= 0) return 0;
+    p *= x;
+  }
+  return p;
+}
+
+/** A board market pick → a parlay leg, or null when the pick / its price is missing. */
+function legFrom(
+  market: string,
+  pick: { pick: string; americanOdds: number; modelProbability: number } | undefined,
+): { leg: BoardParlayLeg; modelProbability: number } | null {
+  if (!pick || typeof pick.americanOdds !== "number" || !Number.isFinite(pick.americanOdds) || pick.americanOdds === 0) {
+    return null;
+  }
+  return { leg: { market, pick: pick.pick, americanOdds: pick.americanOdds }, modelProbability: pick.modelProbability };
+}
+
+/**
+ * Build up to three team-market parlays (Safe / Balanced / Aggressive) for one board game from its
+ * `picks`. Returns one result per tier, each either a real parlay or an honest `{ available:false }`.
+ * Empty array when the game has no live picks at all.
+ */
+export function buildBoardTeamParlays(game: RoundOf32Game): BoardTeamParlayResult[] {
+  const picks = game.picks;
+  if (!picks || !picks.moneyline) return [];
+
+  const ml = legFrom("Full-Time Moneyline", picks.moneyline);
+  const total = legFrom("Total Goals", picks.total);
+  const btts = legFrom("BTTS", picks.btts);
+  const dc = legFrom("Double Chance", picks.doubleChance);
+
+  const script = expectedGameScript(game) ?? "Favorite controls but no blowout signal in the prices.";
+  const noQuality = (tier: BoardParlayTier): BoardTeamParlayUnavailable => ({
+    tier,
+    available: false,
+    reason: "No quality parlay available yet",
+  });
+
+  /** Assemble a tier from candidate legs: drop juiced (<= -700) NON-anchor legs, dedupe by market,
+   *  require ≥2 distinct markets, then compute the real combined price. */
+  const assemble = (
+    tier: BoardParlayTier,
+    title: string,
+    why: string,
+    candidates: Array<{ leg: BoardParlayLeg; modelProbability: number } | null>,
+  ): BoardTeamParlayResult => {
+    const seen = new Set<string>();
+    const kept: Array<{ leg: BoardParlayLeg; modelProbability: number }> = [];
+    for (const c of candidates) {
+      if (!c) continue;
+      if (c.leg.americanOdds <= BOARD_JUICE_FLOOR) continue; // ultra-juiced filler — drop
+      if (seen.has(c.leg.market)) continue; // never two legs from the same market
+      seen.add(c.leg.market);
+      kept.push(c);
+    }
+    if (kept.length < 2) return noQuality(tier);
+    const legs = kept.map((k) => k.leg);
+    const combined = combinedBoardOdds(legs);
+    if (!combined) return noQuality(tier);
+    const joint = jointProb(kept.map((k) => k.modelProbability));
+    return {
+      tier,
+      available: true,
+      title,
+      legs,
+      combinedOdds: combined.american,
+      payout: Math.round((combined.decimal - 1) * 10 * 100) / 100,
+      confidence: confidenceLabel(joint),
+      volatility: volatilityLabel(combined.american),
+      correlationNote: CORRELATION_NOTE,
+      expectedGameScript: script,
+      whyTheseLegs: why,
+    };
+  };
+
+  // SAFE — lowest-variance markets that AGREE with the model: favorite double-chance (only when its
+  // price clears the juice floor, i.e. odds > -700), the model's total pick, and the model's BTTS pick.
+  // Each leg is the market's own model pick, so the legs can never contradict.
+  const safe = assemble(
+    "Safe",
+    "Safe — lowest-variance lean",
+    "The favorite avoids defeat (double chance) alongside the model's own total and BTTS picks — the lowest-variance, same-direction legs the board already favors.",
+    [dc, total, btts],
+  );
+
+  // BALANCED — moneyline favorite + the model's total pick.
+  const balanced = assemble(
+    "Balanced",
+    "Balanced — favorite + total",
+    "The model's moneyline favorite paired with its total-goals pick — a moderate combo pointed the same way as the expected game script.",
+    [ml, total],
+  );
+
+  // AGGRESSIVE — moneyline favorite + total pick + BTTS pick (whatever the model actually picked).
+  const aggressive = assemble(
+    "Aggressive",
+    "Aggressive — favorite + total + BTTS",
+    "The moneyline favorite stacked with the model's total and BTTS picks for a longer same-game price — higher variance because every leg has to land.",
+    [ml, total, btts],
+  );
+
+  return [safe, balanced, aggressive];
 }

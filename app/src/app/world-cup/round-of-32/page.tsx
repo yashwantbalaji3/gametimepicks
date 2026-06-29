@@ -95,15 +95,20 @@ export default function RoundOf32Page() {
 
   const grouped = groupRoundOf32ByDate(board);
 
-  // A detail page exists only for active-window games — gate every link by the published params so we
-  // never 404. gameDetailParams() returns { sport, gameId(slug) } for every fixture that has a detail page.
+  // EVERY live_odds game now links somewhere: active-window games keep their full detail page
+  // (`/games/world-cup/<slug>`, full props); the remaining future games get the team-market detail
+  // page (`/world-cup/round-of-32/<slug>`, props pending). gameDetailParams() returns the slugs that
+  // have a full page — anything not in that set is a future game.
   const detailSlugs = new Set(
     gameDetailParams()
       .filter((p) => p.sport === "world-cup")
       .map((p) => p.gameId),
   );
-  const detailHrefFor = (g: RoundOf32Game): string | null =>
-    detailSlugs.has(g.gameSlug) ? `/games/world-cup/${g.gameSlug}` : null;
+  const isActiveWindow = (g: RoundOf32Game): boolean => detailSlugs.has(g.gameSlug);
+  const detailHrefFor = (g: RoundOf32Game): string | null => {
+    if (g.status !== "live_odds") return null;
+    return isActiveWindow(g) ? `/games/world-cup/${g.gameSlug}` : `/world-cup/round-of-32/${g.gameSlug}`;
+  };
 
   const liveCount = board.byStatus?.live_odds ?? board.games.filter((g) => g.status === "live_odds").length;
 
@@ -160,13 +165,13 @@ export default function RoundOf32Page() {
             </thead>
             <tbody>
               {grouped.map(({ date, games }) => (
-                <RoundOf32DateGroup key={date} date={date} games={games} detailHrefFor={detailHrefFor} />
+                <RoundOf32DateGroup key={date} date={date} games={games} detailHrefFor={detailHrefFor} isActiveWindow={isActiveWindow} />
               ))}
             </tbody>
           </table>
         </div>
         <p className="mt-2 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-          Scroll the table sideways on mobile. Tap a row with a "View game" arrow to open its detail page (active-window games only).
+          Scroll the table sideways on mobile. Tap any row to open its detail page — active-window games show full props, future games show team-market picks (props pending).
         </p>
       </section>
 
@@ -179,7 +184,7 @@ export default function RoundOf32Page() {
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {board.games.map((g) => (
-            <BracketLeanCard key={g.eventId} g={g} href={detailHrefFor(g)} />
+            <BracketLeanCard key={g.eventId} g={g} href={detailHrefFor(g)} activeWindow={isActiveWindow(g)} />
           ))}
         </div>
       </section>
@@ -191,14 +196,29 @@ export default function RoundOf32Page() {
   );
 }
 
+/** Per-row props chip: full props (green) for active-window games, props pending (amber) for future. */
+function PropsChip({ active }: { active: boolean }) {
+  const color = active ? "var(--vault-success)" : "var(--vault-warn)";
+  return (
+    <span
+      className="font-mono uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-[3px] inline-block"
+      style={{ color, border: `1px solid ${color}`, fontSize: 9, whiteSpace: "nowrap" }}
+    >
+      {active ? "Full props" : "Props pending"}
+    </span>
+  );
+}
+
 function RoundOf32DateGroup({
   date,
   games,
   detailHrefFor,
+  isActiveWindow,
 }: {
   date: string;
   games: RoundOf32Game[];
   detailHrefFor: (g: RoundOf32Game) => string | null;
+  isActiveWindow: (g: RoundOf32Game) => boolean;
 }) {
   return (
     <>
@@ -220,13 +240,13 @@ function RoundOf32DateGroup({
         </td>
       </tr>
       {games.map((g) => (
-        <RoundOf32Row key={g.eventId} g={g} href={detailHrefFor(g)} />
+        <RoundOf32Row key={g.eventId} g={g} href={detailHrefFor(g)} activeWindow={isActiveWindow(g)} />
       ))}
     </>
   );
 }
 
-function RoundOf32Row({ g, href }: { g: RoundOf32Game; href: string | null }) {
+function RoundOf32Row({ g, href, activeWindow }: { g: RoundOf32Game; href: string | null; activeWindow: boolean }) {
   const p = g.picks;
   const ml = p?.moneyline;
   const win = winPercent(g);
@@ -289,14 +309,17 @@ function RoundOf32Row({ g, href }: { g: RoundOf32Game; href: string | null }) {
         <span className="font-mono uppercase tracking-[0.06em]" style={{ color: conf, fontSize: 10 }}>{g.confidence}</span>
       </td>
       <td style={cellStyle}>
-        <StatusPill status={g.status} />
+        <div className="flex flex-col gap-1 items-start">
+          <StatusPill status={g.status} />
+          {g.status === "live_odds" ? <PropsChip active={activeWindow} /> : null}
+        </div>
         {!p && g.note ? <div className="mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 9.5, whiteSpace: "normal", maxWidth: 160 }}>{g.note}</div> : null}
       </td>
     </tr>
   );
 }
 
-function BracketLeanCard({ g, href }: { g: RoundOf32Game; href: string | null }) {
+function BracketLeanCard({ g, href, activeWindow }: { g: RoundOf32Game; href: string | null; activeWindow: boolean }) {
   const ml = g.picks?.moneyline;
   const win = winPercent(g);
   const risk = upsetRisk(g);
@@ -354,9 +377,12 @@ function BracketLeanCard({ g, href }: { g: RoundOf32Game; href: string | null })
         </div>
       )}
 
-      {href ? (
-        <span className="mt-auto pt-1 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>View game →</span>
-      ) : null}
+      <div className="mt-auto pt-1 flex items-center justify-between gap-2">
+        {g.status === "live_odds" ? <PropsChip active={activeWindow} /> : <span />}
+        {href ? (
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>View game →</span>
+        ) : null}
+      </div>
     </article>
   );
 
