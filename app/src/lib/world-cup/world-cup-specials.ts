@@ -160,6 +160,10 @@ export interface WorldCupSpecialCard {
     score: number;
     summary: string;
   };
+  // Optional coverage-card posture — only the Round-of-32 cross-game COVERAGE specials carry this.
+  // Maps the card's confidence/volatility onto a plain "how aggressive is this" label so a reader can
+  // sort conservative → aggressive at a glance. Absent on the themed longshot cards (always aggressive).
+  coverageTier?: "conservative" | "balanced" | "aggressive";
   // Optional card-level settlement state — populated once the slate is officially settled.
   // "won" | "lost" | "pending". Backward-compatible (absent on pre-event cards).
   cardStatus?: "won" | "lost" | "pending";
@@ -189,6 +193,13 @@ export interface WorldCupSpecialsResult {
   config: WorldCupSpecialsConfig;
   cards: WorldCupSpecialCard[];
   diagnostics: SpecialsDiagnostics;
+  // Round-of-32 cross-game COVERAGE specials — a SEPARATE class of card from the themed longshots above.
+  // Each covers EVERY game on the current knockout slate with ONE team-market leg per game (moneyline /
+  // double-chance / total-goals / draw-no-bet). These are NOT bound by the themed cards' +700..+3000
+  // longshot band — a 3-favourite moneyline coverage card sits at lower odds, computed honestly from the
+  // real de-vig per-side prices. Team-market only (no player props). Optional/backward-compatible — absent
+  // on pre-coverage snapshots; the existing 5-card `cards` array + its tests are unaffected.
+  coverageCards?: WorldCupSpecialCard[];
   // Optional slate-level settlement metadata — present once the slate is officially settled.
   settledAt?: string | null;
   settlementSource?: string | null;
@@ -1300,6 +1311,319 @@ function themeBlurb(theme: string): string {
   }
 }
 
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// ROUND-OF-32 CROSS-GAME COVERAGE SPECIALS — a SEPARATE class of card from the themed longshots.
+// Each card covers EVERY game on the current knockout slate with ONE team-market leg per game (one from
+// each fixture, all fixtures covered). They are NOT bound by the themed cards' +700..+3000 longshot band
+// or the >=2-player-prop rule — a 3-favourite moneyline coverage card sits at lower odds, and combined
+// odds are computed honestly from the REAL de-vig per-side prices (never fabricated, never forced).
+// Cross-match ⇒ the correlation is genuinely INDEPENDENT, and the editorial bundle says so honestly.
+//
+// Four coverage cards:
+//   • Moneyline Special      — one result pick (ML or DC, whichever the de-vig supports best) per game.
+//   • Total Goals Special    — one Over/Under 2.5 pick per game (the per-game total lean).
+//   • Favorites to Advance   — draw-no-bet / double-chance on the market favourites (safer advancement).
+//   • Knockout Chaos         — underdog double-chance + a low-scoring Under (aggressive / contrarian).
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+
+export const WORLD_CUP_COVERAGE_THEMES = [
+  "Moneyline Special",
+  "Total Goals Special",
+  "Favorites to Advance",
+  "Knockout Chaos",
+] as const;
+
+/** Every priced, pre-event team-OUTCOME leg from the team projections — like `loadThemedTeamLegs` but WITHOUT
+ *  the strict per-leg odds band (coverage cards take the favourite/total lean at its real price, in or out
+ *  of the longshot band). Each leg's odds + probability come from that exact outcome, so the price is honest. */
+function loadCoverageTeamLegs(root: string, nowIso: string, date: string): TeamOutcomeLeg[] {
+  let team: { matches?: Array<Record<string, any>>; date?: string };
+  try {
+    team = JSON.parse(fs.readFileSync(path.join(root, "world-cup", "projections", "latest.json"), "utf8"));
+  } catch { return []; }
+  if (!date || (team.date && team.date !== date)) return [];
+  const legs: TeamOutcomeLeg[] = [];
+  for (const r of team.matches ?? []) {
+    const mk = TEAM_MARKET_LABEL[r.market];
+    if (!mk) continue;
+    const startTime: string | null = r.kickoffUtc ?? null;
+    if (!startTime || startTime <= nowIso) continue; // pre-event only
+    const home: string = r.homeTeam, away: string = r.awayTeam;
+    const fixture = `${home} vs ${away}`;
+    const flagHome = wcTeamCodeFromName(home);
+    const flagAway = wcTeamCodeFromName(away);
+    for (const o of (Array.isArray(r.outcomes) ? r.outcomes : [])) {
+      const odds = typeof o.americanOdds === "number" ? o.americanOdds : null;
+      if (odds == null || !Number.isFinite(odds)) continue; // need a real price — NO band filter here
+      const sideRaw = String(o.side ?? "");
+      const sideLc = sideRaw.toLowerCase();
+      const label = String(o.label ?? mk.label);
+      let refTeam: string | null = null;
+      if (r.market === "moneyline_90" || r.market === "draw_no_bet") {
+        if (sideLc === "home") refTeam = home; else if (sideLc === "away") refTeam = away;
+      } else if (r.market === "double_chance") {
+        if (sideLc === "1x") refTeam = home; else if (sideLc === "x2") refTeam = away; // "12" spans both → null
+      }
+      const participant =
+        r.market === "moneyline_90" ? (refTeam ? `${refTeam} to win` : label) : label;
+      const opponent = refTeam ? (refTeam === home ? away : home) : null;
+      const countryCode = refTeam ? wcTeamCodeFromName(refTeam) : null;
+      legs.push({
+        legId: `wc-special-coverage:team:${r.matchId}:${r.market}:${sideRaw}`,
+        kind: "team", sport: "WORLD_CUP", fixture, eventId: String(r.matchId),
+        participant, team: refTeam, opponent,
+        countryCode, flagHome, flagAway, teamLogo: r.homeLogo ?? null,
+        playerId: null, photoUrl: null,
+        market: r.market, marketLabel: mk.label, side: r.market === "moneyline_90" ? null : sideRaw,
+        line: typeof r.line === "number" ? r.line : null,
+        odds: odds as number,
+        modelProbability: typeof o.modelProbability === "number" ? o.modelProbability : 0,
+        startTime, dataQuality: "B", confidence: String(r.confidence ?? "Lean"),
+        settlement: mk.settlement, limitedData: false,
+        selectionKey: `${r.market}:${sideLc}`,
+      });
+    }
+  }
+  return legs;
+}
+
+/** All distinct games on the slate, ordered by kickoff (stable card ordering). */
+function coverageGames(legs: TeamOutcomeLeg[]): string[] {
+  const byEvent = new Map<string, string>();
+  for (const l of legs) if (!byEvent.has(l.eventId)) byEvent.set(l.eventId, l.startTime ?? "");
+  return Array.from(byEvent.entries()).sort((a, b) => (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0)).map(([ev]) => ev);
+}
+
+/** Conservative / balanced / aggressive — mapped from confidence + volatility (no fabricated number). */
+function coverageTierFor(confidence: Confidence, volatility: Volatility): "conservative" | "balanced" | "aggressive" {
+  const conf = confidence === "High" || confidence === "Solid";
+  const calm = volatility === "Low" || volatility === "Medium";
+  if (conf && calm) return "conservative";
+  if (!conf && !calm) return "aggressive";
+  return "balanced";
+}
+
+/** Honest "why this coverage card" + "why it can fail", themed (no longshot/player-prop framing). */
+function coverageNarrative(theme: string, legs: SpecialLeg[]): { why: string[]; fail: string[] } {
+  const games = legs.length;
+  const picks = legs.map((l) => `${l.participant} (${l.marketLabel}${l.line != null ? ` ${l.line}` : ""})`);
+  switch (theme) {
+    case "Moneyline Special":
+      return {
+        why: [
+          `Coverage card — ONE result pick per June-29 R32 game, all ${games} fixtures covered: ${picks.join("; ")}.`,
+          "Each side is the de-vig favourite/leaning result for its own game — a lower-variance 'who controls the tie' ticket, not a longshot.",
+          "Cross-match by construction, so the legs are independent: one game's script can't swing the whole slip.",
+        ],
+        fail: [
+          `${games} legs must all land — a single upset in any tie ends the card.`,
+          "Knockout football is cagey: a 90-minute result pick carries extra-time exposure on the closer ties.",
+        ],
+      };
+    case "Total Goals Special":
+      return {
+        why: [
+          `Coverage card — ONE total-goals pick per June-29 R32 game, all ${games} fixtures covered: ${picks.join("; ")}.`,
+          "Each Over/Under matches that game's own de-vig total lean — the slate read on game state, fixture by fixture.",
+          "Cross-match, so the totals are independent: a goal-fest in one tie has no bearing on a grind in another.",
+        ],
+        fail: [
+          `${games} totals must all land — one game flowing against its lean breaks the card.`,
+          "Totals swing on a late goal or a red card; knockout games can deviate sharply from their priced script.",
+        ],
+      };
+    case "Favorites to Advance":
+      return {
+        why: [
+          `Coverage card — the market favourites taken to advance via safer markets across the games where a clear favourite exists: ${picks.join("; ")}.`,
+          "Draw-no-bet / double-chance survives a draw at 90' (push or covered) — the lower-drama 'these favourites get through' expression.",
+          "Cross-match, so the legs are independent — no single game script carries the slip.",
+        ],
+        fail: [
+          "Even safer advancement markets lose outright if a favourite is actually beaten — knockout football breeds upsets.",
+          `${games} legs must all hold; the steeper-priced favourites add little payout but still carry real loss risk.`,
+        ],
+      };
+    case "Knockout Chaos":
+      return {
+        why: [
+          `Aggressive / contrarian coverage card — underdog and low-scoring angles where the slate prices them as live: ${picks.join("; ")}.`,
+          "Built AGAINST the favourites: live-underdog double-chance plus a low-scoring Under — explicitly the contrarian read, not the model's per-game lean for the result.",
+          "Cross-match, so the legs are independent — this is a deliberate spread of upset/low-event angles, not a single bold flyer.",
+        ],
+        fail: [
+          "By design this fights the favourites — every leg is the less-likely side, so the joint probability is low and variance is high.",
+          `${games} contrarian legs must all land; favourites controlling their ties (the base case) breaks the card.`,
+        ],
+      };
+    default:
+      return { why: [`Coverage card across ${games} games: ${picks.join("; ")}.`], fail: [`${games} legs must all land.`] };
+  }
+}
+
+/** Build ONE coverage card (team-only, all-games) from a chosen set of one-leg-per-game outcomes. Returns
+ *  null when the slate can't support the theme honestly (no eligible leg for a game). NOT band-gated. */
+function buildCoverageCard(
+  theme: string,
+  legsIn: SpecialLeg[],
+  index: number,
+  opts: GenerateOptions,
+  cfg: WorldCupSpecialsConfig,
+  ctxs: Map<string, KnockoutContext>,
+): WorldCupSpecialCard | null {
+  if (legsIn.length < 2) return null; // a coverage card needs >=2 distinct games (the slate minimum)
+  // De-dupe by game (one leg per fixture) + reject any contradictory pair (belt-and-braces).
+  const legs: SpecialLeg[] = [];
+  for (const l of legsIn) {
+    if (legs.some((x) => x.eventId === l.eventId)) continue;
+    if (legs.some((x) => legsConflict(x, l))) return null;
+    legs.push(l);
+  }
+  if (legs.length < 2) return null;
+  const combined = combinedAmerican(legs.map((l) => l.odds));
+  if (combined == null || !Number.isFinite(combined)) return null;
+  const decimal = combinedDecimal(legs.map((l) => l.odds)) ?? dec(combined);
+  const joint = combinedHitProbability(legs.map((l) => l.modelProbability)) ?? 0;
+  const gameNames = Array.from(new Set(legs.map((l) => l.fixture)));
+  const editorial = buildEditorial(theme, legs, combined, joint, ctxs);
+  const narrative = coverageNarrative(theme, legs);
+  const tier = coverageTierFor(editorial.confidence!, editorial.volatility!);
+  const tierLabel = tier === "conservative" ? "Conservative" : tier === "aggressive" ? "Aggressive" : "Balanced";
+
+  return {
+    id: `wc-coverage-${opts.date}-${index + 1}`,
+    title: `${theme} — R32 coverage (${tierLabel})`,
+    theme,
+    coverageTier: tier,
+    risk: "longshot", // shared literal on the card type; coverage posture is carried by coverageTier
+    label: "World Cup Special",
+    stakePreview: cfg.stakePreview,
+    combinedOdds: combined as number,
+    projectedReturn: Math.round(cfg.stakePreview * decimal * 100) / 100,
+    decimalOdds: Math.round(decimal * 1000) / 1000,
+    jointModelProbability: Math.round(joint * 1000) / 1000,
+    games: gameNames,
+    legs,
+    teamPropCount: legs.length,
+    playerPropCount: 0,
+    correlationProfile: editorial.correlation!.summary, // descriptive (independent — cross-match)
+    dataQuality: "team B (odds-backed, de-vig market-implied — no player-prop layer on coverage cards)",
+    whyThisCard: [...narrative.why, editorial.correlation!.summary],
+    whyItCanFail: narrative.fail,
+    settlementNotes: Array.from(new Set(legs.map((l) => l.settlement))),
+    diagnostics: [
+      `coverage ${theme} · ${tierLabel}`,
+      `combined ${combined > 0 ? "+" : ""}${combined} (coverage card — NOT band-gated)`,
+      `legs ${legs.length} (one per game) · games ${gameNames.length} · all-slate coverage`,
+      `confidence ${editorial.confidence} · volatility ${editorial.volatility} · correlation ${editorial.correlation!.direction}`,
+      `joint model prob ≈ ${(joint * 100).toFixed(1)}%`,
+    ],
+    ...editorial,
+    correlation: editorial.correlation,
+    subtitle: editorial.subtitle,
+  };
+}
+
+/** Build the Round-of-32 cross-game coverage specials. Pure + deterministic. Each card covers as many of
+ *  the slate's games as the market honestly supports (Moneyline + Total cover ALL games; Favorites/Chaos
+ *  cover the games where a clear favourite / a live contrarian side exists). Never invents a leg. */
+export function buildCoverageSpecials(
+  coverageLegs: TeamOutcomeLeg[],
+  ctxs: Map<string, KnockoutContext>,
+  opts: GenerateOptions,
+): WorldCupSpecialCard[] {
+  const cfg = opts.config ?? WORLD_CUP_SPECIALS_CONFIG;
+  const games = coverageGames(coverageLegs);
+  if (games.length < cfg.minGamesPerCard) return [];
+
+  const byEvent = (ev: string) => coverageLegs.filter((l) => l.eventId === ev);
+  const cards: WorldCupSpecialCard[] = [];
+  let idx = 0;
+  const push = (card: WorldCupSpecialCard | null) => { if (card) { cards.push(card); idx++; } };
+
+  // ── 1) Moneyline Special — ONE result pick per game, ALL games covered. Per game, take the de-vig
+  //    favourite via moneyline when the moneyline IS the favourite's side; if the straight moneyline is
+  //    steeper than the cleaner double-chance on that same favourite, fall back to that DC (still the SAME
+  //    side — never contradicts the per-game model). Covers every game.
+  {
+    const legs: SpecialLeg[] = [];
+    let covered = 0;
+    for (const ev of games) {
+      const rows = byEvent(ev);
+      const ctx = ctxs.get(ev);
+      const fav = ctx?.favoriteTeam ?? null;
+      // The favourite's straight moneyline (or, when even, the home moneyline side the price refers to).
+      const ml = rows.find((l) => l.market === "moneyline_90" && (fav ? l.team === fav : l.team));
+      const favDc = rows.find((l) => l.market === "double_chance" && l.team && l.team === (fav ?? ml?.team ?? null));
+      // "Whichever the de-vig supports best": the cleaner-priced of the favourite's ML vs DC (less steep =
+      // higher implied prob you actually need — but for a RESULT special we want the favourite's result
+      // expression; pick the LESS extreme price so the card stays a sensible result ticket).
+      const pick = (ml && favDc) ? (ml.odds >= favDc.odds ? ml : favDc) : (ml ?? favDc ?? null);
+      if (pick) { legs.push(pick); covered++; }
+    }
+    if (covered === games.length) push(buildCoverageCard("Moneyline Special", legs, idx, opts, cfg, ctxs));
+  }
+
+  // ── 2) Total Goals Special — ONE total-goals pick (Over/Under 2.5) per game, ALL games covered. Use the
+  //    de-vig-leaning side (higher model probability of Over vs Under) for each game — matches the per-game
+  //    total lean exactly.
+  {
+    const legs: SpecialLeg[] = [];
+    let covered = 0;
+    for (const ev of games) {
+      const totals = byEvent(ev).filter((l) => l.market === "match_total_goals");
+      if (!totals.length) continue;
+      const pick = [...totals].sort((a, b) => b.modelProbability - a.modelProbability)[0]; // the leaning side
+      if (pick) { legs.push(pick); covered++; }
+    }
+    if (covered === games.length) push(buildCoverageCard("Total Goals Special", legs, idx, opts, cfg, ctxs));
+  }
+
+  // ── 3) Favorites to Advance — DNB / DC on the market favourites (safer advancement). Cover the games
+  //    where a clear favourite exists; prefer draw-no-bet, fall back to that favourite's double-chance.
+  {
+    const legs: SpecialLeg[] = [];
+    for (const ev of games) {
+      const ctx = ctxs.get(ev);
+      const fav = ctx?.favoriteTeam ?? null;
+      if (!fav) continue; // no clear favourite → skip honestly (not every slate game has one)
+      const dnb = byEvent(ev).find((l) => l.market === "draw_no_bet" && l.team === fav);
+      const dc = byEvent(ev).find((l) => l.market === "double_chance" && l.team === fav);
+      const pick = dnb ?? dc ?? null;
+      if (pick) legs.push(pick);
+    }
+    push(buildCoverageCard("Favorites to Advance", legs, idx, opts, cfg, ctxs));
+  }
+
+  // ── 4) Knockout Chaos — aggressive / contrarian: live-underdog double-chance (X2 on the non-favourite)
+  //    in the closest ties + a low-scoring Under, where the slate actually prices these as live. Clearly
+  //    labelled contrarian; it is the explicit exception to "match the per-game favourite lean".
+  {
+    const legs: SpecialLeg[] = [];
+    const usedGames = new Set<string>();
+    // Live-underdog double-chances (X2 / 1X on the side that is NOT the de-vig favourite), longest live price first.
+    const dogDc = coverageLegs
+      .filter((l) => l.market === "double_chance" && l.team && ctxs.get(l.eventId)?.favoriteTeam && ctxs.get(l.eventId)!.favoriteTeam !== l.team)
+      .sort((a, b) => b.odds - a.odds);
+    for (const d of dogDc) {
+      if (usedGames.has(d.eventId)) continue;
+      legs.push(d); usedGames.add(d.eventId);
+      if (legs.length >= 2) break;
+    }
+    // Add a low-scoring Under from a game not already used (defensive/contrarian-on-goals angle).
+    const under = coverageLegs
+      .filter((l) => l.market === "match_total_goals" && /under/i.test(l.side ?? l.participant) && !usedGames.has(l.eventId))
+      .sort((a, b) => b.modelProbability - a.modelProbability)[0];
+    if (under) { legs.push(under); usedGames.add(under.eventId); }
+    // If we still only span one game, top up with another live-underdog DC from a fresh game.
+    if (new Set(legs.map((l) => l.eventId)).size < 2)
+      for (const d of dogDc) { if (!usedGames.has(d.eventId)) { legs.push(d); usedGames.add(d.eventId); break; } }
+    if (new Set(legs.map((l) => l.eventId)).size >= 2) push(buildCoverageCard("Knockout Chaos", legs, idx, opts, cfg, ctxs));
+  }
+
+  return cards;
+}
+
 /** Select the published themed set: maximise THEME COVERAGE first (one card per theme), drop the weakest
  *  themes only when more than `maxCardsShown` exist, then backfill any spare slots with a 2nd card of the
  *  strongest themes. "Strength" = how well the card's legs fit the knockout script (shared intelligence),
@@ -1441,6 +1765,26 @@ export function buildWorldCupSpecials(opts: { root?: string; nowIso: string; dat
       };
     });
     result.diagnostics.notes.push("themed_specials: slate did not support a quality, odds-spread themed set — kept the legacy odds-spread cards (editorial bundle applied).");
+  }
+
+  // ── ROUND-OF-32 CROSS-GAME COVERAGE layer ─────────────────────────────────────────────────────────
+  // A SEPARATE class of card (kept off `result.cards` so the 5-longshot product + its tests are untouched):
+  // team-market coverage specials that span the WHOLE slate — one leg per game — built from the REAL de-vig
+  // per-side prices WITHOUT the longshot band. Cross-match ⇒ honestly independent. Never invents a leg.
+  const coverageLegs = loadCoverageTeamLegs(root, opts.nowIso, opts.date);
+  const coverageCards = buildCoverageSpecials(coverageLegs, ctxs, themeOpts);
+  if (coverageCards.length) {
+    result.coverageCards = coverageCards;
+    const mlCard = coverageCards.find((c) => c.theme === "Moneyline Special");
+    const totCard = coverageCards.find((c) => c.theme === "Total Goals Special");
+    const slateGames = new Set(coverageLegs.map((l) => l.eventId)).size;
+    const mlCovers = mlCard ? mlCard.games.length === slateGames : false;
+    const totCovers = totCard ? totCard.games.length === slateGames : false;
+    result.diagnostics.notes.push(
+      `coverage_specials: ${coverageCards.length} cross-game R32 coverage card(s) (${coverageCards.map((c) => `${c.theme} ${c.combinedOdds > 0 ? "+" : ""}${c.combinedOdds} · ${c.coverageTier}`).join(", ")}); Moneyline covers ${mlCard?.games.length ?? 0}/${slateGames} games, Total covers ${totCard?.games.length ?? 0}/${slateGames} games${mlCovers && totCovers ? " — both cover the full slate." : "."}`,
+    );
+  } else {
+    result.diagnostics.notes.push("coverage_specials: none built (slate has fewer than 2 pre-event games with priced team markets).");
   }
 
   // Surface the out-of-range / started rejection counts at the feed level for the snapshot diagnostics.

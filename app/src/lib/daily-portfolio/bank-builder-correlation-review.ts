@@ -29,9 +29,21 @@ export function selectCrossLaneBankBuilder(pool: ModelPick[], rungA: LaneRung, r
   const laneA = selectSafestTargetFitCard(pool, rungA, new Set(), undefined, laneAMaxLegs);
   const usedGames = new Set(laneA.legs.map((l) => l.gameId));
   // Lane B: value lane (+200..+700, survivability-first), independent of Lane A's games.
-  const laneB = selectValueTargetFitCard(pool, rungB, new Set(), usedGames);
+  let laneB = selectValueTargetFitCard(pool, rungB, new Set(), usedGames);
+  let sharedGame = false;
+  // THIN slate (e.g. 3 games): two fully-independent 2-leg lanes need 4 games. If Lane B can't fill from
+  // the remaining games, let it reuse a Lane-A game via a DIFFERENT market (drop Lane A's exact
+  // game+market from B's pool → never the same market, so never an opposing pick). Better two real lanes.
+  if (laneB.legs.length < 2) {
+    const aGameMarket = new Set(laneA.legs.map((l) => `${l.gameId}:${l.marketKey}`));
+    const poolB = pool.filter((p) => !aGameMarket.has(`${p.gameId}:${p.marketKey}`));
+    laneB = selectValueTargetFitCard(poolB, rungB, new Set(), undefined);
+    sharedGame = laneB.legs.some((l) => usedGames.has(l.gameId));
+  }
   return {
     laneA: withCrossLaneNote(laneA, "B"),
-    laneB: withCrossLaneNote(laneB, "A"),
+    laneB: sharedGame
+      ? { ...laneB, correlationNote: "Thin slate: Lane B shares a game with Lane A via a DIFFERENT market (max 1 leg/game per lane, never the same market → no opposing pick). Reviewed + disclosed." }
+      : withCrossLaneNote(laneB, "A"),
   };
 }

@@ -53,6 +53,23 @@ const STATUS_TO_TICKET: Record<SpecialsCardStatus, TicketStatus> = {
 
 const NO_THEME = "Specials"; // fallback group for cards built without a curated theme
 
+/** Status for a single card from its legs' kickoffs (mirrors the lib's per-card derivation). Used for the
+ *  Round-of-32 coverage specials, which live on `result.coverageCards` (separate from the longshot set). */
+function coverageStatus(card: WorldCupSpecialCard, nowMs: number): SpecialsCardStatus {
+  if (card.cardStatus === "won") return "won";
+  if (card.cardStatus === "lost") return "lost";
+  const started = (card.legs ?? []).some((l) => {
+    if (!l.startTime) return false;
+    const t = Date.parse(l.startTime);
+    return Number.isFinite(t) && t <= nowMs;
+  });
+  return started ? "pending" : "candidate";
+}
+
+const COVERAGE_TIER_TONE: Record<string, "neutral" | "warn" | "hot"> = {
+  conservative: "neutral", balanced: "warn", aggressive: "hot",
+};
+
 type TrackerRow = { card: WorldCupSpecialCard; status: SpecialsCardStatus };
 
 /** Group tracker rows by curated theme, preserving first-seen order; un-themed cards fall under "Specials". */
@@ -108,6 +125,7 @@ function EditorialBody({ card }: { card: WorldCupSpecialCard }) {
       ) : null}
       {hasChips ? (
         <div className="flex flex-wrap items-center gap-1.5">
+          {card.coverageTier ? <EditorialChip label="tier" value={card.coverageTier} tone={COVERAGE_TIER_TONE[card.coverageTier] ?? "neutral"} /> : null}
           {card.confidence ? <EditorialChip label="conf" value={card.confidence} tone={CONF_TONE[card.confidence] ?? "neutral"} /> : null}
           {card.volatility ? <EditorialChip label="vol" value={card.volatility} tone={VOL_TONE[card.volatility] ?? "neutral"} /> : null}
           {card.correlation ? <EditorialChip label="corr" value={card.correlation.direction} tone={card.correlation.direction === "independent" ? "neutral" : "warn"} /> : null}
@@ -168,6 +186,14 @@ export default function WorldCupSpecialsTracker({
   const t = deriveSpecialsTracker(result, nowIso);
   const compact = mode === "compact";
   const summaryOnly = mode === "summary";
+
+  // Round-of-32 cross-game COVERAGE specials (separate from the longshot set on `result.cards`).
+  // Ordered conservative → balanced → aggressive so the section reads safest-first.
+  const nowMs = Date.parse(nowIso);
+  const TIER_ORDER: Record<string, number> = { conservative: 0, balanced: 1, aggressive: 2 };
+  const coverageRows: TrackerRow[] = (result?.coverageCards ?? [])
+    .map((card) => ({ card, status: coverageStatus(card, Number.isFinite(nowMs) ? nowMs : 0) }))
+    .sort((a, b) => (TIER_ORDER[a.card.coverageTier ?? "balanced"] ?? 1) - (TIER_ORDER[b.card.coverageTier ?? "balanced"] ?? 1));
 
   const summaryTiles: Array<[string, string]> = [
     ["Record", t.summary.record],
@@ -234,7 +260,38 @@ export default function WorldCupSpecialsTracker({
               </div>
             );
           })}
-          {t.pending.length + t.candidates.length + t.settled.length === 0 ? (
+          {/* ── Round-of-32 cross-game COVERAGE specials ─────────────────────────────────────────────
+              A separate class of team-market card that spans the WHOLE slate (one leg per game). Lower-odds,
+              honest cross-match (independent) coverage — NOT the longshot product above. */}
+          {coverageRows.length ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>
+                  Round of 32 · cross-game coverage · {coverageRows.length}
+                </span>
+                <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                  one team-market leg per game · independent
+                </span>
+              </div>
+              <p className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
+                Real markets only — each card covers the whole slate with one pick per game (moneyline / total / double-chance / draw-no-bet), computed from the de-vig per-side prices. Cross-match, so the legs are independent. Labelled conservative → aggressive. Paper-only, no exposure.
+              </p>
+              {(compact ? coverageRows.slice(0, 1) : coverageRows).map((r, i) => (
+                <div key={r.card.id ?? `coverage-${i}`} className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    <ThemeBadge theme={r.card.theme ?? "Coverage"} />
+                    {r.card.coverageTier ? (
+                      <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                        {r.card.coverageTier} · {r.card.games.length} game{r.card.games.length === 1 ? "" : "s"}
+                      </span>
+                    ) : null}
+                  </div>
+                  <SpecialTicket card={r.card} status={r.status} idx={i} />
+                </div>
+              ))}
+            </div>
+          ) : null}
+          {t.pending.length + t.candidates.length + t.settled.length + coverageRows.length === 0 ? (
             <div className="rounded-xl px-4 py-6 text-center" style={{ border: "1px dashed var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
               <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>No World Cup Specials on the current slate</p>
               <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>A fresh box of model-ranked specials posts once the next multi-game slate&apos;s odds and props are available.</p>

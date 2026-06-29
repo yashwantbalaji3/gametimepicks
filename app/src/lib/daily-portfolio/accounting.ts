@@ -258,12 +258,18 @@ export function applyCardLocks(
  */
 export function buildPersistedDailyPortfolio(root: string, nowIso: string, date: string, generatedAt: string | null, activate: boolean): PersistedDailyPortfolio {
   const { activeBankroll, crownBankroll } = readCanonicalMoney(root);
-  const pool = loadWorldCupModelPicks(root, nowIso, date);
+  const _nowMsPre = Date.parse(nowIso);
+  // Defense-in-depth: NEVER let an already-started game into the pool, even if a source artifact is stale
+  // and still lists it (e.g. the market-outlook the team-leg loader reads is regenerated separately).
+  // A started game can never be a live bettable leg. Pre-event only.
+  const preEvent = <T extends { kickoffUtc?: string | null }>(legs: T[]): T[] =>
+    legs.filter((p) => { const k = p.kickoffUtc ? Date.parse(p.kickoffUtc) : NaN; return !Number.isFinite(k) || k > _nowMsPre; });
+  const pool = preEvent(loadWorldCupModelPicks(root, nowIso, date));
   // Bank Builder draws from a SOCCER-FIRST cross-sport pool: the broad World Cup team-leg pool (real
   // de-vigged moneyline favorites + totals for every game, e.g. Brazil moneyline) is PREFERRED; the model
   // pool fills any game/market the outlook didn't cover; the MLB board is the last fill. The selector leans
   // on the World Cup legs. Moonshot stays World-Cup-only (the WC longshot lane).
-  const wcTeam = loadWorldCupTeamLegs(root, nowIso, date);
+  const wcTeam = preEvent(loadWorldCupTeamLegs(root, nowIso, date));
   const seenWc = new Set(wcTeam.map((p) => `${p.gameId}:${p.marketKey}`));
   const wcFill = pool.filter((p) => !seenWc.has(`${p.gameId}:${p.marketKey}`));
   const bbPool = [...wcTeam, ...wcFill, ...loadMlbModelPicks(root, nowIso, date)];
