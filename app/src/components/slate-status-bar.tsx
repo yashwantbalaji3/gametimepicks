@@ -153,7 +153,7 @@ export default function SlateStatusBar() {
       {portfolio ? (
         <Chip href="/mr-dub" accent="var(--gtp-bank-heat)">
           <span aria-hidden>🏦</span>
-          <span style={{ color: "var(--vault-text-faint)" }}>Active</span>
+          <span style={{ color: "var(--vault-text-faint)" }}>Paper bankroll</span>
           <span style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>{usd(portfolio.active)}</span>
           <span>· {portfolio.wins}–{portfolio.losses}</span>
         </Chip>
@@ -161,7 +161,7 @@ export default function SlateStatusBar() {
       {crownAmount != null ? (
         <Chip href="/bank-builder" accent="var(--vault-gold)">
           <span aria-hidden>👑</span>
-          <span style={{ color: "var(--vault-text-faint)" }}>Crown</span>
+          <span style={{ color: "var(--vault-text-faint)" }}>Peak</span>
           <span style={{ color: "var(--vault-gold)", fontWeight: 600 }}>{usd(crownAmount)}</span>
           {crownRecord ? <span>· {crownRecord}</span> : null}
         </Chip>

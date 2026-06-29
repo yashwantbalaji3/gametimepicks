@@ -125,7 +125,7 @@ export default function BankBuilderPage() {
       {bbActiveLaunched ? (
         <section className="gtp-fade-up mb-6" aria-label="Today's Dual Bank Builder">
           <p className="mb-3 font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>
-            Active bankroll {money(dailyPortfolio.activeBankroll)} · Bank Builder open exposure {money(dailyPortfolio.exposure.core)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (separate)
+            Current paper bankroll {money(dailyPortfolio.activeBankroll)} · Bank Builder open exposure {money(dailyPortfolio.exposure.core)} · available {money(dailyPortfolio.availableBankroll)} · peak paper bankroll {money(dailyPortfolio.crownBankroll)} (separate)
           </p>
           <DualLadderBoard preview={bbPreview} />
           <div className="mt-3"><CrossLaneCorrelationBadge laneA={bbLaneLegs("A")} laneB={bbLaneLegs("B")} /></div>

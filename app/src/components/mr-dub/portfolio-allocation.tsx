@@ -114,7 +114,7 @@ export default function PortfolioAllocationSection({ allocation }: { allocation:
         </div>
         <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-rule)" }}>
           <div className="font-display tabular truncate" style={{ color: "var(--vault-text-faint)", fontSize: 16, fontWeight: 800 }}>{money(allocation.crownBankroll)}</div>
-          <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Crown (historical)</div>
+          <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Peak paper bankroll</div>
         </div>
       </div>
 

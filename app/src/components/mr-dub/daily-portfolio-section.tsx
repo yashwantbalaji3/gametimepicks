@@ -150,11 +150,11 @@ export default function DailyPortfolioSection({ portfolio }: { portfolio: DailyP
 
       {/* Summary stat chips — active bankroll + exposure unchanged while candidates; Crown separate. */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-        <StatChip label="Active bankroll" value={money(portfolio.activeBankroll)} accent="var(--vault-gold-bright)" />
-        <StatChip label="Open exposure" value={money(portfolio.openExposure)} />
+        <StatChip label="Current paper bankroll" value={money(portfolio.activeBankroll)} accent="var(--vault-gold-bright)" />
+        <StatChip label="Open exposure (at risk)" value={money(portfolio.openExposure)} />
         <StatChip label="Available" value={money(portfolio.availableBankroll)} />
         <StatChip label="Potential return" value={money(portfolio.potentialReturn)} accent="var(--vault-success)" />
-        <StatChip label="Crown (historical)" value={money(portfolio.crownBankroll)} faint />
+        <StatChip label="Peak paper bankroll" value={money(portfolio.crownBankroll)} faint />
       </div>
 
       {/* Four lane cards — 2×2 on desktop, single column on mobile. */}
