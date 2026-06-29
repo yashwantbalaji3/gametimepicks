@@ -565,11 +565,15 @@ function buildTeamParlays(detail: PublicGameDetail, ctx: KnockoutContext | undef
   // the expected script: a low-event tie pairs the win with Under; an open one pairs it with Over. We
   // read the script from the de-vig defensiveLean so the totals leg reinforces the result, not fights it.
   const balancedTeamLegs: Cand[] = [];
-  const favResult: Cand | null = dnbFav
-    ? toCand("draw_no_bet", dnbFav)
-    : (ml?.outcomes?.find((o) => o.side === (ctx?.favorite === "away" ? "away" : "home")) && typeof ml?.outcomes?.find((o) => o.side === (ctx?.favorite === "away" ? "away" : "home"))?.americanOdds === "number"
-      ? toCand("moneyline_90", ml!.outcomes!.find((o) => o.side === (ctx?.favorite === "away" ? "away" : "home"))!)
-      : null);
+  // Favorite-result leg: prefer the LESS-juiced of DNB / ML that clears the juice floor, so an extreme
+  // draw-no-bet (e.g. -1430) falls back to the favorite's moneyline instead of anchoring a no-value card.
+  const FAV_RESULT_FLOOR = -700;
+  const favResultSide = ctx?.favorite === "away" ? "away" : "home";
+  const mlFav = ml?.outcomes?.find((o) => o.side === favResultSide);
+  const favResultCands: Cand[] = [];
+  if (dnbFav && typeof dnbFav.americanOdds === "number") favResultCands.push(toCand("draw_no_bet", dnbFav));
+  if (mlFav && typeof mlFav.americanOdds === "number") favResultCands.push(toCand("moneyline_90", mlFav));
+  const favResult: Cand | null = favResultCands.filter((c) => c.odds > FAV_RESULT_FLOOR).sort((a, b) => b.odds - a.odds)[0] ?? null;
   if (favResult) balancedTeamLegs.push(favResult);
   const cautiousScript = (ctx?.defensiveLean ?? 0.5) >= 0.5;
   const balancedTotals = cautiousScript ? (safeUnder ?? totCand(overTot)) : (totCand(overTot) ?? safeUnder);

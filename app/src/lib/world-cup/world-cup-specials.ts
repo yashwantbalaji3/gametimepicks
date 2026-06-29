@@ -1583,16 +1583,23 @@ export function buildCoverageSpecials(
   //    where a clear favourite exists; prefer draw-no-bet, fall back to that favourite's double-chance.
   {
     const legs: SpecialLeg[] = [];
+    const FAV_JUICE_FLOOR = -700; // an advancement leg shorter than this is an ultra-juiced near-lock — no value
     for (const ev of games) {
       const ctx = ctxs.get(ev);
       const fav = ctx?.favoriteTeam ?? null;
       if (!fav) continue; // no clear favourite → skip honestly (not every slate game has one)
       const dnb = byEvent(ev).find((l) => l.market === "draw_no_bet" && l.team === fav);
       const dc = byEvent(ev).find((l) => l.market === "double_chance" && l.team === fav);
-      const pick = dnb ?? dc ?? null;
-      if (pick) legs.push(pick);
+      // prefer the LESS-juiced of DNB / DC, and drop it entirely if it's still below the juice floor
+      const cand = [dnb, dc].filter(Boolean) as SpecialLeg[];
+      const pick = cand.sort((a, b) => b.odds - a.odds)[0] ?? null;
+      if (pick && pick.odds > FAV_JUICE_FLOOR) legs.push(pick);
     }
-    push(buildCoverageCard("Favorites to Advance", legs, idx, opts, cfg, ctxs));
+    // Only publish when it's a real, value-bearing card: ≥2 games covered AND the combined price pays
+    // better than even money (+100). A slate of ultra-juiced favourites produces no value here → skip.
+    const favDec = legs.reduce((p, l) => p * (l.odds > 0 ? 1 + l.odds / 100 : 1 + 100 / Math.abs(l.odds)), 1);
+    const favAmerican = favDec >= 2 ? Math.round((favDec - 1) * 100) : -Math.round(100 / (favDec - 1));
+    if (legs.length >= 2 && favAmerican >= 100) push(buildCoverageCard("Favorites to Advance", legs, idx, opts, cfg, ctxs));
   }
 
   // ── 4) Knockout Chaos — aggressive / contrarian: live-underdog double-chance (X2 on the non-favourite)

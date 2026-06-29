@@ -75,7 +75,7 @@ export function correlationProfile(legs: EditorialLeg[]): {
   const direction = positive && negative ? "mixed" : negative ? "negative" : "positive";
   const summary =
     direction === "positive"
-      ? "Same-game legs that move TOGETHER — if the game flows as expected they tend to hit (or miss) as a bloc. Correlated, not independent; the price reflects one story, not several."
+      ? "Same-game legs that move TOGETHER — if the game flows as expected they tend to hit (or miss) as a bloc. Correlated, not independent: the combined price shown is a MODEL ESTIMATE from multiplying the individual prices; a real sportsbook prices correlated same-game legs SHORTER, so treat the payout as optimistic, not a book quote."
       : direction === "negative"
         ? "Same-game legs in TENSION and NOT independent (one needs goals, another needs them suppressed) — they can't all land in every script; the correlation runs negative, so weigh the combined price with that conflict in mind."
         : "A mix of same-game correlation across more than one match — partly a bloc, partly independent.";

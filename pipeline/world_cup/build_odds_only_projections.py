@@ -444,14 +444,21 @@ def assemble(date: str, matches: list[dict], market_summary: dict, window: dict 
     return {"projections": proj, "parlays": build_cards(date, matches)}
 
 
+# A suggested-parlay leg must carry real betting value — never an ultra-juiced near-lock (e.g. a -2500
+# double chance) that drags the combined price negative. Legs shorter than this are excluded from cards.
+LEG_VALUE_FLOOR = -300
+
+
 def build_cards(date: str, matches: list[dict]) -> dict:
-    """Cards from odds-backed favorite legs across markets (one leg per match)."""
-    # one strongest eligible leg per match, preferring lower-variance markets
+    """Cards from odds-backed value legs across markets (one leg per match)."""
+    # one strongest eligible leg per match among VALUE-priced legs, preferring lower-variance markets
     pref = {"double_chance": 0, "draw_no_bet": 1, "moneyline_90": 2, "match_total_goals": 3, "btts": 4}
     best_by_match: dict[str, dict] = {}
     for m in matches:
         if not m.get("parlayEligible"):
             continue
+        if not isinstance(m.get("americanOdds"), (int, float)) or m["americanOdds"] < LEG_VALUE_FLOOR:
+            continue  # drop ultra-juiced legs (no betting value) — keeps the combined price honest
         mid = str(m["matchId"])
         cur = best_by_match.get(mid)
         if cur is None or (m["modelProbability"], -pref.get(m["market"], 9)) > (cur["modelProbability"], -pref.get(cur["market"], 9)):
