@@ -65,6 +65,7 @@ import ModelPlayerPropsMatrix from "@/components/world-cup/model-player-props-ma
 import { loadModelQualifiedProps } from "@/lib/world-cup/model-qualified-props";
 import ModelPicksTable from "@/components/world-cup/model-picks-table";
 import { loadWorldCupModelPicks, buildModelPicksTable } from "@/lib/world-cup/model-qualified-picks";
+import { loadRoundOf32Board } from "@/lib/world-cup/round-of-32";
 import path from "node:path";
 
 export const metadata = {
@@ -166,8 +167,29 @@ export default function WorldCupLandingPage() {
   const modelPicksTable = buildModelPicksTable(loadWorldCupModelPicks(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today));
 
   // ─────────────────────────── Tab content ───────────────────────────
+  // Round of 32 board — a separate de-vigged Model Picks Board (all 15 R32 games through July 3).
+  const r32Board = loadRoundOf32Board(path.join(process.cwd(), "public", "data"));
+
   const modelPicksTab = (
     <div className="flex flex-col gap-6">
+      {r32Board ? (
+        <section aria-label="Round of 32 model picks board">
+          <Link
+            href="/world-cup/round-of-32"
+            className="block rounded-[10px] px-4 py-4 vault-glow-hover"
+            style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-gold-bright)", borderLeft: "3px solid var(--vault-gold-bright)", textDecoration: "none" }}
+          >
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>New · Knockouts</span>
+              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Open board →</span>
+            </div>
+            <div className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>Round of 32 — Model Picks Board</div>
+            <p className="mt-1 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              All {r32Board.gameCount} Round-of-32 games through {r32Board.horizonEt} · model moneyline / totals / BTTS + safer & value markets, de-vigged from real odds. 90-minute markets only; advancement is a de-vig proxy.
+            </p>
+          </Link>
+        </section>
+      ) : null}
       <section aria-label="World Cup model picks">
         <SectionHeader eyebrow="Model picks only" title="World Cup Model Picks" sub="The single model-pick board — top model-qualified pick per game and market (team markets, total/BTTS, and player props). Every pick is odds-backed, pre-event, and clears the model filter. Raw sportsbook inventory is not shown here." />
         <ModelPicksTable table={modelPicksTable} />

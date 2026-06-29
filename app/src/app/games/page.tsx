@@ -17,6 +17,8 @@ import path from "node:path";
 import GamesExperience, { type GameRow } from "@/components/games-experience";
 import SectionHeader from "@/components/section-header";
 import { buildAllGameDetails, gameSlug } from "@/lib/game-detail";
+import Link from "next/link";
+import { loadRoundOf32Board } from "@/lib/world-cup/round-of-32";
 
 export const metadata = {
   title: "Games · GameTime Picks",
@@ -155,6 +157,9 @@ export default function GamesPage() {
 
   const activeSports = new Set(rows.map((r) => r.sport)).size;
 
+  // World Cup · Round of 32 — links to the dedicated de-vigged knockout board (every R32 game).
+  const r32Board = loadRoundOf32Board();
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <SectionHeader
@@ -162,6 +167,23 @@ export default function GamesPage() {
         title="Tonight's games"
         sub="Every sport's games in one board — filter by sport, then jump into projections or build a card. Educational, paper-only."
       />
+      {r32Board ? (
+        <Link
+          href="/world-cup/round-of-32"
+          className="block rounded-[10px] px-4 py-3.5 vault-glow-hover"
+          style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-gold-bright)", borderLeft: "3px solid var(--vault-gold-bright)", textDecoration: "none" }}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col min-w-0">
+              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>World Cup · Round of 32 Board</span>
+              <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14.5, fontWeight: 700 }}>
+                {r32Board.gameCount} knockout games · model ML / totals / props through {r32Board.horizonEt}
+              </span>
+            </div>
+            <span className="font-mono uppercase tracking-[0.1em] shrink-0" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Open →</span>
+          </div>
+        </Link>
+      ) : null}
       <GamesExperience games={rows} />
     </div>
   );
