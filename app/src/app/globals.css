@@ -4608,3 +4608,52 @@ body {
   .gtp-cta-lava:hover { filter: none; }
   .gtp-ember-dot { animation: none; }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────────────────────────
+   ClimbHero (/bank-builder live-climb hero) — CSS-only, reduced-motion-safe. No layout shift: the
+   active rung breathes via box-shadow + a subtle background tint, the cleared rung fills subtly, and
+   the mobile lane tabs are driven by hidden radio inputs (:checked siblings) — no JS.
+   ────────────────────────────────────────────────────────────────────────────────────────────── */
+
+/* Active rung: a light breathing glow (no transform → no reflow). */
+@keyframes climb-rung-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 54, 69, 0.0); }
+  50%      { box-shadow: 0 0 9px 1px rgba(242, 54, 69, 0.45); }
+}
+.climb-rung-pulse { animation: climb-rung-breathe 2.6s ease-in-out infinite; }
+
+/* Cleared rung: a subtle one-shot fill so completed steps read as "done" without churning. */
+@keyframes climb-rung-fill {
+  from { background-color: rgba(110, 231, 168, 0.04); }
+  to   { background-color: rgba(110, 231, 168, 0.12); }
+}
+.climb-rung[data-status="completed"] { animation: climb-rung-fill 0.6s ease-out both; }
+
+/* Horizontal rung scroller — only scrolls if the rungs overflow; thin, themed scrollbar. */
+.climb-ladder-scroll { scrollbar-width: thin; scrollbar-color: var(--vault-border) transparent; -webkit-overflow-scrolling: touch; }
+.climb-ladder-scroll::-webkit-scrollbar { height: 4px; }
+.climb-ladder-scroll::-webkit-scrollbar-thumb { background: var(--vault-border); border-radius: 4px; }
+
+/* Mobile lane tabs (CSS-only segmented control). Default: show Lane A pane, hide Lane B. */
+.climb-pane-b { display: none; }
+.climb-tab-input#climb-tab-b:checked ~ .climb-pane-a { display: none; }
+.climb-tab-input#climb-tab-b:checked ~ .climb-pane-b { display: block; }
+/* Reflect the selected tab in its label (active pill). */
+.climb-tabs { position: relative; }
+.climb-tab-input#climb-tab-a:checked ~ div label[for="climb-tab-a"],
+.climb-tab-input#climb-tab-b:checked ~ div label[for="climb-tab-b"] {
+  color: var(--vault-text);
+  background: rgba(242, 54, 69, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(242, 54, 69, 0.4);
+}
+/* Keyboard focus ring on the (visually hidden) radios — ring the matching label. */
+.climb-tab-input#climb-tab-a:focus-visible ~ div label[for="climb-tab-a"],
+.climb-tab-input#climb-tab-b:focus-visible ~ div label[for="climb-tab-b"] {
+  outline: 2px solid var(--vault-gold-bright);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .climb-rung-pulse { animation: none; }
+  .climb-rung[data-status="completed"] { animation: none; }
+}

@@ -27,6 +27,9 @@ import CrossLaneCorrelationBadge from "@/components/bank-builder/cross-lane-corr
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
+import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
+import ClimbHero, { type ClimbLane, type ClimbRung } from "@/components/bank-builder/climb-hero";
+import fs from "node:fs";
 import path from "node:path";
 import { getSportIdentity } from "@/lib/sport-identity";
 import {
@@ -54,6 +57,42 @@ function fmtUtcDate(d: string): string {
     return d;
   }
 }
+
+const usd2 = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: n % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 })}`;
+
+/**
+ * Completed $100 → $10K ladders for the ClimbHero proof strip. READ-ONLY: reads the same canonical
+ * `mr-dub/banked-ladders.json` that `crownLadderSummary` reads and returns each ladder's REAL `start`/
+ * `final`/record verbatim — never recomputes or invents a money figure. Returns [] on any read error
+ * (fail-closed → the hero omits the proof rather than showing a fabricated number).
+ */
+function readCompletedLadders(root: string): Array<{ start: number; final: number; recordLabel: string; pathLabel: string }> {
+  try {
+    const banked = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "banked-ladders.json"), "utf8"));
+    return (banked.ladders ?? [])
+      .filter((l: any) => typeof l.final === "number" && Number.isFinite(l.final))
+      .map((l: any) => {
+        const steps = l.steps ?? [];
+        const wins = steps.filter((s: any) => s.result === "won" || s.result === "win").length;
+        const losses = steps.filter((s: any) => s.result === "lost" || s.result === "loss").length;
+        const start = Number(l.start ?? 100);
+        const final = Number(l.final);
+        return { start, final, recordLabel: `${wins}–${losses}`, pathLabel: `${usd2(start)} → ${usd2(final)}` };
+      });
+  } catch {
+    return [];
+  }
+}
+
+/** Map a public-dual-ladder step status → the ClimbHero rung status (a lost step is never surfaced
+ *  by the view model, so it presents as "upcoming"; a queued restart presents as "awaiting"). */
+const RUNG_STATUS: Record<PublicStepStatus, ClimbRung["status"]> = {
+  cleared: "completed",
+  active: "active",
+  awaiting: "awaiting",
+  queued: "awaiting",
+  upcoming: "upcoming",
+};
 
 const META_TITLE = "Bank Builder · GameTime Picks";
 const META_DESCRIPTION =
@@ -117,8 +156,85 @@ export default function BankBuilderPage() {
     (dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === lane)?.legs ?? [])
       .map((l) => ({ matchup: l.matchup, market: l.marketLabel, selection: l.selection, player: l.player ?? null }));
 
+  // ── ClimbHero props — built ONLY from data already loaded above (dailyPortfolio + bbPreview +
+  //    crownLadderSummary's artifact). No new model/money computation; values are read verbatim.
+  const completedLadders = readCompletedLadders(path.join(process.cwd(), "public", "data"));
+  // Public-dual-ladder view models give the rung states (cleared/active/awaiting/upcoming) without ever
+  // surfacing a lost step — exactly what the hero needs. The day's Bank Builder card (stake/odds/return/
+  // legs) comes from the daily portfolio. Both are already loaded; nothing is recomputed.
+  const climbLanes: ClimbLane[] = (["A", "B"] as const)
+    .map((letter): ClimbLane | null => {
+      const laneId = letter === "A" ? ("lane-a" as const) : ("lane-b" as const);
+      const view = buildPublicDualLadder(letter === "A" ? bbPreview.laneA : bbPreview.laneB, laneId);
+      if (!view) return null;
+      const card = dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === letter) ?? null;
+      const hasCard = !!card && card.legs.length > 0;
+      // The active rung is the one carrying today's card; fall back to awaiting, then currentStep.
+      const curRung =
+        view.steps.find((s) => s.status === "active") ??
+        view.steps.find((s) => s.status === "awaiting" || s.status === "queued") ??
+        view.steps.find((s) => s.step === view.currentStep) ??
+        null;
+      const statusTone: ClimbLane["statusTone"] =
+        view.currentStatus === "completed" ? "completed"
+          : hasCard || view.currentStatus === "active" ? "active"
+          : view.currentStatus === "advanced" ? "advanced" : "awaiting";
+      const statusLabel =
+        view.currentStatus === "completed" ? "🏆 $10K reached"
+          : hasCard ? "Active · today's card"
+          : view.currentStatus === "active" ? "Active"
+          : view.currentStatus === "advanced" ? "Advanced"
+          : "Awaiting a qualified card";
+      // Cycle # from the lane label ("… lane (cycle 5)") if present — display-only, never fabricated.
+      const cycleMatch = /cycle\s+(\d+)/i.exec(view.label === "Lane A" ? (bbPreview.laneA?.label ?? "") : (bbPreview.laneB?.label ?? ""));
+      const rungs: ClimbRung[] = view.steps.map((s) => ({
+        step: s.step,
+        startTarget: s.startTarget,
+        goalTarget: s.goalTarget,
+        status: RUNG_STATUS[s.status],
+      }));
+      return {
+        id: laneId,
+        label: view.label,
+        name: null,
+        statusLabel,
+        statusTone,
+        step: curRung?.step ?? view.currentStep ?? null,
+        cycle: cycleMatch ? Number(cycleMatch[1]) : null,
+        stake: card?.stake ?? null,
+        combinedOdds: card?.combinedOdds ?? null,
+        potentialReturn: card?.potentialReturn ?? null,
+        goalTarget: curRung?.goalTarget ?? null,
+        hasCard,
+        rungs,
+        legs: (card?.legs ?? []).map((l) => ({
+          selection: l.selection,
+          market: l.marketLabel,
+          odds: l.odds,
+          kickoff: null, // not in the already-loaded leg shape → omit (fail-closed, never fabricated)
+          game: l.matchup,
+          why: null,
+          player: l.player ?? null,
+        })),
+        nextKickoff: null,
+      };
+    })
+    .filter((l): l is ClimbLane => l !== null);
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+      {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
+          purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE
+          the existing dense ladder components, which remain below unchanged. */}
+      <ClimbHero
+        currentBankroll={dailyPortfolio.activeBankroll}
+        peakBankroll={dailyPortfolio.crownBankroll}
+        openExposure={dailyPortfolio.openExposure}
+        recordLabel={recordLabel}
+        lanes={climbLanes}
+        completedLadders={completedLadders}
+      />
+
       {/* PRIMARY — Today's Dual Bank Builder: the SINGLE live two-lane ladder leads the page. It LEADS
           with the live exposure summary, then the dual-lane step rail (current step open by default).
           The completed crown proof is moved below into a collapsed disclosure (historical only). */}
