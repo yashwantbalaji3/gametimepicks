@@ -32,7 +32,7 @@ type RailItem = {
 };
 
 const ITEMS: RailItem[] = [
-  { href: "/today", label: "Today", glyph: "▤", group: "Today" },
+  { href: "/today", label: "Today's Picks", glyph: "▤", group: "Today" },
   { href: "/games", label: "Games", glyph: "◷" },
   { href: "/picks", label: "Parlay Lab", glyph: "⊞" },
   { href: "/build", label: "Build", glyph: "✎" },
@@ -46,7 +46,7 @@ const ITEMS: RailItem[] = [
   { href: "/mlb", label: "MLB", glyph: "⚾" },
   { href: "/nba", label: "NBA", glyph: "🏀" },
   { href: "/ufc", label: "UFC", glyph: "🥊" },
-  { href: "/learn", label: "Learn", glyph: "✦", group: "Learn" },
+  { href: "/learn", label: "How It Works", glyph: "✦", group: "Learn" },
   { href: "/methodology", label: "Methodology", glyph: "◳" },
   { href: "/about", label: "About", glyph: "ⓘ" },
 ];

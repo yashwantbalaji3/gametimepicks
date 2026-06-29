@@ -29,17 +29,19 @@ const NAV_ITEMS: Array<{
   // Product spine — clean, user-facing labels only (no implementation routes
   // like "Projections"/"Parlay Lab" in primary nav; those stay reachable as
   // routes and fold into Build/Sports active states). Brand mark links Home.
-  { href: "/today", label: "Today" },
+  // PRIMARY — the clean user-facing spine (Home = brand mark, left). Lead with the product story.
+  { href: "/today", label: "Today's Picks" },
+  { href: "/bank-builder", label: "Bank Builder" },
+  { href: "/results", label: "Track Record" },
+  { href: "/world-cup", label: "World Cup" },
+  { href: "/learn", label: "How It Works" },
+  // SECONDARY — still reachable, de-emphasized after the divider (no routes removed).
+  { href: "/moonshot", label: "Moonshot", beforeDivider: true },
+  { href: "/world-cup-specials", label: "WC Specials" },
+  { href: "/homer-nukes", label: "Homer Nukes" },
   { href: "/games", label: "Games" },
   { href: "/picks", label: "Parlay Lab" },
-  { href: "/build", label: "Build" },
-  { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
-  { href: "/moonshot", label: "Moonshot" },
-  { href: "/homer-nukes", label: "Homer Nukes" },
-  { href: "/mr-dub", label: "Mr. Dub" },
-  { href: "/results", label: "Track Record" },
-  { href: "/sports", label: "Sports" },
-  { href: "/learn", label: "Learn" },
+  { href: "/mr-dub", label: "Portfolio" },
 ];
 
 // Sport routes that should light up the "Sports" nav item.
