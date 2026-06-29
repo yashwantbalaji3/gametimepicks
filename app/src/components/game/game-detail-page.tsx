@@ -24,6 +24,15 @@ import { ParlayCard } from "@/components/parlays/parlays-explorer";
 import type { GameSpecificCards } from "@/lib/world-cup/game-specific-cards";
 import type { SuggestedParlayCard } from "@/lib/parlays/ui-loader";
 import { worldCupPlayerModelPicks, isLimitedDataProps } from "@/lib/world-cup/player-model-picks";
+import { loadWorldCupProjections } from "@/lib/world-cup/projections";
+import { buildKnockoutContexts, type KnockoutContext } from "@/lib/world-cup/knockout-intelligence";
+import { confidenceLabel, expectedGameScript } from "@/lib/world-cup/wc-editorial";
+import {
+  buildTeamModelPickRows,
+  buildPlayerPropTables,
+  type ModelPickRow,
+  type PlayerPropTable,
+} from "@/lib/world-cup/game-model-picks";
 
 import { RISK_LABELS } from "@/lib/parlays/risk-taxonomy";
 const RISK_LABEL: Record<string, string> = RISK_LABELS;
@@ -89,6 +98,87 @@ function MarketSection({ label, picks }: { label: string; picks: PublicProjectio
       ) : (
         <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>No model-qualified pick</span>
       )}
+    </div>
+  );
+}
+
+// ── Model-pick tables (scannable team-market + player-prop grids) ────────────────────────────────
+/** Shared cell styling for the model-pick tables — compact, mobile-readable, vault palette. */
+const TH: React.CSSProperties = {
+  textAlign: "left", padding: "6px 8px", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.08em",
+  textTransform: "uppercase", color: "var(--vault-text-faint)", whiteSpace: "nowrap",
+  borderBottom: "1px solid var(--vault-rule)", background: "rgba(26, 16, 11,0.7)", position: "sticky", top: 0,
+};
+const TD: React.CSSProperties = {
+  padding: "6px 8px", fontSize: 11.5, color: "var(--vault-text)", borderBottom: "1px solid var(--vault-rule)",
+  verticalAlign: "middle",
+};
+
+/** Section 1 — the "Model Picks" team-market table (5 posted markets + 5 honest UNAVAILABLE rows). */
+function ModelPicksTable({ rows }: { rows: ModelPickRow[] }) {
+  return (
+    <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)" }}>
+      <table className="w-full border-collapse" style={{ minWidth: 560 }}>
+        <thead>
+          <tr>
+            {["Market", "Pick", "Odds", "Model Probability", "Confidence", "Notes"].map((h) => (
+              <th key={h} style={TH}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.rowLabel} style={{ background: r.available ? "transparent" : "rgba(255,255,255,0.015)" }}>
+              <td style={{ ...TD, fontWeight: 600, color: r.available ? "var(--vault-text)" : "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{r.rowLabel}</td>
+              <td style={{ ...TD, color: r.available ? "var(--vault-text)" : "var(--vault-text-faint)" }}>{r.pick}</td>
+              <td style={{ ...TD, fontFamily: "var(--font-mono, monospace)", color: r.available ? "var(--vault-gold-bright)" : "var(--vault-text-faint)", whiteSpace: "nowrap" }}>{r.odds}</td>
+              <td style={{ ...TD, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{r.prob}</td>
+              <td style={{ ...TD, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{r.confidence}</td>
+              <td style={{ ...TD, color: "var(--vault-text-faint)", fontSize: 10.5 }}>{r.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** Section 2 — one player-prop table (top picks by model probability), or an honest empty row. */
+function PlayerPropTableCard({ table }: { table: PlayerPropTable }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{table.title}</div>
+      <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)" }}>
+        <table className="w-full border-collapse" style={{ minWidth: 620 }}>
+          <thead>
+            <tr>
+              {["Player", "Team", "Market", "Pick / Line", "Odds", "Model Probability", "Confidence", "Notes"].map((h) => (
+                <th key={h} style={TH}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {table.rows.length > 0 ? (
+              table.rows.map((r, i) => (
+                <tr key={`${r.player}-${i}`}>
+                  <td style={{ ...TD, fontWeight: 600, whiteSpace: "nowrap" }}>{r.player}</td>
+                  <td style={{ ...TD, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{r.team}</td>
+                  <td style={{ ...TD, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{r.market}</td>
+                  <td style={{ ...TD, whiteSpace: "nowrap" }}>{r.pickLine}</td>
+                  <td style={{ ...TD, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-gold-bright)", whiteSpace: "nowrap" }}>{r.odds}</td>
+                  <td style={{ ...TD, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{r.prob}</td>
+                  <td style={{ ...TD, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{r.confidence}</td>
+                  <td style={{ ...TD, color: "var(--vault-text-faint)", fontSize: 10.5 }}>{r.note}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={8} style={{ ...TD, color: "var(--vault-text-faint)", fontStyle: "italic" }}>No odds-backed props offered</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -219,6 +309,43 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     : null;
   const engineTotal = engineCards?.total ?? 0;
   const marketLabels = [...new Set(detail.playerProps.map((p) => p.marketLabel))];
+
+  // ── Model-pick tables (world_cup only): scannable team-market + player-prop grids ──
+  // Build the shared knockout context for THIS fixture from the raw projections (filtered to this
+  // matchId) so the NOTES column reads from the same brain every product uses. Real data only.
+  const knockoutCtx: KnockoutContext | undefined = (() => {
+    if (detail.sport !== "world_cup" || !detail.matchId) return undefined;
+    const matches = (loadWorldCupProjections()?.matches ?? []).filter((m) => String(m.matchId) === detail.matchId);
+    if (matches.length === 0) return undefined;
+    return buildKnockoutContexts(matches).get(detail.matchId);
+  })();
+  const teamPickRows = detail.sport === "world_cup" ? buildTeamModelPickRows(detail.teamProjections, knockoutCtx) : [];
+  const playerPropTables = detail.sport === "world_cup" ? buildPlayerPropTables(detail.playerProps) : [];
+  const gameScript = knockoutCtx ? expectedGameScript(knockoutCtx) : null;
+  const slipReadout = knockoutCtx ? confidenceLabel(knockoutCtx.favProb) : null;
+
+  // ── Tab: Model picks — Section 1 (team markets) + Section 2 (four player-prop tables) ──
+  const modelPicksTab = (
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2.5">
+        <SectionHeader eyebrow="Model Picks" title="Every model pick for this match, at a glance" sub="The posted team markets and player props, model-ranked from the current odds. Markets the books don't price are labelled Unavailable, never faked." />
+        {gameScript ? (
+          <p className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
+            <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8.5 }}>Expected game script · </span>{gameScript}
+            {slipReadout ? <span className="font-mono" style={{ color: "var(--vault-text-mute)" }}> · favorite read: {slipReadout}</span> : null}
+          </p>
+        ) : null}
+        <ModelPicksTable rows={teamPickRows} />
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <SectionHeader eyebrow="Player model picks" title="Top player props by market" sub="Each market's strongest model reads, ranked by model probability — odds-backed only, capped to stay scannable." />
+        {playerPropTables.map((t) => <PlayerPropTableCard key={t.market} table={t} />)}
+      </div>
+
+      <p className="text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>Paper-only · educational · not betting advice.</p>
+    </div>
+  );
 
   const spotlight = (
     <section className="flex flex-col gap-2.5">
@@ -406,6 +533,9 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   );
 
   const tabs: ShellTab[] = [
+    ...(detail.sport === "world_cup" ? [
+      { key: "model-picks", label: "Model picks", badge: teamPickRows.filter((r) => r.available).length + playerPropTables.reduce((n, t) => n + t.rows.length, 0) || null, content: modelPicksTab },
+    ] satisfies ShellTab[] : []),
     { key: "cards", label: "Suggested parlays", badge: (engineTotal + detail.suggestedCards.length) || null, content: cardsTab },
     ...(detail.sport === "world_cup" ? [
       { key: "player-prop-parlays", label: "Player prop parlays", badge: playerPropParlaysTotal || null, content: playerPropParlaysTab },
