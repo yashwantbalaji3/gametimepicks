@@ -5,7 +5,7 @@
  * hub + the Build betslip. Public data only.
  */
 import { currentEtDate } from "@/lib/freshness";
-import { loadWorldCupSchedule, matchesOnDate, teamByName } from "@/lib/data-world-cup";
+import { teamByName } from "@/lib/data-world-cup";
 import { loadWorldCupProjections } from "@/lib/world-cup/projections";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
@@ -40,30 +40,37 @@ export default function GamesPage() {
   // Fixture detail pages (real data only) — link "View game" + the exact build URL when present.
   const detailMap = new Map(buildAllGameDetails().map((d) => [`${d.sport}/${d.slug}`, d]));
 
-  // World Cup
-  loadWorldCupSchedule();
-  const wcMatches = matchesOnDate(today);
-  void loadWorldCupProjections();
-  for (const m of wcMatches) {
-    const wcSlug = gameSlug(m.home ?? "", m.away ?? "", today);
-    const det = detailMap.get(`world_cup/${wcSlug}`);
+  // World Cup — driven by the CANONICAL projection-backed game details (same source as /world-cup and
+  // the game-detail pages): real team names, real kickoff, the exact game-detail slug. The bracket
+  // schedule carries PLACEHOLDER teams for knockout fixtures (home/away null), so using it produced
+  // "undefined vs undefined" — it must NOT power the matchup label. Started/finished games are excluded.
+  const wcProj = loadWorldCupProjections();
+  const wcKickoff = new Map<string, string>();
+  for (const m of wcProj?.matches ?? []) if (m.matchId != null && m.kickoffUtc) wcKickoff.set(String(m.matchId), m.kickoffUtc);
+  const nowMs = Date.now();
+  for (const d of detailMap.values()) {
+    if (d.sport !== "world_cup") continue;
+    const ko = d.matchId != null ? wcKickoff.get(String(d.matchId)) : null;
+    if (ko && Date.parse(ko) <= nowMs) continue; // never list a started/finished game as active
+    const etTime = ko
+      ? new Date(ko).toLocaleString("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" }) + " ET"
+      : "";
     rows.push({
-      id: `wc_${m.id}`,
+      id: `wc_${d.matchId ?? d.slug}`,
       sport: "world_cup",
       sportLabel: "World Cup",
-      matchup: `${m.home} vs ${m.away}`,
-      timeLabel: `${m.kickoffLocal ?? ""}${m.venueCity ? " · " + m.venueCity : ""}`.trim(),
-      statusLabel: "Today",
-      projections: det?.teamProjections.length ?? 0,
-      props: det?.playerProps.length ?? 0,
-      homeCode: teamByName(m.home ?? "")?.code ?? "",
-      awayCode: teamByName(m.away ?? "")?.code ?? "",
-      homeLogo: det?.homeLogo ?? null,
-      awayLogo: det?.awayLogo ?? null,
+      matchup: d.title || `${d.homeTeam} vs ${d.awayTeam}`,
+      timeLabel: etTime,
+      statusLabel: "Upcoming",
+      projections: d.teamProjections.length,
+      props: d.playerProps.length,
+      homeCode: teamByName(d.homeTeam ?? "")?.code ?? "",
+      awayCode: teamByName(d.awayTeam ?? "")?.code ?? "",
+      homeLogo: d.homeLogo ?? null,
+      awayLogo: d.awayLogo ?? null,
       href: "/world-cup?tab=games",
-      // Exact-fixture build link when the fixture resolved (real matchId); team-search fallback otherwise.
-      buildHref: det?.buildUrl ?? `/build?sport=world_cup&q=${encodeURIComponent(m.home ?? "")}`,
-      detailHref: det ? `/games/world-cup/${wcSlug}` : undefined,
+      buildHref: d.buildUrl ?? `/build?sport=world_cup&game=${encodeURIComponent(String(d.matchId ?? ""))}`,
+      detailHref: `/games/world-cup/${d.slug}`,
     });
   }
 
