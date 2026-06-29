@@ -117,8 +117,12 @@ const TD: React.CSSProperties = {
 /** Section 1 — the "Model Picks" team-market table (5 posted markets + 5 honest UNAVAILABLE rows). */
 function ModelPicksTable({ rows }: { rows: ModelPickRow[] }) {
   return (
-    <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)" }}>
-      <table className="w-full border-collapse" style={{ minWidth: 560 }}>
+    <div>
+      <div className="flex items-center justify-end mb-1.5 sm:hidden">
+        <span className="font-mono" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>swipe table sideways →</span>
+      </div>
+      <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)", WebkitOverflowScrolling: "touch" }}>
+        <table className="w-full border-collapse" style={{ minWidth: 560 }}>
         <thead>
           <tr>
             {["Market", "Pick", "Odds", "Model Probability", "Confidence", "Notes"].map((h) => (
@@ -136,9 +140,10 @@ function ModelPicksTable({ rows }: { rows: ModelPickRow[] }) {
               <td style={{ ...TD, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{r.confidence}</td>
               <td style={{ ...TD, color: "var(--vault-text-faint)", fontSize: 10.5 }}>{r.note}</td>
             </tr>
-          ))}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -147,8 +152,11 @@ function ModelPicksTable({ rows }: { rows: ModelPickRow[] }) {
 function PlayerPropTableCard({ table }: { table: PlayerPropTable }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{table.title}</div>
-      <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)" }}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{table.title}</div>
+        <span className="font-mono sm:hidden" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>swipe →</span>
+      </div>
+      <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)", WebkitOverflowScrolling: "touch" }}>
         <table className="w-full border-collapse" style={{ minWidth: 620 }}>
           <thead>
             <tr>
@@ -443,8 +451,9 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       {playerPropParlaysTotal > 0 ? (
         <TieredEditorialCards cards={(playerPropParlays?.cards ?? []) as EditorialCard[]} />
       ) : (
-        <div className="rounded-xl px-4 py-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
-          <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>Not enough quality player props posted to build a parlay for this match yet — we never pad a slip with weak legs. Soccer player props post near lineup time; check back closer to kickoff.</p>
+        <div className="rounded-xl px-4 py-4 flex flex-col gap-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+          <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No quality parlay available yet</span>
+          <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>Not enough quality player props are posted to build a slip for this match yet — we never pad a parlay with weak legs. Soccer player props post near lineup time; check back closer to kickoff.</p>
         </div>
       )}
     </div>
@@ -458,8 +467,9 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       {teamPropParlaysTotal > 0 ? (
         <TieredEditorialCards cards={(teamPropParlays?.cards ?? []) as EditorialCard[]} />
       ) : (
-        <div className="rounded-xl px-4 py-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
-          <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>Not enough sensible team markets posted to build a same-game combo for this match yet. See the Team &amp; game props tab for the individual projections.</p>
+        <div className="rounded-xl px-4 py-4 flex flex-col gap-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+          <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No quality parlay available yet</span>
+          <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>Not enough sensible team markets are posted to build a same-game combo for this match yet. See the Team &amp; game props tab for the individual projections.</p>
         </div>
       )}
     </div>
@@ -480,9 +490,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
             {marketGroups.map((g) => <MarketSection key={g.label} label={g.label} picks={g.picks} />)}
           </div>
         ) : (
-          <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+          <div className="rounded-[10px] px-4 py-8 text-center flex flex-col items-center gap-1.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>Player props pending</span>
             <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No model player picks yet</p>
-            <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Player props are not posted from the current books for this fixture yet. Soccer player props post near lineup time.</p>
+            <p className="max-w-md" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.5 }}>Player props will appear when this game enters the active betting window — soccer props post near lineup time. We never show a pick without real posted odds behind it.</p>
           </div>
         )}
       </div>
@@ -549,7 +560,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
       <div className="mb-2">
-        <Link href="/games" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>← All games</Link>
+        <Link href="/games" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
       </div>
       {/* Hero / matchup */}
       <section className="relative overflow-hidden rounded-[14px] px-5 py-6 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 150% at 0% 0%, rgba(242, 54, 69,0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(26, 16, 11,0.97) 100%)" }}>
@@ -575,9 +586,9 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           {topPlayer ? <span className="rounded-full px-2.5 py-1 font-mono" style={{ background: "rgba(217,164,65,0.12)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5 }}>Top prop · {topPlayer.player?.name} {american(topPlayer.americanOdds)}</span> : null}
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Link href={detail.buildUrl} className="gtp-cta-lava vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Build from this game</Link>
-          <Link href="/picks" className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none" }}>Open Parlay Lab</Link>
-          <Link href={`/${detail.sport === "world_cup" ? "world-cup" : detail.sport}`} className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none" }}>View {detail.sportLabel}</Link>
+          <Link href={detail.buildUrl} className="gtp-cta-lava vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 11, fontWeight: 700, textDecoration: "none", minHeight: 42 }}>Build from this game</Link>
+          <Link href="/picks" className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 42 }}>Open Parlay Lab</Link>
+          <Link href={`/${detail.sport === "world_cup" ? "world-cup" : detail.sport}`} className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 42 }}>View {detail.sportLabel}</Link>
         </div>
       </section>
 
@@ -585,6 +596,11 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       <div className="mb-5">{spotlight}</div>
 
       <SportShell tabs={tabs} />
+
+      {/* Persistent disclosure — visible regardless of the active tab. */}
+      <p className="mt-6 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+        Paper-only · educational · not betting advice
+      </p>
     </div>
   );
 }

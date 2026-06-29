@@ -33,10 +33,10 @@ export const metadata = {
     "Round-of-32 model-pick board — de-vigged moneyline, totals, BTTS, and safer/value markets for every Round-of-32 game. 90-minute markets only. Educational, paper-only; not betting advice.",
 };
 
-const STATUS_META: Record<RoundOf32Status, { label: string; color: string }> = {
-  live_odds: { label: "Live odds", color: "var(--vault-success)" },
-  started: { label: "Started", color: "var(--vault-text-mute)" },
-  odds_pending: { label: "Odds pending", color: "var(--vault-warn)" },
+const STATUS_META: Record<RoundOf32Status, { label: string; color: string; explain: string }> = {
+  live_odds: { label: "Live odds", color: "var(--vault-success)", explain: "Real posted odds are in — the model picks below are de-vigged from them." },
+  started: { label: "Started", color: "var(--vault-text-mute)", explain: "Kickoff has passed — picks are frozen as a record, not live advice." },
+  odds_pending: { label: "Odds pending", color: "var(--vault-warn)", explain: "No book has priced this fixture yet — picks appear once odds post." },
 };
 
 const CONFIDENCE_COLOR: Record<string, string> = {
@@ -133,19 +133,30 @@ export default function RoundOf32Page() {
         </span>
       </div>
 
-      {/* Status legend */}
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <StatusPill status="live_odds" />
-        <StatusPill status="started" />
-        <StatusPill status="odds_pending" />
-        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-          {liveCount} of {board.gameCount} games have live model odds
+      {/* Status legend — each chip carries a one-line explanation so the states read as intentional. */}
+      <div
+        className="rounded-[8px] px-3.5 py-3 mb-4 flex flex-col gap-2"
+        style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-rule)" }}
+      >
+        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>What the status chips mean</span>
+        {(["live_odds", "odds_pending", "started"] as RoundOf32Status[]).map((s) => (
+          <div key={s} className="flex items-start gap-2.5">
+            <span className="shrink-0 pt-0.5"><StatusPill status={s} /></span>
+            <span className="leading-snug" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>{STATUS_META[s].explain}</span>
+          </div>
+        ))}
+        <span className="font-mono mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+          {liveCount} of {board.gameCount} games have live model odds.
         </span>
       </div>
 
       {/* ───────────────────────── Compact picks table ───────────────────────── */}
       <section aria-label="Round of 32 model picks table" className="mb-10">
-        <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)" }}>
+        <div className="flex items-center justify-between gap-2 mb-1.5 sm:hidden">
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Full picks board</span>
+          <span className="font-mono" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>swipe sideways →</span>
+        </div>
+        <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)", WebkitOverflowScrolling: "touch" }}>
           <table className="w-full border-collapse" style={{ fontSize: 12, minWidth: 920 }}>
             <thead>
               <tr style={{ background: "rgba(26, 16, 11,0.7)" }}>

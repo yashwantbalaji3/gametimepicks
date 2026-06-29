@@ -167,8 +167,8 @@ export default function FutureGameDetailRoute({ params }: { params: { slug: stri
 
       <Link
         href="/world-cup/round-of-32"
-        className="inline-block mb-4 font-mono uppercase tracking-[0.12em]"
-        style={{ color: "var(--vault-gold-bright)", fontSize: 10, textDecoration: "none" }}
+        className="inline-flex items-center mb-4 -ml-1 px-1 py-2 font-mono uppercase tracking-[0.12em]"
+        style={{ color: "var(--vault-gold-bright)", fontSize: 10, textDecoration: "none", minHeight: 40 }}
       >
         ← Round of 32 board
       </Link>
@@ -207,7 +207,10 @@ export default function FutureGameDetailRoute({ params }: { params: { slug: stri
       {/* ─────────────────────── Model Picks team table ─────────────────────── */}
       <section aria-label="Model picks" className="mb-9">
         <SectionHeader eyebrow="Model picks" title="Team-market model picks" sub="De-vigged from real posted odds. 90-minute regulation markets only. Markets the current feed does not offer are listed as Unavailable — never fabricated." />
-        <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)" }}>
+        <div className="flex items-center justify-end mb-1.5 sm:hidden">
+          <span className="font-mono" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>swipe table sideways →</span>
+        </div>
+        <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)", WebkitOverflowScrolling: "touch" }}>
           <table className="w-full border-collapse" style={{ fontSize: 12, minWidth: 720 }}>
             <thead>
               <tr style={{ background: "rgba(26, 16, 11,0.7)" }}>
@@ -221,10 +224,10 @@ export default function FutureGameDetailRoute({ params }: { params: { slug: stri
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.market} style={{ opacity: r.available ? 1 : 0.62 }}>
-                  <td style={{ ...cellStyle, color: "var(--vault-text)", fontWeight: 600, whiteSpace: "nowrap" }}>{r.market}</td>
+                <tr key={r.market} style={{ background: r.available ? undefined : "rgba(255,255,255,0.015)" }}>
+                  <td style={{ ...cellStyle, color: r.available ? "var(--vault-text)" : "var(--vault-text-mute)", fontWeight: 600, whiteSpace: "nowrap" }}>{r.market}</td>
                   <td style={{ ...cellStyle, color: "var(--vault-text)", whiteSpace: "nowrap" }}>
-                    {r.available ? r.pick : <span style={{ color: "var(--vault-text-faint)", fontStyle: "italic" }}>Unavailable</span>}
+                    {r.available ? r.pick : <span style={{ color: "var(--vault-text-faint)", fontStyle: "italic" }}>Not offered</span>}
                   </td>
                   <td style={{ ...cellStyle, color: "var(--vault-text-mute)" }} className="tabular">{r.odds}</td>
                   <td style={{ ...cellStyle, color: "var(--vault-gold-bright)" }} className="tabular">{r.prob}</td>
@@ -300,13 +303,21 @@ export default function FutureGameDetailRoute({ params }: { params: { slug: stri
           title="Safe · Balanced · Aggressive"
           sub="Built only from this game's posted team markets (moneyline, total, BTTS, double chance) — same-game and correlated. Combined prices are a model estimate from multiplying the real leg prices."
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {parlays.length === 0 ? (
-            <p className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>No team markets posted for this fixture yet.</p>
-          ) : (
-            parlays.map((p) => <ParlayCard key={p.tier} parlay={p} />)
-          )}
-        </div>
+        {parlays.length === 0 ? (
+          <div
+            className="rounded-[10px] px-4 py-5 flex flex-col gap-1.5"
+            style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-border)" }}
+          >
+            <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No quality parlay available yet</span>
+            <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              No team markets are posted for this fixture yet, so there is nothing to combine. Tiers appear here once the books price this game — we never pad a slip with weak legs.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {parlays.map((p) => <ParlayCard key={p.tier} parlay={p} />)}
+          </div>
+        )}
       </section>
 
       {/* ─────────────────────── Props-pending line + footer ─────────────────────── */}
@@ -355,10 +366,11 @@ function ParlayCard({ parlay }: { parlay: BoardTeamParlayResult }) {
     return (
       <article
         className="rounded-[10px] px-4 py-3.5 flex flex-col gap-2 h-full"
-        style={{ background: "rgba(26, 16, 11,0.4)", border: "1px dashed var(--vault-border)" }}
+        style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-border)" }}
       >
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{parlay.tier}</span>
-        <p className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>{parlay.reason}</p>
+        <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5, fontWeight: 600 }}>No quality parlay available yet</span>
+        <p className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>{parlay.reason}</p>
       </article>
     );
   }
