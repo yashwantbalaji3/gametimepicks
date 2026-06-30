@@ -121,8 +121,8 @@ test("Bank Builder + Moonshot both render the shared ladder; Moonshot has a step
   const moon = read("src/app/moonshot/page.tsx");
   const bank = read("src/app/bank-builder/page.tsx");
   assert.match(moon, /ProductLanesLadder/, "moonshot uses the shared step-rail ladder");
-  // Bank Builder consolidated to a SINGLE ladder section ("Today's Dual Bank Builder" = DualLadderBoard)
-  // with the current step's daily legs injected into its open step drawer.
-  assert.match(bank, /DualLadderBoard/, "bank-builder uses the single Dual Bank Builder ladder");
+  // Bank Builder consolidated to a SINGLE ladder visualization (ClimbHero) — it renders the per-lane
+  // 5-rung climb with the current step's daily legs in each lane card.
+  assert.match(bank, /<ClimbHero/, "bank-builder uses the single ClimbHero ladder");
   assert.match(moon, /buildDailyPortfolio/, "moonshot reads the daily portfolio");
 });

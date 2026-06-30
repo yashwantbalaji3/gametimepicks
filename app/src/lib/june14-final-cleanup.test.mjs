@@ -23,10 +23,13 @@ test("loadDailyMixedCards date-gates a stale slate (no stale cards as active pic
 
 test("Bank Builder shows the LIVE Dual Bank Builder (no stale Coming Soon teaser)", () => {
   const page = read("src/app/bank-builder/page.tsx");
-  // The next run is now LIVE (Dual Bank Builder), so the old "coming soon" teaser is gone.
+  // The next run is now LIVE, so the old "coming soon" teaser is gone.
   assert.ok(!/Coming Soon/i.test(page), "stale 'Coming Soon' teaser removed");
-  assert.ok(/DualBankBuilderTeaser/.test(page) && /loadDualBankBuilder/.test(page),
-    "live Dual Bank Builder is rendered from its artifact");
+  // The live dual lanes now render via the ClimbHero flagship — both Lane A and Lane B, built from the
+  // public dual-ladder view models — which replaced the old standalone teaser.
+  assert.ok(/<ClimbHero/.test(page) && /buildPublicDualLadder\(/.test(page),
+    "live dual lanes rendered from the public dual-ladder artifact");
+  assert.ok(/lane-a/.test(page) && /lane-b/.test(page), "both Lane A and Lane B render");
   assert.ok(/completed \?/.test(page), "Dual lanes render once the first run is the completed crown");
 });
 

@@ -53,8 +53,11 @@ test("Step 5 has officially settled — the completed card is real, not an overn
   const s5 = l.entries.filter((e) => e.step === 5);
   assert.equal(s5.length, 1, "one official Step 5 entry");
   assert.equal(s5[0].result, "win");
-  // The page now renders the honest completed crown, not the review-pending panel.
+  // The completed crown is now celebrated once, in the ClimbHero flagship: the page reads the real
+  // banked-ladder finals and feeds them to the hero's "Completed ladders" proof strip — not a
+  // review-pending panel and not a fabricated figure.
   const page = fs.readFileSync("src/app/bank-builder/page.tsx", "utf8");
-  assert.ok(page.includes("Road to $10K completed"), "completed crown copy present");
+  assert.ok(/readCompletedLadders\(/.test(page), "real banked-ladder finals are read, not fabricated");
+  assert.ok(/completedLadders=\{completedLadders\}/.test(page), "completed-ladder proof fed to the ClimbHero");
   assert.ok(page.includes("no card is invented to fill the rung"), "no-invented-card honesty retained");
 });

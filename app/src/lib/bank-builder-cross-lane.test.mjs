@@ -68,9 +68,12 @@ test("Bank Builder cross-lane SELECTOR keeps lanes independent (no shared game);
   assert.equal(overlap.length, 0, "selector lanes share no game");
 });
 
-test("Bank Builder page is a SINGLE ladder (DualLadderBoard), not the duplicate ProductLanesLadder section", () => {
+test("Bank Builder page is a SINGLE ladder (ClimbHero), not the duplicate ProductLanesLadder section", () => {
   const page = read("src/app/bank-builder/page.tsx");
-  assert.match(page, /DualLadderBoard/, "uses the single Dual Bank Builder ladder");
+  // The page now renders ONE ladder visualization: <ClimbHero>. The old dense duplicate components
+  // (DualLadderBoard / ProductLanesLadder) were removed so only one ladder lives on the page.
+  assert.match(page, /<ClimbHero/, "uses the single ClimbHero ladder visualization");
+  assert.ok(!/DualLadderBoard/.test(page), "old DualLadderBoard ladder removed from Bank Builder");
   assert.ok(!/ProductLanesLadder/.test(page), "duplicate ProductLanesLadder section removed from Bank Builder");
 });
 

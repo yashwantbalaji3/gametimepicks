@@ -79,8 +79,11 @@ test("Moonshot is its OWN product page (/moonshot) + Mr. Dub section — no long
   // Moonshot is now a separate feature at /moonshot; Bank Builder must NOT re-surface it.
   assert.ok(!/MoonshotLaneCard/.test(bb), "bank-builder no longer renders the Moonshot card");
   assert.ok(!/loadMoonshotLane/.test(bb), "bank-builder no longer loads the moonshot lane");
-  // Lane A/B board is still rendered + unaffected.
-  assert.match(bb, /DualLadderBoard/, "Dual Bank Builder board still present");
+  // No Moonshot component/import/JSX surface — only the doc comment noting it moved to /moonshot may mention it.
+  const bbNoComments = bb.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, "");
+  assert.ok(!/Moonshot/i.test(bbNoComments), "no Moonshot product surface in the bank-builder render");
+  // Lane A/B ladder is still rendered (now the single ClimbHero) + unaffected.
+  assert.match(bb, /<ClimbHero/, "Lane A/B ladder still present (ClimbHero)");
   // The dedicated /moonshot page owns the high-volatility tracker.
   const moon = fs.readFileSync("src/app/moonshot/page.tsx", "utf8");
   assert.match(moon, /Moonshot/, "/moonshot page renders the Moonshot product");

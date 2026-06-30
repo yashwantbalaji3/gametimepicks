@@ -79,9 +79,14 @@ test("correlation: the cross-lane SELECTOR output is independent (no shared game
   assert.equal(c.score, 0);
 });
 
-test("correlation: the badge is rendered on /bank-builder", () => {
+test("correlation: lane independence is disclosed on /bank-builder", () => {
   const page = read("src/app/bank-builder/page.tsx");
-  assert.match(page, /CrossLaneCorrelationBadge/, "bank-builder renders the correlation badge");
+  // The standalone correlation badge was folded into the ClimbHero flagship. The page renders the hero,
+  // which discloses that the two lanes are independently constructed (the engine's independence guarantee
+  // itself is covered by the SELECTOR tests above).
+  assert.match(page, /<ClimbHero/, "bank-builder renders the ClimbHero flagship");
+  const hero = read("src/components/bank-builder/climb-hero.tsx");
+  assert.match(hero, /each lane independent/i, "hero discloses cross-lane independence");
 });
 
 // ── Correlation V2: A–F grade + game-script diversification ─────────────────────────────────────────

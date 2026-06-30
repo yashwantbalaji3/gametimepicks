@@ -103,13 +103,18 @@ test("started-game guard still holds for next-step cards (0 exposure after kicko
 
 test("Bank Builder page: completed crown proof is collapsed + relabeled (not ACTIVE), active ladder leads", () => {
   const page = read("src/app/bank-builder/page.tsx");
-  assert.match(page, /Completed crown proof · CROWN REACHED · historical/, "crown proof collapsed + relabeled");
-  assert.match(page, /open=\{!completed\}/, "crown proof collapsed by default when completed");
-  // Bank Builder consolidated to the single "Today's Dual Bank Builder" ladder (DualLadderBoard);
-  // the completed crown proof renders AFTER it.
-  const ladderIdx = page.indexOf("DualLadderBoard");
-  const proofIdx = page.indexOf("Completed crown proof");
-  assert.ok(ladderIdx > 0 && proofIdx > ladderIdx, "active dual ladder renders before the completed crown proof");
+  const hero = read("src/components/bank-builder/climb-hero.tsx");
+  // The single ClimbHero ladder LEADS the page, and the page hands it the real completed-ladder finals
+  // (NOT the primary ACTIVE figure) via the completedLadders prop.
+  assert.match(page, /<ClimbHero/, "the active ClimbHero ladder leads the page");
+  assert.match(page, /completedLadders=\{completedLadders\}/, "page passes the completed-ladder proof to the hero (separate from the active figure)");
+  assert.match(page, /readCompletedLadders/, "completed-ladder finals are read verbatim, not the active bankroll");
+  // Inside ClimbHero the completed-ladder PROOF is a distinct, de-emphasised strip ("Completed ladders"),
+  // rendered AFTER the active "Where the ladder stands now" hero — it is proof, not the active figure.
+  const activeIdx = hero.indexOf("Where the ladder stands now");
+  const proofIdx = hero.indexOf("Completed ladders");
+  assert.ok(activeIdx > 0 && proofIdx > activeIdx, "active climb renders before the completed-ladder proof strip");
+  assert.match(hero, /Verified · official results/, "completed-ladder proof is labeled as verified history, not ACTIVE");
 });
 
 test("Bank Builder + Moonshot share the dynamic step rail (cleared/current/future)", () => {

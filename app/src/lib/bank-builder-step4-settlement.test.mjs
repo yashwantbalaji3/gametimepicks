@@ -72,7 +72,10 @@ test("Step-4 settlement outcome: $1,423.64 → $3,623.97, +$2,200.33 (the Step-4
 
 test("the Bank Builder page renders the Road to $10K final step", () => {
   const page = fs.readFileSync("src/app/bank-builder/page.tsx", "utf8");
-  assert.ok(page.includes("One step from $10K"), "hype headline present");
+  // The $10K hype headline now leads in the ClimbHero flagship; the page's final-step section keeps the
+  // honest "Road to $10,000 / Final step · review pending" framing with no invented card.
+  const hero = fs.readFileSync("src/components/bank-builder/climb-hero.tsx", "utf8");
+  assert.ok(/climb toward \$10K/i.test(hero), "hype headline present (in the ClimbHero flagship)");
   assert.ok(page.includes("Road to $10,000") || page.includes("Final step"), "final-step framing present");
   assert.ok(page.includes("Check final-step candidates"), "final-step CTA present");
   assert.ok(page.includes("review pending") && page.includes("no card is invented to fill the rung"),

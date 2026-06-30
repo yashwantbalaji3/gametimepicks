@@ -141,19 +141,32 @@ export default function MrDubPage() {
         <p className="mt-2 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
           Paper-only bankroll tracking for GameTimePicks model cards — Mr. Dub tracks every paper card, every official result, and every bankroll move. No wagers are placed. Not financial advice.
         </p>
-        {/* The money path — start → bankroll → realized profit → ROI, in one glance (no mental math). */}
-        <div className="mt-3 rounded-xl px-4 py-3.5" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.025)" }}>
-          <div className="font-mono uppercase tracking-[0.12em] text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>The money path · paper · official results only</div>
-          <div className="mt-2 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-            <span className="font-display tabular" style={{ fontSize: 17, fontWeight: 700, color: "var(--vault-text-mute)" }}>{usd(portfolio.startingBankroll)}</span>
-            <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 15 }}>→</span>
-            <span className="font-display tabular tracking-tight" style={{ fontSize: 27, fontWeight: 800, color: "var(--vault-text)", lineHeight: 1 }}>{usd(portfolio.currentBankroll)}</span>
-            <span className="font-display tabular" style={{ fontSize: 17, fontWeight: 800, color: plColor(portfolio.settledProfit) }}>{(portfolio.settledProfit ?? 0) >= 0 ? "+" : ""}{usd(portfolio.settledProfit)}</span>
-            <span className="font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>realized · {portfolio.roiMultiple ?? portfolio.roi}× ROI</span>
+        {/* The money path — start → bankroll → realized profit → ROI, in one glance (no mental math).
+            The "$X → current paper bankroll" story is made explicit with labelled endpoints so a new
+            reader instantly understands where the bankroll started and where it stands now. Every
+            figure is read straight from portfolio.json (never recomputed here). The one-shot reveal
+            (gtp-moneypath-reveal) gives a count-up feel; it falls back to a static bar with
+            prefers-reduced-motion. */}
+        <div className="gtp-moneypath-reveal mt-3 rounded-xl px-4 py-3.5" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.025)" }}>
+          <div className="font-mono uppercase tracking-[0.12em] text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>The money path · {usd0(portfolio.startingBankroll)} → today&rsquo;s paper bankroll · official results only</div>
+          <div className="mt-2 flex flex-wrap items-end gap-x-2.5 gap-y-1.5">
+            <span className="flex flex-col">
+              <span className="font-mono uppercase tracking-[0.1em] text-[8.5px]" style={{ color: "var(--vault-text-faint)" }}>Started with</span>
+              <span className="font-display tabular" style={{ fontSize: 17, fontWeight: 700, color: "var(--vault-text-mute)", lineHeight: 1 }}>{usd(portfolio.startingBankroll)}</span>
+            </span>
+            <span aria-hidden className="pb-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 15 }}>→</span>
+            <span className="flex flex-col">
+              <span className="font-mono uppercase tracking-[0.1em] text-[8.5px]" style={{ color: "var(--vault-gold-bright)" }}>Current paper bankroll</span>
+              <span className="font-display tabular tracking-tight" style={{ fontSize: 27, fontWeight: 800, color: "var(--vault-text)", lineHeight: 1 }}>{usd(portfolio.currentBankroll)}</span>
+            </span>
+            <span className="flex flex-col">
+              <span className="font-mono uppercase tracking-[0.1em] text-[8.5px]" style={{ color: "var(--vault-text-faint)" }}>Realized P/L</span>
+              <span className="font-display tabular" style={{ fontSize: 17, fontWeight: 800, color: plColor(portfolio.settledProfit), lineHeight: 1 }}>{(portfolio.settledProfit ?? 0) >= 0 ? "+" : ""}{usd(portfolio.settledProfit)}</span>
+            </span>
+            <span className="font-mono text-[11px] pb-0.5" style={{ color: "var(--vault-text-faint)" }}>{portfolio.roiMultiple ?? portfolio.roi}× ROI</span>
           </div>
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
-            <span>Starting <span style={{ color: "var(--vault-text-mute)" }}>{usd(portfolio.startingBankroll)}</span></span>
-            <span>High-water <span style={{ color: "var(--vault-text-mute)" }}>{usd(portfolio.highWaterMark)}</span></span>
+            <span>Peak <span style={{ color: "var(--vault-text-mute)" }}>{usd(portfolio.highWaterMark)}</span></span>
             <span>Drawdown <span style={{ color: (portfolio.drawdown ?? 0) > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-mute)" }}>{usd(portfolio.drawdown)} · {((portfolio.drawdownPct ?? 0) * 100).toFixed(2)}%</span></span>
           </div>
         </div>
@@ -254,7 +267,7 @@ export default function MrDubPage() {
       {/* 5 — Daily ledger as a CALENDAR: P/L cells + product dots + running bankroll; tap a day for the
             exact tickets. Presentation-only (buildLedgerCalendar reads the canonical daily-summary). */}
       <section>
-        <SectionHeader eyebrow={`Ledger calendar · ${days.length} settled days`} title="Bankroll calendar" sub="Each day's paper P/L at a glance — green up, red down. Tap a day for every ticket, its result, and the bankroll movement." />
+        <SectionHeader eyebrow={`The story · ${days.length} settled days`} title="Bankroll calendar" sub="The readable day-by-day story: each day's paper P/L at a glance — green up, red down. Tap any day for every ticket, its official result, and the bankroll move. (The raw event-by-event feed is the Full ledger lower down.)" />
         <div className="mt-2">
           <LedgerCalendar months={ledgerCal.months} stats={ledgerCal.stats} />
         </div>
@@ -308,7 +321,7 @@ export default function MrDubPage() {
 
       {/* 7 — Full ledger */}
       <section>
-        <SectionHeader eyebrow={`Full ledger · ${events.length} events`} title="Every paper event" sub="Newest first — wins, losses, voids, stopped lanes, advances, restarts, and open cards with official settlement references." />
+        <SectionHeader eyebrow={`Full ledger · ${events.length} events`} title="Every paper event (raw feed)" sub="The complete event-by-event audit, newest first — wins, losses, voids, stopped lanes, advances, restarts, and open cards with official settlement references. (For the readable story, use the Bankroll calendar above.)" />
         <div className="mt-2 flex flex-col gap-2">
           {events.slice().reverse().map((e: any) => <EventCard key={e.eventId} e={e} />)}
         </div>
