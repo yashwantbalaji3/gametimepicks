@@ -108,6 +108,71 @@ test("settleCard: won parlay computes paper P/L; any pending leg holds the whole
   assert.equal(withPending.paperPnl, 0);
 });
 
+// ── Knockout (extra time / penalties) settlement policy ───────────────────────────────────────────
+// Documents the rule for World Cup knockout games decided beyond 90'. Fixtures mirror the real
+// 2026-06-29 Round-of-32 slate (Germany 1-1 Paraguay PEN, Netherlands 1-1 Morocco PEN, Brazil 2-1
+// Japan FT) so the policy is pinned against the exact situation it was written for.
+import { is90MinuteFinal, isRegulationOnly } from "./soccer-markets.ts";
+
+test("policy helpers: FT/AET/PEN are 90'-final; only FT is regulation-only", () => {
+  for (const s of ["FT", "AET", "PEN", "ft", "pen "]) assert.equal(is90MinuteFinal(s), true, `${s} is 90'-final`);
+  for (const s of ["1H", "HT", "ET", "NS", "LIVE"]) assert.equal(is90MinuteFinal(s), false, `${s} not 90'-final`);
+  assert.equal(isRegulationOnly("FT"), true);
+  for (const s of ["AET", "PEN", "1H"]) assert.equal(isRegulationOnly(s), false, `${s} not regulation-only`);
+});
+
+const KO = {
+  date: "2026-06-29", source: "synthetic knockout fixture",
+  matches: [
+    // 90' (regulation) score carried; status PEN/FT. Penalty/ET winners shown for documentation.
+    { matchId: 1, match: "Germany vs Paraguay", homeGoals: 1, awayGoals: 1, status: "PEN", advanceWinner: "Paraguay" },
+    { matchId: 2, match: "Netherlands vs Morocco", homeGoals: 1, awayGoals: 1, status: "PEN", advanceWinner: "Morocco" },
+    { matchId: 3, match: "Brazil vs Japan", homeGoals: 2, awayGoals: 1, status: "FT", advanceWinner: "Brazil" },
+  ],
+  players: [
+    { player: "Deniz Undav", matchId: 1, goals: 0, assists: 0, shots: 1, shotsOnTarget: 0, minutes: 63 },
+    { player: "Gabriel Avalos", matchId: 1, goals: 0, assists: 0, shots: 0, shotsOnTarget: 0, minutes: 55 },
+    { player: "Florian Wirtz", matchId: 1, goals: 0, assists: 1, shots: 1, shotsOnTarget: 0, minutes: 110 },
+    { player: "Brian Brobbey", matchId: 2, goals: 0, assists: 0, shots: 0, shotsOnTarget: 0, minutes: 71 },
+    { player: "Daizen Maeda", matchId: 3, goals: 0, assists: 0, shots: 0, shotsOnTarget: 0, minutes: 89 },
+  ],
+};
+
+test("knockout policy: 90' TEAM markets settle on a PEN game (the 90' score is final)", () => {
+  // Netherlands or Draw on a 1-1 (90') → won, even though Morocco advanced on penalties.
+  const dc = gradeLeg({ id: "dc", matchId: 2, market: "double_chance", selection: "Netherlands or Draw", oddsAmerican: -455 }, KO);
+  assert.equal(dc.result, "won", "DC including the draw wins on a 1-1 at 90' (PEN does not block it)");
+  // Netherlands moneyline (home) on a 1-1 (90') → lost (a draw is not a home win).
+  const ml = gradeLeg({ id: "ml", matchId: 2, market: "moneyline_90", selection: "Netherlands", side: "home", oddsAmerican: 108 }, KO);
+  assert.equal(ml.result, "lost", "ML on the 90' draw loses regardless of the penalty shootout");
+  // Totals + BTTS settle on the 90' goals (1+1 = 2).
+  assert.equal(gradeLeg({ id: "tot", matchId: 1, market: "match_total_goals", selection: "Over 2.5", side: "over", point: 2.5, oddsAmerican: -141 }, KO).result, "lost");
+  assert.equal(gradeLeg({ id: "btts", matchId: 1, market: "btts", selection: "Both teams to score: No", side: "no", oddsAmerican: -121 }, KO).result, "lost");
+});
+
+test("knockout policy: a player OVER/anytime prop with a 0 box-score is a CERTAIN loss on a PEN game", () => {
+  // 0 shots/SOT/goals at full match ⇒ 0 in regulation ⇒ the over cannot have hit. These are the real
+  // June-29 Bank Builder legs (Avalos, Brobbey, Undav) — all certain losses, never fabricated.
+  const avalos = gradeLeg({ id: "av", matchId: 1, market: "player_shots", selection: "Gabriel Avalos · Over 0.5 Shots", player: "Gabriel Avalos", side: "over", point: 0.5, oddsAmerican: -305 }, KO);
+  assert.equal(avalos.result, "lost", "Avalos 0 shots (PEN) → lost (cannot reach 0.5 in regulation)");
+  const brobbey = gradeLeg({ id: "br", matchId: 2, market: "player_shots_on_target", selection: "Brian Brobbey · Over 0.5 SOT", player: "Brian Brobbey", side: "over", point: 0.5, oddsAmerican: -177 }, KO);
+  assert.equal(brobbey.result, "lost", "Brobbey 0 SOT (PEN) → lost");
+  const undav = gradeLeg({ id: "un", matchId: 1, market: "player_goal_scorer_anytime", selection: "Deniz Undav · Anytime", player: "Deniz Undav", oddsAmerican: 100 }, KO);
+  assert.equal(undav.result, "lost", "Undav 0 goals (PEN) → lost");
+});
+
+test("knockout policy: a player prop with a NON-zero ET-inclusive count PENDS on a PEN game (no guess)", () => {
+  // Wirtz has 1 assist but played into extra time — we cannot confirm the assist came in regulation → pend.
+  const wirtz = gradeLeg({ id: "wz", matchId: 1, market: "player_assists", selection: "Florian Wirtz · Over 0.5 Assists", player: "Florian Wirtz", side: "over", point: 0.5, oddsAmerican: 200 }, KO);
+  assert.equal(wirtz.result, "pending", "1 assist on a PEN game could be an ET assist → pending, never a win");
+});
+
+test("knockout policy: player props on a clean FT game grade directly; player_shots (total) is supported", () => {
+  // Maeda 0 shots in a FT game → lost (full match == 90'). Exercises the newly-supported player_shots market.
+  const maeda = gradeLeg({ id: "mz", matchId: 3, market: "player_shots", selection: "Daizen Maeda · Over 0.5 Shots", player: "Daizen Maeda", side: "over", point: 0.5, oddsAmerican: -420 }, KO);
+  assert.equal(maeda.result, "lost", "Maeda 0 shots (FT) → lost via player_shots");
+});
+
 import { findPlayerLine } from "./soccer-markets.ts";
 test("findPlayerLine: matches abbreviated API names by surname+initial, scoped to match", () => {
   const o = { date: "x", source: "test", matches: [], players: [

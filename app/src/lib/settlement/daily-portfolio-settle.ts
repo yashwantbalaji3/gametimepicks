@@ -8,6 +8,7 @@
  */
 
 import { BANK_BUILDER_STEP_COUNT } from "../bank-builder-ladder";
+import { is90MinuteFinal } from "./soccer-markets";
 
 export type LaneResult = "won" | "lost" | "void" | "push" | "pending";
 
@@ -105,7 +106,7 @@ export function buildSettledLeg(
   const { eventId, marketType, side } = parseLegId(dpLeg.id);
   const fin = finalByMatch.get(dpLeg.matchup ?? "");
   const [home, away] = String(dpLeg.matchup ?? " vs ").split(" vs ");
-  const official90 = fin ? `${home} ${fin.homeGoals}-${fin.awayGoals} ${away} (FT, API-Football)` : null;
+  const official90 = fin ? `${home} ${fin.homeGoals}-${fin.awayGoals} ${away} (90', ${fin.status}, API-Football)` : null;
   const result = gradedLeg?.result ?? "pending";
   const won = result === "won";
   const isVoid = result === "void" || result === "push";
@@ -151,9 +152,13 @@ export function gradeLaneCard(laneCard: DailyLaneCard, official: OfficialBundle)
 
   if (!graded) return { laneLetter, status: "pending", payout: 0, reason: `no graded card for Lane ${laneLetter} in the official bundle`, settledLegs: [] };
 
+  // A leg's game is "final" for settlement when its 90' result is official — FT, or a knockout decided in
+  // extra time (AET) / penalties (PEN). The per-leg result (graded.result, from the shared engine) already
+  // pends any player prop that lacks a clean 90' line on an AET/PEN game; this gate only blocks games whose
+  // 90' result is not yet known.
   const notFinal = (laneCard.legs ?? []).filter((lg) => {
     const fin = finalByMatch.get(lg.matchup ?? "");
-    return !fin || String(fin.status).toUpperCase() !== "FT";
+    return !fin || !is90MinuteFinal(String(fin.status));
   });
   if (notFinal.length) return { laneLetter, status: "pending", payout: 0, reason: `${notFinal.length} leg(s) not officially final`, settledLegs: [] };
 

@@ -98,7 +98,9 @@ test("forensic audit reconciles the CURRENT slate date, not a frozen literal (au
 
 test("official-results fetch uses real date math at month boundaries (audit P1-6)", () => {
   const s = readRepo("pipeline/fetch_official_soccer.py");
-  assert.match(s, /datetime\.date\(y, m, dd\) \+ datetime\.timedelta\(days=1\)/, "carries month/year correctly");
+  assert.match(s, /datetime\.date\(y, m, dd\)/, "uses a real calendar date as the base");
+  assert.match(s, /datetime\.timedelta\(days=/, "real timedelta math (carries month/year correctly)");
+  assert.match(s, /range\(3\)/, "window spans the slate date + 2 days (a combined window can span 3 UTC dates)");
   assert.ok(!/\{dd\+1:02d\}/.test(s), "no naive dd+1 rollover");
 });
 

@@ -27,7 +27,7 @@ export function parseLaneLeg(l) {
     else { const team = tail || sel.replace(/\s+to win.*/i, ""); side = normT(team) === normT(home) ? "home" : "away"; }
   } else if (market === "match_total_goals") side = /under/i.test(sel) ? "under" : "over";
   else if (market === "btts") side = /\bno\b|:\s*no/i.test(sel) ? "no" : "yes";
-  else if (market === "player_assists" || market === "player_shots_on_target") side = "over";
+  else if (market === "player_assists" || market === "player_shots_on_target" || market === "player_shots") side = "over";
   const pt = sel.match(/(\d+(?:\.\d+)?)/);
   return { id: String(l.id ?? ""), matchId, market, selection: sel, side, player: l.player ?? (kind === "player" ? tail : null),
     point: pt ? Number(pt[1]) : null, oddsAmerican: Number(l.odds ?? 0), matchup: l.matchup ?? null };
@@ -44,7 +44,7 @@ export function parseSpecialLeg(l) {
     else if (market === "btts") side = /no/i.test(String(l.side ?? l.participant)) ? "no" : "yes";
   } else {
     player = l.participant ?? l.player ?? null;
-    if (market === "player_assists" || market === "player_shots_on_target") side = "over";
+    if (market === "player_assists" || market === "player_shots_on_target" || market === "player_shots") side = "over";
   }
   return { id: l.legId ?? l.id ?? "", matchId: Number(l.eventId), market,
     selection: `${l.participant ?? ""}${l.side ? " " + l.side : ""}`.trim(), side, player,

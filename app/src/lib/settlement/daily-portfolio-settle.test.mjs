@@ -34,7 +34,21 @@ test("gradeLaneCard WON: both games FT + graded won → status won, legs graded 
   assert.equal(p.payout, 3502.57);
   assert.equal(p.settledLegs.length, 2);
   assert.ok(p.settledLegs.every((l) => l.settlementStatus === "hit"), "both legs HIT");
-  assert.match(p.settledLegs[0].settlement.official, /Panama 0-1 Croatia \(FT/, "official 90' result stamped");
+  assert.match(p.settledLegs[0].settlement.official, /Panama 0-1 Croatia \(90', FT/, "official 90' result stamped");
+});
+
+test("gradeLaneCard KNOCKOUT: a PEN game is 90'-final — the lane settles on its graded result (not pending)", () => {
+  // June-29 shape: both legs' games went to penalties (status PEN). The 90' result is final, so the lane
+  // does NOT pend on the match status — it settles on the engine's per-leg result (here: lost).
+  const card = laneCard("A", 3, 100, [leg(1, "moneyline_90", "Netherlands", 108, "Netherlands vs Morocco"), leg(2, "player_shots", "Avalos Over 0.5", -305, "Germany vs Paraguay")]);
+  const o = bundle(
+    [{ matchId: 2, match: "Netherlands vs Morocco", homeGoals: 1, awayGoals: 1, status: "PEN" }, { matchId: 1, match: "Germany vs Paraguay", homeGoals: 1, awayGoals: 1, status: "PEN" }],
+    [gradedCard("A", 100, "lost", 0, ["lost", "lost"])],
+  );
+  const p = gradeLaneCard(card, o);
+  assert.equal(p.status, "lost", "PEN games are 90'-final → lane settles on graded result, not pending");
+  assert.equal(p.payout, 0);
+  assert.ok(p.settledLegs.every((l) => l.settlementStatus === "miss"), "both legs MISS");
 });
 
 test("gradeLaneCard LOST: card graded lost → status lost, legs MISS", () => {

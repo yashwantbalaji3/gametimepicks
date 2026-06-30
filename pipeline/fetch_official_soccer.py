@@ -63,13 +63,15 @@ def main():
     if not KEY:
         print(json.dumps({"error": "API_FOOTBALL_KEY not set"})); sys.exit(1)
 
-    # Late ET kickoffs roll into the next UTC day, so pull this date AND the next. Use real date math so
-    # month/year boundaries carry correctly (audit P1-6: `dd+1` produced e.g. 2026-06-31 on the 30th).
+    # Pull the slate date AND the next TWO UTC days. Late ET kickoffs roll into the next UTC day, and a
+    # COMBINED slate window (a thin day auto-widened into a multi-day window, e.g. a June-28 portfolio whose
+    # last game kicks off 01:00 UTC on June 30) can span up to three UTC dates — so a 2-day window silently
+    # dropped the third day's game as NOT_FOUND. Use real date math so month/year boundaries carry correctly.
     y, m, dd = map(int, args.date.split("-"))
-    next_date = (datetime.date(y, m, dd) + datetime.timedelta(days=1)).isoformat()
+    base = datetime.date(y, m, dd)
     fixtures = []
-    for date in (args.date, next_date):
-        fixtures += get(f"/fixtures?date={date}&league={LEAGUE}&season={SEASON}").get("response", [])
+    for date in (base + datetime.timedelta(days=i) for i in range(3)):
+        fixtures += get(f"/fixtures?date={date.isoformat()}&league={LEAGUE}&season={SEASON}").get("response", [])
 
     slate = load_slate_matches(args.date)
     if not slate:
@@ -94,9 +96,18 @@ def main():
                 matches.append({"matchId": key, "match": name_id, "homeGoals": None, "awayGoals": None, "status": "NOT_FOUND"})
             continue
         g = fx.get("goals", {}); st = fx.get("fixture", {}).get("status", {}); fid = fx.get("fixture", {}).get("id")
-        # orient goals to the SLATE's home/away (so totals + DC grade against the right side)
-        gh, ga = (g.get("away"), g.get("home")) if flipped else (g.get("home"), g.get("away"))
-        row = {"match": name_id, "homeGoals": gh, "awayGoals": ga, "status": st.get("short"), "apiFootballFixtureId": fid}
+        sc = fx.get("score", {}); ftsc = sc.get("fulltime") or {}
+        # 90-MINUTE (regulation) score — the basis for every 90' market. Prefer score.fulltime (the score at
+        # the end of 90'); for a knockout that went to extra time this is NOT the headline `goals` aggregate.
+        # Fall back to `goals` only when fulltime is absent (e.g. an in-progress fixture with no FT score yet).
+        rh = ftsc.get("home") if ftsc.get("home") is not None else g.get("home")
+        ra = ftsc.get("away") if ftsc.get("away") is not None else g.get("away")
+        # orient to the SLATE's home/away (so totals + DC grade against the right side)
+        gh, ga = (ra, rh) if flipped else (rh, ra)
+        teams = fx.get("teams", {})
+        adv = next((teams[w].get("name") for w in ("home", "away") if teams.get(w, {}).get("winner")), None)
+        row = {"match": name_id, "homeGoals": gh, "awayGoals": ga, "status": st.get("short"),
+               "advanceWinner": adv, "apiFootballFixtureId": fid}
         # Emit under BOTH the numeric projection matchId AND the "Home vs Away" name — product legs
         # reference one or the other (DC/ML legs use the numeric id; raw-pool totals use the name).
         matches.append({"matchId": mid, **row})
@@ -111,7 +122,8 @@ def main():
                 info = p.get("player", {}); stats = (p.get("statistics") or [{}])[0]
                 goals = stats.get("goals", {}); shots = stats.get("shots", {})
                 base = {"player": info.get("name"), "goals": goals.get("total") or 0,
-                        "assists": goals.get("assists") or 0, "shotsOnTarget": shots.get("on") or 0,
+                        "assists": goals.get("assists") or 0,
+                        "shots": shots.get("total") or 0, "shotsOnTarget": shots.get("on") or 0,
                         "minutes": (stats.get("games") or {}).get("minutes")}
                 players.append({**base, "matchId": mid})
                 players.append({**base, "matchId": name_id})
