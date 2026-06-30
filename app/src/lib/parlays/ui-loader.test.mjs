@@ -91,36 +91,36 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("live run (June-27 restarts): LIVE preview is launched with both lanes ACTIVE on a fresh Step-1, no stale-leg leak", () => {
+test("live run (June-29 settled-LOST): LIVE preview shows both lanes settled-LOST on Step-1, no stale-leg leak", () => {
   // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and restarted into a new cycle.
-  // The cycle then ran on: both lanes LOST their June-27 Step and were RESTARTED fresh (Lane A cycle 5, Lane B
-  // cycle 4). The live preview now leads each lane with a fresh ACTIVE Step-1 card; both stay publicly visible.
-  // The prior won/lost cycle narratives moved into each lane's priorLane chain (and the banked archive) — they
-  // must NOT bleed into the live preview.
+  // The cycle then ran on: both lanes settled-LOST their June-29 Step-1 (Lane A cycle 5, Lane B cycle 4). The
+  // live preview now leads each lane with its settled-LOST Step-1 card; both stay publicly visible. The prior
+  // won/lost cycle narratives stay in each lane's priorLane chain (and the banked archive) — they must NOT bleed
+  // into the live preview.
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.status, "launched", "the live run is launched");
   assert.equal(bb.isLadder, true, "it is a stepping ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
   assert.equal(bb.currentStep, 1, "live run's lead step pointer sits on Step 1 (both lanes' open rung)");
-  // Lane A is a fresh active Step-1 restart. The loader never fabricates.
-  assert.equal(bb.laneA.laneStatus, "active", "Lane A active (fresh Step-1 restart after the June-27 loss)");
+  // Lane A is a settled-LOST Step-1. The loader never fabricates.
+  assert.equal(bb.laneA.laneStatus, "stopped", "Lane A stopped (Step-1 settled-LOST June-29)");
   assert.equal(bb.laneA.publicVisible, true, "Lane A is publicly visible");
-  assert.equal(bb.laneA.currentStep, 1, "Lane A is on a fresh Step 1");
-  assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries its one active Step-1 card");
-  assert.equal(bb.laneA.steps[0].status, "active", "Lane A Step-1 is active (unsettled)");
-  assert.equal(bb.laneA.steps[0].result, null, "Lane A Step-1 has no settled result yet");
-  // Lane B is a fresh active Step-1 restart.
-  assert.equal(bb.laneB.laneStatus, "active", "Lane B active (fresh Step-1 restart after the June-27 loss)");
+  assert.equal(bb.laneA.currentStep, 1, "Lane A is on Step 1");
+  assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries its one settled-LOST Step-1 card");
+  assert.equal(bb.laneA.steps[0].status, "settled", "Lane A Step-1 is settled");
+  assert.equal(bb.laneA.steps[0].result, "lost", "Lane A Step-1 settled LOST (June-29)");
+  // Lane B is a settled-LOST Step-1.
+  assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped (Step-1 settled-LOST June-29)");
   assert.equal(bb.laneB.publicVisible, true, "Lane B is publicly visible");
-  assert.equal(bb.laneB.currentStep, 1, "Lane B is on a fresh Step 1");
-  assert.equal((bb.laneB.steps ?? []).length, 1, "Lane B carries its one active Step-1 card");
-  assert.equal(bb.laneB.steps[0].status, "active", "Lane B Step-1 is active (unsettled)");
-  assert.equal(bb.laneB.steps[0].result, null, "Lane B Step-1 has no settled result yet");
-  // No stale legs from any prior ladder (the banked cycle or either lane's priorLane chain) may surface in the
-  // live preview.
+  assert.equal(bb.laneB.currentStep, 1, "Lane B is on Step 1");
+  assert.equal((bb.laneB.steps ?? []).length, 1, "Lane B carries its one settled-LOST Step-1 card");
+  assert.equal(bb.laneB.steps[0].status, "settled", "Lane B Step-1 is settled");
+  assert.equal(bb.laneB.steps[0].result, "lost", "Lane B Step-1 settled LOST (June-29)");
+  // No stale legs from any PRIOR ladder (the banked cycle or either lane's priorLane chain) may surface in the
+  // live preview. (Paraguay is NOT banned here — Germany vs Paraguay is a legitimate June-29 settled-card leg.)
   const live = JSON.stringify(bb);
-  assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey|Gonzales|Algeria|Paraguay|Australia|Curaçao|Ivory Coast|Argentina|Austria|Jordan|Egypt|France/.test(live), "no prior-ladder / priorLane legs leak into the live preview");
+  assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey|Gonzales|Algeria|Australia|Curaçao|Ivory Coast|Argentina|Austria|Jordan|Egypt|France/.test(live), "no prior-ladder / priorLane legs leak into the live preview");
 });
 
 test("ARCHIVE money-integrity: the BANKED 2nd ladder ($10,089.23 final) is preserved official — Lane A completed 5/5 won, Lane B stopped on a Step-3 loss", () => {

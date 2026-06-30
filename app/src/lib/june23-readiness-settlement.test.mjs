@@ -7,12 +7,12 @@ import { loadMoonshotLane } from "./moonshot/moonshot-lane.ts";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 
-test("June 27 settled: core record 15-7-0-0, exposure $0, cumulative bankroll = crown − seven lost seeds, crown reflects two banked ladders", () => {
+test("June 29 settled: core record 15-9-0-0, exposure $0, cumulative bankroll = crown − nine lost seeds, crown reflects two banked ladders", () => {
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.deepEqual(p.record, { wins: 15, losses: 7, voids: 0, pending: 0 }, "record 15-7-0-0 (both lanes lost their June-27 Step → restarted June-28)");
-  assert.equal(p.openExposure, 0, "core exposure released to $0 in portfolio.json (both lanes restarted; live Step cards tracked in daily-portfolio)");
+  assert.deepEqual(p.record, { wins: 15, losses: 9, voids: 0, pending: 0 }, "record 15-9-0-0 (both lanes settled-LOST their June-29 Step)");
+  assert.equal(p.openExposure, 0, "core exposure released to $0 in portfolio.json (both lanes settled-LOST; awaiting a fresh slate)");
   assert.equal(p.totalOpenExposure, 0, "total exposure $0");
-  assert.equal(p.currentBankroll, 19765.4, "bankroll = crown − $700 (seven real lost seeds); won steps roll");
+  assert.equal(p.currentBankroll, 19565.4, "bankroll = crown − $900 (nine real lost seeds); won steps roll");
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals ($10,376.17 + $10,089.23)");
 });
 

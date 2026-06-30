@@ -161,10 +161,10 @@ test("live June-24 portfolio: both Moonshot lanes display + await (thin WC slate
     assert.ok(l.activationEligibility?.reason, "discloses why it is awaiting");
   }
   assert.equal(dp.products.moonshot.exposure, 0, "no Moonshot exposure placed today");
-  assert.equal(dp.activeBankroll, 19765.40, "canonical active bankroll frozen (crown − $700 seven real lost seeds, after the June-27 settlement)");
+  assert.equal(dp.activeBankroll, 19565.40, "canonical active bankroll frozen (crown − $900 nine real lost seeds, after the June-29 settlement)");
   assert.equal(dp.crownBankroll, 20465.40, "canonical crown frozen (Σ of two completed-ladder finals)");
   const p = JSON.parse(read(path.join(root, "mr-dub", "portfolio.json")));
-  assert.deepEqual(p.record, { wins: 15, losses: 7, voids: 0, pending: 0 }, "canonical record untouched by the moonshot view (15-7 after the June-27 BB settlement)");
+  assert.deepEqual(p.record, { wins: 15, losses: 9, voids: 0, pending: 0 }, "canonical record untouched by the moonshot view (15-9 after the June-29 BB settlement)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "canonical moonshot block untouched");
 });
 

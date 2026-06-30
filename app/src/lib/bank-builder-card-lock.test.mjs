@@ -7,8 +7,8 @@
  * the LIVE dual-bank-builder-active.json then ran the fresh cycle two more days. These tests verify: the lock
  * stays consumed (no re-pin), the settled June-24 cards landed WON (Lane A) / LOST (Lane B) in the ARCHIVE, the
  * completion was operator-gated BANKED (not pending, not a silent roll), and canonical money is the post-settlement
- * truth (JUNE-28: record 15-7, bankroll 19765.40, cumulative crown 20465.40 = Σ two banked finals). The
- * money-integrity guard is preserved.
+ * truth (JUNE-30: record 15-9 after both lanes settled-LOST June-29, bankroll 19565.40, cumulative crown 20465.40
+ * = Σ two banked finals). The money-integrity guard is preserved.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -89,36 +89,36 @@ test("Lane A's completion was operator-gated then BANKED (Ladder #2) — never a
 
 test("the consumed lock NEVER mutates canonical money (bankroll/crown/record are the post-banking truth)", () => {
   const p = read("mr-dub/portfolio.json");
-  assert.equal(p.currentBankroll, 19765.4);
+  assert.equal(p.currentBankroll, 19565.4);
   assert.equal(p.crownBankroll, 20465.4);
-  assert.deepEqual(p.record, { wins: 15, losses: 7, voids: 0, pending: 0 });
-  assert.equal(dp.activeBankroll, 19765.4);
+  assert.deepEqual(p.record, { wins: 15, losses: 9, voids: 0, pending: 0 });
+  assert.equal(dp.activeBankroll, 19565.4);
   assert.equal(dp.crownBankroll, 20465.4);
 });
 
-test("STABILITY: the consumed lock does NOT re-pin settled cards; the live cycle serves the forward card stably", () => {
+test("STABILITY: the consumed lock does NOT re-pin settled cards; the live cycle awaits a fresh slate stably", () => {
   // The lock is consumed (status settled, empty lanes), so a refresh must not resurrect the SETTLED June-24
-  // cards. JUNE-28 LIVE STATE: the live cycle ran on past June-24 — both lanes LOST their June-27 Step and were
-  // RESTARTED fresh (Lane A cycle 5, Lane B cycle 4), so the daily view now serves each lane's fresh forward
-  // Step-1 card (the prior settlements are preserved in the live artifact's priorLane chains). The served cards
-  // must NOT carry the consumed June-24 legs.
+  // cards. JUNE-30 LIVE STATE: both lanes LOST their June-29 Step (settled-LOST) and there is no fresh slate
+  // yet, so the daily view serves NO Bank Builder lanes ($0 open exposure, awaiting). The prior settlements are
+  // preserved in the live artifact's priorLane chains. Whatever is (not) served must NOT carry the consumed
+  // June-24 legs, and the served state must be stable across refreshes.
   const lock = read("mr-dub/bank-builder-locks.json");
   assert.equal(lock.status, "settled");
   assert.deepEqual(lock.lanes ?? {}, {}, "consumed lock pins nothing");
-  assert.ok(laneA, "Lane A is served as a fresh forward Step-1 card (restarted after losing its June-27 Step)");
-  assert.ok(laneB, "Lane B is served as a fresh forward Step-1 card (restarted after losing its June-27 Step)");
-  assert.equal(laneA.step, 1, "Lane A serves a fresh Step-1 card");
-  assert.equal(laneB.step, 1, "Lane B serves a fresh Step-1 card");
-  // The consumed June-24 card's legs (Morocco/Bosnia/Brazil, from the archive) must NOT be re-pinned onto the
-  // served forward cards — compare leg IDs, which are disjoint from the live forward cards' IDs.
+  assert.equal(bb.length, 0, "no Bank Builder lanes served — both lanes settled-LOST June-29, awaiting a fresh slate");
+  assert.equal(laneA, undefined, "Lane A not served as a live card (settled-LOST, awaiting fresh slate)");
+  assert.equal(laneB, undefined, "Lane B not served as a live card (settled-LOST, awaiting fresh slate)");
+  assert.equal(dp.openExposure, 0, "no open Bank Builder exposure while awaiting a fresh slate");
+  // The consumed June-24 card's legs (Morocco/Bosnia/Brazil, from the archive) must NOT be re-pinned onto any
+  // served card — compare leg IDs (with no served lanes the served set is empty, which trivially excludes them).
   const archivedStep5 = (read(ARCHIVE).run.laneA.steps ?? []).find((s) => s.step === 5);
   const consumedIds = new Set((archivedStep5.legs ?? []).map((l) => l.legId));
-  const servedIds = [...(laneA.legs ?? []), ...(laneB.legs ?? [])].map((l) => l.id);
+  const servedIds = [...(laneA?.legs ?? []), ...(laneB?.legs ?? [])].map((l) => l.id);
   assert.ok(servedIds.every((id) => !consumedIds.has(id)), "served cards do not re-pin the consumed June-24 leg IDs");
-  // Refreshing does not silently swap the served legs (stable across two builds at different clocks, while the
-  // eligible pool is unchanged — both clocks sit before the card's earliest kickoff so the started-game guard,
-  // which is exercised separately, does not legitimately drop a leg here).
+  // Refreshing does not silently change the served state (stable across two builds at different clocks).
   const again = buildPersistedDailyPortfolio(root, `${DATE}T12:00:00Z`, DATE, `${DATE}T12:00:00Z`, true);
+  const againBb = again.lanes.filter((l) => l.product === "bank-builder");
+  assert.equal(againBb.length, bb.length, "Bank Builder lane count unchanged across refreshes (no silent swap)");
   for (const lane of ["A", "B"]) {
     const served = bb.find((l) => l.lane === lane);
     const a2 = again.lanes.find((l) => l.product === "bank-builder" && l.lane === lane);
