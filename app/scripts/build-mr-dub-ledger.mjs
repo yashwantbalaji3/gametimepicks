@@ -184,19 +184,25 @@ function main() {
 
     // Prior (stopped) lane history — when a lane is relaunched fresh, its old settled steps move to
     // priorLane so the public lane shows the new card while Mr. Dub still records the old won/lost rungs.
-    if (lane.priorLane?.steps?.length) {
-      const priorStake = round2(lane.priorLane.steps[0]?.stake ?? 100);
-      for (const s of lane.priorLane.steps) {
-        // Only SETTLED rungs are real history — `coming_soon` placeholder steps (Steps 3-5 on a
-        // stopped lane) carry no result and must NOT be counted as losses (that double-counted the
-        // lane's single $100 stake N times and dragged the bankroll below the true value).
+    // Walk the FULL prior-lane CHAIN (priorLane → priorLane.priorLane → …) so EVERY banked cycle's settled
+    // rungs are counted, not just the most-recent one. A lane that restarts more than once NESTS its older
+    // cycles deeper; counting only the first level dropped earlier wins/losses — the exact source of the
+    // 14-5 / $19,965.40 rebuild vs canonical 15-7 / $19,765.40 drift (each lane carries a 2-deep chain =
+    // 1W/2L, so two cycles were silently halved to 1W/1L). Recursing reproduces canonical from the real
+    // artifacts with no hand-edit. (`coming_soon` placeholder steps carry no result → skipped, never a loss.)
+    let priorCycle = 0;
+    for (let pl = lane.priorLane; pl; pl = pl.priorLane) {
+      if (!pl.steps?.length) continue;
+      priorCycle++;
+      const priorStake = round2(pl.steps[0]?.stake ?? 100);
+      for (const s of pl.steps) {
         if (s.status !== "settled") continue;
         const legs = (s.legs ?? []).map((l) => ({ sport: l.sport, market: l.marketType, selection: l.label, result: l.settlement?.result ?? "settled", officialResult: l.settlement?.official ?? null, source: l.settlement?.source ?? "official" }));
         const won = s.result === "won";
         won ? wins++ : losses++;
         if (!won) dualRealized = round2(dualRealized - priorStake);
         laneEvents.push({
-          eventId: `mrdub-2026-06-18-${laneName}-prior-step${s.step}-${won ? "won" : "stopped"}`,
+          eventId: `mrdub-2026-06-18-${laneName}-prior${priorCycle > 1 ? `c${priorCycle}` : ""}-step${s.step}-${won ? "won" : "stopped"}`,
           timestamp: NOW, portfolio: "mr-dub-paper", category: "bank_builder",
           type: won ? "lane_step_won" : "lane_stopped",
           laneId: laneName, step: s.step, date: s.slateDate ?? null,
@@ -207,7 +213,7 @@ function main() {
           legs,
           notes: won
             ? `Prior Lane ${lk.slice(-1)} Step ${s.step} cleared (official) before the lane was stopped and relaunched fresh.`
-            : (lane.priorLane.stopReason ?? `Prior Lane ${lk.slice(-1)} Step ${s.step} settled a loss — original $${priorStake} paper stake lost; lane later relaunched fresh.`),
+            : (pl.stopReason ?? `Prior Lane ${lk.slice(-1)} Step ${s.step} settled a loss — original $${priorStake} paper stake lost; lane later relaunched fresh.`),
         });
       }
     }
