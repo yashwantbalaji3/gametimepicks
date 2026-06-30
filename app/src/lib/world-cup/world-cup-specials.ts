@@ -164,6 +164,13 @@ export interface WorldCupSpecialCard {
   // Maps the card's confidence/volatility onto a plain "how aggressive is this" label so a reader can
   // sort conservative → aggressive at a glance. Absent on the themed longshot cards (always aggressive).
   coverageTier?: "conservative" | "balanced" | "aggressive";
+  // Optional DAILY STRUCTURED SPECIAL posture — only the per-day "2 legs from each game" cards carry this.
+  // Four reliability tiers (Reliable → Balanced → Aggressive → Game Script) let a reader pick by appetite.
+  // `legsByGame` groups this card's legs under each game so the UI can render "2 from each game" cleanly.
+  reliabilityTier?: "reliable" | "balanced" | "aggressive" | "game-script";
+  reliabilityLabel?: string;        // "Reliable Daily Special" etc.
+  legsPerGameTarget?: number;       // 2 — the structural target (UI can flag games that fell short)
+  legsByGame?: Array<{ game: string; legs: SpecialLeg[] }>;
   // Optional card-level settlement state — populated once the slate is officially settled.
   // "won" | "lost" | "pending". Backward-compatible (absent on pre-event cards).
   cardStatus?: "won" | "lost" | "pending";
@@ -200,6 +207,12 @@ export interface WorldCupSpecialsResult {
   // real de-vig per-side prices. Team-market only (no player props). Optional/backward-compatible — absent
   // on pre-coverage snapshots; the existing 5-card `cards` array + its tests are unaffected.
   coverageCards?: WorldCupSpecialCard[];
+  // DAILY STRUCTURED SPECIALS — the per-game-day product: each card takes (up to) 2 legs from EVERY game
+  // on the slate, in four reliability tiers (Reliable / Balanced / Aggressive / Game Script). Real, settleable,
+  // pre-event legs only; a game that cannot supply 2 qualifying legs is filled with what it has (flagged) and a
+  // card is omitted entirely when the slate cannot support it. Separate from `cards`/`coverageCards` so existing
+  // tests are untouched. Optional/backward-compatible — absent on pre-redesign snapshots.
+  dailySpecials?: WorldCupSpecialCard[];
   // Optional slate-level settlement metadata — present once the slate is officially settled.
   settledAt?: string | null;
   settlementSource?: string | null;
@@ -1708,6 +1721,168 @@ function activeCardSignatures(root: string): string[] {
  * player pools, applies the strict filters, excludes the active Moonshot/Bank Builder cards, and
  * returns the ranked 5 + diagnostics. Used by the snapshot script and by tests.
  */
+// ── DAILY STRUCTURED SPECIALS — "2 legs from each game", four reliability tiers ─────────────────────
+// The per-game-day product: for EVERY game on the slate, take (up to) 2 real, settleable, pre-event legs,
+// and present the day as four cards a reader can pick by appetite (Reliable → Balanced → Aggressive →
+// Game Script). Audit-informed (2026-06-30): WC player props hit ~8% on settled slates and 4+-leg juice
+// stacks are the biggest WC Specials money-losers, so the Reliable tier is team-markets-only and every
+// card discloses its same-game correlation + that it is still a multi-game parlay (more legs → lower hit).
+// Real legs only — a game that cannot supply 2 in-band, settleable legs is filled with what it has (and
+// flagged); a tier is omitted entirely when the slate cannot support a coherent card. NEVER fabricated.
+export type ReliabilityTier = "reliable" | "balanced" | "aggressive" | "game-script";
+
+interface DailyTierSpec {
+  tier: ReliabilityTier;
+  label: string;
+  allowPlayer: boolean;
+  score: (l: SpecialLeg, ctxs: Map<string, KnockoutContext>) => number;
+}
+
+const DAILY_SAFE_MARKETS = new Set(["double_chance", "draw_no_bet", "match_total_goals", "btts"]);
+const decFor = (l: SpecialLeg) => dec(l.odds);
+
+const DAILY_TIER_SPECS: DailyTierSpec[] = [
+  // Reliable — team markets only (no player props), safest first: highest model probability, with a nudge
+  // toward double-chance / totals / BTTS over juiced straight moneylines.
+  { tier: "reliable", label: "Reliable Daily Special", allowPlayer: false,
+    score: (l) => l.modelProbability + (DAILY_SAFE_MARKETS.has(l.market) ? 0.15 : 0) },
+  // Balanced — one safe + one value leg per game (split is forced in pickGameLegsForTier).
+  { tier: "balanced", label: "Balanced Daily Special", allowPlayer: true,
+    score: (l) => l.modelProbability * 0.7 + Math.min(decFor(l), 4) * 0.08 },
+  // Aggressive — upside-leaning: reward longer prices that still carry model probability.
+  { tier: "aggressive", label: "Aggressive Daily Special", allowPlayer: true,
+    score: (l) => decFor(l) * Math.max(l.modelProbability, 0.05) },
+  // Game Script — legs that fit each game's expected knockout script (favourite controls / low-scoring / goals).
+  { tier: "game-script", label: "Game Script Special", allowPlayer: true,
+    score: (l, ctxs) => fitForTeamLeg(l, ctxs) + l.modelProbability * 0.3 },
+];
+
+const TIER_WHY: Record<ReliabilityTier, string> = {
+  reliable: "Safest team markets only — double chance, totals and BTTS — two from every game. No player props (World Cup props have hit only ~8% on settled slates), so this leans on the markets that settle cleanest.",
+  balanced: "One safer leg and one value leg from each game — a middle ground between survival and upside.",
+  aggressive: "Higher-upside markets from every game, including player props where the posted price is real. Expect real variance.",
+  "game-script": "Each game's two legs follow its expected knockout script (a favourite controlling, a low-scoring tie, or goals expected) — chosen to move together, with no contradictory legs.",
+};
+
+/** Pick up to 2 legs from ONE game for a tier: highest tier-score, no conflicts/dupes, ≤1 team-result market
+ *  and no two of the same market. Balanced is special-cased to a safe (highest-prob) + value (longest price) split. */
+function pickGameLegsForTier(gameLegs: SpecialLeg[], spec: DailyTierSpec, ctxs: Map<string, KnockoutContext>): SpecialLeg[] {
+  const pool = gameLegs.filter((l) => spec.allowPlayer || l.kind === "team");
+  const picked: SpecialLeg[] = [];
+  const canAdd = (l: SpecialLeg) =>
+    !picked.includes(l) &&
+    !picked.some((p) => legsConflict(p, l)) &&
+    !(TEAM_RESULT_MARKETS.has(l.market) && picked.some((p) => TEAM_RESULT_MARKETS.has(p.market))) &&
+    !picked.some((p) => p.market === l.market && p.kind === l.kind);
+  if (spec.tier === "balanced") {
+    // Safe leg: the highest-probability TEAM market (team markets settle cleanest); value leg: the longest
+    // posted price among the rest. Falls back to any leg only if a game has no team market at all.
+    const teamPool = pool.filter((l) => l.kind === "team");
+    const safest = [...(teamPool.length ? teamPool : pool)].sort((a, b) => b.modelProbability - a.modelProbability)[0];
+    if (safest) picked.push(safest);
+    const value = [...pool].sort((a, b) => decFor(b) - decFor(a)).find((l) => canAdd(l));
+    if (value) picked.push(value);
+    return picked;
+  }
+  for (const l of [...pool].sort((a, b) => spec.score(b, ctxs) - spec.score(a, ctxs))) {
+    if (picked.length >= 2) break;
+    if (canAdd(l)) picked.push(l);
+  }
+  return picked;
+}
+
+function buildDailyTierCard(
+  spec: DailyTierSpec, byGame: Array<{ game: string; legs: SpecialLeg[] }>,
+  ctxs: Map<string, KnockoutContext>, date: string,
+): WorldCupSpecialCard | null {
+  const used = byGame.filter((g) => g.legs.length > 0);
+  const legs = used.flatMap((g) => g.legs);
+  if (legs.length < 2 || used.length < 1) return null; // a parlay needs at least two real legs
+  const odds = legs.map((l) => l.odds);
+  const combinedOdds = combinedAmerican(odds) ?? 0;
+  const decimalOdds = combinedDecimal(odds) ?? 0;
+  const joint = combinedHitProbability(legs.map((l) => l.modelProbability)) ?? 0;
+  const stakePreview = WORLD_CUP_SPECIALS_CONFIG.stakePreview;
+  const corr = classifyCorrelation(legs);
+  const sameGameFrac = meanSameGameCorrelation(legs);
+  const teamPropCount = legs.filter((l) => l.kind === "team").length;
+  const playerPropCount = legs.filter((l) => l.kind === "player").length;
+  const games = used.map((g) => g.game);
+  const shortGames = byGame.filter((g) => g.legs.length === 1).map((g) => g.game);
+  const corrSummary = `${corr.profile}${sameGameFrac > 0 ? ` · same-game legs move together, so the model-estimated ${(joint * 100).toFixed(1)}% combined probability assumes more independence than reality` : ""}.`;
+  const whyThisCard = [
+    TIER_WHY[spec.tier],
+    `Two legs from each of ${used.length} game${used.length === 1 ? "" : "s"}: ${games.join(", ")}.`,
+    ...(shortGames.length ? [`${shortGames.join(", ")} had only one in-band, settleable leg, so the card uses one leg there (flagged).`] : []),
+  ];
+  const whyItCanFail = [
+    `Any single leg loses the whole card — this is a ${legs.length}-leg parlay, so the hit rate is far below any one leg's.`,
+    spec.tier === "reliable"
+      ? "Even safe team markets fail on an upset or a draw going the wrong way."
+      : "Higher-variance legs (longer prices / player props) miss more often than they hit.",
+    sameGameFrac > 0
+      ? "Legs from the same game are correlated — the combined-odds payout can overstate the true independent value."
+      : "Cross-game legs are independent — a single bad result on any game ends it.",
+  ];
+  return {
+    id: `wc-daily-${spec.tier}-${date}`,
+    title: spec.label,
+    risk: "longshot",
+    label: "World Cup Special",
+    reliabilityTier: spec.tier,
+    reliabilityLabel: spec.label,
+    legsPerGameTarget: 2,
+    legsByGame: used,
+    stakePreview,
+    combinedOdds,
+    projectedReturn: Number((stakePreview * decimalOdds).toFixed(2)),
+    decimalOdds: Number(decimalOdds.toFixed(3)),
+    jointModelProbability: Number(joint.toFixed(4)),
+    games,
+    legs,
+    teamPropCount,
+    playerPropCount,
+    correlationProfile: corrSummary,
+    dataQuality: playerPropCount > 0 ? "mixed (team odds-backed · player props limited-data)" : "team markets (odds-backed)",
+    whyThisCard,
+    whyItCanFail,
+    settlementNotes: ["Settles on official 90-minute (regulation) results — extra time / penalties do not count."],
+    diagnostics: [`tier=${spec.tier} · ${used.length} game(s) · ${legs.length} legs · ${teamPropCount} team / ${playerPropCount} player`],
+    subtitle: spec.label,
+    confidence: confidenceLabel(joint),
+    volatility: volatilityLabel(combinedOdds),
+    expectedGameScript: combinedGameScript(legs, ctxs),
+    correlation: {
+      direction: corr.intentionalStack ? "positive" : sameGameFrac > 0 ? "mixed" : "independent",
+      score: Number(sameGameFrac.toFixed(2)),
+      summary: corrSummary,
+    },
+  };
+}
+
+/** Build the four daily structured specials (2 legs from each game) from the in-band pre-event legs. */
+export function buildDailyStructuredSpecials(
+  teamLegs: SpecialLeg[], playerLegs: SpecialLeg[],
+  ctxs: Map<string, KnockoutContext>, opts: { date: string },
+): WorldCupSpecialCard[] {
+  const all = [...teamLegs, ...playerLegs];
+  if (!all.length) return [];
+  const order: string[] = [];
+  const byGameMap = new Map<string, SpecialLeg[]>();
+  for (const l of all) {
+    if (!byGameMap.has(l.fixture)) { byGameMap.set(l.fixture, []); order.push(l.fixture); }
+    byGameMap.get(l.fixture)!.push(l);
+  }
+  const games = order.map((g) => ({ game: g, legs: byGameMap.get(g)! }));
+  const cards: WorldCupSpecialCard[] = [];
+  for (const spec of DAILY_TIER_SPECS) {
+    const byGame = games.map((g) => ({ game: g.game, legs: pickGameLegsForTier(g.legs, spec, ctxs) }));
+    const card = buildDailyTierCard(spec, byGame, ctxs, opts.date);
+    if (card) cards.push(card);
+  }
+  return cards;
+}
+
 export function buildWorldCupSpecials(opts: { root?: string; nowIso: string; date: string }): WorldCupSpecialsResult {
   const root = opts.root ?? path.join(process.cwd(), "public", "data");
   const teamLegs = loadSpecialsTeamLegs(root, opts.nowIso, opts.date);
@@ -1792,6 +1967,19 @@ export function buildWorldCupSpecials(opts: { root?: string; nowIso: string; dat
     );
   } else {
     result.diagnostics.notes.push("coverage_specials: none built (slate has fewer than 2 pre-event games with priced team markets).");
+  }
+
+  // ── DAILY STRUCTURED SPECIALS layer ──────────────────────────────────────────────────────────────
+  // The per-game-day "2 legs from each game" product in four reliability tiers. Uses the same in-band,
+  // pre-event team + player legs loaded above; real legs only, fail-closed when the slate can't support it.
+  const dailySpecials = buildDailyStructuredSpecials(teamLegs, playerLegs, ctxs, { date: opts.date });
+  if (dailySpecials.length) {
+    result.dailySpecials = dailySpecials;
+    result.diagnostics.notes.push(
+      `daily_structured_specials: ${dailySpecials.length} tier card(s) — ${dailySpecials.map((c) => `${c.reliabilityLabel} (${c.legs.length} legs / ${c.games.length} game${c.games.length === 1 ? "" : "s"}, ${c.combinedOdds > 0 ? "+" : ""}${c.combinedOdds})`).join(", ")}.`,
+    );
+  } else {
+    result.diagnostics.notes.push("daily_structured_specials: none built (slate has no pre-event, in-band, settleable legs).");
   }
 
   // Surface the out-of-range / started rejection counts at the feed level for the snapshot diagnostics.

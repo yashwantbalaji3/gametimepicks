@@ -11,6 +11,7 @@ import { buildSpecialsLedger } from "@/lib/world-cup/specials-ledger";
 import WorldCupSpecialsTracker from "@/components/specials/world-cup-specials-tracker";
 import SpecialsHistorySection from "@/components/specials/specials-history-section";
 import SpecialsLedgerSection from "@/components/world-cup/specials-ledger-section";
+import DailySpecialsSection from "@/components/specials/daily-specials-section";
 import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
 import path from "node:path";
 
@@ -49,6 +50,9 @@ export default function WorldCupSpecialsPage() {
 
       {/* The durable ledger — record / ROI / P&L / win-rate / open exposure / slates archived. */}
       <SpecialsLedgerSection ledger={ledger} />
+
+      {/* Daily Structured Specials — the "2 legs from each game" product, four reliability tiers. */}
+      {result?.dailySpecials?.length ? <DailySpecialsSection cards={result.dailySpecials} /> : null}
 
       {result ? (
         <WorldCupSpecialsTracker result={result} nowIso={nowIso} mode="full" />
