@@ -30,9 +30,11 @@ const NAV_ITEMS: Array<{
   // like "Projections"/"Parlay Lab" in primary nav; those stay reachable as
   // routes and fold into Build/Sports active states). Brand mark links Home.
   // PRIMARY — the clean user-facing spine (Home = brand mark, left). Lead with the product story.
+  // "Track Record" opens the polished trust center (/mr-dub: money path + bankroll calendar + receipts);
+  // the older parlay-hit-rate dashboard at /results stays reachable below as "Results".
   { href: "/today", label: "Today's Picks" },
   { href: "/bank-builder", label: "Bank Builder" },
-  { href: "/results", label: "Track Record" },
+  { href: "/mr-dub", label: "Track Record" },
   { href: "/world-cup", label: "World Cup" },
   { href: "/learn", label: "How It Works" },
   // SECONDARY — still reachable, de-emphasized after the divider (no routes removed).
@@ -41,7 +43,7 @@ const NAV_ITEMS: Array<{
   { href: "/homer-nukes", label: "Homer Nukes" },
   { href: "/games", label: "Games" },
   { href: "/picks", label: "Parlay Lab" },
-  { href: "/mr-dub", label: "Portfolio" },
+  { href: "/results", label: "Results" },
 ];
 
 // Sport routes that should light up the "Sports" nav item.
