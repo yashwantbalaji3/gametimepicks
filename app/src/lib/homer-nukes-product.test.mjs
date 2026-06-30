@@ -54,15 +54,14 @@ test("Homer Nukes LIVE for the ingested slate — up to two $10/3-leg lanes, uni
   assert.equal(allLegIds.size, totalLegs, "no leg duplicated across lanes");
 });
 
-test("allocation tracks exactly FOUR products (Diamond Specials removed); Homer Nukes = $20", () => {
+test("allocation tracks exactly THREE active products (Homer Nukes + Diamond Specials retired)", () => {
   const a = buildPortfolioAllocation(root, NOW, DATE);
-  assert.deepEqual(a.products.map((p) => p.key), ["bank-builder", "moonshot", "world-cup-specials", "homer-nukes"]);
+  // Homer Nukes retired 2026-06-30 — it is no longer surfaced in the portfolio allocation.
+  assert.deepEqual(a.products.map((p) => p.key), ["bank-builder", "moonshot", "world-cup-specials"]);
+  assert.ok(!a.products.some((p) => p.key === "homer-nukes"), "no retired Homer Nukes product");
   assert.ok(!a.products.some((p) => p.key === "diamond-specials"), "no Diamond Specials product");
-  const homer = a.products.find((p) => p.key === "homer-nukes");
-  assert.equal(homer.dailyAllocation, 20, "flat $20/day");
-  assert.ok(homer.openExposure === 20 || homer.openExposure === 0, "one $20 parlay (or $0 when no board)");
-  // Ranking spans all four uniquely.
-  assert.deepEqual(a.products.map((p) => p.rank).sort(), [1, 2, 3, 4]);
+  // Ranking spans the three uniquely.
+  assert.deepEqual(a.products.map((p) => p.rank).sort(), [1, 2, 3]);
 });
 
 test("portfolio analytics: Bank Builder carries the 15-7 record + ranks #1; WC Specials $100/day", () => {
@@ -85,23 +84,26 @@ test("BANKROLL INTEGRITY: the allocation never mutates portfolio.json", () => {
   assert.ok(Math.abs(a.availableBankroll - (a.activeBankroll - a.totalOpenExposure)) < 0.01, "available = active − exposure");
 });
 
-test("UI wiring: Homer Nukes present everywhere; Diamond Specials removed everywhere", () => {
+test("UI wiring: Homer Nukes is RETIRED everywhere (removed from nav / Today / allocation; page is a retired notice)", () => {
+  // Retired 2026-06-30: the route stays as a "retired" landing (no board), and Homer Nukes no longer
+  // appears in the primary nav surfaces, Today's flashcards or the portfolio allocation.
   const homerPage = read("src/app/homer-nukes/page.tsx");
-  assert.match(homerPage, /HomerNukesBoard/, "homer-nukes page renders the board");
-  assert.match(homerPage, /5-leg/, "framed as a 5-leg parlay");
-
-  const mrdub = read("src/app/mr-dub/page.tsx");
-  assert.match(mrdub, /PortfolioAllocationSection/, "Mr. Dub renders the allocation");
+  assert.match(homerPage, /retired/i, "homer-nukes page is a retired notice");
+  assert.ok(!/HomerNukesBoard/.test(homerPage), "no active board on the retired page");
 
   const today = read("src/app/today/page.tsx");
-  assert.match(today, /href: "\/homer-nukes"/, "Today flashcards include Homer Nukes");
-  assert.ok(!/diamond-specials/i.test(today), "no Diamond Specials on Today");
+  assert.ok(!/href: "\/homer-nukes"/.test(today), "Today flashcards no longer include Homer Nukes");
 
   const rail = read("src/components/command-rail.tsx");
   const nav = read("src/components/nav.tsx");
   const route = read("src/lib/nav-active-route.ts");
-  for (const [name, src] of [["command rail", rail], ["top nav", nav], ["nav routes", route]]) {
-    assert.match(src, /homer-nukes/, `${name} has Homer Nukes`);
-    assert.ok(!/diamond-specials|"diamond"/.test(src), `${name} has no Diamond Specials`);
+  for (const [name, src] of [["command rail", rail], ["top nav", nav]]) {
+    assert.ok(!/href: "\/homer-nukes"/.test(src), `${name} no longer links Homer Nukes`);
   }
+  // MOBILE_NAV_ITEMS dropped the Homer Nukes tab.
+  assert.ok(!/bucket: "homer"/.test(route), "MOBILE_NAV_ITEMS dropped the Homer Nukes tab");
+
+  // Registry keeps the id for history but marks it retired (route null).
+  const registry = read("src/lib/products/registry.ts");
+  assert.match(registry, /id: "homer-nukes"[\s\S]*?status: "retired"/, "registry marks Homer Nukes retired");
 });

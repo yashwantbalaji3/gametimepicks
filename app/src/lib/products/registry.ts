@@ -32,8 +32,8 @@ export interface ProductDef {
 }
 
 export const PRODUCT_REGISTRY: ReadonlyArray<ProductDef> = [
-  { id: "homer-nukes", name: "Homer Nukes", sport: "mlb", launchDate: "2026-06-23", status: "active", paperOnly: true, route: "/homer-nukes",
-    blurb: "Daily 5-leg MLB home-run parlay, flat $20 paper stake." },
+  { id: "homer-nukes", name: "Homer Nukes", sport: "mlb", launchDate: "2026-06-23", status: "retired", paperOnly: true, route: null,
+    blurb: "Retired (2026-06-30) — never settled a profitable card (no graded history, data-gated); id retained so history stays intact." },
   { id: "bank-builder", name: "Bank Builder", sport: "multi", launchDate: "2026-06-09", status: "active", paperOnly: true, route: "/bank-builder",
     blurb: "Two-lane paper bankroll ladder graded from official results." },
   { id: "moonshot", name: "Moonshot", sport: "soccer", launchDate: "2026-06-19", status: "active", paperOnly: true, route: "/moonshot",

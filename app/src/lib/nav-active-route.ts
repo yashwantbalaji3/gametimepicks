@@ -52,7 +52,6 @@ export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "lab", href: "/build", label: "Build" },
   { bucket: "bank", href: "/bank-builder", label: "Bank" },
   { bucket: "moonshot", href: "/moonshot", label: "Moonshot" },
-  { bucket: "homer", href: "/homer-nukes", label: "Homer Nukes" },
   { bucket: "mrdub", href: "/mr-dub", label: "Mr. Dub" },
 ] as const;
 

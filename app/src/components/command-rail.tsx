@@ -39,7 +39,6 @@ const ITEMS: RailItem[] = [
   { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Bankroll" },
   { href: "/moonshot", label: "Moonshot", glyph: "🌙" },
   { href: "/world-cup-specials", label: "WC Specials", glyph: "🏆" },
-  { href: "/homer-nukes", label: "Homer Nukes", glyph: "💣" },
   { href: "/mr-dub", label: "Track Record", glyph: "✓" },
   { href: "/results", label: "Results", glyph: "≡" },
   { href: "/world-cup", label: "World Cup", glyph: "⚽", group: "Sports" },

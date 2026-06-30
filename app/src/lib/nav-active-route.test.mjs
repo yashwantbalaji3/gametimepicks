@@ -11,13 +11,14 @@ import {
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
 
-test("MOBILE_NAV_ITEMS has 8 items in the product-spine order (Homer Nukes is the MLB product tab; Diamond Specials removed)", () => {
-  assert.equal(MOBILE_NAV_ITEMS.length, 8);
+test("MOBILE_NAV_ITEMS has 7 items in the product-spine order (Homer Nukes retired; Diamond Specials removed)", () => {
+  assert.equal(MOBILE_NAV_ITEMS.length, 7);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "games", "picks", "lab", "bank", "moonshot", "homer", "mrdub"],
+    ["home", "games", "picks", "lab", "bank", "moonshot", "mrdub"],
   );
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/diamond-specials"), "no Diamond Specials nav item");
+  assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/homer-nukes"), "no retired Homer Nukes nav item");
 });
 
 test("homer resolves to its own bucket; diamond-specials no longer maps anywhere", () => {
@@ -36,7 +37,7 @@ test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank
   assert.equal(byHref["/build"], "Build");
   assert.equal(byHref["/bank-builder"], "Bank");
   assert.equal(byHref["/moonshot"], "Moonshot");
-  assert.equal(byHref["/homer-nukes"], "Homer Nukes");
+  assert.equal(byHref["/homer-nukes"], undefined, "Homer Nukes retired — no nav tab");
 });
 
 test("bank: /bank-builder and descendants resolve to bank (Moonshot/Homer are their own buckets now)", () => {

@@ -15,8 +15,9 @@ const date = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "daily-portfol
 const oe = computeOpenExposure(root, date);
 const round2 = (n) => Math.round(n * 100) / 100;
 
-test("open exposure covers all four products", () => {
-  assert.deepEqual(oe.byProduct.map((p) => p.productId).sort(), ["bank-builder", "homer-nukes", "moonshot", "wc-specials"]);
+test("open exposure covers the three active products (Homer Nukes retired)", () => {
+  assert.deepEqual(oe.byProduct.map((p) => p.productId).sort(), ["bank-builder", "moonshot", "wc-specials"]);
+  assert.ok(!oe.byProduct.some((p) => p.productId === "homer-nukes"), "retired Homer Nukes dropped from active exposure");
 });
 
 test("breakdown reconciles to the total (no orphan exposure)", () => {

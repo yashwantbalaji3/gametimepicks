@@ -289,24 +289,23 @@ export default function TodayPage() {
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       {/* 0 — Track-record social proof (2× $100→$10K completed). Factual, read from the canonical ledger. */}
       <AchievementBanner />
-      {/* 1 — THE FLAGSHIP HIGHLIGHT: the four core paper products — Bank Builder, Moonshot, World Cup
-            Specials, Homer Nukes — in order. They are the homepage's lead section. The quick-jump
-            flashcards link only to these four (every other destination lives in the top/side nav, so no
-            duplication), then the full ladders/boards render below in the same order. */}
+      {/* 1 — THE FLAGSHIP HIGHLIGHT: the three core paper products — Bank Builder, Moonshot, World Cup
+            Specials — in order. They are the homepage's lead section. The quick-jump flashcards link only
+            to these three (every other destination lives in the top/side nav, so no duplication), then the
+            full ladders/boards render below in the same order. (Homer Nukes retired 2026-06-30.) */}
       <section aria-label="Flagship products" className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>Today&apos;s flagship products</h2>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Bank Builder · Moonshot · World Cup Specials · Homer Nukes — paper-only</span>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Bank Builder · Moonshot · World Cup Specials — paper-only</span>
         </div>
 
         {/* Quick-jump flashcards — ONLY the four flagship products (the top/side nav covers everything
             else: Results, Methodology, Games, etc.), so nothing is duplicated. */}
-        <nav aria-label="Flagship quick links" className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <nav aria-label="Flagship quick links" className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           {[
             { href: "/bank-builder", label: "Bank Builder", sub: "Dual ladder" },
             { href: "/moonshot", label: "Moonshot", sub: "Daily longshots" },
             { href: "/world-cup-specials", label: "WC Specials", sub: "Suggested parlays" },
-            { href: "/homer-nukes", label: "Homer Nukes", sub: "MLB HR parlay" },
           ].map((a) => (
             <Link
               key={a.href}
@@ -342,16 +341,7 @@ export default function TodayPage() {
 
         {/* PRIORITY #3: World Cup exclusive parlays. Gated to today; fails closed on a stale slate. */}
         {wcSpecials && <WorldCupSpecialsBox data={wcSpecials} />}
-
-        {/* PRIORITY #4: Homer Nukes — the daily MLB 5-leg home-run parlay (flat $20). Data-gated:
-            honest empty state until real MLB home-run props are posted. */}
-        <div aria-label="Homer Nukes" className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <span aria-hidden className="inline-block rounded-full shrink-0" style={{ width: 8, height: 8, background: "var(--gtp-bank-heat)", boxShadow: "0 0 8px color-mix(in srgb, var(--gtp-bank-heat) 60%, transparent)" }} />
-            <h3 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>Homer Nukes <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>· MLB home-run parlay</span></h3>
-          </div>
-          <HomerNukesBoard board={homerNukes} />
-        </div>
+        {/* Homer Nukes retired 2026-06-30 — removed from the flagship row (registry status "retired"). */}
       </section>
 
       {/* 1.4 — June 23 readiness strip: one glance at every live surface (Bank Builder, World Cup,

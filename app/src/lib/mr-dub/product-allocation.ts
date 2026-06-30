@@ -148,16 +148,8 @@ export function buildPortfolioAllocation(root: string, nowIso: string, date: str
         ? `${specialsCards} suggested World Cup parlays today · $${WC_SPECIALS_STAKE_PER_CARD} each · settled P/L from official results.`
         : "No World Cup Specials posted for this slate yet.",
     },
-    {
-      key: "homer-nukes", label: "Homer Nukes", href: "/homer-nukes", accent: "var(--gtp-bank-heat)",
-      dailyAllocation: HOMER_NUKES_DAILY_ALLOCATION, openExposure: homerExposure, pctOfBankroll: pct(homerExposure),
-      record: homerRecord, realizedPnl: 0, roi: null, winRate: winRateOf(homerRecord),
-      avgOdds: homer.parlay ? homer.parlay.combinedOdds : null, legCount: homer.parlay ? homer.parlay.legs.length : 0,
-      status: homer.available ? "active" : "no-board", statusLabel: STATUS_LABEL[homer.available ? "active" : "no-board"],
-      note: homer.available && homer.parlay
-        ? `One 5-leg MLB home-run parlay today · ${homer.parlay.combinedOdds > 0 ? "+" : ""}${homer.parlay.combinedOdds} · flat $${HOMER_NUKES_STAKE}.`
-        : "MLB home-run board not posted yet — $0 placed until the Odds API posts today's props.",
-    },
+    // Homer Nukes (MLB) retired 2026-06-30 — removed from the active portfolio allocation (registry status
+    // "retired"). Its loader/ledger stay for history; it is no longer surfaced as an active product.
   ];
 
   // Performance ranking — by win rate; products with nothing settled rank last (ties keep input order).

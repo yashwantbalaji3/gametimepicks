@@ -65,8 +65,7 @@ export function computeOpenExposure(root: string, date: string): OpenExposure {
       note: msAmount > 0 ? `${msLanes} active longshot lane${msLanes === 1 ? "" : "s"}` : "no active lane today" },
     { productId: "wc-specials", label: "WC Specials", glyph: "⚽", amount: wcAmount, cards: wcCards.length,
       note: wcAmount > 0 ? `${wcCards.length} specials × $${wcStake}` : "no current-slate specials" },
-    { productId: "homer-nukes", label: "Homer Nukes", glyph: "⚾", amount: homerAmount, cards: homerLanes.length,
-      note: homerAmount > 0 ? `${homerLanes.length} HR parlay${homerLanes.length === 1 ? "" : "s"} × $${homerLanes.length ? round2(homerStake / homerLanes.length) : 0}` : "no current-slate card" },
+    // Homer Nukes retired 2026-06-30 — dropped from the active open-exposure breakdown (data-gated, $0).
   ];
   const total = round2(byProduct.reduce((s, p) => s + p.amount, 0));
   return { total, asOf: slate(date) ?? date, byProduct };

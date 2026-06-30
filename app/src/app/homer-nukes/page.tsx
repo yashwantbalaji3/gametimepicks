@@ -1,48 +1,35 @@
 /**
- * /homer-nukes — the daily MLB home-run product: ONE 5-leg home-run parlay (flat $20/day), tracked
- * inside Mr. Dub alongside Bank Builder, Moonshot and World Cup Specials. Honest by construction: real
- * posted home-run props only, or a data-gated empty state. Server component; reads committed artifacts.
+ * /homer-nukes — RETIRED (2026-06-30). Homer Nukes never settled a profitable card (no graded history,
+ * MLB home-run props were data-gated), so it was retired from the product suite. The route is kept as a
+ * stable "retired" landing so old links don't 404; the product id is retained in the registry and its
+ * historical artifacts are preserved. No money, no active product surface.
  */
-import path from "node:path";
 import Link from "next/link";
 
-import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
-import HomerNukesBoard from "@/components/mlb/homer-nukes-board";
-import { loadHomerNukes, HOMER_NUKES_STAKE } from "@/lib/mlb/homer-nukes";
-import { currentEtDate } from "@/lib/freshness";
-import { currentSlateDate } from "@/lib/parlays/ui-loader";
-
 export const metadata = {
-  title: "Homer Nukes · GameTime Picks",
-  description:
-    "Homer Nukes — one daily 5-leg MLB home-run parlay, a flat $20 paper stake tracked inside Mr. Dub. Educational, paper-only; real posted props only.",
+  title: "Homer Nukes (retired) · GameTime Picks",
+  description: "Homer Nukes has been retired from the product suite.",
+  robots: { index: false, follow: false },
 };
 
-const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-export default function HomerNukesPage() {
-  const today = currentSlateDate() ?? currentEtDate();
-  const board = loadHomerNukes(path.join(process.cwd(), "public", "data"), today);
-  const status: PicksSurfaceStatus = board.available ? "pregame" : "data_pending";
-
+export default function HomerNukesRetiredPage() {
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
-      <PicksSurfaceHeader
-        eyebrow="Homer Nukes · MLB"
-        title="Homer Nukes"
-        status={status}
-        counts={board.parlay ? { eligibleLegs: board.parlay.legs.length } : undefined}
-        primaryAction={{ label: "Mr. Dub portfolio", href: "/mr-dub" }}
-        secondaryAction={{ label: "MLB board", href: "/mlb" }}
-        note={`One daily 5-leg MLB home-run parlay — a flat ${money(HOMER_NUKES_STAKE)} paper stake, tracked inside Mr. Dub. Real posted home-run props only; paper-only.`}
-      />
-
-      <HomerNukesBoard board={board} />
-
-      <p className="text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
-        A daily product, drawn from the single Mr. Dub bankroll.{" "}
-        <Link href="/mr-dub" className="underline" style={{ color: "var(--vault-text-mute)" }}>See the full portfolio allocation →</Link>
-      </p>
+    <div className="vault-page-shell px-4 sm:px-8 py-16 flex items-center justify-center">
+      <div className="max-w-md rounded-2xl px-6 py-8 text-center" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10, fontWeight: 700, color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>
+          Retired product
+        </span>
+        <h1 className="mt-3 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 22, fontWeight: 800 }}>Homer Nukes has been retired</h1>
+        <p className="mt-2 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+          The daily MLB home-run parlay never settled a profitable card and its props were data-gated, so we
+          retired it from the active product suite. Its history is preserved for the record.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          <Link href="/world-cup-specials" className="vault-press rounded-full px-4 py-2 font-mono text-[12px] font-bold" style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", textDecoration: "none" }}>World Cup Specials →</Link>
+          <Link href="/bank-builder" className="vault-press rounded-full px-4 py-2 font-mono text-[12px]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", textDecoration: "none" }}>Bank Builder →</Link>
+          <Link href="/mlb" className="vault-press rounded-full px-4 py-2 font-mono text-[12px]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", textDecoration: "none" }}>MLB hub →</Link>
+        </div>
+      </div>
     </div>
   );
 }

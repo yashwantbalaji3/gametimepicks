@@ -40,7 +40,6 @@ const NAV_ITEMS: Array<{
   // SECONDARY — still reachable, de-emphasized after the divider (no routes removed).
   { href: "/moonshot", label: "Moonshot", beforeDivider: true },
   { href: "/world-cup-specials", label: "WC Specials" },
-  { href: "/homer-nukes", label: "Homer Nukes" },
   { href: "/games", label: "Games" },
   { href: "/picks", label: "Parlay Lab" },
   { href: "/results", label: "Results" },
