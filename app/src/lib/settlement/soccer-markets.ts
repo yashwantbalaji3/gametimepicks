@@ -18,13 +18,15 @@ import {
 
 export type { LegResult } from "@/lib/parlays/leg-settlement";
 
-/** Official 90' regulation match result. `status` must be "FT" (full time) for a leg to grade live. */
+/** Official match result. `homeGoals`/`awayGoals` are the 90-MINUTE (regulation) score — for a knockout
+ *  game this is `score.fulltime`, NOT the post-extra-time aggregate — so 90' markets grade on it. */
 export interface OfficialMatch {
   matchId: number | string;
   match: string;          // "Home vs Away"
-  homeGoals: number;
-  awayGoals: number;
-  status: string;         // "FT" | "1H" | "HT" | ... — only "FT" is settle-eligible
+  homeGoals: number;      // 90-minute (regulation) goals
+  awayGoals: number;      // 90-minute (regulation) goals
+  status: string;         // "FT" | "AET" | "PEN" are 90'-final; "1H" | "HT" | ... pend (see is90MinuteFinal)
+  advanceWinner?: string | null; // team that advanced (incl. via penalties) — for advancement markets
 }
 
 /** Official player box-score line. Absent line ⇒ player did not feature ⇒ player-prop legs void. */
@@ -58,6 +60,31 @@ export interface GradeableLeg {
 }
 
 const norm = (s: string) => (s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
+
+// ── Knockout (extra time / penalties) settlement policy ───────────────────────────────────────────
+// Soccer markets here settle on the 90-MINUTE (regulation) result. A World Cup knockout game can finish
+// level after 90' and be decided in extra time (status "AET") or on penalties (status "PEN"). The 90'
+// score is STILL official and known in those cases (the bundle carries it as homeGoals/awayGoals =
+// score.fulltime), so:
+//   • 90-minute TEAM markets (moneyline_90 · double_chance · draw_no_bet · btts · match_total_goals)
+//     settle on the 90' score for FT, AET and PEN alike — PEN/AET no longer blocks team settlement.
+//   • An ADVANCEMENT / outright market would settle on who advanced (incl. via penalties); none of the
+//     products here carry one today, so it is documented but not graded.
+//   • PLAYER props are different: the official box score (API-Football /fixtures/players) is a FULL-MATCH
+//     aggregate that INCLUDES extra time, so there is no clean 90' player line. On AET/PEN games we PEND
+//     player props rather than guess — with ONE exception that is certain by arithmetic: an over/anytime
+//     prop whose full-match count is already at/below the line LOSES (the 90' count can only be ≤ the
+//     full-match count, so it cannot have hit in regulation). We never settle a player prop as a WIN off
+//     an ET-inclusive number. A clean regulation finish ("FT") means full match == 90', so we grade
+//     player props directly.
+const STATUS_90_FINAL = new Set(["FT", "AET", "PEN"]);
+const STATUS_REGULATION = new Set(["FT"]);
+/** The 90-minute result is final & official — a regulation finish (FT) or a knockout decided in extra
+ *  time (AET) or penalties (PEN). 90-minute team markets settle on the 90' score for all three. */
+export function is90MinuteFinal(status: string): boolean { return STATUS_90_FINAL.has(String(status).toUpperCase().trim()); }
+/** A clean regulation finish (no extra time played) — the only case where a FULL-MATCH player box score
+ *  equals the 90-minute line, so player props grade directly off the official stat. */
+export function isRegulationOnly(status: string): boolean { return STATUS_REGULATION.has(String(status).toUpperCase().trim()); }
 
 /** Match total goals over/under (90'): total = home+away vs the line; exactly on the line pushes (void). */
 export function gradeMatchTotalGoals(side: "over" | "under", homeGoals: number, awayGoals: number, line: number): LegResult {
@@ -159,7 +186,10 @@ export function gradeLeg(leg: GradeableLeg, official: OfficialResults): GradedLe
 
   if (teamMarket) {
     if (!m) return { leg, result: "pending", reason: `no official match for id ${leg.matchId}` };
-    if (m.status !== "FT") return { leg, result: "pending", reason: `match ${m.match} not Full Time (${m.status})` };
+    // 90-minute team markets settle on the 90' score (homeGoals/awayGoals = score.fulltime) whenever the
+    // 90' result is final — FT, or a knockout decided in extra time (AET) / penalties (PEN). Only a match
+    // that has NOT reached a final 90' result pends.
+    if (!is90MinuteFinal(m.status)) return { leg, result: "pending", reason: `match ${m.match} 90' result not final (${m.status})` };
     const score = `${m.homeGoals}-${m.awayGoals}`;
     const [homeName, awayName] = String(m.match).split(/\s+vs\s+/i);
     if (leg.market === "double_chance") {
@@ -184,23 +214,41 @@ export function gradeLeg(leg: GradeableLeg, official: OfficialResults): GradedLe
     return { leg, result: r, reason: `${m.match} ${score} · ${leg.selection} → ${r}` };
   }
 
-  // Player markets
+  // ── Player markets ────────────────────────────────────────────────────────────────────────────
+  // Player props grade off the official box score, a FULL-MATCH aggregate (includes extra time). On a
+  // clean regulation finish ("FT") that line IS the 90' line → grade directly. On a knockout that went
+  // beyond 90' (AET/PEN) there is no clean 90' line, so we PEND — except a count already at/below the
+  // line, which is a CERTAIN loss (90' count ≤ full-match count, so the over cannot have hit in 90').
   if (!leg.player) return { leg, result: "pending", reason: "player market missing player name" };
   const line = findPlayer(official, leg.player, leg.matchId);
+  const beyond90 = !!m && !isRegulationOnly(m.status); // AET/PEN (or any non-FT final) ⇒ ET-inclusive stats
+
   if (leg.market === "player_goal_scorer_anytime") {
-    if (!line) return { leg, result: "pending", reason: `no official line for ${leg.player}` };
+    if (!line || typeof line.goals !== "number") return { leg, result: "pending", reason: `no official line for ${leg.player}` };
+    if (beyond90) {
+      if (line.goals === 0) return { leg, result: "lost", reason: `${leg.player} 0 goals (beyond 90', ${m!.status}) → lost (no regulation goal)` };
+      return { leg, result: "pending", reason: `${leg.player} ${line.goals} goal(s) — ${m!.match} beyond 90' (${m!.status}); goal may be in extra time` };
+    }
     const r = gradeAnytimeGoalscorer(line);
-    return { leg, result: r, reason: `${leg.player} ${line.goals ?? 0} goal(s) · ${r}` };
+    return { leg, result: r, reason: `${leg.player} ${line.goals} goal(s) · ${r}` };
   }
-  if (leg.market === "player_assists") {
-    if (!line || typeof line.assists !== "number") return { leg, result: "pending", reason: `no official assists for ${leg.player}` };
-    const r = gradeOverUnder(leg.side === "under" ? "under" : "over", line.assists, leg.point ?? 0.5, true);
-    return { leg, result: r, reason: `${leg.player} ${line.assists} assist(s) vs ${leg.point ?? 0.5} · ${r}` };
-  }
-  if (leg.market === "player_shots_on_target") {
-    if (!line || typeof line.shotsOnTarget !== "number") return { leg, result: "pending", reason: `no official SOT for ${leg.player}` };
-    const r = gradeOverUnder(leg.side === "under" ? "under" : "over", line.shotsOnTarget, leg.point ?? 0.5, true);
-    return { leg, result: r, reason: `${leg.player} ${line.shotsOnTarget} SOT vs ${leg.point ?? 0.5} · ${r}` };
+
+  // Over/under COUNT props — assists, shots (total) and shots on target share one grading path.
+  const count = leg.market === "player_assists" ? { label: "assist(s)", value: line?.assists }
+    : leg.market === "player_shots" ? { label: "shot(s)", value: line?.shots }
+    : leg.market === "player_shots_on_target" ? { label: "SOT", value: line?.shotsOnTarget }
+    : null;
+  if (count) {
+    if (!line || typeof count.value !== "number") return { leg, result: "pending", reason: `no official ${count.label} for ${leg.player}` };
+    const point = leg.point ?? 0.5;
+    const value = count.value;
+    if (beyond90) {
+      const isOver = leg.side !== "under";
+      if (isOver && value <= point) return { leg, result: "lost", reason: `${leg.player} ${value} ${count.label} ≤ ${point} (beyond 90', ${m!.status}) → lost (cannot reach in regulation)` };
+      return { leg, result: "pending", reason: `${leg.player} ${value} ${count.label} — ${m!.match} beyond 90' (${m!.status}); no clean 90' line` };
+    }
+    const r = gradeOverUnder(leg.side === "under" ? "under" : "over", value, point, true);
+    return { leg, result: r, reason: `${leg.player} ${value} ${count.label} vs ${point} · ${r}` };
   }
   return { leg, result: "pending", reason: `unsupported market ${leg.market}` };
 }

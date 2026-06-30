@@ -77,10 +77,13 @@ else
   warn "no API_FOOTBALL_KEY and no OFFICIAL bundle — NO-OP, nothing written (settlement gated on official finals)"; exit 0
 fi
 
-# Gate: count officially-FINAL (FT) matches. Zero finals → NO-OP (nothing to settle yet).
-FT_COUNT=$($PY -c "import json,sys; d=json.load(open('$BUNDLE')); print(sum(1 for m in d.get('matches',[]) if str(m.get('status','')).upper()=='FT'))" 2>/dev/null || echo 0)
-info "officially-final (FT) matches: $FT_COUNT"
-[ "$FT_COUNT" -gt 0 ] || { warn "no FT matches yet — NO-OP (partial/early run)"; rm -f "$BUNDLE"; exit 0; }
+# Gate: count matches whose 90' result is final — FT, or a knockout decided in extra time (AET) /
+# penalties (PEN). Zero 90'-final → NO-OP (nothing to settle yet). PEN/AET count: the 90' score settles
+# the team markets (player props still pend per the engine policy unless certain), so a knockout-heavy
+# slate is no longer skipped just because nothing finished in regulation.
+FT_COUNT=$($PY -c "import json,sys; d=json.load(open('$BUNDLE')); print(sum(1 for m in d.get('matches',[]) if str(m.get('status','')).upper() in ('FT','AET','PEN')))" 2>/dev/null || echo 0)
+info "90'-final (FT/AET/PEN) matches: $FT_COUNT"
+[ "$FT_COUNT" -gt 0 ] || { warn "no 90'-final matches yet — NO-OP (partial/early run)"; rm -f "$BUNDLE"; exit 0; }
 
 # ── 2) Grade + persist history (idempotent; NEVER touches money). ──────────────────────────────────
 step "2/4  Grade + persist (history/ledgers only)"

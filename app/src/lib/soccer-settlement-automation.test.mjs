@@ -68,11 +68,13 @@ test("final-rung completion is operator-gated (a won final rung COMPLETES, not a
 });
 
 // ── ORCHESTRATOR SOURCE GUARDS (the composition is safe by construction) ──────────────────────────
-test("orchestrator no-ops safely: no key/bundle → exit 0 writing nothing; zero FT → no-op", () => {
+test("orchestrator no-ops safely: no key/bundle → exit 0 writing nothing; zero 90'-final → no-op", () => {
   const src = readRepo("scripts/settle_soccer_day.sh");
   assert.match(src, /no API_FOOTBALL_KEY and no OFFICIAL bundle.*NO-OP/s, "API-unavailable → no-op");
-  assert.match(src, /no FT matches yet.*NO-OP/s, "zero officially-final matches → no-op");
-  assert.match(src, /status','?\)*\)\.upper\(\)=='FT'|status.*FT/i, "gates on FT status");
+  assert.match(src, /no 90'-final matches yet.*NO-OP/s, "zero 90'-final matches → no-op");
+  // Gate counts a match as 90'-final on FT or a knockout decided in extra time / penalties (AET/PEN) —
+  // the 90' score still settles the team markets, so a knockout-heavy slate is not silently skipped.
+  assert.match(src, /'FT'\s*,\s*'AET'\s*,\s*'PEN'/, "gates on 90'-final status (FT/AET/PEN)");
 });
 
 test("orchestrator settles money idempotently: apply path skips already-settled steps", () => {
