@@ -36,6 +36,7 @@ export const metadata = {
 const STATUS_META: Record<RoundOf32Status, { label: string; color: string; explain: string }> = {
   live_odds: { label: "Live odds", color: "var(--vault-success)", explain: "Real posted odds are in — the model picks below are de-vigged from them." },
   started: { label: "Started", color: "var(--vault-text-mute)", explain: "Kickoff has passed — picks are frozen as a record, not live advice." },
+  completed: { label: "Completed — awaiting settlement", color: "var(--vault-text-faint)", explain: "This game has finished. The picks are kept as a record; official settlement is pending — not a live pick." },
   odds_pending: { label: "Odds pending", color: "var(--vault-warn)", explain: "No book has priced this fixture yet — picks appear once odds post." },
 };
 
@@ -106,7 +107,9 @@ export default function RoundOf32Page() {
   );
   const isActiveWindow = (g: RoundOf32Game): boolean => detailSlugs.has(g.gameSlug);
   const detailHrefFor = (g: RoundOf32Game): string | null => {
-    if (g.status !== "live_odds") return null;
+    // Live and just-completed games both link to their detail page (live = a pick, completed = a record);
+    // odds-pending games have nothing to show yet.
+    if (g.status !== "live_odds" && g.status !== "completed") return null;
     return isActiveWindow(g) ? `/games/world-cup/${g.gameSlug}` : `/world-cup/round-of-32/${g.gameSlug}`;
   };
 
@@ -139,7 +142,7 @@ export default function RoundOf32Page() {
         style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-rule)" }}
       >
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>What the status chips mean</span>
-        {(["live_odds", "odds_pending", "started"] as RoundOf32Status[]).map((s) => (
+        {(["live_odds", "odds_pending", "started", "completed"] as RoundOf32Status[]).map((s) => (
           <div key={s} className="flex items-start gap-2.5">
             <span className="shrink-0 pt-0.5"><StatusPill status={s} /></span>
             <span className="leading-snug" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>{STATUS_META[s].explain}</span>

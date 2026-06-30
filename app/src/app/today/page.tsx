@@ -162,8 +162,11 @@ export default function TodayPage() {
     return { name: p.player.name, team: p.player.team, photo: p.player.photo ?? null,
              label, odds: p.americanOdds ?? 0, prob: p.modelProbability ?? 0 };
   };
+  const COMPLETED_MS = 2.5 * 60 * 60 * 1000; // past kickoff + this ⇒ the game has finished (awaiting settlement)
   const wcFocus: WcFocusMatch[] = wcAll
     .filter((m) => m.market === "moneyline_90" && typeof m.americanOdds === "number" && !!m.pickLabel)
+    // Drop finished games — they are completed / awaiting settlement, not "today's focus" active picks.
+    .filter((m) => !(m.kickoffUtc && Date.parse(m.kickoffUtc) + COMPLETED_MS <= Date.now()))
     .slice(0, 6)
     .map((m) => {
       const dc = wcByMatch(m.matchId, "double_chance");
@@ -631,7 +634,7 @@ function TodaysFocusWorldCup({
           Today&apos;s focus · World Cup
         </span>
         <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: hasProj ? "var(--vault-success)" : "var(--vault-text-faint)", background: hasProj ? "rgba(110,231,168,0.14)" : "rgba(255,255,255,0.04)" }}>
-          {hasProj ? "Odds-backed · limited data" : games > 0 ? "Projections unavailable" : "No matches today"}
+          {hasProj ? "Odds-backed · limited data" : "See the Round of 32 board"}
         </span>
       </div>
       <h1 className="relative mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.6vw,34px)", fontWeight: 700, lineHeight: 1.04 }}>
@@ -639,15 +642,18 @@ function TodaysFocusWorldCup({
           ? (upcoming > 0 && upcoming < inFocus
               ? `${upcoming} upcoming · ${inFocus} World Cup games in focus`
               : `${inFocus} World Cup ${inFocus === 1 ? "game" : "games"} in focus`)
-          : "World Cup"}
+          : "Round of 32 — no live game right now"}
       </h1>
       <p className="relative mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 660 }}>
         {hasProj
           ? "Prices from The Odds API (3-way moneyline + double chance + totals, de-vigged); recent form & group from API-Football. Tap a match for the full read. Paper-only, educational."
-          : games > 0
-            ? "Today's fixtures are scheduled, but odds-backed projections are unavailable right now. Paper-only, educational."
-            : "No World Cup matches on today's slate."}
+          : "The most recent World Cup games have finished and are awaiting official settlement. Upcoming knockout games — model moneyline, totals, BTTS and the safer/value market for each — are on the Round of 32 Prediction Hub. Paper-only, educational."}
       </p>
+      {!hasProj ? (
+        <Link href="/world-cup/round-of-32" className="vault-press relative mt-3 inline-flex items-center rounded-full px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", textDecoration: "none" }}>
+          View all Round of 32 picks →
+        </Link>
+      ) : null}
       {hasProj ? (
         <div className="relative mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {matches.map((m, i) => (

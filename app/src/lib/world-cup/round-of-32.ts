@@ -15,7 +15,22 @@ import path from "node:path";
 import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
 import { confidenceLabel, volatilityLabel, type Confidence, type Volatility } from "@/lib/world-cup/wc-editorial";
 
-export type RoundOf32Status = "live_odds" | "started" | "odds_pending";
+export type RoundOf32Status = "live_odds" | "started" | "completed" | "odds_pending";
+
+// 90' + halftime + stoppage + a buffer for extra time / penalties — past this, a knockout fixture is over.
+const GAME_LENGTH_MS = 2.5 * 60 * 60 * 1000;
+
+/**
+ * Effective status from the fixture's KICKOFF vs build time — never from a fabricated score. A fixture
+ * whose kickoff is well in the past reads "completed" (awaiting official settlement); one that just kicked
+ * off reads "started" (picks frozen); a future fixture keeps the artifact's own status (live_odds /
+ * odds_pending). This stops finished knockout games from being presented as live, bettable picks.
+ */
+export function effectiveRoundOf32Status(g: RoundOf32Game, nowMs: number): RoundOf32Status {
+  const ko = Date.parse(g.kickoffUtc);
+  if (Number.isFinite(ko) && ko <= nowMs) return nowMs - ko >= GAME_LENGTH_MS ? "completed" : "started";
+  return g.status; // future fixture keeps its artifact status
+}
 export type RoundOf32Confidence = "Strong" | "Solid" | "Lean" | "Coin-flip";
 
 export interface RoundOf32MoneylinePick {
@@ -86,6 +101,15 @@ export function loadRoundOf32Board(root?: string): RoundOf32Board | null {
     const raw = fs.readFileSync(file, "utf8");
     const board = JSON.parse(raw) as RoundOf32Board;
     if (!board || !Array.isArray(board.games)) return null;
+    // Derive each game's effective status from kickoff vs build time so finished knockout games read
+    // "completed — awaiting settlement" instead of "live odds" (the artifact is generated pre-event and
+    // never re-stamps a started/finished fixture). Pure time-based; no fabricated scores.
+    const nowMs = Date.now();
+    board.games = board.games.map((g) => ({ ...g, status: effectiveRoundOf32Status(g, nowMs) }));
+    board.byStatus = board.games.reduce<Record<string, number>>((acc, g) => {
+      acc[g.status] = (acc[g.status] ?? 0) + 1;
+      return acc;
+    }, {});
     return board;
   } catch {
     return null;
