@@ -190,6 +190,104 @@ export function expectedGameScript(g: RoundOf32Game): string | null {
   return "Favorite controls but no blowout signal in the prices.";
 }
 
+// ─────────────────────────── Model-implied score lean (derived, never fabricated) ───────────────────────────
+export type ScoreLeanConfidence = "High" | "Medium" | "Low";
+export interface ScoreLean {
+  available: boolean;
+  scoreLean: string | null;   // "France 2–0 Sweden" or "1–1 draw lean"
+  homeGoals: number | null;
+  awayGoals: number | null;
+  confidence: ScoreLeanConfidence;
+  explanation: string;
+  note?: string;              // shown when totals are missing ("Score lean limited — totals market unavailable.")
+}
+
+/**
+ * A MODEL-IMPLIED score lean — NOT a guaranteed prediction. Derived ONLY from the board's real market
+ * picks (3-way moneyline probabilities, the totals line + over/under lean, and the BTTS pick) — never
+ * fabricated. Total goals come from the totals line nudged to the leaned side; the winner is the moneyline
+ * favourite (or a draw scoreline when the draw is the most likely 3-way outcome / the price is near a
+ * coin-flip); BTTS No keeps the underdog off the scoresheet. When the totals market is absent we return a
+ * directional read with an explicit "score lean limited" note rather than inventing a scoreline.
+ */
+export function deriveScoreLean(g: RoundOf32Game): ScoreLean {
+  const p = g.picks;
+  const ml = p?.moneyline;
+  if (!ml) {
+    return { available: false, scoreLean: null, homeGoals: null, awayGoals: null, confidence: "Low",
+      explanation: "No live moneyline — score lean unavailable.", note: "Score lean unavailable — no live pick yet." };
+  }
+  const favHome = ml.side === "home";
+  const favProb = favHome ? ml.home : ml.away;
+  // Draw-leaning: the draw is the most likely of the three 90' outcomes, or the favourite is near a coin-flip.
+  const drawLean = (ml.draw >= ml.home && ml.draw >= ml.away) || favProb < 0.45;
+  const total = p?.total;
+  if (!total || typeof total.line !== "number") {
+    return { available: false, scoreLean: null, homeGoals: null, awayGoals: null,
+      confidence: drawLean ? "Low" : favProb >= 0.65 ? "Medium" : "Low",
+      explanation: drawLean ? "Tight matchup — high draw / extra-time risk." : "Favourite leans to control, but no total to size the scoreline.",
+      note: "Score lean limited — totals market unavailable." };
+  }
+  const under = /under/i.test(total.pick ?? "");
+  // Total goals from the line, nudged to the leaned side: Under L.5 ⇒ ⌈L⌉−2, Over L.5 ⇒ ⌈L⌉. Clamped 0..6.
+  const expectedTotal = Math.max(0, Math.min(6, under ? Math.ceil(total.line) - 2 : Math.ceil(total.line)));
+  const bttsNo = /no/i.test(p?.btts?.pick ?? "");
+  const bttsYes = /yes/i.test(p?.btts?.pick ?? "");
+  let homeGoals: number, awayGoals: number;
+  if (drawLean) {
+    // Even split for a draw scoreline; a BTTS-Yes lean keeps it off 0–0 (both teams found to score).
+    const each = Math.max(bttsYes ? 1 : 0, Math.floor(expectedTotal / 2));
+    homeGoals = each; awayGoals = each;                 // 1–1 (total 2–3 / BTTS Yes), 0–0 (total 0–1)
+  } else {
+    const loser = bttsNo ? 0 : expectedTotal >= 2 ? 1 : 0;
+    const winner = Math.max(loser, expectedTotal - loser);
+    homeGoals = favHome ? winner : loser;
+    awayGoals = favHome ? loser : winner;
+  }
+  const totalsProb = typeof total.modelProbability === "number" ? total.modelProbability : 0.5;
+  const confidence: ScoreLeanConfidence =
+    drawLean || favProb < 0.5 ? "Low" : favProb >= 0.65 && totalsProb >= 0.58 ? "High" : "Medium";
+  const bits: string[] = [];
+  if (drawLean) bits.push("high draw / extra-time risk");
+  else if (favProb >= 0.65) bits.push("favourite control");
+  else bits.push("slight favourite");
+  bits.push(under ? "low-scoring lean" : "goals expected");
+  if (bttsNo) bits.push("BTTS No"); else if (bttsYes) bits.push("both teams to score");
+  const scoreLean = drawLean
+    ? `${homeGoals}–${awayGoals} draw lean`
+    : `${g.home} ${homeGoals}–${awayGoals} ${g.away}`;
+  return { available: true, scoreLean, homeGoals, awayGoals, confidence, explanation: bits.join(" · ") };
+}
+
+// ─────────────────────────── Knockout Risk Score (derived) ───────────────────────────
+export type KnockoutRisk = "Low" | "Medium" | "High";
+/**
+ * Knockout Risk — how likely the favourite is to be held level at 90' and dragged to extra time / penalties
+ * (the exact Germany & Netherlands trap on 2026-06-29: both drew 1–1 and went out on penalties). Derived
+ * ONLY from real market signals: the 90' draw probability, a tight moneyline, and a low-scoring (Under +
+ * BTTS No) profile. Returns null when there is no live moneyline to read.
+ */
+export function knockoutRisk(g: RoundOf32Game): { label: KnockoutRisk; reason: string } | null {
+  const ml = g.picks?.moneyline;
+  if (!ml) return null;
+  const favProb = ml.side === "home" ? ml.home : ml.away;
+  const draw = ml.draw;
+  const under = /under/i.test(g.picks?.total?.pick ?? "");
+  const bttsNo = /no/i.test(g.picks?.btts?.pick ?? "");
+  let score = 0;
+  if (draw >= 0.26) score += 2; else if (draw >= 0.2) score += 1;
+  if (favProb < 0.55) score += 2; else if (favProb < 0.65) score += 1;
+  if (under) score += 1;
+  if (bttsNo) score += 1;
+  const label: KnockoutRisk = score >= 4 ? "High" : score >= 2 ? "Medium" : "Low";
+  const reasons = [
+    draw >= 0.2 ? `${Math.round(draw * 100)}% draw chance at 90'` : null,
+    favProb < 0.65 ? "tight moneyline" : null,
+    under && bttsNo ? "low-scoring, one-side-quiet profile" : null,
+  ].filter(Boolean) as string[];
+  return { label, reason: reasons.length ? reasons.join(" · ") : "clear favourite, low draw risk" };
+}
+
 /** Format an American price with an explicit +/- sign. Returns "—" for null/undefined. */
 export function formatAmericanOdds(odds: number | null | undefined): string {
   if (typeof odds !== "number" || !Number.isFinite(odds)) return "—";

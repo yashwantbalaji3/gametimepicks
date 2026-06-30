@@ -23,6 +23,8 @@ import {
   winPercent,
   upsetRisk,
   expectedGameScript,
+  deriveScoreLean,
+  knockoutRisk,
   type RoundOf32Game,
   type RoundOf32Status,
 } from "@/lib/world-cup/round-of-32";
@@ -339,6 +341,10 @@ function BracketLeanCard({ g, href, activeWindow }: { g: RoundOf32Game; href: st
   const risk = upsetRisk(g);
   const script = expectedGameScript(g);
   const conf = CONFIDENCE_COLOR[g.confidence] ?? "var(--vault-text-mute)";
+  // Model-implied score lean + knockout risk — only for games still to play (a completed game shows its
+  // status, not a lean). Both are derived from the board's real market picks; never fabricated.
+  const lean = g.status !== "completed" ? deriveScoreLean(g) : null;
+  const ko = g.status !== "completed" ? knockoutRisk(g) : null;
 
   const inner = (
     <article
@@ -380,7 +386,21 @@ function BracketLeanCard({ g, href, activeWindow }: { g: RoundOf32Game; href: st
             <span className="font-mono uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-[3px]" style={{ color: conf, border: `1px solid ${conf}`, fontSize: 9 }}>
               {g.confidence}
             </span>
+            {ko ? (
+              <span title={ko.reason} className="font-mono uppercase tracking-[0.06em] px-1.5 py-0.5 rounded-[3px]" style={{ color: RISK_COLOR[ko.label] ?? "var(--vault-text-mute)", border: `1px solid ${RISK_COLOR[ko.label] ?? "var(--vault-text-mute)"}`, fontSize: 9 }}>
+                Knockout risk {ko.label}
+              </span>
+            ) : null}
           </div>
+
+          {/* Model-implied score lean — derived from the real ML/totals/BTTS picks, NOT a guaranteed score. */}
+          {lean ? (
+            <div className="flex flex-col gap-0.5 rounded-[7px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Model-implied score lean</span>
+              <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 700 }}>{lean.available ? lean.scoreLean : (lean.note ?? "—")}</span>
+              <span style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{lean.available ? `${lean.confidence} confidence · ${lean.explanation}` : lean.explanation}</span>
+            </div>
+          ) : null}
 
           {script ? <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{script}</p> : null}
         </>
