@@ -7,6 +7,7 @@ import {
   buildDailyLaneCandidates,
   buildModelPicksTable,
   MODEL_PICKS_TABLE_COLUMNS,
+  MOONSHOT_MIN_COMBINED_ODDS,
 } from "./world-cup/model-qualified-picks.ts";
 import { buildDailyPortfolio } from "./mr-dub/daily-portfolio.ts";
 
@@ -52,27 +53,45 @@ test("lane candidates: Bank Builder A/B = 2 high-hit-rate legs (≤+400), max 1 
   }
 });
 
-test("lane candidates: Moonshot A/B = up to 5 higher-upside legs; 2nd leg per game is flagged (correlation disclosed)", () => {
+test("lane candidates: Moonshot A/B = STRUCTURED team-market lanes (result + total per game), no player props, combined odds clear +700; same-game pairs disclose correlation", () => {
   const lanes = buildDailyLaneCandidates(pool, DATE);
   for (const lane of [lanes.moonshotA, lanes.moonshotB]) {
     assert.equal(lane.product, "moonshot");
     assert.equal(lane.status, "candidate");
-    assert.ok(lane.legs.length <= 5, "≤5 legs");
-    const games = lane.legs.map((l) => l.gameId);
-    const hasSecondPerGame = new Set(games).size < games.length;
-    if (hasSecondPerGame) assert.ok(lane.correlationNote, "a 2nd leg from a game must carry a correlation note");
+    // NEW spec: team markets ONLY — no player props in either Moonshot lane.
+    assert.ok(lane.legs.every((l) => l.category !== "player"), "no player props (team markets only)");
+    // Structured pairing: any game contributing 2+ legs (result + total/BTTS) is a correlated same-game pair,
+    // and that correlation must be disclosed.
+    const perGame = new Map();
+    for (const l of lane.legs) perGame.set(l.gameId, (perGame.get(l.gameId) ?? 0) + 1);
+    const hasSameGamePair = [...perGame.values()].some((n) => n >= 2);
+    if (hasSameGamePair) assert.ok(lane.correlationNote, "same-game result + total pairs must carry a correlation note");
     if (lane.legs.length) {
       const d = lane.legs.reduce((p, l) => p * dec(l.odds), 1);
       assert.ok(Math.abs(decToAmerican(d) - lane.combinedOdds) <= 3, "combined odds reconcile from leg odds");
       assert.ok(Math.abs(lane.potentialReturn - lane.stake * d) < 0.5, "potential return = stake × combined decimal");
+      assert.ok(lane.combinedOdds >= MOONSHOT_MIN_COMBINED_ODDS, "combined odds clear the +700 longshot floor");
     }
   }
+  // Lane B ("aggressive") is a SUPERSET tier of Lane A ("structured") — every Lane-A leg reappears in Lane B.
+  const aIds = new Set(lanes.moonshotA.legs.map((l) => l.id));
+  const bIds = new Set(lanes.moonshotB.legs.map((l) => l.id));
+  assert.ok([...aIds].every((id) => bIds.has(id)), "Lane B is a superset of Lane A (tiers, not independent lanes)");
 });
 
-test("no leg is duplicated across the four lanes (each model leg used once)", () => {
+test("lane independence: Bank Builder A/B are mutually independent (no shared leg); Moonshot A/B are TIERS that MAY overlap", () => {
   const lanes = buildDailyLaneCandidates(pool, DATE);
-  const all = [...lanes.bankBuilderA.legs, ...lanes.bankBuilderB.legs, ...lanes.moonshotA.legs, ...lanes.moonshotB.legs].map((l) => l.id);
-  assert.equal(new Set(all).size, all.length, "no leg reused across lanes");
+  // Bank Builder lanes remain independent — no leg reused between BB A and BB B (no fabricated SGP).
+  const bbaIds = new Set(lanes.bankBuilderA.legs.map((l) => l.id));
+  assert.equal(lanes.bankBuilderB.legs.filter((l) => bbaIds.has(l.id)).length, 0, "Bank Builder A/B share no leg (independent)");
+  // Each Bank Builder lane is internally distinct (max 1 leg per game).
+  for (const lane of [lanes.bankBuilderA, lanes.bankBuilderB]) {
+    assert.equal(new Set(lane.legs.map((l) => l.gameId)).size, lane.legs.length, `Bank Builder ${lane.lane}: max 1 leg/game`);
+  }
+  // Moonshot A/B are now TIERS (structured ⊆ aggressive) — they SHARE legs by design (no longer cross-lane-unique).
+  const aIds = new Set(lanes.moonshotA.legs.map((l) => l.id));
+  const shared = lanes.moonshotB.legs.filter((l) => aIds.has(l.id)).length;
+  assert.ok(shared === lanes.moonshotA.legs.length, "every Moonshot Lane-A leg reappears in Lane B (tier overlap by design)");
 });
 
 test("daily portfolio: 4 candidate lanes, $0 exposure (post-settlement — no qualified card placed), crown separate", () => {

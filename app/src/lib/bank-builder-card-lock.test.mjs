@@ -108,7 +108,11 @@ test("STABILITY: the consumed lock does NOT re-pin settled cards; the live cycle
   assert.equal(bb.length, 0, "no Bank Builder lanes served — both lanes settled-LOST June-29, awaiting a fresh slate");
   assert.equal(laneA, undefined, "Lane A not served as a live card (settled-LOST, awaiting fresh slate)");
   assert.equal(laneB, undefined, "Lane B not served as a live card (settled-LOST, awaiting fresh slate)");
-  assert.equal(dp.openExposure, 0, "no open Bank Builder exposure while awaiting a fresh slate");
+  // BANK BUILDER exposure is $0 while awaiting a fresh slate (no BB lane served). Total open exposure now also
+  // carries the structured Moonshot product's paper exposure ($25/active lane) — a separate product, so this
+  // test (about the consumed BANK BUILDER lock) asserts the BB-scoped $0, and that total reconciles from products.
+  assert.equal(dp.products.bankBuilder.exposure, 0, "no open Bank Builder exposure while awaiting a fresh slate");
+  assert.equal(dp.openExposure, Math.round((dp.products.bankBuilder.exposure + dp.products.moonshot.exposure) * 100) / 100, "total open exposure reconciles from products (BB $0 + structured Moonshot paper)");
   // The consumed June-24 card's legs (Morocco/Bosnia/Brazil, from the archive) must NOT be re-pinned onto any
   // served card — compare leg IDs (with no served lanes the served set is empty, which trivially excludes them).
   const archivedStep5 = (read(ARCHIVE).run.laneA.steps ?? []).find((s) => s.step === 5);

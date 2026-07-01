@@ -18,6 +18,8 @@ import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung } from "@/components/bank-builder/climb-hero";
+import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
+import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
 import fs from "node:fs";
 import path from "node:path";
 import { getSportIdentity } from "@/lib/sport-identity";
@@ -215,6 +217,14 @@ export default function BankBuilderPage() {
         lanes={climbLanes}
         completedLadders={completedLadders}
       />
+
+      {/* Premium "model skipped" state — shown when neither lane is carrying a qualified card today, so the
+          product reads as a deliberate decision (with the model's strongest alternatives), never inactive. */}
+      {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.legs.length > 0) ? (
+        <div className="mt-5">
+          <BankBuilderSkippedCard alternatives={strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3)} />
+        </div>
+      ) : null}
 
       {/* Moonshot is now its OWN product at /moonshot (mirrors Bank Builder). It is no longer surfaced
           here — Bank Builder stays focused on the core ladder. */}

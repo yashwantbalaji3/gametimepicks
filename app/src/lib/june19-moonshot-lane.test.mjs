@@ -79,9 +79,12 @@ test("Moonshot is its OWN product page (/moonshot) + Mr. Dub section — no long
   // Moonshot is now a separate feature at /moonshot; Bank Builder must NOT re-surface it.
   assert.ok(!/MoonshotLaneCard/.test(bb), "bank-builder no longer renders the Moonshot card");
   assert.ok(!/loadMoonshotLane/.test(bb), "bank-builder no longer loads the moonshot lane");
-  // No Moonshot component/import/JSX surface — only the doc comment noting it moved to /moonshot may mention it.
+  // No Moonshot PRODUCT component/import/JSX surface — only the doc comment noting it moved to /moonshot may
+  // mention it. (The `structured-moonshot` board helper — strongestSlatePicks — is the skipped-card
+  // alternatives source, NOT the Moonshot product card, so it is allowed.)
   const bbNoComments = bb.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, "");
-  assert.ok(!/Moonshot/i.test(bbNoComments), "no Moonshot product surface in the bank-builder render");
+  const bbNoStructuredHelper = bbNoComments.replace(/structured-moonshot/g, "").replace(/strongestSlatePicks/g, "");
+  assert.ok(!/Moonshot/i.test(bbNoStructuredHelper), "no Moonshot product surface in the bank-builder render (structured-moonshot board helper excepted)");
   // Lane A/B ladder is still rendered (now the single ClimbHero) + unaffected.
   assert.match(bb, /<ClimbHero/, "Lane A/B ladder still present (ClimbHero)");
   // The dedicated /moonshot page owns the high-volatility tracker.

@@ -13,6 +13,8 @@ import OddsPill from "@/components/tickets/odds-pill";
 import FlagBadge from "@/components/flag-badge";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
+import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
+import type { StrongestPick } from "@/lib/world-cup/structured-moonshot";
 import type { DailyPortfolio, DailyPortfolioCard, DailyPortfolioLeg } from "@/lib/mr-dub/daily-portfolio";
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -169,9 +171,9 @@ function SkippedProductCard({ product }: { product: "bank-builder" | "moonshot" 
   );
 }
 
-export default function DailyPortfolioSection({ portfolio }: { portfolio: DailyPortfolio }) {
-  // Flagship products that fielded no lane today get a polished "model skipped" placeholder — never a
-  // blank slot (Phase 3/7: the product state is always legible, never looks broken).
+export default function DailyPortfolioSection({ portfolio, bankBuilderAlternatives = [] }: { portfolio: DailyPortfolio; bankBuilderAlternatives?: StrongestPick[] }) {
+  // Flagship products that fielded no lane today get a polished "model skipped" state — never a blank slot
+  // (the product state is always legible). Bank Builder gets the PREMIUM skipped card (with alternatives).
   const productsWithCards = new Set(portfolio.cards.map((c) => c.product));
   const missing = (["bank-builder", "moonshot"] as const).filter((p) => !productsWithCards.has(p));
   return (
@@ -194,7 +196,9 @@ export default function DailyPortfolioSection({ portfolio }: { portfolio: DailyP
           a polished "model skipped" placeholder rather than vanishing. */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {portfolio.cards.map((card) => <LaneCard key={card.id} card={card} />)}
-        {missing.map((p) => <SkippedProductCard key={p} product={p} />)}
+        {missing.map((p) => p === "bank-builder"
+          ? <BankBuilderSkippedCard key={p} alternatives={bankBuilderAlternatives} variant="compact" />
+          : <SkippedProductCard key={p} product={p} />)}
       </div>
 
       <p className="text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>{portfolio.note}</p>

@@ -38,14 +38,19 @@ test("apply: exposure math — BB lanes settled-LOST (no active seed); Moonshot 
   assert.equal(dp.availableBankroll, round2(dp.activeBankroll - dp.openExposure), "available = active − exposure");
 });
 
-test("apply: no BB lanes (both settled-LOST June-29); Moonshot lanes ≤ 5 legs, ≥1 leg/game; combined odds reconcile", () => {
+test("apply: no BB lanes (both settled-LOST June-29); Moonshot lanes are STRUCTURED team-market longshots; combined odds reconcile", () => {
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const moon = dp.lanes.filter((l) => l.product === "moonshot");
   assert.equal(bb.length, 0, "no Bank Builder lanes (both settled-LOST June-29)");
   for (const l of bb) assert.ok(l.legCount <= 4, "Bank Builder lane ≤ 4 legs (rung card)");
   assert.equal(moon.length, 2, "Moonshot A/B present");
-  for (const l of moon) assert.ok(l.legCount <= 5, "Moonshot lane ≤ 5 legs (up to 5, valid at 3)");
+  for (const l of moon) {
+    // NEW spec: structured team-market lanes (result + total per game) — team markets only (no player props),
+    // combined price clears the +700 longshot floor.
+    assert.ok(l.legs.every((g) => g.id.startsWith("team:") && g.player === null), `Moonshot ${l.lane}: team markets only (no player props)`);
+    assert.ok(l.combinedOdds >= 700, `Moonshot ${l.lane}: clears the +700 longshot floor`);
+  }
   for (const l of dp.lanes) {
     if (!l.legs.length) continue;
     const d = l.legs.reduce((p, g) => p * dec(g.odds), 1);
@@ -54,11 +59,24 @@ test("apply: no BB lanes (both settled-LOST June-29); Moonshot lanes ≤ 5 legs,
   }
 });
 
-test("apply: max 1 leg per game within EVERY lane (Bank Builder AND Moonshot — independent legs, no SGP)", () => {
+test("apply: Bank Builder lanes are max 1 leg/game (no SGP); Moonshot lanes are STRUCTURED (result + total per game → 2 legs/game)", () => {
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
-  for (const l of dp.lanes) {
+  for (const l of dp.lanes.filter((x) => x.product === "bank-builder")) {
     const games = l.legs.map((g) => g.matchup);
-    assert.equal(new Set(games).size, games.length, `${l.product} ${l.lane}: max 1 leg per game (no fabricated SGP)`);
+    assert.equal(new Set(games).size, games.length, `Bank Builder ${l.lane}: max 1 leg per game (no fabricated SGP)`);
+  }
+  // Moonshot is INTENTIONALLY structured: each game contributes a RESULT leg + a TOTAL/BTTS leg (2 legs/game),
+  // so a game appears more than once within a lane by design.
+  for (const l of dp.lanes.filter((x) => x.product === "moonshot")) {
+    const perGame = new Map();
+    for (const g of l.legs) perGame.set(g.matchup, [...(perGame.get(g.matchup) ?? []), g.market]);
+    for (const [matchup, markets] of perGame) {
+      assert.ok(markets.length >= 1, `Moonshot ${l.lane}: game ${matchup} contributes at least a result/total leg`);
+      // Where a game contributes 2+ legs they are DIFFERENT markets (result + total/BTTS), not a duplicated pick.
+      assert.equal(new Set(markets).size, markets.length, `Moonshot ${l.lane}: game ${matchup} pairs DISTINCT markets (result + total/BTTS), no duplicate market`);
+    }
+    // At least one game contributes a structured pair (2 legs) — this is the redesign's whole point.
+    assert.ok([...perGame.values()].some((m) => m.length >= 2), `Moonshot ${l.lane}: at least one game contributes a result + total structured pair`);
   }
 });
 
@@ -68,10 +86,28 @@ test("started-game guard: nothing is eligible/active once a leg's game has start
   for (const l of after.lanes) assert.notEqual(l.status, "active", "no lane active once games started");
 });
 
-test("no leg duplicated across the active day's lanes", () => {
+test("lane independence: Bank Builder lanes never share a leg; Moonshot A/B are TIERS that overlap by design", () => {
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
-  const ids = dp.lanes.flatMap((l) => l.legs.map((g) => g.id));
-  assert.equal(new Set(ids).size, ids.length, "each model leg used once across all lanes");
+  // Bank Builder lanes must be mutually independent (no shared leg). Post June-29 there are no BB lanes today,
+  // so this is trivially satisfied — but assert it explicitly for the day a BB lane returns.
+  const bb = dp.lanes.filter((l) => l.product === "bank-builder");
+  const bbIds = bb.flatMap((l) => l.legs.map((g) => g.id));
+  assert.equal(new Set(bbIds).size, bbIds.length, "Bank Builder lanes share no leg (independent)");
+  // Moonshot A and B are now TIERS (structured ⊆ aggressive): they SHARE legs by design, so cross-lane
+  // uniqueness no longer applies. Assert the tier relationship instead: Lane B is a superset of Lane A.
+  const moon = dp.lanes.filter((l) => l.product === "moonshot");
+  if (moon.length === 2) {
+    const [a, b] = moon[0].lane === "A" ? moon : [moon[1], moon[0]];
+    const aIds = new Set(a.legs.map((g) => g.id));
+    const bIds = new Set(b.legs.map((g) => g.id));
+    assert.ok([...aIds].every((id) => bIds.has(id)), "Moonshot Lane B is a superset of Lane A (tier overlap by design)");
+    assert.ok(b.legs.length >= a.legs.length, "Lane B (aggressive) carries at least as many legs as Lane A (structured)");
+    // Within EACH Moonshot lane, no leg id is duplicated (each structured pick appears once per lane).
+    for (const l of moon) {
+      const ids = l.legs.map((g) => g.id);
+      assert.equal(new Set(ids).size, ids.length, `Moonshot ${l.lane}: no leg duplicated within the lane`);
+    }
+  }
 });
 
 test("persisted daily-portfolio.json (post June-29 settlement) is internally consistent + never touches canonical money", () => {

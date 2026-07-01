@@ -44,6 +44,8 @@ import SectionHeader from "@/components/section-header";
 import YesterdaySummary from "@/components/yesterday-summary";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
+import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
+import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import WorldCupSpecialsBox from "@/components/world-cup/world-cup-specials-box";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
@@ -265,6 +267,7 @@ export default function TodayPage() {
   // ── June 23 readiness summary (compact module strip) ─────────────────────────
   const modelProps = loadModelQualifiedProps(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  const bankBuilderAlternatives = strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3);
   // Authoritative core money state (ledger-built) for the Mr. Dub readiness module.
   let coreWins = bbLanesCleared; let coreLosses = 0;
   try {
@@ -332,19 +335,7 @@ export default function TodayPage() {
             </Link>
           </div>
         ) : (
-          <div aria-label="Bank Builder status" className="rounded-[12px] px-4 py-3.5 flex flex-col gap-1.5"
-            style={{ background: "rgba(26,16,11,0.4)", border: "1px dashed var(--vault-rule)", borderLeft: "2px solid var(--vault-gold-bright)" }}>
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>Bank Builder</span>
-              <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8.5, color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>no qualified play today</span>
-            </div>
-            <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-              No 2-leg team-market combo cleared the model&apos;s ladder-step target on today&apos;s thin knockout slate — the model skipped it instead of forcing a weak ladder off low-value player props. The completed $100→$10K proof ladder is unchanged.
-            </p>
-            <Link href="/bank-builder" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-              See the Bank Builder track record →
-            </Link>
-          </div>
+          <BankBuilderSkippedCard alternatives={bankBuilderAlternatives} />
         )}
 
         {/* PRIORITY #2: Moonshot — independent daily longshot cards (NOT a ladder), higher-volatility. */}

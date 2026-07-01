@@ -227,6 +227,52 @@ function splitMoonshotLanes(sorted: ModelPick[], used: Set<string>): { laneA: Mo
   return { laneA, laneB };
 }
 
+/** Pick the STRUCTURED result + total(/BTTS) legs for one game from its team-market picks. Draw-leaning
+ *  games (moneyline favourite < 55%) prefer a draw-protected result (DNB → DC) over a raw moneyline win. */
+function structuredGamePair(gameLegs: ModelPick[], includeBtts: boolean): ModelPick[] {
+  const byMarket = (k: string) => gameLegs.find((l) => l.marketKey === k) ?? null;
+  const ml = byMarket("moneyline_90");
+  const dnb = byMarket("draw_no_bet");
+  const dc = byMarket("double_chance");
+  const total = byMarket("match_total_goals");
+  const btts = byMarket("btts");
+  const drawLean = !ml || ml.modelProbability < 0.55;
+  const result = drawLean ? (dnb ?? dc ?? ml) : (ml ?? dnb ?? dc);
+  const out: ModelPick[] = [];
+  if (result) out.push(result);
+  if (total) out.push(total);
+  else if (btts) out.push(btts);           // no totals market → BTTS fallback
+  if (includeBtts && btts && total) out.push(btts); // aggressive: add BTTS on top of a real total
+  return out;
+}
+
+/** Build the two STRUCTURED Moonshot lanes (team markets only, grouped by game): Lane A = result + total
+ *  per game; Lane B (aggressive) = result + total + BTTS per game. No player props. */
+function buildStructuredMoonshotLanes(teamPool: ModelPick[], stake: number, date: string): { laneA: LaneCandidate; laneB: LaneCandidate } {
+  const byGame = new Map<string, ModelPick[]>();
+  for (const p of teamPool) byGame.set(p.gameId, [...(byGame.get(p.gameId) ?? []), p]);
+  const mkLane = (lane: "A" | "B", includeBtts: boolean): LaneCandidate => {
+    const legs: ModelPick[] = [];
+    let pairedGames = 0;
+    for (const gameLegs of byGame.values()) {
+      const pair = structuredGamePair(gameLegs, includeBtts);
+      if (pair.length >= 1) { legs.push(...pair); if (pair.length >= 2) pairedGames += 1; }
+    }
+    const combinedDecimal = legs.reduce((p, l) => p * dec(l.odds), 1);
+    return {
+      id: `moonshot-lane-${lane.toLowerCase()}-${date}`, product: "moonshot", lane, status: "candidate",
+      legCount: legs.length, targetLegs: legs.length || MOONSHOT_MIN_LEGS, stake,
+      combinedOdds: legs.length ? decToAmerican(combinedDecimal) : 0, combinedDecimal: Number(combinedDecimal.toFixed(4)),
+      potentialReturn: Number((stake * combinedDecimal).toFixed(2)), legs,
+      correlationNote: pairedGames
+        ? `${pairedGames} game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter).`
+        : null,
+      shortfallNote: legs.length < MOONSHOT_MIN_LEGS ? `Only ${legs.length} structured team leg(s) available — no player props forced.` : null,
+    };
+  };
+  return { laneA: mkLane("A", false), laneB: mkLane("B", true) };
+}
+
 function makeLane(product: "bank-builder" | "moonshot", lane: "A" | "B", legs: ModelPick[], targetLegs: number, stake: number, secondGame: string | null, date: string): LaneCandidate {
   const combinedDecimal = legs.reduce((p, l) => p * dec(l.odds), 1);
   const combinedOdds = legs.length ? decToAmerican(combinedDecimal) : 0;
@@ -326,13 +372,16 @@ export function buildDailyLaneCandidates(pool: ModelPick[], date: string, opts?:
   const bankBuilderA = makeLane("bank-builder", "A", a.legs, 2, bankStake, a.secondGame, date);
   const bankBuilderB = makeLane("bank-builder", "B", b.legs, 2, bankStake, b.secondGame, date);
 
-  // Moonshot: two INDEPENDENT longshot lanes from disjoint games. Fill both toward MOONSHOT_TARGET_LEGS (5)
-  // but split fairly (alternating, max 1 leg/game) so a medium slate yields two 3-leg lanes rather than one
-  // 5-leg lane starving the other. A lane is valid at MOONSHOT_MIN_LEGS (3) and must clear the +700 floor.
-  const moonPool = pool.filter((p) => !used.has(p.id)).sort((x, y) => y.upsideScore - x.upsideScore || y.modelProbability - x.modelProbability);
-  const split = splitMoonshotLanes(moonPool, used);
-  const moonshotA = makeLane("moonshot", "A", split.laneA, MOONSHOT_MIN_LEGS, moonshotStake, null, date);
-  const moonshotB = makeLane("moonshot", "B", split.laneB, MOONSHOT_MIN_LEGS, moonshotStake, null, date);
+  // Moonshot: STRUCTURED team-market longshots, grouped by game (result + total per game), NOT random
+  // player-prop stacks. Lane A = result + total per game; Lane B (aggressive) = result + total + BTTS per
+  // game. Team markets only. A lane is valid at MOONSHOT_MIN_LEGS (3) and must clear the +700 floor.
+  // Structured Moonshot draws from the FULL team pool (result + total per game) — it must not be starved of
+  // a game's result leg by the Bank Builder CANDIDATE lanes above (which place no exposure; the persisted
+  // builder already enforces BB/Moonshot leg independence via its own pre-filtered pool when BB is active).
+  const teamMoonPool = pool.filter((p) => p.category !== "player");
+  const structured = buildStructuredMoonshotLanes(teamMoonPool, moonshotStake, date);
+  const moonshotA = structured.laneA;
+  const moonshotB = structured.laneB;
 
   return { bankBuilderA, bankBuilderB, moonshotA, moonshotB };
 }
