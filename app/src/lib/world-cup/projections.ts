@@ -191,8 +191,21 @@ export function worldCupMethodologyReview(): boolean {
 export interface WcSettlementFinal {
   matchId: number | string;
   match: string;
-  regulationScore: string;
+  // Group-stage artifacts wrote a formatted `regulationScore` ("5-1"); knockout-era artifacts write
+  // structured `homeGoals`/`awayGoals` (+ `status`) instead. Both shapes occur — consumers must handle
+  // either. `finalScoreText()` normalizes them into one display string.
+  regulationScore?: string;
+  homeGoals?: number;
+  awayGoals?: number;
+  status?: string;
   corners?: { home: number; away: number };
+}
+
+/** Normalize a settlement final's 90′ score to a display string across both artifact shapes. "" when absent. */
+export function finalScoreText(f: Pick<WcSettlementFinal, "regulationScore" | "homeGoals" | "awayGoals">): string {
+  if (typeof f.regulationScore === "string" && f.regulationScore) return f.regulationScore;
+  if (typeof f.homeGoals === "number" && typeof f.awayGoals === "number") return `${f.homeGoals}-${f.awayGoals}`;
+  return "";
 }
 export interface WcSettlementGraded {
   id: string;

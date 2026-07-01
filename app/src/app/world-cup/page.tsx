@@ -38,6 +38,7 @@ import {
   loadWorldCupTeamStrengthSummary,
   loadWorldCupMarketAvailability,
   loadWorldCupPlayerProjections,
+  finalScoreText,
 } from "@/lib/world-cup/projections";
 import {
   normalizeWcCards,
@@ -103,6 +104,22 @@ export default function WorldCupLandingPage() {
   const parlays = loadWorldCupParlays();
   const settlement = loadWorldCupSettlement();
   const projectionsLive = !!projections && projections.matches.length > 0;
+  // "Next" hero line: knockout schedule rows carry null home/away (bracket placeholders), which rendered
+  // as "undefined vs undefined". Prefer the current slate's projections (REAL teams + kickoff); fall back
+  // to the schedule row only when it actually names both teams. Never renders undefined.
+  const nextMatchup = (() => {
+    const pm = projections?.matches?.[0];
+    if (pm?.homeTeam && pm?.awayTeam) {
+      const ko = typeof pm.kickoffUtc === "string" ? new Date(pm.kickoffUtc) : null;
+      const et = ko && !Number.isNaN(ko.getTime())
+        ? `${ko.toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" })} ET`
+        : "";
+      return { home: pm.homeTeam, away: pm.awayTeam, when: et };
+    }
+    return nextMatch?.home && nextMatch?.away
+      ? { home: nextMatch.home, away: nextMatch.away, when: `${nextMatch.kickoffLocal} (${nextMatch.venueCity})` }
+      : null;
+  })();
   // Games actually IN FOCUS = odds-backed projection fixtures (not the raw schedule count, which
   // includes fixtures the books haven't posted, e.g. an uncovered 4th match). Avoids a misleading
   // "4 matches today" when only 3 have model content.
@@ -167,7 +184,7 @@ export default function WorldCupLandingPage() {
   const modelPicksTable = buildModelPicksTable(loadWorldCupModelPicks(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today));
 
   // ─────────────────────────── Tab content ───────────────────────────
-  // Round of 32 board — a separate de-vigged Model Picks Board (all 15 R32 games through July 3).
+  // Knockout board — a separate de-vigged Model Picks Board covering every knockout game in the window.
   const r32Board = loadRoundOf32Board(path.join(process.cwd(), "public", "data"));
 
   const modelPicksTab = (
@@ -183,9 +200,9 @@ export default function WorldCupLandingPage() {
               <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>New · Knockouts</span>
               <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Open board →</span>
             </div>
-            <div className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>Round of 32 — Model Picks Board</div>
+            <div className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>{r32Board.stage} — Model Picks Board</div>
             <p className="mt-1 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-              All {r32Board.gameCount} Round-of-32 games through {r32Board.horizonEt} · model moneyline / totals / BTTS + safer & value markets, de-vigged from real odds. 90-minute markets only; advancement is a de-vig proxy.
+              All {r32Board.gameCount} {r32Board.stage} games through {r32Board.horizonEt} · model moneyline / totals / BTTS + safer & value markets, de-vigged from real odds. 90-minute markets only; advancement is a de-vig proxy.
             </p>
           </Link>
         </section>
@@ -300,6 +317,7 @@ export default function WorldCupLandingPage() {
           </div>
         </section>
       ) : null}
+      {!isLive && (
       <section aria-label="Opening matches">
         <SectionHeader eyebrow="Opening matchdays · group stage" title="First six matches" sub="Kickoff in venue local time. Full 104-match schedule on the Schedule page." />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -324,6 +342,7 @@ export default function WorldCupLandingPage() {
         </div>
         <div className="mt-4"><Link href="/world-cup/schedule" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Open full schedule →</Link></div>
       </section>
+      )}
     </div>
   );
 
@@ -439,7 +458,7 @@ export default function WorldCupLandingPage() {
               <div key={String(f.matchId)} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
                 <div className="flex items-center justify-between gap-2">
                   <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>{f.match}</span>
-                  <span className="font-display tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 16, fontWeight: 700 }}>{f.regulationScore}</span>
+                  <span className="font-display tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 16, fontWeight: 700 }}>{finalScoreText(f)}</span>
                 </div>
                 <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                   Full time (90′ regulation){f.corners ? ` · corners ${f.corners.home}–${f.corners.away}` : ""}
@@ -587,9 +606,9 @@ export default function WorldCupLandingPage() {
         statusLabel={daysOut > 0 ? `${daysOut} days to kickoff` : "Tournament live"}
         statusCaption={isLive ? ` · ${(inFocusGames || todayMatches.length)} game${(inFocusGames || todayMatches.length) === 1 ? "" : "s"} in focus` : " · schedule live"}
         matchupLine={
-          isLive && nextMatch
-            ? `Next · ${nextMatch.home} vs ${nextMatch.away} · ${nextMatch.kickoffLocal} (${nextMatch.venueCity})`
-            : opener
+          isLive && nextMatchup
+            ? `Next · ${nextMatchup.home} vs ${nextMatchup.away} · ${nextMatchup.when}`
+            : opener?.home && opener?.away
               ? `Opener · ${opener.home} vs ${opener.away} · ${opener.venueCity}`
               : undefined
         }

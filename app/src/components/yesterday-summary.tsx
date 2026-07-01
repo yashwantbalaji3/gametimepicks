@@ -13,6 +13,7 @@ import Link from "next/link";
 
 import { getSportIdentity } from "@/lib/sport-identity";
 import { loadPublicBankBuilderLedger } from "@/lib/data-bank-builder";
+import { finalScoreText } from "@/lib/world-cup/projections";
 import type { WcSettlement, WcParlays } from "@/lib/world-cup/projections";
 import type { PublicSuggestedCard } from "@/lib/normalize";
 
@@ -62,7 +63,13 @@ export default function YesterdaySummary({ date }: { date: string }) {
   if (wc && wc.date === date && (wc.graded ?? []).length > 0) {
     const w = wc.graded.filter((g) => g.outcome === "win").length;
     const l = wc.graded.filter((g) => g.outcome === "loss").length;
-    const finals = (wc.finals ?? []).map((f) => `${f.match.split(" vs ")[0]} ${f.regulationScore}`).join(" · ");
+    // Dedupe by match (some artifacts carry duplicate final rows), and normalize the score across both
+    // artifact shapes (regulationScore string vs structured homeGoals/awayGoals) — never render "undefined".
+    const seenFinals = new Set<string>();
+    const finals = (wc.finals ?? [])
+      .filter((f) => { const k = f.match; if (seenFinals.has(k)) return false; seenFinals.add(k); return true; })
+      .map((f) => `${f.match.split(" vs ")[0]} ${finalScoreText(f)}`.trim())
+      .join(" · ");
     tiles.push({
       key: "wc",
       sport: "world_cup",

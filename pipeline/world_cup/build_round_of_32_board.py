@@ -12,17 +12,37 @@ INTEGRITY: no fabricated teams/odds/probabilities. Every pick is a de-vig of a r
 with no posted odds shows no pick. Reuses the exact de-vig helpers from build_odds_only_projections.
 """
 from __future__ import annotations
-import argparse, json, os, datetime
+import argparse, json, os, datetime, re, unicodedata
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from build_odds_only_projections import (
     a2imp, a2d, devig_two, event_odds, pick_anchor_book, market_of,
-    team_codes, schedule_ids, http_json, API_BASE, SPORT_KEY, ET,
+    team_codes, schedule_ids, http_json, API_BASE, SPORT_KEY, ET, stage_by_date,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "app" / "public" / "data" / "world-cup"
+
+# Friendly tournament-stage labels keyed by the schedule.json stage code. The board is stage-derived,
+# not hardcoded, so a mixed R32/R16 slate (or a pure R16 board later in the bracket) is labelled honestly.
+STAGE_LABELS = {
+    "group": "Group Stage", "r32": "Round of 32", "r16": "Round of 16",
+    "qf": "Quarter-finals", "sf": "Semi-finals", "third": "Third-place Play-off", "final": "Final",
+}
+
+
+def board_stage_label(rows: list[dict], smap: dict[str, str]) -> str:
+    """Board-level stage label DERIVED from the per-game schedule stages (never hardcoded). A single
+    stage → that stage's friendly label; a mixed knockout slate → "Knockout Stage"; empty → a safe R32
+    fallback so the header is never blank."""
+    codes = [smap.get(r.get("matchDate", "")) for r in rows]
+    uniq = list(dict.fromkeys(c for c in codes if c))
+    if len(uniq) == 1:
+        return STAGE_LABELS.get(uniq[0], uniq[0].upper())
+    if len(uniq) > 1:
+        return "Knockout Stage"
+    return "Round of 32"
 
 
 def confidence_for(fav_prob: float) -> str:
@@ -33,7 +53,13 @@ def confidence_for(fav_prob: float) -> str:
 
 
 def slugify(s: str) -> str:
-    return "".join(c if c.isalnum() else "-" for c in s.lower()).strip("-").replace("--", "-")
+    """Match the TS `slugify` (app/src/lib/game-detail.ts) EXACTLY so board slugs equal the full
+    game-detail slugs: lowercase → NFD accent-strip → collapse every non-alnum run to a single dash →
+    trim. Prevents the double-dash mismatch (e.g. "Bosnia & Herzegovina") that orphaned active-window
+    games onto a duplicate board-detail route."""
+    s = unicodedata.normalize("NFD", s.lower())
+    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+    return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
 
 
 def all_events(api_key: str) -> tuple[list[dict], str | None]:
@@ -153,11 +179,16 @@ def build(horizon: str, slate_label: str, fetch_future: bool) -> dict:
         if et.date() > horizon_date:
             continue
         rows.append(build_row(ev, now, codes, slate_label, fetch_future, api_key))
+    # Per-game tournament stage from the schedule (date-keyed → works even while knockout teams are
+    # bracket placeholders); the board-level stage label is derived from the set of stages present.
+    smap = stage_by_date()
+    for r in rows:
+        r["stage"] = smap.get(r.get("matchDate", ""))
     by_status: dict[str, int] = {}
     for r in rows:
         by_status[r["status"]] = by_status.get(r["status"], 0) + 1
     return {
-        "generatedAt": now.isoformat(), "sport": "world_cup", "stage": "Round of 32",
+        "generatedAt": now.isoformat(), "sport": "world_cup", "stage": board_stage_label(rows, smap),
         "horizonEt": horizon, "slateLabel": slate_label,
         "disclaimer": "Paper-only, educational. Informational Round-of-32 model-pick board — de-vigged from "
                       "real posted odds (The Odds API). Not betting advice; not the Bank Builder ladder. "

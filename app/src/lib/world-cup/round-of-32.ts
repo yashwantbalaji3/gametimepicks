@@ -80,6 +80,18 @@ export interface RoundOf32Game {
   confidence: RoundOf32Confidence;
   note: string | null;
   picks: RoundOf32Picks | null;
+  /** Tournament stage code from the schedule (r32/r16/qf/…). Optional — older artifacts omit it. */
+  stage?: string | null;
+}
+
+/** Friendly tournament-stage label from a schedule stage code. Falls back to the raw code, never blank. */
+const STAGE_LABELS: Record<string, string> = {
+  group: "Group Stage", r32: "Round of 32", r16: "Round of 16",
+  qf: "Quarter-finals", sf: "Semi-finals", third: "Third-place Play-off", final: "Final",
+};
+export function stageLabel(code: string | null | undefined): string | null {
+  if (!code) return null;
+  return STAGE_LABELS[code] ?? code.toUpperCase();
 }
 export interface RoundOf32Board {
   generatedAt: string;

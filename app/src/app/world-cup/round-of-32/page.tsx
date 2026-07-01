@@ -30,9 +30,9 @@ import {
 } from "@/lib/world-cup/round-of-32";
 
 export const metadata = {
-  title: "Round of 32 Model Picks · FIFA World Cup 2026 · GameTime Picks",
+  title: "Knockout Model Picks · FIFA World Cup 2026 · GameTime Picks",
   description:
-    "Round-of-32 model-pick board — de-vigged moneyline, totals, BTTS, and safer/value markets for every Round-of-32 game. 90-minute markets only. Educational, paper-only; not betting advice.",
+    "World Cup knockout model-pick board — de-vigged moneyline, totals, BTTS, and safer/value markets for every game in the window. 90-minute markets only. Educational, paper-only; not betting advice.",
 };
 
 const STATUS_META: Record<RoundOf32Status, { label: string; color: string; explain: string }> = {
@@ -91,7 +91,7 @@ export default function RoundOf32Page() {
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
         <div className="mb-6"><WorldCupSectionTabs /></div>
-        <SectionHeader eyebrow="Round of 32" title="Round of 32 — Model Picks Board" sub="The board is not available right now. Check back once the Round-of-32 slate publishes." />
+        <SectionHeader eyebrow="Knockout stage" title="Knockout Model Picks Board" sub="The board is not available right now. Check back once the next knockout slate publishes." />
       </div>
     );
   }
@@ -123,8 +123,8 @@ export default function RoundOf32Page() {
 
       <SectionHeader
         eyebrow={`${board.stage} · ${board.gameCount} games · through ${board.horizonEt}`}
-        title="Round of 32 — Model Picks Board"
-        sub="One compact board for every Round-of-32 game — model moneyline, totals, BTTS, and the safer + value market per game. De-vigged from real posted odds. 90-minute markets only (Draw is a real outcome; advancement is a de-vig proxy, not an outright market)."
+        title={`${board.stage} — Model Picks Board`}
+        sub="One compact board for every knockout game in the window — model moneyline, totals, BTTS, and the safer + value market per game. De-vigged from real posted odds. 90-minute markets only (Draw is a real outcome; advancement is a de-vig proxy, not an outright market)."
       />
 
       {/* Disclaimer / informational banner — straight from the artifact, plus the paper-only line. */}
