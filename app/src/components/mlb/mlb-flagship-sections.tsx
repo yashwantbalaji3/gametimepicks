@@ -71,7 +71,7 @@ function TopList({ props, n }: { props: BoardProp[]; n: number }) {
   );
 }
 
-export default function MlbFlagshipSections({ homer, props, games }: { homer: HomerNukesResult; props: BoardProp[]; games: ExplorerGame[] }) {
+export default function MlbFlagshipSections({ props, games }: { props: BoardProp[]; games: ExplorerGame[] }) {
   const live = props.length > 0;
   const batter = props.filter((p) => p.group !== "pitchers");
   const pitchers = props.filter((p) => p.group === "pitchers");
@@ -79,7 +79,7 @@ export default function MlbFlagshipSections({ homer, props, games }: { homer: Ho
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>MLB — today&rsquo;s best plays</h2>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Featured · Homer Nukes · Player props · Pitcher props · Games — paper-only</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Featured · Player props · Pitcher props · Games — paper-only</span>
       </div>
 
       <MlbQuickJump />
@@ -88,20 +88,15 @@ export default function MlbFlagshipSections({ homer, props, games }: { homer: Ho
         {live ? <TopList props={props} n={6} /> : <GatedSlot label="Featured plays post when MLB markets are live" />}
       </SectionCard>
 
-      <SectionCard id="mlb-homer-nukes" tag="2 · Flagship" title="Homer Nukes — daily 5-leg HR parlay" sub="One $20 paper parlay: the five likeliest home-run bats on the slate.">
-        <HomerNukesBoard board={homer} />
-        <Link href="/homer-nukes" className="self-start font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>Open Homer Nukes →</Link>
-      </SectionCard>
-
-      <SectionCard id="mlb-player-props" tag="3 · Player props" title="Best player props" sub="Quick filters by market · game · odds · confidence; sort by probability, price, confidence, team or game.">
+      <SectionCard id="mlb-player-props" tag="2 · Player props" title="Best player props" sub="Quick filters by market · game · odds · confidence; sort by probability, price, confidence, team or game.">
         {batter.length ? <MlbPropsBoard props={batter} /> : <GatedSlot label="Player props post when MLB markets are live" />}
       </SectionCard>
 
-      <SectionCard id="mlb-pitcher-props" tag="4 · Pitcher props" title="Pitcher props" sub="Strikeouts · Outs recorded · Earned runs — the same filterable board, pitcher markets.">
+      <SectionCard id="mlb-pitcher-props" tag="3 · Pitcher props" title="Pitcher props" sub="Strikeouts · Outs recorded · Earned runs — the same filterable board, pitcher markets.">
         {pitchers.length ? <MlbPropsBoard props={pitchers} /> : <GatedSlot label="Pitcher props post when MLB markets are live" />}
       </SectionCard>
 
-      <SectionCard id="mlb-game-explorer" tag="5 · Games" title="Game Explorer" sub="Every game on the slate — tap a card for first pitch, featured props & pitchers on the board.">
+      <SectionCard id="mlb-game-explorer" tag="4 · Games" title="Game Explorer" sub="Every game on the slate — tap a card for first pitch, featured props & pitchers on the board.">
         {games.length ? <GameExplorer games={games} props={props} /> : <GatedSlot label="The slate's games appear once posted" />}
       </SectionCard>
     </div>

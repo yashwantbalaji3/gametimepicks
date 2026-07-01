@@ -67,13 +67,13 @@ function byEdge(a: PublicProjection, b: PublicProjection) {
 export default function MlbLandingPage() {
   const date = activeMlbDate() ?? DEFAULT_DATE;
   const board = getMlbBoardForDate(date);
-  // Homer Nukes + props board for the flagship sections. These read the freshly-ingested daily MLB
-  // artifacts keyed on the current slate date (independent of the legacy board's activeMlbDate).
-  // Prefer the freshest ingested MLB board (≤ today) so a new slate surfaces; fall back to the global
-  // slate date / ET date when no MLB board exists.
-  const flagshipDate = latestMlbBoardDate(path.join(process.cwd(), "public", "data"), currentEtDate())
+  // The flagship sections align to the freshest ingested MODEL BOARD (activeMlbDate → mlb/boards). The old
+  // resolver keyed off mlb/home-run-props — the RETIRED Homer Nukes feed — which froze the whole MLB hub on
+  // that product's last date (June-28). Prefer the live board date; fall back to the retired-props resolver
+  // only when no board exists, then the global slate / ET date.
+  const flagshipDate = date
+    ?? latestMlbBoardDate(path.join(process.cwd(), "public", "data"), currentEtDate())
     ?? currentSlateDate() ?? currentEtDate();
-  const homerBoard = loadHomerNukes(path.join(process.cwd(), "public", "data"), flagshipDate);
   const mlbProps = loadMlbPropsBoard(path.join(process.cwd(), "public", "data"), flagshipDate);
   // Game Explorer reads the schedule for the SAME flagship date so its gameIds join the props' gameIds.
   const flagshipGames = (getMlbScheduleForDate(flagshipDate).games ?? []).map((g: any) => ({
@@ -309,7 +309,7 @@ export default function MlbLandingPage() {
 
       {/* MLB flagship sections — Homer Nukes / Props Board / Premium Plays / Game Explorer (data-gated). */}
       <div className="mt-6">
-        <MlbFlagshipSections homer={homerBoard} props={mlbProps} games={flagshipGames} />
+        <MlbFlagshipSections props={mlbProps} games={flagshipGames} />
       </div>
 
       {/* Legacy sport shell (Overview / Projections / Player Props / Results …) is heavy and below the

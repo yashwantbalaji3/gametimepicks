@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
  *  scrollable on mobile so it never overflows. Purely presentational — no data, no fabrication. */
 const SECTIONS = [
   { id: "mlb-featured", label: "Featured" },
-  { id: "mlb-homer-nukes", label: "Homer Nukes" },
   { id: "mlb-player-props", label: "Player Props" },
   { id: "mlb-pitcher-props", label: "Pitcher Props" },
   { id: "mlb-game-explorer", label: "Games" },
