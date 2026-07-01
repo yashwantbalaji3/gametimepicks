@@ -154,7 +154,7 @@ export function buildBankBuilderProposalFromGames(games: RoundOf32Game[], date: 
     date,
     lanes,
     note: lanes.length
-      ? "Fresh daily proposal — the model's Bank Builder lanes for a new paper ladder. $0 placed until an operator starts the run; the historical $100→$10K proof ladder is unchanged."
+      ? "Fresh daily proposal — the model's Bank Builder lanes for a NEW paper ladder. Display-only: $0 placed. Starting a live run is an OPERATOR decision (it commits the paper bankroll to a cycle that settlement grades into the tracked record), so the ladder never auto-restarts into a thin slate after a loss. The historical $100→$10K proof ladder is unchanged."
       : emptyNote,
   };
 }

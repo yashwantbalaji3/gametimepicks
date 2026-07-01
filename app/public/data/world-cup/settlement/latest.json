@@ -1,55 +1,71 @@
 {
-  "generatedAt": "2026-06-20T20:39:36+00:00",
-  "date": "2026-06-20",
-  "calls": 0,
-  "settlementSource": "espn_scoreboard (official FT scores, operator-verified)",
+  "generatedAt": "2026-06-28T00:00:00Z",
+  "date": "2026-06-28",
+  "settlementSource": "API-Football v3 /fixtures (FT regulation) + /fixtures/players (official player stats)",
   "finals": [
     {
-      "matchId": 33,
-      "match": "Netherlands vs Sweden",
-      "regulationScore": "5-1"
+      "matchId": "Brazil vs Japan",
+      "match": "Brazil vs Japan",
+      "homeGoals": 2,
+      "awayGoals": 1,
+      "status": "FT",
+      "advanceWinner": "Brazil",
+      "apiFootballFixtureId": 1562344
+    },
+    {
+      "matchId": "Germany vs Paraguay",
+      "match": "Germany vs Paraguay",
+      "homeGoals": 1,
+      "awayGoals": 1,
+      "status": "PEN",
+      "advanceWinner": "Paraguay",
+      "apiFootballFixtureId": 1565176
+    },
+    {
+      "matchId": "Netherlands vs Morocco",
+      "match": "Netherlands vs Morocco",
+      "homeGoals": 1,
+      "awayGoals": 1,
+      "status": "PEN",
+      "advanceWinner": "Morocco",
+      "apiFootballFixtureId": 1562345
     }
   ],
   "graded": [
     {
-      "id": "wc_2026-06-20_33_ml",
-      "matchId": 33,
-      "market": "moneyline_90",
-      "pick": "Netherlands",
-      "regulationScore": "5-1",
-      "outcome": "win"
-    },
-    {
-      "id": "wc_2026-06-20_33_tot",
-      "matchId": 33,
-      "market": "match_total_goals",
-      "pick": "Over 2.5",
-      "regulationScore": "5-1",
-      "outcome": "win"
-    },
-    {
-      "id": "wc_2026-06-20_33_dc",
-      "matchId": 33,
-      "market": "double_chance",
-      "pick": "Netherlands or Draw",
-      "regulationScore": "5-1",
-      "outcome": "win"
-    },
-    {
-      "id": "wc_2026-06-20_33_btts",
-      "matchId": 33,
-      "market": "btts",
-      "pick": "Both teams to score: Yes",
-      "regulationScore": "5-1",
-      "outcome": "win"
-    },
-    {
-      "id": "wc_2026-06-20_33_dnb",
-      "matchId": 33,
-      "market": "draw_no_bet",
-      "pick": "Netherlands (draw no bet)",
-      "regulationScore": "5-1",
-      "outcome": "win"
+      "product": "wc-parlay",
+      "card": "World Cup balanced card",
+      "stake": 0,
+      "result": "pending",
+      "payout": 0,
+      "paperPnl": 0,
+      "combinedDecimal": 0,
+      "legs": [
+        {
+          "market": "draw_no_bet",
+          "selection": "",
+          "player": null,
+          "odds": 0,
+          "result": "pending",
+          "reason": "no official match for id NaN"
+        },
+        {
+          "market": "btts",
+          "selection": "",
+          "player": null,
+          "odds": 0,
+          "result": "pending",
+          "reason": "no official match for id NaN"
+        },
+        {
+          "market": "moneyline_90",
+          "selection": "",
+          "player": null,
+          "odds": 0,
+          "result": "pending",
+          "reason": "no official match for id NaN"
+        }
+      ]
     }
   ]
 }

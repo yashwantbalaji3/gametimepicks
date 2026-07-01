@@ -452,10 +452,10 @@ export default function WorldCupLandingPage() {
       <SectionHeader eyebrow="Results" title="World Cup settlement" sub="Official 90-minute regulation grading. Soccer settles on the FT regulation score — Draw is a real outcome; extra time and penalties never count for these markets." />
       {settlement ? (
         <>
-          {/* Official finals */}
+          {/* Official finals — deduped by match (some settlement artifacts carry duplicate final rows). */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {(settlement.finals ?? []).map((f) => (
-              <div key={String(f.matchId)} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+            {[...new Map((settlement.finals ?? []).map((f) => [f.match, f])).values()].map((f) => (
+              <div key={String(f.match)} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
                 <div className="flex items-center justify-between gap-2">
                   <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>{f.match}</span>
                   <span className="font-display tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 16, fontWeight: 700 }}>{finalScoreText(f)}</span>
@@ -467,12 +467,13 @@ export default function WorldCupLandingPage() {
             ))}
           </div>
 
-          {/* Graded published picks */}
+          {/* Graded published picks — real picks only (some artifacts carry null/placeholder rows),
+              deduped by id. An artifact with no valid graded picks simply shows its finals above. */}
           <div className="flex flex-col gap-1.5">
-            {settlement.graded.map((g) => (
+            {[...new Map((settlement.graded ?? []).filter((g) => g.pick && g.outcome).map((g) => [g.id, g])).values()].map((g) => (
               <div key={g.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[8px] px-4 py-2.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
                 <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{g.pick}</span>
-                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.market.replace(/_/g, " ")} · final {g.regulationScore}</span>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.market.replace(/_/g, " ")} · final {finalScoreText(g)}</span>
                 <span
                   className="ml-auto rounded px-2 py-0.5 font-mono text-[10px] font-bold tracking-[0.08em]"
                   style={g.outcome === "win"
