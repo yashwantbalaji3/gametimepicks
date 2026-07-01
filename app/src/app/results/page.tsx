@@ -248,6 +248,24 @@ export default function ResultsPage() {
           published cards you saw are tracked below for full transparency.
         </p>
       </div>
+      {/* Honesty banner: the OPTIMIZER suggested-parlay grading is a distinct track that has not been graded
+         since its latest settled date — never let a month-old record read as "current". World Cup + MLB
+         settle in their own products. Shown only when the parlay grading is meaningfully stale (>7 days). */}
+      {(() => {
+        const settled = dateSections[0]?.date ?? null;
+        if (!settled) return null;
+        const days = Math.round((Date.parse(`${currentEtDate()}T00:00:00Z`) - Date.parse(`${settled}T00:00:00Z`)) / 86400000);
+        if (!Number.isFinite(days) || days <= 7) return null;
+        return (
+          <div className="rounded-[8px] px-4 py-3 mb-4 flex flex-col gap-1"
+            style={{ background: "rgba(217,164,65,0.08)", border: "1px solid color-mix(in srgb, var(--vault-gold-bright) 35%, transparent)" }}>
+            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Suggested-parlay grading · settled through {settled}</span>
+            <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              The suggested-parlay optimizer track record below is settled through <span style={{ color: "var(--vault-text)" }}>{settled}</span> ({days} days ago) — newer slates are awaiting grading, so this is NOT a live scoreboard. World Cup and MLB settle in their own products (World Cup on the Track Record / Bank Builder pages). Nothing here is counted as a win or loss until officially graded.
+            </p>
+          </div>
+        );
+      })()}
       {/* PR `feature/results-ux-restructure` (2026-05-29) — compact
          hero shows the settled date + parlay lifetime records (two-record:
          Published cards / Generated pool). */}
