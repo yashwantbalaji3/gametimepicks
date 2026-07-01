@@ -1,33 +1,149 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-07-01",
-  "generatedAt": "2026-07-01T05:45:44.297Z",
+  "generatedAt": "2026-07-01T18:44:47.202Z",
   "activeBankroll": 19565.4,
   "crownBankroll": 20465.4,
-  "openExposure": 50,
-  "availableBankroll": 19515.4,
-  "potentialReturn": 1113.07,
+  "openExposure": 225,
+  "availableBankroll": 19340.4,
+  "potentialReturn": 679.62,
   "products": {
     "bankBuilder": {
-      "exposure": 0,
-      "record": {
-        "wins": 0,
-        "losses": 0,
-        "voids": 0,
-        "pending": 0
-      }
-    },
-    "moonshot": {
-      "exposure": 50,
+      "exposure": 200,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
         "pending": 2
       }
+    },
+    "moonshot": {
+      "exposure": 25,
+      "record": {
+        "wins": 0,
+        "losses": 0,
+        "voids": 0,
+        "pending": 1
+      }
     }
   },
   "lanes": [
+    {
+      "id": "bank-builder-approved-lane-a-2026-07-01",
+      "product": "bank-builder",
+      "productLabel": "Bank Builder",
+      "lane": "A",
+      "step": 1,
+      "clearedSteps": 0,
+      "status": "active",
+      "stake": 100,
+      "exposure": 100,
+      "targetReturn": null,
+      "fitsTarget": true,
+      "combinedOdds": -174,
+      "combinedDecimal": 1.5747,
+      "potentialReturn": 157.47,
+      "legCount": 2,
+      "targetLegs": 2,
+      "legs": [
+        {
+          "id": "bb-approved:england-vs-dr-congo-2026-07-01:moneyline_90",
+          "matchup": "England vs DR Congo",
+          "market": "Match Result",
+          "selection": "England to win",
+          "player": null,
+          "odds": -400,
+          "provider": "betrivers",
+          "modelConfidence": 0.7624,
+          "kickoffEt": "12:00 PM ET",
+          "risk": "Lower-volatility",
+          "teamLogo": null
+        },
+        {
+          "id": "bb-approved:belgium-vs-senegal-2026-07-01:double_chance",
+          "matchup": "Belgium vs Senegal",
+          "market": "Double Chance",
+          "selection": "Belgium or Draw",
+          "player": null,
+          "odds": -385,
+          "provider": "betrivers",
+          "modelConfidence": 0.7427,
+          "kickoffEt": "4:00 PM ET",
+          "risk": "Lower-volatility",
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": null,
+      "shortfallNote": null,
+      "whyThisCard": [
+        "The two highest-probability draw-protected / favourite legs on the slate, from different games — built to CLEAR a rung, not to swing for a payout.",
+        "Both legs must land — England v DR Congo and Belgium v Senegal going the other way (an upset, a stray goal, or a tight game flipping) loses the rung. Knockout games carry extra-time / penalty variance on 90' result legs."
+      ],
+      "activationEligibility": {
+        "eligible": true,
+        "reason": "operator-approved active paper ladder"
+      },
+      "locked": true,
+      "approvedAt": "2026-07-01"
+    },
+    {
+      "id": "bank-builder-approved-lane-b-2026-07-01",
+      "product": "bank-builder",
+      "productLabel": "Bank Builder",
+      "lane": "B",
+      "step": 1,
+      "clearedSteps": 0,
+      "status": "active",
+      "stake": 100,
+      "exposure": 100,
+      "targetReturn": null,
+      "fitsTarget": true,
+      "combinedOdds": 175,
+      "combinedDecimal": 2.7486,
+      "potentialReturn": 274.86,
+      "legCount": 2,
+      "targetLegs": 2,
+      "legs": [
+        {
+          "id": "bb-approved:usa-vs-bosnia-herzegovina-2026-07-01:btts",
+          "matchup": "USA vs Bosnia & Herzegovina",
+          "market": "Both Teams To Score",
+          "selection": "BTTS No",
+          "player": null,
+          "odds": -152,
+          "provider": "fanduel",
+          "modelConfidence": 0.5703,
+          "kickoffEt": "8:00 PM ET",
+          "risk": "Lower-volatility",
+          "teamLogo": null
+        },
+        {
+          "id": "bb-approved:belgium-vs-senegal-2026-07-01:match_total_goals",
+          "matchup": "Belgium vs Senegal",
+          "market": "Total Goals",
+          "selection": "Under 2.5",
+          "player": null,
+          "odds": -152,
+          "provider": "betrivers",
+          "modelConfidence": 0.5669,
+          "kickoffEt": "4:00 PM ET",
+          "risk": "Lower-volatility",
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": null,
+      "shortfallNote": null,
+      "whyThisCard": [
+        "The two best-value legs (model edge over the market price) from different games — a slightly longer price than the survival lane while staying inside a payable band.",
+        "Both legs must land — USA v Bosnia & Herzegovina and Belgium v Senegal going the other way loses the rung. Knockout games carry extra-time / penalty variance."
+      ],
+      "activationEligibility": {
+        "eligible": true,
+        "reason": "operator-approved active paper ladder"
+      },
+      "locked": true,
+      "approvedAt": "2026-07-01"
+    },
     {
       "id": "moonshot-lane-a-2026-07-01",
       "product": "moonshot",
@@ -35,45 +151,17 @@
       "lane": "A",
       "step": 1,
       "clearedSteps": 0,
-      "status": "active",
+      "status": "candidate",
       "stake": 25,
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 1098,
-      "combinedDecimal": 11.977,
-      "potentialReturn": 299.42,
-      "legCount": 6,
-      "targetLegs": 6,
+      "combinedOdds": 442,
+      "combinedDecimal": 5.4157,
+      "potentialReturn": 135.39,
+      "legCount": 4,
+      "targetLegs": 4,
       "legs": [
-        {
-          "id": "team:5ff7744314f224c18d1604ee9cc19263:moneyline_90:home",
-          "matchup": "England vs DR Congo",
-          "market": "Match Result",
-          "selection": "England",
-          "player": null,
-          "odds": -400,
-          "provider": "betrivers",
-          "modelConfidence": 0.7624,
-          "kickoffEt": "12:00 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        },
-        {
-          "id": "team:5ff7744314f224c18d1604ee9cc19263:match_total_goals:over",
-          "matchup": "England vs DR Congo",
-          "market": "Total Goals",
-          "selection": "Over 2.5",
-          "player": null,
-          "odds": -130,
-          "provider": "betrivers",
-          "modelConfidence": 0.5306,
-          "kickoffEt": "12:00 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        },
         {
           "id": "team:658ac8cbf214ca3cc150109b4ddc1e74:draw_no_bet:home",
           "matchup": "Belgium vs Senegal",
@@ -131,20 +219,20 @@
           "teamLogo": null
         }
       ],
-      "correlationNote": "3 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter).",
+      "correlationNote": "2 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter).",
       "shortfallNote": null,
       "whyThisCard": [
-        "Higher-upside: 6 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 63% across 6 legs · combined +1098.",
-        "3 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
+        "Higher-upside: 4 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 62% across 4 legs · combined +442.",
+        "2 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
       ],
       "activationEligibility": {
-        "eligible": true,
-        "reason": "all legs pre-event and outside the cutoff"
+        "eligible": false,
+        "reason": "combined +442 is below the +700 longshot floor — awaiting a longer card"
       },
       "narrative": {
-        "title": "Favorites advance",
-        "story": "The clear favorites all assert themselves and progress — individually likely, but stacking several lifts the price into longshot territory. One upset anywhere breaks it."
+        "title": "Low-scoring knockout",
+        "story": "A cautious-ties parlay: the legs all need games to stay tight — unders and no-both-score, exactly the script knockout football tends to follow when neither side wants the decisive mistake."
       }
     },
     {
@@ -159,54 +247,12 @@
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 3155,
-      "combinedDecimal": 32.5462,
-      "potentialReturn": 813.65,
-      "legCount": 8,
-      "targetLegs": 8,
+      "combinedOdds": 889,
+      "combinedDecimal": 9.8914,
+      "potentialReturn": 247.29,
+      "legCount": 5,
+      "targetLegs": 5,
       "legs": [
-        {
-          "id": "team:5ff7744314f224c18d1604ee9cc19263:moneyline_90:home",
-          "matchup": "England vs DR Congo",
-          "market": "Match Result",
-          "selection": "England",
-          "player": null,
-          "odds": -400,
-          "provider": "betrivers",
-          "modelConfidence": 0.7624,
-          "kickoffEt": "12:00 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        },
-        {
-          "id": "team:5ff7744314f224c18d1604ee9cc19263:match_total_goals:over",
-          "matchup": "England vs DR Congo",
-          "market": "Total Goals",
-          "selection": "Over 2.5",
-          "player": null,
-          "odds": -130,
-          "provider": "betrivers",
-          "modelConfidence": 0.5306,
-          "kickoffEt": "12:00 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        },
-        {
-          "id": "team:5ff7744314f224c18d1604ee9cc19263:btts:no",
-          "matchup": "England vs DR Congo",
-          "market": "Both Teams To Score",
-          "selection": "Both teams to score: No",
-          "player": null,
-          "odds": -205,
-          "provider": "betrivers",
-          "modelConfidence": 0.6222,
-          "kickoffEt": "12:00 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        },
         {
           "id": "team:658ac8cbf214ca3cc150109b4ddc1e74:draw_no_bet:home",
           "matchup": "Belgium vs Senegal",
@@ -278,12 +324,12 @@
           "teamLogo": null
         }
       ],
-      "correlationNote": "3 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter).",
+      "correlationNote": "2 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter).",
       "shortfallNote": null,
       "whyThisCard": [
-        "Higher-upside: 8 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 61% across 8 legs · combined +3155.",
-        "3 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
+        "Higher-upside: 5 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 60% across 5 legs · combined +889.",
+        "2 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
       ],
       "activationEligibility": {
         "eligible": true,
