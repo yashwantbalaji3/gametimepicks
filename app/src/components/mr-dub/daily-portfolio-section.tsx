@@ -124,13 +124,19 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
         )}
       </div>
 
-      {(card.correlationNote || card.shortfallNote) ? (
-        <div className="px-3.5 py-2.5 flex flex-col gap-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-          {card.correlationNote ? (
-            <span className="text-[10px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-              <span aria-hidden style={{ color: "#e7b15a" }}>⚠ </span>{card.correlationNote}
-            </span>
+      {(card.narrative || card.correlationNote || card.shortfallNote) ? (
+        <div className="px-3.5 py-2.5 flex flex-col gap-1.5" style={{ borderTop: "1px solid var(--vault-rule)" }}>
+          {card.narrative ? (
+            <div className="flex flex-col gap-0.5">
+              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: moonshot ? "#a99bf5" : "var(--vault-gold-bright)", fontSize: 8.5 }}>Why it can hit · {card.narrative.title}</span>
+              <span className="text-[10.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{card.narrative.story}</span>
+            </div>
           ) : null}
+          {/* Why it can fail — the honest correlation / variance read (every leg has to land). */}
+          <span className="text-[10px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
+            <span aria-hidden style={{ color: "#e7b15a" }}>⚠ Why it can miss · </span>
+            {card.correlationNote ?? `Every one of the ${card.legCount} legs must land — a longshot by design; one miss loses the card.`}
+          </span>
           {card.shortfallNote ? (
             <span className="text-[10px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>{card.shortfallNote}</span>
           ) : null}
@@ -140,7 +146,34 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
   );
 }
 
+/** Polished "model skipped" placeholder for a flagship product that fielded no qualified lane today —
+ *  never a blank slot, and honest about WHY (the model declined rather than forcing a weak card). */
+function SkippedProductCard({ product }: { product: "bank-builder" | "moonshot" }) {
+  const label = product === "bank-builder" ? "Bank Builder" : "Moonshot";
+  const reason =
+    product === "bank-builder"
+      ? "No 2-leg team-market combo cleared the model's ladder-step target on today's thin knockout slate — the model skipped it instead of forcing a weak ladder off low-value player props."
+      : "No qualified longshot card cleared the +700 floor with a coherent story today — the model is holding rather than forcing a thin moonshot.";
+  return (
+    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px dashed var(--vault-rule)", background: "rgba(12,8,6,0.3)", borderLeft: `2px solid ${product === "moonshot" ? "#8b7bf0" : "var(--vault-gold-bright)"}` }}>
+      <div className="px-3.5 py-3 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+        <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>{label}</span>
+        <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8.5, color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>no qualified play</span>
+      </div>
+      <div className="px-3.5 py-4 flex flex-col gap-1.5">
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>No qualified {label} today</span>
+        <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{reason}</p>
+        <span className="font-mono uppercase tracking-[0.08em] mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>$0 placed · bankroll + crown unchanged</span>
+      </div>
+    </div>
+  );
+}
+
 export default function DailyPortfolioSection({ portfolio }: { portfolio: DailyPortfolio }) {
+  // Flagship products that fielded no lane today get a polished "model skipped" placeholder — never a
+  // blank slot (Phase 3/7: the product state is always legible, never looks broken).
+  const productsWithCards = new Set(portfolio.cards.map((c) => c.product));
+  const missing = (["bank-builder", "moonshot"] as const).filter((p) => !productsWithCards.has(p));
   return (
     <section className="flex flex-col gap-3 overflow-x-hidden">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -157,9 +190,11 @@ export default function DailyPortfolioSection({ portfolio }: { portfolio: DailyP
         <StatChip label="Peak paper bankroll" value={money(portfolio.crownBankroll)} faint />
       </div>
 
-      {/* Four lane cards — 2×2 on desktop, single column on mobile. */}
+      {/* Lane cards — 2×2 on desktop, single column on mobile. A flagship product with no lane today shows
+          a polished "model skipped" placeholder rather than vanishing. */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {portfolio.cards.map((card) => <LaneCard key={card.id} card={card} />)}
+        {missing.map((p) => <SkippedProductCard key={p} product={p} />)}
       </div>
 
       <p className="text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>{portfolio.note}</p>

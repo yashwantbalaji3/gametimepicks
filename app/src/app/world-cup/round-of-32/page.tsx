@@ -22,12 +22,11 @@ import {
   formatProbability,
   winPercent,
   upsetRisk,
-  expectedGameScript,
-  deriveScoreLean,
   knockoutRisk,
   type RoundOf32Game,
   type RoundOf32Status,
 } from "@/lib/world-cup/round-of-32";
+import { deriveGameScript } from "@/lib/world-cup/game-script";
 
 export const metadata = {
   title: "Knockout Model Picks · FIFA World Cup 2026 · GameTime Picks",
@@ -339,12 +338,12 @@ function BracketLeanCard({ g, href, activeWindow }: { g: RoundOf32Game; href: st
   const ml = g.picks?.moneyline;
   const win = winPercent(g);
   const risk = upsetRisk(g);
-  const script = expectedGameScript(g);
   const conf = CONFIDENCE_COLOR[g.confidence] ?? "var(--vault-text-mute)";
-  // Model-implied score lean + knockout risk — only for games still to play (a completed game shows its
-  // status, not a lean). Both are derived from the board's real market picks; never fabricated.
-  const lean = g.status !== "completed" ? deriveScoreLean(g) : null;
-  const ko = g.status !== "completed" ? knockoutRisk(g) : null;
+  // Unified model game script (score lean + total + BTTS + tie-together explanation) + knockout risk —
+  // only for games still to play. The SAME engine game-detail uses, so the reads are identical across pages;
+  // derived from the board's real market picks, never fabricated.
+  const gs = g.status !== "completed" ? deriveGameScript(g) : null;
+  const ko = gs?.knockoutRisk ?? null;
 
   const inner = (
     <article
@@ -393,16 +392,20 @@ function BracketLeanCard({ g, href, activeWindow }: { g: RoundOf32Game; href: st
             ) : null}
           </div>
 
-          {/* Model-implied score lean — derived from the real ML/totals/BTTS picks, NOT a guaranteed score. */}
-          {lean ? (
-            <div className="flex flex-col gap-0.5 rounded-[7px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
-              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Model-implied score lean</span>
-              <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 700 }}>{lean.available ? lean.scoreLean : (lean.note ?? "—")}</span>
-              <span style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{lean.available ? `${lean.confidence} confidence · ${lean.explanation}` : lean.explanation}</span>
+          {/* Unified model game script — score lean + total + BTTS, tied together. Derived from the real
+              ML/totals/BTTS picks, NOT a guaranteed score. Directional (never blank) when totals are absent. */}
+          {gs?.available ? (
+            <div className="flex flex-col gap-1 rounded-[7px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Model score lean · {gs.confidence} confidence</span>
+              <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 700 }}>{gs.scoreLean}</span>
+              <div className="flex flex-wrap items-center gap-1">
+                <span className="font-mono px-1.5 py-0.5 rounded-[3px]" style={{ color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.03)", fontSize: 9 }}>Total: {gs.totalLean ?? "not offered yet"}</span>
+                <span className="font-mono px-1.5 py-0.5 rounded-[3px]" style={{ color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.03)", fontSize: 9 }}>BTTS: {gs.bttsLean ?? "not offered yet"}</span>
+              </div>
+              <span style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{gs.explanation}</span>
+              {gs.conflictWarning ? <span style={{ color: "var(--gtp-bank-heat)", fontSize: 9.5 }}>⚠ {gs.conflictWarning}</span> : null}
             </div>
           ) : null}
-
-          {script ? <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{script}</p> : null}
         </>
       ) : (
         <div className="flex flex-col gap-1">

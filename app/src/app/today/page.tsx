@@ -322,12 +322,27 @@ export default function TodayPage() {
           ))}
         </nav>
 
-        {/* PRIORITY #1: Bank Builder ladders (step rail + current rung legs, team logos + player portraits). */}
-        {bankBuilderLadder.length > 0 && (
+        {/* PRIORITY #1: Bank Builder ladders (step rail + current rung legs, team logos + player portraits).
+            When no daily lane qualifies, show a polished "model skipped" state — never a vanished product. */}
+        {bankBuilderLadder.length > 0 ? (
           <div aria-label="Bank Builder ladders" className="flex flex-col gap-2">
             <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" lanes={bankBuilderLadder} accent="gold" />
             <Link href="/bank-builder" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
               Open the full Bank Builder ladder →
+            </Link>
+          </div>
+        ) : (
+          <div aria-label="Bank Builder status" className="rounded-[12px] px-4 py-3.5 flex flex-col gap-1.5"
+            style={{ background: "rgba(26,16,11,0.4)", border: "1px dashed var(--vault-rule)", borderLeft: "2px solid var(--vault-gold-bright)" }}>
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>Bank Builder</span>
+              <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8.5, color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>no qualified play today</span>
+            </div>
+            <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              No 2-leg team-market combo cleared the model&apos;s ladder-step target on today&apos;s thin knockout slate — the model skipped it instead of forcing a weak ladder off low-value player props. The completed $100→$10K proof ladder is unchanged.
+            </p>
+            <Link href="/bank-builder" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+              See the Bank Builder track record →
             </Link>
           </div>
         )}

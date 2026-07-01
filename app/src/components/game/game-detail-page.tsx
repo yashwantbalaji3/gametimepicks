@@ -27,6 +27,9 @@ import { worldCupPlayerModelPicks, isLimitedDataProps } from "@/lib/world-cup/pl
 import { loadWorldCupProjections } from "@/lib/world-cup/projections";
 import { buildKnockoutContexts, type KnockoutContext } from "@/lib/world-cup/knockout-intelligence";
 import { confidenceLabel, expectedGameScript } from "@/lib/world-cup/wc-editorial";
+import { gameScriptForFixture } from "@/lib/world-cup/game-script";
+import GameScriptCard from "@/components/world-cup/game-script-card";
+import path from "node:path";
 import {
   buildTeamModelPickRows,
   buildPlayerPropTables,
@@ -331,6 +334,12 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   const playerPropTables = detail.sport === "world_cup" ? buildPlayerPropTables(detail.playerProps) : [];
   const gameScript = knockoutCtx ? expectedGameScript(knockoutCtx) : null;
   const slipReadout = knockoutCtx ? confidenceLabel(knockoutCtx.favProb) : null;
+  // The UNIFIED model game script (score lean + total + BTTS + tie-together explanation) — the SAME read
+  // the knockout board shows, resolved for this fixture so score/total/BTTS never contradict across pages.
+  const unifiedScript =
+    detail.sport === "world_cup" && detail.homeTeam && detail.awayTeam
+      ? gameScriptForFixture(path.join(process.cwd(), "public", "data"), detail.homeTeam, detail.awayTeam)
+      : null;
 
   // ── Tab: Model picks — Section 1 (team markets) + Section 2 (four player-prop tables) ──
   const modelPicksTab = (
@@ -358,6 +367,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   const spotlight = (
     <section className="flex flex-col gap-2.5">
       <SectionHeader eyebrow="Model spotlight" title="The strongest reads for this match" sub="Model-ranked, paper-only — pulled from the current odds and the model gates. Full detail in the tabs below." />
+      {unifiedScript ? <GameScriptCard script={unifiedScript} /> : null}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {topProj ? (
           <SpotlightTile eyebrow={`Top team model pick · ${topProj.marketLabel}`} title={topProj.pickLabel}
