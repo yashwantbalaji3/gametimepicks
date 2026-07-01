@@ -19,7 +19,9 @@ import { currentEtDate } from "@/lib/freshness";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung } from "@/components/bank-builder/climb-hero";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
+import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
+import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import fs from "node:fs";
 import path from "node:path";
 import { getSportIdentity } from "@/lib/sport-identity";
@@ -138,6 +140,7 @@ export default function BankBuilderPage() {
   // Today's daily portfolio — feeds the ClimbHero (current/peak bankroll, open exposure, lane cards).
   const today = currentSlateDate() ?? currentEtDate();
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  const bbProposal = buildBankBuilderProposal(path.join(process.cwd(), "public", "data"), today);
 
   // ── ClimbHero props — built ONLY from data already loaded above (dailyPortfolio + bbPreview +
   //    crownLadderSummary's artifact). No new model/money computation; values are read verbatim.
@@ -218,11 +221,14 @@ export default function BankBuilderPage() {
         completedLadders={completedLadders}
       />
 
-      {/* Premium "model skipped" state — shown when neither lane is carrying a qualified card today, so the
-          product reads as a deliberate decision (with the model's strongest alternatives), never inactive. */}
+      {/* When neither real lane is carrying a card, the ladder is between runs — show the FRESH DAILY
+          proposal (survival + value lanes from today's team markets) so the product always has legs; fall
+          back to the premium "model skipped" state only when today's slate can't field a safe two-leg lane. */}
       {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.legs.length > 0) ? (
         <div className="mt-5">
-          <BankBuilderSkippedCard alternatives={strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3)} />
+          {bbProposal.available
+            ? <BankBuilderProposalCard proposal={bbProposal} />
+            : <BankBuilderSkippedCard alternatives={strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3)} />}
         </div>
       ) : null}
 

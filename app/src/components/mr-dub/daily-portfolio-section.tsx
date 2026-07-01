@@ -14,7 +14,9 @@ import FlagBadge from "@/components/flag-badge";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
+import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
 import type { StrongestPick } from "@/lib/world-cup/structured-moonshot";
+import type { BankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import type { DailyPortfolio, DailyPortfolioCard, DailyPortfolioLeg } from "@/lib/mr-dub/daily-portfolio";
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -171,7 +173,7 @@ function SkippedProductCard({ product }: { product: "bank-builder" | "moonshot" 
   );
 }
 
-export default function DailyPortfolioSection({ portfolio, bankBuilderAlternatives = [] }: { portfolio: DailyPortfolio; bankBuilderAlternatives?: StrongestPick[] }) {
+export default function DailyPortfolioSection({ portfolio, bankBuilderAlternatives = [], bankBuilderProposal }: { portfolio: DailyPortfolio; bankBuilderAlternatives?: StrongestPick[]; bankBuilderProposal?: BankBuilderProposal }) {
   // Flagship products that fielded no lane today get a polished "model skipped" state — never a blank slot
   // (the product state is always legible). Bank Builder gets the PREMIUM skipped card (with alternatives).
   const productsWithCards = new Set(portfolio.cards.map((c) => c.product));
@@ -196,10 +198,15 @@ export default function DailyPortfolioSection({ portfolio, bankBuilderAlternativ
           a polished "model skipped" placeholder rather than vanishing. */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {portfolio.cards.map((card) => <LaneCard key={card.id} card={card} />)}
-        {missing.map((p) => p === "bank-builder"
-          ? <BankBuilderSkippedCard key={p} alternatives={bankBuilderAlternatives} variant="compact" />
-          : <SkippedProductCard key={p} product={p} />)}
+        {missing.filter((p) => p !== "bank-builder").map((p) => <SkippedProductCard key={p} product={p} />)}
       </div>
+      {/* Bank Builder with no active lane → the fresh daily proposal (legs every day), or the premium
+          skipped state when today's slate can't field a safe two-leg lane. */}
+      {missing.includes("bank-builder") ? (
+        bankBuilderProposal?.available
+          ? <BankBuilderProposalCard proposal={bankBuilderProposal} />
+          : <BankBuilderSkippedCard alternatives={bankBuilderAlternatives} variant="compact" />
+      ) : null}
 
       <p className="text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>{portfolio.note}</p>
     </section>

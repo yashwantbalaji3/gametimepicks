@@ -45,7 +45,9 @@ import YesterdaySummary from "@/components/yesterday-summary";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
+import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
+import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import WorldCupSpecialsBox from "@/components/world-cup/world-cup-specials-box";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
@@ -268,6 +270,7 @@ export default function TodayPage() {
   const modelProps = loadModelQualifiedProps(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   const bankBuilderAlternatives = strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3);
+  const bbProposal = buildBankBuilderProposal(path.join(process.cwd(), "public", "data"), today);
   // Authoritative core money state (ledger-built) for the Mr. Dub readiness module.
   let coreWins = bbLanesCleared; let coreLosses = 0;
   try {
@@ -334,6 +337,8 @@ export default function TodayPage() {
               Open the full Bank Builder ladder →
             </Link>
           </div>
+        ) : bbProposal.available ? (
+          <BankBuilderProposalCard proposal={bbProposal} />
         ) : (
           <BankBuilderSkippedCard alternatives={bankBuilderAlternatives} />
         )}

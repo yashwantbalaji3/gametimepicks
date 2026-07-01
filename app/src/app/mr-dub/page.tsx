@@ -18,6 +18,7 @@ import { currentEtDate } from "@/lib/freshness";
 import DailyPortfolioSection from "@/components/mr-dub/daily-portfolio-section";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
+import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { computeOpenExposure } from "@/lib/mr-dub/open-exposure";
 import PortfolioAllocationSection from "@/components/mr-dub/portfolio-allocation";
 import { buildPortfolioAllocation } from "@/lib/mr-dub/product-allocation";
@@ -112,6 +113,7 @@ export default function MrDubPage() {
   const today = currentSlateDate() ?? currentEtDate();
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   const bankBuilderAlternatives = strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3);
+  const bbProposal = buildBankBuilderProposal(path.join(process.cwd(), "public", "data"), today);
   // Top-level portfolio allocation across all four products (Bank Builder · Moonshot · WC Specials · Homer Nukes).
   const allocation = buildPortfolioAllocation(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   // Authoritative master ledger — every product's settled paper track record + overall totals.
@@ -335,7 +337,7 @@ export default function MrDubPage() {
         <p className="-mb-2 font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "var(--vault-text-faint)" }}>The wider platform · all four products</p>
         <MasterLedgerSection ledger={masterLedger} />
         <PortfolioAllocationSection allocation={allocation} />
-        <DailyPortfolioSection portfolio={dailyPortfolio} bankBuilderAlternatives={bankBuilderAlternatives} />
+        <DailyPortfolioSection portfolio={dailyPortfolio} bankBuilderAlternatives={bankBuilderAlternatives} bankBuilderProposal={bbProposal} />
       </div>
 
       <p className="text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>

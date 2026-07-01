@@ -96,5 +96,35 @@ export function loadWorldCupTeamLegs(root: string, _nowIso: string, date: string
       }
     }
   }
+  // ── Draw-no-bet / Double-chance / BTTS from the PROJECTIONS artifact (the market-outlook only carries
+  //    3-way ML + totals). Real de-vigged odds/prob/pick; keeps the Bank Builder pool from being ML+totals
+  //    only, so it can build safer draw-protected lanes when a ladder is active. ──
+  const proj = readJson(path.join(root, "world-cup", "projections", `${date}.json`)) ?? readJson(path.join(root, "world-cup", "projections", "latest.json"));
+  const EXTRA: Record<string, string> = { draw_no_bet: "Draw No Bet", double_chance: "Double Chance", btts: "Both Teams To Score" };
+  const seen = new Set(out.map((l) => `${l.gameId}:${l.marketKey}`));
+  for (const m of proj?.matches ?? []) {
+    const mk = m.market as string;
+    if (!EXTRA[mk] || m.projectionStatus && m.projectionStatus !== "active") continue;
+    const odds = typeof m.americanOdds === "number" ? m.americanOdds : null;
+    const prob = typeof m.modelProbability === "number" ? m.modelProbability : null;
+    if (odds == null || prob == null || !m.bookmaker) continue;
+    if (odds < ODDS_MIN || odds > ODDS_MAX) continue;  // no ultra-juiced / no longshot in the BB pool
+    const pi = projIdx.get(`${norm(m.homeTeam)}|${norm(m.awayTeam)}`);
+    const gameId = String(m.matchId ?? pi?.matchId ?? `${m.homeTeam}-${m.awayTeam}`);
+    if (seen.has(`${gameId}:${mk}`)) continue;
+    seen.add(`${gameId}:${mk}`);
+    const kickoffUtc = m.kickoffUtc ?? pi?.kickoffUtc ?? null;
+    out.push({
+      id: `WORLD_CUP:${gameId}:${mk}:${m.pickLabel ?? m.pick}`,
+      sport: "WORLD_CUP", gameId, matchup: `${m.homeTeam} vs ${m.awayTeam}`, kickoffUtc,
+      kickoffEt: kickoffUtc ? new Date(kickoffUtc).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }) + " ET" : "",
+      category: mk === "btts" ? "total_btts" : "team", marketKey: mk, marketLabel: EXTRA[mk],
+      selection: String(m.pickLabel ?? m.pick ?? EXTRA[mk]), player: null, team: mk === "btts" ? null : (m.pickLabel ?? null),
+      odds, provider: m.bookmaker ?? null, modelProbability: round4(prob), edge: 0,
+      volatility: (prob >= 0.6 ? "low" : "medium") as any, risk: prob >= 0.6 ? "Lower-volatility" : "Higher-volatility",
+      dataQuality: "A", hitRateScore: Math.round(prob * 100), upsideScore: Math.round((dec(odds) - 1) * 25),
+      teamLogo: pi?.homeLogo ?? null, playerId: null, playerPortrait: null,
+    });
+  }
   return out;
 }
