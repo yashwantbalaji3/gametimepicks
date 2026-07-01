@@ -362,7 +362,7 @@ export default function WorldCupLandingPage() {
 
       <section aria-label="Curated picks by game">
         <SectionHeader eyebrow={`Curated by game · ${curatedGames.length} fixtures`} title="Top model picks per game" sub="Model-ranked team + player picks for each fixture — the team-market companion to the prop matrix above. Each pick shows model vs market, recent form/data quality, and why." />
-        <WorldCupCuratedPicks games={curatedGames} />
+        <WorldCupCuratedPicks games={curatedGames} slateDate={today} />
       </section>
 
       {wcPlayers.length > 0 ? (

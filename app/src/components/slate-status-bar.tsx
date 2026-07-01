@@ -54,7 +54,7 @@ const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits
  *   "pregame"     — no game has started yet
  * Returns null when there is no usable kickoff data so the caller can fall back to its prior behavior.
  */
-function slateProgressFromKickoffs(slateDate: string | null, nowMs: number): "in_progress" | "pregame" | null {
+function slateProgressFromKickoffs(slateDate: string | null, nowMs: number): "completed" | "in_progress" | "pregame" | null {
   if (!slateDate) return null;
   const proj = loadWorldCupProjections();
   if (!proj || proj.date !== slateDate) return null;
@@ -68,6 +68,11 @@ function slateProgressFromKickoffs(slateDate: string | null, nowMs: number): "in
   }
   const kickoffs = [...kickoffByMatch.values()];
   if (kickoffs.length === 0) return null;
+  // 90' + halftime + stoppage + a buffer for extra time / penalties — past this, a knockout game is over.
+  const GAME_MS = 2.5 * 60 * 60 * 1000;
+  // Every game has finished → the slate is COMPLETED (awaiting settlement), not "in progress". This stops a
+  // stale slate whose games all ended (build-frozen clock) from reading as live forever.
+  if (kickoffs.every((t) => t + GAME_MS <= nowMs)) return "completed";
   const started = kickoffs.filter((t) => t <= nowMs).length;
   if (started === 0) return "pregame";
   // "most" started → in progress (covers the late-evening case where only the last game is pre-kickoff).
@@ -127,8 +132,17 @@ export default function SlateStatusBar() {
   // Falls back to the prior pregame/settled behavior when no kickoff data is available.
   const progress = activeIsSettled ? null : slateProgressFromKickoffs(slateDate, Date.now());
   const slateInProgress = progress === "in_progress";
-  const slateLabel = activeIsSettled ? "Slate settled" : slateInProgress ? "Slate in progress" : "Pregame slate";
-  const slateDotColor = activeIsSettled ? "var(--vault-success)" : slateInProgress ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)";
+  // A slate whose games have ALL finished (but isn't graded yet) reads "Completed — awaiting settlement",
+  // never the red "Slate in progress". Prevents a stale slate from looking live forever.
+  const slateCompleted = progress === "completed";
+  const slateLabel = activeIsSettled ? "Slate settled"
+    : slateCompleted ? "Completed — awaiting settlement"
+    : slateInProgress ? "Slate in progress"
+    : "Pregame slate";
+  const slateDotColor = activeIsSettled ? "var(--vault-success)"
+    : slateCompleted ? "var(--vault-text-faint)"
+    : slateInProgress ? "var(--gtp-bank-heat)"
+    : "var(--vault-gold-bright)";
   const slateTextColor = slateDotColor;
   const bank = loadPublicBankBuilderSummary();
   // Active = the live Mr. Dub paper bankroll; Crown = the completed $100→$10K proof ladder. These are

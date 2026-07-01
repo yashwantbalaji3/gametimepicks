@@ -82,7 +82,7 @@ function PlayerPickRow({ p }: { p: CuratedPick }) {
   );
 }
 
-function GameCard({ g }: { g: CuratedGame }) {
+function GameCard({ g, slateDate }: { g: CuratedGame; slateDate: string }) {
   return (
     <section className="rounded-[12px] px-4 py-3.5" style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2">
@@ -121,7 +121,9 @@ function GameCard({ g }: { g: CuratedGame }) {
       </div>
 
       <div className="mt-3 flex items-center gap-2">
-        <Link href={`/games/world-cup/${gameSlug(g.homeTeam, g.awayTeam, g.startTime ? g.startTime.slice(0, 10) : "")}`}
+        {/* Slug on the SLATE date the detail page is generated under (gameDetailParams uses the projections
+            head date), NOT the kickoff date — a combined-window kickoff can roll into the next day and 404. */}
+        <Link href={`/games/world-cup/${gameSlug(g.homeTeam, g.awayTeam, slateDate)}`}
           className="vault-press inline-flex rounded-full px-3 py-1 font-mono uppercase tracking-[0.1em]"
           style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 9.5, fontWeight: 700, textDecoration: "none" }}>
           View full game →
@@ -136,7 +138,7 @@ function GameCard({ g }: { g: CuratedGame }) {
   );
 }
 
-export default function WorldCupCuratedPicks({ games }: { games: CuratedGame[] }) {
+export default function WorldCupCuratedPicks({ games, slateDate }: { games: CuratedGame[]; slateDate: string }) {
   if (!games.length) {
     return (
       <div className="rounded-[10px] px-5 py-6 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
@@ -148,7 +150,7 @@ export default function WorldCupCuratedPicks({ games }: { games: CuratedGame[] }
   }
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-      {games.map((g) => <GameCard key={g.gameId} g={g} />)}
+      {games.map((g) => <GameCard key={g.gameId} g={g} slateDate={slateDate} />)}
     </div>
   );
 }
