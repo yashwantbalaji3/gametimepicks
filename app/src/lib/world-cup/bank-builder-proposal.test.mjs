@@ -73,3 +73,24 @@ test("thin slate (1 game) → not buildable, honest note, never forced", () => {
   assert.equal(p.available, false);
   assert.match(p.note, /holding|not enough|not buildable/i);
 });
+
+// ── The operator-APPROVED July-1 lanes are PINNED — future generation must never silently swap them. ──
+import { loadApprovedBankBuilder } from "./bank-builder-proposal.ts";
+import path from "node:path";
+test("approved July-1 Bank Builder is pinned to the exact operator-approved legs (no drift)", () => {
+  const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-01", Date.UTC(2026, 6, 1, 18, 30));
+  assert.ok(ap && ap.approved === true, "the approved snapshot loads and is flagged approved");
+  const [a, b] = ap.lanes;
+  // Lane A · Survival = England ML -400 + Belgium DC -385
+  assert.equal(a.legs[0].market, "moneyline_90"); assert.equal(a.legs[0].americanOdds, -400); assert.match(a.legs[0].matchup, /England/);
+  assert.equal(a.legs[1].market, "double_chance"); assert.equal(a.legs[1].americanOdds, -385); assert.match(a.legs[1].matchup, /Belgium/);
+  // Lane B · Value = USA BTTS No -152 + Belgium Under 2.5 -152
+  assert.equal(b.legs[0].market, "btts"); assert.equal(b.legs[0].americanOdds, -152); assert.match(b.legs[0].matchup, /USA/);
+  assert.equal(b.legs[1].market, "match_total_goals"); assert.equal(b.legs[1].americanOdds, -152); assert.match(b.legs[1].matchup, /Belgium/);
+  // Honest live status at 2026-07-01 18:30 UTC: England (16:00) done → awaiting settlement; the rest pregame.
+  assert.equal(a.legs[0].legStatus, "awaiting_settlement", "England leg is not shown as a fresh pregame pick");
+  assert.equal(a.legs[1].legStatus, "pregame");
+  assert.equal(b.legs.every((l) => l.legStatus === "pregame"), true);
+  // Never a fabricated hit/miss without official data.
+  assert.ok(ap.lanes.every((ln) => ln.legs.every((l) => l.legStatus !== "hit" && l.legStatus !== "missed")));
+});

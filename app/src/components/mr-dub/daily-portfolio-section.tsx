@@ -176,8 +176,12 @@ function SkippedProductCard({ product }: { product: "bank-builder" | "moonshot" 
 export default function DailyPortfolioSection({ portfolio, bankBuilderAlternatives = [], bankBuilderProposal }: { portfolio: DailyPortfolio; bankBuilderAlternatives?: StrongestPick[]; bankBuilderProposal?: BankBuilderProposal }) {
   // Flagship products that fielded no lane today get a polished "model skipped" state — never a blank slot
   // (the product state is always legible). Bank Builder gets the PREMIUM skipped card (with alternatives).
-  const productsWithCards = new Set(portfolio.cards.map((c) => c.product));
-  const missing = (["bank-builder", "moonshot"] as const).filter((p) => !productsWithCards.has(p));
+  // When the operator has approved a Bank Builder ladder, show the rich approved card (per-leg live status)
+  // and drop the generic BB lane cards from the grid so the two never duplicate.
+  const bbApproved = !!bankBuilderProposal?.approved;
+  const gridCards = bbApproved ? portfolio.cards.filter((c) => c.product !== "bank-builder") : portfolio.cards;
+  const productsWithCards = new Set(gridCards.map((c) => c.product));
+  const missing = (["bank-builder", "moonshot"] as const).filter((p) => !productsWithCards.has(p) && !(p === "bank-builder" && bbApproved));
   return (
     <section className="flex flex-col gap-3 overflow-x-hidden">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -196,8 +200,10 @@ export default function DailyPortfolioSection({ portfolio, bankBuilderAlternativ
 
       {/* Lane cards — 2×2 on desktop, single column on mobile. A flagship product with no lane today shows
           a polished "model skipped" placeholder rather than vanishing. */}
+      {/* Approved Bank Builder = the active paper ladder (rich card, per-leg status), shown above the grid. */}
+      {bbApproved && bankBuilderProposal ? <BankBuilderProposalCard proposal={bankBuilderProposal} /> : null}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        {portfolio.cards.map((card) => <LaneCard key={card.id} card={card} />)}
+        {gridCards.map((card) => <LaneCard key={card.id} card={card} />)}
         {missing.filter((p) => p !== "bank-builder").map((p) => <SkippedProductCard key={p} product={p} />)}
       </div>
       {/* Bank Builder with no active lane → the fresh daily proposal (legs every day), or the premium

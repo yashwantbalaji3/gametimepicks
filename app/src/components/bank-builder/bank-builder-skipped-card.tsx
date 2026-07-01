@@ -32,7 +32,7 @@ export default function BankBuilderSkippedCard({
       </div>
 
       <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-        The dual ladder is <span style={{ color: "var(--vault-text)" }}>between runs</span>: both lanes reached a terminal state after their last settled results, and a fresh ladder starts on operator approval — the model never auto-restarts a ladder into a thin slate. Today&rsquo;s knockout card also offered no safe two-leg team-market combo that reached a rung target, and low-value player-prop cards were rejected on purpose. <span style={{ color: "var(--vault-text)" }}>Skipping is the pick.</span> The completed $100→$10K proof ladder is unchanged.
+        Today&rsquo;s slate offered <span style={{ color: "var(--vault-text)" }}>no safe two-leg team-market combo</span> that cleared a rung target, and low-value player-prop cards were rejected on purpose. <span style={{ color: "var(--vault-text)" }}>Skipping is the pick</span> — the model holds rather than forcing a weak ladder. The completed $100→$10K proof ladder is unchanged. The strongest single legs today are below.
       </p>
 
       {alternatives.length > 0 ? (

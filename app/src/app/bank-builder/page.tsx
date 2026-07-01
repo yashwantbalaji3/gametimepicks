@@ -221,10 +221,10 @@ export default function BankBuilderPage() {
         completedLadders={completedLadders}
       />
 
-      {/* When neither real lane is carrying a card, the ladder is between runs — show the FRESH DAILY
-          proposal (survival + value lanes from today's team markets) so the product always has legs; fall
-          back to the premium "model skipped" state only when today's slate can't field a safe two-leg lane. */}
-      {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.legs.length > 0) ? (
+      {/* The approved daily Bank Builder is an ACTIVE paper ladder — always shown (with per-leg live status).
+          On days with no approval, show the fresh proposal when no lane is carrying a card, else the premium
+          "model skipped" state when the slate can't field a safe two-leg lane. */}
+      {bbProposal.approved || !dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.legs.length > 0) ? (
         <div className="mt-5">
           {bbProposal.available
             ? <BankBuilderProposalCard proposal={bbProposal} />

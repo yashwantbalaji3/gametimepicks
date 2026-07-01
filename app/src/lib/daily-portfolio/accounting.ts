@@ -256,6 +256,55 @@ export function applyCardLocks(
  * dry-run); `activate=true` marks eligible lanes ACTIVE (placing paper exposure). Eligible Moonshot
  * exposure is capped at MOONSHOT_MAX_EXPOSURE. NEVER changes active bankroll or crown.
  */
+/** Canonical market key → the human label the daily-portfolio legs carry (the format the settlement already
+ *  grades for the active Moonshot lanes). Keeps injected Bank Builder legs settlement-supported. */
+const BB_MARKET_LABEL: Record<string, string> = {
+  moneyline_90: "Match Result", double_chance: "Double Chance", draw_no_bet: "Draw No Bet",
+  match_total_goals: "Total Goals", btts: "Both Teams To Score",
+};
+
+/**
+ * Operator-APPROVED Bank Builder lanes for the date, read from mr-dub/bank-builder-approved.json and mapped
+ * to ACTIVE PortfolioLanes (paper). Once the operator approves a day's lanes they are the source of truth —
+ * pinned across refreshes — so the terminal-ladder auto-gate no longer hides Bank Builder. Legs carry the
+ * settlement-supported label/selection the nightly settle already grades; the exposure is the $100 paper
+ * seed. This NEVER touches canonical money — it only shapes the daily paper view.
+ */
+function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
+  let doc: { date?: string; stake?: number; lanes?: Array<Record<string, any>> };
+  try { doc = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "bank-builder-approved.json"), "utf8")); } catch { return []; }
+  if (!doc || doc.date !== date || !Array.isArray(doc.lanes)) return [];
+  const stake = doc.stake ?? 100;
+  return doc.lanes.map((l): PortfolioLane => {
+    const legs: PortfolioLaneLeg[] = (l.legs ?? []).map((leg: Record<string, any>) => ({
+      id: `bb-approved:${leg.gameSlug}:${leg.market}`,
+      matchup: (leg.matchup ?? "").replace(/ v /, " vs "),
+      market: BB_MARKET_LABEL[leg.market] ?? leg.marketLabel ?? leg.market,
+      selection: leg.selection,
+      player: null,
+      odds: leg.americanOdds,
+      provider: leg.provider ?? "consensus",
+      modelConfidence: leg.modelProbability ?? 0,
+      kickoffEt: leg.kickoffUtc ? new Date(leg.kickoffUtc).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }) + " ET" : "",
+      risk: "Lower-volatility",
+      teamLogo: null,
+    }));
+    return {
+      id: `bank-builder-approved-lane-${String(l.lane).toLowerCase()}-${date}`,
+      product: "bank-builder", productLabel: "Bank Builder", lane: l.lane,
+      step: 1, clearedSteps: 0, status: "active", stake, exposure: stake,
+      targetReturn: null, fitsTarget: true,
+      combinedOdds: l.combinedOdds ?? 0, combinedDecimal: l.combinedDecimal ?? 1,
+      potentialReturn: l.potentialReturn ?? round2(stake * (l.combinedDecimal ?? 1)),
+      legCount: legs.length, targetLegs: legs.length, legs,
+      correlationNote: null, shortfallNote: null,
+      whyThisCard: [l.whyLadderPick, l.whyItCouldFail].filter(Boolean),
+      activationEligibility: { eligible: true, reason: "operator-approved active paper ladder" },
+      locked: true, approvedAt: doc.date,
+    };
+  });
+}
+
 export function buildPersistedDailyPortfolio(root: string, nowIso: string, date: string, generatedAt: string | null, activate: boolean): PersistedDailyPortfolio {
   const { activeBankroll, crownBankroll } = readCanonicalMoney(root);
   const _nowMsPre = Date.parse(nowIso);
@@ -276,10 +325,17 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   const nowMs = Date.parse(nowIso);
   const lanes: PortfolioLane[] = [];
 
+  // ── Operator-APPROVED Bank Builder lanes win: when the operator has approved a day's lanes they are the
+  //    active paper ladder (pinned), so the terminal-ladder auto-gate no longer hides Bank Builder. Paper
+  //    only — canonical money is never touched here; the nightly settle grades these from official results. ──
+  const usedBB = new Set<string>();
+  const approvedBB = approvedBankBuilderLanes(root, date);
+  if (approvedBB.length) {
+    for (const lane of approvedBB) { lanes.push(lane); lane.legs.forEach((l) => usedBB.add(l.id)); }
+  } else {
   // ── Bank Builder: pick Lane A + Lane B TOGETHER so they share no game (cross-lane independence),
   //    each fitting its next rung (Lane A Step 4, Lane B Step 2), team/game markets preferred. ──
   const rungs = readLaneRungs(root);
-  const usedBB = new Set<string>();
   if (rungs.laneA && rungs.laneB) {
     const { laneA, laneB } = selectCrossLaneBankBuilder(bbPool, rungs.laneA, rungs.laneB);
     for (const g of [laneA, laneB]) {
@@ -299,6 +355,7 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
       lanes.push(toBBLane(g, status, elig));
     }
   }
+  } // end auto-generated Bank Builder (no operator-approved lanes for the date)
 
   // ── Approved-card lock: pin any approved Bank Builder lane so this refresh can't swap its legs. ──
   const cardLock = loadCardLock(root, date);

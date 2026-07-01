@@ -1,0 +1,89 @@
+{
+  "_note": "Operator-APPROVED fresh daily Bank Builder lanes for the date below. Pinned so the live proposal generator can't silently swap legs after a game kicks off (e.g. England completing). Odds/probabilities are the REAL de-vigged board values from when the lanes were approved; per-leg status is derived at render time from kickoff vs now (pregame / in_progress / awaiting_settlement) — never a fabricated hit/miss. Display + paper only: this file never mutates canonical portfolio.json.",
+  "date": "2026-07-01",
+  "approvedAt": "2026-07-01",
+  "status": "active",
+  "stake": 100,
+  "lanes": [
+    {
+      "lane": "A",
+      "kind": "survival",
+      "label": "Lane A · Survival (safest)",
+      "combinedOdds": -174,
+      "combinedDecimal": 1.5747,
+      "modelProbability": 0.57,
+      "confidence": "High",
+      "potentialReturn": 157.47,
+      "whyLadderPick": "The two highest-probability draw-protected / favourite legs on the slate, from different games — built to CLEAR a rung, not to swing for a payout.",
+      "whyItCouldFail": "Both legs must land — England v DR Congo and Belgium v Senegal going the other way (an upset, a stray goal, or a tight game flipping) loses the rung. Knockout games carry extra-time / penalty variance on 90' result legs.",
+      "legs": [
+        {
+          "market": "moneyline_90",
+          "marketLabel": "Moneyline (90′)",
+          "selection": "England to win",
+          "americanOdds": -400,
+          "modelProbability": 0.7624,
+          "gameSlug": "england-vs-dr-congo-2026-07-01",
+          "matchup": "England v DR Congo",
+          "homeCode": "GB-ENG",
+          "kickoffUtc": "2026-07-01T16:00:00Z",
+          "aligned": true,
+          "provider": "betrivers"
+        },
+        {
+          "market": "double_chance",
+          "marketLabel": "Double Chance",
+          "selection": "Belgium or Draw",
+          "americanOdds": -385,
+          "modelProbability": 0.7427,
+          "gameSlug": "belgium-vs-senegal-2026-07-01",
+          "matchup": "Belgium v Senegal",
+          "homeCode": "BE",
+          "kickoffUtc": "2026-07-01T20:00:00Z",
+          "aligned": true,
+          "provider": "betrivers"
+        }
+      ]
+    },
+    {
+      "lane": "B",
+      "kind": "value",
+      "label": "Lane B · Value",
+      "combinedOdds": 175,
+      "combinedDecimal": 2.7486,
+      "modelProbability": 0.32,
+      "confidence": "Lean",
+      "potentialReturn": 274.86,
+      "whyLadderPick": "The two best-value legs (model edge over the market price) from different games — a slightly longer price than the survival lane while staying inside a payable band.",
+      "whyItCouldFail": "Both legs must land — USA v Bosnia & Herzegovina and Belgium v Senegal going the other way loses the rung. Knockout games carry extra-time / penalty variance.",
+      "legs": [
+        {
+          "market": "btts",
+          "marketLabel": "Both Teams To Score",
+          "selection": "BTTS No",
+          "americanOdds": -152,
+          "modelProbability": 0.5703,
+          "gameSlug": "usa-vs-bosnia-herzegovina-2026-07-01",
+          "matchup": "USA v Bosnia & Herzegovina",
+          "homeCode": "US",
+          "kickoffUtc": "2026-07-02T00:00:00Z",
+          "aligned": true,
+          "provider": "fanduel"
+        },
+        {
+          "market": "match_total_goals",
+          "marketLabel": "Total Goals",
+          "selection": "Under 2.5",
+          "americanOdds": -152,
+          "modelProbability": 0.5669,
+          "gameSlug": "belgium-vs-senegal-2026-07-01",
+          "matchup": "Belgium v Senegal",
+          "homeCode": "BE",
+          "kickoffUtc": "2026-07-01T20:00:00Z",
+          "aligned": true,
+          "provider": "betrivers"
+        }
+      ]
+    }
+  ]
+}

@@ -10,6 +10,13 @@ import type { BankBuilderProposal, ProposalLane } from "@/lib/world-cup/bank-bui
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const CONF: Record<string, string> = { High: "var(--vault-success)", Solid: "var(--vault-gold-bright)", Lean: "#e7b15a" };
+const LEG_STATUS: Record<string, { label: string; tone: string }> = {
+  pregame: { label: "Pregame", tone: "var(--vault-gold-bright)" },
+  in_progress: { label: "In progress", tone: "var(--gtp-bank-heat)" },
+  awaiting_settlement: { label: "Awaiting settlement", tone: "var(--vault-text-faint)" },
+  hit: { label: "Hit", tone: "var(--vault-success)" },
+  missed: { label: "Missed", tone: "var(--gtp-bank-heat)" },
+};
 
 function LaneCard({ lane }: { lane: ProposalLane }) {
   const survival = lane.kind === "survival";
@@ -27,11 +34,20 @@ function LaneCard({ lane }: { lane: ProposalLane }) {
             <span className="font-semibold" style={{ color: CONF[lane.confidence], fontSize: 10.5 }}>{lane.confidence}</span>
           </span>
           <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>model {Math.round(lane.modelProbability * 100)}%</span>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>$0 placed · paper</span>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>$100 paper</span>
         </div>
+        {typeof lane.legsSettled === "number" && lane.legsTotal ? (
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: lane.laneStatus === "awaiting_settlement" ? "var(--vault-text-faint)" : "var(--gtp-bank-heat)", fontSize: 8.5 }}>
+            {lane.legsSettled === 0 ? "Both legs pregame"
+              : lane.legsSettled === lane.legsTotal ? "Both legs played · awaiting official settlement"
+              : `${lane.legsSettled} of ${lane.legsTotal} legs played · awaiting ${lane.legs.find((l) => l.legStatus === "pregame")?.selection ?? "the rest"}`}
+          </span>
+        ) : null}
       </div>
       <div className="px-3 py-2.5 flex flex-col gap-1.5">
-        {lane.legs.map((leg, i) => (
+        {lane.legs.map((leg, i) => {
+          const st = leg.legStatus ? LEG_STATUS[leg.legStatus] : null;
+          return (
           <div key={i} className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1.5 min-w-0">
               {leg.homeCode ? <FlagBadge code={leg.homeCode} size="sm" /> : null}
@@ -40,11 +56,13 @@ function LaneCard({ lane }: { lane: ProposalLane }) {
               <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{leg.matchup}</span>
             </span>
             <span className="flex items-center gap-1.5 shrink-0">
+              {st ? <span className="font-mono uppercase tracking-[0.06em] rounded px-1 py-0.5" style={{ color: st.tone, background: "rgba(255,255,255,0.03)", border: `1px solid color-mix(in srgb, ${st.tone} 35%, transparent)`, fontSize: 7.5 }}>{st.label}</span> : null}
               <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 9.5 }}>{Math.round(leg.modelProbability * 100)}%</span>
               <OddsPill odds={leg.americanOdds} size="sm" tone={survival ? "gold" : "lava"} />
             </span>
           </div>
-        ))}
+          );
+        })}
       </div>
       <div className="px-4 py-2.5 flex flex-col gap-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
         <span className="text-[10px] leading-snug" style={{ color: "var(--vault-text-mute)" }}><span className="font-mono uppercase tracking-[0.1em]" style={{ color: survival ? "var(--vault-success)" : "var(--vault-gold-bright)", fontSize: 8.5 }}>Why this ladder pick · </span>{lane.whyLadderPick}</span>
@@ -59,8 +77,8 @@ export default function BankBuilderProposalCard({ proposal }: { proposal: BankBu
   return (
     <div className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(26,16,11,0.45)", border: "1px solid var(--vault-gold)", borderLeft: "3px solid var(--vault-gold-bright)" }}>
       <div className="flex items-center justify-between gap-2">
-        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>Fresh daily Bank Builder</span>
-        <span className="rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 8.5, color: "var(--vault-gold-bright)", background: "rgba(217,164,65,0.12)", border: "1px solid color-mix(in srgb, var(--vault-gold-bright) 40%, transparent)" }}>proposal · {proposal.date}</span>
+        <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{proposal.approved ? "Active daily Bank Builder" : "Fresh daily Bank Builder"}</span>
+        <span className="rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 8.5, color: proposal.approved ? "var(--vault-success)" : "var(--vault-gold-bright)", background: proposal.approved ? "rgba(110,231,168,0.12)" : "rgba(217,164,65,0.12)", border: `1px solid color-mix(in srgb, ${proposal.approved ? "var(--vault-success)" : "var(--vault-gold-bright)"} 40%, transparent)` }}>{proposal.approved ? "active paper ladder" : "proposal"} · {proposal.date}</span>
       </div>
       <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{proposal.note}</p>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">

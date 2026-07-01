@@ -159,7 +159,11 @@ test("active-run protection: settled rungs are immutable history — exposure on
   // (e.g. the June-25 snapshot's Step-1 cards became the live ladder's settled Step-1 rungs).
   const dp = read("mr-dub/daily-portfolio.json");
   const run = read("methodology/launch/dual-bank-builder-active.json").run;
-  for (const l of (dp.lanes ?? []).filter((x) => x.product === "bank-builder" && x.status === "active")) {
+  for (const l of (dp.lanes ?? []).filter((x) => x.product === "bank-builder" && x.status === "active" && !x.approvedAt)) {
+    // An operator-APPROVED fresh-restart lane (x.approvedAt set) is a NEW cycle's Step 1 — it legitimately
+    // starts a fresh ladder even though the terminal ladder already settled its own Step 1, so it is not a
+    // re-occupation of prior-slate history and is excluded from this check. Auto-generated lanes still must
+    // never sit on a prior-slate settled rung.
     const laneKey = l.lane === "A" ? "laneA" : "laneB";
     // A settled rung from a PRIOR slate is immutable history; an active card must never re-occupy it.
     const staleSettled = new Set(

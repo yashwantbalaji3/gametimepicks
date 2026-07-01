@@ -328,9 +328,11 @@ export default function TodayPage() {
           ))}
         </nav>
 
-        {/* PRIORITY #1: Bank Builder ladders (step rail + current rung legs, team logos + player portraits).
-            When no daily lane qualifies, show a polished "model skipped" state — never a vanished product. */}
-        {bankBuilderLadder.length > 0 ? (
+        {/* PRIORITY #1: Bank Builder. The operator-approved daily lanes render as the ACTIVE paper ladder
+            (per-leg live status); otherwise the ladder rail, else a polished "model skipped" state. */}
+        {bbProposal.approved ? (
+          <BankBuilderProposalCard proposal={bbProposal} />
+        ) : bankBuilderLadder.length > 0 ? (
           <div aria-label="Bank Builder ladders" className="flex flex-col gap-2">
             <ProductLanesLadder productLabel="Bank Builder" product="bank-builder" lanes={bankBuilderLadder} accent="gold" />
             <Link href="/bank-builder" className="self-start font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>

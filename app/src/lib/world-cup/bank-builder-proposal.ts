@@ -15,6 +15,11 @@ import { loadRoundOf32Board, type RoundOf32Game, type RoundOf32Picks } from "./r
 import { deriveGameScript } from "./game-script";
 import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
 
+/** Honest per-leg lifecycle status, derived ONLY from kickoff vs now (never a fabricated hit/miss). A
+ *  hit/missed is set ONLY when real official settlement data is present (not implemented here → we never
+ *  assert a winner without it). */
+export type LegStatus = "pregame" | "in_progress" | "awaiting_settlement" | "hit" | "missed";
+
 export interface ProposalLeg {
   market: string;
   marketLabel: string;
@@ -25,6 +30,8 @@ export interface ProposalLeg {
   matchup: string;
   homeCode: string | null;
   aligned: boolean;      // agrees with the game's score lean
+  kickoffUtc?: string | null;
+  legStatus?: LegStatus;
 }
 
 export interface ProposalLane {
@@ -40,6 +47,10 @@ export interface ProposalLane {
   confidence: "High" | "Solid" | "Lean";
   whyLadderPick: string;
   whyItCouldFail: string;
+  /** live-lane bookkeeping (present on a promoted/approved lane). */
+  legsSettled?: number;       // legs whose game is over (awaiting/hit/missed)
+  legsTotal?: number;
+  laneStatus?: "pregame" | "in_progress" | "awaiting_settlement";
 }
 
 export interface BankBuilderProposal {
@@ -47,6 +58,43 @@ export interface BankBuilderProposal {
   date: string;
   lanes: ProposalLane[];
   note: string;
+  /** true when these are the operator-APPROVED, pinned lanes (active paper ladder) rather than the live
+   *  auto-generated proposal. Drives the "Active paper ladder" framing (no operator-action copy). */
+  approved?: boolean;
+}
+
+const GAME_MS = 2.5 * 60 * 60 * 1000;
+
+/** Per-leg status from kickoff vs now — pregame / in_progress / awaiting_settlement. Never hit/missed
+ *  without official data (this function has none). */
+export function legStatusFromKickoff(kickoffUtc: string | null | undefined, nowMs: number): LegStatus {
+  const ko = kickoffUtc ? Date.parse(kickoffUtc) : NaN;
+  if (!Number.isFinite(ko) || ko > nowMs) return "pregame";
+  return nowMs - ko >= GAME_MS ? "awaiting_settlement" : "in_progress";
+}
+
+/** Load the operator-APPROVED, pinned Bank Builder lanes for a date (if any), stamping honest per-leg +
+ *  per-lane live status from the current clock. Returns null when no approval exists for the date. This is
+ *  the source of truth so the live generator can't swap an approved leg after its game kicks off. */
+export function loadApprovedBankBuilder(root: string, date: string, nowMs = Date.now()): BankBuilderProposal | null {
+  let doc: { date?: string; lanes?: ProposalLane[]; note?: string };
+  try {
+    doc = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "bank-builder-approved.json"), "utf8"));
+  } catch { return null; }
+  if (!doc || doc.date !== date || !Array.isArray(doc.lanes) || !doc.lanes.length) return null;
+  const stake = (doc as { stake?: number }).stake ?? 100;
+  const lanes = doc.lanes.map((lane) => {
+    const legs = lane.legs.map((l) => ({ ...l, legStatus: legStatusFromKickoff(l.kickoffUtc, nowMs) }));
+    const settled = legs.filter((l) => l.legStatus === "awaiting_settlement" || l.legStatus === "hit" || l.legStatus === "missed").length;
+    const anyStarted = legs.some((l) => l.legStatus !== "pregame");
+    const laneStatus: ProposalLane["laneStatus"] = settled === legs.length ? "awaiting_settlement" : anyStarted ? "in_progress" : "pregame";
+    return { ...lane, stake: lane.stake ?? stake, legs, legsSettled: settled, legsTotal: legs.length, laneStatus };
+  });
+  return {
+    available: true, approved: true, date: doc.date,
+    lanes,
+    note: "Approved daily Bank Builder — an ACTIVE paper ladder. Paper-only ($100 seed, educational); the canonical $100→$10K proof ladder is unchanged and updates only through official settlement. Started/finished legs are marked below and grade from official results — never a fabricated hit.",
+  };
 }
 
 const norm = (s: string) => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
@@ -116,6 +164,11 @@ function assembleLane(lane: "A" | "B", kind: "survival" | "value", legs: Proposa
 /** Build the fresh daily Bank Builder proposal from the board's live slate games. Real team markets only. */
 export function buildBankBuilderProposal(root?: string, date?: string): BankBuilderProposal {
   const base = root ?? path.join(process.cwd(), "public", "data");
+  // APPROVED lanes win: once an operator approves a day's lanes they are PINNED (with honest per-leg live
+  // status) so the auto-generator can't swap a leg after its game kicks off. Falls through to the live
+  // proposal only on days with no approval.
+  const approved = loadApprovedBankBuilder(base, date ?? "");
+  if (approved) return approved;
   const board = loadRoundOf32Board(root);
   const slate = slateGameKeys(base, date);
   const games = (board?.games ?? []).filter(
