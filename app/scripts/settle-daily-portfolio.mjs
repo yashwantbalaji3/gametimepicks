@@ -71,10 +71,15 @@ const plans = activeBb.map(planLane);
 for (const p of plans) {
   const card = p.laneCard;
   console.log(`  Bank Builder Lane ${p.laneLetter} · Step ${card.step} · stake $${fmt(card.stake)} · ${card.legCount} legs → ${String(p.status).toUpperCase()}${p.reason ? ` (${p.reason})` : ""}`);
-  for (const lg of card.legs ?? []) {
-    const g = (p.graded?.legs ?? []).find((x) => x.odds === lg.odds) ?? {};
+  // Pair each card leg with its graded result by POSITION (both lists are the same card's legs in order).
+  // Matching by odds alone mislabels when two legs share a price — e.g. a lane of USA BTTS No -152 +
+  // Belgium Under 2.5 -152 showed the BTTS result on both lines. Fall back to an odds match only if the
+  // index is missing. (Display only — the money grade comes from the engine, not this line.)
+  const gLegs = p.graded?.legs ?? [];
+  (card.legs ?? []).forEach((lg, i) => {
+    const g = gLegs[i] ?? gLegs.find((x) => x.odds === lg.odds) ?? {};
     console.log(`     ${lg.matchup} · ${lg.market}: ${lg.selection} (${lg.odds > 0 ? "+" : ""}${lg.odds}) → ${g.result ?? "pending"}${g.reason ? ` · ${g.reason}` : ""}`);
-  }
+  });
   if (p.status === "won") console.log(`     ⇒ rolls $${fmt(card.stake)} → $${fmt(p.payout)} (won step: bankroll + crown UNCHANGED, record +1)`);
   if (p.status === "lost") console.log(`     ⇒ Lane ${p.laneLetter} STOPS · -$100 seed · record +1 loss`);
 }

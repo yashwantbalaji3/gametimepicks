@@ -104,22 +104,22 @@ test("daily portfolio: 4 candidate lanes, $0 exposure (post-settlement — no qu
   assert.equal(dp.openExposure, 0, "open exposure $0 (no active lanes)");
   assert.equal(dp.exposure.core, 0, "core exposure $0");
   assert.equal(dp.exposure.moonshot, 0, "moonshot exposure $0");
-  assert.equal(dp.activeBankroll, 19565.40, "active bankroll = portfolio.currentBankroll (after the June-29 Step losses)");
-  assert.equal(dp.availableBankroll, 19565.40, "available = active − exposure ($0)");
+  assert.equal(dp.activeBankroll, 19465.40, "active bankroll = portfolio.currentBankroll (after the July-1 Step settlement)");
+  assert.equal(dp.availableBankroll, 19465.40, "available = active − exposure ($0)");
   assert.equal(dp.crownBankroll, 20465.40, "crown reported separately, unchanged");
 });
 
 test("daily portfolio NEVER mutates money state: portfolio.json bankroll/crown/exposure/record intact", () => {
   buildDailyPortfolio(root, NOW, DATE); // read-only
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  // Canonical money reflects banking Ladder #2 ($10,089.23) and the June-29 settlement: crown 20465.40 (Σ of
-  // the two completed-ladder finals, unchanged) and bankroll = crown − $900 realized dual-lane losses = 19565.40;
-  // record advanced to 15-9-0-0 (both lanes settled-LOST their June-29 Step). The read-only daily portfolio
+  // Canonical money reflects banking Ladder #2 ($10,089.23) and the July-1 settlement: crown 20465.40 (Σ of
+  // the two completed-ladder finals, unchanged) and bankroll = crown − $1000 realized dual-lane losses = 19465.40;
+  // record advanced to 16-10-0-0 (Lane A won, Lane B lost their July-1 Step). The read-only daily portfolio
   // must never mutate it.
-  assert.equal(p.currentBankroll, 19565.40, "active bankroll = post-June-29 value");
+  assert.equal(p.currentBankroll, 19465.40, "active bankroll = post-July-1 value");
   assert.equal(p.crownBankroll, 20465.40, "crown = Σ of two completed-ladder finals");
   assert.equal(p.openExposure, 0, "core exposure $0");
-  assert.deepEqual(p.record, { wins: 15, losses: 9, voids: 0, pending: 0 }, "record 15-9-0-0");
+  assert.deepEqual(p.record, { wins: 16, losses: 10, voids: 0, pending: 0 }, "record 16-10-0-0");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate");
 });
 

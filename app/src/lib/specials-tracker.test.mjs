@@ -36,7 +36,7 @@ test("World Cup Specials tracker derives candidate/pending/settled from the slat
 test("World Cup Specials are SEPARATE from core / moonshot / crown (no blending)", () => {
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   // Deriving/showing specials never mutates the core or moonshot accounting.
-  assert.deepEqual(portfolio.record, { wins: 15, losses: 9, voids: 0, pending: 0 }, "core record reflects only the BB settlement, not specials (June-29: both lanes settled-LOST their Step)");
+  assert.deepEqual(portfolio.record, { wins: 16, losses: 10, voids: 0, pending: 0 }, "core record reflects only the BB settlement, not specials (July-1: Lane A won, Lane B lost their Step)");
   assert.equal(portfolio.openExposure, 0, "core exposure unchanged by specials ($0 — both lanes settled)");
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record unchanged");
   assert.equal(portfolio.crownBankroll, 20465.40, "crown untouched");

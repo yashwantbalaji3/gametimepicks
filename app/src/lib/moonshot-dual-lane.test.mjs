@@ -232,10 +232,10 @@ test("live June-24 portfolio: both STRUCTURED Moonshot lanes display; paper expo
   const activeMoon = moon.filter((l) => l.status === "active");
   assert.equal(dp.products.moonshot.exposure, activeMoon.length * 25, "Moonshot paper exposure = $25 × active structured lanes (reconciles)");
   // Canonical money is FROZEN — the daily portfolio never touches the bankroll / crown / record.
-  assert.equal(dp.activeBankroll, 19565.40, "canonical active bankroll frozen (crown − $900 nine real lost seeds, after the June-29 settlement)");
+  assert.equal(dp.activeBankroll, 19465.40, "canonical active bankroll frozen (crown − $1000 ten real lost seeds, after the July-1 settlement)");
   assert.equal(dp.crownBankroll, 20465.40, "canonical crown frozen (Σ of two completed-ladder finals)");
   const p = JSON.parse(read(path.join(root, "mr-dub", "portfolio.json")));
-  assert.deepEqual(p.record, { wins: 15, losses: 9, voids: 0, pending: 0 }, "canonical record untouched by the moonshot view (15-9 after the June-29 BB settlement)");
+  assert.deepEqual(p.record, { wins: 16, losses: 10, voids: 0, pending: 0 }, "canonical record untouched by the moonshot view (16-10 after the July-1 BB settlement)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "canonical moonshot block untouched");
 });
 

@@ -91,10 +91,10 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("live run (June-29 settled-LOST): LIVE preview shows both lanes settled-LOST on Step-1, no stale-leg leak", () => {
+test("live run (July-1 settlement): LIVE preview shows Lane A WON + Lane B LOST on Step-1, no stale-leg leak", () => {
   // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and restarted into a new cycle.
-  // The cycle then ran on: both lanes settled-LOST their June-29 Step-1 (Lane A cycle 5, Lane B cycle 4). The
-  // live preview now leads each lane with its settled-LOST Step-1 card; both stay publicly visible. The prior
+  // The cycle then ran on the July-1 slate: Lane A WON its Step-1 (advanced, cycle 6) and Lane B LOST (stopped,
+  // cycle 5). The live preview leads each lane with its settled Step-1 card; both stay publicly visible. The prior
   // won/lost cycle narratives stay in each lane's priorLane chain (and the banked archive) — they must NOT bleed
   // into the live preview.
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
@@ -103,24 +103,24 @@ test("live run (June-29 settled-LOST): LIVE preview shows both lanes settled-LOS
   assert.equal(bb.isLadder, true, "it is a stepping ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
   assert.equal(bb.currentStep, 1, "live run's lead step pointer sits on Step 1 (both lanes' open rung)");
-  // Lane A is a settled-LOST Step-1. The loader never fabricates.
-  assert.equal(bb.laneA.laneStatus, "stopped", "Lane A stopped (Step-1 settled-LOST June-29)");
+  // Lane A is a settled-WON Step-1 (advanced). The loader never fabricates.
+  assert.equal(bb.laneA.laneStatus, "advanced", "Lane A advanced (Step-1 settled-WON July-1)");
   assert.equal(bb.laneA.publicVisible, true, "Lane A is publicly visible");
   assert.equal(bb.laneA.currentStep, 1, "Lane A is on Step 1");
-  assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries its one settled-LOST Step-1 card");
+  assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries its one settled Step-1 card");
   assert.equal(bb.laneA.steps[0].status, "settled", "Lane A Step-1 is settled");
-  assert.equal(bb.laneA.steps[0].result, "lost", "Lane A Step-1 settled LOST (June-29)");
-  // Lane B is a settled-LOST Step-1.
-  assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped (Step-1 settled-LOST June-29)");
+  assert.equal(bb.laneA.steps[0].result, "won", "Lane A Step-1 settled WON (July-1)");
+  // Lane B is a settled-LOST Step-1 (stopped).
+  assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped (Step-1 settled-LOST July-1)");
   assert.equal(bb.laneB.publicVisible, true, "Lane B is publicly visible");
   assert.equal(bb.laneB.currentStep, 1, "Lane B is on Step 1");
   assert.equal((bb.laneB.steps ?? []).length, 1, "Lane B carries its one settled-LOST Step-1 card");
   assert.equal(bb.laneB.steps[0].status, "settled", "Lane B Step-1 is settled");
-  assert.equal(bb.laneB.steps[0].result, "lost", "Lane B Step-1 settled LOST (June-29)");
+  assert.equal(bb.laneB.steps[0].result, "lost", "Lane B Step-1 settled LOST (July-1)");
   // No stale legs from any PRIOR ladder (the banked cycle or either lane's priorLane chain) may surface in the
-  // live preview. (Paraguay is NOT banned here — Germany vs Paraguay is a legitimate June-29 settled-card leg.)
+  // live preview. (Bosnia is NOT banned here — USA vs Bosnia & Herzegovina is a legitimate July-1 settled-card leg.)
   const live = JSON.stringify(bb);
-  assert.ok(!/Goldschmidt|Bosnia|Hoskins|Turkey|Gonzales|Algeria|Australia|Curaçao|Ivory Coast|Argentina|Austria|Jordan|Egypt|France/.test(live), "no prior-ladder / priorLane legs leak into the live preview");
+  assert.ok(!/Goldschmidt|Hoskins|Turkey|Gonzales|Algeria|Australia|Curaçao|Ivory Coast|Argentina|Austria|Jordan|Egypt|France/.test(live), "no prior-ladder / priorLane legs leak into the live preview");
 });
 
 test("ARCHIVE money-integrity: the BANKED 2nd ladder ($10,089.23 final) is preserved official — Lane A completed 5/5 won, Lane B stopped on a Step-3 loss", () => {

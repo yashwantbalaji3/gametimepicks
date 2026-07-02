@@ -63,7 +63,7 @@ test("June 21 coverage matrix reconciles (rows + risk totals sum to grand total)
 
 test("Bank Builder June-24 run BANKED (Lane A completed, Lane B stopped) → archived; cumulative bankroll + crown intact, Moonshot settled", () => {
   const p = read("public/data/mr-dub/portfolio.json");
-  assert.equal(p.currentBankroll, 19565.4, "cumulative bankroll after banking Ladder #2 (crown − $900 nine real lost seeds)");
+  assert.equal(p.currentBankroll, 19465.4, "cumulative bankroll after banking Ladder #2 (crown − $1000 ten real lost seeds)");
   assert.equal(p.openExposure, 0, "settled rungs released → $0 open in portfolio.json (live Step card tracked in daily-portfolio)");
   assert.equal(p.totalOpenExposure, 0, "core $0; moonshot settled LOST → 0 open");
   assert.equal(p.crownBankroll, 20465.4, "protected crown untouched (two banked $100→$10k ladders)");
