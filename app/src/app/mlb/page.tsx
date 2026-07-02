@@ -43,6 +43,7 @@ import GameOutlookSection from "@/components/game-outlook-card";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
+import FreshnessBadge from "@/components/ui/freshness-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import UpcomingSlateStrip, { type UpcomingSlateDay } from "@/components/upcoming-slate-strip";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
@@ -151,6 +152,10 @@ export default function MlbLandingPage() {
     ) : (
       <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>The MLB Stats API will return today&apos;s games shortly.</p>
     );
+
+  // Honest slate freshness — the board date vs the REAL today (client re-computes with the browser clock),
+  // so a stale July-1 board never reads as "live today" once the wall clock passes it.
+  const freshnessSlot = <FreshnessBadge slateDate={date} serverToday={currentEtDate()} noun="board" />;
 
   const boardCta = (
     <div className="mt-3">
@@ -307,8 +312,14 @@ export default function MlbLandingPage() {
         framing="Pitcher strikeouts and batter hits / total bases projected from MLB Stats API game logs and compared to the bookmaker line. Home runs live on a separate Power Board because they're higher-variance."
       />
 
+      {/* Honest slate freshness — always visible (the tabbed board below is deferred/client-rendered). */}
+      <div className="mt-4 flex items-center justify-end gap-2">
+        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>MLB board</span>
+        {freshnessSlot}
+      </div>
+
       {/* MLB flagship sections — Homer Nukes / Props Board / Premium Plays / Game Explorer (data-gated). */}
-      <div className="mt-6">
+      <div className="mt-4">
         <MlbFlagshipSections props={mlbProps} games={flagshipGames} />
       </div>
 

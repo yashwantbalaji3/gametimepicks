@@ -5,6 +5,7 @@
  * historical artifacts are preserved. No money, no active product surface.
  */
 import Link from "next/link";
+import StatusBadge from "@/components/ui/status-badge";
 
 export const metadata = {
   title: "Homer Nukes (retired) · GameTime Picks",
@@ -16,9 +17,7 @@ export default function HomerNukesRetiredPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-16 flex items-center justify-center">
       <div className="max-w-md rounded-2xl px-6 py-8 text-center" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
-        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10, fontWeight: 700, color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>
-          Retired product
-        </span>
+        <StatusBadge status="retired" label="Retired product" />
         <h1 className="mt-3 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 22, fontWeight: 800 }}>Homer Nukes has been retired</h1>
         <p className="mt-2 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
           The daily MLB home-run parlay never settled a profitable card and its props were data-gated, so we

@@ -16,6 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 import GamesExperience, { type GameRow } from "@/components/games-experience";
 import SectionHeader from "@/components/section-header";
+import FreshnessBadge from "@/components/ui/freshness-badge";
 import { buildAllGameDetails, gameSlug } from "@/lib/game-detail";
 import Link from "next/link";
 import { loadRoundOf32Board } from "@/lib/world-cup/round-of-32";
@@ -194,6 +195,7 @@ export default function GamesPage() {
         eyebrow={`Games · ${rows.length} across ${activeSports} sport${activeSports === 1 ? "" : "s"}`}
         title="Tonight's games"
         sub="Every sport's games in one board — filter by sport, then jump into projections or build a card. Educational, paper-only."
+        rightSlot={<FreshnessBadge slateDate={mlbDate} serverToday={today} noun="games" />}
       />
       {r32Board ? (
         <Link

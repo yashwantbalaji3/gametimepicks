@@ -53,6 +53,7 @@ import WorldCupSectionTabs from "@/components/world-cup/world-cup-section-tabs";
 import FlagBadge from "@/components/flag-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SectionHeader from "@/components/section-header";
+import FreshnessBadge from "@/components/ui/freshness-badge";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import SuggestedCard from "@/components/ui/suggested-card";
@@ -208,7 +209,7 @@ export default function WorldCupLandingPage() {
         </section>
       ) : null}
       <section aria-label="World Cup model picks">
-        <SectionHeader eyebrow="Model picks only" title="World Cup Model Picks" sub="The single model-pick board — top model-qualified pick per game and market (team markets, total/BTTS, and player props). Every pick is odds-backed, pre-event, and clears the model filter. Raw sportsbook inventory is not shown here." />
+        <SectionHeader eyebrow="Model picks only" title="World Cup Model Picks" sub="The single model-pick board — top model-qualified pick per game and market (team markets, total/BTTS, and player props). Every pick is odds-backed, pre-event, and clears the model filter. Raw sportsbook inventory is not shown here." rightSlot={<FreshnessBadge slateDate={today} serverToday={currentEtDate()} noun="board" />} />
         <ModelPicksTable table={modelPicksTable} />
       </section>
     </div>

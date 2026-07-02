@@ -1,0 +1,56 @@
+# ============================================================================
+# daily-rebuild — advances the frozen static-export clock (Phase 3C freshness).
+#
+# The site is a static export (`output: "export"`), so `currentEtDate()` and every
+# "today"/"live"/kickoff-vs-now derivation is frozen at BUILD time. On a day with no
+# data change, no deploy happens and the site's clock stops — a finished game can read
+# as "live", a stale slate as "today". The client <FreshnessBadge> corrects the LABEL
+# in the browser (it re-computes with the real wall clock), but the underlying HTML
+# (date-gated sections, kickoff filters) only refreshes on a NEW build. This workflow
+# forces one build/day by pinging a Vercel Deploy Hook.
+#
+# SAFE BY DESIGN:
+#   - Triggers a deploy of CURRENT `main` only — no code/data mutation, no money, no
+#     API credits consumed, no settlement.
+#   - DORMANT until the owner adds the `VERCEL_DEPLOY_HOOK_URL` secret. Without it the
+#     job fails OPEN (logs a notice, exits 0) — a harmless no-op.
+#
+# ACTIVATION (one-time, by the repo owner):
+#   Vercel → Project → Settings → Git → Deploy Hooks → create a hook for branch `main`
+#   → copy the URL → GitHub → repo Settings → Secrets → Actions → add
+#   `VERCEL_DEPLOY_HOOK_URL`. After that this runs daily automatically.
+# ============================================================================
+name: daily-rebuild
+
+on:
+  schedule:
+    # 09:20 UTC daily (~5:20 AM ET) — after any morning data-refresh commits land, so
+    # the rebuild picks up the freshest data AND a current build clock.
+    - cron: "20 9 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: daily-rebuild
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel deploy hook (advances the static clock)
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::notice::VERCEL_DEPLOY_HOOK_URL is not set — daily-rebuild is DORMANT (no-op). See the header of this file to activate."
+            exit 0
+          fi
+          echo "Triggering a Vercel rebuild of production so the static clock is today…"
+          code=$(curl -sS -o /tmp/resp.json -w "%{http_code}" -X POST "$HOOK")
+          echo "HTTP $code"
+          cat /tmp/resp.json 2>/dev/null || true
+          if [ "$code" -ge 400 ]; then
+            echo "::error::Deploy hook returned HTTP $code"
+            exit 1
+          fi
+          echo "✓ Rebuild triggered — the fresh build's clock will be today."

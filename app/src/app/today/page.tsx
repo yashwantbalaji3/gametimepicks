@@ -41,6 +41,7 @@ import SportCard from "@/components/ui/sport-card";
 import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
 import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
 import SectionHeader from "@/components/section-header";
+import FreshnessBadge from "@/components/ui/freshness-badge";
 import YesterdaySummary from "@/components/yesterday-summary";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
@@ -304,7 +305,10 @@ export default function TodayPage() {
             full ladders/boards render below in the same order. (Homer Nukes retired 2026-06-30.) */}
       <section aria-label="Flagship products" className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
-          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>Today&apos;s flagship products</h2>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>Today&apos;s flagship products</h2>
+            <FreshnessBadge slateDate={today} serverToday={currentEtDate()} noun="slate" />
+          </div>
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Bank Builder · Moonshot · World Cup Specials — paper-only</span>
         </div>
 
