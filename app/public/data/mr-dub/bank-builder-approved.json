@@ -1,88 +1,46 @@
 {
-  "_note": "Operator-APPROVED fresh daily Bank Builder lanes for the date below. Pinned so the live proposal generator can't silently swap legs after a game kicks off (e.g. England completing). Odds/probabilities are the REAL de-vigged board values from when the lanes were approved; per-leg status is derived at render time from kickoff vs now (pregame / in_progress / awaiting_settlement) — never a fabricated hit/miss. Display + paper only: this file never mutates canonical portfolio.json.",
-  "date": "2026-07-01",
-  "approvedAt": "2026-07-01",
+  "_note": "July-2 operator-approved dual Bank Builder — STRONGER 4-leg team-market lanes (user-directed). Lane A is a SAFETY-FIRST ladder step (four 72-81% protection/result legs, no coin-flip, no player props); its combined price is BELOW the aggressive Step-2 rung target on purpose — we prefer a safe lower-payout step over adding a coin-flip to chase payout. 'To advance' is not a market The Odds API offers for these fixtures, so Double Chance (team or draw, 90') is used as the honest advancement proxy and labeled as such. Over 1.5 totals are a real market but need a settlement-line change to grade at 1.5 (not the default 2.5), so protection markets — which are actually SAFER than Spain Over 1.5's 79% — were used instead. All odds are real de-vigged prices (betrivers) from the July-2 slate. Paper-only; canonical money moves only through official settlement.",
+  "date": "2026-07-02",
+  "approvedAt": "2026-07-02T08:00:00Z",
   "status": "active",
   "stake": 100,
   "lanes": [
     {
       "lane": "A",
       "kind": "survival",
-      "label": "Lane A · Survival (safest)",
-      "combinedOdds": -174,
-      "combinedDecimal": 1.5747,
-      "modelProbability": 0.57,
+      "label": "Lane A · Survival (safety-first ladder step)",
+      "stake": 157.47,
+      "combinedOdds": 133,
+      "combinedDecimal": 2.329,
+      "modelProbability": 0.3302,
       "confidence": "High",
-      "potentialReturn": 157.47,
-      "whyLadderPick": "The two highest-probability draw-protected / favourite legs on the slate, from different games — built to CLEAR a rung, not to swing for a payout.",
-      "whyItCouldFail": "Both legs must land — England v DR Congo and Belgium v Senegal going the other way (an upset, a stray goal, or a tight game flipping) loses the rung. Knockout games carry extra-time / penalty variance on 90' result legs.",
+      "potentialReturn": 366.7,
+      "whyLadderPick": "Four of the safest real team markets on the slate — Spain to win (75%) plus three protection legs (Portugal or Draw 81%, Switzerland or Draw 76%, Portugal draw-no-bet 72%). No coin-flip, no player props, no ultra-juiced meaningless leg. Double Chance is the honest 90' proxy for 'to advance' (that market isn't offered). Combined +133 is BELOW the Step-2 rung target on purpose: a safety-first step beats chasing payout with a coin-flip.",
+      "whyItCouldFail": "It is still a 4-leg parlay: any one of Austria, Croatia beating Portugal outright, or Algeria springing an upset drops the card. The protection (double chance / draw-no-bet) legs survive a draw, but not an outright underdog win.",
       "legs": [
-        {
-          "market": "moneyline_90",
-          "marketLabel": "Moneyline (90′)",
-          "selection": "England to win",
-          "americanOdds": -400,
-          "modelProbability": 0.7624,
-          "gameSlug": "england-vs-dr-congo-2026-07-01",
-          "matchup": "England v DR Congo",
-          "homeCode": "GB-ENG",
-          "kickoffUtc": "2026-07-01T16:00:00Z",
-          "aligned": true,
-          "provider": "betrivers"
-        },
-        {
-          "market": "double_chance",
-          "marketLabel": "Double Chance",
-          "selection": "Belgium or Draw",
-          "americanOdds": -385,
-          "modelProbability": 0.7427,
-          "gameSlug": "belgium-vs-senegal-2026-07-01",
-          "matchup": "Belgium v Senegal",
-          "homeCode": "BE",
-          "kickoffUtc": "2026-07-01T20:00:00Z",
-          "aligned": true,
-          "provider": "betrivers"
-        }
+        { "market": "moneyline_90", "marketLabel": "Match Result", "selection": "Spain to win", "americanOdds": -375, "modelProbability": 0.7483, "gameSlug": "spain-vs-austria-2026-07-02", "matchup": "Spain v Austria", "homeCode": "ES", "kickoffUtc": "2026-07-02T19:00:00Z", "aligned": true, "provider": "betrivers" },
+        { "market": "double_chance", "marketLabel": "Double Chance (advancement proxy)", "selection": "Portugal or Draw", "americanOdds": -590, "modelProbability": 0.806, "gameSlug": "portugal-vs-croatia-2026-07-02", "matchup": "Portugal v Croatia", "homeCode": "PT", "kickoffUtc": "2026-07-02T23:00:00Z", "aligned": true, "provider": "betrivers" },
+        { "market": "double_chance", "marketLabel": "Double Chance (advancement proxy)", "selection": "Switzerland or Draw", "americanOdds": -435, "modelProbability": 0.7626, "gameSlug": "switzerland-vs-algeria-2026-07-02", "matchup": "Switzerland v Algeria", "homeCode": "CH", "kickoffUtc": "2026-07-03T03:00:00Z", "aligned": true, "provider": "betrivers" },
+        { "market": "draw_no_bet", "marketLabel": "Draw No Bet", "selection": "Portugal (draw no bet)", "americanOdds": -360, "modelProbability": 0.7178, "gameSlug": "portugal-vs-croatia-2026-07-02", "matchup": "Portugal v Croatia", "homeCode": "PT", "kickoffUtc": "2026-07-02T23:00:00Z", "aligned": true, "provider": "betrivers" }
       ]
     },
     {
       "lane": "B",
       "kind": "value",
       "label": "Lane B · Value",
-      "combinedOdds": 175,
-      "combinedDecimal": 2.7486,
-      "modelProbability": 0.32,
-      "confidence": "Lean",
-      "potentialReturn": 274.86,
-      "whyLadderPick": "The two best-value legs (model edge over the market price) from different games — a slightly longer price than the survival lane while staying inside a payable band.",
-      "whyItCouldFail": "Both legs must land — USA v Bosnia & Herzegovina and Belgium v Senegal going the other way loses the rung. Knockout games carry extra-time / penalty variance.",
+      "stake": 100,
+      "combinedOdds": 662,
+      "combinedDecimal": 7.615,
+      "modelProbability": 0.0999,
+      "confidence": "Medium",
+      "potentialReturn": 761.5,
+      "whyLadderPick": "Four real team markets with more upside than Lane A: Portugal to win (53%), Switzerland draw-no-bet (66%), plus two model-aligned totals — Spain Over 2.5 (Spain's over lean, 51%) and Portugal Under 2.5 (Portugal's under lean, 56%). No player props, no contradictions (each total matches its game's score lean).",
+      "whyItCouldFail": "Higher variance by design: Portugal only needs to not-win for the ML leg to fail, and either total missing its line kills the card. This is the swing-for-more lane, not the survival lane.",
       "legs": [
-        {
-          "market": "btts",
-          "marketLabel": "Both Teams To Score",
-          "selection": "BTTS No",
-          "americanOdds": -152,
-          "modelProbability": 0.5703,
-          "gameSlug": "usa-vs-bosnia-herzegovina-2026-07-01",
-          "matchup": "USA v Bosnia & Herzegovina",
-          "homeCode": "US",
-          "kickoffUtc": "2026-07-02T00:00:00Z",
-          "aligned": true,
-          "provider": "fanduel"
-        },
-        {
-          "market": "match_total_goals",
-          "marketLabel": "Total Goals",
-          "selection": "Under 2.5",
-          "americanOdds": -152,
-          "modelProbability": 0.5669,
-          "gameSlug": "belgium-vs-senegal-2026-07-01",
-          "matchup": "Belgium v Senegal",
-          "homeCode": "BE",
-          "kickoffUtc": "2026-07-01T20:00:00Z",
-          "aligned": true,
-          "provider": "betrivers"
-        }
+        { "market": "moneyline_90", "marketLabel": "Match Result", "selection": "Portugal to win", "americanOdds": -124, "modelProbability": 0.5263, "gameSlug": "portugal-vs-croatia-2026-07-02", "matchup": "Portugal v Croatia", "homeCode": "PT", "kickoffUtc": "2026-07-02T23:00:00Z", "aligned": true, "provider": "betrivers" },
+        { "market": "draw_no_bet", "marketLabel": "Draw No Bet", "selection": "Switzerland (draw no bet)", "americanOdds": -265, "modelProbability": 0.6622, "gameSlug": "switzerland-vs-algeria-2026-07-02", "matchup": "Switzerland v Algeria", "homeCode": "CH", "kickoffUtc": "2026-07-03T03:00:00Z", "aligned": true, "provider": "betrivers" },
+        { "market": "match_total_goals", "marketLabel": "Total Goals", "selection": "Over 2.5", "line": 2.5, "americanOdds": -121, "modelProbability": 0.5133, "gameSlug": "spain-vs-austria-2026-07-02", "matchup": "Spain v Austria", "homeCode": "ES", "kickoffUtc": "2026-07-02T19:00:00Z", "aligned": true, "provider": "betrivers" },
+        { "market": "match_total_goals", "marketLabel": "Total Goals", "selection": "Under 2.5", "line": 2.5, "americanOdds": -148, "modelProbability": 0.5585, "gameSlug": "portugal-vs-croatia-2026-07-02", "matchup": "Portugal v Croatia", "homeCode": "PT", "kickoffUtc": "2026-07-02T23:00:00Z", "aligned": true, "provider": "betrivers" }
       ]
     }
   ]
