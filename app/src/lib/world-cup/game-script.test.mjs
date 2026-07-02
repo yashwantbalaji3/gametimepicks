@@ -4,7 +4,7 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { deriveGameScript } from "./game-script.ts";
+import { deriveGameScript, gameScriptFromBoard } from "./game-script.ts";
 
 const game = (home, away, ml, total, btts) => ({
   home, away,
@@ -81,4 +81,21 @@ test("explanation always ties the three markets together when present", () => {
   assert.match(s.explanation, /win in 90'|draw/);
   assert.match(s.explanation, /Under 2\.5|totals/);
   assert.match(s.explanation, /BTTS No|scoresheet/);
+});
+
+test("gameScriptFromBoard resolves a fixture in EITHER team order, preserving board orientation", () => {
+  const board = {
+    games: [game("England", "DR Congo", ml("England", "home", 0.76, 0.16, 0.08), tot("Over 2.5", 2.5, 0.6), btts("BTTS No"))],
+  };
+  const forward = gameScriptFromBoard(board, "England", "DR Congo");
+  const reversed = gameScriptFromBoard(board, "DR Congo", "England"); // query order flipped
+  assert.equal(forward.winner, "England");
+  assert.equal(reversed.winner, "England", "board's own home/away orientation is used regardless of query order");
+  assert.equal(forward.scoreLean, reversed.scoreLean, "identical script either way — no orientation flip");
+});
+
+test("gameScriptFromBoard returns null for an unknown fixture or a null board", () => {
+  const board = { games: [game("England", "DR Congo", ml("England", "home", 0.76, 0.16, 0.08), null, null)] };
+  assert.equal(gameScriptFromBoard(board, "France", "Brazil"), null);
+  assert.equal(gameScriptFromBoard(null, "England", "DR Congo"), null);
 });

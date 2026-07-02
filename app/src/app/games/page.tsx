@@ -19,6 +19,20 @@ import SectionHeader from "@/components/section-header";
 import { buildAllGameDetails, gameSlug } from "@/lib/game-detail";
 import Link from "next/link";
 import { loadRoundOf32Board } from "@/lib/world-cup/round-of-32";
+import { gameScriptFromBoard } from "@/lib/world-cup/game-script";
+import { scriptSignal, topPropSignal } from "@/lib/games-board-signal";
+import type { PublicProjection } from "@/lib/normalize";
+
+/** Group projections by their game key (matchId) for per-game top-prop selection. */
+function groupByGame(projections: PublicProjection[]): Map<string, PublicProjection[]> {
+  const m = new Map<string, PublicProjection[]>();
+  for (const p of projections) {
+    const k = String(p.matchId ?? "");
+    if (!k) continue;
+    m.set(k, [...(m.get(k) ?? []), p]);
+  }
+  return m;
+}
 
 export const metadata = {
   title: "Games · GameTime Picks",
@@ -46,6 +60,9 @@ export default function GamesPage() {
   // the game-detail pages): real team names, real kickoff, the exact game-detail slug. The bracket
   // schedule carries PLACEHOLDER teams for knockout fixtures (home/away null), so using it produced
   // "undefined vs undefined" — it must NOT power the matchup label. Started/finished games are excluded.
+  // Load the knockout board ONCE — reused for both the per-game model-read signal (below) and the
+  // Round-of-32 board banner (near the bottom of the page), so the artifact is read a single time.
+  const r32Board = loadRoundOf32Board();
   const wcProj = loadWorldCupProjections();
   const wcKickoff = new Map<string, string>();
   for (const m of wcProj?.matches ?? []) if (m.matchId != null && m.kickoffUtc) wcKickoff.set(String(m.matchId), m.kickoffUtc);
@@ -73,13 +90,18 @@ export default function GamesPage() {
       href: "/world-cup?tab=games",
       buildHref: d.buildUrl ?? `/build?sport=world_cup&game=${encodeURIComponent(String(d.matchId ?? ""))}`,
       detailHref: `/games/world-cup/${d.slug}`,
+      // The board's coherent game-script for this fixture (winner + projected score + confidence) — the
+      // SAME read the knockout board / game-detail render, never fabricated. Undefined when no live read.
+      signal: scriptSignal(gameScriptFromBoard(r32Board, d.homeTeam ?? "", d.awayTeam ?? "")) ?? undefined,
     });
   }
 
   // MLB
   const mlbDate = activeMlbDate() ?? today;
   const mlbBoard = getMlbBoardForDate(mlbDate);
-  const mlbByGame = countBy(normalizeMlbLeans(mlbBoard as Parameters<typeof normalizeMlbLeans>[0]), (l) => l.matchId);
+  const mlbProjs = normalizeMlbLeans(mlbBoard as Parameters<typeof normalizeMlbLeans>[0]);
+  const mlbByGame = countBy(mlbProjs, (l) => l.matchId);
+  const mlbPropsByGame = groupByGame(mlbProjs);
   // Bridge gamePk → optimizer gameId (hash) via the leans so "Build from this game" deep-links to
   // exactly that game's legs (build legs key on the hash, board games key on gamePk).
   const mlbGameIdByPk = new Map<string, string>();
@@ -103,6 +125,8 @@ export default function GamesPage() {
       detailHref: detailMap.has(`mlb/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", mlbDate)}`)
         ? `/games/mlb/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", mlbDate)}`
         : undefined,
+      // The game's single highest MARKET-implied prop (labelled "mkt", never a model claim).
+      signal: topPropSignal(mlbPropsByGame.get(String(g.gamePk)) ?? []) ?? undefined,
     });
   }
 
@@ -110,7 +134,9 @@ export default function GamesPage() {
   let nbaDate = "";
   for (const d of getAvailableBoardDates()) if ((getBoardForDate(d).leans?.length ?? 0) > 0) nbaDate = d;
   const nbaBoard = nbaDate ? getBoardForDate(nbaDate) : undefined;
-  const nbaByGame = countBy(normalizeNbaLeans(nbaBoard as Parameters<typeof normalizeNbaLeans>[0]), (l) => l.matchId);
+  const nbaProjs = normalizeNbaLeans(nbaBoard as Parameters<typeof normalizeNbaLeans>[0]);
+  const nbaByGame = countBy(nbaProjs, (l) => l.matchId);
+  const nbaPropsByGame = groupByGame(nbaProjs);
   for (const g of nbaBoard?.games ?? []) {
     rows.push({
       id: `nba_${g.gameId}`,
@@ -125,6 +151,8 @@ export default function GamesPage() {
       detailHref: detailMap.has(`nba/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", nbaDate)}`)
         ? `/games/nba/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", nbaDate)}`
         : undefined,
+      // The game's single highest MARKET-implied prop (labelled "mkt", never a model claim).
+      signal: topPropSignal(nbaPropsByGame.get(String(g.gameId)) ?? []) ?? undefined,
     });
   }
 
@@ -158,7 +186,7 @@ export default function GamesPage() {
   const activeSports = new Set(rows.map((r) => r.sport)).size;
 
   // World Cup · Round of 32 — links to the dedicated de-vigged knockout board (every R32 game).
-  const r32Board = loadRoundOf32Board();
+  // r32Board was loaded once at the top of this component and is reused here for the banner.
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">

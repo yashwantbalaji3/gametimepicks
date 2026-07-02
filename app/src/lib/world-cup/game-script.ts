@@ -9,7 +9,7 @@
  * and the BTTS pick) — never fabricated. When a market is missing (e.g. no totals feed) we fall back to a
  * directional, lower-confidence read rather than inventing a scoreline or leaving the score blank.
  */
-import { deriveScoreLean, knockoutRisk, loadRoundOf32Board, type RoundOf32Game, type RoundOf32Picks, type KnockoutRisk } from "./round-of-32";
+import { deriveScoreLean, knockoutRisk, loadRoundOf32Board, type RoundOf32Game, type RoundOf32Picks, type RoundOf32Board, type KnockoutRisk } from "./round-of-32";
 
 export type GameScriptConfidence = "High" | "Medium" | "Low";
 
@@ -169,4 +169,25 @@ export function gameScriptForFixture(root: string, homeTeam: string, awayTeam: s
   const h = normTeam(homeTeam), a = normTeam(awayTeam);
   const g = board.games.find((x) => normTeam(x.home) === h && normTeam(x.away) === a);
   return g ? deriveGameScript(g) : null;
+}
+
+/**
+ * Pure board→script join that matches a fixture in EITHER home/away order and derives the script from the
+ * board's OWN orientation (so the scoreline stays correct even when the caller's team order differs). Exposed
+ * so a caller already holding a loaded board (e.g. the /games board) avoids re-reading the artifact per game.
+ * Returns null when the board has no matching live fixture.
+ */
+export function gameScriptFromBoard(board: RoundOf32Board | null, teamA: string, teamB: string): GameScript | null {
+  if (!board) return null;
+  const a = normTeam(teamA), b = normTeam(teamB);
+  const g = board.games.find((x) => {
+    const pair = new Set([normTeam(x.home), normTeam(x.away)]);
+    return pair.has(a) && pair.has(b);
+  });
+  return g ? deriveGameScript(g) : null;
+}
+
+/** Convenience: load the board and resolve a fixture's script in either team order (see gameScriptFromBoard). */
+export function gameScriptForFixtureAnyOrder(root: string | undefined, teamA: string, teamB: string): GameScript | null {
+  return gameScriptFromBoard(loadRoundOf32Board(root), teamA, teamB);
 }

@@ -12,6 +12,7 @@ import Link from "next/link";
 
 import { getSportIdentity } from "@/lib/sport-identity";
 import TeamMark from "@/components/ui/team-mark";
+import type { GameCardSignal } from "@/lib/games-board-signal";
 
 export interface GameRow {
   id: string;
@@ -32,6 +33,15 @@ export interface GameRow {
   /** Real provider team-logo URLs (api-sports) when the artifact carries them. */
   homeLogo?: string | null;
   awayLogo?: string | null;
+  /** The board's honest headline read for this game (WC game-script / MLB-NBA top market prop). */
+  signal?: GameCardSignal;
+}
+
+/** Confidence chip palette for the WC game-script read (High=green, Medium=gold, Low=muted). */
+function confChip(c: "High" | "Medium" | "Low"): { color: string; background: string; border: string } {
+  if (c === "High") return { color: "var(--gtp-success-on-dark, #7ee2a8)", background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)" };
+  if (c === "Medium") return { color: "var(--vault-gold-bright)", background: "var(--vault-gold-dim)", border: "1px solid color-mix(in srgb, var(--vault-gold-bright) 40%, transparent)" };
+  return { color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" };
 }
 
 const CHIPS = ["all", "world_cup", "mlb", "nba", "ufc"] as const;
@@ -94,6 +104,25 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
                     </span>
                   </div>
                 </div>
+                {g.signal ? (
+                  <div className="rounded-[8px] px-2.5 py-2 flex items-center gap-2 min-w-0" style={{ background: "rgba(12,8,6,0.5)", border: "1px solid var(--vault-rule)" }}>
+                    <span className="font-mono uppercase tracking-[0.12em] shrink-0" style={{ color: g.signal.kind === "script" ? "var(--vault-gold-bright)" : id.accentVar, fontSize: 8.5 }}>
+                      {g.signal.kind === "script" ? "Model read" : "Top prop"}
+                    </span>
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <span className="truncate font-semibold" style={{ color: "var(--vault-text)", fontSize: 12 }}>{g.signal.pick}</span>
+                      {g.signal.sub ? <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{g.signal.sub}</span> : null}
+                    </div>
+                    {g.signal.kind === "script" && g.signal.confidence ? (
+                      <span className="shrink-0 font-mono uppercase tracking-[0.08em] rounded-full px-1.5 py-0.5" style={{ ...confChip(g.signal.confidence), fontSize: 8.5 }}>{g.signal.confidence}</span>
+                    ) : null}
+                    {g.signal.kind === "prop" && g.signal.prob != null ? (
+                      <span className="shrink-0 font-mono tabular" style={{ color: id.accentVar, fontSize: 11.5, fontWeight: 700 }}>
+                        {Math.round(g.signal.prob * 100)}%<span style={{ opacity: 0.6, fontSize: 8.5, fontWeight: 400 }}> mkt</span>
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
                 <div className="flex items-center gap-2 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
                   <Link href={g.detailHref ?? g.href} className="gtp-cta-lava vault-press flex-1 text-center rounded-[6px] py-1.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10.5, fontWeight: 700, textDecoration: "none" }}>
                     {g.detailHref ? "View game" : `View ${g.sportLabel}`}
