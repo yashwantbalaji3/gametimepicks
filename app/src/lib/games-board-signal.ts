@@ -47,6 +47,9 @@ export function topPropSignal(projections: PublicProjection[]): GameCardSignal |
   for (const p of projections) {
     const prob = p.marketProbability;
     if (prob == null || !Number.isFinite(prob) || prob <= 0 || prob > 1) continue;
+    // Only surface an ACTIONABLE pick. MLB board leans include "Pass" (the model declines to lean) — a
+    // "Pass 0.5 Hits" headline is meaningless, so require a directional Over/Under pick label.
+    if (!/^(over|under)\b/i.test((p.pickLabel ?? "").trim())) continue;
     if (!best || prob > bestProb) {
       best = p;
       bestProb = prob;

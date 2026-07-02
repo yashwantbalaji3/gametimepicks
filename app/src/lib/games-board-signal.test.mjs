@@ -56,3 +56,10 @@ test("topPropSignal falls back to gameLabel when a prop has no player name", () 
   const s = topPropSignal([proj(null, 0.6, "Over 8.5", "Total")]);
   assert.equal(s.pick, "WSH @ BOS Over 8.5");
 });
+
+test("topPropSignal excludes non-actionable 'Pass' leans even at higher probability", () => {
+  // MLB board leans include "Pass" (model declines) — never surface "Player Pass 0.5" as a headline.
+  const s = topPropSignal([proj("Cabrera", 0.84, "Pass 0.5", "Hits"), proj("Soto", 0.73, "Over 0.5", "Hits")]);
+  assert.equal(s.pick, "Soto Over 0.5", "the actionable Over pick wins over the higher-prob Pass");
+  assert.equal(topPropSignal([proj("Cabrera", 0.84, "Pass 0.5", "Hits")]), null, "a game with only Pass leans has no top prop");
+});
