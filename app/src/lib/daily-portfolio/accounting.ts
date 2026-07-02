@@ -321,7 +321,12 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   const wcTeam = preEvent(loadWorldCupTeamLegs(root, nowIso, date));
   const seenWc = new Set(wcTeam.map((p) => `${p.gameId}:${p.marketKey}`));
   const wcFill = pool.filter((p) => !seenWc.has(`${p.gameId}:${p.marketKey}`));
-  const bbPool = [...wcTeam, ...wcFill, ...loadMlbModelPicks(root, nowIso, date)];
+  // HARD RULE — Bank Builder is TEAM / GAME-MARKET ONLY (moneyline / DNB / double-chance / totals / BTTS),
+  // never player props. `wcTeam` is already team-only, but the model-pick fill + the MLB board carry
+  // high-implied player props (e.g. a −480 "Over 0.5 shots") that out-rank the moneyline favorites in the
+  // safest-target-fit selector and produce a weak prop-stacked ladder instead of Spain ML / Portugal ML.
+  // A team leg has `player == null`; a player prop names the player. Filter the whole pool once.
+  const bbPool = [...wcTeam, ...wcFill, ...loadMlbModelPicks(root, nowIso, date)].filter((p) => p.player == null);
   const nowMs = Date.parse(nowIso);
   const lanes: PortfolioLane[] = [];
 
@@ -345,10 +350,13 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
       lanes.push(toBBLane(g, status, elig));
     }
   } else {
-    // Only one lane has a next rung — fall back to the single-lane target-fit selector.
+    // Only one lane has a next rung — fall back to the single-lane target-fit selector. Use the
+    // TEAM-MARKET-ONLY bbPool (NOT the raw `pool`, which carries player props) so the fallback lane is a
+    // team-market ladder too — this is the path that runs when one lane is stopped (e.g. post-settlement
+    // Lane A advanced, Lane B awaiting) and was the source of the prop-stacked Lane A.
     for (const rung of [rungs.laneA, rungs.laneB]) {
       if (!rung) continue;
-      const g = selectSafestTargetFitCard(pool, rung, usedBB);
+      const g = selectSafestTargetFitCard(bbPool, rung, usedBB);
       g.legs.forEach((l) => usedBB.add(l.id));
       const elig = bbEligibility(g, nowMs);
       const status: PortfolioLane["status"] = g.legs.length < 2 ? "awaiting" : (activate && elig.eligible ? "active" : "candidate");
