@@ -82,9 +82,10 @@ test("approved July-1 Bank Builder is pinned to the exact operator-approved legs
   const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-03", Date.UTC(2026, 6, 3, 17, 0));
   assert.ok(ap && ap.approved === true, "the approved snapshot loads and is flagged approved");
   const [a, b] = ap.lanes;
-  // Lane A · Survival (Step 3) = Colombia to win ML -195 + Australia/Egypt Over 1.5 total
-  assert.equal(a.legs[0].market, "moneyline_90"); assert.equal(a.legs[0].americanOdds, -195); assert.match(a.legs[0].selection, /Colombia to win/);
-  assert.equal(a.legs[1].market, "match_total_goals"); assert.match(a.legs[1].selection, /Over 1\.5/);
+  // Lane A · Survival (Step 3) = the USER-APPROVED pair Egypt or Draw DC -335 + Argentina/Cape Verde Over 2.5 -175.
+  assert.equal(a.legs[0].market, "double_chance"); assert.equal(a.legs[0].americanOdds, -335); assert.match(a.legs[0].selection, /Egypt or Draw/);
+  assert.equal(a.legs[1].market, "match_total_goals"); assert.equal(a.legs[1].americanOdds, -175); assert.match(a.legs[1].selection, /Over 2\.5/); assert.match(a.legs[1].matchup, /Argentina/);
+  assert.equal(a.legs.length, 2, "Lane A is the approved 2-leg card");
   // Lane B · Value (Step 1, restarted) = Egypt or Draw DC -335 + Argentina to win ML -700 + Colombia or Draw DC -1250
   assert.equal(b.legs[0].market, "double_chance"); assert.equal(b.legs[0].americanOdds, -335); assert.match(b.legs[0].selection, /Egypt or Draw/);
   assert.equal(b.legs[1].market, "moneyline_90"); assert.equal(b.legs[1].americanOdds, -700); assert.match(b.legs[1].selection, /Argentina to win/);
