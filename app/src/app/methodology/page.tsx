@@ -20,6 +20,7 @@ export default function MethodologyPage() {
   // Completed-ladder figures come from the ONE canonical source (banked-ladders.json), never hardcoded.
   const crown = crownLadderSummary(path.join(process.cwd(), "public", "data"));
   const crownReached = crown ? `${crown.pathLabel}, ${crown.recordLabel}` : "the $100 → $10K crown";
+  const crownFull = crown ? crown.laddersLabel : "multiple completed $100→$10K ladders";
 
   return (
     <div className="mx-auto max-w-[880px] px-4 sm:px-6 py-10">
@@ -265,13 +266,13 @@ export default function MethodologyPage() {
           <SportCard
             accent="var(--vault-gold)"
             name="Bank Builder"
-            stage="paper ladder · run #1 completed"
+            stage={crown ? `paper ladder · ${crown.laddersCompleted}× $100→$10K banked` : "paper ladder"}
             inputs="Draws only from the official Suggested-parlay pool; selects on combined American price within a target window (not on edge/confidence)."
             model="A fixed paper stake compounds up a ladder; each step rolls the prior bankroll forward only after the step settles officially."
             markets="Whatever the eligible suggested slip contains (may mix sports)."
             cards="One pending step at a time; honest diagnosis when no eligible slip exists."
             settlement="Official results per leg; the bankroll changes only on settlement."
-            limits={`The completed ladder reached (${crownReached}). No active pending step — a new ladder is coming soon.`}
+            limits={`Proven repeatable: ${crownFull} (run #1 reached ${crownReached}, then a second independent $100→$10K). A fresh operator-approved card now runs daily — see Mr. Dub for the full journey.`}
           />
           <SportCard
             accent="var(--gtp-bank-heat)"

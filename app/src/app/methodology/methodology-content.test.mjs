@@ -54,7 +54,10 @@ test("preserves the Bank Builder completed result honestly — from the ONE cano
   assert.ok(!src.includes("10,376.17"), "no hardcoded crown literal in the page source");
   assert.ok(/crownLadderSummary|crownReached/.test(src), "derives the completed result from the canonical crown summary");
   assert.ok(/completed/i.test(src), "run completed");
-  assert.ok(/coming soon/i.test(src), "new ladder coming soon, no active pending step");
+  // The page must reflect the FULL banked picture (2 completed ladders → $20,465.40 crown + an active
+  // daily card), NOT the old understated "run #1 completed · coming soon" framing.
+  assert.ok(/crownFull|runs daily|full journey/i.test(src), "reflects the full repeatable record + active daily card");
+  assert.ok(!/a new ladder is coming soon/i.test(src), "no longer understates the record with 'coming soon'");
   // The canonical source still yields the real figures (proves the interpolation is correct).
   const { crownLadderSummary } = await import("../../lib/bank-builder/crown-summary.ts");
   const path = await import("node:path");

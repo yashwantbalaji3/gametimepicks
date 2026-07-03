@@ -4,7 +4,7 @@
  * games from World Cup + MLB + NBA + UFC into one filterable board; each card links into the sport
  * hub + the Build betslip. Public data only.
  */
-import { currentEtDate } from "@/lib/freshness";
+import { currentEtDate, daysOldVs } from "@/lib/freshness";
 import { teamByName } from "@/lib/data-world-cup";
 import { loadWorldCupProjections } from "@/lib/world-cup/projections";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
@@ -131,10 +131,13 @@ export default function GamesPage() {
     });
   }
 
-  // NBA (latest slate with leans)
+  // NBA (latest slate with leans) — ONLY when the board is recent. NBA is off-season after the Finals;
+  // a weeks-old "Finals" board must never appear under "Tonight's games" (mirrors the UFC settled-event
+  // gate below and the MLB/WC started-game exclusion). Stale board → no NBA rows.
   let nbaDate = "";
   for (const d of getAvailableBoardDates()) if ((getBoardForDate(d).leans?.length ?? 0) > 0) nbaDate = d;
-  const nbaBoard = nbaDate ? getBoardForDate(nbaDate) : undefined;
+  const nbaFresh = !!nbaDate && daysOldVs(nbaDate, today) <= 2;
+  const nbaBoard = nbaFresh ? getBoardForDate(nbaDate) : undefined;
   const nbaProjs = normalizeNbaLeans(nbaBoard as Parameters<typeof normalizeNbaLeans>[0]);
   const nbaByGame = countBy(nbaProjs, (l) => l.matchId);
   const nbaPropsByGame = groupByGame(nbaProjs);

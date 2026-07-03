@@ -15,6 +15,11 @@ export interface CrownSummary {
   recordLabel: string;   // e.g. "5–0"
   finalLabel: string;    // e.g. "$10,376.17"
   pathLabel: string;     // e.g. "$100 → $10,376.17"
+  // The FULL banked picture (so the "how it works" page isn't stuck on run #1).
+  laddersCompleted: number;  // count of officially completed $100→$10K ladders (2)
+  crownTotal: number;        // Σ of all completed-ladder finals (the crown, e.g. 20465.40)
+  crownTotalLabel: string;   // e.g. "$20,465.40"
+  laddersLabel: string;      // e.g. "2 completed $100→$10K ladders → $20,465.40 crown"
 }
 
 const usd = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: n % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 })}`;
@@ -30,10 +35,18 @@ export function crownLadderSummary(root: string): CrownSummary | null {
   const losses = steps.filter((s: any) => s.result === "lost" || s.result === "loss").length;
   const start = Number(crown.start ?? 100);
   const final = Number(crown.final ?? 0);
+  // Full banked picture — all officially completed ladders + the cumulative crown.
+  const completed = (banked.ladders ?? []).filter((l: any) => l.official !== false);
+  const laddersCompleted = completed.length;
+  const crownTotal = Number(banked.crownTotal ?? completed.reduce((s: number, l: any) => s + Number(l.final ?? 0), 0));
   return {
     start, final, wins, losses,
     recordLabel: `${wins}–${losses}`,
     finalLabel: usd(final),
     pathLabel: `${usd(start)} → ${usd(final)}`,
+    laddersCompleted,
+    crownTotal,
+    crownTotalLabel: usd(crownTotal),
+    laddersLabel: `${laddersCompleted} completed $100→$10K ladder${laddersCompleted === 1 ? "" : "s"} → ${usd(crownTotal)} crown`,
   };
 }
