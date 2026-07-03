@@ -1,348 +1,136 @@
 /**
- * /mr-dub — Mr. Dub's paper portfolio dashboard. Order: hero/standings → today strip → Dual Bank
- * Builder (visual ladders) + stopped-lane history → active/awaiting cards → daily ledger (expandable to
- * exact cards) → exposure & bankroll health → full ledger. Server component; reads committed mr-dub/
- * JSON + the active engine preview. Paper-only educational tracking — not a sportsbook, not advice.
+ * /mr-dub — Mr. Dub's flagship paper portfolio. The public proof that the methodology works: an executive
+ * dashboard (KPIs), today's status, the visual $100 → $19.5K Bank Builder journey, performance analytics,
+ * an expandable day-by-day timeline, and every wager attributed to its product.
+ *
+ * Server component. Everything is DERIVED at build time from the canonical settlement artifacts via
+ * buildFlagship() — portfolio.json (money), daily-summary.json (day-by-day), master-ledger, banked-ladders
+ * and the approved card. Nothing is hand-authored, nothing is recomputed: the nightly settlement rebuilds
+ * the artifacts and this page re-derives on redeploy. Paper-only educational tracking — not advice.
  */
 import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
 import SectionHeader from "@/components/section-header";
 import MrDubAvatar from "@/components/mr-dub/mr-dub-avatar";
-import MoneyPath from "@/components/ui/money-path";
-import DualLadderBoard from "@/components/bank-builder/dual-ladder-board";
-import MoonshotLaneTracker from "@/components/moonshot/moonshot-lane-tracker";
-import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
-import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
+import AchievementBanner from "@/components/achievement-banner";
+import { buildFlagship } from "@/lib/mr-dub/flagship";
+import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
+import { ExecutiveDashboard, TodayStatusStrip } from "@/components/mr-dub/flagship/flagship-dashboard";
+import BankBuilderJourneySection from "@/components/mr-dub/flagship/bank-builder-journey";
+import InteractiveTimeline from "@/components/mr-dub/flagship/interactive-timeline";
+import AnalyticsCharts from "@/components/mr-dub/flagship/analytics-charts";
+import ProductAttribution from "@/components/mr-dub/flagship/product-attribution";
+// Wider-platform appendix: today's full four-product plan + the separate Moonshot side lane.
 import DailyPortfolioSection from "@/components/mr-dub/daily-portfolio-section";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
-import { computeOpenExposure } from "@/lib/mr-dub/open-exposure";
-import PortfolioAllocationSection from "@/components/mr-dub/portfolio-allocation";
-import { buildPortfolioAllocation } from "@/lib/mr-dub/product-allocation";
-import MasterLedgerSection from "@/components/mr-dub/master-ledger-section";
-import AchievementBanner from "@/components/achievement-banner";
-import { buildMasterLedger } from "@/lib/mr-dub/master-ledger";
-import LedgerCalendar from "@/components/mr-dub/ledger-calendar";
-import { buildLedgerCalendar } from "@/lib/mr-dub/ledger-calendar";
+import MoonshotLaneTracker from "@/components/moonshot/moonshot-lane-tracker";
+import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
+
+const usd = (n: number | null | undefined) => n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export const metadata = {
   title: "Mr. Dub · Paper Portfolio · GameTime Picks",
-  description: "Mr. Dub's paper portfolio — bankroll, daily P/L, dual Bank Builder ladders, expandable ledger, exposure & bankroll health, and official-result transparency. Educational, paper-only; not financial advice.",
+  description: "Mr. Dub's flagship paper portfolio — the $100 → $19.5K journey in full: executive KPIs, the visual Bank Builder ladder, performance analytics, an expandable day-by-day timeline, and every wager by product. Official results only. Educational, paper-only; not financial advice.",
 };
 
-function read(rel: string): any {
-  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", rel), "utf8")); } catch { return null; }
-}
-const usd = (n: number | null | undefined) => n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const usd0 = (n: number | null | undefined) => n == null ? "—" : `$${Number(n).toLocaleString("en-US")}`;
-const plColor = (n: number) => n > 0 ? "var(--vault-success)" : n < 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)";
-
-function Tile({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: string }) {
-  return (
-    <div className="rounded-xl px-3 py-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
-      <div className="font-display tracking-tight" style={{ color: accent ?? "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>{value}</div>
-      <div className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{label}</div>
-      {sub ? <div className="mt-0.5 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{sub}</div> : null}
-    </div>
-  );
-}
-
-const TYPE_LABEL: Record<string, string> = {
-  ladder_step_won: "Ladder rung won", ladder_step_settled: "Ladder rung", lane_step_won: "Lane step won",
-  lane_stopped: "Lane stopped", lane_step_open: "Lane step open", lane_restarted: "Lane restarted",
-  lane_advanced: "Lane advanced", lane_relaunch_blocked: "Relaunch blocked (audit)",
-};
 const CTAS = [
   { href: "/bank-builder", label: "Bank Builder" },
   { href: "/results", label: "Results" },
   { href: "/picks", label: "Picks" },
-  { href: "/build", label: "Build" },
+  { href: "/world-cup", label: "World Cup" },
 ];
 
-function LegList({ legs }: { legs: any[] }) {
-  if (!legs?.length) return null;
-  return (
-    <div className="mt-1 flex flex-col gap-0.5 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>
-      {legs.map((l: any, i: number) => <span key={i}>· {l.selection}{l.result && !["win", "settled", "pending"].includes(l.result) ? ` — ${l.result}` : ""}{l.officialResult ? ` (${l.officialResult})` : ""}{l.source ? ` · ${l.source}` : ""}</span>)}
-    </div>
-  );
-}
-
-function EventCard({ e }: { e: any }) {
-  const won = e.result === "won" || e.result === "win";
-  const lost = e.result === "lost";
-  const open = e.status === "open" || e.status === "queued";
-  const tone = won ? "var(--vault-success)" : lost ? "var(--gtp-bank-heat)" : open ? "var(--vault-gold-bright)" : "var(--vault-text-faint)";
-  return (
-    <div className="rounded-xl px-3.5 py-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)", borderLeft: `2px solid ${tone}` }}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-[12.5px] font-medium" style={{ color: "var(--vault-text)" }}>
-          {e.date ?? e.timestamp?.slice(0, 10)} · {TYPE_LABEL[e.type] ?? e.type}{e.step ? ` · Step ${e.step}` : ""}
-        </span>
-        <span className="font-mono text-[11.5px]" style={{ color: tone }}>
-          {e.status === "open" ? `open ${usd(e.paperStake)} → ${usd(e.projectedReturn)}` : e.status === "queued" ? `queued ${usd(e.paperStake)}` : `${(e.paperProfit ?? 0) >= 0 ? "+" : ""}${usd(e.paperProfit)}${e.rolled ? " (rolls)" : ""}`}
-        </span>
-      </div>
-      <LegList legs={e.legs} />
-      {e.accountingNote ? <div className="mt-1 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>{e.accountingNote}</div> : null}
-      {e.notes ? <div className="mt-1 text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>{e.notes}{e.publicBankBuilderVisible === false ? " · hidden from public Bank Builder" : ""}</div> : null}
-    </div>
-  );
-}
-
 export default function MrDubPage() {
-  const portfolio = read("portfolio.json");
-  const ledger = read("ledger.json");
-  const daily = read("daily-summary.json");
-  const moonshotLane = loadMoonshotLane();
-  if (!portfolio) {
-    return <main className="mx-auto w-full max-w-3xl px-4 py-10"><p style={{ color: "var(--vault-text-mute)" }}>Mr. Dub portfolio is being generated.</p></main>;
-  }
-  const events = (ledger?.events ?? []);
-  const rec = portfolio.record ?? {};
-  const intel = portfolio.intelligence ?? {};
-  const health = portfolio.bankrollHealth ?? { score: 100, label: "No open exposure", reasons: [] };
-  const days = daily?.days ?? [];
-  const latestDay = days.length ? days[days.length - 1] : null;
-  const stoppedEvents = events.filter((e: any) => e.type === "lane_stopped");
-  const preview = loadTodaySlate().bankBuilderPreview;
-  // Today's derived daily portfolio — four model-built CANDIDATE lanes ($0 placed until activated).
   const today = currentSlateDate() ?? currentEtDate();
-  const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
-  const bankBuilderAlternatives = strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3);
-  const bbProposal = buildBankBuilderProposal(path.join(process.cwd(), "public", "data"), today);
-  // Top-level portfolio allocation across all four products (Bank Builder · Moonshot · WC Specials · Homer Nukes).
-  const allocation = buildPortfolioAllocation(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
-  // Authoritative master ledger — every product's settled paper track record + overall totals.
-  const masterLedger = buildMasterLedger(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
-  // Ledger calendar model — a presentation-only transform of the canonical daily-summary days.
-  const ledgerCal = buildLedgerCalendar(days, portfolio.startingBankroll ?? 100);
-  // Cross-product OPEN EXPOSURE — the real money on today's pending cards across all four products
-  // (Bank Builder + Moonshot + WC Specials + Homer Nukes). The ONE figure, shown here + master ledger.
-  const openExp = computeOpenExposure(path.join(process.cwd(), "public", "data"), today);
+  const root = path.join(process.cwd(), "public", "data");
+  const f = buildFlagship(root, new Date().toISOString(), today);
+  // Wider-platform appendix data — today's four-product candidate plan + the separate Moonshot side lane.
+  const portfolio = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8")); } catch { return null; } })();
+  const dailyPortfolio = buildDailyPortfolio(root, new Date().toISOString(), today);
+  const bankBuilderAlternatives = strongestSlatePicks(root, today, 3);
+  const bbProposal = buildBankBuilderProposal(root, today);
+  const moonshotLane = loadMoonshotLane();
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
+    <main className="mx-auto w-full max-w-4xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
       {/* 0 — Track-record social proof: 2× $100→$10K completed (factual, from the canonical ledger). */}
       <AchievementBanner />
 
-      {/* 1 — Hero / current standings — the page LEADS with the money story (one story, not a wall of
-            dashboards). The broader cross-product views (allocation, master ledger, today's plan) follow
-            below, after the Bank Builder journey itself. */}
-      <section className="rounded-2xl px-5 py-5" style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(26,16,11,0.4))" }}>
-        <div className="flex items-center gap-3.5">
-          <MrDubAvatar size={64} />
-          <div className="min-w-0">
-            <h1 className="text-[22px] font-semibold sm:text-[26px]" style={{ color: "var(--vault-text)" }}>Mr. Dub&rsquo;s Paper Portfolio</h1>
-            <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--vault-gold-bright)", background: "rgba(217,164,65,0.12)", border: "1px solid rgba(217,164,65,0.35)" }}>
-              <span aria-hidden>⚗</span> Paper Portfolio Scientist
-            </span>
-          </div>
-        </div>
-        <p className="mt-2 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          Paper-only bankroll tracking for GameTimePicks model cards — Mr. Dub tracks every paper card, every official result, and every bankroll move. No wagers are placed. Not financial advice.
-        </p>
-        {/* The money path — start → bankroll → realized profit → ROI, in one glance (no mental math).
-            The "$X → current paper bankroll" story is made explicit with labelled endpoints so a new
-            reader instantly understands where the bankroll started and where it stands now. Every
-            figure is read straight from portfolio.json (never recomputed here). The one-shot reveal
-            (gtp-moneypath-reveal) gives a count-up feel; it falls back to a static bar with
-            prefers-reduced-motion. */}
-        <div className="gtp-moneypath-reveal mt-3 rounded-xl px-4 py-3.5" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.025)" }}>
-          <div className="font-mono uppercase tracking-[0.12em] text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>The money path · {usd0(portfolio.startingBankroll)} → today&rsquo;s paper bankroll · official results only</div>
-          <div className="mt-2 flex flex-wrap items-end gap-x-2.5 gap-y-1.5">
-            <span className="flex flex-col">
-              <span className="font-mono uppercase tracking-[0.1em] text-[8.5px]" style={{ color: "var(--vault-text-faint)" }}>Started with</span>
-              <span className="font-display tabular" style={{ fontSize: 17, fontWeight: 700, color: "var(--vault-text-mute)", lineHeight: 1 }}>{usd(portfolio.startingBankroll)}</span>
-            </span>
-            <span aria-hidden className="pb-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 15 }}>→</span>
-            <span className="flex flex-col">
-              <span className="font-mono uppercase tracking-[0.1em] text-[8.5px]" style={{ color: "var(--vault-gold-bright)" }}>Current paper bankroll</span>
-              <span className="font-display tabular tracking-tight" style={{ fontSize: 27, fontWeight: 800, color: "var(--vault-text)", lineHeight: 1 }}>{usd(portfolio.currentBankroll)}</span>
-            </span>
-            <span className="flex flex-col">
-              <span className="font-mono uppercase tracking-[0.1em] text-[8.5px]" style={{ color: "var(--vault-text-faint)" }}>Realized P/L</span>
-              <span className="font-display tabular" style={{ fontSize: 17, fontWeight: 800, color: plColor(portfolio.settledProfit), lineHeight: 1 }}>{(portfolio.settledProfit ?? 0) >= 0 ? "+" : ""}{usd(portfolio.settledProfit)}</span>
-            </span>
-            <span className="font-mono text-[11px] pb-0.5" style={{ color: "var(--vault-text-faint)" }}>{portfolio.roiMultiple ?? portfolio.roi}× ROI</span>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
-            <span>Peak <span style={{ color: "var(--vault-text-mute)" }}>{usd(portfolio.highWaterMark)}</span></span>
-            <span>Drawdown <span style={{ color: (portfolio.drawdown ?? 0) > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-mute)" }}>{usd(portfolio.drawdown)} · {((portfolio.drawdownPct ?? 0) * 100).toFixed(2)}%</span></span>
-          </div>
-        </div>
-        <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <Tile label="Record" value={`${rec.wins ?? 0}–${rec.losses ?? 0}`} sub={`${rec.voids ?? 0} void · ${rec.pending ?? 0} pending`} accent="var(--vault-success)" />
-          <Tile label="Open exposure" value={usd(openExp.total)} sub={`across ${openExp.byProduct.filter((p) => p.amount > 0).length} of 4 products`} accent={openExp.total > 0 ? "var(--gtp-bank-heat)" : undefined} />
-          <Tile label="High-water mark" value={usd(portfolio.highWaterMark)} sub="peak bankroll" accent="var(--vault-gold-bright)" />
-          <Tile label="Bankroll health" value={String(health.score)} sub={health.label} accent="var(--vault-success)" />
-        </div>
-        {/* Open-exposure breakdown — exactly where today's money is at risk, per product (no more "$0"). */}
-        {openExp.total > 0 ? (
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-3.5 py-2.5" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
-            <span className="font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Today&rsquo;s exposure</span>
-            {openExp.byProduct.map((p) => (
-              <span key={p.productId} className="font-mono text-[11px]" style={{ color: p.amount > 0 ? "var(--vault-text-mute)" : "var(--vault-text-faint)" }}>
-                <span aria-hidden>{p.glyph}</span> {p.label.replace(" Nukes", "").replace(" Specials", "")} <span style={{ color: p.amount > 0 ? "var(--vault-text)" : "var(--vault-text-faint)" }}>{usd(p.amount)}</span>
-              </span>
-            ))}
-          </div>
-        ) : null}
-        <div className="mt-3 flex flex-wrap gap-2">
-          {CTAS.map((c) => (
-            <Link key={c.href} href={c.href} className="vault-press rounded-full px-3.5 py-1.5 font-mono uppercase tracking-[0.1em] text-[10.5px]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", textDecoration: "none" }}>{c.label} →</Link>
-          ))}
-        </div>
-      </section>
-
-      {/* 2 — Today / latest-day status strip */}
-      {latestDay ? (
-        <section className="rounded-xl px-4 py-3" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-mono uppercase tracking-[0.12em] text-[10px]" style={{ color: "var(--gtp-bank-heat)" }}>Latest day · {latestDay.date}</span>
-            <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>updated {portfolio.generatedAt?.slice(0, 16).replace("T", " ")}Z · official settlement</span>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 text-[12px]">
-            <span style={{ color: "var(--vault-text-mute)" }}>Net P/L <span className="font-mono" style={{ color: plColor(latestDay.pl) }}>{latestDay.pl >= 0 ? "+" : ""}{usd(latestDay.pl)}</span></span>
-            <span style={{ color: "var(--vault-text-mute)" }}>Settled <span style={{ color: "var(--vault-text)" }}>{latestDay.wins}W · {latestDay.losses}L · {latestDay.voids}V</span></span>
-            <span style={{ color: "var(--vault-text-mute)" }}>Open exposure <span className="font-mono" style={{ color: "var(--vault-text)" }}>{usd(openExp.total)}</span></span>
-            <span style={{ color: "var(--vault-text-mute)" }}>Awaiting <span style={{ color: "var(--vault-text)" }}>{(portfolio.awaitingCards ?? []).length} card(s)</span></span>
-          </div>
-        </section>
-      ) : null}
-
-      {/* 3 — Mr. Dub's Dual Bank Builder (visual ladders) + stopped-lane transparency */}
-      <section>
-        <SectionHeader eyebrow="Paper Dual Bank Builder" title="Mr. Dub's two lanes" sub="The same visual ladders as the public Bank Builder — plus a transparent history of stopped lanes the public page keeps clean." />
-        <div className="mt-2"><DualLadderBoard preview={preview} /></div>
-        {stoppedEvents.length ? (
-          <details className="mt-3 rounded-xl" style={{ background: "rgba(242,54,69,0.04)", border: "1px solid var(--vault-border)" }}>
-            <summary className="cursor-pointer px-3.5 py-2.5 text-[12.5px]" style={{ color: "var(--vault-text-mute)", listStyle: "none" }}>
-              Stopped-lane history · {stoppedEvents.length} — the real settled losses (hidden from the public Bank Builder, tracked here) ▾
-            </summary>
-            <div className="flex flex-col gap-1.5 px-2.5 pb-2.5">
-              {stoppedEvents.map((e: any) => <EventCard key={e.eventId} e={e} />)}
-            </div>
-          </details>
-        ) : null}
-      </section>
-
-      {/* 4 — Active / awaiting cards */}
-      <section>
-        <SectionHeader eyebrow="Open & awaiting" title="Active and awaiting cards" sub="Currently placed paper cards plus lanes awaiting the next qualified card." />
-        {portfolio.openExposure > 0 ? (
-          <div className="mt-2 flex flex-col gap-2">
-            {events.filter((e: any) => e.status === "open").map((e: any) => <EventCard key={e.eventId} e={e} />)}
-          </div>
-        ) : (
-          <div className="mt-2 rounded-xl px-4 py-3 text-[12.5px]" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}>
-            No active paper exposure right now. Next qualified cards will appear after the next slate generation.
-            <ul className="mt-1.5 flex flex-col gap-1">
-              {(portfolio.awaitingCards ?? []).map((a: any, i: number) => (
-                <li key={i} className="font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
-                  · Lane {a.laneId?.slice(-1).toUpperCase()} · {a.kind === "queued_restart" ? `starting path ($${a.stake ?? 100})` : `Step ${a.step} awaiting next card`}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </section>
-
-      {/* 4b — Moonshot: a SEPARATE high-volatility paper product (independent daily longshot cards). */}
-      {portfolio.moonshot ? (
-        <section>
-          <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot" sub="Independent daily World Cup longshot cards — tracked apart from the core Dual Bank Builder. Higher variance by design, not a ladder." />
-          <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
-            🌙 Moonshot exposure <span className="font-mono" style={{ color: "#8b7bf0" }}>{usd(portfolio.moonshot.exposure)}</span> · separate from the {usd(portfolio.openExposure)} core lanes (total {usd(portfolio.totalOpenExposure ?? portfolio.openExposure + portfolio.moonshot.exposure)}). Does not affect the core Lane A/B record. Paper-only · settles from official sources.
-          </p>
-          {moonshotLane ? (
-            <MoonshotLaneTracker lane={moonshotLane} record={portfolio.moonshot.record} exposure={portfolio.moonshot.exposure} mode="compact" />
-          ) : (
-            <Link href="/moonshot" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "#b9a8ff" }}>
-              Open the Moonshot Lane daily tracker →
-            </Link>
-          )}
-        </section>
-      ) : null}
-
-      {/* 5 — Daily ledger as a CALENDAR: P/L cells + product dots + running bankroll; tap a day for the
-            exact tickets. Presentation-only (buildLedgerCalendar reads the canonical daily-summary). */}
-      <section>
-        <SectionHeader eyebrow={`The story · ${days.length} settled days`} title="Bankroll calendar" sub="The readable day-by-day story: each day's paper P/L at a glance — green up, red down. Tap any day for every ticket, its official result, and the bankroll move. (The raw event-by-event feed is the Full ledger lower down.)" />
-        <div className="mt-2">
-          <LedgerCalendar months={ledgerCal.months} stats={ledgerCal.stats} />
-        </div>
-      </section>
-
-      {/* 6 — Exposure & bankroll health */}
-      <section>
-        <SectionHeader eyebrow="Risk & exposure" title="Exposure and bankroll health" sub="Paper exposure, drawdown and bankroll health — educational tracking, not financial advice." />
-        <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <Tile label="High-water mark" value={usd(portfolio.highWaterMark)} />
-          <Tile label="Drawdown" value={usd(portfolio.drawdown)} sub={`${((portfolio.drawdownPct ?? 0) * 100).toFixed(2)}%`} accent={(portfolio.drawdown ?? 0) > 0 ? "var(--gtp-bank-heat)" : undefined} />
-          <Tile label="Win rate" value={intel.winRate != null ? `${Math.round(intel.winRate * 100)}%` : "—"} accent="var(--vault-success)" sub={`streak ${intel.longestWinStreak ?? 0}W`} />
-          <Tile label="Largest open card" value={usd(intel.largestOpenCard)} />
-        </div>
-        <div className="mt-3 rounded-xl px-4 py-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>Bankroll health · {health.label}</span>
-            <span className="font-mono text-[13px]" style={{ color: "var(--vault-success)" }}>{health.score}/100</span>
-          </div>
-          <div className="mt-1.5 h-2 overflow-hidden rounded-full" style={{ background: "var(--vault-rule)" }}>
-            <div className="h-full rounded-full" style={{ width: `${health.score}%`, background: "var(--vault-success)" }} />
-          </div>
-          {(health.reasons ?? []).length ? (
-            <ul className="mt-2 flex flex-col gap-0.5">
-              {health.reasons.map((r: string, i: number) => <li key={i} className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>· {r}</li>)}
-            </ul>
-          ) : null}
-        </div>
-        {/* Open exposure by product — exactly where today's money is at risk across the four products. */}
-        <div className="mt-3 rounded-xl px-4 py-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-mono uppercase tracking-[0.12em] text-[10px]" style={{ color: "var(--gtp-bank-heat)" }}>Open exposure by product</span>
-            <span className="font-mono text-[13px] font-bold" style={{ color: openExp.total > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)" }}>{usd(openExp.total)}</span>
-          </div>
-          <div className="mt-2 flex flex-col gap-1.5">
-            {openExp.byProduct.map((p) => (
-              <div key={p.productId} className="flex items-center justify-between gap-2">
-                <span className="text-[12px] min-w-0 truncate" style={{ color: p.amount > 0 ? "var(--vault-text)" : "var(--vault-text-faint)" }}>
-                  <span aria-hidden className="mr-1">{p.glyph}</span>{p.label}
-                  <span className="ml-1.5 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>· {p.note}</span>
-                </span>
-                <span className="font-mono tabular text-[12px] shrink-0" style={{ color: p.amount > 0 ? "var(--vault-text)" : "var(--vault-text-faint)" }}>{usd(p.amount)}</span>
-              </div>
-            ))}
-          </div>
-          <p className="mt-2 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
-            Paper stake riding on today&rsquo;s pending cards. Separate from the {usd(portfolio.currentBankroll)} realized bankroll — it returns to the bankroll (win/loss) only when each card settles officially.
+      {/* 1 — Flagship brand header (slim) — the avatar + who Mr. Dub is, then straight into the terminal. */}
+      <header className="gtp-cinematic-rise flex items-center gap-3.5">
+        <MrDubAvatar size={56} />
+        <div className="min-w-0">
+          <h1 className="text-[21px] font-semibold sm:text-[25px]" style={{ color: "var(--vault-text)" }}>Mr. Dub&rsquo;s Paper Portfolio</h1>
+          <p className="mt-0.5 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+            <span className="mr-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-gold)", background: "rgba(217,164,65,0.12)", border: "1px solid rgba(217,164,65,0.35)" }}><span aria-hidden>⚗</span> Paper Portfolio Scientist</span>
+            Every paper card, every official result, every bankroll move — no wagers placed, not advice.
           </p>
         </div>
-      </section>
+      </header>
 
-      {/* 7 — Full ledger */}
+      {/* 2 — Executive dashboard (Bloomberg-terminal KPI band + grid). Phase 2. */}
+      <ExecutiveDashboard kpis={f.kpis} journey={f.journey} todayStatus={f.todayStatus} />
+
+      {/* 3 — Today's status (pending cards, current Bank Builder, exposure, settlement window). Phase 7. */}
+      <TodayStatusStrip todayStatus={f.todayStatus} />
+
+      {/* 4 — The Bank Builder journey — the visual $100 → $19.5K ladder. Phase 4. */}
       <section>
-        <SectionHeader eyebrow={`Full ledger · ${events.length} events`} title="Every paper event (raw feed)" sub="The complete event-by-event audit, newest first — wins, losses, voids, stopped lanes, advances, restarts, and open cards with official settlement references. (For the readable story, use the Bankroll calendar above.)" />
-        <div className="mt-2 flex flex-col gap-2">
-          {events.slice().reverse().map((e: any) => <EventCard key={e.eventId} e={e} />)}
-        </div>
+        <SectionHeader eyebrow="The methodology, proven" title="The $100 → $19.5K journey" sub="Two completed $100→$10K Bank Builder ladders banked the crown; today's lane climbs toward the next rung. Tap any rung for the approved card and its official result." />
+        <div className="mt-2"><BankBuilderJourneySection journey={f.journey} /></div>
       </section>
 
-      {/* 8 — Broader four-product platform (supporting detail, below the Bank Builder story): how the one
-            bankroll is allocated, the cross-product master ledger, and today's full candidate plan. */}
+      {/* 5 — Performance analytics (charts, all derived from settled history). Phase 5. */}
+      <section>
+        <SectionHeader eyebrow="Performance analytics" title="How the bankroll moved" sub="Bankroll over time, daily P/L, drawdown, product attribution and a calendar heatmap — every series derived from official settlements. No fabricated metrics." />
+        <div className="mt-2"><AnalyticsCharts charts={f.charts} /></div>
+      </section>
+
+      {/* 6 — Interactive day-by-day timeline (expandable to every wager). Phase 3. */}
+      <section>
+        <SectionHeader eyebrow={`${f.timeline.length} settled days`} title="Day-by-day timeline" sub="The complete story, newest first. Each day shows the record after settlement, the bankroll move and ROI; expand for every wager, its official result and payout." />
+        <div className="mt-2"><InteractiveTimeline timeline={f.timeline} /></div>
+      </section>
+
+      {/* 7 — Product attribution (every wager tagged to its flagship, filterable). Phase 6. */}
+      <section>
+        <SectionHeader eyebrow="Attribution" title="Every wager, by product" sub="Which flagship generated each settled paper wager — filter by product. Bank Builder is the canonical bankroll; the side lanes are separate flat-stake paper." />
+        <div className="mt-2"><ProductAttribution wagers={f.wagers} /></div>
+      </section>
+
+      {/* 8 — Wider platform appendix: today's full four-product plan + the separate Moonshot side lane.
+            Answers "what's pending / what happens next" and keeps the side lanes discoverable, below the
+            premium flagship story. */}
       <div className="mt-2 flex flex-col gap-6 border-t pt-6" style={{ borderColor: "var(--vault-rule)" }}>
-        <p className="-mb-2 font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "var(--vault-text-faint)" }}>The wider platform · all four products</p>
-        <MasterLedgerSection ledger={masterLedger} />
-        <PortfolioAllocationSection allocation={allocation} />
+        <p className="-mb-2 font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "var(--vault-text-faint)" }}>The wider platform · side lanes &amp; today&rsquo;s plan</p>
         <DailyPortfolioSection portfolio={dailyPortfolio} bankBuilderAlternatives={bankBuilderAlternatives} bankBuilderProposal={bbProposal} />
+        {portfolio?.moonshot ? (
+          <section>
+            <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="Independent daily World Cup longshot cards — tracked apart from the core ladder. Higher variance by design; settles from official sources." />
+            <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
+              🌙 Moonshot exposure <span className="font-mono" style={{ color: "#b9a8ff" }}>{usd(portfolio.moonshot.exposure)}</span> · separate from the core lanes. Record {portfolio.moonshot.record?.wins ?? 0}–{portfolio.moonshot.record?.losses ?? 0}. Does not affect the core Bank Builder record. Paper-only.
+            </p>
+            {moonshotLane ? (
+              <MoonshotLaneTracker lane={moonshotLane} record={portfolio.moonshot.record} exposure={portfolio.moonshot.exposure} mode="compact" />
+            ) : (
+              <Link href="/moonshot" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "#b9a8ff", textDecoration: "none" }}>Open the Moonshot Lane daily tracker →</Link>
+            )}
+          </section>
+        ) : null}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {CTAS.map((c) => (
+          <Link key={c.href} href={c.href} className="gtp-pressable rounded-full px-3.5 py-1.5 font-mono uppercase tracking-[0.1em] text-[10.5px]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", textDecoration: "none" }}>{c.label} →</Link>
+        ))}
       </div>
 
       <p className="text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
-        Paper-only educational tracking. No wagers are placed. Mr. Dub is not a sportsbook and this is not financial advice.
-        Bank Builder shows active paths and successful completed ladders; Mr. Dub tracks the full paper performance, including stopped lanes and restarts.
+        Paper-only educational tracking. No wagers are placed. Mr. Dub is not a sportsbook and this is not financial advice. Canonical money moves only through official settlement; every figure on this page is derived from the settled ledger and reconciles to the {`$${f.kpis.bankroll.toLocaleString("en-US", { minimumFractionDigits: 2 })}`} paper bankroll.
       </p>
     </main>
   );

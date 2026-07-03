@@ -29,16 +29,22 @@ test("Mr. Dub character graphic exists + is accessible", () => {
   assert.match(r("src/app/mr-dub/page.tsx"), /MrDubAvatar/, "Mr. Dub page renders the avatar");
 });
 
-test("Mr. Dub page section order: hero → dual bank builder → active/awaiting → ledger calendar → exposure → full ledger", () => {
+test("Mr. Dub flagship section order: hero → executive dashboard → today → journey → analytics → timeline → attribution", () => {
   const p = r("src/app/mr-dub/page.tsx");
   const hero = p.indexOf("Paper Portfolio Scientist");
-  const dual = p.indexOf("Mr. Dub's two lanes");
-  const active = p.indexOf("Active and awaiting cards");
-  const dailyIdx = p.indexOf("Bankroll calendar");  // the day-list timeline is now a calendar
-  const exposure = p.indexOf("Exposure and bankroll health");
-  const full = p.indexOf("Every paper event");
-  assert.ok(hero < dual && dual < active && active < dailyIdx && dailyIdx < exposure && exposure < full, "sections in the required order");
-  assert.match(p, /<LedgerCalendar/, "the daily ledger renders as the interactive calendar");
+  const dash = p.indexOf("<ExecutiveDashboard");
+  const today = p.indexOf("<TodayStatusStrip");
+  const journey = p.indexOf("The $100 → $19.5K journey");
+  const analytics = p.indexOf("How the bankroll moved");
+  const timeline = p.indexOf("Day-by-day timeline");
+  const attribution = p.indexOf("Every wager, by product");
+  assert.ok([hero, dash, today, journey, analytics, timeline, attribution].every((i) => i >= 0), "every flagship section is present");
+  assert.ok(hero < dash && dash < today && today < journey && journey < analytics && analytics < timeline && timeline < attribution, "sections in the flagship order");
+  // The flagship renders the premium derived components (all fed by buildFlagship — no hand-authored money).
+  assert.match(p, /buildFlagship/, "page derives everything from the canonical flagship model");
+  for (const c of ["<ExecutiveDashboard", "<BankBuilderJourneySection", "<AnalyticsCharts", "<InteractiveTimeline", "<ProductAttribution"]) {
+    assert.ok(p.includes(c), `renders ${c}`);
+  }
 });
 
 test("daily-summary embeds each day's events for the expandable dropdown; totals reconcile", () => {

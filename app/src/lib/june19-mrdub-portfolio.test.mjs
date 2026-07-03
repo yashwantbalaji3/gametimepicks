@@ -77,20 +77,26 @@ test("daily summary: the 2nd ladder climbs day-by-day (Σ +$10,089.23) to the cr
   for (const d of [banked, june25]) assert.ok(d.events.every((e) => (typeof e.accountingNote === "string" && e.accountingNote.length) || (typeof e.notes === "string" && e.notes.length)), "events carry an explanatory note");
 });
 
-test("Mr. Dub page: hero (scientist badge + CTAs) → dual ladder → active/awaiting → daily → exposure → full ledger", () => {
+test("Mr. Dub flagship: hero (scientist badge) → dashboard → today → journey → analytics → timeline → attribution → wider-platform appendix", () => {
   const p = src("src/app/mr-dub/page.tsx");
   assert.match(p, /Paper Portfolio Scientist/, "character badge");
   assert.match(p, /MrDubAvatar/, "scientist graphic");
-  assert.match(p, /Mr\. Dub tracks every paper card/, "microcopy");
-  assert.match(p, /DualLadderBoard/, "reuses the visual ladder board");
-  assert.match(p, /Stopped-lane history/, "transparent stopped-lane drawer");
-  assert.match(p, /Bankroll health/, "bankroll health section");
-  assert.match(p, /Active and awaiting cards/, "active/awaiting section");
-  // CTAs to Bank Builder / Results / Picks / Build.
-  for (const href of ["/bank-builder", "/results", "/picks", "/build"]) assert.ok(p.includes(`"${href}"`), `CTA ${href}`);
-  // Section order: hero → today → dual ladder → active/awaiting → daily → exposure → full ledger.
-  const order = ["Paper Portfolio Scientist", "Latest day", "Mr. Dub's two lanes", "Active and awaiting", "Bankroll calendar", "Exposure and bankroll health", "Every paper event"].map((s) => p.indexOf(s));
-  assert.ok(order.every((i, idx) => idx === 0 || i > order[idx - 1]), "sections in the required order");
+  assert.match(p, /every official result, every bankroll move/, "flagship microcopy");
+  // Premium derived flagship components (all fed by buildFlagship — no hand-authored money).
+  assert.match(p, /buildFlagship/, "derives everything from the canonical flagship model");
+  assert.match(p, /<ExecutiveDashboard/, "executive KPI dashboard");
+  assert.match(p, /<TodayStatusStrip/, "today's status strip");
+  assert.match(p, /BankBuilderJourneySection/, "visual $100→$19.5K Bank Builder journey");
+  assert.match(p, /<InteractiveTimeline/, "expandable day-by-day timeline");
+  assert.match(p, /<ProductAttribution/, "product attribution");
+  // Wider-platform appendix preserves today's four-product plan + the separate Moonshot side lane.
+  assert.match(p, /DailyPortfolioSection/, "today's four-product plan");
+  assert.match(p, /MoonshotLaneTracker/, "Moonshot side lane");
+  // CTAs.
+  for (const href of ["/bank-builder", "/results", "/picks", "/world-cup"]) assert.ok(p.includes(`"${href}"`), `CTA ${href}`);
+  // Section order: hero → dashboard → today → journey → analytics → timeline → attribution → appendix.
+  const order = ["Paper Portfolio Scientist", "<ExecutiveDashboard", "<TodayStatusStrip", "The $100 → $19.5K journey", "How the bankroll moved", "Day-by-day timeline", "Every wager, by product", "The wider platform"].map((s) => p.indexOf(s));
+  assert.ok(order.every((i, idx) => i >= 0 && (idx === 0 || i > order[idx - 1])), "sections in the flagship order");
 });
 
 test("integrations: Results links to Mr. Dub; Today/homepage renders the Mr. Dub card", () => {

@@ -4703,3 +4703,17 @@ body {
   .gtp-day-win { animation: none; }
   .gtp-verified-pulse { animation: none; }
 }
+
+/* ── Mr. Dub flagship — one-shot line-draw for the bankroll chart. Reveals the compounding climb on load;
+   static (full stroke) under prefers-reduced-motion. ── */
+@keyframes gtp-chart-draw {
+  from { stroke-dashoffset: 2400; }
+  to   { stroke-dashoffset: 0; }
+}
+.gtp-chart-draw {
+  stroke-dasharray: 2400;
+  animation: gtp-chart-draw 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-chart-draw { animation: none; stroke-dasharray: none; }
+}
