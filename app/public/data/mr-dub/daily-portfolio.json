@@ -1,20 +1,20 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-07-03",
-  "generatedAt": "2026-07-03T15:35:50.503Z",
+  "generatedAt": "2026-07-03T16:46:40.633Z",
   "activeBankroll": 19465.4,
   "crownBankroll": 20465.4,
-  "openExposure": 150,
-  "availableBankroll": 19315.4,
-  "potentialReturn": 2229.24,
+  "openExposure": 850.78,
+  "availableBankroll": 18614.62,
+  "potentialReturn": 2608.56,
   "products": {
     "bankBuilder": {
-      "exposure": 100,
+      "exposure": 800.78,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 1
+        "pending": 2
       }
     },
     "moonshot": {
@@ -29,7 +29,7 @@
   },
   "lanes": [
     {
-      "id": "bank-builder-lane-a-step-3",
+      "id": "bank-builder-approved-lane-a-2026-07-03",
       "product": "bank-builder",
       "productLabel": "Bank Builder",
       "lane": "A",
@@ -37,17 +37,75 @@
       "clearedSteps": 2,
       "status": "active",
       "stake": 700.78,
-      "exposure": 100,
-      "targetReturn": 1400,
+      "exposure": 700.78,
+      "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 104,
-      "combinedDecimal": 2.0405,
-      "potentialReturn": 1429.95,
+      "combinedOdds": 135,
+      "combinedDecimal": 2.353,
+      "potentialReturn": 1649,
       "legCount": 2,
       "targetLegs": 2,
       "legs": [
         {
-          "id": "WORLD_CUP:fb270a3dac2b682c861bd674a5ff4a04:double_chance:Egypt or Draw",
+          "id": "bb-approved:colombia-vs-ghana-2026-07-03:moneyline_90",
+          "matchup": "Colombia vs Ghana",
+          "market": "Match Result",
+          "selection": "Colombia to win",
+          "player": null,
+          "odds": -195,
+          "provider": "betrivers",
+          "modelConfidence": 0.6291,
+          "kickoffEt": "9:30 PM ET",
+          "risk": "Lower-volatility",
+          "teamLogo": null
+        },
+        {
+          "id": "bb-approved:australia-vs-egypt-2026-07-03:match_total_goals",
+          "matchup": "Australia vs Egypt",
+          "market": "Total Goals",
+          "selection": "Over 1.5",
+          "player": null,
+          "odds": -180,
+          "provider": "betrivers",
+          "modelConfidence": 0.6047,
+          "kickoffEt": "2:00 PM ET",
+          "risk": "Lower-volatility",
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": null,
+      "shortfallNote": null,
+      "whyThisCard": [
+        "Lane A won its July-2 Step 2 (Spain ML + Portugal Over 2.5 + Switzerland ML) and rolled $157.47 → $700.78. Step 3 rides that balance on two model-backed team markets that reach the ~$1,430 rung: Colombia to win (63%) + Australia/Egypt Over 1.5 goals (60%). No player props, no coin-flip. Uses different markets from Lane B on the shared fixtures.",
+        "Both legs must land: a Ghana upset (or a Colombia draw) drops the ML leg, and a 0-0/1-0 in Australia-Egypt drops the Over 1.5 leg. Two ~60% legs means ~38% combined — this is the step that carries the biggest rolled wager, so the variance is real."
+      ],
+      "activationEligibility": {
+        "eligible": true,
+        "reason": "operator-approved active paper ladder"
+      },
+      "locked": true,
+      "approvedAt": "2026-07-03"
+    },
+    {
+      "id": "bank-builder-approved-lane-b-2026-07-03",
+      "product": "bank-builder",
+      "productLabel": "Bank Builder",
+      "lane": "B",
+      "step": 1,
+      "clearedSteps": 0,
+      "status": "active",
+      "stake": 100,
+      "exposure": 100,
+      "targetReturn": null,
+      "fitsTarget": true,
+      "combinedOdds": 60,
+      "combinedDecimal": 1.603,
+      "potentialReturn": 160.27,
+      "legCount": 3,
+      "targetLegs": 3,
+      "legs": [
+        {
+          "id": "bb-approved:australia-vs-egypt-2026-07-03:double_chance",
           "matchup": "Australia vs Egypt",
           "market": "Double Chance",
           "selection": "Egypt or Draw",
@@ -57,34 +115,47 @@
           "modelConfidence": 0.7232,
           "kickoffEt": "2:00 PM ET",
           "risk": "Lower-volatility",
-          "photoUrl": null,
           "teamLogo": null
         },
         {
-          "id": "WORLD_CUP:3e161b2448ed76d6b0c0f5bda6fd5bf2:match_total_goals:over2.5",
+          "id": "bb-approved:argentina-vs-cape-verde-2026-07-03:moneyline_90",
           "matchup": "Argentina vs Cape Verde",
-          "market": "Total Goals",
-          "selection": "Over 2.5",
+          "market": "Match Result",
+          "selection": "Argentina to win",
           "player": null,
-          "odds": -175,
-          "provider": "betrivers",
-          "modelConfidence": 0.5941,
+          "odds": -700,
+          "provider": "fanduel",
+          "modelConfidence": 0.8333,
           "kickoffEt": "6:00 PM ET",
-          "risk": "Higher-volatility",
-          "photoUrl": null,
+          "risk": "Lower-volatility",
+          "teamLogo": null
+        },
+        {
+          "id": "bb-approved:colombia-vs-ghana-2026-07-03:double_chance",
+          "matchup": "Colombia vs Ghana",
+          "market": "Double Chance",
+          "selection": "Colombia or Draw",
+          "player": null,
+          "odds": -1250,
+          "provider": "betrivers",
+          "modelConfidence": 0.8731,
+          "kickoffEt": "9:30 PM ET",
+          "risk": "Lower-volatility",
           "teamLogo": null
         }
       ],
       "correlationNote": null,
       "shortfallNote": null,
       "whyThisCard": [
-        "Safest-fit (World Cup): chosen to MAXIMIZE the chance all 2 legs land — estimated 43% combined hit probability at Tier 3 (higher variance), not the longest-odds card.",
-        "Combined +104 rides $700.78 toward the $1,400 rung goal (avg leg confidence 66%)."
+        "The user-directed fresh Step-1 card: Egypt or Draw (72%) + Argentina to win (83%) + Colombia or Draw (87%) — one strong protected/favourite leg per July-3 game. All real de-vigged prices, team markets only, no player props. Very safe (each leg 72-87%), so the combined price is short (+60 / ~$160): this is a survival restart, not a payout swing.",
+        "It is a 3-leg parlay: Australia beating Egypt outright, Cape Verde stunning Argentina, or Ghana beating Colombia outright each drops the card. The double-chance legs survive a draw but not an outright underdog win."
       ],
       "activationEligibility": {
         "eligible": true,
-        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
-      }
+        "reason": "operator-approved active paper ladder"
+      },
+      "locked": true,
+      "approvedAt": "2026-07-03"
     },
     {
       "id": "moonshot-lane-a-2026-07-03",

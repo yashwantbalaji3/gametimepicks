@@ -74,23 +74,25 @@ test("thin slate (1 game) → not buildable, honest note, never forced", () => {
   assert.match(p.note, /holding|not enough|not buildable/i);
 });
 
-// ── The operator-APPROVED July-1 lanes are PINNED — future generation must never silently swap them. ──
+// ── The operator-APPROVED July-3 dual lanes are PINNED — future generation must never silently swap them. ──
 import { loadApprovedBankBuilder } from "./bank-builder-proposal.ts";
 import path from "node:path";
 test("approved July-1 Bank Builder is pinned to the exact operator-approved legs (no drift)", () => {
-  const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-01", Date.UTC(2026, 6, 1, 18, 30));
+  // Pre-slate "now" (before the first July-3 kickoff, Australia-Egypt 18:00 UTC) → all legs pregame.
+  const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-03", Date.UTC(2026, 6, 3, 17, 0));
   assert.ok(ap && ap.approved === true, "the approved snapshot loads and is flagged approved");
   const [a, b] = ap.lanes;
-  // Lane A · Survival = England ML -400 + Belgium DC -385
-  assert.equal(a.legs[0].market, "moneyline_90"); assert.equal(a.legs[0].americanOdds, -400); assert.match(a.legs[0].matchup, /England/);
-  assert.equal(a.legs[1].market, "double_chance"); assert.equal(a.legs[1].americanOdds, -385); assert.match(a.legs[1].matchup, /Belgium/);
-  // Lane B · Value = USA BTTS No -152 + Belgium Under 2.5 -152
-  assert.equal(b.legs[0].market, "btts"); assert.equal(b.legs[0].americanOdds, -152); assert.match(b.legs[0].matchup, /USA/);
-  assert.equal(b.legs[1].market, "match_total_goals"); assert.equal(b.legs[1].americanOdds, -152); assert.match(b.legs[1].matchup, /Belgium/);
-  // Honest live status at 2026-07-01 18:30 UTC: England (16:00) done → awaiting settlement; the rest pregame.
-  assert.equal(a.legs[0].legStatus, "awaiting_settlement", "England leg is not shown as a fresh pregame pick");
-  assert.equal(a.legs[1].legStatus, "pregame");
-  assert.equal(b.legs.every((l) => l.legStatus === "pregame"), true);
+  // Lane A · Survival (Step 3) = Colombia to win ML -195 + Australia/Egypt Over 1.5 total
+  assert.equal(a.legs[0].market, "moneyline_90"); assert.equal(a.legs[0].americanOdds, -195); assert.match(a.legs[0].selection, /Colombia to win/);
+  assert.equal(a.legs[1].market, "match_total_goals"); assert.match(a.legs[1].selection, /Over 1\.5/);
+  // Lane B · Value (Step 1, restarted) = Egypt or Draw DC -335 + Argentina to win ML -700 + Colombia or Draw DC -1250
+  assert.equal(b.legs[0].market, "double_chance"); assert.equal(b.legs[0].americanOdds, -335); assert.match(b.legs[0].selection, /Egypt or Draw/);
+  assert.equal(b.legs[1].market, "moneyline_90"); assert.equal(b.legs[1].americanOdds, -700); assert.match(b.legs[1].selection, /Argentina to win/);
+  assert.equal(b.legs[2].market, "double_chance"); assert.equal(b.legs[2].americanOdds, -1250); assert.match(b.legs[2].selection, /Colombia or Draw/);
+  // Both lanes are team-market only — every leg has no player prop.
+  assert.ok(ap.lanes.every((ln) => ln.legs.every((l) => l.player == null)));
+  // Pre-slate: every leg is pregame.
+  assert.ok(ap.lanes.every((ln) => ln.legs.every((l) => l.legStatus === "pregame")), "all legs pregame before first kickoff");
   // Never a fabricated hit/miss without official data.
   assert.ok(ap.lanes.every((ln) => ln.legs.every((l) => l.legStatus !== "hit" && l.legStatus !== "missed")));
 });

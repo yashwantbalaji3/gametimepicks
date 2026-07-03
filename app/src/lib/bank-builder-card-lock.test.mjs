@@ -98,20 +98,21 @@ test("the consumed lock NEVER mutates canonical money (bankroll/crown/record are
 
 test("STABILITY: the consumed lock does NOT re-pin settled cards; the live cycle awaits a fresh slate stably", () => {
   // The lock is consumed (status settled, empty lanes), so a refresh must not resurrect the SETTLED June-24
-  // cards. JULY-1 LIVE STATE: Lane A WON its July-1 Step (advanced → served as a fresh live card), Lane B LOST
-  // (stopped, not served). The served Lane A card must NOT carry the consumed June-24 legs, and the served state
-  // must be stable across refreshes. The prior settlements are preserved in the live artifact's priorLane chains.
+  // cards. JULY-3 LIVE STATE: Lane A WON its July-1 + July-2 Steps (advanced → served as a fresh live card) and
+  // Lane B was RESTARTED (money-safe) into a live cycle-6 Step-1 (active → also served). BOTH lanes are served as
+  // live cards, neither carries the consumed June-24 legs, and the served state must be stable across refreshes.
+  // The prior settlements are preserved in the live artifact's priorLane chains.
   const lock = read("mr-dub/bank-builder-locks.json");
   assert.equal(lock.status, "settled");
   assert.deepEqual(lock.lanes ?? {}, {}, "consumed lock pins nothing");
-  assert.equal(bb.length, 1, "one Bank Builder lane served — Lane A advanced (won July-1), Lane B stopped");
+  assert.equal(bb.length, 2, "two Bank Builder lanes served — Lane A advanced (won July-1+July-2), Lane B active (restarted)");
   assert.ok(laneA, "Lane A served as a live card (advanced, awaiting next Step)");
-  assert.equal(laneB, undefined, "Lane B not served as a live card (settled-LOST July-1, stopped)");
-  // BANK BUILDER exposure is the served Lane A's $100 seed. Total open exposure also carries the structured
+  assert.ok(laneB, "Lane B served as a live card (restarted cycle-6 Step-1, active)");
+  // BANK BUILDER exposure is the two served lanes' $100 seeds. Total open exposure also carries the structured
   // Moonshot product's paper exposure — a separate product, so this test (about the consumed BANK BUILDER lock)
-  // asserts the served Lane A seed, and that total reconciles from products.
-  assert.equal(dp.products.bankBuilder.exposure, 100, "served Lane A places its $100 seed (advanced)");
-  assert.equal(dp.openExposure, Math.round((dp.products.bankBuilder.exposure + dp.products.moonshot.exposure) * 100) / 100, "total open exposure reconciles from products (BB Lane A seed + structured Moonshot paper)");
+  // asserts the served lane seeds, and that total reconciles from products.
+  assert.equal(dp.products.bankBuilder.exposure, 200, "both served lanes place their $100 seed (Lane A advanced + Lane B restarted)");
+  assert.equal(dp.openExposure, Math.round((dp.products.bankBuilder.exposure + dp.products.moonshot.exposure) * 100) / 100, "total open exposure reconciles from products (BB two-lane seeds + structured Moonshot paper)");
   // The consumed June-24 card's legs (Morocco/Bosnia/Brazil, from the archive) must NOT be re-pinned onto any
   // served card — compare leg IDs (with no served lanes the served set is empty, which trivially excludes them).
   const archivedStep5 = (read(ARCHIVE).run.laneA.steps ?? []).find((s) => s.step === 5);

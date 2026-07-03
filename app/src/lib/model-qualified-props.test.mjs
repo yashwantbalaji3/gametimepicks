@@ -140,15 +140,15 @@ test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live
   const priorAStep1 = live.run.laneA.priorLane.steps.find((s) => s.step === 1);
   assert.equal(priorAStep1.status, "settled", "live Lane A priorLane Step 1 settled");
   assert.equal(priorAStep1.result, "lost", "live Lane A priorLane Step 1 settled LOST (prior cycle stopped, then restarted)");
-  // Lane B is cycle-5 Step-1 settled-LOST; priorLane preserves the LOST Step-1 from the prior restart.
-  assert.equal(live.run.laneB.cycle, 5, "live Lane B is cycle 5 (fresh $100 Step-1 restart, then settled-LOST July-1)");
-  assert.equal(live.run.laneB.laneStatus, "stopped", "live Lane B stopped — Step-1 settled-LOST on the July-1 slate");
+  // Lane B lost its July-1 cycle-5 Step-1, then was RESTARTED (money-safe) into a fresh cycle-6 Step-1 (active);
+  // priorLane (cycle 5) preserves the July-1 LOST Step-1.
+  assert.equal(live.run.laneB.cycle, 6, "live Lane B is cycle 6 (restarted $100 Step-1 after its July-1 loss)");
+  assert.equal(live.run.laneB.laneStatus, "active", "live Lane B active — Step-1 restarted (money-safe)");
   const liveBStep1 = live.run.laneB.steps.find((s) => s.step === 1);
-  assert.equal(liveBStep1.status, "settled", "live Lane B Step 1 settled");
-  assert.equal(liveBStep1.result, "lost", "live Lane B Step 1 settled LOST (July 1)");
+  assert.equal(liveBStep1.status, "active", "live Lane B Step 1 is active (restarted, un-settled)");
   const priorBStep1 = live.run.laneB.priorLane.steps.find((s) => s.step === 1);
   assert.equal(priorBStep1.status, "settled", "live Lane B priorLane Step 1 settled");
-  assert.equal(priorBStep1.result, "lost", "live Lane B priorLane Step 1 settled LOST (prior cycle)");
+  assert.equal(priorBStep1.result, "lost", "live Lane B priorLane Step 1 settled LOST July-1 (prior cycle)");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   // Cumulative-crown: crown = Σ two banked finals; active bankroll = crown − $1000 ten real lost seeds.
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");

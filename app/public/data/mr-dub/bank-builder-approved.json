@@ -1,88 +1,47 @@
 {
-  "_note": "Operator-APPROVED fresh daily Bank Builder lanes for the date below. Pinned so the live proposal generator can't silently swap legs after a game kicks off (e.g. England completing). Odds/probabilities are the REAL de-vigged board values from when the lanes were approved; per-leg status is derived at render time from kickoff vs now (pregame / in_progress / awaiting_settlement) — never a fabricated hit/miss. Display + paper only: this file never mutates canonical portfolio.json.",
-  "date": "2026-07-01",
-  "approvedAt": "2026-07-01",
+  "_note": "July-3 operator-approved dual Bank Builder. Lane A = Step 3 (rolled $700.78 from the July-2 WON Step-2 card), targeting the ~$1,430+ rung. Lane B = fresh Step 1 ($100) restarted from its July-1 loss (money-safe ladder restart). Both are 2-3 leg TEAM/GAME markets — no player props. Lane B is the user-directed card (Egypt or Draw + Argentina to win + Colombia or Draw) — real de-vigged July-3 prices; two legs (Argentina ML -700, Colombia DC -1250) are heavy-favorite short prices, so Lane B is a very safe, low-payout value card (honest: ~$160 return). Only 3 games on the slate, so the two lanes necessarily draw from the same fixtures with different markets (correlation noted per lane). Paper-only; canonical money moves only through official settlement.",
+  "date": "2026-07-03",
+  "approvedAt": "2026-07-03T08:00:00Z",
   "status": "active",
   "stake": 100,
   "lanes": [
     {
       "lane": "A",
       "kind": "survival",
-      "label": "Lane A · Survival (safest)",
-      "combinedOdds": -174,
-      "combinedDecimal": 1.5747,
-      "modelProbability": 0.57,
-      "confidence": "High",
-      "potentialReturn": 157.47,
-      "whyLadderPick": "The two highest-probability draw-protected / favourite legs on the slate, from different games — built to CLEAR a rung, not to swing for a payout.",
-      "whyItCouldFail": "Both legs must land — England v DR Congo and Belgium v Senegal going the other way (an upset, a stray goal, or a tight game flipping) loses the rung. Knockout games carry extra-time / penalty variance on 90' result legs.",
+      "step": 3,
+      "clearedSteps": 2,
+      "label": "Lane A · Survival (Step 3)",
+      "stake": 700.78,
+      "combinedOdds": 135,
+      "combinedDecimal": 2.353,
+      "modelProbability": 0.3804,
+      "confidence": "Medium",
+      "potentialReturn": 1649.0,
+      "whyLadderPick": "Lane A won its July-2 Step 2 (Spain ML + Portugal Over 2.5 + Switzerland ML) and rolled $157.47 → $700.78. Step 3 rides that balance on two model-backed team markets that reach the ~$1,430 rung: Colombia to win (63%) + Australia/Egypt Over 1.5 goals (60%). No player props, no coin-flip. Uses different markets from Lane B on the shared fixtures.",
+      "whyItCouldFail": "Both legs must land: a Ghana upset (or a Colombia draw) drops the ML leg, and a 0-0/1-0 in Australia-Egypt drops the Over 1.5 leg. Two ~60% legs means ~38% combined — this is the step that carries the biggest rolled wager, so the variance is real.",
       "legs": [
-        {
-          "market": "moneyline_90",
-          "marketLabel": "Moneyline (90′)",
-          "selection": "England to win",
-          "americanOdds": -400,
-          "modelProbability": 0.7624,
-          "gameSlug": "england-vs-dr-congo-2026-07-01",
-          "matchup": "England v DR Congo",
-          "homeCode": "GB-ENG",
-          "kickoffUtc": "2026-07-01T16:00:00Z",
-          "aligned": true,
-          "provider": "betrivers"
-        },
-        {
-          "market": "double_chance",
-          "marketLabel": "Double Chance",
-          "selection": "Belgium or Draw",
-          "americanOdds": -385,
-          "modelProbability": 0.7427,
-          "gameSlug": "belgium-vs-senegal-2026-07-01",
-          "matchup": "Belgium v Senegal",
-          "homeCode": "BE",
-          "kickoffUtc": "2026-07-01T20:00:00Z",
-          "aligned": true,
-          "provider": "betrivers"
-        }
+        { "market": "moneyline_90", "marketLabel": "Match Result", "selection": "Colombia to win", "americanOdds": -195, "modelProbability": 0.6291, "gameSlug": "colombia-vs-ghana-2026-07-03", "matchup": "Colombia v Ghana", "homeCode": "CO", "kickoffUtc": "2026-07-04T01:30:00Z", "aligned": true, "provider": "betrivers" },
+        { "market": "match_total_goals", "marketLabel": "Total Goals", "selection": "Over 1.5", "line": 1.5, "americanOdds": -180, "modelProbability": 0.6047, "gameSlug": "australia-vs-egypt-2026-07-03", "matchup": "Australia v Egypt", "homeCode": "AU", "kickoffUtc": "2026-07-03T18:00:00Z", "aligned": true, "provider": "betrivers" }
       ]
     },
     {
       "lane": "B",
       "kind": "value",
-      "label": "Lane B · Value",
-      "combinedOdds": 175,
-      "combinedDecimal": 2.7486,
-      "modelProbability": 0.32,
-      "confidence": "Lean",
-      "potentialReturn": 274.86,
-      "whyLadderPick": "The two best-value legs (model edge over the market price) from different games — a slightly longer price than the survival lane while staying inside a payable band.",
-      "whyItCouldFail": "Both legs must land — USA v Bosnia & Herzegovina and Belgium v Senegal going the other way loses the rung. Knockout games carry extra-time / penalty variance.",
+      "step": 1,
+      "clearedSteps": 0,
+      "label": "Lane B · Value (Step 1, restarted)",
+      "stake": 100,
+      "combinedOdds": 60,
+      "combinedDecimal": 1.603,
+      "modelProbability": 0.5262,
+      "confidence": "High",
+      "potentialReturn": 160.27,
+      "whyLadderPick": "The user-directed fresh Step-1 card: Egypt or Draw (72%) + Argentina to win (83%) + Colombia or Draw (87%) — one strong protected/favourite leg per July-3 game. All real de-vigged prices, team markets only, no player props. Very safe (each leg 72-87%), so the combined price is short (+60 / ~$160): this is a survival restart, not a payout swing.",
+      "whyItCouldFail": "It is a 3-leg parlay: Australia beating Egypt outright, Cape Verde stunning Argentina, or Ghana beating Colombia outright each drops the card. The double-chance legs survive a draw but not an outright underdog win.",
       "legs": [
-        {
-          "market": "btts",
-          "marketLabel": "Both Teams To Score",
-          "selection": "BTTS No",
-          "americanOdds": -152,
-          "modelProbability": 0.5703,
-          "gameSlug": "usa-vs-bosnia-herzegovina-2026-07-01",
-          "matchup": "USA v Bosnia & Herzegovina",
-          "homeCode": "US",
-          "kickoffUtc": "2026-07-02T00:00:00Z",
-          "aligned": true,
-          "provider": "fanduel"
-        },
-        {
-          "market": "match_total_goals",
-          "marketLabel": "Total Goals",
-          "selection": "Under 2.5",
-          "americanOdds": -152,
-          "modelProbability": 0.5669,
-          "gameSlug": "belgium-vs-senegal-2026-07-01",
-          "matchup": "Belgium v Senegal",
-          "homeCode": "BE",
-          "kickoffUtc": "2026-07-01T20:00:00Z",
-          "aligned": true,
-          "provider": "betrivers"
-        }
+        { "market": "double_chance", "marketLabel": "Double Chance", "selection": "Egypt or Draw", "americanOdds": -335, "modelProbability": 0.7232, "gameSlug": "australia-vs-egypt-2026-07-03", "matchup": "Australia v Egypt", "homeCode": "AU", "kickoffUtc": "2026-07-03T18:00:00Z", "aligned": true, "provider": "betrivers" },
+        { "market": "moneyline_90", "marketLabel": "Match Result", "selection": "Argentina to win", "americanOdds": -700, "modelProbability": 0.8333, "gameSlug": "argentina-vs-cape-verde-2026-07-03", "matchup": "Argentina v Cape Verde", "homeCode": "AR", "kickoffUtc": "2026-07-03T22:00:00Z", "aligned": true, "provider": "fanduel" },
+        { "market": "double_chance", "marketLabel": "Double Chance", "selection": "Colombia or Draw", "americanOdds": -1250, "modelProbability": 0.8731, "gameSlug": "colombia-vs-ghana-2026-07-03", "matchup": "Colombia v Ghana", "homeCode": "CO", "kickoffUtc": "2026-07-04T01:30:00Z", "aligned": true, "provider": "betrivers" }
       ]
     }
   ]

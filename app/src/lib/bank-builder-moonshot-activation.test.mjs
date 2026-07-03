@@ -15,10 +15,11 @@ const round2 = (n) => Math.round(n * 100) / 100;
 
 test("plan (dry-run): one BB lane (Lane A advanced, won July-1) + two Moonshot lanes → 3 lanes, $0 exposure (dry-run places nothing)", () => {
   const plan = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, /*activate*/ false);
-  // Post July-1 settlement: Lane A WON its July-1 Step (advanced → served forward), Lane B LOST (stopped, not
-  // served). So one Bank Builder lane is served plus Moonshot A/B = 3 lanes total.
-  assert.equal(plan.lanes.filter((l) => l.product === "bank-builder").length, 1, "one Bank Builder lane (Lane A advanced, won July-1)");
-  assert.equal(plan.lanes.length, 3, "Bank Builder Lane A + Moonshot A/B");
+  // Post July-3 state: Lane A WON its July-1 + July-2 Steps (advanced → served forward) and Lane B was RESTARTED
+  // (money-safe) into a live cycle-6 Step-1 (active → also served). So TWO Bank Builder lanes are served plus
+  // Moonshot A/B = 4 lanes total.
+  assert.equal(plan.lanes.filter((l) => l.product === "bank-builder").length, 2, "two Bank Builder lanes (Lane A advanced + Lane B restarted)");
+  assert.equal(plan.lanes.length, 4, "Bank Builder Lane A + Lane B + Moonshot A/B");
   assert.equal(plan.openExposure, 0, "dry-run places no exposure");
   assert.equal(plan.availableBankroll, plan.activeBankroll, "available = active when nothing placed");
   for (const l of plan.lanes) assert.notEqual(l.status, "active", "no lane active in dry-run");
@@ -42,7 +43,7 @@ test("apply: one BB lane (Lane A advanced, won July-1); Moonshot lanes are STRUC
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const moon = dp.lanes.filter((l) => l.product === "moonshot");
-  assert.equal(bb.length, 1, "one Bank Builder lane (Lane A advanced, won July-1)");
+  assert.equal(bb.length, 2, "two Bank Builder lanes (Lane A advanced + Lane B restarted)");
   for (const l of bb) assert.ok(l.legCount <= 4, "Bank Builder lane ≤ 4 legs (rung card)");
   assert.equal(moon.length, 2, "Moonshot A/B present");
   for (const l of moon) {

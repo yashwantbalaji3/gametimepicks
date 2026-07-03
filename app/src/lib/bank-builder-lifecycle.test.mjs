@@ -119,19 +119,21 @@ test("live ladder: record is consistent with the crown ladder + dual-lane settle
 });
 
 test("post-banking: Lane A's completed final rung was operator-gated BANKED (Ladder #2); Lane A then WON its July-1 + July-2 Steps, Lane B STOPPED", () => {
-  // POST-BANKING + JULY-2 SETTLEMENT: the operator BANKED Lane A's completed $100→$10k ladder (final $10,089.23 →
+  // POST-BANKING + JULY-3 STATE: the operator BANKED Lane A's completed $100→$10k ladder (final $10,089.23 →
   // Ladder #2) and started a fresh dual cycle. After the subsequent settlements, Lane A WON its July-1 Step-1 AND
-  // its July-2 Step-2 (advanced, on Step 2, has a forward rung) and Lane B is stopped (no forward rung). The
-  // COMPLETION transition rule itself is unchanged.
+  // its July-2 Step-2 (advanced, on Step 2, has a forward rung) and Lane B was RESTARTED (money-safe) into a live
+  // cycle-6 Step-1 (active, so it ALSO has a forward rung again). The COMPLETION transition rule itself is unchanged.
   const { laneA, laneB } = readLaneRungs(root);
   assert.ok(laneA, "Lane A has a live forward rung (Steps 1 & 2 settled-WON, advanced)");
-  assert.equal(laneB, null, "Lane B has no live forward rung (stopped, lost July-1)");
+  assert.ok(laneB, "Lane B has a live forward rung again (restarted cycle-6 Step-1, active)");
+  assert.equal(laneB.nextStep, 1, "restarted Lane B is on a fresh Step 1");
+  assert.equal(laneB.clearedSteps, 0, "restarted Lane B has cleared no steps yet");
   // The completion transition: clearing the final rung (the 5th, index STEP_COUNT-1) is a COMPLETE, not a roll.
   assert.equal(classifyLaneTransition(BANK_BUILDER_STEP_COUNT - 1, "won"), "complete", "clearing the final rung is a COMPLETION");
   const run = read("methodology/launch/dual-bank-builder-active.json").run;
   assert.equal(run.laneA.laneStatus, "advanced", "live Lane A advanced — Steps 1 & 2 settled-WON");
   assert.equal(run.laneA.currentStep, 2, "live Lane A is on Step 2 (won its July-2 Step)");
-  assert.equal(run.laneB.laneStatus, "stopped", "live Lane B stopped — Step-1 settled-LOST July-1");
+  assert.equal(run.laneB.laneStatus, "active", "live Lane B active — Step-1 restarted (money-safe)");
   // The completed Lane A ladder now lives in the BANKED archive (not the live artifact, not a pending flag).
   const banked = read("mr-dub/banked-ladders.json");
   const ladder2 = (banked.ladders ?? []).find((b) => b.ladder === 2);

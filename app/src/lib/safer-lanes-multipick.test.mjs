@@ -51,9 +51,19 @@ test("Bank Builder safest-fit: maximizes combined hit probability among target-r
 test("persisted Bank Builder cards are model-qualified, real-odds legs (cross-sport allowed)", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
-  for (const lane of bb) for (const leg of lane.legs) {
-    assert.ok(typeof leg.odds === "number" && leg.odds >= -650 && leg.odds <= 400, `${leg.selection} carries real odds in the BB window`);
-    assert.ok(leg.provider, `${leg.selection} carries a real bookmaker (no fabricated price)`);
+  for (const lane of bb) {
+    // Operator-APPROVED lanes (carry `approvedAt`) are exempt from the auto-selector odds band: the operator
+    // directed them and may legitimately include heavy-favorite short prices (e.g. Argentina ML -700, Colombia
+    // DC -1250 on July-3). The auto-selector's -650..400 window only bounds AUTO-GENERATED lanes.
+    const operatorApproved = lane.approvedAt != null;
+    for (const leg of lane.legs) {
+      if (!operatorApproved) {
+        assert.ok(typeof leg.odds === "number" && leg.odds >= -650 && leg.odds <= 400, `${leg.selection} carries real odds in the BB window`);
+      } else {
+        assert.ok(typeof leg.odds === "number", `${leg.selection} carries real numeric odds`);
+      }
+      assert.ok(leg.provider, `${leg.selection} carries a real bookmaker (no fabricated price)`);
+    }
   }
 });
 

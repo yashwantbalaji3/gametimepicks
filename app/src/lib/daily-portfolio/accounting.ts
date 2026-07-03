@@ -276,6 +276,9 @@ function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
   if (!doc || doc.date !== date || !Array.isArray(doc.lanes)) return [];
   const stake = doc.stake ?? 100;
   return doc.lanes.map((l): PortfolioLane => {
+    // Per-lane stake + step win over the file defaults, so Lane A can carry its rolled Step-3 wager
+    // (e.g. $700.78) while Lane B is a fresh $100 Step 1.
+    const laneStake = typeof l.stake === "number" ? l.stake : stake;
     const legs: PortfolioLaneLeg[] = (l.legs ?? []).map((leg: Record<string, any>) => ({
       id: `bb-approved:${leg.gameSlug}:${leg.market}`,
       matchup: (leg.matchup ?? "").replace(/ v /, " vs "),
@@ -292,10 +295,10 @@ function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
     return {
       id: `bank-builder-approved-lane-${String(l.lane).toLowerCase()}-${date}`,
       product: "bank-builder", productLabel: "Bank Builder", lane: l.lane,
-      step: 1, clearedSteps: 0, status: "active", stake, exposure: stake,
+      step: typeof l.step === "number" ? l.step : 1, clearedSteps: typeof l.clearedSteps === "number" ? l.clearedSteps : 0, status: "active", stake: laneStake, exposure: laneStake,
       targetReturn: null, fitsTarget: true,
       combinedOdds: l.combinedOdds ?? 0, combinedDecimal: l.combinedDecimal ?? 1,
-      potentialReturn: l.potentialReturn ?? round2(stake * (l.combinedDecimal ?? 1)),
+      potentialReturn: l.potentialReturn ?? round2(laneStake * (l.combinedDecimal ?? 1)),
       legCount: legs.length, targetLegs: legs.length, legs,
       correlationNote: null, shortfallNote: null,
       whyThisCard: [l.whyLadderPick, l.whyItCouldFail].filter(Boolean),

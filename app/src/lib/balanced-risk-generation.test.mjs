@@ -70,13 +70,14 @@ test("balancedGeneration diagnostics: targets + filled + a reason for every unde
 });
 
 test("active cards untouched: Lane A/B, Moonshot, and Mr. Dub exposure unchanged by generation", () => {
-  // Generation must NOT mutate the bank-builder artifacts. JULY-2 LIVE STATE: Lane A WON its July-1 Step-1 AND
-  // its July-2 Step-2 (laneStatus "advanced", TWO settled-WON steps, on Step 2) and Lane B LOST (laneStatus
-  // "stopped", ONE settled-LOST Step-1). The prior settled cycles are preserved in each lane's priorLane chain.
-  // Neither lane carries top-level pinned legs (cards live in steps[]). Generation must leave that state intact.
+  // Generation must NOT mutate the bank-builder artifacts. JULY-3 LIVE STATE: Lane A WON its July-1 Step-1 AND
+  // its July-2 Step-2 (laneStatus "advanced", TWO settled-WON steps, on Step 2) and Lane B was RESTARTED
+  // (money-safe) into a fresh cycle-6 Step-1 (laneStatus "active"). The prior settled cycles — including Lane B's
+  // July-1 LOST Step-1 — are preserved in each lane's priorLane chain. Neither lane carries top-level pinned legs
+  // (cards live in steps[]). Generation must leave that state intact.
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
   assert.equal(dual.run.laneA.laneStatus, "advanced", "laneA advanced (settled-WON July-1 + July-2)");
-  assert.equal(dual.run.laneB.laneStatus, "stopped", "laneB stopped (settled-LOST July-1)");
+  assert.equal(dual.run.laneB.laneStatus, "active", "laneB active (restarted cycle-6 Step-1)");
   // Lane A: two settled-WON steps (Step-1 July-1, Step-2 July-2); the earlier LOST step is preserved in priorLane.
   assert.equal(dual.run.laneA.currentStep, 2, "laneA on Step 2");
   assert.equal((dual.run.laneA.steps ?? []).length, 2, "laneA has two settled steps (Step-1 + Step-2)");
@@ -86,11 +87,11 @@ test("active cards untouched: Lane A/B, Moonshot, and Mr. Dub exposure unchanged
   assert.equal(dual.run.laneA.steps[1].result, "won", "laneA Step 2 settled WON (July-2)");
   assert.deepEqual(dual.run.laneA.legs ?? [], [], "laneA has no top-level pinned legs (cards live in steps[])");
   assert.equal(dual.run.laneA.priorLane.steps[0].result, "lost", "laneA priorLane preserves the prior LOST step");
-  // Lane B: one settled-LOST Step-1; the prior LOST Step-1 is preserved in priorLane.
+  // Lane B: freshly RESTARTED into a live cycle-6 Step-1 (active, un-settled); the July-1 LOST Step-1 is
+  // preserved in priorLane (cycle 5).
   assert.equal(dual.run.laneB.currentStep, 1, "laneB on Step 1");
-  assert.equal((dual.run.laneB.steps ?? []).length, 1, "laneB has one settled-LOST Step-1");
-  assert.equal(dual.run.laneB.steps[0].status, "settled", "laneB Step 1 is settled");
-  assert.equal(dual.run.laneB.steps[0].result, "lost", "laneB Step 1 settled LOST (July-1)");
+  assert.equal((dual.run.laneB.steps ?? []).length, 1, "laneB has one live Step-1");
+  assert.equal(dual.run.laneB.steps[0].status, "active", "laneB Step 1 is active (restarted)");
   assert.deepEqual(dual.run.laneB.legs ?? [], [], "laneB has no top-level pinned legs");
   assert.equal(dual.run.laneB.priorLane.steps.find((s) => s.step === 1).result, "lost", "laneB priorLane preserves the prior LOST Step-1");
   const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));

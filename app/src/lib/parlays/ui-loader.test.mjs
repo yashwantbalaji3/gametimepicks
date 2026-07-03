@@ -94,9 +94,10 @@ test("a settled run surfaces official lane + leg results", () => {
 test("live run (July-2 settlement): LIVE preview shows Lane A WON Steps 1 & 2 + Lane B stopped, no stale-leg leak", () => {
   // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and restarted into a new cycle.
   // The cycle then ran on the July-1 + July-2 slates: Lane A WON its Step-1 (July-1) AND its Step-2 (July-2)
-  // (advanced, cycle 6, on Step 2) and Lane B is stopped (lost July-1, cycle 5). The live preview leads each lane
-  // with its settled cards; both stay publicly visible. The prior won/lost cycle narratives stay in each lane's
-  // priorLane chain (and the banked archive) — they must NOT bleed into the live preview.
+  // (advanced, cycle 6, on Step 2) and Lane B lost July-1 (cycle 5) then was RESTARTED (money-safe) into a fresh
+  // cycle-6 Step-1 (active). The live preview leads each lane with its live/settled cards; both stay publicly
+  // visible. The prior won/lost cycle narratives stay in each lane's priorLane chain (and the banked archive) —
+  // they must NOT bleed into the live preview.
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.status, "launched", "the live run is launched");
@@ -112,13 +113,13 @@ test("live run (July-2 settlement): LIVE preview shows Lane A WON Steps 1 & 2 + 
   assert.equal(bb.laneA.steps[0].result, "won", "Lane A Step-1 settled WON (July-1)");
   assert.equal(bb.laneA.steps[1].status, "settled", "Lane A Step-2 is settled");
   assert.equal(bb.laneA.steps[1].result, "won", "Lane A Step-2 settled WON (July-2)");
-  // Lane B is a settled-LOST Step-1 (stopped).
-  assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped (Step-1 settled-LOST July-1)");
+  // Lane B was RESTARTED (money-safe) into a fresh cycle-6 Step-1 (active); the July-1 LOST Step-1 lives in
+  // its priorLane chain.
+  assert.equal(bb.laneB.laneStatus, "active", "Lane B active (Step-1 restarted, money-safe)");
   assert.equal(bb.laneB.publicVisible, true, "Lane B is publicly visible");
   assert.equal(bb.laneB.currentStep, 1, "Lane B is on Step 1");
-  assert.equal((bb.laneB.steps ?? []).length, 1, "Lane B carries its one settled-LOST Step-1 card");
-  assert.equal(bb.laneB.steps[0].status, "settled", "Lane B Step-1 is settled");
-  assert.equal(bb.laneB.steps[0].result, "lost", "Lane B Step-1 settled LOST (July-1)");
+  assert.equal((bb.laneB.steps ?? []).length, 1, "Lane B carries its one live Step-1 card");
+  assert.equal(bb.laneB.steps[0].status, "active", "Lane B Step-1 is active (restarted, un-settled)");
   // No stale legs from any PRIOR ladder (the banked cycle or either lane's priorLane chain) may surface in the
   // live preview. (Bosnia is NOT banned here — USA vs Bosnia & Herzegovina is a legitimate July-1 settled-card leg.
   // Austria & Algeria are NOT banned either — Spain 3-0 Austria and Switzerland 2-0 Algeria are legitimate July-2
