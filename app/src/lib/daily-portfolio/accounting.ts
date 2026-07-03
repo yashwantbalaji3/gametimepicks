@@ -26,7 +26,7 @@ export const ACTIVATION_CUTOFF_MIN = 30;
 export const MOONSHOT_MAX_EXPOSURE = 50;
 
 export interface ActivationEligibility { eligible: boolean; reason: string }
-export interface PortfolioLaneLeg { id: string; matchup: string; market: string; selection: string; player: string | null; odds: number; provider: string | null; modelConfidence: number; kickoffEt: string; risk: string; photoUrl?: string | null; teamLogo?: string | null; /** Total-goals line (e.g. 1.5) — carried so settlement grades the right O/U line, not the default 2.5. */ line?: number | null }
+export interface PortfolioLaneLeg { id: string; matchup: string; market: string; selection: string; player: string | null; odds: number; provider: string | null; modelConfidence: number; kickoffEt: string; risk: string; photoUrl?: string | null; teamLogo?: string | null }
 export interface PortfolioLane {
   id: string;
   product: "bank-builder" | "moonshot";
@@ -276,15 +276,11 @@ function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
   if (!doc || doc.date !== date || !Array.isArray(doc.lanes)) return [];
   const stake = doc.stake ?? 100;
   return doc.lanes.map((l): PortfolioLane => {
-    const laneStake = typeof l.stake === "number" ? l.stake : stake;
     const legs: PortfolioLaneLeg[] = (l.legs ?? []).map((leg: Record<string, any>) => ({
       id: `bb-approved:${leg.gameSlug}:${leg.market}`,
       matchup: (leg.matchup ?? "").replace(/ v /, " vs "),
       market: BB_MARKET_LABEL[leg.market] ?? leg.marketLabel ?? leg.market,
       selection: leg.selection,
-      // Total-goals LINE (e.g. 1.5) must flow through to settlement, which grades `leg.line ?? 2.5`.
-      // Without it an "Over 1.5" approved leg would silently settle against the 2.5 line.
-      line: typeof leg.line === "number" ? leg.line : null,
       player: null,
       odds: leg.americanOdds,
       provider: leg.provider ?? "consensus",
@@ -296,12 +292,10 @@ function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
     return {
       id: `bank-builder-approved-lane-${String(l.lane).toLowerCase()}-${date}`,
       product: "bank-builder", productLabel: "Bank Builder", lane: l.lane,
-      // Per-lane stake wins over the file default (e.g. Lane A carries its rolled Step-2 wager $157.47
-      // while Lane B is a fresh $100), so the card shows the real at-risk amount for each lane.
-      step: 1, clearedSteps: 0, status: "active", stake: laneStake, exposure: laneStake,
+      step: 1, clearedSteps: 0, status: "active", stake, exposure: stake,
       targetReturn: null, fitsTarget: true,
       combinedOdds: l.combinedOdds ?? 0, combinedDecimal: l.combinedDecimal ?? 1,
-      potentialReturn: l.potentialReturn ?? round2(laneStake * (l.combinedDecimal ?? 1)),
+      potentialReturn: l.potentialReturn ?? round2(stake * (l.combinedDecimal ?? 1)),
       legCount: legs.length, targetLegs: legs.length, legs,
       correlationNote: null, shortfallNote: null,
       whyThisCard: [l.whyLadderPick, l.whyItCouldFail].filter(Boolean),

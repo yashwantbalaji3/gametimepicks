@@ -99,5 +99,5 @@ test("exposure/bankroll/crown unchanged by the cross-lane upgrade", () => {
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(p.currentBankroll, 19465.4); assert.equal(p.crownBankroll, 20465.4);
   assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view)");
-  assert.deepEqual(p.record, { wins: 16, losses: 10, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 17, losses: 10, voids: 0, pending: 0 });
 });

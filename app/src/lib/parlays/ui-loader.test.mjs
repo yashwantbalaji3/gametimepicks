@@ -91,25 +91,27 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("live run (July-1 settlement): LIVE preview shows Lane A WON + Lane B LOST on Step-1, no stale-leg leak", () => {
+test("live run (July-2 settlement): LIVE preview shows Lane A WON Steps 1 & 2 + Lane B stopped, no stale-leg leak", () => {
   // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and restarted into a new cycle.
-  // The cycle then ran on the July-1 slate: Lane A WON its Step-1 (advanced, cycle 6) and Lane B LOST (stopped,
-  // cycle 5). The live preview leads each lane with its settled Step-1 card; both stay publicly visible. The prior
-  // won/lost cycle narratives stay in each lane's priorLane chain (and the banked archive) — they must NOT bleed
-  // into the live preview.
+  // The cycle then ran on the July-1 + July-2 slates: Lane A WON its Step-1 (July-1) AND its Step-2 (July-2)
+  // (advanced, cycle 6, on Step 2) and Lane B is stopped (lost July-1, cycle 5). The live preview leads each lane
+  // with its settled cards; both stay publicly visible. The prior won/lost cycle narratives stay in each lane's
+  // priorLane chain (and the banked archive) — they must NOT bleed into the live preview.
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.status, "launched", "the live run is launched");
   assert.equal(bb.isLadder, true, "it is a stepping ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
   assert.equal(bb.currentStep, 1, "live run's lead step pointer sits on Step 1 (both lanes' open rung)");
-  // Lane A is a settled-WON Step-1 (advanced). The loader never fabricates.
-  assert.equal(bb.laneA.laneStatus, "advanced", "Lane A advanced (Step-1 settled-WON July-1)");
+  // Lane A is advanced with two settled-WON steps (Step-1 July-1, Step-2 July-2). The loader never fabricates.
+  assert.equal(bb.laneA.laneStatus, "advanced", "Lane A advanced (Steps 1 & 2 settled-WON)");
   assert.equal(bb.laneA.publicVisible, true, "Lane A is publicly visible");
-  assert.equal(bb.laneA.currentStep, 1, "Lane A is on Step 1");
-  assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries its one settled Step-1 card");
+  assert.equal(bb.laneA.currentStep, 2, "Lane A is on Step 2 (won its July-2 Step)");
+  assert.equal((bb.laneA.steps ?? []).length, 2, "Lane A carries its two settled step cards");
   assert.equal(bb.laneA.steps[0].status, "settled", "Lane A Step-1 is settled");
   assert.equal(bb.laneA.steps[0].result, "won", "Lane A Step-1 settled WON (July-1)");
+  assert.equal(bb.laneA.steps[1].status, "settled", "Lane A Step-2 is settled");
+  assert.equal(bb.laneA.steps[1].result, "won", "Lane A Step-2 settled WON (July-2)");
   // Lane B is a settled-LOST Step-1 (stopped).
   assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped (Step-1 settled-LOST July-1)");
   assert.equal(bb.laneB.publicVisible, true, "Lane B is publicly visible");
@@ -118,9 +120,11 @@ test("live run (July-1 settlement): LIVE preview shows Lane A WON + Lane B LOST 
   assert.equal(bb.laneB.steps[0].status, "settled", "Lane B Step-1 is settled");
   assert.equal(bb.laneB.steps[0].result, "lost", "Lane B Step-1 settled LOST (July-1)");
   // No stale legs from any PRIOR ladder (the banked cycle or either lane's priorLane chain) may surface in the
-  // live preview. (Bosnia is NOT banned here — USA vs Bosnia & Herzegovina is a legitimate July-1 settled-card leg.)
+  // live preview. (Bosnia is NOT banned here — USA vs Bosnia & Herzegovina is a legitimate July-1 settled-card leg.
+  // Austria & Algeria are NOT banned either — Spain 3-0 Austria and Switzerland 2-0 Algeria are legitimate July-2
+  // Lane A Step-2 settled-card opponents.)
   const live = JSON.stringify(bb);
-  assert.ok(!/Goldschmidt|Hoskins|Turkey|Gonzales|Algeria|Australia|Curaçao|Ivory Coast|Argentina|Austria|Jordan|Egypt|France/.test(live), "no prior-ladder / priorLane legs leak into the live preview");
+  assert.ok(!/Goldschmidt|Hoskins|Turkey|Gonzales|Curaçao|Ivory Coast|Argentina|Jordan|Egypt|France/.test(live), "no prior-ladder / priorLane legs leak into the live preview");
 });
 
 test("ARCHIVE money-integrity: the BANKED 2nd ladder ($10,089.23 final) is preserved official — Lane A completed 5/5 won, Lane B stopped on a Step-3 loss", () => {

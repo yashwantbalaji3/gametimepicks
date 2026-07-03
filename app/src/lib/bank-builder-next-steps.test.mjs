@@ -13,14 +13,15 @@ const NOW = "2026-06-23T10:00:00Z";
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 
-test("rung math (post-July-1 settlement): Lane A won → forward rung; Lane B lost → no forward rung (awaiting a fresh slate)", () => {
+test("rung math (post-July-2 settlement): Lane A won → forward rung; Lane B stopped → no forward rung (awaiting a fresh slate)", () => {
   const { laneA, laneB } = readLaneRungs(root);
-  // POST JULY-1 SETTLEMENT: Lane A's July-1 Step-1 settled WON, so it advanced and surfaces a forward rung
-  // (Step 2, rolled stake from the WON Step-1). Lane B's July-1 Step-1 settled LOST, so it is stopped with no
+  // POST JULY-2 SETTLEMENT: Lane A's July-2 Step-2 settled WON, so it advanced and surfaces a forward rung
+  // (Step 3, rolled stake from the WON Step-2, with 2 cleared steps). Lane B is stopped (lost July-1) with no
   // open forward rung until a new slate restarts it. The prior settled steps live in the priorLane chain.
-  assert.ok(laneA, "Lane A has a forward rung (Step-1 settled-WON July-1, advanced)");
-  assert.equal(laneA.nextStep, 2, "Lane A forward rung is Step 2 (Step-1 cleared)");
-  assert.equal(laneB, null, "Lane B has no forward rung (Step-1 settled-LOST July-1, awaiting a fresh slate)");
+  assert.ok(laneA, "Lane A has a forward rung (Step-2 settled-WON July-2, advanced)");
+  assert.equal(laneA.nextStep, 3, "Lane A forward rung is Step 3 (Steps 1 & 2 cleared)");
+  assert.equal(laneA.clearedSteps, 2, "Lane A has cleared 2 steps (July-1 Step-1 WON + July-2 Step-2 WON)");
+  assert.equal(laneB, null, "Lane B has no forward rung (stopped, lost July-1, awaiting a fresh slate)");
 });
 
 test("safest target-fit selector still serves a forward rung + holds its invariants (synthetic rung)", () => {

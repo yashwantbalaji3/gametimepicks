@@ -154,7 +154,7 @@ test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");
   assert.equal(p.currentBankroll, 19465.4, "active bankroll = crown − $1000 ten real lost seeds");
   assert.equal(p.openExposure, 0, "canonical portfolio.json open exposure $0 (settled rungs released; awaiting a fresh slate)");
-  assert.deepEqual(p.record, { wins: 16, losses: 10, voids: 0, pending: 0 }, "core record 16-10-0-0 (banking is not a bet)");
+  assert.deepEqual(p.record, { wins: 17, losses: 10, voids: 0, pending: 0 }, "core record 17-10-0-0 (banking is not a bet; Lane A won its July-2 Step 2)");
   assert.equal(p.moonshot.exposure, 0, "moonshot exposure separate ($0)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");
 });

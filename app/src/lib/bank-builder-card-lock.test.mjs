@@ -7,7 +7,7 @@
  * the LIVE dual-bank-builder-active.json then ran the fresh cycle two more days. These tests verify: the lock
  * stays consumed (no re-pin), the settled June-24 cards landed WON (Lane A) / LOST (Lane B) in the ARCHIVE, the
  * completion was operator-gated BANKED (not pending, not a silent roll), and canonical money is the post-settlement
- * truth (JULY-1: record 16-10 after Lane A won + Lane B lost their July-1 Step, bankroll 19465.40, cumulative crown 20465.40
+ * truth (JULY-2: record 17-10 after Lane A won its Step 2 + Lane B stopped, bankroll 19465.40, cumulative crown 20465.40
  * = Σ two banked finals). The money-integrity guard is preserved.
  */
 import test from "node:test";
@@ -91,7 +91,7 @@ test("the consumed lock NEVER mutates canonical money (bankroll/crown/record are
   const p = read("mr-dub/portfolio.json");
   assert.equal(p.currentBankroll, 19465.4);
   assert.equal(p.crownBankroll, 20465.4);
-  assert.deepEqual(p.record, { wins: 16, losses: 10, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 17, losses: 10, voids: 0, pending: 0 });
   assert.equal(dp.activeBankroll, 19465.4);
   assert.equal(dp.crownBankroll, 20465.4);
 });

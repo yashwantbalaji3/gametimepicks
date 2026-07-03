@@ -123,10 +123,10 @@ test("persisted daily-portfolio.json (post July-1 settlement) is internally cons
   assert.equal(p.settlement.realizedPnl, 0, "no realized P/L until official settlement");
   // Canonical money is untouched by the daily view. Banking Ladder #2 ($10,089.23) lifted the crown to the
   // Σ of the two completed-ladder finals (10,376.17 + 10,089.23 = 20,465.40). The dual-lane settlements through
-  // July-1 then moved the active bankroll (ten lost seeds → 19,465.40) and the record to 16-10.
+  // July-1 then moved the active bankroll (ten lost seeds → 19,465.40); July-2 Lane A won its Step 2 → record 17-10.
   const port = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(port.currentBankroll, 19465.40); assert.equal(port.crownBankroll, 20465.40);
-  assert.deepEqual(port.record, { wins: 16, losses: 10, voids: 0, pending: 0 });
+  assert.deepEqual(port.record, { wins: 17, losses: 10, voids: 0, pending: 0 });
 });
 
 test("daily-portfolio read view reflects the persisted state + is internally consistent", () => {
@@ -142,12 +142,12 @@ test("ACTIVATION NEVER mutates the legacy portfolio/crown/record", () => {
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   // Banking Ladder #2 ($10,089.23) lifted the crown to 20,465.40 (Σ of the two completed-ladder finals).
   // The dual-lane settlements through July-1 then moved the canonical money: ten lost seeds total drop the
-  // active bankroll to 19,465.40 and the record to 16-10 (Lane A won its July-1 Step, Lane B lost). Daily-portfolio
+  // active bankroll to 19,465.40; July-2 Lane A won its Step 2 → record 17-10. Daily-portfolio
   // activation itself must never touch this canonical money state.
   assert.equal(p.currentBankroll, 19465.40, "active bankroll (legacy) reflects banked Ladder #2 + 10 dual-lane lost seeds");
   assert.equal(p.crownBankroll, 20465.40, "crown = Σ of two completed-ladder finals");
   assert.equal(p.openExposure, 0, "legacy dual-ladder exposure $0 (settled rungs released; awaiting a fresh slate)");
-  assert.deepEqual(p.record, { wins: 16, losses: 10, voids: 0, pending: 0 }, "core record 16-10-0-0 (Lane A won, Lane B lost their July-1 Step)");
+  assert.deepEqual(p.record, { wins: 17, losses: 10, voids: 0, pending: 0 }, "core record 17-10-0-0 (Lane A won its July-2 Step 2, Lane B stopped)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate");
 });
 
