@@ -89,15 +89,15 @@ test("exposure/bankroll/crown unchanged by the cross-lane upgrade", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   // The daily-portfolio view never touches CANONICAL money and stays internally consistent regardless of
   // whether the day's lanes are active (cards placed) or awaiting — assert the invariants, not a fixed value.
-  // POST JULY-1 SETTLEMENT: crown = 20465.40 (Σ two banked finals); active bankroll = crown −
-  // $1000 dual-lane losses (ten real lost seeds; Lane A won its July-1 Step, Lane B lost) = 19465.40.
-  // The daily view holds the July-2 slate where lanes are awaiting a qualified card, so open exposure = $0.
-  assert.equal(dp.activeBankroll, 19465.4); assert.equal(dp.crownBankroll, 20465.4);
+  // POST JULY-3 SETTLEMENT: crown = 20465.40 (Σ two banked finals); active bankroll = crown −
+  // $1200 dual-lane losses (twelve real lost seeds; both lanes lost on July-3) = 19265.40.
+  // The daily view holds the July-4 slate where lanes are awaiting a qualified card, so open exposure = $0.
+  assert.equal(dp.activeBankroll, 19265.4); assert.equal(dp.crownBankroll, 20465.4);
   const sumExposure = (dp.lanes ?? []).filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
   assert.equal(dp.openExposure, sumExposure, "open exposure = Σ active-lane seed exposures, nothing else");
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(p.currentBankroll, 19465.4); assert.equal(p.crownBankroll, 20465.4);
+  assert.equal(p.currentBankroll, 19265.4); assert.equal(p.crownBankroll, 20465.4);
   assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view)");
-  assert.deepEqual(p.record, { wins: 17, losses: 10, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 17, losses: 12, voids: 0, pending: 0 });
 });

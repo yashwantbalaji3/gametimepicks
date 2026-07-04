@@ -1,7 +1,7 @@
 /**
  * FLAGSHIP model reconciliation — the derived flagship view must reconcile EXACTLY to the canonical money
  * and record. These tests pin the hard contract from the mission: never fabricate history; the timeline's
- * running cumulative ends on the official 17–10; every bankroll figure equals portfolio.json.
+ * running cumulative ends on the official 17–12; every bankroll figure equals portfolio.json.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -16,7 +16,7 @@ const daily = read("daily-summary.json");
 const banked = read("banked-ladders.json");
 const approved = read("bank-builder-approved.json");
 
-test("timeline running cumulative record ends EXACTLY on the canonical official record (17–10)", () => {
+test("timeline running cumulative record ends EXACTLY on the canonical official record (17–12)", () => {
   const { timeline } = buildTimeline(daily.days, portfolio);
   const newest = timeline[0]; // reversed → newest first
   assert.equal(newest.cumWins, portfolio.record.wins, `cumulative wins must equal canonical ${portfolio.record.wins}`);
@@ -73,10 +73,10 @@ test("Bank Builder journey = 2 completed 5–0 crown ladders + today's approved 
 
 test("charts: product performance carries canonical Bank Builder profit; heatmap has one cell per settled day", () => {
   const { timeline } = buildTimeline(daily.days, portfolio);
-  const master = { products: [{ productId: "bank-builder", label: "Bank Builder", record: { wins: 17, losses: 10 }, profit: 19365.4, canonical: true }] };
+  const master = { products: [{ productId: "bank-builder", label: "Bank Builder", record: { wins: 17, losses: 12 }, profit: 19165.4, canonical: true }] };
   const charts = buildCharts(timeline, master);
   const bb = charts.productPerformance.find((p) => p.productId === "bank-builder");
-  assert.ok(bb && bb.canonical && bb.profit === 19365.4, "BB canonical profit surfaced");
+  assert.ok(bb && bb.canonical && bb.profit === 19165.4, "BB canonical profit surfaced");
   assert.equal(charts.heatmap.length, timeline.length, "one heatmap cell per timeline day");
   assert.equal(charts.bankroll[charts.bankroll.length - 1].closing, portfolio.currentBankroll, "bankroll series ends at current");
 });

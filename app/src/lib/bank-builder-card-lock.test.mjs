@@ -7,7 +7,7 @@
  * the LIVE dual-bank-builder-active.json then ran the fresh cycle two more days. These tests verify: the lock
  * stays consumed (no re-pin), the settled June-24 cards landed WON (Lane A) / LOST (Lane B) in the ARCHIVE, the
  * completion was operator-gated BANKED (not pending, not a silent roll), and canonical money is the post-settlement
- * truth (JULY-2: record 17-10 after Lane A won its Step 2 + Lane B stopped, bankroll 19465.40, cumulative crown 20465.40
+ * truth (JULY-3: record 17-12 after both lanes lost, bankroll 19265.40, cumulative crown 20465.40
  * = Σ two banked finals). The money-integrity guard is preserved.
  */
 import test from "node:test";
@@ -89,29 +89,29 @@ test("Lane A's completion was operator-gated then BANKED (Ladder #2) — never a
 
 test("the consumed lock NEVER mutates canonical money (bankroll/crown/record are the post-banking truth)", () => {
   const p = read("mr-dub/portfolio.json");
-  assert.equal(p.currentBankroll, 19465.4);
+  assert.equal(p.currentBankroll, 19265.4);
   assert.equal(p.crownBankroll, 20465.4);
-  assert.deepEqual(p.record, { wins: 17, losses: 10, voids: 0, pending: 0 });
-  assert.equal(dp.activeBankroll, 19465.4);
+  assert.deepEqual(p.record, { wins: 17, losses: 12, voids: 0, pending: 0 });
+  assert.equal(dp.activeBankroll, 19265.4);
   assert.equal(dp.crownBankroll, 20465.4);
 });
 
 test("STABILITY: the consumed lock does NOT re-pin settled cards; the live cycle awaits a fresh slate stably", () => {
   // The lock is consumed (status settled, empty lanes), so a refresh must not resurrect the SETTLED June-24
-  // cards. JULY-3 LIVE STATE: Lane A WON its July-1 + July-2 Steps (advanced → served as a fresh live card) and
-  // Lane B was RESTARTED (money-safe) into a live cycle-6 Step-1 (active → also served). BOTH lanes are served as
-  // live cards, neither carries the consumed June-24 legs, and the served state must be stable across refreshes.
-  // The prior settlements are preserved in the live artifact's priorLane chains.
+  // cards. JULY-3 SETTLED STATE: both lanes are STOPPED (Lane A lost its July-3 Step-3, Lane B lost its July-3
+  // Step-1), so NEITHER surfaces a forward card — both await a fresh qualified card. No served lane carries the
+  // consumed June-24 legs, and the served state (zero lanes) must be stable across refreshes. The prior
+  // settlements are preserved in the live artifact's priorLane chains.
   const lock = read("mr-dub/bank-builder-locks.json");
   assert.equal(lock.status, "settled");
   assert.deepEqual(lock.lanes ?? {}, {}, "consumed lock pins nothing");
-  assert.equal(bb.length, 2, "two Bank Builder lanes served — Lane A advanced (won July-1+July-2), Lane B active (restarted)");
-  assert.ok(laneA, "Lane A served as a live card (advanced, awaiting next Step)");
-  assert.ok(laneB, "Lane B served as a live card (restarted cycle-6 Step-1, active)");
-  // BANK BUILDER exposure is the two served lanes' $100 seeds. Total open exposure also carries the structured
+  assert.equal(bb.length, 0, "zero Bank Builder lanes served — both lanes stopped (awaiting a fresh card)");
+  assert.ok(!laneA, "Lane A not served (stopped, awaiting a fresh card)");
+  assert.ok(!laneB, "Lane B not served (stopped, awaiting a fresh card)");
+  // BANK BUILDER exposure is $0 while both lanes are stopped. Total open exposure also carries the structured
   // Moonshot product's paper exposure — a separate product, so this test (about the consumed BANK BUILDER lock)
   // asserts the served lane seeds, and that total reconciles from products.
-  assert.equal(dp.products.bankBuilder.exposure, 200, "both served lanes place their $100 seed (Lane A advanced + Lane B restarted)");
+  assert.equal(dp.products.bankBuilder.exposure, 0, "no served lanes → $0 BB exposure (both lanes stopped)");
   assert.equal(dp.openExposure, Math.round((dp.products.bankBuilder.exposure + dp.products.moonshot.exposure) * 100) / 100, "total open exposure reconciles from products (BB two-lane seeds + structured Moonshot paper)");
   // The consumed June-24 card's legs (Morocco/Bosnia/Brazil, from the archive) must NOT be re-pinned onto any
   // served card — compare leg IDs (with no served lanes the served set is empty, which trivially excludes them).
