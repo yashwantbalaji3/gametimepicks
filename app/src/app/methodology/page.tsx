@@ -3,6 +3,8 @@ import path from "node:path";
 import { getMeta } from "@/lib/data";
 import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import DataSourceBadge from "@/components/data-source-badge";
+import FreshnessBadge from "@/components/ui/freshness-badge";
+import { currentEtDate } from "@/lib/freshness";
 import SportOverviewHero from "@/components/sport-overview-hero";
 
 /**
@@ -38,8 +40,12 @@ export default function MethodologyPage() {
         framing="Transparency over performance. The models are intentionally explainable — no deep learning, no black boxes — so the reasoning behind every projection is auditable. Every number here is paper-only and educational, never wagering advice."
       />
 
-      <div className="mt-6 reveal reveal-d1">
+      <div className="mt-6 reveal reveal-d1 flex flex-wrap items-center gap-2">
         <DataSourceBadge meta={meta} />
+        {/* Honest age of the NBA/legacy pipeline metadata — the client badge recomputes with the real
+            browser clock, so a weeks-old meta.json reads "N days ago" instead of implying currency.
+            (The World Cup + MLB slates carry their own fresh dates on their pages.) */}
+        <FreshnessBadge slateDate={(meta?.lastPipelineRun ?? "").slice(0, 10) || null} serverToday={currentEtDate()} noun="legacy pipeline run" />
       </div>
 
       {/* Honest top-line: what odds-backed vs model-only means + validation-stage */}

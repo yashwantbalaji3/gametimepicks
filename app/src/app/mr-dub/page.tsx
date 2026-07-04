@@ -17,6 +17,7 @@ import AchievementBanner from "@/components/achievement-banner";
 import { buildFlagship } from "@/lib/mr-dub/flagship";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
+import FreshnessBadge from "@/components/ui/freshness-badge";
 import { ExecutiveDashboard, TodayStatusStrip } from "@/components/mr-dub/flagship/flagship-dashboard";
 import BankBuilderJourneySection from "@/components/mr-dub/flagship/bank-builder-journey";
 import InteractiveTimeline from "@/components/mr-dub/flagship/interactive-timeline";
@@ -64,7 +65,12 @@ export default function MrDubPage() {
       <header className="gtp-cinematic-rise flex items-center gap-3.5">
         <MrDubAvatar size={56} />
         <div className="min-w-0">
-          <h1 className="text-[21px] font-semibold sm:text-[25px]" style={{ color: "var(--vault-text)" }}>Mr. Dub&rsquo;s Paper Portfolio</h1>
+          <span className="flex flex-wrap items-center gap-2">
+            <h1 className="text-[21px] font-semibold sm:text-[25px]" style={{ color: "var(--vault-text)" }}>Mr. Dub&rsquo;s Paper Portfolio</h1>
+            {/* Honest settlement age — client badge re-computes with the real browser clock, so a stale
+                build reads "Latest settlement · N days ago" instead of a frozen date. */}
+            <FreshnessBadge slateDate={f.todayStatus.lastSettledDate} serverToday={currentEtDate()} noun="settlement" />
+          </span>
           <p className="mt-0.5 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
             <span className="mr-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-gold)", background: "rgba(217,164,65,0.12)", border: "1px solid rgba(217,164,65,0.35)" }}><span aria-hidden>⚗</span> Paper Portfolio Scientist</span>
             Every paper card, every official result, every bankroll move — no wagers placed, not advice.

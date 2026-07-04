@@ -16,6 +16,7 @@ import OfficialCandidateCard from "@/components/bank-builder/official-candidate-
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
+import FreshnessBadge from "@/components/ui/freshness-badge";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung } from "@/components/bank-builder/climb-hero";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
@@ -209,6 +210,11 @@ export default function BankBuilderPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+      {/* Honest slate freshness — client badge re-computes with the real browser clock after hydration,
+          so a stale build reads "Latest slate · N days ago", never a frozen "Live today". */}
+      <div className="mb-3 flex justify-end">
+        <FreshnessBadge slateDate={today} serverToday={currentEtDate()} noun="card slate" />
+      </div>
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
           purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE
           the existing dense ladder components, which remain below unchanged. */}

@@ -40,6 +40,7 @@ import {
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
 import { currentEtDate } from "@/lib/freshness";
+import FreshnessBadge from "@/components/ui/freshness-badge";
 import { PUBLIC_PARLAY_RESULTS_START_DATE } from "@/lib/public-parlay-era";
 import { optimizerSlipToParlaySlip } from "@/lib/parlay-optimizer";
 import { loadCalibrationTable } from "@/lib/confidence-calibration";
@@ -259,7 +260,12 @@ export default function ResultsPage() {
         return (
           <div className="rounded-[8px] px-4 py-3 mb-4 flex flex-col gap-1"
             style={{ background: "rgba(217,164,65,0.08)", border: "1px solid color-mix(in srgb, var(--vault-gold-bright) 35%, transparent)" }}>
-            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Suggested-parlay grading · settled through {settled}</span>
+            <span className="flex flex-wrap items-center gap-2">
+              <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Suggested-parlay grading · settled through {settled}</span>
+              {/* Client badge re-computes "N days ago" with the real browser clock — the static-export
+                  build date can't freeze this banner's honesty. */}
+              <FreshnessBadge slateDate={settled} serverToday={currentEtDate()} noun="grading" />
+            </span>
             <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
               The suggested-parlay optimizer track record below is settled through <span style={{ color: "var(--vault-text)" }}>{settled}</span> ({days} days ago) — newer slates are awaiting grading, so this is NOT a live scoreboard. World Cup and MLB settle in their own products (World Cup on the Track Record / Bank Builder pages). Nothing here is counted as a win or loss until officially graded.
             </p>
