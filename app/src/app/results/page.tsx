@@ -487,7 +487,10 @@ export default function ResultsPage() {
         {dateSections.length === 0 ? (
           <EmptyState />
         ) : (
-          dateSections.map((section) => (
+          // PAGE-WEIGHT CAP: render the newest 10 graded days in full (thousands of per-slip rows made
+          // this page ~21MB of HTML). The older tail is summarized HONESTLY below — every older slip
+          // still counts in the lifetime/by-profile totals above; nothing is silently dropped.
+          dateSections.slice(0, 10).map((section) => (
             <ParlayResultsDateSectionV2
               key={section.date}
               date={section.date}
@@ -497,6 +500,11 @@ export default function ResultsPage() {
             />
           ))
         )}
+        {dateSections.length > 10 ? (
+          <p className="rounded-[8px] px-4 py-3 text-[12px] leading-relaxed" style={{ border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}>
+            {dateSections.length - 10} older graded day{dateSections.length - 10 === 1 ? "" : "s"} ({dateSections[dateSections.length - 1].date} → {dateSections[10].date}) are not listed slip-by-slip to keep this page fast — every one of those slips is still counted in the lifetime hit rate and by-profile records above. Nothing is dropped from the record.
+          </p>
+        ) : null}
       </div>
 
       {/* PR `feature/results-ux-restructure` — kept the legacy

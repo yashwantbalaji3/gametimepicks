@@ -116,17 +116,23 @@ test("Egypt/NZ same-game: wired into /world-cup and /today", () => {
 });
 
 // ── E. Slate-freshness badge ─────────────────────────────────────────────────────────────────────
-test("Slate-status bar: honest 3-way label (settled / in progress / pregame)", () => {
-  assert.match(SLATEBAR, /Slate settled/, "settled label kept");
-  assert.match(SLATEBAR, /Slate in progress/, "in-progress label added");
-  assert.match(SLATEBAR, /Pregame slate/, "pregame label kept");
-  // Derived from the current slate's World Cup kickoff times relative to build time.
-  assert.match(SLATEBAR, /slateProgressFromKickoffs/, "computes progress from kickoffs");
+test("Slate-status bar: honest 3-way label (settled / in progress / pregame) — CLIENT-hydrated clock", () => {
+  // The time judgement moved to the client chips so it tracks the REAL browser clock (the static
+  // export's build clock froze the old server labels). Server bar loads the kickoffs; chips label them.
+  const CHIPS = fs.readFileSync("src/components/slate-status-chips.tsx", "utf8");
+  assert.match(CHIPS, /^"use client";/, "chips are a client component (real-clock re-derivation)");
+  assert.match(CHIPS, /Slate settled/, "settled label kept");
+  assert.match(CHIPS, /Slate in progress/, "in-progress label kept");
+  assert.match(CHIPS, /Pregame slate/, "pregame label kept");
+  assert.match(CHIPS, /Completed — awaiting settlement/, "completed label kept");
+  assert.match(CHIPS, /Date\.now\(\)/, "re-derives from the real clock after hydration");
+  // Server bar still loads the real kickoff data (never fabricated) and passes it down.
+  assert.match(SLATEBAR, /slateKickoffsMs/, "server bar extracts the slate kickoffs");
   assert.match(SLATEBAR, /loadWorldCupProjections/, "reads the WC projections kickoffs");
   assert.match(SLATEBAR, /kickoffUtc/, "uses kickoffUtc times");
-  // Falls back gracefully (returns null) when no kickoff data is available.
-  assert.match(SLATEBAR, /return null/, "fail-closed fallback to prior behavior");
+  assert.match(SLATEBAR, /SlateStatusChips/, "renders the client chips");
   // The product-header test contract is preserved.
   assert.match(SLATEBAR, /loadPublicBankBuilderSummary/, "still reads the real public bank summary");
   assertNoBanned("slate status bar", SLATEBAR);
+  assertNoBanned("slate status chips", CHIPS);
 });

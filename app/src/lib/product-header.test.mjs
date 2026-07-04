@@ -11,7 +11,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 test("global header: no hardcoded $100 paper bank label; reads the real public summary", () => {
-  const src = fs.readFileSync("src/components/slate-status-bar.tsx", "utf8");
+  // The Today chip moved into the client chips component (real-clock hydration) — check both files.
+  const src = fs.readFileSync("src/components/slate-status-bar.tsx", "utf8")
+    + fs.readFileSync("src/components/slate-status-chips.tsx", "utf8");
   assert.ok(!src.includes('"$100 paper"'), "old internal bank label must be gone");
   assert.ok(src.includes("loadPublicBankBuilderSummary"), "chip must read the real public summary");
   assert.ok(src.includes("/bank-builder") && src.includes("/results") && src.includes("/today"), "chips link to product routes");
