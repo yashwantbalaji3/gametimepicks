@@ -26,6 +26,7 @@ import {
   type RoundOf32MarketPick,
   type BoardTeamParlayResult,
 } from "@/lib/world-cup/round-of-32";
+import { deriveGameScript } from "@/lib/world-cup/game-script";
 
 export const dynamicParams = false;
 
@@ -203,6 +204,34 @@ export default function FutureGameDetailRoute({ params }: { params: { slug: stri
           )}
         </div>
       </header>
+
+      {/* ─────────────────────── Model-read HERO — the 5-second betting summary ───────────────────────
+          Predicted score, result lean, total lean, BTTS lean and knockout risk in one band. Every value
+          comes from the SAME deriveGameScript engine the board uses (real market picks, never a
+          fabricated score); markets the feed doesn't offer render "not offered yet". */}
+      {(() => {
+        const gs = deriveGameScript(g);
+        if (!gs?.available) return null;
+        const ko = gs.knockoutRisk;
+        const cell = (label: string, value: string | null, accent?: string) => (
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{label}</span>
+            <span className="truncate" style={{ color: accent ?? "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{value ?? "not offered yet"}</span>
+          </div>
+        );
+        return (
+          <section aria-label="Model read" className="mb-9 rounded-[10px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(212,175,55,0.07), rgba(26,16,11,0.5))" }}>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2.5">
+              {cell("Model score lean", gs.scoreLean, "var(--vault-gold)")}
+              {cell("Total goals lean", gs.totalLean)}
+              {cell("BTTS lean", gs.bttsLean)}
+              {ko ? cell("Knockout risk", ko.label, ko.label === "High" ? "var(--gtp-bank-heat)" : ko.label === "Medium" ? "var(--vault-warn)" : "var(--vault-success)") : cell("Knockout risk", null)}
+            </div>
+            <p className="mt-2 text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{gs.explanation}{ko ? ` · ${ko.reason}` : ""}</p>
+            {gs.conflictWarning ? <p className="mt-1 text-[10.5px]" style={{ color: "var(--gtp-bank-heat)" }}>⚠ {gs.conflictWarning}</p> : null}
+          </section>
+        );
+      })()}
 
       {/* ─────────────────────── Model Picks team table ─────────────────────── */}
       <section aria-label="Model picks" className="mb-9">

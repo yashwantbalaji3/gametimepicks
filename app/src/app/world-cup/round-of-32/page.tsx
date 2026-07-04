@@ -16,10 +16,6 @@ import FlagBadge from "@/components/flag-badge";
 import { gameDetailParams } from "@/lib/game-detail";
 import {
   loadRoundOf32Board,
-  groupRoundOf32ByDate,
-  formatRoundOf32DateHeader,
-  formatAmericanOdds,
-  formatProbability,
   winPercent,
   upsetRisk,
   knockoutRisk,
@@ -27,6 +23,9 @@ import {
   type RoundOf32Status,
 } from "@/lib/world-cup/round-of-32";
 import { deriveGameScript } from "@/lib/world-cup/game-script";
+import { buildKnockoutBoardView } from "@/lib/world-cup/knockout-board-view";
+import KnockoutPickBoard from "@/components/world-cup/knockout-pick-board";
+import { currentEtDate } from "@/lib/freshness";
 
 export const metadata = {
   title: "Knockout Model Picks · FIFA World Cup 2026 · GameTime Picks",
@@ -66,22 +65,6 @@ function StatusPill({ status }: { status: RoundOf32Status }) {
   );
 }
 
-const cellStyle: React.CSSProperties = {
-  padding: "8px 10px",
-  borderBottom: "1px solid var(--vault-rule)",
-  whiteSpace: "nowrap",
-  verticalAlign: "top",
-};
-const headStyle: React.CSSProperties = {
-  padding: "8px 10px",
-  textAlign: "left",
-  whiteSpace: "nowrap",
-  color: "var(--vault-text-faint)",
-  fontSize: 9.5,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
-  borderBottom: "1px solid var(--vault-border)",
-};
 
 export default function RoundOf32Page() {
   const board = loadRoundOf32Board();
@@ -95,7 +78,8 @@ export default function RoundOf32Page() {
     );
   }
 
-  const grouped = groupRoundOf32ByDate(board);
+  // The derived pick-board view — one clean row per game (real artifacts only; fail-closed to []).
+  const pickBoard = buildKnockoutBoardView();
 
   // EVERY live_odds game now links somewhere: active-window games keep their full detail page
   // (`/games/world-cup/<slug>`, full props); the remaining future games get the team-market detail
@@ -137,72 +121,52 @@ export default function RoundOf32Page() {
         </span>
       </div>
 
-      {/* Status legend — each chip carries a one-line explanation so the states read as intentional. */}
-      <div
-        className="rounded-[8px] px-3.5 py-3 mb-4 flex flex-col gap-2"
-        style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-rule)" }}
-      >
-        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>What the status chips mean</span>
-        {(["live_odds", "odds_pending", "started", "completed"] as RoundOf32Status[]).map((s) => (
-          <div key={s} className="flex items-start gap-2.5">
-            <span className="shrink-0 pt-0.5"><StatusPill status={s} /></span>
-            <span className="leading-snug" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>{STATUS_META[s].explain}</span>
-          </div>
-        ))}
-        <span className="font-mono mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-          {liveCount} of {board.gameCount} games have live model odds.
-        </span>
-      </div>
+      {/* Status legend — collapsed so the pick board is the first thing a user scans. */}
+      <details className="rounded-[8px] mb-4" style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-rule)" }}>
+        <summary className="cursor-pointer px-3.5 py-2.5 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5, listStyle: "none" }}>
+          What the status chips mean · {liveCount} of {board.gameCount} games have live model odds ▾
+        </summary>
+        <div className="flex flex-col gap-2 px-3.5 pb-3">
+          {(["live_odds", "odds_pending", "started", "completed"] as RoundOf32Status[]).map((s) => (
+            <div key={s} className="flex items-start gap-2.5">
+              <span className="shrink-0 pt-0.5"><StatusPill status={s} /></span>
+              <span className="leading-snug" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>{STATUS_META[s].explain}</span>
+            </div>
+          ))}
+        </div>
+      </details>
 
-      {/* ───────────────────────── Compact picks table ───────────────────────── */}
-      <section aria-label="Round of 32 model picks table" className="mb-10">
-        <div className="flex items-center justify-between gap-2 mb-1.5 sm:hidden">
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Full picks board</span>
-          <span className="font-mono" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>swipe sideways →</span>
-        </div>
-        <div className="overflow-x-auto rounded-[10px]" style={{ border: "1px solid var(--vault-border)", WebkitOverflowScrolling: "touch" }}>
-          <table className="w-full border-collapse" style={{ fontSize: 12, minWidth: 920 }}>
-            <thead>
-              <tr style={{ background: "rgba(26, 16, 11,0.7)" }}>
-                <th style={headStyle}>Kickoff ET</th>
-                <th style={headStyle}>Match</th>
-                <th style={headStyle}>Model ML pick</th>
-                <th style={headStyle}>ML odds</th>
-                <th style={headStyle}>Win %</th>
-                <th style={headStyle}>Total pick</th>
-                <th style={headStyle}>Total odds</th>
-                <th style={headStyle}>BTTS</th>
-                <th style={headStyle}>Best safer market</th>
-                <th style={headStyle}>Best value market</th>
-                <th style={headStyle}>Confidence</th>
-                <th style={headStyle}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {grouped.map(({ date, games }) => (
-                <RoundOf32DateGroup key={date} date={date} games={games} detailHrefFor={detailHrefFor} isActiveWindow={isActiveWindow} />
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* ───────────────────────── The PICK BOARD (sportsbook-style scan surface) ─────────────────────────
+          One expandable row per game: score lean · result/protection · total/BTTS · best player prop ·
+          confidence + KO risk. Filters, sorting, mobile cards, and same-game parlay previews live in the
+          client component; every value comes from the derived view-model (real artifacts only). The client
+          re-derives status + "Today" from the REAL browser clock after hydration (no frozen build clock). */}
+      <section aria-label="Knockout pick board" className="mb-10">
+        <KnockoutPickBoard rows={pickBoard?.rows ?? []} serverToday={currentEtDate()} />
         <p className="mt-2 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-          Scroll the table sideways on mobile. Tap any row to open its detail page — active-window games show full props, future games show team-market picks (props pending).
+          Tap a row for the top picks, why the model likes it, and same-game parlay previews (paper-only —
+          no bets are placed here). Open the game dashboard for the full market + props tables.
         </p>
       </section>
 
-      {/* ───────────────────────── Model Bracket Lean ───────────────────────── */}
-      <section aria-label="Model bracket lean">
-        <SectionHeader
-          eyebrow="Model bracket lean"
-          title="Who the model leans to advance"
-          sub="The model's 90-minute moneyline favorite per game, with upset risk and a one-line expected game script. This is a 90-minute model proxy, NOT an outright/to-advance market — extra time and penalties can still flip a tie."
-        />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {board.games.map((g) => (
-            <BracketLeanCard key={g.eventId} g={g} href={detailHrefFor(g)} activeWindow={isActiveWindow(g)} />
-          ))}
-        </div>
-      </section>
+      {/* ───────────────────────── Model Bracket Lean (collapsed — the board is the primary surface) ───── */}
+      <details>
+        <summary className="cursor-pointer mb-2 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10.5, listStyle: "none" }}>
+          Model bracket lean — who the model leans to advance (90-min proxy) ▾
+        </summary>
+        <section aria-label="Model bracket lean">
+          <SectionHeader
+            eyebrow="Model bracket lean"
+            title="Who the model leans to advance"
+            sub="The model's 90-minute moneyline favorite per game, with upset risk and a one-line expected game script. This is a 90-minute model proxy, NOT an outright/to-advance market — extra time and penalties can still flip a tie."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {board.games.map((g) => (
+              <BracketLeanCard key={g.eventId} g={g} href={detailHrefFor(g)} activeWindow={isActiveWindow(g)} />
+            ))}
+          </div>
+        </section>
+      </details>
 
       <p className="mt-8 text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
         Generated {board.generatedAt}. Slate {board.slateLabel}. All picks de-vigged from real posted odds; 90-minute regulation markets only. Paper-only educational analytics — not betting advice, and not the Bank Builder ladder.
@@ -224,115 +188,7 @@ function PropsChip({ active }: { active: boolean }) {
   );
 }
 
-function RoundOf32DateGroup({
-  date,
-  games,
-  detailHrefFor,
-  isActiveWindow,
-}: {
-  date: string;
-  games: RoundOf32Game[];
-  detailHrefFor: (g: RoundOf32Game) => string | null;
-  isActiveWindow: (g: RoundOf32Game) => boolean;
-}) {
-  return (
-    <>
-      <tr>
-        <td
-          colSpan={12}
-          className="font-mono uppercase tracking-[0.12em]"
-          style={{
-            background: "rgba(242, 54, 69, 0.10)",
-            color: "var(--vault-gold-bright)",
-            fontSize: 10,
-            padding: "6px 10px",
-            borderBottom: "1px solid var(--vault-border)",
-            position: "sticky",
-            left: 0,
-          }}
-        >
-          {formatRoundOf32DateHeader(date)} · {games.length} game{games.length === 1 ? "" : "s"}
-        </td>
-      </tr>
-      {games.map((g) => (
-        <RoundOf32Row key={g.eventId} g={g} href={detailHrefFor(g)} activeWindow={isActiveWindow(g)} />
-      ))}
-    </>
-  );
-}
 
-function RoundOf32Row({ g, href, activeWindow }: { g: RoundOf32Game; href: string | null; activeWindow: boolean }) {
-  const p = g.picks;
-  const ml = p?.moneyline;
-  const win = winPercent(g);
-  const conf = CONFIDENCE_COLOR[g.confidence] ?? "var(--vault-text-mute)";
-  const dash = "—";
-
-  // Kickoff ET in the artifact is "Mon Jun 29 · 1:00 PM ET" — show the time-of-day portion compactly.
-  const koTime = g.kickoffEt?.includes("·") ? g.kickoffEt.split("·").slice(1).join("·").trim() : g.kickoffEt;
-
-  const matchCell = (
-    <div className="flex items-center gap-1.5" style={{ whiteSpace: "nowrap" }}>
-      <FlagBadge code={g.homeCode ?? ""} size="sm" />
-      <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{g.home}</span>
-      <span style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>v</span>
-      <FlagBadge code={g.awayCode ?? ""} size="sm" />
-      <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{g.away}</span>
-      {href ? <span style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>→</span> : null}
-    </div>
-  );
-
-  return (
-    <tr className="vault-glow-hover" style={{ background: href ? "rgba(26, 16, 11,0.25)" : undefined }}>
-      <td style={{ ...cellStyle, color: "var(--vault-text-mute)", fontSize: 11 }}>{koTime || dash}</td>
-      <td style={cellStyle}>
-        {href ? (
-          <Link href={href} style={{ textDecoration: "none" }} aria-label={`Open ${g.home} vs ${g.away} game detail`}>
-            {matchCell}
-          </Link>
-        ) : (
-          matchCell
-        )}
-      </td>
-      <td style={{ ...cellStyle, color: "var(--vault-text)", fontWeight: 600 }}>{ml?.pick ?? dash}</td>
-      <td style={{ ...cellStyle, color: "var(--vault-text-mute)" }} className="tabular">{formatAmericanOdds(ml?.americanOdds)}</td>
-      <td style={{ ...cellStyle, color: "var(--vault-gold-bright)", fontWeight: 600 }} className="tabular">
-        {win != null ? `${win}%` : dash}
-      </td>
-      <td style={{ ...cellStyle, color: "var(--vault-text)" }}>{p?.total?.pick ?? dash}</td>
-      <td style={{ ...cellStyle, color: "var(--vault-text-mute)" }} className="tabular">{formatAmericanOdds(p?.total?.americanOdds)}</td>
-      <td style={{ ...cellStyle, color: "var(--vault-text)" }}>{p?.btts?.pick ?? dash}</td>
-      <td style={{ ...cellStyle, color: "var(--vault-text-mute)" }}>
-        {p?.saferMarket ? (
-          <span>
-            {p.saferMarket.pick} <span style={{ color: "var(--vault-text-faint)" }} className="tabular">{formatAmericanOdds(p.saferMarket.americanOdds)} · {formatProbability(p.saferMarket.modelProbability)}</span>
-          </span>
-        ) : (
-          dash
-        )}
-      </td>
-      <td style={{ ...cellStyle, color: "var(--vault-text-mute)" }}>
-        {p?.valueMarket ? (
-          <span>
-            {p.valueMarket.pick} <span style={{ color: "var(--vault-text-faint)" }} className="tabular">{formatAmericanOdds(p.valueMarket.americanOdds)} · {formatProbability(p.valueMarket.modelProbability)}</span>
-          </span>
-        ) : (
-          dash
-        )}
-      </td>
-      <td style={cellStyle}>
-        <span className="font-mono uppercase tracking-[0.06em]" style={{ color: conf, fontSize: 10 }}>{g.confidence}</span>
-      </td>
-      <td style={cellStyle}>
-        <div className="flex flex-col gap-1 items-start">
-          <StatusPill status={g.status} />
-          {g.status === "live_odds" ? <PropsChip active={activeWindow} /> : null}
-        </div>
-        {!p && g.note ? <div className="mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 9.5, whiteSpace: "normal", maxWidth: 160 }}>{g.note}</div> : null}
-      </td>
-    </tr>
-  );
-}
 
 function BracketLeanCard({ g, href, activeWindow }: { g: RoundOf32Game; href: string | null; activeWindow: boolean }) {
   const ml = g.picks?.moneyline;
