@@ -41,6 +41,8 @@ import SportCard from "@/components/ui/sport-card";
 import WorldCupFlexCard from "@/components/bank-builder/world-cup-flex-card";
 import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
 import SectionHeader from "@/components/section-header";
+import Top10BoardSection from "@/components/top10/top10-board";
+import { buildTop10Board } from "@/lib/top10/top10-picks";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import YesterdaySummary from "@/components/yesterday-summary";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
@@ -465,6 +467,14 @@ export default function TodayPage() {
 
       {/* 3.5 — Mr. Dub paper portfolio at a glance (current bankroll, latest P/L, exposure, record). */}
       <div className="mt-3"><MrDubTodayCard /></div>
+
+      {/* 3.6 — MODEL TOP 10 PICKS — the universal cross-sport board (WC team markets + WC qualified
+            props + MLB leans), ranked by settled market reliability × model probability + edge. The Bank
+            Builder survival pool is exactly this board's team-market family. Pure display, no placement. */}
+      <section className="gtp-fade-up">
+        <SectionHeader eyebrow={`Model Top 10 · ${dateLabel}`} title="Top 10 picks of the day" sub="One board across every live sport — ranked by settled market reliability and model probability, never by payout. Tap any pick for why it can hit and what the risk is." />
+        <div className="mt-3"><Top10BoardSection board={buildTop10Board(path.join(process.cwd(), "public", "data"), today, Date.now())} /></div>
+      </section>
 
       {/* 4 — Suggested parlays — canonical methodology engine (World Cup + Mixed + MLB, by risk,
             with per-leg model + last-5 drawers). Same data as /parlays and /picks. */}
