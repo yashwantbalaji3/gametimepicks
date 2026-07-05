@@ -185,10 +185,24 @@ export function buildBankBuilderProposalFromGames(games: RoundOf32Game[], date: 
   const cands = games.map((g) => gameCandidates(g)).filter((c) => c.length > 0);
   // SURVIVAL (Lane A): within EACH game, keep only payable, high-probability legs (drop ultra-juiced
   // -600+ and coin-flips), THEN take that game's safest; then the two safest across DIFFERENT games.
+  //
+  // MARKET-RELIABILITY WEIGHTING (July-4 model review, from the CANONICAL settled ledger): double
+  // chance is 8-0 and DNB near-perfect; totals are 63% overall but every recent knockout loss was a
+  // 90'-draw trap (Over 2.5 died on Argentina 1-1, Under 2.5 on Belgium 2-2); BTTS is 1-3 (25%).
+  // The survival lane therefore penalizes totals in DRAW-RISKY games (90' draw ≥ 26% — the same
+  // threshold knockoutRisk uses) and always demotes BTTS to a last resort, instead of trusting the
+  // raw model probability that walked Lane A into the July-3 Over-2.5 trap.
+  const drawRisky = new Map<string, boolean>(
+    games.map((g) => [g.gameSlug, (g.picks?.moneyline?.draw ?? 0) >= 0.26]),
+  );
+  const survivalScore = (c: Candidate): number =>
+    c.volScore
+    + (c.market === "btts" ? 0.25 : 0)
+    + (c.market === "match_total_goals" && drawRisky.get(c.gameSlug) ? 0.15 : 0);
   const safestPerGame = cands
-    .map((cs) => cs.filter((c) => c.americanOdds >= -600 && c.modelProbability >= 0.55).sort((a, b) => a.volScore - b.volScore)[0])
+    .map((cs) => cs.filter((c) => c.americanOdds >= -600 && c.modelProbability >= 0.55).sort((a, b) => survivalScore(a) - survivalScore(b))[0])
     .filter(Boolean)
-    .sort((a, b) => a.volScore - b.volScore) as Candidate[];
+    .sort((a, b) => survivalScore(a as Candidate) - survivalScore(b as Candidate)) as Candidate[];
   const laneALegs = pickTwoDistinctGames(safestPerGame);
 
   // VALUE (Lane B): the best PAYABLE leg per game (-200..+300, highest model prob), two across different
