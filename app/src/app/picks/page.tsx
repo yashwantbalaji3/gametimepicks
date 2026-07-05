@@ -22,6 +22,8 @@ import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
+import Top10BoardSection from "@/components/top10/top10-board";
+import { buildTop10Board } from "@/lib/top10/top10-picks";
 import Link from "next/link";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
 import { formatAmerican } from "@/lib/odds-math";
@@ -110,6 +112,13 @@ export default function PicksPage() {
         secondaryAction={{ label: "How it works", href: "/methodology" }}
         note="Model-ranked suggested parlays across World Cup, MLB and Mixed — by risk, with same-game cards and the eligible-leg marketplace. Tap any leg for model + last-5 detail."
       />
+      {/* MODEL TOP 10 — the universal cross-sport board (same derived model as /today), so the Parlay Lab
+          leads with the model's strongest single legs before the pre-built cards. */}
+      <section>
+        <h2 className="mb-2 font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>Model Top 10 picks · {today}</h2>
+        <Top10BoardSection board={buildTop10Board(path.join(process.cwd(), "public", "data"), today, Date.now())} />
+      </section>
+
       {/* Canonical engine card surface — same data as /parlays (World Cup + Mixed + by-risk + same-game). */}
       <ParlaysExplorer slate={engineSlate} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} />
 

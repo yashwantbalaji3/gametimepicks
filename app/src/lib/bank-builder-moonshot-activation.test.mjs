@@ -13,13 +13,13 @@ const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 const round2 = (n) => Math.round(n * 100) / 100;
 
-test("plan (dry-run): no BB lanes (both stopped) + two Moonshot lanes → 2 lanes, $0 exposure (dry-run places nothing)", () => {
+test("plan (dry-run): two BB candidate lanes (cycle-7 restart) + two Moonshot lanes → 4 lanes, $0 exposure (dry-run places nothing)", () => {
   const plan = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, /*activate*/ false);
-  // Post July-3 state: both lanes are STOPPED (Lane A lost its July-3 Step-3, Lane B lost its July-3 Step-1), so
-  // NEITHER surfaces a forward card — both await a fresh qualified card. So ZERO Bank Builder lanes are served,
-  // plus Moonshot A/B = 2 lanes total.
-  assert.equal(plan.lanes.filter((l) => l.product === "bank-builder").length, 0, "no Bank Builder lanes (both lanes stopped)");
-  assert.equal(plan.lanes.length, 2, "Moonshot A/B only (both BB lanes stopped)");
+  // Post July-5 activation: both lanes RESTARTED (cycle 7, fresh $100 Step-1), so each surfaces a forward card.
+  // On this historical June-23 slate no operator-approved pin applies, so the auto path proposes CANDIDATE cards
+  // only — 2 BB + Moonshot A/B = 4 lanes total, and a dry-run still places nothing.
+  assert.equal(plan.lanes.filter((l) => l.product === "bank-builder").length, 2, "two Bank Builder candidate lanes (both lanes active on a fresh Step 1)");
+  assert.equal(plan.lanes.length, 4, "BB A/B + Moonshot A/B");
   assert.equal(plan.openExposure, 0, "dry-run places no exposure");
   assert.equal(plan.availableBankroll, plan.activeBankroll, "available = active when nothing placed");
   for (const l of plan.lanes) assert.notEqual(l.status, "active", "no lane active in dry-run");
@@ -39,19 +39,32 @@ test("apply: exposure math — both BB lanes stopped ($0 BB); Moonshot adaptive;
   assert.equal(dp.availableBankroll, round2(dp.activeBankroll - dp.openExposure), "available = active − exposure");
 });
 
-test("apply: no BB lanes (both stopped); Moonshot lanes are STRUCTURED team-market longshots; combined odds reconcile", () => {
-  const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
+test("apply (live July-5): two ACTIVE approved BB lanes; Moonshot lanes are STRUCTURED team-market longshots (+700 floor gates activation); combined odds reconcile", () => {
+  // Live July-5 activated state: the operator-approved cycle-7 restart serves BOTH Bank Builder lanes as
+  // ACTIVE fresh $100 Step-1 cards. Moonshot B is active (+1599, clears the floor); Moonshot A is only a
+  // CANDIDATE (+484, below the +700 longshot floor → never activated).
+  const LIVE_DATE = "2026-07-05";
+  const LIVE_NOW = "2026-07-05T12:00:00Z"; // pre-slate: before the 20:00Z Brazil/Norway kickoff
+  const dp = buildPersistedDailyPortfolio(root, LIVE_NOW, LIVE_DATE, LIVE_NOW, true);
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const moon = dp.lanes.filter((l) => l.product === "moonshot");
-  assert.equal(bb.length, 0, "no Bank Builder lanes (both lanes stopped)");
-  for (const l of bb) assert.ok(l.legCount <= 4, "Bank Builder lane ≤ 4 legs (rung card)");
+  assert.equal(bb.length, 2, "two Bank Builder lanes served (cycle-7 restart, approved July-5)");
+  for (const l of bb) {
+    assert.equal(l.status, "active", `Bank Builder ${l.lane} active (fresh $100 Step 1)`);
+    assert.ok(l.legCount <= 4, "Bank Builder lane ≤ 4 legs (rung card)");
+  }
   assert.equal(moon.length, 2, "Moonshot A/B present");
   for (const l of moon) {
-    // NEW spec: structured team-market lanes (result + total per game) — team markets only (no player props),
-    // combined price clears the +700 longshot floor.
+    // NEW spec: structured team-market lanes (result + total per game) — team markets only (no player props).
     assert.ok(l.legs.every((g) => g.id.startsWith("team:") && g.player === null), `Moonshot ${l.lane}: team markets only (no player props)`);
-    assert.ok(l.combinedOdds >= 700, `Moonshot ${l.lane}: clears the +700 longshot floor`);
+    // The +700 longshot floor gates ACTIVATION: an active lane must clear it; a below-floor card stays candidate.
+    if (l.status === "active") assert.ok(l.combinedOdds >= 700, `Moonshot ${l.lane}: active lane clears the +700 longshot floor`);
+    else assert.ok(l.combinedOdds < 700, `Moonshot ${l.lane}: below-floor card stays a candidate (never activated)`);
   }
+  const moonA = moon.find((l) => l.lane === "A");
+  const moonB = moon.find((l) => l.lane === "B");
+  assert.equal(moonA?.status, "candidate", "Moonshot A is a candidate (+484 < +700 floor, NOT active)");
+  assert.equal(moonB?.status, "active", "Moonshot B is active (+1599 clears the floor)");
   for (const l of dp.lanes) {
     if (!l.legs.length) continue;
     const d = l.legs.reduce((p, g) => p * dec(g.odds), 1);

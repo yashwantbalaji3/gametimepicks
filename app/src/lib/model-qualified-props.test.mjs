@@ -113,7 +113,7 @@ test("/today shows the June 23 readiness strip incl. Model Player Props", () => 
   assert.match(today, /loadModelQualifiedProps/, "today reads model-qualified prop counts");
 });
 
-test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live lanes are a fresh cycle-2, bankroll + crown reconcile, lanes separate", () => {
+test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live lanes are a fresh forward cycle, bankroll + crown reconcile, lanes separate", () => {
   // The completed cycle-1 dual run was archived when Lane A's $100→$10k ladder was BANKED. Its final state is
   // preserved there: Lane A completed (Step 5 WON → $10,089.23), Lane B stopped (Step 3 LOST on Under 2.5).
   const banked = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json"));
@@ -129,30 +129,37 @@ test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live
   assert.equal(laneAStep5.result, "won", "Lane A Step 5 settled WON");
   assert.ok(Math.abs(laneAStep5.payout - 10089.23) < 0.5, "Lane A Step 5 reached $10,089.23");
   // The LIVE dual artifact is a fresh forward cycle (banking does not leave a completed ladder sitting in the live run);
-  // after #1 (crown) and #2 (Lane A) were banked, the cycle ran July-1 → July-3: Lane A WON Steps 1 & 2 then LOST
-  // Step 3 (stopped); Lane B LOST its July-3 Step-1 (stopped).
+  // after #1 (crown) and #2 (Lane A) were banked, the cycle ran July-1 → July-3 (Lane A WON Steps 1 & 2 then LOST
+  // Step 3; Lane B LOST its July-3 Step-1), then the operator approved a fresh cycle-7 restart on July-5 —
+  // both lanes are ACTIVE on a fresh $100 Step-1, and the settled cycle 6 moved into each lane's priorLane.
   const live = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json"));
-  assert.equal(live.run.laneA.cycle, 6, "live Lane A is cycle 6 (fresh $100 Step-1 restart, then climbed to Step 3)");
-  // July-3 state: Lane A's Step-1 & Step-2 settled WON, Step-3 settled LOST → stopped; the earlier LOST step is preserved in priorLane.
-  assert.equal(live.run.laneA.laneStatus, "stopped", "live Lane A stopped — Step-3 settled-LOST on the July-3 slate");
+  assert.equal(live.run.laneA.cycle, 7, "live Lane A is cycle 7 (fresh $100 Step-1 restart, approved July-5)");
+  assert.equal(live.run.laneA.laneStatus, "active", "live Lane A active on a fresh Step 1");
   const liveAStep1 = live.run.laneA.steps.find((s) => s.step === 1);
-  assert.equal(liveAStep1.status, "settled", "live Lane A Step 1 settled");
-  assert.equal(liveAStep1.result, "won", "live Lane A Step 1 settled WON (July 1)");
-  const liveAStep3 = live.run.laneA.steps.find((s) => s.step === 3);
-  assert.equal(liveAStep3.status, "settled", "live Lane A Step 3 settled");
-  assert.equal(liveAStep3.result, "lost", "live Lane A Step 3 settled LOST (July 3)");
-  const priorAStep1 = live.run.laneA.priorLane.steps.find((s) => s.step === 1);
-  assert.equal(priorAStep1.status, "settled", "live Lane A priorLane Step 1 settled");
-  assert.equal(priorAStep1.result, "lost", "live Lane A priorLane Step 1 settled LOST (prior cycle stopped, then restarted)");
-  // Lane B lost its July-3 cycle-6 Step-1 → stopped; priorLane (cycle 5) preserves the July-1 LOST Step-1.
-  assert.equal(live.run.laneB.cycle, 6, "live Lane B is cycle 6 (lost its July-3 Step-1)");
-  assert.equal(live.run.laneB.laneStatus, "stopped", "live Lane B stopped — Step-1 settled LOST July-3");
+  assert.equal(liveAStep1.status, "active", "live Lane A Step 1 is active (pending, unsettled)");
+  // The settled July cycle (cycle 6) is preserved one level down: Step-1 & Step-2 WON, Step-3 LOST → stopped.
+  const priorA = live.run.laneA.priorLane;
+  assert.equal(priorA.laneStatus, "stopped", "Lane A priorLane (cycle 6) stopped — Step-3 settled-LOST July-3");
+  const priorAStep1 = priorA.steps.find((s) => s.step === 1);
+  assert.equal(priorAStep1.status, "settled", "Lane A cycle-6 Step 1 settled");
+  assert.equal(priorAStep1.result, "won", "Lane A cycle-6 Step 1 settled WON (July 1)");
+  const priorAStep3 = priorA.steps.find((s) => s.step === 3);
+  assert.equal(priorAStep3.status, "settled", "Lane A cycle-6 Step 3 settled");
+  assert.equal(priorAStep3.result, "lost", "Lane A cycle-6 Step 3 settled LOST (July 3)");
+  const deeperAStep1 = priorA.priorLane.steps.find((s) => s.step === 1);
+  assert.equal(deeperAStep1.status, "settled", "Lane A deeper priorLane Step 1 settled");
+  assert.equal(deeperAStep1.result, "lost", "Lane A deeper priorLane Step 1 settled LOST (earlier cycle, one level deeper)");
+  // Lane B: cycle-7 fresh active Step-1; cycle 6 (July-3 LOST Step-1) one level down, July-1 loss one below that.
+  assert.equal(live.run.laneB.cycle, 7, "live Lane B is cycle 7 (fresh $100 Step-1 restart, approved July-5)");
+  assert.equal(live.run.laneB.laneStatus, "active", "live Lane B active on a fresh Step 1");
   const liveBStep1 = live.run.laneB.steps.find((s) => s.step === 1);
-  assert.equal(liveBStep1.status, "settled", "live Lane B Step 1 is settled");
-  assert.equal(liveBStep1.result, "lost", "live Lane B Step 1 settled LOST (July-3)");
+  assert.equal(liveBStep1.status, "active", "live Lane B Step 1 is active (pending, unsettled)");
   const priorBStep1 = live.run.laneB.priorLane.steps.find((s) => s.step === 1);
-  assert.equal(priorBStep1.status, "settled", "live Lane B priorLane Step 1 settled");
-  assert.equal(priorBStep1.result, "lost", "live Lane B priorLane Step 1 settled LOST July-1 (prior cycle)");
+  assert.equal(priorBStep1.status, "settled", "Lane B priorLane (cycle 6) Step 1 settled");
+  assert.equal(priorBStep1.result, "lost", "Lane B cycle-6 Step 1 settled LOST (July-3)");
+  const deeperBStep1 = live.run.laneB.priorLane.priorLane.steps.find((s) => s.step === 1);
+  assert.equal(deeperBStep1.status, "settled", "Lane B deeper priorLane Step 1 settled");
+  assert.equal(deeperBStep1.result, "lost", "Lane B deeper priorLane Step 1 settled LOST July-1 (one level deeper)");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   // Cumulative-crown: crown = Σ two banked finals; active bankroll = crown − $1200 twelve real lost seeds.
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");

@@ -17,6 +17,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import FreshnessBadge from "@/components/ui/freshness-badge";
+import { bankBuilderStepPolicy } from "@/lib/methodology/ladder-policy";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung } from "@/components/bank-builder/climb-hero";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
@@ -215,6 +216,37 @@ export default function BankBuilderPage() {
       <div className="mb-3 flex justify-end">
         <FreshnessBadge slateDate={today} serverToday={currentEtDate()} noun="card slate" />
       </div>
+
+      {/* HOW THE LADDER WORKS — v1 (live today) vs the v2 profit-preserving ladder (tested spec, not yet
+          active: settlement support for partial cash-outs is documented in docs/METHODOLOGY_V2_LADDER.md).
+          Rendered from the pure bankBuilderStepPolicy so this panel can never drift from the spec. */}
+      <details className="mb-4 rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
+        <summary className="cursor-pointer px-4 py-3 text-[12.5px]" style={{ color: "var(--vault-text-mute)", listStyle: "none" }}>
+          <span className="font-mono uppercase tracking-[0.1em] text-[10px]" style={{ color: "var(--vault-gold)" }}>How the ladder works</span>
+          <span className="ml-2">— today&rsquo;s live ladder rolls every win forward (v1). The next-generation ladder (v2) will bank part of each win from Step 3. Tap to compare ▾</span>
+        </summary>
+        <div className="flex flex-col gap-2 px-4 pb-3.5">
+          <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+            <strong style={{ color: "var(--vault-text)" }}>Live today (v1):</strong> each $100 lane climbs by rolling the full winnings into the next step; a lost step costs only the original $100 seed. Wins are unrealized until a ladder completes or stops — that discipline built both $100→$10K crowns.
+          </p>
+          <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+            <strong style={{ color: "var(--vault-text)" }}>Coming (v2, spec final — not yet active):</strong> from Step 3, part of every win is extracted to banked profit and only the rest rolls, so one bad leg can no longer erase a whole climb. Later steps get <em>safer</em>, not richer:
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {[1, 2, 3, 4, 5, 6, 7].map((s) => {
+              const p = bankBuilderStepPolicy(s, 100);
+              return (
+                <span key={s} className="rounded-md px-2 py-1 font-mono text-[9px]" style={{ border: "1px solid var(--vault-rule)", color: p.cashOutPct > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>
+                  S{s} · {p.targetMultiple}×{p.cashOutPct > 0 ? ` · bank ${Math.round(p.cashOutPct * 100)}%` : " · full roll"} · ≤{p.maxLegs} legs
+                </span>
+              );
+            })}
+          </div>
+          <p className="font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
+            v2 activates only after its settlement support ships and is gate-proven — the live ladder and every number on this page run v1. Built from the settled record: double chance 8–0 · moneyline 8–2 · totals 10–6 · BTTS 1–3.
+          </p>
+        </div>
+      </details>
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
           purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE
           the existing dense ladder components, which remain below unchanged. */}
