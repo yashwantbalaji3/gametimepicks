@@ -41,6 +41,26 @@ leans, ≤2 picks per game, every pick carries reason + risk + source artifact. 
 Value / Team / Props on /today (home inherits). **The Bank Builder pool = this board's team-market
 family** — same underlying picks, same reliability weights, so the products can never disagree.
 
+
+## v2.1 — the operator's DOLLAR-SCHEDULE ladder (supersedes the pct table above for display)
+The operator's 7-step template, reconciled (the original had a break: Step-5 "take $500" from $3,500
+leaves $3,000, not the $3,500 Step 6 assumed). `bankBuilderV2StepPolicy(step, roll?)` — scales
+proportionally on under-target rolls; unit-tested chain reconciliation.
+
+| Step | Roll → Target | Mult | Lock | Roll fwd | Cum locked | Legs | Band |
+|---|---|---|---|---|---|---|---|
+| 1 | $100 → $200 | 2.00× | — | $200 | $0 | ≤3 | standard |
+| 2 | $200 → $500 | 2.50× | **$100** (seed back) | $400 | $100 | ≤3 | standard |
+| 3 | $400 → $1,000 | 2.50× | **$200** | $800 | $300 | ≤2 | protected |
+| 4 | $800 → $1,800 | 2.25× | **$300** | $1,500 | $600 | ≤2 | protected |
+| 5 | $1,500 → $3,300 | 2.20× | **$500** | $2,800 | $1,100 | ≤2 | protected |
+| 6 | $2,800 → $5,600 | 2.00× | **$1,000** | $4,600 | $2,100 | ≤2 | safety-first |
+| 7 | $4,600 → $8,280 | 1.80× | completes | — | **$10,380 total** | ≤2 (DC/DNB only) | safety-first |
+
+Moonshot v2 (`moonshotV2LadderPolicy`): $25→$100 lock $25 (seed back) · $75→$375 lock $75 ·
+$300→$1,500 completes → ~$1,600 full-run realization, $100 locked before the Day-3 swing.
+Settlement remains v1 for BOTH until the LADDER_V2 activation checklist below is executed.
+
 ## Settlement changes REQUIRED before v2 money activation (deliberately not done in this pass)
 The v1 canonical model: won steps roll 100% (unrealized); a lost lane realizes −$100 seed; crown = Σ
 banked ladder finals. v2 partial cash-out breaks three invariants at once:

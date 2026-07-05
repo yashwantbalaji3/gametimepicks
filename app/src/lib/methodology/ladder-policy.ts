@@ -93,6 +93,72 @@ export function bankBuilderStepPolicy(
   };
 }
 
+// ── v2.1 DOLLAR-SCHEDULE ladder (the operator's 7-step profit-locking template, reconciled) ──────
+// The proposed template had a reconciliation break (Step 5 "take $500" from $3,500 leaves $3,000,
+// but Step 6 started at $3,500). This is the mathematically consistent best version: every
+// roll-forward equals payout − lock, the multiplier is strictly non-increasing from Step 3, locks
+// rise with the stakes, and the completed ladder realizes $2,100 locked + $8,280 final ≈ $10,380 —
+// crossing $10K with the seed recovered at Step 2 (the ladder freerolls from Step 3 onward).
+export interface V2Step {
+  step: number;
+  roll: number;            // canonical starting roll for this step
+  target: number;          // canonical target payout
+  targetMultiple: number;
+  lock: number;            // $ realized to banked profit on a win (0 = full roll; Step 7 locks ALL)
+  rollForward: number;     // target − lock (what enters the next step)
+  cumulativeLocked: number;// Σ locks through this step
+  minAcceptablePayout: number; // safe-under-target floor (60% of the intended edge)
+  maxLegs: number;
+  oddsRange: [number, number]; // allowed per-leg American band
+  riskBand: RiskBand;
+  allowedMarkets: LadderMarket[];
+  marketWeights: Record<LadderMarket, number>;
+}
+
+const V2_SCHEDULE = [
+  //        roll   target  lock  legs  band
+  { roll: 100,  target: 200,  lock: 0,    legs: 3, band: "standard" as RiskBand,     markets: ["double_chance", "draw_no_bet", "moneyline_90", "match_total_goals", "btts"] as LadderMarket[] },
+  { roll: 200,  target: 500,  lock: 100,  legs: 3, band: "standard" as RiskBand,     markets: ["double_chance", "draw_no_bet", "moneyline_90", "match_total_goals", "btts"] as LadderMarket[] },
+  { roll: 400,  target: 1000, lock: 200,  legs: 2, band: "protected" as RiskBand,    markets: ["double_chance", "draw_no_bet", "moneyline_90", "match_total_goals"] as LadderMarket[] },
+  { roll: 800,  target: 1800, lock: 300,  legs: 2, band: "protected" as RiskBand,    markets: ["double_chance", "draw_no_bet", "moneyline_90", "match_total_goals"] as LadderMarket[] },
+  { roll: 1500, target: 3300, lock: 500,  legs: 2, band: "protected" as RiskBand,    markets: ["double_chance", "draw_no_bet", "moneyline_90"] as LadderMarket[] },
+  { roll: 2800, target: 5600, lock: 1000, legs: 2, band: "safety-first" as RiskBand, markets: ["double_chance", "draw_no_bet", "moneyline_90"] as LadderMarket[] },
+  { roll: 4600, target: 8280, lock: 0,    legs: 2, band: "safety-first" as RiskBand, markets: ["double_chance", "draw_no_bet"] as LadderMarket[] }, // completes → EVERYTHING realizes
+];
+
+/**
+ * v2.1 Bank Builder step policy — the operator's dollar-schedule ladder, reconciled. When the live
+ * roll differs from the canonical schedule (a "safe under target" win), target/lock scale
+ * proportionally so the math still reconciles exactly. Pure; supersedes the pct-based
+ * bankBuilderStepPolicy for DISPLAY — live settlement remains v1 until LADDER_V2 activation.
+ */
+export function bankBuilderV2StepPolicy(step: number, currentRoll?: number): V2Step {
+  const idx = Math.min(Math.max(1, Math.floor(step)), 7) - 1;
+  const s = V2_SCHEDULE[idx];
+  const roll = round2(currentRoll ?? s.roll);
+  const scale = s.roll > 0 ? roll / s.roll : 1;
+  const target = round2(s.target * scale);
+  const lock = round2(s.lock * scale);
+  const mult = round2(s.target / s.roll);
+  let cum = 0;
+  for (let i = 0; i <= idx; i++) cum += V2_SCHEDULE[i].lock;
+  return {
+    step: idx + 1,
+    roll,
+    target,
+    targetMultiple: mult,
+    lock,
+    rollForward: round2(target - lock),
+    cumulativeLocked: round2(cum * scale),
+    minAcceptablePayout: round2(roll * (1 + (mult - 1) * 0.6)),
+    maxLegs: s.legs,
+    oddsRange: idx + 1 <= 2 ? [-600, 300] : [-600, 150],
+    riskBand: s.band,
+    allowedMarkets: s.markets,
+    marketWeights: MARKET_RELIABILITY,
+  };
+}
+
 // ── Moonshot 3-day ladder ────────────────────────────────────────────────────────────────────────
 export interface MoonshotDayPolicy {
   day: 1 | 2 | 3;
@@ -110,6 +176,58 @@ const MOON_SHAPE = [
   { target: 400, legs: [3, 6] as [number, number] },   // $100 → $400 (4.0x)
   { target: 1500, legs: [3, 6] as [number, number] },  // $400 → $1,500 (3.75x)
 ];
+
+// ── Moonshot v2 — 3-day ladder WITH profit locking ──────────────────────────────────────────────
+// Day 1 win recovers the $25 seed immediately (the ladder freerolls from Day 2); Day 2 locks $75
+// more; Day 3 realizes everything. Reconciles exactly: 25→100 (lock 25, roll 75) → 75→375
+// (lock 75, roll 300) → 300→1,500 (complete). Total on a 3-day run: $100 locked + $1,500 = $1,600.
+export interface MoonshotV2Day {
+  day: 1 | 2 | 3;
+  roll: number;
+  target: number;
+  targetMultiple: number;
+  lock: number;              // $ realized on a win (Day 3 = 0 marker; completion realizes ALL)
+  rollForward: number;
+  cumulativeLocked: number;
+  legRange: [number, number];
+  playerPropsAllowed: boolean;
+  riskBand: "longshot";
+  note: string;
+}
+
+const MOON_V2 = [
+  { roll: 25,  target: 100,  lock: 25, legs: [3, 5] as [number, number] },
+  { roll: 75,  target: 375,  lock: 75, legs: [3, 6] as [number, number] },
+  { roll: 300, target: 1500, lock: 0,  legs: [3, 6] as [number, number] }, // completes → all realizes
+];
+
+/** Moonshot v2 day policy — profit-locking 3-day ladder. Pure; display/proposal shaping only. */
+export function moonshotV2LadderPolicy(day: 1 | 2 | 3, currentRoll?: number, allowPlayerProps = false): MoonshotV2Day {
+  const s = MOON_V2[day - 1];
+  const roll = round2(currentRoll ?? s.roll);
+  const scale = s.roll > 0 ? roll / s.roll : 1;
+  const target = round2(s.target * scale);
+  const lock = round2(s.lock * scale);
+  let cum = 0;
+  for (let i = 0; i < day; i++) cum += MOON_V2[i].lock;
+  return {
+    day,
+    roll,
+    target,
+    targetMultiple: round2(s.target / s.roll),
+    lock,
+    rollForward: round2(target - lock),
+    cumulativeLocked: round2(cum * scale),
+    legRange: s.legs,
+    playerPropsAllowed: allowPlayerProps === true,
+    riskBand: "longshot",
+    note: day === 1
+      ? "Win Day 1 and the $25 seed is locked back immediately — Days 2-3 ride house money."
+      : day === 2
+        ? "Win Day 2 and another $75 locks; only $300 of winnings stays at risk for the $1,500 swing."
+        : "Day 3 completes the ladder — everything realizes. A loss on any day costs only what was still rolling; locked profit stays banked. NO-PLAY days are never forced.",
+  };
+}
 
 /** The 3-day Moonshot ladder policy. Pure; display/proposal shaping only. */
 export function moonshotLadderPolicy(day: 1 | 2 | 3, currentRoll: number, allowPlayerProps = false): MoonshotDayPolicy {

@@ -87,6 +87,69 @@ test("Moonshot 3-day ladder: $25→$100→$400→$1,500; no props by default; ex
   assert.equal(moonshotLadderPolicy(1, 25, true).playerPropsAllowed, true, "props only via explicit labeled opt-in");
 });
 
+// ── v2.1 DOLLAR-SCHEDULE ladder (the operator's 7-step template, reconciled) ─────────────────────
+import { bankBuilderV2StepPolicy, moonshotV2LadderPolicy } from "./ladder-policy.ts";
+
+test("v2.1 ladder RECONCILES exactly: every roll-forward = target − lock, and it feeds the next step", () => {
+  let cum = 0;
+  for (let n = 1; n <= 7; n++) {
+    const s = bankBuilderV2StepPolicy(n);
+    assert.equal(s.rollForward, Math.round((s.target - s.lock) * 100) / 100, `step ${n} lock math reconciles`);
+    if (n < 7) {
+      const next = bankBuilderV2StepPolicy(n + 1);
+      assert.equal(next.roll, s.rollForward, `step ${n} roll-forward ($${s.rollForward}) IS step ${n + 1}'s roll — the template's $3,500→$3,000 break is fixed`);
+    }
+    cum += s.lock;
+  }
+  // Completed ladder: $2,100 locked along the way + the $8,280 final = $10,380 — crosses $10K.
+  assert.equal(cum, 2100);
+  assert.equal(bankBuilderV2StepPolicy(7).target, 8280);
+  assert.ok(cum + bankBuilderV2StepPolicy(7).target >= 10000, "completed ladder realizes ≥ $10K total");
+});
+
+test("v2.1: Step 2 locks the seed back ($100 → freeroll); Step 3 locks $200; multiplier never rises after Step 3", () => {
+  assert.equal(bankBuilderV2StepPolicy(1).lock, 0, "step 1 is pure growth");
+  assert.equal(bankBuilderV2StepPolicy(2).lock, 100, "step 2 recovers the full $100 seed");
+  assert.equal(bankBuilderV2StepPolicy(3).lock, 200);
+  let prev = bankBuilderV2StepPolicy(3).targetMultiple;
+  for (const n of [4, 5, 6, 7]) {
+    const m = bankBuilderV2StepPolicy(n).targetMultiple;
+    assert.ok(m <= prev, `step ${n} multiple ${m} ≤ step ${n - 1} (${prev}) — later steps get safer, never richer`);
+    prev = m;
+  }
+  // Safety also narrows structurally: ≤2 legs from Step 3, BTTS out from Step 3, DC/DNB-only Step 7.
+  for (const n of [3, 4, 5, 6, 7]) {
+    const s = bankBuilderV2StepPolicy(n);
+    assert.equal(s.maxLegs, 2);
+    assert.ok(!s.allowedMarkets.includes("btts"));
+    assert.ok(s.allowedMarkets.every((m) => !/player|prop/i.test(m)), "team/game markets only");
+  }
+  assert.deepEqual(bankBuilderV2StepPolicy(7).allowedMarkets, ["double_chance", "draw_no_bet"]);
+});
+
+test("v2.1: under-target rolls SCALE the schedule proportionally (safe-under-target keeps reconciling)", () => {
+  // Step 3 entered with $360 instead of the canonical $400 (a safe-under-target Step-2 win).
+  const s = bankBuilderV2StepPolicy(3, 360);
+  assert.equal(s.roll, 360);
+  assert.equal(s.target, 900);          // 1000 × 0.9
+  assert.equal(s.lock, 180);            // 200 × 0.9
+  assert.equal(s.rollForward, 720);     // 800 × 0.9 — the chain stays consistent
+  assert.ok(s.minAcceptablePayout > s.roll && s.minAcceptablePayout < s.target, "safe-under-target floor sits between roll and target");
+});
+
+test("Moonshot v2: 25→100 lock 25 · 75→375 lock 75 · 300→1,500 completes — reconciles, freerolls from Day 2", () => {
+  const d1 = moonshotV2LadderPolicy(1), d2 = moonshotV2LadderPolicy(2), d3 = moonshotV2LadderPolicy(3);
+  assert.equal(d1.lock, 25, "Day-1 win locks the seed back");
+  assert.equal(d1.rollForward, 75);
+  assert.equal(d2.roll, d1.rollForward, "Day 2 rides exactly the Day-1 roll-forward");
+  assert.equal(d2.rollForward, 300);
+  assert.equal(d3.roll, d2.rollForward);
+  assert.equal(d3.target, 1500);
+  assert.equal(d3.cumulativeLocked, 100, "$100 locked before the Day-3 swing");
+  for (const d of [d1, d2, d3]) assert.equal(d.playerPropsAllowed, false, "props only via explicit opt-in");
+  assert.equal(moonshotV2LadderPolicy(2, 75, true).playerPropsAllowed, true);
+});
+
 test("policy generation NEVER touches canonical money (pure functions; portfolio.json byte-identical)", () => {
   const before = fs.readFileSync("public/data/mr-dub/portfolio.json");
   for (let step = 1; step <= 7; step++) bankBuilderStepPolicy(step, 100 * step);

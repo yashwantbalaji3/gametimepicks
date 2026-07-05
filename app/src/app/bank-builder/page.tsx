@@ -17,7 +17,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import FreshnessBadge from "@/components/ui/freshness-badge";
-import { bankBuilderStepPolicy } from "@/lib/methodology/ladder-policy";
+import { bankBuilderV2StepPolicy } from "@/lib/methodology/ladder-policy";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung } from "@/components/bank-builder/climb-hero";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
@@ -230,20 +230,20 @@ export default function BankBuilderPage() {
             <strong style={{ color: "var(--vault-text)" }}>Live today (v1):</strong> each $100 lane climbs by rolling the full winnings into the next step; a lost step costs only the original $100 seed. Wins are unrealized until a ladder completes or stops — that discipline built both $100→$10K crowns.
           </p>
           <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-            <strong style={{ color: "var(--vault-text)" }}>Coming (v2, spec final — not yet active):</strong> from Step 3, part of every win is extracted to banked profit and only the rest rolls, so one bad leg can no longer erase a whole climb. Later steps get <em>safer</em>, not richer:
+            <strong style={{ color: "var(--vault-text)" }}>v2 preview · pending guarded activation:</strong> the profit-locking ladder banks cash at every rung from Step 2 — win Step 2 and the original $100 is already back in your pocket; the ladder freerolls from there. Later steps get <em>safer</em>, not richer (multiplier never rises after Step 3; 2 legs max; Step 7 is double-chance/DNB only). We lock profit as the ladder climbs:
           </p>
           <div className="flex flex-wrap gap-1.5">
             {[1, 2, 3, 4, 5, 6, 7].map((s) => {
-              const p = bankBuilderStepPolicy(s, 100);
+              const p = bankBuilderV2StepPolicy(s);
               return (
-                <span key={s} className="rounded-md px-2 py-1 font-mono text-[9px]" style={{ border: "1px solid var(--vault-rule)", color: p.cashOutPct > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>
-                  S{s} · {p.targetMultiple}×{p.cashOutPct > 0 ? ` · bank ${Math.round(p.cashOutPct * 100)}%` : " · full roll"} · ≤{p.maxLegs} legs
+                <span key={s} className="rounded-md px-2 py-1 font-mono text-[9px]" style={{ border: "1px solid var(--vault-rule)", color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>
+                  S{s} · ${p.roll.toLocaleString("en-US")}→${p.target.toLocaleString("en-US")}{p.lock > 0 ? ` · lock $${p.lock.toLocaleString("en-US")}` : s === 7 ? " · completes (all realizes)" : " · full roll"}
                 </span>
               );
             })}
           </div>
           <p className="font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
-            v2 activates only after its settlement support ships and is gate-proven — the live ladder and every number on this page run v1. Built from the settled record: double chance 8–0 · moneyline 8–2 · totals 10–6 · BTTS 1–3.
+            A full 7-step run realizes $2,100 locked along the way + the $8,280 final ≈ $10,380. If the model can&rsquo;t find a strong card, we skip — an honest under-target card always beats weak filler. v2 activates only after its settlement support ships and is gate-proven; the live ladder and every number on this page run v1. Built from the settled record: double chance 8–0 · moneyline 8–2 · totals 10–6 · BTTS 1–3.
           </p>
         </div>
       </details>
