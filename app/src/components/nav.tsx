@@ -36,6 +36,9 @@ const NAV_ITEMS: Array<{
   { href: "/bank-builder", label: "Bank Builder" },
   { href: "/mr-dub", label: "Track Record" },
   { href: "/world-cup", label: "World Cup" },
+  // MLB is a flagship sport hub (daily board + props) — it was reachable only from the desktop rail,
+  // leaving mobile users no nav path to /mlb (a 3-click-rule violation). Primary, next to World Cup.
+  { href: "/mlb", label: "MLB" },
   { href: "/learn", label: "How It Works" },
   // SECONDARY — still reachable, de-emphasized after the divider (no routes removed).
   { href: "/moonshot", label: "Moonshot", beforeDivider: true },
