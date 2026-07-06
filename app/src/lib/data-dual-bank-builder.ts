@@ -4,6 +4,14 @@
  * Public-data only. Returns null unless the artifact is a real `pending` run with
  * lanes, so the UI cleanly falls back to the "coming soon" teaser otherwise. The
  * completed first run lives in a separate artifact and is never read/mutated here.
+ *
+ * LEGACY (2026-07-06): `bank-builder/dual-lanes-latest.json` is a SUPERSEDED artifact.
+ * The live daily lanes are now driven by `mr-dub/daily-portfolio.json` + the public
+ * dual-ladder view model (ClimbHero on /bank-builder). This loader is retained ONLY to
+ * feed the historical "Run #2 closed" entry in the Today status-rail timeline — it is a
+ * COMPLETED run, never shown as a live/pregame card, so its June-16 date is correct
+ * history, not stale-current. Do not daily-refresh it; do not remove it (tests + the
+ * pipeline still reference it). Money is never read/mutated here.
  */
 import fs from "node:fs";
 import path from "node:path";

@@ -4,7 +4,7 @@
 > educational paper-bankroll products (Bank Builder and Moonshot), and tracks every result against
 > **official settlement** — transparently, with no real-money wagering.
 
-**Live →** [gametime-picks.vercel.app](https://gametime-picks.vercel.app/)
+**Live →** [gametimepicks.yashwantbalaji.com](https://gametimepicks.yashwantbalaji.com) · *(Vercel: [gametime-picks.vercel.app](https://gametime-picks.vercel.app/))*
 
 > ⚠️ **Educational analytics only. No real-money betting. No guarantees.** Every product is paper —
 > no wagers are placed and no money is at stake. Picks are model output, not advice. Records are the
