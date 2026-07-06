@@ -114,22 +114,21 @@ test("thin slate (1 game) → not buildable, honest note, never forced", () => {
 // ── The operator-APPROVED July-5 dual lanes are PINNED — future generation must never silently swap them. ──
 import { loadApprovedBankBuilder } from "./bank-builder-proposal.ts";
 import path from "node:path";
-test("approved July-5 Bank Builder is pinned to the exact operator-approved legs (no drift)", () => {
-  // Pre-slate "now" (before the first July-5 kickoff, Brazil-Norway 20:00 UTC) → all legs pregame.
-  const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-05", Date.UTC(2026, 6, 5, 12, 0));
+test("approved July-6 Bank Builder is pinned to the exact operator-approved legs — Lane A only, Lane B no-play (no drift)", () => {
+  // Pre-slate "now" (before the first July-6 kickoff, Portugal-Spain 19:00 UTC) → all legs pregame.
+  const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-06", Date.UTC(2026, 6, 6, 12, 0));
   assert.ok(ap && ap.approved === true, "the approved snapshot loads and is flagged approved");
-  const [a, b] = ap.lanes;
-  // Lane A · Survival (fresh Step 1) = the USER-APPROVED pair Brazil or Draw DC -500 + England or Draw DC -295.
-  assert.equal(a.legs[0].market, "double_chance"); assert.equal(a.legs[0].americanOdds, -500); assert.match(a.legs[0].selection, /Brazil or Draw/);
-  assert.equal(a.legs[1].market, "double_chance"); assert.equal(a.legs[1].americanOdds, -295); assert.match(a.legs[1].selection, /England or Draw/); assert.match(a.legs[1].matchup, /England/);
+  // July-6 is a Lane-A-only card: Lane B is a deliberate no-play, absent from the approved lanes.
+  assert.equal(ap.lanes.length, 1, "only Lane A is approved for July-6 (Lane B no-play)");
+  const a = ap.lanes[0];
+  assert.equal(a.lane, "A", "the approved lane is Lane A");
+  // Lane A · Survival (fresh Step 1) = the USER-APPROVED pair Spain or Draw DC -435 + Belgium or Draw DC -240.
+  assert.equal(a.legs[0].market, "double_chance"); assert.equal(a.legs[0].americanOdds, -435); assert.match(a.legs[0].selection, /Spain or Draw/);
+  assert.equal(a.legs[1].market, "double_chance"); assert.equal(a.legs[1].americanOdds, -240); assert.match(a.legs[1].selection, /Belgium or Draw/); assert.match(a.legs[1].matchup, /Belgium/);
   assert.equal(a.legs.length, 2, "Lane A is the approved 2-leg card");
-  // Lane B · Value (fresh Step 1) = Mexico/England Under 2.5 -186 + Brazil/Norway BTTS Yes -150.
-  assert.equal(b.legs[0].market, "match_total_goals"); assert.equal(b.legs[0].americanOdds, -186); assert.match(b.legs[0].selection, /Under 2\.5/); assert.match(b.legs[0].matchup, /England/);
-  assert.equal(b.legs[1].market, "btts"); assert.equal(b.legs[1].americanOdds, -150); assert.match(b.legs[1].selection, /BTTS Yes/); assert.match(b.legs[1].matchup, /Brazil/);
-  assert.equal(b.legs.length, 2, "Lane B is the approved 2-leg card");
-  // Both lanes are fresh cycle-7 Step-1 cards ($100 seed each).
-  assert.equal(a.step, 1); assert.equal(b.step, 1);
-  // Both lanes are team-market only — every leg has no player prop.
+  // Lane A is a fresh cycle-8 Step-1 card ($100 seed).
+  assert.equal(a.step, 1);
+  // Team-market only — every leg has no player prop.
   assert.ok(ap.lanes.every((ln) => ln.legs.every((l) => l.player == null)));
   // Pre-slate: every leg is pregame.
   assert.ok(ap.lanes.every((ln) => ln.legs.every((l) => l.legStatus === "pregame")), "all legs pregame before first kickoff");

@@ -13,7 +13,7 @@ import fs from "node:fs";
 //   Ladder #1 crown (protected, 5-0)    = $10,376.17
 //   Ladder #2 Lane A BANKED (5-0)       = $10,089.23
 //   => crown $20,465.40.
-//   TWELVE real lost $100 seeds (preserved, not part of any completed ladder) = -$1200:
+//   FOURTEEN real lost $100 seeds (preserved, not part of any completed ladder) = -$1400:
 //     - dual-lane phase: three Lane B seeds (-$300, the single `dual_lane_losses` event)
 //     - cycle-3: Lane B Step-1 LOST June 25 (-$100), Lane A Step-2 LOST June 26 (-$100)
 //     - restart cycles: Lane B Step-2 LOST June 27 (-$100), Lane A Step-1 LOST June 27 (-$100)
@@ -21,16 +21,17 @@ import fs from "node:fs";
 //     - July-1 settlement: Lane A Step-1 WON (rolls, no seed lost), Lane B Step-1 LOST (-$100)
 //     - July-2 settlement: Lane A Step-2 WON (rolls, no seed lost; Lane B stopped)
 //     - July-3 settlement: Lane A Step-3 LOST (-$100), Lane B Step-1 LOST (-$100) — both lanes stopped
-//   => currentBankroll $19,265.40, drawdown $1200, record 17-12-0-0; $0 open exposure (settled rungs released).
+//     - July-5 settlement: Lane A Step-1 LOST (-$100), Lane B Step-1 LOST (-$100) — both lanes stopped
+//   => currentBankroll $19,065.40, drawdown $1400, record 17-14-0-0; $0 open exposure (settled rungs released).
 const portfolio = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
 const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
 
-test("bankroll reconciles to crown less twelve real lost seeds — above $19,000", () => {
+test("bankroll reconciles to crown less fourteen real lost seeds — above $19,000", () => {
   assert.equal(portfolio.crownBankroll, 20465.4, "protected cumulative crown immutable (Σ two banked $100→$10k finals)");
-  assert.equal(portfolio.currentBankroll, 19265.4, "crown - $1200 (twelve real lost seeds); pending cards don't realize");
+  assert.equal(portfolio.currentBankroll, 19065.4, "crown - $1400 (fourteen real lost seeds); pending cards don't realize");
   assert.ok(portfolio.currentBankroll > 19000, "portfolio is above $19,000");
-  assert.equal(portfolio.drawdown, 1200, "drawdown = twelve lost $100 seeds");
-  assert.deepEqual(portfolio.record, { wins: 17, losses: 12, voids: 0, pending: 0 }, "17-12-0-0 (July-3 both lanes LOST)");
+  assert.equal(portfolio.drawdown, 1400, "drawdown = fourteen lost $100 seeds");
+  assert.deepEqual(portfolio.record, { wins: 17, losses: 14, voids: 0, pending: 0 }, "17-14-0-0 (July-5 both lanes LOST)");
   assert.equal(portfolio.openExposure, 0, "canonical portfolio carries no open exposure; settled rungs released");
 });
 

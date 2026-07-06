@@ -11,17 +11,17 @@ const daily = read("daily-summary.json");
 test("portfolio math after the 2nd ladder is BANKED: crown, bankroll, HWM, drawdown, ROI, record", () => {
   // Cumulative-crown banking: Lane A completed its $100→$10k ladder ($10,089.23, official) and was BANKED into
   // the crown. Crown = Σ two completed-ladder finals ($10,376.17 + $10,089.23 = $20,465.40). Active bankroll =
-  // crown − $1200 realized dual-lane losses. Moonshot unchanged.
+  // crown − $1400 realized dual-lane losses. Moonshot unchanged.
   assert.equal(portfolio.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");
-  assert.equal(portfolio.currentBankroll, 19265.4, "active bankroll = crown − $1200 dual-lane losses");
+  assert.equal(portfolio.currentBankroll, 19065.4, "active bankroll = crown − $1400 dual-lane losses");
   assert.equal(portfolio.highWaterMark, 20465.4);
-  assert.equal(portfolio.drawdown, 1200, "drawdown — $1200 of stopped-lane seeds (12 lost seeds incl. the July-3 both-lane losses)");
-  assert.ok(Math.abs(portfolio.drawdownPct - 0.0586) < 0.001, "drawdown ≈ 5.9% of HWM");
+  assert.equal(portfolio.drawdown, 1400, "drawdown — $1400 of stopped-lane seeds (14 lost seeds incl. the July-5 both-lane losses)");
+  assert.ok(Math.abs(portfolio.drawdownPct - 0.0684) < 0.001, "drawdown ≈ 6.8% of HWM");
   // All prior cycles fully settled; the settled lanes have no open exposure (awaiting a fresh slate).
   assert.equal(portfolio.openExposure, 0);
-  assert.equal(portfolio.roiMultiple, 191.65);
-  // July-3 settlement: both lanes lost → record advances to 17-12-0-0.
-  assert.deepEqual(portfolio.record, { wins: 17, losses: 12, voids: 0, pending: 0 });
+  assert.equal(portfolio.roiMultiple, 189.65);
+  // July-5 settlement: both lanes lost → record advances to 17-14-0-0.
+  assert.deepEqual(portfolio.record, { wins: 17, losses: 14, voids: 0, pending: 0 });
   // Reconciliation: realized paperProfit (banked ladder + dual-lane losses) === settledProfit (no double-counting).
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
   assert.equal(sum, portfolio.settledProfit, "no double-counting — settled profit reconciles");

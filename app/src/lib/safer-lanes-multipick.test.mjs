@@ -108,12 +108,12 @@ test("exposure/bankroll/crown unchanged by the upgrade (only daily-portfolio.jso
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   // The daily-portfolio view never touches CANONICAL money and stays internally consistent regardless of
   // whether the day's lanes are active (cards placed) or awaiting — assert the invariants, not a fixed value.
-  assert.equal(dp.activeBankroll, 19265.40); assert.equal(dp.crownBankroll, 20465.40);
+  assert.equal(dp.activeBankroll, 19065.40); assert.equal(dp.crownBankroll, 20465.40);
   const sumExposure = (dp.lanes ?? []).filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
   assert.equal(dp.openExposure, sumExposure, "open exposure = Σ active-lane seed exposures, nothing else");
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(p.currentBankroll, 19265.40); assert.equal(p.crownBankroll, 20465.40);
+  assert.equal(p.currentBankroll, 19065.40); assert.equal(p.crownBankroll, 20465.40);
   assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view's fresh active lanes)");
-  assert.deepEqual(p.record, { wins: 17, losses: 12, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 17, losses: 14, voids: 0, pending: 0 });
 });

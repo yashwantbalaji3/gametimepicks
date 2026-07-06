@@ -68,8 +68,8 @@ test("Mr. Dub: Moonshot exposure is broken out separately and does NOT change th
   assert.equal(portfolio.moonshot.exposure, 0, "Moonshot settled LOST → $0 open exposure");
   assert.equal(portfolio.moonshot.separateFromCore, true);
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "Moonshot 0-1 (Step 1 restart card lost)");
-  // Core Lane A/B record + exposure reflect the July-3 settlement, and Moonshot stays separate from the core record.
-  assert.deepEqual(portfolio.record, { wins: 17, losses: 12, voids: 0, pending: 0 }, "core record (July-3: both lanes lost)");
+  // Core Lane A/B record + exposure reflect the July-5 settlement, and Moonshot stays separate from the core record.
+  assert.deepEqual(portfolio.record, { wins: 17, losses: 14, voids: 0, pending: 0 }, "core record (July-5: both lanes lost)");
   assert.equal(portfolio.openExposure, 0, "core open exposure $0 (Lane A completed the ladder; Lane B settled LOST — no open seeds)");
   assert.equal(portfolio.totalOpenExposure, 0, "total exposure $0 (core $0; moonshot settled → 0)");
 });

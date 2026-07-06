@@ -91,39 +91,36 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("live run (July-5 restart): LIVE preview shows both lanes ACTIVE on a fresh cycle-7 Step 1, no stale-leg leak", () => {
-  // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and restarted into a new cycle.
-  // That cycle ran July-1 → July-3 (Lane A WON Step-1 + Step-2 then LOST Step-3; Lane B LOST its Step-1) and
-  // STOPPED; on July-5 the operator approved a fresh cycle-7 restart — both lanes are ACTIVE on a fresh $100
-  // Step-1 (pending, unsettled). Both lanes stay publicly visible. The settled cycle-6 narratives (and every
-  // earlier cycle) stay in each lane's priorLane chain (and the banked archive) — they must NOT bleed into the
-  // live preview.
+test("live run (July-6 activation): LIVE preview shows Lane A ACTIVE on a fresh cycle-8 Step 1, Lane B stopped no-play, no prior-cycle leg leak", () => {
+  // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and ran fresh cycles. Both lanes
+  // LOST on July-5 (cycle 7). For July-6 only Lane A RESTARTED (cycle 8) — ACTIVE on a fresh $100 Step-1
+  // (pending, unsettled). Lane B is a deliberate NO-PLAY: its top rung is the settled July-5 LOSS (this raw
+  // preview intermediate is sanitized to a clean starting path downstream by buildPublicDualLadder). The DEEPER
+  // settled cycles (July-1 → July-3 narratives) stay in each lane's priorLane chain and must NOT bleed in.
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.status, "launched", "the live run is launched");
   assert.equal(bb.isLadder, true, "it is a stepping ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
-  assert.equal(bb.currentStep, 1, "live run's lead step pointer sits on Step 1 (both lanes' open rung)");
+  assert.equal(bb.currentStep, 1, "live run's lead step pointer sits on Step 1 (the open rung)");
   // Lane A is ACTIVE on a fresh Step-1 with no settled cards at the top level. The loader never fabricates.
-  assert.equal(bb.laneA.laneStatus, "active", "Lane A active (cycle-7 restart, fresh $100 Step 1)");
+  assert.equal(bb.laneA.laneStatus, "active", "Lane A active (cycle-8 restart, fresh $100 Step 1)");
   assert.equal(bb.laneA.publicVisible, true, "Lane A is publicly visible");
   assert.equal(bb.laneA.currentStep, 1, "Lane A is on a fresh Step 1");
   assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries exactly its one fresh Step-1");
   assert.equal(bb.laneA.steps[0].status, "active", "Lane A Step-1 is active (pending, unsettled)");
   assert.equal(bb.laneA.steps[0].result ?? null, null, "Lane A Step-1 carries no settled result");
-  // Lane B is likewise ACTIVE on a fresh Step-1; its July-3 LOST Step-1 lives in its priorLane chain.
-  assert.equal(bb.laneB.laneStatus, "active", "Lane B active (cycle-7 restart, fresh $100 Step 1)");
-  assert.equal(bb.laneB.publicVisible, true, "Lane B is publicly visible");
-  assert.equal(bb.laneB.currentStep, 1, "Lane B is on a fresh Step 1");
-  assert.equal((bb.laneB.steps ?? []).length, 1, "Lane B carries exactly its one fresh Step-1");
-  assert.equal(bb.laneB.steps[0].status, "active", "Lane B Step-1 is active (pending, unsettled)");
-  assert.equal(bb.laneB.steps[0].result ?? null, null, "Lane B Step-1 carries no settled result");
-  // No stale legs from any PRIOR cycle (the banked ladders or either lane's priorLane chain) may surface in the
-  // live preview — with the fresh restart even the July-1 → July-3 legs (Egypt/Argentina/Cape Verde/Austria/
-  // Algeria) are now prior-cycle history and must stay hidden.
+  // Lane B is a no-play: STOPPED, its top rung the settled July-5 LOSS (sanitized to a clean path downstream).
+  assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped (July-6 no-play)");
+  assert.equal(bb.laneB.currentStep, 1, "Lane B's top rung pointer is Step 1");
+  assert.equal((bb.laneB.steps ?? []).length, 1, "Lane B carries exactly its one top Step-1");
+  assert.equal(bb.laneB.steps[0].status, "settled", "Lane B top Step-1 is settled (the July-5 card)");
+  assert.equal(bb.laneB.steps[0].result, "lost", "Lane B top Step-1 settled LOST (July-5)");
+  // No legs from any DEEPER PRIOR cycle (the banked ladders or either lane's priorLane chain) may surface — the
+  // July-1 → July-3 legs (Egypt/Argentina/Cape Verde/Austria/Algeria) are prior-cycle history and stay hidden.
   const live = JSON.stringify(bb);
-  assert.ok(!/Goldschmidt|Hoskins|Turkey|Gonzales|Curaçao|Ivory Coast|Jordan|France/.test(live), "no prior-ladder / priorLane legs leak into the live preview");
-  assert.ok(!/Egypt|Argentina|Cape Verde|Austria|Algeria/.test(live), "the settled cycle-6 legs stay in priorLane / Mr. Dub — never in the live preview");
+  assert.ok(!/Goldschmidt|Hoskins|Turkey|Gonzales|Curaçao|Ivory Coast|Jordan/.test(live), "no banked-ladder / deeper priorLane legs leak into the live preview");
+  assert.ok(!/Egypt|Argentina|Cape Verde|Austria|Algeria/.test(live), "the settled cycle-6 (July-1 → July-3) legs stay in priorLane / Mr. Dub — never in the live preview");
 });
 
 test("ARCHIVE money-integrity: the BANKED 2nd ladder ($10,089.23 final) is preserved official — Lane A completed 5/5 won, Lane B stopped on a Step-3 loss", () => {

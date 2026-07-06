@@ -1,7 +1,7 @@
 {
-  "_note": "July-5 approved dual Bank Builder — BOTH lanes fresh Step 1 ($100 seeds) after the July-3 stops (cycle 7 restart, money-safe). Lanes are the auto-proposal VERBATIM under the July-4 market-reliability weighting: Lane A is the survival pair (two draw-protected double-chance legs from different games — the settled 8-0 market family, Top-10 board picks); Lane B is the disciplined value pair (totals aligned to the Mexico/England low-score lean + BTTS Yes aligned to the Brazil open-game lean). 2 legs each, team/game markets only, real de-vigged July-5 prices, no props, no coin-flips. Paper-only; canonical money moves only through official settlement.",
-  "date": "2026-07-05",
-  "approvedAt": "2026-07-05T13:00:00Z",
+  "_note": "July-6 approved Bank Builder — Lane A ONLY (fresh $100 Step-1, cycle 8, after the July-5 stops). Lane A is the auto-proposal VERBATIM under the July-4 market-reliability weighting: two draw-protected double-chance legs from different SAME-DAY games (Portugal v Spain 3pm ET + USA v Belgium 8pm ET) — the settled 8-0 market family. Lane B is a deliberate NO-PLAY: on a 2-game slate the only value-band legs the model surfaces are two BTTS selections priced at ~market (no real edge) in the weakest settled family (BTTS 1-3); per the no-forced-card rule we skip rather than sell a negative-to-fair 'value' card. 2 legs, team/game markets only, real de-vigged July-6 prices, no props, no coin-flips. Paper-only; canonical money moves only through official settlement.",
+  "date": "2026-07-06",
+  "approvedAt": "2026-07-06T14:00:00Z",
   "status": "active",
   "stake": 100,
   "lanes": [
@@ -12,35 +12,16 @@
       "clearedSteps": 0,
       "label": "Lane A · Survival (Step 1, fresh cycle)",
       "stake": 100,
-      "combinedOdds": -165,
-      "combinedDecimal": 1.6068,
-      "modelProbability": 0.548,
+      "combinedOdds": -135,
+      "combinedDecimal": 1.7423,
+      "modelProbability": 0.507,
       "confidence": "High",
-      "potentialReturn": 160.68,
-      "whyLadderPick": "The two highest-probability draw-protected legs on the slate, from different games — Brazil or Draw (78%) and England or Draw (70%). Double chance is the settled 8-0 market family and both legs survive the 90-minute draw that killed the July-3 cards. Built to CLEAR a rung, not to swing for a payout.",
-      "whyItCouldFail": "Both legs must land: an outright Norway win over Brazil or an outright Mexico win over England drops the card. Double chance survives a draw but never an underdog win.",
+      "potentialReturn": 174.23,
+      "whyLadderPick": "The two highest-probability draw-protected legs on the slate, from different same-day games — Spain or Draw (77%) and Belgium or Draw (66%). Double chance is the settled 8-0 market family: each leg survives a draw and only loses on an outright underdog win. Built to CLEAR a rung, not to swing for a payout.",
+      "whyItCouldFail": "Both legs must land: an outright Portugal win over Spain, or an outright USA win over Belgium, drops the card. Double chance survives a draw but never an underdog win — and knockout games carry extra-time variance on the 90-minute result.",
       "legs": [
-        { "market": "double_chance", "marketLabel": "Double Chance", "selection": "Brazil or Draw", "americanOdds": -500, "modelProbability": 0.7845, "gameSlug": "brazil-vs-norway-2026-07-05", "matchup": "Brazil v Norway", "homeCode": "BR", "kickoffUtc": "2026-07-05T20:00:00Z", "aligned": true, "provider": "betrivers" },
-        { "market": "double_chance", "marketLabel": "Double Chance", "selection": "England or Draw", "americanOdds": -295, "modelProbability": 0.6981, "gameSlug": "mexico-vs-england-2026-07-05", "matchup": "Mexico v England", "homeCode": "MX", "kickoffUtc": "2026-07-06T00:00:00Z", "aligned": true, "provider": "betrivers" }
-      ]
-    },
-    {
-      "lane": "B",
-      "kind": "value",
-      "step": 1,
-      "clearedSteps": 0,
-      "label": "Lane B · Value (Step 1, fresh cycle)",
-      "stake": 100,
-      "combinedOdds": 156,
-      "combinedDecimal": 2.5627,
-      "modelProbability": 0.338,
-      "confidence": "Lean",
-      "potentialReturn": 256.27,
-      "whyLadderPick": "The two best model-edge legs from different games inside the payable band: Mexico/England Under 2.5 (61%, aligned to the low-score lean) and Brazil/Norway BTTS Yes (56%, aligned to the open-game lean). A longer price than Lane A while staying disciplined — no coin-flips, no juice-stacking.",
-      "whyItCouldFail": "It is a 2-leg value parlay at plus-money for a reason: a third goal in Mexico/England or a Norway shutout drops it. Totals and BTTS are the more volatile market families (63% and 25% settled) — this lane accepts that variance for the price.",
-      "legs": [
-        { "market": "match_total_goals", "marketLabel": "Total Goals", "selection": "Under 2.5", "line": 2.5, "americanOdds": -186, "modelProbability": 0.6095, "gameSlug": "mexico-vs-england-2026-07-05", "matchup": "Mexico v England", "homeCode": "MX", "kickoffUtc": "2026-07-06T00:00:00Z", "aligned": true, "provider": "betrivers" },
-        { "market": "btts", "marketLabel": "Both Teams To Score", "selection": "BTTS Yes", "americanOdds": -150, "modelProbability": 0.5552, "gameSlug": "brazil-vs-norway-2026-07-05", "matchup": "Brazil v Norway", "homeCode": "BR", "kickoffUtc": "2026-07-05T20:00:00Z", "aligned": true, "provider": "betrivers" }
+        { "market": "double_chance", "marketLabel": "Double Chance", "selection": "Spain or Draw", "americanOdds": -435, "modelProbability": 0.7678, "gameSlug": "portugal-vs-spain-2026-07-06", "matchup": "Portugal v Spain", "homeCode": "PT", "kickoffUtc": "2026-07-06T19:00:00Z", "aligned": true },
+        { "market": "double_chance", "marketLabel": "Double Chance", "selection": "Belgium or Draw", "americanOdds": -240, "modelProbability": 0.6597, "gameSlug": "usa-vs-belgium-2026-07-06", "matchup": "USA v Belgium", "homeCode": "US", "kickoffUtc": "2026-07-07T00:00:00Z", "aligned": true }
       ]
     }
   ]
