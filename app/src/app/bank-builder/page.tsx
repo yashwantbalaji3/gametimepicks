@@ -17,7 +17,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import FreshnessBadge from "@/components/ui/freshness-badge";
-import { bankBuilderV2StepPolicy } from "@/lib/methodology/ladder-policy";
+import BankBuilderLadderV2 from "@/components/bank-builder/ladder-v2";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung } from "@/components/bank-builder/climb-hero";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
@@ -217,36 +217,6 @@ export default function BankBuilderPage() {
         <FreshnessBadge slateDate={today} serverToday={currentEtDate()} noun="card slate" />
       </div>
 
-      {/* HOW THE LADDER WORKS — v1 (live today) vs the v2 profit-preserving ladder (tested spec, not yet
-          active: settlement support for partial cash-outs is documented in docs/METHODOLOGY_V2_LADDER.md).
-          Rendered from the pure bankBuilderStepPolicy so this panel can never drift from the spec. */}
-      <details className="mb-4 rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
-        <summary className="cursor-pointer px-4 py-3 text-[12.5px]" style={{ color: "var(--vault-text-mute)", listStyle: "none" }}>
-          <span className="font-mono uppercase tracking-[0.1em] text-[10px]" style={{ color: "var(--vault-gold)" }}>How the ladder works</span>
-          <span className="ml-2">— today&rsquo;s live ladder rolls every win forward (v1). The next-generation ladder (v2) will bank part of each win from Step 3. Tap to compare ▾</span>
-        </summary>
-        <div className="flex flex-col gap-2 px-4 pb-3.5">
-          <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-            <strong style={{ color: "var(--vault-text)" }}>Live today (v1):</strong> each $100 lane climbs by rolling the full winnings into the next step; a lost step costs only the original $100 seed. Wins are unrealized until a ladder completes or stops — that discipline built both $100→$10K crowns.
-          </p>
-          <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-            <strong style={{ color: "var(--vault-text)" }}>v2 preview · pending guarded activation:</strong> the profit-locking ladder banks cash at every rung from Step 2 — win Step 2 and the original $100 is already back in your pocket; the ladder freerolls from there. Later steps get <em>safer</em>, not richer (multiplier never rises after Step 3; 2 legs max; Step 7 is double-chance/DNB only). We lock profit as the ladder climbs:
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {[1, 2, 3, 4, 5, 6, 7].map((s) => {
-              const p = bankBuilderV2StepPolicy(s);
-              return (
-                <span key={s} className="rounded-md px-2 py-1 font-mono text-[9px]" style={{ border: "1px solid var(--vault-rule)", color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>
-                  S{s} · ${p.roll.toLocaleString("en-US")}→${p.target.toLocaleString("en-US")}{p.lock > 0 ? ` · lock $${p.lock.toLocaleString("en-US")}` : s === 7 ? " · completes (all realizes)" : " · full roll"}
-                </span>
-              );
-            })}
-          </div>
-          <p className="font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
-            A full 7-step run realizes $2,100 locked along the way + the $8,280 final ≈ $10,380. If the model can&rsquo;t find a strong card, we skip — an honest under-target card always beats weak filler. v2 activates only after its settlement support ships and is gate-proven; the live ladder and every number on this page run v1. Built from the settled record: double chance 8–0 · moneyline 8–2 · totals 10–6 · BTTS 1–3.
-          </p>
-        </div>
-      </details>
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
           purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE
           the existing dense ladder components, which remain below unchanged. */}
@@ -258,6 +228,15 @@ export default function BankBuilderPage() {
         lanes={climbLanes}
         completedLadders={completedLadders}
       />
+
+      {/* THE 7-STEP PROFIT-LOCKING LADDER — now PROMINENT (was hidden in a collapsed accordion). Rendered
+          from the pure bankBuilderV2StepPolicy spec; liveStep marks where today's active lane sits. v2 is a
+          preview (settlement still v1) — the component says so plainly. */}
+      <div className="mt-5">
+        <BankBuilderLadderV2
+          liveStep={dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.legs.length > 0)?.step ?? 1}
+        />
+      </div>
 
       {/* The approved daily Bank Builder is an ACTIVE paper ladder — always shown (with per-leg live status).
           On days with no approval, show the fresh proposal when no lane is carrying a card, else the premium

@@ -30,6 +30,8 @@ import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
 import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
 import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import BankBuilderStatusRail from "@/components/bank-builder/bank-builder-status-rail";
+import BankBuilderLadderV2 from "@/components/bank-builder/ladder-v2";
+import MoonshotLadderV2 from "@/components/moonshot/ladder-v2";
 import AchievementBanner from "@/components/achievement-banner";
 import MrDubTodayCard from "@/components/mr-dub/mr-dub-today-card";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
@@ -351,6 +353,9 @@ export default function TodayPage() {
           <BankBuilderSkippedCard alternatives={bankBuilderAlternatives} />
         )}
 
+        {/* The 7-step profit-locking ladder — compact preview (full ladder lives on /bank-builder). */}
+        <BankBuilderLadderV2 compact liveStep={bankBuilderLadder[0]?.step ?? 1} />
+
         {/* PRIORITY #2: Moonshot — independent daily longshot cards (NOT a ladder), higher-volatility. */}
         {moonshotLadder.length > 0 && (
           <div aria-label="Moonshot cards" className="flex flex-col gap-2">
@@ -360,6 +365,9 @@ export default function TodayPage() {
             </Link>
           </div>
         )}
+
+        {/* The 3-step Moonshot ladder — compact preview (full trajectory lives on /moonshot). */}
+        <MoonshotLadderV2 compact live={moonshotLadder.length > 0} currentDay={1} />
 
         {/* PRIORITY #3: World Cup exclusive parlays. Gated to today; fails closed on a stale slate. */}
         {wcSpecials && <WorldCupSpecialsBox data={wcSpecials} />}

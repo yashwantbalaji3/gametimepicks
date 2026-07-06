@@ -11,7 +11,7 @@ import Link from "next/link";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import MoonshotLaneTracker from "@/components/moonshot/moonshot-lane-tracker";
 import { buildStructuredMoonshot } from "@/lib/world-cup/structured-moonshot";
-import { moonshotV2LadderPolicy } from "@/lib/methodology/ladder-policy";
+import MoonshotLadderV2 from "@/components/moonshot/ladder-v2";
 import StructuredMoonshotSection from "@/components/world-cup/structured-moonshot-section";
 import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
@@ -61,37 +61,10 @@ export default function MoonshotPage() {
         note="Two independent, high-upside longshot cards published daily — maximum upside, not a ladder. Tracked on their own record / ROI / profit, fully separate from the Bank Builder. Paper-only, settlement-supported."
       />
 
-      {/* The 3-DAY LADDER structure — the Moonshot's ladder spec (moonshotLadderPolicy), rendered from
-          the tested policy function. Day 1 is live when a lane is active today; Days 2-3 unlock only by
-          winning the prior day. Team markets preferred, no props by default, no forced cards. */}
-      <section className="rounded-xl px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(139,123,240,0.05)" }}>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-mono uppercase tracking-[0.12em] text-[10px]" style={{ color: "#b9a8ff" }}>🌙 The 3-day ladder · $25 → $1,500</span>
-          <span className="font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>high volatility by design · no forced cards</span>
-        </div>
-        <div className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-3">
-          {([1, 2, 3] as const).map((day) => {
-            const p = moonshotV2LadderPolicy(day);
-            const active = day === 1 && moonshotLanes.length > 0;
-            return (
-              <div key={day} className="rounded-lg px-3 py-2.5" style={{ border: `1px solid ${active ? "#8b7bf0" : "var(--vault-rule)"}`, background: active ? "rgba(139,123,240,0.10)" : "rgba(255,255,255,0.015)" }}>
-                <div className="flex items-center justify-between">
-                  <span className="font-mono uppercase tracking-[0.08em] text-[9px]" style={{ color: active ? "#b9a8ff" : "var(--vault-text-faint)" }}>Day {day}{active ? " · LIVE" : day === 1 ? "" : " · unlocks when the prior day wins"}</span>
-                  <span className="font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>{p.targetMultiple}×</span>
-                </div>
-                <div className="mt-1 font-display tabular text-[15px] font-bold" style={{ color: "var(--vault-text)" }}>${p.roll.toLocaleString("en-US")} → ${p.target.toLocaleString("en-US")}</div>
-                <div className="mt-0.5 font-mono text-[9px]" style={{ color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>
-                  {p.lock > 0 ? `lock $${p.lock} · roll $${p.rollForward}` : "completes — everything realizes"}
-                </div>
-                <div className="mt-0.5 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>{p.legRange[0]}–{p.legRange[1]} legs · team markets · no props</div>
-              </div>
-            );
-          })}
-        </div>
-        <p className="mt-2 text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-          Profit locks as the ladder climbs: win Day 1 and the $25 seed is banked back immediately — Days 2-3 ride house money ($100 locked before the $1,500 swing; a full run realizes ~$1,600). A losing day costs only what was still rolling. A day with no qualified card is a NO-PLAY, never forced. Settles from official results only.
-        </p>
-      </section>
+      {/* The 3-STEP LADDER — now a PROMINENT trajectory visual (was a small inline grid). Rendered from the
+          pure moonshotV2LadderPolicy spec. Day 1 is live when a lane is active today; Days 2-3 unlock only
+          by winning the prior day. Team markets, no props, no forced cards. */}
+      <MoonshotLadderV2 live={moonshotLanes.length > 0} currentDay={1} />
 
       {/* Today's STRUCTURED Moonshot — result + total per game, grouped by game (team markets only). */}
       <section className="flex flex-col gap-3 overflow-x-hidden">
