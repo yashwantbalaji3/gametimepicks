@@ -108,6 +108,7 @@ fi
 say "Cross-product · daily portfolio + master ledger"
 npx tsx app/scripts/activate-daily-portfolio.mjs --date "$DATE" --apply | tail -4
 npx tsx app/scripts/build-master-ledger.mjs | tail -1
+npx tsx app/scripts/build-admin-status.mjs | tail -1
 
 # ── Money-mutation guard (hard fail) ───────────────────────────────────────────────────────────
 AFTER=$(cat "${MONEY_FILES[@]}" | md5)

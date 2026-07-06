@@ -1,0 +1,91 @@
+{
+  "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
+  "generatedAt": "2026-07-06T18:00:00Z",
+  "canonical": {
+    "record": "17-14",
+    "bankroll": 19065.4,
+    "crown": 20465.4,
+    "drawdown": 1400,
+    "profit": 18965.4,
+    "roiMultiple": 189.65,
+    "portfolioMd5": "7a15360b99da25795261ba79dae2dd57"
+  },
+  "moneyGate": {
+    "crownMinusDrawdownEqualsBankroll": true,
+    "dailyTracksCanonical": true,
+    "pass": true
+  },
+  "slate": {
+    "date": "2026-07-06",
+    "activeBankroll": 19065.4,
+    "openExposure": 125,
+    "worldCupGames": 5,
+    "mlbGames": 8,
+    "mlbSlate": "2026-07-06"
+  },
+  "products": {
+    "bankBuilder": {
+      "activeLanes": 1,
+      "lanes": [
+        {
+          "lane": "A",
+          "status": "active",
+          "step": 1,
+          "legs": 2,
+          "combinedOdds": -135,
+          "stake": 100,
+          "potentialReturn": 174.23,
+          "selections": [
+            "Spain or Draw",
+            "Belgium or Draw"
+          ]
+        }
+      ]
+    },
+    "moonshot": {
+      "activeLanes": 1,
+      "lanes": [
+        {
+          "lane": "A",
+          "status": "candidate",
+          "step": 1,
+          "legs": 4,
+          "combinedOdds": 662,
+          "stake": 25,
+          "potentialReturn": 190.57,
+          "selections": [
+            "Spain (draw no bet)",
+            "Over 2.5",
+            "Belgium (draw no bet)",
+            "Over 2.5"
+          ]
+        },
+        {
+          "lane": "B",
+          "status": "active",
+          "step": 1,
+          "legs": 6,
+          "combinedOdds": 1892,
+          "stake": 25,
+          "potentialReturn": 497.94,
+          "selections": [
+            "Spain (draw no bet)",
+            "Over 2.5",
+            "Both teams to score: Yes",
+            "Belgium (draw no bet)",
+            "Over 2.5",
+            "Both teams to score: Yes"
+          ]
+        }
+      ]
+    }
+  },
+  "lastSettlement": {
+    "date": "2026-07-05",
+    "matches": 0
+  },
+  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-07-06's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
+  "gates": {
+    "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
+  }
+}
