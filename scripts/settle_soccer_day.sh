@@ -98,7 +98,7 @@ else
 fi
 
 # ── 4) Reconcile derived ledgers (pure rebuild from the artifacts). ─────────────────────────────────
-step "4/5  Reconcile Mr. Dub ledger"
+step "4/6  Reconcile Mr. Dub ledger"
 if [ "$APPLY" = 1 ]; then
   npx tsx app/scripts/build-mr-dub-ledger.mjs --now "${DATE}T18:00:00Z"
   ok "settlement applied + reconciled for $DATE"
@@ -106,8 +106,27 @@ else
   info "dry-run — ledger not rebuilt (no --apply)"
 fi
 
-# ── 5) Money-integrity GATE — fail loudly on any corrupted bankroll (never publish on bad money). ───
-step "5/5  Money-integrity gate"
+# ── 5) Roll the daily portfolio forward so activeBankroll tracks the NEW canonical bankroll. ─────────
+# ROOT-CAUSE FIX (2026-07-06): settling active lanes moves portfolio.json's bankroll, but the derived
+# daily-portfolio.json still advertised the PRE-settlement activeBankroll — and verify-money-integrity's
+# `daily=canonical-bankroll` invariant (step 6) then failed with exit 1, so BOTH nightly-settle and
+# daily-lifecycle aborted overnight and produced no commit. We regenerate the daily portfolio for TODAY
+# in ET (the roll-forward day) right here: the date-gated approved card no longer matches "today", so no
+# stale settled lane resurfaces — the portfolio simply reflects the new bankroll with whatever is
+# genuinely active today (an empty/no-play portfolio until today's card is approved). Fatal on failure:
+# a stale daily portfolio must never slip past to the money gate.
+step "5/6  Roll daily portfolio forward (activeBankroll ← new canonical bankroll)"
+if [ "$APPLY" = 1 ]; then
+  ROLL_DATE=$(TZ=America/New_York date +%F)
+  npx tsx app/scripts/activate-daily-portfolio.mjs --date "$ROLL_DATE" --apply \
+    || { err "daily-portfolio roll-forward FAILED for $ROLL_DATE — refusing to gate on a stale portfolio."; exit 1; }
+  ok "daily portfolio rolled forward to $ROLL_DATE (activeBankroll now tracks canonical)"
+else
+  info "dry-run — daily portfolio not rolled (no --apply)"
+fi
+
+# ── 6) Money-integrity GATE — fail loudly on any corrupted bankroll (never publish on bad money). ───
+step "6/6  Money-integrity gate"
 if [ "$APPLY" = 1 ]; then
   npx tsx app/scripts/verify-money-integrity.mjs || { err "MONEY-INTEGRITY GATE FAILED — settlement produced an inconsistent bankroll. Investigate before publishing."; exit 1; }
   npx tsx app/scripts/forensic-money-audit.mjs >/dev/null || { err "FORENSIC MONEY AUDIT FAILED — a displayed value no longer reconciles to the canonical \$100→bankroll journey."; exit 1; }

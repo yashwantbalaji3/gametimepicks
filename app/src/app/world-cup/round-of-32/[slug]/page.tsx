@@ -44,7 +44,16 @@ function futureGames(): RoundOf32Game[] {
 }
 
 export function generateStaticParams() {
-  return futureGames().map((g) => ({ slug: g.gameSlug }));
+  // Prefer the FUTURE games (board games without a full /games/world-cup detail page). But `output:
+  // export` rejects a dynamic route that emits ZERO params, and on a thin slate every board game may
+  // already be "active" (has a full detail page) → futureGames() is empty and the export build fails
+  // (2026-07-06 regression: a 2-game board where both games were today's active slate). Fall back to
+  // ALL board slugs so the route always has ≥1 param when the board is non-empty; those pages render
+  // the same team-market board view from board.json (a harmless companion to the fuller /games page).
+  const future = futureGames().map((g) => ({ slug: g.gameSlug }));
+  if (future.length) return future;
+  const board = loadRoundOf32Board();
+  return (board?.games ?? []).map((g) => ({ slug: g.gameSlug }));
 }
 
 function gameForSlug(slug: string): RoundOf32Game | null {

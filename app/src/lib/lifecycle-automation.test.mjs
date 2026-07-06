@@ -119,6 +119,21 @@ test("settle validates the OFFICIAL operator bundle before trusting it (audit P1
   assert.match(s, /matches.*array|non-empty matches/i, "requires a non-empty matches[] array");
 });
 
+test("settle ROLLS the daily portfolio forward before its money gate (2026-07-06 regression)", () => {
+  // ROOT CAUSE of the 2026-07-06 nightly-settle + daily-lifecycle failures: settling active lanes moved
+  // portfolio.json's bankroll, but daily-portfolio.json still advertised the PRE-settlement activeBankroll,
+  // so verify-money-integrity's `daily=canonical-bankroll` invariant failed with exit 1 and BOTH workflows
+  // aborted with no commit. The fix regenerates the daily portfolio (activate-daily-portfolio) AFTER the
+  // ledger rebuild and BEFORE the money gate. This locks that wiring + ordering so it can't regress.
+  const s = readRepo("scripts/settle_soccer_day.sh");
+  assert.match(s, /activate-daily-portfolio\.mjs --date "\$ROLL_DATE" --apply/, "rolls the daily portfolio forward on --apply");
+  assert.match(s, /ROLL_DATE=\$\(TZ=America\/New_York date \+%F\)/, "rolls to TODAY in ET (the roll-forward day), not the settled date");
+  // Ordering: the roll-forward step must appear BEFORE the money-integrity gate, else the gate sees a stale portfolio.
+  const rollIdx = s.indexOf("Roll daily portfolio forward");
+  const gateIdx = s.indexOf("verify-money-integrity.mjs");
+  assert.ok(rollIdx > 0 && gateIdx > 0 && rollIdx < gateIdx, "daily-portfolio roll-forward precedes the money gate");
+});
+
 test("settle-first guard keys off the LADDER (settled slateDate), not stale daily-portfolio status", () => {
   // Settlement never rewrites the daily-portfolio status, so the guard must confirm settlement via the
   // ladder's settled step dated PREV — otherwise it would HALT the autonomous roll after every settlement.
