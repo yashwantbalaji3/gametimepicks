@@ -52,3 +52,52 @@ When refusing, always offer the honest alternative that gets closest to the inte
 ## Changelog format
 `YYYY-MM-DD · <class> · <one line> · <commit> · gates green · smoke 9/9` — appended to the deploy's commit
 body and (optionally) `docs/CHANGELOG.md`.
+
+---
+
+## Admin request template (paste this to Claude Code)
+```
+Custom change request for GameTime Picks.
+REQUEST: <what you want, plain English>
+CONTEXT: <page/product/date if relevant>
+Classify it (copy / UI / product-logic / settlement-money / data-refresh), risk-rate it, propose the plan,
+and implement ONLY if safe under the hard rules. Run all gates, deploy if code/public docs changed, verify
+production, and give me a changelog line. If it touches canonical money outside official settlement, refuse
+and explain.
+```
+
+## Risk classification form (Claude fills this before implementing)
+| Field | Value |
+|---|---|
+| Change class | copy / UI / product-logic / data-refresh / settlement-money |
+| Risk level | Low / Medium / High / Blocked |
+| Files touched | … |
+| Moves canonical money? | no (must be no unless official settlement) |
+| Fabricates anything? | no |
+| Blast radius / what could break | … |
+| Gates required | tsc · tests · build · money-integrity · forensic · health (+ smoke if deployed) |
+| Reversible? | yes / effort |
+
+## Acceptance checklist (before implementing)
+- [ ] Class + risk assigned; not Blocked
+- [ ] Plan names exact files + the gates it must pass
+- [ ] Canonical money is untouched (or this is an official settlement)
+- [ ] No fabricated odds/scores/props/assets/hit-rates/EV
+- [ ] Homer stays retired; no forced card
+
+## Deployment checklist (before/after push)
+- [ ] tsc clean · full tests pass · build 0
+- [ ] money-integrity ✓ · forensic PERFECT · health ✓ · idempotence ✓
+- [ ] `git fetch` + inspect bot commits + rebase safely (re-run money gate if it moved)
+- [ ] push `main` + `--force-with-lease june30-reset`
+- [ ] Vercel done → `smoke-test-production.mjs` 9/9 → spot-check changed pages
+- [ ] changelog line written
+
+## More worked examples
+| Request | Class | Risk | What Claude does |
+|---|---|---|---|
+| "Redesign the Bank Builder page" | UI | Med | Scope with Chat first; implement behind the hard rules (ladder stays prominent + honest v1/v2); a UI/UX + QA agent in parallel for a big redesign; render-audit + deploy. |
+| "Generate July 7" | Data refresh | Med | `refresh_daily_products.sh --date 2026-07-07` (real odds); confirm money md5 unchanged + HEALTHY; verify completed games aren't bettable. |
+| "Change model weights" | Product logic | Med | Require a settled-evidence justification (via a MODEL_REVIEW); edit `bank-builder-proposal.ts` weights + tests; label proven/directional; don't overfit; deploy. |
+| "Fix the failed nightly workflow" | Settlement/ops | High | Root-cause from the run logs (config/API/code/data/env), implement the proper fix + regression test, prove locally, document (like NIGHTLY_SETTLE_FIX). Money only via official settlement. |
+| "Add team logos" | UI | Low–Med | Use `TeamLogo`/`FlagBadge` with deterministic fallbacks; never a fabricated logo; render-audit for broken images. |
