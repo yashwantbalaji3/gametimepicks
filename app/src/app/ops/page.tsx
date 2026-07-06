@@ -17,10 +17,36 @@ type Status = {
   canonical: { record: string; bankroll: number; crown: number; drawdown: number; profit: number; roiMultiple: number | null; portfolioMd5: string } | null;
   moneyGate: { crownMinusDrawdownEqualsBankroll: boolean; dailyTracksCanonical: boolean; pass: boolean };
   slate: { date: string | null; activeBankroll: number; openExposure: number; worldCupGames: number; mlbGames: number; mlbSlate: string | null };
+  productReadiness?: Record<string, string>;
   products: { bankBuilder: { activeLanes: number; lanes: Lane[] }; moonshot: { activeLanes: number; lanes: Lane[] } };
+  counts?: { activeProducts: number; pendingApprovals: number };
+  workflowHealth?: { lastRunAt?: string | null; ok?: boolean | null; status?: string | null; phase?: string | null; note?: string };
+  warnings?: string[];
+  dailyChecklist?: Array<{ step: string; done: boolean }>;
   lastSettlement: { date: string; matches: number } | null;
+  nextSettlementDate?: string | null;
+  nextRefreshDate?: string | null;
   nextAction: string;
 };
+
+const ROLES: Array<[string, string]> = [
+  ["Ops Manager", "runs the daily loop · settles · deploys"],
+  ["Quant Analyst", "reviews wins/losses · reliability weights"],
+  ["Product Manager", "approves the daily card · product status"],
+  ["QA Engineer", "render-audits every page"],
+  ["UI/UX Designer", "nav · cards · visuals · mobile"],
+  ["Data Engineer", "odds · props · schedules · portfolios"],
+  ["Launch Manager", "deploy · smoke · release notes"],
+  ["Content Analyst", "explanations · methodology copy"],
+];
+const DOCS: Array<[string, string]> = [
+  ["Which Claude tool to use", "docs/CLAUDE_TOOL_USAGE_GUIDE.md"],
+  ["CEO daily workflow", "docs/CEO_DAILY_WORKFLOW.md"],
+  ["Daily runbook", "docs/DAILY_CLAUDE_RUNBOOK.md"],
+  ["Prompt library", "docs/CLAUDE_PROMPT_LIBRARY.md"],
+  ["Custom change workflow", "docs/CUSTOM_CHANGE_WORKFLOW.md"],
+  ["Agent missions", "agents/<role>/mission.md"],
+];
 
 function loadStatus(): Status | null {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "admin", "status.json"), "utf8")); } catch { return null; }
@@ -94,6 +120,34 @@ export default function OpsPage() {
         <div className="mt-2 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>portfolio.json md5 {c.portfolioMd5?.slice(0, 12)} · crown − drawdown = bankroll: {String(s.moneyGate.crownMinusDrawdownEqualsBankroll)} · daily tracks canonical: {String(s.moneyGate.dailyTracksCanonical)}</div>
       </Card>
 
+      {/* Company health + product readiness */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Card title="Company health">
+          <div className="grid grid-cols-3 gap-3">
+            {([["Active products", s.counts?.activeProducts ?? "—"], ["Pending approvals", s.counts?.pendingApprovals ?? "—"], ["Checklist", s.dailyChecklist ? `${s.dailyChecklist.filter((x) => x.done).length}/${s.dailyChecklist.length}` : "—"]] as const).map(([k, v]) => (
+              <div key={k}><div className="font-mono text-[9px] uppercase" style={{ color: "var(--vault-text-faint)" }}>{k}</div><div className="font-display tabular text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>{v}</div></div>
+            ))}
+          </div>
+          {s.warnings && s.warnings.length ? (
+            <div className="mt-3 flex flex-col gap-1">{s.warnings.map((w, i) => <div key={i} className="rounded px-2 py-1 text-[11px]" style={{ background: "rgba(242,54,69,0.08)", color: "var(--gtp-bank-heat)" }}>⚠ {w}</div>)}</div>
+          ) : <div className="mt-3 text-[11px]" style={{ color: "var(--vault-success)" }}>✓ No missing-data warnings.</div>}
+        </Card>
+
+        <Card title="Product readiness">
+          <div className="flex flex-col gap-1.5">
+            {s.productReadiness ? Object.entries(s.productReadiness).map(([k, v]) => {
+              const tone = /active|live/.test(v) ? "var(--vault-success)" : /awaiting|pending/.test(v) ? "var(--vault-gold)" : "var(--vault-text-faint)";
+              return (
+                <div key={k} className="flex items-center justify-between">
+                  <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{k.replace(/([A-Z])/g, " $1").replace(/^./, (m) => m.toUpperCase())}</span>
+                  <span className="font-mono text-[10.5px]" style={{ color: tone }}>{v}</span>
+                </div>
+              );
+            }) : <span className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>not wired</span>}
+          </div>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Card title={`Today's slate · ${s.slate.date ?? "—"}`}>
           <div className="grid grid-cols-2 gap-3">
@@ -118,6 +172,63 @@ export default function OpsPage() {
           <div className="flex flex-col gap-2">{s.products.moonshot.lanes.length ? s.products.moonshot.lanes.map((l, i) => <LaneRow key={i} l={l} />) : <span className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>No lanes today.</span>}</div>
         </Card>
       </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Card title="Workflow health + schedule">
+          <div className="flex flex-col gap-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+            {s.workflowHealth?.note ? (
+              <span style={{ color: "var(--vault-text-faint)" }}>{s.workflowHealth.note}</span>
+            ) : (
+              <>
+                <div>Last automated run: <span className="font-mono" style={{ color: s.workflowHealth?.ok ? "var(--vault-success)" : "var(--gtp-bank-heat)" }}>{s.workflowHealth?.status ?? "—"}</span> · {s.workflowHealth?.phase ?? "—"}</div>
+                <div className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>{s.workflowHealth?.lastRunAt ? new Date(s.workflowHealth.lastRunAt).toISOString().slice(0, 16).replace("T", " ") + "Z" : "—"}</div>
+              </>
+            )}
+            <div className="mt-2 flex flex-wrap gap-x-4 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+              <span>Next settlement: <span style={{ color: "var(--vault-text-mute)" }}>{s.nextSettlementDate ?? "—"}</span></span>
+              <span>Next refresh: <span style={{ color: "var(--vault-text-mute)" }}>{s.nextRefreshDate ?? "—"}</span></span>
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Daily checklist">
+          <div className="flex flex-col gap-1">
+            {(s.dailyChecklist ?? []).map((x, i) => (
+              <div key={i} className="flex items-center gap-2 text-[12px]">
+                <span aria-hidden style={{ color: x.done ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{x.done ? "✓" : "○"}</span>
+                <span style={{ color: x.done ? "var(--vault-text-mute)" : "var(--vault-text)" }}>{x.step}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <Card title="Claude team + playbooks">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <div className="mb-1.5 font-mono text-[9px] uppercase" style={{ color: "var(--vault-text-faint)" }}>Roles (hats you put on with a prompt)</div>
+            <div className="flex flex-col gap-1">
+              {ROLES.map(([r, d]) => (
+                <div key={r} className="flex flex-wrap items-baseline gap-x-2 text-[11.5px]">
+                  <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{r}</span>
+                  <span style={{ color: "var(--vault-text-faint)" }}>— {d}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="mb-1.5 font-mono text-[9px] uppercase" style={{ color: "var(--vault-text-faint)" }}>Playbooks (in the repo)</div>
+            <div className="flex flex-col gap-1">
+              {DOCS.map(([label, p]) => (
+                <div key={p} className="flex flex-wrap items-baseline gap-x-2 text-[11.5px]">
+                  <span style={{ color: "var(--vault-text-mute)" }}>{label}</span>
+                  <code className="font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>{p}</code>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
 
       <Card title="The gates (run these — authoritative)">
         <div className="flex flex-col gap-1.5">

@@ -61,6 +61,51 @@ const laneSummary = (product) => lanes.filter((l) => l.product === product).map(
 const bbLanes = laneSummary("bank-builder");
 const moonLanes = laneSummary("moonshot");
 
+// ── Product readiness (derived, honest — "not wired" when an artifact is absent) ─────────────────
+const wcSpecials = readJson("world-cup/world-cup-specials.json");
+const bbActive = bbLanes.filter((l) => l.status === "active").length;
+const moonActive = moonLanes.filter((l) => l.status === "active").length;
+const wcGames = (wcBoard?.games ?? []).length;
+const mlbGames = (mlbBoard?.games ?? []).length;
+const productReadiness = {
+  bankBuilder: bbActive ? `active · ${bbActive} lane(s)` : bbLanes.length ? "awaiting approval" : "no card today",
+  moonshot: moonActive ? `active · ${moonActive} lane(s)` : moonLanes.length ? "awaiting approval" : "no card today",
+  top10: wcGames || mlbGames ? "live" : "data pending",
+  worldCup: wcGames ? `live · ${wcGames} game(s)` : "dormant (no board)",
+  mlb: mlbGames ? `live · ${mlbGames} game(s)` : "dormant (no board)",
+  wcSpecials: wcSpecials ? `${(wcSpecials.cards ?? wcSpecials.specials ?? []).length} card(s)` : "not wired",
+};
+const activeProductCount = [bbActive > 0, moonActive > 0, wcGames > 0, mlbGames > 0].filter(Boolean).length;
+const pendingApprovalCount = [...bbLanes, ...moonLanes].filter((l) => l.status !== "active").length;
+
+// ── Workflow health (from the ops heartbeat written by ops-notify.mjs; honest "not wired" if absent) ─
+const heartbeat = readJson("ops/heartbeat.json");
+const workflowHealth = heartbeat
+  ? { lastRunAt: heartbeat.lastRunAt ?? null, ok: heartbeat.ok ?? null, status: heartbeat.status ?? null, phase: heartbeat.phase ?? null }
+  : { note: "not wired — no ops heartbeat found (ops-notify.mjs writes it on a clean automated run)" };
+
+// ── Next dates (derived from the slate) ─────────────────────────────────────────────────────────
+const addDays = (iso, n) => { const [y, m, d] = (iso ?? "").split("-").map(Number); if (!y) return null; const t = Date.UTC(y, m - 1, d) + n * 86400000; const dt = new Date(t); return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`; };
+const nextSettlementDate = dp?.date ?? null;              // today's games settle after they go final
+const nextRefreshDate = addDays(dp?.date, 1);              // the next slate
+
+// ── Missing-data + stale-route warnings (derived) ───────────────────────────────────────────────
+const todayEt = nowIso.slice(0, 10);
+const warnings = [];
+if (!wcGames) warnings.push("World Cup board is empty (dormant or needs a refresh).");
+if (!mlbGames) warnings.push("MLB board is empty (dormant or needs a refresh).");
+if (!moneyGate.dailyTracksCanonical) warnings.push("Daily portfolio activeBankroll ≠ canonical bankroll — roll forward.");
+if (dp?.date && dp.date < todayEt) warnings.push(`Slate (${dp.date}) is behind today (${todayEt}) — refresh/roll forward.`);
+
+// ── Daily checklist (derived completion — the runbook is the source of truth) ───────────────────
+const dailyChecklist = [
+  { step: "Money gate green", done: moneyGate.pass },
+  { step: "Slate is current", done: !!dp?.date && dp.date >= todayEt },
+  { step: "Products generated (WC or MLB)", done: wcGames > 0 || mlbGames > 0 },
+  { step: "Bank Builder card decided (active or no-play)", done: bbActive > 0 || bbLanes.length === 0 },
+  { step: "No missing-data warnings", done: warnings.length === 0 },
+];
+
 // ── Next action heuristic (derived; the runbook is the source of truth) ─────────────────────────
 let nextAction;
 if (!moneyGate.pass) nextAction = "⚠ MONEY GATE: daily portfolio is stale or bankroll does not reconcile — roll forward / investigate before anything else.";
@@ -77,11 +122,18 @@ const status = {
     activeBankroll: round2(dp?.activeBankroll), openExposure: round2(dp?.openExposure),
     worldCupGames: (wcBoard?.games ?? []).length, mlbGames: (mlbBoard?.games ?? []).length, mlbSlate: latestMlb ? latestMlb.replace(".json", "") : null,
   },
+  productReadiness,
   products: {
-    bankBuilder: { activeLanes: bbLanes.filter((l) => l.status === "active").length, lanes: bbLanes },
-    moonshot: { activeLanes: moonLanes.filter((l) => l.status === "active").length, lanes: moonLanes },
+    bankBuilder: { activeLanes: bbActive, lanes: bbLanes },
+    moonshot: { activeLanes: moonActive, lanes: moonLanes },
   },
+  counts: { activeProducts: activeProductCount, pendingApprovals: pendingApprovalCount },
+  workflowHealth,
+  warnings,
+  dailyChecklist,
   lastSettlement: latestSettlement ? { date: latestSettlementFile.replace(".json", ""), matches: (latestSettlement.matches ?? latestSettlement.games ?? []).length } : null,
+  nextSettlementDate,
+  nextRefreshDate,
   nextAction,
   gates: { note: "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only." },
 };

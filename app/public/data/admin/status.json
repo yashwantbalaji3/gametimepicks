@@ -23,6 +23,14 @@
     "mlbGames": 8,
     "mlbSlate": "2026-07-06"
   },
+  "productReadiness": {
+    "bankBuilder": "active · 1 lane(s)",
+    "moonshot": "active · 1 lane(s)",
+    "top10": "live",
+    "worldCup": "live · 5 game(s)",
+    "mlb": "live · 8 game(s)",
+    "wcSpecials": "3 card(s)"
+  },
   "products": {
     "bankBuilder": {
       "activeLanes": 1,
@@ -80,10 +88,45 @@
       ]
     }
   },
+  "counts": {
+    "activeProducts": 4,
+    "pendingApprovals": 1
+  },
+  "workflowHealth": {
+    "lastRunAt": "2026-07-06T15:22:32.541Z",
+    "ok": true,
+    "status": "pass",
+    "phase": "settle 2026-07-05"
+  },
+  "warnings": [],
+  "dailyChecklist": [
+    {
+      "step": "Money gate green",
+      "done": true
+    },
+    {
+      "step": "Slate is current",
+      "done": true
+    },
+    {
+      "step": "Products generated (WC or MLB)",
+      "done": true
+    },
+    {
+      "step": "Bank Builder card decided (active or no-play)",
+      "done": true
+    },
+    {
+      "step": "No missing-data warnings",
+      "done": true
+    }
+  ],
   "lastSettlement": {
     "date": "2026-07-05",
     "matches": 0
   },
+  "nextSettlementDate": "2026-07-06",
+  "nextRefreshDate": "2026-07-07",
   "nextAction": "Monitor the active Bank Builder lane(s); after 2026-07-06's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
