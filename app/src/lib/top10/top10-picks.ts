@@ -30,6 +30,9 @@ export interface Top10Pick {
   source: string;             // artifact provenance
   startsAt: string | null;    // ISO kickoff/first-pitch
   status: "pregame";
+  /** WC country code of the team the pick is ON (double chance / DNB / moneyline) → renders a flag.
+   *  null for goal markets (totals / BTTS name no single team) and for MLB. Falls back to a monogram. */
+  flagCode?: string | null;
 }
 
 export interface Top10Board {
@@ -71,9 +74,12 @@ function wcTeamPicks(root: string, nowMs: number): Top10Pick[] {
         marketKey === "btts" ? "BTTS is 1-3 settled" : null,
         pick.americanOdds > 150 ? "longer price" : null,
       ].filter(Boolean);
+      // Flag the team the pick is ON (draw-protected / match-result markets name one team). Goal
+      // markets (totals / BTTS) name no single team → null (component falls back to the sport glyph).
+      const flagCode = g.home && pick.pick.includes(g.home) ? g.homeCode : g.away && pick.pick.includes(g.away) ? g.awayCode : null;
       out.push({
         id: `${g.gameSlug}:${marketKey}`,
-        sport: "world-cup", kind: "team",
+        sport: "world-cup", kind: "team", flagCode,
         game: `${g.home} v ${g.away}`, gameSlug: g.gameSlug,
         market: label, selection: pick.pick, odds: pick.americanOdds,
         modelProbability: round3(pick.modelProbability), marketProbability: mkt,

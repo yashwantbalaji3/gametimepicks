@@ -76,6 +76,57 @@ export default function MethodologyPage() {
         <WorkflowDiagram />
       </Section>
 
+      {/* SECTION 1.5 — The flagship profit-locking ladders (plain English). */}
+      <Section title="The profit-locking ladders">
+        <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
+          Our two flagship products are paper ladders that grow a small seed by stringing together strong,
+          model-qualified picks — and <span style={{ color: "var(--vault-text)" }}>bank profit as they climb</span> so
+          one bad day can&rsquo;t erase the whole run. Everything here is educational and paper-only; no wagers are placed.
+        </p>
+        <div className="space-y-5">
+          <Block title="Bank Builder · the 7-step ladder ($100 → ~$10,380)">
+            <p>
+              Each step risks a rolled-up stake on a 2–3 leg card of <span style={{ color: "var(--vault-text)" }}>team / game markets only</span> (no
+              player props). Steps 1–2 chase growth; from Step&nbsp;2 we start <span style={{ color: "var(--vault-text)" }}>banking part of every
+              win</span> — win Step&nbsp;2 and the original $100 is already back, so the ladder freerolls. Later steps get
+              <em> safer, not richer</em>: the target multiple never rises after Step&nbsp;3, cards drop to two legs, and Step&nbsp;7
+              is double-chance / draw-no-bet only. A full run banks ~$2,100 along the way plus an $8,280 final ≈ $10,380.
+            </p>
+            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
+              <span style={{ color: "var(--vault-text-mute)" }}>Live settlement runs v1</span> (a win rolls in full; a lost
+              step costs only its $100 seed — that discipline built both $100→$10K crowns). The 7-step profit-locking schedule
+              is a <span style={{ color: "var(--vault-text-mute)" }}>preview</span>: it activates for real money only once its
+              partial-cash-out settlement ships and passes every money gate. The ladder is shown in full on the Bank Builder page.
+            </p>
+          </Block>
+
+          <Block title="Moonshot · the 3-step ladder ($25 → $1,500)">
+            <p>
+              A separate, high-variance longshot lane: <span style={{ color: "var(--vault-text)" }}>Day 1 $25 → $100</span> (bank
+              $25 — the seed is back), <span style={{ color: "var(--vault-text)" }}>Day 2 $75 → $375</span> (bank $75),
+              <span style={{ color: "var(--vault-text)" }}> Day 3 $300 → $1,500</span>. Legs are grouped by game and prefer
+              team / game markets. It is a longshot by design — one wrong leg ends the day — but a losing day only costs what was
+              still rolling; banked profit stays banked.
+            </p>
+          </Block>
+
+          <Block title="Why bank profit · why a no-play is sometimes the best play">
+            <p>
+              Rolling 100% of every win compounds fastest but is fragile — one loss high on the ladder gives everything back.
+              Banking a slice at each step trades a little upside for durable, realized profit. And when the day&rsquo;s slate
+              can&rsquo;t field a strong card, <span style={{ color: "var(--vault-text)" }}>we skip</span> — an honest no-play
+              beats forcing a coin-flip or a negative-edge &ldquo;value&rdquo; card. Cards settle from official results only;
+              a pending leg is never counted as a loss.
+            </p>
+            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
+              Shorthand you&rsquo;ll see on cards: <span style={{ color: "var(--vault-text-mute)" }}>DC</span> (double chance =
+              your team wins or draws), <span style={{ color: "var(--vault-text-mute)" }}>DNB</span> (draw-no-bet = a draw
+              refunds the leg), <span style={{ color: "var(--vault-text-mute)" }}>BTTS</span> (both teams to score).
+            </p>
+          </Block>
+        </div>
+      </Section>
+
       {/* SECTION 2 — Universal math */}
       <Section title="Universal math">
         <div className="space-y-5">
@@ -165,8 +216,8 @@ export default function MethodologyPage() {
           The engine is live: it extracts each sport into the same pipeline (leakage validation →
           confidence → risk → eligibility), then builds suggested parlays by sport and risk level on{" "}
           <a href="/picks" className="underline" style={{ color: "var(--vault-text)" }}>the Parlay Lab</a>.
-          Sports with no qualified candidates say so honestly. The dual Bank Builder is shown as a
-          dry-run preview only — a new ladder is launched solely by an operator, never automatically.
+          Sports with no qualified candidates say so honestly. The Bank Builder publishes a fresh daily
+          card only when the slate fields a strong one — otherwise it shows a clear no-play, never a forced bet.
         </p>
         <div className="space-y-5">
           <Block title="Feature hierarchy — opportunity first">
@@ -278,7 +329,7 @@ export default function MethodologyPage() {
             markets="Whatever the eligible suggested slip contains (may mix sports)."
             cards="One pending step at a time; honest diagnosis when no eligible slip exists."
             settlement="Official results per leg; the bankroll changes only on settlement."
-            limits={`Proven repeatable: ${crownFull} (run #1 reached ${crownReached}, then a second independent $100→$10K). A fresh operator-approved card now runs daily — see Mr. Dub for the full journey.`}
+            limits={`Proven repeatable: ${crownFull} (run #1 reached ${crownReached}, then a second independent $100→$10K). a fresh card now runs daily when the slate fields a strong one — see Mr. Dub for the full journey.`}
           />
           <SportCard
             accent="var(--gtp-bank-heat)"
@@ -289,7 +340,7 @@ export default function MethodologyPage() {
             markets="Conservative / balanced / high-risk / longshot lanes; an optional mixed card only when data quality is strong enough."
             cards="Active-date + odds-backed only; no settled events; no single anchor across every card; longshots must be a different thesis; honest 'not enough current odds-backed legs' state when thin."
             settlement="Each leg settles on its official result; slip status is win/loss/push/pending/void."
-            limits="Concentration caps are being promoted from shadow to live under an operator-approved path (see UFC lesson)."
+            limits="Concentration caps are being promoted from shadow to live under a reviewed, gated path (see UFC lesson)."
           />
         </div>
       </Section>
@@ -339,7 +390,7 @@ export default function MethodologyPage() {
       <Section title="Limitations &amp; roadmap">
         <div className="vault-deluxe-card p-5 sm:p-6">
           <ul className="space-y-3.5 text-[14px] sm:text-[15px] leading-relaxed list-none">
-            <LimitationRow title="Generation is operator-run" body="Slates are generated on demand, not yet fully automated; freshness reflects the last pipeline run." />
+            <LimitationRow title="Generation is run on demand" body="Slates are generated on demand, not yet fully automated; freshness reflects the last pipeline run." />
             <LimitationRow title="Lines move" body="Boards reflect odds at pipeline time. By the time you read them, prices have likely shifted." />
             <LimitationRow title="UFC props need a feed" body="Method / round / distance stay model-only until a real prop-odds feed and a graded model for them exist." />
             <LimitationRow title="MLB context inputs" body="Park factor, weather, bullpen fatigue, and handedness splits are on the roadmap, not yet modeled." />

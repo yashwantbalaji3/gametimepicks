@@ -6,6 +6,7 @@
  */
 import { useState } from "react";
 import Link from "next/link";
+import FlagBadge from "@/components/flag-badge";
 import type { Top10Board, Top10Pick } from "@/lib/top10/top10-picks";
 
 const odds = (n: number) => (n > 0 ? `+${n}` : `${n}`);
@@ -17,9 +18,15 @@ function Row({ p, rank }: { p: Top10Pick; rank: number }) {
   const inner = (
     <>
       <span className="w-5 shrink-0 text-center font-mono text-[10px]" style={{ color: rank <= 3 ? "var(--vault-gold)" : "var(--vault-text-faint)" }}>{rank}</span>
+      {/* Team flag (WC picks on a specific team) with a monogram fallback; sport glyph otherwise. Never a fake asset. */}
+      {p.flagCode ? (
+        <FlagBadge code={p.flagCode} size="sm" ariaLabel={p.selection} />
+      ) : (
+        <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[11px]" style={{ background: "rgba(255,255,255,0.05)" }}>{p.sport === "mlb" ? "⚾" : "⚽"}</span>
+      )}
       <div className="min-w-0 flex-1">
         <div className="truncate text-[12px] font-medium" style={{ color: "var(--vault-text)" }}>{p.selection}</div>
-        <div className="truncate font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>{p.sport === "mlb" ? "⚾" : "⚽"} {p.game} · {p.market} · {p.confidence}</div>
+        <div className="truncate font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>{p.game} · {p.market} · {p.confidence}</div>
       </div>
       <span className="shrink-0 rounded-md px-1.5 py-0.5 font-mono text-[11px] font-bold" style={{ color: "var(--vault-text)", border: "1px solid var(--vault-rule)" }}>{odds(p.odds)}</span>
       <span className="w-[74px] shrink-0 text-right font-mono text-[9.5px]" style={{ color: "var(--vault-text-mute)" }}>{pct(p.modelProbability)} <span style={{ color: "var(--vault-text-faint)" }}>vs {pct(p.marketProbability)}</span></span>
