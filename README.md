@@ -1,336 +1,119 @@
-# GametimePicks
+# GameTime Picks
 
-> Educational sports prop analytics lab. A Python data pipeline + Next.js
-> interface that compares model projections against sportsbook lines for NBA
-> player props, surfaces transparent model leans with explanations, and
-> tracks results in a public daily-board format.
+> A **paper-only sports analytics** product. GameTime Picks ranks model-qualified picks, runs two
+> educational paper-bankroll products (Bank Builder and Moonshot), and tracks every result against
+> **official settlement** — transparently, with no real-money wagering.
 
-**Live demo →** [gametimepicks.yashwantbalaji.com](https://gametimepicks.yashwantbalaji.com/)
-**Source →** [github.com/yashwantbalaji3/gametimepicks](https://github.com/yashwantbalaji3/gametimepicks)
-**Vercel fallback →** [gametime-picks.vercel.app](https://gametime-picks.vercel.app/)
+**Live →** [gametime-picks.vercel.app](https://gametime-picks.vercel.app/)
 
-> ⚠️ **Currently running in demo mode.** The pipeline architecture, model
-> formulas, and provider system are real. The data flowing through them is
-> bundled sample data — not tonight's NBA slate. **Not betting advice. No
-> guarantees. Educational analytics only.**
+> ⚠️ **Educational analytics only. No real-money betting. No guarantees.** Every product is paper —
+> no wagers are placed and no money is at stake. Picks are model output, not advice. Records are the
+> real settled outcomes; a losing day is shown as a losing day.
 
-## Status
+---
 
-| | |
-|---|---|
-| **Phase** | 7B-3 — Odds API activation diagnostics + QA guardrails (key still optional) |
-| **Mode** | Auto — `nba_api` real schedule first, manual override fallback, explicit `ScheduleUnavailable` if both fail |
-| **Live since** | May 2026 |
-| **Slate window** | Today + 3 days (configurable via `SLATE_DAYS`) |
-| **News layer** | Manual overrides — `pipeline/manual_overrides/news_signals.json` |
-| **Next milestone** | Phase 7C — settlement + result tracking once enough real prop rows are logged |
+## What it is
 
-## What this project does
+A Python data pipeline + a Next.js (static-export) site that:
 
-For each NBA player prop on a given slate (Points, Rebounds, Assists), the
-pipeline:
+1. pulls **real odds** (the-odds-api) and **official results** (API-Football / MLB Stats API),
+2. builds de-vigged model probabilities and ranks picks by **settled market reliability × model
+   probability + edge — never by payout**,
+3. runs paper products off a single $100 → (currently) ~$19K educational bankroll, and
+4. settles everything from **official results only** — pending is never counted as a loss, and canonical
+   money moves *only* through official settlement.
 
-1. Pulls game logs and team stats from `nba_api` (the official NBA Stats endpoints) — *real interface, demo data flowing through it for now*
-2. Pulls sportsbook odds and player-prop lines from The Odds API — *same: real interface, demo data for now*
-3. Produces a projection by blending L5 / L10 / season averages plus a home/away adjustment
-4. Computes implied probability by stripping vig from the sportsbook odds
-5. Quantifies edge as `model_probability − implied_probability`
-6. Assigns a confidence tier (High / Medium / Low) based on edge magnitude AND data-quality sanity check
-7. Writes everything to JSON files the frontend reads at build time
+The models are intentionally explainable (no black boxes) so every projection is auditable.
 
-The frontend is a Next.js 14 App Router site that renders six routes —
-Home, Model Board, Player Trends, Results, Methodology, Responsible Use —
-with filters, sparklines, charts, and a persistent disclaimer banner.
+## Flagship products (all paper-only)
 
-## Architecture
-
-```
-┌──────────────────┐     JSON contract     ┌──────────────────┐
-│  Python pipeline │ ────────────────────▶ │  Next.js frontend│
-│                  │                       │                  │
-│  • providers/    │   app/public/data/    │  • App Router    │
-│  • model         │   ─────────────────▶  │  • TypeScript    │
-│  • orchestration │   • board.json        │  • Tailwind      │
-│                  │   • trends.json       │  • static export │
-│                  │   • meta.json + 4 more│                  │
-└──────────────────┘                       └──────────────────┘
-```
-
-The pipeline runs offline (manually for v1, scheduled later), produces JSON
-files into `app/public/data/`, and the static site is built from those
-files. This keeps the deployment fast, cheap, and decouples data work from
-UI work.
-
-## Data modes
-
-The pipeline reports its mode in `meta.json` and the UI shows it via a Data
-Source badge on the Model Board and Methodology pages.
-
-| Mode | Trigger | What it shows |
+| Product | Route | What it is |
 |---|---|---|
-| **Demo** *(current)* | No API keys, or `*_DATA_MODE=demo` | Bundled sample data — realistic numbers from a representative day |
-| **Live** | `ODDS_API_KEY` set + `nba_api` reachable + modes set to `auto` | Tonight's actual schedule, real game logs, real sportsbook odds |
-| **Hybrid** | One source live, the other fell through to demo | Useful when NBA.com hiccups or the odds API is rate-limited |
+| **Bank Builder** | `/bank-builder` | The core ladder: grow a $100 seed step-by-step on 2–3 leg team/game-market cards. A **7-step profit-locking ladder (v2.1)** is shown as a preview; live settlement runs the v1 full-roll ladder. |
+| **Moonshot** | `/moonshot` | A separate, higher-variance 3-step longshot ladder ($25 → $1,500), grouped by game, team markets preferred. |
+| **Model Top 10** | Home · `/today` · `/picks` | The cross-sport daily board — best model-qualified picks with a reason + risk + source on each. |
+| **World Cup board** | `/world-cup` · `/world-cup/round-of-32` | The knockout board with de-vigged team-market model reads and forward games. |
+| **World Cup Specials** | `/world-cup-specials` | Structured WC longshot tiers (no forced tier). |
+| **MLB board** | `/mlb` | Real MLB odds + player props (the post-World-Cup sport focus). |
+| **Mr. Dub** | `/mr-dub` | The canonical paper-bankroll ledger — the full settled journey, reconciled. |
+| **Results** | `/results` | Settled-only truth: records, not a live scoreboard. |
+| **Methodology** | `/methodology` | How the math, the ladders, and the market-reliability weights work — in plain English. |
+| **Ops** *(internal)* | `/ops` | A read-only admin dashboard (money, slate, product readiness, daily checklist). Not in nav; `noindex`. |
 
-The site **always renders something**. If every external provider fails,
-the demo provider takes over and the UI shows "Demo" mode honestly.
+*Homer Nukes (an MLB home-run product) is **retired** — its route is a retired landing.*
 
-## Provider system
+## The settlement-discipline moat
 
-Pluggable multi-source provider architecture. Adding a new source means
-writing one adapter file that implements the standard interface; the
-registry handles failover.
+Records are honest because settlement is strict:
 
-### NBA stats providers
+- **Official results only** — WC from API-Football, MLB from the MLB Stats API. Nothing is estimated.
+- **Canonical money changes only through official settlement.** Every other script (refresh, activate,
+  status) is md5-guarded against moving `portfolio.json` / `banked-ladders.json`.
+- **Pending is not a loss** — a game in progress stays honestly pending until it's final.
+- **No forced cards** — when the slate can't field a strong pick, the product shows a no-play with a reason.
+- **No fabrication** — odds, scores, props, assets, hit-rates, and EV are real or a deterministic fallback.
 
-| Provider | Tier | Status | Requires key |
-|---|---|---|---|
-| **nba_api** | 1 | ✅ Full | No |
-| **demo** | 1 | ✅ Full | No |
-| balldontlie | 2 | 🔧 Scaffold | Yes |
-| sportsdata_nba | 2 | 🔧 Scaffold | Yes |
-| espn | 3 | 🔧 Scaffold | No |
+Money integrity is enforced by gates (`verify-money-integrity` · `forensic-money-audit` · `health-check`)
+that must pass before any deploy.
 
-### Odds providers
+## Responsible framing
 
-| Provider | Tier | Status | Requires key |
-|---|---|---|---|
-| **the_odds_api** | 1 | ✅ Full | Yes |
-| **demo** | 1 | ✅ Full | No |
-| opticodds | 2 | 🔧 Scaffold | Yes |
-| sportsdata_odds | 2 | 🔧 Scaffold | Yes |
+This is an analytics/education product, not a sportsbook. The design is casino/sportsbook-*inspired*, but
+the copy never promises profit, never implies real-money wagering, and never uses guarantee language.
+A disclaimer and responsible-use note appear across the site.
 
-Scaffolded providers exist as adapter shells with the correct interface
-and env-var wiring; they raise `NotImplementedError` until you fill them
-in. This documents the intended extensibility without committing to
-maintaining seven live integrations.
+## Tech stack
 
-### Compliance
-
-- ✅ Official APIs only (`nba_api` library, `the-odds-api.com`)
-- ✅ All keys via environment variables; nothing hardcoded
-- ✅ Cache responses to be a good API citizen (12-hour file cache)
-- ❌ No scraping of DraftKings, FanDuel, ESPN HTML, theScore app, or any sportsbook page
-- ❌ No reverse-engineered mobile-app endpoints
-- ❌ No unofficial APIs that require bypassing access controls
+- **Frontend:** Next.js (App Router, `output: export` static site) + TypeScript + Tailwind, deployed on Vercel.
+- **Pipeline:** Python (odds/results ingestion, projections, board + props builders, settlement).
+- **Data:** committed JSON artifacts under `app/public/data/` (the site reads them at build; time-dependent
+  state re-derives client-side so a static export never shows a stale clock).
+- **Automation:** GitHub Actions (nightly settle, daily lifecycle, scheduled rebuild). See `docs/OWNER_ACTIONS.md`.
 
 ## Local setup
 
-You need:
-- **Python 3.10+** for the pipeline
-- **Node.js 18+** for the frontend
-- *(optional)* an Odds API key (free tier 500 req/mo)
+```bash
+# 1. Frontend
+cd app && npm install
+npm run dev            # http://localhost:3000
 
-### 1. Clone and install
+# 2. Pipeline (creates a virtualenv on first run)
+cd .. && bash scripts/run_pipeline.sh    # or python -m pipeline...
+
+# 3. Real data (optional): add keys to .env at the repo root
+#    ODDS_API_KEY=<the-odds-api key>   API_FOOTBALL_KEY=<api-football key>
+python3 -m pipeline.check_odds_key        # verify the odds key (FREE — never prints the key)
+```
+
+## Daily ops (summary)
+
+The daily loop is one command or a stepped chain (see `docs/DAILY_CLAUDE_RUNBOOK.md`):
 
 ```bash
-git clone https://github.com/yashwantbalaji3/gametimepicks
-cd gametimepicks
+# Refresh today's products (real odds; md5-guards money; fail-closed credit-floor guard)
+bash scripts/refresh_daily_products.sh --date <YYYY-MM-DD>
 
-# Frontend
-cd app
-npm install
-cd ..
+# Settle a finished slate (official results only; dry-run first, then --apply)
+bash scripts/settle_soccer_day.sh --date <YYYY-MM-DD> [--apply]
 
-# Pipeline (creates a virtualenv on first run)
-bash scripts/run_pipeline.sh
+# The one-command cycle: settle → gate → generate → gate → deploy → smoke
+bash scripts/roll_to_next_day.sh --apply
 ```
 
-### 2. Run the dev server
+**Gates (definition of done):** `tsc` · full tests · `npm run build` · money-integrity · forensic ·
+health · production smoke 9/9. Never deploy red.
 
-```bash
-cd app
-npm run dev          # http://localhost:3000
-```
+The operating model — running the product with Claude as the team — is documented in
+`docs/CLAUDE_TEAM_OPERATING_SYSTEM.md`, `docs/CLAUDE_TOOL_USAGE_GUIDE.md`, and `docs/CEO_DAILY_WORKFLOW.md`.
 
-You'll see all six pages with demo data, a persistent disclaimer banner,
-and a "Demo" badge in the Data Source widget.
+## Status
 
-### 3. Switch to live data (when ready)
+**Pre-launch hardening for a July-10 soft launch.** The flagship products are live and running on real
+odds + official settlement; the daily automation is being hardened (credit-floor guard, owner secrets,
+scheduled rebuild). Model tuning and live LADDER_V2 money settlement are intentionally out of scope until
+each is fully proven. See `docs/JULY_10_GO_NO_GO.md`.
 
-```bash
-cp .env.example .env
-# Edit .env: paste ODDS_API_KEY=<your-key>, set NBA_DATA_MODE=auto, ODDS_DATA_MODE=auto
-bash scripts/run_pipeline.sh
-cd app && npm run build
-```
+## License / disclaimer
 
-## Pipeline commands
-
-```bash
-# Full pipeline (default = today)
-bash scripts/run_pipeline.sh
-
-# Specific date
-bash scripts/run_pipeline.sh 2026-04-30
-
-# Just the board generator
-python -m pipeline.generate_daily_board
-
-# Settle yesterday's pending leans (no-op in demo mode)
-python -m pipeline.settle_results
-
-# Smoke test
-bash scripts/smoke_test.sh
-```
-
-## Diagnostic commands (Phase 7B-3)
-
-These tools help you safely add an Odds API key without burning credits.
-Full walkthrough: [`docs/odds_api_setup.md`](docs/odds_api_setup.md).
-
-```bash
-# Validate ODDS_API_KEY (FREE — costs 0 credits, never prints the key)
-python -m pipeline.check_odds_key
-bash scripts/check_odds_key.sh           # shell wrapper
-
-# Inspect the latest pipeline run output
-python -m pipeline.diagnose
-
-# Inspect or clear the response cache
-python -m pipeline.cache_inspect
-python -m pipeline.cache_inspect --clear --kind odds_api
-
-# Dry-run mode — calls /events (FREE) but skips paid /odds calls
-ODDS_DRY_RUN=true bash scripts/run_pipeline.sh
-```
-
-## Frontend commands
-
-```bash
-cd app
-npm run dev          # development server
-npm run typecheck    # TypeScript strict check
-npm run build        # static export → app/out/
-npm run lint         # Next.js lint
-```
-
-## Deployment
-
-GametimePicks is deployed on Vercel as a separate project. Source: this
-repo. Custom domain: `gametimepicks.yashwantbalaji.com`. Build command:
-`npm run build` from root directory `app`.
-
-For data refresh in v1: run the pipeline locally, commit the updated
-JSON, push. Vercel redeploys automatically. Full deploy guide at
-[`docs/deploy.md`](docs/deploy.md).
-
-## Roadmap
-
-### Shipped
-
-- ✅ Pipeline + provider architecture
-- ✅ Model board interface with filters, sparklines, calibration chart
-- ✅ Player trends + results + methodology + responsible-use pages
-- ✅ Demo data foundation, honest demo/live/hybrid labeling
-- ✅ Public deployment + custom domain (Phases 5-6)
-- ✅ Demo framing polish, duplicate schedule fix (Phase 6)
-- ✅ **Phase 7B-1: today + 3-day slate foundation**
-- ✅ **Phase 7B-1: real `nba_api` schedule path (works without key)**
-- ✅ **Phase 7B-1: manual news-overrides system + reader + UI badges**
-- ✅ **Phase 7B-1: validation logger scaffold (`leans_log.jsonl`)**
-- ✅ **Phase 7B-1: clean `props-unavailable` + `no-games-today` states**
-- ✅ **Phase 7B-1.1: real-slate / demo-fallback separation, explicit DataMode state machine**
-- ✅ **Phase 7B-1.2: manual schedule override safety net + `ScheduleUnavailable` state**
-- ✅ **Phase 7B-2: optional The Odds API free-tier integration with full diagnostic metadata, response caching, and three explicit "props-unavailable" sub-states (not configured / no props returned / provider failed)**
-- ✅ **Phase 7B-3: Odds API activation diagnostics — `python -m pipeline.check_odds_key` (FREE key validation), `python -m pipeline.cache_inspect`, `python -m pipeline.diagnose`, `ODDS_DRY_RUN=true` mode (events visibility check, zero paid /odds calls), full operator walkthrough in [docs/odds_api_setup.md](docs/odds_api_setup.md)**
-
-### Next — Phase 7C (settlement + result tracking)
-
-- Wire `settle_results.py` against the validation log to mark pending leans as W/L/push once games finalize
-- Capture closing-line value (Odds API supports `historical=true` on the free tier)
-- Real `hit_rates.json` populated from settled rows (not seed data)
-- Per-prop calibration tracking once volume is high enough
-- Phase 7B-4 (model scoring cleanup) gated on real settlement signal — vig-stripped edge surfacing, sample-size guardrails, "insufficient data" projection states
-
-### Later
-
-- Scheduled daily refresh via GitHub Actions or cron
-- Automated result tracking + closing-line capture
-- Model backtesting on historical seasons
-- *(deferred)* paid providers (BallDontLie GOAT, SportsData.io, OpticOdds) — only if the project ever needs them
-- *(deferred)* X API integration — manual overrides remain the right answer until model is validated
-
-## Limitations
-
-This is a v1 portfolio project running on demo data. Honest limitations:
-
-- **The model has not been validated against real NBA data yet.** The
-  formulas are sound and the sample edges look reasonable, but real-data
-  accuracy is the next milestone, not a claim being made today.
-- **No injury / minutes adjustment.** Late scratches change inputs.
-- **No back-to-back / rest adjustment.** Travel and fatigue impact production.
-- **Lines move.** The board reflects odds at pipeline time.
-- **No causal claims.** A positive edge is correlation between recent stats
-  and the line, not a guarantee.
-- **No ROI shown.** Hit rate alone isn't profit (vig means break-even on -110
-  is ~52.4%). ROI is intentionally omitted until the methodology supports
-  it rigorously.
-
-## Recruiter / interviewer notes
-
-This project is intentionally end-to-end:
-
-- **Pipeline engineering** — Multi-source provider abstraction,
-  registry-based failover, TTL caching, normalized data shapes via
-  dataclasses, fail-gracefully orchestration.
-- **Modeling** — Explainable projection model, normal-distribution
-  probability over a sportsbook line, two-sided de-vigging,
-  sample-size-gated confidence tiers. No black boxes.
-- **Frontend product engineering** — Next.js App Router with strict
-  TypeScript, static export deployment, server/client component split,
-  filterable interactive board, custom SVG sparklines and calibration
-  scatter, broadcast-style design system.
-- **Production hygiene** — `.env`-driven configuration, no hardcoded
-  secrets, comprehensive `.gitignore`, smoke test script, persistent
-  disclaimer banner, responsible-use page, clearly-labeled demo / live
-  / hybrid data modes.
-
-The model itself isn't novel; that's deliberate. The point is the
-surrounding architecture and the discipline of building a transparent,
-honest data product instead of a black-box-with-marketing.
-
-## Repo structure
-
-```
-gametimepicks/
-├── README.md              ← you are here
-├── LICENSE                ← MIT
-├── .env.example
-├── .gitignore
-│
-├── app/                   ← Next.js 14 App Router frontend
-│   ├── package.json
-│   ├── next.config.mjs    ← static export
-│   ├── public/data/       ← JSON files the pipeline writes
-│   └── src/
-│       ├── app/           ← page routes (6 routes)
-│       ├── components/    ← reusable UI
-│       └── lib/           ← types, data loaders, formatters
-│
-├── pipeline/              ← Python data pipeline
-│   ├── providers/         ← multi-source adapter system
-│   ├── build_features.py
-│   ├── score_model.py
-│   ├── generate_daily_board.py
-│   ├── settle_results.py
-│   └── demo_data/         ← bundled offline fallback (committed)
-│
-├── scripts/
-│   ├── run_pipeline.sh
-│   └── smoke_test.sh
-│
-├── docs/
-│   ├── deploy.md
-│   ├── project_brief.md
-│   ├── portfolio_integration.md
-│   ├── roadmap.md
-│   ├── screenshots.md
-│   └── social_templates.md
-│
-└── visuals/               ← screenshots
-```
-
-## License
-
-MIT — see [LICENSE](./LICENSE).
+Educational and paper-only. Not betting advice. Not a sportsbook. No wagers are placed and no money is at
+stake. Sports data belongs to its respective providers.
