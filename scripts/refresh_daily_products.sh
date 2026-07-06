@@ -64,6 +64,20 @@ set -a; source .env 2>/dev/null || true; set +a
 [[ "$SPORT" != "wc"  && -z "${ODDS_API_KEY:-}" ]] && die "ODDS_API_KEY missing (.env) — refusing a keyless MLB refresh"
 export PYTHONPATH="$ROOT/pipeline/world_cup" ODDS_DRY_RUN=false TSX_TSCONFIG_PATH="$ROOT/app/tsconfig.json"
 
+# ── Odds-API credit-floor guard (fail-closed) ──────────────────────────────────────────────────
+# Before ANY paid fetch, check remaining credits via the FREE /v4/sports endpoint. If the balance is
+# below the floor (default 5,000, override with ODDS_CREDIT_FLOOR), abort LOUDLY so a low-balance day
+# can't silently burn the last credits. Advisory-only when the API doesn't report remaining credits
+# (check exits 0 + warns) — a provider that omits the header must not hard-stop ops. See docs/OWNER_ACTIONS.md.
+CREDIT_FLOOR="${ODDS_CREDIT_FLOOR:-5000}"
+PY_BIN="$([ -d pipeline/.venv ] && echo pipeline/.venv/bin/python || echo python3)"
+if [[ -n "${ODDS_API_KEY:-}" ]]; then
+  "$PY_BIN" -m pipeline.check_odds_key --min-credits "$CREDIT_FLOOR" >/dev/null 2>/tmp/gtp_credit_floor.err \
+    || { code=$?; if [[ "$code" == "3" ]]; then die "Odds API credits below floor ($CREDIT_FLOOR) — refusing the paid refresh. Override with ODDS_CREDIT_FLOOR=<n> only if you mean it. $(cat /tmp/gtp_credit_floor.err 2>/dev/null | tail -1)"; else printf "${RED}  ! credit check failed (exit %s) — proceeding (advisory)${NC}\n" "$code"; fi; }
+  REMAIN=$("$PY_BIN" -m pipeline.check_odds_key --emit-remaining 2>/dev/null | tail -1)
+  ok "Odds API credits: ${REMAIN:-unknown} (floor ${CREDIT_FLOOR})"
+fi
+
 # Canonical-money guard: snapshot before, verify after. This script must NEVER move money.
 MONEY_FILES=(app/public/data/mr-dub/portfolio.json app/public/data/mr-dub/banked-ladders.json)
 BEFORE=$(cat "${MONEY_FILES[@]}" | md5)

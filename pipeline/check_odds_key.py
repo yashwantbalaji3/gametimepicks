@@ -55,6 +55,26 @@ def _warn(msg: str) -> None:
     print(f"  \033[0;33m!\033[0m {msg}")
 
 
+def _fetch_remaining(key: str | None, timeout: float = 10.0) -> int | None:
+    """Remaining Odds API credits via the FREE /v4/sports endpoint's x-requests-remaining header.
+    Returns an int, or None when it can't be determined (no key, network error, header absent) — the
+    caller treats None as 'unknown' and does NOT block (advisory fallback)."""
+    if not key:
+        return None
+    try:
+        import requests
+        r = requests.get(
+            "https://api.the-odds-api.com/v4/sports/",
+            params={"apiKey": key}, timeout=timeout,
+        )
+        if r.status_code != 200:
+            return None
+        rem = r.headers.get("x-requests-remaining")
+        return int(rem) if rem is not None and str(rem).strip().lstrip("-").isdigit() else None
+    except Exception:
+        return None
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Check ODDS_API_KEY validity without burning credits.",
@@ -62,6 +82,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--verbose", "-v", action="store_true",
         help="Print the full sports list returned by the API.",
+    )
+    parser.add_argument(
+        "--emit-remaining", action="store_true",
+        help="Print ONLY the remaining Odds API credits (integer), or 'unknown', then exit. "
+             "Machine-readable for the refresh credit-floor guard. Uses the FREE /sports endpoint.",
+    )
+    parser.add_argument(
+        "--min-credits", type=int, default=None,
+        help="Fail-closed: exit 3 if remaining credits < this floor (refuse a paid fetch). "
+             "If the API does not report remaining credits, this is advisory (exits 0, warns).",
     )
     args = parser.parse_args(argv)
 
@@ -71,6 +101,24 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as e:
         _err(f"Could not import pipeline.config: {e}")
         return 2
+
+    # ── Credit-floor guard path (machine-readable; no decorative output on stdout) ──────────────────
+    # Uses the FREE /v4/sports endpoint's x-requests-remaining header — costs 0 credits. If the key is
+    # unset or the API doesn't report remaining credits, the floor check is ADVISORY (does not block a
+    # refresh) so a provider that omits the header can't hard-stop ops. See docs/OWNER_ACTIONS.md.
+    if args.emit_remaining or args.min_credits is not None:
+        remaining = _fetch_remaining(C.ODDS_API_KEY, C.HTTP_TIMEOUT_SECONDS)
+        if args.emit_remaining:
+            print(remaining if remaining is not None else "unknown")
+        if args.min_credits is not None:
+            if remaining is None:
+                _warn(f"remaining Odds API credits unknown — floor {args.min_credits} not enforced (advisory)")
+                return 0
+            if remaining < args.min_credits:
+                _err(f"Odds API credits {remaining} < floor {args.min_credits} — refusing paid fetch (fail-closed)")
+                return 3
+            _ok(f"Odds API credits {remaining} ≥ floor {args.min_credits}")
+        return 0
 
     print("\n\033[0;34m═══ ODDS_API_KEY check (Phase 7B-3) ═══\033[0m\n")
 
