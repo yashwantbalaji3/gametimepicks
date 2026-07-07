@@ -36,9 +36,9 @@ function groupByGame(projections: PublicProjection[]): Map<string, PublicProject
 }
 
 export const metadata = {
-  title: "Games · GameTime Picks",
+  title: "Game Lab · GameTime Picks",
   description:
-    "Tonight's games across every sport — World Cup, MLB, NBA, UFC — in one board. Filter by sport, then jump into projections, props, or build a card. Educational, paper-only.",
+    "Game Lab — browse every sport's games (World Cup, MLB, NBA, UFC) in one board, then open a GameTime Picks model report for any game: model-vs-market reads, biggest leans, recent form, and product mapping. Educational, paper-only.",
 };
 
 function countBy<T>(items: T[], key: (t: T) => string | number | null | undefined): Map<string, number> {
@@ -195,9 +195,9 @@ export default function GamesPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <SectionHeader
-        eyebrow={`Games · ${rows.length} across ${activeSports} sport${activeSports === 1 ? "" : "s"}`}
-        title="Tonight's games"
-        sub="Every sport's games in one board — filter by sport, then jump into projections or build a card. Educational, paper-only."
+        eyebrow={`Game Lab · ${rows.length} game${rows.length === 1 ? "" : "s"} across ${activeSports} sport${activeSports === 1 ? "" : "s"}`}
+        title="Game Lab"
+        sub="Every sport's games in one board — pick any game to open its GameTime Picks model report (model-vs-market reads, biggest leans, recent form), and see how it maps to our flagship products. Educational, paper-only."
         rightSlot={<FreshnessBadge slateDate={mlbDate} serverToday={today} noun="games" />}
       />
       {r32Board ? (

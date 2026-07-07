@@ -47,7 +47,7 @@ export interface MobileNavItem {
  */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "home", href: "/today", label: "Today" },
-  { bucket: "games", href: "/games", label: "Games" },
+  { bucket: "games", href: "/games", label: "Game Lab" },
   { bucket: "picks", href: "/picks", label: "Parlay Lab" },
   { bucket: "lab", href: "/build", label: "Build" },
   { bucket: "bank", href: "/bank-builder", label: "Bank" },

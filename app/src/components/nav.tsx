@@ -32,18 +32,20 @@ const NAV_ITEMS: Array<{
   // PRIMARY — the clean user-facing spine (Home = brand mark, left). Lead with the product story.
   // "Track Record" opens the polished trust center (/mr-dub: money path + bankroll calendar + receipts);
   // the older parlay-hit-rate dashboard at /results stays reachable below as "Results".
+  // LEAD with the multi-sport EXPLORE cluster so every sport gets equal weight (not soccer-first): the
+  // Game Lab hub + the sport hubs sit right after Today, ABOVE the flagship products. Game Lab is the core
+  // "browse any game → model report" experience; the flagship ladders stay primary but no longer dominate.
   { href: "/today", label: "Today's Picks" },
+  { href: "/games", label: "Game Lab" }, // was secondary "Games" — elevated + renamed to the core experience
+  { href: "/mlb", label: "MLB" },
+  { href: "/world-cup", label: "World Cup" },
+  // Flagship products — still primary, just after the explore cluster.
   { href: "/bank-builder", label: "Bank Builder" },
   { href: "/mr-dub", label: "Track Record" },
-  { href: "/world-cup", label: "World Cup" },
-  // MLB is a flagship sport hub (daily board + props) — it was reachable only from the desktop rail,
-  // leaving mobile users no nav path to /mlb (a 3-click-rule violation). Primary, next to World Cup.
-  { href: "/mlb", label: "MLB" },
   { href: "/learn", label: "How It Works" },
   // SECONDARY — still reachable, de-emphasized after the divider (no routes removed).
   { href: "/moonshot", label: "Moonshot", beforeDivider: true },
   { href: "/world-cup-specials", label: "WC Specials" },
-  { href: "/games", label: "Games" },
   { href: "/picks", label: "Parlay Lab" },
   { href: "/results", label: "Results" },
 ];

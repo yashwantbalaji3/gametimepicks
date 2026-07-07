@@ -5,11 +5,32 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 
 import {
   MOBILE_NAV_ITEMS,
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
+
+test("IA restructure: Game Lab is elevated to PRIMARY, sports get equal weight, flagships preserved", () => {
+  const nav = fs.readFileSync("src/components/nav.tsx", "utf8");
+  // /games is now the primary "Game Lab" experience (not the secondary "Games").
+  assert.match(nav, /\{ href: "\/games", label: "Game Lab" \}/, "Game Lab in the nav");
+  assert.ok(!/label: "Games"/.test(nav), "the old secondary 'Games' label is gone");
+  // The divider marks the primary→secondary split (on Moonshot). Game Lab + both sport hubs must sit
+  // BEFORE it (primary); the flagship ladders may be primary too but must not push sports below the fold.
+  const dividerIdx = nav.indexOf("beforeDivider: true");
+  const gameLabIdx = nav.indexOf('href: "/games", label: "Game Lab"');
+  const mlbIdx = nav.indexOf('href: "/mlb"');
+  const wcIdx = nav.indexOf('href: "/world-cup"');
+  assert.ok(gameLabIdx > 0 && gameLabIdx < dividerIdx, "Game Lab is PRIMARY (before the divider)");
+  assert.ok(mlbIdx > 0 && mlbIdx < dividerIdx, "MLB is PRIMARY");
+  assert.ok(wcIdx > 0 && wcIdx < dividerIdx, "World Cup is PRIMARY (equal weight to MLB)");
+  // Flagship products remain reachable (no routes removed).
+  for (const href of ["/bank-builder", "/mr-dub", "/moonshot", "/world-cup-specials", "/picks", "/results"]) {
+    assert.ok(nav.includes(`href: "${href}"`), `${href} still in the nav`);
+  }
+});
 
 test("MOBILE_NAV_ITEMS has 7 items in the product-spine order (Homer Nukes retired; Diamond Specials removed)", () => {
   assert.equal(MOBILE_NAV_ITEMS.length, 7);
@@ -31,7 +52,8 @@ test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
   assert.equal(byHref["/today"], "Today");
-  assert.equal(byHref["/games"], "Games");
+  // /games elevated + renamed to the core "Game Lab" experience (2026-07-07 IA restructure).
+  assert.equal(byHref["/games"], "Game Lab");
   // Picks tab renamed to Parlay Lab (route stays /picks for back-compat).
   assert.equal(byHref["/picks"], "Parlay Lab");
   assert.equal(byHref["/build"], "Build");
