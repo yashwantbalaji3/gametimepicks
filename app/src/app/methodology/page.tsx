@@ -84,19 +84,20 @@ export default function MethodologyPage() {
           one bad day can&rsquo;t erase the whole run. Everything here is educational and paper-only; no wagers are placed.
         </p>
         <div className="space-y-5">
-          <Block title="Bank Builder · the 7-step ladder ($100 → ~$10,380)">
+          <Block title="Bank Builder · the ladder (live 5-step · 7-step preview)">
             <p>
-              Each step risks a rolled-up stake on a 2–3 leg card of <span style={{ color: "var(--vault-text)" }}>team / game markets only</span> (no
-              player props). Steps 1–2 chase growth; from Step&nbsp;2 we start <span style={{ color: "var(--vault-text)" }}>banking part of every
-              win</span> — win Step&nbsp;2 and the original $100 is already back, so the ladder freerolls. Later steps get
-              <em> safer, not richer</em>: the target multiple never rises after Step&nbsp;3, cards drop to two legs, and Step&nbsp;7
-              is double-chance / draw-no-bet only. A full run banks ~$2,100 along the way plus an $8,280 final ≈ $10,380.
+              <strong style={{ color: "var(--vault-text)" }}>The live Bank Builder ladder is 5 steps ($100 → $10,000).</strong>
+              Each step risks the rolled-up stake on one 2–3 leg card of <span style={{ color: "var(--vault-text)" }}>team / game
+              markets only</span> (no player props); a win rolls in full to the next step, and a lost step costs only its $100
+              seed — that discipline built both completed $100→$10K crowns. Lane A and Lane B are two independent attempts at
+              this same ladder (same rules + target math) — there are no risk modes.
             </p>
             <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
-              <span style={{ color: "var(--vault-text-mute)" }}>Live settlement runs v1</span> (a win rolls in full; a lost
-              step costs only its $100 seed — that discipline built both $100→$10K crowns). The 7-step profit-locking schedule
-              is a <span style={{ color: "var(--vault-text-mute)" }}>preview</span>: it activates for real money only once its
-              partial-cash-out settlement ships and passes every money gate. The ladder is shown in full on the Bank Builder page.
+              <span style={{ color: "var(--vault-text-mute)" }}>Preview (not yet live):</span> a future 7-step profit-locking
+              ladder ($100 → ~$10,380) that would bank part of each win from Step&nbsp;2 (later steps get safer, not richer;
+              Step&nbsp;7 is double-chance / draw-no-bet only). It is a methodology preview shown here only — <strong style={{ color: "var(--vault-text-mute)" }}>not
+              settlement-implemented and not on the live product</strong>. It activates for real money only once its
+              partial-cash-out settlement ships and passes every money gate.
             </p>
           </Block>
 
@@ -260,12 +261,12 @@ export default function MethodologyPage() {
             </p>
           </Block>
 
-          <Block title="Bank Builder V2 — survival over outcome">
+          <Block title="Bank Builder — reliability over outcome">
             <p>
-              Bank Builder uses a stricter <span style={{ color: "var(--vault-text)" }}>survival score</span> than
+              Bank Builder uses a stricter <span style={{ color: "var(--vault-text)" }}>reliability score</span> than
               Parlay Lab: only lower-variance, high-data-quality, confirmed-role legs across independent games.
               It can decline a winning-looking pick — e.g. a moneyline favorite is more fragile than the same
-              team&apos;s double-chance or draw-no-bet, which cover the draw. Survival is judged before kickoff,
+              team&apos;s double-chance or draw-no-bet, which cover the draw. Reliability is judged before kickoff,
               not by the result. Suspended/postponed games are no-action (void) for the original slate, and a
               hitter prop with no plate appearance voids (DNP) — never a loss.
             </p>

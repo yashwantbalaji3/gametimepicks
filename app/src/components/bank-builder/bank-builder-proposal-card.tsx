@@ -1,5 +1,5 @@
 /**
- * BankBuilderProposalCard — renders the FRESH DAILY Bank Builder proposal (Lane A survival + Lane B value)
+ * BankBuilderProposalCard — renders the FRESH DAILY Bank Builder proposal (Lane A + Lane B — two
  * when the real ladder is between runs. Display-only: every lane is a $0-placed paper candidate, clearly
  * labelled, so the user always sees the model's daily lanes without any canonical-money mutation.
  */
@@ -19,13 +19,13 @@ const LEG_STATUS: Record<string, { label: string; tone: string }> = {
 };
 
 function LaneCard({ lane }: { lane: ProposalLane }) {
-  const survival = lane.kind === "survival";
+  // Neutral, identical styling for both lanes — Bank Builder has no survival/value risk modes.
   return (
-    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(26,16,11,0.5)", borderLeft: `2px solid ${survival ? "var(--vault-success)" : "var(--vault-gold-bright)"}` }}>
+    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(26,16,11,0.5)", borderLeft: "2px solid var(--vault-gold)" }}>
       <div className="px-4 py-3 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
         <div className="flex items-center justify-between gap-2">
           <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{lane.label}</span>
-          <OddsPill odds={lane.combinedOdds} size="md" tone={survival ? "gold" : "lava"} />
+          <OddsPill odds={lane.combinedOdds} size="md" tone="gold" />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-mono tabular" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{money(lane.stake)} <span style={{ color: "var(--vault-text-faint)" }}>→</span> <span style={{ color: "var(--vault-success)" }}>{money(lane.potentialReturn)}</span></span>
@@ -58,14 +58,14 @@ function LaneCard({ lane }: { lane: ProposalLane }) {
             <span className="flex items-center gap-1.5 shrink-0">
               {st ? <span className="font-mono uppercase tracking-[0.06em] rounded px-1 py-0.5" style={{ color: st.tone, background: "rgba(255,255,255,0.03)", border: `1px solid color-mix(in srgb, ${st.tone} 35%, transparent)`, fontSize: 7.5 }}>{st.label}</span> : null}
               <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 9.5 }}>{Math.round(leg.modelProbability * 100)}%</span>
-              <OddsPill odds={leg.americanOdds} size="sm" tone={survival ? "gold" : "lava"} />
+              <OddsPill odds={leg.americanOdds} size="sm" tone="gold" />
             </span>
           </div>
           );
         })}
       </div>
       <div className="px-4 py-2.5 flex flex-col gap-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-        <span className="text-[10px] leading-snug" style={{ color: "var(--vault-text-mute)" }}><span className="font-mono uppercase tracking-[0.1em]" style={{ color: survival ? "var(--vault-success)" : "var(--vault-gold-bright)", fontSize: 8.5 }}>Why this ladder pick · </span>{lane.whyLadderPick}</span>
+        <span className="text-[10px] leading-snug" style={{ color: "var(--vault-text-mute)" }}><span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold)", fontSize: 8.5 }}>Why this ladder pick · </span>{lane.whyLadderPick}</span>
         <span className="text-[10px] leading-snug" style={{ color: "var(--vault-text-faint)" }}><span aria-hidden style={{ color: "#e7b15a" }}>⚠ Why it could fail · </span>{lane.whyItCouldFail}</span>
       </div>
     </div>

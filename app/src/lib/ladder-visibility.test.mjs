@@ -1,12 +1,9 @@
 /**
- * LADDER VISIBILITY — the 7-step Bank Builder ladder and the 3-step Moonshot ladder must be PROMINENT,
- * not buried. Regression for "the user does not see the ladders": the BB ladder used to live inside a
- * collapsed <details> accordion on /bank-builder. These source-level checks pin that:
- *   • both ladder components render straight from the pure policy (no drift, all steps/days present),
- *   • /bank-builder renders the full ladder OUTSIDE any <details>,
- *   • /moonshot renders the full trajectory,
- *   • /today previews BOTH ladders (compact),
- *   • the v2-preview / v1-live status is stated.
+ * LADDER CONSISTENCY (2026-07-07 — supersedes "visibility"). The LIVE Bank Builder ladder is 5 steps
+ * ($100 → $10K); the 7-step profit-locking ladder is a FUTURE methodology (not settlement-implemented),
+ * shown ONLY on the Methodology page as a labelled preview — NOT on the live product surfaces, so the
+ * product tells one truth. The 3-step Moonshot ladder is its own separate product and stays on /moonshot
+ * (+ /today preview). These checks pin that split.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -40,16 +37,22 @@ test("Moonshot ladder component renders 3 days with profit-locking from the pure
   assert.match(moonLadder, /high variance/i, "carries the volatility warning");
 });
 
-test("/bank-builder renders the 7-step ladder PROMINENTLY — never inside a <details> accordion", () => {
-  assert.match(bbPage, /<BankBuilderLadderV2/, "renders the prominent ladder component");
-  assert.ok(!/<details/.test(bbPage), "no collapsed <details> accordion hides the ladder anymore");
+test("/bank-builder does NOT render the 7-step preview — the live product shows the implemented 5-step ladder only", () => {
+  assert.ok(!/BankBuilderLadderV2/.test(bbPage), "the 7-step preview component is NOT on the live Bank Builder page");
+  assert.ok(!/<details/.test(bbPage), "no collapsed <details> accordion");
 });
 
-test("/moonshot renders the full 3-step trajectory ladder", () => {
+test("the 7-step preview lives on the Methodology page (labelled preview, not live)", () => {
+  const methodology = read("src/app/methodology/page.tsx");
+  assert.match(methodology, /live Bank Builder ladder is 5 steps/i, "methodology states the live ladder is 5-step");
+  assert.match(methodology, /settlement-implemented and not on the live product/i, "7-step clearly marked preview/not-live");
+});
+
+test("/moonshot renders the full 3-step trajectory ladder (separate product)", () => {
   assert.match(moonPage, /<MoonshotLadderV2 /, "renders the trajectory ladder");
 });
 
-test("/today previews BOTH ladders (compact) so the front door surfaces the methodology", () => {
-  assert.match(todayPage, /<BankBuilderLadderV2 compact/, "compact BB ladder preview on Today");
-  assert.match(todayPage, /<MoonshotLadderV2 compact/, "compact Moonshot ladder preview on Today");
+test("/today previews the Moonshot 3-step ladder but NOT the Bank Builder 7-step (which is methodology-only)", () => {
+  assert.ok(!/BankBuilderLadderV2/.test(todayPage), "no BB 7-step preview on the live Today surface");
+  assert.match(todayPage, /<MoonshotLadderV2 compact/, "Moonshot 3-step preview stays on Today");
 });

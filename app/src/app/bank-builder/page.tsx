@@ -17,7 +17,6 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import FreshnessBadge from "@/components/ui/freshness-badge";
-import BankBuilderLadderV2 from "@/components/bank-builder/ladder-v2";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung } from "@/components/bank-builder/climb-hero";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
@@ -227,25 +226,20 @@ export default function BankBuilderPage() {
       <ClimbHero
         currentBankroll={dailyPortfolio.activeBankroll}
         peakBankroll={dailyPortfolio.crownBankroll}
-        openExposure={dailyPortfolio.openExposure}
+        openExposure={dailyPortfolio.exposure.core}
         recordLabel={recordLabel}
         lanes={climbLanes}
         completedLadders={completedLadders}
       />
 
-      {/* THE 7-STEP PROFIT-LOCKING LADDER — now PROMINENT (was hidden in a collapsed accordion). Rendered
-          from the pure bankBuilderV2StepPolicy spec; liveStep marks where today's active lane sits. v2 is a
-          preview (settlement still v1) — the component says so plainly. */}
-      <div className="mt-5">
-        <BankBuilderLadderV2
-          liveStep={dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.legs.length > 0)?.step ?? 1}
-        />
-      </div>
+      {/* The 7-step profit-locking ladder is a FUTURE methodology (not settlement-implemented) — it lives on
+          the Methodology page as a clearly-labelled preview, NOT here, so the live product tells ONE truth:
+          the implemented 5-step $100→$10K ladder shown in the hero above. */}
 
       {/* The approved daily Bank Builder is an ACTIVE paper ladder — always shown (with per-leg live status).
-          On days with no approval, show the fresh proposal when no lane is carrying a card, else the premium
-          "model skipped" state when the slate can't field a safe two-leg lane. */}
-      {bbProposal.approved || !dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.legs.length > 0) ? (
+          Otherwise show the fresh proposal (pending founder approval) when no lane is ACTIVE, else the premium
+          "model skipped" no-play state. A candidate is a proposal, never a placed card. */}
+      {bbProposal.approved || !dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active" && c.legs.length > 0) ? (
         <div className="mt-5">
           {bbProposal.available
             ? <BankBuilderProposalCard proposal={bbProposal} />

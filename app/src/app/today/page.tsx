@@ -30,7 +30,6 @@ import { loadDualBankBuilder } from "@/lib/data-dual-bank-builder";
 import { loadBankBuilderV2 } from "@/lib/data-bank-builder-v2";
 import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import BankBuilderStatusRail from "@/components/bank-builder/bank-builder-status-rail";
-import BankBuilderLadderV2 from "@/components/bank-builder/ladder-v2";
 import MoonshotLadderV2 from "@/components/moonshot/ladder-v2";
 import AchievementBanner from "@/components/achievement-banner";
 import MrDubTodayCard from "@/components/mr-dub/mr-dub-today-card";
@@ -357,8 +356,8 @@ export default function TodayPage() {
           <BankBuilderSkippedCard alternatives={bankBuilderAlternatives} />
         )}
 
-        {/* The 7-step profit-locking ladder — compact preview (full ladder lives on /bank-builder). */}
-        <BankBuilderLadderV2 compact liveStep={bankBuilderLadder[0]?.step ?? 1} />
+        {/* (The 7-step profit-locking ladder is a FUTURE methodology, not settlement-implemented — it lives
+            on the Methodology page as a labelled preview, not on the live product surfaces.) */}
 
         {/* PRIORITY #2: Moonshot — independent daily longshot cards (NOT a ladder), higher-volatility. */}
         {moonshotLadder.length > 0 && (

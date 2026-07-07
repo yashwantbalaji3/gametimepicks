@@ -1,7 +1,7 @@
 /**
  * FRESH DAILY BANK BUILDER PROPOSAL — a safe, DISPLAY-ONLY restart for the days the real dual ladder is
  * terminal (both lanes completed/stopped, operator-gated). It shows what the model would build to START a
- * fresh $100 paper ladder TODAY: a safest 2-leg survival lane (Lane A) + a value 2-leg lane (Lane B), from
+ * fresh $100 paper ladder TODAY: two INDEPENDENT 2-leg attempts (Lane A + Lane B) at the SAME ladder, from
  * REAL de-vigged team markets, grouped so the user always sees legs — never a dead product.
  *
  * MONEY-SAFE by construction: this is a proposal, not a placement. It reads nothing from and writes nothing
@@ -146,17 +146,17 @@ function assembleLane(lane: "A" | "B", kind: "survival" | "value", legs: Proposa
   for (const l of legs) joint *= Math.max(0, Math.min(1, l.modelProbability || 0));
   const stake = 100;
   const conf: ProposalLane["confidence"] = joint >= 0.5 ? "High" : joint >= 0.35 ? "Solid" : "Lean";
-  const isSurvival = kind === "survival";
   return {
     lane, kind,
-    label: isSurvival ? "Lane A · Survival (safest)" : "Lane B · Value",
+    // Neutral labels only — Bank Builder has no survival/value/aggressive/safest "risk modes". Lane A and
+    // Lane B are two INDEPENDENT attempts at the SAME ladder methodology (same rules + target math).
+    label: lane === "A" ? "Lane A" : "Lane B",
     legs,
     combinedOdds: decimalToAmerican(d), combinedDecimal: Number(d.toFixed(4)),
     modelProbability: Math.round(joint * 1000) / 1000,
     stake, potentialReturn: Math.round(stake * d * 100) / 100, confidence: conf,
-    whyLadderPick: isSurvival
-      ? "The two highest-probability draw-protected / favourite legs on the slate, from different games — built to CLEAR a rung, not to swing for a payout. Each agrees with its game's score lean."
-      : "The two best-value legs (model edge over the market price) from different games — a slightly longer price than the survival lane while staying inside a payable band.",
+    whyLadderPick:
+      "Two model-qualified, draw-protected / favourite legs from different games — built to CLEAR the rung, not to swing for a payout. Each agrees with its game's score lean.",
     whyItCouldFail: `Both legs must land — ${legs.map((l) => l.matchup).join(" and ")} going the other way (an upset, a stray goal, or a tight game flipping) loses the rung. Knockout games carry extra-time/penalty variance on 90′ result legs.`,
   };
 }
