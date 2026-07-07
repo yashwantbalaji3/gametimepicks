@@ -20,8 +20,9 @@ test("portfolio math after the 2nd ladder is BANKED: crown, bankroll, HWM, drawd
   // All prior cycles fully settled; the settled lanes have no open exposure (awaiting a fresh slate).
   assert.equal(portfolio.openExposure, 0);
   assert.equal(portfolio.roiMultiple, 189.65);
-  // July-5 settlement: both lanes lost → record advances to 17-14-0-0.
-  assert.deepEqual(portfolio.record, { wins: 17, losses: 14, voids: 0, pending: 0 });
+  // Settlement chain: both lanes lost July-5, then Lane A WON its July-6 cycle-8 Step-1 (rolled unrealized) →
+  // record advances to 18-14-0-0 while the bankroll stays $19,065.40 (a won step never moves it).
+  assert.deepEqual(portfolio.record, { wins: 18, losses: 14, voids: 0, pending: 0 });
   // Reconciliation: realized paperProfit (banked ladder + dual-lane losses) === settledProfit (no double-counting).
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
   assert.equal(sum, portfolio.settledProfit, "no double-counting — settled profit reconciles");
@@ -40,11 +41,12 @@ test("exposure breakdown is $0 after the 2nd ladder is banked; banked crown pres
   assert.equal(Math.round(sportSum * 100) / 100, portfolio.openExposure, "bySport sums to open exposure ($0)");
   const laneSum = (e.byLane ?? []).reduce((s, x) => s + x.amount, 0);
   assert.equal(Math.round(laneSum * 100) / 100, portfolio.openExposure, "byLane sums to open exposure ($0)");
-  // Post July-3 settlement: BOTH lanes stopped (Lane A lost Step 3, Lane B lost Step 1) → neither surfaces an
-  // awaiting-next-card entry in the canonical portfolio; both await a fresh qualified card. No card is placed
-  // yet, so activeCards stays 0.
+  // Post July-6 settlement: Lane A WON its cycle-8 Step-1 → ADVANCED, so it surfaces exactly one
+  // awaiting-next-card entry (awaiting its Step-2 card) in the canonical portfolio; Lane B is still stopped
+  // (no entry). No card is placed yet, so activeCards stays 0.
   const awaiting = portfolio.awaitingCards ?? [];
-  assert.equal(awaiting.length, 0, "both lanes stopped → no awaiting-next-card entries");
+  assert.equal(awaiting.length, 1, "Lane A advanced → one awaiting-next-card entry (Lane B stopped → none)");
+  assert.equal(awaiting[0].laneId, "lane-a", "the awaiting entry is Lane A (advanced, awaiting its next qualified card)");
   assert.equal((portfolio.activeCards ?? []).length, 0);
   // The banked crown is surfaced as a completed card at the cumulative total ($20,465.40).
   assert.ok((portfolio.completedCards ?? []).some((c) => c.name === "Road to $10K" && c.final === 20465.4));

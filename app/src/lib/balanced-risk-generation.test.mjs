@@ -70,20 +70,21 @@ test("balancedGeneration diagnostics: targets + filled + a reason for every unde
 });
 
 test("active cards untouched: Lane A/B, Moonshot, and Mr. Dub exposure unchanged by generation", () => {
-  // Generation must NOT mutate the bank-builder artifacts. JULY-6 ACTIVATED STATE: only Lane A RESTARTED as a fresh
-  // cycle 8 — a $100 Step-1 ACTIVE/pending card (operator-approved July-6); Lane B is a deliberate NO-PLAY and
-  // stays STOPPED with its July-5 LOST Step-1 at the top. The July-5 loss (cycle 7) sits one level down in Lane
-  // A's priorLane; the settled July-1/July-2/July-3 cycle (6) is two levels down. Neither lane carries top-level
-  // pinned legs (cards live in steps[]). Generation must leave that state intact.
+  // Generation must NOT mutate the bank-builder artifacts. JULY-6 SETTLED STATE: Lane A RESTARTED as cycle 8
+  // (operator-approved July-6) and its $100 Step-1 card WON (Spain or Draw + Belgium or Draw), so the lane
+  // ADVANCED to Step 2 — its Step-1 is now settled-WON. Lane B is a deliberate NO-PLAY and stays STOPPED with
+  // its July-5 LOST Step-1 at the top. The July-5 loss (cycle 7) sits one level down in Lane A's priorLane; the
+  // settled July-1/July-2/July-3 cycle (6) is two levels down. Neither lane carries top-level pinned legs (cards
+  // live in steps[]). Generation must leave that state intact.
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
-  assert.equal(dual.run.laneA.laneStatus, "active", "laneA active (cycle-8 restart, fresh $100 Step 1)");
+  assert.equal(dual.run.laneA.laneStatus, "advanced", "laneA advanced (cycle-8 Step-1 WON July-6)");
   assert.equal(dual.run.laneB.laneStatus, "stopped", "laneB stopped (July-6 no-play; July-5 Step-1 LOST at top)");
-  // Lane A: fresh cycle-8 Step-1 active/pending; the July-5 loss (cycle 7) then the cycle-6 run live in priorLane.
+  // Lane A: cycle-8 Step-1 settled-WON → advanced to Step 2; the July-5 loss (cycle 7) then the cycle-6 run live in priorLane.
   assert.equal(dual.run.laneA.cycle, 8, "laneA is cycle 8");
-  assert.equal(dual.run.laneA.currentStep, 1, "laneA on Step 1");
-  assert.equal((dual.run.laneA.steps ?? []).length, 1, "laneA has exactly one fresh Step-1");
-  assert.equal(dual.run.laneA.steps[0].status, "active", "laneA Step 1 is active (pending, unsettled)");
-  assert.equal(dual.run.laneA.steps[0].result ?? null, null, "laneA Step 1 carries no result yet");
+  assert.equal(dual.run.laneA.currentStep, 1, "laneA settled its Step-1 (advanced from Step 1)");
+  assert.equal((dual.run.laneA.steps ?? []).length, 1, "laneA has exactly one settled Step-1");
+  assert.equal(dual.run.laneA.steps[0].status, "settled", "laneA Step 1 is settled (WON July-6)");
+  assert.equal(dual.run.laneA.steps[0].result, "won", "laneA Step 1 settled WON (Spain or Draw + Belgium or Draw)");
   assert.deepEqual(dual.run.laneA.legs ?? [], [], "laneA has no top-level pinned legs (cards live in steps[])");
   // priorLane = cycle 7: the July-5 LOST Step-1.
   assert.equal(dual.run.laneA.priorLane.cycle, 7, "laneA priorLane is cycle 7 (July-5 loss)");

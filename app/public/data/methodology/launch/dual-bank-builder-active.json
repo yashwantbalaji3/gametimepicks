@@ -35,10 +35,81 @@
       "steps": [
         {
           "step": 1,
-          "status": "active"
+          "status": "settled",
+          "result": "won",
+          "slateDate": "2026-07-06",
+          "combinedOdds": -135,
+          "laneSurvivalScore": null,
+          "estimatedHitProbability": null,
+          "stake": 100,
+          "projectedPayout": 174.23,
+          "payout": 174.23,
+          "freshCard": true,
+          "legs": [
+            {
+              "legId": "WORLD_CUP:0:market:Spain or Draw:",
+              "sport": "WORLD_CUP",
+              "eventId": null,
+              "label": "Spain or Draw Double Chance",
+              "participantName": "Spain or Draw",
+              "marketType": null,
+              "odds": -435,
+              "modelProbability": 0.7678,
+              "legQualityTier": "core",
+              "side": null,
+              "line": null,
+              "matchup": "Portugal vs Spain",
+              "homeTeam": "Portugal",
+              "awayTeam": "Spain",
+              "marketLabel": "Double Chance",
+              "kickoffEt": "3:00 PM ET",
+              "eventDate": "2026-07-06",
+              "provider": "consensus",
+              "displaySelection": "Portugal vs Spain — Double Chance: Spain or Draw",
+              "settlement": {
+                "result": "won",
+                "official": "Portugal 0-1 Spain (90', FT, API-Football)",
+                "source": "api_football"
+              },
+              "settlementSource": "API-Football (official 90-minute result)",
+              "currentGameStatus": "final",
+              "settlementStatus": "hit",
+              "settlementReason": "Portugal vs Spain 0-1 · Spain or Draw → won"
+            },
+            {
+              "legId": "WORLD_CUP:1:market:Belgium or Draw:",
+              "sport": "WORLD_CUP",
+              "eventId": null,
+              "label": "Belgium or Draw Double Chance",
+              "participantName": "Belgium or Draw",
+              "marketType": null,
+              "odds": -240,
+              "modelProbability": 0.6597,
+              "legQualityTier": "core",
+              "side": null,
+              "line": null,
+              "matchup": "USA vs Belgium",
+              "homeTeam": "USA",
+              "awayTeam": "Belgium",
+              "marketLabel": "Double Chance",
+              "kickoffEt": "8:00 PM ET",
+              "eventDate": "2026-07-06",
+              "provider": "consensus",
+              "displaySelection": "USA vs Belgium — Double Chance: Belgium or Draw",
+              "settlement": {
+                "result": "won",
+                "official": "USA 1-4 Belgium (90', FT, API-Football)",
+                "source": "api_football"
+              },
+              "settlementSource": "API-Football (official 90-minute result)",
+              "currentGameStatus": "final",
+              "settlementStatus": "hit",
+              "settlementReason": "USA vs Belgium 1-4 · Belgium or Draw → won"
+            }
+          ]
         }
       ],
-      "laneStatus": "active",
+      "laneStatus": "advanced",
       "currentStep": 1,
       "cycle": 8,
       "cycleStartedAt": "2026-07-06T08:00:00Z",
@@ -724,7 +795,8 @@
           },
           "nextStepStake": 700.78
         }
-      }
+      },
+      "nextStepStake": 174.23
     },
     "laneB": {
       "laneId": "B",

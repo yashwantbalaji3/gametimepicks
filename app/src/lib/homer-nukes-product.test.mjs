@@ -64,13 +64,13 @@ test("allocation tracks exactly THREE active products (Homer Nukes + Diamond Spe
   assert.deepEqual(a.products.map((p) => p.rank).sort(), [1, 2, 3]);
 });
 
-test("portfolio analytics: Bank Builder carries the 17-14 record + ranks #1; WC Specials $100/day", () => {
+test("portfolio analytics: Bank Builder carries the 18-14 record + ranks #1; WC Specials $100/day", () => {
   const a = buildPortfolioAllocation(root, NOW, DATE);
   const bb = a.products.find((p) => p.key === "bank-builder");
   const wc = a.products.find((p) => p.key === "world-cup-specials");
-  // July-5 settlement: both lanes lost → record advances to 17-14 (win rate 17/31 ≈ 0.55).
-  assert.deepEqual(bb.record, { wins: 17, losses: 14, pushes: 0 });
-  assert.ok(bb.winRate != null && bb.winRate === 0.55);
+  // Lane A won its July-6 cycle-8 Step-1 → record advances to 18-14 (win rate 18/32 ≈ 0.56).
+  assert.deepEqual(bb.record, { wins: 18, losses: 14, pushes: 0 });
+  assert.ok(bb.winRate != null && bb.winRate === 0.56);
   assert.equal(bb.rank, 1);
   assert.equal(wc.dailyAllocation, WC_SPECIALS_DAILY_ALLOCATION);
 });

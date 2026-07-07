@@ -114,12 +114,12 @@ test("daily portfolio NEVER mutates money state: portfolio.json bankroll/crown/e
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   // Canonical money reflects banking Ladder #2 ($10,089.23) and the July-5 settlement: crown 20465.40 (Σ of
   // the two completed-ladder finals, unchanged) and bankroll = crown − $1400 realized dual-lane losses = 19065.40;
-  // record advanced to 17-14-0-0 (July-5: both lanes lost). The read-only daily portfolio
+  // record advanced to 18-14-0-0 (Lane A won its July-6 cycle-8 Step-1). The read-only daily portfolio
   // must never mutate it.
   assert.equal(p.currentBankroll, 19065.40, "active bankroll = post-July-5 value");
   assert.equal(p.crownBankroll, 20465.40, "crown = Σ of two completed-ladder finals");
   assert.equal(p.openExposure, 0, "core exposure $0");
-  assert.deepEqual(p.record, { wins: 17, losses: 14, voids: 0, pending: 0 }, "record 17-14-0-0");
+  assert.deepEqual(p.record, { wins: 18, losses: 14, voids: 0, pending: 0 }, "record 18-14-0-0");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate");
 });
 

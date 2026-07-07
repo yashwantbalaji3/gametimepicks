@@ -41,7 +41,7 @@ test("Moonshot lane artifact is stopped/LOST and its record is separate (0-1, no
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot 0-1, separate");
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure 0 (settled)");
-  assert.deepEqual(portfolio.record, { wins: 17, losses: 14, voids: 0, pending: 0 }, "core record after July-5 settled lanes (both lanes lost) — moonshot not blended in");
+  assert.deepEqual(portfolio.record, { wins: 18, losses: 14, voids: 0, pending: 0 }, "core record after Lane A WON its July-6 cycle-8 Step-1 (record +1 → 18-14; July-5 losses remain in priorLane) — moonshot not blended in");
 });
 
 test("Moonshot is reachable: command rail + top nav include it; mobile has its own Moonshot bucket", () => {
@@ -94,7 +94,7 @@ test("Moonshot candidates: real odds, honest independent combined price, pre-eve
   assert.match(tracker, /Moonshot Candidates/, "tracker renders a candidates section");
 });
 
-test("protected crown is the cumulative banked total ($20,465.40 = two completed $100→$10k ladders), 17-14", () => {
+test("protected crown is the cumulative banked total ($20,465.40 = two completed $100→$10k ladders), 18-14", () => {
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   // Cumulative-crown: crown = Σ official completed-ladder finals ($10,376.17 + $10,089.23). Banking the 2nd
   // ladder grows the crown but never rewrites it downward — the crown is immutable per completed ladder.

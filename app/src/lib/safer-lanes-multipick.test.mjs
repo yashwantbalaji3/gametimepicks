@@ -115,5 +115,5 @@ test("exposure/bankroll/crown unchanged by the upgrade (only daily-portfolio.jso
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(p.currentBankroll, 19065.40); assert.equal(p.crownBankroll, 20465.40);
   assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view's fresh active lanes)");
-  assert.deepEqual(p.record, { wins: 17, losses: 14, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 18, losses: 14, voids: 0, pending: 0 });
 });

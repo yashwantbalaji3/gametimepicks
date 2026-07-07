@@ -131,13 +131,15 @@ test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live
   // The LIVE dual artifact is a fresh forward cycle (banking does not leave a completed ladder sitting in the live run);
   // after #1 (crown) and #2 (Lane A) were banked, the cycle ran through July-3 (Lane A WON then LOST; Lane B LOST),
   // then a cycle-7 restart ran July-5 and LOST both lanes. For July-6 the operator approved a fresh cycle-8 restart
-  // for Lane A (ACTIVE on a fresh $100 Step-1); Lane B is a deliberate NO-PLAY and stays STOPPED. The settled
-  // cycle-7 July-5 loss moved one level down into each lane's priorLane chain (deepest cycle furthest down).
+  // for Lane A, whose Step-1 (Spain or Draw + Belgium or Draw) then WON on the July-6 slate → Lane A ADVANCED to
+  // Step 2 (record +1 → 18-14). Lane B is a deliberate NO-PLAY and stays STOPPED. The settled cycle-7 July-5 loss
+  // moved one level down into each lane's priorLane chain (deepest cycle furthest down).
   const live = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json"));
   assert.equal(live.run.laneA.cycle, 8, "live Lane A is cycle 8 (fresh $100 Step-1 restart, approved July-6)");
-  assert.equal(live.run.laneA.laneStatus, "active", "live Lane A active on a fresh Step 1");
+  assert.equal(live.run.laneA.laneStatus, "advanced", "live Lane A advanced (cycle-8 Step-1 WON July-6 → on to Step 2)");
   const liveAStep1 = live.run.laneA.steps.find((s) => s.step === 1);
-  assert.equal(liveAStep1.status, "active", "live Lane A Step 1 is active (pending, unsettled)");
+  assert.equal(liveAStep1.status, "settled", "live Lane A Step 1 settled (WON July-6)");
+  assert.equal(liveAStep1.result, "won", "live Lane A Step 1 settled WON (Spain or Draw + Belgium or Draw)");
   // The settled July-5 cycle (cycle 7) is preserved one level down: Step-1 LOST → stopped.
   const priorA = live.run.laneA.priorLane;
   assert.equal(priorA.cycle, 7, "Lane A priorLane is cycle 7 (the July-5 restart that lost)");
@@ -166,7 +168,7 @@ test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");
   assert.equal(p.currentBankroll, 19065.4, "active bankroll = crown − $1400 fourteen real lost seeds");
   assert.equal(p.openExposure, 0, "canonical portfolio.json open exposure $0 (settled rungs released; awaiting a fresh slate)");
-  assert.deepEqual(p.record, { wins: 17, losses: 14, voids: 0, pending: 0 }, "core record 17-14-0-0 (July-5: both lanes lost)");
+  assert.deepEqual(p.record, { wins: 18, losses: 14, voids: 0, pending: 0 }, "core record 18-14-0-0 (Lane A won its July-6 cycle-8 Step-1)");
   assert.equal(p.moonshot.exposure, 0, "moonshot exposure separate ($0)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");
 });

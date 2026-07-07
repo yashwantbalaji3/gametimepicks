@@ -91,25 +91,25 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("live run (July-6 activation): LIVE preview shows Lane A ACTIVE on a fresh cycle-8 Step 1, Lane B stopped no-play, no prior-cycle leg leak", () => {
+test("live run (July-6 settlement): LIVE preview shows Lane A ADVANCED (cycle-8 Step-1 WON), Lane B stopped no-play, no prior-cycle leg leak", () => {
   // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and ran fresh cycles. Both lanes
-  // LOST on July-5 (cycle 7). For July-6 only Lane A RESTARTED (cycle 8) — ACTIVE on a fresh $100 Step-1
-  // (pending, unsettled). Lane B is a deliberate NO-PLAY: its top rung is the settled July-5 LOSS (this raw
-  // preview intermediate is sanitized to a clean starting path downstream by buildPublicDualLadder). The DEEPER
-  // settled cycles (July-1 → July-3 narratives) stay in each lane's priorLane chain and must NOT bleed in.
+  // LOST on July-5 (cycle 7). For July-6 Lane A RESTARTED (cycle 8) and its $100 Step-1 card WON → the lane
+  // ADVANCED (Step-1 settled-WON at the top). Lane B is a deliberate NO-PLAY: its top rung is the settled July-5
+  // LOSS (this raw preview intermediate is sanitized to a clean starting path downstream by buildPublicDualLadder).
+  // The DEEPER settled cycles (July-1 → July-3 narratives) stay in each lane's priorLane chain and must NOT bleed in.
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.status, "launched", "the live run is launched");
   assert.equal(bb.isLadder, true, "it is a stepping ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
-  assert.equal(bb.currentStep, 1, "live run's lead step pointer sits on Step 1 (the open rung)");
-  // Lane A is ACTIVE on a fresh Step-1 with no settled cards at the top level. The loader never fabricates.
-  assert.equal(bb.laneA.laneStatus, "active", "Lane A active (cycle-8 restart, fresh $100 Step 1)");
+  assert.equal(bb.currentStep, 1, "live run's lead step pointer sits on Step 1 (the settled rung)");
+  // Lane A ADVANCED: its top-level Step-1 is settled-WON. The loader never fabricates.
+  assert.equal(bb.laneA.laneStatus, "advanced", "Lane A advanced (cycle-8 Step-1 WON July-6)");
   assert.equal(bb.laneA.publicVisible, true, "Lane A is publicly visible");
-  assert.equal(bb.laneA.currentStep, 1, "Lane A is on a fresh Step 1");
-  assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries exactly its one fresh Step-1");
-  assert.equal(bb.laneA.steps[0].status, "active", "Lane A Step-1 is active (pending, unsettled)");
-  assert.equal(bb.laneA.steps[0].result ?? null, null, "Lane A Step-1 carries no settled result");
+  assert.equal(bb.laneA.currentStep, 1, "Lane A settled its Step-1 (advanced from Step 1)");
+  assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries exactly its one settled Step-1");
+  assert.equal(bb.laneA.steps[0].status, "settled", "Lane A Step-1 is settled (WON July-6)");
+  assert.equal(bb.laneA.steps[0].result, "won", "Lane A Step-1 settled WON (Spain or Draw + Belgium or Draw)");
   // Lane B is a no-play: STOPPED, its top rung the settled July-5 LOSS (sanitized to a clean path downstream).
   assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped (July-6 no-play)");
   assert.equal(bb.laneB.currentStep, 1, "Lane B's top rung pointer is Step 1");

@@ -22,7 +22,8 @@ import fs from "node:fs";
 //     - July-2 settlement: Lane A Step-2 WON (rolls, no seed lost; Lane B stopped)
 //     - July-3 settlement: Lane A Step-3 LOST (-$100), Lane B Step-1 LOST (-$100) — both lanes stopped
 //     - July-5 settlement: Lane A Step-1 LOST (-$100), Lane B Step-1 LOST (-$100) — both lanes stopped
-//   => currentBankroll $19,065.40, drawdown $1400, record 17-14-0-0; $0 open exposure (settled rungs released).
+//     - July-6 settlement: Lane A won its cycle-8 Step-1 (rolls, no seed lost → +1 win, advanced to Step 2)
+//   => currentBankroll $19,065.40, drawdown $1400, record 18-14-0-0; $0 open exposure (settled rungs released).
 const portfolio = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
 const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
 
@@ -31,7 +32,7 @@ test("bankroll reconciles to crown less fourteen real lost seeds — above $19,0
   assert.equal(portfolio.currentBankroll, 19065.4, "crown - $1400 (fourteen real lost seeds); pending cards don't realize");
   assert.ok(portfolio.currentBankroll > 19000, "portfolio is above $19,000");
   assert.equal(portfolio.drawdown, 1400, "drawdown = fourteen lost $100 seeds");
-  assert.deepEqual(portfolio.record, { wins: 17, losses: 14, voids: 0, pending: 0 }, "17-14-0-0 (July-5 both lanes LOST)");
+  assert.deepEqual(portfolio.record, { wins: 18, losses: 14, voids: 0, pending: 0 }, "18-14-0-0 (Lane A won its July-6 cycle-8 Step-1)");
   assert.equal(portfolio.openExposure, 0, "canonical portfolio carries no open exposure; settled rungs released");
 });
 

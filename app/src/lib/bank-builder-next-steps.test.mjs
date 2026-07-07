@@ -13,15 +13,16 @@ const NOW = "2026-06-23T10:00:00Z";
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 
-test("rung math (post-July-6 activation): Lane A restarted → fresh $100 Step-1 forward rung; Lane B is a no-play (no forward rung)", () => {
+test("rung math (post-July-6 settlement): Lane A WON Step-1 → advanced to a Step-2 forward rung (rolled $174.23); Lane B is a no-play (no forward rung)", () => {
   const { laneA, laneB } = readLaneRungs(root);
-  // POST JULY-6 ACTIVATION: the operator approved a fresh cycle-8 restart for Lane A only, so it surfaces a
-  // forward rung — a fresh $100 Step-1 with 0 cleared steps. Lane B is a deliberate no-play (no forward rung).
-  // The July-5 stopped cycle and the earlier July cycles are preserved in each lane's priorLane chain.
-  assert.ok(laneA, "Lane A has a forward rung (cycle-8 restart)");
-  assert.equal(laneA.nextStep, 1, "Lane A forward rung is a fresh Step 1");
-  assert.equal(laneA.clearedSteps, 0, "Lane A has 0 cleared steps on the fresh cycle");
-  assert.equal(laneA.rolledStake, 100, "Lane A stakes the fresh $100 seed");
+  // POST JULY-6 SETTLEMENT: the operator-approved cycle-8 Lane A Step-1 card WON, so the lane ADVANCED — its
+  // forward rung is now Step 2 with 1 cleared step and the WON Step-1 payout ($174.23) rolled forward. Lane B is
+  // a deliberate no-play (no forward rung). The July-5 stopped cycle and the earlier July cycles are preserved in
+  // each lane's priorLane chain.
+  assert.ok(laneA, "Lane A has a forward rung (cycle-8 advanced to Step 2)");
+  assert.equal(laneA.nextStep, 2, "Lane A forward rung is Step 2 (Step-1 WON, advanced)");
+  assert.equal(laneA.clearedSteps, 1, "Lane A has 1 cleared step (the WON Step-1) on the advanced cycle");
+  assert.equal(laneA.rolledStake, 174.23, "Lane A rolled the WON Step-1 payout ($174.23) into the Step-2 stake");
   assert.ok(!laneB, "Lane B has NO forward rung — deliberate July-6 no-play (stays stopped)");
 });
 
@@ -43,15 +44,18 @@ test("safest target-fit selector still serves a forward rung + holds its invaria
 test("settlement history is DURABLY recorded in the ladder priorLane chain (Lane A won July-1/July-2 then lost, both lanes lost July-5) — survives the daily slate roll", () => {
   // The settlements live in the LADDER (the permanent record), not the daily-portfolio (which rolls to the
   // next slate). Assert the durable facts so this test survives every daily roll-forward. POST JULY-6
-  // ACTIVATION: only Lane A RESTARTED (cycle 8, fresh active Step-1) and Lane B is a no-play, so the July-5
-  // loss now sits at the TOP of the priorLane chain (Lane A) or the top of the stopped lane (Lane B). Lane A:
-  // priorLane (cycle 7) is the July-5 LOST Step-1; two levels down (cycle 6) holds WON Step-1 (July-1) + WON
-  // Step-2 (July-2) + LOST Step-3 (July-3); the deeper chain holds the earlier LOST cycles and a cycle-3 WON
-  // Step-1 ($201.08) + LOST Step-2. Lane B (stopped, cycle 7 July-5 loss at top): cycle 6 holds the July-3 LOST
-  // Step-1; the deeper chain holds more LOST Step-1s, then a cycle-3 WON Step-1 ($206.25) + LOST Step-2.
+  // SETTLEMENT: Lane A (cycle 8) WON its Step-1 → advanced (Step-1 settled-WON at the top) and Lane B is a
+  // no-play, so the July-5 loss now sits one level down in the priorLane chain (Lane A) or the top of the
+  // stopped lane (Lane B). Lane A: priorLane (cycle 7) is the July-5 LOST Step-1; two levels down (cycle 6) holds
+  // WON Step-1 (July-1) + WON Step-2 (July-2) + LOST Step-3 (July-3); the deeper chain holds the earlier LOST
+  // cycles and a cycle-3 WON Step-1 ($201.08) + LOST Step-2. Lane B (stopped, cycle 7 July-5 loss at top): cycle
+  // 6 holds the July-3 LOST Step-1; the deeper chain holds more LOST Step-1s, then a cycle-3 WON Step-1
+  // ($206.25) + LOST Step-2.
   const run = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json")).run;
-  // Lane A live cycle 8: fresh active Step-1; the July-5 loss is one level down (priorLane, cycle 7).
-  assert.equal(run.laneA.laneStatus, "active", "Lane A active — cycle-8 restart (fresh Step 1)");
+  // Lane A live cycle 8: Step-1 settled-WON → advanced; the July-5 loss is one level down (priorLane, cycle 7).
+  assert.equal(run.laneA.laneStatus, "advanced", "Lane A advanced — cycle-8 Step-1 WON July-6");
+  const aTopStep1 = (run.laneA.steps ?? []).find((s) => s.step === 1);
+  assert.ok(aTopStep1 && aTopStep1.status === "settled" && aTopStep1.result === "won", "Lane A cycle-8 Step-1 settled WON (July-6)");
   const aPrior = run.laneA.priorLane;
   assert.equal(aPrior?.laneStatus, "stopped", "Lane A priorLane (cycle 7) stopped — Step-1 settled-LOST July-5");
   const aPriorStep1 = (aPrior?.steps ?? []).find((s) => s.step === 1);

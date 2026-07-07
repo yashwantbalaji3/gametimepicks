@@ -143,10 +143,11 @@ test("persisted daily-portfolio.json (post July-5 settlement) is internally cons
   assert.equal(p.settlement.realizedPnl, 0, "no realized P/L until official settlement");
   // Canonical money is untouched by the daily view. Banking Ladder #2 ($10,089.23) lifted the crown to the
   // Σ of the two completed-ladder finals (10,376.17 + 10,089.23 = 20,465.40). The dual-lane settlements through
-  // July-5 then moved the active bankroll (fourteen lost seeds → 19,065.40); July-5 both lanes lost → record 17-14.
+  // July-5 moved the active bankroll (fourteen lost seeds → 19,065.40); Lane A then WON its July-6 cycle-8 Step-1
+  // (rolled unrealized, bankroll unchanged) → record 18-14.
   const port = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(port.currentBankroll, 19065.40); assert.equal(port.crownBankroll, 20465.40);
-  assert.deepEqual(port.record, { wins: 17, losses: 14, voids: 0, pending: 0 });
+  assert.deepEqual(port.record, { wins: 18, losses: 14, voids: 0, pending: 0 });
 });
 
 test("daily-portfolio read view reflects the persisted state + is internally consistent", () => {
@@ -161,13 +162,13 @@ test("daily-portfolio read view reflects the persisted state + is internally con
 test("ACTIVATION NEVER mutates the legacy portfolio/crown/record", () => {
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   // Banking Ladder #2 ($10,089.23) lifted the crown to 20,465.40 (Σ of the two completed-ladder finals).
-  // The dual-lane settlements through July-5 then moved the canonical money: fourteen lost seeds total drop the
-  // active bankroll to 19,065.40; July-5 both lanes lost → record 17-14. Daily-portfolio
-  // activation itself must never touch this canonical money state.
-  assert.equal(p.currentBankroll, 19065.40, "active bankroll (legacy) reflects banked Ladder #2 + 14 dual-lane lost seeds");
+  // The dual-lane settlements through July-5 moved the canonical money: fourteen lost seeds total drop the
+  // active bankroll to 19,065.40; Lane A then WON its July-6 cycle-8 Step-1 (rolled unrealized) → record 18-14
+  // with the bankroll unchanged. Daily-portfolio activation itself must never touch this canonical money state.
+  assert.equal(p.currentBankroll, 19065.40, "active bankroll (legacy) reflects banked Ladder #2 + 14 dual-lane lost seeds (a won step rolls unrealized)");
   assert.equal(p.crownBankroll, 20465.40, "crown = Σ of two completed-ladder finals");
   assert.equal(p.openExposure, 0, "legacy dual-ladder exposure $0 (settled rungs released; awaiting a fresh slate)");
-  assert.deepEqual(p.record, { wins: 17, losses: 14, voids: 0, pending: 0 }, "core record 17-14-0-0 (July-5: both lanes lost)");
+  assert.deepEqual(p.record, { wins: 18, losses: 14, voids: 0, pending: 0 }, "core record 18-14-0-0 (Lane A won its July-6 cycle-8 Step-1)");
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate");
 });
 
