@@ -1,18 +1,18 @@
-# Daily selection learning — through 2026-07-04
+# Daily selection learning — through 2026-07-06
 
-Training window: **2026-06-27 → 2026-07-04** (8d). Universe legs:
-**1733** (baseline 48.9%). Published legs:
+Training window: **2026-06-29 → 2026-07-06** (8d). Universe legs:
+**2074** (baseline 48.8%). Published legs:
 **0**, cards: **0**. noLiveWire=**true**.
 
 ## Recommended market status (Wilson-LB driven, fail-closed)
-- **batter_hits** → `allowed` — 54% (373/689, WLB 50%) shrunk 54%
-- **batter_hits_runs_rbis** → `restricted` — 54% (273/508, WLB 49%) shrunk 54%
-- **batter_total_bases** → `disabled` — 46% (161/347, WLB 41%) shrunk 47%
-- **pitcher_strikeouts** → `disabled` — 48% (41/85, WLB 38%) shrunk 48%
+- **batter_hits** → `allowed` — 54% (437/811, WLB 50%) shrunk 54%
+- **batter_hits_runs_rbis** → `allowed` — 53% (337/630, WLB 50%) shrunk 53%
+- **batter_total_bases** → `disabled` — 46% (190/414, WLB 41%) shrunk 46%
+- **pitcher_strikeouts** → `disabled` — 48% (48/99, WLB 39%) shrunk 49%
 
 ## Calibration
-- Edge inverted at high values: **true** 20+:46% (36/78, WLB 36%) · 15-20:42% (45/107, WLB 33%) · neg:54% (198/366, WLB 49%) · 0-5:51% (256/498, WLB 47%) · 10-15:54% (117/218, WLB 47%) · 5-10:54% (196/362, WLB 49%)
-- Confidence predictive: **false** (spread 4.0pts) Low:51% (361/707, WLB 47%) · High:52% (357/686, WLB 48%) · Medium:55% (130/236, WLB 49%)
+- Edge inverted at high values: **true** 20+:47% (40/86, WLB 36%) · 15-20:43% (56/129, WLB 35%) · neg:53% (237/448, WLB 48%) · 0-5:52% (309/594, WLB 48%) · 10-15:52% (133/255, WLB 46%) · 5-10:54% (237/442, WLB 49%)
+- Confidence predictive: **false** (spread 2.8pts) Low:51% (432/843, WLB 48%) · High:52% (425/824, WLB 48%) · Medium:54% (155/287, WLB 48%)
 
 ## Published leg hit rate by lane
 
@@ -22,6 +22,6 @@ Training window: **2026-06-27 → 2026-07-04** (8d). Universe legs:
 
 ## Warnings
 - edge signal is INVERTED at high values — edge capped, not used to promote
-- confidence non-predictive (spread 4.0pts) — excluded from ranking
+- confidence non-predictive (spread 2.8pts) — excluded from ranking
 
 _Recommendation artifact only — no production logic changed by this script._
