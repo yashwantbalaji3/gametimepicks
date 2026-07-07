@@ -18,6 +18,8 @@ import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import HomeHero from "@/components/home-hero";
+import GameLabHomeBand, { type GameLabHomeGame } from "@/components/home/game-lab-home-band";
+import { buildAllGameDetails } from "@/lib/game-detail";
 import TodayPage, { metadata } from "./today/page";
 
 export { metadata };
@@ -62,6 +64,27 @@ export default function HomePage() {
 
   const bankrollLabel = usd2(dailyPortfolio.activeBankroll);
 
+  // Multi-sport Game Lab slate — real fixtures from the SAME builder the /games hub + detail pages use
+  // (no new data path). Deduped by slug (MLB doubleheaders share one), capped, MLB + World Cup equal.
+  const allDetails = buildAllGameDetails();
+  const pickGames = (sport: "mlb" | "world_cup", n: number): GameLabHomeGame[] => {
+    const out: GameLabHomeGame[] = [];
+    const seen = new Set<string>();
+    for (const d of allDetails) {
+      if (d.sport !== sport || seen.has(d.slug)) continue;
+      seen.add(d.slug);
+      out.push({
+        sport, slug: d.slug, homeTeam: d.homeTeam ?? "?", awayTeam: d.awayTeam ?? "?",
+        homeCode: d.gameLabWc?.homeCode ?? null, awayCode: d.gameLabWc?.awayCode ?? null,
+        hasReport: !!(d.gameLabMlb || d.gameLabWc),
+      });
+      if (out.length >= n) break;
+    }
+    return out;
+  };
+  const mlbGames = pickGames("mlb", 6);
+  const wcGames = pickGames("world_cup", 6);
+
   return (
     <>
       {/* Clarity layer — the 30-second story. Sits ABOVE the existing Today board (rendered below). */}
@@ -75,8 +98,13 @@ export default function HomePage() {
           picksAnchorId={PICKS_ANCHOR}
         />
       </div>
-      {/* The full Today command center — flagship products, what's-live, Bank Builder, etc. Unchanged.
-          The hero's primary CTA scrolls here; scroll-margin keeps the anchor clear of the sticky nav. */}
+      {/* Game Lab command center — multi-sport model reports (MLB + World Cup equal weight), the front-door
+          experience ABOVE the flagship products. Real fixtures only; honest empty state per sport. */}
+      <div className="vault-page-shell px-4 sm:px-8 overflow-x-hidden">
+        <GameLabHomeBand mlb={mlbGames} wc={wcGames} />
+      </div>
+      {/* The full Today command center — flagship products (added advantage), what's-live, Bank Builder,
+          trust/results, etc. Unchanged. The hero's primary CTA scrolls here. */}
       <div id={PICKS_ANCHOR} style={{ scrollMarginTop: 72 }}>
         <TodayPage />
       </div>
