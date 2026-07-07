@@ -14,6 +14,7 @@ import {
 import { normTeamName } from "@/lib/world-cup/market-outlook";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
 import { mlbTeamLogoUrl } from "@/lib/player-headshots";
+import { buildMlbGameLabReport, type MlbGameLabView } from "@/lib/game-lab/mlb-report";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
 import {
   normalizeWcProjections,
@@ -47,6 +48,9 @@ export interface PublicGameDetail {
   buildUrl: string;
   caveats: string[];
   dataStatus: Array<{ label: string; status: "live" | "pending" | "unavailable" | "model_only"; detail?: string }>;
+  /** MLB Game Lab report (model-vs-market, biggest leans, recent form, product-mapping links + honest
+   *  "not yet simulated" placeholders) — derived verbatim from the MLB board. Null for non-MLB / no leans. */
+  gameLabMlb?: MlbGameLabView | null;
 }
 
 const SPORT_LABEL: Record<SportKey, string> = { world_cup: "World Cup", mlb: "MLB", nba: "NBA", ufc: "UFC" };
@@ -170,6 +174,7 @@ function boardDetails(
       sportLabel: SPORT_LABEL[sport],
       title: `${away} @ ${home}`,
       date,
+      matchId: key || undefined, // gamePk (MLB) / gameId (NBA) — used to join the Game Lab report
       homeTeam: home,
       awayTeam: away,
       homeLogo: sport === "mlb" ? mlbTeamLogoUrl(g.homeTeamId) : null,
@@ -196,7 +201,9 @@ function mlbDetails(): PublicGameDetail[] {
   for (const l of (board.leans ?? []) as Array<{ gamePk?: number | string; gameId?: string }>) {
     if (l.gamePk != null && l.gameId) idByPk.set(String(l.gamePk), l.gameId);
   }
-  return boardDetails("mlb", date, board.games ?? [], props, (g) => idByPk.get(String(g.gamePk)) ?? null);
+  const details = boardDetails("mlb", date, board.games ?? [], props, (g) => idByPk.get(String(g.gamePk)) ?? null);
+  // Attach the MLB Game Lab report per game (derived verbatim from the board; null when no leans).
+  return details.map((d) => ({ ...d, gameLabMlb: d.matchId ? buildMlbGameLabReport(board, d.matchId) : null }));
 }
 
 function nbaDetails(): PublicGameDetail[] {

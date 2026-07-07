@@ -9,6 +9,7 @@ import Link from "next/link";
 import type { PublicGameDetail } from "@/lib/game-detail";
 import type { PublicProjection } from "@/lib/normalize";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
+import MlbGameLabReport from "@/components/game/mlb-game-lab-report";
 import TeamMark from "@/components/ui/team-mark";
 import CompetitionBadge from "@/components/ui/competition-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
@@ -601,6 +602,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <Link href={`/${detail.sport === "world_cup" ? "world-cup" : detail.sport}`} className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 42 }}>View {detail.sportLabel}</Link>
         </div>
       </section>
+
+      {/* MLB Game Lab report — the prominent per-game model report (model-vs-market, biggest leans, recent
+          form, product-mapping links + honest "not yet simulated" placeholders). MLB only; null otherwise. */}
+      {detail.gameLabMlb ? <div className="mb-5"><MlbGameLabReport view={detail.gameLabMlb} /></div> : null}
 
       {/* Model spotlight — the strongest reads, above the tabs */}
       <div className="mb-5">{spotlight}</div>
