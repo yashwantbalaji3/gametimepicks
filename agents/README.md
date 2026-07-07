@@ -19,7 +19,10 @@ VP of Product & Operations — Claude (Cowork)
   │       Discord · Instagram · TikTok · X/Twitter (ACTIVE) · Repurposing · Community (STANDBY)
   │
   └── SHARED SERVICES (function pool — either department requisitions on demand)
-        Product Manager · QA Engineer · Data Engineer · Launch Manager · UI/UX Designer · Content Analyst · Quant
+        Product Manager · QA Engineer · Data Engineer · Launch Manager · Content Analyst · Quant
+        UI/UX Designer → docs/UI_UX_OPERATING_SYSTEM.md
+          ├── Visual Systems Designer  (tokens · primitives · asset system)
+          └── Product Designer         (flows · IA · empty/no-play states · copy)
 
 Claude Code — execution engine (runs the mutations every department hands it).
 Claude Chat / GPT — advisory (strategy + prompt-crafting).
@@ -36,7 +39,7 @@ Claude Chat / GPT — advisory (strategy + prompt-crafting).
 
 **Social / Growth** — [social-media-head](social-media-head/mission.md) · [discord-manager](discord-manager/mission.md) · [instagram-manager](instagram-manager/mission.md) · [tiktok-manager](tiktok-manager/mission.md) · [x-twitter-manager](x-twitter-manager/mission.md) · [content-repurposing](content-repurposing/mission.md) (STANDBY) · [community-engagement](community-engagement/mission.md) (STANDBY)
 
-**Shared Services** — [ops-manager](ops-manager/mission.md) · [product-manager](product-manager/mission.md) · [qa-engineer](qa-engineer/mission.md) · [data-engineer](data-engineer/mission.md) · [launch-manager](launch-manager/mission.md) · [ui-ux-designer](ui-ux-designer/mission.md) · [content-analyst](content-analyst/mission.md) · [quant-analyst](quant-analyst/mission.md)
+**Shared Services** — [ops-manager](ops-manager/mission.md) · [product-manager](product-manager/mission.md) · [qa-engineer](qa-engineer/mission.md) · [data-engineer](data-engineer/mission.md) · [launch-manager](launch-manager/mission.md) · [ui-ux-designer](ui-ux-designer/mission.md) (→ [visual-systems-designer](visual-systems-designer/mission.md) · [product-designer](product-designer/mission.md); see [docs/UI_UX_OPERATING_SYSTEM.md](../docs/UI_UX_OPERATING_SYSTEM.md)) · [content-analyst](content-analyst/mission.md) · [quant-analyst](quant-analyst/mission.md)
 
 ## Prime directives (every employee)
 Canonical money only via official settlement (serial — one ledger) · no fabrication · no forced card · no

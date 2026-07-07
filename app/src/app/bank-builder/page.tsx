@@ -19,6 +19,7 @@ import { currentEtDate } from "@/lib/freshness";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung } from "@/components/bank-builder/climb-hero";
+import NextLadderPreview from "@/components/bank-builder/next-ladder-preview";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
 import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
@@ -202,7 +203,7 @@ export default function BankBuilderPage() {
           selection: l.selection,
           market: l.marketLabel,
           odds: l.odds,
-          kickoff: null, // not in the already-loaded leg shape → omit (fail-closed, never fabricated)
+          kickoff: l.kickoffEt ?? null, // real kickoff (ET) from the persisted leg — never fabricated
           game: l.matchup,
           why: null,
           player: l.player ?? null,
@@ -232,9 +233,12 @@ export default function BankBuilderPage() {
         completedLadders={completedLadders}
       />
 
-      {/* The 7-step profit-locking ladder is a FUTURE methodology (not settlement-implemented) — it lives on
-          the Methodology page as a clearly-labelled preview, NOT here, so the live product tells ONE truth:
-          the implemented 5-step $100→$10K ladder shown in the hero above. */}
+      {/* The intended NEXT methodology (7-step lower-risk, profit-locking ladder) is shown as a clearly-
+          labelled PREVIEW — dashed/muted, "not live", derived from the pure policy. The live product still
+          tells ONE truth: the implemented 5-step $100→$10K climb in the hero above. Migration is gated by
+          Plan 0007 (settlement + accounting + shadow-ledger + owner-approved flip). */}
+      <NextLadderPreview />
+
 
       {/* The approved daily Bank Builder is an ACTIVE paper ladder — always shown (with per-leg live status).
           Otherwise show the fresh proposal (pending founder approval) when no lane is ACTIVE, else the premium

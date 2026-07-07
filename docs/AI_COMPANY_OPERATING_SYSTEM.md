@@ -32,7 +32,9 @@ VP of Product & Operations — Claude (Cowork)
   │
   └── SHARED SERVICES (function pool — requisitioned by both departments)
         Product Manager · QA Engineer · Data Engineer · Launch Manager ·
-        UI/UX Designer · Content Analyst · Quant / Model Analyst
+        Content Analyst · Quant / Model Analyst ·
+        UI/UX Designer → docs/UI_UX_OPERATING_SYSTEM.md
+          (Visual Systems Designer · Product Designer)
 
 EXECUTION & ADVISORY LAYER (cross-cutting, not a department)
   • Claude Code — engineering execution (runs scripts, gates, deploy). Every department hands mutations here.
@@ -66,6 +68,7 @@ founder holds the four gates.
 - [docs/SOCIAL_OPERATIONS.md](SOCIAL_OPERATIONS.md) — the social/growth department (draft → Head → Yash).
 - [docs/COMPANY_SCHEDULE.md](COMPANY_SCHEDULE.md) — the ET cadence (who does what, when, behind which gate).
 - [docs/SPORT_STANDUP_TEMPLATE.md](SPORT_STANDUP_TEMPLATE.md) · [docs/SOCIAL_DRAFT_TEMPLATE.md](SOCIAL_DRAFT_TEMPLATE.md) — the reporting/draft templates.
+- [docs/UI_UX_OPERATING_SYSTEM.md](UI_UX_OPERATING_SYSTEM.md) — the UI/UX ownership layer (UI/UX Designer + Visual Systems + Product Designer; design → VP → Yash brand gate).
 - Foundations: [docs/CLAUDE_TEAM_OPERATING_SYSTEM.md](CLAUDE_TEAM_OPERATING_SYSTEM.md) · [docs/CLAUDE_TOOL_USAGE_GUIDE.md](CLAUDE_TOOL_USAGE_GUIDE.md) · [docs/CEO_DAILY_WORKFLOW.md](CEO_DAILY_WORKFLOW.md).
 
 ## Design principles

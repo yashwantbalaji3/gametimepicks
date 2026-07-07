@@ -80,4 +80,5 @@ This role model is the shared-services + execution layer of the full **[AI Compa
 - [CUSTOM_CHANGE_WORKFLOW.md](CUSTOM_CHANGE_WORKFLOW.md) — how an admin request becomes a safe, gated change.
 - [ADMIN_DASHBOARD_SPEC.md](ADMIN_DASHBOARD_SPEC.md) — the read-only ops dashboard (spec + status.json contract).
 - [MODEL_LEARNING_LOOP.md](MODEL_LEARNING_LOOP.md) — the settled-only learning process.
+- [UI_UX_OPERATING_SYSTEM.md](UI_UX_OPERATING_SYSTEM.md) — the UI/UX ownership layer for the Designer role (UI/UX Designer + Visual Systems + Product Designer; design → VP → Yash brand gate).
 - [DAILY_OPS.md](DAILY_OPS.md) · [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md) · [RECOVERY_RUNBOOK.md](RECOVERY_RUNBOOK.md) — the existing operational references this system builds on.
