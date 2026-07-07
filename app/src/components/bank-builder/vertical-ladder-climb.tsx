@@ -107,6 +107,34 @@ function RungRow({ rung, legs, isCurrent }: { rung: ClimbRung; legs: ClimbLeg[];
         {isActive && legs.length > 0 ? (
           <ul className="mt-2 flex flex-col gap-1.5">{legs.map((leg, i) => <LegRow key={i} leg={leg} />)}</ul>
         ) : null}
+        {isCleared && rung.cleared ? (
+          <details className="mt-2 group">
+            <summary className="flex cursor-pointer items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-success)", listStyle: "none" }}>
+              <span className="transition-transform group-open:rotate-90" aria-hidden>▸</span>
+              How Step {rung.step} cleared · {rung.cleared.date}
+            </summary>
+            <div className="mt-2 rounded-[10px] px-3 py-2.5" style={{ background: "rgba(110,231,168,0.06)", border: "1px solid rgba(110,231,168,0.25)" }}>
+              <div className="mb-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="font-display tabular font-bold" style={{ color: "var(--vault-text)", fontSize: 14 }}>{money(rung.cleared.stake)} → {money(rung.cleared.returned)}</span>
+                <span className="font-mono text-[10px]" style={{ color: "var(--vault-success)" }}>WON · {american(rung.cleared.combinedOdds)}</span>
+              </div>
+              <ul className="flex flex-col gap-1">
+                {rung.cleared.legs.map((l, i) => (
+                  <li key={i} className="flex items-start gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+                    <span aria-hidden style={{ color: "var(--vault-success)", fontSize: 11 }}>✓</span>
+                    <div className="min-w-0 flex-1">
+                      <span className="block truncate text-[12px] font-semibold" style={{ color: "var(--vault-text)" }}>{l.selection}</span>
+                      {l.officialResult ? <span className="block truncate font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>Final · {l.officialResult}</span> : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>
+                {rung.cleared.settledStatus} from official results{rung.cleared.source ? ` · ${rung.cleared.source}` : ""} · profit {money(rung.cleared.profit)} (rolled into the next step)
+              </p>
+            </div>
+          </details>
+        ) : null}
       </div>
     </div>
   );

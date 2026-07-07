@@ -30,7 +30,9 @@ test("Bank Builder shows the LIVE Dual Bank Builder (no stale Coming Soon teaser
   assert.ok(/<ClimbHero/.test(page) && /buildPublicDualLadder\(/.test(page),
     "live dual lanes rendered from the public dual-ladder artifact");
   assert.ok(/lane-a/.test(page) && /lane-b/.test(page), "both Lane A and Lane B render");
-  assert.ok(/completed \?/.test(page), "Dual lanes render once the first run is the completed crown");
+  // 2026-07-07 Option-1 simplify: the completed-crown proof is handled by the ClimbHero (real banked
+  // finals fed via completedLadders), not a separate page `completed ?` conditional.
+  assert.ok(/completedLadders=\{completedLadders\}/.test(page), "the completed-crown proof is fed to the ClimbHero");
 });
 
 test("UFC expanded projections carry real fighter comparison stats for every fight", () => {

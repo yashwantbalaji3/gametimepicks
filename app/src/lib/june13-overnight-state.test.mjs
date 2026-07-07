@@ -59,5 +59,8 @@ test("Step 5 has officially settled — the completed card is real, not an overn
   const page = fs.readFileSync("src/app/bank-builder/page.tsx", "utf8");
   assert.ok(/readCompletedLadders\(/.test(page), "real banked-ladder finals are read, not fabricated");
   assert.ok(/completedLadders=\{completedLadders\}/.test(page), "completed-ladder proof fed to the ClimbHero");
-  assert.ok(page.includes("no card is invented to fill the rung"), "no-invented-card honesty retained");
+  // 2026-07-07 Option-1 simplify: the no-invented-card honesty is now inherent in the ClimbHero ladder —
+  // an unqualified rung shows an honest 'Model pass', never a fabricated card.
+  const vlad = fs.readFileSync("src/components/bank-builder/vertical-ladder-climb.tsx", "utf8");
+  assert.ok(/Model pass — holding for a stronger slate/.test(vlad), "no-invented-card honesty retained (honest pass)");
 });

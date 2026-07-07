@@ -12,12 +12,26 @@ import Link from "next/link";
 import VerticalLadderClimb from "./vertical-ladder-climb";
 
 // ── Prop shapes (all derived on the page from data ALREADY loaded; never recomputed here) ───────────
+/** The official settled result of a CLEARED step — read verbatim from the settlement ledger
+ *  (daily-summary.json), never fabricated. Powers the expandable "how this step cleared" detail. */
+export interface ClimbClearedDetail {
+  date: string;              // e.g. "2026-07-06"
+  stake: number;             // actual paper stake in ($100)
+  returned: number;          // actual paper return out ($174.23)
+  profit: number;            // realized profit (0 while rolled/unrealized)
+  combinedOdds: number | null;
+  settledStatus: string;     // "settled"
+  source: string | null;     // "api_football"
+  legs: Array<{ selection: string; market: string | null; officialResult: string | null; result: string }>;
+}
 export interface ClimbRung {
   step: number;              // 1..5
   startTarget: number;       // ladder target stake (e.g. 100)
   goalTarget: number;        // ladder target return (e.g. 200)
   /** Derived on the page from the public dual-ladder view model — never invented here. */
   status: "completed" | "active" | "awaiting" | "stopped" | "lost" | "upcoming";
+  /** For a CLEARED step: the actual official settled detail (expandable). Null when unknown. */
+  cleared?: ClimbClearedDetail | null;
 }
 export interface ClimbLeg {
   selection: string;
@@ -212,9 +226,11 @@ export default function ClimbHero({
         </div>
       ) : null}
 
-      {/* 6 · How to read this (concise honesty) */}
-      <div className="mt-3 rounded-2xl px-5 py-4" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.015)" }}>
-        <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)" }}>How to read this</span>
+      {/* 6 · How to read this — COLLAPSED by default (keeps the page simple; expand for the honesty notes) */}
+      <details className="mt-3 rounded-2xl px-5 py-4 group" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.015)" }}>
+        <summary className="flex cursor-pointer items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", listStyle: "none" }}>
+          <span className="transition-transform group-open:rotate-90" aria-hidden>▸</span> How to read this
+        </summary>
         <ul className="mt-2 flex flex-col gap-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
           <li>· Paper-only picks — no real money is placed.</li>
           <li>· A parlay loses if any one leg loses.</li>
@@ -222,7 +238,7 @@ export default function ClimbHero({
           <li>· Official results settle the ladder.</li>
           <li>· Track Record shows every receipt.</li>
         </ul>
-      </div>
+      </details>
     </section>
   );
 }

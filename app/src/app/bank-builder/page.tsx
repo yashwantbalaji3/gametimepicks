@@ -8,18 +8,15 @@
  */
 import Link from "next/link";
 
-import OfficialStep3CandidateCard from "@/components/bank-builder/official-step3-candidate";
 import PreviousHits from "@/components/bank-builder/previous-hits";
 import { loadOfficialStepCandidate } from "@/lib/world-cup-flex";
 import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-candidate";
-import OfficialCandidateCard from "@/components/bank-builder/official-candidate-card";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
-import ClimbHero, { type ClimbLane, type ClimbRung } from "@/components/bank-builder/climb-hero";
-import NextLadderPreview from "@/components/bank-builder/next-ladder-preview";
+import ClimbHero, { type ClimbLane, type ClimbRung, type ClimbClearedDetail } from "@/components/bank-builder/climb-hero";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
 import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
@@ -76,6 +73,41 @@ function readCompletedLadders(root: string): Array<{ start: number; final: numbe
       });
   } catch {
     return [];
+  }
+}
+
+/** The official settled detail of each CLEARED step for a lane — read verbatim from the append-only
+ *  settlement ledger (`mr-dub/ledger.json`), keyed by step. Only publicly-visible cleared steps are
+ *  surfaced. Fail-closed: returns {} on a read error (the rung omits the detail rather than fabricate
+ *  one). Never recomputes or invents a money figure — powers the expandable "how this step cleared". */
+function readClearedSteps(root: string, laneId: string): Record<number, ClimbClearedDetail> {
+  try {
+    const led = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "ledger.json"), "utf8"));
+    const events: any[] = Array.isArray(led?.events) ? led.events : [];
+    const out: Record<number, ClimbClearedDetail> = {};
+    for (const e of events) {
+      if (e?.type !== "lane_step_won" || e?.laneId !== laneId || !e?.publicBankBuilderVisible) continue;
+      const step = Number(e.step);
+      if (!Number.isFinite(step)) continue;
+      out[step] = { // chronological ledger → last write wins (the current cycle's step)
+        date: String(e.date ?? ""),
+        stake: Number(e.paperStake ?? 0),
+        returned: Number(e.paperReturn ?? 0),
+        profit: Number(e.paperProfit ?? 0),
+        combinedOdds: typeof e.combinedOdds === "number" ? e.combinedOdds : null,
+        settledStatus: String(e.status ?? "settled"),
+        source: (e.legs ?? []).find((l: any) => l?.source)?.source ?? null,
+        legs: (e.legs ?? []).map((l: any) => ({
+          selection: String(l.selection ?? ""),
+          market: l.market ?? null,
+          officialResult: l.officialResult ?? null,
+          result: String(l.result ?? "won"),
+        })),
+      };
+    }
+    return out;
+  } catch {
+    return {};
   }
 }
 
@@ -179,12 +211,18 @@ export default function BankBuilderPage() {
           : "Awaiting a qualified card";
       // Cycle # from the lane label ("… lane (cycle 5)") if present — display-only, never fabricated.
       const cycleMatch = /cycle\s+(\d+)/i.exec(view.label === "Lane A" ? (bbPreview.laneA?.label ?? "") : (bbPreview.laneB?.label ?? ""));
-      const rungs: ClimbRung[] = view.steps.map((s) => ({
-        step: s.step,
-        startTarget: s.startTarget,
-        goalTarget: s.goalTarget,
-        status: RUNG_STATUS[s.status],
-      }));
+      // Official settled detail for each CLEARED step (from the ledger) → the expandable "how it cleared".
+      const clearedByStep = readClearedSteps(path.join(process.cwd(), "public", "data"), laneId);
+      const rungs: ClimbRung[] = view.steps.map((s) => {
+        const status = RUNG_STATUS[s.status];
+        return {
+          step: s.step,
+          startTarget: s.startTarget,
+          goalTarget: s.goalTarget,
+          status,
+          cleared: status === "completed" ? (clearedByStep[s.step] ?? null) : null,
+        };
+      });
       return {
         id: laneId,
         label: view.label,
@@ -233,17 +271,10 @@ export default function BankBuilderPage() {
         completedLadders={completedLadders}
       />
 
-      {/* The intended NEXT methodology (7-step lower-risk, profit-locking ladder) is shown as a clearly-
-          labelled PREVIEW — dashed/muted, "not live", derived from the pure policy. The live product still
-          tells ONE truth: the implemented 5-step $100→$10K climb in the hero above. Migration is gated by
-          Plan 0007 (settlement + accounting + shadow-ledger + owner-approved flip). */}
-      <NextLadderPreview />
-
-
-      {/* The approved daily Bank Builder is an ACTIVE paper ladder — always shown (with per-leg live status).
-          Otherwise show the fresh proposal (pending founder approval) when no lane is ACTIVE, else the premium
-          "model skipped" no-play state. A candidate is a proposal, never a placed card. */}
-      {bbProposal.approved || !dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active" && c.legs.length > 0) ? (
+      {/* When a lane is ACTIVE, the ClimbHero above already shows its card + the expandable cleared-step
+          history — so we do NOT repeat it here (removes the duplicate "active daily Bank Builder"). Only
+          when NO lane is active do we show the fresh proposal, else the premium "model skipped" no-play. */}
+      {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active" && c.legs.length > 0) ? (
         <div className="mt-5">
           {bbProposal.available
             ? <BankBuilderProposalCard proposal={bbProposal} />
@@ -254,157 +285,6 @@ export default function BankBuilderPage() {
       {/* Moonshot is now its OWN product at /moonshot (mirrors Bank Builder). It is no longer surfaced
           here — Bank Builder stays focused on the core ladder. */}
 
-      {/* SECTION 1 — the day-by-day run plan. The hero (ClimbHero) above already carries the ladder,
-          current state, money figures, completed-ladder proof, and honesty — so the redundant
-          dense ladder interpretations (dual-ladder board, old PageHero + stat tiles, preview / V2 /
-          teaser / tower) were removed to keep one ladder visualization on the page. */}
-      <section className="rounded-2xl p-5" style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel)" }} aria-label="Run plan">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--vault-text)" }}>Run plan</h2>
-          <span className="text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>Bankroll today is {formatLadderUsdPrecise(currentBankroll)} — targets below are goals, not the current balance.</span>
-        </div>
-        <ol className="flex flex-col gap-2">
-          {BANK_BUILDER_LADDER.filter((s) => s.step >= activeStep.step).slice(0, 3).map((s, i) => {
-            const day = ["Today", "Tomorrow", "Saturday"][i] ?? `Step ${s.step}`;
-            const isActive = i === 0;
-            return (
-              <li
-                key={s.step}
-                className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-4 py-2.5 text-[12.5px]"
-                style={{
-                  border: isActive ? "1px solid rgba(242, 54, 69,0.40)" : "1px solid var(--vault-rule)",
-                  background: isActive ? "rgba(242, 54, 69,0.06)" : "rgba(26, 16, 11,0.40)",
-                }}
-              >
-                <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{day}</span>
-                <span className="tabular-nums" style={{ color: "var(--vault-text)" }}>{formatLadderUsd(s.start)} → {formatLadderUsd(s.goal)}</span>
-                <span
-                  className="ml-auto rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em]"
-                  style={{
-                    color: isActive ? "var(--vault-gold-bright)" : "var(--vault-text-faint)",
-                    border: `1px solid ${isActive ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
-                  }}
-                >
-                  {isActive ? "Active · pending" : "Planned"}
-                </span>
-              </li>
-            );
-          })}
-        </ol>
-        <p className="mt-3 text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-          Later steps are planned only if today&apos;s step settles successfully. A loss resets the run to the {formatLadderUsd(BANK_BUILDER_LADDER[0].start)} base. Paper-only educational tracking.
-        </p>
-      </section>
-
-      {/* SECTION 2.5 — the latest cleared step (hidden when completed; the crown card covers it) */}
-      {latestHit && !completed ? (
-        <section
-          className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-5"
-          style={{ border: "1px solid rgba(110,231,168,0.35)", background: "linear-gradient(135deg, rgba(110,231,168,0.08), rgba(26, 16, 11,0.30))" }}
-          aria-label={`Step ${latestHit.step} hit`}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "#6EE7A8" }}>
-              Step {latestHit.step} hit · {fmtUtcDate(latestHit.date)}
-            </span>
-            <span className="rounded px-2 py-0.5 text-[11px] font-bold tracking-[0.08em]" style={{ color: "#6EE7A8", background: "rgba(110,231,168,0.15)" }}>WON</span>
-          </div>
-          <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="font-display tabular tracking-tight" style={{ color: "var(--vault-text)", fontSize: 22, fontWeight: 700 }}>
-              {formatLadderUsdPrecise(latestHit.bankrollBefore)} <span style={{ color: "var(--vault-text-faint)" }}>→</span> {formatLadderUsdPrecise(latestHit.bankrollAfter)}
-            </span>
-            <span className="font-mono text-[12px]" style={{ color: "#6EE7A8" }}>+{formatLadderUsdPrecise(latestHit.profitUnits)}</span>
-            {typeof latestHit.combinedAmerican === "number" ? (
-              <span className="font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>{latestHit.combinedAmerican >= 0 ? "+" : ""}{latestHit.combinedAmerican}</span>
-            ) : null}
-          </div>
-          <ul className="mt-3 flex flex-col gap-1.5">
-            {latestHit.legs.map((l, i) => (
-              <li key={i} className="flex items-center gap-2.5 rounded-[8px] px-3 py-2" style={{ background: "rgba(26, 16, 11,0.45)", border: "1px solid var(--vault-rule)" }}>
-                <span aria-hidden style={{ color: "#6EE7A8", fontSize: 12 }}>✓</span>
-                <div className="flex flex-col min-w-0 flex-1">
-                  <span className="text-[12.5px] font-semibold truncate" style={{ color: "var(--vault-text)" }}>
-                    {l.player ?? l.selection}{l.side && l.line != null ? ` · ${l.side} ${l.line}` : ""}
-                  </span>
-                  {/* Official final-result evidence — soccer final score / box-score stat. */}
-                  <span className="font-mono text-[10.5px] truncate" style={{ color: "var(--vault-text-faint)" }}>
-                    {l.finalScore
-                      ? `Final · ${l.finalScore}`
-                      : typeof l.finalStat === "number"
-                        ? `Official box score · ${l.finalStat} ${l.market.replace(/_/g, " ")}`
-                        : l.market.replace(/_/g, " ")}
-                    {l.bookmaker ? ` · ${l.bookmaker}` : ""}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {latestHit.officialResultConfirmed ? (
-            <p className="mt-2.5 font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>
-              Settled from official results · paper-only educational tracking
-            </p>
-          ) : null}
-        </section>
-      ) : null}
-
-      {/* SECTION 3 — today's official card / the final-step road to $10K.
-          (The completed-crown celebration is shown ONCE, in the hero above — not repeated here.) */}
-      {completed ? null : publishedCandidate ? (
-        <OfficialCandidateCard candidate={publishedCandidate} />
-      ) : officialStep3 ? (
-        <OfficialStep3CandidateCard candidate={officialStep3} stepNumber={activeStep.step} />
-      ) : isFinalStep ? (
-        <section
-          className="gtp-fade-up relative mt-5 overflow-hidden rounded-2xl px-5 py-5"
-          style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(225, 29, 42,0.10), rgba(26, 16, 11,0.30))" }}
-          aria-label="Road to $10,000"
-        >
-          <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-10 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(8px)", opacity: 0.5 }} />
-          <span className="relative font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)" }}>Final step · review pending</span>
-          <h2 className="relative mt-1 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 3.4vw, 28px)", fontWeight: 700 }}>
-            Final step: {formatLadderUsd(activeStep.start)} → {formatLadderUsd(activeStep.goal)}
-          </h2>
-          <p className="relative mt-2 text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}>
-            Target final card: <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{step5Target?.targetLabel ?? "the best real 2-leg card"}</span>. It publishes only when both legs clear real model + market gates — no card is invented to fill the rung.
-          </p>
-
-          {/* Per-sport readiness — computed from real artifacts, never fabricated. */}
-          {step5Target ? (
-            <div className="relative mt-3 flex flex-col gap-2">
-              {step5Target.legs.map((leg) => {
-                const tone = leg.state === "ready"
-                  ? { c: "#6EE7A8", bg: "rgba(110,231,168,0.12)", b: "rgba(110,231,168,0.35)", label: "READY" }
-                  : { c: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", b: "rgba(242, 54, 69,0.32)", label: "PENDING" };
-                return (
-                  <div key={leg.label} className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(26, 16, 11, 0.45)", border: "1px solid var(--vault-rule)" }}>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[12.5px] font-semibold" style={{ color: "var(--vault-text)" }}>{leg.label}</span>
-                      <span className="shrink-0 rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold tracking-[0.1em]" style={{ color: tone.c, background: tone.bg, border: `1px solid ${tone.b}` }}>{tone.label}</span>
-                    </div>
-                    <p className="mt-1 text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>{leg.detail}</p>
-                  </div>
-                );
-              })}
-              <p className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
-                <span className="font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--gtp-bank-heat)" }}>Next:</span> {step5Target.nextAction}
-              </p>
-            </div>
-          ) : null}
-
-          <Link
-            href="/picks"
-            className="gtp-cta-lava vault-press relative mt-3 inline-flex rounded-full px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.12em]"
-            style={{ textDecoration: "none" }}
-          >
-            Check final-step candidates →
-          </Link>
-        </section>
-      ) : (
-        <section className="mt-5 rounded-2xl px-5 py-4" style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel)" }} aria-label="Today's card">
-          <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--vault-text)" }}>Today&apos;s card</h2>
-          <p className="mt-1.5 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No official Bank Builder card has cleared today&apos;s gates yet. A card appears only when the slate supports one.</p>
-        </section>
-      )}
 
       {/* SECTION 4 — previous hits */}
       <PreviousHits hits={hits} recordLabel={recordLabel} />

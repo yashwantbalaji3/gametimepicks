@@ -69,7 +69,7 @@ test("live ladder stays 5-step; NO 'Step N of 7' live claim under v1", () => {
   assert.ok(!/Step \d+ of 7/.test(climb), "no live 'Step N of 7' claim in the hero");
 });
 
-test("the 7-step preview is a PROMINENT vertical ladder, clearly NOT live (from the pure policy)", () => {
+test("the 7-step preview COMPONENT (kept for the future Plan-0007 migration, NOT rendered on the live page today) stays honest", () => {
   assert.match(preview, /bankBuilderV2StepPolicy/, "derived from the pure 7-step policy");
   assert.match(preview, /isSevenStepLive/, "reads the version flag (never hardcodes 'live')");
   assert.match(preview, /\[1, 2, 3, 4, 5, 6, 7\]/, "renders all 7 steps");
@@ -88,11 +88,43 @@ test("no survival/value/aggressive/safest anywhere; affirmative no-play copy", (
   assert.match(vlad, /Model pass — holding for a stronger slate/, "affirmative no-play, not passive 'awaiting'");
 });
 
-test("the page renders the vertical hero + the 7-step preview + BB-own seed exposure", () => {
+test("SIMPLIFIED page (Option-1): vertical hero, BB-own seed exposure, NO separate 7-step block, no duplicate active card", () => {
   assert.match(bbPage, /<ClimbHero/, "the vertical climb hero leads the page");
-  assert.match(bbPage, /<NextLadderPreview\s*\/>/, "the 7-step preview is on the page");
   assert.match(bbPage, /openExposure=\{dailyPortfolio\.exposure\.core\}/, "BB-own seed exposure, not the portfolio total");
   assert.match(bbPage, /kickoff: l\.kickoffEt \?\? null/, "real kickoff plumbed to the ladder (fail-closed)");
+  // Option-1 simplification: the confusing separate 7-step block is NOT rendered on the live page.
+  assert.ok(!/<NextLadderPreview/.test(bbPage), "no separate 7-step 'Next Ladder System' block on the live page");
+  // No duplicate 'active daily Bank Builder' — the proposal card shows ONLY when NO lane is active (the
+  // ClimbHero already shows the active card + its expandable cleared history).
+  assert.match(bbPage, /!dailyPortfolio\.cards\.some\(\(c\) => c\.product === "bank-builder" && c\.status === "active"/, "proposal card is gated on NO active lane");
+  // The dense duplicate sections were removed.
+  assert.ok(!/aria-label="Run plan"/.test(bbPage), "the duplicate 'Run plan' section is removed");
+});
+
+test("EXPANDABLE cleared-step history: real settled detail from the ledger, never fabricated", async () => {
+  // The ladder rung type carries an optional cleared detail; the page reads it verbatim from ledger.json.
+  assert.match(climb, /export interface ClimbClearedDetail/, "the cleared-step detail type exists");
+  assert.match(climb, /cleared\?: ClimbClearedDetail \| null/, "a rung can carry its cleared detail");
+  assert.match(bbPage, /function readClearedSteps/, "the page reads cleared steps from the settlement ledger");
+  assert.match(bbPage, /ledger\.json/, "sourced from the append-only ledger (not fabricated)");
+  assert.match(bbPage, /publicBankBuilderVisible/, "only publicly-visible cleared steps surface");
+  // The vertical ladder renders an expandable <details> for a cleared rung.
+  assert.match(vlad, /<details/, "cleared step is expandable (<details> accordion)");
+  assert.match(vlad, /How Step \{rung\.step\} cleared/, "the expander labels the cleared step");
+  assert.match(vlad, /rung\.cleared\.legs\.map/, "renders the actual settled legs");
+  assert.match(vlad, /officialResult/, "shows the official final result per leg");
+  // Functional: Lane A Step 1 cleared detail is the REAL July-6 result ($100 → $174.23, Spain+Belgium).
+  const led = JSON.parse(fs.readFileSync(path.join(app, "public", "data", "mr-dub", "ledger.json"), "utf8"));
+  const step1 = (led.events ?? []).find((e) => e.type === "lane_step_won" && e.laneId === "lane-a" && e.publicBankBuilderVisible && e.step === 1);
+  assert.ok(step1, "the ledger has Lane A's public Step-1 win");
+  assert.equal(step1.paperStake, 100, "actual stake $100");
+  assert.equal(step1.paperReturn, 174.23, "actual return $174.23 (NOT a fabricated $200)");
+  assert.deepEqual(step1.legs.map((l) => l.selection), ["Spain or Draw Double Chance", "Belgium or Draw Double Chance"], "the actual cleared legs");
+  assert.ok(step1.legs.every((l) => l.officialResult), "each leg carries its official final");
+});
+
+test("'How to read this' is COLLAPSED by default (keeps the page simple)", () => {
+  assert.match(climb, /<details[^>]*>[\s\S]*?How to read this/, "the how-to block is a collapsed <details>");
 });
 
 test("persisted leg kickoff (ET) plumbs through to the card leg", () => {

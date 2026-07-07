@@ -70,14 +70,13 @@ test("Step-4 settlement outcome: $1,423.64 → $3,623.97, +$2,200.33 (the Step-4
   assert.equal(l.nextPickStatus, "completed");
 });
 
-test("the Bank Builder page renders the Road to $10K final step", () => {
-  const page = fs.readFileSync("src/app/bank-builder/page.tsx", "utf8");
-  // The $10K hype headline now leads in the ClimbHero flagship; the page's final-step section keeps the
-  // honest "Road to $10,000 / Final step · review pending" framing with no invented card.
+test("the Bank Builder final step is framed honestly via the ClimbHero ladder (no invented card)", () => {
+  // 2026-07-07 Option-1 simplify: the separate 'Road to $10,000 / final-step' section was removed — the
+  // final step is now the ClimbHero vertical ladder's active rung, which shows the REAL card's legs or an
+  // honest 'Model pass' awaiting state, and never fabricates a card to fill the rung.
   const hero = fs.readFileSync("src/components/bank-builder/climb-hero.tsx", "utf8");
+  const vlad = fs.readFileSync("src/components/bank-builder/vertical-ladder-climb.tsx", "utf8");
   assert.ok(/climb toward \$10K/i.test(hero), "hype headline present (in the ClimbHero flagship)");
-  assert.ok(page.includes("Road to $10,000") || page.includes("Final step"), "final-step framing present");
-  assert.ok(page.includes("Check final-step candidates"), "final-step CTA present");
-  assert.ok(page.includes("review pending") && page.includes("no card is invented to fill the rung"),
-    "no invented Step 5 card — review-pending copy");
+  assert.ok(/Model pass — holding for a stronger slate/.test(vlad), "an unqualified rung shows an honest pass — no invented card");
+  assert.ok(/lane\.legs/.test(vlad), "the active rung renders the lane's REAL legs (never a fabricated card)");
 });
