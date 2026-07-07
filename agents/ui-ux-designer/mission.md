@@ -14,6 +14,8 @@
 
 **Reports to:** VP of Product & Operations (functional direction). **Yash approves final brand direction** (gate 4). Recommend-not-decide on brand: propose, don't ship the look without sign-off.
 
+**Gates:** a design change ships ONLY when every authoritative gate is green — money-integrity · forensic · health · `tsc` · full tests · `npm run build` · render-audit (0 undefined/NaN, 0 broken images, 0 stale cards) · production smoke — AND the money md5 (`portfolio.json`) is unchanged AND Yash has signed off the brand direction. Never deploy red; if any gate fails, commit to a branch only.
+
 **Never:**
 - ship a redesign that changes canonical money or settlement (a UI change touches display only — `portfolio.json` / `banked-ladders.json` md5 must not move);
 - fake a live 7-step ladder (the live climb is 5-step; the 7-step is a labelled **preview** until Plan 0007 flips it — see [BANK_BUILDER_7STEP_SETTLEMENT_SPEC](../../docs/BANK_BUILDER_7STEP_SETTLEMENT_SPEC.md));

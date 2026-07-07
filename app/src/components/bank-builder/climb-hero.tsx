@@ -9,9 +9,7 @@
  * siblings — no JS) so only one lane's full ladder + card shows at a time. ≥ md: both lanes side by side.
  */
 import Link from "next/link";
-import FlagBadge from "@/components/flag-badge";
-import PlayerAvatar from "@/components/ui/player-avatar";
-import { wcTeamCodeFromName } from "@/lib/data-world-cup";
+import VerticalLadderClimb from "./vertical-ladder-climb";
 
 // ── Prop shapes (all derived on the page from data ALREADY loaded; never recomputed here) ───────────
 export interface ClimbRung {
@@ -73,18 +71,6 @@ const american = (o: number | null | undefined) =>
   o == null || !Number.isFinite(o) ? "—" : o > 0 ? `+${o}` : `${o}`;
 const dash = (s: string | null | undefined) => (s && String(s).trim() ? String(s) : "—");
 
-const RUNG_META: Record<
-  ClimbRung["status"],
-  { label: string; color: string; bg: string; border: string; pulse?: boolean; fill?: boolean }
-> = {
-  completed: { label: "Cleared", color: "var(--vault-success)", bg: "rgba(110,231,168,0.12)", border: "rgba(110,231,168,0.4)", fill: true },
-  active: { label: "Active", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", border: "rgba(242,54,69,0.4)", pulse: true },
-  awaiting: { label: "Awaiting", color: "var(--vault-gold-bright)", bg: "rgba(217,164,65,0.12)", border: "rgba(217,164,65,0.4)" },
-  stopped: { label: "Stopped", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.03)", border: "var(--vault-rule)" },
-  lost: { label: "Reset", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.03)", border: "var(--vault-rule)" },
-  upcoming: { label: "Upcoming", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.03)", border: "var(--vault-rule)" },
-};
-
 const TONE_COLOR: Record<ClimbLane["statusTone"], string> = {
   active: "var(--gtp-bank-heat)",
   advanced: "var(--vault-success)",
@@ -101,211 +87,6 @@ function Chip({ label, color }: { label: string; color: string }) {
     >
       {label}
     </span>
-  );
-}
-
-/** A single climb rung node — its step, the $start → $goal it climbs, and its status. The ACTIVE rung
- *  ("you are here") is visually dominant (wider, ring-glow); cleared rungs fill green; future rungs sit
- *  muted. This is the ladder's centerpiece, so the current position always reads at a glance. */
-function RungNode({ rung }: { rung: ClimbRung }) {
-  const m = RUNG_META[rung.status];
-  const isCompleted = rung.status === "completed";
-  const isActive = rung.status === "active";
-  return (
-    <div
-      className="climb-rung flex shrink-0 flex-col items-center gap-1 rounded-[12px] px-2.5 py-2.5"
-      style={{
-        minWidth: isActive ? 82 : 66,
-        minHeight: 68,
-        background: m.fill ? m.bg : "rgba(255,255,255,0.02)",
-        border: `1px solid ${m.border}`,
-        boxShadow: isActive ? `0 0 0 1px ${m.color}55, 0 6px 22px -14px ${m.color}` : "none",
-        transform: isActive ? "scale(1.03)" : "none",
-      }}
-      data-status={rung.status}
-    >
-      <span
-        className={`flex items-center justify-center rounded-full font-mono font-bold ${m.pulse ? "climb-rung-pulse" : ""}`}
-        style={{ height: isActive ? 28 : 22, width: isActive ? 28 : 22, fontSize: isActive ? 13 : 11, color: m.color, background: m.bg, border: `1px solid ${m.border}` }}
-        aria-hidden
-      >
-        {isCompleted ? "✓" : rung.step}
-      </span>
-      <span className="font-display tabular font-bold leading-none" style={{ color: "var(--vault-text)", fontSize: isActive ? 14 : 12 }}>
-        {money0(rung.goalTarget)}
-      </span>
-      <span className="font-mono leading-none" style={{ color: "var(--vault-text-faint)", fontSize: 8 }}>
-        from {money0(rung.startTarget)}
-      </span>
-      <span className="font-mono uppercase tracking-[0.06em] leading-none" style={{ color: m.color, fontSize: 8.5 }}>
-        {m.label}
-      </span>
-    </div>
-  );
-}
-
-/** The horizontal 5-rung ladder for one lane (scrolls horizontally only if it overflows). */
-function RungLadder({ rungs }: { rungs: ClimbRung[] }) {
-  return (
-    <div className="climb-ladder-scroll -mx-1 overflow-x-auto px-1 pb-1">
-      <div
-        className="flex items-stretch gap-1.5"
-        role="img"
-        aria-label={`5-step climb: ${rungs.map((r) => `step ${r.step} ${RUNG_META[r.status].label}`).join(", ")}`}
-      >
-        {rungs.map((r, i) => (
-          <div key={r.step} className="flex items-center gap-1.5">
-            <RungNode rung={r} />
-            {i < rungs.length - 1 ? (
-              <span aria-hidden className="h-px w-2 shrink-0" style={{ background: "var(--vault-rule)" }} />
-            ) : null}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/** Per-leg avatar — a country flag for a World Cup team/game market, a player portrait for a prop leg.
- *  Both primitives degrade gracefully (unknown code → monogram, no photo → initials, nothing → ⚽ chip),
- *  so a leg can NEVER break the row or fabricate a mark. Mirrors the shared product-lanes-ladder avatar. */
-function LegAvatar({ leg }: { leg: ClimbLeg }) {
-  if (leg.player && String(leg.player).trim()) return <PlayerAvatar name={leg.player} size={22} />;
-  const [home, away] = String(leg.game ?? "").split(/\s+vs\s+/i).map((s) => s.trim());
-  // Prefer the SPECIFIC team the selection names ("Argentina to win" → Argentina, "Colombia or Draw" →
-  // Colombia) so a single-team pick shows a single flag; fall back to the raw selection code.
-  const sel = String(leg.selection ?? "");
-  const named = [home, away].find((t) => t && sel.toLowerCase().includes(t.toLowerCase()));
-  const selCode = wcTeamCodeFromName(named) ?? wcTeamCodeFromName(sel);
-  if (selCode) return <FlagBadge code={selCode} size="md" ariaLabel={leg.selection} />;
-  const homeCode = wcTeamCodeFromName(home);
-  const awayCode = wcTeamCodeFromName(away);
-  if (homeCode || awayCode) {
-    return (
-      <span className="inline-flex items-center gap-0.5">
-        {homeCode ? <FlagBadge code={homeCode} size="md" ariaLabel={home ?? ""} /> : null}
-        {awayCode ? <FlagBadge code={awayCode} size="md" ariaLabel={away ?? ""} /> : null}
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[6px] text-[12px]"
-      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
-  );
-}
-
-/** A single leg row inside a lane card. Every field guarded with "—" — never undefined/NaN. Leads with the
- *  team flag / player portrait so the card reads like a premium ticket, not a text list. */
-function LegRow({ leg }: { leg: ClimbLeg }) {
-  const sub = [leg.market, leg.game].filter((s) => s && String(s).trim()).join(" · ");
-  const meta = [leg.kickoff ? `Kickoff ${leg.kickoff}` : null].filter(Boolean).join(" · ");
-  return (
-    <li
-      className="flex items-start gap-2.5 rounded-[10px] px-3 py-2.5"
-      style={{ background: "rgba(255,255,255,0.025)", border: "1px solid var(--vault-rule)" }}
-    >
-      <span className="mt-0.5 shrink-0"><LegAvatar leg={leg} /></span>
-      <div className="min-w-0 flex-1">
-        <span className="block truncate text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
-          {dash(leg.player ?? leg.selection)}
-        </span>
-        <span className="block truncate font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          {dash(sub)}
-        </span>
-        {meta ? (
-          <span className="block font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
-            {meta}
-          </span>
-        ) : null}
-        {leg.why && String(leg.why).trim() ? (
-          <span className="mt-0.5 block text-[11px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-            {leg.why}
-          </span>
-        ) : null}
-      </div>
-      <span className="shrink-0 font-mono text-[13px] font-bold" style={{ color: "var(--vault-gold-bright)" }}>
-        {american(leg.odds)}
-      </span>
-    </li>
-  );
-}
-
-/** The full Lane card (status, money, rung ladder, leg list / awaiting state). */
-function LaneCard({ lane }: { lane: ClimbLane }) {
-  const tone = TONE_COLOR[lane.statusTone];
-  const profit =
-    lane.potentialReturn != null && lane.stake != null && Number.isFinite(lane.potentialReturn) && Number.isFinite(lane.stake)
-      ? lane.potentialReturn - lane.stake
-      : null;
-  const stepLabel = lane.step != null ? `Step ${lane.step} of 5` : "—";
-  const isActive = lane.hasCard;
-  return (
-    <div
-      className="flex flex-col rounded-2xl p-4"
-      style={{
-        background: isActive
-          ? `linear-gradient(180deg, ${tone}14, rgba(255,255,255,0.02) 42%)`
-          : "rgba(255,255,255,0.02)",
-        border: `1px solid ${isActive ? tone + "55" : "var(--vault-border)"}`,
-        borderTop: `3px solid ${tone}`,
-        boxShadow: isActive ? `0 0 0 1px ${tone}22, 0 8px 30px -18px ${tone}` : "none",
-      }}
-    >
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>
-          {lane.label}
-        </h3>
-        <Chip label={lane.statusLabel} color={tone} />
-      </div>
-      <p className="mb-2 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
-        {[stepLabel, lane.cycle != null ? `Cycle ${lane.cycle}` : null, lane.name].filter(Boolean).join(" · ")}
-      </p>
-
-      {/* 5-rung climb */}
-      <RungLadder rungs={lane.rungs} />
-
-      {/* Money row — Stake / To win / Profit / Goal (each guarded). */}
-      <div className="mt-2 grid grid-cols-4 gap-1.5">
-        {([
-          ["Stake", money(lane.stake), "var(--vault-text)"],
-          ["To win", money(lane.potentialReturn), "var(--vault-gold-bright)"],
-          ["Profit", profit != null ? `+${money(profit)}` : "—", "var(--vault-success)"],
-          ["Goal", money0(lane.goalTarget), "var(--vault-text-mute)"],
-        ] as Array<[string, string, string]>).map(([k, v, c]) => (
-          <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
-            <div className="font-mono tabular font-bold leading-tight" style={{ color: c, fontSize: 13 }}>{v}</div>
-            <div className="mt-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{k}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Combined odds line. */}
-      <p className="mt-2 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
-        Combined {american(lane.combinedOdds)}
-        {lane.nextKickoff ? ` · next kickoff ${lane.nextKickoff}` : ""}
-      </p>
-
-      {/* Legs OR a polished awaiting state — never undefined. */}
-      {lane.hasCard && lane.legs.length > 0 ? (
-        <ul className="mt-2 flex flex-col gap-1.5">
-          {lane.legs.map((leg, i) => (
-            <LegRow key={`${lane.id}:${i}`} leg={leg} />
-          ))}
-        </ul>
-      ) : (
-        <div
-          className="mt-2 rounded-[10px] px-3 py-3 text-[12px] leading-snug"
-          style={{ background: "rgba(217,164,65,0.06)", border: "1px solid rgba(217,164,65,0.25)", color: "var(--vault-text-mute)" }}
-        >
-          <span className="font-semibold" style={{ color: "var(--vault-gold-bright)" }}>Model pass — holding for a stronger slate.</span>{" "}
-          No edge today, so the ladder waits rather than force a weak card. A pass protects the seed; the lane
-          re-arms the moment a qualified card appears.
-        </div>
-      )}
-      <p className="mt-2 font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
-        Paper-only · pending official settlement.
-      </p>
-    </div>
   );
 }
 
@@ -393,36 +174,12 @@ export default function ClimbHero({
         </Link>
       </div>
 
-      {/* 3 + 4 · Lane ladders + cards. Mobile (≤ md): CSS-only tabs (one lane at a time). ≥ md: side by side. */}
+      {/* 3 + 4 · Lane vertical ladders. Mobile: stacked (Lane A then Lane B). ≥ md: side by side. Each
+          ladder is naturally tall + readable, so no horizontal overflow and no cramped text on either. */}
       {laneA || laneB ? (
-        <div className="climb-lanes mt-4">
-          {/* Mobile tabs (hidden radios drive :checked visibility). */}
-          <div className="climb-tabs md:hidden">
-            {laneA ? <input type="radio" name="climb-lane" id="climb-tab-a" defaultChecked className="climb-tab-input"
-                style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }} /> : null}
-            {laneB ? <input type="radio" name="climb-lane" id="climb-tab-b" className="climb-tab-input"
-                style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }} /> : null}
-            <div className="mb-3 grid grid-cols-2 gap-1.5 rounded-full p-1" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
-              {laneA ? (
-                <label htmlFor="climb-tab-a" className="climb-tab-label flex items-center justify-center rounded-full font-mono text-[11px] font-bold uppercase tracking-[0.08em]" style={{ minHeight: 40, color: "var(--vault-text-mute)", cursor: "pointer" }}>
-                  {laneA.label}
-                </label>
-              ) : null}
-              {laneB ? (
-                <label htmlFor="climb-tab-b" className="climb-tab-label flex items-center justify-center rounded-full font-mono text-[11px] font-bold uppercase tracking-[0.08em]" style={{ minHeight: 40, color: "var(--vault-text-mute)", cursor: "pointer" }}>
-                  {laneB.label}
-                </label>
-              ) : null}
-            </div>
-            {laneA ? <div className="climb-pane climb-pane-a">{<LaneCard lane={laneA} />}</div> : null}
-            {laneB ? <div className="climb-pane climb-pane-b">{<LaneCard lane={laneB} />}</div> : null}
-          </div>
-
-          {/* Desktop: both lanes side by side. */}
-          <div className="hidden gap-3 md:grid md:grid-cols-2">
-            {laneA ? <LaneCard lane={laneA} /> : null}
-            {laneB ? <LaneCard lane={laneB} /> : null}
-          </div>
+        <div className="climb-lanes mt-4 flex flex-col gap-3 md:grid md:grid-cols-2 md:items-start">
+          {laneA ? <VerticalLadderClimb lane={laneA} /> : null}
+          {laneB ? <VerticalLadderClimb lane={laneB} /> : null}
         </div>
       ) : null}
 
