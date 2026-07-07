@@ -68,6 +68,12 @@ Claude session can wear several hats in a day; the point is the *ownership + exp
   Launch ─ push + smoke ─────────────────────┘
 ```
 
+## The wider company
+This role model is the shared-services + execution layer of the full **[AI Company Operating System](AI_COMPANY_OPERATING_SYSTEM.md)**, which adds two line departments on top:
+- **[Sports Operations](SPORTS_OPERATIONS.md)** — the Sports Operations Lead + per-sport analysts (Soccer/Baseball ACTIVE; Basketball/Hockey/Football STANDBY). The daily-loop remit is now led by the SOL.
+- **[Social / Growth](SOCIAL_OPERATIONS.md)** — the Social Media Head + channel managers (draft → Head → Yash; no auto-post).
+- **[Company schedule](COMPANY_SCHEDULE.md)** — the ET cadence tying it all together.
+
 ## Related docs
 - [DAILY_CLAUDE_RUNBOOK.md](DAILY_CLAUDE_RUNBOOK.md) — morning / afternoon / night with exact commands + gates.
 - [CLAUDE_PROMPT_LIBRARY.md](CLAUDE_PROMPT_LIBRARY.md) — copy-paste prompts for every role.
