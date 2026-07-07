@@ -42,23 +42,23 @@ test("apply: exposure math — BB exposure = $100 × active lanes; Moonshot adap
   assert.equal(dp.availableBankroll, round2(dp.activeBankroll - dp.openExposure), "available = active − exposure");
 });
 
-test("apply (live July-6): ONE ACTIVE approved BB lane (Lane A); Lane B no-play; Moonshot lanes are STRUCTURED team-market longshots (+700 floor gates activation); combined odds reconcile", () => {
-  // Live July-6 activated state: the operator-approved cycle-8 restart serves ONLY Lane A as an ACTIVE fresh
-  // $100 Step-1 card (Spain or Draw + Belgium or Draw); Lane B is a deliberate no-play (absent). Moonshot B is
-  // active (clears the +700 longshot floor); Moonshot A is only a CANDIDATE (below the floor → never activated).
-  const LIVE_DATE = "2026-07-06";
-  const LIVE_NOW = "2026-07-06T12:00:00Z"; // pre-slate: before the 19:00Z Portugal/Spain kickoff
+test("apply (live July-7): ONE ACTIVE approved BB lane (Lane A); Lane B no-play; Moonshot lanes are STRUCTURED team-market longshots (+700 floor gates activation); combined odds reconcile", () => {
+  // Live July-7 activated state: the operator-approved cycle-8 Step-2 card serves ONLY Lane A as ACTIVE (it WON
+  // its July-6 Step-1) — Colombia or Draw + Argentina to win; Lane B is a deliberate no-play (absent). Moonshot B
+  // is active (clears the +700 longshot floor); Moonshot A is only a CANDIDATE (below the floor → never activated).
+  const LIVE_DATE = "2026-07-07";
+  const LIVE_NOW = "2026-07-07T12:00:00Z"; // pre-slate: before the 16:00Z Argentina/Egypt kickoff
   const dp = buildPersistedDailyPortfolio(root, LIVE_NOW, LIVE_DATE, LIVE_NOW, true);
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const moon = dp.lanes.filter((l) => l.product === "moonshot");
-  assert.equal(bb.length, 1, "one Bank Builder lane served (Lane A cycle-8 restart, approved July-6; Lane B no-play)");
+  assert.equal(bb.length, 1, "one Bank Builder lane served (Lane A cycle-8 Step 2, approved July-7; Lane B no-play)");
   assert.equal(bb[0].lane, "A", "the served lane is Lane A");
   for (const l of bb) {
-    assert.equal(l.status, "active", `Bank Builder ${l.lane} active (fresh $100 Step 1)`);
+    assert.equal(l.status, "active", `Bank Builder ${l.lane} active (cycle-8 Step 2)`);
     assert.ok(l.legCount <= 4, "Bank Builder lane ≤ 4 legs (rung card)");
   }
   const servedText = JSON.stringify(bb[0].legs);
-  assert.ok(/Spain or Draw/.test(servedText) && /Belgium or Draw/.test(servedText), "Lane A serves the approved July-6 survival legs");
+  assert.ok(/Colombia or Draw/.test(servedText) && /Argentina to win/.test(servedText), "Lane A serves the approved July-7 survival legs");
   assert.equal(moon.length, 2, "Moonshot A/B present");
   for (const l of moon) {
     // NEW spec: structured team-market lanes (result + total per game) — team markets only (no player props).

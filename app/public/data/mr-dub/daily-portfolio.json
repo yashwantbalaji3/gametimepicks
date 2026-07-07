@@ -1,14 +1,23 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-07-07",
-  "generatedAt": "2026-07-07T14:08:39.892Z",
+  "generatedAt": "2026-07-07T15:30:58.791Z",
   "activeBankroll": 19065.4,
   "crownBankroll": 20465.4,
-  "openExposure": 25,
-  "availableBankroll": 19040.4,
-  "potentialReturn": 214.92,
+  "openExposure": 100,
+  "availableBankroll": 18965.4,
+  "potentialReturn": 305.56,
   "products": {
     "bankBuilder": {
+      "exposure": 100,
+      "record": {
+        "wins": 0,
+        "losses": 0,
+        "voids": 0,
+        "pending": 1
+      }
+    },
+    "moonshot": {
       "exposure": 0,
       "record": {
         "wins": 0,
@@ -16,75 +25,66 @@
         "voids": 0,
         "pending": 0
       }
-    },
-    "moonshot": {
-      "exposure": 25,
-      "record": {
-        "wins": 0,
-        "losses": 0,
-        "voids": 0,
-        "pending": 1
-      }
     }
   },
   "lanes": [
     {
-      "id": "bank-builder-lane-a-step-2",
+      "id": "bank-builder-approved-lane-a-2026-07-07",
       "product": "bank-builder",
       "productLabel": "Bank Builder",
       "lane": "A",
       "step": 2,
       "clearedSteps": 1,
-      "status": "candidate",
+      "status": "active",
       "stake": 174.23,
       "exposure": 100,
-      "targetReturn": 700,
-      "fitsTarget": false,
-      "combinedOdds": 281,
-      "combinedDecimal": 3.8069,
-      "potentialReturn": 663.27,
+      "targetReturn": null,
+      "fitsTarget": true,
+      "combinedOdds": -133,
+      "combinedDecimal": 1.7538,
+      "potentialReturn": 305.56,
       "legCount": 2,
       "targetLegs": 2,
       "legs": [
         {
-          "id": "team:190922affd0be754bfefd71548dbf90d:match_total_goals:under",
-          "matchup": "Argentina vs Egypt",
-          "market": "Total Goals",
-          "selection": "Under 2.5",
+          "id": "bb-approved:switzerland-vs-colombia-2026-07-07:double_chance",
+          "matchup": "Switzerland vs Colombia",
+          "market": "Double Chance",
+          "selection": "Colombia or Draw",
           "player": null,
-          "odds": -134,
-          "provider": "betrivers",
-          "modelConfidence": 0.5388,
-          "kickoffEt": "12:00 PM ET",
+          "odds": -345,
+          "provider": "consensus",
+          "modelConfidence": 0.7274,
+          "kickoffEt": "4:00 PM ET",
           "risk": "Lower-volatility",
-          "photoUrl": null,
           "teamLogo": null
         },
         {
-          "id": "team:a6da973c5749ce60adab77d64b3664f4:moneyline_90:away",
-          "matchup": "Switzerland vs Colombia",
+          "id": "bb-approved:argentina-vs-egypt-2026-07-07:moneyline_90",
+          "matchup": "Argentina vs Egypt",
           "market": "Match Result",
-          "selection": "Colombia",
+          "selection": "Argentina to win",
           "player": null,
-          "odds": 118,
-          "provider": "betrivers",
-          "modelConfidence": 0.436,
-          "kickoffEt": "4:00 PM ET",
+          "odds": -278,
+          "provider": "consensus",
+          "modelConfidence": 0.6972,
+          "kickoffEt": "12:00 PM ET",
           "risk": "Lower-volatility",
-          "photoUrl": null,
           "teamLogo": null
         }
       ],
       "correlationNote": null,
-      "shortfallNote": "Below the Step 2 target — candidate only.",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Safest-fit (World Cup): chosen to MAXIMIZE the chance all 2 legs land — estimated 23% combined hit probability at Tier 3 (higher variance), not the longest-odds card.",
-        "No combo reaches the $700 goal — strongest available shown as a candidate."
+        "Two model-qualified, draw-protected / favourite legs from different games — built to CLEAR the rung, not to swing for a payout. Each agrees with its game's score lean.",
+        "Both legs must land — Switzerland v Colombia and Argentina v Egypt going the other way (an upset, a stray goal, or a tight game flipping) loses the rung. Knockout games carry extra-time/penalty variance on 90' result legs."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no 2-leg combo reaches the Step 2 target — candidate only"
-      }
+        "eligible": true,
+        "reason": "operator-approved active paper ladder"
+      },
+      "locked": true,
+      "approvedAt": "2026-07-07"
     },
     {
       "id": "moonshot-lane-a-2026-07-07",
@@ -98,9 +98,9 @@
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 389,
-      "combinedDecimal": 4.8913,
-      "potentialReturn": 122.28,
+      "combinedOdds": 469,
+      "combinedDecimal": 5.6943,
+      "potentialReturn": 142.36,
       "legCount": 4,
       "targetLegs": 4,
       "legs": [
@@ -119,14 +119,14 @@
           "teamLogo": null
         },
         {
-          "id": "team:190922affd0be754bfefd71548dbf90d:btts:no",
+          "id": "team:190922affd0be754bfefd71548dbf90d:match_total_goals:under",
           "matchup": "Argentina vs Egypt",
-          "market": "Both Teams To Score",
-          "selection": "Both teams to score: No",
+          "market": "Total Goals",
+          "selection": "Under 2.5",
           "player": null,
-          "odds": -200,
+          "odds": -134,
           "provider": "betrivers",
-          "modelConfidence": 0.6154,
+          "modelConfidence": 0.5388,
           "kickoffEt": "12:00 PM ET",
           "risk": "Lower-volatility",
           "photoUrl": null,
@@ -165,12 +165,12 @@
       "shortfallNote": null,
       "whyThisCard": [
         "Higher-upside: 4 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 63% across 4 legs · combined +389.",
+        "Avg model confidence 61% across 4 legs · combined +469.",
         "2 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
       ],
       "activationEligibility": {
         "eligible": false,
-        "reason": "combined +389 is below the +700 longshot floor — awaiting a longer card"
+        "reason": "combined +469 is below the +700 longshot floor — awaiting a longer card"
       },
       "narrative": {
         "title": "Low-scoring knockout",
@@ -184,16 +184,16 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "active",
+      "status": "candidate",
       "stake": 25,
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 760,
-      "combinedDecimal": 8.5968,
-      "potentialReturn": 214.92,
-      "legCount": 5,
-      "targetLegs": 5,
+      "combinedOdds": 1401,
+      "combinedDecimal": 15.0124,
+      "potentialReturn": 375.31,
+      "legCount": 6,
+      "targetLegs": 6,
       "legs": [
         {
           "id": "team:190922affd0be754bfefd71548dbf90d:moneyline_90:home",
@@ -204,6 +204,20 @@
           "odds": -278,
           "provider": "betrivers",
           "modelConfidence": 0.6972,
+          "kickoffEt": "12:00 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "team:190922affd0be754bfefd71548dbf90d:match_total_goals:under",
+          "matchup": "Argentina vs Egypt",
+          "market": "Total Goals",
+          "selection": "Under 2.5",
+          "player": null,
+          "odds": -134,
+          "provider": "betrivers",
+          "modelConfidence": 0.5388,
           "kickoffEt": "12:00 PM ET",
           "risk": "Lower-volatility",
           "photoUrl": null,
@@ -269,13 +283,13 @@
       "correlationNote": "2 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter).",
       "shortfallNote": null,
       "whyThisCard": [
-        "Higher-upside: 5 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 61% across 5 legs · combined +760.",
+        "Higher-upside: 6 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 60% across 6 legs · combined +1401.",
         "2 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
       ],
       "activationEligibility": {
-        "eligible": true,
-        "reason": "all legs pre-event and outside the cutoff"
+        "eligible": false,
+        "reason": "Argentina vs Egypt within 30m of kickoff"
       },
       "narrative": {
         "title": "Low-scoring knockout",

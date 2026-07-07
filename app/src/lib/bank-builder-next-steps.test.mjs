@@ -101,14 +101,20 @@ test("settlement history is DURABLY recorded in the ladder priorLane chain (Lane
 });
 
 test("BB seed-model invariant: each active lane risks exactly its $100 seed; generation never touches canonical money", () => {
-  // POST JULY-6 ACTIVATION: only Lane A RESTARTED (cycle 8) and serves a forward Step-1 card; Lane B is a
-  // no-play. The per-lane seed model holds: each active forward lane risks EXACTLY its $100 seed (never the
-  // rolled ladder value), BB exposure = $100 × active lanes = $100, and generation leaves the canonical
-  // bankroll/crown untouched (only an official settlement moves them; generation never does).
-  const dp = buildPersistedDailyPortfolio(root, "2026-07-06T12:00:00Z", "2026-07-06", "2026-07-06T12:00:00Z", true);
+  // POST JULY-7 ACTIVATION: Lane A is on cycle-8 Step 2 (it WON its July-6 Step-1) and serves a forward card;
+  // Lane B is a no-play. The per-lane seed model holds: each active forward lane risks EXACTLY its $100 seed
+  // (NEVER the $174.23 rolled ladder value), BB exposure = $100 × active lanes = $100, and generation leaves the
+  // canonical bankroll/crown untouched (only an official settlement moves them; generation never does).
+  const dp = buildPersistedDailyPortfolio(root, "2026-07-07T12:00:00Z", "2026-07-07", "2026-07-07T12:00:00Z", true);
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
-  assert.equal(bb.length, 1, "one forward BB lane (Lane A cycle-8 restart, fresh Step 1; Lane B no-play)");
+  assert.equal(bb.length, 1, "one forward BB lane (Lane A cycle-8 Step 2; Lane B no-play)");
   for (const l of bb) assert.equal(l.exposure, 100, `Lane ${l.lane} risks exactly its $100 seed`);
+  // The seed ($100) is what is at risk, explicitly DISTINCT from the rolled Step-2 stake ($174.23): Lane A
+  // carries the $174.23 rolled stake but only ever risks the $100 seed.
+  const a = bb.find((l) => l.lane === "A");
+  assert.equal(a.stake, 174.23, "Lane A carries the WON Step-1 payout rolled into the Step-2 stake ($174.23)");
+  assert.equal(a.exposure, 100, "Lane A exposure is the $100 seed, NOT the $174.23 rolled stake");
+  assert.notEqual(a.exposure, a.stake, "exposure (the $100 seed at risk) is distinct from the rolled stake");
   assert.equal(dp.products.bankBuilder.exposure, 100, "BB exposure = one $100 seed");
   assert.equal(dp.activeBankroll, 19065.4, "active bankroll is the post-settlement truth, unchanged by generation");
   assert.equal(dp.crownBankroll, 20465.4, "crown unchanged by generation (Σ two banked finals)");

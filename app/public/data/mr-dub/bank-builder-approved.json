@@ -1,28 +1,50 @@
 {
-  "_note": "July-6 approved Bank Builder — Lane A ONLY (fresh $100 Step-1, cycle 8, after the July-5 stops). Lane A is the auto-proposal VERBATIM under the July-4 market-reliability weighting: two draw-protected double-chance legs from different SAME-DAY games (Portugal v Spain 3pm ET + USA v Belgium 8pm ET) — the settled 8-0 market family. Lane B is a deliberate NO-PLAY: on a 2-game slate the only value-band legs the model surfaces are two BTTS selections priced at ~market (no real edge) in the weakest settled family (BTTS 1-3); per the no-forced-card rule we skip rather than sell a negative-to-fair 'value' card. 2 legs, team/game markets only, real de-vigged July-6 prices, no props, no coin-flips. Paper-only; canonical money moves only through official settlement.",
-  "date": "2026-07-06",
-  "approvedAt": "2026-07-06T14:00:00Z",
-  "status": "active",
-  "stake": 100,
-  "lanes": [
+ "_note": "July-7 approved Bank Builder — Lane A ONLY (Step 2, cycle 8; the July-6 Step-1 double win rolled $100 -> $174.23). Operator-approved card = the disciplined SAFER team-market proposal: Colombia or Draw (Double Chance) + Argentina to win (Moneyline 90'), from two different SAME-DAY R16 games (Argentina v Egypt 12:00pm ET + Switzerland v Colombia 4:00pm ET). This DELIBERATELY OVERRIDES the auto-candidate (Under 2.5 Arg/Egy + Colombia ML, +281), which the operator rejected. Team/game markets only, no totals, no props; real de-vigged odds_api prices generated 2026-07-07T14:07Z; both legs settle on 90' regulation (settlementSupport=regulation_90). NOTE: projection-level bankBuilderEligible=False slate-wide (odds-only knockout data, no lineup layer, confidence capped) — same data condition as the winning July-6 card; the card is settlement-supported and is the authoritative proposal-engine Lane A. Lane B is a deliberate NO-PLAY: BTTS No (-200) + Colombia DNB (-200) = +125 but modelP 0.376 < implied 0.444 (negative-to-fair, no edge, weakest settled family) — per the no-forced-card rule we skip. Paper-only; canonical money moves only through official settlement, never through this approval.",
+ "date": "2026-07-07",
+ "approvedAt": "2026-07-07T15:15:00Z",
+ "status": "active",
+ "stake": 174.23,
+ "lanes": [
+  {
+   "lane": "A",
+   "kind": "survival",
+   "step": 2,
+   "clearedSteps": 1,
+   "label": "Lane A",
+   "stake": 174.23,
+   "combinedOdds": -133,
+   "combinedDecimal": 1.7538,
+   "modelProbability": 0.508,
+   "confidence": "High",
+   "potentialReturn": 305.56,
+   "whyLadderPick": "Two model-qualified, draw-protected / favourite legs from different games — built to CLEAR the rung, not to swing for a payout. Each agrees with its game's score lean.",
+   "whyItCouldFail": "Both legs must land — Switzerland v Colombia and Argentina v Egypt going the other way (an upset, a stray goal, or a tight game flipping) loses the rung. Knockout games carry extra-time/penalty variance on 90' result legs.",
+   "legs": [
     {
-      "lane": "A",
-      "kind": "survival",
-      "step": 1,
-      "clearedSteps": 0,
-      "label": "Lane A · Survival (Step 1, fresh cycle)",
-      "stake": 100,
-      "combinedOdds": -135,
-      "combinedDecimal": 1.7423,
-      "modelProbability": 0.507,
-      "confidence": "High",
-      "potentialReturn": 174.23,
-      "whyLadderPick": "The two highest-probability draw-protected legs on the slate, from different same-day games — Spain or Draw (77%) and Belgium or Draw (66%). Double chance is the settled 8-0 market family: each leg survives a draw and only loses on an outright underdog win. Built to CLEAR a rung, not to swing for a payout.",
-      "whyItCouldFail": "Both legs must land: an outright Portugal win over Spain, or an outright USA win over Belgium, drops the card. Double chance survives a draw but never an underdog win — and knockout games carry extra-time variance on the 90-minute result.",
-      "legs": [
-        { "market": "double_chance", "marketLabel": "Double Chance", "selection": "Spain or Draw", "americanOdds": -435, "modelProbability": 0.7678, "gameSlug": "portugal-vs-spain-2026-07-06", "matchup": "Portugal v Spain", "homeCode": "PT", "kickoffUtc": "2026-07-06T19:00:00Z", "aligned": true },
-        { "market": "double_chance", "marketLabel": "Double Chance", "selection": "Belgium or Draw", "americanOdds": -240, "modelProbability": 0.6597, "gameSlug": "usa-vs-belgium-2026-07-06", "matchup": "USA v Belgium", "homeCode": "US", "kickoffUtc": "2026-07-07T00:00:00Z", "aligned": true }
-      ]
+     "market": "double_chance",
+     "marketLabel": "Double Chance",
+     "selection": "Colombia or Draw",
+     "americanOdds": -345,
+     "modelProbability": 0.7274,
+     "gameSlug": "switzerland-vs-colombia-2026-07-07",
+     "matchup": "Switzerland v Colombia",
+     "homeCode": "CH",
+     "kickoffUtc": "2026-07-07T20:00:00Z",
+     "aligned": true
+    },
+    {
+     "market": "moneyline_90",
+     "marketLabel": "Moneyline (90′)",
+     "selection": "Argentina to win",
+     "americanOdds": -278,
+     "modelProbability": 0.6972,
+     "gameSlug": "argentina-vs-egypt-2026-07-07",
+     "matchup": "Argentina v Egypt",
+     "homeCode": "AR",
+     "kickoffUtc": "2026-07-07T16:00:00Z",
+     "aligned": true
     }
-  ]
+   ]
+  }
+ ]
 }

@@ -114,20 +114,20 @@ test("thin slate (1 game) → not buildable, honest note, never forced", () => {
 // ── The operator-APPROVED July-5 dual lanes are PINNED — future generation must never silently swap them. ──
 import { loadApprovedBankBuilder } from "./bank-builder-proposal.ts";
 import path from "node:path";
-test("approved July-6 Bank Builder is pinned to the exact operator-approved legs — Lane A only, Lane B no-play (no drift)", () => {
-  // Pre-slate "now" (before the first July-6 kickoff, Portugal-Spain 19:00 UTC) → all legs pregame.
-  const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-06", Date.UTC(2026, 6, 6, 12, 0));
+test("approved July-7 Bank Builder is pinned to the exact operator-approved legs — Lane A only, Lane B no-play (no drift)", () => {
+  // Pre-slate "now" (before the first July-7 kickoff, Argentina-Egypt 16:00 UTC) → all legs pregame.
+  const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-07", Date.UTC(2026, 6, 7, 12, 0));
   assert.ok(ap && ap.approved === true, "the approved snapshot loads and is flagged approved");
-  // July-6 is a Lane-A-only card: Lane B is a deliberate no-play, absent from the approved lanes.
-  assert.equal(ap.lanes.length, 1, "only Lane A is approved for July-6 (Lane B no-play)");
+  // July-7 is a Lane-A-only card: Lane B is a deliberate no-play, absent from the approved lanes.
+  assert.equal(ap.lanes.length, 1, "only Lane A is approved for July-7 (Lane B no-play)");
   const a = ap.lanes[0];
   assert.equal(a.lane, "A", "the approved lane is Lane A");
-  // Lane A · Survival (fresh Step 1) = the USER-APPROVED pair Spain or Draw DC -435 + Belgium or Draw DC -240.
-  assert.equal(a.legs[0].market, "double_chance"); assert.equal(a.legs[0].americanOdds, -435); assert.match(a.legs[0].selection, /Spain or Draw/);
-  assert.equal(a.legs[1].market, "double_chance"); assert.equal(a.legs[1].americanOdds, -240); assert.match(a.legs[1].selection, /Belgium or Draw/); assert.match(a.legs[1].matchup, /Belgium/);
+  // Lane A · Survival (cycle-8 Step 2) = the USER-APPROVED pair Colombia or Draw DC -345 + Argentina to win ML -278.
+  assert.equal(a.legs[0].market, "double_chance"); assert.equal(a.legs[0].americanOdds, -345); assert.match(a.legs[0].selection, /Colombia or Draw/);
+  assert.equal(a.legs[1].market, "moneyline_90"); assert.equal(a.legs[1].americanOdds, -278); assert.match(a.legs[1].selection, /Argentina to win/); assert.match(a.legs[1].matchup, /Argentina/);
   assert.equal(a.legs.length, 2, "Lane A is the approved 2-leg card");
-  // Lane A is a fresh cycle-8 Step-1 card ($100 seed).
-  assert.equal(a.step, 1);
+  // Lane A is a cycle-8 Step-2 card ($100 seed; the WON Step-1 payout rolled forward).
+  assert.equal(a.step, 2);
   // Team-market only — every leg has no player prop.
   assert.ok(ap.lanes.every((ln) => ln.legs.every((l) => l.player == null)));
   // Pre-slate: every leg is pregame.

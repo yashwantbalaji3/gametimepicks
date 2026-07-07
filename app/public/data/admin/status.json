@@ -18,14 +18,14 @@
   "slate": {
     "date": "2026-07-07",
     "activeBankroll": 19065.4,
-    "openExposure": 25,
+    "openExposure": 100,
     "worldCupGames": 3,
     "mlbGames": 16,
     "mlbSlate": "2026-07-07"
   },
   "productReadiness": {
-    "bankBuilder": "awaiting approval",
-    "moonshot": "active · 1 lane(s)",
+    "bankBuilder": "active · 1 lane(s)",
+    "moonshot": "awaiting approval",
     "top10": "live",
     "worldCup": "live · 3 game(s)",
     "mlb": "live · 16 game(s)",
@@ -33,51 +33,52 @@
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 0,
+      "activeLanes": 1,
       "lanes": [
         {
           "lane": "A",
-          "status": "candidate",
+          "status": "active",
           "step": 2,
           "legs": 2,
-          "combinedOdds": 281,
+          "combinedOdds": -133,
           "stake": 174.23,
-          "potentialReturn": 663.27,
+          "potentialReturn": 305.56,
           "selections": [
-            "Under 2.5",
-            "Colombia"
+            "Colombia or Draw",
+            "Argentina to win"
           ]
         }
       ]
     },
     "moonshot": {
-      "activeLanes": 1,
+      "activeLanes": 0,
       "lanes": [
         {
           "lane": "A",
           "status": "candidate",
           "step": 1,
           "legs": 4,
-          "combinedOdds": 389,
+          "combinedOdds": 469,
           "stake": 25,
-          "potentialReturn": 122.28,
+          "potentialReturn": 142.36,
           "selections": [
             "Argentina",
-            "Both teams to score: No",
+            "Under 2.5",
             "Colombia (draw no bet)",
             "Under 2.5"
           ]
         },
         {
           "lane": "B",
-          "status": "active",
+          "status": "candidate",
           "step": 1,
-          "legs": 5,
-          "combinedOdds": 760,
+          "legs": 6,
+          "combinedOdds": 1401,
           "stake": 25,
-          "potentialReturn": 214.92,
+          "potentialReturn": 375.31,
           "selections": [
             "Argentina",
+            "Under 2.5",
             "Both teams to score: No",
             "Colombia (draw no bet)",
             "Under 2.5",
@@ -113,7 +114,7 @@
     },
     {
       "step": "Bank Builder card decided (active or no-play)",
-      "done": false
+      "done": true
     },
     {
       "step": "No missing-data warnings",
@@ -126,7 +127,7 @@
   },
   "nextSettlementDate": "2026-07-07",
   "nextRefreshDate": "2026-07-08",
-  "nextAction": "No active Bank Builder lane for 2026-07-07 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-07-07's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }

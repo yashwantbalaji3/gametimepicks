@@ -295,7 +295,10 @@ function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
     return {
       id: `bank-builder-approved-lane-${String(l.lane).toLowerCase()}-${date}`,
       product: "bank-builder", productLabel: "Bank Builder", lane: l.lane,
-      step: typeof l.step === "number" ? l.step : 1, clearedSteps: typeof l.clearedSteps === "number" ? l.clearedSteps : 0, status: "active", stake: laneStake, exposure: laneStake,
+      // exposure is the $100 paper SEED (the at-risk / canonical-drawdown amount), never the rolled ladder
+      // stake — consistent with the generated-lane path (seedExposure) + the ledger convention. `stake` still
+      // carries the rolled Step-N wager (e.g. $174.23) for the card display.
+      step: typeof l.step === "number" ? l.step : 1, clearedSteps: typeof l.clearedSteps === "number" ? l.clearedSteps : 0, status: "active", stake: laneStake, exposure: SEED_EXPOSURE,
       targetReturn: null, fitsTarget: true,
       combinedOdds: l.combinedOdds ?? 0, combinedDecimal: l.combinedDecimal ?? 1,
       potentialReturn: l.potentialReturn ?? round2(laneStake * (l.combinedDecimal ?? 1)),
