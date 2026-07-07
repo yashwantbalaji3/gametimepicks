@@ -284,7 +284,11 @@ export default function TodayPage() {
   } catch { /* fail closed → derived defaults */ }
   // The two flagship ladders that LEAD the page (owner restructure): the Bank Builder and Moonshot
   // lane cards (Lane A/B step rail + the current rung's legs, with team logos + player portraits).
-  const bankBuilderLadder = dailyPortfolio.cards.filter((c) => c.product === "bank-builder");
+  // Only APPROVED (active) Bank Builder cards render as the placed lane-ladder. A "candidate" is a proposal
+  // pending founder approval — it must NOT show as a placed card with a profit projection (2026-07-07: a
+  // rejected Under-2.5 candidate was surfacing here). A candidate-only day falls through to the proposal /
+  // skipped (no-play) state below. candidate ≠ active ≠ approved.
+  const bankBuilderLadder = dailyPortfolio.cards.filter((c) => c.product === "bank-builder" && c.status === "active");
   const moonshotLadder = dailyPortfolio.cards.filter((c) => c.product === "moonshot");
   // Homer Nukes — the daily MLB home-run parlay (data-gated; honest empty until MLB props post).
   const homerNukes = loadHomerNukes(path.join(process.cwd(), "public", "data"), today);

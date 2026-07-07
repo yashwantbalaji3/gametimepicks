@@ -155,7 +155,11 @@ export default function BankBuilderPage() {
       const laneId = letter === "A" ? ("lane-a" as const) : ("lane-b" as const);
       const view = buildPublicDualLadder(letter === "A" ? bbPreview.laneA : bbPreview.laneB, laneId);
       if (!view) return null;
-      const card = dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === letter) ?? null;
+      // A card is "placed" ONLY when it is APPROVED (status "active"). A "candidate"/"awaiting" lane is a
+      // proposal pending founder approval — it must render as "Awaiting a qualified card" (no profit
+      // projection), NEVER as today's active card. (2026-07-07: a rejected Under-2.5 candidate was
+      // rendering with a "+$489 profit" card; candidate ≠ active ≠ approved.)
+      const card = dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === letter && c.status === "active") ?? null;
       const hasCard = !!card && card.legs.length > 0;
       // The active rung is the one carrying today's card; fall back to awaiting, then currentStep.
       const curRung =
