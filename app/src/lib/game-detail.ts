@@ -15,6 +15,8 @@ import { normTeamName } from "@/lib/world-cup/market-outlook";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
 import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import { buildMlbGameLabReport, type MlbGameLabView } from "@/lib/game-lab/mlb-report";
+import { buildWcGameLabReport, type WcGameLabView } from "@/lib/game-lab/wc-report";
+import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
 import {
   normalizeWcProjections,
@@ -51,6 +53,10 @@ export interface PublicGameDetail {
   /** MLB Game Lab report (model-vs-market, biggest leans, recent form, product-mapping links + honest
    *  "not yet simulated" placeholders) — derived verbatim from the MLB board. Null for non-MLB / no leans. */
   gameLabMlb?: MlbGameLabView | null;
+  /** World Cup Game Lab report (odds-only model-vs-market, biggest team-market leans, regulation-90
+   *  caveats, artifact-proven product-mapping links + honest "not yet simulated" placeholders) — derived
+   *  verbatim from the WC projections. Null for non-WC / no rows. */
+  gameLabWc?: WcGameLabView | null;
 }
 
 const SPORT_LABEL: Record<SportKey, string> = { world_cup: "World Cup", mlb: "MLB", nba: "NBA", ufc: "UFC" };
@@ -106,6 +112,10 @@ function worldCupDetails(): PublicGameDetail[] {
     if (!k) continue;
     byMatch.set(k, [...(byMatch.get(k) ?? []), p]);
   }
+  // For the WC Game Lab report: the raw projections (full fields: edgePct/settlementSupport/outcomes/…)
+  // and the set of fixture titles that appear in a WC Specials card (artifact-proven product mapping).
+  const rawWcProjections = loadWorldCupProjections();
+  const wcSpecialGames = new Set((loadWorldCupSpecials()?.cards ?? []).flatMap((c) => c.games ?? []));
   const out: PublicGameDetail[] = [];
   for (const [matchId, teamProjections] of byMatch) {
     const head = teamProjections[0];
@@ -133,6 +143,7 @@ function worldCupDetails(): PublicGameDetail[] {
       homeLogo: logoByMatch.get(matchId)?.home ?? null,
       awayLogo: logoByMatch.get(matchId)?.away ?? null,
       regulationNote: "90-minute regulation only — a Draw is a real third outcome (no extra time / penalties).",
+      gameLabWc: buildWcGameLabReport(rawWcProjections, matchId, { inWcSpecials: wcSpecialGames.has(head.gameLabel) }),
       teamProjections,
       playerProps,
       suggestedCards: cardsForGame,
