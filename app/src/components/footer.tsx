@@ -49,7 +49,7 @@ export default function Footer() {
             className="text-[12px]"
             style={{ color: "var(--vault-text-faint)" }}
           >
-            Transparent NBA player-prop analytics · educational only.
+            Simulation-first model picks · paper-only, educational.
           </span>
         </div>
 
@@ -93,9 +93,12 @@ export default function Footer() {
               className="vault-quiet-label mb-3"
               style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
             >
-              Product
+              Products
             </div>
             <ul className="space-y-2 list-none p-0">
+              <li><Link href="/simulate" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Simulate</Link></li>
+              <li><Link href="/today" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Today&rsquo;s Picks</Link></li>
+              <li><Link href="/bank-builder" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Bank Builder</Link></li>
               <li><Link href="/picks" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Build-a-Pick</Link></li>
               <li><Link href="/results" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Results</Link></li>
               <li>
@@ -110,10 +113,11 @@ export default function Footer() {
               className="vault-quiet-label mb-3"
               style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
             >
-              About
+              Explore &amp; learn
             </div>
             <ul className="space-y-2 list-none p-0">
-              <li><Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>How the model works</Link></li>
+              <li><Link href="/learn" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>How It Works</Link></li>
+              <li><Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Methodology</Link></li>
               <li><Link href="/responsible-use" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Responsible use</Link></li>
             </ul>
           </div>
@@ -131,15 +135,16 @@ export default function Footer() {
               About
             </div>
             <p className="leading-relaxed max-w-prose">
-              GametimePicks is an educational sports prop analytics project.
-              It compares model projections against market lines for NBA player
-              props using real player data and compliant odds sources.
+              GameTime Picks is a simulation-first, paper-only sports model. Run
+              deterministic game simulations, review today&rsquo;s model slate, and track
+              every result against official settlement — the same model output for every
+              user. Multi-sport: MLB, World Cup and more.
             </p>
             <p
               className="mt-3 text-[12px]"
               style={{ color: "var(--vault-text-faint)" }}
             >
-              Not betting advice. No guarantees. Educational and research use only.
+              Not betting advice. No promises of results. Paper-only — educational and research use only.
             </p>
           </div>
 
