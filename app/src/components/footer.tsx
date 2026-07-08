@@ -68,10 +68,16 @@ export default function Footer() {
             >
               Sports
             </div>
+            {/* Active sports lead; off-season leagues stay reachable but are honestly labelled (no links
+                removed — the routes still build + direct URLs work). See docs/LEGACY_ROUTE_CLEANUP_PLAN. */}
             <ul className="space-y-2 list-none p-0">
-              <li><Link href="/nba" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>NBA</Link></li>
               <li><Link href="/mlb" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>MLB</Link></li>
               <li><Link href="/world-cup" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>World Cup</Link></li>
+              <li>
+                <Link href="/nba" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
+                  NBA <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· off-season</span>
+                </Link>
+              </li>
               <li>
                 <Link href="/nhl" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
                   NHL <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· provider pending</span>
