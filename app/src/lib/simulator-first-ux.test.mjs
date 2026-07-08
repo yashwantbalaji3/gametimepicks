@@ -13,7 +13,8 @@ import crypto from "node:crypto";
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
 const band = read("src/components/home/game-lab-home-band.tsx");
-const gamesPage = read("src/app/games/page.tsx");
+// The lobby logic lives in the shared component (mounted at /games and /simulate).
+const gamesPage = read("src/components/games/simulate-lobby.tsx");
 const gamesExp = read("src/components/games-experience.tsx");
 const detailPage = read("src/components/game/game-detail-page.tsx");
 const runner = read("src/components/game/game-simulation-runner.tsx");

@@ -28,7 +28,7 @@ test("the board JSON actually carries the real team ids this depends on", () => 
 });
 
 test("the games list + fixture detail derive MLB logos from those ids (not hardcoded)", () => {
-  const page = fs.readFileSync("src/app/games/page.tsx", "utf8");
+  const page = fs.readFileSync("src/components/games/simulate-lobby.tsx", "utf8");
   assert.ok(page.includes("mlbTeamLogoUrl(g.homeTeamId)") && page.includes("mlbTeamLogoUrl(g.awayTeamId)"),
     "games rows derive MLB logos from the real ids");
   const detail = fs.readFileSync("src/lib/game-detail.ts", "utf8");
