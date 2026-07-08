@@ -46,7 +46,17 @@ export function parseSpecialLeg(l) {
     player = l.participant ?? l.player ?? null;
     if (market === "player_assists" || market === "player_shots_on_target" || market === "player_shots") side = "over";
   }
-  return { id: l.legId ?? l.id ?? "", matchId: Number(l.eventId), market,
+  // eventId is the projection matchId — a NUMERIC id for some feeds but a HASH string for World Cup fixtures.
+  // Number(hash) is NaN, which fails EVERY official join (team findMatch AND the player matchId scope) and
+  // strands the card pending forever. Mirror parseLaneLeg: keep a finite numeric id, else bind by the hash id
+  // / fixture NAME — the official bundle (fetch_official_soccer.py) keys each match under BOTH the projection
+  // matchId AND the "Home vs Away" name, so either resolves. Never NaN.
+  const rawEvent = l.eventId != null ? String(l.eventId).trim() : "";
+  const numericEvent = Number(rawEvent);
+  // Empty/absent eventId → bind by fixture NAME (never 0, which Number(null)/Number("") would yield). A
+  // finite numeric id stays numeric; a hash id binds by the hash string. All three key the official bundle.
+  const matchId = rawEvent === "" ? (fixture || null) : (Number.isFinite(numericEvent) ? numericEvent : rawEvent);
+  return { id: l.legId ?? l.id ?? "", matchId, market,
     selection: `${l.participant ?? ""}${l.side ? " " + l.side : ""}`.trim(), side, player,
     point: typeof l.line === "number" ? l.line : null, oddsAmerican: Number(l.odds ?? 0), matchup: fixture };
 }
