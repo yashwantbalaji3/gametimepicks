@@ -77,7 +77,7 @@ test("Moonshot: Step 1 card settled LOST (lane stopped, no active card); restart
 test("Mr. Dub: settled rungs released → no open exposure in portfolio.json (both lanes restarted; moonshot settled → 0)", () => {
   assert.equal(portfolio.openExposure, 0, "settled rungs released → $0 open in portfolio.json (live Step cards tracked in daily-portfolio)");
   assert.equal(portfolio.totalOpenExposure, 0, "core $0; moonshot settled LOST → 0 open");
-  assert.deepEqual(portfolio.record, { wins: 18, losses: 14, voids: 0, pending: 0 }, "18-14-0-0 (Lane A won its July-6 cycle-8 Step-1)");
+  assert.deepEqual(portfolio.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
   assert.equal((portfolio.activeCards ?? []).length, 0, "no active cards in portfolio.json — live Step cards tracked in daily-portfolio");
 });
 

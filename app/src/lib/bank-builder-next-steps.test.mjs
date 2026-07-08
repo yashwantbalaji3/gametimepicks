@@ -13,17 +13,17 @@ const NOW = "2026-06-23T10:00:00Z";
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 
-test("rung math (post-July-6 settlement): Lane A WON Step-1 → advanced to a Step-2 forward rung (rolled $174.23); Lane B is a no-play (no forward rung)", () => {
+test("rung math (post-July-7 settlement): Lane A WON Steps 1 & 2 → advanced to a Step-3 forward rung (rolled $305.57); Lane B is a no-play (no forward rung)", () => {
   const { laneA, laneB } = readLaneRungs(root);
-  // POST JULY-6 SETTLEMENT: the operator-approved cycle-8 Lane A Step-1 card WON, so the lane ADVANCED — its
-  // forward rung is now Step 2 with 1 cleared step and the WON Step-1 payout ($174.23) rolled forward. Lane B is
-  // a deliberate no-play (no forward rung). The July-5 stopped cycle and the earlier July cycles are preserved in
-  // each lane's priorLane chain.
-  assert.ok(laneA, "Lane A has a forward rung (cycle-8 advanced to Step 2)");
-  assert.equal(laneA.nextStep, 2, "Lane A forward rung is Step 2 (Step-1 WON, advanced)");
-  assert.equal(laneA.clearedSteps, 1, "Lane A has 1 cleared step (the WON Step-1) on the advanced cycle");
-  assert.equal(laneA.rolledStake, 174.23, "Lane A rolled the WON Step-1 payout ($174.23) into the Step-2 stake");
-  assert.ok(!laneB, "Lane B has NO forward rung — deliberate July-6 no-play (stays stopped)");
+  // POST JULY-7 SETTLEMENT: the operator-approved cycle-8 Lane A Step-1 card WON (July-6) and its Step-2 card WON
+  // (July-7), so the lane ADVANCED — its forward rung is now Step 3 with 2 cleared steps and the WON Step-2 payout
+  // ($305.57) rolled forward. Lane B is a deliberate no-play (no forward rung). The July-5 stopped cycle and the
+  // earlier July cycles are preserved in each lane's priorLane chain.
+  assert.ok(laneA, "Lane A has a forward rung (cycle-8 advanced to Step 3)");
+  assert.equal(laneA.nextStep, 3, "Lane A forward rung is Step 3 (Steps 1 & 2 WON, advanced)");
+  assert.equal(laneA.clearedSteps, 2, "Lane A has 2 cleared steps (the WON Step-1 + Step-2) on the advanced cycle");
+  assert.equal(laneA.rolledStake, 305.57, "Lane A rolled the WON Step-2 payout ($305.57) into the Step-3 stake");
+  assert.ok(!laneB, "Lane B has NO forward rung — deliberate no-play (stays stopped)");
 });
 
 test("safest target-fit selector still serves a forward rung + holds its invariants (synthetic rung)", () => {

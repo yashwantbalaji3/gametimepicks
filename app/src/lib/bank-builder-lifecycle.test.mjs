@@ -108,16 +108,16 @@ test("live ladder: record is consistent with the crown ladder + dual-lane settle
   const p = read("mr-dub/portfolio.json");
   const run = read("methodology/launch/dual-bank-builder-active.json").run;
   const activeDualWon = ["laneA", "laneB"].reduce((n, k) => n + (run[k].steps ?? []).filter((s) => s.status === "settled" && s.result === "won").length, 0);
-  assert.deepEqual(p.record, REC(18, 14), "canonical record 18-14 (dual-lane settlements through July-6; Lane A won Steps 1 & 2 then lost July-3, both lanes lost July-5, then Lane A won its July-6 cycle-8 Step-1)");
+  assert.deepEqual(p.record, REC(19, 14), "canonical record 19-14 (dual-lane settlements through July-7; Lane A won Steps 1 & 2 in cycle 6 then lost July-3, both lanes lost July-5, then Lane A won its cycle-8 Step-1 July-6 and Step-2 July-7)");
   // wins beyond the 5-0 crown ladder are dual-lane step wins; the CURRENT run's settled rungs are a subset of
-  // that history. POST JULY-6 SETTLEMENT: Lane A (cycle 8) WON its Step-1 → advanced, so the TOP LEVEL of the
-  // live run carries exactly ONE settled-WON rung (Lane A's July-6 Step-1); Lane B is a no-play (its July-5 loss
-  // sits at the top of a stopped lane, 0 wins). The July-5 losses are one level deeper (cycle 7); the
-  // July-1/July-2 settled-won Steps are two levels deep (cycle 6). The record subset invariant still holds:
-  // dual-lane wins ≥ the live run's settled-won rungs.
+  // that history. POST JULY-7 SETTLEMENT: Lane A (cycle 8) WON its Step-1 (July-6) AND Step-2 (July-7) → advanced,
+  // so the TOP LEVEL of the live run carries exactly TWO settled-WON rungs (Lane A's July-6 Step-1 + July-7 Step-2);
+  // Lane B is a no-play (its July-5 loss sits at the top of a stopped lane, 0 wins). The July-5 losses are one level
+  // deeper (cycle 7); the July-1/July-2 settled-won Steps are two levels deep (cycle 6). The record subset invariant
+  // still holds: dual-lane wins ≥ the live run's settled-won rungs.
   const dualPortion = p.record.wins - 5;
   assert.ok(dualPortion >= activeDualWon, `dual-lane wins (${dualPortion}) ≥ current run's settled-won rungs (${activeDualWon})`);
-  assert.ok(activeDualWon === 1, "live run: Lane A cycle-8 Step-1 settled-WON (July-6) + stopped Lane B — exactly one settled-WON rung at the top level");
+  assert.ok(activeDualWon === 2, "live run: Lane A cycle-8 Step-1 (July-6) + Step-2 (July-7) both settled-WON + stopped Lane B — exactly two settled-WON rungs at the top level");
   // Lane A's priorLane is the July-5 cycle-7 loss (0 wins); the July-1 + July-2 settled-won rungs are two
   // levels deeper (cycle 6).
   const priorAWon = (run.laneA.priorLane?.steps ?? []).filter((s) => s.status === "settled" && s.result === "won").length;
@@ -126,26 +126,28 @@ test("live ladder: record is consistent with the crown ladder + dual-lane settle
   assert.equal(deeperAWon, 2, "the July-1 + July-2 settled-won rungs are preserved two levels deeper (Lane A cycle 6)");
 });
 
-test("post-banking: Lane A's completed final rung was operator-gated BANKED (Ladder #2); Lane A WON its cycle-8 Step-1 → advanced while Lane B is a July-6 NO-PLAY", () => {
-  // POST-BANKING + JULY-6 SETTLEMENT: the operator BANKED Lane A's completed $100→$10k ladder (final $10,089.23 →
+test("post-banking: Lane A's completed final rung was operator-gated BANKED (Ladder #2); Lane A WON its cycle-8 Step-1 (July-6) and Step-2 (July-7) → advanced while Lane B is a NO-PLAY", () => {
+  // POST-BANKING + JULY-7 SETTLEMENT: the operator BANKED Lane A's completed $100→$10k ladder (final $10,089.23 →
   // Ladder #2) and ran fresh cycles. Both lanes LOST on July-5 (cycle 7). For July-6 Lane A RESTARTED (cycle 8)
-  // and its $100 Step-1 card WON, so the lane ADVANCED — its forward rung is now Step 2 (nextStep 2, 1 cleared,
-  // rolled $174.23). Lane B is a deliberate NO-PLAY so it has NO forward rung. The stopped July-5 cycle (7) and
-  // the earlier July cycle (6) are preserved in the priorLane chain. The COMPLETION transition rule itself is
-  // unchanged.
+  // and its $100 Step-1 card WON, then its Step-2 card WON on July-7, so the lane ADVANCED — its forward rung is now
+  // Step 3 (nextStep 3, 2 cleared, rolled $305.57). Lane B is a deliberate NO-PLAY so it has NO forward rung. The
+  // stopped July-5 cycle (7) and the earlier July cycle (6) are preserved in the priorLane chain. The COMPLETION
+  // transition rule itself is unchanged.
   const { laneA, laneB } = readLaneRungs(root);
-  assert.ok(laneA, "Lane A has a forward rung (cycle-8 advanced to Step 2)");
-  assert.equal(laneA.nextStep, 2, "Lane A forward rung is Step 2 (Step-1 WON, advanced)");
-  assert.equal(laneA.clearedSteps, 1, "Lane A advanced cycle has 1 cleared step (the WON Step-1)");
-  assert.equal(laneA.rolledStake, 174.23, "Lane A forward rung stakes the rolled WON Step-1 payout ($174.23)");
-  assert.ok(!laneB, "Lane B has NO forward rung — deliberate July-6 no-play (stays stopped, never restarted)");
+  assert.ok(laneA, "Lane A has a forward rung (cycle-8 advanced to Step 3)");
+  assert.equal(laneA.nextStep, 3, "Lane A forward rung is Step 3 (Steps 1 & 2 WON, advanced)");
+  assert.equal(laneA.clearedSteps, 2, "Lane A advanced cycle has 2 cleared steps (the WON Step-1 + Step-2)");
+  assert.equal(laneA.rolledStake, 305.57, "Lane A forward rung stakes the rolled WON Step-2 payout ($305.57)");
+  assert.ok(!laneB, "Lane B has NO forward rung — deliberate no-play (stays stopped, never restarted)");
   // The completion transition: clearing the final rung (the 5th, index STEP_COUNT-1) is a COMPLETE, not a roll.
   assert.equal(classifyLaneTransition(BANK_BUILDER_STEP_COUNT - 1, "won"), "complete", "clearing the final rung is a COMPLETION");
   const run = read("methodology/launch/dual-bank-builder-active.json").run;
-  assert.equal(run.laneA.laneStatus, "advanced", "live Lane A advanced (cycle-8 Step-1 WON July-6)");
-  assert.equal(run.laneA.currentStep, 1, "live Lane A settled its Step-1 (advanced from Step 1)");
+  assert.equal(run.laneA.laneStatus, "advanced", "live Lane A advanced (cycle-8 Steps 1 & 2 WON, July-6 + July-7)");
+  assert.equal(run.laneA.currentStep, 2, "live Lane A settled its Step-2 (advanced from Step 2)");
   assert.equal(run.laneA.steps[0].status, "settled", "live Lane A Step-1 settled");
   assert.equal(run.laneA.steps[0].result, "won", "live Lane A Step-1 settled WON (July-6)");
+  assert.equal(run.laneA.steps[1].status, "settled", "live Lane A Step-2 settled");
+  assert.equal(run.laneA.steps[1].result, "won", "live Lane A Step-2 settled WON (July-7)");
   assert.equal(run.laneB.laneStatus, "stopped", "live Lane B stopped (July-6 no-play; its July-5 Step-1 LOST sits at the top)");
   // The stopped July-5 cycle (7) is preserved one level deeper (priorLane) — never erased.
   assert.equal(run.laneA.priorLane.laneStatus, "stopped", "Lane A priorLane preserves the stopped cycle 7 (LOST July-5 Step-1)");
@@ -170,7 +172,7 @@ test("active-run protection: settled rungs are immutable history — exposure on
   const p = read("mr-dub/portfolio.json");
   // The CANONICAL dual-ladder never carries exposure on a settled rung (settled steps released their seeds).
   assert.equal(p.openExposure, 0, "no canonical exposure carried from settled rungs");
-  assert.deepEqual(p.record, { wins: 18, losses: 14, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 });
   // The daily portfolio MAY place a new card on the lane's current (unsettled) rung — legitimate forward
   // exposure. Verify no active BB lane card carries STALE exposure on a rung that was settled on an EARLIER
   // slate. A same-day card on a rung the live ladder just settled is fine: it IS that day's card, now graded

@@ -91,7 +91,7 @@ test("exposure/bankroll/crown unchanged by the cross-lane upgrade", () => {
   // whether the day's lanes are active (cards placed) or awaiting — assert the invariants, not a fixed value.
   // POST JULY-5 SETTLEMENT: crown = 20465.40 (Σ two banked finals); active bankroll = crown −
   // $1400 dual-lane losses (fourteen real lost seeds; both lanes lost on July-5) = 19065.40.
-  // The daily view holds the July-6 slate where only Lane A is active; open exposure = Σ active-lane seeds.
+  // The daily view holds the July-7 slate where only Lane A is active; open exposure = Σ active-lane seeds.
   assert.equal(dp.activeBankroll, 19065.4); assert.equal(dp.crownBankroll, 20465.4);
   const sumExposure = (dp.lanes ?? []).filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
   assert.equal(dp.openExposure, sumExposure, "open exposure = Σ active-lane seed exposures, nothing else");
@@ -99,5 +99,5 @@ test("exposure/bankroll/crown unchanged by the cross-lane upgrade", () => {
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(p.currentBankroll, 19065.4); assert.equal(p.crownBankroll, 20465.4);
   assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view)");
-  assert.deepEqual(p.record, { wins: 18, losses: 14, voids: 0, pending: 0 });
+  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 });
 });

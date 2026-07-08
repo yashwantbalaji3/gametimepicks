@@ -7,9 +7,9 @@ import { loadMoonshotLane } from "./moonshot/moonshot-lane.ts";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 
-test("July 5 settled: core record 18-14-0-0, exposure $0, cumulative bankroll = crown − fourteen lost seeds, crown reflects two banked ladders", () => {
+test("July 7 settled: core record 19-14-0-0, exposure $0, cumulative bankroll = crown − fourteen lost seeds, crown reflects two banked ladders", () => {
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.deepEqual(p.record, { wins: 18, losses: 14, voids: 0, pending: 0 }, "record 18-14-0-0 (Lane A won its July-6 cycle-8 Step-1)");
+  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "record 19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
   assert.equal(p.openExposure, 0, "core exposure released to $0 in portfolio.json (settled rungs released; awaiting a fresh slate)");
   assert.equal(p.totalOpenExposure, 0, "total exposure $0");
   assert.equal(p.currentBankroll, 19065.4, "bankroll = crown − $1400 (fourteen real lost seeds); won steps roll");

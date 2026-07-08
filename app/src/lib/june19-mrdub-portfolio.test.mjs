@@ -20,9 +20,9 @@ test("portfolio math after the 2nd ladder is BANKED: crown, bankroll, HWM, drawd
   // All prior cycles fully settled; the settled lanes have no open exposure (awaiting a fresh slate).
   assert.equal(portfolio.openExposure, 0);
   assert.equal(portfolio.roiMultiple, 189.65);
-  // Settlement chain: both lanes lost July-5, then Lane A WON its July-6 cycle-8 Step-1 (rolled unrealized) →
-  // record advances to 18-14-0-0 while the bankroll stays $19,065.40 (a won step never moves it).
-  assert.deepEqual(portfolio.record, { wins: 18, losses: 14, voids: 0, pending: 0 });
+  // Settlement chain: both lanes lost July-5, then Lane A WON its July-6 cycle-8 Step-1 AND its July-7 Step-2
+  // (both rolled unrealized) → record advances to 19-14-0-0 while the bankroll stays $19,065.40 (a won step never moves it).
+  assert.deepEqual(portfolio.record, { wins: 19, losses: 14, voids: 0, pending: 0 });
   // Reconciliation: realized paperProfit (banked ladder + dual-lane losses) === settledProfit (no double-counting).
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
   assert.equal(sum, portfolio.settledProfit, "no double-counting — settled profit reconciles");
