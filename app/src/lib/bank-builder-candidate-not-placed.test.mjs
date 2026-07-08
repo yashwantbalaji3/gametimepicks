@@ -10,12 +10,28 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
 const bbPage = read("src/app/bank-builder/page.tsx");
 const todayPage = read("src/app/today/page.tsx");
+
+/** Temp `root` mirroring public/data with the approved Lane A Step-2 ladder step left UNSETTLED, so an ACTIVE
+ *  BB lane genuinely surfaces (the real July-7 approved card has since settled WON). Caller rmSyncs the dir. */
+function makeUnsettledApprovedRoot() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-bb-cand-"));
+  const dataRoot = path.join(tmp, "data");
+  fs.cpSync(path.join(app, "public", "data"), dataRoot, { recursive: true });
+  const ladderPath = path.join(dataRoot, "methodology", "launch", "dual-bank-builder-active.json");
+  const ladder = JSON.parse(fs.readFileSync(ladderPath, "utf8"));
+  ladder.run.laneA.laneStatus = "active";
+  const step2 = (ladder.run.laneA.steps ?? []).find((s) => s.step === 2);
+  if (step2) { step2.status = "pending"; delete step2.result; delete step2.payout; }
+  fs.writeFileSync(ladderPath, JSON.stringify(ladder, null, 1));
+  return { tmp, dataRoot };
+}
 
 test("/bank-builder selects the placed card by status === 'active' (a candidate never becomes the card)", () => {
   assert.match(
@@ -34,12 +50,38 @@ test("/today builds the Bank Builder lane-ladder from ACTIVE cards only (candida
 });
 
 test("the daily-portfolio model can distinguish candidate from active (the field the fix relies on)", async () => {
+  const { buildPersistedDailyPortfolio } = await import("./daily-portfolio/accounting.ts");
+  // Exercise the candidate/active distinction on an UNSETTLED approved lane: `buildPersistedDailyPortfolio`
+  // renders that lane ACTIVE (a placed card, $100 seed), while any Moonshot below its floor stays a CANDIDATE.
+  // (The real July-7 Lane A card has since settled WON — see the settled-status assertion below — so we build a
+  // temp root that keeps its ladder step unsettled to keep the active-vs-candidate distinction genuinely covered.)
+  const { tmp, dataRoot } = makeUnsettledApprovedRoot();
+  try {
+    const dp = buildPersistedDailyPortfolio(dataRoot, "2026-07-07T12:00:00Z", "2026-07-07", "2026-07-07T12:00:00Z", true);
+    const bb = dp.lanes.filter((c) => c.product === "bank-builder");
+    for (const c of bb) assert.ok(["active", "candidate", "awaiting", "won", "lost"].includes(c.status), `lane ${c.lane} has a real status`);
+    const activeA = bb.find((c) => c.lane === "A");
+    assert.equal(activeA?.status, "active", "the unsettled approved lane is ACTIVE (a placed card)");
+    // A candidate with legs must NOT be counted as an active/placed card.
+    const placed = dp.lanes.filter((c) => c.status === "active" && (c.legs ?? []).length > 0);
+    const candidates = dp.lanes.filter((c) => c.status === "candidate");
+    assert.ok(candidates.length > 0, "at least one candidate lane surfaces (below-floor Moonshot)");
+    assert.ok(candidates.every((c) => !placed.includes(c)), "candidates are never in the placed set");
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("SAME-DAY SETTLED: the real July-7 build renders Lane A as a settled status (won), never a bare active/candidate", async () => {
+  // The candidate/active distinction must ALSO recognise a same-day-settled rung: the real July-7 Lane A card
+  // settled WON, so the daily-portfolio adapter surfaces it with a settled status (not active, not candidate) and
+  // no BB exposure — a finished rung kept as history.
   const { buildDailyPortfolio } = await import("./mr-dub/daily-portfolio.ts");
   const dp = buildDailyPortfolio(path.join(app, "public", "data"), new Date("2026-07-07T14:00:00Z").toISOString(), "2026-07-07");
   const bb = (dp.cards ?? []).filter((c) => c.product === "bank-builder");
-  for (const c of bb) assert.ok(["active", "candidate", "awaiting"].includes(c.status), `lane ${c.lane} has a real status`);
-  // A candidate with legs must NOT be counted as an active/placed card.
-  const placed = bb.filter((c) => c.status === "active" && (c.legs ?? []).length > 0);
-  const candidates = bb.filter((c) => c.status === "candidate");
-  assert.ok(candidates.every((c) => !placed.includes(c)), "candidates are never in the placed set");
+  const a = bb.find((c) => c.lane === "A");
+  assert.ok(a, "Lane A present as history");
+  assert.equal(a.status, "won", "same-day settled → won, not active/candidate");
+  assert.ok(!bb.some((c) => c.status === "active"), "no active BB card once Lane A settled");
+  assert.equal(dp.exposure.core, 0, "BB exposure $0 after the same-day settlement");
 });

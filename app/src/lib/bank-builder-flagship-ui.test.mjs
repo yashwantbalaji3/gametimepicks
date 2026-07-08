@@ -132,14 +132,22 @@ test("persisted leg kickoff (ET) plumbs through to the card leg", () => {
   assert.match(dp, /kickoffEt: g\.kickoffEt \?\? null/, "fromPersisted maps it");
 });
 
-test("FUNCTIONAL: July-7 build → Lane A active Step 2, $100 seed, approved legs (no rejected/stale card)", async () => {
+test("FUNCTIONAL: July-7 build → Lane A settled WON, $0 exposure, clearedSteps 2, approved legs preserved as history", async () => {
+  // SAME-DAY SETTLEMENT: the operator-approved cycle-8 Step-2 card (Colombia or Draw + Argentina to win)
+  // SETTLED WON at ~11pm ET on its own July-7 slate date. It must NOT re-surface as an active $100-at-risk
+  // card — the seed is no longer at risk and the step is a cleared rung. It renders WON / $0 exposure /
+  // clearedSteps 2, with its approved legs preserved as history (never dropped, never a rejected/stale card).
   const { buildDailyPortfolio } = await import("./mr-dub/daily-portfolio.ts");
   const p = buildDailyPortfolio(path.join(app, "public", "data"), new Date("2026-07-07T12:00:00Z").toISOString(), "2026-07-07");
-  assert.equal(p.exposure.core, 100, "BB open exposure is the $100 seed");
-  const a = (p.cards ?? []).find((c) => c.product === "bank-builder" && c.lane === "A" && c.status === "active");
-  assert.ok(a, "Lane A is active");
+  assert.equal(p.exposure.core, 0, "BB open exposure is $0 — the settled seed is no longer at risk");
+  // No BB lane is active (Lane A settled WON), so a candidate/active card must not surface.
+  assert.ok(!(p.cards ?? []).some((c) => c.product === "bank-builder" && c.status === "active"), "no active BB card once Lane A settled");
+  const a = (p.cards ?? []).find((c) => c.product === "bank-builder" && c.lane === "A");
+  assert.ok(a, "Lane A is still present as history");
+  assert.equal(a.status, "won", "Lane A rendered WON (same-day settled), not active");
   assert.equal(a.step, 2, "Step 2");
-  assert.deepEqual(a.legs.map((l) => l.selection), ["Colombia or Draw", "Argentina to win"], "approved legs, not rejected Under 2.5 + Colombia ML");
+  assert.equal(a.clearedSteps, 2, "Step 2 counts as a cleared rung");
+  assert.deepEqual(a.legs.map((l) => l.selection), ["Colombia or Draw", "Argentina to win"], "approved legs preserved as history, not rejected Under 2.5 + Colombia ML");
   assert.ok(a.legs.every((l) => !/Under 2\.5|Spain or Draw|Belgium or Draw/i.test(l.selection)), "no rejected/stale July-6 legs");
   assert.ok(a.legs.every((l) => l.kickoffEt && String(l.kickoffEt).trim()), "every leg carries a real kickoff for the UI");
 });

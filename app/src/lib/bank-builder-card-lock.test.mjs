@@ -98,11 +98,12 @@ test("the consumed lock NEVER mutates canonical money (bankroll/crown/record are
 
 test("STABILITY: the consumed lock does NOT re-pin settled cards; the live cycle serves the approved July-7 card stably", () => {
   // The lock is consumed (status settled, empty lanes), so a refresh must not resurrect the SETTLED June-24
-  // cards. JULY-7 ACTIVATED STATE: Lane A is on cycle-8 Step 2 (it WON its July-6 Step-1) with an
-  // operator-approved survival card — Colombia or Draw (double chance) + Argentina to win (match result). Lane B
-  // is a deliberate NO-PLAY (absent from the active lanes). The served card comes from the date-gated approved
-  // pin, NEVER from the consumed June-24 lock, and the served state must be stable across refreshes. The prior
-  // settlements stay in the live artifact's priorLane chains.
+  // cards. JULY-7 ACTIVATED STATE, SAME-DAY POST-SETTLEMENT: Lane A's operator-approved cycle-8 Step-2 card
+  // — Colombia or Draw (double chance) + Argentina to win (match result) — SETTLED WON at ~11pm ET, so it now
+  // renders WON / $0 exposure (a finished rung), NOT an active $100-at-risk card. It is still SERVED (visible
+  // history) with its approved legs preserved. Lane B is a deliberate NO-PLAY (absent). The served card comes
+  // from the date-gated approved pin, NEVER from the consumed June-24 lock, and the served state must be stable
+  // across refreshes. The prior settlements stay in the live artifact's priorLane chains.
   const lock = read("mr-dub/bank-builder-locks.json");
   assert.equal(lock.status, "settled");
   assert.deepEqual(lock.lanes ?? {}, {}, "consumed lock pins nothing");
@@ -111,14 +112,16 @@ test("STABILITY: the consumed lock does NOT re-pin settled cards; the live cycle
   const liveBb = live.lanes.filter((l) => l.product === "bank-builder");
   const liveA = liveBb.find((l) => l.lane === "A");
   const liveB = liveBb.find((l) => l.lane === "B");
-  assert.equal(liveBb.length, 1, "one Bank Builder lane served — only Lane A active on cycle-8 Step 2 (Lane B no-play)");
-  assert.equal(liveA?.status, "active", "Lane A served active (cycle-8 Step 2, risks the $100 seed)");
+  assert.equal(liveBb.length, 1, "one Bank Builder lane served — only Lane A (cycle-8 Step 2, settled WON; Lane B no-play)");
+  assert.equal(liveA?.status, "won", "Lane A served WON (cycle-8 Step 2 settled same-day; seed no longer at risk)");
+  assert.equal(liveA?.exposure, 0, "settled Lane A places $0 exposure");
+  assert.equal(liveA?.clearedSteps, 2, "Step 2 counts as a cleared rung");
   assert.ok(!liveB, "Lane B absent — deliberate July-7 no-play, never fabricated back in");
-  // BANK BUILDER exposure is the single served $100 seed. Total open exposure also carries the structured
-  // Moonshot product's paper exposure — a separate product, so this test (about the consumed BANK BUILDER lock)
-  // asserts the served lane seed, and that total reconciles from products.
-  assert.equal(live.products.bankBuilder.exposure, 100, "one served $100 seed → $100 BB exposure");
-  assert.equal(live.openExposure, Math.round((live.products.bankBuilder.exposure + live.products.moonshot.exposure) * 100) / 100, "total open exposure reconciles from products (BB Lane-A seed + structured Moonshot paper)");
+  // BANK BUILDER exposure is $0 after the same-day settlement (the seed is no longer at risk). Total open
+  // exposure carries only the separate structured Moonshot product's paper exposure — this test (about the
+  // consumed BANK BUILDER lock) asserts the settled lane places nothing, and that the total reconciles from products.
+  assert.equal(live.products.bankBuilder.exposure, 0, "settled Lane A → $0 BB exposure");
+  assert.equal(live.openExposure, Math.round((live.products.bankBuilder.exposure + live.products.moonshot.exposure) * 100) / 100, "total open exposure reconciles from products (settled BB Lane A + structured Moonshot paper)");
   // The consumed June-24 card's legs (Morocco/Bosnia/Brazil, from the archive) must NOT be re-pinned onto any
   // served card — the served card is the approved July-6 Lane A legs, compared by leg ID.
   const archivedStep5 = (read(ARCHIVE).run.laneA.steps ?? []).find((s) => s.step === 5);

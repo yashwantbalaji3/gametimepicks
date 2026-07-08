@@ -34,7 +34,9 @@ export interface PortfolioLane {
   lane: "A" | "B";
   step: number;
   clearedSteps: number;
-  status: "active" | "candidate" | "awaiting";
+  // "won"/"lost" = an approved step ALREADY settled in the ladder (same-day settlement) — a finished rung,
+  // $0 exposure, NOT active. Only "active" places open exposure (see the active-filter in the builder).
+  status: "active" | "candidate" | "awaiting" | "won" | "lost";
   stake: number;            // the balance riding on the card (rolled for Bank Builder)
   exposure: number;         // the at-risk amount: Bank Builder $100 seed; Moonshot $25 stake
   targetReturn: number | null; // rung goal (Bank Builder), else null
@@ -275,10 +277,25 @@ function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
   try { doc = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "bank-builder-approved.json"), "utf8")); } catch { return []; }
   if (!doc || doc.date !== date || !Array.isArray(doc.lanes)) return [];
   const stake = doc.stake ?? 100;
+  // SAME-DAY SETTLEMENT GUARD: when an approved lane's step is ALREADY settled in the ladder (e.g. the card
+  // settles at ~11pm ET on its own slate date, before the next-day roll), it must NOT re-surface as an
+  // ACTIVE $100-at-risk / pending card — the seed is no longer at risk and the step is a cleared rung. Read
+  // the ladder's per-step official result; when settled, render the lane as won/lost with $0 exposure (still
+  // visible as history, never falls through to auto-generation). DISPLAY-ONLY: canonical money (portfolio.json
+  // bankroll/crown/record) is never touched here — only the daily portfolio's exposure/status presentation.
+  let ladderRun: Record<string, any> | null = null;
+  try { ladderRun = JSON.parse(fs.readFileSync(path.join(root, "methodology", "launch", "dual-bank-builder-active.json"), "utf8")).run; } catch { ladderRun = null; }
+  const settledStepResult = (laneLetter: unknown, step: number): "won" | "lost" | null => {
+    const lane = ladderRun?.[`lane${String(laneLetter).toUpperCase()}`];
+    const s = (lane?.steps ?? []).find((x: Record<string, any>) => x?.step === step);
+    return s && s.status === "settled" && (s.result === "won" || s.result === "lost") ? s.result : null;
+  };
   return doc.lanes.map((l): PortfolioLane => {
     // Per-lane stake + step win over the file defaults, so Lane A can carry its rolled Step-3 wager
     // (e.g. $700.78) while Lane B is a fresh $100 Step 1.
     const laneStake = typeof l.stake === "number" ? l.stake : stake;
+    const step = typeof l.step === "number" ? l.step : 1;
+    const settled = settledStepResult(l.lane, step); // "won" | "lost" | null — already-settled same-day step
     const legs: PortfolioLaneLeg[] = (l.legs ?? []).map((leg: Record<string, any>) => ({
       id: `bb-approved:${leg.gameSlug}:${leg.market}`,
       matchup: (leg.matchup ?? "").replace(/ v /, " vs "),
@@ -297,15 +314,18 @@ function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
       product: "bank-builder", productLabel: "Bank Builder", lane: l.lane,
       // exposure is the $100 paper SEED (the at-risk / canonical-drawdown amount), never the rolled ladder
       // stake — consistent with the generated-lane path (seedExposure) + the ledger convention. `stake` still
-      // carries the rolled Step-N wager (e.g. $174.23) for the card display.
-      step: typeof l.step === "number" ? l.step : 1, clearedSteps: typeof l.clearedSteps === "number" ? l.clearedSteps : 0, status: "active", stake: laneStake, exposure: SEED_EXPOSURE,
+      // carries the rolled Step-N wager (e.g. $174.23) for the card display. A SETTLED step is a finished
+      // rung: status = the official result, exposure $0 (seed no longer at risk), clearedSteps counts it.
+      step, clearedSteps: settled === "won" ? step : (typeof l.clearedSteps === "number" ? l.clearedSteps : 0), status: settled ?? "active", stake: laneStake, exposure: settled ? 0 : SEED_EXPOSURE,
       targetReturn: null, fitsTarget: true,
       combinedOdds: l.combinedOdds ?? 0, combinedDecimal: l.combinedDecimal ?? 1,
       potentialReturn: l.potentialReturn ?? round2(laneStake * (l.combinedDecimal ?? 1)),
       legCount: legs.length, targetLegs: legs.length, legs,
       correlationNote: null, shortfallNote: null,
       whyThisCard: [l.whyLadderPick, l.whyItCouldFail].filter(Boolean),
-      activationEligibility: { eligible: true, reason: "operator-approved active paper ladder" },
+      activationEligibility: settled
+        ? { eligible: false, reason: `settled ${settled} — official result recorded; seed no longer at risk` }
+        : { eligible: true, reason: "operator-approved active paper ladder" },
       locked: true, approvedAt: doc.date,
     };
   });

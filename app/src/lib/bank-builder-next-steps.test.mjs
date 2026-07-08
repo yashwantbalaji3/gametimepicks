@@ -1,10 +1,31 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { readLaneRungs, selectSafestTargetFitCard } from "./daily-portfolio/bank-builder-generation.ts";
 import { buildPersistedDailyPortfolio } from "./daily-portfolio/accounting.ts";
 import { loadWorldCupModelPicks } from "./world-cup/model-qualified-picks.ts";
+
+/**
+ * Build a temp `root` mirroring public/data with an UNSETTLED approved BB step, so the ACTIVE/$100 seed path
+ * stays covered after the real July-7 approved card settled. Copies the data tree, then marks the approved
+ * lane's matching ladder step as NOT settled (pending) — `approvedBankBuilderLanes` then renders it
+ * active/$100 (the general future-day mechanism). Caller must rmSync the returned dir. No real artifact touched.
+ */
+function makeUnsettledApprovedRoot() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-bb-unsettled-"));
+  const dataRoot = path.join(tmp, "data");
+  fs.cpSync(root, dataRoot, { recursive: true });
+  const ladderPath = path.join(dataRoot, "methodology", "launch", "dual-bank-builder-active.json");
+  const ladder = JSON.parse(fs.readFileSync(ladderPath, "utf8"));
+  const laneA = ladder.run.laneA;
+  laneA.laneStatus = "active";
+  const step2 = (laneA.steps ?? []).find((s) => s.step === 2);
+  if (step2) { step2.status = "pending"; delete step2.result; delete step2.payout; } // un-settle the approved Step-2
+  fs.writeFileSync(ladderPath, JSON.stringify(ladder, null, 1));
+  return { tmp, dataRoot };
+}
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const root = path.join(process.cwd(), "public", "data");
@@ -100,24 +121,44 @@ test("settlement history is DURABLY recorded in the ladder priorLane chain (Lane
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
 });
 
-test("BB seed-model invariant: each active lane risks exactly its $100 seed; generation never touches canonical money", () => {
-  // POST JULY-7 ACTIVATION: Lane A is on cycle-8 Step 2 (it WON its July-6 Step-1) and serves a forward card;
-  // Lane B is a no-play. The per-lane seed model holds: each active forward lane risks EXACTLY its $100 seed
-  // (NEVER the $174.23 rolled ladder value), BB exposure = $100 × active lanes = $100, and generation leaves the
-  // canonical bankroll/crown untouched (only an official settlement moves them; generation never does).
+test("BB seed-model invariant: an ACTIVE approved lane risks exactly its $100 seed (distinct from the rolled stake); generation never touches canonical money", () => {
+  // GENERAL ACTIVE-PATH MECHANISM (founder req 7 — future-day approval intact): an approved lane whose ladder
+  // step is NOT yet settled renders ACTIVE and risks EXACTLY its $100 seed — NEVER the $174.23 rolled ladder
+  // value. The real July-7 Lane A Step-2 card has since SETTLED (asserted separately below), so its seed is no
+  // longer at risk; to keep the active/$100 invariant covered we build a temp root with that same approved
+  // Step-2 card but its ladder step left UNSETTLED (pending). Generation leaves canonical money untouched.
+  const { tmp, dataRoot } = makeUnsettledApprovedRoot();
+  try {
+    const dp = buildPersistedDailyPortfolio(dataRoot, "2026-07-07T12:00:00Z", "2026-07-07", "2026-07-07T12:00:00Z", true);
+    const bb = dp.lanes.filter((l) => l.product === "bank-builder");
+    assert.equal(bb.length, 1, "one forward BB lane (approved Lane A; Lane B no-play)");
+    const a = bb.find((l) => l.lane === "A");
+    assert.equal(a.status, "active", "unsettled approved Step-2 renders ACTIVE (future-day mechanism preserved)");
+    assert.equal(a.exposure, 100, "Lane A risks exactly its $100 seed");
+    assert.equal(a.stake, 174.23, "Lane A carries the WON Step-1 payout rolled into the Step-2 stake ($174.23)");
+    assert.notEqual(a.exposure, a.stake, "exposure (the $100 seed at risk) is distinct from the rolled stake");
+    assert.equal(dp.products.bankBuilder.exposure, 100, "BB exposure = one active $100 seed");
+    // Generation reads canonical money read-only — the temp root's copy still carries the canonical figures.
+    assert.equal(dp.activeBankroll, 19065.4, "active bankroll is the post-settlement truth, unchanged by generation");
+    assert.equal(dp.crownBankroll, 20465.4, "crown unchanged by generation (Σ two banked finals)");
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("BB same-day settlement: the real July-7 Lane A Step-2 card is SETTLED WON → $0 exposure, not active", () => {
+  // Against the REAL artifacts, the approved Lane A Step-2 card (Colombia or Draw + Argentina to win) already
+  // settled WON on July-7, so it must render WON with $0 exposure — the seed is no longer at risk. This is the
+  // counterpart to the unsettled-fixture invariant above (the same card, opposite ladder state).
   const dp = buildPersistedDailyPortfolio(root, "2026-07-07T12:00:00Z", "2026-07-07", "2026-07-07T12:00:00Z", true);
-  const bb = dp.lanes.filter((l) => l.product === "bank-builder");
-  assert.equal(bb.length, 1, "one forward BB lane (Lane A cycle-8 Step 2; Lane B no-play)");
-  for (const l of bb) assert.equal(l.exposure, 100, `Lane ${l.lane} risks exactly its $100 seed`);
-  // The seed ($100) is what is at risk, explicitly DISTINCT from the rolled Step-2 stake ($174.23): Lane A
-  // carries the $174.23 rolled stake but only ever risks the $100 seed.
-  const a = bb.find((l) => l.lane === "A");
-  assert.equal(a.stake, 174.23, "Lane A carries the WON Step-1 payout rolled into the Step-2 stake ($174.23)");
-  assert.equal(a.exposure, 100, "Lane A exposure is the $100 seed, NOT the $174.23 rolled stake");
-  assert.notEqual(a.exposure, a.stake, "exposure (the $100 seed at risk) is distinct from the rolled stake");
-  assert.equal(dp.products.bankBuilder.exposure, 100, "BB exposure = one $100 seed");
-  assert.equal(dp.activeBankroll, 19065.4, "active bankroll is the post-settlement truth, unchanged by generation");
-  assert.equal(dp.crownBankroll, 20465.4, "crown unchanged by generation (Σ two banked finals)");
+  const a = dp.lanes.find((l) => l.product === "bank-builder" && l.lane === "A");
+  assert.ok(a, "Lane A present as history");
+  assert.equal(a.status, "won", "settled WON, not active");
+  assert.equal(a.exposure, 0, "settled seed is $0 exposure");
+  assert.equal(a.clearedSteps, 2, "Step 2 counts as a cleared rung");
+  assert.equal(dp.products.bankBuilder.exposure, 0, "BB open exposure is $0 after the same-day settlement");
+  assert.equal(dp.activeBankroll, 19065.4, "active bankroll unchanged by generation");
+  assert.equal(dp.crownBankroll, 20465.4, "crown unchanged by generation");
 });
 
 test("started-game guard still holds for next-step cards (0 exposure after kickoff)", () => {

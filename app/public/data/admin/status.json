@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-07-06T18:00:00Z",
+  "generatedAt": "2026-07-08T03:30:00Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -18,13 +18,13 @@
   "slate": {
     "date": "2026-07-07",
     "activeBankroll": 19065.4,
-    "openExposure": 100,
+    "openExposure": 0,
     "worldCupGames": 3,
     "mlbGames": 16,
     "mlbSlate": "2026-07-07"
   },
   "productReadiness": {
-    "bankBuilder": "active · 1 lane(s)",
+    "bankBuilder": "awaiting approval",
     "moonshot": "awaiting approval",
     "top10": "live",
     "worldCup": "live · 3 game(s)",
@@ -33,11 +33,11 @@
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 1,
+      "activeLanes": 0,
       "lanes": [
         {
           "lane": "A",
-          "status": "active",
+          "status": "won",
           "step": 2,
           "legs": 2,
           "combinedOdds": -133,
@@ -77,8 +77,8 @@
     }
   },
   "counts": {
-    "activeProducts": 3,
-    "pendingApprovals": 2
+    "activeProducts": 2,
+    "pendingApprovals": 3
   },
   "workflowHealth": {
     "lastRunAt": "2026-07-08T03:10:25.367Z",
@@ -86,7 +86,9 @@
     "status": "pass",
     "phase": "settle 2026-07-07"
   },
-  "warnings": [],
+  "warnings": [
+    "Slate (2026-07-07) is behind today (2026-07-08) — refresh/roll forward."
+  ],
   "dailyChecklist": [
     {
       "step": "Money gate green",
@@ -94,7 +96,7 @@
     },
     {
       "step": "Slate is current",
-      "done": true
+      "done": false
     },
     {
       "step": "Products generated (WC or MLB)",
@@ -102,11 +104,11 @@
     },
     {
       "step": "Bank Builder card decided (active or no-play)",
-      "done": true
+      "done": false
     },
     {
       "step": "No missing-data warnings",
-      "done": true
+      "done": false
     }
   ],
   "lastSettlement": {
@@ -115,7 +117,7 @@
   },
   "nextSettlementDate": "2026-07-07",
   "nextRefreshDate": "2026-07-08",
-  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-07-07's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
+  "nextAction": "No active Bank Builder lane for 2026-07-07 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
