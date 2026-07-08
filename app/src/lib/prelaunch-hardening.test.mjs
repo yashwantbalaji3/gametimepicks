@@ -8,6 +8,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
@@ -45,9 +46,16 @@ test("refresh is MONEY-idempotent: it md5-guards canonical money (re-running nev
 
 test("derived status generator is byte-idempotent for a fixed clock (only generatedAt varies live)", () => {
   const NOW = "2026-07-06T18:00:00Z";
-  const gen = () => { execFileSync("npx", ["tsx", "scripts/build-admin-status.mjs", "--now", NOW], { cwd: process.cwd(), stdio: "ignore" }); return fs.readFileSync(path.join(process.cwd(), "public", "data", "admin", "status.json"), "utf8"); };
-  const a = gen(); const b = gen();
-  assert.equal(a, b, "same clock → byte-identical status.json (deterministic, no drift)");
+  // TEST ISOLATION: write to a temp file via --out so this NEVER mutates the committed
+  // public/data/admin/status.json (which previously left the working tree dirty on every suite run).
+  const out = path.join(os.tmpdir(), `gtp-admin-status-${process.pid}-${NOW.replace(/[^0-9]/g, "")}.json`);
+  const gen = () => { execFileSync("npx", ["tsx", "scripts/build-admin-status.mjs", "--now", NOW, "--out", out], { cwd: process.cwd(), stdio: "ignore" }); return fs.readFileSync(out, "utf8"); };
+  try {
+    const a = gen(); const b = gen();
+    assert.equal(a, b, "same clock → byte-identical status.json (deterministic, no drift)");
+  } finally {
+    fs.rmSync(out, { force: true });
+  }
 });
 
 test("OWNER_ACTIONS.md documents all three secrets and never prints a value", () => {

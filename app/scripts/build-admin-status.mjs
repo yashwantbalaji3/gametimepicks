@@ -20,6 +20,9 @@ const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
 const argNow = (() => { const i = process.argv.indexOf("--now"); return i >= 0 ? process.argv[i + 1] : null; })();
 const nowIso = argNow ?? new Date().toISOString();
+// --out <path> redirects the write (e.g. a temp file) so tests can exercise the builder WITHOUT mutating
+// the committed public/data/admin/status.json. Defaults to the canonical path.
+const argOut = (() => { const i = process.argv.indexOf("--out"); return i >= 0 ? process.argv[i + 1] : null; })();
 
 const readJson = (rel) => { try { return JSON.parse(fs.readFileSync(path.join(DATA, rel), "utf8")); } catch { return null; } };
 const md5 = (rel) => { try { return crypto.createHash("md5").update(fs.readFileSync(path.join(DATA, rel))).digest("hex"); } catch { return null; } };
@@ -138,8 +141,9 @@ const status = {
   gates: { note: "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only." },
 };
 
-fs.mkdirSync(path.join(DATA, "admin"), { recursive: true });
-fs.writeFileSync(path.join(DATA, "admin", "status.json"), JSON.stringify(status, null, 2) + "\n");
+const OUT_PATH = argOut ?? path.join(DATA, "admin", "status.json");
+fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true });
+fs.writeFileSync(OUT_PATH, JSON.stringify(status, null, 2) + "\n");
 
 // ── Canonical-money guard: this script must NEVER move money. ────────────────────────────────────
 const portfolioMd5After = md5("mr-dub/portfolio.json");
