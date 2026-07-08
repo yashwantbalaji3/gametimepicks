@@ -126,6 +126,11 @@ function GeneratedPickCard({ p, top }: { p: SimGeneratedPick; top?: boolean }) {
         <Stat label="Edge" value={edgeTxt(p.edgePct)} color={(p.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)"} />
         <Stat label="Conf" value={pct(p.confidence)} />
       </div>
+      {/* Visual depth — real fields only: the model-vs-market edge bar + the projection-vs-line track. */}
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:gap-4">
+        <div className="flex-1"><ProbBar model={p.modelProbability} market={p.marketProbability} /></div>
+        <div className="flex-1"><ProjVsLine projection={p.projection} line={p.line} side={p.side} /></div>
+      </div>
       {p.reasonBullets.length > 0 ? (
         <ul className="flex flex-col gap-0.5">
           {p.reasonBullets.map((b, i) => (
@@ -148,6 +153,63 @@ function Stat({ label, value, color }: { label: string; value: React.ReactNode; 
       <span className="font-mono" style={{ color: color ?? "var(--vault-text)", fontSize: 12.5, fontWeight: 600 }}>
         {value}
       </span>
+    </div>
+  );
+}
+
+const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+
+/**
+ * Model-vs-market probability bar — a visual of the edge, built ONLY from the pick's real
+ * `modelProbability` (bar fill) and `marketProbability` (a tick). The gap between them IS the edge.
+ * Renders nothing when the model probability is absent (never a fabricated bar).
+ */
+function ProbBar({ model, market }: { model?: number | null; market?: number | null }) {
+  if (model == null || !Number.isFinite(model)) return null;
+  const m = clamp01(model);
+  const mk = market != null && Number.isFinite(market) ? clamp01(market) : null;
+  const ahead = mk == null || m >= mk;
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center justify-between font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-text-faint)" }}>
+        <span>Model {pct(model)}</span>
+        {mk != null ? <span>Market {pct(market)}</span> : null}
+      </div>
+      <div className="relative w-full rounded-full" style={{ height: 6, background: "rgba(255,255,255,0.07)" }}>
+        <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: `${m * 100}%`, background: ahead ? "var(--vault-success)" : "var(--gtp-bank-heat)", transition: "width 300ms ease" }} />
+        {mk != null ? (
+          <div className="absolute" style={{ top: -2, left: `calc(${mk * 100}% - 1px)`, width: 2, height: 10, background: "var(--vault-text)" }} title={`Market ${pct(market)}`} aria-hidden />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Projection-vs-line visual — the model projection placed against the market line on a shared track
+ * (0 → ~2× the line). Built ONLY from the pick's real `projection`, `line`, and `side`. Renders nothing
+ * when either number is missing.
+ */
+function ProjVsLine({ projection, line, side }: { projection?: number | null; line?: number | null; side?: string | null }) {
+  if (projection == null || line == null || !Number.isFinite(projection) || !Number.isFinite(line) || line <= 0) return null;
+  const span = Math.max(line * 2, projection * 1.15, 1);
+  const linePct = clamp01(line / span) * 100;
+  const projPct = clamp01(projection / span) * 100;
+  const over = String(side ?? "").toLowerCase().includes("over");
+  const clears = over ? projection >= line : projection <= line;
+  const tone = clears ? "var(--vault-success)" : "var(--gtp-bank-heat)";
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center justify-between font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-text-faint)" }}>
+        <span>Proj {num2(projection)}</span>
+        <span>Line {num2(line)} · {dash(side)}</span>
+      </div>
+      <div className="relative w-full rounded-full" style={{ height: 6, background: "rgba(255,255,255,0.07)" }}>
+        {/* the line marker */}
+        <div className="absolute" style={{ top: -2, left: `calc(${linePct}% - 1px)`, width: 2, height: 10, background: "var(--vault-text-mute)" }} title={`Line ${num2(line)}`} aria-hidden />
+        {/* the projection dot */}
+        <div className="absolute rounded-full" style={{ top: -1, left: `calc(${projPct}% - 4px)`, width: 8, height: 8, background: tone, boxShadow: `0 0 6px ${tone}` }} title={`Projection ${num2(projection)}`} aria-hidden />
+      </div>
     </div>
   );
 }
