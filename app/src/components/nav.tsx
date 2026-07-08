@@ -48,8 +48,8 @@ const NAV_ITEMS: Array<{
   { href: "/world-cup", label: "World Cup" },
   { href: "/picks", label: "Build-a-Pick" },
   { href: "/world-cup-specials", label: "Soccer Specials" },
-  { href: "/moonshot", label: "Moonshot" },
-  { href: "/mr-dub", label: "Track Record" },
+  { href: "/moonshot", label: "Longshot Lab" },
+  { href: "/mr-dub", label: "Daily Dashboard" },
   { href: "/learn", label: "How It Works" },
 ];
 

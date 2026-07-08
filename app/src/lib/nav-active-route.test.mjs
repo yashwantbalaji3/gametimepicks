@@ -52,18 +52,21 @@ test("homer resolves to its own bucket; diamond-specials no longer maps anywhere
   assert.equal(resolveMobileNavBucket("/diamond-specials"), null, "removed route → no bucket");
 });
 
-test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank/Moonshot/Homer Nukes)", () => {
+test("MOBILE_NAV_ITEMS labels are the UNIFIED product spine (Today's Picks/Build-a-Pick/Build/Bank Builder/Longshot Lab/Daily Dashboard)", () => {
   const byHref = Object.fromEntries(
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
-  assert.equal(byHref["/today"], "Today");
-  // The cross-sport bucket now leads with the simulate-first lobby (/simulate).
+  // Chunk-1 label unification: mobile now matches the desktop nav / command rail / footer labels exactly.
+  assert.equal(byHref["/today"], "Today's Picks");
+  // The cross-sport bucket leads with the simulate-first lobby (/simulate).
   assert.equal(byHref["/simulate"], "Simulate");
-  // Picks tab renamed to Parlay Lab (route stays /picks for back-compat).
-  assert.equal(byHref["/picks"], "Parlay Lab");
+  // /picks is "Build-a-Pick" on every surface (route stays /picks for back-compat).
+  assert.equal(byHref["/picks"], "Build-a-Pick");
   assert.equal(byHref["/build"], "Build");
-  assert.equal(byHref["/bank-builder"], "Bank");
-  assert.equal(byHref["/moonshot"], "Moonshot");
+  assert.equal(byHref["/bank-builder"], "Bank Builder");
+  // /moonshot surfaces as "Longshot Lab"; /mr-dub as "Daily Dashboard" (never "Mr. Dub" publicly).
+  assert.equal(byHref["/moonshot"], "Longshot Lab");
+  assert.equal(byHref["/mr-dub"], "Daily Dashboard");
   assert.equal(byHref["/homer-nukes"], undefined, "Homer Nukes retired — no nav tab");
 });
 

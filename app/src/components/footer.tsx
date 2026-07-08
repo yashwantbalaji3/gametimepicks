@@ -96,7 +96,7 @@ export default function Footer() {
               Product
             </div>
             <ul className="space-y-2 list-none p-0">
-              <li><Link href="/parlay-lab" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Parlay Lab</Link></li>
+              <li><Link href="/picks" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Build-a-Pick</Link></li>
               <li><Link href="/results" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Results</Link></li>
               <li>
                 <Link href="/results/model-audit" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
