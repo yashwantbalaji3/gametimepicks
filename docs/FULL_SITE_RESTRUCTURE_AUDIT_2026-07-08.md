@@ -122,3 +122,167 @@ Placement: **P1** primary nav · **P2** secondary/"More" · **FOOT** footer-only
 | `/homer-nukes` | Homer Nukes (retired) | Retired product landing | LEG | `robots noindex`; unlinked; history kept | **ARCH** | keep archived |
 
 **Phase 1 tally:** ~62 routes. Real product pages ≈ 30; trust/results ≈ 10; reference (WC) ≈ 6; internal ≈ 2; legacy/retired/redirect/placeholder ≈ 14. **Nothing is broken or fabricating** — the site is honest; it is *over-broad and inconsistently labelled*, which is the real problem to solve.
+
+---
+
+## Phase 2 — Flagship Product Suite
+
+The site should read as **four flagship products** on one bankroll story, with everything else as supporting depth.
+
+### Tier 1 — Primary flagship (homepage + primary nav)
+
+**1. Simulate** — the front door.
+1. Promise: *Run a precomputed model simulation of any game and read the full dashboard.*
+2. For: everyone; the "what is this" hook.
+3. Primary CTA: **Generate Simulation**. 4. Secondary CTA: See Today's Picks.
+5. Data: `public/data/{sport}/game-simulations/<date>.json` (1,000-run MLB artifacts) via `SimulateLobby` + `GameSimulationRunner`.
+6. Route: `/simulate` (+ `/games/[sport]/[gameId]` detail). 7. Homepage module: "Today's featured simulations" (3–5 ready games).
+8. Trust: paper-only, precomputed, same output for every user. 9. Owner approval: none.
+10. States: Simulation Ready · Unavailable (no artifact) · Stale (older slate) · Archived.
+11. Do NOT show: fabricated soccer sims, inflated run counts, a "predicted final score" for the central read.
+
+**2. Today's Picks** — the daily hub (distinct from Simulate).
+1. Promise: *One scan of today's model slate — top leans, no-plays, product status.*
+2. For: returning daily users. 3. Primary CTA: Open a game's simulation. 4. Secondary CTA: See Results.
+5. Data: WC/MLB boards, Top-10 board, daily-portfolio, bank-builder summary. 6. Route: `/today`.
+7. Homepage module: "Today's model slate" summary. 8. Trust: paper-only; "settled from official results".
+9. Owner approval: none for display. 10. States: live slate · thin slate · no-play (explain the discipline).
+11. Do NOT show: active exposure unless a card is owner-approved; a forced Bank Builder card.
+
+**3. Bank Builder** — the signature ladder.
+1. Promise: *Follow a disciplined $100→$10K paper ladder — every step, stake, and no-play in the open.*
+2. For: the "story/challenge" follower. 3. Primary CTA: View the ladder. 4. Secondary CTA: See Results.
+5. Data: banked-ladders, ledger, official-candidate, daily-portfolio, bb-proposal. 6. Route: `/bank-builder`.
+7. Homepage module: Bank Builder status card (step + state). 8. Trust: no-play discipline, official settlement only.
+9. **Owner approval: required before any exposure/activation.** 10. States: active · awaiting approval · no-play · settled.
+11. Do NOT show: a forced card; exposure without approval; hindsight rewrites.
+
+**4. Results** — the trust center.
+1. Promise: *Every pick, every settlement, every dollar of the paper run — the receipts.*
+2. For: the skeptic / trust-first user. 3. Primary CTA: See the record. 4. Secondary CTA: Read the methodology.
+5. Data: portfolio.json, ledger, optimizer/graded payloads, per-sport audits. 6. Route: `/results` (absorbing `/mr-dub` + `/results/*`).
+7. Homepage module: trust/receipts strip (record · open exposure · pending vs settled). 8. Trust: pending-is-not-loss; official settlement only.
+9. Owner approval: none. 10. States: settled · pending · empty (honest "starts here").
+11. Do NOT show: unsupported hit-rate/performance claims; hiding losses.
+
+### Tier 2 — Secondary product modules (in "More", promoted only when active)
+Parlay Lab (`/picks`) · Build a Card (`/build`) · Top Model Picks (Top-10 board) · Moonshot (`/moonshot`) · Soccer Specials (`/world-cup-specials`) · Game Reports / sport hubs (`/mlb`, `/world-cup`, …) · Portfolio deep view (`/mr-dub`, if kept).
+
+### Tier 3 — Internal / supporting
+Ops (`/ops`, noindex) · Methodology (`/methodology`) · How It Works (`/learn`) · About (`/about`) · Responsible use (`/responsible-use`) · legacy/off-season pages · `/preview/june20`.
+
+---
+
+## Phase 3 — Proposed new site architecture
+
+### Primary nav (5)
+**Home · Simulate · Today's Picks · Bank Builder · Results** — plus a **More** menu. (Brand mark = Home.) One consistent set across desktop-top, desktop-rail, and mobile-bottom — the three surfaces must match.
+
+### More / secondary (menu or /more hub)
+Parlay Lab · Build a Card · Top Model Picks · Moonshot *(when active)* · Soccer Specials *(when soccer live)* · Game Reports (sport hubs: World Cup · MLB · others) · Methodology · How It Works.
+
+### Internal / admin (out of public nav)
+Ops · Portfolio deep view (`/mr-dub`, if not merged into Results) · raw ledgers · admin status.
+
+### Hidden / legacy / off-season (reachable by URL, not featured)
+Board · Events · Trends · Projections · NBA/NHL/UFC/IPL while stale/off-season · retired product pages (`/homer-nukes`) · empty `power` boards · placeholder `/{sport}/parlays`.
+
+### IA diagram
+```text
+/  (Home — 30-sec story + flagship cards + featured sims + slate summary + trust strip)
+├── Simulate
+│   ├── Game lobby (featured + all simulation-ready games)
+│   └── Game simulation dashboard  (/games/[sport]/[gameId])
+├── Today's Picks
+│   ├── Top model picks (Top 10)
+│   ├── Parlay Lab / Build-a-Pick module
+│   ├── No-play notes (discipline explained)
+│   └── Featured simulations
+├── Bank Builder
+│   ├── Current ladder state + step + stake
+│   ├── Today's proposal / no-play
+│   ├── Step history
+│   └── Approval + settlement receipts
+├── Results   (absorbs Portfolio + per-sport audits + saved slips)
+│   ├── Track record (record · exposure · pending vs settled)
+│   ├── Settled cards · Pending cards
+│   ├── Product-by-product performance
+│   └── Model audit deep-dive
+└── More
+    ├── Parlay Lab · Build a Card
+    ├── Moonshot (when active) · Soccer Specials (when soccer live)
+    ├── Game Reports (World Cup · MLB · sport hubs)
+    ├── Methodology · How It Works · Responsible use
+    └── Archives (Board · Projections · Events · Trends · off-season sports)
+```
+
+---
+
+## Phase 4 — Exact page requirements (restructured)
+
+**A. Home (`/`)** — de-duplicate from Today; the 30-second story, not the full slate:
+1) Hero (simulation-first headline; sub = model simulations + paper picks + tracked results; CTA **Simulate Today's Games**, secondary **See Today's Picks**). 2) Flagship product cards (Simulate · Today's Picks · Bank Builder · Results). 3) Today's featured simulations (3–5, Simulation-Ready badge, Run CTA). 4) Today's model slate (top leans + no-play notes + Bank Builder status — a *summary*, then "Open Today's Picks"). 5) Trust/receipts strip (record · **$0 open exposure** · pending vs settled · paper-only). 6) How it works (precomputed · same output for every user · official settlement · no-play discipline). 7) Footer CTA (Simulate · Results · Methodology). *Do not render the entire Today board here.*
+
+**B. Simulate (`/simulate`)**: 1) simulator hero. 2) sport/date filter. 3) featured simulation cards. 4) all simulation-ready games. 5) dashboard preview (what a run shows). 6) unavailable sports/states (honest). 7) methodology link. 8) paper-only note. Each card: teams · sport · time/status · Ready/Unavailable/Archived badge · top generated lean (if real) · run count (if real) · CTA Generate/View Simulation.
+
+**C. Game simulation detail (`/games/[sport]/[gameId]`)** — current order is already correct: 1) matchup header. 2) Generate Simulation. 3) 10s sport animation. 4) post-sim dashboard: 5) market snapshot · 6) central read (prop lean, not a score) · 7) main takeaways · 8) biggest leans · 9) prop/player table · 10) distributions · 11) market agreement · 12) unavailable modules · 13) recap. 14) dense model report BELOW the simulation. 15) methodology / freshness note.
+
+**D. Today's Picks (`/today`)** — the daily slate (not the everything-page): 1) date/sport selector. 2) top model picks (Top 10). 3) strongest simulation-backed leans. 4) Parlay Lab / Build-a-Pick module. 5) Bank Builder status. 6) Moonshot/Longshot status *(when active)*. 7) no-play explanations. 8) per-game "Simulate" links. 9) paper-only note. *No active exposure unless approved; explain no-play; show why a product is unavailable.* (Trim the current WC-focus/UFC/sport-cards density into collapsible or sport-hub links.)
+
+**E. Bank Builder (`/bank-builder`)**: 1) current ladder state. 2) current step. 3) stake / rolled stake. 4) status (active · awaiting approval · no-play · settled). 5) today's proposal (if any). 6) no-play explanation (if none). 7) step history. 8) rules. 9) risk/exposure note. 10) owner-approval state. 11) settlement receipts. *No forced card; no exposure without approval; preserve the no-play discipline.*
+
+**F. Results (`/results`)** — the proof layer (absorb `/mr-dub` + `/results/*` as tabs): 1) overall record. 2) settled cards. 3) pending cards. 4) product-by-product performance. 5) Bank Builder history. 6) WC/Soccer Specials history. 7) model misses/lessons. 8) open exposure. 9) official-settlement policy. 10) pending-is-not-loss policy. 11) data freshness.
+
+**G. More / secondary** — as Phase-1 actions: Top Model Picks (ranked daily leans → simulation); Parlay Lab (paper builder, correlation warnings, no exposure); Build a Card; Moonshot/Soccer Specials (show only when active/live, else honest unavailable, keep out of nav); Game Reports (secondary to Simulate); Methodology/How It Works (artifacts · deterministic sims · official settlement · no-play · paper-only); decide Portfolio (`/mr-dub`) merge vs keep.
+
+---
+
+## Phase 5 — Recommended User Journeys
+
+| # | Journey | Flow | Entry · CTA · Support pages · Needs · Don't distract with |
+|---|---|---|---|---|
+| 1 | Casual | Home → Simulate → pick game → Generate → read recap | Home · **Generate Simulation** · `/simulate`, game detail · "what is this + how to read a lean" · Bank Builder/ledger internals |
+| 2 | Daily picks | Home → Today's Picks → top leans → Simulate game → Results later | Today's Picks · Open a game · Top-10, game detail, Results · today's strongest leans + no-plays · off-season sports, legacy boards |
+| 3 | Bank Builder follower | Home → Bank Builder → step/no-play → history → Results | Bank Builder · View ladder · step history, Results · current step/stake/state + discipline · other products' clutter |
+| 4 | Trust-first | Home → Results → Methodology → Simulate | Results · See the record · `/results/*`, Methodology · record, pending vs settled, official policy · marketing hype |
+| 5 | Power user | Simulate → game detail → full model report → Parlay Lab | Simulate · Generate · game detail, `/picks`, `/build` · full dashboard + dense report + build tools · onboarding copy they don't need |
+
+---
+
+## Phase 6 — Implementation roadmap (low-risk chunks)
+
+Each chunk is independently shippable and reversible. **Money risk is NONE for every chunk** (display/label/IA only; canonical money artifacts are never written; md5-guard each deploy).
+
+| # | Chunk | Goal | Files likely touched | User-facing change | Tests | Deploy risk | Rollback | Owner approval? |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Copy/label cleanup | One label per route across all 3 nav surfaces; fix stale NBA footer copy | `nav.tsx`, `command-rail.tsx`, `nav-active-route.ts`, `footer.tsx` | consistent labels; honest multi-sport footer | nav-active-route tests, footer copy test, banned-copy grep | low | revert commit | **no** (labels only) |
+| 2 | Homepage restructure | Make `/` the 30-sec story, not the full Today board | `app/page.tsx`, `home-hero.tsx`, new home modules | flagship cards + featured sims + slate summary + trust strip | home-band tests, simulator-first-ux, route smoke | med | revert; `/today` unchanged | recommended |
+| 3 | Simulate lobby refinement | Filters + clearer cards + archived/unavailable states | `simulate-lobby.tsx`, `simulate-lobby-featured.ts`, games-experience | date/sport filter, badges | featured tests, lobby tests | low | revert commit | no |
+| 4 | Today's Picks slim-down | Reduce density; sport-hub links; keep no-play notes | `today/page.tsx` + section components | shorter, scannable slate | today structure tests, money-integrity | med | revert commit | recommended |
+| 5 | Bank Builder polish | Tighten state/step/approval/receipts ordering | `bank-builder/*`, ClimbHero | clearer ladder + approval state | bank-builder-consistency tests, money gates | med (money-adjacent display) | revert; **no accounting change** | **yes** (money-adjacent) |
+| 6 | Results / Trust Center merge | Absorb `/mr-dub` + `/results/*` into one proof hub (tabs) | `results/*`, `mr-dub/*`, redirects | one trust center | results tests, money-integrity, forensic | med | keep old routes as redirects | **yes** (trust surface) |
+| 7 | Secondary consolidation | Group More; gate Moonshot/Soccer/UFC to active; unify Parlay Lab canonical | `nav.tsx`, `picks/*`, `moonshot/*`, `/{sport}/parlays` | cleaner "More"; fewer dead links | nav tests, route smoke | low | revert commit | recommended |
+| 8 | Internal/legacy cleanup | Add `noindex` to `/trends`; footer-only `/events`/`/projections`; hide empty power boards; plan redirects | route metadata, `footer.tsx`, `command-rail.tsx` | fewer stale surfaces in discovery | route smoke, no-deletion check | low | revert commit | **yes** (no page deletion without owner ok) |
+
+**Sequencing:** 1 → 2 → 3 → 4 → 7 → 8 first (low/med risk, high clarity gain), then 5 → 6 (money-adjacent, owner-approved). Never delete a page or hide a trust/results surface without explicit owner approval.
+
+---
+
+## Quick wins (low-risk, obvious, for the next implementation prompt)
+1. **Unify one label per route** across the 3 nav surfaces (`/picks` → pick "Parlay Lab" *or* "Build-a-Pick" everywhere; `/mr-dub` → one of "Track Record"/"Portfolio"/"Mr. Dub").
+2. **Refresh the stale footer identity copy** ("NBA player-prop analytics" → simulation-first multi-sport, paper-only).
+3. **`noindex` on `/trends`** (retired landing currently indexable).
+4. **Remove the retired `homer` bucket** from `nav-active-route.ts` (dead code).
+5. **Gate Moonshot / Soccer Specials / UFC out of nav when not active** (they already render honest empty states).
+
+## Owner decisions required (before implementation)
+1. **Results vs Portfolio:** merge `/mr-dub` into `/results` as its premium tab, or keep both? (Recommend: merge — one trust center.)
+2. **Home vs Today:** make `/` a distinct 30-sec landing (recommended) or keep it wrapping the full Today board?
+3. **Primary-nav label for `/picks`** and for `/mr-dub` (pick one each).
+4. **Legacy routes** (`/board`, `/projections`, `/events`, `/trends`): keep reachable-but-hidden, redirect, or archive? (No deletion without your sign-off.)
+5. **Off-season sports** (NBA/NHL/UFC/IPL): footer-only until modeled, or keep in a Sports hub?
+6. **`/nba/parlays` ↔ `/picks`:** make `/picks` the single canonical Parlay Lab and redirect the alias?
+
+## Next recommended implementation prompt
+**"Chunk 1 — Copy/label cleanup"**: unify one label per route across `nav.tsx` / `command-rail.tsx` / `nav-active-route.ts`, refresh the stale footer identity copy to simulation-first multi-sport, add `noindex` to `/trends`, and remove the dead `homer` bucket — display/label only, no data or money changes, full gate battery + banned-copy grep + route smoke, one commit, deploy if green. It is the lowest-risk, highest-clarity first step and unblocks the homepage restructure (Chunk 2).
+
