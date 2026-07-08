@@ -18,8 +18,8 @@
  *      MlbGameLabReport + detail.gameLabMlb) and the sim runner is wired in beside it.
  *  10. Canonical money file is untouched (portfolio.json md5).
  *
- * Functional assertions call the real `buildAllGameDetails()` against the committed artifact at
- * public/data/mlb/game-simulations/2026-07-07.json. Source assertions read the component/lib text.
+ * Functional assertions call the real `buildAllGameDetails()` against the committed artifact for the
+ * current slate (public/data/mlb/game-simulations/<slate>.json). Source assertions read the component/lib text.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -33,9 +33,11 @@ import {
   buildGameSimulationView,
   unavailableSimulationView,
 } from "./game-simulations/game-lab-view.ts";
+import { readGameSimulation } from "./game-simulations/read.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const APP_ROOT = path.resolve(__dirname, "..", "..");
+const APP_ROOT_DATA = path.join(APP_ROOT, "public", "data");
 
 const RUNNER_SRC = fs.readFileSync(
   path.join(APP_ROOT, "src", "components", "game", "game-simulation-runner.tsx"),
@@ -87,15 +89,18 @@ test("GameSimulationRunner exposes a 'Generate Simulation' affordance", () => {
 
 // ── 3 · Missing artifact game → unavailable copy, no throw ───────────────────────────────────────
 test("a missing artifact game yields an 'unavailable' view without throwing", () => {
-  // Functional: the board has more games than the artifact, so some MLB details are unavailable.
-  const mlb = buildAllGameDetails().filter((d) => d.sport === "mlb");
-  const unavailable = mlb.find((d) => d.gameLabSimulation && d.gameLabSimulation.status === "unavailable");
-  assert.ok(unavailable, "expected at least one MLB detail without a matching artifact game");
-  assert.equal(unavailable.gameLabSimulation.status, "unavailable");
-  assert.equal(unavailable.gameLabSimulation.generatedPicks.length, 0);
+  // Functional: a game that is NOT in the current slate's artifact must read as an honest "unavailable"
+  // view, never a throw. (SLATE ADVANCED to 2026-07-08, whose artifact covers all 15 board games, so we
+  // exercise the missing-game path through a synthetic gameId rather than a real board game.)
+  const res = readGameSimulation(APP_ROOT_DATA, "mlb", "2026-07-08", "does-not-exist-game");
+  assert.equal(res.status, "unavailable", "a game absent from the artifact reads as unavailable");
+  const view = buildGameSimulationView(res);
+  assert.equal(view.status, "unavailable");
+  assert.equal(view.slug, null);
+  assert.equal(view.generatedPicks.length, 0);
 
   // The builder helper never throws for a synthesized unavailable view either.
-  const v = unavailableSimulationView("mlb", "2026-07-07", "nope", "game_not_in_artifact");
+  const v = unavailableSimulationView("mlb", "2026-07-08", "nope", "game_not_in_artifact");
   assert.equal(v.status, "unavailable");
   assert.equal(v.slug, null);
 
@@ -143,8 +148,10 @@ test("the reveal is animation-only: no Math.random, fetch, fs, or writes in the 
 
 // ── 5 · The generatedPicks the view exposes are exactly the artifact's picks ────────────────────
 test("the sim view's generatedPicks are the artifact's picks verbatim (read from disk)", () => {
+  // SLATE ADVANCED to 2026-07-08 — the ready MLB details are the July-8 games, so compare against the
+  // July-8 artifact that buildAllGameDetails() actually read from.
   const artifact = JSON.parse(
-    fs.readFileSync(path.join(APP_ROOT, "public", "data", "mlb", "game-simulations", "2026-07-07.json"), "utf8"),
+    fs.readFileSync(path.join(APP_ROOT, "public", "data", "mlb", "game-simulations", "2026-07-08.json"), "utf8"),
   );
   const artByGameId = new Map(artifact.games.map((g) => [g.gameId, g]));
   const ready = readyMlbDetails().filter((d) => d.gameLabSimulation.generatedPicks.length > 0);
