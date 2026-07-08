@@ -1,8 +1,9 @@
 /**
- * HOMEPAGE MULTI-SPORT RESTRUCTURE (Plan 0008 Phase 2A · chunk 4). Pins that the homepage leads with a
- * Game Lab command-center band (real fixtures, MLB + World Cup EQUAL weight, honest empty states, a
- * first-class Game Lab CTA) ABOVE the flagship products, while keeping the existing Today command center
- * (flagship + trust). Display-only — no money, no settlement, no card approval.
+ * GAME LAB HOME BAND — the band COMPONENT's own contract (real fixtures, MLB + World Cup EQUAL weight,
+ * honest empty states, a first-class Simulate CTA, paper-only). The component file is RETAINED even though
+ * the homepage was restructured (2026-07-08) into a focused simulation-first landing page that no longer
+ * renders this band. The homepage's "surfaces real, sim-ready games" intent is now carried by the
+ * featured-simulations section (see the last test here + home-restructure.test.mjs). Display-only.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -13,6 +14,7 @@ const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
 const band = read("src/components/home/game-lab-home-band.tsx");
 const page = read("src/app/page.tsx");
+const featured = read("src/components/home/featured-simulations.tsx");
 
 const BANNED = /\bguaranteed\b|\block\b|\bsafest\b|can'?t lose/i;
 
@@ -38,18 +40,18 @@ test("each game links to its Game Lab report (real fixture route), honest CTA la
   assert.match(band, /<TeamLogo team=\{g\.awayTeam\} sport="mlb"/, "MLB team logos");
 });
 
-test("homepage wires the band from the REAL builder (no new data path), MLB + WC, and keeps flagship+trust", () => {
-  assert.match(page, /import GameLabHomeBand.*from "@\/components\/home\/game-lab-home-band"/, "imports the band");
+test("homepage surfaces real, sim-ready games from the REAL builder (no new data path) and is NOT the full board", () => {
+  // Same real builder, no new data path — now feeding the featured-simulations selector.
   assert.match(page, /import \{ buildAllGameDetails \} from "@\/lib\/game-detail"/, "reuses the existing game-detail builder (no new data path)");
-  assert.match(page, /const mlbGames = pickGames\("mlb", \d+\)/, "derives real MLB games");
-  assert.match(page, /const wcGames = pickGames\("world_cup", \d+\)/, "derives real World Cup games");
-  assert.match(page, /seen\.has\(d\.slug\)/, "dedups by slug (MLB doubleheaders share one)");
-  assert.match(page, /<GameLabHomeBand mlb=\{mlbGames\} wc=\{wcGames\}/, "renders the band");
-  // The flagship + trust command center (TodayPage) is preserved BELOW the band.
-  assert.match(page, /<TodayPage \/>/, "the flagship + trust command center stays (added advantage, below)");
-  const bandIdx = page.indexOf("<GameLabHomeBand");
-  const todayIdx = page.indexOf("<TodayPage");
-  assert.ok(bandIdx > 0 && bandIdx < todayIdx, "Game Lab band leads; flagship products follow");
+  assert.match(page, /import \{ featuredSimulations \} from "@\/lib\/simulate-lobby-featured"/, "reuses the featured-simulations selector");
+  assert.match(page, /featuredSimulations\(details\)/, "derives featured games from the real details");
+  assert.match(page, /<FeaturedSimulationsSection/, "renders the featured-simulations section");
+  // The restructured Home does NOT render the full Today board anymore (that stays on /today).
+  assert.ok(!/<TodayPage/.test(page), "the full Today board is no longer rendered on Home");
+  assert.ok(!/GameLabHomeBand/.test(page), "the Game Lab band is no longer rendered on Home");
+  // The featured section links each game to its own report route, with an honest unavailable state.
+  assert.match(featured, /href=\{s\.href\}/, "each featured game links to its game route (s.href)");
+  assert.match(featured, /No simulation-ready games/i, "honest unavailable state");
 });
 
 test("FUNCTIONAL: the derivation yields real, deduped MLB + WC fixtures with honest report flags", async () => {

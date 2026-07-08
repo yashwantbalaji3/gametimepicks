@@ -10,18 +10,20 @@ import crypto from "node:crypto";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
-const band = read("src/components/home/game-lab-home-band.tsx");
-const hero = read("src/components/home-hero.tsx");
+// 2026-07-08: the homepage's simulate + today CTAs now both live in the landing hero (the homepage was
+// restructured into a focused simulation-first landing page). Intent preserved: Home pushes to BOTH
+// /simulate and Today's Picks, without duplicating the full lobby onto /today.
+const hero = read("src/components/home/landing-hero.tsx");
 const todayPage = read("src/app/today/page.tsx");
 
 test("Home's Simulate CTA points to the clean /simulate route", () => {
-  assert.match(band, /href="\/simulate"/, "the Simulate CTA links to /simulate (not the raw /games)");
-  assert.match(band, /Simulate Today.{0,10}s Games/i, "the CTA is simulate-first");
+  assert.match(hero, /href="\/simulate"/, "the Simulate CTA links to /simulate (not the raw /games)");
+  assert.match(hero, /Simulate Today.{0,10}s Games/i, "the CTA is simulate-first");
 });
 
 test("Home also pushes users to Today's Picks (a distinct CTA, not a duplicate of Simulate)", () => {
-  assert.match(hero, /picksAnchorId/, "the hero has a today's-picks CTA");
-  assert.match(hero, /See today.{0,6}s picks/i, "the hero CTA is 'See today's picks'");
+  assert.match(hero, /href="\/today"/, "the hero has a Today's Picks CTA to /today");
+  assert.match(hero, /See Today.{0,6}s Picks/i, "the hero CTA is 'See Today's Picks'");
 });
 
 test("/today is NOT mislabeled as the simulation lobby (it is the picks/no-play board)", () => {

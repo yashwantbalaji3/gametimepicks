@@ -12,7 +12,11 @@ import crypto from "node:crypto";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
-const band = read("src/components/home/game-lab-home-band.tsx");
+// 2026-07-08: `/` is now a simulation-first LANDING page — the simulate CTA + headline live in the
+// landing hero, and the homepage's real ready-artifact games surface via the featured-simulations
+// section (the Game Lab band is retained but no longer rendered on Home).
+const hero = read("src/components/home/landing-hero.tsx");
+const featured = read("src/components/home/featured-simulations.tsx");
 // The lobby logic lives in the shared component (mounted at /games and /simulate).
 const gamesPage = read("src/components/games/simulate-lobby.tsx");
 const gamesExp = read("src/components/games-experience.tsx");
@@ -20,11 +24,15 @@ const detailPage = read("src/components/game/game-detail-page.tsx");
 const runner = read("src/components/game/game-simulation-runner.tsx");
 const BANNED = /\bguaranteed\b|\block\b|\bsafest\b|can'?t lose|Monte Carlo|live betting|free money/i;
 
-test("homepage has a first-class 'Simulate Today's Games' CTA to the games lobby", () => {
-  assert.match(band, /Simulate Today.{0,10}s Games/i, "the primary CTA is simulate-first");
-  assert.match(band, /href="\/simulate"/, "links to the /simulate lobby");
-  assert.match(band, /Simulate today.{0,10}s games/i, "headline is simulate-first");
-  assert.ok(!BANNED.test(band), "no banned copy on the band");
+test("homepage has a first-class 'Simulate Today's Games' CTA + a real sim-ready games surface", () => {
+  assert.match(hero, /Simulate Today.{0,10}s Games/i, "the primary CTA is simulate-first");
+  assert.match(hero, /href="\/simulate"/, "links to the /simulate lobby");
+  assert.match(hero, /Simulate today.{0,10}s games/i, "headline is simulate-first");
+  assert.ok(!BANNED.test(hero), "no banned copy on the hero");
+  // Real ready-artifact games are featured on the homepage with a Simulation Ready badge (never faked).
+  assert.match(featured, /Simulation Ready/, "the featured section badges sim-ready games");
+  assert.match(featured, /Generate Simulation/, "each featured game links to Generate Simulation");
+  assert.ok(!BANNED.test(featured), "no banned copy on the featured section");
 });
 
 test("/games communicates SIMULATION clearly (title + sub reframed)", () => {
