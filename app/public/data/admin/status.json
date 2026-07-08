@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-07-08T03:30:00Z",
+  "generatedAt": "2026-07-06T18:00:00Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -16,19 +16,19 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-07-07",
+    "date": "2026-07-08",
     "activeBankroll": 19065.4,
     "openExposure": 0,
     "worldCupGames": 3,
-    "mlbGames": 16,
-    "mlbSlate": "2026-07-07"
+    "mlbGames": 15,
+    "mlbSlate": "2026-07-08"
   },
   "productReadiness": {
     "bankBuilder": "awaiting approval",
     "moonshot": "awaiting approval",
     "top10": "live",
     "worldCup": "live · 3 game(s)",
-    "mlb": "live · 16 game(s)",
+    "mlb": "live · 15 game(s)",
     "wcSpecials": "3 card(s)"
   },
   "products": {
@@ -37,16 +37,13 @@
       "lanes": [
         {
           "lane": "A",
-          "status": "won",
-          "step": 2,
-          "legs": 2,
-          "combinedOdds": -133,
-          "stake": 174.23,
-          "potentialReturn": 305.56,
-          "selections": [
-            "Colombia or Draw",
-            "Argentina to win"
-          ]
+          "status": "awaiting",
+          "step": 3,
+          "legs": 0,
+          "combinedOdds": 0,
+          "stake": 305.57,
+          "potentialReturn": 305.57,
+          "selections": []
         }
       ]
     },
@@ -86,9 +83,7 @@
     "status": "pass",
     "phase": "settle 2026-07-07"
   },
-  "warnings": [
-    "Slate (2026-07-07) is behind today (2026-07-08) — refresh/roll forward."
-  ],
+  "warnings": [],
   "dailyChecklist": [
     {
       "step": "Money gate green",
@@ -96,7 +91,7 @@
     },
     {
       "step": "Slate is current",
-      "done": false
+      "done": true
     },
     {
       "step": "Products generated (WC or MLB)",
@@ -108,16 +103,16 @@
     },
     {
       "step": "No missing-data warnings",
-      "done": false
+      "done": true
     }
   ],
   "lastSettlement": {
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-07-07",
-  "nextRefreshDate": "2026-07-08",
-  "nextAction": "No active Bank Builder lane for 2026-07-07 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-07-08",
+  "nextRefreshDate": "2026-07-09",
+  "nextAction": "No active Bank Builder lane for 2026-07-08 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }

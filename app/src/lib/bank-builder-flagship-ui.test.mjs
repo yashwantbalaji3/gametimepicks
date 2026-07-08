@@ -137,12 +137,15 @@ test("FUNCTIONAL: July-7 build → Lane A settled WON, $0 exposure, clearedSteps
   // SETTLED WON at ~11pm ET on its own July-7 slate date. It must NOT re-surface as an active $100-at-risk
   // card — the seed is no longer at risk and the step is a cleared rung. It renders WON / $0 exposure /
   // clearedSteps 2, with its approved legs preserved as history (never dropped, never a rejected/stale card).
-  const { buildDailyPortfolio } = await import("./mr-dub/daily-portfolio.ts");
-  const p = buildDailyPortfolio(path.join(app, "public", "data"), new Date("2026-07-07T12:00:00Z").toISOString(), "2026-07-07");
-  assert.equal(p.exposure.core, 0, "BB open exposure is $0 — the settled seed is no longer at risk");
+  // SLATE ADVANCED July-7 → July-8: the live daily-portfolio.json is now the July-8 no-play, so build the
+  // July-7 view EXPLICITLY from the July-7 approved card + settled ladder. The settled-WON invariant is
+  // unchanged (still reconstructed from canonical July-7 sources) — it is simply no longer the live file.
+  const { buildPersistedDailyPortfolio } = await import("./daily-portfolio/accounting.ts");
+  const p = buildPersistedDailyPortfolio(path.join(app, "public", "data"), "2026-07-07T12:00:00Z", "2026-07-07", "2026-07-07T12:00:00Z", true);
+  assert.equal(p.products.bankBuilder.exposure, 0, "BB open exposure is $0 — the settled seed is no longer at risk");
   // No BB lane is active (Lane A settled WON), so a candidate/active card must not surface.
-  assert.ok(!(p.cards ?? []).some((c) => c.product === "bank-builder" && c.status === "active"), "no active BB card once Lane A settled");
-  const a = (p.cards ?? []).find((c) => c.product === "bank-builder" && c.lane === "A");
+  assert.ok(!(p.lanes ?? []).some((c) => c.product === "bank-builder" && c.status === "active"), "no active BB card once Lane A settled");
+  const a = (p.lanes ?? []).find((c) => c.product === "bank-builder" && c.lane === "A");
   assert.ok(a, "Lane A is still present as history");
   assert.equal(a.status, "won", "Lane A rendered WON (same-day settled), not active");
   assert.equal(a.step, 2, "Step 2");

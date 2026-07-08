@@ -76,12 +76,15 @@ test("SAME-DAY SETTLED: the real July-7 build renders Lane A as a settled status
   // The candidate/active distinction must ALSO recognise a same-day-settled rung: the real July-7 Lane A card
   // settled WON, so the daily-portfolio adapter surfaces it with a settled status (not active, not candidate) and
   // no BB exposure — a finished rung kept as history.
-  const { buildDailyPortfolio } = await import("./mr-dub/daily-portfolio.ts");
-  const dp = buildDailyPortfolio(path.join(app, "public", "data"), new Date("2026-07-07T14:00:00Z").toISOString(), "2026-07-07");
-  const bb = (dp.cards ?? []).filter((c) => c.product === "bank-builder");
+  // SLATE ADVANCED July-7 → July-8: the live daily-portfolio.json is now the July-8 no-play, so we build the
+  // July-7 view EXPLICITLY from the July-7 approved card + settled ladder (the settled-WON invariant is
+  // unchanged — it is still reconstructed from canonical July-7 sources, just no longer the live file).
+  const { buildPersistedDailyPortfolio } = await import("./daily-portfolio/accounting.ts");
+  const dp = buildPersistedDailyPortfolio(path.join(app, "public", "data"), "2026-07-07T14:00:00Z", "2026-07-07", "2026-07-07T14:00:00Z", true);
+  const bb = (dp.lanes ?? []).filter((c) => c.product === "bank-builder");
   const a = bb.find((c) => c.lane === "A");
   assert.ok(a, "Lane A present as history");
   assert.equal(a.status, "won", "same-day settled → won, not active/candidate");
   assert.ok(!bb.some((c) => c.status === "active"), "no active BB card once Lane A settled");
-  assert.equal(dp.exposure.core, 0, "BB exposure $0 after the same-day settlement");
+  assert.equal(dp.products.bankBuilder.exposure, 0, "BB exposure $0 after the same-day settlement");
 });
