@@ -926,7 +926,7 @@ export default function GameSimulationRunner({ view }: { view: GameSimulationVie
 
       {/* Reveal animation — the 10s sport-specific staging (baseball diamond for MLB). The dashboard is
           gated on SIMULATION_MIN_DURATION_MS in `start`, so it never appears before the animation finishes. */}
-      {phase === "revealing" ? <SportSimulationAnimation sport="mlb" view={view} stage={stage} /> : null}
+      {phase === "revealing" ? <SportSimulationAnimation sport={view.sport} view={view} stage={stage} /> : null}
 
       {/* After reveal: the precomputed artifact, reorganized into the 10-section dashboard. */}
       {phase === "done" ? (

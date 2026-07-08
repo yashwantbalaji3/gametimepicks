@@ -107,7 +107,7 @@ test("the runner gates the done-phase on SIMULATION_MIN_DURATION_MS (no sub-10s 
   assert.doesNotMatch(RUNNER_SRC, /STEP_MS|RevealSequence|REVEAL_STEPS/, "the old sub-10s reveal path is removed");
 
   // The runner renders the new animation for MLB.
-  assert.match(RUNNER_SRC, /<SportSimulationAnimation sport="mlb" view=\{view\} stage=\{stage\}/, "runner renders the sport animation with the stage");
+  assert.match(RUNNER_SRC, /<SportSimulationAnimation sport=\{view\.sport\} view=\{view\} stage=\{stage\}/, "runner renders the sport animation, dispatched on the real view.sport");
 });
 
 // ── 5 · the animation renders a baseball diamond for MLB ─────────────────────────────────────────

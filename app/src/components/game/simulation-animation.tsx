@@ -261,9 +261,12 @@ export function BaseballSimulationAnimation({ view, stage }: { view: GameSimulat
  * A neutral (non-baseball) staging shell for any other sport — the same eyebrow, matchup, run-count
  * label, checklist, and paper-only note, WITHOUT the baseball graphic.
  */
-function NeutralSimulationAnimation({ view, stage }: { view: GameSimulationView; stage: number }) {
+function NeutralSimulationAnimation({ sport, view, stage }: { sport?: string; view: GameSimulationView; stage: number }) {
   const away = view.teams?.away ?? "Away";
   const home = view.teams?.home ?? "Home";
+  // Honest degradation: a sport without a dedicated graphic yet shows the SAME generic staging and says
+  // so plainly — never a baseball diamond for a non-baseball game, and never fabricated sport data.
+  const sportName = sport ? sport.replace(/_/g, " ") : "this sport";
   return (
     <div
       className="flex flex-col gap-3.5 rounded-[14px] px-4 py-4"
@@ -276,6 +279,9 @@ function NeutralSimulationAnimation({ view, stage }: { view: GameSimulationView;
         </h2>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
           {runLabel(view)} · Precomputed model artifact
+        </span>
+        <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5, lineHeight: 1.4 }}>
+          No {sportName}-specific view yet — showing the generic model staging.
         </span>
       </div>
       <StageChecklist stage={stage} />
@@ -300,7 +306,7 @@ export function SportSimulationAnimation({
   stage: number;
 }) {
   if (sport && sport !== "mlb") {
-    return <NeutralSimulationAnimation view={view} stage={stage} />;
+    return <NeutralSimulationAnimation sport={sport} view={view} stage={stage} />;
   }
   return <BaseballSimulationAnimation view={view} stage={stage} />;
 }

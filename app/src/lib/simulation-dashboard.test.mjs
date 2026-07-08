@@ -233,7 +233,7 @@ test("source references all 10 modules; Phase-2 animation + idle Generate button
   // Header stays (section 1) — the summary + explicit model-projection label.
   assert.match(RUNNER_SRC, /Model projection · not a final score/, "projected numbers labelled a model projection");
   // Phase-2 animation is untouched: still rendered for the animating phase.
-  assert.match(RUNNER_SRC, /<SportSimulationAnimation sport="mlb" view=\{view\} stage=\{stage\} \/>/, "animation still renders for the animating phase");
+  assert.match(RUNNER_SRC, /<SportSimulationAnimation sport=\{view\.sport\} view=\{view\} stage=\{stage\} \/>/, "animation still renders for the animating phase");
   assert.match(RUNNER_SRC, /phase === "revealing"/, "the animating phase branch is intact");
   // The idle Generate button remains.
   assert.match(RUNNER_SRC, /Generate Simulation/, "idle Generate button label present");
