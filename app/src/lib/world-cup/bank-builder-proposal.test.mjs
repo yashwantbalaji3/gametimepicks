@@ -115,8 +115,9 @@ test("thin slate (1 game) → not buildable, honest note, never forced", () => {
 import { loadApprovedBankBuilder } from "./bank-builder-proposal.ts";
 import path from "node:path";
 test("approved July-7 Bank Builder is pinned to the exact operator-approved legs — Lane A only, Lane B no-play (no drift)", () => {
-  // Pre-slate "now" (before the first July-7 kickoff, Argentina-Egypt 16:00 UTC) → all legs pregame.
-  const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-07", Date.UTC(2026, 6, 7, 12, 0));
+  // July-7 Lane A Step-2 is SETTLED WON in the canonical ladder, so the approved snapshot overlays the
+  // OFFICIAL result (legs hit / lane won) regardless of the passed clock. The leg PINS must not drift.
+  const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-07", Date.UTC(2026, 6, 8, 3, 0));
   assert.ok(ap && ap.approved === true, "the approved snapshot loads and is flagged approved");
   // July-7 is a Lane-A-only card: Lane B is a deliberate no-play, absent from the approved lanes.
   assert.equal(ap.lanes.length, 1, "only Lane A is approved for July-7 (Lane B no-play)");
@@ -130,8 +131,9 @@ test("approved July-7 Bank Builder is pinned to the exact operator-approved legs
   assert.equal(a.step, 2);
   // Team-market only — every leg has no player prop.
   assert.ok(ap.lanes.every((ln) => ln.legs.every((l) => l.player == null)));
-  // Pre-slate: every leg is pregame.
-  assert.ok(ap.lanes.every((ln) => ln.legs.every((l) => l.legStatus === "pregame")), "all legs pregame before first kickoff");
-  // Never a fabricated hit/miss without official data.
-  assert.ok(ap.lanes.every((ln) => ln.legs.every((l) => l.legStatus !== "hit" && l.legStatus !== "missed")));
+  // SETTLED overlay: the ladder marks Lane A Step-2 WON → laneStatus "won", both legs "hit". This is read
+  // from the official settled ladder (NOT fabricated from scores) — a genuinely unsettled step falls back to
+  // the kickoff-derived lifecycle (see the unsettled-fixture test below).
+  assert.equal(a.laneStatus, "won", "settled Step-2 renders WON from the ladder, not a stale awaiting-settlement");
+  assert.ok(a.legs.every((l) => l.legStatus === "hit"), "both officially-settled legs read hit");
 });

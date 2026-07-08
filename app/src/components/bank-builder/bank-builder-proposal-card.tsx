@@ -37,8 +37,10 @@ function LaneCard({ lane }: { lane: ProposalLane }) {
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>$100 paper</span>
         </div>
         {typeof lane.legsSettled === "number" && lane.legsTotal ? (
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: lane.laneStatus === "awaiting_settlement" ? "var(--vault-text-faint)" : "var(--gtp-bank-heat)", fontSize: 8.5 }}>
-            {lane.legsSettled === 0 ? "Both legs pregame"
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: lane.laneStatus === "won" ? "var(--vault-success)" : lane.laneStatus === "awaiting_settlement" ? "var(--vault-text-faint)" : "var(--gtp-bank-heat)", fontSize: 8.5 }}>
+            {lane.laneStatus === "won" ? "Settled · WON — official result ✓"
+              : lane.laneStatus === "lost" ? "Settled · did not clear this rung"
+              : lane.legsSettled === 0 ? "Both legs pregame"
               : lane.legsSettled === lane.legsTotal ? "Both legs played · awaiting official settlement"
               : `${lane.legsSettled} of ${lane.legsTotal} legs played · awaiting ${lane.legs.find((l) => l.legStatus === "pregame")?.selection ?? "the rest"}`}
           </span>

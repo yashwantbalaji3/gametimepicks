@@ -14,6 +14,7 @@ import path from "node:path";
 import { loadRoundOf32Board, type RoundOf32Game, type RoundOf32Picks } from "./round-of-32";
 import { deriveGameScript } from "./game-script";
 import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
+import { settledLaneStepResult } from "@/lib/daily-portfolio/bank-builder-generation";
 
 /** Honest per-leg lifecycle status, derived ONLY from kickoff vs now (never a fabricated hit/miss). A
  *  hit/missed is set ONLY when real official settlement data is present (not implemented here → we never
@@ -50,7 +51,9 @@ export interface ProposalLane {
   /** live-lane bookkeeping (present on a promoted/approved lane). */
   legsSettled?: number;       // legs whose game is over (awaiting/hit/missed)
   legsTotal?: number;
-  laneStatus?: "pregame" | "in_progress" | "awaiting_settlement";
+  // "won"/"lost" = the ladder has OFFICIALLY settled this lane's step (overlaid from the canonical ladder,
+  // never inferred from scores here). Otherwise a kickoff-derived lifecycle state.
+  laneStatus?: "pregame" | "in_progress" | "awaiting_settlement" | "won" | "lost";
 }
 
 export interface BankBuilderProposal {
@@ -84,10 +87,21 @@ export function loadApprovedBankBuilder(root: string, date: string, nowMs = Date
   if (!doc || doc.date !== date || !Array.isArray(doc.lanes) || !doc.lanes.length) return null;
   const stake = (doc as { stake?: number }).stake ?? 100;
   const lanes = doc.lanes.map((lane) => {
-    const legs = lane.legs.map((l) => ({ ...l, legStatus: legStatusFromKickoff(l.kickoffUtc, nowMs) }));
+    // OFFICIAL SETTLED RESULT: when this approved lane's step is already settled in the canonical ladder,
+    // overlay the official result — a WON lane's legs read "hit" and the lane reads "won" (never a stale
+    // "awaiting settlement"). The ladder is the source of truth; we NEVER infer a win/loss from scores here.
+    // Unsettled → fall back to the honest kickoff-derived lifecycle so future/in-flight cards are unchanged.
+    const laneStep = (lane as ProposalLane & { step?: number }).step;
+    const settledResult = typeof laneStep === "number" ? settledLaneStepResult(root, lane.lane, laneStep) : null;
+    const legs = lane.legs.map((l) => ({
+      ...l,
+      legStatus: (settledResult === "won" ? "hit" : legStatusFromKickoff(l.kickoffUtc, nowMs)) as LegStatus,
+    }));
     const settled = legs.filter((l) => l.legStatus === "awaiting_settlement" || l.legStatus === "hit" || l.legStatus === "missed").length;
     const anyStarted = legs.some((l) => l.legStatus !== "pregame");
-    const laneStatus: ProposalLane["laneStatus"] = settled === legs.length ? "awaiting_settlement" : anyStarted ? "in_progress" : "pregame";
+    const laneStatus: ProposalLane["laneStatus"] = settledResult
+      ? settledResult // official ladder result: "won" | "lost"
+      : settled === legs.length ? "awaiting_settlement" : anyStarted ? "in_progress" : "pregame";
     return { ...lane, stake: lane.stake ?? stake, legs, legsSettled: settled, legsTotal: legs.length, laneStatus };
   });
   return {

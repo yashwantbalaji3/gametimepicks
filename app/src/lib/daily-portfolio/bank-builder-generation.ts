@@ -48,6 +48,21 @@ export function readLaneRungs(root: string): { laneA: LaneRung | null; laneB: La
   return { laneA: build("laneA", "A"), laneB: build("laneB", "B") };
 }
 
+/**
+ * Official settled result for a lane's step, read from the canonical ladder (dual-bank-builder-active.json
+ * `run.laneX.steps[].result`). DISPLAY-ONLY read: returns "won"/"lost" ONLY when that exact step is marked
+ * settled in the ladder, else null. The ladder is the single source of truth — we NEVER infer a win/loss
+ * from raw scores here, and this touches no canonical money. Shared by the daily portfolio + proposal card
+ * so a same-day-settled approved lane renders its official result instead of a stale "awaiting settlement".
+ */
+export function settledLaneStepResult(root: string, laneLetter: string, step: number): "won" | "lost" | null {
+  let run: Record<string, any> | null = null;
+  try { run = JSON.parse(fs.readFileSync(path.join(root, "methodology", "launch", "dual-bank-builder-active.json"), "utf8")).run; } catch { return null; }
+  const lane = run?.[`lane${String(laneLetter).toUpperCase()}`];
+  const s = (lane?.steps ?? []).find((x: Record<string, any>) => x?.step === step);
+  return s && s.status === "settled" && (s.result === "won" || s.result === "lost") ? s.result : null;
+}
+
 export interface GeneratedLane {
   product: "bank-builder";
   lane: "A" | "B";
