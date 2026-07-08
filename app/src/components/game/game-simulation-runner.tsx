@@ -78,16 +78,23 @@ function Eyebrow({ children, color }: { children: React.ReactNode; color?: strin
   );
 }
 
-/** One generated pick, rendered like the MLB report cards (paper-only). */
-function GeneratedPickCard({ p }: { p: SimGeneratedPick }) {
+/** One generated pick, rendered like the MLB report cards (paper-only). `top` highlights the strongest
+ *  lean (the highest-edge pick — the list is edge-ranked). */
+function GeneratedPickCard({ p, top }: { p: SimGeneratedPick; top?: boolean }) {
   const selection =
     (p.player ? `${p.player} · ` : p.team ? `${p.team} · ` : "") +
     `${dash(p.side)}${p.line != null ? ` ${p.line}` : ""}`;
   return (
     <div
       className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(26, 16, 11,0.6)", border: `1px solid ${top ? "var(--vault-gold-bright)" : "var(--vault-border)"}`, boxShadow: top ? "0 0 0 1px rgba(242,54,69,0.22)" : "none" }}
     >
+      {top ? (
+        <span className="inline-flex items-center self-start rounded-full px-2 py-0.5 font-mono font-bold uppercase tracking-[0.1em]"
+          style={{ color: "var(--vault-gold-bright)", background: "rgba(242,54,69,0.10)", border: "1px solid var(--vault-gold-bright)", fontSize: 8.5 }}>
+          ★ Strongest lean
+        </span>
+      ) : null}
       <div className="flex items-start justify-between gap-2 min-w-0">
         <div className="flex min-w-0 flex-col gap-0.5">
           <span
@@ -391,6 +398,18 @@ export default function GameSimulationRunner({ view }: { view: GameSimulationVie
                 Precomputed for this game
               </span>
             </div>
+            {view.teams ? (
+              <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
+                {dash(view.teams.away)} <span style={{ color: "var(--vault-text-faint)" }}>@</span> {dash(view.teams.home)}
+              </h2>
+            ) : null}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono" style={{ fontSize: 10 }}>
+              <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Model</span> {dash(view.modelVersion)}</span>
+              {view.allowsRunCountClaim && view.runCount != null ? (
+                <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Runs</span> {view.runCount.toLocaleString()}</span>
+              ) : null}
+              <span style={{ color: "var(--vault-text-faint)" }}>{freshnessLabel(view.generatedAt)}</span>
+            </div>
             {view.simulationSummary?.headline ? (
               <p style={{ color: "var(--vault-text)", fontSize: 13.5, lineHeight: 1.5 }}>{dash(view.simulationSummary.headline)}</p>
             ) : null}
@@ -420,8 +439,8 @@ export default function GameSimulationRunner({ view }: { view: GameSimulationVie
                 </span>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                {view.generatedPicks.map((p) => (
-                  <GeneratedPickCard key={p.id} p={p} />
+                {view.generatedPicks.map((p, i) => (
+                  <GeneratedPickCard key={p.id} p={p} top={i === 0} />
                 ))}
               </div>
             </section>
