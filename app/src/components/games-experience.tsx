@@ -35,6 +35,8 @@ export interface GameRow {
   awayLogo?: string | null;
   /** The board's honest headline read for this game (WC game-script / MLB-NBA top market prop). */
   signal?: GameCardSignal;
+  /** True when a ready deterministic simulation artifact exists for this game (drives the "Simulation Ready" badge). */
+  simReady?: boolean;
 }
 
 /** Confidence chip palette for the WC game-script read (High=green, Medium=gold, Low=muted). */
@@ -85,7 +87,16 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
                     <span aria-hidden role="img" style={{ fontSize: 10 }}>{id.icon}</span>
                     {g.sportLabel}
                   </span>
-                  <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.statusLabel}</span>
+                  <span className="flex items-center gap-1.5 shrink-0">
+                    {g.simReady ? (
+                      <span className="inline-flex items-center gap-1 font-mono font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full"
+                        style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", fontSize: 8.5 }}
+                        title="A deterministic model simulation is ready for this game">
+                        <span aria-hidden>▶</span> Simulation Ready
+                      </span>
+                    ) : null}
+                    <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.statusLabel}</span>
+                  </span>
                 </div>
                 <div className="flex items-center gap-2.5 min-w-0">
                   {g.homeCode || g.awayCode || g.homeLogo || g.awayLogo ? (

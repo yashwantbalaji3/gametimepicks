@@ -111,6 +111,8 @@ export default function GamesPage() {
   }
   for (const g of mlbBoard.games ?? []) {
     const gid = mlbGameIdByPk.get(String(g.gamePk));
+    const mlbSlug = gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", mlbDate);
+    const mlbDetail = detailMap.get(`mlb/${mlbSlug}`);
     rows.push({
       id: `mlb_${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`,
       sport: "mlb",
@@ -123,9 +125,10 @@ export default function GamesPage() {
       projections: mlbByGame.get(String(g.gamePk)) ?? 0,
       href: "/mlb?tab=games",
       buildHref: gid ? `/build?sport=mlb&game=${encodeURIComponent(gid)}` : "/build?sport=mlb",
-      detailHref: detailMap.has(`mlb/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", mlbDate)}`)
-        ? `/games/mlb/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", mlbDate)}`
-        : undefined,
+      detailHref: mlbDetail ? `/games/mlb/${mlbSlug}` : undefined,
+      // A ready deterministic simulation artifact exists for this game → surface a "Simulation Ready" badge
+      // (drives the simulate-first lobby). Real status from the game-detail view; never fabricated.
+      simReady: mlbDetail?.gameLabSimulation?.status === "ready",
       // The game's single highest MARKET-implied prop (labelled "mkt", never a model claim).
       signal: topPropSignal(mlbPropsByGame.get(String(g.gamePk)) ?? []) ?? undefined,
     });
@@ -195,9 +198,9 @@ export default function GamesPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <SectionHeader
-        eyebrow={`Game Lab · ${rows.length} game${rows.length === 1 ? "" : "s"} across ${activeSports} sport${activeSports === 1 ? "" : "s"}`}
-        title="Game Lab"
-        sub="Every sport's games in one board — pick any game to open its GameTime Picks model report (model-vs-market reads, biggest leans, recent form), and see how it maps to our flagship products. Educational, paper-only."
+        eyebrow={`Simulate · ${rows.length} game${rows.length === 1 ? "" : "s"} across ${activeSports} sport${activeSports === 1 ? "" : "s"}`}
+        title="Simulate Games"
+        sub="Pick a game to run the model simulation — precomputed and deterministic, so everyone sees the same result. You get the model's picks, confidence and risk; the deeper model report is on each game page. Educational, paper-only."
         rightSlot={<FreshnessBadge slateDate={mlbDate} serverToday={today} noun="games" />}
       />
       {r32Board ? (

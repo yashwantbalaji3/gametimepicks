@@ -84,20 +84,20 @@ export default function GameLabHomeBand({ mlb, wc }: { mlb: GameLabHomeGame[]; w
     <section className="mt-6 overflow-hidden rounded-2xl px-5 py-5 sm:px-6" aria-label="Game Lab — multi-sport model reports"
       style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(217,164,65,0.06), rgba(26,16,11,0.25))" }}>
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)" }}>Game Lab</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)" }}>Simulate</span>
         <span className="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]"
           style={{ color: "var(--vault-gold-bright)", background: "rgba(217,164,65,0.08)", border: "1px solid var(--vault-gold-bright)" }}>Paper-only · educational</span>
       </div>
       <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.2vw, 28px)", fontWeight: 800, lineHeight: 1.06 }}>
-        Every game, every sport — one model report
+        Simulate today&rsquo;s games
       </h2>
       <p className="mt-2 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 620 }}>
-        Pick any game to open its GameTime Picks model report — model-vs-market reads, the biggest leans, and
-        how it maps to our products. The flagship ladders are built from the same board.
+        Pick a game and run the model simulation — precomputed and deterministic, so everyone sees the same
+        result. You get the model&rsquo;s picks, confidence, and the deeper report one scroll down. Paper-only.
       </p>
-      <Link href="/games" className="vault-press mt-3 inline-flex items-center justify-center rounded-full px-5 font-mono text-[11.5px] font-bold uppercase tracking-[0.1em]"
-        style={{ minHeight: 44, color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", background: "rgba(217,164,65,0.08)", textDecoration: "none" }}>
-        Open Game Lab →
+      <Link href="/games" className="vault-press mt-3 inline-flex items-center justify-center rounded-full px-6 font-mono text-[12px] font-bold uppercase tracking-[0.1em]"
+        style={{ minHeight: 46, color: "#fff", border: "1px solid var(--vault-gold-bright)", background: "var(--vault-gold-bright)", textDecoration: "none" }}>
+        Simulate Today&rsquo;s Games →
       </Link>
 
       {/* MLB + World Cup, EQUAL weight (two columns on desktop, stacked on mobile). */}
