@@ -10,6 +10,7 @@ import type { PublicGameDetail } from "@/lib/game-detail";
 import type { PublicProjection } from "@/lib/normalize";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import MlbGameLabReport from "@/components/game/mlb-game-lab-report";
+import GameSimulationRunner from "@/components/game/game-simulation-runner";
 import WcGameLabReport from "@/components/game/wc-game-lab-report";
 import TeamMark from "@/components/ui/team-mark";
 import CompetitionBadge from "@/components/ui/competition-badge";
@@ -607,6 +608,13 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       {/* MLB Game Lab report — the prominent per-game model report (model-vs-market, biggest leans, recent
           form, product-mapping links + honest "not yet simulated" placeholders). MLB only; null otherwise. */}
       {detail.gameLabMlb ? <div className="mb-5"><MlbGameLabReport view={detail.gameLabMlb} /></div> : null}
+
+      {/* MLB "Generate Simulation" reveal — the precomputed, deterministic per-game simulation artifact,
+          revealed on click (animation only; no fetch/randomness — same output for every user). Sits beside
+          the model report above, which stays visible regardless. MLB only; null otherwise. */}
+      {detail.sport === "mlb" && detail.gameLabSimulation ? (
+        <div className="mb-5"><GameSimulationRunner view={detail.gameLabSimulation} /></div>
+      ) : null}
 
       {/* World Cup Game Lab report — the prominent per-game odds-only model report (model-vs-market, biggest
           team-market leans, regulation-90 caveats, artifact-proven product links + honest placeholders). */}

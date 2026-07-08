@@ -16,6 +16,17 @@ import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
 import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import { buildMlbGameLabReport, type MlbGameLabView } from "@/lib/game-lab/mlb-report";
 import { buildWcGameLabReport, type WcGameLabView } from "@/lib/game-lab/wc-report";
+import { readGameSimulation, gameSimulationPath } from "@/lib/game-simulations/read";
+import type { GameSimulationReadResult } from "@/lib/game-simulations/types";
+import { validateGameSimulation } from "@/lib/game-simulations/validate";
+import {
+  buildGameSimulationView,
+  unavailableSimulationView,
+  type GameSimulationView,
+  type GameSimulationArtifactMeta,
+} from "@/lib/game-simulations/game-lab-view";
+import fs from "node:fs";
+import path from "node:path";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
 import {
@@ -57,6 +68,15 @@ export interface PublicGameDetail {
    *  caveats, artifact-proven product-mapping links + honest "not yet simulated" placeholders) — derived
    *  verbatim from the WC projections. Null for non-WC / no rows. */
   gameLabWc?: WcGameLabView | null;
+  /**
+   * Deterministic per-game SIMULATION view (Phase 5) — the precomputed artifact the "Generate
+   * Simulation" reveal plays back. Loaded at build time from
+   * public/data/mlb/game-simulations/<board.date>.json and joined to this fixture by gamePk (the
+   * MLB board id = `matchId`), then by gameId/slug. Fully serializable (plain JSON) so the client
+   * component only animates — no fs/fetch, no per-user randomness. Every user sees the SAME picks.
+   * `status: "unavailable"` (well-formed) when no artifact/matching game. Null for non-MLB.
+   */
+  gameLabSimulation?: GameSimulationView | null;
 }
 
 const SPORT_LABEL: Record<SportKey, string> = { world_cup: "World Cup", mlb: "MLB", nba: "NBA", ufc: "UFC" };
@@ -203,6 +223,85 @@ function boardDetails(
   });
 }
 
+/**
+ * Load the per-day MLB game-simulation artifact ONCE and return a joiner that maps a fixture (by its
+ * MLB board id / gamePk in `matchId`, falling back to gameId/slug) to a fully-serializable simulation
+ * view. Never throws: a missing/malformed artifact yields joiners that return the honest "unavailable"
+ * view for every game.
+ *
+ * STALENESS is decided HONESTLY by `readGameSimulation`, which is given a "current" date + the
+ * artifact's own simulationVersion. The current date is the ACTIVE MLB SLATE date (`slateDate` =
+ * `activeMlbDate()`), NOT the raw calendar day: `activeMlbDate()` deliberately anchors to the active
+ * slate and does not tick forward at midnight, so the artifact that matches the active slate is fresh.
+ * An artifact only reads "stale" when its date is behind the active slate (a genuinely old artifact) or
+ * its simulationVersion is behind the current engine. No clock is embedded in a lib beyond this
+ * already-established freshness anchor.
+ */
+function mlbSimulationJoiner(date: string, slateDate: string): (matchId: string | undefined, slug: string) => GameSimulationView {
+  const root = path.join(process.cwd(), "public", "data");
+  const filePath = gameSimulationPath(root, "mlb", date);
+
+  // Read + validate the artifact once so we can (a) build per-game views via the shared reader and
+  // (b) resolve a game by gamePk/slug without re-reading the file. A missing file is normal.
+  let raw: string | null = null;
+  try {
+    raw = fs.readFileSync(filePath, "utf8");
+  } catch {
+    raw = null;
+  }
+  let meta: GameSimulationArtifactMeta = {
+    modelVersion: null,
+    simulationVersion: null,
+    runCount: null,
+    generatedAt: null,
+  };
+  // Map every joinable key (gamePk as string, gameId, slug) → the artifact game's gameId.
+  const gameIdByKey = new Map<string, string>();
+  let currentSimulationVersion: number | undefined;
+  if (raw != null) {
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      const validation = validateGameSimulation(parsed);
+      if (validation.ok) {
+        const artifact = parsed as {
+          modelVersion: string;
+          simulationVersion: number;
+          runCount: number | null;
+          generatedAt: string;
+          games: Array<{ gameId: string; gamePk?: number; slug: string }>;
+        };
+        meta = {
+          modelVersion: artifact.modelVersion ?? null,
+          simulationVersion: artifact.simulationVersion ?? null,
+          runCount: artifact.runCount ?? null,
+          generatedAt: artifact.generatedAt ?? null,
+        };
+        currentSimulationVersion = artifact.simulationVersion;
+        for (const g of artifact.games ?? []) {
+          if (g.gamePk != null) gameIdByKey.set(String(g.gamePk), g.gameId);
+          if (g.slug) gameIdByKey.set(g.slug, g.gameId);
+          gameIdByKey.set(g.gameId, g.gameId);
+        }
+      }
+    } catch {
+      // Malformed artifact ⇒ leave meta empty + no keys ⇒ every game resolves to "unavailable".
+    }
+  }
+
+  // The active-slate date is the honest "current" date for staleness (see the doc comment above).
+  return (matchId: string | undefined, slug: string): GameSimulationView => {
+    // Resolve the artifact game by gamePk (the board id = matchId), then by slug.
+    const gameId = (matchId ? gameIdByKey.get(matchId) : undefined) ?? gameIdByKey.get(slug);
+    if (!gameId) return unavailableSimulationView("mlb", date, matchId ?? slug, "game_not_in_artifact");
+    // Read this ONE game through the shared reader so status/stale/unavailable stay in one place.
+    const result: GameSimulationReadResult = readGameSimulation(root, "mlb", date, gameId, {
+      currentDate: slateDate,
+      currentSimulationVersion,
+    });
+    return buildGameSimulationView(result, meta);
+  };
+}
+
 function mlbDetails(): PublicGameDetail[] {
   const date = activeMlbDate() ?? "";
   if (!date) return [];
@@ -213,8 +312,18 @@ function mlbDetails(): PublicGameDetail[] {
     if (l.gamePk != null && l.gameId) idByPk.set(String(l.gamePk), l.gameId);
   }
   const details = boardDetails("mlb", date, board.games ?? [], props, (g) => idByPk.get(String(g.gamePk)) ?? null);
-  // Attach the MLB Game Lab report per game (derived verbatim from the board; null when no leans).
-  return details.map((d) => ({ ...d, gameLabMlb: d.matchId ? buildMlbGameLabReport(board, d.matchId) : null }));
+  // Load the per-day simulation artifact ONCE and attach the matching game to each detail. Staleness is
+  // judged against the ACTIVE MLB SLATE date (= `date`, from `activeMlbDate()`), not the raw calendar
+  // day, so the artifact that matches the active slate is fresh rather than spuriously "stale".
+  const joinSim = mlbSimulationJoiner(board.date || date, date);
+  // Attach the MLB Game Lab report + the deterministic simulation view per game (both derived from the
+  // board / the precomputed artifact; the report is null when no leans, the sim is "unavailable" when
+  // no matching artifact game — neither ever fabricates data).
+  return details.map((d) => ({
+    ...d,
+    gameLabMlb: d.matchId ? buildMlbGameLabReport(board, d.matchId) : null,
+    gameLabSimulation: joinSim(d.matchId, d.slug),
+  }));
 }
 
 function nbaDetails(): PublicGameDetail[] {
