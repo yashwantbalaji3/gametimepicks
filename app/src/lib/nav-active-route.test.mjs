@@ -47,8 +47,8 @@ test("MOBILE_NAV_ITEMS has 7 items in the product-spine order (Homer Nukes retir
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/homer-nukes"), "no retired Homer Nukes nav item");
 });
 
-test("homer resolves to its own bucket; diamond-specials no longer maps anywhere", () => {
-  assert.equal(resolveMobileNavBucket("/homer-nukes"), "homer");
+test("retired /homer-nukes + removed /diamond-specials both map to no bucket", () => {
+  assert.equal(resolveMobileNavBucket("/homer-nukes"), null, "retired Homer Nukes → no bucket (dead bucket removed)");
   assert.equal(resolveMobileNavBucket("/diamond-specials"), null, "removed route → no bucket");
 });
 
@@ -82,10 +82,10 @@ test("moonshot: /moonshot and descendants resolve to their own moonshot bucket",
   assert.equal(resolveMobileNavBucket("/moonshot/ladder"), "moonshot");
 });
 
-test("homer: /homer-nukes and descendants resolve to their own homer bucket", () => {
-  assert.equal(resolveMobileNavBucket("/homer-nukes"), "homer");
-  assert.equal(resolveMobileNavBucket("/homer-nukes/"), "homer");
-  assert.equal(resolveMobileNavBucket("/homer-nukes/board"), "homer");
+test("retired homer: /homer-nukes and descendants map to no bucket (dead bucket removed)", () => {
+  assert.equal(resolveMobileNavBucket("/homer-nukes"), null);
+  assert.equal(resolveMobileNavBucket("/homer-nukes/"), null);
+  assert.equal(resolveMobileNavBucket("/homer-nukes/board"), null);
 });
 
 test("home (Today): '/', '/today' resolve to home", () => {

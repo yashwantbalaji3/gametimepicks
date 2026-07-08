@@ -20,6 +20,12 @@ import Link from "next/link";
  * If you'd rather hard-delete this route, just remove this file. Vercel
  * will return its default 404 page.
  */
+export const metadata = {
+  title: "Player trends (retired) · GameTime Picks",
+  // Retired soft-redirect landing — keep it out of search discovery (still reachable by direct URL).
+  robots: { index: false, follow: false },
+};
+
 export default function TrendsRetiredPage() {
   return (
     <div className="mx-auto max-w-[760px] px-6 py-20 text-center">

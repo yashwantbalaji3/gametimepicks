@@ -17,7 +17,6 @@ export type MobileNavBucket =
   | "lab"
   | "bank"
   | "moonshot"
-  | "homer"
   | "mrdub"
   | "results"
   | "sports";
@@ -101,10 +100,10 @@ export function resolveMobileNavBucket(
   ) return "picks";
   // Build is the custom paper-card builder (distinct from the Parlay Lab lobby).
   if (p === "/build" || p.startsWith("/build/")) return "lab";
-  // Bank Builder, Moonshot and Homer Nukes are sibling paper products, each with its own bottom-nav slot.
+  // Bank Builder and Moonshot are sibling paper products, each with its own bottom-nav slot. (Homer
+  // Nukes was retired 2026-06-30 — /homer-nukes no longer maps to a bucket; it falls through to null.)
   if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
   if (p === "/moonshot" || p.startsWith("/moonshot/")) return "moonshot";
-  if (p === "/homer-nukes" || p.startsWith("/homer-nukes/")) return "homer";
   if (p === "/mr-dub" || p.startsWith("/mr-dub/")) return "mrdub";
   // The unified Games board + the Sports directory + every sport hub/board + schedule-only
   // leagues all resolve to the Games bucket (Games is the cross-sport entry on mobile).
