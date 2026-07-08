@@ -35,19 +35,22 @@ const NAV_ITEMS: Array<{
   // LEAD with the multi-sport EXPLORE cluster so every sport gets equal weight (not soccer-first): the
   // Game Lab hub + the sport hubs sit right after Today, ABOVE the flagship products. Game Lab is the core
   // "browse any game → model report" experience; the flagship ladders stay primary but no longer dominate.
+  // PRIMARY — the simulate-first spine (Home = brand mark, left → 5 clear entry points). Simulate leads;
+  // Today's Picks, Results, and the Bank Builder ladder follow. Everything else is de-emphasized below.
+  { href: "/simulate", label: "Simulate" },
   { href: "/today", label: "Today's Picks" },
-  { href: "/games", label: "Game Lab" }, // was secondary "Games" — elevated + renamed to the core experience
+  { href: "/results", label: "Results" },
+  { href: "/bank-builder", label: "Bank Builder" },
+  // SECONDARY — still reachable, de-emphasized after the divider (NO routes removed, none deleted). The
+  // per-game model reports, sport hubs, side products, and the daily track record live here.
+  { href: "/games", label: "Game Reports", beforeDivider: true },
   { href: "/mlb", label: "MLB" },
   { href: "/world-cup", label: "World Cup" },
-  // Flagship products — still primary, just after the explore cluster.
-  { href: "/bank-builder", label: "Bank Builder" },
+  { href: "/picks", label: "Build-a-Pick" },
+  { href: "/world-cup-specials", label: "Soccer Specials" },
+  { href: "/moonshot", label: "Moonshot" },
   { href: "/mr-dub", label: "Track Record" },
   { href: "/learn", label: "How It Works" },
-  // SECONDARY — still reachable, de-emphasized after the divider (no routes removed).
-  { href: "/moonshot", label: "Moonshot", beforeDivider: true },
-  { href: "/world-cup-specials", label: "WC Specials" },
-  { href: "/picks", label: "Parlay Lab" },
-  { href: "/results", label: "Results" },
 ];
 
 // Sport routes that should light up the "Sports" nav item.

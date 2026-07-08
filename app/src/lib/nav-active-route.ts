@@ -47,7 +47,7 @@ export interface MobileNavItem {
  */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
   { bucket: "home", href: "/today", label: "Today" },
-  { bucket: "games", href: "/games", label: "Game Lab" },
+  { bucket: "games", href: "/simulate", label: "Simulate" },
   { bucket: "picks", href: "/picks", label: "Parlay Lab" },
   { bucket: "lab", href: "/build", label: "Build" },
   { bucket: "bank", href: "/bank-builder", label: "Bank" },
@@ -109,6 +109,7 @@ export function resolveMobileNavBucket(
   // The unified Games board + the Sports directory + every sport hub/board + schedule-only
   // leagues all resolve to the Games bucket (Games is the cross-sport entry on mobile).
   if (
+    p === "/simulate" || p.startsWith("/simulate/") ||
     p === "/games" || p.startsWith("/games/") ||
     p === "/sports" || p.startsWith("/sports/") ||
     p === "/events" || p.startsWith("/events/") ||

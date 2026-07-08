@@ -12,22 +12,27 @@ import {
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
 
-test("IA restructure: Game Lab is elevated to PRIMARY, sports get equal weight, flagships preserved", () => {
+test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank Builder); explore cluster demoted; no routes removed", () => {
   const nav = fs.readFileSync("src/components/nav.tsx", "utf8");
-  // /games is now the primary "Game Lab" experience (not the secondary "Games").
-  assert.match(nav, /\{ href: "\/games", label: "Game Lab" \}/, "Game Lab in the nav");
-  assert.ok(!/label: "Games"/.test(nav), "the old secondary 'Games' label is gone");
-  // The divider marks the primary→secondary split (on Moonshot). Game Lab + both sport hubs must sit
-  // BEFORE it (primary); the flagship ladders may be primary too but must not push sports below the fold.
+  // Simulate leads the primary nav (the game-simulation lobby); the old "Game Lab" primary label is gone.
+  assert.match(nav, /\{ href: "\/simulate", label: "Simulate" \}/, "Simulate is a nav item");
+  assert.ok(!/label: "Games"/.test(nav) && !/label: "Game Lab"/.test(nav), "the old 'Games'/'Game Lab' primary label is gone");
   const dividerIdx = nav.indexOf("beforeDivider: true");
-  const gameLabIdx = nav.indexOf('href: "/games", label: "Game Lab"');
-  const mlbIdx = nav.indexOf('href: "/mlb"');
-  const wcIdx = nav.indexOf('href: "/world-cup"');
-  assert.ok(gameLabIdx > 0 && gameLabIdx < dividerIdx, "Game Lab is PRIMARY (before the divider)");
-  assert.ok(mlbIdx > 0 && mlbIdx < dividerIdx, "MLB is PRIMARY");
-  assert.ok(wcIdx > 0 && wcIdx < dividerIdx, "World Cup is PRIMARY (equal weight to MLB)");
-  // Flagship products remain reachable (no routes removed).
-  for (const href of ["/bank-builder", "/mr-dub", "/moonshot", "/world-cup-specials", "/picks", "/results"]) {
+  const idx = (s) => nav.indexOf(s);
+  // PRIMARY (before the divider): the 4-item simulate-first spine (+ Home = brand mark).
+  for (const [href, label] of [["/simulate", "Simulate"], ["/today", "Today's Picks"], ["/results", "Results"], ["/bank-builder", "Bank Builder"]]) {
+    const i = idx(`href: "${href}", label: "${label}"`);
+    assert.ok(i > 0 && i < dividerIdx, `${label} is PRIMARY (before the divider)`);
+  }
+  // SECONDARY (after the divider): the sport hubs + daily track record sit after it.
+  for (const href of ["/mlb", "/world-cup", "/mr-dub"]) {
+    const i = idx(`href: "${href}"`);
+    assert.ok(i > dividerIdx, `${href} is SECONDARY (de-emphasized, after the divider)`);
+  }
+  // /games ("Game Reports") carries the divider (first secondary) — demoted below the whole primary spine.
+  assert.ok(idx('href: "/games"') > idx('href: "/bank-builder"'), "/games is demoted below the primary spine");
+  // NO routes removed — everything still reachable.
+  for (const href of ["/games", "/mlb", "/world-cup", "/bank-builder", "/mr-dub", "/moonshot", "/world-cup-specials", "/picks", "/results", "/learn", "/simulate"]) {
     assert.ok(nav.includes(`href: "${href}"`), `${href} still in the nav`);
   }
 });
@@ -52,8 +57,8 @@ test("MOBILE_NAV_ITEMS labels are the product spine (Today/Parlay Lab/Build/Bank
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
   assert.equal(byHref["/today"], "Today");
-  // /games elevated + renamed to the core "Game Lab" experience (2026-07-07 IA restructure).
-  assert.equal(byHref["/games"], "Game Lab");
+  // The cross-sport bucket now leads with the simulate-first lobby (/simulate).
+  assert.equal(byHref["/simulate"], "Simulate");
   // Picks tab renamed to Parlay Lab (route stays /picks for back-compat).
   assert.equal(byHref["/picks"], "Parlay Lab");
   assert.equal(byHref["/build"], "Build");

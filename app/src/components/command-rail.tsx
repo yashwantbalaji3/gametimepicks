@@ -32,13 +32,14 @@ type RailItem = {
 };
 
 const ITEMS: RailItem[] = [
+  { href: "/simulate", label: "Simulate", glyph: "▶", group: "Simulate" },
   { href: "/today", label: "Today's Picks", glyph: "▤", group: "Today" },
-  { href: "/games", label: "Games", glyph: "◷" },
-  { href: "/picks", label: "Parlay Lab", glyph: "⊞" },
+  { href: "/games", label: "Game Reports", glyph: "◷" },
+  { href: "/picks", label: "Build-a-Pick", glyph: "⊞" },
   { href: "/build", label: "Build", glyph: "✎" },
   { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Bankroll" },
   { href: "/moonshot", label: "Moonshot", glyph: "🌙" },
-  { href: "/world-cup-specials", label: "WC Specials", glyph: "🏆" },
+  { href: "/world-cup-specials", label: "Soccer Specials", glyph: "🏆" },
   { href: "/mr-dub", label: "Track Record", glyph: "✓" },
   { href: "/results", label: "Results", glyph: "≡" },
   { href: "/world-cup", label: "World Cup", glyph: "⚽", group: "Sports" },
@@ -56,6 +57,7 @@ function useIsActive() {
   // top nav on every route, including legacy entry points.
   return (item: RailItem): boolean => {
     const { href } = item;
+    if (href === "/simulate") return pathname === "/simulate";
     if (href === "/today") return pathname === "/today" || pathname === "/" || pathname === "";
     if (href === "/games") {
       // Games folds in the schedule/board legacy entry points.
