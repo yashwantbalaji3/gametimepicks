@@ -22,7 +22,7 @@ const BANNED = /\bguaranteed\b|\block\b|\bsafest\b|can'?t lose|Monte Carlo|live 
 
 test("homepage has a first-class 'Simulate Today's Games' CTA to the games lobby", () => {
   assert.match(band, /Simulate Today.{0,10}s Games/i, "the primary CTA is simulate-first");
-  assert.match(band, /href="\/games"/, "links to the lobby");
+  assert.match(band, /href="\/simulate"/, "links to the /simulate lobby");
   assert.match(band, /Simulate today.{0,10}s games/i, "headline is simulate-first");
   assert.ok(!BANNED.test(band), "no banned copy on the band");
 });

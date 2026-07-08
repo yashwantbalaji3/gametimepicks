@@ -17,7 +17,7 @@ const page = read("src/app/page.tsx");
 const BANNED = /\bguaranteed\b|\block\b|\bsafest\b|can'?t lose/i;
 
 test("the Game Lab band: first-class CTA, MLB + World Cup EQUAL weight, honest empty state, paper-only", () => {
-  assert.match(band, /href="\/games"/, "a first-class Simulate CTA to /games");
+  assert.match(band, /href="\/simulate"/, "a first-class Simulate CTA to the /simulate lobby");
   assert.match(band, /Simulate Today.{0,10}s Games/i, "the CTA label is simulate-first");
   // MLB + World Cup are rendered as the two equal columns (same SportColumn, md:grid-cols-2).
   assert.match(band, /label="MLB"/, "MLB column");

@@ -95,7 +95,7 @@ export default function GameLabHomeBand({ mlb, wc }: { mlb: GameLabHomeGame[]; w
         Pick a game and run the model simulation — precomputed and deterministic, so everyone sees the same
         result. You get the model&rsquo;s picks, confidence, and the deeper report one scroll down. Paper-only.
       </p>
-      <Link href="/games" className="vault-press mt-3 inline-flex items-center justify-center rounded-full px-6 font-mono text-[12px] font-bold uppercase tracking-[0.1em]"
+      <Link href="/simulate" className="vault-press mt-3 inline-flex items-center justify-center rounded-full px-6 font-mono text-[12px] font-bold uppercase tracking-[0.1em]"
         style={{ minHeight: 46, color: "#fff", border: "1px solid var(--vault-gold-bright)", background: "var(--vault-gold-bright)", textDecoration: "none" }}>
         Simulate Today&rsquo;s Games →
       </Link>
