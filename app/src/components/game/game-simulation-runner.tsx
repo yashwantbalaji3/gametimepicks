@@ -22,9 +22,14 @@
  * The existing `MlbGameLabReport` stays visible regardless — this is an additive reveal beside it.
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type { GameSimulationView } from "@/lib/game-simulations/game-lab-view";
 import type { SimGeneratedPick, SimDistribution } from "@/lib/game-simulations/types";
+import {
+  SportSimulationAnimation,
+  SIMULATION_MIN_DURATION_MS,
+  SIMULATION_STAGES,
+} from "./simulation-animation";
 
 // ── formatters (always fall back to an em dash; never render undefined/NaN) ──
 const dash = (v: string | number | null | undefined) =>
@@ -51,21 +56,6 @@ const RISK_TONE: Record<string, string> = {
   value: "var(--vault-gold-bright)",
   longshot: "var(--gtp-bank-heat)",
 };
-
-/**
- * The deterministic reveal steps. These describe what the PRECOMPUTED artifact contains — they are
- * pure labels for the animation and do NOT compute anything. Wording stays inside the honest-language
- * allowlist; it is honest about replaying a precomputed, deterministic, seeded artifact.
- */
-const REVEAL_STEPS = [
-  "Pulling market snapshot",
-  "Loading model projections",
-  "Reading deterministic simulation artifact",
-  "Aggregating generated picks",
-  "Checking risk notes",
-  "Simulation complete",
-] as const;
-const STEP_MS = 420;
 
 function Eyebrow({ children, color }: { children: React.ReactNode; color?: string }) {
   return (
@@ -285,74 +275,48 @@ function UnavailableModules({ view }: { view: GameSimulationView }) {
   );
 }
 
-/** The animated reveal overlay (labels only — no computation). */
-function RevealSequence({ step }: { step: number }) {
-  return (
-    <div
-      className="flex flex-col gap-1.5 rounded-[14px] px-4 py-4"
-      style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border)" }}
-    >
-      <Eyebrow>Generating simulation</Eyebrow>
-      <ul className="flex flex-col gap-1.5 mt-1">
-        {REVEAL_STEPS.map((label, i) => {
-          const done = i < step;
-          const active = i === step;
-          return (
-            <li key={label} className="flex items-center gap-2">
-              <span
-                aria-hidden
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: done ? "var(--vault-success)" : active ? "var(--vault-gold-bright)" : "var(--vault-rule)",
-                  boxShadow: active ? "0 0 8px var(--vault-gold-bright)" : "none",
-                  transition: "background 200ms ease",
-                }}
-              />
-              <span
-                className="font-mono"
-                style={{
-                  color: done ? "var(--vault-text-mute)" : active ? "var(--vault-text)" : "var(--vault-text-faint)",
-                  fontSize: 11.5,
-                  transition: "color 200ms ease",
-                }}
-              >
-                {label}
-                {active ? " …" : done ? " ✓" : ""}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
 export default function GameSimulationRunner({ view }: { view: GameSimulationView }) {
   const [phase, setPhase] = useState<"idle" | "revealing" | "done">("idle");
-  const [step, setStep] = useState(0);
+  const [stage, setStage] = useState(0);
+  const timersRef = useRef<number[]>([]);
 
   const ready = view.status === "ready" || view.status === "stale";
 
-  // Pure client animation: advance a step counter on a timer. NO data work, NO randomness — the
-  // payload is already loaded; this only stages its reveal. Idempotent (same artifact every click).
+  // Clear any pending stage timers on unmount so a mid-animation navigation never fires a stray setState.
+  useEffect(() => {
+    return () => {
+      for (const t of timersRef.current) window.clearTimeout(t);
+      timersRef.current = [];
+    };
+  }, []);
+
+  // Pure client STAGING: advance `stage` across SIMULATION_STAGES over SIMULATION_MIN_DURATION_MS (≈1.25s
+  // each), then flip to the done dashboard only after the FULL SIMULATION_MIN_DURATION_MS (10s) has
+  // elapsed. NO data work, NO randomness — the payload is already loaded; this only stages its reveal, so
+  // the same artifact is shown for every click. The done phase is GATED on SIMULATION_MIN_DURATION_MS: the
+  // dashboard cannot appear on a sub-10s timer.
   const start = useCallback(() => {
     if (!ready) return;
+    for (const t of timersRef.current) window.clearTimeout(t);
+    timersRef.current = [];
     setPhase("revealing");
-    setStep(0);
-    let i = 0;
-    const tick = () => {
-      i += 1;
-      if (i < REVEAL_STEPS.length) {
-        setStep(i);
-        window.setTimeout(tick, STEP_MS);
-      } else {
-        setStep(REVEAL_STEPS.length);
-        setPhase("done");
-      }
-    };
-    window.setTimeout(tick, STEP_MS);
+    setStage(0);
+
+    const stageCount = SIMULATION_STAGES.length;
+    const perStage = SIMULATION_MIN_DURATION_MS / stageCount; // ≈1.25s per stage across the 10s
+
+    // Advance the pre-completion stages [1 .. stageCount-2] on evenly-spaced timers. The final
+    // "complete" stage + the dashboard are BOTH gated on the full SIMULATION_MIN_DURATION_MS below.
+    for (let i = 1; i < stageCount - 1; i += 1) {
+      const t = window.setTimeout(() => setStage(i), Math.round(perStage * i));
+      timersRef.current.push(t);
+    }
+    // The done gate: only at SIMULATION_MIN_DURATION_MS do we mark the final stage AND reveal the dashboard.
+    const doneTimer = window.setTimeout(() => {
+      setStage(stageCount - 1);
+      setPhase("done");
+    }, SIMULATION_MIN_DURATION_MS);
+    timersRef.current.push(doneTimer);
   }, [ready]);
 
   // ── Unavailable: calm, non-broken. The existing Game Lab report stays visible above this. ──
@@ -438,8 +402,9 @@ export default function GameSimulationRunner({ view }: { view: GameSimulationVie
         </div>
       ) : null}
 
-      {/* Reveal animation (labels only). */}
-      {phase === "revealing" ? <RevealSequence step={step} /> : null}
+      {/* Reveal animation — the 10s sport-specific staging (baseball diamond for MLB). The dashboard is
+          gated on SIMULATION_MIN_DURATION_MS in `start`, so it never appears before the animation finishes. */}
+      {phase === "revealing" ? <SportSimulationAnimation sport="mlb" view={view} stage={stage} /> : null}
 
       {/* After reveal: the precomputed artifact. */}
       {phase === "done" ? (
