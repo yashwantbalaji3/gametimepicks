@@ -235,7 +235,7 @@ test("game-detail-page still builds MlbGameLabReport (gameLabMlb) and wires Game
   assert.match(DETAIL_PAGE_SRC, /const isMlbSim = detail\.sport === "mlb" && !!detail\.gameLabSimulation/, "MLB-sim gate defined");
   assert.match(DETAIL_PAGE_SRC, /const sim = detail\.gameLabSimulation!/, "sim view bound from detail.gameLabSimulation");
   assert.match(DETAIL_PAGE_SRC, /<GameSimulationRunner\s+view=\{sim\}/, "must render the sim runner with the sim view");
-  assert.match(DETAIL_PAGE_SRC, /postReveal=\{<>\{mlbReport\}\{spotlight\}\{tabsShell\}<\/>\}/, "the report + spotlight + tabs are gated behind the reveal via postReveal");
+  assert.match(DETAIL_PAGE_SRC, /postReveal=\{<>\{gameCenter\}\{mlbReport\}\{spotlight\}\{tabsShell\}<\/>\}/, "the Game Center + report + spotlight + tabs are gated behind the reveal via postReveal");
 });
 
 // Non-MLB details never carry a simulation view (null/undefined).

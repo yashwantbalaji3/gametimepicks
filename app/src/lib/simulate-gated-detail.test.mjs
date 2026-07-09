@@ -85,7 +85,7 @@ test("the runner renders postReveal ONLY in the done phase", () => {
 test("MLB-sim page gates report + spotlight + tabs behind the reveal via postReveal (not pre-click siblings)", () => {
   assert.match(DETAIL_SRC, /const isMlbSim = detail\.sport === "mlb" && !!detail\.gameLabSimulation/, "the MLB-sim gate is defined");
   // The gated content is handed to the runner via postReveal.
-  assert.match(DETAIL_SRC, /postReveal=\{<>\{mlbReport\}\{spotlight\}\{tabsShell\}<\/>\}/, "report + spotlight + tabs go into postReveal");
+  assert.match(DETAIL_SRC, /postReveal=\{<>\{gameCenter\}\{mlbReport\}\{spotlight\}\{tabsShell\}<\/>\}/, "Game Center + report + spotlight + tabs go into postReveal");
   // The runner returns EARLY for the MLB-sim path, so the sibling report/spotlight/tabs render below is
   // unreachable for it. Assert the MLB-sim branch does its own return before the default render.
   const isMlbSimIdx = DETAIL_SRC.indexOf("if (isMlbSim) {");
@@ -97,7 +97,7 @@ test("MLB-sim page gates report + spotlight + tabs behind the reveal via postRev
   const mlbBranch = DETAIL_SRC.slice(isMlbSimIdx, defaultReturnIdx);
   assert.ok(!/<MlbGameLabReport/.test(mlbBranch), "no always-visible <MlbGameLabReport in the MLB-sim branch");
   assert.ok(!/<SportShell/.test(mlbBranch), "no always-visible <SportShell in the MLB-sim branch");
-  assert.ok(!mlbBranch.includes("{spotlight}") || mlbBranch.includes("postReveal={<>{mlbReport}{spotlight}{tabsShell}</>}"), "spotlight only appears inside postReveal");
+  assert.ok(!mlbBranch.includes("{spotlight}") || mlbBranch.includes("postReveal={<>{gameCenter}{mlbReport}{spotlight}{tabsShell}</>}"), "spotlight only appears inside postReveal");
   // The runner is the whole experience on this path.
   assert.match(mlbBranch, /<GameSimulationRunner\s+view=\{sim\}/, "the runner drives the MLB-sim page");
 });

@@ -51,7 +51,7 @@ test("game detail GATES the dense model report behind Generate Simulation (repor
   // Simulator-first is now the strongest form: on an MLB-sim page the dense report is not a sibling at all —
   // it is handed to the runner via postReveal and revealed ONLY after the ≥10s reveal completes.
   assert.match(detailPage, /const isMlbSim = detail\.sport === "mlb" && !!detail\.gameLabSimulation/, "the MLB-sim gate exists");
-  assert.match(detailPage, /postReveal=\{<>\{mlbReport\}\{spotlight\}\{tabsShell\}<\/>\}/, "the report + spotlight + tabs are gated behind the reveal");
+  assert.match(detailPage, /postReveal=\{<>\{gameCenter\}\{mlbReport\}\{spotlight\}\{tabsShell\}<\/>\}/, "the Game Center + report + spotlight + tabs are gated behind the reveal");
   // The runner (the whole pre-click experience) is rendered with the sim view on that path.
   assert.match(detailPage, /<GameSimulationRunner\s+view=\{sim\}/, "the runner drives the MLB-sim page");
 });

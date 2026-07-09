@@ -11,6 +11,7 @@ import type { PublicProjection } from "@/lib/normalize";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import MlbGameLabReport from "@/components/game/mlb-game-lab-report";
 import GameSimulationRunner from "@/components/game/game-simulation-runner";
+import MlbGameCenter from "@/components/game/mlb-game-center";
 import WcGameLabReport from "@/components/game/wc-game-lab-report";
 import TeamMark from "@/components/ui/team-mark";
 import CompetitionBadge from "@/components/ui/competition-badge";
@@ -574,6 +575,9 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   // page these are threaded into the simulation runner's `postReveal` (revealed ONLY after the reveal),
   // never rendered as pre-click siblings; on every other page they render directly, unchanged.
   const mlbReport = detail.gameLabMlb ? <div className="mb-5"><MlbGameLabReport view={detail.gameLabMlb} /></div> : null;
+  // Market-implied Game Center (win prob / total / run line) — leads the post-reveal
+  // dashboard when the game has de-vigged team markets; absent otherwise (no fake modules).
+  const gameCenter = detail.gameCenter ? <MlbGameCenter gameCenter={detail.gameCenter} /> : null;
   const tabsShell = <SportShell tabs={tabs} />;
 
   // ── Gate: an MLB fixture that carries a simulation shows a CLEAN matchup hero (no prices) + the runner
@@ -645,7 +649,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           view={sim}
           homeLogo={detail.homeLogo}
           awayLogo={detail.awayLogo}
-          postReveal={<>{mlbReport}{spotlight}{tabsShell}</>}
+          postReveal={<>{gameCenter}{mlbReport}{spotlight}{tabsShell}</>}
         />
 
         {/* Persistent disclosure — visible regardless of phase. */}

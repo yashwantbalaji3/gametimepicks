@@ -25,6 +25,7 @@ import {
   type GameSimulationView,
   type GameSimulationArtifactMeta,
 } from "@/lib/game-simulations/game-lab-view";
+import { getMlbGameCenter, type MlbGameCenter } from "@/lib/mlb-team-markets";
 import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
@@ -77,6 +78,13 @@ export interface PublicGameDetail {
    * `status: "unavailable"` (well-formed) when no artifact/matching game. Null for non-MLB.
    */
   gameLabSimulation?: GameSimulationView | null;
+  /**
+   * Market-implied Game Center (MLB only) — win probability, game total + O/U lean,
+   * and run-line lean, derived by de-vigging the sportsbook team markets
+   * (public/data/mlb/team-markets/<date>.json). Null when the game has no team markets.
+   * Kept DISTINCT from the player-prop MODEL modules; never fabricated.
+   */
+  gameCenter?: MlbGameCenter | null;
 }
 
 const SPORT_LABEL: Record<SportKey, string> = { world_cup: "World Cup", mlb: "MLB", nba: "NBA", ufc: "UFC" };
@@ -319,11 +327,18 @@ function mlbDetails(): PublicGameDetail[] {
   // Attach the MLB Game Lab report + the deterministic simulation view per game (both derived from the
   // board / the precomputed artifact; the report is null when no leans, the sim is "unavailable" when
   // no matching artifact game — neither ever fabricates data).
-  return details.map((d) => ({
-    ...d,
-    gameLabMlb: d.matchId ? buildMlbGameLabReport(board, d.matchId) : null,
-    gameLabSimulation: joinSim(d.matchId, d.slug),
-  }));
+  return details.map((d) => {
+    const sim = joinSim(d.matchId, d.slug);
+    return {
+      ...d,
+      gameLabMlb: d.matchId ? buildMlbGameLabReport(board, d.matchId) : null,
+      gameLabSimulation: sim,
+      // Market-implied Game Center, joined by the sim's gameId (== the Odds event id).
+      // Null when the game has no de-vigged team markets → the UI shows an honest
+      // unavailable state rather than inventing win-prob / total / run-line numbers.
+      gameCenter: sim?.gameId ? getMlbGameCenter(date, sim.gameId) : null,
+    };
+  });
 }
 
 function nbaDetails(): PublicGameDetail[] {
