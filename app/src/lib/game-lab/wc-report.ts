@@ -266,24 +266,24 @@ export function buildWcGameLabReport(
 
   // ── whatModelLikes: pick, model vs market prob, edge, confidence ──
   const whatModelLikes: string[] = topSupported.slice(0, 5).map((r) => {
-    const side = r.pickLabel ?? r.marketLabel ?? "the model side";
+    const side = r.pickLabel ?? r.marketLabel ?? "the market side";
     const mkt = r.marketLabel ?? "market";
     const conf = r.confidence ?? "—";
     return [
-      `${side} (${mkt}): model ${prob0(r.modelProbability)} vs market ${prob0(r.marketProbability)}`,
+      `${side} (${mkt}): ${prob0(r.marketProbability)} de-vigged`,
       `edge ${edge1(r.edgePct)} at ${conf} confidence`,
     ].join(" · ");
   });
   if (whatModelLikes.length === 0) {
     whatModelLikes.push(
-      "No market cleared the supported bar for this game (edge ≥ 5% at above-Watchlist confidence). This is expected: WC is odds-only, so the de-vigged model sits on the posted prices rather than beating them.",
+      "No market cleared the supported bar for this game (edge ≥ 5% at above-Watchlist confidence). This is expected: WC is odds-only, so the de-vigged read sits on the posted prices rather than beating them.",
     );
   }
 
   // ── whatBreaksIt: honest downside — odds-only + 90' regulation ALWAYS ──
   const whatBreaksIt: string[] = [];
   whatBreaksIt.push(
-    "Odds-only model: this read is the de-vigged sportsbook price, NOT an independent stat model — there is no lineup, form, or xG layer, so most edges sit near zero by construction.",
+    "Odds-only: this read is the de-vigged sportsbook price, NOT an independent stat model — there is no lineup, form, or xG layer, so most edges sit near zero by construction.",
   );
   whatBreaksIt.push(
     "90-minute regulation only — extra time and penalties do NOT count. In a knockout, a tie after 90' can still eliminate a team the market favored while these markets settle on the 90' score.",
@@ -294,7 +294,7 @@ export function buildWcGameLabReport(
       .map((r) => r.pickLabel ?? r.marketLabel ?? "market")
       .join(", ");
     whatBreaksIt.push(
-      `The model reads at or against the posted price on ${opposed.length} market(s) (edge ≤ 0%): ${oppNames}.`,
+      `The de-vigged read sits at or against the posted price on ${opposed.length} market(s) (edge ≤ 0%): ${oppNames}.`,
     );
   }
   const flagged = rows.filter((r) => r.riskTier != null && r.riskTier !== "Low");
@@ -326,7 +326,7 @@ export function buildWcGameLabReport(
     {
       label: "Track Record",
       href: "/results",
-      note: "See how the model's settled 90-minute reads have actually performed. Link only — this game is not a claim of membership.",
+      note: "See the official paper-card track record. This market read is not itself part of that record — soccer market results are tracked separately once a soccer ledger exists.",
     },
   ];
   if (opts?.inWcSpecials === true) {
@@ -347,13 +347,13 @@ export function buildWcGameLabReport(
     productMapping.push({
       label: "Top 10",
       href: "/picks",
-      note: `Derived: this game's strongest read carries a ${edge1(biggestLeans[0].edgePct)} model edge, high enough to surface among the day's Top 10. Descriptive ranking, not an endorsement.`,
+      note: `Derived: this game's strongest de-vigged read carries a ${edge1(biggestLeans[0].edgePct)} gap vs the raw price, high enough to surface among the day's Top 10. Descriptive ranking, not an endorsement.`,
     });
   }
 
   // ── unavailable: honest "not yet simulated / odds-only" placeholders ──
-  const NOT_SIMMED = "No persisted per-game Monte-Carlo artifact yet — not yet simulated.";
-  const ODDS_ONLY = "Odds-only model — no stat layer to compute this; not available for a market-implied read.";
+  const NOT_SIMMED = "Coming soon — requires a sampled simulation artifact.";
+  const ODDS_ONLY = "Coming soon — requires a player / stats provider; not available from odds alone.";
   const unavailable: WcGameLabUnavailable[] = [
     { label: "Scoreline distribution", reason: NOT_SIMMED },
     { label: "Goal-margin histogram", reason: NOT_SIMMED },

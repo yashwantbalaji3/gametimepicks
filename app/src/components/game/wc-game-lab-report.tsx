@@ -356,7 +356,7 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
             className="inline-flex items-center rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.12em]"
             style={{ color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", fontSize: 9, background: "rgba(255,255,255,0.02)" }}
           >
-            Odds-only model
+            Odds-only · market read
           </span>
           {view.stage ? (
             <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
@@ -399,7 +399,7 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
         </div>
 
         <p className="mt-3 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-          Model report · built from available odds &amp; projections
+          Market read · de-vigged sportsbook prices · not an independent stat model
         </p>
       </section>
 
@@ -409,7 +409,7 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
           style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}
         >
           <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
-            No model-qualified markets are posted for this game yet — treated as a no-play here, never padded to look active. Markets post as the books price this slate.
+            No priced markets are posted for this game yet — treated as a no-play here, never padded to look active. Markets post as the books price this slate.
           </p>
         </div>
       ) : (
@@ -418,7 +418,7 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
           <Module
             eyebrow="Market snapshot"
             title="Posted prices, at a glance"
-            sub="Each market: the posted odds with the book-implied probability, the model's read, and every 3-way outcome when present."
+            sub="Each market: the posted odds, the book's raw implied probability, the de-vigged (no-vig) read, and every 3-way outcome when present."
           >
             <div className="flex flex-col gap-1.5">
               {view.rows.map((r) => (
@@ -427,11 +427,11 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
             </div>
           </Module>
 
-          {/* 3 · Model vs market */}
+          {/* 3 · De-vig vs raw price */}
           <Module
-            eyebrow="Model vs market"
-            title="Where the model differs from the price"
-            sub="Model probability vs the book's implied probability, and the resulting edge. Odds-only: expect edges near zero — the model sits on the de-vigged price."
+            eyebrow="No-vig vs raw price"
+            title="The de-vigged read vs the posted price"
+            sub="The no-vig probability vs the book's raw implied probability, and the resulting gap. This is odds-only — edges sit near zero because the read IS the de-vigged price, not an independent model."
           >
             <div className="grid grid-cols-1 gap-2">
               {view.rows.map((r) => (
@@ -443,8 +443,8 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
           {/* 4 · Biggest leans */}
           <Module
             eyebrow={`Biggest leans · top ${view.biggestLeans.length}`}
-            title="Ranked by model edge"
-            sub="Sorted by the size of the model's disagreement with the price. On an odds-only slate most of these are hairline gaps, not conviction plays."
+            title="Ranked by market read"
+            sub="Sorted by how far the de-vigged read sits from the raw price. On an odds-only slate most of these are hairline gaps, not conviction plays."
           >
             <div className="grid grid-cols-1 gap-2">
               {view.biggestLeans.map((r, i) => (
@@ -457,7 +457,7 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
           <Module
             eyebrow="Signal buckets"
             title="Supported · Neutral · Opposed"
-            sub={`Legend: supported = edge ≥ ${SUPPORTED_EDGE_MIN}% at above-Watchlist confidence · opposed = edge ≤ ${OPPOSED_EDGE_MAX}% (model reads at/against the price) · neutral = everything between. Lean & Watchlist are low-conviction and never "supported".`}
+            sub={`Legend: supported = edge ≥ ${SUPPORTED_EDGE_MIN}% at above-Watchlist confidence · opposed = edge ≤ ${OPPOSED_EDGE_MAX}% (the read sits at/against the price) · neutral = everything between. Lean & Watchlist are low-conviction and never "supported".`}
           >
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <SignalBucket label="Supported" tone="var(--vault-success)" rows={view.supported} />
@@ -466,8 +466,8 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
             </div>
           </Module>
 
-          {/* 6 · What the model likes */}
-          <Module eyebrow="What the model likes" title="The strongest supported reads" sub="Plain-language, from the top supported rows. No hype — and on an odds-only slate this is often just 'the model sits on the price'.">
+          {/* 6 · Strongest market reads */}
+          <Module eyebrow="Strongest market reads" title="The strongest supported reads" sub="Plain-language, from the top supported rows. No hype — and on an odds-only slate this is often just 'the read sits on the price'.">
             <BulletList items={view.whatModelLikes} />
           </Module>
 

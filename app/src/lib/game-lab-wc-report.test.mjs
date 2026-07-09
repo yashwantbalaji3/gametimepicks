@@ -79,10 +79,11 @@ test("product mapping is LINK-ONLY + artifact-proven; WC Specials only when in t
   assert.ok(!noSpec.v.productMapping.some((p) => /Specials/i.test(p.label)), "WC Specials NOT linked when not in the artifact");
 });
 
-test("unavailable modules render as honest 'not yet simulated' placeholders (incl. WC's absent recent-form)", async () => {
+test("unavailable modules render as honest 'coming soon' placeholders (incl. WC's absent recent-form)", async () => {
   const { v } = await buildAeView();
   assert.ok(v.unavailable.length >= 1, "placeholders exist");
-  for (const u of v.unavailable) assert.match(u.reason, /not yet simulated|no persisted|odds-only/i, "honest reason");
+  // Honest availability language (reworded to a friendly 'coming soon' roadmap; never a fabricated value).
+  for (const u of v.unavailable) assert.match(u.reason, /coming soon|requires|not yet simulated|no persisted|odds-only/i, "honest reason");
   // WC has no sigma/recent-form → it must be an honest placeholder, never a fabricated form table.
   assert.ok(v.unavailable.some((u) => /recent[- ]form/i.test(u.label)), "recent-form is an honest 'unavailable', not fabricated");
 });
