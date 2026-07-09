@@ -42,6 +42,7 @@ PLAN=()
   "WC player props       python3 pipeline/world_cup/build_player_props.py --date $DATE"
   "WC specials (post-props)  npx tsx app/scripts/refresh-world-cup-specials.mjs --date $DATE"
   "WC suggested parlays  python3 pipeline/world_cup/build_suggested_parlays.py --date $DATE"
+  "WC expanded markets   npx tsx app/scripts/ingest-wc-expanded-markets.mjs --write --date $DATE (~2 credits/game, optional)"
 )
 [[ "$SPORT" != "wc" ]] && PLAN+=(
   "MLB board             python3 -m pipeline.mlb.generate_mlb_board --date $DATE"
@@ -102,7 +103,10 @@ PY
   python3 pipeline/world_cup/build_player_props.py --date "$DATE"
   npx tsx app/scripts/refresh-world-cup-specials.mjs --date "$DATE"
   python3 pipeline/world_cup/build_suggested_parlays.py --date "$DATE"
-  ok "World Cup artifacts written (projections, board→$HORIZON, props, specials, parlays)"
+  # Expanded WC team markets (Asian handicap + team totals, de-vigged) → the soccer Game Center.
+  # Optional: fails CLOSED for the module (|| true) so a missing expanded feed never breaks the refresh.
+  npx tsx app/scripts/ingest-wc-expanded-markets.mjs --write --date "$DATE" | tail -3 || echo "  ! WC expanded markets skipped (optional, non-blocking)"
+  ok "World Cup artifacts written (projections, board→$HORIZON, props, specials, parlays, expanded markets)"
 fi
 
 if [[ "$SPORT" != "wc" ]]; then
