@@ -46,6 +46,7 @@ PLAN=()
 [[ "$SPORT" != "wc" ]] && PLAN+=(
   "MLB board             python3 -m pipeline.mlb.generate_mlb_board --date $DATE"
   "MLB props ingest      npx tsx app/scripts/ingest-mlb-slate.mjs --date $DATE"
+  "MLB team markets      npx tsx app/scripts/ingest-mlb-team-markets.mjs --write --date $DATE (~3 credits)"
   "MLB schedule→board-shape + rm home-run-props (Homer retired)"
 )
 PLAN+=(
@@ -116,7 +117,10 @@ const s=JSON.parse(fs.readFileSync(sP));
 fs.writeFileSync(sP, JSON.stringify({sport:'mlb',date:'$DATE',generatedAt:s.generatedAt||b.generatedAt,source:b.source||'odds_api+statsapi',games:b.games||[]},null,2)+'\n');
 console.log('  schedule → board-shape ('+(b.games||[]).length+' games)');"
   rm -f "app/public/data/mlb/home-run-props/$DATE.json" && echo "  home-run-props/$DATE.json removed (Homer retired)"
-  ok "MLB artifacts written (board, props, schedule)"
+  # Full-market team markets (moneyline / run line / total, de-vigged) → the Game Center.
+  # One extra bulk Odds call (~3 credits); credit-guarded (fail-closed); needs the board above.
+  npx tsx app/scripts/ingest-mlb-team-markets.mjs --write --date "$DATE" | tail -2
+  ok "MLB artifacts written (board, props, schedule, team markets)"
 fi
 
 say "Cross-product · daily portfolio + master ledger"
