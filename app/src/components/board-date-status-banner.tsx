@@ -1,6 +1,17 @@
 import Link from "next/link";
 
 import { currentEtDate } from "@/lib/freshness";
+import { getAvailableSettlementDates } from "@/lib/settlement-data";
+import { getMlbAvailableResultDates } from "@/lib/data-mlb-results";
+
+/** The exact date set `/results/date/[date]` is statically generated for (NBA
+ *  settlement ∪ MLB result dates). A settled board date without a graded-results
+ *  route (e.g. a slate with no settled leans) must NOT render a link that 404s. */
+function resultsDateRouteExists(date: string): boolean {
+  const nba = getAvailableSettlementDates();
+  const mlb = getMlbAvailableResultDates().dates ?? [];
+  return nba.includes(date) || mlb.includes(date);
+}
 
 /**
  * Banner that sits at the top of NBA + MLB board pages to make the
@@ -133,7 +144,7 @@ export default function BoardDateStatusBanner({
             {date}
           </span>
         </div>
-        {state === "settled" && (
+        {state === "settled" && resultsDateRouteExists(date) && (
           <Link
             href={`/results/date/${date}`}
             className="font-mono shrink-0 transition-all hover:brightness-110"
