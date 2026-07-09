@@ -235,7 +235,10 @@ test("game-detail-page still builds MlbGameLabReport (gameLabMlb) and wires Game
   assert.match(DETAIL_PAGE_SRC, /const isMlbSim = detail\.sport === "mlb" && !!detail\.gameLabSimulation/, "MLB-sim gate defined");
   assert.match(DETAIL_PAGE_SRC, /const sim = detail\.gameLabSimulation!/, "sim view bound from detail.gameLabSimulation");
   assert.match(DETAIL_PAGE_SRC, /<GameSimulationRunner\s+view=\{sim\}/, "must render the sim runner with the sim view");
-  assert.match(DETAIL_PAGE_SRC, /postReveal=\{<>\{gameCenter\}\{mlbReport\}\{spotlight\}\{tabsShell\}<\/>\}/, "the Game Center + report + spotlight + tabs are gated behind the reveal via postReveal");
+  // The post-reveal is now an Overview-led tabbed dashboard — still entirely inside postReveal (gated).
+  assert.match(DETAIL_PAGE_SRC, /postReveal=\{<PostRevealTabs tabs=\{mlbDashTabs\} \/>\}/, "MLB post-reveal is a gated tabbed dashboard");
+  // The dense report + spotlight live in the gated Advanced tab, never a pre-click sibling.
+  assert.match(DETAIL_PAGE_SRC, /key: "advanced"[\s\S]*?mlbReport/, "the dense report is inside the gated Advanced tab");
 });
 
 // Non-MLB details never carry a simulation view (null/undefined).

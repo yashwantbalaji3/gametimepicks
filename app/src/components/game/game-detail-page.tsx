@@ -15,6 +15,13 @@ import MlbGameCenter from "@/components/game/mlb-game-center";
 import WcGameCenter from "@/components/game/wc-game-center";
 import WcSimulationRunner from "@/components/game/wc-simulation-runner";
 import WcGameLabReport from "@/components/game/wc-game-lab-report";
+import PostRevealTabs, { type PostRevealTab } from "@/components/game/post-reveal-tabs";
+import {
+  MethodologyPanel,
+  MlbDistributionsPanel,
+  ScorersPanel,
+  SoccerComingSoonRoadmap,
+} from "@/components/game/game-dashboard-panels";
 import TeamMark from "@/components/ui/team-mark";
 import CompetitionBadge from "@/components/ui/competition-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
@@ -582,6 +589,18 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   const gameCenter = detail.gameCenter ? <MlbGameCenter gameCenter={detail.gameCenter} /> : null;
   const tabsShell = <SportShell tabs={tabs} />;
 
+  // ── Overview-led tabbed dashboard (MLB). The whole thing lives inside the runner's postReveal,
+  // so it stays behind the pre-click gate. Overview = the market-implied Game Center (the main
+  // answer); Player Props is promoted to a top-level tab; the dense report + spotlight + remaining
+  // sub-tabs move into Advanced Report; Distributions/Methodology are honest explainer panels. ──
+  const mlbDashTabs: PostRevealTab[] = [
+    { key: "overview", label: "Overview", content: gameCenter ?? spotlight ?? mlbReport },
+    { key: "player-props", label: "Player props", badge: detail.playerProps.length || null, content: playerPropsTab },
+    { key: "distributions", label: "Distributions", content: <MlbDistributionsPanel /> },
+    { key: "advanced", label: "Advanced report", content: <>{mlbReport}{spotlight}<SportShell tabs={tabs.filter((t) => t.key !== "player-props")} /></> },
+    { key: "methodology", label: "Methodology", content: <MethodologyPanel sport="mlb" /> },
+  ];
+
   // ── Gate: an MLB fixture that carries a simulation shows a CLEAN matchup hero (no prices) + the runner
   // ONLY before the click. The dense report, Model spotlight, and price tabs are gated behind Generate. ──
   const isMlbSim = detail.sport === "mlb" && !!detail.gameLabSimulation;
@@ -651,7 +670,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           view={sim}
           homeLogo={detail.homeLogo}
           awayLogo={detail.awayLogo}
-          postReveal={<>{gameCenter}{mlbReport}{spotlight}{tabsShell}</>}
+          postReveal={<PostRevealTabs tabs={mlbDashTabs} />}
         />
 
         {/* Persistent disclosure — visible regardless of phase. */}
@@ -675,7 +694,17 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       gc.total && "Match total",
       gc.btts && "BTTS",
     ].filter(Boolean) as string[];
-    const wcReportEl = detail.gameLabWc ? <div className="mt-5"><WcGameLabReport view={detail.gameLabWc} /></div> : null;
+    const wcReportEl = detail.gameLabWc ? <div><WcGameLabReport view={detail.gameLabWc} /></div> : null;
+    // ── Overview-led tabbed dashboard (Soccer/WC). Entirely inside the runner's postReveal → gated.
+    // Overview = the market-implied Match Result Center + expanded markets (the main answer); the dense
+    // WC report moves into Advanced Report; Scorers + Coming Soon are honest roadmap panels. ──
+    const wcDashTabs: PostRevealTab[] = [
+      { key: "overview", label: "Overview", content: <WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} /> },
+      { key: "scorers", label: "Scorers", content: <ScorersPanel /> },
+      ...(wcReportEl ? [{ key: "advanced", label: "Advanced report", content: wcReportEl }] : []),
+      { key: "coming-soon", label: "Coming soon", content: <SoccerComingSoonRoadmap /> },
+      { key: "methodology", label: "Methodology", content: <MethodologyPanel sport="world_cup" /> },
+    ];
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
         <div className="mb-2">
@@ -696,7 +725,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           stageLabel={gc.stage}
           kickoff={gc.kickoffUtc}
           supportedMarkets={supported}
-          postReveal={<><WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />{wcReportEl}</>}
+          postReveal={<PostRevealTabs tabs={wcDashTabs} />}
         />
         <p className="mt-6 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
           Paper-only · educational · not betting advice
