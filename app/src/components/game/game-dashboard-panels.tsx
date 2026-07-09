@@ -28,24 +28,6 @@ export function ComingSoonCard({ title, reason }: { title: string; reason: strin
   );
 }
 
-/** MLB distributions tab — per-prop distributions live under Player Props; game-level ones are roadmap. */
-export function MlbDistributionsPanel() {
-  return (
-    <section aria-label="Distributions" className="rounded-[12px] px-4 sm:px-5 py-4 flex flex-col gap-3" style={CARD}>
-      <Eyebrow>Distributions</Eyebrow>
-      <p className="text-[12px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
-        Per-player-prop distributions from the 10,000-run simulation are shown inline in the{" "}
-        <strong style={{ color: "var(--vault-text)" }}>Player Props</strong> tab. Game-level run
-        distributions are on the roadmap:
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <ComingSoonCard title="Total-runs distribution" reason="Requires the alternate-totals ladder + explicit tail bins so the histogram sums to 1.0 (thin-market tails are the trap — see the alternate-ladder audit)." />
-        <ComingSoonCard title="Run-line / margin distribution" reason="Requires the alternate-spreads ladder + the same tail-bin guard before it can be shown honestly." />
-      </div>
-    </section>
-  );
-}
-
 /** Soccer scorers tab — anytime scorer odds exist but are one-sided; deferred honestly. */
 export function ScorersPanel() {
   return (
