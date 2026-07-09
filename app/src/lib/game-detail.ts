@@ -26,6 +26,7 @@ import {
   type GameSimulationArtifactMeta,
 } from "@/lib/game-simulations/game-lab-view";
 import { getMlbGameCenter, type MlbGameCenter } from "@/lib/mlb-team-markets";
+import { getWcGameCenter, type WcGameCenter } from "@/lib/wc-game-center";
 import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
@@ -69,6 +70,10 @@ export interface PublicGameDetail {
    *  caveats, artifact-proven product-mapping links + honest "not yet simulated" placeholders) — derived
    *  verbatim from the WC projections. Null for non-WC / no rows. */
   gameLabWc?: WcGameLabView | null;
+  /** Market-implied Soccer Game Center (World Cup only) — 3-way result, double chance,
+   *  draw-no-bet, match total + O/U lean, BTTS, de-vigged. Null when no market rows.
+   *  NOT a sampled simulation (no runCount); kept distinct from a Monte Carlo sim. */
+  wcGameCenter?: WcGameCenter | null;
   /**
    * Deterministic per-game SIMULATION view (Phase 5) — the precomputed artifact the "Generate
    * Simulation" reveal plays back. Loaded at build time from
@@ -172,6 +177,9 @@ function worldCupDetails(): PublicGameDetail[] {
       awayLogo: logoByMatch.get(matchId)?.away ?? null,
       regulationNote: "90-minute regulation only — a Draw is a real third outcome (no extra time / penalties).",
       gameLabWc: buildWcGameLabReport(rawWcProjections, matchId, { inWcSpecials: wcSpecialGames.has(head.gameLabel) }),
+      // Market-implied Soccer Game Center (3-way / DC / DNB / total / BTTS) from the de-vigged WC
+      // projection. Null when the fixture has no market rows → the UI shows an honest absence.
+      wcGameCenter: getWcGameCenter(matchId),
       teamProjections,
       playerProps,
       suggestedCards: cardsForGame,

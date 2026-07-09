@@ -12,6 +12,8 @@ import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import MlbGameLabReport from "@/components/game/mlb-game-lab-report";
 import GameSimulationRunner from "@/components/game/game-simulation-runner";
 import MlbGameCenter from "@/components/game/mlb-game-center";
+import WcGameCenter from "@/components/game/wc-game-center";
+import WcSimulationRunner from "@/components/game/wc-simulation-runner";
 import WcGameLabReport from "@/components/game/wc-game-lab-report";
 import TeamMark from "@/components/ui/team-mark";
 import CompetitionBadge from "@/components/ui/competition-badge";
@@ -653,6 +655,49 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         />
 
         {/* Persistent disclosure — visible regardless of phase. */}
+        <p className="mt-6 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+          Paper-only · educational · not betting advice
+        </p>
+      </div>
+    );
+  }
+
+  // ── World Cup market-implied dashboard: a gated Generate flow (no runCount claim). The Game Center
+  //    + the existing WC report are handed to the runner's postReveal — revealed ONLY after Generate,
+  //    absent from the pre-click DOM (no probability/total leak). ──
+  const isWcSim = detail.sport === "world_cup" && !!detail.wcGameCenter;
+  if (isWcSim) {
+    const gc = detail.wcGameCenter!;
+    const supported = [
+      gc.matchResult && "Match result",
+      gc.doubleChance && "Double chance",
+      gc.drawNoBet && "Draw no bet",
+      gc.total && "Match total",
+      gc.btts && "BTTS",
+    ].filter(Boolean) as string[];
+    const wcReportEl = detail.gameLabWc ? <div className="mt-5"><WcGameLabReport view={detail.gameLabWc} /></div> : null;
+    return (
+      <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+        <div className="mb-2">
+          <Link href="/games" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
+        </div>
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
+          <CompetitionBadge sport="world_cup" size="sm" />
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
+            <span aria-hidden>▶</span> Market Dashboard Ready
+          </span>
+        </div>
+        <WcSimulationRunner
+          homeTeam={detail.homeTeam ?? gc.homeTeam}
+          awayTeam={detail.awayTeam ?? gc.awayTeam}
+          homeCode={gc.homeCode}
+          awayCode={gc.awayCode}
+          stageLabel={gc.stage}
+          kickoff={gc.kickoffUtc}
+          supportedMarkets={supported}
+          postReveal={<><WcGameCenter gameCenter={gc} />{wcReportEl}</>}
+        />
         <p className="mt-6 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
           Paper-only · educational · not betting advice
         </p>
