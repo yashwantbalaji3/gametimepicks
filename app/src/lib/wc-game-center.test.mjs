@@ -87,7 +87,7 @@ test("6 · game-detail attaches wcGameCenter; page gates it behind Generate (pos
   assert.match(detailLoaderSrc, /wcGameCenter: getWcGameCenter\(matchId\)/);
   // The WC-sim branch hands the Game Center + report to the runner's postReveal (revealed after Generate).
   assert.match(detailPageSrc, /const isWcSim = detail\.sport === "world_cup" && !!detail\.wcGameCenter/);
-  assert.match(detailPageSrc, /postReveal=\{<><WcGameCenter gameCenter=\{gc\} \/>\{wcReportEl\}<\/>\}/);
+  assert.match(detailPageSrc, /postReveal=\{<><WcGameCenter gameCenter=\{gc\} expanded=\{detail\.wcExpanded\} \/>\{wcReportEl\}<\/>\}/);
 });
 
 test("7 · money md5 unchanged; the layer is money-independent", () => {

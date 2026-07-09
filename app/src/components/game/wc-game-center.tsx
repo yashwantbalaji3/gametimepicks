@@ -11,6 +11,7 @@
  */
 import FlagBadge from "@/components/flag-badge";
 import type { WcGameCenter } from "@/lib/wc-game-center";
+import type { WcExpandedMarkets } from "@/lib/wc-expanded-markets";
 
 const CARD: React.CSSProperties = { background: "var(--gtp-card)", border: "1px solid var(--vault-rule)" };
 const SUNKEN: React.CSSProperties = { background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" };
@@ -25,8 +26,16 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function WcGameCenter({ gameCenter }: { gameCenter: WcGameCenter }) {
+export default function WcGameCenter({
+  gameCenter,
+  expanded,
+}: {
+  gameCenter: WcGameCenter;
+  expanded?: WcExpandedMarkets | null;
+}) {
   const { matchResult, doubleChance, drawNoBet, total, btts, homeTeam, awayTeam, homeCode, awayCode } = gameCenter;
+  const ah = expanded?.asianHandicap ?? null;
+  const tt = expanded?.teamTotals ?? null;
 
   return (
     <section aria-label="Match Result Center" className="mb-5 rounded-[12px] px-4 sm:px-5 py-4 flex flex-col gap-4" style={CARD}>
@@ -121,6 +130,42 @@ export default function WcGameCenter({ gameCenter }: { gameCenter: WcGameCenter 
           </div>
         )}
       </div>
+
+      {/* Expanded markets (odds-ingest ready): Asian handicap + team totals, de-vigged. */}
+      {(ah || tt) && (
+        <div className="flex flex-col gap-2">
+          <Eyebrow>Expanded markets · de-vigged</Eyebrow>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {ah && ah.home.noVigProb != null && ah.away.noVigProb != null && (
+              <div className="rounded-[10px] px-3.5 py-3 flex flex-col gap-1.5" style={SUNKEN}>
+                <Eyebrow>Asian handicap</Eyebrow>
+                <div className="flex flex-col gap-0.5 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+                  {(() => {
+                    const homeLine = ah.line;
+                    const awayLine = ah.away.line ?? -ah.line;
+                    const fmt = (n: number) => (n > 0 ? `+${n}` : `${n}`);
+                    return (
+                      <>
+                        <span>{homeTeam} {fmt(homeLine)} · <span style={{ color: "var(--vault-text)" }}>{pct(ah.home.noVigProb!)}</span></span>
+                        <span>{awayTeam} {fmt(awayLine)} · <span style={{ color: "var(--vault-text)" }}>{pct(ah.away.noVigProb!)}</span></span>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+            {tt && (
+              <div className="rounded-[10px] px-3.5 py-3 flex flex-col gap-1.5" style={SUNKEN}>
+                <Eyebrow>Team goal totals</Eyebrow>
+                <div className="flex flex-col gap-0.5 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+                  {tt.home.over.noVigProb != null && <span>{tt.home.team} Over {tt.home.line} · <span style={{ color: "var(--vault-text)" }}>{pct(tt.home.over.noVigProb)}</span></span>}
+                  {tt.away.over.noVigProb != null && <span>{tt.away.team} Over {tt.away.line} · <span style={{ color: "var(--vault-text)" }}>{pct(tt.away.over.noVigProb)}</span></span>}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Unavailable modules — transparent, not buried */}
       {gameCenter.unavailable.length > 0 && (

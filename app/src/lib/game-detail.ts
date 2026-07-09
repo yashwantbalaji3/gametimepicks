@@ -27,6 +27,7 @@ import {
 } from "@/lib/game-simulations/game-lab-view";
 import { getMlbGameCenter, type MlbGameCenter } from "@/lib/mlb-team-markets";
 import { getWcGameCenter, type WcGameCenter } from "@/lib/wc-game-center";
+import { getWcExpandedMarkets, type WcExpandedMarkets } from "@/lib/wc-expanded-markets";
 import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
@@ -74,6 +75,10 @@ export interface PublicGameDetail {
    *  draw-no-bet, match total + O/U lean, BTTS, de-vigged. Null when no market rows.
    *  NOT a sampled simulation (no runCount); kept distinct from a Monte Carlo sim. */
   wcGameCenter?: WcGameCenter | null;
+  /** Expanded WC market modules (Asian handicap + team totals), de-vigged from the
+   *  odds. Null when no expanded-markets artifact for the slate; per-module unavailable
+   *  notes when a book didn't post one. Never fabricated. */
+  wcExpanded?: WcExpandedMarkets | null;
   /**
    * Deterministic per-game SIMULATION view (Phase 5) — the precomputed artifact the "Generate
    * Simulation" reveal plays back. Loaded at build time from
@@ -180,6 +185,9 @@ function worldCupDetails(): PublicGameDetail[] {
       // Market-implied Soccer Game Center (3-way / DC / DNB / total / BTTS) from the de-vigged WC
       // projection. Null when the fixture has no market rows → the UI shows an honest absence.
       wcGameCenter: getWcGameCenter(matchId),
+      // Expanded modules keyed by the SLATE date (the expanded-markets artifact holds every
+      // fixture in the projection window), not the individual match date.
+      wcExpanded: getWcExpandedMarkets(String((rawWcProjections as { date?: string } | null)?.date ?? head.date), matchId),
       teamProjections,
       playerProps,
       suggestedCards: cardsForGame,

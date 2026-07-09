@@ -696,7 +696,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           stageLabel={gc.stage}
           kickoff={gc.kickoffUtc}
           supportedMarkets={supported}
-          postReveal={<><WcGameCenter gameCenter={gc} />{wcReportEl}</>}
+          postReveal={<><WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />{wcReportEl}</>}
         />
         <p className="mt-6 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
           Paper-only · educational · not betting advice
