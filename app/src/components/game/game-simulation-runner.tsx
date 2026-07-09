@@ -626,11 +626,14 @@ function CentralRead({ view }: { view: GameSimulationView }) {
  * deterministic (see `deriveTakeaways`). Renders nothing when there are no picks.
  */
 function MainTakeaways({ picks }: { picks: SimGeneratedPick[] }) {
-  const takeaways = deriveTakeaways(picks);
+  // The strongest lean is already the single Main Read (Central read) + top-leans #1 — so drop the
+  // takeaway cards that just repeat it (strongest_lean / biggest_edge). Key takeaways stay META
+  // (highest confidence, most common market), not a third rendering of the hero lean.
+  const takeaways = deriveTakeaways(picks).filter((t) => t.key !== "strongest_lean" && t.key !== "biggest_edge");
   if (takeaways.length === 0) return null;
   return (
     <section className="flex flex-col gap-2.5">
-      <ModuleHead eyebrow="Main takeaways" title="What stands out in this run" sub="Derived from the generated picks — each card names where it came from." />
+      <ModuleHead eyebrow="Key takeaways" title="What else stands out" sub="Meta reads across the generated picks — the strongest lean is the Central read above, not repeated here." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {takeaways.map((t) => (
           <div key={t.key} className="flex flex-col gap-1 rounded-[11px] px-3.5 py-3" style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border)" }}>
@@ -817,6 +820,7 @@ function UnavailableModules({ view }: { view: GameSimulationView }) {
 export default function GameSimulationRunner({
   view,
   postReveal,
+  marketSnapshot,
   homeLogo,
   awayLogo,
 }: {
@@ -824,6 +828,9 @@ export default function GameSimulationRunner({
   /** Rendered ONLY in the done phase, below the dashboard — the dense report + spotlight + tabs shell,
    *  so on an MLB-sim page they are ABSENT from the pre-click DOM (gated behind the reveal). */
   postReveal?: React.ReactNode;
+  /** The market-snapshot node (MlbGameCenter) — rendered as report section 2 (right after the header,
+   *  before the model output) so "what the book says" leads the read. Gated (done phase only). */
+  marketSnapshot?: React.ReactNode;
   homeLogo?: string | null;
   awayLogo?: string | null;
 }) {
@@ -1066,7 +1073,12 @@ export default function GameSimulationRunner({
             ) : null}
           </section>
 
-          {/* 2 · PRICED PROP SNAPSHOT — the market-snapshot analogue (priced picks only). */}
+          {/* 2 · MARKET SNAPSHOT — "what the book says": the de-vigged team-market Game Center (moneyline /
+              total / run line). Leads the read, before the model output, so market vs model is a clean
+              split. Absent when the game has no team markets (no fabricated card). */}
+          {marketSnapshot ? <div className="gtp-market-snapshot">{marketSnapshot}</div> : null}
+
+          {/* 3 · SIMULATOR OUTPUT — the priced-prop snapshot: what GameTime's model produced, priced. */}
           <PricedPropSnapshot picks={view.generatedPicks} />
 
           {/* 3 · CENTRAL READ — the model's single strongest lean, as a PROP read (never a score). */}
