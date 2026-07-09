@@ -31,6 +31,7 @@ import {
   SIMULATION_MIN_DURATION_MS,
   SIMULATION_STAGES,
 } from "./simulation-animation";
+import { ExpandableReportSection } from "./answer-first-report";
 
 /**
  * The dashboard modules the reveal unlocks — shown BEFORE the click as locked/preview pills ONLY (labels,
@@ -1102,34 +1103,57 @@ export default function GameSimulationRunner({
             </div>
           )}
 
-          {/* 6 · PLAYER / PROP TABLE — the full ledger of generated picks (scrollable, capped). */}
-          <PropTable picks={view.generatedPicks} />
+          {/* ── DEEPER ANALYSIS — the heavy sections move OUT of the main reading path (answer-first IA).
+              Everything above (matchup, priced snapshot, central read, takeaways, top leans) is the fast
+              read; the full ledger, distributions, model-vs-market diagnostics, unavailable modules, and
+              the copy recap are one tap away below. Each disclosure is closed by default and only rendered
+              when it has real content (no empty toggles). ── */}
+          {view.generatedPicks.length > 0 ||
+          (view.distributions && Object.keys(view.distributions).length > 0) ||
+          view.unavailableModules.length > 0 ? (
+            <div className="flex flex-col gap-2 mt-1">
+              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                Deeper analysis · expand as needed
+              </span>
 
-          {/* 7 · DISTRIBUTION LAYER — reused, ONLY when the artifact carries a real, non-empty block. */}
-          {view.distributions && Object.keys(view.distributions).length > 0 ? (
-            <section className="flex flex-col gap-2.5">
-              <div className="flex flex-col gap-0.5">
-                <Eyebrow>Distributions</Eyebrow>
-                <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>
-                  The simulated outcome spread — deterministic bins from the artifact.
-                </span>
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                {Object.entries(view.distributions).map(([key, d]) => (
-                  <DistributionCard key={key} d={d} />
-                ))}
-              </div>
-            </section>
+              {/* 6 · Full pick table (collapsed) */}
+              {view.generatedPicks.length > 0 ? (
+                <ExpandableReportSection title="Full pick table" count={view.generatedPicks.length} hint="Every generated pick — projection, model %, market %, edge, confidence.">
+                  <PropTable picks={view.generatedPicks} />
+                </ExpandableReportSection>
+              ) : null}
+
+              {/* 7 · Distributions (collapsed, only when the artifact carries a real block) */}
+              {view.distributions && Object.keys(view.distributions).length > 0 ? (
+                <ExpandableReportSection title="Outcome distributions" hint="The simulated outcome spread — deterministic bins from the artifact.">
+                  <div className="grid grid-cols-1 gap-2">
+                    {Object.entries(view.distributions).map(([key, d]) => (
+                      <DistributionCard key={key} d={d} />
+                    ))}
+                  </div>
+                </ExpandableReportSection>
+              ) : null}
+
+              {/* 8 · Model-vs-market agreement (collapsed diagnostic — not calibration) */}
+              {view.generatedPicks.length > 0 ? (
+                <ExpandableReportSection title="Model vs market agreement" hint="A sanity check on how far the model sits from the market — not a calibration score.">
+                  <MarketAgreement picks={view.generatedPicks} />
+                </ExpandableReportSection>
+              ) : null}
+
+              {/* 9 · Unavailable modules (collapsed — honest "not generated", this game's sport only) */}
+              {view.unavailableModules.length > 0 ? (
+                <ExpandableReportSection title="Unavailable modules" count={view.unavailableModules.length} hint="What wasn't generated for this game, and why — never faked.">
+                  <UnavailableModules view={view} />
+                </ExpandableReportSection>
+              ) : null}
+
+              {/* 10 · Copy recap (collapsed) */}
+              <ExpandableReportSection title="Copy recap" hint="A plain-text recap you can copy — built from the same real fields.">
+                <RecapBlock view={view} />
+              </ExpandableReportSection>
+            </div>
           ) : null}
-
-          {/* 8 · CURRENT-SLATE MARKET AGREEMENT — hidden when zero priced picks. NOT calibration. */}
-          <MarketAgreement picks={view.generatedPicks} />
-
-          {/* 9 · UNAVAILABLE MODULES — reused honest "not generated" states. */}
-          <UnavailableModules view={view} />
-
-          {/* 10 · RECAP — copyable plain-text recap from real fields only. */}
-          <RecapBlock view={view} />
 
           {/* Same-output note + paper-only. */}
           <p className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
