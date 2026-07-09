@@ -28,6 +28,7 @@ import { gameScriptFromBoard } from "@/lib/world-cup/game-script";
 import { scriptSignal, topPropSignal } from "@/lib/games-board-signal";
 import { getSportIdentity } from "@/lib/sport-identity";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
+import { mlbAvailabilityBadges, worldCupAvailabilityBadges } from "@/lib/simulate-availability";
 import type { PublicProjection } from "@/lib/normalize";
 
 /** Group projections by their game key (matchId) for per-game top-prop selection. */
@@ -94,6 +95,9 @@ export default function SimulateLobby() {
       // The board's coherent game-script for this fixture (winner + projected score + confidence) — the
       // SAME read the knockout board / game-detail render, never fabricated. Undefined when no live read.
       signal: scriptSignal(gameScriptFromBoard(r32Board, d.homeTeam ?? "", d.awayTeam ?? "")) ?? undefined,
+      // Artifact-backed availability chips (market-implied 90' modules + expanded markets). Never a
+      // run-count claim for soccer; only markets the de-vigged Game Center / expanded artifact carry.
+      availabilityBadges: worldCupAvailabilityBadges(d),
     });
   }
 
@@ -131,6 +135,10 @@ export default function SimulateLobby() {
       simReady: mlbDetail?.gameLabSimulation?.status === "ready",
       // The game's single highest MARKET-implied prop (labelled "mkt", never a model claim).
       signal: topPropSignal(mlbPropsByGame.get(String(g.gamePk)) ?? []) ?? undefined,
+      // Artifact-backed availability chips (run-count sim + de-vigged team markets + player props).
+      // The run-count label is read from the artifact by the loader, never hardcoded here. Only
+      // emitted when the joined detail genuinely carries each module; empty when no detail.
+      availabilityBadges: mlbDetail ? mlbAvailabilityBadges(mlbDetail) : undefined,
     });
   }
 

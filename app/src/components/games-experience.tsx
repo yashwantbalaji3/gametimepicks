@@ -13,6 +13,7 @@ import Link from "next/link";
 import { getSportIdentity } from "@/lib/sport-identity";
 import TeamMark from "@/components/ui/team-mark";
 import type { GameCardSignal } from "@/lib/games-board-signal";
+import type { GameAvailabilityBadge } from "@/lib/simulate-availability";
 
 export interface GameRow {
   id: string;
@@ -37,6 +38,12 @@ export interface GameRow {
   signal?: GameCardSignal;
   /** True when a ready deterministic simulation artifact exists for this game (drives the "Simulation Ready" badge). */
   simReady?: boolean;
+  /**
+   * Artifact-backed availability chips (what's simulatable here) — computed server-side from the
+   * joined game detail via @/lib/simulate-availability, so each chip is real. Says WHAT is available,
+   * never the prediction (no probabilities/prices/leans). Empty/undefined ⇒ no badge row.
+   */
+  availabilityBadges?: GameAvailabilityBadge[];
 }
 
 /** Confidence chip palette for the WC game-script read (High=green, Medium=gold, Low=muted). */
@@ -115,6 +122,42 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
                     </span>
                   </div>
                 </div>
+                {g.availabilityBadges && g.availabilityBadges.length > 0 ? (
+                  <div className="flex flex-wrap items-center gap-1" data-testid="availability-badges" aria-label="Available to simulate">
+                    {(() => {
+                      const CAP = 6;
+                      const shown = g.availabilityBadges.slice(0, CAP);
+                      const overflow = g.availabilityBadges.length - shown.length;
+                      return (
+                        <>
+                          {shown.map((b) => {
+                            const sim = b.kind === "simulation";
+                            const soon = b.kind === "comingSoon";
+                            return (
+                              <span
+                                key={b.key}
+                                className="inline-flex items-center font-mono uppercase tracking-[0.05em] rounded-full px-1.5 py-0.5"
+                                style={{
+                                  fontSize: 8.5,
+                                  color: sim ? "var(--vault-gold-bright)" : soon ? "var(--vault-text-faint)" : "var(--vault-text-mute)",
+                                  background: sim ? "var(--vault-gold-dim)" : "rgba(255,255,255,0.03)",
+                                  border: `1px solid ${sim ? "color-mix(in srgb, var(--vault-gold-bright) 34%, transparent)" : "var(--vault-rule)"}`,
+                                  opacity: soon ? 0.72 : 1,
+                                }}
+                                title={soon ? "On the roadmap — not yet available" : "Available to simulate on this game"}
+                              >
+                                {b.label}
+                              </span>
+                            );
+                          })}
+                          {overflow > 0 ? (
+                            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>+{overflow} more</span>
+                          ) : null}
+                        </>
+                      );
+                    })()}
+                  </div>
+                ) : null}
                 {g.signal ? (
                   <div className="rounded-[8px] px-2.5 py-2 flex items-center gap-2 min-w-0" style={{ background: "rgba(12,8,6,0.5)", border: "1px solid var(--vault-rule)" }}>
                     <span className="font-mono uppercase tracking-[0.12em] shrink-0" style={{ color: g.signal.kind === "script" ? "var(--vault-gold-bright)" : id.accentVar, fontSize: 8.5 }}>
