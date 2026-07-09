@@ -73,8 +73,12 @@ export default function MlbGameCenter({ gameCenter }: { gameCenter: MlbGameCente
       </div>
       <p className="text-[11.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
         Read straight from the sportsbook&rsquo;s de-vigged prices for this game — the
-        market&rsquo;s own view. This is separate from the GameTime player-prop model
-        below, and it is not betting advice.
+        market&rsquo;s own view (<strong style={{ color: "var(--vault-text-mute)" }}>market-implied, not a simulation</strong>). This is separate
+        from the GameTime player-prop model below, and it is not betting advice.
+      </p>
+      <p className="text-[10.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
+        A full-game score simulation — projected final score plus run and margin distributions — is{" "}
+        <strong style={{ color: "var(--vault-text-mute)" }}>coming soon</strong>; it needs a dedicated full-game artifact and is not shown until it is real.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
