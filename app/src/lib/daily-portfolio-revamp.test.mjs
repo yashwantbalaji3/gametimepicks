@@ -151,6 +151,10 @@ test("World Cup Specials is a PERMANENT tracked product with a durable ledger ($
   assert.match(page, /permanent paper product/i, "positions it as a permanent product");
   assert.match(page, /SpecialsLedgerSection/, "renders the durable ledger (record/ROI/P&L/win-rate)");
   assert.match(page, /buildSpecialsLedger/, "builds the ledger from archived history");
+  // 2026-07-09: the /today Daily Model Hub no longer renders the old "Today's paper portfolio" card, but it
+  // still SOURCES the same canonical daily-portfolio money (open exposure) and renders it as a status figure
+  // (money-integrity intent preserved — the figure is read from the canonical loader, never hardcoded).
   const today = read("src/app/today/page.tsx");
-  assert.match(today, /Today's paper portfolio|Today&apos;s paper portfolio/, "today shows the daily portfolio");
+  assert.match(today, /buildDailyPortfolio\(/, "today derives the daily-portfolio money");
+  assert.match(today, /dailyPortfolio\.openExposure/, "today surfaces the canonical open-exposure figure");
 });

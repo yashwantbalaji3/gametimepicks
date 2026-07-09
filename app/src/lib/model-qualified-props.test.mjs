@@ -106,11 +106,12 @@ test("/build copy states the pool is model-qualified only", () => {
   assert.match(read("src/app/build/page.tsx"), /model-qualified legs only/, "build note states model-qualified default");
 });
 
-test("/today shows the June 23 readiness strip incl. Model Player Props", () => {
-  const today = read("src/app/today/page.tsx");
-  assert.match(today, /what&apos;s live/, "readiness strip heading present");
-  assert.match(today, /Model Player Props/, "model player props module present");
-  assert.match(today, /loadModelQualifiedProps/, "today reads model-qualified prop counts");
+test("Model Player Props are surfaced with real model-qualified counts on the World Cup surface", () => {
+  // 2026-07-09: the compact /today Daily Model Hub dropped the readiness strip; model-qualified player
+  // props now live on the World Cup surface (the ModelPlayerProps matrix), which reads the real counts.
+  const wc = read("src/app/world-cup/page.tsx");
+  assert.match(wc, /loadModelQualifiedProps/, "the WC surface reads model-qualified prop counts");
+  assert.match(wc, /ModelPlayerProps/, "the WC surface renders the model player-props matrix");
 });
 
 test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live lanes are a fresh forward cycle, bankroll + crown reconcile, lanes separate", () => {

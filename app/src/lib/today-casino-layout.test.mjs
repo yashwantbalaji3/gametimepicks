@@ -1,9 +1,10 @@
 /**
- * Locks the /today ordering (owner restructure): the FLAGSHIP HIGHLIGHT leads — three flashcards that
- * link ONLY to Bank Builder / Moonshot / World Cup Specials (everything else lives in the nav bars), then
- * the three flagship ladders/parlays in that same order — followed by the World Cup focus, the COMPACT
- * Bank Builder status rail, and the filterable suggested parlays. The old tall "Bank Builder · {dateLabel}"
- * recap is gone (compact rail replaces it).
+ * Locks the /today ordering (2026-07-09 rebuild → the DAILY MODEL HUB). /today is now a clean, compact
+ * 10-section hub — NOT the old dense everything-page. It leads with a Today-specific slate header, then
+ * an at-a-glance status strip, the top model reads, simulation-backed games, and compact product-status
+ * modules (Build-a-Pick, Bank Builder, Longshot Lab) + discipline notes + a results reminder + secondary
+ * links. The old flagship-flashcard/BB-status-rail/ParlaysExplorer/World-Cup-focus wall is gone; the full
+ * flagship ladders/boards are NOT re-rendered here — they surface as one-figure status cards that link out.
  * Source-level checks (suite runs pre-build).
  */
 import { test } from "node:test";
@@ -12,55 +13,45 @@ import fs from "node:fs";
 
 const src = fs.readFileSync("src/app/today/page.tsx", "utf8");
 
-test("the 'What's live today' counts hero is removed", () => {
+test("the old dense-board headings/blocks are removed from the compact hub", () => {
   assert.ok(!src.includes("What&apos;s live today"), "old hero heading must be gone");
-});
-
-test("flagship quick-link flashcards lead the page and link ONLY to the three flagship products", () => {
-  const nav = src.indexOf('aria-label="Flagship quick links"');
-  const wc = src.indexOf("<TodaysFocusWorldCup");
-  assert.ok(nav > 0, "flagship quick-link flashcards present");
-  assert.ok(wc > 0, "World Cup focus present");
-  assert.ok(nav < wc, "flashcards appear before the World Cup focus");
-  // The flashcards link to exactly the three flagship products (Homer Nukes retired; Diamond Specials removed).
-  for (const dest of ["/bank-builder", "/moonshot", "/world-cup-specials"]) {
-    assert.ok(src.includes(`href: "${dest}"`), `flashcard links to ${dest}`);
-  }
-  assert.ok(!src.includes('href: "/homer-nukes"'), "no retired Homer Nukes flashcard");
-  assert.ok(!src.includes('href: "/diamond-specials"'), "no Diamond Specials flashcard");
-  // The de-duped generic destinations are no longer flashcards (they live in the top/side nav).
-  const flashcardBlock = src.slice(nav, src.indexOf("PRIORITY #1"));
-  for (const gone of ["/games", "/picks", "/build", "/results"]) {
-    assert.ok(!flashcardBlock.includes(`href: "${gone}"`), `${gone} is not a flagship flashcard`);
+  // The old dense flagship-flashcard + status-rail + parlays-explorer + WC-focus wall is gone.
+  for (const gone of ["Flagship quick links", "TodaysFocusWorldCup", "BankBuilderStatusRail", "ParlaysExplorer", "Today&apos;s flagship products", "readinessModules"]) {
+    assert.ok(!src.includes(gone), `old dense-board fragment "${gone}" removed`);
   }
 });
 
-test("compact Bank Builder status rail replaces the tall recap, before suggested parlays", () => {
-  const rail = src.indexOf("<BankBuilderStatusRail");
-  // Suggested parlays now render through the canonical methodology engine (ParlaysExplorer) —
-  // the same component /parlays and /picks use (World Cup + Mixed + by-risk with leg drawers).
-  const parlays = src.indexOf("<ParlaysExplorer");
-  assert.ok(rail > 0, "compact Bank Builder status rail present");
-  assert.ok(parlays > 0, "engine-backed suggested parlays present");
-  assert.ok(rail < parlays, "Bank Builder status precedes suggested parlays");
-  // the old tall recap is gone
-  assert.ok(!src.includes("Bank Builder · {dateLabel}"), "old tall Bank Builder recap removed");
+test("the Daily Model Hub leads with its own header + at-a-glance, then the top model reads", () => {
+  const header = src.indexOf("<TodayDailySlateHeader");
+  const glance = src.indexOf("<TodayAtAGlance");
+  const picks = src.indexOf("<TodayTopModelPicks");
+  assert.ok(header > 0, "Today-specific slate header present");
+  assert.ok(glance > 0, "at-a-glance status strip present");
+  assert.ok(picks > 0, "top model reads present");
+  assert.ok(header < glance, "header leads the at-a-glance strip");
+  assert.ok(glance < picks, "at-a-glance precedes the top model reads");
 });
 
-test("the three flagship products lead the content: Bank Builder → Moonshot → WC exclusive parlays → World Cup focus → Bank Builder status", () => {
-  const bb = src.indexOf('aria-label="Bank Builder ladders"');
-  // Moonshot is NOT a ladder — its lead section is labelled "Moonshot cards" (independent daily longshots).
-  const moon = src.indexOf('aria-label="Moonshot cards"');
-  const wcParlays = src.indexOf("<WorldCupSpecialsBox");
-  const wc = src.indexOf("<TodaysFocusWorldCup");
-  const rail = src.indexOf("<BankBuilderStatusRail");
-  assert.ok(bb > 0 && moon > 0, "both flagship lead sections present (Bank Builder ladders + Moonshot cards)");
-  assert.ok(bb < moon, "Bank Builder ladders lead the Moonshot cards");
-  assert.ok(moon < wcParlays, "Moonshot cards precede the WC exclusive parlays");
-  assert.ok(wcParlays < wc, "WC exclusive parlays precede the World Cup focus");
-  assert.ok(wc < rail, "World Cup focus precedes the Bank Builder status rail");
-  // The two flagship ladders reuse the shared ProductLanesLadder surface.
-  assert.ok(src.includes("<ProductLanesLadder"), "renders the shared product ladder for the lead sections");
+test("product status modules link out (no duplicated full flagship ladders/boards on the hub)", () => {
+  // Bank Builder / Longshot / Build-a-Pick are COMPACT status modules that link out — the hub never
+  // re-renders the full ProductLanesLadder / WC Specials box / Top10 wall (that lives on their own pages).
+  for (const mod of ["<BuildAPickModule", "<BankBuilderStatus", "<LongshotLabStatus"]) {
+    assert.ok(src.includes(mod), `${mod} status module present`);
+  }
+  for (const dup of ["ProductLanesLadder", "WorldCupSpecialsBox", "Top10BoardSection", "MoonshotLadderV2"]) {
+    assert.ok(!src.includes(dup), `${dup} full flagship surface is not duplicated on the compact hub`);
+  }
+});
+
+test("the hub closes with discipline notes, a results reminder, and secondary links — in order", () => {
+  const sims = src.indexOf("<TodaySimulationLeans");
+  const notes = src.indexOf("<NoPlayNotes");
+  const results = src.indexOf("<ResultsReminder");
+  const links = src.indexOf("<SecondaryLinks");
+  assert.ok(sims > 0 && notes > 0 && results > 0 && links > 0, "all closing sections present");
+  assert.ok(sims < notes, "simulation-backed games precede the discipline notes");
+  assert.ok(notes < results, "discipline notes precede the results reminder");
+  assert.ok(results < links, "results reminder precedes the secondary links");
 });
 
 test("heat system tokens exist in the design system", () => {

@@ -100,13 +100,17 @@ test("Mr. Dub flagship: hero (scientist badge) → dashboard → today → journ
   assert.ok(order.every((i, idx) => i >= 0 && (idx === 0 || i > order[idx - 1])), "sections in the flagship order");
 });
 
-test("integrations: Results links to Mr. Dub; Today/homepage renders the Mr. Dub card", () => {
+test("integrations: Results links to Mr. Dub; the Mr. Dub daily portfolio surfaces on /mr-dub", () => {
   const results = src("src/components/bank-builder-results.tsx");
   assert.match(results, /\/mr-dub/, "Results BB section links to Mr. Dub");
   assert.match(results, /View in Mr\. Dub ledger/, "explicit Mr. Dub ledger link");
   const card = src("src/components/mr-dub/mr-dub-today-card.tsx");
   assert.match(card, /currentBankroll/, "card shows current bankroll");
   assert.match(card, /\/mr-dub/, "card CTA to Mr. Dub");
+  // 2026-07-09: "Mr. Dub" is an internal/back-office label, cleaned off the public /today Daily Model Hub
+  // (and off Home). The daily portfolio + status still surface on the /mr-dub dashboard itself.
+  const mrDub = src("src/app/mr-dub/page.tsx");
+  assert.match(mrDub, /TodayStatusStrip|DailyPortfolioSection/, "the Mr. Dub dashboard surfaces today's status/portfolio");
   const today = src("src/app/today/page.tsx");
-  assert.match(today, /<MrDubTodayCard \/>/, "Today/homepage renders the Mr. Dub card");
+  assert.ok(!/Mr\.? ?Dub/.test(today), "the public /today hub does not expose the internal 'Mr. Dub' label");
 });

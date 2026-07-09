@@ -84,18 +84,20 @@ test("Moonshot stays READY (not activated): 2 candidates, $0 exposure, record se
   assert.equal(p.moonshot.exposure, 0, "moonshot exposure $0 (kept ready, not activated)");
 });
 
-test("/today readiness is a STATUS board for non-flagship surfaces (MLB module present; flagship products omitted to avoid duplication)", () => {
+test("/today is a STATUS hub (MLB slate surfaced) that does NOT duplicate the full flagship ladders/boards", () => {
+  // 2026-07-09 rebuild: the readiness strip became the compact "Today at a glance" status cards. The MLB
+  // slate is surfaced (games/leans counts feed the header), and — the preserved intent — the full flagship
+  // ladders/boards (ProductLanesLadder, the WC Specials box, the Top10 wall) are NOT re-rendered here;
+  // Bank Builder / Longshot / Build-a-Pick appear ONLY as one-figure status cards that link out.
   const today = read("src/app/today/page.tsx");
-  assert.match(today, /label: "MLB"/, "today readiness has an MLB module");
-  assert.match(today, /what&apos;s live/, "readiness strip heading present");
-  // The 3 flagship products are the highlight section above (full ladders/parlays) — they must NOT
-  // be duplicated as readiness status cards.
-  const stripStart = today.indexOf("readinessModules:");
-  const stripEnd = today.indexOf("];", stripStart);
-  const strip = today.slice(stripStart, stripEnd);
-  for (const flagship of ['label: "Bank Builder"', 'label: "Moonshot"', 'label: "Suggested Parlays"']) {
-    assert.ok(!strip.includes(flagship), `${flagship} is not duplicated in the readiness strip`);
+  assert.match(today, /getMlbBoardForDate\(today\)/, "today surfaces the real MLB slate");
+  assert.match(today, /<TodayAtAGlance/, "compact at-a-glance status cards present");
+  for (const dup of ["ProductLanesLadder", "WorldCupSpecialsBox", "Top10BoardSection", "MoonshotLadderV2"]) {
+    assert.ok(!today.includes(dup), `${dup} full flagship surface is not duplicated on the compact hub`);
   }
+  // Bank Builder + Longshot surface as status modules that link out, never as duplicated full ladders.
+  assert.match(today, /<BankBuilderStatus/, "Bank Builder is a status module (links to /bank-builder)");
+  assert.match(today, /<LongshotLabStatus/, "Longshot Lab is a status module (links to /moonshot)");
 });
 
 test("MLB June 23 board not faked: no 2026-06-23 board file written", () => {

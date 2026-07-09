@@ -98,13 +98,16 @@ test("6 · record + open exposure come from canonical artifacts (no hardcoded li
   assert.match(page, /const usd2 =/, "page owns the money formatting");
 });
 
-// 7 — /today still renders the full daily board (unchanged).
-test("7 · /today still renders its full dense board", () => {
+// 7 — /today is its own distinct DAILY MODEL HUB (2026-07-09 rebuild), separate from Home.
+test("7 · /today is the distinct Daily Model Hub with its own identity + top model reads", () => {
   assert.match(todayPage, /title: "Today · GameTime Picks"/, "/today keeps its own metadata");
-  assert.match(todayPage, /<AchievementBanner \/>/, "/today still renders AchievementBanner");
-  assert.match(todayPage, /Today&apos;s flagship products/, "/today still renders the flagship section");
-  assert.match(todayPage, /import ParlaysExplorer from "@\/components\/parlays\/parlays-explorer"/, "/today keeps its many board sections");
-  assert.match(todayPage, /<Top10BoardSection/, "/today still renders the Top 10 board");
+  // The hub leads with its Today-specific slate header + at-a-glance status (NOT Home's landing components).
+  assert.match(todayPage, /<TodayDailySlateHeader/, "/today renders its own daily slate header");
+  assert.match(todayPage, /<TodayAtAGlance/, "/today renders its own at-a-glance status");
+  // The top model reads are still SOURCED from the canonical Top-10 board (intent preserved), now rendered
+  // as the compact TodayTopModelPicks list rather than the full Top10BoardSection wall.
+  assert.match(todayPage, /buildTop10Board\(/, "/today still derives the canonical Top-10 board");
+  assert.match(todayPage, /<TodayTopModelPicks/, "/today renders the top model reads");
 });
 
 // 8 — No stale "Game Lab" homepage aria/copy.

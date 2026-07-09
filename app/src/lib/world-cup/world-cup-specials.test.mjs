@@ -278,11 +278,17 @@ test("homepage box stacks vertically and adds no horizontal overflow", () => {
   assert.ok(!/overflow-x-auto|w-\[\d{4}/.test(src), "no wide fixed widths / horizontal scrollers");
 });
 
-test("the homepage wires the box as a lead 'WC exclusive parlays' section and gates it to today", () => {
-  const page = fs.readFileSync("src/app/today/page.tsx", "utf8");
-  assert.match(page, /WorldCupSpecialsBox/, "imports + renders the box");
-  assert.match(page, /loadWorldCupSpecials/, "loads the snapshot");
-  assert.match(page, /wcSpecialsRaw\.date === today/, "fails closed on a stale slate");
+test("the World Cup Specials product surfaces on its own page, snapshot-loaded + freshness-gated", () => {
+  // 2026-07-09: the compact /today Daily Model Hub dropped the WC Specials box (a full flagship board must
+  // not be duplicated on the hub). The product lives on its own /world-cup-specials page, which loads the
+  // snapshot and gates staleness via the freshness badge + the past-slates split (intent preserved).
+  const page = fs.readFileSync("src/app/world-cup-specials/page.tsx", "utf8");
+  assert.match(page, /loadWorldCupSpecials/, "loads the specials snapshot");
+  assert.match(page, /slateDate=/, "freshness-gates the snapshot (slate date badge)");
+  assert.match(page, /specialsPastSlates/, "splits current vs past slates (fails closed on a stale slate)");
+  // The compact daily hub no longer embeds the box.
+  const today = fs.readFileSync("src/app/today/page.tsx", "utf8");
+  assert.ok(!/WorldCupSpecialsBox/.test(today), "the box is off the compact /today hub");
 });
 
 test("PROTECTION: active Bank Builder / Moonshot / Mr. Dub artifacts are unchanged by this feature", () => {

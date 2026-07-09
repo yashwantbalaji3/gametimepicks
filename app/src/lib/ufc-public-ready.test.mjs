@@ -41,9 +41,11 @@ test("UFC page is fail-closed and scoped to moneyline-only (no fabricated prop m
   assert.ok(/method|distance|round/i.test(ufcPage), "unsupported prop markets are explained, not faked");
 });
 
-test("/today features UFC as a sport and as the lead slate", () => {
-  assert.ok(todayPage.includes('href: "/ufc"'), "UFC is in the active-sports grid");
-  assert.ok(todayPage.includes("featured slate · UFC"), "UFC featured-slate lead section present");
+test("/ufc features the UFC card; the compact /today hub no longer carries a UFC lead block", () => {
+  // 2026-07-09: the compact /today Daily Model Hub dropped the UFC lead section (a UFC day surfaces on the
+  // /ufc page itself, which reads the real schedule + fight card). Intent preserved on /ufc.
+  assert.ok(ufcPage.includes("schedule-latest.json") || ufcPage.includes("UfcExpandedFightCards"), "/ufc reads the real card + renders the fights");
+  assert.ok(!/featured slate · UFC/.test(todayPage), "no UFC lead block on the compact /today hub");
 });
 
 test("UFC page has a Markets tab that honestly scopes coverage to moneyline-only", () => {

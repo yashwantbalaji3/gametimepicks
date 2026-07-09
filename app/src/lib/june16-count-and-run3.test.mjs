@@ -10,12 +10,16 @@ import fs from "node:fs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 
-test("Today World Cup headline uses the in-focus count, not the misleading schedule count", () => {
-  const page = read("src/app/today/page.tsx");
-  assert.ok(page.includes("inFocus"), "computes an in-focus count");
-  assert.ok(/World Cup .* in focus/.test(page), "headline says 'in focus', not 'matches today'");
-  assert.ok(!/\$\{games\} World Cup \$\{games === 1 \? "match" : "matches"\} today/.test(page),
-    "the raw schedule-count headline is gone");
+test("World Cup headline uses the in-focus count, not the misleading schedule count", () => {
+  // 2026-07-09: the daily World Cup focus block was demoted off the compact /today Daily Model Hub; the
+  // in-focus-vs-schedule honesty now lives solely on the World Cup page (which owns the WC board).
+  const page = read("src/app/world-cup/page.tsx");
+  assert.ok(page.includes("inFocusGames"), "computes an in-focus count");
+  assert.ok(/in focus/.test(page), "headline says 'in focus', not the raw schedule count");
+  // /today no longer carries a raw schedule-count World Cup headline (the block moved to /world-cup).
+  const today = read("src/app/today/page.tsx");
+  assert.ok(!/World Cup \$\{games === 1 \? "match" : "matches"\} today/.test(today),
+    "the raw schedule-count headline is not on the /today hub");
 });
 
 test("World Cup page prominent counts use in-focus games", () => {

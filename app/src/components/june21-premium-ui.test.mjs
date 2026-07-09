@@ -107,12 +107,17 @@ test("Egypt/NZ same-game: section exists with the explicit no-combined-pricing n
   assertNoBanned("egypt-nz same-game", SAMEGAME);
 });
 
-test("Egypt/NZ same-game: wired into /world-cup and /today", () => {
-  for (const [label, page] of [["world-cup", WC_PAGE], ["today", TODAY_PAGE]]) {
+test("Egypt/NZ same-game: wired into /world-cup", () => {
+  // 2026-07-09: /today is the compact Daily Model Hub — the single-game Egypt/NZ same-game module was
+  // demoted OFF the daily hub (World Cup detail lives on /world-cup + the game pages). The section + its
+  // real-markets-only, no-fabricated-SGP contract are still wired on /world-cup (intent preserved there).
+  for (const [label, page] of [["world-cup", WC_PAGE]]) {
     assert.match(page, /import EgyptNzSameGame, \{ loadNzEgyptMarkets \} from "@\/components\/world-cup\/egypt-nz-same-game"/, `${label} imports the section + loader`);
     assert.match(page, /loadNzEgyptMarkets\(today\)/, `${label} loads the matchId-40 markets for the current slate`);
     assert.match(page, /<EgyptNzSameGame data=\{nzEgyptMarkets\}/, `${label} renders the section`);
   }
+  // The Daily Model Hub no longer carries the single-game same-game block (demoted, not deleted).
+  assert.ok(!/EgyptNzSameGame/.test(TODAY_PAGE), "the Egypt/NZ block is off the compact /today hub");
 });
 
 // ── E. Slate-freshness badge ─────────────────────────────────────────────────────────────────────

@@ -52,7 +52,14 @@ test("/moonshot renders the full 3-step trajectory ladder (separate product)", (
   assert.match(moonPage, /<MoonshotLadderV2 /, "renders the trajectory ladder");
 });
 
-test("/today previews the Moonshot 3-step ladder but NOT the Bank Builder 7-step (which is methodology-only)", () => {
+test("/today surfaces the Longshot lane status but NOT the Bank Builder 7-step (which is methodology-only)", () => {
+  // The critical consistency invariant is preserved: the 7-step BankBuilderLadderV2 preview never appears
+  // on the live /today surface. 2026-07-09 rebuild: the compact Daily Model Hub no longer embeds the
+  // Moonshot ladder preview — it surfaces a compact Longshot Lab status card that links to /moonshot
+  // (where the full 3-step trajectory ladder lives).
   assert.ok(!/BankBuilderLadderV2/.test(todayPage), "no BB 7-step preview on the live Today surface");
-  assert.match(todayPage, /<MoonshotLadderV2 compact/, "Moonshot 3-step preview stays on Today");
+  assert.match(todayPage, /<LongshotLabStatus/, "Longshot lane status surfaced on the Today hub");
+  // The status module (not the page) owns the outbound /moonshot link to the full 3-step ladder.
+  const statusModules = read("src/components/today/status-modules.tsx");
+  assert.match(statusModules, /ctaHref="\/moonshot"/, "the Longshot status links to /moonshot for the full ladder");
 });

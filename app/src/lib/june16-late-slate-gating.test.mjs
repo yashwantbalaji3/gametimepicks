@@ -24,12 +24,15 @@ test("curated component labels started vs upcoming games", () => {
   assert.ok(/>upcoming<|upcoming</.test(c), "upcoming games labelled");
 });
 
-test("Today World Cup focus marks started games + surfaces the upcoming count", () => {
-  const page = read("src/app/today/page.tsx");
-  assert.ok(/started: m\.kickoffUtc \? new Date\(m\.kickoffUtc\)\.getTime\(\) <= Date\.now\(\)/.test(page),
-    "focus matches compute started from kickoff");
-  assert.ok(/upcoming = matches\.filter\(\(m\) => !m\.started\)/.test(page), "computes upcoming count");
-  assert.ok(/upcoming · \$\{inFocus\} World Cup games in focus/.test(page), "headline shows upcoming when some started");
+test("World Cup surface marks started vs upcoming games (demoted off the compact /today hub)", () => {
+  // 2026-07-09: the daily WC focus accordion moved off the compact /today Daily Model Hub. The
+  // started-vs-upcoming labelling it did now lives on the World Cup curated-picks board (asserted just
+  // above: "started · for reference" + "upcoming"). The /today hub no longer builds a WC focus list.
+  const curated = read("src/components/world-cup/curated-picks.tsx");
+  assert.ok(/started · for reference/.test(curated), "WC board labels started games for reference");
+  assert.ok(/>upcoming<|upcoming</.test(curated), "WC board labels upcoming games");
+  const today = read("src/app/today/page.tsx");
+  assert.ok(!/TodaysFocusWorldCup/.test(today), "the /today hub no longer renders a WC focus block");
 });
 
 test("V2 late-slate verdict: no launch, Argentina moneyline evaluated, thin-slate blocker", () => {
