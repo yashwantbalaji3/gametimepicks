@@ -11,10 +11,11 @@ Outputs (internal — `pipeline/validation/`):
   - mlb_comparison_report_<date>.json    summary + per-game/market/confidence
                                           buckets + top hits/biggest misses
 
-Markets graded:
-  - pitcher_strikeouts  → stats.pitching.strikeOuts
-  - batter_hits         → stats.batting.hits
-  - batter_total_bases  → stats.batting.totalBases
+Markets graded (all four the board publishes):
+  - pitcher_strikeouts    → stats.pitching.strikeOuts
+  - batter_hits           → stats.batting.hits
+  - batter_total_bases    → stats.batting.totalBases
+  - batter_hits_runs_rbis → stats.batting.(hits + runs + rbi)
 
 Grade rule (standard):
   - Over wins  if actual > line

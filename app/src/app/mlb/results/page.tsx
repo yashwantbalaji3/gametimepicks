@@ -61,6 +61,31 @@ export default function MlbResultsPage() {
         />
       </div>
 
+      {/* Chunk 9A — explicit separation: this MLB grading is a
+          money-INDEPENDENT model-performance ledger, NOT the official
+          paper-card record. The two are never combined. */}
+      <div
+        className="mb-6 rounded-[8px] px-4 py-3 flex flex-col gap-1"
+        style={{ background: "rgba(242,54,69,0.06)", border: "1px solid var(--vault-rule)" }}
+      >
+        <span
+          className="font-mono uppercase tracking-[0.14em]"
+          style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
+        >
+          Model-performance ledger
+        </span>
+        <p className="text-[12px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
+          Every published MLB projection is graded here against official box
+          scores — a read on model quality. This is{" "}
+          <strong style={{ color: "var(--vault-text)" }}>not</strong> the official
+          paper-card record, and the two are never combined. See the{" "}
+          <Link href="/results/" style={{ color: "var(--vault-gold-bright)" }}>
+            Results trust center
+          </Link>{" "}
+          for the official product-card record.
+        </p>
+      </div>
+
       <MlbResultsSummary report={report} />
 
       <section className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
