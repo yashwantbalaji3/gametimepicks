@@ -59,6 +59,21 @@ with the two npm scripts above after games go final. MLB grading itself needs no
 paid keys — only the free MLB Stats API — so it can be split into its own
 secret-free scheduled job as a follow-up.
 
+## Next grading — July 9 (run AFTER finals only)
+
+July-9 has 13 scheduled MLB games (board + 10,000-run sims generated). The raw
+projection board is **not graded yet and must not be** until the official box scores
+are final (the latest graded date remains 2026-07-08; `/mlb/results` correctly shows
+July-8, never implying July-9 is settled). Once July-9 games go Final:
+
+```
+npm run mlb:grade-results -- --date 2026-07-09   # official statsapi box scores
+npm run mlb:export-results                        # refresh the public /mlb/results bundle
+```
+
+This is model-performance only — it never touches the 19-14 product-card record or
+canonical money. The `/mlb/results` "latest graded date" will then advance to July-9.
+
 ## Deferred follow-ups (daylight, not overnight)
 
 1. **Persist `byEdge` in the export schema.** The by-edge calibration is computed
