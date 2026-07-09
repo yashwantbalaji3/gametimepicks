@@ -100,36 +100,38 @@ test("3 · run-count label gated on allowsRunCountClaim && runCount != null (bot
   assert.equal(strongestEdgePct(sim({ edges: [] })), 0);
 });
 
-test("4 · source: the lobby renders a hero band (stable marker + honest flow copy)", () => {
+test("4 · source: the lobby renders a TRIMMED hero band (stable marker + concise honest contract + CTAs)", () => {
+  // 2026-07-08 rebuild: the hero is trimmed to a concise sport-first front door — headline + one-line
+  // honest contract + a scroll-to-games CTA + a How-It-Works link. The long 3-step / dashboard-pill
+  // block moved to the game page (never buried the games), so it is deliberately gone from here.
   assert.match(lobby, /data-testid="simulate-hero"/, "the hero section is present");
-  assert.match(lobby, /Run a precomputed model simulation, then read the full dashboard/, "hero headline is simulation-first");
-  assert.match(lobby, /precomputed and deterministic/i, "hero states the deterministic contract");
-  assert.match(lobby, /paper-only/i, "hero keeps paper-only positioning");
+  assert.match(lobby, /Simulate Today.{0,8}s Games/, "hero headline is simulation-first");
+  assert.match(lobby, /precomputed · deterministic · same output for every user · paper-only/, "hero states the one-line deterministic + paper-only contract");
+  assert.match(lobby, /href="#simulate-games"/, "hero has a scroll-to-games CTA");
+  assert.match(lobby, /href="\/learn"/, "hero links to How It Works (/learn)");
+  // The old long explainer block is gone (games are not buried under text).
+  assert.ok(!/What the dashboard shows/.test(lobby), "the long dashboard-pill block was removed from the lobby");
 });
 
-test("5 · source: the 'what the dashboard shows' preview names the real modules", () => {
-  for (const name of [
-    "Priced prop snapshot",
-    "Central read",
-    "Main takeaways",
-    "Biggest leans",
-    "Player / prop table",
-    "Distributions",
-    "Current-slate market agreement",
-    "Recap",
-  ]) {
-    assert.ok(lobby.includes(name), `the dashboard preview names "${name}"`);
-  }
-  assert.match(lobby, /What the dashboard shows/, "the preview block is labelled");
+test("5 · source: a prominent SPORT SELECTOR drives the games grid (sport-first front door)", () => {
+  // The selector is mounted with the server-derived per-sport states + rows; it is the sport-first control.
+  assert.match(lobby, /<SportSelector sports=\{sports\} rows=\{rows\} \/>/, "the sport selector is rendered with the real states + rows");
+  assert.match(lobby, /id="simulate-games"/, "the games section carries the scroll anchor the hero CTA targets");
+  // The states are DERIVED from the real per-sport rows, not hardcoded "active" everywhere.
+  assert.match(lobby, /rowsBySport/, "per-sport states are derived from the real rows");
+  assert.match(lobby, /simReadyCountFor/, "simulation-ready counts are derived from real simReady rows");
 });
 
-test("6 · source: the full games list (<GamesExperience games={rows} />) and MLB simReady line are intact", () => {
-  assert.match(lobby, /<GamesExperience games=\{rows\} \/>/, "the full game list is preserved below the new sections");
+test("6 · source: the full games list (via SportSelector→GamesExperience) and MLB simReady line are intact", () => {
+  // GamesExperience is now rendered INSIDE SportSelector (which filters rows by the chosen sport), so the
+  // full game list is still present below the featured strip — just wrapped by the sport-first selector.
+  const selector = fs.readFileSync(path.join(app, "src/components/games/sport-selector.tsx"), "utf8");
+  assert.match(selector, /<GamesExperience games=\{filtered\} \/>/, "GamesExperience renders the (sport-filtered) rows");
   assert.match(lobby, /simReady: mlbDetail\?\.gameLabSimulation\?\.status === "ready"/, "the MLB simReady line is intact");
   assert.match(lobby, /title="Simulate Games"/, "the SectionHeader title is preserved");
-  // The hero + featured sections come BEFORE the full list.
-  assert.ok(lobby.indexOf('data-testid="simulate-hero"') < lobby.indexOf("<GamesExperience games={rows} />"), "hero is above the list");
-  assert.ok(lobby.indexOf('data-testid="simulate-featured"') < lobby.indexOf("<GamesExperience games={rows} />"), "featured strip is above the list");
+  // The hero + featured sections come BEFORE the games grid.
+  assert.ok(lobby.indexOf('data-testid="simulate-hero"') < lobby.indexOf('id="simulate-games"'), "hero is above the grid");
+  assert.ok(lobby.indexOf('data-testid="simulate-featured"') < lobby.indexOf('id="simulate-games"'), "featured strip is above the grid");
 });
 
 test("7 · source: an honest zero-ready empty state branch exists (no fabricated cards)", () => {

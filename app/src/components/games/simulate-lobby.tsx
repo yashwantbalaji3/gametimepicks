@@ -16,7 +16,9 @@ import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import { normalizeMlbLeans, normalizeNbaLeans } from "@/lib/normalize";
 import fs from "node:fs";
 import path from "node:path";
-import GamesExperience, { type GameRow } from "@/components/games-experience";
+import { type GameRow } from "@/components/games-experience";
+import SportSelector, { type SportState, type SportStateTone } from "@/components/games/sport-selector";
+import MatchupIdentity from "@/components/ui/matchup-identity";
 import SectionHeader from "@/components/section-header";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { buildAllGameDetails, gameSlug } from "@/lib/game-detail";
@@ -24,6 +26,7 @@ import Link from "next/link";
 import { loadRoundOf32Board } from "@/lib/world-cup/round-of-32";
 import { gameScriptFromBoard } from "@/lib/world-cup/game-script";
 import { scriptSignal, topPropSignal } from "@/lib/games-board-signal";
+import { getSportIdentity } from "@/lib/sport-identity";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import type { PublicProjection } from "@/lib/normalize";
 
@@ -192,21 +195,64 @@ export default function SimulateLobby() {
   // Featured simulations — the deterministic short list of games with a READY artifact, sorted by
   // their strongest generated-pick edge (see @/lib/simulate-lobby-featured). Currently MLB is the only
   // sport that carries a joined `gameLabSimulation`; the selector is honest either way (empty ⇒ empty
-  // state, never fabricated cards). Reuses the SAME details the rows above are built from.
+  // state, never fabricated cards). Reuses the SAME details the rows above are built from — now the
+  // details ALSO thread through each fixture's real team logos so the featured cards can show them.
   const { featured, readyCount } = featuredSimulations([...detailMap.values()]);
   const overflowReady = Math.max(0, readyCount - featured.length);
 
-  // The real dashboard modules a generated simulation reveals on the game page (see
-  // components/game/game-simulation-runner). Factual — every one of these sections exists today.
-  const dashboardModules = [
-    "Priced prop snapshot",
-    "Central read (strongest prop lean)",
-    "Main takeaways",
-    "Biggest leans",
-    "Player / prop table",
-    "Distributions",
-    "Current-slate market agreement",
-    "Recap",
+  // ── SPORT-FIRST SELECTOR STATES ──
+  // Every state/count below is DERIVED FROM THE REAL PER-SPORT DATA the rows above are built from — never
+  // a hardcoded "active". A sport is only "active" when its board/sim artifacts genuinely exist; World
+  // Cup is honestly flagged as carrying NO simulation artifact (soccer sims are never faked); NBA reads
+  // "off-season" unless a fresh board exists; NHL has no provider wired ("provider pending"); UFC is
+  // conditional on a real upcoming card. Counts (games / simulation-ready) come straight from `rows`.
+  const rowsBySport = (s: GameRow["sport"]) => rows.filter((r) => r.sport === s);
+  const simReadyCountFor = (s: GameRow["sport"]) => rowsBySport(s).filter((r) => r.simReady).length;
+
+  const mlbRows = rowsBySport("mlb");
+  const wcRows = rowsBySport("world_cup");
+  const nbaRows = rowsBySport("nba");
+  const ufcRows = rowsBySport("ufc");
+
+  const mlbId = getSportIdentity("mlb");
+  const wcId = getSportIdentity("world_cup");
+  const nbaId = getSportIdentity("nba");
+  const nhlId = getSportIdentity("nhl");
+  const ufcId = getSportIdentity("ufc");
+
+  const mk = (
+    key: SportState["key"],
+    label: string,
+    icon: string,
+    tone: SportStateTone,
+    stateLabel: string,
+    gameCount: number,
+    simReadyCount: number,
+    note?: string,
+  ): SportState => ({ key, label, icon, tone, stateLabel, gameCount, simReadyCount, note });
+
+  const sports: SportState[] = [
+    mk("today", "Today", "◎", rows.length > 0 ? "active" : "conditional", rows.length > 0 ? "live slate" : "no games", rows.length, readyCount),
+    // MLB is active when the board carries games; sim-ready count is the real joined-artifact count.
+    mlbRows.length > 0
+      ? mk("mlb", mlbId.label, mlbId.icon, "active", "active", mlbRows.length, simReadyCountFor("mlb"))
+      : mk("mlb", mlbId.label, mlbId.icon, "conditional", "no games", 0, 0, "No MLB board is posted for the current slate yet."),
+    // World Cup: available only when current fixtures exist; NO simulation artifact for soccer (kept 0).
+    wcRows.length > 0
+      ? mk("world_cup", wcId.label, wcId.icon, "available", "fixtures", wcRows.length, 0,
+          "Soccer simulations require a soccer simulation artifact — none exists yet, so World Cup fixtures show model reads (moneyline / totals / props) on the game page, not a generated simulation.")
+      : mk("world_cup", wcId.label, wcId.icon, "conditional", "no current fixtures", 0, 0,
+          "No current World Cup fixtures. Soccer also has no simulation artifact — fixtures show model reads, not a generated simulation."),
+    // NBA: off-season unless a fresh board produced rows.
+    nbaRows.length > 0
+      ? mk("nba", nbaId.label, nbaId.icon, "active", "active", nbaRows.length, 0)
+      : mk("nba", nbaId.label, nbaId.icon, "off_season", "off-season", 0, 0, "The NBA is off-season — no fresh board, and no simulation artifact for basketball yet."),
+    // NHL: no provider wired into the lobby → honest "provider pending" (never faked availability).
+    mk("nhl", nhlId.label, nhlId.icon, "provider_pending", "provider pending", 0, 0, "NHL data isn’t wired into the lobby yet — provider pending. No games or simulations to show."),
+    // UFC: conditional on a real upcoming card.
+    ufcRows.length > 0
+      ? mk("ufc", ufcId.label, ufcId.icon, "available", "upcoming card", ufcRows.length, 0, "UFC surfaces a moneyline model for the next card — there’s no per-fight generated simulation artifact.")
+      : mk("ufc", ufcId.label, ufcId.icon, "conditional", "no current card", 0, 0, "No current UFC card. Once a real upcoming card posts, its moneyline model appears here."),
   ];
 
   return (
@@ -218,65 +264,48 @@ export default function SimulateLobby() {
         rightSlot={<FreshnessBadge slateDate={mlbDate} serverToday={today} noun="games" />}
       />
 
-      {/* HERO — honest, simulation-first explainer of the flow + the new dashboard. */}
+      {/* HERO — trimmed: one honest line + a scroll-to-games CTA + How It Works. The detailed
+          flow/dashboard breakdown now lives on the game page, so the games are never buried. */}
       <section
         data-testid="simulate-hero"
-        className="rounded-[14px] px-5 sm:px-7 py-6 sm:py-7 flex flex-col gap-5"
+        className="rounded-[14px] px-5 sm:px-7 py-6 sm:py-7 flex flex-col gap-4"
         style={{
           background: "linear-gradient(135deg, rgba(26,16,11,0.72), rgba(15,10,7,0.55))",
           border: "1px solid var(--vault-border-strong)",
           boxShadow: "var(--vault-shadow-soft)",
         }}
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>
-            Simulation-first · pick a game and run the model
+            The simulator · pick a sport, pick a game, generate
           </span>
-          <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 3vw, 27px)", lineHeight: 1.14, letterSpacing: "-0.015em", maxWidth: 720 }}>
-            Run a precomputed model simulation, then read the full dashboard.
+          <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(21px, 3.2vw, 29px)", lineHeight: 1.12, letterSpacing: "-0.015em", maxWidth: 720 }}>
+            Simulate Today&rsquo;s Games
           </h3>
-          <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}>
-            Choose any game below, press <span style={{ color: "var(--vault-text)" }}>Generate Simulation</span>, and watch a
-            roughly ten-second reveal. The result is <span style={{ color: "var(--vault-text)" }}>precomputed and deterministic</span> —
-            the same output for every user on the same game and model version, nothing computed in your browser. Every number is
-            <span style={{ color: "var(--vault-text)" }}> educational and paper-only</span>: model reads, never wagering advice.
+          <p className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12, letterSpacing: "0.01em" }}>
+            precomputed · deterministic · same output for every user · paper-only
           </p>
         </div>
-
-        {/* Three honest steps of the flow. */}
-        <ol className="grid gap-3 sm:grid-cols-3 list-none p-0 m-0">
-          {[
-            { n: "1", t: "Pick a game", d: "Any game on today's slate below." },
-            { n: "2", t: "Run the simulation", d: "A ~10-second deterministic reveal — same result for everyone." },
-            { n: "3", t: "Read the dashboard", d: "The model's leans, table and distributions on the game page." },
-          ].map((s) => (
-            <li key={s.n} className="rounded-[10px] px-3.5 py-3 flex flex-col gap-1" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
-              <div className="flex items-center gap-2">
-                <span className="font-mono inline-flex items-center justify-center rounded-full" style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-edge-gold)", width: 18, height: 18, fontSize: 10 }}>{s.n}</span>
-                <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 700 }}>{s.t}</span>
-              </div>
-              <span className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{s.d}</span>
-            </li>
-          ))}
-        </ol>
-
-        {/* WHAT THE DASHBOARD SHOWS — factual list of the real modules that now exist. */}
-        <div className="rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5" style={{ background: "rgba(15,10,7,0.4)", border: "1px solid var(--vault-border)" }}>
-          <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>What the dashboard shows</span>
-          <ul className="flex flex-wrap gap-x-2 gap-y-2 list-none p-0 m-0">
-            {dashboardModules.map((m) => (
-              <li key={m} className="font-mono rounded-full px-2.5 py-1" style={{ color: "var(--vault-text-mute)", background: "var(--vault-panel)", border: "1px solid var(--vault-border)", fontSize: 10.5 }}>
-                {m}
-              </li>
-            ))}
-          </ul>
-          <span className="text-[10.5px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-            Baseball simulations report prop-level leans and distributions — no scoreline, first-scorer, xG, corners or cards (those aren&rsquo;t available for MLB).
-          </span>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <a
+            href="#simulate-games"
+            className="gtp-cta-lava vault-press inline-flex items-center rounded-[8px] px-4 py-2 font-mono uppercase tracking-[0.12em]"
+            style={{ fontSize: 11, fontWeight: 700, textDecoration: "none", minHeight: 44 }}
+          >
+            Browse the games ↓
+          </a>
+          <Link
+            href="/learn"
+            className="vault-press inline-flex items-center rounded-[8px] px-4 py-2 font-mono uppercase tracking-[0.12em]"
+            style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 44 }}
+          >
+            How it works →
+          </Link>
         </div>
       </section>
 
-      {/* FEATURED SIMULATIONS — ready artifacts only, strongest-edge first (deterministic). */}
+      {/* FEATURED SIMULATIONS — ready artifacts only, strongest-edge first (deterministic), now premium
+          cards WITH real team logos (MatchupIdentity → TeamMark, monogram fallback). */}
       <section data-testid="simulate-featured" className="flex flex-col gap-3">
         <div className="flex items-end justify-between gap-3 flex-wrap">
           <div className="flex flex-col gap-1">
@@ -300,35 +329,72 @@ export default function SimulateLobby() {
             </span>
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((f) => (
-              <Link
-                key={f.slug}
-                href={f.href}
-                className="group rounded-[12px] px-4 py-4 flex flex-col gap-2.5 vault-glow-hover"
-                style={{ background: "var(--vault-panel-elevated)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Simulation ready</span>
-                  <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>MLB</span>
-                </div>
-                <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15.5, fontWeight: 700, lineHeight: 1.12 }}>
-                  {f.teams.away} @ {f.teams.home}
-                </span>
-                <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
-                  {f.runCountLabel ?? "Model simulation"} · {f.pickCount} generated pick{f.pickCount === 1 ? "" : "s"}
-                </span>
-                {f.headline ? (
-                  <span className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{f.headline}</span>
-                ) : null}
-                <span className="font-mono uppercase tracking-[0.1em] mt-auto pt-1" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-                  Generate Simulation →
-                </span>
-              </Link>
-            ))}
+          <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.map((f) => {
+              // Honest, artifact-derived meta line: venue and/or slate date only when present.
+              const dateLabel = f.date
+                ? new Date(`${f.date}T12:00:00Z`).toLocaleDateString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric" })
+                : null;
+              const meta = [f.venue, dateLabel].filter(Boolean).join(" · ");
+              return (
+                <Link
+                  key={f.slug}
+                  href={f.href}
+                  className="group rounded-[14px] px-4 py-4 flex flex-col gap-3 vault-glow-hover"
+                  style={{ background: "var(--vault-panel-elevated)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span
+                      className="inline-flex items-center gap-1 font-mono font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full"
+                      style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", fontSize: 8.5 }}
+                    >
+                      <span aria-hidden>▶</span> Simulation Ready
+                    </span>
+                    <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>MLB</span>
+                  </div>
+
+                  {/* Team identity: away logo @ home logo (real mlbstatic SVGs; monogram fallback via TeamMark). */}
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <MatchupIdentity
+                      homeName={f.teams.home}
+                      awayName={f.teams.away}
+                      homeLogo={f.homeLogo}
+                      awayLogo={f.awayLogo}
+                      size="lg"
+                    />
+                    <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 15.5, fontWeight: 700, lineHeight: 1.12 }}>
+                      {f.teams.away} @ {f.teams.home}
+                    </span>
+                  </div>
+
+                  {meta ? (
+                    <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{meta}</span>
+                  ) : null}
+
+                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono" style={{ fontSize: 10.5 }}>
+                    {f.runCountLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{f.runCountLabel}</span> : null}
+                    <span style={{ color: "var(--vault-text-mute)" }}>{f.pickCount} generated pick{f.pickCount === 1 ? "" : "s"}</span>
+                    {f.pickCount > 0 && f.topEdgePct > 0 ? (
+                      <span style={{ color: "var(--vault-text-mute)" }}>
+                        top lean <span style={{ color: "var(--vault-gold-bright)", fontWeight: 700 }}>+{f.topEdgePct.toFixed(1)}% edge</span>
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {f.headline ? (
+                    <span className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{f.headline}</span>
+                  ) : null}
+
+                  <span className="font-mono uppercase tracking-[0.1em] mt-auto pt-1" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+                    Generate Simulation →
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>
+
       {r32Board ? (
         <Link
           href="/world-cup/round-of-32"
@@ -346,7 +412,11 @@ export default function SimulateLobby() {
           </div>
         </Link>
       ) : null}
-      <GamesExperience games={rows} />
+
+      {/* SPORT-FIRST SELECTOR + all-games grid. The anchor is the hero CTA's scroll target. */}
+      <div id="simulate-games" className="scroll-mt-4">
+        <SportSelector sports={sports} rows={rows} />
+      </div>
     </div>
   );
 }

@@ -29,6 +29,13 @@ export interface FeaturedSimView {
 export interface FeaturedDetailInput {
   sport: string;
   slug: string;
+  /** Real provider team-logo URLs (mlbstatic / api-sports) when the artifact carries them — never fabricated. */
+  homeLogo?: string | null;
+  awayLogo?: string | null;
+  /** Venue for the fixture, when the detail carries one (surfaced on the featured card). */
+  venue?: string | null;
+  /** Slate date (YYYY-MM-DD) for the fixture, when present. */
+  date?: string | null;
   gameLabSimulation?: FeaturedSimView | null;
 }
 
@@ -38,6 +45,16 @@ export interface FeaturedSimulation {
   /** `/games/mlb/<slug>` — links to the game page where "Generate Simulation" lives. */
   href: string;
   teams: { home: string; away: string };
+  /**
+   * Real provider team-logo URLs (mlbstatic / api-sports) threaded from the game detail. `null` when
+   * the detail carries none — the card then falls back to a monogram via TeamMark, never a fake logo.
+   */
+  homeLogo: string | null;
+  awayLogo: string | null;
+  /** Venue for the fixture (null when the detail has none). */
+  venue: string | null;
+  /** Slate date (YYYY-MM-DD) for the fixture (null when the detail has none). */
+  date: string | null;
   /** Max edge (percentage points) across the game's generated picks; the sort key. */
   topEdgePct: number;
   /** Real count of generated picks on the artifact. */
@@ -102,6 +119,11 @@ export function featuredSimulations(details: readonly FeaturedDetailInput[]): Fe
       slug: d.slug,
       href: `/games/${d.sport}/${d.slug}`,
       teams: sim.teams as { home: string; away: string },
+      // Threaded straight from the detail — a real provider URL or null (monogram fallback), never fabricated.
+      homeLogo: d.homeLogo ?? null,
+      awayLogo: d.awayLogo ?? null,
+      venue: d.venue ?? null,
+      date: d.date ?? null,
       topEdgePct: strongestEdgePct(sim),
       pickCount: sim.generatedPicks.length,
       runCountLabel: runCountLabel(sim),
