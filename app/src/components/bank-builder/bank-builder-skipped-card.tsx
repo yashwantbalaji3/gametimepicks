@@ -1,6 +1,6 @@
 /**
  * BankBuilderSkippedCard — the PREMIUM "model skipped" state for Bank Builder: a deliberate product
- * decision, not an error. Explains WHY there's no lane today (the dual ladder is between runs / no safe
+ * decision, not an error. Explains WHY there's no lane today (the dual ladder is between runs / no low-risk
  * two-leg card cleared the rung target), shows the model's strongest single-leg alternatives on the slate,
  * the next refresh, and a CTA to the knockout board. Pure presentation — real board picks only.
  */
@@ -32,7 +32,7 @@ export default function BankBuilderSkippedCard({
       </div>
 
       <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-        Today&rsquo;s slate offered <span style={{ color: "var(--vault-text)" }}>no safe two-leg team-market combo</span> that cleared a rung target, and low-value player-prop cards were rejected on purpose. <span style={{ color: "var(--vault-text)" }}>Skipping is the pick</span> — the model holds rather than forcing a weak ladder. The completed $100→$10K proof ladder is unchanged. The strongest single legs today are below.
+        Today&rsquo;s slate offered <span style={{ color: "var(--vault-text)" }}>no low-risk two-leg team-market combo</span> that cleared a rung target, and low-value player-prop cards were rejected on purpose. <span style={{ color: "var(--vault-text)" }}>Skipping is the pick</span> — the model holds rather than forcing a weak ladder. The completed $100→$10K proof ladder is unchanged. The strongest single legs today are below.
       </p>
 
       {alternatives.length > 0 ? (

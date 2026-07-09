@@ -193,7 +193,7 @@ export function buildBankBuilderProposal(root?: string, date?: string): BankBuil
 
 /** Pure core: assemble the survival + value lanes from a set of live board games (never reads disk). */
 export function buildBankBuilderProposalFromGames(games: RoundOf32Game[], date: string): BankBuilderProposal {
-  const emptyNote = "No fresh Bank Builder lane is buildable from today's slate — not enough safe two-leg team-market value across different games. The model is holding rather than forcing a weak ladder.";
+  const emptyNote = "No fresh Bank Builder lane is buildable from today's slate — not enough low-risk two-leg team-market value across different games. The model is holding rather than forcing a weak ladder.";
   if (games.length < 2) return { available: false, date, lanes: [], note: emptyNote };
 
   const cands = games.map((g) => gameCandidates(g)).filter((c) => c.length > 0);

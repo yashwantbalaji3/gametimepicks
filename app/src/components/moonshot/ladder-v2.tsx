@@ -27,7 +27,7 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
           {days.map((p, i) => (
             <div key={p.day} className="flex items-center gap-1 shrink-0">
               <span className="rounded px-1.5 py-1 font-mono text-[9px] tabular" style={{ border: `1px solid ${live && p.day === currentDay ? "#8b7bf0" : "var(--vault-rule)"}`, color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-mute)", background: live && p.day === currentDay ? "rgba(139,123,240,0.12)" : "transparent" }}>
-                D{p.day} ${p.target.toLocaleString("en-US")}{p.lock > 0 ? ` ·lock $${p.lock}` : ""}
+                D{p.day} ${p.target.toLocaleString("en-US")}{p.lock > 0 ? ` ·bank $${p.lock}` : ""}
               </span>
               {i < days.length - 1 ? <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>→</span> : null}
             </div>
@@ -80,7 +80,7 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
                 {usd(p.roll)} <span style={{ color: "var(--vault-text-faint)" }}>→</span> {usd(p.target)}
               </div>
               <div className="mt-1 font-mono text-[9.5px]" style={{ color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>
-                {p.lock > 0 ? `lock ${usd(p.lock)} · roll ${usd(p.rollForward)}` : "completes — all realizes"}
+                {p.lock > 0 ? `bank ${usd(p.lock)} · roll ${usd(p.rollForward)}` : "completes — all realizes"}
               </div>
               <div className="mt-0.5 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>{p.legRange[0]}–{p.legRange[1]} legs · team markets · no props</div>
             </div>

@@ -90,7 +90,7 @@ export default function DailySpecialsSection({ cards }: { cards: WorldCupSpecial
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>2 legs from each game · paper-only</span>
       </div>
       <p className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}>
-        One slip per appetite, each taking two legs from every game on the slate. <span style={{ color: "var(--vault-text)" }}>Reliability</span> = how safe the leg
+        One slip per appetite, each taking two legs from every game on the slate. <span style={{ color: "var(--vault-text)" }}>Reliability</span> = how low-risk the leg
         selection is (the Reliable tier is team-markets-only — World Cup player props have hit ~8% on settled slates). <span style={{ color: "var(--vault-text)" }}>Volatility</span> = how
         high-variance the parlay is — every one of these is a multi-leg parlay, so the more legs, the lower the hit rate. Real, settleable, pre-event legs only.
       </p>

@@ -207,7 +207,7 @@ export default function DailyPortfolioSection({ portfolio, bankBuilderAlternativ
         {missing.filter((p) => p !== "bank-builder").map((p) => <SkippedProductCard key={p} product={p} />)}
       </div>
       {/* Bank Builder with no active lane → the fresh daily proposal (legs every day), or the premium
-          skipped state when today's slate can't field a safe two-leg lane. */}
+          skipped state when today's slate can't field a low-risk two-leg lane. */}
       {missing.includes("bank-builder") ? (
         bankBuilderProposal?.available
           ? <BankBuilderProposalCard proposal={bankBuilderProposal} />
