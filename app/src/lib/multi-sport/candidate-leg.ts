@@ -6,10 +6,11 @@
  * exposure, is NOT wired into Bank Builder / Moonshot generation, and reads no artifacts — callers pass
  * already-loaded, artifact-backed fields. The one opinion it encodes is honest: a leg can only be
  * `productEligible` (activatable for a money product) when its market has SETTLEMENT wired and its data
- * quality is adequate. Soccer team + player markets settle via API-Football today; MLB markets have no
- * product-card settlement path yet, so they are analysis/watchlist only until an MLB settlement source
- * exists (see docs/MULTI_SPORT_PRODUCT_ENGINE_AUDIT_2026-07-09.md).
+ * quality is adequate. Soccer team + player markets settle via API-Football; MLB now settles via the
+ * tested rules in src/lib/mlb/product-settlement (statsapi box scores) — see the settlement audit.
+ * Eligibility is about gradeability + never activates a card or creates exposure.
  */
+import { isMlbMarketSettleable } from "../mlb/product-settlement/mlb-markets";
 
 export type Sport = "MLB" | "Soccer";
 export type DataQuality = "strong" | "medium" | "thin" | "unavailable";
@@ -50,8 +51,9 @@ const SOCCER_SETTLEABLE = new Set([
 /** The settlement source for a (sport, market), or "none" when no product-card settlement is wired. */
 export function settlementSourceFor(sport: Sport, market: string): SettlementSource {
   if (sport === "Soccer") return SOCCER_SETTLEABLE.has(market) ? "api-football" : "none";
-  // MLB has a model-performance grading ledger but NO product-card settlement path yet.
-  return "none";
+  // MLB now has tested settlement rules (src/lib/mlb/product-settlement) graded from statsapi box
+  // scores. A market is settleable only when a rule exists for it; others stay "none".
+  return isMlbMarketSettleable(market) ? "statsapi" : "none";
 }
 
 /** Product eligibility: settleable AND data adequate. Everything else is analysis/watchlist only. */

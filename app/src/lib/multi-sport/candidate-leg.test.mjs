@@ -28,23 +28,26 @@ test("1 · schema accepts both MLB and Soccer legs and derives eligibility", () 
 });
 
 test("2 · settlement source is honest — MLB none, soccer core api-football, soccer AH/team-totals none", () => {
-  assert.equal(settlementSourceFor("MLB", "moneyline"), "none");
-  assert.equal(settlementSourceFor("MLB", "batter_hits"), "none");
+  // MLB settlement is now wired for the tested markets (statsapi box scores); unsupported ⇒ none.
+  assert.equal(settlementSourceFor("MLB", "moneyline"), "statsapi");
+  assert.equal(settlementSourceFor("MLB", "batter_hits"), "statsapi");
+  assert.equal(settlementSourceFor("MLB", "batter_home_runs"), "none"); // no settlement rule (retired market)
   assert.equal(settlementSourceFor("Soccer", "double_chance"), "api-football");
   assert.equal(settlementSourceFor("Soccer", "btts"), "api-football");
   assert.equal(settlementSourceFor("Soccer", "asian_handicap"), "none"); // expanded market, settlement not wired
   assert.equal(settlementSourceFor("Soccer", "team_totals"), "none");
 });
 
-test("3 · product eligibility excludes unsettleable + thin markets", () => {
-  assert.equal(evaluateProductEligibility("MLB", "moneyline", "strong").productEligible, false); // no MLB settlement
+test("3 · product eligibility requires a settlement rule + adequate data", () => {
+  assert.equal(evaluateProductEligibility("MLB", "moneyline", "strong").productEligible, true); // settleable now
+  assert.equal(evaluateProductEligibility("MLB", "batter_home_runs", "strong").productEligible, false); // no rule
+  assert.equal(evaluateProductEligibility("MLB", "moneyline", "thin").productEligible, false); // thin ⇒ watchlist
   assert.equal(evaluateProductEligibility("Soccer", "double_chance", "strong").productEligible, true);
-  assert.equal(evaluateProductEligibility("Soccer", "double_chance", "thin").productEligible, false); // thin ⇒ watchlist
   assert.equal(evaluateProductEligibility("Soccer", "double_chance", "unavailable").productEligible, false);
   assert.equal(evaluateProductEligibility("Soccer", "asian_handicap", "strong").productEligible, false); // settlement not wired
 });
 
-test("4 · read-only candidate pool: no MLB leg is product-eligible; eligible legs are settleable soccer", () => {
+test("4 · read-only candidate pool: product-eligible legs are on settleable markets (MLB statsapi / soccer api-football)", () => {
   const dir = path.join(repo, "data/internal/multi-sport/candidate-pool");
   if (!fs.existsSync(dir)) return; // artifact optional in a fresh checkout
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json"));
@@ -52,8 +55,10 @@ test("4 · read-only candidate pool: no MLB leg is product-eligible; eligible le
   const pool = JSON.parse(fs.readFileSync(path.join(dir, files[files.length - 1]), "utf8"));
   assert.equal(pool.public, false);
   for (const l of pool.legs) {
-    if (l.sport === "MLB") assert.equal(l.productEligible, false, "no MLB product-eligible leg (settlement not wired)");
-    if (l.productEligible) { assert.equal(l.sport, "Soccer"); assert.equal(l.settlementSource, "api-football"); }
+    // An eligible leg must cite a real settlement source, never "none".
+    if (l.productEligible) assert.ok(["statsapi", "api-football"].includes(l.settlementSource), `${l.sport} ${l.market} eligible ⇒ real settlement source`);
+    // A leg on an unsettleable market must NOT be eligible.
+    if (l.settlementSource === "none") assert.equal(l.productEligible, false, `${l.sport} ${l.market} unsettleable ⇒ ineligible`);
   }
 });
 
