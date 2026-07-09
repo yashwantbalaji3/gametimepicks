@@ -17,8 +17,8 @@
  * descends from a string seed (see rng.ts). The same board ⇒ byte-identical artifact (ignoring
  * `generatedAt`), asserted via a stable `artifactHash`.
  *
- * Honesty: because we ACTUALLY run RUN_COUNT (=1000) seeded iterations, `runCount: 1000` is truthful and
- * the UI may later say "1,000-run simulation". We never persist the phrase "Monte Carlo" — the honest
+ * Honesty: because we ACTUALLY run RUN_COUNT (=10000) seeded iterations, `runCount: 10000` is truthful and
+ * the UI may later say "10,000-run simulation". We never persist the phrase "Monte Carlo" — the honest
  * label is "deterministic seeded simulation".
  *
  * Framework-free (no React/Next) so tsx runs the CLI + tests directly.
@@ -44,8 +44,11 @@ import type {
 // Engine constants — bump `SIMULATION_VERSION` on any breaking sampling/shape change.
 // ---------------------------------------------------------------------------
 
-/** A real count of real iterations actually drawn per sampled lean. Makes `runCount: 1000` truthful. */
-export const RUN_COUNT = 1000;
+/** A real count of real iterations actually drawn per sampled lean. Makes `runCount` truthful.
+ *  Bumped 1,000 → 10,000 (2026-07-09): smoother tails, stable headline numbers across reruns; the
+ *  artifact stays small because distributions are BINNED (fixed integer bins, only the counts grow).
+ *  The UI reads the artifact's runCount, so every "N-run" label updates automatically. */
+export const RUN_COUNT = 10000;
 /** Model tag; drives staleness together with the simulation version. */
 export const MODEL_VERSION = "mlb-2026.07";
 /** Engine/format version; part of every seed so a version bump reshuffles streams deterministically. */
@@ -490,7 +493,7 @@ function buildGame(
     slateDate: date,
     sourceCapturedAt: capturedAt,
     generatedAt,
-    note: "Player-prop props only (deterministic seeded simulation, 1,000 iterations per prop).",
+    note: `Player-prop props only (deterministic seeded simulation, ${RUN_COUNT.toLocaleString()} iterations per prop).`,
   };
 
   const marketSnapshot = buildMarketSnapshot(leans, board.bookmaker || first.bookmaker, capturedAt);

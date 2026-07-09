@@ -11,7 +11,7 @@
  *   7. every generatedPick's sourceFields is non-empty + references real board fields
  *   8. distributions appear ONLY for leans that had projection+sigma; bins are integer counts summing to runCount
  *   9. unsupported modules (scoreline/xG/corners/cards/first-scorer) listed unavailable
- *  10. runCount is a positive int (1000) and truthful (samples actually drawn)
+ *  10. runCount equals the RUN_COUNT constant and is truthful (samples actually drawn)
  *  11. no artifact claims "Monte Carlo"
  *  12. canonical money unchanged: portfolio.json md5 stays affe6b21071f2b3be96bb2774eb347c3
  *
@@ -285,12 +285,12 @@ test("unsupported modules (scoreline/xg/corners/cards/first_scorer) are declared
 });
 
 // ---------------------------------------------------------------------------
-// 10. runCount is a positive int (1000) and truthful — samples were actually drawn.
+// 10. runCount equals the RUN_COUNT constant and is truthful — samples were actually drawn.
 // ---------------------------------------------------------------------------
-test("runCount is a positive integer (1000) and reflects samples actually drawn", () => {
+test("runCount equals the RUN_COUNT constant and reflects samples actually drawn", () => {
   const board = loadBoard();
   const { artifact } = generateMlbGameSimulations(board, "2026-07-08T05:00:00Z", BOARD_DATE);
-  assert.equal(artifact.runCount, 1000);
+  assert.equal(artifact.runCount, RUN_COUNT);
   assert.ok(Number.isInteger(artifact.runCount) && artifact.runCount > 0);
 
   // Truthfulness: directly draw RUN_COUNT samples for a real lean and confirm the count + that the
