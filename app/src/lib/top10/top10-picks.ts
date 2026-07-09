@@ -54,7 +54,8 @@ const impliedProb = (american: number): number | null => {
 
 /** WC TEAM candidates from the knockout board — one candidate per (game, market), pregame only. */
 function wcTeamPicks(root: string, nowMs: number): Top10Pick[] {
-  const board = loadRoundOf32Board(root);
+  // Thread the caller's clock so pregame filtering is deterministic (not wall-clock coupled).
+  const board = loadRoundOf32Board(root, nowMs);
   if (!board) return [];
   const out: Top10Pick[] = [];
   for (const g of board.games as RoundOf32Game[]) {

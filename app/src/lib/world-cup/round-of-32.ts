@@ -105,18 +105,21 @@ export interface RoundOf32Board {
   games: RoundOf32Game[];
 }
 
-/** Read the Round-of-32 board artifact. Pure, server-side, fail-closed (null when absent/malformed). */
-export function loadRoundOf32Board(root?: string): RoundOf32Board | null {
+/**
+ * Read the Round-of-32 board artifact. Pure, server-side, fail-closed (null when absent/malformed).
+ * `nowMs` (defaulting to the real clock) is injectable so callers/tests can derive statuses against a
+ * fixed clock deterministically instead of the wall clock.
+ */
+export function loadRoundOf32Board(root?: string, nowMs: number = Date.now()): RoundOf32Board | null {
   const base = root ?? path.join(process.cwd(), "public", "data");
   const file = path.join(base, "world-cup", "round-of-32", "board.json");
   try {
     const raw = fs.readFileSync(file, "utf8");
     const board = JSON.parse(raw) as RoundOf32Board;
     if (!board || !Array.isArray(board.games)) return null;
-    // Derive each game's effective status from kickoff vs build time so finished knockout games read
-    // "completed — awaiting settlement" instead of "live odds" (the artifact is generated pre-event and
-    // never re-stamps a started/finished fixture). Pure time-based; no fabricated scores.
-    const nowMs = Date.now();
+    // Derive each game's effective status from kickoff vs the (injectable) clock so finished knockout
+    // games read "completed — awaiting settlement" instead of "live odds" (the artifact is generated
+    // pre-event and never re-stamps a started/finished fixture). Pure time-based; no fabricated scores.
     board.games = board.games.map((g) => ({ ...g, status: effectiveRoundOf32Status(g, nowMs) }));
     board.byStatus = board.games.reduce<Record<string, number>>((acc, g) => {
       acc[g.status] = (acc[g.status] ?? 0) + 1;
