@@ -264,40 +264,79 @@ export default function SimulateLobby() {
         rightSlot={<FreshnessBadge slateDate={mlbDate} serverToday={today} noun="games" />}
       />
 
-      {/* HERO — trimmed: one honest line + a scroll-to-games CTA + How It Works. The detailed
-          flow/dashboard breakdown now lives on the game page, so the games are never buried. */}
+      {/* HERO — cinematic simulator front door: a strong headline + one honest subheadline, compact
+          proof chips (active sports · simulation-ready · paper-only · deterministic), a primary CTA to
+          the games and a secondary CTA to How It Works. The detailed flow lives on the game page, so the
+          games are never buried. Presentation only — every count is real. */}
       <section
         data-testid="simulate-hero"
-        className="rounded-[14px] px-5 sm:px-7 py-6 sm:py-7 flex flex-col gap-4"
+        className="relative overflow-hidden rounded-[16px] px-5 sm:px-8 py-7 sm:py-9 flex flex-col gap-5"
         style={{
-          background: "linear-gradient(135deg, rgba(26,16,11,0.72), rgba(15,10,7,0.55))",
+          background:
+            "radial-gradient(130% 130% at 0% 0%, rgba(242,54,69,0.13) 0%, transparent 52%), radial-gradient(120% 120% at 100% 0%, rgba(217,164,65,0.08) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.94) 0%, rgba(10,10,11,0.97) 100%)",
           border: "1px solid var(--vault-border-strong)",
-          boxShadow: "var(--vault-shadow-soft)",
+          boxShadow: "0 24px 60px -30px rgba(0,0,0,0.8)",
         }}
       >
-        <div className="flex flex-col gap-2.5">
-          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>
-            The simulator · pick a sport, pick a game, generate
+        {/* faint field-grid texture behind the copy (decorative, motion-free) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(242,54,69,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(242,54,69,0.05) 1px, transparent 1px)",
+            backgroundSize: "30px 30px",
+            opacity: 0.5,
+            maskImage: "radial-gradient(120% 100% at 0% 0%, #000 25%, transparent 80%)",
+            WebkitMaskImage: "radial-gradient(120% 100% at 0% 0%, #000 25%, transparent 80%)",
+          }}
+        />
+        <div className="relative flex flex-col gap-3">
+          <span className="inline-flex items-center gap-2 font-mono uppercase tracking-[0.22em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>
+            <span className="gtp-ember-dot" aria-hidden /> The simulator · sport → game → generate
           </span>
-          <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(21px, 3.2vw, 29px)", lineHeight: 1.12, letterSpacing: "-0.015em", maxWidth: 720 }}>
+          <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(26px, 4.4vw, 40px)", lineHeight: 1.05, letterSpacing: "-0.02em", maxWidth: 760 }}>
             Simulate Today&rsquo;s Games
           </h3>
-          <p className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12, letterSpacing: "0.01em" }}>
+          <p style={{ color: "var(--vault-text-mute)", fontSize: "clamp(13px, 1.6vw, 15px)", lineHeight: 1.5, maxWidth: 640 }}>
+            Pick a matchup and generate its precomputed model simulation. Watch a short reveal, then read the full dashboard on the game page. Everyone sees the same result.
+          </p>
+          <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11, letterSpacing: "0.01em" }}>
             precomputed · deterministic · same output for every user · paper-only
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2.5">
+
+        {/* proof chips — active-sport count · simulation-ready count · paper-only · deterministic (all real). */}
+        <div className="relative flex flex-wrap items-center gap-2">
+          {[
+            { v: `${activeSports}`, l: `sport${activeSports === 1 ? "" : "s"} live`, accent: true },
+            { v: `${readyCount}`, l: "simulation-ready", accent: true },
+            { v: "Paper-only", l: "no real money", accent: false },
+            { v: "Deterministic", l: "same for everyone", accent: false },
+          ].map((c) => (
+            <span
+              key={c.l}
+              className="inline-flex items-baseline gap-1.5 rounded-full px-3 py-1.5"
+              style={{ background: "rgba(10,10,11,0.5)", border: "1px solid var(--vault-rule)" }}
+            >
+              <span className="font-display" style={{ color: c.accent ? "var(--vault-gold-bright)" : "var(--vault-text)", fontSize: 14, fontWeight: 800, lineHeight: 1 }}>{c.v}</span>
+              <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{c.l}</span>
+            </span>
+          ))}
+        </div>
+
+        <div className="relative flex flex-wrap items-center gap-2.5">
           <a
             href="#simulate-games"
-            className="gtp-cta-lava vault-press inline-flex items-center rounded-[8px] px-4 py-2 font-mono uppercase tracking-[0.12em]"
-            style={{ fontSize: 11, fontWeight: 700, textDecoration: "none", minHeight: 44 }}
+            className="gtp-cta-lava vault-press inline-flex items-center rounded-[10px] px-5 py-2.5 font-mono uppercase tracking-[0.12em]"
+            style={{ fontSize: 12, fontWeight: 700, textDecoration: "none", minHeight: 46 }}
           >
             Browse the games ↓
           </a>
           <Link
             href="/learn"
-            className="vault-press inline-flex items-center rounded-[8px] px-4 py-2 font-mono uppercase tracking-[0.12em]"
-            style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 44 }}
+            className="vault-press inline-flex items-center rounded-[10px] px-5 py-2.5 font-mono uppercase tracking-[0.12em]"
+            style={{ border: "1px solid var(--vault-border-strong)", color: "var(--vault-text-mute)", fontSize: 12, textDecoration: "none", minHeight: 46 }}
           >
             How it works →
           </Link>
@@ -306,11 +345,13 @@ export default function SimulateLobby() {
 
       {/* FEATURED SIMULATIONS — ready artifacts only, strongest-edge first (deterministic), now premium
           cards WITH real team logos (MatchupIdentity → TeamMark, monogram fallback). */}
-      <section data-testid="simulate-featured" className="flex flex-col gap-3">
+      <section data-testid="simulate-featured" className="flex flex-col gap-3.5">
         <div className="flex items-end justify-between gap-3 flex-wrap">
           <div className="flex flex-col gap-1">
-            <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>Ready to simulate</span>
-            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>
+            <span className="inline-flex items-center gap-1.5 font-mono uppercase tracking-[0.18em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>
+              <span className="gtp-ember-dot" aria-hidden /> Ready to simulate
+            </span>
+            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800, letterSpacing: "-0.01em" }}>
               {featured.length > 0 ? "Featured simulations" : "No featured simulations yet"}
             </span>
           </div>
@@ -329,7 +370,7 @@ export default function SimulateLobby() {
             </span>
           </div>
         ) : (
-          <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((f) => {
               // Honest, artifact-derived meta line: venue and/or slate date only when present.
               const dateLabel = f.date
@@ -340,54 +381,63 @@ export default function SimulateLobby() {
                 <Link
                   key={f.slug}
                   href={f.href}
-                  className="group rounded-[14px] px-4 py-4 flex flex-col gap-3 vault-glow-hover"
-                  style={{ background: "var(--vault-panel-elevated)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
+                  className="group relative overflow-hidden rounded-[16px] flex flex-col vault-glow-hover"
+                  style={{ background: "var(--vault-panel-elevated)", border: "1px solid var(--vault-border-strong)", textDecoration: "none", boxShadow: "0 14px 40px -26px rgba(0,0,0,0.75)" }}
                 >
-                  <div className="flex items-center justify-between gap-2">
+                  {/* Top strip — Simulation Ready badge + sport tag over a subtle ember wash. */}
+                  <div
+                    className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-2.5"
+                    style={{ background: "radial-gradient(120% 140% at 0% 0%, rgba(242,54,69,0.10) 0%, transparent 60%)" }}
+                  >
                     <span
-                      className="inline-flex items-center gap-1 font-mono font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full"
-                      style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", fontSize: 8.5 }}
+                      className="inline-flex items-center gap-1 font-mono font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full"
+                      style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", fontSize: 9 }}
                     >
                       <span aria-hidden>▶</span> Simulation Ready
                     </span>
-                    <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>MLB</span>
+                    <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>MLB</span>
                   </div>
 
-                  {/* Team identity: away logo @ home logo (real mlbstatic SVGs; monogram fallback via TeamMark). */}
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  {/* Matchup band — LARGE team logos (away @ home) with the matchup as the dominant line. */}
+                  <div className="flex flex-col items-center gap-2.5 px-4 pb-3.5 pt-1 text-center" style={{ borderBottom: "1px solid var(--vault-rule)" }}>
                     <MatchupIdentity
                       homeName={f.teams.home}
                       awayName={f.teams.away}
                       homeLogo={f.homeLogo}
                       awayLogo={f.awayLogo}
-                      size="lg"
+                      size="xl"
                     />
-                    <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 15.5, fontWeight: 700, lineHeight: 1.12 }}>
-                      {f.teams.away} @ {f.teams.home}
+                    <span className="font-display tracking-tight leading-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(16px, 2vw, 19px)", fontWeight: 800, letterSpacing: "-0.01em" }}>
+                      {f.teams.away} <span style={{ color: "var(--vault-text-faint)", fontWeight: 600 }}>@</span> {f.teams.home}
                     </span>
-                  </div>
-
-                  {meta ? (
-                    <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{meta}</span>
-                  ) : null}
-
-                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono" style={{ fontSize: 10.5 }}>
-                    {f.runCountLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{f.runCountLabel}</span> : null}
-                    <span style={{ color: "var(--vault-text-mute)" }}>{f.pickCount} generated pick{f.pickCount === 1 ? "" : "s"}</span>
-                    {f.pickCount > 0 && f.topEdgePct > 0 ? (
-                      <span style={{ color: "var(--vault-text-mute)" }}>
-                        top lean <span style={{ color: "var(--vault-gold-bright)", fontWeight: 700 }}>+{f.topEdgePct.toFixed(1)}% edge</span>
-                      </span>
+                    {meta ? (
+                      <span className="font-mono truncate max-w-full" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{meta}</span>
                     ) : null}
                   </div>
 
-                  {f.headline ? (
-                    <span className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{f.headline}</span>
-                  ) : null}
+                  {/* Metadata + strongest-lean preview + a high-contrast Generate CTA. */}
+                  <div className="flex flex-col gap-2.5 px-4 py-3.5 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono" style={{ fontSize: 10.5 }}>
+                      {f.runCountLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{f.runCountLabel}</span> : null}
+                      <span style={{ color: "var(--vault-text-mute)" }}>{f.pickCount} generated pick{f.pickCount === 1 ? "" : "s"}</span>
+                      {f.pickCount > 0 && f.topEdgePct > 0 ? (
+                        <span style={{ color: "var(--vault-text-mute)" }}>
+                          top lean <span style={{ color: "var(--vault-gold-bright)", fontWeight: 700 }}>+{f.topEdgePct.toFixed(1)}% edge</span>
+                        </span>
+                      ) : null}
+                    </div>
 
-                  <span className="font-mono uppercase tracking-[0.1em] mt-auto pt-1" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-                    Generate Simulation →
-                  </span>
+                    {f.headline ? (
+                      <span className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{f.headline}</span>
+                    ) : null}
+
+                    <span
+                      className="gtp-cta-lava vault-press mt-auto inline-flex items-center justify-center gap-1.5 rounded-[10px] py-2.5 font-mono uppercase tracking-[0.1em]"
+                      style={{ fontSize: 11.5, fontWeight: 700, minHeight: 42 }}
+                    >
+                      Generate Simulation →
+                    </span>
+                  </div>
                 </Link>
               );
             })}
@@ -413,8 +463,13 @@ export default function SimulateLobby() {
         </Link>
       ) : null}
 
-      {/* SPORT-FIRST SELECTOR + all-games grid. The anchor is the hero CTA's scroll target. */}
-      <div id="simulate-games" className="scroll-mt-4">
+      {/* SPORT-FIRST SELECTOR + all-games grid. The anchor is the hero CTA's scroll target. This block is
+          the secondary "browse everything" surface below the featured picks above. */}
+      <div id="simulate-games" className="scroll-mt-4 flex flex-col gap-3.5">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <span className="font-mono uppercase tracking-[0.18em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Browse by sport</span>
+          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>· pick a sport, then a game to generate</span>
+        </div>
         <SportSelector sports={sports} rows={rows} />
       </div>
     </div>

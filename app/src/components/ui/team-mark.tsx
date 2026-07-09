@@ -9,7 +9,7 @@
  */
 import FlagBadge from "@/components/flag-badge";
 
-const SIZE = { sm: 18, md: 24, lg: 32 } as const;
+const SIZE = { sm: 18, md: 24, lg: 32, xl: 44 } as const;
 
 export default function TeamMark({
   name,
@@ -38,7 +38,7 @@ export default function TeamMark({
     );
   }
   if (flagCode) {
-    return <FlagBadge code={flagCode} size={size === "lg" ? "lg" : size === "sm" ? "sm" : "md"} ariaLabel={name ?? flagCode} />;
+    return <FlagBadge code={flagCode} size={size === "lg" || size === "xl" ? "lg" : size === "sm" ? "sm" : "md"} ariaLabel={name ?? flagCode} />;
   }
   return (
     <span

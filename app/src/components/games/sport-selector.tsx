@@ -76,16 +76,19 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
 
   return (
     <div className="flex flex-col gap-4">
-      {/* SPORT TABS — sport-first entry, honest state + counts on each. */}
+      {/* SPORT TABS — the FIRST action: larger sport tiles with icon + name + games/sim-ready counts + an
+          honest state chip. The active sport is elevated with an ember spine; unavailable sports stay
+          muted-but-readable. Horizontal-scroll on mobile, no clipped text. */}
       <div
         role="tablist"
         aria-label="Choose a sport to simulate"
-        className="flex items-stretch gap-2 overflow-x-auto pb-1 -mx-1 px-1"
+        className="flex items-stretch gap-2.5 overflow-x-auto pb-1.5 -mx-1 px-1"
         data-testid="sport-selector"
       >
         {sports.map((s) => {
           const on = s.key === active;
           const chip = toneChip(s.tone, on);
+          const live = s.tone === "active" || s.tone === "available";
           return (
             <button
               key={s.key}
@@ -93,29 +96,42 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
               role="tab"
               aria-selected={on}
               onClick={() => setActive(s.key)}
-              className="gtp-pressable flex flex-col gap-1 rounded-[12px] px-3.5 py-2.5 text-left transition-colors shrink-0"
+              className="gtp-pressable relative flex flex-col gap-2 rounded-[14px] px-4 py-3 text-left transition-colors shrink-0"
               style={{
-                minWidth: 104,
-                minHeight: 44,
-                background: on ? "var(--vault-panel-elevated)" : "var(--vault-panel)",
-                border: `1px solid ${on ? "var(--vault-border-strong)" : "var(--vault-border)"}`,
-                boxShadow: on ? "var(--vault-shadow-soft)" : "none",
+                minWidth: 132,
+                minHeight: 76,
+                background: on
+                  ? "radial-gradient(120% 130% at 0% 0%, rgba(242,54,69,0.12) 0%, transparent 60%), var(--vault-panel-elevated)"
+                  : "var(--vault-panel)",
+                border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-border)"}`,
+                boxShadow: on ? "0 10px 30px -18px rgba(242,54,69,0.6)" : "none",
+                opacity: on || live ? 1 : 0.82,
               }}
             >
-              <span className="flex items-center gap-1.5">
-                <span aria-hidden style={{ fontSize: 15 }}>{s.icon}</span>
-                <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 700 }}>{s.label}</span>
+              {/* active spine — a clear "selected" marker on the tile's left edge. */}
+              {on ? (
+                <span aria-hidden className="absolute left-0 top-2.5 bottom-2.5 rounded-full" style={{ width: 3, background: "var(--vault-gold-bright)" }} />
+              ) : null}
+              <span className="flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className="inline-flex items-center justify-center rounded-[9px] shrink-0"
+                  style={{ width: 30, height: 30, fontSize: 16, background: on ? "rgba(242,54,69,0.14)" : "rgba(10,10,11,0.5)", border: `1px solid ${on ? "color-mix(in srgb, var(--vault-gold-bright) 40%, transparent)" : "var(--vault-rule)"}` }}
+                >
+                  {s.icon}
+                </span>
+                <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14.5, fontWeight: 800, letterSpacing: "-0.01em" }}>{s.label}</span>
               </span>
               <span className="flex items-center gap-1.5 flex-wrap">
                 <span
-                  className="font-mono uppercase tracking-[0.08em] rounded-full px-1.5 py-0.5"
-                  style={{ ...chip, fontSize: 8.5, fontWeight: 700 }}
+                  className="font-mono uppercase tracking-[0.08em] rounded-full px-2 py-0.5"
+                  style={{ ...chip, fontSize: 9, fontWeight: 700 }}
                 >
                   {s.stateLabel}
                 </span>
-                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                   {s.gameCount} game{s.gameCount === 1 ? "" : "s"}
-                  {s.simReadyCount > 0 ? ` · ${s.simReadyCount} ready` : ""}
+                  {s.simReadyCount > 0 ? <span style={{ color: "var(--gtp-success-on-dark, #7ee2a8)" }}> · {s.simReadyCount} ready</span> : ""}
                 </span>
               </span>
             </button>

@@ -915,28 +915,41 @@ export default function GameSimulationRunner({
           in `postReveal`, rendered only in the done phase) so nothing priced is in this pre-click DOM. */}
       {phase === "idle" ? (
         <div
-          className="relative overflow-hidden flex flex-col gap-4 rounded-[16px] px-5 py-6 sm:px-6"
+          className="relative overflow-hidden flex flex-col gap-5 rounded-[18px] px-5 py-7 sm:px-7 sm:py-8"
           style={{
             border: "1px solid var(--vault-border-strong)",
             background:
-              "radial-gradient(120% 150% at 0% 0%, rgba(217,164,65,0.12) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.95) 0%, rgba(26, 16, 11,0.98) 100%)",
-            boxShadow: "0 18px 48px -24px rgba(0,0,0,0.7)",
+              "radial-gradient(130% 150% at 50% 0%, rgba(242,54,69,0.13) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.96) 0%, rgba(10,10,11,0.99) 100%)",
+            boxShadow: "0 22px 56px -28px rgba(0,0,0,0.78)",
           }}
         >
-          <div className="flex flex-col gap-1.5">
+          {/* faint field-grid texture behind the CTA (decorative, motion-free) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(242,54,69,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(242,54,69,0.05) 1px, transparent 1px)",
+              backgroundSize: "28px 28px",
+              opacity: 0.55,
+              maskImage: "radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 82%)",
+              WebkitMaskImage: "radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 82%)",
+            }}
+          />
+          <div className="relative flex flex-col gap-2">
             <Eyebrow>Model simulation</Eyebrow>
-            <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 21, fontWeight: 800, lineHeight: 1.08 }}>
+            <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(23px, 3.4vw, 28px)", fontWeight: 800, lineHeight: 1.06, letterSpacing: "-0.02em" }}>
               {view.allowsRunCountClaim && view.runCount != null
                 ? `Generate the ${view.runCount.toLocaleString()}-run simulation`
                 : "Generate the model simulation"}
             </h2>
-            <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.55 }}>
-              precomputed model artifact · same result for every user · the dashboard unlocks after the reveal · paper-only
+            <span style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.55, maxWidth: 560 }}>
+              A precomputed model artifact — the same result for every user. The dashboard unlocks after the reveal. Paper-only.
             </span>
           </div>
 
           {/* dashboard preview — LOCKED labels only (no numbers, no picks). What the reveal will unlock. */}
-          <div className="flex flex-col gap-2">
+          <div className="relative flex flex-col gap-2">
             <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
               Unlocks after the reveal
             </span>
@@ -944,17 +957,17 @@ export default function GameSimulationRunner({
               {DASHBOARD_PREVIEW_PILLS.map((label) => (
                 <span
                   key={label}
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.08em]"
-                  style={{ background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-faint)", fontSize: 9.5 }}
+                  className="inline-flex items-center gap-1.5 rounded-[8px] px-2.5 py-1.5 font-mono uppercase tracking-[0.08em]"
+                  style={{ background: "rgba(10,10,11,0.5)", border: "1px dashed var(--vault-rule)", color: "var(--vault-text-faint)", fontSize: 9.5 }}
                 >
-                  <span aria-hidden style={{ fontSize: 9 }}>🔒</span>
+                  <span aria-hidden style={{ fontSize: 8.5, opacity: 0.85 }}>🔒</span>
                   {label}
                 </span>
               ))}
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <div className="relative flex flex-wrap items-center gap-x-4 gap-y-1">
             <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
               <span style={{ color: "var(--vault-text-mute)" }}>Model</span> {dash(view.modelVersion)}
             </span>
@@ -970,11 +983,14 @@ export default function GameSimulationRunner({
           <button
             type="button"
             onClick={start}
-            className="gtp-cta-lava vault-press inline-flex items-center self-start rounded-full px-5 font-mono uppercase tracking-[0.12em]"
-            style={{ fontSize: 12, fontWeight: 700, minHeight: 44, border: "none", cursor: "pointer" }}
+            className="gtp-cta-lava vault-press relative inline-flex items-center justify-center gap-2 self-start rounded-[12px] px-6 font-mono uppercase tracking-[0.14em]"
+            style={{ fontSize: 13, fontWeight: 700, minHeight: 50, border: "none", cursor: "pointer" }}
           >
-            Generate Simulation
+            <span aria-hidden style={{ fontSize: 13 }}>▶</span> Generate Simulation
           </button>
+          <span className="relative font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+            ≈10-second reveal · then the full model dashboard
+          </span>
         </div>
       ) : null}
 
@@ -983,21 +999,32 @@ export default function GameSimulationRunner({
           animation finishes. Team logos are threaded through (monogram fallback when null). */}
       {phase === "revealing" ? <SportSimulationAnimation sport={view.sport} view={view} stage={stage} homeLogo={homeLogo} awayLogo={awayLogo} /> : null}
 
-      {/* After reveal: the precomputed artifact, reorganized into the 10-section dashboard. */}
+      {/* After reveal: the precomputed artifact, reorganized into the 10-section dashboard. A gentle
+          fade/slide-in makes the animation→dashboard handoff feel intentional (motion-gated). */}
       {phase === "done" ? (
-        <div className="flex flex-col gap-4">
+        <div className="gtp-sim-reveal flex flex-col gap-4">
+          {/* Scoped reveal transition — soft fade + rise, disabled under reduced motion (content stays). */}
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
+@keyframes gtp-sim-reveal-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.gtp-sim-reveal { animation: gtp-sim-reveal-in 460ms cubic-bezier(0.22,0.61,0.36,1) both; }
+@media (prefers-reduced-motion: reduce) { .gtp-sim-reveal { animation: none; } }
+`,
+            }}
+          />
           {/* 1 · HEADER — the summary (badge, matchup, model/runs/freshness, headline). Projected numbers
               are labelled explicitly as a MODEL PROJECTION, never a final/actual score. */}
           <section
             className="flex flex-col gap-2 rounded-[14px] px-5 py-4"
-            style={{ border: "1px solid var(--vault-border-strong)", background: "linear-gradient(135deg, rgba(22,30,62,0.9) 0%, rgba(26, 16, 11,0.96) 100%)" }}
+            style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 140% at 0% 0%, rgba(46,160,102,0.10) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.94) 0%, rgba(10,10,11,0.98) 100%)" }}
           >
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className="inline-flex items-center rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.12em]"
-                style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)", fontSize: 9, background: "rgba(217,164,65,0.10)" }}
+                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.12em]"
+                style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", border: "1px solid rgba(46,160,102,0.4)", fontSize: 9, background: "rgba(46,160,102,0.14)" }}
               >
-                Simulation complete
+                <span aria-hidden>✓</span> Simulation complete
               </span>
               <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
                 Precomputed for this game
@@ -1117,26 +1144,27 @@ export default function GameSimulationRunner({
               reveal completes. */}
           {postReveal ? <div className="flex flex-col gap-5 mt-1">{postReveal}</div> : null}
 
-          {/* Post-reveal navigation — back to the lobby, another game, or today's picks. */}
-          <nav className="mt-1 flex flex-wrap items-center gap-2" aria-label="After the simulation">
+          {/* Post-reveal navigation — a primary "run another" plus quiet secondaries (back to the lobby /
+              today's picks). Grouped so the next action is obvious after the reveal. */}
+          <nav className="mt-2 flex flex-wrap items-center gap-2 pt-3" style={{ borderTop: "1px solid var(--vault-rule)" }} aria-label="After the simulation">
             <Link
               href="/simulate"
-              className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]"
-              style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 40 }}
+              className="gtp-cta-lava vault-press inline-flex items-center gap-1.5 rounded-[10px] px-5 font-mono uppercase tracking-[0.12em]"
+              style={{ fontSize: 11.5, fontWeight: 700, textDecoration: "none", minHeight: 44 }}
             >
-              ← Back to all simulations
+              <span aria-hidden>▶</span> Try another game
             </Link>
             <Link
               href="/simulate"
-              className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]"
-              style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 40 }}
+              className="vault-press inline-flex items-center rounded-[10px] px-4 font-mono uppercase tracking-[0.12em]"
+              style={{ border: "1px solid var(--vault-border-strong)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 44 }}
             >
-              Try another game
+              ← All simulations
             </Link>
             <Link
               href="/today"
-              className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]"
-              style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 40 }}
+              className="vault-press inline-flex items-center rounded-[10px] px-4 font-mono uppercase tracking-[0.12em]"
+              style={{ border: "1px solid var(--vault-border-strong)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 44 }}
             >
               See today&apos;s picks
             </Link>

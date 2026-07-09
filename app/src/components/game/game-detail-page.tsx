@@ -588,32 +588,54 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <Link href="/games" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
         </div>
 
-        {/* CLEAN matchup hero — always visible, NO posted prices/picks. Team marks (away @ home), title,
-            MLB, date/venue, a Simulation Ready badge, and honest run/pick counts (run count gated). */}
-        <section className="relative overflow-hidden rounded-[14px] px-5 py-6 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 150% at 0% 0%, rgba(242, 54, 69,0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(26, 16, 11,0.97) 100%)" }}>
-          <span className="flex flex-wrap items-center gap-2">
+        {/* CLEAN matchup hero — always visible, NO posted prices/picks. Large team crests (away @ home),
+            title, MLB, date/venue, a Simulation Ready badge, and honest run/pick counts (run count gated). */}
+        <section className="relative overflow-hidden rounded-[16px] px-5 sm:px-7 py-6 sm:py-8 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(130% 150% at 0% 0%, rgba(242, 54, 69,0.13) 0%, transparent 52%), radial-gradient(120% 130% at 100% 0%, rgba(217,164,65,0.07) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.95) 0%, rgba(10,10,11,0.98) 100%)", boxShadow: "0 22px 56px -30px rgba(0,0,0,0.8)" }}>
+          {/* faint field-grid texture (decorative, motion-free) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage: "linear-gradient(rgba(242,54,69,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(242,54,69,0.05) 1px, transparent 1px)",
+              backgroundSize: "30px 30px",
+              opacity: 0.5,
+              maskImage: "radial-gradient(120% 100% at 0% 0%, #000 25%, transparent 80%)",
+              WebkitMaskImage: "radial-gradient(120% 100% at 0% 0%, #000 25%, transparent 80%)",
+            }}
+          />
+          <span className="relative flex flex-wrap items-center gap-2">
             <span className="gtp-sport-orb shrink-0" style={{ width: 26, height: 26, fontSize: 14, ["--orb-grad" as string]: identity.gradient }} role="img" aria-label={identity.ballLabel}>{identity.icon}</span>
             <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
             <CompetitionBadge sport={detail.sport} size="sm" />
-            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(217,164,65,0.12)", border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", fontSize: 9 }}>
-              ● Simulation Ready
+            <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
+              <span aria-hidden>▶</span> Simulation Ready
             </span>
           </span>
-          <div className="mt-2 flex items-center gap-3 min-w-0">
-            <span className="inline-flex items-center gap-1.5 shrink-0" aria-label={`${detail.awayTeam} at ${detail.homeTeam}`}>
-              <TeamMark name={detail.awayTeam} logoUrl={detail.awayLogo} size="lg" />
-              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>@</span>
-              <TeamMark name={detail.homeTeam} logoUrl={detail.homeLogo} size="lg" />
+          <div className="relative mt-3.5 flex items-center gap-3.5 sm:gap-4 min-w-0">
+            {/* Large away @ home crests — each mark framed on a rounded plate so the logos read instantly. */}
+            <span className="inline-flex items-center gap-2.5 shrink-0" aria-label={`${detail.awayTeam} at ${detail.homeTeam}`}>
+              <span className="inline-flex items-center justify-center rounded-[12px] shrink-0" style={{ width: 58, height: 58, background: "rgba(10,10,11,0.6)", border: "1px solid var(--vault-border)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
+                <TeamMark name={detail.awayTeam} logoUrl={detail.awayLogo} size="xl" />
+              </span>
+              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 13 }}>@</span>
+              <span className="inline-flex items-center justify-center rounded-[12px] shrink-0" style={{ width: 58, height: 58, background: "rgba(10,10,11,0.6)", border: "1px solid var(--vault-border)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
+                <TeamMark name={detail.homeTeam} logoUrl={detail.homeLogo} size="xl" />
+              </span>
             </span>
-            <h1 className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.5vw,32px)", fontWeight: 700, lineHeight: 1.05 }}>{detail.title}</h1>
+            <h1 className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: "clamp(23px,4.6vw,34px)", fontWeight: 800, lineHeight: 1.04, letterSpacing: "-0.02em" }}>{detail.title}</h1>
           </div>
-          {detail.regulationNote ? <p className="mt-1 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{detail.regulationNote}</p> : null}
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-            <span><span style={{ color: "var(--vault-text-mute)" }}>MLB</span> · precomputed model simulation</span>
-            {sim.allowsRunCountClaim && sim.runCount != null ? (
-              <span><span style={{ color: "var(--vault-text-mute)" }}>Runs</span> {sim.runCount.toLocaleString()}</span>
-            ) : null}
-            <span><span style={{ color: "var(--vault-text-mute)" }}>Generated picks</span> {sim.generatedPicks.length}</span>
+          {detail.regulationNote ? <p className="relative mt-1.5 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{detail.regulationNote}</p> : null}
+          <div className="relative mt-4 flex flex-wrap items-center gap-2">
+            {[
+              { k: "Model simulation", v: "precomputed" },
+              ...(sim.allowsRunCountClaim && sim.runCount != null ? [{ k: "Runs", v: sim.runCount.toLocaleString() }] : []),
+              { k: "Generated picks", v: String(sim.generatedPicks.length) },
+            ].map((m) => (
+              <span key={m.k} className="inline-flex items-baseline gap-1.5 rounded-full px-3 py-1.5" style={{ background: "rgba(10,10,11,0.5)", border: "1px solid var(--vault-rule)" }}>
+                <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{m.k}</span>
+                <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 12.5, fontWeight: 700 }}>{m.v}</span>
+              </span>
+            ))}
           </div>
         </section>
 
