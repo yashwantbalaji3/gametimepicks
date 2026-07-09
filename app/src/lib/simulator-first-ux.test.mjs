@@ -51,9 +51,10 @@ test("game detail GATES the dense model report behind Generate Simulation (repor
   // Simulator-first is now the strongest form: on an MLB-sim page the dense report is not a sibling at all —
   // it is handed to the runner via postReveal and revealed ONLY after the ≥10s reveal completes.
   assert.match(detailPage, /const isMlbSim = detail\.sport === "mlb" && !!detail\.gameLabSimulation/, "the MLB-sim gate exists");
-  // Now an Overview-led tabbed dashboard, entirely inside postReveal (gated); the dense report is in the Advanced tab.
-  assert.match(detailPage, /postReveal=\{<PostRevealTabs tabs=\{mlbDashTabs\} \/>\}/, "the dashboard is a gated tabbed postReveal");
-  assert.match(detailPage, /key: "advanced"[\s\S]*?mlbReport/, "the dense report is inside the gated Advanced tab, not a pre-click sibling");
+  // Now ONE unified report: the detail is the gated `mlbReportDetails` postReveal (not a competing tabbed
+  // dashboard); the dense report lives in a collapsed "Advanced report" disclosure, never a pre-click sibling.
+  assert.match(detailPage, /postReveal=\{mlbReportDetails\}/, "the unified report detail is the gated postReveal");
+  assert.match(detailPage, /mlbReportDetails = \([\s\S]*?title="Advanced report"[\s\S]*?\{mlbReport\}/, "the dense report is inside the gated Advanced report disclosure");
   // The runner (the whole pre-click experience) is rendered with the sim view on that path.
   assert.match(detailPage, /<GameSimulationRunner\s+view=\{sim\}/, "the runner drives the MLB-sim page");
 });

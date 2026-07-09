@@ -85,11 +85,11 @@ test("5 · NO 10,000-run claim — soccer is a market-implied dashboard, not a s
 
 test("6 · game-detail attaches wcGameCenter; page gates it behind Generate (postReveal)", () => {
   assert.match(detailLoaderSrc, /wcGameCenter: getWcGameCenter\(matchId\)/);
-  // The WC-sim branch hands an Overview-led tabbed dashboard to the runner's postReveal (revealed after Generate).
+  // The WC-sim branch hands ONE unified report (wcReport) to the runner's postReveal (revealed after Generate).
   assert.match(detailPageSrc, /const isWcSim = detail\.sport === "world_cup" && !!detail\.wcGameCenter/);
-  assert.match(detailPageSrc, /postReveal=\{<PostRevealTabs tabs=\{wcDashTabs\} \/>\}/, "WC post-reveal is a gated tabbed dashboard");
-  // The WC Game Center is the gated Overview tab (still inside postReveal, absent pre-click).
-  assert.match(detailPageSrc, /wcDashTabs[\s\S]*?<WcGameCenter gameCenter=\{gc\} expanded=\{detail\.wcExpanded\}/, "the WC Game Center is the gated Overview tab");
+  assert.match(detailPageSrc, /postReveal=\{wcReport\}/, "WC post-reveal is the gated unified report");
+  // The WC Game Center leads the gated unified report (still inside postReveal, absent pre-click).
+  assert.match(detailPageSrc, /wcReport = \([\s\S]*?<WcGameCenter gameCenter=\{gc\} expanded=\{detail\.wcExpanded\}/, "the WC Game Center leads the gated unified report");
 });
 
 test("7 · money md5 unchanged; the layer is money-independent", () => {

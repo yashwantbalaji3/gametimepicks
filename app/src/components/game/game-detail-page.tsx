@@ -15,10 +15,9 @@ import MlbGameCenter from "@/components/game/mlb-game-center";
 import WcGameCenter from "@/components/game/wc-game-center";
 import WcSimulationRunner from "@/components/game/wc-simulation-runner";
 import WcGameLabReport from "@/components/game/wc-game-lab-report";
-import PostRevealTabs, { type PostRevealTab } from "@/components/game/post-reveal-tabs";
+import { ExpandableReportSection } from "@/components/game/answer-first-report";
 import {
   MethodologyPanel,
-  MlbDistributionsPanel,
   ScorersPanel,
   SoccerComingSoonRoadmap,
 } from "@/components/game/game-dashboard-panels";
@@ -589,17 +588,23 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   const gameCenter = detail.gameCenter ? <MlbGameCenter gameCenter={detail.gameCenter} /> : null;
   const tabsShell = <SportShell tabs={tabs} />;
 
-  // ── Overview-led tabbed dashboard (MLB). The whole thing lives inside the runner's postReveal,
-  // so it stays behind the pre-click gate. Overview = the market-implied Game Center (the main
-  // answer); Player Props is promoted to a top-level tab; the dense report + spotlight + remaining
-  // sub-tabs move into Advanced Report; Distributions/Methodology are honest explainer panels. ──
-  const mlbDashTabs: PostRevealTab[] = [
-    { key: "overview", label: "Overview", content: gameCenter ?? spotlight ?? mlbReport },
-    { key: "player-props", label: "Player props", badge: detail.playerProps.length || null, content: playerPropsTab },
-    { key: "distributions", label: "Distributions", content: <MlbDistributionsPanel /> },
-    { key: "advanced", label: "Advanced report", content: <>{mlbReport}{spotlight}<SportShell tabs={tabs.filter((t) => t.key !== "player-props")} /></> },
-    { key: "methodology", label: "Methodology", content: <MethodologyPanel sport="mlb" /> },
-  ];
+  // ── ONE unified report (MLB). The runner owns the answer-first spine (header → market snapshot →
+  // simulator output → main read → top leans → key takeaways → collapsed diagnostics). Below it, the
+  // remaining DETAIL is a small stack of collapsed disclosures — NOT a competing tabbed dashboard. The
+  // market snapshot (Game Center) is threaded into the runner as section 2, so it is not repeated here.
+  // Everything stays inside the runner's postReveal → gated behind the pre-click reveal. ──
+  const mlbReportDetails = (
+    <div className="flex flex-col gap-2">
+      <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>More detail · expand as needed</span>
+      <ExpandableReportSection title="Player props by market" count={detail.playerProps.length || null} hint="Every model-qualified player pick, grouped by market.">{playerPropsTab}</ExpandableReportSection>
+      <ExpandableReportSection title="Advanced report" hint="The dense model-vs-market report + the model spotlight + the legacy market tabs.">
+        {mlbReport}{spotlight}<SportShell tabs={tabs.filter((t) => t.key !== "player-props")} />
+      </ExpandableReportSection>
+      <ExpandableReportSection title="Methodology" hint="How this read is built — honest, paper-only.">
+        <MethodologyPanel sport="mlb" />
+      </ExpandableReportSection>
+    </div>
+  );
 
   // ── Gate: an MLB fixture that carries a simulation shows a CLEAN matchup hero (no prices) + the runner
   // ONLY before the click. The dense report, Model spotlight, and price tabs are gated behind Generate. ──
@@ -670,7 +675,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           view={sim}
           homeLogo={detail.homeLogo}
           awayLogo={detail.awayLogo}
-          postReveal={<PostRevealTabs tabs={mlbDashTabs} />}
+          marketSnapshot={gameCenter}
+          postReveal={mlbReportDetails}
         />
 
         {/* Persistent disclosure — visible regardless of phase. */}
@@ -695,16 +701,26 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       gc.btts && "BTTS",
     ].filter(Boolean) as string[];
     const wcReportEl = detail.gameLabWc ? <div><WcGameLabReport view={detail.gameLabWc} /></div> : null;
-    // ── Overview-led tabbed dashboard (Soccer/WC). Entirely inside the runner's postReveal → gated.
-    // Overview = the market-implied Match Result Center + expanded markets (the main answer); the dense
-    // WC report moves into Advanced Report; Scorers + Coming Soon are honest roadmap panels. ──
-    const wcDashTabs: PostRevealTab[] = [
-      { key: "overview", label: "Overview", content: <WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} /> },
-      { key: "scorers", label: "Scorers", content: <ScorersPanel /> },
-      ...(wcReportEl ? [{ key: "advanced", label: "Advanced report", content: wcReportEl }] : []),
-      { key: "coming-soon", label: "Coming soon", content: <SoccerComingSoonRoadmap /> },
-      { key: "methodology", label: "Methodology", content: <MethodologyPanel sport="world_cup" /> },
-    ];
+    // ── ONE unified report (Soccer/WC). The market-implied Match Result Center (WcGameCenter) is the
+    // answer-first spine — market snapshot + match center + expanded markets + a regulation-time read,
+    // all in one panel. Below it, the remaining DETAIL is a small stack of collapsed disclosures (dense
+    // WC report, what's coming, methodology) — NOT a competing tabbed dashboard. Soccer stays
+    // market-implied (no 10,000-run claim). Entirely inside the runner's postReveal → gated. ──
+    const wcReport = (
+      <div className="flex flex-col gap-3">
+        <WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />
+        <div className="flex flex-col gap-2">
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>More detail · expand as needed</span>
+          {wcReportEl ? <ExpandableReportSection title="Advanced report" hint="The dense market-implied model report for this match.">{wcReportEl}</ExpandableReportSection> : null}
+          <ExpandableReportSection title="Scorers &amp; what's coming" hint="Player markets, match events, and the advanced model layer — honest roadmap.">
+            <ScorersPanel /><SoccerComingSoonRoadmap />
+          </ExpandableReportSection>
+          <ExpandableReportSection title="Methodology" hint="How this market-implied read is built — paper-only.">
+            <MethodologyPanel sport="world_cup" />
+          </ExpandableReportSection>
+        </div>
+      </div>
+    );
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
         <div className="mb-2">
@@ -725,7 +741,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           stageLabel={gc.stage}
           kickoff={gc.kickoffUtc}
           supportedMarkets={supported}
-          postReveal={<PostRevealTabs tabs={wcDashTabs} />}
+          postReveal={wcReport}
         />
         <p className="mt-6 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
           Paper-only · educational · not betting advice
