@@ -570,6 +570,70 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     { key: "markets", label: "Markets", content: marketsTab },
   ];
 
+  // The reusable sections — the dense report, the Model spotlight, and the price-tabs shell. On an MLB-SIM
+  // page these are threaded into the simulation runner's `postReveal` (revealed ONLY after the reveal),
+  // never rendered as pre-click siblings; on every other page they render directly, unchanged.
+  const mlbReport = detail.gameLabMlb ? <div className="mb-5"><MlbGameLabReport view={detail.gameLabMlb} /></div> : null;
+  const tabsShell = <SportShell tabs={tabs} />;
+
+  // ── Gate: an MLB fixture that carries a simulation shows a CLEAN matchup hero (no prices) + the runner
+  // ONLY before the click. The dense report, Model spotlight, and price tabs are gated behind Generate. ──
+  const isMlbSim = detail.sport === "mlb" && !!detail.gameLabSimulation;
+
+  if (isMlbSim) {
+    const sim = detail.gameLabSimulation!;
+    return (
+      <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+        <div className="mb-2">
+          <Link href="/games" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
+        </div>
+
+        {/* CLEAN matchup hero — always visible, NO posted prices/picks. Team marks (away @ home), title,
+            MLB, date/venue, a Simulation Ready badge, and honest run/pick counts (run count gated). */}
+        <section className="relative overflow-hidden rounded-[14px] px-5 py-6 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 150% at 0% 0%, rgba(242, 54, 69,0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(26, 16, 11,0.97) 100%)" }}>
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="gtp-sport-orb shrink-0" style={{ width: 26, height: 26, fontSize: 14, ["--orb-grad" as string]: identity.gradient }} role="img" aria-label={identity.ballLabel}>{identity.icon}</span>
+            <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
+            <CompetitionBadge sport={detail.sport} size="sm" />
+            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(217,164,65,0.12)", border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", fontSize: 9 }}>
+              ● Simulation Ready
+            </span>
+          </span>
+          <div className="mt-2 flex items-center gap-3 min-w-0">
+            <span className="inline-flex items-center gap-1.5 shrink-0" aria-label={`${detail.awayTeam} at ${detail.homeTeam}`}>
+              <TeamMark name={detail.awayTeam} logoUrl={detail.awayLogo} size="lg" />
+              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>@</span>
+              <TeamMark name={detail.homeTeam} logoUrl={detail.homeLogo} size="lg" />
+            </span>
+            <h1 className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,4.5vw,32px)", fontWeight: 700, lineHeight: 1.05 }}>{detail.title}</h1>
+          </div>
+          {detail.regulationNote ? <p className="mt-1 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{detail.regulationNote}</p> : null}
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+            <span><span style={{ color: "var(--vault-text-mute)" }}>MLB</span> · precomputed model simulation</span>
+            {sim.allowsRunCountClaim && sim.runCount != null ? (
+              <span><span style={{ color: "var(--vault-text-mute)" }}>Runs</span> {sim.runCount.toLocaleString()}</span>
+            ) : null}
+            <span><span style={{ color: "var(--vault-text-mute)" }}>Generated picks</span> {sim.generatedPicks.length}</span>
+          </div>
+        </section>
+
+        {/* The simulation runner is the whole experience: idle (generate card + preview pills) → reveal
+            (≥10s animation) → done (dashboard + the gated report/spotlight/tabs + post-reveal nav). */}
+        <GameSimulationRunner
+          view={sim}
+          homeLogo={detail.homeLogo}
+          awayLogo={detail.awayLogo}
+          postReveal={<>{mlbReport}{spotlight}{tabsShell}</>}
+        />
+
+        {/* Persistent disclosure — visible regardless of phase. */}
+        <p className="mt-6 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+          Paper-only · educational · not betting advice
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
       <div className="mb-2">
@@ -605,17 +669,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         </div>
       </section>
 
-      {/* MLB "Generate Simulation" — the PRIMARY per-game experience, placed ABOVE the dense report so a
-          user lands on "pick a game → simulate" first. Precomputed + deterministic; revealed on click
-          (animation only; no fetch/randomness — same output for every user). MLB only; null otherwise. */}
-      {detail.sport === "mlb" && detail.gameLabSimulation ? (
-        <div className="mb-5"><GameSimulationRunner view={detail.gameLabSimulation} /></div>
-      ) : null}
-
       {/* MLB Game Lab report — the deeper per-game model report (model-vs-market, biggest leans, recent
-          form, product-mapping links + honest "not yet simulated" placeholders). Now BELOW the simulator,
-          for users who want the full detail after the reveal. MLB only; null otherwise. */}
-      {detail.gameLabMlb ? <div className="mb-5"><MlbGameLabReport view={detail.gameLabMlb} /></div> : null}
+          form, product-mapping links + honest "not yet simulated" placeholders). Shown directly here for
+          an MLB fixture WITHOUT a simulation; an MLB-sim fixture gates it behind Generate (handled above). */}
+      {mlbReport}
 
       {/* World Cup Game Lab report — the prominent per-game odds-only model report (model-vs-market, biggest
           team-market leans, regulation-90 caveats, artifact-proven product links + honest placeholders). */}
@@ -624,7 +681,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       {/* Model spotlight — the strongest reads, above the tabs */}
       <div className="mb-5">{spotlight}</div>
 
-      <SportShell tabs={tabs} />
+      {tabsShell}
 
       {/* Persistent disclosure — visible regardless of the active tab. */}
       <p className="mt-6 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>

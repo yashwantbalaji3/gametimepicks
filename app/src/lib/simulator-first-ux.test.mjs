@@ -47,11 +47,13 @@ test("MLB game cards show a 'Simulation Ready' badge, gated on a real ready arti
   assert.match(gamesPage, /gameLabSimulation\?\.status === "ready"/, "simReady comes from the ready artifact status");
 });
 
-test("game detail places Generate Simulation ABOVE the dense model report", () => {
-  const simIdx = detailPage.indexOf("<GameSimulationRunner");
-  const reportIdx = detailPage.indexOf("<MlbGameLabReport");
-  assert.ok(simIdx > 0 && reportIdx > 0, "both render");
-  assert.ok(simIdx < reportIdx, "the simulator comes first (primary experience), the report follows");
+test("game detail GATES the dense model report behind Generate Simulation (report is in postReveal, not a pre-click sibling)", () => {
+  // Simulator-first is now the strongest form: on an MLB-sim page the dense report is not a sibling at all —
+  // it is handed to the runner via postReveal and revealed ONLY after the ≥10s reveal completes.
+  assert.match(detailPage, /const isMlbSim = detail\.sport === "mlb" && !!detail\.gameLabSimulation/, "the MLB-sim gate exists");
+  assert.match(detailPage, /postReveal=\{<>\{mlbReport\}\{spotlight\}\{tabsShell\}<\/>\}/, "the report + spotlight + tabs are gated behind the reveal");
+  // The runner (the whole pre-click experience) is rendered with the sim view on that path.
+  assert.match(detailPage, /<GameSimulationRunner\s+view=\{sim\}/, "the runner drives the MLB-sim page");
 });
 
 test("the reveal is honest: N-run claim gated on runCount; no fake claim; no banned copy; paper-only", () => {

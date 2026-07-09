@@ -23,6 +23,7 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import Link from "next/link";
 import type { GameSimulationView } from "@/lib/game-simulations/game-lab-view";
 import type { SimGeneratedPick, SimDistribution } from "@/lib/game-simulations/types";
 import {
@@ -30,6 +31,21 @@ import {
   SIMULATION_MIN_DURATION_MS,
   SIMULATION_STAGES,
 } from "./simulation-animation";
+
+/**
+ * The dashboard modules the reveal unlocks — shown BEFORE the click as locked/preview pills ONLY (labels,
+ * never data), so the user knows what is coming without seeing any posted price, prop, or distribution.
+ */
+const DASHBOARD_PREVIEW_PILLS = [
+  "Market snapshot",
+  "Central read",
+  "Main takeaways",
+  "Biggest leans",
+  "Player / prop table",
+  "Distributions",
+  "Market agreement",
+  "Recap",
+] as const;
 
 // ── formatters (always fall back to an em dash; never render undefined/NaN) ──
 const dash = (v: string | number | null | undefined) =>
@@ -797,7 +813,19 @@ function UnavailableModules({ view }: { view: GameSimulationView }) {
   );
 }
 
-export default function GameSimulationRunner({ view }: { view: GameSimulationView }) {
+export default function GameSimulationRunner({
+  view,
+  postReveal,
+  homeLogo,
+  awayLogo,
+}: {
+  view: GameSimulationView;
+  /** Rendered ONLY in the done phase, below the dashboard — the dense report + spotlight + tabs shell,
+   *  so on an MLB-sim page they are ABSENT from the pre-click DOM (gated behind the reveal). */
+  postReveal?: React.ReactNode;
+  homeLogo?: string | null;
+  awayLogo?: string | null;
+}) {
   const [phase, setPhase] = useState<"idle" | "revealing" | "done">("idle");
   const [stage, setStage] = useState(0);
   const timersRef = useRef<number[]>([]);
@@ -881,25 +909,51 @@ export default function GameSimulationRunner({ view }: { view: GameSimulationVie
         </div>
       ) : null}
 
-      {/* Before click: the explainer + the prominent Generate button. */}
+      {/* Before click: the premium pre-sim "Generate card" — headline, explanation, a locked dashboard-
+          preview pill row (LABELS ONLY, never data), then the prominent Generate button. The dense report,
+          posted prices, prop tables, distributions, and price tabs are GATED behind the reveal (they live
+          in `postReveal`, rendered only in the done phase) so nothing priced is in this pre-click DOM. */}
       {phase === "idle" ? (
         <div
-          className="flex flex-col gap-3 rounded-[14px] px-5 py-5"
+          className="relative overflow-hidden flex flex-col gap-4 rounded-[16px] px-5 py-6 sm:px-6"
           style={{
             border: "1px solid var(--vault-border-strong)",
             background:
-              "radial-gradient(120% 150% at 0% 0%, rgba(217,164,65,0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(26, 16, 11,0.97) 100%)",
+              "radial-gradient(120% 150% at 0% 0%, rgba(217,164,65,0.12) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.95) 0%, rgba(26, 16, 11,0.98) 100%)",
+            boxShadow: "0 18px 48px -24px rgba(0,0,0,0.7)",
           }}
         >
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1.5">
             <Eyebrow>Model simulation</Eyebrow>
-            <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 700, lineHeight: 1.1 }}>
-              Generate the {runCopy} for this game
+            <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 21, fontWeight: 800, lineHeight: 1.08 }}>
+              {view.allowsRunCountClaim && view.runCount != null
+                ? `Generate the ${view.runCount.toLocaleString()}-run simulation`
+                : "Generate the model simulation"}
             </h2>
-            <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.5 }}>
-              This is a model-generated, <span style={{ color: "var(--vault-text)" }}>precomputed, deterministic</span> simulation — precomputed for this game. Every user sees the same model output. It is <span style={{ color: "var(--vault-text)" }}>paper-only</span> and educational, not betting advice.
+            <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.55 }}>
+              precomputed model artifact · same result for every user · the dashboard unlocks after the reveal · paper-only
             </span>
           </div>
+
+          {/* dashboard preview — LOCKED labels only (no numbers, no picks). What the reveal will unlock. */}
+          <div className="flex flex-col gap-2">
+            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+              Unlocks after the reveal
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {DASHBOARD_PREVIEW_PILLS.map((label) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.08em]"
+                  style={{ background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-faint)", fontSize: 9.5 }}
+                >
+                  <span aria-hidden style={{ fontSize: 9 }}>🔒</span>
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
               <span style={{ color: "var(--vault-text-mute)" }}>Model</span> {dash(view.modelVersion)}
@@ -924,9 +978,10 @@ export default function GameSimulationRunner({ view }: { view: GameSimulationVie
         </div>
       ) : null}
 
-      {/* Reveal animation — the 10s sport-specific staging (baseball diamond for MLB). The dashboard is
-          gated on SIMULATION_MIN_DURATION_MS in `start`, so it never appears before the animation finishes. */}
-      {phase === "revealing" ? <SportSimulationAnimation sport={view.sport} view={view} stage={stage} /> : null}
+      {/* Reveal animation — the 10s sport-specific staging (premium baseball diamond + team marks for MLB).
+          The dashboard is gated on SIMULATION_MIN_DURATION_MS in `start`, so it never appears before the
+          animation finishes. Team logos are threaded through (monogram fallback when null). */}
+      {phase === "revealing" ? <SportSimulationAnimation sport={view.sport} view={view} stage={stage} homeLogo={homeLogo} awayLogo={awayLogo} /> : null}
 
       {/* After reveal: the precomputed artifact, reorganized into the 10-section dashboard. */}
       {phase === "done" ? (
@@ -1056,6 +1111,36 @@ export default function GameSimulationRunner({ view }: { view: GameSimulationVie
           <p className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
             Paper-only · educational · not betting advice
           </p>
+
+          {/* GATED CONTENT — the dense report, Model spotlight, and price tabs. Rendered ONLY here (done),
+              never as a pre-click sibling, so posted prices/prop tables/distributions are ABSENT until the
+              reveal completes. */}
+          {postReveal ? <div className="flex flex-col gap-5 mt-1">{postReveal}</div> : null}
+
+          {/* Post-reveal navigation — back to the lobby, another game, or today's picks. */}
+          <nav className="mt-1 flex flex-wrap items-center gap-2" aria-label="After the simulation">
+            <Link
+              href="/simulate"
+              className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]"
+              style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 40 }}
+            >
+              ← Back to all simulations
+            </Link>
+            <Link
+              href="/simulate"
+              className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]"
+              style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 40 }}
+            >
+              Try another game
+            </Link>
+            <Link
+              href="/today"
+              className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]"
+              style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 40 }}
+            >
+              See today&apos;s picks
+            </Link>
+          </nav>
         </div>
       ) : null}
     </section>
