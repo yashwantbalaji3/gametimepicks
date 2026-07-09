@@ -1,0 +1,921 @@
+{
+  "sport": "MLB",
+  "date": "2026-07-09",
+  "asOf": "2026-07-09",
+  "public": false,
+  "internal": true,
+  "kind": "full-game-sim-readiness",
+  "officialMoneyRecordAffected": false,
+  "activeProductCard": false,
+  "verdict": "NO full-game score simulation exists. Every game is at best PARTIAL (market-implied win prob + run-line/total coverage); projected score + all distributions are BLOCKED pending a dedicated team-scoring model / alternate-line ladder ingest.",
+  "gameCount": 12,
+  "readinessSummary": {
+    "ready": 0,
+    "partial": 12,
+    "blocked": 0
+  },
+  "invalidCount": 0,
+  "games": [
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "2b3ca3496277938aa74f87f24a2c064c",
+      "gamePk": 823359,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Atlanta Braves",
+          "abbreviation": "ATL"
+        },
+        "home": {
+          "name": "Pittsburgh Pirates",
+          "abbreviation": "PIT"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 9.5,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.5,
+        "home": 0.5,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5,
+          "awayWinProb": 0.5,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.5997,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 9.5,
+          "overProbability": 0.5043,
+          "underProbability": 0.4957,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "be3485a7acdabede1a849330fcc226dc",
+      "gamePk": 822954,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "New York Yankees",
+          "abbreviation": "NYY"
+        },
+        "home": {
+          "name": "Tampa Bay Rays",
+          "abbreviation": "TB"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 7.5,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.4266,
+        "home": 0.5734,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5734,
+          "awayWinProb": 0.4266,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.5972,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 7.5,
+          "overProbability": 0.5011,
+          "underProbability": 0.4989,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "4690bcfaacd780fc44c057a6a7a4cc46",
+      "gamePk": 823606,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Kansas City Royals",
+          "abbreviation": "KC"
+        },
+        "home": {
+          "name": "New York Mets",
+          "abbreviation": "NYM"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 9,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.4273,
+        "home": 0.5727,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5727,
+          "awayWinProb": 0.4273,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.595,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 9,
+          "overProbability": 0.5205,
+          "underProbability": 0.4795,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "9f1eb41cd2972a08e88069d6c5b4bb6c",
+      "gamePk": 824816,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Chicago Cubs",
+          "abbreviation": "CHC"
+        },
+        "home": {
+          "name": "Baltimore Orioles",
+          "abbreviation": "BAL"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 9.5,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.4687,
+        "home": 0.5313,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5313,
+          "awayWinProb": 0.4687,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.6339,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 9.5,
+          "overProbability": 0.5152,
+          "underProbability": 0.4848,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "a3b9b93cdd33f60538713d337711afe2",
+      "gamePk": 823683,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Cleveland Guardians",
+          "abbreviation": "CLE"
+        },
+        "home": {
+          "name": "Minnesota Twins",
+          "abbreviation": "MIN"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 8.5,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.5424,
+        "home": 0.4576,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.4576,
+          "awayWinProb": 0.5424,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.5727,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 8.5,
+          "overProbability": 0.5152,
+          "underProbability": 0.4848,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "2c1eb8ab560fe810d23f21a2acf7cbe6",
+      "gamePk": 824577,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Boston Red Sox",
+          "abbreviation": "BOS"
+        },
+        "home": {
+          "name": "Chicago White Sox",
+          "abbreviation": "CWS"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 9,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.47,
+        "home": 0.53,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.53,
+          "awayWinProb": 0.47,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.6377,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 9,
+          "overProbability": 0.487,
+          "underProbability": 0.513,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "673121d56b103f8d38738980fbffafef",
+      "gamePk": 824251,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Athletics",
+          "abbreviation": "ATH"
+        },
+        "home": {
+          "name": "Detroit Tigers",
+          "abbreviation": "DET"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 9,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.4489,
+        "home": 0.5511,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5511,
+          "awayWinProb": 0.4489,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.616,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 9,
+          "overProbability": 0.4902,
+          "underProbability": 0.5098,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "83cf12bed561626b784721179f647eb2",
+      "gamePk": 823846,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Seattle Mariners",
+          "abbreviation": "SEA"
+        },
+        "home": {
+          "name": "Miami Marlins",
+          "abbreviation": "MIA"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 8,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.5342,
+        "home": 0.4658,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.4658,
+          "awayWinProb": 0.5342,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.5897,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 8,
+          "overProbability": 0.4989,
+          "underProbability": 0.5011,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "6bfe03bb9d1e3ada87b6238cd7203d64",
+      "gamePk": 824494,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Philadelphia Phillies",
+          "abbreviation": "PHI"
+        },
+        "home": {
+          "name": "Cincinnati Reds",
+          "abbreviation": "CIN"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 9.5,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.5929,
+        "home": 0.4071,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.4071,
+          "awayWinProb": 0.5929,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.5152,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 9.5,
+          "overProbability": 0.488,
+          "underProbability": 0.512,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "cea3285cc6f53d314e7111cbd078141b",
+      "gamePk": 823034,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Milwaukee Brewers",
+          "abbreviation": "MIL"
+        },
+        "home": {
+          "name": "St. Louis Cardinals",
+          "abbreviation": "STL"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 8.5,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.5511,
+        "home": 0.4489,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.4489,
+          "awayWinProb": 0.5511,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.5727,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 8.5,
+          "overProbability": 0.4902,
+          "underProbability": 0.5098,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "c2c3eb02058f54f27b00aeb1e59224f9",
+      "gamePk": 822877,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Los Angeles Angels",
+          "abbreviation": "LAA"
+        },
+        "home": {
+          "name": "Texas Rangers",
+          "abbreviation": "TEX"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 7,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.4388,
+        "home": 0.5612,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5612,
+          "awayWinProb": 0.4388,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.6296,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 7,
+          "overProbability": 0.4989,
+          "underProbability": 0.5011,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "ff7fcfaa73e919c6a69c375313853a91",
+      "gamePk": 823277,
+      "date": "2026-07-09",
+      "asOf": "2026-07-09",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": true,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "de-vigged team-market lines (moneyline / total / run line)"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Arizona Diamondbacks",
+          "abbreviation": "AZ"
+        },
+        "home": {
+          "name": "San Diego Padres",
+          "abbreviation": "SD"
+        }
+      },
+      "projectedScore": {
+        "totalMean": 9,
+        "source": "market_implied"
+      },
+      "winProbability": {
+        "away": 0.4556,
+        "home": 0.5444,
+        "source": "market_implied"
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5444,
+          "awayWinProb": 0.4556,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.6206,
+          "source": "market_implied"
+        },
+        "total": {
+          "line": 9,
+          "overProbability": 0.4752,
+          "underProbability": 0.5248,
+          "source": "market_implied"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "market-implied win probability + run-line/total coverage available from de-vigged team lines",
+          "a 10,000-run PLAYER-PROP simulation exists separately — this is NOT a full-game score simulation"
+        ],
+        "missing": [
+          "projected away/home score + margin (needs a team-scoring model)",
+          "total-runs distribution",
+          "margin distribution",
+          "run / score-pair distributions",
+          "SIMULATED win probability (only market-implied today)"
+        ]
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      }
+    }
+  ],
+  "note": "INTERNAL readiness audit — NOT web-served, NOT a public simulation. Market-implied only; nothing here is labelled a simulation. Separate from the official 19-14 record."
+}
