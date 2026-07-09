@@ -75,13 +75,13 @@ import {
 import { buildLearningSignalRows } from "@/lib/learning-signals";
 import { buildRiskSectionDrilldown } from "@/lib/results-drilldown";
 import YesterdaySummary from "@/components/yesterday-summary";
-import BankBuilderResults from "@/components/bank-builder-results";
-import { getBankBuilderSettledSteps } from "@/lib/bank-builder-results";
+import TrustCenter from "@/components/results/trust-center";
+import { getTrustCenterModel } from "@/lib/results-trust-center";
 
 export const metadata = {
-  title: "Suggested parlay results · GameTime Picks",
+  title: "Results & Receipts · GameTime Picks",
   description:
-    "Every saved model slip is graded after games finish. Pending slips are excluded from hit rate.",
+    "The official paper-card record, open exposure, settlement status, and money-independent model-performance receipts — one public trust center.",
 };
 
 export default function ResultsPage() {
@@ -185,6 +185,23 @@ export default function ResultsPage() {
     // reads better for dense parlay data. Cards inherit
     // `--gtp-card-dark` for elevated charcoal.
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+      {/* Chunk 6B — Trust Center lead: official record, exposure, settlement
+         status, product cards, Bank Builder settled history, and the
+         money-INDEPENDENT MLB model-performance summary. Everything below the
+         divider is the deeper transparency + optimizer/projection audit,
+         retained in full so no trust surface is hidden. */}
+      <TrustCenter model={getTrustCenterModel()} />
+
+      <div className="mt-12 mb-5 flex items-center gap-3">
+        <h2
+          className="font-mono uppercase tracking-[0.16em] m-0 font-normal"
+          style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
+        >
+          Deeper transparency &amp; model audit
+        </h2>
+        <span className="flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
+      </div>
+
       {/* Latest settled day at a glance — official outcomes only (Bank Builder,
          World Cup finals + picks, suggested cards, MLB record). */}
       <div className="mb-5">
@@ -285,13 +302,12 @@ export default function ResultsPage() {
         }
       />
 
-      {/* PR `fix/today-results-flow-clarity` (2026-05-29) — when an
-         optimizer snapshot exists for a date strictly newer than the
-         newest settled date, surface a small chip that tells the
-         user today's picks live in Parlay Lab and links them there.
-         This is the inverse of /parlay-lab's Pregame chip; both
-         chips keep the user from confusing "active slate" with
-         "settled results". */}
+      {/* PR `fix/today-results-flow-clarity` (2026-05-29; label updated
+         Chunk 6B) — when an optimizer snapshot exists for a date strictly
+         newer than the newest settled date, surface a small chip that tells
+         the user today's picks live in Build-a-Pick and links them there
+         (canonical /picks route). Keeps the user from confusing an "active
+         slate" with "settled results". */}
       {(() => {
         const newestSettled = dateSections[0]?.date ?? null;
         const latest = getLatestOptimizerSnapshot();
@@ -321,10 +337,10 @@ export default function ResultsPage() {
               className="text-[12.5px] leading-snug"
               style={{ color: "var(--vault-text-mute)" }}
             >
-              {activeLabel} picks live in Parlay Lab until games finish.
+              {activeLabel} picks live in Build-a-Pick until games finish.
             </span>
             <Link
-              href="/parlay-lab/"
+              href="/picks/"
               className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full ml-auto"
               style={{
                 color: "var(--vault-gold-bright)",
@@ -479,9 +495,8 @@ export default function ResultsPage() {
         </div>
       )}
 
-      {/* Bank Builder settled steps (official) — transparency surface; losses shown even though the
-          public Bank Builder page hides stopped lanes. */}
-      <BankBuilderResults steps={getBankBuilderSettledSteps()} />
+      {/* Bank Builder settled steps now render inside the Trust Center lead
+          (section 5). Removed the duplicate render here. */}
 
       <div className="mt-8 flex flex-col gap-6">
         {dateSections.length === 0 ? (

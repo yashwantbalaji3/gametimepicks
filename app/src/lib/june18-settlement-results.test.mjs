@@ -63,7 +63,13 @@ test("Results: Bank Builder settled steps expose Lane A WON + Lane B WON with th
 });
 
 test("Results page renders the Bank Builder settled section", () => {
-  const src = fs.readFileSync("src/app/results/page.tsx", "utf8");
-  assert.match(src, /BankBuilderResults/, "section component imported + rendered");
-  assert.match(src, /getBankBuilderSettledSteps\(\)/, "fed by the settled-steps loader");
+  // Chunk 6B: the Bank Builder settled section now renders inside the Trust
+  // Center lead (components/results/trust-center.tsx), which /results renders
+  // as its first child. The section is still surfaced on /results — just one
+  // level down. Assert both links of that chain.
+  const page = fs.readFileSync("src/app/results/page.tsx", "utf8");
+  assert.match(page, /<TrustCenter\b/, "results page renders the Trust Center lead");
+  const tc = fs.readFileSync("src/components/results/trust-center.tsx", "utf8");
+  assert.match(tc, /BankBuilderResults/, "settled section component imported + rendered");
+  assert.match(tc, /getBankBuilderSettledSteps\(\)/, "fed by the settled-steps loader");
 });
