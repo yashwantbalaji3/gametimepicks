@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-07-06T18:00:00Z",
+  "generatedAt": "2026-07-09T06:53:57.556Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -16,20 +16,20 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-07-08",
+    "date": "2026-07-09",
     "activeBankroll": 19065.4,
     "openExposure": 0,
-    "worldCupGames": 3,
-    "mlbGames": 15,
-    "mlbSlate": "2026-07-08"
+    "worldCupGames": 1,
+    "mlbGames": 13,
+    "mlbSlate": "2026-07-09"
   },
   "productReadiness": {
     "bankBuilder": "awaiting approval",
     "moonshot": "awaiting approval",
     "top10": "live",
-    "worldCup": "live · 3 game(s)",
-    "mlb": "live · 15 game(s)",
-    "wcSpecials": "3 card(s)"
+    "worldCup": "live · 1 game(s)",
+    "mlb": "live · 13 game(s)",
+    "wcSpecials": "5 card(s)"
   },
   "products": {
     "bankBuilder": {
@@ -37,13 +37,16 @@
       "lanes": [
         {
           "lane": "A",
-          "status": "awaiting",
+          "status": "candidate",
           "step": 3,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": 220,
           "stake": 305.57,
-          "potentialReturn": 305.57,
-          "selections": []
+          "potentialReturn": 976.61,
+          "selections": [
+            "Over 2.5",
+            "Under 2.5"
+          ]
         }
       ]
     },
@@ -52,23 +55,33 @@
       "lanes": [
         {
           "lane": "A",
-          "status": "awaiting",
+          "status": "candidate",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 4,
+          "combinedOdds": 680,
           "stake": 25,
-          "potentialReturn": 25,
-          "selections": []
+          "potentialReturn": 195.01,
+          "selections": [
+            "France",
+            "Both teams to score: No",
+            "Spain",
+            "Both teams to score: Yes"
+          ]
         },
         {
           "lane": "B",
-          "status": "awaiting",
+          "status": "candidate",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 4,
+          "combinedOdds": 680,
           "stake": 25,
-          "potentialReturn": 25,
-          "selections": []
+          "potentialReturn": 195.01,
+          "selections": [
+            "France",
+            "Both teams to score: No",
+            "Spain",
+            "Both teams to score: Yes"
+          ]
         }
       ]
     }
@@ -110,9 +123,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-07-08",
-  "nextRefreshDate": "2026-07-09",
-  "nextAction": "No active Bank Builder lane for 2026-07-08 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-07-09",
+  "nextRefreshDate": "2026-07-10",
+  "nextAction": "No active Bank Builder lane for 2026-07-09 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
