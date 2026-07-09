@@ -13,3 +13,12 @@ export type {
 } from "./types";
 export { clamp01, dataQualityFactor, reliabilityWeight } from "./reliability";
 export { blendProbabilities, calibrate } from "./market-blend";
+export type { CalRow, ReliabilityBucket } from "./mlb-reliability";
+export {
+  sampleTier,
+  historicalReliability,
+  edgeBucket,
+  computeMarketReliability,
+  computeConfidenceReliability,
+  computeEdgeBucketReliability,
+} from "./mlb-reliability";

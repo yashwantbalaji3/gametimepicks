@@ -1,0 +1,153 @@
+{
+  "sport": "MLB",
+  "kind": "shadow-calibration",
+  "public": false,
+  "asOf": "2026-07-08",
+  "latestGradedDate": "2026-07-08",
+  "rowCount": 18227,
+  "decisiveCount": 17599,
+  "pushCount": 628,
+  "byMarket": [
+    {
+      "market": "batter_hits",
+      "n": 7313,
+      "wins": 3937,
+      "losses": 3376,
+      "hitRate": 0.5384,
+      "reliabilityWeight": 0.65
+    },
+    {
+      "market": "batter_hits_runs_rbis",
+      "n": 6031,
+      "wins": 3019,
+      "losses": 3012,
+      "hitRate": 0.5006,
+      "reliabilityWeight": 0.5
+    },
+    {
+      "market": "pitcher_strikeouts",
+      "n": 886,
+      "wins": 421,
+      "losses": 465,
+      "hitRate": 0.4752,
+      "reliabilityWeight": 0.4
+    },
+    {
+      "market": "batter_total_bases",
+      "n": 3369,
+      "wins": 1496,
+      "losses": 1873,
+      "hitRate": 0.444,
+      "reliabilityWeight": 0.28
+    }
+  ],
+  "byConfidence": [
+    {
+      "confidence": "High",
+      "n": 7894,
+      "wins": 3915,
+      "losses": 3979,
+      "hitRate": 0.4959,
+      "reliabilityWeight": 0.48
+    },
+    {
+      "confidence": "Medium",
+      "n": 2499,
+      "wins": 1271,
+      "losses": 1228,
+      "hitRate": 0.5086,
+      "reliabilityWeight": 0.53
+    },
+    {
+      "confidence": "Low",
+      "n": 7206,
+      "wins": 3687,
+      "losses": 3519,
+      "hitRate": 0.5117,
+      "reliabilityWeight": 0.55
+    }
+  ],
+  "byEdgeBucket": [
+    {
+      "edgeBucket": "<0",
+      "n": 3734,
+      "wins": 1935,
+      "losses": 1799,
+      "hitRate": 0.5182,
+      "reliabilityWeight": 0.57
+    },
+    {
+      "edgeBucket": "0-2.5",
+      "n": 2814,
+      "wins": 1461,
+      "losses": 1353,
+      "hitRate": 0.5192,
+      "reliabilityWeight": 0.58
+    },
+    {
+      "edgeBucket": "2.5-5",
+      "n": 2496,
+      "wins": 1267,
+      "losses": 1229,
+      "hitRate": 0.5076,
+      "reliabilityWeight": 0.53
+    },
+    {
+      "edgeBucket": "5-10",
+      "n": 4191,
+      "wins": 2144,
+      "losses": 2047,
+      "hitRate": 0.5116,
+      "reliabilityWeight": 0.55
+    },
+    {
+      "edgeBucket": "10-20",
+      "n": 3704,
+      "wins": 1776,
+      "losses": 1928,
+      "hitRate": 0.4795,
+      "reliabilityWeight": 0.42
+    },
+    {
+      "edgeBucket": "20+",
+      "n": 660,
+      "wins": 290,
+      "losses": 370,
+      "hitRate": 0.4394,
+      "reliabilityWeight": 0.26
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "promote",
+      "target": "market:batter_hits",
+      "reason": "53.8% on n=7313 — model adds signal"
+    },
+    {
+      "type": "monitor",
+      "target": "market:batter_hits_runs_rbis",
+      "reason": "50.1% — ≈ coin flip"
+    },
+    {
+      "type": "deemphasize",
+      "target": "market:pitcher_strikeouts",
+      "reason": "47.5% on n=886 — net-negative vs market"
+    },
+    {
+      "type": "deemphasize",
+      "target": "market:batter_total_bases",
+      "reason": "44.4% on n=3369 — net-negative vs market"
+    },
+    {
+      "type": "deemphasize",
+      "target": "edge>=20pp",
+      "reason": "biggest claimed edges hit 43.9% < small edges 51.9% — edge is anti-calibrated; discount it"
+    },
+    {
+      "type": "monitor",
+      "target": "confidence-tiers",
+      "reason": "\"High\" 49.6% ≤ \"Low\" 51.2% — tier label not a reliable up-weight (Simpson's effect across markets)"
+    }
+  ],
+  "note": "Internal/dev shadow calibration for founder review + future backtesting. NOT a public recommendation; NOT wired into any live pick. Separate from the official 19-14 product record."
+}
