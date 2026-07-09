@@ -17,7 +17,20 @@ const DATA = path.join(process.cwd(), "public", "data");
 const MONEY_MD5 = "affe6b21071f2b3be96bb2774eb347c3";
 const md5 = (p) => crypto.createHash("md5").update(fs.readFileSync(p)).digest("hex");
 const official = JSON.parse(fs.readFileSync(path.join(DATA, "world-cup", "settlement", "2026-07-07.official-input.json"), "utf8"));
-const specialsCards = () => collectForDate(DATA, "2026-07-07").filter((c) => c.product === "wc-specials");
+// July-7 WC-specials are pinned to a fixture so this join-repair REGRESSION test is decoupled from the
+// live single-snapshot world-cup-specials.json (which advances with the daily slate — regenerating it for
+// a newer date would otherwise strand these July-7 assertions). Same mapping the settlement collector
+// applies (parseSpecialLeg per leg, title→label, stakePreview→stake); the settlement LOGIC is unchanged.
+const specialsFixture = JSON.parse(
+  fs.readFileSync(path.join(process.cwd(), "src", "lib", "settlement", "fixtures", "wc-specials-2026-07-07.json"), "utf8"),
+);
+const specialsCards = () =>
+  (specialsFixture.cards ?? []).map((c) => ({
+    product: "wc-specials",
+    label: c.title ?? "WC Special",
+    stake: Number(c.stakePreview ?? c.stake ?? 0),
+    legs: (c.legs ?? []).map(parseSpecialLeg),
+  }));
 
 test("no leg resolves to matchId NaN — hash eventIds bind to the official fixture", () => {
   for (const c of specialsCards()) for (const leg of c.legs) {

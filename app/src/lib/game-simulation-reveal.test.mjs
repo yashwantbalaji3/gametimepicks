@@ -148,11 +148,16 @@ test("the reveal is animation-only: no Math.random, fetch, fs, or writes in the 
 
 // ── 5 · The generatedPicks the view exposes are exactly the artifact's picks ────────────────────
 test("the sim view's generatedPicks are the artifact's picks verbatim (read from disk)", () => {
-  // SLATE ADVANCED to 2026-07-08 — the ready MLB details are the July-8 games, so compare against the
-  // July-8 artifact that buildAllGameDetails() actually read from.
-  const artifact = JSON.parse(
-    fs.readFileSync(path.join(APP_ROOT, "public", "data", "mlb", "game-simulations", "2026-07-08.json"), "utf8"),
-  );
+  // Compare against the NEWEST game-simulations artifact — the same one buildAllGameDetails()/
+  // readyMlbDetails() read from — derived from disk so this stays correct as the daily slate advances
+  // (rather than pinning a single date that goes stale the next day).
+  const simDir = path.join(APP_ROOT, "public", "data", "mlb", "game-simulations");
+  const newest = fs
+    .readdirSync(simDir)
+    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort()
+    .pop();
+  const artifact = JSON.parse(fs.readFileSync(path.join(simDir, newest), "utf8"));
   const artByGameId = new Map(artifact.games.map((g) => [g.gameId, g]));
   const ready = readyMlbDetails().filter((d) => d.gameLabSimulation.generatedPicks.length > 0);
   assert.ok(ready.length >= 1);

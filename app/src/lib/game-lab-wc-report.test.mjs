@@ -25,7 +25,10 @@ async function buildAeView(opts) {
   const { loadWorldCupProjections } = await import("./world-cup/projections.ts");
   const { buildWcGameLabReport } = await import("./game-lab/wc-report.ts");
   const proj = loadWorldCupProjections();
-  const mid = proj?.matches?.find((m) => /Argentina/i.test(m.homeTeam ?? ""))?.matchId;
+  // This test verifies the report BUILDER, so it must stay resilient as the live WC slate advances.
+  // Prefer Argentina (the original July-7 fixture) when present, else the first match on the current
+  // slate — the assertions below are all match-agnostic (odds-only, valid signals, real edges).
+  const mid = (proj?.matches?.find((m) => /Argentina/i.test(m.homeTeam ?? "")) ?? proj?.matches?.[0])?.matchId;
   return { v: buildWcGameLabReport(proj, mid, opts), mid };
 }
 
