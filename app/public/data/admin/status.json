@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-07-09T06:53:57.556Z",
+  "generatedAt": "2026-07-10T14:21:25.418Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -16,79 +16,86 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-07-09",
+    "date": "2026-07-10",
     "activeBankroll": 19065.4,
-    "openExposure": 0,
+    "openExposure": 150,
     "worldCupGames": 1,
-    "mlbGames": 13,
-    "mlbSlate": "2026-07-09"
+    "mlbGames": 15,
+    "mlbSlate": "2026-07-10"
   },
   "productReadiness": {
-    "bankBuilder": "awaiting approval",
-    "moonshot": "awaiting approval",
+    "bankBuilder": "active · 1 lane(s)",
+    "moonshot": "active · 2 lane(s)",
     "top10": "live",
     "worldCup": "live · 1 game(s)",
-    "mlb": "live · 13 game(s)",
-    "wcSpecials": "5 card(s)"
+    "mlb": "live · 15 game(s)",
+    "wcSpecials": "4 card(s)"
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 0,
+      "activeLanes": 1,
       "lanes": [
         {
           "lane": "A",
-          "status": "candidate",
+          "status": "active",
           "step": 3,
-          "legs": 2,
-          "combinedOdds": 220,
+          "legs": 3,
+          "combinedOdds": 366,
           "stake": 305.57,
-          "potentialReturn": 976.61,
+          "potentialReturn": 1423.87,
           "selections": [
-            "Over 2.5",
-            "Under 2.5"
+            "Spain",
+            "Argentina",
+            "Over 2.5"
           ]
         }
       ]
     },
     "moonshot": {
-      "activeLanes": 0,
+      "activeLanes": 2,
       "lanes": [
         {
           "lane": "A",
-          "status": "candidate",
+          "status": "active",
           "step": 1,
-          "legs": 4,
-          "combinedOdds": 680,
+          "legs": 6,
+          "combinedOdds": 817,
           "stake": 25,
-          "potentialReturn": 195.01,
+          "potentialReturn": 229.27,
           "selections": [
-            "France",
-            "Both teams to score: No",
-            "Spain",
-            "Both teams to score: Yes"
+            "Spain (draw no bet)",
+            "Over 2.5",
+            "England (draw no bet)",
+            "Both teams to score: Yes",
+            "Argentina (draw no bet)",
+            "Under 2.5"
           ]
         },
         {
           "lane": "B",
-          "status": "candidate",
+          "status": "active",
           "step": 1,
-          "legs": 4,
-          "combinedOdds": 680,
+          "legs": 8,
+          "combinedOdds": 2569,
           "stake": 25,
-          "potentialReturn": 195.01,
+          "potentialReturn": 667.29,
           "selections": [
-            "France",
-            "Both teams to score: No",
-            "Spain",
-            "Both teams to score: Yes"
+            "Spain (draw no bet)",
+            "Over 2.5",
+            "Both teams to score: Yes",
+            "England (draw no bet)",
+            "Both teams to score: Yes",
+            "Argentina (draw no bet)",
+            "Under 2.5",
+            "Both teams to score: No"
           ]
         }
       ]
     }
   },
   "counts": {
-    "activeProducts": 2,
-    "pendingApprovals": 3
+    "activeProducts": 4,
+    "pendingApprovals": 0
   },
   "workflowHealth": {
     "lastRunAt": "2026-07-08T03:10:25.367Z",
@@ -112,7 +119,7 @@
     },
     {
       "step": "Bank Builder card decided (active or no-play)",
-      "done": false
+      "done": true
     },
     {
       "step": "No missing-data warnings",
@@ -123,9 +130,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-07-09",
-  "nextRefreshDate": "2026-07-10",
-  "nextAction": "No active Bank Builder lane for 2026-07-09 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-07-10",
+  "nextRefreshDate": "2026-07-11",
+  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-07-10's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
