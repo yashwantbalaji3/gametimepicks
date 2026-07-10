@@ -20,7 +20,34 @@ export interface ExpectedRunsResult {
   /** homeExp − awayExp. */
   margin: number;
   anchored: { total: boolean; winProb: boolean };
+  /** True once bounded independent adjustments have been applied (shadow mode). */
+  adjusted?: boolean;
   warnings: string[];
+}
+
+/** The three engine modes. The engine is ALWAYS market-anchored; a market-free model is not supported. */
+export type EngineMode =
+  | "market_anchored_simulation"
+  | "market_anchored_with_independent_adjustments"
+  | "independent_simulation_blocked";
+
+/** Optional INDEPENDENT (non-market) inputs. Every field is optional; the engine degrades to neutral. */
+export interface IndependentInputs {
+  /** Static park run factor (1.0 = neutral). */
+  parkRunFactor?: number;
+  parkConfidence?: string;
+  /** Team runs-per-game from STRICTLY-EARLIER committed finals (leakage-safe). */
+  awayRunRate?: number;
+  homeRunRate?: number;
+  runRateSampleGames?: { away: number; home: number };
+}
+
+/** Summary of the bounded adjustments actually applied (all zero when none). */
+export interface AdjustmentSummary {
+  applied: boolean;
+  parkTotalNudge: number;
+  runRateMarginNudge: number;
+  notes: string[];
 }
 
 export interface SimOptions {

@@ -9,8 +9,9 @@
 import type { FullGameSimulationArtifact } from "../schema";
 import { validateFullGameSimArtifact } from "../schema";
 import { buildExpectedRuns, MissingTotalError } from "./expected-runs";
+import { applyIndependentAdjustments, selectEngineMode } from "./adjustments";
 import { simulateMlbGame } from "./simulate-game";
-import type { MarketInput, SimOptions, SimulationResult } from "./types";
+import type { AdjustmentSummary, EngineMode, IndependentInputs, MarketInput, SimOptions, SimulationResult } from "./types";
 
 const SCHEMA_VERSION = "1.0.0";
 
@@ -20,16 +21,23 @@ export interface GameSimInput {
   date: string;
   teams: { away: { name: string; abbreviation?: string }; home: { name: string; abbreviation?: string } };
   market: MarketInput;
+  /** OPTIONAL independent inputs. When present + usable, the engine applies bounded shadow adjustments. */
+  independent?: IndependentInputs;
 }
 
 /** The artifact + engine metadata (metadata is extra to the schema; the validator ignores unknown fields). */
 export type FullGameSimArtifactWithModel = FullGameSimulationArtifact & {
   model: {
     source: "market_anchored_simulation";
+    /** Per-game engine mode (independent inputs never override the market anchor). */
+    mode: EngineMode;
     status: "experimental_internal" | "not_ready";
     modelVersion: string;
     seed?: number;
     vmr?: number;
+    /** Which independent inputs were present + a summary of the bounded adjustments actually applied. */
+    inputCoverage?: { parkFactor: boolean; teamRunRates: boolean; pitcherStrength: boolean };
+    adjustments?: AdjustmentSummary;
     warnings: string[];
     topScorelines?: SimulationResult["topScorelines"];
   };
@@ -55,15 +63,23 @@ export function buildFullGameSimArtifact(input: GameSimInput, opts: SimOptions):
         ...base(input, opts),
         marketCoverage: input.market.homeWinProb != null ? { moneyline: { homeWinProb: input.market.homeWinProb, awayWinProb: input.market.awayWinProb ?? (1 - input.market.homeWinProb), source: "market_implied" as const } } : {},
         dataQuality: { status: "blocked" as const, reasons: ["no market total — cannot anchor a full-game simulation"], missing: ["market total", "projected score", "run/margin distributions", "independent team-scoring model"] },
-        model: { source: "market_anchored_simulation" as const, status: "not_ready" as const, modelVersion: opts.modelVersion, warnings: ["no market total"] },
+        // No market total ⇒ can't anchor AND independent inputs can't stand alone ⇒ blocked.
+        model: { source: "market_anchored_simulation" as const, mode: "independent_simulation_blocked" as const, status: "not_ready" as const, modelVersion: opts.modelVersion, warnings: ["no market total"] },
       } as FullGameSimArtifactWithModel;
       return art;
     }
     throw e;
   }
 
-  const sim = simulateMlbGame(expected, input.market, opts);
+  // OPTIONAL, bounded, shadow-only independent adjustments (identity when no usable input is present).
+  const { expected: adjExpected, mode, adjustments } = applyIndependentAdjustments(expected, input.independent, input.market);
+  const sim = simulateMlbGame(adjExpected, input.market, opts);
   const mkt = input.market;
+  const inputCoverage = {
+    parkFactor: typeof input.independent?.parkRunFactor === "number",
+    teamRunRates: typeof input.independent?.awayRunRate === "number" && typeof input.independent?.homeRunRate === "number",
+    pitcherStrength: false, // neutral by design — no leakage-safe rating available
+  };
   const art: FullGameSimArtifactWithModel = {
     ...base(input, opts),
     runCount: sim.runCount,
@@ -86,13 +102,13 @@ export function buildFullGameSimArtifact(input: GameSimInput, opts: SimOptions):
       ],
       missing: ["independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)", "a fitted, market-independent predictive model"],
     },
-    model: { source: "market_anchored_simulation", status: "experimental_internal", modelVersion: opts.modelVersion, seed: sim.seed, vmr: sim.vmr, warnings: sim.warnings, topScorelines: sim.topScorelines },
+    model: { source: "market_anchored_simulation", mode, status: "experimental_internal", modelVersion: opts.modelVersion, seed: sim.seed, vmr: sim.vmr, inputCoverage, adjustments, warnings: sim.warnings, topScorelines: sim.topScorelines },
   };
 
   // Never emit a schema-invalid artifact.
   const v = validateFullGameSimArtifact(art);
   if (!v.valid) {
-    return { ...base(input, opts), marketCoverage: {}, dataQuality: { status: "blocked", reasons: ["internal: emitted artifact failed schema validation", ...v.errors], missing: [] }, model: { source: "market_anchored_simulation", status: "not_ready", modelVersion: opts.modelVersion, warnings: v.errors } } as FullGameSimArtifactWithModel;
+    return { ...base(input, opts), marketCoverage: {}, dataQuality: { status: "blocked", reasons: ["internal: emitted artifact failed schema validation", ...v.errors], missing: [] }, model: { source: "market_anchored_simulation", mode: "independent_simulation_blocked", status: "not_ready", modelVersion: opts.modelVersion, warnings: v.errors } } as FullGameSimArtifactWithModel;
   }
   return art;
 }

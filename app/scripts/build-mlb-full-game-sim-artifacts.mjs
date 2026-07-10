@@ -67,6 +67,15 @@ function main() {
     source: "market_anchored_simulation", status: "experimental_internal",
     runCount: DEFAULT_SIM_OPTIONS.runCount, modelVersion: DEFAULT_SIM_OPTIONS.modelVersion, seed: DEFAULT_SIM_OPTIONS.seed, vmr: DEFAULT_SIM_OPTIONS.vmr,
     officialMoneyRecordAffected: false, activeProductCard: false,
+    // Default artifact is PURE market-anchored (no independent adjustments — those are shadow-only in the
+    // rolling backtest). Each game carries its own model.mode.
+    modelMode: "market_anchored_simulation",
+    rollout: {
+      publicRolloutVerdict: "blocked",
+      productCardEligible: false,
+      backtestEligible: true,
+      reason: "MARKET-ANCHORED with insufficient independent inputs (park factors approximate; pitcher strength neutral). Does not beat the market. See data/internal/mlb/full-game-sim-backtests/rolling-latest.json.",
+    },
     summary: { games: artifacts.length, partial, blocked },
     warning: "EXPERIMENTAL INTERNAL market-anchored simulation. Win prob + total match the market by construction; only the distributions are sampled. NOT web-served, NOT wired to the public page, NOT a public claim of a true full-game simulation. Separate from the official 19-14 record.",
     games: artifacts,

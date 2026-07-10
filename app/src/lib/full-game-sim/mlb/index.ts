@@ -7,8 +7,9 @@
 export { mulberry32, sampleTeamRuns, sampleGamma, samplePoisson, sampleNormal, invNorm } from "./rng";
 export { buildExpectedRuns, MissingTotalError } from "./expected-runs";
 export { simulateMlbGame } from "./simulate-game";
+export { applyIndependentAdjustments, selectEngineMode, ADJUSTMENT_BOUNDS } from "./adjustments";
 export { buildFullGameSimArtifact } from "./artifact-builder";
 export type { GameSimInput, FullGameSimArtifactWithModel } from "./artifact-builder";
-export type { MarketInput, ExpectedRunsResult, SimOptions, SimulationResult, DistBucket } from "./types";
+export type { MarketInput, ExpectedRunsResult, SimOptions, SimulationResult, DistBucket, IndependentInputs, EngineMode, AdjustmentSummary } from "./types";
 
 export const DEFAULT_SIM_OPTIONS = { runCount: 10000, seed: 1234567, vmr: 1.35, modelVersion: "mlb-fgs-2026.07-market-anchored-v1" } as const;
