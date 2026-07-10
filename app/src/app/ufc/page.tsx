@@ -82,7 +82,9 @@ export default function UfcPage() {
   // STALE GATE: once the latest event is officially settled (status "final"), the fight card / projections
   // are last event's — not an active slate. We stop showing them as active and point to Results until the
   // next card's odds + projections publish. Same signal the active-sports loaders use on /today + /games.
-  const ufcSettled = settlement?.status === "final";
+  // Stale/settled ONLY when the settled event IS the current card. A PAST card being final (e.g. last
+  // month's event) must not hide a freshly-ingested UPCOMING card (UFC 329) whose odds just published.
+  const ufcSettled = settlement?.status === "final" && (settlement.event ?? "") === (v1Proj?.eventName ?? ops?.nextCard?.eventName ?? "");
 
   const showV1Proj = Boolean(v1Proj?.moneylineV1Ready && v1Proj.projections?.length);
   const v1Validated = Boolean(v1Proj?.moneylineValidated);
