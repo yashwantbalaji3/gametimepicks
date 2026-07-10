@@ -1,0 +1,75 @@
+{
+  "sport": "MLB",
+  "asOf": "2026-07-09",
+  "public": false,
+  "internal": true,
+  "kind": "full-game-sim-rolling-backtest",
+  "officialMoneyRecordAffected": false,
+  "exposureCreated": 0,
+  "activationStatus": "internal_only",
+  "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+  "seed": 1234567,
+  "vmr": 1.35,
+  "engineModes": [
+    "market_anchored_with_independent_adjustments"
+  ],
+  "leakageNote": "No learned parameters. Team run rates use ONLY committed linescore dates STRICTLY EARLIER than the graded date; park factors are static; pitcher strength is neutral; the final score enters only the evaluation phase. Any future learned parameter must be fit from strictly-earlier dates only.",
+  "inputsUsed": {
+    "parkFactors": "static (approximate, bounded ±3%)",
+    "teamRunRates": "committed finals strictly-earlier (bounded ±0.3 run margin)",
+    "pitcherStrength": "neutral (0)"
+  },
+  "sampleWarning": "INSUFFICIENT SAMPLE (10 games across 1 date(s); need ≥50 games / ≥5 dates). Committed team-market lines exist for one date only; run ingest-mlb-team-market-lines-daily.mjs each slate to grow it.",
+  "stability": "SNAPSHOT — the graded date(s) may be partially live (finals accrue through the evening), so the game count can move between runs. The VERDICT is decision-invariant. Internal-only; regenerate by re-running the harness.",
+  "perDate": [
+    {
+      "date": "2026-07-09",
+      "graded": 10
+    }
+  ],
+  "metrics": {
+    "dates": 1,
+    "gamesGraded": 10,
+    "skipped": 0,
+    "moneyline": {
+      "market": {
+        "brier": 0.2325,
+        "accuracy": 0.6
+      },
+      "sim": {
+        "brier": 0.2325,
+        "accuracy": 0.6
+      },
+      "shadowAdjusted": {
+        "brier": 0.2316,
+        "accuracy": 0.7
+      }
+    },
+    "projectedTotalMAE": {
+      "marketLine": 4.7,
+      "sim": 4.691,
+      "shadowAdjusted": 4.799
+    },
+    "overUnder": {
+      "n": 10,
+      "simBrier": 0.253,
+      "shadowAdjustedBrier": 0.2689,
+      "simAccuracy": 0.5
+    },
+    "runLine": {
+      "n": 10,
+      "simCoverAccuracy": 0.5
+    },
+    "winProbCalibration": [
+      {
+        "range": "0.4-0.6",
+        "n": 10,
+        "predicted": 0.5027,
+        "realized": 0.4
+      }
+    ]
+  },
+  "skipped": [],
+  "verdict": "insufficient_sample",
+  "note": "The simulation is MARKET-ANCHORED — its moneyline/total metrics track the market baseline by construction. The shadow-adjusted variant applies bounded park/run-rate nudges (evaluated here, never in a product). This confirms the mechanics; it does not prove predictive value. NOT public, NOT product, NOT money."
+}
