@@ -22,6 +22,10 @@ import { fileURLToPath } from "node:url";
 import { settleMlbMoneyline, settleMlbRunLine, settleMlbTotal } from "../src/lib/mlb/product-settlement/mlb-markets.ts";
 import { parseSchedulePayload } from "../src/lib/mlb/product-settlement/statsapi-linescore.ts";
 import { resolveCardResult, validatePaperSettlementEntry } from "../src/lib/product-workflow/schema.ts";
+import { matchSettledRow, settlePlayerPropFromRow, matchWcFinal, settleSoccerLeg } from "../src/lib/product-workflow/leg-settlement.ts";
+
+const MLB_PLAYER_PROPS = new Set(["batter_hits", "batter_total_bases", "batter_hits_runs_rbis", "pitcher_strikeouts"]);
+const SOCCER_MARKETS = new Set(["moneyline_90", "match_result", "double_chance", "draw_no_bet", "match_total_goals", "btts"]);
 
 const APP = path.join(process.cwd(), process.cwd().endsWith("app") ? "" : "app");
 const REPO = path.join(APP, "..");
@@ -86,11 +90,45 @@ export function cardPnlUnits(card, legResults, cardResult) {
   return 0; // push/void/pending
 }
 
+/** Committed MLB player-prop actuals for a date (settled_leans.jsonl). Empty for an uncommitted date. */
+function settledLeansFor(date) {
+  const p = path.join(APP, "public", "data", "mlb", "results", "settled_leans.jsonl");
+  if (!fs.existsSync(p)) return [];
+  const rows = [];
+  for (const line of fs.readFileSync(p, "utf8").trim().split("\n")) {
+    try { const r = JSON.parse(line); if (r.date === date) rows.push(r); } catch { /* skip */ }
+  }
+  return rows;
+}
+/** Committed World-Cup FT finals for a date. Empty for an uncommitted date. */
+function wcFinalsFor(date) {
+  const p = path.join(APP, "public", "data", "world-cup", "settlement", `${date}.json`);
+  if (!fs.existsSync(p)) return [];
+  return (JSON.parse(fs.readFileSync(p, "utf8")).finals || []).filter((f) => typeof f.matchId === "number" || f.home || f.match);
+}
+
 async function settleCard(card, md5Before) {
   const date = card.slateDate;
   const ids = gameIdToPk(date);
   const finals = await finalsByPk(date);
+  const settledRows = settledLeansFor(date);
+  const wcFinals = wcFinalsFor(date);
   const legResults = card.legs.map((leg) => {
+    const base = { legId: leg.legId };
+    // MLB player props → committed settled_leans (deterministic join; ambiguous/absent ⇒ pending).
+    if (leg.sport === "MLB" && MLB_PLAYER_PROPS.has(leg.marketKey)) {
+      const pk = leg.gamePk ?? ids.get(leg.gameId);
+      const m = matchSettledRow({ ...leg, gamePk: pk }, settledRows);
+      if (!m.row) return { ...base, status: "pending", reason: m.reason };
+      const o = settlePlayerPropFromRow(leg.side, leg.line, m.row);
+      return { ...base, status: o.status, actual: o.actual, line: o.line, reason: o.reason };
+    }
+    // Soccer → committed WC FT finals (deterministic; uncommitted ⇒ pending).
+    if (leg.sport === "Soccer" && SOCCER_MARKETS.has(leg.marketKey)) {
+      const o = settleSoccerLeg(leg.marketKey, leg.side, leg.line, matchWcFinal(leg.event ?? leg.eventName ?? "", wcFinals));
+      return { ...base, status: o.status, actual: o.actual, line: o.line, reason: o.reason };
+    }
+    // MLB team markets (+ everything else ⇒ pending) via the existing rules.
     const pk = leg.gamePk ?? ids.get(leg.gameId);
     return settleLeg(leg, pk != null ? finals.get(pk) : undefined);
   });
