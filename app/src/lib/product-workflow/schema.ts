@@ -261,9 +261,11 @@ export function validatePaperSettlementEntry(a: Partial<PaperSettlementEntry> | 
     for (const [i, r] of a.legResults.entries()) {
       if (!["win", "loss", "push", "pending", "unavailable"].includes(r.status)) errors.push(`legResults[${i}].status invalid`);
     }
-    // A settled/won/lost card cannot still contain pending legs (that is a partial settlement).
+    // A WON card cannot have a pending leg (every leg must win). A LOST card CAN — one loss decides the
+    // card even while other legs are still pending. So `settled` + a pending leg is valid ONLY when lost.
     const hasPending = a.legResults.some((r) => r.status === "pending");
-    if (hasPending && (a.cardResult === "won" || a.status === "settled")) errors.push("a card with a pending leg cannot be settled/won");
+    if (hasPending && a.cardResult === "won") errors.push("a WON card cannot have a pending leg (every leg must win)");
+    if (hasPending && a.status === "settled" && a.cardResult !== "lost") errors.push("a settled card with a pending leg must be lost (only a loss decides a card that still has pending legs)");
   }
   return { valid: errors.length === 0, errors, warnings };
 }

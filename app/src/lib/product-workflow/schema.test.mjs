@@ -75,9 +75,12 @@ test("5 · unsupported / odds-less legs are rejected", () => {
   assert.equal(validatePaperProductCard({ ...card(), legs: [noOdds] }).valid, false, "missing odds");
 });
 
-test("6 · a card with a pending leg cannot be settled/won", () => {
-  const s = { ...settlement(), legResults: [{ legId: "l1", status: "win", reason: "" }, { legId: "l2", status: "pending", reason: "not final" }], cardResult: "won", status: "settled" };
-  assert.equal(validatePaperSettlementEntry(s).valid, false);
+test("6 · a WON card can't have a pending leg, but a LOST card can (a loss decides it)", () => {
+  const won = { ...settlement(), legResults: [{ legId: "l1", status: "win", reason: "" }, { legId: "l2", status: "pending", reason: "not final" }], cardResult: "won", status: "settled" };
+  assert.equal(validatePaperSettlementEntry(won).valid, false, "won + pending is invalid");
+  // A loss decides the card even while another leg is pending — this is a valid settled/lost entry.
+  const lost = { ...settlement(), legResults: [{ legId: "l1", status: "loss", reason: "" }, { legId: "l2", status: "pending", reason: "not final" }], cardResult: "lost", status: "settled", paperPnlUnits: -1 };
+  assert.equal(validatePaperSettlementEntry(lost).valid, true, "lost + pending is valid (loss decides)");
 });
 
 test("7 · only whitelisted status transitions are allowed", () => {

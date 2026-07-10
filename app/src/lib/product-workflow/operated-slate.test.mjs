@@ -51,10 +51,11 @@ test("3 · every committed settlement is valid; a PENDING leg is never a loss; n
     const v = validatePaperSettlementEntry(s);
     assert.equal(v.valid, true, v.errors.join("; "));
     assert.equal(s.officialMoneyRecordAffected, false);
-    // If any leg is pending, the card is not settled as won/lost falsely.
+    // A pending leg keeps the card pending/partial — UNLESS a loss already decided it (settled + lost).
+    // A pending leg is never itself scored as a loss, and a WON card can never carry a pending leg.
     const pending = s.legResults.filter((r) => r.status === "pending");
     if (pending.length) {
-      assert.ok(["pending", "partially_settled"].includes(s.status), "pending leg ⇒ card pending/partial");
+      assert.ok(["pending", "partially_settled"].includes(s.status) || (s.status === "settled" && s.cardResult === "lost"), "pending leg ⇒ pending/partial, or settled-lost");
       assert.notEqual(s.cardResult, "won");
       for (const r of pending) assert.ok(typeof r.reason === "string" && r.reason.length > 0, "pending legs carry a reason (never a silent loss)");
     }
