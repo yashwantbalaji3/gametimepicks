@@ -1,0 +1,115 @@
+{
+  "kind": "daily-model-improvement",
+  "date": "2026-07-09",
+  "asOf": "2026-07-09",
+  "public": false,
+  "internal": true,
+  "officialMoneyRecordAffected": false,
+  "safeToAutoApply": false,
+  "requiresFounderApproval": true,
+  "sampleMeaningful": false,
+  "inputs": {
+    "paperTrackRecord": {
+      "settledCards": 1,
+      "cardRecord": "0-1",
+      "paperPnlUnits": -1,
+      "meaningful": false
+    },
+    "rawModelPerformance": {
+      "totalSettled": 18227,
+      "hitRate": 0.5042,
+      "smallSample": false,
+      "note": "raw model-performance ledger — research only, NOT product performance, NOT the official 19-14 record"
+    },
+    "paperByMarket": 5
+  },
+  "marketReliabilityReference": {
+    "batter_hits": {
+      "hitRate": 0.538,
+      "sample": 7313,
+      "verdict": "adds signal"
+    },
+    "batter_hits_runs_rbis": {
+      "hitRate": 0.501,
+      "sample": 3200,
+      "verdict": "coin-flip"
+    },
+    "pitcher_strikeouts": {
+      "hitRate": 0.475,
+      "sample": 2100,
+      "verdict": "net-negative"
+    },
+    "batter_total_bases": {
+      "hitRate": 0.444,
+      "sample": 3369,
+      "verdict": "avoid"
+    }
+  },
+  "marketsToDemote": [
+    {
+      "market": "batter_hits_runs_rbis",
+      "hitRate": 0.501,
+      "sample": 3200,
+      "reason": "settled hit rate 50.1% < 52% floor (coin-flip)"
+    },
+    {
+      "market": "pitcher_strikeouts",
+      "hitRate": 0.475,
+      "sample": 2100,
+      "reason": "settled hit rate 47.5% < 52% floor (net-negative)"
+    },
+    {
+      "market": "batter_total_bases",
+      "hitRate": 0.444,
+      "sample": 3369,
+      "reason": "settled hit rate 44.4% < 52% floor (avoid)"
+    }
+  ],
+  "marketsToPromote": [
+    {
+      "market": "batter_hits",
+      "hitRate": 0.538,
+      "sample": 7313,
+      "reason": "settled hit rate 53.8% clears the floor (adds signal)"
+    }
+  ],
+  "recommendedNoPlayRules": [
+    {
+      "rule": "discount-large-edge",
+      "detail": "Treat claimed edge ≥20pp as a caution, not a boost — it has historically UNDER-performed (anti-calibrated). Prefer 5–15pp edges from reliable markets.",
+      "basis": "settled edge calibration"
+    },
+    {
+      "rule": "no-play-below-reliability-floor",
+      "detail": "Exclude markets with settled hit rate < 52% (e.g. batter_total_bases, pitcher_strikeouts) from Bank Builder.",
+      "basis": "per-market reliability"
+    },
+    {
+      "rule": "thin-paper-sample-conservatism",
+      "detail": "While the paper sample is not meaningful (<10 settled cards), prefer no-play over a marginal card and never claim a product edge.",
+      "basis": "paper sample size"
+    }
+  ],
+  "selectorChangesRecommended": [
+    {
+      "product": "bank_builder",
+      "change": "Require every leg's market to clear the reliability floor + cap at 2–3 distinct-game legs.",
+      "risk": "low",
+      "requiresApproval": true
+    },
+    {
+      "product": "moonshot",
+      "change": "Never add a weak-market leg just to reach the payout floor; require distinct games + keep paper-only until a real sample.",
+      "risk": "low",
+      "requiresApproval": true
+    },
+    {
+      "product": "confidence-tier",
+      "change": "Do NOT up-weight a pick by confidence tier until a re-derived tier out-hits monotonically on a holdout (tiers are currently anti-predictive).",
+      "risk": "medium",
+      "requiresApproval": true
+    }
+  ],
+  "verdict": "NOT ENOUGH PAPER SAMPLE to change anything. Recommendations are reliability-driven + founder-gated; keep collecting settled paper cards.",
+  "note": "INTERNAL research loop. No formula is auto-applied; every recommendation needs founder approval. Never writes money, never public. Raw model hit rate ≠ product performance ≠ the official 19-14 record."
+}

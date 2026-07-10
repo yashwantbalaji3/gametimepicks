@@ -1,0 +1,299 @@
+{
+  "kind": "market-coverage-matrix",
+  "public": false,
+  "internal": true,
+  "officialMoneyRecordAffected": false,
+  "asOf": "2026-07-10",
+  "legend": {
+    "available": "pick + paper settlement + product all work",
+    "settlement_supported_data_needed": "settlement wired, awaiting slate data",
+    "data_available_settlement_needed": "can show a pick, can't settle a paper card yet",
+    "provider_needed": "no data provider wired — nothing generated",
+    "coming_soon": "planned; out of season or future scope"
+  },
+  "counts": {
+    "total": 19,
+    "byStatus": {
+      "available": 9,
+      "settlement_supported_data_needed": 3,
+      "data_available_settlement_needed": 2,
+      "provider_needed": 3,
+      "coming_soon": 2
+    }
+  },
+  "rows": [
+    {
+      "sport": "MLB",
+      "market": "moneyline",
+      "status": "available",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": true,
+      "dataSource": "Odds API (committed team markets)",
+      "settlementSource": "statsapi",
+      "missing": [],
+      "unlockPlan": "live",
+      "userCopy": "Model + market read on who wins."
+    },
+    {
+      "sport": "MLB",
+      "market": "run_line",
+      "status": "available",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": true,
+      "dataSource": "Odds API",
+      "settlementSource": "statsapi",
+      "missing": [],
+      "unlockPlan": "live",
+      "userCopy": "The −1.5 / +1.5 spread."
+    },
+    {
+      "sport": "MLB",
+      "market": "total",
+      "status": "available",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": true,
+      "dataSource": "Odds API",
+      "settlementSource": "statsapi",
+      "missing": [],
+      "unlockPlan": "live",
+      "userCopy": "Over/under on combined runs."
+    },
+    {
+      "sport": "MLB",
+      "market": "batter_hits",
+      "status": "available",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": true,
+      "dataSource": "board projections + settled_leans",
+      "settlementSource": "statsapi",
+      "missing": [],
+      "unlockPlan": "live (most reliable prop)",
+      "userCopy": "Hits over/under — our most reliable prop market."
+    },
+    {
+      "sport": "MLB",
+      "market": "batter_total_bases",
+      "status": "settlement_supported_data_needed",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": false,
+      "dataSource": "board + settled_leans",
+      "settlementSource": "statsapi",
+      "missing": [
+        "reliability (settles ~44%)"
+      ],
+      "unlockPlan": "demoted until it clears the reliability floor",
+      "userCopy": "Total bases — shown, but excluded from products (weak history)."
+    },
+    {
+      "sport": "MLB",
+      "market": "pitcher_strikeouts",
+      "status": "settlement_supported_data_needed",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": false,
+      "dataSource": "board + settled_leans",
+      "settlementSource": "statsapi",
+      "missing": [
+        "reliability (~47.5%)"
+      ],
+      "unlockPlan": "demoted",
+      "userCopy": "Strikeouts — informational; net-negative history."
+    },
+    {
+      "sport": "MLB",
+      "market": "team_totals",
+      "status": "settlement_supported_data_needed",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": false,
+      "dataSource": "Odds API",
+      "settlementSource": "statsapi",
+      "missing": [
+        "a team+over/under+line binding on the card leg"
+      ],
+      "unlockPlan": "wire the leg schema (team, side, line)",
+      "userCopy": "Per-team runs — settlement not fully wired yet."
+    },
+    {
+      "sport": "Soccer",
+      "market": "moneyline_90",
+      "status": "available",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": true,
+      "dataSource": "Odds API + API-Football",
+      "settlementSource": "api-football",
+      "missing": [],
+      "unlockPlan": "live",
+      "userCopy": "90-minute match result."
+    },
+    {
+      "sport": "Soccer",
+      "market": "double_chance",
+      "status": "available",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": true,
+      "dataSource": "Odds API + API-Football",
+      "settlementSource": "api-football",
+      "missing": [],
+      "unlockPlan": "live",
+      "userCopy": "Two of the three results."
+    },
+    {
+      "sport": "Soccer",
+      "market": "draw_no_bet",
+      "status": "available",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": true,
+      "dataSource": "Odds API + API-Football",
+      "settlementSource": "api-football",
+      "missing": [],
+      "unlockPlan": "live",
+      "userCopy": "Pick a side; a draw is a push."
+    },
+    {
+      "sport": "Soccer",
+      "market": "match_total_goals",
+      "status": "available",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": true,
+      "dataSource": "Odds API + API-Football",
+      "settlementSource": "api-football",
+      "missing": [],
+      "unlockPlan": "live",
+      "userCopy": "Over/under on total goals."
+    },
+    {
+      "sport": "Soccer",
+      "market": "btts",
+      "status": "available",
+      "canGeneratePick": true,
+      "canSettlePaper": true,
+      "canUseInProduct": true,
+      "dataSource": "Odds API + API-Football",
+      "settlementSource": "api-football",
+      "missing": [],
+      "unlockPlan": "live",
+      "userCopy": "Both teams to score."
+    },
+    {
+      "sport": "Soccer",
+      "market": "asian_handicap",
+      "status": "data_available_settlement_needed",
+      "canGeneratePick": true,
+      "canSettlePaper": false,
+      "canUseInProduct": false,
+      "dataSource": "Odds API (expanded)",
+      "settlementSource": "none",
+      "missing": [
+        "a tested AH quarter-line settler"
+      ],
+      "unlockPlan": "build + test the AH settler",
+      "userCopy": "Asian handicap — shown, not yet settlement-wired."
+    },
+    {
+      "sport": "Soccer",
+      "market": "team_totals",
+      "status": "data_available_settlement_needed",
+      "canGeneratePick": true,
+      "canSettlePaper": false,
+      "canUseInProduct": false,
+      "dataSource": "Odds API (expanded)",
+      "settlementSource": "none",
+      "missing": [
+        "per-team goal line settlement"
+      ],
+      "unlockPlan": "wire per-team settlement",
+      "userCopy": "Team totals — informational only."
+    },
+    {
+      "sport": "UFC",
+      "market": "moneyline",
+      "status": "provider_needed",
+      "canGeneratePick": false,
+      "canSettlePaper": false,
+      "canUseInProduct": false,
+      "dataSource": "none committed",
+      "settlementSource": "none",
+      "missing": [
+        "events",
+        "fight card",
+        "odds provider"
+      ],
+      "unlockPlan": "add a UFC odds + results provider (see UFC readiness)",
+      "userCopy": "UFC is in readiness — no fabricated fights."
+    },
+    {
+      "sport": "UFC",
+      "market": "method_of_victory",
+      "status": "provider_needed",
+      "canGeneratePick": false,
+      "canSettlePaper": false,
+      "canUseInProduct": false,
+      "dataSource": "none",
+      "settlementSource": "none",
+      "missing": [
+        "provider"
+      ],
+      "unlockPlan": "provider + method model",
+      "userCopy": "KO/sub/decision — coming with a provider."
+    },
+    {
+      "sport": "UFC",
+      "market": "round_totals",
+      "status": "provider_needed",
+      "canGeneratePick": false,
+      "canSettlePaper": false,
+      "canUseInProduct": false,
+      "dataSource": "none",
+      "settlementSource": "none",
+      "missing": [
+        "provider"
+      ],
+      "unlockPlan": "provider",
+      "userCopy": "Round over/under — coming."
+    },
+    {
+      "sport": "NBA",
+      "market": "player_props",
+      "status": "coming_soon",
+      "canGeneratePick": false,
+      "canSettlePaper": false,
+      "canUseInProduct": false,
+      "dataSource": "board (off-season)",
+      "settlementSource": "none",
+      "missing": [
+        "active season",
+        "reliability"
+      ],
+      "unlockPlan": "resume in-season + calibrate",
+      "userCopy": "NBA returns in-season."
+    },
+    {
+      "sport": "NFL",
+      "market": "any",
+      "status": "coming_soon",
+      "canGeneratePick": false,
+      "canSettlePaper": false,
+      "canUseInProduct": false,
+      "dataSource": "none",
+      "settlementSource": "none",
+      "missing": [
+        "season",
+        "provider"
+      ],
+      "unlockPlan": "season + provider",
+      "userCopy": "NFL is future scope."
+    }
+  ],
+  "guarantee": "A market that cannot generate a pick (canGeneratePick:false) NEVER produces a fabricated pick anywhere on the site. Unavailable = shown as unavailable.",
+  "note": "INTERNAL readiness map. MLB/Soccer settleability is derived from the live settlement wiring (candidate-leg). UFC/NBA/NFL are honestly not live. Not web-served."
+}
