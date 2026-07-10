@@ -198,7 +198,7 @@ export default function LearnPage() {
       <section className="rounded-[10px] px-4 py-4" style={{ background: "rgba(26, 16, 11,0.45)", border: "1px solid var(--vault-border)" }}>
         <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>Paper-only</span>
         <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.55 }}>
-          GameTime Picks is an educational analytics project. Nothing here is betting advice or a recommendation to wager. Every &ldquo;stake&rdquo; and &ldquo;payout&rdquo; is hypothetical paper, tracked honestly — wins and losses both. For the full model write-up see <Link href="/methodology" style={{ color: "var(--vault-gold-bright)" }}>Methodology</Link>; for our stance see <Link href="/responsible-use" style={{ color: "var(--vault-gold-bright)" }}>Responsible use</Link>.
+          GameTime Picks is an educational analytics project. Nothing here is betting advice or a recommendation to wager. Every &ldquo;stake&rdquo; and &ldquo;payout&rdquo; is hypothetical paper, tracked honestly — wins and losses both. For every term (model %, market %, edge, EV, confidence, no-play, pending) see the <Link href="/market-guide" style={{ color: "var(--vault-gold-bright)" }}>Market Guide</Link>; for the full model write-up see <Link href="/methodology" style={{ color: "var(--vault-gold-bright)" }}>Methodology</Link>; for our stance see <Link href="/responsible-use" style={{ color: "var(--vault-gold-bright)" }}>Responsible use</Link>.
         </p>
       </section>
     </div>
