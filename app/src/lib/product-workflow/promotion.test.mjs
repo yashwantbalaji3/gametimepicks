@@ -38,6 +38,9 @@ test("2 · a fully-approved run writes a schema-valid PAPER card to an internal 
   const out = path.join(os.tmpdir(), `gtp-promo-${md5Before.slice(0, 8)}`);
   fs.rmSync(out, { recursive: true, force: true });
   const args = ["--product", "bank_builder", "--date", "2026-07-09", "--approve-founder-review", "--approved-by", "Test", "--write", "--out-root", out];
+  // Snapshot the REAL repo's paper cards before the tmp run (the operated slate may have committed some).
+  const repoCardsDir = path.join(repo, "data/internal/product-cards");
+  const repoBefore = fs.existsSync(repoCardsDir) ? walk(repoCardsDir).length : 0;
 
   const r1 = run(args);
   assert.equal(r1.status, 0, `promotion failed: ${r1.stderr}`);
@@ -55,8 +58,9 @@ test("2 · a fully-approved run writes a schema-valid PAPER card to an internal 
   assert.match(r2.stdout, /SKIPPED/, "rerun is idempotent");
   assert.equal(walk(path.join(out, "data/internal/product-cards/paper")).length, 1, "no duplicate card");
 
-  // Real repo never written; money unchanged.
-  assert.ok(!fs.existsSync(path.join(repo, "data/internal/product-cards")), "real repo product-cards not created by the tmp run");
+  // The tmp run is isolated: it adds NO card to the real repo; money unchanged.
+  const repoAfter = fs.existsSync(repoCardsDir) ? walk(repoCardsDir).length : 0;
+  assert.equal(repoAfter, repoBefore, "the tmp --out-root run wrote nothing to the real repo");
   assert.equal(moneyMd5(), md5Before, "official money md5 unchanged");
   fs.rmSync(out, { recursive: true, force: true });
 });
