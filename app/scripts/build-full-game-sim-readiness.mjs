@@ -82,6 +82,8 @@ function main() {
     const art = buildArtifact(date, gameId, info);
     const v = validateFullGameSimArtifact(art);
     if (!v.valid) { invalid.push({ gameId, errors: v.errors }); continue; } // never emit a schema-invalid artifact
+    // A market-anchored internal simulation can run whenever a market total exists (partial); otherwise market-implied only.
+    art.readinessLevel = art.dataQuality.status === "partial" ? "market_anchored_simulation_internal" : "market_implied_only";
     artifacts.push(art);
   }
   const summary = { ready: 0, partial: artifacts.filter((a) => a.dataQuality.status === "partial").length, blocked: artifacts.filter((a) => a.dataQuality.status === "blocked").length };
@@ -90,10 +92,19 @@ function main() {
     sport: "MLB", date, asOf: date, public: false, internal: true,
     kind: "full-game-sim-readiness",
     officialMoneyRecordAffected: false, activeProductCard: false,
-    verdict: "NO full-game score simulation exists. Every game is at best PARTIAL (market-implied win prob + run-line/total coverage); projected score + all distributions are BLOCKED pending a dedicated team-scoring model / alternate-line ladder ingest.",
+    // Phase-7 readiness taxonomy — where the full-game sim stands today.
+    levels: {
+      market_implied_only: "the public MlbGameCenter (win prob / total / run line), shipped",
+      market_anchored_simulation_internal: "EXISTS internally (build-mlb-full-game-sim-artifacts.mjs) — win prob + total anchored to the market, distributions sampled; experimental, not web-served",
+      true_independent_simulation: "MISSING — needs a fitted team-scoring model (pitcher/lineup/bullpen/park)",
+      ready_for_internal_backtest: "yes, on dates with committed lines (only 2026-07-09 so far)",
+      ready_for_founder_review: "NO — backtest is tiny + market-anchored (verdict internal_only)",
+      public_rollout: "BLOCKED",
+    },
+    verdict: "A MARKET-ANCHORED internal simulation now exists (experimental, not web-served); a TRUE independent full-game score simulation does NOT. Public rollout blocked. Per game: partial (market-anchored sim can run) or blocked (no market total).",
     gameCount: artifacts.length, readinessSummary: summary, invalidCount: invalid.length,
     games: artifacts,
-    note: "INTERNAL readiness audit — NOT web-served, NOT a public simulation. Market-implied only; nothing here is labelled a simulation. Separate from the official 19-14 record.",
+    note: "INTERNAL readiness audit — NOT web-served. The market-anchored simulation is experimental/internal; nothing is publicly labelled a simulation. Separate from the official 19-14 record.",
   };
 
   if (WRITE) { fs.mkdirSync(OUT_DIR, { recursive: true }); fs.writeFileSync(path.join(OUT_DIR, `${date}.json`), JSON.stringify(out, null, 2) + "\n"); }

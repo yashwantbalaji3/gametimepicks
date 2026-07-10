@@ -59,3 +59,44 @@ test("5 · money md5 unchanged — full-game-sim work is money-independent", () 
   const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
   assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
 });
+
+// Walk shipped UI/product code for any import of the Monte Carlo engine.
+function collectSources(dir, acc) {
+  if (!fs.existsSync(dir)) return acc;
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) { if (e.name !== "node_modules") collectSources(p, acc); }
+    else if (/\.(ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name)) acc.push(p);
+  }
+  return acc;
+}
+
+test("6 · the Monte Carlo engine is NOT wired into public UI / product-card / money code", () => {
+  const dirs = ["src/components", "src/app", "src/lib/parlays", "src/lib/mr-dub", "src/lib/daily-portfolio", "src/lib/multi-sport"].map((d) => path.join(app, d));
+  for (const dir of dirs) {
+    for (const p of collectSources(dir, [])) {
+      const s = fs.readFileSync(p, "utf8");
+      assert.doesNotMatch(s, /full-game-sim\/mlb/, `${path.relative(app, p)} must not import the full-game-sim engine`);
+    }
+  }
+});
+
+test("7 · the experimental sim artifacts are NOT web-served and are honestly labelled", () => {
+  assert.ok(!fs.existsSync(path.join(app, "public/data/mlb/full-game-sim")), "experimental sim not under app/public");
+  assert.ok(!fs.existsSync(path.join(app, "public/data/mlb/full-game-sim-backtests")), "backtests not under app/public");
+  const art = path.join(repo, "data/internal/mlb/full-game-sim/2026-07-09.json");
+  if (fs.existsSync(art)) {
+    const j = JSON.parse(fs.readFileSync(art, "utf8"));
+    assert.equal(j.public, false);
+    assert.equal(j.source, "market_anchored_simulation");
+    assert.equal(j.status, "experimental_internal");
+    assert.equal(j.officialMoneyRecordAffected, false);
+    for (const g of j.games) if (g.winProbability) assert.equal(g.winProbability.source, "hybrid_shadow", "market-anchored ⇒ hybrid_shadow, never a bare simulation");
+  }
+  const bt = path.join(repo, "data/internal/mlb/full-game-sim-backtests/2026-07-09.json");
+  if (fs.existsSync(bt)) {
+    const j = JSON.parse(fs.readFileSync(bt, "utf8"));
+    assert.ok(["not_ready", "internal_only", "promising_but_needs_forward_test"].includes(j.verdict), "backtest verdict is not a public-rollout claim");
+    assert.notEqual(j.verdict, "candidate_for_public_rollout");
+  }
+});

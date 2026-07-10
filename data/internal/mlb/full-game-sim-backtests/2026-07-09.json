@@ -1,0 +1,144 @@
+{
+  "sport": "MLB",
+  "date": "2026-07-09",
+  "asOf": "2026-07-09",
+  "public": false,
+  "internal": true,
+  "kind": "full-game-sim-backtest",
+  "officialMoneyRecordAffected": false,
+  "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+  "runCount": 10000,
+  "seed": 1234567,
+  "sampleWarning": "INSUFFICIENT SAMPLE (6 games) — only 2026-07-09 has committed team-market lines, and only its final games are gradeable. Not enough to conclude the model adds value.",
+  "metrics": {
+    "gamesGraded": 6,
+    "brierSim_moneyline": 0.2448,
+    "brierMarket_moneyline": 0.2452,
+    "mlAccuracySim": 0.5,
+    "mlAccuracyMarket": 0.6667,
+    "totalOverBrierSim": 0.2521,
+    "totalOverAccuracySim": 0.5,
+    "runLineCoverAccuracySim": 0.5,
+    "projTotalMAE_sim": 4.495,
+    "projTotalMAE_marketLine": 4.5
+  },
+  "verdict": "internal_only",
+  "skippedCount": 7,
+  "skipped": [
+    {
+      "gamePk": 824251,
+      "reason": "not final"
+    },
+    {
+      "gamePk": 823846,
+      "reason": "not final"
+    },
+    {
+      "gamePk": 824494,
+      "reason": "not final"
+    },
+    {
+      "gamePk": 823034,
+      "reason": "not final"
+    },
+    {
+      "gamePk": 822877,
+      "reason": "not final"
+    },
+    {
+      "gamePk": 823277,
+      "reason": "not final"
+    },
+    {
+      "gamePk": 823201,
+      "reason": "not final"
+    }
+  ],
+  "rows": [
+    {
+      "gamePk": 823359,
+      "score": "10-5",
+      "simHomeWin": 0.5029,
+      "marketHomeWin": 0.5,
+      "actualHomeWin": 0,
+      "simTotal": 9.5,
+      "marketLine": 9.5,
+      "actualTotal": 15,
+      "simOverProb": 0.4708,
+      "actualOver": 1,
+      "simRlCover": 0.6781,
+      "actualRlCover": 0
+    },
+    {
+      "gamePk": 823606,
+      "score": "3-7",
+      "simHomeWin": 0.5805,
+      "marketHomeWin": 0.5727,
+      "actualHomeWin": 1,
+      "simTotal": 8.99,
+      "marketLine": 9,
+      "actualTotal": 10,
+      "simOverProb": 0.4132,
+      "actualOver": 1,
+      "simRlCover": 0.5967,
+      "actualRlCover": 0
+    },
+    {
+      "gamePk": 822954,
+      "score": "12-4",
+      "simHomeWin": 0.5749,
+      "marketHomeWin": 0.5734,
+      "actualHomeWin": 0,
+      "simTotal": 7.51,
+      "marketLine": 7.5,
+      "actualTotal": 16,
+      "simOverProb": 0.4656,
+      "actualOver": 1,
+      "simRlCover": 0.6251,
+      "actualRlCover": 1
+    },
+    {
+      "gamePk": 824816,
+      "score": "2-3",
+      "simHomeWin": 0.5271,
+      "marketHomeWin": 0.5313,
+      "actualHomeWin": 1,
+      "simTotal": 9.51,
+      "marketLine": 9.5,
+      "actualTotal": 5,
+      "simOverProb": 0.4684,
+      "actualOver": 0,
+      "simRlCover": 0.6374,
+      "actualRlCover": 1
+    },
+    {
+      "gamePk": 823683,
+      "score": "5-2",
+      "simHomeWin": 0.4552,
+      "marketHomeWin": 0.4576,
+      "actualHomeWin": 0,
+      "simTotal": 8.48,
+      "marketLine": 8.5,
+      "actualTotal": 7,
+      "simOverProb": 0.4648,
+      "actualOver": 0,
+      "simRlCover": 0.6387,
+      "actualRlCover": 0
+    },
+    {
+      "gamePk": 824577,
+      "score": "2-1",
+      "simHomeWin": 0.5276,
+      "marketHomeWin": 0.53,
+      "actualHomeWin": 0,
+      "simTotal": 8.98,
+      "marketLine": 9,
+      "actualTotal": 3,
+      "simOverProb": 0.4086,
+      "actualOver": 0,
+      "simRlCover": 0.6458,
+      "actualRlCover": 1
+    }
+  ],
+  "note": "The simulation is MARKET-ANCHORED, so its moneyline/total Brier will track the market baseline by construction. This backtest cannot show the model beats the market; it only confirms the mechanics on real finals. Forward-testing over many dates (once lines are committed daily) is required. NOT for public rollout."
+}
