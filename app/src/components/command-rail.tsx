@@ -41,7 +41,7 @@ const ITEMS: RailItem[] = [
   { href: "/today", label: "Today", glyph: "▤", group: "Today", desc: "Tonight's slate at a glance" },
   { href: "/games", label: "Game Reports", glyph: "◷", desc: "Per-game model read" },
   { href: "/picks", label: "Picks Lab", glyph: "⊞", desc: "Build a paper-only card" },
-  { href: "/build", label: "Build", glyph: "✎", desc: "Browse eligible legs" },
+  { href: "/build", label: "Build", glyph: "✎", desc: "Advanced builder → Picks Lab" },
   { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Bankroll", desc: "Conservative paper card" },
   { href: "/moonshot", label: "Moonshot", glyph: "🌙", desc: "High-risk paper longshots" },
   { href: "/world-cup-specials", label: "Soccer Specials", glyph: "🏆", desc: "Soccer longshot board" },

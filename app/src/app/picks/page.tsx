@@ -105,14 +105,14 @@ export default function PicksPage() {
         </Link>
       ) : null}
       <PicksSurfaceHeader
-        eyebrow="Parlay Lab"
-        title="Parlay Lab"
+        eyebrow="Picks Lab"
+        title="Picks Lab"
         slateDate={today}
         status={engineSlate.available ? "pregame" : "data_pending"}
         counts={{ suggestedCards: engineSlate.allSuggested.length, games: engineSlate.gameSpecific.length }}
-        primaryAction={{ label: "Build your own", href: "/build" }}
-        secondaryAction={{ label: "How it works", href: "/methodology" }}
-        note="Model-ranked suggested parlays across World Cup, MLB and Mixed — by risk, with same-game cards and the eligible-leg marketplace. Tap any leg for model + last-5 detail."
+        primaryAction={{ label: "How it works", href: "/methodology" }}
+        secondaryAction={{ label: "Market Guide", href: "/market-guide" }}
+        note="Build a paper parlay from today's top model-qualified picks. Only qualified model reads appear here — we hide raw props that don't clear the model's reliability, data and settlement filters. Paper-only; no bet is placed."
       />
       {/* MODEL TOP 10 — the universal cross-sport board (same derived model as /today), so the Parlay Lab
           leads with the model's strongest single legs before the pre-built cards. */}
@@ -121,8 +121,16 @@ export default function PicksPage() {
         <Top10BoardSection board={buildTop10Board(path.join(process.cwd(), "public", "data"), today, Date.now())} />
       </section>
 
-      {/* Canonical engine card surface — same data as /parlays (World Cup + Mixed + by-risk + same-game). */}
-      <ParlaysExplorer slate={engineSlate} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} />
+      {/* Advanced — the full optimizer coverage marketplace (by-risk cards + eligible-leg matrix). Moved
+          behind a collapsed disclosure so Picks Lab LEADS with the model's top picks, not raw inventory. */}
+      <details className="rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
+        <summary className="cursor-pointer select-none px-4 py-3 text-[13px]" style={{ color: "var(--vault-text-mute)", minHeight: 44 }}>
+          Advanced — optimizer coverage &amp; the full eligible-leg marketplace (by risk). Tap to expand.
+        </summary>
+        <div className="px-1 pb-2 pt-1">
+          <ParlaysExplorer slate={engineSlate} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} />
+        </div>
+      </details>
 
       {/* Legacy curated cards kept as a secondary, collapsed reference (optimizer + native WC). */}
       {cards.length > 0 ? (

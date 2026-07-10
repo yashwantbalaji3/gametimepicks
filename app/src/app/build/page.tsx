@@ -30,13 +30,13 @@ export default function BuildPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <PicksSurfaceHeader
-        eyebrow="Build a card"
-        title="Build"
+        eyebrow="Advanced builder"
+        title="Build a Card"
         status={pool.length > 0 ? "pregame" : "data_pending"}
         counts={{ eligibleLegs: pool.length }}
-        primaryAction={{ label: "Browse Parlay Lab", href: "/picks" }}
+        primaryAction={{ label: "Open Picks Lab", href: "/picks" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
-        note="Add model-qualified legs across sports to a paper card, then enter any stake to see the projected paper return. The pool defaults to model-qualified legs only (odds-backed, pre-event, role-quality screened) — raw sportsbook inventory and research-only views are intentionally excluded."
+        note="The advanced, full-leg builder — start with Picks Lab for the model's top picks, or use this to add any model-qualified leg across sports to a paper card and see the projected paper return. Model-qualified legs only (odds-backed, pre-event, role-quality screened); raw sportsbook inventory and research-only views are intentionally excluded. Paper-only."
       />
       {pool.length > 0 ? (
         <BuildExperience pool={pool} />
