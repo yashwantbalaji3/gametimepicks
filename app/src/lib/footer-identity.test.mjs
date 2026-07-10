@@ -21,9 +21,9 @@ test("footer identity is no longer NBA-only", () => {
 });
 
 // ── 2 · the footer surfaces the flagship products ────────────────────────────────────────────────
-test("footer links the flagship products (Simulate, Today's Picks, Bank Builder, Results)", () => {
+test("footer links the flagship products (Simulate, Today, Bank Builder, Results)", () => {
   assert.match(FOOTER, /href="\/simulate"[^>]*>Simulate</, "links Simulate");
-  assert.match(FOOTER, /href="\/today"[^>]*>Today.{0,10}s Picks</, "links Today's Picks");
+  assert.match(FOOTER, /href="\/today"[^>]*>Today</, "links Today");
   assert.match(FOOTER, /href="\/bank-builder"[^>]*>Bank Builder</, "links Bank Builder");
   assert.match(FOOTER, /href="\/results"[^>]*>Results</, "links Results");
   // Methodology / How It Works stay reachable.

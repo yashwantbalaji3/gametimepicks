@@ -38,7 +38,7 @@ const NAV_ITEMS: Array<{
   // PRIMARY — the simulate-first spine (Home = brand mark, left → 5 clear entry points). Simulate leads;
   // Today's Picks, Results, and the Bank Builder ladder follow. Everything else is de-emphasized below.
   { href: "/simulate", label: "Simulate" },
-  { href: "/today", label: "Today's Picks" },
+  { href: "/today", label: "Today" },
   { href: "/results", label: "Results" },
   { href: "/bank-builder", label: "Bank Builder" },
   // SECONDARY — still reachable, de-emphasized after the divider (NO routes removed, none deleted). The
@@ -46,9 +46,9 @@ const NAV_ITEMS: Array<{
   { href: "/games", label: "Game Reports", beforeDivider: true },
   { href: "/mlb", label: "MLB" },
   { href: "/world-cup", label: "World Cup" },
-  { href: "/picks", label: "Build-a-Pick" },
+  { href: "/picks", label: "Picks Lab" },
   { href: "/world-cup-specials", label: "Soccer Specials" },
-  { href: "/moonshot", label: "Longshot Lab" },
+  { href: "/moonshot", label: "Moonshot" },
   { href: "/mr-dub", label: "Daily Dashboard" },
   { href: "/learn", label: "How It Works" },
 ];

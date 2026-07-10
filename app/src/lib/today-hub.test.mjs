@@ -93,18 +93,16 @@ test("6 · public label is 'Build-a-Pick', never 'Parlay Lab'", () => {
 });
 
 // 7 — uses "Longshot Lab" not "Moonshot" in public body copy (code identifiers allowed).
-test("7 · public label is 'Longshot Lab'; no 'Moonshot' body copy (code identifiers allowed)", () => {
-  assert.ok(/Longshot Lab/.test(TODAY_ALL), "Longshot Lab label present");
-  // Strip code identifiers/hrefs that legitimately keep the "moonshot" token: `product === "moonshot"`,
-  // `product: "moonshot"`, the /moonshot href, `moonshotActive` var, and JS comments.
+test("7 · public label is now 'Moonshot' (the Longshot Lab rename); no 'Longshot Lab' in rendered body copy", () => {
+  assert.ok(/Moonshot/.test(TODAY_ALL), "Moonshot label present");
+  // The product label is now "Moonshot"; the old "Longshot Lab" label must be gone from RENDERED copy.
+  // Comments + the `LongshotLabStatus` code identifier legitimately keep the token, so strip comment lines
+  // (incl. JSX `{/* */}`) before asserting; the lowercase concept word "longshot" in prose is still fine.
   const bodyCopy = TODAY_ALL
     .split("\n")
-    .filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)) // drop comment lines
-    .join("\n")
-    .replace(/product\s*[=:]{1,3}\s*"moonshot"/g, "")
-    .replace(/\/moonshot/g, "")
-    .replace(/moonshot[A-Z]\w*/g, "");           // moonshotActive etc.
-  assert.ok(!/moonshot/i.test(bodyCopy), "no visible 'Moonshot' body copy (only code identifiers/hrefs remain)");
+    .filter((l) => !/^\s*(\/\/|\*|\/\*|\{\/\*)/.test(l))
+    .join("\n");
+  assert.ok(!/Longshot Lab/.test(bodyCopy), "old 'Longshot Lab' product label gone from rendered copy");
 });
 
 // 8 — does not expose "Mr. Dub" as a public label.

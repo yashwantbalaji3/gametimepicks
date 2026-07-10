@@ -20,7 +20,7 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   const dividerIdx = nav.indexOf("beforeDivider: true");
   const idx = (s) => nav.indexOf(s);
   // PRIMARY (before the divider): the 4-item simulate-first spine (+ Home = brand mark).
-  for (const [href, label] of [["/simulate", "Simulate"], ["/today", "Today's Picks"], ["/results", "Results"], ["/bank-builder", "Bank Builder"]]) {
+  for (const [href, label] of [["/simulate", "Simulate"], ["/today", "Today"], ["/results", "Results"], ["/bank-builder", "Bank Builder"]]) {
     const i = idx(`href: "${href}", label: "${label}"`);
     assert.ok(i > 0 && i < dividerIdx, `${label} is PRIMARY (before the divider)`);
   }
@@ -52,20 +52,20 @@ test("retired /homer-nukes + removed /diamond-specials both map to no bucket", (
   assert.equal(resolveMobileNavBucket("/diamond-specials"), null, "removed route → no bucket");
 });
 
-test("MOBILE_NAV_ITEMS labels are the UNIFIED product spine (Today's Picks/Build-a-Pick/Build/Bank Builder/Longshot Lab/Daily Dashboard)", () => {
+test("MOBILE_NAV_ITEMS labels are the UNIFIED product spine (Today/Picks Lab/Build/Bank Builder/Moonshot/Daily Dashboard)", () => {
   const byHref = Object.fromEntries(
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
-  // Chunk-1 label unification: mobile now matches the desktop nav / command rail / footer labels exactly.
-  assert.equal(byHref["/today"], "Today's Picks");
+  // Label unification: mobile matches the desktop nav / command rail / footer labels exactly.
+  assert.equal(byHref["/today"], "Today");
   // The cross-sport bucket leads with the simulate-first lobby (/simulate).
   assert.equal(byHref["/simulate"], "Simulate");
-  // /picks is "Build-a-Pick" on every surface (route stays /picks for back-compat).
-  assert.equal(byHref["/picks"], "Build-a-Pick");
+  // /picks is "Picks Lab" on every surface (route stays /picks for back-compat).
+  assert.equal(byHref["/picks"], "Picks Lab");
   assert.equal(byHref["/build"], "Build");
   assert.equal(byHref["/bank-builder"], "Bank Builder");
-  // /moonshot surfaces as "Longshot Lab"; /mr-dub as "Daily Dashboard" (never "Mr. Dub" publicly).
-  assert.equal(byHref["/moonshot"], "Longshot Lab");
+  // /moonshot surfaces as "Moonshot"; /mr-dub as "Daily Dashboard" (never "Mr. Dub" publicly).
+  assert.equal(byHref["/moonshot"], "Moonshot");
   assert.equal(byHref["/mr-dub"], "Daily Dashboard");
   assert.equal(byHref["/homer-nukes"], undefined, "Homer Nukes retired — no nav tab");
 });

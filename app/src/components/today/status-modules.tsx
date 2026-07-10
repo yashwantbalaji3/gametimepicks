@@ -59,11 +59,11 @@ export function BuildAPickModule({ status, suggestedLine, note }: { status: stri
   return (
     <StatusCard
       eyebrow="Build a card"
-      title="Build-a-Pick"
+      title="Picks Lab"
       value={status}
       valueTone={/no|none|0/i.test(status) ? "mute" : "gold"}
       lines={[suggestedLine, note]}
-      ctaLabel="Open Build-a-Pick"
+      ctaLabel="Open Picks Lab"
       ctaHref="/picks"
     />
   );
@@ -90,11 +90,11 @@ export function LongshotLabStatus({ statusValue, reason }: { statusValue: string
   return (
     <StatusCard
       eyebrow="High-variance lane"
-      title="Longshot Lab"
+      title="Moonshot"
       value={statusValue}
       valueTone={/no-play|unavailable|no active/i.test(statusValue) ? "mute" : "gold"}
       lines={[reason]}
-      ctaLabel="View Longshot Lab"
+      ctaLabel="View Moonshot"
       ctaHref="/moonshot"
       accent="#6d5fd0"
     />

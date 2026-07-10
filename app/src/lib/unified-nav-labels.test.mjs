@@ -21,15 +21,15 @@ const mobileByHref = Object.fromEntries(MOBILE_NAV_ITEMS.map((i) => [i.href, i.l
 // The unified label for each route (the single public name it must carry on every surface it appears on).
 const UNIFIED = {
   "/simulate": "Simulate",
-  "/today": "Today's Picks",
+  "/today": "Today",
   "/results": "Results",
   "/bank-builder": "Bank Builder",
   "/games": "Game Reports",
   "/mlb": "MLB",
   "/world-cup": "World Cup",
-  "/picks": "Build-a-Pick",
+  "/picks": "Picks Lab",
   "/world-cup-specials": "Soccer Specials",
-  "/moonshot": "Longshot Lab",
+  "/moonshot": "Moonshot",
   "/mr-dub": "Daily Dashboard",
   "/learn": "How It Works",
 };
@@ -59,15 +59,17 @@ test("mobile bottom nav (MOBILE_NAV_ITEMS) uses the unified labels", () => {
 });
 
 // ── 4 · /picks has ONE label ("Build-a-Pick") on every surface; "Parlay Lab" is not a nav label ───
-test("/picks is 'Build-a-Pick' on every surface; no 'Parlay Lab' nav label survives", () => {
-  assert.ok(NAV.includes(`href: "/picks", label: "Build-a-Pick"`), "top nav");
-  assert.ok(RAIL.includes(`href: "/picks", label: "Build-a-Pick"`), "rail");
-  assert.equal(mobileByHref["/picks"], "Build-a-Pick", "mobile");
-  assert.ok(/href="\/picks"[^>]*>Build-a-Pick</.test(FOOTER), "footer links /picks as Build-a-Pick");
-  // No nav surface labels a link "Parlay Lab" any more.
-  assert.ok(!/label: "Parlay Lab"/.test(NAV) && !/label: "Parlay Lab"/.test(RAIL), "no 'Parlay Lab' nav label");
-  assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.label === "Parlay Lab"), "no 'Parlay Lab' mobile label");
-  assert.ok(!/>Parlay Lab</.test(FOOTER), "footer no longer links 'Parlay Lab'");
+test("/picks is 'Picks Lab' on every surface; 'Parlay Lab'/'Build-a-Pick' are not nav labels", () => {
+  assert.ok(NAV.includes(`href: "/picks", label: "Picks Lab"`), "top nav");
+  assert.ok(RAIL.includes(`href: "/picks", label: "Picks Lab"`), "rail");
+  assert.equal(mobileByHref["/picks"], "Picks Lab", "mobile");
+  assert.ok(/href="\/picks"[^>]*>Picks Lab</.test(FOOTER), "footer links /picks as Picks Lab");
+  // No nav surface labels a link "Parlay Lab" or the old "Build-a-Pick" any more.
+  for (const bad of ["Parlay Lab", "Build-a-Pick"]) {
+    assert.ok(!new RegExp(`label: "${bad}"`).test(NAV) && !new RegExp(`label: "${bad}"`).test(RAIL), `no '${bad}' nav label`);
+    assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.label === bad), `no '${bad}' mobile label`);
+    assert.ok(!new RegExp(`>${bad}<`).test(FOOTER), `footer no longer links '${bad}'`);
+  }
 });
 
 // ── 5 · /mr-dub is 'Daily Dashboard' publicly; never 'Mr. Dub' or 'Track Record' as a nav label ───

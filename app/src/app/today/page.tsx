@@ -46,7 +46,7 @@ import {
 export const metadata = {
   title: "Today · GameTime Picks",
   description:
-    "Today's model hub — the day's top model reads, simulation-ready games, and every product's honest status (Bank Builder, Build-a-Pick, Longshot Lab). Paper-only, educational; no-play shown honestly.",
+    "Today's model hub — the day's top model reads, simulation-ready games, and every product's honest status (Bank Builder, Picks Lab, Moonshot). Paper-only, educational; no-play shown honestly.",
 };
 
 const usd2 = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -164,7 +164,7 @@ export default function TodayPage() {
       tone: bbNoPlay ? "mute" : "success",
     },
     {
-      label: "Build-a-Pick",
+      label: "Picks Lab",
       value: bapStatus,
       sub: engineSuggested > 0 ? "open the daily builder" : "no cards today",
       href: "/picks",
@@ -182,7 +182,7 @@ export default function TodayPage() {
   // ── Section 8 · No-play / unavailable notes — honest, discipline-framed. Built from the real states. ──
   const noPlayNotes: string[] = [];
   if (bbNoPlay) noPlayNotes.push(`Bank Builder is no-play today (${bbStepPhrase}, ${openExposureLabel} open exposure) — the ladder never forces a card to keep a streak alive.`);
-  if (!moonshotActive) noPlayNotes.push("Longshot Lab is no-play — the high-variance lane only plays when a qualified longshot appears, and today none did.");
+  if (!moonshotActive) noPlayNotes.push("Moonshot is no-play — the high-variance lane only plays when a qualified longshot appears, and today none did.");
   if (readyCount === 0) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
   noPlayNotes.push("There is no soccer game simulation — World Cup reads come from real de-vigged market prices, not a fabricated match sim.");
   noPlayNotes.push("Pending is not a loss: a card settles only against the official final, and unsettled cards are never counted against the record.");
@@ -192,7 +192,7 @@ export default function TodayPage() {
     { href: "/simulate", label: "Simulate", sub: "Game sims" },
     { href: "/results", label: "Results", sub: "Receipts" },
     { href: "/bank-builder", label: "Bank Builder", sub: "The ladder" },
-    { href: "/picks", label: "Build-a-Pick", sub: "Daily builder" },
+    { href: "/picks", label: "Picks Lab", sub: "Daily builder" },
     { href: "/games", label: "Game Reports", sub: "Model reads" },
     { href: "/learn", label: "How It Works", sub: "Methodology" },
   ];

@@ -45,12 +45,12 @@ export interface MobileNavItem {
  *     labels are user-facing.
  */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
-  { bucket: "home", href: "/today", label: "Today's Picks" },
+  { bucket: "home", href: "/today", label: "Today" },
   { bucket: "games", href: "/simulate", label: "Simulate" },
-  { bucket: "picks", href: "/picks", label: "Build-a-Pick" },
+  { bucket: "picks", href: "/picks", label: "Picks Lab" },
   { bucket: "lab", href: "/build", label: "Build" },
   { bucket: "bank", href: "/bank-builder", label: "Bank Builder" },
-  { bucket: "moonshot", href: "/moonshot", label: "Longshot Lab" },
+  { bucket: "moonshot", href: "/moonshot", label: "Moonshot" },
   { bucket: "mrdub", href: "/mr-dub", label: "Daily Dashboard" },
 ] as const;
 

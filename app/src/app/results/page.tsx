@@ -337,7 +337,7 @@ export default function ResultsPage() {
               className="text-[12.5px] leading-snug"
               style={{ color: "var(--vault-text-mute)" }}
             >
-              {activeLabel} picks live in Build-a-Pick until games finish.
+              {activeLabel} picks live in Picks Lab until games finish.
             </span>
             <Link
               href="/picks/"

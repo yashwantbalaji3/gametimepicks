@@ -256,7 +256,7 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
                   : "Flagship paper ladder",
             },
             {
-              label: "Longshot Lab",
+              label: "Moonshot",
               href: "/moonshot/",
               status:
                 model.moonshot?.status === "stopped"
@@ -273,7 +273,7 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
               detail: "The day's model reads and no-play calls",
             },
             {
-              label: "Build-a-Pick",
+              label: "Picks Lab",
               href: "/picks/",
               status: "Model-qualified picks",
               detail: "Filterable model leans — educational",

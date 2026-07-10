@@ -97,9 +97,9 @@ export default function Footer() {
             </div>
             <ul className="space-y-2 list-none p-0">
               <li><Link href="/simulate" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Simulate</Link></li>
-              <li><Link href="/today" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Today&rsquo;s Picks</Link></li>
+              <li><Link href="/today" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Today</Link></li>
               <li><Link href="/bank-builder" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Bank Builder</Link></li>
-              <li><Link href="/picks" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Build-a-Pick</Link></li>
+              <li><Link href="/picks" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Picks Lab</Link></li>
               <li><Link href="/results" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Results</Link></li>
               <li>
                 <Link href="/results/model-audit" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
