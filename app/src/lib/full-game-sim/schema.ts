@@ -54,7 +54,7 @@ export interface FullGameSimulationArtifact {
   marketCoverage?: {
     moneyline?: { homeWinProb?: number; awayWinProb?: number; source: WinProbSource };
     runLine?: { line: number; favorite?: string; coverProbability?: number; source: WinProbSource };
-    total?: { line: number; overProbability?: number; underProbability?: number; source: WinProbSource };
+    total?: { line: number; overProbability?: number; underProbability?: number; pushProbability?: number; source: WinProbSource };
     teamTotals?: unknown[];
   };
   topLeans?: unknown[];
