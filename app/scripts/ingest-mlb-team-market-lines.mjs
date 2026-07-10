@@ -5,15 +5,21 @@
  * stable internal file so the full-game simulation + rolling backtest can be evaluated across many dates
  * going forward. READ-ONLY re: money; idempotent; never fabricates a line.
  *
+ * DAILY ACCUMULATION: safe to run every slate. By default it is APPEND-ONLY — an existing snapshot for a
+ * date is NOT overwritten (protects the committed historical record); pass --force / --refresh to replace
+ * it. This is the core the daily wrapper (ingest-mlb-team-market-lines-daily.mjs) and the money-guarded
+ * refresh_daily_products.sh both call.
+ *
  * Data reality: team-market lines are committed for the current slate only (public/data/mlb/team-markets).
- * A true DAILY snapshot needs a daily odds pipeline (paid Odds API or a committed refresh) — documented,
+ * A true DAILY snapshot needs the daily odds pipeline (refresh_daily_products.sh runs it) — documented,
  * not faked. When a date has no committed lines the snapshot is `status: "unavailable"` (never invented).
  *
  * Output: data/internal/mlb/team-market-lines/<date>.json (public:false, NOT web-served).
- * Usage: npx tsx scripts/ingest-mlb-team-market-lines.mjs [--date 2026-07-09] [--write]
+ * Usage: npx tsx scripts/ingest-mlb-team-market-lines.mjs [--date 2026-07-09] [--write] [--force]
  */
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { getMlbGameCenter } from "../src/lib/mlb-team-markets.ts";
 
 const APP = path.join(process.cwd(), process.cwd().endsWith("app") ? "" : "app");
@@ -21,8 +27,6 @@ const REPO = path.join(APP, "..");
 const BOARDS = path.join(APP, "public", "data", "mlb", "boards");
 const TEAM_MARKETS = path.join(APP, "public", "data", "mlb", "team-markets");
 const OUT_DIR = path.join(REPO, "data", "internal", "mlb", "team-market-lines");
-const WRITE = process.argv.includes("--write");
-const DATE = (() => { const i = process.argv.indexOf("--date"); return i >= 0 ? process.argv[i + 1] : null; })();
 
 function latestBoardDate() {
   const files = fs.readdirSync(BOARDS).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
@@ -37,12 +41,10 @@ function gameInfo(date) {
 }
 const num = (x) => (typeof x === "number" && Number.isFinite(x) ? Number(x.toFixed(4)) : null);
 
-function main() {
-  const date = DATE ?? latestBoardDate();
-  if (!date) { console.error("[team-market-ingest] no date"); process.exit(1); }
+/** Build the internal team-market-lines snapshot for one date (pure-ish: reads committed public data only). */
+export function buildTeamMarketLinesSnapshot(date) {
   const committed = fs.existsSync(path.join(TEAM_MARKETS, `${date}.json`));
   const games = gameInfo(date);
-
   const lines = [];
   for (const [gameId, info] of games) {
     const gc = getMlbGameCenter(date, gameId);
@@ -56,8 +58,7 @@ function main() {
       teamTotals: null, // not ingested for MLB yet (honest null, never faked)
     });
   }
-
-  const out = {
+  return {
     sport: "MLB", date, asOf: date, public: false, internal: true,
     kind: "team-market-lines-snapshot",
     officialMoneyRecordAffected: false, exposureCreated: 0, activationStatus: "internal_only",
@@ -66,13 +67,44 @@ function main() {
     gameCount: lines.length,
     lines,
     note: committed
-      ? "INTERNAL team-market snapshot from the committed de-vigged Game Center. NOT web-served, never touches money. A daily snapshot going forward needs a daily odds pipeline (paid Odds API / committed refresh)."
-      : "No committed team-market lines for this date — a daily odds pipeline is required to snapshot other dates. Nothing fabricated.",
+      ? "INTERNAL team-market snapshot from the committed de-vigged Game Center. NOT web-served, never touches money. Captured pregame; the daily odds pipeline (refresh_daily_products.sh) produces the committed source."
+      : "No committed team-market lines for this date — the daily odds pipeline is required to snapshot other dates. Nothing fabricated.",
   };
-
-  if (WRITE) { fs.mkdirSync(OUT_DIR, { recursive: true }); fs.writeFileSync(path.join(OUT_DIR, `${date}.json`), JSON.stringify(out, null, 2) + "\n"); }
-  console.log(`[team-market-ingest] ${WRITE ? "WROTE" : "DRY-RUN"} ${date} · ${out.status} · ${lines.length} games`);
-  if (!WRITE) console.log("  (dry run — pass --write to persist to data/internal)");
 }
 
-main();
+/**
+ * Ingest one date's team-market lines to the internal snapshot. APPEND-ONLY by default: an existing
+ * snapshot is preserved unless `force`. Never writes money or public data. Returns a result summary.
+ */
+export function ingestTeamMarketLines({ date, write = false, force = false }) {
+  const out = buildTeamMarketLinesSnapshot(date);
+  const target = path.join(OUT_DIR, `${date}.json`);
+  const exists = fs.existsSync(target);
+  let wrote = false;
+  let skippedExisting = false;
+  if (write) {
+    if (exists && !force) {
+      skippedExisting = true; // no-overwrite guard: protect the committed historical snapshot
+    } else {
+      fs.mkdirSync(OUT_DIR, { recursive: true });
+      fs.writeFileSync(target, JSON.stringify(out, null, 2) + "\n");
+      wrote = true;
+    }
+  }
+  return { date, status: out.status, gameCount: out.gameCount, wrote, skippedExisting, exists };
+}
+
+function cli() {
+  const write = process.argv.includes("--write");
+  const force = process.argv.includes("--force") || process.argv.includes("--refresh");
+  const di = process.argv.indexOf("--date");
+  const date = di >= 0 ? process.argv[di + 1] : latestBoardDate();
+  if (!date) { console.error("[team-market-ingest] no date"); process.exit(1); }
+  const r = ingestTeamMarketLines({ date, write, force });
+  const action = !write ? "DRY-RUN" : r.wrote ? "WROTE" : r.skippedExisting ? "SKIPPED (exists — pass --force to replace)" : "NO-OP";
+  console.log(`[team-market-ingest] ${action} ${date} · ${r.status} · ${r.gameCount} games`);
+  if (!write) console.log("  (dry run — pass --write to persist to data/internal; append-only unless --force)");
+}
+
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) cli();

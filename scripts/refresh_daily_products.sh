@@ -124,7 +124,15 @@ console.log('  schedule → board-shape ('+(b.games||[]).length+' games)');"
   # Full-market team markets (moneyline / run line / total, de-vigged) → the Game Center.
   # One extra bulk Odds call (~3 credits); credit-guarded (fail-closed); needs the board above.
   npx tsx app/scripts/ingest-mlb-team-markets.mjs --write --date "$DATE" | tail -2
-  ok "MLB artifacts written (board, props, schedule, team markets)"
+  # ── Internal full-game-sim EVIDENCE (money-independent, non-fatal, writes ONLY data/internal) ──
+  # Captures the pregame team-market lines + independent context inputs daily so the internal rolling
+  # backtest can accumulate a real multi-date sample. Append-only; never web-served; never money.
+  # Guarded so a failure here can NEVER break the money-critical refresh.
+  ( npx tsx app/scripts/ingest-mlb-team-market-lines-daily.mjs --date "$DATE" \
+    && npx tsx app/scripts/ingest-mlb-independent-inputs.mjs --date "$DATE" --write \
+    && npx tsx app/scripts/build-mlb-model-inputs.mjs --date "$DATE" --write ) \
+    | tail -3 || echo "  ! internal full-game-sim evidence skipped (non-blocking, internal-only)"
+  ok "MLB artifacts written (board, props, schedule, team markets, internal evidence)"
 fi
 
 say "Cross-product · daily portfolio + master ledger"
