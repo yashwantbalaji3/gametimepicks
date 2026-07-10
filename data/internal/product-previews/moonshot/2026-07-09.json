@@ -1,6 +1,10 @@
 {
   "kind": "moonshot-founder-review",
+  "previewId": "moonshot-2026-07-09",
+  "productType": "moonshot",
+  "generatedAt": "2026-07-09",
   "date": "2026-07-09",
+  "slateDate": "2026-07-09",
   "public": false,
   "internal": true,
   "status": "founder_review",
@@ -8,44 +12,138 @@
   "exposure": 0,
   "officialMoneyRecordAffected": false,
   "requiresFounderApproval": true,
-  "reason": "a +700 distinct-game combo qualifies for founder review — NOT placed, no EV claimed",
-  "combinedAmerican": 700,
+  "riskTier": "longshot",
   "sports": [
     "MLB"
   ],
+  "sportsIncluded": [
+    "MLB"
+  ],
+  "marketsIncluded": [
+    "run_line",
+    "moneyline",
+    "total",
+    "batter_hits"
+  ],
+  "settlementCoverageSummary": {
+    "supported": 4,
+    "total": 4,
+    "bySource": {
+      "statsapi": 4
+    }
+  },
+  "dataQualitySummary": {
+    "strong": 4
+  },
+  "paperPromotionEligible": true,
+  "paperPromotionBlockedReasons": [],
+  "approvalRequirements": [
+    "explicit --approve-founder-review flag",
+    "--approved-by <founder>"
+  ],
+  "blockedReasons": [],
+  "fullGameSimUsed": false,
+  "fullGameSimReason": "internal_only_not_driving_selection",
+  "minLegs": 2,
+  "combinedAmerican": 700,
+  "combinedOddsAmerican": 700,
+  "reason": "a +700 distinct-game combo qualifies for founder review — NOT placed, no EV claimed",
   "legs": [
     {
+      "legId": "f3dff862099a",
       "sport": "MLB",
+      "gameId": "2b3ca3496277938aa74f87f24a2c064c",
+      "eventDate": "2026-07-09",
       "event": "Atlanta Braves @ Pittsburgh Pirates",
-      "market": "run_line",
-      "publicLabel": "Pittsburgh Pirates run line",
+      "marketKey": "run_line",
+      "selection": "Pittsburgh Pirates 1.5",
+      "side": "home",
+      "line": 1.5,
+      "oddsAmerican": -150,
+      "oddsBasis": "de_vigged_fair",
+      "impliedProbability": 0.5997,
       "marketProbability": 0.5997,
-      "settlementSource": "statsapi"
+      "publicLabel": "Pittsburgh Pirates run line",
+      "source": "mlb/team-markets/2026-07-09.json",
+      "settlementSupported": true,
+      "settlementSource": "statsapi",
+      "productEligible": true,
+      "reasonCodes": [
+        "settleable via statsapi, data strong"
+      ],
+      "dataQuality": "strong"
     },
     {
+      "legId": "5c686ad98f0a",
       "sport": "MLB",
+      "gameId": "be3485a7acdabede1a849330fcc226dc",
+      "eventDate": "2026-07-09",
       "event": "New York Yankees @ Tampa Bay Rays",
-      "market": "moneyline",
-      "publicLabel": "Tampa Bay Rays moneyline",
+      "marketKey": "moneyline",
+      "selection": "Tampa Bay Rays ML",
+      "side": "home",
+      "oddsAmerican": -134,
+      "oddsBasis": "de_vigged_fair",
+      "impliedProbability": 0.5734,
       "marketProbability": 0.5734,
-      "settlementSource": "statsapi"
+      "publicLabel": "Tampa Bay Rays moneyline",
+      "source": "mlb/team-markets/2026-07-09.json",
+      "settlementSupported": true,
+      "settlementSource": "statsapi",
+      "productEligible": true,
+      "reasonCodes": [
+        "settleable via statsapi, data strong"
+      ],
+      "dataQuality": "strong"
     },
     {
+      "legId": "0479725d29d2",
       "sport": "MLB",
+      "gameId": "4690bcfaacd780fc44c057a6a7a4cc46",
+      "eventDate": "2026-07-09",
       "event": "Kansas City Royals @ New York Mets",
-      "market": "total",
-      "publicLabel": "Over 9 runs",
+      "marketKey": "total",
+      "selection": "Over 9",
+      "side": "over",
+      "line": 9,
+      "oddsAmerican": -109,
+      "oddsBasis": "de_vigged_fair",
+      "impliedProbability": 0.5205,
       "marketProbability": 0.5205,
-      "settlementSource": "statsapi"
+      "publicLabel": "Over 9 runs",
+      "source": "mlb/team-markets/2026-07-09.json",
+      "settlementSupported": true,
+      "settlementSource": "statsapi",
+      "productEligible": true,
+      "reasonCodes": [
+        "settleable via statsapi, data strong"
+      ],
+      "dataQuality": "strong"
     },
     {
+      "legId": "8e98c77f05d5",
       "sport": "MLB",
+      "gameId": "9f1eb41cd2972a08e88069d6c5b4bb6c",
+      "eventDate": "2026-07-09",
       "event": "CHC @ BAL",
-      "market": "batter_hits",
-      "publicLabel": "Pete Crow-Armstrong hits",
+      "marketKey": "batter_hits",
+      "selection": "Pete Crow-Armstrong Hits Over 0.5",
+      "side": "over",
+      "line": 0.5,
+      "oddsAmerican": -232,
+      "oddsBasis": "de_vigged_fair",
+      "impliedProbability": 0.6988,
       "marketProbability": 0.6988,
-      "settlementSource": "statsapi"
+      "publicLabel": "Pete Crow-Armstrong hits",
+      "source": "mlb/boards/2026-07-09.json",
+      "settlementSupported": true,
+      "settlementSource": "statsapi",
+      "productEligible": true,
+      "reasonCodes": [
+        "settleable via statsapi, data strong"
+      ],
+      "dataQuality": "strong"
     }
   ],
-  "note": "INTERNAL founder-review preview. NOT an active card. No exposure, no money-record change. Founder approval + settlement + calibration gate any real activation."
+  "note": "INTERNAL founder-review preview. NOT an active card. No exposure, no money-record change. Founder approval + settlement + calibration gate any real activation. Odds are de-vigged fair (not a book price)."
 }

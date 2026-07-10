@@ -94,12 +94,15 @@ test("6 · rolling backtest is leakage-safe + conservative (never a public/found
   if (j.metrics.gamesGraded < 50 || j.metrics.dates < 5) assert.ok(j.sampleWarning, "tiny sample is flagged");
 });
 
-test("7 · founder-review previews carry NO full-game-sim driving signal", () => {
+test("7 · founder-review previews carry the fullGameSimUsed:false honesty marker + NO driving signal", () => {
   for (const product of ["bank-builder", "moonshot"]) {
     const j = readJsonIf(`data/internal/product-previews/${product}/2026-07-09.json`);
     if (!j) continue;
-    assert.doesNotMatch(JSON.stringify(j), /fullGameSim/i, `${product} preview has no fullGameSim* field`);
-    if ("active" in j) assert.equal(j.active, false, `${product} preview not active`);
+    // The honesty marker fullGameSimUsed:false is allowed/expected; any DRIVING signal is banned.
+    if ("fullGameSimUsed" in j) assert.equal(j.fullGameSimUsed, false, `${product}: fullGameSimUsed must be false`);
+    assert.doesNotMatch(JSON.stringify(j), /"fullGameSim(Signal|Score|Driven|Probability|Edge|Lean)"\s*:/i, `${product}: no fullGameSim driving signal`);
+    assert.equal(j.active, false, `${product} preview not active`);
+    assert.equal(j.exposure, 0);
   }
 });
 
