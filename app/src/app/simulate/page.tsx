@@ -4,6 +4,7 @@
  * only; never generates data or touches money.
  */
 import SimulateLobby from "@/components/games/simulate-lobby";
+import HowToRead from "@/components/how-to-read";
 
 export const metadata = {
   title: "Simulate · GameTime Picks",
@@ -12,5 +13,12 @@ export const metadata = {
 };
 
 export default function SimulatePage() {
-  return <SimulateLobby />;
+  return (
+    <>
+      <div className="px-3 sm:px-6 lg:px-8 pt-4">
+        <HowToRead preset="simulate" title="How to read a simulation" />
+      </div>
+      <SimulateLobby />
+    </>
+  );
 }

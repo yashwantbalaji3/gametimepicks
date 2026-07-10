@@ -18,6 +18,7 @@ import {
 } from "@/lib/normalize";
 import PicksExperience from "@/components/picks-experience";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
+import HowToRead from "@/components/how-to-read";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
@@ -78,6 +79,7 @@ export default function PicksPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
+      <HowToRead preset="picks" title="How to read Picks Lab — explore model-qualified legs, build a paper-only card" />
       {step5 ? (
         <Link
           href="/bank-builder"
