@@ -36,7 +36,7 @@ export default function BuildPage() {
         counts={{ eligibleLegs: pool.length }}
         primaryAction={{ label: "Open Picks Lab", href: "/picks" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
-        note="The advanced, full-leg builder — start with Picks Lab for the model's top picks, or use this to add any model-qualified leg across sports to a paper card and see the projected paper return. Model-qualified legs only (odds-backed, pre-event, role-quality screened); raw sportsbook inventory and research-only views are intentionally excluded. Paper-only."
+        note="The advanced, full-leg builder — start with Picks Lab for the model's top picks, or use this to add legs across sports to a paper card and see the projected paper return — model-qualified legs only (odds-backed, pre-event, role-quality screened); raw sportsbook inventory and research-only views are intentionally excluded. Paper-only."
       />
       {pool.length > 0 ? (
         <BuildExperience pool={pool} />
