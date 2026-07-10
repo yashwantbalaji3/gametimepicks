@@ -1,31 +1,43 @@
 {
-  "kind": "paper-track-record",
+  "kind": "paper-track-record-summary",
   "public": false,
   "internal": true,
   "officialMoneyRecordAffected": false,
-  "exposureCreated": 0,
+  "officialRecordIncluded": false,
+  "paperOnly": true,
   "activationStatus": "internal_only",
   "lastUpdatedSlateDate": "2026-07-09",
-  "paperCardsTotal": 2,
-  "paperCardsSettled": 0,
-  "paperCardsPending": 2,
-  "paperWins": 0,
-  "paperLosses": 0,
-  "paperVoids": 0,
-  "paperPushes": 0,
-  "paperPnlUnits": 0,
-  "byProduct": {
-    "bank_builder": 1,
-    "moonshot": 1
+  "card": {
+    "totalCards": 2,
+    "settledCards": 1,
+    "pendingCards": 1,
+    "voidedCards": 0,
+    "wonCards": 0,
+    "lostCards": 1,
+    "cardHitRate": 0,
+    "paperUnitsStaked": 1,
+    "paperUnitsReturned": 0,
+    "paperPnlUnits": -1,
+    "roiPaperUnits": -1
   },
-  "bySportMix": {
-    "Soccer": 1,
-    "MLB": 1
-  },
-  "byStatus": {
-    "pending": 2
+  "leg": {
+    "totalLegs": 6,
+    "settledLegs": 3,
+    "pendingLegs": 3,
+    "wonLegs": 1,
+    "lostLegs": 2,
+    "voidedLegs": 0,
+    "pushedLegs": 0,
+    "legHitRate": 0.3333
   },
   "meaningful": false,
-  "verdict": "NOT MEANINGFUL YET — only 0 settled card(s) (2 pending). Paper units only; never part of the official 19-14 record.",
-  "note": "INTERNAL paper-only track record. Paper units, never dollars; never summed into bankroll/record. NOT web-served. Separate from the official 19-14 money record."
+  "minimumSampleForMeaningful": 10,
+  "reason": "Sample too small; internal paper track record only.",
+  "official": {
+    "officialRecord": "19-14",
+    "officialBankroll": 19065.4,
+    "officialExposure": 0,
+    "officialMoneyMd5": "affe6b21071f2b3be96bb2774eb347c3"
+  },
+  "note": "INTERNAL paper-only hit-rate ledger. Paper units, never dollars; NEVER part of the official 19-14 record (officialRecordIncluded:false). Not web-served."
 }
