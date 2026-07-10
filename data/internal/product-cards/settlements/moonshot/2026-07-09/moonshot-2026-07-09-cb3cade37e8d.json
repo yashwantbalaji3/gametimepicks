@@ -1,25 +1,28 @@
 {
-  "settlementId": "st-3efb1dd74a14",
+  "settlementId": "st-8a9ce98cfffb",
   "cardId": "moonshot-2026-07-09-cb3cade37e8d",
   "settledAt": "2026-07-09",
-  "status": "pending",
+  "status": "settled",
   "legResults": [
     {
       "legId": "f3dff862099a",
-      "status": "pending",
+      "status": "loss",
+      "actual": -5,
       "line": 1.5,
-      "reason": "game not final"
+      "reason": "home margin -5 +1.5 = -3.5"
     },
     {
       "legId": "5c686ad98f0a",
-      "status": "pending",
-      "reason": "game not final"
+      "status": "loss",
+      "actual": 8,
+      "reason": "away won 12-4"
     },
     {
       "legId": "0479725d29d2",
-      "status": "pending",
+      "status": "win",
+      "actual": 10,
       "line": 9,
-      "reason": "game not final"
+      "reason": "10 > 9"
     },
     {
       "legId": "8e98c77f05d5",
@@ -27,15 +30,12 @@
       "reason": "no committed settled_leans row (date not settled / no match)"
     }
   ],
-  "cardResult": "pending",
-  "paperPnlUnits": 0,
+  "cardResult": "lost",
+  "paperPnlUnits": -1,
   "officialMoneyRecordAffected": false,
   "public": false,
   "moneyGuardMd5AtSettlement": "c5b425a15a8b211767c3ce6dedf1ac4d",
   "unsettledReasons": [
-    "f3dff862099a: game not final",
-    "5c686ad98f0a: game not final",
-    "0479725d29d2: game not final",
     "8e98c77f05d5: no committed settled_leans row (date not settled / no match)"
   ]
 }
