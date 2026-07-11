@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-07-10T14:21:25.418Z",
+  "generatedAt": "2026-07-11T09:52:06.327Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -16,57 +16,54 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-07-10",
+    "date": "2026-07-11",
     "activeBankroll": 19065.4,
-    "openExposure": 150,
-    "worldCupGames": 1,
-    "mlbGames": 15,
-    "mlbSlate": "2026-07-10"
+    "openExposure": 25,
+    "worldCupGames": 2,
+    "mlbGames": 16,
+    "mlbSlate": "2026-07-11"
   },
   "productReadiness": {
-    "bankBuilder": "active · 1 lane(s)",
-    "moonshot": "active · 2 lane(s)",
+    "bankBuilder": "awaiting approval",
+    "moonshot": "active · 1 lane(s)",
     "top10": "live",
-    "worldCup": "live · 1 game(s)",
-    "mlb": "live · 15 game(s)",
-    "wcSpecials": "4 card(s)"
+    "worldCup": "live · 2 game(s)",
+    "mlb": "live · 16 game(s)",
+    "wcSpecials": "2 card(s)"
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 1,
+      "activeLanes": 0,
       "lanes": [
         {
           "lane": "A",
-          "status": "active",
+          "status": "candidate",
           "step": 3,
-          "legs": 3,
-          "combinedOdds": 366,
+          "legs": 2,
+          "combinedOdds": 216,
           "stake": 305.57,
-          "potentialReturn": 1423.87,
+          "potentialReturn": 965.17,
           "selections": [
-            "Spain",
             "Argentina",
-            "Over 2.5"
+            "England"
           ]
         }
       ]
     },
     "moonshot": {
-      "activeLanes": 2,
+      "activeLanes": 1,
       "lanes": [
         {
           "lane": "A",
-          "status": "active",
+          "status": "candidate",
           "step": 1,
-          "legs": 6,
-          "combinedOdds": 817,
+          "legs": 4,
+          "combinedOdds": 359,
           "stake": 25,
-          "potentialReturn": 229.27,
+          "potentialReturn": 114.81,
           "selections": [
-            "Spain (draw no bet)",
-            "Over 2.5",
             "England (draw no bet)",
-            "Both teams to score: Yes",
+            "Over 2.5",
             "Argentina (draw no bet)",
             "Under 2.5"
           ]
@@ -75,15 +72,13 @@
           "lane": "B",
           "status": "active",
           "step": 1,
-          "legs": 8,
-          "combinedOdds": 2569,
+          "legs": 6,
+          "combinedOdds": 1138,
           "stake": 25,
-          "potentialReturn": 667.29,
+          "potentialReturn": 309.47,
           "selections": [
-            "Spain (draw no bet)",
-            "Over 2.5",
-            "Both teams to score: Yes",
             "England (draw no bet)",
+            "Over 2.5",
             "Both teams to score: Yes",
             "Argentina (draw no bet)",
             "Under 2.5",
@@ -94,8 +89,8 @@
     }
   },
   "counts": {
-    "activeProducts": 4,
-    "pendingApprovals": 0
+    "activeProducts": 3,
+    "pendingApprovals": 2
   },
   "workflowHealth": {
     "lastRunAt": "2026-07-08T03:10:25.367Z",
@@ -119,7 +114,7 @@
     },
     {
       "step": "Bank Builder card decided (active or no-play)",
-      "done": true
+      "done": false
     },
     {
       "step": "No missing-data warnings",
@@ -130,9 +125,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-07-10",
-  "nextRefreshDate": "2026-07-11",
-  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-07-10's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
+  "nextSettlementDate": "2026-07-11",
+  "nextRefreshDate": "2026-07-12",
+  "nextAction": "No active Bank Builder lane for 2026-07-11 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
