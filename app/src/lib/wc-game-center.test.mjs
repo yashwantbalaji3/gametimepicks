@@ -88,8 +88,10 @@ test("6 · game-detail attaches wcGameCenter; page gates it behind Generate (pos
   // The WC-sim branch hands ONE unified report (wcReport) to the runner's postReveal (revealed after Generate).
   assert.match(detailPageSrc, /const isWcSim = detail\.sport === "world_cup" && !!detail\.wcGameCenter/);
   assert.match(detailPageSrc, /postReveal=\{wcReport\}/, "WC post-reveal is the gated unified report");
-  // The WC Game Center leads the gated unified report (still inside postReveal, absent pre-click).
-  assert.match(detailPageSrc, /wcReport = \([\s\S]*?<WcGameCenter gameCenter=\{gc\} expanded=\{detail\.wcExpanded\}/, "the WC Game Center leads the gated unified report");
+  // The gated report now leads with the shared FreeSim shell; the WC Game Center is handed to the shell's
+  // Details as the advanced market dashboard — still inside postReveal, absent from the pre-click DOM.
+  assert.match(detailPageSrc, /wcReport = freeSimReport \?/, "WC report chooses the FreeSim shell when a Game Lab view exists");
+  assert.match(detailPageSrc, /<MultiSportReportShell report=\{freeSimReport\} advanced=\{<WcGameCenter gameCenter=\{gc\} expanded=\{detail\.wcExpanded\}/, "the WC Game Center stays gated inside the FreeSim shell");
 });
 
 test("7 · money md5 unchanged; the layer is money-independent", () => {

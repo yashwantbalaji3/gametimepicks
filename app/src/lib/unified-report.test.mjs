@@ -42,7 +42,10 @@ test("2 · the report is ONE unified spine — no competing PostRevealTabs dashb
 test("3 · remaining detail is a stack of COLLAPSED disclosures (not tabs)", () => {
   assert.match(detailPage, /mlbReportDetails = \([\s\S]*?ExpandableReportSection title="Player props by market"/, "player props collapsed");
   assert.match(detailPage, /mlbReportDetails = \([\s\S]*?ExpandableReportSection title="Advanced report"/, "advanced report collapsed");
-  assert.match(detailPage, /wcReport = \([\s\S]*?<WcGameCenter[\s\S]*?ExpandableReportSection title="Advanced report"/, "WC report leads with the Game Center then collapsed detail");
+  // WC now leads with the shared FreeSim report shell (Game Center gated inside its Details as the advanced
+  // dashboard); the remaining detail is still a stack of collapsed disclosures, not tabs.
+  assert.match(detailPage, /wcReport = freeSimReport \?[\s\S]*?<MultiSportReportShell[\s\S]*?<WcGameCenter/, "WC report leads with the FreeSim shell, Game Center inside it");
+  assert.match(detailPage, /wcSecondary = \([\s\S]*?ExpandableReportSection title="Advanced report"/, "secondary WC detail stays collapsed");
 });
 
 test("4 · the strongest lean is de-duplicated — Central read is the single hero", () => {

@@ -15,6 +15,8 @@ import MlbGameCenter from "@/components/game/mlb-game-center";
 import WcGameCenter from "@/components/game/wc-game-center";
 import WcSimulationRunner from "@/components/game/wc-simulation-runner";
 import WcGameLabReport from "@/components/game/wc-game-lab-report";
+import MultiSportReportShell from "@/components/game/multi-sport-report-shell";
+import { wcGameLabViewToReport } from "@/lib/multi-sport-report/wc-adapter";
 import { ExpandableReportSection } from "@/components/game/answer-first-report";
 import {
   MethodologyPanel,
@@ -706,19 +708,34 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     // all in one panel. Below it, the remaining DETAIL is a small stack of collapsed disclosures (dense
     // WC report, what's coming, methodology) — NOT a competing tabbed dashboard. Soccer stays
     // market-implied (no 10,000-run claim). Entirely inside the runner's postReveal → gated. ──
-    const wcReport = (
+    // World Cup / Soccer → the shared FreeSim report contract, honestly labeled "Market-implied
+    // simulation" (no run count, no independent-model claim). Built purely from the Game Lab view; the
+    // adapter never fabricates a market/lean/score. Status stays "scheduled" — WC is display-only.
+    const freeSimReport = detail.gameLabWc ? wcGameLabViewToReport(detail.gameLabWc, { slateDate: detail.date }) : null;
+    const wcSecondary = (
+      <div className="flex flex-col gap-2">
+        <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>More detail · expand as needed</span>
+        {wcReportEl ? <ExpandableReportSection title="Advanced report" hint="The dense market-implied model report for this match.">{wcReportEl}</ExpandableReportSection> : null}
+        <ExpandableReportSection title="Scorers &amp; what's coming" hint="Player markets, match events, and the advanced model layer — honest roadmap.">
+          <ScorersPanel /><SoccerComingSoonRoadmap />
+        </ExpandableReportSection>
+        <ExpandableReportSection title="Methodology" hint="How this market-implied read is built — paper-only.">
+          <MethodologyPanel sport="world_cup" />
+        </ExpandableReportSection>
+      </div>
+    );
+    // The six-section FreeSim spine is PRIMARY. The market dashboard (WcGameCenter) moves into the shell's
+    // Details as the "advanced market dashboard" — nothing is lost, but the report leads. Fall back to the
+    // dashboard-first layout only when there's no Game Lab view to build the report from.
+    const wcReport = freeSimReport ? (
+      <div className="flex flex-col gap-3">
+        <MultiSportReportShell report={freeSimReport} advanced={<WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />} />
+        {wcSecondary}
+      </div>
+    ) : (
       <div className="flex flex-col gap-3">
         <WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />
-        <div className="flex flex-col gap-2">
-          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>More detail · expand as needed</span>
-          {wcReportEl ? <ExpandableReportSection title="Advanced report" hint="The dense market-implied model report for this match.">{wcReportEl}</ExpandableReportSection> : null}
-          <ExpandableReportSection title="Scorers &amp; what's coming" hint="Player markets, match events, and the advanced model layer — honest roadmap.">
-            <ScorersPanel /><SoccerComingSoonRoadmap />
-          </ExpandableReportSection>
-          <ExpandableReportSection title="Methodology" hint="How this market-implied read is built — paper-only.">
-            <MethodologyPanel sport="world_cup" />
-          </ExpandableReportSection>
-        </div>
+        {wcSecondary}
       </div>
     );
     return (
@@ -730,7 +747,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
           <CompetitionBadge sport="world_cup" size="sm" />
           <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
-            <span aria-hidden>▶</span> Market Dashboard Ready
+            <span aria-hidden>▶</span> Market-Implied Report Ready
           </span>
         </div>
         <WcSimulationRunner
