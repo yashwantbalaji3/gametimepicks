@@ -16,9 +16,9 @@ function american(v?: number | null): string {
 }
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 
-export default function UfcSimulationAnimation({ fighterA, fighterB, probA, probB, oddsA, oddsB, fightType, distanceLean, methodLean }: {
+export default function UfcSimulationAnimation({ fighterA, fighterB, probA, probB, oddsA, oddsB, fightType, distanceLean, methodLean, roundRange }: {
   fighterA: string; fighterB: string; probA: number; probB: number; oddsA?: number | null; oddsB?: number | null;
-  fightType?: string; distanceLean?: string; methodLean?: string;
+  fightType?: string; distanceLean?: string; methodLean?: string; roundRange?: string;
 }) {
   const pa = Math.max(0, Math.min(1, probA));
   const pb = Math.max(0, Math.min(1, probB));
@@ -59,10 +59,10 @@ export default function UfcSimulationAnimation({ fighterA, fighterB, probA, prob
       </div>
 
       {/* Model reads — GameTime V1 (experimental) when fighter data allows; otherwise provider-needed. */}
-      {fightType || distanceLean || methodLean ? (
+      {fightType || distanceLean || methodLean || roundRange ? (
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 8.5 }}>V1 model read · experimental</span>
-          {[fightType, distanceLean, methodLean].filter(Boolean).map((m, i) => (
+          {[fightType, distanceLean, methodLean, roundRange].filter(Boolean).map((m, i) => (
             <span key={i} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)", background: "rgba(217,164,65,0.1)", border: "1px solid rgba(217,164,65,0.35)", fontSize: 8.5 }}>{m}</span>
           ))}
         </div>

@@ -59,6 +59,10 @@ test("4 · market-backed moneyline carries de-vig probs; model method probs sum 
       assert.ok(r.goesDistance.probability >= 0.25 && r.goesDistance.probability <= 0.75, "distance prob clamped");
       const m = r.method.probabilities;
       assert.ok(m && Math.abs(m.koTko + m.submission + m.decision - 1) < 1e-6, "method mix sums to 1");
+    } else if (r.moneyline.source === "market_implied") {
+      // MARKET-ONLY fallback (odds but no fighter model): "Market-only read" / "No clear read", never blank.
+      assert.equal(r.fightType.label, "Market-only read");
+      assert.equal(r.method.lean, "No clear read");
     } else {
       assert.equal(r.fightType.label, "Insufficient data");
       assert.equal(r.method.lean, "Insufficient data");
@@ -74,6 +78,23 @@ test("5 · EVERY row carries the experimental caveat and NO forbidden over-claim
       assert.ok(!blob.includes(w), `no "${w}" in the row`);
     }
   }
+});
+
+test("8 · every fight emits a DISPLAY-SAFE row — no empty cells, no forbidden claims", () => {
+  const FIELDS = ["gameTimeRead", "moneyline", "winProbability", "fightType", "distance", "method", "roundRange", "confidence", "why", "coverage"];
+  for (const r of rows) {
+    for (const f of FIELDS) {
+      assert.ok(r.display[f] && String(r.display[f]).trim().length > 0, `${r.eventName ?? r.fightId}: display.${f} is non-empty`);
+      assert.doesNotMatch(String(r.display[f]), /undefined|null|NaN/, `display.${f} has no undefined/null/NaN`);
+    }
+    const blob = JSON.stringify(r.display).toLowerCase();
+    for (const w of ["best bet", " lock", "positive ev", "validated edge", "official pick", "guaranteed"]) {
+      assert.ok(!blob.includes(w), `no "${w}" in the display row`);
+    }
+  }
+  // With the market-only fallback, the whole card is filled — zero "Insufficient data" when every fight has
+  // odds OR a fighter model (true for this card).
+  assert.equal(rows.filter((r) => r.display.fightType === "Insufficient data").length, 0, "no insufficient rows on this card");
 });
 
 test("7 · diacritic folding matches accented fighters; genuine unknowns stay honest", () => {

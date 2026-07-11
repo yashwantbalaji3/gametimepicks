@@ -195,6 +195,7 @@ export default function UfcPage() {
       fightType={featuredRow?.fightType.source === "model_derived" ? featuredRow.fightType.label : undefined}
       distanceLean={featuredRow?.goesDistance.source === "model_derived" ? featuredRow.goesDistance.lean ?? undefined : undefined}
       methodLean={featuredRow?.method.source === "model_derived" ? featuredRow.method.lean ?? undefined : undefined}
+      roundRange={featuredRow?.roundRange.source === "model_derived" ? featuredRow.roundRange.lean ?? undefined : undefined}
     />
   ) : null;
   const fightSimsSection = fightReports.length > 0 ? (

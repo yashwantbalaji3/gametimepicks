@@ -13,9 +13,6 @@ const mute = "var(--vault-text-mute)";
 const faint = "var(--vault-text-faint)";
 const gold = "var(--vault-gold-bright)";
 
-function american(v: number | null): string {
-  return typeof v === "number" && Number.isFinite(v) ? (v > 0 ? `+${v}` : `${v}`) : "—";
-}
 const CONF: Record<Confidence, { c: string; label: string }> = {
   high: { c: "var(--gtp-success-on-dark,#7ee2a8)", label: "High" },
   medium: { c: gold, label: "Medium" },
@@ -52,9 +49,6 @@ function pct(v: number | null): string {
 }
 
 function FightCard({ r }: { r: UfcPredictionRowV1 }) {
-  const winPct = r.moneyline.source === "market_implied"
-    ? `${r.fighterA.split(" ").pop()} ${pct(r.moneyline.fighterAProbability)} / ${r.fighterB.split(" ").pop()} ${pct(r.moneyline.fighterBProbability)}`
-    : "—";
   return (
     <article className="rounded-[10px] px-3.5 py-3 flex flex-col gap-2" style={{ background: "rgba(26, 16, 11,0.5)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-start justify-between gap-2">
@@ -62,16 +56,18 @@ function FightCard({ r }: { r: UfcPredictionRowV1 }) {
         {coverageChip(r.dataCoverage.label)}
       </div>
       <div className="rounded-[8px] px-2.5 py-2" style={{ background: "rgba(242,54,69,0.08)", border: `1px solid var(--vault-rule)` }}>
-        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: gold, fontSize: 8 }}>GameTime read</span>
-        <div style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700, lineHeight: 1.2 }}>{r.gameTimeRead}</div>
+        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: gold, fontSize: 8 }}>GameTime read · {r.display.confidence} confidence</span>
+        <div style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700, lineHeight: 1.2 }}>{r.display.gameTimeRead}</div>
       </div>
       <div className="grid grid-cols-2 gap-1.5">
-        <ReadCell label="Moneyline" value={r.moneyline.source === "market_implied" ? `${american(r.moneyline.oddsA)} / ${american(r.moneyline.oddsB)}` : "Odds pending"} conf={r.moneyline.confidence} sub={r.moneyline.source === "market_implied" ? winPct : undefined} />
-        <ReadCell label="Fight type" value={r.fightType.label} conf={r.fightType.confidence} />
-        <ReadCell label="Distance" value={r.goesDistance.lean ?? "—"} conf={r.goesDistance.confidence} sub={r.goesDistance.probability != null ? `${pct(r.goesDistance.probability)} to decision` : undefined} />
-        <ReadCell label="Method" value={r.method.lean ?? "—"} conf={r.method.confidence} sub={r.method.probabilities ? `KO ${pct(r.method.probabilities.koTko)} · sub ${pct(r.method.probabilities.submission)} · dec ${pct(r.method.probabilities.decision)}` : undefined} />
+        <ReadCell label="Moneyline" value={r.display.moneyline} conf={r.moneyline.confidence} sub={r.display.winProbability !== "—" ? r.display.winProbability : undefined} />
+        <ReadCell label="Fight type" value={r.display.fightType} conf={r.fightType.confidence} />
+        <ReadCell label="Distance" value={r.display.distance} conf={r.goesDistance.confidence} sub={r.goesDistance.probability != null ? `${pct(r.goesDistance.probability)} to decision` : undefined} />
+        <ReadCell label="Method" value={r.display.method} conf={r.method.confidence} sub={r.method.probabilities ? `KO ${pct(r.method.probabilities.koTko)} · sub ${pct(r.method.probabilities.submission)} · dec ${pct(r.method.probabilities.decision)}` : undefined} />
+        <ReadCell label="Round range" value={r.display.roundRange} conf={r.roundRange.confidence} />
+        <ReadCell label="Coverage" value={r.display.coverage} />
       </div>
-      <p style={{ color: mute, fontSize: 11, lineHeight: 1.4 }}>{r.summary}</p>
+      <p style={{ color: mute, fontSize: 11, lineHeight: 1.4 }}>{r.display.why}</p>
     </article>
   );
 }

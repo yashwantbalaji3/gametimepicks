@@ -49,6 +49,19 @@ export interface UfcPredictionRowV1 {
   gameTimeRead: string;
   summary: string;
   caveat: string;
+  /** Display-safe strings — the UI renders THESE, never blank. Every field is always non-empty. */
+  display: {
+    gameTimeRead: string;
+    moneyline: string;
+    winProbability: string;
+    fightType: string;
+    distance: string;
+    method: string;
+    roundRange: string;
+    confidence: string;
+    why: string;
+    coverage: string;
+  };
 }
 
 // ── inputs (loosely typed — the real artifacts are validated by the readers) ──
@@ -193,12 +206,20 @@ export function buildUfcPredictionV1(fight: EngineFight, odds: EngineOddsBout | 
 
     const ftLabel = gdProb >= 0.58 ? "Likely decision-heavy" : finishThreat >= 0.5 ? (grapplingScore >= strikingScore ? "Grappling volatility" : "Striking volatility") : "Balanced";
     fightType = { source: "model_derived", label: ftLabel, confidence: gdConf, explanation: `Style read from finish threat ${pct(finishThreat)}, striking ${pct(strikingScore)}, grappling ${pct(grapplingScore)}.` };
+  } else if (hasOdds) {
+    // MARKET-ONLY fallback — a moneyline exists but the fighter model doesn't. Honest "No clear read" (we
+    // can't read the style without fighter stats), NOT "Insufficient data" (we do have a market read).
+    const mo = { source: "unavailable" as Source, confidence: "low" as Confidence };
+    goesDistance = { ...mo, lean: "No clear read", probability: null, explanation: "Market gives a moneyline read, but fighter-stat coverage is limited — no confident distance read." };
+    method = { ...mo, lean: "No clear read", probabilities: null, explanation: "Limited fighter data — no confident method read." };
+    roundRange = { ...mo, lean: "No clear read", explanation: "Limited fighter data — no confident round read." };
+    fightType = { ...mo, label: "Market-only read", explanation: "Moneyline is market-implied; fighter-stat coverage is limited." };
   } else {
     const insufficient = { source: "unavailable" as Source, confidence: "no_read" as Confidence };
-    goesDistance = { ...insufficient, lean: "Insufficient data", probability: null, explanation: "Missing fighter stats from the connected source — no distance read." };
-    method = { ...insufficient, lean: "Insufficient data", probabilities: null, explanation: "Missing fighter stats — no method read." };
-    roundRange = { ...insufficient, lean: "Insufficient data", explanation: "Missing fighter stats — no round read." };
-    fightType = { ...insufficient, label: "Insufficient data", explanation: "Missing fighter stats — no fight-type read." };
+    goesDistance = { ...insufficient, lean: "Insufficient data", probability: null, explanation: "Fighter stats and two-sided odds aren't available yet." };
+    method = { ...insufficient, lean: "Insufficient data", probabilities: null, explanation: "Fighter stats and odds aren't available yet." };
+    roundRange = { ...insufficient, lean: "Insufficient data", explanation: "Fighter stats and odds aren't available yet." };
+    fightType = { ...insufficient, label: "Insufficient data", explanation: "Fighter stats and odds aren't available yet." };
   }
 
   const coverageLabel = hasOdds && hasModel ? "Full data" : hasOdds ? "Odds only" : hasModel ? "Model only" : "Records only";
@@ -214,7 +235,28 @@ export function buildUfcPredictionV1(fight: EngineFight, odds: EngineOddsBout | 
   const summary = `${hasOdds ? moneyline.explanation : "Moneyline pending."}${modelBit}`;
   const caveat = "Moneyline is market-implied; fight type / distance / method are GameTime V1 experimental model reads — validation in progress, not a verified edge. Paper-only.";
 
-  return { fightId, fighterA: a, fighterB: b, dataCoverage, moneyline, fightType, goesDistance, method, roundRange, gameTimeRead, summary, caveat };
+  // ── Display-safe strings — the UI renders THESE. Every field is guaranteed non-empty (never a blank cell). ──
+  const CONF_LABEL: Record<Confidence, string> = { high: "High", medium: "Medium", low: "Low", no_read: "No read" };
+  const amer = (v: number | null): string | null => (typeof v === "number" && Number.isFinite(v) ? (v > 0 ? `+${v}` : `${v}`) : null);
+  const last = (n: string): string => (n.split(" ").filter(Boolean).pop() || n);
+  const nonEmpty = (s: string | null | undefined, fallback: string): string => (s && s.trim() ? s : fallback);
+  const overallConf: Confidence = hasOdds ? moneyline.confidence : goesDistance.confidence;
+  const display = {
+    gameTimeRead: nonEmpty(gameTimeRead, "—"),
+    moneyline: hasOdds ? `${last(a)} ${amer(oddsA) ?? "—"} · ${last(b)} ${amer(oddsB) ?? "—"}` : "Odds pending",
+    winProbability: moneyline.fighterAProbability != null
+      ? `${last(a)} ${pct(moneyline.fighterAProbability)} / ${last(b)} ${pct(moneyline.fighterBProbability ?? 0)}`
+      : "—",
+    fightType: nonEmpty(fightType.label, "No clear read"),
+    distance: nonEmpty(goesDistance.lean, "No clear read"),
+    method: nonEmpty(method.lean, "No clear read"),
+    roundRange: nonEmpty(roundRange.lean, "No clear read"),
+    confidence: CONF_LABEL[overallConf],
+    why: nonEmpty(summary, caveat),
+    coverage: dataCoverage.label,
+  };
+
+  return { fightId, fighterA: a, fighterB: b, dataCoverage, moneyline, fightType, goesDistance, method, roundRange, gameTimeRead, summary, caveat, display };
 }
 
 /** Model confidence from a read's separation from a coin-flip and the fighters' data completeness. */
