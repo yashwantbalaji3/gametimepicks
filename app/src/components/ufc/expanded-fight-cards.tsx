@@ -133,7 +133,7 @@ function FightRow({ f }: { f: Fight }) {
             {f.fighters[0]} <span style={{ color: "var(--vault-text-faint)" }}>vs</span> {f.fighters[1]}
           </span>
           <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
-            {ml ? `Model pick: ${ml.pick} · ${pct(ml.modelProbability)}` : "Moneyline pending"}
+            {ml ? `Model read (unvalidated): ${ml.pick} · ${pct(ml.modelProbability)}` : "Moneyline pending"}
             {f.scheduledRounds ? ` · ${f.scheduledRounds}-round` : ""}
           </span>
         </div>
@@ -169,7 +169,7 @@ function FightRow({ f }: { f: Fight }) {
                 <MetricRow
                   label="Moneyline"
                   value={`${ml.pick} ${pct(ml.modelProbability)}`}
-                  sub={`${fmtAmerican(ml.oddsPrice)} · market ${pct(ml.marketProbability)} · edge ${(ml.edge ?? 0) >= 0 ? "+" : ""}${Math.round((ml.edge ?? 0) * 1000) / 10}pp`}
+                  sub={`${fmtAmerican(ml.oddsPrice)} · market ${pct(ml.marketProbability)} · model gap ${(ml.edge ?? 0) >= 0 ? "+" : ""}${Math.round((ml.edge ?? 0) * 1000) / 10}pp (unvalidated)`}
                   state="odds-backed"
                 />
               ) : null}

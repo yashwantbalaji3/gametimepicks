@@ -23,6 +23,8 @@ import ProjectionCard from "@/components/ui/projection-card";
 import StatusChip from "@/components/ui/status-chip";
 import UfcExpandedFightCards from "@/components/ufc/expanded-fight-cards";
 import UfcEventResultsRecap, { type UfcSettlement } from "@/components/ufc/event-results-recap";
+import MultiSportReportShell from "@/components/game/multi-sport-report-shell";
+import { ufcEventToReports } from "@/lib/multi-sport-report/ufc-adapter";
 
 export const metadata = {
   title: "UFC · GameTime Picks",
@@ -131,15 +133,43 @@ export default function UfcPage() {
     </div>
   );
 
+  // ── Market-implied FreeSim fight reports (the shared MultiSportReportShell). Built from the de-vigged
+  //    two-sided moneyline only; model-adjusted picks stay gated while moneylineValidated=false. Skipped
+  //    once the card is settled (stale). Nothing fabricated — fights without odds are simply absent. ──
+  const fightReports = ufcSettled ? [] : ufcEventToReports(v1Proj, odds as Parameters<typeof ufcEventToReports>[1]);
+  const fightSimsSection = fightReports.length > 0 ? (
+    <section className="flex flex-col gap-3">
+      <SectionHeader
+        eyebrow={`Fight simulations · ${fightReports.length}`}
+        title={`${eventName} — market-implied fight reports`}
+        sub="Each fight's de-vigged sportsbook moneyline as a FreeSim-style report: Market Snapshot → Simulation Output → Main Read → Top Leans → Key Takeaways → Details. Market-implied simulation — not an independent 10,000-run UFC model. Model-adjusted picks stay gated until validation. Paper-only."
+      />
+      <div className="rounded-[10px] p-3" style={{ border: "1px solid var(--vault-border-strong)", background: "rgba(26, 16, 11,0.4)" }}>
+        <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Featured fight</span>
+        <div className="mt-2"><MultiSportReportShell report={fightReports[0]} /></div>
+      </div>
+      {fightReports.slice(1).map((rep) => (
+        <details key={rep.eventId} className="rounded-[10px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+          <summary className="cursor-pointer list-none flex items-center justify-between gap-2">
+            <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{rep.eventName}</span>
+            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{rep.mainRead.label.replace(/^Market-implied favorite: /, "").replace(/ — no clear market favorite$/, "· pick'em")}</span>
+          </summary>
+          <div className="mt-3"><MultiSportReportShell report={rep} /></div>
+        </details>
+      ))}
+    </section>
+  ) : null;
+
   // ─────────────────────────── Tabs ───────────────────────────
   const overviewTab = (
     <div className="flex flex-col gap-8">
       <div className="flex items-center gap-3 flex-wrap rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
-        <StatusChip label={showV1Proj ? "Moneyline live" : "Pending"} />
+        <StatusChip label={showV1Proj ? "Market-implied sims live" : "Pending"} />
         <span style={{ color: "var(--vault-text)", fontSize: 13 }}>
-          {showV1Proj ? `V1 moneyline model is live for ${eventName} — real schedule, sportsbook lines, and fighter stats. Moneyline only; method/distance/round props aren't offered yet.` : "Projections publish once the data gates pass."}
+          {showV1Proj ? `Market-implied fight simulations are live for ${eventName} — de-vigged real sportsbook moneylines. Model-adjusted picks are still validating before public release. Moneyline only; method/distance/round props aren't offered by the current feed.` : "Projections publish once the data gates pass."}
         </span>
       </div>
+      {fightSimsSection}
       {ufcCards.length > 0 && (
         <section>
           <SectionHeader eyebrow={`Suggested cards · ${ufcCards.length}`} title="Suggested moneyline cards" sub="Model-probability cards (no market odds, so no paper payout). Conservative, moneyline-only — no props, no same-fight combos." />
@@ -150,7 +180,7 @@ export default function UfcPage() {
       )}
       {bouts.length > 0 && (
         <section>
-          <SectionHeader eyebrow="Fight card · book lines" title={eventName} sub="Real sportsbook moneyline prices with market-implied probability. Book lines, not model picks." />
+          <SectionHeader eyebrow="Advanced odds board" title={`${eventName} · raw book lines`} sub="The raw two-sided sportsbook moneyline prices behind the fight simulations above. Book lines, not model picks." />
           {boutsBoard}
         </section>
       )}
@@ -330,11 +360,11 @@ export default function UfcPage() {
         icon={getSportIdentity("ufc").icon}
         iconGradient={getSportIdentity("ufc").gradient}
         iconLabel={getSportIdentity("ufc").ballLabel}
-        eyebrow="UFC · moneyline V1"
+        eyebrow="UFC · fight simulator"
         sport="UFC"
-        tagline="moneyline projections · fight card · validation"
+        tagline="market-implied fight simulations · model validating"
         statusKind={ufcSettled ? "upcoming" : showV1Proj ? "live" : "upcoming"}
-        statusLabel={ufcSettled ? "Next slate loading soon" : showV1Proj ? "Moneyline live" : "Building coverage"}
+        statusLabel={ufcSettled ? "Next slate loading soon" : showV1Proj ? "Market-implied sims live" : "Building coverage"}
         statusCaption={ufcSettled ? " · previous event settled" : ` · ${eventName}`}
         matchupLine={ufcSettled ? `Previous event settled · ${settledEventName} → see Results` : ops?.nextCard?.eventDate ? `Next · ${eventName} · ${fmtDate(ops.nextCard.eventDate)}` : `Next · ${eventName}`}
         stats={heroStats}
@@ -343,7 +373,7 @@ export default function UfcPage() {
           { href: "/picks", label: "View picks", primary: true },
           { href: "/methodology", label: "How it works" },
         ]}
-        framing="UFC V1 publishes moneyline only — win probabilities from real schedule, sportsbook lines, and fighter stats, with a separate validated badge that appears only after a no-leakage backtest. Method, distance, and round props are not offered yet because the current odds feed is moneyline (h2h) only. Educational, paper-only."
+        framing="Market-implied fight simulations are live — each fight's de-vigged sportsbook moneyline as a FreeSim-style report (market snapshot, win probabilities, main read, takeaways). This is a market-implied read, NOT an independent 10,000-run UFC model. Model-adjusted picks stay gated until a no-leakage backtest validates them. Method, distance, and round props aren't offered — the current odds feed is moneyline (h2h) only. Educational, paper-only."
       />
 
       <div className="mt-6">
