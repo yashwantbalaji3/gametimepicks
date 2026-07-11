@@ -25,6 +25,7 @@ import UfcExpandedFightCards from "@/components/ufc/expanded-fight-cards";
 import UfcEventResultsRecap, { type UfcSettlement } from "@/components/ufc/event-results-recap";
 import MultiSportReportShell from "@/components/game/multi-sport-report-shell";
 import { ufcEventToReports } from "@/lib/multi-sport-report/ufc-adapter";
+import UfcFightNightHero from "@/components/ufc/ufc-fight-night-hero";
 
 export const metadata = {
   title: "UFC · GameTime Picks",
@@ -76,6 +77,7 @@ export default function UfcPage() {
   const odds = loadJSONUfc<OddsArtifact>("odds-latest.json", { oddsReady: false, bouts: [] });
   const ops = loadJSONUfc<OpsStatus | null>("ops-status-latest.json", null);
   const v1Proj = loadJSONUfc<V1Projections | null>("projections-latest.json", null);
+  const sched = loadJSONUfc<{ venue?: string; fightCount?: number; eventDate?: string } | null>("schedule-latest.json", null);
   const v1Parlays = loadJSONUfc<V1Parlays | null>("suggested-parlays-latest.json", null);
   const expanded = loadJSONUfc<{ projections?: unknown[] } | null>("expanded-projections-latest.json", null);
   const expandedFights = (expanded?.projections ?? []) as Parameters<typeof UfcExpandedFightCards>[0]["fights"];
@@ -100,6 +102,12 @@ export default function UfcPage() {
   const ufcCards = normalizeUfcCards(v1Parlays as Parameters<typeof normalizeUfcCards>[0], "");
   const eventName = v1Proj?.eventName ?? ops?.nextCard?.eventName ?? "Next card";
   const settledEventName = settlement?.event ?? eventName;
+  // Headliner names for the octagon hero — parsed from the real event name ("UFC 329: A vs. B"), never faked.
+  const headliners = ((): [string, string] | null => {
+    const after = eventName.includes(":") ? eventName.split(":").slice(1).join(":").trim() : eventName;
+    const parts = after.split(/\s+vs\.?\s+/i);
+    return parts.length === 2 && parts[0] && parts[1] ? [parts[0].trim(), parts[1].trim()] : null;
+  })();
   const bouts = odds.oddsReady ? odds.bouts : [];
   const pct = ops ? Math.min(100, Math.round((ops.cleanGradedRows / Math.max(1, ops.targetRowsForPublicMoneyline)) * 100)) : 0;
 
@@ -186,8 +194,22 @@ export default function UfcPage() {
   );
 
   // ─────────────────────────── Tabs ───────────────────────────
+  const fightNightHero = (
+    <UfcFightNightHero
+      eventName={eventName}
+      eventDate={sched?.eventDate ?? ops?.nextCard?.eventDate}
+      venue={sched?.venue}
+      fightCount={sched?.fightCount ?? bouts.length}
+      oddsCount={fightReports.length}
+      gradedRows={gradedRows}
+      gradedTarget={gradedTarget}
+      headliners={headliners}
+    />
+  );
+
   const overviewTab = (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
+      {fightNightHero}
       <div className="flex items-center gap-3 flex-wrap rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
         <StatusChip label={showV1Proj ? "Market-implied sims live" : "Pending"} />
         <span style={{ color: "var(--vault-text)", fontSize: 13 }}>

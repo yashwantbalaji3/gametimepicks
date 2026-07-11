@@ -14,6 +14,7 @@
  */
 import type { MultiSportGameReport, ReportMarket, ReportLean, SimulationSourceMode } from "@/lib/multi-sport-report/schema";
 import { SOURCE_MODE_LABEL } from "@/lib/multi-sport-report/schema";
+import ProbabilityBar from "@/components/game/probability-bar";
 
 const gold = "var(--vault-gold-bright)";
 const mute = "var(--vault-text-mute)";
@@ -89,9 +90,15 @@ function MarketSnapshotPanel({ markets }: { markets: ReportMarket[] }) {
         <p style={{ color: mute, fontSize: 12 }}>No live markets for this game yet.</p>
       )}
       {roadmap.length > 0 ? (
-        <p className="mt-2 font-mono uppercase tracking-[0.1em]" style={{ color: faint, fontSize: 9 }}>
-          Roadmap / provider-needed: {roadmap.map((m) => m.label).join(" · ")}
-        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: faint, fontSize: 8.5 }}>Provider-needed</span>
+          {roadmap.map((m, i) => (
+            <span key={`${m.key}-${i}`} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]"
+                  style={{ color: faint, background: "rgba(26, 16, 11,0.6)", border: `1px dashed ${rule}`, fontSize: 8.5 }}>
+              <span aria-hidden>🔒</span> {m.label}
+            </span>
+          ))}
+        </div>
       ) : null}
     </Card>
   );
@@ -107,13 +114,7 @@ function SimulationOutputPanel({ output, label }: { output: MultiSportGameReport
       </div>
       <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{output.headline}</p>
       {output.winProbabilities && output.winProbabilities.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {output.winProbabilities.map((w, i) => (
-            <span key={`${w.label}-${i}`} className="rounded-full px-2.5 py-1 font-mono" style={{ background: "rgba(242,54,69,0.10)", border: `1px solid ${rule}`, color: mute, fontSize: 11 }}>
-              {w.label} {pct(w.probability)}
-            </span>
-          ))}
-        </div>
+        <div className="mt-2.5"><ProbabilityBar segments={output.winProbabilities} /></div>
       ) : null}
       {output.notes.length > 0 ? (
         <ul className="mt-2 flex flex-col gap-1">

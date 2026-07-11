@@ -50,7 +50,7 @@ const ITEMS: RailItem[] = [
   { href: "/world-cup", label: "World Cup", glyph: "⚽", group: "Sports", desc: "Soccer hub" },
   { href: "/mlb", label: "MLB", glyph: "⚾", desc: "Baseball hub" },
   { href: "/nba", label: "NBA", glyph: "🏀", desc: "Basketball hub" },
-  { href: "/ufc", label: "UFC", glyph: "🥊", desc: "UFC 329 · fight week" },
+  { href: "/ufc", label: "UFC", glyph: "🥊", desc: "Fight simulator · sims live" },
   { href: "/learn", label: "How It Works", glyph: "✦", group: "Learn", desc: "Start here" },
   { href: "/methodology", label: "Methodology", glyph: "◳", desc: "The model, in depth" },
   { href: "/about", label: "About", glyph: "ⓘ", desc: "What this is" },

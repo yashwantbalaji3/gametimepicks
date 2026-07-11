@@ -175,34 +175,54 @@ function FightRow({ f, hideModel = false }: { f: Fight; hideModel?: boolean }) {
                   state="odds-backed"
                 />
               ) : null}
-              <MetricRow
-                label="Goes the distance"
-                value={f.goesDistance!.lean === "yes" ? `Yes · ${pct(f.goesDistance!.yesProbability)}` : `No · ${pct(f.goesDistance!.noProbability)}`}
-                sub={`yes ${pct(f.goesDistance!.yesProbability)} / no ${pct(f.goesDistance!.noProbability)} · ${f.goesDistance!.confidence} conf`}
-                state="model-only"
-              />
-              <MetricRow
-                label={`Total rounds (O/U ${f.totalRounds!.referenceLine})`}
-                value={`${f.totalRounds!.lean} · ${f.totalRounds!.projectedRounds} rds`}
-                sub={`${f.totalRounds!.confidence} conf`}
-                state="model-only"
-              />
-              <MetricRow
-                label="Method of victory"
-                value={f.method!.topMethod}
-                sub={`KO/TKO ${pct(f.method!.koTkoProbability)} · sub ${pct(f.method!.submissionProbability)} · dec ${pct(f.method!.decisionProbability)}`}
-                state="model-only"
-              />
-              {f.rationale?.length ? (
-                <ul className="mt-0.5 flex flex-col gap-1">
-                  {f.rationale.map((r, i) => (
-                    <li key={i} className="text-[11px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>· {r}</li>
-                  ))}
-                </ul>
-              ) : null}
-              <p className="font-mono text-[9.5px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>
-                Expanded markets are model-only (no book odds connected) — not parlay eligible. Paper-only.
-              </p>
+              {hideModel ? (
+                // Unvalidated: the no-odds method/round/distance projections are NOT shown as public
+                // predictions — a provider-needed roadmap replaces them (they have no market to fall back on).
+                <>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Provider-needed</span>
+                    {["Goes the distance", "Total rounds", "Method of victory", "Round betting"].map((m) => (
+                      <span key={m} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", background: "rgba(26,16,11,0.6)", border: "1px dashed var(--vault-rule)", fontSize: 8.5 }}>
+                        <span aria-hidden>🔒</span> {m}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="font-mono text-[9.5px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>
+                    Method / round / distance need a prop-odds provider — and the model is unvalidated. Shown as roadmap, not predictions. Paper-only.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <MetricRow
+                    label="Goes the distance"
+                    value={f.goesDistance!.lean === "yes" ? `Yes · ${pct(f.goesDistance!.yesProbability)}` : `No · ${pct(f.goesDistance!.noProbability)}`}
+                    sub={`yes ${pct(f.goesDistance!.yesProbability)} / no ${pct(f.goesDistance!.noProbability)} · ${f.goesDistance!.confidence} conf`}
+                    state="model-only"
+                  />
+                  <MetricRow
+                    label={`Total rounds (O/U ${f.totalRounds!.referenceLine})`}
+                    value={`${f.totalRounds!.lean} · ${f.totalRounds!.projectedRounds} rds`}
+                    sub={`${f.totalRounds!.confidence} conf`}
+                    state="model-only"
+                  />
+                  <MetricRow
+                    label="Method of victory"
+                    value={f.method!.topMethod}
+                    sub={`KO/TKO ${pct(f.method!.koTkoProbability)} · sub ${pct(f.method!.submissionProbability)} · dec ${pct(f.method!.decisionProbability)}`}
+                    state="model-only"
+                  />
+                  {f.rationale?.length ? (
+                    <ul className="mt-0.5 flex flex-col gap-1">
+                      {f.rationale.map((r, i) => (
+                        <li key={i} className="text-[11px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>· {r}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  <p className="font-mono text-[9.5px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>
+                    Expanded markets are model-only (no book odds connected) — not parlay eligible. Paper-only.
+                  </p>
+                </>
+              )}
             </>
           )}
         </div>
