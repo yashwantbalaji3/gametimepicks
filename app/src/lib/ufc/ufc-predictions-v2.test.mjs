@@ -54,6 +54,13 @@ test("3 · the page builds the engine + renders V2 above the advanced odds board
   assert.ok(iTable > 0 && iOdds > 0 && iTable < iOdds, "predictions above the advanced odds board");
 });
 
+test("5 · stale-artifact guard: the Expanded tab only shows fights on the CURRENT schedule", () => {
+  assert.match(page, /STALE-ARTIFACT GUARD/, "the guard is present");
+  assert.match(page, /schedFighterKeys/, "builds a current-schedule fighter set");
+  assert.match(page, /allExpanded\.filter\(/, "filters expanded fights to the schedule");
+  assert.match(page, /schedFighterKeys\.has/, "only keeps fighters on the schedule");
+});
+
 test("4 · the old provider-needed V1 table is gone (superseded)", () => {
   assert.equal(fs.existsSync("src/components/ufc/ufc-prediction-table.tsx"), false, "old table component removed");
   assert.equal(fs.existsSync("src/lib/ufc/prediction-table.ts"), false, "old table lib removed");

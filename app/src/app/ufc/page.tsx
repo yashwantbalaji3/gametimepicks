@@ -83,7 +83,18 @@ export default function UfcPage() {
   const sched = loadJSONUfc<{ venue?: string; fightCount?: number; eventDate?: string; fights?: Array<{ boutId?: string; fighterA?: string; fighterB?: string; weightClass?: string | null }> } | null>("schedule-latest.json", null);
   const v1Parlays = loadJSONUfc<V1Parlays | null>("suggested-parlays-latest.json", null);
   const expanded = loadJSONUfc<{ projections?: unknown[] } | null>("expanded-projections-latest.json", null);
-  const expandedFights = (expanded?.projections ?? []) as Parameters<typeof UfcExpandedFightCards>[0]["fights"];
+  // STALE-ARTIFACT GUARD: expanded-projections can be generated for a DIFFERENT card. Only surface expanded
+  // fights whose fighters are on the CURRENT schedule — never show wrong-card fighters publicly.
+  const schedFighterKeys = new Set<string>();
+  for (const f of (sched?.fights ?? []) as Array<{ fighterA?: string; fighterB?: string }>) {
+    schedFighterKeys.add(keyForNames(f.fighterA, "").split("|")[0]);
+    schedFighterKeys.add(keyForNames(f.fighterB, "").split("|")[0]);
+  }
+  const allExpanded = (expanded?.projections ?? []) as Parameters<typeof UfcExpandedFightCards>[0]["fights"];
+  const expandedFights = allExpanded.filter((f) => {
+    const names = (f?.fighters ?? []) as string[];
+    return names.length >= 2 && names.every((n) => schedFighterKeys.has(keyForNames(n, "").split("|")[0]));
+  });
   const settlement = loadJSONUfc<UfcSettlement | null>("results-settled-latest.json", null);
 
   // STALE GATE: once the latest event is officially settled (status "final"), the fight card / projections

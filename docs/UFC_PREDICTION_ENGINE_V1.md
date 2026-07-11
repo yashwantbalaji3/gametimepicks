@@ -45,8 +45,11 @@ validation in progress (0/150), paper-only, never a verified edge. No best bet /
 official pick. No fabricated stats/odds/props/results. No external images. Money md5 `affe6b21…`, 19-14, $0.
 
 ## Residuals
-- `expanded-projections-latest.json` is **stale** (a different card) — the pipeline's expanded model wasn't
-  regenerated for UFC 329, so the engine computes style scores directly from the fighter DB instead.
-  Regenerating it (`build_expanded_projections.py`) would add per-bout perFighter method splits.
-- 3 fights have a fighter missing from the DB → honest "Insufficient data".
+- **CORRECTION (2026-07-10):** `expanded-projections-latest.json` was earlier mislabeled "stale". It is
+  actually the **main-card subset** of the current schedule (all 7 fighters are on the card) — see
+  `UFC_FINAL_READINESS_DATA_AUDIT.md`. The engine still uses the fighter-stats DB (covers 12/14 vs the
+  expanded's 7); a future pass may prefer the expanded per-bout method splits. A stale-artifact guard now
+  filters the Expanded tab to the current schedule regardless.
+- **2** fights (John Garza, Gable Steveson) have a fighter genuinely absent from the DB → honest
+  "Insufficient data" (diacritic folding recovered Benoît Saint Denis; last-name fallback correctly rejected).
 - The V1 style-score weights are **experimental and unbacktested** — validation (0/150) is unchanged.

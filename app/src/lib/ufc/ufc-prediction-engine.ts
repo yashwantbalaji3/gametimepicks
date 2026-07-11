@@ -26,6 +26,8 @@ export interface UfcPredictionRowV1 {
     moneylineOdds: boolean;
     fighterStatsA: boolean;
     fighterStatsB: boolean;
+    fighterAMatchQuality: "matched" | "unmatched";
+    fighterBMatchQuality: "matched" | "unmatched";
     propMarkets: boolean;
     historicalValidation: boolean;
     label: "Full data" | "Odds + model" | "Odds only" | "Model only" | "Records only";
@@ -62,7 +64,10 @@ export interface EngineFighter {
   dataCompleteness?: number | null;
 }
 
-const norm = (s: unknown): string => String(s ?? "").toLowerCase().replace(/[^a-z ]/g, "").trim();
+/** Normalize a fighter name for matching: fold diacritics (ï→i, é→e, ç→c) FIRST, then lowercase + strip
+ *  punctuation. Without the fold, "Benoît" → "benot" and misses the DB's "Benoit". */
+const norm = (s: unknown): string =>
+  String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
 const pct = (v: number): string => `${Math.round(v * 100)}%`;
 const clamp = (v: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, v));
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
@@ -199,6 +204,8 @@ export function buildUfcPredictionV1(fight: EngineFight, odds: EngineOddsBout | 
   const coverageLabel = hasOdds && hasModel ? "Full data" : hasOdds ? "Odds only" : hasModel ? "Model only" : "Records only";
   const dataCoverage = {
     schedule: true, moneylineOdds: hasOdds, fighterStatsA: Boolean(sa), fighterStatsB: Boolean(sb),
+    fighterAMatchQuality: (sa ? "matched" : "unmatched") as "matched" | "unmatched",
+    fighterBMatchQuality: (sb ? "matched" : "unmatched") as "matched" | "unmatched",
     propMarkets: false, historicalValidation: false, label: coverageLabel as UfcPredictionRowV1["dataCoverage"]["label"],
   };
 

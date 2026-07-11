@@ -76,6 +76,21 @@ test("5 · EVERY row carries the experimental caveat and NO forbidden over-claim
   }
 });
 
+test("7 · diacritic folding matches accented fighters; genuine unknowns stay honest", () => {
+  // "Benoît Saint Denis" (ï) must match the DB's "Benoit Saint Denis" via diacritic folding.
+  assert.ok(fighterByName.get("benoit saint denis"), "accent-folded name resolves in the index");
+  // Every covered row records match quality; a modeled row has both fighters matched.
+  for (const r of rows) {
+    assert.ok(["matched", "unmatched"].includes(r.dataCoverage.fighterAMatchQuality));
+    if (r.fightType.source === "model_derived") {
+      assert.equal(r.dataCoverage.fighterAMatchQuality, "matched");
+      assert.equal(r.dataCoverage.fighterBMatchQuality, "matched");
+    }
+  }
+  // At least 12 of 14 fights now carry a model read (diacritic fold recovered one).
+  assert.ok(rows.filter((r) => r.fightType.source === "model_derived").length >= 12, "≥12/14 model reads after matching fix");
+});
+
 test("6 · confidence lowers with coverage; no-data fight is honest", () => {
   const bare = buildUfcPredictionV1({ fighterA: "Nobody X", fighterB: "Nobody Y", boutId: "z" }, null, null, null);
   assert.equal(bare.moneyline.source, "unavailable");
