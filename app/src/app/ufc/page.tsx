@@ -90,6 +90,12 @@ export default function UfcPage() {
 
   const showV1Proj = Boolean(v1Proj?.moneylineV1Ready && v1Proj.projections?.length);
   const v1Validated = Boolean(v1Proj?.moneylineValidated);
+  // Model-adjusted UFC output (model probability / edge / model pick / suggested model cards) is GATED from
+  // the public page until the moneyline model is validated AND publicPicksVisible flips true. Until then the
+  // page shows the MARKET-IMPLIED read only; cleanGradedRows/target drive the honest "why". No fake unlock.
+  const modelGated = !v1Validated || !(ops?.publicPicksVisible ?? false);
+  const gradedRows = ops?.cleanGradedRows ?? 0;
+  const gradedTarget = ops?.targetRowsForPublicMoneyline ?? 150;
   const ufcProjections = normalizeUfcProjections(v1Proj);
   const ufcCards = normalizeUfcCards(v1Parlays as Parameters<typeof normalizeUfcCards>[0], "");
   const eventName = v1Proj?.eventName ?? ops?.nextCard?.eventName ?? "Next card";
@@ -160,6 +166,25 @@ export default function UfcPage() {
     </section>
   ) : null;
 
+  // Honest public status strip: market-implied is live now; model-adjusted picks are gated behind real
+  // validation (clean graded fights vs threshold). No fake unlock.
+  const validationStrip = (
+    <div className="flex flex-wrap items-center gap-2 rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+      <span className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>Public now · market-implied</span>
+      <span className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(217,164,65,0.12)", border: "1px solid rgba(217,164,65,0.4)", color: "var(--vault-gold-bright)", fontSize: 9 }}>Gated · model-adjusted picks</span>
+      <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>Validation · {gradedRows} / {gradedTarget} clean graded fights</span>
+    </div>
+  );
+  // Shown wherever model-adjusted output would otherwise render while the model is unvalidated.
+  const modelGatedPanel = (
+    <div className="rounded-[10px] px-4 py-5 flex flex-col gap-1.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+      <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>Model-adjusted picks · validating</span>
+      <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+        Model-adjusted UFC picks are still validating. We need {gradedTarget} clean graded fights before public model picks unlock — current clean graded rows: <strong style={{ color: "var(--vault-text)" }}>{gradedRows} / {gradedTarget}</strong>. For {eventName}, public predictions are market-implied from real moneyline odds (see the fight simulations).
+      </p>
+    </div>
+  );
+
   // ─────────────────────────── Tabs ───────────────────────────
   const overviewTab = (
     <div className="flex flex-col gap-8">
@@ -169,8 +194,9 @@ export default function UfcPage() {
           {showV1Proj ? `Market-implied fight simulations are live for ${eventName} — de-vigged real sportsbook moneylines. Model-adjusted picks are still validating before public release. Moneyline only; method/distance/round props aren't offered by the current feed.` : "Projections publish once the data gates pass."}
         </span>
       </div>
+      {validationStrip}
       {fightSimsSection}
-      {ufcCards.length > 0 && (
+      {ufcCards.length > 0 && !modelGated && (
         <section>
           <SectionHeader eyebrow={`Suggested cards · ${ufcCards.length}`} title="Suggested moneyline cards" sub="Model-probability cards (no market odds, so no paper payout). Conservative, moneyline-only — no props, no same-fight combos." />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -178,6 +204,7 @@ export default function UfcPage() {
           </div>
         </section>
       )}
+      {modelGated && ufcCards.length > 0 ? modelGatedPanel : null}
       {bouts.length > 0 && (
         <section>
           <SectionHeader eyebrow="Advanced odds board" title={`${eventName} · raw book lines`} sub="The raw two-sided sportsbook moneyline prices behind the fight simulations above. Book lines, not model picks." />
@@ -198,10 +225,17 @@ export default function UfcPage() {
 
   const projectionsTab = (
     <div className="flex flex-col gap-4">
-      <SectionHeader eyebrow={`Projections · ${ufcProjections.length} moneyline views`} title={`UFC V1 moneyline projections${v1Validated ? " · validated" : " · validation in progress"}`} sub="Win probability from real schedule, sportsbook lines, and fighter stats vs the market-implied price. Model probability, market probability, and edge on each fighter. Moneyline only — no method/distance/round props." />
+      <SectionHeader
+        eyebrow={`Projections · ${ufcProjections.length} moneyline views`}
+        title={modelGated ? "UFC market-implied moneyline reads" : "UFC V1 moneyline projections · validated"}
+        sub={modelGated
+          ? "De-vigged market-implied win probability from real sportsbook moneyline. Model-adjusted probability and edge are gated until the UFC model is validated (see the status strip). Moneyline only — no method/distance/round props."
+          : "Win probability from real schedule, sportsbook lines, and fighter stats vs the market-implied price. Model probability, market probability, and edge on each fighter. Moneyline only — no method/distance/round props."}
+      />
+      {modelGated ? validationStrip : null}
       {ufcProjections.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {ufcProjections.map((p) => <ProjectionCard key={p.id} p={p} />)}
+          {ufcProjections.map((p) => <ProjectionCard key={p.id} p={p} hideModel={modelGated} />)}
         </div>
       ) : (
         <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>Win / method / round projections require a fighter-stat provider, real odds, and a calibrated backtest before anything publishes.</p>
@@ -250,7 +284,9 @@ export default function UfcPage() {
   const cardsTab = (
     <div className="flex flex-col gap-4">
       <SectionHeader eyebrow={`Suggested cards · ${ufcCards.length}`} title="UFC suggested moneyline parlays" sub="Conservative cards built only from moneyline legs — no props, no same-fight combinations. Model-probability only: no market odds, so no paper payout is shown. Educational / paper, not betting advice." />
-      {ufcCards.length > 0 ? (
+      {modelGated ? (
+        modelGatedPanel
+      ) : ufcCards.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {ufcCards.map((c) => <SuggestedCard key={c.id} card={c} />)}
         </div>
@@ -309,9 +345,12 @@ export default function UfcPage() {
       <SectionHeader
         eyebrow={`Expanded projections · ${expandedFights.length} fights`}
         title="Fight-by-fight breakdown — model-only"
-        sub="Tap a fight for goes-the-distance, total-rounds, and method-of-victory projections derived from real fighter finish/method history. The moneyline leg is odds-backed; the expanded markets have no sportsbook odds in the feed, so they are model-only and NOT parlay eligible — shown for insight, never priced into cards."
+        sub={modelGated
+          ? "The moneyline shows the market-implied read only (model probability + edge are gated until validation). Goes-the-distance, total-rounds, and method-of-victory have NO sportsbook odds in the feed, so they are UNVALIDATED model-only projections — insight only, never a pick, never parlay eligible."
+          : "Tap a fight for goes-the-distance, total-rounds, and method-of-victory projections derived from real fighter finish/method history. The moneyline leg is odds-backed; the expanded markets have no sportsbook odds in the feed, so they are model-only and NOT parlay eligible — shown for insight, never priced into cards."}
       />
-      <UfcExpandedFightCards fights={expandedFights} />
+      {modelGated ? validationStrip : null}
+      <UfcExpandedFightCards fights={expandedFights} hideModel={modelGated} />
     </div>
   );
 

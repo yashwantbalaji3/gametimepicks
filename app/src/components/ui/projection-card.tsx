@@ -1,11 +1,13 @@
-/** ProjectionCard — shared model-projection card (model vs market, edge, status). */
+/** ProjectionCard — shared model-projection card (model vs market, edge, status).
+ *  `hideModel` (used by /ufc while the UFC model is unvalidated) suppresses the model probability + edge
+ *  and shows the MARKET-IMPLIED read only — no model number, no edge/gap language leaks. */
 import type { PublicProjection } from "@/lib/normalize";
 import { formatAmerican } from "@/lib/odds-math";
 import StatusChip from "@/components/ui/status-chip";
 
 function pct(p?: number | null) { return p == null ? "—" : `${Math.round(p * 100)}%`; }
 
-export default function ProjectionCard({ p }: { p: PublicProjection }) {
+export default function ProjectionCard({ p, hideModel = false }: { p: PublicProjection; hideModel?: boolean }) {
   const edgePos = (p.edgePct ?? 0) >= 0;
   return (
     <article className="rounded-[8px] px-3.5 py-3 flex flex-col gap-2"
@@ -14,7 +16,7 @@ export default function ProjectionCard({ p }: { p: PublicProjection }) {
         <span className="font-mono uppercase tracking-[0.1em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
           {p.sportLabel} · {p.marketLabel}
         </span>
-        <StatusChip label={p.parlayEligible ? "Card eligible" : "Projection view"} />
+        <StatusChip label={hideModel ? "Market-implied" : p.parlayEligible ? "Card eligible" : "Projection view"} />
       </div>
       <div className="flex items-center gap-2 min-w-0">
         {p.player?.photo ? (
@@ -28,12 +30,16 @@ export default function ProjectionCard({ p }: { p: PublicProjection }) {
         <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
           {p.pickLabel} · {formatAmerican(p.americanOdds ?? null)}
         </span>
-        <span className="font-mono tabular" style={{ color: edgePos ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 11, fontWeight: 600 }}>
-          {edgePos ? "+" : ""}{(p.edgePct ?? 0).toFixed(1)}%
-        </span>
+        {hideModel ? (
+          <span className="font-mono tabular" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(p.marketProbability)} market</span>
+        ) : (
+          <span className="font-mono tabular" style={{ color: edgePos ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 11, fontWeight: 600 }}>
+            {edgePos ? "+" : ""}{(p.edgePct ?? 0).toFixed(1)}%
+          </span>
+        )}
       </div>
       <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-        Model {pct(p.modelProbability)} · Market {pct(p.marketProbability)}
+        {hideModel ? `Market-implied · de-vigged ${pct(p.marketProbability)}` : `Model ${pct(p.modelProbability)} · Market ${pct(p.marketProbability)}`}
       </span>
     </article>
   );

@@ -112,7 +112,7 @@ function MetricRow({ label, value, sub, state }: { label: string; value: string;
   );
 }
 
-function FightRow({ f }: { f: Fight }) {
+function FightRow({ f, hideModel = false }: { f: Fight; hideModel?: boolean }) {
   const [open, setOpen] = useState(false);
   const hasExpanded = Boolean(f.method && f.goesDistance && f.totalRounds);
   const ml = f.moneyline;
@@ -133,7 +133,7 @@ function FightRow({ f }: { f: Fight }) {
             {f.fighters[0]} <span style={{ color: "var(--vault-text-faint)" }}>vs</span> {f.fighters[1]}
           </span>
           <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
-            {ml ? `Model read (unvalidated): ${ml.pick} · ${pct(ml.modelProbability)}` : "Moneyline pending"}
+            {ml ? (hideModel ? `Market: ${ml.pick} · ${pct(ml.marketProbability)}` : `Model read (unvalidated): ${ml.pick} · ${pct(ml.modelProbability)}`) : "Moneyline pending"}
             {f.scheduledRounds ? ` · ${f.scheduledRounds}-round` : ""}
           </span>
         </div>
@@ -168,8 +168,10 @@ function FightRow({ f }: { f: Fight }) {
               {ml ? (
                 <MetricRow
                   label="Moneyline"
-                  value={`${ml.pick} ${pct(ml.modelProbability)}`}
-                  sub={`${fmtAmerican(ml.oddsPrice)} · market ${pct(ml.marketProbability)} · model gap ${(ml.edge ?? 0) >= 0 ? "+" : ""}${Math.round((ml.edge ?? 0) * 1000) / 10}pp (unvalidated)`}
+                  value={hideModel ? `${ml.pick} ${pct(ml.marketProbability)}` : `${ml.pick} ${pct(ml.modelProbability)}`}
+                  sub={hideModel
+                    ? `${fmtAmerican(ml.oddsPrice)} · market-implied ${pct(ml.marketProbability)}`
+                    : `${fmtAmerican(ml.oddsPrice)} · market ${pct(ml.marketProbability)} · model gap ${(ml.edge ?? 0) >= 0 ? "+" : ""}${Math.round((ml.edge ?? 0) * 1000) / 10}pp (unvalidated)`}
                   state="odds-backed"
                 />
               ) : null}
@@ -209,9 +211,9 @@ function FightRow({ f }: { f: Fight }) {
   );
 }
 
-export default function UfcExpandedFightCards({ fights }: { fights: Fight[] }) {
+export default function UfcExpandedFightCards({ fights, hideModel = false }: { fights: Fight[]; hideModel?: boolean }) {
   if (!fights?.length) {
     return <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>Expanded fight projections appear once the card and fighter stats are loaded.</p>;
   }
-  return <ol className="flex flex-col gap-2">{fights.map((f, i) => <FightRow key={f.boutId ?? i} f={f} />)}</ol>;
+  return <ol className="flex flex-col gap-2">{fights.map((f, i) => <FightRow key={f.boutId ?? i} f={f} hideModel={hideModel} />)}</ol>;
 }
