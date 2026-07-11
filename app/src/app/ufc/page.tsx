@@ -26,6 +26,9 @@ import UfcEventResultsRecap, { type UfcSettlement } from "@/components/ufc/event
 import MultiSportReportShell from "@/components/game/multi-sport-report-shell";
 import { ufcEventToReports } from "@/lib/multi-sport-report/ufc-adapter";
 import UfcFightNightHero from "@/components/ufc/ufc-fight-night-hero";
+import UfcPredictionTable from "@/components/ufc/ufc-prediction-table";
+import UfcSimulationAnimation from "@/components/ufc/ufc-simulation-animation";
+import { buildUfcPredictionTable } from "@/lib/ufc/prediction-table";
 
 export const metadata = {
   title: "UFC · GameTime Picks",
@@ -77,7 +80,7 @@ export default function UfcPage() {
   const odds = loadJSONUfc<OddsArtifact>("odds-latest.json", { oddsReady: false, bouts: [] });
   const ops = loadJSONUfc<OpsStatus | null>("ops-status-latest.json", null);
   const v1Proj = loadJSONUfc<V1Projections | null>("projections-latest.json", null);
-  const sched = loadJSONUfc<{ venue?: string; fightCount?: number; eventDate?: string } | null>("schedule-latest.json", null);
+  const sched = loadJSONUfc<{ venue?: string; fightCount?: number; eventDate?: string; fights?: Array<{ boutId?: string; fighterA?: string; fighterB?: string; weightClass?: string | null }> } | null>("schedule-latest.json", null);
   const v1Parlays = loadJSONUfc<V1Parlays | null>("suggested-parlays-latest.json", null);
   const expanded = loadJSONUfc<{ projections?: unknown[] } | null>("expanded-projections-latest.json", null);
   const expandedFights = (expanded?.projections ?? []) as Parameters<typeof UfcExpandedFightCards>[0]["fights"];
@@ -151,6 +154,28 @@ export default function UfcPage() {
   //    two-sided moneyline only; model-adjusted picks stay gated while moneylineValidated=false. Skipped
   //    once the card is settled (stale). Nothing fabricated — fights without odds are simply absent. ──
   const fightReports = ufcSettled ? [] : ufcEventToReports(v1Proj, odds as Parameters<typeof ufcEventToReports>[1]);
+  // Whole-card prediction table — every scheduled fight (market-implied moneyline, or "Odds pending");
+  // rounds/distance/method are provider-needed locks, never fabricated. Plus a market-implied simulation
+  // animation for the featured fight.
+  const predictionRows = !ufcSettled && sched?.fights ? buildUfcPredictionTable(sched.fights, fightReports, odds as Parameters<typeof buildUfcPredictionTable>[2]) : [];
+  const predictionTableSection = predictionRows.length > 0 ? (
+    <UfcPredictionTable
+      rows={predictionRows}
+      reports={fightReports}
+      title={`${eventName.includes(":") ? eventName.split(":")[0].trim() : eventName} Fight Predictions`}
+      subtitle="Moneyline predictions are market-implied from real two-sided odds. Method, round, and distance markets are locked until provider markets or validated model data are available."
+    />
+  ) : null;
+  const featuredReport = fightReports[0];
+  const featuredWp = featuredReport?.simulationOutput.winProbabilities ?? [];
+  const featuredRow = featuredReport ? predictionRows.find((r) => r.reportId === featuredReport.eventId) : undefined;
+  const featuredAnim = featuredReport && featuredWp.length === 2 ? (
+    <UfcSimulationAnimation
+      fighterA={featuredWp[0].label} fighterB={featuredWp[1].label}
+      probA={featuredWp[0].probability} probB={featuredWp[1].probability}
+      oddsA={featuredRow?.oddsA} oddsB={featuredRow?.oddsB}
+    />
+  ) : null;
   const fightSimsSection = fightReports.length > 0 ? (
     <section className="flex flex-col gap-3">
       <SectionHeader
@@ -160,6 +185,7 @@ export default function UfcPage() {
       />
       <div className="rounded-[10px] p-3" style={{ border: "1px solid var(--vault-border-strong)", background: "rgba(26, 16, 11,0.4)" }}>
         <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Featured fight</span>
+        {featuredAnim ? <div className="mt-2">{featuredAnim}</div> : null}
         <div className="mt-2"><MultiSportReportShell report={fightReports[0]} /></div>
       </div>
       {fightReports.slice(1).map((rep) => (
@@ -217,6 +243,7 @@ export default function UfcPage() {
         </span>
       </div>
       {validationStrip}
+      {predictionTableSection}
       {fightSimsSection}
       {ufcCards.length > 0 && !modelGated && (
         <section>
