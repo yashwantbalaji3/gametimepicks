@@ -31,6 +31,8 @@ import LandingHero from "@/components/home/landing-hero";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
 import { SlateSummary, TrustStrip, HowItWorks, FooterCta } from "@/components/home/home-sections";
+import EventSpotlight from "@/components/home/event-spotlight";
+import { loadHomepageSpotlight } from "@/lib/home/load-spotlight";
 
 export const metadata = {
   title: "GameTime Picks — Simulate today's games. Review model picks. Track results.",
@@ -163,8 +165,15 @@ export default function HomePage() {
     weekday: "long", month: "long", day: "numeric",
   });
 
+  // Homepage Event Spotlight — the current major event, pinned above the hero (UFC 329 first). Reusable
+  // selector; market-implied only; a settled card is never spotlighted. Null ⇒ normal homepage.
+  const spotlightEvent = loadHomepageSpotlight(today);
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-9">
+      {/* 0 — Event Spotlight: the current major event, pinned above the hero (null when none) */}
+      <EventSpotlight event={spotlightEvent} />
+
       {/* 1 — Simulation-first hero */}
       <LandingHero bankrollLabel={bankrollLabel} recordLabel={recordLabel} readyCount={readyCount} />
 

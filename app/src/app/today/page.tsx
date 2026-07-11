@@ -29,6 +29,8 @@ import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
 import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 
+import EventSpotlight from "@/components/home/event-spotlight";
+import { loadHomepageSpotlight } from "@/lib/home/load-spotlight";
 import TodayDailySlateHeader from "@/components/today/daily-slate-header";
 import TodayAtAGlance, { type GlanceCard } from "@/components/today/at-a-glance";
 import TodayTopModelPicks from "@/components/today/top-model-picks";
@@ -57,6 +59,8 @@ export default function TodayPage() {
   // lines up with `/`. Falls back to the wall clock only when no slate exists.
   const today = currentSlateDate() ?? currentEtDate();
   const serverToday = currentEtDate();
+  // Event spotlight (same reusable selector as Home) — real ET clock so "tomorrow/today" is honest.
+  const todaySpotlight = loadHomepageSpotlight(serverToday);
   const dateLabel = new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric",
   });
@@ -208,6 +212,9 @@ export default function TodayPage() {
         mlbGames={mlbGames}
         mlbLeans={mlbLeans}
       />
+
+      {/* 1b — Event spotlight (current major event; null when none) */}
+      <EventSpotlight event={todaySpotlight} />
 
       {/* 2 — Today at a glance (compact canonical status cards) */}
       <TodayAtAGlance cards={glanceCards} />
