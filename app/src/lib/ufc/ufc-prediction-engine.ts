@@ -49,9 +49,22 @@ export interface UfcPredictionRowV1 {
   gameTimeRead: string;
   summary: string;
   caveat: string;
+  /** The two answers users care about most: who wins + how. Never fabricated. */
+  prediction: {
+    predictedWinner: string; // fighter name, or "No clear winner"
+    predictedWinnerSource: "market_implied" | "model_derived" | "no_clear_read";
+    predictedWinnerConfidence: Confidence;
+    methodOfVictory: "Decision" | "KO/TKO" | "Submission" | "No clear method";
+    methodSource: "fighter_db_model" | "market_only_fallback" | "unavailable";
+    methodConfidence: Confidence;
+    winnerMethodText: string; // "Costa by Decision" / "No clear winner · No clear method"
+  };
   /** Display-safe strings — the UI renders THESE, never blank. Every field is always non-empty. */
   display: {
     gameTimeRead: string;
+    predictedWinnerText: string;
+    methodOfVictoryText: string;
+    winnerMethodText: string;
     moneyline: string;
     winProbability: string;
     fightType: string;
@@ -235,6 +248,40 @@ export function buildUfcPredictionV1(fight: EngineFight, odds: EngineOddsBout | 
   const summary = `${hasOdds ? moneyline.explanation : "Moneyline pending."}${modelBit}`;
   const caveat = "Moneyline is market-implied; fight type / distance / method are GameTime V1 experimental model reads — validation in progress, not a verified edge. Paper-only.";
 
+  // ── Predicted winner (market-implied) — the higher de-vigged fighter when the market clearly separates. ──
+  const lastNm = (n: string): string => (n.split(" ").filter(Boolean).pop() || n);
+  let predictedWinner = "No clear winner";
+  let predictedWinnerSource: UfcPredictionRowV1["prediction"]["predictedWinnerSource"] = "no_clear_read";
+  let predictedWinnerConfidence: Confidence = "no_read";
+  if (dv) {
+    const favIsA = dv.a >= dv.b, favName = favIsA ? a : b, favProb = favIsA ? dv.a : dv.b;
+    if (favProb >= 0.55) {
+      predictedWinner = favName;
+      predictedWinnerSource = "market_implied";
+      predictedWinnerConfidence = favProb >= 0.7 ? "high" : favProb >= 0.6 ? "medium" : "low";
+    }
+  }
+
+  // ── Method of victory — from the model's method mix (top ≥ 40%), else "No clear method". ──
+  let methodOfVictory: UfcPredictionRowV1["prediction"]["methodOfVictory"] = "No clear method";
+  let methodSource: UfcPredictionRowV1["prediction"]["methodSource"] = hasModel ? "fighter_db_model" : hasOdds ? "market_only_fallback" : "unavailable";
+  let methodConfidence: Confidence = "no_read";
+  if (hasModel && method.probabilities) {
+    const mp = method.probabilities;
+    const ranked = [{ k: "KO/TKO" as const, p: mp.koTko }, { k: "Submission" as const, p: mp.submission }, { k: "Decision" as const, p: mp.decision }].sort((x, y) => y.p - x.p);
+    if (ranked[0].p >= 0.4) {
+      methodOfVictory = ranked[0].k;
+      methodConfidence = ranked[0].p >= 0.55 ? "high" : ranked[0].p >= 0.45 ? "medium" : "low";
+    }
+  }
+
+  const winnerMethodText = predictedWinner === "No clear winner"
+    ? "No clear winner · No clear method"
+    : methodOfVictory === "No clear method"
+      ? `${lastNm(predictedWinner)} by market lean · method unclear`
+      : `${lastNm(predictedWinner)} by ${methodOfVictory}`;
+  const prediction = { predictedWinner, predictedWinnerSource, predictedWinnerConfidence, methodOfVictory, methodSource, methodConfidence, winnerMethodText };
+
   // ── Display-safe strings — the UI renders THESE. Every field is guaranteed non-empty (never a blank cell). ──
   const CONF_LABEL: Record<Confidence, string> = { high: "High", medium: "Medium", low: "Low", no_read: "No read" };
   const amer = (v: number | null): string | null => (typeof v === "number" && Number.isFinite(v) ? (v > 0 ? `+${v}` : `${v}`) : null);
@@ -243,6 +290,9 @@ export function buildUfcPredictionV1(fight: EngineFight, odds: EngineOddsBout | 
   const overallConf: Confidence = hasOdds ? moneyline.confidence : goesDistance.confidence;
   const display = {
     gameTimeRead: nonEmpty(gameTimeRead, "—"),
+    predictedWinnerText: predictedWinner,
+    methodOfVictoryText: methodOfVictory,
+    winnerMethodText: winnerMethodText,
     moneyline: hasOdds ? `${last(a)} ${amer(oddsA) ?? "—"} · ${last(b)} ${amer(oddsB) ?? "—"}` : "Odds pending",
     winProbability: moneyline.fighterAProbability != null
       ? `${last(a)} ${pct(moneyline.fighterAProbability)} / ${last(b)} ${pct(moneyline.fighterBProbability ?? 0)}`
@@ -256,7 +306,7 @@ export function buildUfcPredictionV1(fight: EngineFight, odds: EngineOddsBout | 
     coverage: dataCoverage.label,
   };
 
-  return { fightId, fighterA: a, fighterB: b, dataCoverage, moneyline, fightType, goesDistance, method, roundRange, gameTimeRead, summary, caveat, display };
+  return { fightId, fighterA: a, fighterB: b, dataCoverage, moneyline, fightType, goesDistance, method, roundRange, gameTimeRead, summary, caveat, prediction, display };
 }
 
 /** Model confidence from a read's separation from a coin-flip and the fighters' data completeness. */

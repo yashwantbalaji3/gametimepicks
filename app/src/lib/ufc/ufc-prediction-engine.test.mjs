@@ -81,7 +81,7 @@ test("5 · EVERY row carries the experimental caveat and NO forbidden over-claim
 });
 
 test("8 · every fight emits a DISPLAY-SAFE row — no empty cells, no forbidden claims", () => {
-  const FIELDS = ["gameTimeRead", "moneyline", "winProbability", "fightType", "distance", "method", "roundRange", "confidence", "why", "coverage"];
+  const FIELDS = ["gameTimeRead", "predictedWinnerText", "methodOfVictoryText", "winnerMethodText", "moneyline", "winProbability", "fightType", "distance", "method", "roundRange", "confidence", "why", "coverage"];
   for (const r of rows) {
     for (const f of FIELDS) {
       assert.ok(r.display[f] && String(r.display[f]).trim().length > 0, `${r.eventName ?? r.fightId}: display.${f} is non-empty`);
@@ -95,6 +95,25 @@ test("8 · every fight emits a DISPLAY-SAFE row — no empty cells, no forbidden
   // With the market-only fallback, the whole card is filled — zero "Insufficient data" when every fight has
   // odds OR a fighter model (true for this card).
   assert.equal(rows.filter((r) => r.display.fightType === "Insufficient data").length, 0, "no insufficient rows on this card");
+});
+
+test("9 · every fight has an explicit Predicted Winner + Method of Victory; winner is a name or 'No clear winner'", () => {
+  const fighterNames = new Set(sched.fights.flatMap((f) => [f.fighterA, f.fighterB]));
+  for (const r of rows) {
+    const w = r.prediction.predictedWinner;
+    assert.ok(w === "No clear winner" || fighterNames.has(w), `${r.eventName ?? r.fightId}: winner is a real fighter name or "No clear winner" (got "${w}")`);
+    assert.ok(["Decision", "KO/TKO", "Submission", "No clear method"].includes(r.prediction.methodOfVictory), "method is a valid label");
+    // A market-implied winner requires real two-sided odds + a ≥55% de-vig favorite.
+    if (r.prediction.predictedWinnerSource === "market_implied") {
+      assert.equal(r.moneyline.source, "market_implied");
+      const fav = Math.max(r.moneyline.fighterAProbability, r.moneyline.fighterBProbability);
+      assert.ok(fav >= 0.55, "market winner is a real ≥55% favorite");
+    }
+    // Never invents a winner for a no-odds fight.
+    if (r.moneyline.source !== "market_implied") assert.equal(r.prediction.predictedWinner, "No clear winner", "no odds ⇒ no invented winner");
+  }
+  assert.ok(rows.some((r) => r.prediction.predictedWinner !== "No clear winner"), "at least some fights have a named winner");
+  assert.ok(rows.some((r) => r.prediction.methodOfVictory !== "No clear method"), "at least some fights have a method read");
 });
 
 test("7 · diacritic folding matches accented fighters; genuine unknowns stay honest", () => {

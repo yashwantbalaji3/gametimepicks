@@ -56,16 +56,16 @@ function FightCard({ r }: { r: UfcPredictionRowV1 }) {
         {coverageChip(r.dataCoverage.label)}
       </div>
       <div className="rounded-[8px] px-2.5 py-2" style={{ background: "rgba(242,54,69,0.08)", border: `1px solid var(--vault-rule)` }}>
-        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: gold, fontSize: 8 }}>GameTime read · {r.display.confidence} confidence</span>
-        <div style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700, lineHeight: 1.2 }}>{r.display.gameTimeRead}</div>
+        <span className="font-mono uppercase tracking-[0.12em]" style={{ color: gold, fontSize: 8 }}>GameTime lean · {r.display.confidence} confidence</span>
+        <div style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700, lineHeight: 1.2 }}>{r.display.winnerMethodText}</div>
       </div>
       <div className="grid grid-cols-2 gap-1.5">
-        <ReadCell label="Moneyline" value={r.display.moneyline} conf={r.moneyline.confidence} sub={r.display.winProbability !== "—" ? r.display.winProbability : undefined} />
-        <ReadCell label="Fight type" value={r.display.fightType} conf={r.fightType.confidence} />
-        <ReadCell label="Distance" value={r.display.distance} conf={r.goesDistance.confidence} sub={r.goesDistance.probability != null ? `${pct(r.goesDistance.probability)} to decision` : undefined} />
-        <ReadCell label="Method" value={r.display.method} conf={r.method.confidence} sub={r.method.probabilities ? `KO ${pct(r.method.probabilities.koTko)} · sub ${pct(r.method.probabilities.submission)} · dec ${pct(r.method.probabilities.decision)}` : undefined} />
+        <ReadCell label="Predicted winner" value={r.display.predictedWinnerText} conf={r.prediction.predictedWinnerConfidence} sub={r.display.winProbability !== "—" ? r.display.winProbability : undefined} />
+        <ReadCell label="Method of victory" value={r.display.methodOfVictoryText} conf={r.prediction.methodConfidence} sub={r.method.probabilities ? `KO ${pct(r.method.probabilities.koTko)} · sub ${pct(r.method.probabilities.submission)} · dec ${pct(r.method.probabilities.decision)}` : undefined} />
+        <ReadCell label="Moneyline" value={r.display.moneyline} conf={r.moneyline.confidence} />
         <ReadCell label="Round range" value={r.display.roundRange} conf={r.roundRange.confidence} />
-        <ReadCell label="Coverage" value={r.display.coverage} />
+        <ReadCell label="Fight type" value={r.display.fightType} conf={r.fightType.confidence} />
+        <ReadCell label="Source" value={r.prediction.predictedWinnerSource === "market_implied" ? "Market-implied" : r.prediction.methodSource === "fighter_db_model" ? "V1 model" : "Market-only"} />
       </div>
       <p style={{ color: mute, fontSize: 11, lineHeight: 1.4 }}>{r.display.why}</p>
     </article>

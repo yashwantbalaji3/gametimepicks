@@ -33,6 +33,8 @@ import FeaturedSimulationsSection from "@/components/home/featured-simulations";
 import { SlateSummary, TrustStrip, HowItWorks, FooterCta } from "@/components/home/home-sections";
 import EventSpotlight from "@/components/home/event-spotlight";
 import { loadHomepageSpotlight } from "@/lib/home/load-spotlight";
+import UfcPredictionPreview from "@/components/home/ufc-prediction-preview";
+import { loadUfcPredictionRows } from "@/lib/home/ufc-preview";
 
 export const metadata = {
   title: "GameTime Picks — Simulate today's games. Review model picks. Track results.",
@@ -168,11 +170,16 @@ export default function HomePage() {
   // Homepage Event Spotlight — the current major event, pinned above the hero (UFC 329 first). Reusable
   // selector; market-implied only; a settled card is never spotlighted. Null ⇒ normal homepage.
   const spotlightEvent = loadHomepageSpotlight(today);
+  // Compact UFC fight-picks board (predicted winner + method per fight). Null when no upcoming UFC card.
+  const ufcPreview = loadUfcPredictionRows();
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-9">
       {/* 0 — Event Spotlight: the current major event, pinned above the hero (null when none) */}
       <EventSpotlight event={spotlightEvent} />
+
+      {/* 0b — Tonight's UFC fight picks (predicted winner + method per fight); null when no UFC card */}
+      {ufcPreview ? <UfcPredictionPreview eventName={ufcPreview.eventName} rows={ufcPreview.rows} marketWinnerCount={ufcPreview.marketWinnerCount} methodReadCount={ufcPreview.methodReadCount} /> : null}
 
       {/* 1 — Simulation-first hero */}
       <LandingHero bankrollLabel={bankrollLabel} recordLabel={recordLabel} readyCount={readyCount} />

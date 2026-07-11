@@ -30,10 +30,12 @@ test("1 · V2 board shows a GameTime Read, methodology, confidence + coverage; h
   assert.match(v2, /Experimental model reads · validation in progress/, "experimental badge");
   assert.match(v2, /Fight type/i, "fight type column");
   assert.match(v2, /Method/i, "method column");
+  assert.match(v2, /label="Predicted winner"/, "predicted winner column present");
+  assert.match(v2, /label="Method of victory"/, "method of victory column present");
+  assert.match(v2, /r\.display\.predictedWinnerText/, "winner renders the display-safe value");
+  assert.match(v2, /r\.display\.methodOfVictoryText/, "method renders the display-safe value");
   assert.match(v2, /label="Round range"/, "round range column present");
-  assert.match(v2, /r\.display\.roundRange/, "round range renders the display-safe value");
-  assert.match(v2, /r\.display\.moneyline/, "moneyline renders the display-safe value (no ad-hoc blanks)");
-  assert.match(v2, /r\.display\.gameTimeRead/, "GameTime read renders the display-safe value");
+  assert.match(v2, /r\.display\.winnerMethodText/, "winner+method hero renders the display-safe value");
   NO_EXTERNAL_IMG(v2, "V2 board");
   NO_OVERCLAIM(v2, "V2 board");
 });

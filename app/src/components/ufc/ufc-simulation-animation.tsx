@@ -16,9 +16,9 @@ function american(v?: number | null): string {
 }
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 
-export default function UfcSimulationAnimation({ fighterA, fighterB, probA, probB, oddsA, oddsB, fightType, distanceLean, methodLean, roundRange }: {
+export default function UfcSimulationAnimation({ fighterA, fighterB, probA, probB, oddsA, oddsB, fightType, distanceLean, methodLean, roundRange, winnerMethod }: {
   fighterA: string; fighterB: string; probA: number; probB: number; oddsA?: number | null; oddsB?: number | null;
-  fightType?: string; distanceLean?: string; methodLean?: string; roundRange?: string;
+  fightType?: string; distanceLean?: string; methodLean?: string; roundRange?: string; winnerMethod?: string;
 }) {
   const pa = Math.max(0, Math.min(1, probA));
   const pb = Math.max(0, Math.min(1, probB));
@@ -59,6 +59,12 @@ export default function UfcSimulationAnimation({ fighterA, fighterB, probA, prob
       </div>
 
       {/* Model reads — GameTime V1 (experimental) when fighter data allows; otherwise provider-needed. */}
+      {winnerMethod ? (
+        <div className="mt-3 rounded-[8px] px-3 py-2 text-center" style={{ background: "rgba(242,54,69,0.10)", border: "1px solid var(--vault-rule)" }}>
+          <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 8.5 }}>GameTime lean · experimental</span>
+          <div style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700, lineHeight: 1.2 }}>{winnerMethod}</div>
+        </div>
+      ) : null}
       {fightType || distanceLean || methodLean || roundRange ? (
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 8.5 }}>V1 model read · experimental</span>
