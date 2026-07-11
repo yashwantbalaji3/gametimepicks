@@ -1,0 +1,90 @@
+/**
+ * UFC PREDICTION ENGINE V1 — transparent formulas + honest layering, run against the REAL UFC 329 data
+ * (schedule + odds + the 2,695-fighter stats DB).
+ *
+ * Proves: the odds→implied→de-vig math is correct; moneyline is market-backed with the documented confidence
+ * bands; fight-type/distance/method are MODEL-DERIVED from real fighter finish/record stats where both
+ * fighters are in the DB, and "Insufficient data" otherwise; method probabilities sum to ~1; every row
+ * carries the experimental caveat; and NO row emits a forbidden over-claim.
+ */
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { buildUfcCardPredictions, buildUfcPredictionV1, buildFighterIndex, impliedFromAmerican, deVig, moneylineConfidence, keyForNames } from "./ufc-prediction-engine.ts";
+
+const loadUfc = (n) => JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", n), "utf8"));
+const sched = loadUfc("schedule-latest.json");
+const odds = loadUfc("odds-latest.json");
+const fdb = loadUfc("fighters-latest.json");
+
+const oddsIndex = new Map();
+for (const bt of odds.bouts ?? []) {
+  const names = bt.sides ? bt.sides.map((s) => s.name) : bt.fighters ?? [];
+  if (names.length >= 2) oddsIndex.set(keyForNames(names[0], names[1]), bt);
+}
+const fighterByName = buildFighterIndex(fdb.fighters);
+const rows = buildUfcCardPredictions(sched.fights, oddsIndex, fighterByName);
+
+test("1 · odds → implied → de-vig math is correct", () => {
+  assert.ok(Math.abs(impliedFromAmerican(-200) - 2 / 3) < 1e-9, "-200 ⇒ 0.667");
+  assert.ok(Math.abs(impliedFromAmerican(150) - 0.4) < 1e-9, "+150 ⇒ 0.40");
+  const dv = deVig(-200, 150);
+  assert.ok(dv && Math.abs(dv.a + dv.b - 1) < 1e-9 && dv.a > dv.b, "de-vig sums to 1, favorite higher");
+  assert.equal(deVig(null, 150), null, "missing side ⇒ null");
+});
+
+test("2 · moneyline confidence bands match the documented thresholds", () => {
+  assert.equal(moneylineConfidence(0.72), "high");
+  assert.equal(moneylineConfidence(0.64), "medium");
+  assert.equal(moneylineConfidence(0.585), "low");
+  assert.equal(moneylineConfidence(0.55), "no_read");
+});
+
+test("3 · the whole card builds; a mix of odds-backed + model-derived + insufficient rows", () => {
+  assert.equal(rows.length, sched.fights.length, "one row per scheduled fight");
+  const oddsBacked = rows.filter((r) => r.moneyline.source === "market_implied");
+  const modelReads = rows.filter((r) => r.fightType.source === "model_derived");
+  assert.ok(oddsBacked.length >= 5, `market-backed moneylines (${oddsBacked.length})`);
+  assert.ok(modelReads.length >= 8, `model-derived fight reads from real fighter stats (${modelReads.length}) — not provider-needed`);
+});
+
+test("4 · market-backed moneyline carries de-vig probs; model method probs sum to ~1", () => {
+  for (const r of rows) {
+    if (r.moneyline.source === "market_implied") {
+      assert.ok(r.moneyline.fighterAProbability != null && Math.abs(r.moneyline.fighterAProbability + r.moneyline.fighterBProbability - 1) < 0.02);
+    }
+    if (r.fightType.source === "model_derived") {
+      assert.equal(r.goesDistance.source, "model_derived");
+      assert.ok(r.goesDistance.probability >= 0.25 && r.goesDistance.probability <= 0.75, "distance prob clamped");
+      const m = r.method.probabilities;
+      assert.ok(m && Math.abs(m.koTko + m.submission + m.decision - 1) < 1e-6, "method mix sums to 1");
+    } else {
+      assert.equal(r.fightType.label, "Insufficient data");
+      assert.equal(r.method.lean, "Insufficient data");
+    }
+  }
+});
+
+test("5 · EVERY row carries the experimental caveat and NO forbidden over-claim", () => {
+  for (const r of rows) {
+    assert.match(r.caveat, /experimental|validation in progress/i, "experimental caveat present");
+    const blob = JSON.stringify(r).toLowerCase();
+    for (const w of ["best bet", " lock", "guaranteed", "positive ev", "validated edge", "official pick"]) {
+      assert.ok(!blob.includes(w), `no "${w}" in the row`);
+    }
+  }
+});
+
+test("6 · confidence lowers with coverage; no-data fight is honest", () => {
+  const bare = buildUfcPredictionV1({ fighterA: "Nobody X", fighterB: "Nobody Y", boutId: "z" }, null, null, null);
+  assert.equal(bare.moneyline.source, "unavailable");
+  assert.equal(bare.gameTimeRead, "Odds pending");
+  assert.equal(bare.fightType.source, "unavailable");
+  assert.equal(bare.method.confidence, "no_read");
+  assert.equal(bare.dataCoverage.label, "Records only");
+  // A model row never claims "high" confidence without real separation + completeness.
+  for (const r of rows.filter((x) => x.fightType.source === "model_derived")) {
+    if (r.goesDistance.confidence === "high") assert.ok(Math.abs(r.goesDistance.probability - 0.5) >= 0.16, "high distance conf needs real separation");
+  }
+});

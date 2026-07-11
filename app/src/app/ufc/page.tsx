@@ -26,9 +26,9 @@ import UfcEventResultsRecap, { type UfcSettlement } from "@/components/ufc/event
 import MultiSportReportShell from "@/components/game/multi-sport-report-shell";
 import { ufcEventToReports } from "@/lib/multi-sport-report/ufc-adapter";
 import UfcFightNightHero from "@/components/ufc/ufc-fight-night-hero";
-import UfcPredictionTable from "@/components/ufc/ufc-prediction-table";
 import UfcSimulationAnimation from "@/components/ufc/ufc-simulation-animation";
-import { buildUfcPredictionTable } from "@/lib/ufc/prediction-table";
+import UfcPredictionsV2 from "@/components/ufc/ufc-predictions-v2";
+import { buildUfcCardPredictions, buildFighterIndex, keyForNames, type EngineOddsBout } from "@/lib/ufc/ufc-prediction-engine";
 
 export const metadata = {
   title: "UFC · GameTime Picks",
@@ -154,26 +154,36 @@ export default function UfcPage() {
   //    two-sided moneyline only; model-adjusted picks stay gated while moneylineValidated=false. Skipped
   //    once the card is settled (stale). Nothing fabricated — fights without odds are simply absent. ──
   const fightReports = ufcSettled ? [] : ufcEventToReports(v1Proj, odds as Parameters<typeof ufcEventToReports>[1]);
-  // Whole-card prediction table — every scheduled fight (market-implied moneyline, or "Odds pending");
-  // rounds/distance/method are provider-needed locks, never fabricated. Plus a market-implied simulation
-  // animation for the featured fight.
-  const predictionRows = !ufcSettled && sched?.fights ? buildUfcPredictionTable(sched.fights, fightReports, odds as Parameters<typeof buildUfcPredictionTable>[2]) : [];
-  const predictionTableSection = predictionRows.length > 0 ? (
-    <UfcPredictionTable
-      rows={predictionRows}
-      reports={fightReports}
-      title={`${eventName.includes(":") ? eventName.split(":")[0].trim() : eventName} Fight Predictions`}
-      subtitle="Moneyline predictions are market-implied from real two-sided odds. Method, round, and distance markets are locked until provider markets or validated model data are available."
+  // UFC Prediction Engine V1 — one complete read per fight. Moneyline is market-implied (de-vigged real
+  // odds); fight type / distance / method are GameTime V1 model reads computed from the real fighter-stats
+  // DB where both fighters are present, else "Insufficient data". No fabrication; experimental + gated.
+  const fightersDb = loadJSONUfc<{ fighters?: Array<Record<string, unknown>> } | null>("fighters-latest.json", null);
+  const oddsIndexV1 = new Map<string, EngineOddsBout>();
+  for (const bt of odds.bouts ?? []) {
+    const names = bt.sides ? bt.sides.map((s) => s.name) : [];
+    if (names.length >= 2) oddsIndexV1.set(keyForNames(names[0], names[1]), bt as EngineOddsBout);
+  }
+  const engineRows = !ufcSettled && sched?.fights ? buildUfcCardPredictions(sched.fights, oddsIndexV1, buildFighterIndex(fightersDb?.fighters)) : [];
+  const predictionTableSection = engineRows.length > 0 ? (
+    <UfcPredictionsV2
+      rows={engineRows}
+      title={`${eventName.includes(":") ? eventName.split(":")[0].trim() : eventName} Predictions`}
+      subtitle="Moneyline uses live market-implied probabilities. Fight type, distance, and method are GameTime V1 model reads when enough fighter data exists."
     />
   ) : null;
   const featuredReport = fightReports[0];
   const featuredWp = featuredReport?.simulationOutput.winProbabilities ?? [];
-  const featuredRow = featuredReport ? predictionRows.find((r) => r.reportId === featuredReport.eventId) : undefined;
+  const featuredRow = featuredReport && featuredWp.length === 2
+    ? engineRows.find((r) => keyForNames(r.fighterA, r.fighterB) === keyForNames(featuredWp[0].label, featuredWp[1].label))
+    : undefined;
   const featuredAnim = featuredReport && featuredWp.length === 2 ? (
     <UfcSimulationAnimation
       fighterA={featuredWp[0].label} fighterB={featuredWp[1].label}
       probA={featuredWp[0].probability} probB={featuredWp[1].probability}
-      oddsA={featuredRow?.oddsA} oddsB={featuredRow?.oddsB}
+      oddsA={featuredRow?.moneyline.oddsA ?? null} oddsB={featuredRow?.moneyline.oddsB ?? null}
+      fightType={featuredRow?.fightType.source === "model_derived" ? featuredRow.fightType.label : undefined}
+      distanceLean={featuredRow?.goesDistance.source === "model_derived" ? featuredRow.goesDistance.lean ?? undefined : undefined}
+      methodLean={featuredRow?.method.source === "model_derived" ? featuredRow.method.lean ?? undefined : undefined}
     />
   ) : null;
   const fightSimsSection = fightReports.length > 0 ? (
