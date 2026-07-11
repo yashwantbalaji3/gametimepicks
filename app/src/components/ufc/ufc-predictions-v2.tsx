@@ -65,7 +65,7 @@ function FightCard({ r }: { r: UfcPredictionRowV1 }) {
         <ReadCell label="Moneyline" value={r.display.moneyline} conf={r.moneyline.confidence} />
         <ReadCell label="Round range" value={r.display.roundRange} conf={r.roundRange.confidence} />
         <ReadCell label="Fight type" value={r.display.fightType} conf={r.fightType.confidence} />
-        <ReadCell label="Source" value={r.prediction.predictedWinnerSource === "market_implied" ? "Market-implied" : r.prediction.methodSource === "fighter_db_model" ? "V1 model" : "Market-only"} />
+        <ReadCell label="Source" value={r.prediction.predictedWinnerLabel !== "No clear winner" ? r.prediction.predictedWinnerLabel : r.prediction.methodSource === "fighter_db_model" ? "V1 model" : "Odds pending"} />
       </div>
       <p style={{ color: mute, fontSize: 11, lineHeight: 1.4 }}>{r.display.why}</p>
     </article>

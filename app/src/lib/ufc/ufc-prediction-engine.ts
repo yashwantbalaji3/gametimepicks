@@ -53,6 +53,7 @@ export interface UfcPredictionRowV1 {
   prediction: {
     predictedWinner: string; // fighter name, or "No clear winner"
     predictedWinnerSource: "market_implied" | "model_derived" | "no_clear_read";
+    predictedWinnerLabel: "Market-implied winner" | "Slight market lean" | "No clear winner";
     predictedWinnerConfidence: Confidence;
     methodOfVictory: "Decision" | "KO/TKO" | "Submission" | "No clear method";
     methodSource: "fighter_db_model" | "market_only_fallback" | "unavailable";
@@ -248,19 +249,28 @@ export function buildUfcPredictionV1(fight: EngineFight, odds: EngineOddsBout | 
   const summary = `${hasOdds ? moneyline.explanation : "Moneyline pending."}${modelBit}`;
   const caveat = "Moneyline is market-implied; fight type / distance / method are GameTime V1 experimental model reads — validation in progress, not a verified edge. Paper-only.";
 
-  // ── Predicted winner (market-implied) — the higher de-vigged fighter when the market clearly separates. ──
+  // ── Predicted winner (market-implied). EVERY two-sided-odds fight gets a named winner: a clear favorite
+  //    (≥55% de-vig) is a "Market-implied winner"; a near-pick'em (50–55%) is an honest "Slight market lean".
+  //    Only a fight with NO two-sided odds stays "No clear winner" — a winner is never invented from stats. ──
   const lastNm = (n: string): string => (n.split(" ").filter(Boolean).pop() || n);
   let predictedWinner = "No clear winner";
   let predictedWinnerSource: UfcPredictionRowV1["prediction"]["predictedWinnerSource"] = "no_clear_read";
   let predictedWinnerConfidence: Confidence = "no_read";
+  let predictedWinnerLabel: "Market-implied winner" | "Slight market lean" | "No clear winner" = "No clear winner";
   if (dv) {
     const favIsA = dv.a >= dv.b, favName = favIsA ? a : b, favProb = favIsA ? dv.a : dv.b;
+    predictedWinner = favName;
+    predictedWinnerSource = "market_implied";
     if (favProb >= 0.55) {
-      predictedWinner = favName;
-      predictedWinnerSource = "market_implied";
       predictedWinnerConfidence = favProb >= 0.7 ? "high" : favProb >= 0.6 ? "medium" : "low";
+      predictedWinnerLabel = "Market-implied winner";
+    } else {
+      // 50–55% de-vigged → a real but slight edge. Named winner, low confidence, honest "slight lean" label.
+      predictedWinnerConfidence = "low";
+      predictedWinnerLabel = "Slight market lean";
     }
   }
+  const isSlightLean = predictedWinnerLabel === "Slight market lean";
 
   // ── Method of victory — from the model's method mix (top ≥ 40%), else "No clear method". ──
   let methodOfVictory: UfcPredictionRowV1["prediction"]["methodOfVictory"] = "No clear method";
@@ -275,12 +285,13 @@ export function buildUfcPredictionV1(fight: EngineFight, odds: EngineOddsBout | 
     }
   }
 
+  const winnerPhrase = predictedWinner === "No clear winner" ? "No clear winner" : isSlightLean ? `${lastNm(predictedWinner)} (slight lean)` : lastNm(predictedWinner);
   const winnerMethodText = predictedWinner === "No clear winner"
     ? "No clear winner · No clear method"
     : methodOfVictory === "No clear method"
-      ? `${lastNm(predictedWinner)} by market lean · method unclear`
-      : `${lastNm(predictedWinner)} by ${methodOfVictory}`;
-  const prediction = { predictedWinner, predictedWinnerSource, predictedWinnerConfidence, methodOfVictory, methodSource, methodConfidence, winnerMethodText };
+      ? `${winnerPhrase} · method unclear`
+      : `${winnerPhrase} by ${methodOfVictory}`;
+  const prediction = { predictedWinner, predictedWinnerSource, predictedWinnerLabel, predictedWinnerConfidence, methodOfVictory, methodSource, methodConfidence, winnerMethodText };
 
   // ── Display-safe strings — the UI renders THESE. Every field is guaranteed non-empty (never a blank cell). ──
   const CONF_LABEL: Record<Confidence, string> = { high: "High", medium: "Medium", low: "Low", no_read: "No read" };

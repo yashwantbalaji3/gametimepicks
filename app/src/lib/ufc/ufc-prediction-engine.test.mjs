@@ -103,14 +103,16 @@ test("9 · every fight has an explicit Predicted Winner + Method of Victory; win
     const w = r.prediction.predictedWinner;
     assert.ok(w === "No clear winner" || fighterNames.has(w), `${r.eventName ?? r.fightId}: winner is a real fighter name or "No clear winner" (got "${w}")`);
     assert.ok(["Decision", "KO/TKO", "Submission", "No clear method"].includes(r.prediction.methodOfVictory), "method is a valid label");
-    // A market-implied winner requires real two-sided odds + a ≥55% de-vig favorite.
-    if (r.prediction.predictedWinnerSource === "market_implied") {
-      assert.equal(r.moneyline.source, "market_implied");
+    // Every two-sided-odds fight gets a named winner: ≥55% ⇒ "Market-implied winner"; 50–55% ⇒ "Slight
+    // market lean". No two-sided odds ⇒ "No clear winner" (a winner is never invented from stats).
+    if (r.moneyline.source === "market_implied") {
+      assert.notEqual(r.prediction.predictedWinner, "No clear winner", "odds-backed fight has a named winner");
       const fav = Math.max(r.moneyline.fighterAProbability, r.moneyline.fighterBProbability);
-      assert.ok(fav >= 0.55, "market winner is a real ≥55% favorite");
+      if (r.prediction.predictedWinnerLabel === "Market-implied winner") assert.ok(fav >= 0.55, "market winner ≥55%");
+      if (r.prediction.predictedWinnerLabel === "Slight market lean") assert.ok(fav >= 0.5 && fav < 0.55, "slight lean 50–55%");
+    } else {
+      assert.equal(r.prediction.predictedWinner, "No clear winner", "no odds ⇒ no invented winner");
     }
-    // Never invents a winner for a no-odds fight.
-    if (r.moneyline.source !== "market_implied") assert.equal(r.prediction.predictedWinner, "No clear winner", "no odds ⇒ no invented winner");
   }
   assert.ok(rows.some((r) => r.prediction.predictedWinner !== "No clear winner"), "at least some fights have a named winner");
   assert.ok(rows.some((r) => r.prediction.methodOfVictory !== "No clear method"), "at least some fights have a method read");
