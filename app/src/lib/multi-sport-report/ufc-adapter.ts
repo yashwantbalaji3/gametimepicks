@@ -118,13 +118,13 @@ export function ufcFightToReport(
   const mainRead = nearPickem
     ? {
         label: "Near pick'em — no clear market favorite",
-        explanation: `The de-vigged moneyline sits close: ${fighter} ${pctOf(probFighter)}${priceFighter != null ? ` (${american(priceFighter)})` : ""} vs ${opponent} ${pctOf(probOpponent)}${priceOpponent != null ? ` (${american(priceOpponent)})` : ""}. Market-implied read only — the model-adjusted pick is gated.`,
+        explanation: `The de-vigged moneyline sits close: ${fighter} ${pctOf(probFighter)}${priceFighter != null ? ` (${american(priceFighter)})` : ""} vs ${opponent} ${pctOf(probOpponent)}${priceOpponent != null ? ` (${american(priceOpponent)})` : ""}. Market-implied read · paper-only.`,
         paperOnly: true as const,
       }
     : {
         label: `Market-implied favorite: ${favName}${favPrice != null ? ` (${american(favPrice)})` : ""}`,
         confidence: deVigged ? "De-vigged market read" : "Market read",
-        explanation: `The moneyline prices ${favName} at ${pctOf(favProb)} de-vigged${favPrice != null ? ` (${american(favPrice)})` : ""}; ${dogName} is the underdog${dogPrice != null ? ` at ${american(dogPrice)}` : ""}. Market-implied read only — no model edge is claimed.`,
+        explanation: `The moneyline prices ${favName} at ${pctOf(favProb)} de-vigged${favPrice != null ? ` (${american(favPrice)})` : ""}; ${dogName} is the underdog${dogPrice != null ? ` at ${american(dogPrice)}` : ""}. Market-implied read · paper-only.`,
         paperOnly: true as const,
       };
 
@@ -134,7 +134,7 @@ export function ufcFightToReport(
       ? [{
           market: "moneyline",
           selection: `${favName} moneyline`,
-          rationale: `Market-implied favorite · ${pctOf(favProb)} de-vigged. Model pick gated — market read only.`,
+          rationale: `Market-implied favorite · ${pctOf(favProb)} de-vigged · paper-only.`,
           confidence: "Market-implied",
           oddsAmerican: favPrice ?? undefined,
           settlementSupported: true,
@@ -147,10 +147,10 @@ export function ufcFightToReport(
     nearPickem
       ? `Market is near a coin-flip: ${fighter} ${pctOf(probFighter)} vs ${opponent} ${pctOf(probOpponent)} (de-vigged).`
       : `Market favors ${favName} — ${pctOf(favProb)} de-vigged${favPrice != null ? `, ${american(favPrice)}` : ""}.`,
-    "Moneyline is the only market offered by the current feed — method / round / distance props are provider-needed.",
+    "Moneyline is the only market offered by the current feed — method / round / distance aren't offered yet.",
     validated
       ? "Model-adjusted pick is validated and available separately."
-      : "Model-adjusted pick is gated — showing the market-implied read only until the backtest threshold is met.",
+      : "Model-adjusted picks: validation in progress — showing the market-implied read only.",
     "Paper-only · educational · not betting advice.",
   ];
 
@@ -171,7 +171,7 @@ export function ufcFightToReport(
       winProbabilities,
       notes: [
         UFC_SIM_NOTE,
-        validated ? "" : "Model-adjusted pick gated until validation passes.",
+        validated ? "" : "Model-adjusted picks: validation in progress.",
       ].filter(Boolean),
     },
     mainRead,
