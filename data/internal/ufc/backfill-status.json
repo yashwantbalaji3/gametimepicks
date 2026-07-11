@@ -1,0 +1,23 @@
+{
+  "artifact": "ufc-historical-validation-backfill-status",
+  "asOf": "2026-07-10",
+  "purpose": "Track progress toward validated model-adjusted UFC moneyline picks. Internal-only (must 404 on prod, absent from out/). No fake rows, no threshold changes.",
+  "status": "not-started",
+  "completedCardsIndexed": 0,
+  "resultsFetched": 0,
+  "oddsFetched": 0,
+  "gradedRows": 0,
+  "threshold": 150,
+  "paidOddsNeeded": true,
+  "freeResultsSource": "espn_mma_scoreboard",
+  "paidOddsSource": "the_odds_api_mma_historical",
+  "moneylineValidated": false,
+  "publicPicksVisible": false,
+  "nextStep": "Build data/internal/ufc/historical-cards.json from ESPN completed cards (free), run build_results.py over it (free results), then grade_moneylines.py. Historical pre-fight moneylines require founder-approved Odds API credits before grading can complete.",
+  "guardrails": [
+    "No paid historical-odds fetch without founder approval.",
+    "Threshold stays 150 — never lowered to force an unlock.",
+    "publicPicksVisible stays false until gradedRows >= threshold AND the no-leakage backtest passes AND a founder flips it.",
+    "No fabricated results, odds, rows, hit-rates, or Brier scores."
+  ]
+}
