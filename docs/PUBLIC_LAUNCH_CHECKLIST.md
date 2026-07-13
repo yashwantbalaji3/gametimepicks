@@ -3,6 +3,19 @@
 Go / no-go for public traffic. ✅ done · ⏳ pending founder/data · ⬜ to verify at launch. Money lock:
 **19-14 · $19,065.40 · $0 exposure · md5 `affe6b21071f2b3be96bb2774eb347c3`**.
 
+## Status update — 2026-07-13 (go/no-go + World Cup week)
+- 🟢 **Production go/no-go: GREEN** on the deployed site — `/ops`+`/preview` 404, aliases redirect (no error
+  shells), UFC `-internal-` 404, no stale "Live today", money 19-14 correct. (`PRODUCTION_GO_NO_GO_SMOKE_REPORT`)
+- 🟢 **World Cup semifinal predictions: GENERATED** (real odds) — France v Spain (Jul 14) + England v Argentina
+  (Jul 15), 5 supported markets each, both game reports build. Final + third-place **TBD** (no fabrication).
+  MLB in All-Star break (no fake slate). (`WORLD_CUP_WEEK_SCHEDULE_AND_COVERAGE`)
+- 🟢 Broken alias redirects fixed; internal routes excluded; UFC files off public — all confirmed on prod.
+- ⬜ **Re-smoke `/world-cup` semifinals on prod after this mission's push deploys.**
+- ⏳ Still open for BROAD launch: mobile smoke sweep, GH Actions secrets, WC settlement cadence (per
+  `WORLD_CUP_WEEK_OPERATIONS_SCHEDULE`), founder sign-off. None a correctness risk.
+
+**Verdict: soft-launch READY; broad-launch gated on the four ⏳/⬜ items above.**
+
 ## 1. Routes / navigation
 - ✅ 6 hub routes + `/sports` honest on the real ET clock (no "Live today" on a stale slate).
 - ✅ `/mlb/board`, `/mlb/power`, `/projections` carry the liveness banner (latest-view only).
