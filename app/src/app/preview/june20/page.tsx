@@ -12,6 +12,7 @@ import path from "node:path";
 import Link from "next/link";
 import WorldCupSpecialsPreviewBox from "@/components/world-cup/world-cup-specials-preview-box";
 import { loadJune20SpecialsPreview } from "@/lib/world-cup/world-cup-specials-preview";
+import { guardInternalRoute } from "@/lib/internal-route-guard";
 
 export const metadata = {
   title: "Internal Preview · June 20 full site",
@@ -49,6 +50,8 @@ function StatusCard({ title, accent, lines, badge }: { title: string; accent: st
 }
 
 export default function June20PreviewPage() {
+  // Internal surface — 404 in the public static export (see internal-route-guard).
+  guardInternalRoute();
   const data = loadJune20SpecialsPreview();
   const d = data?.diagnostics;
   const par = previewParlays();

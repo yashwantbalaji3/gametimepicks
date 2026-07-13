@@ -5,6 +5,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { guardInternalRoute } from "@/lib/internal-route-guard";
 
 export const metadata = {
   title: "Ops · GameTime Picks (internal)",
@@ -86,6 +87,8 @@ function LaneRow({ l }: { l: Lane }) {
 }
 
 export default function OpsPage() {
+  // Internal surface — 404 in the public static export (see internal-route-guard).
+  guardInternalRoute();
   const s = loadStatus();
   if (!s || !s.canonical) {
     return (
