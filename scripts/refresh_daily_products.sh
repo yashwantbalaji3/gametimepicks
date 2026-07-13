@@ -121,9 +121,11 @@ const s=JSON.parse(fs.readFileSync(sP));
 fs.writeFileSync(sP, JSON.stringify({sport:'mlb',date:'$DATE',generatedAt:s.generatedAt||b.generatedAt,source:b.source||'odds_api+statsapi',games:b.games||[]},null,2)+'\n');
 console.log('  schedule → board-shape ('+(b.games||[]).length+' games)');"
   rm -f "app/public/data/mlb/home-run-props/$DATE.json" && echo "  home-run-props/$DATE.json removed (Homer retired)"
-  # EMPTY-SLATE GUARD: on a 0-game day (e.g. the All-Star break) the board has no gameIds — team markets,
-  # simulations and internal evidence have nothing to build and would crash. Skip them cleanly and continue.
-  MLB_GAMES=$(node -e "try{const b=require('./app/public/data/mlb/boards/$DATE.json');process.stdout.write(String((b.games||[]).length))}catch{process.stdout.write('0')}")
+  # EMPTY-SLATE GUARD: on a 0-game day (All-Star break) OR an exhibition day (the All-Star Game itself,
+  # which the odds feed lists with a gameId but NO real teams) the board has no usable matchups — team
+  # markets, sims and internal evidence would crash. Count only games with BOTH a home and away team (a
+  # real matchup); skip cleanly and continue when there are none.
+  MLB_GAMES=$(node -e "try{const b=require('./app/public/data/mlb/boards/$DATE.json');const g=(b.games||[]).filter(x=>(x.home||x.homeTeam)&&(x.away||x.awayTeam));process.stdout.write(String(g.length))}catch{process.stdout.write('0')}")
   if [ "${MLB_GAMES:-0}" -gt 0 ]; then
     # Full-market team markets (moneyline / run line / total, de-vigged) → the Game Center.
     # One extra bulk Odds call (~3 credits); credit-guarded (fail-closed); needs the board above.
