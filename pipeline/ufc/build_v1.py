@@ -17,6 +17,8 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA = REPO_ROOT / "app" / "public" / "data" / "ufc"
+# Internal (non-public) inputs live outside app/public so they are never web-served.
+INTERNAL = REPO_ROOT / "data" / "internal" / "ufc"
 PROJ_OUT = DATA / "projections-latest.json"
 PARLAY_OUT = DATA / "suggested-parlays-latest.json"
 MIN_DQ = 0.75
@@ -27,8 +29,10 @@ DISCLAIMER = ("Official V1 moneyline model — real schedule + sportsbook lines 
 
 
 def _load(name):
+    # Internal artifacts (*-internal-*) live under data/internal/ufc; public ones under app/public.
+    base = INTERNAL if "-internal-" in name else DATA
     try:
-        return json.loads((DATA / name).read_text())
+        return json.loads((base / name).read_text())
     except Exception:
         return {}
 

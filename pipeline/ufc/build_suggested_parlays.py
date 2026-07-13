@@ -13,7 +13,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA = REPO_ROOT / "app" / "public" / "data" / "ufc"
-INTERNAL = DATA / "suggested-parlays-internal-latest.json"
+# Internal (non-public) UFC artifacts live outside app/public so they are never web-served.
+INTERNAL_DIR = REPO_ROOT / "data" / "internal" / "ufc"
+INTERNAL = INTERNAL_DIR / "suggested-parlays-internal-latest.json"
 PUBLIC = DATA / "suggested-parlays-latest.json"
 MAX_LEGS = {"bank": 2, "low": 2, "medium": 2, "high": 3}
 
@@ -50,7 +52,8 @@ def build(projections: dict, backtest_ready: bool, parlay_sim_ready: bool,
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(); ap.add_argument("--out", default=None); ap.add_argument("--card-only", action="store_true"); args = ap.parse_args(argv)
     def L(p):
-        try: return json.loads((DATA / p).read_text())
+        base = INTERNAL_DIR if "-internal-" in p else DATA
+        try: return json.loads((base / p).read_text())
         except Exception: return {}
     from .build_readiness import backtest_gate
     bt = backtest_gate()[0]
@@ -58,8 +61,9 @@ def main(argv=None) -> int:
     psr = False
     proj_file = "projections-internal-card-latest.json" if args.card_only else "projections-internal-latest.json"
     payload = build(L(proj_file), bt, psr)
-    internal = DATA / ("suggested-parlays-internal-card-latest.json" if args.card_only else "suggested-parlays-internal-latest.json")
+    internal = INTERNAL_DIR / ("suggested-parlays-internal-card-latest.json" if args.card_only else "suggested-parlays-internal-latest.json")
     out = Path(args.out) if args.out else (PUBLIC if payload["publicReady"] else internal)
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2) + "\n")
     print(f"wrote {out} → publicReady={payload['publicReady']} eligibleLegs={payload['eligibleLegCount']} blockers={payload['blockers']}")
     return 0

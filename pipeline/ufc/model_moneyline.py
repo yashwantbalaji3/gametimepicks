@@ -17,7 +17,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA = REPO_ROOT / "app" / "public" / "data" / "ufc"
-OUT = DATA / "projections-internal-latest.json"
+# Internal (non-public) UFC artifacts live OUTSIDE app/public so they are never web-served.
+INTERNAL = REPO_ROOT / "data" / "internal" / "ufc"
+OUT = INTERNAL / "projections-internal-latest.json"
 
 # Conservative weights on normalized deltas; total adjustment hard-capped.
 W = {"recentWinRate": 0.06, "winRate": 0.05, "finishRate": 0.03,
@@ -112,7 +114,8 @@ def main(argv=None) -> int:
     except Exception:
         validated = False
     payload = build(feats, validated=validated)
-    out = Path(args.out) if args.out else (DATA / ("projections-internal-card-latest.json" if args.card_only else "projections-internal-latest.json"))
+    out = Path(args.out) if args.out else (INTERNAL / ("projections-internal-card-latest.json" if args.card_only else "projections-internal-latest.json"))
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2) + "\n")
     print(f"wrote {out} → bouts={payload['boutCount']} publicEligible={payload['publicEligibleCount']} validated={validated}")
     return 0
