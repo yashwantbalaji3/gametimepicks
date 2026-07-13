@@ -168,10 +168,13 @@ export default function HomePage() {
   });
 
   // Homepage Event Spotlight — the current major event, pinned above the hero (UFC 329 first). Reusable
-  // selector; market-implied only; a settled card is never spotlighted. Null ⇒ normal homepage.
-  const spotlightEvent = loadHomepageSpotlight(today);
-  // Compact UFC fight-picks board (predicted winner + method per fight). Null when no upcoming UFC card.
-  const ufcPreview = loadUfcPredictionRows();
+  // selector; market-implied only; a settled OR past-day card is never spotlighted. Uses the REAL ET clock
+  // (not the slate date) so "tomorrow/today" and the past-event guard are honest vs the actual day.
+  const serverToday = currentEtDate();
+  const spotlightEvent = loadHomepageSpotlight(serverToday);
+  // Compact UFC fight-picks board (predicted winner + method per fight). Null when the card is settled or
+  // its event day has passed (no stale "tonight's picks").
+  const ufcPreview = loadUfcPredictionRows(serverToday);
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-9">

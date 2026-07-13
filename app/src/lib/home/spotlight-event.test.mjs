@@ -35,8 +35,9 @@ test("1 · a UFC spotlight is built from live sims, market-implied, honest copy"
   assert.equal(spotlightCopyIsHonest(e), true, "no forbidden over-claim");
 });
 
-test("2 · no spotlight for a settled card, or when sims aren't available (no stale/empty events)", () => {
+test("2 · no spotlight for a settled card, a PAST event, or when sims aren't available (no stale events)", () => {
   assert.equal(buildUfcSpotlight(ufcInputs({ isSettled: true })), null, "settled ⇒ no spotlight");
+  assert.equal(buildUfcSpotlight(ufcInputs({ isPast: true })), null, "past event ⇒ no spotlight");
   assert.equal(buildUfcSpotlight(ufcInputs({ moneylineV1Ready: false })), null, "no model ⇒ no spotlight");
   assert.equal(buildUfcSpotlight(ufcInputs({ oddsBackedCount: 0 })), null, "no odds-backed sims ⇒ no spotlight");
   assert.equal(buildUfcSpotlight(ufcInputs({ projectionCount: 0 })), null, "no projections ⇒ no spotlight");
@@ -69,7 +70,7 @@ test("5 · the REAL committed artifacts yield a UFC 329 spotlight linking to /uf
 test("6 · homepage + Today page render the spotlight from the shared loader", () => {
   const home = read("src/app/page.tsx");
   assert.match(home, /import EventSpotlight/, "home imports the component");
-  assert.match(home, /loadHomepageSpotlight\(today\)/, "home uses the loader");
+  assert.match(home, /loadHomepageSpotlight\(serverToday\)/, "home uses the loader with the real clock (past-event safe)");
   assert.match(home, /<EventSpotlight event=\{spotlightEvent\}/, "home renders it above the hero");
   const todayPage = read("src/app/today/page.tsx");
   assert.match(todayPage, /loadHomepageSpotlight\(serverToday\)/, "Today uses the loader with the real clock");

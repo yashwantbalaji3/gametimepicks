@@ -21,6 +21,12 @@ export function relativeDayLabel(today: string, eventDate?: string): string | un
   return undefined;
 }
 
+/** True when the event's day is strictly before `today` (YYYY-MM-DD) — the event is over/stale. */
+export function isEventPast(today: string, eventDate?: string): boolean {
+  if (!eventDate) return false;
+  try { return new Date(eventDate).toISOString().slice(0, 10) < today; } catch { return false; }
+}
+
 export function loadHomepageSpotlight(today: string): SpotlightEvent | null {
   const dir = path.join(process.cwd(), "public", "data", "ufc");
   const read = (n: string): any => { try { return JSON.parse(fs.readFileSync(path.join(dir, n), "utf8")); } catch { return null; } };
@@ -45,6 +51,7 @@ export function loadHomepageSpotlight(today: string): SpotlightEvent | null {
         gradedRows: ops?.cleanGradedRows ?? 0,
         gradedTarget: ops?.targetRowsForPublicMoneyline ?? 150,
         isSettled: settle?.status === "final" && (settle?.event ?? "") === eventName,
+        isPast: isEventPast(today, eventDate),
         whenLabel: relativeDayLabel(today, eventDate),
       })
     : null;

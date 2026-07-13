@@ -44,6 +44,8 @@ export interface UfcSpotlightInputs {
   gradedRows: number;
   gradedTarget: number;
   isSettled: boolean;
+  /** True when the event day is already in the PAST (event over) — never spotlight a stale card. */
+  isPast?: boolean;
   /** Optional caller-computed "tomorrow" / "today" / "this weekend" label (server knows the date). */
   whenLabel?: string;
 }
@@ -54,6 +56,7 @@ export interface UfcSpotlightInputs {
  */
 export function buildUfcSpotlight(i: UfcSpotlightInputs): SpotlightEvent | null {
   if (i.isSettled) return null; // a finished card is not a "live event" spotlight
+  if (i.isPast) return null; // the event day has passed — don't spotlight a stale "tonight/tomorrow" card
   if (!i.moneylineV1Ready || i.projectionCount <= 0 || i.oddsBackedCount <= 0) return null; // sims not available
   const prefix = i.eventName.includes(":") ? i.eventName.split(":")[0].trim() : i.eventName.trim(); // "UFC 329"
   const when = i.whenLabel ? `${i.whenLabel}'s` : "the";

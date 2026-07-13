@@ -36,6 +36,6 @@ test("2 · the preview component shows Winner + Method columns, a /ufc CTA, and 
 
 test("3 · the homepage renders the preview when a UFC card exists (null otherwise)", () => {
   assert.match(home, /import UfcPredictionPreview/, "home imports the preview");
-  assert.match(home, /loadUfcPredictionRows\(\)/, "home loads the rows");
+  assert.match(home, /loadUfcPredictionRows\(serverToday\)/, "home loads the rows (real clock; suppresses past events)");
   assert.match(home, /ufcPreview \? <UfcPredictionPreview/, "home renders it only when a card exists");
 });

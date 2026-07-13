@@ -6,6 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { buildUfcCardPredictions, buildFighterIndex, keyForNames, type UfcPredictionRowV1, type EngineOddsBout } from "../ufc/ufc-prediction-engine";
+import { isEventPast } from "./load-spotlight";
 
 export interface UfcPreview {
   eventName: string;
@@ -14,7 +15,7 @@ export interface UfcPreview {
   methodReadCount: number;
 }
 
-export function loadUfcPredictionRows(): UfcPreview | null {
+export function loadUfcPredictionRows(today?: string): UfcPreview | null {
   const dir = path.join(process.cwd(), "public", "data", "ufc");
   const read = (n: string): any => { try { return JSON.parse(fs.readFileSync(path.join(dir, n), "utf8")); } catch { return null; } };
   const sched = read("schedule-latest.json");
@@ -25,8 +26,9 @@ export function loadUfcPredictionRows(): UfcPreview | null {
   if (!sched?.fights?.length) return null;
 
   const eventName: string = proj?.eventName ?? sched?.eventName ?? "UFC";
-  // Don't preview a card that's already settled.
+  // Don't preview a card that's already settled OR whose event day has passed (stale "tonight's picks").
   if (settle?.status === "final" && (settle?.event ?? "") === eventName) return null;
+  if (today && isEventPast(today, sched?.eventDate ?? proj?.eventDate)) return null;
 
   const oddsIndex = new Map<string, EngineOddsBout>();
   for (const bt of (odds?.bouts ?? []) as Array<{ sides?: Array<{ name: string }> }>) {
