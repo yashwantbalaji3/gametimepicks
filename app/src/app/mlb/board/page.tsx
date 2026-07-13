@@ -1,5 +1,7 @@
-import { activeMlbDate } from "@/lib/data-mlb";
+import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
+import { currentEtDate } from "@/lib/freshness";
 import MlbBoardBody from "@/components/mlb/mlb-board-body";
+import SlateLivenessBanner from "@/components/slate-liveness-banner";
 
 export const metadata = {
   title: "MLB board · GameTime Picks",
@@ -13,8 +15,26 @@ const DEFAULT_DATE = "2026-05-16";
  * /mlb/board — active/latest slate. Date-specific views live under
  * /mlb/board/<YYYY-MM-DD>. The shared body in mlb-board-body.tsx
  * handles all data states (projections / lines pending / off-day).
+ * The liveness banner (real ET clock) is passed only here — the dated
+ * archive route intentionally omits it.
  */
 export default function MlbBoardPage() {
   const date = activeMlbDate() ?? DEFAULT_DATE;
-  return <MlbBoardBody date={date} />;
+  const games = getMlbBoardForDate(date).summary.scheduledGames ?? 0;
+  return (
+    <MlbBoardBody
+      date={date}
+      liveness={
+        <SlateLivenessBanner
+          buildTimeToday={currentEtDate()}
+          latestSlate={date}
+          latestSlateHasGames={games > 0}
+          archiveHref="/mlb"
+          archiveLabel="Back to the MLB hub"
+          includeMlbNote
+          includeWcFocus={false}
+        />
+      }
+    />
+  );
 }

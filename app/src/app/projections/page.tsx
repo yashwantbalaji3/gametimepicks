@@ -51,6 +51,7 @@ import {
 import { normTeamName } from "@/lib/world-cup/market-outlook";
 import WcProjectionCard from "@/components/world-cup/wc-projection-card";
 import SectionHeader from "@/components/section-header";
+import SlateLivenessBanner from "@/components/slate-liveness-banner";
 
 export const metadata = {
   title: "Projections · GameTime Picks",
@@ -96,6 +97,10 @@ export default function ProjectionsPage() {
   // ("1 game", not "1 games").
   const todayEntry = payload.dates.find((d) => d.date === today) ?? null;
   const todayGames = todayEntry?.games ?? [];
+  // Newest available projections date (for the honest "most recent slate" framing when today has none).
+  const latestProjDate = payload.dates.length
+    ? payload.dates.map((d) => d.date).sort().at(-1) ?? today
+    : today;
   // PR 1 (2026-06-02): count ACTIONABLE projections, not raw leans. A
   // props-only board (posted lines, no projection yet) must not inflate the
   // "projections" headline — those are prop lines, not projections.
@@ -143,6 +148,17 @@ export default function ProjectionsPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
       <MarketTicker items={tickerItems} className="-mx-4 sm:-mx-8 -mt-4 sm:-mt-6" />
+
+      {/* Slate liveness (real ET clock) — honest no-games / latest-slate framing (this page has no
+          freshness badge otherwise). Renders nothing on a genuinely live day. */}
+      <SlateLivenessBanner
+        buildTimeToday={today}
+        latestSlate={latestProjDate}
+        latestSlateHasGames={todayGames.length > 0}
+        includeMlbNote
+        includeWcFocus={false}
+      />
+
 
       {/* Premium projections-board hero — matches the Home / Parlay Lab style:
           layered gradient frame, gold top accent rule, headline + a sportsbook

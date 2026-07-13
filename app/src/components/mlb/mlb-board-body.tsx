@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   getMlbAvailableScheduleDates,
@@ -33,7 +34,7 @@ import BoardDateRail, {
  *   2) games.length > 0 && no leans        → schedule-only "lines pending"
  *   3) games.length === 0                  → honest off-day shell
  */
-export default function MlbBoardBody({ date }: { date: string }) {
+export default function MlbBoardBody({ date, liveness }: { date: string; liveness?: ReactNode }) {
   const board = getMlbBoardForDate(date);
 
   const totalGames = board.games.length;
@@ -91,6 +92,9 @@ export default function MlbBoardBody({ date }: { date: string }) {
       <div className="mb-6">
         <MlbSectionTabs />
       </div>
+
+      {/* Slate liveness (real ET clock) — only on the latest-view route (not dated archives). */}
+      {liveness ? <div className="mb-4">{liveness}</div> : null}
 
       {/* Status banner — settled / live / upcoming / lines-pending.
           Surfaces 'view audit' link when the date is settled so the

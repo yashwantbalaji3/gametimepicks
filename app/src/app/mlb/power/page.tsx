@@ -1,6 +1,8 @@
-import { activeMlbDate, getMlbPowerForDate } from "@/lib/data-mlb";
+import { activeMlbDate, getMlbPowerForDate, getMlbBoardForDate } from "@/lib/data-mlb";
+import { currentEtDate } from "@/lib/freshness";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import PowerBoardShell from "@/components/power-board-shell";
+import SlateLivenessBanner from "@/components/slate-liveness-banner";
 
 export const metadata = {
   title: "MLB Power Board · GameTime Picks",
@@ -14,11 +16,25 @@ export default function MlbPowerBoardPage() {
   const date = activeMlbDate() ?? DEFAULT_DATE;
   const power = getMlbPowerForDate(date);
   const reasonChip = power.reason ? `state · ${power.state}` : undefined;
+  const games = getMlbBoardForDate(date).summary.scheduledGames ?? 0;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <div className="mb-6">
         <MlbSectionTabs />
+      </div>
+
+      {/* Slate liveness (real ET clock) — no stale "today" on a no-games day. */}
+      <div className="mb-4">
+        <SlateLivenessBanner
+          buildTimeToday={currentEtDate()}
+          latestSlate={date}
+          latestSlateHasGames={games > 0}
+          archiveHref="/mlb"
+          archiveLabel="Back to the MLB hub"
+          includeMlbNote
+          includeWcFocus={false}
+        />
       </div>
       <PowerBoardShell
         accent="warn"
