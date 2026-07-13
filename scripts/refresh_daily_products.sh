@@ -121,18 +121,26 @@ const s=JSON.parse(fs.readFileSync(sP));
 fs.writeFileSync(sP, JSON.stringify({sport:'mlb',date:'$DATE',generatedAt:s.generatedAt||b.generatedAt,source:b.source||'odds_api+statsapi',games:b.games||[]},null,2)+'\n');
 console.log('  schedule → board-shape ('+(b.games||[]).length+' games)');"
   rm -f "app/public/data/mlb/home-run-props/$DATE.json" && echo "  home-run-props/$DATE.json removed (Homer retired)"
-  # Full-market team markets (moneyline / run line / total, de-vigged) → the Game Center.
-  # One extra bulk Odds call (~3 credits); credit-guarded (fail-closed); needs the board above.
-  npx tsx app/scripts/ingest-mlb-team-markets.mjs --write --date "$DATE" | tail -2
-  # ── Internal full-game-sim EVIDENCE (money-independent, non-fatal, writes ONLY data/internal) ──
-  # Captures the pregame team-market lines + independent context inputs daily so the internal rolling
-  # backtest can accumulate a real multi-date sample. Append-only; never web-served; never money.
-  # Guarded so a failure here can NEVER break the money-critical refresh.
-  ( npx tsx app/scripts/ingest-mlb-team-market-lines-daily.mjs --date "$DATE" \
-    && npx tsx app/scripts/ingest-mlb-independent-inputs.mjs --date "$DATE" --write \
-    && npx tsx app/scripts/build-mlb-model-inputs.mjs --date "$DATE" --write ) \
-    | tail -3 || echo "  ! internal full-game-sim evidence skipped (non-blocking, internal-only)"
-  ok "MLB artifacts written (board, props, schedule, team markets, internal evidence)"
+  # EMPTY-SLATE GUARD: on a 0-game day (e.g. the All-Star break) the board has no gameIds — team markets,
+  # simulations and internal evidence have nothing to build and would crash. Skip them cleanly and continue.
+  MLB_GAMES=$(node -e "try{const b=require('./app/public/data/mlb/boards/$DATE.json');process.stdout.write(String((b.games||[]).length))}catch{process.stdout.write('0')}")
+  if [ "${MLB_GAMES:-0}" -gt 0 ]; then
+    # Full-market team markets (moneyline / run line / total, de-vigged) → the Game Center.
+    # One extra bulk Odds call (~3 credits); credit-guarded (fail-closed); needs the board above.
+    npx tsx app/scripts/ingest-mlb-team-markets.mjs --write --date "$DATE" | tail -2
+    # ── Internal full-game-sim EVIDENCE (money-independent, non-fatal, writes ONLY data/internal) ──
+    # Captures the pregame team-market lines + independent context inputs daily so the internal rolling
+    # backtest can accumulate a real multi-date sample. Append-only; never web-served; never money.
+    # Guarded so a failure here can NEVER break the money-critical refresh.
+    ( npx tsx app/scripts/ingest-mlb-team-market-lines-daily.mjs --date "$DATE" \
+      && npx tsx app/scripts/ingest-mlb-independent-inputs.mjs --date "$DATE" --write \
+      && npx tsx app/scripts/build-mlb-model-inputs.mjs --date "$DATE" --write ) \
+      | tail -3 || echo "  ! internal full-game-sim evidence skipped (non-blocking, internal-only)"
+    ok "MLB artifacts written ($MLB_GAMES games: board, props, schedule, team markets, internal evidence)"
+  else
+    echo "  MLB: 0 games for $DATE — All-Star break / no games. Skipping team markets + simulations."
+    ok "MLB no-games state written (empty board; team markets + sims skipped)"
+  fi
 fi
 
 say "Cross-product · daily portfolio + master ledger"
