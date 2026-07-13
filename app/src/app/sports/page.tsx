@@ -22,19 +22,23 @@ export const metadata = {
     "Pick a sport — World Cup, MLB, NBA, UFC — to see today's projections, player props, and suggested paper cards. Educational, paper-only.",
 };
 
-function ufcCounts(): { projections: number; cards: number; live: boolean } {
+// `live` means the sport has action TODAY (its slate date == the real ET date), NOT merely that a
+// most-recent artifact exists. Without the date gate a stale slate (e.g. the last board from 07-11)
+// renders "Live today" on an off day — the stale-as-live bug. Every counter takes `today` and gates on it.
+function ufcCounts(today: string): { projections: number; cards: number; live: boolean } {
   try {
     const proj = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", "projections-latest.json"), "utf8"));
     const cards = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", "suggested-parlays-latest.json"), "utf8"));
     const p = Array.isArray(proj?.projections) ? proj.projections.length : 0;
     const c = Array.isArray(cards?.cards) ? cards.cards.length : 0;
-    return { projections: p, cards: c, live: Boolean(proj?.moneylineV1Ready && p > 0) };
+    const eventDate = String(proj?.eventDate ?? proj?.date ?? "").slice(0, 10);
+    return { projections: p, cards: c, live: Boolean(proj?.moneylineV1Ready && p > 0 && eventDate === today) };
   } catch {
     return { projections: 0, cards: 0, live: false };
   }
 }
 
-function nbaCounts(): { games: number; leans: number; live: boolean } {
+function nbaCounts(today: string): { games: number; leans: number; live: boolean } {
   try {
     const dates = getAvailableBoardDates();
     let best = "";
@@ -45,7 +49,7 @@ function nbaCounts(): { games: number; leans: number; live: boolean } {
     const board = best ? getBoardForDate(best) : undefined;
     const leans = board?.leans ?? [];
     const usable = leans.filter((l) => l.lean === "Over" || l.lean === "Under").length;
-    return { games: board?.games?.length ?? 0, leans: leans.length, live: usable > 0 };
+    return { games: board?.games?.length ?? 0, leans: leans.length, live: usable > 0 && best === today };
   } catch {
     return { games: 0, leans: 0, live: false };
   }
@@ -58,14 +62,16 @@ export default function SportsPage() {
   const wcProj = loadWorldCupProjections();
   const wcPlayers = loadWorldCupPlayerProjections();
   const wcCards = loadWorldCupParlays();
-  const wcLive = wcGames > 0 || !!wcProj;
+  // "live" ⇒ real games TODAY, not just that a most-recent artifact exists. Gate on the slate date == today
+  // (the real ET clock) so a 2-day-old slate (07-11 on 07-13) reads "Off today", never "Live today".
+  const wcLive = wcGames > 0 || (!!wcProj && String((wcProj as { date?: string }).date ?? "").slice(0, 10) === today);
 
   const mlbDate = activeMlbDate() ?? today;
   const mlb = getMlbBoardForDate(mlbDate);
-  const mlbLive = (mlb.summary.scheduledGames ?? 0) > 0;
+  const mlbLive = (mlb.summary.scheduledGames ?? 0) > 0 && mlbDate === today;
 
-  const nba = nbaCounts();
-  const ufc = ufcCounts();
+  const nba = nbaCounts(today);
+  const ufc = ufcCounts(today);
 
   const summaries: SportSummary[] = [
     {
@@ -109,7 +115,10 @@ export default function SportsPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-7">
       <SectionHeader
-        eyebrow={`Sports · ${summaries.filter((s) => s.live).length} live today`}
+        eyebrow={(() => {
+          const liveCount = summaries.filter((s) => s.live).length;
+          return liveCount > 0 ? `Sports · ${liveCount} live today` : "Sports · no live slate today";
+        })()}
         title="Pick a sport"
         sub="Each sport opens a uniform hub: today's games, model projections, player props, and suggested paper cards. Educational, paper-only."
       />

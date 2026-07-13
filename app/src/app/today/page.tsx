@@ -218,6 +218,7 @@ export default function TodayPage() {
       {/* 1 — Daily slate header (operational, not a giant Home hero) */}
       <TodayDailySlateHeader
         dateLabel={dateLabel}
+        slateRelative={today < serverToday ? "Latest slate" : null}
         slateDate={today}
         serverToday={serverToday}
         activeSports={activeSports}

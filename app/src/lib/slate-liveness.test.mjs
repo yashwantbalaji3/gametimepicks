@@ -157,3 +157,24 @@ test("wiring · the banner component frames on the REAL ET clock, not the slate 
   // Suppresses itself on a genuinely live day (no clutter).
   assert.match(src, /status === "live-today"/, "hides on a live day");
 });
+
+// ── Safe fix: header labels say "latest slate", not "today", when behind ─────
+test("safe-fix · the /today header + /mlb eyebrow read 'latest slate' when the slate is behind today", () => {
+  const header = fs.readFileSync(path.join(APP, "src/components/today/daily-slate-header.tsx"), "utf8");
+  assert.match(header, /slateRelative\s*\?/, "header renders the relative qualifier when present");
+  const todayPage = fs.readFileSync(path.join(APP, "src/app/today/page.tsx"), "utf8");
+  assert.match(todayPage, /slateRelative=\{today < serverToday \? "Latest slate"/, "/today passes 'Latest slate' when the slate date is before the real ET clock");
+  const mlbPage = fs.readFileSync(path.join(APP, "src/app/mlb/page.tsx"), "utf8");
+  assert.match(mlbPage, /date < currentEtDate\(\) \? "MLB · latest slate"/, "/mlb eyebrow flips to 'latest slate' when the board is behind today");
+});
+
+test("safe-fix · /sports gates 'live' on the slate date == today (no stale 'Live today')", () => {
+  const src = fs.readFileSync(path.join(APP, "src/app/sports/page.tsx"), "utf8");
+  // MLB/WC/NBA/UFC liveness must require the slate date to equal the real ET date, not merely content presence.
+  assert.match(src, /mlbDate === today/, "MLB 'live' requires the board date to be today");
+  assert.match(src, /=== today/, "sports liveness is date-gated");
+  assert.match(src, /best === today/, "NBA 'live' requires the board date to be today");
+  assert.match(src, /eventDate === today/, "UFC 'live' requires the event date to be today");
+  // Honest header when nothing is live.
+  assert.match(src, /no live slate today/, "header says 'no live slate today' when 0 are live");
+});

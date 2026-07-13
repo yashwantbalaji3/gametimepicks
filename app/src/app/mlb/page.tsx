@@ -312,7 +312,7 @@ export default function MlbLandingPage() {
         icon={getSportIdentity("mlb").icon}
         iconGradient={getSportIdentity("mlb").gradient}
         iconLabel={getSportIdentity("mlb").ballLabel}
-        eyebrow="MLB · today's slate"
+        eyebrow={date < currentEtDate() ? "MLB · latest slate" : "MLB · today's slate"}
         sport="MLB"
         tagline="projections · track record · power board"
         statusKind={statusKind}

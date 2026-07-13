@@ -11,6 +11,12 @@ import FreshnessBadge from "@/components/ui/freshness-badge";
 export interface TodayDailySlateHeaderProps {
   /** Human slate date, e.g. "Wednesday, July 9". */
   dateLabel: string;
+  /**
+   * Honest relative qualifier when the slate is NOT today's live action, e.g. "Latest slate".
+   * Null/undefined ⇒ the slate is today's (no qualifier). Keeps the header from implying an
+   * older slate is "today" on a no-games day.
+   */
+  slateRelative?: string | null;
   /** Machine slate date (YYYY-MM-DD) for the freshness badge. */
   slateDate: string;
   /** Wall-clock ET date for the freshness badge's SSR seed. */
@@ -25,6 +31,7 @@ export interface TodayDailySlateHeaderProps {
 
 export default function TodayDailySlateHeader({
   dateLabel,
+  slateRelative,
   slateDate,
   serverToday,
   activeSports,
@@ -49,7 +56,7 @@ export default function TodayDailySlateHeader({
           Today&rsquo;s Picks
         </h1>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
-          {dateLabel} · paper-only, educational
+          {slateRelative ? `${slateRelative} · ` : ""}{dateLabel} · paper-only, educational
         </span>
       </div>
 
