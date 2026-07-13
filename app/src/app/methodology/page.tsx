@@ -6,6 +6,7 @@ import DataSourceBadge from "@/components/data-source-badge";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { currentEtDate } from "@/lib/freshness";
 import SportOverviewHero from "@/components/sport-overview-hero";
+import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 
 /**
  * /methodology — the full multi-sport product methodology hub (June 15 rebuild).
@@ -647,6 +648,11 @@ function WorkflowDiagram() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Honest per-market coverage — what each sport simulates + every gap with the reason. */}
+      <div className="mt-10">
+        <SimulationCoverageMatrix />
       </div>
     </div>
   );

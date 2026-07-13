@@ -35,21 +35,22 @@ const NAV_ITEMS: Array<{
   // LEAD with the multi-sport EXPLORE cluster so every sport gets equal weight (not soccer-first): the
   // Game Lab hub + the sport hubs sit right after Today, ABOVE the flagship products. Game Lab is the core
   // "browse any game → model report" experience; the flagship ladders stay primary but no longer dominate.
-  // PRIMARY — the simulate-first spine (Home = brand mark, left → 5 clear entry points). Simulate leads;
-  // Today's Picks, Results, and the Bank Builder ladder follow. Everything else is de-emphasized below.
+  // PRIMARY — the 3-pillar spine: Simulations (Simulate) + Flagship Picks (Bank Builder, Moonshot) +
+  // Today + Results. Simulations lead; the two flagship products sit next to them; Everything else below.
   { href: "/simulate", label: "Simulate" },
+  { href: "/bank-builder", label: "Bank Builder" },
+  { href: "/moonshot", label: "Moonshot" },
   { href: "/today", label: "Today" },
   { href: "/results", label: "Results" },
-  { href: "/bank-builder", label: "Bank Builder" },
   // SECONDARY — still reachable, de-emphasized after the divider (NO routes removed, none deleted). The
-  // per-game model reports, sport hubs, side products, and the daily track record live here.
+  // per-sport simulation centers, per-game reports, side products, and the daily track record live here.
   { href: "/games", label: "Game Reports", beforeDivider: true },
   { href: "/mlb", label: "MLB" },
   { href: "/world-cup", label: "World Cup" },
   { href: "/picks", label: "Picks Lab" },
   { href: "/world-cup-specials", label: "Soccer Specials" },
-  { href: "/moonshot", label: "Moonshot" },
   { href: "/mr-dub", label: "Daily Dashboard" },
+  { href: "/sports", label: "More Sports" },
   { href: "/learn", label: "How It Works" },
 ];
 

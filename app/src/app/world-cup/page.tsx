@@ -51,6 +51,7 @@ import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
 import { getDetailForTeams } from "@/lib/game-detail";
 import WorldCupSectionTabs from "@/components/world-cup/world-cup-section-tabs";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import FlagBadge from "@/components/flag-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SectionHeader from "@/components/section-header";
@@ -614,7 +615,7 @@ export default function WorldCupLandingPage() {
         icon={getSportIdentity("world_cup").icon}
         iconGradient={getSportIdentity("world_cup").gradient}
         iconLabel={getSportIdentity("world_cup").ballLabel}
-        eyebrow="FIFA World Cup 2026 · educational analytics"
+        eyebrow="World Cup Simulation Center · educational analytics"
         sport="World Cup"
         tagline={daysOut > 0 ? `kickoff in ${daysOut} day${daysOut === 1 ? "" : "s"}` : "tournament live"}
         statusKind={isLive ? "live" : "upcoming"}
@@ -644,6 +645,11 @@ export default function WorldCupLandingPage() {
         }
         accent="wc"
       />
+
+      {/* Honest per-market coverage — what World Cup simulates + every gap with the reason. */}
+      <div className="mt-8 mb-8">
+        <SimulationCoverageMatrix sport="soccer" />
+      </div>
 
       <SportShell tabs={tabs} />
     </div>

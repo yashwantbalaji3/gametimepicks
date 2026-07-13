@@ -202,7 +202,7 @@ export default function UfcPage() {
   const fightSimsSection = fightReports.length > 0 ? (
     <section className="flex flex-col gap-3">
       <SectionHeader
-        eyebrow={`Fight simulations · ${fightReports.length}`}
+        eyebrow={`UFC Simulation Center · experimental · ${fightReports.length} fights`}
         title={`${eventName} — market-implied fight reports`}
         sub="Each fight's de-vigged sportsbook moneyline as a FreeSim-style report: Market Snapshot → Simulation Output → Main Read → Top Leans → Key Takeaways → Details. Market-implied simulation — not an independent 10,000-run UFC model. Model-adjusted picks stay gated until validation. Paper-only."
       />

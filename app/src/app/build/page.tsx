@@ -30,8 +30,8 @@ export default function BuildPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <PicksSurfaceHeader
-        eyebrow="Advanced builder"
-        title="Build a Card"
+        eyebrow="Advanced builder · secondary tool"
+        title="Advanced Builder"
         status={pool.length > 0 ? "pregame" : "data_pending"}
         counts={{ eligibleLegs: pool.length }}
         primaryAction={{ label: "Open Picks Lab", href: "/picks" }}

@@ -165,7 +165,7 @@ test("safe-fix · the /today header + /mlb eyebrow read 'latest slate' when the 
   const todayPage = fs.readFileSync(path.join(APP, "src/app/today/page.tsx"), "utf8");
   assert.match(todayPage, /slateRelative=\{today < serverToday \? "Latest slate"/, "/today passes 'Latest slate' when the slate date is before the real ET clock");
   const mlbPage = fs.readFileSync(path.join(APP, "src/app/mlb/page.tsx"), "utf8");
-  assert.match(mlbPage, /date < currentEtDate\(\) \? "MLB · latest slate"/, "/mlb eyebrow flips to 'latest slate' when the board is behind today");
+  assert.match(mlbPage, /date < currentEtDate\(\) \? "MLB Simulation Center · latest slate"/, "/mlb eyebrow flips to 'latest slate' (Simulation Center framing) when the board is behind today");
 });
 
 test("safe-fix · /sports gates 'live' on the slate date == today (no stale 'Live today')", () => {

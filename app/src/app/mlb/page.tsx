@@ -39,6 +39,7 @@ import { loadMlbPropsBoard, latestMlbBoardDate } from "@/lib/mlb/mlb-props";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import GameOutlookSection from "@/components/game-outlook-card";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
@@ -312,7 +313,7 @@ export default function MlbLandingPage() {
         icon={getSportIdentity("mlb").icon}
         iconGradient={getSportIdentity("mlb").gradient}
         iconLabel={getSportIdentity("mlb").ballLabel}
-        eyebrow={date < currentEtDate() ? "MLB · latest slate" : "MLB · today's slate"}
+        eyebrow={date < currentEtDate() ? "MLB Simulation Center · latest slate" : "MLB Simulation Center"}
         sport="MLB"
         tagline="projections · track record · power board"
         statusKind={statusKind}
@@ -336,6 +337,11 @@ export default function MlbLandingPage() {
       {/* MLB flagship sections — Homer Nukes / Props Board / Premium Plays / Game Explorer (data-gated). */}
       <div className="mt-4">
         <MlbFlagshipSections props={mlbProps} games={flagshipGames} />
+      </div>
+
+      {/* Honest per-market coverage — what MLB simulates + every gap with the reason. */}
+      <div className="mt-8">
+        <SimulationCoverageMatrix sport="mlb" />
       </div>
 
       {/* Legacy sport shell (Overview / Projections / Player Props / Results …) is heavy and below the
