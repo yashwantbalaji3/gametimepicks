@@ -22,11 +22,20 @@ Legend: 🟢 current/healthy · 🟡 working, needs attention · 🔴 stale/misl
 | **Results** | 🟢 | Official 19-14; paper track record + trust center; no pending marked as loss. |
 | **IPL / NBA / NHL** | ⚪ | Off-season / placeholder routes (board/parlays/results scaffolds). Not primary. |
 
+## Mid-July sports lull (verified 07-12 night)
+A July-13 refresh was attempted and revealed there is **no full current slate**: **MLB is in the All-Star
+break (0 games ~July 13–16)** and the **World Cup is between rounds (QFs done July 11; semifinals July 14/15)**.
+The thin/empty July-13 slate broke 15 slate-coupled tests, so it was reverted — the last full slate (July-11)
+stays with an honest "N days ago" freshness badge rather than a fake "live today". See
+`JULY13_PLUS_READINESS_LOG.md`.
+
 ## Urgent (next 24h)
-1. 🔴→🟢 **Stale UFC homepage spotlight** — fixed this pass (past-event guard). Deploys on push.
-2. 🟡 **Refresh the slate to July-13** — `bash scripts/refresh_daily_products.sh --date 2026-07-13` (founder keys) so MLB/WC are current, not 2 days old.
-3. 🟡 **UFC 329 post-event** — ingest results (internal, experimental grading), flip `/ufc` to results-review framing.
-4. 🟡 **World Cup July-11 QFs** — settle the 90' team markets from official scores; ingest the semifinals.
+1. 🟢 **Stale UFC homepage spotlight** — fixed (past-event guard); deploys on push.
+2. 🟡 **Next real refresh = July-14 (WC semifinals)** then **~July-17 (MLB resumes)** — not the empty July-13.
+3. 🟡 **Add GH Actions secrets** (`ODDS_API_KEY`/`API_FOOTBALL_KEY`/`VERCEL_DEPLOY_HOOK_URL`) to turn on the
+   existing daily-refresh + settlement + deploy workflows (kills the weekend-stale problem permanently).
+4. 🟡 **UFC 329 post-event** — ingest results (internal, experimental grading), flip `/ufc` to results-review.
+5. 🟡 **World Cup July-11 QFs** — settle 90' team markets from official scores; ingest the semifinals July-14.
 
 ## Week of July 13 priorities
 See `WEEK_OF_JULY13_ACTION_PLAN.md`. Headline: **automate the daily refresh** so the slate is never 2 days

@@ -38,7 +38,9 @@ test("the in-focus count matches the odds-backed projection matchCount (not the 
   // in-focus count is bounded by the schedule across the combined window — never by the single slate date alone.
   const next = new Date(`${today}T00:00:00Z`);
   next.setUTCDate(next.getUTCDate() + 1);
-  const windowDates = new Set([today, next.toISOString().slice(0, 10)]);
+  // The combined window can widen to the next KNOCKOUT fixtures (e.g. semifinals spread over 2 later days),
+  // so the bounding window is the slate date ∪ the artifact's own slateWindow days ∪ the next calendar day.
+  const windowDates = new Set([today, next.toISOString().slice(0, 10), ...(proj.slateWindow?.days ?? [])]);
   const scheduled = (sched.matches || []).filter((m) => windowDates.has(String(m.date))).length;
   // in focus = projection matchCount; the schedule must carry at least as many fixtures across the window.
   assert.ok(proj.matchCount >= 1, "at least one in-focus game");
