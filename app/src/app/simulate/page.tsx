@@ -5,6 +5,7 @@
  */
 import SimulateLobby from "@/components/games/simulate-lobby";
 import HowToRead from "@/components/how-to-read";
+import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 
 export const metadata = {
   title: "Simulate · GameTime Picks",
@@ -19,6 +20,10 @@ export default function SimulatePage() {
         <HowToRead preset="simulate" title="How to read a simulation" />
       </div>
       <SimulateLobby />
+      {/* Honest market-coverage matrix — what each sport simulates, and every gap with the exact reason. */}
+      <div className="px-3 sm:px-6 lg:px-8 pb-10 pt-2">
+        <SimulationCoverageMatrix />
+      </div>
     </>
   );
 }
