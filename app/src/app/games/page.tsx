@@ -1,15 +1,16 @@
 /**
- * /games — kept for compatibility. Renders the shared SimulateLobby (the same component mounted at the
- * clearer user-facing /simulate route), so there is ONE source of truth for the game-simulation lobby.
+ * /games — permanent alias of /simulate (the two rendered the identical SimulateLobby). Collapsed to a
+ * single canonical URL: /games now client-redirects to /simulate (static-export-safe; server redirect()
+ * does not work under output:export). Deep links /games/[sport]/[gameId] are unaffected.
  */
-import SimulateLobby from "@/components/games/simulate-lobby";
+import ClientRedirect from "@/components/client-redirect";
 
 export const metadata = {
   title: "Simulate Games · GameTime Picks",
-  description:
-    "Simulate Games — every sport's games in one board. Pick a game to run the deterministic model simulation (precomputed, same result for everyone) and see the model's picks, confidence and risk. Educational, paper-only.",
+  description: "Simulate Games — moved to /simulate.",
+  robots: { index: false, follow: false },
 };
 
 export default function GamesPage() {
-  return <SimulateLobby />;
+  return <ClientRedirect to="/simulate/" label="Simulate" />;
 }

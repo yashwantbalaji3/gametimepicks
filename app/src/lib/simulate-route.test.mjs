@@ -15,11 +15,13 @@ const simulatePage = read("src/app/simulate/page.tsx");
 const gamesPage = read("src/app/games/page.tsx");
 const lobby = read("src/components/games/simulate-lobby.tsx");
 
-test("/simulate and /games both render the SHARED SimulateLobby (one source of truth, no duplicate logic)", () => {
+test("/simulate is the canonical lobby; /games is collapsed to a redirect to it (one URL)", () => {
   assert.match(simulatePage, /from "@\/components\/games\/simulate-lobby"/, "/simulate imports the shared lobby");
   assert.match(simulatePage, /<SimulateLobby \/>/, "/simulate renders it");
-  assert.match(gamesPage, /from "@\/components\/games\/simulate-lobby"/, "/games imports the SAME shared lobby");
-  assert.match(gamesPage, /<SimulateLobby \/>/, "/games renders it");
+  // /games no longer duplicates the lobby — it client-redirects to /simulate (static-export-safe).
+  assert.match(gamesPage, /ClientRedirect/, "/games renders a ClientRedirect");
+  assert.match(gamesPage, /to="\/simulate\/"/, "/games redirects to /simulate");
+  assert.ok(!/<SimulateLobby/.test(gamesPage), "/games no longer mounts the lobby (deduped)");
   // The heavy data logic lives ONCE in the component, not duplicated in the pages.
   assert.ok(!/buildAllGameDetails/.test(simulatePage) && !/buildAllGameDetails/.test(gamesPage), "no data logic duplicated in the page files");
   assert.match(lobby, /buildAllGameDetails/, "the shared component owns the data logic");
