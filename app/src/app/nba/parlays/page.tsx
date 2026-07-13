@@ -1,17 +1,14 @@
 /**
- * /nba/parlays — NBA Parlays, sport-namespaced URL.
- *
- * Renders the same Parlay Lab content as the legacy `/parlay-lab`
- * route. NbaSectionTabs (mounted inside ParlayLabPage) reads the
- * current pathname so "Parlays" lights up whether the user arrived
- * via `/parlay-lab` or `/nba/parlays`.
+ * /nba/parlays → /picks. Sport-namespaced legacy alias for the cross-sport Parlay Lab (now /picks).
+ * Client-redirects (static-export-safe; server redirect() emits an error shell under output:export).
  */
-import ParlayLabPage from "@/app/parlay-lab/page";
+import ClientRedirect from "@/components/client-redirect";
 
 export const metadata = {
   title: "NBA Parlays · GameTime Picks",
-  description:
-    "NBA candidate parlay slips built from clean model leans. Educational analytics — not betting advice.",
+  robots: { index: false, follow: false },
 };
 
-export default ParlayLabPage;
+export default function NbaParlaysRedirect() {
+  return <ClientRedirect to="/picks/" label="Picks Lab" />;
+}

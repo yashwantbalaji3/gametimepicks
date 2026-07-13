@@ -83,7 +83,9 @@ test("Parlay Lab UI renders the full matrix (totals footer, Moonshot + Bank Buil
   // suggested-parlay surface is now the Parlay Lab at /picks (/parlays + /parlay-lab redirect to it).
   const page = fs.readFileSync("src/app/picks/page.tsx", "utf8");
   assert.match(page, /buildCoverageMatrix\(\w+, loadMoonshotLane\(\)/, "matrix built server-side in the canonical Parlay Lab (/picks)");
-  // The legacy /parlays route is a thin redirect to the canonical lobby — not a competing page.
+  // The legacy /parlays route is a thin CLIENT redirect to the canonical lobby — not a competing page.
+  // (Server redirect() emits an error shell under output:export, so it uses ClientRedirect.)
   const legacy = fs.readFileSync("src/app/parlays/page.tsx", "utf8");
-  assert.match(legacy, /redirect\(["']\/picks["']\)/, "/parlays redirects to the canonical /picks");
+  assert.match(legacy, /ClientRedirect/, "/parlays uses ClientRedirect");
+  assert.match(legacy, /to="\/picks\/"/, "/parlays redirects to the canonical /picks");
 });
