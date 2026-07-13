@@ -18,6 +18,7 @@ import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
+import SlateLivenessBanner from "@/components/slate-liveness-banner";
 
 export const metadata = {
   title: "Moonshot · GameTime Picks",
@@ -51,6 +52,15 @@ export default function MoonshotPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
+      {/* Slate liveness (real ET clock) — no-play framing when today has no live slate; points at the next
+          scheduled focus. The longshot lanes below remain the most-recent published cards. */}
+      <SlateLivenessBanner
+        buildTimeToday={currentEtDate()}
+        latestSlate={today}
+        latestSlateHasGames={dailyPortfolio.cards.length > 0}
+        archiveHref="/results"
+        archiveLabel="See results & receipts"
+      />
       <PicksSurfaceHeader
         eyebrow="Moonshot Lane"
         title="Moonshot Lane"

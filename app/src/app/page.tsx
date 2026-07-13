@@ -35,6 +35,7 @@ import EventSpotlight from "@/components/home/event-spotlight";
 import { loadHomepageSpotlight } from "@/lib/home/load-spotlight";
 import UfcPredictionPreview from "@/components/home/ufc-prediction-preview";
 import { loadUfcPredictionRows } from "@/lib/home/ufc-preview";
+import SlateLivenessBanner from "@/components/slate-liveness-banner";
 
 export const metadata = {
   title: "GameTime Picks — Simulate today's games. Review model picks. Track results.",
@@ -178,7 +179,19 @@ export default function HomePage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-9">
-      {/* 0 — Event Spotlight: the current major event, pinned above the hero (null when none) */}
+      {/* 0 — Slate liveness: on a no-games day this frames the page honestly on the REAL ET clock
+          (never presents the most-recent slate as live) and points at the next scheduled focus.
+          Renders nothing on a genuinely live day. */}
+      <SlateLivenessBanner
+        buildTimeToday={serverToday}
+        latestSlate={today}
+        latestSlateHasGames={mlbGames > 0 || (topPicks ?? 0) > 0}
+        archiveHref="/today"
+        archiveLabel="See the most recent slate"
+        includeMlbNote
+      />
+
+      {/* 0a — Event Spotlight: the current major event, pinned above the hero (null when none) */}
       <EventSpotlight event={spotlightEvent} />
 
       {/* 0b — Tonight's UFC fight picks (predicted winner + method per fight); null when no UFC card */}

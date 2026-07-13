@@ -38,6 +38,7 @@ import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
 import { loadMlbPropsBoard, latestMlbBoardDate } from "@/lib/mlb/mlb-props";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
+import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import GameOutlookSection from "@/components/game-outlook-card";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
@@ -290,6 +291,20 @@ export default function MlbLandingPage() {
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <div className="mb-6">
         <MlbSectionTabs />
+      </div>
+
+      {/* Slate liveness (real ET clock) — on an MLB no-games day (e.g. the All-Star break) this says so
+          plainly instead of presenting the most-recent board as live. Hidden on a live day. */}
+      <div className="mb-4">
+        <SlateLivenessBanner
+          buildTimeToday={currentEtDate()}
+          latestSlate={date}
+          latestSlateHasGames={games.length > 0}
+          archiveHref="/mlb/board"
+          archiveLabel="Open the most recent MLB board"
+          includeMlbNote
+          includeWcFocus={false}
+        />
       </div>
 
       <SportOverviewHero

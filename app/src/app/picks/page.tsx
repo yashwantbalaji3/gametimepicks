@@ -20,6 +20,7 @@ import PicksExperience from "@/components/picks-experience";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
 import HowToRead from "@/components/how-to-read";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
+import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
@@ -79,6 +80,15 @@ export default function PicksPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
+      {/* Slate liveness (real ET clock) — no-play framing when the slate isn't today's live action. */}
+      <SlateLivenessBanner
+        buildTimeToday={currentEtDate()}
+        latestSlate={today}
+        latestSlateHasGames={engineSlate.gameSpecific.length > 0 || engineSlate.allSuggested.length > 0}
+        archiveHref="/results"
+        archiveLabel="See results & receipts"
+        includeMlbNote
+      />
       <HowToRead preset="picks" title="How to read Picks Lab — explore model-qualified legs, build a paper-only card" />
       {step5 ? (
         <Link

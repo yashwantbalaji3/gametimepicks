@@ -50,6 +50,7 @@ import WcMarketMatrix from "@/components/world-cup/wc-market-matrix";
 import WcMatchOutlookCard from "@/components/world-cup/wc-match-outlook-card";
 import { getDetailForTeams } from "@/lib/game-detail";
 import WorldCupSectionTabs from "@/components/world-cup/world-cup-section-tabs";
+import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import FlagBadge from "@/components/flag-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SectionHeader from "@/components/section-header";
@@ -594,6 +595,18 @@ export default function WorldCupLandingPage() {
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <div className="mb-6">
         <WorldCupSectionTabs />
+      </div>
+
+      {/* Slate liveness (real ET clock) — between knockout rounds this frames the page honestly (the QF
+          slate is the most recent, not "today") and points at the next round from the public calendar. */}
+      <div className="mb-4">
+        <SlateLivenessBanner
+          buildTimeToday={currentEtDate()}
+          latestSlate={today}
+          latestSlateHasGames={todayMatches.length > 0 || projectionsLive}
+          archiveHref="/world-cup/round-of-32"
+          archiveLabel="Open the knockout board"
+        />
       </div>
 
       <SportOverviewHero
