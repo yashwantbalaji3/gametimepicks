@@ -16,9 +16,25 @@ export interface FeaturedSimulationsProps {
   readyCount: number;
 }
 
+/** Crest: MLB uses the ESPN-CDN TeamLogo; World Cup uses the real provider logo URL (never fabricated). */
+function Crest({ team, logo, isWc }: { team: string; logo: string | null; isWc: boolean }) {
+  if (!isWc) return <TeamLogo team={team} sport="mlb" size="sm" />;
+  if (logo) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={logo} alt={`${team} crest`} width={24} height={24} style={{ borderRadius: 4, objectFit: "contain" }} />;
+  }
+  return (
+    <span aria-hidden className="inline-flex items-center justify-center rounded" style={{ width: 24, height: 24, fontSize: 9, fontWeight: 800, color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }}>
+      {team.slice(0, 3).toUpperCase()}
+    </span>
+  );
+}
+
 function SimCard({ s }: { s: FeaturedSimulation }) {
   const away = s.teams?.away?.trim() || "—";
   const home = s.teams?.home?.trim() || "—";
+  const isWc = s.sport === "world_cup";
+  const sportLabel = isWc ? "World Cup" : "MLB";
   return (
     <Link
       href={s.href}
@@ -27,21 +43,24 @@ function SimCard({ s }: { s: FeaturedSimulation }) {
     >
       <div className="flex items-center justify-between gap-2">
         <span className="flex min-w-0 items-center gap-2">
-          <TeamLogo team={away} sport="mlb" size="sm" />
+          <Crest team={away} logo={s.awayLogo} isWc={isWc} />
           <span className="truncate text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
-            {away} <span style={{ color: "var(--vault-text-faint)" }}>@</span> {home}
+            {away} <span style={{ color: "var(--vault-text-faint)" }}>{isWc ? "vs" : "@"}</span> {home}
           </span>
-          <TeamLogo team={home} sport="mlb" size="sm" />
+          <Crest team={home} logo={s.homeLogo} isWc={isWc} />
         </span>
+        {/* Honest mode badge: an MLB run-sim reads "Simulation Ready"; a WC card reads "Market-implied". */}
         <span
           className="shrink-0 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]"
-          style={{ fontSize: 8.5, fontWeight: 700, color: "var(--vault-success)", background: "var(--vault-success-dim)", border: "1px solid rgba(110,231,168,0.35)" }}
+          style={s.mode === "market-implied"
+            ? { fontSize: 8.5, fontWeight: 700, color: "var(--vault-gold)", background: "rgba(234,179,8,0.10)", border: "1px solid rgba(234,179,8,0.35)" }
+            : { fontSize: 8.5, fontWeight: 700, color: "var(--vault-success)", background: "var(--vault-success-dim)", border: "1px solid rgba(110,231,168,0.35)" }}
         >
-          Simulation Ready
+          {s.mode === "market-implied" ? "Market-implied" : "Simulation Ready"}
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono" style={{ fontSize: 10.5 }}>
-        <span style={{ color: "var(--vault-text-faint)" }}>MLB</span>
+        <span style={{ color: "var(--vault-text-faint)" }}>{sportLabel}</span>
         {s.runCountLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{s.runCountLabel}</span> : null}
         {s.pickCount > 0 ? (
           <span style={{ color: "var(--vault-text-mute)" }}>
@@ -66,7 +85,7 @@ export default function FeaturedSimulationsSection({ featured, readyCount }: Fea
           Featured simulations
         </h2>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-          Deterministic · paper-only
+          Paper-only · educational
         </span>
       </div>
 

@@ -75,7 +75,7 @@ export default function HomePage() {
 
   // ── Featured simulations — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
-  const { featured, readyCount } = featuredSimulations(details);
+  const { featured, readyCount } = featuredSimulations(details, currentEtDate());
 
   // ── MLB slate — same loader the Today board uses ──
   const mlb = getMlbBoardForDate(today);

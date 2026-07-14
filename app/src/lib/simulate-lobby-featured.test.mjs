@@ -141,7 +141,7 @@ test("7 · source: an honest zero-ready empty state branch exists (no fabricated
   assert.match(lobby, /featured\.length === 0 \?/, "the render branches on zero featured");
   // Selector returns an empty result when nothing is ready (drives the empty branch).
   const none = featuredSimulations([detail("x", sim({ status: "unavailable" }))]);
-  assert.deepEqual(none, { featured: [], readyCount: 0 }, "no ready games ⇒ empty featured, zero count");
+  assert.deepEqual(none, { featured: [], readyCount: 0, allCurrent: false }, "no ready games ⇒ empty featured, zero count");
 });
 
 test("8 · no banned copy in simulate-lobby.tsx", () => {

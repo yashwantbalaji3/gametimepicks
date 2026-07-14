@@ -44,7 +44,7 @@ test("homepage surfaces real, sim-ready games from the REAL builder (no new data
   // Same real builder, no new data path — now feeding the featured-simulations selector.
   assert.match(page, /import \{ buildAllGameDetails \} from "@\/lib\/game-detail"/, "reuses the existing game-detail builder (no new data path)");
   assert.match(page, /import \{ featuredSimulations \} from "@\/lib\/simulate-lobby-featured"/, "reuses the featured-simulations selector");
-  assert.match(page, /featuredSimulations\(details\)/, "derives featured games from the real details");
+  assert.match(page, /featuredSimulations\(details[,)]/, "derives featured games from the real details");
   assert.match(page, /<FeaturedSimulationsSection/, "renders the featured-simulations section");
   // The restructured Home does NOT render the full Today board anymore (that stays on /today).
   assert.ok(!/<TodayPage/.test(page), "the full Today board is no longer rendered on Home");

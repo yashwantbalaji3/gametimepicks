@@ -55,7 +55,7 @@ test("2 · /today links to /simulate, /results, /bank-builder, /picks", () => {
 // 3 — sim-ready summary when artifacts exist (uses featuredSimulations).
 test("3 · sim-ready summary is sourced from featuredSimulations (real artifacts)", () => {
   assert.match(todayPage, /import \{ featuredSimulations \} from "@\/lib\/simulate-lobby-featured"/, "imports the real selector");
-  assert.match(todayPage, /featuredSimulations\(details\)/, "invokes the selector on real details");
+  assert.match(todayPage, /featuredSimulations\(details[,)]/, "invokes the selector on real details");
   assert.match(todayPage, /buildAllGameDetails\(\)/, "details from the real builder");
   assert.match(todayPage, /<TodaySimulationLeans/, "renders the simulation-backed module");
   assert.match(simLeans, /Simulation Ready/, "sim-ready badge present");

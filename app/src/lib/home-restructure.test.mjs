@@ -75,7 +75,7 @@ test("3 · Home links to /simulate, /today, /bank-builder, /results", () => {
 // 4 — Home renders featured simulations from the REAL selector when the artifact exists.
 test("4 · featured simulations come from featuredSimulations() (real artifact only)", () => {
   assert.match(page, /import \{ featuredSimulations \} from "@\/lib\/simulate-lobby-featured"/, "imports the real selector");
-  assert.match(page, /featuredSimulations\(details\)/, "invokes the selector on real game details");
+  assert.match(page, /featuredSimulations\(details[,)]/, "invokes the selector on real game details");
   assert.match(page, /buildAllGameDetails\(\)/, "details come from the real builder");
   assert.match(page, /<FeaturedSimulationsSection/, "renders the featured section");
   // The section renders each card's Generate Simulation CTA to the game's own href.

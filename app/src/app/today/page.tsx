@@ -73,7 +73,7 @@ export default function TodayPage() {
 
   // ── Simulation-ready games — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
-  const { featured, readyCount } = featuredSimulations(details);
+  const { featured, readyCount } = featuredSimulations(details, serverToday);
 
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
   const top10 = buildTop10Board(dataRoot, today, Date.now());

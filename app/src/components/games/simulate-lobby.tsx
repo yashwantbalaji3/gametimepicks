@@ -205,7 +205,7 @@ export default function SimulateLobby() {
   // sport that carries a joined `gameLabSimulation`; the selector is honest either way (empty ⇒ empty
   // state, never fabricated cards). Reuses the SAME details the rows above are built from — now the
   // details ALSO thread through each fixture's real team logos so the featured cards can show them.
-  const { featured, readyCount } = featuredSimulations([...detailMap.values()]);
+  const { featured, readyCount, allCurrent } = featuredSimulations([...detailMap.values()], today);
   const overflowReady = Math.max(0, readyCount - featured.length);
 
   // ── SPORT-FIRST SELECTOR STATES ──
@@ -357,7 +357,7 @@ export default function SimulateLobby() {
         <div className="flex items-end justify-between gap-3 flex-wrap">
           <div className="flex flex-col gap-1">
             <span className="inline-flex items-center gap-1.5 font-mono uppercase tracking-[0.18em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>
-              <span className="gtp-ember-dot" aria-hidden /> Ready to simulate
+              <span className="gtp-ember-dot" aria-hidden /> {allCurrent ? "Ready to simulate" : "Latest available slate"}
             </span>
             <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800, letterSpacing: "-0.01em" }}>
               {featured.length > 0 ? "Featured simulations" : "No featured simulations yet"}
