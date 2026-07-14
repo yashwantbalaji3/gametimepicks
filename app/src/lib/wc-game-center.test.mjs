@@ -80,7 +80,9 @@ test("5 · NO 10,000-run claim — soccer is a market-implied dashboard, not a s
   const stripComments = (s) => s.split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join("\n");
   assert.doesNotMatch(stripComments(deriverSrc), /runCount|10,?000/); // no runCount field, no 10k literal
   assert.doesNotMatch(stripComments(runnerSrc), /10,?000[- ]?run|runCount/); // no run-count claim in copy
-  assert.match(runnerSrc, /market-implied dashboard|Market Dashboard/i); // positively a market dashboard
+  assert.match(runnerSrc, /market-implied/i); // honest source label is preserved (market-implied, not a sampled sim)
+  assert.match(runnerSrc, /Generate Simulation Report/); // product verb matches MLB ("Simulation Report")
+  assert.doesNotMatch(runnerSrc, /Generate Market Dashboard/); // the weaker "Market Dashboard" verb is gone
 });
 
 test("6 · game-detail attaches wcGameCenter; page gates it behind Generate (postReveal)", () => {

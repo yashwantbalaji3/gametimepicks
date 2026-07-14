@@ -14,6 +14,7 @@ import GameSimulationRunner from "@/components/game/game-simulation-runner";
 import MlbGameCenter from "@/components/game/mlb-game-center";
 import WcGameCenter from "@/components/game/wc-game-center";
 import WcSimulationRunner from "@/components/game/wc-simulation-runner";
+import WorldCupBracketImpactCard from "@/components/world-cup/wc-bracket-impact-card";
 import WcGameLabReport from "@/components/game/wc-game-lab-report";
 import MultiSportReportShell from "@/components/game/multi-sport-report-shell";
 import { wcGameLabViewToReport } from "@/lib/multi-sport-report/wc-adapter";
@@ -747,8 +748,18 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
           <CompetitionBadge sport="world_cup" size="sm" />
           <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
-            <span aria-hidden>▶</span> Market-Implied Report Ready
+            <span aria-hidden>▶</span> Simulation Report · Market-Implied
           </span>
+        </div>
+        {/* Bracket impact — makes the semifinal feel important above the fold (winner→Final, loser→3rd; TBD). */}
+        <div className="mb-4">
+          <WorldCupBracketImpactCard
+            home={detail.homeTeam ?? gc.homeTeam}
+            away={detail.awayTeam ?? gc.awayTeam}
+            stage={gc.stage}
+            finalDateLabel="Jul 19"
+            thirdPlaceDateLabel="Jul 18"
+          />
         </div>
         <WcSimulationRunner
           homeTeam={detail.homeTeam ?? gc.homeTeam}

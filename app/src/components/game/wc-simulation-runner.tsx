@@ -4,7 +4,7 @@
  *
  * Mirrors the MLB simulator's gate (idle → revealing → done, postReveal shown ONLY in `done`) but
  * for a MARKET-IMPLIED dashboard: there is NO 10,000-run claim. Pre-click shows the matchup + a
- * "Generate Market Dashboard" CTA + LOCKED module previews (labels only). The reveal is a soccer-
+ * "Generate Simulation Report" CTA + LOCKED module previews (labels only). The reveal is a soccer-
  * specific staged pass (pitch + flags + a checklist over SIMULATION_MIN_DURATION_MS), then the
  * dashboard (Game Center + report) is revealed. No probabilities/totals leak before Generate.
  *
@@ -21,7 +21,7 @@ const WC_STAGES = [
   "Building the 90-minute match result",
   "Checking totals & both-teams-to-score",
   "Double chance & draw-no-bet",
-  "Market dashboard ready",
+  "Simulation report ready",
 ];
 
 interface Props {
@@ -96,7 +96,7 @@ export default function WcSimulationRunner({
 
   if (phase === "revealing") {
     return (
-      <section aria-label="Building market dashboard" aria-live="polite" className="rounded-[14px] px-4 sm:px-6 py-6 flex flex-col items-center gap-5" style={{ background: "var(--gtp-card)", border: "1px solid var(--vault-rule)" }}>
+      <section aria-label="Building simulation report" aria-live="polite" className="rounded-[14px] px-4 sm:px-6 py-6 flex flex-col items-center gap-5" style={{ background: "var(--gtp-card)", border: "1px solid var(--vault-rule)" }}>
         {MatchupHero}
         {/* Soccer pitch reveal — CSS/SVG only, no external assets. Ball rests under reduced-motion. */}
         <div className="w-full max-w-[320px]">
@@ -131,7 +131,7 @@ export default function WcSimulationRunner({
 
   // idle — pre-click: matchup + locked previews + CTA. No probabilities/totals shown.
   return (
-    <section aria-label="Generate market dashboard" className="rounded-[14px] px-4 sm:px-6 py-6 flex flex-col items-center gap-5" style={{ background: "var(--gtp-card)", border: "1px solid var(--vault-rule)" }}>
+    <section aria-label="Generate simulation report" className="rounded-[14px] px-4 sm:px-6 py-6 flex flex-col items-center gap-5" style={{ background: "var(--gtp-card)", border: "1px solid var(--vault-rule)" }}>
       {MatchupHero}
       <div className="flex flex-wrap items-center justify-center gap-2">
         {stageLabel ? (
@@ -140,7 +140,7 @@ export default function WcSimulationRunner({
         {kickoffLabel ? (
           <span className="font-mono px-2.5 py-1 rounded-full" style={{ color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", fontSize: 9.5 }}>Kickoff {kickoffLabel}</span>
         ) : null}
-        <span className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full" style={{ color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", fontSize: 9 }}>Market dashboard ready</span>
+        <span className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full" style={{ color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", fontSize: 9 }}>Simulation report ready</span>
       </div>
       <button
         type="button"
@@ -148,7 +148,7 @@ export default function WcSimulationRunner({
         className="vault-press inline-flex items-center justify-center rounded-full px-6 font-mono uppercase tracking-[0.14em]"
         style={{ minHeight: 48, background: "linear-gradient(180deg, var(--vault-gold-bright), #d6a945)", color: "#06091a", fontSize: 13, fontWeight: 600, border: "none" }}
       >
-        Generate Market Dashboard
+        Generate Simulation Report
       </button>
       {/* Locked module previews — LABELS ONLY, no data. */}
       <div className="flex flex-wrap items-center justify-center gap-2 max-w-[420px]">
@@ -159,7 +159,7 @@ export default function WcSimulationRunner({
         ))}
       </div>
       <p className="text-[11px] text-center m-0" style={{ color: "var(--vault-text-faint)", maxWidth: 420 }}>
-        A market-implied dashboard from the de-vigged 90-minute prices — paper-only, educational, not
+        A market-implied simulation report from the de-vigged 90-minute prices — paper-only, educational, not
         betting advice. Extra time and penalties do not count.
       </p>
     </section>

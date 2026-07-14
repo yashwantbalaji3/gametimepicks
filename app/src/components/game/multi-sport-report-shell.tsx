@@ -223,7 +223,7 @@ function ReportDetailsDisclosure({ details, sourceLabel, advanced }: {
         <DetailBlock title="Settlement notes" items={details.settlementNotes} />
         {advanced ? (
           <div>
-            <p className="font-mono uppercase tracking-[0.12em]" style={{ color: faint, fontSize: 9 }}>Advanced market dashboard</p>
+            <p className="font-mono uppercase tracking-[0.12em]" style={{ color: faint, fontSize: 9 }}>Advanced market details</p>
             <div className="mt-2">{advanced}</div>
           </div>
         ) : null}
