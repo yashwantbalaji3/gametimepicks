@@ -54,6 +54,8 @@ import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import SportMethodologyPanel from "@/components/sport-methodology-panel";
 import WcBracketContext from "@/components/world-cup/wc-bracket-context";
+import WcPlayerPropsBoard from "@/components/world-cup/wc-player-props-board";
+import { loadWcPlayerProps } from "@/lib/world-cup/wc-player-props";
 import FlagBadge from "@/components/flag-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SectionHeader from "@/components/section-header";
@@ -671,6 +673,12 @@ export default function WorldCupLandingPage() {
           <WcBracketContext semifinals={sfFixtures} finalDateLabel="Jul 19" thirdPlaceDateLabel="Jul 18" />
         </div>
       )}
+
+      {/* Player props (Phase C pilot) — REAL provider-priced goalscorer/shots/SOT/assists, market-implied,
+          lineups + settlement pending, never product-eligible. Renders nothing when no props are ingested. */}
+      <div className="mt-8">
+        <WcPlayerPropsBoard data={loadWcPlayerProps()} />
+      </div>
 
       {/* Simulation methodology + honest per-market coverage — how the WC read works and every gap. */}
       <div className="mt-8 mb-8 flex flex-col gap-6">

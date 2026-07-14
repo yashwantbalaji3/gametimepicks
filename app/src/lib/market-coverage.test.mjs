@@ -42,13 +42,23 @@ test("settlement-blocked + experimental markets can NEVER enter a product card",
   }
 });
 
-test("unsupported soccer props (scorer/shots/corners) are provider_needed + settlement unsupported, not faked", () => {
-  for (const key of ["anytime_scorer", "shots_shots_on_target", "corners_cards", "correct_score"]) {
+test("soccer set-piece / correct-score props are still provider_needed (no feed), not faked", () => {
+  for (const key of ["corners_cards", "correct_score"]) {
     const m = MARKET_COVERAGE.find((x) => x.sport === "soccer" && x.market === key);
     assert.ok(m, `soccer ${key} present in the registry (shown, not hidden)`);
     assert.equal(m.status, "provider_needed", `soccer ${key} is provider_needed`);
     assert.equal(m.settlementSupport, "unsupported", `soccer ${key} has no settlement`);
     assert.equal(m.predictionSource, "none", `soccer ${key} makes no prediction (never faked)`);
+  }
+});
+
+test("Phase C pilot: goalscorer + shots are LIVE (market-implied) but settlement-pending → still product-ineligible", () => {
+  for (const key of ["anytime_scorer", "shots_shots_on_target"]) {
+    const m = MARKET_COVERAGE.find((x) => x.sport === "soccer" && x.market === key);
+    assert.equal(m.status, "experimental", `soccer ${key} is experimental (feed live, pilot)`);
+    assert.equal(m.predictionSource, "market_implied", `soccer ${key} is a market-implied read (real odds)`);
+    assert.equal(m.settlementSupport, "unsupported", `soccer ${key} settlement still pending`);
+    assert.equal(isProductEligible(m), false, `soccer ${key} still cannot enter a product card`);
   }
 });
 
