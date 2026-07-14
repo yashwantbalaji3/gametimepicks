@@ -85,3 +85,24 @@ test("backtest artifact: leakage-controlled, small-N disclosed, beats uniform ba
   assert.ok(b.summary.sampleSize < 40 && b.sampleWarning, "small sample disclosed");
   assert.ok(b.summary.beatsUniform, "model beats the uniform baseline (directional)");
 });
+
+test("2022 WC backtest (N=64): honest, internal-only, beats uniform but NOT public-ready", () => {
+  const b = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/world-cup/projection-engine/backtests/2022-wc.json"), "utf8"));
+  assert.equal(b.public, false, "internal only");
+  assert.equal(b.webServed, false, "not web-served");
+  assert.equal(b.officialMoneyRecordAffected, false);
+  assert.equal(b.sampleSize, 64, "all 64 matches");
+  assert.match(b.leakageNote, /pre-tournament|90-min/i, "leakage + 90-min grading disclosed");
+  assert.equal(b.marketBaseline.available, false, "2022 market baseline honestly unavailable");
+  assert.ok(b.metrics.model.brier < b.metrics.baselineUniform.brier, "beats uniform Brier");
+  assert.ok(b.metrics.model.logLoss < b.metrics.baselineUniform.logLoss, "beats uniform log loss");
+  assert.equal(b.verdict.publicReady, false, "NOT public-ready without a market baseline");
+});
+
+test("2022 backtest reference data is internal-only (not under app/public)", () => {
+  assert.ok(!fs.existsSync(path.join(APP, "public/data/world-cup/projection-engine")), "no engine dir under app/public");
+  const ref = path.join(REPO, "data/internal/world-cup/reference/wc-2022-results.json");
+  assert.ok(fs.existsSync(ref), "2022 results saved internally");
+  const j = JSON.parse(fs.readFileSync(ref, "utf8"));
+  assert.equal(j._public, false, "results artifact flagged non-public");
+});

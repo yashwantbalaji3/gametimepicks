@@ -1,0 +1,1212 @@
+{
+  "version": "internal-soccer-projection-backtest-2022wc-v1",
+  "asOf": "2026-07-14",
+  "public": false,
+  "internal": true,
+  "webServed": false,
+  "officialMoneyRecordAffected": false,
+  "engine": "bivariate_poisson_fifa_supremacy",
+  "dataset": "2022 FIFA World Cup — all 64 matches (API-Football league=1 season=2022), graded on 90-minute fulltime score",
+  "strengthSource": "FIFA ranking points, 6 Oct 2022 (pre-tournament)",
+  "leakageNote": "FIFA ranking is pre-tournament and identical across matches; no parameter is fit on these outcomes; 90-min scores used only in evaluation. Extra time / penalties excluded (2 knockouts had ET goals; graded at 90').",
+  "marketBaseline": {
+    "available": false,
+    "reason": "2022 closing odds are not served on the API-Football free plan (probed: results 0). Model-vs-market Brier requires an odds-history provider (see PROVIDER_AND_MODELING_ROADMAP.md)."
+  },
+  "sampleSize": 64,
+  "backtestStatus": "internal_only",
+  "metrics": {
+    "model": {
+      "brier": 0.5925,
+      "rps": 0.2079,
+      "logLoss": 1.0024,
+      "topPickAccuracy": 0.563
+    },
+    "baselineUniform": {
+      "brier": 0.6667,
+      "rps": 0.2387,
+      "logLoss": 1.0986
+    },
+    "baselineFifaFavorite": {
+      "topPickAccuracy": 0.563
+    },
+    "drawCalibration": {
+      "meanPredicted": 0.25,
+      "actualRate": 0.234
+    },
+    "favoriteCalibration": {
+      "matches": 42,
+      "meanPredictedFavProb": 0.536,
+      "favWinRate": 0.619
+    },
+    "totalGoals": {
+      "meanAbsError": 1.475,
+      "meanBias": -0.025,
+      "modelMeanExpected": 2.6,
+      "actualMean": 2.625
+    },
+    "btts": {
+      "accuracy": 0.531,
+      "meanPredicted": 0.503,
+      "actualRate": 0.469
+    },
+    "calibrationBuckets": [
+      {
+        "range": "0.0-0.1",
+        "count": 0,
+        "meanPredicted": null,
+        "empirical": null
+      },
+      {
+        "range": "0.1-0.2",
+        "count": 13,
+        "meanPredicted": 0.162,
+        "empirical": 0.308
+      },
+      {
+        "range": "0.2-0.3",
+        "count": 98,
+        "meanPredicted": 0.251,
+        "empirical": 0.214
+      },
+      {
+        "range": "0.3-0.4",
+        "count": 23,
+        "meanPredicted": 0.342,
+        "empirical": 0.261
+      },
+      {
+        "range": "0.4-0.5",
+        "count": 32,
+        "meanPredicted": 0.455,
+        "empirical": 0.5
+      },
+      {
+        "range": "0.5-0.6",
+        "count": 19,
+        "meanPredicted": 0.546,
+        "empirical": 0.632
+      },
+      {
+        "range": "0.6-0.7",
+        "count": 7,
+        "meanPredicted": 0.639,
+        "empirical": 0.714
+      },
+      {
+        "range": "0.7-0.8",
+        "count": 0,
+        "meanPredicted": null,
+        "empirical": null
+      },
+      {
+        "range": "0.8-0.9",
+        "count": 0,
+        "meanPredicted": null,
+        "empirical": null
+      },
+      {
+        "range": "0.9-1.0",
+        "count": 0,
+        "meanPredicted": null,
+        "empirical": null
+      }
+    ]
+  },
+  "verdict": {
+    "beatsUniform": true,
+    "competesOrBeatsFifaFavorite": true,
+    "publicReady": false,
+    "note": "Beats uniform is table stakes. Without a market baseline this is NOT a pass for public surfacing. Stays internal."
+  },
+  "matches": [
+    {
+      "home": "Qatar",
+      "away": "Ecuador",
+      "score90": "0-2",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.3503,
+        "draw": 0.2637,
+        "awayWin": 0.386
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.5288151129764647,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "England",
+      "away": "Iran",
+      "score90": "6-2",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5069,
+        "draw": 0.2512,
+        "awayWin": 0.2419
+      },
+      "expTotal": 2.6,
+      "actualTotal": 8,
+      "bttsPred": 0.5066461485090984,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Senegal",
+      "away": "Netherlands",
+      "score90": "0-2",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2812,
+        "draw": 0.2581,
+        "awayWin": 0.4607
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.5190557289584958,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "USA",
+      "away": "Wales",
+      "score90": "1-1",
+      "actual": "draw",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.416,
+        "draw": 0.2623,
+        "awayWin": 0.3216
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.5264327675170183,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Argentina",
+      "away": "Saudi Arabia",
+      "score90": "1-2",
+      "actual": "away",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.6551,
+        "draw": 0.2125,
+        "awayWin": 0.1324
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.4309622942538371,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Denmark",
+      "away": "Tunisia",
+      "score90": "0-0",
+      "actual": "draw",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5025,
+        "draw": 0.252,
+        "awayWin": 0.2456
+      },
+      "expTotal": 2.6,
+      "actualTotal": 0,
+      "bttsPred": 0.5080511507182697,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Mexico",
+      "away": "Poland",
+      "score90": "0-0",
+      "actual": "draw",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4489,
+        "draw": 0.2595,
+        "awayWin": 0.2917
+      },
+      "expTotal": 2.6,
+      "actualTotal": 0,
+      "bttsPred": 0.5214515691021872,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "France",
+      "away": "Australia",
+      "score90": "4-1",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5989,
+        "draw": 0.2301,
+        "awayWin": 0.171
+      },
+      "expTotal": 2.6,
+      "actualTotal": 5,
+      "bttsPred": 0.46672835459411,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Morocco",
+      "away": "Croatia",
+      "score90": "0-0",
+      "actual": "draw",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.3025,
+        "draw": 0.2607,
+        "awayWin": 0.4368
+      },
+      "expTotal": 2.6,
+      "actualTotal": 0,
+      "bttsPred": 0.5235690668991343,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Germany",
+      "away": "Japan",
+      "score90": "1-2",
+      "actual": "away",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.444,
+        "draw": 0.26,
+        "awayWin": 0.296
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.522334061367657,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Spain",
+      "away": "Costa Rica",
+      "score90": "7-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5481,
+        "draw": 0.2429,
+        "awayWin": 0.209
+      },
+      "expTotal": 2.6,
+      "actualTotal": 7,
+      "bttsPred": 0.4914000429018914,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Belgium",
+      "away": "Canada",
+      "score90": "1-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.658,
+        "draw": 0.2115,
+        "awayWin": 0.1305
+      },
+      "expTotal": 2.6,
+      "actualTotal": 1,
+      "bttsPred": 0.4288149896437094,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Switzerland",
+      "away": "Cameroon",
+      "score90": "1-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.495,
+        "draw": 0.2532,
+        "awayWin": 0.2518
+      },
+      "expTotal": 2.6,
+      "actualTotal": 1,
+      "bttsPred": 0.510325299586939,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Uruguay",
+      "away": "South Korea",
+      "score90": "0-0",
+      "actual": "draw",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4627,
+        "draw": 0.2579,
+        "awayWin": 0.2794
+      },
+      "expTotal": 2.6,
+      "actualTotal": 0,
+      "bttsPred": 0.5186106703057983,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Portugal",
+      "away": "Ghana",
+      "score90": "3-2",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.6123,
+        "draw": 0.2262,
+        "awayWin": 0.1615
+      },
+      "expTotal": 2.6,
+      "actualTotal": 5,
+      "bttsPred": 0.45906502520073345,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Brazil",
+      "away": "Serbia",
+      "score90": "2-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.6164,
+        "draw": 0.225,
+        "awayWin": 0.1586
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.4566011469750234,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Wales",
+      "away": "Iran",
+      "score90": "0-2",
+      "actual": "away",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.3723,
+        "draw": 0.2639,
+        "awayWin": 0.3638
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.5291873367467457,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Qatar",
+      "away": "Senegal",
+      "score90": "1-3",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2573,
+        "draw": 0.2543,
+        "awayWin": 0.4884
+      },
+      "expTotal": 2.6,
+      "actualTotal": 4,
+      "bttsPred": 0.5122002288241415,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Netherlands",
+      "away": "Ecuador",
+      "score90": "1-1",
+      "actual": "draw",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5645,
+        "draw": 0.2391,
+        "awayWin": 0.1964
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.48415462895036243,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "England",
+      "away": "USA",
+      "score90": "0-0",
+      "actual": "draw",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4529,
+        "draw": 0.259,
+        "awayWin": 0.2881
+      },
+      "expTotal": 2.6,
+      "actualTotal": 0,
+      "bttsPred": 0.5206754518949375,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Tunisia",
+      "away": "Australia",
+      "score90": "0-1",
+      "actual": "away",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.3838,
+        "draw": 0.2637,
+        "awayWin": 0.3524
+      },
+      "expTotal": 2.6,
+      "actualTotal": 1,
+      "bttsPred": 0.5289042060456823,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Poland",
+      "away": "Saudi Arabia",
+      "score90": "2-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.463,
+        "draw": 0.2578,
+        "awayWin": 0.2792
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.5185463038050481,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "France",
+      "away": "Denmark",
+      "score90": "2-1",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4462,
+        "draw": 0.2597,
+        "awayWin": 0.294
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.5219425593505532,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Argentina",
+      "away": "Mexico",
+      "score90": "2-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4769,
+        "draw": 0.256,
+        "awayWin": 0.2672
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.5152640229127038,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Japan",
+      "away": "Costa Rica",
+      "score90": "0-1",
+      "actual": "away",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4146,
+        "draw": 0.2624,
+        "awayWin": 0.323
+      },
+      "expTotal": 2.6,
+      "actualTotal": 1,
+      "bttsPred": 0.526595180655185,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Belgium",
+      "away": "Morocco",
+      "score90": "0-2",
+      "actual": "away",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5837,
+        "draw": 0.2342,
+        "awayWin": 0.1821
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.47481616184447745,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Croatia",
+      "away": "Canada",
+      "score90": "4-1",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5128,
+        "draw": 0.2501,
+        "awayWin": 0.2371
+      },
+      "expTotal": 2.6,
+      "actualTotal": 5,
+      "bttsPred": 0.5047261330141684,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Spain",
+      "away": "Germany",
+      "score90": "1-1",
+      "actual": "draw",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4222,
+        "draw": 0.2619,
+        "awayWin": 0.3159
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.5256787949024277,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Cameroon",
+      "away": "Serbia",
+      "score90": "3-3",
+      "actual": "draw",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.3057,
+        "draw": 0.261,
+        "awayWin": 0.4333
+      },
+      "expTotal": 2.6,
+      "actualTotal": 6,
+      "bttsPred": 0.5241124609528939,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "South Korea",
+      "away": "Ghana",
+      "score90": "2-3",
+      "actual": "away",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4833,
+        "draw": 0.255,
+        "awayWin": 0.2616
+      },
+      "expTotal": 2.6,
+      "actualTotal": 5,
+      "bttsPred": 0.513580294753309,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Brazil",
+      "away": "Switzerland",
+      "score90": "1-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5552,
+        "draw": 0.2413,
+        "awayWin": 0.2035
+      },
+      "expTotal": 2.6,
+      "actualTotal": 1,
+      "bttsPred": 0.4883614339285586,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Portugal",
+      "away": "Uruguay",
+      "score90": "2-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.3994,
+        "draw": 0.2632,
+        "awayWin": 0.3374
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.5280138471763899,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Netherlands",
+      "away": "Qatar",
+      "score90": "2-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5831,
+        "draw": 0.2344,
+        "awayWin": 0.1825
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.47511700735283546,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Ecuador",
+      "away": "Senegal",
+      "score90": "1-2",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2733,
+        "draw": 0.257,
+        "awayWin": 0.4697
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.5170176137938265,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Iran",
+      "away": "USA",
+      "score90": "0-1",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.3175,
+        "draw": 0.262,
+        "awayWin": 0.4204
+      },
+      "expTotal": 2.6,
+      "actualTotal": 1,
+      "bttsPred": 0.5259076791008176,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Wales",
+      "away": "England",
+      "score90": "0-3",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2456,
+        "draw": 0.252,
+        "awayWin": 0.5024
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.508067248423315,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Australia",
+      "away": "Denmark",
+      "score90": "1-0",
+      "actual": "home",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2321,
+        "draw": 0.249,
+        "awayWin": 0.519
+      },
+      "expTotal": 2.6,
+      "actualTotal": 1,
+      "bttsPred": 0.5025963702581335,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Tunisia",
+      "away": "France",
+      "score90": "1-0",
+      "actual": "home",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.1829,
+        "draw": 0.2345,
+        "awayWin": 0.5826
+      },
+      "expTotal": 2.6,
+      "actualTotal": 1,
+      "bttsPred": 0.4753779020142776,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Saudi Arabia",
+      "away": "Mexico",
+      "score90": "1-2",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2107,
+        "draw": 0.2434,
+        "awayWin": 0.546
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.49229081881205794,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Poland",
+      "away": "Argentina",
+      "score90": "0-2",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2,
+        "draw": 0.2402,
+        "awayWin": 0.5598
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.48629635189786286,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Croatia",
+      "away": "Belgium",
+      "score90": "0-0",
+      "actual": "draw",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2368,
+        "draw": 0.2501,
+        "awayWin": 0.5131
+      },
+      "expTotal": 2.6,
+      "actualTotal": 0,
+      "bttsPred": 0.5046016611629389,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Canada",
+      "away": "Morocco",
+      "score90": "1-2",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2976,
+        "draw": 0.2602,
+        "awayWin": 0.4422
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.5226598951574626,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Japan",
+      "away": "Spain",
+      "score90": "2-1",
+      "actual": "home",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2477,
+        "draw": 0.2524,
+        "awayWin": 0.4999
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.508856286140619,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Costa Rica",
+      "away": "Germany",
+      "score90": "2-4",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2543,
+        "draw": 0.2537,
+        "awayWin": 0.492
+      },
+      "expTotal": 2.6,
+      "actualTotal": 6,
+      "bttsPred": 0.511168972697561,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "South Korea",
+      "away": "Portugal",
+      "score90": "2-1",
+      "actual": "home",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2516,
+        "draw": 0.2532,
+        "awayWin": 0.4953
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.5102314763472771,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Ghana",
+      "away": "Uruguay",
+      "score90": "0-2",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.1847,
+        "draw": 0.2351,
+        "awayWin": 0.5802
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.476625300188004,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Serbia",
+      "away": "Switzerland",
+      "score90": "2-3",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.3105,
+        "draw": 0.2614,
+        "awayWin": 0.4281
+      },
+      "expTotal": 2.6,
+      "actualTotal": 5,
+      "bttsPred": 0.5248895921924779,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Cameroon",
+      "away": "Brazil",
+      "score90": "1-0",
+      "actual": "home",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.1158,
+        "draw": 0.2033,
+        "awayWin": 0.681
+      },
+      "expTotal": 2.6,
+      "actualTotal": 1,
+      "bttsPred": 0.41099370167178184,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Netherlands",
+      "away": "USA",
+      "score90": "3-1",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.424,
+        "draw": 0.2618,
+        "awayWin": 0.3143
+      },
+      "expTotal": 2.6,
+      "actualTotal": 4,
+      "bttsPred": 0.5254556863916315,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Argentina",
+      "away": "Australia",
+      "score90": "2-1",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.6109,
+        "draw": 0.2266,
+        "awayWin": 0.1625
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.45992094594065297,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "France",
+      "away": "Poland",
+      "score90": "3-1",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5477,
+        "draw": 0.243,
+        "awayWin": 0.2093
+      },
+      "expTotal": 2.6,
+      "actualTotal": 4,
+      "bttsPred": 0.49155888443775464,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "England",
+      "away": "Senegal",
+      "score90": "3-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4899,
+        "draw": 0.254,
+        "awayWin": 0.2561
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.5117894809224797,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Japan",
+      "away": "Croatia",
+      "score90": "1-1",
+      "actual": "draw",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2995,
+        "draw": 0.2604,
+        "awayWin": 0.4402
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.5230110002905464,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Brazil",
+      "away": "South Korea",
+      "score90": "4-1",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.636,
+        "draw": 0.2189,
+        "awayWin": 0.1451
+      },
+      "expTotal": 2.6,
+      "actualTotal": 5,
+      "bttsPred": 0.4442201603874202,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Morocco",
+      "away": "Spain",
+      "score90": "0-0",
+      "actual": "draw",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2506,
+        "draw": 0.253,
+        "awayWin": 0.4964
+      },
+      "expTotal": 2.6,
+      "actualTotal": 0,
+      "bttsPred": 0.5098845801562265,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Portugal",
+      "away": "Switzerland",
+      "score90": "6-1",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4139,
+        "draw": 0.2625,
+        "awayWin": 0.3236
+      },
+      "expTotal": 2.6,
+      "actualTotal": 7,
+      "bttsPred": 0.5266713230625365,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Croatia",
+      "away": "Brazil",
+      "score90": "0-0",
+      "actual": "draw",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.2198,
+        "draw": 0.2459,
+        "awayWin": 0.5343
+      },
+      "expTotal": 2.6,
+      "actualTotal": 0,
+      "bttsPred": 0.4969446457967644,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Netherlands",
+      "away": "Argentina",
+      "score90": "2-2",
+      "actual": "draw",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.3047,
+        "draw": 0.2609,
+        "awayWin": 0.4344
+      },
+      "expTotal": 2.6,
+      "actualTotal": 4,
+      "bttsPred": 0.5239437098113565,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Morocco",
+      "away": "Portugal",
+      "score90": "1-0",
+      "actual": "home",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.279,
+        "draw": 0.2578,
+        "awayWin": 0.4632
+      },
+      "expTotal": 2.6,
+      "actualTotal": 1,
+      "bttsPred": 0.5185064497410461,
+      "bttsActual": false,
+      "fifaFav": "away"
+    },
+    {
+      "home": "England",
+      "away": "France",
+      "score90": "1-2",
+      "actual": "away",
+      "pick": "away",
+      "p": {
+        "homeWin": 0.3426,
+        "draw": 0.2634,
+        "awayWin": 0.3939
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.5283915875546714,
+      "bttsActual": true,
+      "fifaFav": "away"
+    },
+    {
+      "home": "Argentina",
+      "away": "Croatia",
+      "score90": "3-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4762,
+        "draw": 0.2561,
+        "awayWin": 0.2677
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.515426404527075,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "France",
+      "away": "Morocco",
+      "score90": "2-0",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.5349,
+        "draw": 0.2458,
+        "awayWin": 0.2194
+      },
+      "expTotal": 2.6,
+      "actualTotal": 2,
+      "bttsPred": 0.4967378295969266,
+      "bttsActual": false,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Croatia",
+      "away": "Morocco",
+      "score90": "2-1",
+      "actual": "home",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.4368,
+        "draw": 0.2607,
+        "awayWin": 0.3025
+      },
+      "expTotal": 2.6,
+      "actualTotal": 3,
+      "bttsPred": 0.5235690668991343,
+      "bttsActual": true,
+      "fifaFav": "home"
+    },
+    {
+      "home": "Argentina",
+      "away": "France",
+      "score90": "2-2",
+      "actual": "draw",
+      "pick": "home",
+      "p": {
+        "homeWin": 0.3797,
+        "draw": 0.2638,
+        "awayWin": 0.3565
+      },
+      "expTotal": 2.6,
+      "actualTotal": 4,
+      "bttsPred": 0.5290440512118786,
+      "bttsActual": true,
+      "fifaFav": "home"
+    }
+  ]
+}
