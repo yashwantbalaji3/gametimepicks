@@ -12,6 +12,8 @@ import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import MlbGameLabReport from "@/components/game/mlb-game-lab-report";
 import GameSimulationRunner from "@/components/game/game-simulation-runner";
 import MlbGameCenter from "@/components/game/mlb-game-center";
+import MlbSimulationResultSummary from "@/components/game/mlb-simulation-result-summary";
+import { currentEtDate } from "@/lib/freshness";
 import WcGameCenter from "@/components/game/wc-game-center";
 import WcSimulationRunner from "@/components/game/wc-simulation-runner";
 import WorldCupBracketImpactCard from "@/components/world-cup/wc-bracket-impact-card";
@@ -596,8 +598,22 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   // remaining DETAIL is a small stack of collapsed disclosures — NOT a competing tabbed dashboard. The
   // market snapshot (Game Center) is threaded into the runner as section 2, so it is not repeated here.
   // Everything stays inside the runner's postReveal → gated behind the pre-click reveal. ──
+  // Previous-slate label: the newest MLB slate (July-11) is stale once the real ET clock has passed it.
+  const mlbIsPreviousSlate = !!detail.date && detail.date < currentEtDate();
   const mlbReportDetails = (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
+      {/* Above-the-fold simulation result — the strongest 10k player-prop leans + honest recap, expanded
+          (not buried in an accordion). Full-game markets stay market-anchored in the detail below. */}
+      {detail.gameLabSimulation ? (
+        <MlbSimulationResultSummary
+          headline={detail.gameLabSimulation.simulationSummary?.headline ?? null}
+          picks={detail.gameLabSimulation.generatedPicks ?? []}
+          runCount={detail.gameLabSimulation.runCount ?? null}
+          allowsRunCountClaim={!!detail.gameLabSimulation.allowsRunCountClaim}
+          isPreviousSlate={mlbIsPreviousSlate}
+          slateDate={detail.date ?? ""}
+        />
+      ) : null}
       <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>More detail · expand as needed</span>
       <ExpandableReportSection title="Player props by market" count={detail.playerProps.length || null} hint="Every model-qualified player pick, grouped by market.">{playerPropsTab}</ExpandableReportSection>
       <ExpandableReportSection title="Advanced report" hint="The dense model-vs-market report + the model spotlight + the legacy market tabs.">
