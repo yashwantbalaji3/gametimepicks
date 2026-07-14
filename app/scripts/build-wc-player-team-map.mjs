@@ -29,8 +29,20 @@ const surname = (s) => { const t = norm(s).split(" "); return t[t.length - 1]; }
 
 const af = (p) => fetch(`https://v3.football.api-sports.io/${p}`, { headers: { "x-apisports-key": KEY } }).then((r) => r.json());
 
-const proj = JSON.parse(fs.readFileSync(path.join(DATA, "projections/latest.json"), "utf8"));
-const teams = [...new Set((proj.matches || []).flatMap((m) => [m.homeTeam, m.awayTeam, ...String(m.fixture || "").split(" vs ")]).map((t) => String(t || "").trim()).filter(Boolean))];
+const args = process.argv.slice(2);
+const dateArg = (args[args.indexOf("--date") + 1] && !args[args.indexOf("--date") + 1].startsWith("--")) ? args[args.indexOf("--date") + 1] : null;
+const readSlate = (dir, file) => {
+  const dated = dateArg && fs.existsSync(path.join(DATA, dir, `${dateArg}.json`)) ? `${dir}/${dateArg}.json` : `${dir}/${file}`;
+  try { return JSON.parse(fs.readFileSync(path.join(DATA, dated), "utf8")); } catch { return null; }
+};
+const proj = readSlate("projections", "latest.json") || {};
+const playerProj = readSlate("player-projections", "latest.json") || {};
+// Union every team that appears in EITHER the team projections OR the player-props fixtures, so the map is
+// guaranteed to cover every fixture the freshness guard checks against.
+const teams = [...new Set([
+  ...(proj.matches || []).flatMap((m) => [m.homeTeam, m.awayTeam, ...String(m.fixture || "").split(" vs ")]),
+  ...(playerProj.matches || []).flatMap((m) => String(m.fixture || "").split(" vs ")),
+].map((t) => String(t || "").trim()).filter(Boolean))];
 console.log("slate teams:", teams.join(", "));
 
 const byFull = {};
@@ -60,7 +72,7 @@ const artifact = {
   _source: "API-Football players/squads (official 26-man national squads)",
   _purpose: "Correct the WC player-prop team join — Odds API feed has names but no team.",
   _public: true, _officialMoneyRecordAffected: false,
-  generatedAt: proj.generatedAt || proj.date, slate: proj.date, teams: teamMeta,
+  generatedAt: proj.generatedAt || playerProj.generatedAt || proj.date || dateArg, slate: proj.date || playerProj.date || dateArg, teams: teamMeta,
   byFullName: byFull, bySurname: surnameMap,
 };
 fs.writeFileSync(path.join(DATA, "player-team-map.json"), JSON.stringify(artifact, null, 2));

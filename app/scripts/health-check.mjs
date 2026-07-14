@@ -15,6 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkMoneyIntegrity } from "../src/lib/money-integrity.ts";
+import { evaluateTeamMapFreshness } from "../src/lib/world-cup/wc-team-map-freshness.ts";
 
 // Resolve the data dir relative to THIS script (app/scripts/ → app/public/data), so the deploy gate works
 // whether invoked from the repo root (the lifecycle: `npx tsx app/scripts/...`) or from app/ — never cwd-dependent.
@@ -102,6 +103,14 @@ if (portfolio?.generatedAt && ymd) {
   const age = daysBetween(ymd, portfolio.generatedAt);
   if (age > MAX_STALE_DAYS) (STRICT_FRESH ? C : W)("freshness:portfolio", `portfolio.generatedAt is ${age}d old (> ${MAX_STALE_DAYS})`);
   else P(`freshness: portfolio generated ${age}d ago`);
+}
+
+// ── 5b. WC player→team map freshness — WARN only: the resolver fails safe (unresolved → label hidden, never a
+// wrong team), so a missing/stale/incomplete map degrades gracefully and must not block a money-clean deploy. ─
+{
+  const tm = evaluateTeamMapFreshness(readJson("world-cup/player-team-map.json"), readJson("world-cup/player-projections/latest.json"));
+  if (tm.level !== "ok") W("wc:team-map", tm.issues[0] ?? "player→team map missing/stale/incomplete");
+  else if (tm.slate) P(`wc: player→team map covers all ${tm.fixtureTeams.length} fixture teams (slate ${tm.slate})`);
 }
 
 // ── 6. PRODUCT ARTIFACTS parse (the four lanes' active artifacts) ─────────────────────────────────

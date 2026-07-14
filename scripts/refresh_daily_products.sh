@@ -40,6 +40,8 @@ PLAN=()
   "WC projections        python3 pipeline/world_cup/build_odds_only_projections.py --date $DATE"
   "WC knockout board     python3 pipeline/world_cup/build_round_of_32_board.py --horizon <auto> --slate-label $DATE --fetch-future"
   "WC player props       python3 pipeline/world_cup/build_player_props.py --date $DATE"
+  "WC player→team map    npx tsx app/scripts/build-wc-player-team-map.mjs --date $DATE (official squads; corrects prop team-join)"
+  "WC team-map freshness npx tsx app/scripts/check-wc-team-map-freshness.mjs --date $DATE (warn if missing/stale/incomplete)"
   "WC specials (post-props)  npx tsx app/scripts/refresh-world-cup-specials.mjs --date $DATE"
   "WC suggested parlays  python3 pipeline/world_cup/build_suggested_parlays.py --date $DATE"
   "WC expanded markets   npx tsx app/scripts/ingest-wc-expanded-markets.mjs --write --date $DATE (~2 credits/game, optional)"
@@ -101,6 +103,11 @@ PY
 )
   python3 pipeline/world_cup/build_round_of_32_board.py --horizon "$HORIZON" --slate-label "$DATE" --fetch-future
   python3 pipeline/world_cup/build_player_props.py --date "$DATE"
+  # Player→team map (official API-Football squads) so the prop team-join is correct — the Odds feed has names but
+  # no team. Best-effort (network): fails CLOSED for the module (|| true) so a squad-API blip never breaks the
+  # refresh; the freshness guard below then WARNS if the map is missing/stale/incomplete (labels hide, never wrong).
+  npx tsx app/scripts/build-wc-player-team-map.mjs --date "$DATE" | tail -2 || echo "  ! player→team map build skipped (network) — WC prop team labels hide until it succeeds"
+  npx tsx app/scripts/check-wc-team-map-freshness.mjs --date "$DATE" || true
   npx tsx app/scripts/refresh-world-cup-specials.mjs --date "$DATE"
   python3 pipeline/world_cup/build_suggested_parlays.py --date "$DATE"
   # Expanded WC team markets (Asian handicap + team totals, de-vigged) → the soccer Game Center.
