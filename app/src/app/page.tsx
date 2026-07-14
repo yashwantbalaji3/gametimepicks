@@ -31,10 +31,6 @@ import LandingHero from "@/components/home/landing-hero";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
 import { SlateSummary, TrustStrip, HowItWorks, FooterCta } from "@/components/home/home-sections";
-import EventSpotlight from "@/components/home/event-spotlight";
-import { loadHomepageSpotlight } from "@/lib/home/load-spotlight";
-import UfcPredictionPreview from "@/components/home/ufc-prediction-preview";
-import { loadUfcPredictionRows } from "@/lib/home/ufc-preview";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 
 export const metadata = {
@@ -120,43 +116,60 @@ export default function HomePage() {
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");
   const moonshotStatus = moonshotActive ? "Active longshot lane today" : "No-play today · no active longshot";
 
-  // ── Four flagship product cards — status lines built from the canonical figures above ──
-  const flagshipCards: FlagshipCard[] = [
+  // ── SIMULATION HUB — the per-sport simulation centers (the core product topic) ──
+  const simHubCards: FlagshipCard[] = [
     {
-      href: "/simulate",
-      label: "Simulate",
-      blurb: "Run a sport-specific model simulation dashboard for today's games.",
-      status: readyCount > 0 ? `${readyCount} games simulation-ready` : "Simulations return with the next slate",
-      // The "1,000-run" claim is shown ONLY when the featured artifacts actually carry it (honest).
-      statusSub:
-        readyCount > 0 && featured.some((f) => f.runCountLabel)
-          ? "1,000-run deterministic sims · same output for every user"
-          : "Deterministic · same output for every user",
-      cta: "Run a Simulation",
+      href: "/world-cup",
+      label: "World Cup Simulations",
+      blurb: "Match result, double chance, draw-no-bet, totals & BTTS — de-vigged, market-implied.",
+      status: "Semifinals · market-implied reads",
+      statusSub: "Jul 14 & 15 · paper-only",
+      cta: "Enter",
       accent: "var(--vault-gold-bright)",
     },
     {
-      href: "/today",
-      label: "Today's Picks",
-      blurb: "See the daily paper-only model slate.",
-      status: mlbGames > 0 ? `${mlbLeans} MLB model leans` : "No board yet",
-      statusSub: "No-play notes shown honestly · paper-only",
-      cta: "View Today's Picks",
-      accent: "var(--gtp-bank-heat)",
+      href: "/mlb",
+      label: "MLB Simulations",
+      blurb: "Moneyline / run line / total, plus a 10,000-run player-prop sim where the artifact exists.",
+      status: mlbGames > 0 ? `${mlbLeans} model leans` : "All-Star break · resumes Jul 17",
+      statusSub: "market-anchored · paper-only",
+      cta: "Enter",
+      accent: "#3b82f6",
     },
+    {
+      href: "/ufc",
+      label: "UFC Simulations",
+      blurb: "Market-implied moneyline reads + experimental method insight. Never in a product card.",
+      status: "Experimental · market-implied",
+      statusSub: "moneyline only · paper-only",
+      cta: "Enter",
+      accent: "#ef4444",
+    },
+  ];
+  // ── FLAGSHIP PRODUCTS — paper products powered BY the simulations (+ the track record) ──
+  const productCards: FlagshipCard[] = [
     {
       href: "/bank-builder",
       label: "Bank Builder",
-      blurb: "Follow the disciplined ladder challenge.",
+      blurb: "The disciplined paper ladder — structured cards only.",
       status: bbNoPlay ? `No-play · ${bbStepPhrase}` : bbStepPhrase,
       statusSub: `Open exposure ${openExposureLabel} · no active card`,
       cta: "View Bank Builder",
       accent: "var(--vault-gold)",
     },
     {
+      href: "/moonshot",
+      label: "Moonshot",
+      blurb: "High-upside longshot paper cards — separate record, its own risk.",
+      status: moonshotStatus,
+      statusSub: "high-variance · paper-only",
+      cta: "View Moonshot",
+      accent: "var(--gtp-bank-heat)",
+    },
+    {
       href: "/results",
       label: "Results",
-      blurb: "Check receipts, settled cards, pending cards, and track record.",
+      blurb: "Receipts, settled + pending cards, and the official track record.",
       status: recordLabel ? `Record ${recordLabel}` : "Track record",
       statusSub: pendingLabel ? `${pendingLabel} · official settlement only` : "Official settlement only",
       cta: "View Results",
@@ -168,14 +181,9 @@ export default function HomePage() {
     weekday: "long", month: "long", day: "numeric",
   });
 
-  // Homepage Event Spotlight — the current major event, pinned above the hero (UFC 329 first). Reusable
-  // selector; market-implied only; a settled OR past-day card is never spotlighted. Uses the REAL ET clock
-  // (not the slate date) so "tomorrow/today" and the past-event guard are honest vs the actual day.
+  // Real ET clock for the liveness banner (never the slate date). Stale/random event spotlights were
+  // removed from the homepage in the simulation-first reset — the sim hub + liveness banner lead instead.
   const serverToday = currentEtDate();
-  const spotlightEvent = loadHomepageSpotlight(serverToday);
-  // Compact UFC fight-picks board (predicted winner + method per fight). Null when the card is settled or
-  // its event day has passed (no stale "tonight's picks").
-  const ufcPreview = loadUfcPredictionRows(serverToday);
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-9">
@@ -191,17 +199,24 @@ export default function HomePage() {
         includeMlbNote
       />
 
-      {/* 0a — Event Spotlight: the current major event, pinned above the hero (null when none) */}
-      <EventSpotlight event={spotlightEvent} />
-
-      {/* 0b — Tonight's UFC fight picks (predicted winner + method per fight); null when no UFC card */}
-      {ufcPreview ? <UfcPredictionPreview eventName={ufcPreview.eventName} rows={ufcPreview.rows} marketWinnerCount={ufcPreview.marketWinnerCount} methodReadCount={ufcPreview.methodReadCount} /> : null}
-
       {/* 1 — Simulation-first hero */}
       <LandingHero bankrollLabel={bankrollLabel} recordLabel={recordLabel} readyCount={readyCount} />
 
-      {/* 2 — Four flagship product cards (live, prop-driven status) */}
-      <FlagshipCards cards={flagshipCards} />
+      {/* 2 — Simulation Hub: the per-sport simulation centers (the core product topic) */}
+      <FlagshipCards
+        cards={simHubCards}
+        heading="Simulation Hub"
+        subtitle="World Cup · MLB · UFC — pick a sport, run its simulations"
+        ariaLabel="Sport simulation centers"
+      />
+
+      {/* 2b — Flagship products, powered by the simulations */}
+      <FlagshipCards
+        cards={productCards}
+        heading="Flagship products"
+        subtitle="Bank Builder · Moonshot · Results — paper-only"
+        ariaLabel="Flagship products"
+      />
 
       {/* 3 — Featured simulations (real ready artifacts only) */}
       <FeaturedSimulationsSection featured={featured} readyCount={readyCount} />

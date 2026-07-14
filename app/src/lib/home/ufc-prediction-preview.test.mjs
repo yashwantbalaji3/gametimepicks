@@ -34,8 +34,8 @@ test("2 · the preview component shows Winner + Method columns, a /ufc CTA, and 
   for (const w of ["best bet", "positive ev", "guaranteed", "official pick", " lock "]) assert.ok(!low.includes(w), `no "${w}"`);
 });
 
-test("3 · the homepage renders the preview when a UFC card exists (null otherwise)", () => {
-  assert.match(home, /import UfcPredictionPreview/, "home imports the preview");
-  assert.match(home, /loadUfcPredictionRows\(serverToday\)/, "home loads the rows (real clock; suppresses past events)");
-  assert.match(home, /ufcPreview \? <UfcPredictionPreview/, "home renders it only when a card exists");
+test("3 · the UFC preview was dropped from the sim-first homepage (component kept for reuse)", () => {
+  // The simulation-first reset removed stale/random event spotlights from the homepage; the
+  // component + loader remain in the codebase for reuse elsewhere.
+  assert.ok(!/UfcPredictionPreview/.test(home), "homepage no longer renders the UFC preview");
 });

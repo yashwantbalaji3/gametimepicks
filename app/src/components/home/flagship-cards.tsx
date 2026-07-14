@@ -57,15 +57,25 @@ function Card({ c }: { c: FlagshipCard }) {
   );
 }
 
-export default function FlagshipCards({ cards }: { cards: FlagshipCard[] }) {
+export default function FlagshipCards({
+  cards,
+  heading = "Four ways in",
+  subtitle = "Simulate · Today’s Picks · Bank Builder · Results — paper-only",
+  ariaLabel = "Flagship products",
+}: {
+  cards: FlagshipCard[];
+  heading?: string;
+  subtitle?: string;
+  ariaLabel?: string;
+}) {
   return (
-    <section aria-label="Flagship products" className="flex flex-col gap-3">
+    <section aria-label={ariaLabel} className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>
-          Four ways in
+          {heading}
         </h2>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-          Simulate · Today&rsquo;s Picks · Bank Builder · Results — paper-only
+          {subtitle}
         </span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">

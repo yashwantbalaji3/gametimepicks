@@ -67,14 +67,13 @@ test("5 · the REAL committed artifacts yield a UFC 329 spotlight linking to /uf
   assert.equal(spotlightCopyIsHonest(e), true);
 });
 
-test("6 · homepage + Today page render the spotlight from the shared loader", () => {
-  const home = read("src/app/page.tsx");
-  assert.match(home, /import EventSpotlight/, "home imports the component");
-  assert.match(home, /loadHomepageSpotlight\(serverToday\)/, "home uses the loader with the real clock (past-event safe)");
-  assert.match(home, /<EventSpotlight event=\{spotlightEvent\}/, "home renders it above the hero");
+test("6 · the Today page renders the spotlight from the shared loader (homepage dropped it, sim-first)", () => {
   const todayPage = read("src/app/today/page.tsx");
   assert.match(todayPage, /loadHomepageSpotlight\(serverToday\)/, "Today uses the loader with the real clock");
   assert.match(todayPage, /<EventSpotlight event=\{todaySpotlight\}/, "Today renders it");
+  // The homepage dropped stale/random event spotlights in the simulation-first reset.
+  const home = read("src/app/page.tsx");
+  assert.ok(!/EventSpotlight/.test(home), "homepage no longer renders the event spotlight");
 });
 
 test("7 · the rendering component hardcodes no forbidden copy and is data-driven to /ufc", () => {

@@ -37,15 +37,27 @@ test("1 · page.tsx does NOT import or render the full Today board", () => {
   assert.ok(!/<TodayPage\s*\/?>/.test(page), "TodayPage is not rendered");
 });
 
-// 2 — Home has 4 flagship product cards (the 4 hrefs present in the home source).
-test("2 · Home surfaces the four flagship product cards", () => {
-  for (const href of ["/simulate", "/today", "/bank-builder", "/results"]) {
-    assert.ok(HOME_ALL.includes(`"${href}"`), `flagship href ${href} present`);
+// 2 — Home leads with the Simulation Hub (sport-sim cards) + Flagship Products (Bank Builder, Moonshot, Results).
+test("2 · Home leads with sport simulation cards + Bank Builder/Moonshot flagship pillars", () => {
+  // Sport simulation centers (the core product topic).
+  for (const href of ["/world-cup", "/mlb", "/ufc"]) {
+    assert.ok(HOME_ALL.includes(`"${href}"`), `sim-hub href ${href} present`);
   }
-  // The four cards are constructed with their labels.
-  for (const label of ["Simulate", "Today's Picks", "Bank Builder", "Results"]) {
-    assert.ok(page.includes(label), `card label "${label}" present`);
+  for (const label of ["World Cup Simulations", "MLB Simulations", "UFC Simulations"]) {
+    assert.ok(page.includes(label), `sim card label "${label}" present`);
   }
+  // Flagship products (paper) — Bank Builder + Moonshot + Results.
+  for (const href of ["/bank-builder", "/moonshot", "/results"]) {
+    assert.ok(HOME_ALL.includes(`"${href}"`), `flagship product href ${href} present`);
+  }
+  for (const label of ["Bank Builder", "Moonshot", "Results"]) {
+    assert.ok(page.includes(label), `product label "${label}" present`);
+  }
+  assert.ok(page.includes("Simulation Hub"), "Simulation Hub heading present");
+  assert.ok(page.includes("Flagship products"), "Flagship products heading present");
+  // Stale / random event spotlights were dropped from the homepage.
+  assert.ok(!/EventSpotlight/.test(page), "no EventSpotlight on the homepage");
+  assert.ok(!/UfcPredictionPreview/.test(page), "no UFC spotlight on the homepage");
 });
 
 // 3 — Home links to /simulate, /today, /bank-builder, /results (across the home surface).
