@@ -7,7 +7,7 @@
   "officialMoneyRecordAffected": false,
   "activeProductCard": false,
   "engine": "market_anchored_simulation",
-  "dataset": "Market baseline over 82 settled games (6 dates), The Odds API historical closing odds; SIM paired on 12 games with a sim artifact (join by gamePk).",
+  "dataset": "Market baseline over 82 settled games (6 dates), The Odds API historical closing odds; SIM paired on 81 games with a sim artifact (join by gamePk).",
   "leakageNote": "Closing odds snapshotted strictly before first pitch; final scores from StatsAPI linescores; the sim is market-anchored (winProb ≈ market by construction).",
   "marketBaseline": {
     "n": 82,
@@ -29,47 +29,47 @@
     }
   },
   "simVsMarketPaired": {
-    "n": 12,
+    "n": 81,
     "sim": {
-      "n": 12,
+      "n": 81,
       "moneyline": {
-        "brier": 0.2346,
-        "logLoss": 0.6622,
-        "winnerAccuracy": 0.5833
+        "brier": 0.2401,
+        "logLoss": 0.6735,
+        "winnerAccuracy": 0.6173
       },
-      "totalRunsMAE": 4.8233,
+      "totalRunsMAE": 4.2486,
       "overUnder": {
-        "n": 12,
-        "accuracy": 0.5,
-        "brier": 0.2548
+        "n": 80,
+        "accuracy": 0.5875,
+        "brier": 0.2478
       },
       "runLine": {
-        "n": 12,
-        "coverAccuracy": 0.5833,
-        "brier": 0.2474
+        "n": 81,
+        "coverAccuracy": 0.5185,
+        "brier": 0.2923
       }
     },
     "market": {
-      "n": 12,
+      "n": 81,
       "moneyline": {
-        "brier": 0.2347,
-        "logLoss": 0.6623,
-        "winnerAccuracy": 0.6667
+        "brier": 0.2406,
+        "logLoss": 0.6745,
+        "winnerAccuracy": 0.5926
       },
-      "totalRunsMAE": 4.7833,
+      "totalRunsMAE": 4.2444,
       "overUnder": {
-        "n": 12,
-        "accuracy": 0.4167,
-        "brier": 0.2518
+        "n": 80,
+        "accuracy": 0.525,
+        "brier": 0.2482
       },
       "runLine": {
-        "n": 12,
-        "coverAccuracy": 0.4167,
-        "brier": 0.2514
+        "n": 81,
+        "coverAccuracy": 0.4691,
+        "brier": 0.2526
       }
     },
-    "simMarginMAE": 2.9175,
-    "deltaMoneylineBrier": -0.0001
+    "simMarginMAE": 3.7825,
+    "deltaMoneylineBrier": -0.0005
   },
   "calibrationBuckets": [
     {
@@ -136,6 +136,7 @@
   "verdict": {
     "result": "mirrors",
     "publicReady": false,
-    "note": "The sim MIRRORS the market on the paired sample (ΔBrier -0.0001). It is market-anchored, so mirroring is expected. Sample is 12 games on 1 date(s) — far too small to validate. NOT public-ready; no public win-prob / projected runs / distributions."
+    "sampleNote": "Real sample: 81 games across 6 dates.",
+    "note": "The sim MIRRORS the market on 81 paired games (ΔBrier -0.0005). Market-anchored → it re-derives the book's probabilities and CANNOT beat them; the near-zero ΔBrier confirms this at scale. NOT public-ready; no public win-prob / projected runs / distributions. Beating the market needs independent features (see MLB_INDEPENDENT_MODEL_FEATURE_PLAN.md), not re-anchoring."
   }
 }

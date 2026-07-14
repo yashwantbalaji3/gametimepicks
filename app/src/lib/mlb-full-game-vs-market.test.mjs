@@ -48,10 +48,32 @@ test("the full metric suite is reported (Brier, log loss, winner acc, total MAE,
   assert.ok(Array.isArray(b.calibrationBuckets) && b.calibrationBuckets.length === 10);
 });
 
-test("small-sample honesty: paired sim comparison is disclosed as tiny (1 date)", () => {
+test("expanded sample: paired comparison is now ~80 games across 6 dates; mirror confirmed at scale", () => {
   const b = read("data/internal/mlb/full-game-sim-backtests/2026-market-vs-sim.json");
-  assert.ok(b.simVsMarketPaired.n <= 20, "paired sim sample is small");
-  assert.match(b.verdict.note, /too small|not public-ready/i, "sample-size caveat disclosed");
+  assert.ok(b.simVsMarketPaired.n >= 60, `paired sim sample is now a real sample (got ${b.simVsMarketPaired.n})`);
+  assert.match(b.verdict.note, /not public-ready|market-anchored/i, "public gate disclosed");
+  assert.match(b.verdict.note, /CANNOT beat|re-derives/i, "explains market-anchored mirrors by construction");
+});
+
+test("generated sim artifacts (07-04..07-08) are internal, public:false, market-anchored to closing odds", () => {
+  for (const d of ["2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-08"]) {
+    const j = read(`data/internal/mlb/full-game-sim/${d}.json`);
+    assert.equal(j.public, false, `${d} public:false`);
+    assert.equal(j.officialMoneyRecordAffected, false);
+    assert.equal(j.modelMode, "market_anchored_simulation");
+    assert.equal(j.marketAnchorSource, "historical_closing_odds");
+    assert.ok(j.games.length > 0);
+  }
+});
+
+test("the independent-model feature plan exists and keeps everything internal / out of products", () => {
+  const plan = fs.readFileSync(path.join(REPO, "docs/MLB_INDEPENDENT_MODEL_FEATURE_PLAN.md"), "utf8");
+  for (const sig of ["Probable pitcher strength", "Bullpen fatigue", "Park & weather", "offense / defense splits", "Confirmed lineups"]) {
+    assert.match(plan, new RegExp(sig, "i"), `plan covers: ${sig}`);
+  }
+  assert.match(plan, /one signal at a time/i, "adds one signal at a time");
+  assert.match(plan, /public:false|internal-only/i, "stays internal");
+  assert.match(plan, /out of Bank Builder \/ Moonshot|not product-eligible/i, "out of products");
 });
 
 test("LEAK: no full-game sim/backtest/closing-odds artifact is web-served (app/public or out)", () => {

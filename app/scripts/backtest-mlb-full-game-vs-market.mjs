@@ -113,7 +113,8 @@ const artifact = {
   verdict: {
     result: verdict,
     publicReady: false,
-    note: `The sim ${verdict === "mirrors" ? "MIRRORS" : verdict} the market on the paired sample (ΔBrier ${r4(dBrier)}). It is market-anchored, so mirroring is expected. Sample is ${paired.length} games on ${new Set(paired.map((r) => r.date)).size} date(s) — far too small to validate. NOT public-ready; no public win-prob / projected runs / distributions.`,
+    sampleNote: paired.length >= 60 ? `Real sample: ${paired.length} games across ${new Set(paired.map((r) => r.date)).size} dates.` : `Small sample: ${paired.length} games on ${new Set(paired.map((r) => r.date)).size} date(s).`,
+    note: `The sim ${verdict === "mirrors" ? "MIRRORS" : verdict} the market on ${paired.length} paired games (ΔBrier ${r4(dBrier)}). Market-anchored → it re-derives the book's probabilities and CANNOT beat them; the near-zero ΔBrier confirms this at scale. NOT public-ready; no public win-prob / projected runs / distributions. Beating the market needs independent features (see MLB_INDEPENDENT_MODEL_FEATURE_PLAN.md), not re-anchoring.`,
   },
 };
 
