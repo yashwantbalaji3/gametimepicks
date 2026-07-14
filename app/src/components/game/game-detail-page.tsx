@@ -16,8 +16,7 @@ import MlbSimulationResultSummary from "@/components/game/mlb-simulation-result-
 import { currentEtDate } from "@/lib/freshness";
 import WcGameCenter from "@/components/game/wc-game-center";
 import WcSimulationRunner from "@/components/game/wc-simulation-runner";
-import WorldCupBracketImpactCard from "@/components/world-cup/wc-bracket-impact-card";
-import WorldCupSimulationResultSummary from "@/components/game/wc-simulation-result-summary";
+import SoccerSimulationReportV2 from "@/components/game/soccer-simulation-report-v2";
 import WcGameLabReport from "@/components/game/wc-game-lab-report";
 import MultiSportReportShell from "@/components/game/multi-sport-report-shell";
 import { wcGameLabViewToReport } from "@/lib/multi-sport-report/wc-adapter";
@@ -745,30 +744,36 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     // The six-section FreeSim spine is PRIMARY. The market dashboard (WcGameCenter) moves into the shell's
     // Details as the "advanced market dashboard" — nothing is lost, but the report leads. Fall back to the
     // dashboard-first layout only when there's no Game Lab view to build the report from.
-    const wcResultSummary = gc ? (
-      <WorldCupSimulationResultSummary
+    // The OLD market dashboard + advanced report — kept, but demoted into V2's collapsed "Full market detail".
+    const wcAdvanced = (
+      <div className="flex flex-col gap-3">
+        {freeSimReport
+          ? <MultiSportReportShell report={freeSimReport} advanced={<WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />} />
+          : <WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />}
+        {wcSecondary}
+      </div>
+    );
+    // Soccer Simulation Report V2 — the clean, reorganized post-generate flow (probability center, score center,
+    // team totals, player-prop grid, market watchlist, market agreement, bracket, coming-soon, methodology). The
+    // old odds dashboard no longer dominates the page; it lives collapsed at the very bottom.
+    const wcReport = (
+      <SoccerSimulationReportV2
         home={detail.homeTeam ?? gc.homeTeam}
         away={detail.awayTeam ?? gc.awayTeam}
-        threeWay={gc.matchResult ?? null}
-        total={gc.total ?? null}
-        btts={gc.btts ?? null}
-        doubleChance={gc.doubleChance ?? null}
-        drawNoBet={gc.drawNoBet ?? null}
-        propCount={detail.playerProps?.length ?? 0}
+        homeCode={gc.homeCode}
+        awayCode={gc.awayCode}
+        stage={gc.stage}
+        kickoffUtc={gc.kickoffUtc}
+        matchResult={gc.matchResult}
+        total={gc.total}
+        btts={gc.btts}
+        doubleChance={gc.doubleChance}
+        drawNoBet={gc.drawNoBet}
+        playerProps={detail.playerProps}
+        finalDateLabel="Jul 19"
+        thirdPlaceDateLabel="Jul 18"
+        advanced={wcAdvanced}
       />
-    ) : null;
-    const wcReport = freeSimReport ? (
-      <div className="flex flex-col gap-3">
-        {wcResultSummary}
-        <MultiSportReportShell report={freeSimReport} advanced={<WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />} />
-        {wcSecondary}
-      </div>
-    ) : (
-      <div className="flex flex-col gap-3">
-        {wcResultSummary}
-        <WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />
-        {wcSecondary}
-      </div>
     );
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
@@ -781,16 +786,6 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
             <span aria-hidden>▶</span> Simulation Report · Market-Implied
           </span>
-        </div>
-        {/* Bracket impact — makes the semifinal feel important above the fold (winner→Final, loser→3rd; TBD). */}
-        <div className="mb-4">
-          <WorldCupBracketImpactCard
-            home={detail.homeTeam ?? gc.homeTeam}
-            away={detail.awayTeam ?? gc.awayTeam}
-            stage={gc.stage}
-            finalDateLabel="Jul 19"
-            thirdPlaceDateLabel="Jul 18"
-          />
         </div>
         <WcSimulationRunner
           homeTeam={detail.homeTeam ?? gc.homeTeam}

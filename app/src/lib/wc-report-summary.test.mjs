@@ -41,11 +41,12 @@ test("renders total / BTTS / double-chance / draw-no-bet snapshots", () => {
   assert.match(SUMMARY, /Total /);
 });
 
-test("the summary is wired above the fold in the WC report (before the game center / market detail)", () => {
-  assert.match(PAGE, /<WorldCupSimulationResultSummary/, "WC report renders the result summary");
-  const idxSummary = PAGE.indexOf("{wcResultSummary}");
-  const idxCenter = PAGE.indexOf("<WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />");
-  assert.ok(idxSummary > 0 && idxSummary < idxCenter, "summary renders above the WcGameCenter market detail");
+test("the probability center leads the WC report via SoccerSimulationReportV2 (dashboard demoted)", () => {
+  // The standalone summary was superseded by SoccerSimulationReportV2, whose section 2 IS the probability center.
+  assert.match(PAGE, /<SoccerSimulationReportV2/, "WC report is the V2 simulation report");
+  const idxReport = PAGE.indexOf("<SoccerSimulationReportV2");
+  const idxAdvanced = PAGE.indexOf("advanced={wcAdvanced}");
+  assert.ok(idxReport > 0 && idxReport < idxAdvanced, "V2 report leads; old dashboard demoted into its advanced prop");
 });
 
 test("no forbidden betting claims in the summary", () => {

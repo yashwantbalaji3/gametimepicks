@@ -28,8 +28,9 @@ test("bracket-impact card: winner→Final, loser→third-place, finalists TBD, N
   assert.match(src, /if \(!isSemi\) return null/, "only semifinals get the winner→final framing");
 });
 
-test("the WC game report mounts the bracket-impact card above the runner", () => {
+test("the WC game report renders the bracket-impact card (V2 section 8, driven by real stage)", () => {
   const page = read("src/components/game/game-detail-page.tsx");
-  assert.match(page, /WorldCupBracketImpactCard/, "game report renders the bracket-impact card");
-  assert.match(page, /stage=\{gc\.stage\}/, "bracket card is driven by the real stage");
+  const v2 = read("src/components/game/soccer-simulation-report-v2.tsx");
+  assert.match(v2, /WorldCupBracketImpactCard/, "V2 report renders the bracket-impact card (section 8)");
+  assert.match(page, /stage=\{gc\.stage\}/, "V2 report is driven by the real stage");
 });
