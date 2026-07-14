@@ -144,16 +144,16 @@ export const MARKET_COVERAGE: readonly MarketCoverage[] = [
   {
     sport: "soccer", market: "anytime_scorer", publicLabel: "Anytime goalscorer",
     status: "experimental", predictionSource: "market_implied",
-    requiredData: ["lineup/minutes confirmation", "scorer settlement source"],
+    requiredData: ["paid API-Football plan (2026 season access)", "lineup confirmation"],
     settlementSupport: "unsupported",
-    publicExplanation: "LIVE as a market-implied read from real Odds API prices (Phase C pilot). Lineups + a scorer settlement source are pending, so it is educational only and never enters a product card.",
+    publicExplanation: "LIVE as a market-implied read from real Odds API prices. Grading is built + validated deterministically on real finished-match data, but LIVE settlement is blocked — the API-Football key is a free plan with no 2026-season stats. Educational only; never in a product card until settlement runs.",
   },
   {
     sport: "soccer", market: "shots_shots_on_target", publicLabel: "Shots / shots on target / assists",
     status: "experimental", predictionSource: "market_implied",
-    requiredData: ["shots/assists settlement source", "lineup confirmation"],
+    requiredData: ["paid API-Football plan (2026 season access)", "lineup confirmation"],
     settlementSupport: "unsupported",
-    publicExplanation: "LIVE as a market-implied read from real Odds API prices (Phase C pilot). Settlement (shots/assists) is pending, so it is educational only and never product-eligible.",
+    publicExplanation: "LIVE as a market-implied read from real Odds API prices. Deterministic grading is built + validated on real finished-match stats; LIVE settlement is blocked by the free API-Football plan (no 2026-season access). Educational only; never product-eligible until settlement runs.",
   },
   {
     sport: "soccer", market: "corners_cards", publicLabel: "Corners / cards",
