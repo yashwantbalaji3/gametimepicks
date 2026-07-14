@@ -1,0 +1,95 @@
+{
+  "version": "internal-soccer-projection-backtest-v1",
+  "asOf": "2026-07-14",
+  "public": false,
+  "internal": true,
+  "officialMoneyRecordAffected": false,
+  "webServed": false,
+  "engine": "bivariate_poisson_fifa_supremacy",
+  "leakageNote": "FIFA points are pre-tournament static ratings (no parameters fit on these outcomes). Final scores used only in evaluation. Any future learned parameter must be fit from strictly-earlier matches only.",
+  "backtestStatus": "insufficient_sample",
+  "sampleWarning": "N=5 finished matches in committed data (settlement covers knockout window only). This is NOT enough to validate — directional only. Real validation needs the 2022 WC set (64 matches) via API-Football (see PROVIDER_AND_MODELING_ROADMAP.md).",
+  "summary": {
+    "sampleSize": 5,
+    "model": {
+      "meanBrier": 0.342,
+      "meanRps": 0.1411,
+      "topPickAccuracy": 1
+    },
+    "baselineUniform": {
+      "meanBrier": 0.6667,
+      "meanRps": 0.2778
+    },
+    "baselineFifaFavorite": {
+      "topPickAccuracy": 1
+    },
+    "beatsUniform": true
+  },
+  "matches": [
+    {
+      "home": "Mexico",
+      "away": "South Africa",
+      "score": "2-0",
+      "actual": "home",
+      "model": {
+        "homeWin": 0.589,
+        "draw": 0.233,
+        "awayWin": 0.178
+      },
+      "pick": "home",
+      "brier": 0.255
+    },
+    {
+      "home": "South Korea",
+      "away": "Czechia",
+      "score": "2-1",
+      "actual": "home",
+      "model": {
+        "homeWin": 0.44,
+        "draw": 0.26,
+        "awayWin": 0.3
+      },
+      "pick": "home",
+      "brier": 0.471
+    },
+    {
+      "home": "France",
+      "away": "Senegal",
+      "score": "3-1",
+      "actual": "home",
+      "model": {
+        "homeWin": 0.526,
+        "draw": 0.248,
+        "awayWin": 0.227
+      },
+      "pick": "home",
+      "brier": 0.338
+    },
+    {
+      "home": "Iraq",
+      "away": "Norway",
+      "score": "1-4",
+      "actual": "away",
+      "model": {
+        "homeWin": 0.28,
+        "draw": 0.258,
+        "awayWin": 0.462
+      },
+      "pick": "away",
+      "brier": 0.435
+    },
+    {
+      "home": "Argentina",
+      "away": "Algeria",
+      "score": "3-0",
+      "actual": "home",
+      "model": {
+        "homeWin": 0.628,
+        "draw": 0.222,
+        "awayWin": 0.151
+      },
+      "pick": "home",
+      "brier": 0.21
+    }
+  ]
+}

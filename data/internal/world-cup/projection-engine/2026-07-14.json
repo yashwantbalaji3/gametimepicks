@@ -1,0 +1,327 @@
+{
+  "version": "internal-soccer-projection-engine-v1",
+  "generatedAt": "2026-07-14T12:00:00Z",
+  "date": "2026-07-14",
+  "modelMode": "internal_soccer_projection_v1",
+  "public": false,
+  "internal": true,
+  "officialMoneyRecordAffected": false,
+  "webServed": false,
+  "competition": "WorldCup",
+  "strengthSource": "fifa_points",
+  "engine": "bivariate_poisson_fifa_supremacy",
+  "matchCount": 2,
+  "matches": [
+    {
+      "matchId": "f9aa13a662d1658e5a02cfc06d6a2d73",
+      "home": "France",
+      "away": "Spain",
+      "kickoff": "2026-07-14T19:00:00Z",
+      "stage": "sf",
+      "inputs": {
+        "homeFifaPoints": 1870.69,
+        "awayFifaPoints": 1873.87,
+        "marketTotalLine": 2.5
+      },
+      "projection": {
+        "modelMode": "market_anchored_soccer_v1",
+        "lambdaHome": 1.2444350000000002,
+        "lambdaAway": 1.2555649999999998,
+        "expectedGoals": {
+          "home": 1.2444350000000002,
+          "away": 1.2555649999999998,
+          "source": "model"
+        },
+        "matchResult90": {
+          "homeWin": 0.36232690057182604,
+          "draw": 0.2700413234313045,
+          "awayWin": 0.3676317759968691
+        },
+        "totalGoals": {
+          "line": 2.5,
+          "over": 0.45618688411667035,
+          "under": 0.5438131158833297,
+          "expected": 2.5,
+          "distribution": {
+            "pmf": [
+              0.0820849986238988,
+              0.205212496559747,
+              0.2565156206996837,
+              0.21376301724973645,
+              0.13360188578108528,
+              0.06680094289054264,
+              0.027833726204392777,
+              0.009940616501568848,
+              0.003106442656740265,
+              0.0008629007379834069,
+              0.0002157786370745141,
+              0.00004904732049157411,
+              0.000010191107562609169,
+              0.000001937518150066823,
+              3.360614630875961e-7,
+              5.288989841776338e-8,
+              7.49745915095022e-9,
+              9.473227495697476e-10,
+              1.0476683586992921e-10,
+              9.745377325691767e-12,
+              6.862556518087309e-13
+            ],
+            "expected": 2.5
+          }
+        },
+        "btts": {
+          "yes": 0.5090665320491026,
+          "no": 0.49093346795089743
+        },
+        "doubleChance": {
+          "homeOrDraw": 0.6323682240031305,
+          "awayOrDraw": 0.6376730994281736,
+          "homeOrAway": 0.7299586765686952
+        },
+        "drawNoBet": {
+          "home": 0.4963663179880403,
+          "away": 0.5036336820119596
+        },
+        "correctScore": {
+          "distribution": [
+            {
+              "home": 1,
+              "away": 1,
+              "prob": 0.12825526824105035
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "prob": 0.10306305129721549
+            },
+            {
+              "home": 1,
+              "away": 0,
+              "prob": 0.1021494452625315
+            },
+            {
+              "home": 0,
+              "away": 0,
+              "prob": 0.0820849986238988
+            },
+            {
+              "home": 1,
+              "away": 2,
+              "prob": 0.0805164129345372
+            },
+            {
+              "home": 2,
+              "away": 1,
+              "prob": 0.07980267236677575
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "prob": 0.06470118000099417
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "prob": 0.0635591724576392
+            },
+            {
+              "home": 2,
+              "away": 2,
+              "prob": 0.050098721165095395
+            },
+            {
+              "home": 1,
+              "away": 3,
+              "prob": 0.03369786333538405
+            },
+            {
+              "home": 3,
+              "away": 1,
+              "prob": 0.03310307952891621
+            },
+            {
+              "home": 0,
+              "away": 3,
+              "prob": 0.02707884568931607
+            }
+          ],
+          "source": "internal_model"
+        }
+      },
+      "marketComparison": {
+        "source": "de_vigged_market_1x2",
+        "market": {
+          "homeWin": 0.409,
+          "draw": 0.2978,
+          "awayWin": 0.2932
+        },
+        "delta": {
+          "homeWin": -0.046673099428173936,
+          "draw": -0.027758676568695517,
+          "awayWin": 0.07443177599686907
+        }
+      }
+    },
+    {
+      "matchId": "ced22494ae0bbb8cc4f7108bf6f493df",
+      "home": "England",
+      "away": "Argentina",
+      "kickoff": "2026-07-15T19:00:00Z",
+      "stage": "sf",
+      "inputs": {
+        "homeFifaPoints": 1827.05,
+        "awayFifaPoints": 1876.11,
+        "marketTotalLine": 2.5
+      },
+      "projection": {
+        "modelMode": "market_anchored_soccer_v1",
+        "lambdaHome": 1.164145,
+        "lambdaAway": 1.335855,
+        "expectedGoals": {
+          "home": 1.164145,
+          "away": 1.335855,
+          "source": "model"
+        },
+        "matchResult90": {
+          "homeWin": 0.32471630984980415,
+          "draw": 0.2688300602660115,
+          "awayWin": 0.40645362988418393
+        },
+        "totalGoals": {
+          "line": 2.5,
+          "over": 0.4561868841166703,
+          "under": 0.5438131158833297,
+          "expected": 2.5,
+          "distribution": {
+            "pmf": [
+              0.0820849986238988,
+              0.205212496559747,
+              0.25651562069968376,
+              0.21376301724973645,
+              0.13360188578108528,
+              0.06680094289054264,
+              0.02783372620439277,
+              0.009940616501568847,
+              0.003106442656740265,
+              0.0008629007379834069,
+              0.00021579316822706115,
+              0.00004904901710952246,
+              0.000010183839186916198,
+              0.0000019318090121329024,
+              3.336788033645139e-7,
+              5.220277600184141e-8,
+              7.347101831314185e-9,
+              9.212632948938661e-10,
+              1.011386013215557e-10,
+              9.347122253442551e-12,
+              6.547288614279277e-13
+            ],
+            "expected": 2.5
+          }
+        },
+        "btts": {
+          "yes": 0.5069622572948734,
+          "no": 0.49303774270512657
+        },
+        "doubleChance": {
+          "homeOrDraw": 0.5935463701158157,
+          "awayOrDraw": 0.6752836901501954,
+          "homeOrAway": 0.7311699397339881
+        },
+        "drawNoBet": {
+          "home": 0.4441051145619326,
+          "away": 0.5558948854380673
+        },
+        "correctScore": {
+          "distribution": [
+            {
+              "home": 1,
+              "away": 1,
+              "prob": 0.12765275517404812
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "prob": 0.10965365583672833
+            },
+            {
+              "home": 1,
+              "away": 0,
+              "prob": 0.09555884072301868
+            },
+            {
+              "home": 1,
+              "away": 2,
+              "prob": 0.085262785631514
+            },
+            {
+              "home": 0,
+              "away": 0,
+              "prob": 0.0820849986238988
+            },
+            {
+              "home": 2,
+              "away": 1,
+              "prob": 0.07430315833604612
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "prob": 0.07324069220888635
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "prob": 0.055622173316749284
+            },
+            {
+              "home": 2,
+              "away": 2,
+              "prob": 0.049629122789499436
+            },
+            {
+              "home": 1,
+              "away": 3,
+              "prob": 0.03796623949992872
+            },
+            {
+              "home": 0,
+              "away": 3,
+              "prob": 0.03261298163023396
+            },
+            {
+              "home": 3,
+              "away": 1,
+              "prob": 0.028833216753705468
+            }
+          ],
+          "source": "internal_model"
+        }
+      },
+      "marketComparison": {
+        "source": "de_vigged_market_1x2",
+        "market": {
+          "homeWin": 0.3629,
+          "draw": 0.3291,
+          "awayWin": 0.3079
+        },
+        "delta": {
+          "homeWin": -0.03818369015019585,
+          "draw": -0.06026993973398853,
+          "awayWin": 0.09855362988418392
+        }
+      }
+    }
+  ],
+  "validation": {
+    "backtestStatus": "insufficient_sample",
+    "note": "Backtest on committed finished matches only (small N). A real validation needs a historical set (2022 WC via API-Football). See docs/SOCCER_PROJECTION_ENGINE_V1_BACKTEST.md."
+  },
+  "limitations": [
+    "Rating-driven (FIFA points) bivariate Poisson — NOT an xG or event-data model.",
+    "Total goals volume is anchored to the market line when available; supremacy is always rating-driven.",
+    "Correct-score is a model distribution (independent Poisson, no Dixon-Coles low-score correction yet).",
+    "NOT validated. Stays internal (public:false) until a real backtest passes and the founder approves."
+  ],
+  "disclaimer": "Internal prototype. Not web-served, not a public prediction, does not touch official money/record/exposure."
+}
