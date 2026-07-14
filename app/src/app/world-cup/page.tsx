@@ -52,6 +52,8 @@ import { getDetailForTeams } from "@/lib/game-detail";
 import WorldCupSectionTabs from "@/components/world-cup/world-cup-section-tabs";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
+import SportMethodologyPanel from "@/components/sport-methodology-panel";
+import WcBracketContext from "@/components/world-cup/wc-bracket-context";
 import FlagBadge from "@/components/flag-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SectionHeader from "@/components/section-header";
@@ -107,6 +109,23 @@ export default function WorldCupLandingPage() {
   const parlays = loadWorldCupParlays();
   const settlement = loadWorldCupSettlement();
   const projectionsLive = !!projections && projections.matches.length > 0;
+  // Real semifinal fixtures (stage 'sf') for the bracket path — deduped, honest (no invented finalists).
+  const sfFixtures = (() => {
+    const seen = new Set<string>();
+    const out: { home: string; away: string; dateLabel: string }[] = [];
+    for (const m of (projections?.matches ?? []) as Array<{ stage?: string; homeTeam?: string; awayTeam?: string; matchDate?: string; date?: string }>) {
+      if (m.stage !== "sf" || !m.homeTeam || !m.awayTeam) continue;
+      const key = `${m.homeTeam}|${m.awayTeam}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const iso = String(m.matchDate || m.date || "").slice(0, 10);
+      const dateLabel = /^\d{4}-\d{2}-\d{2}$/.test(iso)
+        ? new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
+        : "";
+      out.push({ home: m.homeTeam, away: m.awayTeam, dateLabel });
+    }
+    return out;
+  })();
   // "Next" hero line: knockout schedule rows carry null home/away (bracket placeholders), which rendered
   // as "undefined vs undefined". Prefer the current slate's projections (REAL teams + kickoff); fall back
   // to the schedule row only when it actually names both teams. Never renders undefined.
@@ -646,8 +665,16 @@ export default function WorldCupLandingPage() {
         accent="wc"
       />
 
-      {/* Honest per-market coverage — what World Cup simulates + every gap with the reason. */}
-      <div className="mt-8 mb-8">
+      {/* Path to the final (bracket) — real semifinals → Final + third-place TBD (no invented finalists). */}
+      {sfFixtures.length > 0 && (
+        <div className="mt-8">
+          <WcBracketContext semifinals={sfFixtures} finalDateLabel="Jul 19" thirdPlaceDateLabel="Jul 18" />
+        </div>
+      )}
+
+      {/* Simulation methodology + honest per-market coverage — how the WC read works and every gap. */}
+      <div className="mt-8 mb-8 flex flex-col gap-6">
+        <SportMethodologyPanel sport="soccer" />
         <SimulationCoverageMatrix sport="soccer" />
       </div>
 

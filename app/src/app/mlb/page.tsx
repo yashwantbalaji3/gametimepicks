@@ -40,6 +40,7 @@ import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
+import SportMethodologyPanel from "@/components/sport-methodology-panel";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import GameOutlookSection from "@/components/game-outlook-card";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
@@ -339,8 +340,9 @@ export default function MlbLandingPage() {
         <MlbFlagshipSections props={mlbProps} games={flagshipGames} />
       </div>
 
-      {/* Honest per-market coverage — what MLB simulates + every gap with the reason. */}
-      <div className="mt-8">
+      {/* Simulation methodology + honest per-market coverage — how the MLB sim works and every gap. */}
+      <div className="mt-8 flex flex-col gap-6">
+        <SportMethodologyPanel sport="mlb" />
         <SimulationCoverageMatrix sport="mlb" />
       </div>
 

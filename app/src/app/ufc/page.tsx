@@ -16,6 +16,8 @@ import {
   normalizeUfcCards,
 } from "@/lib/normalize";
 import SectionHeader from "@/components/section-header";
+import SportMethodologyPanel from "@/components/sport-methodology-panel";
+import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import SuggestedCard from "@/components/ui/suggested-card";
@@ -471,7 +473,7 @@ export default function UfcPage() {
         icon={getSportIdentity("ufc").icon}
         iconGradient={getSportIdentity("ufc").gradient}
         iconLabel={getSportIdentity("ufc").ballLabel}
-        eyebrow="UFC · fight simulator"
+        eyebrow="UFC Simulation Center · experimental"
         sport="UFC"
         tagline="market-implied fight simulations · model validating"
         statusKind={ufcSettled ? "upcoming" : showV1Proj ? "live" : "upcoming"}
@@ -486,6 +488,13 @@ export default function UfcPage() {
         ]}
         framing="Market-implied fight simulations are live — each fight's de-vigged sportsbook moneyline as a FreeSim-style report (market snapshot, win probabilities, main read, takeaways). This is a market-implied read, NOT an independent 10,000-run UFC model. Model-adjusted picks stay gated until a no-leakage backtest validates them. Method, distance, and round props aren't offered — the current odds feed is moneyline (h2h) only. Educational, paper-only."
       />
+
+      {/* Experimental methodology + honest per-market coverage — moneyline market-implied; method/distance
+          experimental; round/distance odds provider-needed; results review pending. Never product-eligible. */}
+      <div className="mt-8 flex flex-col gap-6">
+        <SportMethodologyPanel sport="ufc" />
+        <SimulationCoverageMatrix sport="ufc" />
+      </div>
 
       <div className="mt-6">
         <SportShell tabs={tabs} />
