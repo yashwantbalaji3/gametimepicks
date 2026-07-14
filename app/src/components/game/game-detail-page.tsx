@@ -17,6 +17,7 @@ import { currentEtDate } from "@/lib/freshness";
 import WcGameCenter from "@/components/game/wc-game-center";
 import WcSimulationRunner from "@/components/game/wc-simulation-runner";
 import WorldCupBracketImpactCard from "@/components/world-cup/wc-bracket-impact-card";
+import WorldCupSimulationResultSummary from "@/components/game/wc-simulation-result-summary";
 import WcGameLabReport from "@/components/game/wc-game-lab-report";
 import MultiSportReportShell from "@/components/game/multi-sport-report-shell";
 import { wcGameLabViewToReport } from "@/lib/multi-sport-report/wc-adapter";
@@ -744,13 +745,27 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     // The six-section FreeSim spine is PRIMARY. The market dashboard (WcGameCenter) moves into the shell's
     // Details as the "advanced market dashboard" — nothing is lost, but the report leads. Fall back to the
     // dashboard-first layout only when there's no Game Lab view to build the report from.
+    const wcResultSummary = gc ? (
+      <WorldCupSimulationResultSummary
+        home={detail.homeTeam ?? gc.homeTeam}
+        away={detail.awayTeam ?? gc.awayTeam}
+        threeWay={gc.matchResult ?? null}
+        total={gc.total ?? null}
+        btts={gc.btts ?? null}
+        doubleChance={gc.doubleChance ?? null}
+        drawNoBet={gc.drawNoBet ?? null}
+        propCount={detail.playerProps?.length ?? 0}
+      />
+    ) : null;
     const wcReport = freeSimReport ? (
       <div className="flex flex-col gap-3">
+        {wcResultSummary}
         <MultiSportReportShell report={freeSimReport} advanced={<WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />} />
         {wcSecondary}
       </div>
     ) : (
       <div className="flex flex-col gap-3">
+        {wcResultSummary}
         <WcGameCenter gameCenter={gc} expanded={detail.wcExpanded} />
         {wcSecondary}
       </div>
