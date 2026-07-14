@@ -54,7 +54,7 @@ test("game detail GATES the dense model report behind Generate Simulation (repor
   // Now ONE unified report: the detail is the gated `mlbReportDetails` postReveal (not a competing tabbed
   // dashboard); the dense report lives in a collapsed "Advanced report" disclosure, never a pre-click sibling.
   assert.match(detailPage, /postReveal=\{mlbReportDetails\}/, "the unified report detail is the gated postReveal");
-  assert.match(detailPage, /mlbReportDetails = \([\s\S]*?title="Advanced report"[\s\S]*?\{mlbReport\}/, "the dense report is inside the gated Advanced report disclosure");
+  assert.match(detailPage, /mlbAdvanced = \([\s\S]*?title="Advanced report"[\s\S]*?\{mlbReport\}/, "the dense report is inside the gated Advanced report disclosure (demoted into V2's advanced block)");
   // The runner (the whole pre-click experience) is rendered with the sim view on that path.
   assert.match(detailPage, /<GameSimulationRunner\s+view=\{sim\}/, "the runner drives the MLB-sim page");
 });

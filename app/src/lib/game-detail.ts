@@ -12,6 +12,7 @@ import {
   loadWorldCupMarketAvailability,
 } from "@/lib/world-cup/projections";
 import { normTeamName } from "@/lib/world-cup/market-outlook";
+import { resolveWcPlayerTeam } from "@/lib/world-cup/player-team-map";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
 import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import { buildMlbGameLabReport, type MlbGameLabView } from "@/lib/game-lab/mlb-report";
@@ -162,11 +163,20 @@ function worldCupDetails(): PublicGameDetail[] {
     // Odds API event id (not the schedule matchId), so fall back to matching each prop's team to one
     // of the two fixture sides (alias-normalized) — unambiguous within a single matchday slate.
     const fixtureTeams = new Set([homeTeam, awayTeam].map((t) => normTeamName(t ?? "")).filter(Boolean));
-    const playerProps = players.filter(
-      (p) =>
-        String(p.matchId) === matchId ||
-        fixtureTeams.has(normTeamName(p.player?.team ?? p.gameLabel ?? "")),
-    );
+    const playerProps = players
+      .filter(
+        (p) =>
+          String(p.matchId) === matchId ||
+          fixtureTeams.has(normTeamName(p.player?.team ?? p.gameLabel ?? "")),
+      )
+      // Correct each prop's team from the official-squad map (the Odds feed has no team, so the generator
+      // defaults everyone to the home side). Constrained to this fixture's two teams; leaves the value as-is
+      // when unresolved so we never introduce a NEW wrong team.
+      .map((p) => {
+        if (!p.player?.name) return p;
+        const team = resolveWcPlayerTeam(p.player.name, homeTeam ?? "", awayTeam ?? "");
+        return team && team !== p.player.team ? { ...p, player: { ...p.player, team } } : p;
+      });
     const cardsForGame = cards.filter((c) => cardBelongsToFixture(c, head.gameLabel));
     const playerMarkets = new Set(playerProps.map((p) => p.marketLabel));
     out.push({

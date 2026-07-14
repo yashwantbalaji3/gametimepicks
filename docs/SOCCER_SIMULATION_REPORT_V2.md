@@ -51,7 +51,26 @@ old dashboard demoted below the result; player props settlement-pending + produc
 score / independent-model claim; no best-bet/lock/EV/edge language; bracket final/3rd stay TBD; no internal model
 numbers; money md5 unchanged.
 
-## Known data issue (flagged separately)
-The props grid intentionally **omits the player's team label** because the game-detail props join mislabels away-
-team players (Spain players tagged "France"). The player names + markets + prices are correct; only the team tag
-was unreliable, so it's hidden until the pipeline join is fixed (separate task).
+## Player-props team-join — FIXED (2026-07-14)
+The props grid previously omitted the team label because the game-detail join tagged every player in a fixture
+with the HOME team (the Odds goalscorer feed has names but no team → Spain's Lamine Yamal shown "France"). Fixed
+at the **data layer**, no hardcoded names:
+- `app/scripts/build-wc-player-team-map.mjs` fetches official 26-man squads from **API-Football** for the slate's
+  teams → `app/public/data/world-cup/player-team-map.json` (name → team; full-name + unambiguous-surname index).
+- `resolveWcPlayerTeam` (`app/src/lib/world-cup/player-team-map.ts`) resolves each player, **constrained to the
+  fixture's two sides** (never assigns a team not in the match; returns null when unsure).
+- `game-detail.ts` corrects each prop's `player.team` from the map after the join.
+- The team label is **restored** in the V2 props grid.
+- Verified: France vs Spain now shows Yamal/Oyarzabal/Nico Williams/Borja Iglesias · **Spain**, Mbappé/Dembélé/
+  Thuram/Mateta · **France**. Tests: `wc-player-team-join.test.mjs` (no France↔Spain mislabel).
+
+## MLB Simulation Report V2 (second slice)
+Applied the same clean shell to the MLB game report — `MlbSimulationReportV2` sharing `report-v2-shell.tsx`
+(Section/StatTile/Monogram/AdvancedDisclosure) with soccer, so both sports read as one grammar:
+1. Match header (`10,000-run · player-prop sim` label + previous-slate badge) → 2. Simulation result (strongest
+10k player-prop leans, unchanged) → 3. Market snapshot (de-vigged full-game lines, market-anchored — shown in the
+runner dashboard, pointed to here) → 4. **Full-game simulation · VALIDATING** (honest: the 10k is a player-prop
+sim; an internal full-game model exists but is not public, so **no projected score / win probability / run
+distribution is shown**) → 5. Player props → 6. Coming soon → 7. Methodology → collapsed advanced report.
+MLB stays a **10,000-run player-prop simulation + market-anchored full-game snapshot**; no internal full-game
+numbers surfaced. Tests: `mlb-simulation-report-v2.test.mjs`.

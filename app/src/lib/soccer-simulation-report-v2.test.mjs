@@ -32,7 +32,9 @@ test("old advanced report / market dashboard is DEMOTED below the main result, c
   const idxMethodology = V2.indexOf("Methodology");
   const idxAdvanced = V2.indexOf("{advanced ?");
   assert.ok(idxAdvanced > idxMethodology && idxMethodology > 0, "advanced dashboard is below methodology");
-  assert.match(V2, /<details/, "advanced dashboard is collapsed");
+  assert.match(V2, /AdvancedDisclosure/, "advanced dashboard is a collapsed disclosure");
+  const shell = read("src/components/game/report-v2-shell.tsx");
+  assert.match(shell, /<details/, "the shared AdvancedDisclosure is a <details> (collapsed)");
   // wiring: the old FreeSim shell + WcGameCenter go into V2's advanced prop, not the primary flow.
   assert.match(PAGE, /advanced=\{wcAdvanced\}/);
 });

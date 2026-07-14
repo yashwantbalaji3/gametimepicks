@@ -241,7 +241,7 @@ test("game-detail-page still builds MlbGameLabReport (gameLabMlb) and wires Game
   assert.match(DETAIL_PAGE_SRC, /marketSnapshot=\{gameCenter\}/, "market snapshot leads the unified report (in the runner)");
   assert.match(DETAIL_PAGE_SRC, /postReveal=\{mlbReportDetails\}/, "MLB post-reveal is the gated unified detail");
   // The dense report + spotlight live in a gated collapsed "Advanced report" disclosure, never a pre-click sibling.
-  assert.match(DETAIL_PAGE_SRC, /mlbReportDetails = \([\s\S]*?title="Advanced report"[\s\S]*?\{mlbReport\}\{spotlight\}/, "the dense report is inside the gated Advanced report disclosure");
+  assert.match(DETAIL_PAGE_SRC, /mlbAdvanced = \([\s\S]*?title="Advanced report"[\s\S]*?\{mlbReport\}\{spotlight\}/, "the dense report is inside the gated Advanced report disclosure (demoted into V2's advanced block)");
 });
 
 // Non-MLB details never carry a simulation view (null/undefined).
