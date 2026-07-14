@@ -93,10 +93,45 @@ test("2022 WC backtest (N=64): honest, internal-only, beats uniform but NOT publ
   assert.equal(b.officialMoneyRecordAffected, false);
   assert.equal(b.sampleSize, 64, "all 64 matches");
   assert.match(b.leakageNote, /pre-tournament|90-min/i, "leakage + 90-min grading disclosed");
-  assert.equal(b.marketBaseline.available, false, "2022 market baseline honestly unavailable");
   assert.ok(b.metrics.model.brier < b.metrics.baselineUniform.brier, "beats uniform Brier");
   assert.ok(b.metrics.model.logLoss < b.metrics.baselineUniform.logLoss, "beats uniform log loss");
-  assert.equal(b.verdict.publicReady, false, "NOT public-ready without a market baseline");
+  assert.equal(b.verdict.publicReady, false, "NOT public-ready (loses to market)");
+});
+
+test("2022 model-vs-market: real closing-odds baseline, model does NOT beat market (honest verdict)", () => {
+  const b = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/world-cup/projection-engine/backtests/2022-wc.json"), "utf8"));
+  assert.equal(b.marketBaseline.available, true, "closing-odds market baseline now exists");
+  assert.ok(b.marketComparison && b.marketComparison.coverage >= 60, "market comparison over most matches");
+  const c = b.marketComparison;
+  assert.ok(c.market.brier < c.model.brier, "closing market beats the model on Brier (honest — model loses)");
+  assert.equal(c.modelBeatsMarket, false, "model does not beat market");
+  assert.equal(b.verdict.beatsMarket, false, "verdict records model loses to market");
+  assert.equal(b.verdict.publicReady, false, "stays internal — loses to market");
+});
+
+test("closing-odds baseline artifact: internal-only, de-vigged, no lookahead", () => {
+  const p = path.resolve(APP, "..", "data/internal/world-cup/reference/wc-2022-closing-odds-baseline.json");
+  assert.ok(fs.existsSync(p), "baseline fetched");
+  const j = JSON.parse(fs.readFileSync(p, "utf8"));
+  assert.equal(j._public, false, "baseline is internal");
+  assert.ok(j.matches.length >= 60, "covers most of the tournament");
+  // every snapshot strictly before kickoff (no lookahead)
+  const bad = j.matches.filter((m) => new Date(m.snapshotTimestamp) >= new Date(m.kickoff));
+  assert.equal(bad.length, 0, "no snapshot at/after kickoff");
+  // de-vigged 1X2 sums to ~1
+  for (const m of j.matches.slice(0, 5)) {
+    const s = m.closingDeVig.home + m.closingDeVig.draw + m.closingDeVig.away;
+    assert.ok(Math.abs(s - 1) < 1e-3, "de-vigged probs sum to 1");
+  }
+});
+
+test("soccer v2 (form) backtest: internal-only, form does NOT beat v1", () => {
+  const v = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/world-cup/projection-engine/backtests/2022-wc-v2.json"), "utf8"));
+  assert.equal(v.public, false);
+  assert.equal(v.webServed, false);
+  assert.equal(v.v1EquivalenceCheck.equivalent, true, "v2(formWeight 0) == v1");
+  assert.equal(v.verdict.v2BeatsV1, false, "form feature does not beat pure FIFA");
+  assert.equal(v.verdict.publicReady, false);
 });
 
 test("2022 backtest reference data is internal-only (not under app/public)", () => {

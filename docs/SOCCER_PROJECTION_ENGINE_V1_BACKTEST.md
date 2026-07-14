@@ -35,13 +35,26 @@ fulltime score** (the engine predicts regulation; the 2 knockouts with extra-tim
   essentially irreducible match-to-match variance.
 - **Reliability diagram is monotonic** (predicted ↑ ⇒ empirical ↑) across populated buckets.
 
+### Model vs the CLOSING MARKET (the real bar) — model loses by a hair
+We fetched **real 2022 closing 1X2 odds** for all 64 matches from The Odds API `/historical` (de-vigged consensus
+of ~14 US books, every snapshot strictly before kickoff — `wc-2022-closing-odds-baseline.json`). Head-to-head:
+
+| | Brier ↓ | RPS ↓ | log loss ↓ | top-pick |
+|---|---|---|---|---|
+| **Closing market** | **0.5826** | **0.2071** | **0.9961** | 53.1% |
+| Model (FIFA-Poisson) | 0.5925 | 0.2079 | 1.0024 | **56.3%** |
+| Δ (model − market) | +0.0099 | +0.0008 | +0.0063 | −3.2pp |
+
+**The model does not beat the market** — it's worse on every proper scoring rule, but only by ~1–1.7%.
+Remarkably close for a pure rating model. (It even has *higher* top-pick accuracy, because the market's favorites
+lost several 2022 shocks — but top-pick is the weakest metric; probability quality is what counts, and the market
+wins it.) Per the strict rule, **loses to market ⇒ stays internal.** This is the definitive answer: the engine is
+competitive with, but not better than, the closing price.
+
 ### What's blunt and disqualifying (for public use)
-- **Top-pick accuracy (56.3%) EXACTLY TIES the trivial "pick the FIFA favorite" baseline.** The model's
-  *directional* calls add nothing over "back the higher-ranked team." Its value is in probability quality, not
-  in picking winners.
-- **No market baseline exists for 2022.** API-Football's free plan does not serve historical closing odds
-  (probed: results 0). So we **cannot** show the engine beats or competes with the market — which is the exact
-  bar the mission set for going public. Bar not cleared ⇒ stays internal.
+- **Loses to the closing market** on all proper scores (above). This is the bar, and it is not cleared.
+- **Top-pick accuracy (56.3%) ties the trivial "pick the FIFA favorite" baseline.** The model's *directional*
+  calls add nothing over "back the higher-ranked team." Its value is probability quality, where the market wins.
 - **The model is under-confident on favorites:** among 42 matches with a ≥45% favorite, that favorite won 61.9%
   vs the 53.6% the model assigned. Reliability buckets agree (0.5–0.6 bucket: predicted 0.55, empirical 0.63).
   A higher supremacy coefficient would likely improve this — a tuning item, not a validated change.
@@ -88,9 +101,14 @@ plausible tilt, but 2022 also showed it can't beat the market it hasn't been tes
 
 ---
 
-## Gate to go public (unchanged)
-1. A **market baseline** to compare against (odds-history provider — the current blocker).
-2. Model Brier/RPS **beats the closing-market baseline** out-of-sample, not just uniform.
-3. Winner-picking or calibration edge **over the trivial FIFA-favorite baseline**, not just a tie.
-4. Founder approval.
-Until all four: `public:false`, and the public WC report stays market-implied.
+## Gate to go public (status update 2026-07-14)
+1. ~~A market baseline to compare against~~ — **DONE.** Fetched real 2022 closing odds (The Odds API historical).
+2. Model Brier/RPS **beats the closing-market baseline** — **NOT MET.** Model loses by ~1% on all proper scores.
+3. Winner-picking or calibration edge **over the trivial FIFA-favorite baseline** — **NOT MET** (ties top-pick).
+4. Founder approval — moot until 2 or 3 is met.
+
+**Result: the engine stays internal / market-implied in public.** It is now *measured*, not guessed: a competent
+rating-Poisson model that is competitive with but slightly worse than the closing market. To surpass the market
+it needs information the market has and it doesn't — multi-tournament ratings (form across many games, not 1–3),
+lineups, xG — which require real provider data, not more model tuning (tuning + in-tournament form both tried,
+both failed: `SOCCER_ENGINE_TUNING_RESULTS.md`, `SOCCER_ENGINE_FEATURE_UPGRADE_PLAN.md`).

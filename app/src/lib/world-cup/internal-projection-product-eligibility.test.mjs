@@ -45,7 +45,7 @@ test("NO product / proposal / portfolio builder imports the internal projection 
   }
   const offenders = productFiles.filter((f) => {
     const src = fs.readFileSync(path.join(APP, f), "utf8");
-    return /internal-soccer-projection|projection-engine|internal_soccer_projection|full-game-sim/.test(src);
+    return /internal-soccer-projection|projection-engine|internal_soccer_projection|full-game-sim|rating_poisson_with_form|closing-odds-baseline|wc-2022/.test(src);
   });
   assert.deepEqual(offenders, [], `internal engines must not be referenced by product builders; found: ${offenders.join(", ")}`);
 });

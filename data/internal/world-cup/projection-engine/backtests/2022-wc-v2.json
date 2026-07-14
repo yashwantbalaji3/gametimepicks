@@ -1,0 +1,75 @@
+{
+  "version": "internal-soccer-projection-backtest-2022wc-v2-v1",
+  "asOf": "2026-07-14",
+  "public": false,
+  "internalOnly": true,
+  "webServed": false,
+  "officialMoneyRecordAffected": false,
+  "engine": "rating_poisson_with_form_v1",
+  "leakageNote": "Form computed from 90-min results in matches strictly earlier than each kickoff (date order); current result updates state only after prediction. Pre-tournament FIFA points. No 2026 data.",
+  "featureCoverage": "Form applies only when BOTH teams have >=1 prior match; group game 1 (16 matches) is pure FIFA. 48/64 matches got a non-zero form adjustment at formWeight 0.25.",
+  "marketBaseline": {
+    "available": false,
+    "reason": "2022 closing odds not available free. See SOCCER_MARKET_BASELINE_BLOCKER.md."
+  },
+  "v1": {
+    "logLoss": 1.0025,
+    "brier": 0.5925,
+    "rps": 0.2079,
+    "topPick": 0.563,
+    "totalMAE": 1.475
+  },
+  "v1EquivalenceCheck": {
+    "trueV1LogLoss": 1.0025,
+    "v2FormWeight0LogLoss": 1.0025,
+    "equivalent": true
+  },
+  "v2ByFormWeight": [
+    {
+      "formWeight": 0.25,
+      "n": 64,
+      "coveredByForm": 48,
+      "brier": 0.6112,
+      "rps": 0.217,
+      "logLoss": 1.0321,
+      "topPick": 0.547,
+      "totalMAE": 1.48
+    },
+    {
+      "formWeight": 0.5,
+      "n": 64,
+      "coveredByForm": 48,
+      "brier": 0.6366,
+      "rps": 0.2289,
+      "logLoss": 1.0767,
+      "topPick": 0.547,
+      "totalMAE": 1.52
+    },
+    {
+      "formWeight": 0.75,
+      "n": 64,
+      "coveredByForm": 48,
+      "brier": 0.6664,
+      "rps": 0.2421,
+      "logLoss": 1.1382,
+      "topPick": 0.469,
+      "totalMAE": 1.604
+    },
+    {
+      "formWeight": 1,
+      "n": 64,
+      "coveredByForm": 48,
+      "brier": 0.7027,
+      "rps": 0.257,
+      "logLoss": 1.2243,
+      "topPick": 0.422,
+      "totalMAE": 1.723
+    }
+  ],
+  "verdict": {
+    "v2BeatsV1": false,
+    "bestFormWeight": 0.25,
+    "publicReady": false,
+    "note": "In-tournament form from 1–3 prior matches is a tiny, noisy signal. Report the honest v2-vs-v1 delta; do not adopt v2 as default unless it clearly beats v1 AND a market baseline later confirms it. Internal only."
+  }
+}

@@ -122,6 +122,35 @@ for (let b = 0; b < 10; b++) {
 const beatsUniform = model.brier < uniform.brier && model.rps < uniform.rps && model.logLoss < uniform.logLoss;
 const competesOrBeatsFifaFav = model.topPickAccuracy >= fifaFav.topPickAccuracy;
 
+// --- Market baseline: The Odds API historical closing 1X2 (de-vigged consensus), if fetched ---
+const baselinePath = path.join(REPO, "data/internal/world-cup/reference/wc-2022-closing-odds-baseline.json");
+let marketBaseline = { available: false, reason: "closing-odds baseline not found — run app/scripts/fetch-wc-2022-closing-odds.mjs" };
+let marketComparison = null;
+if (fs.existsSync(baselinePath)) {
+  const base = JSON.parse(fs.readFileSync(baselinePath, "utf8")).matches || [];
+  const mkt = new Map(base.map((b) => [norm(b.home) + "|" + norm(b.away), b.closingDeVig]));
+  const paired = rows.map((r) => ({ r, m: mkt.get(norm(r.home) + "|" + norm(r.away)) })).filter((x) => x.m);
+  if (paired.length) {
+    const toP = (m) => ({ homeWin: m.home, draw: m.draw, awayWin: m.away });
+    const bundle = (probOf, pickOf) => ({
+      brier: +mean(paired.map((x) => brier1x2(probOf(x), x.r.actual))).toFixed(4),
+      rps: +mean(paired.map((x) => rps1x2(probOf(x), x.r.actual) / 2)).toFixed(4),
+      logLoss: +mean(paired.map((x) => logLoss(probOf(x), x.r.actual))).toFixed(4),
+      topPick: +mean(paired.map((x) => (pickOf(x) === x.r.actual ? 1 : 0))).toFixed(3),
+    });
+    const argmax = (p) => (p.homeWin >= p.draw && p.homeWin >= p.awayWin ? "home" : p.awayWin >= p.draw ? "away" : "draw");
+    const marketM = bundle((x) => toP(x.m), (x) => argmax(toP(x.m)));
+    const modelM = bundle((x) => x.r.p, (x) => x.r.pick);
+    marketBaseline = { available: true, source: "The Odds API /historical closing 1X2, de-vigged consensus (~14 US books)", coverage: `${paired.length}/${rows.length}` };
+    marketComparison = {
+      coverage: paired.length, market: marketM, model: modelM,
+      delta: { brier: +(modelM.brier - marketM.brier).toFixed(4), rps: +(modelM.rps - marketM.rps).toFixed(4), logLoss: +(modelM.logLoss - marketM.logLoss).toFixed(4) },
+      modelBeatsMarket: modelM.brier < marketM.brier && modelM.logLoss < marketM.logLoss,
+      note: "Lower is better. Positive delta = model WORSE than the closing market.",
+    };
+  }
+}
+
 const artifact = {
   version: "internal-soccer-projection-backtest-2022wc-v1",
   asOf: "2026-07-14",
@@ -133,11 +162,12 @@ const artifact = {
   dataset: "2022 FIFA World Cup — all 64 matches (API-Football league=1 season=2022), graded on 90-minute fulltime score",
   strengthSource: "FIFA ranking points, 6 Oct 2022 (pre-tournament)",
   leakageNote: "FIFA ranking is pre-tournament and identical across matches; no parameter is fit on these outcomes; 90-min scores used only in evaluation. Extra time / penalties excluded (2 knockouts had ET goals; graded at 90').",
-  marketBaseline: { available: false, reason: "2022 closing odds are not served on the API-Football free plan (probed: results 0). Model-vs-market Brier requires an odds-history provider (see PROVIDER_AND_MODELING_ROADMAP.md)." },
+  marketBaseline,
   sampleSize: n,
   backtestStatus: n >= 40 ? "internal_only" : "insufficient_sample",
   metrics: { model, baselineUniform: uniform, baselineFifaFavorite: fifaFav, drawCalibration, favoriteCalibration, totalGoals, btts, calibrationBuckets: buckets },
-  verdict: { beatsUniform, competesOrBeatsFifaFavorite: competesOrBeatsFifaFav, publicReady: false, note: "Beats uniform is table stakes. Without a market baseline this is NOT a pass for public surfacing. Stays internal." },
+  marketComparison,
+  verdict: { beatsUniform, competesOrBeatsFifaFavorite: competesOrBeatsFifaFav, beatsMarket: marketComparison ? marketComparison.modelBeatsMarket : null, publicReady: false, note: "Beats uniform is table stakes. The bar is the CLOSING MARKET (marketComparison). Model stays internal unless it beats/matches the market AND the founder approves." },
   matches: rows,
 };
 
@@ -152,3 +182,9 @@ console.log(`  FIFA-fav top-pick ${(fifaFav.topPickAccuracy * 100).toFixed(1)}%`
 console.log(`  draw: pred ${drawCalibration.meanPredicted} vs actual ${drawCalibration.actualRate} | fav(>=45%): ${favoriteCalibration.matches} matches, pred ${favoriteCalibration.meanPredictedFavProb} win ${favoriteCalibration.favWinRate}`);
 console.log(`  totals: MAE ${totalGoals.meanAbsError} bias ${totalGoals.meanBias} (model ${totalGoals.modelMeanExpected} vs actual ${totalGoals.actualMean}) | BTTS acc ${(btts.accuracy * 100).toFixed(0)}%`);
 console.log(`  beatsUniform=${beatsUniform} competes/beats FIFA-fav=${competesOrBeatsFifaFav} | publicReady=false`);
+if (marketComparison) {
+  const c = marketComparison;
+  console.log(`  MARKET   Brier ${c.market.brier} · RPS ${c.market.rps} · logLoss ${c.market.logLoss} · top-pick ${(c.market.topPick * 100).toFixed(1)}%  (${c.coverage} matches)`);
+  console.log(`  MODEL(paired) Brier ${c.model.brier} · logLoss ${c.model.logLoss} · top-pick ${(c.model.topPick * 100).toFixed(1)}%`);
+  console.log(`  Δ model−market: Brier ${c.delta.brier} · logLoss ${c.delta.logLoss}  → model beats market: ${c.modelBeatsMarket}`);
+}

@@ -10,8 +10,9 @@
   "strengthSource": "FIFA ranking points, 6 Oct 2022 (pre-tournament)",
   "leakageNote": "FIFA ranking is pre-tournament and identical across matches; no parameter is fit on these outcomes; 90-min scores used only in evaluation. Extra time / penalties excluded (2 knockouts had ET goals; graded at 90').",
   "marketBaseline": {
-    "available": false,
-    "reason": "2022 closing odds are not served on the API-Football free plan (probed: results 0). Model-vs-market Brier requires an odds-history provider (see PROVIDER_AND_MODELING_ROADMAP.md)."
+    "available": true,
+    "source": "The Odds API /historical closing 1X2, de-vigged consensus (~14 US books)",
+    "coverage": "64/64"
   },
   "sampleSize": 64,
   "backtestStatus": "internal_only",
@@ -113,11 +114,34 @@
       }
     ]
   },
+  "marketComparison": {
+    "coverage": 64,
+    "market": {
+      "brier": 0.5826,
+      "rps": 0.2071,
+      "logLoss": 0.9961,
+      "topPick": 0.531
+    },
+    "model": {
+      "brier": 0.5925,
+      "rps": 0.2079,
+      "logLoss": 1.0024,
+      "topPick": 0.563
+    },
+    "delta": {
+      "brier": 0.0099,
+      "rps": 0.0008,
+      "logLoss": 0.0063
+    },
+    "modelBeatsMarket": false,
+    "note": "Lower is better. Positive delta = model WORSE than the closing market."
+  },
   "verdict": {
     "beatsUniform": true,
     "competesOrBeatsFifaFavorite": true,
+    "beatsMarket": false,
     "publicReady": false,
-    "note": "Beats uniform is table stakes. Without a market baseline this is NOT a pass for public surfacing. Stays internal."
+    "note": "Beats uniform is table stakes. The bar is the CLOSING MARKET (marketComparison). Model stays internal unless it beats/matches the market AND the founder approves."
   },
   "matches": [
     {
