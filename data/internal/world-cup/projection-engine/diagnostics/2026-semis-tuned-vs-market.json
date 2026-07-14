@@ -1,0 +1,58 @@
+{
+  "version": "semis-diagnostic-v1",
+  "asOf": "2026-07-14",
+  "public": false,
+  "internalOnly": true,
+  "notForProducts": true,
+  "webServed": false,
+  "officialMoneyRecordAffected": false,
+  "note": "Market = de-vigged sportsbook 1X2. Untuned = engine defaults (adopted). tunedRefOnly = full-sample best from the 2022 grid — NOT adopted (overfit; failed CV + bootstrap). Diagnostic only; not a pick, not public.",
+  "fixtures": [
+    {
+      "match": "France vs Spain",
+      "stage": "sf",
+      "market": {
+        "home": 40.9,
+        "draw": 29.8,
+        "away": 29.3
+      },
+      "untuned": {
+        "home": 36.5,
+        "draw": 26.4,
+        "away": 37.1
+      },
+      "tunedRefOnly": {
+        "home": 36.8,
+        "draw": 25.7,
+        "away": 37.5
+      },
+      "deltaUntunedVsMarket": {
+        "home": -4.4,
+        "away": 7.8
+      }
+    },
+    {
+      "match": "England vs Argentina",
+      "stage": "sf",
+      "market": {
+        "home": 36.3,
+        "draw": 32.9,
+        "away": 30.8
+      },
+      "untuned": {
+        "home": 32.8,
+        "draw": 26.3,
+        "away": 40.9
+      },
+      "tunedRefOnly": {
+        "home": 32.4,
+        "draw": 25.5,
+        "away": 42.1
+      },
+      "deltaUntunedVsMarket": {
+        "home": -3.5,
+        "away": 10.1
+      }
+    }
+  ]
+}

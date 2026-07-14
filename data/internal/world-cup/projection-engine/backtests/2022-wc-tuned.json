@@ -1,0 +1,122 @@
+{
+  "version": "internal-soccer-projection-backtest-2022wc-tuned-v1",
+  "asOf": "2026-07-14",
+  "public": false,
+  "internalOnly": true,
+  "webServed": false,
+  "officialMoneyRecordAffected": false,
+  "engine": "bivariate_poisson_fifa_supremacy",
+  "tunedConfig": {
+    "supremacyPerFifaPoint": 0.0045,
+    "baseTotalGoals": 2.9,
+    "drawInflation": 1.05,
+    "supremacyCap": 2.6
+  },
+  "sampleSize": 64,
+  "backtestStatus": "internal_only",
+  "leakageNote": "Pre-tournament Oct-2022 FIFA points, 90-min scores, no per-match learning. CV selects config on train folds only; bootstrap is on the 64-match empirical distribution.",
+  "marketBaseline": {
+    "available": false,
+    "reason": "2022 closing odds not on the API-Football free plan. See SOCCER_ODDS_HISTORY_PROVIDER_SCOPE.md."
+  },
+  "metrics": {
+    "tuned": {
+      "logLoss": 1.0003,
+      "brier": 0.5881,
+      "rps": 0.2063,
+      "topPick": 0.5625,
+      "drawPred": 0.2365,
+      "drawActual": 0.2344,
+      "totalMAE": 1.4937,
+      "totalBias": 0.275,
+      "bttsAcc": 0.4375
+    },
+    "untuned": {
+      "logLoss": 1.0025,
+      "brier": 0.5925,
+      "rps": 0.2079,
+      "topPick": 0.5625,
+      "drawPred": 0.2498,
+      "drawActual": 0.2344,
+      "totalMAE": 1.475,
+      "totalBias": -0.025,
+      "bttsAcc": 0.5313
+    },
+    "baselineUniform": {
+      "note": "uniform Brier 0.6667, logLoss 1.0986 (see 2022-wc.json)"
+    },
+    "baselineFifaFavorite": {
+      "topPick": 0.563
+    }
+  },
+  "crossValidation": {
+    "folds": 5,
+    "tunedTestLogLoss": 1.0387,
+    "untunedTestLogLoss": 1.0012,
+    "cvImprovement": -0.0375,
+    "selectedPerFold": [
+      {
+        "fold": 0,
+        "selected": {
+          "supremacyPerFifaPoint": 0.005,
+          "baseTotalGoals": 2.9,
+          "drawInflation": 1.05,
+          "supremacyCap": 2.6
+        }
+      },
+      {
+        "fold": 1,
+        "selected": {
+          "supremacyPerFifaPoint": 0.003,
+          "baseTotalGoals": 2.9,
+          "drawInflation": 1.2,
+          "supremacyCap": 2.6
+        }
+      },
+      {
+        "fold": 2,
+        "selected": {
+          "supremacyPerFifaPoint": 0.0045,
+          "baseTotalGoals": 2.9,
+          "drawInflation": 1.05,
+          "supremacyCap": 2.6
+        }
+      },
+      {
+        "fold": 3,
+        "selected": {
+          "supremacyPerFifaPoint": 0.0055,
+          "baseTotalGoals": 2.9,
+          "drawInflation": 1,
+          "supremacyCap": 2.6
+        }
+      },
+      {
+        "fold": 4,
+        "selected": {
+          "supremacyPerFifaPoint": 0.004,
+          "baseTotalGoals": 2.9,
+          "drawInflation": 1.1,
+          "supremacyCap": 2.6
+        }
+      }
+    ]
+  },
+  "bootstrap": {
+    "resamples": 2000,
+    "gainLogLoss_untunedMinusTuned": {
+      "lo": -0.018,
+      "median": 0.0026,
+      "hi": 0.0212
+    },
+    "robust95": false
+  },
+  "verdict": {
+    "improvesProperScores": true,
+    "cvConfirmed": false,
+    "bootstrapRobust": false,
+    "beatsFifaFavoriteTopPick": false,
+    "publicReady": false,
+    "note": "Tuned stays INTERNAL. Even a proper-score gain is not public-ready without a MARKET baseline, and top-pick is what matters least. Read CV + bootstrap before believing the full-sample gain."
+  }
+}

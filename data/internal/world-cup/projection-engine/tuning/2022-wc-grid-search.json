@@ -1,0 +1,279 @@
+{
+  "version": "soccer-engine-tuning-2022wc-v1",
+  "asOf": "2026-07-14",
+  "public": false,
+  "internalOnly": true,
+  "webServed": false,
+  "officialMoneyRecordAffected": false,
+  "objective": "log_loss",
+  "sampleSize": 64,
+  "gridConfigs": 462,
+  "seed": {
+    "cv": 20221120,
+    "bootstrap": 987654321
+  },
+  "leakageNote": "Pre-tournament Oct-2022 FIFA points, 90-min scores, no per-match learning. CV selects config on train folds only; bootstrap is on the 64-match empirical distribution.",
+  "untuned": {
+    "cfg": {
+      "supremacyPerFifaPoint": 0.0035,
+      "baseTotalGoals": 2.6,
+      "drawInflation": 1,
+      "supremacyCap": 2.6
+    },
+    "metrics": {
+      "logLoss": 1.0025,
+      "brier": 0.5925,
+      "rps": 0.2079,
+      "topPick": 0.5625,
+      "drawPred": 0.2498,
+      "drawActual": 0.2344,
+      "totalMAE": 1.475,
+      "totalBias": -0.025,
+      "bttsAcc": 0.5313
+    }
+  },
+  "bestFullSample": {
+    "cfg": {
+      "supremacyPerFifaPoint": 0.0045,
+      "baseTotalGoals": 2.9,
+      "drawInflation": 1.05,
+      "supremacyCap": 2.6
+    },
+    "metrics": {
+      "logLoss": 1.0003,
+      "brier": 0.5881,
+      "rps": 0.2063,
+      "topPick": 0.5625,
+      "drawPred": 0.2365,
+      "drawActual": 0.2344,
+      "totalMAE": 1.4937,
+      "totalBias": 0.275,
+      "bttsAcc": 0.4375
+    }
+  },
+  "crossValidation": {
+    "folds": 5,
+    "tunedTestLogLoss": 1.0387,
+    "untunedTestLogLoss": 1.0012,
+    "cvImprovement": -0.0375,
+    "selectedPerFold": [
+      {
+        "fold": 0,
+        "selected": {
+          "supremacyPerFifaPoint": 0.005,
+          "baseTotalGoals": 2.9,
+          "drawInflation": 1.05,
+          "supremacyCap": 2.6
+        }
+      },
+      {
+        "fold": 1,
+        "selected": {
+          "supremacyPerFifaPoint": 0.003,
+          "baseTotalGoals": 2.9,
+          "drawInflation": 1.2,
+          "supremacyCap": 2.6
+        }
+      },
+      {
+        "fold": 2,
+        "selected": {
+          "supremacyPerFifaPoint": 0.0045,
+          "baseTotalGoals": 2.9,
+          "drawInflation": 1.05,
+          "supremacyCap": 2.6
+        }
+      },
+      {
+        "fold": 3,
+        "selected": {
+          "supremacyPerFifaPoint": 0.0055,
+          "baseTotalGoals": 2.9,
+          "drawInflation": 1,
+          "supremacyCap": 2.6
+        }
+      },
+      {
+        "fold": 4,
+        "selected": {
+          "supremacyPerFifaPoint": 0.004,
+          "baseTotalGoals": 2.9,
+          "drawInflation": 1.1,
+          "supremacyCap": 2.6
+        }
+      }
+    ]
+  },
+  "bootstrap": {
+    "resamples": 2000,
+    "gainLogLoss_untunedMinusTuned": {
+      "lo": -0.018,
+      "median": 0.0026,
+      "hi": 0.0212
+    },
+    "robust95": false
+  },
+  "top5": [
+    {
+      "cfg": {
+        "supremacyPerFifaPoint": 0.0045,
+        "baseTotalGoals": 2.9,
+        "drawInflation": 1.05,
+        "supremacyCap": 2.6
+      },
+      "logLoss": 1.0003,
+      "brier": 0.5881,
+      "topPick": 0.563
+    },
+    {
+      "cfg": {
+        "supremacyPerFifaPoint": 0.0045,
+        "baseTotalGoals": 2.9,
+        "drawInflation": 1,
+        "supremacyCap": 2.6
+      },
+      "logLoss": 1.0004,
+      "brier": 0.5882,
+      "topPick": 0.563
+    },
+    {
+      "cfg": {
+        "supremacyPerFifaPoint": 0.004,
+        "baseTotalGoals": 2.8,
+        "drawInflation": 1,
+        "supremacyCap": 2.6
+      },
+      "logLoss": 1.0005,
+      "brier": 0.5899,
+      "topPick": 0.563
+    },
+    {
+      "cfg": {
+        "supremacyPerFifaPoint": 0.004,
+        "baseTotalGoals": 2.9,
+        "drawInflation": 1,
+        "supremacyCap": 2.6
+      },
+      "logLoss": 1.0005,
+      "brier": 0.5903,
+      "topPick": 0.563
+    },
+    {
+      "cfg": {
+        "supremacyPerFifaPoint": 0.004,
+        "baseTotalGoals": 2.9,
+        "drawInflation": 1.05,
+        "supremacyCap": 2.6
+      },
+      "logLoss": 1.0006,
+      "brier": 0.5905,
+      "topPick": 0.563
+    }
+  ],
+  "supremacyOnlySweep": {
+    "note": "1-D sweep of the primary parameter, base=2.6 draw=1.0 fixed.",
+    "best": {
+      "cfg": {
+        "supremacyPerFifaPoint": 0.004,
+        "baseTotalGoals": 2.6,
+        "drawInflation": 1,
+        "supremacyCap": 2.6
+      },
+      "metrics": {
+        "logLoss": 1.0011,
+        "brier": 0.5893,
+        "rps": 0.2067,
+        "topPick": 0.5625,
+        "drawPred": 0.2457,
+        "drawActual": 0.2344,
+        "totalMAE": 1.475,
+        "totalBias": -0.025,
+        "bttsAcc": 0.5313
+      }
+    },
+    "cv": {
+      "tunedTestLogLoss": 1.0364,
+      "untunedTestLogLoss": 1.0012,
+      "improvement": -0.0352
+    },
+    "sweep": [
+      {
+        "supremacy": 0.0015,
+        "logLoss": 1.0318,
+        "brier": 0.6187,
+        "drawPred": 0.261,
+        "topPick": 0.563
+      },
+      {
+        "supremacy": 0.002,
+        "logLoss": 1.0211,
+        "brier": 0.6101,
+        "drawPred": 0.259,
+        "topPick": 0.563
+      },
+      {
+        "supremacy": 0.0025,
+        "logLoss": 1.0125,
+        "brier": 0.6029,
+        "drawPred": 0.257,
+        "topPick": 0.563
+      },
+      {
+        "supremacy": 0.003,
+        "logLoss": 1.0063,
+        "brier": 0.597,
+        "drawPred": 0.253,
+        "topPick": 0.563
+      },
+      {
+        "supremacy": 0.0035,
+        "logLoss": 1.0025,
+        "brier": 0.5925,
+        "drawPred": 0.25,
+        "topPick": 0.563
+      },
+      {
+        "supremacy": 0.004,
+        "logLoss": 1.0011,
+        "brier": 0.5893,
+        "drawPred": 0.246,
+        "topPick": 0.563
+      },
+      {
+        "supremacy": 0.0045,
+        "logLoss": 1.0025,
+        "brier": 0.5873,
+        "drawPred": 0.241,
+        "topPick": 0.563
+      },
+      {
+        "supremacy": 0.005,
+        "logLoss": 1.0069,
+        "brier": 0.5864,
+        "drawPred": 0.236,
+        "topPick": 0.563
+      },
+      {
+        "supremacy": 0.0055,
+        "logLoss": 1.015,
+        "brier": 0.5865,
+        "drawPred": 0.231,
+        "topPick": 0.563
+      },
+      {
+        "supremacy": 0.006,
+        "logLoss": 1.0278,
+        "brier": 0.5875,
+        "drawPred": 0.225,
+        "topPick": 0.563
+      },
+      {
+        "supremacy": 0.0065,
+        "logLoss": 1.0451,
+        "brier": 0.5892,
+        "drawPred": 0.219,
+        "topPick": 0.563
+      }
+    ]
+  }
+}

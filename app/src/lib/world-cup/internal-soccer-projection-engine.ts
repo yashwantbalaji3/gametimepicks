@@ -56,6 +56,10 @@ export interface ProjectMatchInput {
   supremacyPerFifaPoint?: number;
   baseTotalGoals?: number;
   maxGoals?: number;
+  /** Cap on rating-implied goal supremacy (default 2.6). Exposed for tuning. */
+  supremacyCap?: number;
+  /** Multiplicative boost on the draw diagonal (crude Dixon-Coles). 1.0 = no change (default). >1 => more draws. */
+  drawInflation?: number;
 }
 
 /** Poisson pmf. */
@@ -107,13 +111,22 @@ export function projectMatch(input: ProjectMatchInput): MatchProjection {
   const marketAnchored = typeof input.marketTotalLine === "number" && input.marketTotalLine > 0;
   const baseTotal = marketAnchored ? (input.marketTotalLine as number) : (input.baseTotalGoals ?? DEFAULTS.baseTotalGoals);
 
+  const cap = input.supremacyCap ?? DEFAULTS.supremacyCap;
+  const drawInflation = input.drawInflation ?? 1;
   const rawSupremacy = (input.homeFifaPoints - input.awayFifaPoints) * supPer;
-  const supremacy = Math.max(-DEFAULTS.supremacyCap, Math.min(DEFAULTS.supremacyCap, rawSupremacy)) + homeAdv;
+  const supremacy = Math.max(-cap, Math.min(cap, rawSupremacy)) + homeAdv;
 
   const lambdaHome = Math.max(0.12, (baseTotal + supremacy) / 2);
   const lambdaAway = Math.max(0.12, (baseTotal - supremacy) / 2);
 
   const m = scorelineMatrix(lambdaHome, lambdaAway, maxGoals);
+  // Crude Dixon-Coles draw adjustment: boost the diagonal, then renormalize so the matrix still sums to 1.
+  if (drawInflation !== 1) {
+    let sum = 0;
+    for (let i = 0; i <= maxGoals; i++) { m[i][i] *= drawInflation; }
+    for (let i = 0; i <= maxGoals; i++) for (let j = 0; j <= maxGoals; j++) sum += m[i][j];
+    if (sum > 0) for (let i = 0; i <= maxGoals; i++) for (let j = 0; j <= maxGoals; j++) m[i][j] /= sum;
+  }
 
   let homeWin = 0;
   let draw = 0;

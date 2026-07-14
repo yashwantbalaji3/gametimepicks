@@ -67,6 +67,14 @@ The engine is a **competent, well-calibrated rating-Poisson model** — it beats
 totals honestly, and is monotone. But it **ties the trivial favorite baseline on winner-picking** and, decisively,
 **has no market to prove itself against**. `publicReady: false`. It stays internal.
 
+### Tuning attempt (2026-07-14) — did not help, defaults kept
+We grid-searched the supremacy coefficient (+ base total + draw inflation) against this harness, optimizing log
+loss, guarded by 5-fold CV and bootstrap. **It overfits:** the full-sample "best" improves log loss by a trivial
+0.0022, but out-of-sample CV makes it *worse* (1.039 vs 1.001 untuned) and the bootstrap gain CI [−0.018, +0.021]
+straddles 0. Top-pick is 56.3% at *every* supremacy value (scaling confidence never changes the argmax favorite),
+so tuning this parameter **cannot** beat the FIFA-favorite baseline. **Engine defaults unchanged.** Full detail:
+`SOCCER_ENGINE_TUNING_RESULTS.md`.
+
 ---
 
 ## Live 2026 tournament (committed data) — N=5, insufficient

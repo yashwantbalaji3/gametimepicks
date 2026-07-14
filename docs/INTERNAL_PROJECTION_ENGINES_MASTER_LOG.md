@@ -43,6 +43,18 @@ internal engines**; internal artifact is `public:false`.
 Cheapest high-value unlock = the **2022 WC backtest** (free, validates or kills soccer V1). Then MLB rolling
 backtest + pitcher signal; then paid API-Football; then xG/event data for a true independent soccer model.
 
+## Phase 3.1 — Tuning + 2022 validation follow-up (2026-07-14) ✓
+- **2022 WC (N=64) validation** (commit 6cea93e1): beats uniform on all proper scores (Brier 0.593/RPS 0.208/
+  logLoss 1.002), draws + totals well-calibrated, but **ties the FIFA-favorite top-pick baseline** and has **no
+  market baseline** (2022 closing odds not on the free plan). `publicReady:false`.
+- **Tuning** (`tune-soccer-engine-2022-wc.mjs`): grid + 1-D supremacy sweep, log-loss objective, 5-fold CV +
+  bootstrap. **Overfits** — CV makes the tuned config worse (1.039 vs 1.001), bootstrap gain CI straddles 0,
+  top-pick stuck at 56.3% for all supremacy values. **Defaults unchanged; engine still internal.** Docs:
+  `SOCCER_ENGINE_TUNING_{REPRODUCTION,RESULTS}.md`.
+- **Odds-history scope** (`SOCCER_ODDS_HISTORY_PROVIDER_SCOPE.md`): The Odds API `/historical` (paid add-on) is
+  the path to a 2022 closing-odds baseline; API-Football free confirmed empty. This is THE unlock.
+- Internal semis diagnostic (market vs untuned vs reference-only tuned) — `notForProducts:true`.
+
 ## Deferred (honest — gated on validation, NOT skipped carelessly)
 - **Phase 5 (Simulation Report Shell V2)** and **Phases 6–7 (public WC/MLB report enhancements)** — deliberately
   NOT shipped. Both engines are `insufficient_sample`/internal, so the internal-first rule says **nothing new
