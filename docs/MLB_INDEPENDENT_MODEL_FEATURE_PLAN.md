@@ -19,9 +19,13 @@ each **internal-only, public:false, out of Bank Builder / Moonshot** until it cl
 
 ## Signals, in priority order (highest expected edge first)
 
-### 1. Probable pitcher strength ⭐ (biggest lever)
-- **Why:** the starting pitcher is the single largest driver of a team's run expectation; the market prices it,
-  but pitcher form/matchup mispricings are the classic edge.
+### 1. Probable pitcher strength ⭐ — TESTED 2026-07-14: MIRRORS market, NOT adopted
+**Result:** built + validated (bounded FIP runs-saved/9, strictly-earlier, `pitcherK=0.15`, caps ±0.5 total/±0.3
+margin). vs closing market on 82 games: **ΔBrier −0.0001, Δlog-loss 0.0000 — within noise.** Winner accuracy rose
++4.8pp but that is not the bar (noise around the coin-flip line). The market prices starters efficiently; a
+market-anchored nudge can't beat them. **Stopped; not adopted.** Full detail: `MLB_PITCHER_STRENGTH_V1_BACKTEST.md`.
+- **Why (original rationale):** the starting pitcher is the single largest driver of a team's run expectation; the
+  market prices it, but pitcher form/matchup mispricings are the classic edge.
 - **Inputs (pre-game):** season + trailing-30d ERA/FIP/xFIP, K-BB%, opponent handedness splits, days rest.
   Source: StatsAPI (probable pitchers + game logs).
 - **Model move:** convert a pitcher-strength delta into a bounded shift on each team's run mean → win prob.

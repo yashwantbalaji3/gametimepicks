@@ -24,6 +24,14 @@ export const ADJUSTMENT_BOUNDS = {
   minRunRateSample: 3,
   /** Park factor must deviate ≥2% from neutral (and not be a neutral_default) to matter. */
   minParkDeviation: 0.02,
+  /** Pitcher strength: fraction of the FIP runs-saved differential applied (market already prices most of it). */
+  pitcherK: 0.15,
+  /** ...total nudged down by both starters' quality, capped at ±0.5 runs. */
+  maxPitcherTotalNudge: 0.5,
+  /** ...margin nudged toward the team with the better opposing-suppressing starter, capped at ±0.3 runs. */
+  maxPitcherMarginNudge: 0.3,
+  /** Each starter needs ≥2 STRICTLY-EARLIER starts to be rated. */
+  minStarterSample: 2,
 } as const;
 
 const clamp = (x: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, x));
@@ -46,6 +54,15 @@ function usableRunRate(indep?: IndependentInputs): boolean {
     (indep.runRateSampleGames?.home ?? 0) >= ADJUSTMENT_BOUNDS.minRunRateSample
   );
 }
+function usablePitcher(indep?: IndependentInputs): boolean {
+  return (
+    !!indep &&
+    typeof indep.awayStarterRunsSaved9 === "number" &&
+    typeof indep.homeStarterRunsSaved9 === "number" &&
+    (indep.starterSampleGames?.away ?? 0) >= ADJUSTMENT_BOUNDS.minStarterSample &&
+    (indep.starterSampleGames?.home ?? 0) >= ADJUSTMENT_BOUNDS.minStarterSample
+  );
+}
 
 /**
  * Which mode the engine runs in for this game:
@@ -56,7 +73,7 @@ function usableRunRate(indep?: IndependentInputs): boolean {
 export function selectEngineMode(market: MarketInput, indep?: IndependentInputs): EngineMode {
   const hasTotal = typeof market.total === "number" && Number.isFinite(market.total) && market.total > 0;
   if (!hasTotal) return "independent_simulation_blocked";
-  return usablePark(indep) || usableRunRate(indep)
+  return usablePark(indep) || usableRunRate(indep) || usablePitcher(indep)
     ? "market_anchored_with_independent_adjustments"
     : "market_anchored_simulation";
 }
@@ -71,7 +88,7 @@ export function applyIndependentAdjustments(
   market: MarketInput,
 ): { expected: ExpectedRunsResult; mode: EngineMode; adjustments: AdjustmentSummary } {
   const mode = selectEngineMode(market, indep);
-  const summary: AdjustmentSummary = { applied: false, parkTotalNudge: 0, runRateMarginNudge: 0, notes: [] };
+  const summary: AdjustmentSummary = { applied: false, parkTotalNudge: 0, runRateMarginNudge: 0, pitcherTotalNudge: 0, pitcherMarginNudge: 0, notes: [] };
   if (mode !== "market_anchored_with_independent_adjustments") {
     return { expected, mode, adjustments: summary };
   }
@@ -94,7 +111,20 @@ export function applyIndependentAdjustments(
     summary.notes.push(`run-rate gap (home ${indep.homeRunRate} − away ${indep.awayRunRate}) → margin nudged ${nudge >= 0 ? "+" : ""}${nudge} (bounded ±${ADJUSTMENT_BOUNDS.maxMarginNudge} runs, thin sample)`);
   }
 
-  summary.applied = summary.parkTotalNudge !== 0 || summary.runRateMarginNudge !== 0;
+  if (usablePitcher(indep) && indep) {
+    const H = indep.homeStarterRunsSaved9!; // + = home starter suppresses AWAY runs
+    const A = indep.awayStarterRunsSaved9!; // + = away starter suppresses HOME runs
+    // Two good starters lower the total; a better home starter shifts the margin toward home. Both bounded.
+    const tNudge = r3(clamp(-ADJUSTMENT_BOUNDS.pitcherK * (H + A), -ADJUSTMENT_BOUNDS.maxPitcherTotalNudge, ADJUSTMENT_BOUNDS.maxPitcherTotalNudge));
+    const mNudge = r3(clamp(ADJUSTMENT_BOUNDS.pitcherK * (H - A), -ADJUSTMENT_BOUNDS.maxPitcherMarginNudge, ADJUSTMENT_BOUNDS.maxPitcherMarginNudge));
+    total = total + tNudge;
+    margin = margin + mNudge;
+    summary.pitcherTotalNudge = tNudge;
+    summary.pitcherMarginNudge = mNudge;
+    summary.notes.push(`starter strength (home ${H} − away ${A} runs-saved/9, strictly-earlier FIP) → total ${tNudge >= 0 ? "+" : ""}${tNudge}, margin ${mNudge >= 0 ? "+" : ""}${mNudge} (bounded ±${ADJUSTMENT_BOUNDS.maxPitcherTotalNudge}/±${ADJUSTMENT_BOUNDS.maxPitcherMarginNudge} runs)`);
+  }
+
+  summary.applied = summary.parkTotalNudge !== 0 || summary.runRateMarginNudge !== 0 || (summary.pitcherTotalNudge ?? 0) !== 0 || (summary.pitcherMarginNudge ?? 0) !== 0;
   // Keep the split physical: both expected-run means non-negative; cap the margin at the (adjusted) total.
   const cappedMargin = clamp(margin, -total * 0.98, total * 0.98);
   const adj: ExpectedRunsResult = {

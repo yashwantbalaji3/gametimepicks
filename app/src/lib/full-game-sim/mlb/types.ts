@@ -40,6 +40,13 @@ export interface IndependentInputs {
   awayRunRate?: number;
   homeRunRate?: number;
   runRateSampleGames?: { away: number; home: number };
+  /**
+   * Probable-starter strength: FIP-proxy runs-saved-per-9 vs the average starter, from STRICTLY-EARLIER starts
+   * (leakage-safe). Positive = the starter suppresses the OPPONENT's runs. Feature #1 (internal experiment).
+   */
+  awayStarterRunsSaved9?: number;
+  homeStarterRunsSaved9?: number;
+  starterSampleGames?: { away: number; home: number };
 }
 
 /** Summary of the bounded adjustments actually applied (all zero when none). */
@@ -47,6 +54,8 @@ export interface AdjustmentSummary {
   applied: boolean;
   parkTotalNudge: number;
   runRateMarginNudge: number;
+  pitcherTotalNudge?: number;
+  pitcherMarginNudge?: number;
   notes: string[];
 }
 

@@ -59,6 +59,12 @@ simulation · validating" section already says no projected score / win probabil
 3. **Founder approval** — only after 1 + 2 clear.
 Until all three: internal-only, `public:false`, no public win-prob / projected runs / distributions.
 
+## Feature #1 (probable pitcher strength) — tested, also mirrors
+Added a bounded, leakage-clean starter-strength adjustment (feature #1 of the independent-model plan) and
+re-validated: **ΔBrier −0.0001, Δlog-loss 0.0000 vs the market** — mirrors, not adopted (winner accuracy rose but
+that isn't the bar). The market prices starters efficiently. Detail: `MLB_PITCHER_STRENGTH_V1_BACKTEST.md`. Next:
+bullpen fatigue / park+weather — signals the market may price less efficiently.
+
 ## Honesty note
 This mirrors the soccer finding: a market-anchored / rating model **mirrors or loses to the market**. Beating the
 market needs information the market doesn't already price. We have not built that for MLB, and we do not pretend

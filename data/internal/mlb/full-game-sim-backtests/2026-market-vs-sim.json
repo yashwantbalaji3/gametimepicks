@@ -71,6 +71,77 @@
     "simMarginMAE": 3.7825,
     "deltaMoneylineBrier": -0.0005
   },
+  "pitcherStrengthV1": {
+    "n": 82,
+    "dates": 6,
+    "pitcher": {
+      "n": 82,
+      "moneyline": {
+        "brier": 0.2402,
+        "logLoss": 0.6738,
+        "winnerAccuracy": 0.6463
+      },
+      "totalRunsMAE": 4.2418,
+      "overUnder": {
+        "n": 81,
+        "accuracy": 0.5802,
+        "brier": 0.2524
+      },
+      "runLine": {
+        "n": 82,
+        "coverAccuracy": 0.5,
+        "brier": 0.3064
+      }
+    },
+    "market": {
+      "n": 82,
+      "moneyline": {
+        "brier": 0.2403,
+        "logLoss": 0.6738,
+        "winnerAccuracy": 0.5976
+      },
+      "totalRunsMAE": 4.2049,
+      "overUnder": {
+        "n": 81,
+        "accuracy": 0.5185,
+        "brier": 0.2483
+      },
+      "runLine": {
+        "n": 82,
+        "coverAccuracy": 0.4634,
+        "brier": 0.2544
+      }
+    },
+    "marketAnchoredSim": {
+      "n": 81,
+      "moneyline": {
+        "brier": 0.2401,
+        "logLoss": 0.6735,
+        "winnerAccuracy": 0.6173
+      },
+      "totalRunsMAE": 4.2486,
+      "overUnder": {
+        "n": 80,
+        "accuracy": 0.5875,
+        "brier": 0.2478
+      },
+      "runLine": {
+        "n": 81,
+        "coverAccuracy": 0.5185,
+        "brier": 0.2923
+      }
+    },
+    "pitcherMarginMAE": 3.796,
+    "deltaVsMarket": {
+      "brier": -0.0001,
+      "logLoss": 0
+    },
+    "beatsMarketOnBrierAndLogLoss": false,
+    "verdict": "mirrors",
+    "passBar": "Adopt ONLY if it beats the closing market on BOTH Brier AND log loss.",
+    "adopted": false,
+    "note": "Pitcher-strength v1 does NOT beat the market on both metrics (ΔBrier -0.0001, ΔlogLoss 0) → NOT adopted. Stop this feature; move to bullpen fatigue / park+weather. Internal-only."
+  },
   "calibrationBuckets": [
     {
       "range": "0.0-0.1",

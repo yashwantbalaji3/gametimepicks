@@ -25,13 +25,18 @@ const r4 = (x) => +x.toFixed(4);
 
 const odds = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/mlb/reference/mlb-closing-odds.json"), "utf8")).games;
 
-// Load every available sim artifact, index by gamePk.
-const simByPk = new Map();
-const simDir = path.join(REPO, "data/internal/mlb/full-game-sim");
-for (const f of fs.existsSync(simDir) ? fs.readdirSync(simDir).filter((x) => /\d{4}-\d{2}-\d{2}\.json$/.test(x)) : []) {
-  const j = JSON.parse(fs.readFileSync(path.join(simDir, f), "utf8"));
-  for (const g of j.games || []) simByPk.set(g.gamePk, g);
+// Load sim artifacts by gamePk, for both the market-anchored baseline and the pitcher-strength v1 experiment.
+function loadSims(dir) {
+  const map = new Map();
+  const abs = path.join(REPO, dir);
+  for (const f of fs.existsSync(abs) ? fs.readdirSync(abs).filter((x) => /\d{4}-\d{2}-\d{2}\.json$/.test(x)) : []) {
+    const j = JSON.parse(fs.readFileSync(path.join(abs, f), "utf8"));
+    for (const g of j.games || []) map.set(g.gamePk, g);
+  }
+  return map;
 }
+const simByPk = loadSims("data/internal/mlb/full-game-sim");
+const pitcherByPk = loadSims("data/internal/mlb/full-game-sim-pitcher-v1");
 
 // Build graded rows: actual outcome + market prediction + (optional) sim prediction.
 const rows = odds.map((g) => {
@@ -41,18 +46,19 @@ const rows = odds.map((g) => {
   const c = g.closing;
   const homeCover = c.homeRunLine != null ? (margin + c.homeRunLine > 0 ? 1 : 0) : null; // home covers its spread
   const actualOver = c.totalLine != null ? (total > c.totalLine ? 1 : total < c.totalLine ? 0 : null) : null;
-  const sim = simByPk.get(g.gamePk);
+  const pred = (s) => s ? {
+    homeWinProb: s.winProbability?.home ?? null,
+    totalMean: s.projectedScore?.totalMean ?? null,
+    marginMean: s.projectedScore?.marginMean ?? null,
+    overProb: s.marketCoverage?.total?.overProbability ?? null,
+    // run-line: sim gives favorite + coverProbability; translate to home-cover prob.
+    homeCoverProb: s.marketCoverage?.runLine ? (s.marketCoverage.runLine.favorite === "home" ? s.marketCoverage.runLine.coverProbability : 1 - s.marketCoverage.runLine.coverProbability) : null,
+  } : null;
   return {
     date: g.date, gamePk: g.gamePk, margin, total, homeWon, homeCover, actualOver,
     market: { homeWinProb: c.homeWinProb, totalLine: c.totalLine, overProb: c.overProb, homeCoverProb: c.homeCoverProb },
-    sim: sim ? {
-      homeWinProb: sim.winProbability?.home ?? null,
-      totalMean: sim.projectedScore?.totalMean ?? null,
-      marginMean: sim.projectedScore?.marginMean ?? null,
-      overProb: sim.marketCoverage?.total?.overProbability ?? null,
-      // run-line: sim gives favorite + coverProbability; translate to home-cover prob.
-      homeCoverProb: sim.marketCoverage?.runLine ? (sim.marketCoverage.runLine.favorite === "home" ? sim.marketCoverage.runLine.coverProbability : 1 - sim.marketCoverage.runLine.coverProbability) : null,
-    } : null,
+    sim: pred(simByPk.get(g.gamePk)),
+    pitcher: pred(pitcherByPk.get(g.gamePk)),
   };
 });
 
@@ -96,6 +102,18 @@ const simPaired = bundle(paired, (r) => r.sim);
 const marketPaired = bundle(paired, (r) => r.market);
 const simMarginMAE = paired.length ? r4(mean(paired.map((r) => Math.abs((r.sim.marginMean ?? 0) - r.margin)))) : null;
 
+// Feature #1 — pitcher-strength v1, paired against the market on the games it covers.
+const pPaired = rows.filter((r) => r.pitcher && r.pitcher.homeWinProb != null);
+const pitcherPaired = bundle(pPaired, (r) => r.pitcher);
+const marketVsPitcher = bundle(pPaired, (r) => r.market);
+const simVsPitcher = bundle(pPaired.filter((r) => r.sim), (r) => r.sim);
+const pitcherMarginMAE = pPaired.length ? r4(mean(pPaired.map((r) => Math.abs((r.pitcher.marginMean ?? 0) - r.margin)))) : null;
+const pdBrier = r4(pitcherPaired.moneyline.brier - marketVsPitcher.moneyline.brier);
+const pdLogLoss = r4(pitcherPaired.moneyline.logLoss - marketVsPitcher.moneyline.logLoss);
+// PASS bar: pitcher-v1 must beat the CLOSING MARKET on BOTH Brier AND log loss.
+const pitcherBeatsMarket = pdBrier < 0 && pdLogLoss < 0;
+const pitcherVerdict = pitcherBeatsMarket ? "beats" : (Math.abs(pdBrier) < 0.005 && Math.abs(pdLogLoss) < 0.005) ? "mirrors" : "loses_to";
+
 // Verdict on the paired sample: does the sim BEAT, MATCH, or merely MIRROR the market?
 const dBrier = simPaired.moneyline.brier - marketPaired.moneyline.brier; // <0 sim better
 const mirror = Math.abs(dBrier) < 0.005; // within noise → mirrors the market it is anchored to
@@ -109,6 +127,18 @@ const artifact = {
   leakageNote: "Closing odds snapshotted strictly before first pitch; final scores from StatsAPI linescores; the sim is market-anchored (winProb ≈ market by construction).",
   marketBaseline: marketFull,
   simVsMarketPaired: { n: paired.length, sim: simPaired, market: marketPaired, simMarginMAE, deltaMoneylineBrier: r4(dBrier) },
+  pitcherStrengthV1: {
+    n: pPaired.length, dates: new Set(pPaired.map((r) => r.date)).size,
+    pitcher: pitcherPaired, market: marketVsPitcher, marketAnchoredSim: simVsPitcher, pitcherMarginMAE,
+    deltaVsMarket: { brier: pdBrier, logLoss: pdLogLoss },
+    beatsMarketOnBrierAndLogLoss: pitcherBeatsMarket,
+    verdict: pitcherVerdict,
+    passBar: "Adopt ONLY if it beats the closing market on BOTH Brier AND log loss.",
+    adopted: false,
+    note: pitcherBeatsMarket
+      ? `Pitcher-strength v1 BEATS the market on Brier (${pdBrier}) AND log loss (${pdLogLoss}) over ${pPaired.length} games — a PROMISING internal signal, NOT public-ready (needs a wider out-of-sample window + founder approval).`
+      : `Pitcher-strength v1 does NOT beat the market on both metrics (ΔBrier ${pdBrier}, ΔlogLoss ${pdLogLoss}) → NOT adopted. Stop this feature; move to bullpen fatigue / park+weather. Internal-only.`,
+  },
   calibrationBuckets: buckets,
   verdict: {
     result: verdict,
@@ -127,3 +157,7 @@ console.log(`  --- paired (${paired.length} games, ${new Set(paired.map((r) => r
 console.log(`  SIM   : ML Brier ${simPaired.moneyline.brier} · logLoss ${simPaired.moneyline.logLoss} · winner ${(simPaired.moneyline.winnerAccuracy * 100).toFixed(1)}% · totalMAE ${simPaired.totalRunsMAE} · marginMAE ${simMarginMAE} · O/U ${(simPaired.overUnder.accuracy * 100).toFixed(0)}% · RL ${(simPaired.runLine.coverAccuracy * 100).toFixed(0)}%`);
 console.log(`  MARKET: ML Brier ${marketPaired.moneyline.brier} · logLoss ${marketPaired.moneyline.logLoss} · winner ${(marketPaired.moneyline.winnerAccuracy * 100).toFixed(1)}% · totalMAE ${marketPaired.totalRunsMAE}`);
 console.log(`  VERDICT: sim ${verdict} the market (ΔBrier ${r4(dBrier)}) · publicReady=false`);
+console.log(`  === PITCHER-STRENGTH v1 (${pPaired.length} games, ${new Set(pPaired.map((r) => r.date)).size} dates) ===`);
+console.log(`  PITCHER: ML Brier ${pitcherPaired.moneyline.brier} · logLoss ${pitcherPaired.moneyline.logLoss} · winner ${(pitcherPaired.moneyline.winnerAccuracy * 100).toFixed(1)}% · totalMAE ${pitcherPaired.totalRunsMAE} · marginMAE ${pitcherMarginMAE} · O/U ${(pitcherPaired.overUnder.accuracy * 100).toFixed(0)}% · RL ${(pitcherPaired.runLine.coverAccuracy * 100).toFixed(0)}%`);
+console.log(`  MARKET : ML Brier ${marketVsPitcher.moneyline.brier} · logLoss ${marketVsPitcher.moneyline.logLoss} · winner ${(marketVsPitcher.moneyline.winnerAccuracy * 100).toFixed(1)}%`);
+console.log(`  Δ pitcher−market: Brier ${pdBrier} · logLoss ${pdLogLoss}  → beats market on BOTH: ${pitcherBeatsMarket} · verdict ${pitcherVerdict} · adopted=false`);

@@ -78,7 +78,7 @@ export function buildFullGameSimArtifact(input: GameSimInput, opts: SimOptions):
   const inputCoverage = {
     parkFactor: typeof input.independent?.parkRunFactor === "number",
     teamRunRates: typeof input.independent?.awayRunRate === "number" && typeof input.independent?.homeRunRate === "number",
-    pitcherStrength: false, // neutral by design — no leakage-safe rating available
+    pitcherStrength: typeof input.independent?.awayStarterRunsSaved9 === "number" && typeof input.independent?.homeStarterRunsSaved9 === "number", // feature #1: strictly-earlier FIP runs-saved rating
   };
   const art: FullGameSimArtifactWithModel = {
     ...base(input, opts),
