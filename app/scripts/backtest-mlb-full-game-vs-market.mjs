@@ -37,6 +37,7 @@ function loadSims(dir) {
 }
 const simByPk = loadSims("data/internal/mlb/full-game-sim");
 const pitcherByPk = loadSims("data/internal/mlb/full-game-sim-pitcher-v1");
+const bullpenByPk = loadSims("data/internal/mlb/full-game-sim-bullpen-v1");
 
 // Build graded rows: actual outcome + market prediction + (optional) sim prediction.
 const rows = odds.map((g) => {
@@ -59,6 +60,7 @@ const rows = odds.map((g) => {
     market: { homeWinProb: c.homeWinProb, totalLine: c.totalLine, overProb: c.overProb, homeCoverProb: c.homeCoverProb },
     sim: pred(simByPk.get(g.gamePk)),
     pitcher: pred(pitcherByPk.get(g.gamePk)),
+    bullpen: pred(bullpenByPk.get(g.gamePk)),
   };
 });
 
@@ -114,6 +116,16 @@ const pdLogLoss = r4(pitcherPaired.moneyline.logLoss - marketVsPitcher.moneyline
 const pitcherBeatsMarket = pdBrier < 0 && pdLogLoss < 0;
 const pitcherVerdict = pitcherBeatsMarket ? "beats" : (Math.abs(pdBrier) < 0.005 && Math.abs(pdLogLoss) < 0.005) ? "mirrors" : "loses_to";
 
+// Feature #2 — bullpen-fatigue v1, paired against the market on the games it covers.
+const bPaired = rows.filter((r) => r.bullpen && r.bullpen.homeWinProb != null);
+const bullpenPaired = bundle(bPaired, (r) => r.bullpen);
+const marketVsBullpen = bundle(bPaired, (r) => r.market);
+const bullpenMarginMAE = bPaired.length ? r4(mean(bPaired.map((r) => Math.abs((r.bullpen.marginMean ?? 0) - r.margin)))) : null;
+const bdBrier = r4(bullpenPaired.moneyline.brier - marketVsBullpen.moneyline.brier);
+const bdLogLoss = r4(bullpenPaired.moneyline.logLoss - marketVsBullpen.moneyline.logLoss);
+const bullpenBeatsMarket = bdBrier < 0 && bdLogLoss < 0;
+const bullpenVerdict = bullpenBeatsMarket ? "beats" : (Math.abs(bdBrier) < 0.005 && Math.abs(bdLogLoss) < 0.005) ? "mirrors" : "loses_to";
+
 // Verdict on the paired sample: does the sim BEAT, MATCH, or merely MIRROR the market?
 const dBrier = simPaired.moneyline.brier - marketPaired.moneyline.brier; // <0 sim better
 const mirror = Math.abs(dBrier) < 0.005; // within noise → mirrors the market it is anchored to
@@ -139,6 +151,18 @@ const artifact = {
       ? `Pitcher-strength v1 BEATS the market on Brier (${pdBrier}) AND log loss (${pdLogLoss}) over ${pPaired.length} games — a PROMISING internal signal, NOT public-ready (needs a wider out-of-sample window + founder approval).`
       : `Pitcher-strength v1 does NOT beat the market on both metrics (ΔBrier ${pdBrier}, ΔlogLoss ${pdLogLoss}) → NOT adopted. Stop this feature; move to bullpen fatigue / park+weather. Internal-only.`,
   },
+  bullpenFatigueV1: {
+    n: bPaired.length, dates: new Set(bPaired.map((r) => r.date)).size,
+    bullpen: bullpenPaired, market: marketVsBullpen, bullpenMarginMAE,
+    deltaVsMarket: { brier: bdBrier, logLoss: bdLogLoss },
+    beatsMarketOnBrierAndLogLoss: bullpenBeatsMarket,
+    verdict: bullpenVerdict,
+    passBar: "Adopt ONLY if it beats the closing market on BOTH Brier AND log loss.",
+    adopted: false, publicReady: false,
+    note: bullpenBeatsMarket
+      ? `Bullpen-fatigue v1 BEATS the market on Brier (${bdBrier}) AND log loss (${bdLogLoss}) over ${bPaired.length} games — a PROMISING internal signal, NOT public-ready (needs a wider out-of-sample window + founder approval).`
+      : `Bullpen-fatigue v1 does NOT beat the market on both metrics (ΔBrier ${bdBrier}, ΔlogLoss ${bdLogLoss}) → NOT adopted. With pitcher v1 also failing, PAUSE MLB full-game feature chasing. Internal-only.`,
+  },
   calibrationBuckets: buckets,
   verdict: {
     result: verdict,
@@ -161,3 +185,7 @@ console.log(`  === PITCHER-STRENGTH v1 (${pPaired.length} games, ${new Set(pPair
 console.log(`  PITCHER: ML Brier ${pitcherPaired.moneyline.brier} · logLoss ${pitcherPaired.moneyline.logLoss} · winner ${(pitcherPaired.moneyline.winnerAccuracy * 100).toFixed(1)}% · totalMAE ${pitcherPaired.totalRunsMAE} · marginMAE ${pitcherMarginMAE} · O/U ${(pitcherPaired.overUnder.accuracy * 100).toFixed(0)}% · RL ${(pitcherPaired.runLine.coverAccuracy * 100).toFixed(0)}%`);
 console.log(`  MARKET : ML Brier ${marketVsPitcher.moneyline.brier} · logLoss ${marketVsPitcher.moneyline.logLoss} · winner ${(marketVsPitcher.moneyline.winnerAccuracy * 100).toFixed(1)}%`);
 console.log(`  Δ pitcher−market: Brier ${pdBrier} · logLoss ${pdLogLoss}  → beats market on BOTH: ${pitcherBeatsMarket} · verdict ${pitcherVerdict} · adopted=false`);
+console.log(`  === BULLPEN-FATIGUE v1 (${bPaired.length} games, ${new Set(bPaired.map((r) => r.date)).size} dates) ===`);
+console.log(`  BULLPEN: ML Brier ${bullpenPaired.moneyline.brier} · logLoss ${bullpenPaired.moneyline.logLoss} · winner ${(bullpenPaired.moneyline.winnerAccuracy * 100).toFixed(1)}% · totalMAE ${bullpenPaired.totalRunsMAE} · marginMAE ${bullpenMarginMAE} · O/U ${(bullpenPaired.overUnder.accuracy * 100).toFixed(0)}% · RL ${(bullpenPaired.runLine.coverAccuracy * 100).toFixed(0)}%`);
+console.log(`  MARKET : ML Brier ${marketVsBullpen.moneyline.brier} · logLoss ${marketVsBullpen.moneyline.logLoss} · winner ${(marketVsBullpen.moneyline.winnerAccuracy * 100).toFixed(1)}%`);
+console.log(`  Δ bullpen−market: Brier ${bdBrier} · logLoss ${bdLogLoss}  → beats market on BOTH: ${bullpenBeatsMarket} · verdict ${bullpenVerdict} · adopted=false`);

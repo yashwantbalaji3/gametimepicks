@@ -32,6 +32,12 @@ export const ADJUSTMENT_BOUNDS = {
   maxPitcherMarginNudge: 0.3,
   /** Each starter needs ≥2 STRICTLY-EARLIER starts to be rated. */
   minStarterSample: 2,
+  /** Bullpen fatigue: fraction of the day-weighted relief-innings index applied to run means. */
+  bullpenK: 0.01,
+  /** ...both pens tired → total up, capped at ±0.35 runs. */
+  maxBullpenTotalNudge: 0.35,
+  /** ...one pen much more tired → margin toward its opponent, capped at ±0.20 runs. */
+  maxBullpenMarginNudge: 0.2,
 } as const;
 
 const clamp = (x: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, x));
@@ -63,6 +69,16 @@ function usablePitcher(indep?: IndependentInputs): boolean {
     (indep.starterSampleGames?.home ?? 0) >= ADJUSTMENT_BOUNDS.minStarterSample
   );
 }
+function usableBullpen(indep?: IndependentInputs): boolean {
+  const b = indep?.bullpenFatigue;
+  return (
+    !!b &&
+    typeof b.awayFatigueIndex === "number" &&
+    typeof b.homeFatigueIndex === "number" &&
+    b.awayCoverage !== "missing" &&
+    b.homeCoverage !== "missing"
+  );
+}
 
 /**
  * Which mode the engine runs in for this game:
@@ -73,7 +89,7 @@ function usablePitcher(indep?: IndependentInputs): boolean {
 export function selectEngineMode(market: MarketInput, indep?: IndependentInputs): EngineMode {
   const hasTotal = typeof market.total === "number" && Number.isFinite(market.total) && market.total > 0;
   if (!hasTotal) return "independent_simulation_blocked";
-  return usablePark(indep) || usableRunRate(indep) || usablePitcher(indep)
+  return usablePark(indep) || usableRunRate(indep) || usablePitcher(indep) || usableBullpen(indep)
     ? "market_anchored_with_independent_adjustments"
     : "market_anchored_simulation";
 }
@@ -88,7 +104,7 @@ export function applyIndependentAdjustments(
   market: MarketInput,
 ): { expected: ExpectedRunsResult; mode: EngineMode; adjustments: AdjustmentSummary } {
   const mode = selectEngineMode(market, indep);
-  const summary: AdjustmentSummary = { applied: false, parkTotalNudge: 0, runRateMarginNudge: 0, pitcherTotalNudge: 0, pitcherMarginNudge: 0, notes: [] };
+  const summary: AdjustmentSummary = { applied: false, parkTotalNudge: 0, runRateMarginNudge: 0, pitcherTotalNudge: 0, pitcherMarginNudge: 0, bullpenTotalNudge: 0, bullpenMarginNudge: 0, notes: [] };
   if (mode !== "market_anchored_with_independent_adjustments") {
     return { expected, mode, adjustments: summary };
   }
@@ -124,7 +140,20 @@ export function applyIndependentAdjustments(
     summary.notes.push(`starter strength (home ${H} − away ${A} runs-saved/9, strictly-earlier FIP) → total ${tNudge >= 0 ? "+" : ""}${tNudge}, margin ${mNudge >= 0 ? "+" : ""}${mNudge} (bounded ±${ADJUSTMENT_BOUNDS.maxPitcherTotalNudge}/±${ADJUSTMENT_BOUNDS.maxPitcherMarginNudge} runs)`);
   }
 
-  summary.applied = summary.parkTotalNudge !== 0 || summary.runRateMarginNudge !== 0 || (summary.pitcherTotalNudge ?? 0) !== 0 || (summary.pitcherMarginNudge ?? 0) !== 0;
+  if (usableBullpen(indep) && indep?.bullpenFatigue) {
+    const H = indep.bullpenFatigue.homeFatigueIndex; // + = home pen tired → away scores more late
+    const A = indep.bullpenFatigue.awayFatigueIndex;
+    // Both pens tired → total up; the more-tired pen shifts the margin toward ITS opponent. Both bounded.
+    const tNudge = r3(clamp(ADJUSTMENT_BOUNDS.bullpenK * (H + A), -ADJUSTMENT_BOUNDS.maxBullpenTotalNudge, ADJUSTMENT_BOUNDS.maxBullpenTotalNudge));
+    const mNudge = r3(clamp(ADJUSTMENT_BOUNDS.bullpenK * (A - H), -ADJUSTMENT_BOUNDS.maxBullpenMarginNudge, ADJUSTMENT_BOUNDS.maxBullpenMarginNudge));
+    total = total + tNudge;
+    margin = margin + mNudge;
+    summary.bullpenTotalNudge = tNudge;
+    summary.bullpenMarginNudge = mNudge;
+    summary.notes.push(`bullpen fatigue (home ${H} − away ${A} weighted relief-IP vs avg, strictly-earlier) → total ${tNudge >= 0 ? "+" : ""}${tNudge}, margin ${mNudge >= 0 ? "+" : ""}${mNudge} (bounded ±${ADJUSTMENT_BOUNDS.maxBullpenTotalNudge}/±${ADJUSTMENT_BOUNDS.maxBullpenMarginNudge} runs)`);
+  }
+
+  summary.applied = summary.parkTotalNudge !== 0 || summary.runRateMarginNudge !== 0 || (summary.pitcherTotalNudge ?? 0) !== 0 || (summary.pitcherMarginNudge ?? 0) !== 0 || (summary.bullpenTotalNudge ?? 0) !== 0 || (summary.bullpenMarginNudge ?? 0) !== 0;
   // Keep the split physical: both expected-run means non-negative; cap the margin at the (adjusted) total.
   const cappedMargin = clamp(margin, -total * 0.98, total * 0.98);
   const adj: ExpectedRunsResult = {

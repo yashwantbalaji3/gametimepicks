@@ -32,8 +32,14 @@ market-anchored nudge can't beat them. **Stopped; not adopted.** Full detail: `M
 - **Done when:** with pitcher strength on, Brier + log loss beat the market on held-out dates; the shift is
   bounded (no runaway); leakage test passes (only prior starts used).
 
-### 2. Bullpen fatigue
-- **Why:** a gassed bullpen (heavy usage the prior 1–3 days) inflates late-game run allowance — often underpriced.
+### 2. Bullpen fatigue — TESTED 2026-07-15: does NOT beat market, NOT adopted → PAUSE the line
+**Result:** built + validated (day-weighted relief innings vs avg, strictly-earlier box scores, `bullpenK=0.01`,
+caps ±0.35 total/±0.20 margin, 82/82 rated). vs closing market on 82 games: **ΔBrier +0.0007, Δlog-loss +0.0015 —
+marginally WORSE.** Fails the bar. With pitcher v1 also failing, **PAUSE MLB full-game feature chasing** (features
+#3–5 below not attempted — an efficient moneyline market doesn't yield to bounded market-anchored nudges). Detail:
+`MLB_BULLPEN_FATIGUE_V1_BACKTEST.md`.
+- **Why (original rationale):** a gassed bullpen (heavy usage the prior 1–3 days) inflates late-game run allowance
+  — often underpriced.
 - **Inputs (pre-game):** relievers' pitch counts / appearances over the trailing 3 days, closer availability.
   Source: StatsAPI box scores (strictly-earlier).
 - **Model move:** widen the trailing-innings run distribution / bump the opponent's late run mean when fatigue is high.

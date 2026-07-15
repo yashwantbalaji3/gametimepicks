@@ -142,6 +142,59 @@
     "adopted": false,
     "note": "Pitcher-strength v1 does NOT beat the market on both metrics (ΔBrier -0.0001, ΔlogLoss 0) → NOT adopted. Stop this feature; move to bullpen fatigue / park+weather. Internal-only."
   },
+  "bullpenFatigueV1": {
+    "n": 82,
+    "dates": 6,
+    "bullpen": {
+      "n": 82,
+      "moneyline": {
+        "brier": 0.241,
+        "logLoss": 0.6753,
+        "winnerAccuracy": 0.5976
+      },
+      "totalRunsMAE": 4.2184,
+      "overUnder": {
+        "n": 81,
+        "accuracy": 0.5802,
+        "brier": 0.2504
+      },
+      "runLine": {
+        "n": 82,
+        "coverAccuracy": 0.5,
+        "brier": 0.3039
+      }
+    },
+    "market": {
+      "n": 82,
+      "moneyline": {
+        "brier": 0.2403,
+        "logLoss": 0.6738,
+        "winnerAccuracy": 0.5976
+      },
+      "totalRunsMAE": 4.2049,
+      "overUnder": {
+        "n": 81,
+        "accuracy": 0.5185,
+        "brier": 0.2483
+      },
+      "runLine": {
+        "n": 82,
+        "coverAccuracy": 0.4634,
+        "brier": 0.2544
+      }
+    },
+    "bullpenMarginMAE": 3.816,
+    "deltaVsMarket": {
+      "brier": 0.0007,
+      "logLoss": 0.0015
+    },
+    "beatsMarketOnBrierAndLogLoss": false,
+    "verdict": "mirrors",
+    "passBar": "Adopt ONLY if it beats the closing market on BOTH Brier AND log loss.",
+    "adopted": false,
+    "publicReady": false,
+    "note": "Bullpen-fatigue v1 does NOT beat the market on both metrics (ΔBrier 0.0007, ΔlogLoss 0.0015) → NOT adopted. With pitcher v1 also failing, PAUSE MLB full-game feature chasing. Internal-only."
+  },
   "calibrationBuckets": [
     {
       "range": "0.0-0.1",

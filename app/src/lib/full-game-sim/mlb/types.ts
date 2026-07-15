@@ -47,6 +47,16 @@ export interface IndependentInputs {
   awayStarterRunsSaved9?: number;
   homeStarterRunsSaved9?: number;
   starterSampleGames?: { away: number; home: number };
+  /**
+   * Bullpen fatigue: day-weighted relief-innings index vs average (positive = more tired), from STRICTLY-EARLIER
+   * box scores (prior 3 calendar days). A tired pen allows the OPPONENT more runs. Feature #2 (internal experiment).
+   */
+  bullpenFatigue?: {
+    awayFatigueIndex: number;
+    homeFatigueIndex: number;
+    awayCoverage: "full" | "partial" | "missing";
+    homeCoverage: "full" | "partial" | "missing";
+  };
 }
 
 /** Summary of the bounded adjustments actually applied (all zero when none). */
@@ -56,6 +66,8 @@ export interface AdjustmentSummary {
   runRateMarginNudge: number;
   pitcherTotalNudge?: number;
   pitcherMarginNudge?: number;
+  bullpenTotalNudge?: number;
+  bullpenMarginNudge?: number;
   notes: string[];
 }
 

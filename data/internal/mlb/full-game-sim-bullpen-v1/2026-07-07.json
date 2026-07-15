@@ -1,0 +1,2916 @@
+{
+  "sport": "MLB",
+  "date": "2026-07-07",
+  "asOf": "2026-07-07",
+  "public": false,
+  "internal": true,
+  "internalOnly": true,
+  "kind": "full-game-sim-bullpen-fatigue-experiment",
+  "source": "market_anchored_simulation",
+  "status": "experimental_internal",
+  "runCount": 10000,
+  "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+  "seed": 1234567,
+  "vmr": 1.35,
+  "officialMoneyRecordAffected": false,
+  "activeProductCard": false,
+  "modelMode": "internal_mlb_bullpen_fatigue_v1",
+  "marketAnchorSource": "historical_closing_odds",
+  "notForProducts": true,
+  "featureSet": [
+    "bullpen_fatigue_v1"
+  ],
+  "featureNote": "Bounded shadow adjustment (±0.35 total / ±0.20 margin runs) from strictly-earlier day-weighted relief innings. Market anchor unchanged; bullpen fatigue only nudges the run means.",
+  "rollout": {
+    "publicRolloutVerdict": "blocked",
+    "productCardEligible": false,
+    "backtestEligible": true,
+    "reason": "Feature #2 experiment. Internal-only; adopt only if it beats the closing market on Brier + log loss."
+  },
+  "summary": {
+    "games": 16,
+    "withBullpenAdjustment": 16
+  },
+  "games": [
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "823062",
+      "gamePk": 823062,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Milwaukee Brewers",
+          "abbreviation": "MB"
+        },
+        "home": {
+          "name": "St. Louis Cardinals",
+          "abbreviation": "SLC"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.4949,
+        "home": 0.5051,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 4.26,
+        "homeMean": 4.3,
+        "totalMean": 8.56,
+        "marginMean": 0.04,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0468
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.241
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3493
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.2394
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.1235
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1412
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2922
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.123
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.2965
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.1471
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5035,
+          "awayWinProb": 0.4965,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.6825,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 8.5,
+          "overProbability": 0.4746,
+          "underProbability": 0.5254,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": 0.064,
+          "bullpenMarginNudge": 0.004,
+          "notes": [
+            "bullpen fatigue (home 2.98 − away 3.38 weighted relief-IP vs avg, strictly-earlier) → total +0.064, margin +0.004 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0311
+          },
+          {
+            "away": 4,
+            "home": 3,
+            "probability": 0.0289
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0272
+          },
+          {
+            "away": 4,
+            "home": 4,
+            "probability": 0.0263
+          },
+          {
+            "away": 3,
+            "home": 5,
+            "probability": 0.026
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "823035",
+      "gamePk": 823035,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Milwaukee Brewers",
+          "abbreviation": "MB"
+        },
+        "home": {
+          "name": "St. Louis Cardinals",
+          "abbreviation": "SLC"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.4949,
+        "home": 0.5051,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 4.26,
+        "homeMean": 4.3,
+        "totalMean": 8.56,
+        "marginMean": 0.04,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0468
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.241
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3493
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.2394
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.1235
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1412
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2922
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.123
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.2965
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.1471
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5035,
+          "awayWinProb": 0.4965,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.6825,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 8.5,
+          "overProbability": 0.4746,
+          "underProbability": 0.5254,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": 0.064,
+          "bullpenMarginNudge": 0.004,
+          "notes": [
+            "bullpen fatigue (home 2.98 − away 3.38 weighted relief-IP vs avg, strictly-earlier) → total +0.064, margin +0.004 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0311
+          },
+          {
+            "away": 4,
+            "home": 3,
+            "probability": 0.0289
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0272
+          },
+          {
+            "away": 4,
+            "home": 4,
+            "probability": 0.0263
+          },
+          {
+            "away": 3,
+            "home": 5,
+            "probability": 0.026
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "824820",
+      "gamePk": 824820,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Chicago Cubs",
+          "abbreviation": "CC"
+        },
+        "home": {
+          "name": "Baltimore Orioles",
+          "abbreviation": "BO"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.5017,
+        "home": 0.4983,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 4.44,
+        "homeMean": 4.48,
+        "totalMean": 8.92,
+        "marginMean": 0.03,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0379
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.2142
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3448
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.2526
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.1505
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1461
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2958
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1196
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.2863
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.1522
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.4962,
+          "awayWinProb": 0.5038,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.6714,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 9.2,
+          "overProbability": 0.4031,
+          "underProbability": 0.5969,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": -0.223,
+          "bullpenMarginNudge": 0.083,
+          "notes": [
+            "bullpen fatigue (home -15.32 − away -7.02 weighted relief-IP vs avg, strictly-earlier) → total -0.223, margin +0.083 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 4,
+            "home": 3,
+            "probability": 0.0276
+          },
+          {
+            "away": 4,
+            "home": 4,
+            "probability": 0.0264
+          },
+          {
+            "away": 3,
+            "home": 5,
+            "probability": 0.0263
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0256
+          },
+          {
+            "away": 5,
+            "home": 3,
+            "probability": 0.0254
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "824254",
+      "gamePk": 824254,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Athletics",
+          "abbreviation": "A"
+        },
+        "home": {
+          "name": "Detroit Tigers",
+          "abbreviation": "DT"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.319,
+        "home": 0.681,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 3.36,
+        "homeMean": 4.88,
+        "totalMean": 8.24,
+        "marginMean": 1.52,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0567
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.2671
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3491
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.2223
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.1048
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.0609
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2009
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1144
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.3584
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.2654
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.6641,
+          "awayWinProb": 0.3359,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.827,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 8.4,
+          "overProbability": 0.4334,
+          "underProbability": 0.5666,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": -0.156,
+          "bullpenMarginNudge": 0.084,
+          "notes": [
+            "bullpen fatigue (home -12.02 − away -3.62 weighted relief-IP vs avg, strictly-earlier) → total -0.156, margin +0.084 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0342
+          },
+          {
+            "away": 2,
+            "home": 4,
+            "probability": 0.0331
+          },
+          {
+            "away": 3,
+            "home": 5,
+            "probability": 0.0304
+          },
+          {
+            "away": 2,
+            "home": 5,
+            "probability": 0.029
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0267
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "823361",
+      "gamePk": 823361,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Atlanta Braves",
+          "abbreviation": "AB"
+        },
+        "home": {
+          "name": "Pittsburgh Pirates",
+          "abbreviation": "PP"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.4143,
+        "home": 0.5857,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 3.89,
+        "homeMean": 4.63,
+        "totalMean": 8.52,
+        "marginMean": 0.74,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0483
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.2485
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3433
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.2355
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.1244
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.0981
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2555
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1213
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.3277
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.1974
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5692,
+          "awayWinProb": 0.4308,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.7544,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 8.5,
+          "overProbability": 0.4739,
+          "underProbability": 0.5261,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": 0.019,
+          "bullpenMarginNudge": 0.151,
+          "notes": [
+            "bullpen fatigue (home -6.62 − away 8.48 weighted relief-IP vs avg, strictly-earlier) → total +0.019, margin +0.151 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0313
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0287
+          },
+          {
+            "away": 2,
+            "home": 4,
+            "probability": 0.0284
+          },
+          {
+            "away": 2,
+            "home": 3,
+            "probability": 0.0272
+          },
+          {
+            "away": 3,
+            "home": 5,
+            "probability": 0.0272
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "823847",
+      "gamePk": 823847,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Seattle Mariners",
+          "abbreviation": "SM"
+        },
+        "home": {
+          "name": "Miami Marlins",
+          "abbreviation": "MM"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.4616,
+        "home": 0.5384,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 3.71,
+        "homeMean": 4.02,
+        "totalMean": 7.73,
+        "marginMean": 0.31,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0806
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.3041
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3428
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.1902
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.0823
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1093
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2875
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1295
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.3237
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.15
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5322,
+          "awayWinProb": 0.4678,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.7268,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 8,
+          "overProbability": 0.3733,
+          "underProbability": 0.5095,
+          "pushProbability": 0.1172,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": -0.291,
+          "bullpenMarginNudge": 0.007,
+          "notes": [
+            "bullpen fatigue (home -14.92 − away -14.22 weighted relief-IP vs avg, strictly-earlier) → total -0.291, margin +0.007 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 2,
+            "home": 3,
+            "probability": 0.0333
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0331
+          },
+          {
+            "away": 4,
+            "home": 3,
+            "probability": 0.0316
+          },
+          {
+            "away": 2,
+            "home": 4,
+            "probability": 0.0305
+          },
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0302
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "822956",
+      "gamePk": 822956,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "New York Yankees",
+          "abbreviation": "NYY"
+        },
+        "home": {
+          "name": "Tampa Bay Rays",
+          "abbreviation": "TBR"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.4473,
+        "home": 0.5527,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 3.59,
+        "homeMean": 4,
+        "totalMean": 7.59,
+        "marginMean": 0.4,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0822
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.3137
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3536
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.1757
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.0748
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1017
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2807
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1298
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.3332
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.1546
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5539,
+          "awayWinProb": 0.4461,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.7392,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 7.6,
+          "overProbability": 0.4786,
+          "underProbability": 0.5214,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": -0.019,
+          "bullpenMarginNudge": -0.013,
+          "notes": [
+            "bullpen fatigue (home -0.32 − away -1.62 weighted relief-IP vs avg, strictly-earlier) → total -0.019, margin -0.013 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 2,
+            "home": 3,
+            "probability": 0.0367
+          },
+          {
+            "away": 2,
+            "home": 4,
+            "probability": 0.0327
+          },
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.032
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0317
+          },
+          {
+            "away": 4,
+            "home": 3,
+            "probability": 0.0315
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "822713",
+      "gamePk": 822713,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Houston Astros",
+          "abbreviation": "HA"
+        },
+        "home": {
+          "name": "Washington Nationals",
+          "abbreviation": "WN"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.4856,
+        "home": 0.5144,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 4.75,
+        "homeMean": 4.89,
+        "totalMean": 9.64,
+        "marginMean": 0.13,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.024
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.1731
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.32
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.2771
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.2058
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1451
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2842
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1126
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.2941
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.164
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5218,
+          "awayWinProb": 0.4782,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.6793,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 9.5,
+          "overProbability": 0.4829,
+          "underProbability": 0.5171,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": 0.133,
+          "bullpenMarginNudge": -0.077,
+          "notes": [
+            "bullpen fatigue (home 10.48 − away 2.78 weighted relief-IP vs avg, strictly-earlier) → total +0.133, margin -0.077 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 4,
+            "home": 4,
+            "probability": 0.0283
+          },
+          {
+            "away": 3,
+            "home": 5,
+            "probability": 0.0257
+          },
+          {
+            "away": 4,
+            "home": 5,
+            "probability": 0.0242
+          },
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0235
+          },
+          {
+            "away": 5,
+            "home": 3,
+            "probability": 0.0231
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "823607",
+      "gamePk": 823607,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Kansas City Royals",
+          "abbreviation": "KCR"
+        },
+        "home": {
+          "name": "New York Mets",
+          "abbreviation": "NYM"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.4276,
+        "home": 0.5724,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 3.99,
+        "homeMean": 4.6,
+        "totalMean": 8.59,
+        "marginMean": 0.61,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0459
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.2396
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3489
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.241
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.1246
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1065
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2615
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1192
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.3276
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.1852
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5663,
+          "awayWinProb": 0.4337,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.7401,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 8.5,
+          "overProbability": 0.4803,
+          "underProbability": 0.5197,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": 0.081,
+          "bullpenMarginNudge": -0.019,
+          "notes": [
+            "bullpen fatigue (home 4.98 − away 3.08 weighted relief-IP vs avg, strictly-earlier) → total +0.081, margin -0.019 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 4,
+            "home": 4,
+            "probability": 0.0295
+          },
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0283
+          },
+          {
+            "away": 4,
+            "home": 5,
+            "probability": 0.0277
+          },
+          {
+            "away": 2,
+            "home": 4,
+            "probability": 0.0274
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.027
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "824495",
+      "gamePk": 824495,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Philadelphia Phillies",
+          "abbreviation": "PP"
+        },
+        "home": {
+          "name": "Cincinnati Reds",
+          "abbreviation": "CR"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.6029,
+        "home": 0.3971,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 4.89,
+        "homeMean": 4,
+        "totalMean": 8.89,
+        "marginMean": -0.89,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0396
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.2172
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.345
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.2524
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.1458
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.215
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.3279
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1201
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.2413
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.0957
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.3982,
+          "awayWinProb": 0.6018,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.7649,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 9,
+          "overProbability": 0.3982,
+          "underProbability": 0.4879,
+          "pushProbability": 0.1139,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": -0.09,
+          "bullpenMarginNudge": 0.074,
+          "notes": [
+            "bullpen fatigue (home -8.22 − away -0.82 weighted relief-IP vs avg, strictly-earlier) → total -0.09, margin +0.074 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 4,
+            "home": 4,
+            "probability": 0.0296
+          },
+          {
+            "away": 5,
+            "home": 3,
+            "probability": 0.0287
+          },
+          {
+            "away": 4,
+            "home": 3,
+            "probability": 0.027
+          },
+          {
+            "away": 5,
+            "home": 4,
+            "probability": 0.027
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0268
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "823687",
+      "gamePk": 823687,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Cleveland Guardians",
+          "abbreviation": "CG"
+        },
+        "home": {
+          "name": "Minnesota Twins",
+          "abbreviation": "MT"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.4898,
+        "home": 0.5102,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 4.11,
+        "homeMean": 4.2,
+        "totalMean": 8.32,
+        "marginMean": 0.09,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0568
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.2608
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.347
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.2285
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.1069
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1371
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2925
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1204
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.3049
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.1451
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.4994,
+          "awayWinProb": 0.5006,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.6679,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 8.5,
+          "overProbability": 0.4462,
+          "underProbability": 0.5538,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": -0.175,
+          "bullpenMarginNudge": 0.057,
+          "notes": [
+            "bullpen fatigue (home -11.62 − away -5.92 weighted relief-IP vs avg, strictly-earlier) → total -0.175, margin +0.057 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 4,
+            "home": 3,
+            "probability": 0.0307
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0288
+          },
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0288
+          },
+          {
+            "away": 4,
+            "home": 4,
+            "probability": 0.0282
+          },
+          {
+            "away": 2,
+            "home": 4,
+            "probability": 0.0262
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "824579",
+      "gamePk": 824579,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Boston Red Sox",
+          "abbreviation": "BRS"
+        },
+        "home": {
+          "name": "Chicago White Sox",
+          "abbreviation": "CWS"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.5404,
+        "home": 0.4596,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 4.38,
+        "homeMean": 4.04,
+        "totalMean": 8.42,
+        "marginMean": -0.33,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0524
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.2494
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3546
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.2266
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.117
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1577
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.322
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1215
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.2793
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.1195
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.4677,
+          "awayWinProb": 0.5323,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.7163,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 8.5,
+          "overProbability": 0.456,
+          "underProbability": 0.544,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": -0.046,
+          "bullpenMarginNudge": -0.04,
+          "notes": [
+            "bullpen fatigue (home -0.32 − away -4.32 weighted relief-IP vs avg, strictly-earlier) → total -0.046, margin -0.04 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.031
+          },
+          {
+            "away": 4,
+            "home": 3,
+            "probability": 0.0289
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0286
+          },
+          {
+            "away": 4,
+            "home": 4,
+            "probability": 0.0284
+          },
+          {
+            "away": 5,
+            "home": 3,
+            "probability": 0.0275
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "822881",
+      "gamePk": 822881,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Los Angeles Angels",
+          "abbreviation": "LAA"
+        },
+        "home": {
+          "name": "Texas Rangers",
+          "abbreviation": "TR"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.4075,
+        "home": 0.5925,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 3.1,
+        "homeMean": 3.79,
+        "totalMean": 6.89,
+        "marginMean": 0.7,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.1252
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.3607
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3268
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.1413
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.046
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.0767
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2615
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1387
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.3571
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.166
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5945,
+          "awayWinProb": 0.4055,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.7777,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 7,
+          "overProbability": 0.3861,
+          "underProbability": 0.4859,
+          "pushProbability": 0.128,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": -0.114,
+          "bullpenMarginNudge": 0.016,
+          "notes": [
+            "bullpen fatigue (home -6.52 − away -4.92 weighted relief-IP vs avg, strictly-earlier) → total -0.114, margin +0.016 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 2,
+            "home": 2,
+            "probability": 0.039
+          },
+          {
+            "away": 2,
+            "home": 3,
+            "probability": 0.0355
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.0355
+          },
+          {
+            "away": 1,
+            "home": 3,
+            "probability": 0.0334
+          },
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0324
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "823280",
+      "gamePk": 823280,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Arizona Diamondbacks",
+          "abbreviation": "AD"
+        },
+        "home": {
+          "name": "San Diego Padres",
+          "abbreviation": "SDP"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.486,
+        "home": 0.514,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 4.46,
+        "homeMean": 4.6,
+        "totalMean": 9.05,
+        "marginMean": 0.14,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.034
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.2058
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3418
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.263
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.1554
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1387
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.2863
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1221
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.2929
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.16
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.5235,
+          "awayWinProb": 0.4765,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.6898,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 9,
+          "overProbability": 0.4184,
+          "underProbability": 0.4659,
+          "pushProbability": 0.1157,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": 0.092,
+          "bullpenMarginNudge": -0.05,
+          "notes": [
+            "bullpen fatigue (home 7.08 − away 2.08 weighted relief-IP vs avg, strictly-earlier) → total +0.092, margin -0.05 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 4,
+            "home": 4,
+            "probability": 0.0295
+          },
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0278
+          },
+          {
+            "away": 4,
+            "home": 3,
+            "probability": 0.0263
+          },
+          {
+            "away": 3,
+            "home": 5,
+            "probability": 0.025
+          },
+          {
+            "away": 3,
+            "home": 3,
+            "probability": 0.024
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "823203",
+      "gamePk": 823203,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Toronto Blue Jays",
+          "abbreviation": "TBJ"
+        },
+        "home": {
+          "name": "San Francisco Giants",
+          "abbreviation": "SFG"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.5277,
+        "home": 0.4723,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 4,
+        "homeMean": 3.81,
+        "totalMean": 7.81,
+        "marginMean": -0.19,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0699
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.2973
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3584
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.1921
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.0823
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.1469
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.3205
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.1206
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.2906
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.1214
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.4797,
+          "awayWinProb": 0.5203,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "away",
+          "coverProbability": 0.7046,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 7.9,
+          "overProbability": 0.5068,
+          "underProbability": 0.4932,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": -0.103,
+          "bullpenMarginNudge": 0.027,
+          "notes": [
+            "bullpen fatigue (home -6.52 − away -3.82 weighted relief-IP vs avg, strictly-earlier) → total -0.103, margin +0.027 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 4,
+            "home": 3,
+            "probability": 0.0308
+          },
+          {
+            "away": 3,
+            "home": 2,
+            "probability": 0.0305
+          },
+          {
+            "away": 3,
+            "home": 4,
+            "probability": 0.0305
+          },
+          {
+            "away": 4,
+            "home": 4,
+            "probability": 0.0302
+          },
+          {
+            "away": 2,
+            "home": 3,
+            "probability": 0.0289
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "sport": "MLB",
+      "gameId": "823929",
+      "gamePk": 823929,
+      "date": "2026-07-07",
+      "asOf": "2026-07-07",
+      "public": false,
+      "source": {
+        "marketSnapshot": true,
+        "teamMarketLines": true,
+        "playerPropSimulation": false,
+        "linescoreSettlement": false,
+        "modelInputs": [
+          "market total",
+          "market moneyline",
+          "market run line"
+        ]
+      },
+      "teams": {
+        "away": {
+          "name": "Colorado Rockies",
+          "abbreviation": "CR"
+        },
+        "home": {
+          "name": "Los Angeles Dodgers",
+          "abbreviation": "LAD"
+        }
+      },
+      "guardrails": {
+        "publicFormulaChanged": false,
+        "officialMoneyRecordAffected": false,
+        "activeProductCard": false
+      },
+      "runCount": 10000,
+      "winProbability": {
+        "away": 0.2652,
+        "home": 0.7348,
+        "source": "hybrid_shadow"
+      },
+      "projectedScore": {
+        "awayMean": 3.7,
+        "homeMean": 5.99,
+        "totalMean": 9.69,
+        "marginMean": 2.29,
+        "source": "hybrid_shadow"
+      },
+      "distributions": {
+        "totalRuns": [
+          {
+            "bucket": "0-3",
+            "probability": 0.0247
+          },
+          {
+            "bucket": "4-6",
+            "probability": 0.1686
+          },
+          {
+            "bucket": "7-9",
+            "probability": 0.3223
+          },
+          {
+            "bucket": "10-12",
+            "probability": 0.2759
+          },
+          {
+            "bucket": "13+",
+            "probability": 0.2085
+          }
+        ],
+        "margin": [
+          {
+            "bucket": "away 4+",
+            "probability": 0.0479
+          },
+          {
+            "bucket": "away 1-3",
+            "probability": 0.1684
+          },
+          {
+            "bucket": "even (extra innings)",
+            "probability": 0.0979
+          },
+          {
+            "bucket": "home 1-3",
+            "probability": 0.3243
+          },
+          {
+            "bucket": "home 4+",
+            "probability": 0.3615
+          }
+        ]
+      },
+      "marketCoverage": {
+        "moneyline": {
+          "homeWinProb": 0.7314,
+          "awayWinProb": 0.2686,
+          "source": "market_implied"
+        },
+        "runLine": {
+          "line": 1.5,
+          "favorite": "home",
+          "coverProbability": 0.8612,
+          "source": "hybrid_shadow"
+        },
+        "total": {
+          "line": 9.5,
+          "overProbability": 0.4844,
+          "underProbability": 0.5156,
+          "pushProbability": 0,
+          "source": "hybrid_shadow"
+        }
+      },
+      "dataQuality": {
+        "status": "partial",
+        "reasons": [
+          "MARKET-ANCHORED simulation: win probability + total match the market by construction; only the distributions are sampled",
+          "negative-binomial team-run model with a fixed variance-to-mean assumption (not a fitted independent model)"
+        ],
+        "missing": [
+          "independent team-scoring inputs (starting pitcher / lineup / bullpen / park / weather)",
+          "a fitted, market-independent predictive model"
+        ]
+      },
+      "model": {
+        "source": "market_anchored_simulation",
+        "mode": "market_anchored_with_independent_adjustments",
+        "status": "experimental_internal",
+        "modelVersion": "mlb-fgs-2026.07-market-anchored-v1",
+        "seed": 1234567,
+        "vmr": 1.35,
+        "inputCoverage": {
+          "parkFactor": false,
+          "teamRunRates": false,
+          "pitcherStrength": false
+        },
+        "adjustments": {
+          "applied": true,
+          "parkTotalNudge": 0,
+          "runRateMarginNudge": 0,
+          "pitcherTotalNudge": 0,
+          "pitcherMarginNudge": 0,
+          "bullpenTotalNudge": 0.138,
+          "bullpenMarginNudge": 0.008,
+          "notes": [
+            "bullpen fatigue (home 6.48 − away 7.28 weighted relief-IP vs avg, strictly-earlier) → total +0.138, margin +0.008 (bounded ±0.35/±0.2 runs)"
+          ]
+        },
+        "warnings": [
+          "bounded independent adjustments applied (shadow-only)"
+        ],
+        "topScorelines": [
+          {
+            "away": 3,
+            "home": 6,
+            "probability": 0.0268
+          },
+          {
+            "away": 2,
+            "home": 5,
+            "probability": 0.0267
+          },
+          {
+            "away": 3,
+            "home": 5,
+            "probability": 0.0257
+          },
+          {
+            "away": 4,
+            "home": 6,
+            "probability": 0.0257
+          },
+          {
+            "away": 4,
+            "home": 5,
+            "probability": 0.0256
+          }
+        ]
+      }
+    }
+  ]
+}

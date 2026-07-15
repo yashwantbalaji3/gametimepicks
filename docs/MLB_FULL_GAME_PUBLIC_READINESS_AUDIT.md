@@ -59,11 +59,15 @@ simulation · validating" section already says no projected score / win probabil
 3. **Founder approval** — only after 1 + 2 clear.
 Until all three: internal-only, `public:false`, no public win-prob / projected runs / distributions.
 
-## Feature #1 (probable pitcher strength) — tested, also mirrors
-Added a bounded, leakage-clean starter-strength adjustment (feature #1 of the independent-model plan) and
-re-validated: **ΔBrier −0.0001, Δlog-loss 0.0000 vs the market** — mirrors, not adopted (winner accuracy rose but
-that isn't the bar). The market prices starters efficiently. Detail: `MLB_PITCHER_STRENGTH_V1_BACKTEST.md`. Next:
-bullpen fatigue / park+weather — signals the market may price less efficiently.
+## Features #1 + #2 — both tested, both fail the bar → MLB feature line PAUSED
+- **#1 probable pitcher strength:** ΔBrier −0.0001, Δlog-loss 0.0000 → mirrors, not adopted
+  (`MLB_PITCHER_STRENGTH_V1_BACKTEST.md`).
+- **#2 bullpen fatigue:** ΔBrier +0.0007, Δlog-loss +0.0015 → marginally worse, not adopted
+  (`MLB_BULLPEN_FATIGUE_V1_BACKTEST.md`).
+Two bounded, leakage-clean, market-anchored features both fail to beat the closing market on Brier + log loss. The
+honest read: the MLB moneyline closing market is efficient enough that simple market-anchored nudges don't beat it.
+**MLB full-game feature chasing is paused** — a real edge, if any, needs a fitted market-independent model on a
+much larger sample (a project, not an overnight nudge), and may still not beat an efficient market.
 
 ## Honesty note
 This mirrors the soccer finding: a market-anchored / rating model **mirrors or loses to the market**. Beating the
