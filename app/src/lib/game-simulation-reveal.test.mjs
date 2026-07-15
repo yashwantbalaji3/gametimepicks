@@ -59,10 +59,43 @@ function readyMlbDetails() {
   );
 }
 
+/** The newest committed MLB simulation artifact ({ date, artifact }) — used to preserve the artifact→
+ *  reader→view wiring coverage when the ACTIVE slate has no MLB games (e.g. the Jul 13–16 All-Star break,
+ *  when buildAllGameDetails() lists 0 MLB details). Returns null if none is committed. */
+function newestMlbSimArtifact() {
+  const simDir = path.join(APP_ROOT, "public", "data", "mlb", "game-simulations");
+  const newest = fs
+    .readdirSync(simDir)
+    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort()
+    .pop();
+  if (!newest) return null;
+  return { date: newest.replace(/\.json$/, ""), artifact: JSON.parse(fs.readFileSync(path.join(simDir, newest), "utf8")) };
+}
+
 // ── 1 · A ready artifact game exposes a ready sim view with its generatedPicks ──────────────────
 test("an MLB detail whose game is in the artifact exposes gameLabSimulation.status === 'ready' with picks", () => {
   const ready = readyMlbDetails();
-  assert.ok(ready.length >= 1, "expected at least one MLB detail with a ready simulation");
+  if (ready.length === 0) {
+    // MLB All-Star break (Jul 13–16): 0 MLB games on the active slate → no live details to assert. Preserve
+    // coverage by exercising the SAME artifact→reader→view wiring against the newest committed simulation
+    // artifact, proving a ready game still yields a ready view with real, provenance-carrying, paper-only picks.
+    const src = newestMlbSimArtifact();
+    assert.ok(src, "a committed MLB simulation artifact exists to exercise the wiring");
+    const g = src.artifact.games.find((x) => x.status === "ready" && (x.generatedPicks ?? []).length > 0);
+    assert.ok(g, "the newest artifact carries a ready game with generatedPicks");
+    const res = readGameSimulation(APP_ROOT_DATA, "mlb", src.date, g.gameId, { currentDate: src.date, currentSimulationVersion: src.artifact.simulationVersion });
+    const view = buildGameSimulationView(res, { modelVersion: src.artifact.modelVersion, simulationVersion: src.artifact.simulationVersion, runCount: src.artifact.runCount, generatedAt: src.artifact.generatedAt });
+    assert.equal(view.status, "ready");
+    assert.ok(Array.isArray(view.generatedPicks) && view.generatedPicks.length > 0);
+    for (const p of view.generatedPicks) {
+      assert.ok(Array.isArray(p.sourceFields) && p.sourceFields.length > 0, "pick must keep its provenance");
+      assert.equal(p.paperOnly, true, "pick must be paper-only");
+    }
+    assert.ok(view.teams && view.teams.home && view.teams.away);
+    assert.equal(typeof view.allowsRunCountClaim, "boolean");
+    return;
+  }
   const withPicks = ready.find((d) => d.gameLabSimulation.generatedPicks.length > 0);
   assert.ok(withPicks, "expected a ready MLB simulation carrying generatedPicks");
   const view = withPicks.gameLabSimulation;
@@ -151,24 +184,34 @@ test("the sim view's generatedPicks are the artifact's picks verbatim (read from
   // Compare against the NEWEST game-simulations artifact — the same one buildAllGameDetails()/
   // readyMlbDetails() read from — derived from disk so this stays correct as the daily slate advances
   // (rather than pinning a single date that goes stale the next day).
-  const simDir = path.join(APP_ROOT, "public", "data", "mlb", "game-simulations");
-  const newest = fs
-    .readdirSync(simDir)
-    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
-    .sort()
-    .pop();
-  const artifact = JSON.parse(fs.readFileSync(path.join(simDir, newest), "utf8"));
+  const src = newestMlbSimArtifact();
+  assert.ok(src, "a committed MLB simulation artifact exists");
+  const artifact = src.artifact;
   const artByGameId = new Map(artifact.games.map((g) => [g.gameId, g]));
   const ready = readyMlbDetails().filter((d) => d.gameLabSimulation.generatedPicks.length > 0);
-  assert.ok(ready.length >= 1);
+  if (ready.length === 0) {
+    // MLB All-Star break (Jul 13–16): no live MLB details. Preserve the verbatim-picks invariant by building
+    // the view straight from the newest artifact through the SAME reader/view path the app uses, confirming
+    // it neither adds, drops, nor reorders the artifact's picks.
+    const g = artifact.games.find((x) => x.status === "ready" && (x.generatedPicks ?? []).length > 0);
+    assert.ok(g, "the newest artifact carries a ready game with generatedPicks");
+    const res = readGameSimulation(APP_ROOT_DATA, "mlb", src.date, g.gameId, { currentDate: src.date, currentSimulationVersion: artifact.simulationVersion });
+    const view = buildGameSimulationView(res, { modelVersion: artifact.modelVersion, simulationVersion: artifact.simulationVersion, runCount: artifact.runCount, generatedAt: artifact.generatedAt });
+    assert.deepEqual(
+      view.generatedPicks.map((p) => p.id),
+      g.generatedPicks.map((p) => p.id),
+      "view picks must equal the artifact picks",
+    );
+    return;
+  }
   for (const d of ready) {
     const view = d.gameLabSimulation;
-    const src = artByGameId.get(view.gameId);
-    assert.ok(src, `artifact should contain game ${view.gameId}`);
+    const srcGame = artByGameId.get(view.gameId);
+    assert.ok(srcGame, `artifact should contain game ${view.gameId}`);
     // Same count + same ids in the same order — the view does not add, drop, or reorder picks.
     assert.deepEqual(
       view.generatedPicks.map((p) => p.id),
-      src.generatedPicks.map((p) => p.id),
+      srcGame.generatedPicks.map((p) => p.id),
       "view picks must equal the artifact picks",
     );
   }

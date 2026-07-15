@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-07-14T13:38:08.458Z",
+  "generatedAt": "2026-07-15T13:31:11.987Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -16,20 +16,20 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-07-14",
+    "date": "2026-07-15",
     "activeBankroll": 19065.4,
-    "openExposure": 25,
-    "worldCupGames": 2,
-    "mlbGames": 16,
-    "mlbSlate": "2026-07-11"
+    "openExposure": 0,
+    "worldCupGames": 1,
+    "mlbGames": 0,
+    "mlbSlate": "2026-07-15"
   },
   "productReadiness": {
     "bankBuilder": "awaiting approval",
-    "moonshot": "active · 1 lane(s)",
+    "moonshot": "awaiting approval",
     "top10": "live",
-    "worldCup": "live · 2 game(s)",
-    "mlb": "live · 16 game(s)",
-    "wcSpecials": "5 card(s)"
+    "worldCup": "live · 1 game(s)",
+    "mlb": "dormant (no board)",
+    "wcSpecials": "0 card(s)"
   },
   "products": {
     "bankBuilder": {
@@ -37,49 +37,41 @@
       "lanes": [
         {
           "lane": "A",
-          "status": "candidate",
+          "status": "awaiting",
           "step": 3,
-          "legs": 2,
-          "combinedOdds": 327,
+          "legs": 0,
+          "combinedOdds": 0,
           "stake": 305.57,
-          "potentialReturn": 1305.29,
-          "selections": [
-            "Both teams to score: No",
-            "France"
-          ]
+          "potentialReturn": 305.57,
+          "selections": []
         }
       ]
     },
     "moonshot": {
-      "activeLanes": 1,
+      "activeLanes": 0,
       "lanes": [
         {
           "lane": "A",
           "status": "candidate",
           "step": 1,
-          "legs": 4,
-          "combinedOdds": 669,
+          "legs": 2,
+          "combinedOdds": 167,
           "stake": 25,
-          "potentialReturn": 192.33,
+          "potentialReturn": 66.76,
           "selections": [
-            "France (draw no bet)",
-            "Over 2.5",
             "England (draw no bet)",
             "Under 2.5"
           ]
         },
         {
           "lane": "B",
-          "status": "active",
+          "status": "candidate",
           "step": 1,
-          "legs": 6,
-          "combinedOdds": 2181,
+          "legs": 3,
+          "combinedOdds": 390,
           "stake": 25,
-          "potentialReturn": 570.25,
+          "potentialReturn": 122.39,
           "selections": [
-            "France (draw no bet)",
-            "Over 2.5",
-            "Both teams to score: Yes",
             "England (draw no bet)",
             "Under 2.5",
             "Both teams to score: No"
@@ -89,8 +81,8 @@
     }
   },
   "counts": {
-    "activeProducts": 3,
-    "pendingApprovals": 2
+    "activeProducts": 1,
+    "pendingApprovals": 3
   },
   "workflowHealth": {
     "lastRunAt": "2026-07-08T03:10:25.367Z",
@@ -98,7 +90,9 @@
     "status": "pass",
     "phase": "settle 2026-07-07"
   },
-  "warnings": [],
+  "warnings": [
+    "MLB board is empty (dormant or needs a refresh)."
+  ],
   "dailyChecklist": [
     {
       "step": "Money gate green",
@@ -118,16 +112,16 @@
     },
     {
       "step": "No missing-data warnings",
-      "done": true
+      "done": false
     }
   ],
   "lastSettlement": {
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-07-14",
-  "nextRefreshDate": "2026-07-15",
-  "nextAction": "No active Bank Builder lane for 2026-07-14 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-07-15",
+  "nextRefreshDate": "2026-07-16",
+  "nextAction": "No active Bank Builder lane for 2026-07-15 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }

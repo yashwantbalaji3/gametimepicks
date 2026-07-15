@@ -10,7 +10,19 @@ const read = (p) => fs.readFileSync(p, "utf8");
 
 test("World Cup Specials tracker derives candidate/pending/settled from the slate (no exposure)", () => {
   const result = loadWorldCupSpecials();
-  assert.ok(result && result.cards.length > 0, "specials loaded");
+  assert.ok(result, "specials snapshot loads");
+  // A thin 1-game slate (e.g. the 2026-07-15 semifinal, England vs Argentina) can't support a World Cup
+  // Special (they need ≥2 distinct games), so the snapshot honestly carries 0 cards. The tracker must
+  // still derive a well-formed, exposure-free summary from an empty set — no crash, no fabricated record.
+  if (!result.cards || result.cards.length === 0) {
+    const t = deriveSpecialsTracker(result, `${result.date}T12:00:00Z`);
+    assert.equal(t.summary.candidateCount, 0, "no cards → no candidates");
+    assert.equal(t.summary.pendingCount, 0, "no cards → nothing pending");
+    assert.equal(t.summary.settledCount, 0, "no cards → nothing settled");
+    assert.equal(t.summary.exposure, 0, "specials exposure always 0 (suggested cards, not placed)");
+    assert.match(t.summary.record, /^\d+–\d+/, "record is a W-L string");
+    return;
+  }
   // DATE-AGNOSTIC: derive the kickoff window from the loaded cards' leg start times rather than pinning
   // to a specific slate date. A card is a candidate until one of its legs has kicked off; once every
   // card has a started leg it is pending/settled. So:

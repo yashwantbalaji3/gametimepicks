@@ -1,7 +1,7 @@
 /**
- * WC player-props team join — proves the France vs Spain report no longer mislabels Spain players as France
- * (or France players as Spain). The Odds feed has no team, so the generator defaulted everyone to the home side;
- * `resolveWcPlayerTeam` corrects it from the official-squad map. No hardcoded names — the map is data.
+ * WC player-props team join — proves the current semifinal report (England vs Argentina, 2026-07-15) no longer
+ * mislabels players onto the wrong national side. The Odds feed has no team, so the generator defaulted everyone
+ * to the home side; `resolveWcPlayerTeam` corrects it from the official-squad map. No hardcoded names — the map is data.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -15,17 +15,19 @@ const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 test("the player-team map exists, is a public display reference, and covers the semifinal teams", () => {
   const map = JSON.parse(read("public/data/world-cup/player-team-map.json"));
   assert.equal(map._officialMoneyRecordAffected, false, "map never touches money");
-  assert.ok(Object.keys(map.byFullName).length >= 80, "map has the squad players");
-  for (const t of ["France", "Spain", "England", "Argentina"]) {
+  // Slate advanced to the 2026-07-15 semifinal (England vs Argentina); France vs Spain (07-14) has dropped,
+  // so the map now covers only the two current semifinal squads (two 26-man squads ≈ 52 entries).
+  assert.ok(Object.keys(map.byFullName).length >= 40, "map has the squad players");
+  for (const t of ["England", "Argentina"]) {
     assert.ok(Object.values(map.byFullName).includes(t), `map covers ${t}`);
   }
 });
 
-test("France vs Spain: Spain players resolve to Spain, France players resolve to France", () => {
-  const spain = ["Lamine Yamal", "Mikel Oyarzabal", "Nico Williams", "Borja Iglesias"];
-  const france = ["Kylian Mbappe", "Ousmane Dembele", "Marcus Thuram", "Jean-Philippe Mateta"];
-  for (const n of spain) assert.equal(resolveWcPlayerTeam(n, "France", "Spain"), "Spain", `${n} must be Spain, not France`);
-  for (const n of france) assert.equal(resolveWcPlayerTeam(n, "France", "Spain"), "France", `${n} must be France`);
+test("England vs Argentina: Argentina players resolve to Argentina, England players resolve to England", () => {
+  const argentina = ["Lionel Messi", "Julian Alvarez", "Lautaro Martinez"];
+  const england = ["Harry Kane", "Jude Bellingham"];
+  for (const n of argentina) assert.equal(resolveWcPlayerTeam(n, "England", "Argentina"), "Argentina", `${n} must be Argentina, not England`);
+  for (const n of england) assert.equal(resolveWcPlayerTeam(n, "England", "Argentina"), "England", `${n} must be England`);
 });
 
 test("the resolver is CONSTRAINED to the fixture — it never assigns a team not in the match", () => {

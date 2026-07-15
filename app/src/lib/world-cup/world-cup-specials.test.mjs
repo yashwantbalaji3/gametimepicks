@@ -51,8 +51,15 @@ test("config: combined odds band accepts +701..+2999, rejects the edges and outs
 // ── Generator output ─────────────────────────────────────────────────────────────────────────────
 test("produces at most 5 World Cup Specials; uses real player props when the slate offers them", () => {
   assert.ok(result.cards.length <= cfg.maxCardsShown, "never more than 5");
-  // June 28: the slate offers both team markets and real soccer player-prop markets, so the generator builds
-  // normal-mode Specials (>= 2 team + >= 2 player legs per card) — never the team-model fallback.
+  // A World Cup Special needs >= 2 distinct games. On a thin 1-game slate (the 2026-07-15 semifinal,
+  // England vs Argentina) the generator honestly produces 0 cards even though the single game offers
+  // eligible player legs — that is a valid gate, not a failure.
+  if (result.cards.length === 0) {
+    assert.ok(SLATE_GAME_COUNT < cfg.minGamesPerCard, "0 cards because the slate has < 2 distinct games");
+    return;
+  }
+  // Multi-game slate: the generator builds normal-mode Specials (>= 2 team + >= 2 player legs per card)
+  // from the real posted player-prop markets — never the team-model fallback.
   assert.ok(result.cards.length > 0 && result.cards.length <= cfg.maxCardsShown, "1..5 player-prop Specials");
   assert.ok(result.diagnostics.eligiblePlayerLegs > 0, "the slate has eligible player legs in the pool");
   assert.notEqual(result.diagnostics.fallbackMode, "team_models", "not in the team-model fallback — real player props are available");
@@ -128,12 +135,14 @@ test("no duplicate full cards; cards are meaningfully distinct", () => {
 });
 
 test("cards spread across the odds band (not all clustered at one price)", () => {
-  // Spread only applies when cards are buildable. June 24 is gated to 0 (no player props),
-  // which the dedicated gating test already asserts — there is no price cluster to check.
+  // Spread only applies when cards are buildable. On a thin 1-game slate (the 2026-07-15 semifinal) a
+  // Special can't be assembled (it needs >= 2 distinct games) → 0 cards, so there is no price cluster to
+  // check — the honest gate is the game count, not the player-leg count (the single game can still offer legs).
   if (result.cards.length === 0) {
-    assert.equal(result.diagnostics.eligiblePlayerLegs, 0, "0 cards is the honest no-player-props gate");
+    assert.ok(SLATE_GAME_COUNT < cfg.minGamesPerCard, "0 cards is the honest thin-slate (<2 games) gate");
     return;
   }
+  if (result.cards.length === 1) return; // a single card can't spread — nothing to compare
   const odds = result.cards.map((c) => c.combinedOdds).sort((a, b) => a - b);
   assert.ok(odds[odds.length - 1] - odds[0] >= 500, `spread ${odds[0]}..${odds[odds.length - 1]} is meaningful`);
 });
@@ -152,11 +161,12 @@ test("each card exposes the disclosure fields the homepage renders", () => {
 
 test("player legs carry a real headshot OR a flag fallback — never a fabricated photo", () => {
   const playerLegs = result.cards.flatMap((c) => c.legs).filter((l) => l.kind === "player");
-  // June 24 has no player props, so no cards and no player legs are assembled — the honest gate.
-  // When player legs DO exist they must carry a real headshot (api-sports feed) or a flag fallback,
-  // never a fabricated photo. We assert that invariant over whatever player legs the pool produced.
+  // On a thin 1-game slate (the 2026-07-15 semifinal) no cards are assembled (a Special needs >= 2 games),
+  // so no card player legs exist even though the single game can offer eligible player props — the honest
+  // gate is the game count. When player legs DO exist they must carry a real headshot (api-sports feed) or
+  // a flag fallback, never a fabricated photo. We assert that invariant over whatever the pool produced.
   if (playerLegs.length === 0) {
-    assert.equal(result.diagnostics.eligiblePlayerLegs, 0, "no player legs because the slate has no player props");
+    assert.ok(SLATE_GAME_COUNT < cfg.minGamesPerCard, "no card player legs because the slate has <2 games (no cards built)");
     return;
   }
   for (const l of playerLegs) {
@@ -172,7 +182,9 @@ test("diagnostics report the real eligible-pool sizes + rejection counts", () =>
   assert.equal(result.diagnostics.eligiblePlayerLegs, players.length);
   assert.ok(result.diagnostics.eligiblePlayerLegs > 0, "the slate has eligible WC player-prop legs");
   // At noon-of-slate-day every fixture on the current slate is pre-event — derived count, not pinned to 6.
-  assert.ok(SLATE_GAME_COUNT >= 2, "current slate has >= 2 fixtures (Specials need 2+ distinct games)");
+  // The slate may be thin (a single knockout semifinal on 2026-07-15): Specials need 2+ distinct games, so
+  // a 1-game slate honestly yields 0 cards. Assert the diagnostic game count matches the real slate (>= 1).
+  assert.ok(SLATE_GAME_COUNT >= 1, "current slate has at least one pre-event fixture");
   assert.equal(result.diagnostics.preEventGames, SLATE_GAME_COUNT, "every current-slate fixture is pre-event at noon-of-slate-day");
   assert.ok(result.diagnostics.rejectedOutOfLegOddsRange > 0, "extreme-priced legs were rejected");
   // Every loaded leg respects the strict band + pre-event rule.

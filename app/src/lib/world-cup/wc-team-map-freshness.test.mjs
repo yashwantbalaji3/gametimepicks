@@ -1,7 +1,7 @@
 /**
  * WC player→team map freshness guard + refresh wiring. Proves: the refresh regenerates the map, a stale/missing/
- * incomplete map is detected, unresolved players never get a wrong team (resolver fails safe), and France vs
- * Spain still labels each side correctly.
+ * incomplete map is detected, unresolved players never get a wrong team (resolver fails safe), and the current
+ * semifinal (England vs Argentina, 2026-07-15) still labels each side correctly.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -59,9 +59,9 @@ test("unresolved players NEVER get a wrong team (resolver fails safe → null)",
   assert.equal(resolveWcPlayerTeam("Totally Unknown Person", "France", "Spain"), null);
 });
 
-test("France vs Spain still labels Spain players Spain, France players France (real map)", () => {
-  for (const n of ["Lamine Yamal", "Mikel Oyarzabal", "Nico Williams"]) assert.equal(resolveWcPlayerTeam(n, "France", "Spain"), "Spain");
-  for (const n of ["Kylian Mbappe", "Ousmane Dembele"]) assert.equal(resolveWcPlayerTeam(n, "France", "Spain"), "France");
+test("England vs Argentina still labels Argentina players Argentina, England players England (real map)", () => {
+  for (const n of ["Lionel Messi", "Julian Alvarez", "Lautaro Martinez"]) assert.equal(resolveWcPlayerTeam(n, "England", "Argentina"), "Argentina");
+  for (const n of ["Harry Kane", "Jude Bellingham"]) assert.equal(resolveWcPlayerTeam(n, "England", "Argentina"), "England");
 });
 
 test("the refresh pipeline regenerates the map AND runs the freshness guard (after player props)", () => {
