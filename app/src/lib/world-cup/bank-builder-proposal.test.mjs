@@ -114,10 +114,19 @@ test("thin slate (1 game) → not buildable, honest note, never forced", () => {
 // ── The operator-APPROVED July-5 dual lanes are PINNED — future generation must never silently swap them. ──
 import { loadApprovedBankBuilder } from "./bank-builder-proposal.ts";
 import path from "node:path";
+import fs from "node:fs";
+import { makeSettledApprovedRoot } from "../__testsupport__/settled-ladder-root.mjs";
 test("approved July-7 Bank Builder is pinned to the exact operator-approved legs — Lane A only, Lane B no-play (no drift)", () => {
-  // July-7 Lane A Step-2 is SETTLED WON in the canonical ladder, so the approved snapshot overlays the
-  // OFFICIAL result (legs hit / lane won) regardless of the passed clock. The leg PINS must not drift.
-  const ap = loadApprovedBankBuilder(path.join(process.cwd(), "public", "data"), "2026-07-07", Date.UTC(2026, 6, 8, 3, 0));
+  // July-7 Lane A Step-2 is SETTLED WON, so the approved snapshot overlays the OFFICIAL result (legs hit / lane
+  // won) regardless of the passed clock. The leg PINS must not drift. Validated against a reconstructed settled
+  // root — the July-21 review restart moved that settled cycle into priorLane; the leg pins live in approved.json.
+  const { tmp, dataRoot } = makeSettledApprovedRoot(path.join(process.cwd(), "public", "data"));
+  let ap;
+  try {
+    ap = loadApprovedBankBuilder(dataRoot, "2026-07-07", Date.UTC(2026, 6, 8, 3, 0));
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
   assert.ok(ap && ap.approved === true, "the approved snapshot loads and is flagged approved");
   // July-7 is a Lane-A-only card: Lane B is a deliberate no-play, absent from the approved lanes.
   assert.equal(ap.lanes.length, 1, "only Lane A is approved for July-7 (Lane B no-play)");

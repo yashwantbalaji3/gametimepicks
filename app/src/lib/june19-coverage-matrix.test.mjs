@@ -45,21 +45,24 @@ test("Low Risk is honestly empty everywhere (not a gate failure) and the summary
   assert.ok(m.diagnosticsSummary.some((s) => /Low Risk/i.test(s) && /-200|filler|honest/i.test(s)), "summary explains the Low Risk empty");
 });
 
-test("Moonshot row after the Step 1 cross-slate card settled LOST: no active card counted", () => {
+test("Moonshot row after the lane restarted ACTIVE: the active review card is counted once in its own Longshot bucket", () => {
   const moon = m.rows.find((r) => r.scope === "moonshot");
-  // The +1152 Step 1 restart card settled LOST (NZ/Egypt BTTS No missed) → lane stopped, nothing live to count.
-  assert.equal(moon.total, 0, "Moonshot settled LOST (stopped) → no active card");
-  for (const rb of ["low", "medium", "high", "longshot"]) assert.equal(moon.cells.find((c) => c.risk === rb).count, 0, `Moonshot ${rb} = 0 (lane stopped)`);
+  // The July-21 MLB review card is the ACTIVE Moonshot card → counted once, in the Longshot bucket
+  // (Moonshot cards are Longshot by design), in its OWN row (never double-counted into generic suggestions).
+  assert.equal(moon.total, 1, "Moonshot active review card counted once");
+  assert.equal(moon.cells.find((c) => c.risk === "longshot").count, 1, "the active Moonshot card sits in the Longshot bucket");
+  for (const rb of ["low", "medium", "high"]) assert.equal(moon.cells.find((c) => c.risk === rb).count, 0, `Moonshot ${rb} = 0`);
 });
 
-test("Core Bank Builder row after the completed run was BANKED: fresh cycle-2 has no active card, and its own row is never double-counted into generic suggestions", () => {
+test("Core Bank Builder row after the lanes restarted: the active card is counted once in its own row (its bucket), never double-counted into generic suggestions", () => {
   const bb = m.rows.find((r) => r.scope === "bank_builder");
-  // The June-24 dual-lane run was BANKED + archived; the live lanes are a fresh Step-1 cycle-2 with no
-  // placed card, so the Bank Builder row is honestly empty (no fabricated active card).
-  assert.equal(bb.total, 0, "no live Bank Builder card — fresh cycle-2, awaiting the next qualified card");
-  for (const rb of ["low", "medium", "high", "longshot"]) assert.equal(bb.cells.find((c) => c.risk === rb).count, 0, `Bank Builder ${rb} = 0 (no active card)`);
-  // Every empty Bank Builder cell still discloses the exclusion policy (its own row, never promoted as a generic suggestion).
-  for (const c of bb.cells) assert.match(c.message, /tracked separately|double-count|not promoted/i, `${c.risk} cell discloses the no-double-count exclusion policy`);
+  // The lanes restarted with an active Step-1 card → counted once, in the bucket its combined odds fit
+  // (Medium), inside the Bank Builder's OWN row — never promoted into the generic WC/MLB/Mixed suggestions.
+  assert.equal(bb.total, 1, "one active Bank Builder card counted in its own row");
+  assert.equal(bb.cells.find((c) => c.risk === "medium").count, 1, "the active card sits in the Medium bucket");
+  for (const rb of ["low", "high", "longshot"]) assert.equal(bb.cells.find((c) => c.risk === rb).count, 0, `Bank Builder ${rb} = 0`);
+  // Every EMPTY Bank Builder cell still discloses the exclusion policy (its own row, never promoted as a generic suggestion).
+  for (const c of bb.cells.filter((x) => x.count === 0)) assert.match(c.message, /tracked separately|double-count|not promoted/i, `${c.risk} empty cell discloses the no-double-count exclusion policy`);
   // Active Bank Builder legs are not promoted as generic Mixed/MLB suggestions.
   assert.ok(m.diagnosticsSummary.some((s) => /own row|double-count|separately/i.test(s)), "exclusion policy disclosed");
 });

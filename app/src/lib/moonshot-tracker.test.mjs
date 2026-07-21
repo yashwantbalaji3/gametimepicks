@@ -29,18 +29,21 @@ test("Moonshot tracker shows the stopped/LOST state with hit/miss/pending legs, 
   assert.match(tracker, /not backfilled|known Moonshot runs only/, "honest about un-backfilled history (no fabrication)");
 });
 
-test("Moonshot lane artifact is stopped/LOST and its record is separate (0-1, not in core)", () => {
+test("Moonshot lane artifact is ACTIVE (fresh July-21 MLB review card) and its record stays separate (0-1, not in core)", () => {
   const lane = loadMoonshotLane();
   assert.ok(lane, "moonshot lane present");
-  assert.equal(lane.status, "stopped", "lane stopped (settled LOST)");
-  assert.equal(lane.ladder[0].card?.result, "lost", "Step 1 card settled LOST");
-  // The Egypt BTTS-No leg is the settled MISS; the others are pending (dead-parlay).
-  const miss = (lane.ladder[0].card?.legs ?? []).filter((l) => (l.settlement?.result) === "lost").length;
-  assert.ok(miss >= 1, "at least one settled MISS leg");
-  // Portfolio keeps the moonshot record SEPARATE from the core record.
+  assert.equal(lane.status, "active", "lane active (July-21 MLB review)");
+  const card = lane.ladder[0].card;
+  assert.ok(card, "Step 1 review card present");
+  assert.ok(card.result == null, "fresh review card carries no settled result");
+  // The fresh review card is two independent MLB pitcher-strikeout legs, unsettled (no fabricated result).
+  const mlbKs = (card.legs ?? []).filter((l) => l.sport === "MLB" && l.market === "pitcher_strikeouts");
+  assert.equal(mlbKs.length, 2, "two MLB pitcher_strikeouts legs");
+  for (const l of mlbKs) assert.equal(l.settlement?.result, null, `${l.participant} is unsettled (no settled result)`);
+  // Portfolio keeps the moonshot record SEPARATE from the core record (paper review, $0 exposure).
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot 0-1, separate");
-  assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure 0 (settled)");
+  assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure 0 (paper review, nothing placed)");
   assert.deepEqual(portfolio.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "core record after Lane A WON its July-6 cycle-8 Step-1 and its July-7 Step-2 (record +2 → 19-14; July-5 losses remain in priorLane) — moonshot not blended in");
 });
 
@@ -59,37 +62,20 @@ test("Today + Bank Builder + Mr. Dub link to the Moonshot tracker", () => {
   assert.match(read("src/app/mr-dub/page.tsx"), /MoonshotLaneTracker/, "Mr. Dub renders the inline Moonshot tracker");
 });
 
-test("Moonshot candidates: real odds, honest independent combined price, pre-event games only, not placed", () => {
+test("Moonshot candidates: none live this slate (empty) — no WC player-prop candidates, nothing placed", () => {
   const lane = loadMoonshotLane();
-  assert.ok(Array.isArray(lane.candidates) && lane.candidates.length >= 1, "candidates present");
-  const dec = (a) => (a >= 0 ? 1 + a / 100 : 1 + 100 / -a);
-  const ELIGIBLE = ["England vs Ghana", "Colombia vs DR Congo", "Panama vs Croatia"]; // all officially NS at generation
-  for (const c of lane.candidates) {
-    assert.equal(c.status, "candidate", "status is candidate (not active/placed)");
-    assert.equal(c.activated, false, "not activated → no exposure placed");
-    assert.equal(c.stake, 25, "$25 paper stake");
-    assert.ok(c.legs.length >= 2, "at least two legs");
-    // No fabricated SGP: every leg is from a DIFFERENT fixture (independent games).
-    const fixtures = c.legs.map((l) => l.fixture);
-    assert.equal(new Set(fixtures).size, fixtures.length, "each leg from a distinct game (independent → no SGP)");
-    for (const l of c.legs) {
-      assert.ok(ELIGIBLE.includes(l.fixture), `${l.fixture} is a pre-event eligible game`);
-      assert.equal(typeof l.odds, "number", `${l.participant} carries real odds`);
-      assert.ok(l.kickoffEt && l.marketLabel && l.settlement?.source, `${l.participant} has kickoff/market/settlement source`);
-    }
-    // Combined odds reconcile with the product of the real leg odds (proves no fabricated combined price).
-    const product = c.legs.reduce((p, l) => p * dec(l.odds), 1);
-    const reconstructed = product >= 2 ? Math.round((product - 1) * 100) : -Math.round(100 / (product - 1));
-    assert.ok(Math.abs(reconstructed - c.combinedOdds) <= 2, `${c.cardId} combined odds reconcile with legs`);
-    assert.ok(c.combinedOdds >= 600, `${c.cardId} is a longshot (>= +600)`);
-    assert.ok(Math.abs(c.projectedReturn - 25 * product) < 0.5, "projected return = stake × combined decimal");
-  }
+  // The July-21 review runs an ACTIVE Step-1 card and carries NO pre-event candidate cards.
+  assert.ok(Array.isArray(lane.candidates), "candidates is an array");
+  assert.equal(lane.candidates.length, 0, "no live candidates this slate (WC candidates cleared)");
+  // Eligibility invariant preserved: no settlement-pending player-prop leg is ever exposed as a candidate.
+  const SETTLEMENT_PENDING = /^player_/i;
+  for (const c of lane.candidates) for (const l of c.legs ?? []) assert.ok(!SETTLEMENT_PENDING.test(l.market), `${l.participant} is not a settlement-pending player prop`);
   // Candidates do NOT place exposure or change the record.
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure still 0 (candidates not placed)");
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record unchanged (0-1)");
   assert.equal(portfolio.totalOpenExposure, 0, "total exposure unchanged by candidates ($0 core — Lane A completed, Lane B lost; moonshot $0)");
-  // The tracker renders the candidates section.
+  // The tracker still renders the candidates section.
   const tracker = read("src/components/moonshot/moonshot-lane-tracker.tsx");
   assert.match(tracker, /Moonshot Candidates/, "tracker renders a candidates section");
 });

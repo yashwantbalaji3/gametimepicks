@@ -12,6 +12,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
@@ -80,7 +81,15 @@ test("SAME-DAY SETTLED: the real July-7 build renders Lane A as a settled status
   // July-7 view EXPLICITLY from the July-7 approved card + settled ladder (the settled-WON invariant is
   // unchanged — it is still reconstructed from canonical July-7 sources, just no longer the live file).
   const { buildPersistedDailyPortfolio } = await import("./daily-portfolio/accounting.ts");
-  const dp = buildPersistedDailyPortfolio(path.join(app, "public", "data"), "2026-07-07T14:00:00Z", "2026-07-07", "2026-07-07T14:00:00Z", true);
+  // The July-21 review restart pushed the settled July-7 cycle into the live ladder's priorLane; reconstruct the
+  // pre-restart settled ladder so the same-day-settled (WON) invariant is validated against canonical July-7 state.
+  const { tmp, dataRoot } = makeSettledApprovedRoot(path.join(app, "public", "data"));
+  let dp;
+  try {
+    dp = buildPersistedDailyPortfolio(dataRoot, "2026-07-07T14:00:00Z", "2026-07-07", "2026-07-07T14:00:00Z", true);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
   const bb = (dp.lanes ?? []).filter((c) => c.product === "bank-builder");
   const a = bb.find((c) => c.lane === "A");
   assert.ok(a, "Lane A present as history");

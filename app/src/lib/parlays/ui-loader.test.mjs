@@ -91,39 +91,37 @@ test("a settled run surfaces official lane + leg results", () => {
   }
 });
 
-test("live run (July-7 settlement): LIVE preview shows Lane A ADVANCED (cycle-8 Steps 1 & 2 WON), Lane B stopped no-play, no prior-cycle leg leak", () => {
-  // The operator banked the 2nd completed ladder (Lane A 5/5 won → $10,089.23) and ran fresh cycles. Both lanes
-  // LOST on July-5 (cycle 7). For July-6 Lane A RESTARTED (cycle 8) and its $100 Step-1 card WON, then its Step-2
-  // card WON on July-7 → the lane ADVANCED (Steps 1 & 2 settled-WON at the top). Lane B is a deliberate NO-PLAY: its
-  // top rung is the settled July-5 LOSS (this raw preview intermediate is sanitized to a clean starting path
-  // downstream by buildPublicDualLadder). The DEEPER settled cycles (July-1 → July-3 narratives) stay in each lane's
-  // priorLane chain and must NOT bleed in.
+test("live run (July-21 review restart): LIVE preview shows BOTH lanes at a fresh Step-1 MLB review, no prior-cycle WC leg leak", () => {
+  // The July-21 REVIEW RESTART reset BOTH Bank Builder lanes to fresh Step-1 review cycles (paper, $0 — MLB
+  // pitcher-strikeout review cards). Lane A = cycle 9 active (Wrobleski + Buehler review card in steps[0]); Lane B =
+  // cycle 8 active (awaiting). The prior WC cycles — the advanced July-6/July-7 cycle (8: Spain/Belgium, Colombia/
+  // Argentina) and the deeper July-1 → July-5 losses — all moved into each lane's priorLane chain and must NOT bleed
+  // into the live top-level preview (toLane maps only the top-level lane + its steps, never priorLane).
   const v = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z");
   const bb = v.bankBuilderPreview;
   assert.equal(bb.status, "launched", "the live run is launched");
   assert.equal(bb.isLadder, true, "it is a stepping ladder");
   assert.ok(bb.laneA && bb.laneB, "both lanes present");
-  assert.equal(bb.currentStep, 1, "live run's lead step pointer sits on Step 1 (the settled rung)");
-  // Lane A ADVANCED: its top-level Steps 1 & 2 are settled-WON. The loader never fabricates.
-  assert.equal(bb.laneA.laneStatus, "advanced", "Lane A advanced (cycle-8 Steps 1 & 2 WON, July-6 + July-7)");
+  assert.equal(bb.currentStep, 1, "live run's lead step pointer sits on Step 1 (both lanes restarted to Step 1)");
+  // Lane A: fresh Step-1 review (active), not a settled/advanced rung. The loader never fabricates.
+  assert.equal(bb.laneA.laneStatus, "active", "Lane A active (fresh Step-1 review, cycle 9)");
   assert.equal(bb.laneA.publicVisible, true, "Lane A is publicly visible");
-  assert.equal(bb.laneA.currentStep, 2, "Lane A settled its Step-2 (advanced from Step 2)");
-  assert.equal((bb.laneA.steps ?? []).length, 2, "Lane A carries its two settled steps (Step-1 + Step-2)");
-  assert.equal(bb.laneA.steps[0].status, "settled", "Lane A Step-1 is settled (WON July-6)");
-  assert.equal(bb.laneA.steps[0].result, "won", "Lane A Step-1 settled WON (Spain or Draw + Belgium or Draw)");
-  assert.equal(bb.laneA.steps[1].status, "settled", "Lane A Step-2 is settled (WON July-7)");
-  assert.equal(bb.laneA.steps[1].result, "won", "Lane A Step-2 settled WON (Colombia or Draw + Argentina to win)");
-  // Lane B is a no-play: STOPPED, its top rung the settled July-5 LOSS (sanitized to a clean path downstream).
-  assert.equal(bb.laneB.laneStatus, "stopped", "Lane B stopped (July-6 no-play)");
+  assert.equal(bb.laneA.currentStep, 1, "Lane A restarted to Step 1");
+  assert.equal((bb.laneA.steps ?? []).length, 1, "Lane A carries its single fresh Step-1 review card");
+  assert.equal(bb.laneA.steps[0].status, "active", "Lane A Step-1 is the fresh review (not a settled rung)");
+  assert.equal(bb.laneA.steps[0].result ?? null, null, "Lane A Step-1 is unsettled (review card, no result)");
+  // The MLB pitcher-strikeout review legs surface on the fresh Step-1 (Wrobleski anchor + Buehler core).
+  assert.ok((bb.laneA.steps[0].legs ?? []).some((l) => l.sport === "MLB"), "Lane A Step-1 carries the MLB review legs");
+  // Lane B: fresh Step-1 review (active), awaiting a qualified value card.
+  assert.equal(bb.laneB.laneStatus, "active", "Lane B active (fresh Step-1 review, cycle 8)");
   assert.equal(bb.laneB.currentStep, 1, "Lane B's top rung pointer is Step 1");
-  assert.equal((bb.laneB.steps ?? []).length, 1, "Lane B carries exactly its one top Step-1");
-  assert.equal(bb.laneB.steps[0].status, "settled", "Lane B top Step-1 is settled (the July-5 card)");
-  assert.equal(bb.laneB.steps[0].result, "lost", "Lane B top Step-1 settled LOST (July-5)");
-  // No legs from any DEEPER PRIOR cycle (the banked ladders or either lane's priorLane chain) may surface — the
-  // July-1 → July-3 legs (Cape Verde/Austria/Algeria) are prior-cycle history and stay hidden. NOTE: Argentina/Egypt
-  // are NOT canaries here — they are the LEGITIMATE current cycle-8 Step-2 card ("Argentina to win" vs Egypt), which
-  // is settled-WON at the top level and SHOULD surface.
+  assert.equal((bb.laneB.steps ?? []).length, 1, "Lane B carries exactly its one fresh Step-1 review");
+  assert.equal(bb.laneB.steps[0].status, "active", "Lane B top Step-1 is the fresh review (not settled)");
+  assert.equal(bb.laneB.steps[0].result ?? null, null, "Lane B Step-1 is unsettled (review card, no result)");
+  // No legs from ANY prior cycle (the banked ladders or either lane's priorLane chain) may surface — the prior WC
+  // cycles (Spain/Belgium/Colombia/Argentina, then the deeper July-1 → July-5 legs) are history and stay hidden.
   const live = JSON.stringify(bb);
+  assert.ok(!/Spain or Draw|Belgium or Draw|Colombia or Draw|Argentina to win/.test(live), "the advanced cycle-8 WC legs stay in priorLane — never in the live preview");
   assert.ok(!/Goldschmidt|Hoskins|Turkey|Gonzales|Curaçao|Ivory Coast|Jordan/.test(live), "no banked-ladder / deeper priorLane legs leak into the live preview");
   assert.ok(!/Cape Verde|Austria|Algeria/.test(live), "the settled cycle-6 (July-1 → July-3) deeper-cycle legs stay in priorLane / Mr. Dub — never in the live preview");
 });

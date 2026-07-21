@@ -10,6 +10,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
+import { makeSettledApprovedRoot } from "../__testsupport__/settled-ladder-root.mjs";
 
 const DATA = path.join(process.cwd(), "public", "data");
 const md5 = (p) => crypto.createHash("md5").update(fs.readFileSync(p)).digest("hex");
@@ -18,7 +19,15 @@ const POST_SETTLE = Date.UTC(2026, 6, 8, 3, 0); // ~11pm ET July-7, after both g
 
 test("settled July-7 Lane A Step-2 → reads settled ladder state: laneStatus WON, legs hit", async () => {
   const { loadApprovedBankBuilder } = await import("./bank-builder-proposal.ts");
-  const ap = loadApprovedBankBuilder(DATA, "2026-07-07", POST_SETTLE);
+  // The July-21 review restart pushed the settled July-7 cycle into the live ladder's priorLane; reconstruct the
+  // pre-restart settled ladder so the official WON/legs-hit result is read from canonical July-7 ladder state.
+  const { tmp, dataRoot } = makeSettledApprovedRoot(DATA);
+  let ap;
+  try {
+    ap = loadApprovedBankBuilder(dataRoot, "2026-07-07", POST_SETTLE);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
   const a = ap.lanes[0];
   assert.equal(a.laneStatus, "won", "settled Step-2 renders WON (from the ladder)");
   assert.notEqual(a.laneStatus, "awaiting_settlement", "no stale awaiting-settlement for a settled card");

@@ -15,6 +15,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { buildPersistedDailyPortfolio } from "./daily-portfolio/accounting.ts";
+import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
 
 const root = path.join(process.cwd(), "public", "data");
 const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
@@ -108,7 +109,18 @@ test("STABILITY: the consumed lock does NOT re-pin settled cards; the live cycle
   assert.equal(lock.status, "settled");
   assert.deepEqual(lock.lanes ?? {}, {}, "consumed lock pins nothing");
   const LIVE_DATE = "2026-07-07";
-  const live = buildPersistedDailyPortfolio(root, `${LIVE_DATE}T12:00:00Z`, LIVE_DATE, `${LIVE_DATE}T12:00:00Z`, true);
+  // The settled July-7 cycle now lives in the live ladder's priorLane (July-21 review restart). Reconstruct the
+  // pre-restart settled ladder so this "served card stays stable, never re-pins the consumed June-24 legs" invariant
+  // is validated against the same-day-SETTLED Lane A it was ground-truthed to. Lock + archive reads stay on `root`.
+  const { tmp: settledTmp, dataRoot: settled } = makeSettledApprovedRoot(root);
+  let live, again;
+  try {
+    live = buildPersistedDailyPortfolio(settled, `${LIVE_DATE}T12:00:00Z`, LIVE_DATE, `${LIVE_DATE}T12:00:00Z`, true);
+    // Refreshing does not silently change the served state (stable across two builds at different pre-kickoff clocks).
+    again = buildPersistedDailyPortfolio(settled, `${LIVE_DATE}T14:00:00Z`, LIVE_DATE, `${LIVE_DATE}T14:00:00Z`, true);
+  } finally {
+    fs.rmSync(settledTmp, { recursive: true, force: true });
+  }
   const liveBb = live.lanes.filter((l) => l.product === "bank-builder");
   const liveA = liveBb.find((l) => l.lane === "A");
   const liveB = liveBb.find((l) => l.lane === "B");
@@ -132,8 +144,6 @@ test("STABILITY: the consumed lock does NOT re-pin settled cards; the live cycle
   const servedText = JSON.stringify([liveA?.legs ?? []]);
   assert.ok(/Colombia or Draw/.test(servedText) && /Argentina to win/.test(servedText), "Lane A serves the approved July-7 survival legs");
   assert.ok(!/Morocco/i.test(servedText) && !/Bosnia/i.test(servedText), "no consumed June-24 selections resurface");
-  // Refreshing does not silently change the served state (stable across two builds at different pre-kickoff clocks).
-  const again = buildPersistedDailyPortfolio(root, `${LIVE_DATE}T14:00:00Z`, LIVE_DATE, `${LIVE_DATE}T14:00:00Z`, true);
   const againBb = again.lanes.filter((l) => l.product === "bank-builder");
   assert.equal(againBb.length, liveBb.length, "Bank Builder lane count unchanged across refreshes (no silent swap)");
   for (const lane of ["A"]) {

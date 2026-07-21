@@ -71,9 +71,25 @@ test("Specials tracker reachable from rail + Specials box CTA (today / world-cup
 });
 
 test("Moonshot activation rule: candidate cannot activate after kickoff (no late exposure)", () => {
-  const lane = loadMoonshotLane();
-  const cand = (lane.candidates ?? [])[0];
-  assert.ok(cand, "a moonshot candidate exists");
+  // The live lane carries NO candidates on the July-21 review slate, so exercise the pure activation rule
+  // against a SYNTHETIC candidate (independent-game combined price in the Moonshot band). This keeps the
+  // after-kickoff guard under test without depending on the live (now-empty) candidates array.
+  const cand = {
+    cardId: "moonshot-synthetic-activation-test",
+    label: "Synthetic activation-rule candidate",
+    status: "candidate",
+    scope: "world_cup",
+    risk: "longshot",
+    stake: 25,
+    combinedOdds: 900, // inside the +600..+2000 Moonshot activation band
+    projectedReturn: 250,
+    distinctGames: 2,
+    activated: false, // never placed → no exposure
+    legs: [
+      { fixture: "England vs Ghana", participant: "Ghana Double Chance", market: "double_chance", marketLabel: "Double Chance", odds: 260, kickoffEt: "2026-06-23T16:00:00-04:00", startTimeUtc: "2026-06-23T20:00:00Z", settlement: { source: "api_football", official: "" } },
+      { fixture: "Colombia vs DR Congo", participant: "Over 2.5 Goals", market: "match_total_goals", marketLabel: "Total Goals", odds: 180, kickoffEt: "2026-06-23T19:00:00-04:00", startTimeUtc: "2026-06-23T23:00:00Z", settlement: { source: "api_football", official: "" } },
+    ],
+  };
   // Earliest leg is England/Ghana at 2026-06-23T20:00:00Z (4 PM ET).
   // Comfortably before kickoff → ready.
   assert.equal(candidateReadiness(cand, "2026-06-23T18:00:00Z").state, "ready", "ready well before kickoff");
@@ -81,4 +97,6 @@ test("Moonshot activation rule: candidate cannot activate after kickoff (no late
   assert.equal(candidateReadiness(cand, "2026-06-23T19:45:00Z").state, "kickoff_too_close", `within ${ACTIVATION_CUTOFF_MIN}m → blocked`);
   // After a game has kicked off → expired (review only, never placed late).
   assert.equal(candidateReadiness(cand, "2026-06-23T20:30:00Z").state, "expired", "expired after kickoff");
+  // The synthetic candidate is never activated → the activation rule never authorizes late exposure.
+  assert.equal(cand.activated, false, "candidate is not activated (no exposure placed)");
 });

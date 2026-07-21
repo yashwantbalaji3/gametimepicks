@@ -12,6 +12,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
@@ -141,7 +142,16 @@ test("FUNCTIONAL: July-7 build → Lane A settled WON, $0 exposure, clearedSteps
   // July-7 view EXPLICITLY from the July-7 approved card + settled ladder. The settled-WON invariant is
   // unchanged (still reconstructed from canonical July-7 sources) — it is simply no longer the live file.
   const { buildPersistedDailyPortfolio } = await import("./daily-portfolio/accounting.ts");
-  const p = buildPersistedDailyPortfolio(path.join(app, "public", "data"), "2026-07-07T12:00:00Z", "2026-07-07", "2026-07-07T12:00:00Z", true);
+  // The July-21 review restart pushed the settled July-7 cycle into the live ladder's priorLane; reconstruct the
+  // pre-restart settled ladder so the same-day-SETTLED (WON, $0 exposure, clearedSteps 2) invariant is validated
+  // against canonical July-7 sources (the live daily-portfolio.json has since advanced past July-7).
+  const { tmp, dataRoot } = makeSettledApprovedRoot(path.join(app, "public", "data"));
+  let p;
+  try {
+    p = buildPersistedDailyPortfolio(dataRoot, "2026-07-07T12:00:00Z", "2026-07-07", "2026-07-07T12:00:00Z", true);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
   assert.equal(p.products.bankBuilder.exposure, 0, "BB open exposure is $0 — the settled seed is no longer at risk");
   // No BB lane is active (Lane A settled WON), so a candidate/active card must not surface.
   assert.ok(!(p.lanes ?? []).some((c) => c.product === "bank-builder" && c.status === "active"), "no active BB card once Lane A settled");

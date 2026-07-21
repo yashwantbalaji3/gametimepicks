@@ -24,6 +24,7 @@ import os from "node:os";
 import path from "node:path";
 import { buildPersistedDailyPortfolio } from "./daily-portfolio/accounting.ts";
 import { readLaneRungs } from "./daily-portfolio/bank-builder-generation.ts";
+import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
 
 const root = path.join(process.cwd(), "public", "data");
 const DATE = "2026-07-07";
@@ -31,7 +32,13 @@ const NOW = "2026-07-07T12:00:00Z"; // pre-slate: before the 16:00Z Argentina/Eg
 const PORTFOLIO_MD5 = "affe6b21071f2b3be96bb2774eb347c3"; // canonical money fingerprint — must never change
 const readJson = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
 
-const build = () => buildPersistedDailyPortfolio(root, NOW, DATE, NOW, true);
+// The July-21 REVIEW restart pushed the settled July-7 cycle down into each lane's `priorLane`. Reconstruct the
+// pre-restart settled ladder (Lane A cycle-8 ADVANCED, Steps 1 & 2 settled WON) into a throwaway data root so the
+// same-day-settlement invariants keep being validated. Canonical money (portfolio.json md5) is a byte copy, untouched.
+const { tmp: SETTLED_TMP, dataRoot: SETTLED } = makeSettledApprovedRoot(root);
+process.on("exit", () => fs.rmSync(SETTLED_TMP, { recursive: true, force: true }));
+
+const build = () => buildPersistedDailyPortfolio(SETTLED, NOW, DATE, NOW, true);
 const laneAOf = (dp) => dp.lanes.find((l) => l.product === "bank-builder" && l.lane === "A");
 
 /** Temp `root` mirroring public/data with the approved Lane A Step-2 ladder step left UNSETTLED (pending), so
@@ -78,7 +85,7 @@ test("3. the settled Lane A Step-2 stays visible as history (not hidden/dropped)
 
 // 4 — Lane A awaits Step 3 with next stake $305.57 (asserted via readLaneRungs).
 test("4. Lane A advanced to Step 3 with rolled stake $305.57 (via readLaneRungs)", () => {
-  const { laneA } = readLaneRungs(root);
+  const { laneA } = readLaneRungs(SETTLED);
   assert.ok(laneA, "Lane A has a forward rung");
   assert.equal(laneA.nextStep, 3, "the forward rung is Step 3");
   assert.equal(laneA.clearedSteps, 2, "two cleared steps (Step-1 + the just-won Step-2)");

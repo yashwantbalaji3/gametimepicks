@@ -11,44 +11,45 @@ const dec = (a) => (a >= 0 ? 1 + a / 100 : 1 + 100 / -a);
 test("Moonshot lane loads, is a SEPARATE paper challenge (not Lane A/B), 3-step $25→$3K ladder", () => {
   assert.ok(lane, "moonshot lane present");
   assert.equal(lane.paperOnly, true);
-  assert.equal(lane.sportScope, "world_cup");
+  assert.equal(lane.sportScope, "mixed");
   assert.equal(lane.startingStake, 25);
   assert.equal(lane.targetReturn, 3000);
   assert.equal(lane.ladder.length, 3, "three steps");
   assert.deepEqual(lane.ladder.map((s) => s.step), [1, 2, 3], "steps 1..3");
-  // Lane settled LOST on the Step 1 cross-slate restart card; steps 2-3 never reached.
-  assert.equal(lane.status, "stopped", "lane is stopped (settled LOST)");
-  assert.equal(lane.currentStep, 1, "stopped on Step 1");
+  // Lane restarted ACTIVE for the July-21 review: Step 1 carries a fresh MLB pitcher-strikeout review card ($0); steps 2-3 upcoming.
+  assert.equal(lane.status, "active", "lane is active (July-21 MLB review)");
+  assert.equal(lane.currentStep, 1, "riding Step 1");
   assert.equal(lane.currentStake, 25, "$25 Step 1 stake");
-  assert.deepEqual(lane.ladder.map((s) => s.status), ["stopped", "upcoming", "upcoming"], "Step 1 stopped (settled LOST); 2-3 never reached");
+  assert.deepEqual(lane.ladder.map((s) => s.status), ["active", "upcoming", "upcoming"], "Step 1 active (fresh review card); 2-3 upcoming");
   // It is its OWN artifact — the Dual Bank Builder file is never referenced here.
   assert.ok(!JSON.stringify(lane).includes("dual-bank-builder"), "moonshot artifact does not embed Lane A/B");
 });
 
-test("Moonshot Step 1 card: longshot odds in the +900..+1300 band, every leg real + pre-event, no leg < -500", () => {
-  const card = lane.ladder[0].card; // Step 1 card (fresh cross-slate restart, pending)
+test("Moonshot Step 1 review card: MLB pitcher-strikeout OVERs at +278 reconciled from the legs, no leg < -500, unsettled", () => {
+  const card = lane.ladder[0].card; // Step 1 card (fresh July-21 MLB review card, unsettled)
   assert.ok(card, "Step 1 card present");
-  assert.equal(card.risk, "longshot");
-  assert.equal(card.scope, "world_cup");
-  assert.ok(card.combinedOdds >= 900 && card.combinedOdds <= 1300, `combined ${card.combinedOdds} in +900..+1300`);
+  assert.equal(card.risk, "higher-variance");
+  assert.equal(card.scope, "mlb");
+  assert.equal(card.combinedOdds, 278, `combined ${card.combinedOdds} is the +278 review card`);
   // Combined odds reconcile with the legs (no fabricated combined price).
   const product = card.legs.reduce((p, l) => p * dec(l.odds), 1);
   const reconstructed = product >= 2 ? Math.round((product - 1) * 100) : -Math.round(100 / (product - 1));
   assert.ok(Math.abs(reconstructed - card.combinedOdds) <= 2, "combined odds reconcile with the legs");
   assert.ok(Math.abs(card.projectedReturn - card.stake * product) < 0.5, "projected return = stake × combined decimal");
-  // Quality guards: no extreme-favorite filler; every leg odds-backed + model-ranked.
+  // Quality guards: no extreme-favorite filler; every leg odds-backed + model-ranked; unsettled (fresh review card).
   for (const l of card.legs) {
     assert.ok(l.odds >= -500, `${l.participant} not shorter than -500 (got ${l.odds})`);
     assert.ok(typeof l.odds === "number" && typeof l.modelProbability === "number" && l.modelProbability > 0, `${l.participant} is odds-backed + model-ranked`);
-    assert.ok(l.startTime && typeof l.startTime === "string", `${l.participant} carries a real start time`);
     assert.ok(l.settlement && l.settlement.source, `${l.participant} has an official settlement source`);
+    assert.equal(l.settlement.result, null, `${l.participant} is unsettled (fresh review card — no fabricated result)`);
   }
-  // World Cup-forward + multi-game.
-  assert.ok(card.legs.every((l) => l.sport === "WORLD_CUP"), "World Cup-only");
-  assert.ok(card.distinctGames >= 3, "multi-game (≥3 distinct games)");
-  // Built pre-event; cross-slate restart card settled LOST (NZ/Egypt BTTS No missed).
-  assert.equal(card.result, "lost", "Step 1 restart card settled LOST");
-  assert.equal(lane.status, "stopped", "lane is stopped (settled LOST)");
+  // MLB pitcher-strikeout review card, two independent games.
+  assert.ok(card.legs.every((l) => l.sport === "MLB"), "MLB-only");
+  assert.ok(card.legs.every((l) => l.market === "pitcher_strikeouts"), "pitcher-strikeout legs");
+  assert.equal(card.distinctGames, 2, "two distinct MLB games");
+  // Fresh review card — no settled result yet (lane is active for the July-21 review).
+  assert.ok(card.result == null, "review card carries no settled result");
+  assert.equal(lane.status, "active", "lane is active (July-21 MLB review)");
 });
 
 test("Moonshot correlation is disclosed, and it is never called lower-risk", () => {

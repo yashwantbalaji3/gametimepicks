@@ -20,21 +20,21 @@ const archive = read("public/data/methodology/launch/dual-bank-builder-2026-06-2
 const moon = read("public/data/moonshot-lane/active.json");
 const portfolio = read("public/data/mr-dub/portfolio.json");
 
-test("Bank Builder: completed run BANKED → live lanes are a fresh cycle-2 with no open legs, and the archived settled legs are not stale", () => {
-  // Live (fresh cycle-2): both lanes are active Step 1 with no placed card → zero open legs.
-  let openLegCount = 0;
+test("Bank Builder: completed run BANKED → live lanes restarted with Step-1 active cards; no OPEN leg is a stale past-date leg, and the archived settled legs are intact", () => {
+  // Live (restarted cycle): the lanes now carry active Step-1 paper cards. The remaining guard (per the
+  // file header) is that no PLACED/ACTIVE leg is TRULY STALE — i.e. no open leg has an ET kickoff date
+  // BEFORE the June 21 slate. Paper-only; no real money placed.
+  const staleOpenLegs = [];
   for (const [id, lane] of [["lane-a", bb.laneA], ["lane-b", bb.laneB]]) {
     for (const s of lane.steps ?? []) {
       if (s.status === "pending" || s.status === "active") {
         for (const l of s.legs ?? []) {
-          openLegCount++;
-          assert.ok(!isStale(l.startTime), `${id} step ${s.step} open leg ${l.participantName} is a stale past-date leg (${l.startTime})`);
+          if (isStale(l.startTime)) staleOpenLegs.push(`${id} step ${s.step} ${l.participantName} (${l.startTime})`);
         }
       }
     }
   }
-  // Fresh cycle-2 has no placed card on either lane, so there are NO open legs.
-  assert.equal(openLegCount, 0, "no open legs — fresh Step-1 cycle-2, awaiting the next qualified card");
+  assert.deepEqual(staleOpenLegs, [], `no open leg is a stale past-date leg (found: ${staleOpenLegs.join("; ")})`);
   // The cross-slate settled WON legs (the now-banked June 18-24 run) live in the archive and span ≥2 cleared cards.
   let settledLegCount = 0;
   for (const lane of [archive.laneA, archive.laneB]) {
@@ -60,17 +60,17 @@ test("Bank Builder: candidate surfaces resolved into placed cards (no leftover c
   }
 });
 
-test("Moonshot: Step 1 card settled LOST (lane stopped, no active card); restartCandidate cleared", () => {
-  // The Moonshot Step 1 cross-slate restart card settled LOST (NZ/Egypt BTTS No missed) → lane is stopped.
+test("Moonshot: Step 1 active review card (lane restarted); restartCandidate + priorRun cleared", () => {
+  // The Moonshot lane restarted ACTIVE for the July-21 MLB review: Step 1 carries a fresh MLB pitcher-strikeout review card ($0).
   assert.equal(moon.restartCandidate, null, "moonshot restartCandidate cleared");
-  assert.equal(moon.status, "stopped", "moonshot lane stopped (settled LOST)");
-  assert.equal((moon.ladder ?? []).find((s) => s.status === "active"), undefined, "no active Moonshot card (lane settled)");
-  const settled = (moon.ladder ?? []).find((s) => s.status === "stopped")?.card;
-  assert.ok(settled, "Moonshot Step 1 settled card present");
-  assert.equal(settled.result, "lost", "Step 1 restart card settled LOST");
-  // No settled-card leg is a stale PAST-slate leg: the only June-21 leg is the now-final NZ/Egypt settlement trigger.
-  for (const l of settled.legs ?? []) {
-    assert.ok(!isStale(l.startTime), `moonshot settled leg ${l.participant} is a stale past-date leg (${l.startTime})`);
+  assert.equal(moon.priorRun, null, "moonshot priorRun cleared");
+  assert.equal(moon.status, "active", "moonshot lane active (July-21 MLB review)");
+  const active = (moon.ladder ?? []).find((s) => s.status === "active");
+  assert.ok(active && active.card, "active Moonshot review card present");
+  assert.ok(active.card.result == null, "review card carries no settled result (fresh, unsettled)");
+  // No open review-card leg is a stale PAST-slate leg (the MLB review legs carry no pre-June-21 kickoff).
+  for (const l of active.card.legs ?? []) {
+    assert.ok(!isStale(l.startTime), `moonshot review leg ${l.participant} is a stale past-date leg (${l.startTime})`);
   }
 });
 

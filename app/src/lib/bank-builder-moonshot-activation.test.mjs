@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { buildPersistedDailyPortfolio, MOONSHOT_MAX_EXPOSURE } from "./daily-portfolio/accounting.ts";
 import { buildDailyPortfolio } from "./mr-dub/daily-portfolio.ts";
+import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const root = path.join(process.cwd(), "public", "data");
@@ -50,7 +51,16 @@ test("apply (live July-7): ZERO active BB lanes (Lane A settled WON, $0 exposure
   // CANDIDATE (below the floor → never activated).
   const LIVE_DATE = "2026-07-07";
   const LIVE_NOW = "2026-07-07T12:00:00Z"; // pre-slate: before the 16:00Z Argentina/Egypt kickoff
-  const dp = buildPersistedDailyPortfolio(root, LIVE_NOW, LIVE_DATE, LIVE_NOW, true);
+  // The July-21 review restart pushed the settled July-7 cycle into the live ladder's priorLane; reconstruct the
+  // pre-restart settled ladder so Lane A's same-day-SETTLED (WON, $0 exposure) state is validated against canonical
+  // July-7 sources. Moonshot A/B come from the slate generator (unchanged in the copy) and still reconcile.
+  const { tmp, dataRoot } = makeSettledApprovedRoot(root);
+  let dp;
+  try {
+    dp = buildPersistedDailyPortfolio(dataRoot, LIVE_NOW, LIVE_DATE, LIVE_NOW, true);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
   const bb = dp.lanes.filter((l) => l.product === "bank-builder");
   const moon = dp.lanes.filter((l) => l.product === "moonshot");
   assert.equal(bb.length, 1, "one Bank Builder lane served (Lane A cycle-8 Step 2, approved July-7; Lane B no-play)");

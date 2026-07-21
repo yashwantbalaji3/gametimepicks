@@ -1,0 +1,866 @@
+{
+  "sport": "MLB",
+  "date": "2026-07-21",
+  "asOf": "2026-07-21",
+  "public": false,
+  "internal": true,
+  "kind": "model-inputs-full-game",
+  "officialMoneyRecordAffected": false,
+  "exposureCreated": 0,
+  "activationStatus": "internal_only",
+  "leakageNote": "Team run rates use ONLY committed linescore dates strictly earlier than this date. Park factors are static structural constants. Pitcher ratings are neutral. No same-date or future data enters a pregame input.",
+  "coverageSummary": {
+    "games": 15,
+    "probablesAvailable": true,
+    "runRateDatesUsed": 6,
+    "parkFactorsMapped": 15,
+    "meanCompleteness": 0.36,
+    "usableForIndependentModel": false
+  },
+  "verdict": "Independent inputs remain INSUFFICIENT for a non-market model: probables + thin run rates + approximate park factors only; pitcher strength / bullpen / lineup / weather are missing. The engine stays market-anchored.",
+  "games": [
+    {
+      "date": "2026-07-21",
+      "gamePk": 823437,
+      "gameId": "41aa20c582aac0979e875a6e5a86b79b",
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Philadelphia Phillies",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Justin Wrobleski",
+          "home": "Zack Wheeler",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 4,
+          "home": 3.17,
+          "sampleGames": {
+            "away": 5,
+            "home": 6
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Citizens Bank Park",
+          "runFactor": 1.02,
+          "homeRunFactor": 1.07,
+          "confidence": "approximate",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.4,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 822787,
+      "gameId": "267dae014ac02839048da8da0bf226c3",
+      "awayTeam": "Tampa Bay Rays",
+      "homeTeam": "Toronto Blue Jays",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Drew Rasmussen",
+          "home": "Kevin Gausman",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 3.67,
+          "home": 4,
+          "sampleGames": {
+            "away": 6,
+            "home": 5
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Rogers Centre",
+          "runFactor": 1.01,
+          "homeRunFactor": 1.03,
+          "confidence": "approximate",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.4,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 824895,
+      "gameId": "ebe684b6aa76271158a53ba859a81432",
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "Atlanta Braves",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Walker Buehler",
+          "home": "Reynaldo López",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 3.33,
+          "home": 7.67,
+          "sampleGames": {
+            "away": 6,
+            "home": 6
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Truist Park",
+          "runFactor": 1,
+          "homeRunFactor": 1.01,
+          "confidence": "neutral_default",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.35,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 824409,
+      "gameId": null,
+      "awayTeam": "Minnesota Twins",
+      "homeTeam": "Cleveland Guardians",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Kendry Rojas",
+          "home": "Parker Messick",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 5.6,
+          "home": 3.6,
+          "sampleGames": {
+            "away": 5,
+            "home": 5
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Progressive Field",
+          "runFactor": 0.98,
+          "homeRunFactor": 0.97,
+          "confidence": "approximate",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.4,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 823519,
+      "gameId": null,
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "New York Yankees",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Bubba Chandler",
+          "home": "Will Warren",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 7,
+          "home": 4.33,
+          "sampleGames": {
+            "away": 5,
+            "home": 6
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Yankee Stadium",
+          "runFactor": 1.01,
+          "homeRunFactor": 1.1,
+          "confidence": "approximate",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.4,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 824735,
+      "gameId": null,
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "Boston Red Sox",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Kyle Bradish",
+          "home": "Ranger Suarez",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 4.4,
+          "home": 6,
+          "sampleGames": {
+            "away": 5,
+            "home": 5
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Fenway Park",
+          "runFactor": 1.04,
+          "homeRunFactor": 0.97,
+          "confidence": "moderate",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.4,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 824085,
+      "gameId": null,
+      "awayTeam": "San Francisco Giants",
+      "homeTeam": "Kansas City Royals",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Tyler Mahle",
+          "home": "Luinder Avila",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 5.5,
+          "home": 7,
+          "sampleGames": {
+            "away": 6,
+            "home": 6
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Kauffman Stadium",
+          "runFactor": 1.01,
+          "homeRunFactor": 0.95,
+          "confidence": "approximate",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.4,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 823760,
+      "gameId": null,
+      "awayTeam": "New York Mets",
+      "homeTeam": "Milwaukee Brewers",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Zac Thornton",
+          "home": "Brandon Sproat",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 7.5,
+          "home": 4.71,
+          "sampleGames": {
+            "away": 6,
+            "home": 7
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "American Family Field",
+          "runFactor": 1,
+          "homeRunFactor": 1.02,
+          "confidence": "neutral_default",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.35,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 824652,
+      "gameId": null,
+      "awayTeam": "Detroit Tigers",
+      "homeTeam": "Chicago Cubs",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Framber Valdez",
+          "home": "David Peterson",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 5,
+          "home": 4.4,
+          "sampleGames": {
+            "away": 5,
+            "home": 5
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Wrigley Field",
+          "runFactor": 1,
+          "homeRunFactor": 1,
+          "confidence": "neutral_default",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.35,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 822871,
+      "gameId": null,
+      "awayTeam": "Chicago White Sox",
+      "homeTeam": "Texas Rangers",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Noah Schultz",
+          "home": null,
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 2.4,
+          "home": 3.8,
+          "sampleGames": {
+            "away": 5,
+            "home": 5
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Globe Life Field",
+          "runFactor": 1.02,
+          "homeRunFactor": 1.01,
+          "confidence": "approximate",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "probable pitchers",
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.25,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 824165,
+      "gameId": null,
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Houston Astros",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Tyler Phillips",
+          "home": "Tatsuya Imai",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 6.4,
+          "home": 6.2,
+          "sampleGames": {
+            "away": 5,
+            "home": 5
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Daikin Park",
+          "runFactor": 1,
+          "homeRunFactor": 1.01,
+          "confidence": "neutral_default",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.35,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 824329,
+      "gameId": null,
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "Colorado Rockies",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Miles Mikolas",
+          "home": "Michael Lorenzen",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 5.8,
+          "home": 4.5,
+          "sampleGames": {
+            "away": 5,
+            "home": 6
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Coors Field",
+          "runFactor": 1.15,
+          "homeRunFactor": 1.12,
+          "confidence": "established_extreme",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.4,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 824005,
+      "gameId": null,
+      "awayTeam": "St. Louis Cardinals",
+      "homeTeam": "Los Angeles Angels",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Matthew Liberatore",
+          "home": "Walbert Ureña",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 3.43,
+          "home": 5.6,
+          "sampleGames": {
+            "away": 7,
+            "home": 5
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Angel Stadium",
+          "runFactor": 1,
+          "homeRunFactor": 1.01,
+          "confidence": "neutral_default",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.35,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 825056,
+      "gameId": null,
+      "awayTeam": "Athletics",
+      "homeTeam": "Arizona Diamondbacks",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Jack Perkins",
+          "home": null,
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 2.8,
+          "home": 3.67,
+          "sampleGames": {
+            "away": 5,
+            "home": 6
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "Chase Field",
+          "runFactor": 1.03,
+          "homeRunFactor": 1.02,
+          "confidence": "approximate",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "probable pitchers",
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.25,
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 823114,
+      "gameId": null,
+      "awayTeam": "Cincinnati Reds",
+      "homeTeam": "Seattle Mariners",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Chase Burns",
+          "home": "Luis Castillo",
+          "source": "statsapi_probable"
+        },
+        "pitcherRatings": {
+          "away": 0,
+          "home": 0,
+          "source": "neutral_default",
+          "note": "neutral — no leakage-safe rating available"
+        },
+        "teamRunRates": {
+          "away": 4,
+          "home": 4.8,
+          "sampleGames": {
+            "away": 5,
+            "home": 5
+          },
+          "source": "computed_from_committed_linescores_before_date"
+        },
+        "parkFactor": {
+          "venue": "T-Mobile Park",
+          "runFactor": 0.94,
+          "homeRunFactor": 0.92,
+          "confidence": "established_extreme",
+          "source": "static_approximate"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "missing": [
+          "pitcher strength ratings (neutral)",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather",
+          "injuries"
+        ],
+        "modelInputCompletenessScore": 0.4,
+        "usableForIndependentModel": false
+      }
+    }
+  ],
+  "note": "INTERNAL full-game model-inputs roll-up. Nothing fabricated. NOT web-served, never touches money."
+}

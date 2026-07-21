@@ -1,0 +1,162 @@
+{
+  "sport": "MLB",
+  "date": "2026-07-21",
+  "asOf": "2026-07-21",
+  "public": false,
+  "internal": true,
+  "kind": "model-inputs-snapshot",
+  "officialMoneyRecordAffected": false,
+  "exposureCreated": 0,
+  "activationStatus": "internal_only",
+  "coverageSummary": {
+    "games": 3,
+    "probablesAvailable": true,
+    "runRateDates": 6,
+    "usableForIndependentModel": false
+  },
+  "verdict": "INDEPENDENT inputs are only partially available (probable pitchers + thin team run rates). Pitcher strength, park factor, bullpen, and weather are missing — NOT enough for an independent predictive model. The engine stays market-anchored.",
+  "games": [
+    {
+      "date": "2026-07-21",
+      "gamePk": 823437,
+      "gameId": "41aa20c582aac0979e875a6e5a86b79b",
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Philadelphia Phillies",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Justin Wrobleski",
+          "home": "Zack Wheeler",
+          "source": "statsapi_probable"
+        },
+        "teamRunRates": {
+          "away": 4,
+          "home": 3.17,
+          "sampleGames": {
+            "away": 5,
+            "home": 6
+          },
+          "source": "computed_from_committed_linescores"
+        },
+        "parkFactor": {
+          "value": null,
+          "source": "unavailable"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "independentInputsAvailable": true,
+        "missing": [
+          "pitcher strength ratings",
+          "park factor",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather"
+        ],
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 822787,
+      "gameId": "267dae014ac02839048da8da0bf226c3",
+      "awayTeam": "Tampa Bay Rays",
+      "homeTeam": "Toronto Blue Jays",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Drew Rasmussen",
+          "home": "Kevin Gausman",
+          "source": "statsapi_probable"
+        },
+        "teamRunRates": {
+          "away": 3.67,
+          "home": 4,
+          "sampleGames": {
+            "away": 6,
+            "home": 5
+          },
+          "source": "computed_from_committed_linescores"
+        },
+        "parkFactor": {
+          "value": null,
+          "source": "unavailable"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "independentInputsAvailable": true,
+        "missing": [
+          "pitcher strength ratings",
+          "park factor",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather"
+        ],
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 824895,
+      "gameId": "ebe684b6aa76271158a53ba859a81432",
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "Atlanta Braves",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Walker Buehler",
+          "home": "Reynaldo López",
+          "source": "statsapi_probable"
+        },
+        "teamRunRates": {
+          "away": 3.33,
+          "home": 7.67,
+          "sampleGames": {
+            "away": 6,
+            "home": 6
+          },
+          "source": "computed_from_committed_linescores"
+        },
+        "parkFactor": {
+          "value": null,
+          "source": "unavailable"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "independentInputsAvailable": true,
+        "missing": [
+          "pitcher strength ratings",
+          "park factor",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather"
+        ],
+        "usableForIndependentModel": false
+      }
+    }
+  ],
+  "note": "INTERNAL model-inputs snapshot. Probable pitchers are a StatsAPI probable (may differ from the actual starter); run rates are computed from committed final linescores (thin). Nothing fabricated. NOT web-served, never touches money."
+}
