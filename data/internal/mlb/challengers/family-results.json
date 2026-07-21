@@ -1,0 +1,84 @@
+{
+  "public": false,
+  "market": "pitcher_strikeouts",
+  "featureFamily": "pitcher_workload",
+  "features": [
+    "f_daysRest",
+    "f_recentIP",
+    "f_recentBF",
+    "f_kRate"
+  ],
+  "coverage": {
+    "totalKleans": 958,
+    "usableRows": 945,
+    "unmatched": 0,
+    "insufficientPriorStarts": 13,
+    "noGameLog": 0,
+    "timestampGuardFailures": 0,
+    "coveragePct": 98.6
+  },
+  "protocol": {
+    "selectionDates": [
+      "2026-05-16",
+      "2026-07-01"
+    ],
+    "holdoutDates": [
+      "2026-07-02",
+      "2026-07-11"
+    ],
+    "holdoutObs": 196,
+    "minHoldoutObs": 500
+  },
+  "walkForward": {
+    "n": 441,
+    "brierChallenger": 0.2466,
+    "brierMarket": 0.2432,
+    "loglossChallenger": 0.6864,
+    "loglossMarket": 0.6795,
+    "challengerBeatsMarket": false
+  },
+  "holdout": {
+    "n": 196,
+    "sufficient": false,
+    "brier": {
+      "challenger": 0.2493,
+      "market": 0.246,
+      "diff": 0.0033,
+      "ci95": {
+        "lo": -0.0009,
+        "hi": 0.0073,
+        "iters": 2000
+      }
+    },
+    "logloss": {
+      "challenger": 0.6919,
+      "market": 0.6852,
+      "diff": 0.0067,
+      "ci95": {
+        "lo": -0.0018,
+        "hi": 0.0148,
+        "iters": 2000
+      }
+    }
+  },
+  "frozenCoefficients": {
+    "f_daysRest": 0.0057,
+    "f_recentIP": -0.1056,
+    "f_recentBF": 0.0984,
+    "f_kRate": 0.0149
+  },
+  "frozenIntercept": -0.1241,
+  "ablation": {
+    "marketOnly": {
+      "brier": 0.2432,
+      "logloss": 0.6795
+    },
+    "marketPlusWorkload": {
+      "brier": 0.2466,
+      "logloss": 0.6864
+    },
+    "workloadImprovesWF": false
+  },
+  "familyVerdict": "NO_INCREMENTAL_VALUE",
+  "marketVerdict": "INSUFFICIENT_OUT_OF_SAMPLE_DATA"
+}

@@ -42,8 +42,9 @@ app/bun.lockb
 # The cache directory holds raw API responses; never commit.
 pipeline/cache/*
 !pipeline/cache/.gitkeep
-# Raw StatsAPI gamelog fetch cache for the pitcher_outs backtest — regenerable, never commit.
+# Raw StatsAPI gamelog fetch caches — regenerable, never commit.
 data/internal/mlb/reference/pitcher-gamelog-cache.json
+data/internal/mlb/reference/pitcher-gamelog-full-cache.json
 
 # Optional intermediate data dirs (used if you save raw CSVs locally)
 pipeline/data/raw/*

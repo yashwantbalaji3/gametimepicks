@@ -1,0 +1,42 @@
+{
+  "public": false,
+  "generatedFor": "internal challenger research",
+  "timestampRule": "featureAvailableAt < eventStartTime (commenceTime)",
+  "families": [
+    {
+      "family": "confirmed_lineup",
+      "pregameAvailabilityProven": false,
+      "source": "none archived",
+      "verdict": "INSUFFICIENT_PREGAME_COVERAGE",
+      "note": "Board archives carry no batting-order / confirmed-lineup fields. Historical batting order exists only in POSTGAME box scores; using it as a pregame feature is leakage. Not built."
+    },
+    {
+      "family": "pitcher_workload",
+      "pregameAvailabilityProven": true,
+      "source": "StatsAPI people/<id>/stats gameLog (strictly-earlier starts only)",
+      "verdict": "BUILDABLE",
+      "note": "daysRest + recent IP/BF/K derived from starts strictly before commenceTime. Applies to pitcher_strikeouts."
+    },
+    {
+      "family": "bullpen",
+      "pregameAvailabilityProven": false,
+      "source": "none archived",
+      "verdict": "INSUFFICIENT_PREGAME_COVERAGE",
+      "note": "No archived bullpen-usage snapshots across the settled window. Reconstruction from later games would be leakage. Not built."
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "pregameAvailabilityProven": false,
+      "source": "team-markets (4 dates only)",
+      "verdict": "INSUFFICIENT_PREGAME_COVERAGE",
+      "note": "Team totals / game totals / batting order not archived across the 43-date window (team-markets covers 4 dates). Not built."
+    },
+    {
+      "family": "environment",
+      "pregameAvailabilityProven": false,
+      "source": "none archived",
+      "verdict": "INSUFFICIENT_PREGAME_COVERAGE",
+      "note": "No pregame weather/umpire/park archives. Postgame weather is leakage. Not built."
+    }
+  ]
+}
