@@ -94,3 +94,13 @@ A full `out/**/*.html` sweep surfaced WC references the first pass missed — ea
 4. Publish only when gates are green (tsc · suite · build · forensic · health · leak/fake-claim/product scans · route smoke).
 5. Do not re-surface the World Cup as an active sport; it stays an archive.
 
+## Addendum — SimTheGame catch-up + MLB prediction coverage expansion (2026-07-21)
+
+The MLB game report was expanded toward SimTheGame's breadth **using only model output we already generate** (see `SIMTHEGAME_CATCHUP_REQUIREMENTS_AND_EXECUTION_JULY21.md` + `MLB_PROP_COVERAGE_AUDIT_JULY21.md`):
+
+- **Player board** now shows **every simulated line (all 82 leans)** grouped by team, not the ~21 top picks — verified 48 rows on ATH@AZ. Signal legend (model lead / aligned / watchlist / product / unavailable). Market **agreement by stat** (gap + n per market). Data-driven **main takeaways**. **In-page game selector** to hop between the day's MLB games (no World Cup).
+- **Honesty held:** the 5 provider-available-but-unmodeled markets (HR/RBI/Runs/Outs/ER) are labelled **market context only, not simulated, not product-eligible** — never surfaced as predictions. No public projected score / win probability / full-game distribution. Internal full-game engine stays internal.
+- **Scorecard impact:** *MLB report UX* GREEN strengthened (broad board + by-stat agreement + selector); all other rows unchanged. Data-freshness + settlement stay YELLOW. Verdict unchanged: **paper beta 🟢 GO · official-money ⛔ NO-GO ($0)**.
+- **Gates at ship:** tsc clean · **2,300 tests** · build 0 · forensic PERFECT · health HEALTHY · money md5 `affe6b21…` unchanged. New guard: `mlb-report-coverage-expansion.test.mjs`.
+- **Still behind SimTheGame on:** full-game score/win-prob/run-distribution as a model, the 5 unmodeled player markets, inning/team-total markets, and all soccer — each documented with realistic requirements in the roadmap docs.
+

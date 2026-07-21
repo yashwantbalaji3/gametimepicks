@@ -7,6 +7,7 @@
  */
 import Link from "next/link";
 import type { PublicGameDetail } from "@/lib/game-detail";
+import { siblingGames } from "@/lib/game-detail";
 import type { PublicProjection } from "@/lib/normalize";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import MlbGameLabReport from "@/components/game/mlb-game-lab-report";
@@ -640,6 +641,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       resultSummary={mlbResultSummary}
       hasTeamMarkets={!!detail.gameCenter}
       playerProps={detail.playerProps}
+      gameLab={detail.gameLabMlb ?? null}
       picks={detail.gameLabSimulation?.generatedPicks ?? []}
       distributions={detail.gameLabSimulation?.distributions ?? null}
       gameCenter={detail.gameCenter ?? null}
@@ -664,6 +666,24 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         <div className="mb-2">
           <Link href="/games" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
         </div>
+        {(() => {
+          // In-page game selector — hop between the day's other MLB games without the global nav. Current game
+          // highlighted; a "sim" chip flags games with a ready simulation. Data is the real slate (no fabrication).
+          const siblings = siblingGames(detail.sport, detail.date ?? "", detail.slug);
+          if (siblings.length === 0) return null;
+          return (
+            <div className="mb-4 -mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }} aria-label="Other MLB games today">
+              <span className="shrink-0 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Today&apos;s MLB</span>
+              <span className="shrink-0 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-gold-bright)", background: "rgba(217,164,65,0.12)", border: "1px solid var(--vault-gold-bright)", whiteSpace: "nowrap" }} aria-current="page">{detail.title}</span>
+              {siblings.map((s) => (
+                <Link key={s.slug} href={`/games/${s.urlSport}/${s.slug}`} className="shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", textDecoration: "none", whiteSpace: "nowrap" }}>
+                  {s.title}
+                  {s.simReady ? <span aria-hidden style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 7 }}>● sim</span> : null}
+                </Link>
+              ))}
+            </div>
+          );
+        })()}
 
         {/* CLEAN matchup hero — always visible, NO posted prices/picks. Large team crests (away @ home),
             title, MLB, date/venue, a Simulation Ready badge, and honest run/pick counts (run count gated). */}

@@ -400,6 +400,24 @@ export function gameDetailParams(): Array<{ sport: string; gameId: string }> {
   return buildAllGameDetails().map((d) => ({ sport: urlSport(d.sport), gameId: d.slug }));
 }
 
+/** One entry in the in-page game selector — a sibling game on the same date + sport. */
+export interface SiblingGameLink {
+  slug: string;
+  urlSport: string;
+  title: string;
+  /** True when a ready deterministic simulation artifact exists (drives the "sim ready" chip). */
+  simReady: boolean;
+}
+
+/** Sibling games on the SAME date + sport (for the in-page game selector), excluding the current slug.
+ *  Cheap — buildAllGameDetails() is memoized. Sim-ready games first, then by slug for stable order. */
+export function siblingGames(sport: SportKey, date: string, currentSlug: string): SiblingGameLink[] {
+  return buildAllGameDetails()
+    .filter((d) => d.sport === sport && d.date === date && d.slug !== currentSlug)
+    .map((d) => ({ slug: d.slug, urlSport: urlSport(d.sport), title: d.title, simReady: !!d.gameLabSimulation }))
+    .sort((a, b) => (a.simReady === b.simReady ? a.slug.localeCompare(b.slug) : a.simReady ? -1 : 1));
+}
+
 /** The full fixture detail for a team pair (order/date-independent), or null when none exists. */
 export function getDetailForTeams(sport: SportKey, teamA: string, teamB: string): PublicGameDetail | null {
   const key = [slugify(teamA), slugify(teamB)].sort().join("|");

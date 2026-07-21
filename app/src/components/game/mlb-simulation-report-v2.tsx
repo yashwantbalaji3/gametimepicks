@@ -25,6 +25,7 @@
 import type { PublicProjection } from "@/lib/normalize";
 import type { SimGeneratedPick, SimDistributions } from "@/lib/game-simulations/types";
 import type { MlbGameCenter } from "@/lib/mlb-team-markets";
+import type { MlbGameLabView, MlbLeanRow } from "@/lib/game-lab/mlb-report";
 import type { ProductTag } from "@/lib/game-detail-product-tags";
 import { productTagFor } from "@/lib/game-detail-product-tags";
 import { Section, StatTile, Monogram, AdvancedDisclosure } from "@/components/game/report-v2-shell";
@@ -41,7 +42,10 @@ export interface MlbSimulationReportV2Props {
   resultSummary: React.ReactNode;
   hasTeamMarkets: boolean;
   playerProps: PublicProjection[];
-  /** The raw 10k generated picks — powers the board / watchlist / agreement / eligibility sections. */
+  /** The FULL un-capped board-lean set (all simulated player lines, all 4 modeled markets) — powers the
+   *  grouped model board + the by-stat agreement. Null when the board carries no leans for this game. */
+  gameLab?: MlbGameLabView | null;
+  /** The raw 10k generated picks — powers the watchlist / eligibility sections. */
   picks?: SimGeneratedPick[];
   /** Player-prop outcome distributions (bins) keyed by prop; null when none. */
   distributions?: SimDistributions;
@@ -100,11 +104,47 @@ function ProductChip({ tag }: { tag: ProductTag | null }) {
   );
 }
 
+/** Board-lean signal → the honest public legend (model lead / aligned / watchlist). We deliberately avoid
+ *  "supported / opposed" (reads like betting advice). "Model lead" = model above market; "Watchlist" = model
+ *  fades the posted line or the read is high-variance. */
+const SIGNAL_DISPLAY: Record<string, { label: string; color: string; bg: string }> = {
+  supported: { label: "Model lead", color: "var(--gtp-success-on-dark, #7ee2a8)", bg: "rgba(46,160,102,0.14)" },
+  neutral: { label: "Aligned", color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.04)" },
+  opposed: { label: "Watchlist", color: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)" },
+};
+function SignalCell({ signal }: { signal: string }) {
+  const s = SIGNAL_DISPLAY[signal] ?? SIGNAL_DISPLAY.neutral;
+  return (
+    <span className="inline-flex items-center font-mono uppercase tracking-[0.04em] rounded-full px-1.5 py-0.5" style={{ fontSize: 8.5, color: s.color, background: s.bg, whiteSpace: "nowrap" }}>{s.label}</span>
+  );
+}
+/** Compact key for the model board — what each signal / tag means. */
+function SignalLegend() {
+  const items: Array<[string, string, string]> = [
+    ["Model lead", "model above market", "var(--gtp-success-on-dark, #7ee2a8)"],
+    ["Aligned", "model ≈ market", "var(--vault-text-mute)"],
+    ["Watchlist", "model fades the line / high variance", "var(--vault-gold-bright)"],
+    ["Product card", "used in a paper card ($0)", "var(--vault-gold-bright)"],
+    ["Unavailable", "not modeled / provider not ready", "var(--vault-text-faint)"],
+  ];
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      {items.map(([label, note, color]) => (
+        <span key={label} className="inline-flex items-center gap-1 font-mono" style={{ fontSize: 8.5, color: "var(--vault-text-faint)" }}>
+          <span aria-hidden style={{ width: 7, height: 7, borderRadius: 999, background: color, display: "inline-block" }} />
+          <span style={{ color: "var(--vault-text-mute)" }}>{label}</span> — {note}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props) {
   const {
     home, away, homeCode, awayCode, date, isPreviousSlate, runLabel, resultSummary, hasTeamMarkets,
     playerProps, advanced, picks = [], distributions = null, gameCenter = null, marketSnapshotNode = null,
     productTags, runCount = null, allowsRunCountClaim = false, modelVersion = null, generatedAt = null,
+    gameLab = null,
   } = props;
 
   const pct = (p: number | null | undefined) => (typeof p === "number" ? `${(p * 100).toFixed(0)}%` : "—");
@@ -137,6 +177,65 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
     }
     return [...m.entries()].map(([k, arr]) => ({ market: k, mean: arr.reduce((s, g) => s + g, 0) / arr.length, count: arr.length })).sort((a, b) => b.mean - a.mean);
   })();
+
+  // ── Full model board (ALL simulated player lines) — the un-capped board leans, not just the ~8/game top
+  // picks. Each row is the model's read on the POSTED lean side, product-tagged, grouped by team. No fabrication:
+  // every field traces to a real board lean. This is the SimTheGame-style box-score board breadth. ──
+  type BoardRow = {
+    key: string; player: string; team: string | null; market: string; line: number | null; side: "over" | "under";
+    modelProb: number | null; marketProb: number | null; gap: number | null; projection: number | null;
+    signal: MlbLeanRow["signal"]; confidence: string | null; tag: ProductTag | null;
+  };
+  const leanRows: MlbLeanRow[] = gameLab?.rows ?? [];
+  const leanSide = (r: MlbLeanRow): "over" | "under" => (String(r.lean).toLowerCase() === "under" ? "under" : "over");
+  const toBoardRow = (r: MlbLeanRow): BoardRow => {
+    const side = leanSide(r);
+    return {
+      key: r.id, player: r.playerName, team: r.playerTeamAbbr, market: r.marketKey ?? "", line: r.line, side,
+      modelProb: side === "under" ? r.modelProbUnder : r.modelProbOver,
+      marketProb: side === "under" ? r.impliedUnder : r.impliedOver,
+      gap: r.edgePct, projection: r.projection, signal: r.signal, confidence: r.confidence,
+      tag: productTags ? productTagFor(productTags, r.playerName, r.marketKey, side, r.line) : null,
+    };
+  };
+  const allBoardRows = leanRows.map(toBoardRow);
+  // Group by team — away team first, then home, biggest |model gap| first within each team.
+  const teamOrder = [gameLab?.awayTeamAbbr, gameLab?.homeTeamAbbr].filter(Boolean) as string[];
+  const teamGroups = (() => {
+    const m = new Map<string, BoardRow[]>();
+    for (const r of allBoardRows) { const t = r.team ?? "—"; if (!m.has(t)) m.set(t, []); m.get(t)!.push(r); }
+    for (const arr of m.values()) arr.sort((a, b) => Math.abs(b.gap ?? 0) - Math.abs(a.gap ?? 0));
+    const ordered = [...teamOrder.filter((t) => m.has(t)), ...[...m.keys()].filter((t) => !teamOrder.includes(t))];
+    return ordered.map((t) => ({ team: t, rows: m.get(t)! }));
+  })();
+  const modeledMarkets = [...new Set(allBoardRows.map((r) => marketLabel(r.market)))];
+  const useLeanBoard = allBoardRows.length > 0;
+
+  // By-STAT market agreement — mean |model − market| per market. Uses the full lean set when present (all 4
+  // modeled markets, robust n) and falls back to the priced picks otherwise. Honest sanity check, not calibration.
+  const leanStatGap = (() => {
+    const m = new Map<string, number[]>();
+    for (const r of allBoardRows) {
+      if (!Number.isFinite(r.modelProb ?? NaN) || !Number.isFinite(r.marketProb ?? NaN)) continue;
+      const k = marketLabel(r.market);
+      if (!m.has(k)) m.set(k, []);
+      m.get(k)!.push(Math.abs((r.modelProb as number) - (r.marketProb as number)));
+    }
+    return [...m.entries()].map(([k, a]) => ({ market: k, mean: a.reduce((s, g) => s + g, 0) / a.length, count: a.length })).sort((a, b) => b.mean - a.mean);
+  })();
+  const statAgreement = leanStatGap.length ? leanStatGap : byMarketGap;
+
+  // Main takeaways (data-driven, no fabrication): the biggest model lead, the most market-aligned stat, and the
+  // count of active product legs. Feeds the fast-orientation card at the top of the report.
+  const takeawayLead = (() => {
+    if (useLeanBoard) {
+      const r = [...allBoardRows].filter((x) => (x.gap ?? 0) > 0).sort((a, b) => (b.gap ?? 0) - (a.gap ?? 0))[0];
+      return r ? { player: r.player, market: marketLabel(r.market), side: r.side, line: r.line, gap: r.gap ?? 0 } : null;
+    }
+    const p = watchlist[0];
+    return p ? { player: p.player ?? p.team ?? "—", market: marketLabel(p.market), side: p.side, line: p.line, gap: p.edgePct } : null;
+  })();
+  const mostAlignedStat = statAgreement.length ? statAgreement[statAgreement.length - 1].market : null;
 
   // Player-prop distributions (bins) — keyed by prop; label carries player + market. Player-prop ONLY.
   const distEntries = distributions ? Object.entries(distributions).filter(([, d]) => d && Array.isArray(d.bins) && d.bins.length > 0) : [];
@@ -195,7 +294,11 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           </div>
           <div className="rounded-[10px] px-3 py-2" style={{ background: "rgba(217,164,65,0.07)", border: "1px solid rgba(217,164,65,0.22)" }}>
             <span className="font-mono uppercase tracking-[0.1em] block" style={{ color: "var(--vault-gold)", fontSize: 8.5 }}>What to look at</span>
-            <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Player board · market agreement · product eligibility</span>
+            <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+              {takeawayLead
+                ? <>Top model lead: <span style={{ color: "var(--vault-text)" }}>{takeawayLead.player}</span> {takeawayLead.market} +{takeawayLead.gap.toFixed(0)} pt{mostAlignedStat ? <> · most aligned: {mostAlignedStat}</> : null}{taggedCount > 0 ? <> · {taggedCount} product leg{taggedCount === 1 ? "" : "s"}</> : null}</>
+                : <>Player board · market agreement · product eligibility</>}
+            </span>
           </div>
           <div className="rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
             <span className="font-mono uppercase tracking-[0.1em] block" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>What is not shown</span>
@@ -214,6 +317,13 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           <StatTile label="Team markets" value={hasTeamMarkets ? "Snapshot" : "Not posted"} sub={hasTeamMarkets ? "market-implied" : "provider needed"} />
           <StatTile label="Full-game score" value="Not simulated" sub="model validating" />
         </div>
+        {useLeanBoard ? (
+          <p className="mt-2 font-mono text-[10px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
+            Model-predicted markets: <span style={{ color: "var(--vault-text-mute)" }}>{modeledMarkets.join(" · ") || "—"}</span>.
+            The book also posts Home runs · RBIs · Runs · Pitcher outs · Earned runs for some players — the model does not price those yet
+            (<span style={{ color: "var(--vault-text-mute)" }}>market context only</span>, not simulated, not product-eligible). See the coverage audit for why.
+          </p>
+        ) : null}
       </Section>
 
       {/* 3 — Simulation result (the real 10k player-prop output) */}
@@ -224,9 +334,50 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
       {resultSummary}
 
       {/* 4 — Player simulation board (SimTheGame-style box-score grid) */}
-      <Section n={4} title="Player simulation board" subtitle="Every simulated player line · model vs market · product tag">
+      <Section n={4} title="Player simulation board" subtitle="Every simulated player line · grouped by team · model vs market · product tag">
         <div id="mlbr-player-board" />
-        {boardPicks.length > 0 ? (
+        {useLeanBoard ? (
+          <div className="flex flex-col gap-3">
+            <SignalLegend />
+            <p className="font-mono text-[9.5px] m-0" style={{ color: "var(--vault-text-faint)" }}>
+              All {allBoardRows.length} simulated lines across {modeledMarkets.length} market{modeledMarkets.length === 1 ? "" : "s"} ({modeledMarkets.join(" · ")}). Grouped by team, biggest model gap first.
+            </p>
+            {teamGroups.map((grp) => (
+              <div key={grp.team} className="overflow-x-auto -mx-1">
+                <div className="flex items-center gap-2 px-1.5 py-1">
+                  <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold)", fontSize: 10, fontWeight: 700 }}>{grp.team}</span>
+                  <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{grp.rows.length} line{grp.rows.length === 1 ? "" : "s"}</span>
+                </div>
+                <table className="w-full border-collapse" style={{ fontSize: 11.5 }}>
+                  <thead style={{ position: "sticky", top: 0, zIndex: 1 }}>
+                    <tr style={{ color: "var(--vault-text-faint)", background: "var(--gtp-card-sunken, rgba(15,10,7,0.96))" }}>
+                      {([["Player", "left", true], ["Market", "left", true], ["Proj", "right", false], ["Model %", "right", true], ["Mkt %", "right", false], ["Gap", "right", true], ["Signal", "left", true], ["Product", "left", false]] as Array<[string, "left" | "right", boolean]>).map(([h, align, mobile]) => (
+                        <th key={h} className={`font-mono uppercase tracking-[0.06em] py-1.5 px-1.5${mobile ? "" : " hidden sm:table-cell"}`} style={{ fontSize: 8.5, textAlign: align, borderBottom: "1px solid var(--vault-border-strong)", whiteSpace: "nowrap" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {grp.rows.map((r, i) => (
+                      <tr key={r.key || i} style={{ borderBottom: "1px solid var(--vault-rule)", background: i % 2 ? "rgba(255,255,255,0.014)" : "transparent" }}>
+                        <td className="py-1.5 px-1.5" style={{ color: "var(--vault-text)", fontWeight: 600, whiteSpace: "nowrap" }}>{r.player}</td>
+                        <td className="py-1.5 px-1.5 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10, whiteSpace: "nowrap" }}>{marketLabel(r.market)} {cap(r.side)} {r.line ?? ""}</td>
+                        <td className="py-1.5 px-1.5 font-mono tabular text-right hidden sm:table-cell" style={{ color: "var(--vault-text-faint)" }}>{num1(r.projection)}</td>
+                        <td className="py-1.5 px-1.5 font-mono tabular text-right" style={{ color: "var(--vault-text)", fontWeight: 700 }}>{pct(r.modelProb)}</td>
+                        <td className="py-1.5 px-1.5 font-mono tabular text-right hidden sm:table-cell" style={{ color: "var(--vault-text-faint)" }}>{pct(r.marketProb)}</td>
+                        <td className="py-1.5 px-1.5 font-mono tabular text-right" style={{ color: (r.gap ?? 0) > 0 ? "var(--vault-gold)" : "var(--vault-text-faint)", fontWeight: 700 }}>{(r.gap ?? 0) > 0 ? "+" : ""}{r.gap != null ? r.gap.toFixed(0) : "—"}</td>
+                        <td className="py-1.5 px-1.5"><SignalCell signal={r.signal} /></td>
+                        <td className="py-1.5 px-1.5 hidden sm:table-cell">{r.tag ? <ProductChip tag={r.tag} /> : <span style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>—</span>}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+            <p className="mt-1 font-mono text-[9.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
+              Proj = the model&apos;s projected stat · Model % / Mkt % = probability to clear the posted line · Gap = model − market, in points. A research board, not a bet slip. Paper-only.
+            </p>
+          </div>
+        ) : boardPicks.length > 0 ? (
           <div className="overflow-x-auto -mx-1">
             <table className="w-full border-collapse" style={{ fontSize: 11.5 }}>
               {/* Header row is sticky so it stays visible while scanning a long board; low-priority columns
@@ -313,15 +464,16 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                 </div>
               </div>
             </div>
-            {byMarketGap.length > 1 ? (
+            {statAgreement.length > 0 ? (
               <div className="flex flex-col gap-1.5">
-                {byMarketGap.map((r) => (
+                <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Agreement by stat · avg model−market gap · n lines</span>
+                {statAgreement.map((r) => (
                   <div key={r.market} className="flex items-center gap-2">
-                    <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 10, width: 96 }}>{r.market}</span>
+                    <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 10, width: 110 }}>{r.market}</span>
                     <div className="relative flex-1 rounded-full" style={{ height: 6, background: "rgba(255,255,255,0.06)" }}>
                       <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: `${Math.min(100, r.mean * 400)}%`, background: "var(--vault-gold-bright)", opacity: 0.75 }} />
                     </div>
-                    <span className="font-mono shrink-0 text-right" style={{ color: "var(--vault-text-faint)", fontSize: 9.5, width: 40 }}>{(r.mean * 100).toFixed(0)} pt</span>
+                    <span className="font-mono shrink-0 text-right" style={{ color: "var(--vault-text-faint)", fontSize: 9.5, width: 66 }}>{(r.mean * 100).toFixed(0)} pt · n{r.count}</span>
                   </div>
                 ))}
               </div>
