@@ -60,6 +60,8 @@ Repo variables **set** (GitHub → Settings → Variables) + `ODDS_API_KEY` secr
 
 **Expected daily credit cost:** team ~3/run + player props ~3 events × 9 markets = ~27/run ⇒ **~30 credits/run × ~8 runs/day ≈ ~240 credits/day**. At 15,379 remaining with a 2,000 floor, runway ≈ **~55 days** (the floor auto-stops capture before exhaustion). To spend less: lower the cap, reduce the market list, or capture props on fewer cron times.
 
+**CI validation run (2026-07-21, `workflow_dispatch` for 2026-07-22):** all steps executed and the run **succeeded** (non-blocking design held). StatsAPI capture ✓ (17 games, all pregame). The opt-in commit step correctly **skipped** (`PREGAME_ARCHIVE_COMMIT` unset). **BLOCKER:** both paid steps **aborted safely** with `credit guard: remaining 0 < floor 2000` — the **GitHub `ODDS_API_KEY` secret returns 0 credits remaining**, while the local `.env` key (last4 `2a97`) has ~15,379. **Founder action:** update the repo secret `ODDS_API_KEY` to the credit-funded key (the one in `.env`) so CI paid capture can run — e.g. `gh secret set ODDS_API_KEY --repo yashwantbalaji3/gametimepicks` (paste the funded key). Until then, CI captures only the free StatsAPI families; paid capture works locally.
+
 **Monitor:** `node app/scripts/monitor-mlb-pregame-archive.mjs` → `status/monitor.json` (daily status: team/prop capture, events/markets/records/eligible/paired-vs-over-only/de-vig/est+actual credits/remaining/skipped/provider_unavailable; 7-day progress: dates, market/prop dates, avg eligible records/day, days-to-30-date-gate).
 
 ## Research gate (before any future modeling)
