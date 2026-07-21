@@ -278,10 +278,10 @@ test("game-detail-page still builds MlbGameLabReport (gameLabMlb) and wires Game
   assert.match(DETAIL_PAGE_SRC, /const isMlbSim = detail\.sport === "mlb" && !!detail\.gameLabSimulation/, "MLB-sim gate defined");
   assert.match(DETAIL_PAGE_SRC, /const sim = detail\.gameLabSimulation!/, "sim view bound from detail.gameLabSimulation");
   assert.match(DETAIL_PAGE_SRC, /<GameSimulationRunner\s+view=\{sim\}/, "must render the sim runner with the sim view");
-  // ONE unified report: the market snapshot (Game Center) is threaded into the runner, and the remaining
-  // detail (report + spotlight + methodology) is the gated `mlbReportDetails` postReveal — never a
-  // pre-click sibling and no longer a competing tabbed dashboard.
-  assert.match(DETAIL_PAGE_SRC, /marketSnapshot=\{gameCenter\}/, "market snapshot leads the unified report (in the runner)");
+  // ONE unified report: the market snapshot (Game Center) node is threaded into the V2.5 report (its §10),
+  // and the whole gated `mlbReportDetails` V2.5 report is the runner's postReveal — never a pre-click sibling
+  // and no longer a competing tabbed dashboard. The runner no longer renders its own market snapshot.
+  assert.match(DETAIL_PAGE_SRC, /marketSnapshotNode=\{gameCenter\}/, "market snapshot node goes into the V2.5 report (§10), rendered once");
   assert.match(DETAIL_PAGE_SRC, /postReveal=\{mlbReportDetails\}/, "MLB post-reveal is the gated unified detail");
   // The dense report + spotlight live in a gated collapsed "Advanced report" disclosure, never a pre-click sibling.
   assert.match(DETAIL_PAGE_SRC, /mlbAdvanced = \([\s\S]*?title="Advanced report"[\s\S]*?\{mlbReport\}\{spotlight\}/, "the dense report is inside the gated Advanced report disclosure (demoted into V2's advanced block)");

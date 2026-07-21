@@ -56,7 +56,7 @@ function LeanRow({ p, lead }: { p: SummaryPick; lead?: boolean }) {
         </span>
         {typeof p.edgePct === "number" ? (
           <span className="font-mono shrink-0" style={{ color: "var(--vault-gold-bright)", fontSize: lead ? 13 : 11, fontWeight: 700 }}>
-            +{p.edgePct.toFixed(1)}% edge
+            +{p.edgePct.toFixed(1)} pt gap
           </span>
         ) : null}
       </div>
@@ -93,7 +93,7 @@ export default function MlbSimulationResultSummary({ headline, picks, runCount, 
           {top.map((p, i) => <LeanRow key={`${p.player}-${p.market}-${p.line}`} p={p} lead={i === 0} />)}
         </div>
       ) : (
-        <p className="text-[12.5px] m-0" style={{ color: "var(--vault-text-mute)" }}>No qualifying edge in this slate — the market is efficient, which is a disciplined read, not a broken report.</p>
+        <p className="text-[12.5px] m-0" style={{ color: "var(--vault-text-mute)" }}>No qualifying model-vs-market gap in this game — the market is efficient, which is a disciplined read, not a broken report.</p>
       )}
 
       <p className="font-mono text-[10px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>

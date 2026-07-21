@@ -14,6 +14,7 @@ import GameSimulationRunner from "@/components/game/game-simulation-runner";
 import MlbGameCenter from "@/components/game/mlb-game-center";
 import MlbSimulationResultSummary from "@/components/game/mlb-simulation-result-summary";
 import MlbSimulationReportV2 from "@/components/game/mlb-simulation-report-v2";
+import { loadProductTagMap } from "@/lib/game-detail-product-tags";
 import { currentEtDate } from "@/lib/freshness";
 import WcGameCenter from "@/components/game/wc-game-center";
 import WcSimulationRunner from "@/components/game/wc-simulation-runner";
@@ -640,7 +641,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       hasTeamMarkets={!!detail.gameCenter}
       playerProps={detail.playerProps}
       picks={detail.gameLabSimulation?.generatedPicks ?? []}
+      distributions={detail.gameLabSimulation?.distributions ?? null}
       gameCenter={detail.gameCenter ?? null}
+      marketSnapshotNode={gameCenter}
+      productTags={loadProductTagMap(path.join(process.cwd(), "public", "data"))}
       runCount={detail.gameLabSimulation?.runCount ?? null}
       allowsRunCountClaim={!!detail.gameLabSimulation?.allowsRunCountClaim}
       modelVersion={detail.gameLabSimulation?.modelVersion ?? null}
@@ -718,7 +722,6 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           view={sim}
           homeLogo={detail.homeLogo}
           awayLogo={detail.awayLogo}
-          marketSnapshot={gameCenter}
           postReveal={mlbReportDetails}
         />
 

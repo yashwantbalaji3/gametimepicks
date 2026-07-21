@@ -34,7 +34,7 @@ test("N-run copy stays gated on a REAL runCount (no fabricated run claim)", () =
 });
 
 test("generated pick cards show the core fields (proj / model / market / edge / conf + reasons)", () => {
-  for (const label of ["Proj", "Model", "Market", "Edge", "Conf"]) {
+  for (const label of ["Proj", "Model", "Market", "Gap", "Conf"]) {
     assert.match(runner, new RegExp(`label="${label}"`), `pick card shows ${label}`);
   }
   assert.match(runner, /p\.reasonBullets\.map/, "renders reason bullets");

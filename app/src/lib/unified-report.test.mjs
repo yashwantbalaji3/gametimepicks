@@ -23,13 +23,16 @@ const detailPage = read("src/components/game/game-detail-page.tsx");
 const runner = read("src/components/game/game-simulation-runner.tsx");
 const panels = read("src/components/game/game-dashboard-panels.tsx");
 
-test("1 · the market snapshot leads the report (threaded into the runner as section 2)", () => {
-  assert.match(detailPage, /marketSnapshot=\{gameCenter\}/, "MLB market snapshot goes into the runner");
-  assert.match(runner, /marketSnapshot\?: React\.ReactNode/, "runner accepts a market snapshot");
-  // It renders before the model output (priced-prop snapshot).
-  const ms = runner.indexOf("gtp-market-snapshot");
-  const model = runner.indexOf("<PricedPropSnapshot");
-  assert.ok(ms > 0 && ms < model, "market snapshot renders before the simulator output");
+test("1 · the market snapshot renders ONCE, inside the primary V2.5 report — not duplicated in the runner", () => {
+  const v2 = read("src/components/game/mlb-simulation-report-v2.tsx");
+  // The snapshot NODE is threaded into the V2.5 report (its §10), not rendered by the runner.
+  assert.match(detailPage, /marketSnapshotNode=\{gameCenter\}/, "MLB market snapshot node goes into the V2.5 report");
+  assert.match(v2, /gtp-market-snapshot/, "V2.5 renders the market snapshot (§10)");
+  assert.doesNotMatch(runner, /gtp-market-snapshot/, "the runner no longer renders a competing market snapshot above the report");
+  // The V2.5 report (postReveal) is the PRIMARY content, before the collapsed advanced-detail block.
+  const primary = runner.indexOf("PRIMARY REPORT");
+  const advanced = runner.indexOf("Advanced simulation detail");
+  assert.ok(primary > 0 && advanced > primary, "V2.5 renders as the primary report, before the collapsed advanced block");
 });
 
 test("2 · the report is ONE unified spine — no competing PostRevealTabs dashboard", () => {

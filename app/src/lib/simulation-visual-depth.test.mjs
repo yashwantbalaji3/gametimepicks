@@ -33,7 +33,7 @@ test("distributions still render ONLY from a real, non-empty artifact block (no 
 test("the strongest lean, model probability, and edge remain visible", () => {
   assert.match(runner, /Strongest lean/, "the strongest lean highlight stays");
   assert.match(runner, /label="Model"/, "model probability visible");
-  assert.match(runner, /label="Edge"/, "edge visible");
+  assert.match(runner, /label="Gap"/, "model gap visible");
 });
 
 test("paper-only copy present; NO banned copy anywhere in the runner", () => {

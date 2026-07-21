@@ -130,7 +130,7 @@ function GeneratedPickCard({ p, top }: { p: SimGeneratedPick; top?: boolean }) {
         <Stat label="Proj" value={num2(p.projection)} />
         <Stat label="Model" value={pct(p.modelProbability)} />
         <Stat label="Market" value={pct(p.marketProbability)} />
-        <Stat label="Edge" value={edgeTxt(p.edgePct)} color={(p.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)"} />
+        <Stat label="Gap" value={edgeTxt(p.edgePct)} color={(p.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)"} />
         <Stat label="Conf" value={pct(p.confidence)} />
       </div>
       {/* Visual depth — real fields only: the model-vs-market edge bar + the projection-vs-line track. */}
@@ -273,7 +273,7 @@ export function deriveTakeaways(picks: SimGeneratedPick[]): SimTakeaway[] {
     },
     {
       key: "biggest_edge",
-      label: "Biggest edge value",
+      label: "Biggest model gap",
       value: edgeTxt(strongest.edgePct),
       from: `from ${subjectOf(strongest)} · ${humanizeMarket(strongest.market)}`,
     },
@@ -357,7 +357,7 @@ export function buildRecap(view: GameSimulationView): string {
     lines.push(
       `Strongest lean: ${subject} — ${humanizeMarket(lean.market)} ${dash(lean.side)}${lean.line != null ? ` ${lean.line}` : ""}`,
     );
-    lines.push(`  Model ${pct(lean.modelProbability)} · Market ${pct(lean.marketProbability)} · Edge ${edgeTxt(lean.edgePct)}`);
+    lines.push(`  Model ${pct(lean.modelProbability)} · Market ${pct(lean.marketProbability)} · Gap ${edgeTxt(lean.edgePct)}`);
   } else {
     lines.push("Strongest lean: no qualified lean generated");
   }
@@ -543,7 +543,7 @@ function PricedPropSnapshot({ picks }: { picks: SimGeneratedPick[] }) {
                   <Stat label="Proj" value={num2(p.projection)} />
                   <Stat label="Model" value={pct(p.modelProbability)} />
                   <Stat label="Market" value={pct(p.marketProbability)} />
-                  <Stat label="Edge" value={edgeTxt(p.edgePct)} color={(p.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)"} />
+                  <Stat label="Gap" value={edgeTxt(p.edgePct)} color={(p.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)"} />
                 </div>
               </div>
             );
@@ -598,7 +598,7 @@ function CentralRead({ view }: { view: GameSimulationView }) {
             <Stat label="Proj" value={num2(lean.projection)} />
             <Stat label="Model" value={pct(lean.modelProbability)} />
             <Stat label="Market" value={pct(lean.marketProbability)} />
-            <Stat label="Edge" value={edgeTxt(lean.edgePct)} color={(lean.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)"} />
+            <Stat label="Gap" value={edgeTxt(lean.edgePct)} color={(lean.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)"} />
             <Stat label="Conf" value={pct(lean.confidence)} />
           </div>
           <ProbBar model={lean.modelProbability} market={lean.marketProbability} />
@@ -665,7 +665,7 @@ function PropTable({ picks }: { picks: SimGeneratedPick[] }) {
       <ModuleHead
         eyebrow="Player / prop table"
         title="Every generated pick"
-        sub={capped ? `Showing top ${PROP_TABLE_CAP} of ${list.length} generated picks — ranked by edge, nothing silently dropped.` : "Ranked by edge — every pick the run produced."}
+        sub={capped ? `Showing top ${PROP_TABLE_CAP} of ${list.length} generated picks — ranked by model gap, nothing silently dropped.` : "Ranked by the model-vs-market gap — every pick the run produced."}
       />
       <div className="rounded-[12px]" style={{ border: "1px solid var(--vault-border)", overflowX: "auto" }}>
         <table className="w-full" style={{ borderCollapse: "collapse", fontSize: 11.5 }}>
@@ -678,7 +678,7 @@ function PropTable({ picks }: { picks: SimGeneratedPick[] }) {
               <th className={th}>Proj</th>
               <th className={th}>Model%</th>
               <th className={th}>Market%</th>
-              <th className={th}>Edge</th>
+              <th className={th}>Gap</th>
               <th className={th}>Conf</th>
               <th className={th}>Risk</th>
             </tr>
@@ -1073,12 +1073,18 @@ export default function GameSimulationRunner({
             ) : null}
           </section>
 
-          {/* 2 · MARKET SNAPSHOT — "what the book says": the de-vigged team-market Game Center (moneyline /
-              total / run line). Leads the read, before the model output, so market vs model is a clean
-              split. Absent when the game has no team markets (no fabricated card). */}
-          {marketSnapshot ? <div className="gtp-market-snapshot">{marketSnapshot}</div> : null}
+          {/* PRIMARY REPORT — the unified V2.5 report renders right after the "Simulation complete" header.
+              It owns the market snapshot (its §10), the player board, leans, agreement, distributions, settlement,
+              product eligibility and methodology, so nothing here competes with it above. */}
+          {postReveal ? <div className="flex flex-col gap-5">{postReveal}</div> : null}
 
-          {/* 3 · SIMULATOR OUTPUT — the priced-prop snapshot: what GameTime's model produced, priced. */}
+          {/* ADVANCED SIMULATION DETAIL — the older answer-first dashboard, demoted into ONE collapsed block
+              below the primary report. Kept for depth; it is not a competing second report and it no longer
+              repeats the market snapshot (that renders once, in the V2.5 report above). */}
+          <details className="rounded-[14px] px-4 sm:px-5 py-3" style={{ background: "rgba(15,10,7,0.35)", border: "1px solid var(--vault-border)" }}>
+            <summary className="cursor-pointer font-mono uppercase tracking-[0.08em] select-none" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>Advanced simulation detail ▾</summary>
+            <div className="mt-3 flex flex-col gap-4">
+          {/* SIMULATOR OUTPUT — the priced-prop snapshot: what GameTime's model produced, priced. */}
           <PricedPropSnapshot picks={view.generatedPicks} />
 
           {/* 3 · CENTRAL READ — the model's single strongest lean, as a PROP read (never a score). */}
@@ -1097,8 +1103,8 @@ export default function GameSimulationRunner({
                 </h3>
                 <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>
                   {view.generatedPicks.length > 6
-                    ? `Showing top 6 of ${view.generatedPicks.length} generated picks — model probability vs the market price, with edge, per pick. Paper-only, deterministic.`
-                    : "Model probability vs the market price, with edge, per pick — paper-only, deterministic."}
+                    ? `Showing top 6 of ${view.generatedPicks.length} generated picks — model probability vs the market price, with the model gap, per pick. Paper-only, deterministic.`
+                    : "Model probability vs the market price, with the model gap, per pick — paper-only, deterministic."}
                 </span>
               </div>
               <div className="grid grid-cols-1 gap-2">
@@ -1130,7 +1136,7 @@ export default function GameSimulationRunner({
 
               {/* 6 · Full pick table (collapsed) */}
               {view.generatedPicks.length > 0 ? (
-                <ExpandableReportSection title="Full pick table" count={view.generatedPicks.length} hint="Every generated pick — projection, model %, market %, edge, confidence.">
+                <ExpandableReportSection title="Full pick table" count={view.generatedPicks.length} hint="Every generated pick — projection, model %, market %, model gap, confidence.">
                   <PropTable picks={view.generatedPicks} />
                 </ExpandableReportSection>
               ) : null}
@@ -1167,18 +1173,13 @@ export default function GameSimulationRunner({
             </div>
           ) : null}
 
-          {/* Same-output note + paper-only. */}
-          <p className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-            Same model output for every user · {versionNote}
-          </p>
-          <p className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-            Paper-only · educational · not betting advice
-          </p>
+            </div>
+          </details>
 
-          {/* GATED CONTENT — the dense report, Model spotlight, and price tabs. Rendered ONLY here (done),
-              never as a pre-click sibling, so posted prices/prop tables/distributions are ABSENT until the
-              reveal completes. */}
-          {postReveal ? <div className="flex flex-col gap-5 mt-1">{postReveal}</div> : null}
+          {/* Paper-only — the single closing disclaimer (detailed disclaimers live in the report methodology). */}
+          <p className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+            Paper-only · educational · not betting advice · same model output for every user · {versionNote}
+          </p>
 
           {/* Post-reveal navigation — a primary "run another" plus quiet secondaries (back to the lobby /
               today's picks). Grouped so the next action is obvious after the reveal. */}
