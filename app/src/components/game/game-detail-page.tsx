@@ -543,7 +543,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   // ── Tab: Team & game props ──
   const projectionsTab = (
     <div className="flex flex-col gap-3">
-      <SectionHeader eyebrow={`Projections · ${detail.teamProjections.length}`} title="Team & game projections" sub="Model probability vs the market price, with edge, for this fixture." />
+      <SectionHeader eyebrow={`Projections · ${detail.teamProjections.length}`} title="Team & game projections" sub="Model probability vs the market price, with the model-vs-market gap, for this fixture." />
       {detail.teamProjections.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {detail.teamProjections.map((p) => <ProjectionCard key={p.id} p={p} />)}

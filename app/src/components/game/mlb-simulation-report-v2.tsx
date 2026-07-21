@@ -28,6 +28,7 @@ import type { MlbGameCenter } from "@/lib/mlb-team-markets";
 import type { MlbGameLabView, MlbLeanRow } from "@/lib/game-lab/mlb-report";
 import type { ProductTag } from "@/lib/game-detail-product-tags";
 import { productTagFor } from "@/lib/game-detail-product-tags";
+import { MLB_CALIBRATION_DISCLOSURE, isCalibrationFailed, anyModeledMarketBeatsMarket } from "@/lib/mlb/model-calibration-status";
 import { Section, StatTile, Monogram, AdvancedDisclosure } from "@/components/game/report-v2-shell";
 
 export interface MlbSimulationReportV2Props {
@@ -307,13 +308,25 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         </div>
       </section>
 
+      {/* Calibration disclosure — the honest, audit-backed truth about the model probabilities. Prominent + high
+          so nobody reads the "model %"/gap below as a proven advantage. Only hidden if a market is ever validated. */}
+      {!anyModeledMarketBeatsMarket() ? (
+        <div className="rounded-[12px] px-4 py-3 flex items-start gap-2.5" style={{ background: "rgba(234,88,12,0.08)", border: "1px solid rgba(234,88,12,0.4)" }}>
+          <span aria-hidden style={{ color: "var(--vault-warn)", fontSize: 14, lineHeight: 1.2 }}>⚠</span>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>Model calibration notice</span>
+            <span className="text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{MLB_CALIBRATION_DISCLOSURE}</span>
+          </div>
+        </div>
+      ) : null}
+
       {/* 2 — Simulation coverage */}
       <Section n={2} title="Simulation coverage" subtitle="What this report covers — and what it does not">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           <StatTile label="Player-prop sim" value={runsPill} sub="Monte Carlo" />
           <StatTile label="Markets simulated" value={String(simMarkets.length)} sub={simMarkets.slice(0, 3).join(" · ") || "—"} />
           <StatTile label="Picks generated" value={String(picks.length)} sub={`${aboveMarket} above market`} />
-          <StatTile label="Product-eligible" value={String(eligible.length)} sub="deterministic settle" />
+          <StatTile label="Paper candidates" value={String(eligible.length)} sub="not market-proven" />
           <StatTile label="Team markets" value={hasTeamMarkets ? "Snapshot" : "Not posted"} sub={hasTeamMarkets ? "market-implied" : "provider needed"} />
           <StatTile label="Full-game score" value="Not simulated" sub="model validating" />
         </div>
@@ -532,13 +545,24 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
       <Section n={9} title="Bank Builder & Moonshot eligibility" subtitle="Which picks feed the paper products">
         <div id="mlbr-products" />
         <div className="grid grid-cols-3 gap-2 mb-1">
-          <StatTile label="Product-eligible" value={`${eligible.length}/${picks.length}`} sub="this game" />
+          <StatTile label="Paper candidates" value={`${eligible.length}/${picks.length}`} sub="not market-proven" />
           <StatTile label="In an active card" value={String(taggedCount)} sub="tagged above" />
           <StatTile label="Exposure" value="$0.00" sub="review / paper" />
         </div>
+        {/* Calibration flag — honest, audit-backed. The candidate markets did NOT out-predict the market, so a
+            "model above market" read is NOT a proven advantage. Only shown while no market passes the gate. */}
+        {!anyModeledMarketBeatsMarket() ? (
+          <p className="text-[12px] leading-relaxed m-0 mb-1.5 rounded-[8px] px-3 py-2" style={{ color: "var(--vault-text-mute)", background: "rgba(234,88,12,0.07)", border: "1px solid rgba(234,88,12,0.28)" }}>
+            <span className="font-mono uppercase tracking-[0.1em] mr-1.5" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>Calibration flag</span>
+            These candidate markets (Strikeouts · Hits · Total bases · H+R+RBI) did <strong>not</strong> out-predict
+            the market in the settled-history audit — a &quot;model above market&quot; read is <strong>not</strong> a
+            proven advantage (the model is overconfident). Any active Bank Builder / Moonshot leg uses one of these
+            markets, so the products run <strong>paper / review / educational only</strong>.
+          </p>
+        ) : null}
         <p className="text-[12px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
-          A pick is a <strong>candidate</strong> for the Bank Builder / Moonshot paper products when the model's
-          probability is above the market's implied probability <strong>and</strong> the market settles
+          A pick is a <strong>candidate</strong> for the Bank Builder / Moonshot paper products when the model&apos;s
+          probability is above the market&apos;s implied probability <strong>and</strong> the market settles
           deterministically from the official box score. Picks already used in an active card are tagged on the board
           above ({taggedCount > 0 ? `${taggedCount} here` : "none in this game right now"}); the rest are
           watchlist only. Being a candidate is <strong>not</strong> a placed bet — the products run in review/paper

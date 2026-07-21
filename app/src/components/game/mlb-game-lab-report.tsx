@@ -182,7 +182,7 @@ function ModelMarketCard({ r }: { r: MlbLeanRow }) {
         <Stat label="Odds" value={american(odds)} color="var(--vault-gold-bright)" />
         <Stat label="Model" value={pct(modelProb)} />
         <Stat label="Implied" value={pct(impliedProb)} />
-        <Stat label="Edge" value={edgeTxt(r.edgePct)} color={edgeColor(r.edgePct)} />
+        <Stat label="Gap" value={edgeTxt(r.edgePct)} color={edgeColor(r.edgePct)} />
         <Stat
           label="Conf"
           value={dash(r.confidence)}
@@ -484,7 +484,7 @@ export default function MlbGameLabReport({ view }: { view: MlbGameLabView }) {
           <Module
             eyebrow="Model vs market"
             title="Where the model differs from the price"
-            sub="Projection, model probability vs the book's implied probability, and the resulting edge — per leaning side."
+            sub="Projection, model probability vs the book's implied probability, and the resulting model-vs-market gap — per leaning side."
           >
             <div className="grid grid-cols-1 gap-2">
               {view.rows.map((r) => (
@@ -496,7 +496,7 @@ export default function MlbGameLabReport({ view }: { view: MlbGameLabView }) {
           {/* 4 · Biggest leans */}
           <Module
             eyebrow={`Biggest leans · top ${view.biggestLeans.length}`}
-            title="Ranked by model edge"
+            title="Ranked by model gap"
             sub="Sorted by the size of the model's disagreement with the price. Each carries its own reason bullets."
           >
             <div className="grid grid-cols-1 gap-2">
@@ -510,7 +510,7 @@ export default function MlbGameLabReport({ view }: { view: MlbGameLabView }) {
           <Module
             eyebrow="Signal buckets"
             title="Supported · Neutral · Opposed"
-            sub={`Legend: supported = edge ≥ ${SUPPORTED_EDGE_MIN}% at Medium+ confidence · opposed = edge ≤ ${OPPOSED_EDGE_MAX}% (model reads against the posted lean) · neutral = everything between.`}
+            sub={`Legend: supported = gap ≥ ${SUPPORTED_EDGE_MIN}% at Medium+ confidence · opposed = gap ≤ ${OPPOSED_EDGE_MAX}% (model reads against the posted lean) · neutral = everything between.`}
           >
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <SignalBucket label="Supported" tone="var(--vault-success)" rows={view.supported} />

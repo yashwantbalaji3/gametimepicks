@@ -1,5 +1,8 @@
 # Bank Builder / Moonshot Candidate Review — July 21, 2026
 
+> ⚠️ **CALIBRATION FLAG (2026-07-21 audit).** All active BB + Moonshot legs use markets that **failed** the modeled-markets calibration audit (`docs/MLB_MODELED_MARKETS_CALIBRATION_AUDIT.md`): Lane A/B use `pitcher_strikeouts` + `batter_total_bases`, Moonshot uses `pitcher_strikeouts` — all `DEMOTE_TO_MARKET_CONTEXT` (model loses to the market on Brier + log loss, n=18,659). A "model above market" read on these legs is **not a proven advantage**. The products stay **active in paper/review at $0** (per instruction) but are flagged: they run on un-validated markets, educational only. Founder decision: keep-flagged / pause / recalibrate.
+
+
 **Rule:** propose-only. Do **not** mutate an active card unless a replacement is *clearly* better within product rules AND the founder approves. Money untouched; cards are paper/review at **$0 exposure**. Hard lesson (`july1-settlement`): settle/keep the card the founder approved, never a hindsight rewrite.
 
 ## Current active cards (all MLB, no World Cup, Step 1, paper/$0)

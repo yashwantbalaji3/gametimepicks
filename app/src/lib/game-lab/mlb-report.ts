@@ -249,13 +249,13 @@ export function buildMlbGameLabReport(
     const samp = r.samples != null ? `${r.samples} games` : "limited samples";
     const parts = [
       `${r.playerName} — ${side} ${lineTxt} ${mkt}: projection ${proj} vs line ${lineTxt}`,
-      `edge ${edge1(r.edgePct)} at ${conf} confidence over ${samp}`,
+      `model gap ${edge1(r.edgePct)} at ${conf} confidence over ${samp}`,
     ];
     return parts.join(" · ");
   });
   if (whatModelLikes.length === 0) {
     whatModelLikes.push(
-      "No lean cleared the supported bar for this game (edge ≥ 5% at Medium+ confidence). The model reads this slate as close to the posted prices.",
+      "No lean cleared the supported bar for this game (gap ≥ 5% at Medium+ confidence). The model reads this slate as close to the posted prices.",
     );
   }
 
@@ -286,7 +286,7 @@ export function buildMlbGameLabReport(
   const oppNames = opposed.slice(0, 3).map((r) => r.playerName);
   if (oppNames.length > 0) {
     whatBreaksIt.push(
-      `The model reads AGAINST the posted lean on ${opposed.length} row(s) (edge ≤ 0%): ${oppNames.join(", ")}.`,
+      `The model reads AGAINST the posted lean on ${opposed.length} row(s) (gap ≤ 0%): ${oppNames.join(", ")}.`,
     );
   }
   whatBreaksIt.push(
@@ -317,7 +317,7 @@ export function buildMlbGameLabReport(
     productMapping.push({
       label: "Top 10",
       href: "/picks",
-      note: `Derived: this game's strongest read carries a ${edge1(biggestLeans[0].edgePct)} model edge, high enough to surface among the day's Top 10. Descriptive ranking, not an endorsement.`,
+      note: `Derived: this game's strongest read carries a ${edge1(biggestLeans[0].edgePct)} model gap, high enough to surface among the day's Top 10. Descriptive ranking, not an endorsement.`,
     });
   }
   if (rows.length === 0) {

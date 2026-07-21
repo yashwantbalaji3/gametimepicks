@@ -1,0 +1,510 @@
+{
+  "sport": "mlb",
+  "kind": "modeled-markets-calibration-audit",
+  "public": false,
+  "generatedFor": "internal validation only — regression check on the 4 live modeled markets",
+  "method": "settled_leans (official actual/outcome) ⋈ board archives (pregame modelProb + de-vigged market) by id, lean-side",
+  "join": {
+    "joined": 18659,
+    "unmatched": 0,
+    "nonDecisive": 734
+  },
+  "leakageChecks": {
+    "rule": "settled.projection == pregame board.projection",
+    "checked": 18659,
+    "failures": 0,
+    "passed": true
+  },
+  "thresholds": {
+    "MIN_SAMPLE": 100,
+    "CLOSE": 0.0015
+  },
+  "byMarket": {
+    "pitcher_strikeouts": {
+      "sampleSize": 958,
+      "overRate": 0.477,
+      "overUnderSplit": {
+        "over": 452,
+        "under": 506
+      },
+      "brier": {
+        "model": 0.2725,
+        "market": 0.2429,
+        "modelBeatsMarket": false
+      },
+      "logloss": {
+        "model": 0.7475,
+        "market": 0.6788,
+        "modelBeatsMarket": false
+      },
+      "mae": 1.823,
+      "calibrationByBucket": [
+        {
+          "bucket": "40-50%",
+          "n": 137,
+          "predicted": 0.465,
+          "empirical": 0.423
+        },
+        {
+          "bucket": "50-60%",
+          "n": 273,
+          "predicted": 0.555,
+          "empirical": 0.44
+        },
+        {
+          "bucket": "60-70%",
+          "n": 292,
+          "predicted": 0.646,
+          "empirical": 0.476
+        },
+        {
+          "bucket": "70-80%",
+          "n": 180,
+          "predicted": 0.743,
+          "empirical": 0.539
+        },
+        {
+          "bucket": "80-90%",
+          "n": 65,
+          "predicted": 0.836,
+          "empirical": 0.569
+        },
+        {
+          "bucket": "90-100%",
+          "n": 11,
+          "predicted": 0.922,
+          "empirical": 0.545
+        }
+      ],
+      "gapBuckets": [
+        {
+          "gap": "-99..0",
+          "n": 118,
+          "hitRate": 0.424
+        },
+        {
+          "gap": "0..5",
+          "n": 248,
+          "hitRate": 0.512
+        },
+        {
+          "gap": "5..10",
+          "n": 169,
+          "hitRate": 0.467
+        },
+        {
+          "gap": "10..20",
+          "n": 274,
+          "hitRate": 0.467
+        },
+        {
+          "gap": "20..999",
+          "n": 149,
+          "hitRate": 0.49
+        }
+      ],
+      "confidenceBuckets": {
+        "Low": {
+          "n": 401,
+          "hitRate": 0.496,
+          "brierModel": 0.2754,
+          "brierMarket": 0.2442
+        },
+        "Medium": {
+          "n": 113,
+          "hitRate": 0.451,
+          "brierModel": 0.2503,
+          "brierMarket": 0.2411
+        },
+        "High": {
+          "n": 444,
+          "hitRate": 0.466,
+          "brierModel": 0.2756,
+          "brierMarket": 0.2421
+        }
+      },
+      "productEligibleSubset": {
+        "n": 840,
+        "hitRate": 0.485,
+        "brierModel": 0.2763,
+        "brierMarket": 0.2428
+      },
+      "verdict": "DEMOTE_TO_MARKET_CONTEXT"
+    },
+    "batter_hits": {
+      "sampleSize": 7853,
+      "overRate": 0.5398,
+      "overUnderSplit": {
+        "over": 5100,
+        "under": 2753
+      },
+      "brier": {
+        "model": 0.2438,
+        "market": 0.2352,
+        "modelBeatsMarket": false
+      },
+      "logloss": {
+        "model": 0.6836,
+        "market": 0.663,
+        "modelBeatsMarket": false
+      },
+      "mae": 0.77,
+      "calibrationByBucket": [
+        {
+          "bucket": "10-20%",
+          "n": 1,
+          "predicted": 0.17,
+          "empirical": 1
+        },
+        {
+          "bucket": "20-30%",
+          "n": 1,
+          "predicted": 0.291,
+          "empirical": 1
+        },
+        {
+          "bucket": "30-40%",
+          "n": 922,
+          "predicted": 0.365,
+          "empirical": 0.367
+        },
+        {
+          "bucket": "40-50%",
+          "n": 1148,
+          "predicted": 0.444,
+          "empirical": 0.392
+        },
+        {
+          "bucket": "50-60%",
+          "n": 1049,
+          "predicted": 0.555,
+          "empirical": 0.52
+        },
+        {
+          "bucket": "60-70%",
+          "n": 2350,
+          "predicted": 0.657,
+          "empirical": 0.592
+        },
+        {
+          "bucket": "70-80%",
+          "n": 2161,
+          "predicted": 0.739,
+          "empirical": 0.638
+        },
+        {
+          "bucket": "80-90%",
+          "n": 213,
+          "predicted": 0.826,
+          "empirical": 0.61
+        },
+        {
+          "bucket": "90-100%",
+          "n": 8,
+          "predicted": 0.934,
+          "empirical": 0.5
+        }
+      ],
+      "gapBuckets": [
+        {
+          "gap": "-99..0",
+          "n": 2277,
+          "hitRate": 0.538
+        },
+        {
+          "gap": "0..5",
+          "n": 2860,
+          "hitRate": 0.539
+        },
+        {
+          "gap": "5..10",
+          "n": 1753,
+          "hitRate": 0.553
+        },
+        {
+          "gap": "10..20",
+          "n": 863,
+          "hitRate": 0.534
+        },
+        {
+          "gap": "20..999",
+          "n": 100,
+          "hitRate": 0.43
+        }
+      ],
+      "confidenceBuckets": {
+        "Low": {
+          "n": 3968,
+          "hitRate": 0.537,
+          "brierModel": 0.2373,
+          "brierMarket": 0.2349
+        },
+        "Medium": {
+          "n": 1271,
+          "hitRate": 0.536,
+          "brierModel": 0.2409,
+          "brierMarket": 0.2353
+        },
+        "High": {
+          "n": 2614,
+          "hitRate": 0.546,
+          "brierModel": 0.2552,
+          "brierMarket": 0.2355
+        }
+      },
+      "productEligibleSubset": {
+        "n": 5574,
+        "hitRate": 0.541,
+        "brierModel": 0.2478,
+        "brierMarket": 0.2355
+      },
+      "verdict": "DEMOTE_TO_MARKET_CONTEXT"
+    },
+    "batter_total_bases": {
+      "sampleSize": 3580,
+      "overRate": 0.4433,
+      "overUnderSplit": {
+        "over": 3100,
+        "under": 480
+      },
+      "brier": {
+        "model": 0.2616,
+        "market": 0.2426,
+        "modelBeatsMarket": false
+      },
+      "logloss": {
+        "model": 0.7204,
+        "market": 0.6783,
+        "modelBeatsMarket": false
+      },
+      "mae": 1.481,
+      "calibrationByBucket": [
+        {
+          "bucket": "20-30%",
+          "n": 1,
+          "predicted": 0.208,
+          "empirical": 1
+        },
+        {
+          "bucket": "30-40%",
+          "n": 29,
+          "predicted": 0.389,
+          "empirical": 0.483
+        },
+        {
+          "bucket": "40-50%",
+          "n": 894,
+          "predicted": 0.462,
+          "empirical": 0.423
+        },
+        {
+          "bucket": "50-60%",
+          "n": 1673,
+          "predicted": 0.549,
+          "empirical": 0.429
+        },
+        {
+          "bucket": "60-70%",
+          "n": 834,
+          "predicted": 0.637,
+          "empirical": 0.474
+        },
+        {
+          "bucket": "70-80%",
+          "n": 130,
+          "predicted": 0.73,
+          "empirical": 0.569
+        },
+        {
+          "bucket": "80-90%",
+          "n": 12,
+          "predicted": 0.844,
+          "empirical": 0.417
+        },
+        {
+          "bucket": "90-100%",
+          "n": 7,
+          "predicted": 0.97,
+          "empirical": 0.429
+        }
+      ],
+      "gapBuckets": [
+        {
+          "gap": "-99..0",
+          "n": 523,
+          "hitRate": 0.52
+        },
+        {
+          "gap": "0..5",
+          "n": 869,
+          "hitRate": 0.437
+        },
+        {
+          "gap": "5..10",
+          "n": 906,
+          "hitRate": 0.448
+        },
+        {
+          "gap": "10..20",
+          "n": 1081,
+          "hitRate": 0.416
+        },
+        {
+          "gap": "20..999",
+          "n": 201,
+          "hitRate": 0.393
+        }
+      ],
+      "confidenceBuckets": {
+        "Low": {
+          "n": 1135,
+          "hitRate": 0.472,
+          "brierModel": 0.259,
+          "brierMarket": 0.2428
+        },
+        "Medium": {
+          "n": 454,
+          "hitRate": 0.43,
+          "brierModel": 0.2465,
+          "brierMarket": 0.2392
+        },
+        "High": {
+          "n": 1991,
+          "hitRate": 0.43,
+          "brierModel": 0.2666,
+          "brierMarket": 0.2432
+        }
+      },
+      "productEligibleSubset": {
+        "n": 3052,
+        "hitRate": 0.43,
+        "brierModel": 0.2652,
+        "brierMarket": 0.2426
+      },
+      "verdict": "DEMOTE_TO_MARKET_CONTEXT"
+    },
+    "batter_hits_runs_rbis": {
+      "sampleSize": 6268,
+      "overRate": 0.4979,
+      "overUnderSplit": {
+        "over": 5192,
+        "under": 1076
+      },
+      "brier": {
+        "model": 0.264,
+        "market": 0.2479,
+        "modelBeatsMarket": false
+      },
+      "logloss": {
+        "model": 0.7252,
+        "market": 0.689,
+        "modelBeatsMarket": false
+      },
+      "mae": 1.515,
+      "calibrationByBucket": [
+        {
+          "bucket": "30-40%",
+          "n": 1,
+          "predicted": 0.384,
+          "empirical": 1
+        },
+        {
+          "bucket": "40-50%",
+          "n": 770,
+          "predicted": 0.467,
+          "empirical": 0.439
+        },
+        {
+          "bucket": "50-60%",
+          "n": 2480,
+          "predicted": 0.555,
+          "empirical": 0.494
+        },
+        {
+          "bucket": "60-70%",
+          "n": 2208,
+          "predicted": 0.645,
+          "empirical": 0.514
+        },
+        {
+          "bucket": "70-80%",
+          "n": 737,
+          "predicted": 0.738,
+          "empirical": 0.52
+        },
+        {
+          "bucket": "80-90%",
+          "n": 64,
+          "predicted": 0.824,
+          "empirical": 0.547
+        },
+        {
+          "bucket": "90-100%",
+          "n": 8,
+          "predicted": 0.952,
+          "empirical": 0.5
+        }
+      ],
+      "gapBuckets": [
+        {
+          "gap": "-99..0",
+          "n": 1059,
+          "hitRate": 0.499
+        },
+        {
+          "gap": "0..5",
+          "n": 1687,
+          "hitRate": 0.511
+        },
+        {
+          "gap": "5..10",
+          "n": 1596,
+          "hitRate": 0.507
+        },
+        {
+          "gap": "10..20",
+          "n": 1683,
+          "hitRate": 0.486
+        },
+        {
+          "gap": "20..999",
+          "n": 243,
+          "hitRate": 0.428
+        }
+      ],
+      "confidenceBuckets": {
+        "Low": {
+          "n": 2160,
+          "hitRate": 0.493,
+          "brierModel": 0.2595,
+          "brierMarket": 0.248
+        },
+        "Medium": {
+          "n": 833,
+          "hitRate": 0.517,
+          "brierModel": 0.2477,
+          "brierMarket": 0.2455
+        },
+        "High": {
+          "n": 3275,
+          "hitRate": 0.496,
+          "brierModel": 0.2711,
+          "brierMarket": 0.2484
+        }
+      },
+      "productEligibleSubset": {
+        "n": 5201,
+        "hitRate": 0.497,
+        "brierModel": 0.2677,
+        "brierMarket": 0.2483
+      },
+      "verdict": "DEMOTE_TO_MARKET_CONTEXT"
+    }
+  },
+  "summary": {
+    "pitcher_strikeouts": "DEMOTE_TO_MARKET_CONTEXT",
+    "batter_hits": "DEMOTE_TO_MARKET_CONTEXT",
+    "batter_total_bases": "DEMOTE_TO_MARKET_CONTEXT",
+    "batter_hits_runs_rbis": "DEMOTE_TO_MARKET_CONTEXT"
+  }
+}
