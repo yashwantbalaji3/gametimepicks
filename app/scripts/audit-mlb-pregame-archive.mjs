@@ -48,6 +48,30 @@ function main() {
   }
   // family coverage as % of all games that ever had an eligible value
   const familyGameCoveragePct = Object.fromEntries(FAMILIES.map((f) => [f, totalGames ? +(100 * famGamesCovered[f].size / totalGames).toFixed(1) : 0]));
+
+  // ── market snapshots (paid Odds API, internal) ──
+  const MKT = path.join(ARCHIVE, "market-snapshots");
+  const mkt = { marketSnapshotDates: [], marketSnapshots: 0, marketRecords: 0, marketRecordsEligible: 0, marketRecordsIneligible: 0, marketDeVigPaired: 0, marketCoverageByFamily: {}, marketGamesCovered: new Set(), marketLastCaptureAt: null };
+  if (fs.existsSync(MKT)) {
+    for (const d of fs.readdirSync(MKT).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x)).sort()) {
+      mkt.marketSnapshotDates.push(d);
+      for (const cap of fs.readdirSync(path.join(MKT, d))) {
+        const norm = path.join(MKT, d, cap, "normalized.json");
+        if (!fs.existsSync(norm)) continue;
+        mkt.marketSnapshots++;
+        const j = JSON.parse(fs.readFileSync(norm, "utf8"));
+        for (const r of j.records || []) {
+          mkt.marketRecords++;
+          if (r.researchEligible) { mkt.marketRecordsEligible++; if (r.gamePk) mkt.marketGamesCovered.add(`${d}:${r.gamePk}`); } else mkt.marketRecordsIneligible++;
+          if (r.paired) mkt.marketDeVigPaired++;
+          mkt.marketCoverageByFamily[r.market] = (mkt.marketCoverageByFamily[r.market] || 0) + 1;
+          if (!mkt.marketLastCaptureAt || (r.capturedAt && r.capturedAt > mkt.marketLastCaptureAt)) mkt.marketLastCaptureAt = r.capturedAt;
+        }
+      }
+    }
+  }
+  const marketDeVigCoveragePct = mkt.marketRecords ? +(100 * mkt.marketDeVigPaired / mkt.marketRecords).toFixed(1) : 0;
+  const marketCreditStatus = mkt.marketSnapshots > 0 ? "captured" : "not-captured (opt-in / credit-gated)";
   // coverage % = games with a lineup OR pitcher pregame value / games (headline families for research)
   const coveragePct = totalGames ? +(100 * (famEligible.pitcher_status) / (totalSnaps || 1)).toFixed(1) : 0;
   const timestampProvenPct = totalSnaps ? +(100 * eligibleGames / totalSnaps).toFixed(1) : 0;
@@ -65,6 +89,10 @@ function main() {
     familyPresent: famPresent, familyEligibleSnapshots: famEligible,
     coverageByFamilyPct: familyGameCoveragePct,
     lineupCoveragePct: familyGameCoveragePct.confirmed_lineup, umpireCoveragePct: familyGameCoveragePct.umpire, weatherCoveragePct: familyGameCoveragePct.environment,
+    marketSnapshotDates: mkt.marketSnapshotDates, marketSnapshots: mkt.marketSnapshots, marketRecords: mkt.marketRecords,
+    marketRecordsEligible: mkt.marketRecordsEligible, marketRecordsIneligible: mkt.marketRecordsIneligible,
+    marketCoverageByFamily: mkt.marketCoverageByFamily, marketGamesCovered: mkt.marketGamesCovered.size,
+    marketDeVigCoveragePct, marketCreditStatus, marketLastCaptureAt: mkt.marketLastCaptureAt,
     byDate,
     collectionGate: GATE, gateMet: blockers.length === 0, gateBlockers: blockers,
     note: "settledEligibleObs is populated only by a separate future settlement-join mission; forward collection just started, so the gate is not met — this is expected.",
@@ -75,6 +103,7 @@ function main() {
   console.log(`\n=== pregame archive daily status ===`);
   console.log(`dates collected: ${dates.length} (start ${dates[0] ?? "none"}) · snapshots ${totalSnaps} (pre-first-pitch ${snapshotsBeforeFirstPitch}, post-start rejected ${postStartRejected}) · games ${totalGames} · freezes ${totalFreezes} (${status.freezeCompletenessPct}%)`);
   console.log(`family game-coverage %: lineup ${status.lineupCoveragePct} · umpire ${status.umpireCoveragePct} · weather ${status.weatherCoveragePct} · pitcher ${familyGameCoveragePct.pitcher_status}`);
+  console.log(`markets: ${marketCreditStatus} · ${mkt.marketSnapshots} snapshots · ${mkt.marketRecords} records (${mkt.marketRecordsEligible} eligible) · de-vig ${marketDeVigCoveragePct}% · families ${JSON.stringify(mkt.marketCoverageByFamily)}`);
   console.log(`research gate: ${blockers.length ? "NOT MET" : "MET"} — ${blockers.join(" · ") || "all thresholds cleared"}`);
   console.log(`status → ${path.relative(REPO, path.join(ARCHIVE, "status", "latest.json"))}`);
 }

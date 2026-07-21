@@ -82,3 +82,7 @@ tmp/
 *.zip
 !visuals/*.png
 !visuals/*.jpg
+# Pregame market archive: large point-in-time Odds-API payloads persist via workflow ARTIFACTS, not git.
+# Keep only manifest.json in-repo (small, durable provenance + hashes + counts); ignore raw + normalized.
+data/internal/mlb/pregame-archive/market-snapshots/**/raw.json
+data/internal/mlb/pregame-archive/market-snapshots/**/normalized.json

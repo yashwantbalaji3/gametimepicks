@@ -54,6 +54,16 @@ jobs:
           node-version: "20"
       - name: Capture pregame snapshots (StatsAPI, free)
         run: node app/scripts/capture-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}" --reason "${{ github.event.inputs.reason || 'SCHEDULED_REFRESH' }}"
+      - name: Capture pregame MARKET snapshots (paid Odds API — OPT-IN, credit-guarded, non-blocking)
+        if: vars.PREGAME_ARCHIVE_MARKETS == 'true'
+        continue-on-error: true
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDS_API_MIN_CREDITS_REMAINING: ${{ vars.ODDS_API_MIN_CREDITS_REMAINING }}
+        # Team markets only by default (~3 credits/run). Writes only when the var is set AND the secret exists;
+        # the script's own credit floor + skip-started guards protect the budget. StatsAPI capture above is
+        # unaffected if this step is skipped or fails.
+        run: node app/scripts/capture-mlb-pregame-markets.mjs --date "${{ github.event.inputs.date }}" --markets h2h,spreads,totals --write
       - name: Final pregame freeze
         run: node app/scripts/freeze-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}"
       - name: Coverage / gate audit

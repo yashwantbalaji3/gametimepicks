@@ -122,3 +122,26 @@ check reads **HEALTHY**, and the build succeeds. If the money md5 is anything ot
 
 **Approval artifacts:** Bank Builder `app/public/data/methodology/launch/dual-bank-builder-active.json` ·
 Moonshot `app/public/data/moonshot-lane/active.json` — both md5-guarded.
+
+## Pregame research archive + market capture (INTERNAL — separate from products)
+
+A forward-only, internal-only research pipeline runs alongside (never blocks) the product loop. It touches **no** money, products, or public output.
+
+Daily order:
+1. **Pregame archive capture** runs automatically (`.github/workflows/mlb-pregame-capture.yml`, ~8 UTC runs/day; StatsAPI free) → immutable snapshots (lineup/pitcher/weather/umpire).
+2. **Market capture** runs only if opt-in (repo var `PREGAME_ARCHIVE_MARKETS=true` + secret `ODDS_API_KEY`), credit-guarded (~3 credits/run team markets) — never blocks capture.
+3. **Public MLB refresh** runs separately (`refresh_daily_products.sh`) — unrelated to the archive.
+4. **10k simulations** generate public player-prop reports (market-context only; no validated modeled markets).
+5. **Product cards** stay paper/review at $0 unless the founder authorizes official money.
+6. **Settlement** runs only from official box scores.
+7. **Audit** checks archive, public build, and products separately.
+
+Manual: `node app/scripts/capture-mlb-pregame-research.mjs --date <D>` · `... capture-mlb-pregame-markets.mjs --date <D>` (dry-run) · `... freeze-mlb-pregame-research.mjs --date <D>` · `... audit-mlb-pregame-archive.mjs`.
+
+### Founder daily status checklist
+- Archive collection OK? (`data/internal/mlb/pregame-archive/status/latest.json`)
+- Market capture OK / opt-in enabled?
+- MLB public slate fresh?
+- Product cards paper/review, $0?
+- Settlement from official box scores only?
+- **Money md5 `affe6b21071f2b3be96bb2774eb347c3` unchanged?**

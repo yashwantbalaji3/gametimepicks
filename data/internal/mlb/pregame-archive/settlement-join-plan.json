@@ -36,7 +36,7 @@
     "pitcher_status": "usable when the probable/confirmed starter matches the settled pitcher and no superseding change occurred pregame",
     "environment": "usable when a pregame weather forecast/condition + roof status was captured (never the observed postgame weather)",
     "umpire": "usable when the home-plate umpire assignment was captured pregame (never the final box-score umpire)",
-    "markets": "usable only once a paid odds source with archived collection timestamps is added (two-sided prices for reproducible de-vig)",
+    "markets": "IMPLEMENTED (the-odds-api team markets: h2h/spreads/totals, immutable + timestamp-safe). Join by gamePk + market + selection + line; de-vig reproducible from the paired two-sided prices. Player props remain future (credit-budgeted). The market remains the benchmark — a family is 'incremental' only if it beats the de-vigged market out of sample (a later mission).",
     "bullpen": "usable once the strict completed-before-capture builder is added",
     "plate_appearance_opportunity": "usable once markets (team/game totals) are archived across the window"
   },
