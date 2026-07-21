@@ -87,15 +87,15 @@ const RISK_TONE: Record<string, string> = {
 function ProductChip({ tag }: { tag: ProductTag | null }) {
   if (!tag) {
     return (
-      <span className="font-mono uppercase rounded-full px-1.5 py-0.5" style={{ fontSize: 8, color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)" }}>
-        Watchlist only
+      <span className="inline-flex items-center font-mono uppercase tracking-[0.04em] rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", whiteSpace: "nowrap" }}>
+        Watchlist
       </span>
     );
   }
   const tone = tag.product === "moonshot" ? "#b9a8ff" : "var(--vault-gold-bright)";
   return (
-    <span className="font-mono uppercase rounded-full px-1.5 py-0.5" style={{ fontSize: 8, color: tone, border: `1px solid ${tone}`, background: "rgba(255,255,255,0.04)" }} title="Paper · review · $0 exposure">
-      {tag.label} · paper $0
+    <span className="inline-flex items-center gap-1 font-mono uppercase tracking-[0.04em] rounded-full px-2 py-0.5" style={{ fontSize: 9, fontWeight: 700, color: tone, border: `1px solid ${tone}`, background: "color-mix(in srgb, " + (tag.product === "moonshot" ? "#b9a8ff" : "var(--vault-gold-bright)") + " 12%, transparent)", whiteSpace: "nowrap" }} title="Paper · review · $0 exposure — not a placed bet">
+      {tag.label}<span style={{ opacity: 0.7, fontWeight: 400 }}>· $0</span>
     </span>
   );
 }
@@ -159,9 +159,9 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
   ] as const;
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* Report mini-nav — sticky-ish index; horizontal scroll on mobile. Anchors to the sections below. */}
-      <nav aria-label="Report sections" className="flex gap-1.5 overflow-x-auto rounded-[12px] px-2 py-1.5" style={{ background: "rgba(15,10,7,0.6)", border: "1px solid var(--vault-border)" }}>
+    <div className="flex flex-col gap-4">
+      {/* Report mini-nav — sticky index; horizontal scroll on mobile. Anchors to the sections below. */}
+      <nav aria-label="Report sections" className="flex gap-1.5 overflow-x-auto rounded-[12px] px-2 py-1.5" style={{ background: "rgba(15,10,7,0.75)", border: "1px solid var(--vault-border)", position: "sticky", top: 0, zIndex: 5, backdropFilter: "blur(6px)" }}>
         {NAV.map(([id, label]) => (
           <a key={id} href={`#mlbr-${id}`} className="shrink-0 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", textDecoration: "none", whiteSpace: "nowrap" }}>
             {label}
@@ -227,12 +227,18 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
       <Section n={4} title="Player simulation board" subtitle="Every simulated player line · model vs market · product tag">
         <div id="mlbr-player-board" />
         {boardPicks.length > 0 ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-1">
             <table className="w-full border-collapse" style={{ fontSize: 11.5 }}>
-              <thead>
-                <tr style={{ color: "var(--vault-text-faint)" }}>
-                  {["Player", "Market", "Line", "Proj", "Model", "Market", "Gap", "Risk", "Product"].map((h, i) => (
-                    <th key={h} className="font-mono uppercase tracking-[0.06em] py-1.5 px-1.5" style={{ fontSize: 8.5, textAlign: i <= 1 || i === 8 ? "left" : "right", borderBottom: "1px solid var(--vault-border)", whiteSpace: "nowrap" }}>{h}</th>
+              {/* Header row is sticky so it stays visible while scanning a long board; low-priority columns
+                  (Proj / Mkt % / Risk) collapse away on mobile so Player · Market · Model · Gap · Product read first. */}
+              <thead style={{ position: "sticky", top: 0, zIndex: 1 }}>
+                <tr style={{ color: "var(--vault-text-faint)", background: "var(--gtp-card-sunken, rgba(15,10,7,0.96))" }}>
+                  {([
+                    ["Player", "left", true], ["Market", "left", true], ["Proj", "right", false],
+                    ["Model %", "right", true], ["Mkt %", "right", false], ["Gap", "right", true],
+                    ["Risk", "right", false], ["Product", "left", true],
+                  ] as Array<[string, "left" | "right", boolean]>).map(([h, align, mobile]) => (
+                    <th key={h} className={`font-mono uppercase tracking-[0.06em] py-2 px-1.5${mobile ? "" : " hidden sm:table-cell"}`} style={{ fontSize: 8.5, textAlign: align, borderBottom: "1px solid var(--vault-border-strong)", whiteSpace: "nowrap" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -240,22 +246,22 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                 {boardPicks.map((p, i) => {
                   const tag = tagFor(p);
                   return (
-                    <tr key={p.id || i} style={{ borderBottom: "1px solid var(--vault-rule)" }}>
-                      <td className="py-1.5 px-1.5" style={{ color: "var(--vault-text)", fontWeight: 600, whiteSpace: "nowrap" }}>{p.player ?? p.team ?? "—"}</td>
-                      <td className="py-1.5 px-1.5 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10, whiteSpace: "nowrap" }}>{marketLabel(p.market)} {cap(p.side)} {p.line ?? ""}</td>
-                      <td className="py-1.5 px-1.5 font-mono tabular text-right" style={{ color: "var(--vault-text-faint)" }}>{num1(p.projection)}</td>
-                      <td className="py-1.5 px-1.5 font-mono tabular text-right" style={{ color: "var(--vault-text)", fontWeight: 700 }}>{pct(p.modelProbability)}</td>
-                      <td className="py-1.5 px-1.5 font-mono tabular text-right" style={{ color: "var(--vault-text-faint)" }}>{pct(p.marketProbability)}</td>
-                      <td className="py-1.5 px-1.5 font-mono tabular text-right" style={{ color: p.edgePct > 0 ? "var(--vault-gold)" : "var(--vault-text-faint)" }}>{p.edgePct > 0 ? "+" : ""}{p.edgePct.toFixed(0)}</td>
-                      <td className="py-1.5 px-1.5 text-right"><span className="font-mono uppercase" style={{ fontSize: 8, color: RISK_TONE[p.riskTier] ?? "var(--vault-text-mute)" }}>{p.riskTier}</span></td>
-                      <td className="py-1.5 px-1.5"><ProductChip tag={tag} /></td>
+                    <tr key={p.id || i} style={{ borderBottom: "1px solid var(--vault-rule)", background: i % 2 ? "rgba(255,255,255,0.014)" : "transparent" }}>
+                      <td className="py-2 px-1.5" style={{ color: "var(--vault-text)", fontWeight: 600, whiteSpace: "nowrap" }}>{p.player ?? p.team ?? "—"}</td>
+                      <td className="py-2 px-1.5 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10, whiteSpace: "nowrap" }}>{marketLabel(p.market)} {cap(p.side)} {p.line ?? ""}</td>
+                      <td className="py-2 px-1.5 font-mono tabular text-right hidden sm:table-cell" style={{ color: "var(--vault-text-faint)" }}>{num1(p.projection)}</td>
+                      <td className="py-2 px-1.5 font-mono tabular text-right" style={{ color: "var(--vault-text)", fontWeight: 700 }}>{pct(p.modelProbability)}</td>
+                      <td className="py-2 px-1.5 font-mono tabular text-right hidden sm:table-cell" style={{ color: "var(--vault-text-faint)" }}>{pct(p.marketProbability)}</td>
+                      <td className="py-2 px-1.5 font-mono tabular text-right" style={{ color: p.edgePct > 0 ? "var(--vault-gold)" : "var(--vault-text-faint)", fontWeight: 700 }}>{p.edgePct > 0 ? "+" : ""}{p.edgePct.toFixed(0)}</td>
+                      <td className="py-2 px-1.5 text-right hidden sm:table-cell"><span className="font-mono uppercase" style={{ fontSize: 8.5, color: RISK_TONE[p.riskTier] ?? "var(--vault-text-mute)" }}>{p.riskTier}</span></td>
+                      <td className="py-2 px-1.5"><ProductChip tag={tag} /></td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
             <p className="mt-2 font-mono text-[9.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
-              Proj = the model's projected stat (from the artifact) · Model / Market = probabilities to clear the line ·
+              Proj = the model's projected stat (from the artifact) · Model % / Mkt % = probabilities to clear the line ·
               Gap = model − market, in points. A research board, not a bet slip. Paper-only.
             </p>
           </div>
@@ -291,10 +297,21 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         <div id="mlbr-agreement" />
         {agreementScore != null ? (
           <div className="flex flex-col gap-2.5">
-            <div className="grid grid-cols-3 gap-2">
-              <StatTile label="Agreement" value={`${agreementScore}/100`} sub="closer = higher" />
-              <StatTile label="Avg gap" value={`${((meanGap ?? 0) * 100).toFixed(1)} pt`} sub={`${priced.length} priced props`} />
-              <StatTile label="Widest gap" value={`${((widestGap ?? 0) * 100).toFixed(0)} pt`} sub="single largest" />
+            {/* Agreement score hero — one clean focal number + a bar, with the two gaps as compact context. */}
+            <div className="rounded-[12px] px-4 py-3.5 flex items-center gap-4 flex-wrap" style={{ background: "rgba(15,10,7,0.55)", border: "1px solid var(--vault-border)" }}>
+              <div className="flex items-baseline gap-1">
+                <span className="font-display tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 40, fontWeight: 800, lineHeight: 1 }}>{agreementScore}</span>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 13 }}>/100</span>
+              </div>
+              <div className="flex-1 min-w-[160px] flex flex-col gap-1.5">
+                <div className="relative w-full rounded-full" style={{ height: 8, background: "rgba(255,255,255,0.07)" }}>
+                  <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: `${agreementScore}%`, background: "linear-gradient(90deg, var(--vault-gold), var(--vault-gold-bright))" }} />
+                </div>
+                <div className="flex items-center justify-between font-mono" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>
+                  <span>Avg gap <span style={{ color: "var(--vault-text-mute)" }}>{((meanGap ?? 0) * 100).toFixed(1)} pt</span> · {priced.length} priced</span>
+                  <span>Widest <span style={{ color: "var(--vault-text-mute)" }}>{((widestGap ?? 0) * 100).toFixed(0)} pt</span></span>
+                </div>
+              </div>
             </div>
             {byMarketGap.length > 1 ? (
               <div className="flex flex-col gap-1.5">

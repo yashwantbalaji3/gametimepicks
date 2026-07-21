@@ -1,15 +1,17 @@
 /**
- * SIMULATION DASHBOARD (Phase 7) — the post-simulation reveal is now a full, HONEST dashboard.
+ * SIMULATION DASHBOARD — the post-simulation reveal is one honest report, not an in-runner dashboard.
  *
- * The `phase === "done"` block of `game-simulation-runner.tsx` renders 10 sections in order:
- *   1 Header (summary; projected numbers labelled a MODEL PROJECTION, never a final score)
- *   2 PricedPropSnapshot   3 CentralRead (a prop LEAN, not a score)   4 MainTakeaways
- *   5 Biggest leans (reused GeneratedPickCard grid, top-6)   6 PropTable   7 Distributions (reused)
- *   8 MarketAgreement (CURRENT-SLATE, not calibration)   9 UnavailableModules (reused)   10 RecapBlock
+ * The runner's `phase === "done"` block is now just [ "Simulation complete" header → the V2.5 report
+ * (postReveal) → a paper-only disclaimer → post-reveal nav ]. The dense modules that used to render in the
+ * runner (priced snapshot, central read, main takeaways, pick table, distributions, market agreement,
+ * unavailable modules, recap) now live as first-class SECTIONS of the primary V2.5 report
+ * (`mlb-simulation-report-v2.tsx`) — the player board, biggest model leads, agreement, distributions,
+ * coverage. Public copy uses "gap"/"model gap"/"model lead", never a visible "edge" label.
  *
  * These tests are real-timer-free: the pure derivation helpers (humanizeMarket / deriveTakeaways /
- * marketAgreement / buildRecap) are imported from the .tsx and exercised on a small fixture array; the
- * rest are source assertions (module markers, Phase-2 animation untouched, no banned copy) + the money md5.
+ * marketAgreement / buildRecap / pricedPicks) are STILL exported from the runner .tsx and exercised on a
+ * small fixture array; the rest are source assertions (V2.5 section markers, runner header + Phase-2
+ * animation + idle button untouched, no banned copy) + the money md5.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -27,6 +29,7 @@ import {
 
 const app = process.cwd();
 const RUNNER_SRC = fs.readFileSync(path.join(app, "src/components/game/game-simulation-runner.tsx"), "utf8");
+const V2_SRC = fs.readFileSync(path.join(app, "src/components/game/mlb-simulation-report-v2.tsx"), "utf8");
 
 // House honest-language ban. `\bsafe\b` / `\block\b` are whole words — "block"/"unlock" stay fine.
 const BANNED =
@@ -187,51 +190,52 @@ test("buildRecap: matchup + lean + pick count; run-count ONLY when allowed; no b
   assert.match(noLean, /no qualified lean/, "honest no-lean recap");
 });
 
-// ── 9 · central read = generatedPicks[0]; empty picks → honest no-lean branch in source ───────────
-test("CentralRead uses generatedPicks[0] and renders an honest no-lean branch when empty", () => {
-  assert.match(RUNNER_SRC, /function CentralRead/, "CentralRead exists");
-  assert.match(RUNNER_SRC, /const lean = view\.generatedPicks\[0\]/, "central read = the first (edge-sorted) pick");
-  assert.match(RUNNER_SRC, /No qualified lean for this game/, "honest no-lean branch");
-  // It is a prop read, not a score.
-  assert.match(RUNNER_SRC, /A prop lean — not a predicted final score/, "framed as a prop lean, never a score");
+// ── 9 · the single strongest-lean hero now lives in the V2.5 report: edge-ranked + honest no-lean ──
+test("V2.5 surfaces the strongest lean from edge-ranked picks with an honest no-lean branch (not a score)", () => {
+  // The board + watchlist are edge-ranked (strongest model-vs-market gap first) — same ordering the runner used.
+  assert.match(V2_SRC, /const boardPicks = \[\.\.\.picks\]\.sort\(\(a, b\) => b\.edgePct - a\.edgePct\)/, "board is edge-ranked");
+  assert.match(V2_SRC, /const watchlist = boardPicks\.filter\(\(p\) => p\.edgePct > 0\)\.slice\(0, 5\)/, "watchlist = top edge-ranked leans");
+  // Honest no-lean branch when there is no positive model-vs-market gap.
+  assert.ok(V2_SRC.includes("No positive model-vs-market gaps in this game's simulation."), "honest no-lean branch");
+  // Framed as a prop read, never a predicted final score.
+  assert.ok(V2_SRC.includes("A research board, not a bet slip."), "framed as a research board, not a bet slip");
+  assert.ok(V2_SRC.includes("it does not produce a game score"), "explicitly not a game score");
 });
 
-// ── 10 · priced snapshot only counts marketProbability != null picks (logic + source) ────────────
-test("PricedPropSnapshot / pricedPicks count only marketProbability != null picks", () => {
+// ── 10 · priced-only logic (pure) stays; the priced/agreement surface now lives in the V2.5 report ─
+test("pricedPicks counts only marketProbability != null picks; V2.5 owns the priced/agreement surface", () => {
   const priced = pricedPicks(PICKS);
   assert.equal(priced.length, 3, "p4 (null market prob) is excluded from priced");
   assert.ok(priced.every((p) => p.marketProbability != null), "every priced pick carries a market prob");
-  assert.match(RUNNER_SRC, /function PricedPropSnapshot/, "the snapshot component exists");
-  assert.match(RUNNER_SRC, /No priced markets in this artifact/, "honest empty state for zero priced picks");
+  // The market-agreement section derives its priced set the same way (both probs finite) and shows an
+  // honest empty state when there is nothing to compare.
+  assert.match(V2_SRC, /const priced = picks\.filter\(\(p\) => Number\.isFinite\(p\.modelProbability\) && Number\.isFinite\(p\.marketProbability\)\)/, "V2.5 priced set = both-prob picks");
+  assert.ok(V2_SRC.includes("No priced props to compare against the book for this game yet."), "honest empty state for zero priced picks");
 });
 
-// ── 11 · prop table caps at top-N with an honest "showing top N of M" note when capped ───────────
-test("PropTable caps at a top-N and notes 'showing top N of M' honestly when capped", () => {
-  assert.match(RUNNER_SRC, /function PropTable/, "the table component exists");
-  assert.match(RUNNER_SRC, /const PROP_TABLE_CAP = 12/, "a sensible cap constant");
-  assert.match(RUNNER_SRC, /slice\(0, PROP_TABLE_CAP\)/, "rows are capped");
-  assert.match(RUNNER_SRC, /Showing top \$\{PROP_TABLE_CAP\} of \$\{list\.length\} generated picks/, "honest 'showing top N of M' note when capped");
-  assert.match(RUNNER_SRC, /overflowX: "auto"/, "the table is horizontally scrollable");
+// ── 11 · the full pick table now lives in the V2.5 player board — scrollable, honest empty state ───
+test("V2.5 player board renders the full pick table (scrollable, honest empty state)", () => {
+  assert.match(V2_SRC, /title="Player simulation board"/, "the player board section exists");
+  assert.match(V2_SRC, /boardPicks\.map\(/, "every simulated line is rendered (no silent cap)");
+  assert.match(V2_SRC, /overflow-x-auto/, "the board is horizontally scrollable on small screens");
+  assert.ok(V2_SRC.includes("No simulated player lines for this game yet."), "honest empty state when there are no picks");
 });
 
-// ── 12 · source references all 10 module markers AND Phase-2 animation stays AND idle button stays ─
-test("source references all 10 modules; Phase-2 animation + idle Generate button untouched", () => {
+// ── 12 · the dashboard modules now render as V2.5 sections; runner keeps animation + gate + header ──
+test("dashboard modules live in the V2.5 report; runner keeps the animation, idle button, and header", () => {
   for (const marker of [
-    "PricedPropSnapshot",
-    "CentralRead",
-    "MainTakeaways",
-    "PropTable",
-    "MarketAgreement",
-    "RecapBlock",
-    // reused modules kept in the layout:
-    "GeneratedPickCard",
-    "DistributionCard",
-    "UnavailableModules",
+    'title="Player simulation board"', // pick table (was PropTable)
+    'title="Biggest model leads"', // leans (was GeneratedPickCard grid / MainTakeaways)
+    'title="Market agreement"', // was MarketAgreement
+    'title="Outcome distributions"', // was DistributionCard
+    'title="Simulation coverage"', // coverage / what-is-not-shown (was UnavailableModules)
   ]) {
-    assert.match(RUNNER_SRC, new RegExp(marker), `module marker present: ${marker}`);
+    assert.ok(V2_SRC.includes(marker), `V2.5 section present: ${marker}`);
   }
-  // Header stays (section 1) — the summary + explicit model-projection label.
+  // The runner's done-phase header stays (section 1) — the summary + explicit model-projection label.
   assert.match(RUNNER_SRC, /Model projection · not a final score/, "projected numbers labelled a model projection");
+  // The runner reveals the V2.5 report as the single primary report in the done phase.
+  assert.match(RUNNER_SRC, /\{postReveal \?/, "the V2.5 report is revealed as postReveal");
   // Phase-2 animation is still rendered for the animating phase — dispatched on the real view.sport, now
   // threading the optional team logos through (the `stage={stage}` prefix is unchanged; extra props follow).
   assert.match(RUNNER_SRC, /<SportSimulationAnimation sport=\{view\.sport\} view=\{view\} stage=\{stage\}/, "animation still renders for the animating phase");

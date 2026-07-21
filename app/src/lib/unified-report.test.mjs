@@ -1,12 +1,15 @@
 /**
- * SINGLE UNIFIED SIMULATION REPORT (2026-07-09) — one report, not runner + competing tabs.
+ * SINGLE UNIFIED SIMULATION REPORT — one report, not runner + competing tabs.
  *
- * The post-generate game report is now ONE spine: the runner owns header → market snapshot → simulator
- * output → main read → top leans → key takeaways → collapsed diagnostics, and the remaining detail is a
- * small stack of collapsed disclosures (NOT a `PostRevealTabs` dashboard). These checks pin: the market
- * snapshot leads the runner, the detail is the gated `mlbReportDetails` / `wcReport` postReveal, the
- * strongest lean is de-duplicated (Central read only, not repeated as takeaway cards), soccer stays
- * market-implied with NO run-count claim, MLB keeps its 10,000-run wording, details are collapsed, the
+ * The post-generate game report is now ONE spine: the runner's done phase is just [ "Simulation complete"
+ * header → the V2.5 report (postReveal) → a paper-only disclaimer → post-reveal nav ]. The primary V2.5
+ * report (`mlb-simulation-report-v2.tsx`) owns the market snapshot (its §10), the player board, the biggest
+ * model leads, agreement, and distributions, and the old dense dashboard is demoted into ONE collapsed
+ * "Advanced simulation detail" block INSIDE that report. These checks pin: the market snapshot renders once
+ * (in the V2.5 report, never a competing copy in the runner), the detail is the gated
+ * `mlbReportDetails` / `wcReport` postReveal, the strongest lean is de-duplicated (the V2.5 report is the
+ * single hero surface — the runner no longer renders competing CentralRead / MainTakeaways cards), soccer
+ * stays market-implied with NO run-count claim, MLB keeps its 10,000-run wording, details are collapsed, the
  * gate is intact, and `PostRevealTabs` no longer drives the game report.
  */
 import test from "node:test";
@@ -29,10 +32,14 @@ test("1 · the market snapshot renders ONCE, inside the primary V2.5 report — 
   assert.match(detailPage, /marketSnapshotNode=\{gameCenter\}/, "MLB market snapshot node goes into the V2.5 report");
   assert.match(v2, /gtp-market-snapshot/, "V2.5 renders the market snapshot (§10)");
   assert.doesNotMatch(runner, /gtp-market-snapshot/, "the runner no longer renders a competing market snapshot above the report");
-  // The V2.5 report (postReveal) is the PRIMARY content, before the collapsed advanced-detail block.
+  // The runner's done phase reveals the V2.5 report (postReveal) as the single PRIMARY report.
   const primary = runner.indexOf("PRIMARY REPORT");
-  const advanced = runner.indexOf("Advanced simulation detail");
-  assert.ok(primary > 0 && advanced > primary, "V2.5 renders as the primary report, before the collapsed advanced block");
+  const postReveal = runner.indexOf("{postReveal ?");
+  assert.ok(primary > 0 && postReveal > primary, "the V2.5 report is revealed as the single primary report");
+  // The old dense dashboard is demoted into ONE collapsed 'Advanced simulation detail' block — now inside
+  // the V2.5 report, not the runner.
+  assert.match(v2, /AdvancedDisclosure label="Advanced simulation detail"/, "advanced detail collapsed inside the V2.5 report");
+  assert.doesNotMatch(runner, /Advanced simulation detail/, "the runner no longer owns the collapsed advanced block");
 });
 
 test("2 · the report is ONE unified spine — no competing PostRevealTabs dashboard", () => {
@@ -54,11 +61,14 @@ test("3 · remaining detail is a stack of COLLAPSED disclosures (not tabs)", () 
   assert.match(detailPage, /wcSecondary = \([\s\S]*?ExpandableReportSection title="Advanced report"/, "secondary WC detail stays collapsed");
 });
 
-test("4 · the strongest lean is de-duplicated — Central read is the single hero", () => {
-  // MainTakeaways drops the strongest_lean + biggest_edge cards (they duplicated Central read).
-  assert.match(runner, /filter\(\(t\) => t\.key !== "strongest_lean" && t\.key !== "biggest_edge"\)/, "takeaways drop the duplicated strongest-lean cards");
-  // Central read still renders once as the single strongest lean.
-  assert.match(runner, /Central read/, "Central read remains the one main-read hero");
+test("4 · the strongest lean is de-duplicated — the V2.5 report is the single hero surface", () => {
+  const v2 = read("src/components/game/mlb-simulation-report-v2.tsx");
+  // The runner no longer renders its own competing takeaway cards / central-read block — the removed
+  // MainTakeaways + CentralRead apparatus is gone, so nothing duplicates the strongest lean above the report.
+  assert.doesNotMatch(runner, /<MainTakeaways/, "no competing MainTakeaways card grid in the runner");
+  assert.doesNotMatch(runner, /<CentralRead/, "no competing CentralRead block in the runner");
+  // The strongest lean surfaces once, in the V2.5 report's single 'Biggest model leads' watchlist.
+  assert.ok(v2.includes("Biggest model leads"), "the V2.5 report owns the one strongest-lean surface");
 });
 
 test("5 · soccer stays market-implied (NO run-count claim); MLB keeps its 10,000-run wording", () => {

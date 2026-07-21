@@ -25,27 +25,26 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import type { GameSimulationView } from "@/lib/game-simulations/game-lab-view";
-import type { SimGeneratedPick, SimDistribution } from "@/lib/game-simulations/types";
+import type { SimGeneratedPick } from "@/lib/game-simulations/types";
 import {
   SportSimulationAnimation,
   SIMULATION_MIN_DURATION_MS,
   SIMULATION_STAGES,
 } from "./simulation-animation";
-import { ExpandableReportSection } from "./answer-first-report";
 
 /**
  * The dashboard modules the reveal unlocks — shown BEFORE the click as locked/preview pills ONLY (labels,
  * never data), so the user knows what is coming without seeing any posted price, prop, or distribution.
  */
 const DASHBOARD_PREVIEW_PILLS = [
-  "Market snapshot",
-  "Central read",
-  "Main takeaways",
-  "Biggest leans",
-  "Player / prop table",
-  "Distributions",
+  "Simulation coverage",
+  "Player board",
+  "Model leads",
   "Market agreement",
-  "Recap",
+  "Distributions",
+  "Settlement",
+  "Product tags",
+  "Market snapshot",
 ] as const;
 
 // ── formatters (always fall back to an em dash; never render undefined/NaN) ──
@@ -85,71 +84,6 @@ function Eyebrow({ children, color }: { children: React.ReactNode; color?: strin
   );
 }
 
-/** One generated pick, rendered like the MLB report cards (paper-only). `top` highlights the strongest
- *  lean (the highest-edge pick — the list is edge-ranked). */
-function GeneratedPickCard({ p, top }: { p: SimGeneratedPick; top?: boolean }) {
-  const selection =
-    (p.player ? `${p.player} · ` : p.team ? `${p.team} · ` : "") +
-    `${dash(p.side)}${p.line != null ? ` ${p.line}` : ""}`;
-  return (
-    <div
-      className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(26, 16, 11,0.6)", border: `1px solid ${top ? "var(--vault-gold-bright)" : "var(--vault-border)"}`, boxShadow: top ? "0 0 0 1px rgba(242,54,69,0.22)" : "none" }}
-    >
-      {top ? (
-        <span className="inline-flex items-center self-start rounded-full px-2 py-0.5 font-mono font-bold uppercase tracking-[0.1em]"
-          style={{ color: "var(--vault-gold-bright)", background: "rgba(242,54,69,0.10)", border: "1px solid var(--vault-gold-bright)", fontSize: 8.5 }}>
-          ★ Strongest lean
-        </span>
-      ) : null}
-      <div className="flex items-start justify-between gap-2 min-w-0">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <span
-            className="font-display tracking-tight break-words leading-tight"
-            style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}
-          >
-            {selection}
-          </span>
-          <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-            {dash(p.market)}
-          </span>
-        </div>
-        <span
-          className="inline-flex items-center rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em] shrink-0"
-          style={{
-            color: RISK_TONE[p.riskTier] ?? "var(--vault-text-mute)",
-            border: `1px solid ${RISK_TONE[p.riskTier] ?? "var(--vault-rule)"}`,
-            fontSize: 8.5,
-            background: "rgba(255,255,255,0.02)",
-          }}
-        >
-          {dash(p.riskTier)}
-        </span>
-      </div>
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-x-3 gap-y-2">
-        <Stat label="Proj" value={num2(p.projection)} />
-        <Stat label="Model" value={pct(p.modelProbability)} />
-        <Stat label="Market" value={pct(p.marketProbability)} />
-        <Stat label="Gap" value={edgeTxt(p.edgePct)} color={(p.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)"} />
-        <Stat label="Conf" value={pct(p.confidence)} />
-      </div>
-      {/* Visual depth — real fields only: the model-vs-market edge bar + the projection-vs-line track. */}
-      <div className="flex flex-col gap-2.5 sm:flex-row sm:gap-4">
-        <div className="flex-1"><ProbBar model={p.modelProbability} market={p.marketProbability} /></div>
-        <div className="flex-1"><ProjVsLine projection={p.projection} line={p.line} side={p.side} /></div>
-      </div>
-      {p.reasonBullets.length > 0 ? (
-        <ul className="flex flex-col gap-0.5">
-          {p.reasonBullets.map((b, i) => (
-            <li key={i} className="text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
-              · {dash(b)}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
-}
 
 function Stat({ label, value, color }: { label: string; value: React.ReactNode; color?: string }) {
   return (
@@ -164,7 +98,6 @@ function Stat({ label, value, color }: { label: string; value: React.ReactNode; 
   );
 }
 
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PURE derivation helpers (exported for real-timer-free unit tests). Everything
@@ -367,285 +300,12 @@ export function buildRecap(view: GameSimulationView): string {
   return lines.join("\n");
 }
 
-/**
- * Model-vs-market probability bar — a visual of the edge, built ONLY from the pick's real
- * `modelProbability` (bar fill) and `marketProbability` (a tick). The gap between them IS the edge.
- * Renders nothing when the model probability is absent (never a fabricated bar).
- */
-function ProbBar({ model, market }: { model?: number | null; market?: number | null }) {
-  if (model == null || !Number.isFinite(model)) return null;
-  const m = clamp01(model);
-  const mk = market != null && Number.isFinite(market) ? clamp01(market) : null;
-  const ahead = mk == null || m >= mk;
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center justify-between font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-text-faint)" }}>
-        <span>Model {pct(model)}</span>
-        {mk != null ? <span>Market {pct(market)}</span> : null}
-      </div>
-      <div className="relative w-full rounded-full" style={{ height: 6, background: "rgba(255,255,255,0.07)" }}>
-        <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: `${m * 100}%`, background: ahead ? "var(--vault-success)" : "var(--gtp-bank-heat)", transition: "width 300ms ease" }} />
-        {mk != null ? (
-          <div className="absolute" style={{ top: -2, left: `calc(${mk * 100}% - 1px)`, width: 2, height: 10, background: "var(--vault-text)" }} title={`Market ${pct(market)}`} aria-hidden />
-        ) : null}
-      </div>
-    </div>
-  );
-}
 
-/**
- * Projection-vs-line visual — the model projection placed against the market line on a shared track
- * (0 → ~2× the line). Built ONLY from the pick's real `projection`, `line`, and `side`. Renders nothing
- * when either number is missing.
- */
-function ProjVsLine({ projection, line, side }: { projection?: number | null; line?: number | null; side?: string | null }) {
-  if (projection == null || line == null || !Number.isFinite(projection) || !Number.isFinite(line) || line <= 0) return null;
-  const span = Math.max(line * 2, projection * 1.15, 1);
-  const linePct = clamp01(line / span) * 100;
-  const projPct = clamp01(projection / span) * 100;
-  const over = String(side ?? "").toLowerCase().includes("over");
-  const clears = over ? projection >= line : projection <= line;
-  const tone = clears ? "var(--vault-success)" : "var(--gtp-bank-heat)";
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center justify-between font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-text-faint)" }}>
-        <span>Proj {num2(projection)}</span>
-        <span>Line {num2(line)} · {dash(side)}</span>
-      </div>
-      <div className="relative w-full rounded-full" style={{ height: 6, background: "rgba(255,255,255,0.07)" }}>
-        {/* the line marker */}
-        <div className="absolute" style={{ top: -2, left: `calc(${linePct}% - 1px)`, width: 2, height: 10, background: "var(--vault-text-mute)" }} title={`Line ${num2(line)}`} aria-hidden />
-        {/* the projection dot */}
-        <div className="absolute rounded-full" style={{ top: -1, left: `calc(${projPct}% - 4px)`, width: 8, height: 8, background: tone, boxShadow: `0 0 6px ${tone}` }} title={`Projection ${num2(projection)}`} aria-hidden />
-      </div>
-    </div>
-  );
-}
 
-/** A single distribution as a compact honest histogram (only rendered when distributions exist). */
-function DistributionCard({ d }: { d: SimDistribution }) {
-  const maxP = d.bins.reduce((m, b) => (Number.isFinite(b.probability) ? Math.max(m, b.probability) : m), 0) || 1;
-  return (
-    <div
-      className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border)" }}
-    >
-      <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600 }}>
-        {dash(d.label)}
-      </span>
-      <div className="flex items-end gap-1" style={{ height: 48 }}>
-        {d.bins.map((b, i) => {
-          const h = Math.max(3, Math.round((b.probability / maxP) * 44));
-          return (
-            <div
-              key={i}
-              className="flex flex-1 flex-col items-center gap-0.5"
-              title={`${dash(b.label)}: ${pct(b.probability)}${b.count != null ? ` · ${b.count} samples` : ""}`}
-            >
-              <div
-                style={{ width: "100%", maxWidth: 16, height: h, borderRadius: 3, background: "var(--vault-gold-bright)", opacity: 0.7 }}
-              />
-              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 7.5 }}>
-                {dash(b.label)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-      {d.sampleCount != null ? (
-        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
-          {d.sampleCount.toLocaleString()} deterministic samples · same output every run
-        </span>
-      ) : null}
-    </div>
-  );
-}
 
-/** A tiny section heading (eyebrow + title + optional sub-line), reused across the new modules. */
-function ModuleHead({ eyebrow, title, sub }: { eyebrow: string; title: string; sub?: string }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <Eyebrow>{eyebrow}</Eyebrow>
-      <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>
-        {title}
-      </h3>
-      {sub ? (
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5, lineHeight: 1.5 }}>{sub}</span>
-      ) : null}
-    </div>
-  );
-}
 
-/**
- * PricedPropSnapshot — the market-snapshot analogue, built from the picks that carry a REAL market
- * probability (i.e. priced markets). Compact grid: subject · market · side/line · projection · model%
- * · market% · edge. The widest model-vs-market gap pick is highlighted. Honest empty state when there
- * are no priced markets in this artifact.
- */
-function PricedPropSnapshot({ picks }: { picks: SimGeneratedPick[] }) {
-  const priced = pricedPicks(picks);
-  // Widest |model − market| gap among priced picks (only meaningful when a model prob also exists).
-  let widestId: string | null = null;
-  let widest = -Infinity;
-  for (const p of priced) {
-    if (p.modelProbability == null || !Number.isFinite(p.modelProbability)) continue;
-    const gap = Math.abs(p.modelProbability - (p.marketProbability as number));
-    if (gap > widest) {
-      widest = gap;
-      widestId = p.id;
-    }
-  }
-  return (
-    <section className="flex flex-col gap-2.5">
-      <ModuleHead
-        eyebrow={`Priced prop snapshot · ${priced.length}`}
-        title="Where the model met a market price"
-        sub="Only picks with a real market price — projection vs the book, per pick. Widest model-vs-market gap is highlighted."
-      />
-      {priced.length === 0 ? (
-        <div className="rounded-[12px] px-4 py-3.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
-          <p className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-            No priced markets in this artifact — nothing is shown here rather than a fabricated price.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {priced.map((p) => {
-            const isWidest = p.id === widestId;
-            const subject = p.player || p.team || humanizeMarket(p.market);
-            return (
-              <div
-                key={p.id}
-                className="flex flex-col gap-1.5 rounded-[11px] px-3 py-2.5"
-                style={{
-                  background: "rgba(26, 16, 11,0.55)",
-                  border: `1px solid ${isWidest ? "var(--vault-gold-bright)" : "var(--vault-border)"}`,
-                  boxShadow: isWidest ? "0 0 0 1px rgba(242,54,69,0.18)" : "none",
-                }}
-              >
-                <div className="flex items-start justify-between gap-2 min-w-0">
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="font-display tracking-tight break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 700 }}>
-                      {subject}
-                    </span>
-                    <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-                      {humanizeMarket(p.market)} · {dash(p.side)}{p.line != null ? ` ${p.line}` : ""}
-                    </span>
-                  </div>
-                  {isWidest ? (
-                    <span className="inline-flex items-center rounded-full px-1.5 py-0.5 font-mono uppercase tracking-[0.1em] shrink-0"
-                      style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", fontSize: 7.5, background: "rgba(242,54,69,0.10)" }}>
-                      Widest gap
-                    </span>
-                  ) : null}
-                </div>
-                <div className="grid grid-cols-4 gap-x-2 gap-y-1">
-                  <Stat label="Proj" value={num2(p.projection)} />
-                  <Stat label="Model" value={pct(p.modelProbability)} />
-                  <Stat label="Market" value={pct(p.marketProbability)} />
-                  <Stat label="Gap" value={edgeTxt(p.edgePct)} color={(p.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)"} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </section>
-  );
-}
 
-/**
- * CentralRead — the model's single strongest lean (generatedPicks[0], already edge-sorted). A prop
- * READ, never a game score or win probability. Prominent card with subject, market, side/line,
- * projection, model%, market%, edge, confidence, risk tier, and the pick's reason bullets. Echoes the
- * summary headline as one supporting line when present. Honest "no qualified lean" when picks empty.
- */
-function CentralRead({ view }: { view: GameSimulationView }) {
-  const lean = view.generatedPicks[0];
-  return (
-    <section className="flex flex-col gap-2.5">
-      <ModuleHead eyebrow="Central read" title="The model's single strongest lean" sub="A prop lean — not a predicted final score or win probability." />
-      {!lean ? (
-        <div className="rounded-[12px] px-4 py-3.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
-          <p className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-            No qualified lean for this game — the model produced no pick to feature, and nothing is invented to fill the slot.
-          </p>
-        </div>
-      ) : (
-        <div
-          className="flex flex-col gap-2.5 rounded-[14px] px-4 py-4"
-          style={{ border: "1px solid var(--vault-gold-bright)", background: "linear-gradient(135deg, rgba(22,30,62,0.9) 0%, rgba(26, 16, 11,0.96) 100%)", boxShadow: "0 0 0 1px rgba(242,54,69,0.20)" }}
-        >
-          <span className="inline-flex items-center self-start rounded-full px-2 py-0.5 font-mono font-bold uppercase tracking-[0.1em]"
-            style={{ color: "var(--vault-gold-bright)", background: "rgba(242,54,69,0.10)", border: "1px solid var(--vault-gold-bright)", fontSize: 8.5 }}>
-            ★ Strongest lean · prop read
-          </span>
-          <div className="flex items-start justify-between gap-2 min-w-0">
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="font-display tracking-tight break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 800 }}>
-                {(lean.player ? `${lean.player} · ` : lean.team ? `${lean.team} · ` : "") + `${dash(lean.side)}${lean.line != null ? ` ${lean.line}` : ""}`}
-              </span>
-              <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                {humanizeMarket(lean.market)}
-              </span>
-            </div>
-            <span className="inline-flex items-center rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em] shrink-0"
-              style={{ color: RISK_TONE[lean.riskTier] ?? "var(--vault-text-mute)", border: `1px solid ${RISK_TONE[lean.riskTier] ?? "var(--vault-rule)"}`, fontSize: 8.5, background: "rgba(255,255,255,0.02)" }}>
-              {dash(lean.riskTier)}
-            </span>
-          </div>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-x-3 gap-y-2">
-            <Stat label="Proj" value={num2(lean.projection)} />
-            <Stat label="Model" value={pct(lean.modelProbability)} />
-            <Stat label="Market" value={pct(lean.marketProbability)} />
-            <Stat label="Gap" value={edgeTxt(lean.edgePct)} color={(lean.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)"} />
-            <Stat label="Conf" value={pct(lean.confidence)} />
-          </div>
-          <ProbBar model={lean.modelProbability} market={lean.marketProbability} />
-          {lean.reasonBullets.length > 0 ? (
-            <ul className="flex flex-col gap-0.5">
-              {lean.reasonBullets.map((b, i) => (
-                <li key={i} className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>· {dash(b)}</li>
-              ))}
-            </ul>
-          ) : null}
-          {view.simulationSummary?.headline ? (
-            <p className="text-[11.5px] leading-snug" style={{ color: "var(--vault-text-faint)", borderTop: "1px solid var(--vault-rule)", paddingTop: 8 }}>
-              Model read: {dash(view.simulationSummary.headline)}
-            </p>
-          ) : null}
-        </div>
-      )}
-    </section>
-  );
-}
 
-/**
- * MainTakeaways — 3–4 derived cards (strongest lean, highest confidence, biggest edge value, most
- * common market family). Every card names the pick/value it came from. All from real fields, fully
- * deterministic (see `deriveTakeaways`). Renders nothing when there are no picks.
- */
-function MainTakeaways({ picks }: { picks: SimGeneratedPick[] }) {
-  // The strongest lean is already the single Main Read (Central read) + top-leans #1 — so drop the
-  // takeaway cards that just repeat it (strongest_lean / biggest_edge). Key takeaways stay META
-  // (highest confidence, most common market), not a third rendering of the hero lean.
-  const takeaways = deriveTakeaways(picks).filter((t) => t.key !== "strongest_lean" && t.key !== "biggest_edge");
-  if (takeaways.length === 0) return null;
-  return (
-    <section className="flex flex-col gap-2.5">
-      <ModuleHead eyebrow="Key takeaways" title="What else stands out" sub="Meta reads across the generated picks — the strongest lean is the Central read above, not repeated here." />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {takeaways.map((t) => (
-          <div key={t.key} className="flex flex-col gap-1 rounded-[11px] px-3.5 py-3" style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border)" }}>
-            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{t.label}</span>
-            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>{dash(t.value)}</span>
-            <span className="text-[10.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{dash(t.from)}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 /**
  * PropTable — a scrollable table of ALL generated picks (capped at a sensible top-N with an honest
@@ -653,169 +313,9 @@ function MainTakeaways({ picks }: { picks: SimGeneratedPick[] }) {
  * the run produced, paper-only.
  */
 const PROP_TABLE_CAP = 12;
-function PropTable({ picks }: { picks: SimGeneratedPick[] }) {
-  const list = picks ?? [];
-  if (list.length === 0) return null;
-  const rows = list.slice(0, PROP_TABLE_CAP);
-  const capped = list.length > PROP_TABLE_CAP;
-  const th = "px-2.5 py-1.5 text-left font-mono uppercase tracking-[0.08em] whitespace-nowrap";
-  const td = "px-2.5 py-1.5 whitespace-nowrap";
-  return (
-    <section className="flex flex-col gap-2.5">
-      <ModuleHead
-        eyebrow="Player / prop table"
-        title="Every generated pick"
-        sub={capped ? `Showing top ${PROP_TABLE_CAP} of ${list.length} generated picks — ranked by model gap, nothing silently dropped.` : "Ranked by the model-vs-market gap — every pick the run produced."}
-      />
-      <div className="rounded-[12px]" style={{ border: "1px solid var(--vault-border)", overflowX: "auto" }}>
-        <table className="w-full" style={{ borderCollapse: "collapse", fontSize: 11.5 }}>
-          <thead>
-            <tr style={{ background: "rgba(0,0,0,0.25)", color: "var(--vault-text-faint)", fontSize: 8.5 }}>
-              <th className={th}>Subject</th>
-              <th className={th}>Market</th>
-              <th className={th}>Side</th>
-              <th className={th}>Line</th>
-              <th className={th}>Proj</th>
-              <th className={th}>Model%</th>
-              <th className={th}>Market%</th>
-              <th className={th}>Gap</th>
-              <th className={th}>Conf</th>
-              <th className={th}>Risk</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((p) => (
-              <tr key={p.id} style={{ borderTop: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)" }}>
-                <td className={td} style={{ color: "var(--vault-text)", fontWeight: 600 }}>{dash(p.player || p.team || "—")}</td>
-                <td className={td}>{humanizeMarket(p.market)}</td>
-                <td className={td}>{dash(p.side)}</td>
-                <td className={`${td} font-mono`}>{p.line != null ? num2(p.line) : "—"}</td>
-                <td className={`${td} font-mono`}>{num2(p.projection)}</td>
-                <td className={`${td} font-mono`}>{pct(p.modelProbability)}</td>
-                <td className={`${td} font-mono`}>{pct(p.marketProbability)}</td>
-                <td className={`${td} font-mono`} style={{ color: (p.edgePct ?? 0) >= 0 ? "var(--vault-success)" : "var(--gtp-bank-heat)" }}>{edgeTxt(p.edgePct)}</td>
-                <td className={`${td} font-mono`}>{pct(p.confidence)}</td>
-                <td className={td} style={{ color: RISK_TONE[p.riskTier] ?? "var(--vault-text-mute)" }}>{dash(p.riskTier)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-}
 
-/**
- * MarketAgreement — CURRENT-SLATE model-vs-market agreement (NOT historical calibration / Brier /
- * long-term accuracy). Average |model − market| gap over ONLY priced picks, the priced count, the
- * widest gap, and a tier label from the avg gap. Hidden entirely when zero priced picks.
- */
-function MarketAgreement({ picks }: { picks: SimGeneratedPick[] }) {
-  const a = marketAgreement(picks);
-  if (!a) return null;
-  const gapPts = (n: number) => (Number.isFinite(n) ? `${(n * 100).toFixed(1)} pts` : "—");
-  const widestSubject = a.widestPick.player || a.widestPick.team || humanizeMarket(a.widestPick.market);
-  return (
-    <section className="flex flex-col gap-2.5">
-      <ModuleHead
-        eyebrow="Current-slate model-vs-market agreement"
-        title="How far the model sits from the book — this slate"
-        sub="A snapshot of THIS artifact's priced picks only. Not historical calibration or a long-term accuracy score."
-      />
-      <div className="flex flex-col gap-2.5 rounded-[12px] px-4 py-3.5" style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border)" }}>
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-          <Stat label="Avg gap" value={gapPts(a.avgGap)} />
-          <Stat label="Priced picks" value={String(a.pricedCount)} />
-          <Stat label="Widest gap" value={gapPts(a.widestGap)} />
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Alignment</span>
-            <span className="inline-flex items-center self-start rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]"
-              style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)", fontSize: 9, background: "rgba(217,164,65,0.10)" }}>
-              {a.tier}
-            </span>
-          </div>
-        </div>
-        <span className="text-[10.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
-          Widest gap: {widestSubject} · {humanizeMarket(a.widestPick.market)} — model {pct(a.widestPick.modelProbability)} vs market {pct(a.widestPick.marketProbability)}.
-        </span>
-      </div>
-    </section>
-  );
-}
 
-/**
- * RecapBlock — a copyable plain-text recap built ONLY from real fields (see `buildRecap`). The <pre>
- * is the always-present, selectable fallback; the "Copy recap" button uses a guarded
- * navigator.clipboard when available. No fabricated claims, no banned copy.
- */
-function RecapBlock({ view }: { view: GameSimulationView }) {
-  const recap = buildRecap(view);
-  const [copied, setCopied] = useState(false);
-  const copy = useCallback(() => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(recap).then(
-        () => {
-          setCopied(true);
-          window.setTimeout(() => setCopied(false), 1600);
-        },
-        () => setCopied(false),
-      );
-    }
-  }, [recap]);
-  return (
-    <section className="flex flex-col gap-2.5">
-      <ModuleHead eyebrow="Recap" title="Copy this run's recap" sub="Plain text, real fields only — paste it anywhere. The block below is always selectable." />
-      <div className="flex flex-col gap-2 rounded-[12px] px-4 py-3.5" style={{ background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-border)" }}>
-        <pre
-          className="whitespace-pre-wrap break-words font-mono"
-          style={{ color: "var(--vault-text-mute)", fontSize: 11.5, lineHeight: 1.55, margin: 0, userSelect: "text" }}
-        >
-          {recap}
-        </pre>
-        <button
-          type="button"
-          onClick={copy}
-          className="vault-press inline-flex items-center self-start rounded-full px-3.5 font-mono uppercase tracking-[0.1em]"
-          style={{ fontSize: 10.5, fontWeight: 700, minHeight: 34, color: "var(--vault-text)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-border-strong)", cursor: "pointer" }}
-        >
-          {copied ? "Copied" : "Copy recap"}
-        </button>
-      </div>
-    </section>
-  );
-}
 
-/** The "not generated" modules — honest edge of what the artifact does NOT contain. */
-function UnavailableModules({ view }: { view: GameSimulationView }) {
-  if (view.unavailableModules.length === 0) return null;
-  return (
-    <section
-      className="flex flex-col gap-2 rounded-[14px] px-4 py-3.5"
-      style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-border)" }}
-    >
-      <div className="flex flex-col gap-0.5">
-        <Eyebrow color="var(--vault-text-faint)">Not generated</Eyebrow>
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>
-          These modules were not generated for this game — we show only what the artifact actually contains, never a fabricated one.
-        </span>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {view.unavailableModules.map((u) => (
-          <div
-            key={u.module}
-            className="flex flex-col gap-0.5 rounded-[10px] px-3 py-2.5"
-            style={{ background: "rgba(0,0,0,0.22)", border: "1px dashed var(--vault-rule)" }}
-          >
-            <span style={{ color: "var(--vault-text-mute)", fontSize: 12, fontWeight: 600 }}>{dash(u.displayCopy)}</span>
-            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-              {dash(u.module)} · {dash(u.reason)}
-            </span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 export default function GameSimulationRunner({
   view,
@@ -1078,103 +578,6 @@ export default function GameSimulationRunner({
               product eligibility and methodology, so nothing here competes with it above. */}
           {postReveal ? <div className="flex flex-col gap-5">{postReveal}</div> : null}
 
-          {/* ADVANCED SIMULATION DETAIL — the older answer-first dashboard, demoted into ONE collapsed block
-              below the primary report. Kept for depth; it is not a competing second report and it no longer
-              repeats the market snapshot (that renders once, in the V2.5 report above). */}
-          <details className="rounded-[14px] px-4 sm:px-5 py-3" style={{ background: "rgba(15,10,7,0.35)", border: "1px solid var(--vault-border)" }}>
-            <summary className="cursor-pointer font-mono uppercase tracking-[0.08em] select-none" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>Advanced simulation detail ▾</summary>
-            <div className="mt-3 flex flex-col gap-4">
-          {/* SIMULATOR OUTPUT — the priced-prop snapshot: what GameTime's model produced, priced. */}
-          <PricedPropSnapshot picks={view.generatedPicks} />
-
-          {/* 3 · CENTRAL READ — the model's single strongest lean, as a PROP read (never a score). */}
-          <CentralRead view={view} />
-
-          {/* 4 · MAIN TAKEAWAYS — derived, deterministic cards from real fields. */}
-          <MainTakeaways picks={view.generatedPicks} />
-
-          {/* 5 · BIGGEST LEANS — the reused generated-picks grid (top-6 capped, honestly noted). */}
-          {view.generatedPicks.length > 0 ? (
-            <section className="flex flex-col gap-2.5">
-              <div className="flex flex-col gap-0.5">
-                <Eyebrow>Biggest leans · {view.generatedPicks.length}</Eyebrow>
-                <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>
-                  What the {runCopy} produced
-                </h3>
-                <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>
-                  {view.generatedPicks.length > 6
-                    ? `Showing top 6 of ${view.generatedPicks.length} generated picks — model probability vs the market price, with the model gap, per pick. Paper-only, deterministic.`
-                    : "Model probability vs the market price, with the model gap, per pick — paper-only, deterministic."}
-                </span>
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                {view.generatedPicks.slice(0, 6).map((p, i) => (
-                  <GeneratedPickCard key={p.id} p={p} top={i === 0} />
-                ))}
-              </div>
-            </section>
-          ) : (
-            <div className="rounded-[12px] px-4 py-3.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
-              <p className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-                The simulation produced no qualified pick for this game — nothing is padded to look active.
-              </p>
-            </div>
-          )}
-
-          {/* ── DEEPER ANALYSIS — the heavy sections move OUT of the main reading path (answer-first IA).
-              Everything above (matchup, priced snapshot, central read, takeaways, top leans) is the fast
-              read; the full ledger, distributions, model-vs-market diagnostics, unavailable modules, and
-              the copy recap are one tap away below. Each disclosure is closed by default and only rendered
-              when it has real content (no empty toggles). ── */}
-          {view.generatedPicks.length > 0 ||
-          (view.distributions && Object.keys(view.distributions).length > 0) ||
-          view.unavailableModules.length > 0 ? (
-            <div className="flex flex-col gap-2 mt-1">
-              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-                Deeper analysis · expand as needed
-              </span>
-
-              {/* 6 · Full pick table (collapsed) */}
-              {view.generatedPicks.length > 0 ? (
-                <ExpandableReportSection title="Full pick table" count={view.generatedPicks.length} hint="Every generated pick — projection, model %, market %, model gap, confidence.">
-                  <PropTable picks={view.generatedPicks} />
-                </ExpandableReportSection>
-              ) : null}
-
-              {/* 7 · Distributions (collapsed, only when the artifact carries a real block) */}
-              {view.distributions && Object.keys(view.distributions).length > 0 ? (
-                <ExpandableReportSection title="Outcome distributions" hint="The simulated outcome spread — deterministic bins from the artifact.">
-                  <div className="grid grid-cols-1 gap-2">
-                    {Object.entries(view.distributions).map(([key, d]) => (
-                      <DistributionCard key={key} d={d} />
-                    ))}
-                  </div>
-                </ExpandableReportSection>
-              ) : null}
-
-              {/* 8 · Model-vs-market agreement (collapsed diagnostic — not calibration) */}
-              {view.generatedPicks.length > 0 ? (
-                <ExpandableReportSection title="Model vs market agreement" hint="A sanity check on how far the model sits from the market — not a calibration score.">
-                  <MarketAgreement picks={view.generatedPicks} />
-                </ExpandableReportSection>
-              ) : null}
-
-              {/* 9 · Unavailable modules (collapsed — honest "not generated", this game's sport only) */}
-              {view.unavailableModules.length > 0 ? (
-                <ExpandableReportSection title="Unavailable modules" count={view.unavailableModules.length} hint="What wasn't generated for this game, and why — never faked.">
-                  <UnavailableModules view={view} />
-                </ExpandableReportSection>
-              ) : null}
-
-              {/* 10 · Copy recap (collapsed) */}
-              <ExpandableReportSection title="Copy recap" hint="A plain-text recap you can copy — built from the same real fields.">
-                <RecapBlock view={view} />
-              </ExpandableReportSection>
-            </div>
-          ) : null}
-
-            </div>
-          </details>
 
           {/* Paper-only — the single closing disclaimer (detailed disclaimers live in the report methodology). */}
           <p className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
