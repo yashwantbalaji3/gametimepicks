@@ -37,3 +37,37 @@ for (const route of INTERNAL_ROUTES) {
   if (fs.existsSync(txt)) fs.rmSync(txt, { force: true });
 }
 console.log(`[prune-internal-routes] pruned from out/: ${removed.length ? removed.join(", ") : "(none present)"}`);
+
+// ── Internal DATA sweep: an artifact under public/data may be flagged `"public": false` (internal / dev,
+// e.g. the shadow-calibration backtest). output:export copies it verbatim into out/data where it would be
+// world-readable at its raw URL even though no page links it. Delete every out/data JSON that declares
+// itself non-public so the deployed site can never serve internal backtest / calibration data. Bounded to
+// out/data; reads each JSON's head only. Never touches source or public/data — only the build output.
+function sweepInternalData(dir) {
+  const pruned = [];
+  const walk = (d) => {
+    let entries;
+    try { entries = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.name.endsWith(".json")) {
+        try {
+          const txt = fs.readFileSync(p, "utf8");
+          // Cheap pre-filter before JSON.parse; then confirm a real top-level public:false.
+          if (/"public"\s*:\s*false/.test(txt)) {
+            const j = JSON.parse(txt);
+            if (j && j.public === false) { fs.rmSync(p, { force: true }); pruned.push(path.relative(outDir, p)); }
+          }
+        } catch { /* unreadable/!json → leave it */ }
+      }
+    }
+  };
+  walk(dir);
+  return pruned;
+}
+const dataDir = path.join(outDir, "data");
+if (fs.existsSync(dataDir)) {
+  const prunedData = sweepInternalData(dataDir);
+  console.log(`[prune-internal-routes] internal (public:false) data pruned from out/: ${prunedData.length ? prunedData.join(", ") : "(none)"}`);
+}

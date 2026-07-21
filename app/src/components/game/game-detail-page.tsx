@@ -639,6 +639,12 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       resultSummary={mlbResultSummary}
       hasTeamMarkets={!!detail.gameCenter}
       playerProps={detail.playerProps}
+      picks={detail.gameLabSimulation?.generatedPicks ?? []}
+      gameCenter={detail.gameCenter ?? null}
+      runCount={detail.gameLabSimulation?.runCount ?? null}
+      allowsRunCountClaim={!!detail.gameLabSimulation?.allowsRunCountClaim}
+      modelVersion={detail.gameLabSimulation?.modelVersion ?? null}
+      generatedAt={detail.gameLabSimulation?.generatedAt ?? null}
       advanced={mlbAdvanced}
     />
   );

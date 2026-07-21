@@ -75,6 +75,21 @@ import ModelPicksTable from "@/components/world-cup/model-picks-table";
 import { loadWorldCupModelPicks, buildModelPicksTable } from "@/lib/world-cup/model-qualified-picks";
 import { loadRoundOf32Board } from "@/lib/world-cup/round-of-32";
 import path from "node:path";
+import fs from "node:fs";
+
+/** The newest World Cup projection date that actually carried games — the honest freshness anchor once the
+ *  tournament is complete. Without this, the WC page would borrow the site-wide slate date (which tracks the
+ *  live MLB clock) and a completed World Cup would falsely read "Live today". Fail-closed → null. */
+function newestWcProjectionWithGames(): string | null {
+  try {
+    const dir = path.join(process.cwd(), "public", "data", "world-cup", "projections");
+    const dated = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().reverse();
+    for (const f of dated) {
+      try { const d = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")); if ((d.matches?.length ?? 0) > 0) return f.slice(0, 10); } catch { /* skip unreadable */ }
+    }
+  } catch { /* dir absent */ }
+  return null;
+}
 
 export const metadata = {
   title: "FIFA World Cup 2026 · GameTime Picks",
@@ -111,6 +126,10 @@ export default function WorldCupLandingPage() {
   const parlays = loadWorldCupParlays();
   const settlement = loadWorldCupSettlement();
   const projectionsLive = !!projections && projections.matches.length > 0;
+  // Freshness anchor for the WC board badge: while the tournament is live, today's slate; once it is complete
+  // (no current projections), the newest WC slate that actually had games — so a finished World Cup reads an
+  // honest "Latest slate · N days ago" archive age, never a false "Live today" borrowed from the MLB clock.
+  const wcFreshnessSlate = projectionsLive ? today : (newestWcProjectionWithGames() ?? today);
   // Real semifinal fixtures (stage 'sf') for the bracket path — deduped, honest (no invented finalists).
   const sfFixtures = (() => {
     const seen = new Set<string>();
@@ -232,7 +251,7 @@ export default function WorldCupLandingPage() {
         </section>
       ) : null}
       <section aria-label="World Cup model picks">
-        <SectionHeader eyebrow="Model picks only" title="World Cup Model Picks" sub="The single model-pick board — top model-qualified pick per game and market (team markets, total/BTTS, and player props). Every pick is odds-backed, pre-event, and clears the model filter. Raw sportsbook inventory is not shown here." rightSlot={<FreshnessBadge slateDate={today} serverToday={currentEtDate()} noun="board" />} />
+        <SectionHeader eyebrow="Model picks only" title="World Cup Model Picks" sub="The single model-pick board — top model-qualified pick per game and market (team markets, total/BTTS, and player props). Every pick is odds-backed, pre-event, and clears the model filter. Raw sportsbook inventory is not shown here." rightSlot={<FreshnessBadge slateDate={wcFreshnessSlate} serverToday={currentEtDate()} noun="board" />} />
         <ModelPicksTable table={modelPicksTable} />
       </section>
     </div>
@@ -624,8 +643,8 @@ export default function WorldCupLandingPage() {
       <div className="mb-4">
         <SlateLivenessBanner
           buildTimeToday={currentEtDate()}
-          latestSlate={today}
-          latestSlateHasGames={todayMatches.length > 0 || projectionsLive}
+          latestSlate={wcFreshnessSlate}
+          latestSlateHasGames={projectionsLive || wcFreshnessSlate !== today}
           archiveHref="/world-cup/round-of-32"
           archiveLabel="Open the knockout board"
         />

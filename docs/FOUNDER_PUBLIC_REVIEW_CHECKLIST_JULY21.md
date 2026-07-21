@@ -18,29 +18,36 @@ $19,065.40, crown $20,465.40, money md5 `affe6b21` — all unchanged. Nothing he
 | `/world-cup` | archive/completed (no "Live today"); round-of-32 "completed" page | ✓ |
 | `/methodology` | no overclaims | ✓ |
 
-## The restarted products (exact Step-1 review cards)
-**Bank Builder — Lane A · Step 1 · Review · $0** (combined +268):
-- Justin Wrobleski · pitcher K **Over 5.5** · +112 · model 60% vs mkt 47% (edge +13%) — LAD @ PHI
+## The active products (exact Step-1 review cards — MORNING refresh, 4/15 priced)
+> Superseded/expanded by `JULY21_PUBLIC_LAUNCH_FINAL_READINESS.md` — this is the same final state.
+
+**Bank Builder — Lane A · Step 1 · Review · $0** — survival, two anchors (combined +306):
+- Ranger Suárez · pitcher K **Over 5.5** · −109 · model 67% vs mkt 52% — BAL @ BOS
+- Justin Wrobleski · pitcher K **Over 5.5** · +112 · model 60% vs mkt 47% — LAD @ PHI
+
+**Bank Builder — Lane B · Step 1 · Review · $0 · ACTIVATED** — value band +200..+700 (combined +296):
 - Walker Buehler · pitcher K **Over 3.5** · −136 · model 60% vs mkt 58% — SD @ ATL
-- Lane B · Step 1 · awaiting a qualified value card (thin slate tonight).
+- Willson Contreras · **Total Bases Over 1.5** · +128 · model 67% vs mkt 44% — BAL @ BOS
 
 **Moonshot — Step 1 · Review · $0** (combined +278):
-- Zack Wheeler · pitcher K **Over 6.5** · −122 · model 86% vs mkt 55% (edge +31%) — LAD @ PHI
-- Kevin Gausman · pitcher K **Over 5.5** · +108 · model 72% vs mkt 48% (edge +24%) — TB @ TOR
+- Zack Wheeler · pitcher K **Over 6.5** · −122 · model 86% vs mkt 55% — LAD @ PHI
+- Kevin Gausman · pitcher K **Over 5.5** · +108 · model 72% vs mkt 48% — TB @ TOR
 
-All legs: MLB pitcher strikeouts, deterministic MLB Stats API settlement, real model edge from the 10k sim.
-Independent games. No official money, no settlement-pending props, no World Cup, no internal model outputs.
+All legs: MLB player props (strikeouts / total bases), deterministic MLB Stats API box-score settlement.
+Each card's legs are from independent games. No official money, no settlement-pending props, no World Cup,
+no internal model outputs.
 
 ## Honest limitations (know before you launch)
-- **Only 3 of 15 July-21 games are priced tonight** — books post the rest through tomorrow. Re-run the morning
-  refresh for full coverage + more eligible legs.
+- **Only 4 of 15 July-21 games are priced** (team markets + 10k sims) — books post the rest through the day. Re-run
+  the refresh (`MLB_DAILY_OPERATING_PLAYBOOK.md`) for fuller coverage + more eligible legs.
 - **Public MLB shows the player-prop simulation + market-anchored full-game snapshot** — NOT a projected score or
   public win probability (the internal full-game model mirrors the market and stays internal).
 - **World Cup is complete → archive.** France-vs-Spain and later rounds remain **pending** settlement (no trusted
   90'-separated official score source).
-- **`/bank-builder` now renders the individual review legs on-page** (the earlier display-wiring gap is fixed):
-  the Lane A ClimbHero Step-1 rung shows Wrobleski + Buehler with model% vs market%, the line, the game, the odds,
-  and a "Review · Paper $0" banner ($0 exposure). Lane B honestly reads "Step 1 · Awaiting a qualified card."
+- **`/bank-builder` renders both lanes' review legs on-page** with model% vs market%, the line, the game, the odds,
+  and a "Review · Paper $0" banner ($0 exposure). Lane A = Suárez + Wrobleski; Lane B = Buehler + Contreras (activated).
+- **MLB game reports are the 12-section V2.5** (coverage → 10k result → watchlist → model-vs-market → risk/correlation
+  → settlement → market snapshot → full-game validating → why-no-score → BB/Moonshot eligibility → methodology).
 
 ## How to approve / hold products
 - These are **review cards**, not placed bets. To go live for real money you must give a **separate, explicit

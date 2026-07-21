@@ -54,13 +54,15 @@ test("Moonshot row after the lane restarted ACTIVE: the active review card is co
   for (const rb of ["low", "medium", "high"]) assert.equal(moon.cells.find((c) => c.risk === rb).count, 0, `Moonshot ${rb} = 0`);
 });
 
-test("Core Bank Builder row after the lanes restarted: the active card is counted once in its own row (its bucket), never double-counted into generic suggestions", () => {
+test("Core Bank Builder row after the lanes restarted: each active card is counted once in its own row (its bucket), never double-counted into generic suggestions", () => {
   const bb = m.rows.find((r) => r.scope === "bank_builder");
-  // The lanes restarted with an active Step-1 card → counted once, in the bucket its combined odds fit
-  // (Medium), inside the Bank Builder's OWN row — never promoted into the generic WC/MLB/Mixed suggestions.
-  assert.equal(bb.total, 1, "one active Bank Builder card counted in its own row");
-  assert.equal(bb.cells.find((c) => c.risk === "medium").count, 1, "the active card sits in the Medium bucket");
-  for (const rb of ["low", "high", "longshot"]) assert.equal(bb.cells.find((c) => c.risk === rb).count, 0, `Bank Builder ${rb} = 0`);
+  // BOTH lanes now carry an active Step-1 review card (Lane A survival + Lane B value, activated July-21) →
+  // each counted ONCE, in the bucket its combined odds fit, inside the Bank Builder's OWN row — never
+  // promoted into the generic WC/MLB/Mixed suggestions. Lane A (+306) → Medium, Lane B (+296) → High.
+  assert.equal(bb.total, 2, "both active Bank Builder review cards (Lane A + Lane B) counted in their own row");
+  assert.equal(bb.cells.find((c) => c.risk === "medium").count, 1, "one active card in the Medium bucket");
+  assert.equal(bb.cells.find((c) => c.risk === "high").count, 1, "one active card in the High bucket");
+  for (const rb of ["low", "longshot"]) assert.equal(bb.cells.find((c) => c.risk === rb).count, 0, `Bank Builder ${rb} = 0`);
   // Every EMPTY Bank Builder cell still discloses the exclusion policy (its own row, never promoted as a generic suggestion).
   for (const c of bb.cells.filter((x) => x.count === 0)) assert.match(c.message, /tracked separately|double-count|not promoted/i, `${c.risk} empty cell discloses the no-double-count exclusion policy`);
   // Active Bank Builder legs are not promoted as generic Mixed/MLB suggestions.

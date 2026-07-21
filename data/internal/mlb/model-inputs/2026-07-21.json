@@ -9,7 +9,7 @@
   "exposureCreated": 0,
   "activationStatus": "internal_only",
   "coverageSummary": {
-    "games": 3,
+    "games": 4,
     "probablesAvailable": true,
     "runRateDates": 6,
     "usableForIndependentModel": false
@@ -80,6 +80,53 @@
           "home": 4,
           "sampleGames": {
             "away": 6,
+            "home": 5
+          },
+          "source": "computed_from_committed_linescores"
+        },
+        "parkFactor": {
+          "value": null,
+          "source": "unavailable"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "independentInputsAvailable": true,
+        "missing": [
+          "pitcher strength ratings",
+          "park factor",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather"
+        ],
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 824735,
+      "gameId": "ded163387935cca0e01c3281ff323291",
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "Boston Red Sox",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Kyle Bradish",
+          "home": "Ranger Suarez",
+          "source": "statsapi_probable"
+        },
+        "teamRunRates": {
+          "away": 4.4,
+          "home": 6,
+          "sampleGames": {
+            "away": 5,
             "home": 5
           },
           "source": "computed_from_committed_linescores"
