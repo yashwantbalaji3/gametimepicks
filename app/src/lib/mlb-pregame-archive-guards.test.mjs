@@ -102,3 +102,32 @@ test("9 · money md5 unchanged (forward-only research capture is internal + mone
   const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
   assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
 });
+
+test("10 · the capture workflow is enabled, non-blocking, PR-safe, and money/public-safe", () => {
+  const wf = fs.readFileSync(path.join(repo, ".github/workflows/mlb-pregame-capture.yml"), "utf8");
+  // enabled: a real schedule/cron exists (not commented out)
+  assert.match(wf, /^\s*schedule:/m, "schedule is enabled");
+  assert.match(wf, /^\s*-\s*cron:\s*"/m, "at least one active cron entry");
+  // never runs on pull_request (no PR trigger; explicit guard present)
+  assert.ok(!/^\s*pull_request:/m.test(wf), "no pull_request trigger");
+  assert.match(wf, /github\.event_name != 'pull_request'/, "explicit PR guard on the job");
+  // non-blocking
+  assert.match(wf, /continue-on-error:\s*true/, "job is continue-on-error (non-blocking)");
+  assert.match(wf, /concurrency:/, "concurrency-guarded");
+  // durable commit is OPT-IN + path-scoped to the internal archive only
+  assert.match(wf, /vars\.PREGAME_ARCHIVE_COMMIT == 'true'/, "in-repo commit is opt-in via repo variable");
+  assert.match(wf, /git add data\/internal\/mlb\/pregame-archive\//, "commit is path-scoped to the internal archive");
+  // never ACTS on money / public / settlement files (ignore explanatory comment lines that say it does NOT)
+  const codeLines = wf.split("\n").filter((l) => !l.trim().startsWith("#")).join("\n");
+  assert.ok(!/git add -A|git add \.|portfolio\.json|public\/data\//.test(codeLines), "no workflow step stages money/public files");
+});
+
+test("11 · settlement-join is a PLAN only (no execution, no modeling) + research-only", () => {
+  const plan = readJson(path.join(ARCH, "settlement-join-plan.json"));
+  if (!plan) { console.log("  (skip — plan not present)"); return; }
+  assert.equal(plan.public, false);
+  assert.equal(plan.approvedForProduction, false);
+  assert.match(plan.status, /PLAN_ONLY/);
+  assert.deepEqual(plan.joinKeys.gameLevel, ["gamePk", "boardDateEt"]);
+  assert.ok(plan.gateBeforeModeling.plusFounderApproval, "modeling requires the gate + founder approval");
+});

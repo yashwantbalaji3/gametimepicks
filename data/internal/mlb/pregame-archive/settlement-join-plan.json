@@ -1,0 +1,49 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "kind": "settlement-join-plan",
+  "status": "PLAN_ONLY — no join executed, no modeling performed in this mission",
+  "purpose": "Define how future official results will join to captured pregame snapshots, and how each feature family becomes research-eligible — so a LATER, separate, founder-approved modeling mission can build a leakage-safe dataset without any ambiguity.",
+  "joinKeys": {
+    "gameLevel": ["gamePk", "boardDateEt"],
+    "playerLevel": ["gamePk", "playerId", "market", "selectionSide", "line"]
+  },
+  "procedure": [
+    "1. For each event, read the immutable FINAL_PREGAME_FREEZE (freezes/<date>/<gamePk>.json). It references the latest research-eligible pregame snapshot per family.",
+    "2. After the game settles, read the OFFICIAL outcome from the existing settlement path (public/data/mlb/results/settled_leans.jsonl — official box-score actual/outcome, joined by id which encodes gamePk+player+market+line).",
+    "3. Write a SEPARATE research-join record; NEVER mutate the pregame snapshot or the freeze.",
+    "4. A feature family contributes to a row ONLY IF the freeze marks it researchEligible (captured strictly before first pitch with a proven timestamp)."
+  ],
+  "researchJoinRecordShape": {
+    "snapshotId": "the FINAL_PREGAME_FREEZE-referenced pregame snapshot",
+    "freezeId": "gamePk",
+    "gamePk": "number",
+    "boardDateEt": "YYYY-MM-DD",
+    "playerId": "number (player-level markets)",
+    "market": "string",
+    "selectionSide": "Over | Under",
+    "line": "number",
+    "pregameFeatures": "the eligible family values from the freeze (lineup slot, pitcher status, weather, umpire, ...)",
+    "settlementId": "string",
+    "actual": "official box-score value",
+    "outcome": "Win | Loss (decisive only)",
+    "settledAt": "ISO",
+    "settlementSource": "MLB StatsAPI official box score"
+  },
+  "perFamilyEligibilityForResearch": {
+    "confirmed_lineup": "usable when the lineup was CONFIRMED and captured before first pitch (freeze.featureEligibility.confirmed_lineup.available)",
+    "pitcher_status": "usable when the probable/confirmed starter matches the settled pitcher and no superseding change occurred pregame",
+    "environment": "usable when a pregame weather forecast/condition + roof status was captured (never the observed postgame weather)",
+    "umpire": "usable when the home-plate umpire assignment was captured pregame (never the final box-score umpire)",
+    "markets": "usable only once a paid odds source with archived collection timestamps is added (two-sided prices for reproducible de-vig)",
+    "bullpen": "usable once the strict completed-before-capture builder is added",
+    "plate_appearance_opportunity": "usable once markets (team/game totals) are archived across the window"
+  },
+  "leakageRules": [
+    "Post-start snapshots and unproven timestamps are excluded (enforced by researchEligible).",
+    "Final box-score lineups/umpires/pitch-counts NEVER backfill a missing pregame family.",
+    "The market remains the benchmark; a family is 'incremental' only if it beats the de-vigged market out of sample (a later mission)."
+  ],
+  "gateBeforeModeling": { "minDistinctDates": 30, "minSettledEligibleObs": 500, "minFeatureCoveragePct": 80, "minTimestampProvenPct": 90, "plusFounderApproval": true }
+}

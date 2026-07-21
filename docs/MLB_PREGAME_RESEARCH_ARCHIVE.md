@@ -52,7 +52,7 @@ A **shadow research pipeline** that records, immutably, *what was known, when, a
 - `app/scripts/audit-mlb-pregame-archive.mjs` — coverage / quality / gate-progress → `status/latest.json`.
 - `src/lib/mlb/pregame-archive/eligibility.ts` — timestamp/freshness/eligibility + collection gate (pure, tested).
 - `data/internal/mlb/pregame-archive/` — schema.json, source-registry.json, snapshots/, freezes/, manifests/, status/ (all `public:false`, never served).
-- `.github/workflows/mlb-pregame-capture.yml` — **DORMANT** scheduled capture (manual `workflow_dispatch` + cron), never blocks board/settlement/build.
+- `.github/workflows/mlb-pregame-capture.yml` — **ENABLED** scheduled capture (~8 daily UTC runs + `workflow_dispatch`), non-blocking, never runs on `pull_request`, never blocks board/settlement/build/money. Persists via artifacts (safe default) + opt-in path-scoped commit (`PREGAME_ARCHIVE_COMMIT=true`). Cadence + limits + gate in `docs/MLB_PREGAME_COLLECTION_OPERATING_PLAN.md`.
 - Guards: `app/src/lib/mlb-pregame-archive-guards.test.mjs`.
 
 ## Cadence

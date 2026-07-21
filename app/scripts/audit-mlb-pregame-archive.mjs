@@ -19,27 +19,35 @@ const FAMILIES = ["confirmed_lineup", "pitcher_status", "bullpen", "plate_appear
 
 function main() {
   const dates = fs.existsSync(SNAP) ? fs.readdirSync(SNAP).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort() : [];
-  let totalSnaps = 0, totalGames = 0, eligibleGames = 0;
+  const FREEZE = path.join(ARCHIVE, "freezes");
+  let totalSnaps = 0, totalGames = 0, eligibleGames = 0, snapshotsBeforeFirstPitch = 0, postStartRejected = 0, totalFreezes = 0;
   const famEligible = Object.fromEntries(FAMILIES.map((f) => [f, 0]));
   const famPresent = Object.fromEntries(FAMILIES.map((f) => [f, 0]));
+  // per-family GAME coverage = distinct games (across the whole archive) that ever had an eligible value for the family
+  const famGamesCovered = Object.fromEntries(FAMILIES.map((f) => [f, new Set()]));
   const byDate = [];
   for (const d of dates) {
     const files = fs.readdirSync(path.join(SNAP, d)).filter((f) => f.endsWith(".json"));
     const games = new Set();
-    let dEligible = 0;
+    let dEligible = 0, dPre = 0, dPost = 0;
     for (const f of files) {
       const s = JSON.parse(fs.readFileSync(path.join(SNAP, d, f), "utf8"));
       totalSnaps++; games.add(s.gamePk);
+      if (s.startedAtCapture) { postStartRejected++; dPost++; } else { snapshotsBeforeFirstPitch++; dPre++; }
       let anyElig = false;
       for (const fam of s.featureFamilies || []) {
         if (fam.present) famPresent[fam.family]++;
-        if (fam.researchEligible) { famEligible[fam.family]++; anyElig = true; }
+        if (fam.researchEligible) { famEligible[fam.family]++; anyElig = true; famGamesCovered[fam.family].add(`${d}:${s.gamePk}`); }
       }
       if (anyElig) dEligible++;
     }
+    const freezeCount = fs.existsSync(path.join(FREEZE, d)) ? fs.readdirSync(path.join(FREEZE, d)).filter((x) => x.endsWith(".json")).length : 0;
+    totalFreezes += freezeCount;
     totalGames += games.size; eligibleGames += dEligible;
-    byDate.push({ date: d, games: games.size, snapshots: files.length, snapshotsWithEligibleFamily: dEligible });
+    byDate.push({ date: d, games: games.size, snapshots: files.length, snapshotsBeforeFirstPitch: dPre, postStartRejected: dPost, snapshotsWithEligibleFamily: dEligible, freezes: freezeCount });
   }
+  // family coverage as % of all games that ever had an eligible value
+  const familyGameCoveragePct = Object.fromEntries(FAMILIES.map((f) => [f, totalGames ? +(100 * famGamesCovered[f].size / totalGames).toFixed(1) : 0]));
   // coverage % = games with a lineup OR pitcher pregame value / games (headline families for research)
   const coveragePct = totalGames ? +(100 * (famEligible.pitcher_status) / (totalSnaps || 1)).toFixed(1) : 0;
   const timestampProvenPct = totalSnaps ? +(100 * eligibleGames / totalSnaps).toFixed(1) : 0;
@@ -52,9 +60,11 @@ function main() {
 
   const status = {
     public: false, approvedForProduction: false, productEligible: false,
-    generatedAt: null, // stamped after write to keep this deterministic; see note
     collectionStartDate: dates[0] ?? null, datesCollected: dates.length, totalSnapshots: totalSnaps, totalGames,
+    snapshotsBeforeFirstPitch, postStartRejected, totalFreezes, freezeCompletenessPct: totalGames ? +(100 * totalFreezes / totalGames).toFixed(1) : 0,
     familyPresent: famPresent, familyEligibleSnapshots: famEligible,
+    coverageByFamilyPct: familyGameCoveragePct,
+    lineupCoveragePct: familyGameCoveragePct.confirmed_lineup, umpireCoveragePct: familyGameCoveragePct.umpire, weatherCoveragePct: familyGameCoveragePct.environment,
     byDate,
     collectionGate: GATE, gateMet: blockers.length === 0, gateBlockers: blockers,
     note: "settledEligibleObs is populated only by a separate future settlement-join mission; forward collection just started, so the gate is not met — this is expected.",
@@ -62,10 +72,10 @@ function main() {
   fs.mkdirSync(path.join(ARCHIVE, "status"), { recursive: true });
   fs.writeFileSync(path.join(ARCHIVE, "status", "latest.json"), JSON.stringify(status, null, 2));
 
-  console.log(`\n=== pregame archive audit ===`);
-  console.log(`dates collected: ${dates.length} (start ${dates[0] ?? "none"}) · snapshots ${totalSnaps} · games ${totalGames}`);
-  console.log(`eligible-family snapshots:`, JSON.stringify(famEligible));
-  console.log(`progress to research gate: ${blockers.length ? "NOT MET" : "MET"} — ${blockers.join(" · ") || "all thresholds cleared"}`);
+  console.log(`\n=== pregame archive daily status ===`);
+  console.log(`dates collected: ${dates.length} (start ${dates[0] ?? "none"}) · snapshots ${totalSnaps} (pre-first-pitch ${snapshotsBeforeFirstPitch}, post-start rejected ${postStartRejected}) · games ${totalGames} · freezes ${totalFreezes} (${status.freezeCompletenessPct}%)`);
+  console.log(`family game-coverage %: lineup ${status.lineupCoveragePct} · umpire ${status.umpireCoveragePct} · weather ${status.weatherCoveragePct} · pitcher ${familyGameCoveragePct.pitcher_status}`);
+  console.log(`research gate: ${blockers.length ? "NOT MET" : "MET"} — ${blockers.join(" · ") || "all thresholds cleared"}`);
   console.log(`status → ${path.relative(REPO, path.join(ARCHIVE, "status", "latest.json"))}`);
 }
 main();

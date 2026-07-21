@@ -1,47 +1,81 @@
-# MLB Pregame Research Capture — DORMANT forward-only shadow pipeline.
+# MLB Pregame Research Capture — forward-only INTERNAL shadow pipeline (ENABLED, non-blocking).
 #
-# Internal research data collection ONLY. It never blocks board generation, settlement, money reconciliation,
-# or the public static build, and it changes nothing public. It stays effectively dormant until an operator runs
-# it (workflow_dispatch) or enables the schedule; StatsAPI is free/no-key, so no secrets are required for the
-# implemented families (markets require ODDS_API_KEY and are not fetched here).
+# Internal research data collection ONLY. It NEVER touches money, the official record, settlement, Bank Builder,
+# Moonshot, product eligibility, public UI, or the public static build. The job is `continue-on-error`, so it can
+# fail without affecting anything, and it never runs on pull_request.
+#
+# Persistence: every run uploads its snapshots/freezes/status as a workflow ARTIFACT (safe, no push). Durable
+# in-repo accumulation is an explicit operator OPT-IN — set the repo variable PREGAME_ARCHIVE_COMMIT=true to
+# enable the path-scoped commit step (it only ever touches data/internal/mlb/pregame-archive/).
+#
+# StatsAPI is free / no key. The `markets` family (paid Odds API) is not fetched here.
 name: mlb-pregame-capture
 
 on:
   workflow_dispatch:
     inputs:
       date:
-        description: "Slate date (YYYY-MM-DD, ET). Defaults to today."
+        description: "Slate date (YYYY-MM-DD, ET). Defaults to today (UTC)."
         required: false
       reason:
         description: "Snapshot reason (SCHEDULED_REFRESH | LINEUP_CONFIRMED | FINAL_PREGAME_FREEZE | MANUAL_RESEARCH_REFRESH)"
         required: false
         default: MANUAL_RESEARCH_REFRESH
-  # Schedule is commented out until the operator opts in — this is a shadow pipeline, not an official job.
-  # schedule:
-  #   - cron: "0 16,19,22 * * *"   # ~T-refresh windows (UTC); adjust to slate reality + provider limits
+  # Conservative fixed UTC captures across the pregame progression. GitHub cron is APPROXIMATE (can be delayed or
+  # skipped under load) — correctness does NOT depend on exact firing: the per-game eligibility gate
+  # (capturedAt < eventStartTime) makes any post-start capture ineligible, and multiple daily runs capture the
+  # information progression (probables/weather early → confirmed lineups near first pitch).
+  schedule:
+    - cron: "0 11 * * *"              # ~07:00 ET — T-24h schedule/probables/weather shell
+    - cron: "0 15,17,19,21,23 * * *"  # ~11:00,13:00,15:00,17:00,19:00 ET — probables→lineups→confirmed
+    - cron: "30 22 * * *"             # ~18:30 ET — T-30m final for ~19:00 ET first pitches
+    - cron: "0 1 * * *"               # ~21:00 ET — late/West-coast games
 
 concurrency:
   group: mlb-pregame-capture
   cancel-in-progress: false
 
+# Read is enough for capture + artifact upload. Write is used ONLY by the gated, opt-in commit step below.
 permissions:
-  contents: read   # research capture writes to internal data only; committing snapshots is a separate opt-in step
+  contents: write
 
 jobs:
   capture:
+    # Never on pull_request (there is no PR trigger; this is belt-and-suspenders).
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    # Never let research capture gate anything: it is allowed to fail without affecting official product behavior.
+    # NON-BLOCKING: research capture is allowed to fail without affecting any official product behavior.
     continue-on-error: true
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
       - name: Capture pregame snapshots (StatsAPI, free)
-        run: node app/scripts/capture-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}" --reason "${{ github.event.inputs.reason }}"
+        run: node app/scripts/capture-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}" --reason "${{ github.event.inputs.reason || 'SCHEDULED_REFRESH' }}"
       - name: Final pregame freeze
         run: node app/scripts/freeze-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}"
       - name: Coverage / gate audit
         run: node app/scripts/audit-mlb-pregame-archive.mjs
-      # NOTE: this workflow deliberately does NOT push, deploy, settle, or touch money/portfolio files.
-      # Persisting snapshots (commit/artifact upload) is a separate, operator-approved step.
+      - name: Upload archive artifact (safe persistence — no push)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlb-pregame-archive-${{ github.run_id }}
+          path: data/internal/mlb/pregame-archive/
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Durable in-repo persistence (OPT-IN — path-scoped, fetch-first, never blocks)
+        if: vars.PREGAME_ARCHIVE_COMMIT == 'true'
+        continue-on-error: true
+        run: |
+          git config user.name "gtp-pregame-bot"
+          git config user.email "noreply@anthropic.com"
+          git fetch origin "${GITHUB_REF_NAME}" || exit 0
+          git reset --soft "origin/${GITHUB_REF_NAME}" || true
+          git add data/internal/mlb/pregame-archive/   # ONLY internal archive paths — never money/public/settlement
+          if git diff --cached --quiet; then echo "no archive changes"; exit 0; fi
+          git commit -m "auto: mlb pregame archive capture [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}" || echo "push skipped (non-fast-forward or perms) — artifact still uploaded"
+      # This workflow NEVER pushes to public data, deploys, settles, or touches money/portfolio files.
