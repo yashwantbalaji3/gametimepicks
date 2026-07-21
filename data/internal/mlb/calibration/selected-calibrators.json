@@ -1,0 +1,51 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "createdFrom": "recalibrate-mlb-modeled-markets.mjs",
+  "devigMethod": "proportional (impliedLean / (impliedOver + impliedUnder))",
+  "probabilityClipping": "[0.000001, 0.999999]",
+  "byMarket": {
+    "pitcher_strikeouts": {
+      "market": "pitcher_strikeouts",
+      "method": "shrink_0",
+      "parameters": {
+        "w": 0
+      },
+      "verdict": "INSUFFICIENT_OUT_OF_SAMPLE_DATA",
+      "holdoutObs": 197,
+      "approvedForProduction": false
+    },
+    "batter_hits": {
+      "market": "batter_hits",
+      "method": "shrink_0.1",
+      "parameters": {
+        "w": 0.1
+      },
+      "verdict": "MARKET_CONTEXT_ONLY",
+      "holdoutObs": 1474,
+      "approvedForProduction": false
+    },
+    "batter_total_bases": {
+      "market": "batter_total_bases",
+      "method": "shrink_0",
+      "parameters": {
+        "w": 0
+      },
+      "verdict": "MARKET_CONTEXT_ONLY",
+      "holdoutObs": 670,
+      "approvedForProduction": false
+    },
+    "batter_hits_runs_rbis": {
+      "market": "batter_hits_runs_rbis",
+      "method": "blend",
+      "parameters": {
+        "a": 0.03926319590572177,
+        "bMkt": 0.6785282958526413,
+        "cDisagree": -0.0664559394373746
+      },
+      "verdict": "MARKET_CONTEXT_ONLY",
+      "holdoutObs": 943,
+      "approvedForProduction": false
+    }
+  }
+}
