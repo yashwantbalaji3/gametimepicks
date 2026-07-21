@@ -18,7 +18,7 @@ Grounded in the shipped July‑21 artifacts (not assumptions). Money untouched; 
 | `batter_hits` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (box: H) | ✅ | **Model prediction** (surface fully) |
 | `batter_total_bases` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (box: TB) | ✅ | **Model prediction** (surface fully) |
 | `batter_hits_runs_rbis` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (box: H+R+RBI) | ✅ | **Model prediction** (surface fully) |
-| `pitcher_outs` | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ (box: IP×3) | ❌ | **Market context only** (no model yet) |
+| `pitcher_outs` | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ (box: IP×3) | ❌ | **Market context only — BACKTESTED & rejected** (model loses to market: Brier 0.263 vs 0.247, n=255; see findings) |
 | `pitcher_earned_runs` | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ (box: ER) | ❌ | **Market context only** |
 | `batter_home_runs` | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ (box: HR) | ❌ | **Market context only** (rare event — Gaussian model unsuitable) |
 | `batter_rbis` | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ (box: RBI) | ❌ | **Market context only** |
@@ -51,6 +51,8 @@ Grounded in the shipped July‑21 artifacts (not assumptions). Money untouched; 
 - **`pitcher_outs` / `pitcher_earned_runs`** — outs are modelable from an innings projection (the cleanest candidate); ER is skewed. Both need their own projection + a backtest before they can be predictions.
 
 To promote any of these from *market context* to *model prediction* requires: (1) a per-stat projection + σ from the recent game log, (2) an appropriate distribution family (Poisson for HR/ER, not Gaussian), (3) a backtest vs official box scores, (4) a calibration row, (5) passing the existing model gates. That is real modeling work — tracked in the coverage roadmap, **not shipped unvalidated** in this pass.
+
+**`pitcher_outs` was actually built and backtested (2026-07-21) — and rejected.** A leakage-safe recency-form model was scored against official StatsAPI box scores on **255 settled starts** and **lost to the market** on both Brier (0.263 vs 0.247) and log loss (0.719 vs 0.687); a 12-variant robustness sweep found **no** parameterization that beats the market. Outs recorded is manager/pull-driven, which the market already prices. So `pitcher_outs` **stays market-context-only** — evidence in `docs/MLB_PITCHER_OUTS_BACKTEST_FINDINGS.md` + `app/scripts/backtest-mlb-pitcher-outs.mjs`. This is the honesty gate working as intended.
 
 ## This-pass actions (see execution doc)
 
