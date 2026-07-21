@@ -64,6 +64,18 @@ jobs:
         # the script's own credit floor + skip-started guards protect the budget. StatsAPI capture above is
         # unaffected if this step is skipped or fails.
         run: node app/scripts/capture-mlb-pregame-markets.mjs --date "${{ github.event.inputs.date }}" --markets h2h,spreads,totals --write
+      - name: Capture pregame PLAYER-PROP snapshots (paid Odds API per-event — SEPARATE OPT-IN, credit-guarded, non-blocking)
+        if: vars.PREGAME_ARCHIVE_PLAYER_PROPS == 'true'
+        continue-on-error: true
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDS_API_MIN_CREDITS_REMAINING: ${{ vars.ODDS_API_MIN_CREDITS_REMAINING }}
+          PREGAME_ARCHIVE_PLAYER_PROP_MARKETS: ${{ vars.PREGAME_ARCHIVE_PLAYER_PROP_MARKETS }}
+          PREGAME_ARCHIVE_PLAYER_PROP_MAX_EVENTS: ${{ vars.PREGAME_ARCHIVE_PLAYER_PROP_MAX_EVENTS }}
+        # Per-event props cost ~1 credit/market (≈ events × markets, e.g. 15×9 ≈ 135). Separate opt-in from team
+        # markets; the script's own credit floor + max-events guards protect the budget. Team/StatsAPI capture
+        # above is unaffected if this step is skipped or fails.
+        run: node app/scripts/capture-mlb-pregame-player-props.mjs --date "${{ github.event.inputs.date }}" --write
       - name: Final pregame freeze
         run: node app/scripts/freeze-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}"
       - name: Coverage / gate audit

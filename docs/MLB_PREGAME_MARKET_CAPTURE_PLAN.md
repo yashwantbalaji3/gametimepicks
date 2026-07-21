@@ -35,5 +35,12 @@ node app/scripts/capture-mlb-pregame-markets.mjs --date 2026-07-22 --write --max
 ## Executed
 A single validation write ran for **2026-07-22** (team markets, `~3` credits): **1,404 records, all 1,404 research-eligible** (all games pregame), de-vig ≈ 68.9%, gamePk mapped, e.g. FanDuel Guardians −154 → implied 0.606 → **no-vig 0.582**. Credits remaining 15,415.
 
+## Player props (implemented + executed 2026-07-21)
+`app/scripts/capture-mlb-pregame-player-props.mjs` — per-event capture of all 9 target markets (`pitcher_strikeouts, pitcher_outs, pitcher_earned_runs, batter_hits, batter_total_bases, batter_home_runs, batter_rbis, batter_runs_scored, batter_hits_runs_rbis`). The `/events` endpoint (free) maps provider event → gamePk (board + StatsAPI schedule fallback) and player name → playerId. Dry-run default; `--write` credit-guarded (`--max-events`, `PREGAME_ARCHIVE_PLAYER_PROP_MAX_EVENTS`, floor). Over-only props recorded, not de-vigged; unavailable markets → `provider_unavailable` (no retry loop).
+
+- **Dry-run 2026-07-22:** 15 events, ~135-credit full-slate estimate.
+- **Validation write (1 event, 9 credits):** **753 records, all research-eligible**, all 9 markets present (e.g. `pitcher_outs` 23, `batter_hits_runs_rbis` 162), de-vig 83.1% paired / 127 over-only, playerId + gamePk mapped (Framber Valdez `pitcher_outs` Over 17.5 −125 → no-vig 0.519).
+- Credit cost/run for the full slate ≈ events × markets (~135); off by default.
+
 ## Workflow (opt-in)
-The capture workflow runs market capture only when repo variable `PREGAME_ARCHIVE_MARKETS=true` **and** secret `ODDS_API_KEY` is set — non-blocking, credit-guarded, StatsAPI capture unaffected if skipped.
+The workflow runs **team markets** only when `PREGAME_ARCHIVE_MARKETS=true`, and **player props** only when the SEPARATE var `PREGAME_ARCHIVE_PLAYER_PROPS=true` — both need secret `ODDS_API_KEY`, both non-blocking + credit-guarded, StatsAPI capture unaffected if either is skipped.

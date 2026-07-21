@@ -86,7 +86,7 @@ test("6 · market snapshots are NOT web-served", () => {
 test("7 · archive status includes the market fields", () => {
   const st = readJson(path.join(repo, "data/internal/mlb/pregame-archive/status/latest.json"));
   if (!st) { console.log("  (skip — no status)"); return; }
-  for (const k of ["marketSnapshots", "marketRecords", "marketRecordsEligible", "marketDeVigCoveragePct", "marketCreditStatus", "marketCoverageByFamily"]) {
+  for (const k of ["marketSnapshots", "marketRecords", "marketRecordsEligible", "marketCreditStatus", "deVigCoverage", "playerPropCoverageByMarket"]) {
     assert.ok(k in st, `status has ${k}`);
   }
 });
