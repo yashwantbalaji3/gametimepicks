@@ -69,7 +69,9 @@ export function buildCoverageMatrix(slate: TodaySlateView, moonshot: MoonshotLan
   const diag = buildCardFactoryDiagnostics(slate, generatedAt);
   const rows: CoverageRow[] = [];
 
-  // 1-4: the four model-generated scopes from the card-factory diagnostics.
+  // 1-4: the model-generated scopes from the card-factory diagnostics. The 2026 World Cup is COMPLETE — its
+  // scopes are archived, so an EMPTY World Cup scope row is omitted entirely (WC is not a current coverage
+  // category). MLB/Mixed always show. If a future World Cup ever produces cards again, its row returns.
   for (const scope of ["world_cup_single_game", "world_cup_multi_game", "mlb", "mixed"] as const) {
     const cells: CoverageCell[] = RISK_BUCKETS.map((risk) => {
       const c = diag.matrix[scope][risk];
@@ -81,7 +83,10 @@ export function buildCoverageMatrix(slate: TodaySlateView, moonshot: MoonshotLan
         message: c.message,
       };
     });
-    rows.push({ scope, displayName: SCOPE_META[scope].name, href: SCOPE_META[scope].href, cells, total: cells.reduce((n, c) => n + c.count, 0) });
+    const total = cells.reduce((n, c) => n + c.count, 0);
+    const isWorldCup = scope === "world_cup_single_game" || scope === "world_cup_multi_game";
+    if (isWorldCup && total === 0) continue; // completed World Cup → no empty coverage row
+    rows.push({ scope, displayName: SCOPE_META[scope].name, href: SCOPE_META[scope].href, cells, total });
   }
 
   // 5: Moonshot — count the active Moonshot card in its risk bucket (Longshot). Own row, no double-count.

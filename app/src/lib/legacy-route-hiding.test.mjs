@@ -15,14 +15,15 @@ const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
 const footer = read("src/components/footer.tsx");
 const nav = read("src/components/nav.tsx");
 
-test("footer leads with the ACTIVE sports (MLB, World Cup) before the off-season leagues", () => {
+test("footer leads with the ACTIVE sport (MLB) before the off-season leagues; the completed World Cup is NOT an active footer sport", () => {
   const mlb = footer.indexOf('href="/mlb"');
-  const wc = footer.indexOf('href="/world-cup"');
   const nba = footer.indexOf('href="/nba"');
   const nhl = footer.indexOf('href="/nhl"');
-  assert.ok(mlb > 0 && wc > 0 && nba > 0, "the sport links exist");
-  assert.ok(mlb < nba && wc < nba, "active sports (MLB, World Cup) come before off-season NBA");
+  assert.ok(mlb > 0 && nba > 0, "the sport links exist");
+  assert.ok(mlb < nba, "active MLB comes before off-season NBA");
   assert.ok(nba < nhl, "NHL (provider pending) stays last");
+  // The 2026 World Cup is complete — it is archive-only, not an active footer sport link.
+  assert.equal(footer.indexOf('href="/world-cup"'), -1, "World Cup is not an active footer sport");
 });
 
 test("off-season leagues are REACHABLE but honestly labelled (no route deleted, no link removed)", () => {

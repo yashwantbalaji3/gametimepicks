@@ -259,7 +259,7 @@ const MLS_SCHEDULE: LeagueSchedule = {
     retrievedAt: ESPN_RETRIEVED_AT_JUN02,
     rangeStart: "2026-07-16",
     rangeEnd: "2026-07-22",
-    note: "Point-in-time snapshot of the public ESPN scoreboard — schedule only, not live, and not a betting product. MLS pauses for the FIFA World Cup, so the next fixtures resume in July. Verify times against the league before relying on them.",
+    note: "Point-in-time snapshot of the public ESPN scoreboard — schedule only, not live, and not a betting product. Verify times against the league before relying on them.",
   },
   events: [
     {
@@ -329,11 +329,13 @@ const SCHEDULES: Record<LeagueKey, LeagueSchedule> = {
 };
 
 /** Tab order for the hub. */
+// The 2026 FIFA World Cup is COMPLETE — it is no longer upcoming schedule-only coverage, so it is
+// delisted from the events hub (the /world-cup archive still carries the full Final Draw as history).
+// The FIFA_WORLD_CUP_SCHEDULE const + SCHEDULES entry are kept for type integrity, just not listed here.
 export const EVENT_LEAGUE_ORDER: LeagueKey[] = [
   "wnba",
   "ufc",
   "mls",
-  "fifa-world-cup",
 ];
 
 /** Fetch a single league's schedule by key. */

@@ -12,7 +12,6 @@ import { getSportIdentity } from "@/lib/sport-identity";
 const SPORTS = [
   { key: "all", label: "All", icon: "" },
   { key: "mixed", label: "Mixed", icon: getSportIdentity("mixed").icon },
-  { key: "world_cup", label: "World Cup", icon: getSportIdentity("world_cup").icon },
   { key: "mlb", label: "MLB", icon: getSportIdentity("mlb").icon },
   { key: "nba", label: "NBA", icon: getSportIdentity("nba").icon },
   { key: "ufc", label: "UFC", icon: getSportIdentity("ufc").icon },
@@ -67,8 +66,7 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
   const MATRIX_ROWS: Array<{ key: string; label: string; icon?: string }> = [
     { key: "all", label: "All" },
     { key: "mixed", label: "Mixed", icon: getSportIdentity("mixed").icon },
-    { key: "world_cup", label: "World Cup", icon: getSportIdentity("world_cup").icon },
-    { key: "mlb", label: "MLB", icon: getSportIdentity("mlb").icon },
+      { key: "mlb", label: "MLB", icon: getSportIdentity("mlb").icon },
     { key: "nba", label: "NBA", icon: getSportIdentity("nba").icon },
     { key: "ufc", label: "UFC", icon: getSportIdentity("ufc").icon },
   ];
@@ -88,7 +86,6 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
           { label: "Recommended", sub: "lowest-risk model picks first", n: cards.filter((c) => c.riskTier === "Low").length, act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
           { label: "Low Risk", sub: "shorter odds, steadier", n: cards.filter((c) => c.riskTier === "Low").length, act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
           { label: "High Risk", sub: "bigger odds, bigger swings", n: cards.filter((c) => c.riskTier === "High" || c.riskTier === "Longshot").length, act: () => { setSport("all"); setRisk("High"); setBankOnly(false); } },
-          { label: "World Cup", sub: "today's matches", n: counts["world_cup"] ?? 0, act: () => { setSport("world_cup"); setRisk("All"); setBankOnly(false); } },
           { label: "MLB", sub: "tonight's slate", n: counts["mlb"] ?? 0, act: () => { setSport("mlb"); setRisk("All"); setBankOnly(false); } },
           { label: "Mixed sport", sub: "cross-sport cards", n: counts["mixed"] ?? 0, act: () => { setSport("mixed"); setRisk("All"); setBankOnly(false); } },
           { label: "Bank Builder eligible", sub: "clears the ladder gates", n: cards.filter((c) => c.bankBuilderEligible).length, act: () => { setSport("all"); setRisk("All"); setBankOnly(true); } },

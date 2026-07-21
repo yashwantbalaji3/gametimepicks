@@ -18,6 +18,15 @@ import { candidateReadiness } from "@/lib/moonshot/activation-rules";
 
 const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+/** The sport badge for a Moonshot ticket, derived from its legs (never hardcoded). Moonshot now runs current
+ *  MLB player-prop legs; a legacy World Cup card in history still labels correctly from its own legs. */
+function legsSportLabel(legs?: ReadonlyArray<{ sport?: string }>): string {
+  const s = new Set((legs ?? []).map((l) => String(l.sport ?? "").toUpperCase()).filter(Boolean));
+  if (s.size !== 1) return s.size > 1 ? "Mixed" : "Paper";
+  const only = [...s][0];
+  return only === "MLB" ? "MLB" : only === "SOCCER" || only === "WORLD_CUP" ? "World Cup" : only.charAt(0) + only.slice(1).toLowerCase();
+}
+
 function cardToLegs(card: MoonshotCard): TicketLeg[] {
   return (card.legs ?? []).map((l) => ({
     selection: l.participant,
@@ -128,7 +137,7 @@ export default function MoonshotLaneTracker({
             accent="violet"
             title={r.label}
             subtitle={r.card.cardId}
-            sport="World Cup"
+            sport={legsSportLabel(r.card.legs)}
             risk={r.card.risk}
             status={cardStatusPill(r.card.result)}
             odds={r.card.combinedOdds}
@@ -158,7 +167,7 @@ export default function MoonshotLaneTracker({
             const readiness = candidateReadiness(c, now);
             const readinessColor = readiness.state === "ready" ? "var(--vault-success)" : readiness.state === "expired" ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)";
             return (
-              <TicketCard key={c.cardId} accent="violet" title={c.label} subtitle={c.subtitle} sport="World Cup" risk={c.risk} status="candidate" odds={c.combinedOdds} oddsTone="violet" stake={c.stake} projectedReturn={c.projectedReturn}
+              <TicketCard key={c.cardId} accent="violet" title={c.label} subtitle={c.subtitle} sport={legsSportLabel(c.legs as ReadonlyArray<{ sport?: string }>)} risk={c.risk} status="candidate" odds={c.combinedOdds} oddsTone="violet" stake={c.stake} projectedReturn={c.projectedReturn}
                 footer={
                   <span className="flex flex-col gap-1 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
                     <span className="font-mono uppercase tracking-[0.06em]" style={{ color: readinessColor, fontSize: 10, fontWeight: 700 }}>{readiness.reason}</span>

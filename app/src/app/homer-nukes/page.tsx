@@ -24,7 +24,7 @@ export default function HomerNukesRetiredPage() {
           retired it from the active product suite. Its history is preserved for the record.
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-          <Link href="/world-cup-specials" className="vault-press rounded-full px-4 py-2 font-mono text-[12px] font-bold" style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", textDecoration: "none" }}>World Cup Specials →</Link>
+          <Link href="/results" className="vault-press rounded-full px-4 py-2 font-mono text-[12px] font-bold" style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", textDecoration: "none" }}>Results →</Link>
           <Link href="/bank-builder" className="vault-press rounded-full px-4 py-2 font-mono text-[12px]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", textDecoration: "none" }}>Bank Builder →</Link>
           <Link href="/mlb" className="vault-press rounded-full px-4 py-2 font-mono text-[12px]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", textDecoration: "none" }}>MLB hub →</Link>
         </div>

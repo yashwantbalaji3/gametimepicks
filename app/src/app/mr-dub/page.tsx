@@ -42,7 +42,7 @@ const CTAS = [
   { href: "/bank-builder", label: "Bank Builder" },
   { href: "/results", label: "Results" },
   { href: "/picks", label: "Picks" },
-  { href: "/world-cup", label: "World Cup" },
+  { href: "/mlb", label: "MLB" },
 ];
 
 export default function MrDubPage() {
@@ -116,7 +116,7 @@ export default function MrDubPage() {
         <DailyPortfolioSection portfolio={dailyPortfolio} bankBuilderAlternatives={bankBuilderAlternatives} bankBuilderProposal={bbProposal} />
         {portfolio?.moonshot ? (
           <section>
-            <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="Independent daily World Cup longshot cards — tracked apart from the core ladder. Higher variance by design; settles from official sources." />
+            <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="Independent daily high-volatility longshot cards (current MLB player props) — tracked apart from the core ladder. Higher variance by design; settles from official box scores." />
             <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
               🌙 Moonshot exposure <span className="font-mono" style={{ color: "#b9a8ff" }}>{usd(portfolio.moonshot.exposure)}</span> · separate from the core lanes. Record {portfolio.moonshot.record?.wins ?? 0}–{portfolio.moonshot.record?.losses ?? 0}. Does not affect the core Bank Builder record. Paper-only.
             </p>

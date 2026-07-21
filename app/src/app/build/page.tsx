@@ -13,7 +13,7 @@ import PicksSurfaceHeader from "@/components/picks-surface-header";
 export const metadata = {
   title: "Build · GameTime Picks",
   description:
-    "Build a custom paper card from parlay-eligible legs across World Cup, MLB and more. Filter, add legs, enter any stake, see the projected paper return. Educational, paper-only.",
+    "Build a custom paper card from parlay-eligible legs across MLB and more. Filter, add legs, enter any stake, see the projected paper return. Educational, paper-only.",
 };
 
 export default function BuildPage() {

@@ -210,7 +210,7 @@ export default function MethodologyPage() {
       {/* SECTION 2.5 — Prediction framework v1 */}
       <Section title="Prediction framework (v1)">
         <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
-          A leakage-aware, opportunity-first framework across MLB, NBA, UFC, and the World Cup. Every
+          A leakage-aware, opportunity-first framework across MLB, NBA, UFC, and soccer. Every
           feature must be available before the event starts; projections never look more certain than
           the data supports.
         </p>

@@ -318,11 +318,11 @@ export default function ProjectionsPage() {
           Parlay Lab
         </Link>{" "}
         are built from these same projections. NBA and MLB have player-prop
-        projections; World Cup has a live market outlook on its{" "}
+        projections. (The 2026 World Cup is complete — it is an{" "}
         <Link href="/world-cup/" style={{ color: "var(--vault-gold-bright)" }}>
-          hub
-        </Link>{" "}
-        (team-level model projections are under methodology review). Other leagues
+          archive
+        </Link>
+        , not a live sport.) Other leagues
         are schedule-only in{" "}
         <Link href="/events/" style={{ color: "var(--vault-gold-bright)" }}>
           Sports &amp; Events

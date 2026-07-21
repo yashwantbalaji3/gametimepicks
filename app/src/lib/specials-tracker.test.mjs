@@ -65,9 +65,12 @@ test("/world-cup-specials route renders the tracker via shared primitives", () =
   assert.match(tracker, /Settled review/, "settled cards are review-only, not playable");
 });
 
-test("Specials tracker reachable from rail + Specials box CTA (today / world-cup)", () => {
-  assert.match(read("src/components/command-rail.tsx"), /href: "\/world-cup-specials"/, "rail has a WC Specials entry");
-  assert.match(read("src/components/world-cup/world-cup-specials-box.tsx"), /href="\/world-cup-specials"/, "specials box (today + world-cup) links to the tracker");
+test("World Cup Specials is RETIRED — the completed 2026 WC is not an active nav/product surface", () => {
+  // The 2026 World Cup is complete: WC Specials is not a live rail/nav destination anymore.
+  assert.doesNotMatch(read("src/components/command-rail.tsx"), /href: "\/world-cup-specials"/, "no active WC Specials rail entry");
+  assert.doesNotMatch(read("src/components/nav.tsx"), /href: "\/world-cup-specials"/, "WC Specials is not in the primary nav");
+  // The product registry records the retirement (id retained so history stays intact).
+  assert.match(read("src/lib/products/registry.ts"), /id: "wc-specials"[\s\S]*?status: "retired"/, "wc-specials is retired in the registry");
 });
 
 test("Moonshot activation rule: candidate cannot activate after kickoff (no late exposure)", () => {

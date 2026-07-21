@@ -44,11 +44,10 @@ const ITEMS: RailItem[] = [
   { href: "/build", label: "Build", glyph: "✎", desc: "Advanced builder → Picks Lab" },
   { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Bankroll", desc: "Conservative paper card" },
   { href: "/moonshot", label: "Moonshot", glyph: "🌙", desc: "High-risk paper longshots" },
-  { href: "/world-cup-specials", label: "Soccer Specials", glyph: "🏆", desc: "Soccer longshot board" },
   { href: "/mr-dub", label: "Daily Dashboard", glyph: "✓", desc: "Paper bankroll journey" },
   { href: "/results", label: "Results", glyph: "≡", desc: "Settled track record" },
-  { href: "/world-cup", label: "World Cup", glyph: "⚽", group: "Sports", desc: "Soccer hub" },
-  { href: "/mlb", label: "MLB", glyph: "⚾", desc: "Baseball hub" },
+  // The 2026 World Cup is complete — no active "World Cup" / "Soccer Specials" rail items. MLB leads Sports.
+  { href: "/mlb", label: "MLB", glyph: "⚾", group: "Sports", desc: "Baseball hub" },
   { href: "/nba", label: "NBA", glyph: "🏀", desc: "Basketball hub" },
   { href: "/ufc", label: "UFC", glyph: "🥊", desc: "Fight simulator · sims live" },
   { href: "/learn", label: "How It Works", glyph: "✦", group: "Learn", desc: "Start here" },

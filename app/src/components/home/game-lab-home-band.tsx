@@ -100,10 +100,9 @@ export default function GameLabHomeBand({ mlb, wc }: { mlb: GameLabHomeGame[]; w
         Simulate Today&rsquo;s Games →
       </Link>
 
-      {/* MLB + World Cup, EQUAL weight (two columns on desktop, stacked on mobile). */}
-      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+      {/* MLB is the active Game-Lab sport. The 2026 World Cup is complete — archived, not a live column here. */}
+      <div className="mt-4 grid grid-cols-1 gap-3">
         <SportColumn label="MLB" sport="mlb" games={mlb} emptyNote="Game Lab support returns when today's MLB board is posted." />
-        <SportColumn label="World Cup" sport="world-cup" games={wc} emptyNote="Game Lab support returns when the next fixtures have projections." />
       </div>
 
       <p className="mt-3 font-mono text-[10px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>

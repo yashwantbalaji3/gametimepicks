@@ -196,9 +196,10 @@ export function coverageForSport(sport: MarketSport): MarketCoverage[] {
   return MARKET_COVERAGE.filter((m) => m.sport === sport);
 }
 
-/** Sports in the registry, ordered most-covered first (soccer live now, then MLB, then experimental UFC). */
+/** Sports in the registry, ordered by current activity: MLB is the live sport; soccer is a market-implied
+ *  capability with no live tournament right now (the 2026 World Cup is complete); UFC is experimental. */
 export const COVERAGE_SPORTS: { key: MarketSport; label: string; note: string }[] = [
-  { key: "soccer", label: "World Cup / soccer", note: "market-implied 90' read" },
   { key: "mlb", label: "MLB", note: "market-anchored + 10k player-prop sim" },
+  { key: "soccer", label: "Soccer", note: "market-implied 90' read — no live tournament right now" },
   { key: "ufc", label: "UFC", note: "experimental — market-implied, not product-eligible" },
 ];

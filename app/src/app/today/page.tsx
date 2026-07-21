@@ -189,7 +189,7 @@ export default function TodayPage() {
   if (bbNoPlay) noPlayNotes.push(`Bank Builder is no-play today (${bbStepPhrase}, ${openExposureLabel} open exposure) — the ladder never forces a card to keep a streak alive.`);
   if (!moonshotActive) noPlayNotes.push("Moonshot is no-play — the high-variance lane only plays when a qualified longshot appears, and today none did.");
   if (readyCount === 0) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
-  noPlayNotes.push("There is no soccer game simulation — World Cup reads come from real de-vigged market prices, not a fabricated match sim.");
+  noPlayNotes.push("There is no soccer game simulation — soccer reads come from real de-vigged market prices, not a fabricated match sim.");
   noPlayNotes.push("Pending is not a loss: a card settles only against the official final, and unsettled cards are never counted against the record.");
 
   // ── Section 10 · Secondary links — compact link cards out (no large widgets duplicated here). ──

@@ -116,17 +116,9 @@ export default function HomePage() {
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");
   const moonshotStatus = moonshotActive ? "Active longshot lane today" : "No-play today · no active longshot";
 
-  // ── SIMULATION HUB — the per-sport simulation centers (the core product topic) ──
+  // ── SIMULATION HUB — the per-sport simulation centers (the core product topic). The 2026 World Cup is
+  //    complete, so it is NOT a simulation-hub card here (archive only); MLB leads. ──
   const simHubCards: FlagshipCard[] = [
-    {
-      href: "/world-cup",
-      label: "World Cup Simulations",
-      blurb: "Match result, double chance, draw-no-bet, totals & BTTS — de-vigged, market-implied.",
-      status: "Semifinals · market-implied reads",
-      statusSub: "Jul 14 & 15 · paper-only",
-      cta: "Enter",
-      accent: "var(--vault-gold-bright)",
-    },
     {
       href: "/mlb",
       label: "MLB Simulations",
@@ -206,7 +198,7 @@ export default function HomePage() {
       <FlagshipCards
         cards={simHubCards}
         heading="Simulation Hub"
-        subtitle="World Cup · MLB · UFC — pick a sport, run its simulations"
+        subtitle="MLB · UFC — pick a sport, run its simulations"
         ariaLabel="Sport simulation centers"
       />
 

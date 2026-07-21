@@ -46,16 +46,18 @@ const NAV_ITEMS: Array<{
   // per-sport simulation centers, per-game reports, side products, and the daily track record live here.
   { href: "/games", label: "Game Reports", beforeDivider: true },
   { href: "/mlb", label: "MLB" },
-  { href: "/world-cup", label: "World Cup" },
   { href: "/picks", label: "Picks Lab" },
-  { href: "/world-cup-specials", label: "Soccer Specials" },
   { href: "/mr-dub", label: "Daily Dashboard" },
   { href: "/sports", label: "More Sports" },
   { href: "/learn", label: "How It Works" },
 ];
+// The 2026 World Cup is complete: it is NOT an active nav destination. It remains reachable only as an
+// archive (from /results / methodology), never a primary nav item or an active sport. /world-cup-specials
+// is a retired World-Cup-only product landing, likewise out of nav.
 
-// Sport routes that should light up the "Sports" nav item.
-const SPORT_RE = /^\/(sports|world-cup-specials|world-cup|mlb|nba|ufc|nhl|ipl|board|projections|trends|events)(\/|$)/;
+// Sport routes that should light up the "Sports" nav item. World Cup is excluded — it is an archive, not an
+// active sport, so it never activates the Sports spine.
+const SPORT_RE = /^\/(sports|mlb|nba|ufc|nhl|ipl|board|projections|trends|events)(\/|$)/;
 const SPORT_HREFS = new Set(["/sports"]);
 
 // The mobile bottom nav already carries the 8 core product routes. To keep the mobile TOP strip

@@ -32,7 +32,7 @@ export default function ProductAttribution({ wagers }: { wagers: WagerRow[] }) {
         <button onClick={() => setFilter("all")} className="gtp-pressable rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em]" style={{ cursor: "pointer", color: filter === "all" ? "var(--vault-bg)" : "var(--vault-text-mute)", background: filter === "all" ? "var(--vault-gold)" : "transparent", border: `1px solid ${filter === "all" ? "var(--vault-gold)" : "var(--vault-rule)"}` }}>All · {wagers.length}</button>
         {products.map((p) => (
           <button key={p.id} onClick={() => setFilter(p.id)} className="gtp-pressable rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em]" style={{ cursor: "pointer", color: filter === p.id ? "var(--vault-bg)" : "var(--vault-text-mute)", background: filter === p.id ? "var(--vault-gold)" : "transparent", border: `1px solid ${filter === p.id ? "var(--vault-gold)" : "var(--vault-rule)"}` }}>
-            <span aria-hidden>{p.glyph}</span> {p.label.replace(" Specials", "").replace(" Nukes", "")} · {p.w}-{p.l}
+            <span aria-hidden>{p.glyph}</span> {p.label.replace(" Nukes", "")} · {p.w}-{p.l}
           </button>
         ))}
       </div>

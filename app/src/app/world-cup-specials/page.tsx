@@ -38,14 +38,14 @@ export default function WorldCupSpecialsPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <PicksSurfaceHeader
-        eyebrow="Suggested World Cup parlays"
-        title="Today's Suggested World Cup Parlays"
+        eyebrow="Retired · World Cup archive"
+        title="World Cup Specials — Archived"
         slateDate={t.date ?? undefined}
-        status={status}
+        status="settled"
         counts={{ suggestedCards: result?.cards?.length ?? 0, pending: t.summary.pendingCount, settled: t.summary.settledCount }}
         primaryAction={{ label: "Mr. Dub portfolio", href: "/mr-dub" }}
-        secondaryAction={{ label: "World Cup model picks", href: "/world-cup?tab=model-picks" }}
-        note="A permanent paper product: 5 model-ranked World Cup parlays a day at $20 each ($100/day), drawn from the single Mr. Dub bankroll and archived forever. Records, ROI and P&L settle from official results. Separate from the protected crown."
+        secondaryAction={{ label: "World Cup archive", href: "/world-cup" }}
+        note="RETIRED (2026-07-21) — the 2026 World Cup is complete, so this World-Cup-only paper product is closed and no new boxes post. Below is its archived record (record / ROI / P&L), settled from official results and kept as past proof. Paper-only; separate from the protected crown."
       />
 
       {/* The durable ledger — record / ROI / P&L / win-rate / open exposure / slates archived. */}
@@ -58,9 +58,9 @@ export default function WorldCupSpecialsPage() {
         <WorldCupSpecialsTracker result={result} nowIso={nowIso} mode="full" />
       ) : (
         <div className="rounded-xl px-4 py-8 text-center" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
-          <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>World Cup Specials data pending</p>
+          <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>World Cup Specials — retired</p>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
-            A fresh box of specials posts once the next multi-game slate is available. <Link href="/world-cup" style={{ color: "var(--vault-gold-bright)" }}>Open the World Cup hub</Link>.
+            The 2026 World Cup is complete, so no new specials post. See the <Link href="/world-cup" style={{ color: "var(--vault-gold-bright)" }}>World Cup archive</Link> or the <Link href="/results" style={{ color: "var(--vault-gold-bright)" }}>results</Link>.
           </p>
         </div>
       )}

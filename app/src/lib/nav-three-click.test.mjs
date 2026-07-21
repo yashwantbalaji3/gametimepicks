@@ -12,9 +12,11 @@ const rail = fs.readFileSync("src/components/command-rail.tsx", "utf8");
 const nav = fs.readFileSync("src/components/nav.tsx", "utf8");
 const mobileRoute = fs.readFileSync("src/lib/nav-active-route.ts", "utf8");
 
+// The 2026 World Cup is complete — /world-cup and /world-cup-specials are NOT active rail destinations
+// anymore (archive only, reachable from results/methodology), so they are not key destinations.
 const KEY_DESTINATIONS = [
   "/today", "/games", "/picks", "/bank-builder", "/moonshot",
-  "/world-cup", "/world-cup-specials", "/mlb", "/mr-dub", "/results",
+  "/mlb", "/mr-dub", "/results",
 ];
 
 test("desktop rail reaches every key destination in one click", () => {

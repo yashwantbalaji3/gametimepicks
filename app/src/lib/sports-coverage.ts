@@ -111,14 +111,8 @@ export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
       { label: "Schedule", href: "/events/" },
     ],
   },
-  {
-    key: "fifa-world-cup",
-    label: "World Cup",
-    longLabel: "FIFA World Cup",
-    level: "schedule",
-    blurb: "Live 90-minute market outlook (sportsbook-implied) + official schedule. Team-level model projections are under methodology review before public release.",
-    links: [{ label: "World Cup hub", href: "/world-cup/" }],
-  },
+  // The 2026 FIFA World Cup is COMPLETE — it is no longer an active or upcoming sport, so it is not listed in
+  // the sports coverage directory. It remains viewable only as an archive at /world-cup (past proof / history).
   {
     key: "ipl",
     label: "IPL",
@@ -132,7 +126,7 @@ export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
     label: "MLS",
     longLabel: "Major League Soccer",
     level: "schedule",
-    blurb: "Upcoming fixtures — schedule only. Resumes in July after the World Cup break.",
+    blurb: "Upcoming fixtures — schedule only. Model projections pending.",
     links: [{ label: "Schedule", href: "/events/" }],
   },
   {

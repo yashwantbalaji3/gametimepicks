@@ -6,8 +6,6 @@
 import Link from "next/link";
 
 import { currentEtDate } from "@/lib/freshness";
-import { loadWorldCupParlays, loadWorldCupProjections, loadWorldCupPlayerProjections } from "@/lib/world-cup/projections";
-import { loadWorldCupSchedule, matchesOnDate } from "@/lib/data-world-cup";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
 import type { SportSummary } from "@/lib/normalize";
@@ -19,7 +17,7 @@ import SectionHeader from "@/components/section-header";
 export const metadata = {
   title: "Sports · GameTime Picks",
   description:
-    "Pick a sport — World Cup, MLB, NBA, UFC — to see today's projections, player props, and suggested paper cards. Educational, paper-only.",
+    "Pick a sport — MLB, NBA, UFC — to see today's projections, player props, and suggested paper cards. Educational, paper-only.",
 };
 
 // `live` means the sport has action TODAY (its slate date == the real ET date), NOT merely that a
@@ -57,15 +55,7 @@ function nbaCounts(today: string): { games: number; leans: number; live: boolean
 
 export default function SportsPage() {
   const today = currentEtDate();
-  loadWorldCupSchedule();
-  const wcGames = matchesOnDate(today).length;
-  const wcProj = loadWorldCupProjections();
-  const wcPlayers = loadWorldCupPlayerProjections();
-  const wcCards = loadWorldCupParlays();
-  // "live" ⇒ real games TODAY, not just that a most-recent artifact exists. Gate on the slate date == today
-  // (the real ET clock) so a 2-day-old slate (07-11 on 07-13) reads "Off today", never "Live today".
-  const wcLive = wcGames > 0 || (!!wcProj && String((wcProj as { date?: string }).date ?? "").slice(0, 10) === today);
-
+  // The 2026 World Cup is complete — it is not an active sport here (archive only), so no WC tile/data is loaded.
   const mlbDate = activeMlbDate() ?? today;
   const mlb = getMlbBoardForDate(mlbDate);
   const mlbLive = (mlb.summary.scheduledGames ?? 0) > 0 && mlbDate === today;
@@ -73,16 +63,8 @@ export default function SportsPage() {
   const nba = nbaCounts(today);
   const ufc = ufcCounts(today);
 
+  // The 2026 World Cup is complete — it is NOT listed as an active sport in the directory (archive only). MLB leads.
   const summaries: SportSummary[] = [
-    {
-      sport: "world_cup", label: "World Cup", href: "/world-cup", accent: "var(--vault-gold-bright)", live: wcLive,
-      stats: [
-        { label: "Games", value: wcGames },
-        { label: "Projections", value: wcProj?.projectionCount ?? 0 },
-        { label: "Player props", value: wcPlayers?.projectionCount ?? 0 },
-        { label: "Cards", value: wcCards?.cardCount ?? 0 },
-      ],
-    },
     {
       sport: "mlb", label: "MLB", href: "/mlb", accent: "#3b82f6", live: mlbLive,
       stats: [

@@ -163,8 +163,10 @@ test("specials ledger: archives every slate forever (history is not truncated)",
   assert.equal(l.totalSlates, l.days.length, "totalSlates = archived days");
 });
 
-test("specials ledger: rendered on /world-cup-specials as a permanent product", () => {
+test("specials ledger: /world-cup-specials is a RETIRED archive that keeps its durable ledger (past proof)", () => {
   const page = read("src/app/world-cup-specials/page.tsx");
-  assert.match(page, /SpecialsLedgerSection/, "page renders the ledger");
-  assert.match(page, /permanent paper product/i, "positioned as a permanent product");
+  assert.match(page, /SpecialsLedgerSection/, "the archive keeps its historical ledger");
+  // The 2026 World Cup is complete — the page is a retired archive, no longer a live/permanent product.
+  assert.match(page, /RETIRED/i, "positioned as a retired archive, not a live product");
+  assert.doesNotMatch(page, /permanent paper product/i, "no longer framed as a permanent active product");
 });

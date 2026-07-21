@@ -102,13 +102,14 @@ test("3 · the sport selector lists Today/MLB/World Cup/NBA/NHL/UFC with HONEST 
   assert.match(selector, /simReadyCount === 0 && selected\.note/, "an honest note shows when the sport has no sim-ready games");
 });
 
-test("4 · World Cup sim-ready is 0 and shows the honest 'soccer simulation artifact' note (no fake soccer sim)", () => {
-  // WC tabs pass simReadyCount 0 in BOTH the has-fixtures and no-fixtures branches (soccer has no sim artifact).
+test("4 · World Cup is OMITTED from the lobby when there are no fixtures (2026 WC complete); a future WC 'available' branch keeps sim-ready 0 + the honest soccer-artifact note", () => {
+  // The completed 2026 World Cup is archived — the lobby includes a WC entry ONLY when current fixtures exist.
+  assert.match(lobby, /wcRows\.length > 0[\s\S]{0,120}mk\("world_cup"/, "WC is included only when current fixtures exist");
+  // No 'no current fixtures' WC card any more — WC is archived, not merely off today.
+  assert.ok(!/mk\("world_cup"[^)]*"conditional", "no current fixtures"/.test(lobby), "no 'no current fixtures' WC card is shown");
+  // If a future WC ever posts fixtures, the available branch still keeps sim-ready 0 (no fabricated soccer sim).
   assert.match(lobby, /mk\("world_cup", wcId\.label, wcId\.icon, "available", "fixtures", wcRows\.length, 0,/, "WC 'available' branch keeps sim-ready at 0");
-  assert.match(lobby, /mk\("world_cup", wcId\.label, wcId\.icon, "conditional", "no current fixtures", 0, 0,/, "WC no-fixtures branch keeps sim-ready at 0");
   assert.match(lobby, /Soccer simulations require a soccer simulation artifact/, "the honest soccer-artifact note is present");
-  // The lobby never joins a soccer simulation view — only MLB carries gameLabSimulation.
-  assert.ok(!/world_cup[\s\S]{0,120}gameLabSimulation/.test(lobby) || true, "no fabricated soccer sim view is constructed");
 });
 
 test("5 · the all-games list (GamesExperience) is still rendered + the R32 banner is kept", () => {

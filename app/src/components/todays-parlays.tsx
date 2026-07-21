@@ -15,7 +15,6 @@ type Variance = "all" | "low" | "balanced" | "higher";
 
 const SPORTS: Array<{ key: SportKey; label: string }> = [
   { key: "all", label: "All" },
-  { key: "world_cup", label: "World Cup" },
   { key: "mlb", label: "MLB" },
   { key: "mixed", label: "Mixed" },
 ];

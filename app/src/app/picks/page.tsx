@@ -33,7 +33,7 @@ import { formatAmerican } from "@/lib/odds-math";
 export const metadata = {
   title: "Parlay Lab · GameTime Picks",
   description:
-    "Every suggested paper card in one place — World Cup, MLB and more, by sport and risk. Enter any stake to see the projected paper return. Educational, paper-only.",
+    "Every suggested paper card in one place — MLB and more, by sport and risk. Enter any stake to see the projected paper return. Educational, paper-only.",
 };
 
 function loadUfc(): unknown {

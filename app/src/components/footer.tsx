@@ -72,7 +72,6 @@ export default function Footer() {
                 removed — the routes still build + direct URLs work). See docs/LEGACY_ROUTE_CLEANUP_PLAN. */}
             <ul className="space-y-2 list-none p-0">
               <li><Link href="/mlb" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>MLB</Link></li>
-              <li><Link href="/world-cup" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>World Cup</Link></li>
               <li>
                 <Link href="/nba" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
                   NBA <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· off-season</span>
@@ -138,7 +137,7 @@ export default function Footer() {
               GameTime Picks is a simulation-first, paper-only sports model. Run
               deterministic game simulations, review today&rsquo;s model slate, and track
               every result against official settlement — the same model output for every
-              user. Multi-sport: MLB, World Cup and more.
+              user. Multi-sport: MLB and more.
             </p>
             <p
               className="mt-3 text-[12px]"

@@ -12,7 +12,9 @@ import StakePayoutInput from "@/components/ui/stake-payout-input";
 import StatusChip from "@/components/ui/status-chip";
 import { getSportIdentity } from "@/lib/sport-identity";
 
-const SPORTS = ["All", "world_cup", "mlb", "nba", "ufc"] as const;
+// The 2026 World Cup is complete — not a selectable build sport (archive only). The SPORT_LABEL map below
+// keeps the "World Cup" label so any historical WC row still renders its badge.
+const SPORTS = ["All", "mlb", "nba", "ufc"] as const;
 const SPORT_LABEL: Record<string, string> = { All: "All", world_cup: "World Cup", mlb: "MLB", nba: "NBA", ufc: "UFC" };
 const SPORT_ICON: Record<string, string> = {
   All: "",
@@ -49,7 +51,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const sp = p.get("sport");
-    if (sp && ["world_cup", "mlb", "nba", "ufc"].includes(sp)) setSport(sp);
+    if (sp && ["mlb", "nba", "ufc"].includes(sp)) setSport(sp);
     const query = p.get("q");
     if (query) setQ(query);
     const game = p.get("game");

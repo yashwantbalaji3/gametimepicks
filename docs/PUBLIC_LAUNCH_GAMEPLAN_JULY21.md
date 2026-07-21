@@ -78,3 +78,14 @@ league as today · do not chase a market-beating full-game model without out-of-
 Current + honest + usable + safe. MLB clearly primary via the 12-section V2.5 report; WC archived (freshness
 anchored to 2026-07-15); both Bank Builder lanes + Moonshot as active **paper review cards** ($0) or an honest
 No Play; money untouched (`affe6b21`, 19-14, $0); gates green. Public-ready — not forced.
+
+---
+
+## 7. Addendum — World Cup closeout (2026-07-21)
+The 2026 FIFA World Cup is **complete** and has been removed from all active surfaces:
+- **Not in nav** (primary nav, desktop command rail, mobile, footer) — no "World Cup" or "Soccer Specials" items.
+- **Not a current sport** — removed from the homepage simulation hub, the `/sports` directory, and the sports-coverage registry.
+- **Not a product input** — WC Specials retired in the product registry; Moonshot now runs **current MLB** legs; no active Bank Builder / Moonshot leg uses a World Cup market (guarded by `world-cup-closeout.test.mjs`).
+- **Archive only** — `/world-cup` (+ `/world-cup/*`) renders the completed-tournament archive (no false "Live today", no active CTAs); `/world-cup-specials` is a retired-product archive; World Cup remains referenced as **past proof / methodology case study** in `/results`, `/methodology`, `/learn`.
+
+**Focus going forward:** current active sport = **MLB**; future sports (NFL/NBA/NHL) surface only as coming-soon / offseason with real schedules. What "public launch" means: a public-safe **paper** beta — MLB player-prop simulations + paper/review Bank Builder & Moonshot cards at **$0 exposure**, official money untouched (`affe6b21`, 19‑14). Real-money staking remains a separate, explicit, not-yet-authorized decision.

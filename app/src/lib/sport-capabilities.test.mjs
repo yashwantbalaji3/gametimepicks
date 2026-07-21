@@ -39,7 +39,9 @@ import {
   normalizeSportKey,
 } from "./sport-capabilities.ts";
 
-const SCHEDULE_ONLY = ["nhl", "wnba", "ufc", "fifa-world-cup", "ipl", "mls"];
+// fifa-world-cup is intentionally NOT here: the 2026 World Cup is complete and removed from active sports
+// coverage (archive only). It is no longer a schedule-only active sport.
+const SCHEDULE_ONLY = ["nhl", "wnba", "ufc", "ipl", "mls"];
 // No sport is at the "projections" coverage level right now — World Cup model projections
 // are under methodology review (held from public), so World Cup is schedule-only publicly.
 const PROJECTIONS_ONLY = [];

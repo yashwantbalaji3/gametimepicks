@@ -36,7 +36,7 @@ import { SPORTS_COVERAGE } from "@/lib/sports-coverage";
 
 const META_TITLE = "Sports & Events · GameTime Picks";
 const META_DESCRIPTION =
-  "What GameTime Picks covers: NBA and MLB projections + parlays, plus schedule-only coverage for NHL, WNBA, UFC, FIFA World Cup and IPL. No odds, projections, or picks for schedule-only leagues.";
+  "What GameTime Picks covers: NBA and MLB projections + parlays, plus schedule-only coverage for NHL, WNBA, UFC and IPL. No odds, projections, or picks for schedule-only leagues.";
 
 export const metadata = {
   title: META_TITLE,

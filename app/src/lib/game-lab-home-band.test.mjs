@@ -18,13 +18,12 @@ const featured = read("src/components/home/featured-simulations.tsx");
 
 const BANNED = /\bguaranteed\b|\block\b|\bsafest\b|can'?t lose/i;
 
-test("the Game Lab band: first-class CTA, MLB + World Cup EQUAL weight, honest empty state, paper-only", () => {
+test("the Game Lab band: first-class CTA, MLB active (World Cup archived/removed), honest empty state, paper-only", () => {
   assert.match(band, /href="\/simulate"/, "a first-class Simulate CTA to the /simulate lobby");
   assert.match(band, /Simulate Today.{0,10}s Games/i, "the CTA label is simulate-first");
-  // MLB + World Cup are rendered as the two equal columns (same SportColumn, md:grid-cols-2).
+  // MLB is the active Game-Lab sport; the 2026 World Cup is complete → NOT a live column here (archive only).
   assert.match(band, /label="MLB"/, "MLB column");
-  assert.match(band, /label="World Cup"/, "World Cup column");
-  assert.match(band, /md:grid-cols-2/, "MLB + WC get equal weight (two-column grid)");
+  assert.ok(!/label="World Cup"/.test(band), "no World Cup column (WC is complete/archived)");
   // Honest empty state per sport — never a fabricated slate.
   assert.match(band, /No active model board today/i, "honest empty state");
   assert.ok(/paper-only|educational/i.test(band), "paper-only / educational copy");

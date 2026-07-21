@@ -25,16 +25,20 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
     assert.ok(i > 0 && i < dividerIdx, `${label} is PRIMARY (before the divider)`);
   }
   // SECONDARY (after the divider): the sport hubs + daily track record sit after it.
-  for (const href of ["/mlb", "/world-cup", "/mr-dub"]) {
+  for (const href of ["/mlb", "/mr-dub"]) {
     const i = idx(`href: "${href}"`);
     assert.ok(i > dividerIdx, `${href} is SECONDARY (de-emphasized, after the divider)`);
   }
   // /games ("Game Reports") carries the divider (first secondary) — demoted below the whole primary spine.
   assert.ok(idx('href: "/games"') > idx('href: "/bank-builder"'), "/games is demoted below the primary spine");
-  // NO routes removed — everything still reachable.
-  for (const href of ["/games", "/mlb", "/world-cup", "/bank-builder", "/mr-dub", "/moonshot", "/world-cup-specials", "/picks", "/results", "/learn", "/simulate"]) {
+  // The current active spine is still reachable.
+  for (const href of ["/games", "/mlb", "/bank-builder", "/mr-dub", "/moonshot", "/picks", "/results", "/learn", "/simulate"]) {
     assert.ok(nav.includes(`href: "${href}"`), `${href} still in the nav`);
   }
+  // WORLD CUP CLOSEOUT: the completed 2026 World Cup is NOT an active nav item — neither the "/world-cup"
+  // hub nor "/world-cup-specials" appears in the primary nav (archive only, reached from results/methodology).
+  assert.ok(!nav.includes('href: "/world-cup"'), "World Cup is NOT in the active nav");
+  assert.ok(!nav.includes('href: "/world-cup-specials"'), "Soccer Specials is NOT in the active nav");
 });
 
 test("MOBILE_NAV_ITEMS has 7 items in the product-spine order (Homer Nukes retired; Diamond Specials removed)", () => {

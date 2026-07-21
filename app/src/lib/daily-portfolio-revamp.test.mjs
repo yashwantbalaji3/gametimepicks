@@ -144,12 +144,12 @@ test("/world-cup leads with a Model Picks tab; /mr-dub shows the daily portfolio
   assert.match(md, /buildDailyPortfolio/, "mr-dub builds the daily portfolio");
 });
 
-test("World Cup Specials is a PERMANENT tracked product with a durable ledger ($20×5/day, archived)", () => {
+test("World Cup Specials is RETIRED — its durable ledger stays as an archive ($20×5/day, past proof)", () => {
   const page = read("src/app/world-cup-specials/page.tsx");
-  assert.match(page, /Today's Suggested World Cup Parlays|Today&apos;s Suggested World Cup Parlays/, "page keeps the suggested-parlays title");
-  // Reframed from "merged, not a separate product" → a permanent paper product with its own ledger.
-  assert.match(page, /permanent paper product/i, "positions it as a permanent product");
-  assert.match(page, /SpecialsLedgerSection/, "renders the durable ledger (record/ROI/P&L/win-rate)");
+  // The 2026 World Cup is complete: the page is a retired archive (not a live "today's parlays" product).
+  assert.match(page, /World Cup Specials — Archived|Retired · World Cup archive/, "page reads as a retired WC archive");
+  assert.match(page, /RETIRED/i, "explicitly retired (the World Cup is complete)");
+  assert.match(page, /SpecialsLedgerSection/, "keeps the durable ledger (record/ROI/P&L/win-rate) as past proof");
   assert.match(page, /buildSpecialsLedger/, "builds the ledger from archived history");
   // 2026-07-09: the /today Daily Model Hub no longer renders the old "Today's paper portfolio" card, but it
   // still SOURCES the same canonical daily-portfolio money (open exposure) and renders it as a status figure

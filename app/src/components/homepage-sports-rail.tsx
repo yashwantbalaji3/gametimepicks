@@ -15,11 +15,6 @@ import {
 } from "@/lib/data-nhl";
 // PR #113: IPL loader imports removed; the schedule still exists on
 // disk for future re-enablement but is no longer surfaced.
-import {
-  loadWorldCupMeta,
-  loadWorldCupSchedule,
-  daysUntilOpener,
-} from "@/lib/data-world-cup";
 import { selectActiveSlate } from "@/lib/active-slate";
 import { currentEtDate } from "@/lib/freshness";
 
@@ -65,11 +60,8 @@ export default function HomepageSportsRail() {
   const nhlSchedule = nhlDate ? getNhlScheduleForDate(nhlDate) : null;
   const nhlGames = nhlSchedule?.games ?? [];
 
-  // ─── World Cup (kickoff countdown) ──────────────────────────────────
-  const wcMeta = loadWorldCupMeta();
-  const wcSchedule = loadWorldCupSchedule();
-  const wcDaysOut = daysUntilOpener();
-  const wcHasMatchToday = wcSchedule.some((m) => m.date === today);
+  // The 2026 World Cup is complete — no kickoff-countdown teaser on the homepage (it is an archive, not an
+  // active or upcoming sport). Homepage sports focus on the live sport (MLB) + real future schedules.
 
   const liveSports = nbaLeans.length > 0 || mlbLeans > 0;
 
@@ -163,46 +155,6 @@ export default function HomepageSportsRail() {
         </div>
       )}
 
-      {/* World Cup teaser — only when no WC match is today */}
-      {!wcHasMatchToday && wcMeta && wcDaysOut > 0 && (
-        <Link
-          href="/world-cup"
-          className="mt-4 vault-glow-hover rounded-[10px] px-4 py-3 flex items-center gap-3"
-          style={{
-            background: "rgba(26, 16, 11, 0.45)",
-            border: "1px solid var(--vault-border)",
-            textDecoration: "none",
-          }}
-        >
-          <span aria-hidden role="img" style={{ fontSize: 26, lineHeight: 1 }}>
-            ⚽
-          </span>
-          <div className="flex-1 min-w-0">
-            <div
-              className="font-mono uppercase tracking-[0.16em]"
-              style={{ color: "var(--vault-gold)", fontSize: 10 }}
-            >
-              Coming soon · FIFA World Cup 2026
-            </div>
-            <div
-              className="font-display tracking-tight"
-              style={{
-                color: "var(--vault-text)",
-                fontSize: 15,
-                marginTop: 2,
-              }}
-            >
-              Kickoff in {wcDaysOut} day{wcDaysOut === 1 ? "" : "s"} · schedule + groups live
-            </div>
-          </div>
-          <span
-            className="font-mono uppercase tracking-[0.16em] shrink-0"
-            style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
-          >
-            Open →
-          </span>
-        </Link>
-      )}
     </section>
   );
 }

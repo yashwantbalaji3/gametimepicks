@@ -40,8 +40,8 @@ const ALLOWED_EVENT_KEYS = new Set([
 // Registry / ordering
 // ---------------------------------------------------------------------------
 
-test("league order is WNBA, UFC, MLS, FIFA World Cup", () => {
-  assert.deepEqual(EVENT_LEAGUE_ORDER, ["wnba", "ufc", "mls", "fifa-world-cup"]);
+test("league order is WNBA, UFC, MLS (the completed 2026 World Cup is delisted from the events hub)", () => {
+  assert.deepEqual(EVENT_LEAGUE_ORDER, ["wnba", "ufc", "mls"]);
 });
 
 test("listLeagueSchedules returns leagues in tab order", () => {

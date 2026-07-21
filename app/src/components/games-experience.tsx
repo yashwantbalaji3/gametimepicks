@@ -53,7 +53,8 @@ function confChip(c: "High" | "Medium" | "Low"): { color: string; background: st
   return { color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" };
 }
 
-const CHIPS = ["all", "world_cup", "mlb", "nba", "ufc"] as const;
+// The 2026 World Cup is complete — it is not a current filter chip (archive only). MLB leads the board.
+const CHIPS = ["all", "mlb", "nba", "ufc"] as const;
 
 export default function GamesExperience({ games }: { games: GameRow[] }) {
   const [sport, setSport] = useState<string>("all");

@@ -287,7 +287,11 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
     const scope = SCOPE_FOR[sport];
     return (scope && diag.matrix[scope]?.[lvl]?.message) || `No ${RISK_LABEL[lvl]} ${SPORT_LABEL[sport] ?? sport} card passed today's model gates.`;
   };
-  const emptyCells = Object.values(diag.matrix).flatMap((s) => Object.values(s)).filter((c) => c.passed === 0);
+  // The completed 2026 World Cup is archived — when it has no eligible cards, its empty scopes are omitted
+  // from the "why empty" drawer entirely (a future WC with cards returns automatically), matching the coverage matrix.
+  const emptyCells = Object.values(diag.matrix).flatMap((s) => Object.values(s))
+    .filter((c) => c.passed === 0)
+    .filter((c) => wcHasCards || (c.scope !== "world_cup_single_game" && c.scope !== "world_cup_multi_game"));
 
   return (
     <div className="space-y-4">
@@ -309,9 +313,10 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
           </div>
         </details>
       ) : null}
-      {/* sport selector (+ Mixed when cross-sport cards exist) */}
+      {/* sport selector (+ Mixed when cross-sport cards exist). The completed 2026 World Cup is archived —
+          it is omitted as a current tab when it has no eligible cards (a future WC with cards returns automatically). */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }}>
-        {slate.sports.map((s) => (
+        {slate.sports.filter((s) => s.sport !== "WORLD_CUP" || s.eligibleCount > 0).map((s) => (
           <button key={s.sport} onClick={() => setSport(s.sport)}
             className="shrink-0 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
             style={{

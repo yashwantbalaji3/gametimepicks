@@ -245,12 +245,12 @@ export default function SimulateLobby() {
     mlbRows.length > 0
       ? mk("mlb", mlbId.label, mlbId.icon, "active", "active", mlbRows.length, simReadyCountFor("mlb"))
       : mk("mlb", mlbId.label, mlbId.icon, "conditional", "no games", 0, 0, "No MLB board is posted for the current slate yet."),
-    // World Cup: available only when current fixtures exist; NO simulation artifact for soccer (kept 0).
-    wcRows.length > 0
-      ? mk("world_cup", wcId.label, wcId.icon, "available", "fixtures", wcRows.length, 0,
-          "Soccer simulations require a soccer simulation artifact — none exists yet, so World Cup fixtures show model reads (moneyline / totals / props) on the game page, not a generated simulation.")
-      : mk("world_cup", wcId.label, wcId.icon, "conditional", "no current fixtures", 0, 0,
-          "No current World Cup fixtures. Soccer also has no simulation artifact — fixtures show model reads, not a generated simulation."),
+    // World Cup: the 2026 tournament is COMPLETE — it is NOT a current simulation sport (archive only), so it
+    // is omitted from the lobby entirely. Included again only if current fixtures ever exist (future tournament).
+    ...(wcRows.length > 0
+      ? [mk("world_cup", wcId.label, wcId.icon, "available", "fixtures", wcRows.length, 0,
+          "Soccer simulations require a soccer simulation artifact — none exists yet, so World Cup fixtures show model reads (moneyline / totals / props) on the game page, not a generated simulation.")]
+      : []),
     // NBA: off-season unless a fresh board produced rows.
     nbaRows.length > 0
       ? mk("nba", nbaId.label, nbaId.icon, "active", "active", nbaRows.length, 0)
@@ -453,7 +453,9 @@ export default function SimulateLobby() {
         )}
       </section>
 
-      {r32Board ? (
+      {/* The Round-of-32 banner shows ONLY while the knockout board actually has games. The completed 2026
+          World Cup has 0 games → the banner is hidden (WC is an archive, not a current board on /simulate). */}
+      {r32Board && r32Board.gameCount > 0 ? (
         <Link
           href="/world-cup/round-of-32"
           className="block rounded-[10px] px-4 py-3.5 vault-glow-hover"
