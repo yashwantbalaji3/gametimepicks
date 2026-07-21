@@ -47,6 +47,21 @@ The workflow is `continue-on-error` (non-blocking), never runs on `pull_request`
 `node app/scripts/audit-mlb-pregame-archive.mjs` → `data/internal/mlb/pregame-archive/status/latest.json`:
 dates collected · games captured · snapshots before first pitch · post-start rejected · coverage by family · lineup/umpire/weather coverage · freeze completeness · research-gate progress.
 
+## CI enablement status (2026-07-21 — LIVE)
+
+Repo variables **set** (GitHub → Settings → Variables) + `ODDS_API_KEY` secret **present** → the scheduled workflow now captures team markets **and** capped player props:
+
+| variable | value | effect |
+|---|---|---|
+| `PREGAME_ARCHIVE_MARKETS` | `true` | team markets (h2h/spreads/totals) captured each run |
+| `PREGAME_ARCHIVE_PLAYER_PROPS` | `true` | player props captured each run (separate toggle) |
+| `PREGAME_ARCHIVE_PLAYER_PROP_MAX_EVENTS` | `3` | **conservative cap — 3 events/run** (workflow also hard-defaults to 3) |
+| `ODDS_API_MIN_CREDITS_REMAINING` | `2000` | script stops before the balance drops under 2,000 |
+
+**Expected daily credit cost:** team ~3/run + player props ~3 events × 9 markets = ~27/run ⇒ **~30 credits/run × ~8 runs/day ≈ ~240 credits/day**. At 15,379 remaining with a 2,000 floor, runway ≈ **~55 days** (the floor auto-stops capture before exhaustion). To spend less: lower the cap, reduce the market list, or capture props on fewer cron times.
+
+**Monitor:** `node app/scripts/monitor-mlb-pregame-archive.mjs` → `status/monitor.json` (daily status: team/prop capture, events/markets/records/eligible/paired-vs-over-only/de-vig/est+actual credits/remaining/skipped/provider_unavailable; 7-day progress: dates, market/prop dates, avg eligible records/day, days-to-30-date-gate).
+
 ## Research gate (before any future modeling)
 
 ```
