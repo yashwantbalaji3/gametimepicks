@@ -52,14 +52,29 @@ function LegAvatar({ leg }: { leg: ClimbLeg }) {
   return <span className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[6px] text-[12px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>;
 }
 
+const pct = (p: number | null | undefined) => (p == null || !Number.isFinite(p) ? null : `${Math.round(p * 100)}%`);
+const cap = (s: string | null | undefined) => (s && String(s).trim() ? String(s).charAt(0).toUpperCase() + String(s).slice(1) : "");
+
 function LegRow({ leg }: { leg: ClimbLeg }) {
-  const sub = [leg.market, leg.game].filter((s) => s && String(s).trim()).join(" · ");
+  // Pick line: "Over 5.5" when the artifact carries side + line (review legs), else nothing extra.
+  const sideLine = [cap(leg.side), leg.line != null && Number.isFinite(leg.line) ? String(leg.line) : ""].filter(Boolean).join(" ");
+  const sub = [leg.market, sideLine, leg.game].filter((s) => s && String(s).trim()).join(" · ");
+  const model = pct(leg.modelProb);
+  const market = pct(leg.marketProb);
+  const hasRead = model != null || market != null;
   return (
     <li className="flex items-start gap-2.5 rounded-[10px] px-3 py-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-rule)" }}>
       <span className="mt-0.5 shrink-0"><LegAvatar leg={leg} /></span>
       <div className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>{dash(leg.player ?? leg.selection)}</span>
         <span className="block truncate font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>{dash(sub)}</span>
+        {hasRead ? (
+          <span className="mt-0.5 block font-mono text-[10px]" style={{ color: "var(--vault-text-mute)" }}>
+            {model ? <>Model <span style={{ color: "var(--vault-text)", fontWeight: 700 }}>{model}</span></> : null}
+            {model && market ? " · " : null}
+            {market ? <>Market <span style={{ color: "var(--vault-text)", fontWeight: 700 }}>{market}</span></> : null}
+          </span>
+        ) : null}
         {leg.kickoff ? <span className="block font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>Kickoff {leg.kickoff}</span> : null}
       </div>
       <span className="shrink-0 font-mono text-[13px] font-bold" style={{ color: "var(--vault-gold-bright)" }}>{american(leg.odds)}</span>
@@ -70,9 +85,12 @@ function LegRow({ leg }: { leg: ClimbLeg }) {
 /** One rung on the vertical spine: a node (centered on the rail) + its content. The CURRENT rung (the one
  *  carrying today's card — identified by step, not a status string) is the glowing "you are here" and its
  *  card legs attach to it; rungs below it read cleared, rungs above read upcoming. */
-function RungRow({ rung, legs, isCurrent }: { rung: ClimbRung; legs: ClimbLeg[]; isCurrent: boolean }) {
-  const m = isCurrent ? RUNG.active : RUNG[rung.status];
+function RungRow({ rung, legs, isCurrent, isReview }: { rung: ClimbRung; legs: ClimbLeg[]; isCurrent: boolean; isReview?: boolean }) {
+  // A review card's current rung uses the gold "paper review" palette (never the red live-money heat).
+  const REVIEW = { label: "Review · Paper $0", color: "var(--vault-gold-bright)", ring: "rgba(217,164,65,0.55)", fill: "rgba(217,164,65,0.10)" };
+  const m = isCurrent ? (isReview ? REVIEW : RUNG.active) : RUNG[rung.status];
   const isActive = isCurrent;
+  const glow = isReview ? "rgba(217,164,65,0.5)" : "rgba(242,54,69,0.5)";
   const isCleared = rung.status === "completed" && !isCurrent;
   return (
     <div className="relative flex gap-3 pb-3 last:pb-0">
@@ -84,7 +102,7 @@ function RungRow({ rung, legs, isCurrent }: { rung: ClimbRung; legs: ClimbLeg[];
             height: isActive ? 32 : 26, width: isActive ? 32 : 26,
             fontSize: isActive ? 13 : 11, color: m.color, background: m.fill,
             border: `1.5px solid ${m.ring}`,
-            ["--gtp-glow" as any]: isActive ? "rgba(242,54,69,0.5)" : undefined,
+            ["--gtp-glow" as any]: isActive ? glow : undefined,
           }}
           aria-hidden
         >
@@ -142,7 +160,9 @@ function RungRow({ rung, legs, isCurrent }: { rung: ClimbRung; legs: ClimbLeg[];
 
 export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
   const tone = TONE[lane.statusTone];
-  const isActive = lane.hasCard;
+  const isActive = lane.hasCard;              // a real money card is placed
+  const isReview = !!lane.reviewMode;         // a $0 paper review card whose legs ARE shown
+  const showsCard = isActive || isReview;     // either → attach the card's legs to the current rung
   const profit = lane.potentialReturn != null && lane.stake != null && Number.isFinite(lane.potentialReturn) && Number.isFinite(lane.stake)
     ? lane.potentialReturn - lane.stake : null;
   // Climb reads bottom→top: render rungs in DESCENDING step order (crown/high rung first, base last).
@@ -152,9 +172,9 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
   return (
     <div className="flex flex-col rounded-2xl p-4"
       style={{
-        background: isActive ? `linear-gradient(180deg, ${tone}14, rgba(255,255,255,0.02) 46%)` : "rgba(255,255,255,0.02)",
-        border: `1px solid ${isActive ? tone + "55" : "var(--vault-border)"}`, borderTop: `3px solid ${tone}`,
-        boxShadow: isActive ? `0 0 0 1px ${tone}22, 0 10px 34px -20px ${tone}` : "none",
+        background: showsCard ? `linear-gradient(180deg, ${tone}14, rgba(255,255,255,0.02) 46%)` : "rgba(255,255,255,0.02)",
+        border: `1px solid ${showsCard ? tone + "55" : "var(--vault-border)"}`, borderTop: `3px solid ${tone}`,
+        boxShadow: showsCard ? `0 0 0 1px ${tone}22, 0 10px 34px -20px ${tone}` : "none",
       }}>
       <div className="mb-1 flex items-center justify-between gap-2">
         <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{lane.label}</h3>
@@ -175,35 +195,63 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
           </span>
         </div>
         {rungsTopDown.map((r) => (
-          <RungRow key={r.step} rung={r} legs={lane.legs} isCurrent={isActive && lane.step != null && r.step === lane.step} />
+          <RungRow key={r.step} rung={r} legs={lane.legs} isCurrent={showsCard && lane.step != null && r.step === lane.step} isReview={isReview} />
         ))}
       </div>
 
-      {/* Money row */}
-      <div className="mt-3 grid grid-cols-4 gap-1.5">
-        {([
-          ["Stake", money(lane.stake), "var(--vault-text)"],
-          ["To win", money(lane.potentialReturn), "var(--vault-gold-bright)"],
-          ["Profit", profit != null ? `+${money(profit)}` : "—", "var(--vault-success)"],
-          ["Seed", money0(isActive ? 100 : null), "var(--gtp-bank-heat)"],
-        ] as Array<[string, string, string]>).map(([k, v, c]) => (
-          <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
-            <div className="font-mono tabular font-bold leading-tight" style={{ color: c, fontSize: 12.5 }}>{v}</div>
-            <div className="mt-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8 }}>{k}</div>
+      {isReview ? (
+        /* REVIEW money strip — a paper review card places NOTHING: no stake, no seed at risk, no projected
+           profit. We show $0 exposure + the card's combined odds (informational), never a money projection. */
+        <div className="mt-3 grid grid-cols-3 gap-1.5">
+          {([
+            ["Exposure", "$0.00", "var(--vault-success)"],
+            ["Stake", "$0.00", "var(--vault-text)"],
+            ["Combined", american(lane.combinedOdds), "var(--vault-gold-bright)"],
+          ] as Array<[string, string, string]>).map(([k, v, c]) => (
+            <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+              <div className="font-mono tabular font-bold leading-tight" style={{ color: c, fontSize: 12.5 }}>{v}</div>
+              <div className="mt-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8 }}>{k}</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          {/* Money row */}
+          <div className="mt-3 grid grid-cols-4 gap-1.5">
+            {([
+              ["Stake", money(lane.stake), "var(--vault-text)"],
+              ["To win", money(lane.potentialReturn), "var(--vault-gold-bright)"],
+              ["Profit", profit != null ? `+${money(profit)}` : "—", "var(--vault-success)"],
+              ["Seed", money0(isActive ? 100 : null), "var(--gtp-bank-heat)"],
+            ] as Array<[string, string, string]>).map(([k, v, c]) => (
+              <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+                <div className="font-mono tabular font-bold leading-tight" style={{ color: c, fontSize: 12.5 }}>{v}</div>
+                <div className="mt-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8 }}>{k}</div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <p className="mt-2 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
-        Combined {american(lane.combinedOdds)}{lane.nextKickoff ? ` · next kickoff ${lane.nextKickoff}` : ""}
-      </p>
+          <p className="mt-2 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+            Combined {american(lane.combinedOdds)}{lane.nextKickoff ? ` · next kickoff ${lane.nextKickoff}` : ""}
+          </p>
+        </>
+      )}
 
-      {!isActive ? (
+      {isReview ? (
+        <div className="mt-2 rounded-[10px] px-3 py-3 text-[12px] leading-snug" style={{ background: "rgba(217,164,65,0.06)", border: "1px solid rgba(217,164,65,0.25)", color: "var(--vault-text-mute)" }}>
+          <span className="font-semibold" style={{ color: "var(--vault-gold-bright)" }}>Review Mode · paper · $0 placed.</span>{" "}
+          {dash(lane.reviewNote) !== "—"
+            ? lane.reviewNote
+            : "These legs are shown for review only — nothing is placed and no real money is at risk. Deterministic settlement from the official box score."}
+        </div>
+      ) : !isActive ? (
         <div className="mt-2 rounded-[10px] px-3 py-3 text-[12px] leading-snug" style={{ background: "rgba(217,164,65,0.06)", border: "1px solid rgba(217,164,65,0.25)", color: "var(--vault-text-mute)" }}>
           <span className="font-semibold" style={{ color: "var(--vault-gold-bright)" }}>Model pass — holding for a stronger slate.</span>{" "}
-          No edge today, so the ladder waits rather than force a weak card. A pass protects the seed; the lane re-arms the moment a qualified card appears.
+          No qualified card today, so the ladder waits rather than force a weak card. A pass protects the seed; the lane re-arms the moment a qualified card appears.
         </div>
       ) : null}
-      <p className="mt-2 font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>Paper-only · pending official settlement.</p>
+      <p className="mt-2 font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
+        {isReview ? "Paper review · $0 placed · nothing is live." : "Paper-only · pending official settlement."}
+      </p>
     </div>
   );
 }

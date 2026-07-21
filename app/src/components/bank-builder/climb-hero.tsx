@@ -41,6 +41,13 @@ export interface ClimbLeg {
   game?: string | null;      // matchup
   why?: string | null;       // one-line rationale if present
   player?: string | null;
+  // Leg-level model read (review cards). Probabilities are 0..1; edgePct is percentage points.
+  // All optional + null-safe — a live money card simply omits them and renders as before.
+  line?: number | null;      // e.g. 5.5
+  side?: string | null;      // "over" | "under" | …
+  modelProb?: number | null; // model win probability (0..1)
+  marketProb?: number | null;// market-implied probability (0..1)
+  edgePct?: number | null;   // model edge in percentage points (model − market)
 }
 export interface ClimbLane {
   id: "lane-a" | "lane-b";
@@ -54,7 +61,12 @@ export interface ClimbLane {
   combinedOdds: number | null;
   potentialReturn: number | null;
   goalTarget: number | null;
-  hasCard: boolean;          // false → polished awaiting state
+  hasCard: boolean;          // false → polished awaiting state (a real money card is placed)
+  // A REVIEW card is a $0 paper card whose legs ARE shown for founder/public review, but no money is
+  // placed (hasCard stays false so exposure/seed logic never counts it). reviewMode drives the review
+  // banner + suppresses the money projection + the "model pass" holding block.
+  reviewMode?: boolean;
+  reviewNote?: string | null;
   rungs: ClimbRung[];
   legs: ClimbLeg[];
   nextKickoff?: string | null;

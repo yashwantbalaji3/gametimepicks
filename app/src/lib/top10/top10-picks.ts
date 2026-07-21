@@ -166,6 +166,63 @@ function mlbPropPicks(root: string, date: string, nowMs: number): Top10Pick[] {
   return out;
 }
 
+/** MLB TEAM-MARKET context rows — the de-vigged market read (moneyline / total / run line) from the
+ *  team-markets artifact. This is MARKET CONTEXT / a WATCHLIST, never a model pick: the MLB full-game
+ *  model mirrors the market, so there is NO independent model probability or edge. `modelProbability`
+ *  is left null and the copy says "market context" — never "edge"/"pick". Pregame only. Used ONLY as the
+ *  Team-markets tab fallback when the WC knockout board is empty/complete. Empty artifact → []. */
+function mlbTeamContextRows(root: string, date: string, nowMs: number): Top10Pick[] {
+  const doc = readJson(path.join(root, "mlb", "team-markets", `${date}.json`))
+    ?? readJson(path.join(root, "mlb", "team-markets", "latest.json"));
+  const games = doc?.games;
+  if (!games || typeof games !== "object") return [];
+  const book = String(doc.bookmaker ?? "the book");
+  const out: Top10Pick[] = [];
+  const add = (g: any, marketKey: string, label: string, selection: string, oddsN: any, noVig: any, rel: number) => {
+    if (typeof oddsN !== "number" || !Number.isFinite(oddsN) || oddsN === 0) return;
+    const mkt = typeof noVig === "number" && Number.isFinite(noVig) ? round3(noVig) : impliedProb(oddsN);
+    const home = String(g.homeTeam ?? ""), away = String(g.awayTeam ?? "");
+    out.push({
+      id: `mlb-team:${g.gameId}:${marketKey}`,
+      sport: "mlb", kind: "team", flagCode: null,
+      game: `${away} @ ${home}`, gameSlug: null,
+      market: `${label} · market`, selection,
+      odds: oddsN,
+      modelProbability: null,                     // no independent model — MARKET CONTEXT only
+      marketProbability: mkt,
+      confidence: "Market context",
+      score: round3(rel * (mkt ?? 0)),             // ranks context rows among themselves (no edge term)
+      reason: `Market-implied read from ${book} (de-vigged)${mkt != null ? `: ${Math.round(mkt * 100)}%` : ""}. Shown as market context / a watchlist — the MLB full-game model mirrors the market, so this is not a model pick and carries no model edge.`,
+      risk: "Market-anchored watchlist · informational only · no independent model edge",
+      source: `mlb/team-markets/${doc.date ?? date}.json`,
+      startsAt: g.commenceTime ?? null, status: "pregame",
+    });
+  };
+  for (const g of Object.values<any>(games)) {
+    if (!g || typeof g !== "object") continue;
+    const start = Date.parse(g.commenceTime ?? "");
+    if (!Number.isFinite(start) || start <= nowMs) continue;         // pregame only
+    const home = String(g.homeTeam ?? ""), away = String(g.awayTeam ?? "");
+    const ml = g.moneyline;
+    if (ml?.home && ml?.away) {
+      const homeFav = (ml.home.noVigProb ?? 0) >= (ml.away.noVigProb ?? 0);
+      add(g, "moneyline", "Moneyline", `${homeFav ? home : away} ML`, (homeFav ? ml.home : ml.away).odds, (homeFav ? ml.home : ml.away).noVigProb, 1.0);
+    }
+    const t = g.total;
+    if (t?.over && t?.under && t.line != null) {
+      const overFav = (t.over.noVigProb ?? 0) >= (t.under.noVigProb ?? 0);
+      add(g, "total", "Total", `${overFav ? "Over" : "Under"} ${t.line}`, (overFav ? t.over : t.under).odds, (overFav ? t.over : t.under).noVigProb, 0.9);
+    }
+    const rl = g.runLine;
+    if (rl?.home && rl?.away) {
+      const homeCover = (rl.home.coverNoVigProb ?? 0) >= (rl.away.coverNoVigProb ?? 0);
+      const side = homeCover ? rl.home : rl.away;
+      add(g, "run_line", "Run line", `${homeCover ? home : away} ${side.line > 0 ? "+" : ""}${side.line}`, side.odds, side.coverNoVigProb, 0.85);
+    }
+  }
+  return out.sort((a, b) => b.score - a.score);
+}
+
 /** Dedupe: at most 2 picks per game and 1 per (game, market family) so the board isn't one fixture. */
 function diversify(picks: Top10Pick[], cap = 10): Top10Pick[] {
   const perGame = new Map<string, number>();
@@ -191,7 +248,12 @@ export function buildTop10Board(root: string, date: string, nowMs: number): Top1
     ...mlbPropPicks(root, date, nowMs),
   ].sort((a, b) => b.score - a.score);
 
-  const team = all.filter((p) => p.kind === "team");
+  const wcTeam = all.filter((p) => p.kind === "team");
+  // Team-markets tab: WC knockout team picks while the tournament is live; otherwise fall back to MLB
+  // team-market CONTEXT rows (de-vigged market read / watchlist — never a model pick). No WC + no MLB
+  // team markets → the tab shows its clean empty state. Only the team TAB falls back; overall/safe/value
+  // stay model-pick-only (market-context rows carry no model probability, so they never leak in).
+  const teamRows = wcTeam.length > 0 ? wcTeam : mlbTeamContextRows(root, date, nowMs);
   const props = all.filter((p) => p.kind === "prop");
   const safe = all.filter((p) => (p.modelProbability ?? 0) >= 0.6 && p.odds <= 150);
   const value = all.filter((p) => {
@@ -201,11 +263,11 @@ export function buildTop10Board(root: string, date: string, nowMs: number): Top1
 
   return {
     date,
-    generatedFrom: [...new Set(all.map((p) => p.source))],
+    generatedFrom: [...new Set([...all.map((p) => p.source), ...teamRows.map((p) => p.source)])],
     overall: diversify(all),
     safe: diversify(safe),
     value: diversify(value),
     props: diversify(props),
-    team: diversify(team),
+    team: diversify(teamRows),
   };
 }

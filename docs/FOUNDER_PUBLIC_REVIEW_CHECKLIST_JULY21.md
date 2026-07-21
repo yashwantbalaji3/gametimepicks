@@ -10,7 +10,8 @@ $19,065.40, crown $20,465.40, money md5 `affe6b21` — all unchanged. Nothing he
 | `/simulate` | current MLB games first; World Cup archived below | ✓ |
 | `/mlb` | July-21 15-game slate; honest liveness ("next up" tonight → "today" tomorrow) | ✓ |
 | `/games/mlb/<game>-2026-07-21` | V2 report: 10k player-prop sim + market snapshot + "full-game model validating" (no projected score / win prob) | ✓ (3 priced games) |
-| `/bank-builder` | **Step 1 · restarted · Paper · $0** (Lane A review card; Lane B awaiting) | ✓ status (legs in doc — display gap) |
+| `/bank-builder` | **Step 1 · Review · Paper · $0** — Lane A review card renders the exact legs (Wrobleski / Buehler, model% vs market%, line, game, +268); Lane B "Step 1 · Awaiting a qualified card" | ✓ legs render on-page |
+| `/picks` (Top 10 → Team markets tab) | WC empty → falls back to MLB team-market **context / watchlist** rows (model — vs market%, "not a model pick, no edge"); clean empty state if none | ✓ |
 | `/moonshot` | **Step 1 · Review Mode · $0** with the Wheeler+Gausman legs | ✓ |
 | `/today` | July-21, active MLB, honest No-Play/Step-1 states | ✓ |
 | `/results` | official 19-14 vs paper/internal clearly separated; pending not counted as loss | ✓ |
@@ -37,8 +38,9 @@ Independent games. No official money, no settlement-pending props, no World Cup,
   public win probability (the internal full-game model mirrors the market and stays internal).
 - **World Cup is complete → archive.** France-vs-Spain and later rounds remain **pending** settlement (no trusted
   90'-separated official score source).
-- **`/bank-builder` shows the Step-1 status but not the individual review legs yet** (a display wiring gap; the
-  legs are listed above + in the ladder artifact).
+- **`/bank-builder` now renders the individual review legs on-page** (the earlier display-wiring gap is fixed):
+  the Lane A ClimbHero Step-1 rung shows Wrobleski + Buehler with model% vs market%, the line, the game, the odds,
+  and a "Review · Paper $0" banner ($0 exposure). Lane B honestly reads "Step 1 · Awaiting a qualified card."
 
 ## How to approve / hold products
 - These are **review cards**, not placed bets. To go live for real money you must give a **separate, explicit

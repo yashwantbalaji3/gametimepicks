@@ -17,10 +17,9 @@ const board = buildTop10Board(root, date, nowMs);
 
 test("board builds from real artifacts with picks in every populated category", () => {
   assert.ok(board.overall.length > 0, "overall has picks");
-  // The Top 10 "team" tab is sourced ONLY from the World Cup knockout board (round-of-32). The World Cup
-  // tournament is COMPLETE — that board is now empty — so the team tab is legitimately empty while the active
-  // MLB slate (player-prop leans) carries the board. When the WC knockout board is live the team tab
-  // repopulates; validate it only when populated (coverage returns automatically with the data).
+  // The Top 10 "team" tab shows WC knockout team picks while the tournament is live; when the WC board is
+  // empty/complete it FALLS BACK to MLB team-market CONTEXT rows (de-vigged market read / watchlist). Either
+  // way every team-tab row is kind "team"; if MLB market-context rows are absent too, the tab is cleanly empty.
   if (board.team.length > 0) assert.ok(board.team.every((p) => p.kind === "team"), "team tab holds team markets");
   assert.ok(board.generatedFrom.every((s) => /\.json$/.test(s)), "every pick traces to a source artifact");
   assert.ok(board.overall.length <= 10 && board.safe.length <= 10 && board.props.length <= 10, "caps hold");
@@ -39,14 +38,33 @@ test("NO Pass leans, NO non-pregame picks, NO fabricated fields", () => {
 
 test("ranking is reliability-led: top overall pick is never a player prop when a comparable team read exists", () => {
   const top = board.overall[0];
-  const bestTeam = board.team[0];
-  if (bestTeam && top.kind === "prop") {
-    // A prop may only lead if it genuinely outscores the best team pick (haircut already applied).
-    assert.ok(top.score > bestTeam.score, "prop leads only on strictly higher haircut-adjusted score");
+  // Compare only against a team pick that actually competes in the overall pool (WC team markets). MLB
+  // team-market CONTEXT rows are a separate watchlist (no model probability), never in overall, so they
+  // are scored in their own universe and must not be compared here.
+  const bestTeamInOverall = board.overall.find((p) => p.kind === "team");
+  if (bestTeamInOverall && top.kind === "prop") {
+    assert.ok(top.score > bestTeamInOverall.score, "prop leads only on strictly higher haircut-adjusted score");
   }
   // Diversity: max 2 picks per game in the overall board.
   const perGame = {};
   for (const p of board.overall) { perGame[p.game] = (perGame[p.game] ?? 0) + 1; assert.ok(perGame[p.game] <= 2, `≤2 per game (${p.game})`); }
+});
+
+test("team tab fallback: when WC is empty, MLB team-market rows are MARKET CONTEXT — never a model pick/edge", () => {
+  // Every team-tab row is a team/game market (never a prop).
+  for (const p of board.team) assert.equal(p.kind, "team");
+  // The MLB fallback rows (present when the WC knockout board is empty) must be honest market context:
+  // no fabricated model probability, and no "edge"/"pick"/"best bet"/"lock" language anywhere in the copy.
+  const mlbTeam = board.team.filter((p) => p.sport === "mlb");
+  for (const p of mlbTeam) {
+    assert.equal(p.modelProbability, null, "market-context row carries NO model probability");
+    assert.ok(typeof p.marketProbability === "number", "market-context row shows the de-vigged market read");
+    assert.ok(/market context|watchlist/i.test(`${p.confidence} ${p.reason} ${p.risk}`), "framed as market context / watchlist");
+    assert.ok(!/\bedge\b|\bpick\b|best bet|\block\b|guaranteed/i.test(`${p.reason} ${p.risk} ${p.market} ${p.selection}`)
+      || /no (model )?edge|not a model pick/i.test(`${p.reason} ${p.risk}`),
+      `no fabricated edge/pick claim: ${p.reason}`);
+    assert.ok(/mlb\/team-markets\//.test(p.source), "traces to the MLB team-markets artifact");
+  }
 });
 
 test("Bank Builder pool is derivable: team tab is team/game markets only (no props ever)", () => {

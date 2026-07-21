@@ -39,11 +39,20 @@ build exit 0.
 - `/world-cup`: archive/completed (round-of-32 "completed" page).
 
 ## Known residuals (for the founder)
-1. **Only 3 of 15 MLB games priced tonight** (July-20 night). Re-run the MLB refresh + sims tomorrow morning for
-   full coverage → more eligible legs → Lane B + fuller cards can activate.
-2. **`/bank-builder` display gap:** ClimbHero shows the Step-1 status ("Step 1 · Paper · $0", restarted) but not
-   the individual Wrobleski/Buehler review legs (it reads the daily-portfolio card, not the ladder review legs).
-   The legs are in the artifact + `JULY21_BANK_BUILDER_RESTART.md`. Wiring them into ClimbHero is a follow-up.
-3. **Top-10 "team" tab** still sourced only from the (empty) WC board — empty state, not broken. MLB fallback is a
-   follow-up (`top10-picks.ts`).
+1. **Only 3 of 15 MLB games priced on July-20 night.** Books post the rest through July-21. Re-run the MLB refresh
+   + sims in the morning for full coverage → more eligible legs → Lane B + fuller cards can activate. See
+   `JULY21_MORNING_REFRESH.md` for the exact, honesty-guarded commands.
 4. **World Cup settlement** remains pending (no trusted 90' source).
+
+## Post-review-build fixes (SHIPPED — the two display residuals below are now resolved)
+2. **`/bank-builder` display gap — FIXED.** The Lane A ClimbHero Step-1 rung now renders the actual review legs
+   (Wrobleski Over 5.5 K +112 / Buehler Over 3.5 K −136) with model% vs market%, line, game, odds, a "Review ·
+   Paper $0" banner, and $0 exposure — sourced losslessly from the ladder artifact via
+   `src/lib/bank-builder/review-card.ts` (the ui-loader path drops market prob / matchup). Lane B honestly reads
+   "Step 1 · Awaiting a qualified card" (no more misleading bare "Active"). Unit-tested
+   (`review-card.test.mjs`) + verified in the built HTML + DOM.
+3. **Top-10 "team" tab — FIXED.** When the WC knockout board is empty/complete, the `/picks` Top-10 "Team markets"
+   tab falls back to MLB team-market **context / watchlist** rows (moneyline / total / run line, de-vigged) — model
+   probability left null, copy says "market context / watchlist · not a model pick · no model edge." No MLB team
+   markets → clean empty state. These rows never leak into overall / safe / value (model-pick-only). Test added to
+   `top10-picks.test.mjs`.

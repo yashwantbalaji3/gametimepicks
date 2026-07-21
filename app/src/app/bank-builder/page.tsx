@@ -17,6 +17,7 @@ import { currentEtDate } from "@/lib/freshness";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung, type ClimbClearedDetail } from "@/components/bank-builder/climb-hero";
+import { readLaneReviewCard } from "@/lib/bank-builder/review-card";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
 import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
@@ -193,6 +194,10 @@ export default function BankBuilderPage() {
       // rendering with a "+$489 profit" card; candidate ≠ active ≠ approved.)
       const card = dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === letter && c.status === "active") ?? null;
       const hasCard = !!card && card.legs.length > 0;
+      // No placed money card → look for an ACTIVE review card in the ladder artifact (paper · $0). Its
+      // legs ARE shown for founder/public review, but hasCard stays false so exposure/seed never count it.
+      const reviewCard = !hasCard ? readLaneReviewCard(path.join(process.cwd(), "public", "data"), letter === "A" ? "laneA" : "laneB") : null;
+      const hasReview = !!reviewCard && reviewCard.legs.length > 0;
       // The active rung is the one carrying today's card; fall back to awaiting, then currentStep.
       const curRung =
         view.steps.find((s) => s.status === "active") ??
@@ -201,14 +206,16 @@ export default function BankBuilderPage() {
         null;
       const statusTone: ClimbLane["statusTone"] =
         view.currentStatus === "completed" ? "completed"
-          : hasCard || view.currentStatus === "active" ? "active"
-          : view.currentStatus === "advanced" ? "advanced" : "awaiting";
+          : hasCard ? "active"                        // a real money card is placed → live heat
+          : hasReview ? "awaiting"                    // review card is paper · $0 → gold, never live-money red
+          : view.currentStatus === "advanced" ? "advanced" : "awaiting"; // no card → gold "awaiting", never a bare "active"
       const statusLabel =
         view.currentStatus === "completed" ? "🏆 $10K reached"
           : hasCard ? "Active · today's card"
-          : view.currentStatus === "active" ? "Active"
+          : hasReview ? `Step ${reviewCard!.step} · Review · Paper $0`
           : view.currentStatus === "advanced" ? "Advanced"
-          : "Awaiting a qualified card";
+          // No placed card + no review card → honestly awaiting (never a bare "Active" with nothing behind it).
+          : `Step ${curRung?.step ?? view.currentStep ?? 1} · Awaiting a qualified card`;
       // Cycle # from the lane label ("… lane (cycle 5)") if present — display-only, never fabricated.
       const cycleMatch = /cycle\s+(\d+)/i.exec(view.label === "Lane A" ? (bbPreview.laneA?.label ?? "") : (bbPreview.laneB?.label ?? ""));
       // Official settled detail for each CLEARED step (from the ledger) → the expandable "how it cleared".
@@ -229,23 +236,27 @@ export default function BankBuilderPage() {
         name: null,
         statusLabel,
         statusTone,
-        step: curRung?.step ?? view.currentStep ?? null,
+        step: curRung?.step ?? reviewCard?.step ?? view.currentStep ?? null,
         cycle: cycleMatch ? Number(cycleMatch[1]) : null,
-        stake: card?.stake ?? null,
-        combinedOdds: card?.combinedOdds ?? null,
-        potentialReturn: card?.potentialReturn ?? null,
+        stake: card?.stake ?? (hasReview ? 0 : null), // review card is $0 — nothing placed
+        combinedOdds: card?.combinedOdds ?? reviewCard?.combinedOdds ?? null,
+        potentialReturn: card?.potentialReturn ?? null, // review → no money projection
         goalTarget: curRung?.goalTarget ?? null,
         hasCard,
+        reviewMode: hasReview,
+        reviewNote: reviewCard?.reviewNote ?? null,
         rungs,
-        legs: (card?.legs ?? []).map((l) => ({
-          selection: l.selection,
-          market: l.marketLabel,
-          odds: l.odds,
-          kickoff: l.kickoffEt ?? null, // real kickoff (ET) from the persisted leg — never fabricated
-          game: l.matchup,
-          why: null,
-          player: l.player ?? null,
-        })),
+        legs: hasReview
+          ? reviewCard!.legs
+          : (card?.legs ?? []).map((l) => ({
+              selection: l.selection,
+              market: l.marketLabel,
+              odds: l.odds,
+              kickoff: l.kickoffEt ?? null, // real kickoff (ET) from the persisted leg — never fabricated
+              game: l.matchup,
+              why: null,
+              player: l.player ?? null,
+            })),
         nextKickoff: null,
       };
     })
@@ -273,8 +284,11 @@ export default function BankBuilderPage() {
 
       {/* When a lane is ACTIVE, the ClimbHero above already shows its card + the expandable cleared-step
           history — so we do NOT repeat it here (removes the duplicate "active daily Bank Builder"). Only
-          when NO lane is active do we show the fresh proposal, else the premium "model skipped" no-play. */}
-      {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active" && c.legs.length > 0) ? (
+          when NO lane is active AND no review card is showing do we render the fresh proposal, else the
+          premium "model skipped" no-play. (A review card in the hero would otherwise be contradicted by a
+          "model skipped" panel directly below it.) */}
+      {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active" && c.legs.length > 0)
+        && !climbLanes.some((l) => l.reviewMode) ? (
         <div className="mt-5">
           {bbProposal.available
             ? <BankBuilderProposalCard proposal={bbProposal} />
