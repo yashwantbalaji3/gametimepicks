@@ -9,7 +9,7 @@
   "exposureCreated": 0,
   "activationStatus": "internal_only",
   "coverageSummary": {
-    "games": 4,
+    "games": 5,
     "probablesAvailable": true,
     "runRateDates": 6,
     "usableForIndependentModel": false
@@ -174,6 +174,53 @@
           "home": 7.67,
           "sampleGames": {
             "away": 6,
+            "home": 6
+          },
+          "source": "computed_from_committed_linescores"
+        },
+        "parkFactor": {
+          "value": null,
+          "source": "unavailable"
+        },
+        "bullpenRestProxy": {
+          "away": null,
+          "home": null,
+          "source": "unavailable"
+        },
+        "weather": {
+          "value": null,
+          "source": "unavailable"
+        }
+      },
+      "coverage": {
+        "independentInputsAvailable": true,
+        "missing": [
+          "pitcher strength ratings",
+          "park factor",
+          "bullpen rest / usage",
+          "lineup handedness",
+          "weather"
+        ],
+        "usableForIndependentModel": false
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "gamePk": 825056,
+      "gameId": "8b96a836e0e20dedb471fa42febff567",
+      "awayTeam": "Athletics",
+      "homeTeam": "Arizona Diamondbacks",
+      "inputs": {
+        "probablePitchers": {
+          "away": "Jack Perkins",
+          "home": "Kohl Drake",
+          "source": "statsapi_probable"
+        },
+        "teamRunRates": {
+          "away": 2.8,
+          "home": 3.67,
+          "sampleGames": {
+            "away": 5,
             "home": 6
           },
           "source": "computed_from_committed_linescores"

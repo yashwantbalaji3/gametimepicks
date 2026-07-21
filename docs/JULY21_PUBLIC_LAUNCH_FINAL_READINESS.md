@@ -1,6 +1,6 @@
 # GameTime Picks — July 21 Public Launch: Final Readiness
 
-**Date:** 2026-07-21 · **Mode:** paper / review · **Official-money exposure:** $0
+**Date:** 2026-07-21 (morning refresh, ~09:15 ET) · **Mode:** paper / review · **Official-money exposure:** $0
 
 Everything in this document is paper-only and educational. No real money is placed. Official record, bankroll,
 crown, and exposure are **unchanged** and md5-guarded (see [Exposure & money](#exposure--money-confirmation)).
@@ -22,19 +22,28 @@ paper simulator. It is *not* — and should not be presented as — a real-money
 
 ## 2. MLB coverage — July 21 (of 15 scheduled games)
 
+Coverage is measured **after the morning refresh** (the overnight run picked up a 5th priced game, **ATH@AZ**).
 Books post the rest of the market through the day. We never fabricate odds or simulations for unpriced games.
 
 | Surface | Coverage | Games |
 |---|---|---|
 | Scheduled games | 15 | full slate |
-| Team markets (de-vigged, market-anchored) | **4 / 15** | LAD@PHI, TB@TOR, BAL@BOS, SD@ATL |
-| Player props ingested | **10 / 15** (295 props) | — |
-| 10,000-run player-prop simulations | **4 / 15** | same 4 priced games |
-| Game report detail pages | **15 / 15** | 4 with full sims, 11 "awaiting posted markets" |
-| Positive model-vs-market picks | **12** | across the 4 simulated games |
+| Team markets (de-vigged, market-anchored) | **5 / 15** | LAD@PHI, TB@TOR, BAL@BOS, SD@ATL, ATH@AZ |
+| Player props ingested | **8+ / 15** (1,094 props) | more markets per game posted overnight |
+| 10,000-run player-prop simulations | **5 / 15** | same 5 priced games (21 sim picks) |
+| Game report detail pages | **15 / 15** | 5 with full sims, 10 "awaiting posted markets" |
+| Positive model-vs-market picks | **20** | across the 5 simulated games |
 
-The 11 unpriced games still render a report page — they honestly read **"awaiting posted markets"** rather than
-showing invented numbers.
+The 10 unpriced games still render a report page — they honestly read **"awaiting posted markets"** rather than
+showing invented numbers. Unpriced because the books have not yet posted their team-market / prop lines (they
+post closer to first pitch); coverage widens automatically on the next refresh, never by fabrication.
+
+### Morning re-evaluation of the active cards
+Re-checked all three Step-1 review cards against the fresh 5-game simulation. **No card was mutated** — each is
+already optimal or a lateral trade, and all six leg odds still match the fresh sim (no stale prices):
+- **Moonshot** — the two strongest model-vs-market gaps are still Wheeler (+31 pt) and Gausman (+24 pt). Optimal; unchanged.
+- **Bank Builder Lane A (survival)** — Suárez (67%) + Wrobleski (60%) remains the best two-anchor hit-probability pair. Unchanged.
+- **Bank Builder Lane B (value)** — the new ATH@AZ game surfaced **Nolan Arenado · Total Bases Over 1.5 · +131 (model 58% vs market 43%, +15 pt gap, anchor)**. Swapping it in for Buehler would raise the weak leg's gap (2 pt → 15 pt) and price the card at ~+427 (still in the +200..+700 value band), but it also *lowers* combined survival by ~1 pt — a lateral edge-for-safety trade, not a clear improvement for a survivability-first value lane. **Proposed for founder approval; not auto-applied.** To adopt it, edit `app/scripts/refresh-review-cards-0721.mjs` Lane B legs to `[Willson Contreras TB o1.5, Nolan Arenado TB o1.5]` and re-run `--apply` (money-guarded).
 
 ---
 
@@ -110,8 +119,8 @@ distribution.
 
 ## 7. Honest limitations (say these plainly)
 
-- **Only 4 of 15 games are priced tonight.** The other 11 report pages read "awaiting posted markets." Full
-  coverage and more eligible legs arrive as books post through the day.
+- **Only 5 of 15 games are priced so far this morning.** The other 10 report pages read "awaiting posted markets."
+  Full coverage and more eligible legs arrive as books post through the day (re-run the refresh nearer first pitch).
 - **The internal MLB full-game model mirrors the market** (81-game backtest). The `pitcher-strength-v1` and
   `bullpen-fatigue-v1` features **failed** their backtest and are **not adopted**. The soccer rating engine
   **loses to the market**. All of this is internal-only under `data/internal/`, never web-served, never in any
@@ -133,3 +142,16 @@ Open items are *cadence*, not blockers:
 - Keep the money md5 at `affe6b21` on every publish (forensic audit must read **MATHEMATICALLY PERFECT**).
 
 See `docs/MLB_DAILY_OPERATING_PLAYBOOK.md` for the exact daily commands and gates.
+
+---
+
+## 9. Final morning verification (2026-07-21) — GO for public paper beta
+
+Ran the full pre-launch pass this morning after fast-forwarding the overnight nightly-settle commits (money-clean):
+
+- **Public paper beta:** ✅ **GO.**
+- **Official-money launch:** ⛔ **NO-GO** (intentionally — requires a separate explicit founder instruction).
+- **MLB coverage:** 5/15 team markets + 10k sims, 15/15 report pages, 20 positive picks (see §2).
+- **Active cards:** unchanged (Lane A Suárez+Wrobleski +306 · Lane B Buehler+Contreras +296 · Moonshot Wheeler+Gausman +278); all odds match the fresh sim; Arenado proposed as a Lane B alternative (§2).
+- **Gates:** tsc clean · full suite green · build exit 0 · forensic **MATHEMATICALLY PERFECT** · health **HEALTHY** · leak / fake-claim / product-eligibility scans clean · route smoke **12/12**.
+- **Money md5:** `affe6b21071f2b3be96bb2774eb347c3` — unchanged before and after · record 19-14 · bankroll $19,065.40 · crown $20,465.40 · exposure $0.
