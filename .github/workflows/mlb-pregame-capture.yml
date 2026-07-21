@@ -1,0 +1,47 @@
+# MLB Pregame Research Capture — DORMANT forward-only shadow pipeline.
+#
+# Internal research data collection ONLY. It never blocks board generation, settlement, money reconciliation,
+# or the public static build, and it changes nothing public. It stays effectively dormant until an operator runs
+# it (workflow_dispatch) or enables the schedule; StatsAPI is free/no-key, so no secrets are required for the
+# implemented families (markets require ODDS_API_KEY and are not fetched here).
+name: mlb-pregame-capture
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Slate date (YYYY-MM-DD, ET). Defaults to today."
+        required: false
+      reason:
+        description: "Snapshot reason (SCHEDULED_REFRESH | LINEUP_CONFIRMED | FINAL_PREGAME_FREEZE | MANUAL_RESEARCH_REFRESH)"
+        required: false
+        default: MANUAL_RESEARCH_REFRESH
+  # Schedule is commented out until the operator opts in — this is a shadow pipeline, not an official job.
+  # schedule:
+  #   - cron: "0 16,19,22 * * *"   # ~T-refresh windows (UTC); adjust to slate reality + provider limits
+
+concurrency:
+  group: mlb-pregame-capture
+  cancel-in-progress: false
+
+permissions:
+  contents: read   # research capture writes to internal data only; committing snapshots is a separate opt-in step
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    # Never let research capture gate anything: it is allowed to fail without affecting official product behavior.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Capture pregame snapshots (StatsAPI, free)
+        run: node app/scripts/capture-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}" --reason "${{ github.event.inputs.reason }}"
+      - name: Final pregame freeze
+        run: node app/scripts/freeze-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}"
+      - name: Coverage / gate audit
+        run: node app/scripts/audit-mlb-pregame-archive.mjs
+      # NOTE: this workflow deliberately does NOT push, deploy, settle, or touch money/portfolio files.
+      # Persisting snapshots (commit/artifact upload) is a separate, operator-approved step.

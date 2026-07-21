@@ -1,0 +1,38 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "purpose": "Forward-only, internal-only capture of MLB pregame research data (what was known, when, and from where). Never touches public UI, products, money, or settlement. Never backfills missing pregame values from postgame data.",
+  "snapshot": {
+    "schemaVersion": "string",
+    "snapshotId": "string",
+    "snapshotCreatedAt": "ISO — capture time (must be < eventStartTime to be research-eligible)",
+    "snapshotReason": ["BOARD_GENERATION", "SCHEDULED_REFRESH", "LINEUP_CONFIRMED", "LINEUP_CHANGED", "PITCHER_CHANGED", "WEATHER_CHANGED", "MARKET_REFRESH", "MANUAL_RESEARCH_REFRESH", "FINAL_PREGAME_FREEZE"],
+    "boardDateEt": "YYYY-MM-DD",
+    "eventId": "string (gamePk)",
+    "gamePk": "number",
+    "eventStartTime": "ISO first pitch",
+    "homeTeam": "string", "awayTeam": "string", "venue": "string",
+    "statusState": "StatsAPI detailedState",
+    "startedAtCapture": "boolean — true ⇒ POST_START_ONLY, ineligible",
+    "rawPayloadHash": "sha256/32 of the raw source payload",
+    "normalizedPayloadHash": "sha256/32 of the normalized families",
+    "parserVersion": "string",
+    "featureFamilies": "array of family records (below)"
+  },
+  "featureFamilyRecord": {
+    "family": ["confirmed_lineup", "pitcher_status", "bullpen", "plate_appearance_opportunity", "markets", "environment", "umpire"],
+    "present": "boolean",
+    "value": "normalized value | null",
+    "status": ["COMPLETE", "PARTIAL", "MISSING", "STALE", "TIMESTAMP_UNPROVEN", "SOURCE_CONFLICT", "FETCH_FAILED", "PARSER_FAILED", "POST_START_ONLY"],
+    "observedAt": "ISO", "availableAt": "ISO | null (earliest provable existence; never later than observed; null ⇒ unproven)",
+    "sourceUpdatedAt": "ISO | null", "capturedAt": "ISO",
+    "timestampProven": "boolean", "researchEligible": "boolean (present AND capturedAt < eventStartTime)",
+    "source": { "sourceName": "string", "sourceType": "string", "sourceUrlOrIdentifier": "string", "requestedAt": "ISO", "receivedAt": "ISO", "sourcePublishedAt": "ISO | null" }
+  },
+  "eligibilityRule": "researchEligible = present AND capturedAt < eventStartTime AND availableAt < eventStartTime AND a proven source timestamp. Ambiguous ⇒ TIMESTAMP_UNPROVEN ⇒ ineligible. Never inferred.",
+  "immutability": "Snapshots are append-only; a snapshot filename encodes its capture time and is never overwritten. A later source update creates a NEW snapshot; earlier values + timestamps remain recoverable.",
+  "forwardOnly": "The archive begins at first deployment. No historical coverage is claimed for prior dates. No family is backfilled from postgame data.",
+  "collectionGate": { "minDistinctDates": 30, "minSettledEligibleObs": 500, "minFeatureCoveragePct": 80, "minTimestampProvenPct": 90, "note": "Challenger modeling may begin only after this gate is met AND founder approval — a separate later mission." }
+}
