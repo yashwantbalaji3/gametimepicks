@@ -30,7 +30,11 @@ test("World Cup page prominent counts use in-focus games", () => {
 });
 
 test("the in-focus count matches the odds-backed projection matchCount (not the schedule)", () => {
-  const proj = JSON.parse(read("public/data/world-cup/projections/latest.json"));
+  // The World Cup tournament is COMPLETE — projections/latest.json is now an empty slate (matchCount 0, a
+  // valid end-of-tournament state). This test validates the in-focus-vs-schedule RELATIONSHIP (matchCount is
+  // real and never exceeds the scheduled fixtures across the window), which is timeless, so it pins to the
+  // committed 2026-07-15 semifinal archive (still present in the committed schedule.json).
+  const proj = JSON.parse(read("public/data/world-cup/projections/2026-07-15.json"));
   const sched = JSON.parse(read("public/data/world-cup/schedule.json"));
   const today = proj.date;
   // The current slate is a COMBINED window (June 28 + the next day's early kickoffs). The projection rows are

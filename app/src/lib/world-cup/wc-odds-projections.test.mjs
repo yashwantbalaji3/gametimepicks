@@ -10,8 +10,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const DIR = new URL("../../../public/data/world-cup/", import.meta.url);
-const proj = JSON.parse(fs.readFileSync(new URL("projections/latest.json", DIR), "utf8"));
-const players = JSON.parse(fs.readFileSync(new URL("player-projections/latest.json", DIR), "utf8"));
+// The World Cup tournament is COMPLETE — projections/latest.json + player-projections/latest.json are now
+// empty honest shells (0 fixtures, a valid end-of-tournament state). These tests validate the WC odds-only
+// projection CONTRACT (3-way de-vig math, odds-backing, honest player-prop gate), which is timeless, so they
+// pin to the committed 2026-07-15 semifinal archive (England vs Argentina) to keep the contract covered.
+const proj = JSON.parse(fs.readFileSync(new URL("projections/2026-07-15.json", DIR), "utf8"));
+const players = JSON.parse(fs.readFileSync(new URL("player-projections/2026-07-15.json", DIR), "utf8"));
 
 test("projections artifact is odds-backed, dated", () => {
   // Odds-backing is carried by oddsProvider (the price source). provider names the

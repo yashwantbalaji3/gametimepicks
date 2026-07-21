@@ -15,7 +15,7 @@ import crypto from "node:crypto";
 
 import { mlbAvailabilityBadges, worldCupAvailabilityBadges } from "./simulate-availability.ts";
 import { getMlbGameCenter } from "./mlb-team-markets.ts";
-import { getWcGameCenter } from "./wc-game-center.ts";
+import { getWcGameCenter, buildWcGameCenter } from "./wc-game-center.ts";
 import { getWcExpandedMarkets } from "./wc-expanded-markets.ts";
 import { loadWorldCupProjections } from "./world-cup/projections.ts";
 
@@ -59,13 +59,19 @@ function realMlbDetail() {
   };
 }
 
-/** A real WC detail SUBSET built from the live Game Center + expanded-markets artifacts. */
+/** A real WC detail SUBSET built from the committed Game Center + expanded-markets artifacts.
+ *  The World Cup tournament is COMPLETE — loadWorldCupProjections() now returns an empty slate (a valid
+ *  end-of-tournament state), so this pins to the committed 2026-07-15 semifinal archive (England vs
+ *  Argentina) to keep the badge logic covered. buildWcGameCenter is the pure builder behind
+ *  getWcGameCenter; the expanded-markets artifact for that date is committed with real Asian-handicap +
+ *  team-totals modules. */
 function realWcDetail() {
-  const proj = loadWorldCupProjections();
-  const mid = proj?.matches ? String(proj.matches[0].matchId) : null;
+  const proj = JSON.parse(read("public/data/world-cup/projections/2026-07-15.json"));
+  const mid = String(proj.matches[0].matchId);
+  const rows = proj.matches.filter((m) => String(m.matchId) === mid);
   return {
-    wcGameCenter: mid ? getWcGameCenter(mid) : null,
-    wcExpanded: mid ? getWcExpandedMarkets(String(proj?.date ?? ""), mid) : null,
+    wcGameCenter: buildWcGameCenter(mid, rows),
+    wcExpanded: getWcExpandedMarkets("2026-07-15", mid),
   };
 }
 

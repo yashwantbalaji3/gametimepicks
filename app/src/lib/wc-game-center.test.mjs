@@ -32,11 +32,23 @@ const matchIds = () => {
   return proj?.matches ? [...new Set(proj.matches.map((m) => String(m.matchId)))] : [];
 };
 
+// The World Cup tournament is COMPLETE — loadWorldCupProjections() now returns an empty slate (a valid
+// end-of-tournament state), so the LIVE Game Center is empty. Tests 1/2/4 cover the Game Center LOGIC
+// (de-vig math, verbatim reads, honest-unavailable modules), which is timeless, so they pin to the
+// committed 2026-07-15 semifinal archive (England vs Argentina) and build via the pure buildWcGameCenter.
+// (Test 3 still exercises the live getWcGameCenter loader — it correctly returns null on the empty slate.)
+const archiveProj = () => JSON.parse(read("public/data/world-cup/projections/2026-07-15.json"));
+const archiveMatchIds = () => [...new Set(archiveProj().matches.map((m) => String(m.matchId)))];
+const archiveGameCenter = (id) => {
+  const rows = archiveProj().matches.filter((m) => String(m.matchId) === String(id));
+  return rows.length ? buildWcGameCenter(String(id), rows) : null;
+};
+
 test("1 · Game Center derives from the de-vigged WC projection; 3-way sums to 1.0", () => {
-  const ids = matchIds();
+  const ids = archiveMatchIds();
   assert.ok(ids.length >= 1, "at least one WC fixture");
   for (const id of ids) {
-    const gc = getWcGameCenter(id);
+    const gc = archiveGameCenter(id);
     assert.ok(gc, `game center for ${id}`);
     assert.equal(gc.method, "market_implied");
     if (gc.matchResult) {
@@ -47,11 +59,11 @@ test("1 · Game Center derives from the de-vigged WC projection; 3-way sums to 1
 });
 
 test("2 · Game Center is a verbatim read of the projection outcomes (no fabrication)", () => {
-  const proj = loadWorldCupProjections();
-  const id = matchIds()[0];
+  const proj = archiveProj();
+  const id = archiveMatchIds()[0];
   const rows = proj.matches.filter((m) => String(m.matchId) === id);
   const ml = rows.find((r) => r.market === "moneyline_90");
-  const gc = getWcGameCenter(id);
+  const gc = archiveGameCenter(id);
   if (ml && gc.matchResult) {
     const home = ml.outcomes.find((o) => o.side === "home").marketProbability;
     const away = ml.outcomes.find((o) => o.side === "away").marketProbability;
@@ -66,7 +78,7 @@ test("3 · absent match yields null — nothing invented", () => {
 });
 
 test("4 · unsupported soccer modules are honest-unavailable, never fabricated", () => {
-  const gc = getWcGameCenter(matchIds()[0]);
+  const gc = archiveGameCenter(archiveMatchIds()[0]);
   const modules = gc.unavailable.map((u) => u.module);
   for (const m of ["exact_score", "first_scorer", "player_shots", "corners", "cards", "xg"]) {
     assert.ok(modules.includes(m), `${m} declared unavailable`);

@@ -132,7 +132,7 @@ console.log('  schedule → board-shape ('+(b.games||[]).length+' games)');"
   # which the odds feed lists with a gameId but NO real teams) the board has no usable matchups — team
   # markets, sims and internal evidence would crash. Count only games with BOTH a home and away team (a
   # real matchup); skip cleanly and continue when there are none.
-  MLB_GAMES=$(node -e "try{const b=require('./app/public/data/mlb/boards/$DATE.json');const g=(b.games||[]).filter(x=>(x.home||x.homeTeam)&&(x.away||x.awayTeam));process.stdout.write(String(g.length))}catch{process.stdout.write('0')}")
+  MLB_GAMES=$(node -e "try{const b=require('./app/public/data/mlb/boards/$DATE.json');const g=(b.games||[]).filter(x=>(x.homeTeamName||x.homeTeamId||x.home||x.homeTeam)&&(x.awayTeamName||x.awayTeamId||x.away||x.awayTeam));process.stdout.write(String(g.length))}catch{process.stdout.write('0')}")
   if [ "${MLB_GAMES:-0}" -gt 0 ]; then
     # Full-market team markets (moneyline / run line / total, de-vigged) → the Game Center.
     # One extra bulk Odds call (~3 credits); credit-guarded (fail-closed); needs the board above.

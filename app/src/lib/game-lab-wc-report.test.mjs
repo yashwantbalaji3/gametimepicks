@@ -22,13 +22,14 @@ const BANNED = /\bguaranteed\b|\block\b|\bsafest\b|can'?t lose/i;
 const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
 
 async function buildAeView(opts) {
-  const { loadWorldCupProjections } = await import("./world-cup/projections.ts");
   const { buildWcGameLabReport } = await import("./game-lab/wc-report.ts");
-  const proj = loadWorldCupProjections();
-  // This test verifies the report BUILDER, so it must stay resilient as the live WC slate advances.
-  // Prefer Argentina (the original July-7 fixture) when present, else the first match on the current
-  // slate — the assertions below are all match-agnostic (odds-only, valid signals, real edges).
-  const mid = (proj?.matches?.find((m) => /Argentina/i.test(m.homeTeam ?? "")) ?? proj?.matches?.[0])?.matchId;
+  // The World Cup tournament is COMPLETE — loadWorldCupProjections() now returns an empty slate (a valid
+  // end-of-tournament state). This test verifies the report BUILDER, which is a PURE function over a
+  // projection object, so it pins to the committed 2026-07-15 semifinal archive (England vs Argentina) to
+  // keep the builder covered. Prefer an Argentina match when present, else the first — assertions below are
+  // all match-agnostic (odds-only, valid signals, real edges).
+  const proj = JSON.parse(read("public/data/world-cup/projections/2026-07-15.json"));
+  const mid = (proj?.matches?.find((m) => /Argentina/i.test(m.homeTeam ?? "") || /Argentina/i.test(m.awayTeam ?? "")) ?? proj?.matches?.[0])?.matchId;
   return { v: buildWcGameLabReport(proj, mid, opts), mid };
 }
 

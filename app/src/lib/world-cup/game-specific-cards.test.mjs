@@ -4,17 +4,21 @@ import fs from "node:fs";
 import { buildAllGameDetails } from "../game-detail.ts";
 import { getGameSpecificCardsForGame } from "./game-specific-cards.ts";
 
-// DATE-AGNOSTIC: read the current World Cup slate date from the live artifact, then drive the engine
-// off whatever fixtures that slate actually carries — no hardcoded "2026-06-24" or named fixtures.
-const SLATE_DATE = JSON.parse(
-  fs.readFileSync(new URL("../../../public/data/world-cup/world-cup-specials.json", import.meta.url), "utf8"),
-).date;
-// Pre-event NOON-of-slate-day NOW: every WC kickoff is in the afternoon/evening, so 12:00Z is before
-// any game on the slate has started regardless of which day the slate rolled to.
+// The World Cup tournament is COMPLETE — buildAllGameDetails() / projections/latest.json no longer carry WC
+// fixtures and world-cup-specials.json rolled to an empty slate (a valid end-of-tournament state). This test
+// verifies the game-specific CARD-MAPPING logic (correct fixture, no cross-fixture leak), which is timeless,
+// so it pins to the committed 2026-07-15 semifinal archive (England vs Argentina) + the committed engine
+// slate for that day. NOON-of-archive-slate-day NOW keeps every WC kickoff (afternoon/evening) pre-event so
+// the engine's same-game cards are live.
+const SLATE_DATE = "2026-07-15";
 const NOW = `${SLATE_DATE}T12:00:00Z`;
 
-// The current slate's WC fixtures (order/date-independent), resolved from the canonical game-detail set.
-const currentFixtures = buildAllGameDetails().filter((d) => d.sport === "world_cup" && d.slug.endsWith(SLATE_DATE));
+// The archive slate's WC fixtures, in the shape game-detail exposes (matchId + teams), one per distinct
+// matchId — the card-mapping is driven by matchId + team names, exactly as the live game-detail set was.
+const currentFixtures = [...new Map(
+  JSON.parse(fs.readFileSync(new URL("../../../public/data/world-cup/projections/2026-07-15.json", import.meta.url), "utf8"))
+    .matches.map((m) => [String(m.matchId), m]),
+).values()].map((m) => ({ sport: "world_cup", matchId: String(m.matchId), homeTeam: m.homeTeam, awayTeam: m.awayTeam }));
 
 // Fixtures that the engine actually mapped same-game cards onto for THIS slate — discovered dynamically
 // so the leak check stays a real (non-vacuous) comparison across whatever the live slate produced.

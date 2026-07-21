@@ -43,6 +43,9 @@ function futureGames(): RoundOf32Game[] {
   return board.games.filter((g) => !active.has(g.gameSlug));
 }
 
+/** Sentinel slug emitted when the tournament is OVER (no board games) so the export build still has ≥1 param. */
+const WC_ARCHIVE_SLUG = "completed";
+
 export function generateStaticParams() {
   // Prefer the FUTURE games (board games without a full /games/world-cup detail page). But `output:
   // export` rejects a dynamic route that emits ZERO params, and on a thin slate every board game may
@@ -53,7 +56,9 @@ export function generateStaticParams() {
   const future = futureGames().map((g) => ({ slug: g.gameSlug }));
   if (future.length) return future;
   const board = loadRoundOf32Board();
-  return (board?.games ?? []).map((g) => ({ slug: g.gameSlug }));
+  const boardSlugs = (board?.games ?? []).map((g) => ({ slug: g.gameSlug }));
+  // Tournament over (empty board) → emit a single ARCHIVE page so the export build has ≥1 param.
+  return boardSlugs.length ? boardSlugs : [{ slug: WC_ARCHIVE_SLUG }];
 }
 
 function gameForSlug(slug: string): RoundOf32Game | null {
@@ -136,7 +141,27 @@ function liveRow(market: string, pick: RoundOf32MarketPick | undefined, confiden
 
 export default function FutureGameDetailRoute({ params }: { params: { slug: string } }) {
   const g = gameForSlug(params.slug);
-  if (!g) notFound();
+  if (!g) {
+    // Tournament over / no active Round-of-32 board → an honest ARCHIVE state, never a 404 and never fabricated.
+    if (params.slug === WC_ARCHIVE_SLUG || !loadRoundOf32Board()?.games?.length) {
+      return (
+        <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
+          <div className="mb-6"><WorldCupSectionTabs /></div>
+          <Link href="/world-cup" className="inline-flex items-center mb-4 -ml-1 px-1 py-2 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10, textDecoration: "none", minHeight: 40 }}>← World Cup</Link>
+          <section className="rounded-[10px] px-4 py-6 flex flex-col gap-2" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>World Cup · Archived</span>
+            <h1 className="font-display" style={{ color: "var(--vault-text)", fontSize: 20, fontWeight: 800 }}>The World Cup is complete</h1>
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              There is no active Round-of-32 board — the tournament has finished. Completed match reports remain in the
+              World Cup archive. Today's live simulations are on the <Link href="/simulate" style={{ color: "var(--vault-gold-bright)" }}>Simulate</Link> page.
+            </p>
+            <p className="font-mono uppercase tracking-[0.12em] mt-2" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>Paper-only · educational · not betting advice</p>
+          </section>
+        </div>
+      );
+    }
+    notFound();
+  }
 
   // Defensive: if a slug ever gains a full active-window page, advertise "Full props available".
   const hasFullPage = activeWorldCupSlugs().has(g.gameSlug);

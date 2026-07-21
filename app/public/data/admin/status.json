@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-07-15T13:31:11.987Z",
+  "generatedAt": "2026-07-21T02:03:11.580Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -16,19 +16,19 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-07-15",
+    "date": "2026-07-21",
     "activeBankroll": 19065.4,
     "openExposure": 0,
-    "worldCupGames": 1,
-    "mlbGames": 0,
-    "mlbSlate": "2026-07-15"
+    "worldCupGames": 0,
+    "mlbGames": 15,
+    "mlbSlate": "2026-07-21"
   },
   "productReadiness": {
     "bankBuilder": "awaiting approval",
     "moonshot": "awaiting approval",
     "top10": "live",
-    "worldCup": "live · 1 game(s)",
-    "mlb": "dormant (no board)",
+    "worldCup": "dormant (no board)",
+    "mlb": "live · 15 game(s)",
     "wcSpecials": "0 card(s)"
   },
   "products": {
@@ -52,30 +52,23 @@
       "lanes": [
         {
           "lane": "A",
-          "status": "candidate",
+          "status": "awaiting",
           "step": 1,
-          "legs": 2,
-          "combinedOdds": 167,
+          "legs": 0,
+          "combinedOdds": 0,
           "stake": 25,
-          "potentialReturn": 66.76,
-          "selections": [
-            "England (draw no bet)",
-            "Under 2.5"
-          ]
+          "potentialReturn": 25,
+          "selections": []
         },
         {
           "lane": "B",
-          "status": "candidate",
+          "status": "awaiting",
           "step": 1,
-          "legs": 3,
-          "combinedOdds": 390,
+          "legs": 0,
+          "combinedOdds": 0,
           "stake": 25,
-          "potentialReturn": 122.39,
-          "selections": [
-            "England (draw no bet)",
-            "Under 2.5",
-            "Both teams to score: No"
-          ]
+          "potentialReturn": 25,
+          "selections": []
         }
       ]
     }
@@ -91,7 +84,7 @@
     "phase": "settle 2026-07-07"
   },
   "warnings": [
-    "MLB board is empty (dormant or needs a refresh)."
+    "World Cup board is empty (dormant or needs a refresh)."
   ],
   "dailyChecklist": [
     {
@@ -119,9 +112,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-07-15",
-  "nextRefreshDate": "2026-07-16",
-  "nextAction": "No active Bank Builder lane for 2026-07-15 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-07-21",
+  "nextRefreshDate": "2026-07-22",
+  "nextAction": "No active Bank Builder lane for 2026-07-21 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }

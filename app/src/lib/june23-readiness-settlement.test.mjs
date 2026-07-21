@@ -61,6 +61,10 @@ test("World Cup Specials history persists across days (June 22 + June 23), separ
   assert.ok(dates.includes("2026-06-22"), "June 22 archived");
   assert.ok(dates.includes("2026-06-23"), "June 23 archived");
   for (const day of h.days) {
+    // The World Cup tournament is COMPLETE — a slate archived with 0 cards (no eligible Specials that day,
+    // e.g. the thin 2026-07-15 semifinal) is a valid honest history entry; assert card integrity only for
+    // days that produced cards, and confirm an empty day carries no fabricated cards.
+    if (day.cardCount === 0) { assert.equal(day.cards.length, 0, `${day.date} empty slate has no cards`); continue; }
     assert.ok(day.cardCount > 0 && day.cards.length === day.cardCount, `${day.date} has cards`);
     for (const c of day.cards) assert.ok(Array.isArray(c.legs), "each card has legs (compact, no fabricated outcomes)");
   }

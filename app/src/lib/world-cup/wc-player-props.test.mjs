@@ -39,8 +39,13 @@ test("toWcPlayerProps fabricates nothing on empty input", () => {
 });
 
 test("FUNCTIONAL: the committed WC props artifact loads as real provider props (both semifinals)", () => {
-  const w = loadWcPlayerProps();
-  if (!w) return; // artifact absent in some environments
+  // The World Cup tournament is COMPLETE — player-projections/latest.json is now an empty shell, so the live
+  // loader returns a zero-count shape (a valid end-of-tournament state). This test verifies the loader/transform
+  // over the REAL committed provider props, so it pins to the committed 2026-07-14 archive, which carries BOTH
+  // semifinals (France vs Spain + England vs Argentina), via the same pure transform the loader wraps.
+  const live = loadWcPlayerProps();
+  if (live) assert.ok(live.count >= 0 && Array.isArray(live.fixtures), "live loader returns a valid (possibly empty) shape");
+  const w = toWcPlayerProps(JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/world-cup/player-projections/2026-07-14.json"), "utf8")));
   assert.ok(w.count > 0, "props present");
   assert.equal(w.settlementSupport, "unsupported", "settlement pending → never product-eligible");
   assert.ok(w.priceSource === "the_odds_api" || w.priceSource == null, "priced by the odds provider, not fabricated");
