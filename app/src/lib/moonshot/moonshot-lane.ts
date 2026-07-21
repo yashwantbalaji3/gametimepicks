@@ -136,6 +136,18 @@ export interface MoonshotLane {
   candidatesNote?: string;
 }
 
+/** Settlement-pending markets (WC player props) — product-ineligible, must never appear in a PUBLIC surface. */
+const SETTLEMENT_PENDING_MARKET = /^player_/i;
+
+/**
+ * The candidate cards SAFE to show publicly: any card containing a settlement-pending player-prop leg
+ * (anytime goalscorer / shots / SOT / assists) is dropped, so the public Moonshot surface never visually
+ * implies player props are eligible — even when the lane is stopped and $0. Team-market candidates only.
+ */
+export function publicMoonshotCandidates(lane: Pick<MoonshotLane, "candidates">): MoonshotCandidate[] {
+  return (lane.candidates ?? []).filter((c) => !(c.legs ?? []).some((l) => SETTLEMENT_PENDING_MARKET.test(l.market)));
+}
+
 const MOONSHOT_PATH = ["moonshot-lane", "active.json"];
 
 /** Load the Moonshot lane artifact, or null if none exists / it is not publicly visible. */

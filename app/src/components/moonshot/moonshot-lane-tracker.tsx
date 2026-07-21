@@ -13,6 +13,7 @@ import LegRow, { type TicketLeg } from "@/components/tickets/leg-row";
 import StatusPill, { type TicketStatus } from "@/components/tickets/status-pill";
 import { normalizeLegResult } from "@/components/tickets/settlement-badge";
 import type { MoonshotLane, MoonshotCard, MoonshotCandidateLeg } from "@/lib/moonshot/moonshot-lane";
+import { publicMoonshotCandidates } from "@/lib/moonshot/moonshot-lane";
 import { candidateReadiness } from "@/lib/moonshot/activation-rules";
 
 const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -74,6 +75,8 @@ export default function MoonshotLaneTracker({
 }) {
   const compact = mode === "compact";
   const now = nowIso ?? new Date().toISOString();
+  // Public candidate pool excludes settlement-pending player props (product-ineligible) — never imply props are eligible.
+  const pubCandidates = publicMoonshotCandidates(lane);
   const currentStep = lane.ladder.find((s) => s.step === lane.currentStep) ?? lane.ladder[0];
   const currentCard = currentStep?.card ?? null;
   const rec = record ?? { wins: 0, losses: 0, voids: 0, pending: 0 };
@@ -83,7 +86,11 @@ export default function MoonshotLaneTracker({
   // Daily history: KNOWN runs only (current lane card + the recorded prior run). Never fabricated.
   const allRuns: Array<{ key: string; label: string; card: MoonshotCard; note?: string }> = [];
   if (currentCard) allRuns.push({ key: "current", label: `Step ${lane.currentStep} · ${currentCard.slateLabel ?? "cross-slate restart"}`, card: currentCard, note: lane.stopNote });
-  if (lane.priorRun?.card && showHistory) allRuns.push({ key: "prior", label: "Prior run · June 19", card: lane.priorRun.card, note: lane.priorRun.note });
+  // Only surface a prior run whose card is settlement-supported (team markets). A historical card that contains a
+  // settlement-pending player prop (goalscorer/shots) is NOT shown publicly, so the product surface never visually
+  // implies player props are eligible — the record summary still reflects it; the leg detail is just not displayed.
+  const priorHasPendingProp = (lane.priorRun?.card?.legs ?? []).some((l) => /^player_/i.test(l.market));
+  if (lane.priorRun?.card && showHistory && !priorHasPendingProp) allRuns.push({ key: "prior", label: "Prior run · June 19", card: lane.priorRun.card, note: lane.priorRun.note });
   const runs = allRuns.slice(0, maxCards ?? (compact ? 1 : allRuns.length));
 
   // Moonshot is NOT a ladder — it publishes independent high-upside cards. Track its own record + exposure
@@ -140,14 +147,14 @@ export default function MoonshotLaneTracker({
         )}
       </div>
 
-      {lane.candidates && lane.candidates.length > 0 ? (
+      {pubCandidates.length > 0 ? (
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "#b9a8ff", fontSize: 11 }}>Moonshot Candidates · {lane.candidates.length}</span>
+            <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "#b9a8ff", fontSize: 11 }}>Moonshot Candidates · {pubCandidates.length}</span>
             <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>evaluated pre-event · not activated · $0 exposure</span>
           </div>
           {lane.candidatesNote && !compact ? <p className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{lane.candidatesNote}</p> : null}
-          {(compact ? lane.candidates.slice(0, 1) : lane.candidates).map((c) => {
+          {(compact ? pubCandidates.slice(0, 1) : pubCandidates).map((c) => {
             const readiness = candidateReadiness(c, now);
             const readinessColor = readiness.state === "ready" ? "var(--vault-success)" : readiness.state === "expired" ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)";
             return (

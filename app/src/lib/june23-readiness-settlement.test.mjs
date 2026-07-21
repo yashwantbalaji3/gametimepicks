@@ -76,12 +76,14 @@ test("specials history is SEPARATE from core: portfolio record/exposure unaffect
   assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");
 });
 
-test("Moonshot stays READY (not activated): 2 candidates, $0 exposure, record separate", () => {
+test("Moonshot candidates: not activated, $0 exposure, and NO settlement-pending player prop in the pool", () => {
   const lane = loadMoonshotLane();
-  assert.ok(Array.isArray(lane.candidates) && lane.candidates.length === 2, "2 candidates present");
+  assert.ok(Array.isArray(lane.candidates), "candidates array present");
+  // The public candidate pool must never contain a settlement-pending player prop (goalscorer stripped 2026-07-15).
+  for (const c of lane.candidates) assert.ok(!(c.legs ?? []).some((l) => /^player_/i.test(l.market)), "no player-prop candidate in the public pool");
   for (const c of lane.candidates) assert.equal(c.activated, false, "candidate not activated (no exposure placed)");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(p.moonshot.exposure, 0, "moonshot exposure $0 (kept ready, not activated)");
+  assert.equal(p.moonshot.exposure, 0, "moonshot exposure $0 (not activated)");
 });
 
 test("/today is a STATUS hub (MLB slate surfaced) that does NOT duplicate the full flagship ladders/boards", () => {
