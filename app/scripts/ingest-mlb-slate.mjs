@@ -69,6 +69,23 @@ async function main() {
     process.exit(0);
   }
 
+  // 1b) Credit guard (fail-closed): a FREE /v4/sports probe reads x-requests-remaining BEFORE the paid per-event
+  // odds calls, and aborts (honest no-op) below the floor so daily automation can never silently drain the budget.
+  // Floor from ODDS_API_MIN_CREDITS_REMAINING (CI) / ODDS_CREDIT_FLOOR; default 0 ⇒ disabled for local dev.
+  const CREDIT_FLOOR = Number(process.env.ODDS_API_MIN_CREDITS_REMAINING ?? process.env.ODDS_CREDIT_FLOOR ?? 0);
+  if (CREDIT_FLOOR > 0) {
+    try {
+      const probe = await fetch(`https://api.the-odds-api.com/v4/sports?apiKey=${KEY}`);
+      const rem = probe.headers.get("x-requests-remaining");
+      const remaining = rem != null ? Number(rem) : null;
+      if (remaining != null && remaining < CREDIT_FLOOR) {
+        log(`BLOCKED: Odds API credits ${remaining} below floor ${CREDIT_FLOOR} — refusing paid prop fetch. No artifacts written; nothing fabricated.`);
+        process.exit(0); // honest no-op, not a failure
+      }
+      if (remaining != null) log(`credits: ${remaining} remaining (floor ${CREDIT_FLOOR})`);
+    } catch (e) { log(`credit probe failed (${e.message}) — proceeding (the paid call will surface a real error if out of credits).`); }
+  }
+
   // 2) Per-event odds for the ingested prop markets.
   const markets = MLB_INGEST_MARKET_KEYS.join(",");
   const eventsOdds = [];

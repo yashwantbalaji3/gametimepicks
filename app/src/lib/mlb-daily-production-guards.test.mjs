@@ -53,7 +53,7 @@ test("4 · fail-closed on a missing board; the 3 completion steps run only when 
   // team markets / player props / simulations gated on have_board == true (match each script's enclosing step)
   const steps = wf.split(/\n\s*- name:/);
   for (const script of ["ingest-mlb-team-markets", "ingest-mlb-slate", "generate-mlb-game-simulations"]) {
-    const step = steps.find((s) => s.includes(script));
+    const step = steps.find((s) => s.includes(`app/scripts/${script}`)); // the invocation, not a doc-comment mention
     assert.ok(step, `${script} step exists`);
     assert.match(step, /steps\.board\.outputs\.have_board == 'true'/, `${script} runs only when the board exists`);
   }
@@ -62,9 +62,24 @@ test("4 · fail-closed on a missing board; the 3 completion steps run only when 
 test("5 · Odds API: key from the CI secret ONLY, credit floor, invalid-key honest no-op, no key leak", () => {
   assert.match(wf, /ODDS_API_KEY:\s*\$\{\{ secrets\.ODDS_API_KEY \}\}/, "key from the secret");
   assert.ok(!/\.env|ODDS_API_KEY=5|last4/.test(wf), "never reads a local .env key");
-  assert.match(wf, /ODDS_API_MIN_CREDITS_REMAINING/, "credit floor threaded");
+  assert.match(wf, /ODDS_API_MIN_CREDITS_REMAINING/, "credit floor threaded (props var)");
+  assert.match(wf, /ODDS_CREDIT_FLOOR:/, "credit floor threaded under the team-markets var too");
   assert.match(wf, /vars\.ODDS_API_MIN_CREDITS_REMAINING \|\| '2000'/, "floor defaults to 2000");
   assert.match(wf, /honest no-op|nothing fabricated/, "invalid/missing key ⇒ honest no-op, no fabrication");
+});
+
+test("9 · both paid ingests: env-first key (CI secret) + fail-closed credit-floor pre-flight probe", () => {
+  const tm = fs.readFileSync(path.join(app, "scripts/ingest-mlb-team-markets.mjs"), "utf8");
+  const pp = fs.readFileSync(path.join(app, "scripts/ingest-mlb-slate.mjs"), "utf8");
+  // key sourced from the environment (CI secret) — team-markets must NOT be .env-only (regression: ENOENT in CI)
+  assert.match(pp, /process\.env\.ODDS_API_KEY/, "props reads the key from the environment");
+  assert.match(tm, /process\.env\.ODDS_API_KEY/, "team-markets prefers the environment (CI secret), .env only a local fallback");
+  // credit floor: a real remaining-credits probe that aborts below the floor, on BOTH ingests
+  for (const [name, src, floorVar] of [["team-markets", tm, /ODDS_CREDIT_FLOOR/], ["props", pp, /ODDS_API_MIN_CREDITS_REMAINING/]]) {
+    assert.match(src, /x-requests-remaining/, `${name} probes remaining credits`);
+    assert.match(src, /below floor/, `${name} aborts below the floor`);
+    assert.match(src, floorVar, `${name} reads its floor env var`);
+  }
 });
 
 test("6 · the persist step is PATH-SCOPED to public MLB slate dirs + money-safe (never portfolio/settlement/product)", () => {
@@ -87,6 +102,9 @@ test("8 · .ts-importing ingest steps run via `npx tsx`, never bare `node` (regr
     assert.ok(!new RegExp(`(^|[^x]\\s)node\\s+app/scripts/${esc}`, "m").test(wf), `${s} must NOT run via bare node (it imports .ts)`);
     assert.match(wf, new RegExp(`npx tsx app/scripts/${esc}`), `${s} runs via npx tsx`);
   }
+  // ingest-mlb-team-markets REFUSES to run without --write | --dry-run (unlike ingest-mlb-slate, which writes by default).
+  const tmStep = wf.split(/\n\s*- name:/).find((s) => s.includes("app/scripts/ingest-mlb-team-markets"));
+  assert.match(tmStep, /ingest-mlb-team-markets\.mjs --write /, "team-markets ingest must pass --write (else it errors out and no market data is written)");
 });
 
 test("7 · gate + orchestrator are money-independent; money md5 unchanged", () => {

@@ -40,10 +40,16 @@ function parseArgs(argv) {
 }
 
 function oddsKey() {
-  const env = fs.readFileSync(path.join(REPO, ".env"), "utf8");
-  const m = env.match(/ODDS_API_KEY=([^\r\n]+)/);
-  if (!m) throw new Error("ODDS_API_KEY missing from .env");
-  return m[1].trim();
+  // Prefer the environment (CI provides ODDS_API_KEY as a secret; no .env exists there). Fall back to repo-root
+  // .env for local dev. Never logged. Mirrors ingest-mlb-slate.mjs (process.env.ODDS_API_KEY).
+  const fromEnv = (process.env.ODDS_API_KEY || "").trim();
+  if (fromEnv) return fromEnv;
+  try {
+    const env = fs.readFileSync(path.join(REPO, ".env"), "utf8");
+    const m = env.match(/ODDS_API_KEY=([^\r\n]+)/);
+    if (m) return m[1].trim();
+  } catch { /* no .env in CI — the env var is the source there */ }
+  throw new Error("ODDS_API_KEY missing (set the env var, or add ODDS_API_KEY= to .env for local dev)");
 }
 
 function round(n, d = 4) {

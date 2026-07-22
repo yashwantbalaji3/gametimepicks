@@ -41,7 +41,10 @@ permissions:
   contents: write
 
 env:
+  # Single source of truth for the Odds API credit floor, exposed under BOTH names the ingests read:
+  # ingest-mlb-slate reads ODDS_API_MIN_CREDITS_REMAINING; ingest-mlb-team-markets reads ODDS_CREDIT_FLOOR.
   ODDS_API_MIN_CREDITS_REMAINING: ${{ vars.ODDS_API_MIN_CREDITS_REMAINING || '2000' }}
+  ODDS_CREDIT_FLOOR: ${{ vars.ODDS_API_MIN_CREDITS_REMAINING || '2000' }}
 
 jobs:
   complete-slate:
@@ -76,7 +79,8 @@ jobs:
         run: |
           if [ -z "$ODDS_API_KEY" ]; then echo "ODDS_API_KEY secret not set — skipping team markets (honest no-op, nothing fabricated)."; exit 0; fi
           # npx tsx (NOT bare node): this ingest imports app/src/lib/projection-framework.ts — bare node throws ERR_UNKNOWN_FILE_EXTENSION.
-          npx tsx app/scripts/ingest-mlb-team-markets.mjs --date "${{ steps.cfg.outputs.date }}" || echo "team-markets ingest failed/blocked — slate stays AWAITING_MARKET_DATA, nothing fabricated"
+          # --write is REQUIRED (the script refuses to run without --write | --dry-run); --date scopes the slate.
+          npx tsx app/scripts/ingest-mlb-team-markets.mjs --write --date "${{ steps.cfg.outputs.date }}" || echo "team-markets ingest failed/blocked — slate stays AWAITING_MARKET_DATA, nothing fabricated"
       - name: 4) Player props ingest (paid Odds API — prop lines, credit-guarded, non-blocking)
         if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
         continue-on-error: true
