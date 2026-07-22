@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824248,
+  "date": "2026-07-24",
+  "capturedAt": "2026-07-22T22:35:36.095Z",
+  "availableAt": "2026-07-22T22:35:36.095Z",
+  "eventStartTime": "2026-07-24T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669373,
+      "name": "Tarik Skubal",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 6,
+      "lastStartDate": "2026-07-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 8.2,
+        "bbAvg": 0.6,
+        "erAvg": 1.6,
+        "hrAvg": 1,
+        "kPer9": 12.72,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 82.67,
+        "k": 98,
+        "bb": 11,
+        "er": 26,
+        "hr": 10
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-24&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-22T22:35:36.095Z"
+  },
+  "recordHash": "d8ea5155bbd1b52934733e5ff3647b8945d1298c6dcda0b76a51ed8143aa98f9"
+}

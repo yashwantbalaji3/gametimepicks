@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823843,
+  "date": "2026-07-24",
+  "capturedAt": "2026-07-22T22:35:37.309Z",
+  "availableAt": "2026-07-22T22:35:37.309Z",
+  "eventStartTime": "2026-07-24T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": null,
+    "name": null,
+    "pitchHand": null
+  },
+  "awayStartingPitcher": {
+    "id": 608566,
+    "name": "Germán Márquez",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-07-22T22:35:37.309Z"
+  },
+  "recordHash": "daa055c721751735a606ef353c63d4cd746e4b74850660ab64c21a63bba13221"
+}

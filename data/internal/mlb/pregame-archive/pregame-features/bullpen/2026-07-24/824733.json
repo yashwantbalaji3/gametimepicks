@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824733,
+  "date": "2026-07-24",
+  "capturedAt": "2026-07-22T22:35:36.766Z",
+  "availableAt": "2026-07-22T22:35:36.766Z",
+  "eventStartTime": "2026-07-24T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-21",
+    "2026-07-22",
+    "2026-07-23"
+  ],
+  "home": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 88,
+      "relievers": [
+        {
+          "id": 686580,
+          "name": "Justin Slaten",
+          "appearances": 2,
+          "pitches": 38,
+          "outs": 8,
+          "dates": [
+            "2026-07-22",
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 547973,
+          "name": "Aroldis Chapman",
+          "appearances": 2,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-07-22",
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 676477,
+          "name": "Garrett Whitlock",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-07-22",
+            "2026-07-22"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 141,
+    "teamName": "Toronto Blue Jays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 115,
+      "relievers": [
+        {
+          "id": 571578,
+          "name": "Patrick Corbin",
+          "appearances": 1,
+          "pitches": 48,
+          "outs": 7,
+          "dates": [
+            "2026-07-21"
+          ]
+        },
+        {
+          "id": 681751,
+          "name": "Lazaro Estrada",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 6,
+          "dates": [
+            "2026-07-21"
+          ]
+        },
+        {
+          "id": 664702,
+          "name": "Myles Straw",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-07-21"
+          ]
+        },
+        {
+          "id": 689254,
+          "name": "Mason Fluharty",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-07-21"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-21,2026-07-22,2026-07-23) + feed/live box scores",
+    "capturedAt": "2026-07-22T22:35:36.766Z"
+  },
+  "recordHash": "00d39b336612e63a876118996f8e08377f2d2ce3f00396b6b723ac5bfa0f7bd6"
+}
