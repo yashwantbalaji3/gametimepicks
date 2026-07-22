@@ -128,6 +128,30 @@ test("10 · daily health monitor carries the founder-facing ops fields + buildSt
   if (h) for (const f of ["boardGenerated", "simulationGenerated", "slateStatus", "buildStatus", "missingArtifacts"]) assert.ok(f in h, `live report has ${f}`);
 });
 
+test("11 · production-history dashboard: expanded per-run fields + committed daily history + dated credits sidecar", () => {
+  const gate = fs.readFileSync(path.join(app, "scripts/mlb-slate-completeness-gate.mjs"), "utf8");
+  // expanded reliability fields the mission requires for the 30-day "how reliable is the pipeline?" answer
+  for (const f of ["workflowRunId", "creditsBefore", "creditsAfter", "creditsSpent", "artifactCounts", "failureReason"])
+    assert.match(gate, new RegExp(f), `health report tracks ${f}`);
+  assert.match(gate, /process\.env\.GITHUB_RUN_ID/, "workflowRunId from GITHUB_RUN_ID (auto in Actions)");
+  assert.match(gate, /production-history/, "gate writes a persisted daily history file");
+  // the persist step commits the history dir (path-scoped, money-safe)
+  const step = wf.slice(wf.indexOf("Persist completed slate"));
+  assert.match(step.split("\n").find((l) => /^\s*git add /.test(l)), /production-history/, "history dir is committed");
+  // ingests write a DATED readings sidecar so before/after/spent are per-slate-date (no stale-credit reporting)
+  for (const s of ["ingest-mlb-team-markets.mjs", "ingest-mlb-slate.mjs"]) {
+    const src = fs.readFileSync(path.join(app, "scripts", s), "utf8");
+    assert.match(src, /readings/, `${s} writes a readings array`);
+    assert.match(src, /date:\s*(args\.date|DATE)/, `${s} stamps the slate date on the sidecar`);
+  }
+  // gate only trusts a same-date sidecar
+  assert.match(gate, /creditsSidecar\.date === date|sidecarFresh/, "gate ignores a stale (other-date) sidecar");
+  // if a live history file exists, it carries the expanded fields
+  const files = (() => { try { return fs.readdirSync(path.join(repo, "data/internal/mlb/production-history")); } catch { return []; } })();
+  const hf = files.find((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f));
+  if (hf) { const h = readJson(path.join(repo, "data/internal/mlb/production-history", hf)); for (const f of ["workflowRunId", "artifactCounts", "creditsSpent", "failureReason"]) assert.ok(f in h, `history file has ${f}`); }
+});
+
 test("7 · gate + orchestrator are money-independent; money md5 unchanged", () => {
   // the gate writes only the internal health status; the orchestrator's grep never lets money/public/portfolio through
   assert.ok(!/portfolio\.json|bankroll|crown|openExposure/.test(fs.readFileSync(path.join(app, "scripts/mlb-slate-completeness-gate.mjs"), "utf8").replace(/mr-dub/g, "")), "gate never touches money");

@@ -141,6 +141,9 @@ jobs:
       - name: Simulation readiness (gate monitor — dates/settled/coverage %; modeling BLOCKED until gate + approval)
         continue-on-error: true
         run: node app/scripts/mlb-simulation-readiness.mjs
+      - name: Research progress (accumulation tracker — dates/games/observations/markets vs the 30-date/500-obs gate)
+        continue-on-error: true
+        run: node app/scripts/build-mlb-research-progress.mjs
       - name: Upload archive artifact (safe persistence — no push)
         if: always()
         uses: actions/upload-artifact@v4

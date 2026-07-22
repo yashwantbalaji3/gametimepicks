@@ -81,6 +81,7 @@ async function main() {
   // HEAD may not be supported by the API; fall back to reading the header on the real GET.
   let remaining = probe?.headers?.get?.("x-requests-remaining");
   remaining = remaining != null ? Number(remaining) : null;
+  const creditsBefore = remaining; // reading BEFORE any paid call this run (team-markets runs first in the pipeline)
   if (remaining != null && remaining < CREDIT_FLOOR) {
     throw new Error(`Odds API credits ${remaining} below floor ${CREDIT_FLOOR} — refusing paid fetch. Override with ODDS_CREDIT_FLOOR.`);
   }
@@ -92,11 +93,17 @@ async function main() {
   remaining = res.headers.get("x-requests-remaining");
   if (res.status !== 200) throw new Error(`Odds API ${res.status}: ${(await res.text()).slice(0, 200)}`);
   console.log(`[team-markets] fetched · this request cost ${cost} credits · ${remaining} remaining`);
-  // Sidecar so the completeness gate can report creditsRemaining (the gate never calls the paid API itself).
+  // Credits sidecar the completeness gate reads (the gate never calls the paid API). team-markets runs FIRST, so it
+  // RESETS the sidecar for this run's slate date; ingest-mlb-slate appends its readings after. before/after ⇒ creditsSpent.
   try {
     const sd = path.join(REPO, "data/internal/mlb/pregame-archive/status");
     fs.mkdirSync(sd, { recursive: true });
-    fs.writeFileSync(path.join(sd, "odds-credits.json"), JSON.stringify({ remaining: remaining != null ? Number(remaining) : null, at: new Date().toISOString(), source: "team-markets" }, null, 2) + "\n");
+    const now = new Date().toISOString();
+    const after = remaining != null ? Number(remaining) : null;
+    const readings = [];
+    if (creditsBefore != null) readings.push({ source: "team-markets:before", remaining: creditsBefore, at: now });
+    if (after != null) readings.push({ source: "team-markets:after", remaining: after, at: now });
+    fs.writeFileSync(path.join(sd, "odds-credits.json"), JSON.stringify({ date: args.date, readings, remaining: after, updatedAt: now }, null, 2) + "\n");
   } catch { /* sidecar is best-effort; never block the ingest */ }
   const events = await res.json();
 

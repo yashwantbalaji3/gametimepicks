@@ -56,18 +56,42 @@ function main() {
   const { slateStatus, readyToPublish, publicLabel } = deriveSlateStatus({ hasBoard: !!board, boardGames, hasSim: !!sim, hasTeamMarkets: !!teamMarkets, hasPlayerProps: !!playerProps });
 
   // Runtime facts the gate cannot compute from artifacts alone:
-  //  • creditsRemaining — the paid ingests write it to a sidecar (odds-credits.json); the gate does NOT call the paid API.
-  //  • buildStatus      — the build runs AFTER this gate, so it is "pending" until a post-build finalize pass sets MLB_BUILD_STATUS.
+  //  • credits — the paid ingests APPEND remaining-credit readings to a sidecar (odds-credits.json); the gate never
+  //    calls the paid API. creditsBefore = first reading of the run, creditsAfter = last, creditsSpent = the delta.
+  //  • buildStatus  — the build runs AFTER this gate, so it is "pending" until a post-build finalize pass sets MLB_BUILD_STATUS.
+  //  • workflowRunId — the GitHub Actions run id (for correlating a health row to its CI run); null for local runs.
   const creditsSidecar = readJson(path.join(OUT, "odds-credits.json"));
-  const creditsRemaining = creditsSidecar && Number.isFinite(creditsSidecar.remaining) ? creditsSidecar.remaining : null;
+  // Only trust the sidecar for THIS slate date (a leftover from another date must not report stale credits).
+  // Legacy sidecars without a `date` field are accepted for backward-compatibility.
+  const sidecarFresh = !!creditsSidecar && (creditsSidecar.date === date || creditsSidecar.date == null);
+  const readings = sidecarFresh && Array.isArray(creditsSidecar.readings)
+    ? creditsSidecar.readings.filter((r) => Number.isFinite(r?.remaining))
+    : (sidecarFresh && Number.isFinite(creditsSidecar?.remaining) ? [{ remaining: creditsSidecar.remaining }] : []);
+  const creditsBefore = readings.length ? readings[0].remaining : null;
+  const creditsAfter = readings.length ? readings[readings.length - 1].remaining : null;
+  const creditsSpent = creditsBefore != null && creditsAfter != null ? Math.max(0, creditsBefore - creditsAfter) : null;
+  const creditsRemaining = creditsAfter;
   const buildStatus = process.env.MLB_BUILD_STATUS || "pending";
+  const workflowRunId = process.env.GITHUB_RUN_ID || null;
+  const artifactCounts = { boardGames, teamMarketGames, playerProps: propCount, simGames, simPicks };
+
+  // A human-readable reason whenever the slate is not fully READY or the build failed — else null. Purely descriptive.
+  const failureReason =
+    slateStatus === "NO_BOARD" ? "board missing — morning-projections has not produced the board yet"
+    : slateStatus === "SIMULATION_PENDING" ? "simulation artifact missing (board present, sim not generated)"
+    : slateStatus === "AWAITING_MARKET_DATA" ? "no team-markets and no player-props (odds ingest returned nothing / below credit floor)"
+    : buildStatus === "failure" ? "public build failed (see workflow logs)"
+    : missing.length ? `partial market data — missing ${missing.join(", ")}`
+    : null;
 
   const report = {
     public: false, approvedForProduction: false, productEligible: false, kind: "mlb-production-health", date,
+    workflowRunId,
     // Flat daily-monitor fields (the founder's at-a-glance health row):
     boardGenerated: !!board, teamMarketsGenerated: !!teamMarkets, playerPropsGenerated: !!playerProps, simulationGenerated: !!sim,
-    slateStatus, missingArtifacts: missing, creditsRemaining, buildStatus,
-    readyToPublish, publicLabel,
+    slateStatus, missingArtifacts: missing, failureReason,
+    creditsBefore, creditsAfter, creditsSpent, creditsRemaining, buildStatus,
+    readyToPublish, publicLabel, artifactCounts,
     // Detailed per-artifact counts:
     artifacts: {
       board: { present: !!board, games: boardGames },
@@ -75,12 +99,17 @@ function main() {
       teamMarkets: { present: !!teamMarkets, games: teamMarketGames },
       playerProps: { present: !!playerProps, props: propCount },
     },
-    credits: { remaining: creditsRemaining, floor: Number(process.env.ODDS_API_MIN_CREDITS_REMAINING ?? process.env.ODDS_CREDIT_FLOOR ?? 2000), note: "creditsRemaining is read from the ingest sidecar (odds-credits.json); this gate never calls the paid API." },
+    credits: { before: creditsBefore, after: creditsAfter, spent: creditsSpent, remaining: creditsRemaining, readings: readings.length, floor: Number(process.env.ODDS_API_MIN_CREDITS_REMAINING ?? process.env.ODDS_CREDIT_FLOOR ?? 2000), note: "credits are read from the ingest sidecar (odds-credits.json); this gate never calls the paid API." },
     note: "REQUIRED to publish: board + game-simulations. team-markets/player-props are if-available; their absence yields AWAITING_MARKET_DATA, never a fabricated ready state. No fabrication.",
   };
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, "mlb-production-health.json"), JSON.stringify(report, null, 2));
   fs.writeFileSync(path.join(OUT, `mlb-production-health-${date}.json`), JSON.stringify(report, null, 2));
+  // Persisted daily reliability history — one file per slate date (re-runs overwrite; the post-build finalize pass wins).
+  // Over N days these accumulate so the founder can answer "how reliable is the pipeline?" (see docs/MLB_OPERATIONAL_RUNBOOK.md).
+  const HIST = path.join(REPO, "data/internal/mlb/production-history");
+  fs.mkdirSync(HIST, { recursive: true });
+  fs.writeFileSync(path.join(HIST, `${date}.json`), JSON.stringify(report, null, 2));
 
   console.log(`\n=== MLB PRODUCTION HEALTH ${date} ===`);
   console.log(`  board:        ${present.board ? "✓" : "✗"} (${boardGames} games)`);
@@ -88,8 +117,9 @@ function main() {
   console.log(`  team markets: ${present.teamMarkets ? "✓" : "✗"} (${teamMarketGames} games)`);
   console.log(`  player props: ${present.playerProps ? "✓" : "✗"} (${propCount} props)`);
   console.log(`  SLATE STATUS: ${slateStatus}  ·  publishable: ${readyToPublish}  ·  public label: "${publicLabel}"  ·  missing: [${missing.join(",")}]`);
-  console.log(`  credits:      ${creditsRemaining ?? "-"} remaining  ·  build: ${buildStatus}`);
-  console.log(`  health → data/internal/mlb/pregame-archive/status/mlb-production-health.json`);
+  console.log(`  credits:      before ${creditsBefore ?? "-"} → after ${creditsAfter ?? "-"} (spent ${creditsSpent ?? "-"})  ·  build: ${buildStatus}  ·  run: ${workflowRunId ?? "local"}`);
+  if (failureReason) console.log(`  reason:       ${failureReason}`);
+  console.log(`  health → status/mlb-production-health.json  ·  history → production-history/${date}.json`);
 
   if (FAIL_CLOSED && slateStatus === "NO_BOARD") { console.error("[gate] FAIL-CLOSED: no board — refusing to mark the slate ready."); process.exit(1); }
   process.exit(0);

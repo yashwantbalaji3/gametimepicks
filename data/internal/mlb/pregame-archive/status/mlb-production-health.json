@@ -4,16 +4,28 @@
   "productEligible": false,
   "kind": "mlb-production-health",
   "date": "2026-07-22",
+  "workflowRunId": null,
   "boardGenerated": true,
   "teamMarketsGenerated": true,
   "playerPropsGenerated": true,
   "simulationGenerated": true,
   "slateStatus": "READY",
   "missingArtifacts": [],
-  "creditsRemaining": 14528,
-  "buildStatus": "success",
+  "failureReason": null,
+  "creditsBefore": null,
+  "creditsAfter": null,
+  "creditsSpent": null,
+  "creditsRemaining": null,
+  "buildStatus": "pending",
   "readyToPublish": true,
   "publicLabel": "Slate ready",
+  "artifactCounts": {
+    "boardGames": 17,
+    "teamMarketGames": 17,
+    "playerProps": 1629,
+    "simGames": 17,
+    "simPicks": 123
+  },
   "artifacts": {
     "board": {
       "present": true,
@@ -36,9 +48,13 @@
     }
   },
   "credits": {
-    "remaining": 14528,
+    "before": null,
+    "after": null,
+    "spent": null,
+    "remaining": null,
+    "readings": 0,
     "floor": 2000,
-    "note": "creditsRemaining is read from the ingest sidecar (odds-credits.json); this gate never calls the paid API."
+    "note": "credits are read from the ingest sidecar (odds-credits.json); this gate never calls the paid API."
   },
   "note": "REQUIRED to publish: board + game-simulations. team-markets/player-props are if-available; their absence yields AWAITING_MARKET_DATA, never a fabricated ready state. No fabrication."
 }

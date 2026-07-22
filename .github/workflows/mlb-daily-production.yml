@@ -120,7 +120,7 @@ jobs:
           git config user.name "gtp-mlb-production-bot"
           git config user.email "noreply@anthropic.com"
           # PATH-SCOPE: ONLY the 4 public MLB slate artifact dirs + the internal health status.
-          git add app/public/data/mlb/team-markets/ app/public/data/mlb/player-props/ app/public/data/mlb/home-run-props/ app/public/data/mlb/game-simulations/ app/public/data/mlb/schedule/ data/internal/mlb/pregame-archive/status/mlb-production-health.json 2>/dev/null || true
+          git add app/public/data/mlb/team-markets/ app/public/data/mlb/player-props/ app/public/data/mlb/home-run-props/ app/public/data/mlb/game-simulations/ app/public/data/mlb/schedule/ data/internal/mlb/pregame-archive/status/mlb-production-health.json data/internal/mlb/production-history/ 2>/dev/null || true
           # SAFETY ASSERT: never portfolio / money / official settlement / product cards.
           BAD="$(git diff --cached --name-only | grep -iE 'portfolio|mr-dub|settled_leans|bank-builder|moonshot|/out/' || true)"
           if [ -n "$BAD" ]; then echo "ABORT: forbidden paths staged:"; echo "$BAD"; git reset -q; exit 0; fi

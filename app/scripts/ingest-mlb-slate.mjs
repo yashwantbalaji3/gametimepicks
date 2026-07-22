@@ -35,10 +35,13 @@ const KEY = process.env.ODDS_API_KEY;
 const DATA = path.join(process.cwd(), process.cwd().endsWith("app") ? "" : "app", "public", "data", "mlb");
 const BASE = "https://api.the-odds-api.com/v4/sports/baseball_mlb";
 const log = (...m) => console.log("[ingest-mlb]", ...m);
+let lastRemaining = null; // freshest x-requests-remaining seen on any paid response (fed to the credits sidecar → gate creditsAfter)
 
 async function getJson(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} for ${url.replace(KEY ?? "", "***")}`);
+  const r = res.headers.get("x-requests-remaining");
+  if (r != null) lastRemaining = Number(r);
   return res.json();
 }
 
@@ -82,16 +85,7 @@ async function main() {
         log(`BLOCKED: Odds API credits ${remaining} below floor ${CREDIT_FLOOR} — refusing paid prop fetch. No artifacts written; nothing fabricated.`);
         process.exit(0); // honest no-op, not a failure
       }
-      if (remaining != null) {
-        log(`credits: ${remaining} remaining (floor ${CREDIT_FLOOR})`);
-        // Sidecar so the completeness gate can report creditsRemaining (props runs last, so this is the freshest post-ingest value).
-        try {
-          const REPO = process.cwd().endsWith("app") ? path.dirname(process.cwd()) : process.cwd();
-          const sd = path.join(REPO, "data/internal/mlb/pregame-archive/status");
-          fs.mkdirSync(sd, { recursive: true });
-          fs.writeFileSync(path.join(sd, "odds-credits.json"), JSON.stringify({ remaining, at: new Date().toISOString(), source: "player-props" }, null, 2) + "\n");
-        } catch { /* best-effort */ }
-      }
+      if (remaining != null) { lastRemaining = remaining; log(`credits: ${remaining} remaining (floor ${CREDIT_FLOOR})`); }
     } catch (e) { log(`credit probe failed (${e.message}) — proceeding (the paid call will surface a real error if out of credits).`); }
   }
 
@@ -107,6 +101,22 @@ async function main() {
   const props = normalizeMlbProps(eventsOdds, DATE, generatedAt);
   const hr = extractHomeRunProps(props);
   log(`props: ${props.props.length} total · ${hr.props.length} home-run`);
+
+  // 2b) Append this run's freshest remaining-credits reading to the sidecar (props runs last ⇒ true post-ingest balance).
+  // team-markets seeds the sidecar with the pre-run 'before'; the gate derives creditsSpent = before − after. Best-effort.
+  if (lastRemaining != null && !DRY) {
+    try {
+      const REPO = process.cwd().endsWith("app") ? path.dirname(process.cwd()) : process.cwd();
+      const sd = path.join(REPO, "data/internal/mlb/pregame-archive/status");
+      fs.mkdirSync(sd, { recursive: true });
+      const p = path.join(sd, "odds-credits.json");
+      let sc = null; try { sc = JSON.parse(fs.readFileSync(p, "utf8")); } catch { /* fresh */ }
+      const now = new Date().toISOString();
+      const readings = (sc && sc.date === DATE && Array.isArray(sc.readings)) ? sc.readings.slice() : [];
+      readings.push({ source: "player-props:after", remaining: lastRemaining, at: now });
+      fs.writeFileSync(p, JSON.stringify({ date: DATE, readings, remaining: lastRemaining, updatedAt: now }, null, 2) + "\n");
+    } catch { /* best-effort; never block the ingest */ }
+  }
 
   // 3) Write artifacts.
   writeArtifact(`schedule/${DATE}.json`, schedule);
