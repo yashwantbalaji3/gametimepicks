@@ -108,7 +108,9 @@ async function main() {
     };
     record.recordHash = sha({ ...record, capturedAt: undefined, availableAt: undefined, provenance: undefined, recordHash: undefined });
     if (researchEligible) eligible++;
-    if (WRITE) { const dir = path.join(OUT, date); fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, `${g.gamePk}.json`), JSON.stringify(record, null, 2)); wrote++; }
+    // Multi-cadence, eligible-only (like lineup/batter-form): key by gamePk+capturedAt so a LATE (post-start,
+    // ineligible) run can never overwrite an earlier ELIGIBLE pregame capture. Only persist researchEligible records.
+    if (WRITE && researchEligible) { const dir = path.join(OUT, date); fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, `${g.gamePk}-${capturedAt.replace(/[:.]/g, "-")}.json`), JSON.stringify(record, null, 2)); wrote++; }
   }
   console.log(`[workload] ${WRITE ? "WROTE" : "DRY-RUN"} ${date}: ${games.length} games · ${withHistory} with prior-start history · eligible ${eligible} · missing-probable ${missingProbable}${WRITE ? ` · wrote ${wrote}` : ""}`);
   if (!WRITE) console.log(`[workload] dry-run — pass --write to persist pregame-features/pitcher-workload/${date}/`);

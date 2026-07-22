@@ -150,6 +150,9 @@ jobs:
       - name: Research progress (accumulation tracker — dates/games/observations/markets vs the 30-date/500-obs gate)
         continue-on-error: true
         run: node app/scripts/build-mlb-research-progress.mjs
+      - name: Market-capture reliability (flags LOST research opportunities — final slate, no observations)
+        continue-on-error: true
+        run: node app/scripts/market-capture-reliability.mjs
       - name: Upload archive artifact (safe persistence — no push)
         if: always()
         uses: actions/upload-artifact@v4

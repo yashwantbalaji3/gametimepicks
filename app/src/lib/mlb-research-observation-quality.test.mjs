@@ -32,3 +32,21 @@ test("3 · raw observations are gitignored (derived; regenerable from committed 
   const gi = fs.readFileSync(path.join(repo, ".gitignore"), "utf8");
   assert.match(gi, /research-observations\/\*\.jsonl/, "raw observations jsonl is gitignored");
 });
+
+test("4 · pitcher_workload capture is multi-cadence + eligible-only (regression: single-file overwrite lost eligible captures)", () => {
+  const cap = fs.readFileSync(path.join(app, "scripts/capture-mlb-pregame-pitcher-workload.mjs"), "utf8");
+  assert.match(cap, /\$\{g\.gamePk\}-\$\{capturedAt/, "multi-cadence key (gamePk + capturedAt) — never overwrites an earlier eligible capture");
+  assert.match(cap, /WRITE && researchEligible/, "eligible-only write");
+  const asm = fs.readFileSync(path.join(app, "scripts/build-mlb-research-observations.mjs"), "utf8");
+  assert.match(asm, /latestEligibleWorkload/, "assembler picks the latest ELIGIBLE workload (multi-cadence + legacy fallback)");
+});
+
+test("5 · accumulation reliability monitor + 30-date readiness dashboard exist and are wired", () => {
+  assert.ok(fs.existsSync(path.join(app, "scripts/market-capture-reliability.mjs")), "reliability monitor script exists");
+  const wf = fs.readFileSync(path.join(repo, ".github/workflows/mlb-pregame-capture.yml"), "utf8");
+  assert.match(wf, /market-capture-reliability\.mjs/, "reliability monitor wired into the research workflow");
+  const rp = readJson(path.join(repo, "data/internal/mlb/pregame-archive/status/research-progress.json"));
+  if (rp) { assert.ok(rp.datasetReadiness, "research-progress carries datasetReadiness"); assert.equal(rp.datasetReadiness.requiredDates, 30); }
+  const rel = readJson(path.join(repo, "data/internal/mlb/pregame-archive/status/market-capture-reliability.json"));
+  if (rel) assert.ok(typeof rel.lostResearchOpportunities === "number", "reliability report counts lost opportunities");
+});

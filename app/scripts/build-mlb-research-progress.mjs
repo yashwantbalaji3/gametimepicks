@@ -131,10 +131,25 @@ function main() {
     readyReason: "modeling BLOCKED: needs 30 distinct observation dates AND 500 settled observations AND out-of-sample validation AND founder approval",
   };
 
+  // datasetReadiness (Phase 4) — progress toward the 30-DATE / 500-observation dataset gate (NOT model readiness).
+  const REQUIRED_DATES = 30, REQUIRED_OBS = 500;
+  const currentDates = obsDates.size;              // distinct dates that produced settled observations
+  const remainingDates = Math.max(0, REQUIRED_DATES - currentDates);
+  // simple projection: ~1 qualifying (final + market-covered) date per day → remainingDates days out. Not a model.
+  const estCompletion = (() => { const t = new Date(); t.setUTCDate(t.getUTCDate() + remainingDates); return remainingDates === 0 ? "met" : t.toISOString().slice(0, 10); })();
+  const datasetReadiness = {
+    currentDates, requiredDates: REQUIRED_DATES, remainingDates,
+    observations, remainingObservations: Math.max(0, REQUIRED_OBS - observations),
+    estimatedCompletion: estCompletion,
+    latestValidDate: lastSuccessfulObservation,
+    bindingConstraint: remainingDates > 0 ? "dates" : (observations < REQUIRED_OBS ? "observations" : "met — awaiting founder approval + out-of-sample validation"),
+    note: "Dataset readiness only. estimatedCompletion assumes ~1 qualifying date/day and is NOT a model-readiness estimate; modeling stays BLOCKED past the gate until out-of-sample validation + founder approval.",
+  };
+
   const report = {
     public: false, approvedForProduction: false, productEligible: false, kind: "mlb-research-progress",
     lastUpdated: new Date().toISOString(),
-    datasetHealth,
+    datasetHealth, datasetReadiness,
     datesCollected: featureDates.size,
     gamesObserved,
     observations,

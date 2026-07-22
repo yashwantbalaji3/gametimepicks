@@ -65,6 +65,16 @@ function latestEligibleLineup(featDir, date, gamePk) {
   return null;
 }
 
+// latest pregame-eligible pitcher-workload for a game. Multi-cadence (<gamePk>-<ts>.json) so a late/ineligible
+// capture can't hide an earlier eligible one; falls back to a legacy single-file <gamePk>.json for older archives.
+function latestEligibleWorkload(featDir, date, gamePk) {
+  const dir = path.join(featDir, "pitcher-workload", date);
+  if (!fs.existsSync(dir)) return null;
+  const files = fs.readdirSync(dir).filter((f) => (f.startsWith(`${gamePk}-`) || f === `${gamePk}.json`) && f.endsWith(".json")).sort();
+  for (let i = files.length - 1; i >= 0; i--) { const r = readJson(path.join(dir, files[i])); if (r && r.researchEligible) return r; }
+  return null;
+}
+
 // per-game TEAM offensive form: 2 records (home/away) keyed by side. Attached to every observation of the game.
 function loadTeamOffensiveForm(featDir, date, gamePk) {
   const dir = path.join(featDir, "team-offensive-form", date);
@@ -149,7 +159,7 @@ function main() {
       const pf = pregameFeatures(date, freeze);
       const feat = path.join(ARCHIVE, "pregame-features");
       const features = {
-        workload: readJson(path.join(feat, "pitcher-workload", date, `${join.gamePk}.json`)),
+        workload: latestEligibleWorkload(feat, date, join.gamePk),
         bullpen: readJson(path.join(feat, "bullpen", date, `${join.gamePk}.json`)),
         matchup: readJson(path.join(feat, "matchup", date, `${join.gamePk}.json`)),
         lineup: latestEligibleLineup(feat, date, join.gamePk),
