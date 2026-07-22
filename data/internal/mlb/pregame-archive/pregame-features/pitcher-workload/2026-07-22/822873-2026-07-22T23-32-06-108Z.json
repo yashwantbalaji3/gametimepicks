@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822873,
+  "date": "2026-07-22",
+  "capturedAt": "2026-07-22T23:32:06.108Z",
+  "availableAt": "2026-07-22T23:32:06.108Z",
+  "eventStartTime": "2026-07-23T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641302,
+      "name": "Tyler Alexander",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 23,
+      "lastStartDate": "2026-06-29",
+      "last5": {
+        "starts": 3,
+        "ipSum": 3,
+        "ipAvg": 1,
+        "kAvg": 1.33,
+        "bbAvg": 0,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 12,
+        "workloadIpLast5": 3
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 3,
+        "k": 4,
+        "bb": 0,
+        "er": 0,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 641743,
+      "name": "Anthony Kay",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-07-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 4.2,
+        "bbAvg": 2,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 8.22,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 86.33,
+        "k": 75,
+        "bb": 35,
+        "er": 41,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-22T23:32:06.108Z"
+  },
+  "recordHash": "7a87e508b60b571828f5b93a3b8e0f88eeba631a25101801a21089aaf573a9e4"
+}

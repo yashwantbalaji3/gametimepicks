@@ -3,32 +3,58 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-research-observation-quality",
-  "lastUpdated": "2026-07-22T22:40:04.892Z",
-  "status": "PASS",
-  "totalObservations": 827,
+  "lastUpdated": "2026-07-22T23:32:18.235Z",
+  "status": "BLOCKED",
+  "totalObservations": 1091,
   "dates": 1,
   "byDate": {
-    "2026-07-22": 827
+    "2026-07-22": 1091
   },
   "hardViolations": {
     "duplicateIds": 0,
     "notSettled": 0,
     "missingOutcome": 0,
     "futureTimestamp": 0,
-    "leakage": 0,
+    "leakage": 246,
     "impossibleStat": 0
   },
   "warnings": {
-    "missingMarketProbability": 156,
-    "marketProbabilityCoveragePct": 81.1
+    "missingMarketProbability": 207,
+    "marketProbabilityCoveragePct": 81
   },
-  "averageCoverageScore": 0.681,
+  "averageCoverageScore": 0.626,
   "samples": {
     "duplicateIds": [],
     "notSettled": [],
     "missingOutcome": [],
     "futureTimestamp": [],
-    "leakage": [],
+    "leakage": [
+      {
+        "id": "002440e558ca4957",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "id": "0034eeb389518990",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "id": "019c8cce795f1988",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "id": "02781fa505ba5070",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "id": "02a1f3408b0ac817",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      }
+    ],
     "impossibleStat": []
   },
   "note": "Hard checks (duplicate IDs, pending/missing outcomes, future timestamps, pregame leakage, impossible stats) must all be 0 to PASS. Missing de-vig market probability is a COVERAGE warning, not a block (honest null; those rows are excluded from market-baseline benchmarking). PASS does NOT imply model-readiness — the 30-date/500-observation gate + founder approval still govern modeling."
