@@ -50,11 +50,12 @@ test("3 · orchestrator: chains after morning-projections + backstop cron + disp
 test("4 · fail-closed on a missing board; the 3 completion steps run only when the board exists", () => {
   assert.match(wf, /FAIL-CLOSED/, "documents the fail-closed board precheck");
   assert.match(wf, /have_board=false/, "detects a missing board");
-  // team markets / player props / simulations gated on have_board == true
-  for (const step of ["ingest-mlb-team-markets", "ingest-mlb-slate", "generate-mlb-game-simulations"]) {
-    const idx = wf.indexOf(step);
-    const around = wf.slice(Math.max(0, idx - 400), idx);
-    assert.match(around, /steps\.board\.outputs\.have_board == 'true'/, `${step} runs only when the board exists`);
+  // team markets / player props / simulations gated on have_board == true (match each script's enclosing step)
+  const steps = wf.split(/\n\s*- name:/);
+  for (const script of ["ingest-mlb-team-markets", "ingest-mlb-slate", "generate-mlb-game-simulations"]) {
+    const step = steps.find((s) => s.includes(script));
+    assert.ok(step, `${script} step exists`);
+    assert.match(step, /steps\.board\.outputs\.have_board == 'true'/, `${script} runs only when the board exists`);
   }
 });
 
@@ -76,6 +77,16 @@ test("6 · the persist step is PATH-SCOPED to public MLB slate dirs + money-safe
   assert.match(step, /ABORT/, "aborts on forbidden paths");
   assert.ok(!/push\s+.*(--force|-f\b)/.test(step), "no force push");
   assert.match(step, /\[skip ci\]/, "skips CI to avoid loops");
+});
+
+test("8 · .ts-importing ingest steps run via `npx tsx`, never bare `node` (regression: ERR_UNKNOWN_FILE_EXTENSION)", () => {
+  // ingest-mlb-team-markets + ingest-mlb-slate import .ts libs (e.g. projection-framework.ts) → bare `node` throws
+  // "Unknown file extension .ts". They MUST be invoked with `npx tsx`. (The pure gate/health .mjs may use `node`.)
+  for (const s of ["ingest-mlb-team-markets.mjs", "ingest-mlb-slate.mjs"]) {
+    const esc = s.replace(/\./g, "\\.");
+    assert.ok(!new RegExp(`(^|[^x]\\s)node\\s+app/scripts/${esc}`, "m").test(wf), `${s} must NOT run via bare node (it imports .ts)`);
+    assert.match(wf, new RegExp(`npx tsx app/scripts/${esc}`), `${s} runs via npx tsx`);
+  }
 });
 
 test("7 · gate + orchestrator are money-independent; money md5 unchanged", () => {
