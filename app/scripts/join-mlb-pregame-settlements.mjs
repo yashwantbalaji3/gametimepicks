@@ -224,6 +224,20 @@ function slimLean(l) {
     capturedAt: l.capturedAt ?? null,
   };
 }
+// merge carried-forward (existing) + freshly-captured leans, keeping the LATEST pregame capturedAt per key.
+// An older capture must NEVER regress a newer carried lean, so a re-run with same-or-older market data is a
+// true no-op (idempotent). Returns a Map keyed by leanKey.
+export function mergeLeanKeys(existingRows, capturedForGame) {
+  const leanMap = new Map();
+  const consider = (l) => {
+    const k = leanKey(l);
+    const prev = leanMap.get(k);
+    if (!prev || String(l.capturedAt || "") > String(prev.capturedAt || "")) leanMap.set(k, slimLean(l));
+  };
+  for (const l of existingRows || []) consider(l);
+  for (const l of capturedForGame || []) consider(l);
+  return leanMap;
+}
 function gatherCapturedLeans(date) {
   const out = new Map();
   const dir = path.join(MKT_DIR, date);
@@ -294,10 +308,9 @@ async function joinGame(date, gamePk, freeze, capturedLeans, existing) {
   const fetchedAt = new Date().toISOString();
   const game = extractOfficialGame(feed);
 
-  // market leans: union of freshly-captured keys + keys carried forward from a prior join file (durability)
-  const leanMap = new Map();
-  for (const l of existing?.marketRows || []) leanMap.set(leanKey(l), slimLean(l));
-  for (const [k, l] of capturedLeans) if (l.gamePk === gamePk) leanMap.set(k, l);
+  // market leans: union of freshly-captured keys + keys carried forward from a prior join file (durability).
+  const capturedForGame = [...capturedLeans.values()].filter((l) => l.gamePk === gamePk);
+  const leanMap = mergeLeanKeys(existing?.marketRows, capturedForGame);
 
   const marketRows = [];
   for (const l of leanMap.values()) {

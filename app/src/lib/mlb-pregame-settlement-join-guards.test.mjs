@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { settleOverUnder, settleMoneyline, settleRunLine, gradeLean, gradePlayerLean, gradeTeamLean, extractOfficialGame, findPlayer, SUPPORTED_JOIN_MARKETS } from "../../scripts/join-mlb-pregame-settlements.mjs";
+import { settleOverUnder, settleMoneyline, settleRunLine, gradeLean, gradePlayerLean, gradeTeamLean, extractOfficialGame, findPlayer, mergeLeanKeys, SUPPORTED_JOIN_MARKETS } from "../../scripts/join-mlb-pregame-settlements.mjs";
 import { settleOverUnder as ouCanon, settleMlbMoneyline, settleMlbRunLine } from "./mlb/product-settlement/mlb-markets.ts";
 
 const app = process.cwd();
@@ -182,6 +182,22 @@ test("13 · parity: inline graders match the canonical mlb-markets.ts", () => {
   for (const [h, aw, sel, l] of [[5, 3, "home", -1.5], [5, 3, "away", 1.5], [5, 4, "home", -1.5]]) {
     assert.equal(settleRunLine(h, aw, sel, l).status, settleMlbRunLine({ homeScore: h, awayScore: aw, selectedTeam: sel, line: l, gameFinal: true }).status, `RL parity ${h}-${aw}/${sel}/${l}`);
   }
+});
+
+test("15 · REGRESSION: lean merge keeps the LATEST capturedAt (older capture never regresses newer; idempotent)", () => {
+  const existing = [{ market: "pitcher_outs", gamePk: 1, playerId: 111, selection: "Over", line: 17.5, researchEligible: true, noVigProbability: 0.55, capturedAt: "2026-07-22T04:25:00Z" }];
+  // a STALE re-capture of the same key (older timestamp, different prob) must NOT override the newer carried lean
+  const staleCaptured = [{ market: "pitcher_outs", gamePk: 1, playerId: 111, selection: "Over", line: 17.5, researchEligible: true, noVigProbability: 0.40, capturedAt: "2026-07-21T22:00:00Z" }];
+  const merged = mergeLeanKeys(existing, staleCaptured);
+  const row = [...merged.values()][0];
+  assert.equal(merged.size, 1, "same key ⇒ one lean");
+  assert.equal(row.capturedAt, "2026-07-22T04:25:00Z", "newer capturedAt kept");
+  assert.equal(row.noVigProbability, 0.55, "newer value kept — no stale regression");
+  // a genuinely FRESHER capture DOES update
+  const fresher = [{ market: "pitcher_outs", gamePk: 1, playerId: 111, selection: "Over", line: 17.5, researchEligible: true, noVigProbability: 0.60, capturedAt: "2026-07-22T10:00:00Z" }];
+  assert.equal([...mergeLeanKeys(existing, fresher).values()][0].noVigProbability, 0.60, "fresher capture updates");
+  // re-merging existing with itself is a no-op (idempotent)
+  assert.equal([...mergeLeanKeys(existing, existing).values()][0].capturedAt, existing[0].capturedAt);
 });
 
 test("14 · money md5 unchanged (settlement-join is internal + money-independent)", () => {
