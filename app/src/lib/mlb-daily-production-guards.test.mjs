@@ -117,6 +117,9 @@ test("10 · daily health monitor carries the founder-facing ops fields + buildSt
   // workflow: build step has an id; a post-build finalize pass records the real build outcome
   assert.match(wf, /id: build/, "build step has an id for outcome reference");
   assert.match(wf, /MLB_BUILD_STATUS:\s*\$\{\{ steps\.build\.outcome \}\}/, "finalize records the build outcome");
+  // regression: `npm run build` exited 127 (next not found) because deps were never installed → npm ci must precede it
+  const depsIdx = wf.indexOf("npm ci"), buildIdx = wf.indexOf("npm run build");
+  assert.ok(depsIdx > 0 && depsIdx < buildIdx, "npm ci installs deps BEFORE npm run build (else next: command not found → exit 127)");
   // both paid ingests write the credits sidecar the gate reads
   for (const s of ["ingest-mlb-team-markets.mjs", "ingest-mlb-slate.mjs"])
     assert.match(fs.readFileSync(path.join(app, "scripts", s), "utf8"), /odds-credits\.json/, `${s} writes the credits sidecar`);

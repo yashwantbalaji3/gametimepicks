@@ -96,6 +96,11 @@ jobs:
       - name: 6) Verify (completeness gate — honest slate status + production health)
         if: steps.board.outputs.have_board == 'true'
         run: node app/scripts/mlb-slate-completeness-gate.mjs --date "${{ steps.cfg.outputs.date }}"
+      - name: 7-pre) Install app dependencies (required for the build — the ingests use npx tsx and need no install)
+        id: deps
+        if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
+        continue-on-error: true
+        run: cd app && npm ci
       - name: 7) Public build (verification — confirms the completed slate renders)
         id: build
         if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
