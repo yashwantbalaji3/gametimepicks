@@ -91,6 +91,14 @@ jobs:
       - name: Monitor (daily status + 7-day progress + gate) — regenerate status/monitor.json
         continue-on-error: true
         run: node app/scripts/monitor-mlb-pregame-archive.mjs
+      - name: Research warehouse — assemble ResearchObservation rows from settled joins (NO modeling)
+        continue-on-error: true
+        # Data assembly only — materializes settled, pregame-eligible leans into training-ready observations.
+        # Emits 0 rows until a market-capture date is final. Never trains a model or emits a prediction.
+        run: node app/scripts/build-mlb-research-observations.mjs --lookback 3 --write
+      - name: Research warehouse — data-quality monitor (duplicates / leakage / impossible stats / stale odds)
+        continue-on-error: true
+        run: node app/scripts/monitor-mlb-research-quality.mjs
       - name: Upload archive artifact (safe persistence — no push)
         if: always()
         uses: actions/upload-artifact@v4
