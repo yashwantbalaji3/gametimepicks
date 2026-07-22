@@ -6,19 +6,19 @@
   "scanned": {
     "dates": 2,
     "joinFiles": 32,
-    "marketRows": 1716,
+    "marketRows": 2501,
     "settledRows": 0,
-    "contextualRows": 116,
+    "contextualRows": 124,
     "featureRecords": {
       "pitcher-workload": 17,
       "bullpen": 17,
       "matchup": 17,
-      "lineup": 66,
-      "batter-splits": 115,
-      "batter-form": 115,
+      "lineup": 75,
+      "batter-splits": 153,
+      "batter-form": 153,
       "park-factors": 17,
-      "batter-vs-pitcher": 115,
-      "pa-opportunity": 115
+      "batter-vs-pitcher": 153,
+      "pa-opportunity": 153
     }
   },
   "checks": {
@@ -35,8 +35,8 @@
       "verdict": "PASS"
     },
     "timestampViolations": {
-      "count": 0,
-      "verdict": "PASS"
+      "count": 258,
+      "verdict": "FAIL"
     },
     "staleOdds": {
       "count": 0,
@@ -55,30 +55,1837 @@
       "verdict": "PASS"
     }
   },
-  "overall": "PASS",
+  "overall": "FAIL",
   "details": {
     "duplicateRows": [],
     "missingOutcomes": [],
     "impossibleStats": [],
-    "timestampViolations": [],
+    "timestampViolations": [
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "h2h",
+        "capturedAt": "2026-07-22T20:07:51.878Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "h2h",
+        "capturedAt": "2026-07-22T20:07:51.878Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "spreads",
+        "capturedAt": "2026-07-22T20:07:51.878Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "spreads",
+        "capturedAt": "2026-07-22T20:07:51.878Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "totals",
+        "capturedAt": "2026-07-22T20:07:51.878Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "totals",
+        "capturedAt": "2026-07-22T20:07:51.878Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "spreads",
+        "capturedAt": "2026-07-22T20:07:51.878Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "spreads",
+        "capturedAt": "2026-07-22T20:07:51.878Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_outs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_outs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_outs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_outs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_strikeouts",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_strikeouts",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_strikeouts",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_strikeouts",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_earned_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_earned_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_strikeouts",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_strikeouts",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits_runs_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_rbis",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_runs_scored",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_earned_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_earned_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_hits",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_strikeouts",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "pitcher_strikeouts",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_home_runs",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824004,
+        "market": "batter_total_bases",
+        "capturedAt": "2026-07-22T20:07:52.822Z",
+        "eventStartTime": "2026-07-22T20:07:00Z"
+      }
+    ],
     "staleOdds": [],
     "joinFailures": [],
     "scanned": {
       "dates": 2,
       "joinFiles": 32,
-      "marketRows": 1716,
+      "marketRows": 2501,
       "settledRows": 0,
-      "contextualRows": 116,
+      "contextualRows": 124,
       "featureRecords": {
         "pitcher-workload": 17,
         "bullpen": 17,
         "matchup": 17,
-        "lineup": 66,
-        "batter-splits": 115,
-        "batter-form": 115,
+        "lineup": 75,
+        "batter-splits": 153,
+        "batter-form": 153,
         "park-factors": 17,
-        "batter-vs-pitcher": 115,
-        "pa-opportunity": 115
+        "batter-vs-pitcher": 153,
+        "pa-opportunity": 153
       }
     },
     "missingTimestamps": [],
