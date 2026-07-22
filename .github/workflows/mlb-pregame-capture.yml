@@ -113,6 +113,9 @@ jobs:
       - name: Capture pregame batter form (last 7/30, strictly-earlier — free StatsAPI, leakage-safe, non-blocking)
         continue-on-error: true
         run: node app/scripts/capture-mlb-pregame-batter-form.mjs --date "${{ github.event.inputs.date }}" --write
+      - name: Capture pregame team offensive form (last 5/10 games, strictly-earlier — free StatsAPI, leakage-safe, non-blocking)
+        continue-on-error: true
+        run: node app/scripts/capture-mlb-pregame-team-offensive-form.mjs --date "${{ github.event.inputs.date }}" --write
       - name: Capture pregame park factors (factual venue attributes — free StatsAPI, non-blocking)
         continue-on-error: true
         run: node app/scripts/capture-mlb-pregame-park-factors.mjs --date "${{ github.event.inputs.date }}" --write

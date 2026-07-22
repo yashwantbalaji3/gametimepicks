@@ -3,11 +3,39 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-research-progress",
-  "lastUpdated": "2026-07-22T19:12:25.943Z",
+  "lastUpdated": "2026-07-22T19:51:11.946Z",
   "datesCollected": 1,
   "gamesObserved": 132,
   "observations": 0,
   "observationDates": 0,
+  "lastSuccessfulObservation": null,
+  "capturedMarketLeans": 1716,
+  "teamMarketLeans": 168,
+  "playerPropLeans": 1548,
+  "marketDistribution": {
+    "h2h": 30,
+    "spreads": 54,
+    "totals": 84
+  },
+  "propDistribution": {
+    "pitcher_strikeouts": 34,
+    "batter_total_bases": 282,
+    "pitcher_outs": 49,
+    "batter_hits": 248,
+    "batter_hits_runs_rbis": 230,
+    "batter_rbis": 207,
+    "pitcher_earned_runs": 24,
+    "batter_home_runs": 296,
+    "batter_runs_scored": 178
+  },
+  "settlementStatuses": {
+    "pending": 1716
+  },
+  "settledOutcomes": {
+    "win": 0,
+    "loss": 0,
+    "push": 0
+  },
   "markets": {
     "h2h": 0,
     "spreads": 0,
@@ -36,10 +64,42 @@
       "umpire": 37.5
     }
   },
+  "missingFeatures": [
+    "bullpen",
+    "plate_appearance_opportunity",
+    "markets"
+  ],
   "settlement": {
     "joinDates": 2,
-    "finalJoins": 0,
-    "pendingJoins": 32
+    "joinedGames": 32,
+    "finalGames": 13,
+    "perDate": {
+      "2026-07-21": {
+        "games": 15,
+        "final": 13,
+        "marketLeans": 0,
+        "settledEligible": 0,
+        "pending": 0
+      },
+      "2026-07-22": {
+        "games": 17,
+        "final": 0,
+        "marketLeans": 1716,
+        "settledEligible": 0,
+        "pending": 1716
+      }
+    }
+  },
+  "dailyHealth": {
+    "date": "2026-07-22",
+    "capturedGames": 17,
+    "finalGames": 0,
+    "marketLeansCaptured": 1716,
+    "settledEligible": 0,
+    "observationsCreated": 0,
+    "hasFreeze": true,
+    "hasMarketSnapshots": true,
+    "note": "games not final yet — captured leans stay pending until finalization"
   },
   "gate": {
     "datesTarget": 30,
@@ -51,5 +111,5 @@
     "met": false,
     "modelingStatus": "BLOCKED"
   },
-  "note": "Accumulation tracker only. Modeling stays BLOCKED until 30 dates AND 500 settled observations AND out-of-sample validation AND founder approval. observations=0 until slates finalize and produce settled, research-eligible market leans; high feature coverage does NOT make a model ready."
+  "note": "Accumulation tracker only. Modeling stays BLOCKED until 30 dates AND 500 settled observations AND out-of-sample validation AND founder approval. observations=0 until slates finalize and produce settled, research-eligible market leans; high feature/market-lean coverage does NOT make a model ready."
 }

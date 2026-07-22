@@ -32,15 +32,21 @@ Assessed for feasibility from **free StatsAPI** vs needing paid/external (Statca
 
 | # | Candidate | Verdict | Notes / endpoint |
 |---|---|---|---|
-| 1 | **Team offensive form** | ✅ FEASIBLE-FREE | recent team runs/OPS, mirrors `batter_form` at team level — `/teams/{id}/stats?group=hitting` (or team gameLog) |
-| 2 | **Opponent defensive context** | ✅ FEASIBLE-FREE | team fielding metrics — `/teams/{id}/stats?stats=season&group=fielding` |
-| 3 | **Travel / rest** | ✅ FEASIBLE-FREE | days rest from `/schedule` prior-game dates; travel distance from venue coords already hydrated in `park_factors` |
+| 1 | **Team offensive form** | ✅ **IMPLEMENTED** | `capture-mlb-pregame-team-offensive-form.mjs` — last 5/10 games (runs/hits/HR/TB/BB/SO/AB/PA + derived OBP/SLG/OPS proxies), strictly-earlier, leakage-safe, workflow-wired. `/teams/{id}/stats?stats=gameLog&group=hitting`. Family `team_offensive_form`. |
+| 2 | **Opponent defensive context** | ✅ FEASIBLE-FREE (next) | team fielding metrics — `/teams/{id}/stats?stats=season&group=fielding` |
+| 3 | **Travel / rest** | ✅ FEASIBLE-FREE (next) | days rest from `/schedule` prior-game dates; travel distance from venue coords already hydrated in `park_factors` |
 | 4 | **Bullpen leverage (roles)** | ◐ PARTIAL-FREE | closer/setup role tags derivable free (`/teams/{id}/roster` + `feed/live`); true leverage index (gmLI) is external/FanGraphs — capture roles only, label the rest as a gap |
 | 5 | **Weather enhancement** | ◐ PARTIAL | `environment` already has condition/temp/wind free; richer precip%/gusts/humidity forecast needs a paid weather API — document as a gap, do not fabricate |
 | 6 | **Pitcher arsenal (pitch mix)** | ⛔ NEEDS-PAID | aggregated usage/velo is Statcast/Baseball Savant — out of scope until a data source is licensed |
 | 7 | **Pitch-type matchup** | ⛔ NEEDS-PAID | batter-vs-pitch-type is pitch-level Statcast only |
 
-**Recommended next captures (free, leakage-safe):** #1 team offensive form, #2 opponent defensive context, #3 travel/rest, #4 bullpen roles. Each must ship with: a capture script (`capture-mlb-pregame-<family>.mjs --write`), `researchEligible` stamping via `familyRecord(...)`, a coverage key in `simulation-feature-contract.ts`, a data-quality check in `monitor-mlb-research-quality.mjs`, and a wire into `mlb-pregame-capture.yml`. **No fabricated values** — a family with no data for a game records absence, not a guess.
+### `team_offensive_form` — shipped this pass (family #14)
+- Capture: `app/scripts/capture-mlb-pregame-team-offensive-form.mjs` (dry-run/`--write`), one record per (game, team) → `pregame-features/team-offensive-form/<date>/<gamePk>-<teamId>.json`.
+- Leakage-safety: identical to `batter_form` — only game-log games with `date < boardDate` aggregate; `researchEligible = capturedAt < eventStartTime` + a source-strictly-earlier assert. Validated (`mlb-team-offensive-form.test.mjs`, 4/4) and dry-run (20/34 team-slots eligible on 2026-07-22; already-started games correctly excluded).
+- Wired into `mlb-pregame-capture.yml`; the research-progress census auto-counts the new family dir.
+- **Remaining wiring (next mission, to be validated against real observations):** add a `team_offensive_form` coverage key to `simulation-feature-contract.ts`, attach the home/away record in `build-mlb-research-observations.mjs` (per-team, additive, only when `researchEligible`), and a `monitor-mlb-research-quality.mjs` check. Deferred deliberately — modifying the core observation assembler with **zero settled observations to validate against** would risk the "cleanest dataset" invariant; do it in the same pass that produces the first observations.
+
+**Next captures (free, leakage-safe):** #2 opponent defensive context, #3 travel/rest, #4 bullpen roles — each following the `team_offensive_form` template (capture script + `researchEligible` stamping + leakage test + workflow wire), with the contract/assembler/quality wiring done alongside the first-observation pass. **No fabricated values** — a family with no data for a game records absence, not a guess.
 
 Paid candidates (#5–#7) are parked until a data source is licensed; they are **not** blockers for the v2 modeling gate.
 

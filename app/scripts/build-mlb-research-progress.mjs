@@ -58,12 +58,32 @@ function main() {
     }
   }
 
-  // settlement joins — how many dates have joins, and how many are final vs pending
-  const joinDates = lsdirs(path.join(PA, "settlement-joins"));
-  let finalJoins = 0, pendingJoins = 0;
-  for (const d of joinDates) for (const f of lsfiles(path.join(PA, "settlement-joins", d))) {
-    const j = readJson(path.join(PA, "settlement-joins", d, f));
-    if (j?.isFinal || j?.joinStatus === "final" || j?.joinStatus === "settled") finalJoins++; else pendingJoins++;
+  // settlement joins — census finality + CAPTURED market leans (the pre-observation stage). Finality is on
+  // gameFinalStatus.isFinal (NOT a top-level isFinal). A captured lean settles only once its game is final.
+  const TEAM_MARKETS = new Set(["h2h", "spreads", "totals"]);
+  const joinDates = lsdirs(path.join(PA, "settlement-joins")).sort();
+  let finalGames = 0, joinedGames = 0, capturedMarketLeans = 0, teamMarketLeans = 0, playerPropLeans = 0;
+  const marketDistribution = {}, propDistribution = {}, settlementStatuses = {}, settledOutcomes = { win: 0, loss: 0, push: 0 };
+  const perDate = {};
+  for (const d of joinDates) {
+    const pd = perDate[d] = { games: 0, final: 0, marketLeans: 0, settledEligible: 0, pending: 0 };
+    for (const f of lsfiles(path.join(PA, "settlement-joins", d))) {
+      const j = readJson(path.join(PA, "settlement-joins", d, f));
+      if (!j) continue;
+      joinedGames++; pd.games++;
+      if (j.gameFinalStatus?.isFinal) { finalGames++; pd.final++; }
+      for (const row of (j.marketRows || [])) {
+        capturedMarketLeans++; pd.marketLeans++;
+        const m = row.market || "?";
+        if (TEAM_MARKETS.has(m)) { teamMarketLeans++; marketDistribution[m] = (marketDistribution[m] || 0) + 1; }
+        else { playerPropLeans++; propDistribution[m] = (propDistribution[m] || 0) + 1; }
+        const st = row.settlementStatus || "?";
+        settlementStatuses[st] = (settlementStatuses[st] || 0) + 1;
+        if (st in settledOutcomes) settledOutcomes[st]++;
+        if (row.countsAsSettledEligible) pd.settledEligible++;
+        if (st === "pending") pd.pending++;
+      }
+    }
   }
 
   // reuse the AUTHORITATIVE readiness gate (simulation-readiness.json) — do NOT recompute the gate divergently.
@@ -75,6 +95,25 @@ function main() {
   const gateDates = parseFrac(readiness.gate?.dates, { got: featureDates.size, target: DATES_TARGET });
   const gateObs = parseFrac(readiness.gate?.settledObservations, { got: observations, target: OBS_TARGET });
 
+  // missing feature families (0% coverage) + last date that produced a settled observation
+  const byFamily = readiness.coverage?.byFamily || {};
+  const missingFeatures = Object.entries(byFamily).filter(([, pct]) => (Number(pct) || 0) === 0).map(([k]) => k);
+  const lastSuccessfulObservation = [...obsDates].sort().pop() || null;
+  // daily research health (Phase 8) — the latest joined date at a glance
+  const latestDate = joinDates[joinDates.length - 1] || null;
+  const latestObsCount = latestDate ? (() => { try { return fs.readFileSync(path.join(obsDir, `${latestDate}.jsonl`), "utf8").split("\n").filter((l) => l.trim()).length; } catch { return 0; } })() : 0;
+  const dailyHealth = latestDate ? {
+    date: latestDate,
+    capturedGames: perDate[latestDate].games,
+    finalGames: perDate[latestDate].final,
+    marketLeansCaptured: perDate[latestDate].marketLeans,
+    settledEligible: perDate[latestDate].settledEligible,
+    observationsCreated: latestObsCount,
+    hasFreeze: lsfiles(path.join(PA, "freezes", latestDate)).length > 0,
+    hasMarketSnapshots: lsfiles(path.join(PA, "market-snapshots", latestDate)).length > 0,
+    note: perDate[latestDate].final === 0 ? "games not final yet — captured leans stay pending until finalization" : (perDate[latestDate].marketLeans === 0 ? "final but no market leans captured (market capture did not run this date)" : "final + market-covered — observations should be produced"),
+  } : null;
+
   const report = {
     public: false, approvedForProduction: false, productEligible: false, kind: "mlb-research-progress",
     lastUpdated: new Date().toISOString(),
@@ -82,9 +121,13 @@ function main() {
     gamesObserved,
     observations,
     observationDates: obsDates.size,
-    markets,
-    featureCoverage,
-    settlement: { joinDates: joinDates.length, finalJoins, pendingJoins },
+    lastSuccessfulObservation,
+    // captured market leans (the pre-observation stage — present even while 0 have settled)
+    capturedMarketLeans, teamMarketLeans, playerPropLeans,
+    marketDistribution, propDistribution, settlementStatuses, settledOutcomes,
+    markets, featureCoverage, missingFeatures,
+    settlement: { joinDates: joinDates.length, joinedGames, finalGames, perDate },
+    dailyHealth,
     gate: {
       // authoritative — mirrors simulation-readiness.json (the gate's single source of truth)
       datesTarget: gateDates.target, observationsTarget: gateObs.target,
@@ -94,18 +137,18 @@ function main() {
       met: gateDates.got >= gateDates.target && gateObs.got >= gateObs.target,
       modelingStatus: "BLOCKED",
     },
-    note: "Accumulation tracker only. Modeling stays BLOCKED until 30 dates AND 500 settled observations AND out-of-sample validation AND founder approval. observations=0 until slates finalize and produce settled, research-eligible market leans; high feature coverage does NOT make a model ready.",
+    note: "Accumulation tracker only. Modeling stays BLOCKED until 30 dates AND 500 settled observations AND out-of-sample validation AND founder approval. observations=0 until slates finalize and produce settled, research-eligible market leans; high feature/market-lean coverage does NOT make a model ready.",
   };
 
   fs.mkdirSync(STATUS, { recursive: true });
   fs.writeFileSync(path.join(STATUS, "research-progress.json"), JSON.stringify(report, null, 2));
 
   console.log("\n=== MLB RESEARCH PROGRESS ===");
-  console.log(`  dates collected:  ${report.datesCollected}/${DATES_TARGET}  ·  games observed: ${gamesObserved}`);
-  console.log(`  observations:     ${observations}/${OBS_TARGET}  (across ${obsDates.size} settled dates)`);
-  console.log(`  settlement joins: ${joinDates.length} dates  ·  final ${finalJoins}  ·  pending ${pendingJoins}`);
-  console.log(`  feature coverage: ${featureCoverage?.featureCoveragePct ?? "-"}%`);
-  console.log(`  gate: ${report.gate.met ? "MET" : "NOT MET"}  ·  modeling: BLOCKED  ·  need ${report.gate.datesRemaining} more dates, ${report.gate.observationsRemaining} more observations`);
+  console.log(`  feature dates:    ${report.datesCollected}  ·  games observed: ${gamesObserved}  ·  coverage ${featureCoverage?.featureCoveragePct ?? "-"}%`);
+  console.log(`  captured leans:   ${capturedMarketLeans}  (team ${teamMarketLeans} · props ${playerPropLeans})  across ${joinDates.length} join dates (${finalGames}/${joinedGames} games final)`);
+  console.log(`  observations:     ${observations}/${OBS_TARGET}  ·  settled outcomes ${JSON.stringify(settledOutcomes)}  ·  last: ${lastSuccessfulObservation || "none"}`);
+  if (dailyHealth) console.log(`  latest ${dailyHealth.date}: ${dailyHealth.capturedGames} games · ${dailyHealth.finalGames} final · ${dailyHealth.marketLeansCaptured} leans · ${dailyHealth.observationsCreated} obs — ${dailyHealth.note}`);
+  console.log(`  GATE: ${report.gate.met ? "MET" : "NOT MET"}  ·  modeling BLOCKED  ·  need ${report.gate.datesRemaining} more dates, ${report.gate.observationsRemaining} more observations`);
   console.log(`  → data/internal/mlb/pregame-archive/status/research-progress.json`);
   process.exit(0);
 }
