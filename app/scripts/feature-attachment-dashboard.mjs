@@ -38,14 +38,18 @@ function main() {
   // observation attachment counts per featureCoverage key
   const obsDir = path.join(PA, "research-observations");
   let totalObs = 0; const attached = {};
-  for (const f of lsfiles(obsDir).concat((() => { try { return fs.readdirSync(obsDir).filter((x) => x.endsWith(".jsonl")); } catch { return []; } })())) {
-    if (!f.endsWith(".jsonl")) continue;
+  const byDate = {}; // date → { total, <famKey>: attachedCount } — historical coverage trend (regression detection)
+  for (const f of (() => { try { return fs.readdirSync(obsDir).filter((x) => x.endsWith(".jsonl")); } catch { return []; } })()) {
+    const date = f.replace(/\.jsonl$/, "");
+    const bd = byDate[date] || (byDate[date] = { total: 0 });
     for (const line of fs.readFileSync(path.join(obsDir, f), "utf8").split("\n")) {
       if (!line.trim()) continue; let o; try { o = JSON.parse(line); } catch { continue; }
-      totalObs++;
-      for (const [k, v] of Object.entries(o.featureCoverage || {})) if (v) attached[k] = (attached[k] || 0) + 1;
+      totalObs++; bd.total++;
+      for (const [k, v] of Object.entries(o.featureCoverage || {})) if (v) { attached[k] = (attached[k] || 0) + 1; bd[k] = (bd[k] || 0) + 1; }
     }
   }
+  // per-date coverage % per family (the trend); a family dropping across dates = a regression to investigate.
+  const trendByDate = Object.fromEntries(Object.entries(byDate).sort().map(([d, bd]) => [d, Object.fromEntries(Object.entries(bd).filter(([k]) => k !== "total").map(([k, n]) => [k, bd.total ? +(100 * n / bd.total).toFixed(1) : 0]).concat([["totalObservations", bd.total]]))]));
 
   const families = [];
   for (const { key, dir } of FAMILIES) {
@@ -67,7 +71,7 @@ function main() {
 
   const report = {
     public: false, approvedForProduction: false, productEligible: false, kind: "mlb-feature-attachment",
-    lastUpdated: new Date().toISOString(), totalObservations: totalObs, families,
+    lastUpdated: new Date().toISOString(), totalObservations: totalObs, families, trendByDate,
     note: "Coverage % = attached observations / total observations. eligibleFiles=0 while captureFiles>0 ⇒ a cadence gap (captured after first pitch, correctly excluded as leakage), not an attachment bug. No fabrication.",
   };
   fs.mkdirSync(STATUS, { recursive: true });

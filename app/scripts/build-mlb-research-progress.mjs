@@ -140,6 +140,7 @@ function main() {
   const datasetReadiness = {
     currentDates, requiredDates: REQUIRED_DATES, remainingDates,
     observations, remainingObservations: Math.max(0, REQUIRED_OBS - observations),
+    dailyObservationRate: currentDates > 0 ? Math.round(observations / currentDates) : null, // avg settled obs per qualifying date
     estimatedCompletion: estCompletion,
     latestValidDate: lastSuccessfulObservation,
     bindingConstraint: remainingDates > 0 ? "dates" : (observations < REQUIRED_OBS ? "observations" : "met — awaiting founder approval + out-of-sample validation"),

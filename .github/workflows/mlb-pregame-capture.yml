@@ -116,6 +116,12 @@ jobs:
       - name: Capture pregame team offensive form (last 5/10 games, strictly-earlier — free StatsAPI, leakage-safe, non-blocking)
         continue-on-error: true
         run: node app/scripts/capture-mlb-pregame-team-offensive-form.mjs --date "${{ github.event.inputs.date }}" --write
+      - name: Capture pregame opponent defensive context (team season fielding — free StatsAPI, leakage-safe, non-blocking)
+        continue-on-error: true
+        run: node app/scripts/capture-mlb-pregame-opponent-defense.mjs --date "${{ github.event.inputs.date }}" --write
+      - name: Capture pregame travel/rest (days rest + recent games + travel distance — free StatsAPI, leakage-safe, non-blocking)
+        continue-on-error: true
+        run: node app/scripts/capture-mlb-pregame-travel-rest.mjs --date "${{ github.event.inputs.date }}" --write
       - name: Capture pregame park factors (factual venue attributes — free StatsAPI, non-blocking)
         continue-on-error: true
         run: node app/scripts/capture-mlb-pregame-park-factors.mjs --date "${{ github.event.inputs.date }}" --write
@@ -153,9 +159,12 @@ jobs:
       - name: Market-capture reliability (flags LOST research opportunities + daily research health score)
         continue-on-error: true
         run: node app/scripts/market-capture-reliability.mjs
-      - name: Feature attachment dashboard (per-family capture/eligible/attached/coverage — surfaces cadence gaps)
+      - name: Feature attachment dashboard (per-family capture/eligible/attached/coverage + trend — surfaces cadence gaps)
         continue-on-error: true
         run: node app/scripts/feature-attachment-dashboard.mjs
+      - name: Capture-window health (did a pregame capture land before first pitch per game?)
+        continue-on-error: true
+        run: node app/scripts/capture-window-health.mjs
       - name: Upload archive artifact (safe persistence — no push)
         if: always()
         uses: actions/upload-artifact@v4

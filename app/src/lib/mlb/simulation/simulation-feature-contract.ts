@@ -29,7 +29,7 @@ export interface SimulationInput {
 /** Which families are present for an observation (drives coverageScore + confidence). */
 export interface FeatureCoverage {
   pitcherStatus: boolean; pitcherWorkload: boolean; lineup: boolean; bullpen: boolean; matchup: boolean;
-  teamOffensiveForm: boolean;
+  teamOffensiveForm: boolean; opponentDefense: boolean; travelRest: boolean;
   batterSplits: boolean; batterForm: boolean; batterVsPitcher: boolean; paOpportunity: boolean;
   park: boolean; environment: boolean; market: boolean;
 }
@@ -50,7 +50,7 @@ export interface SimulationResult {
 }
 
 const COVERAGE_KEYS: (keyof FeatureCoverage)[] = [
-  "pitcherStatus", "pitcherWorkload", "lineup", "bullpen", "matchup", "teamOffensiveForm",
+  "pitcherStatus", "pitcherWorkload", "lineup", "bullpen", "matchup", "teamOffensiveForm", "opponentDefense", "travelRest",
   "batterSplits", "batterForm", "batterVsPitcher", "paOpportunity", "park", "environment", "market",
 ];
 
@@ -66,6 +66,8 @@ export function featureCoverageOf(obs: { model_inputs_available?: Record<string,
     bullpen: Boolean((mia as { hasBullpen?: boolean }).hasBullpen) || has("bullpen_availability"),
     matchup: Boolean((mia as { hasMatchup?: boolean }).hasMatchup) || has("batter_matchup"),
     teamOffensiveForm: Boolean((mia as { hasTeamOffensiveForm?: boolean }).hasTeamOffensiveForm) || has("team_offensive_form"),
+    opponentDefense: Boolean((mia as { hasOpponentDefense?: boolean }).hasOpponentDefense) || has("opponent_defense"),
+    travelRest: Boolean((mia as { hasTravelRest?: boolean }).hasTravelRest) || has("travel_rest"),
     batterSplits: Boolean((mia as { hasBatterSplits?: boolean }).hasBatterSplits) || has("batter_splits"),
     batterForm: Boolean((mia as { hasBatterForm?: boolean }).hasBatterForm) || has("batter_form"),
     batterVsPitcher: has("batter_vs_pitcher"),

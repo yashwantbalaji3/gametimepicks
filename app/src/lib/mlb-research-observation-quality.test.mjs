@@ -50,3 +50,22 @@ test("5 · accumulation reliability monitor + 30-date readiness dashboard exist 
   const rel = readJson(path.join(repo, "data/internal/mlb/pregame-archive/status/market-capture-reliability.json"));
   if (rel) assert.ok(typeof rel.lostResearchOpportunities === "number", "reliability report counts lost opportunities");
 });
+
+test("6 · new free feature families (opponent_defense, travel_rest) are leakage-safe multi-cadence + fully wired", () => {
+  for (const [script, fam] of [["opponent-defense", "opponent_defense"], ["travel-rest", "travel_rest"]]) {
+    const src = fs.readFileSync(path.join(app, `scripts/capture-mlb-pregame-${script}.mjs`), "utf8");
+    assert.match(src, new RegExp(`family:\\s*"${fam}"`), `${script} declares family ${fam}`);
+    assert.match(src, /capturedAt\s*<\s*(t\.)?eventStartTime/, `${script} researchEligible = capturedAt < eventStartTime (leakage-safe)`);
+    assert.match(src, /\$\{[^}]*\}-\$\{capturedAt/, `${script} multi-cadence key (…-<capturedAt>)`);
+    assert.match(src, /WRITE && (record\.)?researchEligible/, `${script} writes eligible-only`);
+    // wired into the research workflow
+    assert.match(fs.readFileSync(path.join(repo, ".github/workflows/mlb-pregame-capture.yml"), "utf8"), new RegExp(`capture-mlb-pregame-${script}\\.mjs`), `${script} wired into mlb-pregame-capture`);
+  }
+  // assembler attaches both (per-team, eligible-only) + contract carries the keys
+  const asm = fs.readFileSync(path.join(app, "scripts/build-mlb-research-observations.mjs"), "utf8");
+  assert.match(asm, /loadPerTeamSide\(feat, "opponent-defense"/, "assembler loads opponent_defense");
+  assert.match(asm, /loadPerTeamSide\(feat, "travel-rest"/, "assembler loads travel_rest");
+  const contract = fs.readFileSync(path.join(app, "src/lib/mlb/simulation/simulation-feature-contract.ts"), "utf8");
+  assert.match(contract, /opponentDefense/, "contract has opponentDefense key");
+  assert.match(contract, /travelRest/, "contract has travelRest key");
+});

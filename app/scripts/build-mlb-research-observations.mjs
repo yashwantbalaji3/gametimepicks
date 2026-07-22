@@ -75,12 +75,11 @@ export function latestEligibleWorkload(featDir, date, gamePk) {
   return null;
 }
 
-// per-game TEAM offensive form: 2 records (home/away) keyed by side. Attached to every observation of the game.
-function loadTeamOffensiveForm(featDir, date, gamePk) {
-  const dir = path.join(featDir, "team-offensive-form", date);
+// Generic per-team-side family loader: 2 records (home/away) keyed by side, multi-cadence (<gamePk>-<teamId>-<ts>.json)
+// + legacy (<gamePk>-<teamId>.json). Sorted ascending so a later read wins ⇒ FRESHEST record per side; eligible-only.
+function loadPerTeamSide(featDir, famDir, date, gamePk) {
+  const dir = path.join(featDir, famDir, date);
   if (!fs.existsSync(dir)) return null;
-  // multi-cadence (<gamePk>-<teamId>-<ts>.json) + legacy (<gamePk>-<teamId>.json). Sort ascending so a later read
-  // overwrites an earlier one → the FRESHEST record per side wins; only researchEligible records are attached.
   const out = {};
   for (const f of fs.readdirSync(dir).filter((x) => x.startsWith(`${gamePk}-`) && x.endsWith(".json")).sort()) {
     const r = readJson(path.join(dir, f));
@@ -100,15 +99,20 @@ function buildObservation(date, join, freeze, row, pf, features = {}) {
   const pk = elig(features.park) ? { venue: features.park.venue, factors: features.park.factors } : null;
   const tofH = elig(features.teamOffensiveForm?.home), tofA = elig(features.teamOffensiveForm?.away);
   const tof = (tofH || tofA) ? { home: tofH ? { last5: tofH.last5, last10: tofH.last10 } : null, away: tofA ? { last5: tofA.last5, last10: tofA.last10 } : null } : null;
+  const odH = elig(features.opponentDefense?.home), odA = elig(features.opponentDefense?.away);
+  const od = (odH || odA) ? { home: odH ? { fielding: odH.fielding } : null, away: odA ? { fielding: odA.fielding } : null } : null;
+  const trPick = (r) => r ? { daysRest: r.daysRest, gamesLast7: r.gamesLast7, gamesLast10: r.gamesLast10, travelDistanceKm: r.travelDistanceKm } : null;
+  const trH = elig(features.travelRest?.home), trA = elig(features.travelRest?.away);
+  const tr = (trH || trA) ? { home: trPick(trH), away: trPick(trA) } : null;
   // batter families are per-player — attached only for the batter this observation is about (matching playerId).
   const bsp = elig(features.splits) && features.splits.playerId === row.playerId ? { season: features.splits.seasonSplits, previousSeason: features.splits.previousSeason } : null;
   const bfm = elig(features.form) && features.form.playerId === row.playerId ? { last7: features.form.last7, last30: features.form.last30 } : null;
   const bvp = elig(features.vsPitcher) && features.vsPitcher.playerId === row.playerId ? { opposingStarter: features.vsPitcher.opposingStarter, headToHead: features.vsPitcher.headToHead, sufficientSample: features.vsPitcher.sufficientSample } : null;
   const pao = elig(features.paOpp) && features.paOpp.playerId === row.playerId ? { battingOrderSlot: features.paOpp.battingOrderSlot, projectedPA: features.paOpp.projectedPA, historicalPaPerGame: features.paOpp.historicalPaPerGame } : null;
-  const allFams = { pitcher_workload: wl, confirmed_lineup: lu, bullpen_availability: bp, batter_matchup: mu, park_factors: pk, team_offensive_form: tof, batter_splits: bsp, batter_form: bfm, batter_vs_pitcher: bvp, plate_appearance_opportunity: pao };
+  const allFams = { pitcher_workload: wl, confirmed_lineup: lu, bullpen_availability: bp, batter_matchup: mu, park_factors: pk, team_offensive_form: tof, opponent_defense: od, travel_rest: tr, batter_splits: bsp, batter_form: bfm, batter_vs_pitcher: bvp, plate_appearance_opportunity: pao };
   const missingFamilies = Object.keys(allFams).filter((f) => allFams[f] == null);
   // deterministic per-observation feature coverage (drives future confidence; safe to compute now)
-  const featureCoverage = { pitcherStatus: pf.eligibleFamilies.includes("pitcher_status"), pitcherWorkload: !!wl, lineup: !!lu, bullpen: !!bp, matchup: !!mu, teamOffensiveForm: !!tof, batterSplits: !!bsp, batterForm: !!bfm, batterVsPitcher: !!bvp, paOpportunity: !!pao, park: !!pk, environment: pf.eligibleFamilies.includes("environment"), market: isNum(row.noVigProbability) };
+  const featureCoverage = { pitcherStatus: pf.eligibleFamilies.includes("pitcher_status"), pitcherWorkload: !!wl, lineup: !!lu, bullpen: !!bp, matchup: !!mu, teamOffensiveForm: !!tof, opponentDefense: !!od, travelRest: !!tr, batterSplits: !!bsp, batterForm: !!bfm, batterVsPitcher: !!bvp, paOpportunity: !!pao, park: !!pk, environment: pf.eligibleFamilies.includes("environment"), market: isNum(row.noVigProbability) };
   const coverageScore = +(Object.values(featureCoverage).filter(Boolean).length / Object.keys(featureCoverage).length).toFixed(3);
   return {
     schemaVersion: SCHEMA_VERSION, public: false, approvedForProduction: false, productEligible: false,
@@ -122,7 +126,7 @@ function buildObservation(date, join, freeze, row, pf, features = {}) {
       eligibleFamilies: pf.eligibleFamilies.concat(Object.keys(allFams).filter((f) => allFams[f] != null)), missingFamilies,
       hasDeVigMarketProbability: isNum(row.noVigProbability),
       hasPitcherContext: pf.eligibleFamilies.includes("pitcher_status"), hasEnvironmentContext: pf.eligibleFamilies.includes("environment"),
-      hasPitcherWorkload: !!wl, hasLineup: !!lu, hasBullpen: !!bp, hasMatchup: !!mu, hasParkFactors: !!pk, hasTeamOffensiveForm: !!tof, hasBatterSplits: !!bsp, hasBatterForm: !!bfm, hasBatterVsPitcher: !!bvp, hasPaOpportunity: !!pao,
+      hasPitcherWorkload: !!wl, hasLineup: !!lu, hasBullpen: !!bp, hasMatchup: !!mu, hasParkFactors: !!pk, hasTeamOffensiveForm: !!tof, hasOpponentDefense: !!od, hasTravelRest: !!tr, hasBatterSplits: !!bsp, hasBatterForm: !!bfm, hasBatterVsPitcher: !!bvp, hasPaOpportunity: !!pao,
     },
     featureCoverage, coverageScore, missingFeatureList: missingFamilies, captureTimestamp: join.createdAt ?? null,
     actual_outcome: { actual: isNum(row.actual) ? row.actual : null, source: "MLB Stats API (official)", finalStatus: join.gameFinalStatus?.detailedState ?? null, teamOutcome: isTeam ? { homeRuns: join.teamOutcome?.homeRuns ?? null, awayRuns: join.teamOutcome?.awayRuns ?? null } : undefined },
@@ -166,7 +170,9 @@ function main() {
         matchup: readJson(path.join(feat, "matchup", date, `${join.gamePk}.json`)),
         lineup: latestEligibleLineup(feat, date, join.gamePk),
         park: readJson(path.join(feat, "park-factors", date, `${join.gamePk}.json`)),
-        teamOffensiveForm: loadTeamOffensiveForm(feat, date, join.gamePk),
+        teamOffensiveForm: loadPerTeamSide(feat, "team-offensive-form", date, join.gamePk),
+        opponentDefense: loadPerTeamSide(feat, "opponent-defense", date, join.gamePk),
+        travelRest: loadPerTeamSide(feat, "travel-rest", date, join.gamePk),
       };
       for (const row of join.marketRows || []) {
         if (!SETTLED.has(row.settlementStatus)) continue; // only settled leans become observations; pending never

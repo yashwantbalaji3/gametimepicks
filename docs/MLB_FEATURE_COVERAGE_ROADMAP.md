@@ -33,9 +33,9 @@ Assessed for feasibility from **free StatsAPI** vs needing paid/external (Statca
 | # | Candidate | Verdict | Notes / endpoint |
 |---|---|---|---|
 | 1 | **Team offensive form** | ✅ **IMPLEMENTED** | `capture-mlb-pregame-team-offensive-form.mjs` — last 5/10 games (runs/hits/HR/TB/BB/SO/AB/PA + derived OBP/SLG/OPS proxies), strictly-earlier, leakage-safe, workflow-wired. `/teams/{id}/stats?stats=gameLog&group=hitting`. Family `team_offensive_form`. |
-| 2 | **Opponent defensive context** | ✅ FEASIBLE-FREE (next) | team fielding metrics — `/teams/{id}/stats?stats=season&group=fielding` |
-| 3 | **Travel / rest** | ✅ FEASIBLE-FREE (next) | days rest from `/schedule` prior-game dates; travel distance from venue coords already hydrated in `park_factors` |
-| 4 | **Bullpen leverage (roles)** | ◐ PARTIAL-FREE | closer/setup role tags derivable free (`/teams/{id}/roster` + `feed/live`); true leverage index (gmLI) is external/FanGraphs — capture roles only, label the rest as a gap |
+| 2 | **Opponent defensive context** | ✅ **IMPLEMENTED** | `capture-mlb-pregame-opponent-defense.mjs` — team season fielding (errors/fielding%/DP/range/SB-suppression). Family `opponent_defense`; multi-cadence, wired to assembler+contract+workflow. Dry-run 10/10 eligible. |
+| 3 | **Travel / rest** | ✅ **IMPLEMENTED** | `capture-mlb-pregame-travel-rest.mjs` — daysRest, gamesLast7/10, travelDistanceKm (haversine on venue coords; `null` when coords absent, never fabricated). Family `travel_rest`; fully wired. Dry-run 10/10 eligible. |
+| 4 | **Bullpen roles** | ✅ **ALREADY COVERED** | the existing `bullpen` family (`capture-mlb-pregame-bullpen.mjs`) captures reliever appearances, pitches, outs/innings (last 1/3 days) + a derived `likelyUnavailable` research flag — no new family needed (would duplicate). |
 | 5 | **Weather enhancement** | ◐ PARTIAL | `environment` already has condition/temp/wind free; richer precip%/gusts/humidity forecast needs a paid weather API — document as a gap, do not fabricate |
 | 6 | **Pitcher arsenal (pitch mix)** | ⛔ NEEDS-PAID | aggregated usage/velo is Statcast/Baseball Savant — out of scope until a data source is licensed |
 | 7 | **Pitch-type matchup** | ⛔ NEEDS-PAID | batter-vs-pitch-type is pitch-level Statcast only |
