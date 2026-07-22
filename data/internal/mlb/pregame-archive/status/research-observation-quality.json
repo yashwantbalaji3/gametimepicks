@@ -1,0 +1,35 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "kind": "mlb-research-observation-quality",
+  "lastUpdated": "2026-07-22T21:27:03.967Z",
+  "status": "PASS",
+  "totalObservations": 565,
+  "dates": 1,
+  "byDate": {
+    "2026-07-22": 565
+  },
+  "hardViolations": {
+    "duplicateIds": 0,
+    "notSettled": 0,
+    "missingOutcome": 0,
+    "futureTimestamp": 0,
+    "leakage": 0,
+    "impossibleStat": 0
+  },
+  "warnings": {
+    "missingMarketProbability": 112,
+    "marketProbabilityCoveragePct": 80.2
+  },
+  "averageCoverageScore": 0.795,
+  "samples": {
+    "duplicateIds": [],
+    "notSettled": [],
+    "missingOutcome": [],
+    "futureTimestamp": [],
+    "leakage": [],
+    "impossibleStat": []
+  },
+  "note": "Hard checks (duplicate IDs, pending/missing outcomes, future timestamps, pregame leakage, impossible stats) must all be 0 to PASS. Missing de-vig market probability is a COVERAGE warning, not a block (honest null; those rows are excluded from market-baseline benchmarking). PASS does NOT imply model-readiness — the 30-date/500-observation gate + founder approval still govern modeling."
+}

@@ -86,3 +86,7 @@ tmp/
 # Keep only manifest.json in-repo (small, durable provenance + hashes + counts); ignore raw + normalized.
 data/internal/mlb/pregame-archive/market-snapshots/**/raw.json
 data/internal/mlb/pregame-archive/market-snapshots/**/normalized.json
+# ResearchObservations are a DERIVED materialized view (multi-MB/day), deterministically regenerable from the
+# committed settlement-joins (which embed the settled marketRows + noVig probabilities). Persist via workflow
+# ARTIFACTS + committed STATUS summaries (research-progress / research-observation-quality / benchmark), not the raw jsonl.
+data/internal/mlb/pregame-archive/research-observations/*.jsonl

@@ -135,6 +135,9 @@ jobs:
         # Data assembly only — materializes settled, pregame-eligible leans into training-ready observations.
         # Emits 0 rows until a market-capture date is final. Never trains a model or emits a prediction.
         run: node app/scripts/build-mlb-research-observations.mjs --lookback 3 --write
+      - name: Research observation quality gate (dedup / pending / missing outcome / future ts / leakage / impossible stats — PASS or BLOCKED)
+        continue-on-error: true
+        run: node app/scripts/research-observation-quality.mjs
       - name: Research warehouse — data-quality monitor (duplicates / leakage / impossible stats / stale odds)
         continue-on-error: true
         run: node app/scripts/monitor-mlb-research-quality.mjs

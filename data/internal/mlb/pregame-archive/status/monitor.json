@@ -62,18 +62,31 @@
       "2026-07-21",
       "2026-07-22"
     ],
-    "gamesFinal": 15,
-    "gamesPending": 17,
+    "gamesFinal": 18,
+    "gamesPending": 14,
     "joinRows": 2501,
-    "settledEligibleRows": 0,
-    "marketPendingRows": 2501,
+    "settledEligibleRows": 561,
+    "marketPendingRows": 1927,
     "ambiguousRows": 0,
     "unsupportedRows": 0,
-    "joinCoverageByMarket": {},
+    "joinCoverageByMarket": {
+      "h2h": 4,
+      "spreads": 4,
+      "totals": 8,
+      "pitcher_outs": 27,
+      "pitcher_strikeouts": 10,
+      "batter_hits": 82,
+      "batter_hits_runs_rbis": 80,
+      "batter_rbis": 74,
+      "batter_runs_scored": 74,
+      "batter_total_bases": 99,
+      "pitcher_earned_runs": 8,
+      "batter_home_runs": 91
+    },
     "earliestValidResearchDate": {
       "dateGate": "2/30 distinct dates · ~28 more daily runs",
-      "settledEligibleGate": "0/500 · INDETERMINATE — 0 settled-eligible rows so far (markets must be captured pregame AND the games final); the daily settled rate is not yet measurable",
-      "bindingConstraint": "settled-eligible rows (no market-capture date has final games yet)",
+      "settledEligibleGate": "561/500 · ~0 market-settled days at the observed 561 settled-eligible rows/day",
+      "bindingConstraint": "whichever of dates / settled-eligible clears last",
       "note": "Not a promise — recomputed each run from observed collection. First settled-eligible rows accrue when the earliest market-capture date's games are final and re-joined."
     }
   },
@@ -81,7 +94,7 @@
     "minDistinctDates": 30,
     "minSettledEligibleObs": 500,
     "dates": "2/30",
-    "settledEligible": "0/500",
+    "settledEligible": "561/500",
     "met": false
   }
 }

@@ -65,6 +65,18 @@ function latestEligibleLineup(featDir, date, gamePk) {
   return null;
 }
 
+// per-game TEAM offensive form: 2 records (home/away) keyed by side. Attached to every observation of the game.
+function loadTeamOffensiveForm(featDir, date, gamePk) {
+  const dir = path.join(featDir, "team-offensive-form", date);
+  if (!fs.existsSync(dir)) return null;
+  const out = {};
+  for (const f of fs.readdirSync(dir).filter((x) => x.startsWith(`${gamePk}-`) && x.endsWith(".json"))) {
+    const r = readJson(path.join(dir, f));
+    if (r?.side) out[r.side] = r;
+  }
+  return Object.keys(out).length ? out : null;
+}
+
 function buildObservation(date, join, freeze, row, pf, features = {}) {
   const isTeam = ["h2h", "spreads", "totals"].includes(row.market);
   // ADDITIVE leakage-safe families — attached ONLY when their record exists AND is researchEligible.
@@ -74,15 +86,17 @@ function buildObservation(date, join, freeze, row, pf, features = {}) {
   const bp = elig(features.bullpen) ? { home: features.bullpen.home, away: features.bullpen.away } : null;
   const mu = elig(features.matchup) ? { homeStartingPitcher: features.matchup.homeStartingPitcher, awayStartingPitcher: features.matchup.awayStartingPitcher, homeBatters: features.matchup.homeBatters, awayBatters: features.matchup.awayBatters } : null;
   const pk = elig(features.park) ? { venue: features.park.venue, factors: features.park.factors } : null;
+  const tofH = elig(features.teamOffensiveForm?.home), tofA = elig(features.teamOffensiveForm?.away);
+  const tof = (tofH || tofA) ? { home: tofH ? { last5: tofH.last5, last10: tofH.last10 } : null, away: tofA ? { last5: tofA.last5, last10: tofA.last10 } : null } : null;
   // batter families are per-player — attached only for the batter this observation is about (matching playerId).
   const bsp = elig(features.splits) && features.splits.playerId === row.playerId ? { season: features.splits.seasonSplits, previousSeason: features.splits.previousSeason } : null;
   const bfm = elig(features.form) && features.form.playerId === row.playerId ? { last7: features.form.last7, last30: features.form.last30 } : null;
   const bvp = elig(features.vsPitcher) && features.vsPitcher.playerId === row.playerId ? { opposingStarter: features.vsPitcher.opposingStarter, headToHead: features.vsPitcher.headToHead, sufficientSample: features.vsPitcher.sufficientSample } : null;
   const pao = elig(features.paOpp) && features.paOpp.playerId === row.playerId ? { battingOrderSlot: features.paOpp.battingOrderSlot, projectedPA: features.paOpp.projectedPA, historicalPaPerGame: features.paOpp.historicalPaPerGame } : null;
-  const allFams = { pitcher_workload: wl, confirmed_lineup: lu, bullpen_availability: bp, batter_matchup: mu, park_factors: pk, batter_splits: bsp, batter_form: bfm, batter_vs_pitcher: bvp, plate_appearance_opportunity: pao };
+  const allFams = { pitcher_workload: wl, confirmed_lineup: lu, bullpen_availability: bp, batter_matchup: mu, park_factors: pk, team_offensive_form: tof, batter_splits: bsp, batter_form: bfm, batter_vs_pitcher: bvp, plate_appearance_opportunity: pao };
   const missingFamilies = Object.keys(allFams).filter((f) => allFams[f] == null);
   // deterministic per-observation feature coverage (drives future confidence; safe to compute now)
-  const featureCoverage = { pitcherStatus: pf.eligibleFamilies.includes("pitcher_status"), pitcherWorkload: !!wl, lineup: !!lu, bullpen: !!bp, matchup: !!mu, batterSplits: !!bsp, batterForm: !!bfm, batterVsPitcher: !!bvp, paOpportunity: !!pao, park: !!pk, environment: pf.eligibleFamilies.includes("environment"), market: isNum(row.noVigProbability) };
+  const featureCoverage = { pitcherStatus: pf.eligibleFamilies.includes("pitcher_status"), pitcherWorkload: !!wl, lineup: !!lu, bullpen: !!bp, matchup: !!mu, teamOffensiveForm: !!tof, batterSplits: !!bsp, batterForm: !!bfm, batterVsPitcher: !!bvp, paOpportunity: !!pao, park: !!pk, environment: pf.eligibleFamilies.includes("environment"), market: isNum(row.noVigProbability) };
   const coverageScore = +(Object.values(featureCoverage).filter(Boolean).length / Object.keys(featureCoverage).length).toFixed(3);
   return {
     schemaVersion: SCHEMA_VERSION, public: false, approvedForProduction: false, productEligible: false,
@@ -96,7 +110,7 @@ function buildObservation(date, join, freeze, row, pf, features = {}) {
       eligibleFamilies: pf.eligibleFamilies.concat(Object.keys(allFams).filter((f) => allFams[f] != null)), missingFamilies,
       hasDeVigMarketProbability: isNum(row.noVigProbability),
       hasPitcherContext: pf.eligibleFamilies.includes("pitcher_status"), hasEnvironmentContext: pf.eligibleFamilies.includes("environment"),
-      hasPitcherWorkload: !!wl, hasLineup: !!lu, hasBullpen: !!bp, hasMatchup: !!mu, hasParkFactors: !!pk, hasBatterSplits: !!bsp, hasBatterForm: !!bfm, hasBatterVsPitcher: !!bvp, hasPaOpportunity: !!pao,
+      hasPitcherWorkload: !!wl, hasLineup: !!lu, hasBullpen: !!bp, hasMatchup: !!mu, hasParkFactors: !!pk, hasTeamOffensiveForm: !!tof, hasBatterSplits: !!bsp, hasBatterForm: !!bfm, hasBatterVsPitcher: !!bvp, hasPaOpportunity: !!pao,
     },
     featureCoverage, coverageScore, missingFeatureList: missingFamilies, captureTimestamp: join.createdAt ?? null,
     actual_outcome: { actual: isNum(row.actual) ? row.actual : null, source: "MLB Stats API (official)", finalStatus: join.gameFinalStatus?.detailedState ?? null, teamOutcome: isTeam ? { homeRuns: join.teamOutcome?.homeRuns ?? null, awayRuns: join.teamOutcome?.awayRuns ?? null } : undefined },
@@ -140,6 +154,7 @@ function main() {
         matchup: readJson(path.join(feat, "matchup", date, `${join.gamePk}.json`)),
         lineup: latestEligibleLineup(feat, date, join.gamePk),
         park: readJson(path.join(feat, "park-factors", date, `${join.gamePk}.json`)),
+        teamOffensiveForm: loadTeamOffensiveForm(feat, date, join.gamePk),
       };
       for (const row of join.marketRows || []) {
         if (!SETTLED.has(row.settlementStatus)) continue; // only settled leans become observations; pending never

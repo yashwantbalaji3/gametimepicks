@@ -93,30 +93,45 @@
       "2026-07-21",
       "2026-07-22"
     ],
-    "settledEligibleDates": [],
-    "gamesFinal": 15,
-    "gamesPending": 17,
+    "settledEligibleDates": [
+      "2026-07-22"
+    ],
+    "gamesFinal": 18,
+    "gamesPending": 14,
     "joinRows": 2501,
-    "settledEligibleRows": 0,
-    "settledPushRows": 0,
-    "marketPendingRows": 2501,
-    "unavailableRows": 0,
+    "settledEligibleRows": 561,
+    "settledPushRows": 4,
+    "marketPendingRows": 1927,
+    "unavailableRows": 9,
     "ambiguousRows": 0,
     "unsupportedRows": 0,
     "ineligibleGradedRows": 0,
-    "distinctSettledPlayerMarkets": 0,
+    "distinctSettledPlayerMarkets": 447,
     "joinCoverageByFamily": {
-      "pitcher_status": 30,
-      "environment": 15,
-      "umpire": 5,
-      "confirmed_lineup": 2
+      "pitcher_status": 36,
+      "environment": 18,
+      "umpire": 8,
+      "confirmed_lineup": 5
     },
-    "joinCoverageByMarket": {},
-    "progressTo500": "0/500",
+    "joinCoverageByMarket": {
+      "h2h": 4,
+      "spreads": 4,
+      "totals": 8,
+      "pitcher_outs": 27,
+      "pitcher_strikeouts": 10,
+      "batter_hits": 82,
+      "batter_hits_runs_rbis": 80,
+      "batter_rbis": 74,
+      "batter_runs_scored": 74,
+      "batter_total_bases": 99,
+      "pitcher_earned_runs": 8,
+      "batter_home_runs": 91
+    },
+    "progressTo500": "561/500",
     "earliestValidResearchDate": {
       "dateGate": "2/30 distinct dates · ~28 more daily runs",
-      "settledEligibleGate": "0/500 · INDETERMINATE — 0 settled-eligible rows so far (markets must be captured pregame AND the games final); the daily settled rate is not yet measurable",
-      "bindingConstraint": "settled-eligible rows (no market-capture date has final games yet)",
+      "settledEligibleGate": "561/500 · ~0 market-settled days at the observed 561 settled-eligible rows/day",
+      "bindingConstraint": "whichever of dates / settled-eligible clears last",
       "note": "Not a promise — recomputed each run from observed collection. First settled-eligible rows accrue when the earliest market-capture date's games are final and re-joined."
     }
   },
@@ -128,8 +143,7 @@
   },
   "gateMet": false,
   "gateBlockers": [
-    "dates 2/30",
-    "settled-eligible 0/500"
+    "dates 2/30"
   ],
   "note": "settledEligibleObs is now populated by the settlement-join pipeline (join-mlb-pregame-settlements.mjs). Only pregame-researchEligible market leans with a DECISIVE official outcome (win|loss) count toward the 500-row gate; pushes/pending/ambiguous/unsupported/ineligible + contextual research rows never do. No modeling; official box scores only."
 }

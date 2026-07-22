@@ -114,9 +114,27 @@ function main() {
     note: perDate[latestDate].final === 0 ? "games not final yet — captured leans stay pending until finalization" : (perDate[latestDate].marketLeans === 0 ? "final but no market leans captured (market capture did not run this date)" : "final + market-covered — observations should be produced"),
   } : null;
 
+  // datasetHealth (Phase 5) — "is this dataset ready for research?" Sourced from the observation quality gate.
+  const q = readJson(path.join(STATUS, "research-observation-quality.json"));
+  const invalidObservations = q ? Object.values(q.hardViolations || {}).reduce((a, b) => a + b, 0) : null;
+  const datasetHealth = {
+    totalObservations: q?.totalObservations ?? observations,
+    validObservations: q ? (q.totalObservations - invalidObservations) : null,
+    invalidObservations,
+    qualityStatus: q?.status ?? "NOT_RUN",
+    averageFeatureCoverage: q?.averageCoverageScore ?? null,
+    marketProbabilityCoveragePct: q?.warnings?.marketProbabilityCoveragePct ?? null,
+    marketsCovered: Object.keys({ ...marketDistribution, ...propDistribution }).length,
+    datesCovered: obsDates.size,               // dates that actually produced settled observations
+    latestSettlementDate: lastSuccessfulObservation,
+    readyForResearch: false,                    // ALWAYS false until the gate passes + founder approval
+    readyReason: "modeling BLOCKED: needs 30 distinct observation dates AND 500 settled observations AND out-of-sample validation AND founder approval",
+  };
+
   const report = {
     public: false, approvedForProduction: false, productEligible: false, kind: "mlb-research-progress",
     lastUpdated: new Date().toISOString(),
+    datasetHealth,
     datesCollected: featureDates.size,
     gamesObserved,
     observations,

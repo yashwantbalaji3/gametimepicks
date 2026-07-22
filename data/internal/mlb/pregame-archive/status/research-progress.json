@@ -3,12 +3,25 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-research-progress",
-  "lastUpdated": "2026-07-22T20:08:13.960Z",
+  "lastUpdated": "2026-07-22T21:27:04.059Z",
+  "datasetHealth": {
+    "totalObservations": 565,
+    "validObservations": 565,
+    "invalidObservations": 0,
+    "qualityStatus": "PASS",
+    "averageFeatureCoverage": 0.795,
+    "marketProbabilityCoveragePct": 80.2,
+    "marketsCovered": 12,
+    "datesCovered": 1,
+    "latestSettlementDate": "2026-07-22",
+    "readyForResearch": false,
+    "readyReason": "modeling BLOCKED: needs 30 distinct observation dates AND 500 settled observations AND out-of-sample validation AND founder approval"
+  },
   "datesCollected": 1,
   "gamesObserved": 170,
-  "observations": 0,
-  "observationDates": 0,
-  "lastSuccessfulObservation": null,
+  "observations": 565,
+  "observationDates": 1,
+  "lastSuccessfulObservation": "2026-07-22",
   "capturedMarketLeans": 2501,
   "teamMarketLeans": 172,
   "playerPropLeans": 2329,
@@ -29,12 +42,16 @@
     "batter_home_runs": 445
   },
   "settlementStatuses": {
-    "pending": 2501
+    "pending": 1927,
+    "win": 232,
+    "loss": 329,
+    "push": 4,
+    "unavailable": 9
   },
   "settledOutcomes": {
-    "win": 0,
-    "loss": 0,
-    "push": 0
+    "win": 232,
+    "loss": 329,
+    "push": 4
   },
   "markets": {
     "h2h": 0,
@@ -72,7 +89,7 @@
   "settlement": {
     "joinDates": 2,
     "joinedGames": 32,
-    "finalGames": 15,
+    "finalGames": 18,
     "perDate": {
       "2026-07-21": {
         "games": 15,
@@ -83,20 +100,20 @@
       },
       "2026-07-22": {
         "games": 17,
-        "final": 1,
+        "final": 4,
         "marketLeans": 2501,
-        "settledEligible": 0,
-        "pending": 2501
+        "settledEligible": 561,
+        "pending": 1927
       }
     }
   },
   "dailyHealth": {
     "date": "2026-07-22",
     "capturedGames": 17,
-    "finalGames": 1,
+    "finalGames": 4,
     "marketLeansCaptured": 2501,
-    "settledEligible": 0,
-    "observationsCreated": 0,
+    "settledEligible": 561,
+    "observationsCreated": 565,
     "hasFreeze": true,
     "hasMarketSnapshots": true,
     "note": "final + market-covered — observations should be produced"
@@ -105,9 +122,9 @@
     "datesTarget": 30,
     "observationsTarget": 500,
     "datesCollected": 2,
-    "observations": 0,
+    "observations": 561,
     "datesRemaining": 28,
-    "observationsRemaining": 500,
+    "observationsRemaining": 0,
     "met": false,
     "modelingStatus": "BLOCKED"
   },
