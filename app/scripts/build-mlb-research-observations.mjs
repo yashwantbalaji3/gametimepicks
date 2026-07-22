@@ -77,7 +77,7 @@ export function latestEligibleWorkload(featDir, date, gamePk) {
 
 // Generic per-team-side family loader: 2 records (home/away) keyed by side, multi-cadence (<gamePk>-<teamId>-<ts>.json)
 // + legacy (<gamePk>-<teamId>.json). Sorted ascending so a later read wins ⇒ FRESHEST record per side; eligible-only.
-function loadPerTeamSide(featDir, famDir, date, gamePk) {
+export function loadPerTeamSide(featDir, famDir, date, gamePk) {
   const dir = path.join(featDir, famDir, date);
   if (!fs.existsSync(dir)) return null;
   const out = {};

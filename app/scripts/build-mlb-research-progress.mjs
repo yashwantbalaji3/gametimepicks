@@ -131,20 +131,33 @@ function main() {
     readyReason: "modeling BLOCKED: needs 30 distinct observation dates AND 500 settled observations AND out-of-sample validation AND founder approval",
   };
 
-  // datasetReadiness (Phase 4) — progress toward the 30-DATE / 500-observation dataset gate (NOT model readiness).
+  // datasetReadiness (Phase 4/7) — progress toward the 30-DATE / 500-observation dataset gate (NOT model readiness).
+  // A QUALIFYING date = ≥1 official-final game AND eligible market rows AND ≥1 observation (from market-capture-reliability).
   const REQUIRED_DATES = 30, REQUIRED_OBS = 500;
-  const currentDates = obsDates.size;              // distinct dates that produced settled observations
-  const remainingDates = Math.max(0, REQUIRED_DATES - currentDates);
-  // simple projection: ~1 qualifying (final + market-covered) date per day → remainingDates days out. Not a model.
-  const estCompletion = (() => { const t = new Date(); t.setUTCDate(t.getUTCDate() + remainingDates); return remainingDates === 0 ? "met" : t.toISOString().slice(0, 10); })();
+  const rel = readJson(path.join(STATUS, "market-capture-reliability.json"));
+  const qualifyingObservationDates = rel ? (rel.qualifyingDates ?? obsDates.size) : obsDates.size;
+  // consecutive trailing HEALTHY (qualifying) capture dates — the accumulation streak
+  const consecutiveHealthyCaptureDates = (() => {
+    const pd = (rel?.perDate || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+    let n = 0; for (let i = pd.length - 1; i >= 0; i--) { if (pd[i].qualifying) n++; else break; } return n;
+  })();
+  const remainingObservationDates = Math.max(0, REQUIRED_DATES - qualifyingObservationDates);
+  const observationTargetMet = observations >= REQUIRED_OBS;
+  const dateTargetMet = qualifyingObservationDates >= REQUIRED_DATES;
+  // estimatedCompletion is only trustworthy with real accumulation history — never imply model readiness from it.
+  const estimatedCompletion = qualifyingObservationDates < 5 ? { status: "TOO_EARLY", date: null, note: "fewer than 5 qualifying dates — no reliable projection" }
+    : qualifyingObservationDates < 10 ? { status: "PROVISIONAL", date: null, note: "5–9 qualifying dates — projection not yet reliable" }
+    : (() => { const t = new Date(); t.setUTCDate(t.getUTCDate() + remainingObservationDates); return { status: "PROJECTED", date: remainingObservationDates === 0 ? "met" : t.toISOString().slice(0, 10), note: "based on ~1 qualifying date/day accumulation cadence; NOT a model-readiness date" }; })();
   const datasetReadiness = {
-    currentDates, requiredDates: REQUIRED_DATES, remainingDates,
+    qualifyingObservationDates, requiredObservationDates: REQUIRED_DATES, remainingObservationDates,
     observations, remainingObservations: Math.max(0, REQUIRED_OBS - observations),
-    dailyObservationRate: currentDates > 0 ? Math.round(observations / currentDates) : null, // avg settled obs per qualifying date
-    estimatedCompletion: estCompletion,
-    latestValidDate: lastSuccessfulObservation,
-    bindingConstraint: remainingDates > 0 ? "dates" : (observations < REQUIRED_OBS ? "observations" : "met — awaiting founder approval + out-of-sample validation"),
-    note: "Dataset readiness only. estimatedCompletion assumes ~1 qualifying date/day and is NOT a model-readiness estimate; modeling stays BLOCKED past the gate until out-of-sample validation + founder approval.",
+    observationTargetMet, dateTargetMet,
+    dailyObservationRate: qualifyingObservationDates > 0 ? Math.round(observations / qualifyingObservationDates) : null,
+    latestQualifyingDate: lastSuccessfulObservation,
+    consecutiveHealthyCaptureDates,
+    estimatedCompletion,
+    bindingConstraint: !dateTargetMet ? "dates" : (!observationTargetMet ? "observations" : "met — awaiting founder approval + out-of-sample validation"),
+    note: "Dataset readiness only — NOT model readiness. Modeling stays BLOCKED past the gate until out-of-sample validation + founder approval. A projected completion date never implies a model exists.",
   };
 
   const report = {

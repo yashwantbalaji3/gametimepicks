@@ -3,7 +3,7 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-research-progress",
-  "lastUpdated": "2026-07-22T22:35:44.222Z",
+  "lastUpdated": "2026-07-22T22:40:04.970Z",
   "datasetHealth": {
     "totalObservations": 827,
     "validObservations": 827,
@@ -18,16 +18,23 @@
     "readyReason": "modeling BLOCKED: needs 30 distinct observation dates AND 500 settled observations AND out-of-sample validation AND founder approval"
   },
   "datasetReadiness": {
-    "currentDates": 1,
-    "requiredDates": 30,
-    "remainingDates": 29,
+    "qualifyingObservationDates": 1,
+    "requiredObservationDates": 30,
+    "remainingObservationDates": 29,
     "observations": 827,
     "remainingObservations": 0,
+    "observationTargetMet": true,
+    "dateTargetMet": false,
     "dailyObservationRate": 827,
-    "estimatedCompletion": "2026-08-20",
-    "latestValidDate": "2026-07-22",
+    "latestQualifyingDate": "2026-07-22",
+    "consecutiveHealthyCaptureDates": 0,
+    "estimatedCompletion": {
+      "status": "TOO_EARLY",
+      "date": null,
+      "note": "fewer than 5 qualifying dates — no reliable projection"
+    },
     "bindingConstraint": "dates",
-    "note": "Dataset readiness only. estimatedCompletion assumes ~1 qualifying date/day and is NOT a model-readiness estimate; modeling stays BLOCKED past the gate until out-of-sample validation + founder approval."
+    "note": "Dataset readiness only — NOT model readiness. Modeling stays BLOCKED past the gate until out-of-sample validation + founder approval. A projected completion date never implies a model exists."
   },
   "datesCollected": 2,
   "gamesObserved": 188,

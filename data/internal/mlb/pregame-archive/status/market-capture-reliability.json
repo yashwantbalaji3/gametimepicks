@@ -3,11 +3,17 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-market-capture-reliability",
-  "lastUpdated": "2026-07-22T22:35:44.313Z",
+  "lastUpdated": "2026-07-22T22:40:05.032Z",
   "datesTracked": 3,
   "datesWithMarkets": 2,
   "datesWithFinalGames": 2,
   "datesProducingObservations": 1,
+  "qualifyingDates": 1,
+  "alertsByDate": {
+    "2026-07-21": "LOST_RESEARCH_DATE",
+    "2026-07-22": "PARTIAL_COVERAGE",
+    "2026-07-24": "AWAITING_SETTLEMENT"
+  },
   "lostResearchOpportunities": 1,
   "cadenceGapDays": 0,
   "dailyResearchHealthScore": 1,
@@ -27,6 +33,8 @@
       "hasMarkets": false,
       "lostOpportunity": true,
       "healthScore": 0.2,
+      "qualifying": false,
+      "alert": "LOST_RESEARCH_DATE",
       "reason": "LOST: final games but no pregame market capture (enable/verify market capture)"
     },
     {
@@ -43,6 +51,8 @@
       "hasMarkets": true,
       "lostOpportunity": false,
       "healthScore": 1,
+      "qualifying": true,
+      "alert": "PARTIAL_COVERAGE",
       "reason": "contributed observations"
     },
     {
@@ -59,6 +69,8 @@
       "hasMarkets": true,
       "lostOpportunity": false,
       "healthScore": 1,
+      "qualifying": false,
+      "alert": "AWAITING_SETTLEMENT",
       "reason": "not yet final — pending"
     }
   ],

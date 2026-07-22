@@ -55,9 +55,16 @@ function main() {
     const cObs = pending ? null : (observations > 0 ? 1 : 0);
     const cCadence = cadenceGap === true ? 0 : 1;
     const healthScore = pending ? +(0.4 * cMarkets + 0.2 * cCadence + 0.4).toFixed(3) /* obs N/A → not penalized while pending */ : +(0.4 * cMarkets + 0.4 * cObs + 0.2 * cCadence).toFixed(3);
+    // qualifying date (for the 30-date gate) = ≥1 official-final game AND eligible market rows AND ≥1 observation.
+    const qualifying = finalGames > 0 && marketRows > 0 && observations > 0;
+    const alert =
+      finalGames === 0 ? "AWAITING_SETTLEMENT"
+      : observations === 0 ? "LOST_RESEARCH_DATE"
+      : (finalGames < games || !hasMarkets) ? "PARTIAL_COVERAGE"
+      : "HEALTHY";
     perDate.push({
       date: d, games, finalGames, marketSnapshots, marketRows, settledEligibleRows: settledEligible, observationsCreated: observations,
-      earliestFirstPitch: earliestStart, earliestCapture, cadenceGap, hasMarkets, lostOpportunity, healthScore,
+      earliestFirstPitch: earliestStart, earliestCapture, cadenceGap, hasMarkets, lostOpportunity, healthScore, qualifying, alert,
       reason: lostOpportunity ? (!hasMarkets ? "LOST: final games but no pregame market capture (enable/verify market capture)" : "LOST: final games + markets but 0 observations (captures landed after first pitch — cadence gap)")
         : finalGames === 0 ? "not yet final — pending" : "contributed observations",
     });
@@ -73,6 +80,8 @@ function main() {
     datesWithMarkets: perDate.filter((x) => x.hasMarkets).length,
     datesWithFinalGames: perDate.filter((x) => x.finalGames > 0).length,
     datesProducingObservations: perDate.filter((x) => x.observationsCreated > 0).length,
+    qualifyingDates: perDate.filter((x) => x.qualifying).length,
+    alertsByDate: Object.fromEntries(perDate.map((x) => [x.date, x.alert])),
     lostResearchOpportunities: lostDays.length,
     cadenceGapDays: perDate.filter((x) => x.cadenceGap === true).length,
     dailyResearchHealthScore, averageHealthScore,

@@ -46,7 +46,7 @@ test("5 · accumulation reliability monitor + 30-date readiness dashboard exist 
   const wf = fs.readFileSync(path.join(repo, ".github/workflows/mlb-pregame-capture.yml"), "utf8");
   assert.match(wf, /market-capture-reliability\.mjs/, "reliability monitor wired into the research workflow");
   const rp = readJson(path.join(repo, "data/internal/mlb/pregame-archive/status/research-progress.json"));
-  if (rp) { assert.ok(rp.datasetReadiness, "research-progress carries datasetReadiness"); assert.equal(rp.datasetReadiness.requiredDates, 30); }
+  if (rp) { assert.ok(rp.datasetReadiness, "research-progress carries datasetReadiness"); assert.equal(rp.datasetReadiness.requiredObservationDates, 30); }
   const rel = readJson(path.join(repo, "data/internal/mlb/pregame-archive/status/market-capture-reliability.json"));
   if (rel) assert.ok(typeof rel.lostResearchOpportunities === "number", "reliability report counts lost opportunities");
 });
