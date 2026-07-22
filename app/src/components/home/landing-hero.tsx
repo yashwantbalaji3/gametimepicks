@@ -46,6 +46,7 @@ export default function LandingHero({ bankrollLabel, recordLabel, readyCount }: 
         }}
       >
         <div className="flex flex-wrap items-center gap-2">
+          <Chip>Public Beta · simulation-powered analytics</Chip>
           <Chip>Paper-only · Free · Educational</Chip>
           <Chip>Deterministic · same output for every user</Chip>
         </div>

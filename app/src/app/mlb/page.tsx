@@ -200,7 +200,7 @@ export default function MlbLandingPage() {
 
   const projectionsTab = (
     <div className="flex flex-col gap-4">
-      <SectionHeader eyebrow={`Projections · ${summary.leans} model views`} title="Pitcher projections" sub="Strikeout projections from MLB Stats API game logs vs the bookmaker line. Model probability, market probability, and edge on each. A bigger sample is weighted toward the season; the R5 anomaly guardrail caps extreme edges to Low." />
+      <SectionHeader eyebrow={`Projections · ${summary.leans} model views`} title="Pitcher projections" sub="Strikeout projections from MLB Stats API game logs vs the bookmaker line. Model probability, market probability, and the difference on each. A bigger sample is weighted toward the season; the R5 anomaly guardrail caps extreme differences to Low." />
       {pitcherLeans.length > 0 ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -216,7 +216,7 @@ export default function MlbLandingPage() {
 
   const playerPropsTab = (
     <div className="flex flex-col gap-6">
-      <SectionHeader eyebrow={`Player props · ${batterLeans.length} batter views`} title="Batter player props" sub={`Hits, total bases, and hits+runs+RBIs projected from recent + season game logs vs the line. Showing the top ${PROPS_PER_MARKET} by edge per market — open the full board for all ${summary.leans} projections.`} />
+      <SectionHeader eyebrow={`Player props · ${batterLeans.length} batter views`} title="Batter player props" sub={`Hits, total bases, and hits+runs+RBIs projected from recent + season game logs vs the line. Showing the top ${PROPS_PER_MARKET} by projection difference per market — open the full board for all ${summary.leans} projections.`} />
       {batterLeans.length > 0 ? (
         <>
           {/* Same guided explorer as fixture pages: top picks default, market tabs,
@@ -232,7 +232,7 @@ export default function MlbLandingPage() {
 
   const cardsTab = (
     <div className="flex flex-col gap-4">
-      <SectionHeader eyebrow={`Suggested cards · ${mlbCards.length} live`} title="MLB suggested parlays" sub="Built by the parlay optimizer from positive-edge projections. Default paper stakes; enter any amount for the projected paper payout. Educational / paper, not betting advice." />
+      <SectionHeader eyebrow={`Suggested cards · ${mlbCards.length} live`} title="MLB suggested parlays" sub="Built by the parlay optimizer from the largest projection differences. Default paper stakes; enter any amount for the projected paper payout. Educational / paper, not betting advice." />
       {mlbCards.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {mlbCards.map((c) => <SuggestedCard key={c.id} card={c} />)}

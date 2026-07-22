@@ -117,6 +117,7 @@ export default function Footer() {
             <ul className="space-y-2 list-none p-0">
               <li><Link href="/learn" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>How It Works</Link></li>
               <li><Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Methodology</Link></li>
+              <li><Link href="/research" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Research engine</Link></li>
               <li><Link href="/responsible-use" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Responsible use</Link></li>
             </ul>
           </div>

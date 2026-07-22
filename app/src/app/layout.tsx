@@ -17,16 +17,16 @@ import SlateStatusBar from "@/components/slate-status-bar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GametimePicks — Sports Prop Analytics Lab",
+  title: "GameTimePicks — Simulation-Powered Sports Analytics (Public Beta)",
   description:
-    "An educational sports analytics project comparing model projections against market lines for NBA player props. Real player data, transparent methodology, tracked results.",
+    "Explore probabilities, 10,000-run game simulations, and market comparisons. A simulation-powered sports analytics platform — paper-only, educational, and research-backed. Public beta.",
   metadataBase: new URL("https://gametimepicks.yashwantbalaji.com"),
   openGraph: {
-    title: "GametimePicks",
+    title: "GameTimePicks — Simulation-Powered Sports Analytics",
     description:
-      "Educational sports prop analytics lab — transparent model leans on NBA player props.",
+      "10,000-run game simulations and market comparisons. Explore probabilities — paper-only, educational, public beta.",
     url: "https://gametimepicks.yashwantbalaji.com",
-    siteName: "GametimePicks",
+    siteName: "GameTimePicks",
     locale: "en_US",
     type: "website",
   },
